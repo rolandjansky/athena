@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from libTrigConfDBFrontier import Session as _Session
 from libTrigConfDBFrontier import AnyData as __AnyData
-from libTrigConfDBFrontier import *
+
+import libTrigConfDBFrontier as libF
+import sys
 
 class AnyData(__AnyData):
     def __str__(self):
@@ -17,7 +17,7 @@ class Session:
         # forward all calls to self.__session
         if name in dir(self.__session):
             return getattr(self.__session,name)
-        raise AttributeError,"Session instance does not attribute %s" % name
+        raise AttributeError("Session instance does not attribute %s" % name)
 
     def __init__(self, conn):
         self.__fieldNames = []
@@ -52,17 +52,17 @@ class Session:
 
     def printHeader(self):
         for i, (fname, ftype) in enumerate(zip(self.__fieldNames,self.__fieldTypeStr)):
-            print "%2i :  %-20s %-10s" % (i+1, fname, ftype)
+            print("%2i :  %-20s %-10s" % (i+1, fname, ftype))
 
 
     def printRecords(self):
         for i,record in enumerate(self.getRecords()):
-            print "record %4i :  %r" % (i+1, record)
+            print("record %4i :  %r" % (i+1, record))
 
 
     def printRecords2(self):
         for i,record in enumerate(self.getRecords2()):
-            print "record %4i :  %r" % (i+1, record)
+            print("record %4i :  %r" % (i+1, record))
 
 
     def getNumberOfFields(self):
@@ -102,25 +102,23 @@ class Session:
             record = tuple()
             for k in range(self.__numberOfFields):
                 self.getAnyData(ad)
-                if   ad.type()==BLOB_TYPE_INT4:        record += (ad.getInt(),)
-                elif ad.type()==BLOB_TYPE_INT8:        record += (ad.getLongLong(),)
-                elif ad.type()==BLOB_TYPE_FLOAT:       record += (ad.getFloat(),)
-                elif ad.type()==BLOB_TYPE_DOUBLE:      record += (ad.getDouble(),)
-                elif ad.type()==BLOB_TYPE_TIME:        record += (ad.getLongLong(),)
-                elif ad.type()==BLOB_TYPE_ARRAY_BYTE:
+                if   ad.type()==libF.BLOB_TYPE_INT4:        record += (ad.getInt(),)
+                elif ad.type()==libF.BLOB_TYPE_INT8:        record += (ad.getLongLong(),)
+                elif ad.type()==libF.BLOB_TYPE_FLOAT:       record += (ad.getFloat(),)
+                elif ad.type()==libF.BLOB_TYPE_DOUBLE:      record += (ad.getDouble(),)
+                elif ad.type()==libF.BLOB_TYPE_TIME:        record += (ad.getLongLong(),)
+                elif ad.type()==libF.BLOB_TYPE_ARRAY_BYTE:
                     if not ad.getRawStrP():        record += ('NULL',)
                     elif (ad.getRawStrS() == 0):   record += ('',)
-                    else:                          record += ('%s' % str_escape_quota(ad.getString()),)
+                    else:                          record += ('%s' % libF.str_escape_quota(ad.getString()),)
                 else: 
-                    print "Error: unknown typeId ", ((int)(ad.type())),"\n"
-                    exit(1);
+                    print("Error: unknown typeId %d" % ad.type())
+                    sys.exit(1)
                 ad.clean()
 
             self.__records += [record]
             ad.clean()
 
         if not self.isEOF():
-            print "Error: must be EOF here\n"
-            sys.exit(1);
-
-
+            print("Error: must be EOF here")
+            sys.exit(1)

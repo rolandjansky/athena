@@ -21,7 +21,11 @@ using xAOD::JetContainer;
 
 //**********************************************************************
 TriggerJetBuildTool::TriggerJetBuildTool(const std::string& name): 
-  AsgTool(name), m_finder("") {
+  AsgTool(name),
+  m_finder("",this), 
+  m_modifiers(this),
+  m_iParticleRejecter("",this)
+{
   declareProperty("JetFinder", m_finder);
   declareProperty("JetModifiers", m_modifiers);
   declareProperty("NoNegE", m_noNegE);
@@ -115,11 +119,9 @@ int TriggerJetBuildTool::build(fastjet::ClusterSequence*& pcs,
   
   for (const auto& mod : m_modifiers){
     ATH_MSG_DEBUG("  Executing modifier " << mod->name());
-    try{ //FIXME remove try after debugging
-      mod->modify(*pjets);
-    } catch(...) {
+
+    if(mod->modify(*pjets).isFailure())
       ATH_MSG_ERROR("Error executing jet modifier " <<mod->name());
-    }
 
     ATH_MSG_DEBUG("First jet E: " << (pjets->front())->e()
                   << "  " << (pjets->front())->eta()

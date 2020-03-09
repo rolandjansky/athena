@@ -22,7 +22,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/HypoAlgo.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 class TrigBphysHelperUtilsTool;
 

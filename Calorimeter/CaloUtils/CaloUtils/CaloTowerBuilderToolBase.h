@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOTOWERBUILDERTOOLBASE_H
@@ -24,6 +24,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
 
+#include "CxxUtils/checker_macros.h"
 class CaloTowerContainer;
 class CaloCellContainer;
 class IGeoAlignTool;
@@ -40,7 +41,7 @@ class CaloTowerBuilderToolBase: public AthAlgTool,
     virtual ~CaloTowerBuilderToolBase();
 
     /// common initialization
-    virtual StatusCode initialize() override;
+    virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 
     virtual void setTowerSeg(const CaloTowerSeg& theTowerSeg) override;
 

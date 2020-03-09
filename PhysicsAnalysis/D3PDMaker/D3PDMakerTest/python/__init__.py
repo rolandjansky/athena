@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -16,7 +16,7 @@
 #   D3PDMakerTest.FillerAlg
 #
 
-import D3PDMakerTestConf
+from . import D3PDMakerTestConf
 for k, v in D3PDMakerTestConf.__dict__.items():
     if k.startswith ('D3PDTest__'):
         globals()[k[10:]] = v

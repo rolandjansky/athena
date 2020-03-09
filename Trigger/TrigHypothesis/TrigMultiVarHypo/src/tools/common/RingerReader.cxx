@@ -209,7 +209,6 @@ bool RingerReader::retrieve( std::string &calibPath, std::vector< std::shared_pt
   }
 
   ATH_MSG_INFO( "Config file version                         : " << version );
-  ATH_MSG_INFO( "RemoveOutputTansigTF?                       : " << (m_removeOutputTansigTF?"Yes":"No") );
   ATH_MSG_INFO( "Total of discriminators retrievied is       : " << discriminators.size() );
   ATH_MSG_INFO( "UseCaloRings?                               : " << m_useCaloRings );
   ATH_MSG_INFO( "UseShowerShape?                             : " << m_useShowerShape );
@@ -306,6 +305,7 @@ bool RingerReader::retrieve( std::string &calibPath, std::vector< std::shared_pt
   ATH_MSG_INFO( "Total of cutDefs retrievied is              : " << cutDefs.size() );
   ATH_MSG_INFO( "Using pileup correction                     : " << (m_doPileupCorrection?"Yes":"No") );
   ATH_MSG_INFO( "Using lumi cut                              : " << (m_lumiCut) );
+  ATH_MSG_INFO( "RemoveOutputTansigTF?                       : " << (m_removeOutputTansigTF?"Yes":"No") );
   return true;
 }
 

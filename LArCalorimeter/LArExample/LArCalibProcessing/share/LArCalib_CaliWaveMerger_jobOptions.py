@@ -9,11 +9,11 @@
 ###########################################################################
 
 if not 'PoolFileList' in dir():
-	print "Please provide a PoolFileList!"
+	printfunc ("Please provide a PoolFileList!")
 	theApp.exit()
 	
 if not 'ContainerKeyList' in dir():
-	print "Please provide a ContainerKeyList!"
+	printfunc ("Please provide a ContainerKeyList!")
 	theApp.exit()
 
 if not 'PoolFileDir' in dir():
@@ -59,7 +59,7 @@ ToolSvc.LArRoI_Map.Print = False
 #
 ###############################################################################
 
-include("AthenaSealSvc/AthenaSealSvc_joboptions.py")
+include("AthenaServices/AthenaSealSvc_joboptions.py")
 AthenaSealSvc.CheckDictionary = True 
 
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
@@ -100,7 +100,7 @@ if ( WriteRootFile ) :
 
 if ( WritePoolFile ) :
 
-        include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+        include( "AthenaServices/AthenaSealSvc_joboptions.py" )
         AthenaSealSvc.CheckDictionary = True 
 
         include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )

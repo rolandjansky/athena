@@ -89,11 +89,14 @@ eChains   = [ 'HLT_e20' ]
 gChains   = [ 'HLT_g100', 'HLT_2g50' ]
 mueChains = [ 'HLT_mu8_e8' ]
 
+
+from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection, mapThresholdToL1RoICollection
+
 steps = [ parOR("step%i" % i) for i in range(5)]
 stepNo = 0
-steps[stepNo] += seqFilter( "Step1MU", Inputs=["L1MU"], Outputs=["step0MU"], Chains=muChains )
-steps[stepNo] += seqFilter( "Step1MU_E", Inputs=["L1MU", "L1EM"], Outputs=["step0MU","step0EM"], Chains=mueChains )
-steps[stepNo] += seqFilter( "Step1EM", Inputs=["L1EM"], Outputs=["step0EM"], Chains=(eChains + gChains)  )
+steps[stepNo] += seqFilter( "Step1MU", Inputs=[mapThresholdToL1DecisionCollection("MU")], Outputs=["step0MU"], Chains=muChains )
+steps[stepNo] += seqFilter( "Step1MU_E", Inputs=[mapThresholdToL1DecisionCollection("MU"), mapThresholdToL1DecisionCollection("EM")], Outputs=["step0MU","step0EM"], Chains=mueChains )
+steps[stepNo] += seqFilter( "Step1EM", Inputs=[mapThresholdToL1DecisionCollection("EM")], Outputs=["step0EM"], Chains=(eChains + gChains)  )
 
 emHypo = hypo("Step1ElGamHypo", Input="EMClusters", Output="EMDecisions")
 emHypoTools = [ emHTool("HLT_e2"), emHTool("HLT_e3"), emHTool("HLT_e5"),

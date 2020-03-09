@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,7 +10,7 @@
 
 This algorithm is devoted to track - PRD assocoation.
 
-This algorithm uses Trk::IPRD_AssociationTool
+This algorithm uses Trk::IPRDtoTrackMapTool
 
 
 */

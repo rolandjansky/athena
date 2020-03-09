@@ -45,6 +45,7 @@ public:
   std::string printElementId(const InDetDD::SiDetectorElement * element) const;
   void printAllElements(const bool accessDuringInitialization);
   void printRandomAccess(const bool accessDuringInitialization);
+  void printDifference() const;
 
  private:
   // Job properties

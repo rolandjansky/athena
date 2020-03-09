@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/AthLinks
                           Control/AthContainers
+			  Control/CxxUtils
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODTracking
                           PRIVATE
@@ -25,12 +26,12 @@ atlas_add_library( VxSecVertex
                    src/*.cxx
                    PUBLIC_HEADERS VxSecVertex
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthLinks AthContainers xAODBase xAODTracking
+		   LINK_LIBRARIES AthLinks AthContainers CxxUtils xAODBase xAODTracking
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrkParticleBase VxJetVertex VxVertex )
 
 atlas_add_dictionary( VxSecVertexDict
                       VxSecVertex/VxSecVertexDict.h
                       VxSecVertex/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers xAODBase xAODTracking TrkParticleBase VxJetVertex VxVertex VxSecVertex )
+		      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers xAODBase xAODTracking TrkParticleBase VxJetVertex VxVertex VxSecVertex )
 

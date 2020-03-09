@@ -18,10 +18,10 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "AsgTools/AsgMessaging.h"
 #include "AsgTools/AnaToolHandle.h"
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 // xAOD include(s):
 #   include "xAODRootAccess/TEvent.h"
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 #include "CxxUtils/ubsan_suppress.h"
 #include "TInterpreter.h"
 
@@ -31,7 +31,7 @@ int main( ) {
     // Suppress known ubsan warning we get from cling.
     CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
     
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
     xAOD::TEvent event;
 #endif
 

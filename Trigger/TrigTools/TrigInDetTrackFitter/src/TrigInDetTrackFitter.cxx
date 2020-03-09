@@ -35,12 +35,11 @@
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 #include "TrigInDetTrackFitter/TrigInDetTrackFitter.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 
@@ -681,7 +680,7 @@ void TrigInDetTrackFitter::fit(TrigInDetTrackCollection* recoTracks )
 	}
 }
 
-TrackCollection* TrigInDetTrackFitter::fit(const TrackCollection& recoTracks, const Trk::ParticleHypothesis& matEffects)
+void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollection& fittedTracks, const Trk::ParticleHypothesis& matEffects)
 {
 	if(m_timers)
 	{
@@ -696,11 +695,11 @@ TrackCollection* TrigInDetTrackFitter::fit(const TrackCollection& recoTracks, co
 		m_timer[4]->start();
 		m_timer[4]->pause();
 	}
-	TrackCollection* fittedTracks = new TrackCollection();	
-  for(auto trIt = recoTracks.begin(); trIt != recoTracks.end(); ++trIt) {
+  fittedTracks.reserve(inputTracks.size());
+  for(auto trIt = inputTracks.begin(); trIt != inputTracks.end(); ++trIt) {
 		Trk::Track* fittedTrack = fitTrack(**trIt, matEffects);
 		if (fittedTrack!=nullptr) {
-			fittedTracks->push_back(fittedTrack);
+			fittedTracks.push_back(fittedTrack);
 		}
 	}
 	if(m_timers) 
@@ -711,7 +710,6 @@ TrackCollection* TrigInDetTrackFitter::fit(const TrackCollection& recoTracks, co
 		m_timer[3]->stop();
 		m_timer[4]->stop();
 	}
-	return fittedTracks;
 }
 
 void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {

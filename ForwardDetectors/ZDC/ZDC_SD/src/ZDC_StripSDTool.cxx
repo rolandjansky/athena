@@ -64,7 +64,7 @@ StatusCode ZDC_StripSDTool::Gather()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* ZDC_StripSDTool::makeSD()
+G4VSensitiveDetector* ZDC_StripSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   // Create a fresh SD

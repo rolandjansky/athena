@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // NeutrinoCnv_p1.cxx 
@@ -25,27 +25,14 @@
 #include "ParticleEventTPCnv/NeutrinoCnv_p1.h"
 
 // converters
-static P4ImplPxPyPzECnv_p1 s_momCnv;
-static ParticleBaseCnv_p1  s_partBaseCnv;
+static const P4ImplPxPyPzECnv_p1 s_momCnv;
+static const ParticleBaseCnv_p1  s_partBaseCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 NeutrinoCnv_p1::persToTrans( const Neutrino_p1* pers,
 			     Neutrino* trans, 
-			     MsgStream& msg ) 
+			     MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading Neutrino from persistent state..."
 //       << endmsg;
@@ -66,7 +53,7 @@ NeutrinoCnv_p1::persToTrans( const Neutrino_p1* pers,
 void 
 NeutrinoCnv_p1::transToPers( const Neutrino* trans, 
 			     Neutrino_p1* pers, 
-			     MsgStream& msg ) 
+			     MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of Neutrino..."
 //       << endmsg;

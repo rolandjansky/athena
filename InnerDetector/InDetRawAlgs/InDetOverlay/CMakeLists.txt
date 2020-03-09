@@ -34,14 +34,12 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 atlas_add_test( PixelOverlay_test
                 SOURCES test/PixelOverlay_test.cxx src/PixelOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES}
-                EXTRA_PATTERNS "[0-9]+ ms")
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES} )
 
 atlas_add_test( SCTOverlay_test
                 SOURCES test/SCTOverlay_test.cxx src/SCTOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
                 LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack IdDictParser ${GTEST_LIBRARIES}
-                EXTRA_PATTERNS "[0-9]+ ms"
                 ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 
@@ -58,6 +56,14 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGateTestCommon.txt )
 
 # Configuration tests
+atlas_add_test( PixelOverlayConfig_test
+                SCRIPT test/PixelOverlayConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
 atlas_add_test( SCTOverlayConfig_test
                 SCRIPT test/SCTOverlayConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( TRTOverlayConfig_test
+                SCRIPT test/TRTOverlayConfig_test.py
                 PROPERTIES TIMEOUT 300 )

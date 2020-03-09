@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
 #include <cmath>
 #include <algorithm>
-#include "CxxUtils/make_unique.h"
 #include <TF1.h>
 #include <TFile.h>
 
@@ -15,9 +14,7 @@ using namespace std;
 
 namespace egGain {
   
-  GainTool::GainTool(string filenameTO, string filenameVar){
-    m_TOFile = 0;
-    m_varFile = 0;
+  GainTool::GainTool(const std::string& filenameTO, const std::string& filenameVar){
     Init( filenameTO, filenameVar);
   }
     
@@ -37,10 +34,10 @@ namespace egGain {
     
   }
 
-  void GainTool::Init(string filenameTO, string filenameVar){
+  void GainTool::Init(const std::string& filenameTO, const std::string& filenameVar){
 
-    m_TOFile = CxxUtils::make_unique<TFile>(filenameTO.c_str() );
-    m_varFile = CxxUtils::make_unique<TFile>(filenameVar.c_str());
+    m_TOFile = std::make_unique<TFile>(filenameTO.c_str() );
+    m_varFile = std::make_unique<TFile>(filenameVar.c_str());
 
     for (int id = 0 ; id < m_NUM_ETA_BINS ; id++){
       string etabin;
@@ -176,11 +173,14 @@ namespace egGain {
       }
     }
 
+    if (id_eta < 0)
+      return energy_input*1000.;
+
     if (ptype == PATCore::ParticleType::UnconvertedPhoton){
       double norm_unconv=1.;
       if (id_eta<17 && id_eta>10) norm_unconv = m_unconv_funcG[0][id_eta]->Eval(range_energy[id_eta]);
       else if (id_eta<25 && id_eta>2) norm_unconv = m_unconv_funcG[1][id_eta]->Eval(range_energy[id_eta]);
-      else norm_unconv = m_unconv_funcG[2][id_eta]->Eval(range_energy[id_eta]);
+      else  norm_unconv = m_unconv_funcG[2][id_eta]->Eval(range_energy[id_eta]);
 
       if (energy_input<92) corrM_G = (m_unconv_funcG[0][id_eta]->Eval(energy_input))/(norm_unconv);
       else if (energy_input<160 && energy_input>=92) corrM_G = (m_unconv_funcG[1][id_eta]->Eval(energy_input))/(norm_unconv);

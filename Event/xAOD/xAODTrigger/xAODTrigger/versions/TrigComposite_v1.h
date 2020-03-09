@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
@@ -129,6 +129,28 @@ namespace xAOD {
                                   const uint16_t beginIndex, 
                                   const uint16_t endIndex = 0 );
 
+      /// Fetches a single link without type. Note: Will not work for collections of links
+      /// @param[in] name Name of the stored link
+      /// @param[out] key Storegte key of the link-object's collection
+      /// @param[out] clid Type of the object's collection
+      /// @param[out] index Index within the collection of the link-object
+      /// @return True if a link was found
+      bool typelessGetObjectLink( const std::string& name, 
+                                  uint32_t& key,
+                                  uint32_t& clid, 
+                                  uint16_t& index ) const;
+
+
+      /// Look up all links stored to objects of (container) type CONTAINER
+      /// @return Vector of names to all links to objects
+      template< class CONTAINER >
+      std::vector<std::string> getObjectNames() const;
+
+      /// Look up all links stored to collections objects from (container) type CONTAINER
+      /// @return Vector of names to all collections of links to objects
+      template< class CONTAINER >
+      std::vector<std::string> getObjectCollectionNames() const;
+
       /// @}
 
       /// @name Functions for copying links between objects
@@ -158,6 +180,7 @@ namespace xAOD {
       /// @return True on successful copy of at least one link
       bool copyAllLinksFrom(const xAOD::TrigComposite_v1& other);
       bool copyAllLinksFrom(const xAOD::TrigComposite_v1* other);
+
 
       /// @}
 

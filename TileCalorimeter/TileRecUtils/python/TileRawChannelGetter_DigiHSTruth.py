@@ -2,10 +2,7 @@
 # TileRawChannel creation from TileDigits 
 # TileRawChannelMaker algorithm using
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
-from RecExConfig.Configured import Configured
 import traceback
 
 from RecExConfig.Configured import Configured
@@ -31,12 +28,12 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
         try:        
             from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker               
             theTileRawChannelMaker = TileRawChannelMaker("TileRChMaker_DigiHSTruth")
-        except:
+        except Exception:
             mlog.error("could not import TileRecUtils.TileRawChannelMaker")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
     
-        self._TileRChMaker_DigiHSTruth = theTileRawChannelMaker;
+        self._TileRChMaker_DigiHSTruth = theTileRawChannelMaker
 
         # Configure TileInfoLoader
         from AthenaCommon.AppMgr import ServiceMgr
@@ -44,20 +41,12 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
             from TileConditions.TileInfoConfigurator import TileInfoConfigurator
             tileInfoConfigurator = TileInfoConfigurator()
 
-        # register output in objKeyStore
-        from RecExConfig.ObjKeyStore import objKeyStore
-        
-        from AthenaCommon.AppMgr import ToolSvc
-
         from TileRecUtils.TileRecFlags import jobproperties
-
-        # true for nominal ATLAS configuration - GlobalFlags.DetGeo.is_atlas()
-        from AthenaCommon.GlobalFlags import globalflags
 
         # set time window for amplitude correction if it was not set correctly before
         if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() <= jobproperties.TileRecFlags.TimeMinForAmpCorrection() :
             from AthenaCommon.BeamFlags import jobproperties
-            mlog.info("adjusting min/max time of parabolic correction for %s" % jobproperties.Beam.bunchSpacing)
+            mlog.info("adjusting min/max time of parabolic correction for %s", jobproperties.Beam.bunchSpacing)
             halfBS = jobproperties.Beam.bunchSpacing.get_Value()/2.
             if halfBS > 25.1:
                 mlog.info("Bunch spacing is too big, keeping default limits for parabolic correction")
@@ -84,9 +73,9 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
                     theTileRawChannelBuilderOptATLAS= TileRawChannelBuilderOpt2Filter("TileRawChannelBuilderOptATLAS_DigiHSTruth")
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderOpt2Filter Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                 
                 # setup COOL to get OFCs
@@ -108,15 +97,15 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                 theTileRawChannelBuilderOptATLAS.RunType         = jobproperties.TileRecFlags.TileRunType()
                 theTileRawChannelBuilderOptATLAS.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
                 if jobproperties.TileRecFlags.BestPhaseFromCOOL(): # can't correct time and use best phase at the same time
-                    theTileRawChannelBuilderOptATLAS.correctTime = FALSE
+                    theTileRawChannelBuilderOptATLAS.correctTime = False
                 else:
                     theTileRawChannelBuilderOptATLAS.correctTime = jobproperties.TileRecFlags.correctTime()
                 theTileRawChannelBuilderOptATLAS.BestPhase       = jobproperties.TileRecFlags.BestPhaseFromCOOL()
                 theTileRawChannelBuilderOptATLAS.NoiseFilterTools= NoiseFilterTools
-                theTileRawChannelBuilderOptATLAS.OF2 = TRUE
-                #theTileRawChannelBuilderOptATLAS.PedestalMode = 1; # not sure if we need this option here
-                theTileRawChannelBuilderOptATLAS.MaxIterations = 1; # just one iteration
-                theTileRawChannelBuilderOptATLAS.Minus1Iteration = FALSE; # assume that max sample is at t=0
+                theTileRawChannelBuilderOptATLAS.OF2 = True
+                #theTileRawChannelBuilderOptATLAS.PedestalMode = 1 # not sure if we need this option here
+                theTileRawChannelBuilderOptATLAS.MaxIterations = 1 # just one iteration
+                theTileRawChannelBuilderOptATLAS.Minus1Iteration = False # assume that max sample is at t=0
                 theTileRawChannelBuilderOptATLAS.AmplitudeCorrection = jobproperties.TileRecFlags.correctAmplitude()
                 if jobproperties.TileRecFlags.OfcFromCOOL():
                     theTileRawChannelBuilderOptATLAS.TileCondToolOfc = toolOfcCool
@@ -126,8 +115,8 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                     theTileRawChannelBuilderOptATLAS.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOptATLAS.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
                 
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the aglorithm: %s"
-                          % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the aglorithm: %s",
+                          theTileRawChannelMaker.name())
 
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptATLAS]
             
@@ -147,28 +136,28 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawCorrelatedNoise
                     theTileRawCorrelatedNoise=TileRawCorrelatedNoise("TileRCorreNoise")
-                except:
+                except Exception:
                     mlog.error("could not import TileRecUtils.TileRawCorrelatedNoise")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
-                #theTileRawCorrelatedNoise.UseMeanFiles = FALSE
-                #theTileRawCorrelatedNoise.PMTOrder = TRUE
+                #theTileRawCorrelatedNoise.UseMeanFiles = False
+                #theTileRawCorrelatedNoise.PMTOrder = True
                 theTileRawChannelMaker.TileDigitsContainer = "NewDigitsContainer"
-                topSequence += theTileRawCorrelatedNoise;
+                topSequence += theTileRawCorrelatedNoise
 
-            topSequence += theTileRawChannelMaker;
+            topSequence += theTileRawChannelMaker
 
         else:
             mlog.info(" Disable all OF methods because readDigits flag set to False ")
             jobproperties.TileRecFlags.doTileFlat = False
             jobproperties.TileRecFlags.doTileFit = False
             jobproperties.TileRecFlags.doTileFitCool = False
-            jobproperties.TileRecFlags.doTileOpt = False
             jobproperties.TileRecFlags.doTileOpt2 = False
             jobproperties.TileRecFlags.doTileOptATLAS = False
             jobproperties.TileRecFlags.doTileManyAmps = False
             jobproperties.TileRecFlags.doTileMF = False
             jobproperties.TileRecFlags.doTileOF1 = False
+            jobproperties.TileRecFlags.doTileWiener = False
             jobproperties.TileRecFlags.OfcFromCOOL = False
             jobproperties.TileRecFlags.print_JobProperties('tree&value')
 

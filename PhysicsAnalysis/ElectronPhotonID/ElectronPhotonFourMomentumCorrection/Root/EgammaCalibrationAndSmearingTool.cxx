@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -17,7 +17,6 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
-#include "CxxUtils/make_unique.h"
 #include "xAODMetaData/FileMetaData.h"
 #include <boost/algorithm/string.hpp>
 
@@ -58,7 +57,7 @@ std::unique_ptr<egGain::GainTool> gainToolFactory(egEnergyCorr::ESModel model)
     {
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      return CxxUtils::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
+      return std::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
     }
     case egEnergyCorr::es2017:
     case egEnergyCorr::es2017_summer: 
@@ -107,7 +106,7 @@ std::unique_ptr<egammaMVATool> egammaMVAToolFactory(egEnergyCorr::ESModel model)
     }
 
     if (not folder.empty()) {
-      auto tool = CxxUtils::make_unique<egammaMVATool>("EgammaMVATool");
+      auto tool = std::make_unique<egammaMVATool>("EgammaMVATool");
       tool->setProperty("folder", folder).ignore();
       return tool;
     }
@@ -145,7 +144,7 @@ std::unique_ptr<egammaLayerRecalibTool> egammaLayerRecalibToolFactory(egEnergyCo
     default:
       return nullptr;
   }
-  return CxxUtils::make_unique<egammaLayerRecalibTool>(tune);
+  return std::make_unique<egammaLayerRecalibTool>(tune);
 }
 
 bool use_intermodule_correction(egEnergyCorr::ESModel model)

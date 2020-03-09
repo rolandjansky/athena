@@ -165,9 +165,6 @@ CBNT_LArCell.SaveTimeInfo = True
 CBNT_LArCell.SaveId = True 
 CBNT_LArCell.SaveQualityInfo = True
 CBNT_LArCell.CellSigmaCut = 3.
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc+=LArBadChanTool()
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 ToolSvc+=theCaloNoiseTool

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOALGMT_H
 #define TRIGEGAMMAHYPO_TRIGL2CALOHYPOALGMT_H 1
@@ -24,19 +24,13 @@ class TrigL2CaloHypoAlgMT : public ::HypoBase {
 
   TrigL2CaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigL2CaloHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private: 
-  TrigL2CaloHypoAlgMT();
   ToolHandleArray< ITrigL2CaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
-  SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };  
-  
-
+  SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOALG_H

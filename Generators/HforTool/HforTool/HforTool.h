@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HFORTOOL_H
@@ -16,7 +16,6 @@
 #include <vector>
 #include <map>
 
-class StoreGateSvc;
 class McEventCollection;
 class Jet;
 
@@ -74,8 +73,6 @@ private:
 
   HepMC::GenEvent* m_evt;
   //McEventCollection* m_mceventTESout;
-  /// @todo Remove and use evtStore() instead
-  StoreGateSvc* m_storeGate;
   const JetCollection* m_jets;
 
   /// Variables to classify the sample

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import traceback
 
@@ -18,7 +18,7 @@ mlog.info("Entering")
 import cppyy
 try:
   cppyy.loadDictionary('RingerSelectorToolsDict')
-except RuntimeError, e:
+except RuntimeError as e:
   mlog.error("Couldn't load RingerSelectorTools dictionary from cppyy.")
   raise RuntimeError(e)
 
@@ -108,7 +108,7 @@ class CaloRingerElectronSelectorsBuilder ( Configured ):
       ToolSvc += self._mediumSelector
       self._allSelectors.append(self._mediumSelector)
       #except Exception:
-      #  print traceback.format_exc()
+      #  traceback.print_exc()
       #  conflog.error(("Could not set up Ringer Medium electron "
       #    "selector. Reason:\n%s"),traceback.format_exc())
 
@@ -117,11 +117,11 @@ class CaloRingerElectronSelectorsBuilder ( Configured ):
       ToolSvc += self._tightSelector
       self._allSelectors.append(self._tightSelector)
       #except Exception:
-      #  print traceback.format_exc()
+      #  traceback.print_exc()
       #  conflog.error(("Could not set up Ringer Tight electron "
       #    "selector. Reason:\n%s"),traceback.format_exc())
 
-      print self._allSelectors
+      mlog.info (self._allSelectors)
 
     except Exception:
       for selector in self._allSelectors:
@@ -129,7 +129,7 @@ class CaloRingerElectronSelectorsBuilder ( Configured ):
       caloRingerFlags.doElectronIdentification = False
       treatException(("An unexpected error occurred. Due to it, all "
                       "Ringer electron selectors won't be executed."))
-      print traceback.format_exc()
+      traceback.print_exc()
       return False
 
     return True

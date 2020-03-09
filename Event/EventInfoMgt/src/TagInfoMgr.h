@@ -1,3 +1,4 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -20,15 +21,17 @@
 
 #include "EventInfoMgt/ITagInfoMgr.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaBaseComps/AthCnvSvc.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ConversionSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IOVRange.h"
 #include "GaudiKernel/MsgStream.h"
 #include "EventInfo/TagInfo.h"
+
+#include <map>
 
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
 
@@ -71,7 +74,7 @@ class CondAttrListCollection;
  *  IOVSvc, as is done below for this class. 
  *
  */
-class TagInfoMgr : public ::ConversionSvc,
+class TagInfoMgr : public ::AthCnvSvc,
                    virtual public ITagInfoMgr,
                    virtual public IIncidentListener,
 		   virtual public IAddressProvider
@@ -189,21 +192,21 @@ private:
 
     /// Flag to add override the tags from EventInfo from other
     /// sources 
-    BooleanProperty                m_overrideEventInfoTags;
+    Gaudi::Property<bool>   m_overrideEventInfoTags{this,"OverrideEventInfoTags",true,"Override tags yes/no"};
 
     /// Extra tags/values pairs added in my jobOptions
-    StringArrayProperty            m_extraTagValuePairs;
+    Gaudi::Property<std::map<std::string,std::string> >
+      m_extraTagValuePairs{this,"ExtraTagValuePairs",{},"key/value pairs to be added"};
 
     /// Extra tags/values pairs added in via interface
-    std::vector<std::string>       m_extraTagValuePairsViaInterface;
+    std::map<std::string,std::string> m_extraTagValuePairsViaInterface;
 
     /// Extra tags to be removed
     std::set<std::string>          m_tagsToBeRemoved;
 
     /// The StoreGate key for the TagInfo
-    StringProperty                 m_tagInfoKey;
+    Gaudi::Property<std::string>   m_tagInfoKey{this,"TagInfoKey","ProcessingTags","SG key for TagInfo"};
 
-    /// The StoreGate key for the TagInfo in string form
     std::string                    m_tagInfoKeyValue;
 
     /// The event store
@@ -229,9 +232,6 @@ private:
 
     /// IOVRange of last TagInfo added to the file meta data
     IOVRange                       m_lastIOVRange;
-
-    /// Message log
-    mutable MsgStream              m_log;
 
     /// Last TagInfo added to the detector store
     TagInfo                        m_lastTagInfo;

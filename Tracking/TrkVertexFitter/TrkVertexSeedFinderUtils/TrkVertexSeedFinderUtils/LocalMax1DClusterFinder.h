@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_LOCALMAX1DCLUSTERFINDER_H
@@ -32,19 +32,14 @@ namespace Trk
   class Vertex;
   class VertexImage;
 
-  class LocalMax1DClusterFinder : public AthAlgTool, IVertexClusterFinder
+  class LocalMax1DClusterFinder : public extends<AthAlgTool, IVertexClusterFinder>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
-
     //default constructor due to Athena interface
     LocalMax1DClusterFinder(const std::string& t, const std::string& n, const IInterface*  p);
     
-    //destructor
-    virtual ~LocalMax1DClusterFinder();
-
-    virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image );
+    
+    virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image ) const;
 
     typedef std::pair<int, float> Projection;
 

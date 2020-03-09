@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAEVENTLOOPMGR_H
@@ -9,7 +9,6 @@
 /** @file AthenaEventLoopMgr.h
     @brief The default ATLAS batch event loop manager.
 
-  * $Id: AthenaEventLoopMgr.h,v 1.14 2009-03-16 16:38:38 leggett Exp $
 */
 
 #include <string>
@@ -150,12 +149,6 @@ protected:
 
   /// Run the algorithms for the current event
   virtual StatusCode executeAlgorithms(const EventContext&);
-
-  /// Fire BeginRun Incident, run the algorithms beginRun hook
-  StatusCode beginRunAlgorithms(const EventContext& ctx);
-
-  /// Fire EndEvtLoop,EndRun, run the algorithms endRun hook
-  StatusCode endRunAlgorithms();
 
   /// Initialize all algorithms and output streams
   StatusCode initializeAlgorithms();

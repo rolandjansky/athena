@@ -61,12 +61,8 @@
 #include "GaudiKernel/ToolHandle.h" 
 #include "TMath.h"
 
-
-// xAOD
-// not actual XAOD, but this file safely includes 
-// the xAOD::TrackParticle header if it exists
-#include "TrkParticleCreator/TrackParticleCreatorTool.h"
-
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 class TrigTrackSelector : public TrackSelector { 
 
@@ -135,10 +131,16 @@ public:
 
 #ifdef XAODTRACKING_TRACKPARTICLE_H
 
+  /// legacy run 2 selector access
+
   bool selectTrack( const xAOD::TrackParticle* track, void* =0);
 
-
   void selectTracks( const xAOD::TrackParticleContainer* tracks, void* =0);
+
+  /// MT selector access
+
+  void selectTracks( xAOD::TrackParticleContainer::const_iterator trackitr, 
+		     xAOD::TrackParticleContainer::const_iterator trackend, void* =0);
 
 #endif
 

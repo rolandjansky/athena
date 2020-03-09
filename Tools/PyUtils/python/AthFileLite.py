@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Lightweight and simplified version of AthFile
 # As the transform knows which files are bytestream and which are
 # POOL files we just have two simple classes and definately avoid
 # doing anything fancy here
 
+from __future__ import print_function
 import os
 import os.path
 import re
@@ -124,20 +125,19 @@ class AthPoolFile(object):
         try:
             jo = open(self._jobOptionsFile, "w")
 
-            print >>jo, os.linesep.join(("FNAME=['{filename}']",
-                                        "import os",
-                                        "os.environ['ATHENA_PROC_NUMBER'] = '0'",
-                                        "os.environ.pop('PYTHONINSPECT', None)",
-                                        "include('AthenaPython/athfile_peeker.py')",
-                                        "from AthenaCommon.AlgSequence import AlgSequence",
-                                        "job = AlgSequence()",
-                                        "job.peeker.outfname='{picklename}'",
-                                        "job.peeker.infname=FNAME[0]",
-                                        "import IOVDbSvc.IOVDb",
-                                        "theApp.EvtMax = 1")).format(filename=self._filename, picklename=self._infoOutputFile)
+            print(os.linesep.join(("FNAME=['{filename}']",
+                                   "import os",
+                                   "os.environ.pop('PYTHONINSPECT', None)",
+                                   "include('AthenaPython/athfile_peeker.py')",
+                                   "from AthenaCommon.AlgSequence import AlgSequence",
+                                   "job = AlgSequence()",
+                                   "job.peeker.outfname='{picklename}'",
+                                   "job.peeker.infname=FNAME[0]",
+                                   "import IOVDbSvc.IOVDb",
+                                   "theApp.EvtMax = 1")).format(filename=self._filename, picklename=self._infoOutputFile), file=jo)
 
-        except Exception, e:
-            print >>sys.stderr, "Exception raised when writing JO file: {0}".format(e)
+        except Exception as e:
+            print("Exception raised when writing JO file: {0}".format(e), file=sys.stderr)
             self._error = True
             raise
 
@@ -145,7 +145,6 @@ class AthPoolFile(object):
         out = open(self._logFile, 'wb')
         try:
             athenv = os.environ.copy()
-            athenv["ATHENA_PROC_NUMBER"] = "0"   # Suppress AthenaMP running
             subprocess.check_call(['athena.py', self._jobOptionsFile], stdout=out, stderr=out, env=athenv)
         except subprocess.CalledProcessError:
             # Don't delete log files if errors occured
@@ -199,13 +198,13 @@ class AthBSFile(object):
         beam_type   = '<beam-type N/A>'
         try:
             beam_type = data_reader.beamType()
-        except Exception,err:
+        except Exception as err:
             msg.warning ("problem while extracting beam-type information")
 
         beam_energy = '<beam-energy N/A>'
         try:
             beam_energy = data_reader.beamEnergy()
-        except Exception,err:
+        except Exception as err:
             msg.warning ("problem while extracting beam-type information")
 
         bs = ef.istream(fname)
@@ -269,9 +268,9 @@ class AthBSFile(object):
             evtmax = nentries
             
         ievt = iter(bs)
-        for i in xrange(evtmax):
+        for i in range(evtmax):
             try:
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check() # may raise a RuntimeError
                 stream_tags = [dict(stream_type=tag.type,
                                     stream_name=tag.name,
@@ -285,8 +284,8 @@ class AthBSFile(object):
                 self._metadata['beam_energy'].append(beam_energy)
                 self._metadata['stream_tags'].extend(stream_tags)
 
-            except RuntimeError, err:
-                print "** WARNING ** detected a corrupted bs-file:\n",err
+            except RuntimeError as err:
+                print("** WARNING ** detected a corrupted bs-file:\n",err)
 
 
 class AthTagFile(object):
@@ -339,7 +338,7 @@ class AthTagFile(object):
                 if evtmax in (-1, None):
                     evtmax = nentries
                 evtmax = int(evtmax)
-                for row in xrange(evtmax):
+                for row in range(evtmax):
                     if coll_tree.GetEntry(row) < 0:
                         break
                     runnbr = coll_tree.RunNumber
@@ -355,8 +354,8 @@ class AthTagFile(object):
             self._metadata['nentries'] = nentries
             self._metadata['run_number'] = runs
             self._metadata['evt_number'] = evts
-        except Exception, e:
-            print >>sys.stderr, "Exception raised when processing TAG file {0}: {1}".format(self._filename, e)
+        except Exception as e:
+            print("Exception raised when processing TAG file {0}: {1}".format(self._filename, e), file=sys.stderr)
             raise
 
     def _getSize(self):
@@ -392,7 +391,7 @@ class AthInpFile(object):
             f = root.TFile.Open(self._filename, 'READ')
 
             if f:
-                # FIXME EventStreamInfo is more autoritative source for nentries
+                # FIXME EventStreamInfo is more authoritative source for nentries
                 tree = f.Get('POOLContainer')
                 if not tree: # support for old files
                     tree = f.Get("POOLContainer_DataHeader")
@@ -406,9 +405,15 @@ class AthInpFile(object):
                     pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'\
                                             r'[[]VALUE=(?P<value>.*?)[]]').match
                     params = []
-                    for i in xrange(pool.GetEntries()):
+                    for i in range(pool.GetEntries()):
                         if pool.GetEntry(i)>0:
-                            match = pool_token(pool.db_string)
+                            # Work around apparent pyroot issue:
+                            # If we try to access pool.db_string directly,
+                            # we see trailing garbage, which can confuse
+                            # python's bytes->utf8 conversion
+                            # and result in an error.
+                            param = pool.GetLeaf('db_string').GetValueString()
+                            match = pool_token(param)
                             if not match:
                                 continue
                             d = match.groupdict()
@@ -421,8 +426,8 @@ class AthInpFile(object):
 
             self._metadata['file_guid'] = pool_guid
             self._metadata['nentries'] = nentries
-        except Exception, e:
-            print >>sys.stderr, "Exception raised when processing POOL file {0}: {1}".format(self._filename, e)
+        except Exception as e:
+            print("Exception raised when processing POOL file {0}: {1}".format(self._filename, e), file=sys.stderr)
             raise
 
     def _getSize(self):

@@ -1,5 +1,5 @@
 
-print "AtlasGeoModel/SetGeometryVersion.py is OBSOLETE"
+printfunc ("AtlasGeoModel/SetGeometryVersion.py is OBSOLETE")
 
 from AtlasGeoModel import SetGeometryVersion
 

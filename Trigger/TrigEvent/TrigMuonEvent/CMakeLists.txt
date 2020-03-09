@@ -68,5 +68,4 @@ atlas_add_test( Operators_test
                 test/Operators_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers Navigation EventKernel FourMom GaudiKernel Particle TrigInDetEvent TestTools AthenaKernel xAODMuon xAODTrigMuon MuonPattern MuonSegment MuidEvent TrigSerializeCnvSvcLib TrigNavigationLib TrigMuonEvent
-                EXTRA_PATTERNS ".*" )
-
+                POST_EXEC_SCRIPT nopost.sh )

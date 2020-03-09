@@ -21,7 +21,8 @@ class LArDetectorManager;
 
 namespace InDetDD
 {
-  class SiDetectorManager;
+  class PixelDetectorManager;
+  class SCT_DetectorManager;
   class TRT_DetectorManager;
 }
 
@@ -170,10 +171,10 @@ class StoreGateGeometryReader
 
  private:
   /** Pixel detector manager. */
-  const InDetDD::SiDetectorManager* m_pixel_manager;
+  const InDetDD::PixelDetectorManager* m_pixel_manager;
 
   /** Silicon detector manager. */
-  const InDetDD::SiDetectorManager* m_silicon_manager;
+  const InDetDD::SCT_DetectorManager* m_silicon_manager;
 
   /** TRT detector manager. */
   const InDetDD::TRT_DetectorManager* m_trt_manager;

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -20,7 +20,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "FourMom/P4EEtaPhiMBase.h"
 #include "CxxUtils/fpcompare.h"
-#include "CxxUtils/final.h"
 
 
 class CaloCell;
@@ -63,28 +62,28 @@ public:
   const CaloCell& cell() const { return *m_cell; }
 
   /// The pseudorapidity of the particle.
-  virtual double eta() const ATH_FINAL { return m_eta; }
+  virtual double eta() const final { return m_eta; }
 
   /// The aximuthal angle of the particle.
-  virtual double phi() const ATH_FINAL { return m_phi; }
+  virtual double phi() const final { return m_phi; }
 
   /// The energy of the particle.
-  virtual double e() const ATH_FINAL { return m_cell->e(); }
+  virtual double e() const final { return m_cell->e(); }
 
   /// The mass of the particle.
-  virtual double m() const ATH_FINAL { return m_cell->m(); }
+  virtual double m() const final { return m_cell->m(); }
 
   /// The sine of the polar angle of the particle.
-  virtual double sinTh() const ATH_FINAL { return m_sinth; }
+  virtual double sinTh() const final { return m_sinth; }
 
   /// The cosine of the polar angle of the particle.
-  virtual double cosTh() const ATH_FINAL { return m_costh; }
+  virtual double cosTh() const final { return m_costh; }
 
   /// The sine of the azimuthal angle of the particle.
-  virtual double sinPhi() const ATH_FINAL { return m_sinph; }
+  virtual double sinPhi() const final { return m_sinph; }
 
   /// The cosine of the azimuthal angle of the particle.
-  virtual double cosPhi() const ATH_FINAL { return m_cosph; }
+  virtual double cosPhi() const final { return m_cosph; }
 
   /// The energy of the particle.
   double energy() const { return m_cell->energy(); }

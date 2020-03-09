@@ -25,7 +25,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 ## Unit tests
 class AthenaMPProcTests(unittest.TestCase):
     def setUp(self):
-        os.environ.pop("ATHENA_PROC_NUMBER", "")
+        os.environ.pop("ATHENA_CORE_NUMBER", "")
     
     def test_noMP(self):
         self.assertEqual(detectAthenaMPProcs(), 0)
@@ -33,21 +33,7 @@ class AthenaMPProcTests(unittest.TestCase):
     def test_noMPwithArgdict(self):
         argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['some', 'random', 'values'])}
         self.assertEqual(detectAthenaMPProcs(argdict), 0)
-        
-    def test_MPfromEnv(self):
-        os.environ["ATHENA_PROC_NUMBER"] = "8"
-        self.assertEqual(detectAthenaMPProcs(), 8)
-        
-    def test_MPfromEnvEmpty(self):
-        os.environ["ATHENA_PROC_NUMBER"] = "0"
-        self.assertEqual(detectAthenaMPProcs(), 0)
-        
-    def test_MPBadfromEnv(self):
-        os.environ["ATHENA_PROC_NUMBER"] = "-1"
-        self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs)
-        os.environ["ATHENA_PROC_NUMBER"] = "notAnInt"
-        self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs)
-        
+             
     def test_MPfromArgdict(self):
         argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=8', 'random', 'values'])}
         self.assertEqual(detectAthenaMPProcs(argdict), 8)
@@ -63,13 +49,6 @@ class AthenaMPProcTests(unittest.TestCase):
         self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs, argdict)
         argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=4', '--nprocs=8', 'values'])}
         self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs, argdict)
-
-    def test_MPfromBoth(self):
-        # Env should have priority
-        os.environ["ATHENA_PROC_NUMBER"] = "4"
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=2', 'random', 'values'])}
-        self.assertEqual(detectAthenaMPProcs(argdict), 4)
-
 
 class AthenaMPOutputParseTests(unittest.TestCase):
     def setUp(self):

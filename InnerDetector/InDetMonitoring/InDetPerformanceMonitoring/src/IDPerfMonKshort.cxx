@@ -39,7 +39,6 @@
 #include "CLHEP/Vector/LorentzVector.h"
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "InDetPerformanceMonitoring/IDPerfMonKshort.h"
 

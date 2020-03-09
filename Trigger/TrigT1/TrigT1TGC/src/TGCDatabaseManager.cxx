@@ -20,8 +20,6 @@
 
 namespace LVL1TGCTrigger {
 
- extern bool        g_DEBUGLEVEL;
-
 TGCConnectionInPP* TGCDatabaseManager::getConnectionInPP(TGCPatchPanel* patchPanel) const 
 {
   if(!patchPanel) return 0;
@@ -75,8 +73,9 @@ void TGCDatabaseManager::addConnectionInPP(const TGCPatchPanel* patchPanel,
 				      (patchPanelIDs, cInPP_PPPs));
 }
 
-TGCDatabaseManager::TGCDatabaseManager()
-  : m_mapTileMu(0)
+TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
+  : m_mapTileMu(0),
+    m_tgcArgs(tgcargs)
 {
   // default constructor 
   int i,j,k;
@@ -99,8 +98,10 @@ TGCDatabaseManager::TGCDatabaseManager()
 
 }
 
-TGCDatabaseManager::TGCDatabaseManager(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
-                                       const std::string& ver, bool )
+  TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
+					 const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+					 const std::string& ver, bool )
+    : m_tgcArgs(tgcargs)
 {
   bool status = true;
 
@@ -119,7 +120,7 @@ TGCDatabaseManager::TGCDatabaseManager(const SG::ReadCondHandleKey<TGCTriggerDat
     status = status && m_PPToSL[i]->readData((TGCRegionType)(i+1));
   }
 
-  if (g_DEBUGLEVEL) {
+  if (tgcArgs()->DEBUGLEVEL()) {
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
@@ -147,17 +148,17 @@ TGCDatabaseManager::TGCDatabaseManager(const SG::ReadCondHandleKey<TGCTriggerDat
   // RPhi Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
     for (int oct=0; oct<NumberOfOctant; oct++) {
-       m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(readCondKey, ver_BW, side, oct);
+      m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(tgcArgs(),readCondKey, ver_BW, side, oct);
     }
   }
 
   // Inner Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
-    m_mapInner[side] = new TGCInnerCoincidenceMap(readCondKey, ver_EIFI, side);
+    m_mapInner[side] = new TGCInnerCoincidenceMap(tgcArgs(), readCondKey, ver_EIFI, side);
   }
 
   // Tile-Mu coincidence Map
-  m_mapTileMu = new TGCTileMuCoincidenceMap(readCondKey, ver_TILE);
+  m_mapTileMu = new TGCTileMuCoincidenceMap(tgcArgs(), readCondKey, ver_TILE);
    
  
 }

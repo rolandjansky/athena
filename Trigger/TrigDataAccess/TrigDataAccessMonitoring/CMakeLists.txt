@@ -39,7 +39,7 @@ atlas_add_test( Methods_test
                 test/Methods_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthContainers ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TestTools StoreGateLib SGtests TrigDataAccessMonitoringLib
-                EXTRA_PATTERNS ".*" )
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

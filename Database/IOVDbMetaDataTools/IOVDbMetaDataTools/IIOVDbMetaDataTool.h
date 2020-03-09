@@ -64,9 +64,9 @@ public:
     /// Explicit call to process IOV meta data from the input meta
     /// data store, transferring it to the main meta data
     /// store. Normally, this method is called at the
-    /// BeginFileIncident. However, this explicit call allows the
+    /// BeginInputFile incident. However, this explicit call allows the
     /// transfer to occur during the initialization phase, which
-    /// occurs before BeginFileIncident.
+    /// occurs before BeginInputFile incident.
     virtual StatusCode  processInputFileMetaData(const std::string& fileName) = 0;
 
 };

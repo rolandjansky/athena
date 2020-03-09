@@ -34,7 +34,3 @@ atlas_add_component( MSVertexTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers StoreGateLib SGtests GeoPrimitives Identifier EventPrimitives xAODTracking GaudiKernel MSVertexUtils MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData TrkParameters TrkExInterfaces )
-
-# Install files from the package:
-atlas_install_headers( MSVertexTools )
-

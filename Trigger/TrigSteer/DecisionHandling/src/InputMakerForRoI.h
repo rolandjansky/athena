@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGUPGRADETEST_INPUTMAKERFORROI_H
 #define TRIGUPGRADETEST_INPUTMAKERFORROI_H 
@@ -21,14 +21,11 @@
   class  InputMakerForRoI    : public ::InputMakerBase  { 
   public: 
     InputMakerForRoI( const std::string& name, ISvcLocator* pSvcLocator );
-    virtual ~ InputMakerForRoI(); 
+
     virtual StatusCode  initialize() override;
     virtual StatusCode  execute(const EventContext&) const override;
-    virtual StatusCode  finalize() override;
 
   private: 
-     InputMakerForRoI();
- 
     SG::WriteHandleKey<TrigRoiDescriptorCollection> m_RoIs {this,"RoIs", "Unspecified", "Nam eof the RoIs extracted from the decisions"};
     // want to try also const?
     //SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_RoIs{ this, "RoIs", "Unspecified", "Name of the RoIs extracted from the decisions" };

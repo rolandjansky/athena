@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Common signature flags  """
 
-from AthenaCommon.JobProperties import JobProperty, jobproperties
-
+from AthenaCommon.JobProperties import JobProperty
+from AthenaCommon.JobProperties import jobproperties # noqa: F401
 
 __author__  = 'T. Bold'
 __version__=""

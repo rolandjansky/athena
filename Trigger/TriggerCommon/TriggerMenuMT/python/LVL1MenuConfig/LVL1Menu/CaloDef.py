@@ -7,7 +7,7 @@ class CaloDef(object):
     @staticmethod
     def defineGlobalSettings(tc, tag=None):
 
-        from TriggerMenuMT.LVL1MenuConfig.LVL1.CaloInfo import MinimumTOBPt, CaloInfo
+        from ..LVL1.CaloInfo import MinimumTOBPt, CaloInfo
 
         caloInfo = tc.menu.CaloInfo
         menuName = tc.menuName

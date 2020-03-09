@@ -9,6 +9,7 @@
 #include "JetInterface/IJetConstituentModifier.h"
 #include "JetInterface/IJetConstituentsRetriever.h"
 #include "JetInterface/IJetConsumer.h"
+#include "JetInterface/IJetDecorator.h"
 #include "JetInterface/IJetExecuteTool.h"
 #include "JetInterface/IJetFinder.h"
 #include "JetInterface/IJetFromPseudojet.h"
@@ -20,7 +21,6 @@
 #include "JetInterface/IJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IPseudoJetGetter.h"
-#include "JetInterface/ISingleJetModifier.h"
 
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // utility to take a root file full of TGraph2DErrors and create a root file with TF2s.
 #include <iostream>
@@ -13,9 +13,7 @@
 #include "TF2.h"
 #include "TFitResult.h"
 
-#include "CxxUtils/make_unique.h"
-
-using CxxUtils::make_unique;
+using std::make_unique;
 using std::cout;
 using std::cerr;
 using std::endl;

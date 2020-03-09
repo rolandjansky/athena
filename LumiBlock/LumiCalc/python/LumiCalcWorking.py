@@ -6,7 +6,7 @@ import glob
 import cgitb
 import subprocess
 
-# CGI script to display intermediate information in the lumicalc web page when iLumiCalc.exe is processing a GRL
+# CGI script to display intermediate information in the lumicalc web page when iLumiCalc is processing a GRL
 # This will continue to be displayed until the results.html file is available
 # It is expected that this is called from the results directory
 
@@ -14,6 +14,7 @@ class LumiWorking:
 
     def __init__(self):
         self.delay = 10
+        self.appearsDone = False
 
     def checkDone(self):
 
@@ -25,6 +26,14 @@ class LumiWorking:
         print # Blank line, end of headers
         print '<html><head>'
         print '<meta http-equiv="Refresh" content="0; url=result.html">'
+        print '</head></html>'
+
+    def redirectRecover(self):
+
+        print 'Content-Type: text/html'
+        print # Blank line, end of headers
+        print '<html><head>'
+        print '<meta http-equiv="Refresh" content="0; url=LumiCalcRecover.py">'
         print '</head></html>'
 
     def printWorking(self):
@@ -62,16 +71,24 @@ class LumiWorking:
 
     def printDetails(self):
 
-        print '<h3>iLumiCalc.exe Output</h3>'
+        print '<h3>iLumiCalc Output</h3>'
         print '<p>This page should automatically update approximately every %d seconds, and will show you the results when iLumiCalc is done.' % self.delay
         print 'If for some reason the updates stop, the final results should (eventually) be available <a href="result.html">here</a>.'
-        print '<p>In the meantime, the tail of the <a href="output.txt">raw iLumiCalc.exe output</a> is appended below.'
+        print '<p>In the meantime, the tail of the <a href="output.txt">raw iLumiCalc output</a> is appended below.'
         print "Please don't restart your calculation unless the process really seems to be dead!</p>"
         print '<pre>'
         p = subprocess.Popen('tail -37 output.txt', shell=True, stdout=subprocess.PIPE).stdout
+
+        self.appearsDone = False
+
         for line in p.readlines():
             print line,
+            if line.strip() == "Done":
+                self.appearsDone = True
+
         print '</pre>'
+        if self.appearsDone:
+            print '<p>lumiCalc appears to be done, but likely the original process script has timed out.  You can try finishing by hand with the link <a href="LumiCalcRecover.py">here</a>.  Note, this will likely screw things up if your process is still running, however..</p>\n'
 
     def printFooter(self):
         print '</div>'

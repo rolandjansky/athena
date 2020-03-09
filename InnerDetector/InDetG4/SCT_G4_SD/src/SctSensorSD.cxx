@@ -12,7 +12,6 @@
 #include "SctSensorSD.h"
 
 // athena includes
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 
 // Geant4 includes
@@ -24,6 +23,8 @@
 
 // CLHEP transform
 #include "CLHEP/Geometry/Transform3D.h"
+
+#include <memory> // For make unique
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -37,7 +38,7 @@ SctSensorSD::SctSensorSD( const std::string& name, const std::string& hitCollect
 
 void SctSensorSD::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<SiHitCollection>();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

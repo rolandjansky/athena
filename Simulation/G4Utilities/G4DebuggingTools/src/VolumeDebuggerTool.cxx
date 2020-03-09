@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "VolumeDebuggerTool.h"
 
 namespace G4UA
@@ -21,13 +20,14 @@ namespace G4UA
     declareProperty("RunGeoTest", m_config.volumeCheck);
     declareProperty("MaxCopiesToCheck", m_config.targetMaxCopiesToCheck);
     declareProperty("DumpGDML", m_config.dumpGDML);
+    declareProperty("DumpPhysicsRegions", m_config.dumpPhysicsRegions);
   }
 
   std::unique_ptr<VolumeDebugger>
   VolumeDebuggerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a VolumeDebugger");
-    auto action = CxxUtils::make_unique<VolumeDebugger>(m_config);
+    auto action = std::make_unique<VolumeDebugger>(m_config);
     actionList.runActions.push_back( action.get() );
     return action;
   }

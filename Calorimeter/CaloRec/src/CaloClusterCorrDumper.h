@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOCLUSTERCORRDUMPER
@@ -24,8 +24,6 @@
 #include "CaloRec/ToolWithConstantsMixin.h"
 #include <vector>
 #include <string>
-
-class StoreGateSvc;
 
 class CaloClusterCorrDumper : public AthAlgorithm
 {

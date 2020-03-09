@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainers/test/copyAuxStoreThinned_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +18,7 @@
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/PackedContainer.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -118,14 +118,21 @@ void test1()
 {
   std::cout << "test1\n";
   TestThinningSvc svc;
+  SG::ThinningDecisionBase dec;
 
   AuxStoreTest src;
   SG::AuxStoreInternal dst;
 
-  copyAuxStoreThinned (src, dst, 0);
+  copyAuxStoreThinned (src, dst, static_cast<IThinningSvc*>(nullptr));
+  compare (src, dst);
+
+  copyAuxStoreThinned (src, dst, static_cast<const SG::ThinningDecisionBase*>(nullptr));
   compare (src, dst);
 
   copyAuxStoreThinned (src, dst, &svc);
+  compare (src, dst);
+
+  copyAuxStoreThinned (src, dst, &dec);
   compare (src, dst);
 
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
@@ -153,8 +160,7 @@ void test1()
     pfptr[i] = 10*i + 0.5 + 13;
   }
 
-  SG::AuxStoreInternal src2;
-  svc.remap (&src2, 1, 2);
+  dec.resize (10);
 
   copyAuxStoreThinned (src, dst, &svc);
   compare (src, dst);
@@ -166,15 +172,23 @@ void test1()
     }
     else {
       svc.remap (&src, i, IThinningSvc::RemovedIdx);
+      dec.thin (i);
     }
   }
 
+  dec.buildIndexMap();
+
   copyAuxStoreThinned (src, dst, &svc);
+  compare (src, dst, true);
+
+  copyAuxStoreThinned (src, dst, &dec);
   compare (src, dst, true);
 
   SG::AuxStoreInternal dst2;
   src.suppress (ftyp);
   copyAuxStoreThinned (src, dst2, &svc);
+  compare (src, dst2, true, ftyp);
+  copyAuxStoreThinned (src, dst2, &dec);
   compare (src, dst2, true, ftyp);
 }
 

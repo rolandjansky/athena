@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 781479 2016-10-31 21:07:42Z ssnyder $
 ################################################################################
 # Package: McParticleEvent
 ################################################################################
@@ -54,8 +53,7 @@ atlas_add_test( TruthParticle_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorObjects
    TestTools GaudiKernel McParticleEvent
-   ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}"
-   EXTRA_PATTERNS "^StoreGateSvc +DEBUG Property update for OutputLevel" )
+   ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

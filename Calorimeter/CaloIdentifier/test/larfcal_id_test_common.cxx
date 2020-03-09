@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
  */
 
 
-#include "boost/foreach.hpp"
 #include "make_idhelper_common.cxx"
 
 
@@ -147,11 +146,7 @@ test_connected (const LArFCAL_Base_ID& fcal_id, bool supercell = false)
   for (size_t i = 0; i < hashvec.size(); i++)
     assert (hashvec[i]);
 
-#if __cplusplus > 201100
   for (Identifier ch_id : fcal_id.fcal_range()) {
-#else
-  BOOST_FOREACH (Identifier ch_id, fcal_id.fcal_range()) {
-#endif
     hashsum -= fcal_id.channel_hash (ch_id);
   }
   assert (hashsum == 0);
@@ -205,11 +200,7 @@ test_connected (const LArFCAL_Base_ID& fcal_id, bool supercell = false)
   for (size_t i = 0; i < hashvec.size(); i++)
     assert (hashvec[i]);
 
-#if __cplusplus > 201100
   for (Identifier ch_id : fcal_id.mod_range()) {
-#else
-  BOOST_FOREACH (Identifier ch_id, fcal_id.mod_range()) {
-#endif
     hashsum -= fcal_id.module_hash (ch_id);
   }
   assert (hashsum == 0);

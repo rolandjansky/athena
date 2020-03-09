@@ -41,7 +41,7 @@
 //#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 //#include "TrigT1Interfaces/RecMuonRoI.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 /** Main LVL2 Algorithm. Sided by a xAOD::L2StandaloneMuon, match the muon spectrometer track with an ID track, and produces a xAOD::L2CombinedMuon. */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,6 +19,7 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
+#include "GaudiKernel/MsgStream.h"
 #include <cassert>
 // for cutouts:
 #include "GeoModelKernel/GeoShapeIntersection.h"
@@ -53,7 +54,7 @@ Csc::Csc(Component* ss): DetectorElement(ss->name)
   layer->length = length;
   layer->physicalLength = physicalLength;
   layer->maxwLength = maxwLength;
-  
+
   index = s->index;
 }
 
@@ -78,39 +79,40 @@ Csc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 {
   GeoFullPhysVol* pcsc   = NULL;
   GeoLogVol* lcsc   = NULL;
-  const GeoMaterial* mcsc = matManager->getMaterial("std::Air");
+  const GeoMaterial* mcsc = getMaterialManager()->getMaterial("std::Air");
 
   if (excent == length) {
-    // CSC is a simple traezoid	
+    // CSC is a simple traezoid
     const GeoShape* sCSS = new GeoTrd(thickness/2.,thickness/2.,
                                       width/2.,longWidth/2.,length/2.);
     lcsc = new GeoLogVol(logVolName, sCSS, mcsc);
 
   } else {
-    // CSC is a union of two trapezoids 
-    GeoTrd* downTrd = new GeoTrd(thickness/2., thickness/2., width/2., 
+    // CSC is a union of two trapezoids
+    GeoTrd* downTrd = new GeoTrd(thickness/2., thickness/2., width/2.,
                                  longWidth/2.,  maxwLength/2.);
-    GeoTrd* upTrd = new GeoTrd(thickness/2., thickness/2., longWidth/2., 
+    GeoTrd* upTrd = new GeoTrd(thickness/2., thickness/2., longWidth/2.,
                                  upWidth/2., (physicalLength-maxwLength)/2.);
     const GeoShape* sCSL =
-      & ( (downTrd->add( (*upTrd) << GeoTrf::TranslateZ3D(physicalLength/2.) ) ) 
+      & ( (downTrd->add( (*upTrd) << GeoTrf::TranslateZ3D(physicalLength/2.) ) )
       << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
     lcsc = new GeoLogVol(logVolName, sCSL, mcsc);
   }
 
   pcsc = new GeoFullPhysVol(lcsc);
   if (minimalgeo == 1) return pcsc;
-    
+
   GeoVPhysVol* lay = layer->build(cutoutson, vcutdef);
   if (!skip_csc) pcsc->add(lay);
-  
-  return pcsc;	
+
+  return pcsc;
 }
 
 
 void Csc::print()
 {
-  std::cout << " Csc:: Csc " << name << " : " << std::endl;
+  MsgStream log(Athena::getMessageSvc(), "MuonGM::Csc");
+  log << MSG::INFO << " Csc:: Csc " << name << " : " << endmsg;
 }
 
 } // namespace MuonGM

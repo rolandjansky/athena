@@ -29,7 +29,7 @@ For each of these type 64 L1Items can be monitored independently
 
 """
 
-from TriggerMenu.l1.Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('LVL1Menu.MonitorDef')
@@ -197,8 +197,8 @@ class MonitorDef(object):
                     counts_LF_items[TAV].update( monItems[k] )
                     counts_HF_items[TAV].update( monItemsHF[k] )
 
-            counts_LF = dict( map(lambda (x,y) : (x,len(y)), counts_LF_items.items() ) )
-            counts_HF = dict( map(lambda (x,y) : (x,len(y)), counts_HF_items.items() ) )
+            counts_LF = dict( map(lambda x : (x[0],len(x[1])), counts_LF_items.items() ) )
+            counts_HF = dict( map(lambda x : (x[0],len(x[1])), counts_HF_items.items() ) )
 
             lutsLF = ( max(counts_LF.values())-1) / 8 + 1
             lutsHF = ( max(counts_HF.values())-1) / 8 + 1

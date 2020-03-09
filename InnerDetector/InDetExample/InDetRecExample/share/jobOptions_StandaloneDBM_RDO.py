@@ -118,7 +118,7 @@ InDetFlags.cutLevel       = 1 # test for TRTonly in PU
 InDetFlags.doSlimming = False
 
 InDetFlags.doIBL = True
-InDetFlags.doTrackSegmentsPixelPrdAssociation = False 
+InDetFlags.doTrackSegmentsDisappearing = False 
 
 # --- activate monitorings
 InDetFlags.doMonitoringGlobal    = False

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaUtils.cxx 
@@ -15,7 +15,8 @@
 
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
-#include "AthenaPython/PyAthenaGILStateEnsure.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
+#include "RootUtils/PyGetString.h"
 
 // Framework includes
 #include "GaudiKernel/IInterface.h"
@@ -53,7 +54,7 @@ fetchInterfaceId( PyObject* klass,
 {
   Py_INCREF( klass );
 
-  PyAthena::PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* idObj = PyObject_CallMethod( klass, 
 					 const_cast<char*>("interfaceID"), 
 					 const_cast<char*>("") );
@@ -105,15 +106,14 @@ std::string
 PyAthena::repr( PyObject* o )
 {
   // PyObject_Repr returns a new ref.
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* py_repr = PyObject_Repr( o );
-  if ( !py_repr || !PyString_Check(py_repr) ) {
-    Py_XDECREF( py_repr );
+
+  auto [cpp_repr, flag] = RootUtils::PyGetString (py_repr);
+  Py_DECREF( py_repr );
+  if (!flag) {
     PyAthena::throw_py_exception();
   }
-  
-  std::string cpp_repr = PyString_AsString(py_repr);
-  Py_DECREF( py_repr );
   return cpp_repr;
 }
 
@@ -121,22 +121,20 @@ std::string
 PyAthena::str( PyObject* o )
 {
   // PyObject_Str returns a new ref.
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* py_str = PyObject_Str( o );
-  if ( !py_str || !PyString_Check(py_str) ) {
-    Py_XDECREF( py_str );
+  auto [cpp_str, flag] = RootUtils::PyGetString (py_str);
+  Py_DECREF( py_str );
+  if ( !flag ) {
     PyAthena::throw_py_exception();
   }
-  
-  std::string cpp_str = PyString_AsString(py_str);
-  Py_DECREF( py_str );
   return cpp_str;
 }
 
 void PyAthena::throw_py_exception (bool display)
 {
   if (display) {
-    PyGILStateEnsure ensure;
+    RootUtils::PyGILStateEnsure ensure;
     // fetch error
     PyObject* pytype = 0, *pyvalue = 0, *pytrace = 0;
     PyErr_Fetch (&pytype, &pyvalue, &pytrace);
@@ -147,6 +145,20 @@ void PyAthena::throw_py_exception (bool display)
     PyErr_Restore (pytype, pyvalue, pytrace);
     // and print
     PyErr_Print();
+    {
+      // With py3, need to explicitly flush the python stderr
+      // for the error to be visible.
+      PyObject* f = PySys_GetObject (const_cast<char*>("stderr"));
+#if PY_VERSION_HEX < 0x03000000
+      PyObject* fstr = PyString_FromString ("flush");
+#else
+      PyObject* fstr = PyUnicode_FromString ("flush");
+#endif
+      PyObject* x = PyObject_CallMethodObjArgs (f, fstr, NULL);
+      Py_XDECREF (x);
+      Py_XDECREF (fstr);
+      Py_XDECREF (f);
+    }
   }
   throw PyROOT::TPyException();
 }
@@ -163,7 +175,7 @@ PyAthena::callPyMethod ATLAS_NOT_THREAD_SAFE ( PyObject* self,
   if ( 0 == self || 0 == method ) { return StatusCode::FAILURE; }
   
   // call Python 
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* r;
   if (arg)
     r = PyObject_CallMethod( self, method, const_cast<char*>("O"), arg );
@@ -174,8 +186,13 @@ PyAthena::callPyMethod ATLAS_NOT_THREAD_SAFE ( PyObject* self,
     throw_py_exception();
   }
   
-  if ( PyInt_Check( r ) ) {
+#if PY_VERSION_HEX < 0x03000000
+  if ( PyInt_Check( r ) || PyLong_Check(r) ) {
     StatusCode sc(PyInt_AS_LONG( r ));
+#else
+  if ( PyLong_Check( r ) ) {
+    StatusCode sc(PyLong_AS_LONG( r ));
+#endif
     Py_DECREF( r );
     return sc;
   }
@@ -238,7 +255,7 @@ StatusCode PyAthena::queryInterface ATLAS_NOT_THREAD_SAFE
       << std::endl;
   }
 
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* type = PyObject_GetAttrString( self, 
 					   const_cast<char*>("__class__") );
   if ( !type ) {
@@ -286,14 +303,13 @@ StatusCode PyAthena::queryInterface ATLAS_NOT_THREAD_SAFE
     PyObject* pyname = 0;
     pyname = PyObject_GetAttrString( base,
 				     const_cast<char*>("__name__") );
-    if ( !pyname || !PyString_Check(pyname) ) {
-      Py_XDECREF( pyname );
+    auto [cppBaseName, flag] = RootUtils::PyGetString (pyname);
+    Py_DECREF(pyname);
+    if ( !flag ) {
       Py_DECREF ( base   );
       continue;
     }
-    const std::string cppBaseName = PyString_AS_STRING(pyname);
-    Py_DECREF(pyname);
-    
+
     const std::string cppName = ((MyObjProxy*)self)->m_class->GetName();
 
     std::cout << "::: would like to do: *ppvInterface = static_cast<"
@@ -343,7 +359,7 @@ void PyAthena::pyAudit ATLAS_NOT_THREAD_SAFE
    const char* evt, 
    const char* component )
 {
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* call = PyObject_CallMethod(self,
 				       (char*)method,
 				       (char*)"ss", evt, component);
@@ -363,7 +379,7 @@ void PyAthena::pyAudit ATLAS_NOT_THREAD_SAFE
     const char* component,
     const StatusCode& sc )
 {
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* pySc = TPython::ObjectProxy_FromVoidPtr((void*)&sc,
 						    "StatusCode");
   if ( !pySc ) {

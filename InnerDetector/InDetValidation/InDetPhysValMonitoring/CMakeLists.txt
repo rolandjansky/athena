@@ -10,12 +10,14 @@ atlas_subdir( InDetPhysValMonitoring )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaMonitoring
+                          Control/CxxUtils
 			  DetectorDescription/AtlasDetDescr
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
                           GaudiKernel
 			  InnerDetector/InDetDetDescr/InDetIdentifier
 			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           Tracking/TrkValidation/TrkValHistUtils
@@ -53,7 +55,7 @@ atlas_add_library( InDetPhysValMonitoringLib
                    PUBLIC_HEADERS InDetPhysValMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
-                   AthenaBaseComps AthenaMonitoringLib AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier InDetReadoutGeometry
+                   AthenaBaseComps AthenaMonitoringLib CxxUtils AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry
                    InDetTrackSelectionToolLib PATCoreLib TrkValHistUtils
                    PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives 
                    xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack
@@ -64,7 +66,7 @@ atlas_add_component( InDetPhysValMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
-                     AthenaBaseComps AthenaMonitoringLib xAODTracking xAODTruth GaudiKernel PATCoreLib 
+                     AthenaBaseComps AthenaMonitoringLib CxxUtils xAODTracking xAODTruth GaudiKernel PATCoreLib 
                      TrkValHistUtils AsgTools AthenaKernel AtlasDetDescr GeoPrimitives EventPrimitives 
                      xAODBase xAODEventInfo xAODJet InDetIdentifier InDetPrepRawData InDetRIO_OnTrack 
                      MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetPhysValMonitoringLib)
@@ -72,6 +74,9 @@ atlas_add_component( InDetPhysValMonitoring
 # Install files from the package:
 atlas_install_headers( InDetPhysValMonitoring )
 atlas_install_python_modules( python/*.py )
-atlas_install_runtime( share/*.hdef  share/*.xml  share/*.xsl} )
+atlas_install_joboptions( share/*.py )
+atlas_install_runtime( share/*.hdef  share/*.xml  share/*.xsl )
 atlas_install_runtime( test/InDetPhysValMonitoring_TestConfiguration.xml )
+
+
 

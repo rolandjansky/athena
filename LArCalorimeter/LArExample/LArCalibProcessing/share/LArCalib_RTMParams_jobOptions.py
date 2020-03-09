@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -10,7 +12,11 @@ import commands
 #
 ###########################################################################
 
-include ("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 
 ###########################################################################
 # Input selection
@@ -53,7 +59,7 @@ if not 'ReadCaliWaveFromCOOL' in dir():
    ReadCaliWaveFromCOOL = True
 
 if not 'InputCaliWavePoolDir' in dir():
-   InputCaliWavePoolDir = commands.getoutput("pwd")
+   InputCaliWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliWavePoolFileName' in dir():
    InputCaliWavePoolFileName = "LArCaliWave.pool.root"
@@ -64,11 +70,12 @@ if not 'ReadCaliPulseParamsFromCOOL' in dir():
    ReadCaliPulseParamsFromCOOL = False
 
 if not 'InputCaliPulseParamsFolder' in dir():
-   InputCaliPulseParamsFolder     = "/LAR/ElecCalibOfl/CaliPulseParams/RTM" 
+   if not SuperCells: InputCaliPulseParamsFolder = "/LAR/ElecCalibOfl/CaliPulseParams/RTM" 
+   if SuperCells:     InputCaliPulseParamsFolder = "/LAR/ElecCalibOflSC/CaliPulseParams/RTM" 
 
 
 if not 'InputCaliPulseParamsPoolDir' in dir():
-   InputCaliPulseParamsPoolDir = commands.getoutput("pwd")
+   InputCaliPulseParamsPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliPulseParamsPoolFileName' in dir():
    InputPulseParamsPoolFileName = "LArCaliPulseParamsVsCalib_AllBoards.pool.root"
@@ -79,10 +86,11 @@ if not 'ReadDetCellParamsFromCOOL' in dir():
    ReadDetCellParamsFromCOOL = False
 
 if not 'InputDetCellParamsFolder' in dir():
-   InputDetCellParamsFolder       = "/LAR/ElecCalibOfl/DetCellParams/RTM"  
+   if not SuperCells: InputDetCellParamsFolder = "/LAR/ElecCalibOfl/DetCellParams/RTM"  
+   if SuperCells:     InputDetCellParamsFolder = "/LAR/ElecCalibOflSC/DetCellParams/RTM"  
 
 if not 'InputDetCellParamsPoolDir' in dir():
-   InputDetCellParamsPoolDir = commands.getoutput("pwd")
+   InputDetCellParamsPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputDetCellParamsPoolFileName' in dir():
    InputDetCellParamsPoolFileName = "LArDetCellParams.pool.root"
@@ -289,10 +297,10 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'OutputParamsRootFileDir' in dir():
-   OutputParamsRootFileDir= commands.getoutput("pwd")
+   OutputParamsRootFileDir= subprocess.getoutput("pwd")
     
 if not 'OutputParamsPoolFileDir' in dir():
-   OutputParamsPoolFileDir= commands.getoutput("pwd")
+   OutputParamsPoolFileDir= subprocess.getoutput("pwd")
 
 if not 'RTMFileTag' in dir():
    RTMFileTag = "DefaultExtraction_"+str(RunNumber)+"_"+Partition.replace("*","")
@@ -304,10 +312,12 @@ if not 'OutputParamsPoolFileName' in dir():
    OutputParamsPoolFileName = "LArRTMParams_"+RTMFileTag + ".pool.root"
    
 if not 'OutputCaliPulseParamsFolder' in dir():
-   OutputCaliPulseParamsFolder = "/LAR/ElecCalibOfl/CaliPulseParams/RTM"
+   if not SuperCells: OutputCaliPulseParamsFolder = "/LAR/ElecCalibOfl/CaliPulseParams/RTM"
+   if SuperCells:     OutputCaliPulseParamsFolder = "/LAR/ElecCalibOflSC/CaliPulseParams/RTM"
    
 if not 'OutputDetCellParamsFolder' in dir():
-   OutputDetCellParamsFolder = "/LAR/ElecCalibOfl/DetCellParams/RTM"
+   if not SuperCells: OutputDetCellParamsFolder = "/LAR/ElecCalibOfl/DetCellParams/RTM"
+   if SuperCells:     OutputDetCellParamsFolder = "/LAR/ElecCalibOflSC/DetCellParams/RTM"
 
 if not StripsXtalkCorr:
    CaliWaveFolder = LArCalib_Flags.LArCaliWaveFolder
@@ -455,6 +465,9 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
    conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
@@ -556,6 +569,7 @@ LArRTMParamExtractor.TestMode       = doTest
 LArRTMParamExtractor.GroupingType   = GroupingType
 LArRTMParamExtractor.DAC            = DAC
 LArRTMParamExtractor.IgnoreDACSelection = IgnoreDACSelection
+LArRTMParamExtractor.isSC           = SuperCells
 
 LArRTMParamExtractor.ExtractTcal    = ExtractTcal
 LArRTMParamExtractor.ExtractFstep   = ExtractFstep
@@ -585,6 +599,7 @@ LArRTMParamExtractor.ResOscillKeyAfter  = ResOscillKeyAfter
 
 from LArCalibUtils.LArCalibUtilsConf import LArWFParamTool
 theLArWFParamTool = LArWFParamTool()
+theLArWFParamTool.isSC = SuperCells
     
 if 'NBaseline' in dir():
    theLArWFParamTool.NBaseline = NBaseline
@@ -636,6 +651,7 @@ if ( WriteNtuple ):
    #LArWFParams2Ntuple.DetStoreSuffix      = "_RTM"
    LArWFParams2Ntuple.CaliPulseParamsKey="LArCaliPulseParams_RTM"
    LArWFParams2Ntuple.DetCellParamsKey="LArDetCellParams_RTM"
+   LArWFParams2Ntuple.isSC = SuperCells
    topSequence += LArWFParams2Ntuple
    
    if ( DumpOmegaScan ):

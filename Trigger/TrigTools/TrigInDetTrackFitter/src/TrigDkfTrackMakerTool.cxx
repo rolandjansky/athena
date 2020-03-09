@@ -14,9 +14,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <iostream>
-
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -24,7 +21,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/PixelCluster.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
@@ -39,6 +35,8 @@
 #include "TrkDistributedKalmanFilter/TrkFilteringNodes.h"
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
 
+#include <cmath>
+#include <iostream>
 
 TrigDkfTrackMakerTool::TrigDkfTrackMakerTool(const std::string& t, 
 					     const std::string& n,
@@ -68,17 +66,12 @@ StatusCode TrigDkfTrackMakerTool::initialize()
      ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   }
-  StatusCode sc = detStore()->retrieve(m_pixelManager);  
-  if( sc.isFailure() ) 
-   {
-      ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore."); 
-      return sc;
-   } 
 
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   ATH_MSG_INFO("TrigDkfTrackMakerTool constructed ");
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigDkfTrackMakerTool::finalize()
@@ -208,7 +201,7 @@ bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>&
 	      
 	      const IdentifierHash idHash=
 		m_pixelId->wafer_hash(m_pixelId->wafer_id(pCL->identify()));
-	      InDetDD::SiDetectorElement* pEL=m_pixelManager->getDetectorElement(idHash);
+	      const InDetDD::SiDetectorElement* pEL=getPixelDetectorElement(idHash);
 	      const Trk::Surface& rSurf=pEL->surface();
 	      
 	      //const Trk::Surface& rSurf=pCL->detectorElement()->surface();
@@ -346,8 +339,14 @@ bool TrigDkfTrackMakerTool::createDkfTrack(const Trk::Track& track,
 	return true;
 }
 
+const InDetDD::SiDetectorElement* TrigDkfTrackMakerTool::getPixelDetectorElement(const IdentifierHash& waferHash) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_pixelDetEleCollKey};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(waferHash);
+}
+
 const InDetDD::SiDetectorElement* TrigDkfTrackMakerTool::getSCTDetectorElement(const IdentifierHash& waferHash) const {
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-  if (not  condData.isValid()) return nullptr;
+  if (not condData.isValid()) return nullptr;
   return condData->getDetectorElement(waferHash);
 }

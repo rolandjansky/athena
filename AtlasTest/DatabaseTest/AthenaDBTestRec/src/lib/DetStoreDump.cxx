@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DetStoreDump.cxx
@@ -7,7 +7,6 @@
 // and at first event execute
 // started Richard Hawkings 24/1/06
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
 #include "AthenaDBTestRec/DetStoreDump.h"

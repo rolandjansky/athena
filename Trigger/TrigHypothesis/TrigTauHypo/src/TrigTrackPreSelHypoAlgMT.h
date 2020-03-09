@@ -20,14 +20,10 @@ class TrigTrackPreSelHypoAlgMT : public ::HypoBase {
 
   TrigTrackPreSelHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigTrackPreSelHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private: 
-  TrigTrackPreSelHypoAlgMT();
   ToolHandleArray< ITrigTrackPreSelHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< TrackCollection > m_fastTracksKey { this, "trackcollection", "trackcollection", "fast tracks in view" };

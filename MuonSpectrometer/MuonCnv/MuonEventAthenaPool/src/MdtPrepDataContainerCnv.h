@@ -14,10 +14,6 @@
 class StoreGateSvc;
 class MdtIdHelper;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 // the latest persistent representation type of DataCollection:
 typedef  Muon::MdtPrepDataContainer_p2  MdtPrepDataContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<Muon::MdtPrepDataContainer, MdtPrepDataContainer_PERS >  MdtPrepDataContainerCnvBase;

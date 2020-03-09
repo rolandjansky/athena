@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Electron_v1$
@@ -55,11 +55,11 @@ namespace xAOD {
   const xAOD::TrackParticle* Electron_v1::trackParticle( size_t index ) const {
 
      if( index >= nTrackParticles() ) {
-        return 0;
+        return nullptr;
      }
      const TPELVec_t& links = trackParticleLinks();
      if( ! links[ index ].isValid() ) {
-        return 0;
+        return nullptr;
      }
      return *( links[ index ] );
   }
@@ -103,7 +103,8 @@ namespace xAOD {
     return ( *acc )( *this );
   }
 
-  bool Electron_v1::setTrackCaloMatchValue( float value, const EgammaParameters::TrackCaloMatchType information ) {
+  bool Electron_v1::setTrackCaloMatchValue( const float value, 
+                                            const EgammaParameters::TrackCaloMatchType information ) {
 
     const xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
      if( !acc ) return false;

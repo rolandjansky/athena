@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <iostream> 
 #include <iomanip> 
+#include <cmath>
 using std::max;
 
 GeoPixelIBLFwdSvcModel1::GeoPixelIBLFwdSvcModel1(int /*section*/): 
@@ -77,7 +78,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
   GeoLogVol* supportLogVol_C = new GeoLogVol(lnameC.str(),supportShapeC,ether);
 
   // Shift in phi
-  double pi = 3.141592654; 
+  double pi = M_PI;
   //  double deltaPhi = pi/28.;
 
   // Data taken fron CATIA desgin file

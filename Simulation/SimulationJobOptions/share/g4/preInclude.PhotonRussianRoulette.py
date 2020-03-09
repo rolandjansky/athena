@@ -12,12 +12,14 @@ threshold = 1. # MeV
 weight = 10.
 
 from G4AtlasApps.SimFlags import simFlags
-if hasattr(simFlags, 'PRRThreshold') and \
+if hasattr(simFlags, 'ApplyPRR') and \
+   hasattr(simFlags, 'PRRThreshold') and \
    hasattr(simFlags, 'PRRWeight'):
+    simFlags.ApplyPRR = True
     simFlags.PRRThreshold = threshold
     simFlags.PRRWeight = weight
-    print "Turning on PhotonRussianRoulette with threshold %s MeV and weight %s." % (
+    printfunc ("Turning on PhotonRussianRoulette with threshold %s MeV and weight %s." % (
       simFlags.PRRThreshold.get_Value(),
-      simFlags.PRRWeight.get_Value())
+      simFlags.PRRWeight.get_Value()))
 else:
-  print "WARNING: attribute PRRThreshold or PRRWeight not found in simFlags."
+  printfunc ("WARNING: attribute PRRThreshold or PRRWeight not found in simFlags.")

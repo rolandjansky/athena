@@ -20,12 +20,11 @@
 
 namespace LVL1TGCTrigger {
 
- extern bool        g_TILE_MU;
- extern bool        g_USE_CONDDB;
-
-TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(TGCArguments* tgcargs,
+						 const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
                                                  const std::string& version)
   :m_verName(version),
+   m_tgcArgs(tgcargs),
    m_readCondKey(readCondKey)
 {
   // intialize map
@@ -48,8 +47,8 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const SG::ReadCondHandleKey<TGC
     }
   }
    
-  if (!g_TILE_MU) return;
-  if (g_USE_CONDDB) return;
+  if (!tgcArgs()->TILE_MU()) return;
+  if (tgcArgs()->USE_CONDDB()) return;
 
   //////////////////////////////
   IMessageSvc* msgSvc = 0;
@@ -66,7 +65,7 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const SG::ReadCondHandleKey<TGC
   } else {
     log << MSG::INFO  
 	<< " NOT use TileMu " << endmsg;
-    g_TILE_MU = false;
+    tgcArgs()->set_TILE_MU( false );
     for (size_t side=0; side< N_Side; side++){
       for (size_t sec=0; sec< N_EndcapSector; sec++){
 	for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
@@ -265,7 +264,7 @@ int  TGCTileMuCoincidenceMap::getMask(const int module,
   if ((sec<0)||(sec>=TGCTriggerData::N_ENDCAP_SECTOR)) return TM_NA;
   if ((side<0)||(side>=TGCTriggerData::N_SIDE)) return TM_NA;
 
-  if  (g_USE_CONDDB) {
+  if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getTrigMaskTile(module, ssc, sec, side);
@@ -284,7 +283,7 @@ int  TGCTileMuCoincidenceMap::getFlagPT(const int pt,
   if ((sec<0)||(sec>=N_EndcapSector)) return -1;
   if ((side<0)||(side>=N_Side)) return -1;
 
-  if  (g_USE_CONDDB) {
+  if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getFlagPtTile(pt, ssc, sec, side);
@@ -303,7 +302,7 @@ int  TGCTileMuCoincidenceMap::getFlagROI(const int roi,
   if ((sec<0)||(sec>=N_EndcapSector)) return -1;
   if ((side<0)||(side>=N_Side)) return -1;
 
-  if  (g_USE_CONDDB) {
+  if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getFlagRoiTile(roi, ssc, sec, side);

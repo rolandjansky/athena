@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonSivsTRT_H
@@ -20,9 +20,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "TrkParameters/TrackParameters.h"
-
-
+#include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class TH1F;
 class TH2F;
@@ -33,10 +33,6 @@ class PixelID;
 
 namespace InDetAlignMon{
   class TrackSelectionTool;
-}
-
-namespace InDetDD{
-  class PixelDetectorManager; 
 }
 
 namespace Trk {
@@ -89,6 +85,8 @@ protected:
 	ToolHandle<InDetAlignMon::TrackSelectionTool>        m_trackSelection;
 	ToolHandle<Trk::ITrackSummaryTool>        m_trackSumTool;
 
+        SG::ReadHandleKey<TrackCollection> m_ResolvedTracksKey{this, "ResolvedTracksKey", "ResolvedTracks"};
+        SG::ReadHandleKey<TrackCollection> m_ExtendedTracksKey{this, "ExtendedTracksKey", "ExtendedTracks"};
 
 	//histograms
 	TH1F* m_delta_phi0{};

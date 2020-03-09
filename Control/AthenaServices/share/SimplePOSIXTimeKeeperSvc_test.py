@@ -6,7 +6,7 @@
 from gaudimodule import PyAlgorithm
 class WasteTimeAlg(PyAlgorithm):
     def execute(self):
-        print "waste some time"
+        printfunc ("waste some time")
         for i in range(200000) :
             foo = i*i/(i+1)/(i+2)
         return 1

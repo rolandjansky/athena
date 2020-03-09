@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file PyAthenaEventLoopMgr.py
 #  @brief Python facade of PyAthenaEventLoopMgr
@@ -19,7 +19,7 @@ def enable_seeking(silent=False):
 
    import sys
    from AthenaCommon.Logging import log as msg
-   if not sys.modules.has_key( 'AthenaPoolCnvSvc.ReadAthenaPool' ):
+   if 'AthenaPoolCnvSvc.ReadAthenaPool' not in sys.modules:
       if silent:
          _msg = msg.debug
       else:
@@ -92,7 +92,7 @@ class PyAthenaEventLoopMgr( PyGaudi.iService ):
     # need to set all the following through the __dict__ b/c of iPropert.__setattr__
 
     # the expect IEventSeek
-      self.__dict__[ '_evtSeek' ] = cppyy.gbl.BindObject( cppself, cppyy.gbl.IEventSeek );
+      self.__dict__[ '_evtSeek' ] = cppyy.gbl.BindObject( cppself, cppyy.gbl.IEventSeek )
 
     # the IService needed for iService._isvc and likewise iProperty._ip
       self.__dict__[ '_isvc' ] = PyGaudi.InterfaceCast( cppyy.gbl.IService )( self._evtSeek )
@@ -107,7 +107,7 @@ class PyAthenaEventLoopMgr( PyGaudi.iService ):
       for obj in [ self._evtSeek, self._state, self._evtpro ]:
          try:
             return getattr( obj, attr )
-         except:
+         except Exception:
             pass
 
     # let properties be tried last
@@ -134,7 +134,7 @@ class PyAthenaEventLoopMgr( PyGaudi.iService ):
             result = ialg.sysExecute(ctx)
             if result.isFailure():
                from AthenaCommon.Logging import log as msg
-               msg.error( "Execution of algorithm %s failed" % name )
+               msg.error( "Execution of algorithm %s failed", name )
                return result.getCode()
       except KeyboardInterrupt:
          from AthenaCommon.Logging import log as msg

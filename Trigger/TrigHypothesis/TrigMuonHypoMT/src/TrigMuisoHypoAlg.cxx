@@ -2,11 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "AthLinks/ElementLink.h"
 #include "TrigMuisoHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -21,16 +16,11 @@ TrigMuisoHypoAlg::TrigMuisoHypoAlg( const std::string& name,
 {}
 
 
-TrigMuisoHypoAlg::~TrigMuisoHypoAlg() 
-{}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMuisoHypoAlg::initialize()
 {
-  ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
-
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce( m_muIsoKey );
@@ -40,26 +30,13 @@ StatusCode TrigMuisoHypoAlg::initialize()
 }
 
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMuisoHypoAlg::finalize()
-{
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
 {
   // common for all Hypos, to move in the base class
   ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute start");
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
-  if( not previousDecisionsHandle.isValid() ) {//implicit
-    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
-    return StatusCode::SUCCESS;      
-  }  
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  ATH_CHECK( previousDecisionsHandle.isValid() );
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
 
   // new output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
@@ -70,7 +47,7 @@ StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
   size_t counter = 0; // view counter
   for ( const auto previousDecision: *previousDecisionsHandle ) {
     // get View
-    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
+    auto viewEL = previousDecision->objectLink< ViewContainer >( viewString() );
     ATH_CHECK( viewEL.isValid() );
 
     // get info of that view
@@ -88,8 +65,7 @@ StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
     // push_back to toolInput
     toolInput.emplace_back( newd, muon, previousDecision );
     
-    newd->setObjectLink( "feature", muonEL );  
-    newd->setObjectLink( "view",    viewEL );
+    newd->setObjectLink( featureString(), muonEL );
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
     
     ATH_MSG_DEBUG("REGTEST: " << m_muIsoKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
@@ -111,21 +87,7 @@ StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
     }
   } // End of tool algorithms */
 
-
-
-  {// make output handle and debug, in the base class
-    ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-    }
-  }
-
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute success");
   return StatusCode::SUCCESS;

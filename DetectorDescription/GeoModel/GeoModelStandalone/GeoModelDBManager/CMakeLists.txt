@@ -12,6 +12,10 @@ endif(CMAKE_BUILD_TYPE MATCHES Release)
 if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
     add_definitions(-DQT_NO_DEBUG_OUTPUT)
 endif(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DQT_NO_DEBUG_OUTPUT) # comment if you need debug messages in Debug build
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
 
 # External dependencies:
 find_package( Qt5 COMPONENTS Core Sql )

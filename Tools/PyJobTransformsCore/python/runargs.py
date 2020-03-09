@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import CVSutil
-CVSkeywords = CVSutil.CVSkeywords( ["$Id: runargs.py,v 1.16 2009-03-16 09:01:06 ctan Exp $" ,
-                                    "$Name: not supported by cvs2svn $" ,
-                                    "$Revision: 468439 $"] )
-__version__ = CVSkeywords["Revision"]
+from __future__ import print_function
+
 __author__ = "clat@hep.ph.bham.ac.uk"
 
 import os
@@ -179,7 +176,7 @@ class CommandLineOption( Descriptor ):
 #        return Descriptor._checkValue(self,variableName,value)
     
     def _setValue(self,variableName,value):
-        print "Setting %s to %r" % (variableName,value)
+        print ("Setting %s to %r" % (variableName,value))
         if value is not None and (self.__takesArgument or value):
             self.processOption(value)
     
@@ -211,7 +208,7 @@ class RunOptions(JobConfig):
     command    = CommandLineOption('c', 'command', 'Python code to be pre-executed before any scripts', True )
     mcinput    = CommandLineOption('', 'mcinput', 'Monte Carlo input file used. Omit if real data is used. Enabling this option also implies setting --usesqlite=True', True, False, choices = [ True, False ] )
     usesqlite  = CommandLineOption('', 'usesqlite', 'Force the use of local/symlinked sqlite files rather than ORACLE.', True, False, choices = [ True, False ]  )
-    omitvalidation = CommandLineOption('', 'omitvalidation', 'Omit certain validation routines. Use "ALL" to omit all validation routines, use "NONE" to remove all validation ommissions.', True, choices = VALIDATION_DICT.keys() + ['NONE'] )
+    omitvalidation = CommandLineOption('', 'omitvalidation', 'Omit certain validation routines. Use "ALL" to omit all validation routines, use "NONE" to remove all validation ommissions.', True, choices = list(VALIDATION_DICT.keys()) + ['NONE'] )
     athenaopts = CommandLineOption('a', 'athenaopts', 'Options to be passed on to athena', True)
     argdict    = CommandLineOption('',  'argdict', 'Run arguments given in a python dictionary in a pickle file', True)
     

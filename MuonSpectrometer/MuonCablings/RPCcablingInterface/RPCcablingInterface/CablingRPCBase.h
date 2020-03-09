@@ -14,9 +14,9 @@
 #include "MuonCablingTools/BaseObject.h"
 #include "MuonCablingTools/RPCdef.h"
 
-#include "RPCcablingInterface/CMAparameters.h"
-#include "RPCcablingInterface/RDOindex.h"
-#include "RPCcablingInterface/RPCofflineId.h"
+#include "RPC_CondCabling/CMAparameters.h"
+#include "RPC_CondCabling/RDOindex.h"
+#include "RPC_CondCabling/RPCofflineId.h"
 
 
 class CablingRPCBase;

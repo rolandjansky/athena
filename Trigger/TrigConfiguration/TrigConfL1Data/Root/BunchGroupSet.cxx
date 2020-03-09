@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/BunchGroupSet.h"
@@ -10,10 +10,11 @@ using namespace std;
 using namespace TrigConf;
 
 
-BunchGroupSet::BunchGroupSet() : L1DataBaseclass(), m_BGpattern(3564) {}
+BunchGroupSet::BunchGroupSet() : L1DataBaseclass(), m_MenuPartition(0), m_BGpattern(3564) {}
   
 BunchGroupSet::BunchGroupSet(const std::vector<BunchGroup>& bgv) :
-   L1DataBaseclass(), 
+   L1DataBaseclass(),
+   m_MenuPartition(0),
    m_BunchGroups(bgv),
    m_BGpattern(3564)
 {

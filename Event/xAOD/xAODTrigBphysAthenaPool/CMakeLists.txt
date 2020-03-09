@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_poolcnv_library( xAODTrigBphysAthenaPoolPoolCnv
                            src/*.cxx
                            FILES xAODTrigBphys/TrigBphysContainer.h xAODTrigBphys/TrigBphysAuxContainer.h
-                           TYPES_WITH_NAMESPACE xAOD::TrigBphys
+                           TYPES_WITH_NAMESPACE xAOD::TrigBphysContainer xAOD::TrigBphysAuxContainer
                            CNV_PFX xAOD
                            LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTrigBphys )
 

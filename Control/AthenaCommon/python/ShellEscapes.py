@@ -7,7 +7,7 @@
 
 from __future__ import print_function
 
-import os, sys, string
+import os, sys
 import re
 import AthenaCommon.Utils.unixtools as unixtools
 
@@ -59,7 +59,7 @@ class ShellEscapes:
 
     # execute command, if any
       if cmd is not None:
-         args = string.split( cmd )
+         args = cmd.split()
          exe = args[0]
 
        # special cases

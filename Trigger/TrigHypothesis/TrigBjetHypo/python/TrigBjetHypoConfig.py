@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypo
 from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypoAllTE
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import GeV
 
 def getBjetHypoInstance( instance, version, cut ):
     return BjetHypo( instance=instance, cut=cut, version=version, name=instance+"BjetHypo"+"_"+cut+"_"+version )
@@ -495,7 +494,8 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
         #  eg: b150_b50  gives two requirements 150b  and 2b50
         for jetDef in fullTrigReqAND:
             for otherJetDefs in fullTrigReqAND:
-                if jetDef == otherJetDefs: continue
+                if jetDef == otherJetDefs:
+                    continue
                 if jetDef[0] > otherJetDefs[0] and jetDef[1] == otherJetDefs[1] :
                     fullTrigReqAND[otherJetDefs] += fullTrigReqAND[jetDef]
                 
@@ -547,7 +547,8 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
         # Loop on unique pairs
         for jetDef in fullTrigReqAND:
             for otherJetDefs in fullTrigReqAND:
-                if jetDef == otherJetDefs: continue
+                if jetDef == otherJetDefs:
+                    continue
 
                 # check if pt is harder
                 jetDef_ptBigger = jetDef[0] > otherJetDefs[0] 

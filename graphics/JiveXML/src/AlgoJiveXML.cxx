@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JiveXML/AlgoJiveXML.h"
@@ -14,7 +14,6 @@
 #include "EventInfo/PileUpEventInfo.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 

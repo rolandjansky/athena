@@ -18,8 +18,8 @@ class JetParticleShrinkingConeAssociation : public JetParticleAssociation {
 
         JetParticleShrinkingConeAssociation(const std::string& name);
 
-        const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
-            match(const xAOD::JetContainer&) const;
+        virtual const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
+            match(const xAOD::JetContainer&, const xAOD::IParticleContainer&) const override;
 
         inline double coneSize(double pt) const {
             return (m_coneSizeFitPar1 + exp(m_coneSizeFitPar2 + m_coneSizeFitPar3*pt));
@@ -27,7 +27,6 @@ class JetParticleShrinkingConeAssociation : public JetParticleAssociation {
 
 
     private:
-        std::string m_inputParticleCollectionName;
         double m_coneSizeFitPar1;
         double m_coneSizeFitPar2;
         double m_coneSizeFitPar3;

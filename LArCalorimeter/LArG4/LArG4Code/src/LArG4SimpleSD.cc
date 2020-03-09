@@ -3,7 +3,6 @@
 */
 
 #include "LArG4Code/LArG4SimpleSD.h"
-#include "LArG4Code/LArG4Hit.h"
 
 #include "LArG4Code/ILArCalculatorSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"

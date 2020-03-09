@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileRecUtils/share/TileRawChannelBuilder_test.py
 # Author: sss
@@ -190,6 +190,7 @@ class TileFragHash:
     FitFilter = 6
     FitFilterCool = 7
     FlatFilter = 8
+    WienerFilterOffline = 9
 
 
 from AthenaPython.PyAthenaComps import Alg, StatusCode
@@ -264,7 +265,7 @@ class PrepareDataAlg (Alg):
             coll = ROOT.TileRawChannelCollection (hashFunc.identifier (icoll))
             mask = 0
             for chan in chans:
-                mask |= (1<<(chan/3))
+                mask |= (1<<(chan//3))
             coll.setFragMemoryPar(mask)
             cont.addCollection (coll, ROOT.IdentifierHash(icoll))
             ROOT.SetOwnership (coll, False)
@@ -334,7 +335,8 @@ class TestAlg (Alg):
             return StatusCode.Failure
 
         for coll in digits:
-            tool.build (coll)
+            if not tool.build (coll):
+                return StatusCode.Failure
 
         if not tool.commitContainer():
             return StatusCode.Failure
@@ -444,7 +446,7 @@ ToolSvc += TileRawChannelBuilderTest ('tool1')
 ToolSvc += TileRawChannelBuilderTest ('tool2', NoiseFilterTools = [noisefilter])
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-topSequence += xAODMaker__EventInfoCnvAlg (DoBeginRun = False)
+topSequence += xAODMaker__EventInfoCnvAlg ()
 
 prepalg1 = PrepareDataAlg ('prepalg1')
 topSequence += prepalg1

@@ -27,10 +27,10 @@ else: # it should be 'tier0'
     larRawMon=True
     larESDMon=True
 
-from RecExConfig.InputFilePeeker import inputFileSummary
-if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
-    LArMonFlags.doLArDigitMon = False    
-    
+from PyUtils.MetaReaderPeeker import metadata
+if metadata['eventTypes'][0] == 'IS_SIMULATION':
+    LArMonFlags.doLArDigitMon = False
+
 
 # Define ONE LArBadChannelMask for all Monitoring tools
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker

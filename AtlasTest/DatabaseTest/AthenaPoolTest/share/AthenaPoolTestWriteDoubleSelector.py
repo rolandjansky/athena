@@ -95,8 +95,8 @@ Stream1.ItemList = [ o for o in Stream1.ItemList if not o in 'IAthenaPoolTestCol
 Stream2.ItemList = [ o for o in Stream2.ItemList if not o in 'dummy_E#*' ]
 Stream2.ItemList = [ o for o in Stream2.ItemList if not o in 'AthenaPoolTestMatrix#*' ]
 
-print "Stream1.ItemList ",Stream1.ItemList
-print "Stream2.ItemList ",Stream2.ItemList
+printfunc ("Stream1.ItemList ",Stream1.ItemList)
+printfunc ("Stream2.ItemList ",Stream2.ItemList)
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
@@ -106,7 +106,8 @@ svcMgr.MessageSvc.debugLimit  = 100000
 
 svcMgr.AthenaSealSvc.OutputLevel = WARNING
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 # No stats printout

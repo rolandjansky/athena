@@ -7,14 +7,8 @@ __author__  = 'S.Xella, O.Igonkina, F.Friedrich'
 __version__ =""
 __doc__     ="Configuration of TrigTauRec"
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-
 from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from AthenaCommon.AppMgr import ToolSvc
 
 class TrigTauRecMerged_Tau (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
@@ -56,7 +50,7 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
 	    
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'	    
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
 	    
             self.Tools = tools
 
@@ -129,15 +123,6 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             super( TrigTauRecMerged_TauPreselection , self ).__init__( name )
             self._mytools = []
             
-            # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
-            from TrigTauRec.TrigTauRecMonitoring import TrigTauRecValidationMonitoring, TrigTauRecOnlineMonitoring 
-            validation = TrigTauRecValidationMonitoring()        
-            online     = TrigTauRecOnlineMonitoring()
-                
-            from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-            time = TrigTimeHistToolConfig("Time")
-            #self.AthenaMonTools = [ time, validation, online ]
-
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
@@ -168,7 +153,6 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #tools.append(taualgs.getPileUpCorrection())
 
 
             for tool in tools:
@@ -231,7 +215,6 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #tools.append(taualgs.getPileUpCorrection())
 
 
             for tool in tools:
@@ -385,7 +368,6 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #tools.append(taualgs.getPileUpCorrection())
             tools.append(taualgs.getTauIDVarCalculator())
             tools.append(taualgs.getTauJetBDTEvaluator(suffix="JetBDTEvaluator_1p", 
                                                        weightsFile="vars2016_pt_gamma_1p_isofix.root", 
@@ -476,7 +458,6 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #tools.append(taualgs.getPileUpCorrection())
             
             # tracktwoEF
             if not doMVATES:

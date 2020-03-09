@@ -18,7 +18,6 @@
 
 TileBadChannelsCondAlg::TileBadChannelsCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name),
   m_useOflBch(true)
 {
 }
@@ -37,6 +36,9 @@ StatusCode TileBadChannelsCondAlg::initialize() {
 
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
+
+  // Tile cabling service
+  ATH_CHECK( m_cablingSvc.retrieve() );
 
   ATH_CHECK( m_badChannelsKey.initialize() );
   // Register write handle
@@ -233,7 +235,7 @@ StatusCode TileBadChannelsCondAlg::execute() {
 
     // Find Tile drawers masked completely
     std::vector<int> maskedDrawers;
-    TileCablingService* cabling = TileCablingService::getInstance();
+    const TileCablingService* cabling = m_cablingSvc->cablingService();
     unsigned int maxChannels = cabling->getMaxChannels();
 
     for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {

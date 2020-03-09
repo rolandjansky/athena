@@ -9,6 +9,27 @@
 #include <vector>
 
 namespace IOVDbNamespace{
+
+  
+  
+  FolderType
+  determineFolderType(const std::string & folderDescription, const std::string & spec, const std::vector<cool::ChannelId> & chans){
+    //If you find a coracool tag, it is unambiguously a coracool folder
+    if (folderDescription.find("<coracool>") != std::string::npos) return CoraCool;
+    const std::string typeName = parseTypename(folderDescription);
+    //if the type is CondAttrListVec, and yet it is not a CoraCool, it must be a CoolVector
+    if (typeName=="CondAttrListVec") return CoolVector;
+    //check if the payload spec is compatible with a pool ref/pool ref collection
+    if (poolCompatible(spec)){
+      const auto nchans = chans.size();
+      const bool onlyOneSpecialChannel = ((nchans == 1) and (chans[0] == 0));
+      return onlyOneSpecialChannel ? PoolRef : PoolRefColl;
+    }
+    if (typeName == "CondAttrListCollection") return AttrListColl;
+    //defaults to AttrList
+    return AttrList;
+   }
+  
   //determine folder type from DB folder ptr
   FolderType
   determineFolderType(const cool::IFolderPtr & pFolder, IClassIDSvc* /*clidsvc*/){
@@ -75,6 +96,11 @@ namespace IOVDbNamespace{
    poolCompatible(const cool::IRecordSpecification& rspec){
      return (rspec.exists("PoolRef") && rspec[0].name()=="PoolRef" &&
       rspec[0].storageType()==cool::StorageType::String4k);
+   }
+   
+   bool
+   poolCompatible(const std::string & specString){
+     return (specString.find("PoolRef: String4k") != std::string::npos);
    }
    
    bool

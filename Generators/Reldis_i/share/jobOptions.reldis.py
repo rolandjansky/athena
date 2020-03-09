@@ -13,7 +13,6 @@ topSequence.Reldis_i.ReldisTreeName     = "h2032"
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream("StreamEVGEN")
-Stream1.ForceRead = TRUE
 Stream1.OutputFile = "evgen.reldis.pool.root"
 Stream1.ItemList += ["2101#*", "133273#*"]
 

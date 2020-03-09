@@ -25,7 +25,6 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "EventInfo/TriggerInfo.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrigSteering/IStreamingStrategy.h"
 #include "TrigSteering/IExecutionOrderStrategy.h"
 

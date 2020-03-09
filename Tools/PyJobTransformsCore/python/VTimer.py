@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import cPickle as pickle
+from __future__ import print_function
+
+import pickle
 import os, time
 from resource import getrusage, RUSAGE_SELF, RUSAGE_CHILDREN
     
@@ -83,7 +85,7 @@ class VTimer( object ):
         try:
             getattr( self.logger, severity )( x )
         except:
-            print x
+            print (x)
 
     def toHMS( self, seconds = 0 ):
         if seconds < 0:

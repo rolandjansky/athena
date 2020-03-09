@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
@@ -78,7 +77,7 @@ StatusCode MDTCablingDbTool::initialize()
 { 
   ATH_MSG_VERBOSE( "Initializing "  );
  
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   m_IOVSvc = 0;
   bool CREATEIF(true);
@@ -262,7 +261,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
       stationNameString = "BOL";
     }
     if (stationNameString == "BMG") BMGchamberadded = true;    
-    int stationIndex = m_mdtIdHelper->stationNameIndex(stationNameString);
+    int stationIndex = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(stationNameString);
     ATH_MSG_VERBOSE( "station name: " << stationNameString << " index: " << stationIndex  );
     
     // convert the subdetector id to integer
@@ -320,9 +319,9 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     
   }
 
-  if(m_mdtIdHelper->stationNameIndex("BMG") != -1 && !BMGchamberadded) {
+  if(m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1 && !BMGchamberadded) {
     ATH_MSG_WARNING( "Running a layout including BMG chambers, but missing them in cabling from conditions --> hard-coding BMG cabling."  );
-    int stationIndex = m_mdtIdHelper->stationNameIndex("BMG");
+    int stationIndex = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
 
     // BMG1A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1

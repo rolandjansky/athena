@@ -4,8 +4,6 @@
 # TileTTL1 creation from TileHit
 # with TileHitToTTL1 algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -27,9 +25,9 @@ class TileTTL1FromHitsGetter ( Configured )  :
         try:
             from TileSimAlgs.TileTTL1FromHitsGetter import TileTTL1FromHitsGetter
             theTileTTL1FromHitsGetter=TileTTL1FromHitsGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileTTL1FromHitsGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileTTL1FromHitsGetter.usable():
@@ -42,13 +40,13 @@ class TileTTL1FromHitsGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileSimAlgs.TileSimAlgsConf import TileHitToTTL1                
-        except:
+        except Exception:
             mlog.error("could not import TileSimAlgs.TileHitToTTL1")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileHitToTTL1=TileHitToTTL1()
-        self._TileHitToTTL1 = theTileHitToTTL1 ;
+        self._TileHitToTTL1 = theTileHitToTTL1
 
         # Configure TileHitToTTL1 here
         # Check TileTTL1_jobOptions.py for full configurability
@@ -80,7 +78,7 @@ class TileTTL1FromHitsGetter ( Configured )  :
         # get a handle on topalg
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileHitToTTL1;
+        topSequence += theTileHitToTTL1
         
         return True
 

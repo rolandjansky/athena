@@ -49,27 +49,20 @@ SUSY5ThinningHelper.AppendToStream( SUSY5Stream )
 
 # MET/Jet tracks
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-SUSY5MetTPThinningTool = DerivationFramework__TrackParticleThinning( name               = "SUSY5MetTPThinningTool",
-                                                                ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += SUSY5MetTPThinningTool
-thinningTools.append(SUSY5MetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 SUSY5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "SUSY5JetTPThinningTool",
-                                                                ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4EMTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
+                                                                TrackSelectionString    = thinning_expression)
 ToolSvc += SUSY5JetTPThinningTool
 thinningTools.append(SUSY5JetTPThinningTool)
 
 # TrackParticles directly
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 SUSY5TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY5TPThinningTool",
-                                                                 ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = "InDetTrackParticles.pt > 10*GeV",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY5TPThinningTool
@@ -78,7 +71,7 @@ thinningTools.append(SUSY5TPThinningTool)
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY5MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY5MuonTPThinningTool",
-                                                                         ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY5MuonTPThinningTool
@@ -87,7 +80,7 @@ thinningTools.append(SUSY5MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    	= "SUSY5ElectronTPThinningTool",
-                                                                                 ThinningService        = SUSY5ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey             	= "Electrons",
                                                                                  InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += SUSY5ElectronTPThinningTool
@@ -96,7 +89,7 @@ thinningTools.append(SUSY5ElectronTPThinningTool)
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY5PhotonTPThinningTool",
-										 ThinningService	 = SUSY5ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
 										 SGKey			 = "Photons",
 										 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY5PhotonTPThinningTool
@@ -105,7 +98,7 @@ thinningTools.append(SUSY5PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 SUSY5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "SUSY5TauTPThinningTool",
-                                                                        ThinningService = SUSY5ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey          = "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY5TauTPThinningTool
@@ -117,7 +110,7 @@ thinningTools.append(SUSY5TauTPThinningTool)
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY5TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY5TruthThinningTool",
-                                                       ThinningService              = SUSY5ThinningHelper.ThinningSvc(),
+                                                       StreamName                   = streamName,
                                                        WritePartons                 = False,
                                                        WriteHadrons                 = False,
                                                        WriteBHadrons                = True,                                                                                               

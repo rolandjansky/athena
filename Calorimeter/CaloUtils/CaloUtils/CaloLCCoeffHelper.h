@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOUTILS_CALOLCCOEFFHELPER_H
@@ -23,7 +23,7 @@ class CaloLCCoeffHelper {
     void PrintData(CaloLocalHadCoeff *m_data, std::ostream &fout);
     void PrintData(CaloLocalHadCoeff *m_data, const char *fname);
 
-    const CaloLocalHadCoeff::LocalHadArea * getAreaFromName(const CaloLocalHadCoeff * m_coeff, std::string sname, int &m_indx) const;
+    const CaloLocalHadCoeff::LocalHadArea * getAreaFromName(const CaloLocalHadCoeff * m_coeff, const std::string& sname, int &m_indx) const;
 
     // Interpolate m_data, n_area in phase space point x, over dimensions dim (all if 0)
     // return in pars

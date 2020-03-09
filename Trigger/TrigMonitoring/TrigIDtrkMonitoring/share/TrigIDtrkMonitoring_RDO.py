@@ -35,7 +35,6 @@ EvtMax=-1
 ##### TrigHLTMonitoring Part #####################
 
 doTrigger=True
-TriggerModernConfig=True
 doWriteAOD=False
 doWriteESD=True
 doWriteTAG=False

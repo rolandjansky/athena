@@ -4,8 +4,6 @@
 # TileCell creation from TileHit
 # with TileHitToCell algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -27,9 +25,9 @@ class TileCellFromHitsGetter ( Configured )  :
         try:
             from TileSimAlgs.TileCellFromHitsGetter import TileCellFromHitsGetter
             theTileCellFromHitsGetter=TileCellFromHitsGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileCellFromHitsGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileCellFromHitsGetter.usable():
@@ -42,13 +40,13 @@ class TileCellFromHitsGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileSimAlgs.TileSimAlgsConf import TileHitToCell                
-        except:
+        except Exception:
             mlog.error("could not import TileSimAlgs.TileHitToCell")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileHitToCell=TileHitToCell()
-        self._TileHitToCellHandle = theTileHitToCell ;
+        self._TileHitToCellHandle = theTileHitToCell
 
         # Configure TileHitToCell here
         # Check TileSimAlgs_jobOptions.py for full configurability
@@ -73,7 +71,7 @@ class TileCellFromHitsGetter ( Configured )  :
         # get a handle on topalg
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileHitToCell;
+        topSequence += theTileHitToCell
         
         return True
 

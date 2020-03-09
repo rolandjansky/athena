@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TruthD3PDMaker/python/evgenD3PD.py
 # @author Renaud Bruneliere <Renaud.Bruneliere@cern.ch>
@@ -73,7 +72,6 @@ def evgenD3PD (file,
         # The function that makes the truth jets, with appropriate arguments
         antikt4truthAlg = make_StandardJetGetter('AntiKt',0.4,'Truth',globalSuff=mysuffix,disable=False,includeMuons=True,useInteractingOnly=False).jetAlgorithmHandle()
         antikt4truthAlg.AlgTools['InputToJet'].InputCollectionKeys = ['FilteredD3PDTruth']
-        print 'antikt4truthAlg',antikt4truthAlg
         antikt6truthAlg = make_StandardJetGetter('AntiKt',0.6,'Truth',globalSuff=mysuffix,disable=False,includeMuons=True,useInteractingOnly=False).jetAlgorithmHandle()
         antikt6truthAlg.AlgTools['InputToJet'].InputCollectionKeys = ['FilteredD3PDTruth']
         if doExcludeWZdecays:

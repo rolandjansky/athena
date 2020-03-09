@@ -14,7 +14,6 @@
 #include "CaloSimEvent/CaloCalibrationHit.h"
 
 // LArG4 hit classes
-#include "LArG4Code/LArG4Hit.h"
 #include "LArG4Code/CalibrationHit.h"
 #include "LArG4Code/LArG4Identifier.h"
 
@@ -338,11 +337,11 @@ namespace LArG4 {
 		for (int i = 0; i < numberHits; i++)
 		  {
 		    // Get the "i-th" hit in the collection.
-		    CalibrationHit* larG4hit = (*collection)[i];
+		    CalibrationHit* larhit = (*collection)[i];
 
 		    // Get the internal LArG4 Identifier used for the
 		    // hit.
-		    LArG4Identifier larG4Ident = larG4hit->identifier();
+		    LArG4Identifier larG4Ident = larhit->identifier();
 
 		    // Try to convert the LArG4 Identifier into an
 		    // Athena Identifier.

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODCaloEventDict.h 700669 2015-10-15 08:31:13Z wlampl $
@@ -29,8 +29,10 @@
 #include "xAODCaloEvent/versions/CaloClusterContainer_v1.h"
 #include "xAODCaloEvent/versions/CaloClusterAuxContainer_v1.h"
 #include "xAODCaloEvent/versions/CaloClusterAuxContainer_v2.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloVertexedClusterBase.h"
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
+#include "xAODCaloEvent/CaloClusterBadChannelData.h"
 
 //#include "xAODCaloEvent/CaloTowerDescriptor.h"
 //#include "xAODCaloEvent/CaloTowerGrid.h"
@@ -55,6 +57,7 @@ namespace {
       std::vector< std::vector< ElementLink< xAOD::CaloClusterContainer_v1 > > > el3;
       // Additional type(s) needed:
       std::bitset< 3 > type1; // Using 3 instead of CaloCluster::NSTATES...
+     std::vector<std::vector<std::pair<unsigned int, double > > > calHitDecoratorType;
 
      //BadChannel lists 
      xAOD::CaloClusterBadChannelData_v1 bcd;

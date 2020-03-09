@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,33 +9,23 @@
 #ifndef MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOL_H
 #define MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "TGC_RawDataProviderToolCore.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "TGC_Hid2RESrcID.h"
-#include "MuonRDO/TgcRdo_Cache.h"
-
-class TgcRdoContainer;
-class ActiveStoreSvc;
-class IROBDataProviderSvc;
-class ITGCcablingSvc;
-
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
 
 namespace Muon
 {
-  class ITGC_RodDecoder;
 
   /** @class TGC_RawDataProviderTool
    *  A tool to decode TGC ROB fragments into TGC RDO.
+   *  This version is for legacy run-2 athena and is not thread safe.
    *
    *  @author Zvi Tarem <zvi@caliper.co.il>
+   *  @author Mark Owen <markowen@cern.ch>
    */
   
-  class TGC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public AthAlgTool
+  class TGC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public TGC_RawDataProviderToolCore
     {
     public:
       /** Default constructor */
@@ -59,35 +49,10 @@ namespace Muon
       virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect);
 
     private:
-      /** MuonDectorManager is used to get tgcIdHelper */
-      const MuonGM::MuonDetectorManager*  m_muonMgr;
-      /** Decoder for ROB fragment RDO conversion */
-      ToolHandle<ITGC_RodDecoder>         m_decoder;
-      /** Container of RDO containers 
-	  TgcRawData is an RDO.
-	  TgcRdo is an RDO container. 
-	  TgcRdoContiner is an container of RDO containers.  
-       */
-      //TgcRdoContainer*                    m_rdoContainer;
-      /** RDO container key */
-      SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{ this, "RdoLocation", "TGCRDO", "Name of the TGCRDO produced by RawDataProvider"};	//MT
-      // TGC container cache key
-      SG::UpdateHandleKey<TgcRdo_Cache> m_rdoContainerCacheKey ;
-      bool 		m_useContainer;	//MT
-      unsigned int 	m_maxhashtoUse;	//MT
 
-      /** Active Store Service */ 
-      ActiveStoreSvc*                     m_activeStore;
-      /** ID converter */
-      TGC_Hid2RESrcID                     m_hid2re;
-      /** TGC cabling Svc */
-      const ITGCcablingSvc                *m_cabling;
-      /** Rob Data Provider handle */
-      ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
-      /** Avoid compiler warning **/
+      /** convert from vector of ROB IDs is not available */
       virtual StatusCode convert(const std::vector<uint32_t>&) {return StatusCode::FAILURE;}
 
-      StatusCode getCabling();
     };
 } // end of namespace
 

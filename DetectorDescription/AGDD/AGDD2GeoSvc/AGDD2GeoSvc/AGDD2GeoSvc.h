@@ -16,7 +16,6 @@
 
 class ISvcLocator;
 class IToolSvc;
-class ITagInfoMgr;
 class IRDBAccessSvc;
 class IGeoModelSvc;
 class GeoFullPhysVol;
@@ -39,14 +38,10 @@ private:
 
   void localInitialization();
 
-  ITagInfoMgr* m_tagInfoMgr{};
-
   std::vector<XMLHandler*> m_handlerVector;
 
   ToolHandleArray<IAGDDToolBase> m_builders; // public ToolHandleArray
 
-
-  //	int PrintLevel() const {return m_printLevel;}
 };
 
 #endif

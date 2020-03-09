@@ -16,7 +16,11 @@ TGCRPhiCoincidenceOut::TGCRPhiCoincidenceOut():
   m_r(-1),
   m_dR(0),
   m_dPhi(0),
-  m_innerVeto(false)
+  m_innerVeto(false),
+  m_charge(0),
+  m_coincidenceTypeFlag(false),
+  m_goodMFFlag(false),
+  m_innerCoincidenceFlag(false)
 {
   for( int i=1; i <= NumberOfPtLevel; i+=1) m_hit[i]=false;
 }

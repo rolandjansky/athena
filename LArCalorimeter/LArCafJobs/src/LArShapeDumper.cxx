@@ -65,7 +65,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_nLArError(0),
   m_nNoDigits(0),
   m_dumperTool("LArShapeDumperTool"),
-  m_caloNoiseTool("CaloNoiseToolDefault"),
   m_badChannelMasker("BadChannelMasker", this),
   m_adc2mevTool("LArADC2MeVTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
@@ -91,7 +90,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("MinADCMax", m_minADCMax = -1);
   declareProperty("Gains", m_gainSpec = "HIGH,MEDIUM,LOW");
   declareProperty("DumpDisconnected", m_dumpDisc = false);
-  declareProperty("CaloNoiseTool", m_caloNoiseTool);
   declareProperty("BadChannelMasker", m_badChannelMasker);
   declareProperty("ADC2MeVTool", m_adc2mevTool);
   declareProperty("BunchCrossingTool",m_bcidTool);
@@ -121,10 +119,10 @@ StatusCode LArShapeDumper::initialize()
 
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_BCKey.initialize() );
+  ATH_CHECK( m_noiseCDOKey.initialize() );
 
   ATH_CHECK( m_badChannelMasker.retrieve() );
   ATH_CHECK( m_adc2mevTool.retrieve() );
-  ATH_CHECK( m_caloNoiseTool.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloDetDescrMgr) );
 
@@ -156,7 +154,7 @@ StatusCode LArShapeDumper::initialize()
 }
 
 
-StatusCode LArShapeDumper::beginRun()
+StatusCode LArShapeDumper::start()
 {
   m_runData = new RunData(0);
   static unsigned int i = 0;
@@ -364,6 +362,9 @@ StatusCode LArShapeDumper::execute()
      ATH_MSG_ERROR( "Do not have Bad chan container " << m_BCKey.key() );
      return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+  const CaloNoise* noiseCDO=*noiseHdl;
   
   for (LArDigitContainer::const_iterator digit = larDigitContainer->begin();
        digit != larDigitContainer->end(); ++digit) 
@@ -420,7 +421,7 @@ StatusCode LArShapeDumper::execute()
     unsigned int status = 0xFFFFFFFF;
     if (connected) {
       if (!caloDetElement) caloDetElement = m_caloDetDescrMgr->get_element(id);
-      noise = m_caloNoiseTool->getNoise(caloDetElement, ICalorimeterNoiseTool::TOTALNOISE);
+      noise = noiseCDO->getNoise(channelID,gain);
       status = bcCont->status(channelID).packedData();
       HWIdentifier febId = m_onlineHelper->feb_Id(m_onlineHelper->feedthrough_Id(channelID), m_onlineHelper->slot(channelID));
       std::map<unsigned int,uint16_t>::const_iterator findError = febErrorMap.find(febId.get_identifier32().get_compact());
@@ -480,7 +481,7 @@ StatusCode LArShapeDumper::execute()
 }
 
 
-StatusCode LArShapeDumper::endRun()
+StatusCode LArShapeDumper::stop()
 {
   m_samples->addRun(m_runData);
   return StatusCode::SUCCESS;

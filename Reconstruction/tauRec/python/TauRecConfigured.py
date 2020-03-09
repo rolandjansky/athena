@@ -37,7 +37,7 @@ class TauRecConfigured ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
 
         self._TauProcessorAlgHandle = TauProcessorAlg ( name=self.name+'Alg',
-                                                        Key_jetInputContainer="AntiKt4LCTopoJets",
+                                                        Key_jetInputContainer=tauFlags.tauRecSeedJetCollection(),
                                                         Key_tauOutputContainer="tmp_TauJets",
                                                         Key_tauTrackOutputContainer="TauTracks",
                                                         Key_tauShotClusOutputContainer="TauShotClusters",
@@ -46,7 +46,6 @@ class TauRecConfigured ( Configured ) :
                                                         #MaxEta = 2.5,                                                                         
                                                         MaxEta = tauFlags.tauRecSeedMaxEta(),
                                                         MinPt = 10.*GeV,
-                                                        doCreateTauContainers = True,
                                                         CellMakerTool = TauCellContainerFinalizer)
 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)

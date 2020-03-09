@@ -9,7 +9,7 @@ theApp.setup( MONTECARLO )
 #--------------------------------------------------------------
 # Make sure AthenaSealSvc is loaded for dict check
 #--------------------------------------------------------------
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 # Check the dictionary in memory for completeness
 AthenaSealSvc = Service( "AthenaSealSvc" )
 AthenaSealSvc.CheckDictionary = TRUE

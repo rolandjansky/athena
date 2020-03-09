@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TTreeFormula.h"
@@ -124,7 +124,7 @@ int TreeReader::GetEntry(int entry)
         std::map<std::string, TTreeFormula*>::iterator itr = m_formulae.begin();
         std::map<std::string, TTreeFormula*>::iterator itrE= m_formulae.end();
         TTreeFormula* dummy = m_formulae["__DUMMY__"];
-        for(;itr!=itrE;itr++)
+        for(;itr!=itrE;++itr)
         {
           if(itr->second!=dummy) itr->second->Notify(); //itr->second->UpdateFormulaLeaves();
         }

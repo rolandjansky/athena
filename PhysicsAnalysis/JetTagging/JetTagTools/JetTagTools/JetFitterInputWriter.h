@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef BTAGTOOL_JETFITTERINPUTWRITER_C
-#define BTAGTOOL_JETFITTERINPUTWRITER_C
+#ifndef BTAGTOOL_JETFITTERINPUTWRITER_H
+#define BTAGTOOL_JETFITTERINPUTWRITER_H
 
 /******************************************************
     @class JetFitterInputWriter
@@ -34,35 +34,28 @@ namespace Analysis {
 
   class IJetFitterTagInfo;
 
-  static const InterfaceID IID_JetFitterInputWriter("Analysis::JetFitterInputWriter", 1, 0);
-
-  class JetFitterInputWriter : public IJetFitterClassifierTool, public AthAlgTool
+  class JetFitterInputWriter : public extends<AthAlgTool, IJetFitterClassifierTool>
   {
-
   public:
+    using base_class::base_class;
 
-    /** AlgTool interface methods */
-    static const InterfaceID& interfaceID() { return IID_JetFitterInputWriter; };
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-    JetFitterInputWriter(const std::string& name,
-                         const std::string& n, const IInterface* p);
-    ~JetFitterInputWriter();
-
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-
+    virtual
     StatusCode fillLikelihoodValues(xAOD::BTagging* BTag,
                                     const std::string & jetauthor,
                                     const std::string& inputbasename,
                                     const std::string& outputbasename,
                                     double jetpT,
                                     double jeteta,
-                                    double IP3dlike=-5000);
+                                    double IP3dlike=-5000) const override;
 
   private:
-
-    bool m_useCombinedIPNN;
-    bool m_usePtCorrectedMass;
+    Gaudi::Property<bool> m_useCombinedIPNN
+    { this, "useCombinedIPNN", true, "" };
+    Gaudi::Property<bool> m_usePtCorrectedMass
+    { this, "usePtCorrectedMass", false, "" };
 
   };
 

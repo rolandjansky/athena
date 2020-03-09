@@ -9,7 +9,6 @@
 #define READLARDIGITS_H
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
-#include  "StoreGate/StoreGateSvc.h"
 #include "TBEvent/TBLArDigitContainer.h"
 #include "LArCabling/LArCablingLegacyService.h"
 #include "CaloIdentifier/LArEM_ID.h"

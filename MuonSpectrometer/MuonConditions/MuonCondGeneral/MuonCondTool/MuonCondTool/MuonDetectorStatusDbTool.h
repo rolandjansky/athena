@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_MUONDETECTORDBTOOL_H
@@ -13,7 +13,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 class Identifier; 
-class StoreGateSvc; 
 class MdtIdHelper;
 class IIOVSvc;
 class StatusCode;

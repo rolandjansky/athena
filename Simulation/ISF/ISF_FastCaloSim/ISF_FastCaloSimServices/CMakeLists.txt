@@ -44,6 +44,5 @@ atlas_add_component( ISF_FastCaloSimServices
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel IdDictParser ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib PathResolver)
 
 # Install files from the package:
-atlas_install_headers( ISF_FastCaloSimServices )
 atlas_install_python_modules( python/*.py )
 

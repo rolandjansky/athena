@@ -55,7 +55,7 @@ class SCT_ConfigurationCondAlg : public AthReentrantAlgorithm
   static const std::string s_coolMurFolderName;
   static const std::string s_coolMurFolderName2;
 
-  SG::ReadCondHandleKey<CondAttrListVec> m_readKeyChannel{this, "ReadKeyChannel", "/SCT/DAQ/Configuration/Chip", "Key of input (raw) conditions folder of chips"};
+  SG::ReadCondHandleKey<CondAttrListVec> m_readKeyChannel{this, "ReadKeyChannel", "/SCT/DAQ/Config/Chip", "Key of input (raw) conditions folder of chips"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyModule{this, "ReadKeyModule", "/SCT/DAQ/Config/Module", "Key of input (raw) conditions folder of modules"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyMur{this, "ReadKeyMur", "/SCT/DAQ/Config/MUR", "Key of input (raw) conditions folder of Murs"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};

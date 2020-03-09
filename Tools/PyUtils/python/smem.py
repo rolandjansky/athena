@@ -2,11 +2,13 @@
 #
 # smem - a tool for meaningful memory reporting
 #
-# Copyright 2008-2009 Matt Mackall <mpm@selenic.com>
+# Copyright 2008-2009, 2019 Matt Mackall <mpm@selenic.com>
 #
 # This software may be used and distributed according to the terms of
 # the GNU General Public License version 2 or later, incorporated
 # herein by reference.
+
+from __future__ import print_function
 
 import re, os, sys, pwd, grp, optparse, errno, tarfile
 
@@ -106,8 +108,8 @@ def pidmaps(pid):
     maps = {}
     start = None
     for l in src.mapdata(pid):
-    	f = l.split()
-	if f[-1] == 'kB':
+        f = l.split()
+        if f[-1] == 'kB':
             maps[start][f[0][:-1].lower()] = int(f[1])
         else:
             start, end = f[0].split('-')
@@ -411,10 +413,10 @@ def showsystem():
 
 def showfields(fields, f):
     if f != list:
-        print "unknown field", f
-    print "known fields:"
+        print ("unknown field", f)
+    print ("known fields:")
     for l in sorted(fields.keys()):
-        print "%-8s %s" % (l, fields[l][-1])
+        print ("%-8s %s" % (l, fields[l][-1]))
 
 def showtable(rows, fields, columns, sort):
     header = ""
@@ -459,10 +461,10 @@ def showtable(rows, fields, columns, sort):
         return
 
     if not options.no_header:
-        print header
+        print (header)
 
     for k,r in l:
-        print format % tuple([f(v) for f,v in zip(formatter, r)])
+        print (format % tuple([f(v) for f,v in zip(formatter, r)]))
 
     if options.totals:
         # totals
@@ -474,8 +476,8 @@ def showtable(rows, fields, columns, sort):
             else:
                 t.append("")
 
-        print "-" * len(header)
-        print format % tuple([f(v) for f,v in zip(formatter, t)])
+        print ("-" * len(header))
+        print (format % tuple([f(v) for f,v in zip(formatter, t)]))
 
 def showpie(l, sort):
     try:
@@ -634,7 +636,7 @@ try:
         showsystem()
     else:
         showpids()
-except IOError, e:
+except IOError as e:
     if e.errno == errno.EPIPE:
         pass
 except KeyboardInterrupt:

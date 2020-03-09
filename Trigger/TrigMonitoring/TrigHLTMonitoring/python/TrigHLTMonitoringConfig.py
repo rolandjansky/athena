@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 
 def HLTGeneralTool():
     #from AthenaCommon.AppMgr import ToolSvc
     from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
     HLTMon = HLTMonTool(    name               = 'HLTMon',
-                            histoPathBase      = "/Trigger/HLT/ResultMon",
+                            histoPathBase      = "/HLT/ResultMon",
                             IgnoreTruncationCheck = True,
                             RegExes = {
                                 'AllChains' : 'HLT_.*', 
@@ -30,6 +31,5 @@ def HLTGeneralTool():
                                 },
                             LumiKey = 'LumiBlocks'
                             )
-    #ToolSvc += HLTMon
     list = [ HLTMon ]
     return list

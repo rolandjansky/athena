@@ -23,7 +23,6 @@ CREATED:  July 2011
 ********************************************************************/
 
 // INCLUDE HEADER FILES:
-class StoreGateSvc;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "egammaEvent/egammaParamDefs.h"

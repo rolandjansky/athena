@@ -20,7 +20,7 @@ include( "AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py" )
 #--------------------------------------------------------------
 # JobOptions for the loading of the AthenaSealSvc
 #--------------------------------------------------------------
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
 # Dictionaries for AthenaSealSvc:
 include( "EventInfo/EventInfoDict_joboptions.py" )

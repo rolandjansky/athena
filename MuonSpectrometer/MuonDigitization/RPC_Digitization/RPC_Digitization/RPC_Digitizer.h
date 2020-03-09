@@ -23,6 +23,7 @@ class RPC_Digitizer : public AthAlgorithm {
   /** Basic algorithm methods */
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
+  virtual bool isClonable() const override final { return true; }
 
  private:
 

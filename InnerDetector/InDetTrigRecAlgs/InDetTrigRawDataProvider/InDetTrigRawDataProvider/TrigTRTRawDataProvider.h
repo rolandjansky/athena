@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,6 @@
 
 #include <string>
 
-class StoreGateSvc;
 class IRoiDescriptor;
 class TRT_ID;
 class ITRT_CablingSvc;
@@ -60,8 +59,6 @@ namespace InDet {
     ServiceHandle<IRegSelSvc>           m_regionSelector;     
     ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
     ToolHandle<ITRTRawDataProviderTool> m_rawDataTool;
-    ServiceHandle<StoreGateSvc>         m_storeGate;
-    ServiceHandle<StoreGateSvc>         m_detStore; 
     ServiceHandle<ITRT_CablingSvc>      m_IdMapping;
     const TRT_ID*                       m_id; 
     //! the RDO container

@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigHLTJetHypo
-import  TrigHLTJetHypoConf
+from . import  TrigHLTJetHypoConf
 
 # modules to decide whether to add monitoring plots
 # this is chain dependent.
-from JetCleanMonitoring import JetChainsToKeepMonitoring
+from .JetCleanMonitoring import JetChainsToKeepMonitoring
 from TriggerMenu.menu.CleanMonitoring import KeepMonitoring
 # from TriggerMenu.menu.CleanMonitoring import DisableMonitoringButValAndTime
 

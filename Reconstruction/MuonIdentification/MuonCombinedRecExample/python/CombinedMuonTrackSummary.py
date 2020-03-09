@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 #
@@ -18,7 +18,7 @@ from AthenaCommon.GlobalFlags import globalflags
 beamFlags                      = jobproperties.Beam
 
 atlasExtrapolator              = getPublicTool('AtlasExtrapolator')
-muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelper')
+muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelperTool')
 
 
 # load InDetHoleSearchTool
@@ -30,6 +30,10 @@ ToolSvc += InDet__InDetTrackHoleSearchTool( \
   useSCT                       = DetFlags.haveRIO.SCT_on(),
   CountDeadModulesAfterLastHit = True)
 
+import InDetRecExample.TrackingCommon as TrackingCommon
+InDetPixelConditionsSummaryTool = TrackingCommon.getInDetPixelConditionsSummaryTool()
+
+
 if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   # now get the InDet tools as used for InDet tracks
   #   (duplication for ESD running in case InDet not rerun)
@@ -38,7 +42,7 @@ if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   ToolSvc += InDet__InDetTestPixelLayerTool( 
     name = "CombinedMuonInDetTestPixelLayerTool",
     Extrapolator = atlasExtrapolator,
-    PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
+    PixelSummaryTool = InDetPixelConditionsSummaryTool,
     CheckActiveAreas = True,
     CheckDeadRegions = True
     )
@@ -91,17 +95,16 @@ if DetFlags.haveRIO.pixel_on():
   from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
   ToolSvc += InDet__InDetTestBLayerTool( \
     name                       = "CombinedMuonTestBLayer",
-    PixelSummaryTool           = ToolSvc.PixelConditionsSummaryTool,
+    PixelSummaryTool           = InDetPixelConditionsSummaryTool,
     Extrapolator               = atlasExtrapolator)
 
   # load PixelToTPID tool
   from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
   ToolSvc += InDet__PixelToTPIDTool( \
-    name                       = "CombinedMuonPixelToTPID",
-    ReadFromCOOL               = True)
+    name                       = "CombinedMuonPixelToTPID")
 
   # set properties into public tools
-  ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = ToolSvc.PixelConditionsSummaryTool
+  ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = InDetPixelConditionsSummaryTool
   ToolSvc.CombinedMuonIDSummaryHelper.PixelToTPIDTool = ToolSvc.CombinedMuonPixelToTPID
   ToolSvc.CombinedMuonIDSummaryHelper.TestBLayerTool  = ToolSvc.CombinedMuonTestBLayer
   ToolSvc.CombinedMuonTrackSummary.PixelToTPIDTool    = ToolSvc.CombinedMuonPixelToTPID
@@ -113,23 +116,4 @@ if DetFlags.haveRIO.SCT_on():
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
   ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetSCT_ConditionsSummaryTool
-
-# check configuration
-#print ToolSvc.CombinedMuonIDHoleSearch
-#print ToolSvc.CombinedMuonIDSummaryHelper
-#print ToolSvc.CombinedMuonTrackSummary
-#import sys
-#sys.exit()
-
-#class CombinedMuonTrackSummary( Trk__TrackSummaryTool ):
-
-#  # constructor
-#  def __init__(self, name = 'CombinedMuonTrackSummary'):
-#    global ToolSvc
-#    # call the base class constructor
-#    self.trackSummary = ToolSvc.CombinedMuonTrackSummary
-
-
-
-
 

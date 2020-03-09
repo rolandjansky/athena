@@ -2,9 +2,6 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import string, os
-
-    
 folderMapHisto = {
 # add w.r.t. config before 
     "/InnerDetector/IDAlignment/Tracks_NoTriggerSelection/GenericTracks/Npixhits_per_track":"/InnerDetector/IDAlignment/ExtendedTracks_NoTriggerSelection/GenericTracks/Npixhits_per_track",

@@ -55,25 +55,13 @@ fullItemList+=["DMTest::ELVec#elvec"]
 fullItemList+=["DMTest::ELVec#elv_remap"]
 
 # Stream's output file
-from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
 Stream1 = createOutputStream( "Stream1", noTag = True )
 Stream1.OutputFile =   "SimplePoolFile.root"
 # List of DO's to write out
 Stream1.ItemList   += fullItemList
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
-
 # Avoid races when running tests in parallel.
 FILECATALOG = 'DataModelTestWrite_catalog.xml'
-include ('DataModelRunTests/setCatalog.py')
+
+include ('DataModelRunTests/commonTrailer.py')

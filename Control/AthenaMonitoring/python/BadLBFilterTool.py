@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
+from functools import reduce
 
 def _resolve_db_tag(origDbTag):
     from AthenaCommon.GlobalFlags  import globalflags
@@ -9,7 +10,7 @@ def _resolve_db_tag(origDbTag):
     else:
         dbtag = globalflags.ConditionsTag()
         dbtag = dbtag if dbtag != '' else 'HEAD'
-    print "RESOLVED AS TAG", dbtag
+    print("RESOLVED AS TAG %s" % dbtag)
     return dbtag
 
 #decide database instance based on project tag dataXX_

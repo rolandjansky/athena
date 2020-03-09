@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,24 +43,21 @@ namespace Trk {
       //!< Retrieve interface ID
       static const InterfaceID& interfaceID() { return IID_ITrackingVolumesSvc; }
   
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
   
       /** Query the interfaces.
       /   Input: riid, Requested interface ID
       /          ppvInterface, Pointer to requested interface
       /   Return: StatusCode indicating SUCCESS or FAILURE.
       / N.B. Don't forget to release the interface after use!!! **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-  
-      /** Create the geometry */
-      StatusCode trackingVolumesInit(IOVSVC_CALLBACK_ARGS);
+      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   
       /** @copydoc ITrackingVolumesSvc::volume() */
-      const Trk::Volume& volume(const TrackingVolumeIdentifier& volumeId) const;
+      virtual const Trk::Volume& volume(const TrackingVolumeIdentifier& volumeId) const override;
   
       /** @copydoc ITrackingVolumesSvc::volumeName() */
-      const std::string& volumeName(const TrackingVolumeIdentifier& volumeId) const;
+      virtual const std::string& volumeName(const TrackingVolumeIdentifier& volumeId) const override;
   
       friend class SvcFactory<TrackingVolumesSvc>;
   
@@ -79,9 +76,6 @@ namespace Trk {
       std::vector<const Trk::Volume*>             m_volumes;
       /** the names of the TrackingVolumes */
       std::vector<std::string >                   m_volumeNames;
-  
-      //!< enables the callback
-      bool                                        m_buildGeometryFromTagInfo;
   
   };
 }

@@ -7,12 +7,14 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "StoreGate/WriteHandle.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
+#include <gtest/gtest_prod.h>
 
 class MicromegasHitIdHelper;
 
 class MicromegasSensitiveDetector : public G4VSensitiveDetector {
+FRIEND_TEST( MicromegasSensitiveDetectortest, Initialize );
+FRIEND_TEST( MicromegasSensitiveDetectortest, ProcessHits );
 
 public:
     /** construction/destruction */
@@ -26,7 +28,6 @@ public:
 private:
 
     SG::WriteHandle<MMSimHitCollection> m_MMSimHitCollection;
-    SG::WriteHandle<GenericMuonSimHitCollection> m_GenericMuonHitCollection;
     MicromegasHitIdHelper* m_muonHelper;
 
 };

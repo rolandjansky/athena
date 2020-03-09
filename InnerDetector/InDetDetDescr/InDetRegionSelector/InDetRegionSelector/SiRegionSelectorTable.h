@@ -8,11 +8,12 @@
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+
+#include "PixelConditionsData/PixelCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <string>
 
@@ -47,8 +48,10 @@ private:
   bool m_noDBM;
 
   // cablings
-  ServiceHandle<IPixelCablingSvc> m_pixIdMapping;
   ToolHandle<ISCT_CablingTool>  m_sctCablingToolInc; // This class accesses SCT cabling during initialization.
+
+  SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
+    {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 
 };
 

@@ -74,9 +74,6 @@ class T2MbtsFex: public HLT::AllTEAlgo, public T2MbtsUtils {
        Interest. See TrigDataAccess for more details. */
    ToolHandle<ITrigDataAccess> m_data;
 
-   /** A data member to retain a connection to the Detector Store. */
-   ServiceHandle<StoreGateSvc> m_detStore;
-   
    /** A pointer for access to the Tile Test Beam Identifier helper. */
    const TileTBID* m_tileTBID;
    

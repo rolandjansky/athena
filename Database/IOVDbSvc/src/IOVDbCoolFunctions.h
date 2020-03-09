@@ -4,8 +4,8 @@
 //@file IOVDbCoolFunctions.h
 //@brief Numeric and COOL/Coral dependent helper functions
 //@author Shaun Roe
-#ifndef IOVDbCoolFunctions_h
-#define IOVDbCoolFunctions_h
+#ifndef IOVDbSvc_IOVDbCoolFunctions_h
+#define IOVDbSvc_IOVDbCoolFunctions_h
 #include "CoolKernel/ChannelId.h"
 #include "CoolKernel/ValidityKey.h"
 
@@ -19,6 +19,7 @@
 
 
 class IOVRange;
+class IOVDbConn;
 
 namespace coral{
   class AttributeListSpecification;
@@ -93,7 +94,14 @@ namespace IOVDbNamespace{
   cool::ChannelId 
   makeChannel(const std::string& strval, const cool::ChannelId defchan);
   
-  ///
+  ///Retrieve (bool) multiversion flag and folder description  
+  std::pair<bool, std::string>
+  folderMetadata(IOVDbConn * pConnection, const std::string & folderName);
+  
+  ///Retrieve channel information
+  std::pair<std::vector<cool::ChannelId>, std::vector<std::string>>
+  channelList(IOVDbConn * pConnection, const std::string & folderName, const bool named=false);
+
 }
 
 #endif

@@ -17,8 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODCaloRings
                           Event/xAOD/xAODCore
-                          Reconstruction/RecoTools/CaloRingerTools
-                          TestPolicy )
+                          Reconstruction/RecoTools/CaloRingerTools )
 
 # Component(s) in the package:
 atlas_add_component( CaloRingerAlgs

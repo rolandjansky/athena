@@ -55,7 +55,6 @@ public:
 
   float m_zvError;
 
-  const IRoiDescriptor* roiDescriptor;
   std::vector<TRIG_INDET_SI_LAYER> m_layerGeometry;
   std::vector<float> m_vZv;
 } TRIG_COMBINATORIAL_SETTINGS;

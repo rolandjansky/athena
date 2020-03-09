@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,16 +26,20 @@
 #include "TrkPrepRawData/PrepRawData.h"
 #include <fstream>
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonTGHits.h"
 #include "MuonTGSegments.h"
 
+#include "GaudiKernel/ConcurrencyFlags.h"
+
 //Amg
 #include "EventPrimitives/EventPrimitives.h"
+
+namespace MuonGM{
+  class MuonDetectorManager;
+}
 
 namespace Muon{
 
@@ -84,31 +88,30 @@ public:
  
 private:
 
-  StatusCode getTrackingGeometry() const;
-  
   // --- job options
-  mutable const Trk::TrackingGeometry* m_trackingGeometry;
-  std::string  m_trackingGeometryName;
-  std::string m_ExtrapolatorName;         //!< Name of the Extrapolator Instance 
+  Gaudi::Property<std::string>  m_trackingGeometryName{this,"TrackingGeometryName","AtlasTrackingGeometry"};
+  Gaudi::Property<std::string> m_ExtrapolatorName{this,"ExtrapolatorName"," "};      //!< Name of the Extrapolator Instance 
     
-  const MdtIdHelper* m_mdtIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const CscIdHelper* m_cscIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
-  const MuonGM::MuonDetectorManager* m_muonMgr;
-  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+  const MuonGM::MuonDetectorManager* m_muonDetMgr;
+ 
   // -- algorithm members
-  mutable MuonTGHits*              m_hits; 
-  mutable MuonTGSegments*          m_segments;
+  mutable MuonTGHits*              m_hits           ATLAS_THREAD_SAFE; //Marked as thread-safe because it's disabled when running multi-threaded
+  mutable MuonTGSegments*     m_segments   ATLAS_THREAD_SAFE; //Marked as thread-safe because it's disabled when running multi-threaded
 
   // projection matrices
-  mutable AmgMatrix(5,5)                  *m_tgcProjEta;
-  mutable AmgMatrix(5,5)                  *m_tgcProjPhi;
-  mutable AmgMatrix(5,5)                  *m_rpcProjEta;
-  mutable AmgMatrix(5,5)                  *m_rpcProjPhi;
+  AmgMatrix(5,5)                  *m_tgcProjEta;
+  AmgMatrix(5,5)                  *m_tgcProjPhi;
+  AmgMatrix(5,5)                  *m_rpcProjEta;
+  AmgMatrix(5,5)                  *m_rpcProjPhi;
 
   // steering
-  bool  m_alignedMode;
+  Gaudi::Property<bool>  m_alignedMode{this,"AlignedMode",true};
+  Gaudi::Property<bool>  m_useDSManager{this,"UseDSManager",false};
 
 };
 
@@ -116,7 +119,14 @@ private:
 
 inline void Muon::MuonTGMeasurementTool::updateAssocMeas( Muon::MuonTGHits* assocHits,
                                                           Muon::MuonTGSegments* assocSegments ) const
-{ m_hits = assocHits; m_segments = assocSegments; } 
+{ 
+  if (Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
+    ATH_MSG_WARNING("Access to Muon::MuonTGMeasurementTool::updateAssocMeas() blocked due to thread safety concerns");
+  } else {
+    m_hits = assocHits;
+    m_segments = assocSegments; 
+  }
+} 
 
 #endif //MUONTGRECTOOLS_MUONTGMEASUREMENTTOOL_H
 

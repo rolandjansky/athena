@@ -20,6 +20,7 @@
 #include <vector>
 #include <set>
 #include <queue>
+#include <ostream>
 
 //using pHypoJet = std::shared_ptr<const HypoJet::IJet>;
 using pHypoJet = const HypoJet::IJet*;
@@ -35,5 +36,6 @@ using HypoJetGroupVector = std::vector<HypoJetVector>;
 using HypoJetGroupIter = HypoJetGroupVector::iterator;
 using HypoJetGroupCIter = HypoJetGroupVector::const_iterator;
 
+std::ostream& operator<<(std::ostream& out, const HypoJetVector& hjv);
 
 #endif

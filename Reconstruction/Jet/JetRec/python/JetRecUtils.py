@@ -9,7 +9,7 @@ def retrieveAODList():
     from JetRec.JetRecFlags import jetFlags, JetContentDetail
     from RecExConfig.RecFlags import rec
 
-    if rec.doESD():
+    if rec.doWriteESD():
         return jetFlags.jetAODList()
     # then we are merging or doing a AOD ?
     # We can not simply copy what we have from input since some

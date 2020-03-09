@@ -39,12 +39,15 @@ namespace Trk
 namespace Muon
 {
 
+class MuonEventCnvTool;
+
 /** @brief Class to represent calibrated clusters formed from TGC strips*/
 class TgcClusterOnTrack :  public MuonClusterOnTrack
 {
 
 public:
     friend class  Trk::ITrkEventCnvTool;
+    friend class  Muon::MuonEventCnvTool;
 
     TgcClusterOnTrack();
     TgcClusterOnTrack(const TgcClusterOnTrack &);

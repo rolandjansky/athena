@@ -22,6 +22,5 @@ atlas_add_component( AthExHistNtup
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODEventInfo GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( AthExHistNtup )
 atlas_install_joboptions( share/HistNtupOptions.txt share/HistNtupOptions.py )
 

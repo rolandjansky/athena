@@ -261,8 +261,8 @@ const {
 
 
 double  RingerSelectorTool::calculate( std::vector<float>& rings, double et, double eta, double mu,
-                                       Monitored::Timer &propagate_time, 
-                                       Monitored::Timer &preproc_time)  
+                                       Monitored::Timer<> &propagate_time, 
+                                       Monitored::Timer<> &preproc_time)  
 
 const {
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVC_BYTESTREAMATTLISTSVC_H
@@ -26,7 +26,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 //#include "GaudiKernel/ToolHandle.h"
 
-#include "GaudiKernel/IIncidentListener.h"
 #include "ByteStreamCnvSvc/IByteStreamFreeMetadataSvc.h"
 
 #include <map>

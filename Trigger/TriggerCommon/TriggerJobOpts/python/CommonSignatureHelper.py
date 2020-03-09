@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ helpers for signature flags manipulations """
-class CommonSignatureHelper:
+class CommonSignatureHelper(object):
     def setAll(self):
         #self.setL2()
         #self.setEF()
@@ -112,7 +112,7 @@ class CommonSignatureHelper:
         self.signatures.set_Value(new)
 
 
-class Bag:
+class Bag(object):
     def __init__(self,l):
         self.allowedValues = l
 
@@ -128,13 +128,14 @@ class Bag:
     def __eq__(self, arg):
         if type(arg)==list or type(arg)==tuple or type(arg)==set:
             
-            notContained = [a for a in arg if not a in self]
+            notContained = [a for a in arg if a not in self]
 
-            if len(notContained)==0: return True
+            if len(notContained)==0:
+                return True
 
             from AthenaCommon.Logging import logging
             log = logging.getLogger( 'AllowedList' )
-            log.error("the element %s is not in the list of allowed values: %s" % (notContained, self) )
+            log.error("the element %s is not in the list of allowed values: %s", notContained, self)
             return False
         return True
 

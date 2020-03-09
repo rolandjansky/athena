@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetSamplingCnv_p2.cxx 
@@ -15,11 +15,7 @@
 // STL includes
 
 // JetEvent includes
-#define private public
-#define protected public
 #include "JetEvent/JetSampling.h"
-#undef private
-#undef protected
 
 // JetEventTPCnv includes
 #include "JetEventTPCnv/JetSamplingCnv_p2.h"
@@ -31,25 +27,12 @@
 
 
 // statics
-HepLorentzVectorCnv_p1 JetSamplingCnv_p2::m_hlvCnv;
+const HepLorentzVectorCnv_p1 JetSamplingCnv_p2::m_hlvCnv;
  
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 // Convert Persistent (JetSampling_p2) to Transient (latest version, JetSampling)
 void JetSamplingCnv_p2::persToTrans( const JetSampling_p2* pers,
 				     JetSampling* trans, 
-				     MsgStream& msg ) 
+				     MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading JetSampling from persistent state..."
 //       << endmsg;
@@ -150,7 +133,7 @@ void JetSamplingCnv_p2::persToTrans( const JetSampling_p2* pers,
 
 void JetSamplingCnv_p2::transToPers( const JetSampling* trans, 
 				     JetSampling_p2* pers, 
-				     MsgStream& msg ) 
+				     MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetSampling..."
 //       << endmsg;

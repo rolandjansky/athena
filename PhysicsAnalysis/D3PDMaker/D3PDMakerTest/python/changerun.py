@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys
 
 if len(sys.argv) < 4:
-    print """Change the run number in a pool file.
+    print ("""Change the run number in a pool file.
 Probably only works correctly for simple, single-run MC files.
 
 Usage: changerun.py NEWRUN INFILE OUTFILE
-"""
+""")
 
 newrun = int (sys.argv[1])
 infile = sys.argv[2]

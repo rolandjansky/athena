@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelRIOs_cxx
@@ -21,10 +21,10 @@
 namespace PixelCalib{
 
 
-PixelRIOs::PixelRIOs(std::string starting_tag,
-						std::string input,
-						std::string final_tag,
-						std::string collection):
+PixelRIOs::PixelRIOs(const std::string& starting_tag,
+                     const std::string& input,
+                     const std::string& final_tag,
+                     const std::string& collection):
       b_event_number(nullptr),
       b_number_cluster_per_event(nullptr),
       b_type_of_trigger(nullptr),
@@ -150,9 +150,10 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
                         std::ifstream myfile(input.c_str());
 			if (myfile.is_open()){
 				for(;;){
-					getline(myfile,input);
+                                        std::string line;
+					getline(myfile,line);
 					if(myfile.eof()) break;
-					clusters_tree->AddFile(input.c_str());
+					clusters_tree->AddFile(line.c_str());
 				}
 				myfile.close();
 			}else{
@@ -387,7 +388,7 @@ PixelRIOs::~PixelRIOs(){
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelRIOs::ReadHistoFile(std::string input){
+void PixelRIOs::ReadHistoFile(const std::string& input){
 
 	m_timer->Start();
 
@@ -505,7 +506,8 @@ void PixelRIOs::Iterate(long maxentries){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelRIOs::Analyze(std::string reference,std::string reference_tag){
+void PixelRIOs::Analyze(const std::string& reference,
+                        const std::string& reference_tag){
 
 	m_timer->Start();
 

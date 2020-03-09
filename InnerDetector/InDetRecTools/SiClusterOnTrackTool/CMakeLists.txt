@@ -8,7 +8,6 @@ atlas_subdir( SiClusterOnTrackTool )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/CxxUtils
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
@@ -24,11 +23,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           PRIVATE
                           Event/EventPrimitives
-                          InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/PixelGeoModel
                           InnerDetector/InDetRecTools/SiClusterizationTool
                           Tracking/TrkDetDescr/TrkSurfaces )
@@ -41,7 +40,7 @@ atlas_add_component( SiClusterOnTrackTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps CxxUtils AthenaPoolUtilities GeoPrimitives GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib  StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces TrkRIO_OnTrack PixelConditionsData TrkNeuralNetworkUtils )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib  StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SiClusterizationToolLib TrkSurfaces TrkRIO_OnTrack PixelConditionsData TrkNeuralNetworkUtilsLib )
 
 # Install files from the package:
 atlas_install_headers( SiClusterOnTrackTool )

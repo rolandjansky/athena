@@ -11,9 +11,10 @@
 ## in Herwig7_i/Herwig7.h and src/Herwig7.cxx.
 
 import datetime, os, shutil, subprocess, sys, time
+import six
 
-import Herwig7Config as hw7Config
-import Herwig7Utils as hw7Utils
+from . import Herwig7Config as hw7Config
+from . import Herwig7Utils as hw7Utils
 # import Herwig7Defaults as HwDefaults
 
 from AthenaCommon import Logging
@@ -355,7 +356,7 @@ def start_banner():
 
 def get_software_versions():
 
-  return(subprocess.check_output([herwig7_binary,'--version']).splitlines())
+  return(six.ensure_str(subprocess.check_output([herwig7_binary,'--version'])).splitlines())
   
 
 def get_infile_name(run_name="Herwig-Matchbox"):
@@ -483,3 +484,4 @@ def exit_banner(gridpack, cross_section, cross_section_error):
   banner += "##                                                                                      ##\n"
   banner += "##########################################################################################\n"
   return(banner)
+

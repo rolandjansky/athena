@@ -18,7 +18,6 @@
 #include "StorageSvc/DbSession.h"
 #include "StorageSvc/IDbDomain.h"
 #include "StorageSvc/IOODatabase.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "POOLCore/DbPrint.h"
 #include "DbDatabaseObj.h"
 #include "DbDomainObj.h"
@@ -39,7 +38,6 @@ DbDomainObj::DbDomainObj(const DbSession& sessionH,
   m_info(0)
 {
   setName("Domain["+type().storageName()+"]");
-  DbInstanceCount::increment(this);
   DbPrint log(name());    
   if ( 0 == db() )    {
     log << DbPrintLvl::Error << ">   Access   DbDomain     "<<accessMode(mode)
@@ -69,7 +67,6 @@ DbDomainObj::DbDomainObj(const DbSession& sessionH,
 DbDomainObj::~DbDomainObj()  {
   DbPrint log( name() );
   string dbtyp(db() ? db()->name() : string("UNKNOWN"));
-  DbInstanceCount::decrement(this);
   clearEntries();
   if ( m_session.isValid() )    {
     m_session.remove (this);

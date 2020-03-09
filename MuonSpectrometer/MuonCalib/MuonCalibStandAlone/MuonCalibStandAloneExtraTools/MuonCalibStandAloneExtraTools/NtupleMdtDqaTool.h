@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -38,6 +38,8 @@
 #include "MuonCalibStandAloneExtraTools/SegmentAnalysis.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class RegionSelectionSvc;
 class MdtCalibInputSvc;
@@ -49,9 +51,6 @@ class TFile;
 class TNtuple;
 class TH1F;
 class TH1I;
-
-class StoreGateSvc; 
-class MdtIdHelper;
 
 namespace MuonGM{
 class MuonDetectorManager;
@@ -65,16 +64,13 @@ class MuonCalibSegment;
 class NtupleStationId;
 class MuonCalibEvent;
 
-
 class NtupleMdtDqaTool : public AthAlgTool, virtual public NtupleCalibrationTool {
 
  public:
   // Constructors //
   NtupleMdtDqaTool(const std::string& t, const std::string& n, const IInterface* p);
-  ///< Default constructor.
 
-  inline ~NtupleMdtDqaTool(){}
-  ///< Destructor
+  ~NtupleMdtDqaTool()=default;
 
   // Methods //
 	
@@ -99,17 +95,17 @@ class NtupleMdtDqaTool : public AthAlgTool, virtual public NtupleCalibrationTool
   }
 
  private:
-  const MdtIdHelper *m_mdtIdHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   const MuonGM::MuonDetectorManager *m_detMgr;
   const MuonCalib::IIdToFixedIdTool *m_id_tool;
 
   // pointer to region selection service
-  RegionSelectionSvc *p_reg_sel_svc;
+  RegionSelectionSvc* p_reg_sel_svc;
 
   // pointer to the calibration service
-  MdtCalibInputSvc *p_calib_input_svc;
+  MdtCalibInputSvc* p_calib_input_svc;
   // Manager tools //
-  HistogramManager * m_histoManager;
+  HistogramManager* m_histoManager;
 
   // Analysis tools and variables : //
   //

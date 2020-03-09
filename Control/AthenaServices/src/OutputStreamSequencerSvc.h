@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OUTPUTSTREAMSEQUENCERSVC_H
@@ -15,6 +15,9 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
 
+#include <memory>
+#include <map>
+
 // Forward declarations
 class MetaDataSvc;
 
@@ -23,10 +26,14 @@ static const InterfaceID IID_OutputStreamSequencerSvc("OutputStreamSequencerSvc"
 template <class TYPE> class SvcFactory;
 
 /** @class OutputStreamSequencerSvc
- *  @brief This class provides the interface to the LCG POOL persistency software.
+ *  @brief This class provides configuration properties to enable OutputStream file sequences
  **/
 class OutputStreamSequencerSvc : public ::AthService,
-	virtual public IIncidentListener {
+  virtual public IIncidentListener {
+
+ public:
+  typedef std::pair<std::string,std::string> RangeReport_t; // (RangeID,RangeFileName)
+  typedef std::unique_ptr<RangeReport_t>     RangeReport_ptr;
 
 public: // Constructor and Destructor
    /// Standard Service Constructor
@@ -49,18 +56,38 @@ public: // Non-static members
    void handle(const Incident& /*inc*/);
 
    /// Returns sequenced file name for output stream
-   std::string buildSequenceFileName(const std::string&) const;
+   std::string buildSequenceFileName(const std::string&);
+   void publishRangeReport(const std::string& outputFile);
+   RangeReport_ptr getRangeReport();
+
+   /// The name of the incident that starts a new event sequence
+   std::string  incidentName() const            { return m_incidentName.value(); }
+  
+   bool         ignoringInputBoundary() const   { return m_ignoreInputFile.value(); }
+
+   /// Is the service in active use? (true after the first range incident is handled)
+   bool         inUse() const;
+  
+   /// Are there concurrent events? (threads>1)
+   bool         inConcurrentEventsMode() const;
 
 private: // data
    ServiceHandle<MetaDataSvc> m_metaDataSvc;
-   unsigned int m_fileSequenceNumber;
-   std::string  m_fileSequenceLabel;
+
+   /// The event sequence number
+   int m_fileSequenceNumber;
+
+   /// Current EventRange ID constructed on the NextRange incident
+   std::string  m_currentRangeID;
 
 private: // properties
    /// SequenceIncidentName, incident name for triggering file sequencing.
    StringProperty             m_incidentName;
    /// IgnoreInputFileBoundary, boolean whether to ignore the input file boundary requirement for file sequencing.
    BooleanProperty            m_ignoreInputFile;
+
+   std::map<std::string,std::string> m_fnToRangeId;
+   std::map<std::string,std::string>::iterator m_finishedRange;
 };
 
 #endif

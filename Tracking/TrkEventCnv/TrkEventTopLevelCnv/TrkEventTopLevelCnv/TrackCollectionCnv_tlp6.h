@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACK_COLLECTION_CNV_TLP6_TRK_H
@@ -45,8 +45,10 @@ class TrackCollectionCnv_tlp6 : public BaseTrackCollectionCnv
  
   TrackCollectionCnv_tlp6();
 
-  virtual void	setPStorage( PERS *storage );
-  virtual PERS* createPersistent(const TRANS* transObj, MsgStream &log);
+  virtual void	setPStorage( PERS *storage ) override;
+  virtual PERS* createPersistentWithKey(const TRANS* transObj,
+                                        const std::string& key,
+                                        MsgStream &log) override;
 
 // all TP converters for types used in the Track package
 protected:

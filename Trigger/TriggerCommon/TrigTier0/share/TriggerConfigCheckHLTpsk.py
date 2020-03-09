@@ -6,9 +6,9 @@ mlog = logging.getLogger( 'TriggerConfigCheckHLTpsk' ) ## get the logger
 runNumbers=[]
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if len(athenaCommonFlags.BSRDOInput()) > 0 :
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary.has_key('run_number'): # online monitoring does not provide a run_number in the inputFileSummary (hence the rest of this program will be skipped)
-        runNumbers=inputFileSummary['run_number']
+    from PyUtils.MetaReaderPeeker import metadata
+    if 'runNumbers' in metadata: # online monitoring does not provide a run_number in the file metadata (hence the rest of this program will be skipped)
+        runNumbers = metadata['runNumbers']
 
 if len(runNumbers)>0:
 
@@ -69,7 +69,7 @@ if len(runNumbers)>0:
         rec.doTrigger=False
         recAlgs.doTrigger=False
         if not 'DQMonFlags' in dir():
-            print "TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now"
+            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
         DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)
@@ -81,7 +81,7 @@ if len(runNumbers)>0:
         mlog.warning("turning off hlt [rec.doTrigger=True, recAlgs.doTrigger=True, and TriggerFlags.dataTakingConditions='Lvl1Only'].")
         TriggerFlags.dataTakingConditions='Lvl1Only'
         if not 'DQMonFlags' in dir():
-            print "TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now"
+            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
         DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)
@@ -91,7 +91,7 @@ if len(runNumbers)>0:
         mlog.warning("turning off lvl1 [rec.doTrigger=True, recAlgs.doTrigger=True, and TriggerFlags.dataTakingConditions='HltOnly'].")
         TriggerFlags.dataTakingConditions='HltOnly'
         if not 'DQMonFlags' in dir():
-            print "TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now"
+            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
 #        DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)

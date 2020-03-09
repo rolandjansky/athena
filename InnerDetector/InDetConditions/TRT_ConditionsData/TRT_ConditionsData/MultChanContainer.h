@@ -32,6 +32,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cxxabi.h>
+#include <algorithm>
 
 namespace TRTCond
 {
@@ -48,6 +49,9 @@ namespace TRTCond
     /** copy/assignment. not trivial. */
     MultChanContainer(const MultChanContainer& rhs) ;
     MultChanContainer& operator=(const MultChanContainer& rhs) ;
+
+    StatusCode initialize();
+
     
     /** calculate the channel for a given TRT identifier */
     size_t channelId( const ExpandedIdentifier& x ) const ;
@@ -102,7 +106,7 @@ namespace TRTCond
     /** channel identifier for the container with the 'default' value */
     static const size_t m_defaultschannelid = 0 ;
     /** cached table for fast access from channel to layercontainer */
-    mutable std::vector<const DaughterContainer*> m_channelmap ;
+    std::vector<const DaughterContainer*> m_channelmap ;
     /** dummy value to return when DaughterContainer is empty */
     const typename DaughterContainer::value_type& dummyVal() const;
   } ;
@@ -206,31 +210,11 @@ template <class DaughterContainer>
   template <class DaughterContainer>
   inline const DaughterContainer* MultChanContainer<DaughterContainer>::getContainer(size_t chanid) const
   {
-    if( m_channelmap.empty() ) {
-      // update the cache
-
-      // sanity check to test we have added a default value
-      if( this->size()>0 && *(this->chan_begin()) != m_defaultschannelid ) {
-        MsgStream log(Athena::getMessageSvc(),"TRTCond::MultChanContainer");
-        log << MSG::ERROR << " first channel id is not defaults channel id!" << endmsg ;
-      }
-      
-      // first get the max channel id
-      size_t maxchanid(0) ;
-      for( typename CondMultChanCollection<DaughterContainer>::chan_const_iterator chanit = this->chan_begin() ;
-	   chanit != this->chan_end(); ++chanit ) if( maxchanid < *chanit ) maxchanid=*chanit ;
-      
-      // now allocate the map and fill it
-      m_channelmap.clear() ;
-      m_channelmap.resize( maxchanid + 1, 0 ) ;
-      typename CondMultChanCollection<DaughterContainer>::const_iterator dauit = this->begin() ; 
-      for( typename CondMultChanCollection<DaughterContainer>::chan_const_iterator chanit = this->chan_begin() ;
-	   chanit != this->chan_end(); ++chanit, ++dauit ) m_channelmap[*chanit] = *dauit ;
-    }
-    return chanid < m_channelmap.size() ? m_channelmap[chanid] : 0 ;
+    //in the const-version to get the container we rely on the m_channelmap per-filled by initialize 
+    //(to be thread-seafe)
+    return chanid < m_channelmap.size() ? m_channelmap[chanid] : nullptr ;
   }
-
-
+   
   template <class DaughterContainer>
   inline void MultChanContainer<DaughterContainer>::set( const ExpandedIdentifier& id, const typename DaughterContainer::value_type& t ) 
   {
@@ -384,7 +368,28 @@ template <class DaughterContainer>
   
 
 
+  template <class DaughterContainer>
+    StatusCode MultChanContainer<DaughterContainer>::initialize() {
 
+    // sanity check to test we have added a default value
+    if( this->size()>0 && *(this->chan_begin()) != m_defaultschannelid ) {
+      MsgStream log(Athena::getMessageSvc(),"TRTCond::MultChanContainer");
+      log << MSG::ERROR << " first channel id is not defaults channel id!" << endmsg ;
+    }
+
+    // first get the max channel id
+    auto maxchan=std::max_element(this->chan_begin(),this->chan_end());
+    const size_t maxchanid= maxchan==this->chan_end() ? 0 : *maxchan;
+    
+    // now allocate the map and fill it
+    m_channelmap.clear() ;
+    m_channelmap.resize( maxchanid + 1, nullptr ) ;
+    //typename CondMultChanCollection<DaughterContainer>::const_iterator dauit = this->begin() ; 
+    auto dauit = this->begin() ; 
+    for( auto chanit = this->chan_begin();chanit != this->chan_end(); ++chanit, ++dauit ) {
+      m_channelmap[*chanit] = *dauit ;
+    } 
+    return StatusCode::SUCCESS;
+  }
 }
-
 #endif

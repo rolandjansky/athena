@@ -77,9 +77,9 @@ StorageSvc           INFO DataVector<DMTest::D> [14085919-C66D-45B2-A183-17D7798
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO DMTest::ELVec [08A5FE26-1553-44E0-BFC4-196B96D3AD44]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO DataHeaderForm_p5 [3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE]
+StorageSvc           INFO DataHeader_p6 [4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
+StorageSvc           INFO DataHeaderForm_p6 [7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 ClassIDSvc           INFO  getRegistryEntries: read 85 CLIDRegistry entries for module ALL

@@ -178,6 +178,7 @@ public:
    * @param line The source line from which the report is being made.
    * @param file The source file name from which the report is being made.
    * @param func The name of the function from which the report is being made.
+   * @param pkg The name of the package from which the report is being made.
    * @param context The name of the context (algorithm/tool/service/etc.)
    *                from which the report is being made.
    * @param sc The @c StatusCode to include in the error message.
@@ -186,6 +187,7 @@ public:
                  int line,
                  const char* file,
                  const char* func,
+                 const char* pkg,
                  const std::string& context,
                  StatusCode sc);
 
@@ -196,6 +198,7 @@ public:
    * @param line The source line from which the report is being made.
    * @param file The source file name from which the report is being made.
    * @param func The name of the function from which the report is being made.
+   * @param pkg The name of the package from which the report is being made.
    * @param context The name of the context (algorithm/tool/service/etc.)
    *                from which the report is being made.
    */
@@ -203,6 +206,7 @@ public:
                  int line,
                  const char* file,
                  const char* func,
+                 const char* pkg,
                  const std::string& context);
 
 
@@ -276,11 +280,13 @@ private:
    * @param line The source line from which the report is being made.
    * @param file The source file name from which the report is being made.
    * @param func The name of the function from which the report is being made.
+   * @param pkg The name of the package from which the report is being made.
    */
   void format_common (MSG::Level level,
                       int line,
                       const char* file,
-                      const char* func);
+                      const char* func,
+                      const char* pkg);
 
   /// The position in the output message after the standard header.
   std::string::size_type m_pos;
@@ -307,10 +313,14 @@ private:
 # define ERRORCHECK_FNAME ""
 #endif
 
+// Define dummy package (version) in case there is none defined already
+#ifndef PACKAGE_VERSION
+# define PACKAGE_VERSION 0
+#endif
 
 // Collect all the arguments describing the source location:
-// line number, file name, function name.
-#define ERRORCHECK_ARGS __LINE__, __FILE__, ERRORCHECK_FNAME
+// line number, file name, function name, package.
+#define ERRORCHECK_ARGS __LINE__, __FILE__, ERRORCHECK_FNAME, PACKAGE_VERSION
 
 
 /**

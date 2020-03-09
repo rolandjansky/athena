@@ -50,7 +50,6 @@
 #include <map>
 #include <atomic>
 
-class StoreGateSvc;
 class CaloCell_ID;
 class LArOnlineID;
 class CaloLVL1_ID;

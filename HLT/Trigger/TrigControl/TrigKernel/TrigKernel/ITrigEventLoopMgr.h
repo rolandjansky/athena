@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGKERNEL_ITRIGEVENTLOOPMGR_H
 #define TRIGKERNEL_ITRIGEVENTLOOPMGR_H
 
 #include "GaudiKernel/IInterface.h"
+#include "CxxUtils/checker_macros.h"
 #include <boost/property_tree/ptree.hpp>
 
 /**@class ITrigEventLoopMgr
@@ -23,7 +24,7 @@ public:
   /**
    * prepareForRun method invoked by framework
    */
-  virtual StatusCode prepareForRun(const boost::property_tree::ptree &) = 0;
+  virtual StatusCode prepareForRun  ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree &) = 0;
 
   /**
    * update parameters if necessary after forking workers and issue incident

@@ -35,7 +35,6 @@ atlas_add_component( PhysValMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AthenaMonitoringLib xAODBTagging xAODBase xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTau xAODTracking RecEvent TrkValHistUtils )
 
 # Install files from the package:
-atlas_install_headers( PhysValMonitoring )
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
 

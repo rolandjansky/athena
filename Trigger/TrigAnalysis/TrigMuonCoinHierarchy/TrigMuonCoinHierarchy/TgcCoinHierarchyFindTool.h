@@ -11,9 +11,10 @@
 
 #include "MuonRDO/TgcRdo.h" 
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <fstream>
 
-class TgcIdHelper;
 class ITGCcablingSvc;
 
 namespace Trigger {
@@ -197,8 +198,9 @@ class TgcCoinHierarchyFindTool : virtual public ITgcCoinHierarchyFindTool, virtu
   StatusCode findDummyTGC1HitFromHiPt();
   StatusCode findDummyTGC23HitFromTracklet();
 
-  /** TgcIdHelper */
-  const TgcIdHelper* m_tgcHelper;
+  /** Tool for TgcIdHelper */
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   /** TgcCoinHierarchy instance used for conversions of enum's etc. */ 
   TgcCoinHierarchy m_TCH;
   /* TGC Cabling service */

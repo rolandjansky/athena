@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -11,6 +11,10 @@
 
 #ifndef MUONRDO_CNVDICT_H
 #define MUONRDO_CNVDICT_H
+
+#include "MuonEventAthenaPool/CscRawData_p4.h"
+#include "MuonEventAthenaPool/CscRawDataCollection_p4.h"
+#include "MuonEventAthenaPool/CscRawDataContainer_p4.h"
 
 #include "MuonEventAthenaPool/CscRawData_p3.h"
 #include "MuonEventAthenaPool/CscRawDataCollection_p3.h"

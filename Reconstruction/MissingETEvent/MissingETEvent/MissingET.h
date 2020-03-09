@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISSINGETEVENT_MISSINGET_H
@@ -60,11 +60,22 @@ class MissingET
   // construct with a specifier and region sums
   MissingET(MissingET::Source aSource, MissingEtRegions* theRegions);
 
+  /// Full constructor.
+  MissingET(MissingET::Source aSource,
+            std::unique_ptr<MissingEtRegions> theRegions,
+            double ex,
+            double ey,
+            double etSum);
+
   //fix by Andrei Gaponenko
   MissingET(const MissingET& b); // copy constructor
 
   //fix by Andrei Gaponenko
-  MissingET& operator=(const MissingET& b); // assignment 
+  MissingET& operator=(const MissingET& b); // assignment
+
+  /// Move
+  MissingET(MissingET&& b) = default;
+  MissingET& operator=(MissingET&& b) = default;
   
   // destructor
   virtual ~MissingET();
@@ -88,13 +99,13 @@ class MissingET
   virtual double phi()    const;
 
 
-  virtual MissingEtRegions* getRegions() const;
+  virtual const MissingEtRegions* getRegions() const;
 
   virtual Source getSource() const;
 
  protected:
 
-  MissingEtRegions* m_regions;
+  std::unique_ptr<MissingEtRegions> m_regions;
   
   Source m_source;
   

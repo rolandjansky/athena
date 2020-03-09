@@ -1,4 +1,5 @@
 #include "../JetAlgorithm.h"
+#include "../JetRecAlg.h"
 #include "../PseudoJetAlgorithm.h"
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetRecTool.h"
@@ -13,6 +14,7 @@
 #include "JetRec/JetPruner.h"
 #include "JetRec/JetReclusterer.h"
 #include "JetRec/FastJetInterfaceTool.h"
+#include "JetRec/PseudoJetMerger.h"
 
 #include "JetRec/JetSorter.h"
 #include "JetRec/JetPseudojetRetriever.h"
@@ -20,6 +22,7 @@
 #include "JetRec/JetPseudojetCopier.h"
 #include "JetRec/JetFilterTool.h"
 #include "JetRec/JetConstitRemover.h"
+#include "JetRec/JetClusterer.h"
 
 DECLARE_COMPONENT( JetToolRunner )
 DECLARE_COMPONENT( JetRecTool )
@@ -40,7 +43,10 @@ DECLARE_COMPONENT( JetPseudojetRetriever )
 DECLARE_COMPONENT( JetConstituentsRetriever )
 DECLARE_COMPONENT( JetPseudojetCopier )
 DECLARE_COMPONENT( JetConstitRemover )
+DECLARE_COMPONENT( JetClusterer )
+DECLARE_COMPONENT( PseudoJetMerger )
 
 DECLARE_COMPONENT( JetAlgorithm )
+DECLARE_COMPONENT( JetRecAlg )
 DECLARE_COMPONENT( PseudoJetAlgorithm )
 

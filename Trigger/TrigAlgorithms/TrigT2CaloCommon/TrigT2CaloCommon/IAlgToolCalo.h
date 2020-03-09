@@ -28,7 +28,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "StoreGate/DataHandle.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -205,7 +204,7 @@ class IAlgToolCalo: public virtual IAlgTool,
 	ToolHandle<ITrigDataAccess> m_data;
 	/** Calorimeter Id Manager for calorimeter part
 	determination (Barrel versus EndCap) */
-	const DataHandle<CaloIdManager>        m_larMgr;
+        const CaloIdManager*        m_larMgr = nullptr;
 	/** (don't by default) Save Calorimeter Cells in StoreGate
 	for a posteriori analysis */
         bool m_saveCells;

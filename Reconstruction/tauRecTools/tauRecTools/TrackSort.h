@@ -5,7 +5,7 @@
 #ifndef TAUREC_TRACKSORT_H
 #define TAUREC_TRACKSORT_H
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 #endif
@@ -26,7 +26,7 @@ class TrackSort {
     public:
         TrackSort(){ };
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
         bool operator() (const ElementLink<Rec::TrackParticleContainer>& t1, const ElementLink<Rec::TrackParticleContainer> &t2) const
         {
             return fabs( (*t1)->pt() ) > fabs( (*t2)->pt() );

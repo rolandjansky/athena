@@ -23,6 +23,8 @@
 #include "TileIdentifier/TileFragHash.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileInfo.h"
+
 #include "TH2.h"
 
 #include <iomanip>
@@ -42,6 +44,7 @@ TileInfoDump::TileInfoDump(const std::string& name, ISvcLocator* pSvcLocator)
     , m_h_badCellD(0)
     , m_h_badCellGap(0)
     , m_h_badCell(0)
+    , m_tileInfo(0)
 
 {
   declareProperty("AthenaIsOnline", m_isOnline = false, "Availability of COOL folders depends on Athena mode");
@@ -61,6 +64,7 @@ TileInfoDump::TileInfoDump(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("PrintOfcRos", m_printOfcRos = 0, "Print OFC for this ros (0 by default)");
   declareProperty("PrintOfcDrawer", m_printOfcDrawer = 0, "Print OFC for this drawer (0 by default)");
   declareProperty("PrintOfcChannel", m_printOfcChannel = 0, "Print OFC for this channel (0 by default)");
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -119,6 +123,10 @@ StatusCode TileInfoDump::initialize() {
 
   //--- Get a handle on the NTuple and histogramming service
   CHECK( service("THistSvc", m_thistSvc) );
+
+  //=== Get TileInfo and set max ADC counts
+  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_i_ADCmax = m_tileInfo->ADCmax();
 
   //--- Histogram initialization
   m_h_badCellA = new TH2F("m_h_badCellA", "Etaphi_maskedCell A", 34, -1.7, 1.7, 64, -3.2, 3.2);
@@ -229,7 +237,7 @@ void TileInfoDump::printEmscale() {
   unsigned int drawer = 0;
   unsigned int channel = 0;
   for (unsigned int adc = 0; adc < TileCalibUtils::MAX_GAIN; ++adc) {
-    for (unsigned int adcCounts = 0; adcCounts < 1024; ++adcCounts) {
+    for (int adcCounts = 0; adcCounts <= m_i_ADCmax; ++adcCounts) {
       double energy = static_cast<float>(adcCounts);
       ATH_MSG_INFO( ros << "/"  << drawer << "/" << channel << "/" << adc << " : "
                    << "ADC counts = " << adcCounts

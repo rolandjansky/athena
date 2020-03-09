@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -63,9 +63,13 @@ void SegmentCollectionCnv::initializeOldExtConverters()
 SegmentCollection_PERS *
 SegmentCollectionCnv::createPersistent( Trk::SegmentCollection *transCont)
 {   
-    m_log.setLevel( m_msgSvc->outputLevel() );
-    updateLog(); // Make m_log indicate the current key
-    return m_TPConverterForPER.createPersistent( transCont, m_log );
+    std::string logname = "SegmentCollectionCnv";
+    if (const DataObject* dObj = getDataObject()) {
+      logname += dObj->name();
+    }
+
+    MsgStream log (m_msgSvc, logname );
+    return m_TPConverterForPER.createPersistent( transCont, log );
 }
 
 
@@ -106,12 +110,4 @@ Trk::SegmentCollection *SegmentCollectionCnv::createTransient()
         throw std::runtime_error( "Unsupported persistent version of Trk::SegmentCollection (unknown GUID)" );
         
     return p_collection;
-}
-
-void SegmentCollectionCnv::updateLog(){  
-     const DataObject* dObj = getDataObject();
-     if (dObj==0) return; // Can't do much if this fails.
-     const std::string  key = (dObj->name());
- 
-     m_log.m_source="SegmentCollectionCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
 }

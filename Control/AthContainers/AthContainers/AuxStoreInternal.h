@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxStoreInternal.h 793732 2017-01-24 19:42:30Z ssnyder $
@@ -20,7 +20,6 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainers/tools/threading.h"
-#include "CxxUtils/override.h"
 #include <vector>
 #include <memory>
 

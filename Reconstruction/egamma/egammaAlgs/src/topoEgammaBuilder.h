@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_TOPOEGAMMABUILDER_H
@@ -15,7 +15,7 @@
 // INCLUDE HEADER FILES:
 #include <vector>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -32,10 +32,11 @@
 
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IEMClusterTool.h" 
+#include "egammaInterfaces/IEMShowerBuilder.h" 
 #include "egammaInterfaces/IegammaBaseTool.h" 
 class egammaRec;
 
-class topoEgammaBuilder : public AthAlgorithm
+class topoEgammaBuilder : public AthReentrantAlgorithm
 {
 public:
 
@@ -47,7 +48,7 @@ public:
     /** @brief finalize method*/
     StatusCode finalize() override final;
     /** @brief execute method*/
-    StatusCode execute() override final;
+    StatusCode execute(const EventContext& ctx) const override final;
 
 private:
 
@@ -65,12 +66,17 @@ private:
 
     /** @brief Tool to do the final electron/photon cluster building */
     ToolHandle<IEMClusterTool> m_clusterTool {this, 
-        "EMClusterTool", "EMClusterTool", 
+        "EMClusterTool", "egammaTools/EMClusterTool", 
         "Tool that does electron/photon final cluster building"};
+
+    /** @brief Tool to do the final electron/photon cluster building */
+    ToolHandle<IEMShowerBuilder> m_ShowerTool {this, 
+        "EMShowerTool", "egammaTools/EMShowerBuilder", 
+        "Tool that does electron/photon shower shape building"};
 
     /** @brief Tool to resolve electron/photon ambiguity */
     ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
-        "AmbiguityTool", "EGammaAmbiguityTool", 
+        "AmbiguityTool", "egammaTools/EGammaAmbiguityTool", 
         "Tool that does electron/photon ambiguity resolution"};
 
 
@@ -79,24 +85,24 @@ private:
      * calling the relevant tools **/
 
     bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
-            const unsigned int author, const uint8_t type);
+            const unsigned int author, const uint8_t type) const;
 
     /** Given an egammaRec object, a pointer to the photon container and the author, 
      * create and dress a photon, pushing it back to the container and 
      * calling the relevant tools **/
     bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
-            const unsigned int author, uint8_t type);
+            const unsigned int author, uint8_t type) const;
 
 
     /** @brief Do the final ambiguity **/  
     StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
-            xAOD::PhotonContainer *photonContainer);
+            xAOD::PhotonContainer *photonContainer) const ;
 
     /** @brief Call a tool using contExecute and electrons, photon containers if given **/
     StatusCode CallTool(const EventContext& ctx,
-            ToolHandle<IegammaBaseTool>& tool, 
-            xAOD::ElectronContainer *electronContainer = 0, 
-            xAOD::PhotonContainer *photonContainer = 0);
+            const ToolHandle<IegammaBaseTool>& tool, 
+            xAOD::ElectronContainer *electronContainer = nullptr, 
+            xAOD::PhotonContainer *photonContainer = nullptr) const;
 
     /** @brief Name of the electron output collection*/
     SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,
@@ -125,6 +131,8 @@ private:
     // others:
     ServiceHandle<IChronoStatSvc> m_timingProfile;
     Gaudi::Property<bool> m_doChrono {this, "doChrono", false, "do Chrono Service"};
+    Gaudi::Property<bool> m_doPhotons {this, "doPhotons", true, "Run the Photon reconstruction"};
+    Gaudi::Property<bool> m_doElectrons {this, "doElectrons", true, "Run the Electron reconstruction"};
 };
 
 #endif

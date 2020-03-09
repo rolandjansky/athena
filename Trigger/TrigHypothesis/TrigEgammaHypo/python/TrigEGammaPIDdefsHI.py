@@ -1,4 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+# flake8: noqa  (legacy trigger)
+
+from __future__ import print_function
 
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron, CutDefElectron
 
@@ -30,10 +34,10 @@ ElectronIsEMBits = {'loose': SelectionDefElectron.ElectronLooseHI,
                     'medium': SelectionDefElectron.ElectronMediumHI,
                     'medium1': SelectionDefElectron.ElectronMediumHI}
 
-print ""
-print "============================================================================"
-print "====                       TrigEgamma isEM bit masks HI                ====="
-print "====  ElectronLoose:                              0x%08x               =====" % SelectionDefElectron.ElectronLooseHI
-print "====  ElectronMedium:                             0x%08x               =====" % SelectionDefElectron.ElectronMediumHI
-print "==============================================================================="
-print ""
+print ("")
+print ("============================================================================")
+print ("====                       TrigEgamma isEM bit masks HI                =====")
+print ("====  ElectronLoose:                              0x%08x               =====" % SelectionDefElectron.ElectronLooseHI)
+print ("====  ElectronMedium:                             0x%08x               =====" % SelectionDefElectron.ElectronMediumHI)
+print ("===============================================================================")
+print ("")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 
 Trk::CompressedLayerMaterial::CompressedLayerMaterial() :
   Trk::LayerMaterialProperties(),
-  m_binUtility(0)
+  m_binUtility(nullptr)
 {}
 
 Trk::CompressedLayerMaterial::CompressedLayerMaterial(Trk::BinUtility& binutility) :
@@ -35,7 +35,7 @@ Trk::CompressedLayerMaterial::CompressedLayerMaterial(std::unique_ptr<Trk::BinUt
                                                       double splitFactor) :
   Trk::LayerMaterialProperties(splitFactor),
   m_binUtility(binutility.release()),
-  m_fullMaterial(std::move(fullProperties)),
+  m_fullMaterial(fullProperties),
   m_materialBins(materialIndices)
 {}
 
@@ -91,7 +91,7 @@ void Trk::CompressedLayerMaterial::fillMaterial(const Trk::MaterialPropertiesVec
    m_fullMaterial.clear();
    m_fullMaterial.reserve(matVector.size());
    for ( auto& matIter : matVector )
-        m_fullMaterial.push_back( matIter ? matIter->clone() : 0);
+        m_fullMaterial.push_back( matIter ? matIter->clone() : nullptr);
 }
 
 Trk::CompressedLayerMaterial& Trk::CompressedLayerMaterial::operator*=(double scale)
@@ -116,13 +116,13 @@ Trk::CompressedLayerMaterial& Trk::CompressedLayerMaterial::operator*=(double sc
 
 const Trk::MaterialProperties* Trk::CompressedLayerMaterial::fullMaterial(const Amg::Vector3D& gp) const
 {  
-  if (!m_fullMaterial.size() || !m_binUtility ) return 0;
+  if (m_fullMaterial.empty() || !m_binUtility ) return nullptr;
   // first bin
   size_t ibin1 = m_binUtility->bin(gp,0);
   // second bin
   size_t ibin2 = ( m_binUtility->max(1) == 0 )  ? 0 : m_binUtility->bin(gp,1);
   // out of bounds check and return
-  return ( ibin2 > m_binUtility->max(1) ) ? 0 : material(ibin1,ibin2);
+  return ( ibin2 > m_binUtility->max(1) ) ? nullptr : material(ibin1,ibin2);
 }
 
 MsgStream& Trk::CompressedLayerMaterial::dump( MsgStream& sl) const

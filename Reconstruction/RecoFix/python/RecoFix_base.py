@@ -45,9 +45,9 @@ class RecoFix_base(object):
             elif rec.readAOD():
                 suffix="_AOD"
 
-            str = "AODFix_" + "-".join(self.latestAODFixVersion()) + suffix
+            metastr = "AODFix_" + "-".join(self.latestAODFixVersion()) + suffix
 
-            logRecoFix.info("executing addMetaData, will add as AODFixVersion %s" % str)
+            logRecoFix.info("executing addMetaData, will add as AODFixVersion %s" % metastr)
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-            svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AODFixVersion", str]
+            svcMgr.TagInfoMgr.ExtraTagValuePairs["AODFixVersion"] = metastr
 

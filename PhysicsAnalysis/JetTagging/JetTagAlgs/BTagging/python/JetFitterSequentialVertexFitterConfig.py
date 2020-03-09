@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.JetFitterFullLinearizedTrackFactoryConfig import JetFitterFullLinearizedTrackFactoryCfg
 from BTagging.JetFitterSequentialVertexSmootherConfig import JetFitterSequentialVertexSmootherCfg
 
 # import the SequentialVertexFitter configurable
-from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexFitter
+Trk__SequentialVertexFitter=CompFactory.Trk__SequentialVertexFitter
 
 def JetFitterSequentialVertexFitterCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterSequentialVertexFitter tool and returns it.
@@ -18,9 +19,7 @@ def JetFitterSequentialVertexFitterCfg(name, useBTagFlagsDefaults = True, **opti
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accJetFitterFullLinearizedTrackFactory = JetFitterFullLinearizedTrackFactoryCfg('JFFullLinearizedTrackFactory')
-        jetFitterFullLinearizedTrackFactory = accJetFitterFullLinearizedTrackFactory.popPrivateTools()
-        acc.merge(accJetFitterFullLinearizedTrackFactory)
+        jetFitterFullLinearizedTrackFactory = acc.popToolsAndMerge(JetFitterFullLinearizedTrackFactoryCfg('JFFullLinearizedTrackFactory'))
         jetFitterSequentialVertexSmoother = acc.popToolsAndMerge(JetFitterSequentialVertexSmootherCfg('JFSequentialVertexSmoother'))
         defaults = { 'LinearizedTrackFactory' : jetFitterFullLinearizedTrackFactory,
                      'VertexSmoother'         : jetFitterSequentialVertexSmoother, }

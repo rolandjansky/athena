@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,7 +14,6 @@
 #undef NDEBUG
 #include "TrigInDetEventTPCnv/TrigInDetTrackCnv_p3.h"
 #include "TrigInDetEventTPCnv/TrigInDetTrackCollectionCnv_tlp4.h"
-#include "CxxUtils/make_unique.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "InDetIdentifier/PixelID.h"
@@ -159,10 +158,10 @@ void test1()
       310.5*310.5, 311.5, 312.5,
       313.5*313.5, 314.5,
       315.5*315.5 };
-  auto param = CxxUtils::make_unique<TrigInDetTrackFitPar>
+  auto param = std::make_unique<TrigInDetTrackFitPar>
     (2.5, 3.5, 4.5, 5.5, 6.5, TrigInDetTrackFitPar::PERIGEE, 7.5,
     new std::vector<double> (cov1));
-  auto endParam = CxxUtils::make_unique<TrigInDetTrackFitPar>
+  auto endParam = std::make_unique<TrigInDetTrackFitPar>
     (102.5, 103.5, 104.5, 105.5, 106.5, TrigInDetTrackFitPar::BARREL, 107.5,
     new std::vector<double> (cov2));
   TrigInDetTrack trans1 (param.release(), endParam.release(), 1.5);
@@ -183,7 +182,7 @@ void test1()
 
 void make_dd()
 {
-  auto pix_id = CxxUtils::make_unique<PixelID>();
+  auto pix_id = std::make_unique<PixelID>();
   IdDictParser parser;
   parser.register_external_entity ("InnerDetector",
                                    "IdDictInnerDetector.xml");

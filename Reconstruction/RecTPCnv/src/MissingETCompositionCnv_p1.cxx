@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@ typedef NavigableCnv_p2<MissingETComposition, MissingETComposition_p1::Weight_p1
 
 // specializing template for Weight_p1, filling weights
 
-static NavigableCnv_t    navCnv;
+static const NavigableCnv_t    navCnv;
 
 namespace MissingETHandlers
 {
@@ -29,7 +29,7 @@ namespace MissingETHandlers
 void
 MissingETCompositionCnv_p1::transToPers(const MissingETComposition* transObj,
 					MissingETComposition_p1* persObj,
-					MsgStream &reporter )
+					MsgStream &reporter ) const
 {
   reporter << MSG::DEBUG << "MissingETCompositionCnv_p1 toPers()" << endmsg;
   
@@ -41,7 +41,7 @@ MissingETCompositionCnv_p1::transToPers(const MissingETComposition* transObj,
 void
 MissingETCompositionCnv_p1::persToTrans(const MissingETComposition_p1* persObj,
 					MissingETComposition* transObj,
-					MsgStream &reporter )
+					MsgStream &reporter ) const
 {
   reporter << MSG::DEBUG << "MissingETCompositionCnv toTrans()" << endmsg;
   

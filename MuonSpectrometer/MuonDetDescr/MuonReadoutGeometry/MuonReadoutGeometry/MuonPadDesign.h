@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -11,8 +11,6 @@
 #define MUONTRACKINGGEOMETRY_MUONPADDESIGN_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace MuonGM {
 
@@ -112,12 +110,6 @@ namespace MuonGM {
 
     /** access to cache */
     void setR( double R) const {this->radialDistance = R; }
-
-    MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-    bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
-  protected:
-    mutable Athena::MsgStreamMember    m_msg = Athena::MsgStreamMember("MuonPadDesign");
 
   };
 

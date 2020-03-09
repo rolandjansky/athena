@@ -95,7 +95,8 @@ def createBeamspotFinder(config=jobConfig, containerName = "VxPrimaryCandidate",
 # Get the list of additional vertex collections in the input file
 pvcollections_keys = []
 
-input_file_items = inputFileSummary['eventdata_items']
+from PyUtils.MetaReaderPeeker import convert_itemList
+input_file_items = convert_itemList()
 for cxx_type,sg_key in input_file_items:
     if cxx_type != 'VxContainer':
         continue

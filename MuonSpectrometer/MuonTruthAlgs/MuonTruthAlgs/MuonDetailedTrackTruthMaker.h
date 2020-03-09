@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDETAILEDTRACKTRUTHMAKER_H
@@ -10,7 +10,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandleKeyArray.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
@@ -49,7 +48,9 @@ private:
   // Tool Handle for truth tool
   ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
 
-  bool m_useNSW;
+  bool m_hasCSC;
+  bool m_hasSTgc;
+  bool m_hasMM;
 
 };
 

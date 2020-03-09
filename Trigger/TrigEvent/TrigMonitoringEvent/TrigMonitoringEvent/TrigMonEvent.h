@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_EVENT_H
@@ -92,6 +92,7 @@ class TrigMonEvent
   const std::vector<float>&     getVarVal() const { return m_var_val; }
   
  private:
+  friend class TrigMonEventCnv_p1;
   
   // These variables are copied from EventID
   uint32_t                     m_event;     // Event number

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // author: cpollard@cern.ch
@@ -28,11 +28,12 @@ class JetParticleAssociation : public asg::AsgTool {
 
         // obvs to be provided by the deriving class
         virtual const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
-            match(const xAOD::JetContainer&) const = 0;
+            match(const xAOD::JetContainer&, const xAOD::IParticleContainer&) const = 0;
 
     private:
         std::string m_outputCollectionName;
         std::string m_jetCollectionName;
+        std::string m_inputParticleCollectionName;
         SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > *m_dec;
 };
 

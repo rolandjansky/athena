@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonResonanceTool.cxx
@@ -75,7 +75,7 @@ StatusCode MuonResonanceTool::initialize()
 
 //**********************************************************************
 
-void MuonResonanceTool::findResonance(const xAOD::MuonContainer* tags, bool isMC) const{
+void MuonResonanceTool::findResonance(const xAOD::MuonContainer* tags, bool isMC) {
 
   ATH_MSG_DEBUG("Number of candidate tags    : " << tags->size() );
   ATH_MSG_DEBUG("calling selection" );

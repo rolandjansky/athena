@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TauAnalysisTools/TauEfficiencyContJetIDTool.h"
@@ -9,7 +9,7 @@ using namespace TauAnalysisTools;
 
 //==================================PUBLIC-PART=================================
 //______________________________________________________________________________
-TauEfficiencyContJetIDTool::TauEfficiencyContJetIDTool(std::string sName) :
+TauEfficiencyContJetIDTool::TauEfficiencyContJetIDTool(const std::string& sName) :
   CommonEfficiencyTool(sName)
 {
   m_sSystematicSet = new CP::SystematicSet();

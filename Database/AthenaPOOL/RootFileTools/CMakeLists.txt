@@ -20,6 +20,10 @@ atlas_add_executable( mergePOOL
                       src/merge.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps PersistentDataModel )
+atlas_add_executable( compressionTool
+                      src/compressionTool.cxx
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

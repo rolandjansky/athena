@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSICRYSTAL_H
@@ -7,6 +7,9 @@
 
 #include "Identifier/Identifier.h"
 #include "GeoVPixelFactory.h"
+
+#include <memory>
+
 class GeoLogVol;
 
 namespace InDetDD {
@@ -23,7 +26,7 @@ class GeoPixelSiCrystal : public GeoVPixelFactory {
   bool GetModule3DFlag() { return m_isModule3D; };
 
  private:
-  InDetDD::PixelDiodeMatrix * makeMatrix(double phiPitch, double etaPitch, double etaPitchLong, double etaPitchLongEnd,
+  std::shared_ptr<const InDetDD::PixelDiodeMatrix> makeMatrix(double phiPitch, double etaPitch, double etaPitchLong, double etaPitchLongEnd,
 					 int circuitsPhi, int circuitsEta, int diodeRowPerCirc, int diodeColPerCirc);
   Identifier m_id;
   InDetDD::SiDetectorDesign* m_design;

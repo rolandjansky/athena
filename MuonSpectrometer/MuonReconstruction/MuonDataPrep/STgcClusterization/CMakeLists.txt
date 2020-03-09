@@ -13,8 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Event/EventPrimitives
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          TestPolicy )
+                          MuonSpectrometer/MuonIdHelpers )
+
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

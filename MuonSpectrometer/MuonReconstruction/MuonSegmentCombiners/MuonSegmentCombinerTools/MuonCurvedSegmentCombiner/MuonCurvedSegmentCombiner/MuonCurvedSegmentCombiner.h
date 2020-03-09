@@ -23,16 +23,13 @@
 
 #include "MuonCurvedSegmentCombiner/MCSCSegmentInfo.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class Identifier;
 
 namespace MuonGM {
     class MuonDetectorManager;
 }
-
-class RpcIdHelper;
-class TgcIdHelper;
-class CscIdHelper;
-class MdtIdHelper;
 
 namespace Muon
 {
@@ -95,13 +92,8 @@ namespace Muon
      
     //       const Muon::MuonSegPatAssMap* m_assCscMap;
 
-    const MuonGM::MuonDetectorManager*  m_detMgr;
-
-    const RpcIdHelper*                  m_rpcIdHelper;
-    const TgcIdHelper*                  m_tgcIdHelper;
-    const CscIdHelper*                  m_cscIdHelper;
-    const MdtIdHelper*                  m_mdtIdHelper;
-
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ToolHandle< MuonEDMPrinterTool> m_printer;
 
     bool m_debug;    

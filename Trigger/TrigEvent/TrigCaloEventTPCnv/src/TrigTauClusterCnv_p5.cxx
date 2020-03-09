@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigTauCluster.h"
@@ -8,9 +8,9 @@
 #include "TrigCaloEventTPCnv/TrigCaloClusterCnv_p2.h"
 
 // pre-allocate converters
-static TrigCaloClusterCnv_p2 trigCaloClusterCnv;
+static const TrigCaloClusterCnv_p2 trigCaloClusterCnv;
 
-void TrigTauClusterCnv_p5 :: persToTrans(const TrigTauCluster_p5 *persObj, TrigTauCluster *transObj, MsgStream& log)
+void TrigTauClusterCnv_p5 :: persToTrans(const TrigTauCluster_p5 *persObj, TrigTauCluster *transObj, MsgStream& log) const
 {
   log << MSG::DEBUG << "TrigTauClusterCnv_p5::persToTrans" << endmsg;
 
@@ -36,7 +36,7 @@ void TrigTauClusterCnv_p5 :: persToTrans(const TrigTauCluster_p5 *persObj, TrigT
   trigCaloClusterCnv.persToTrans(&persObj->m_trigCaloCluster, transObj, log);
 }
 
-void TrigTauClusterCnv_p5 :: transToPers(const TrigTauCluster *transObj, TrigTauCluster_p5 *persObj, MsgStream& log)
+void TrigTauClusterCnv_p5 :: transToPers(const TrigTauCluster *transObj, TrigTauCluster_p5 *persObj, MsgStream& log) const
 {
   log << MSG::DEBUG << "TrigTauClusterCnv_p5::transToPers" << endmsg;
 

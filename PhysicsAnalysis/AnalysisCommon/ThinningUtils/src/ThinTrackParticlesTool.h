@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,19 +22,22 @@
 // STL includes
 #include <string>
 #include <vector>
+#include <atomic>
 
 // Framework includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 // AthAnalysisBase doesn't currently include the Trigger Service
 #ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #endif
+#include "StoreGate/ThinningHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "AthContainers/DataVector.h"
 
 // EDM includes
-#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODBase/IParticle.h"
 #include "xAODParticleEvent/IParticleLink.h"
@@ -146,47 +149,50 @@ private:
   /// The expression parser
   ExpressionParsing::ExpressionParser *m_parser;
 
-  /// Pointer to IThinningSvc
-  ServiceHandle<IThinningSvc> m_thinningSvc;
-
+  StringProperty m_streamName
+  { this, "StreamName", "", "Name of the stream for which thinning is being done." };
 
   /// Name of the TrackParticleContainer to thin
-  StringProperty m_trackParticleKey;
+  SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey
+  { this, "TrackParticlesToThin", "InDetTrackParticles", "The xAOD::TrackParticleContainer to be thinned" };
 
-  /// List of names of the object collections
-  StringArrayProperty m_inCollKeyList;
+  /// List of object collections
+  SG::ReadHandleKeyArray<SG::AuxVectorBase> m_inCollKeyList
+  { this, "InputContainerList", {}, "Containers from which to extract the information which CaloCells should be kept" };
 
 
   /// The selection string that will select which xAOD::IParticles to keep from
   /// an xAOD::IParticleContainer
-  StringProperty m_selection;
+  StringProperty m_selection
+  { this, "Selection", "", "The selection string that defines which xAOD::IParticles to select from the container" };
 
 
   /// Flag to steer if one should also keep conversion track particles from taus
-  BooleanProperty m_tauConversion;
+  BooleanProperty m_tauConversion
+  { this, "KeepTauConversions", false, "Flag to steer if one should also keep conversion track particles from taus" };
 
   /// Flag to steer if one should also keep 'wide track particles' from taus
-  BooleanProperty m_tauWide;
+  BooleanProperty m_tauWide
+  { this, "KeepTauWide", false, "Flag to steer if one should also keep 'wide track particles' from taus" };
 
   /// Flag to steer if one should also keep 'other' track particles from taus
-  BooleanProperty m_tauOther;
+  BooleanProperty m_tauOther
+  { this, "KeepTauOther", false, "Flag to steer if one should also keep 'other' track particles from taus" };
 
   /// Set the maximum number of TrackParticles from each electron to keep (default: -1 means all are kept)
-  IntegerProperty m_nElectronPTMax;
+  IntegerProperty m_nElectronPTMax
+  { this, "NMaxElectronTrackParticles", -1, "Set the maximum number of TrackParticles from each electron to keep (default: -1 means all are kept" };
 
-
-  /// The number of given TrackParticles in the current event
-  mutable std::size_t m_nTotalTrackParts;
 
   // Declare some counters and initialize them to zero
   /// Event counter
-  mutable unsigned long m_nEventsProcessed;
+  mutable std::atomic<unsigned long> m_nEventsProcessed;
 
   /// The number of total TrackParticles kept
-  mutable unsigned long m_nTrackPartsKept;
+  mutable std::atomic<unsigned long> m_nTrackPartsKept;
 
   /// The number of total TrackParticles processed
-  mutable unsigned long m_nTrackPartsProcessed;
+  mutable std::atomic<unsigned long> m_nTrackPartsProcessed;
 
 
 };

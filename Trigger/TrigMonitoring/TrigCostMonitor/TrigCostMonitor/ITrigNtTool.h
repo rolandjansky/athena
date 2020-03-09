@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_ITRIGNTTOOL_H
@@ -38,7 +38,7 @@ namespace Trig
     virtual void SetSteer(const HLT::TrigSteer *) {}
 
     // Optional way for derived tools to be passed arbitrary data
-    virtual void SetOption(unsigned option) { (void)(option); /*unused here*/ }
+    virtual void SetOption(unsigned /*option*/) {  }
 
     virtual bool Fill(TrigMonConfig *) = 0;
     virtual bool Fill(TrigMonEvent &)  = 0;

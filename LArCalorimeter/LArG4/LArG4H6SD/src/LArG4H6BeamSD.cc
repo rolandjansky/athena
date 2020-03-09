@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H6BeamSD.h"
@@ -12,8 +12,6 @@
 #include "G4ThreeVector.hh"
 #include "G4ios.hh"
 #include <iomanip>
-
-#include "CxxUtils/make_unique.h" // For make unique
 
 #undef DEBUG_HITS
 
@@ -35,7 +33,7 @@ void LArG4H6BeamSD::Initialize(G4HCofThisEvent* /*HCE*/)
 #ifdef DEBUG_HITS
    std::cout<<"**** LArG4H6BeamSD::Initialize  colname: "<<collectionName[0]<<std::endl;
 #endif
-  if (!m_FrontCollection.isValid()) m_FrontCollection = CxxUtils::make_unique<LArG4H6FrontHitCollection>();
+  if (!m_FrontCollection.isValid()) m_FrontCollection = std::make_unique<LArG4H6FrontHitCollection>();
 }
 
 G4bool LArG4H6BeamSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*Touchable*/)

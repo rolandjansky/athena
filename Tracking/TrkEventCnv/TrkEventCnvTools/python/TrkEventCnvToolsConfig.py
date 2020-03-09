@@ -5,8 +5,10 @@
 
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AppMgr import ToolSvc
+from RecExConfig import RecFlags as rec
+
 from TrkEventCnvTools.TrkEventCnvToolsConf import Trk__EventCnvSuperTool
 TrkEventCnvSuperTool = Trk__EventCnvSuperTool(name="EventCnvSuperTool")
 ToolSvc+=TrkEventCnvSuperTool
-TrkEventCnvSuperTool.DoMuons = DetFlags.detdescr.Muon_on()
-TrkEventCnvSuperTool.DoID    = DetFlags.detdescr.ID_on()
+TrkEventCnvSuperTool.DoMuons = rec.doMuon() and DetFlags.detdescr.Muon_on()
+TrkEventCnvSuperTool.DoID    = rec.doInDet() and DetFlags.detdescr.ID_on()

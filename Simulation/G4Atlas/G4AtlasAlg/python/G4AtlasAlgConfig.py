@@ -1,40 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
-
-def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
-    from G4AtlasApps.SimFlags import simFlags
-    ## Killing neutrinos
-    if "ATLAS" in simFlags.SimLayout():
-        kwargs.setdefault('KillAllNeutrinos',  True)
-    ## Neutron Russian Roulette
-    if hasattr(simFlags, 'NRRThreshold') and simFlags.NRRThreshold.statusOn and \
-       hasattr(simFlags, 'NRRWeight') and simFlags.NRRWeight.statusOn:
-        if simFlags.CalibrationRun.statusOn:
-            raise NotImplementedError("Neutron Russian Roulette should not be used in Calibration Runs.")
-        kwargs.setdefault('NRRThreshold',  simFlags.NRRThreshold.get_Value())
-        kwargs.setdefault('NRRWeight',  simFlags.NRRWeight.get_Value())
-    ## Photon Russian Roulette
-    if hasattr(simFlags, 'PRRThreshold') and simFlags.PRRThreshold.statusOn and \
-       hasattr(simFlags, 'PRRWeight') and simFlags.PRRWeight.statusOn:
-        if simFlags.CalibrationRun.statusOn:
-            raise NotImplementedError("Photon Russian Roulette should not be used in Calibration Runs.")
-        kwargs.setdefault('PRRThreshold',  simFlags.PRRThreshold.get_Value())
-        kwargs.setdefault('PRRWeight',  simFlags.PRRWeight.get_Value())
-    kwargs.setdefault('IsISFJob', simFlags.ISFRun())
-    return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
-
-def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
-    kwargs.setdefault('SecondarySavingLevel', 2)
-    subDetLevel=1
-    from AthenaCommon.BeamFlags import jobproperties
-    from G4AtlasApps.SimFlags import simFlags
-    if "ATLAS" in simFlags.SimLayout() and \
-    (jobproperties.Beam.beamType() == 'cosmics' or \
-     (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ) ):
-        subDetLevel=2
-    kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
-    return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent")
@@ -53,7 +20,7 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         ## default false
         kwargs.setdefault('FlagAbortedEvents' ,simFlags.FlagAbortedEvents.get_Value())
         if simFlags.FlagAbortedEvents.get_Value() and simFlags.KillAbortedEvents.get_Value():
-            print 'WARNING When G4AtlasAlg.FlagAbortedEvents is True G4AtlasAlg.KillAbortedEvents should be False!!! Setting G4AtlasAlg.KillAbortedEvents = False now!'
+            print('WARNING When G4AtlasAlg.FlagAbortedEvents is True G4AtlasAlg.KillAbortedEvents should be False!!! Setting G4AtlasAlg.KillAbortedEvents = False now!')
             kwargs.setdefault('KillAbortedEvents' ,False)
     if hasattr(simFlags, 'KillAbortedEvents') and simFlags.KillAbortedEvents.statusOn:
         ## default true
@@ -68,6 +35,8 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
     is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
     kwargs.setdefault('MultiThreading', is_hive)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
 
     kwargs.setdefault('TruthRecordService', simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault('GeoIDSvc', 'ISF_GeoIDSvc')

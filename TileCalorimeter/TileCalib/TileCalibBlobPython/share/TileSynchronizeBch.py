@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileSynchronizeBch.py <TAG1> <TAG2> <MASKONLY> <RUN1> <RUN2>
 # sanya.solodkov@cern.ch July 2016
@@ -11,7 +11,7 @@
 # <RUN1> - run number to use for <TAG1> (default = MAXRUN)
 # <RUN2> - run number to use for <TAG2> and for sqlite (default = current run)
 
-import os,sys
+import sys
 
 tag1 = "" if len(sys.argv) < 2 else sys.argv[1].rpartition("=")[2]
 tag2 = "" if len(sys.argv) < 3 else sys.argv[2].rpartition("=")[2]
@@ -22,10 +22,11 @@ run2 = None if len(sys.argv) < 6 else int(sys.argv[5].rpartition("=")[2])
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobPython.TileCalibTools import MAXRUN
+from TileCalibBlobObjs.Classes import TileCalibUtils, TileBchPrbs, \
+     TileBchDecoder
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("SyncBch")
 import logging
 log.setLevel(logging.DEBUG)
@@ -45,24 +46,24 @@ if tag1==tag2:
 opt=opt[0].upper() if len(opt)>0 else " "
 copyall = not (opt=="1" or opt=="Y" or opt=="T" or opt=="B")
 if copyall:
-    log.info( "Copying all statuses from %s to %s" % (tag1,tag2) )
+    log.info( "Copying all statuses from %s to %s", tag1,tag2)
 else:
-    log.info( "Copying only BAD statuses from %s to %s" % (tag1,tag2) )
+    log.info( "Copying only BAD statuses from %s to %s", tag1,tag2)
 
 if run1 is None or run1 < 0:
     badrun=run1
     run1=MAXRUN
     if badrun is None:
-        log.info( "First run number was not specified, using maximal possible run number %d for input DB" % run1 )
+        log.info( "First run number was not specified, using maximal possible run number %d for input DB", run1 )
     else:
-        log.warning( "First run number %d is bad, using maximal possible run number %d for input DB" % (badrun, run1) )
+        log.warning( "First run number %d is bad, using maximal possible run number %d for input DB", badrun, run1)
 if run2 is None or run2 < 0:
     badrun=run2
     run2=TileCalibTools.getLastRunNumber()
     if badrun is None:
-        log.info( "Second run number was not specified, using current run number %d for output DB" % run2 )
+        log.info( "Second run number was not specified, using current run number %d for output DB", run2 )
     else:
-        log.warning( "Second run number %d is bad, using current run number %d for output DB" % (badrun, run2) )
+        log.warning( "Second run number %d is bad, using current run number %d for output DB", badrun, run2)
     if run2 is None or run2<0:
         log.error( "Still bad run number")
         sys.exit(2)
@@ -80,7 +81,7 @@ folderTag1 = TileCalibTools.getFolderTag(db1, folder1, tag1)
 #--- create first bad channel manager
 mgr1 = TileBchTools.TileBchMgr()
 mgr1.setLogLvl(logging.DEBUG)
-log.info("Initializing with offline bad channels at tag=%s and time=%s" % (folderTag1, (run1, 0)))
+log.info("Initializing with offline bad channels at tag=%s and time=%s", folderTag1, (run1, 0))
 mgr1.initialize(db1, folder1, folderTag1, (run1,0))
 
 #=== get DB2
@@ -101,11 +102,11 @@ mgr2.initialize(db2, folder2, folderTag2, (run2,0), 2)
 
 #=== synchronize
 comment=""
-for ros in xrange(1,5):
-    for mod in xrange(0,64):
+for ros in range(1,5):
+    for mod in range(0,64):
         modName = TileCalibUtils.getDrawerString(ros, mod)
         comm = ""
-        for chn in xrange(0, 48):
+        for chn in range(0, 48):
             statlo = mgr1.getAdcStatus(ros, mod, chn, 0)
             stathi = mgr1.getAdcStatus(ros, mod, chn, 1)
 
@@ -165,6 +166,15 @@ for ros in xrange(1,5):
                         #--- delete OnlineBadTiming if the both ADCs has not isBadTiming
                         mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
                         mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+
+                    #--- add OnlineTimingDmuBcOffset if either of the ADCs has isTimingDmuBcOffset
+                    if statlo.isTimingDmuBcOffset() or stathi.isTimingDmuBcOffset():
+                        mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                        mgr2.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+                    else:
+                        #--- delete OnlineTimingDmuBcOffset if the both ADCs has not isTimingDmuBcOffset
+                        mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                        mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
             else:
                 if copyall or (statlo.isBad() and not mgr2.getAdcStatus(ros, mod, chn, 0).isBad()): 
                     mgr2.setAdcStatus(ros,mod,chn,0,statlo)
@@ -178,11 +188,14 @@ for ros in xrange(1,5):
                 pbm = [statloBefore, stathiBefore, statloAfter, stathiAfter]
                 #print modName,"%3d 0"%chn,statloBefore,"=>",statloAfter
                 #print modName,"%3d 1"%chn,stathiBefore,"=>",stathiAfter
-                for adc in xrange(2):
+                for adc in range(2):
                     if pbm[adc] != pbm[adc + 2]:
-                        for pb in xrange(2):
-                            if pb: msg += "  =>"
-                            else: msg = "%s %2i %1i " % (modName, chn, adc) 
+                        msg = ''
+                        for pb in range(2):
+                            if pb:
+                                msg += "  =>"
+                            else:
+                                msg = "%s %2i %1i " % (modName, chn, adc) 
                             prbs = pbm[adc+pb*2]
                             if len(prbs):
                                 for prbCode in sorted(prbs.keys()):

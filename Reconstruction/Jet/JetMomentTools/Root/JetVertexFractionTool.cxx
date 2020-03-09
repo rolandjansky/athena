@@ -101,7 +101,7 @@ int JetVertexFractionTool::modifyJet(xAOD::Jet& jet) const {
 // Operate on the full jet container with fewer retrieves and
 // add corrected JVF, which needs full-event information
 //**********************************************************************
-int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
+StatusCode JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
 
   // Get the vertices container
 
@@ -109,7 +109,7 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
   if (!vertexContainer.isValid()){
     ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle"
                     << m_vertexContainer_key.key()); 
-    return 1;
+    return StatusCode::FAILURE;
   }
   auto vertices = vertexContainer.cptr();
 
@@ -122,7 +122,7 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
   if (!tracksContainer.isValid()){
     ATH_MSG_ERROR("Could not retrieve the TrackParticleContainer: " 
                   << m_tracksCont_key.key());
-    return 2;
+    return StatusCode::FAILURE;
   }
   auto tracksCont = tracksContainer.cptr();
 
@@ -136,7 +136,7 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
   if (!tvaContainer.isValid()){
     ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " 
                   << m_tva_key.key());
-    return 3;
+    return StatusCode::FAILURE;
   }
   auto tva = tvaContainer.cptr();
 
@@ -145,7 +145,7 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
 
   if (vertices->size() == 0 ) {
     ATH_MSG_WARNING("There are no vertices in the container. Exiting");
-    return 4;
+    return StatusCode::SUCCESS;
   }
 
   const xAOD::Vertex* HSvertex = findHSVertex(vertices);
@@ -191,7 +191,7 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     jet->setAttribute(m_jvfname+"Corr",jvfcorr);
   }
 
-  return 0;
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

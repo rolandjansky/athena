@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomToTrackParticleAssocsCnv.h 
@@ -15,7 +15,7 @@
 
 
 // AthenaPoolCnvSvc includes
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 
 // NavFourMom includes
 #include "ParticleEvent/INav4MomToTrackParticleAssocs.h"
@@ -27,53 +27,10 @@
 // Forward declaration
 class StoreGateSvc;
 
-// the latest persistent representation type of INav4MomToTrackParticleAssocs
-typedef INav4MomToTrackParticleAssocs_p1  INav4MomToTrackParticleAssocs_PERS;
+typedef T_AthenaPoolTPCnvCnv< INav4MomToTrackParticleAssocs,
+                              INav4MomToTrackParticleAssocsCnv_p1,
+                              T_TPCnvNull<INav4MomToTrackParticleAssocs> >
+   INav4MomToTrackParticleAssocsCnv;
 
-class INav4MomToTrackParticleAssocsCnv 
-  : public T_AthenaPoolCustomCnv< INav4MomToTrackParticleAssocs, 
-                                  INav4MomToTrackParticleAssocs_PERS 
-                                  > 
-{
-
-  // make the factory for this converter our friend
-  friend class CnvFactory<INav4MomToTrackParticleAssocsCnv>;
-
-public:
-  /** Create the converter from the service locator
-   */
-  INav4MomToTrackParticleAssocsCnv(ISvcLocator* svcloc);
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
-
-
-  /** Build the persistent representation from the transient one.
-   */
-  virtual INav4MomToTrackParticleAssocs_PERS*
-    createPersistent( INav4MomToTrackParticleAssocs* transCont );
-  
-  /** Build the transient representation from a persistent one
-   */
-  virtual INav4MomToTrackParticleAssocs* createTransient();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
-
-  /** Pointer to the StoreGateSvc
-   */
-  StoreGateSvc* m_storeGate;
-
-  INav4MomToTrackParticleAssocsCnv_p1 m_tpConverter_p1;
-
-};
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> PARTICLEEVENTATHENAPOOL_INAV4MOMTOTRACKPARTICLEASSOCSCNV_H 

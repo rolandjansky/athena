@@ -104,10 +104,6 @@ class ATLAS_NOT_THREAD_SAFE Aud : virtual public ::IPyComponent,
   virtual void afterExecute(INamedInterface*, const StatusCode& ) override;
   virtual void beforeFinalize(INamedInterface* ) override;
   virtual void afterFinalize(INamedInterface* ) override;
-  virtual void beforeBeginRun(INamedInterface* ) override;
-  virtual void afterBeginRun(INamedInterface* ) override;
-  virtual void beforeEndRun(INamedInterface* ) override;
-  virtual void afterEndRun(INamedInterface* ) override;
   // <--- Obsolete methods
 
   /////////////////////////////////////////////////////////////////// 

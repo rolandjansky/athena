@@ -38,22 +38,13 @@ svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
 #sgin = SGInputLoader()
 #sgin.Load = [('EventInfo','ByteStreamEventInfo')]
 
-# Tell it that there is data in the input file
-from IOVSvc.IOVSvcConf import MetaInputLoader
-metain = MetaInputLoader()
-metain.Dump = True
-metain.OutputLevel = INFO
-metain.Load = [('EventStreamInfo','StreamAOD'),('xAOD::CutBookkeeperContainer','CutBookkeepers'),('xAOD::CutBookkeeperAuxContainer','CutBookkeepersAux.'),('ByteStreamMetadataContainer','ByteStreamMetadata'),('xAOD::CutBookkeeperContainer','IncompleteCutBookkeepers'),('xAOD::CutBookkeeperAuxContainer','IncompleteCutBookkeepersAux.')]
-topSequence += metain
-
 include ("AthenaPoolTools/EventCount_jobOptions.py")
 
 from AthenaPoolTools.AthenaPoolToolsConf import MetadataTest
 topSequence += MetadataTest( OutputLevel = INFO, InputStream="StreamAOD" )
 
-import PyUtils.AthFile as af
 from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
-CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=False )
+CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=False )
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 

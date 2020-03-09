@@ -14,3 +14,7 @@ LuminosityCondAlgRun1.LuminosityOutputKey = "LuminosityCondDataRun1";
 LuminosityCondAlgMC.LuminosityFolderInputKey = "";
 LuminosityCondAlgMC.OnlineLumiCalibrationInputKey = "";
 LuminosityCondAlgMC.LuminosityOutputKey = "LuminosityCondDataMC";
+
+LuminosityCondAlgMiss.LuminosityFolderInputKey = "testLumiMiss";
+LuminosityCondAlgMiss.OnlineLumiCalibrationInputKey = "testCalibMiss";
+LuminosityCondAlgMiss.LuminosityOutputKey = "LuminosityCondDataMiss";

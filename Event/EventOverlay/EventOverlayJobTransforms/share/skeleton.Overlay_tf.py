@@ -95,16 +95,35 @@ rec.projectName = 'IS_SIMULATION'
 #----------------------------
 OverlayLog.info("================ DetFlags ================ ")
 if 'DetFlags' in dir():
-    overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
+    OverlayLog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
 else:
     from AthenaCommon.DetFlags import DetFlags
+    DetFlags.all_setOn()
+    DetFlags.bpipe_setOff()
+    DetFlags.FTK_setOff()
 
-    DetFlags.SCT_setOn() 
+    if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig == "NONE":
+        DetFlags.LVL1_setOff()
+    else:
+        DetFlags.LVL1_setOn()
 
-    DetFlags.Truth_setOn()
+    DetFlags.digitize.LVL1_setOff()
+
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
 # TODO: need to do it better
+#DetFlags.makeRIO.all_setOff() ## Currently has to be on otherwise InDetTRTStrawStatusSummarySvc is not created
 DetFlags.pileup.all_setOff()
+DetFlags.readRDOBS.all_setOff()
+DetFlags.readRDOPool.all_setOff()
+DetFlags.readRIOBS.all_setOff()
+DetFlags.readRIOPool.all_setOff()
+DetFlags.simulate.all_setOff()
+DetFlags.writeBS.all_setOff()
+DetFlags.writeRIOPool.all_setOff()
 
 DetFlags.Print()
 
@@ -113,11 +132,12 @@ DetFlags.Print()
 # Read Simulation MetaData (unless override flag set to True)
 # ------------------------------------------------------------
 if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
-    overlaylog.info("Skipping input file MetaData check.")
+    OverlayLog.info("Skipping input file MetaData check.")
 else:
     from EventOverlayJobTransforms.OverlayReadMetaData import readInputFileMetadata
     readInputFileMetadata()
 
+DetFlags.Print()
 
 #-------------------------
 # Conditions
@@ -129,7 +149,21 @@ if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag not in ['', 'NONE
         conddb.setGlobalTag(globalflags.ConditionsTag())
 
 
-# TODO: setup LVL1 Trigger Menu
+# LVL1 Trigger Menu
+if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
+    # LVL1 Trigger Menu
+    # PJB 9/2/2009 Setup the new triggerConfig flags here
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    triggerArg = runArgs.triggerConfig
+    #if not prefixed with LVL1: add it here
+    Args = triggerArg.split(":")
+    if Args[0] != "LVL1":
+        TriggerFlags.triggerConfig ="LVL1:"+triggerArg
+    else:
+        TriggerFlags.triggerConfig =triggerArg
+    overlaylog.info( 'triggerConfig argument is: %s ', TriggerFlags.triggerConfig.get_Value() )
+    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+    cfg = TriggerConfigGetter("HIT2RDO")
 
 
 #-------------------------
@@ -146,8 +180,20 @@ include("EventOverlayJobTransforms/OverlayInput_jobOptions.py")
 if DetFlags.overlay.Truth_on():
     include("EventOverlayJobTransforms/TruthOverlay_jobOptions.py")
 
+if DetFlags.overlay.BCM_on() or DetFlags.overlay.Lucid_on():
+    include ( "EventOverlayJobTransforms/BeamOverlay_jobOptions.py" )
+
 if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
     include("EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py")
+
+if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
+    include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
+
+if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or (MuonGeometryFlags.hasSTGC() and DetFlags.overlay.sTGC_on()) or (MuonGeometryFlags.hasMM() and DetFlags.overlay.Micromegas_on()):
+    include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
+
+if DetFlags.overlay.LVL1_on():
+   include ( "EventOverlayJobTransforms/Level1Overlay_jobOptions.py" )
 
 # save the overlay output
 include("EventOverlayJobTransforms/OverlayOutput_jobOptions.py")
@@ -172,7 +218,7 @@ digitizationFlags.rndmSeedList.printSeeds()
 # Logging
 #-------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
-ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
+ServiceMgr.MessageSvc.Format = "% F%45W%S%5W%e%s%7W%R%T %0W%M"
 
 # Post-include
 if hasattr(runArgs, "postInclude"):
@@ -186,12 +232,11 @@ if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
 
 # Patch /TagInfo metadata container
 # TODO: move somewhere more appropriate
-for key in overlayFlags.extraTagInfoPairs.get_Value().keys():
-    ServiceMgr.TagInfoMgr.ExtraTagValuePairs += [
-        str(key), str(overlayFlags.extraTagInfoPairs.get_Value()[key])]
+ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(overlayFlags.extraTagInfoPairs.get_Value())
+
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : runArgs.AMITag})
 
 #================================================================
 print "\nOverlay: OutputStream = \n", outStream

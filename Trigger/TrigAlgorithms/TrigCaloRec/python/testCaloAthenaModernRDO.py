@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ######################################################################################
 #
@@ -26,7 +28,6 @@ doCBNT=False
 doTrigger=True
 doESD=False
 
-TriggerModernConfig=True
 
 doWriteAOD=False
 doWriteESD=False
@@ -86,6 +87,6 @@ MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 Service ("StoreGateSvc" ).ActivateHistory=False
 
 #from AthenaCommon.AlgSequence import AlgSequence
-print AlgSequence
-print ServiceMgr
+print (AlgSequence)
+print (ServiceMgr)
 

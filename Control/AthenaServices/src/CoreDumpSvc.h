@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_COREDUMPSVC_H
@@ -13,7 +13,6 @@
 
 // Package includes
 #include "AthenaKernel/ICoreDumpSvc.h"
-#include "AthenaKernel/AlgorithmTimer.h"
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
@@ -103,8 +102,11 @@ private:
   Gaudi::Property<std::vector<int>> m_signals{this, "Signals", {SIGSEGV,SIGBUS,SIGILL,SIGFPE}, 
       "List of signals to catch"};
 
-  Gaudi::Property<bool> m_callOldHandler{this, "CallOldHandler", true, 
+  Gaudi::Property<bool> m_callOldHandler{this, "CallOldHandler", true,
       "Call previous signal handler"};
+
+  Gaudi::Property<bool> m_stackTrace{this, "StackTrace", false,
+      "Produce stack trace on crash. Useful if no other signal handler is used"};
 
   Gaudi::Property<std::string> m_coreDumpStream{this, "CoreDumpStream", "stdout",
       "Stream to use for core dump [stdout,stderr,MsgStream]"};
@@ -115,7 +117,7 @@ private:
 
   Gaudi::Property<double> m_timeout{this, "TimeOut", 30.0*60*1e9,
       "Terminate job after it this reaches the time out in Wallclock time, "
-      "usually due to hanging during stack unwinding. Timeout given in Nanoseconds."};
+      "usually due to hanging during stack unwinding. Timeout given in nanoseconds despite seconds precision"};
 	   
   ///@}
 
@@ -133,9 +135,6 @@ private:
   
   /// Uninstall signal handlers
   StatusCode uninstallSignalHandler(); 
-  
-  /// Algorithm timer to terminate job if it's looping during stack unwinding
-  Athena::AlgorithmTimer m_abortTimer;  
 }; 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTMATCHINGTOOL_H
@@ -9,14 +9,16 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include <atomic>
 
 class Identifier;
 
 namespace Muon {
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class IMuonSegmentInOverlapResolvingTool;
   class IMuonSegmentPairMatchingTool;
@@ -85,18 +87,20 @@ namespace Muon {
     bool endcapExtrapolationMatch( const MuonSegment& seg1, const MuonSegment& seg2, bool useTightCuts ) const;
 
     ToolHandle<Muon::MuonIdHelperTool>                   m_idHelperTool;         //!< IdHelper tool
-    ToolHandle<Muon::MuonEDMHelperTool>                  m_helperTool;           //!< EDM Helper tool
+    ServiceHandle<Muon::IMuonEDMHelperSvc>               m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>                 m_printer;              //!< EDM printer tool
     ToolHandle<Muon::IMuonSegmentInOverlapResolvingTool> m_overlapResolvingTool; //!< matching tool to handle the overlaps
     ToolHandle<Muon::IMuonSegmentPairMatchingTool>       m_pairMatchingTool;     //!< matching tool to handle the pairs of segments
     ServiceHandle<MagField::IMagFieldSvc>                m_magFieldSvc; 
 
-    mutable unsigned int m_straightLineMatches;
-    mutable unsigned int m_straightLineMatchesGood;
-    mutable unsigned int m_overlapMatches;
-    mutable unsigned int m_overlapMatchesGood;
-    mutable unsigned int m_curvedMatches;
-    mutable unsigned int m_curvedMatchesGood;
+    mutable std::atomic_uint m_straightLineMatches;
+    mutable std::atomic_uint m_straightLineMatchesGood;
+    mutable std::atomic_uint m_overlapMatches;
+    mutable std::atomic_uint m_overlapMatchesGood;
+    mutable std::atomic_uint m_curvedMatches;
+    mutable std::atomic_uint m_curvedMatchesGood;
 
     bool m_isCosmics;
     bool m_doOverlapMatch;

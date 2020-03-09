@@ -44,7 +44,7 @@ fullItemList+=["DMTest::BAuxVec#copy_bauxvec"]
 fullItemList+=["DMTest::BAuxStandalone#copy_b"]
 
 # Stream's output file
-from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
 Stream1 = createOutputStream( "Stream1", noTag = True )
 Stream1.OutputFile =   "auxdata3.root"
 # List of DO's to write out
@@ -63,21 +63,7 @@ from DataModelTestDataRead.DataModelTestDataReadConf import DMTest__AuxDataTestT
 topSequence += DMTest__AuxDataTestTypelessRead ("AuxDataTestTypelessRead",
                                                 WritePrefix = "copy_")
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
-
-#svcMgr.ExceptionSvc.Catch = "None"
-
 # Avoid races when running tests in parallel.
 FILECATALOG = 'AuxDataTestTypelessRead_catalog.xml'
-include ('DataModelRunTests/setCatalog.py')
+
+include ('DataModelRunTests/commonTrailer.py')

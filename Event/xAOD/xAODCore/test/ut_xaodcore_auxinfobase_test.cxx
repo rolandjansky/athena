@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
+
 /**
  * @file xAODCore/test/AuxInfoBase_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -36,8 +35,10 @@ AuxInfoTest::AuxInfoTest()
 {
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
-  SG::auxid_t i1aux = AUX_VARIABLE(i1);
-  SG::auxid_t a1aux = AUX_VARIABLE(a1, SG::AuxTypeRegistry::Flags::Atomic);
+  AUX_VARIABLE(i1);
+  SG::auxid_t i1aux = getAuxID( "i1", i1 );
+  AUX_VARIABLE(a1, SG::AuxTypeRegistry::Flags::Atomic);
+  SG::auxid_t a1aux = getAuxID( "a1", a1, SG::AuxTypeRegistry::Flags::Atomic );
 
   assert (i1aux == r.findAuxID ("i1"));
   assert (a1aux == r.findAuxID ("a1"));

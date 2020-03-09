@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcDigitizationTool.h"
@@ -43,7 +43,9 @@ StatusCode TgcDigitizationTool::initialize()
   ATH_CHECK(detStore()->retrieve(m_mdManager));
   ATH_MSG_DEBUG("Retrieved MuonDetectorManager from DetectorStore.");
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   //initialize the TgcIdHelper
   m_idHelper = m_mdManager->tgcIdHelper();
@@ -56,11 +58,15 @@ StatusCode TgcDigitizationTool::initialize()
   m_hitIdHelper = TgcHitIdHelper::GetHelper();
 
   // check the input object name
-  if(m_inputHitCollectionName=="") {
+  if (m_hitsContainerKey.key().empty()) {
     ATH_MSG_FATAL("Property InputObjectName not set !");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Input objects: '" << m_inputHitCollectionName << "'");
+  if(m_onlyUseContainerName) m_inputHitCollectionName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -209,6 +215,22 @@ StatusCode TgcDigitizationTool::getNextEvent()
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<TGCSimHitCollection>::type TimedHitCollList;
   
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<TGCSimHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get TGCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcTGC = new TimedHitCollection<TGCSimHit>{1};
+    m_thpcTGC->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("TGCSimHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
+
   //this is a list<pair<time_t, DataLink<TGCSimHitCollection> > >
   TimedHitCollList hitCollList;
   
@@ -241,7 +263,7 @@ StatusCode TgcDigitizationTool::getNextEvent()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitizationTool::digitizeCore() {
+StatusCode TgcDigitizationTool::digitizeCore() const {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
@@ -291,7 +313,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	uint16_t newBcTag    = (*it_digiHits)->bcTag();
 	Identifier elemId    = m_idHelper->elementID(newDigiId);
 	
-	TgcDigitCollection* digitCollection = 0;
+	TgcDigitCollection* digitCollection ATLAS_THREAD_SAFE = nullptr;
 	
 	IdentifierHash coll_hash;
 	if(m_idHelper->get_hash(elemId, coll_hash, &tgcContext)) {
@@ -345,7 +367,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	}
 	
 	if(!duplicate) {
-          static double invalid_pos = -99999.;
+          static const double invalid_pos = -99999.;
           Amg::Vector3D gpos(invalid_pos,invalid_pos,invalid_pos);
           const MuonGM::TgcReadoutElement *tgcChamber = m_mdManager->getTgcReadoutElement(newDigiId);
           if(tgcChamber) {

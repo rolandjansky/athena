@@ -1,29 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonHoughPatternFinderTool.h"
 #include "MuonHoughPatternTools/MuonHoughPatternTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "MuonHoughPatternEvent/MuonHoughHitContainer.h"
-
-#include <map>
-#include <set>
-#include <vector>
-
-#include "TH1F.h"
-#include "TFile.h"
-
-#include "GaudiKernel/IToolSvc.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "TrkSurfaces/Surface.h"
 
-//#include "MuonGeoModel/MuonDetectorManager.h"
-//#include "MuonGeoModel/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -45,7 +32,14 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/IToolSvc.h"
+
+#include "TH1F.h"
+#include "TFile.h"
+
+#include <map>
+#include <set>
+#include <vector>
 
 using namespace TrkDriftCircleMath;
 
@@ -53,62 +47,9 @@ namespace Muon {
 
   MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
-    m_muonHoughPatternTool("MuonHoughPatternTool"), 
-    m_muonCombinePatternTool("MuonCombinePatternTool", this), 
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_hit_reweights(true),
-    m_mdt_adc_cut(true), 
-    m_mdt_adc_min(50), 
-    m_mdt_tdc_cut(true), 
-    m_count(0), 
-    m_use_rpc(true),
-    m_use_tgc(true),
-    m_use_csc(true),
-    m_use_mdt(true),
-    m_weight_csc_on_segment(2.),
-    m_showerskip(true),
-    m_showerskipperc(0.3),
-    m_use_histos(false),
-    m_summary(false),
-    m_recordAllOutput(false),
-    m_cscAssoOutputLocation("MuonPatCscSegAssMap"), 
-    m_phietahitassociation(0),
-    m_CosmicPhiPatternsKey("CosmicPhiPatterns"),
-    m_CosmicEtaPatternsKey("CosmicEtaPatterns"),
-    m_COMBINED_PATTERNSKey("COMBINED_PATTERNS")
+    m_weight_csc_on_segment(2.)
   {
     declareInterface<IMuonHoughPatternFinderTool>(this);
-    
-    declareProperty("muonHoughPatternTool",m_muonHoughPatternTool);
-    declareProperty("muonCombinePatternTool",m_muonCombinePatternTool);
-
-    declareProperty("HitReweights",m_hit_reweights);
-    declareProperty("MDT_ADC_cut",m_mdt_adc_cut);
-    declareProperty("MDT_TDC_cut",m_mdt_tdc_cut);
-
-    declareProperty("MDT_ADC_value",m_mdt_adc_min);
-
-    declareProperty("RPC",m_use_rpc);
-    declareProperty("TGC",m_use_tgc);
-    declareProperty("CSC",m_use_csc);
-    declareProperty("MDT",m_use_mdt);
-
-    declareProperty("ShowerSkipping",m_showerskip);
-    declareProperty("ShowerSkipPercentage",m_showerskipperc);
-
-    declareProperty("PatCscSegAssMapOutputLocation",m_cscAssoOutputLocation);//Not used
-    declareProperty("UseHistos",m_use_histos);
-    declareProperty("DoSummary",m_summary);
-    declareProperty("RecordAll",m_recordAllOutput);
-
-    declareProperty("CosmicPhiKey", m_CosmicPhiPatternsKey);
-    declareProperty("CosmicEtaPatterns", m_CosmicEtaPatternsKey);
-    declareProperty("COMBINED_PATTERNS", m_COMBINED_PATTERNSKey);
-  }
-
-  MuonHoughPatternFinderTool::~MuonHoughPatternFinderTool()
-  {
   }
 
   StatusCode MuonHoughPatternFinderTool::initialize()
@@ -129,25 +70,15 @@ namespace Muon {
     ATH_CHECK( m_muonHoughPatternTool.retrieve() );
     ATH_MSG_VERBOSE ("found Service muonHoughPatternTool: " << m_muonHoughPatternTool);
 
-    ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_MSG_DEBUG ("Retrieved " << m_idHelperTool);
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_MSG_DEBUG ("Retrieved " << m_muonIdHelperTool);
 
     ATH_CHECK( m_printer.retrieve() );
     ATH_MSG_DEBUG ("Retrieved " << m_printer);
-  
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
-
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();    
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-    ATH_MSG_DEBUG (" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
 
     if ( m_hit_reweights ) {
       ATH_MSG_DEBUG ("Hit Reweighting " << m_hit_reweights);
     }
-
-    m_phietahitassociation = new std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >;
 
     ATH_CHECK( m_CosmicPhiPatternsKey.initialize(m_recordAllOutput) );
     ATH_CHECK( m_CosmicEtaPatternsKey.initialize(m_recordAllOutput) );
@@ -157,18 +88,28 @@ namespace Muon {
     return StatusCode::SUCCESS; 
   }
 
-  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-								      const std::vector<const CscPrepDataCollection*>& cscCols,  
-								      const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-								      const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-								      const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
-    // read event_data:
-    const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis );
+std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muon::HoughDataPerSectorVec>>
+  MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+                                    const std::vector<const CscPrepDataCollection*>& cscCols,  
+                                    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+                                    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+                                    const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
 
+    /** map between mdt chamber identifiers and corresponding rpc hits (hit_no_begin and hit_no_end)*/
+  std::map<int,std::vector<std::pair<int, int> > > rpcmdtstationmap;
+    /** map between mdt chamber identifiers and corresponding tgc hits (hit_no_begin and hit_no_end)*/
+    std::map<int,std::vector<std::pair<int, int> > > tgcmdtstationmap;
+
+    /** map for association between trigger eta hits (first) and phi hits (second) within the same gasgap, used for combining patterns in MuonCombinePatternTool */
+    auto phietahitassociation = std::make_unique<std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> > >();
+
+    // read event_data:
+  const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis,
+							  rpcmdtstationmap, tgcmdtstationmap,phietahitassociation.get());
     // analyse data
-    MuonPatternCombinationCollection* patCombiCol = 0;
+    std::unique_ptr<MuonPatternCombinationCollection> patCombiCol;
     if( hitcontainer ) {
-      patCombiCol = analyse( *hitcontainer );
+      patCombiCol.reset(analyse( *hitcontainer, phietahitassociation.get()));
     }else{
       ATH_MSG_INFO (" No hit container created! ");
     }
@@ -179,7 +120,7 @@ namespace Muon {
     // ensure we always output a collection
     if( !patCombiCol ){
       ATH_MSG_DEBUG (" NO pattern combinations found, creating empty collection ");
-      patCombiCol = new MuonPatternCombinationCollection();
+      patCombiCol.reset(new MuonPatternCombinationCollection());
     }
 
     // summary
@@ -190,27 +131,18 @@ namespace Muon {
     }
 
     // clean up tool for next call
-    cleanUp();
-    m_count++;
-  
+
+    //clear stationmaps
+    rpcmdtstationmap.clear();
+    tgcmdtstationmap.clear();
+    //clear etaphi association map
+    phietahitassociation->clear();  
+
     ATH_MSG_VERBOSE ("execute(end) ");
 
     // return result
-    return patCombiCol;
+    return {std::move(patCombiCol), nullptr};
   } 
-
-  void MuonHoughPatternFinderTool::cleanUp() const {
-    //clear csc association map
-    m_cschitsegassociation.clear();
-
-    //clear etaphi association map
-    m_phietahitassociation->clear();
-
-    //clear stationmaps
-    m_rpcmdtstationmap.clear();
-    m_tgcmdtstationmap.clear();
-
-  }
 
   StatusCode MuonHoughPatternFinderTool::finalize()
   {
@@ -222,23 +154,23 @@ namespace Muon {
       m_file=0;
       ATH_MSG_DEBUG ("MuonHoughPatternFinderTool::delete Histogram: ");
     }
-    delete m_phietahitassociation;
-    m_phietahitassociation = 0;
     ATH_MSG_VERBOSE ("finalize()");
 
     return StatusCode::SUCCESS;
   }
 
-  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer ) const {
+  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer, const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation ) const {
     
     ATH_MSG_DEBUG ("size of event: " << hitcontainer.size());
 
+    /** reconstructed patterns stored per [number_of_ids][level][which_segment] */
+    MuonHoughPatternContainerShip houghpattern = m_muonHoughPatternTool->emptyHoughPattern();
     //  pass through hitcontainer (better still: preprawdata and only after make internal hitcontainer)
-    m_muonHoughPatternTool->makePatterns(&hitcontainer);
+    m_muonHoughPatternTool->makePatterns(&hitcontainer,houghpattern);
       
-    MuonPrdPatternCollection* phipatterns = m_muonHoughPatternTool->getPhiMuonPatterns();
-    MuonPrdPatternCollection* etapatterns = m_muonHoughPatternTool->getEtaMuonPatterns();
-    
+    MuonPrdPatternCollection* phipatterns = m_muonHoughPatternTool->getPhiMuonPatterns(houghpattern);
+    MuonPrdPatternCollection* etapatterns = m_muonHoughPatternTool->getEtaMuonPatterns(houghpattern);
+
     if (m_summary==true || this->msgLvl(MSG::DEBUG)) {
       if( phipatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Phi pattern combination empty" << endmsg;
       else msg() << MSG::DEBUG << " summarizing Phi pattern combination input: " << std::endl << m_printer->print( *phipatterns ) << endmsg;
@@ -256,8 +188,7 @@ namespace Muon {
     // make + write muonpatterncombinations
     if ( !etapatterns->empty() ) {
       
-      m_muonCombinePatternTool->setPhiEtaHitAssMap(m_phietahitassociation);
-      combinedpatterns = m_muonCombinePatternTool->combineEtaPhiPatterns(phipatterns,etapatterns);
+      combinedpatterns = m_muonCombinePatternTool->combineEtaPhiPatterns(phipatterns,etapatterns,phietahitassociation);
 
     }
 
@@ -272,6 +203,8 @@ namespace Muon {
     record( etapatterns, m_CosmicEtaPatternsKey );
     record( combinedpatterns, m_COMBINED_PATTERNSKey );
     
+    /** empty and clear the houghpattern vectors */
+    m_muonHoughPatternTool->reset(houghpattern);
     return patterncombinations;
   }
 
@@ -281,7 +214,10 @@ namespace Muon {
 								       const std::vector<const CscPrepDataCollection*>& cscCols,  
 								       const std::vector<const TgcPrepDataCollection*>& tgcCols,  
 								       const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-								       const MuonSegmentCombinationCollection* cscSegmentCombis ) const
+								       const MuonSegmentCombinationCollection* cscSegmentCombis,
+								       std::map<int,std::vector<std::pair<int, int> > >& rpcmdtstationmap,
+								       std::map<int,std::vector<std::pair<int, int> > >& tgcmdtstationmap,
+								       std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation) const
   {
     ATH_MSG_VERBOSE ("getAllHits()");
 
@@ -338,21 +274,18 @@ namespace Muon {
 			const Muon::CscPrepData* prd = dynamic_cast<const Muon::CscPrepData*> (cscOnSeg->prepRawData());
 			if (!prd) {ATH_MSG_INFO ("Dynamic cast to CscPrepData failed!"); continue;}
 
-			// hit-segment association, stored for use in downstream algorithms
-			m_cschitsegassociation.insert(std::make_pair(prd,(*msc)));
-
 			csc_rots.push_back(cscOnSeg);
 			csc_prds.push_back(prd);
 
 			Identifier id = prd->identify();
-			bool channel_type = m_cscIdHelper->measuresPhi(id);
+			bool channel_type = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
 			csc_pair = csc_set.insert(id);
 			if (csc_pair.second == false) {
 			  ATH_MSG_DEBUG (" CSC hit was already added, weight set to 0");
 			  layer_ids.push_back(0);
 			}
 			else {
-			  const int layer_id = 1000*m_cscIdHelper->stationEta(id) + 100*m_cscIdHelper->stationPhi(id) + 10*m_cscIdHelper->chamberLayer(id) + 2*m_cscIdHelper->wireLayer(id) + channel_type;
+			  const int layer_id = 1000*m_muonIdHelperTool->cscIdHelper().stationEta(id) + 100*m_muonIdHelperTool->cscIdHelper().stationPhi(id) + 10*m_muonIdHelperTool->cscIdHelper().chamberLayer(id) + 2*m_muonIdHelperTool->cscIdHelper().wireLayer(id) + channel_type;
 			  ATH_MSG_DEBUG ("csc layer_id: " << layer_id);
 			  ++number_of_hits_per_layer[layer_id];
 			  layer_ids.push_back(layer_id);
@@ -373,7 +306,7 @@ namespace Muon {
 		      ATH_MSG_VERBOSE ("Number of Phi Csc hits in segment: " << phi_set.size());
 		      std::vector <const Trk::PrepRawData*>::iterator vec_it = eta_vector.begin();
 		      for (;vec_it!=eta_vector.end(); ++vec_it) {
-			m_phietahitassociation->insert(std::make_pair(*vec_it,phi_set));
+			phietahitassociation->insert(std::make_pair(*vec_it,phi_set));
 		      }
 		    }
 		  }
@@ -389,7 +322,7 @@ namespace Muon {
 	    double hity=globalpos.y();
 	    double hitz=globalpos.z();
 	    
-	    bool channel_type = m_cscIdHelper->measuresPhi(csc_rots[i]->identify());
+	    bool channel_type = m_muonIdHelperTool->cscIdHelper().measuresPhi(csc_rots[i]->identify());
 
 	    double weight = 0.;
 	    if (layer_ids[i] != 0) { // not yet added
@@ -416,7 +349,7 @@ namespace Muon {
 	for( ;it!=it_end;++it ){
 	  Muon::RpcPrepDataCollection::const_iterator cit_begin = (*it)->begin();
 	  Muon::RpcPrepDataCollection::const_iterator cit_end = (*it)->end();
-	  addRpcCollection(cit_begin,cit_end,hitcontainer);
+	  addRpcCollection(cit_begin,cit_end,hitcontainer,rpcmdtstationmap,phietahitassociation);
 	}
       }
     
@@ -427,7 +360,7 @@ namespace Muon {
 	for( ;it!=it_end;++it ){
 	  Muon::TgcPrepDataCollection::const_iterator cit_begin = (*it)->begin();
 	  Muon::TgcPrepDataCollection::const_iterator cit_end = (*it)->end();
-	  addTgcCollection(cit_begin,cit_end,hitcontainer);
+	  addTgcCollection(cit_begin,cit_end,hitcontainer, tgcmdtstationmap,phietahitassociation);
 	}
       }
 
@@ -438,7 +371,7 @@ namespace Muon {
 	for( ;it!=it_end;++it ){
 	  Muon::MdtPrepDataCollection::const_iterator cit_begin = (*it)->begin();
 	  Muon::MdtPrepDataCollection::const_iterator cit_end = (*it)->end();
-	  addMdtCollection(cit_begin,cit_end,hitcontainer);
+	  addMdtCollection(cit_begin,cit_end,hitcontainer,rpcmdtstationmap,tgcmdtstationmap);
 	}
       }
 
@@ -449,29 +382,23 @@ namespace Muon {
 	for( ;it!=it_end;++it ){
 	  Muon::CscPrepDataCollection::const_iterator cit_begin = (*it)->begin();
 	  Muon::CscPrepDataCollection::const_iterator cit_end = (*it)->end();
-	  addCscCollection(cit_begin,cit_end,hitcontainer);
+	  addCscCollection(cit_begin,cit_end,hitcontainer,phietahitassociation);
 	}
       }
   
      
-    // if statement for verbose:
-
-    if (this->msgLvl (MSG::VERBOSE)) {
+    ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving "
+		     << hitcontainer->size()<<" converted hits");
     
-      ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving "
-                       << hitcontainer->size()<<" converted hits");
+    for(unsigned int i=0;i<hitcontainer->size();i++)
+      {
+	ATH_MSG_VERBOSE (" hit " << hitcontainer->getHit(i)->getWhichDetector()
+			 << " (" << hitcontainer->getHit(i)->getHitx() << "," << hitcontainer->getHit(i)->getHity()
+			 << "," << hitcontainer->getHit(i)->getHitz() << ") " << " weight: " << hitcontainer->getHit(i)->getWeight() << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi());
+      }
     
-      for(unsigned int i=0;i<hitcontainer->size();i++)
-	{
-	  ATH_MSG_VERBOSE (" hit " << hitcontainer->getHit(i)->getWhichDetector()
-                           << " (" << hitcontainer->getHit(i)->getHitx() << "," << hitcontainer->getHit(i)->getHity()
-                           << "," << hitcontainer->getHit(i)->getHitz() << ") " << " weight: " << hitcontainer->getHit(i)->getWeight() << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi());
-	}
-    
-      ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving " << m_phietahitassociation->size() 
-                       << "associated hits ");
-    }
-
+    ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving " << phietahitassociation->size() 
+		     << "associated hits ");
     return hitcontainer;
   
   } // getAllHits
@@ -506,17 +433,15 @@ namespace Muon {
   {
     if (1)
       {
-	//msg() << MSG::VERBOSE << "Event through Cut()" << endmsg;
 	return true;
       }
 
     else {
-      //msg() << MSG::VERBOSE << "Event not through Cut()" << endmsg;
       return false;
     }
   }
 
-  void MuonHoughPatternFinderTool::addRpcCollection(Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
+  void MuonHoughPatternFinderTool::addRpcCollection(Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer, std::map<int,std::vector<std::pair<int, int> > >& rpcmdtstationmap, std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation) const
   {
     if (cit_begin == cit_end) return;
     Muon::RpcPrepDataCollection::const_iterator cit = cit_begin;   
@@ -527,14 +452,14 @@ namespace Muon {
 
     if (m_hit_reweights) // reweight  hits, according to Peter's new algorithm
       {
-	std::vector <double> strips(2*m_rpcIdHelper->stripMax()+2); // filled strips, to determine whether it was no noise rpc hit (confirmation of ((neighbouring) layer))
+	std::vector <double> strips(2*m_muonIdHelperTool->rpcIdHelper().stripMax()+2); // filled strips, to determine whether it was no noise rpc hit (confirmation of ((neighbouring) layer))
       
 	for( ; cit!=cit_end;++cit ) {
 	  const Muon::RpcPrepData* prd = *cit;
-	  const bool channel_type = m_rpcIdHelper->measuresPhi(prd->identify());
+	  const bool channel_type = m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd->identify());
 	  const Identifier id = prd->identify();
-	  int strip = m_rpcIdHelper->strip(id); // strip between 1 and 99!!
-	  if (channel_type == true) {strip += m_rpcIdHelper->stripMax();}
+	  int strip = m_muonIdHelperTool->rpcIdHelper().strip(id); // strip between 1 and 99!!
+	  if (channel_type == true) {strip += m_muonIdHelperTool->rpcIdHelper().stripMax();}
 	  strips[strip]+=1.;
 	  strips[strip+1]+=0.5;
 	  strips[strip-1]+=0.5;
@@ -544,16 +469,16 @@ namespace Muon {
 	  {
 	    const Muon::RpcPrepData* prd = *cit;
 	    Identifier id = prd->identify();
-	    const bool channel_type = m_rpcIdHelper->measuresPhi(prd->identify());
-	    int strip = m_rpcIdHelper->strip(id); // strip between 1 and 99!!
-	    if (channel_type == true) {strip += m_rpcIdHelper->stripMax();}
+	    const bool channel_type = m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd->identify());
+	    int strip = m_muonIdHelperTool->rpcIdHelper().strip(id); // strip between 1 and 99!!
+	    if (channel_type == true) {strip += m_muonIdHelperTool->rpcIdHelper().stripMax();}
 
 	    if (strips[strip] > 1) {
         
-	      const int doubletR = m_rpcIdHelper->doubletR(id);
-	      const int doubletPhi = m_rpcIdHelper->doubletPhi(id);
-	      const int doubletZ = m_rpcIdHelper->doubletZ(id);
-	      const int gasGap = m_rpcIdHelper->gasGap(id);
+	      const int doubletR = m_muonIdHelperTool->rpcIdHelper().doubletR(id);
+	      const int doubletPhi = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
+	      const int doubletZ = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
+	      const int gasGap = m_muonIdHelperTool->rpcIdHelper().gasGap(id);
 	      int layer_number = (gasGap - 1) * 12  + (doubletR-1) * 6 + (doubletPhi -1) * 3 + (doubletZ -1); // layer_number ranges from 0..35
 	      if (channel_type) layer_number = layer_number + 36;
 
@@ -585,13 +510,13 @@ namespace Muon {
       const double hity=globalpos.y();
       const double hitz=globalpos.z();
     
-      const bool channel_type = m_rpcIdHelper->measuresPhi(id);
+      const bool channel_type = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
     
       // gasgapmap
     
       if (channel_type == true) // phi hit
 	{
-	  const Identifier gasGapId = m_idHelperTool->gasGapId(id);
+	  const Identifier gasGapId = m_muonIdHelperTool->gasGapId(id);
 	  gg_it = gasgapphimap.find(gasGapId);
 	  if (gg_it==gasgapphimap.end()){ // gasgapid not yet in map
 	    std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> hitset;
@@ -617,10 +542,10 @@ namespace Muon {
 	  }
 	  else {
           
-	    const int doubletZ = m_rpcIdHelper->doubletZ(id);
-	    const int doubletPhi = m_rpcIdHelper->doubletPhi(id);
-	    const int doubletR = m_rpcIdHelper->doubletR(id);
-	    const int gasGap = m_rpcIdHelper->gasGap(id);     
+	    const int doubletZ = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
+	    const int doubletPhi = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
+	    const int doubletR = m_muonIdHelperTool->rpcIdHelper().doubletR(id);
+	    const int gasGap = m_muonIdHelperTool->rpcIdHelper().gasGap(id);     
 	    int layer_number = (gasGap - 1) * 12  + (doubletR-1) * 6 + (doubletPhi -1) * 3 + (doubletZ -1); // layer_number ranges from 0..35
 	    if (channel_type) layer_number = layer_number + 36;
     
@@ -648,7 +573,7 @@ namespace Muon {
 
     int size_end = hitcontainer->size();
 
-    updateRpcMdtStationMap((*cit_begin)->identify(),size_begin,size_end);
+    updateRpcMdtStationMap((*cit_begin)->identify(),size_begin,size_end,rpcmdtstationmap);
       
     // extract preprawdata from gasgapmap // might not be fastest way (filling immidiately saves this second loop)
       
@@ -657,20 +582,20 @@ namespace Muon {
     for( ; cit!=cit_end;++cit ){
       const Muon::RpcPrepData* prd = *cit;
       const Identifier id = prd->identify();
-      if (m_rpcIdHelper->measuresPhi(id) == false) { // eta hit
+      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) == false) { // eta hit
       
-	const Identifier gasGapId = m_idHelperTool->gasGapId(id);
+	const Identifier gasGapId = m_muonIdHelperTool->gasGapId(id);
       
 	gg_it = gasgapphimap.find(gasGapId);
 	if (gg_it!=gasgapphimap.end()) {
-	  m_phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
+	  phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
 	}
       }
     }
 
   }
 
-  void MuonHoughPatternFinderTool::addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
+  void MuonHoughPatternFinderTool::addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer, std::map<int,std::vector<std::pair<int, int> > >& tgcmdtstationmap,std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation) const
   {
     if (cit_begin == cit_end) return;
     Muon::TgcPrepDataCollection::const_iterator cit = cit_begin;
@@ -681,15 +606,14 @@ namespace Muon {
 
     if (m_hit_reweights)
       {
-	std::vector <double> channels(2*m_tgcIdHelper->channelMax()+2); // filled strips, to determine whether it was no noise rpc hit (confirmation of ((neighbouring) layer))
+	std::vector <double> channels(2*m_muonIdHelperTool->tgcIdHelper().channelMax()+2); // filled strips, to determine whether it was no noise rpc hit (confirmation of ((neighbouring) layer))
 	for( ; cit!=cit_end;++cit )
 	  {
 	    const Muon::TgcPrepData* prd = *cit;
 	    Identifier id = prd->identify();
-	    //bool channel_type = prd->channelType(); 
-	    bool channel_type = m_tgcIdHelper->isStrip(id); // like measuresPhi()
-	    int channel = m_tgcIdHelper->channel(id); // between 1 and 135!
-	    if (channel_type==true) {channel+=m_tgcIdHelper->channelMax();} 
+	    bool channel_type = m_muonIdHelperTool->tgcIdHelper().isStrip(id); // like measuresPhi()
+	    int channel = m_muonIdHelperTool->tgcIdHelper().channel(id); // between 1 and 135!
+	    if (channel_type==true) {channel+=m_muonIdHelperTool->tgcIdHelper().channelMax();} 
 	    channels[channel]+=1.;
 	    channels[channel+1]+=0.55;
 	    channels[channel-1]+=0.55;
@@ -699,13 +623,13 @@ namespace Muon {
 	  {
 	    const Muon::TgcPrepData* prd = *cit;
 	    const Identifier id = prd->identify();
-	    const bool channel_type = m_tgcIdHelper->isStrip(id); // like measuresPhi()
-	    int channel = m_tgcIdHelper->channel(id); // between 1 and 135!
-	    if (channel_type==true) {channel+=m_tgcIdHelper->channelMax();} 
+	    const bool channel_type = m_muonIdHelperTool->tgcIdHelper().isStrip(id); // like measuresPhi()
+	    int channel = m_muonIdHelperTool->tgcIdHelper().channel(id); // between 1 and 135!
+	    if (channel_type==true) {channel+=m_muonIdHelperTool->tgcIdHelper().channelMax();} 
 
 	    if (channels[channel]>1) {
 
-	      const int gasgap = m_tgcIdHelper->gasGap(id);
+	      const int gasgap = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
 	      int layer_number = (gasgap-1); // layer_number ranges from 0..5
 	      if (channel_type==true) {layer_number = layer_number + 3;}
         
@@ -733,7 +657,7 @@ namespace Muon {
 	double hity=globalpos.y();
 	double hitz=globalpos.z();
       
-	bool channel_type = m_tgcIdHelper->isStrip(id); // like measuresPhi()
+	bool channel_type = m_muonIdHelperTool->tgcIdHelper().isStrip(id); // like measuresPhi()
       
 	int big_number = 250000;
       
@@ -745,7 +669,7 @@ namespace Muon {
 	  {
 	    if (channel_type == true) // phi hit
 	      {
-		const Identifier gasGapId = m_idHelperTool->gasGapId(id);
+		const Identifier gasGapId = m_muonIdHelperTool->gasGapId(id);
 		gg_it = gasgapphimap.find(gasGapId);
 		if (gg_it==gasgapphimap.end()){ // gasgapid not yet in map
 		  std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> hitset;
@@ -769,12 +693,11 @@ namespace Muon {
 		}
 		else {
 
-		  const int gasgap = m_tgcIdHelper->gasGap(id);
+		  const int gasgap = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
 		  int layer_number = (gasgap-1); // layer_number ranges from 0..1/2
 		  if (channel_type==true) layer_number = layer_number + 3 ;
 		  double number_of_hits = (double) number_of_hits_per_layer[layer_number];
 		  if (number_of_hits > 0) {    
-//		    weight =  1. / (0.75*std::sqrt(number_of_hits)+0.25*number_of_hits);
 		    weight =  1. / (0.25*std::sqrt(number_of_hits)+0.75*number_of_hits);
                     if( layers.size() == 2) weight = weight/2.;
 		  } else {
@@ -794,7 +717,7 @@ namespace Muon {
       }
 
     int size_end = hitcontainer->size();
-    updateTgcMdtStationMap((*cit_begin)->identify(),size_begin,size_end);
+    updateTgcMdtStationMap((*cit_begin)->identify(),size_begin,size_end,tgcmdtstationmap);
       
     // extract preprawdata from gasgapmap // might not be fastest way (filling immidiately saves this second loop)
       
@@ -803,20 +726,20 @@ namespace Muon {
     for( ; cit!=cit_end;++cit ){
       const Muon::TgcPrepData* prd = *cit;
       const Identifier id = prd->identify();
-      if (m_tgcIdHelper->isStrip(id) == false) { // eta hit
+      if (m_muonIdHelperTool->tgcIdHelper().isStrip(id) == false) { // eta hit
       
-	const Identifier gasGapId = m_idHelperTool->gasGapId(id);
+	const Identifier gasGapId = m_muonIdHelperTool->gasGapId(id);
       
 	gg_it = gasgapphimap.find(gasGapId);
 	if (gg_it!=gasgapphimap.end()) {
-	  m_phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
+	  phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
 	}
       }
     }
 
   }
 
-  void MuonHoughPatternFinderTool::addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
+  void MuonHoughPatternFinderTool::addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer, std::map<int,std::vector<std::pair<int, int> > >& rpcmdtstationmap, std::map<int,std::vector<std::pair<int, int> > >& tgcmdtstationmap) const
   {
     if (cit_begin == cit_end) return;
 
@@ -874,8 +797,6 @@ namespace Muon {
     std::vector<int> multilayer;
     std::vector<int> tubelayer;
     std::vector<int> tubes;
-    //   std::vector<double> w1;
-    //   std::vector<double> w2;
     std::vector<int> onsegment; // non-zero if on segment, int indicates how many hits in same layer are on segment (used in weighting)
     std::vector<double> psi;
     std::vector<double> weight_trigger;
@@ -902,7 +823,7 @@ namespace Muon {
     layers.reserve(size);
     prd.reserve(size);
 		   
-    std::vector <double> tubecount(m_mdtIdHelper->tubeMax()+2);
+    std::vector <double> tubecount(m_muonIdHelperTool->mdtIdHelper().tubeMax()+2);
 
     Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;   
     for( ; cit!=cit_end;++cit ) // first
@@ -925,7 +846,7 @@ namespace Muon {
 	    errradius.push_back(Amg::error(mdt->localCovariance(),0));
 	    weights.push_back(1.);
 	    prob.push_back(1.);
-	    const int tube = m_mdtIdHelper->tube(id);
+	    const int tube = m_muonIdHelperTool->mdtIdHelper().tube(id);
 	    tubes.push_back(tube);
 	    onsegment.push_back(0);
 	    psi.push_back(0.);
@@ -933,12 +854,12 @@ namespace Muon {
 	    tr_confirmation.push_back(0); 
 	    ids.push_back(id);
 
-	    const int multi_layer = m_mdtIdHelper->multilayer(id);
-	    const int tube_layer = m_mdtIdHelper->tubeLayer(id);
+	    const int multi_layer = m_muonIdHelperTool->mdtIdHelper().multilayer(id);
+	    const int tube_layer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id);
 	    multilayer.push_back(multi_layer);
 	    tubelayer.push_back(tube_layer);
 
-	    int layer_number = (multi_layer-1)*m_mdtIdHelper->tubeLayerMax() + (tube_layer-1); // layer_number ranges from 0..5/7
+	    int layer_number = (multi_layer-1)*m_muonIdHelperTool->mdtIdHelper().tubeLayerMax() + (tube_layer-1); // layer_number ranges from 0..5/7
 	    layers.push_back(layer_number);
 
 	    tubecount[tube]+=1.;
@@ -978,7 +899,6 @@ namespace Muon {
 	    m_weighthistogram->Fill(0);
 	    m_weighthistogrammdt->Fill(0);
 	  }
-	  //msg() << MSG::DEBUG << "Hit accepted" << endmsg;
     
 	} // collection
 	return;
@@ -989,7 +909,6 @@ namespace Muon {
     for (unsigned int i=0; i<prdsize; i++) {
 
       if (tubecount[tubes[i]] > 1 ) ++number_of_hits_per_layer[layers[i]];
-      //    if (tubecount[i] > tubem ) tubem = tubecount[i];
 
       // KILL 1 hit cases
       if (tubecount[tubes[i]] <= 1 ) prob[i] = 0;
@@ -1001,7 +920,7 @@ namespace Muon {
     std::map <int, int>::iterator map_it=number_of_hits_per_layer.begin();
     for (; map_it!=number_of_hits_per_layer.end(); ++map_it) {
 
-      if ((*map_it).first >= m_mdtIdHelper->tubeLayerMax()) {ml1++;}
+      if ((*map_it).first >= m_muonIdHelperTool->mdtIdHelper().tubeLayerMax()) {ml1++;}
       else { ml2++;}
     }
 
@@ -1020,7 +939,7 @@ namespace Muon {
 	return;
       }
 
-    bool barrel = m_mdtIdHelper->isBarrel(ids[0]);
+    bool barrel = m_muonIdHelperTool->mdtIdHelper().isBarrel(ids[0]);
 
     DCVec dcs;
     dcs.reserve(prdsize);
@@ -1070,9 +989,9 @@ namespace Muon {
 
     // rpc:
 
-    std::map<int,std::vector<std::pair<int, int> > >::const_iterator stationmap_it = m_rpcmdtstationmap.find(stationcode);
+    std::map<int,std::vector<std::pair<int, int> > >::const_iterator stationmap_it = rpcmdtstationmap.find(stationcode);
 
-    if (stationmap_it!=m_rpcmdtstationmap.end()) {
+    if (stationmap_it!=rpcmdtstationmap.end()) {
 
       const std::vector<std::pair<int, int> > &stationhits = (*stationmap_it).second;
 
@@ -1114,9 +1033,9 @@ namespace Muon {
 
     // tgc:
 
-    stationmap_it = m_tgcmdtstationmap.find(stationcode);
+    stationmap_it = tgcmdtstationmap.find(stationcode);
   
-    if (stationmap_it!=m_tgcmdtstationmap.end()) {
+    if (stationmap_it!=tgcmdtstationmap.end()) {
 
       const std::vector<std::pair<int, int> > &stationhits = (*stationmap_it).second;
 
@@ -1225,12 +1144,11 @@ namespace Muon {
 	m_weighthistogram->Fill(weights[i]);
 	m_weighthistogrammdt->Fill(weights[i]);
       }
-      //msg() << MSG::DEBUG << "Hit accepted" << endmsg;
     
     } // collection
   }
 
-  void MuonHoughPatternFinderTool::addCscCollection(Muon::CscPrepDataCollection::const_iterator cit_begin, Muon::CscPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer)const
+  void MuonHoughPatternFinderTool::addCscCollection(Muon::CscPrepDataCollection::const_iterator cit_begin, Muon::CscPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer,std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation)const
   {
     if (cit_begin == cit_end) return;
     std::map <int, int> number_of_hits_per_layer;
@@ -1242,11 +1160,11 @@ namespace Muon {
 	    const Muon::CscPrepData* prd = (*cit);
 	    Identifier id = prd->identify();
       
-	    bool channel_type = m_cscIdHelper->measuresPhi(prd->identify());
+	    bool channel_type = m_muonIdHelperTool->cscIdHelper().measuresPhi(prd->identify());
       
-	    const int chamber_layer = m_cscIdHelper->chamberLayer(id);
-	    const int chamber_layer_max = m_cscIdHelper->chamberLayerMax(id);
-	    const int wire_layer = m_cscIdHelper->wireLayer(id);
+	    const int chamber_layer = m_muonIdHelperTool->cscIdHelper().chamberLayer(id);
+	    const int chamber_layer_max = m_muonIdHelperTool->cscIdHelper().chamberLayerMax(id);
+	    const int wire_layer = m_muonIdHelperTool->cscIdHelper().wireLayer(id);
 	    int layer_number = (chamber_layer-1) + chamber_layer_max *(wire_layer -1); // layer_number ranges from 0..7
 	    if (channel_type) layer_number = layer_number + 8 ;
 
@@ -1271,11 +1189,11 @@ namespace Muon {
 	double hity=globalpos.y();
 	double hitz=globalpos.z();
       
-	bool channel_type = m_cscIdHelper->measuresPhi(id);
+	bool channel_type = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
 
 	if (channel_type == true) // phi hit
 	  {
-	    const Identifier gasGapId = m_idHelperTool->gasGapId(id);
+	    const Identifier gasGapId = m_muonIdHelperTool->gasGapId(id);
 	    gg_it = gasgapphimap.find(gasGapId);
 	    if (gg_it==gasgapphimap.end()){ // gasgapid not yet in map
 	      std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> hitset;
@@ -1292,9 +1210,9 @@ namespace Muon {
 	double weight = 1.;
 	if (m_hit_reweights)
 	  {
-	    const int chamber_layer = m_cscIdHelper->chamberLayer(id);
-	    const int chamber_layer_max = m_cscIdHelper->chamberLayerMax(id);
-	    const int wire_layer = m_cscIdHelper->wireLayer(id);
+	    const int chamber_layer = m_muonIdHelperTool->cscIdHelper().chamberLayer(id);
+	    const int chamber_layer_max = m_muonIdHelperTool->cscIdHelper().chamberLayerMax(id);
+	    const int wire_layer = m_muonIdHelperTool->cscIdHelper().wireLayer(id);
 	    int layer_number = (chamber_layer-1) + chamber_layer_max *(wire_layer -1); // layer_number ranges from 0..7
 	    if (channel_type) layer_number = layer_number + 8 ;
 	    double weight_factor_csc = 1.;
@@ -1319,26 +1237,26 @@ namespace Muon {
     for( ; cit!=cit_end;++cit ){
       const Muon::CscPrepData* prd = *cit;
       const Identifier id = prd->identify();
-      if (m_cscIdHelper->measuresPhi(id) == false) { // eta hit
+      if (m_muonIdHelperTool->cscIdHelper().measuresPhi(id) == false) { // eta hit
       
-	const Identifier gasGapId = m_idHelperTool->gasGapId(id);
+	const Identifier gasGapId = m_muonIdHelperTool->gasGapId(id);
       
 	gg_it = gasgapphimap.find(gasGapId);
 	if (gg_it!=gasgapphimap.end()) {
-	  m_phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
+	  phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
 	}
       }
     }
   }
 
-  void MuonHoughPatternFinderTool::updateRpcMdtStationMap(const Identifier rpcid, const int hit_begin, const int hit_end) const
+  void MuonHoughPatternFinderTool::updateRpcMdtStationMap(const Identifier rpcid, const int hit_begin, const int hit_end, std::map<int,std::vector<std::pair<int, int> > >& rpcmdtstationmap) const
   {
     //  input is a RPC identifier, begin container and end container
     //  rpcmdtstationmap is updated
     //
     // called once per rpc collection/station
   
-    std::string st = m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(rpcid));
+    std::string st = m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(rpcid));
     ATH_MSG_VERBOSE ("updateRpcMdtStationMap" <<  st);
     if (st[0] != 'B') return; // no rpc for endcap chambers
 
@@ -1347,10 +1265,10 @@ namespace Muon {
 
     // store station code 
   
-    addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
 
-    int idphi = m_rpcIdHelper->stationPhi(rpcid);
-    int ideta = m_rpcIdHelper->stationEta(rpcid);
+    int idphi = m_muonIdHelperTool->rpcIdHelper().stationPhi(rpcid);
+    int ideta = m_muonIdHelperTool->rpcIdHelper().stationEta(rpcid);
    
     int idphi1 = idphi - 1;
     if (idphi1 == 0) idphi1 = 8;
@@ -1373,13 +1291,13 @@ namespace Muon {
     else return;
  
     // store Neighbouring station codes 
-    int stationNameMDT = m_mdtIdHelper->stationNameIndex(station);
+    int stationNameMDT = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station);
 
     stationcode = stationCode(stationNameMDT,idphi1,ideta);
-    addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
 
     stationcode = stationCode(stationNameMDT,idphi2,ideta);
-    addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
 
     //  Also look into Inner station
     
@@ -1391,18 +1309,18 @@ namespace Muon {
     }
     else return;
  	  	 
-    stationNameMDT = m_mdtIdHelper->stationNameIndex(station);
+    stationNameMDT = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station);
     stationcode = stationCode(stationNameMDT,idphi,ideta);
-    addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
   }
 
-  void MuonHoughPatternFinderTool::updateTgcMdtStationMap(const Identifier tgcid, int hit_begin, int hit_end) const
+  void MuonHoughPatternFinderTool::updateTgcMdtStationMap(const Identifier tgcid, int hit_begin, int hit_end, std::map<int,std::vector<std::pair<int, int> > >& tgcmdtstationmap) const
   {
     //  input is a TGC identifier, begin container and end container
     //  tgcmdtstationmap is updated
     //
     // called once per tgc collection/station
-    std::string st = m_tgcIdHelper->stationNameString(m_tgcIdHelper->stationName(tgcid));
+    std::string st = m_muonIdHelperTool->tgcIdHelper().stationNameString(m_muonIdHelperTool->tgcIdHelper().stationName(tgcid));
     if (st[0] != 'T') return; 
 
     std::vector <int> T31(5); T31[0] = 2; T31[1] = 3; T31[2] = 3; T31[3] = 4; T31[4] = 4; 
@@ -1418,8 +1336,8 @@ namespace Muon {
     if (st[2]=='F') modphiTGC = 24;
     if (st[1]=='4') modphiTGC = 24;
   
-    int idphi = m_tgcIdHelper->stationPhi(tgcid);
-    int ideta = m_tgcIdHelper->stationEta(tgcid);
+    int idphi = m_muonIdHelperTool->tgcIdHelper().stationPhi(tgcid);
+    int ideta = m_muonIdHelperTool->tgcIdHelper().stationEta(tgcid);
     int index = abs(ideta)-1;
     int idphi1MDT = 1 + int (8.*(idphi+1)/modphiTGC);
     int idphi2MDT = 1 + int (8.*(idphi-1)/modphiTGC);
@@ -1458,33 +1376,33 @@ namespace Muon {
       station1 = "EIL";
       station2 = "EIS";
     } 
-    int stationNameMDT1 = m_mdtIdHelper->stationNameIndex(station1);
-    int stationNameMDT2 = m_mdtIdHelper->stationNameIndex(station2);
+    int stationNameMDT1 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station1);
+    int stationNameMDT2 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station2);
 
     int stationcode = stationCode(tgcid);
 
     // store station Inner and Middle codes
  	  	 
     stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta1MDT);
-    addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta1MDT);
-    addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     if(ideta1MDT != ideta2MDT) {
       stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta2MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta2MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     }
     if(idphi1MDT != idphi2MDT) {
       stationcode = stationCode(stationNameMDT1,idphi2MDT,ideta1MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       stationcode = stationCode(stationNameMDT2,idphi2MDT,ideta1MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       if(ideta1MDT != ideta2MDT) {
 	stationcode = stationCode(stationNameMDT1,idphi2MDT,ideta2MDT);
-	addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+	addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
 	stationcode = stationCode(stationNameMDT2,idphi2MDT,ideta2MDT);
-	addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+	addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       }
     }
     // Store corresponding Outer stations
@@ -1496,37 +1414,37 @@ namespace Muon {
       station2 = "EOL";
     } else return;
  	  	 
-    stationNameMDT1 = m_mdtIdHelper->stationNameIndex(station1);
-    stationNameMDT2 = m_mdtIdHelper->stationNameIndex(station2);
+    stationNameMDT1 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station1);
+    stationNameMDT2 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station2);
 
     stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta1MDT);
-    addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
+    addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
     stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta1MDT);
-    addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     if(ideta1MDT != ideta2MDT) {
       stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta2MDT); 
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
       stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta2MDT); 
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
     }
     if(idphi1MDT != idphi2MDT) {  
       stationcode = stationCode(stationNameMDT1,idphi2MDT,ideta1MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       stationcode = stationCode(stationNameMDT2,idphi2MDT,ideta1MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
 
       if(ideta1MDT != ideta2MDT) {
 	stationcode = stationCode(stationNameMDT1,idphi2MDT,ideta2MDT);
-	addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+	addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
 	stationcode = stationCode(stationNameMDT2,idphi2MDT,ideta2MDT);
-	addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+	addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       }
     }
   }
 
   int MuonHoughPatternFinderTool::stationCode(Identifier id)const
   {
-    return 10000000*m_mdtIdHelper->stationName(id) + 100000*m_mdtIdHelper->stationPhi(id) + 1000*(m_mdtIdHelper->stationEta(id)+10);
+    return 10000000*m_muonIdHelperTool->mdtIdHelper().stationName(id) + 100000*m_muonIdHelperTool->mdtIdHelper().stationPhi(id) + 1000*(m_muonIdHelperTool->mdtIdHelper().stationEta(id)+10);
   }
 
   int MuonHoughPatternFinderTool::stationCode(int stationname,int phi,int eta)const
@@ -1624,7 +1542,7 @@ namespace Muon {
 	    double norm = std::sqrt(hitx*hitx + hity*hity);
 	    double cphi = hitx/norm;
 	    double sphi = hity/norm; 
-	    TrkDriftCircleMath::TangentToCircles::LineVec& lines = tanCreator.tangentLines( *iti, *itj );
+	    TrkDriftCircleMath::TangentToCircles::LineVec lines = tanCreator.tangentLines( *iti, *itj );
 	    for( TrkDriftCircleMath::TangentToCircles::LineVec::const_iterator lit = lines.begin(); lit!=lines.end(); ++lit ){
 	      double coshit = std::cos((*lit).phi());
 	      double sinhit = std::sin((*lit).phi());

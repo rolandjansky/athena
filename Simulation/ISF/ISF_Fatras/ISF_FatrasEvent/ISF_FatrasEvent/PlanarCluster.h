@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 //Base class 
 #include "TrkPrepRawData/PrepRawData.h"
 
+#include "CxxUtils/CachedUniquePtr.h"
 #include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 #include "Identifier/Identifier.h"
 #include "InDetPrepRawData/SiWidth.h"
@@ -81,7 +82,7 @@ namespace iFatras {
     
   private:
     InDet::SiWidth m_width; //col, row, and width in mm
-    mutable const Amg::Vector3D* m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
     const iFatras::PlanarDetElement* m_detEl;
     
   };
@@ -99,8 +100,8 @@ namespace iFatras {
   
   // return globalPosition:
   inline const Amg::Vector3D* PlanarCluster::globalPositionPtr() const {
-    if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).localToGlobal(localPosition());
-    return m_globalPosition;
+    if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).localToGlobal(localPosition())));
+    return m_globalPosition.get();
   }
   
   // return globalPosition:

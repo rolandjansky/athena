@@ -346,7 +346,7 @@ void TrigConf::ThresholdConfig::printTtvMap(const TriggerThreshold* thr) const {
             hadiso = ctv->hadIsolation();
             hadveto = ctv->hadVeto();
          }
-         sprintf(line, "TTV(%-4s,%-10s) eta[%2d] phi[%2d]: %3f %6i %6f %6f %6f", 
+         sprintf(line, "TTV(%-4s,%-10s) eta[%2d] phi[%2d]: %3f %6u %6f %6f %6f", 
                  thr->type().c_str(), thr->name().c_str(), ieta, iphi, 
                  ttv->ptcut(), ttv->window(), emiso, hadiso, hadveto);
          cout << line << endl;

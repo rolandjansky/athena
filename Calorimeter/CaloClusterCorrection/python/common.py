@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: common.py,v 1.39 2009-05-20 20:48:52 ssnyder Exp $
@@ -7,6 +7,8 @@
 # Created: Nov 2006, sss
 # Purpose: Common utility code for configuring cluster corrections.
 #
+
+from __future__ import print_function
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.AppMgr import ServiceMgr
@@ -50,6 +52,8 @@ class MetatoolPropDummy:
         if k == 'isDummy':
             return False
         return True
+    def __contains__ (self, k):
+        return self.has_key (k)
     
 class MetatoolHelper:
     def __init__ (self, confclass, name):
@@ -67,7 +71,7 @@ class MetatoolHelper:
         return self.name
 
     def __setattr__ (self, k, v):
-        if self.__dict__.has_key (k):
+        if k in self.__dict__:
             self.__dict__[k] = v
         else:
             if isinstance (v, Configurable):
@@ -441,7 +445,7 @@ class CaloClusterCorrSetup:
                 # Consistency check: a given tool func/version should
                 # always have the same order setting.
                 okey = (func, version)
-                if not ordermap.has_key (okey):
+                if okey not in ordermap:
                     ordermap[okey] = (order, v)
                 elif ordermap[okey][0] != order:
                     raise CaloCorrectionConfigError\
@@ -466,7 +470,7 @@ class CaloClusterCorrSetup:
                                         corrclass):
         (func, version, order, extra_args) = split_version_spec (cspec)
         name = func.__name__ + '_' + version + '_' + key
-        if tools.has_key (name):
+        if name in tools:
             return
         tool = func (None, '', version, key, CALOCORR_TOPOOL,
                      generation = self.get_generation(),
@@ -529,9 +533,9 @@ class CaloClusterCorrSetup:
                                      folder (tools[0]))
             tag_list.append (tag (tools[0]))
 
-        print "Final OutputList:"
-        print corr_output_list
-        print tag_list
+        print ("Final OutputList:")
+        print (corr_output_list)
+        print (tag_list)
 
         return (corr_output_list, tag_list)
 
@@ -541,11 +545,11 @@ class CaloClusterCorrSetup:
     # the desired corrections.
     def make_metatool (self, suffix, tools, preserve_order):
         name = 'CaloRunClusterCorrections' + suffix
-        if _alltools.has_key (name):
+        if name in _alltools:
             nsuff = 2
-            while _alltools.has_key (name + `nsuff`):
+            while (name + str (nsuff)) in _alltools:
                 nsuff += 1
-            name = name + `nsuff`
+            name = name + str (nsuff)
         _alltools[name] = (None, None, None)
         metatool = CaloRunClusterCorrections (name)
         specs = sum ([t.corrspec() for t in tools], [])
@@ -805,11 +809,11 @@ def makecorr (versions,
         name = name + suffix
 
     # If we're not writing to pool, we need to make sure the name's unique.
-    if source != CALOCORR_TOPOOL and _alltools.has_key (name):
+    if source != CALOCORR_TOPOOL and name in _alltools:
         nsuff = 2
-        while _alltools.has_key (name + `nsuff`):
+        while (name + str (nsuff)) in _alltools:
             nsuff += 1
-        name = name + `nsuff`
+        name = name + str (nsuff)
     _alltools[name] = (folder, fulltag, sgkey)
 
     # If no class was explicitly specified, take it from the table.
@@ -876,7 +880,7 @@ def makecorr (versions,
     if wherefrom == None:
         raise CaloCorrectionConfigError \
               ("Can't find any source to configure tool `%s'.  Sources: %s" %
-               (name, `source`))
+               (name, source))
   
     log = logging.getLogger ('CaloClusterCorrection')
     log.debug (" correction %s (%s, from %s)" % (name, confclass.__name__,
@@ -904,14 +908,14 @@ def _setprop (obj, k, val):
 def _is_jo_source (s):
     if s == CALOCORR_COOL: return 0
     if s == CALOCORR_POOL: return 0
-    if poolfiles.has_key (s): return 0
+    if s in poolfiles: return 0
     if s.find ('.') > 0: return 1
     return 0
 
 
 # Test to see if S looks like a pool source.
 def _is_pool_source (s):
-    return poolfiles.has_key (s)
+    return s in poolfiles
 
 
 # Test to see if S looks like a cool source.
@@ -922,9 +926,9 @@ def _is_cool_source (s):
 # Configure a correction tool from job options.
 def _config_from_jo (corr, jo, key, sampling, valid_keys, order):
     # Split off the last dotted field as paramclass.
-    xjo = string.split (jo, '.')
+    xjo = jo.split ('.')
     paramclass = xjo[-1]
-    modname = string.join (xjo[:-1], '.')
+    modname = '.'.join (xjo[:-1])
 
     # If not otherwise specified, try to find the module
     # in CaloClusterCorrection.
@@ -939,9 +943,9 @@ def _config_from_jo (corr, jo, key, sampling, valid_keys, order):
     if type (parms) == type ({}) and sampling != None:
         parms = parms[sampling]
 
-    if order != 0 and corr.properties().has_key('order'):
+    if order != 0 and 'order' in corr.properties():
         _setprop (corr, 'order', order)
-    if corr.properties().has_key('isDummy'):
+    if 'isDummy' in corr.properties():
         _setprop (corr, 'isDummy', 0)
 
     log = logging.getLogger ('CaloClusterCorrection')
@@ -994,7 +998,7 @@ def _config_from_pool (corr, poolfile, sgkey):
     # add it to CondProxyProvider.
     # Pick up the provider by looking in the top-level global scope.
     global ServiceMgr
-    if not _poolfiles_seen.has_key (poolfile):
+    if poolfile not in  _poolfiles_seen:
         _poolfiles_seen[poolfile] = 1
         try:
             ServiceMgr.CondProxyProvider.InputCollections += \
@@ -1119,7 +1123,7 @@ def _calocorr_setup (self):
     save_properties = {}
     try:
         for (k, v) in self._properties.items():
-            if v.history.has_key(self) and len (v.history[self]) >= 1:
+            if self in v.history and len (v.history[self]) >= 1:
                 pass
             else:
                 save_properties[k] = v
@@ -1131,7 +1135,7 @@ def _calocorr_setup (self):
     return
 
 def _maybe_patchclass (cls):
-    if cls.__dict__.has_key ('_calocorr_patched'):
+    if '_calocorr_patched' in cls.__dict__:
         return
     cls.setup = _calocorr_setup
     cls._calocorr_patched = 1

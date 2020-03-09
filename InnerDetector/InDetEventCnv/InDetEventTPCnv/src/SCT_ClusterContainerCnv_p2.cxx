@@ -239,9 +239,7 @@ StatusCode SCT_ClusterContainerCnv_p2::initialize(MsgStream &log) {
    //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endmsg;
    //   }
 
-   if (m_useDetectorElement) {
-     CHECK(m_SCTDetEleCollKey.initialize());
-   }
+   CHECK(m_SCTDetEleCollKey.initialize(m_useDetectorElement));
 
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;

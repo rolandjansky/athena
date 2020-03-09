@@ -6,11 +6,6 @@
 #define LARRAWCONDITIONS_LARDAC2UAMC_H
 
 #include "LArRawConditions/LArDAC2uAComplete.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include <vector>
-
-class ILArMCSymTool;
 
 /** Implementation of the interface ILArDAC2uA for MC
  *  Derives from LArDAC2uAComplete, and implements the phi-z symmetry
@@ -36,14 +31,7 @@ class LArDAC2uAMC: public LArDAC2uAComplete {
   
   virtual const float& DAC2UA(const HWIdentifier&  CellID) const ;
   
-  static float dummy;
-  
- private: 
-  
-  // helper for MC z-phi symmetry 
-//  LArMCSym m_larmc;
-   ToolHandle<ILArMCSymTool> m_larmcsym;
-
+  constexpr static float dummy=LArElecCalib::ERRORCODE;
 };
 
 

@@ -35,7 +35,8 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkUtilityPackages/TrkDriftCircleMath )
+                          Tracking/TrkUtilityPackages/TrkDriftCircleMath
+			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData )
 
 # External dependencies:
 find_package( Eigen )
@@ -45,8 +46,4 @@ atlas_add_component( DCMathSegmentMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives EventPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonStationIntersectSvcLib TrkGeometry TrkSurfaces TrkEventPrimitives TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkRoad TrkTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkDriftCircleMath )
-
-# Install files from the package:
-atlas_install_headers( DCMathSegmentMaker )
-
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives EventPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonStationIntersectSvcLib TrkGeometry TrkSurfaces TrkEventPrimitives TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkRoad TrkTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkDriftCircleMath MuonCondData )

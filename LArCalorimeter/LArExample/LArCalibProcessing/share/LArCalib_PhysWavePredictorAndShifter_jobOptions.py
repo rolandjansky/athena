@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -10,7 +12,11 @@ import commands
 #
 ###########################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 
 ###########################################################################
 #                   Input selection (CaliWave)
@@ -37,7 +43,7 @@ if not 'ReadHECPhysWaveFromCOOL' in dir():
    ReadHECPhysWaveFromCOOL = True
 	
 if not 'InputHECPhysWavePoolFileDir' in dir():
-   InputHECMapPoolFileDir  = commands.getoutput("pwd")
+   InputHECMapPoolFileDir  = subprocess.getoutput("pwd")
    
 if not 'InputHECPhysWavePoolFileName' in dir():
    InputHECPhysWavePoolFileName = "LArHECPhysWave.pool.root"   
@@ -47,7 +53,7 @@ if not 'ReadCaliWaveFromCOOL' in dir():
    ReadCaliWaveFromCOOL = True
 
 if not 'InputCaliWavePoolDir' in dir():
-   InputCaliWavePoolDir = commands.getoutput("pwd")
+   InputCaliWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliWavePoolFileName' in dir():
    InputCaliWavePoolFileName = "LArCaliWave.pool.root"
@@ -57,7 +63,7 @@ if not 'ReadPulseParamsFromCOOL' in dir():
    ReadPulseParamsFromCOOL = True
 
 if not 'InputPulseParamsPoolDir' in dir():
-   InputPulseParamsPoolDir = commands.getoutput("pwd")
+   InputPulseParamsPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPulseParamsPoolFileName' in dir():
    InputPulseParamsPoolFileName = "LArCaliPulseParamsVsCalib_AllBoards.pool.root"
@@ -67,7 +73,7 @@ if not 'ReadDetCellParamsFromCOOL' in dir():
    ReadDetCellParamsFromCOOL = True
 
 if not 'InputDetCellParamsPoolDir' in dir():
-   InputDetCellParamsPoolDir = commands.getoutput("pwd")
+   InputDetCellParamsPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputDetCellParamsPoolFileName' in dir():
    InputDetCellParamsPoolFileName = "detector_EMECA_C_v1.pool.root"
@@ -77,7 +83,7 @@ if not 'ReadDTimeFromCOOL' in dir():
    ReadDTimeFromCOOL = True
 
 if not 'InputDTimePoolDir' in dir():
-   InputDTimePoolDir = commands.getoutput("pwd")
+   InputDTimePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputDTimePoolFileName' in dir():
    InputDTimePoolFileName = "tdrift_EMECA_C_v1.pool.root"
@@ -104,10 +110,12 @@ if not 'DBConnectionCOOL' in dir():
    DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
 
 if not 'InputCaliPulseParamsFolder' in dir():
-   InputCaliPulseParamsFolder = "/LAR/ElecCalibOfl/CaliPulseParams/RTM"
+   if not SuperCells: InputCaliPulseParamsFolder = "/LAR/ElecCalibOfl/CaliPulseParams/RTM"
+   if SuperCells:     InputCaliPulseParamsFolder = "/LAR/ElecCalibOflSC/CaliPulseParams/RTM"
    
 if not 'InputDetCellParamsFolder' in dir():
-   InputDetCellParamsFolder = "/LAR/ElecCalibOfl/DetCellParams/RTM"   
+   if not SuperCells: InputDetCellParamsFolder = "/LAR/ElecCalibOfl/DetCellParams/RTM"   
+   if SuperCells:     InputDetCellParamsFolder = "/LAR/ElecCalibOflSC/DetCellParams/RTM"   
 
 ## HEC PhysWave
 if ( ReadHECPhysWaveFromCOOL ):
@@ -263,13 +271,13 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'OutputPhysWaveRootFileDir' in dir():
-    OutputPhysWaveRootFileDir= commands.getoutput("pwd")
+    OutputPhysWaveRootFileDir= subprocess.getoutput("pwd")
     
 if not 'OutputPhysWavePoolFileDir' in dir():
-    OutputPhysWavePoolFileDir= commands.getoutput("pwd")
+    OutputPhysWavePoolFileDir= subprocess.getoutput("pwd")
 
 if not 'OutputMphysOverMcalPoolFileDir' in dir():
-    OutputMphysOverMcalPoolFileDir= commands.getoutput("pwd")    
+    OutputMphysOverMcalPoolFileDir= subprocess.getoutput("pwd")    
 
 PhysWaveFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 
@@ -424,6 +432,9 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
    conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
@@ -561,6 +572,7 @@ ToolSvc+=theMask
 LArPhysWavePredictor = LArPhysWavePredictor( "LArPhysWavePredictor" )
 LArPhysWavePredictor.MaskingTool              = theMask
 LArPhysWavePredictor.TestMode	              = doTest
+LArPhysWavePredictor.isSC                     = SuperCells
 LArPhysWavePredictor.KeyCaliList              = KeyCaliList
 LArPhysWavePredictor.UseCaliPulseParamsFromJO = UseCaliPulseParamsFromJO
 LArPhysWavePredictor.UseDetCellParamsFromJO   = UseDetCellParamsFromJO
@@ -658,6 +670,7 @@ if ( WriteNtuple ) :
       LArPhysWaves2Ntuple.NtupleName   = "PHYSWAVE" 
       LArPhysWaves2Ntuple.AddFEBTempInfo   = False  
       LArPhysWaves2Ntuple.KeyList      = [ OutputKey  ]
+      LArPhysWaves2Ntuple.isSC = SuperCells
       
       topSequence += LArPhysWaves2Ntuple
       
@@ -667,6 +680,7 @@ if ( WriteNtuple ) :
       LArCaliWaves2Ntuple.NtupleName   = "CALIWAVE"
       LArCaliWaves2Ntuple.AddFEBTempInfo   = False
       LArCaliWaves2Ntuple.KeyList      = KeyCaliList
+      LArCaliWaves2Ntuple.isSC = SuperCells
       
       topSequence += LArCaliWaves2Ntuple
       
@@ -675,6 +689,7 @@ if ( WriteNtuple ) :
       LArMphysOverMcal2Ntuple                = LArMphysOverMcal2Ntuple( "LArMphysOverMcal2Ntuple" )
       LArMphysOverMcal2Ntuple.ContainerKey   = "LArMphysOverMcal"
       LArMphysOverMcal2Ntuple.AddFEBTempInfo   = False
+      LArMphysOverMcal2Ntuple.isSC = SuperCells
    
       topSequence += LArMphysOverMcal2Ntuple
    

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,92 @@ StatusCode MSVVariablesFactory::finalize() {
   ATH_MSG_DEBUG(" Finalization of MSVVariablesFactory succesfull");
   return StatusCode::SUCCESS;
 }
+
+  StatusCode MSVVariablesFactory::createMSVContainer(const xAOD::Jet &myJet, const Trk::VxSecVKalVertexInfo* myVertexInfoVKal, xAOD::VertexContainer* VertexContainer,const xAOD::Vertex& PrimaryVtx) const {
+
+    float jetenergy=0.;
+    const xAOD::Vertex* priVtx = &PrimaryVtx;
+    std::vector< ElementLink< xAOD::VertexContainer > > MSVVertexLinks;
+    const std::vector<xAOD::Vertex*> myVertices = myVertexInfoVKal->vertices();
+    if(myVertices.size() == 0){
+      ATH_MSG_DEBUG("#BTAG# no MSV vertices...fill default values only... ");
+      xAOD::Vertex* Vertex = new xAOD::Vertex();
+      VertexContainer->push_back(Vertex);
+      xAOD::SecVtxHelper::setVertexMass(Vertex, -9.);
+      xAOD::SecVtxHelper::setEnergyFraction(Vertex, -9.);
+      xAOD::SecVtxHelper::setVtxNtrk(Vertex, -9);
+      xAOD::SecVtxHelper::setVtxpt(Vertex, -9.);
+      xAOD::SecVtxHelper::setVtxeta(Vertex, -9.);
+      xAOD::SecVtxHelper::setVtxphi(Vertex, -9.);
+      xAOD::SecVtxHelper::setVtxnormDist(Vertex, -9.);
+      return StatusCode::SUCCESS;
+
+    }
+    std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin();
+    std::vector<xAOD::Vertex*>::const_iterator verticesEnd   = myVertexInfoVKal->vertices().end();
+
+    jetenergy = myVertexInfoVKal->energyTrkInJet();
+
+    for (std::vector<xAOD::Vertex*>::const_iterator verticesIter=verticesBegin; verticesIter!=verticesEnd;++verticesIter) {
+
+      xAOD::Vertex* Vertex = *verticesIter;
+      VertexContainer->push_back(Vertex);
+      //additional info per vertex
+      double sumpx = 0.0;
+      double sumpy = 0.0;
+      double sumpz = 0.0;
+      double sume = 0.0;
+      const std::vector<ElementLink<xAOD::TrackParticleContainer> > myTrackLinks = (*verticesIter)->trackParticleLinks();
+      if (myTrackLinks.size()==0) {
+        ATH_MSG_WARNING("#BTAG# No Track Links attached to the track at the sec vertex... ");
+      }
+      int npsec = 0;
+      const std::vector<Trk::VxTrackAtVertex> myTracks=(*verticesIter)->vxTrackAtVertex();
+      if (myTracks.size()!=0) {
+        npsec=myTracks.size();
+        const std::vector<Trk::VxTrackAtVertex>::const_iterator tracksBegin=myTracks.begin();
+        const std::vector<Trk::VxTrackAtVertex>::const_iterator tracksEnd=myTracks.end();
+        for (std::vector<Trk::VxTrackAtVertex>::const_iterator tracksIter=tracksBegin; tracksIter!=tracksEnd;++tracksIter) {
+          const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>((*tracksIter).perigeeAtVertex());
+          if(perigee){
+            sumpx += perigee->momentum().x();
+            sumpy += perigee->momentum().y();
+            sumpz += perigee->momentum().z();
+            sume +=sqrt(perigee->momentum().mag()*perigee->momentum().mag() + 139.5702*139.5702 );
+          }else{
+             ATH_MSG_WARNING("#BTAG# perigee for VxTrackAtVertex not found");
+          }
+        }
+      }
+      CLHEP::HepLorentzVector vtxp4(sumpx,sumpy,sumpz,sume);
+      float efrac = (jetenergy>0)?vtxp4.e()/jetenergy:0;
+      xAOD::SecVtxHelper::setVertexMass(Vertex, vtxp4.m());
+      xAOD::SecVtxHelper::setEnergyFraction(Vertex, efrac);
+      xAOD::SecVtxHelper::setVtxNtrk(Vertex, npsec);
+      xAOD::SecVtxHelper::setVtxpt(Vertex, vtxp4.perp());
+      xAOD::SecVtxHelper::setVtxeta(Vertex, vtxp4.eta());
+      xAOD::SecVtxHelper::setVtxphi(Vertex, vtxp4.phi());
+
+      ATH_MSG_DEBUG("#BTAG# mass per vertex = "<<vtxp4.m());
+      double localdistnrm=0;
+      std::vector<const xAOD::Vertex*> vecVtxHolder;
+      vecVtxHolder.push_back(*verticesIter);
+
+         ATH_MSG_DEBUG("Factory PVX x = " << priVtx->x() << " y = " << priVtx->y() << " z = " << priVtx->z());
+      if (priVtx) {
+        localdistnrm=get3DSignificance(priVtx, vecVtxHolder, Amg::Vector3D(myJet.p4().Px(),myJet.p4().Py(),myJet.p4().Pz()));
+      } else {
+        ATH_MSG_WARNING("#BTAG# Tagging requested, but no primary vertex supplied.");
+        localdistnrm=0.;
+      }
+      xAOD::SecVtxHelper::setVtxnormDist(Vertex, localdistnrm);
+      //track links,
+      Vertex->setTrackParticleLinks(myTrackLinks);
+
+    } //end loop vertexcontainer
+
+    return StatusCode::SUCCESS;
+  }
 
   StatusCode MSVVariablesFactory::fillMSVVariables(const xAOD::Jet &myJet, xAOD::BTagging* BTag, const Trk::VxSecVKalVertexInfo* myVertexInfoVKal, xAOD::VertexContainer* VertexContainer,const xAOD::Vertex& PrimaryVtx,  std::string basename) const {
     //...

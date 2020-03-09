@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "OraclePixGeoManager.h"
@@ -22,7 +22,7 @@
 //
 // Get the pixelDD Manager from SG.
 //
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"

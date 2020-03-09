@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@
 //  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
 //  Initial version: March 2008                               //
 //                                                            //
-//  Updates:                                                  //
+//  Major updates:                                            //
 //  Sep 2013, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
 //  Sep 2017, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
 //                                                            //
@@ -482,8 +482,10 @@ void debugCameraClipPlanes(void * data, const SbVec2f & nearfar)
 
 	SoPathList &cameras = action.getPaths();
 
-	for (int i = 0, e = cameras.getLength(); i != e; ++i)
-		std::cerr << "Camera #" << i << " = " << (void *) cameras[i]->getTail() << "(" << typeid(*cameras[i]->getTail()).name() << ")\n";
+	for (int i = 0, e = cameras.getLength(); i != e; ++i) {
+                auto* tail = cameras[i]->getTail();
+		std::cerr << "Camera #" << i << " = " << (void *) tail << "(" << typeid(*tail).name() << ")\n";
+        }
 
 	std::cerr << "Calculated clip-planes. Near: " << nearfar[0] << ". Far: " << nearfar[1] << "\n"
 			<< "Current camera clip-planes. Near: " << camera->nearDistance.getValue() << ", Far: " << camera->farDistance.getValue() << "\n"
@@ -1279,7 +1281,7 @@ void VP1ExaminerViewer::Imp::detectorZoomButtonClicked(std::pair<REGION,VIEW> p)
 {
 	grabFocus();
 
-	VP1Msg::messageVerbose("detectorZoomButtonClicked region = "+toString(p.first)+", from "+QString(p.second +" Z axis") );
+	VP1Msg::messageVerbose("detectorZoomButtonClicked region = "+toString(p.first)+", from "+QString((std::to_string(p.second) +" Z axis").c_str()));
 
 	SoNode * rootnode = theclass->getSceneGraph();
 	if (!rootnode) {

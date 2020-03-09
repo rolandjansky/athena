@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISSINGETEVENT_MISSINGETCOMPOSITION_H
@@ -415,7 +415,7 @@ public:
   {
     if (this->begin() != this->end()) {
       const_iterator<OBJECT> temp(static_cast<const base_t*>(this), this->begin()); 
-      if ((*temp)==0) {temp++; return temp;}
+      if ((*temp)==0) {++temp; return temp;}
       return temp;
     }
     else { return const_iterator<OBJECT>(static_cast<const base_t*>(this), this->begin()); }
@@ -432,7 +432,7 @@ public:
   {
     const_iterator<OBJECT> fObj = this->beginIterator<OBJECT>();
     const_iterator<OBJECT> lObj = this->endIterator<OBJECT>();
-    while ( fObj != lObj && pObj != *fObj ) { *fObj++; }
+    while ( fObj != lObj && pObj != *fObj ) { ++fObj; }
     return fObj;
   }
 

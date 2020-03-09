@@ -1,6 +1,6 @@
 #!/usr/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryXML.py
@@ -33,7 +33,7 @@ class TextElement(Element):
     def __init__(self,name,data,doc):
         Element.__init__(self,name)
         if not isinstance(data, str):
-            raise TypeError, "node contents must be a string"
+            raise TypeError ("node contents must be a string")
         self.tagName = name
         self.data = data
         self.ownerDocument = doc

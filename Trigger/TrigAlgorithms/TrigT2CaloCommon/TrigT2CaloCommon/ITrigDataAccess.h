@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -178,8 +178,6 @@ private :
 	  LArTT_Selector<LArCellCont>::const_iterator l;
 	  TileCellCollection::const_iterator t;
 	  CaloCellContainer * cont=NULL;
-	  l=l;
-	  t=t;
 	  storeCells(l,l,cont);
 	  storeCells(t,t,cont);
 	}

@@ -194,7 +194,7 @@ Root::TMsgLevel Root::TMsgLogger::MapLevel( const TString& instr ) const
 
    // find the corresponding key
    std::map<TMsgLevel, std::string>::const_iterator it = m_levelMap.begin();
-   for (; it != m_levelMap.end(); it++) if (ins == it->second) return it->first;
+   for (; it != m_levelMap.end(); ++it) if (ins == it->second) return it->first;
 
    // not found --> fatal error
    TString line( Form( "fatal error in <TMsgLogger::MapLevel> unknown output level: %s ==> abort", ins.Data() ) );

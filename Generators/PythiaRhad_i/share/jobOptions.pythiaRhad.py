@@ -67,7 +67,7 @@ include( 'GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.py' )
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "StreamEVGEN" )
 Stream1.ItemList += [ 'EventInfo#*', 'McEventCollection#*' ]            
-include( 'AthenaSealSvc/AthenaSealSvc_joboptions.py' )                 
+include( 'AthenaServices/AthenaSealSvc_joboptions.py' )                 
 AthenaSealSvc.CheckDictionary = TRUE
 Stream1.OutputFile = "pythia_"+CASE+"_"+str(MASS)+"GeV_"+str(MyNevts)+"_events.pool.root"
 

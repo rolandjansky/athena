@@ -152,7 +152,8 @@ int TrigInDetTrackTruth::updateFamilyTree()
 	{
 	  log << MSG::DEBUG << "* Trying daughter index=" << child 
 	      << " and mother index=" << mum << endmsg;
-	  if ( *p_mum == *it2 ) 
+          const HepMC::GenParticle* p2 = *it2;
+          if ( *p_mum == p2 )
 	    { // mother also matches track
 	      m_family_tree.push_back( std::pair<unsigned int, unsigned int>(mum,child) );
 	      mum_found=true;

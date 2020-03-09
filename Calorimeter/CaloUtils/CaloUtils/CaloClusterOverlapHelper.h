@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -103,8 +103,8 @@ struct CaloClusterOverlapHelper
       m_dirX(0.), m_dirY(0.0), m_dirZ(0.0)
     { };
     CaloLine(const CaloPoint& aPoint, const CaloPoint& bPoint)
+      : m_pt (aPoint)
     {
-      m_pt   = aPoint;
       const double r(aPoint.distance(bPoint));
       if ( r > 0 )
         {

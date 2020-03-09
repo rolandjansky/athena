@@ -27,7 +27,7 @@
 BOOST_TEST_DONT_PRINT_LOG_VALUE( IOVDbParser )// '<<' not implemented
 
 struct GaudiKernelFixture:public GaudiKernelFixtureBase{
-  GaudiKernelFixture():GaudiKernelFixtureBase(__FILE__){
+  GaudiKernelFixture():GaudiKernelFixtureBase(){
     //nop, everything in base.
   }
 };

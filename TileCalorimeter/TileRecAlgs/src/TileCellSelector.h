@@ -32,6 +32,7 @@ class TileHWID;
 class TileCell;
 class TileCablingService;
 class ITileBadChanTool;
+class TileInfo;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -130,6 +131,8 @@ class TileCellSelector: public AthAlgorithm {
     int m_ptnEneChan[3];
     int m_ptnTimeCell;
     int m_ptnTimeChan[3];
+    int m_selectGain;
+    bool m_skipGain[2];
 #define ptnlength 5
     bool m_bitEneCell[ptnlength];
     bool m_bitTimeCell[ptnlength];
@@ -162,6 +165,11 @@ class TileCellSelector: public AthAlgorithm {
 
     int m_maxVerboseCnt;
     std::vector<int> m_nDrawerOff;
+
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    float m_ADCmaxMinusEps;
+    float m_ADCmaskValueMinusEps;
 };
 
 #endif // TILERECALGS_TILESELECTOR_H

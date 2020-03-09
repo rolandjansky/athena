@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_CPP
@@ -230,57 +230,41 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     m_histoPersSvc = IConversionSvc_t( "HistogramPersistencySvc", 
 				       this->name() );
 
-    if( !sc.isSuccess() )  {
-      warning() << "Histograms cannot not be saved - though required." 
-                << endmsg;
+    IService *is = 0;
+    if (histPersName == "ROOT") {
+      sc = serviceLocator()->service("RootHistSvc", is);
+    } else if ( histPersName == "HBOOK" ) {
+      sc = serviceLocator()->service("HbookHistSvc", is);
+    }
+
+    if (sc.isFailure()) {
+      error() << "could not locate actual Histogram persistency service"
+	      << endmsg;
     } else {
-
-      IService *is = 0;
-      if (histPersName == "ROOT") {
-	sc = serviceLocator()->service("RootHistSvc", is);
-      } else if ( histPersName == "HBOOK" ) {
-	sc = serviceLocator()->service("HbookHistSvc", is);
-      }
-
-      if (sc.isFailure()) {
-        error() << "could not locate actual Histogram persistency service"
-                << endmsg;
+      Service *s = dynamic_cast<Service*>(is);
+      if (s == 0) {
+	error() << "Could not dcast HistPersSvc to a Service"
+		<< endmsg;
       } else {
-	Service *s = dynamic_cast<Service*>(is);
-	if (s == 0) {
-	  error() << "Could not dcast HistPersSvc to a Service"
-                  << endmsg;
-	} else {
-	  const Property &prop = s->getProperty("OutputFile");
-	  std::string val;
-	  try {
-	    const StringProperty &sprop = dynamic_cast<const StringProperty&>( prop );
+	const Property &prop = s->getProperty("OutputFile");
+	std::string val;
+	try {
+	  const StringProperty &sprop = dynamic_cast<const StringProperty&>( prop );
+	  val = sprop.value();
+	} catch (...) {
+	  verbose() << "could not dcast OutputFile property to a StringProperty."
+		    << " Need to fix Gaudi."
+		    << endmsg;
+	  val = prop.toString();
+	}
 
-	    val = sprop.value();
-
-	  } catch (...) {
-	    verbose() << "could not dcast OutputFile property to a StringProperty."
-                      << " Need to fix Gaudi."
-                      << endmsg;
-
-	    val = prop.toString();
-
-	    //	    val.erase(0,val.find(":")+1);
-	    //	    val.erase(0,val.find("\"")+1);
-	    //	    val.erase(val.find("\""),val.length());
-	  }
-
-	  if (val != "" && 
-	      val != "UndefinedROOTOutputFileName" && 
-	      val != "UndefinedHbookOutputFileName" ) {
-	    m_writeHists = true;
-	  }
-
+	if (val != "" &&
+	    val != "UndefinedROOTOutputFileName" &&
+	    val != "UndefinedHbookOutputFileName" ) {
+	  m_writeHists = true;
 	}
       }
     }
-    
-
   }  else { if (msgLevel(MSG::DEBUG)) {
       debug() << "Histograms saving not required." 
               << endmsg; }
@@ -351,6 +335,12 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   m_incidentSvc->addListener(this,"BeforeFork",0);
 
   CHECK( m_conditionsCleaner.retrieve() );
+
+  // Print if we override the event number using the one from secondary event
+  if (m_useSecondaryEventNumber)
+  {
+    info() << "Using secondary event number." << endmsg;
+  }
 
   return sc;
 }
@@ -555,22 +545,6 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
 }
 
 //=========================================================================
-// Run the algorithms beginRun hook
-//=========================================================================
-StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms() {
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
-// Run the algorithms endRun hook
-//=========================================================================
-StatusCode AthenaHiveEventLoopMgr::endRunAlgorithms() {
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
 // Call sysInitialize() on all algorithms and output streams
 //=========================================================================
 StatusCode AthenaHiveEventLoopMgr::initializeAlgorithms() {
@@ -627,7 +601,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent( EventContext &&ctx )
       conditionsRun = (*attr)["ConditionsRun"].data<unsigned int>();
     }
   }
-  ctx.template getExtension<Atlas::ExtendedEventContext>().setConditionsRun (conditionsRun);
+  Atlas::getExtendedEventContext(ctx).setConditionsRun (conditionsRun);
   Gaudi::Hive::setCurrentContext ( ctx );
 
   // Record EventContext in current whiteboard
@@ -765,9 +739,22 @@ StatusCode AthenaHiveEventLoopMgr::stopRun() {
 //-----------------------------------------------------------------------------
 StatusCode AthenaHiveEventLoopMgr::stop()
 {
-  // Need to be sure we have a valid EventContext during stop()))).
+  // To enable conditions access during stop we set an invalid EventContext
+  // (no event/slot number) but with valid EventID (and extended EventContext).
+  m_lastEventContext.setValid(false);
   Gaudi::Hive::setCurrentContext( m_lastEventContext );
+
   StatusCode sc = MinimalEventLoopMgr::stop();
+
+  // If we exit the event loop early due to an error, some event stores
+  // may not have been cleared.  This can lead to segfaults later,
+  // as DetectorStore will usually get finalized before HiveSvcMgr.
+  // So make sure that all stores have been cleared at this point.
+  size_t nslot = m_whiteboard->getNumberOfStores();
+  for (size_t islot = 0; islot < nslot; islot++) {
+    sc &= clearWBSlot (islot);
+  }
+
   Gaudi::Hive::setCurrentContext( EventContext() );
   return sc;
 }
@@ -1103,24 +1090,31 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
     
         // an option to override primary eventNumber with the secondary one in case of DoubleEventSelector
         if ( m_useSecondaryEventNumber ) {
+            unsigned long long eventNumberSecondary{};
             if ( !(pAttrList->exists("hasSecondaryInput") && (*pAttrList)["hasSecondaryInput"].data<bool>()) ) {
                 fatal() << "Secondary EventNumber requested, but secondary input does not exist!" << endmsg;
                 return -1;
             }
             if ( pAttrList->exists("EventNumber_secondary") ) {
-                eventNumber = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
+                eventNumberSecondary = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
             }
             else {
                 // try legacy EventInfo if secondary input did not have attribute list
                 // primary input should not have this EventInfo type
                 const EventInfo* pEventSecondary = eventStore()->tryConstRetrieve<EventInfo>();
                 if (pEventSecondary) {
-                    eventNumber = pEventSecondary->event_ID()->event_number();
+                    eventNumberSecondary = pEventSecondary->event_ID()->event_number();
                 }
                 else {
                     fatal() << "Secondary EventNumber requested, but it does not exist!" << endmsg;
                     return -1;
                 }
+            }
+            if (eventNumberSecondary != 0) {
+                if (m_doEvtHeartbeat) {
+                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "<<<===" << endmsg;
+                }
+                eventNumber = eventNumberSecondary;
             }
         }
     
@@ -1133,8 +1127,8 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
     
     if (!pEvent) {
         // Retrieve the Event object
-        sc = eventStore()->retrieve(pEvent);
-        if( !sc.isSuccess() ) {
+        pEvent = eventStore()->tryConstRetrieve<EventInfo>();
+        if( !pEvent ) {
          
           // Try to get the xAOD::EventInfo
           const xAOD::EventInfo* pXEvent{nullptr};
@@ -1205,7 +1199,8 @@ EventContext AthenaHiveEventLoopMgr::createEventContext() {
             << " could not be selected for the WhiteBoard" << endmsg;
     return EventContext{};       // invalid EventContext
   } else {
-    ctx.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
+    Atlas::setExtendedEventContext(ctx,
+                                   Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
 
     debug() << "created EventContext, num: " << ctx.evt()  << "  in slot: " 
 	    << ctx.slot() << endmsg;
@@ -1280,6 +1275,9 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
 
     // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
     // 					 *thisFinishedEvtContext ));
+    
+    // Some code still needs global context in addition to that passed in the incident
+    Gaudi::Hive::setCurrentContext( *thisFinishedEvtContext );
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, *thisFinishedEvtContext ));
 
     debug() << "Clearing slot " << thisFinishedEvtContext->slot() 

@@ -1,0 +1,338 @@
+2019-10-20 Eric Torrence <torrence@cern.ch>
+	* Properly moved everything to git
+	* Made changes to bring code into ATLAS code guidelines
+	* App now compiled as iLumiCalc not iLumiCalc.exe
+	* Call this LumiCalc-00-05-01
+
+2019-03-06 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	* Add OflLumi-HI-007 tag for 2018 HI PbPb data
+	* Call this LumiCalc-00-04-35 - no longer tracked in SVN, but useful to have a version number
+
+2019-02-19 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	* Add OflLumi-13TeV-010 tag for 2018
+	* Call this LumiCalc-00-04-34 - no longer tracked in SVN, but useful to have a version number
+
+2019-01-16 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	* Add OflLumi-HI-006 tag
+	* Tag as LumiCalc-00-04-33
+
+2018-11-13 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	* Add 900 GeV tag
+	* Tag as LumiCalc-00-04-32
+
+2018-9-17 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	* Final 2015 5TeV pp tag (OflLumi-5TeV-003)
+	* Tag as LumiCalc-00-04-31
+
+2018-2-17 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	* Final 2017 tag (OflLumi-13TeV-010)
+	* Tag as LumiCalc-00-04-30
+
+2018-1-23 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	* Add new LAr noise tags
+	* Tag as LumiCalc-00-04-29
+
+2017-12-14 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	M       src/LumiCalculator.cxx
+	M       LumiCalc/LumiCalculator.h
+	* Fix error in 5 TeV tag, LumiCalculator small cleanup
+	* Tag as LumiCalc-00-04-28
+
+2017-12-04 Eric Torrence <torrence@cern.ch>
+	M       src/LumiCalculator.cxx
+	M       LumiCalc/LumiCalculator.h
+	* Handle multiple L1 triggers
+	* Tag as LumiCalc-00-04-27
+
+2017-10-10 Eric Torrence <torrence@cern.ch>
+	M       src/LumiCalculator.cxx
+	* Update mu range to 100 in histogram
+	* Tag as LumiCalc-00-04-25
+
+2017-07-14 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Final 2016 update
+	* Tag as LumiCalc-00-04-25
+
+2017-02-14 Eric Torrence <torrence@cern.ch>
+	M       python/LumiCalcWorking.py
+	M       html/index.html
+	* Moriond17 update
+	* Tag as LumiCalc-00-04-24
+
+2016-11-03 Eric Torrence <torrence@cern.ch>
+	A       python/LumiCalcRecover.py
+	M       python/LumiCalcWorking.py
+	M       python/LumiCalcHtml.py
+	M       share/runLumiCalc.sh
+	M       html/index.html
+	* Attempt to recover from CGI timeouts
+	* Tag as LumiCalc-00-04-23
+
+2016-09-06 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Update 2015 PbPb
+	* Tag as LumiCalc-00-04-22
+
+2016-07-20 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Update 2015 PbPb
+	* Tag as LumiCalc-00-04-21
+
+2016-07-15 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Update recommendation for new 2016 tag
+	* Tag as LumiCalc-00-04-20
+
+2016-07-14 Eric Torrence <torrence@cern.ch>
+	M       src/LumiCalculator.cxx
+	* Add string to ntuple to store lumi tag version
+	* Tag as LumiCalc-00-04-19
+
+2016-07-13 Eric Torrence <torrence@cern.ch>
+	M       src/LumiCalculator.cxx
+	* Fix bug with run 281385 livefraction
+	* Tag as LumiCalc-00-04-18
+
+2016-07-06 Eric Torrence <torrence@cern.ch>
+	M       src/iLumiCalc.cxx
+	* Fix bug with command-line runs
+	* Tag as LumiCalc-00-04-17
+
+2016-07-05 Eric Torrence <torrence@cern.ch>
+	M       share/runLumiCalc.sh
+	M       html/index.html
+	M       src/LumiCalculator.cxx
+	* Fix bug in disabled L1 triggers
+	* Tag as LumiCalc-00-04-16
+
+2016-05-17 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       html/index.html
+	* Add OflLumi-13TeV-004 as final 2015 pp result
+	* Tag as LumiCalc-00-04-15
+
+2016-03-27 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	M       src/LumiCalculator.cxx
+	* Make warnings more verbose
+	* Tag as LumiCalc-00-04-14
+
+2016-03-27 Eric Torrence <torrence@cern.ch>
+	M       html/version.html
+	* Fix version string
+	* Tag as LumiCalc-00-04-13
+
+2016-03-27 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	M       src/LumiCalculator.cxx
+	* Add hack to fix livefraction in run 281385
+	* Fix validity flag to accept values > 1000
+	* Tag as LumiCalc-00-04-12
+
+2016-02-20 Eric Torrence <torrence@cern.ch>
+	M       src/LumiCalculator.cxx
+	* Add hack to fix livefraction in run 286367
+	* Tag as LumiCalc-00-04-11
+
+2016-01-08 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Add final OflLumi-8TeV-004 tag for 2012
+	* Tag as LumiCalc-00-04-10
+
+2015-12-01 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Add None officially to the tag list
+	* Tag as LumiCalc-00-04-09
+
+2015-12-01 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Add link to new 2015 pp luminosity tag
+	* Tag as LumiCalc-00-04-08
+
+2015-07-13 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Add new offline lumi tag
+	* Tag as LumiCacl-00-04-07
+
+2015-07-07 Eric Torrence <torrence@cern.ch>
+	M       share/runLumiCalc.sh
+	M       html/version.html
+	M       html/index.html
+	M       README.aiatlas
+	* Add new tag to web page
+	* Tag as LumiCalc-00-04-06
+
+2015-06-18 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	M       src/LumiCalculator.cxx
+	* Fixed decoding of trigger prescales for Run2
+	* Tag as LumiCalc-00-04-05
+
+2015-06-16 Eric Torrence <torrence@cern.ch>
+	M       share/runLumiCalc.sh
+	M       src/CoolQuery.cxx
+	* Tag as LumiCalc-00-04-04
+
+2015-06-13 Eric Torrence <eric.torrence@cern.ch>
+	M       cmt/requirements
+	M	LumiCalc/CoolQuery.h
+	* Put LumiBlockCollection back into library to avoid compilation errors in clients
+	* Tag as LumiCalc-00-04-03
+
+2015-06-09 Marjorie Shapiro <mdshapiro@lbl.gov>
+	M       ../../LumiBlock/LumiCalc/cmt/requirements
+	M       ../../LumiBlock/LumiCalc/src/LumiCalculator.cxx
+	M       ../../LumiBlock/LumiCalc/src/iLumiCalc.cxx
+	M       ../../LumiBlock/LumiCalc/src/iLumiCalc.h
+	M       ../../LumiBlock/LumiCalc/LumiCalc/LumiCalculator.h
+	M       ../../LumiBlock/LumiCalc/LumiCalc/CoolQuery.h
+	* Update to use Run 2 LumiBlockRangeContainer instead of Run 1 LumiBlockCollection
+	* Tag as LumiCalc-00-04-02
+
+2015-04-01 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	M       src/LumiCalculator.cxx
+	M       src/cmdline.cxx
+	* Updates for Run2
+	* Tag as LumiCalc-00-04-01
+
+2015-03-31 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	M       html/version.html
+	* Add new OflLumi-HI-003 tag
+	* Tag as LumiCalc-00-03-07
+
+2015-03-20  scott snyder  <snyder@bnl.gov>
+	* Tagging LumiCalc-00-03-06.
+	* LumiCalc/LumiCalculator.h: Fix header guard.
+	* src/iLumiCalc.cxx: Fix clang warning: remove spurious parens.
+
+2015-01-21 Eric Torrence <torrence@cern.ch>
+	M       src/LumiCalculator.cxx
+	M       src/CoolQuery.cxx
+	* Fix more coverity bugs
+	* Tag as LumiCalc-00-03-05
+
+2014-11-23 Eric Torrence <torrence@cern.ch>
+	M       src/LumiCalculator.cxx
+	M       src/CoolQuery.cxx
+	M       LumiCalc/CoolQuery.h
+	* Fix coverity bugs
+	* Tag as LumiCalc-00-03-04
+
+2014-10-19 Eric Torrence <torrence@cern.ch>
+	M       html/index.html - final 2.76 luminosity
+	* Tag as LumiCalc-00-03-03
+
+2014-10-08 Eric Torrence <torrence@cern.ch>
+	M       python/LumiCalcHtml.py
+	M       html/index.html
+	A       config
+	A       config/25-lumicalc-vhost.conf
+	A       config/README
+	Final touches to prepare deployment on new server architecture
+	* Tag as LumiCalc-00-03-02
+
+2014-10-08 Eric Torrence <torrence@cern.ch>
+	Tag changes from Marjorie as LumiCalc-00-03-01
+	U    src/iLumiCalc.cxx
+	U    src/LumiBlockCollectionConverter.cxx
+
+2014-10-01 Eric Torrence <torrence@cern.ch>
+	Many changes to html code to prepare for migration to new server architecture
+	* Tag as LumiCalc-00-03-00
+
+2014-09-16 Eric Torrence <torrence@cern.ch>
+	M       src/ReplicaSorter.cxx
+	M       src/LumiCalculator.cxx
+	M       src/CoolQuery.cxx
+	M       src/LumiBlockCollectionConverter.cxx
+	M       src/iLumiCalc.h
+	M       LumiCalc/LumiCalculator.h
+	M       LumiCalc/CoolQuery.h
+	* Move LumiCalculator code here from LumiBlockComps
+	* Tag as LumiCalc-00-02-00
+
+2013-01-17 Eric Torrence <torrence@cern.ch>
+        M       python/LumiCalcHtml.py
+	M       share/parseLogTest.py
+	M       html/index.html
+	* Add CSV file of lumi table
+	* Tag as LumiCalc-00-01-03
+
+2012-12-13 Eric Torrence <torrence@cern.ch>
+	M       python/LumiCalcHtml.py
+	A       python/__init__.py
+	A       share/parseLogTest.py
+	M       cmt/requirements
+	* Fix bug in parsing small lumi values
+	* Add utility script to test parsing of output file directly
+	* Tag as LumiCalc-00-01-02
+	
+2012-08-30 Eric Torrence <torrence@cern.ch>
+        M       html/index.html
+	* Add new LAr tag for Oct. 2012 reprocessing
+	* Tag as LumiCalc-00-01-01
+	
+2012-08-30 Eric Torrence <torrence@cern.ch>
+        M       python/LumiCalcHtml.py
+	M       html/index.html
+	* Add options to handle LumiBlockComps-00-10-01
+	* Tag as LumiCalc-00-01-00
+	
+2012-05-02 Eric Torrence <torrence@cern.ch>
+        M       html/index.html
+	* Make OflLumi-8TeV-002 preferred
+	* Tag as LumiCalc-00-00-07
+	
+2012-05-01 Eric Torrence <torrence@cern.ch>
+        M       html/index.html
+	* Updates for new lumi tag
+	* Tag as LumiCalc-00-00-06
+	
+2012-05-01 Eric Torrence <torrence@cern.ch>
+	M       html/index.html
+	* Update for 2012
+	* Tag as LumiCalc-00-00-05
+	
+2011-09-07 Eric Torrence <torrence@cern.ch>
+        M       python/LumiCalcWorking.py
+	M       python/LumiCalcHtml.py
+	M       share/runLumiCalc_dev.sh
+	M       share/runLumiCalc.sh
+	M       html/footer.html
+	M       html/index.html
+	M       html/header.html
+	* Add options for LAr EventVeto and general cleanup
+ 	* Tag as LumiCalc-00-00-04
+
+2011-09-01 Eric Torrence <torrence@cern.ch>
+	* Fix non-secure image locations
+	* Tag as LumiCalc-00-00-03
+	
+2011-08-31 Eric Torrence <torrence@cern.ch>
+	* Move documentation from LumiBlockComps
+	* Tag as LumiCalc-00-00-02
+	
+2011-08-30 Eric Torrence <torrence@cern.ch>
+	* Import lumicalc web page files from LumiBlockComps
+	* Tag as LumiCalc-00-00-01
+	
+*** Please write the latest changes at the TOP of this file ***

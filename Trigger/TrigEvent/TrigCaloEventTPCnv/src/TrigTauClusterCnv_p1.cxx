@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigTauCluster.h"
@@ -8,7 +8,7 @@
 
 void TrigTauClusterCnv_p1 :: persToTrans( const TrigTauCluster_p1 *persObj,
                                             TrigTauCluster    *transObj,
-                                            MsgStream& log )
+                                            MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterCnv_p1::persToTrans" << endmsg;
@@ -24,37 +24,16 @@ void TrigTauClusterCnv_p1 :: persToTrans( const TrigTauCluster_p1 *persObj,
   transObj->setStripWidth        (persObj->m_stripWidth)    ;
   transObj->setStripWidthOffline (persObj->m_EMenergyWidth[1])    ;
 
-  fillTransFromPStore( &m_trigCaloClusterCnv, persObj->m_trigCaloCluster, transObj, log );
+  ITPConverterFor<TrigCaloCluster>*    cnv = nullptr;
+  fillTransFromPStore( &cnv, persObj->m_trigCaloCluster, transObj, log );
 
   transObj->setEta(persObj->m_Eta);
   transObj->setPhi(persObj->m_Phi);
-/*
-  const TrigTauClusterDetails* pDetails = transObj->clusterDetails();
-
-  for( int i=0; i<NUMEMSAMP; i++ ){
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setEMRadius(i,persObj->m_EMRadius[i]);
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setEMenergyWide(i,persObj->m_EMenergyNor[i]);
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setEMenergyNarrow(i,persObj->m_EMenergyNar[i]);
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setEMenergyMedium(i,persObj->m_EMenergyWid[i]);
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setEMenergyWidth(i,persObj->m_EMenergyWidth[i]);
-
-  }
-
-  for( int i=0; i<NUMHADSAMP; i++ ){
-//    (const_cast<TrigTauClusterDetails&> (*pDetails)).setHADRadius(i,persObj->m_HADRadius[i]);
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setHADenergyWide(i,persObj->m_HADenergyNor[i]);
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setHADenergyNarrow(i,persObj->m_HADenergyNar[i]);
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setHADenergyMedium(i,persObj->m_HADenergyWid[i]);
-    (const_cast<TrigTauClusterDetails&> (*pDetails)).setHADenergyWidth(i,persObj->m_HADenergyWidth[i]);
-
-  }
-
-*/
 }
 
 void TrigTauClusterCnv_p1 :: transToPers( const TrigTauCluster */*transObj*/,
                                           TrigTauCluster_p1 */*persObj*/,
-					  MsgStream& log )
+					  MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterCnv_p1::transToPers" << endmsg;

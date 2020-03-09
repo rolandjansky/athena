@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/**
+ * @file  HiveAlgV.h
+ * @brief Simple Algorithm that reads an array of HiveDataObjs, and then
+ * writes an array of them
+ */
 
 #ifndef ATHEXHIVE_ALGF_V
 #define ATHEXHIVE_ALGF_V 1
@@ -9,7 +15,6 @@
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "StoreGate/WriteHandleKeyArray.h"
 #include "AthExHive/HiveDataObj.h"
-#include "rGen.h"
 
 #include <string>
 
@@ -36,10 +41,14 @@ private:
   SG::ReadHandleKeyArray<HiveDataObj> m_rhv {
     this, "Key_RV", {"a1","a2","d1","e1","c1"},
     "Array of ReadHandleKey<HiveDataObj>" };
+
   SG::WriteHandleKeyArray<HiveDataObj> m_whv {
     this, "Key_WV", {}, "Array of WriteHandleKey<HiveDataObj>" };
 
+  // do the actual reading of the ReadHandleArray
   StatusCode read() const;
+
+  // do the actual writing of the ReadHandleArray
   void write();
    
 };

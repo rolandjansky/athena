@@ -22,7 +22,3 @@ atlas_add_poolcnv_library( EventCommonAthenaPoolPoolCnv
                            src/*.cxx
                            FILES EventKernel/INavigable4Momentum.h NavFourMom/INav4MomLinkContainer.h NavFourMom/IParticleLinkContainer.h NavFourMom/I4MomentumContainer.h NavFourMom/INavigable4MomentumCollection.h NavFourMom/IParticleContainer.h NavFourMom/INav4MomAssocs.h
                            LINK_LIBRARIES AthenaPoolUtilities DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv EventKernel NavFourMom GaudiKernel )
-
-# Install files from the package:
-atlas_install_headers( EventCommonAthenaPool )
-

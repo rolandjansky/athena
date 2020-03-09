@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODMissingETAuxAssociationMapCnv_v1.cxx 693797 2015-09-08 22:06:19Z khoo $
@@ -36,9 +36,7 @@ using namespace MissingETBase;
 using namespace MissingETBase::Types;
 
 xAODMissingETAuxAssociationMapCnv_v1::xAODMissingETAuxAssociationMapCnv_v1()
-  : T_AthenaPoolTPCnvBase< xAOD::MissingETAuxAssociationMap,
-                           xAOD::MissingETAuxAssociationMap_v1 >() {
-
+{
 }
 
 bool maskSumptSort(const std::pair<bitmask_t,constvec_t>& p1, const std::pair<bitmask_t,constvec_t>& p2) {
@@ -51,7 +49,7 @@ bool maskSumptSort(const std::pair<bitmask_t,constvec_t>& p1, const std::pair<bi
 void xAODMissingETAuxAssociationMapCnv_v1::
 persToTrans( const xAOD::MissingETAuxAssociationMap_v1* oldObj,
              xAOD::MissingETAuxAssociationMap* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::MissingETAuxAssociationMap_v1 to current version..." );
@@ -221,7 +219,7 @@ persToTrans( const xAOD::MissingETAuxAssociationMap_v1* oldObj,
 void xAODMissingETAuxAssociationMapCnv_v1::
 transToPers( const xAOD::MissingETAuxAssociationMap*,
              xAOD::MissingETAuxAssociationMap_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODMissingETAuxAssociationMapCnv_v1::transToPers"

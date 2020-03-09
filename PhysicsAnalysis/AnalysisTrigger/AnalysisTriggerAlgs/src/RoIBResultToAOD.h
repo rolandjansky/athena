@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: RoIBResultToAOD.h 452138 2011-08-04 11:10:41Z krasznaa $
@@ -19,7 +19,6 @@
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // Forward declaration(s):
-class StoreGateSvc;
 class LVL1_ROI;
 namespace ROIB {
   class RoIBResult;

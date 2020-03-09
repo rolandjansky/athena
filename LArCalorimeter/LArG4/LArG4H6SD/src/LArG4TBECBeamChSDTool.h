@@ -15,7 +15,7 @@ public:
   LArG4TBECBeamChSDTool(const std::string& type, const std::string& name, const IInterface *parent);
   ~LArG4TBECBeamChSDTool() {}
 
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif // __LArG4H8CalibSD_H__

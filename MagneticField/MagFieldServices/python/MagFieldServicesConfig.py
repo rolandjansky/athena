@@ -1,42 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JobOption fragment to set up the AtlasFieldSvc
 # Valerio Ippolito - Harvard University
 
 # inspired by https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonCnv/MuonCnvExample/trunk/python/MuonCalibConfig.py
 
-from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s", __name__)
-
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaCommon.GlobalFlags import GlobalFlags
-from AthenaCommon import CfgMgr
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
 
-#--------------------------------------------------------------
-
-def AtlasFieldSvc(name="AtlasFieldSvc",**kwargs):
-  if athenaCommonFlags.isOnline():
-    kwargs.setdefault( "UseDCS", False )
-    kwargs.setdefault( "UseSoleCurrent", 7730 )
-    kwargs.setdefault( "UseToroCurrent", 20400 )
-  else:
-    kwargs.setdefault( "UseDCS", True )
-  
-  return CfgMgr.MagField__AtlasFieldSvc(name,**kwargs)
-
-def H8FieldSvc(name="H8FieldSvc",**kwargs):
-  return CfgMgr.MagField__H8FieldSvc(name,**kwargs)
-
-def GetFieldSvc(name="AtlasFieldSvc",**kwargs):
-  if GlobalFlags.DetGeo == 'ctbh8':
-    return H8FieldSvc(name, **kwargs)
-  else:
-    return AtlasFieldSvc(name, **kwargs)
-    
 # The magneticfields is going to need a big update for MT, so this is all temporary. Ed
-def MagneticFieldSvcCfg(flags):
+def MagneticFieldSvcCfg(flags, **kwargs):
     result=ComponentAccumulator()
     
     # initialise required conditions DB folders
@@ -51,20 +24,19 @@ def MagneticFieldSvcCfg(flags):
         db='GLOBAL'
         
     result.merge(addFolders(flags,['/GLOBAL/BField/Maps <noover/>'],detDb=db) )
-    result.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps'] # TODO fixme?
         
     if not flags.Common.isOnline:
         result.merge(addFolders(flags, ['/EXT/DCS/MAGNETS/SENSORDATA'], detDb='DCS_OFL', className="CondAttrListCollection") )
             
-    kwargs={}
-        
     if flags.Common.isOnline:
       kwargs.setdefault( "UseDCS", False )
       kwargs.setdefault( "UseSoleCurrent", 7730 )
       kwargs.setdefault( "UseToroCurrent", 20400 )
     else:
       kwargs.setdefault( "UseDCS", True )
-    mag_field_svc = MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs)  
+
+
+    mag_field_svc = CompFactory.MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs)  
     result.addService(mag_field_svc,primary=True)
     return result 
     
@@ -93,6 +65,6 @@ if __name__=="__main__":
 
 
           
-    f=open("MagneticFieldSvc.pkl","w")
+    f=open("MagneticFieldSvc.pkl","wb")
     cfg.store(f)
     f.close()

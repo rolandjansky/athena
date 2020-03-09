@@ -10,7 +10,7 @@ RPCSensitiveDetectorTool::RPCSensitiveDetectorTool(const std::string& type, cons
 {
 }
 
-G4VSensitiveDetector* RPCSensitiveDetectorTool::makeSD()
+G4VSensitiveDetector* RPCSensitiveDetectorTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   return new RPCSensitiveDetector(name(), m_outputCollectionNames[0]);

@@ -1,15 +1,16 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 testChains = ["HLT_g5_etcut"]
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
 theFastCaloAlgo=T2CaloEgamma_ReFastAlgo("FastCaloAlgo" )
 theFastCaloAlgo.ClustersName="L2CaloClusters"
-svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
  
 from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
@@ -28,7 +29,6 @@ def createFastCaloSequence(rerun=False):
    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
    clusterMaker=T2CaloEgamma_ReFastAlgo( "FastClusterMaker" )
    clusterMaker.ClustersName="L2CaloClusters"
-   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
    fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker ])
 
@@ -131,10 +131,10 @@ from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
 mon = TrigSignatureMoniMT()
 mon.FinalDecisions = [ "PhotonL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
-mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
+mon.HLTTriggerMenu = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 
 import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 topSequence.remove( StreamESD )
 
@@ -144,7 +144,7 @@ def addTC(name):
 for tc in edmCreator.TrigCompositeContainer:
    addTC( tc )
 
-addTC("HLTSummary")
+addTC("HLTNav_Summary")
 
 StreamESD.ItemList += [ "xAOD::TrigPhotonContainer#HLT_photons"]
 

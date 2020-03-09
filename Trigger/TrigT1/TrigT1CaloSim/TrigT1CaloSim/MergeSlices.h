@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALO_MERGESLICES_H
@@ -11,8 +11,6 @@
 #include "AthContainers/DataVector.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-class StoreGateSvc;
 
 namespace LVL1 {
 

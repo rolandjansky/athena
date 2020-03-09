@@ -10,7 +10,7 @@ GenericMuonSensitiveDetectorTool::GenericMuonSensitiveDetectorTool(const std::st
 {
 }
 
-G4VSensitiveDetector* GenericMuonSensitiveDetectorTool::makeSD()
+G4VSensitiveDetector* GenericMuonSensitiveDetectorTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   return new GenericMuonSensitiveDetector(name(), m_outputCollectionNames[0]);

@@ -35,7 +35,6 @@
 #include "LArElecCalib/ILArOFC.h" 
 
 #include "LArRawConditions/LArRampMC.h" 
-#include "LArRawConditions/LArShapeMC.h" 
 #include "LArRawConditions/LArConditionsChannelSet.h" 
 
 
@@ -338,64 +337,6 @@ StatusCode LArCondDataTest::finalize()
 
   if(!m_fixShape)
     return StatusCode::SUCCESS; 
-
-  ATH_MSG_DEBUG ( " fix LArShapeMC ");
-
-  const LArShapeMC* shape  = 0;
-  ATH_CHECK( detStore()->retrieve(shape) );
-
-  LArShapeMC* newShape= new LArShapeMC();
-  newShape->setGroupingType( LArShapeMC::SingleGroup );
-  ATH_CHECK( newShape->initialize() );
-  ATH_CHECK( detStore()->record(newShape,"LArFullShape") );
-
-  for(unsigned int g=0;g<3;++g)
-  {
-     LArShapeMC::ConstConditionsMapIterator  it = shape->begin( g )  ; 
-     LArShapeMC::ConstConditionsMapIterator  it_e = shape->end( g )  ; 
-
-     for(;it!=it_e;++it)
-	{
-	 LArShapeP1  t = *it; 
-
-         unsigned int feb_id = it.getFebId();
-         unsigned int chan_id = it.getChannel();
-         HWIdentifier hw_chan_id =
-	  m_onlineID->channel_Id(HWIdentifier(feb_id),chan_id);
-
-	 if(hw_chan_id!=it.channelId()) {
-           ATH_MSG_DEBUG( " no match ");
-           m_onlineID->print(hw_chan_id);
-           m_onlineID->print(it.channelId());
-           continue ;  
-	 } 
-
-         HWIdentifier hw_id = it.channelId(); 
-          HWIdentifier new_id = hw_id;
-          if(m_onlineID->barrel_ec(hw_id)==1)
-	  { // endcap 
-	   int ft = m_onlineID->feedthrough(hw_id) ; 
-	   if(ft==6)
-	     { // FCAL ft
-	     int slot = m_onlineID->slot(hw_id);
-	     if(slot>=8)
-		{ // this one needs fix
-		 std::cout<<" Fixin id , old and new "<<std::endl;
-		 m_onlineID->print(hw_id);
-	 	 int pn = m_onlineID->pos_neg(hw_id);
-	 	 int chan = m_onlineID->channel(hw_id);
-		 slot = slot +1 ;	
-		 new_id = m_onlineID->channel_Id(1,pn,ft,slot,chan);
-		 m_onlineID->print( new_id );
-		}
-	      }
-	   }
-           
-	  newShape->setPdata(it.channelId(),t,g);
-	}     
-
-  }
-
 
   return StatusCode::SUCCESS; 
 

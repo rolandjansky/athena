@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
 #include <map>
@@ -35,7 +35,7 @@ namespace LVL1 {
 L1JetCMXTools::L1JetCMXTools(const std::string &type, const std::string &name,
                              const IInterface *parent)
     : AthAlgTool(type, name, parent),
-      m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name), m_crates(2),
+      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name), m_crates(2),
       m_modules(16), m_maxTobs(4), m_sysCrate(1), m_debug(false) {
   declareInterface<IL1JetCMXTools>(this);
   declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");

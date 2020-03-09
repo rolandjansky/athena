@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -12,7 +12,6 @@
 //-----------------------------------------------------------------------------
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
-//#include "CaloGeoHelpers/CaloSampling.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODJet/Jet.h"
 
@@ -27,7 +26,6 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
-
     TauRecToolBase(name)
     , m_clusterEtCut(500.)
 {
@@ -45,9 +43,6 @@ TauPi0ClusterCreator::~TauPi0ClusterCreator()
 
 StatusCode TauPi0ClusterCreator::initialize() 
 {
-
-  ATH_CHECK( m_pi0ClusterInputContainer.initialize() );
-  
   return StatusCode::SUCCESS;
 }
 
@@ -56,14 +51,10 @@ StatusCode TauPi0ClusterCreator::finalize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0ClusterCreator::eventInitialize() 
-{
-
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
-							  xAOD::PFOContainer& hadronicClusterPFOContainer, xAOD::CaloClusterContainer& pi0CaloClusterContainer) 
+StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer,
+							  xAOD::PFOContainer& hadronicClusterPFOContainer,
+							  xAOD::CaloClusterContainer& pi0CaloClusterContainer,
+							  const xAOD::CaloClusterContainer& pPi0ClusterContainer)
 {
     // Any tau needs to have PFO vectors. Set empty vectors before nTrack cut
     vector<ElementLink<xAOD::PFOContainer> > empty;
@@ -75,45 +66,26 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
     // Any tau needs to have PanTauCellBasedProto 4mom. Set it to 0 before nTrack cut
     pTau.setP4(xAOD::TauJetParameters::PanTauCellBasedProto, 0.0, 0.0, 0.0, 0.0);
 
-    //---------------------------------------------------------------------
     // only run shower subtraction on 1-5 prong taus 
-    //---------------------------------------------------------------------
     if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
         return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG("ClusterCreator: new tau. \tpt = " << pTau.pt() << "\teta = " << pTau.eta() << "\tphi = " << pTau.phi() << "\tnprongs = " << pTau.nTracks());
 
-    //---------------------------------------------------------------------
-    // retrieve the CaloClusterContainer created by the CaloClusterMaker
-    //---------------------------------------------------------------------
-    const xAOD::CaloClusterContainer *pPi0ClusterContainer;
-    SG::ReadHandle<xAOD::CaloClusterContainer> pi0ClusterInHandle( m_pi0ClusterInputContainer );
-    if (!pi0ClusterInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << pi0ClusterInHandle.key());
-      return StatusCode::FAILURE;
-    }
-    pPi0ClusterContainer = pi0ClusterInHandle.cptr();
-
-    //---------------------------------------------------------------------
-    // TODO: May want to use tau vertex in the future to calculate some cluster moments (DELTA_THETA, etc.).
-    // Doesn't help now, since all moments are calculated wrt 0.0.0 atm.
-    //---------------------------------------------------------------------
-
-
     // Retrieve Ecal1 shots and match them to clusters
-    //---------------------------------------------------------------------
+    // pPi0ClusterContainer from CaloClusterMaker
     std::vector<const xAOD::PFO*> shotVector;
     unsigned nShots = pTau.nShotPFOs();
     for(unsigned iShot=0;iShot<nShots;++iShot){
         const xAOD::PFO* thisShot = pTau.shotPFO(iShot);
         shotVector.push_back( thisShot );
     }
-    std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap = getClusterToShotMap(shotVector, *pPi0ClusterContainer, pTau);
+    std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap = getClusterToShotMap(shotVector, pPi0ClusterContainer, pTau);
 
-    xAOD::CaloClusterContainer::const_iterator clusterItr   (pPi0ClusterContainer->begin()),
-                                               clusterItrEnd(pPi0ClusterContainer->end());
+    xAOD::CaloClusterContainer::const_iterator clusterItr   (pPi0ClusterContainer.begin()),
+                                               clusterItrEnd(pPi0ClusterContainer.end());
     for (; clusterItr != clusterItrEnd; ++clusterItr){
-        
+
         // selection
         if ((*clusterItr)->pt() < m_clusterEtCut)   continue;
         // Cluster container has clusters for all taus.
@@ -242,23 +214,6 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
         return StatusCode::FAILURE;
     }
 
-    return StatusCode::SUCCESS;
-}
-
-
-StatusCode TauPi0ClusterCreator::eventFinalize() 
-{
-    // pt sort container at the end of the event
-    // if(m_pOutputPi0CaloClusterContainer->size()) AnalysisUtils::Sort::pT(m_pOutputPi0CaloClusterContainer);
-
-    //----------------------------------------------------------------------
-    // Register cluster container in StoreGate
-    //----------------------------------------------------------------------
-  //CHECK( CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),
-  //m_pOutputPi0CaloClusterContainer,
-  //                                                m_outputPi0ClusterContainerName,
-  //                                                msg()));
-  
     return StatusCode::SUCCESS;
 }
 

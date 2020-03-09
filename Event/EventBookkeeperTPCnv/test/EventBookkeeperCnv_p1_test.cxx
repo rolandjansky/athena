@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,7 +14,6 @@
 #undef NDEBUG
 #include "EventBookkeeperTPCnv/EventBookkeeperCnv_p1.h"
 #include "CxxUtils/StrFormat.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
@@ -62,9 +61,9 @@ void testit (const EventBookkeeper& trans1)
 std::unique_ptr<EventBookkeeper> make (int o)
 {
   std::string ostr = CxxUtils::strformat ("%d", o);
-  auto p = CxxUtils::make_unique<EventBookkeeper> ("name" + ostr,
-                                                   "desc" + ostr,
-                                                   "logic" + ostr);
+  auto p = std::make_unique<EventBookkeeper> ("name" + ostr,
+                                              "desc" + ostr,
+                                              "logic" + ostr);
   p->setInputStream ("inp");
   p->setOutputStream ("out");
   p->setNAcceptedEvents (o*10);

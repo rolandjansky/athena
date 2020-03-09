@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaMonitoring
                           Control/AthContainers
-                          Control/SGTools
+                          Control/AthenaKernel
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -64,7 +64,7 @@ atlas_add_component( TrkValTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthContainers SGTools xAODTracking GaudiKernel TrkEventPrimitives TrkParameters TrkTrack TrkToolInterfaces TrkValEvent TrkValInterfaces CommissionEvent AtlasDetDescr EventInfo EventPrimitives GeneratorObjects TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParticleBase TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkExInterfaces TrkFitterUtils xAODTruth xAODJet xAODPFlow xAODCaloEvent xAODCore xAODEventInfo AsgTools AthenaKernel AthenaMonitoringLib)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthContainers AthenaKernel xAODTracking GaudiKernel TrkEventPrimitives TrkParameters TrkTrack TrkToolInterfaces TrkValEvent TrkValInterfaces CommissionEvent AtlasDetDescr EventInfo EventPrimitives GeneratorObjects TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParticleBase TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkExInterfaces TrkFitterUtils xAODTruth xAODJet xAODPFlow xAODCaloEvent xAODCore xAODEventInfo AsgTools AthenaKernel AthenaMonitoringLib)
 
 # Install files from the package:
 atlas_install_headers( TrkValTools )

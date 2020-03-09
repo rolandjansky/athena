@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENTDATAMODEL_GUID_H
@@ -12,6 +12,7 @@
 
 #include <iostream> // for std::ostream
 #include <string>
+#include <cstring>
 
 /** @class Guid
  *  @brief This class provides a encapsulation of a GUID/UUID/CLSID/IID data structure (128 bit number).
@@ -34,9 +35,7 @@ public:
          m_data1 = g.m_data1;
          m_data2 = g.m_data2;
          m_data3 = g.m_data3;
-         unsigned int* p = (unsigned int*)m_data4;
-         const unsigned int* q = (const unsigned int*)g.m_data4;
-         *p++ = *q++; *p = *q;
+         memcpy (m_data4, g.m_data4, sizeof (m_data4));
       }
       return *this;
    }

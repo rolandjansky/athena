@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonJiveXML/TrigRpcDataRetriever.h"
@@ -11,7 +11,6 @@
 
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
@@ -37,10 +36,10 @@ namespace JiveXML {
 
   StatusCode TrigRpcDataRetriever::initialize(){
 
-    StatusCode sc=detStore()->retrieve(m_rpcIdHelper);
+    StatusCode sc=m_muonIdHelperTool.retrieve();
     if (sc.isFailure())
       {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve RpcIdHelper!" << endmsg;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve MuonIdHelperTool!" << endmsg;
         return StatusCode::FAILURE;
       }  
 
@@ -68,12 +67,7 @@ namespace JiveXML {
     } else
         msg(MSG::INFO) << "Retrieved Tool " << m_rpcDecoder << endmsg;
 
-    // retrieve the muon detector manager
-    sc = detStore()->retrieve(m_muonMgr);
-    if (sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Can't retrieve the muon detector manager" << endmsg;
-     return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_DetectorManagerKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -128,6 +122,14 @@ namespace JiveXML {
     double time      = 0.                 ;
     double time1     = 0.                 ;
 
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return StatusCode::FAILURE; 
+    } 
+
+ 
     //loop on pad
     const DataHandle<RpcPad> itColl(firstRdoColl);
     for (; itColl!=lastRdoColl; ++itColl){
@@ -189,16 +191,16 @@ namespace JiveXML {
                   std::list<Identifier>::const_iterator it_list;
                   for (it_list=stripList.begin() ; it_list != stripList.end() ; ++it_list) {
                     Identifier stripOfflineId = *it_list;
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId " << m_rpcIdHelper->show_to_string(stripOfflineId)<< endmsg;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId " << m_muonIdHelperTool->rpcIdHelper().show_to_string(stripOfflineId)<< endmsg;
   
-                    const MuonGM::RpcReadoutElement* element = m_muonMgr->getRpcReadoutElement(stripOfflineId);
+                    const MuonGM::RpcReadoutElement* element = MuonDetMgr->getRpcReadoutElement(stripOfflineId);
                     char ChID[100];
                     snprintf(ChID, 100, "SL%d-Pad%d-CM%d-ijk%d-ch%d-time%d",sectorId,padId,cmaId,
                             rpcChan->ijk(),rpcChan->channel(),8*rpcChan->bcid()+rpcChan->time());  
                   
 		    //                    HepGeom::Point3D<double> globalPos = element->stripPos(stripOfflineId);
 		    Amg::Vector3D globalPos = element->stripPos(stripOfflineId);
-                    int measuresPhi = m_rpcIdHelper->measuresPhi(stripOfflineId);
+                    int measuresPhi = m_muonIdHelperTool->rpcIdHelper().measuresPhi(stripOfflineId);
                     double stripLength = element->StripLength(measuresPhi);
                     double stripWidth = element->StripWidth(measuresPhi);
 
@@ -208,7 +210,7 @@ namespace JiveXML {
                     lengthVec.push_back(DataType(stripLength/CLHEP::cm));
                     widthVec.push_back(DataType(stripWidth/CLHEP::cm));
                     identifierVec.push_back(DataType(ChID));
-		    idVec.push_back(DataType( m_rpcIdHelper->show_to_string(stripOfflineId) )); 
+		    idVec.push_back(DataType( m_muonIdHelperTool->rpcIdHelper().show_to_string(stripOfflineId) )); 
                     barcode.push_back(DataType(0));        
                   }
 		  delete digitVec;
@@ -240,9 +242,9 @@ namespace JiveXML {
                 std::list<Identifier>::const_iterator it_list1;
                 for (it_list1=stripList1.begin() ; it_list1 != stripList1.end() ; ++it_list1) {
                   Identifier stripOfflineId1 = *it_list1;
-                  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId1 " << m_rpcIdHelper->show_to_string(stripOfflineId1)<< endmsg;
+                  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId1 " << m_muonIdHelperTool->rpcIdHelper().show_to_string(stripOfflineId1)<< endmsg;
   
-                  const MuonGM::RpcReadoutElement* element1 = m_muonMgr->getRpcReadoutElement(stripOfflineId1);
+                  const MuonGM::RpcReadoutElement* element1 = MuonDetMgr->getRpcReadoutElement(stripOfflineId1);
 
                   char ChID1[100];
                   snprintf(ChID1,100, "SL%d-Pad%d-CM%d-ijk%d-ch%d-time%d",sectorId,padId,cmaId,
@@ -250,7 +252,7 @@ namespace JiveXML {
 
 		  //                  HepGeom::Point3D<double> globalPos1 = element1->stripPos(stripOfflineId1);
 		  Amg::Vector3D globalPos1 = element1->stripPos(stripOfflineId1);
-                  int measuresPhi1      = m_rpcIdHelper->measuresPhi(stripOfflineId1);
+                  int measuresPhi1      = m_muonIdHelperTool->rpcIdHelper().measuresPhi(stripOfflineId1);
                   double stripLength1   = element1->StripLength(measuresPhi1);
                   double stripWidth1    = element1->StripWidth(measuresPhi1);
  
@@ -260,7 +262,7 @@ namespace JiveXML {
                   lengthVec.push_back(DataType(stripLength1/CLHEP::cm));
                   widthVec.push_back(DataType(stripWidth1/CLHEP::cm));
                   identifierVec.push_back(DataType(ChID1));
-		  idVec.push_back(DataType( m_rpcIdHelper->show_to_string(stripOfflineId1) ));
+		  idVec.push_back(DataType( m_muonIdHelperTool->rpcIdHelper().show_to_string(stripOfflineId1) ));
                   barcode.push_back(DataType(0));        
                 }
                delete digitVec1;

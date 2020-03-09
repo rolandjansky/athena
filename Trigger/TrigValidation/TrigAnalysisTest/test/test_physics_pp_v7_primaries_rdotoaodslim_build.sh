@@ -3,19 +3,8 @@
 # art-description: Trigger v7 primaries RDO to AODSLIM
 # art-type: build
 # art-include: master/Athena
-# art-output: *check*
-# art-output: HLTChain.txt
-# art-output: HLTTE.txt
-# art-output: L1AV.txt
-# art-output: HLTconfig*.xml
-# art-output: L1Topoconfig*.xml
-# art-output: LVL1config*.xml
-# art-output: *.log
-# art-output: *.root
-# art-output: ntuple.pmon.gz
-# art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
-# art-output: *.regtest.new
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export NAME="physics_pp_v7_primaries_rdotoaodslim_build"
 export COST_MONITORING="False"

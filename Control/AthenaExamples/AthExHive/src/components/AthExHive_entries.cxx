@@ -5,26 +5,30 @@
 #include "../HiveAlgE.h"
 #include "../HiveAlgF.h"
 #include "../HiveAlgG.h"
-#include "../HiveAlgL1.h"
-#include "../HiveAlgL2.h"
-#include "../HiveAlgL3.h"
-#include "../HiveAlgM.h"
 #include "../HiveAlgV.h"
-#include "../HiveTool.h"
+
 #include "../HiveExSvc.h"
-#include "../ASCIICondDbSvc.h"
+
+#include "../loopTest/HiveAlgL1.h"
+#include "../loopTest/HiveAlgL2.h"
+#include "../loopTest/HiveAlgL3.h"
+#include "../loopTest/HiveAlgM.h"
+#include "../loopTest/HiveTool.h"
 
 #ifdef REENTRANT_GAUDI
   #include "../HiveAlgR.h"
 #endif
 
-#include "../AlgA.h"
-#include "../AlgB.h"
-#include "../AlgC.h"
-#include "../AlgD.h"
-#include "../AlgT.h"
-#include "../CondAlgX.h"
-#include "../CondAlgY.h"
+#include "../condEx/AlgA.h"
+#include "../condEx/AlgB.h"
+#include "../condEx/AlgC.h"
+#include "../condEx/AlgD.h"
+#include "../condEx/AlgE.h"
+#include "../condEx/AlgT.h"
+#include "../condEx/CondAlgX.h"
+#include "../condEx/CondAlgY.h"
+#include "../condEx/CondAlgZ.h"
+#include "../condEx/ASCIICondDbSvc.h"
 
 #include "../ThreadInitTool.h"
 
@@ -50,9 +54,11 @@ DECLARE_COMPONENT( AlgA )
 DECLARE_COMPONENT( AlgB )
 DECLARE_COMPONENT( AlgC )
 DECLARE_COMPONENT( AlgD )
+DECLARE_COMPONENT( AlgE )
 DECLARE_COMPONENT( AlgT )
 DECLARE_COMPONENT( CondAlgX )
 DECLARE_COMPONENT( CondAlgY )
+DECLARE_COMPONENT( CondAlgZ )
 
 DECLARE_COMPONENT( ThreadInitTool )
 DECLARE_COMPONENT( HiveTool )

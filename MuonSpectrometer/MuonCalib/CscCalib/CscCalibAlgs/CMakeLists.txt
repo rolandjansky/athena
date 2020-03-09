@@ -8,7 +8,6 @@ atlas_subdir( CscCalibAlgs )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/MinimalRunTime
-                          TestPolicy
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthContainers
@@ -18,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonCalib/CscCalib/CscCalibTools
                           MuonSpectrometer/MuonCnv/MuonCSC_CnvTools
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
+                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonRDO )
@@ -30,7 +30,7 @@ atlas_add_component( CscCalibAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib SGtests GaudiKernel CscCalibData MuonCondInterface MuonReadoutGeometry MuonIdHelpersLib MuonRDO )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib SGtests GaudiKernel CscCalibData MuonCondInterface MuonCondData MuonReadoutGeometry MuonIdHelpersLib MuonRDO )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

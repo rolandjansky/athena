@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FPVMAP_H
@@ -14,24 +14,22 @@ namespace MuonGM {
 typedef std::map<std::string,GeoVPhysVol* >::const_iterator DetectorIterator;
 
 class FPVMAP {
-// singleton
-private:
-    static FPVMAP* s_thePointer;
-    FPVMAP();
-    std::map<std::string,GeoVPhysVol* > m_Detectors;
-    int m_nreused;
-    
-
 public:
-    inline DetectorIterator Begin();
+  FPVMAP();
+  ~FPVMAP();
+     inline DetectorIterator Begin();
     inline DetectorIterator End();
     inline int              NDetectors();
     inline int              NDetectorsReused();
     
-    static FPVMAP* GetPointer();
     GeoVPhysVol* GetDetector(std::string name);
     void StoreDetector(GeoVPhysVol *s, std::string name);
     void PrintAllDetectors();
+private:
+
+    std::map<std::string,GeoVPhysVol* > m_Detectors;
+    int m_nreused;
+    
 };
 DetectorIterator FPVMAP::Begin()
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKCALOCLUSTERROI_H
@@ -52,7 +52,7 @@ namespace Trk {
       const Surface& associatedSurface() const;
      
       /** method to get the global Position */
-      const Amg::Vector3D globalPosition() const;
+      Amg::Vector3D globalPosition() const;
  
       double energy() const;
       

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -54,6 +54,7 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloCellIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 // xAOD
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -1038,36 +1039,32 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             electron->setTrackParticleLinks( el_trackLinks);
             electron->setCharge(electron->trackParticle()->charge());
             //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
-            float deltaEta = static_cast<float>(egRec->deltaEta(0));
-            float deltaPhi = static_cast<float>(egRec->deltaPhi(0));
-            float deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(0));
-            electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta0 );
-            electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi0 );
-            electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled0 );
+            std::array<double, 4> deltaEta = egRec->deltaEta();
+            std::array<double, 4> deltaPhi = egRec->deltaPhi();
+            std::array<double, 4> deltaPhiRescaled = egRec->deltaPhiRescaled();
 
-            deltaEta = static_cast<float>(egRec->deltaEta(1));
-            deltaPhi = static_cast<float>(egRec->deltaPhi(1));
-            deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(1));
-            electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta1 );
-            electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi1 );
-            electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled1);
+            electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[0]),xAOD::EgammaParameters::deltaEta0);
+            electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[0]),xAOD::EgammaParameters::deltaPhi0 );
+            electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[0]),
+                                             xAOD::EgammaParameters::deltaPhiRescaled0);
 
-            deltaEta = static_cast<float>(egRec->deltaEta(2));
-            deltaPhi = static_cast<float>(egRec->deltaPhi(2));
-            deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(2));
-            electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta2 );
-            electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi2 );
-            electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled2);
+            electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[1]), xAOD::EgammaParameters::deltaEta1);
+            electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[1]),xAOD::EgammaParameters::deltaPhi1 );
+            electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[1]),
+                                             xAOD::EgammaParameters::deltaPhiRescaled1);
 
-            deltaEta = static_cast<float>(egRec->deltaEta(3));
-            deltaPhi = static_cast<float>(egRec->deltaPhi(3));
-            deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(3));
-            electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta3 );
-            electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi3 );
-            electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled3);
+            electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[2]), xAOD::EgammaParameters::deltaEta2);
+            electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[2]),xAOD::EgammaParameters::deltaPhi2 );
+            electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[2]),
+                                             xAOD::EgammaParameters::deltaPhiRescaled2);
 
-            float deltaPhiLast = static_cast<float>(egRec->deltaPhiLast ());
-            electron->setTrackCaloMatchValue(deltaPhiLast,xAOD::EgammaParameters::deltaPhiFromLastMeasurement );
+            electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[3]), xAOD::EgammaParameters::deltaEta3);
+            electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[3]),xAOD::EgammaParameters::deltaPhi3 );
+            electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[3]),
+                                             xAOD::EgammaParameters::deltaPhiRescaled3);
+
+            float deltaPhiLast = static_cast<float>(egRec->deltaPhiLast());
+            electron->setTrackCaloMatchValue(deltaPhiLast, xAOD::EgammaParameters::deltaPhiFromLastMeasurement);
 
         }//Electron
         if (author == xAOD::EgammaParameters::AuthorPhoton
@@ -1126,8 +1123,11 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             }
         } //Photon
     }//end loop of egRec
-
-    
+      const CaloDetDescrManager* calodetdescrmgr = nullptr;                                                                 
+      if(detStore()->retrieve(calodetdescrmgr,"CaloMgr").isFailure()){                                                                  
+        ATH_MSG_ERROR("Retrieval of CaloDetDescManager DetStore failed");                                                   
+        return HLT::ERROR;                                                                                                  
+      }           
     //Dress the Electron objects
     for (const auto& eg : *m_electron_container){
         // EMFourMomentum
@@ -1141,7 +1141,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // Track Isolation tool no longer runs for trigger in showershape, but we can do ourselves
         if (timerSvc()) m_timerTool5->start(); //timer
         ATH_MSG_DEBUG("about to run EMShowerBuilder::recoExecute(eg,pCaloCellContainer)");
-        if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
+        if( m_showerBuilder->executeWithCells(pCaloCellContainer,*calodetdescrmgr,eg) );
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endmsg;
         if (timerSvc()) m_timerTool5->stop(); //timer
         
@@ -1172,8 +1172,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                     ATH_MSG_WARNING("Call to CaloTopoIsolationTool failed for flavour " << flav);
 		}
 
-		ATH_MSG_DEBUG(" REGTEST: etcone       " << flav <<  " =   " <<  CaloIsoResult.etcones[std::distance(m_egCaloIso.begin(), itc)]);
-		ATH_MSG_DEBUG(" REGTEST: topoetcone40 " << flav <<  " =   " <<  TopoIsoResult.etcones[std::distance(m_egCaloIso.begin(), itc)]);
+		if (bsc) ATH_MSG_DEBUG(" REGTEST: etcone       " << flav <<  " =   " <<  CaloIsoResult.etcones[std::distance(m_egCaloIso.begin(), itc)]);
+		if (tbsc) ATH_MSG_DEBUG(" REGTEST: topoetcone40 " << flav <<  " =   " <<  TopoIsoResult.etcones[std::distance(m_egCaloIso.begin(), itc)]);
 
 	    }
             if (timerSvc()) m_timerIsoTool2->stop(); //timer
@@ -1237,7 +1237,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // Shower Shape
         if (timerSvc()) m_timerTool5->start(); //timer
         ATH_MSG_DEBUG("about to run EMShowerBuilderrecoExecute(eg,pCaloCellContainer)");
-        if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
+        if( m_showerBuilder->executeWithCells(pCaloCellContainer,*calodetdescrmgr,eg) );
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endmsg;
         if (timerSvc()) m_timerTool5->stop(); //timer
         

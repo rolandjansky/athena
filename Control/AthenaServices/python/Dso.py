@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaServices/python/Dso.py
 # @purpose: simple interface to the rootmap files to easily locate reflex
@@ -20,15 +20,15 @@ __all__ = [
     ]
 
 ### imports -------------------------------------------------------------------
-import os, sys, re
+import os
 from PyUtils import Dso as _Dso
-from PyUtils.Dso import _aliases, _typedefs, _cpp_builtins
+from PyUtils.Dso import _aliases
 from PyUtils.Decorators import memoize
 _load_typeregistry_dso = memoize(_Dso.load_typeregistry_dso)
 
 try:
     # attempt at fixing up the pyroot iterators...
-    import RootUtils.PyROOTFixes
+    import RootUtils.PyROOTFixes  # noqa: F401
 except ImportError:
     pass
 
@@ -41,13 +41,13 @@ class RflxEnums(object):
     SFQ = 7 # SCOPED|FINAL|QUALIFIED
     DICTSCOPE =SF
 
-class DsoDb (_Dso.PyDsoDb):
+class DsoDb(_Dso.PyDsoDb):
     """
     The repository of 'rootmap' files (location, content,...) and a set of
     operations one can apply on them (load dict, query dicts,...)
     """
     def __init__(self):
-        super (DsoDb, self).__init__('AthenaDsoDb')
+        super(DsoDb, self).__init__('AthenaDsoDb')
         import AthenaCommon.Logging
         self.msg = AthenaCommon.Logging.logging.getLogger("AthenaDsoDb")
         #self.msg.setLevel(AthenaCommon.Logging.logging.VERBOSE)
@@ -56,7 +56,7 @@ class DsoDb (_Dso.PyDsoDb):
         for k,v in _aliases.iteritems():
             try:
                 self.db[k] = self.db[v]
-            except KeyError,err:
+            except KeyError:
                 self.msg.info("could not install alias [%s] -> [%s]", k,v)
         # make sure we'll be able to load dicts
         import cppyy
@@ -150,7 +150,7 @@ class DsoDb (_Dso.PyDsoDb):
             visitor (rflx_type)
             
         if rflx_type.IsClass() or rflx_type.IsStruct():
-            for i in xrange(rflx_type.BaseSize()):
+            for i in range(rflx_type.BaseSize()):
                 itype = rflx_type.BaseAt(i).ToType()
                 itype_name = itype.Name(RflxEnums.DICTSCOPE)
                 if itype_name != '' and not (itype_name in ctx):
@@ -158,7 +158,7 @@ class DsoDb (_Dso.PyDsoDb):
                     ctx.add (itype_name)
                     ctx.update (self.visit (itype, visitor, ctx))
                             
-        for i in xrange(rflx_type.DataMemberSize()):
+        for i in range(rflx_type.DataMemberSize()):
             itype = rflx_type.DataMemberAt (i).TypeOf()
             itype = itype.RawType() if itype.IsPointer() else itype
             itype_name = itype.Name(RflxEnums.DICTSCOPE)
@@ -175,5 +175,3 @@ class DsoDb (_Dso.PyDsoDb):
 
 ### clean-up ------------------------------------------------------------------
 registry = _Dso.DsoDb()
-del DsoDb
-

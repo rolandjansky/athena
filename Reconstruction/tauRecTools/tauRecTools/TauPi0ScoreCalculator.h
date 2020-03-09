@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPI0SCORECALCULATOR_H
@@ -27,26 +27,12 @@ public:
     ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0ScoreCalculator();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode execute(xAOD::TauJet&){ return StatusCode::SUCCESS; }
-    virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer);
-    virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
-
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-
-    virtual void print() const { }
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
 
 private:
-
-    std::string m_readerOption;
-    MVAUtils::BDT* m_mvaBDT;
+    std::unique_ptr<MVAUtils::BDT> m_mvaBDT;
 
     std::string m_weightfile;
 
@@ -78,10 +64,6 @@ private:
 
     /** @brief function used to calculate BDT score */
     float calculateScore(const xAOD::PFO* neutralPFO);
-
-    /* /\** @brief Book TMVA methods. *\/ */
-    /* StatusCode bookMethod(TMVA::Reader *reader, const std::string &methodName) const; */
-
 };
 
 #endif	/* TAUPI0SCORECALCULATOR_H */

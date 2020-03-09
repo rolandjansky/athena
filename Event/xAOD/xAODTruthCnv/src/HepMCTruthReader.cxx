@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -8,7 +8,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMCTruthReader.h"
@@ -56,9 +55,10 @@ StatusCode HepMCTruthReader::execute() {
 
     if (cntr==0) {
       HepMC::GenVertex* signalProcessVtx = genEvt->signal_process_vertex();
-      ATH_MSG_INFO("Signal process vertex position: (" << signalProcessVtx->position().x() 
-		   << ", " << signalProcessVtx->position().y() << ", " << signalProcessVtx->position().z() << "). Pointer: " 
-		   << signalProcessVtx);
+      ATH_MSG_INFO("Signal process vertex position: (" << (signalProcessVtx?signalProcessVtx->position().x():0)
+		   << ", " << (signalProcessVtx?signalProcessVtx->position().y():0)
+           << ", " << (signalProcessVtx?signalProcessVtx->position().z():0)
+           << "). Pointer: " << signalProcessVtx);
     }
 
     printEvent(genEvt);

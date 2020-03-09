@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "Identifier/IdentifierHash.h"
-
+#include "CxxUtils/CachedUniquePtr.h"
 
 #include<vector>
 
@@ -112,7 +112,7 @@ namespace Muon
       /** The IdenifierHash of the collection used to store this PRD*/
       IdentifierHash m_collectionHash;
       /** The global position is calculated 'on the fly' and is not written to disk*/
-      mutable const Amg::Vector3D* m_globalPosition;
+      CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
       const MuonGM::CscReadoutElement* m_detEl;
       std::vector<float> m_sampleCharges;
       float m_timeOfFirstSample;
@@ -127,9 +127,9 @@ namespace Muon
    // return globalPosition:
   inline const Amg::Vector3D& CscStripPrepData::globalPosition() const
     {
-       if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition());
+       if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
 
-       if (m_globalPosition==0) throw Trk::PrepRawDataUndefinedVariable();
+       if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
        return *m_globalPosition;
      }
 

@@ -1,27 +1,34 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "DetDescrConditions/DetCondKeyTrans.h"
-#undef private
-#undef protected
 
 #include "DetDescrCondTPCnv/DetCondKeyTransCnv_p1.h"
 
 #include "CLHEP/Geometry/Transform3D.h"
 
-void DetCondKeyTransCnv_p1::transToPers(const DetCondKeyTrans* trans, DetCondKeyTrans_p1* pers, MsgStream &/*log*/) {
-    
-    pers->m_trans.reserve(12*trans->m_keytrans.size());
-    DetCondKeyTrans::KeyTrans::const_iterator it   = trans->m_keytrans.begin();
-    DetCondKeyTrans::KeyTrans::const_iterator last = trans->m_keytrans.end();
-    pers->m_keys.resize(trans->m_keytrans.size());
-    pers->m_trans.resize(trans->m_keytrans.size());
-    for (; it != last; ++it) {
-        pers->m_keys.push_back(it->first);
-        const HepGeom::Transform3D& tf = it->second;
+namespace {
+
+
+class Transform3DComponents
+  : public HepGeom::Transform3D
+{
+public:
+  using HepGeom::Transform3D::setTransform;
+};
+
+
+}
+
+void DetCondKeyTransCnv_p1::transToPers(const DetCondKeyTrans* trans, DetCondKeyTrans_p1* pers, MsgStream &/*log*/)
+{
+    size_t sz = trans->keyTrans().size();
+    pers->m_trans.reserve(12*sz);
+
+    for (const DetCondKeyTrans::KeyTrans::value_type& trans : trans->keyTrans()) {
+        pers->m_keys.push_back(trans.first);
+        const HepGeom::Transform3D& tf = trans.second;
         pers->m_trans.push_back( tf.xx() );
         pers->m_trans.push_back( tf.xy() );
         pers->m_trans.push_back( tf.xz() );
@@ -42,11 +49,9 @@ void DetCondKeyTransCnv_p1::transToPers(const DetCondKeyTrans* trans, DetCondKey
 void DetCondKeyTransCnv_p1::persToTrans(const DetCondKeyTrans_p1* pers, DetCondKeyTrans* trans, MsgStream &/*log*/)  {
 
     // Copy stored vec into map 
-    typedef DetCondKeyTrans::KeyTrans::value_type value_type;
-    DetCondKeyTrans::KeyTrans::iterator it   = trans->m_keytrans.begin();
     unsigned int j = 0;
     for (unsigned int i = 0; i < pers->m_keys.size(); ++i) {
-        HepGeom::Transform3D tf;
+        Transform3DComponents tf;
         tf.setTransform( pers->m_trans[j + 0],    // xx
                          pers->m_trans[j + 1],    // xy
                          pers->m_trans[j + 2],    // xz
@@ -62,7 +67,7 @@ void DetCondKeyTransCnv_p1::persToTrans(const DetCondKeyTrans_p1* pers, DetCondK
                          pers->m_trans[j + 10],   // zz
                          pers->m_trans[j + 11] ); // dz
         j += 12;
-        it = trans->m_keytrans.insert(it, value_type(pers->m_keys[i], tf));
+        trans->setTransform (pers->m_keys[i], tf);
     }
 }
 

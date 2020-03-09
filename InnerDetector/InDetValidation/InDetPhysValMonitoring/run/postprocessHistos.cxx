@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,7 @@
 */
 
 // 0..4 in increasing verbosity: 0=none,error,warning,info,4=debug
-define PRINTDBG 2
+#define PRINTDBG 2
 
 #include <iostream>
 #include <iterator>
@@ -1280,14 +1280,6 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_n
       if (result.size()>6 && result.at(6)>0.) 
 	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));      
       result.clear();
-      /*	  
-	      std::vector<float> result;
-	      IDPVM::GetMeanWidth::methods altMeanWidthMethod = Gauss_fit;
-              getMeanWidthResultsModUnits(hproj[ieta], result, altMeanWidthMethod);	  
-              hres[2]->SetBinContent(ieta+1,result.at(0));
-              hres[2]->SetBinError(ieta+1,result.at(1));
-              hres[3]->SetBinContent(ieta+1,result.at(2));
-              hres[3]->SetBinError(ieta+1,result.at(3));*/
       delete tmp;
     }
     if (PRINTDBG>1 && !warnUOBinFrac.empty()) {
@@ -1316,13 +1308,6 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_n
       if (result.size()>6 && result.at(6)>0.)
 	warnUOBinFrac.push_back(std::make_pair(ipt + 1,result.at(6)));
       result.clear();
-      /*  std::vector<float> result;
-          IDPVM::GetMeanWidth::methods altMeanWidthMethod = Gauss_fit;
-          getMeanWidthResultsModUnits((hproj[ipt], result, altMeanWidthMethod);
-          hres[2]->SetBinContent(ipt+1,result.at(0));
-          hres[2]->SetBinError(ipt+1,result.at(1));
-          hres[3]->SetBinContent(ipt+1,result.at(2));
-          hres[3]->SetBinError(ipt+1,result.at(3));*/
       delete tmp;
     }
     if (PRINTDBG>1 && !warnUOBinFrac.empty()) {

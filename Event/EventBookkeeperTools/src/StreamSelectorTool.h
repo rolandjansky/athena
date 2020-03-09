@@ -17,8 +17,6 @@
 
 #include <string>
 
-class StoreGateSvc;
-
 /** @class StreamSelectorTool
  *  @brief This class provides an example for reading with a ISelectorTool to veto events on AttributeList.
  **/

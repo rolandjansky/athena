@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/TrackDepositInCaloTool.h"
@@ -33,7 +33,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -178,12 +178,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
     }
     // --- Calculate energy loss ---
     double energyLoss = calcEnergy(parEntrance, muonHypo) - calcEnergy(parExit, muonHypo);
-    // --- Display some debug info ---
-    // ATH_MSG_INFO("Energy loss = " << energyLoss << " for sample " << descr->getSampling());
     double distance = (parEntrance->position()-parExit->position()).mag();
-    // if (distance)
-    //   ATH_MSG_INFO("Distance = " << distance << " => Eloss/CLHEP::mm = " << energyLoss/distance);
-
     // --- Retrieve crossed cells ---  
     std::vector<const CaloCell*>* cells = getCaloCellsForLayer(descr, parEntrance, parExit, caloCellCont);
 
@@ -215,7 +210,6 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
         ATH_MSG_INFO("Energy = " << sumEnergy << " for sample " << descr->getSampling() << " in " << cells->size() << " cells.");
       }
       if (distance) {
-        // ATH_MSG_INFO("Eloss/CLHEP::mm = " << sumEnergy/distance);
         result.push_back(DepositInCalo(descr->getSampling(), sumEnergy, energyLoss, sumEt) );
       }
       delete cells;
@@ -380,7 +374,7 @@ std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForTile(const 
   double phiMin       = phiPar-phiWidth;
   double phiMax       = phiPar+phiWidth;
   // --- Fill vecHash ---
-  CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+  CaloCell_ID::CaloSample sample = descr->getSampling();
 
   std::vector<IdentifierHash> vecHash;
   m_caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);
@@ -739,7 +733,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
     double energyLoss      = 0;
     bool eLossFound        = false;
     const CaloDetDescriptor* descr = it->second;
-    CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+    CaloCell_ID::CaloSample sample = descr->getSampling();
     ATH_MSG_VERBOSE("Analysing crossing of calo sample " << sample << " ");
 
     // --- Extrapolate to entrance of layer ---
@@ -773,13 +767,11 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
           const Trk::TrackParameters* paramMiddle = m_extrapolator->extrapolate(*paramEntrance, *surfMiddle, Trk::alongMomentum, checkBoundary, muonHypo);
           if (paramMiddle) {
             // Get energy:
-            // CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
             const CaloCell* cell = getClosestCell(paramMiddle, descr);
             if (cell) {
               energyDeposit = cell->energy();
               ETDeposit     = cell->et();
             }
-            // energyDeposit = DepositInCell(const_cast<CaloDetDescriptor*>(descr)->getSampling(), paramMiddle->eta(), paramMiddle->momentum().phi(), 0.1);
             // --- Extrapolate to exit of layer ---
             Trk::Surface* surfExit = createSurface(descr, Exit);
             const Trk::TrackParameters* paramExit;
@@ -874,8 +866,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
 // calcEnergy
 ///////////////////////////////////////////////////////////////////////////////
 double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const Trk::ParticleHypothesis& particleHypo) const {
-  static Trk::ParticleMasses masses;  
-  double mass = masses.mass[particleHypo]; 
+  double mass = m_particlemasses.mass[particleHypo]; 
   if (par == NULL) return 0.;
   double pX = par->momentum().x();
   double pY = par->momentum().y();
@@ -893,7 +884,7 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
   // Initialize LAr
   for (const CaloDetDescriptor* descr : m_caloDDM->calo_descriptors_range()) {
     if (descr) {
-      CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();      
+      CaloCell_ID::CaloSample sample = descr->getSampling();      
       ATH_MSG_VERBOSE("Detector Description element for sample " << sample);
       if ( descr->is_lar_em_barrel() ) {
         ATH_MSG_VERBOSE("  this is a cylindrical detector element.");
@@ -926,11 +917,11 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
   ATH_MSG_VERBOSE("Processing tiles... ");
   for (const CaloDetDescriptor* descr : m_caloDDM->tile_descriptors_range()) {
     if (descr) {
-      ATH_MSG_VERBOSE("Detector Description element for sample " << const_cast<CaloDetDescriptor*>(descr)->getSampling());
+      ATH_MSG_VERBOSE("Detector Description element for sample " << descr->getSampling());
       if (!descr->is_tile() ) {
         ATH_MSG_VERBOSE("This is not a isTile()==true element.");
       }
-      CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+      CaloCell_ID::CaloSample sample = descr->getSampling();
       if (sample >= 15 && sample <= 17) {
         // --- Skip the TileGap detector elements ---
         continue;
@@ -1191,7 +1182,7 @@ that is closest to the track.
 ///////////////////////////////////////////////////////////////////////////////
 const CaloCell* TrackDepositInCaloTool::getClosestCellLAr(const Trk::TrackParameters* par, const CaloDetDescriptor* descr, const CaloCellContainer* caloCellCont) const {
 
-  CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+  CaloCell_ID::CaloSample sample = descr->getSampling();
   // ATH_MSG_INFO("Sampling = " << sample);
   const CaloDetDescrElement* cellDescr = m_caloDDM->get_element(sample, par->position().eta(), par->position().phi());
   if (cellDescr) {
@@ -1222,7 +1213,7 @@ const CaloCell* TrackDepositInCaloTool::getClosestCellTile(const Trk::TrackParam
   double phiMin       = phiPar-phiWidth;
   double phiMax       = phiPar+phiWidth;
   // --- Fill vecHash ---
-  CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+  CaloCell_ID::CaloSample sample = descr->getSampling();
 
   std::vector<IdentifierHash> vecHash;
   m_caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);
@@ -1292,12 +1283,12 @@ StatusCode TrackDepositInCaloTool::bookHistos() {
   m_hDistDepositsTile   = new TH2F("hDistDepositsTile", "hDistDepositsTile", 30, 0.0, 0.3, 30, 0, 4000);
   m_hDistDepositsHEC    = new TH2F("hDistDepositsHEC", "hDistDepositsHEC", 30, 0.0, 0.3, 30, 0, 4000);  
   
-  m_hEMB1vsdPhi    = new TH2F("hEMB1vsdPhi", "hEMB1vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB2vsdPhi    = new TH2F("hEMB2vsdPhi", "hEMB2vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB3vsdPhi    = new TH2F("hEMB3vsdPhi", "hEMB3vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB1vsdEta    = new TH2F("hEMB1vsdEta", "hEMB1vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB2vsdEta    = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB3vsdEta    = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
+  m_hEMB1vsdPhi    = new TH2F("hEMB1vsdPhi", "hEMB1vsdPhi", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB2vsdPhi    = new TH2F("hEMB2vsdPhi", "hEMB2vsdPhi", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB3vsdPhi    = new TH2F("hEMB3vsdPhi", "hEMB3vsdPhi", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB1vsdEta    = new TH2F("hEMB1vsdEta", "hEMB1vsdEta", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB2vsdEta    = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB3vsdEta    = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -M_PI, M_PI, 50, 0, 500);  
   
   if (m_histSvc) {
     sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12);
@@ -1340,15 +1331,14 @@ std::vector< IdentifierHash > & 	neighbourList
 bool TrackDepositInCaloTool::isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable) const {
   double halfWidth = domainWidth/2;
   if (phiVariable) {
-    //double pi = 3.14159265358979312;
-    if ( fabs(fabs(domainCenter)-CLHEP::pi) < domainWidth ) {
-      position += CLHEP::pi;
-      domainCenter += CLHEP::pi;
-      if (position > CLHEP::pi) {
-        position -= 2*CLHEP::pi;
+    if ( fabs(fabs(domainCenter)-M_PI) < domainWidth ) {
+      position += M_PI;
+      domainCenter += M_PI;
+      if (position > M_PI) {
+        position -= 2*M_PI;
       }
-      if (domainCenter > CLHEP::pi){
-        domainCenter -= 2*CLHEP::pi;
+      if (domainCenter > M_PI){
+        domainCenter -= 2*M_PI;
       }
     }
   }

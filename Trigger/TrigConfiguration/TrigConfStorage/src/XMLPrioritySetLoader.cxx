@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./XMLPrioritySetLoader.h"
@@ -26,7 +26,7 @@ TrigConf::XMLPrioritySetLoader::load( PrioritySet& ps) {
    for (int i=0; i<max_priorities; ++i)
       priorities[i] = "LOW";
 
-   BOOST_FOREACH(value_type v, pt()) {
+   for(value_type v : pt()) {
       if(v.first!="Priority") continue;
       std::string ti_priority = "LOW";
       if( readAttribute(v.second, "ctpid", ctpid) && ctpid >= 0 && ctpid<max_priorities) {

@@ -68,7 +68,6 @@ CscReadWriteCoolStr.oFile = output
 CscReadWriteCoolStr.OutFileType ="04-00"
 CscReadWriteCoolStr.OutParameters = readPars
 if(forceReadAsChannelCategory):
-  CscReadWriteCoolStr.ForceReadAsChannelCategory = True
 
 print 'Preparing commissioning database COMP200 '
 #---Set detector description tag

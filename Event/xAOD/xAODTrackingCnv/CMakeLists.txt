@@ -15,7 +15,6 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/CxxUtils
    Event/EventPrimitives
    Event/xAOD/xAODCore
    Generators/GeneratorObjects

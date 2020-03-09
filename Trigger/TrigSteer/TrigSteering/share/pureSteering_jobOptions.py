@@ -16,10 +16,6 @@ theApp.EvtMax = 7*repeat
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-### Add xAOD::EventInfo
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-job += xAODMaker__EventInfoCnvAlg()
-
 
 ### Create the Menu ###
 #######################

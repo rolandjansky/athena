@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigNavigationAuxInfoCnv.h 674249 2015-06-11 08:47:11Z krasznaa $
@@ -9,14 +9,13 @@
 #define XAODTRIGGERATHENAPOOL_XAODTRIGNAVIGATIONAUXINFOCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODTrigger/TrigNavigationAuxInfo.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::TrigNavigationAuxInfo,
-                               xAOD::TrigNavigationAuxInfo >
+typedef T_AthenaPoolAuxContainerCnv< xAOD::TrigNavigationAuxInfo >
    xAODTrigNavigationAuxInfoCnvBase;
 
 /**
@@ -46,9 +45,8 @@ protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::TrigNavigationAuxInfo*
-   createPersistent( xAOD::TrigNavigationAuxInfo* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::TrigNavigationAuxInfo* createTransient();
+   createPersistentWithKey( xAOD::TrigNavigationAuxInfo* trans,
+                            const std::string& key ) override;
 
 }; // class xAODTrigNavigationAuxInfoCnv
 

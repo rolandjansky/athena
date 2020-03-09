@@ -63,6 +63,7 @@ class CaloCellPosition2Ntuple : public AthAlgorithm {
   float m_dx;
   float m_dy;
   float m_dz;
+  float m_volume;
   TTree* m_tree;
 
 };

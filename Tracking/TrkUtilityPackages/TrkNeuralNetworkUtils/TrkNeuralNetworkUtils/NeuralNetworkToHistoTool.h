@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -*-c++-*-
-#ifndef __NeuralNetworkToHistoTool_
-#define __NeuralNetworkToHistoTool_
+#ifndef TRKNEURALNETWORKUTILS_NEURALNETWORKTOHISTOTOOL_H
+#define TRKNEURALNETWORKUTILS_NEURALNETWORKTOHISTOTOOL_H
 
 /******************************************************
     @class NeuralNetworkToHistoTool
@@ -45,13 +45,14 @@ public:
 
   // old style wrappers
   std::vector<TH1*> fromTrainedNetworkToHisto(TTrainedNetwork*) const;
-  TTrainedNetwork* fromHistoToTrainedNetwork(std::vector<TH1*> &) const;
+  TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<TH1*> &) const;
+  TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<const TH1*> &) const;
 
   // wrappers for new NN converter tool
   // note that root's internal hist names are mangled as a workarond for 
   // root's global variable problems. 
   std::map<std::string,TH1*> histsFromNetwork(TTrainedNetwork*) const;
-  TTrainedNetwork* networkFromHists(std::map<std::string,TH1*> &) const;
+  TTrainedNetwork* networkFromHists(const std::map<std::string,const TH1*> &) const;
 
 
 private:
@@ -62,6 +63,3 @@ private:
 
 
 #endif
-  
-  
-  

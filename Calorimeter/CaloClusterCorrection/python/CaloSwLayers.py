@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: CaloSwLayers.py,v 1.7 2009-03-16 12:28:40 lcarmina Exp $
@@ -86,10 +86,10 @@ def make_CaloSwLayers (name = None,
                      **kw)
 
 def _parse_key (k):
-    k = k.lstrip (string.letters + '_')
-    k = k.rstrip (string.letters + '_')
+    k = k.lstrip (string.ascii_letters + '_')
+    k = k.rstrip (string.ascii_letters + '_')
     if k.find ('_') > 0:
-        (eta, phi) = string.split (k, '_')
+        (eta, phi) = k.split ('_')
     else:
         (eta, phi) = (k[0], k[1])
     return (int (eta), int (phi))

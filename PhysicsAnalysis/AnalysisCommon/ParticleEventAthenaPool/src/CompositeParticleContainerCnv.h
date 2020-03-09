@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompositeParticleContainerCnv.h 
@@ -14,10 +14,11 @@
 // STL includes
 
 // AthenaPoolCnvSvc includes
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 
 // ParticleEventTPCnv includes
 #include "ParticleEventTPCnv/CompositeParticleContainer_p1.h"
+#include "ParticleEventTPCnv/CompositeParticleContainerCnv_p1.h"
 
 // ParticleEvent includes
 #include "ParticleEvent/CompositeParticleContainer.h"
@@ -26,42 +27,9 @@
 // Forward declaration
 
 // the latest persistent representation type of DataCollection:
-typedef CompositeParticleContainer_p1  CompositeParticleContainer_PERS;
+typedef T_AthenaPoolTPCnvCnv<CompositeParticleContainer,
+                             CompositeParticleContainerCnv_p1>
+  CompositeParticleContainerCnv;
 
-class CompositeParticleContainerCnv: public T_AthenaPoolCustomCnv<
-                                      CompositeParticleContainer, 
-                                      CompositeParticleContainer_PERS 
-                                   > 
-
-{
-
-  // make the factory for this converter our friend
-  friend class CnvFactory<CompositeParticleContainerCnv>;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
-
-  /** Create the converter from the service locator
-   */
-public:
-  CompositeParticleContainerCnv(ISvcLocator* svcloc);
-protected:
-
-  /** Build the persistent representation from the transient one.
-   */
-  virtual CompositeParticleContainer_PERS*
-    createPersistent( CompositeParticleContainer* transCont );
-  
-  /** Build the transient representation from a persistent one
-   */
-  virtual CompositeParticleContainer* createTransient();
-
-};
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> PARTICLEEVENTATHENAPOOL_COMPOSITEPARTICLECONTAINERCNV_H

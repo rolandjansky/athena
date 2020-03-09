@@ -2,7 +2,8 @@
 # be produced while developing
 *~
 *.sw?
-#*
+\#*
+.\#*
 .DS_Store
 .pydevproject
 .project
@@ -10,6 +11,8 @@
 .asetup*
 .cproject
 *.kdevelop
+*.orig
+*.bak
 #Binary formats
 *.so*
 *.out

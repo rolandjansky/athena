@@ -39,7 +39,6 @@
 #include "CaloIdentifier/LArID.h"
 #include "GaudiKernel/IIncidentListener.h"
 
-class StoreGateSvc; 
 class LArCablingBase ;
 
 class LArAutoCorrTotalTool: public AthAlgTool,

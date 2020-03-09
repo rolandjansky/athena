@@ -45,8 +45,8 @@ class LArAverages2Ntuple : public AthAlgorithm
   StatusCode execute() ;
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
-  const LArEM_ID* m_emId;
-  const LArOnlineID* m_onlineHelper;
+  const LArEM_Base_ID* m_emId;
+  const LArOnlineID_Base* m_onlineHelper;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
@@ -56,10 +56,10 @@ class LArAverages2Ntuple : public AthAlgorithm
 
   unsigned int  m_Nsamples;
   bool m_keepPulsed;
-
+  bool m_isSC;
   int m_ipass;
 
-  NTuple::Item<long> m_region, m_layer, m_eta, m_phi;
+  NTuple::Item<long> m_region, m_layer, m_eta, m_phi, m_onlChanId;
   NTuple::Item<long> m_pos_neg, m_barrel_ec, m_FT, m_slot, m_channel;
   NTuple::Item<long> m_calibLine;
   NTuple::Item<long> m_isConnected;

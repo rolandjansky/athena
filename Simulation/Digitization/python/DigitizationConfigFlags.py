@@ -1,8 +1,9 @@
 """Construct ConfigFlags for Digitization
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.AutoConfigFlags import GetFileMD
 from AthenaCommon.Logging import log
 from PyUtils import AthFile
 
@@ -10,7 +11,7 @@ def getSpecialConfiguration(flags):
     """Return a dict of Special configuration as parsed from flags.Input.Files"""
     if len(flags.Input.Files) > 1:
         log.info("Multiple input files. Using the first for Digitization special configuration.")
-    log.info("Obtaining Digitization special configuration from %s." % flags.Input.Files[0])
+    log.info("Obtaining Digitization special configuration from %s", flags.Input.Files[0])
     File = AthFile.fopen(flags.Input.Files[0])
     # extract the special config list
     tag_info = File.infos.get("tag_info", {})
@@ -50,7 +51,7 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.SpecialConfiguration", getSpecialConfiguration)
     # Run Calorimeter noise simulation
     flags.addFlag("Digitization.DoCaloNoise", True)
-    # Run pile-up premixing
+    # Compute and store DigiTruth information
     flags.addFlag("Digitization.DoDigiTruth", True)
     # Use high-gain Forward Calorimeters
     flags.addFlag("Digitization.HighGainFCal", False)
@@ -58,5 +59,9 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.HighGainEMECIW", True)
     # Do global pileup digitization
     flags.addFlag("Digitization.Pileup", True)
+    # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
+    flags.addFlag("Digitization.TRTRangeCut", lambda prevFlags : float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 0.05)))
+    # Write out truth information?
+    flags.addFlag("Digitization.TruthOutput", False)
     return flags
 

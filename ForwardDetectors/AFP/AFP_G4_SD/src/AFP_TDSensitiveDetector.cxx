@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -7,7 +7,6 @@
 
 // Athena headers
 #include "AFP_Geometry/AFP_constants.h"
-#include "CxxUtils/make_unique.h" // For make unique
 
 // Geant4 headers
 #include "G4TouchableHistory.hh"
@@ -62,7 +61,7 @@ void AFP_TDSensitiveDetector::StartOfAthenaEvent()
 // Initialize from G4 - necessary to new the write handle for now
 void AFP_TDSensitiveDetector::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<AFP_TDSimHitCollection>();
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<AFP_TDSimHitCollection>();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

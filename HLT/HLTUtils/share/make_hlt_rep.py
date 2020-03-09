@@ -35,7 +35,7 @@ common_env = pm.project.Project('daq/segments/common-environment.data.xml')
 
 atlas_project = os.environ.get('AtlasProject')
 
-if 'AtlasBuildStamp' in os.environ:
+if not os.environ.get('AtlasReleaseType')=='stable':
     # nightly
     atlas_version='%s,r%s' % (os.environ.get('AtlasBuildBranch'),
                               os.environ.get('AtlasBuildStamp'))

@@ -24,6 +24,7 @@ class CTP_RDO;
 class CTP_RIO;
 class TileCell;
 class TileTBID;
+class TileInfo;
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
@@ -159,6 +160,12 @@ class TileMBTSMonTool: public TileFatherMonTool {
 
     int32_t m_old_lumiblock;
     int m_nLumiblocks;
+
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    int m_i_ADCmax;
+
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };
 

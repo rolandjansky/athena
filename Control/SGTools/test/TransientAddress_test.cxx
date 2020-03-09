@@ -164,9 +164,9 @@ void test1()
   assert (tad3.address() == 0);
 
   TestProvider tp;
-  tad3.setProvider (&tp, StoreID::SPARE_STORE);
+  tad3.setProvider (&tp, StoreID::EVENT_STORE);
   assert (tad3.provider() == &tp);
-  assert (tad3.storeID() == StoreID::SPARE_STORE);
+  assert (tad3.storeID() == StoreID::EVENT_STORE);
   assert (tad3.isValid(nullptr));
   tad3.consultProvider (false);
   assert (!tad3.isValid(nullptr));
@@ -193,7 +193,7 @@ void test2()
   TestAddress ad1(1);
   SG::TransientAddress tad1 (123, "key", &ad1);
   TestProvider tp;
-  tad1.setProvider (&tp, StoreID::SPARE_STORE);
+  tad1.setProvider (&tp, StoreID::EVENT_STORE);
   tad1.setSGKey (876);
   tad1.setTransientID (124);
   tad1.setAlias ("key2");
@@ -201,7 +201,7 @@ void test2()
   assert (tad1.name() == "key");
   assert (tad1.clID() == 123);
   assert (tad1.address() == &ad1);
-  assert (tad1.storeID() == StoreID::SPARE_STORE);
+  assert (tad1.storeID() == StoreID::EVENT_STORE);
   assert (tad1.sgkey() == 876);
   assert (tad1.transientID().size() == 2);
   assert (tad1.transientID (123));
@@ -214,7 +214,7 @@ void test2()
   assert (tad2.name() == "key");
   assert (tad2.clID() == 123);
   assert (tad2.address() == &ad1);
-  assert (tad2.storeID() == StoreID::SPARE_STORE);
+  assert (tad2.storeID() == StoreID::EVENT_STORE);
   assert (tad2.sgkey() == 876);
   assert (tad2.transientID().size() == 2);
   assert (tad2.transientID (123));
@@ -232,7 +232,7 @@ void test2()
   assert (tad1.name() == "key");
   assert (tad1.clID() == 123);
   assert (tad1.address() == &ad1);
-  assert (tad1.storeID() == StoreID::SPARE_STORE);
+  assert (tad1.storeID() == StoreID::EVENT_STORE);
   assert (tad1.sgkey() == 876);
   assert (tad1.transientID().size() == 2);
   assert (tad1.transientID (123));
@@ -255,7 +255,7 @@ void test3()
   TestAddress ad1(1);
   SG::TransientAddress tad1 (123, "key", &ad1);
   TestProvider tp;
-  tad1.setProvider (&tp, StoreID::SPARE_STORE);
+  tad1.setProvider (&tp, StoreID::EVENT_STORE);
   tad1.setSGKey (876);
   tad1.setTransientID (124);
   tad1.setAlias ("key2");
@@ -263,7 +263,7 @@ void test3()
   assert (tad1.name() == "key");
   assert (tad1.clID() == 123);
   assert (tad1.address() == &ad1);
-  assert (tad1.storeID() == StoreID::SPARE_STORE);
+  assert (tad1.storeID() == StoreID::EVENT_STORE);
   assert (tad1.sgkey() == 876);
   assert (tad1.transientID().size() == 2);
   assert (tad1.transientID (123));
@@ -276,7 +276,7 @@ void test3()
   assert (tad2.name() == "key");
   assert (tad2.clID() == 123);
   assert (tad2.address() == &ad1);
-  assert (tad2.storeID() == StoreID::SPARE_STORE);
+  assert (tad2.storeID() == StoreID::EVENT_STORE);
   assert (tad2.sgkey() == 876);
   assert (tad2.transientID().size() == 2);
   assert (tad2.transientID (123));
@@ -290,7 +290,7 @@ void test3()
   assert (tad3.name() == "key");
   assert (tad3.clID() == 123);
   assert (tad3.address() == &ad1);
-  assert (tad3.storeID() == StoreID::SPARE_STORE);
+  assert (tad3.storeID() == StoreID::EVENT_STORE);
   assert (tad3.sgkey() == 876);
   assert (tad3.transientID().size() == 2);
   assert (tad3.transientID (123));

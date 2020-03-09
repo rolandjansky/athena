@@ -6,13 +6,16 @@
 
 namespace LVL1TGCTrigger {
 
-  extern bool        g_USE_CONDDB;
-
   /** Constructor */
-  TGCInnerTrackletSlot::TGCInnerTrackletSlot() {
+  TGCInnerTrackletSlot::TGCInnerTrackletSlot()
+  {
     m_sideId = -1;
     m_slotId = -1;
     clearTriggerBits();
+  }
+
+  void TGCInnerTrackletSlot::setTgcArguments( const TGCArguments* tgcargs ) { 
+    m_tgcArgs = tgcargs;
   }
 
   void TGCInnerTrackletSlot::setSideId(const int sideId) { 

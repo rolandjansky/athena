@@ -164,8 +164,6 @@ class Validator(object):
         n = h.Integral()
         if n>0:
           h.Scale(1./n)
-          for i in range (1,h.GetXaxis().GetNbins()+1):
-            h.SetBinError(i,h.GetBinError(i)/n);
                 
     refHist = SetBounds(hists)
     

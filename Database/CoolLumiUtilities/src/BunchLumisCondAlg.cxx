@@ -235,8 +235,8 @@ BunchLumisCondAlg::execute (const EventContext& ctx) const
 
     const coral::Blob& blob = attrList["BunchRawInstLum"].data<coral::Blob>();
     if (blob.size() == 0) {
-      ATH_MSG_ERROR( "BunchRawInstLumi blob found with zero size for channel " << channel << "!" );
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG( "BunchRawInstLumi blob found with zero size for channel " << channel << "!" );
+      continue;
     }
 
     // Make sure the scale factor exists (needed below to unpack integer blob schemes)                        

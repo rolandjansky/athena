@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -11,10 +11,6 @@ class SCT_ID;
 
 namespace  AIDA{
   class IHistogram1D;
-}
-
-namespace InDetDD{
-  class PixelDetectorManager;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -31,7 +27,6 @@ class SurveyConstraintTestAlg:public AthAlgorithm {
  private :
   IToolSvc*                              m_toolsvc;            //!< Pointer to tool service
   ISurveyConstraint*                     m_SurvConstr;
-  const InDetDD::PixelDetectorManager*   m_pixelManager;
   const PixelID*                         m_pixid;
   const SCT_ID*                          m_sctid;
   AIDA::IHistogram1D*                    m_h_PixEC_Align_Disk[6];

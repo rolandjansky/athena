@@ -16,9 +16,14 @@ class LumiCalc:
         self.verbose = False
         # Python file to make updates in working directory
         self.updateScript = 'LumiCalcWorking.py'
+        self.recoverScript = 'LumiCalcRecover.py'
         self.homeDir = '/var/www/lumicalc/'
         self.htmlDir = self.homeDir + 'LumiBlock/LumiCalc/html/'
         self.scriptDir = self.homeDir + 'LumiBlock/LumiCalc/share/'
+        self.workdir = os.getcwd()
+
+        self.uselar = True
+        self.subdir = '.'
 
     def createWorkdir(self):
         
@@ -31,20 +36,20 @@ class LumiCalc:
         # Open the output file
         self.f = open(self.workdir+'/working.html', 'w')
 
-        # Also open excel file
-        self.exf = open(self.workdir+'/lumitable.csv', 'w')
-
         # Copy the working script
         shutil.copyfile(self.updateScript, self.workdir+'/'+self.updateScript)
 
         # Make sure it is executable
         os.chmod(self.workdir+'/'+self.updateScript, 0755)
-        
+
+        # Also the recovery script        
+        shutil.copyfile(self.recoverScript, self.workdir+'/'+self.recoverScript)
+        os.chmod(self.workdir+'/'+self.recoverScript, 0755)
+
     def cleanUp(self):
 
         # Close the output file
         self.f.close()
-        self.exf.close()
         
         # OK, want to move working.html to result.html
         # Update script should do the rest
@@ -142,6 +147,9 @@ class LumiCalc:
         # Test if the file was uploaded
         if self.fileitem.filename:
 
+            # strip any leading C: from windows
+            if self.fileitem.filename[0:2] is 'C:':
+                self.fileitem.filename = self.fileitem.filename[2:]
             # strip leading path from file name to avoid directory traversal attacks
             self.grlfn = os.path.basename(self.fileitem.filename)
 
@@ -184,6 +192,8 @@ class LumiCalc:
         self.command = ''
         if self.lumitag == '--online':
             self.command += ' --online'
+        elif self.lumitag == 'None':
+            pass
         else:
             self.command += (' --lumitag=' + self.lumitag)
 
@@ -199,7 +209,7 @@ class LumiCalc:
         if len(self.clopts) > 0:
             self.command += (' '+self.clopts)
 
-        self.f.write( '<p>iLumiCalc.exe '+self.command+'</p>\n' )
+        self.f.write( '<p>iLumiCalc '+self.command+'</p>\n' )
 
         #self.cmdstr = os.getcwd()+'/runLumiCalc.sh '+self.command
         self.cmdstr = self.scriptDir+'runLumiCalc.sh '+self.command
@@ -339,6 +349,9 @@ class LumiCalc:
             unit = 'mb<sup>-1</sup>'
 
         
+        # Open excel file
+        self.exf = open(self.workdir+'/lumitable.csv', 'w')
+
         self.f.write( '<p>Command complete - CPU time: '+str(round(float(self.cputime), 1))+' s, Clock time: '+str(round(float(self.realtime), 1))+' s</p>\n' )
         self.f.write( '<h3>Total Luminosity: '+str(scale*self.lumirec.get('Total', 0.))+' '+unit+'</h3>\n' )
 
@@ -430,6 +443,9 @@ class LumiCalc:
             self.f.write( '</tr>\n' )
             self.exf.write('\n')
 
+
+        self.exf.close()
+
         self.f.write( '</tbody></table>\n' )
         self.f.write( '<p>[<a href="/results/'+self.subdir+'/lumitable.csv">Luminosity table as CSV file</a>]</p>\n' )
         
@@ -454,7 +470,7 @@ class LumiCalc:
             self.f.write(warnline.replace('<', '&lsaquo;').replace('>', '&rsaquo;'))
             
         self.f.write('</pre>\n')        
-        self.f.write('<p>Check the <a href="/results/'+self.subdir+'/output.txt">Raw iLumiCalc.exe output</a> for more information.</p>\n' )
+        self.f.write('<p>Check the <a href="/results/'+self.subdir+'/output.txt">Raw iLumiCalc output</a> for more information.</p>\n' )
         
     #
     # Now setup full dump (hidden by JS button)
@@ -485,16 +501,16 @@ class LumiCalc:
         self.f.write( '<h3>Links</h3>\n' )
         self.f.write( '<p>The following links provide access to the iLumiCalc output files.  These will likely remain for several weeks, but please copy any critical files to a more permanent location.</p>\n' )
 
-        self.f.write( '<p><a href="/results/'+self.subdir+'/">iLumiCalc.exe working directory</a> - location for all output files</p>\n' ) 
+        self.f.write( '<p><a href="/results/'+self.subdir+'/">iLumiCalc working directory</a> - location for all output files</p>\n' ) 
         self.f.write( '<p><a href="/results/'+self.subdir+'/result.html">Output HTML</a> - this page</p>\n' )
-        self.f.write( '<p><a href="/results/'+self.subdir+'/output.txt">Raw iLumiCalc.exe output</a></p>\n' )
+        self.f.write( '<p><a href="/results/'+self.subdir+'/output.txt">Raw iLumiCalc output</a></p>\n' )
         self.f.write( '<p><a href="/results/'+self.subdir+'/'+self.grlfn+'">Original GRL XML file</a></p>\n' )
 
     # Call iLumiCalc to print out help
     def printHelp(self):
         self.f.write( '<h3>LumiCalc Usage</h3>\n' )
         self.f.write( '<pre>\n' )
-        self.f.write( '> iLumiCalc.exe --help\n\n' )
+        self.f.write( '> iLumiCalc --help\n\n' )
         for line in open (self.scriptDir+'help.txt').readlines():
             self.f.write( line )
 

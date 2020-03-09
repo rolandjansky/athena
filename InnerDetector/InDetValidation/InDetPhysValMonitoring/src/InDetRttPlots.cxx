@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -143,8 +143,8 @@ InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle& particle, const xAO
 }
 
 void
-InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w) {
-  m_fakePlots.fillLinkedandUnlinked(particle, Prim_w, Sec_w, Unlinked_w);
+InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w, unsigned int nMuEvents) {
+  m_fakePlots.fillLinkedandUnlinked(particle, Prim_w, Sec_w, Unlinked_w, nMuEvents);
 }
 
 void
@@ -176,9 +176,9 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
 }
 
 void
-InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood) {
+InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood, const unsigned int nMuEvents) {
   m_effPlots.fill(truth, isGood);
-  m_fakePlots.fillIncFakeDenom(truth);
+  m_fakePlots.fillIncFakeDenom(truth, nMuEvents);
 }
 
 void
@@ -343,7 +343,3 @@ InDetRttPlots::fillJetTrkTruthCounter(const xAOD::Jet& jet) {
   m_trkInJetPlot_highPt.fillEff(jet);
 }
 
-void
-InDetRttPlots::fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom) {
-  m_fakePlots.fillIncTrkRate(nMuEvents, incTrkNum, incTrkDenom);
-}

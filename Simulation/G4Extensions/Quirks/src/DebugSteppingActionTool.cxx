@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "DebugSteppingActionTool.h"
 
 namespace G4UA
@@ -21,7 +20,7 @@ namespace G4UA
   DebugSteppingActionTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a DebugSteppingAction");
-    auto action = CxxUtils::make_unique<DebugSteppingAction>(m_config);
+    auto action = std::make_unique<DebugSteppingAction>(m_config);
     actionList.steppingActions.push_back( action.get() );
     return action;
   }

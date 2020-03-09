@@ -69,6 +69,11 @@ atlas_add_test( TPCnvList_test
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaPoolCnvSvcLib )
 
+atlas_add_test( T_AthenaPoolCreateFuncs_test
+   SOURCES test/T_AthenaPoolCreateFuncs_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaPoolCnvSvcLib )
+
 atlas_add_test( T_AthenaPoolViewVectorCnv_test
    SOURCES test/T_AthenaPoolViewVectorCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -96,6 +101,12 @@ atlas_add_test( T_AthenaPoolTPCnvCnv_test
    LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel SGTools TestTools
    CxxUtils AthenaPoolCnvSvcLib
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( T_AuxContainerCopyTPCnv_test
+   SOURCES test/T_AuxContainerCopyTPCnv_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel SGTools TestTools
+   CxxUtils AthenaPoolCnvSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

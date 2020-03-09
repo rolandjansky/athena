@@ -11,6 +11,8 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include <string>
 
 namespace Trk {
@@ -39,10 +41,10 @@ class MuonCombinedInDetCandidateAlg : public AthAlgorithm
   SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
   SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_indetForwardTrackParticleLocation;
   SG::WriteHandleKey<InDetCandidateCollection> m_candidateCollectionName;
-  ToolHandle <Trk::ITrackSelectorTool> m_trackSelector;
-  ToolHandle <Trk::ITrackSelectorTool> m_forwardTrackSelector;
+  ToolHandle <Trk::ITrackSelectorTool> m_trackSelector {this, "TrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool", "Track selector tool"};
+  ToolHandle <Trk::ITrackSelectorTool> m_forwardTrackSelector {this, "InDetForwardTrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedForwardTrackSelectorTool", "Forward track selector tool"};
   ToolHandle <Trk::ITrackSelectorTool> m_currentTrackSelector;
-  ToolHandle <Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool;
+  ToolHandle <Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool {this, "MuonSystemExtensionTool", "Muon::MuonSystemExtensionTool/MuonSystemExtensionTool", "Muon system extension tool"};
 
   void create(const xAOD::TrackParticleContainer& indetTrackParticles,
 	      InDetCandidateCollection& outputContainer,

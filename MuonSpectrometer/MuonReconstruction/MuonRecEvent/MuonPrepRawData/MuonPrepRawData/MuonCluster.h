@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,8 +22,9 @@
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include<vector>
+#include "CxxUtils/CachedUniquePtr.h"
 
+#include<vector>
 
 namespace Muon
 {
@@ -84,7 +85,7 @@ namespace Muon
   protected:
     /**@brief Global position of measurement.
     Calculated on demand and cached */
-    mutable const Amg::Vector3D*          m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
     
   };
 

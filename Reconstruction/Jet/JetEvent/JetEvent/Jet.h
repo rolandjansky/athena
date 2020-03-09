@@ -1,7 +1,7 @@
 // emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JET_H
@@ -580,18 +580,7 @@ public:
 
   friend class JetAssociationBase;
   friend class JetTagInfoBase;
-  template<class T> friend class SignalStateCollHelper;
 
-private:
-  /** @brief Set signal state to uncalibrated */
-  void setStateRaw() const;
-
-  /** @brief Set signal state to constituent Scale */
-  void setStateCScale() const;
-  
-  /** @brief Set signal state to calibrated */
-  void setStateCal() const;
-  
 public:
   void setRawE(double e);    /**< Sets uncalibrated @f$ E @f$   */
   void setRawPx(double px);  /**< Sets uncalibrated @f$ p_x @f$ */
@@ -727,6 +716,7 @@ protected:
   friend class JetCnv_p2;
   friend class JetCnv_p3;
   friend class JetCnv_p4;
+  friend class JetCollectionCnv_p6;
 
   static const size_t s_defaultJetAuthor;
   /** @brief Jet author store */

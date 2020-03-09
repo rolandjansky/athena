@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 from AthenaCommon import CfgMgr
 from GaudiKernel.Constants import INFO
+import six
 
 #################################################################################
 # Define some default values
@@ -120,10 +122,10 @@ class METAssocConfig:
         return 'METAssoc_'+self.suffix
     #
     def setupAssociators(self,buildconfigs):
-        print prefix, 'Setting up associators for MET config '+self.suffix
+        print (prefix, 'Setting up associators for MET config '+self.suffix)
         for config in buildconfigs:
             if config.objType in self.associators:
-                print prefix, 'Config '+self.suffix+' already contains a associator of type '+config.objType
+                print (prefix, 'Config '+self.suffix+' already contains a associator of type '+config.objType)
                 raise LookupError
             else:
                 associator = getAssociator(config=config,suffix=self.suffix,
@@ -135,11 +137,11 @@ class METAssocConfig:
                                            modClusColls=self.modClusColls)
                 from METReconstruction.METRecoFlags import metFlags
                 if config.objType == 'Soft' and metFlags.DecorateSoftConst:
-                    print "activate soft term decoration"
+                    print ("activate soft term decoration")
                     associator.DecorateSoftConst = True
                 self.associators[config.objType] = associator
                 self.assoclist.append(associator)
-                print prefix, '  Added '+config.objType+' tool named '+associator.name()
+                print (prefix, '  Added '+config.objType+' tool named '+associator.name())
     #
     def __init__(self,suffix,buildconfigs=[],
                  doPFlow=False,doTruth=False,
@@ -157,9 +159,9 @@ class METAssocConfig:
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
                                                            'EMOriginCorrClusters':'EMOriginTopoClusters'}
         if doTruth:
-            print prefix, 'Creating MET TruthAssoc config \''+suffix+'\''
+            print (prefix, 'Creating MET TruthAssoc config \''+suffix+'\'')
         else:
-            print prefix, 'Creating MET Assoc config \''+suffix+'\''
+            print (prefix, 'Creating MET Assoc config \''+suffix+'\'')
         self.suffix = suffix
         self.doPFlow = doPFlow                
         self.modConstKey=modConstKey_tmp
@@ -230,17 +232,17 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
 
     from METReconstruction.METRecoFlags import metFlags
     if configs=={} and tools==[]:
-        print prefix, 'Taking configurations from METRecoFlags'
+        print (prefix, 'Taking configurations from METRecoFlags')
         configs = metFlags.METAssocConfigs()
-        print configs
-    for key,conf in configs.iteritems():
-        print prefix, 'Generate METAssocTool for MET_'+key
+        print (configs)
+    for key,conf in six.iteritems(configs):
+        print (prefix, 'Generate METAssocTool for MET_'+key)
         assoctool = getMETAssocTool(conf,msglvl)
         assocTools.append(assoctool)
         metFlags.METAssocTools()[key] = assoctool
 
     for tool in assocTools:
-        print prefix, 'Added METAssocTool \''+tool.name()+'\' to alg '+algName
+        print (prefix, 'Added METAssocTool \''+tool.name()+'\' to alg '+algName)
 
     assocAlg = CfgMgr.met__METRecoAlg(name=algName,
                                       RecoTools=assocTools)

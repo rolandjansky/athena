@@ -13,7 +13,6 @@ include("TriggerTest/TrigScanFiles.py")
 ###############################
 
 doTrigger=True
-TriggerModernConfig=True
 
 rec.doWriteAOD=False
 rec.doWriteESD=False
@@ -71,8 +70,8 @@ include("TriggerTest/TriggerTestCommon.py")
 #------------------------------------------------------------
 
 
-#print AlgSequence()
-#print ServiceMgr
-print DetFlags
-print TriggerFlags
+#printfunc (AlgSequence())
+#printfunc (ServiceMgr)
+printfunc (DetFlags)
+printfunc (TriggerFlags)
 

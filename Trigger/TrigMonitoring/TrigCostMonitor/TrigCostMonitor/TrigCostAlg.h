@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTALG_H
@@ -29,8 +29,6 @@
 
 // Local
 #include "TrigCostMonitor/ITrigNtTool.h"
-
-class StoreGateSvc;
 
 class TrigCostAlg : public AthAlgorithm
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -158,14 +158,6 @@ GoodRunsListSelectorTool::initialize()
     *m_brlcollection = m_reader->GetMergedGRLCollection(static_cast<Root::BoolOperation>(m_boolop));
   }
 
-  /// get StoreGateSvc interface, crashes in preeventselector 15.6.x
-  if (!m_eventselectormode) {
-    if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-      ATH_MSG_ERROR ("Cannot get StoreGateSvc.");
-      return StatusCode::FAILURE;
-    }
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -208,7 +200,7 @@ GoodRunsListSelectorTool::passThisRunLB( const std::vector<std::string>& grlname
   ATH_MSG_DEBUG ("passThisRunLB() ");
 
   const EventInfo*  pEvent = 0;
-  StatusCode status = m_storeGate->retrieve(pEvent);
+  StatusCode status = evtStore()->retrieve(pEvent);
 
   if(!(status.isSuccess() && pEvent!=0)) {
     ATH_MSG_ERROR ("Unable to retrieve EventInfo from StoreGate. Don't pass LB.");

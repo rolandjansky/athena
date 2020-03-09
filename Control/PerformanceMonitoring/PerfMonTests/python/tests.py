@@ -1,15 +1,19 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## A little py-module holding methods to ease the scheduling of PerfMonTests
 ## @author: Sebastien Binet
 ## $Id: tests.py,v 1.5 2007-11-12 01:04:14 binet Exp $
 
-import user
+from __future__ import print_function
+
 import os
 import sys
-import commands
 from AthenaCommon import ChapPy
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###-----------------------------------------------------
 ## For compatibility with ATN tests
@@ -23,10 +27,10 @@ from TestTools.iobench import BenchSequence
 def testPerfMon( jobOptName      = "PerfMonTests/test_perfMonSvc_noopalg.py",
                  perfMonFileName = "perfmon.noopalg.root",
                  evtMax          = 50000 ):
-    print ""
-    print "#"*80
-    print "## testing PerfMonSvc [%s]"         % jobOptName
-    print "                  ==> [%s]... (%i)" % (perfMonFileName,evtMax)
+    print ("")
+    print ("#"*80)
+    print ("## testing PerfMonSvc [%s]"         % jobOptName)
+    print ("                  ==> [%s]... (%i)" % (perfMonFileName,evtMax))
 
     perfMonFileName = workDir( perfMonFileName )
     refPerfMonFileName = "ref." + os.path.basename( perfMonFileName )
@@ -46,7 +50,7 @@ def testPerfMon( jobOptName      = "PerfMonTests/test_perfMonSvc_noopalg.py",
     athena.EvtMax = evtMax
     sc = athena.run()
     if sc != 0:
-        print "ERROR: could not create the 'ref' perfmon file !!"
+        print ("ERROR: could not create the 'ref' perfmon file !!")
         return ScOutput(sc, "ERROR")
     
     ## create the to-be-checked file
@@ -59,20 +63,20 @@ def testPerfMon( jobOptName      = "PerfMonTests/test_perfMonSvc_noopalg.py",
     athena.EvtMax = evtMax
     sc = athena.run()
     if sc != 0:
-        print "ERROR: could not create the 'chk' perfmon file !!"
+        print ("ERROR: could not create the 'chk' perfmon file !!")
         return ScOutput(sc, "ERROR")
 
     #outPerfMonFileName = "ana." + os.path.basename( perfMonFileName )
-    print " :::running [perfmon.py]..."
+    print (" :::running [perfmon.py]...")
     cmd = "perfmon.py %s %s -o %s" % \
           ( chkPerfMonFileName, refPerfMonFileName, outPerfMonFileName )
-    sc,out = commands.getstatusoutput( cmd )
+    sc,out = subprocess.getstatusoutput( cmd )
     if sc != 0:
-        print "## Problem while doing [perfmon] !!"
-        print out
+        print ("## Problem while doing [perfmon] !!")
+        print (out)
         out = "ERROR"
         return ScOutput(sc, out)
 
     out = "OK"
-    print "## [DONE]"
+    print ("## [DONE]")
     return ScOutput(sc, out)

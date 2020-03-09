@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODRODHeaderContainerCnv_v1.cxx 694352 2015-09-11 12:05:29Z krasznaa $
@@ -25,15 +25,13 @@
    } while( 0 )
 
 xAODRODHeaderContainerCnv_v1::xAODRODHeaderContainerCnv_v1()
-   : T_AthenaPoolTPCnvBase< xAOD::RODHeaderContainer,
-                            xAOD::RODHeaderContainer_v1 >() {
-
+{
 }
 
 void xAODRODHeaderContainerCnv_v1::
 persToTrans( const xAOD::RODHeaderContainer_v1* oldObj,
              xAOD::RODHeaderContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::RODHeaderContainer_v1 to current version..." );
@@ -59,7 +57,7 @@ persToTrans( const xAOD::RODHeaderContainer_v1* oldObj,
 void xAODRODHeaderContainerCnv_v1::
 transToPers( const xAOD::RODHeaderContainer*,
              xAOD::RODHeaderContainer_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR << "xAODRODHeaderContainerCnv_v1::transToPers got "
        << "called" << endmsg;

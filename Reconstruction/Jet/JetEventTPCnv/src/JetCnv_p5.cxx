@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////// JetCnv_p5.cxx
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class JetCnv_p5
@@ -21,13 +21,7 @@
 #include "ParticleEventTPCnv/ParticleBaseCnv_p1.h"
 
 // JetEvent includes
-#define private public
-#define protected public
-// because of the NavWrapper, the navigation is now a private datamember of the NavWrapper,
-//  inaccessable for us via friendship
 #include "JetEvent/Jet.h"
-#undef protected
-#undef private
 #include "JetEvent/JetMomentMap.h"
 #include "JetEvent/JetTagInfoBase.h"
 #include "JetEvent/JetAssociationBase.h"
@@ -46,13 +40,13 @@ typedef NavigableCnv_p1<
            > NavigableCnv_t;
 
 // pre-allocate converters
-// static P4ImplPxPyPzECnv_p1   momCnv;
-static NavigableCnv_t        navCnv;
-static ParticleBaseCnv_p1 pbsCnv;
+// static const P4ImplPxPyPzECnv_p1   momCnv;
+static const NavigableCnv_t        navCnv;
+static const ParticleBaseCnv_p1 pbsCnv;
 
 void JetCnv_p5::persToTrans( const Jet_p5* pers,
                              Jet* trans, 
-                             MsgStream& msg ) 
+                             MsgStream& msg ) const
 {
   if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "Loading Jet from persistent state... "  << endmsg;
   
@@ -209,7 +203,7 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
     }
     
     vector<const JetTagInfoBase *> *ptags =
-      m_taginfoCnv.createTransient(&(pers->m_tagJetInfo), msg);
+      m_taginfoCnv.createTransientConst(&(pers->m_tagJetInfo), msg);
     if (ptags != 0) {
       vector<const JetTagInfoBase*> &tags (*ptags);
       for (unsigned int i = 0; i < tags.size(); i++) {
@@ -234,7 +228,7 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
     }
     trans->m_assocStore = new vector<const JetAssociationBase*> ();
     vector<const JetAssociationBase *> *pass =
-      m_tagAssCnv.createTransient(&(pers->m_associations), msg);
+      m_tagAssCnv.createTransientConst(&(pers->m_associations), msg);
 
     if (pass != 0) {
       vector<const JetAssociationBase *> &ass (*pass);
@@ -264,7 +258,7 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
 
 void JetCnv_p5::transToPers( const Jet*  trans, 
                              Jet_p5* pers, 
-                             MsgStream& msg ) 
+                             MsgStream& msg ) const
 {
 
   // This part is only for trigger now 

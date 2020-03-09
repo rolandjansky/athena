@@ -61,6 +61,8 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
 
+    static int sumCharge(const xAOD::TrackParticle *p1, const xAOD::TrackParticle* p2);
+
     double deltaPhi( double phi1, double phi2) const;
     double deltaEta( double eta1, double eta2) const;
 
@@ -92,24 +94,40 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     
     StatusCode vertexFit(xAOD::TrigBphys * result,
                          const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
-                         const std::vector<double>& inputMasses);
+                         const std::vector<double>& inputMasses) const;
+
+    StatusCode vertexFit(xAOD::TrigBphys * result,
+                         const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
+                         const std::vector<double>& inputMasses,
+                         Trk::IVKalState& istate) const;
 
 
     StatusCode vertexFit(xAOD::TrigBphys * result,
 		       const std::vector<const xAOD::TrackParticle*> &trks,
-		       const std::vector<double>& inputMasses);
+		       const std::vector<double>& inputMasses) const;
 
     // simplify this using templates perhaps? 
     double invariantMass(const xAOD::IParticle *p1, const xAOD::IParticle* p2, double m1, double m2) const;
+    double invariantMass(const xAOD::TrackParticle *p1, const xAOD::TrackParticle* p2, double m1, double m2) const;
     double invariantMassIP(const std::vector<const xAOD::IParticle*>&ptls, const std::vector<double> & masses) const;
     double invariantMass(const std::vector<const xAOD::TrackParticle*>&ptls, const std::vector<double> & masses) const;
+
+    template<size_t N>
+    static double invariantMass(const std::array<const xAOD::TrackParticle*, N> &tracks, const std::array<double, N> &masses);
 
     /// Fill an xAOD object with pt, rap,phi
     void fillTrigObjectKinematics(xAOD::TrigBphys* bphys, const std::vector<const xAOD::TrackParticle*> &ptls);
     
+    Amg::Vector3D getBeamSpot(const EventContext& ctx) const;
+
     /// Use the fitted position and the beamline to determine lxy, tau, etc.
     /// call after setting the kinematic values, to do ok.
-    void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls);
+    /// Try to factor getBeamSpot outside of loop.
+    void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls,
+                       const Amg::Vector3D& beamSpot);
+
+    std::unique_ptr<Trk::IVKalState> makeVKalState() const;
+
     
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
@@ -125,7 +143,7 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     ToolHandle < Trk::IVertexFitter  >       m_fitterSvc;
     Trk::TrkVKalVrtFitter*              m_VKVFitter;
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-    const double m_massMuon;
+    static constexpr double s_massMuon = 105.6583715;
 };
 
 // I/O operators
@@ -134,6 +152,26 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
 /////////////////////////////////////////////////////////////////// 
 // Inline methods: 
 /////////////////////////////////////////////////////////////////// 
+
+template<size_t N>
+double TrigBphysHelperUtilsTool::invariantMass(const std::array<const xAOD::TrackParticle*, N> &tracks, const std::array<double, N> &masses){
+    double px(0.),py(0.),pz(0.),E(0.);
+    for(size_t i=0; i<N; i++){
+       const auto &pv1 = tracks[i]->p4();
+       double mi1 = masses[i];
+       px += pv1.Px();
+       py += pv1.Py();
+       pz += pv1.Pz();
+       E  += sqrt(mi1*mi1 +
+               pv1.Px()*pv1.Px() +
+               pv1.Py()*pv1.Py() +
+               pv1.Pz()*pv1.Pz()
+          );
+    }
+    double m2 = E*E - px*px - py*py -pz*pz;
+    if (m2 < 0) return 0.;
+    else        return std::sqrt(m2);
+}
 
 
 #endif //> !TRIGBPHYSHYPO_TRIGBPHYSHELPERUTILSTOOL_H

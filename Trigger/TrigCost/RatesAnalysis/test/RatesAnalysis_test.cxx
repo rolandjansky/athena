@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../RatesAnalysis/RatesTrigger.h"
@@ -14,11 +14,11 @@ int main() {
 
   MsgStream log(nullptr, "RatesAnalysis_test");
 
-  RatesTrigger* triggerA1 = new RatesTrigger("TriggerA1", log, 1, 1, "SeedA", 2);
-  RatesTrigger* triggerA2 = new RatesTrigger("TriggerA2", log, 2, 1, "SeedA", 2);
+  RatesTrigger* triggerA1 = new RatesTrigger("TriggerA1", log, /*prescale*/1, /*XpressPrescale*/1, "SeedA", /*seedPrescale*/2);
+  RatesTrigger* triggerA2 = new RatesTrigger("TriggerA2", log, /*prescale*/2, /*XpressPrescale*/1, "SeedA", /*seedPrescale*/2);
 
-  RatesTrigger* triggerB1 = new RatesTrigger("TriggerB1", log, 3, 1, "SeedB", 4);
-  RatesTrigger* triggerB2 = new RatesTrigger("TriggerB2", log, 4, 1, "SeedB", 4);
+  RatesTrigger* triggerB1 = new RatesTrigger("TriggerB1", log, /*prescale*/3, /*XpressPrescale*/1, "SeedB", /*seedPrescale*/4);
+  RatesTrigger* triggerB2 = new RatesTrigger("TriggerB2", log, /*prescale*/4, /*XpressPrescale*/1, "SeedB", /*seedPrescale*/4);
 
   WeightingValuesSummary_t wvs;
   wvs.m_enhancedBiasWeight = 5000;
@@ -42,10 +42,11 @@ int main() {
 
   // simulate event one
 
-  triggerA1->setPassedAndExecute(true, wvs);
-  triggerA2->setPassedAndExecute(true, wvs);
-  triggerB1->setPassedAndExecute(true, wvs);
-  triggerB2->setPassedAndExecute(true, wvs);
+  triggerA1->setPassedAndExecute(true, true, wvs);
+  triggerA2->setPassedAndExecute(true, true, wvs);
+
+  triggerB1->setPassedAndExecute(true, true, wvs);
+  triggerB2->setPassedAndExecute(true, true, wvs);
 
   groupA->execute(wvs);
   groupB->execute(wvs);
@@ -59,23 +60,35 @@ int main() {
 
   wvs.m_enhancedBiasWeight = 1000;
 
-  triggerA1->setPassedAndExecute(true, wvs);
-  triggerA2->setPassedAndExecute(true, wvs);
+  triggerA1->setPassedAndExecute(true, true, wvs);
+  triggerA2->setPassedAndExecute(true, true, wvs);
+
+  triggerB1->setPassedAndExecute(false, false, wvs);
+  triggerB2->setPassedAndExecute(false, false, wvs);
 
   groupA->execute(wvs);
+  groupB->execute(wvs);
 
   triggerA1->reset();
   triggerA2->reset();
+  triggerB1->reset();
+  triggerB2->reset();
 
   // simulate event three
 
   wvs.m_enhancedBiasWeight = 500;
 
-  triggerB1->setPassedAndExecute(true, wvs);
-  triggerB2->setPassedAndExecute(true, wvs);
+  triggerA1->setPassedAndExecute(false, false, wvs);
+  triggerA2->setPassedAndExecute(false, false, wvs);
 
+  triggerB1->setPassedAndExecute(true, true, wvs);
+  triggerB2->setPassedAndExecute(true, true, wvs);
+
+  groupA->execute(wvs);
   groupB->execute(wvs);
 
+  triggerA1->reset();
+  triggerA2->reset();
   triggerB1->reset();
   triggerB2->reset();
 
@@ -83,14 +96,19 @@ int main() {
 
   wvs.m_enhancedBiasWeight = 10;
 
-  triggerA1->setPassedAndExecute(true, wvs);
-  triggerB1->setPassedAndExecute(true, wvs);
+  triggerA1->setPassedAndExecute(true, true, wvs);
+  triggerA2->setPassedAndExecute(false, true, wvs);
+
+  triggerB1->setPassedAndExecute(true, true, wvs);
+  triggerB2->setPassedAndExecute(false, true, wvs);
 
   groupA->execute(wvs);
   groupB->execute(wvs);
 
   triggerA1->reset();
+  triggerA2->reset();
   triggerB1->reset();
+  triggerB2->reset();
 
   // end
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef T_LARCONDATHENAPOOLCNV_H
@@ -39,9 +39,10 @@ public:
 
     virtual ~T_LArCondAthenaPoolCnv();
 
-    virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key);
-    virtual StatusCode DataObjectToPool(DataObject* pObj, std::string tname);
-    virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token);
+    virtual StatusCode DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj) override;
+    virtual StatusCode PoolToDataObject(DataObject*& pObj,
+                                        const std::string& token,
+                                        const std::string& key) override;
 
 
 private:

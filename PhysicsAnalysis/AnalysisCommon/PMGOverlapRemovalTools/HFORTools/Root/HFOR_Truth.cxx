@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -11,7 +11,6 @@
 #include "boost/current_function.hpp"
 #include <boost/any.hpp>
 
-#include "boost/foreach.hpp"
 #include "boost/property_tree/info_parser.hpp"
 #include "boost/property_tree/xml_parser.hpp"
 
@@ -719,19 +718,19 @@ int HFOR_Truth::readRunConfig(std::string runConfigFile) {
   //std::cout <<  BOOST_CURRENT_FUNCTION << " Configuration Date:    " <<  runConfig.get<std::string>("configuration.date")    << std::endl ;
 
 
-  BOOST_FOREACH(boost::property_tree::ptree::value_type &v, runConfig.get_child("flavor.isLight")) {
+  for(boost::property_tree::ptree::value_type &v : runConfig.get_child("flavor.isLight")) {
     //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isLight: " << v.first.data() << " --> " << v.second.data() << std::endl;
     m_runConfigMap[HFORType::isLight].push_back( atoi(v.first.data()) ) ;
   }
-  BOOST_FOREACH(boost::property_tree::ptree::value_type &v, runConfig.get_child("flavor.isBB")) {
+  for(boost::property_tree::ptree::value_type &v : runConfig.get_child("flavor.isBB")) {
     //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isBB: " << v.first.data() << " --> " << v.second.data() << std::endl;
     m_runConfigMap[HFORType::isBB].push_back( atoi(v.first.data()) ) ;
   }
-  BOOST_FOREACH(boost::property_tree::ptree::value_type &v, runConfig.get_child("flavor.isCC")) {
+  for(boost::property_tree::ptree::value_type &v : runConfig.get_child("flavor.isCC")) {
     //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isCC: " << v.first.data() << " --> " << v.second.data() << std::endl;
     m_runConfigMap[HFORType::isCC].push_back( atoi(v.first.data()) ) ;
   }
-  BOOST_FOREACH(boost::property_tree::ptree::value_type &v, runConfig.get_child("flavor.isC")) {
+  for(boost::property_tree::ptree::value_type &v : runConfig.get_child("flavor.isC")) {
     //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isC: " << v.first.data() << " --> " << v.second.data() << std::endl;
     m_runConfigMap[HFORType::isC].push_back( atoi(v.first.data()) ) ;
   }

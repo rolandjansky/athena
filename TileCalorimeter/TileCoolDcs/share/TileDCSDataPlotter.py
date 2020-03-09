@@ -1,5 +1,8 @@
 #!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author: nils.gollub@cern.ch
+
+from __future__ import print_function
 
 import sys, os
 import time
@@ -10,7 +13,7 @@ from TileCoolDcs import TileDCSDataGrabber
 from TileCoolDcs import ProgressBar
 
 
-class TileDCSDataPlotter:
+class TileDCSDataPlotter (object):
 
     #_______________________________________________________________________________________
     def __init__( self, argv, useCool, useTestBeam, verbose, dbstring=None, putDuplicates=False, hvonly=False ):
@@ -49,25 +52,25 @@ class TileDCSDataPlotter:
         self.outName   = self.outName.replace('/',':')
         self.outName   = self.outName.replace('(','0')
         self.outName   = self.outName.replace(')','0')
-        print "---> OUTNAME: " , self.outName
+        print ("---> OUTNAME: " , self.outName)
         if len(argv) >7:
             self.outName = argv[7]
 
-        timeBegInfo = time.localtime(self.iovBeg);
-        timeEndInfo = time.localtime(self.iovEnd);
+        timeBegInfo = time.localtime(self.iovBeg)
+        timeEndInfo = time.localtime(self.iovEnd)
         self.rangeStr = "FROM: "+time.asctime(timeBegInfo)+"  UNTIL: "+time.asctime(timeEndInfo)
 
         part=["LBA","LBC","EBA","EBC"]
         if self.drawer == "ALL":
             self.drawer=""
-            for p in xrange(4):
-                for m in xrange(64):
+            for p in range(4):
+                for m in range(64):
                     self.drawer+="%s%2.2d," % (part[p],m+1)
             self.drawer=self.drawer[:-1]
         elif self.drawer in part:
             p=self.drawer
             self.drawer=""
-            for m in xrange(64):
+            for m in range(64):
                 self.drawer+="%s%2.2d," % (p,m+1)
             self.drawer=self.drawer[:-1]
 
@@ -109,22 +112,22 @@ class TileDCSDataPlotter:
         if "ALL_HVSET" in varExpression or "ALL_SETHV" in varExpression:
             varList.extend(self.info.vars_HVSET.keys())
             if self.useCool:
-                for i in xrange(2):
+                for i in range(2):
                     varList.remove("Set.vFix1%d" % (i+1))
-                for i in xrange(4):
+                for i in range(4):
                     varList.remove("Set.hvIn%d" % (i+1))
-                for i in xrange(7):
+                for i in range(7):
                     varList.remove("Set.volt%d" % (i+1))
-                for i in xrange(7):
+                for i in range(7):
                     varList.remove("Set.temp%d" % (i+1))
-        if "ALL_HV" in varExpression and not "ALL_HVSET" in varExpression:
+        if "ALL_HV" in varExpression and "ALL_HVSET" not in varExpression:
             varList.extend(self.info.vars_HV.keys())
             if self.useCool:
-                for i in xrange(4):
+                for i in range(4):
                     varList.remove("hvIn%d" % (i+1))
-                for i in xrange(7):
+                for i in range(7):
                     varList.remove("volt%d" % (i+1))
-                for i in xrange(7):
+                for i in range(7):
                     varList.remove("temp%d" % (i+1))
 
         return list(set(varList))
@@ -148,10 +151,10 @@ class TileDCSDataPlotter:
             t = self.dataGrabber.getDCSTree(self.iovBeg, self.iovEnd, drl, varl, lastOnly, firstAndLast)
 
         if t.GetEntries()==0:
-            print "ERROR: No data in time intervall!"
+            print ("ERROR: No data in time interval!")
             sys.exit(1)
         else:
-            print "Found number of entries: ", t.GetEntries()
+            print ("Found number of entries: ", t.GetEntries())
 
         #=== append drawer to all variables
         if self.cmd!="tree" and drawer is None and var is None:
@@ -159,15 +162,20 @@ class TileDCSDataPlotter:
                 if "," in self.drawer:
                     newvar=""
                     newcut=""
-                    if var in self.cutExp: cut=self.cutExp
-                    else: cut=None
+                    if var in self.cutExp:
+                        cut=self.cutExp
+                    else:
+                        cut=None
                     for dr in self.drawer.split(","):
                         newvar += dr+"."+var+","
-                        if cut: newcut += dr+"."+cut+","
+                        if cut:
+                            newcut += dr+"."+cut+","
                     self.varExp = self.varExp.replace(var,newvar[:-1])
-                    if cut: self.cutExp = newcut[:-1]
+                    if cut:
+                        self.cutExp = newcut[:-1]
                     self.varExp = self.varExp.replace("Set."+newvar[:-1],"Set."+var)
-                    if cut and "Set." in cut and not "Set." in var: self.cutExp=cut
+                    if cut and "Set." in cut and "Set." not in var:
+                        self.cutExp=cut
                 else:
                     self.varExp = self.varExp.replace(var,self.drawer+"."+var)
                     self.cutExp = self.cutExp.replace(var,self.drawer+"."+var)
@@ -197,7 +205,7 @@ class TileDCSDataPlotter:
                             newvar += dr+"."+var+","
                 self.varExp = self.varExp.replace("ALL_HVSET",newvar[:-1])
                 self.varExp = self.varExp.replace("ALL_SETHV",newvar[:-1])
-            if "ALL_HV" in self.varExp and not "ALL_HVSET" in self.varExp :
+            if "ALL_HV" in self.varExp and "ALL_HVSET" not in self.varExp :
                 newvar=""
                 for dr in self.drawer.split(","):
                     for var in self.info.vars_HV.keys():
@@ -205,9 +213,9 @@ class TileDCSDataPlotter:
                             newvar += dr+"."+var+","
                 self.varExp = self.varExp.replace("ALL_HV",newvar[:-1])
 
-            print "self.drawer: ", self.drawer
-            print "self.varExp: ", self.varExp
-            print "self.cutExp: ", self.cutExp
+            print ("self.drawer: ", self.drawer)
+            print ("self.varExp: ", self.varExp)
+            print ("self.cutExp: ", self.cutExp)
 
         return t
 
@@ -223,8 +231,8 @@ class TileDCSDataPlotter:
         t = self.getTree()
 
         if t.GetEntries()==1:
-            print "ERROR: Only one data point, need at least 2"
-            print "---> Try increasing the time span"
+            print ("ERROR: Only one data point, need at least 2")
+            print ("---> Try increasing the time span")
             sys.exit(1)
 
         #=== extract the values
@@ -239,11 +247,11 @@ class TileDCSDataPlotter:
           cut = cut.replace("ALL_HVSET",var)
           cut = cut.replace("ALL_HV",var)
           cut = cut.replace("ALL",var)
-          #print var
-          #print cut
-          t.Draw(var+":EvTime",cut,"goff");
+          #print (var)
+          #print (cut)
+          t.Draw(var+":EvTime",cut,"goff")
           n = t.GetSelectedRows()
-          #print "n=",n
+          #print ("n=",n)
           if n>0:
             x = t.GetV2()
             y = t.GetV1()
@@ -251,18 +259,20 @@ class TileDCSDataPlotter:
             #=== fix for **** root time convention and add end time
             offset = 788918400 # = 1.1.1995(UTC), the root offset
             xarr = TArrayD(n+1)
-            for i in xrange(n):
+            for i in range(n):
                 xarr[i] = x[i]-offset
             xarr[n] = self.iovEnd-offset
 
             #=== create and fill histogram with values
             title = self.rangeStr+";;"+self.varExp
             h = TH1D("hDCS"+str(ih),title,n,xarr.GetArray())
-            for i in xrange(n):
+            for i in range(n):
                 center = h.GetBinCenter(i+1)
                 h.Fill(center,y[i])
-                if y[i]>hmax: hmax=y[i]
-                if y[i]<hmin: hmin=y[i]
+                if y[i]>hmax:
+                    hmax=y[i]
+                if y[i]<hmin:
+                    hmin=y[i]
 
             #=== set time display
             sec_min = 60
@@ -292,7 +302,8 @@ class TileDCSDataPlotter:
 
         if len(hh)>1:
             delta=(hmax-hmin)/20.
-            if delta<=0: delta=0.5
+            if delta<=0:
+                delta=0.5
             hmin-=delta
             hmax+=delta
             for h in hh:
@@ -313,12 +324,12 @@ class TileDCSDataPlotter:
         tree = self.getTree(firstAndLast=(opt==1))
 
         if tree.GetEntries()==1:
-            print "ERROR: Only one data point, need at least 2"
-            print "---> Try increasing the time span"
+            print ("ERROR: Only one data point, need at least 2")
+            print ("---> Try increasing the time span")
             sys.exit(1)
 
-        if len(self.cutExp) and not "ALL" in self.cutExp:
-            print "Cut expression is ignored in diff plot"
+        if len(self.cutExp) and "ALL" not in self.cutExp:
+            print ("Cut expression is ignored in diff plot")
 
         #=== extract the values
         leaves=tree.GetListOfLeaves()
@@ -329,31 +340,42 @@ class TileDCSDataPlotter:
           if len(z)==2 or (len(z)==3 and z[1]=="Set"):
             x=z[0]
             y=z[1]
-            if len(z)==3: y+= "."+z[2]
+            if len(z)==3:
+                y+= "."+z[2]
             if not y[-2].isdigit() and y[-1].isdigit():
               y=y[:-2]+'0'+y[-1]
-            if not x in xaxis: xaxis+=[x]
-            if not y in yaxis: yaxis+=[y]
+            if x not in xaxis:
+                xaxis+=[x]
+            if y not in yaxis:
+                yaxis+=[y]
         xaxis.sort()
         yaxis.sort()
         nx=len(xaxis)
         ny=len(yaxis)
-        if opt==1: pref="Diff "
-        elif opt==2: pref="Diff_Prof "
-        elif opt==3: pref="Prof "
-        else: pref=""
-        if opt==1: hist=ROOT.TH2F("hist2D",pref+self.outName,nx,-0.5,nx-0.5,ny,-0.5,ny-0.5)
-        else:      hist=ROOT.TProfile2D("hist2D",pref+self.outName,nx,-0.5,nx-0.5,ny,-0.5,ny-0.5)
+        if opt==1:
+            pref="Diff "
+        elif opt==2:
+            pref="Diff_Prof "
+        elif opt==3:
+            pref="Prof "
+        else:
+            pref=""
+        if opt==1:
+            hist=ROOT.TH2F("hist2D",pref+self.outName,nx,-0.5,nx-0.5,ny,-0.5,ny-0.5)
+        else:
+            hist=ROOT.TProfile2D("hist2D",pref+self.outName,nx,-0.5,nx-0.5,ny,-0.5,ny-0.5)
 
         XA=hist.GetXaxis()
         n=0
-        for i in xrange(nx):
-          if n: XA.SetBinLabel(i + 1, '')
-          else: XA.SetBinLabel(i + 1, xaxis[i])
+        for i in range(nx):
+          if n:
+              XA.SetBinLabel(i + 1, '')
+          else:
+              XA.SetBinLabel(i + 1, xaxis[i])
           n=1-n
 
         YA=hist.GetYaxis()
-        for i in xrange(ny):
+        for i in range(ny):
           YA.SetBinLabel(i + 1, yaxis[i])
 
         tree.GetEntry(0)
@@ -372,7 +394,7 @@ class TileDCSDataPlotter:
         else:
             n1=0
         bar = ProgressBar.progressBar(n1,ne, 78)
-        for n in xrange(n1,ne):
+        for n in range(n1,ne):
           tree.GetEntry(n)
           bar.update(n)
           for leaf in leaves:
@@ -381,7 +403,8 @@ class TileDCSDataPlotter:
             if len(z)==2 or (len(z)==3 and z[1]=="Set"):
               x=z[0]
               y=z[1]
-              if len(z)==3: y+= "."+z[2]
+              if len(z)==3:
+                  y+= "."+z[2]
               if not y[-2].isdigit() and y[-1].isdigit():
                 y=y[:-2]+'0'+y[-1]
               v2=leaf.GetValue()
@@ -395,8 +418,8 @@ class TileDCSDataPlotter:
                   cut = cut.replace("ALL_HV",var)
                   cut = cut.replace("ALL",var)
                   ok = eval(cut)
-                  #print cut
-                  #print ok
+                  #print (cut)
+                  #print (ok)
               else:
                   ok = True
               if ok:
@@ -456,32 +479,39 @@ class TileDCSDataPlotter:
                 cut = "weight*("+cut+")"
             else:
                 cut = "weight"
-            #print var
-            #print cut
+            #print (var)
+            #print (cut)
 
-            t.Draw(var,cut,"goff");
+            t.Draw(var,cut,"goff")
             h = ROOT.gDirectory.Get("htemp")
             h.SetXTitle(var.split(":")[0])
             h.SetTitle(self.rangeStr)
             h.SetName("TileDCSDataPlotter"+str(ih))
-            #print "n=",h.GetEntries()
+            #print ("n=",h.GetEntries())
 
             if h.GetEntries()>0:
                 xmi = h.GetXaxis().GetBinLowEdge(1)
                 xma = h.GetXaxis().GetBinLowEdge(h.GetNbinsX())+h.GetXaxis().GetBinWidth(h.GetNbinsX())
-                if xmi<xmin: xmin=xmi
-                if xma>xmax: xmax=xma
+                if xmi<xmin:
+                    xmin=xmi
+                if xma>xmax:
+                    xmax=xma
                 if dim>0:
                     ymi = h.GetYaxis().GetBinLowEdge(1)
                     yma = h.GetYaxis().GetBinLowEdge(h.GetNbinsY())+h.GetYaxis().GetBinWidth(h.GetNbinsY())
-                    if ymi<ymin: ymin=ymi
-                    if yma>ymax: ymax=yma
+                    if ymi<ymin:
+                        ymin=ymi
+                    if yma>ymax:
+                        ymax=yma
                 hmi = h.GetMinimum()
                 hma = h.GetMaximum()
-                if hmi<hmin: hmin=hmi
-                if hma>hmax: hmax=hma
+                if hmi<hmin:
+                    hmin=hmi
+                if hma>hmax:
+                    hmax=hma
                 xtit+=varX+","
-                if dim>0: ytit+=varY+","
+                if dim>0:
+                    ytit+=varY+","
 
             h.SetLineColor(color[ih%len(color)])
             h.SetMarkerColor(color[ih%len(color)])
@@ -494,22 +524,26 @@ class TileDCSDataPlotter:
                 xmin=0
                 xmax=0
             delta=(xmax-xmin)/20.
-            if delta<=0: delta=0.5
+            if delta<=0:
+                delta=0.5
             xmin-=delta
             xmax+=delta
             if ymin>ymax:
                 ymin=0
                 ymax=0
             delta=(ymax-ymin)/20.
-            if delta<=0: delta=0.5
+            if delta<=0:
+                delta=0.5
             ymin-=delta
             ymax+=delta
             if hmin>hmax:
                 hmin=0
                 hmax=1
             delta=(hmax-hmin)/20.
-            if delta<=0: delta=0.5
-            if hmin!=0: hmin-=delta
+            if delta<=0:
+                delta=0.5
+            if hmin!=0:
+                hmin-=delta
             hmax+=delta
             if dim>0:
                 h0 = TH2D("hDCS","dummy",2,xmin,xmax,2,ymin,ymax)
@@ -519,7 +553,8 @@ class TileDCSDataPlotter:
             h0.SetXTitle(xtit[:-1])
             h0.SetTitle(self.rangeStr)
             h0.SetMaximum(hmax)
-            if hmin!=0: h0.SetMinimum(hmin)
+            if hmin!=0:
+                h0.SetMinimum(hmin)
             hh=[h0]+hh
             ROOT.gStyle.SetOptStat(0)
 
@@ -536,18 +571,18 @@ class TileDCSDataPlotter:
         t = self.getTree()
         if self.cutExp!="":
             for v, c in zip(self.varExp.split(","), self.cutExp.split(",")):
-                t.Draw(v,c,"goff");
+                t.Draw(v,c,"goff")
                 h = ROOT.gDirectory.Get("htemp")
 
-                print "%s  %s  %s  Nentries %d  Mean %7.3f  RMS %8.4f" % \
-                    (v,c,self.rangeStr,h.GetEntries(),h.GetMean(),h.GetRMS())
+                print ("%s  %s  %s  Nentries %d  Mean %7.3f  RMS %8.4f" % \
+                    (v,c,self.rangeStr,h.GetEntries(),h.GetMean(),h.GetRMS()))
         else:
             cut = ""
             for v in self.varExp.split(","):
-                t.Draw(v,cut,"goff");
+                t.Draw(v,cut,"goff")
                 h = ROOT.gDirectory.Get("htemp")
-                print "%s  %s  Nentries %d  Mean %7.3f  RMS %8.4f" % \
-                    (v,self.rangeStr,h.GetEntries(),h.GetMean(),h.GetRMS())
+                print ("%s  %s  Nentries %d  Mean %7.3f  RMS %8.4f" % \
+                    (v,self.rangeStr,h.GetEntries(),h.GetMean(),h.GetRMS()))
 
         return 0
 
@@ -566,31 +601,31 @@ class TileDCSDataPlotter:
         if "ALL_HVSET" in self.varExp or "ALL_SETHV" in self.varExp:
             vlist = self.info.vars_HVSET.keys()
             if self.useCool:
-                for i in xrange(2):
+                for i in range(2):
                     vlist.remove("Set.vFix1%d" % (i+1))
-                for i in xrange(4):
+                for i in range(4):
                     vlist.remove("Set.hvIn%d" % (i+1))
-                for i in xrange(7):
+                for i in range(7):
                     vlist.remove("Set.volt%d" % (i+1))
-                for i in xrange(7):
+                for i in range(7):
                     vlist.remove("Set.temp%d" % (i+1))
             self.varExp = self.varExp.replace("ALL_HVSET",",".join(sorted(vlist)))
             self.varExp = self.varExp.replace("ALL_SETHV",",".join(sorted(vlist)))
-        if "ALL_HV" in self.varExp and not "ALL_HVSET" in self.varExp:
+        if "ALL_HV" in self.varExp and "ALL_HVSET" not in self.varExp:
             vlist = self.info.vars_HV.keys()
             if self.useCool:
-                for i in xrange(4):
+                for i in range(4):
                     vlist.remove("hvIn%d" % (i+1))
-                for i in xrange(7):
+                for i in range(7):
                     vlist.remove("volt%d" % (i+1))
-                for i in xrange(7):
+                for i in range(7):
                     vlist.remove("temp%d" % (i+1))
             self.varExp = self.varExp.replace("ALL_HV",",".join(sorted(vlist)))
-        print self.varExp
+        print (self.varExp)
 
         reslist=[]
         cutlist = self.parseVarExpression(self.cutExp)
-        print cutlist
+        print (cutlist)
         t = None
         drlistprev=[]
         varlistprev=[]
@@ -620,9 +655,9 @@ class TileDCSDataPlotter:
                     cut = cut.replace("Set."+drawer,"Set")
                     var = var.replace(drawer+"."+drawer,drawer)
                     cut = cut.replace(drawer+"."+drawer,drawer)
-                    print "var is",var
-                    print "cut is",cut
-                    t.Draw(var,cut,"goff");
+                    print ("var is",var)
+                    print ("cut is",cut)
+                    t.Draw(var,cut,"goff")
                     h = ROOT.gDirectory.Get("htemp")
                     if h:
                         if cut!="":
@@ -634,10 +669,10 @@ class TileDCSDataPlotter:
 
         if lastOnly:
             for res in reslist:
-                print "%-25s  %s        Last %-9.3f" % (res[0],res[1],res[3])
+                print ("%-25s  %s        Last %-9.3f" % (res[0],res[1],res[3]))
         else:
             for res in reslist:
-                print "%-25s  %s        Nentries %-7d  Mean %-9.3f  RMS %-9.4f" % res
+                print ("%-25s  %s        Nentries %-7d  Mean %-9.3f  RMS %-9.4f" % res)
         return 0
 
 
@@ -682,7 +717,7 @@ if callName=="TileDCSDataPlotter.py":
     #=== catch invalid commands
     cmd = sys.argv[1]
     if not(cmd=="plot" or cmd=="diff" or cmd=="diffprof" or cmd=="prof" or cmd=="dist" or cmd=="tree"  or cmd=="mean"  or cmd=="last"):
-        print """ Please use one of the following commands: plot, diff, dist, tree, mean, last !"""
+        print (""" Please use one of the following commands: plot, diff, dist, tree, mean, last !""")
         sys.exit(1)
 
     #=== command is recognized, we go on....
@@ -747,12 +782,12 @@ if callName=="TileDCSDataPlotter.py":
                     if dim==0:
                         h.Draw("EHIST"+opt)
                         if pr:
-                            print "%s  %s  Nentries %d  Mean %7.3f  RMS %8.4f" % \
-                                (h.GetXaxis().GetTitle(),h.GetTitle(),h.GetEntries(),h.GetMean(),h.GetRMS())
+                            print ("%s  %s  Nentries %d  Mean %7.3f  RMS %8.4f" % \
+                                (h.GetXaxis().GetTitle(),h.GetTitle(),h.GetEntries(),h.GetMean(),h.GetRMS()))
                         else:
                             pr=True
                     elif dim==1:
-                        print "2D plot, opt ",opt
+                        print ("2D plot, opt ",opt)
                         h.Draw("BOX"+opt)
                     else:
                         h.Draw(opt)

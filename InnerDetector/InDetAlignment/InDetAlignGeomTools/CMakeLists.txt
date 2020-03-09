@@ -21,6 +21,9 @@ atlas_depends_on_subdirs(
    GaudiKernel
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    Tracking/TrkEvent/TrkRIO_OnTrack )
 
 # External dependencies:
@@ -38,4 +41,4 @@ atlas_add_library( InDetAlignGeomToolsLib
 atlas_add_component( InDetAlignGeomTools
    src/*.cxx src/components/*.cxx
    LINK_LIBRARIES GeoModelUtilities GaudiKernel InDetIdentifier
-   InDetReadoutGeometry TrkRIO_OnTrack InDetAlignGeomToolsLib )
+   InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry  TrkRIO_OnTrack InDetAlignGeomToolsLib )

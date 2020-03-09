@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOTTIDTOOLS_H_
@@ -7,7 +7,6 @@
 
 #include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
@@ -80,8 +79,6 @@ namespace LVL1{
       int phiIndex(const double eta, const double phi) const;
 
   private:
-
-      StoreGateSvc* m_detStore;
 
       const TTOnlineID*  m_l1ttonlineHelper;
       const CaloLVL1_ID* m_l1ttofflineHelper;

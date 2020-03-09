@@ -1,5 +1,14 @@
-#!/usr/bin/python
-import os, sys,urllib2, getopt
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import os, sys, getopt
+
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.request import urlopen, Request
+from urllib.error import URLError
+
 '''Package to query a web service which returns coverity defects as plain text.
 It infers the package name from the working directory, or this may be specified on the command line'''
 
@@ -13,12 +22,12 @@ def getDefects(pkg):
   query="?package="+pkg+"&format="+format
   url=baseUrl+query
   textData=None
-  request=urllib2.Request(url,textData)
+  request=Request(url,textData)
   try:
-    u=urllib2.urlopen(request, timeout=2)
-  except urllib2.URLError, e:
+    u=urlopen(request, timeout=2)
+  except URLError as e:
     return "I'm sorry, the server timed out"
-  textString = u.read()
+  textString = u.read().decode()
   return textString
   
 def main(argv):
@@ -26,15 +35,15 @@ def main(argv):
   try:
     opts, args = getopt.getopt(argv,"hp:",["package="])
   except getopt.GetoptError:
-    print 'issues -p <package>'
+    print ('issues -p <package>')
     sys.exit(2)
   for opt, arg in opts:
     if opt == '-h':
-      print '"issues" will determine the package from the working directory; otherwise you may use "issues -p package"'
+      print ('"issues" will determine the package from the working directory; otherwise you may use "issues -p package"')
       sys.exit()
     elif opt in ("-p", "--package"):
       package = arg
-  print getDefects(package)
+  print (getDefects(package))
   return 0
   
 if __name__=="__main__":

@@ -19,9 +19,9 @@
 
 // FourMom includes
 #include "FourMom/Lib/P4BaseIPtCotThPhiM.h"
-#include "FourMom/DeepCopyPointer.h"
 #include "FourMom/FourMomentumError.h"
 
+#include <memory>
 // forward declare
 class P4ImplIPtCotThPhiMCnv_p1; // for persistency
 
@@ -137,7 +137,7 @@ class P4ImplIPtCotThPhiM : public P4BaseIPtCotThPhiM
   
   /** error matrix pointer
    */
-  DeepCopyPointer< ErrorType> m_error;
+  std::unique_ptr< ErrorType> m_error;
 
 };
 
@@ -147,7 +147,7 @@ inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM() :
   m_cotTh ( 0. ),
   m_phi   ( 0. ),
   m_m     ( 0.*CLHEP::GeV ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const P4ImplIPtCotThPhiM& rhs ):
@@ -156,7 +156,7 @@ inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const P4ImplIPtCotThPhiM& rhs ):
   m_cotTh ( rhs.m_cotTh ),
   m_phi   ( rhs.m_phi   ),
   m_m     ( rhs.m_m     ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const double iPt, 
@@ -168,7 +168,7 @@ inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const double iPt,
   m_cotTh( cotTh ),
   m_phi  ( phi   ),
   m_m    ( m     ),
-  m_error(0)
+  m_error(nullptr)
 {
   // could enforce phi range convention there
   // const double twopi =2.*M_PI;
@@ -182,7 +182,7 @@ inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const CLHEP::HepLorentzVector& hl
   m_cotTh ( hlv.pz() / hlv.perp() ),
   m_phi   ( hlv.phi() ),
   m_m     ( hlv.m() ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const I4Momentum & p4 ) :
@@ -191,7 +191,7 @@ inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const I4Momentum & p4 ) :
   m_cotTh( p4.cotTh() ),
   m_phi  ( p4.phi()   ),
   m_m    ( p4.m()     ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const I4Momentum * const p4 ) :
@@ -200,7 +200,7 @@ inline P4ImplIPtCotThPhiM::P4ImplIPtCotThPhiM( const I4Momentum * const p4 ) :
   m_cotTh( p4->cotTh() ),
   m_phi  ( p4->phi()   ),
   m_m    ( p4->m()     ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplIPtCotThPhiM::~P4ImplIPtCotThPhiM()
@@ -276,7 +276,7 @@ inline void P4ImplIPtCotThPhiM::set4Mom( const CLHEP::HepLorentzVector & hlv )
 
 inline void P4ImplIPtCotThPhiM::setErrors( const ErrorMatrixPtCotThPhiM& err)
 {
-  m_error = DeepCopyPointer< ErrorType>(new ErrorType( err, *this));
+  m_error = std::make_unique< ErrorType>(err, *this);
 }
 
 

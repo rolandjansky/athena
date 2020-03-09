@@ -21,7 +21,7 @@ class TrigDataAccess(_TrigDataAccess):
 
         from RecExConfig.RecFlags import rec
         transientBS = (rec.readRDO() and not globalflags.InputFormat()=='bytestream')
-        if ( transientBS or TriggerFlags.writeBS() ):
+        if ( transientBS or TriggerFlags.doTransientByteStream() ):
             if ( not hasattr(svcMgr.ToolSvc,'LArRawDataContByteStreamTool') ):
                 from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
                 svcMgr.ToolSvc += LArRawDataContByteStreamToolConfig()
@@ -64,8 +64,20 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
                     condSequence = AthSequencer("AthCondSeq")
                     from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg
                     condSequence += LArOFCCondAlg (ReadKey="/LAR/ElecCalibFlat/OFC", WriteKey='LArOFC')
+                    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+                    LuminosityCondAlgOnlineDefault()
                     from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
                     CaloBCIDAvgAlgDefault()
+                    from AthenaCommon.AlgSequence import AlgSequence
+                    topSequence = AlgSequence()
+                    if not hasattr(topSequence,"CaloBCIDAvgAlg"):
+                       log.info('Cannot use timer for CaloBCIDAvgAlg')
+                    else:
+                       from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+                       monTool = GenericMonitoringTool('MonTool')
+                       monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=4000)
+                       topSequence.CaloBCIDAvgAlg.MonTool = monTool
+                       log.info('using timer for CaloBCIDAvgAlg')
 
             else:
                 log.info('Disable HLT calo offset correction')

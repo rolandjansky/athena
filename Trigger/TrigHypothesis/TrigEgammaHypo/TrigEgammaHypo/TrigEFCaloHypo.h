@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -35,7 +35,6 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
-#include "AIDA/IHistogram1D.h"
 
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"

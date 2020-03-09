@@ -18,8 +18,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef   IDSCANZFINDER_H__
-#define   IDSCANZFINDER_H__
+#ifndef   IDSCANZFINDER_H
+#define   IDSCANZFINDER_H
 
 #include <string>
 #include <vector>
@@ -46,7 +46,8 @@ class IDScanZFinder: public Run1::IDScanZFinderInternal<TrigSiSpacePoint>, publi
   
   virtual StatusCode initialize() override;
 
-  TrigVertexCollection* findZ( const std::vector<const TrigSiSpacePoint *>& spVec, const IRoiDescriptor& roi);
+  virtual
+  TrigVertexCollection* findZ( const std::vector<const TrigSiSpacePoint *>& spVec, const IRoiDescriptor& roi) override;
 
   /// no private data members - all inherited from the IDScanZFinderInternal class
   /// NB: BE CAREFUL !!! Nothing set with a job option should EVER be changed 

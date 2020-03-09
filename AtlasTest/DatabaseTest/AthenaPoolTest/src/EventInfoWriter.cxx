@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -55,21 +55,6 @@ StatusCode EventInfoWriter::initialize()
 	ATH_MSG_FATAL("TagInfoMgr service not found !");
 	return StatusCode::FAILURE;
     } 
-
-//     // Register callback to test when TagInfo has changed
-//     const DataHandle<TagInfo> tagInfoH;
-//     std::string key = m_tagInfoMgr->tagInfoKey();
-//     if (m_detStore->regFcn(&EventInfoWriter::checkTagInfo,
-// 			     this, tagInfoH, key).isFailure()) {
-// 	ATH_MSG_ERROR("Cannot register checkTagInfo function for key " 
-// 	    << key
-// 	   );
-// 	return sc;
-//     } else {
-// 	ATH_MSG_DEBUG("Registered checkTagInfo callback for key: " 
-// 	    << key
-// 	   );
-//     }
 
     // Insert a dummy tag into the TagInfoMgr
     if (m_tagInfoMgr->addTag("EventInfoWriterTag", "EIW-00-00-01").isFailure()) {

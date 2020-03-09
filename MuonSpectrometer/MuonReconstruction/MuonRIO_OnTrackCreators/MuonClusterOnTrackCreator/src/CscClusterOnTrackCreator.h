@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-//  Header file for class  CscClusterOnTrackCreator
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // Interface for CscClusterOnTrack production
-///////////////////////////////////////////////////////////////////
-// Version 1.0 20/07/2004 
 ///////////////////////////////////////////////////////////////////
 
 #ifndef CscClusterOnTrackCreator_H
@@ -18,17 +12,18 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonRIO_OnTrack/MuonEtaPhiRIO_OnTrackErrorScaling.h"
 
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 
-class CscIdHelper;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 
 namespace Muon {
 
@@ -99,10 +94,9 @@ namespace Muon {
 
 
   private:
-    const MuonGM::MuonDetectorManager*   m_muonMgr;          // Muon GeoModel
-    const CscIdHelper*                   m_cscIdHelper;
-    const RpcIdHelper*                   m_rpcIdHelper;     
-    const TgcIdHelper*                   m_tgcIdHelper;     
+
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
     ToolHandle<ICscStripFitter>          m_stripFitter;
     ToolHandle<ICscClusterFitter>        m_clusterFitter;
     ToolHandle<ICscClusterUtilTool>      m_clusterUtilTool;

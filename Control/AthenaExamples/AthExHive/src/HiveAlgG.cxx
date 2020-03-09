@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgG.h"
-#include <thread>
-#include <chrono>
-#include <memory>
 
 HiveAlgG::HiveAlgG( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
@@ -13,22 +10,27 @@ HiveAlgG::HiveAlgG( const std::string& name,
 {
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 HiveAlgG::~HiveAlgG() {}
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgG::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
   ATH_CHECK( m_rdh1.initialize() );
   ATH_CHECK( m_wrh1.initialize() );
 
+  // initialize base class
   return HiveAlgBase::initialize();
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgG::finalize() {
   ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgG::execute() {
 
   ATH_MSG_DEBUG("execute " << name());

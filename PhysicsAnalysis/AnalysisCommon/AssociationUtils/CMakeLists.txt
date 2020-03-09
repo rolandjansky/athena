@@ -25,7 +25,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTau
    Event/xAOD/xAODTracking
    PRIVATE
-   Control/CxxUtils
    Event/FourMomUtils
    Event/xAOD/xAODEventInfo
    ${extra_dep} )
@@ -62,7 +61,7 @@ atlas_add_library( AssociationUtilsLib
    INCLUDE_DIRS ${ROOT_ICNLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase xAODEgamma xAODJet
    xAODMuon xAODTau xAODTracking AthContainers AthLinks
-   PRIVATE_LINK_LIBRARIES CxxUtils FourMomUtils )
+   PRIVATE_LINK_LIBRARIES FourMomUtils )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( AssociationUtils

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -24,7 +24,7 @@ std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
 std::vector< std::pair< int, std::vector<int> > > hashMapping;
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
 int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-std::vector<int> getPositionFromDCSID (std::string module_name);
+std::vector<int> getPositionFromDCSID (const std::string& module_name);
 
 std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
   std::stringstream ss(s);
@@ -329,13 +329,13 @@ int main(int argc, char* argv[]){
   pyFile << "badModulesList=[]" << std::endl;
 
   std::map<int, std::vector<std::string> >::const_iterator iter;
-  for(iter = deadModuleList.begin(); iter != deadModuleList.end(); iter++){
+  for(iter = deadModuleList.begin(); iter != deadModuleList.end(); ++iter){
     if( (iter->second).size() < 1) continue;
     int LB = iter->first;
     pyFile << "runLumiList.append([" << runNumber << ", " << LB << "])" << std::endl;
     pyFile << "badModulesList.append([";
     std::vector<std::string>::const_iterator module_iter;
-    for(module_iter = (iter->second).begin(); module_iter != (iter->second).end(); module_iter++){
+    for(module_iter = (iter->second).begin(); module_iter != (iter->second).end(); ++module_iter){
       std::string moduleID = *module_iter;
       std::vector<int> position = getPositionFromDCSID(moduleID);
       int barrel = position[0];
@@ -549,7 +549,7 @@ int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_et
   return 0;
 }
 
-std::vector<int> getPositionFromDCSID (std::string module_name){
+std::vector<int> getPositionFromDCSID (const std::string& module_name){
   for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
     if (pixelMapping[ii].first == module_name)
       return pixelMapping[ii].second;

@@ -58,18 +58,11 @@
 #include "MuonPrepRawData/MdtPrepData.h"
 
 //IdHelpers
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 Trk::MeasurementToSoNode::MeasurementToSoNode()
     :
     m_trtProjection(false),
-    m_cscIdHelper(0),
-    m_rpcIdHelper(0),
-    m_tgcIdHelper(0),
-    m_mdtIdHelper(0),
     m_stripThickness(0.8),
     m_dtDrawMode(Trk::MeasurementToSoNode::ShortLength),
     m_clusDrawMode(Trk::MeasurementToSoNode::SingleStrip),
@@ -82,15 +75,9 @@ Trk::MeasurementToSoNode::MeasurementToSoNode()
 }
 
 void
-Trk::MeasurementToSoNode::initialize(   const CscIdHelper* cscIdHelper,
-                                        const RpcIdHelper* rpcIdHelper,
-                                        const TgcIdHelper* tgcIdHelper,
-                                        const MdtIdHelper* mdtIdHelper)
+Trk::MeasurementToSoNode::initialize( const Muon::MuonIdHelperTool* muonIdHelperTool )
 {
-  m_cscIdHelper=cscIdHelper;
-  m_rpcIdHelper=rpcIdHelper;
-  m_tgcIdHelper=tgcIdHelper;
-  m_mdtIdHelper=mdtIdHelper;
+  m_muonIdHelperTool=muonIdHelperTool;
 }
 
 std::pair<SoSeparator*,  std::vector<SoNode*> >
@@ -339,8 +326,8 @@ Trk::MeasurementToSoNode::toSoNode(const MuonGM::CscReadoutElement* detEl, Ident
 	VP1Msg::messageVerbose("Trk::MeasurementToSoNode::toSoNode(MuonGM::CscReadoutElement)");
 
   SoNode *theHitMarker = 0;
-  int measPhi = m_cscIdHelper->measuresPhi( id );
-  int chamberLayer = m_cscIdHelper->chamberLayer( id );
+  int measPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi( id );
+  int chamberLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer( id );
   double stripWidth=detEl->cathodeReadoutPitch(chamberLayer, measPhi) ;
   double stripLength=detEl->stripLength( id );
   if ( isSimpleView(TrkObjToString::CSC) )
@@ -360,7 +347,7 @@ Trk::MeasurementToSoNode::toSoNode(const MuonGM::RpcReadoutElement* detEl, Ident
 	VP1Msg::messageVerbose("Trk::MeasurementToSoNode::toSoNode(MuonGM::RpcReadoutElement)");
 
   SoNode *theHitMarker = 0;
-  int measPhi = m_rpcIdHelper->measuresPhi( id );
+  int measPhi = m_muonIdHelperTool->rpcIdHelper().measuresPhi( id );
   double stripWidth=detEl->StripWidth(measPhi) ;
   double stripLength=detEl->StripLength(measPhi) ;
   //////std::cout<<"RPC measPhi: "<< measPhi<<std::endl;
@@ -382,9 +369,9 @@ Trk::MeasurementToSoNode::toSoNode(const MuonGM::TgcReadoutElement* detEl, Ident
 	VP1Msg::messageVerbose("Trk::MeasurementToSoNode::toSoNode(MuonGM::TgcReadoutElement)");
 
   SoNode *theHitMarker = 0;
-  int plane     = m_tgcIdHelper->gasGap( id );
-  int strip     = m_tgcIdHelper->channel( id );
-  int isStrip   = m_tgcIdHelper->isStrip( id );
+  int plane     = m_muonIdHelperTool->tgcIdHelper().gasGap( id );
+  int strip     = m_muonIdHelperTool->tgcIdHelper().channel( id );
+  int isStrip   = m_muonIdHelperTool->tgcIdHelper().isStrip( id );
 
   double striplength =0.0, stripWidth = 0.0;
 

@@ -6,6 +6,7 @@
 #include <forward_list>
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 CaloNoiseCondAlg::CaloNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
@@ -132,22 +133,18 @@ StatusCode CaloNoiseCondAlg::execute() {
   }
 
   //Start with a range covering 0 - inf, then narrow down
-  const EventIDBase start{0,EventIDBase::UNDEFEVT,0,0,0,0};
-  const EventIDBase stop{EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFEVT-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1,0};
-  //                            Run                   Event                  time                    time_ns               LB              BCID	
-  EventIDRange rangeOut{start, stop};	
+  EventIDRange rangeOut=IOVInfiniteRange::infiniteMixed();
   EventIDRange rangeIn;
 
-
+  ATH_MSG_DEBUG("Initial range " << rangeOut);
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if (!cablingHdl.range(rangeIn)){ 
     ATH_MSG_ERROR("Failed to retrieve validity range of LArCabling CDO with key " << m_larNoiseKey.key());
     return StatusCode::FAILURE;
   }  
-  //std::cout << "rangeIn lar cabling " << rangeIn << std::endl;
   rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-  //std::cout << "rangeOut lar cabling " << rangeOut << std::endl;
+  ATH_MSG_DEBUG("Range of LArCabling " << rangeIn << ", intersection:" << rangeOut);
   //Obtain AttrListsCollections for all possible folders (LAr,Tile,Calo) 
   std::vector<const CondAttrListCollection*> attrListNoise;
 
@@ -159,9 +156,8 @@ StatusCode CaloNoiseCondAlg::execute() {
       ATH_MSG_ERROR("Failed to retrieve validity range for LArNoise CondAttrList with " << m_larNoiseKey.key());
       return StatusCode::FAILURE;
     }
-    //std::cout << "rangeIn lar noise " << rangeIn << std::endl;
     rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    //std::cout << "rangeOut after lar noise " << rangeOut << std::endl;
+    ATH_MSG_DEBUG("Range of LArNoise " << rangeIn << ", intersection:" << rangeOut);
   }
 
   if (!m_tileNoiseKey.key().empty()) {
@@ -171,9 +167,8 @@ StatusCode CaloNoiseCondAlg::execute() {
       ATH_MSG_ERROR("Failed to retrieve validity range for TileNoise CondAttrList with " << m_tileNoiseKey.key());
       return StatusCode::FAILURE;
     }
-    //std::cout << "rangeIn tile noise " << rangeIn << std::endl;
     rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    //std::cout << "rangeOut after tile noise " << rangeOut << std::endl;
+    ATH_MSG_DEBUG("Range of TileNoise " << rangeIn << ", intersection:" << rangeOut);
   }
 
   if (!m_caloNoiseKey.key().empty()) {
@@ -183,9 +178,8 @@ StatusCode CaloNoiseCondAlg::execute() {
       ATH_MSG_ERROR("Failed to retrieve validity range for CaloNoise CondAttrList with " << m_caloNoiseKey.key());
       return StatusCode::FAILURE;
     }
-    //std::cout << "rangeIn calo noise " << rangeIn << std::endl;
     rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    //std::cout << "rangeOut after calo noise " << rangeOut << std::endl;
+    ATH_MSG_DEBUG("Range of CaloNoise " << rangeIn << ", intersection:" << rangeOut);
   }
   
   //Get noise-blobs out of all COOL-channels in all COOL Folders we know about:
@@ -211,9 +205,8 @@ StatusCode CaloNoiseCondAlg::execute() {
       ATH_MSG_ERROR("Failed to retrieve validity range for CaloNoise CondAttrList with " << m_hvCorrKey.key());
       return StatusCode::FAILURE;
     }
-    //std::cout << "rangeIn HV" << rangeIn << std::endl;
     rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    //std::cout << "rangeOut after HV " << rangeOut << std::endl;
+    ATH_MSG_DEBUG("Range of LArHVScale " << rangeIn << ", intersection:" << rangeOut);
   }
 
   //Get Luminosity:
@@ -225,10 +218,8 @@ StatusCode CaloNoiseCondAlg::execute() {
       ATH_MSG_ERROR("Failed to retrieve validity range for CaloNoise CondAttrList with " << m_lumiFolderKey.key());
       return StatusCode::FAILURE;
     }
-    //std::cout << "rangeIn Lumi" << rangeIn << std::endl;
     rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    //std::cout << "rangeOut after lumi " << rangeOut << std::endl;
-
+    ATH_MSG_DEBUG("Range of Luminosity " << rangeIn << ", intersection:" << rangeOut);
     const coral::AttributeList& attrList = lumiAttrListColl->attributeList(0); //Get lumi from COOL channel 0
     if (attrList["LBAvInstLumi"].isNull()) {
       ATH_MSG_WARNING( " NULL Luminosity information in database ... set it to 0 "  );

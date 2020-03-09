@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -31,28 +31,52 @@ namespace DerivationFramework
       DiLepFilters(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~DiLepFilters() = default;
 
-      StatusCode initialize() override;
+      virtual StatusCode initialize() override;
 
       // retrieves the trigger information
       // has to be called in every event before the filters are used
       // returns true if at least one trigger is passed
-      bool GetTriggers() override;
+      bool GetTriggers(uint32_t& passFlags) const override;
 
       // single filter implementations
-      bool PassSiEl(const xAOD::Electron& el) const override;
-      bool PassSiPhX(const xAOD::Photon& ph, const xAOD::Electron& el) const override;
-      bool PassSiPhX(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const override;
-      bool PassSiPhX(const xAOD::Photon& ph, const xAOD::Muon& mu) const override;
-      bool PassSiMu(const xAOD::Muon& mu) const override;
-      bool PassSiMuBa(const xAOD::Muon& mu) const override;
+      bool PassSiEl(const uint32_t passFlags,
+                    const xAOD::Electron& el) const override;
+      bool PassSiPhX(const uint32_t passFlags,
+                     const xAOD::Photon& ph,
+                     const xAOD::Electron& el) const override;
+      bool PassSiPhX(const uint32_t passFlags,
+                     const xAOD::Photon& ph1,
+                     const xAOD::Photon& ph2) const override;
+      bool PassSiPhX(const uint32_t passFlags,
+                     const xAOD::Photon& ph,
+                     const xAOD::Muon& mu) const override;
+      bool PassSiMu(const uint32_t passFlags,
+                    const xAOD::Muon& mu) const override;
+      bool PassSiMuBa(const uint32_t passFlags,
+                      const xAOD::Muon& mu) const override;
 
       // di filter implementations
-      bool PassDiEl(const xAOD::Electron& el1, const xAOD::Electron& el2) const override;
-      bool PassDiPh(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const override;
-      bool PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const override;
-      bool PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const override;
+      bool PassDiEl(const uint32_t passFlags,
+                    const xAOD::Electron& el1,
+                    const xAOD::Electron& el2) const override;
+      bool PassDiPh(const uint32_t passFlags,
+                    const xAOD::Photon& ph1,
+                    const xAOD::Photon& ph2) const override;
+      bool PassDiElPh(const uint32_t passFlags,
+                      const xAOD::Electron& el,
+                      const xAOD::Photon& ph) const override;
+      bool PassDiLoElPh(const uint32_t passFlags,
+                        const xAOD::Electron& el,
+                        const xAOD::Photon& ph) const override;
 
     private:
+      enum PassFlags {
+        PASS_SIPH = 1,
+        PASS_DIPH = 2,
+        PASS_SIMU = 4,
+        PASS_SIMUBA = 8
+      };
+
       ToolHandle<Trig::TrigDecisionTool> m_tdt;
 
       // trigger names
@@ -60,12 +84,6 @@ namespace DerivationFramework
       std::vector<std::string> m_trig_diph;
       std::vector<std::string> m_trig_simu;
       std::vector<std::string> m_trig_simuba;
-
-      // trigger flags
-      bool m_pass_siph;
-      bool m_pass_diph;
-      bool m_pass_simu;
-      bool m_pass_simuba;
 
       // cut values of the filters
       double m_el_eta;

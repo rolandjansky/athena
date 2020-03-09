@@ -12,19 +12,17 @@
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
+#include "AsgTools/ToolHandle.h"
 
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TauValidationPlots.h"
-//#include "TauTools/TruthHandler.h"
-//#include "TauTools/MatchingTools_depreciated.h"
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
+#include "TauAnalysisTools/ITauSelectionTool.h"
 #include <TLorentzVector.h>
+
 //Additional includes
-
-#include "TruthHandler.h"
 #include "RecoTypes.h"
-//#include "TauTools/MatchingTools.h"
-
 
 // Forward declaration
 
@@ -78,44 +76,18 @@ class PhysValTau
   std::string m_TauDetailsContainerName; 
   std::string m_TruthParticleContainerName; 
 
-  bool            m_isMC;           //!< Are we running over MC data?
+  bool m_isMC;           //!< Are we running over MC data?
     
-    //Variable Definitiona
-    /** provides tools to match tau candidates to truth taus (from TauTools). */
-    // MatchingTools matchtool;
-    /** is a cut applied to the Delta R variable. */
-    float m_DeltaRMatchCut;
+   //Variable Definitions
     
-    /** is a threshold (cut) applied the pT of the leading charged pion. */
-    float m_LeadingChPiPt_Threshold;
-    /** cuts used for truth matching to had taus*/
-    float m_visETcut;
-    float m_visEtacut;
-    
-    
-    /** counts the number of truth taus. */
-    int m_truth_all;
-    
-    /** counts the number of truth taus geometrically matched. */
-    int m_truth_all_matched;
-    
-    /** counts the number of truth 1p taus. */
-    int m_truth_1p;
-
-    /** counts the number of truth taus geometrically matched and 1 track. */
-    int m_truth_1p_matched;
-
-    /** counts the number of truth 3p taus. */
-    int m_truth_3p;
-    
-    /** counts the number of truth taus geometrically matched and 3 track. */
-    int m_truth_3p_matched;
-
     /*keeps track of matched tau jets*/    
     std::vector<size_t> m_matched_itr;
 
-    /** Object to define Truth Handler Tool*/
-    TruthHandler m_truthHandler;
+   // Tool used for truth-matching
+   ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_truthTool;
+   // Tool used to select "primitive" and "nominal" taus
+   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_primTauSel;
+   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_nomiTauSel;
 
   //Histograms
   // general tau all prongs plots

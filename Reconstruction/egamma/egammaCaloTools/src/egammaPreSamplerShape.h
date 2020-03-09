@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMACALOTOOLS_EGAMMAPRESAMPLERSHAPE_H
@@ -20,8 +20,8 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "egammaInterfaces/IegammaPreSamplerShape.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+
 class CaloCellContainer;
 class CaloDetDescrManager;
 
@@ -43,16 +43,10 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
   StatusCode finalize() override ;
 
   /** @brief AlgTool main method */
-  virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-			     const CaloCellContainer& cell_container, Info& info) const override final;
-  private: 
- /** @brief tool to calculate sum of energy in all samples */
-  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
-      "egammaEnergyPositionAllSamplesTool", 
-      "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
-
-  const CaloDetDescrManager* m_calo_dd;
-  /** @brief CaloSample */
+  virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                             const CaloDetDescrManager& cmgr,
+                             const CaloCellContainer& cell_container,
+                             Info& info) const override final;
 };
 
 #endif

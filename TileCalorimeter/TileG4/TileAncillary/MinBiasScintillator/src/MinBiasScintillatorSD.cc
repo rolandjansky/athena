@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -17,7 +17,6 @@
 #include "CaloIdentifier/TileTBID.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/MbtsDetDescrManager.h"
-#include "CxxUtils/make_unique.h"// For make unique
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -177,7 +176,7 @@ void MinBiasScintillatorSD::Initialize(G4HCofThisEvent* /* HCE */) {
   }
 
   if (!m_HitColl.isValid())
-    m_HitColl = CxxUtils::make_unique<TileHitVector>(m_HitColl.name());
+    m_HitColl = std::make_unique<TileHitVector>(m_HitColl.name());
 }
 
 G4bool MinBiasScintillatorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /* ROhist */) {
@@ -311,8 +310,6 @@ G4double MinBiasScintillatorSD::BirkLaw(const G4Step* aStep) const {
   // RKB = 0.013  g/(MeV*cm**2)  and  C = 9.6e-6  g**2/((MeV**2)(cm**4))
   //
   const G4String myMaterial("Scintillator");
-  const G4double birk1(0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
-  const G4double birk2(9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
 
   const G4double destep(aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight());
   //  doesn't work with shower parameterization
@@ -325,14 +322,14 @@ G4double MinBiasScintillatorSD::BirkLaw(const G4Step* aStep) const {
   // ---  and materials other than scintillator  ---
   if ( (charge != 0.) && (material->GetName() == myMaterial)) { //FIXME checking for non-equality for a floating point number
 
-    G4double rkb = birk1;
+    G4double rkb = m_options.birk1;
     // --- correction for particles with more than 1 charge unit ---
     // --- based on alpha particle data (only apply for MODEL=1) ---
     if (fabs(charge) > 1.0) {
       rkb *= 7.2 / 12.6;
     }
     const G4double dedx = destep / (aStep->GetStepLength()) / (material->GetDensity());
-    const G4double response = destep / (1. + rkb * dedx + birk2 * dedx * dedx);
+    const G4double response = destep / (1. + rkb * dedx + m_options.birk2 * dedx * dedx);
     if (-2 == verboseLevel) {
       G4cout << " Destep: " << destep / CLHEP::keV << " keV" << " response after Birk: " << response / CLHEP::keV
              << " keV" << G4endl;

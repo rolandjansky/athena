@@ -12,9 +12,9 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from RecExConfig.RecFlags import rec
-from MuonRecUtils import logMuon,logMuonResil,RecConfigInfo,fillJobPropertyContainer,SummaryJobProperty
+from MuonRecExample.MuonRecUtils import logMuon,logMuonResil,RecConfigInfo,fillJobPropertyContainer,SummaryJobProperty
 
-from MuonStandaloneFlags import muonStandaloneFlags
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 
 from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
 
@@ -30,18 +30,11 @@ class doVP1(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-
 ## Run the integrated muon reconstruction algorithm
 class doStandalone(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-
-## Run the new third chain configuration for the NSW
-class doNSWNewThirdChain(JobProperty):
-     StatusOn=True
-     allowedType=['bool']
-     StoredValue=False
     
 ## Run clusterization 
 class doCreateClusters(JobProperty):
@@ -257,7 +250,7 @@ class doTGCs(JobProperty):
 class dosTGCs(JobProperty):
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False # Off by default until it can be autoconfigured
+    StoredValue=True
 
     def _do_action(self):
         muonRecFlags.sync_DetFlags("sTGC")
@@ -269,7 +262,7 @@ class dosTGCs(JobProperty):
 class doMicromegas(JobProperty):
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False # Off by default until it can be autoconfigured
+    StoredValue=True
 
     def _do_action(self):
         muonRecFlags.sync_DetFlags("Micromegas")
@@ -398,7 +391,7 @@ class MuonRec(JobPropertyContainer):
     def setDefaults(self):
         global globalflags
 
-        from MuonRecUtils import setJobPropertyDefault as setDefault
+        from MuonRecExample.MuonRecUtils import setJobPropertyDefault as setDefault
 
         # as long as rec.Commissioning is alive, sync the default to it
         # in case of BS->RDO, RDO->RDO, RDO->BS, BS->BS: don't run RIO (i.e RDO->PRD)
@@ -412,6 +405,8 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.doRPCs,True)
         setDefault(self.doTGCs,True)
         setDefault(self.doCSCs,True)
+        setDefault(self.dosTGCs,True)
+        setDefault(self.doMicromegas,True)
         setDefault(self.doMSVertex,True)
         setDefault(self.useWireSagCorrections,False)
         setDefault(self.enableErrorTuning,True)
@@ -474,7 +469,7 @@ class MuonRec(JobPropertyContainer):
     ## @brief Synchronise Muon DetFlags with MuonRecFlags and RecFlags
     ##
     ## @arg @c technologies is string with comma separated list of technologies to include in the update. Default="MDT,RPC,CSC,TGC"
-    def sync_DetFlags(self,technologies="MDT,RPC,CSC,TGC"):
+    def sync_DetFlags(self,technologies="MDT,RPC,CSC,TGC,sTGC,Micromegas"):
         self.setDefaults()
         global rec
         from AthenaCommon.DetFlags import DetFlags
@@ -559,6 +554,8 @@ class MuonRec(JobPropertyContainer):
         RPC_on = self.doRPCs()
         CSC_on = self.doCSCs()
         TGC_on = self.doTGCs()
+        sTGC_on = self.dosTGCs()
+        Micromegas_on = self.doMicromegas()
         techList = technologies.split(',')
         for f in flagsOn:
             for tech in techList:
@@ -568,12 +565,12 @@ class MuonRec(JobPropertyContainer):
                     if not isOn:
                         cmd = "DetFlags.%s.%s_setOn()" % (f,tech)
                         logMuon.info(cmd)
-                        exec cmd
+                        exec(cmd)
                 else: # set off
                     if isOn:
                         cmd = "DetFlags.%s.%s_setOff()" % (f,tech)
                         logMuon.info(cmd)
-                        exec cmd
+                        exec(cmd)
 
         # Turn off Muon flags (row in DetFlags printout)
         for f in flagsOff:
@@ -581,7 +578,7 @@ class MuonRec(JobPropertyContainer):
             if isOn:
                 cmd = "DetFlags.%s.Muon_setOff()" % f
                 logMuon.info(cmd)
-                exec cmd
+                exec(cmd)
 
         # Turn off Technology flags (column in DetFlags printout)  Too drastic???
 ##         for tech in techList:
@@ -590,7 +587,7 @@ class MuonRec(JobPropertyContainer):
 ##             if setOff and isOn:
 ##                 cmd = "DetFlags.%s_setOff()" % tech
 ##                 logMuon.info(cmd)
-##                 exec cmd
+##                 exec(cmd)
                 
     
 

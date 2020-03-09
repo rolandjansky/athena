@@ -64,15 +64,6 @@ if ('BSRDOInput' in dir()):
 if len(svcMgr.ByteStreamInputSvc.FullFileName) == 0:
     print 'ERROR! svcMgr.ByteStreamInputSvc.FullFileName is empty'
     sys.exit(1)
-    
-#----------------------------------------------------------------------
-# Schedule conversion of BS EventInfo to xAOD for reading by TrigCostRun
-#
-from xAODEventInfoCnv.xAODEventInfoCnvConf import *
-convAlg = xAODMaker__EventInfoCnvAlg()
-convAlg.AODKey = "ByteStreamEventInfo"
-convAlg.xAODKey = "xAOD::EventInfo"
-topSeq += convAlg
 
 #----------------------------------------------------------------------
 # Setup cost algorithm

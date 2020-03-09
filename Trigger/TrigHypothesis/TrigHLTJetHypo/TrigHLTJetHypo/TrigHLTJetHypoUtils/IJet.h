@@ -5,8 +5,11 @@
 #ifndef TRIGHLTJETHYPO_IJET_H
 #define TRIGHLTJETHYPO_IJET_H
 
+#include "xAODJet/Jet.h"
 #include <string>
 #include <ostream>
+#include <optional>
+
 class TLorentzVector;
 
 namespace HypoJet{
@@ -22,7 +25,8 @@ namespace HypoJet{
     virtual double rapidity() const = 0;
     virtual TLorentzVector p4() const = 0;
     virtual unsigned int position() const = 0;
-
+    virtual std::optional<const xAOD::Jet*> xAODJet() const = 0;
+      
     virtual bool getAttribute(const std::string &name, float&) const =0;
     virtual std::string toString() const = 0;
   };

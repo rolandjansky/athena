@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,8 +12,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthContainers/DataVector.h"
-//#include "TrigConfigSvc/ITrigConfigSvc.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1JetCMXTools.h"
 
 namespace LVL1 {
@@ -102,7 +101,7 @@ class L1JetCMXTools : virtual public IL1JetCMXTools, public AthAlgTool {
                       int crate, int source, int peak) const;
 
   /** Trigger configuration service */
-  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   /** Number of crates */
   int m_crates;
   /** Number of JEM modules per crate */

@@ -60,23 +60,45 @@ class TileBadChanTool: public extends<AthAlgTool, ITileBadChanTool, ICaloBadChan
     const TileBchStatus& getAdcStatus(IdentifierHash hash_id, unsigned int adc) const;
 
     /**
+     * @copydoc ITileBadChanTool::getAdcStatus(const HWIdentifier& adc_id, const EventContext& ctx) const
+     */
+    virtual const TileBchStatus& getAdcStatus(const HWIdentifier& adc_id, const EventContext& ctx) const override;
+
+    /**
      * @copydoc ITileBadChanTool::getAdcStatus(const HWIdentifier& adc_id) const
      */
     virtual const TileBchStatus& getAdcStatus(const HWIdentifier& adc_id) const override;
 
     /**
+     * @copydoc ITileBadChanTool::getAdcStatus(unsigned int drawerIdx, unsigned int channel, unsigned int adc, const EventContext& ctx) const
+     */
+    virtual const TileBchStatus& getAdcStatus(unsigned int drawerIdx
+                                              , unsigned int channel
+                                              , unsigned int adc
+                                              , const EventContext& ctx) const override;
+    /**
      * @copydoc ITileBadChanTool::getAdcStatus(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const
      */
     virtual const TileBchStatus& getAdcStatus(unsigned int drawerIdx
-                                     , unsigned int channel
-                                     , unsigned int adc) const override;
+                                              , unsigned int channel
+                                              , unsigned int adc) const override;
 
     const TileBchStatus& getChannelStatus(IdentifierHash hash_id) const;
+
+    /**
+     * @copydoc ITileBadChanTool::getChannelStatus(const HWIdentifier& channel_id, const EventContext& ctx) const
+     */
+    virtual const TileBchStatus& getChannelStatus(const HWIdentifier& channel_id, const EventContext& ctx) const override;
 
     /**
      * @copydoc ITileBadChanTool::getChannelStatus(const HWIdentifier& channel_id) const
      */
     virtual const TileBchStatus& getChannelStatus(const HWIdentifier& channel_id) const override;
+
+    /**
+     * @copydoc ITileBadChanTool::getChannelStatus(unsigned int drawerIdx, unsigned int channel, const EventContext& ctx) const
+     */
+    virtual const TileBchStatus& getChannelStatus(unsigned int drawerIdx, unsigned int channel, const EventContext& ctx) const override;
 
     /**
      * @copydoc ITileBadChanTool::getChannelStatus(unsigned int drawerIdx, unsigned int channel) const
@@ -86,9 +108,19 @@ class TileBadChanTool: public extends<AthAlgTool, ITileBadChanTool, ICaloBadChan
     virtual uint32_t encodeStatus(const TileBchStatus& status) const override;
 
     /**
+     * @copydoc ITileBadChanTool::getTripsProbabilities(unsigned int ros, const EventContext& ctx) const
+     */
+    virtual const std::vector<float>& getTripsProbabilities(unsigned int ros, const EventContext& ctx) const override;
+
+    /**
      * @copydoc ITileBadChanTool::getTripsProbabilities(unsigned int ros) const
      */
     virtual const std::vector<float>& getTripsProbabilities(unsigned int ros) const override;
+
+    /**
+     * @copydoc ITileBadChanTool::isDrawerMasked(unsigned int frag_id, const EventContext& ctx) const
+     */
+    virtual bool isDrawerMasked(unsigned int frag_id, const EventContext& ctx) const override;
 
     /**
      * @copydoc ITileBadChanTool::isDrawerMasked(unsigned int frag_id) const

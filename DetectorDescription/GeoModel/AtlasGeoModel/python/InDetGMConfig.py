@@ -3,19 +3,18 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def InDetServiceMaterialCfg (flags):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     acc = GeoModelCfg( flags )
     geoModelSvc=acc.getPrimary()
-    from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+    GeometryDBSvc=CompFactory.GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
+    InDetServMatTool=CompFactory.InDetServMatTool
     servMatTool = InDetServMatTool()
     if flags.GeoModel.Run=="RUN4":
-        from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC
+        InDetServMatBuilderToolSLHC=CompFactory.InDetServMatBuilderToolSLHC
         InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
         acc.addPublicTool( InDetServMatBuilderToolSLHC )
         servMatTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
@@ -38,7 +37,6 @@ def InDetGeometryCfg (flags):
 
 
 if __name__ == "__main__":
-  import os
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
   from AthenaCommon.Configurable import Configurable
@@ -69,7 +67,7 @@ if __name__ == "__main__":
   #acc.getService("StoreGateSvc").Dump=True
   acc.getService("ConditionStore").Dump=True
   acc.printConfig(withDetails=True)
-  f=open('InDetGMCfg2.pkl','w')
+  f=open('InDetGMCfg2.pkl','wb')
   acc.store(f)
   f.close()
   ConfigFlags.dump()

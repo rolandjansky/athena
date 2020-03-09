@@ -25,7 +25,7 @@ TBIdentifiedParticleCnv::~TBIdentifiedParticleCnv()
 StatusCode TBIdentifiedParticleCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBIdentifiedParticleCnv");
@@ -35,14 +35,16 @@ StatusCode TBIdentifiedParticleCnv::initialize()
 }
 
 
-StatusCode TBIdentifiedParticleCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
+StatusCode TBIdentifiedParticleCnv::PoolToDataObject(DataObject*& pObj,
+                                                     const Token* token,
+                                                     const std::string& key)
 {
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
   MsgStream log(msgSvc(), "TBIdentifiedParticleCnv::PoolToDataObject" );
    
-  StatusCode sc = TBIdentifiedParticleCnvBase::PoolToDataObject(pObj, token);
+  StatusCode sc = TBIdentifiedParticleCnvBase::PoolToDataObject(pObj, token, key);
   if (sc.isFailure()) {
     log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;
@@ -59,11 +61,4 @@ StatusCode TBIdentifiedParticleCnv::PoolToDataObject(DataObject*& pObj, const To
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBIdentifiedParticleCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBIdentifiedParticleCnv::DataObjectToPool" );
-  
-  return TBIdentifiedParticleCnvBase::DataObjectToPool( pObj, tname) ;
 }

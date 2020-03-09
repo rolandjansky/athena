@@ -1,11 +1,13 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script building all the externals necessary for the nightly build.
 #
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d] [-x]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-x]"
     echo " -f: Force rebuild of externals from scratch, otherwise if script"
     echo "     finds an external build present it will only do an incremental"
     echo "     build"
@@ -22,7 +24,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=()
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=96 -DLCG_VERSION_POSTFIX="")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
@@ -57,9 +59,12 @@ while getopts ":t:b:x:fch" opt; do
     esac
 done
 
-# Stop on errors from here on out
-set -e
-set -o pipefail
+# Only stop on errors if we are in the CI. Otherwise just count them.
+if [ "$CI" = "1" ]; then
+    set -e
+    set -o pipefail
+fi
+ERROR_COUNT=0
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -93,10 +98,8 @@ fi
 # Create some directories:
 mkdir -p ${BUILDDIR}/{src,install}
 
-# Set some environment variables that the builds use internally:
-export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
-export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
+# Get the version of Athena for the build.
+version=`cat ${thisdir}/version.txt`
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
@@ -136,14 +139,13 @@ ${scriptsdir}/checkout_atlasexternals.sh \
 
 
 ## Build AthenaExternals:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
 ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/AthenaExternals \
     -b ${BUILDDIR}/build/AthenaExternals \
-    -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
+    -i ${BUILDDIR}/install \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION} \
-    ${EXTRACMAKE[@]/#/-x }
+    -v ${version} \
+    ${EXTRACMAKE[@]/#/-x } || ((ERROR_COUNT++))
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
@@ -156,7 +158,7 @@ ${scriptsdir}/build_atlasexternals.sh \
 
 # Get the "platform name" from the directory created by the AthenaExternals
 # build:
-platform=$(cd ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea;ls)
+platform=$(cd ${BUILDDIR}/install/AthenaExternals/${version}/InstallArea;ls)
 
 # Read in the tag/branch to use for Gaudi:
 GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
@@ -175,14 +177,14 @@ ${scriptsdir}/checkout_Gaudi.sh \
 }
 
 # Build Gaudi:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
 ${scriptsdir}/build_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI \
     -b ${BUILDDIR}/build/GAUDI \
-    -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
-    -e ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
+    -i ${BUILDDIR}/install \
+    -e ${BUILDDIR}/install/AthenaExternals/${version}/InstallArea/${platform} \
+    -v ${version} \
     -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE} \
-    ${EXTRACMAKE[@]/#/-x }
+    ${EXTRACMAKE[@]/#/-x } || ((ERROR_COUNT++))
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
@@ -192,3 +194,9 @@ ${scriptsdir}/build_Gaudi.sh \
    )
  } || true
 }
+
+# Exit with the error count taken into account.
+if [ ${ERROR_COUNT} -ne 0 ]; then
+    echo "Athena externals build encountered ${ERROR_COUNT} error(s)"
+fi
+exit ${ERROR_COUNT}

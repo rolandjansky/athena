@@ -66,10 +66,10 @@ using CLHEP::MeV;
 //
 TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_tileID(0)
-  , m_tileHWID(0)
-  , m_tileInfo(0)
-  , m_cablingService(0)
+  , m_tileID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_tileInfo(nullptr)
+  , m_cablingService(nullptr)
   , m_nSamples(0)
   , m_iTrig(0)
   , m_adcMax(0)
@@ -94,7 +94,8 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
 
   //  Check cabling RUN>=RUN2 OK
   //
-  m_cablingService = TileCablingService::getInstance();
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cablingService = m_cablingSvc->cablingService();
 
   if (! m_cablingService->isRun2Cabling() ) {
     ATH_MSG_INFO("TilePulseForTileMuonReceiver should not be used for RUN1 simulations");

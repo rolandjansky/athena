@@ -57,14 +57,12 @@ metadataTool.StreamName = StreamName
 metadataTool.TupleName = tupleName
 theApp.serviceMgr().ToolSvc += metadataTool
 Eventless.HelperTools = [metadataTool]
-Eventless.ForceRead = True;
 Eventless.RequireAlgs += ["PassNoneFilter"]
 #Eventless.RequireAlgs += ["PassAllFilter"]
 
 #from NTUPtoNTUPCore import NTUPUtils
 #MNSMgr = NTUPUtils.MNSMgr()
 #Eventless = MNSMgr.NewNTUPStream("StreamNTUP","testNTUP.root","test")
-#Eventless.GetStream().ForceRead = True
 #Eventless.AddRequireAlgs("PassNoneFilter")
 #athOutSeq += Eventless
 

@@ -1,30 +1,26 @@
 TrigDeserialiser                        0   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
 TrigDeserialiser                        0   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 261
-TrigDeserialiser                        0   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 58
-TrigDeserialiser                        0   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
-TrigDeserialiser                        0   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 605
-TrigDeserialiser                        0   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 126
-TrigDeserialiser                        0   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 100
-TrigDeserialiser                        0   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
-TrigDeserialiser                        0   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 663
-TrigDeserialiser                        0   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 28
-TrigDeserialiser                        0   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
-TrigDeserialiser                        0   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 978
-TrigDeserialiser                        0   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 52
-TrigDeserialiser                        0   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 54
-TrigDeserialiser                        0   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 3 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        0   0     DEBUG fragment: 4 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 605
+TrigDeserialiser                        0   0     DEBUG fragment: 5 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        0   0     DEBUG fragment: 6 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 663
+TrigDeserialiser                        0   0     DEBUG fragment: 7 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 28
+TrigDeserialiser                        0   0     DEBUG fragment: 8 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        0   0     DEBUG fragment: 9 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 978
+TrigDeserialiser                        0   0     DEBUG fragment: 10 type: std::vector<float> persistent type: vector<float> key: eta size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 11 type: std::vector<float> persistent type: vector<float> key: phi size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 12 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 13 type: std::vector<float> persistent type: vector<float> key: rawEt size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: rawEta size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 15 type: std::vector<int> persistent type: vector<int> key: nCells size: 52
+TrigDeserialiser                        0   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: energy size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: et size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: e237 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 19 type: std::vector<float> persistent type: vector<float> key: e277 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: weta2 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: wstot size: 54
 FillMissingEDM.egammaCreator            0   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            0   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            0   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
@@ -36,31 +32,27 @@ FillMissingEDM.egammaCreator            0   0     DEBUG The HLT_xAOD__TrigEMClus
 FillMissingEDM.egammaCreator            0   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
 TrigDeserialiser                        1   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
 TrigDeserialiser                        1   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 557
-TrigDeserialiser                        1   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 106
-TrigDeserialiser                        1   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 84
-TrigDeserialiser                        1   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
-TrigDeserialiser                        1   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 2273
-TrigDeserialiser                        1   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 390
-TrigDeserialiser                        1   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 276
-TrigDeserialiser                        1   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
-TrigDeserialiser                        1   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 1623
-TrigDeserialiser                        1   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 40
-TrigDeserialiser                        1   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
-TrigDeserialiser                        1   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 3002
-TrigDeserialiser                        1   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 140
-TrigDeserialiser                        1   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 142
-TrigDeserialiser                        1   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 3 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        1   0     DEBUG fragment: 4 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 905
+TrigDeserialiser                        1   0     DEBUG fragment: 5 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        1   0     DEBUG fragment: 6 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 1623
+TrigDeserialiser                        1   0     DEBUG fragment: 7 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 40
+TrigDeserialiser                        1   0     DEBUG fragment: 8 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        1   0     DEBUG fragment: 9 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 1346
+TrigDeserialiser                        1   0     DEBUG fragment: 10 type: std::vector<float> persistent type: vector<float> key: eta size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 11 type: std::vector<float> persistent type: vector<float> key: phi size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 12 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 13 type: std::vector<float> persistent type: vector<float> key: rawEt size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: rawEta size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 15 type: std::vector<int> persistent type: vector<int> key: nCells size: 68
+TrigDeserialiser                        1   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: energy size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: et size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: e237 size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 19 type: std::vector<float> persistent type: vector<float> key: e277 size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: weta2 size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 70
+TrigDeserialiser                        1   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: wstot size: 70
 FillMissingEDM.egammaCreator            1   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            1   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            1   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
@@ -72,31 +64,27 @@ FillMissingEDM.egammaCreator            1   0     DEBUG The HLT_xAOD__TrigEMClus
 FillMissingEDM.egammaCreator            1   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
 TrigDeserialiser                        2   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
 TrigDeserialiser                        2   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 737
-TrigDeserialiser                        2   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 138
-TrigDeserialiser                        2   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 104
-TrigDeserialiser                        2   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
-TrigDeserialiser                        2   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 1969
-TrigDeserialiser                        2   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 354
-TrigDeserialiser                        2   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 252
-TrigDeserialiser                        2   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
-TrigDeserialiser                        2   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 2263
-TrigDeserialiser                        2   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 48
-TrigDeserialiser                        2   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
-TrigDeserialiser                        2   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 2726
-TrigDeserialiser                        2   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 128
-TrigDeserialiser                        2   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 130
-TrigDeserialiser                        2   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 3 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        2   0     DEBUG fragment: 4 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 1901
+TrigDeserialiser                        2   0     DEBUG fragment: 5 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        2   0     DEBUG fragment: 6 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 2263
+TrigDeserialiser                        2   0     DEBUG fragment: 7 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 48
+TrigDeserialiser                        2   0     DEBUG fragment: 8 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        2   0     DEBUG fragment: 9 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 2634
+TrigDeserialiser                        2   0     DEBUG fragment: 10 type: std::vector<float> persistent type: vector<float> key: eta size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 11 type: std::vector<float> persistent type: vector<float> key: phi size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 12 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 13 type: std::vector<float> persistent type: vector<float> key: rawEt size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: rawEta size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 15 type: std::vector<int> persistent type: vector<int> key: nCells size: 124
+TrigDeserialiser                        2   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: energy size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: et size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: e237 size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 19 type: std::vector<float> persistent type: vector<float> key: e277 size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: weta2 size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 126
+TrigDeserialiser                        2   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: wstot size: 126
 FillMissingEDM.egammaCreator            2   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            2   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            2   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
@@ -108,31 +96,27 @@ FillMissingEDM.egammaCreator            2   0     DEBUG The HLT_xAOD__TrigEMClus
 FillMissingEDM.egammaCreator            2   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
 TrigDeserialiser                        3   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
 TrigDeserialiser                        3   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 545
-TrigDeserialiser                        3   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 106
-TrigDeserialiser                        3   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 84
-TrigDeserialiser                        3   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
-TrigDeserialiser                        3   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 2457
-TrigDeserialiser                        3   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 462
-TrigDeserialiser                        3   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 324
-TrigDeserialiser                        3   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
-TrigDeserialiser                        3   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 1623
-TrigDeserialiser                        3   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 40
-TrigDeserialiser                        3   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
-TrigDeserialiser                        3   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 3554
-TrigDeserialiser                        3   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 164
-TrigDeserialiser                        3   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 166
-TrigDeserialiser                        3   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 3 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        3   0     DEBUG fragment: 4 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 2389
+TrigDeserialiser                        3   0     DEBUG fragment: 5 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        3   0     DEBUG fragment: 6 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 1623
+TrigDeserialiser                        3   0     DEBUG fragment: 7 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 40
+TrigDeserialiser                        3   0     DEBUG fragment: 8 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        3   0     DEBUG fragment: 9 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 3462
+TrigDeserialiser                        3   0     DEBUG fragment: 10 type: std::vector<float> persistent type: vector<float> key: eta size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 11 type: std::vector<float> persistent type: vector<float> key: phi size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 12 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 13 type: std::vector<float> persistent type: vector<float> key: rawEt size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: rawEta size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 15 type: std::vector<int> persistent type: vector<int> key: nCells size: 160
+TrigDeserialiser                        3   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: energy size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: et size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: e237 size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 19 type: std::vector<float> persistent type: vector<float> key: e277 size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: weta2 size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 162
+TrigDeserialiser                        3   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: wstot size: 162
 FillMissingEDM.egammaCreator            3   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            3   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            3   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
@@ -144,31 +128,27 @@ FillMissingEDM.egammaCreator            3   0     DEBUG The HLT_xAOD__TrigEMClus
 FillMissingEDM.egammaCreator            3   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
 TrigDeserialiser                        4   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
 TrigDeserialiser                        4   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 365
-TrigDeserialiser                        4   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 74
-TrigDeserialiser                        4   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 64
-TrigDeserialiser                        4   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
-TrigDeserialiser                        4   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 953
-TrigDeserialiser                        4   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 174
-TrigDeserialiser                        4   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 132
-TrigDeserialiser                        4   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
-TrigDeserialiser                        4   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 983
-TrigDeserialiser                        4   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 32
-TrigDeserialiser                        4   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
-TrigDeserialiser                        4   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 1346
-TrigDeserialiser                        4   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 68
-TrigDeserialiser                        4   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 70
-TrigDeserialiser                        4   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 3 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        4   0     DEBUG fragment: 4 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 953
+TrigDeserialiser                        4   0     DEBUG fragment: 5 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        4   0     DEBUG fragment: 6 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 983
+TrigDeserialiser                        4   0     DEBUG fragment: 7 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 32
+TrigDeserialiser                        4   0     DEBUG fragment: 8 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        4   0     DEBUG fragment: 9 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 1346
+TrigDeserialiser                        4   0     DEBUG fragment: 10 type: std::vector<float> persistent type: vector<float> key: eta size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 11 type: std::vector<float> persistent type: vector<float> key: phi size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 12 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 13 type: std::vector<float> persistent type: vector<float> key: rawEt size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: rawEta size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 15 type: std::vector<int> persistent type: vector<int> key: nCells size: 68
+TrigDeserialiser                        4   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: energy size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: et size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: e237 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 19 type: std::vector<float> persistent type: vector<float> key: e277 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: weta2 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: wstot size: 70
 FillMissingEDM.egammaCreator            4   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            4   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            4   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it

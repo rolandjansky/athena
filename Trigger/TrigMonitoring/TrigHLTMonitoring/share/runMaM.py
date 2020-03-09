@@ -48,9 +48,9 @@ if HLTMonFlags.doMaM == True:
 
         # if HLTMonFlags.MCK is -1 (the default) we try to determine the MCK automatically, as long as this is not MC
         isNotSIM = True
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        if inputFileSummary.__contains__('evt_type'):
-            if 'IS_SIMULATION' in inputFileSummary['evt_type']:
+        from PyUtils.MetaReaderPeeker import metadata
+        if 'eventTypes' in metadata:
+            if 'IS_SIMULATION' in metadata['eventTypes']:
                 log.info("Will not try to get MCK automatically as we are running on MC")
                 isNotSIM = False
 
@@ -90,14 +90,9 @@ if HLTMonFlags.doMaM == True:
 
             else:
                 # try to get the MCK from COOL
-                if inputFileSummary.__contains__('bs_metadata') or inputFileSummary.__contains__('run_number'):
-
-                    # get the run number
-                    if inputFileSummary.__contains__('bs_metadata'):
-                        run_number = inputFileSummary['bs_metadata']['run_number']
-                    else:
-                        run_number = int(inputFileSummary['run_number'][0])
-                    pointintime = (int(run_number)<<32)
+                if 'runNumbers' in metadata:
+                    run_number = metadata['runNumbers'][0]
+                    pointintime = (int(run_number) << 32)
 
                     # try to connect to the COOL database
                     from PyCool import cool

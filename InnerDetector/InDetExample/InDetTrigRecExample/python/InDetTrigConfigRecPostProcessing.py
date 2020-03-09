@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # ------------------------------------------------------------
 #
@@ -39,7 +41,7 @@ class InDetTrigTrackSlimmer_EF( InDet__TrigTrackSlimmer ):
     ToolSvc += InDetTrkSlimmingTool
     self.TrackSlimmingTool = InDetTrkSlimmingTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrkSlimmingTool
+      print (     InDetTrkSlimmingTool)
 
     #optional update of the track summary
     self.SummaryTool = InDetTrigTrackSummaryToolSharedHits
@@ -184,7 +186,6 @@ class TrigVxPrimaryAllTESG_EF( InDet__TrigVxPrimaryAllTE ):
     self.VertexFinderTool = InDetTrigPriVxFinderTool
     self.RunWithoutField = False
     self.RetrieveTracksFromSG = True
-    self.TrackCollectionFromSG = "FTKConv_Trk_Tracks";
   
       #monitoring
     from InDetTrigPriVxFinder.InDetTrigPriVxFinderMonitoring import InDetTrigPriVxFinderValidationMonitor
@@ -267,8 +268,12 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
           InDetTrigParticleCreatorToolFTF,InDetTrigParticleCreatorToolWithSummaryTRTPid
 
       creatorTool = InDetTrigParticleCreatorToolWithSummary
+      self.doSharedHits=True
+      from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigPRDtoTrackMapExchangeTool
+      self.PRDToTrackMapExchange = InDetTrigPRDtoTrackMapExchangeTool
 
-      if "_FTF" in name or "_FTK" in name:
+
+      if "_FTF" in name:
         creatorTool = InDetTrigParticleCreatorToolFTF
       elif "_IDTrig" in name and type=="electron":
         creatorTool = InDetTrigParticleCreatorToolWithSummaryTRTPid
@@ -276,10 +281,6 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
       self.ParticleCreatorTool = creatorTool
 
       if "_IDTrig" in name and (type=="muon" or type=="electron"):
-        self.doIBLresidual = True
-
-      #for FTK commissioning
-      if "_FTK" in name:
         self.doIBLresidual = True
 
       #monitoring
@@ -364,7 +365,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
                                                               CovVrtForConstraint = [0.015*0.015,0.,0.015*0.015,0.,0.,10000.*10000.])
       ToolSvc += InDetTrigConversionVxFitterTool 
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigConversionVxFitterTool
+         print (     InDetTrigConversionVxFitterTool)
 
       # Distance of minimum approach utility
       #
@@ -373,7 +374,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
 
       ToolSvc += InDetTrigConversionTrkDistanceFinder 
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigConversionTrkDistanceFinder
+         print (     InDetTrigConversionTrkDistanceFinder)
 
       # Helper Tool
       #
@@ -384,7 +385,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
       
       ToolSvc += InDetTrigConversionHelper
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigConversionHelper
+         print (     InDetTrigConversionHelper)
 
       # Track selector tool
       #
@@ -403,7 +404,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
       
       ToolSvc += InDetTrigConversionTrackSelector
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigConversionTrackSelector
+         print (     InDetTrigConversionTrackSelector)
 
       # Track pairs selector
       #
@@ -418,7 +419,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
                                                                         )
       ToolSvc += InDetTrigConversionTrackPairsSelector
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigConversionTrackPairsSelector
+         print (     InDetTrigConversionTrackPairsSelector)
          
       # Vertex point estimator
       #
@@ -431,7 +432,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
 
       ToolSvc += InDetTrigConversionVtxPointEstimator
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigConversionVtxPointEstimator
+         print (     InDetTrigConversionVtxPointEstimator)
          
       # Conversion post selector
       #
@@ -447,7 +448,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
 
       ToolSvc += InDetTrigConversionPostSelector
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigConversionPostSelector
+         print (     InDetTrigConversionPostSelector)
 
       # Single track conversion tool
       #
@@ -460,7 +461,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
                                                                         MinRatioOfHLhits           = 0.95)
       ToolSvc += InDetTrigSingleTrackConversion
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigSingleTrackConversion
+         print (     InDetTrigSingleTrackConversion)
          
       from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__InDetConversionFinderTools
       InDetTrigConversionFinderTools = InDet__InDetConversionFinderTools(name        = "InDetTrigConversionFinderTools",
@@ -476,7 +477,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
                                                                          IsConversion               = True)
       ToolSvc += InDetTrigConversionFinderTools
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigConversionFinderTools
+         print (     InDetTrigConversionFinderTools)
 
       self.VertexFinderTool          = InDetTrigConversionFinderTools
 

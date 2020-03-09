@@ -17,7 +17,7 @@ public:
   SCTOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
   // SCT collection merging needs an ID helper.  Instead of retrieving
   // it thousands of times per event in the collection merging code,
@@ -31,11 +31,9 @@ public:
 private:
   const SCT_ID *m_sctId{};
 
-  SG::ReadHandleKey<SCT_RDO_Container> m_bkgInputKey{ this, "BkgInputKey", "OriginalEvent_SG+SCT_RDOs", "ReadHandleKey for Background Input SCT_RDO_Container" };
-  SG::ReadHandleKey<SCT_RDO_Container> m_signalInputKey{ this, "SignalInputKey", "BkgEvent_0_SG+SCT_RDOs", "ReadHandleKey for Signal Input SCT_RDO_Container" };
-  SG::WriteHandleKey<SCT_RDO_Container> m_outputKey{ this, "OutputKey", "StoreGateSvc+SCT_RDOs", "WriteHandleKey for Output SCT_RDO_Container" };
-
-  BooleanProperty m_includeBkg { this, "includeBkg", true, "Include Background RDO Container" };
+  SG::ReadHandleKey<SCT_RDO_Container> m_bkgInputKey{ this, "BkgInputKey", "Bkg_SCT_RDOs", "ReadHandleKey for Background Input SCT_RDO_Container" };
+  SG::ReadHandleKey<SCT_RDO_Container> m_signalInputKey{ this, "SignalInputKey", "Sig_SCT_RDOs", "ReadHandleKey for Signal Input SCT_RDO_Container" };
+  SG::WriteHandleKey<SCT_RDO_Container> m_outputKey{ this, "OutputKey", "SCT_RDOs", "WriteHandleKey for Output SCT_RDO_Container" };
 };
 
 #endif // INDETOVERLAY_SCTOVERLAY_H

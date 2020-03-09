@@ -23,14 +23,15 @@
 #include "TH3F.h"
 #include "TH2F.h"
 #include "TFile.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include <map>
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "StoreGate/ReadHandleKey.h"
 
-class VxContainer;
 class TH1F;
 class TH2F;
 class TProfile;
@@ -40,7 +41,6 @@ class SCT_ID;
 class TRT_ID;
 
 namespace Trk  { 
-  //class VxCandidate;
   class Track;
   class VxTrackAtVertex;
 }
@@ -394,26 +394,22 @@ protected:
 
  private:
  
-  bool fillVertexInformation() const;
+  bool fillVertexInformation(std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP) const;
   const Trk::Track*        getTrkTrack(const Trk::VxTrackAtVertex*)const;
-  //const Trk::VxCandidate*  findAssociatedVertex(const Trk::Track *) const;
-  const xAOD::Vertex*      findAssociatedVertexTP(const xAOD::TrackParticle *) const;
+  const xAOD::Vertex* findAssociatedVertexTP(const std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP, const xAOD::TrackParticle *) const;
 
-  //mutable std::map<const Trk::Track*, const Trk::VxCandidate* > m_trackVertexMap;
-  mutable std::map<const xAOD::TrackParticle*, const xAOD::Vertex* > m_trackVertexMapTP;
-  
   const AtlasDetectorID*                m_idHelper;
   const PixelID*                        m_pixelID;
   const SCT_ID*                         m_sctID; 
   const TRT_ID*                         m_trtID; 
   
-  const float m_Pi;
   std::string m_stream;
-  std::string m_VxPrimContainerName;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "SG Key of EventInfo object"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_VxPrimContainerName{this, "VxPrimContainerName", ""};
   int m_checkrate;
   int m_events;
   int m_histosBooked;
-  std::string  m_tracksName; // holds the name of the track coll to be used
+  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "ExtendedTracks"};
   std::string m_triggerChainName;
   float m_barrelEta;
   const xAOD::VertexContainer* m_vertices;

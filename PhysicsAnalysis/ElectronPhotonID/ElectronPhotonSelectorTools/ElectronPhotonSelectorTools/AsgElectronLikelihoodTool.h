@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -30,7 +30,7 @@ class AsgElectronLikelihoodTool : public asg::AsgTool,
 
 public:
   /** Standard constructor */
-  AsgElectronLikelihoodTool( const std::string myname);
+  AsgElectronLikelihoodTool( const std::string& myname);
 
 
   /** Standard destructor */
@@ -152,6 +152,9 @@ private:
 
   /// Flag for calo only LH
   bool m_caloOnly;
+
+  /// Flag for skip the use of deltaPoverP in  LH computation (like at HLT)
+  bool m_skipDeltaPoverP;
 
   ///  read handle key to heavy ion container
   SG::ReadHandleKey<xAOD::HIEventShapeContainer> m_HIESContKey;

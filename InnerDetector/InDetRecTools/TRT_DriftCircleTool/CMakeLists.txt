@@ -17,10 +17,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Commission/CommissionEvent
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
-                          Event/xAOD/xAODEventInfo
+                          LumiBlock/LumiBlockData
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecTools/TRT_DriftFunctionTool )
 
 # External dependencies:
@@ -31,7 +32,7 @@ atlas_add_component( TRT_DriftCircleTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib InDetRawData InDetPrepRawData TrkPrepRawData CommissionEvent GeoPrimitives EventPrimitives xAODEventInfo InDetIdentifier InDetReadoutGeometry )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib InDetRawData InDetPrepRawData TrkPrepRawData CommissionEvent GeoPrimitives EventPrimitives xAODEventInfo InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry LumiBlockData)
 
 # Install files from the package:
 atlas_install_headers( TRT_DriftCircleTool )

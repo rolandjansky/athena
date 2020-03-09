@@ -7,10 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class SiTrackMaker_xk
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-// Class for  Trk::Track production in SCT and Pixels
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 22/03/2005 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -44,10 +40,16 @@ namespace InDet{
 
   /**
   @class SiTrackMaker_xk 
-  
-  InDet::SiTrackMaker_xk is algorithm which produce track-finding started
-  from 3 space points information
+
+  InDet::SiTrackMaker_xk is algorithm which produce Trk::Track started
+  from 3 space points information of SCT and Pixels
   in the road of InDetDD::SiDetectorElement* sorted in propagation order.
+
+  In AthenaMT, event dependent cache inside SiTrackMaker_xk
+  is not preferred. SiTrackMakerEventData_xk class holds
+  event dependent data for SiTrackMaker_xk.
+  Its object is instantiated in SiSPSeededTrackFinder::execute.
+
   @author Igor.Gavrilenko@cern.ch     
   */
 
@@ -62,19 +64,20 @@ namespace InDet{
     public:
       
       ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
+      /// @name Standard tool methods
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       SiTrackMaker_xk
       (const std::string&,const std::string&,const IInterface*);
       virtual ~SiTrackMaker_xk() = default;
       virtual StatusCode initialize() override;
       virtual StatusCode finalize() override;
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Main methods for local track finding
+      /// @name Main methods for local track finding
       ///////////////////////////////////////////////////////////////////
-      
+      //@{
       virtual std::list<Trk::Track*>
       getTracks(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const override;
 
@@ -85,32 +88,45 @@ namespace InDet{
       virtual void newTrigEvent(SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const override;
 
       virtual void endEvent(SiTrackMakerEventData_xk& data) const override;
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
+      /// @name Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       MsgStream& dump(SiTrackMakerEventData_xk& data, MsgStream& out) const override;
+      //@}
 
     private:
-      
+
+      /// @name Disallow default constructor, copy constructor and assignment operator
+      //@{
       SiTrackMaker_xk() = delete;
       SiTrackMaker_xk(const SiTrackMaker_xk&) =delete;
       SiTrackMaker_xk &operator=(const SiTrackMaker_xk&) = delete;
+      //@}
       
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
+      /// @name Service and tool handles
+      //@{
       ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
       ToolHandle<InDet::ISiDetElementsRoadMaker> m_roadmaker{this, "RoadTool", "InDet::SiDetElementsRoadMaker_xk"};
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder{this, "CombinatorialTrackFinder", "InDet::SiCombinatorialTrackFinder_xk"};
       ToolHandle<InDet::ISeedToTrackConversionTool> m_seedtrack{this, "SeedToTrackConversion", "InDet::SeedToTrackConversionTool"};
+      //@}
 
+      /// @name Data handles
+      //@{
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloCluster{this, "InputClusterContainerName", "InDetCaloClusterROIs"};
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloHad{this, "InputHadClusterContainerName", "InDetHadCaloClusterROIs"};
+      //@}
 
+      /// @name Properties
+      //@{
       IntegerProperty m_seedsfilter{this, "SeedsFilterLevel", 2, "Level of seeds filer"};
       UnsignedIntegerProperty m_wrongcluster{this, "GoodSeedClusterCount", 10, "Max lentgh of thtrack"};
       StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
@@ -140,11 +156,14 @@ namespace InDet{
       IntegerProperty m_nwclusmin{this, "nWeightedClustersMin", 6, "Min umber weighted clusters(pix=2 sct=1)"};
       DoubleProperty m_phiWidth{this, "phiWidth", 0.3};
       DoubleProperty m_etaWidth{this, "etaWidth", 0.3};
+      //@}
 
-      // Updated only in initialize method
-      Trk::TrackInfo m_trackinfo     ;
+      /// @name Data members, which are updated only in initialize method
+      //@{
+      Trk::TrackInfo m_trackinfo;
       bool m_heavyion{false}; // Is it heavy ion events
       Trk::MagneticFieldMode m_fieldModeEnum{Trk::FullField};
+      //@}
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
@@ -181,4 +200,3 @@ namespace InDet{
 } // end of name space
 
 #endif // SiTrackMaker_xk_H
-

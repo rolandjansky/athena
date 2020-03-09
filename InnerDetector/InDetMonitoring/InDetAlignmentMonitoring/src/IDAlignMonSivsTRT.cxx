@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -23,7 +23,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
 
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrackSelectionTool.h"
@@ -71,6 +70,10 @@ StatusCode IDAlignMonSivsTRT::initialize()
     return StatusCode::FAILURE;
   } 
   else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endmsg;
+
+  ATH_CHECK(m_ResolvedTracksKey.initialize());
+  ATH_CHECK(m_ExtendedTracksKey.initialize());
+
   return sc;
 }
 
@@ -138,31 +141,31 @@ StatusCode IDAlignMonSivsTRT::bookHistograms()
    
     //for investigation of efficiency for TRT hits and TRT-Si track matching as function of phi,eta
 
-    m_alltrks_phi0 = new TH1F("alltrks_phi0","#phi_{0} all tracks",10,-3.14,3.14);
+    m_alltrks_phi0 = new TH1F("alltrks_phi0","#phi_{0} all tracks",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_alltrks_phi0);  
-    m_alltrks_phi0_b = new TH1F("alltrks_phi0_b","#phi_{0} all tracks |#eta| < 1.0",10,-3.14,3.14);
+    m_alltrks_phi0_b = new TH1F("alltrks_phi0_b","#phi_{0} all tracks |#eta| < 1.0",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_alltrks_phi0_b);  
-    m_alltrks_phi0_eca = new TH1F("alltrks_phi0_eca","#phi_{0} all tracks 1.0 < #eta < 2.1",10,-3.14,3.14);
+    m_alltrks_phi0_eca = new TH1F("alltrks_phi0_eca","#phi_{0} all tracks 1.0 < #eta < 2.1",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_alltrks_phi0_eca);
-    m_alltrks_phi0_ecc = new TH1F("alltrks_phi0_ecc","#phi_{0} all tracks -2.1 < #eta < -1.0",10,-3.14,3.14);
+    m_alltrks_phi0_ecc = new TH1F("alltrks_phi0_ecc","#phi_{0} all tracks -2.1 < #eta < -1.0",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_alltrks_phi0_ecc);
     m_alltrks_eta0 = new TH1F("alltrks_eta0","#eta_{0} all tracks",10,-2.1,2.1);
     RegisterHisto(al_mon,m_alltrks_eta0);  
-    m_si_phi0 = new TH1F("si_phi0","#phi_{0} Si-only tracks with no TRT hits",10,-3.14,3.14);
+    m_si_phi0 = new TH1F("si_phi0","#phi_{0} Si-only tracks with no TRT hits",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_si_phi0);  
     m_si_eta0 = new TH1F("si_eta0","#eta_{0} Si-only tracks with no TRT hits",10,-2.1,2.1);
     RegisterHisto(al_mon,m_si_eta0);  
-    m_trt_phi0 = new TH1F("trt_phi0","#phi_{0} tracks with TRT hits #eta < 2.1",10,-3.14,3.14);
+    m_trt_phi0 = new TH1F("trt_phi0","#phi_{0} tracks with TRT hits #eta < 2.1",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_trt_phi0);
-    m_trt_phi0_b = new TH1F("trt_phi0_b","#phi_{0} tracks with TRT hits |#eta| < 1.0",10,-3.14,3.14);
+    m_trt_phi0_b = new TH1F("trt_phi0_b","#phi_{0} tracks with TRT hits |#eta| < 1.0",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_trt_phi0_b);  
-    m_trt_phi0_eca = new TH1F("trt_phi0_eca","#phi_{0} tracks with TRT hits 1.0 < #eta < 2.1",10,-3.14,3.14);
+    m_trt_phi0_eca = new TH1F("trt_phi0_eca","#phi_{0} tracks with TRT hits 1.0 < #eta < 2.1",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_trt_phi0_eca);
-    m_trt_phi0_ecc = new TH1F("trt_phi0_ecc","#phi_{0} tracks with TRT hits -2.1 < #eta < -1.0",10,-3.14,3.14);
+    m_trt_phi0_ecc = new TH1F("trt_phi0_ecc","#phi_{0} tracks with TRT hits -2.1 < #eta < -1.0",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_trt_phi0_ecc);
     m_trt_eta0 = new TH1F("trt_eta0","#eta_{0} tracks with TRT hits",10,-2.1,2.1);
     RegisterHisto(al_mon,m_trt_eta0);  
-    m_matched_phi0 = new TH1F("matched_phi0","#phi_{0} tracks with TRT hits that match Sionly",10,-3.14,3.14);
+    m_matched_phi0 = new TH1F("matched_phi0","#phi_{0} tracks with TRT hits that match Sionly",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_matched_phi0);  
     m_matched_eta0 = new TH1F("matched_eta0","#eta_{0} tracks with TRT hits that match Sionly",10,-2.1,2.1);
     RegisterHisto(al_mon,m_matched_eta0);  
@@ -170,15 +173,15 @@ StatusCode IDAlignMonSivsTRT::bookHistograms()
     //actual Efficiency histograms are now TProfile to enable merger of histos
     m_sieff_eta0 = new TProfile("eff_simatch_eta0","eff #DeltaR matching Sionly to TRT extended track vs #eta_{0}",10,-2.1,2.1,0.0,1.0);
     RegisterHisto(al_mon,m_sieff_eta0);  
-    m_sieff_phi0 = new TProfile("eff_simatch_phi0","eff #DeltaR matching Sionly to TRT extended track vs #phi_{0}",10,-3.14,3.14,0.0,1.0);
+    m_sieff_phi0 = new TProfile("eff_simatch_phi0","eff #DeltaR matching Sionly to TRT extended track vs #phi_{0}",10,-M_PI,M_PI,0.0,1.0);
     RegisterHisto(al_mon,m_sieff_phi0);  
-    m_trteff_phi0 = new TProfile("eff_trthits_phi0","eff TRT hits association vs #phi_{0}",10,-3.14,3.14,0.0,1.0);
+    m_trteff_phi0 = new TProfile("eff_trthits_phi0","eff TRT hits association vs #phi_{0}",10,-M_PI,M_PI,0.0,1.0);
     RegisterHisto(al_mon,m_trteff_phi0);  
-    m_trteff_phi0_b = new TProfile("eff_trthits_phi0_b","eff TRT hits association vs #phi_{0}, |#eta| < 1.0",10,-3.14,3.14,0.0,1.0);
+    m_trteff_phi0_b = new TProfile("eff_trthits_phi0_b","eff TRT hits association vs #phi_{0}, |#eta| < 1.0",10,-M_PI,M_PI,0.0,1.0);
     RegisterHisto(al_mon,m_trteff_phi0_b);  
-    m_trteff_phi0_eca = new TProfile("eff_trthits_phi0_eca","eff TRT hits association vs #phi_{0}, 1.0 < #eta < 2.1",10,-3.14,3.14,0.0,1.0);
+    m_trteff_phi0_eca = new TProfile("eff_trthits_phi0_eca","eff TRT hits association vs #phi_{0}, 1.0 < #eta < 2.1",10,-M_PI,M_PI,0.0,1.0);
     RegisterHisto(al_mon,m_trteff_phi0_eca);  
-    m_trteff_phi0_ecc = new TProfile("eff_trthits_phi0_ecc","eff TRT hits association vs #phi_{0}, -2.1 < #eta < 1.0",10,-3.14,3.14,0.0,1.0);
+    m_trteff_phi0_ecc = new TProfile("eff_trthits_phi0_ecc","eff TRT hits association vs #phi_{0}, -2.1 < #eta < 1.0",10,-M_PI,M_PI,0.0,1.0);
     RegisterHisto(al_mon,m_trteff_phi0_ecc);  
     m_trteff_eta0 = new TProfile("eff_trthits_eta0","eff TRT hits association vs #eta_{0}",10,-2.1,2.1,0.0,1.0);
     RegisterHisto(al_mon,m_trteff_eta0);  
@@ -228,22 +231,13 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 
   m_events++;
 
-  //checking that we can retrieve the required track collections from SG
-  //if not print out warning but only for first event
-  if (!evtStore()->contains<TrackCollection>("ResolvedTracks")) {
-    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get ResolvedTracks TrackCollection" << endmsg;}
-    else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get ResolvedTracks TrackCollection - histograms will not be filled" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-  if (!evtStore()->contains<TrackCollection>("ExtendedTracks")) {
-    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get ExtendedTracks TrackCollection" << endmsg;}
-    else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get ExtendedTracks TrackCollection - histograms will not be filled" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-
   //tracks that are fitted to Si hits only, before extension to TRT
-  const DataVector<Trk::Track>* tracksSi = m_trackSelection->selectTracks("ResolvedTracks");
+  SG::ReadHandle<TrackCollection> resolvedTracks{m_ResolvedTracksKey};
+  if (not resolvedTracks.isValid()) {
+    ATH_MSG_WARNING(m_ResolvedTracksKey.key() << " could not be retrieved");
+    return StatusCode::RECOVERABLE;
+  }
+  const DataVector<Trk::Track>* tracksSi = m_trackSelection->selectTracks(resolvedTracks);
   if(!tracksSi) {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Histograms not filled because TrackSelectionTool returned NULL track collection"<< endmsg;
     return StatusCode::SUCCESS;
@@ -254,7 +248,12 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
   } 
   
   //tracks that are fitted with Si and TRT hits
-  const DataVector<Trk::Track>* tracksTRT = m_trackSelection->selectTracks("ExtendedTracks");
+  SG::ReadHandle<TrackCollection> extendedTracks{m_ExtendedTracksKey};
+  if (not extendedTracks.isValid()) {
+    ATH_MSG_WARNING(m_ExtendedTracksKey.key() << " could not be retrieved");
+    return StatusCode::RECOVERABLE;
+  }
+  const DataVector<Trk::Track>* tracksTRT = m_trackSelection->selectTracks(extendedTracks);
   if(!tracksTRT) {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Histograms not filled because TrackSelectionTool returned NULL track collection"<< endmsg;
     return StatusCode::SUCCESS;
@@ -575,12 +574,6 @@ StatusCode IDAlignMonSivsTRT::setupTools()
   //initializing tools
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setupTools()" << endmsg;
-
-  if ( evtStore().retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << evtStore() << endmsg;
-    return StatusCode::FAILURE;
-  } else 
-    msg(MSG::INFO) << "Retrieved service " << evtStore() << endmsg;
 
   if (m_trackSelection.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Can not retrieve TrackSelection tool of type "

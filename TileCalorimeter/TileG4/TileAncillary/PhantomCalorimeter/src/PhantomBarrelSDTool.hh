@@ -33,7 +33,7 @@ class PhantomBarrelSDTool: public SensitiveDetectorBase {
 
   protected:
     // Make me an SD!
-    G4VSensitiveDetector* makeSD() override final;
+    G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif // PHANTOMCALORIMETER_PHANTOMBARRELSDTOOL_H

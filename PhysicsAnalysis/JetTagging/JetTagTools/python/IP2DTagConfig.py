@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
@@ -9,19 +10,18 @@ from JetTagTools.IPTrackSelectorConfig import IPTrackSelectorCfg
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 
 # import the IPTag configurable
-from JetTagTools.JetTagToolsConf import Analysis__IPTag
+Analysis__IPTag=CompFactory.Analysis__IPTag
 
 def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP2DTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     referenceType                       default: BTaggingFlags.ReferenceType
     impactParameterView                 default: "2D"
     trackGradePartitions                default: [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
     RejectBadTracks                     default: False
-    originalTPCollectionName            default: BTaggingFlags.TrackParticleCollectionName
     jetCollectionList                   default: BTaggingFlags.Jets
     unbiasIPEstimation                  default: False (switch to true (better!) when creating new PDFs)
     SecVxFinderName                     default: "SV1"
@@ -43,23 +43,18 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
                   "InANDNInShared", "PixShared", "SctShared",
                   "InANDNInSplit", "PixSplit",
                   "Good"]
-            accBTagTrackToVertexIPEstimator = BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator')
-            trackToVertexIPEstimator = accBTagTrackToVertexIPEstimator.popPrivateTools()
-            acc.merge(accBTagTrackToVertexIPEstimator)
+            trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
             svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
             trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP2DDetailedTrackGradeFactory'))
             trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP2DTrackSelector'))
-            accLikelihood = NewLikelihoodToolCfg('IP2DNewLikelihoodTool', 'IP2D')
-            likelihood = accLikelihood.popPrivateTools()
-            acc.merge(accLikelihood)
+            likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP2DNewLikelihoodTool', 'IP2D'))
 
-            defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+            defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
-                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
+                     'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'impactParameterView'              : '2D',
                      'trackGradePartitions'             : grades,
                      'RejectBadTracks'                  : True,
-                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'unbiasIPEstimation'               : False,
                      'UseCHypo'                         : True,

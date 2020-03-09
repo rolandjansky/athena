@@ -20,6 +20,8 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "AthContainers/ConstDataVector.h"
 
+#include "CxxUtils/checker_macros.h"
+
 
 /**
  * @brief @c CaloCellContainer that can accept const cell pointers.
@@ -65,7 +67,7 @@ public:
 
 
   /** @brief indicate that the container is complete and in order */
-  void setIsOrderedAndComplete(bool ordered);
+  void setIsOrderedAndComplete ATLAS_NOT_CONST_THREAD_SAFE (bool ordered);
 
 
   /** @brief tell wether container is complete and in order */
@@ -77,7 +79,7 @@ public:
 
 
   /** @brief indicates that the container is ordered */
-  void setIsOrdered(bool ordered);
+  void setIsOrdered  ATLAS_NOT_CONST_THREAD_SAFE (bool ordered);
 
 
   /** @brief tell wether container is ordered */
@@ -107,7 +109,7 @@ public:
 
 
   /** @brief set which calo has been filled.  */
-  void setHasCalo(CaloCell_ID::SUBCALO caloNum);
+  void setHasCalo ATLAS_NOT_CONST_THREAD_SAFE (CaloCell_ID::SUBCALO caloNum);
 
 
   /** @brief fill calo iterators and the index of first and last cell 
@@ -147,15 +149,15 @@ public:
 
 
   /** @brief order container */
-  void order();
+  void order ATLAS_NOT_CONST_THREAD_SAFE ();
 
 
   /** @brief reimplementation of push_back to gain speed in readin */
-  void push_back_fast (const CaloCell* cell);
+  void push_back_fast ATLAS_NOT_THREAD_SAFE(const CaloCell* cell);
 
 
   /** @brief reset look up table */
-  void resetLookUpTable();
+  void resetLookUpTable ATLAS_NOT_CONST_THREAD_SAFE();
 
 
 private:
@@ -164,10 +166,10 @@ private:
   /** @brief If @ flag is true, then the container size equals the maximum hash.
    *         Only CaloCellContainerFinalizer tool is allowed to set this.
    */
-  void setHasTotalSize(bool flag);
+  void setHasTotalSize ATLAS_NOT_CONST_THREAD_SAFE (bool flag);
 
   /// Return a non-const pointer to the base container.
-  ::CaloCellContainer* baseContainer();
+  ::CaloCellContainer* baseContainer ATLAS_NOT_CONST_THREAD_SAFE ();
 };
 
 

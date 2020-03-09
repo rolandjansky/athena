@@ -16,7 +16,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 namespace Trk {
-  unsigned int VxCandidate::s_numberOfInstantiations=0;
+std::atomic<unsigned int> VxCandidate::s_numberOfInstantiations=0;
 
   VxCandidate::VxCandidate() : m_vertexType(Trk::NotSpecified), m_recVertex(), m_vxTrackAtVertex()
   {

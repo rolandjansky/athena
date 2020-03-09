@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -30,16 +30,16 @@
 
 using namespace SH;
 
-TEST (MANUAL_DiskListEOSTest, all)
+TEST (DiskListTest, DISABLED_all)
 {
   DiskListEOS list1 ("/eos/atlas/user/k/krumnack", "root://eosatlas.cern.ch//eos/atlas/user/k/krumnack");
   bool valid = true;
   while ((valid = list1.next()) && list1.fileName() != "EventLoop-UnitTest") {};
   ASSERT_TRUE (valid);
-  std::auto_ptr<DiskList> list2 (list1.openDir());
+  std::unique_ptr<DiskList> list2 (list1.openDir());
   ASSERT_TRUE (list2.get() != 0);
   ASSERT_TRUE (list2->next()) << "empty dir";
-  std::auto_ptr<TFile> file
+  std::unique_ptr<TFile> file
     (TFile::Open (list2->path().c_str(), "READ"));
   ASSERT_TRUE (file.get() != 0);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -22,8 +22,6 @@
 
 #include <math.h>
 
-//#include <boost/foreach.hpp>
-
 //#include <gsl/gsl_errno.h>
 //#include <gsl/gsl_spline.h>
 
@@ -42,9 +40,6 @@
 //#include "ZdcIdentifier/ZdcID.h"
 #include "ZdcIdentifier/ZdcID.h"
 #include "ZdcConditions/ZdcCablingService.h"
-
-#define foreach         BOOST_FOREACH
-#define reverse_foreach BOOST_REVERSE_FOREACH
 
 //Interface Id for retrieving the tool
 //Consider creating a factory class and  define the interface

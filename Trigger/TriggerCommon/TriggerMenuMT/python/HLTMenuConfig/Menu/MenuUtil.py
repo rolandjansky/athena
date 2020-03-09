@@ -1,12 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.Logging        import logging
-
-
-log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.MenuUtil.py')
-
-
+from AthenaCommon.Logging import logging
+log = logging.getLogger(__name__)
 
 def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
     list=[]
@@ -66,7 +62,7 @@ def checkGroups(triggerPythonConfig):
     menu_name = TriggerFlags.triggerMenuSetup()
     log.info( "Menu: " + menu_name)
     
-    from TriggerMenu.menu.GroupInfo       import getAllAllowedGroups
+    from TriggerMenuMT.HLTMenuConfig.Menu.GroupInfo       import getAllAllowedGroups
     allgroup=getAllAllowedGroups(menu_name)
 
     for chain in triggerPythonConfig.theHLTChains:
@@ -118,7 +114,7 @@ def checkStreamConsistency(triggerPythonConfig):
     menu_name = TriggerFlags.triggerMenuSetup()
     log.info( "Menu: " + menu_name)
 
-    from TriggerMenu.menu.StreamInfo       import getAllStreams
+    from TriggerMenuMT.HLTMenuConfig.Menu.StreamInfo       import getAllStreams
 
     allStreams = getAllStreams()
 

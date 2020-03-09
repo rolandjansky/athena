@@ -31,7 +31,7 @@ public:
   //! Copy constructor
   ExtrapolationCache(const ExtrapolationCache& cache);
   //! Destructor 
-  virtual ~ExtrapolationCache() {};
+  virtual ~ExtrapolationCache() = default;
   virtual ExtrapolationCache* clone() const;
 
 

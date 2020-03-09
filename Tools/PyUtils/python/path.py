@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ path.py - An object representing a path to a file or directory.
 
@@ -62,22 +62,10 @@ try:
 except AttributeError:
     pass
 
-# Pre-2.3 workaround for booleans
-try:
-    True, False
-except NameError:
-    True, False = 1, 0
-
-# Pre-2.3 workaround for basestring.
-try:
-    basestring
-except NameError:
-    basestring = (str, unicode)
-
 # Universal newline support
-_textmode = 'r'
-if hasattr(file, 'newlines'):
-    _textmode = 'U'
+#_textmode = 'r'
+#if hasattr(file, 'newlines'):
+_textmode = 'U'
 
 
 class TreeWalkWarning(Warning):
@@ -101,7 +89,7 @@ class path(_base):
         if not args:
             return typ(os.curdir)
         for arg in args:
-            if not isinstance(arg, basestring):
+            if not isinstance(arg, str):
                 raise ValueError("%s() arguments must be Path, str or "
                                  "unicode" % typ.__name__)
         if len(args) == 1:
@@ -122,7 +110,7 @@ class path(_base):
         return self.__class__(resultStr)
 
     def __radd__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return self.__class__(other.__add__(self))
         else:
             return NotImplemented
@@ -920,10 +908,10 @@ class path(_base):
 
     # --- Create/delete operations on directories
 
-    def mkdir(self, mode=0777):
+    def mkdir(self, mode=0o777):
         os.mkdir(self, mode)
 
-    def makedirs(self, mode=0777):
+    def makedirs(self, mode=0o777):
         os.makedirs(self, mode)
 
     def rmdir(self):
@@ -939,7 +927,7 @@ class path(_base):
         """ Set the access/modified times of this file to the current time.
         Create the file if it does not exist.
         """
-        fd = os.open(self, os.O_WRONLY | os.O_CREAT, 0666)
+        fd = os.open(self, os.O_WRONLY | os.O_CREAT, 0o666)
         os.close(fd)
         os.utime(self, None)
 

@@ -13,6 +13,8 @@ class ConfiguredBackTracking:
 
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
+
+      import InDetRecExample.TrackingCommon   as TrackingCommon
       #
       # get ToolSvc and topSequence
       #
@@ -23,14 +25,20 @@ class ConfiguredBackTracking:
       #
       # --- decide if use the association tool
       #
+      asso_tool = None
       if len(InputCollections) > 0:
          usePrdAssociationTool = True
+         prefix = 'InDetSegment'
+         suffix = ''
+         asso_tool = TrackingCommon.getConstPRD_AssociationTool(namePrefix = prefix,nameSuffix = suffix)
       else:
+         prefix = ''
+         suffix = ''
          usePrdAssociationTool = False
 
       # --- the PRD association tool is filled by the Segment making
       #     no need to run again
-      
+
       # ------------------------------------------------------------
       #
       # ---------- TRT Seeded Tracking
@@ -46,16 +54,17 @@ class ConfiguredBackTracking:
             # --- defaul space point finder
             #
             from TRT_SeededSpacePointFinderTool.TRT_SeededSpacePointFinderToolConf import InDet__TRT_SeededSpacePointFinder_ATL
-            InDetTRT_SeededSpacePointFinder = InDet__TRT_SeededSpacePointFinder_ATL(name                   = 'InDetTRT_SeededSpFinder'  ,
-                                                                                    SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
-                                                                                    SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                                    AssociationTool        = InDetPrdAssociationTool    ,
-                                                                                    UseAssociationTool     = usePrdAssociationTool      ,
-                                                                                    NeighborSearch         = True,
-                                                                                    LoadFull               = False,
-                                                                                    DoCosmics              = InDetFlags.doCosmics(),
-                                                                                    pTmin                  = NewTrackingCuts.minSecondaryPt())
-            #InDetTRT_SeededSpacePointFinder.OutputLevel = VERBOSE
+            InDetTRT_SeededSpacePointFinder = \
+                  InDet__TRT_SeededSpacePointFinder_ATL(name                   = 'InDetTRT_SeededSpFinder'  ,
+                                                        SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
+                                                        SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
+                                                        PRDtoTrackMap          = prefix+'PRDtoTrackMap'+suffix \
+                                                                                    if usePrdAssociationTool else "",
+                                                        NeighborSearch         = True,
+                                                        LoadFull               = False,
+                                                        DoCosmics              = InDetFlags.doCosmics(),
+                                                        pTmin                  = NewTrackingCuts.minSecondaryPt())
+            # InDetTRT_SeededSpacePointFinder.OutputLevel = VERBOSE
 
          elif InDetFlags.loadSimpleTRTSeededSPFinder():
             #
@@ -68,8 +77,8 @@ class ConfiguredBackTracking:
 
             ServiceMgr += InDetRegSelSvc
             if (InDetFlags.doPrintConfigurables()):
-               print InDetRegSelSvc
-               
+               printfunc (InDetRegSelSvc)
+
             from TRT_SeededSpacePointFinderTool.TRT_SeededSpacePointFinderToolConf import InDet__SimpleTRT_SeededSpacePointFinder_ATL
             InDetTRT_SeededSpacePointFinder = InDet__SimpleTRT_SeededSpacePointFinder_ATL(name                   = 'InDetTRT_SeededSpFinder'  ,
                                                                                           SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
@@ -78,16 +87,16 @@ class ConfiguredBackTracking:
                                                                                           DirectionPhiCut        = .3,
                                                                                           DirectionEtaCut        = 1.,
                                                                                           MaxHoles               = 2,
-                                                                                          AssociationTool        = InDetPrdAssociationTool,
+                                                                                          AssociationTool        = asso_tool,
                                                                                           RestrictROI            = True)
-            #InDetTRT_SeededSpacePointFinder.OutputLevel = VERBOSE
+            # InDetTRT_SeededSpacePointFinder.OutputLevel = VERBOSE
             if not usePrdAssociationTool:
-               InDetTRT_SeededSpacePointFinder.AssociationTool = None 
+               InDetTRT_SeededSpacePointFinder.AssociationTool = None
 
          # add either into the Tool Service
          ToolSvc += InDetTRT_SeededSpacePointFinder
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededSpacePointFinder
+            printfunc (InDetTRT_SeededSpacePointFinder)
          #
          # Silicon det elements road maker tool
          #
@@ -96,11 +105,11 @@ class ConfiguredBackTracking:
                                                                        PropagatorTool     = InDetPatternPropagator   ,
                                                                        usePixel           = NewTrackingCuts.usePixel(),
                                                                        PixManagerLocation = InDetKeys.PixelManager() ,
-                                                                       useSCT             = NewTrackingCuts.useSCT(), 
+                                                                       useSCT             = NewTrackingCuts.useSCT(),
                                                                        SCTManagerLocation = InDetKeys.SCT_Manager()  ,
                                                                        RoadWidth          = 35.,
                                                                        MaxStep            = 20.)                       # NOT DEFAULT ?
-         #InDetTRT_SeededSiRoadMaker.OutputLevel = VERBOSE
+         # InDetTRT_SeededSiRoadMaker.OutputLevel = VERBOSE
          if InDetFlags.doCosmics():
             InDetTRT_SeededSiRoadMaker.RoadWidth = 50
          # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
@@ -109,21 +118,11 @@ class ConfiguredBackTracking:
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
                from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
-               # Copied from InDetAlignFolders.py
-               useDynamicAlignFolders = False
-               try:
-                  from InDetRecExample.InDetJobProperties import InDetFlags
-                  from IOVDbSvc.CondDB import conddb
-                  if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-                     useDynamicAlignFolders = True
-               except ImportError:
-                  pass
-               condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                             UseDynamicAlignFolders = useDynamicAlignFolders)
-      
+               condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
+
          ToolSvc += InDetTRT_SeededSiRoadMaker
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededSiRoadMaker
+            printfunc (InDetTRT_SeededSiRoadMaker)
          #
          # --- TRT seeded back tracking tool
          #
@@ -141,15 +140,14 @@ class ConfiguredBackTracking:
                                                                       Xi2max                   = NewTrackingCuts.SecondaryXi2max(),
                                                                       Xi2maxNoAdd              = NewTrackingCuts.SecondaryXi2maxNoAdd(),
                                                                       ConsistentSeeds          = True,
-                                                                      #BremCorrection           = True,
-                                                                      BremCorrection           = False,
-                                                                      UseAssociationTool       = usePrdAssociationTool)
+                                                                      # BremCorrection           = True,
+                                                                      BremCorrection           = False)
          if InDetFlags.doCosmics():
             InDetTRT_SeededTrackTool.nWClustersMin = 0
-      
+
          ToolSvc   += InDetTRT_SeededTrackTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededTrackTool
+            printfunc (InDetTRT_SeededTrackTool)
 
          #
          # --- Output key for the finder
@@ -158,10 +156,15 @@ class ConfiguredBackTracking:
          #
          # TRT seeded back tracking algorithm
          #
+         from AthenaCommon import CfgGetter
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
+         import InDetRecExample.TrackingCommon as TrackingCommon
          InDetTRT_SeededTrackFinder = InDet__TRT_SeededTrackFinder(name                  = 'InDetTRT_SeededTrackFinder',
-                                                                   RefitterTool          = InDetTrackFitter,
+                                                                   RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                    TrackTool             = InDetTRT_SeededTrackTool,
+                                                                   PRDtoTrackMap         = prefix+'PRDtoTrackMap'+suffix \
+                                                                                               if usePrdAssociationTool else "",
+                                                                   TrackSummaryTool      = TrackingCommon.getInDetTrackSummaryToolNoHoleSearch(),
                                                                    TrackExtensionTool    = InDetTRTExtensionTool,
                                                                    MinTRTonSegment       = NewTrackingCuts.minSecondaryTRTonTrk(),
                                                                    MinTRTonly            = NewTrackingCuts.minTRTonly(),
@@ -171,7 +174,7 @@ class ConfiguredBackTracking:
                                                                    maxRPhiImp            = NewTrackingCuts.maxSecondaryImpact(),
                                                                    maxZImp               = NewTrackingCuts.maxZImpact(),
                                                                    maxEta                = NewTrackingCuts.maxEta(),
-                                                                   Extrapolator          = InDetExtrapolator,
+                                                                   Extrapolator          = TrackingCommon.getInDetExtrapolator(),
                                                                    RejectShortExtension  = NewTrackingCuts.rejectShortExtensions(),
                                                                    FinalRefit            = False,
                                                                    FinalStatistics       = False,
@@ -181,8 +184,8 @@ class ConfiguredBackTracking:
          # InDetTRT_SeededTrackFinder.OutputLevel = VERBOSE
          topSequence += InDetTRT_SeededTrackFinder
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededTrackFinder
-            
+            printfunc (InDetTRT_SeededTrackFinder)
+
          #
          # ------------ Track truth.
          #
@@ -202,13 +205,13 @@ class ConfiguredBackTracking:
                TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
             else:
                TrackCollectionKeys      += [ self.__TRTSeededTracks ]
-               
+
          # --- output track collection
          self.__BackTrackingTracks = self.__TRTSeededTracks
 
       # ------------------------------------------------------------
       #
-      # --- Resolve back tracking tracks ? 
+      # --- Resolve back tracking tracks ?
       #
       # ------------------------------------------------------------
 
@@ -217,49 +220,17 @@ class ConfiguredBackTracking:
          # --- set up special Scoring Tool for TRT seeded tracks
          #
          if InDetFlags.doCosmics():
-            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetCosmicScoringTool
-            InDetTRT_SeededScoringTool = InDet__InDetCosmicScoringTool(name                 = 'InDetCosmicScoringTool_TRT',
-                                                                       nWeightedClustersMin = 0,
-                                                                       minTRTHits           = NewTrackingCuts.minSecondaryTRTonTrk(),
-                                                                       SummaryTool          = InDetTrackSummaryTool)
+            InDetTRT_SeededScoringTool = TrackingCommon.getInDetCosmicScoringTool_TRT(NewTrackingCuts)
          else:
-            have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
-            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-            InDetTRT_SeededScoringTool = InDet__InDetAmbiScoringTool(name                    = 'InDetTRT_SeededScoringTool',
-                                                                     Extrapolator            = InDetExtrapolator,
-                                                                     DriftCircleCutTool      = InDetTRTDriftCircleCut,
-                                                                     SummaryTool             = InDetTrackSummaryTool,
-                                                                     useTRT_AmbigFcn         = InDetFlags.doNewTracking(),     # full search => use NewT
-                                                                     useAmbigFcn             = not InDetFlags.doNewTracking(), # full search => use NewT
-                                                                     minPt                   = NewTrackingCuts.minSecondaryPt(),
-                                                                     maxRPhiImp              = NewTrackingCuts.maxSecondaryImpact(),
-                                                                     maxZImp                 = NewTrackingCuts.maxZImpact(),
-                                                                     maxEta                  = NewTrackingCuts.maxEta(),
-                                                                     minSiClusters           = NewTrackingCuts.minSecondaryClusters(),
-                                                                     maxSiHoles              = NewTrackingCuts.maxSecondaryHoles(),
-                                                                     maxPixelHoles           = NewTrackingCuts.maxSecondaryPixelHoles(),
-                                                                     maxSCTHoles             = NewTrackingCuts.maxSecondarySCTHoles(),
-                                                                     maxDoubleHoles          = NewTrackingCuts.maxSecondaryDoubleHoles(),
-                                                                     usePixel                = NewTrackingCuts.usePixel(),
-                                                                     useSCT                  = NewTrackingCuts.useSCT(),
-                                                                     minTRTonTrk             = NewTrackingCuts.minSecondaryTRTonTrk(),
-                                                                     minTRTPrecisionFraction = NewTrackingCuts.minSecondaryTRTPrecFrac(),
-                                                                     doEmCaloSeed            = have_calo_rois)
-            if not InDetTRT_SeededScoringTool.doEmCaloSeed:
-               InDetTRT_SeededScoringTool.InputEmClusterContainerName = ''
-                                                                     
-         # InDetTRT_SeededScoringTool.OutputLevel = DEBUG
-         ToolSvc += InDetTRT_SeededScoringTool
-         if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededScoringTool
-      
+            InDetTRT_SeededScoringTool = TrackingCommon.getInDetTRT_SeededScoringTool(NewTrackingCuts)
+
          #
          # --- Load selection tool
          #
          from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
          InDetTRT_SeededAmbiTrackSelectionTool = InDet__InDetAmbiTrackSelectionTool(name                = 'InDetTRT_SeededAmbiTrackSelectionTool',
-                                                                                    AssociationTool     =  InDetPrdAssociationTool,
                                                                                     DriftCircleCutTool  =  InDetTRTDriftCircleCut,
+                                                                                    AssociationTool     = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                                                     minScoreShareTracks = -1., # off !
                                                                                     minHits             = NewTrackingCuts.minSecondaryClusters(),
                                                                                     minNotShared        = NewTrackingCuts.minSecondarySiNotShared(),
@@ -268,18 +239,20 @@ class ConfiguredBackTracking:
                                                                                     UseParameterization = NewTrackingCuts.useParameterizedTRTCuts(),
                                                                                     Cosmics             = InDetFlags.doCosmics(),
                                                                                     doPixelSplitting    = InDetFlags.doPixelClusterSplitting())
-      
+
          # InDetTRT_SeededAmbiTrackSelectionTool.OutputLevel = DEBUG
          ToolSvc += InDetTRT_SeededAmbiTrackSelectionTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededAmbiTrackSelectionTool
+            printfunc (InDetTRT_SeededAmbiTrackSelectionTool)
 
          #
          # --- load Ambiguity Processor
          #
          from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
          InDetTRT_SeededAmbiguityProcessor = Trk__SimpleAmbiguityProcessorTool(name               = 'InDetTRT_SeededAmbiguityProcessor',
-                                                                               Fitter             = InDetTrackFitter,          
+                                                                               Fitter             = CfgGetter.getPublicTool('InDetTrackFitter'),
+                                                                               AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
+                                                                               TrackSummaryTool   = TrackingCommon.getInDetTrackSummaryTool(),
                                                                                SelectionTool      = InDetTRT_SeededAmbiTrackSelectionTool,
                                                                                RefitPrds          = not InDetFlags.refitROT(),
                                                                                SuppressTrackFit   = False,
@@ -293,26 +266,35 @@ class ConfiguredBackTracking:
          #
          ToolSvc += InDetTRT_SeededAmbiguityProcessor
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededAmbiguityProcessor
+            printfunc (InDetTRT_SeededAmbiguityProcessor)
+
 
          #
          # --- load the algorithm
          #
-         self.__ResolvedTRTSeededTracks = InDetKeys.ResolvedTRTSeededTracks() 
+
+         from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+         InDetAmbiguityScore = Trk__TrkAmbiguityScore(name               = 'InDetTRT_SeededAmbiguityScore',
+                                                      TrackInput         = [ self.__TRTSeededTracks ],
+                                                      TrackOutput        = 'ScoredMap'+'InDetTRT_SeededAmbiguityScore')
+         topSequence += InDetAmbiguityScore
+
+
+         self.__ResolvedTRTSeededTracks = InDetKeys.ResolvedTRTSeededTracks()
          #
          from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
          InDetTRT_SeededAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = 'InDetTRT_SeededAmbiguitySolver',
-                                                                  TrackInput         = [ self.__TRTSeededTracks ],
+                                                                  TrackInput         = 'ScoredMap'+'InDetTRT_SeededAmbiguityScore',
                                                                   TrackOutput        = self.__ResolvedTRTSeededTracks,
                                                                   AmbiguityProcessor = InDetTRT_SeededAmbiguityProcessor)
          topSequence += InDetTRT_SeededAmbiguitySolver
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededAmbiguitySolver
+            printfunc (InDetTRT_SeededAmbiguitySolver)
 
          # --- Delete (non-resloved) TRT seeded tracks
          from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
          InDetSGDeletionAlg(key = InDetKeys.TRTSeededTracks())
-         
+
          #
          # ------------ Track truth.
          #
@@ -332,9 +314,9 @@ class ConfiguredBackTracking:
                TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
             else:
                TrackCollectionKeys      += [ self.__ResolvedTRTSeededTracks ]
-               
+
          # --- output track collection
          self.__BackTrackingTracks = self.__ResolvedTRTSeededTracks
-            
+
    def BackTrackingTracks ( self ):
       return self.__BackTrackingTracks

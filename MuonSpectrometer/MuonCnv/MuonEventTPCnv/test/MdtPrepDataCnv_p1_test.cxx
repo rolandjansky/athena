@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,7 +14,6 @@
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/MdtPrepDataContainerCnv_tlp1.h"
 #include "TestTools/leakcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -74,7 +73,7 @@ void test1()
   Muon::MdtPrepData trans1 (Identifier (1234),
                             IdentifierHash (1234),
                             driftRadius,
-                            CxxUtils::make_unique<Amg::MatrixX>(cov),
+                            std::make_unique<Amg::MatrixX>(cov),
                             std::vector<Identifier> (rdoList),
                             nullptr, // detEl,
                             4,

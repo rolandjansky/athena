@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_FillCablingFromText_H
@@ -32,12 +32,12 @@ class StatusCode;
  
 /**
  *    @class SCT_FillCablingFromText
- *    @brief Service which fill the SCT Cabling from plain text (a file).
+ *    @brief Tool which fills the SCT Cabling from plain text (a file).
  *
  */
 class SCT_FillCablingFromText: public extends<AthAlgTool, ISCT_FillCabling> {
  public:
-  //@name Service methods, reimplemented
+  //@name AthAlgTool methods, reimplemented
   //@{
   SCT_FillCablingFromText(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_FillCablingFromText() = default;
@@ -71,8 +71,10 @@ class SCT_FillCablingFromText: public extends<AthAlgTool, ISCT_FillCabling> {
   virtual bool canFillDuringInitialize() const {return true;}
 
  private:
+  /// Read from a text file
   StatusCode readDataFromFile(SCT_CablingData& data) const;
 
+  /// Insert relations among IdentifierHash, SCT_OnlineId and SCT_SerialNumber to SCT_CablingData.
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData& data) const;
 
   mutable std::atomic_bool m_filled{false};

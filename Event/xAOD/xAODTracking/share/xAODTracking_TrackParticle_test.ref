@@ -1,15 +1,41 @@
 d0 = 1, z0 = 2, phi0 = 1.23, theta = 0.5, qOverP = 0.25
-definingParametersCovMatrixVec = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]
+definingParametersCovMatrixDiag = [1, 4, 9, 16, 25]
+definingParametersCovMatrixOffDiag = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+definingParametersCovMatrix =
+ 1  2  3  4  5
+ 2  4  6  8 10
+ 3  6  9 12 15
+ 4  8 12 16 20
+ 5 10 15 20 25
+definingParametersCovMatrixFilled =
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
 vx = 0, vy = 1, vz = 2
 numberOfParameters = 2
   - x = 0, y = 1, z = 2, px = 3, py = 4, pz = 5
   - x = 6, y = 7, z = 8, px = 9, py = 10, pz = 11
 parameterPosition( 0 ) = 1
 parameterPosition( 1 ) = 3
- Dumping TrackParticleAuxContainer_v4
-d0:1, z0:2, phi:1.23, theta:0.5, qOverP:0.25, definingParametersCovMatrix: [0x7fffa0474140]1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 
+ Dumping TrackParticleAuxContainer_v5
+d0:1, z0:2, phi:1.23, theta:0.5, qOverP:0.25, definingParametersCovMatrix: [0x7ffd7f299008]
 d0 = 1, z0 = 2, phi0 = 1.23, theta = 0.5, qOverP = 0.25
-definingParametersCovMatrixVec = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]
+definingParametersCovMatrixDiag = [1, 4, 9, 16, 25]
+definingParametersCovMatrixOffDiag = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+definingParametersCovMatrix =
+ 1  2  3  4  5
+ 2  4  6  8 10
+ 3  6  9 12 15
+ 4  8 12 16 20
+ 5 10 15 20 25
+definingParametersCovMatrixFilled =
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
 vx = 0, vy = 1, vz = 2
 numberOfParameters = 2
   - x = 0, y = 1, z = 2, px = 3, py = 4, pz = 5

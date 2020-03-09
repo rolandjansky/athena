@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonAGDD/MuonAGDDToolHelper.h"
+#include "MuonAGDDToolHelper.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
@@ -21,9 +21,6 @@
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
-
-#include "EventInfo/TagInfo.h"
-#include "EventInfoMgt/ITagInfoMgr.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -59,14 +56,6 @@ MuonAGDDToolHelper::MuonAGDDToolHelper()
     {
 	std::cout<<"MuonAGDDToolHelper\tunable to access RBDAccessSvc "<<std::endl;
     }
-	m_tagInfoKey="";
-	result=Gaudi::svcLocator()->service("TagInfoMgr",m_tagInfoMgr);
-  	if (result.isFailure()) 
-  	{
-	std::cout<<"MuonAGDDToolHelper\tUnable to retrieve TagInfoMgr!"<<std::endl;
-  	}
-  	else
-  		m_tagInfoKey=m_tagInfoMgr->tagInfoKey();
 }
 
 std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
@@ -148,27 +137,6 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt, std::string tableName)
    return AgddString;
 
 }
-
-StatusCode MuonAGDDToolHelper::SetTagInfo(std::string tag,std::string info) const
-{
-	StatusCode result;
-	if (m_tagInfoMgr)
-	{
-		result=m_tagInfoMgr->addTag(tag,info);
-		if (result.isFailure())
-		{
-//			ATH_MSG_ERROR("SetTagInfo: could not add tag "<<tag<<" value "<<
-//				info<<" to TagInfo ");
-		}
-		return result;
-	}
-	else
-	{
-//		ATH_MSG_ERROR(" SetTagInfo: the TagInfoMgr is not set!");
-		return StatusCode::FAILURE;
-	}
-}
-
 
 bool MuonAGDDToolHelper::BuildMScomponents() const
 {

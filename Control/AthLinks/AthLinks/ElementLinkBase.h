@@ -3,8 +3,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthLinks/ElementLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -19,10 +17,16 @@
 
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
-#include "CxxUtils/CachedPointer.h"
 #include "AthenaKernel/sgkey_t.h"
+#include "AthenaKernel/getThinningCache.h"
+#include "CxxUtils/CachedPointer.h"
 #include <cstdlib>
 #include <stdint.h>
+
+
+namespace SG {
+  class ThinningCache;
+}
 
 
 /**
@@ -202,6 +206,19 @@ public:
    * Returns @c true if the link was changed; @c false otherwise.
    */
   bool thin();
+
+
+  /**
+   * @brief Adjust for thinning.
+   *
+   * If this link points to a container that has been thinned,
+   * it will be adjusted accordingly.
+   * @param thinningCache Thinning cache for the current stream
+   *                      (may be null).
+   *
+   * Returns @c true if the link was changed; @c false otherwise.
+   */
+  bool thin (const SG::ThinningCache* thinningCache);
 
 
   /**

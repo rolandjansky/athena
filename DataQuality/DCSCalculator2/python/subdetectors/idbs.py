@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from DCSCalculator2.variable import CodeIOV
 from DCSCalculator2.lib import DCSC_Subdetector, DCSC_Global_Variable
-from DCSCalculator2.consts import BLACK, WHITE, GREY, RED, YELLOW, GREEN
+from DCSCalculator2.consts import GREY, YELLOW, GREEN
 
 IDBS = 150
     
@@ -10,7 +10,7 @@ class IDBS_Beampos(DCSC_Global_Variable):
     
     input_db = "COOLOFL_INDET/CONDBR2"
     timewise_folder = False
-    fetch_args = dict(tag="IndetBeampos_cosmic_loose-RUN2")
+    fetch_args = dict(tag="IndetBeampos-ES1-UPD2")
     
     STATUSMAP = {
         59 : GREEN,

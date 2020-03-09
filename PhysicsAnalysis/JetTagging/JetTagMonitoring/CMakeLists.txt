@@ -29,12 +29,12 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( JetTagMonitoring
-                     src/*.cxx
+		     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib xAODJet ITrackToVertex xAODBTagging xAODEventInfo xAODTracking GaudiKernel LArRecEvent JetTagToolsLib LWHists TrkParticleBase VxSecVertex TrkVertexFitterInterfaces TrigDecisionToolLib )
 
 # Install files from the package:
-atlas_install_headers( JetTagMonitoring )
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

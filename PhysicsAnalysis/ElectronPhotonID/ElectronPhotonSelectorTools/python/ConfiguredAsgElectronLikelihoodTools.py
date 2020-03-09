@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        ConfiguredAsgElectronIsEMSelectors
@@ -15,6 +15,7 @@
 from PATCore.HelperUtils import *
 from AthenaCommon import CfgMgr
 import sys
+import six
 
 # Import the needed stuff specific to the ElectronPhotonSelectorTools
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronLikelihoodTool
@@ -32,7 +33,7 @@ def ConfiguredAsgElectronLikelihoodTool( name, quality, menu=electronLHmenu.offl
         raise
 
     # Get the label for user data
-    tmpName = (ntuple[1]).func_name
+    tmpName = six.get_function_code(ntuple[1]).co_name
     labelName = "isLH" + ((tmpName.split("Config")[0]).split("Likelihood")[1])
 
     # Create an instance of the tool

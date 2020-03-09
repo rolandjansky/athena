@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetSamplingCnv_p1.cxx 
@@ -15,11 +15,7 @@
 // STL includes
 
 // JetEvent includes
-#define private public
-#define protected public
 #include "JetEvent/JetSampling.h"
-#undef private
-#undef protected
 
 // definition of INT_MAX
 #include <limits.h>
@@ -32,39 +28,33 @@
 #define TPCNV_TRANSTOPERS(t,p,x) p->x = t->x
 
 // statics
-HepLorentzVectorCnv_p1 JetSamplingCnv_p1::m_hlvCnv;
+const HepLorentzVectorCnv_p1 JetSamplingCnv_p1::m_hlvCnv;
  
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void JetSamplingCnv_p1::persToTrans( const JetSampling_p1* pers,
 				     JetSampling* trans, 
-				     MsgStream& msg ) 
+				     MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading JetSampling from persistent state..."
 //       << endmsg;
 
-  m_hlvCnv.persToTrans( &pers->m_pr,   &trans->m_pr,   msg );
-  m_hlvCnv.persToTrans( &pers->m_pt,   &trans->m_pt,   msg );
-  m_hlvCnv.persToTrans( &pers->m_pn,   &trans->m_pn,   msg );
+  CLHEP::HepLorentzVector tmp;
+  m_hlvCnv.persToTrans( &pers->m_pr,   &tmp,   msg );
+  trans->set_hlv_rec (tmp);
+  m_hlvCnv.persToTrans( &pers->m_pt,   &tmp,   msg );
+  trans->set_hlv_pic (tmp);
+  m_hlvCnv.persToTrans( &pers->m_pn,   &tmp,   msg );
+  trans->set_hlv_ntj (tmp);
 
   // Persistent does not have the data driven jet kinematics m_pd,
   // so we do not set it in transient, it will be initialize to zero in the constructor
 
-  m_hlvCnv.persToTrans( &pers->m_h1,   &trans->m_h1,   msg );
-  m_hlvCnv.persToTrans( &pers->m_pisa, &trans->m_pisa, msg );
-  m_hlvCnv.persToTrans( &pers->m_samp, &trans->m_samp, msg );
+  m_hlvCnv.persToTrans( &pers->m_h1,   &tmp,   msg );
+  trans->set_hlv_h1 (tmp);
+  m_hlvCnv.persToTrans( &pers->m_pisa, &tmp, msg );
+  trans->set_hlv_pisa (tmp);
+  m_hlvCnv.persToTrans( &pers->m_samp, &tmp, msg );
+  trans->set_hlv_samp (tmp);
     
   // Jet sampling layer info
   TPCNV_PERSTOTRANS( pers, trans, m_ejsPreSamplerB );
@@ -181,7 +171,7 @@ void JetSamplingCnv_p1::persToTrans( const JetSampling_p1* pers,
 
 void JetSamplingCnv_p1::transToPers( const JetSampling* trans, 
 				     JetSampling_p1* pers, 
-				     MsgStream& msg ) 
+				     MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetSampling..."
 //       << endmsg;

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloCellPosition2Ntuple
@@ -21,7 +22,7 @@ if 'FolderTag' not in dir():
 
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
-from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaCommon.Resilience import protectedInclude
 protectedInclude( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
 from RecExConfig.RecFlags import rec
@@ -71,7 +72,7 @@ svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from IOVDbSvc.CondDB import conddb
 conddb.blockFolder("/LAR/LArCellPositionShift")
-conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>"+Folder+"<tag>"+FolderTag+"</tag>")
+conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>"+Folder+"<tag>"+FolderTag+"</tag>",True)
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
@@ -100,7 +101,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellPosition.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellPosition.root' OPT='RECREATE'"]
 
 
 #--------------------------------------------------------------

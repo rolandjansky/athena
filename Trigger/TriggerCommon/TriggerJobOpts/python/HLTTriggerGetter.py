@@ -1,31 +1,24 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging  # loads logger
 from PerfMonComps.PerfMonFlags import jobproperties
 from AthenaCommon.Include import include
-from AthenaCommon.GlobalFlags import GlobalFlags
 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-# serializer replacing usuall online (this needs to be moved to TrigNavigation in DEV) ???
-from TrigSerializeResult.TrigSerializeResultConf import TrigTSerializer
-
-from AthenaCommon.AppMgr import ServiceMgr, ToolSvc, theApp
-from AthenaCommon.Include import include
 
 from RecExConfig.Configured import Configured
 
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
-
 def getHLTOutputLevel():
+    from AthenaCommon.Constants import DEBUG
     level=DEBUG
-    if globals().has_key('HLTOutputLevel'):
+    if 'HLTOutputLevel' in globals():
         level= globals()['HLTOutputLevel']
     return level
 
 def makeKeysList(inputDict):
     tmpList={}
     for typename,v in inputDict.iteritems():
-        if type(v) is type({}):
+        if isinstance(v, dict):
             stored = typename
             if 'collection' in v.keys():
                 stored = v['collection']
@@ -62,7 +55,7 @@ def monitoringTools(steering):
     def assign_prop_value(a):
         try:
             a.LBNHistoryDepth = LBNdepth
-        except:
+        except Exception:
             return False
         return True
 
@@ -88,7 +81,7 @@ def monitoringTools(steering):
             alg.doTiming=True            
 
         if "Log" in  TriggerFlags.enableMonitoring():
-            alg.OutputLevel=getHLTOutputLevel()
+            alg.OutputLevel=getHLTOutputLevel()  # noqa: ATL900
 
 
     # prune steering monitoring tools
@@ -133,11 +126,15 @@ class HLTSimulationGetter(Configured):
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
 
-        #scheduling eventinfo
-        from RecExConfig.ObjKeyStore import objKeyStore
-        if ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
-            from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-            topSequence += xAODMaker__EventInfoCnvAlg()
+        # If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
+        from AthenaCommon.GlobalFlags  import globalflags
+        if globalflags.InputFormat.is_pool():
+            from RecExConfig.ObjKeyStore import objKeyStore
+            from PyUtils.MetaReaderPeeker import convert_itemList
+            objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+            if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+                from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+                xAODEventInfoCnvAlgDefault(sequence=topSequence)
 
         # Schedule RoIBResult conversion from ByteStream
         if jobproperties.Global.InputFormat() == 'bytestream':
@@ -166,8 +163,6 @@ class HLTSimulationGetter(Configured):
             
             from TrigSteering.TrigSteeringConfig import TrigSteer_HLT, ReruningTrigSteer_HLT
             if TriggerFlags.doFEX():
-                from RecExConfig.RecFlags  import rec
-                from AthenaCommon.GlobalFlags  import globalflags
 
                 # schedule the conversion of the L1Calo ROIB data to topo simulation input
 
@@ -194,7 +189,6 @@ class HLTSimulationGetter(Configured):
             # TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
             TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated
             if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
-                print "TrigSteer_HLT.LvlTopoConverter has attribute MuonInputProvider"
 
                 try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
                     from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
@@ -274,7 +268,7 @@ class HLTSimulationGetter(Configured):
                 TrigSerToolTP.ActiveClasses = getHLTBSTypeList()
 
         from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-        result = HLTTriggerResultGetter()
+        result = HLTTriggerResultGetter()  # noqa: F841
         return True
 
 
@@ -282,7 +276,6 @@ class HLTSimulationGetter(Configured):
         log = logging.getLogger("HLTTriggergetter.py")
         log.info("postConfigure: update steering configuration from the menu")
 
-        from TriggerMenu.menu.GenerateMenu import GenerateMenu
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()            
         if not hasattr( topSequence, 'TrigSteer_HLT' ):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMONMSG_H
@@ -20,10 +20,10 @@ class TrigMonMSG
 {
 
  public:
-  TrigMonMSG(const std::string name);
+  TrigMonMSG(const std::string& name);
   ~TrigMonMSG() {}
 
-  void Log(const std::string message, MSG::Level lvl = MSG::DEBUG) {
+  void Log(const std::string& message, MSG::Level lvl = MSG::DEBUG) {
     m_stream << lvl << " - " << message << endmsg;
   }
 

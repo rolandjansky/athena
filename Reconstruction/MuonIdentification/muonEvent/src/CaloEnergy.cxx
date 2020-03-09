@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -75,9 +75,12 @@ CaloEnergy::CaloEnergy (float   deltaE,
 		        unsigned short tag,
 			const std::vector<DepositInCalo>& deposits)
 
-    :   EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE ),	
+    :   EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE ),
+        m_energyLossType (static_cast<CaloEnergy::EnergyLossType>(energyLossType)),
         m_caloLRLikelihood      (likelihood),
         m_caloMuonIdTag         (tag),
+	m_fsrCandidateEnergy    (0.0),
+        m_deposits              (deposits),
         m_etCore                (0.0), 
 	m_deltaE_param           (0.0),
 	m_sigmaMinusDeltaE_param (0.0),
@@ -85,9 +88,6 @@ CaloEnergy::CaloEnergy (float   deltaE,
 	m_deltaE_meas            (0.0),
 	m_sigmaDeltaE_meas       (0.0)
 {
-	m_energyLossType = static_cast<CaloEnergy::EnergyLossType>(energyLossType);
-	m_fsrCandidateEnergy = 0.0;
-        m_deposits = deposits;
 }
 
 /** copy constructor */

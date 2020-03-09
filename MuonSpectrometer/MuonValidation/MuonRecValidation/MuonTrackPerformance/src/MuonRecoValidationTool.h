@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MuonRecoValidationTool_H
 #define MUON_MuonRecoValidationTool_H
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -19,6 +20,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonRecValidationNtuples/MuonInsideOutValidationNtuple.h"
 #include "MuonCombinedEvent/CandidateSummary.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <vector>
 class TTree;
@@ -37,7 +39,6 @@ namespace Muon {
   class IMuonSegmentHitSummaryTool;
   class IMuonHitSummaryTool;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class IMuonHitTimingTool;
   class MuonSegment;
   class MuonClusterOnTrack;
@@ -103,7 +104,9 @@ namespace Muon {
     int getBarcode( const std::set<Identifier>& ids ) const;
 
     ToolHandle<MuonIdHelperTool>           m_idHelper;
-    ToolHandle<MuonEDMHelperTool>          m_edmHelper;
+    ServiceHandle<IMuonEDMHelperSvc>       m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<IMuonSegmentHitSummaryTool> m_segmentHitSummaryTool;
     ToolHandle<IMuonHitSummaryTool>        m_hitSummaryTool;
     ToolHandle<IMuonTruthSummaryTool>      m_truthSummaryTool;

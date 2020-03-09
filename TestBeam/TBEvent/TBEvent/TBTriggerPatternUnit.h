@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBTRIGGERPATTERNUNIT_H
@@ -91,15 +91,10 @@ class TBTriggerPatternUnit
 
 
  private:
-    
-  //////////////////
-  // Private Data //
-  //////////////////
+    friend class TBTriggerPatternUnitCnv_p1;
 
     unsigned int m_triggerWord;
     std::vector<bool> m_triggers;
-
-
 };
 
 

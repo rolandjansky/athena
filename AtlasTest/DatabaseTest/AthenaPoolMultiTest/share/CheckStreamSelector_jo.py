@@ -55,7 +55,6 @@ cfs = CfgMgr.CutFlowSvc("SS_CutFlowSvc")
 svcMgr += cfs
 cfs.InputStream = "StreamAll"
 cfs.OutputCollName = "StreamSelect"
-cfs.OutputIncompleteCollName = "IncompleteStreamSelect"
 #
 selector2 = StreamSelectorTool("Selector2")
 selector2.AcceptStreams = ["Stream1"]

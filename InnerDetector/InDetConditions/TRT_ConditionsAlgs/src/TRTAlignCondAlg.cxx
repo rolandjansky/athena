@@ -1,26 +1,21 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+
+// Gaudi
+#include "GaudiKernel/MsgStream.h"
+
 #include "TRTAlignCondAlg.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+
 
 TRTAlignCondAlg::TRTAlignCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
   : ::AthAlgorithm(name,pSvcLocator)
-  , m_readKeyDynamicGlobal("/TRT/AlignL1/TRT")
-  , m_readKeyDynamicRegular("/TRT/AlignL2")
-  , m_readKeyRegular("/TRT/Align")
-  , m_writeKey("TRTAlignmentStore","TRTAlignmentStore")
   , m_condSvc("CondSvc",name)
   , m_detManager(nullptr)
-  , m_useDynamicFolders(false)
 {
-  declareProperty("ReadKeyDynamicGlobal",m_readKeyDynamicGlobal);
-  declareProperty("ReadKeyDynamicRegular",m_readKeyDynamicRegular);
-  declareProperty("ReadKeyRegular",m_readKeyRegular);
-  declareProperty("WriteKey",m_writeKey);
-  declareProperty("UseDynamicFolders",m_useDynamicFolders);
 }
 
 TRTAlignCondAlg::~TRTAlignCondAlg()
@@ -34,23 +29,24 @@ StatusCode TRTAlignCondAlg::initialize()
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
 
-  // Read Condition Handles
-  if(m_useDynamicFolders) {
-    ATH_CHECK( m_readKeyDynamicGlobal.initialize() );
-    ATH_CHECK( m_readKeyDynamicRegular.initialize() );
-    m_readKeyRegular = std::string("");
-  }
+  // Read Condition Handles initialize
+  ATH_CHECK( m_readKeyRegular.initialize(!m_useDynamicFolders.value()) );
+  ATH_CHECK( m_readKeyDynamicGlobal.initialize(m_useDynamicFolders.value()) );
+  ATH_CHECK( m_readKeyDynamicRegular.initialize(m_useDynamicFolders.value()) );
 
-  else {
-    m_readKeyDynamicGlobal = std::string("");
-    m_readKeyDynamicRegular = std::string("");
-    ATH_CHECK( m_readKeyRegular.initialize() );
-  }
-  ATH_CHECK( m_writeKey.initialize() );
+  // Write condition handles initialize
+  ATH_CHECK( m_writeKeyAlignStore.initialize() );
+  ATH_CHECK( m_writeKeyDetElCont.initialize() );
 
   // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
+  if (m_condSvc->regHandle(this, m_writeKeyAlignStore).isFailure()) {
+    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKeyAlignStore.fullKey() << " with CondSvc");
+    return StatusCode::FAILURE;
+  }
+
+  // Register write handle
+  if (m_condSvc->regHandle(this, m_writeKeyDetElCont).isFailure()) {
+    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKeyDetElCont.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
 
@@ -63,27 +59,38 @@ StatusCode TRTAlignCondAlg::execute()
 {
   ATH_MSG_DEBUG("execute " << name());
 
-  // ____________ Construct Write Cond Handle and check its validity ____________
-  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKey};
+  // ____________ Construct Write Cond Handles and check their validity ____________
+  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKeyAlignStore};
+  SG::WriteCondHandle<InDetDD::TRT_DetElementContainer> writeHandleDetElCont{m_writeKeyDetElCont};
 
-  // Do we have a valid Write Cond Handle for current time?
+  if (writeHandleDetElCont.isValid()) {
+    ATH_MSG_DEBUG("CondHandle " << writeHandleDetElCont.fullKey() << " is already valid."
+                  << ". In theory this should not be called, but may happen"
+                  << " if multiple concurrent events are being processed out of order.");
+    return StatusCode::SUCCESS;
+  }
+
   if(writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    //writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
                   << " if multiple concurrent events are being processed out of order.");
-
     return StatusCode::SUCCESS; 
   }
 
   // ____________ Construct new Write Cond Object and its range ____________
-  GeoAlignmentStore* writeCdo = new GeoAlignmentStore();
+  std::unique_ptr<GeoAlignmentStore> writeCdo{std::make_unique<GeoAlignmentStore>()};
+
   EventIDRange rangeW;
 
   // ____________ Get Read Cond Objects ____________
   // Container for passing read CDO-s over to the Detector Manager
   InDetDD::RawAlignmentObjects readCdoContainer;
+
+  const InDetDD::TRT_DetElementCollection* unAlignedColl{m_detManager->getDetectorElementCollection()};
+  if (unAlignedColl==nullptr) {
+    ATH_MSG_FATAL("Null pointer is returned by getDetectorElementCollection()");
+    return StatusCode::FAILURE;
+  }
 
   if(m_useDynamicFolders) {
     // 1. Dynamic folders
@@ -94,7 +101,6 @@ StatusCode TRTAlignCondAlg::execute()
     const CondAttrListCollection* readCdoDynamicGlobal{*readHandleDynamicGlobal}; 
     if(readCdoDynamicGlobal==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Dynamic Global");
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
     readCdoContainer.emplace(m_readKeyDynamicGlobal.key(),readCdoDynamicGlobal);
@@ -102,7 +108,6 @@ StatusCode TRTAlignCondAlg::execute()
     EventIDRange rangeDynamicGlobal;
     if(!readHandleDynamicGlobal.range(rangeDynamicGlobal)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleDynamicGlobal.key());
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
 
@@ -112,7 +117,6 @@ StatusCode TRTAlignCondAlg::execute()
     const AlignableTransformContainer* readCdoDynamicRegular{*readHandleDynamicRegular}; 
     if(readCdoDynamicRegular==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Dynamic Regular");
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
     readCdoContainer.emplace(m_readKeyDynamicRegular.key(),readCdoDynamicRegular);
@@ -120,7 +124,6 @@ StatusCode TRTAlignCondAlg::execute()
     EventIDRange rangeDynamicRegular;
     if(!readHandleDynamicRegular.range(rangeDynamicRegular)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleDynamicRegular.key());
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
 
@@ -134,35 +137,100 @@ StatusCode TRTAlignCondAlg::execute()
     const AlignableTransformContainer* readCdoRegular{*readHandleRegular}; 
     if(readCdoRegular==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Regular");
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
     readCdoContainer.emplace(m_readKeyRegular.key(),readCdoRegular);
     // Get range
     if(!readHandleRegular.range(rangeW)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleRegular.key());
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
   }
 
-
   // ____________ Apply alignments to TRT GeoModel ____________
-  if(m_detManager->align(readCdoContainer,writeCdo).isFailure()) {
+  if(m_detManager->align(readCdoContainer,writeCdo.get()).isFailure()) {
     ATH_MSG_ERROR("Failed to apply alignments to TRT");
-    delete writeCdo;
     return StatusCode::FAILURE;
   }
 
+  const InDetDD::TRT_DetElementCollection* alignedColl{m_detManager->getDetectorElementCollection()};
+  if (alignedColl==nullptr) {
+    ATH_MSG_FATAL("Null pointer is returned by getDetectorElementCollection()");
+    return StatusCode::FAILURE;
+  }
+
+  // ____________ Construct new Write Cond Object ____________                                                                                
+  std::unique_ptr<InDetDD::TRT_DetElementContainer> writeCdoDetElCont{std::make_unique<InDetDD::TRT_DetElementContainer>()};
+  
+  // ____________ Update writeCdo using readCdo ____________                                                                                   
+  std::map<const InDetDD::TRT_EndcapElement*, InDetDD::TRT_EndcapElement*> oldToNewECMap;
+  std::map<const InDetDD::TRT_BarrelElement*, InDetDD::TRT_BarrelElement*> oldToNewBAMap;
+
+  oldToNewECMap[nullptr] = nullptr;
+  oldToNewBAMap[nullptr] = nullptr;
+
+  //Create new aligned detector elements
+  for (const InDetDD::TRT_BaseElement* oldEl : *alignedColl) {
+    InDetDD::TRT_BaseElement::Type type = oldEl->type();
+
+    if(type == InDetDD::TRT_BaseElement::ENDCAP) {
+      const InDetDD::TRT_EndcapElement* oldEl_Endcap = static_cast<const InDetDD::TRT_EndcapElement*>(oldEl);
+      //New encap element with new alignment created based on old element
+      InDetDD::TRT_EndcapElement* newEl = new InDetDD::TRT_EndcapElement(*oldEl_Endcap,writeCdo.get());
+      oldToNewECMap[oldEl_Endcap] = newEl;
+      writeCdoDetElCont->addEndcapElement(newEl);
+    } else if (type == InDetDD::TRT_BaseElement::BARREL) {
+      const InDetDD::TRT_BarrelElement* oldEl_Barrel = static_cast<const InDetDD::TRT_BarrelElement*>(oldEl);
+      //New barrel element with new alignment created based on old element
+      InDetDD::TRT_BarrelElement* newEl = new InDetDD::TRT_BarrelElement(*oldEl_Barrel,writeCdo.get());
+      oldToNewBAMap[oldEl_Barrel] = newEl;
+      writeCdoDetElCont->addBarrelElement(newEl);
+    } else {
+      ATH_MSG_FATAL("Unknown TRT detector element found");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  //Set detector elements links
+  for (auto pairOfEl : oldToNewECMap) {
+    if (!pairOfEl.first) continue; // skip nullptr
+    pairOfEl.second->setNextInZ(oldToNewECMap[pairOfEl.first->nextInZ()]);
+    pairOfEl.second->setPreviousInZ(oldToNewECMap[pairOfEl.first->previousInZ()]);
+  }
+  for (auto pairOfEl : oldToNewBAMap) {
+    if (!pairOfEl.first) continue; // skip nullptr
+    pairOfEl.second->setNextInR(oldToNewBAMap[pairOfEl.first->nextInR()]);
+    pairOfEl.second->setPreviousInR(oldToNewBAMap[pairOfEl.first->previousInR()]);
+    pairOfEl.second->setNextInPhi(oldToNewBAMap[pairOfEl.first->nextInPhi()]);
+    pairOfEl.second->setPreviousInPhi(oldToNewBAMap[pairOfEl.first->previousInPhi()]);
+  }
+
+  // Update all detector elements caches
+  for (InDetDD::TRT_BaseElement* newEl : *(writeCdoDetElCont->getElements())) {
+    newEl->updateAllCaches();
+  }
+
+  // Record WriteCondHandle
+  const std::size_t writeHandleDetElContSize{writeCdoDetElCont->getElements()->size()};
+
+  writeCdoDetElCont->setNumerology(m_detManager->getNumerology());
+
   // Record the resulting CDO
-  if(writeHandle.record(rangeW,writeCdo).isFailure()) {
+  if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_ERROR("Could not record GeoAlignmentStore " << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");
-		delete writeCdo;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+
+  if (writeHandleDetElCont.record(rangeW, std::move(writeCdoDetElCont)).isFailure()) {
+    ATH_MSG_FATAL("Could not record " << writeHandleDetElCont.key()
+                  << " with EventRange " << rangeW
+                  << " into Conditions Store");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("recorded new CDO " << writeHandleDetElCont.key() << " with range " << rangeW << " with size of " << writeHandleDetElContSize << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -31,9 +31,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "TrigValAlgs/TrigCountDumper.h"
-
-#include "TrigConfigSvc/DSConfigSvc.h"
-
 #include "TrigSteeringEvent/Lvl1Item.h"
 
 using namespace xercesc;
@@ -170,8 +167,7 @@ namespace trigcount {
 TrigCountDumper::TrigCountDumper(const std::string &name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-    m_dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name) {
+    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name) {
   declareProperty("OutputFile",m_ofname="trigger_counts.xml","Name of the output file");
   declareProperty("Release",m_release="","Release version");
   declareProperty("Dataset",m_dataset="","Dataset name");
@@ -292,21 +288,7 @@ StatusCode TrigCountDumper::execute(void) {
   // use something else as the SMK. (Needed mostly for MC test jobs.)
   if(((smk==0) && (l1psk==0) && (hltpsk==0)) || (static_cast<int>(smk) < 0 ) ||
      (static_cast<int>(l1psk) < 0 ) || (static_cast<int>(hltpsk) < 0 ) ) {
-    // See if we are reading an AOD:
-    if(!m_dsSvc) {
-      ATH_MSG_FATAL("The trigger configuration keys don't seem to make sense, and we're not using "
-        << "TrigConf::DSConfigSvc...");
-      return StatusCode::FAILURE;
-    }
-    TrigConf::DSConfigSvc *dsSvc=dynamic_cast<TrigConf::DSConfigSvc *>(m_dsSvc.operator->());
-    if(!dsSvc) {
-      ATH_MSG_FATAL("The trigger configuration keys don't seem to make sense, and we're not using "
-        << "TrigConf::DSConfigSvc...");
-      return StatusCode::FAILURE;
-    }
-    // Turn the configuration source name (probably an XML file in this case) into an
-    // imaginary Super Master Key:
-    smk    = CxxUtils::crc64(dsSvc->configurationSource()) & 0xffff;
+    smk    = CxxUtils::crc64(m_configSvc->configurationSource()) & 0xffff;
     l1psk  = 0;
     hltpsk = 0;
   }

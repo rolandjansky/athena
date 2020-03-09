@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -366,8 +366,11 @@ namespace xAOD {
       return m_store->getWritableAuxIDs();
    }
 
-   bool ShallowAuxContainer::resize( size_t /*size*/ ) {
-
+   bool ShallowAuxContainer::resize( size_t size )
+   {
+       if (size == this->size()) {
+         return false;
+       }
       // Nope, not allowed...
       throw std::runtime_error( "Trying to call resize on a shallow copy "
                                 "container" );

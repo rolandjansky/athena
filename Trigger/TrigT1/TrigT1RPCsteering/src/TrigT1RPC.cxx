@@ -32,6 +32,7 @@
 #include "TrigT1RPClogic/decodeSL.h"
 
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
+#include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
 
 #include <algorithm>
@@ -53,32 +54,6 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
   m_cabling(0)
 {
-  declareProperty ( "FastDebug", m_fast_debug=0 );
-  declareProperty ( "Geometric", m_geometric_algo=false );
-  declareProperty ( "Hardware", m_hardware_emulation=true );
-  declareProperty ( "Logic", m_logic_emulation=false );
-  declareProperty ( "RPCbytestream", m_bytestream_production=false );
-  declareProperty ( "RPCbytestreamFile", m_bytestream_file="" );
-
-  declareProperty ( "DataDetail", m_data_detail=false );
-
-  declareProperty ( "CMAdebug", m_cma_debug=0 );
-  declareProperty ( "PADdebug", m_pad_debug=0 );
-  declareProperty ( "SLdebug", m_sl_debug=0 );
-
-  declareProperty ( "CMArodebug", m_cma_ro_debug=0 );
-  declareProperty ( "PADrodebug", m_pad_ro_debug=0 );
-  declareProperty ( "RXrodebug", m_rx_ro_debug=0 );
-  declareProperty ( "SLrodebug", m_sl_ro_debug=0 );
-
-  declareProperty ( "CMArostructdebug", m_cma_rostruct_debug=0 );
-  declareProperty ( "PADrostructdebug", m_pad_rostruct_debug=0 );
-  declareProperty ( "RXrostructdebug", m_rx_rostruct_debug=0 );
-  declareProperty ( "SLrostructdebug", m_sl_rostruct_debug=0 );
-
-  declareProperty ( "firstBC_to_MUCTPI", m_firstBC_to_MUCTPI=-1 );
-  declareProperty ( "lastBC_to_MUCTPI", m_lastBC_to_MUCTPI=1 );
-  
   m_MuonMgr=0;
   m_rpcId=0;
 }
@@ -101,7 +76,9 @@ StatusCode TrigT1RPC::initialize(){
     CHECK(m_cabling_getter->giveCabling(m_cabling));
     
     ATH_CHECK(m_rpcDigitKey.initialize());
-    ATH_CHECK(m_muctpiKey.initialize());
+
+    ATH_CHECK(m_muctpiPhase1Key.initialize(m_useRun3Config));
+    ATH_CHECK(m_muctpiKey.initialize(!m_useRun3Config));
     
   return StatusCode::SUCCESS;
 }
@@ -167,10 +144,18 @@ StatusCode TrigT1RPC::execute() {
   ////////////////////////////////////////////////////////////////////////
 
   ///// Access the SL word and fill the MuCTPInterface ///////////////////
-  SG::WriteHandle<LVL1MUONIF::Lvl1MuCTPIInput> wh_muctpiRpc(m_muctpiKey);
-  ATH_CHECK(wh_muctpiRpc.record(std::make_unique<LVL1MUONIF::Lvl1MuCTPIInput>()));
+  LVL1MUONIF::Lvl1MuCTPIInput * ctpiInRPC = nullptr;
+  LVL1MUONIF::Lvl1MuCTPIInputPhase1 * ctpiPhase1InRPC = nullptr;
+  if(m_useRun3Config){
+    SG::WriteHandle<LVL1MUONIF::Lvl1MuCTPIInputPhase1> wh_muctpiRpc(m_muctpiPhase1Key);
+    ATH_CHECK(wh_muctpiRpc.record(std::make_unique<LVL1MUONIF::Lvl1MuCTPIInputPhase1>()));
+    ctpiPhase1InRPC = wh_muctpiRpc.ptr();
+  }else{
+    SG::WriteHandle<LVL1MUONIF::Lvl1MuCTPIInput> wh_muctpiRpc(m_muctpiKey);
+    ATH_CHECK(wh_muctpiRpc.record(std::make_unique<LVL1MUONIF::Lvl1MuCTPIInput>()));
+    ctpiInRPC = wh_muctpiRpc.ptr();
+  }
 
-  LVL1MUONIF::Lvl1MuCTPIInput * ctpiInRPC = wh_muctpiRpc.ptr();         //
                                                                         //
   SLdata::PatternsList sectors_patterns = sectors.give_patterns();      //
   SLdata::PatternsList::iterator SLit = sectors_patterns.begin();       //
@@ -194,8 +179,25 @@ StatusCode TrigT1RPC::execute() {
               << ", Th=" << TriggerRPC::PT1(data_word)                    //
               << ", data word " << MSG::hex << data_word                  //
               << MSG::dec );                                      //
-
-          ctpiInRPC->setSectorLogicData(data_word,0,subsystem,logic_sector,dbc);
+	  if(m_useRun3Config){
+	    LVL1MUONIF::Lvl1MuBarrelSectorLogicData sldata;
+	    sldata.convertFromWordFormat(data_word);
+	    LVL1MUONIF::Lvl1MuBarrelSectorLogicDataPhase1 sldata2;
+	    sldata2.bcid( sldata.bcid() );
+	    if(sldata.is2candidatesInSector()) sldata2.set2candidatesInSector();
+	    else sldata2.clear2candidatesInSector();
+	    for(int icand = 0 ; icand < 2 ; icand++){ // up to 2 candidates
+	      sldata2.pt(icand, sldata.pt(icand) );
+	      sldata2.roi(icand, sldata.roi(icand) );
+	      sldata2.ovl(icand, sldata.ovl(icand) );
+	      sldata2.charge(icand, sldata.charge(icand) );
+	      if(sldata.is2candidates(icand)) sldata2.set2candidates(icand);
+	      else sldata2.clear2candidates(icand);
+	    }
+	    ctpiPhase1InRPC->setSectorLogicData(sldata2,0,subsystem,logic_sector,dbc);
+	  }else{
+	    ctpiInRPC->setSectorLogicData(data_word,0,subsystem,logic_sector,dbc);
+	  }
       }
                                                                         //
       ++SLit;                                                           //
@@ -352,7 +354,7 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
                 const RpcDigit* rpcDigit = *it1_digit;
 		//Identifier channelId = rpcDigit->identify();
 		
-                if (rpcDigit->is_valid(m_rpcId)) 
+                if (rpcDigit->is_valid(*m_rpcId)) 
                 {
 		    Identifier channelId = rpcDigit->identify();
 		    const int stationType   = m_rpcId->stationName(channelId);

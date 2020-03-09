@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Cost executor to call base transforms
 # @details: Based on athenaExecutor with some modifications
@@ -32,7 +32,7 @@ class trigCostExecutor(athenaExecutor):
                  msg.info('Renaming %s to %s' % (expectedFileName, self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0]) ) 
                  try:
                       os.rename(expectedFileName, self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0])
-                 except OSError, e:
+                 except OSError as e:
                       raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
                                     'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0], e))
              else:
@@ -51,7 +51,7 @@ class trigCostExecutor(athenaExecutor):
                  msg.info('Renaming %s to %s' % (expectedFileName, self.conf.argdict['outputNTUP_TRIGRATEFile'].value[0]) ) 
                  try:
                       os.rename(expectedFileName, self.conf.argdict['outputNTUP_TRIGRATEFile'].value[0])
-                 except OSError, e:
+                 except OSError as e:
                       raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
                                     'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputNTUP_TRIGRATEFile'].value[0], e))
              else:
@@ -70,7 +70,7 @@ class trigCostExecutor(athenaExecutor):
                  msg.info('Renaming %s to %s' % (expectedFileName, self.conf.argdict['outputNTUP_TRIGEBWGHTFile'].value[0]) ) 
                  try:
                       os.rename(expectedFileName, self.conf.argdict['outputNTUP_TRIGEBWGHTFile'].value[0])
-                 except OSError, e:
+                 except OSError as e:
                       raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
                                     'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputNTUP_TRIGEBWGHTFile'].value[0], e))
              else:

@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-// Framework inclues
-#include "CxxUtils/make_unique.h"
-
 // Local includes
 #include "AssociationUtils/ObjLinkOverlapTool.h"
 

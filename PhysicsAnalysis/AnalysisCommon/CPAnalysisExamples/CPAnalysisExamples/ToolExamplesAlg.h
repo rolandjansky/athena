@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CPANALYSISEXAMPLES_TOOLEXAMPLESALG_H
@@ -25,10 +25,10 @@
 #include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
 
 ///Muons
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 
 ///Jets

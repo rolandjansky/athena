@@ -49,7 +49,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkEventPrimitives/PropDirection.h"
 
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"  
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"  
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include <vector>
@@ -70,7 +70,7 @@ namespace DerivationFramework {
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx"),
+    m_TRTdEdxTool("InDet::TRT_ElectronPidTools/TRT_ToT_dEdx"),
     m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -530,6 +530,11 @@ namespace DerivationFramework {
 	double lTheta=-1000., lPhi=-1000.;
         //Get the measurement base object
 	const Trk::MeasurementBase* measurement=trackState->measurementOnTrack();
+
+        msos->auxdata<float>("errDC") = -1 ;
+        const Trk::RIO_OnTrack* rotp = dynamic_cast<const Trk::RIO_OnTrack*>(measurement) ;
+        if (rotp) msos->auxdata<float>("errDC") = sqrt(rotp->localCovariance()(Trk::driftRadius, Trk::driftRadius)) ;
+
 	if (m_storeTRT) {
 	  const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(measurement);
 	  if (!measurement) {

@@ -23,6 +23,14 @@
 #include "TileMonitoring/TileTBMonTool.h"
 #include "TileMonitoring/TileTBCellMonTool.h"
 #include "../TileJetMonitorAlgorithm.h"
+#include "../TileDigitsFlxMonitorAlgorithm.h"
+#include "../TileDQFragMonitorAlgorithm.h"
+#include "../TileMBTSMonitorAlgorithm.h"
+#include "../TileRawChannelFlxMonitorAlgorithm.h"
+#include "../TileCellMonitorAlgorithm.h"
+#include "../TileTowerMonitorAlgorithm.h"
+#include "../TileClusterMonitorAlgorithm.h"
+#include "../TileMuIdMonitorAlgorithm.h"
 
 DECLARE_COMPONENT( TileFatherMonTool )
 DECLARE_COMPONENT( TilePaterMonTool )
@@ -49,4 +57,11 @@ DECLARE_COMPONENT( TileTBBeamMonTool )
 DECLARE_COMPONENT( TileTBMonTool )
 DECLARE_COMPONENT( TileTBCellMonTool )
 DECLARE_COMPONENT( TileJetMonitorAlgorithm )
-
+DECLARE_COMPONENT( TileDigitsFlxMonitorAlgorithm )
+DECLARE_COMPONENT( TileDQFragMonitorAlgorithm )
+DECLARE_COMPONENT( TileMBTSMonitorAlgorithm )
+DECLARE_COMPONENT( TileRawChannelFlxMonitorAlgorithm )
+DECLARE_COMPONENT( TileCellMonitorAlgorithm )
+DECLARE_COMPONENT( TileTowerMonitorAlgorithm )
+DECLARE_COMPONENT( TileClusterMonitorAlgorithm )
+DECLARE_COMPONENT( TileMuIdMonitorAlgorithm )

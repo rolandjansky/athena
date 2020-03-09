@@ -30,6 +30,7 @@ namespace InDet{
         ATH_CHECK( m_PIXSpacePointCacheKey.initialize(!m_PIXSpacePointCacheKey.key().empty()) );
         ATH_CHECK( m_SCTSpacePointCacheKey.initialize(!m_SCTSpacePointCacheKey.key().empty()) );
         ATH_CHECK( m_SCTRDOCacheKey.initialize(!m_SCTRDOCacheKey.key().empty()) );
+        ATH_CHECK( m_SCTBSErrCacheKey.initialize(!m_SCTBSErrCacheKey.key().empty()) );
         ATH_CHECK( m_PixRDOCacheKey.initialize(!m_PixRDOCacheKey.key().empty()) );
         if (!m_disableTRT.value()) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
         ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
@@ -41,7 +42,7 @@ namespace InDet{
 
     bool CacheCreator::isInsideView(const EventContext& context) const
     {
-        const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
+        const IProxyDict* proxy = Atlas::getExtendedEventContext(context).proxy();
         const SG::View* view = dynamic_cast<const SG::View*>(proxy);
         return view != nullptr;
     }
@@ -68,6 +69,8 @@ namespace InDet{
         ATH_CHECK(createContainer(m_SCTSpacePointCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
 
         ATH_CHECK(createContainer(m_SCTRDOCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+
+        ATH_CHECK(createValueContainer(m_SCTBSErrCacheKey, m_sct_idHelper->wafer_hash_max(), ctx, std::numeric_limits<int>::min()));
 
         ATH_CHECK(createContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 

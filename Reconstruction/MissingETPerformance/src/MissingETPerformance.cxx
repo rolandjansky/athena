@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include <string>
 #include <vector>
@@ -94,7 +93,7 @@ StatusCode MissingETPerformance::execute() {return CBNT_execute();}
 
 StatusCode MissingETPerformance::CBNT_initialize() {
 
-  CBNT_initializeBeforeEventLoop();
+  ATH_CHECK( CBNT_initializeBeforeEventLoop() );
 
   ATH_MSG_DEBUG( "Initializing MissingETPerformance"  );
 

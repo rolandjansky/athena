@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file TrigCond2COOLLib.py
-## $Id: TrigConf2COOL.py,v 1.14 2009-05-06 13:09:27 stelzer Exp $
 ###############################################################
 #
 # The jobOptions to enable reading and writing of configuration
@@ -11,11 +10,10 @@
 #==============================================================
 #
 # Required libs:
-import os.path
+import os
 import threading
 
 import AthenaCommon.Logging as L
-from AthenaCommon.JobProperties import jobproperties as jp
 
 from AthenaPython import PyAthena
                                 
@@ -31,7 +29,7 @@ class TmpThr(threading.Thread):
             line = line.lower()
             if ' warning ' in line:
                 maxlevel = max(1,maxlevel)
-            if ' error ' in line and not 'connection refused' in line:
+            if ' error ' in line and 'connection refused' not in line:
                 maxlevel = max(2,maxlevel)
             elif ' fatal ' in line.lower() or 'exception ' in line.lower():
                 maxlevel = max(3,maxlevel)
@@ -85,7 +83,6 @@ class ConfToCoolSQlite:
             self.dbConnection    = "<dbConnection>sqlite://;schema=%s;dbname=%s</dbConnection>" % (self.dbfilename,self.dbname)
             self.isWritingNeeded = False
             from RecExConfig.RecFlags import jobproperties as jp
-            from TriggerJobOpts.TriggerFlags import jobproperties as jp
             from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
             if jp.Rec.Trigger.readLVL1configFromXML():
                 self.lvl1menu    = jp.Rec.Trigger.inputLVL1configFile()
@@ -127,12 +124,12 @@ class ConfToCoolSQlite:
                 return
             # we write COOL sqlite file from given HLT and LVL1 menu xml
             if self.menusource == 'xml':
-                msg.info("Writing menu %s and %s to COOL (%s)" % (self.lvl1menu, self.hltmenu, self.dbfilename) )
+                msg.info("Writing menu %s and %s to COOL (%s)", self.lvl1menu, self.hltmenu, self.dbfilename)
                 syscmd  = "rm -f %s; TrigConfReadWrite -i %s %s -o cool '%s;%s'" % (self.dbfilename, self.hltmenu, self.lvl1menu, self.dbfilename, self.dbname)
             else:  # db
                 if self.smk==0 or self.l1psk==0 or self.hltpsk==0:
-                    raise RuntimeError, "Source of trigger menu configuration is the TriggerDB, but no keys are specified: %i/%i/%i" % (self.smk, self.l1psk, self.hltpsk)
-                msg.info("Writing menu (keys: %i/%i/%i/%i) from triggerDB (%s) to COOL (%s)" % (self.smk, self.l1psk, self.hltpsk, self.bgsk, self.trigdb, self.dbfilename) )
+                    raise RuntimeError("Source of trigger menu configuration is the TriggerDB, but no keys are specified: %i/%i/%i" % (self.smk, self.l1psk, self.hltpsk))
+                msg.info("Writing menu (keys: %i/%i/%i/%i) from triggerDB (%s) to COOL (%s)", self.smk, self.l1psk, self.hltpsk, self.bgsk, self.trigdb, self.dbfilename)
                 syscmd  = "rm -f %s; TrigConf2COOLApp -e createwrite" % self.dbfilename
                 syscmd += " --cooldb 'sqlite://;schema=%s;dbname=%s'" % (self.dbfilename,self.dbname)
                 syscmd += " --trigdb '%s' --configkey %i --prescalekeylvl1 %i --prescalekeyhlt %i --bgkey %i" % (self.trigdb, self.smk, self.l1psk, self.hltpsk, self.bgsk)
@@ -141,7 +138,7 @@ class ConfToCoolSQlite:
                 syscmd += " --infiov"
                 
             
-            msg.info('executing system command to create COOL SQlite file %s with trigger configuration' % self.dbfilename)
+            msg.info('executing system command to create COOL SQlite file %s with trigger configuration', self.dbfilename)
             msg.info("> " + syscmd)
 
             tmpThr = TmpThr(syscmd)

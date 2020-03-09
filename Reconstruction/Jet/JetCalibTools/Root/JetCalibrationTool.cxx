@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.cxx 
@@ -23,7 +23,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
     m_rhkRhoKey(""),
     m_rhkPV("PrimaryVertices"),
     m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
-    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
+    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), m_gscDepth("auto"),
     m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL), m_jetSmearCorr(NULL)
 { 
 
@@ -37,6 +37,9 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "DEVmode", m_devMode = false);
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
   declareProperty( "CalibArea", m_calibAreaTag = "00-04-82");
+  declareProperty( "rhkRhoKey", m_rhkRhoKey);
+  declareProperty( "PrimaryVerticesContainerName", m_rhkPV = "PrimaryVertices");
+  declareProperty( "GSCDepth", m_gscDepth);
 
 }
 
@@ -66,9 +69,25 @@ StatusCode JetCalibrationTool::initialize() {
 
   // Initialise ReadHandle(s)
   ATH_CHECK( m_rhkEvtInfo.initialize() );
-  ATH_CHECK( m_rhkRhoKey.assign(m_rhoKey)) ;  // set in `initializeTool'
-  ATH_CHECK( m_rhkRhoKey.initialize() );
-  ATH_CHECK( m_rhkPV.initialize() );
+  if(m_rhkPV.empty()) {
+    // No PV key: -- check if it is required
+    if(m_doResidual) {
+      // May require modification in case of residual that does not require NPV
+      ATH_MSG_ERROR("Residual calibration requested but no primary vertex container specified!");
+      return StatusCode::FAILURE;
+    } else if(m_doGSC) {
+      if(m_jetAlgo.find("PFlow")!=std::string::npos) {
+	ATH_MSG_ERROR("GSC calibration for PFlow requested but no primary vertex container specified!");
+	return StatusCode::FAILURE;
+      } else if((m_gscDepth!="Tile0" && m_gscDepth!="EM3")) {
+	ATH_MSG_ERROR("GSC calibration with tracks requested but no primary vertex container specified!");
+	return StatusCode::FAILURE;
+      }
+    }
+  } else {
+    // Received a PV key, declare the data dependency
+    ATH_CHECK( m_rhkPV.initialize() );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -146,6 +165,8 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
         else if ( m_jetScale == PFLOW ) m_rhoKey = "Kt4EMPFlowEventShape";
       }
     }
+    ATH_CHECK( m_rhkRhoKey.assign(m_rhoKey)) ;  // set in `initializeTool'
+    ATH_CHECK( m_rhkRhoKey.initialize() );
     if ( !calibSeq.Contains("Residual") ) m_doResidual = false;
   } else if ( !calibSeq.Contains("JetArea") && calibSeq.Contains("Residual") ) {
     ATH_MSG_FATAL("JetCalibrationTool::initializeTool : You are trying to initialize JetCalibTools with the jet area correction turned off and the residual offset correction turned on. This is inconsistent. Aborting.");
@@ -250,7 +271,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     ATH_MSG_INFO("Initializing GSC correction.");
     suffix="_GSC";
     if(m_devMode) suffix+="_DEV";
-    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,m_gscDepth,calibPath,m_devMode);
     m_globalSequentialCorr->msg().setLevel( this->msg().level() );
     if ( m_globalSequentialCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the Global Sequential Calibration. Aborting"); 
@@ -333,87 +354,20 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
   return StatusCode::FAILURE;
 }
 
-CP::CorrectionCode JetCalibrationTool::applyCorrection(xAOD::Jet& jet) {
-  StatusCode sc = applyCalibration(jet);
-  if ( sc != StatusCode::FAILURE ) return CP::CorrectionCode::Ok;
-  return CP::CorrectionCode::Error;
-}
-
-StatusCode JetCalibrationTool::applyCalibration(xAOD::Jet& jet) const { 
-  //Grab necessary event info for pile up correction and store it in a JetEventInfo class object
-  JetEventInfo jetEventInfo;
-  ATH_MSG_VERBOSE("Extracting event information.");
-  ATH_CHECK( initializeEvent(jetEventInfo) );
-  ATH_MSG_VERBOSE("Applying calibration.");
-  ATH_CHECK( calibrateImpl(jet,jetEventInfo) );
-  return StatusCode::SUCCESS; 
-}
-
-
-int JetCalibrationTool::modify(xAOD::JetContainer& jets) const {
+StatusCode JetCalibrationTool::applyCalibration(xAOD::JetContainer& jets) const {
   //Grab necessary event info for pile up correction and store it in a JetEventInfo class object
   ATH_MSG_VERBOSE("Modifying jet collection.");
   JetEventInfo jetEventInfo;
-  ATH_CHECK( initializeEvent(jetEventInfo), 1 );
+  ATH_CHECK( initializeEvent(jetEventInfo) );
   xAOD::JetContainer::iterator jet_itr = jets.begin();
   xAOD::JetContainer::iterator jet_end = jets.end(); 
   for ( ; jet_itr != jet_end; ++jet_itr )
-    ATH_CHECK( calibrateImpl(**jet_itr,jetEventInfo), 1 );
- return 0;
-}
-
-int JetCalibrationTool::modifyJet(xAOD::Jet& jet) const {
-  ATH_MSG_VERBOSE("Modifying jet.");
-  ATH_CHECK( applyCalibration(jet), 1 );
-  return 0;
+    ATH_CHECK( calibrateImpl(**jet_itr,jetEventInfo) );
+ return StatusCode::SUCCESS;
 }
 
 // Private/Protected Methods
 ///////////////
-
-/*
-StatusCode JetCalibrationTool::initializeEvent() {
-
-  m_eventObj = 0;
-  m_vertices = 0;
-
-  //ATH_MSG_INFO("  Retrieving event information for the pile up corrections\n");
-  if ( evtStore()->retrieve(m_eventObj,"EventInfo").isFailure() || !m_eventObj ) {
-    ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve event information. Aborting.");
-    return StatusCode::FAILURE;
-  }
-  if ( evtStore()->retrieve(m_vertices,"PrimaryVertices").isFailure() || !m_vertices ) {
-    ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices. Aborting.");
-    return StatusCode::FAILURE;
-  }
-  //ATH_MSG_INFO("  Event information successfully retrieved.\n\n");
-
-  //Check if the input jets are coming from data or MC
-  //if ( m_eventObj->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
-  //     m_isData = false; // controls mu scaling in the pile up correction, no scaling for data
-  //}
-
-  int eventNPV = 0;
-  xAOD::VertexContainer::const_iterator vtx_itr = m_vertices->begin();
-  xAOD::VertexContainer::const_iterator vtx_end = m_vertices->end(); 
-  for ( ; vtx_itr != vtx_end; ++vtx_itr ) 
-    if ( (*vtx_itr)->nTrackParticles() >= 2 ) ++eventNPV;
-
-  m_jetEventInfo.NPV = eventNPV;
-  m_jetEventInfo.mu = m_eventObj->averageInteractionsPerCrossing();
-
-  //Test code for EventShape EDM
-  //If xAODEventShape can't be retrieved from evtStore, default to hard-coded value (12GeV)
-  const xAOD::EventShape * eventShape;
-  std::string rhoKey = m_jetScale == EM ? "EMTopoEventShape" : "LCTopoEventShape";
-  if ( evtStore()->retrieve(eventShape, rhoKey).isFailure() || !eventShape )
-    m_jetEventInfo.rho = 12000.;
-  else
-   if ( !eventShape->getDensity( xAOD::EventShape::DensityForJetsR4, m_jetEventInfo.rho ) ) return StatusCode::FAILURE; 
-
-  return StatusCode::SUCCESS;
-}
-*/
 
 StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const {
 
@@ -428,34 +382,36 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   
   ATH_MSG_VERBOSE("Initializing event.");
 
-  //Determine the rho value to use for the jet area subtraction
-  //Should be determined using EventShape object, use hard coded values if EventShape doesn't exist
-  double rho=0;
-  const xAOD::EventShape * eventShape = 0;
+  if( m_doJetArea ) {
+    //Determine the rho value to use for the jet area subtraction
+    //Should be determined using EventShape object, use hard coded values if EventShape doesn't exist
+    double rho=0;
+    const xAOD::EventShape * eventShape = 0;
 
-  SG::ReadHandle<xAOD::EventShape> rhRhoKey(m_rhkRhoKey);
+    SG::ReadHandle<xAOD::EventShape> rhRhoKey(m_rhkRhoKey);
 
-  if ( m_doJetArea && rhRhoKey.isValid() ) {
-    ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey);
-    eventShape = rhRhoKey.cptr();
-    if ( !rhRhoKey.isValid() ) {
-      ATH_MSG_VERBOSE("  Event shape container not found.");
+    if ( rhRhoKey.isValid() ) {
+      ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey);
+      eventShape = rhRhoKey.cptr();
+      if ( !rhRhoKey.isValid() ) {
+	ATH_MSG_VERBOSE("  Event shape container not found.");
+	ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
+	return StatusCode::FAILURE;
+      } else if ( !eventShape->getDensity( xAOD::EventShape::Density, rho ) ) {
+	ATH_MSG_VERBOSE("  Event density not found in container.");
+	ATH_MSG_FATAL("Could not retrieve xAOD::EventShape::Density from xAOD::EventShape.");
+	return StatusCode::FAILURE;
+      } else {
+	ATH_MSG_VERBOSE("  Event density retrieved.");
+      }
+    } else if ( m_doJetArea && !rhRhoKey.isValid() ) {
+      ATH_MSG_VERBOSE("  Rho container not found: " << m_rhoKey);
       ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
       return StatusCode::FAILURE;
-    } else if ( !eventShape->getDensity( xAOD::EventShape::Density, rho ) ) {
-      ATH_MSG_VERBOSE("  Event density not found in container.");
-      ATH_MSG_FATAL("Could not retrieve xAOD::EventShape::Density from xAOD::EventShape.");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_VERBOSE("  Event density retrieved.");
     }
-  } else if ( m_doJetArea && !rhRhoKey.isValid() ) {
-    ATH_MSG_VERBOSE("  Rho container not found: " << m_rhoKey);
-    ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
-    return StatusCode::FAILURE;
+    jetEventInfo.setRho(rho);
+    ATH_MSG_VERBOSE("  Rho = " << 0.001*rho << " GeV");
   }
-  jetEventInfo.setRho(rho);
-  ATH_MSG_VERBOSE("  Rho = " << 0.001*rho << " GeV");
 
   // Retrieve EventInfo object, which now has multiple uses
   if ( m_doResidual || m_doGSC ) {

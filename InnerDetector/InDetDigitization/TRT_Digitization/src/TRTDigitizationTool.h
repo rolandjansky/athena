@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTDIGITIZATIONTOOL_H
@@ -17,13 +17,16 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "ITRT_SimDriftTimeTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "TRTDigit.h"
+
+// For magneticfield
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -94,6 +97,7 @@ public:
 
 private:
   CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName) const;
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const;
 
   Identifier getIdentifier( int hitID,
                             IdentifierHash& hashId,
@@ -103,11 +107,8 @@ private:
   StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
   StatusCode ConditionsDependingInitialization();
 
-  StatusCode lateInitialize(CLHEP::HepRandomEngine *noiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecNoiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecProcRndmEngine,
-                            CLHEP::HepRandomEngine *fakeCondRndmEngine);
-  StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
+  StatusCode lateInitialize();
+  StatusCode processStraws(const TimedHitCollection<TRTUncompressedHit>& thpctrt, std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
                            CLHEP::HepRandomEngine *elecProcRndmEngine,
@@ -115,10 +116,6 @@ private:
                            CLHEP::HepRandomEngine *paiRndmEngine);
   StatusCode createAndStoreRDOs();
 
-  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
-  int StrawGasType(Identifier& TRT_Identifier) const;
-
-  unsigned int getRegion(int hitID);
   double getCosmicEventPhase(CLHEP::HepRandomEngine *rndmEngine);
 
   /// Configurable properties
@@ -130,17 +127,20 @@ private:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service"};
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc{this, "TRT_StrawNeighbourSvc", "TRT_StrawNeighbourSvc", ""};
+  ServiceHandle < MagField::IMagFieldSvc > m_magneticfieldsvc{this, "MagFieldSvc", "AtlasFieldSvc", "MagFieldSvc used by TRTProcessingOfStraw"};
 
-  SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
+  std::string m_dataObjectName{""};
   SG::WriteHandleKey<TRT_RDO_Container> m_outputRDOCollName{this,"OutputObjectName","TRT_RDOs","WHK Output Object name"}; /**< name of the output RDOs. */
   SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOCollName{this,"OutputSDOName","TRT_SDO_Map","WHK Output SDO container name"}; /**< name of the output SDOs. */
   SG::WriteHandle<TRT_RDO_Container> m_trtrdo_container; //RDO container handle
 
   Gaudi::Property<bool> m_printOverrideableSettings{this, "PrintOverrideableSettings", false, "Print overrideable settings"};
   Gaudi::Property<bool> m_printUsedDigSettings{this, "PrintDigSettings", true, "Print ditigization settings"};
-  Gaudi::Property<std::string> m_dataObjectName{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
   Gaudi::Property<int> m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, ""};
   Gaudi::Property<int> m_UseGasMix{this, "UseGasMix", 0, ""};
+  Gaudi::Property<unsigned long int> m_randomSeedOffset{this, "RandomSeedOffset", 678910, ""};
 
   TRTDigSettings* m_settings{};
 

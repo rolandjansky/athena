@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,8 @@
 #ifndef SiTrajector_xk_H
 #define SiTrajector_xk_H
 
-#include "InDetPrepRawData/SiClusterContainer.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "SiSPSeededTrackFinderData/SiTools_xk.h"
@@ -38,7 +39,7 @@ namespace InDet{
       
       SiTrajectory_xk();
       SiTrajectory_xk(const SiTrajectory_xk&);
-      ~SiTrajectory_xk();
+      ~SiTrajectory_xk() = default;
       SiTrajectory_xk& operator  = (const SiTrajectory_xk&);
 
       ///////////////////////////////////////////////////////////////////
@@ -61,35 +62,35 @@ namespace InDet{
       void setParameters(); 
 
       bool initialize
-	(bool,bool,
-	 const InDet::SiClusterContainer*                    ,
-	 const InDet::SiClusterContainer*                    ,
-	 const Trk::TrackParameters                          &,
-	 std::list<const InDet::SiCluster*>                  &,
-	 std::list<const InDet::SiDetElementBoundaryLink_xk*>&,
-	 bool                                                &);
+        (bool,bool,
+         const PixelClusterContainer*                         ,
+         const SCT_ClusterContainer*                          ,
+         const Trk::TrackParameters                          &,
+         std::list<const InDet::SiCluster*>                  &,
+         std::list<const InDet::SiDetElementBoundaryLink_xk*>&,
+         bool                                                &);
 
       bool trackParametersToClusters
-	(const InDet::SiClusterContainer*                        ,
-	 const InDet::SiClusterContainer*                        ,
-	 const Trk::TrackParameters                              &,
-	 std::list<const InDet::SiDetElementBoundaryLink_xk*>    &,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
-	 std::list<const InDet::SiCluster*>                      &);
+        (const PixelClusterContainer*                             ,
+         const SCT_ClusterContainer*                              ,
+         const Trk::TrackParameters                              &,
+         std::list<const InDet::SiDetElementBoundaryLink_xk*>    &,
+         std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
+         std::list<const InDet::SiCluster*>                      &);
       
       bool globalPositionsToClusters
- 	(const InDet::SiClusterContainer*                        ,
-	 const InDet::SiClusterContainer*                        ,
-	 const std::list<Amg::Vector3D>                          &,
-	 std::list<const InDet::SiDetElementBoundaryLink_xk*>    &,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
-	 std::list<const InDet::SiCluster*>                      &); 
+        (const PixelClusterContainer*                             ,
+         const SCT_ClusterContainer*                              ,
+         const std::list<Amg::Vector3D>                          &,
+         std::list<const InDet::SiDetElementBoundaryLink_xk*>    &,
+         std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
+         std::list<const InDet::SiCluster*>                      &);
 
       bool backwardExtension(int);
       bool forwardExtension (bool,int);
       bool forwardFilter    ();
       bool backwardSmoother (bool);
-      bool isLastPixel      (); 
+      bool isLastPixel      ();
       const Trk::TrackParameters* firstTrackParameters();
       void getClusters(std::list<const InDet::SiCluster*>&);
 
@@ -106,7 +107,7 @@ namespace InDet{
 
       void sortStep          ();
       bool goodOrder         ();
-      bool jumpThroughPerigee(); 
+      bool jumpThroughPerigee();
       double quality         () const;
       double qualityOptimization();
       double pTfirst         ();
@@ -146,81 +147,10 @@ namespace InDet{
       bool isNewTrack(std::multimap<const Trk::PrepRawData*,const Trk::Track*>&);
     };
   
-  /////////////////////////////////////////////////////////////////////////////////
-  // Inline methods
-  /////////////////////////////////////////////////////////////////////////////////
-
-  inline SiTrajectory_xk::SiTrajectory_xk()
-    {
-      m_nElements      = 0 ;
-      m_tools          = 0 ;
-      m_firstElement   = 0 ;
-      m_lastElement    = 0 ;
-      m_nclusters      = 0 ;
-      m_nclustersNoAdd = 0 ;
-      m_difference     = 0 ;
-      m_nholesb        = 0 ;
-      m_nholese        = 0 ; 
-      m_nholes         = 0 ;
-      m_dholes         = 0 ;
-      m_naElements     = 0 ;
-      m_ndfcut         = 0 ;
-      m_ndf            = 0 ;
-      m_ntos           = 0 ;
-    }
-
-  inline SiTrajectory_xk::SiTrajectory_xk(const SiTrajectory_xk& T)
-    {
-      *this = T;
-    }
-  
-  inline SiTrajectory_xk& SiTrajectory_xk::operator = 
-    (const SiTrajectory_xk& T) 
-    {
-      m_firstElement     = T.m_firstElement   ;
-      m_lastElement      = T.m_lastElement    ;
-      m_nclusters        = T.m_nclusters      ; 
-      m_ndfcut           = T.m_ndfcut         ;
-      m_ndf              = T.m_ndf            ;
-      m_ntos             = T.m_ntos           ;
-      m_nclustersNoAdd   = T.m_nclustersNoAdd ; 
-      m_nholesb          = T.m_nholesb        ;
-      m_nholese          = T.m_nholese        ;
-      m_nholes           = T.m_nholes         ;
-      m_dholes           = T.m_dholes         ;
-      m_naElements       = T.m_naElements     ;
-      m_nElements        = T.m_nElements      ;
-      m_tools            = T.m_tools          ;
-
-      for(int i=0; i!=m_nElements; ++i) {
-	int            e =  T.m_elementsMap[i];
-	m_elementsMap[i] = e                  ;
-	m_elements   [e] = T.m_elements[e]    ; 
-      }
-      for(int i=0; i!=m_ntos; ++i) {
-	m_atos[i] = T.m_atos[i];
-	m_itos[i] = T.m_itos[i];
-      }
-      return(*this);
-    }
-
-  inline SiTrajectory_xk::~SiTrajectory_xk() {}
-
-  inline bool SiTrajectory_xk::isLastPixel()
-    {
-      if(m_elements[m_elementsMap[m_lastElement]].ndf()==2) return true;
-      return false;
-    } 
-
-  inline const Trk::TrackParameters* SiTrajectory_xk::firstTrackParameters()
-    {
-      return m_elements[m_elementsMap[m_firstElement]].trackParameters(false,1);
-    }
-
-  std::ostream& operator << (std::ostream&,const SiTrajectory_xk&); 
+  std::ostream& operator << (std::ostream&,const SiTrajectory_xk&);
 
 } // end of name space
 
+#include "SiSPSeededTrackFinderData/SiTrajectory_xk.icc"
+
 #endif // SiTrajectory_xk
-
-

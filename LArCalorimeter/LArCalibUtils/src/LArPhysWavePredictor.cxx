@@ -28,6 +28,8 @@
 #include "LArRawConditions/LArTdriftComplete.h"
 #include "LArRawConditions/LArMphysOverMcalComplete.h"
 
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "LArCalibUtils/LArPhysWaveTool.h"     // added by FT
 #include "LArCalibUtils/LArPhysWaveHECTool.h"  // added by FT
@@ -50,6 +52,7 @@ LArPhysWavePredictor::LArPhysWavePredictor (const std::string& name, ISvcLocator
   declareProperty("MaskingTool",      m_maskingTool,"Only for messaging");
   declareProperty("TestMode",         m_testmode   = false);
   declareProperty("StoreEmpty",       m_storeEmpty = false);
+  declareProperty("isSC", m_isSC = false);
 
   m_keyCali.clear() ;
   declareProperty("KeyCaliList",      m_keyCali);                  // Keys of LArCaliWaveContainers
@@ -114,18 +117,26 @@ LArPhysWavePredictor::~LArPhysWavePredictor()
 
 StatusCode LArPhysWavePredictor::initialize() 
 {
-    if ( ! m_doubleTriangle ) {
+  if ( ! m_doubleTriangle ) {
       ATH_MSG_INFO( "Using standard triangular ionization pulse" ) ;
   } else {
     ATH_MSG_INFO( "Using refined ionization pulse (double triangle)" ) ;
   }
 
-  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not get LArOnlineID" );
-    return sc;
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    ATH_CHECK(detStore()->retrieve(ll, "LArOnline_SuperCellID"));
+    m_onlineHelper = (const LArOnlineID_Base*)ll;
+    ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    ATH_CHECK(detStore()->retrieve(ll, "LArOnlineID") );
+    m_onlineHelper = (const LArOnlineID_Base*)ll;
+    ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    
   }
-  
 
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );

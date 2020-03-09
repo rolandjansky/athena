@@ -151,6 +151,6 @@ class TrigT2MbtsBitsTest : public CppUnit::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION (TrigT2MbtsBitsTest);
 
-#include <TestPolicy/CppUnit_testdriver.cxx>
+#include <TestTools/CppUnit_testdriver.cxx>
 
 #endif // ROOTCORE

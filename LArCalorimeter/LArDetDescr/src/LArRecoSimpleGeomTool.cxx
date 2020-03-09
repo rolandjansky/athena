@@ -12,7 +12,6 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include <vector>
 
 #include "CaloDetDescr/CaloDetDescriptor.h"

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
 from AthenaCommon.GlobalFlags  import globalflags
@@ -23,7 +23,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
             theCaloCellGetter = CaloCellGetter()
         except:
             mlog.error("could not get handle to CaloCell Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         if not theCaloCellGetter.usable():
             if not self.ignoreConfigError():
@@ -40,7 +40,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
             from LArCellRec.LArCellRecConf import LArNoisyROAlg,LArNoisyROTool
         except:
             mlog.error("could not import LArNoisyROAlg or LArNoisyROTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theLArNoisyROTool=LArNoisyROTool(CellQualityCut=larNoisyROFlags.CellQualityCut(),

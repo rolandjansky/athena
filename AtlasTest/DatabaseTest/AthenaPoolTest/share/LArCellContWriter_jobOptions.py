@@ -70,7 +70,7 @@ topSequence += LArCellContFakeWriter( "LArCellContFakeWriter" )
 #--------------------------------------------------------------
 
 # Check the dictionary in memory for completeness
-#include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+#include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 svcMgr.AthenaSealSvc.CheckDictionary = True
 
 #--------------------------------------------------------------
@@ -94,7 +94,8 @@ svcMgr.MessageSvc.errorLimit      = 100000
 #svcMgr.ClassIDSvc.OutputLevel     = DEBUG
 LArCellContFakeWriter.OutputLevel = DEBUG
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 # No stats printout

@@ -20,14 +20,14 @@ if "TimeStamp" not in dir():
       ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
       TimeStamp=int(timegm(ts))*1000000000L
    except ValueError:
-      print "ERROR in time specification, use e.g. 2007-05-25:14:01:00"
+      printfunc ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
       
 
 from LArCalibProcessing.TimeStampToRunLumi import TimeStampToRunLumi
 
 rlb=TimeStampToRunLumi(TimeStamp,dbInstance="CONDBR2")
 if rlb is None:
-   print "WARNING: Failed to convert time",TimeStamp,"into a run/lumi number"
+   printfunc ("WARNING: Failed to convert time",TimeStamp,"into a run/lumi number")
    RunNumber=999999
    LumiBlock=0
 else:
@@ -35,14 +35,14 @@ else:
    LumiBlock=rlb[1]
 
 
-print "---> Working on run",RunNumber,"LB",LumiBlock,"Timestamp:",TimeStamp
+printfunc ("---> Working on run",RunNumber,"LB",LumiBlock,"Timestamp:",TimeStamp)
 timediff=int(time()-(TimeStamp/1000000000L))
 if timediff<0:
-    print "ERROR: Timestamp in the future???"
+    printfunc ("ERROR: Timestamp in the future???")
 else:
     (days,remainder)=divmod(timediff,24*60*60)
     (hours,seconds)=divmod(remainder,60*60)
-    print "---> Timestamp is %i days %i hours and %i minutes ago" % (days,hours,int(seconds/60))
+    printfunc ("---> Timestamp is %i days %i hours and %i minutes ago" % (days,hours,int(seconds/60)))
     pass
                                                                 
 
@@ -104,7 +104,7 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.AthenaPool
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-03-01-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-04-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -130,6 +130,9 @@ include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 
 from LArConditionsCommon import LArHVDB #Sets HV Cabling and DCS Database folders
+#block to read the existing HVCorr
+conddb.blockFolder(LArHVScaleCorrFolder);
+
 #conddb.addOverride("/LAR/IdentifierOfl/HVLineToElectrodeMap","LARIdentifierOflHVLineToElectrodeMap-UPD3-00")
 
 from LArCalibUtils.LArCalibUtilsConf import LArHVCorrMaker

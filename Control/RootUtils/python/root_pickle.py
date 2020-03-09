@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: root_pickle.py,v 1.1 2008-01-28 19:32:14 ssnyder Exp $
 # File: root_pickle.py
 # Created: sss, 2004.
 # Purpose: Pickle python data into a root file, preserving references
@@ -180,11 +179,11 @@ class Root_Proxy:
         self.__o = None
         return
     def __getattr__ (self, a):
-        if self.__o == None:
+        if self.__o is None:
             self.__o = self.__f.Get (self.__pid)
         return getattr (self.__o, a)
     def __obj (self):
-        if self.__o == None:
+        if self.__o is None:
             self.__o = self.__f.Get (self.__pid)
         return self.__o
 class Unpickler:
@@ -236,7 +235,7 @@ FILE should be a Root TFile.
                 __import__(module)
                 mod = sys.modules[module]
             except ImportError:
-                print "Making dummy module %s" % (module)
+                print("Making dummy module %s" % (module))
                 class DummyModule:
                     pass
                 mod = DummyModule()
@@ -244,7 +243,7 @@ FILE should be a Root TFile.
             klass = getattr(mod, name)
             return klass
         except AttributeError:
-            print "Making dummy class %s.%s" % (module, name)
+            print("Making dummy class %s.%s" % (module, name))
             mod = sys.modules[module]
             class Dummy(object):
                 pass
@@ -260,6 +259,7 @@ If this is set, then hooks[0] is called before loading,
 and hooks[1] is called after loading.  hooks[1] is called with
 the return value of hooks[0] as an argument.  This is useful
 for backwards compatibility in some situations."""
+    global _compat_hooks
     _compat_hooks = hooks
     return
 

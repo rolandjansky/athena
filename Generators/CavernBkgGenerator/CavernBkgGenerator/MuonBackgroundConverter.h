@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBACKGROUNDCONVERTER_H
@@ -66,7 +66,7 @@ class MuonBackgroundConverter : public GenModule
     int    m_nEvents;      // event counter
     int    m_phiN;      // rot symmetry = 8
     int    m_safetyFactor; // number of original input events to be merged in one output event 
-    bool   m_smearPhi;     // flag to switch on/off smearing in azimuthal angle phi (pT, p, particles/evt, ... conserved) 
+    //bool   m_smearPhi;     // flag to switch on/off smearing in azimuthal angle phi (pT, p, particles/evt, ... conserved) 
     bool   m_firstHitOnly; // flag to switch on/off removal of multiple hits with same energy (true: only first hit is kept) 
     double m_ctcut;        // lifetime cut
     double m_t0;           // bunch crossing time

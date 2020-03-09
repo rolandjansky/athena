@@ -32,6 +32,9 @@
 
 #include "MuonPrepRawData/MuonPrepDataCollection.h"
 
+// Identifiable cache construction
+#include "EventContainers/IdentifiableCache.h"
+
 namespace Muon{
 
 /** @brief Template for Muon PRD containers (which are basically collections of MuonPrepDataCollections).*/
@@ -43,12 +46,15 @@ class MuonPrepDataContainer : public IdentifiableContainer<CollectionT> {
   ///////////////////////////////////////////////////////////////////
 public:
 
-    //default for POOL
-      MuonPrepDataContainer();
+  //default for POOL
+  MuonPrepDataContainer();
     
   // Constructor with parameters:
   MuonPrepDataContainer(unsigned int max);
-  
+
+  // Constructor with IdentifiableCache object
+  MuonPrepDataContainer(EventContainers::IdentifiableCache< Muon::MuonPrepDataCollection <CollectionT> >* cache);
+
   // Destructor:
   virtual ~MuonPrepDataContainer();
 

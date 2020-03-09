@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGOUTPUTHANDLING_HLTRESULMTMAKERALG_H
-#define TRIGOUTPUTHANDLING_HLTRESULMTMAKERALG_H
+#ifndef TRIGOUTPUTHANDLING_HLTRESULTMTMAKERALG_H
+#define TRIGOUTPUTHANDLING_HLTRESULTMTMAKERALG_H
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -26,4 +26,4 @@ private:
   
 };
 
-#endif // TRIGOUTPUTHANDLING_HLTRESULMTMAKERALG_H
+#endif // TRIGOUTPUTHANDLING_HLTRESULTMTMAKERALG_H

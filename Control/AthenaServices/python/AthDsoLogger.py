@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaServices/python/AthDsoLogger.py
 # @purpose: log the vmem usage at each dso being dlopen'd
@@ -86,9 +86,6 @@ class DsoLogger (object):
 
     if sys.platform != 'darwin':
         def default_cb_fct (self, evt, usrdata):
-            import os
-            from os.path import realpath as _realpath
-            from os.path import basename as _basename
             libname = evt.contents.fname
             step = evt.contents.step
 
@@ -103,7 +100,6 @@ class DsoLogger (object):
 
                 from string import split as ssplit
                 m = 0
-                from sys import platform
                 with open('/proc/self/statm') as f:
                     m = int(ssplit (f.readlines()[0])[0])
                 return m * PAGE_SIZE # in bytes
@@ -125,9 +121,6 @@ class DsoLogger (object):
             return 0
     else:
         def default_cb_fct (self, evt, usrdata):
-            import os
-            from os.path import realpath as _realpath
-            from os.path import basename as _basename
             libname = evt.fname
             step = evt.step
 

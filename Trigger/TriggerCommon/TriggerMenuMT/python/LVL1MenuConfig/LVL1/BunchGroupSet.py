@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from Limits import Limits
-from Lvl1Flags import Lvl1Flags
+from .Limits import Limits
+from .Lvl1Flags import Lvl1Flags
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerMenu.l1.BunchGroupSet")
+log = logging.getLogger("TriggerMenuMT.LVL1MenuConfig.LVL1.BunchGroupSet")
 
 def setDefaultBunchGroupDefinition(bgs):
     """
@@ -61,7 +61,7 @@ class BunchGroupSet(object):
 
     @classmethod
     def partitioning(cls):
-        from Lvl1Flags import Lvl1Flags
+        from .Lvl1Flags import Lvl1Flags
         first = Lvl1Flags.BunchGroupPartitioning()
         last = first[1:] + [ Limits.NumBunchgroups ]
         partitioning = dict( zip([1,2,3],zip(first,last)) )
@@ -90,7 +90,7 @@ class BunchGroupSet(object):
             return self
 
         partition=0
-        from Lvl1Flags import Lvl1Flags
+        from .Lvl1Flags import Lvl1Flags
         for lowestBG in Lvl1Flags.BunchGroupPartitioning():
             if internalNumber >= lowestBG:
                 partition += 1

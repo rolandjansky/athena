@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileDigitsContainerCnv_p2.h 
@@ -13,9 +13,7 @@
 #define TILETPCNV_TILEDIGITSCONTAINERCNV_P2_H
 
 // TileTPCnv includes
-#define private public
 #include "TileTPCnv/TileDigitsContainer_p2.h"
-#undef private 
 #include "TileTPCnv/TileDigitsCnv_p2.h"
 #include "TileTPCnv/T_TilePoolContainerCnv.h"
 

@@ -218,9 +218,6 @@ SCTLorentzMonTool::fillHistograms() {
 
               if (passesCuts) {
                 // Fill profile
-                m_phiVsNstrips[layer][bothSides][allSurfaces]->Fill(phiToWafer, nStrip, 1.);
-                m_phiVsNstrips[layer][bothSides][    surface]->Fill(phiToWafer, nStrip, 1.);
-                m_phiVsNstrips[layer][     side][allSurfaces]->Fill(phiToWafer, nStrip, 1.);
                 m_phiVsNstrips[layer][     side][    surface]->Fill(phiToWafer, nStrip, 1.);
               }// end if passesCuts
             }// end if mtrkp
@@ -229,7 +226,6 @@ SCTLorentzMonTool::fillHistograms() {
       } // if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
   } // end of loop on tracks
-
   return StatusCode::SUCCESS;
 }
 
@@ -269,22 +265,19 @@ SCTLorentzMonTool::bookLorentzHistos() {
     "0", "1"
   };
   static const int nProfileBins{360};
-
+ 
   int success{1};
-
-  static const string histNames1[nSurfaces]{"_100",   "_111",   ""};
-  static const string histNames2[nSurfaces]{"_100_",  "_111_",  ""};
-  static const string histTitles[nSurfaces]{"100 - ", "111 - ", ""};
+  static const string histNames1[nSurfaces]{"_100",   "_111"}; 
+  static const string histNames2[nSurfaces]{"_100_",  "_111_"}; 
+  static const string histTitles[nSurfaces]{"100 - ", "111 - "};
   for (int l{0}; l < N_BARRELS; ++l) {
     // granularity set to one profile/layer for now
     for (int side{0}; side < nSidesInclBoth; ++side) {
       for (unsigned int iSurface{0}; iSurface<nSurfaces; iSurface++) {
         string histName;
-        if (side==bothSides) histName = "h_phiVsNstrips" + histNames1[iSurface] + hNum[l];
-        else histName = "h_phiVsNstrips" + histNames2[iSurface] + hNum[l] + "Side" + hNumS[side];
+        histName = "h_phiVsNstrips" + histNames2[iSurface] + hNum[l] + "Side" + hNumS[side];
         string histTitle;
-        if (side==bothSides) histTitle = histTitles[iSurface] + "Inc. Angle vs nStrips for Layer" + hNum[l];
-        else histTitle = histTitles[iSurface] + "Inc. Angle vs nStrips for Layer Side" + hNum[l] + hNumS[side];
+        histTitle = histTitles[iSurface] + "Inc. Angle vs nStrips for Layer Side" + hNum[l] + hNumS[side];
         int iflag{0};
         m_phiVsNstrips[l][side][iSurface] = pFactory(histName, histTitle, nProfileBins, -90., 90., Lorentz, iflag);
         m_phiVsNstrips[l][side][iSurface]->GetXaxis()->SetTitle("#phi to Wafer");

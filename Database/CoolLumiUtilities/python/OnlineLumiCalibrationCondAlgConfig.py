@@ -7,15 +7,14 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from AthenaCommon.Logging import logging
 
 
 def OnlineLumiCalibrationCondAlgCfg (configFlags):
-    log = logging.getLogger ('OnlineLumiCalibrationCondAlgCfg')
     name = 'OnlineLumiCalibrationCondAlg'
     result = ComponentAccumulator()
 
@@ -27,8 +26,7 @@ def OnlineLumiCalibrationCondAlgCfg (configFlags):
     result.merge (addFolders (configFlags, folder, 'TDAQ',
                               className='CondAttrListCollection'))
 
-    from CoolLumiUtilities.CoolLumiUtilitiesConf import \
-         OnlineLumiCalibrationCondAlg
+    OnlineLumiCalibrationCondAlg=CompFactory.OnlineLumiCalibrationCondAlg
     alg = OnlineLumiCalibrationCondAlg (name,
                                         CalibrationFolderInputKey = folder,
                                         LumiCalibOutputKey = 'OnlineLumiCalibrationCondData')

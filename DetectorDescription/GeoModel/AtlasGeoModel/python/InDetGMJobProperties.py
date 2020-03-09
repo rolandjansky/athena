@@ -5,6 +5,7 @@
 #
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from AtlasGeoModel.CommonGMJobProperties import CommonGMFlags, CommonGeometryFlags
+from AthenaCommon import Logging
 
 # -------------------------------------------------------------------------------------
 #  InDet geometry flags initialization
@@ -76,14 +77,14 @@ class InDetGMFlags(CommonGMFlags, object):
 
     def dump(self):
 
-        print "Geometry tag InDetGMFlags : ",self.__dict__["geomTag"]," ------------------------------------"
-        print "VersionName = ",self.__dict__["VersionName"]
-        print "Layout      = ",self.__dict__["Layout"]
-        print "DBM         = ",self.__dict__["DBM"]
+        Logging.log.info("Geometry tag InDetGMFlags : "+self.__dict__["geomTag"]+" ------------------------------------")
+        Logging.log.info("VersionName = "+self.__dict__["VersionName"])
+        Logging.log.info("Layout      = "+self.__dict__["Layout"])
+        Logging.log.info("DBM         = "+self.__dict__["DBM"])
 
-        print "SLHC flag : ",self.__dict__["SLHC"]
-        print "IBL flag   : ",self.__dict__["IBL"]
-        print "IBL layout : ", self.__dict__["IBLlayout"]
+        Logging.log.info("SLHC flag : "+self.__dict__["SLHC"])
+        Logging.log.info("IBL flag   : "+self.__dict__["IBL"])
+        Logging.log.info("IBL layout : "+ self.__dict__["IBLlayout"])
 
 
 # -------------------------------------------------------------------------------------
@@ -168,14 +169,14 @@ class InDetGeometryFlags_JobProperties(JobPropertyContainer):
 
     def dump(self):
 
-        print "VersionName = ", self.GeoVersionName()
-        print "Layout      = ", self.GeoLayout()
-        print "DBM         = ", self.isDBM()
+        Logging.log.info("VersionName = "+self.GeoVersionName())
+        Logging.log.info("Layout      = "+self.GeoLayout())
+        Logging.log.info("DBM         = "+self.isDBM())
 
-        print "SLHC flag : ", self.isSLHC()
-        print "IBL flag   : ", self.isIBL()
-        print "IBL layout : ", self.IBLLayout()
-        print "Dynamic alignment : ", self.useDynamicAlignFolders()
+        Logging.log.info("SLHC flag : "+self.isSLHC())
+        Logging.log.info("IBL flag   : "+self.isIBL())
+        Logging.log.info("IBL layout : "+self.IBLLayout())
+        Logging.log.info("Dynamic alignment : "+self.useDynamicAlignFolders())
 
 
 jobproperties.add_Container(InDetGeometryFlags_JobProperties)

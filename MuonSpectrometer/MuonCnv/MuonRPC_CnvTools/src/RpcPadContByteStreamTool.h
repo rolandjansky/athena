@@ -8,8 +8,10 @@
 #include <stdint.h>
 #include <map>
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "MuonRPC_CnvTools/IRPC_RDOtoByteStreamTool.h"
 #include "RPC_Hid2RESrcID.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "ByteStreamData/RawEvent.h" 
 
@@ -17,7 +19,6 @@
 
 class RpcPadContainer; 
 class MsgStream ; 
-class RpcIdHelper;
 class IRPCcablingSvc;
 //class RPC_Hid2RESrcID;
 
@@ -65,7 +66,8 @@ private:
 
    const IRPCcablingSvc* m_cabling;
    RPC_Hid2RESrcID m_hid2re; 
-   const RpcIdHelper * m_rpcHelper;
+   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
    FullEventAssembler<RPC_Hid2RESrcID> m_fea ;    
 };

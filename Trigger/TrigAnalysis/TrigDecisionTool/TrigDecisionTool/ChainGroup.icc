@@ -1,28 +1,33 @@
 template<class CONTAINER>
-const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
-        unsigned int condition, const bool oneFeaturePerLeg) const {
+std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
+        unsigned int condition, const std::string& containerSGKey,
+        const unsigned int featureCollectionMode, const std::string& navElementLinkKey) const {
 
-  // Proper adherence to the condition bits in Run 3 is to follow.
+
   bool errState = false;
-  if ( !(condition & TrigDefs::Physics) ) {
-    ATH_MSG_ERROR("Only TrigDefs::Physics is currently supported for Run 3 feature retrieval");
+  if ( condition != TrigDefs::Physics && condition != TrigDefs::includeFailedDecisions ) {
+    ATH_MSG_ERROR("features may only be called with: "
+      "TrigDefs::Physics - features from the legs of the chain(s) which passed the trigger. "
+      "TrigDefs::includeFailedDecisions - all features from the chain(s) irrespective of pass/fail of each Step.");
     errState = true;
   }
-  if ( condition & TrigDefs::allowResurrectedDecision ) {
-    ATH_MSG_ERROR("TrigDefs::allowResurrectedDecision is not yet supported for feature retrieval for Run 3");
+
+  if ( featureCollectionMode != TrigDefs::lastFeatureOfType && featureCollectionMode != TrigDefs::allFeaturesOfType ) {
+    ATH_MSG_ERROR("featureCollectionMode may only be called with: "
+      "TrigDefs::lastFeatureOfType - stop exploring each route through the navigation once a feature matching all requirements is found. "
+      "TrigDefs::allFeaturesOfType - always fully explore each route throught the navigation graph and collect all matching features.");
     errState = true;
   }
 
   // TODO when we decide what happens to CacheGlobalMemory - this needs to be updated to use a ReadHandle
   const TrigCompositeUtils::DecisionContainer* navigationSummaryContainer = nullptr;
-  if (eventStore->retrieve(navigationSummaryContainer, "HLTSummary").isFailure() || navigationSummaryContainer == nullptr) {
+  if (eventStore->retrieve(navigationSummaryContainer, "HLTNav_Summary").isFailure() || navigationSummaryContainer == nullptr) {
     ATH_MSG_ERROR("Unable to read Run 3 trigger navigation. Cannot retrieve features.");
     errState = true;
   }
 
-  // We just support Physics decision for now
+  // We always want to search from the passed raw terminus node to find features for passed chains.
   const TrigCompositeUtils::Decision* terminusNode = nullptr;
-
   if (!errState) {
     for (const TrigCompositeUtils::Decision* decision : *navigationSummaryContainer) {
       if (decision->name() == "HLTPassRaw") {
@@ -31,7 +36,7 @@ const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::f
       }
     }
     if (terminusNode == nullptr) {
-      ATH_MSG_ERROR("Unable to locate HLTPassRaw element of HLTSummary");
+      ATH_MSG_ERROR("Unable to locate HLTPassRaw element of HLTNav_Summary");
       errState = true;
     }
   }
@@ -45,20 +50,62 @@ const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::f
   std::vector< ElementLinkVector<TrigCompositeUtils::DecisionContainer> > allLinearNavigationPaths;
 
   // Loop over HLT chains
+  TrigCompositeUtils::DecisionIDContainer chainIDs;
   std::set<const TrigConf::HLTChain*>::const_iterator chIt;
   for (chIt=conf_chain_begin(); chIt != conf_chain_end(); ++chIt) {
     const HLT::Chain* fchain = cgm()->chain(**chIt);
     if (fchain) {
-      TrigCompositeUtils::recursiveGetDecisions(terminusNode, allLinearNavigationPaths, fchain->getChainHashId());
-      ATH_MSG_DEBUG("Added all navigation paths for chain " << fchain->getChainName() << ", total paths:" << allLinearNavigationPaths.size());
+      chainIDs.insert( fchain->getChainHashId() );
+
+      // Obtain navigation routes for passed chains
+      // Final parameter TRUE as the chain passed (has its ID in terminusNode)
+      TrigCompositeUtils::recursiveGetDecisions(terminusNode, allLinearNavigationPaths, fchain->getChainHashId(), true);
+
+      ATH_MSG_DEBUG("Added all passed navigation paths for chain " << fchain->getChainName() 
+        << ", total paths:" << allLinearNavigationPaths.size());
+
+      if (condition == TrigDefs::includeFailedDecisions) {
+        std::vector<const TrigCompositeUtils::Decision*> rejectedDecisionNodes = 
+          TrigCompositeUtils::getRejectedDecisionNodes(eventStore, fchain->getChainHashId());
+
+        ATH_MSG_DEBUG("Chain " << fchain->getChainName() << " has " << rejectedDecisionNodes.size() 
+          << " dangling nodes in the graph from objects which were rejected.");
+
+        for (const TrigCompositeUtils::Decision* rejectedNode : rejectedDecisionNodes) {
+          // Final parameter FALSE as the chain failed here (its ID was removed from rejectedNode)
+          TrigCompositeUtils::recursiveGetDecisions(rejectedNode, allLinearNavigationPaths, fchain->getChainHashId(), false);
+        }
+
+        ATH_MSG_DEBUG("Added all failed navigation paths for chain " << fchain->getChainName() 
+          << ", total paths:" << allLinearNavigationPaths.size());
+      }
+
     } else {
       ATH_MSG_ERROR("Cannot access configuration for one of the ChainGroup's chains");
     }
   }
 
   if (allLinearNavigationPaths.size() == 0) {
-    ATH_MSG_WARNING("No navigation paths found for this chain group of " << names().size() << " chains.");
+    ATH_MSG_DEBUG("No navigation paths found for this chain group of " << names().size() << " chains.");
   }
 
-  return TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, oneFeaturePerLeg);
+
+  const bool lastFeatureOfTypeFlag = (featureCollectionMode == TrigDefs::lastFeatureOfType);
+  std::vector<TrigCompositeUtils::LinkInfo<CONTAINER>> returnVector =
+    TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, containerSGKey, lastFeatureOfTypeFlag, navElementLinkKey, chainIDs);
+
+  // Check for missing navigation data if requesting the default "feature" links
+  if (navElementLinkKey == TrigCompositeUtils::featureString()) {
+    const auto& ctx = Gaudi::Hive::currentContext();
+    for (const TrigCompositeUtils::LinkInfo<CONTAINER>& linkInfo : returnVector) {
+      if (linkInfo.link.isValid()) continue; // We're looking for invalid links...
+      if (linkInfo.source->isRemapped()) continue; // ... which do not have remapping data. 
+      ElementLink<TrigCompositeUtils::DecisionContainer> sourceEL = TrigCompositeUtils::decisionToElementLink( linkInfo.source, ctx );
+      ATH_MSG_WARNING("A link to a feature from " << sourceEL.dataID() << " is invalid, "
+        "this is due to this container not having its 'remap_linkColIndices' and 'remap_linkColKeys' decorations.");
+      break;
+    } 
+  }
+
+  return returnVector;
 }

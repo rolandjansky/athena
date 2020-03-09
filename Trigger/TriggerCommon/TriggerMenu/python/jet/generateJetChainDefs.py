@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##########################################################################################
 ##########################################################################################
@@ -13,18 +13,17 @@ from AthenaCommon.SystemOfUnits import GeV
 
 from TriggerMenu.jet.JetDef import generateHLTChainDef
 
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.menu.MenuUtils import splitChainDict
 
-from JetDef import dump_chaindef
-from exc2string import exc2string2
+from .JetDef import dump_chaindef
 from TriggerMenu.menu.ChainDef import ErrorChainDef
-import os, inspect
+import os
 
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 # TrigEFHLTJetMassDEta_Config = __import__("TrigHLTJetHypo.TrigEFHLTJetMassDEtaConfig",fromlist=[""])
 
 
-from  __builtin__ import any as b_any
+from  builtins import any as b_any
 
 #############################################################################
 #############################################################################
@@ -56,8 +55,9 @@ def generateChainDefs(chainDict):
         logJet.info("Adding topo to jet chain")
         try:
             theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
-        except Exception, e:
-            tb = exc2string2()
+        except Exception as e:
+            import traceback
+            tb = traceback.format_exc()
             theChainDef = process_exception(e, tb, chainName)
 
         jetgroup_chain = False
@@ -81,13 +81,7 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
     inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements'] 
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
 
-    L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']   
     #topoAlgs = chainDict["topo"]
-
-    listOfChainDicts = splitChainDict(chainDict)
-    listOfChainDefs = []
 
     if ('muvtx' in topoAlgs):
        # import pdb;pdb.set_trace()
@@ -140,7 +134,6 @@ def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, 
     TE_muonClusters = HLTChainName+'_muonClusters'
     TEmuonIsoB = HLTChainName+'_muIsoB'
     TEmuonClusterFex = HLTChainName+'_muClusFex'
-    TEmuonClusterHypo = HLTChainName+'_muClusHypo'
 
     # make clusters, then test if they pass the hypo
     theChainDef.addSequence([fexes_l2_MuonCluster,hypos_l2_MuonCluster], l1item, TE_muonClusters)
@@ -306,7 +299,7 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
                 min_thr= min(40,min(jet_thresholds))
                 hypo=('EFHLTJetMassDEta2J%i' %(min_thr))
                 algoName="2jet%s" %(min_thr)
-            except:
+            except Exception:
                 hypo='EFHLTJetMassDEta'
         algoName +="_"+topo_item    
     
@@ -314,8 +307,8 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
     # import pdb;pdb.set_trace()
     try:
         detamjjet_hypo = getattr(TrigEFHLTJetMassDEta_Config,hypo ) 
-    except:  
-        logJet.error("Hypo %s does not exists" %(hypo))
+    except Exception:
+        logJet.error("Hypo %s does not exist" %(hypo))
 
     DEtaMjjJet_Hypo = detamjjet_hypo(algoName, mjj_cut=invmCut*GeV, deta_cut=detaCut)
     

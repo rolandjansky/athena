@@ -6,6 +6,6 @@
 <class name="ICaloMBAverageTool" />
 <class name="ICaloCellNormalizedQualityTool" />
 <class name="ICaloAffectedTool" />
-<class name="ICaloLumiBCIDTool" />
+<class name="ICaloEstimatedGainTool" />
 </lcgdict>
 

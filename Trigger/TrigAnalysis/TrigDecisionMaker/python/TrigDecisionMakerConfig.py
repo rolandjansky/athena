@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMaker
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMakerMT
@@ -41,7 +41,7 @@ class TrigDecisionStream ( object) :
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.PoolSvc.WriteCatalog = catalog
 
-        # revert later from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+        # revert later from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
         # revert later self.stream = createOutputStream( streamName )
 
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -75,7 +75,7 @@ class TrigConditionStream ( object) :
         svcMgr += PoolSvc()
         svcMgr.PoolSvc.WriteCatalog = catalog
 
-        from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputConditionStream
+        from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputConditionStream
         self.stream = AthenaPoolOutputConditionStream( streamName )
 
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -141,6 +141,7 @@ class WritexAODTrigDecision ( object ) :
 
         from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
         alg = xAODMaker__TrigDecisionCnvAlg()
+        alg.ExtraOutputs = [('xAOD::TrigDecision','StoreGateSvc+xTrigDecision')]
 
         # In order for the conversion to work we need to setup the TrigDecisionTool such that it uses the old decision
         ToolSvc.TrigDecisionTool.UseAODDecision = True
@@ -154,7 +155,9 @@ class WritexAODTrigDecision ( object ) :
         TopAlg += alg
         
         from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
-        TopAlg += xAODMaker__TrigNavigationCnvAlg()
+        navAlg = xAODMaker__TrigNavigationCnvAlg()
+        navAlg.ExtraOutputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
+        TopAlg += navAlg
 
         log.info('TrigDecision writing to xAOD enabled')
 
@@ -167,6 +170,7 @@ class WriteTrigDecision ( object ) :
         TopAlg = AlgSequence()
 
         self.TrigDecMaker    = TrigDecisionMaker('TrigDecMaker')
+        self.TrigDecMaker.ExtraOutputs = [('TrigDec::TrigDecision', 'StoreGateSvc+TrigDecision')]
 
         TopAlg += self.TrigDecMaker
 

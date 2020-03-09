@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
 # See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
+
+from __future__ import print_function
 
 import sys
 # needed for oracle database connection
@@ -110,7 +112,7 @@ class OracleInterface:
             self.cursor.execute(query,parameters_dict)
             self.conn.commit()
         except:
-            print "Insert into DB failed. Your connection is probably of the wrong type"
+            print ("Insert into DB failed. Your connection is probably of the wrong type")
 
 
     def read_default_mck_id_from_db(self,athena_version):
@@ -134,15 +136,15 @@ class OracleInterface:
 
         # check that there is a default
         if len(search_results) == 0:
-            print "There is no default mck in the Oracle database for Athena", athena_version
+            print ("There is no default mck in the Oracle database for Athena", athena_version)
             return -1
 
         # check that there is only one default
         if len(search_results) > 1:
-            print "There are",len(search_results),"default mck numbers for Athena ", athena_version
+            print ("There are",len(search_results),"default mck numbers for Athena ", athena_version)
             for row in search_results:
-                print "default mck_id =",row[0]
-            print "Returning the first result",search_results[0][0]
+                print ("default mck_id =",row[0])
+            print ("Returning the first result",search_results[0][0])
             #return -2
 
         # extract default mck
@@ -158,7 +160,7 @@ class OracleInterface:
         # check for the default
         default_mck = self.read_default_mck_id_from_db(athena_version)
         if default_mck:
-            print default_mck
+            print (default_mck)
         else:
             return
 
@@ -193,9 +195,9 @@ class OracleInterface:
 
         default_mck = self.read_default_mck_id_from_db(athena_version)
         if default_mck == -1:
-            print 'Operation successful.'
+            print ('Operation successful.')
         else:
-            print 'Operation failed.'
+            print ('Operation failed.')
 
 
     def upload_mck_and_smck(self, global_info):
@@ -448,14 +450,14 @@ class OracleInterface:
         if len(search_results) > 0:
             # in the case that there are multiple smck_id (there shouldn't be), then we just return the first
             if len(search_results) > 1:
-                print "More than 1 smck_id found that matches input smck_info:"
-                print "SMCK_TOOL_TYPE: ", smck_info['SMCK_TOOL_TYPE']
-                print "SMCK_PROCESSING_STEP: ", smck_info['SMCK_PROCESSING_STEP']
-                print "SMCK_PROCESSING_STREAM: ", smck_info['SMCK_PROCESSING_STREAM']
-                print "SMCK_CONFIG: ", smck_info['SMCK_CONFIG']
-                print "SMCK_CONFIG_HASH: ", smck_info['SMCK_CONFIG_HASH']
+                print ("More than 1 smck_id found that matches input smck_info:")
+                print ("SMCK_TOOL_TYPE: ", smck_info['SMCK_TOOL_TYPE'])
+                print ("SMCK_PROCESSING_STEP: ", smck_info['SMCK_PROCESSING_STEP'])
+                print ("SMCK_PROCESSING_STREAM: ", smck_info['SMCK_PROCESSING_STREAM'])
+                print ("SMCK_CONFIG: ", smck_info['SMCK_CONFIG'])
+                print ("SMCK_CONFIG_HASH: ", smck_info['SMCK_CONFIG_HASH'])
                 for row in search_results:
-                    print "SMCK_ID: ", row[0]
+                    print ("SMCK_ID: ", row[0])
             return search_results[0][0]
         else:
             return -1
@@ -668,7 +670,7 @@ class OracleInterface:
             # return the return list
             return return_list
         except:
-            print "Cannot get database table and column names. Your database connection is probably of the wrong type."
+            print ("Cannot get database table and column names. Your database connection is probably of the wrong type.")
 
 
     def get_db_tables_and_columns_old(self):
@@ -758,9 +760,9 @@ class OracleInterface:
             # the length of column_list should be the same as the length of result_row
             if len(column_list) != len(result_row):
                 # something has gone very wrong
-                print "ERROR in OracleInterface.column_search(",input1,",",table_name,",",column_name,")"
-                print "column_list =",column_list
-                print "result_row =",result_row
+                print ("ERROR in OracleInterface.column_search(",input1,",",table_name,",",column_name,")")
+                print ("column_list =",column_list)
+                print ("result_row =",result_row)
                 return return_list
 
             # we can zip up column_list and result_row to make a dictionary
@@ -792,7 +794,7 @@ class OracleInterface:
         smk_ids.sort()
         if print_list==True:
             for smk in smk_ids:
-                print smk
+                print (smk)
         return smk_ids
 
     def get_mck_list(self,print_list=True):
@@ -806,7 +808,7 @@ class OracleInterface:
         mck_ids.sort()
         if print_list==True:
             for mck in mck_ids:
-                print mck
+                print (mck)
         return mck_ids
 
     def get_smck_list(self,print_list=True):
@@ -820,7 +822,7 @@ class OracleInterface:
         smck_ids.sort()
         if print_list==True:
             for smck in smck_ids:
-                print smck
+                print (smck)
         return smck_ids
 
     def check_if_smk_to_mck_link_exists_and_is_active(self,smk,mck):

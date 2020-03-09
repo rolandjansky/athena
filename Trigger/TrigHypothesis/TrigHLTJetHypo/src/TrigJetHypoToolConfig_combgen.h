@@ -18,13 +18,14 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+
 
 #include "./ConditionsDefsMT.h"
+#include "./ITrigJetConditionConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class TrigJetHypoToolConfig_combgen:
 public extends<AthAlgTool, ITrigJetHypoToolConfig> {
@@ -39,24 +40,23 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual StatusCode initialize() override;
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
   virtual std::unique_ptr<IJetGrouper> getJetGrouper() const override;
-  virtual ConditionsMT getConditions() const override;
+  virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
 
+  virtual std::optional<ConditionsMT> getConditions() const override;
+
+  virtual std::size_t requiresNJets() const override;
+  
  private:
-  
-  Gaudi::Property<std::vector<double>>
-    m_EtThresholds{this, "EtThresholds", {}, "Etthresholds by eta region"};
-  
-  Gaudi::Property<std::vector<double>>
-    m_etaMins{this, "eta_mins", {}, "Eta min for eta regions"};
-  
-  Gaudi::Property<std::vector<double>>
-    m_etaMaxs{this, "eta_maxs", {}, "Eta max for eta regions"};
 
-  Gaudi::Property<std::vector<int>>
-    m_asymmetricEtas{this, "asymmetricEtas", {}, "Apply asym. eta cuts"};
+  ToolHandleArray<ITrigJetConditionConfig> m_conditionMakers{
+    this, "conditionMakers", {}, "conditions makers for a leaf node."};
+  
+  std::size_t m_size{0};  // size of jet groups to pass to children
 
-  Gaudi::Property<unsigned int>
-    m_size{this, "groupSize", {}, "Jet group size"};
+  // m_children: used to make the matcher. The matcher takes care of
+  // passign jet groups to the child helpers.
+  ToolHandleArray<ITrigJetHypoToolHelperMT> m_children {
+    this, "children", {}, "list of child jet hypo helpers"};
 
   virtual StatusCode checkVals()  const override;
  

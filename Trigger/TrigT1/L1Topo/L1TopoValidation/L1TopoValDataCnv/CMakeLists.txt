@@ -20,7 +20,3 @@ atlas_add_component( L1TopoValDataCnv
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES TrigSteeringEvent AthenaBaseComps AthenaKernel xAODTrigger GaudiKernel TrigT1Result )
-
-# Install files from the package:
-atlas_install_headers( L1TopoValDataCnv )
-

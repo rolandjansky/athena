@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/CscPrepData.h"
@@ -10,7 +10,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/CscPrepDataCnv_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/CscPrepDataContainerCnv_p2.h"
-#include "CxxUtils/make_unique.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -224,7 +223,7 @@ void  Muon::CscPrepDataContainerCnv_p2::persToTrans(const Muon::CscPrepDataConta
         continue;
       }
 
-      auto chan = CxxUtils::make_unique<CscPrepData>
+      auto chan = std::make_unique<CscPrepData>
         (chanCnv.createCscPrepData (pchan,
                                     clusId,
                                     detEl,

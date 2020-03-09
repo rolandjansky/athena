@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DiTauJet_v1.cxx 631921 2015-09-23 23:30:59Z dkirchme $
@@ -37,10 +37,10 @@ namespace xAOD {
   }
 
   void DiTauJet_v1::setP4(double pt, double eta, double phi, double m)  {
-    static Accessor< float > acc1( "pt" );
-    static Accessor< float > acc2( "eta" );
-    static Accessor< float > acc3( "phi" );
-    static Accessor< float > acc4( "m" );
+    static const Accessor< float > acc1( "pt" );
+    static const Accessor< float > acc2( "eta" );
+    static const Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc4( "m" );
     acc1( *this ) = pt;
     acc2( *this ) = eta;
     acc3( *this ) = phi;
@@ -71,7 +71,7 @@ namespace xAOD {
                      jetLink,
                      setJetLink )
 
-  static SG::AuxElement::Accessor< DiTauJet_v1::JetLink_t > jetAcc( "jetLink" );
+  static const SG::AuxElement::Accessor< DiTauJet_v1::JetLink_t > jetAcc( "jetLink" );
 
   const Jet* DiTauJet_v1::jet() const {
    return ( *jetAcc( *this ) );
@@ -90,7 +90,7 @@ namespace xAOD {
 
   float DiTauJet_v1::subjetPt(unsigned int numSubjet) const
   {
-    static Accessor< std::vector <float > > subjetPtAcc("subjet_pt");
+    static const Accessor< std::vector <float > > subjetPtAcc("subjet_pt");
     const std::vector<float>& vPt = subjetPtAcc(*this);
     if (vPt.size()<numSubjet+1)
       return -999.0; 
@@ -100,7 +100,7 @@ namespace xAOD {
   
   float DiTauJet_v1::subjetEta(unsigned int numSubjet) const
   {
-    static Accessor< std::vector <float > > subjetEtaAcc("subjet_eta");
+    static const Accessor< std::vector <float > > subjetEtaAcc("subjet_eta");
     const std::vector<float>& vEta = subjetEtaAcc(*this);
     if (vEta.size()<numSubjet+1)
       return -999.0; 
@@ -110,7 +110,7 @@ namespace xAOD {
   
   float DiTauJet_v1::subjetPhi(unsigned int numSubjet) const
   {
-    static Accessor< std::vector <float > > subjetPhiAcc("subjet_phi");
+    static const Accessor< std::vector <float > > subjetPhiAcc("subjet_phi");
     const std::vector<float>& vPhi = subjetPhiAcc(*this);
     if (vPhi.size()<numSubjet+1)
       return -999.0; 
@@ -120,7 +120,7 @@ namespace xAOD {
   
   float DiTauJet_v1::subjetE(unsigned int numSubjet) const
   {
-    static Accessor< std::vector <float > > subjetEAcc("subjet_e");
+    static const Accessor< std::vector <float > > subjetEAcc("subjet_e");
     const std::vector<float>& vE = subjetEAcc(*this);
     if (vE.size()<numSubjet+1)
       return -999.0; 
@@ -130,7 +130,7 @@ namespace xAOD {
 
   float DiTauJet_v1::nSubjets() const
   {
-    static Accessor < std::vector <float> > subjetPtAcc("subjet_pt");
+    static const Accessor < std::vector <float> > subjetPtAcc("subjet_pt");
     const std::vector<float>& vPt = subjetPtAcc(*this);
     return vPt.size();
   }
@@ -138,10 +138,10 @@ namespace xAOD {
   void DiTauJet_v1::setSubjetPtEtaPhiE(unsigned int numSubjet, 
                                        float pt, float eta, float phi, float e)
   {
-    static Accessor< std::vector <float > > subjetPtAcc("subjet_pt");
-    static Accessor< std::vector <float > > subjetEtaAcc("subjet_eta");
-    static Accessor< std::vector <float > > subjetPhiAcc("subjet_phi");
-    static Accessor< std::vector <float > > subjetEAcc("subjet_e");
+    static const Accessor< std::vector <float > > subjetPtAcc("subjet_pt");
+    static const Accessor< std::vector <float > > subjetEtaAcc("subjet_eta");
+    static const Accessor< std::vector <float > > subjetPhiAcc("subjet_phi");
+    static const Accessor< std::vector <float > > subjetEAcc("subjet_e");
     std::vector<float>& vPt = subjetPtAcc(*this);
     std::vector<float>& vEta = subjetEtaAcc(*this);
     std::vector<float>& vPhi = subjetPhiAcc(*this);
@@ -166,7 +166,7 @@ namespace xAOD {
   // ----------------------------------------------------------------------------
     float DiTauJet_v1::fCore(unsigned int numSubjet) const
   {
-    static Accessor< std::vector <float > > fCoreAcc("subjet_f_core");
+    static const Accessor< std::vector <float > > fCoreAcc("subjet_f_core");
     const std::vector<float>& vec = fCoreAcc(*this);
     if (vec.size()<numSubjet+1)
       return -999.0; 
@@ -176,7 +176,7 @@ namespace xAOD {
   
   void DiTauJet_v1::setfCore(unsigned int numSubjet, float fCore)
   {
-    static Accessor< std::vector <float > > fCoreAcc("subjet_f_core");
+    static const Accessor< std::vector <float > > fCoreAcc("subjet_f_core");
     std::vector<float>& vec = fCoreAcc(*this);
     if (vec.size()<numSubjet+1)
       vec.resize(numSubjet+1); 
@@ -193,7 +193,7 @@ namespace xAOD {
                      vertexLink,
                      setVertexLink )
 
-  static SG::AuxElement::Accessor< DiTauJet_v1::VertexLink_t > vertexAcc( "vertexLink" );
+  static const SG::AuxElement::Accessor< DiTauJet_v1::VertexLink_t > vertexAcc( "vertexLink" );
 
   const Vertex* DiTauJet_v1::vertex() const {
     return ( *vertexAcc( *this ) );
@@ -214,7 +214,7 @@ namespace xAOD {
   //                    secVertexLinks,
   //                    setSecVertexLinks )
   
-  // static SG::AuxElement::Accessor< DiTauJet_v1::SecVertexLinks_t > secVtxAcc( "secVertexLinks" );
+  // static const SG::AuxElement::Accessor< DiTauJet_v1::SecVertexLinks_t > secVtxAcc( "secVertexLinks" );
   
   // const Vertex* DiTauJet_v1::secVertex( size_t i ) const {
   //   return ( *secVtxAcc( *this )[ i ] );
@@ -248,7 +248,7 @@ namespace xAOD {
                      trackLinks,
                      setTrackLinks )
   
-  static SG::AuxElement::Accessor< DiTauJet_v1::TrackParticleLinks_t > trackAcc( "trackLinks" );
+  static const SG::AuxElement::Accessor< DiTauJet_v1::TrackParticleLinks_t > trackAcc( "trackLinks" );
   
   const TrackParticle* DiTauJet_v1::track( size_t i ) const {
     return ( *trackAcc( *this )[ i ] );
@@ -280,7 +280,7 @@ namespace xAOD {
                      isoTrackLinks,
                      setIsoTrackLinks )
   
-  static SG::AuxElement::Accessor< DiTauJet_v1::TrackParticleLinks_t > isoTrackAcc( "isoTrackLinks" );
+  static const SG::AuxElement::Accessor< DiTauJet_v1::TrackParticleLinks_t > isoTrackAcc( "isoTrackLinks" );
   
   const TrackParticle* DiTauJet_v1::isoTrack( size_t i ) const {
     return ( *isoTrackAcc( *this )[ i ] );
@@ -312,7 +312,7 @@ namespace xAOD {
                      otherTrackLinks,
                      setOtherTrackLinks )
   
-  static SG::AuxElement::Accessor< DiTauJet_v1::TrackParticleLinks_t > otherTrackAcc( "otherTrackLinks" );
+  static const SG::AuxElement::Accessor< DiTauJet_v1::TrackParticleLinks_t > otherTrackAcc( "otherTrackLinks" );
   
   const TrackParticle* DiTauJet_v1::otherTrack( size_t i ) const {
     return ( *otherTrackAcc( *this )[ i ] );
@@ -343,7 +343,7 @@ namespace xAOD {
   //-------------------------------------------------------------------------
   bool DiTauJet_v1::detail( DiTauJetParameters::Detail detail, int& value ) const {
     // Get the detail accessor:
-    Accessor< int >* acc = xAODDiTau::detailsAccessorV1<int>( detail );
+    const Accessor< int >* acc = xAODDiTau::detailsAccessorV1<int>( detail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
 
@@ -357,7 +357,7 @@ namespace xAOD {
   //-------------------------------------------------------------------------
   bool DiTauJet_v1::detail( DiTauJetParameters::Detail detail, float& value ) const {
     // Get the detail accessor:
-    Accessor< float >* acc = xAODDiTau::detailsAccessorV1<float>( detail );
+    const Accessor< float >* acc = xAODDiTau::detailsAccessorV1<float>( detail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
 

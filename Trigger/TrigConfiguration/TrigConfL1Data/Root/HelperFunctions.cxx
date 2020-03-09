@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -240,7 +240,7 @@ TrigConf::buildObjNode(uint32_t condIdx,
          std::string& name = condDef[2];
          if(thrs.size()>0) {
             std::vector<TrigConf::TriggerThreshold*>::const_iterator thrIt = thrs.begin();
-            for(;thrIt!=thrs.end(); thrIt++ ) {
+            for(;thrIt!=thrs.end(); ++thrIt ) {
                if((*thrIt)->name()==name) {
                   newNode->setTriggerThreshold(*thrIt);
                   break;

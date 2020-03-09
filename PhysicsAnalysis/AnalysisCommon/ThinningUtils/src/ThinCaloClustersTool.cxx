@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /******************************************************************************
@@ -47,6 +47,8 @@ Created:     July 2014
 #include "xAODJet/JetContainer.h"
 #include "xAODParticleEvent/CompositeParticle.h"
 #include "xAODParticleEvent/CompositeParticleContainer.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 
@@ -62,21 +64,9 @@ ThinCaloClustersTool::ThinCaloClustersTool( const std::string& type,
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
 #endif
   m_parser(0),
-  m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
-  m_nTotalCaloClusters(0),
   m_nEventsProcessed(0)
 {
   declareInterface< DerivationFramework::IThinningTool >(this);
-
-  // Properties go here
-  declareProperty("ThinningSvc",          m_thinningSvc,
-                  "The ThinningSvc instance for a particular output stream" );
-  declareProperty("CaloClustersToThin", m_caloClusKey = "CaloCalTopoCluster",
-                  "The xAOD::CaloClusterContainer to be thinned" );
-  declareProperty("InputContainerList",   m_inCollKeyList,
-                  "Containers from which to extract the information which xAOD::CaloClusters should be kept" );
-  declareProperty("Selection",            m_selection="",
-                  "The selection string that defines which xAOD::CaloClusters to select from the container" );
 }
 
 
@@ -99,14 +89,17 @@ StatusCode ThinCaloClustersTool::initialize()
   // Print the used configuration
   ATH_MSG_DEBUG ( "==> initialize " << name() << "..." );
   // Print out the used configuration
-  ATH_MSG_DEBUG ( " using " << m_thinningSvc );
-  ATH_MSG_DEBUG ( " using " << m_caloClusKey );
+  ATH_MSG_DEBUG ( " using " << m_streamName );
+  ATH_MSG_DEBUG ( " using " << m_caloClusKey.key() );
   ATH_MSG_DEBUG ( " using " << m_inCollKeyList );
   ATH_MSG_DEBUG ( " using " << m_selection );
 
-  // Get pointer to ThinningSvc and cache it :
-  // m_thinningSvc is of type IThinningSvc
-  ATH_CHECK ( m_thinningSvc.retrieve() );
+  if (m_streamName.empty()) {
+    ATH_MSG_ERROR ("StreamName property was not set.");
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( m_caloClusKey.initialize (m_streamName) );
+  ATH_CHECK( m_inCollKeyList.initialize() );
 
   // initialize proxy loaders for expression parsing
   ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
@@ -122,7 +115,6 @@ StatusCode ThinCaloClustersTool::initialize()
   m_parser->loadExpression( m_selection.value() );
 
   // Initialize the counters
-  m_nTotalCaloClusters = 0;
   m_nEventsProcessed   = 0;
 
   return StatusCode::SUCCESS;
@@ -156,115 +148,105 @@ StatusCode ThinCaloClustersTool::finalize()
 //=============================================================================
 StatusCode ThinCaloClustersTool::doThinning() const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   ++m_nEventsProcessed;
   // Simple status message at the beginning of each event
   ATH_MSG_DEBUG ( "==> doThinning " << name() << " on " << m_nEventsProcessed << ". event..." );
 
-  // retrive the CaloClusterContainer
-  const xAOD::CaloClusterContainer* caloClusterContainer;
-  ATH_CHECK( evtStore()->retrieve(caloClusterContainer, m_caloClusKey.value()) );
-  ATH_MSG_DEBUG ( "Container '" << m_caloClusKey.value() << "' retrieved from StoreGate" );
-  m_nTotalCaloClusters  = caloClusterContainer->size();
+  // retrieve the CaloClusterContainer
+  SG::ThinningHandle<xAOD::CaloClusterContainer> caloClusterContainer (m_caloClusKey, ctx);
+   ATH_MSG_DEBUG ( "Container '" << m_caloClusKey.key() << "' retrieved from StoreGate" );
+   size_t nTotalCaloClusters  = caloClusterContainer->size();
 
   // Create the mask to be used for thinning
-  std::vector<bool> mask(m_nTotalCaloClusters, false);
+  std::vector<bool> mask(nTotalCaloClusters, false);
 
   // Now, retrieve the other containers that are holding the information which
   // CaloClusters should be kept
-  for ( const auto& inKey : m_inCollKeyList.value() ) {
+  for ( const SG::ReadHandleKey<SG::AuxVectorBase>& inKey : m_inCollKeyList ) {
+
+    SG::ReadHandle<SG::AuxVectorBase> inObj (inKey, ctx);
 
     // First check for an xAOD::IParticleLinkContainer
-    if ( evtStore()->contains< xAOD::IParticleLinkContainer >( inKey ) ) {
-      const xAOD::IParticleLinkContainer* inLinkContainer;
-      ATH_CHECK( evtStore()->retrieve( inLinkContainer , inKey ) );
-      ATH_MSG_DEBUG ( "Input link collection = '" << inKey
+    if (const auto* inLinkContainer = dynamic_cast<const xAOD::IParticleLinkContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input link collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inLinkContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated CaloClusters
       for ( const xAOD::IParticleLink& partLink : *inLinkContainer ) {
-        ATH_CHECK( this->selectFromIParticleLink( mask, caloClusterContainer, partLink ) );
+        ATH_CHECK( this->selectFromIParticleLink( mask, caloClusterContainer.cptr(), partLink ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::EgammaContainer >( inKey ) ) {
-      // This file holds an xAOD::EgammaContainer
-      const xAOD::EgammaContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::EgammaContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated CaloClusters
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromEgamma( mask, caloClusterContainer, part ) );
+        ATH_CHECK( this->selectFromEgamma( mask, caloClusterContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::MuonContainer >( inKey ) ) {
-      // This file holds an xAOD::MuonContainer
-      const xAOD::MuonContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::MuonContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated CaloClusters
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromMuon( mask, caloClusterContainer, part ) );
+        ATH_CHECK( this->selectFromMuon( mask, caloClusterContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::TauJetContainer >( inKey ) ) {
-      // This file holds an xAOD::TauJetContainer
-      const xAOD::TauJetContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::TauJetContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated CaloClusters
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromTauJet( mask, caloClusterContainer, part ) );
+        ATH_CHECK( this->selectFromTauJet( mask, caloClusterContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::JetContainer >( inKey ) ) {
-      // This file holds an xAOD::JetContainer
-      const xAOD::JetContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::JetContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated CaloClusters
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromJet( mask, caloClusterContainer, part ) );
+        ATH_CHECK( this->selectFromJet( mask, caloClusterContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::CompositeParticleContainer >( inKey ) ) {
-      // This file holds an xAOD::CompositeParticleContainer
-      const xAOD::CompositeParticleContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::CompositeParticleContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated CaloClusters
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromCompositeParticle( mask, caloClusterContainer, part ) );
+        ATH_CHECK( this->selectFromCompositeParticle( mask, caloClusterContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::IParticleContainer >( inKey ) ) {
-      // This container holds an xAOD::IParticleContainer
-      const xAOD::IParticleContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::IParticleContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated CaloClusters
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromIParticle( mask, caloClusterContainer, part ) );
+        ATH_CHECK( this->selectFromIParticle( mask, caloClusterContainer.cptr(), part ) );
       }
     }
 
     else {
       if ( m_nEventsProcessed <= 10 ) {
-        ATH_MSG_WARNING ( "Input collection  = '" << inKey
+        ATH_MSG_WARNING ( "Input collection  = '" << inKey.key()
                           << "' could not be retrieved from StoreGate! "
                           << " This message will only be repeated 10 times..." );
       }
       else {
-        ATH_MSG_DEBUG ( "Input collection  = '" << inKey
+        ATH_MSG_DEBUG ( "Input collection  = '" << inKey.key()
                         << "' could not be retrieved from StoreGate! " );
       }
       return StatusCode::SUCCESS;
@@ -273,11 +255,11 @@ StatusCode ThinCaloClustersTool::doThinning() const
 
   // Try to fill the thinning mask based on the selection string, if given
   if ( !(m_selection.value().empty()) ) {
-    ATH_CHECK( this->selectFromString( mask, caloClusterContainer ) );
+    ATH_CHECK( this->selectFromString( mask, caloClusterContainer.cptr() ) );
   }
 
   // Perform the actual thinning
-  ATH_CHECK ( m_thinningSvc->filter(*caloClusterContainer, mask, IThinningSvc::Operator::Or) );
+  caloClusterContainer.keep (mask);
 
   return StatusCode::SUCCESS;
 }
@@ -291,7 +273,7 @@ StatusCode ThinCaloClustersTool::doThinning() const
 StatusCode
 ThinCaloClustersTool::selectFromIParticleLink( std::vector<bool>& mask,
                                                const xAOD::CaloClusterContainer* caloClusterContainer,
-                                               const xAOD::IParticleLink& partLink ) const
+                                               const xAOD::IParticleLink& partLink) const
 {
   ATH_MSG_VERBOSE("In selectFromIParticleLink");
   if ( !(partLink.isValid()) ) {
@@ -307,8 +289,8 @@ ThinCaloClustersTool::selectFromIParticleLink( std::vector<bool>& mask,
     std::size_t index = partLink.index();
 
     // Fill the thinning mask at this place and increment the counter
-    if ( index >= m_nTotalCaloClusters ) {
-      ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalCaloClusters );
+    if ( index >= mask.size() ) {
+      ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
       return StatusCode::SUCCESS;
     }
     mask[index] = true;
@@ -351,8 +333,8 @@ ThinCaloClustersTool::selectFromIParticle( std::vector<bool>& mask,
       std::size_t index = part->index();
 
       // Fill the thinning mask at this place and increment the counter
-      if ( index >= m_nTotalCaloClusters ) {
-        ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalCaloClusters );
+      if ( index >= mask.size() ) {
+        ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
         return StatusCode::SUCCESS;
       }
       mask[index] = true;
@@ -421,8 +403,8 @@ ThinCaloClustersTool::selectFromEgamma( std::vector<bool>& mask,
     std::size_t index = partLink.index();
 
     // Fill the thinning mask at this place and increment the counter
-    if ( index >= m_nTotalCaloClusters ) {
-      ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalCaloClusters );
+    if ( index >= mask.size() ) {
+      ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
       continue;
     }
     mask[index] = true;
@@ -460,8 +442,8 @@ ThinCaloClustersTool::selectFromMuon( std::vector<bool>& mask,
       std::size_t index = partLink.index();
 
       // Fill the thinning mask at this place and increment the counter
-      if ( index >= m_nTotalCaloClusters ) {
-        ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalCaloClusters );
+      if ( index >= mask.size() ) {
+        ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
         return StatusCode::SUCCESS;
       }
       mask[index] = true;

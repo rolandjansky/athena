@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -119,7 +119,9 @@ def xAODTrackSummaryFiller (obj, lod, blockName,
     varlist = []
     for tags, v in sumvars:
         if type(tags) != type([]): tags = [tags]
-        sel = sum ([locals()[t] for t in tags], FullInfo)
+        sel = FullInfo
+        for t in tags:
+            sel += eval(t)
         if sel:
             v = v + '< unsigned char:0'
             varlist.append (v)

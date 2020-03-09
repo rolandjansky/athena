@@ -17,6 +17,7 @@
 
 #include "LArCosmicsMonTool.h"
 
+#include "StoreGate/ReadCondHandle.h"
 #include "Identifier/IdentifierHash.h"
 
 #include <sstream>
@@ -50,7 +51,6 @@ LArCosmicsMonTool::LArCosmicsMonTool(const std::string& type,
     m_newrun(true)
 {
   declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "FREE");
-  declareProperty("LArPedestalKey", m_larPedestalKey="Pedestal");
   declareProperty("muonADCthreshold_EM_barrel", m_muonADCthreshold_EM_barrel = 30);
   declareProperty("muonADCthreshold_EM_endcap", m_muonADCthreshold_EM_endcap = 40);
   declareProperty("muonADCthreshold_HEC", m_muonADCthreshold_HEC = 40);
@@ -64,7 +64,6 @@ LArCosmicsMonTool::LArCosmicsMonTool(const std::string& type,
   m_LArFCAL_IDHelper	= NULL;
   m_LArHEC_IDHelper	= NULL;
   m_caloIdMgr		= NULL;
-  m_larPedestal		= NULL;
 
   m_hMuonMapEMDig	= NULL;
   m_hMuonMapHECDig	= NULL;
@@ -111,6 +110,7 @@ LArCosmicsMonTool::initialize()
   ATH_CHECK( m_badChannelMask.retrieve() );
   ATH_CHECK( m_larCablingService.retrieve() );
   ATH_CHECK( this->initMonInfo() );
+  ATH_CHECK( m_larPedestalKey.initialize() );
   
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
@@ -214,6 +214,7 @@ LArCosmicsMonTool::bookHistograms() {
 /*---------------------------------------------------------*/
 StatusCode 
 LArCosmicsMonTool::fillHistograms() {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG( "in fillHists()" );
   StatusCode sc;
   
@@ -238,13 +239,7 @@ LArCosmicsMonTool::fillHistograms() {
   }
   
   // Retrieve pedestals container
-  if(m_newrun) {
-    sc=detStore()->retrieve(m_larPedestal,m_larPedestalKey);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Cannot retrieve pedestal(s) from Conditions Store!" );
-    }  
-    m_newrun=false;
-  }
+  SG::ReadCondHandle<ILArPedestal> pedestals (m_larPedestalKey, ctx);
   
   // loop over LArDigits
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
@@ -271,7 +266,7 @@ LArCosmicsMonTool::fillHistograms() {
     
     // Retrieve pedestals 
     CaloGain::CaloGain gain = pLArDigit->gain();
-    float pedestal = m_larPedestal->pedestal(id,gain);
+    float pedestal = pedestals->pedestal(id,gain);
     
     // Skip channel with no pedestal ref in db
     if(pedestal <= (1.0+LArElecCalib::ERRORCODE)) continue;      

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -51,7 +51,10 @@ class TileRawChannel: public TileRawData {
                    float ped = 0.0);
     TileRawChannel(const Identifier& id, float amplitude, float time, float quality, float ped = 0.0);
 
+    TileRawChannel (const TileRawChannel&) = default;
     TileRawChannel& operator=(const TileRawChannel&) = default;
+    TileRawChannel (TileRawChannel&&) = default;
+    TileRawChannel& operator= (TileRawChannel&&) = default;
 
     /* Destructor */
 

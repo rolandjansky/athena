@@ -1,5 +1,4 @@
-#include "MuonEventCnvTools/MuonEventCnvTool.h"
-
+#include "../MuonEventCnvTool.h"
 
 DECLARE_COMPONENT( Muon::MuonEventCnvTool )
 

@@ -135,7 +135,6 @@ if 'OUTPUT' not in dir():
   OUTPUT = "mc.aod.pool"
   pass
 outStream.OutputFile = OUTPUT
-outStream.ForceRead        = True  #force read of output data objs
 
 svcMgr.MessageSvc.defaultLimit = 4000000
 svcMgr.MessageSvc.OutputLevel  = ERROR

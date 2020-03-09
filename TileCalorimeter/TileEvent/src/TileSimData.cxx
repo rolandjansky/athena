@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -34,8 +34,8 @@ TileSimData::TileSimData( const Identifier& id ) : m_pmt_id( id )
 }
 
 TileSimData::TileSimData( const HWIdentifier& HWid )
+  : m_pmt_id (s_cabling->h2s_pmt_id(HWid))
 {
-    m_pmt_id = s_cabling->h2s_pmt_id(HWid);
 }
 
 void TileSimData::print() const

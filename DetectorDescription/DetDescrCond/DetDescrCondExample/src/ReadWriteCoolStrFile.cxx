@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ReadWriteCoolStrFile.cxx - simple example of algorithm demonstrating 
@@ -10,7 +10,6 @@
 #include "DetDescrConditions/DetCondKeyTrans.h"
 #include "DetDescrCondTools/ICoolStrFileSvc.h"
 #include "DetDescrCondExample/ReadWriteCoolStrFile.h"
-#include "StoreGate/StoreGateSvc.h"
 
 ReadWriteCoolStrFile::ReadWriteCoolStrFile(const std::string& name, 
   ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),

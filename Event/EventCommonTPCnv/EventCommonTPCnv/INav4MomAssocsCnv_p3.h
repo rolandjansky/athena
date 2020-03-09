@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocsCnv_p3.h 
@@ -34,25 +34,20 @@
 // Forward declaration
 class MsgStream;
 
-class INav4MomAssocsCnv_p3 : public T_AthenaPoolTPCnvBase<
+class INav4MomAssocsCnv_p3 : public T_AthenaPoolTPCnvConstBase<
                                               INav4MomAssocs, 
                                               INav4MomAssocs_p3
                                             >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public typedefs: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers; 
+  using base_class::persToTrans;
 
   /// converter for @c ElementLink to @c INavigable4MomentumCollection
   typedef ElementLinkCnv_p3< ElementLink<INavigable4MomentumCollection> >
           INav4MomCnv_t;
   typedef DataLinkCnv_p2<DataLink<INav4MomAssocs> > IAssocStoresCnv_t;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
 
   /** Default constructor: 
@@ -63,34 +58,23 @@ class INav4MomAssocsCnv_p3 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~INav4MomAssocsCnv_p3();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c INav4MomAssocs
    *  from its persistent representation @c INav4MomAssocs_p3
    */
   virtual void persToTrans( const INav4MomAssocs_p3* pers, 
                             INav4MomAssocs* trans, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c INav4MomAssocs_p3
    *  from its transient representation @c INav4MomAssocs
    */
   virtual void transToPers( const INav4MomAssocs* trans, 
                             INav4MomAssocs_p3* pers, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
+protected: 
   /// converter for @c ElementLink to @c INavigable4MomentumCollection
   INav4MomCnv_t m_inav4MomLinkCnv;
 
@@ -98,9 +82,6 @@ class INav4MomAssocsCnv_p3 : public T_AthenaPoolTPCnvBase<
   IAssocStoresCnv_t m_assocStoresCnv;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline INav4MomAssocsCnv_p3::INav4MomAssocsCnv_p3()
 {}

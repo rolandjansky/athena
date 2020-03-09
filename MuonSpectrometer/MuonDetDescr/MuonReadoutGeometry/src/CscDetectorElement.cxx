@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -9,21 +9,16 @@
  -------------------------------------------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: CscDetectorElement.cxx,v 1.1 2009-05-20 15:24:08 tcorneli Exp $
-//<version>	$Name: not supported by cvs2svn $
-
 #include "MuonReadoutGeometry/CscDetectorElement.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkSurfaces/Surface.h"
-#include "GaudiKernel/MsgStream.h"
 
 namespace MuonGM {
 
 CscDetectorElement::CscDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr,Identifier id, IdentifierHash 
 idHash) : MuonDetectorElement(pv,mgr,id,idHash), m_cscre(NULL)
 {
-    //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:CscDetectorElement");
   m_nREinDetectorElement=1; 
 }
 

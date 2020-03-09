@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_TRIGMUONEFCOMBINERHYPO_H 
@@ -7,7 +7,8 @@
 
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "LumiBlockData/LuminosityCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class TriggerElement;
 
@@ -28,7 +29,8 @@ class TrigMuonEFCombinerHypo: public HLT::HypoAlgo {
   std::vector<float> m_ptThresholds;
   BooleanProperty m_acceptAll;
   BooleanProperty m_rejectCBmuons;
-  ToolHandle<ILuminosityTool> m_lumiTool;
+  SG::ReadCondHandleKey<LuminosityCondData> m_luminosityCondDataKey
+  { this, "LuminosityCondDataKey", "LuminosityCondData", "" };
 
   // Other members:   
   std::vector<float>::size_type m_bins;

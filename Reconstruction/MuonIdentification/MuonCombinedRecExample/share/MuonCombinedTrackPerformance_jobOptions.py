@@ -31,10 +31,6 @@ if muonCombinedRecFlags.doxAOD():
                                          DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
                                          TrackType = 5,
                                          IsCombined = False )
-  if muonRecFlags.doNSWNewThirdChain():
-    topSequence.ExtrapolatedMuonPerformanceAlg.useNSW=True
-    topSequence.CombinedMuonPerformanceAlg.useNSW=True
-    topSequence.MSOnlyExtrapolatedMuonPerformanceAlg.useNSW=True
 
   if muonCombinedRecFlags.doMuGirlLowBeta():
     topSequence += MuonTrackPerformanceAlg("CombinedStauPerformanceAlg",
@@ -52,10 +48,6 @@ if muonCombinedRecFlags.doxAOD():
                                            #DoTruth = rec.doTruth(),
                                            #DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
                                            #IsCombined = False )
-    if muonRecFlags.doNSWNewThirdChain():
-      #topSequence.ExtrapolatedStauPerformanceAlg.useNSW=True
-      topSequence.CombinedStauPerformanceAlg.useNSW=True
-
 
   from MuonTrackPerformance.MuonTrackPerformanceConf import MuonSegmentPerformanceAlg
   topSequence += MuonSegmentPerformanceAlg(name="MuonSegmentPerformanceAlg")

@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "egammaCaloClusterSelector.h"
-
 #include "xAODCaloEvent/CaloCluster.h"
-
-egammaCaloClusterSelector::egammaCaloClusterSelector(const std::string& type, const std::string& name, const IInterface* parent) :
+#include "CaloUtils/CaloCellList.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+egammaCaloClusterSelector::egammaCaloClusterSelector(const std::string& type, 
+                                                     const std::string& name, 
+                                                     const IInterface* parent) :
   base_class(type, name, parent)
 {
 }
@@ -22,35 +23,21 @@ StatusCode egammaCaloClusterSelector::initialize()
   } else {
     m_egammaCheckEnergyDepositTool.disable();
   }
-
-  m_runMiddleShapes = m_RetaCuts.size() != 0;
-
-  ATH_CHECK(m_cellsKey.initialize(m_runMiddleShapes));
-
-  if (m_runMiddleShapes) {
+  //Shower Shape tools
+  //Initialize tools when non-default values are given
+  m_doReta = (m_RetaCut != RETA_DEFAULT_NO_CUT);
+  m_doHadLeak = (m_HadLeakCut != HAD_LEAK_DEFAULT_NO_CUT); 
+  ATH_CHECK(m_cellsKey.initialize(m_doReta||m_doHadLeak));
+  if (m_doReta) {
     ATH_CHECK(m_egammaMiddleShape.retrieve());
   } else {
     m_egammaMiddleShape.disable();
   }
-  // validate that the configuration makes sense
-  const auto numBins = m_EMEtRanges.size();
-
-  if (m_EMFCuts.size() != 0 && m_EMFCuts.size() != numBins) {
-    ATH_MSG_FATAL("The size of EMFCuts, now " <<  m_EMFCuts.size() 
-		  << ", must be zero or the number of Et bins: " <<  numBins);
-    return StatusCode::FAILURE;
-  }
-
-  if (m_lateralCuts.size() != 0 && m_lateralCuts.size() != numBins) {
-    ATH_MSG_FATAL("The size of LateralCuts, now " <<  m_lateralCuts.size() 
-		  << ", must be zero or the number of Et bins: " <<  numBins);
-    return StatusCode::FAILURE;
-  }
-
-  if (m_RetaCuts.size() != 0 && m_RetaCuts.size() != numBins) {
-    ATH_MSG_FATAL("The size of LateralCuts, now " <<  m_RetaCuts.size() 
-		  << ", must be zero or the number of Et bins: " <<  numBins);
-    return StatusCode::FAILURE;
+  
+  if (m_doHadLeak) {
+    ATH_CHECK(m_HadronicLeakageTool.retrieve());
+  } else {
+    m_HadronicLeakageTool.disable();
   }
 
   return StatusCode::SUCCESS;
@@ -61,95 +48,105 @@ StatusCode egammaCaloClusterSelector::finalize()
   return StatusCode::SUCCESS;
 }
 
-// ======================================================================
-bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) const
-{
-  // switch to using cluster properties, not layer 2 properties
+bool egammaCaloClusterSelector::passSelection(
+    const xAOD::CaloCluster* cluster, const CaloDetDescrManager& cmgr) const {
+  
+  /* Minimum Cluster energy*/
   if ( cluster->et() < m_ClusterEtCut ){
     ATH_MSG_DEBUG("Cluster failed Energy Cut: dont make ROI");
     return false;
   }
-   
-  /* 
-   * If lower than the minimum one requested via the ranges
-   * return false.
-   * Only then run the  egammaCheckEnergyDepositTool or any other step.
-   */ 
 
-  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
-  double emFrac(0.);
-  if (acc.isAvailable(*cluster)) {
-    emFrac = acc(*cluster);
-  } else if (!cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-    throw std::runtime_error("No EM fraction momement stored");
-  }
-  const double EMEt = cluster->et()*emFrac;
-  const double bin = findETBin(EMEt);
-  
-  if (!m_EMEtRanges.empty() && bin<0){
-    ATH_MSG_DEBUG("Cluster EM Energy is lower than the lowest cut in EMEtRanges  dont make ROI");
-    return false;
-  }  
-
+  /*Check energy deposit if requested*/
   if( !m_egammaCheckEnergyDepositTool.empty() && 
       !m_egammaCheckEnergyDepositTool->checkFractioninSamplingCluster( cluster ) ) {
     ATH_MSG_DEBUG("Cluster failed sample check: dont make ROI");
     return false;
   }
-  
   /*
-   * All other cuts are binned. 
-   * Pass if no binning is defined.
-   */  
-  if (m_EMEtRanges.empty()) {
-    // no ET bins defined, so pass
-    return true;
+   * We need to have second sampling present.
+   * And calculate the EM energy and EM Et. 
+   */
+  if (!cluster->hasSampling(CaloSampling::EMB2) && !cluster->hasSampling(CaloSampling::EME2)){
+      return false;
   }
-
-  if ( m_EMFCuts.size() != 0 && emFrac < m_EMFCuts[bin] ){
+  const double eta2 = fabs(cluster->etaBE(2));
+  constexpr double ETA2_CUT = 10;
+  if(eta2>ETA2_CUT){
+    return false;
+  }
+  // minimum energy reconstructed in 2nd sampling
+  constexpr double EM2ENERGY_CUT = 50;
+  if (cluster->energyBE(2)<EM2ENERGY_CUT){
+      return false;
+  }
+  //use the egamma definition of EMFrac (includes presampler , helps with eff in the crack)
+  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
+  const double emFrac = acc.isAvailable(*cluster)? acc(*cluster) : 0.;
+  const double EMEnergy= cluster->e()* emFrac;
+  double EMEt = EMEnergy/std::cosh(eta2);
+  const double rescaleFactor = 1.0/m_EMEtSplittingFraction;
+  // cluster is in crack region
+  // if at least one clustered cell in EMB and EMEC
+  if ( cluster->inBarrel() && cluster->inEndcap()) {
+    EMEt*=rescaleFactor;
+  }
+  /* EMEt cut */
+  if (EMEt < m_EMEtCut) {
+    ATH_MSG_DEBUG("Cluster failed EMEt cut: don't make ROI");
+    return false;
+  }
+ /* EM fraction cut*/
+  if ( emFrac < m_EMFCut ){
     ATH_MSG_DEBUG("Cluster failed EM Fraction cut: don't make ROI");
     return false;
   }
-  
-  if (m_lateralCuts.size() != 0) {
-    double lateral(0.);
-    if (!cluster->retrieveMoment(xAOD::CaloCluster::LATERAL, lateral)){
-      throw std::runtime_error("No LATERAL momement stored");
-    }
-    
-    if ( lateral >  m_lateralCuts[bin] ){
-      ATH_MSG_DEBUG("Cluster failed LATERAL cut: dont make ROI");
-      return false;
-    }
-  }
-
-  if (m_runMiddleShapes) {
-    
+  /* Reta and Rhad cuts*/
+  if (m_doReta||m_doHadLeak) {
     // retrieve the cell containers
     SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
-
-    IegammaMiddleShape::Info info;
-    StatusCode sc = m_egammaMiddleShape->execute(*cluster, *cellcoll, info);
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("call to Middle shape returns failure for execute");
-      return false;
+    if(m_doReta){
+      IegammaMiddleShape::Info info;
+      StatusCode sc = m_egammaMiddleShape->execute(*cluster, cmgr,*cellcoll, info);
+      if ( sc.isFailure() ) {
+        ATH_MSG_WARNING("call to Middle shape returns failure for execute");
+        return false;
+      }
+      if(info.e277<0 || info.e237<0){
+        ATH_MSG_DEBUG("Negative e277 or e237: dont make ROI");
+        return false;
+      }
+      if (info.e277 != 0. && info.e237/info.e277 < m_RetaCut){
+        ATH_MSG_DEBUG("Cluster failed Reta test: dont make ROI");
+        return false;
+      }
     }
-    if (info.e277 != 0. && info.e237/info.e277 <= m_RetaCuts[bin]){
-      ATH_MSG_DEBUG("Cluster failed Reta test: dont make ROI");
-      return false;
+    if(m_doHadLeak){
+      // define a new Calo Cell list corresponding to HAD Calo
+      static const std::vector<CaloCell_ID::SUBCALO> theVecCalo={CaloCell_ID::LARHEC,CaloCell_ID::TILE};
+      CaloCellList HADccl(cellcoll.ptr(),theVecCalo); 
+      // calculate information concerning just the hadronic leakage
+      IegammaIso::Info info;
+      StatusCode sc =  m_HadronicLeakageTool->execute(*cluster,HADccl,info);
+      if ( sc.isFailure() ) {
+        ATH_MSG_WARNING("call to Iso returns failure for execute");
+        return false;
+      }
+      const double ethad1 = info.ethad1;
+      const double ethad  = info.ethad;
+      const double raphad1 =EMEt != 0. ? ethad1/EMEt : 0.;
+      const double raphad = EMEt != 0. ? ethad/EMEt : 0.;
+      if (eta2 >= 0.8 && eta2 < 1.37){
+        if (raphad>m_HadLeakCut){
+          ATH_MSG_DEBUG("Cluster failed Hadronic Leakage test: dont make ROI");
+          return false;
+        }
+      }
+      else if(raphad1 >m_HadLeakCut){
+        ATH_MSG_DEBUG("Cluster failed Hadronic Leakage test: dont make ROI");
+        return false;
+      }
     }
   }
   return true;
 }
-
-// return the bin number given the EM Et.
-int egammaCaloClusterSelector::findETBin(double EMEt) const
-{
-  const int numBins = m_EMEtRanges.size();
-  int newBin = 0;
-  while (newBin < numBins && EMEt > m_EMEtRanges[newBin]) {
-    newBin++;
-  }
-  return newBin - 1;
-}
-     

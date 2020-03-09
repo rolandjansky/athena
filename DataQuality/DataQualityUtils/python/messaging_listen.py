@@ -1,14 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import stomp
-import random
-import time
 import socket
+import logging
 
 MSGSERVER='atlas-mb.cern.ch'
 MSGPORT=61013
 
-import logging
 logging.basicConfig()
 #logging.getLogger('stomp.py').setLevel(logging.DEBUG)
 
@@ -106,7 +104,7 @@ class ATLASDQMListener(object):
         for conn in self.conns:
             try:
                 conn.disconnect()
-            except Exception, e:
-                print('Exception closing connections:' + `e`)
+            except Exception as e:
+                print('Exception closing connections:' + repr(e))
                 pass
         return False

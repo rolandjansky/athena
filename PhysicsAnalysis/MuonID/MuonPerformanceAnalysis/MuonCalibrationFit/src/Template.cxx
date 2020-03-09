@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #define Template_cxx
 #include "MuonCalibrationFit/Template.h"
+#include <cmath>
+#include <math.h>
 
 Template::Template( TString name, TString title, int splitting, std::string bkg ) {
   //:::
@@ -302,10 +304,10 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           int FinalBin = ( Bin - 1 ) * m_MassJpsi->Split + IntBin;
           int theBin = ( ptBin - 1 ) * m_MassJpsi->NTotalBins() + FinalBin;
           val += m_MassJpsiContentBuffer_MonteCarlo[ theBin ] * m_MassJpsiAddWeightBuffer_MonteCarlo[ theBin ]; 
-          err += m_MassJpsiErrorBuffer_MonteCarlo[ theBin ] * TMath::Power( m_MassJpsiAddWeightBuffer_MonteCarlo[ theBin ], 2 ); 
+          err += m_MassJpsiErrorBuffer_MonteCarlo[ theBin ] * std::pow( m_MassJpsiAddWeightBuffer_MonteCarlo[ theBin ], 2 ); 
         }
         t_MassJpsiVec_MC[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_MassJpsiVec_MC[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( err ) ); 
+        t_MassJpsiVec_MC[ ptBin - 1 ]->SetBinError( Bin, sqrt( err ) ); 
       }
     }
   }
@@ -329,7 +331,7 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           err += m_MassJpsiErrorBuffer_Background[ theBin ];
         }
         t_MassJpsiVec_Bkg[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_MassJpsiVec_Bkg[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( err ) ); 
+        t_MassJpsiVec_Bkg[ ptBin - 1 ]->SetBinError( Bin, sqrt( err ) ); 
       }
     }
   }
@@ -352,7 +354,7 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           val += m_MassJpsiContentBuffer_Data[ theBin ]; 
         }
         t_MassJpsiVec_Data[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_MassJpsiVec_Data[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( val ) ); 
+        t_MassJpsiVec_Data[ ptBin - 1 ]->SetBinError( Bin, sqrt( val ) ); 
       }
     }
   }
@@ -373,10 +375,10 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           int FinalBin = ( Bin - 1 ) * m_MassZ->Split + IntBin;
           int theBin = ( ptBin - 1 ) * m_MassZ->NTotalBins() + FinalBin;
           val += m_MassZContentBuffer_MonteCarlo[ theBin ] * m_MassZAddWeightBuffer_MonteCarlo[ theBin ]; 
-          err += m_MassZErrorBuffer_MonteCarlo[ theBin ] * TMath::Power( m_MassZAddWeightBuffer_MonteCarlo[ theBin ], 2 ); 
+          err += m_MassZErrorBuffer_MonteCarlo[ theBin ] * std::pow( m_MassZAddWeightBuffer_MonteCarlo[ theBin ], 2 ); 
         }
         t_MassZVec_MC[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_MassZVec_MC[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( err ) ); 
+        t_MassZVec_MC[ ptBin - 1 ]->SetBinError( Bin, sqrt( err ) ); 
       }
     }
   }
@@ -400,7 +402,7 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           err += m_MassZErrorBuffer_Background[ theBin ];
         }
         t_MassZVec_Bkg[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_MassZVec_Bkg[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( err ) ); 
+        t_MassZVec_Bkg[ ptBin - 1 ]->SetBinError( Bin, sqrt( err ) ); 
       }
     }
   }
@@ -423,7 +425,7 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           val += m_MassZContentBuffer_Data[ theBin ]; 
         }
         t_MassZVec_Data[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_MassZVec_Data[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( val ) ); 
+        t_MassZVec_Data[ ptBin - 1 ]->SetBinError( Bin, sqrt( val ) ); 
       }
     }
   }
@@ -444,10 +446,10 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           int FinalBin = ( Bin - 1 ) * m_RhoZ->Split + IntBin;
           int theBin = ( ptBin - 1 ) * m_RhoZ->NTotalBins() + FinalBin;
           val += m_RhoZContentBuffer_MonteCarlo[ theBin ] * m_RhoZAddWeightBuffer_MonteCarlo[ theBin ]; 
-          err += m_RhoZErrorBuffer_MonteCarlo[ theBin ] * TMath::Power( m_RhoZAddWeightBuffer_MonteCarlo[ theBin ], 2 ); 
+          err += m_RhoZErrorBuffer_MonteCarlo[ theBin ] * std::pow( m_RhoZAddWeightBuffer_MonteCarlo[ theBin ], 2 ); 
         }
         t_RhoZVec_MC[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_RhoZVec_MC[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( err ) ); 
+        t_RhoZVec_MC[ ptBin - 1 ]->SetBinError( Bin, sqrt( err ) ); 
       }
     }
   }
@@ -471,7 +473,7 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           err += m_RhoZErrorBuffer_Background[ theBin ];
         }
         t_RhoZVec_Bkg[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_RhoZVec_Bkg[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( err ) ); 
+        t_RhoZVec_Bkg[ ptBin - 1 ]->SetBinError( Bin, sqrt( err ) ); 
       }
     }
   }
@@ -494,7 +496,7 @@ std::vector< TH1F* >* Template::GetAllHistograms( TString PreFix, bool recalcula
           val += m_RhoZContentBuffer_Data[ theBin ]; 
         }
         t_RhoZVec_Data[ ptBin - 1 ]->SetBinContent( Bin, val ); 
-        t_RhoZVec_Data[ ptBin - 1 ]->SetBinError( Bin, TMath::Sqrt( val ) ); 
+        t_RhoZVec_Data[ ptBin - 1 ]->SetBinError( Bin, sqrt( val ) ); 
       }
     }
   }
@@ -630,7 +632,7 @@ void Template::EvaluateBackground() {
       TH1F tempHist_MC( "tempHist_MC", "", m_MassJpsi->NTotalBins(), m_MassJpsi->Min, m_MassJpsi->Max ); 
       for( int varBin = 0; varBin < m_MassJpsi->NTotalBins(); varBin++ ) {
         tempHist_MC.SetBinContent( varBin + 1, m_MassJpsiContentBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + varBin ] );
-        tempHist_MC.SetBinError( varBin + 1, TMath::Sqrt( m_MassJpsiErrorBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + varBin ] ) );
+        tempHist_MC.SetBinError( varBin + 1, sqrt( m_MassJpsiErrorBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + varBin ] ) );
       }
       tempHist_MC.Rebin( m_MassJpsi->Split );
       RooDataHist tempDataSet_MC( "tempDataSet_MC", "", RooArgList( x ), &tempHist_MC );
@@ -718,7 +720,7 @@ double Template::GetChiSquare( double nRandom ) {
             if( FinalBin < m_MassJpsi->NTotalBins() ) {
               mc_val += m_MassJpsiContentBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ] * m_MassJpsiAddWeightBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ]; 
               mc_val += m_MassJpsiContentBuffer_Background[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ];
-              mc_err_sq += nRandom * m_MassJpsiErrorBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ] * TMath::Power( m_MassJpsiAddWeightBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ], 2 ); 
+              mc_err_sq += nRandom * m_MassJpsiErrorBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ] * std::pow( m_MassJpsiAddWeightBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ], 2 ); 
               mc_err_sq += m_MassJpsiErrorBuffer_Background[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ];
               data_val += m_MassJpsiContentBuffer_Data[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ];
             }
@@ -740,7 +742,7 @@ double Template::GetChiSquare( double nRandom ) {
             if( FinalBin < m_MassZ->NTotalBins() ) {
               mc_val += m_MassZContentBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ] * m_MassZAddWeightBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ]; 
               mc_val += m_MassZContentBuffer_Background[ ptBin * m_MassZ->NTotalBins() + FinalBin ];
-              mc_err_sq += nRandom * m_MassZErrorBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ] * TMath::Power( m_MassZAddWeightBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ], 2 ); 
+              mc_err_sq += nRandom * m_MassZErrorBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ] * std::pow( m_MassZAddWeightBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ], 2 ); 
               mc_err_sq += m_MassZErrorBuffer_Background[ ptBin * m_MassZ->NTotalBins() + FinalBin ];
               data_val += m_MassZContentBuffer_Data[ ptBin * m_MassZ->NTotalBins() + FinalBin ];
             }
@@ -762,7 +764,7 @@ double Template::GetChiSquare( double nRandom ) {
             if( FinalBin < m_RhoZ->NTotalBins() ) {
               mc_val += m_RhoZContentBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ] * m_RhoZAddWeightBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ]; 
               mc_val += m_RhoZContentBuffer_Background[ ptBin * m_RhoZ->NTotalBins() + FinalBin ];
-              mc_err_sq += nRandom * m_RhoZErrorBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ] * TMath::Power( m_RhoZAddWeightBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ], 2 ); 
+              mc_err_sq += nRandom * m_RhoZErrorBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ] * std::pow( m_RhoZAddWeightBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ], 2 ); 
               mc_err_sq += m_RhoZErrorBuffer_Background[ ptBin * m_RhoZ->NTotalBins() + FinalBin ];
               data_val += m_RhoZContentBuffer_Data[ ptBin * m_RhoZ->NTotalBins() + FinalBin ];
             }
@@ -794,7 +796,7 @@ double Template::GetLogLikelihood( double nRandom ) {
             if( FinalBin < m_MassJpsi->NTotalBins() ) {
               mc_val += m_MassJpsiContentBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ] * m_MassJpsiAddWeightBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ]; 
               mc_val += m_MassJpsiContentBuffer_Background[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ];
-              mc_err_sq += nRandom * m_MassJpsiErrorBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ] * TMath::Power( m_MassJpsiAddWeightBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ], 2 ); 
+              mc_err_sq += nRandom * m_MassJpsiErrorBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ] * std::pow( m_MassJpsiAddWeightBuffer_MonteCarlo[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ], 2 ); 
               mc_err_sq += m_MassJpsiErrorBuffer_Background[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ];
               data_val += m_MassJpsiContentBuffer_Data[ ptBin * m_MassJpsi->NTotalBins() + FinalBin ];
             }
@@ -802,11 +804,11 @@ double Template::GetLogLikelihood( double nRandom ) {
           mc_val_sq = mc_val * mc_val;
           if( ( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) < 0 ) continue;
           //:::
-          float x = 0.5 * ( mc_val - mc_err_sq + TMath::Sqrt( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) ); 
+          float x = 0.5 * ( mc_val - mc_err_sq + sqrt( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) ); 
           //:::
-          float log_fact = ( data_val > 0 ) ? data_val * TMath::Log( data_val ) - data_val + TMath::Log( data_val * ( 1. + 4 * data_val * ( 1 + 2 * data_val ) ) ) / 6. + TMath::Log( TMath::Pi() ) / 2. : 0.;
+          float log_fact = ( data_val > 0 ) ? data_val * log( data_val ) - data_val + log( data_val * ( 1. + 4 * data_val * ( 1 + 2 * data_val ) ) ) / 6. + log( M_PI ) / 2. : 0.;
           //:::
-          if( x > 0 ) res += ( data_val * TMath::Log( x ) - x - log_fact - TMath::Log( TMath::Sqrt( mc_err_sq ) ) - 0.5 * TMath::Power( ( x - mc_val ) / TMath::Sqrt( mc_err_sq ), 2 ) );
+          if( x > 0 ) res += ( data_val * log( x ) - x - log_fact - log( sqrt( mc_err_sq ) ) - 0.5 * std::pow( ( x - mc_val ) / sqrt( mc_err_sq ), 2 ) );
         }
       }
     }
@@ -820,7 +822,7 @@ double Template::GetLogLikelihood( double nRandom ) {
             if( FinalBin < m_MassZ->NTotalBins() ) {
               mc_val += m_MassZContentBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ] * m_MassZAddWeightBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ]; 
               mc_val += m_MassZContentBuffer_Background[ ptBin * m_MassZ->NTotalBins() + FinalBin ];
-              mc_err_sq += nRandom * m_MassZErrorBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ] * TMath::Power( m_MassZAddWeightBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ], 2 ); 
+              mc_err_sq += nRandom * m_MassZErrorBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ] * std::pow( m_MassZAddWeightBuffer_MonteCarlo[ ptBin * m_MassZ->NTotalBins() + FinalBin ], 2 ); 
               mc_err_sq += m_MassZErrorBuffer_Background[ ptBin * m_MassZ->NTotalBins() + FinalBin ];
               data_val += m_MassZContentBuffer_Data[ ptBin * m_MassZ->NTotalBins() + FinalBin ];
             }
@@ -828,11 +830,11 @@ double Template::GetLogLikelihood( double nRandom ) {
           mc_val_sq = mc_val * mc_val;
           if( ( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) < 0 ) continue;
           //:::
-          float x = 0.5 * ( mc_val - mc_err_sq + TMath::Sqrt( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) ); 
+          float x = 0.5 * ( mc_val - mc_err_sq + sqrt( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) ); 
           //:::
-          float log_fact = ( data_val > 0 ) ? data_val * TMath::Log( data_val ) - data_val + TMath::Log( data_val * ( 1. + 4 * data_val * ( 1 + 2 * data_val ) ) ) / 6. + TMath::Log( TMath::Pi() ) / 2. : 0.;
+          float log_fact = ( data_val > 0 ) ? data_val * log( data_val ) - data_val + log( data_val * ( 1. + 4 * data_val * ( 1 + 2 * data_val ) ) ) / 6. + log( M_PI ) / 2. : 0.;
           //:::
-          if( x > 0 ) res += ( data_val * TMath::Log( x ) - x - log_fact - TMath::Log( TMath::Sqrt( mc_err_sq ) ) - 0.5 * TMath::Power( ( x - mc_val ) / TMath::Sqrt( mc_err_sq ), 2 ) );
+          if( x > 0 ) res += ( data_val * log( x ) - x - log_fact - log( sqrt( mc_err_sq ) ) - 0.5 * std::pow( ( x - mc_val ) / sqrt( mc_err_sq ), 2 ) );
         }
       }
     }
@@ -846,7 +848,7 @@ double Template::GetLogLikelihood( double nRandom ) {
             if( FinalBin < m_RhoZ->NTotalBins() ) {
               mc_val += m_RhoZContentBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ] * m_RhoZAddWeightBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ]; 
               mc_val += m_RhoZContentBuffer_Background[ ptBin * m_RhoZ->NTotalBins() + FinalBin ];
-              mc_err_sq += nRandom * m_RhoZErrorBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ] * TMath::Power( m_RhoZAddWeightBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ], 2 ); 
+              mc_err_sq += nRandom * m_RhoZErrorBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ] * std::pow( m_RhoZAddWeightBuffer_MonteCarlo[ ptBin * m_RhoZ->NTotalBins() + FinalBin ], 2 ); 
               mc_err_sq += m_RhoZErrorBuffer_Background[ ptBin * m_RhoZ->NTotalBins() + FinalBin ];
               data_val += m_RhoZContentBuffer_Data[ ptBin * m_RhoZ->NTotalBins() + FinalBin ];
             }
@@ -854,11 +856,11 @@ double Template::GetLogLikelihood( double nRandom ) {
           mc_val_sq = mc_val * mc_val;
           if( ( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) < 0 ) continue;
           //:::
-          float x = 0.5 * ( mc_val - mc_err_sq + TMath::Sqrt( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) ); 
+          float x = 0.5 * ( mc_val - mc_err_sq + sqrt( mc_err_sq * mc_err_sq + ( 4. * data_val - 2. * mc_val ) * mc_err_sq + mc_val_sq ) ); 
           //:::
-          float log_fact = ( data_val > 0 ) ? data_val * TMath::Log( data_val ) - data_val + TMath::Log( data_val * ( 1. + 4 * data_val * ( 1 + 2 * data_val ) ) ) / 6. + TMath::Log( TMath::Pi() ) / 2. : 0.;
+          float log_fact = ( data_val > 0 ) ? data_val * log( data_val ) - data_val + log( data_val * ( 1. + 4 * data_val * ( 1 + 2 * data_val ) ) ) / 6. + log( M_PI ) / 2. : 0.;
           //:::
-          if( x > 0 ) res += ( data_val * TMath::Log( x ) - x - log_fact - TMath::Log( TMath::Sqrt( mc_err_sq ) ) - 0.5 * TMath::Power( ( x - mc_val ) / TMath::Sqrt( mc_err_sq ), 2 ) );
+          if( x > 0 ) res += ( data_val * log( x ) - x - log_fact - log( sqrt( mc_err_sq ) ) - 0.5 * std::pow( ( x - mc_val ) / sqrt( mc_err_sq ), 2 ) );
         }
       }
     }

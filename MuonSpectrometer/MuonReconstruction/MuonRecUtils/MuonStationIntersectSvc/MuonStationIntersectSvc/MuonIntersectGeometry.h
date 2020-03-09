@@ -16,7 +16,7 @@ namespace Muon {
     virtual ~MuonIntersectGeometry() {}
     
 
-    virtual const MuonStationIntersect& intersection( const Amg::Vector3D& pos, const Amg::Vector3D& dir) const = 0;
+    virtual const MuonStationIntersect intersection( const Amg::Vector3D& pos, const Amg::Vector3D& dir) const = 0;
       
 
   };

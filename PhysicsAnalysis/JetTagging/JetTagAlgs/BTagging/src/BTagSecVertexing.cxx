@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BTagging/IBTagSecVertexing.h"
@@ -278,7 +278,7 @@ namespace Analysis {
   }
 
 
-  StatusCode BTagSecVertexing::fillVkalVariables(xAOD::Jet& myJet,
+  StatusCode BTagSecVertexing::fillVkalVariables(const xAOD::Jet& myJet,
                          xAOD::BTagging* newBTag, 
 						 xAOD::VertexContainer* bTagVertexContainer, 
 						 const Trk::VxSecVKalVertexInfo* myVertexInfoVKal,
@@ -320,8 +320,9 @@ namespace Analysis {
         for (std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator itr=theseTracks.begin();itr!=theseTracks.end();itr++){
 	      TrkList.push_back(*itr);
         }
-      } 
-              
+      }
+
+      ATH_MSG_DEBUG("#BTAG# Size of the sec vertex linked to the BTagging: " << SVertexLinks.size());
       newBTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
       newBTag->setDynVxELName(basename, "vertices");
 
@@ -330,16 +331,13 @@ namespace Analysis {
         energyfrc = myVertexInfoVKal->energyFraction();
         n2trk = myVertexInfoVKal->n2trackvertices();
         energyTrk =  myVertexInfoVKal->energyTrkInJet();
-	dsttomatlayer= myVertexInfoVKal->dstToMatLay();
+        dsttomatlayer= myVertexInfoVKal->dstToMatLay();
       }
-
-
 
       newBTag->setVariable<float>(basename, "energyTrkInJet", energyTrk);
       newBTag->setVariable<float>(basename, "dstToMatLay", dsttomatlayer);
 
       if("SV1" == basename){
-        //newBTag->setTaggerInfo(npprm, xAOD::BTagInfo::SV0_NGTinJet);
         newBTag->setTaggerInfo(mass, xAOD::BTagInfo::SV1_masssvx);
         newBTag->setTaggerInfo(energyfrc, xAOD::BTagInfo::SV1_efracsvx);
         newBTag->setTaggerInfo(n2trk, xAOD::BTagInfo::SV1_N2Tpair);
@@ -384,11 +382,13 @@ namespace Analysis {
       ATH_MSG_WARNING("#BTAG# pointer to track particle container not available -> can't create EL to bad tracks IP");
     }
 
+    ATH_MSG_DEBUG("#BTAG# SV container size: " << bTagVertexContainer->size());
+
     return StatusCode::SUCCESS;
 
   }
 
-  StatusCode BTagSecVertexing::fillJFVariables(xAOD::Jet& myJet,
+  StatusCode BTagSecVertexing::fillJFVariables(const xAOD::Jet& myJet,
 					       xAOD::BTagging* newBTag,
 					       xAOD::BTagVertexContainer* bTagJFVertexContainer,
 					       const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter,
@@ -443,7 +443,8 @@ namespace Analysis {
 
        //vtx on jet axis
        const std::vector<Trk::VxVertexOnJetAxis*> Vtxonjetaxes = vxjetcand->getVerticesOnJetAxis();
-     
+       ATH_MSG_DEBUG("#BTAG# VerticesOnJetAxis of VxJetCandidate size: " << Vtxonjetaxes.size());
+       
        std::vector<Trk::VxVertexOnJetAxis*>::const_iterator iterBegin = Vtxonjetaxes.begin();
        std::vector<Trk::VxVertexOnJetAxis*>::const_iterator iterEnd   = Vtxonjetaxes.end();  
        float comptoPV(0.);
@@ -451,7 +452,6 @@ namespace Analysis {
        int   ndf(0);
        nVtx = Vtxonjetaxes.size(); 
        std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVerticesLinks;
-       std::vector<xAOD::BTagVertex*> JFVertices;
        std::map<Trk::VxVertexOnJetAxis*, ElementLink< xAOD::BTagVertexContainer> > oldnewmap;
 
        for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator it=iterBegin; it!=iterEnd; ++it) {
@@ -499,7 +499,6 @@ namespace Analysis {
 
          }
          xAOD::BTagVertex* newbtagVtx = new xAOD::BTagVertex();
-	     JFVertices.push_back(newbtagVtx);
 
          bTagJFVertexContainer->push_back(newbtagVtx);
     
@@ -522,7 +521,6 @@ namespace Analysis {
        //CompToOtherSecVertices
       
      if(ClusteringTable !=0){
-       //int btagvxi=0;
 	   for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator it=iterBegin; it!=iterEnd; ++it) {
 
 	       std::vector< ElementLink< xAOD::BTagVertexContainer > > JFCompLinks;
@@ -553,9 +551,6 @@ namespace Analysis {
 
 	     } /// found map
 	 
-	   //JFVertices[btagvxi]->setCompToOtherSV(JFCompValues);
-	   //JFVertices[btagvxi]->setReco_vertexLink(JFCompLinks);
-	   //++btagvxi;
 	   }
      }
      typedef std::vector<ElementLink<xAOD::BTagVertexContainer> > BTagVertices;
@@ -632,6 +627,8 @@ namespace Analysis {
       ATH_MSG_ERROR("#BTAG# No JF vertices. Minimum 1");
     }
 
+    ATH_MSG_DEBUG("#BTAG# JF vertex container size: " << bTagJFVertexContainer->size());
+
     StatusCode sc = m_JFvarFactory->fillJetFitterVariables(myJet, newBTag, myVertexInfoJetFitter, basename);
     if(sc.isFailure()){
       ATH_MSG_ERROR("#BTAG# error filling variables in JetFitterVariablesFactory" );
@@ -692,8 +689,7 @@ namespace Analysis {
 
     xAOD::BTaggingContainer::iterator btagIter=btaggingContainer->begin();
     for (xAOD::JetContainer::const_iterator jetIter = jetContainer->begin(); jetIter != jetContainer->end(); ++jetIter, ++btagIter) {
-      //temporary const_cast
-      xAOD::Jet& jetToTag = const_cast<xAOD::Jet&>( **jetIter );
+      const xAOD::Jet& jetToTag = **jetIter;
       ToolHandleArray< InDet::ISecVertexInJetFinder >::const_iterator itSecVtxFinders = m_secVertexFinderToolsHandleArray.begin();
       ToolHandleArray< InDet::ISecVertexInJetFinder >::const_iterator itSecVtxFindersEnd = m_secVertexFinderToolsHandleArray.end();
 
@@ -763,7 +759,7 @@ namespace Analysis {
 
         const Trk::VxSecVertexInfo* myVertexInfo = (*itSecVtxFinders)->findSecVertex(PrimaryVtx, (*jetIter)->p4(), inputIParticles);
 
-        ATH_MSG_DEBUG("#BTAG#  Storing result ");
+        ATH_MSG_DEBUG("#BTAG# Number of vertices found: " << myVertexInfo->vertices().size());
 
         if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
 	  ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
@@ -789,6 +785,8 @@ namespace Analysis {
       } /// for loop on vertex tools
     }// for loop on jets
 
+    ATH_MSG_DEBUG("#BTAG# Size of the JF Vertex container: " <<  h_BTagJFVtxCollectionName->size());
+    
     return StatusCode::SUCCESS;
 
    }

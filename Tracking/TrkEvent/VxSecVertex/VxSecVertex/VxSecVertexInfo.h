@@ -22,7 +22,7 @@ given by a vector of VxCandidate*. The class OWNS the VxCandidate. Pointers
 
     May 2014:  VxSecVertexInfo doesn't own the corresponding secondary vertices anymore by default.
                Beware - this leads to a strong memory leak if SV are not explictly deleted before VxSecVertexInfo destructor.
-	       VxSecVertexInfo gets back the SV ownership if getSVOwnership(true) is called.  
+               VxSecVertexInfo gets back the SV ownership if setSVOwnership(true) is called.  
 
 *****************************************/
 
@@ -33,7 +33,7 @@ given by a vector of VxCandidate*. The class OWNS the VxCandidate. Pointers
 #include "AthenaKernel/CLASS_DEF.h"
 #include "xAODTracking/Vertex.h"
 #include <vector>
-
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
@@ -70,12 +70,16 @@ namespace Trk {
     /* set the list of Vertices */
     void setVertices(const std::vector<xAOD::Vertex*> &);
 
-    void getSVOwnership(bool Ownership) const { m_SVOwnership=Ownership; }
+   /* set Ownership */
+    void setSVOwnership (bool Ownership) { 
+      m_SVOwnership=Ownership; 
+    }
+
 
   protected:
 
     std::vector<xAOD::Vertex*> m_vertices;
-    mutable bool m_SVOwnership;
+    bool m_SVOwnership;
 
   };
 

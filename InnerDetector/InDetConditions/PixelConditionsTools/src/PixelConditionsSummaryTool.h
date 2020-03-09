@@ -1,6 +1,12 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelConditionsTools/PixelConditionsSummaryTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date November, 2019
+ * @brief Return pixel module/FE status.
+ */
 
 #ifndef PIXELCONDITIONSSERVICES_PIXELCONDITIONSSUMMARYTOOL_H
 #define PIXELCONDITIONSSERVICES_PIXELCONDITIONSSUMMARYTOOL_H
@@ -10,13 +16,19 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
-#include "PixelConditionsTools/IPixelByteStreamErrorsSvc.h"
+#ifndef SIMULATIONBASE
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#endif
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/PixelID.h"
 
 #include "PixelConditionsData/PixelModuleData.h"
+//#include "PixelConditionsData/PixelDeadMapCondData.h"
+#include "PixelConditionsData/PixelDCSStateData.h"
+#include "PixelConditionsData/PixelDCSStatusData.h"
+#include "PixelConditionsData/PixelTDAQData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
@@ -37,24 +49,39 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool isGood(const IdentifierHash & moduleHash, const Identifier & elementId) const override final;
     virtual double goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd) const override final;
 
+    virtual bool isBSActive(const IdentifierHash & moduleHash) const override final;
+    virtual bool isBSError(const IdentifierHash & moduleHash) const override final;
+
   private:
     const PixelID* m_pixelID;
 
-    ServiceHandle< IPixelByteStreamErrorsSvc > m_pixelBSErrorsSvc;
     std::vector<std::string> m_isActiveStatus;
     std::vector<std::string> m_isActiveStates;
     std::vector<int> m_activeState;
     std::vector<int> m_activeStatus;
 
-    bool m_useDCSState;
     bool m_useByteStream;
-    bool m_useTDAQ;
-    bool m_useDeadMap;
 
-    SG::ReadCondHandleKey<PixelModuleData> m_condDCSStateKey{this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
-    SG::ReadCondHandleKey<PixelModuleData> m_condDCSStatusKey{this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
-    SG::ReadCondHandleKey<PixelModuleData> m_condTDAQKey{this, "PixelTDAQCondData", "PixelTDAQCondData", "Pixel TDAQ conditions key"};
-    SG::ReadCondHandleKey<PixelModuleData> m_condDeadMapKey{this, "PixelModuleData", "PixelModuleData", "Pixel deadmap conditions key"};
+    SG::ReadCondHandleKey<PixelDCSStateData> m_condDCSStateKey
+    {this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
+
+    SG::ReadCondHandleKey<PixelDCSStatusData> m_condDCSStatusKey
+    {this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
+
+    SG::ReadCondHandleKey<PixelTDAQData> m_condTDAQKey
+    {this, "PixelTDAQCondData", "PixelTDAQCondData", "Pixel TDAQ conditions key"};
+
+    SG::ReadCondHandleKey<PixelModuleData> m_condDeadMapKey
+    {this, "PixelModuleData", "PixelModuleData", "Pixel deadmap conditions key"};
+
+//    SG::ReadCondHandleKey<PixelDeadMapCondData> m_condDeadMapKey
+//    {this, "PixelDeadMapCondData", "PixelDeadMapCondData", "Pixel deadmap conditions key"};
+
+#ifndef SIMULATIONBASE
+    SG::ReadHandleKey<InDetBSErrContainer>  m_BSErrContReadKey
+    {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
+#endif
+
 };
 
 inline InterfaceID& PixelConditionsSummaryTool::interfaceID(){

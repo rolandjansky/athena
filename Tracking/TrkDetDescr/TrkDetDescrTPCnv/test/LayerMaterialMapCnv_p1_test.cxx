@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,7 @@
 #undef NDEBUG
 #include "TrkDetDescrTPCnv/TrkGeometry/LayerMaterialMapCnv_p1.h"
 #include "TrkDetDescrTPCnv/LayerMaterialMapCnv_tlp1.h"
-#include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -226,6 +226,7 @@ void test1()
     lmm[Trk::LayerIndex(1)] = new Trk::CompressedLayerMaterial (binning, mm, indices, 1.5);
   }
 
+  Athena_test::Leakcheck check;
   testit (lmm);
 }
 

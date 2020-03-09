@@ -385,6 +385,18 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore,
 		VP1QtUtils::setEnvironmentVariable("DISPLAY",alternative);
 	}
 
+
+
+    QCoreApplication::setOrganizationName("ATLAS");
+	#if defined BUILDVP1LIGHT
+		QCoreApplication::setApplicationName("VP1Light");
+	#else
+		QCoreApplication::setApplicationName("VP1");
+	#endif
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+
+
+
 	// here we check if the main (and unique!) Qt application has been initialized already. If not we initialize it.
 	if (qApp) {
 		VP1Msg::message("VP1ExecutionScheduler::init ERROR: QApplication already initialized. Expect problems!!!");
@@ -404,12 +416,6 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore,
 		//new QApplication(argc, argv);
 		new VP1QtApplication(argc, argv);
 	}
-	QCoreApplication::setOrganizationName("ATLAS");
-	#if defined BUILDVP1LIGHT
-		QCoreApplication::setApplicationName("VP1Light");
-	#else
-		QCoreApplication::setApplicationName("VP1");
-	#endif	
 
 	VP1AvailEvents * availEvents(0);
 	if (!singleEventSource.isEmpty()&&!singleEventLocalTmpDir.isEmpty()) {

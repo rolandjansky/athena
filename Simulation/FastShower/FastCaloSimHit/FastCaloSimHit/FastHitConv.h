@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,7 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "TileSimEvent/TileHitVector.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -51,9 +52,6 @@ private:
 
   StatusCode hitConstruction();
 
-  // For reading in of Fast Hits
-  LArHitContainer* m_fastHitCont;
-  TileHitVector* m_fastTileHits;
   //for writing out of Hit, naming as G4 for default
   SG::WriteHandle<LArHitContainer> m_embHitContainer;
   SG::WriteHandle<LArHitContainer> m_emecHitContainer;
@@ -67,8 +65,7 @@ private:
   PileUpMergeSvc* m_pMergeSvc;
 
   // Data description objects
-
-  const DataHandle<ILArfSampl>    m_dd_fSampl; // DataHandle for LAr sampling fraction
+  SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
   const TileInfo* m_tileInfo;                  // Pointer to TileInfo class
 
   const LArEM_ID*     m_larEmID;

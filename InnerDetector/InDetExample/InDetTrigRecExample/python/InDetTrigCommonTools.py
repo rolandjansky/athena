@@ -1,15 +1,17 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 #
 #the configuration of tools shared between L2 and EF
 #
+
 """
 ___author___ = "Jiri Masik"
 ___version___ = "$Id: $"
 
 
-from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
@@ -58,6 +60,12 @@ InDetTrigTRT_DriftFunctionTool.ToTCorrectionsEndcapAr = [0., 5.514777, 3.342712,
 
 ToolSvc += InDetTrigTRT_DriftFunctionTool
 
+  
+# Straw status DB Tool
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+InDetTrigTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "InDetTrigTRTStrawStatusSummaryTool",
+                                                                  isGEANT4 = (globalflags.DataSource == 'geant4'))
+
 
 # TRT_RodDecoder
 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
@@ -65,11 +73,6 @@ from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
 InDetTrigTRTRodDecoder = TRT_RodDecoder(name = "InDetTrigTRTRodDecoder",
                                         LoadCompressTableDB = (globalflags.DataSource() != 'geant4'))
 ToolSvc += InDetTrigTRTRodDecoder
-
-# Straw status DB Tool
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
-                                           isGEANT4=(globalflags.DataSource == 'geant4'))
 
 # TRT_DriftCircleTool
 from TRT_DriftCircleTool.TRT_DriftCircleToolConf import InDet__TRT_DriftCircleTool
@@ -91,7 +94,7 @@ if  globalflags.DataSource != 'data':
   
 InDetTrigTRT_DriftCircleTool = InDet__TRT_DriftCircleTool( name = "InDetTrigTRT_DriftCircleTool",
                                                            TRTDriftFunctionTool = InDetTrigTRT_DriftFunctionTool,
-                                                           ConditionsSummaryTool           = InDetTRTStrawStatusSummaryTool,
+                                                           ConditionsSummaryTool           = InDetTrigTRTStrawStatusSummaryTool,
                                                            UseConditionsStatus  = True,
                                                            UseConditionsHTStatus  = True,
                                                            SimpleOutOfTimePileupSupression = True,
@@ -128,5 +131,5 @@ if InDetTrigFlags.InDet25nsec():
 
 
 ToolSvc += InDetTrigTRT_DriftCircleTool
-print InDetTrigTRT_DriftCircleTool
+print (InDetTrigTRT_DriftCircleTool)
 

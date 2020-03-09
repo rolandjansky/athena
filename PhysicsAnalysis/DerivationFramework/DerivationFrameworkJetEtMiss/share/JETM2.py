@@ -66,7 +66,7 @@ thinningTools = []
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 JETM2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name     = "JETM2MuonTPThinningTool",
-                                                                    ThinningService         = JETM2ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM2MuonTPThinningTool
@@ -75,7 +75,7 @@ thinningTools.append(JETM2MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM2ElectronTPThinningTool",
-                                                                               ThinningService         = JETM2ThinningHelper.ThinningSvc(),
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM2ElectronTPThinningTool
@@ -83,7 +83,7 @@ thinningTools.append(JETM2ElectronTPThinningTool)
 
 # TrackParticles associated with photons
 JETM2PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM2PhotonTPThinningTool",
-                                                                             ThinningService         = JETM2ThinningHelper.ThinningSvc(),
+                                                                             StreamName              = streamName,
                                                                              SGKey                   = "Photons",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM2PhotonTPThinningTool
@@ -92,7 +92,7 @@ thinningTools.append(JETM2PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 JETM2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM2TauTPThinningTool",
-                                                                        ThinningService = JETM2ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey          = "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM2TauTPThinningTool
@@ -113,7 +113,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
   
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM2TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM2TruthThinningTool",
-                                                                        ThinningService        = JETM2ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         ParticleSelectionString = truth_expression,
                                                                         PreserveDescendants     = preserveAllDescendants,
                                                                         PreserveGeneratorDescendants = not preserveAllDescendants,

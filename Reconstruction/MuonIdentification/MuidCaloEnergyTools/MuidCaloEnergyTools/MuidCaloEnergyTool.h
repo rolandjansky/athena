@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,6 +28,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuidCaloEnergy.h"
 
+#include <atomic>
+
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Rec
@@ -54,15 +56,15 @@ public:
     /**IMuidCaloEnergy interface:
        to get the total energyLoss in the calorimeters */
     CaloEnergy*				energyLoss(double trackMomentum,
-						   double eta,
-						   double phi) const;
+						                      double eta,
+						                      double phi) const;
     
     /**IMuidCaloEnergy interface:
        TrackStateOnSurface for parameters and energyLoss at the calorimeter mid-surface */
     const Trk::TrackStateOnSurface*	trackStateOnSurface(
-	const Trk::TrackParameters& middleParameters,
-	const Trk::TrackParameters* innerParameters,
-	const Trk::TrackParameters* outerParameters) const;
+	    const Trk::TrackParameters& middleParameters,
+	    const Trk::TrackParameters* innerParameters,
+	    const Trk::TrackParameters* outerParameters) const;
     
 private:
     // private methods
@@ -99,14 +101,14 @@ private:
     double					m_emF1Cut;	  // minimum F1 in em for FSR treatment
     double 					m_emMinEnergy;    // mininum energy in the EM 
     double					m_hecMinEnergy;   // minimum energy in the HEC
-    int						m_maxNTracksIso;  // max #tracks in the isolation cone
+    int						  m_maxNTracksIso;  // max #tracks in the isolation cone
     double					m_minFinalEnergy; // minimum measured final energy
     double					m_minMuonPt;      // minimum pt of the muon
 
     // counters (for finalize)
-    mutable int 				m_countMean;        //number of tracks using mean
-    mutable int					m_countMeasurement; //number of tracks using measurement
-    mutable int 				m_countMop;         //number of tracks using mop
+    mutable std::atomic_int			m_countMean;        //number of tracks using mean
+    mutable std::atomic_int			m_countMeasurement; //number of tracks using measurement
+    mutable std::atomic_int 		m_countMop;         //number of tracks using mop
 };
 
 }	// end of namespace

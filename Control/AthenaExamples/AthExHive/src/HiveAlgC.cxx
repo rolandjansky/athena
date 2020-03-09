@@ -1,12 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgC.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include <thread>
-#include <chrono>
-#include <memory>
 
 HiveAlgC::HiveAlgC( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
@@ -14,8 +10,10 @@ HiveAlgC::HiveAlgC( const std::string& name,
 {  
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 HiveAlgC::~HiveAlgC() {}
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgC::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
@@ -23,14 +21,17 @@ StatusCode HiveAlgC::initialize() {
   ATH_CHECK( m_wrh1.initialize() );
   ATH_CHECK( m_wrh2.initialize() );
 
+  // initialize base class
   return HiveAlgBase::initialize();
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgC::finalize() {
   ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgC::execute() {
 
   ATH_MSG_DEBUG("execute " << name());

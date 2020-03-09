@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITPCnvBase.h 
@@ -22,27 +22,12 @@ class MsgStream;
 */
 class ITPCnvBase
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
-#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
   typedef Gaudi::PluginService::Factory<ITPCnvBase*()> Factory;
-#else  
-  typedef Gaudi::PluginService::Factory0<ITPCnvBase*> Factory;
-#endif
 
   /// Destructor: 
   virtual ~ITPCnvBase() = default;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
 
   // Methods for invoking conversions on objects given by generic
   // pointers.
@@ -56,7 +41,25 @@ class ITPCnvBase
   void 
   persToTransUntyped(const void* pers, void* trans, MsgStream& msg) = 0;
 
-  /** Convert transient object representation to persistent
+
+  /** Convert persistent object representation to transient
+      @param pers [IN] void* pointer to the persistent object
+      @param trans [OUT] void* pointer to the empty transient object
+      @param key [IN] SG key of object being read.
+      @param log [IN] output message stream
+  */
+  virtual 
+  void 
+  persToTransWithKeyUntyped(const void* pers,
+                            void* trans,
+                            const std::string& /*key*/,
+                            MsgStream& msg)
+  {
+    return persToTransUntyped (pers, trans, msg);
+  }
+
+
+ /** Convert transient object representation to persistent
       @param trans [IN] void* pointer to the transient object
       @param pers [OUT] void* pointer to the empty persistent object
       @param log [IN] output message stream
@@ -65,6 +68,24 @@ class ITPCnvBase
   void 
   transToPersUntyped(const void* trans, void* pers, MsgStream& msg) = 0;
 
+
+  /** Convert transient object representation to persistent
+      @param trans [IN] void* pointer to the transient object
+      @param pers [OUT] void* pointer to the empty persistent object
+      @param key [IN] SG key of object being written.
+      @param log [IN] output message stream
+  */  
+  virtual
+  void 
+  transToPersWithKeyUntyped(const void* trans,
+                            void* pers,
+                            const std::string& /*key*/,
+                            MsgStream& msg)
+  {
+    return transToPersUntyped (trans, pers, msg);
+  }
+
+  
   /** return C++ type id of the transient class this converter is for
       @return std::type_info&
   */
@@ -76,18 +97,8 @@ class ITPCnvBase
   */
   virtual
   const std::type_info& persistentTInfo() const = 0;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
-
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-//std::ostream& operator<<( std::ostream& out, const ITPCnvBase& o );
 
 
 

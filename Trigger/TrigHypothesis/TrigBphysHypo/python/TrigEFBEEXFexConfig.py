@@ -1,13 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # vim: tabstop=4:shiftwidth=4:expandtab
 # include the python fragment to set up the default bphysics vertex fitter
-from TrigBphysHypo.TrigBphysHypoConf       import TrigBphysHelperUtilsTool
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFBEEXFex
-from TrigBphysHypo import TrigBphysVertexingConfig
+from TrigBphysHypo import TrigBphysVertexingConfig  # noqa: F401
 
-
-from AthenaCommon.AppMgr import ToolSvc
 
 class EFBEEXFex_1 (TrigEFBEEXFex):
     __slots__ = []

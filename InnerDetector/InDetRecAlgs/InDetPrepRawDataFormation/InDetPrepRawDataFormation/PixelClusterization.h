@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,9 +40,6 @@ class StatusCode;
 class PixelRDORawData;
 class PixelID;
 
-namespace InDetDD{
-  class PixelDetectorManager;
-}
 namespace InDet {
   class PixelGangedAmbiguitiesFinder;
 }
@@ -82,14 +79,12 @@ private:
   SG::ReadHandleKey<PixelRDO_Container> m_rdoContainerKey;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
-  std::string m_managerName; 		           //!< detector manager name in StoreGate
-  bool m_roiSeeded; 		                   //!< detector manager name in StoreGate
+  bool m_roiSeeded;
   const PixelID* m_idHelper;
   SG::WriteHandleKey<PixelClusterContainer> m_clusterContainerKey;
   SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey;
   SG::WriteHandleKey<PixelGangedClusterAmbiguities> m_ambiguitiesMapKey;
   SG::UpdateHandleKey<InDet::PixelClusterContainerCache> m_clusterContainercacheKey;
-  const InDetDD::PixelDetectorManager* m_manager;
 };
 
 }//end of ns

@@ -490,10 +490,10 @@ StatusCode MM_FastDigitizer::execute() {
     Amg::Vector3D CurrentHitInDriftGap = slpos;
     // emulating micro track in the drift volume for microTPC
     if (!m_microTPC) {
-      Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+      std::unique_ptr<Amg::MatrixX> cov = std::make_unique<Amg::MatrixX>(1,1);
       cov->setIdentity();
-      (*cov)(0,0) = resolution*resolution;
-      MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(posOnSurf.x(),0.),rdoList,cov,detEl,(int)tdrift,0);
+      (*cov.get())(0,0) = resolution*resolution;
+      MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(posOnSurf.x(),0.),rdoList,cov.get(),detEl,(int)tdrift,0);
       prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
       col->push_back(prd);
 
@@ -513,9 +513,9 @@ StatusCode MM_FastDigitizer::execute() {
         Amg::Vector3D stepInDriftGap = loop_direction * ldir * (roParam.stripPitch/std::cos(roParam.stereoAngle.at(m_idHelper->gasGap(layid)-1) ))/abs(ldir.x());
         if (loop_direction == 1) CurrentHitInDriftGap = slpos + stepInDriftGap;
         while (std::abs(CurrentHitInDriftGap.z()) <= roParam.gasThickness) {
-          Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+          std::unique_ptr<Amg::MatrixX> cov = std::make_unique<Amg::MatrixX>(1,1);
           cov->setIdentity();
-          (*cov)(0,0) = resolution*resolution;
+          (*cov.get())(0,0) = resolution*resolution;
 
           tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGauss::shoot(m_rndmEngine, 0., 5.);
           Amg::Vector2D CurrenPosOnSurf(CurrentHitInDriftGap.x(),CurrentHitInDriftGap.y());
@@ -531,7 +531,7 @@ StatusCode MM_FastDigitizer::execute() {
             continue;
           }
         
-          MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(CurrenPosOnSurf.x(),0.),rdoList,cov,detEl,(int)tdrift,0);
+          MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(CurrenPosOnSurf.x(),0.),rdoList,cov.get(),detEl,(int)tdrift,0);
           prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
           col->push_back(prd);
 

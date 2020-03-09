@@ -25,7 +25,7 @@ static const InterfaceID IID_IMdtROD_Decoder
 MdtROD_Decoder::MdtROD_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
 :  AthAlgTool(type,name,parent), 
-   m_EvtStore(0), m_hid2re(0), m_mdtIdHelper(0), m_rodReadOut(0), m_csmReadOut(0), 
+   m_hid2re(0), m_rodReadOut(0), m_csmReadOut(0), 
    m_amtReadOut(0), m_hptdcReadOut(0), m_BMEpresent(false), m_BMGpresent(false), m_BMEid(-1), m_BMGid(-1)
    //   m_debug(false),
    //   m_log (msgSvc(), name) 
@@ -49,28 +49,12 @@ StatusCode MdtROD_Decoder::initialize() {
 
   // m_log.setLevel(outputLevel());
   
-  if(StatusCode::SUCCESS !=serviceLocator()->service("StoreGateSvc", m_EvtStore)) {
-    ATH_MSG_FATAL("Can't get StoreGateSvc ");
-    return StatusCode::FAILURE; 
-  }
-
-  // Retrieve the MdtIdHelper
-  StoreGateSvc* detStore = 0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-  if (sc.isSuccess()) {      
-    sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Cannot retrieve MdtIdHelper ");
-      return sc;
-    }
-  } else {
-    ATH_MSG_ERROR(" Can't locate DetectorStore ");  
-    return sc;
-  }
+  // Retrieve the MuonIdHelperTool
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // Here the mapping service has to be initialized
   m_hid2re=new MDT_Hid2RESrcID();
-  sc = m_hid2re->set(m_mdtIdHelper); 
+  StatusCode sc = m_hid2re->set(m_muonIdHelperTool.get()); 
   if ( !sc.isSuccess() ) {
     ATH_MSG_ERROR(" Can't initialize MDT mapping");
     return sc;
@@ -83,15 +67,15 @@ StatusCode MdtROD_Decoder::initialize() {
   m_hptdcReadOut = new MdtHptdcReadOut();
 
   // check if the layout includes elevator chambers
-  m_BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
+  m_BMEpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1;
   if(m_BMEpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BME chambers.");
-    m_BMEid = m_mdtIdHelper->stationNameIndex("BME");
+    m_BMEid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME");
   }
-  m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;
+  m_BMGpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1;
   if(m_BMGpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
+    m_BMGid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
   }
 
   ATH_CHECK( m_readKey.initialize() );
@@ -107,6 +91,11 @@ StatusCode MdtROD_Decoder::finalize() {
   delete m_hptdcReadOut;
   
   if (m_hid2re) delete m_hid2re;
+
+  if(m_nCache>0 || m_nNotCache>0) {
+    const float cacheFraction = ((float)m_nCache) / ((float)(m_nCache + m_nNotCache));
+    ATH_MSG_INFO("Fraction of fills that use the cache = " << cacheFraction);
+  }
 
   return StatusCode::SUCCESS ; 
 } 
@@ -300,7 +289,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
     ATH_MSG_DEBUG("Phi  : " << StationPhi);	
        
     //    bool isValid = true;
-    //    moduleId = m_mdtIdHelper->elementID(StationName, StationEta, StationPhi,
+    //    moduleId = m_muonIdHelperTool->mdtIdHelper().elementID(StationName, StationEta, StationPhi,
     //                                    true,&isValid);
       
     if (m_BMEpresent) {
@@ -308,12 +297,12 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
       // registration of common chambers is always done with detectorElement hash of 1st multilayer
       // boundary in BME when 2nd CSM starts is (offline!) tube 43, 1st CMS is registered with ML1 hash, 2nd CSM is ML2 hash
       if (StationName == m_BMEid && Tube > 42)
-        moduleId = m_mdtIdHelper->channelID(StationName, StationEta, StationPhi, 2, 1, 1);
+        moduleId = m_muonIdHelperTool->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 2, 1, 1);
       else
-        moduleId = m_mdtIdHelper->channelID(StationName, StationEta, StationPhi, 1, 1, 1);
+        moduleId = m_muonIdHelperTool->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 1, 1, 1);
     } else
       // for layouts with no BME the module hash keeps being used for registration
-      moduleId = m_mdtIdHelper->elementID(StationName, StationEta, StationPhi);
+      moduleId = m_muonIdHelperTool->mdtIdHelper().elementID(StationName, StationEta, StationPhi);
 
     if (!cab) {
       ATH_MSG_DEBUG("Cabling not understood");
@@ -356,10 +345,12 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
       MdtCsmContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idHash.first );
       if( lock.alreadyPresent() ) {
           ATH_MSG_DEBUG("collections already found, do not convert");
+          ++m_nCache;
       }else{
 	ATH_MSG_DEBUG(" Collection ID = " <<idHash.second.getString()
 		      << " does not exist, create it ");
 	collection = std::make_unique<MdtCsm>(idHash.second, idHash.first);
+        ++m_nNotCache;
       }
 
 
@@ -557,14 +548,14 @@ std::pair<IdentifierHash, Identifier>  MdtROD_Decoder::getHash ( Identifier iden
     IdentifierHash idHash;
     Identifier regid;
     if (m_BMEpresent) {
-      regid = m_mdtIdHelper->channelID(m_mdtIdHelper->stationName(ident),
-				       m_mdtIdHelper->stationEta(ident),
-				       m_mdtIdHelper->stationPhi(ident),
-				       m_mdtIdHelper->multilayer(ident), 1, 1 );
-      m_mdtIdHelper->get_detectorElement_hash(regid, idHash);
+      regid = m_muonIdHelperTool->mdtIdHelper().channelID(m_muonIdHelperTool->mdtIdHelper().stationName(ident),
+				       m_muonIdHelperTool->mdtIdHelper().stationEta(ident),
+				       m_muonIdHelperTool->mdtIdHelper().stationPhi(ident),
+				       m_muonIdHelperTool->mdtIdHelper().multilayer(ident), 1, 1 );
+      m_muonIdHelperTool->mdtIdHelper().get_detectorElement_hash(regid, idHash);
     } else {
       regid = ident;
-      m_mdtIdHelper->get_module_hash(regid, idHash);
+      m_muonIdHelperTool->mdtIdHelper().get_module_hash(regid, idHash);
     }
     return std::make_pair(idHash, regid);
 }

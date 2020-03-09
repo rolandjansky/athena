@@ -1,15 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  Common Muon Detector Element properties
  -----------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MuonDetectorElement.h 
-//<version>	$Name: not supported by cvs2svn $
-
 
 //!  A MuonDetectorElement Class
 /*!
@@ -20,7 +16,6 @@
   methods will delegate the job to the appropriate MuonReadoutElement.  
 */
 
-
 #ifndef MUONGEOMODEL_MUONDETECTORELEMENT_H
 # define MUONGEOMODEL_MUONDETECTORELEMENT_H
 
@@ -28,10 +23,8 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
-
-class MsgStream;
 class GeoPhysVol;
 
 namespace MuonGM {
@@ -56,11 +49,6 @@ public:
 
    MuonDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idHash);
    virtual ~MuonDetectorElement();
-    
-    //Declaring the Message method for further use
-    MsgStream& msg( MSG::Level lvl ) const ;
-    //Declaring the Method providing Verbosity Level
-    bool msgLevel( MSG::Level lvl ) ;
 
    // Identification methods
    Identifier identify() const {return m_id;}//!< returns the collection extended identifier (EDM granularity)
@@ -78,27 +66,12 @@ public:
    virtual unsigned int nTGCinStation() const = 0; 
    virtual unsigned int nRPCinStation() const = 0;     
 
-    //   inline MsgStream& reLog() const;
-
 protected:    
-
-   // compute from MuonStation ---- 
-   //    double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, 
-   //    m_LongRsize, m_LongZsize; //!< size in the specified direction
    inline const MuonDetectorManager* manager() const; 
-   // hold in RE --- std::string       m_techname; //!< MDT or RPC or TGC or CSC plus a two digits subtype; example RPC17
-   // hold in RE --- std::string       m_statname; //!< examples are BMS5, CSS1, EML1
    Identifier        m_id;       //!< extended data-collection identifier 
    IdentifierHash    m_idhash;   //!< data-collection hash identifier
 
    unsigned int m_nREinDetectorElement;
-    
-    //Declaring private message stream member.
-    mutable Athena::MsgStreamMember m_msg ;
-
-    //MsgStream*      m_MsgStream;
-   bool m_debug;
-   bool m_verbose;
     
 private:
 
@@ -106,8 +79,6 @@ private:
 
 };
 
-// MsgStream& MuonDetectorElement::reLog() const
-//   {return *m_MsgStream;} 
 const MuonDetectorManager* MuonDetectorElement::manager() const
   {return m_muon_mgr;}
  

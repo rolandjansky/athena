@@ -1,12 +1,14 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of RegSelSvc
 # example of a configuration in class deriving from a Configurable
 
-from AthenaCommon.SystemOfUnits import *  # loads MeV etc...
+from AthenaCommon.SystemOfUnits import mm
     
 # import the base class
 from RegionSelector.RegionSelectorConf import RegSelSvc
+
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 class RegSelSvcDefault ( RegSelSvc )  :
 
@@ -37,26 +39,10 @@ class RegSelSvcDefault ( RegSelSvc )  :
         cscTable  = None
         mmTable   = None
         stgcTable = None
-        ftkTable  = None       
       
-
-        from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon.DetFlags import DetFlags
 
         if DetFlags.detdescr.ID_on():
-            # if DetFlags.detdescr.ftk_on(): ### is the ftk properly integrated yet ??? 
-            from InDetRegionSelector.InDetRegionSelectorConf import FTK_RegionSelectorTable
-            if DetFlags.detdescr.FTK_on():
-
-                ftkTable = FTK_RegionSelectorTable(name        = "FTK_RegionSelectorTable",
-                                                   ManagerName = "",
-                                                   OutputFile  = "RoITableFTK.txt",
-                                                   PrintHashId = True,
-                                                   PrintTable  = False)
-                ToolSvc += ftkTable
-                mlog.debug(ftkTable)
-    
-
             if DetFlags.detdescr.pixel_on():
                 from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
                 pixTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
@@ -64,7 +50,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
                                                  OutputFile  = "RoITablePixel.txt",
                                                  PrintHashId = True,
                                                  PrintTable  = False)
-                ToolSvc += pixTable
                 mlog.debug(pixTable)
         
             if DetFlags.detdescr.SCT_on():
@@ -74,7 +59,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
                                                  OutputFile  = "RoITableSCT.txt",
                                                  PrintHashId = True,
                                                  PrintTable  = False)
-                ToolSvc += sctTable
                 mlog.debug(sctTable)
 
             if DetFlags.detdescr.TRT_on():
@@ -84,78 +68,65 @@ class RegSelSvcDefault ( RegSelSvc )  :
                                                    OutputFile  = "RoITableTRT.txt",
                                                    PrintHashId = True,
                                                    PrintTable  = False)
-                ToolSvc += trtTable
                 mlog.debug(trtTable)
                 
         if DetFlags.detdescr.Calo_on():
             from LArRegionSelector.LArRegionSelectorConf import LArRegionSelectorTable
             larTable =  LArRegionSelectorTable(name="LArRegionSelectorTable")
-            ToolSvc += larTable
             mlog.debug(larTable)
             
             from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
             tileTable =  TileRegionSelectorTable(name="TileRegionSelectorTable")
-            ToolSvc += tileTable
             mlog.debug(tileTable)
 
         if DetFlags.detdescr.Muon_on():
             if DetFlags.detdescr.RPC_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import RPC_RegionSelectorTable
                 rpcTable = RPC_RegionSelectorTable(name = "RPC_RegionSelectorTable")
-
-                ToolSvc += rpcTable
                 mlog.debug(rpcTable)
 
             if DetFlags.detdescr.MDT_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import MDT_RegionSelectorTable
                 mdtTable = MDT_RegionSelectorTable(name = "MDT_RegionSelectorTable")
-
-                ToolSvc += mdtTable
                 mlog.debug(mdtTable)
 
             if DetFlags.detdescr.TGC_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import TGC_RegionSelectorTable
                 tgcTable = TGC_RegionSelectorTable(name = "TGC_RegionSelectorTable")
-
-                ToolSvc += tgcTable
                 mlog.debug(tgcTable)
 
-            if DetFlags.detdescr.CSC_on():
+            # could avoid first check in case DetFlags.detdescr.CSC_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasCSC() and DetFlags.detdescr.CSC_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
                 cscTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
-
-                ToolSvc += cscTable
                 mlog.debug(cscTable)
 
-            if DetFlags.detdescr.Micromegas_on():
+            # could avoid first check in case DetFlags.detdescr.Micromegas_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasMM() and DetFlags.detdescr.Micromegas_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import MM_RegionSelectorTable
                 mmTable = MM_RegionSelectorTable(name = "MM_RegionSelectorTable")
-
-                ToolSvc += mmTable
                 mlog.debug(mmTable)
 
-            if DetFlags.detdescr.sTGC_on():
+            # could avoid first check in case DetFlags.detdescr.sTGC_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasSTGC() and DetFlags.detdescr.sTGC_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegionSelectorTable
                 stgcTable = sTGC_RegionSelectorTable(name = "sTGC_RegionSelectorTable")
-
-                ToolSvc += stgcTable
                 mlog.debug(stgcTable)
 
 
         self.PixelRegionLUT_CreatorTool  = pixTable
         self.SCT_RegionLUT_CreatorTool   = sctTable
         self.TRT_RegionLUT_CreatorTool   = trtTable
-        self.FTK_RegionLUT_CreatorTool   = ftkTable
 
         self.LArRegionSelectorTable      = larTable
         self.TileRegionSelectorTable     = tileTable
 
-        self.RPC_RegionLUT_CreatorTool   = rpcTable
-        self.MDT_RegionLUT_CreatorTool   = mdtTable
-        self.TGC_RegionLUT_CreatorTool   = tgcTable
-        self.CSC_RegionLUT_CreatorTool   = cscTable
-        self.MM_RegionLUT_CreatorTool    = mmTable
-        self.sTGC_RegionLUT_CreatorTool  = stgcTable
+        self.RPCRegionSelectorTable   = rpcTable
+        self.MDTRegionSelectorTable   = mdtTable
+        self.TGCRegionSelectorTable   = tgcTable
+        self.CSCRegionSelectorTable   = cscTable
+        self.MMRegionSelectorTable    = mmTable
+        self.sTGCRegionSelectorTable  = stgcTable
 
         # have some job options to *disable* robs and modules
         # but also have an *enable* list from OKS, so, first, 
@@ -188,10 +159,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 self.enableTRT = True
             else:
                 self.enableTRT = False
-            if DetFlags.detdescr.FTK_on():
-                self.enableFTK = True
-            else:
-                self.enableFTK = False
         else:
             self.enableID = False
 
@@ -214,15 +181,18 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 self.enableTGC = True
             else:
                 self.enableTGC = False
-            if DetFlags.detdescr.CSC_on():
+            # could avoid first check in case DetFlags.detdescr.CSC_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasCSC() and DetFlags.detdescr.CSC_on():
                 self.enableCSC = True
             else:
                 self.enableCSC = False
-            if DetFlags.detdescr.sTGC_on():
+            # could avoid first check in case DetFlags.detdescr.sTGC_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasSTGC() and DetFlags.detdescr.sTGC_on():
                 self.enablesTGC = True
             else:
                 self.enablesTGC = False
-            if DetFlags.detdescr.Micromegas_on():
+            # could avoid first check in case DetFlags.detdescr.Micromegas_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasMM() and DetFlags.detdescr.Micromegas_on():
                 self.enableMM = True
             else:
                 self.enableMM = False
@@ -238,7 +208,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
             self.enablePixel = False
             self.enableSCT   = False
             self.enableTRT   = False
-            self.enableFTK   = False
             self.enableCalo  = False
             self.enableMuon  = False
                                                                      

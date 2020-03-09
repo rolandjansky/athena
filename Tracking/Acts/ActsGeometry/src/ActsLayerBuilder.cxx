@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // ATHENA
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -14,16 +14,19 @@
 #include "Acts/Material/ProtoSurfaceMaterial.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
-#include "Acts/Layers/GenericApproachDescriptor.hpp"
-#include "Acts/Layers/ApproachDescriptor.hpp"
-#include "Acts/Layers/ProtoLayer.hpp"
-#include "Acts/Tools/LayerCreator.hpp"
+#include "Acts/Geometry/GenericApproachDescriptor.hpp"
+#include "Acts/Geometry/ApproachDescriptor.hpp"
+#include "Acts/Geometry/ProtoLayer.hpp"
+#include "Acts/Geometry/LayerCreator.hpp"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 using Acts::Surface;
 using Acts::Transform3D;
 using Acts::Translation3D;
+
+using namespace Acts::UnitLiterals;
 
 const Acts::LayerVector
 ActsLayerBuilder::negativeLayers(const Acts::GeometryContext& gctx) const
@@ -63,7 +66,7 @@ std::vector<std::shared_ptr<const ActsDetectorElement>>
 ActsLayerBuilder::getDetectorElements() const
 {
   auto siDetMng = static_cast<const InDetDD::SiDetectorManager*>(m_cfg.mng);
-  
+
   std::vector<std::shared_ptr<const ActsDetectorElement>> elements;
 
   InDetDD::SiDetectorElementCollection::const_iterator iter;
@@ -71,10 +74,9 @@ ActsLayerBuilder::getDetectorElements() const
       iter != siDetMng->getDetectorElementEnd();
       ++iter) {
     const InDetDD::SiDetectorElement* siDetElement = *iter;
-    //elements.emplace_back(siDetElement, m_cfg.trackingGeometrySvc);
     elements.push_back(
         std::make_shared<const ActsDetectorElement>(
-          siDetElement, m_cfg.trackingGeometrySvc));
+          siDetElement));
   }
 
   return elements;
@@ -165,9 +167,9 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
     if (type == 0) {  // BARREL
       // layers and extent are determined, build actual layer
       Acts::ProtoLayer pl(gctx, layerSurfaces);
-      pl.envR    = {0, 0};
-      pl.envZ    = {20, 20};
-        
+      pl.envR    = {0_mm, 0_mm};
+      pl.envZ    = {20_mm, 20_mm};
+
       double binPosZ   = 0.5 * (pl.minZ + pl.maxZ);
       double envZShift = 0.5 * (-pl.envZ.first + pl.envZ.second);
       double layerZ    = binPosZ + envZShift;
@@ -178,15 +180,15 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
         = std::make_shared<const Transform3D>(Translation3D(0., 0., -layerZ));
       // set up approach descriptor
 
-      std::shared_ptr<Acts::CylinderSurface> innerBoundary 
+      std::shared_ptr<Acts::CylinderSurface> innerBoundary
         = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, pl.minR, layerHalfZ);
-      
-      std::shared_ptr<Acts::CylinderSurface> outerBoundary 
+
+      std::shared_ptr<Acts::CylinderSurface> outerBoundary
         = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, pl.maxR, layerHalfZ);
-      
-      std::shared_ptr<Acts::CylinderSurface> centralSurface 
+
+      std::shared_ptr<Acts::CylinderSurface> centralSurface
         = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, (pl.minR + pl.maxR)/2., layerHalfZ);
-      
+
       size_t binsPhi = m_cfg.barrelMaterialBins.first;
       size_t binsZ = m_cfg.barrelMaterialBins.second;
 
@@ -216,7 +218,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       aSurfaces.push_back(std::move(centralSurface));
       aSurfaces.push_back(std::move(outerBoundary));
 
-      approachDescriptor 
+      approachDescriptor
         = std::make_unique<Acts::GenericApproachDescriptor>(std::move(aSurfaces));
 
       auto layer = m_cfg.layerCreator->cylinderLayer(gctx,
@@ -230,8 +232,8 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       layersOutput.push_back(layer);
     } else {  // ENDCAP
       Acts::ProtoLayer pl(gctx, layerSurfaces);
-      pl.envR    = {0, 0};
-      pl.envZ    = {10, 10};
+      pl.envR    = {0_mm, 0_mm};
+      pl.envZ    = {10_mm, 10_mm};
 
       // copied from layercreator
       double layerZ
@@ -247,20 +249,20 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
 
       auto transformNominal
         = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZ));
-      
+
       auto transformInner
         = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZInner));
-      
+
       auto transformOuter
         = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZOuter));
 
-      std::shared_ptr<Acts::DiscSurface> innerBoundary 
+      std::shared_ptr<Acts::DiscSurface> innerBoundary
         = Acts::Surface::makeShared<Acts::DiscSurface>(transformInner, pl.minR, pl.maxR);
-      
-      std::shared_ptr<Acts::DiscSurface> nominalSurface 
+
+      std::shared_ptr<Acts::DiscSurface> nominalSurface
         = Acts::Surface::makeShared<Acts::DiscSurface>(transformNominal, pl.minR, pl.maxR);
-      
-      std::shared_ptr<Acts::DiscSurface> outerBoundary 
+
+      std::shared_ptr<Acts::DiscSurface> outerBoundary
         = Acts::Surface::makeShared<Acts::DiscSurface>(transformOuter, pl.minR, pl.maxR);
 
       size_t matBinsPhi = m_cfg.endcapMaterialBins.first;
@@ -270,7 +272,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
           matBinsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
       materialBinUtil += Acts::BinUtility(
           matBinsR, pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
-      
+
       materialProxy
         = std::make_shared<const Acts::ProtoSurfaceMaterial>(materialBinUtil);
 
@@ -282,7 +284,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       ACTS_VERBOSE(" - inner:   Z=" << layerZInner);
       ACTS_VERBOSE(" - central: Z=" << layerZ);
       ACTS_VERBOSE(" - outer:   Z=" << layerZOuter);
-      
+
 
       // set material on inner
       // @TODO: make this configurable somehow
@@ -319,7 +321,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       aSurfaces.push_back(std::move(nominalSurface));
       aSurfaces.push_back(std::move(outerBoundary));
 
-      approachDescriptor 
+      approachDescriptor
         = std::make_unique<Acts::GenericApproachDescriptor>(aSurfaces);
 
       auto layer = m_cfg.layerCreator->discLayer(gctx,

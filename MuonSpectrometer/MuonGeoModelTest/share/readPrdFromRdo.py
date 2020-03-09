@@ -41,18 +41,13 @@ include ("AmdcAth/AmdcAth_jobOptions.py")
 
 ###################### try here the DB stuff
 from IOVDbSvc.CondDB import conddb
-conddb.addFolder("MUONALIGN","/MUONALIGN/MDT/BARREL <tag>HEAD</tag>")
+conddb.addFolder("MUONALIGN","/MUONALIGN/MDT/BARREL <tag>HEAD</tag>",className='CondAttrListCollection')
 
-# get the ToolSvc
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc.OutputLevel = DEBUG
-# add my Tool to the ToolSvc
-from MuonCondTool.MuonCondToolConf import MuonAlignmentDbTool
-ToolSvc += MuonAlignmentDbTool("MGM_AlignmentDbTool",
-                                ParlineFolder="/MUONALIGN/MDT/BARREL")
-MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
-MGM_AlignmentDbTool.OutputLevel = VERBOSE
-print MGM_AlignmentDbTool
+from AthenaCommon.AlgSequence import AthSequencer
+condSequence = AthSequencer("AthCondSeq")
+from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
+condSequence+=MuonAlignmentCondAlg('MuonAlignmentCondAlg')
+MuonAlignmentCondAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL"]
 
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
 MuonDetectorTool = MuonDetectorTool()

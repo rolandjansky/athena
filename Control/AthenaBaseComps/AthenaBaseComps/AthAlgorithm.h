@@ -55,6 +55,13 @@ class AthAlgorithm
   /// Destructor: 
   virtual ~AthAlgorithm(); 
 
+  /** @brief Override sysInitialize
+   *
+   * Loop through all output handles, and if they're WriteCondHandles,
+   * automatically register them and this Algorithm with the CondSvc
+   */
+  virtual StatusCode sysInitialize() override;
+  
   /**
    * @brief Return the list of extra output dependencies.
    *

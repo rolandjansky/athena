@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCollectionCnv_p6.h 
@@ -28,53 +28,36 @@
 // forward declares
 class JetCollection;
 
-class JetCollectionCnv_p6 : public T_AthenaPoolTPCnvBase<
+class JetCollectionCnv_p6 : public T_AthenaPoolTPCnvConstBase<
                                        JetCollection, 
                                        JetCollection_p6
                                    >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
   JetCollectionCnv_p6();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c JetCollection
    *  from its persistent representation @c JetCollection_p4
    */
   virtual void persToTrans( const JetCollection_p6* pers, 
                             JetCollection* trans, 
-                            MsgStream& msg ) ;
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c JetCollection_p1
    *  from its transient representation @c JetCollection
    */
   virtual void transToPers( const JetCollection* trans, 
                             JetCollection_p6* pers, 
-                            MsgStream& msg ) ;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
+                            MsgStream& msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline JetCollectionCnv_p6::JetCollectionCnv_p6()
 {}

@@ -32,7 +32,3 @@ atlas_add_component( McParticleTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib SGtests EventKernel GaudiKernel TruthHelper GeneratorObjects McParticleEvent McParticleKernel McParticleUtils SGTools )
-
-# Install files from the package:
-atlas_install_headers( McParticleTools )
-

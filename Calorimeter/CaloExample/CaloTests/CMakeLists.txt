@@ -25,8 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRawUtils
                           LArCalorimeter/LArSimEvent
-                          LArCalorimeter/LArCabling
-                          TestPolicy )
+                          LArCalorimeter/LArCabling )
 
 # External dependencies:
 find_package( AIDA )

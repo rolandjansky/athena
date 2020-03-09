@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TopoOutput import TriggerLine
+from __future__ import print_function
+
+from .TopoOutput import TriggerLine
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenu.l1topo.L1TopoMenu")
 
@@ -102,7 +104,7 @@ class L1TopoMenu:
         if len(idlist)>0 and len(idlist) != max(idlist)+1:
             idlist.sort()
             from itertools import groupby
-            partition = [list(g) for k,g in groupby(enumerate(idlist), lambda (x,y) : y-x)]
+            partition = [list(g) for k,g in groupby(enumerate(idlist), lambda x : x[1]-x[0])]
             log.error("Algorithm IDs must start at 0 and be consecutive, but algorithm IDs are %s" % ','.join(["%i-%i" % (x[0][1],x[-1][1]) for x in partition]))
             allOk = False
         return allOk
@@ -120,11 +122,11 @@ class L1TopoMenu:
         c = Counter( tlKeys ).most_common()
         for key,count in c:
             if count == 1: break
-            print "Output cable %s, fpga %s, clock %s, bit %i" % key, "is uses more than once (%i times)!" % count
-            print "Check these trigger lines:"
+            print ("Output cable %s, fpga %s, clock %s, bit %i" % key, "is uses more than once (%i times)!" % count)
+            print ("Check these trigger lines:")
             for tl in triggerlines:
                 if key == (tl.cable, tl.fpga, tl.clock, tl.bit):
-                    print "     ",tl.trigger
+                    print ("     ",tl.trigger)
 
             allOk = False
 

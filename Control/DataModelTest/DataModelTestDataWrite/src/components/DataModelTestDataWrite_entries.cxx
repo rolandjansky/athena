@@ -9,7 +9,6 @@
 #include "../DMTestWrite.h"
 #include "../AuxDataTestWrite.h"
 #include "../xAODTestWrite.h"
-#include "../xAODTestWriteCVec.h"
 #include "../xAODTestWriteHVec.h"
 #include "../xAODTestWriteCView.h"
 #include "../xAODTestWriteCVecConst.h"
@@ -20,7 +19,6 @@
 DECLARE_COMPONENT( DMTest::DMTestWrite )
 DECLARE_COMPONENT( DMTest::AuxDataTestWrite )
 DECLARE_COMPONENT( DMTest::xAODTestWrite )
-DECLARE_COMPONENT( DMTest::xAODTestWriteCVec )
 DECLARE_COMPONENT( DMTest::xAODTestWriteHVec )
 DECLARE_COMPONENT( DMTest::xAODTestWriteCView )
 DECLARE_COMPONENT( DMTest::xAODTestWriteCVecConst )

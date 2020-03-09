@@ -3,7 +3,7 @@
 */
 #include "MURoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 
 /////////////////////////////////////////////////////////////////// 
@@ -35,13 +35,14 @@ StatusCode MURoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
+StatusCode MURoIsUnpackingTool::start() {
+  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("MU") == 0;  } ) );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode MURoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
-
-  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::MUON; }, 
-			    m_configSvc->ctpConfig()->menu().itemVector(),
-			    seeding ) );
-
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::MUON ) ) {
     if ( th != nullptr ) {
@@ -83,13 +84,13 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord );
     
-    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
-    decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
-    decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
+    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
+    decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+    decision->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     
     for ( auto th: m_muonThresholds ) {
-      if ( th->thresholdNumber() <= thresholdNumber )  { // TODO verify if here should be <= or <
-	// this code suggests <= https://gitlab.cern.ch/atlas/athena/blob/master/Trigger/TrigSteer/TrigSteering/src/Lvl1ResultAccessTool.cxx#L654
+      if ( th->thresholdNumber() < thresholdNumber )  { 
+	//th->thresholdNumber() is defined to be [0,5] and thresholdNumber [0,6]
 	ATH_MSG_DEBUG( "Threshold passed: " << th->name() );
 	addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
 	ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 

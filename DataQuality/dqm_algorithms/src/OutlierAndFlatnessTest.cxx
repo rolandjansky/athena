@@ -41,7 +41,7 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
     if (!object.IsA()->InheritsFrom("TH1")) {
         throw dqm_core::BadConfig(ERS_HERE, name, "does not inherit from TH1");
     }
-    std::auto_ptr<TH1> histogram(static_cast<TH1 *>(object.Clone())); // we just checked that this is really a TH1, so we can safely type-cast the pointer
+    std::unique_ptr<TH1> histogram(static_cast<TH1 *>(object.Clone())); // we just checked that this is really a TH1, so we can safely type-cast the pointer
     if (histogram->GetDimension() > 2) {
         throw dqm_core::BadConfig(ERS_HERE, name, "dimension > 2");
     }
@@ -142,7 +142,7 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
 
     const int nBinsX = histogram->GetNbinsX();
     const int nBinsY = histogram->GetNbinsY();
-    std::auto_ptr<TH1> knownOutliers(isOneDimensional ? // keep a record of known outliers (histogram is only used to set boolean flags)
+    std::unique_ptr<TH1> knownOutliers(isOneDimensional ? // keep a record of known outliers (histogram is only used to set boolean flags)
         static_cast<TH1 *>(new TH1C("knownOutliers", "knownOutliers", nBinsX, 0, nBinsX)) : // save the space for the additional frame of underflow/overflow bins
         static_cast<TH1 *>(new TH2C("knownOutliers", "knownOutliers", nBinsX, 0, nBinsX, nBinsY, 0, nBinsY))); // ... but not sure if the savings make up for ugly code
 

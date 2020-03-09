@@ -48,6 +48,7 @@ class AMIWrapper:
          if isinstance(cmd, basestring):
              cmd = cmd.split()
          
+         print 'PRINT AMI CMD', cmd 
          results = self.ami.execute(cmd,format='dict_object')
 
          return results.get_rows()
@@ -81,6 +82,7 @@ class AMIWrapper:
          num = 0
 
          for p in periods:
+             #print 'Looking at period: ', p 
              projectDir =path.normpath(location + '/' + p['projectName'])
  
              if not path.exists(projectDir):
@@ -88,11 +90,11 @@ class AMIWrapper:
              
              filename = '%s/%s.runs.list' % (projectDir,p['period'])
              
-             if path.exists(filename): continue
+             #if path.exists(filename): continue
  
              # Need to remove the file as it might have changed from last time
-             #if path.exists(filename):
-             #    os.system('rm ' + filename)
+             if path.exists(filename):
+                 os.system('rm ' + filename)
  
              print '* Creating run list for %(projectName)s %(period)s ...' % p
  

@@ -59,7 +59,7 @@ Trk::EllipseBounds::EllipseBounds(const EllipseBounds& discbo)
   , m_boundValues(discbo.m_boundValues)
 {}
 
-Trk::EllipseBounds::~EllipseBounds() {}
+Trk::EllipseBounds::~EllipseBounds() = default;
 
 Trk::EllipseBounds&
 Trk::EllipseBounds::operator=(const EllipseBounds& discbo)

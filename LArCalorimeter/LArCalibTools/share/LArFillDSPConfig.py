@@ -1,7 +1,10 @@
+if not 'LowMu' in dir():
+   LowMu=False
+
+if not 'OutputSqliteFile' in dir():
+   OutputSqliteFile="dspconfig.db"
 
 DSPConfigFolder="/LAR/Configuration/DSPConfiguration"
-
-OutputSqliteFile="dspconfig.db"
 
 include("AthenaCommon/Atlas_Gen.UnixStandardJob.py")
 
@@ -23,7 +26,7 @@ svcMgr.IOVDbSvc.DBInstance=""
 
 from LArCalibTools.LArCalibToolsConf import LArFillDSPConfig
 
-topSequence+=LArFillDSPConfig(Foldername=DSPConfigFolder)
+topSequence+=LArFillDSPConfig(Foldername=DSPConfigFolder,isLowMu=LowMu)
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 theOutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg","dummy.pool.root",["AthenaAttributeList#"+DSPConfigFolder,],["",],True)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_RAWDATACOLLECTIONREADOUT_H
@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class AFP_RawDataCollectionReadOut : public AFP_ReadOut {
 private:

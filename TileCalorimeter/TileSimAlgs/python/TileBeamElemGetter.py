@@ -4,8 +4,6 @@
 # TileBeamElem creation from TileHitVector
 # with TileTBHitToBeamElem algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -28,9 +26,9 @@ class TileBeamElemGetter ( Configured )  :
         try:
             from TileSimAlgs.TileBeamElemGetter import TileBeamElemGetter
             theTileBeamElemGetter=TileBeamElemGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileBeamElemGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileBeamElemGetter.usable():
@@ -43,13 +41,13 @@ class TileBeamElemGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileSimAlgs.TileSimAlgsConf import TileTBHitToBeamElem                
-        except:
+        except Exception:
             mlog.error("could not import TileSimAlgs.TileTBHitToBeamElem")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileTBHitToBeamElem=TileTBHitToBeamElem()
-        self._TileTBHitToBeamElemHandle = theTileTBHitToBeamElem ;
+        self._TileTBHitToBeamElemHandle = theTileTBHitToBeamElem
 
         # Configure TileTBHitToBeamElem here
         # Check  TileTBDigitization_jobOptions.py for full configurability
@@ -72,7 +70,7 @@ class TileBeamElemGetter ( Configured )  :
         # get a handle on topalg
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileTBHitToBeamElem;
+        topSequence += theTileTBHitToBeamElem
         
         return True
 

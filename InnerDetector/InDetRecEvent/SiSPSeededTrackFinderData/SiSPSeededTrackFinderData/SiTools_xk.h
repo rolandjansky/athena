@@ -20,7 +20,7 @@
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 namespace InDet{
@@ -49,7 +49,6 @@ namespace InDet{
       const MagField::IMagFieldSvc*             magfield   () const {return m_fieldService;}  
 
       const Trk::IRIO_OnTrackCreator*           rioTool    () const {return m_riotool    ;}
-      const Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
       const IInDetConditionsTool*               pixcond    () const {return m_pixcond    ;}
       const IInDetConditionsTool*               sctcond    () const {return m_sctcond    ;}
       const double&                       xi2max     () const {return m_xi2max     ;}
@@ -61,7 +60,7 @@ namespace InDet{
       const int&                          maxholes   () const {return m_nholesmax  ;}
       const int&                          maxdholes  () const {return m_dholesmax  ;}
       const int&                          clustersmin() const {return m_nclusmin   ;}
-      const bool&                         useassoTool() const {return m_useassoTool;}
+      bool                   usePRDtoTrackAssociation() const {return m_useassoTool;}
       const bool&                         multiTrack () const {return m_multitrack ;}
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
       const bool&                         electron   () const {return m_electron   ;}
@@ -71,10 +70,16 @@ namespace InDet{
 	(const Trk::IPatternParametersPropagator* ,
 	 const Trk::IPatternParametersUpdator*    , 
 	 const Trk::IRIO_OnTrackCreator*          , 
-	 const Trk::IPRD_AssociationTool*         ,
 	 MagField::IMagFieldSvc* 
 	 );  
       
+      void setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) {
+        m_prdToTrackMap = prd_to_track_map;
+        if (!m_prdToTrackMap) m_useassoTool=false;
+      }
+      const Trk::PRDtoTrackMap* PRDtoTrackMap() const { return m_prdToTrackMap; }
+
+
       void setTools(const Trk::MagneticFieldProperties*);
       void setTools(const IInDetConditionsTool*, const IInDetConditionsTool*);
       void setXi2pTmin(const double&,const double&,const double&,const double&);
@@ -90,7 +95,6 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      const Trk::IPRD_AssociationTool* m_assoTool   ; // PRD-Track assosiation tool
       const Trk::MagneticFieldProperties* m_fieldtool; // Magnetic field properties
       MagField::IMagFieldSvc*        m_fieldService;  // Magnetic field service 
       const Trk::IPatternParametersPropagator* m_proptool; // Propagator tool
@@ -98,6 +102,7 @@ namespace InDet{
       const Trk::IRIO_OnTrackCreator* m_riotool    ;  // RIOonTrack creator
       const IInDetConditionsTool*     m_pixcond    ;  // Condtionos for pixels 
       const IInDetConditionsTool*     m_sctcond    ;  // Conditions for sct
+      const Trk::PRDtoTrackMap*       m_prdToTrackMap = nullptr; ///< PRD to track association maps
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
       double                          m_xi2maxBrem ;  // Max Xi2 for updator (brem fit)  
@@ -108,7 +113,7 @@ namespace InDet{
       int                             m_nholesmax  ;  // Max number holes
       int                             m_dholesmax  ;  // Max holes gap
       int                             m_nclusmin   ;  // Min number clusters
-      bool                            m_useassoTool;  // Use assosiation tool
+      bool                            m_useassoTool = false;  // Use assosiation tool
       bool                            m_multitrack ;  // Do multi tracks
       bool                            m_bremnoise  ;  // Do brem noise
       bool                            m_electron   ;  // Do electron mode
@@ -126,7 +131,6 @@ namespace InDet{
 
   inline SiTools_xk::SiTools_xk()
     {
-      m_assoTool    = nullptr;
       m_fieldtool   = nullptr;
       m_fieldService= nullptr;
       m_proptool    = nullptr;
@@ -143,7 +147,6 @@ namespace InDet{
       m_nholesmax   = 2   ;
       m_dholesmax   = 1   ;
       m_nclusmin    = 5   ;
-      m_useassoTool = false;
       m_multitrack  = false; 
       m_bremnoise   = false;
       m_electron    = false;
@@ -154,14 +157,12 @@ namespace InDet{
     (const Trk::IPatternParametersPropagator*  PR,
      const Trk::IPatternParametersUpdator*     UP, 
      const Trk::IRIO_OnTrackCreator*           RO,
-     const Trk::IPRD_AssociationTool*          AS,
      MagField::IMagFieldSvc*             MS     
      )    
     {
       m_proptool    = PR;
       m_updatortool = UP;
       m_riotool     = RO;
-      m_assoTool    = AS; 
       m_fieldService= MS;   
     }
 
@@ -195,10 +196,9 @@ namespace InDet{
       m_dholesmax   = dh;
       m_nclusmin    = cl;
     }
-
   inline void  SiTools_xk::setAssociation(const int& A)
     {
-      if( m_assoTool &&  A) m_useassoTool = true ; 
+      if( m_prdToTrackMap &&  A) m_useassoTool = true ; 
       else                  m_useassoTool = false;  
     }
   inline void SiTools_xk::setMultiTracks(const int M,double X)

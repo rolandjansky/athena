@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -30,25 +30,26 @@
 class MsgStream;
 
 
-class TrigTauClusterCnv_p2 : public T_AthenaPoolTPCnvBase<TrigTauCluster, TrigTauCluster_p2>
+class TrigTauClusterCnv_p2 : public T_AthenaPoolTPCnvConstBase<TrigTauCluster, TrigTauCluster_p2>
 {
  public:
-  
-  TrigTauClusterCnv_p2() : m_trigCaloClusterCnv(0) {}
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
+  TrigTauClusterCnv_p2() {}
   
   virtual void persToTrans( const TrigTauCluster_p2 *persObj,
 			    TrigTauCluster    *transObj,
-			    MsgStream            &log );
+			    MsgStream            &log ) const override;
   virtual void transToPers( const TrigTauCluster    *transObj,
 			    TrigTauCluster_p2 *persObj,
-			    MsgStream            &log );
+			    MsgStream            &log ) const override;
 
  protected:
 
   // to persistify ElementLinks to cluster and track 
   ElementLinkCnv_p1< ElementLink<TrigTauClusterDetailsContainer> >   m_ELinkTauClusterDetailsCnv ;
-  ITPConverterFor<TrigCaloCluster>*    m_trigCaloClusterCnv;
-
 };
 
 

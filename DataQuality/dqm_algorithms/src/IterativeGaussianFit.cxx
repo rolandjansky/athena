@@ -64,9 +64,9 @@ dqm_core::Result *dqm_algorithms::IterativeGaussianFit::execute(const std::strin
         throw dqm_core::BadConfig(ERS_HERE, name, "SigmaMax must be greater than zero."); // zero means unlimited
     }
 
-    std::auto_ptr<TH1> h(static_cast<TH1 *>(histogram.Clone())); // we need a non-const copy of the object passed to this function
+    std::unique_ptr<TH1> h(static_cast<TH1 *>(histogram.Clone())); // we need a non-const copy of the object passed to this function
     // under normal conditions we would have used the copy constructor here, but the one provided by ROOT gives nothing but a segmentation fault
-    std::auto_ptr<TF1> f(new TF1("f", "gaus")); // we use auto_ptrs to avoid cleaning up manually, because this function has some emergency exits
+    auto f = std::make_unique<TF1> ("f", "gaus"); // we use unique_ptrs to avoid cleaning up manually, because this function has some emergency exits
     if (sigmaMax) {
         f->SetParLimits(2, 0, sigmaMax); // limit the possible range of sigma to avoid meaningless fit results
         f->SetParameter(2, sigmaMax / 2); // set some arbitrary initial value that falls into the allowed range, otherwise Minuit will complain
@@ -83,7 +83,7 @@ dqm_core::Result *dqm_algorithms::IterativeGaussianFit::execute(const std::strin
         if (i > 0 || sigmaMax) fitOptions.append("R"); // do the initial fit without a range restriction, but only if sigma is not limited
         if (sigmaMax)          fitOptions.append("B"); // if a limit for sigma was set, then use it (but always setting this would not work)
 
-        const int fitStatus = h->Fit(f.get(), fitOptions.c_str()); // you hardly notice you've got an auto_ptr, except in cases like this
+        const int fitStatus = h->Fit(f.get(), fitOptions.c_str()); // you hardly notice you've got an unique_ptr, except in cases like this
         if (fitStatus) { // see the documentation of TH1::Fit about the meaning of this status flag ... it should be zero if the fit went well
             ERS_DEBUG(1, "Fit failed in iteration " << i << ", status = " << fitStatus);
             dqm_core::Result *result = new dqm_core::Result(dqm_core::Result::Red);

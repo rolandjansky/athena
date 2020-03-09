@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
+from AthenaCommon.SystemOfUnits import ns
 
 def CaloMBAverageToolDefault(name='CaloMBAverageToolDefault'):
-    mlog = logging.getLogger( 'CaloMBAverageToolDefault' )
-
     from CaloTools.CaloToolsConf import CaloMBAverageTool
     # get public tool LArOFCTool
     from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
@@ -21,7 +18,7 @@ def CaloMBAverageToolDefault(name='CaloMBAverageToolDefault'):
         deltaBunch=int(jobproperties.Beam.bunchSpacing()/( 25.*ns)+0.5)
 
     theTool = CaloMBAverageTool(name,
-                      LArOFCTool = theOFCTool,
-                      NMinBias = NMinBias,
-                      deltaBunch = deltaBunch)
+                                LArOFCTool = theOFCTool,
+                                NMinBias = NMinBias,
+                                deltaBunch = deltaBunch)
     return theTool

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _MDTVALIDATIONALG_H
@@ -25,25 +25,19 @@
 
 //athena
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h" 
-
-// AtlasCore //
-#include "StoreGate/StoreGateSvc.h"
-
+#include "GaudiKernel/ServiceHandle.h" 
 
 //MdtCalibData
 #include "MdtCalibData/MdtTubeFitContainer.h"
 
-class RegionSelectionSvc;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonCalibStandAloneBase/NtupleStationId.h"
 
-class MdtIdHelper;
-namespace MuonGM {
-  class MuonDetectorManager;
-}
+class RegionSelectionSvc;
 
 namespace MuonCalib {
 
-  class NtupleStationId;
   class SamplePoint;
   class CalibDbConnection;
   class RtFullInfo;
@@ -57,7 +51,7 @@ namespace MuonCalib {
     /** Algorithm Constructor */
     MdtValidationAlg(const std::string& name, ISvcLocator* pSvcLocator);
     /** Algorithm destrucrtor*/
-    ~MdtValidationAlg();
+    ~MdtValidationAlg()=default;
     /** Is called at the beginning of the analysis */
     StatusCode initialize();
     /** execute function NOTE: This will read all events at once*/
@@ -112,14 +106,14 @@ namespace MuonCalib {
     MdtTubeFitContainer *  m_tube_chamber;
     
     // helpers //
-    std::string m_detector_store; // name of the detector store
     std::string m_MDT_ID_helper; // name of the MDT ID helper
     
-    StoreGateSvc *m_detStore; // pointer to the detector store
-    const MdtIdHelper *m_MdtIdHelper; // pointer to the MDT ID helper
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
-    const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
-    // detector manager
+    // MuonDetectorManager from the conditions store
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
   
     CalibDbConnection * m_db;
     CalibT0DbOperations * m_t0_op;

@@ -203,8 +203,10 @@ void DataProxy::setConst()
 {
   objLock_t objLock (m_objMutex);
   lock_t lock (m_mutex);
-  m_const = true;
-  this->lock (objLock);
+  if (!m_const) {
+    m_const = true;
+    this->lock (objLock);
+  }
 }
 
 bool DataProxy::bindHandle(IResetable* ir) {

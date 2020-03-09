@@ -9,7 +9,6 @@ atlas_subdir( D3PDMakerRoot )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CxxUtils
                           GaudiKernel
                           PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces )
 
@@ -21,5 +20,5 @@ atlas_add_component( D3PDMakerRoot
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GaudiKernel )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel )
 

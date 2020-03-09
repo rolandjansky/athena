@@ -153,7 +153,8 @@ namespace Trk {
         const std::string& toString() const { return s_ecodeNames[code]; }
         
      private :
-         static std::vector<std::string>  s_ecodeNames; 
+         static const std::vector<std::string>  s_ecodeNames; 
+
         
     };
 
@@ -387,7 +388,7 @@ namespace Trk {
 	  }
        
       private :
-           mutable std::vector<const T*>    m_garbageCollection; 
+           std::vector<const T*>    m_garbageCollection; 
         
     };
 

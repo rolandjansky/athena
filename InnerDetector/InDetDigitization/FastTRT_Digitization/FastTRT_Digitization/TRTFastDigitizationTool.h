@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRT_DIGITIZATION_FASTTRT_DIGITIZATIONTOOL_H
@@ -92,6 +92,9 @@ public:
 
 private:
 
+  StatusCode initializeNumericalConstants();    // once per run 
+  StatusCode setNumericalConstants();    // once per event (pileup-dependent constants) 
+
   StatusCode produceDriftCircles();
   StatusCode createOutputContainers();
 
@@ -140,10 +143,16 @@ private:
   // Split configuration
   int m_HardScatterSplittingMode;                                         // Process all TRT_Hits or just those from signal or background events
   bool m_HardScatterSplittingSkipper;
+  IntegerProperty m_vetoThisBarcode;
 
   bool m_useEventInfo;  // get mu from EventInfo ? 
   std::string m_EventInfoKey;
   float m_NCollPerEvent;
+
+  // numerical constants. Might wish to move these to a DB in the future
+  double m_trtTailFraction;            // fraction in tails 
+  double m_trtSigmaDriftRadiusTail;    // sigma of one TRT straw in R
+  double m_cFit[ 8 ][ 5 ];             // efficiency and resolution
 
 };
 

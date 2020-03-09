@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleJetContainerCnv_p1.h 
@@ -25,7 +25,7 @@
 // Forward declaration
 class MsgStream;
 
-typedef T_AthenaPoolTPCnvVector<
+typedef T_AthenaPoolTPCnvVectorConst<
   JetCollection,
   ParticleJetContainer_p1,
   ParticleJetCnv_p1

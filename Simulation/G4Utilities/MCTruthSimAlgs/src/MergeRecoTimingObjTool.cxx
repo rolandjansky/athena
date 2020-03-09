@@ -6,7 +6,6 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "RecEvent/RecoTimingObj.h"
-#include "StoreGate/StoreGateSvc.h"
 
 MergeRecoTimingObjTool::MergeRecoTimingObjTool(const std::string& type,
                                                const std::string& name,

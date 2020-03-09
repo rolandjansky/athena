@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -14,7 +14,6 @@
 
 #include "TrigNavigation/Navigation.h"
 #include "AthContainers/AuxElement.h"
-#include "CxxUtils/unused.h"
 
 using namespace HLT;
 using namespace HLTNavDetails;
@@ -188,7 +187,8 @@ Navigation::classKey2CLIDKey(const std::vector<std::string>& property,
       // in AuxSelection means to accept everything.  So add a dummy name
       // that shouldn't match anything.
       const char* dummyName = "__dummyThatShouldNotMatch";
-      static const SG::AuxElement::Accessor<int> UNUSED(dummyVar) (dummyName);
+      [[maybe_unused]]
+      static const SG::AuxElement::Accessor<int> dummyVar (dummyName);
       static const std::set<std::string> dummySet { dummyName };
       sel.selectAux (dummySet);
     }

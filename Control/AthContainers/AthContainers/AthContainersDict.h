@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,11 +15,13 @@
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
+#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "AthContainersInterfaces/IAuxSetOption.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/PackedParameters.h"
 #include "AthContainers/PackedContainer.h"
+#include "AthContainers/ThinningDecision.h"
 #include "AthContainers/tools/AtomicConstAccessor.h"
 #include "AthContainers/debug.h"
 #include "AthLinks/DataLink.h"

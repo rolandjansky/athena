@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGETREGIONSCNV_P2_H
@@ -19,20 +19,24 @@ PURPOSE:  Transient/Persisten converter for MissingEtRegions class
 
 class MsgStream;
 
-class MissingEtRegionsCnv_p2 : public T_AthenaPoolTPCnvBase<MissingEtRegions, MissingEtRegions_p2>
+class MissingEtRegionsCnv_p2 : public T_AthenaPoolTPCnvConstBase<MissingEtRegions, MissingEtRegions_p2>
 {
     public:
+        using base_class::transToPers;
+        using base_class::persToTrans;
+
+
         MissingEtRegionsCnv_p2() {};
         virtual void persToTrans( const MissingEtRegions_p2    *persObj,
                                   MissingEtRegions             *transObj,
-                                  MsgStream                 &msg );
+                                  MsgStream                 &msg ) const override;
 
         virtual void transToPers( const MissingEtRegions       *transObj,
                                   MissingEtRegions_p2          *persObj,
-                                  MsgStream                 &msg );
+                                  MsgStream                 &msg ) const override;
 
-		void transToPers( const MissingEtRegions  *transObj, std::vector<float> &all );
-		void persToTrans(  MissingEtRegions* transObj, std::vector<float>::const_iterator i);
+        void transToPers( const MissingEtRegions  *transObj, std::vector<float> &all ) const;
+        void persToTrans(  MissingEtRegions* transObj, std::vector<float>::const_iterator i) const;
 };
 
 #endif // RECTPCNV_MissingEtRegionsCNV_P2_H

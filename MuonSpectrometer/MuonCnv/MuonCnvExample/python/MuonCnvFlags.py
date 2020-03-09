@@ -12,7 +12,7 @@ from RecExConfig.RecFlags import rec as recFlags
 import re 
 logMuon = logging.getLogger(__name__)
 
-from MuonCnvUtils import setJobPropertyDefault
+from MuonCnvExample.MuonCnvUtils import setJobPropertyDefault
 
 def setDefault(prop,value):
     return setJobPropertyDefault(prop,value,logMuon)

@@ -26,6 +26,7 @@ class ATLAS_CHECK_THREAD_SAFETY TileCablingService {
   friend class TileDetectorFactory;
   friend class TileTBFactory;
   friend class TileCablingSvc;
+  friend class TileCablingSvcMock;
   friend class TileROD_Decoder;
   
 public:
@@ -99,6 +100,7 @@ public:
     int getMaxChannels(void) const { return m_maxChannels; };
     int getMaxGains(void) const { return m_maxGains; };
 
+    bool isDisconnected(int ros, int drawer, int channel) const;
 
 protected:
     

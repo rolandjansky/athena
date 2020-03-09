@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
 # LS2_v1.py menu for the long shutdown development
@@ -7,164 +7,202 @@
 # This defines the input format of the chain and it's properties with the defaults set
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
+
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
+
+import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
+import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
+
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup,MinBiasGroup,BphysicsGroup
+
 
 def setupMenu():
 
+    mc_menu.setupMenu()
+    p1_menu.addP1Signatures()
+
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1.py' )
+    log = logging.getLogger( __name__ )
+    log.info('setupMenu ...')
 
-    PhysicsStream="Main"
-    SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
-    MultiMuonGroup = ['RATE:MultiMuon', 'BW:Muon']
-    SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
-    MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
-    SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
-    #MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
-    SingleMETGroup = ['RATE:MET', 'BW:MET']
-    #MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
-    SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
-    MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
-    #SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
-    #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
-    SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
-    #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
 
-    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
-    TriggerFlags.TestSlice.signatures = []
+    TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
+        #ART-19985
+        ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
 
-    TriggerFlags.MuonSlice.signatures = [
+        #ATR-20049
+
         ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup), 
-        ChainProp(name='HLT_mu6_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu20_ivar_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu20_ivar_L1MU6',      groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6noL1_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
+#        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_msonly_L1MU6',     groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu6_msonly_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu6_10invm70_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu10_lateMu_L1MU10', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_2mu6Comb_L12MU6', groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu6_L12MU6', groups=MultiMuonGroup),
+        # ATR-20049
+        ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
+
+        # Additional intermediate thresholds for validation comparisons
+        ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu35_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
+        ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
+
+       # ATR-19452
+        ChainProp(name='HLT_2mu4_muonqual_L12MU4',  groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu6_muonqual_L12MU6',  groups=MultiMuonGroup),
 
      ]
 
-    TriggerFlags.EgammaSlice.signatures = [
+    TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
         # ElectronChains----------
-        ChainProp(name='HLT_e3_etcut1step_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM3', stream=[PhysicsStream, 'express'], groups=SingleElectronGroup),
-        # currently disabled, seems to be a problem with the precision calo step
-        #ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
-        #ChainProp(name='HLT_e3_etcut_e7_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
-        # enabling only one step
-        #ChainProp(name='HLT_2e3_etcut1step_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
-        #ChainProp(name='HLT_e3_etcut1step_e7_etcut1step_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
 
-        #chain with asymmetric number of steps not yet working
-        #ChainProp(name='HLT_e3_etcut1step_e7_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup), 
+        ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+
+        # low et threshold for debugging
+        ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
+
+        # Primary
+        ChainProp(name='HLT_e26_lhtight_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e140_lhloose_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e300_etcut_L1EM24VHI', groups=SingleElectronGroup),
+
+        ChainProp(name='HLT_2e17_lhvloose_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # PhotonChains------------
-        ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
+        # these are to debug photon working points should be removed in production
+        ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g5_loose_L1EM3', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g5_medium_L1EM3', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g5_tight_L1EM3', groups=SinglePhotonGroup),
+        # Primary photon chains
+        ChainProp(name='HLT_g140_loose_L1EM24VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_2g20_tight_L12EM20VH', groups=MultiPhotonGroup),
+
+
+        # ATR-19360
+        ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
     ]
 
-    TriggerFlags.METSlice.signatures = [
+    TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
         ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup),
-        #ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
-
+        ChainProp(name='HLT_xe30_trkmht_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_L1XE10', groups=SingleMETGroup),
         # MultiMET Chain
-        #ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10', groups=MultiMETGroup),
+        ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
     ]
 
-    TriggerFlags.JetSlice.signatures = [
+    TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),        
+        ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subresjesgscIS_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_011jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_015jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_059jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
-        #ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup), 
+
+        ChainProp(name='HLT_j45_ftf_pf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_pf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subresjesgscIS_pf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j85_ftf_pf_L1J20', groups=SingleJetGroup),
+
+        ChainProp(name='HLT_j420_ftf_subjesgscIS_L1J20', groups=SingleJetGroup),
+
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),        
-        ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),        
-        
+        ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),
+
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
-        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),       
-
-        ChainProp(name='HLT_5j70_0eta240_L1J20', groups=MultiJetGroup), # this chain is supposed to be seeded off L1_4J15 in principle, needs CF fix
+        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
 
     ]
-    TriggerFlags.BjetSlice.signatures = [
-        #ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
-        #ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
-        #ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
-    ] 
 
-    TriggerFlags.TauSlice.signatures = [
+    TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
+        ChainProp(name="HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
+    ]
+
+    TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
+        #ATR-20049
         ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau0_perf_ptonly_L1TAU60", groups=SingleTauGroup),        
+        ChainProp(name="HLT_tau25_idperf_track_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_perf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup)
+        ChainProp(name="HLT_tau25_idperf_tracktwoMVA_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_perf_tracktwoMVA_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_medium1_tracktwoMVA_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_verylooseRNN_tracktwoMVA_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_verylooseRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_looseRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_mediumRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_tightRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_medium1_tracktwoEF_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_idperf_track_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau0_perf_ptonly_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_idperf_tracktwo_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_perf_tracktwo_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_idperf_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_perf_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
+
     ]
-    TriggerFlags.BphysicsSlice.signatures = [ ]
-    TriggerFlags.CombinedSlice.signatures = [ 
-        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['L1_EM8I', 'L1_MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
-        #ChainProp(name='HLT_mu8_e8_etcut_L1MU6_EM7', l1SeedThresholds=['L1_MU6', 'L1_EM7'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
-        #ChainProp(name='HLT_e8_etcut1step_j85_L1EM3_J20', l1SeedThresholds=['L1_EM3', 'L1_J20'], stream=[PhysicsStream], groups=MultiElectronGroup),  
+    TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
+        #ATR 20603
+        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4',     groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4',     groups=BphysicsGroup),
+        #ATR-20839
+        ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),    
+    ]
+    TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
    ]
-    TriggerFlags.HeavyIonSlice.signatures  = []
-    TriggerFlags.BeamspotSlice.signatures  = []   
-    TriggerFlags.MinBiasSlice.signatures   = []    
-    TriggerFlags.CalibSlice.signatures     = []
-    TriggerFlags.CosmicSlice.signatures    = []
-    TriggerFlags.StreamingSlice.signatures = [] 
-    TriggerFlags.MonitorSlice.signatures   = []
+    TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
+    TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + []
+    TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
+    ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
+    ]
+    TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + []
+    TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + []
+    TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
+        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaStreamersGroup),
+    ]
+    TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
+    ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
-    TriggerFlags.EnhancedBiasSlice.signatures = [ ]
+    TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
-    signatureList=[]
-    for prop in dir(TriggerFlags):
-        if prop[-5:]=='Slice':
-            sliceName=prop
-            slice=getattr(TriggerFlags,sliceName)
-            if slice.signatures():
-                signatureList.extend(slice.signatures())
-            else:
-                log.debug('SKIPPING '+str(sliceName))
-    mySigList=[]
-    for allInfo in signatureList:
-        mySigList.append(allInfo[0])
-    mydict={}
-    for chain in mySigList:
-        mydict[chain]=[-1,0,0]
-    mydict.update(Prescales.HLTPrescales_cosmics)
-    from copy import deepcopy
-    Prescales.HLTPrescales_cosmics = deepcopy(mydict)
-    
+    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
-class Prescales(object):
-    #   Item name             | Prescale
-    #----------------------------------------------------------
-    L1Prescales = {}
 
-    #   Signature name   | [ HLTprescale, HLTpass-through, rerun]
-    #   - Prescale values should be a positive integer (default=1)
-    #   - If the current pass_through value is non-zero,
-    #     the value given here will be used as pass_through rate
-    #     Assuming that pass through chains are configured so
-    #     in the slice files and won't change. Also prescale
-    #     and pass_through will not be used together.
-    #   - If only the first value is specified,
-    #     the default value of pass-through (=0) will be used
-    #----------------------------------------------------------
-    HLTPrescales = {
-        }
-
-    L1Prescales_cosmics  = {}
-    HLTPrescales_cosmics = {}
-    chain_list=[]
-
+Prescales = mc_menu.Prescales

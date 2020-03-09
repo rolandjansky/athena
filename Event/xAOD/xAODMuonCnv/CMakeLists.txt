@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Event/xAOD/xAODPrimitives
                           GaudiKernel
                           Reconstruction/MuonIdentification/muonEvent

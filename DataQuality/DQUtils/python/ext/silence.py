@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import with_statement
 
@@ -16,6 +16,9 @@ from select import select
 from sys import stdout, stderr
 
 from ctypes import PyDLL, CDLL, c_void_p, c_char_p, py_object
+
+from six import print_
+import six
 
 pyapi = PyDLL(None)
 this_exe = CDLL(None)
@@ -39,8 +42,8 @@ def fifo():
     filename = pjoin(tmpdir, 'myfifo')
     try:
         mkfifo(filename)
-    except OSError, e:
-        print >>stderr, "Failed to create FIFO: %s" % e
+    except OSError as e:
+        print_("Failed to create FIFO: %s" % e, file=stderr)
         raise
     else:
         try:
@@ -97,8 +100,11 @@ def silence(filter_=lambda line: True, file_=stdout):
     if not filter_:
         yield
         return
-    
-    if not type(file_) == file:
+
+    if six.PY3:
+        import io
+        file = io.IOBase
+    if not isinstance(file_, file):
         # Unable to filter because it's not a file instance.
         yield
         return
@@ -106,7 +112,7 @@ def silence(filter_=lambda line: True, file_=stdout):
     saved_stdout = dup(file_.fileno())
     stdout_file = PyFile_AsFile(file_)
     
-    from cStringIO import StringIO
+    from io import StringIO
     filt_content = StringIO()
     
     with nested(fdopen(saved_stdout, "w"), fifo()) as (real_stdout, filename):
@@ -122,9 +128,9 @@ def silence(filter_=lambda line: True, file_=stdout):
                     # Redirect stdout back to it's original place
                     freopen("/dev/fd/%i" % saved_stdout, "w", stdout_file)
                     
-        except:
-            print "Hit an exception. Filtered content:"
-            print filt_content.getvalue()
+        except Exception:
+            print_("Hit an exception. Filtered content:")
+            print_(filt_content.getvalue())
             raise
 
 @contextmanager
@@ -139,28 +145,28 @@ def test():
         if line.startswith("Data source lookup using"):
             return True
             
-    print "Before with block.."
+    print_("Before with block..")
     
     with silence(filter_hello):
         from DQUtils.db import Databases
         f = Databases.get_folder("DQMFONL")
-        print "Sensible stuff!"
+        print_("Sensible stuff!")
     
-    print "f =", f
+    print_("f =", f)
     
-    print "I am after the silence block"
+    print_("I am after the silence block")
 
 def test_with_exception():
     
-    print "Before silence."
+    print_("Before silence.")
     try:
         with silence() as filt_content:
-            print "Hmm."
-            raise RuntimeError, "Error."
-    except:
+            print_("Hmm.")
+            raise RuntimeError("Error.")
+    except Exception:
         pass
-    print "After silence"
-    print "Stuff?", len(filt_content.getvalue())
+    print_("After silence")
+    print_("Stuff?", len(filt_content.getvalue()))
 
 if __name__ == "__main__":
     # test()

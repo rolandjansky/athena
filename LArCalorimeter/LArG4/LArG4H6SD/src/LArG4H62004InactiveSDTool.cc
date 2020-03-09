@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H62004InactiveSDTool.h"
 
 #include "LArG4H62004CalibSD.h"
-
-#include "CxxUtils/make_unique.h"
 
 LArG4H62004InactiveSDTool::LArG4H62004InactiveSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
@@ -66,7 +64,7 @@ StatusCode LArG4H62004InactiveSDTool::initializeSD()
 StatusCode LArG4H62004InactiveSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
   if (m_emecVolumes.size()>0) m_emecSD ->EndOfAthenaEvent( &*m_HitColl );
   if (m_hecVolumes.size()>0)  m_hecSD  ->EndOfAthenaEvent( &*m_HitColl );
   if (m_fcal1Volumes.size()>0) m_fcal1SD ->EndOfAthenaEvent( &*m_HitColl );

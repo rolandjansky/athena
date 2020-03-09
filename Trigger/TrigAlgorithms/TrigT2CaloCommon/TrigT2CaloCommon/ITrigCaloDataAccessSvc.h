@@ -13,6 +13,7 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RegSelEnums.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloEvent/CaloConstCellContainer.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IService.h"
@@ -48,6 +49,8 @@ class ITrigCaloDataAccessSvc: virtual public IService {
 	virtual StatusCode loadCollections (const EventContext& context,
 					    const IRoiDescriptor& roi,
 	 				    TileCellCollection&) = 0;
+        virtual StatusCode loadMBTS ( const EventContext& context,
+                                                    TileCellCollection& )=0;
         /* /\** MBTS loading *\/ */
 	/* virtual ExtendedStatusCode loadMBTS(const EventContext& context, */
 	/* 				    TileCellCollection::const_iterator&, */
@@ -77,12 +80,8 @@ class ITrigCaloDataAccessSvc: virtual public IService {
         * @brief Loads the full collection for the missing et computation
         */
 
-/*
-  virtual StatusCode prepareFullCollections( const EventContext& context ) = 0;
-*/
-  
   virtual StatusCode loadFullCollections ( const EventContext& context,
-                                           ConstDataVector<CaloCellContainer>& cont ) = 0;
+                                           CaloConstCellContainer& cont ) = 0;
 
         /* /\** */
         /* * @brief Loads the full collection for the missing et computation */
@@ -164,8 +163,6 @@ private :
 	  LArTT_Selector<LArCellCont>::const_iterator l;
 	  TileCellCollection::const_iterator t;
 	  CaloCellContainer * cont=NULL;
-	  l=l;
-	  t=t;
 	  storeCells(context, l,l,cont);
 	  storeCells(context, t,t,cont);
 	}

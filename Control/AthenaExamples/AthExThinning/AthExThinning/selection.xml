@@ -20,7 +20,6 @@
   <class name="AthExDecay_p1" id="FD6FC38A-2EE4-4EC6-916B-DBF6A8E88A03" />
   <class name="AthExElephantino_p1" id="F90BE215-64AD-45E3-B5E4-6AD7DE35BDF9"/>
 
-  <class name="AthExFatObjectSlimmer" />
   <class name="AthExFatObject" id="915F2D59-7D36-45A3-8DBF-2774DF616E7C" />
   <class name="AthExFatObject_p1" id="C757B4CB-7C1F-4E79-895E-C77D76FB960B" />
 

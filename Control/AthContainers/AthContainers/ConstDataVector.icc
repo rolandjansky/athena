@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ConstDataVector.icc 717853 2016-01-14 21:41:19Z ssnyder $
@@ -571,8 +571,9 @@ template <class DV>
 inline
 void ConstDataVector<DV>::push_back(std::unique_ptr<const base_value_type> pElem)
 {
-  std::unique_ptr<typename DV::base_value_type> ptr
-    (const_cast<typename DV::value_type> (pElem.release()));
+  typename DV::value_type ptmp ATLAS_THREAD_SAFE =
+    const_cast<typename DV::value_type> (pElem.release());
+  std::unique_ptr<typename DV::base_value_type> ptr (ptmp);
   DV::push_back (std::move (ptr));
 }
 
@@ -594,8 +595,9 @@ typename ConstDataVector<DV>::iterator
 ConstDataVector<DV>::insert(iterator position,
                             std::unique_ptr<const base_value_type> pElem)
 {
-  std::unique_ptr<typename DV::base_value_type> ptr
-    (const_cast<typename DV::value_type> (pElem.release()));
+  typename DV::value_type ptmp ATLAS_THREAD_SAFE =
+    const_cast<typename DV::value_type> (pElem.release());
+  std::unique_ptr<typename DV::base_value_type> ptr (ptmp);
   return to_my_iterator
     (DV::insert (to_base_iterator (position), std::move (ptr)));
 }
@@ -1133,7 +1135,10 @@ namespace SG {
 template <class DV>
 DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
   (ConstDataVector<DV>* data)
-  : DVLDataBucket<DV> (const_cast<DV*> (data->asDataVector()))
+    : DVLDataBucket<DV>
+      ([] (const DV* dv) { DV* dv_nc ATLAS_THREAD_SAFE = const_cast<DV*> (dv);
+                           return dv_nc; }
+        (data->asDataVector()))
 {
 }
 
@@ -1145,7 +1150,10 @@ DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
 template <class DV>
 DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
   (std::unique_ptr<ConstDataVector<DV> > data)
-  : DVLDataBucket<DV> (std::unique_ptr<DV> (const_cast<DV*> (data.release()->asDataVector())))
+    : DVLDataBucket<DV> (std::unique_ptr<DV>
+                         ([] (const DV* dv) { DV* dv_nc ATLAS_THREAD_SAFE = const_cast<DV*> (dv);
+                           return dv_nc; }
+                           (data.release()->asDataVector())))
 {
 }
 

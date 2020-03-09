@@ -18,9 +18,10 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h" 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include <atomic>
 
@@ -30,7 +31,7 @@ class SCT_ID;
 
 namespace InDet{
 
-    class CacheCreator : public AthReentrantAlgorithm 
+    class CacheCreator : public AthReentrantAlgorithm
     {
     public:
 
@@ -55,6 +56,8 @@ namespace InDet{
           {this, "SpacePointCacheSCT", ""};
         SG::WriteHandleKey<SCT_RDO_Cache>      m_SCTRDOCacheKey
           {this, "SCTRDOCacheKey", ""};
+	SG::WriteHandleKey<IDCInDetBSErrContainer_Cache> m_SCTBSErrCacheKey
+	  {this, "SCTBSErrCacheKey", ""};
         SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey
           {this, "PixRDOCacheKey", ""};
         BooleanProperty m_disableTRT{this, "disableTRT", false};
@@ -64,10 +67,13 @@ namespace InDet{
         bool isInsideView(const EventContext&) const;
         template<typename T>
         StatusCode createContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
+        template<typename T, typename X>
+        StatusCode createValueContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext&, const X& defaultValue ) const;
     };
 
     template<typename T>
     StatusCode CacheCreator::createContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx) const{
+        static_assert(std::is_base_of<EventContainers::IdentifiableCacheBase, T>::value, "Expects a IdentifiableCache Class" );
         if(containerKey.key().empty()){
             ATH_MSG_DEBUG( "Creation of container "<< containerKey.key() << " is disabled (no name specified)");
             return StatusCode::SUCCESS;
@@ -77,6 +83,20 @@ namespace InDet{
         ATH_MSG_DEBUG( "Container "<< containerKey.key() << " created to hold " << size );
         return StatusCode::SUCCESS;
     }
+
+    template<typename T, typename X>
+    StatusCode CacheCreator::createValueContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx, const X& defaultValue) const{
+        static_assert(std::is_base_of<IdentifiableValueCache<X>, T>::value, "Expects a IdentifiableValueCache Class" );
+        if(containerKey.key().empty()){
+            ATH_MSG_DEBUG( "Creation of container "<< containerKey.key() << " is disabled (no name specified)");
+            return StatusCode::SUCCESS;
+        }
+        SG::WriteHandle<T> ContainerCacheKey(containerKey, ctx);
+        ATH_CHECK( ContainerCacheKey.recordNonConst ( std::make_unique<T>(size, defaultValue) ));
+        ATH_MSG_DEBUG( "ValueContainer "<< containerKey.key() << " created to hold " << size );
+        return StatusCode::SUCCESS;
+    }
+
 
 }
 

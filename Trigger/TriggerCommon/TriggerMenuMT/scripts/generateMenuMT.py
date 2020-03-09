@@ -1,39 +1,21 @@
-#!/bin/env python
-
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # import flags
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")  # noqa: F821
 
 #################################
 # Configure L1Decoder
 #################################
 
 # provide a minimal menu information
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 if globalflags.InputFormat.is_bytestream():
-   topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
-   topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
-
-# map L1 decisions for menu
-for unpack in topSequence.L1DecoderTest.roiUnpackers:
-    if unpack.name() is "EMRoIsUnpackingTool":
-        unpack.Decisions="L1EM"
-        emUnpacker=unpack
-    if unpack.name() is "MURoIsUnpackingTool":
-        unpack.Decisions="L1MU"
-        
-for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
-    if unpack.name() is "EMRerunRoIsUnpackingTool":
-        unpack.Decisions="RerunL1EM"
-        unpack.SourceDecisions="L1EM"
-
-for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
-    if unpack.name() is "EMRerunRoIsUnpackingTool":
-        unpack.SourceDecisions="L1EM"
-    if unpack.name() is "MURerunRoIsUnpackingTool":
-        unpack.SourceDecisions="L1MU"
+   from AthenaCommon.Constants import DEBUG
+   topSequence.L1Decoder.ctpUnpacker.OutputLevel=DEBUG  # noqa: ATL900
 
 
 
@@ -45,11 +27,8 @@ TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 g = GenerateMenuMT()
-#allChainConfigs = g.generateChainConfigs()
-allChainConfigs = g.getChainsFromMenu()
 
-EnabledChainNamesToCTP = dict([ (c[0], c[1])  for c in allChainConfigs])
-topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
+
 
 
 

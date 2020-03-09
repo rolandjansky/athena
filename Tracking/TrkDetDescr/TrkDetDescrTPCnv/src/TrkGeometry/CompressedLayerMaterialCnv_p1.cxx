@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -10,7 +10,6 @@
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/CompressedLayerMaterialCnv_p1.h"
 #include "TrkDetDescrTPCnv/TrkDetDescrUtils/BinUtility_p1.h"
-#include "CxxUtils/make_unique.h"
 
 
 void CompressedLayerMaterialCnv_p1::persToTrans( const Trk::CompressedLayerMaterial_p1 *persObj,
@@ -18,7 +17,7 @@ void CompressedLayerMaterialCnv_p1::persToTrans( const Trk::CompressedLayerMater
                                              MsgStream &mlog )
 {
   // create the transient BinUtility
-  auto binUtility = CxxUtils::make_unique<Trk::BinUtility>();
+  auto binUtility = std::make_unique<Trk::BinUtility>();
   m_gBinUtilityCnv.persToTrans(&persObj->binUtility, binUtility.get(), mlog);
 
   // create the persistent material properties

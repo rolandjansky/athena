@@ -48,7 +48,9 @@ TileDigitsFilter::~TileDigitsFilter() {
 //
 StatusCode TileDigitsFilter::initialize() {
 
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( m_cablingSvc.retrieve() );
+
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
   ATH_MSG_INFO( "Input digits container: '" << m_inputDigitsContainerKey.key()
                 << "'  output container: '" << m_outputDigitsContainerKey.key() << "'" );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IPIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
@@ -12,19 +12,20 @@
 
 class IPixelRodDecoder : virtual public IAlgTool{
 
-public: 
+  public: 
 
-  static const InterfaceID& interfaceID( ) ;
-  // destructor 
-  virtual ~IPixelRodDecoder(){}; 
+    static const InterfaceID& interfaceID( ) ;
+    // destructor 
+    virtual ~IPixelRodDecoder(){}; 
 
-  virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, 
-				      std::vector<IdentifierHash>* vecHash = NULL) = 0;
+    virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, std::vector<IdentifierHash>* vecHash = NULL) const = 0;
+
+    virtual StatusCode StoreBSError() const =0;
 };
 
 inline const InterfaceID& IPixelRodDecoder::interfaceID(){
-static const InterfaceID IID_IPixelRodDecoder ("IPixelRodDecoder", 1, 0);
-return IID_IPixelRodDecoder;
+  static const InterfaceID IID_IPixelRodDecoder ("IPixelRodDecoder", 1, 0);
+  return IID_IPixelRodDecoder;
 }
 
 

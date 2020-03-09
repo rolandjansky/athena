@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -16,7 +16,6 @@
 #include "ParticleEvent/INav4MomToTrackParticleAssocs.h"
 #include "ParticleEvent/Neutrino.h"
 #include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -53,7 +52,7 @@ void test1()
 
   INavigable4MomentumCollection* in4mc = new INavigable4MomentumCollection;
   for (int i=0; i < 10; i++)
-    in4mc->push_back (CxxUtils::make_unique<Neutrino>());
+    in4mc->push_back (std::make_unique<Neutrino>());
   SGTest::store.record (in4mc, "in");
       
   INav4MomToTrackParticleAssocs* xstore = new INav4MomToTrackParticleAssocs;

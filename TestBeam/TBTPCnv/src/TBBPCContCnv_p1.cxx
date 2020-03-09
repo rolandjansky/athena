@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBBPCContCnv_p1.h"
-#define private public
-#define protected public
 #include "TBEvent/TBBPCCont.h"
-
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "TBTPCnv/TBBPCCont_p1.h"
 
@@ -16,7 +11,7 @@
 
 void
 TBBPCContCnv_p1::persToTrans(const TBBPCCont_p1* pers, 
-                                     TBBPCCont* trans, MsgStream &/*log*/)
+                                     TBBPCCont* trans, MsgStream &/*log*/) const
 {
   const unsigned nTBBPCs = pers->m_xPos.size();
   
@@ -33,16 +28,12 @@ TBBPCContCnv_p1::persToTrans(const TBBPCCont_p1* pers,
     BPC -> setXErr(           pers->m_xErr[nTBBPCNow] );
     BPC -> setYErr(           pers->m_yErr[nTBBPCNow] );
     BPC -> setXPulse(         pers->m_xPulse[nTBBPCNow] );
-    BPC -> m_yPulse         = pers->m_yPulse[nTBBPCNow] ;
-//    BPC -> setYPulse(         pers->m_yPulse[nTBBPCNow] );
-    BPC -> m_hitnumber      = pers->m_hitnumber[nTBBPCNow] ;
-//    BPC -> setHitNbr(         pers->m_hitnumber[nTBBPCNow] );
+    BPC -> setYPulse(         pers->m_yPulse[nTBBPCNow] );
+    BPC -> setHitNbr(         pers->m_hitnumber[nTBBPCNow] );
     BPC -> setXPosOverflow(   pers->m_xPosOverflow[nTBBPCNow] );
     BPC -> setYPosOverflow(   pers->m_yPosOverflow[nTBBPCNow] );
     BPC -> setXPulseOverflow( pers->m_xPulseOverflow[nTBBPCNow] );
     BPC -> setYPulseOverflow( pers->m_yPulseOverflow[nTBBPCNow] );
-
-    BPC -> m_overflowSetFlag =  pers->m_overflowSetFlag[nTBBPCNow];
 
     BPC -> setDetectorName(   pers->m_tbDetectorName[nTBBPCNow] );
     BPC -> setOverflow(       pers->m_overflow[nTBBPCNow] );
@@ -57,7 +48,7 @@ TBBPCContCnv_p1::persToTrans(const TBBPCCont_p1* pers,
 
 void
 TBBPCContCnv_p1::transToPers(const TBBPCCont* trans, 
-                                     TBBPCCont_p1* pers, MsgStream &/*log*/)
+                                     TBBPCCont_p1* pers, MsgStream &/*log*/) const
 {
 
   const unsigned nTBBPCs = trans->size();
@@ -92,16 +83,14 @@ TBBPCContCnv_p1::transToPers(const TBBPCCont* trans,
     pers -> m_xErr.push_back(            BPC->getXErr() );
     pers -> m_yErr.push_back(            BPC->getYErr() );
     pers -> m_xPulse.push_back(          BPC->getXPulse() );
-    pers -> m_yPulse.push_back(          BPC->m_yPulse );
-//    pers -> m_yPulse.push_back(          BPC->getYPulse() );
-    pers -> m_hitnumber.push_back(       BPC->m_hitnumber );
-//    pers -> m_hitnumber.push_back(       BPC->getHitNbr() );
+    pers -> m_yPulse.push_back(          BPC->getYPulse() );
+    pers -> m_hitnumber.push_back(       BPC->getHitNbr() );
     pers -> m_xPosOverflow.push_back(    BPC->isXPosOverflow() );
     pers -> m_yPosOverflow.push_back(    BPC->isYPosOverflow() );
     pers -> m_xPulseOverflow.push_back(  BPC->isXPulseOverflow() );
     pers -> m_yPulseOverflow.push_back(  BPC->isYPulseOverflow() );
 
-    pers -> m_overflowSetFlag.push_back( BPC->m_overflowSetFlag );
+    pers -> m_overflowSetFlag.push_back( false );
 
     pers -> m_tbDetectorName.push_back(  BPC->getDetectorName() );
     pers -> m_overflow.push_back(        BPC->isOverflow() );

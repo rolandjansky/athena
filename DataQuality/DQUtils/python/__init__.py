@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 DQUtils - the Data Quality utility package
@@ -17,6 +17,12 @@ from .grl import grl_from_dir, load_grl_iovs_any
 from .sugar import IOVSet, define_iov_type
 from .logger import init_logger
 
+__all__ = ['channel_mapping', 'channel_names', 'convert_channel',
+           'fetch_iovs', 'write_iovs', 'Databases',
+           'process_iovs', 'process_iovs_mc', 'process_iovs_changed',
+           'send_error_email', 'daemonize',
+           'grl_from_dir', 'load_grl_iovs_any',
+           'IOVSet', 'define_iov_type', 'init_logger']
 
 # Below code ensures no warning is given if client doesn't set up logging.
 try:

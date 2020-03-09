@@ -6,6 +6,7 @@
 #include "../egammaOQFlagsBuilder.h"
 #include "../EMPIDBuilder.h"
 #include "../egammaSwTool.h"
+#include "../egammaLargeClusterMaker.h"
 
 DECLARE_COMPONENT( EMClusterTool )
 DECLARE_COMPONENT( EMConversionBuilder )
@@ -15,3 +16,4 @@ DECLARE_COMPONENT( EMTrackMatchBuilder )
 DECLARE_COMPONENT( egammaOQFlagsBuilder )
 DECLARE_COMPONENT( EMPIDBuilder )
 DECLARE_COMPONENT( egammaSwTool )
+DECLARE_COMPONENT( egammaLargeClusterMaker )

@@ -24,7 +24,6 @@
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbContainer.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include <memory>
 using namespace std;
 using namespace pool;
@@ -40,8 +39,6 @@ void retireDatabase(DbContainerObj* c)  {
   }
 }
 
-static DbInstanceCount::Counter* s_count = DbInstanceCount::getCounter(typeid(DbContainerObj));
-
 /// Constructor
 DbContainerObj::DbContainerObj( const DbDatabase& dbH,
                                 const string&     nam, 
@@ -51,7 +48,6 @@ DbContainerObj::DbContainerObj( const DbDatabase& dbH,
 {
   DbPrint log( dbH.logon() );
   m_isOpen    = false;
-  s_count->increment();
 
   if ( 0 != db() && dbtyp == dbH.type() )   {
     if ( dbH.isValid() )  {
@@ -84,7 +80,6 @@ DbContainerObj::DbContainerObj( const DbDatabase& dbH,
 DbContainerObj::~DbContainerObj()     {
   string id = m_dbH.isValid() ? m_dbH.logon() : name();
   DbPrint log( id );
-  s_count->decrement();
   clearEntries();
   releasePtr(m_info);
   m_dbH.remove(this);

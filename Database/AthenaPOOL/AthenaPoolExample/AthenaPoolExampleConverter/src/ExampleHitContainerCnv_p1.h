@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EXAMPLEHITCONTAINERCNV_P1_H
@@ -13,12 +13,8 @@
  **/
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#define private public
-#define protected public
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 #include "AthenaPoolExampleConverter/ExampleHitContainer_p1.h"
-#undef private
-#undef protected
 #include "ExampleHitCnv_p1.h"
 
 typedef T_AthenaPoolTPCnvVector<ExampleHitContainer, ExampleHitContainer_p1, ExampleHitCnv_p1> ExampleHitContainerCnv_p1;

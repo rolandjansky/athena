@@ -22,10 +22,6 @@
 
 #include "TrigEFBEEXFex.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include <math.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -33,10 +29,6 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "AthenaKernel/Timeout.h"
 
-#include "TrkTrack/TrackCollection.h"
-#include "TrkParameters/TrackParameters.h"
-//#include "Particle/TrackParticleContainer.h"
-#include "VxVertex/VxCandidate.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
@@ -627,8 +619,6 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
         }
     } // if debug
     
-    Amg::Vector3D vtx ( 0.,0.,0. );
-    
     //   TrigEFBphys* trigPartBEEX (NULL);
     // FIXME - remove these 'new's
     //m_trigBphysColl_b = new TrigEFBphysContainer();
@@ -656,7 +646,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::OK;
     } else {
-        
+        const Amg::Vector3D beamspot = m_bphysHelperTool->getBeamSpot(Gaudi::Hive::currentContext());
         // Loop over leps
         std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator pElItr=lepTPELtracksMerged.begin();
         std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator mElItr=lepTPELtracksMerged.begin();
@@ -931,7 +921,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                         xAOD::TrigBphys* trigPartBplusEEKplus = checkBplusEEKplus(trackEL3,trackELlep1,trackELlep2);
                         ++nTriedCombinations;
                         if (trigPartBplusEEKplus) {
-                            m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusEEKplus,{*trackEL3,*trackELlep1,*trackELlep2});
+                            m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusEEKplus,{*trackEL3,*trackELlep1,*trackELlep2}, beamspot);
                             if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
                               if(m_countBpToStore == m_maxBpToStore) {
                                 ATH_MSG_WARNING("Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" );
@@ -1039,8 +1029,8 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                                                                                              bD_to_Kstar,xaod_trigPartKstar);
                                     ++nTriedCombinations;
                                     if (xaod_trigPartBdEEKstar) {
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdEEKstar,{*trackEL3,*trackEL4,*trackELlep1,*trackELlep2});
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4});
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdEEKstar,{*trackEL3,*trackEL4,*trackELlep1,*trackELlep2}, beamspot);
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4}, beamspot);
                                         
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
                                           if(m_countBdToStore == m_maxBdToStore) {
@@ -1086,8 +1076,8 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                                                                             bD_to_Kstar,xaod_trigPartKstar);
                                     ++nTriedCombinations;
                                     if (xaod_trigPartBdEEKstar) {
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdEEKstar,{*trackEL4,*trackEL3,*trackELlep1,*trackELlep2});
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3});
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdEEKstar,{*trackEL4,*trackEL3,*trackELlep1,*trackELlep2}, beamspot);
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3}, beamspot);
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG_WARNING("Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" );
@@ -1147,8 +1137,8 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 
                                     ++nTriedCombinations;
                                     if (xaod_trigPartBsEEPhi) {
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBsEEPhi,{*trackEL3,*trackEL4,*trackELlep1,*trackELlep2});
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4});
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBsEEPhi,{*trackEL3,*trackEL4,*trackELlep1,*trackELlep2}, beamspot);
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4}, beamspot);
                                         
                                         if(m_maxBsToStore >= 0 && m_countBsToStore >= m_maxBsToStore) {
                                           if(m_countBsToStore == m_maxBsToStore) {

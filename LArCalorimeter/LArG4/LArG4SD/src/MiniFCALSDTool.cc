@@ -31,7 +31,7 @@ namespace LArG4
   //---------------------------------------------------------------------------
   // Create the SD wrapper for current worker thread
   //---------------------------------------------------------------------------
-  G4VSensitiveDetector* MiniFCALSDTool::makeSD()
+  G4VSensitiveDetector* MiniFCALSDTool::makeSD() const
   {
     // Create the wrapper
     auto sdWrapper = new SimpleSDWrapper("LArMiniFCALSDWrapper", m_outputCollectionNames[0]);

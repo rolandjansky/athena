@@ -7,6 +7,7 @@
 
 #include "TrigT1TGC/TGCSSCControllerOut.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
+#include "TrigT1TGC/TGCArguments.hh"
 
 namespace LVL1TGCTrigger {
 
@@ -24,12 +25,14 @@ public:
   void clear();
   TGCRPhiCoincidenceOut* doCoincidence();
 
-  TGCRPhiCoincidenceMatrix(const  TGCSectorLogic*  sL=0);
+  TGCRPhiCoincidenceMatrix(TGCArguments*, const  TGCSectorLogic*  sL=0);
   virtual ~TGCRPhiCoincidenceMatrix();
 
   TGCRPhiCoincidenceMatrix(const TGCRPhiCoincidenceMatrix& right);
   TGCRPhiCoincidenceMatrix& operator=(const TGCRPhiCoincidenceMatrix& right);
-
+  
+  TGCArguments* tgcArgs() const ;
+  
 private:
 
   enum {MaxNPhiHit = 2}; 
@@ -47,7 +50,14 @@ private:
   int m_phi[MaxNPhiHit];
   int m_dPhi[MaxNPhiHit];
   int m_ptPhi[MaxNPhiHit];
+
+  TGCArguments* m_tgcArgs;
 };
+
+inline
+TGCArguments* TGCRPhiCoincidenceMatrix::tgcArgs() const {
+  return m_tgcArgs;
+}
 
 } //end of namespace bracket
 

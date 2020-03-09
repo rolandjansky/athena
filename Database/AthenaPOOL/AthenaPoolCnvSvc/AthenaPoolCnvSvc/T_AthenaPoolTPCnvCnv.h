@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,6 +19,7 @@
 
 #include "AthenaPoolCnvSvc/TPCnvList.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCreateFuncs.h"
 #include "AthenaPoolCnvSvc/exceptions.h"
 #include "AthenaPoolCnvSvc/debug.h"
 #include "AthenaKernel/ClassName.h"
@@ -26,18 +27,16 @@
 
 
 /**
- * @brief Athena pool converter for aux store classes.
+ * @brief Athena pool converter for a class using TP separation.
  *
- * AUXSTORE is the class being read/written.
+ * TRANS is the transient class being read/written.
+ * TPCNV_CUR is the current TP converter class.  The persistent
+ *           type is taken from TPCNV_CUR::Pers_t.
  * TPCNVS is a list of TP converters to handle older versions of the class.
- *
- * On writing, the container is copied (and thinned if required).
- * For reading, we read the object either directly
- * or using one of the TP converters, depending on the saved GUID.
  */
 template <class TRANS, class TPCNV_CUR, class ... TPCNVS>
 class T_AthenaPoolTPCnvCnv
-  : public T_AthenaPoolCustomCnv<TRANS, typename TPCNV_CUR::Pers_t>
+  : public T_AthenaPoolCustomCnvWithKey<TRANS, typename TPCNV_CUR::Pers_t>
 {
   friend class CnvFactory< T_AthenaPoolTPCnvCnv >;
 
@@ -45,7 +44,7 @@ class T_AthenaPoolTPCnvCnv
   friend class AthenaPoolCnvSvc::TPCnvElt;
 
 public:
-  typedef T_AthenaPoolCustomCnv<TRANS, typename TPCNV_CUR::Pers_t> Base;
+  typedef T_AthenaPoolCustomCnvWithKey<TRANS, typename TPCNV_CUR::Pers_t> Base;
   typedef typename TPCNV_CUR::Pers_t Pers_t;
 
   
@@ -59,19 +58,22 @@ public:
   /**
    * @brief Convert a transient object to persistent form.
    * @param trans The transient object to convert.
+   * @param key The SG key of the object being written.
    *
    * Returns a newly-allocated persistent object.
    */
-  virtual Pers_t* createPersistent( TRANS* trans ) override;
+  virtual Pers_t* createPersistentWithKey( TRANS* trans,
+                                           const std::string& key ) override;
 
 
   /**
    * @brief Read the persistent object and convert it to transient.
+   * @param key The SG key of the object being read.
    *
    * Returns a newly-allocated transient object.
    * Errors are reported by raising exceptions.
    */
-  virtual TRANS* createTransient() override;
+  virtual TRANS* createTransientWithKey (const std::string& key) override;
 
   
 private:

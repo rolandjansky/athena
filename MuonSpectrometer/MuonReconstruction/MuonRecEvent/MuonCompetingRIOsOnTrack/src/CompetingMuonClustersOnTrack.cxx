@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ namespace Muon {
   CompetingMuonClustersOnTrack::CompetingMuonClustersOnTrack():
     Trk::CompetingRIOsOnTrack(),
     //m_associatedSurface(0),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_containedChildRots(0),
     m_associatedSurface(0)
   {}
@@ -27,10 +27,11 @@ namespace Muon {
   // copy constructor
   CompetingMuonClustersOnTrack::CompetingMuonClustersOnTrack(const CompetingMuonClustersOnTrack& compROT) :
     Trk::CompetingRIOsOnTrack(compROT),
-    m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0),
+    m_globalPosition(),
     m_containedChildRots(0),
     m_associatedSurface(0)
   {
+    if (compROT.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
     
     m_containedChildRots = new std::vector< const MuonClusterOnTrack* >;
     std::vector< const MuonClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
@@ -53,7 +54,7 @@ namespace Muon {
                                std::vector<AssignmentProb>* assgnProb
                                ):
     Trk::CompetingRIOsOnTrack(assgnProb),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_containedChildRots(childrots),
     m_associatedSurface(0)
   {
@@ -66,7 +67,7 @@ namespace Muon {
                                   std::vector<const MuonClusterOnTrack*>* childrots,
                                   std::vector<AssignmentProb>* assgnProb ) :
     Trk::CompetingRIOsOnTrack(assgnProb),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_containedChildRots(childrots),
     m_associatedSurface(assSurf)
   {
@@ -83,7 +84,7 @@ namespace Muon {
                                   std::vector<const MuonClusterOnTrack*>* childrots,
                                   std::vector<AssignmentProb>* assgnProb ) :
     Trk::CompetingRIOsOnTrack(assgnProb),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_containedChildRots(childrots),
     m_associatedSurface(assSurf)
   {
@@ -98,7 +99,6 @@ namespace Muon {
       // clear rots
           clearChildRotVector();
           delete m_containedChildRots;
-          delete m_globalPosition;
           m_containedChildRots = new std::vector<const MuonClusterOnTrack*>;
           std::vector<const MuonClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
           for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter) {
@@ -106,7 +106,8 @@ namespace Muon {
               MuonClusterOnTrack* mrot = dynamic_cast<MuonClusterOnTrack*>(rot);
               if( mrot ) m_containedChildRots->push_back( mrot );
           }
-          m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
+          if (compROT.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+          else if (m_globalPosition) m_globalPosition.release().reset();
 
           delete m_associatedSurface;
 
@@ -130,9 +131,7 @@ namespace Muon {
         m_containedChildRots = compROT.m_containedChildRots;
         compROT.m_containedChildRots = nullptr;
 
-        delete m_globalPosition;
-        m_globalPosition = compROT.m_globalPosition;
-        compROT.m_globalPosition = nullptr;
+        m_globalPosition = std::move(compROT.m_globalPosition);
 
         delete m_associatedSurface;
         m_associatedSurface = compROT.m_associatedSurface;
@@ -142,7 +141,6 @@ namespace Muon {
   }
 
   CompetingMuonClustersOnTrack::~CompetingMuonClustersOnTrack() {
-    delete m_globalPosition;
     clearChildRotVector();
     if(  m_associatedSurface && m_associatedSurface->associatedDetectorElement()==0 ){
       delete m_associatedSurface;

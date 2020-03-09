@@ -3,23 +3,11 @@
 */
 
 #include "LArRawConditions/LArRampMC.h" 
-#include "AthenaKernel/getMessageSvc.h"
-#include "LArElecCalib/ILArMCSymTool.h"
 
-#include <iostream> 
-using namespace std ;
-
-LArRampMC::LArRampMC() : LArRampComplete() , m_larmcsym("LArMCSymTool")
+LArRampMC::LArRampMC() : LArRampComplete()
 {
 } 
-StatusCode LArRampMC::initialize()  
-{
-  if(m_larmcsym.retrieve().isFailure()){
-      MsgStream log(Athena::getMessageSvc(), "LArRampMC");
-      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endmsg; 
-      return (StatusCode::FAILURE);
-  }
-
+StatusCode LArRampMC::initialize(){
   return (LArRampCompleteBase::initialize()) ; 
 }
 
@@ -27,9 +15,10 @@ LArRampMC::~LArRampMC() {}
 
 /* retrieve Ramp ******************************************************
  */
-LArRampMC::RampRef_t LArRampMC::ADC2DAC(const HWIdentifier& CellID,int gain) const 
-{ 
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);  
-  return LArRampComplete::ADC2DAC(SymCellID,gain); 
+LArRampMC::RampRef_t LArRampMC::ADC2DAC(const HWIdentifier&, int) const { 
+
+  std::cout << "LArRampMC is deprecated. Use LArRampSym" << std::endl;
+  std::abort();
+  static ILArRamp::RampRef_t dummy;
+  return dummy;
 }

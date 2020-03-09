@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,20 +45,22 @@ namespace iFatras{
     McEnergyLossUpdator( const std::string&, const std::string&, const IInterface* );
 
     /** Destructor */
-    ~McEnergyLossUpdator();
+    virtual ~McEnergyLossUpdator();
 
     /** AlgTool initialise method */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** AlgTool finalise method */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     /** IEnergyLossUpdator public method to compute dEdX */
+    virtual
     double dEdX( const Trk::MaterialProperties& materialProperties,
 	               double momentum,
 	               Trk::ParticleHypothesis particleHypothesis = Trk::pion ) const override;
 
     /** IEnergyLossUpdator public method to compute the mean and variance of the energy loss */
+    virtual
     Trk::EnergyLoss* energyLoss( const Trk::MaterialProperties& materialProperties,
                                  double momentum,
                                  double pathCorrection,
@@ -68,10 +70,12 @@ namespace iFatras{
 
     /** Dummy methodes imposed by public interface - cleanup */
     /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
-        the detailed Eloss information Calorimeter energy, error momentum and momentum error */ 
+        the detailed Eloss information Calorimeter energy, error momentum and momentum error */
+    virtual
     Trk::EnergyLoss* updateEnergyLoss( Trk::EnergyLoss*, double, double, double, double, int&) const override { return 0; }
   
     /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
+    virtual
     void getX0ElossScales(int, double, double, double&, double& ) const override {}
     /** Dummy methods end here */
 

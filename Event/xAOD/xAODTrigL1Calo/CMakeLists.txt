@@ -8,7 +8,6 @@ atlas_subdir( xAODTrigL1Calo )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
-                          Control/CxxUtils
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODCore
                           PRIVATE
@@ -30,13 +29,13 @@ atlas_add_library( xAODTrigL1Calo
                    Root/*.cxx
                    PUBLIC_HEADERS xAODTrigL1Calo
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers CxxUtils xAODBase xAODCore
+                   LINK_LIBRARIES AthContainers xAODBase xAODCore
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks ${extra_libs} )
 
 atlas_add_dictionary( xAODTrigL1CaloDict
                       xAODTrigL1Calo/xAODTrigL1CaloDict.h
                       xAODTrigL1Calo/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${extra_libs} AthContainers CxxUtils xAODBase xAODCore AthLinks xAODTrigL1Calo
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${extra_libs} AthContainers xAODBase xAODCore AthLinks xAODTrigL1Calo
                       EXTRA_FILES Root/dict/*.cxx )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTPTCNV_EVENTTYPEPTCNV_P3_H
@@ -12,9 +12,7 @@
  * @author  <vaniachine@anl.gov>
  */
 
-#define private public
 #include "EventTPCnv/EventType_p3.h"
-#undef private
 
 class EventTypePTCnv_p3 : EventType_p3 {
 public:

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMINBIAS_TRIGSPACEPOINTCOUNTERHYPO_H 
-#define TRIGMINBIAS_TRIGSPACEPOINTCOUNTERHYPO_H 
+#ifndef TRIGMINBIAS_TRIGSPACEPOINTCOUNTERHYPO_H
+#define TRIGMINBIAS_TRIGSPACEPOINTCOUNTERHYPO_H
 
 #include "GaudiKernel/IToolSvc.h"
 #include "TrigInterfaces/HypoAlgo.h"
@@ -11,20 +11,20 @@
 #include <string>
 
 class TrigCountSpacePointsHypo: public HLT::HypoAlgo {
-  
- public:
+
+public:
   TrigCountSpacePointsHypo(const std::string & name, ISvcLocator* pSvcLocator);
-  
+
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
-  
- private:
+
+private:
 
   HLT::ErrorCode checkDetectorMask();
 
   Bool_t m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
-  
+
   /** Name of the TrigSpacePointCounts object */
   std::string m_trigSpacePointCountsKey;
 
@@ -82,8 +82,8 @@ class TrigCountSpacePointsHypo: public HLT::HypoAlgo {
 
   /** Total number of sct space points required  (becomes max number of cluters if  m_vetoLargeSP is true) */
   float m_totalSctSp_cut;
-  
-   /** Min number of scp space points required  (used only if m_vetoLargeSP is true)*/
+
+  /** Min number of scp space points required  (used only if m_vetoLargeSP is true)*/
   float m_totalSctSp_cut_min;
 
 
@@ -98,7 +98,7 @@ class TrigCountSpacePointsHypo: public HLT::HypoAlgo {
 
   /** Maximum number of sct space points allowed in endcap C */
   float m_sctSpEndcapC_max;
-  
+
   /** Maximum number of sct space points allowed in the barrel */
   float m_sctSpBarrel_max;
 
@@ -114,14 +114,14 @@ class TrigCountSpacePointsHypo: public HLT::HypoAlgo {
   bool m_sct_endcap_a_side;
   bool m_sct_endcap_c_side;
   bool m_pixel_barrel, m_pixel_b_layer, m_pixel_disk;
- 
+
   float m_totNumPixSP;
   float m_totNumSctSP;
   float m_totSelNumPixSP;
   float m_totSelNumSctSP;
   float m_maxNumPixClusEC;
   float m_maxNumSctSpEC;
- 
+
   /** Variables used for multiplicity checks */
   enum MbSpCounterType {
     SCT_SP_EC = 0,
@@ -140,7 +140,6 @@ class TrigCountSpacePointsHypo: public HLT::HypoAlgo {
 
   // trigger times
   TrigTimer* m_formFeaturesTimer;
-
 
 };
 #endif

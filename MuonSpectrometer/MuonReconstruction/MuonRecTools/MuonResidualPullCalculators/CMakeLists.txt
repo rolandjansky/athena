@@ -24,7 +24,3 @@ atlas_add_component( MuonResidualPullCalculators
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps EventPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkRIO_OnTrack TrkToolInterfaces )
-
-# Install files from the package:
-atlas_install_headers( MuonResidualPullCalculators )
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -251,7 +251,6 @@ namespace Trk {
         ServiceHandle<IIncidentSvc>          m_incidentSvc; 
 
         int                   m_materialAssociationType;
-        mutable bool          m_recordDone;
 
         // (1) ------------------------- Tree name of the total material statistics
         unsigned int          m_maxMappingEvents;

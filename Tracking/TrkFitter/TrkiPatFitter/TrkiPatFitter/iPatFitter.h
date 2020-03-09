@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <memory>
+#include <mutex>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -27,6 +28,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -46,6 +49,7 @@ class PerigeeSurface;
 class TrackingVolume;
 class TrackStateOnSurface;
 class Volume;    
+class IExtendedTrackSummaryTool;
     
 /** Main Fitter tool providing the implementation for the different
  *  fitting, extension and refitting use cases.
@@ -131,12 +135,16 @@ protected:
           if (m_measurements) {
             return *m_measurements;
           } else {
-            throw std::runtime_error("no measurement exist");
+            throw std::runtime_error("no measurements exist");
           }
         }
 
         const std::vector<FitMeasurement*>& getMeasurements() const {
-          return getMeasurements();
+          if (m_measurements) {
+            return *m_measurements;
+          } else {
+            throw std::runtime_error("no measurements exist");
+          }
         }
 
         bool hasMeasurements() const {
@@ -158,6 +166,7 @@ protected:
 
     // class implementing the algorithmic code for fitting
     std::unique_ptr<FitProcedure> m_fitProcedure;
+    mutable std::mutex m_fitProcedureMutex;
 
     // flag to indicate global fitter, only used for logging
     const bool m_globalFit = false;
@@ -198,12 +207,13 @@ private:
     Gaudi::Property<bool> m_fullCombinedFit {this, "FullCombinedFit", true};
     Gaudi::Property<bool> m_lineFit {this, "LineFit", false};
     Gaudi::Property<double> m_lineMomentum {this, "LineMomentum", 100. * Gaudi::Units::GeV};
-    mutable ToolHandle<IMaterialAllocator>		m_materialAllocator;
-    mutable ToolHandle<IIntersector>			m_rungeKuttaIntersector;
+    ToolHandle<IMaterialAllocator>			m_materialAllocator;
+    ToolHandle<IIntersector>				m_rungeKuttaIntersector;
     ToolHandle<IIntersector>				m_solenoidalIntersector;
     ToolHandle<IPropagator>				m_stepPropagator;
     ToolHandle<IIntersector>				m_straightLineIntersector;
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
+    ToolHandle<Trk::IExtendedTrackSummaryTool>          m_trackSummaryTool;
 
     // configurable tolerances, warnings
     Gaudi::Property<double> m_orderingTolerance {this, "OrderingTolerance", 1. * Gaudi::Units::mm};
@@ -236,7 +246,7 @@ private:
     mutable std::atomic<unsigned> m_countRefitIterations = 0;
 
     // count warnings
-    mutable std::unique_ptr<MessageHelper> m_messageHelper;
+    mutable std::unique_ptr<MessageHelper> m_messageHelper ATLAS_THREAD_SAFE; // MessageHelper is thread-safe
 
 };
 

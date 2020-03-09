@@ -9,6 +9,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class RpcIdHelper;
 
@@ -26,11 +28,12 @@ class ReadRpcDigit : public AthAlgorithm
 
  private:
   ServiceHandle<ActiveStoreSvc> m_activeStore;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   StatusCode accessNtuple();
   bool m_rpcNtuple;
   std::string m_NtupleLocID;
   NTuple::Tuple* m_ntuplePtr;
-  const RpcIdHelper* m_rpcIdHelper;
 
   // Ntuple Variables
   // Digits block

@@ -1,3 +1,4 @@
+//Dear emcas this is -*-c++-*--
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -8,25 +9,17 @@
 #include <utility>
 #include <vector>
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "LArDigitization/LArHitList.h"
-#include "CaloIdentifier/CaloIdManager.h"
-#include "CaloIdentifier/LArEM_ID.h"
-#include "CaloIdentifier/LArHEC_ID.h"
-#include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArRawEvent/LArDigit.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
-class ISvcLocator;
-class LArCablingLegacyService;
 
 class LArHitEMap
 {
 
 public: 
- typedef std::vector<LArHitList*>  EMAP;
  typedef std::vector<const LArDigit*> DIGMAP;
 
  enum { EMBARREL_INDEX  = 0
@@ -37,38 +30,26 @@ public:
      };
 
 private:
- EMAP m_emap; 
- DIGMAP m_digmap;
- //StoreGateSvc* m_storeGateSvc;
- int m_ncellem,m_ncellhec,m_ncellfcal;
- const DataHandle<CaloIdManager> m_caloIdMgr;
- const LArEM_ID*   m_larem_id;
- const LArHEC_ID*  m_larhec_id;
- const LArFCAL_ID* m_larfcal_id;
- const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
- ToolHandle<LArCablingLegacyService> m_cablingService;
+  std::vector<LArHitList> m_emap; 
+  DIGMAP m_digmap;
+  const LArOnOffIdMapping* m_cabling;
+  const CaloCell_ID* m_calocell_id;
+  const CaloDetDescrManager* m_cddMgr;
 
- bool m_initialized; 
-  
 public:
-  LArHitEMap(void);
+  LArHitEMap() = delete;
+  LArHitEMap(const LArOnOffIdMapping* cabling, const CaloCell_ID* cellid, const CaloDetDescrManager* cddMgr, bool digit=false);
   ~LArHitEMap(void);
-  bool Initialize(std::vector<bool>& flags, bool windows=false, bool digit=false ) ;
-  void EnergyReset(void);
-  bool AddEnergy(unsigned int index,float energy, float time);
-  bool AddEnergy(const Identifier & cellid, float energy, float time);
+  bool AddEnergy(const IdentifierHash index, const float energy, const float time);
+  bool AddEnergy(const Identifier cellid, const float energy, const float time);
   bool BuildWindows(float deta, float dphi, float ptmin);
-  int GetNbCells(void);
-  inline int get_ncellem(){return m_ncellem;} ;
-  inline int get_ncellhec(){return m_ncellhec;} ;
-  inline int get_ncellfcal(){return m_ncellfcal;} ;
-  inline LArHitList* GetCell(unsigned int index){return m_emap[index];} ;
-  std::vector<std::pair<float,float> > * GetTimeE(unsigned int index);
-  int find(Identifier cellid);
-  bool  initialized(); 
-  void DigitReset();
+  int GetNbCells(void) const;
+  inline const LArHitList& GetCell(const unsigned int index) const {return m_emap[index];} ;
+  inline const std::vector<std::pair<float,float> >& GetTimeE(const IdentifierHash index) const { return  m_emap[index].getData();}
+
+
   bool AddDigit(const LArDigit* digit);
-  inline const LArDigit* GetDigit(unsigned int index) {
+  inline const LArDigit* GetDigit(unsigned int index) const {
     if (index<m_digmap.size()) return m_digmap[index];
     else return 0; 
   }

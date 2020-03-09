@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASSERVICES_G4AtlasSvc_H
@@ -9,12 +9,11 @@
 #include "AthenaBaseComps/AthService.h"
 #include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
-#include "G4AtlasInterfaces/IUserLimitsTool.h"
+#include "G4AtlasInterfaces/IPhysicsListSvc.h"
+#include "G4AtlasInterfaces/IUserLimitsSvc.h"
 // Member
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 
 class G4AtlasSvc : public extends<AthService , IG4AtlasSvc> {
  public:
@@ -30,8 +29,8 @@ class G4AtlasSvc : public extends<AthService , IG4AtlasSvc> {
 
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 
-  ToolHandle<IPhysicsListTool> m_physicsListTool;
-  ToolHandle<IUserLimitsTool> m_userLimitsTool;
+  ServiceHandle<IPhysicsListSvc> m_physicsListSvc;
+  ServiceHandle<IUserLimitsSvc> m_userLimitsSvc;
   bool m_isMT;
   bool m_activateParallelGeometries;
 };

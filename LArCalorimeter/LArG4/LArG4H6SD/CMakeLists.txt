@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloSimEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Control/StoreGate
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
@@ -47,9 +46,11 @@ atlas_add_component( LArG4H6SD
                      src/*.cc
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} GaudiKernel CaloG4SimLib CaloSimEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests GeoModelUtilities Identifier GeneratorObjects LArG4Code LArG4RunControl LArG4TBSimEvent LArReadoutGeometry LArSimEvent G4AtlasInterfaces G4AtlasToolsLib SimHelpers HitManagement MCTruth TBEvent PathResolver )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} GaudiKernel CaloG4SimLib CaloSimEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoModelUtilities Identifier GeneratorObjects LArG4Code LArG4RunControl LArG4TBSimEvent LArReadoutGeometry LArSimEvent G4AtlasInterfaces G4AtlasToolsLib SimHelpers HitManagement MCTruth TBEvent PathResolver )
 
 # Install files from the package:
-atlas_install_headers( LArG4H6SD )
 atlas_install_python_modules( python/*.py )
 
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                POST_EXEC_SCRIPT nopost.sh )

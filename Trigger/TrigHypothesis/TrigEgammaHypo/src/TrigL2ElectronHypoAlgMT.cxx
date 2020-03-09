@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <map>
 #include "GaudiKernel/Property.h"
@@ -14,17 +14,17 @@ using TrigCompositeUtils::DecisionIDContainer;
 using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::linkToPrevious;
-
+using TrigCompositeUtils::viewString;
+using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::findLink;
+using TrigCompositeUtils::LinkInfo;
 
 TrigL2ElectronHypoAlgMT::TrigL2ElectronHypoAlgMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigL2ElectronHypoAlgMT::~TrigL2ElectronHypoAlgMT() {}
 
 StatusCode TrigL2ElectronHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
   CHECK( m_hypoTools.retrieve() );
   
   CHECK( m_electronsKey.initialize() );
@@ -33,20 +33,11 @@ StatusCode TrigL2ElectronHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
- StatusCode TrigL2ElectronHypoAlgMT::finalize() {
-    ATH_MSG_INFO( "Finalizing " << name() << "..." );
-    return StatusCode::SUCCESS;
-  }
-
-StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
-  if( not previousDecisionsHandle.isValid() ) {//implicit
-    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
-    return StatusCode::SUCCESS;      
-  }
-
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  ATH_CHECK( previousDecisionsHandle.isValid() );
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
   
   // new output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
@@ -58,8 +49,7 @@ StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const
   std::map<const xAOD::TrigEMCluster*, size_t> clusterToIndexMap;
   size_t clusterCounter = 0;
   for ( auto previousDecision : *previousDecisionsHandle){
-    TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer> linkInfo = 
-      TrigCompositeUtils::findLink<xAOD::TrigEMClusterContainer>(previousDecision, "feature");
+    LinkInfo<xAOD::TrigEMClusterContainer> linkInfo = findLink<xAOD::TrigEMClusterContainer>(previousDecision, featureString());
     ElementLink<xAOD::TrigEMClusterContainer> clusterLink = linkInfo.link;
 
     ATH_CHECK( clusterLink.isValid() );    
@@ -74,18 +64,18 @@ StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
       // get View
-    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
-    CHECK( viewELInfo.isValid() );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    CHECK( viewEL.isValid() );
 
     // get electron from that view:
     size_t electronCounter = 0;
-    auto electronsHandle = ViewHelper::makeHandle( *viewELInfo.link, m_electronsKey, context );
+    auto electronsHandle = ViewHelper::makeHandle( *viewEL, m_electronsKey, context );
     ATH_CHECK( electronsHandle.isValid() );
     ATH_MSG_DEBUG ( "electron handle size: " << electronsHandle->size() << "..." );
 
     for ( auto electronIter = electronsHandle->begin(); electronIter != electronsHandle->end(); ++electronIter, electronCounter++ ) {
       auto d = newDecisionIn( decisions );
-      d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigElectronContainer>( *viewELInfo.link, electronsHandle, electronCounter ) );
+      d->setObjectLink( featureString(), ViewHelper::makeLink<xAOD::TrigElectronContainer>( *viewEL, electronsHandle, electronCounter ) );
       
       auto clusterPtr = (*electronIter)->emCluster();
       CHECK( clusterPtr != nullptr );
@@ -111,11 +101,7 @@ StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const
     ATH_CHECK( tool->decide( hypoToolInput ) );    
   } 
 
-  ATH_CHECK( printDebugInformation(outputHandle, MSG::DEBUG) );
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }
-
-
-
-

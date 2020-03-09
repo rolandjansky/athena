@@ -18,12 +18,7 @@
 #include <iomanip>
 
 #include "MuidTrackBuilder/OutwardsCombinedMuonTrackBuilder.h"
-
-#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
-#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
-#include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -50,11 +45,6 @@ OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder (const std::s
 								    const std::string&	name, 
 								    const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_cleaner		(""),
-	m_fitter		(""),
-	m_trackSummary		(""),
-        m_muonHoleRecovery      (""),
-        m_muonErrorOptimizer    (""),
         m_trackingVolumesSvc            ("TrackingVolumesSvc/TrackingVolumesSvc",name),
         m_calorimeterVolume       (0),
         m_indetVolume             (0),
@@ -69,14 +59,9 @@ OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder (const std::s
 {
     declareInterface<ICombinedMuonTrackBuilder>(this);
     declareInterface<Trk::ITrackFitter>(this);
-    declareProperty("Cleaner",			m_cleaner);
-    declareProperty("Fitter",			m_fitter);
-    declareProperty("TrackSummaryTool",		m_trackSummary);
-    declareProperty("MuonHoleRecovery",         m_muonHoleRecovery);
     declareProperty("AllowCleanerVeto",		m_allowCleanerVeto);
     declareProperty("CleanCombined",		m_cleanCombined);
     declareProperty("RecoverCombined",		m_recoverCombined);
-    declareProperty("MuonErrorOptimizer",       m_muonErrorOptimizer);
     declareProperty("IDMS_xySigma" ,            m_IDMS_xySigma);
     declareProperty("IDMS_rzSigma" ,            m_IDMS_rzSigma);
     declareProperty("AddIDMSerrors",            m_addIDMSerrors);
@@ -404,7 +389,7 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " );
-        Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
+	std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
 	if (! cleanTrack)
 	{
 	    ATH_MSG_DEBUG( " cleaner veto " );
@@ -415,12 +400,13 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 		fittedTrack = 0;
 	    }
 	}
-        else if (cleanTrack != fittedTrack)
+        else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters()))
         {
 	    ATH_MSG_VERBOSE( " found and removed spectrometer outlier(s) " );
 
             delete fittedTrack;
-            fittedTrack = cleanTrack;
+	    //this will probably never be fixed as the outwards combined builder is deprecated
+            fittedTrack = cleanTrack.release();
         }
 
 	//FIXME: provide indet cleaner
@@ -482,7 +468,7 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
         }
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " );
-        Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
+	std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
 	if (! cleanTrack)
 	{
 	    ATH_MSG_DEBUG( " cleaner veto " );
@@ -493,12 +479,13 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
 		fittedTrack = 0;
 	    }
 	}
-        else if (cleanTrack != fittedTrack)
+        else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters()))
         {
 	    ATH_MSG_VERBOSE( "  found and removed spectrometer outlier(s) " );
 
             delete fittedTrack;
-            fittedTrack = cleanTrack;
+	    //this will probably never be fixed as the outwards builder is deprecated
+            fittedTrack = cleanTrack.release();
         }
 
 	ATH_MSG_VERBOSE( " finished cleaning" );

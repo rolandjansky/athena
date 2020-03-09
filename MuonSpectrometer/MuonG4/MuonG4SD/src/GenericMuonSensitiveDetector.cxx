@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GenericMuonSensitiveDetector.h"
 #include "MCTruth/TrackHelper.h"
-#include "CxxUtils/make_unique.h" // For make unique
 
 #include "G4Track.hh"
 
@@ -23,7 +22,7 @@ GenericMuonSensitiveDetector::GenericMuonSensitiveDetector(const std::string& na
 // Implemenation of memebr functions
 void GenericMuonSensitiveDetector::Initialize(G4HCofThisEvent*) 
 {
-  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
+  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = std::make_unique<GenericMuonSimHitCollection>();
 }
 
 G4bool GenericMuonSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 

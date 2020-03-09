@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryDQUtils.py
@@ -10,7 +10,7 @@
 # Created: May 6, 2010
 # ----------------------------------------------------------------
 #
-from __future__ import division
+from __future__ import division, print_function
 
 import sys, time
 import xml.etree.cElementTree as et
@@ -93,10 +93,10 @@ def lumi(run, lbr):
     inf = {}
     for obj in lbs:
         lbpy = obj.payload()
-        #print (lbpy['EndTime']-lbpy['StartTime'])/1e9
+        #print ((lbpy['EndTime']-lbpy['StartTime'])/1e9)
         inf[(run, obj.since() & 0xFFFFFFFF)] = (lbpy['EndTime']-lbpy['StartTime'])/1e9
     if obj.since() & 0xFFFFFFFF == lbr[1]:
-        print 'Oops: this should not happen, appears to be off-by-one error'
+        print ('Oops: this should not happen, appears to be off-by-one error')
     lbls = lblestonl = lblestonl.browseObjects((run<<32)+lbr[0],
                                                (run<<32)+lbr[1]-1,
                                                cool.ChannelSelection(0))
@@ -105,13 +105,13 @@ def lumi(run, lbr):
         lblpy = obj.payload()
         infl[(run, obj.since() & 0xFFFFFFFF)] = lblpy['LBAvInstLumi']
 
-    #print sorted(infl.keys())
+    #print (sorted(infl.keys()))
     totlum = 0
     for lb in inf:
         if lb in infl:
             totlum += inf[lb]*infl[lb]
         else:
-            print 'Missing run %d, LB %d' % lb
+            print ('Missing run %d, LB %d' % lb)
     lumicache[tuple(lbr)] = totlum
     return totlum
 
@@ -122,22 +122,22 @@ def GetDQEfficiency( rundict ):
 
     s = xmlrpclib.ServerProxy(SERVER)
     flaginfo = s.get_dqmf_summary_flags_lb({'run_list': list(runset)}, FLAGS_WE_CARE_ABOUT, 'SHIFTOFL')
-    #print flaginfo
+    #print (flaginfo)
     record = {}
     for flag in FLAGS_WE_CARE_ABOUT:
         record[flag] = []
     for run in runset:
-        if `run` not in flaginfo:
-            print '%s not in flaginfo' % run
+        if str(run) not in flaginfo:
+            print ('%s not in flaginfo' % run)
             del rundict[run]
             continue
         for sublb in rundict[run]:
-            for flag, periods in flaginfo[`run`].items():
+            for flag, periods in flaginfo[str(run)].items():
                 for period in periods:
                     ip = _intersect(period, sublb)
                     if ip is not None:
-                        #print run, flag, ip, period[2]
-                        #print lumi(run, ip)
+                        #print (run, flag, ip, period[2])
+                        #print (lumi(run, ip))
                         record[flag].append((ip[1]-ip[0], period[2], lumi(run, ip)))
 
 
@@ -145,7 +145,7 @@ def GetDQEfficiency( rundict ):
     for run in rundict:
         for pair in rundict[run]:
             totallum += lumi(run, pair)
-    print 'Total lumi:', totallum
+    print ('Total lumi:', totallum)
 
     flagsum = {}
 
@@ -157,24 +157,24 @@ def GetDQEfficiency( rundict ):
         for col in cols:
             llum = sum([x[2] for x in lr if x[1] == col])
             accounted += llum
-            print flag, col, llum, '%.2f%%' % (llum/totallum*100)
+            print (flag, col, llum, '%.2f%%' % (llum/totallum*100))
             flagsum[flag][col] = (llum/totallum*100)
         if abs(accounted-totallum) > 1e-8:
-            print flag, 'n.a.', totallum-accounted, '%.2f%%' % ((1-accounted/totallum)*100)
+            print (flag, 'n.a.', totallum-accounted, '%.2f%%' % ((1-accounted/totallum)*100))
             flagsum[flag]['n.a.'] = ((1-accounted/totallum)*100)
 
     def _sum(d1, d2):
         rv = {}
         for key in set(d1.keys() + d2.keys()):
             rv[key] = d1.get(key, 0) + d2.get(key, 0)
-        #print rv
+        #print (rv)
         return rv
 
     for flagtop, flaggroup in FLAGGROUPS.items():
         vals = reduce(_sum, [flagsum[f] for f in flaggroup], {})
-        print flagtop
+        print (flagtop)
         for typ in vals:
-            print '  %s: %.2f%%' % (typ, vals[typ]/len(flaggroup))
+            print ('  %s: %.2f%%' % (typ, vals[typ]/len(flaggroup)))
 
 def MakeDQeffHtml( dic, dicsum, datapath ):
     s = ''
@@ -211,11 +211,11 @@ if __name__ == '__main__':
     rundict = {}
     for lbc in p.getiterator('LumiBlockCollection'):
         runnum = int(lbc.find('Run').text)
-        #print 'Run', runnum
+        #print ('Run', runnum)
         runset.add(runnum)
         rundict[runnum] = []
         for lbr in lbc.findall('LBRange'):
             rundict[runnum].append([int(lbr.get('Start')),
                                     int(lbr.get('End'))+1])
-            #print '  LBs %s-%s' % (lbr.get('Start'), lbr.get('End'))
+            #print ('  LBs %s-%s' % (lbr.get('Start'), lbr.get('End')))
 

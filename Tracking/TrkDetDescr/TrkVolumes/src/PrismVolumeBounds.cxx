@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,43 +24,46 @@
 Trk::PrismVolumeBounds::PrismVolumeBounds() :
  VolumeBounds(),
  m_halfZ(),
- m_baseBounds(0),
- m_ordering(-1),
+ m_baseBounds(nullptr),
+ m_ordering(),//invalid cache
  m_objectAccessor()
 {}
 
 Trk::PrismVolumeBounds::PrismVolumeBounds(std::vector<std::pair<float,float> > xyVtx, float halez) :
  VolumeBounds(),
  m_halfZ(halez),
- m_baseBounds(0),
- m_ordering(-1),
+ m_baseBounds(nullptr),
+ m_ordering(),//invalid cache
  m_objectAccessor()
 {  
   m_xyVtx.resize(xyVtx.size());
   m_xyVtx.assign(xyVtx.begin(),xyVtx.end()); 
+  m_baseBounds = new Trk::TriangleBounds(m_xyVtx); 
 }
 
 
 Trk::PrismVolumeBounds::PrismVolumeBounds(std::vector<std::pair<double,double> > xyVtx, double halez) :
  VolumeBounds(),
  m_halfZ(halez),
- m_baseBounds(0),
- m_ordering(-1),
+ m_baseBounds(nullptr),
+ m_ordering(),//invalid cache
  m_objectAccessor()
 {  
   m_xyVtx.resize(xyVtx.size());
-  m_xyVtx.assign(xyVtx.begin(),xyVtx.end()); 
+  m_xyVtx.assign(xyVtx.begin(),xyVtx.end());
+  m_baseBounds = new Trk::TriangleBounds(m_xyVtx);  
 }
 
 Trk::PrismVolumeBounds::PrismVolumeBounds(const Trk::PrismVolumeBounds& trabo) :
  VolumeBounds(),
  m_halfZ(trabo.m_halfZ),
- m_baseBounds(0),
- m_ordering(trabo.m_ordering),
+ m_baseBounds(nullptr),
+ m_ordering(trabo.m_ordering),//ordering cache will be valid if trabo/other cache is valid
  m_objectAccessor(trabo.m_objectAccessor)
 {
   m_xyVtx.resize(trabo.m_xyVtx.size());
   m_xyVtx.assign(trabo.m_xyVtx.begin(),trabo.m_xyVtx.end());  
+  m_baseBounds = new Trk::TriangleBounds(m_xyVtx); 
 }
 
 Trk::PrismVolumeBounds::~PrismVolumeBounds()
@@ -75,13 +78,14 @@ Trk::PrismVolumeBounds& Trk::PrismVolumeBounds::operator=(const Trk::PrismVolume
     m_objectAccessor   = trabo.m_objectAccessor;
     m_xyVtx.resize(trabo.m_xyVtx.size());
     m_xyVtx.assign(trabo.m_xyVtx.begin(),trabo.m_xyVtx.end()); 
-    m_baseBounds = 0;
-    m_ordering = trabo.m_ordering;
+    delete m_baseBounds;
+    m_baseBounds = new Trk::TriangleBounds(m_xyVtx); 
+    m_ordering = trabo.m_ordering;//ordering cache will be valid if trabo cache is valid
   }
   return *this;
 }
 
-const std::vector<const Trk::Surface*>* Trk::PrismVolumeBounds::decomposeToSurfaces(const Amg::Transform3D& transform) const
+const std::vector<const Trk::Surface*>* Trk::PrismVolumeBounds::decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const
 {
     std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;  
       
@@ -105,9 +109,9 @@ const std::vector<const Trk::Surface*>* Trk::PrismVolumeBounds::decomposeToSurfa
 }
     
 // faces in xy
-Trk::PlaneSurface* Trk::PrismVolumeBounds::sideSurf(Amg::Transform3D transform,unsigned int iv1,unsigned int iv2) const
+Trk::PlaneSurface* Trk::PrismVolumeBounds::sideSurf(const Amg::Transform3D& transform,unsigned int iv1,unsigned int iv2) const
 {
-  Trk::PlaneSurface* plane=0;
+  Trk::PlaneSurface* plane=nullptr;
    
   double xdif = m_xyVtx[iv2].first  - m_xyVtx[iv1].first;
   double ydif = m_xyVtx[iv2].second - m_xyVtx[iv1].second;
@@ -154,7 +158,6 @@ bool Trk::PrismVolumeBounds::inside(const Amg::Vector3D& pos, double tol) const
   if (fabs(pos.z()) > m_halfZ + tol) return false;
   // xy plane
   Amg::Vector2D locp(pos.x(), pos.y());
-  if (!m_baseBounds) m_baseBounds = new Trk::TriangleBounds(m_xyVtx);
   return (m_baseBounds->inside(locp, tol, tol)); 
 }
 
@@ -171,9 +174,11 @@ std::vector<std::pair<double,double> > Trk::PrismVolumeBounds::mirror_xyVtx() co
 
 int Trk::PrismVolumeBounds::ordering() const
 {
-  if (m_ordering>-1) return m_ordering;
+  if (m_ordering.isValid()) {
+    return *(m_ordering.ptr());
+  }
 
-  m_ordering = 1;
+  int tmp_ordering = 1;
 
   double yd2 = m_xyVtx[2].second-m_xyVtx[1].second;
   double yd0 = m_xyVtx[0].second-m_xyVtx[1].second;
@@ -192,9 +197,10 @@ int Trk::PrismVolumeBounds::ordering() const
   if (ph0<0) ph0 += 2*M_PI;
   if (ph2<0) ph2 += 2*M_PI;
   
-  if ((ph0>ph2 && ph0-ph2<M_PI) || (ph2-ph0)> M_PI ) m_ordering = 0;
+  if ((ph0>ph2 && ph0-ph2<M_PI) || (ph2-ph0)> M_PI ) tmp_ordering = 0;
 
-  return m_ordering; 
+  m_ordering.set(tmp_ordering);
+  return *(m_ordering.ptr()); 
 }
 
 // ostream operator overload

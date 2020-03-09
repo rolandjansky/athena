@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LumiBlock/LumiCalc
                           Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigConfiguration/TrigConfigSvc
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
                           Control/AthenaKernel
@@ -31,11 +30,11 @@ atlas_add_library( TrigHLTMonitoringLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigHLTMonitoring
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES xAODLuminosity GaudiKernel TrigSteeringEvent AthenaMonitoringLib StoreGateLib SGtests LumiBlockCoolQuery TrigDecisionToolLib TrigConfigSvcLib
+                   LINK_LIBRARIES xAODLuminosity GaudiKernel TrigSteeringEvent AthenaMonitoringLib StoreGateLib SGtests LumiBlockCoolQuery TrigDecisionToolLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel EventInfo xAODTrigger )
 
 atlas_add_component( TrigHLTMonitoring
-                     src/components/*.cxx
+                     src/components/*.cxx 
                      LINK_LIBRARIES TrigHLTMonitoringLib )
 
 # Install files from the package:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,13 +30,11 @@ namespace Analysis {
 
 JetQuarkLabel::JetQuarkLabel(const std::string& name)
     : AsgTool(name),
-      m_mcEventCollection("TruthEvents"),
       m_deltaRCut(0.3),
       m_ptCut(5.*GeVtoMeV),
       m_noDoc(true),
       m_inTime(-1)
 {
-    declareProperty("McEventCollection", m_mcEventCollection);
     declareProperty("deltaRCut",    m_deltaRCut);
     declareProperty("pTmin",        m_ptCut);
     declareProperty("NoUseDoc",     m_noDoc);
@@ -46,6 +44,7 @@ JetQuarkLabel::JetQuarkLabel(const std::string& name)
 JetQuarkLabel::~JetQuarkLabel() {}
 
 StatusCode JetQuarkLabel::initialize() {
+  ATH_CHECK(m_truthEventContainerKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -55,27 +54,14 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
   if (info)
     *info = MatchInfo();
 
-  /* ----------------------------------------------------------------------------------- */
-  /*                     Retrieve McEventCollection                                      */
-  /* ----------------------------------------------------------------------------------- */
-/*
-  const McEventCollection* myMcEventCollection(0);
-  StatusCode sc = evtStore()->retrieve(myMcEventCollection, m_mcEventCollection);
-  if (sc.isFailure()) {
-    ATH_MSG_DEBUG(m_mcEventCollection << " not found in StoreGate.");
-    return false;
-  }
-  return testJet(myJet,myMcEventCollection);
-*/
+  SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainerReadHandle(m_truthEventContainerKey);
 
-//retrieve xAOD::TruthEvent
-  const xAOD::TruthEventContainer* truthEventContainer = NULL;
-  StatusCode sc = evtStore()->retrieve(truthEventContainer, m_mcEventCollection);
-  if (sc.isFailure()) {
-    ATH_MSG_DEBUG(m_mcEventCollection << " not found in StoreGate.");
+  if (!truthEventContainerReadHandle.isValid()){
+    ATH_MSG_DEBUG(" Invalid ReadHandle for xAOD::TruthEventContainer with key: " << truthEventContainerReadHandle.key());
     return false;
   }
-  return testJet(myJet,truthEventContainer, info);
+
+  return testJet(myJet,truthEventContainerReadHandle.cptr(), info);
 
 }
 

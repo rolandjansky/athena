@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_INDETGEOMODELTOOL_H
@@ -28,8 +28,6 @@ namespace JiveXML{
       /// Initialize
       virtual StatusCode initialize();
 
-      /// Provide the Pixel geometry manager
-      const InDetDD::PixelDetectorManager* PixelGeoManager() const { return m_PixelGeoManager; }
       /// Provide the TRT geometry manager
       const InDetDD::TRT_DetectorManager* TRTGeoManager() const { return m_TRTGeoManager; }
 
@@ -42,7 +40,6 @@ namespace JiveXML{
 
     private:
       
-      const InDetDD::PixelDetectorManager* m_PixelGeoManager{};
       const PixelID* m_PixelIDHelper{};
       
       const SCT_ID* m_SCTIDHelper{};

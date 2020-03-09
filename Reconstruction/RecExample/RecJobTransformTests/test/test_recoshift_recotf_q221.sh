@@ -1,3 +1,4 @@
+
 #!/bin/sh
 #
 # art-description: RIG convenors - q221 reconstruction
@@ -10,4 +11,9 @@
 
 export TRF_ECHO=True; Reco_tf.py --AMIConfig=q221 --preExec 'rec.doDetailedAuditor=True' 'rec.doNameAuditor=True'
 
-echo "art-result: $? Reco"
+RES=$?
+
+xAODDigest.py myAOD.pool.root digest.txt
+
+echo "art-result: $RES Reco"
+

@@ -8,16 +8,18 @@
 
 namespace TrkDriftCircleMath {
 
-  DCSLFitter::DCSLFitter() : m_result( Line(0.,0.,0.), DCOnTrackVec() ), m_debug(false) {
+  DCSLFitter::DCSLFitter() : m_debug(false) {
 
-    // reserve enough space for hits
-    m_result.dcs().reserve(100);
-    m_data.reserve(100);
   }
  
-  bool DCSLFitter::fit( const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double ) const
+  bool DCSLFitter::fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double ) const
   {
     if(m_debug) std::cout << "New seg: " << std::endl; //<< seg;
+
+    // reserve enough space for hits
+    std::vector<FitData> data;
+    data.reserve(100);
+    result.dcs().reserve(100);
 
     unsigned int N = dcs.size();
 
@@ -41,7 +43,7 @@ namespace TrkDriftCircleMath {
 
     double S(0),Sz(0),Sy(0);
     double Zc(0),Yc(0);
-    m_data.resize(N);
+    data.resize(N);
     {
       
       
@@ -51,27 +53,27 @@ namespace TrkDriftCircleMath {
       DCOnTrackVec::const_iterator it_end = dcs.end();
       for( ;it!=it_end; ++it ){
 	
-	FitData& data = m_data[ii];
-	data.y = it->y();
-	data.z = it->x();
-	data.r = std::abs( it->r() );
+	FitData& datum = data[ii];
+	datum.y = it->y();
+	datum.z = it->x();
+	datum.r = std::abs( it->r() );
 	if( it->dr() > 0.)
-	  data.w = 1./( it->dr() );
+	  datum.w = 1./( it->dr() );
 	else
-	  data.w = 0.;
-	data.w*=data.w;
-	if(data.r<0){
-	  data.r = 0.;
-	  if(m_debug) std::cout << "DCSLFitter ERROR: <Negative r> " << data.r << std::endl;
+	  datum.w = 0.;
+	datum.w*=datum.w;
+	if(datum.r<0){
+	  datum.r = 0.;
+	  if(m_debug) std::cout << "DCSLFitter ERROR: <Negative r> " << datum.r << std::endl;
 	}
 	if(m_debug)
-	  std::cout << "DC:  (" << data.y << "," << data.z << ")  R = " << data.r
-		    << " W " << data.w << " sel " << selection[ii] << std::endl;
+	  std::cout << "DC:  (" << datum.y << "," << datum.z << ")  R = " << datum.r
+		    << " W " << datum.w << " sel " << selection[ii] << std::endl;
 
 	if( selection[ii] == 0 ){
-	  S+=data.w;
-	  Sz+= data.w*data.z;
-	  Sy+= data.w*data.y;
+	  S+=datum.w;
+	  Sz+= datum.w*datum.z;
+	  Sy+= datum.w*datum.y;
 	}
 	++ii;
       }
@@ -91,21 +93,21 @@ namespace TrkDriftCircleMath {
   
     for(unsigned int i=0;i<N;++i){
 
-      FitData& data = m_data[i];
+      FitData& datum = data[i];
 
-      data.y  -= Yc;
-      data.z  -= Zc;
+      datum.y  -= Yc;
+      datum.z  -= Zc;
 
       if(selection[i]) continue;
 
-      data.rw  = data.r*data.w;
-      data.ryw = data.rw*data.y;
-      data.rzw = data.rw*data.z;
+      datum.rw  = datum.r*datum.w;
+      datum.ryw = datum.rw*datum.y;
+      datum.rzw = datum.rw*datum.z;
 
-      Szz   += data.z*data.z*data.w;
-      Syy   += data.y*data.y*data.w;
-      Szy   += data.y*data.z*data.w;
-      Syyzz += (data.y-data.z)*(data.y+data.z)*data.w;
+      Szz   += datum.z*datum.z*datum.w;
+      Syy   += datum.y*datum.y*datum.w;
+      Szy   += datum.y*datum.z*datum.w;
+      Syyzz += (datum.y-datum.z)*(datum.y+datum.z)*datum.w;
     }
 
     if(m_debug)
@@ -165,28 +167,28 @@ namespace TrkDriftCircleMath {
       for(unsigned int i=0;i<N;++i){
 	if(selection[i]) continue;
 	
-	FitData& data = m_data[i];
+	FitData& datum = data[i];
 	
-	double dist = data.y*cosin-data.z*sinus;
+	double dist = datum.y*cosin-datum.z*sinus;
 	if(dist>d){
-	  R  -= data.rw;
-	  Ry -= data.ryw;
-	  Rz -= data.rzw;
+	  R  -= datum.rw;
+	  Ry -= datum.ryw;
+	  Rz -= datum.rzw;
 	  if(m_debug) {
-	    double res = std::abs(dist-d) - data.r;
-	    std::cout << " < - > " << dist - d << " r " << data.r 
+	    double res = std::abs(dist-d) - datum.r;
+	    std::cout << " < - > " << dist - d << " r " << datum.r 
 		      << " res " << res;
-	    chi2 += res*res*data.w*data.w; 
+	    chi2 += res*res*datum.w*datum.w; 
 	  }
 	}else{
-	  R  += data.rw;
-	  Ry += data.ryw;
-	  Rz += data.rzw;
+	  R  += datum.rw;
+	  Ry += datum.ryw;
+	  Rz += datum.rzw;
 	  if(m_debug) {
-	    double res = std::abs(dist-d) - data.r;
-	    std::cout << " < + > " << dist - d << " r " << data.r 
+	    double res = std::abs(dist-d) - datum.r;
+	    std::cout << " < + > " << dist - d << " r " << datum.r 
 		      << " res " << res;
-	    chi2 += res*res*data.w; 
+	    chi2 += res*res*datum.w; 
 	  }
 	}
 	if(m_debug) std::cout << std::endl;
@@ -196,9 +198,9 @@ namespace TrkDriftCircleMath {
       Bd = -S*d + R;
       if(Att==0){
 	if(m_debug) std::cerr << "===> Error NewtonSLDCFitter ZERO Determinant" << std::endl;
-	if( m_data.capacity() > 100 ) {
-	  m_data.reserve(100);
-	  m_result.dcs().reserve(100);
+	if( data.capacity() > 100 ) {
+	  data.reserve(100);
+	  result.dcs().reserve(100);
 	}
 	return false;
       }
@@ -231,9 +233,9 @@ namespace TrkDriftCircleMath {
     }
     
     if( count >= 100 ){
-      if( m_data.capacity() > 100 ) {
-	m_result.dcs().reserve(100);
-	m_data.reserve(100);
+      if( data.capacity() > 100 ) {
+	result.dcs().reserve(100);
+	data.reserve(100);
       }
       return false;
     }
@@ -248,38 +250,38 @@ namespace TrkDriftCircleMath {
 
     if(m_debug) std::cout << "contributions to chi2: " << std::endl;
 
-    m_result.dcs().clear();
-    m_result.clusters().clear();
-    m_result.emptyTubes().clear();
+    result.dcs().clear();
+    result.clusters().clear();
+    result.emptyTubes().clear();
 
     unsigned int nhits(0);
 
     // calculate predicted hit positions from track parameters
     for(unsigned int i=0;i<N;++i){
-      FitData& data = m_data[i];
-      yl = cosin*data.y - sinus*data.z - d;
-      double dth = -(sinus*data.y + cosin*data.z)*Stt;
+      FitData& datum = data[i];
+      yl = cosin*datum.y - sinus*datum.z - d;
+      double dth = -(sinus*datum.y + cosin*datum.z)*Stt;
       double errorResiduals = sqrt( dth*dth + Sd*Sd );
-      double residuals = fabs(yl) - data.r;
+      double residuals = fabs(yl) - datum.r;
       if( selection[i] == 0 ) {
 	++nhits;
-	chi2 += residuals*residuals*data.w;
+	chi2 += residuals*residuals*datum.w;
       }
-      m_result.dcs().push_back(dcs[i]);
-      m_result.dcs().back().residual( residuals );
-      m_result.dcs().back().errorTrack( errorResiduals );
+      result.dcs().push_back(dcs[i]);
+      result.dcs().back().residual( residuals );
+      result.dcs().back().errorTrack( errorResiduals );
       
       if( m_debug ){
 	  std::cout << " r_track " << yl << " dr " << errorResiduals
-		    << " r_rt " << data.r << " d_rt " <<  dcs[i].dr()
-		    << " res " << residuals << " pull "  << residuals*sqrt(data.w)
+		    << " r_rt " << datum.r << " d_rt " <<  dcs[i].dr()
+		    << " res " << residuals << " pull "  << residuals*sqrt(datum.w)
 		    << " sel " << selection[i] << std::endl;
       }
 
     }
 
-    m_result.set( chi2, nhits-2, dtheta, dy0 );
-    m_result.line().set( LocPos( Zc - sinus*d, Yc + cosin*d ), theta );
+    result.set( chi2, nhits-2, dtheta, dy0 );
+    result.line().set( LocPos( Zc - sinus*d, Yc + cosin*d ), theta );
 
     
     if(m_debug) {
@@ -288,12 +290,12 @@ namespace TrkDriftCircleMath {
       if(chi2/(nhits-2) > 5) {
 	std::cout << "_______NOT GOOD " << std::endl;
       }
-      std::cout << "fit done " << m_result << std::endl;
+      std::cout << "fit done " << result << std::endl;
     }
 
-    if( m_data.capacity() > 100 ) {
-      m_result.dcs().reserve(100);
-      m_data.reserve(100);
+    if( data.capacity() > 100 ) {
+      result.dcs().reserve(100);
+      data.reserve(100);
     }
     return true;
   }

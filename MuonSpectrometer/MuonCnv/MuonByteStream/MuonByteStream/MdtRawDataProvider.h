@@ -16,6 +16,8 @@
 // ROI Descriptor classes
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+
 namespace Muon {
 class IMuonRawDataProviderTool;
 
@@ -52,6 +54,7 @@ private:
   /// ReadHandle for the input RoIs
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{ this, "RoIs", "OutputRoIs",  "Name of RoI collection to read in" };
 
+    
 };
 } // ns end
 

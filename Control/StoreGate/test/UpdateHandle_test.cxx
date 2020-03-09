@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -20,7 +20,6 @@
 #include "TestTools/expect_exception.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
-#include "CxxUtils/unused.h"
 #include <cassert>
 #include <iostream>
 
@@ -206,7 +205,8 @@ void test3()
   assert (h2.cachedPtr() == nullptr);
   assert (h2.ptr() == nullptr);
   assert (h2.cptr() == nullptr);
-  int UNUSED(xx) = 0;
+  [[maybe_unused]]
+  int xx = 0;
   EXPECT_EXCEPTION (SG::ExcNullUpdateHandle, xx = (*h2).x);
   EXPECT_EXCEPTION (SG::ExcNullUpdateHandle, xx = h2->x);
 

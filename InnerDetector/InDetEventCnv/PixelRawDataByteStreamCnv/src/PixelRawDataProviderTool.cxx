@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelRawDataProviderTool.h"
-
-#include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "StoreGate/WriteHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -17,18 +15,9 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 PixelRawDataProviderTool::PixelRawDataProviderTool(const std::string& type, const std::string& name, const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_decoder("PixelRodDecoder"),
-  m_bsErrSvc("PixelByteStreamErrorsSvc",name),
-  m_robIdSet(),
-  m_LVL1CollectionKey("PixelLVL1ID"),
-  m_BCIDCollectionKey("PixelBCID"),
-  m_DecodeErrCount(0),
-  m_LastLvl1ID(0xffffffff)
+  m_DecodeErrCount(0)
 {
-  declareProperty("Decoder", m_decoder);
-  declareProperty("ErrorsSvc", m_bsErrSvc);
-  declareProperty("LVL1CollectionName",m_LVL1CollectionKey);
-  declareProperty("BCIDCollectionName",m_BCIDCollectionKey);
+  declareProperty("checkLVL1ID", m_checkLVL1ID = true);
   declareInterface<IPixelRawDataProviderTool>(this);   
 }
 
@@ -37,7 +26,7 @@ PixelRawDataProviderTool::~PixelRawDataProviderTool() {}
 StatusCode PixelRawDataProviderTool::initialize() {
   CHECK(AthAlgTool::initialize());
   ATH_MSG_DEBUG("PixelRawDataProviderTool::initialize()");
-  CHECK(m_decoder.retrieve());
+  ATH_CHECK(m_decoder.retrieve());
   ATH_MSG_INFO("Retrieved tool " << m_decoder);
   
   ATH_CHECK(m_LVL1CollectionKey.initialize());
@@ -51,8 +40,9 @@ StatusCode PixelRawDataProviderTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc) {
+StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc) const {
   if (vecRobs.size()==0) { return StatusCode::SUCCESS; }
+
 
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
@@ -63,28 +53,38 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
   std::cout << " New ROD collection found: LVL1=" << (*rob_it)->rod_lvl1_id() << " Size=" << vecRobs.size() << std::endl;
 #endif
 
-  //    are we working on a new event ?
-  bool isNewEvent = ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID);
-  if (isNewEvent) {
-    m_LVL1Collection = SG::makeHandle(m_LVL1CollectionKey);
-    ATH_CHECK(m_LVL1Collection.record(std::make_unique<InDetTimeCollection>()));
-    ATH_MSG_DEBUG("InDetTimeCollection " << m_LVL1Collection.name() << " registered in StoreGate");
-    m_LVL1Collection->reserve(vecRobs.size());
+  SG::WriteHandle<InDetTimeCollection> LVL1Collection;
+  SG::WriteHandle<InDetTimeCollection> BCIDCollection;
 
-    m_BCIDCollection = SG::makeHandle(m_BCIDCollectionKey);
-    ATH_CHECK(m_BCIDCollection.record(std::make_unique<InDetTimeCollection>()));
-    ATH_MSG_DEBUG("InDetTimeCollection " << m_BCIDCollection.name() << " registered in StoreGate");
-    m_BCIDCollection->reserve(vecRobs.size());  
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  CacheEntry* ent{m_cache.get(ctx)};
+  if (ent->m_evt!=ctx.evt()) { // New event in this slot
+    ent->m_LastLvl1ID = 0xffffffff;
+    ent->m_evt = ctx.evt();
+  }
+  //    are we working on a new event ?
+  bool isNewEvent = (m_checkLVL1ID ? ((*rob_it)->rod_lvl1_id() != ent->m_LastLvl1ID) : true);
+  if (isNewEvent) {
+    LVL1Collection = SG::makeHandle(m_LVL1CollectionKey);
+    ATH_CHECK(LVL1Collection.record(std::make_unique<InDetTimeCollection>()));
+    ATH_MSG_DEBUG("InDetTimeCollection " << LVL1Collection.name() << " registered in StoreGate");
+    LVL1Collection->reserve(vecRobs.size());
+
+    BCIDCollection = SG::makeHandle(m_BCIDCollectionKey);
+    ATH_CHECK(BCIDCollection.record(std::make_unique<InDetTimeCollection>()));
+    ATH_MSG_DEBUG("InDetTimeCollection " << BCIDCollection.name() << " registered in StoreGate");
+    BCIDCollection->reserve(vecRobs.size());  
 
 #ifdef PIXEL_DEBUG
     ATH_MSG_DEBUG(" New event, reset the collection set");
 #endif
     // remember last Lvl1ID
-    m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
-    // reset list of known robIds
-    m_robIdSet.clear();
+    ent->m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
+
     // and clean up the identifable container !
-    rdoIdc->cleanup();
+    rdoIdc->cleanup();//TODO Remove this when legacy trigger code is removed
+
   }
 
   // loop over the ROB fragments
@@ -96,42 +96,36 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 
     if (isNewEvent) {
       unsigned int lvl1id = (*rob_it)->rod_lvl1_id();
-      std::pair<uint32_t, unsigned int>* lvl1Pair = new std::pair<uint32_t, unsigned int>(robid,lvl1id);
-      m_LVL1Collection->push_back(lvl1Pair) ;
+      LVL1Collection->emplace_back(robid,lvl1id) ;
 
       unsigned int bcid = (*rob_it)->rod_bc_id();  
-      std::pair<uint32_t, unsigned int>* bcidPair = new std::pair<uint32_t, unsigned int>(robid,bcid);
-      m_BCIDCollection->push_back(bcidPair);
+      BCIDCollection->emplace_back(robid,bcid);
       
 #ifdef PIXEL_DEBUG
       ATH_MSG_DEBUG("Stored LVL1ID "<<lvl1id<<" and BCID "<<bcid<<" in InDetTimeCollections");
 #endif
     }
 
-    // check if this ROBFragment was already decoded (EF case in ROIs
-    if (!m_robIdSet.insert(robid).second) {
-#ifdef PIXEL_DEBUG
-      ATH_MSG_DEBUG(" ROB Fragment with ID  " << std::hex<<robid<<std::dec<< " already decoded, skip");
-#endif
-    } 
-    else {
-      // here the code for the timing monitoring should be reinserted
-      // using 1 container per event und subdetector
-      StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc);
-      if (sc==StatusCode::FAILURE) {
-        if (m_DecodeErrCount<100) {
-          ATH_MSG_INFO("Problem with Pixel ByteStream Decoding!");
-          m_DecodeErrCount++;
-        }
-        else if (100==m_DecodeErrCount) {
-          ATH_MSG_INFO("Too many Problems with Pixel Decoding messages.  Turning message off.");
-          m_DecodeErrCount++;
-        }
+    // here the code for the timing monitoring should be reinserted
+    // using 1 container per event and subdetector
+    StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc);
+
+
+
+    const int issuesMessageCountLimit = 100;
+    if (sc==StatusCode::FAILURE) {
+      if (m_DecodeErrCount < issuesMessageCountLimit) {
+        ATH_MSG_INFO("Problem with Pixel ByteStream Decoding!");
+        m_DecodeErrCount++;
+      }
+      else if (issuesMessageCountLimit == m_DecodeErrCount) {
+        ATH_MSG_INFO("Too many Problems with Pixel Decoding messages.  Turning message off.");
+        m_DecodeErrCount++;
       }
     }
   }
   if (isNewEvent) {
-    CHECK(m_bsErrSvc->recordData());
+    ATH_CHECK(m_decoder->StoreBSError());
   }
   return StatusCode::SUCCESS; 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETKEYDESCRIPTORCNV_P1_H
@@ -13,10 +13,13 @@
 #include "JetEvent/JetKeyDescriptor.h"
 #include "JetEventTPCnv/JetKeyDescriptor_p1.h"
 
-class JetKeyDescriptorCnv_p1 : public T_AthenaPoolTPCnvBase<JetKeyDescriptor, JetKeyDescriptor_p1>
+class JetKeyDescriptorCnv_p1 : public T_AthenaPoolTPCnvConstBase<JetKeyDescriptor, JetKeyDescriptor_p1>
 { 
  public: 
-  
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
   JetKeyDescriptorCnv_p1() { };
   
   /** Method creating the transient representation of @c JetKeyDescriptor
@@ -24,7 +27,7 @@ class JetKeyDescriptorCnv_p1 : public T_AthenaPoolTPCnvBase<JetKeyDescriptor, Je
    */
   virtual void persToTrans( const JetKeyDescriptor_p1* persObj, 
                             JetKeyDescriptor* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
       
 
 
@@ -33,11 +36,9 @@ class JetKeyDescriptorCnv_p1 : public T_AthenaPoolTPCnvBase<JetKeyDescriptor, Je
    */
   virtual void transToPers( const JetKeyDescriptor* transObj,
                             JetKeyDescriptor_p1* persObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
   
   /* JetKeyDescriptor *createTransient(const JetKeyDescriptor_p1* pers, MsgStream &msg ){ this-> } */
- protected: 
-  
 }; 
 
 #endif

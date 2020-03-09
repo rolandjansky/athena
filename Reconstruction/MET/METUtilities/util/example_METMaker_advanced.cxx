@@ -149,11 +149,9 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     //this is a non-const copy of the jet collection that you can calibrate.
     xAOD::JetContainer* calibJets = jets_shallowCopy.first;
     xAOD::setOriginalObjectLink(*jets,*calibJets);
-    for ( const auto& jet : *calibJets ) {
-      //Shallow copy is needed (see links below)
-      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
-	return 1;
-    }
+    //Shallow copy is needed (see links below)
+    if(jetCalibrationTool->applyCalibration(*calibJets).isFailure())//apply the calibration
+      return 1;
 
     //retrieve the MET association map
     const xAOD::MissingETAssociationMap* metMap = nullptr;

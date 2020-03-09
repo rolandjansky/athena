@@ -4,16 +4,14 @@
 #ifndef SimpleMMClusterBuilderTool_h
 #define SimpleMMClusterBuilderTool_h
 
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class MmIdHelper;
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 
 //
 // Simple clusterization tool for MicroMegas
@@ -37,13 +35,11 @@ namespace Muon
     virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::MMPrepData>& stripsVect, 
-			   std::vector<Muon::MMPrepData*>& clustersVect);
+			   std::vector<Muon::MMPrepData*>& clustersVect) const;
 
   private: 
-
     /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager* m_muonMgr;
-    const MmIdHelper* m_mmIdHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
 };
 

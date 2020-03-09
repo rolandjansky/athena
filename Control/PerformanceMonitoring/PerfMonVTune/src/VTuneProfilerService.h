@@ -8,6 +8,8 @@
 // STD include(s):
 #include <atomic>
 #include <memory>
+#include <vector>
+#include <string>
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ServiceHandle.h"
@@ -19,6 +21,8 @@
 #include "VTuneProfileRunner.h"
 #include "PerfMonVTune/IVTuneProfilerSvc.h"
 
+// Fwd declerations
+class IAuditorSvc;
 
 class VTuneProfilerService : public AthService,
                              public virtual IVTuneProfilerSvc,
@@ -50,14 +54,20 @@ class VTuneProfilerService : public AthService,
 
   private:
 
+      /// Helper method to create auditors
+      StatusCode makeAuditor (const std::string& audName, IAuditorSvc* audSvc);
+
       /// Handle to the incident service
       ServiceHandle< IIncidentSvc > m_incidentSvc;
 
       /// Property: Event in which profiling should start
       int m_resumeEvent;
 
-      /// Property: Event in which profiling should pause 
+      /// Property: Event in which profiling should pause
       int m_pauseEvent;
+
+      /// Property: List of algorithms to profile
+      std::vector<std::string> m_algs;
 
       /// Unique ptr to the VTuneProfileRunner
       std::unique_ptr< VTuneProfileRunner > m_runner;

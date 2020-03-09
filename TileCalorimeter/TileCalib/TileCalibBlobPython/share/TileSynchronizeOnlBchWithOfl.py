@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileSynchronizeOnlBchWithOfl.py <TAG> <RUN>
 # lukas.pribyl@cern.ch March 2010
@@ -12,17 +12,18 @@
 # if ADC is bad in offline DB, OnlineGeneralMaskAdc is set in online DB for this ADC
 # and in addition IgnoredInHlt is set for both ADCs of a channel
 
-import os,sys
+import sys
 
 tag = "UPD1" if len(sys.argv) < 2 else sys.argv[1].rpartition("=")[2]
 run = None if len(sys.argv) < 3 else int(sys.argv[2].rpartition("=")[2])
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobPython.TileCalibTools import MAXRUN
+from TileCalibBlobObjs.Classes import TileCalibUtils, TileBchPrbs, \
+     TileBchDecoder
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("SyncOnlWithOfl")
 import logging
 log.setLevel(logging.DEBUG)
@@ -31,9 +32,9 @@ if run is None or run < 0:
     badrun=run
     run=TileCalibTools.getLastRunNumber()
     if badrun is None:
-        log.info( "Run number was not specified, using current run number %d" % run )
+        log.info( "Run number was not specified, using current run number %d", run )
     else:
-        log.warning( "Bad run number %d was set, using current run number %d" % (badrun, run) )
+        log.warning( "Bad run number %d was set, using current run number %d", badrun, run)
     if run is None or run<0:
         log.error( "Still bad run number")
         sys.exit(2)
@@ -53,7 +54,7 @@ folderTag = TileCalibTools.getFolderTag(db1, folder, tag)
 #--- create ofline bad channel manager
 mgrOfl = TileBchTools.TileBchMgr()
 mgrOfl.setLogLvl(logging.DEBUG)
-log.info("Initializing with offline bad channels at tag=%s and time=%s" % (folderTag, (runOfl, 0)))
+log.info("Initializing with offline bad channels at tag=%s and time=%s", folderTag, (runOfl, 0))
 mgrOfl.initialize(db1, folder, folderTag, (runOfl,0))
 
 #--- create online bad channel manager
@@ -75,11 +76,11 @@ log.info("================================================================ ")
 
 #=== synchronize
 comment=""
-for ros in xrange(1,5):
-    for mod in xrange(0,64):
+for ros in range(1,5):
+    for mod in range(0,64):
         modName = TileCalibUtils.getDrawerString(ros, mod)
         comm = ""
-        for chn in xrange(0, 48):
+        for chn in range(0, 48):
             statlo = mgrOfl.getAdcStatus(ros, mod, chn, 0)
             stathi = mgrOfl.getAdcStatus(ros, mod, chn, 1)
 
@@ -137,17 +138,29 @@ for ros in xrange(1,5):
                 mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
 
+            #--- add OnlineTimingDmuBcOffset if either of the ADCs has isTimingDmuBcOffset
+            if statlo.isTimingDmuBcOffset() or stathi.isTimingDmuBcOffset():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+            else:
+                #--- delete OnlineTimingDmuBcOffset if the both ADCs has not isTimingDmuBcOffset
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+
             statloAfter = mgrOnl.getAdcProblems(ros, mod, chn, 0)
             stathiAfter = mgrOnl.getAdcProblems(ros, mod, chn, 1)
             if (statloBefore != statloAfter) or (stathiBefore != stathiAfter):
                 pbm = [statloBefore, stathiBefore, statloAfter, stathiAfter]
                 #print modName,"%3d 0"%chn,statloBefore,"=>",statloAfter
                 #print modName,"%3d 1"%chn,stathiBefore,"=>",stathiAfter
-                for adc in xrange(2):
+                for adc in range(2):
                     if pbm[adc] != pbm[adc + 2]:
-                        for pb in xrange(2):
-                            if pb: msg += "  =>"
-                            else: msg = "%s %2i %1i " % (modName, chn, adc) 
+                        msg = ''
+                        for pb in range(2):
+                            if pb:
+                                msg += "  =>"
+                            else:
+                                msg = "%s %2i %1i " % (modName, chn, adc) 
                             prbs = pbm[adc+pb*2]
                             if len(prbs):
                                 for prbCode in sorted(prbs.keys()):

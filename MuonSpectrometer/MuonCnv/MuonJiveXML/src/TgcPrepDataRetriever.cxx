@@ -30,12 +30,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
 
-    StatusCode sc=detStore()->retrieve(m_tgcIdHelper);
-    if (sc.isFailure())
-      {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << MSG::ERROR << "Could not retrieve TgcIdHelper!" << endmsg;
-        return StatusCode::FAILURE;
-      }
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -86,16 +81,16 @@ namespace JiveXML {
 
 	Amg::Vector3D globalPos; 
         double shortWidth, longWidth, length;
-        if (m_tgcIdHelper->isStrip(id)) {
-          int gasGap = m_tgcIdHelper->gasGap(id);
-          int strip = m_tgcIdHelper->channel(id);
+        if (m_muonIdHelperTool->tgcIdHelper().isStrip(id)) {
+          int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
+          int strip = m_muonIdHelperTool->tgcIdHelper().channel(id);
           shortWidth = element->stripShortWidth(gasGap, strip);
           longWidth = element->stripLongWidth(gasGap, strip);
           length = element->stripLength(gasGap, strip);
           globalPos = element->stripPos(gasGap, strip);
         } else {
-          int gasGap = m_tgcIdHelper->gasGap(id);
-          int gang = m_tgcIdHelper->channel(id);
+          int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
+          int gang = m_muonIdHelperTool->tgcIdHelper().channel(id);
           shortWidth = element->gangShortWidth(gasGap, gang);
           longWidth = element->gangLongWidth(gasGap, gang);
           length = element->gangLength(gasGap, gang);
@@ -108,7 +103,7 @@ namespace JiveXML {
         swidthVec.push_back(DataType(shortWidth/CLHEP::cm));
         lwidthVec.push_back(DataType(longWidth/CLHEP::cm));
         lengthVec.push_back(DataType(length/CLHEP::cm));
-        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_tgcIdHelper)));
+        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_muonIdHelperTool->tgcIdHelper())));
         idVec.push_back(DataType( id.get_compact() ));
         barcode.push_back(DataType(0));
 

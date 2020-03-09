@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1JEPHitsTools.h, 
@@ -18,7 +18,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthContainers/DataVector.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1JEPHitsTools.h"
 
 
@@ -117,7 +117,7 @@ class L1JEPHitsTools : virtual public IL1JEPHitsTools, public AthAlgTool
 		        int crate, int dataId, int peak) const;
 
     /** trigger configuration service */
-    ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
     bool m_debug;
      

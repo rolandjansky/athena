@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocsCnv_p2.cxx 
@@ -22,27 +22,16 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/INav4MomAssocsCnv_p2.h"
 
+#include "AthenaKernel/getThinningCache.h"
+
 // some useful typedefs
 typedef INav4MomAssocs::object_link INav4MomLink_t;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 INav4MomAssocsCnv_p2::persToTrans( const INav4MomAssocs_p2* pers, 
 				   INav4MomAssocs* trans, 
-				   MsgStream& msg )
+				   MsgStream& msg ) const
 {
   msg << MSG::DEBUG 
       << "Loading INav4MomAssocs from persistent state..."
@@ -63,18 +52,18 @@ INav4MomAssocsCnv_p2::persToTrans( const INav4MomAssocs_p2* pers,
   }
 
   // reset element link converters, and provide container name lookup table
-  m_inav4MomLinkCnv.resetForCnv(pers->m_contNames);
+  INav4MomCnv_t::State state (pers->m_contNames);
 
   for ( std::size_t i = 0, iEnd = pers->m_assocs.size(); i != iEnd; ++i ) {
     const ElementLinkInt_p2& key = pers->m_assocs[i].first;
     const INav4MomAssocs_p2::ElemLinkVect_t& val = pers->m_assocs[i].second;
 
     INav4MomLink_t k;
-    m_inav4MomLinkCnv.persToTrans( &key, &k, msg );
+    m_inav4MomLinkCnv.persToTrans( state, key, k, msg );
 
     for ( std::size_t j = 0, jEnd = val.size(); j != jEnd; ++j ) {
       INav4MomLink_t assocLink;
-      m_inav4MomLinkCnv.persToTrans( &val[j], &assocLink, msg );
+      m_inav4MomLinkCnv.persToTrans( state, val[j], assocLink, msg );
       trans->addAssociation (k, assocLink);
     }
   }
@@ -88,7 +77,7 @@ INav4MomAssocsCnv_p2::persToTrans( const INav4MomAssocs_p2* pers,
 void 
 INav4MomAssocsCnv_p2::transToPers( const INav4MomAssocs* trans, 
 				   INav4MomAssocs_p2* pers, 
-				   MsgStream& msg )
+				   MsgStream& msg ) const
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of INav4MomAssocs..."
@@ -104,7 +93,8 @@ INav4MomAssocsCnv_p2::transToPers( const INav4MomAssocs* trans,
   }
 
   // reset element link converters, and provide container name lookup table
-  m_inav4MomLinkCnv.resetForCnv(pers->m_contNames);
+  INav4MomCnv_t::State state (pers->m_contNames);
+  const SG::ThinningCache* cache = SG::getThinningCache();
 
   j = 0;
   pers->m_assocs.resize( trans->size() );
@@ -114,7 +104,7 @@ INav4MomAssocsCnv_p2::transToPers( const INav4MomAssocs* trans,
   {
     const INav4MomLink_t& key = begObj.getObjectLink();
     INav4MomAssocs_p2::AssocElem_t& persAssoc = pers->m_assocs[j];
-    m_inav4MomLinkCnv.transToPers( &key, &persAssoc.first, msg );
+    m_inav4MomLinkCnv.transToPers( state, key, persAssoc.first, cache, msg );
     persAssoc.second.resize( begObj.getNumberOfAssociations() );
 
     INav4MomAssocs::asso_iterator begAsso = begObj.getFirstAssociation();
@@ -122,7 +112,7 @@ INav4MomAssocsCnv_p2::transToPers( const INav4MomAssocs* trans,
     size_t i = 0;
     for (; begAsso != endAsso; ++begAsso) {
       const INav4MomAssocs::asso_link asso = begAsso.getLink();
-      m_inav4MomLinkCnv.transToPers( &asso, &persAssoc.second[i], msg );
+      m_inav4MomLinkCnv.transToPers( state, asso, persAssoc.second[i], cache, msg );
       ++i;
     }
 

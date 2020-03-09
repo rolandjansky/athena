@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -110,7 +110,11 @@ StatusCode AANTEventSelector::initialize()
   // selection criteria
   log << MSG::DEBUG << "Load Sel: " << m_strSelection << " from __main__" << endmsg;      
   char smain[] = "__main__";
+#if PY_MAJOR_VERSION < 3
   m_selectionFunc = PyObject_GetAttr(PyImport_AddModule(smain),PyString_FromString(m_strSelection.c_str()));
+#else
+  m_selectionFunc = PyObject_GetAttr(PyImport_AddModule(smain),PyUnicode_FromString(m_strSelection.c_str()));
+#endif
   if (m_selectionFunc == NULL)
     {
       log << MSG::ERROR << "Could not load sel : " << m_strSelection << endmsg;
@@ -118,7 +122,11 @@ StatusCode AANTEventSelector::initialize()
     }
 
   log << MSG::DEBUG << "Load Cnv: " << m_strConverter << " from __main__" << endmsg;      
+#if PY_MAJOR_VERSION < 3
   m_convFunc = PyObject_GetAttr(PyImport_AddModule(smain),PyString_FromString(m_strConverter.c_str()));
+#else
+  m_convFunc = PyObject_GetAttr(PyImport_AddModule(smain),PyUnicode_FromString(m_strConverter.c_str()));
+#endif
   if (m_convFunc == NULL)
     {
       log << MSG::ERROR << "Could not load conv : " << m_strConverter << endmsg;

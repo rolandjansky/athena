@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */  
 
 #ifndef NSW_TRIGRAWDATA_H
 #define NSW_TRIGRAWDATA_H
 
 #include "AthContainers/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "MuonRDO/NSW_TrigRawDataSegment.h"
 

@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from Lvl1MenuUtil import log
-from Lvl1MenuUtil import oldStyle
-from Limits import CaloLimits
+from .Lvl1MenuUtil import log
+from .Lvl1MenuUtil import oldStyle
+from .Limits import CaloLimits
 
 class Isolation(object):
 

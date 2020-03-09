@@ -32,8 +32,8 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
   StatusCode sc;
   sc=m_detStore->retrieve(larMphysOverMcal,m_contKey);
   if (sc!=StatusCode::SUCCESS) {
-     (*m_log)  << MSG::ERROR << "Unable to retrieve ILArMphysOverMcal with key " 
-               << m_contKey << " from DetectorStore" << endmsg;
+     ATH_MSG_ERROR( "Unable to retrieve ILArMphysOverMcal with key " 
+               << m_contKey << " from DetectorStore" );
      return StatusCode::FAILURE;
   }
 
@@ -42,22 +42,22 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
 
  sc=m_nt->addItem("icell",cellIndex,0,2000);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log)  << MSG::ERROR << "addItem 'Cell Index' failed" << endmsg;
+   {ATH_MSG_ERROR( "addItem 'Cell Index' failed" );
     return StatusCode::FAILURE;
    }
 
  sc=m_nt->addItem("gain",gain,0,3);
- if (sc!=StatusCode::SUCCESS)
-   {(*m_log) << MSG::ERROR << "addItem 'gain' failed" << endmsg;
+ if (sc!=StatusCode::SUCCESS) {
+    ATH_MSG_ERROR( "addItem 'gain' failed" );
     return StatusCode::FAILURE;
-   }
+ }
 
 
  sc=m_nt->addItem("mphysovermcal",mpmc,-1000.,2.);
- if (sc!=StatusCode::SUCCESS)
-   {(*m_log)  << MSG::ERROR << "addItem 'mphysovermcal' failed" << endmsg;
+ if (sc!=StatusCode::SUCCESS) {
+    ATH_MSG_ERROR( "addItem 'mphysovermcal' failed" );
     return StatusCode::FAILURE;
-   }
+ }
 
 
  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
@@ -80,7 +80,7 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
 	 mpmc = larMphysOverMcal->MphysOverMcal(hwid,igain);
 	 sc=ntupleSvc()->writeRecord(m_nt);
 	 if (sc!=StatusCode::SUCCESS) {
-	   (*m_log)  << MSG::ERROR << "writeRecord failed" << endmsg;
+	   ATH_MSG_ERROR( "writeRecord failed" );
 	   return StatusCode::FAILURE;
 	 }
      }//end if isConnected
@@ -88,7 +88,7 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
   }//end loop over online ID
  } // ovr gains
 
- (*m_log)  << MSG::INFO << "LArMphysOverMcal2Ntuple has finished." << endmsg;
+ ATH_MSG_INFO( "LArMphysOverMcal2Ntuple has finished." );
  return StatusCode::SUCCESS;
 }// end finalize-method.
    

@@ -1,5 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
+import six
 
 
 class LArExtendedSubDetGrouping:
@@ -75,7 +77,7 @@ class LArExtendedSubDetGrouping:
 
         #Lookup-dict indexed by channel (partition is the payload)
         self._revLookup=dict()
-        for (p, chs) in self._partitions.iteritems():
+        for (p, chs) in six.iteritems (self._partitions):
             for c in chs:
                 self._revLookup[c]=p
 
@@ -84,15 +86,15 @@ class LArExtendedSubDetGrouping:
         self._withCorr=val
 
     def Print(self):
-        print self._EMBC
-        print self._EMBA
+        print (self._EMBC)
+        print (self._EMBA)
 
 
     def getChannelList(self,partitions,gains=[0]):
         chans=list()
         for g in gains:
             if g<0 or g>2:
-                print "ERROR: Unkown gain",g
+                print ("ERROR: Unkown gain",g)
                 return None
 
         extPart=list()
@@ -111,15 +113,15 @@ class LArExtendedSubDetGrouping:
                 extPart+=[p]
                 
         for p in extPart:
-            if self._partitions.has_key(p):
+            if p in self._partitions:
                 for g in gains:
-                    print self._partitions[p]
+                    print (self._partitions[p])
                     chans+=[self._partitions[p][g]]
                 if (self._withCorr):
                     for g in gains:
                         chans+=[self._corr[p]+g*12]
             else:
-                print "ERROR: Unkown partition '",partition,"'"
+                print ("ERROR: Unkown partition '",partition,"'")
 
         return chans
 
@@ -134,7 +136,7 @@ class LArExtendedSubDetGrouping:
         series=False
         for c2 in chans[1:]:
             if c1 == c2:
-                print "Duplicated entry",c2
+                print ("Duplicated entry",c2)
                 continue
             if c2-1 == c1 or c2-1 in self._empty:
                 series=True
@@ -144,7 +146,7 @@ class LArExtendedSubDetGrouping:
                     series=False
                 else:
                     retVal+=","+str(c2)
-#            print "c1=",c1,"c2=",c2,"sep=",sep
+#            print ("c1=",c1,"c2=",c2,"sep=",sep)
             c1=c2
         if series: retVal+=":"+str(c1)
         return retVal
@@ -192,31 +194,31 @@ class LArExtendedSubDetGrouping:
                 self.counts[g]=1+self.counts[g]
 
             def show(self):
-                print "%7s: " % self.name, 
-                print "HIGH:%2i/%2i" % (self.counts[0],self.size),
+                print( "%7s: " % self.name,end="")
+                print( "HIGH:%2i/%2i" % (self.counts[0],self.size),)
                 if self.counts[0] != self.size:
-                    print "*  ",
+                    print( "*  ",end="")
                 else:
-                    print "   ",
-                print "MED:%2i/%2i" % (self.counts[1],self.size),
+                    print( "   ",end="")
+                print( "MED:%2i/%2i" % (self.counts[1],self.size),)
                 if self.counts[1] != self.size:
-                    print "*  ",
+                    print( "*  ",end="")
                 else:
-                    print "   ",
-                print "LOW:%2i/%2i" % (self.counts[2],self.size),
+                    print( "   ",end="")
+                print( "LOW:%2i/%2i" % (self.counts[2],self.size),)
                 if self.counts[2] != self.size:
-                    print "*  "
+                    print( "*  ")
                 else:
-                    print "   "
+                    print( "   ")
             
         partCounter=dict()
-        for (p, chs) in self._partitions.iteritems():
+        for (p, chs) in six.iteritems (self._partitions):
             partCounter[p]=counterElem(len(chs),p)
         
         for c in chans:
             (gain,cs)=self.getGain(c)
             if cs == None:
-                print "ERROR: Unkown channel",c
+                print( "ERROR: Unkown channel",c )
             else:    
                 if (c<39):
                     #p=self._revLookup[cs]

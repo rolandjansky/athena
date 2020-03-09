@@ -8,7 +8,6 @@
 #include "G4SDManager.hh"
 
 // Framework utilities
-#include "CxxUtils/make_unique.h"
 
 // Project includes
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
@@ -55,7 +54,7 @@ namespace FCS_Param
           G4cout << GetName() << " \tDEBUG\t" << "Initializing hit container: "
                  << m_hitCollName << G4endl;
         }
-        m_hitColl = CxxUtils::make_unique<HitContainerType>();
+        m_hitColl = std::make_unique<HitContainerType>();
       }
     }
 

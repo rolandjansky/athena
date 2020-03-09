@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // *******************************************************
@@ -24,8 +24,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include "xAODJet/Jet.h"
 #include "TrigDecisionTool/TrigDecisionTool.h" // added by SARA
@@ -78,8 +76,8 @@ private:
 
     enum Jet_t { goodJet, badJet, suspectJet };
 
-    virtual StatusCode registerHist (MonGroup& theGroup, TH1* h1);
-    virtual StatusCode registerHist (MonGroup& theGroup, LWHist* h1);
+    void registerHist (MonGroup& theGroup, TH1* h1);
+    void registerHist (MonGroup& theGroup, LWHist* h1);
 
     void fillJetHistograms();
     void fillGoodJetHistos(const xAOD::Jet *jet);
@@ -455,9 +453,6 @@ private:
 
     MonGroup* m_monGr_shift = nullptr;
     MonGroup* m_monGr_LowStat = nullptr;
-
-    //--------------Pixel stuff--------------------------------------
-    ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc;
 
   //bool m_doModules;
   //bool m_doOffline;

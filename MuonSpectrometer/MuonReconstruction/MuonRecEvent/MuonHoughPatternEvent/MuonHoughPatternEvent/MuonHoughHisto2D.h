@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHHISTO2D_H
@@ -175,9 +175,9 @@ class MuonHoughHisto2D
   bool m_maxima_found; 
 
   /** maximum */
-  mutable int    m_maximumBin;
-  mutable unsigned int m_maximum;
-  mutable bool   m_maximumIsValid; // flag whether the maximum can be trusted
+  int    m_maximumBin;
+  unsigned int m_maximum;
+  bool   m_maximumIsValid; // flag whether the maximum can be trusted
   /** set bin content of binnumber */
   void setBinContent(int binnumber,double value);
   /** set bin content of binnumber corresponding to coordinates */
@@ -193,12 +193,6 @@ inline int MuonHoughHisto2D::fill(double x,double y, double w){
   fill(binnumber,w);
   return binnumber;
 }
-
-/* inline int MuonHoughHisto2D::fill(int binx, double y, double w){ */
-/*   int biny = coordToBiny(y); */
-/*   fill(binx,biny,w); */
-/*   return binx+biny*m_nbinsx_plus2; */
-/* } */
 
 inline void MuonHoughHisto2D::fill(int binnumber, double weight){
   unsigned int& binval = m_histBuffer[binnumber];

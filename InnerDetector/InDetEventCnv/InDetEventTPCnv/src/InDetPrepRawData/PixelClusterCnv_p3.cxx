@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -13,8 +13,8 @@
 
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p3.h"
 #include "InDetIdentifier/PixelID.h"
-#include "CxxUtils/make_unique.h"
 
+#include <memory>
 #include <algorithm>
 
 
@@ -78,7 +78,7 @@ PixelClusterCnv_p3::createPixelCluster (const InDet::PixelCluster_p3* persObj,
   m_swCnv.persToTrans(&persObj->m_width, &width, log);
 
   // Error matrix
-  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(2,2);
+  auto cmat = std::make_unique<Amg::MatrixX>(2,2);
   (*cmat)(0,0) = static_cast<double>(persObj->m_mat00);
   (*cmat)(1,0) = static_cast<double>(persObj->m_mat01);
   (*cmat)(0,1) = static_cast<double>(persObj->m_mat01);

@@ -1,14 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 # @file   TriggerOnlineFlags.py
 # @author Frank Winklmeier
 # @brief  Trigger flags for online running
-# $Id: TriggerOnlineFlags.py 587315 2014-03-12 13:58:52Z krasznaa $
 ################################################################################
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from AthenaCommon.JobProperties import jobproperties
+from AthenaCommon.JobProperties import jobproperties # noqa: F401
 
 _flags = []
 
@@ -35,6 +34,15 @@ class doValidation(JobProperty):
    StoredValue = True
 
 _flags += [doValidation]
+
+class partitionName(JobProperty):
+   """ Name of the partition if running in online environment, otherwise empty """
+   statusOn = True
+   allowedTypes = ['str']
+   import os
+   StoredValue = os.getenv('TDAQ_PARTITION') or ''
+
+_flags += [partitionName]
 
 # Create "Online" container
 class Online(JobPropertyContainer):

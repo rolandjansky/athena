@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigRingerRingsAuxContainerCnv_v1.cxx 713588 2015-12-09 13:59:15Z jodafons $
@@ -31,15 +31,13 @@
    } while( 0 )
 
 xAODTrigRingerRingsAuxContainerCnv_v1::xAODTrigRingerRingsAuxContainerCnv_v1()
-   : T_AthenaPoolTPCnvBase< xAOD::TrigRingerRingsAuxContainer,
-                            xAOD::TrigRingerRingsAuxContainer_v1 >() {
-
+{
 }
 
 void xAODTrigRingerRingsAuxContainerCnv_v1::
 persToTrans( const xAOD::TrigRingerRingsAuxContainer_v1* oldObj,
              xAOD::TrigRingerRingsAuxContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::TrigRingerRingsAuxContainer_v1 to current "
@@ -78,7 +76,7 @@ persToTrans( const xAOD::TrigRingerRingsAuxContainer_v1* oldObj,
 void xAODTrigRingerRingsAuxContainerCnv_v1::
 transToPers( const xAOD::TrigRingerRingsAuxContainer*,
              xAOD::TrigRingerRingsAuxContainer_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODTrigRingerRingsAuxContainerCnv_v1::transToPers"

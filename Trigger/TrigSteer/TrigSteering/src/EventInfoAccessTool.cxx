@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -22,7 +22,6 @@
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "eformat/SourceIdentifier.h"
-#include "boost/foreach.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -70,7 +69,7 @@ StatusCode HLT::EventInfoAccessTool::getStreamTags(std::vector< xAOD::EventInfo:
     ATH_MSG_DEBUG("[xAOD::EventInfo] Event has no trigger streams");
   } else {
     ATH_MSG_DEBUG("[xAOD::EventInfo] Event has " << streams.size() << " stream(s)");
-    BOOST_FOREACH(const xAOD::EventInfo::StreamTag st, streams ) {
+    for(const xAOD::EventInfo::StreamTag st : streams ) {
       ATH_MSG_DEBUG("xAOD::EventInfo::StreamTag stream = "<<st.name()<<" type = "<< st.type());
     }
   }
@@ -90,10 +89,10 @@ StatusCode HLT::EventInfoAccessTool::addStreamTags(const std::vector< xAOD::Even
 
   // merge new and old
   std::vector< xAOD::EventInfo::StreamTag > xAODStreamTags;
-  BOOST_FOREACH(const xAOD::EventInfo::StreamTag& st, streams ) {
+  for(const xAOD::EventInfo::StreamTag& st : streams ) {
     xAODStreamTags.push_back(st);
   }
-  BOOST_FOREACH(const xAOD::EventInfo::StreamTag& st, new_streams ) {
+  for(const xAOD::EventInfo::StreamTag& st : new_streams ) {
     xAODStreamTags.push_back(st);
   }
 
@@ -115,10 +114,10 @@ StatusCode HLT::EventInfoAccessTool::removeStreamTags(const std::vector< xAOD::E
 
   // Re-add old, checking against remove_streams
   std::vector< xAOD::EventInfo::StreamTag > xAODStreamTags;
-  BOOST_FOREACH(const xAOD::EventInfo::StreamTag& st, streams ) {
+  for(const xAOD::EventInfo::StreamTag& st : streams ) {
     bool matched = false;
     // Stream tags do not have a built in comparator so we need to use our own
-    BOOST_FOREACH(const xAOD::EventInfo::StreamTag& remove_st, remove_streams ) {
+    for(const xAOD::EventInfo::StreamTag& remove_st : remove_streams ) {
       if ( equal_StreamTag(st, remove_st) ) {
         ATH_MSG_DEBUG("Stream "<<st.name()<<"/"<< st.type()<<" located. Removing it.");
         matched = true;
@@ -149,7 +148,7 @@ StatusCode HLT::EventInfoAccessTool::setStreamTags(const std::vector< xAOD::Even
   ATH_MSG_VERBOSE("Updated xAOD::StreamTags in xAOD::EventInfo:");
   ATH_MSG_DEBUG("After update, event has " << xeventInfo->streamTags().size() << " stream(s) in xAOD::EventInfo");
 
-  BOOST_FOREACH(const xAOD::EventInfo::StreamTag st, set_streams ) {
+  for(const xAOD::EventInfo::StreamTag st : set_streams ) {
     ATH_MSG_DEBUG("xAOD::EventInfo::StreamTag stream = "<<st.name()<<" type = "<< st.type());
   }
 
@@ -170,7 +169,7 @@ StatusCode HLT::EventInfoAccessTool::setStreamTags(const std::vector< xAOD::Even
   triggerInfo->setStreamTags(StreamTags);
   ATH_MSG_VERBOSE("Updated TriggerInfo::StreamTags in EventInfo:");
   ATH_MSG_DEBUG("Back compatiblity: After update, event has " << triggerInfo->streamTags().size() << " stream(s) in EventInfo");
-  BOOST_FOREACH(const TriggerInfo::StreamTag st, StreamTags ) {
+  for(const TriggerInfo::StreamTag st : StreamTags ) {
     ATH_MSG_DEBUG("TriggerInfo::StreamTag stream = "<<st.name()<<" type = "<< st.type());
   }
 
@@ -196,7 +195,7 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
   std::vector< xAOD::EventInfo::StreamTag > new_streams;
 
   // // print here the chains tht are active: 
-  // BOOST_FOREACH( const HLT::SteeringChain* chain, activeChains ) {
+  // for( const HLT::SteeringChain* chain : activeChains ) {
   //   std::cout <<" FPP Active chain print ---> " << (*chain) << std::endl;
   // }
 
@@ -213,13 +212,13 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
 
     // check if the stream is already in
     bool already_in=false;
-    BOOST_FOREACH(const xAOD::EventInfo::StreamTag st, streams ) {
+    for(const xAOD::EventInfo::StreamTag st : streams ) {
       if(stream_to_add == st.name()) {
         already_in=true;
         break;
       }
     }
-    BOOST_FOREACH(const xAOD::EventInfo::StreamTag st, new_streams ) {
+    for(const xAOD::EventInfo::StreamTag st : new_streams ) {
       if(stream_to_add == st.name()) {
         already_in=true;
         break;
@@ -230,7 +229,7 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
     ATH_MSG_DEBUG("This chain wants to add its streamtag: "<< chain_to_add <<" stream = "<< stream_to_add);
 
     bool addStream=false;
-    BOOST_FOREACH( const HLT::SteeringChain* chain, activeChains ) {
+    for( const HLT::SteeringChain* chain : activeChains ) {
       if (chain->getChainName() != chain_to_add){
         continue;
       }
@@ -251,7 +250,7 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
 
  
       // check that the requested streamtag is defined for this chain      
-      BOOST_FOREACH ( const HLT::StreamTag& chain_stream, chain->getStreamTags() ) {
+      for ( const HLT::StreamTag& chain_stream : chain->getStreamTags() ) {
         if (chain_stream.getStream() == stream_to_add) {
           addStream=true;
           //Now add the streamtag

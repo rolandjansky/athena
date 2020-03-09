@@ -55,10 +55,11 @@ class TrigCostDataStore {
   /**
    * @brief Retrieve a payload from the map given an AlgorithmIdentifier
    * @param[in] ai The AlgorithmIdentifier to fetch (the key)
-   * @param[out] payload Reference to payload to return
+   * @param[out] payload Reference to const_accessor to payload to return
    * @returns Success if the payload was located, else Failure
    */
-  StatusCode retrieve(const AlgorithmIdentifier& ai, PAYLOAD& payload) const;
+  StatusCode retrieve(const AlgorithmIdentifier& ai, 
+    typename tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_accessor& payload) const;
 
   /**
    * @brief Clears all data stored in an event slot

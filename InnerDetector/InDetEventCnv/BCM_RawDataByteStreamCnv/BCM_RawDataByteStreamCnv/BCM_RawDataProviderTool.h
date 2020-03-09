@@ -10,7 +10,6 @@
 #include "ByteStreamData/RawEvent.h" 
 
 #include <inttypes.h>
-#include <set>
 
 class BCM_RDO_Container;
 class BCM_RodDecoder;
@@ -42,12 +41,9 @@ class BCM_RawDataProviderTool : public AthAlgTool
   //! this is the main decoding method
   StatusCode convert(std::vector<const ROBFragment*>& vecRobs, BCM_RDO_Container* rdoCont);
 
-private: 
-  
-  ToolHandle<BCM_RodDecoder>  m_decoder;   
-  
-  // bookkeeping if we have decoded a ROB already
-  std::set<uint32_t> m_robIdSet;
+private:
+  int m_DecodeErrCount;
+  ToolHandle<BCM_RodDecoder>  m_decoder;
   unsigned int       m_lastLvl1ID;
 
 };

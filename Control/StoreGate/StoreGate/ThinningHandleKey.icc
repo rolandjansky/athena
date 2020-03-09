@@ -1,0 +1,183 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+/**
+ * @file StoreGate/ThinningHandleKey.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2019
+ * @brief HandleKey object for adding thinning to an object.
+ */
+
+
+#include <algorithm>
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ * @param key The StoreGate key for the object.
+ * @param storeName Name to use for the store, if it's not encoded in sgkey.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+ThinningHandleKey<T>::ThinningHandleKey
+  (const std::string& key /*= ""*/,
+   const std::string& storeName /*= StoreID::storeName(StoreID::EVENT_STORE)*/)
+    : Base (key, storeName)
+{
+}
+
+
+/**
+ * @brief Auto-declaring Property constructor.
+ * @param owner Owning component.
+ * @param name Name of the Property.
+ * @param key  Default StoreGate key for the object.
+ * @param doc Documentation string.
+ *
+ * Will associate the named Property with this key via declareProperty.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+template <class OWNER, class K,
+          typename /*= typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type*/>
+ThinningHandleKey<T>::ThinningHandleKey( OWNER* owner,
+                                         const std::string& name,
+                                         const K& key,
+                                         const std::string& doc)
+  : Base (owner, name, key, doc)
+{
+  this->setOwner (owner);
+}
+
+
+/**
+ * @brief Assignment.
+ * @param other Key to assign.
+ */
+template <class T>
+ThinningHandleKey<T>& ThinningHandleKey<T>::operator= (const ThinningHandleKey& other)
+{
+  // Don't copy m_decisionKey.
+  Base::operator= (other);
+  return *this;
+}
+
+
+/**
+ * @brief Change the key of the object to which we're referring.
+ * @param sgkey The StoreGate key for the object.
+ * 
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present,
+ * the store is not changed.
+ */
+template <class T>
+ThinningHandleKey<T>& ThinningHandleKey<T>::operator= (const std::string& sgkey)
+{
+  // Don't copy m_decisionKey.
+  Base::operator= (sgkey);
+  return *this;
+}
+
+
+/**
+ * @brief Should be called during the initialize phase.  It will fail
+ *        if the requested StoreGate service cannot be found or if the key is blank.
+ * @param stream The name of the stream for which thinning is being applied.
+ * @param qualifier Qualifier to add on to the key for the decision object.
+ *                  If there are multiple algorithms thinning the same object,
+ *                  this can be used to keep them from interfering with
+ *                  each other.  (The thinning decisions will be merged with AND
+ *                  at the end.)
+ * @param used If false, then this handle is not to be used.
+ *             Instead of normal initialization, the key will be cleared.
+ */
+template <class T>
+StatusCode ThinningHandleKey<T>::initialize (const std::string& stream,
+                                             const std::string& qualifier,
+                                             bool used /*= true*/)
+{
+  if (used) {
+    std::string dkey = this->fullKey().key() + "_THINNED_" + stream;
+    if (!qualifier.empty()) {
+      // Make sure that the qualifier doesn't contain any periods.
+      std::string qual = qualifier;
+      std::replace (qual.begin(), qual.end(), '.', '_');
+      dkey += "." + qual;
+    }
+    m_decisionKey = dkey;
+    if (this->owner()) {
+      this->owner()->addDependency (m_decisionKey.fullKey(), Gaudi::DataHandle::Writer);
+    }
+    if (m_decisionKey.initialize (used).isFailure())
+      return StatusCode::FAILURE;
+  }
+  return Base::initialize (used);
+}
+
+
+/**
+ * @brief Should be called during the initialize phase.  It will fail
+ *        if the requested StoreGate service cannot be found or if the key is blank.
+ * @param stream The name of the stream for which thinning is being applied.
+ * @param qualifier Qualifier to add on to the key for the decision object.
+ *                  If there are multiple algorithms thinning the same object,
+ *                  this can be used to keep them from interfering with
+ *                  each other.  (The thinning decisions will be merged with AND
+ *                  at the end.)
+ * @param used If false, then this handle is not to be used.
+ *             Instead of normal initialization, the key will be cleared.
+ */
+template <class T>
+StatusCode ThinningHandleKey<T>::initialize (const std::string& stream,
+                                             const char* qualifier,
+                                             bool used /*= true*/)
+{
+  return initialize (stream, std::string(qualifier), used);
+}
+
+
+/**
+ * @brief Should be called during the initialize phase.  It will fail
+ *        if the requested StoreGate service cannot be found or if the key is blank.
+ * @param stream The name of the stream for which thinning is being applied.
+ * @param used If false, then this handle is not to be used.
+ *             Instead of normal initialization, the key will be cleared.
+ */
+template <class T>
+StatusCode ThinningHandleKey<T>::initialize (const std::string& stream,
+                                             bool used /*= true*/)
+{
+  // Use the owner name as the default qualifier.
+  // It's possible that the owner name contains periods, which we don't
+  // want here; these will be removed in the delegated @c initialize().
+  std::string oname;
+  if (this->owner()) {
+    oname = this->owner()->name();
+  }
+  return initialize (stream, oname, used);
+}
+
+
+/**
+ * @brief Return the write key for the thinning decision.
+ */
+template <class T>
+inline
+const WriteHandleKey<ThinningDecision>&
+ThinningHandleKey<T>::decisionHandleKey() const
+{
+  return m_decisionKey;
+}
+
+
+} // namespace SG

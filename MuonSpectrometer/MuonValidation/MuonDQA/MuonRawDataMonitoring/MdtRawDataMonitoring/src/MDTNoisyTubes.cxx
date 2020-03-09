@@ -39,16 +39,6 @@ set<Identifier> MDTNoisyTubes::getNoiseList(IdentifierHash idHash){
 }
 
 MDTNoisyTubes::MDTNoisyTubes(bool doMask){
-  //This Initializer Automatically Generated w/
-  //MdtRawDataValAlg::mdtchamberId() 
-  //To Regenerate w/ new list simply uncomment the relevant portion of the code
-  //In the above function and place in your run directory a file named "tubes.txt"
-  //Which should be of the form:
-  //[chambername] [int],[int],[int]
-  //Where the ints are tube numbers as generated w/:
-  //int mdttube= m_mdtIdHelper->tube(*i) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(*i);
-  //ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(*i), mdtlayer-1)
-  //Output will be in your run directory called out.cxx
 
   if(!doMask) return;//Option to turn off tube masking
 

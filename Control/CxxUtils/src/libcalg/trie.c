@@ -172,7 +172,7 @@ static void trie_insert_rollback(Trie *trie, char *key)
 		/* Decrease the use count and free the node if it 
 		 * reaches zero. */
 
-		--node->use_count;
+		node->use_count -= 1;
 
 		if (node->use_count == 0) {
 			free(node);

@@ -1,0 +1,3 @@
+// job opts for ThinningCacheTool test
+
+ToolSvc.TestCacheTool.StreamName = "MyStream";

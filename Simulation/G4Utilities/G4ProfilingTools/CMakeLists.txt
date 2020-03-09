@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel
                           Simulation/G4Atlas/G4AtlasTools
-			  Control/CxxUtils
 			  Simulation/G4Atlas/G4AtlasInterfaces )
 
 # External dependencies:

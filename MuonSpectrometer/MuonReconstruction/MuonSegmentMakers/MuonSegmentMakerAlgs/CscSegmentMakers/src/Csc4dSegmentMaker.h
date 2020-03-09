@@ -14,14 +14,13 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "Identifier/Identifier.h"
 #include "CscSegmentMakers/ICscSegmentFinder.h" //including MuonSegmentCombination(Collection).h CscPrepDataContainer.h"
 
-class ICscSegmentUtilTool;
+#include <atomic>
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
+class ICscSegmentUtilTool;
 
 namespace Track {
   class TrackRaod;
@@ -58,18 +57,14 @@ private:  // data
 
   // Properties.
   // Number of events dumped.
-  mutable int m_dumpcount;
-  mutable int m_dumped;
+  int m_dumpcount;
+  mutable std::atomic_int m_dumped;
   // Debug flags.
-  mutable bool m_dump;
+  mutable std::atomic_bool m_dump;
   double m_max_chisquare;
   double m_max_slope_r;
   double m_max_slope_phi;
   double m_max_seg_per_chamber;
-
-  // Pointer muon geometry manager.
-  const MuonGM::MuonDetectorManager* m_pgm;
-  const CscIdHelper* m_phelper;
 
   ToolHandle<ICscSegmentUtilTool> m_segmentTool;  
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;

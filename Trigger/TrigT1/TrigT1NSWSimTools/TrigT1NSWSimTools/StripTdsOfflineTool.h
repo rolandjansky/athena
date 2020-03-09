@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPTDSOFFLINETOOL_H
@@ -33,8 +33,6 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-
-// namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
   /**
@@ -73,11 +71,12 @@ namespace NSWL1 {
 
     virtual ~StripTdsOfflineTool();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual void handle (const Incident& inc);
+    virtual void handle (const Incident& inc) override;
 
-    StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers);
+    virtual
+    StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) override;
  
 
   private:
@@ -116,7 +115,6 @@ namespace NSWL1 {
 
     // analysis variable to be put into the ntuple
     int m_nStripHits;                                            //!< number of STRIP hit delivered
-    int m_padTrigIndex;
     std::vector<float > *m_stripCharge=0;                           //!< charge of hit STRIPs 
     std::vector<float > *m_stripCharge_6bit=0;                           //!< charge of hit STRIPs 6 bit format
     std::vector<float > *m_stripCharge_10bit=0;                           //!< charge of hit STRIPs 10 bit format
@@ -126,14 +124,14 @@ namespace NSWL1 {
     std::vector<float > *m_strip_local_X=0;                           //!< local X position
     std::vector<float > *m_strip_local_Y=0;                           //!< local Y position
     std::vector<float > *m_strip_layer=0;                           //!< layer
-    std::vector<float > *m_strip_isSmall=0;                           //!< sector number
+    std::vector<float > *m_strip_isSmall=0;                           //!< sector number // This is not the sector number ! Please avoid obvoius  and misleading stuff
     std::vector<float > *m_strip_eta=0;                           //!< sector eta
     std::vector<float > *m_strip_phi=0;                           //!< sector phi
-    std::vector<float > *m_strip_readStrip=0;                           //!< sector phi
+    std::vector<float > *m_strip_readStrip=0;                           //!< sector phi // this is not sector phi
     std::vector<int > *m_strip_channel=0;                           //!< channel
     std::vector<int > *m_strip_BCID=0;                           //!< BCID
     std::vector<int > *m_strip_wedge=0;                           //!< multipletId
-    std::vector<float > *m_strip_time=0;                           //!< multipletId
+    std::vector<float > *m_strip_time=0;                           //!< multipletId // And this is not the multiplet id 
 
 
   };  // end of StripTdsOfflineTool class

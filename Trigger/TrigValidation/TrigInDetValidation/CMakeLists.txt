@@ -5,9 +5,8 @@
 # Declare the package name:
 atlas_subdir( TrigInDetValidation )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          TestPolicy )
+# External dependencies:
+find_package( requests )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

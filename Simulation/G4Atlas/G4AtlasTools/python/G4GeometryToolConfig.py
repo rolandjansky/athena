@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from Geo2G4.Geo2G4Conf import GeoDetectorTool
+GeoDetectorTool=CompFactory.GeoDetectorTool
 from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
 from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
@@ -9,72 +10,113 @@ from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 
-from G4AtlasTools.G4AtlasToolsConf import CylindricalEnvelope, PolyconicalEnvelope
+CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,G4AtlasDetectorConstructionTool=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","G4AtlasDetectorConstructionTool",)
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
+from past.builtins import xrange
 
 #ToDo - finish migrating this (dnoel)
+#Todo - just return component accumulator
+#to still migrate: getCavernWorld, getCavernInfraGeoDetectorTool
 #from ForwardRegionProperties.ForwardRegionPropertiesToolConfig import ForwardRegionPropertiesCfg
+
+
+#put it here to avoid circular import?
+from G4AtlasServices.G4AtlasServicesConf import G4GeometryNotifierSvc
+def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs):
+    kwargs.setdefault("ActivateLVNotifier", True)
+    kwargs.setdefault("ActivatePVNotifier", False)
+    return G4GeometryNotifierSvc(name, **kwargs)
 
 #tool cfg or just cfg?
 def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
     #set up geometry
     result=BeamPipeGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "BeamPipe")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):    
     #set up geometry
     result=InDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Pixel")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
     #set up geometry
     result=InDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "SCT")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def TRTGeoDetectorToolCfg(ConfigFlags, name='TRT', **kwargs):
     #set up geometry
     result=InDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "TRT")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def IDetServicesMatGeoDetectorToolCfg(ConfigFlags, name='IDetServicesMat', **kwargs):
     #set up geometry
     result=InDetServiceMaterialCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "InDetServMat")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def LArMgrGeoDetectorToolCfg(ConfigFlags, name='LArMgr', **kwargs):
     #set up geometry
     result=LArGMCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "LArMgr")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
-def TileGeoDetectorToolCfg(ConfigFLags, name='Tile', **kwargs):
+def TileGeoDetectorToolCfg(ConfigFlags, name='Tile', **kwargs):
     #set up geometry
-    result=TileGMCfg(ConfigFLags)
+    result=TileGMCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Tile")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def LucidGeoDetectorToolCfg(ConfigFlags, name='Lucid', **kwargs):
     #set up geometry
     result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "LUCID")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def ALFAGeoDetectorToolCfg(ConfigFlags, name='ALFA', **kwargs):
     #set up geometry
     result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ALFA")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def ZDCGeoDetectorToolCfg(ConfigFlags, name='ZDC', **kwargs):
     #set up geometry
     result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ZDC")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def AFPGeoDetectorToolCfg(ConfigFlags, name='AFP', **kwargs):
@@ -82,6 +124,9 @@ def AFPGeoDetectorToolCfg(ConfigFlags, name='AFP', **kwargs):
     result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "AFP")
     kwargs.setdefault("GeoDetectorName", "AFP_GeoModel")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def FwdRegionGeoDetectorToolCfg(ConfigFlags, name='FwdRegion', **kwargs):
@@ -89,24 +134,36 @@ def FwdRegionGeoDetectorToolCfg(ConfigFlags, name='FwdRegion', **kwargs):
     result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "FwdRegion")
     kwargs.setdefault("GeoDetectorName", "ForwardRegionGeoModel")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
 def MuonGeoDetectorToolCfg(ConfigFlags, name='Muon', **kwargs):
     #set up geometry
     result=MuonGeoModelCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Muon")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
     return result, GeoDetectorTool(name, **kwargs)
 
-def getCavernInfraGeoDetectorTool(name='CavernInfra', **kwargs):
+#todo - set this up
+def getCavernInfraGeoDetectorTool(ConfigFlags, name='CavernInfra', **kwargs):
+    result = ComponentAccumulator() #needs geometry setting up!
     kwargs.setdefault("DetectorName", "CavernInfra")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    return GeoDetectorTool(name, **kwargs)
 
 def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
     result = ComponentAccumulator()
 
     isUpgrade = ConfigFlags.GeoModel.Run =="RUN4" 
     isRUN2 = ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]
-    isRUN1 = not (isRUN2 or isUpgrade)
+
+    #isRUN1 = not (isRUN2 or isUpgrade) #not used, remove?
 
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
@@ -268,7 +325,6 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    AtlasOuterR3 =  1501.
     if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.SimulateMuon and not \
        (ConfigFlags.Sim.CavernBG != 'Signal'):
         AtlasOuterR1 = 4251.
@@ -326,42 +382,9 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
 
     return result, PolyconicalEnvelope(name, **kwargs)
 
-def getCavernWorld(name="Cavern", **kwargs):
-    kwargs.setdefault("DetectorName", "World")
-    bedrockDX = 302700
-    bedrockDZ = 301000
-    from G4AtlasApps.SimFlags import simFlags
-    if not (hasattr(simFlags,'CavernBG') and simFlags.CavernBG.statusOn ):
-        ## Be ready to resize bedrock if the cosmic generator needs more space
-        if simFlags.ISFRun:
-            # for ISF cosmics simulation, set world volume to biggest possible case
-            bedrockDX = 1000.*3000 # 3 km
-            bedrockDZ = 1000.*3000 # 3 km
-        else:
-            from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
-            theCavernProperties = CavernPropertyCalculator()
-            if theCavernProperties.BedrockDX() > bedrockDX:
-                bedrockDX = theCavernProperties.BedrockDX()
-            if theCavernProperties.BedrockDZ() > bedrockDZ:
-                bedrockDZ = theCavernProperties.BedrockDZ()
-    kwargs.setdefault("dX", bedrockDX) #FIXME Units?
-    kwargs.setdefault("dY", 57300 + 41000 + 1000) # 1 extra metre to help voxelization... #FIXME Units?
-    kwargs.setdefault("dZ", bedrockDZ) #FIXME Units?
-    # Subtraction Solid - has to be a better way to do this!!
-    kwargs.setdefault("NumberOfHoles", 1)
-    kwargs.setdefault("HoleNames", ['BelowCavern'])
-    kwargs.setdefault("Hole_dX",   [bedrockDX]);
-    kwargs.setdefault("Hole_dY",   [41000]);
-    kwargs.setdefault("Hole_dZ",   [bedrockDZ]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [-58300]);
-    kwargs.setdefault("HolePosZ",  [0]);
-    kwargs.setdefault("SubDetectors", ['CavernInfra', 'Atlas'])
-    return CfgMgr.BoxEnvelope(name, **kwargs)
+def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstructionTool", **kwargs):
+    return G4AtlasDetectorConstructionTool(name, **kwargs)
 
-def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", **kwargs):
-    return CfgMgr.G4AtlasDetectorConstructionTool(name, **kwargs)
-
-def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
+def MaterialDescriptionToolCfg(ConfigFlags, name="MaterialDescriptionTool", **kwargs):
     ## kwargs.setdefault("SomeProperty", aValue)
-    return CfgMgr.MaterialDescriptionTool(name, **kwargs)
+    return MaterialDescriptionTool(name, **kwargs)

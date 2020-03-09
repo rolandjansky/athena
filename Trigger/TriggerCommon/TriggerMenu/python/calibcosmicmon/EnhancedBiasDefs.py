@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################
 #
@@ -9,8 +9,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger('TriggerMenu.calibcosmon.EnhancedBiasDef')
 
-from TriggerMenu.menu.HltConfig import *
-from TriggerJobOpts.TriggerFlags  import TriggerFlags
+from TriggerMenu.menu.HltConfig import L2EFChainDef
 
 #########################################################################
 

@@ -24,6 +24,21 @@ AtlasG4_tf.py \
 --DataRunNumber 222525
 
 echo  "art-result: $? simulation"
+cp log.AtlasG4Tf log.AtlasG4Tf1
+
+AtlasG4_tf.py \
+--inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/mu_E200_eta0-25.evgen.pool.root \
+--outputHITSFile mu_E200_eta0-25_${GEOMETRY}.2.HITS.pool.root \
+--maxEvents 5 \
+--skipEvents 5 \
+--geometryVersion ${GEOMETRY} \
+--physicsList 'FTFP_BERT_ATL' \
+--preInclude 'SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+--conditionsTag OFLCOND-RUN12-SDR-30 \
+--DataRunNumber 222525
+
+echo  "art-result: $? simulation2"
+cp log.AtlasG4Tf log.AtlasG4Tf2
 
 INPUTFILE=mu_E200_eta0-25_${GEOMETRY}.HITS.pool.root
 FILENAME=`basename ${INPUTFILE}`
@@ -31,20 +46,13 @@ FILEBASE=${FILENAME%.HITS.pool.root}
 INPUTFILE2=${FILEBASE}.2.HITS.pool.root
 RDOFILE1=${FILEBASE}.unmerged.RDO.pool.root
 RDOFILE2=${FILEBASE}.merged.RDO.pool.root
-# Copy the file.  We can't use cp here, since we need the copy to get
-# a new GUID.  Otherwise, we'll get errors about duplicate GUIDs
-# in the file catalog.
-mergePOOL -o $INPUTFILE2 -i $INPUTFILE
 
-echo  "art-result: $? copyHITS"
 
 INPUTLIST=$INPUTFILE,$INPUTFILE2
 MERGEHITSFILE=${FILEBASE}.merged.HITS.pool.root
 echo $INPUTLIST
 
-## TODO: Temporary hack until log files are found!
-cp log.AtlasG4Tf log.AtlasG4Tf2
-INPUTLOGLIST=log.AtlasG4Tf,log.AtlasG4Tf2
+INPUTLOGLIST=log.AtlasG4Tf1,log.AtlasG4Tf2
 
 HITSMerge_tf.py \
 --inputHITSFile "$INPUTLIST" \

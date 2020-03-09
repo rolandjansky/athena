@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file clid_unittest.py
 # @brief Unit tests for clidGenerator
@@ -32,6 +32,7 @@ class CLIDTestCase( TestFixture ):
       # get rid of expected error message
       sys.stdout = open("dummyIgnore.txt", 'w')
       self.cgen = clidGenerator("NOTTHERE.db")
+      sys.stdout.close()
       sys.stdout = sys.__stdout__
       os.remove("dummyIgnore.txt");
       

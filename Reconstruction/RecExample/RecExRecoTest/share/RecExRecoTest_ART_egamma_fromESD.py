@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -128,6 +128,7 @@ ServiceMgr.DetDescrCnvSvc.DecodeIdDict = True
 
 include ("LArRecUtils/LArAffectedRegion.py")
 include("InDetBeamSpotService/BeamCondSvc.py")
+include("InDetRecExample/InDetRecConditionsAccess.py")
 # Detector Description
 #---------------------------------------------------------------------------------#
 
@@ -157,13 +158,16 @@ except Exception:
 
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
 
+from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
+CaloExtensionBuilder("NoCut", 500.) 
+
 from egammaRec.egammaRecFlags import jobproperties
 
 include( "egammaRec/egammaRec_jobOptions.py" )
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
@@ -171,11 +175,11 @@ StreamESD.ItemList+=CaloESDList
 include ("egammaRec/egammaOutputItemList_jobOptions.py")
 StreamESD.ItemList+=egammaESDList
 
-print StreamESD.ItemList
+printfunc (StreamESD.ItemList)
 
 include ( "RecExRecoTest/RecExRecoTest_EgammaHiveRenames.py" )
 
-print "==========================================================================================\n"
+printfunc ("==========================================================================================\n")
 
 #
 ## set which Algorithms can be cloned

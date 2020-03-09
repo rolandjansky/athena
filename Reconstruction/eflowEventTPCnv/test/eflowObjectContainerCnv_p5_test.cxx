@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,7 +14,6 @@
 #undef NDEBUG
 #include "eflowEventTPCnv/eflowObjectContainerCnv_p5.h"
 #include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
@@ -112,7 +111,7 @@ void test1()
   eflowObjectContainer trans1;
   for (int i=0; i < 10; i++) {
     int o = i*100;
-    auto p = CxxUtils::make_unique<eflowObject>();
+    auto p = std::make_unique<eflowObject>();
     p->setE (100.5+o);
     p->setEta (2.5+o);
     p->setPhi (1.5+o);

@@ -221,6 +221,59 @@ namespace xAOD {
      return links;
   }
 
+   template< class CONTAINER >
+   std::vector<std::string> TrigComposite_v1::getObjectNames() const {
+
+      std::vector< std::string > returnVec;
+      const std::vector< std::string >& names = linkColNames();
+      const std::vector< uint32_t >& clids = linkColClids();
+
+      for( size_t i = 0; i < names.size(); ++i ) {
+         if (names[i].find(s_collectionSuffix) != std::string::npos) { //Note: !=
+            continue; // ARE *NOT* interested in collection links here
+         }
+         bool clidMatch = false;
+         if (ClassID_traits< CONTAINER >::ID() == ClassID_traits< xAOD::IParticleContainer >::ID()) {
+            clidMatch = derivesFromIParticle(clids[i]);
+         } else if (ClassID_traits< CONTAINER >::ID() == clids[i]) {
+            clidMatch = true;
+         }
+         if (clidMatch) {
+            returnVec.push_back( names[i] );
+         }
+      }
+      return returnVec;
+   }
+
+   template< class CONTAINER >
+   std::vector<std::string> TrigComposite_v1::getObjectCollectionNames() const {
+
+      std::vector< std::string > returnVec;
+      const std::vector< std::string >& names = linkColNames();
+      const std::vector< uint32_t >& clids = linkColClids();
+
+      for( size_t i = 0; i < names.size(); ++i ) {
+         if (names[i].find(s_collectionSuffix) == std::string::npos) { // Note: ==
+            continue; // ARE interested in collection links here
+         }
+         bool clidMatch = false;
+         if (ClassID_traits< CONTAINER >::ID() == ClassID_traits< xAOD::IParticleContainer >::ID()) {
+            clidMatch = derivesFromIParticle(clids[i]);
+         } else if (ClassID_traits< CONTAINER >::ID() == clids[i]) {
+            clidMatch = true;
+         }
+         if (clidMatch) {
+            // Unlike with single links, we expect to find multiple links here. Only add the name once. 
+            // Name is mangled in storage, need to un-mangle it before returning it to the user. 
+            const std::string unmangledName = names[i].substr(0, names[i].size() - s_collectionSuffix.size());
+            if ( std::none_of(returnVec.begin(), returnVec.end(), [&](const auto& s) {return unmangledName == s;}) ) {
+               returnVec.push_back( unmangledName );
+            }
+         }
+      }
+      return returnVec;
+   }
+
    template<class CONTAINER>
    void TrigComposite_v1::checkTypes(const uint32_t storedCLID, const std::string& name) const {
       if (ClassID_traits< CONTAINER >::ID() == ClassID_traits< xAOD::IParticleContainer >::ID()) {

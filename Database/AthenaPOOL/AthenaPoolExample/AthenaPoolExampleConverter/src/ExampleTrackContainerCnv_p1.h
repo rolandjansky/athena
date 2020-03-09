@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EXAMPLETRACKCONTAINERCNV_P1_H
@@ -13,12 +13,8 @@
  **/
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#define private public
-#define protected public
 #include "AthenaPoolExampleData/ExampleTrackContainer.h"
 #include "AthenaPoolExampleConverter/ExampleTrackContainer_p1.h"
-#undef private
-#undef protected
 #include "ExampleTrackCnv_p1.h"
 
 typedef T_AthenaPoolTPCnvVector<ExampleTrackContainer, ExampleTrackContainer_p1, ExampleTrackCnv_p1> ExampleTrackContainerCnv_p1;

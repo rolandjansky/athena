@@ -81,12 +81,12 @@ public:
   			    bool trigger=false) = 0;
 
   /// Subscribe method for DataProxy. key StoreGate key
-  virtual StatusCode regProxy( const SG::DataProxy *proxy, 
+  virtual StatusCode regProxy(       SG::DataProxy *proxy, 
 			       const std::string& key,
 			       const std::string& storeName="StoreGateSvc") = 0;
   /// replace a registered proxy with a new version
-  virtual StatusCode replaceProxy( const SG::DataProxy *pOld, 
-				   const SG::DataProxy *pNew, 
+  virtual StatusCode replaceProxy(       SG::DataProxy *pOld, 
+				         SG::DataProxy *pNew, 
 				   const std::string& storeName="StoreGateSvc") = 0;
 
   /// Another way to subscribe
@@ -94,7 +94,7 @@ public:
 			       const std::string& storeName="StoreGateSvc" ) = 0;
   //@}
 
-  virtual StatusCode deregProxy( const SG::DataProxy *proxy ) = 0;
+  virtual StatusCode deregProxy( SG::DataProxy *proxy ) = 0;
   virtual StatusCode deregProxy( const CLID& clid, const std::string& key ) = 0;
 
 

@@ -13,6 +13,22 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Physics )
+find_package( GMock )
+
+atlas_add_library( TrigHLTJetHypoUnitTestsLib
+                   src/*.cxx
+                   exerciser/*.cxx
+                   PUBLIC_HEADERS TrigHLTJetHypoUnitTests
+                   # PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib DecisionHandlingLib TrigHLTJetHypoLib 
+                   # PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+		   )
+
+atlas_add_component( TrigHLTJetHypoUnitTests
+                     exerciser/components/*.cxx
+                     LINK_LIBRARIES  TrigHLTJetHypoUnitTestsLib)
+		     
+atlas_install_headers( TrigHLTJetHypoUnitTests )
 
 # Test(s) in the package:
 atlas_add_test( TrigHLTJetHypoTimerTest
@@ -21,22 +37,27 @@ atlas_add_test( TrigHLTJetHypoTimerTest
    LINK_LIBRARIES ${ROOT_LIBRARIES} TrigHLTJetHypoLib )
 
 atlas_add_test( TrigHLTJetHypoUnitTests
-   SOURCES src/all_tests.cxx
-   src/CombinationsGenTest.cxx
-   src/DijetDEtaMassConditionTest.cxx
-   src/EtaEtConditionTest.cxx
-   src/FlowEdgeTest.cxx
-   src/FlowNetworkTest.cxx
-   src/LlpCleanerTest.cxx
-   src/LooseCleanerTest.cxx
-   src/MaximumBipartiteGroupsMatcherTest.cxx
-   src/MaximumBipartiteGroupsMatcherMTTest.cxx
-   src/MaximumBipartiteGroupsMatcherMTTest_Multijet.cxx
-   src/MultiJetMatcherTest.cxx
-   src/OrderedCollectionsMatcherTest.cxx
-   src/SelectedJetsMatcherTest.cxx
-   src/TLorentzVectorFactoryTest.cxx
-   src/TightCleanerTest.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools
-   TrigHLTJetHypoLib )
+   SOURCES tests/all_tests.cxx
+   tests/CombinationsGenTest.cxx
+   tests/DijetDEtaMassConditionTest.cxx
+   tests/EtaEtConditionTest.cxx
+   tests/FlowEdgeTest.cxx
+   tests/FlowNetworkTest.cxx
+   tests/LlpCleanerTest.cxx
+   tests/LooseCleanerTest.cxx
+   tests/MaximumBipartiteGroupsMatcherTest.cxx
+   tests/MaximumBipartiteGroupsMatcherMTTest.cxx
+   tests/MaximumBipartiteGroupsMatcherMTTest_Multijet.cxx
+   tests/PartitionsGenTest.cxx
+   tests/PartitionsGroupsMatcherMTTest.cxx
+   tests/TLorentzVectorFactoryTest.cxx
+   tests/TightCleanerTest.cxx
+   tests/xAODJetCollectorTest.cxx
+   tests/PartitionsGrouperTest.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools ${GMOCK_LIBRARIES}
+   TrigHLTJetHypoLib
+   TrigHLTJetHypoUnitTestsLib)
+   
+# Install files from the package:
+atlas_install_python_modules( python/*.py ) 

@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Csc2dSegmentMaker.h"
-#include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include <sstream>
 #include <cmath>
 
@@ -15,7 +14,6 @@
 
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrkEventPrimitives/FitQuality.h"
@@ -24,9 +22,6 @@
 
 #include "TrkSegment/Segment.h"
 #include "TrkRoad/TrackRoad.h"
-
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h" 
-
 #include "MuonCondInterface/ICSCConditionsSvc.h"
 
 using Muon::CscPrepDataContainer;
@@ -43,12 +38,6 @@ using Muon::MuonClusterOnTrack;
 using Muon::MdtDriftCircleOnTrack;
 
 namespace {
-
-/*std::string station_name(int station) {
-  if ( station == 1 ) return "CSS";
-  if ( station == 2 ) return "CSL";
-  return "UNKNOWN_STATION";
-}*/
 
 std::string measphi_name(bool measphi) {
   if ( measphi ) return "phi";
@@ -74,27 +63,9 @@ std::string chamber(int istation, int zsec, int phi) {
 
 Csc2dSegmentMaker::
 Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent),
-    m_pgm(0), m_phelper(0),
-    m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool", this),
-    m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-    //m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", aname)
-    //m_cscCondSvc("CSCCondSummarySvc",name())
+  : AthAlgTool(type, aname, parent)
 {
   declareInterface<ICscSegmentFinder>(this);
-  declareProperty("segmentTool", m_segmentTool);
-  declareProperty("cscRotCreator", m_cscClusterOnTrackCreator);
-  declareProperty("IdHelper", m_idHelper);
-  declareProperty("cscdig_sg_inkey", m_cscdig_sg_inkey = "CSC_Measurements");
-}
-
-//******************************************************************************
-
-// Destructor.
-
-Csc2dSegmentMaker::~Csc2dSegmentMaker() {
 }
 
 //******************************************************************************
@@ -106,13 +77,7 @@ StatusCode Csc2dSegmentMaker::initialize(){
   ATH_MSG_DEBUG ( "  SegmentTool: " << m_segmentTool.typeAndName() );
   ATH_MSG_DEBUG ( "  Input cscdig key: " << m_cscdig_sg_inkey );
 
-  // Retrieve the detector descriptor.
-  if ( detStore()->retrieve(m_pgm).isFailure() ) {
-    ATH_MSG_FATAL ( " Cannot retrieve MuonReadoutGeometry " );
-    return StatusCode::FAILURE;
-  }
-
-  m_phelper = m_pgm->cscIdHelper();
+  ATH_CHECK(m_idHelperSvc.retrieve());
   
   if ( m_segmentTool.retrieve().isFailure() ) {
     ATH_MSG_ERROR ( "Unable to retrieve CscSegmentUtilTool " << m_segmentTool );
@@ -122,22 +87,11 @@ StatusCode Csc2dSegmentMaker::initialize(){
     ATH_MSG_ERROR ( "Unable to retrieve  " << m_cscClusterOnTrackCreator );
     return StatusCode::FAILURE;
   }
-  if ( m_idHelper.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Unable to retrieve CscSegmentUtilTool " << m_idHelper );
+  if ( m_printer.retrieve().isFailure() ) {
+    ATH_MSG_ERROR ( "Unable to retrieve MuonEDMPrinterTool" << m_printer );
     return StatusCode::FAILURE;
   }  
-  /*
-  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
-    return StatusCode::FAILURE;
-  }
-  */
-  /*
-  if (m_cscCondSvc.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not get ICSConditionsSvc");
-    return StatusCode::FAILURE;
-  }
-  */
+
   return StatusCode::SUCCESS;
 }
 
@@ -222,10 +176,10 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       //ATH_MSG_DEBUG("get hashes for "<<detEl->maxNumberOfStrips(iPhi)<<" strips ");
       for(int iStrip=0;iStrip<detEl->maxNumberOfStrips(iPhi);iStrip++){
 	ATH_MSG_DEBUG("get strip quality for "<<isPhi<<" layer "<<iLay<<" strip "<<iStrip);
-	Identifier stripId=m_phelper->channelID(redName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
-	//ATH_MSG_DEBUG("just-constructed id corresponds to chamberLayer "<<m_phelper->chamberLayer(stripId)<<", wire layer "<<m_phelper->wireLayer(stripId)<<", strip "<<m_phelper->strip(stripId));
+	Identifier stripId=m_idHelperSvc->cscIdHelper().channelID(redName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
+	//ATH_MSG_DEBUG("just-constructed id corresponds to chamberLayer "<<m_idHelperSvc->cscIdHelper().chamberLayer(stripId)<<", wire layer "<<m_idHelperSvc->cscIdHelper().wireLayer(stripId)<<", strip "<<m_idHelperSvc->cscIdHelper().strip(stripId));
 	IdentifierHash hashID;
-	m_phelper->get_channel_hash(stripId,hashID);
+	m_idHelperSvc->cscIdHelper().get_channel_hash(stripId,hashID);
 	//ATH_MSG_DEBUG("get strip status with hash "<<hashID);
 	if(!m_segmentTool->isGood(hashID)){
 	  ATH_MSG_DEBUG("bad strip");
@@ -243,11 +197,11 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
   for ( CscPrepDataCollection::const_iterator iclu=clus.begin(); iclu!=clus.end(); ++iclu ) {
     const CscPrepData* pclu = *iclu;
     Identifier id = pclu->identify();
-    int station = m_phelper->stationName(id) - 49;
-    int eta = m_phelper->stationEta(id);
-    int phisec = m_phelper->stationPhi(id);
-    int iwlay = m_phelper->wireLayer(id);
-    bool measphi = m_phelper->measuresPhi(id);
+    int station = m_idHelperSvc->cscIdHelper().stationName(id) - 49;
+    int eta = m_idHelperSvc->cscIdHelper().stationEta(id);
+    int phisec = m_idHelperSvc->cscIdHelper().stationPhi(id);
+    int iwlay = m_idHelperSvc->cscIdHelper().wireLayer(id);
+    bool measphi = m_idHelperSvc->cscIdHelper().measuresPhi(id);
     
     if ( iclu == clus.begin() ) {
       col_station = station;
@@ -262,16 +216,6 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       return 0;
     }
 
-//     // create CscClusterOnTrack and pass to segment finder.
-//     Trk::LocalPosition lpos = pclu->localPosition();
-
-//     Trk::DefinedParameter  locPar(lpos.x(),Trk::locX);
-//     Trk::LocalParameters*  ppars = new Trk::LocalParameters(locPar); 
-//     Trk::ErrorMatrix* pcerr = new Trk::ErrorMatrix(pclu->localErrorMatrix());
-
-    //    Trk::ParamDefs icor = Trk::loc1;
-    //    double positionAlongStrip = lpos.get(icor); // should be carefully estimated
-
     const Muon::MuonClusterOnTrack* clu = m_cscClusterOnTrackCreator->createRIO_OnTrack(*pclu,pclu->globalPosition());
     const Muon::CscClusterOnTrack* ptclu = dynamic_cast<const Muon::CscClusterOnTrack*>(clu);
     if( !ptclu ){
@@ -280,7 +224,6 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       continue;
     }
     Amg::Vector3D lpos = gToLocal*ptclu->globalPosition();
-//     std::cout << " " << m_idHelper->toString(ptclu->identify()) << " lpos " << lpos << "  locPos " << pclu->localPosition() << std::endl;
     if ( measphi ) {
       phi_id = id;
       phi_clus[iwlay-1].push_back(Cluster(lpos,ptclu,measphi));

@@ -11,12 +11,10 @@
 
 //=== LArShapeP
 #include "LArRawConditions/LArShape32MC.h"
-#include "LArRawConditions/LArShapeMC.h"
 #include "LArRawConditions/LArShapeP.h"
 #include "LArRawConditions/LArShapeP1.h"
 INSTAN_CC(LArShapeP1);
 INSTAN_CS(LArShapeP);
-//PYGATE(LArShapeMC);
 //PYGATE(LArShape32MC);
 
 

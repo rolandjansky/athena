@@ -12,7 +12,7 @@ LArG4H6BeamSDTool::LArG4H6BeamSDTool(const std::string& type, const std::string&
 {
 }
 
-G4VSensitiveDetector* LArG4H6BeamSDTool::makeSD()
+G4VSensitiveDetector* LArG4H6BeamSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   //FIXME better to use a configurable property here?

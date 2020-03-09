@@ -1,17 +1,20 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script for building the release on top of externals built using the
 # script in this directory.
 #
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build.sh [-t type] [-b dir] [-g generator] [-c] [-m] [-i] [-p] [-a]"
+    echo "Usage: build.sh [-t type] [-b dir] [-g generator] [-c] [-m] [-i] [-p] [-a] [-x opt]"
     echo ""
     echo "  General flags:"
     echo "    -t: The (optional) CMake build type to use."
     echo "    -b: The (optional) build directory to use."
     echo "    -g: The (optional) CMake generator to use."
+    echo "    -x: Extra configuration argument(s) for CMake."
     echo "    -a: Abort on error."
     echo "  Build step selection:"
     echo "    -c: Execute the CMake step."
@@ -33,6 +36,7 @@ EXE_MAKE=""
 EXE_INSTALL=""
 EXE_CPACK=""
 NIGHTLY=true
+EXTRACMAKE=()
 while getopts ":t:b:g:hcmipa" opt; do
     case $opt in
         t)
@@ -58,6 +62,9 @@ while getopts ":t:b:g:hcmipa" opt; do
             ;;
         a)
             NIGHTLY=false
+            ;;
+        x)
+            EXTRACMAKE+=($OPTARG)
             ;;
         h)
             usage
@@ -119,7 +126,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # Now run the actual CMake configuration:
     time cmake -G "${GENERATOR}" \
          -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
-         ${USE_LAUNCHERS} \
+         ${EXTRACMAKE[@]} ${USE_LAUNCHERS} \
          ${VP1LightSrcDir} 2>&1 | tee cmake_config.log
 fi
 
@@ -148,7 +155,7 @@ fi
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
     time make install/fast \
-         DESTDIR=${BUILDDIR}/install/VP1Light/${NICOS_PROJECT_VERSION} \
+         DESTDIR=${BUILDDIR}/install \
          2>&1 | tee cmake_install.log
 fi
 

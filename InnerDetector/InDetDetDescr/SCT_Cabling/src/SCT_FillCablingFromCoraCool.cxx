@@ -228,11 +228,11 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
     return StatusCode::FAILURE;
   }
   // let's get the ROD AttrLists
-  const DataHandle<CondAttrListVec> pRod;
   std::string folder{determineFolder(rodFolderName,rodFolderName2)};
   enum DBTYPE {COMP200, CONDBR2};
   const DBTYPE db{(folder==rodFolderName) ? COMP200 : CONDBR2};
-  if (not successfulFolderRetrieve(pRod, folder)) return StatusCode::FAILURE;
+  const CondAttrListVec* pRod = successfulFolderRetrieve(folder);
+  if (!pRod) return StatusCode::FAILURE;
   // build rod-rob map, and store the crate/slot to RobId mapping
   CondAttrListVec::const_iterator rodIt{pRod->begin()};
   CondAttrListVec::const_iterator last_rod{pRod->end()};
@@ -295,9 +295,9 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
    * In fact for the barrel its obvious, so only extract the endcap ones
    **/
   IntMap geoMurMap;
-  const DataHandle<CondAttrListVec> pGeo;
   folder = determineFolder(geoFolderName, geoFolderName2);
-  if (not successfulFolderRetrieve(pGeo, folder)) return StatusCode::FAILURE;
+  const CondAttrListVec* pGeo = successfulFolderRetrieve(folder);
+  if (!pGeo) return StatusCode::FAILURE;
   CondAttrListVec::const_iterator geoIt{pGeo->begin()};
   CondAttrListVec::const_iterator last_geo{pGeo->end()};
   for (;geoIt != last_geo;++geoIt) {
@@ -311,9 +311,9 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
    * so make a temporary data structure.
    **/
   IntMap murPositionMap;
-  const DataHandle<CondAttrListVec> pRodMur;
   folder = determineFolder(rodMurFolderName,rodMurFolderName2);
-  if (not successfulFolderRetrieve(pRodMur, folder)) return StatusCode::FAILURE;
+  const CondAttrListVec* pRodMur= successfulFolderRetrieve(folder);
+  if (!pRodMur) return StatusCode::FAILURE;
   CondAttrListVec::const_iterator rodMurIt{pRodMur->begin()};
   CondAttrListVec::const_iterator last_rodMur{pRodMur->end()};
   allInsertsSucceeded = true;
@@ -337,9 +337,9 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
   if (not allInsertsSucceeded) ATH_MSG_WARNING("Some MUR-position map inserts failed.");
   //
   // let's get the MUR AttrLists
-  const DataHandle<CondAttrListVec> pMur;
   folder=determineFolder(murFolderName,murFolderName2);
-  if (not successfulFolderRetrieve(pMur, folder)) return StatusCode::FAILURE;
+  const CondAttrListVec* pMur = successfulFolderRetrieve(folder);
+  if (!pMur) return StatusCode::FAILURE;
   //build identifier map
   CondAttrListVec::const_iterator murIt{pMur->begin()};
   CondAttrListVec::const_iterator last_mur{pMur->end()};
@@ -472,16 +472,18 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
   return (numEntries==0) ? (StatusCode::FAILURE) : (StatusCode::SUCCESS);
 }
 
-bool  SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const DataHandle<CondAttrListVec>& pDataVec, const std::string& folderName) const {
+const CondAttrListVec*
+ SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const std::string& folderName) const {
+  const CondAttrListVec* pDataVec = nullptr;
   if (detStore()->retrieve(pDataVec, folderName).isFailure()) {
     ATH_MSG_FATAL("Could not retrieve AttrListVec for "<<folderName);
-    return false;
+    return nullptr;
   }
   if (0==pDataVec->size()) {
     ATH_MSG_FATAL("This folders data set appears to be empty: "<<folderName);
-    return false;
+    return nullptr;
   }
-  return true;
+  return pDataVec;
 }
 
 std::string SCT_FillCablingFromCoraCool::determineFolder(const std::string& option1, const std::string& option2) const {

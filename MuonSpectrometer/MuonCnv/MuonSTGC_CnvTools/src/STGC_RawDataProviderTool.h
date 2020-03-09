@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_STGC_RAWDATAPROVIDERTOOL_H
@@ -13,11 +13,6 @@ class TgcRdoContainer;
 class ActiveStoreSvc;
 class IROBDataProviderSvc;
 class ITGCcablingSvc;
-
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
 
 namespace Muon
 {
@@ -36,9 +31,9 @@ namespace Muon
       virtual ~STGC_RawDataProviderTool();
       
       /** Standard AlgTool method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** Standard AlgTool method */
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
       
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool */
       virtual StatusCode convert(const ROBFragmentList& vecRobs) override;
@@ -51,8 +46,6 @@ namespace Muon
       virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect) override;
 
     private:
-      /** MuonDectorManager is used to get tgcIdHelper */
-      const MuonGM::MuonDetectorManager*  m_muonMgr;
 
     };
 } // end of namespace

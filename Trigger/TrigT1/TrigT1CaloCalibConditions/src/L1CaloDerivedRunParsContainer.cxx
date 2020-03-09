@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigT1CaloCalibConditions/L1CaloDerivedRunParsContainer.h"
 
 #include <algorithm>
 #include <memory>
 
-#include "CxxUtils/make_unique.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -29,7 +28,7 @@ L1CaloDerivedRunParsContainer::L1CaloDerivedRunParsContainer(const std::string& 
 
 DataObject* L1CaloDerivedRunParsContainer::makePersistent() const
 {
-  using CxxUtils::make_unique;
+  using std::make_unique;
 
   if(m_coolFolderKey.empty()) return nullptr;
 

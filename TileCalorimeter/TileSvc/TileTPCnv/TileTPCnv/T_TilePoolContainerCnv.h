@@ -21,9 +21,11 @@
 #include <inttypes.h>
 
 template<class TRANS, class PERS, class CONV>
-class T_TilePoolContainerCnv : public T_AthenaPoolTPCnvBase<TRANS, PERS> {
+class T_TilePoolContainerCnv : public T_AthenaPoolTPCnvConstBase<TRANS, PERS> {
 public:
-  
+  using T_AthenaPoolTPCnvConstBase<TRANS, PERS>::transToPers;
+  using T_AthenaPoolTPCnvConstBase<TRANS, PERS>::persToTrans;
+
   typedef typename PERS::ElemVector pers_ElemVector;
   typedef typename PERS::const_iterator pers_const_iterator;
   typedef typename SelectAllObject<TRANS>::const_iterator trans_const_iterator;
@@ -37,7 +39,8 @@ public:
       @param transVect [IN] vector of transient object
       @param log [IN] output message stream
   */
-  virtual void persToTrans(const PERS* pers, TRANS* trans, MsgStream &log) {
+  virtual void persToTrans(const PERS* pers, TRANS* trans, MsgStream &log) const override
+  {
 
     const std::vector<unsigned int>& param = pers->getParam();
     const pers_ElemVector& vec = pers->getVector();
@@ -75,7 +78,7 @@ public:
     }
 
     for( pers_const_iterator it = vec.begin(), iEnd = vec.end(); it != iEnd; ++it) {
-      if (mutableContainer->push_back(m_elementCnv.createTransient(&(*it), log)).isFailure()) {
+      if (mutableContainer->push_back(m_elementCnv.createTransientConst(&(*it), log)).isFailure()) {
         throw std::runtime_error("Failed to add Tile element to Collection");
       }
     }
@@ -97,7 +100,8 @@ public:
       @param persVect [IN] vector of persistent objects
       @param log [IN] output message stream
   */
-  virtual void transToPers(const TRANS* trans, PERS* pers, MsgStream &log) {
+  virtual void transToPers(const TRANS* trans, PERS* pers, MsgStream &log) const override
+  {
 
     pers->clear();
     pers->reserve(1, 12288);

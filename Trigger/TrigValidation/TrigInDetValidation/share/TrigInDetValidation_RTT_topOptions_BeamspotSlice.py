@@ -24,13 +24,7 @@ rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
 
-rFTK=False
-if 'doFTK' in dir() and doFTK==True:
-  from TriggerJobOpts.TriggerFlags import TriggerFlags
-  TriggerFlags.doFTK=True
-  rFTK=True
-
-(idtrigChainlist, tidaAnalysischains) = beamspotChains(rID,rFTK)
+(idtrigChainlist, tidaAnalysischains) = beamspotChains(rID)
 
 def resetSigs():
   TriggerFlags.doHypo=False
@@ -41,7 +35,7 @@ def resetSigs():
 
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
-topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
+#topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
 
 if 'fastZFinder' in dir() and fastZFinder==True:
   from AthenaCommon.AppMgr import ToolSvc

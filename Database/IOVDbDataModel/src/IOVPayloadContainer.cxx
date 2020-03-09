@@ -1,15 +1,35 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVDbDataModel/IOVPayloadContainer.h"
 
 IOVPayloadContainer::~IOVPayloadContainer()
 {
-    // delete payload objects
-    payloadVec::iterator it   = m_payloadVec.begin();
-    payloadVec::iterator last = m_payloadVec.end();
-    for (; it != last; ++it) delete (*it);
+  for(CondAttrListCollection* col : m_payloadVec) {
+    delete col;
+  }
+}
+
+IOVPayloadContainer::IOVPayloadContainer(const IOVPayloadContainer& cont)
+{
+  m_payloadVec.reserve(cont.m_payloadVec.size());
+  for(CondAttrListCollection* col : cont.m_payloadVec) {
+    m_payloadVec.push_back(new CondAttrListCollection(*col));
+  }
+}
+
+IOVPayloadContainer& IOVPayloadContainer::operator=(const IOVPayloadContainer& cont)
+{
+  for(CondAttrListCollection* col : m_payloadVec) {
+    delete col;
+  }
+  m_payloadVec.clear();
+  m_payloadVec.reserve(cont.m_payloadVec.size());
+  for(CondAttrListCollection* col : cont.m_payloadVec) {
+    m_payloadVec.push_back(new CondAttrListCollection(*col));
+  }
+  return *this;
 }
 
 bool             
@@ -385,27 +405,6 @@ IOVPayloadContainer::merge(CondAttrListCollection* attrListColl)
         return true;
     }
     
-
-
-//    if (debug) std::cout <<  "IOVPayloadContainer::merge - checkStart " << checkStart << std::endl;
-
-//     // If the AttrListColls differ in content, then we must find
-//     // correct place to insert new one according to the stop
-//     while (checkStart) {
-//         if (attrListColl->minRange().start() == (*it)->minRange().start()) {
-//             // if new stop is > current stop, move iterator forward
-//             if (attrListColl->minRange().stop() > (*it)->minRange().stop()) {
-
-//                 std::cout <<  "IOVPayloadContainer::merge - move it forward " << std::endl;
-
-//                 ++it;
-//                 if (it == last) checkStart = false;
-//             }
-//             // otherwise end loop
-//             else checkStart = false;
-//         }
-//     }
-
     if (debug) std::cout <<  "IOVPayloadContainer::merge - no overlap, add in attrListColl " << std::endl;
 
     // no overlaps - add in attribute list

@@ -22,15 +22,19 @@ atlas_add_library( EventContainers
 atlas_add_test( IdCont SOURCES test/ID_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers
                 LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
-                EXTRA_PATTERNS "elapsed"
+                LOG_IGNORE_PATTERN "elapsed"
                )
 atlas_add_test( IdMTCont SOURCES test/IDMT_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers
                 LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
-                EXTRA_PATTERNS "elapsed"
+                LOG_IGNORE_PATTERN "elapsed"
                )
 atlas_add_test( IDStressTest SOURCES test/IDC_Realistic_Test.cxx
                 INCLUDE_DIRS src test EventContainers
                 LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
-                EXTRA_PATTERNS "elapsed|^no lock time|^deleted|^countHit|^lock time"
+                LOG_IGNORE_PATTERN "elapsed|^no lock time|^deleted|^countHit|^lock time"
+              )
+atlas_add_test( IDCValueTest SOURCES test/IDCValueTest.cxx
+                INCLUDE_DIRS src test EventContainers
+                LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
               )

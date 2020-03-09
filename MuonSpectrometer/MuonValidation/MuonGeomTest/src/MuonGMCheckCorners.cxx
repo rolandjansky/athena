@@ -52,12 +52,7 @@ typedef std::istringstream mystream;
 MuonGMCheckCorners::MuonGMCheckCorners(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm               ( name, pSvcLocator ),
     p_EventStore            ( 0 ),
-    p_ActiveStore           ( 0 ),
-    p_MuonMgr		    ( 0 ),
-    p_RpcIdHelper           ( 0 ),
-    p_TgcIdHelper           ( 0 ),
-    p_CscIdHelper           ( 0 ),
-    p_MdtIdHelper           ( 0 )
+    p_ActiveStore           ( 0 )
 {
 
     m_check_surfaces = 0;
@@ -119,26 +114,9 @@ MuonGMCheckCorners::initialize()
     }
     else ini_log << MSG::DEBUG << " ActiveStoreSvc found" << endmsg;
     
-    StoreGateSvc* detStore=0;
-    status = serviceLocator()->service("DetectorStore", detStore);
-    if ( status.isSuccess() ) {
-        status = detStore->retrieve( p_MuonMgr );
-        if ( status.isFailure() ) {
-            ini_log << MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endmsg;
-        }
-        else
-        {
-            ini_log << MSG::DEBUG << " MuonDetectorManager  is retriven " << endmsg;
-            p_CscIdHelper = p_MuonMgr->cscIdHelper();
-            p_RpcIdHelper = p_MuonMgr->rpcIdHelper();
-            p_TgcIdHelper = p_MuonMgr->tgcIdHelper();
-            p_MdtIdHelper = p_MuonMgr->mdtIdHelper();
-            ini_log << MSG::DEBUG << " Id Helpers are obtained from MuonDetectorManager " << endmsg;
-        }
-    }
-    else {
-        ini_log << MSG::ERROR << " DetectorStore not accessible" << endmsg;
-    }
+
+    ATH_CHECK(m_idHelperSvc.retrieve());
+
     if (status == StatusCode::SUCCESS) {
         if (m_check_csc) checkreadoutcscgeo();
         if (m_check_mdt) checkreadoutmdtgeo();

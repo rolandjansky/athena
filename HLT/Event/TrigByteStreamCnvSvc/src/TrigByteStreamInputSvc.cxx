@@ -8,20 +8,20 @@
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // TDAQ includes
 #include "hltinterface/DataCollector.h"
-#include "eformat/write/FullEventFragment.h"
+
+namespace {
+  constexpr float wordsToKiloBytes = 0.001*sizeof(uint32_t);
+}
 
 // =============================================================================
 // Standard constructor
 // =============================================================================
 TrigByteStreamInputSvc::TrigByteStreamInputSvc(const std::string& name, ISvcLocator* svcLoc)
-: ByteStreamInputSvc(name, svcLoc),
-  m_robDataProviderSvc("ROBDataProviderSvc", name),
-  m_evtStore("StoreGateSvc", name) {}
+: ByteStreamInputSvc(name, svcLoc) {}
 
 // =============================================================================
 // Standard destructor
@@ -50,8 +50,9 @@ StatusCode TrigByteStreamInputSvc::queryInterface(const InterfaceID& riid, void*
 StatusCode TrigByteStreamInputSvc::initialize() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  CHECK(m_robDataProviderSvc.retrieve());
-  CHECK(m_evtStore.retrieve());
+  ATH_CHECK(m_robDataProviderSvc.retrieve());
+  ATH_CHECK(m_evtStore.retrieve());
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -94,27 +95,29 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 
   using DCStatus = hltinterface::DataCollector::Status;
   DCStatus status = DCStatus::NO_EVENT;
-  do {
-    try {
-      status = hltinterface::DataCollector::instance()->getNext(cache->rawData);
-      if (status == DCStatus::NO_EVENT)
-        ATH_MSG_ERROR("Failed to read new event, DataCollector::getNext returned Status::NO_EVENT. Trying again.");
-    }
-    catch (const std::exception& ex) {
-      ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception: " << ex.what()
-                    << ". Throwing hltonl::Exception::EventSourceCorrupted" );
-      throw hltonl::Exception::EventSourceCorrupted();
-    }
-    catch (...) {
-      ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception. "
-                    << "Throwing hltonl::Exception::EventSourceCorrupted" );
-      throw hltonl::Exception::EventSourceCorrupted();
-    }
-  } while (status == DCStatus::NO_EVENT);
+  try {
+    auto t_getNext = Monitored::Timer("TIME_getNext");
+    status = hltinterface::DataCollector::instance()->getNext(cache->rawData);
+    auto mon = Monitored::Group(m_monTool, t_getNext);
+  }
+  catch (const std::exception& ex) {
+    ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception: " << ex.what()
+                  << ". Throwing hltonl::Exception::EventSourceCorrupted" );
+    throw hltonl::Exception::EventSourceCorrupted();
+  }
+  catch (...) {
+    ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception. "
+                  << "Throwing hltonl::Exception::EventSourceCorrupted" );
+    throw hltonl::Exception::EventSourceCorrupted();
+  }
 
   if (status == DCStatus::STOP) {
-    ATH_MSG_DEBUG("No more events available");
+    ATH_MSG_DEBUG("DataCollector::getNext returned STOP - no more events available");
     throw hltonl::Exception::NoMoreEvents();
+  }
+  else if (status == DCStatus::NO_EVENT) {
+    ATH_MSG_DEBUG("DataCollector::getNext returned NO_EVENT - no events available temporarily");
+    throw hltonl::Exception::NoEventsTemporarily();
   }
   else if (status != DCStatus::OK) {
     ATH_MSG_ERROR("Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext");
@@ -124,6 +127,21 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 
   // Create a cached FullEventFragment object from the cached raw data
   cache->fullEventFragment.reset(new RawEvent(cache->rawData.get()));
+
+  // Monitor the input
+  auto numROBs = Monitored::Scalar<int>("L1Result_NumROBs",
+                                        cache->fullEventFragment->nchildren());
+  auto fragSize = Monitored::Scalar<float>("L1Result_FullEvFragSize",
+                                           cache->fullEventFragment->fragment_size_word()*wordsToKiloBytes);
+  std::vector<eformat::read::ROBFragment> robVec;
+  cache->fullEventFragment->robs(robVec);
+  std::vector<std::string> subdetNameVec;
+  for (const eformat::read::ROBFragment& rob : robVec) {
+    eformat::helper::SourceIdentifier sid(rob.rob_source_id());
+    subdetNameVec.push_back(sid.human_detector());
+  }
+  auto subdets = Monitored::Collection<std::vector<std::string>>("L1Result_SubDets", subdetNameVec);
+  auto mon = Monitored::Group(m_monTool, numROBs, fragSize, subdets);
 
   // Give the FullEventFragment pointer to ROBDataProviderSvc and also return it
   m_robDataProviderSvc->setNextEvent(*eventContext, cache->fullEventFragment.get());
@@ -149,15 +167,6 @@ const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
 
 // =============================================================================
 void TrigByteStreamInputSvc::EventCache::releaseEvent() {
-  if (this->rawData) {
-    delete[] this->rawData.release();
-  }
-  if (this->fullEventFragment) {
-    delete this->fullEventFragment.release();
-  }
-}
-
-// =============================================================================
-TrigByteStreamInputSvc::EventCache::~EventCache() {
-  releaseEvent();
+  this->rawData.reset();
+  this->fullEventFragment.reset();
 }

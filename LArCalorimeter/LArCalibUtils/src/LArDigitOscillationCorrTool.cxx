@@ -7,7 +7,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArH6Oscillation.h"

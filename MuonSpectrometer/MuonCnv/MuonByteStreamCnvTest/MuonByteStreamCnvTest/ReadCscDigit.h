@@ -15,8 +15,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/NTuple.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class CscIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +40,8 @@ private:
   //Ntuple ID
   std::string     m_NtupleLocID;
 
-  const CscIdHelper* m_cscHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   // Define variables in the Ntuple:
 

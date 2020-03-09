@@ -12,10 +12,7 @@
 
 class StoreGateSvc;
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -199,11 +196,6 @@ private:
 
    int m_EmergencyOut ; //!< Optional stop at the end of initialisation
 
-   const MdtIdHelper * m_mdtId ; //!< IdHelper
-   const CscIdHelper * m_cscId ; //!< IdHelper
-   const RpcIdHelper * m_rpcId ; //!< IdHelper
-   const TgcIdHelper * m_tgcId ; //!< IdHelper
-
    StoreGateSvc*   p_detStore    ; //!< Pointer On StoreGateSvc
    const MuonGM::MuonDetectorManager* p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
 
@@ -231,6 +223,8 @@ private:
    int m_KountCallsDoIt     ; //!< Kount calls to DoIt
 
    ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
+   ServiceHandle<Muon::IMuonIdHelperSvc> m_muonIdHelperSvc{this, "idHelper", 
+      "Muon::MuonIdHelperSvc/MuonIdHelperSvc", "Handle to the service providing the IMuonIdHelperSvc interface"};
 
    StatusCode regFcnDoIt();
    StatusCode DoIt();

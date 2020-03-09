@@ -630,6 +630,12 @@ stop()
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {
         ToolHandle<IMonitorToolBase>& tool = *i;
         m_d->toolAudStart(tool);
+
+        sc = tool->runStat();
+        if( !sc.isSuccess() ) {
+            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::runStat() unsuccessful" << endmsg;
+        }
+
         Imp::ToolBench* tb =  m_d->m_doResourceMon ? m_d->getToolBench(tool.operator->()) : 0;
         if (tb)
             tb->m_bench_algfin_finalHists.startMeasurement();
@@ -669,10 +675,10 @@ stop()
 
 StatusCode
 AthenaMonManager::
-beginRun()
+start()
 {
     Imp::LWHistLeakChecker lc(m_d);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::beginRun():" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::start():" << endmsg;
 
     StatusCode sc;
     sc.setChecked();
@@ -700,34 +706,6 @@ beginRun()
         msg(MSG::DEBUG) << "  --> Exiting successfully" << endmsg;
     }
 
-    return StatusCode::SUCCESS;
-}
-
-
-StatusCode
-AthenaMonManager::
-endRun()
-{
-    Imp::LWHistLeakChecker lc(m_d);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::endRun():" << endmsg;
-
-    StatusCode sc;
-    sc.setChecked();
-
-    ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
-    for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {
-        ToolHandle<IMonitorToolBase>& tool = *i;
-        m_d->toolAudStart(tool);
-        sc = tool->runStat();
-        if( !sc.isSuccess() ) {
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::runStat() unsuccessful" << endmsg;
-        }
-        m_d->toolAudEnd();
-    }
-    if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::runStat()" << endmsg;
-        msg(MSG::DEBUG) << "  --> Exiting successfully" << endmsg;
-    }
     return StatusCode::SUCCESS;
 }
 

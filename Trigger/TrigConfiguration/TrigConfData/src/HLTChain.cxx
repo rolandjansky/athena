@@ -1,41 +1,76 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/HLTChain.h"
-TrigConf::HLTChain::HLTChain()
+
+TrigConf::Chain::Chain()
 {}
 
-TrigConf::HLTChain::HLTChain(const boost::property_tree::ptree & data) 
+TrigConf::Chain::Chain(const boost::property_tree::ptree & data) 
    : DataStructure(data)
-{}
-
-TrigConf::HLTChain::~HLTChain()
-{}
-
-const std::string &
-TrigConf::HLTChain::name() const
 {
-   return data().get_child("name").data();
+   update();
+}
+
+void
+TrigConf::Chain::update()
+{
+   if(! isInitialized() || empty() ) {
+      return;
+   }
+   m_name = getAttribute("name");
+}
+
+TrigConf::Chain::~Chain()
+{}
+
+std::string
+TrigConf::Chain::className() const {
+   return "Chain";
+}
+
+
+unsigned int
+TrigConf::Chain::counter() const
+{
+   return getAttribute<unsigned int>("counter");
 }
 
 unsigned int
-TrigConf::HLTChain::counter() const
+TrigConf::Chain::namehash() const
 {
-   return data().get_child("counter").get_value<unsigned int>();
+   return getAttribute<unsigned int>("nameHash");
 }
 
 const std::string &
-TrigConf::HLTChain::l1item() const
+TrigConf::Chain::l1item() const
 {
-   return data().get_child("l1item").data();
+   return getAttribute("l1item");
 }
 
+
+std::vector<std::string>
+TrigConf::Chain::l1thresholds() const
+{
+
+   std::vector<std::string> thrV;
+   const auto & thrs = getList("l1thresholds");
+   if( !thrs.empty() ) {
+      thrV.reserve(thrs.size());
+      for( auto & thr : thrs ) {
+         thrV.emplace_back( thr.getValue<std::string>() );
+      }
+   } 
+   return thrV;
+}
+
+
 std::vector<TrigConf::DataStructure>
-TrigConf::HLTChain::streams() const
+TrigConf::Chain::streams() const
 {
    std::vector<DataStructure> strlist;
-   const auto & streams = m_data.get_child("streams");
+   const auto & streams = data().get_child("streams");
    strlist.reserve(streams.size());
 
    for( auto & strData : streams )
@@ -45,14 +80,21 @@ TrigConf::HLTChain::streams() const
 }
 
 std::vector<std::string>
-TrigConf::HLTChain::groups() const
+TrigConf::Chain::groups() const
 {
-   std::vector<std::string> grouplist;
-   const auto & groups = m_data.get_child("groups");
-   grouplist.reserve(groups.size());
 
-   for( auto & groupData : groups )
-      grouplist.emplace_back( groupData.second.get_child("name").data() );
+   std::vector<std::string> grouplist;
+   const auto & groups = getList("groups", /*ignoreIfMissing=*/ true);
+   if( !groups.empty() ) {
+      grouplist.reserve(groups.size());
+      for( auto & group : groups ) {
+         if (group.hasAttribute("name")) {
+            grouplist.emplace_back( group["name"] );
+         } else if (group.isValue()) {
+            grouplist.emplace_back( group.getValue<std::string>() );
+         }
+      }
+   } 
 
    return grouplist;
 }

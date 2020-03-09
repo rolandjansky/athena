@@ -16,7 +16,6 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "CaloIdentifier/CaloGain.h"
@@ -78,8 +77,6 @@ class LArSuperCellBuilderDriver : public AthAlgorithm
   typedef ToolHandleArray<ILArRawChannelBuilderPedestalToolBase>  pedestalToolVector;
   
   //Services & Tools 
-  StoreGateSvc*               m_storeGateSvc;
-  StoreGateSvc*               m_detStore;
   IToolSvc*                   m_toolSvc;
   
   const LArOnline_SuperCellID*          m_onlineHelper;

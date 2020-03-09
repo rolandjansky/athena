@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthJiveXML/TruthMuonTrackRetriever.h"
@@ -7,7 +7,6 @@
 //#include "GaudiKernel/Bootstrap.h"
 //#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "HepMC/GenParticle.h"
 #include "TrackRecord/TrackRecord.h"
@@ -86,7 +85,6 @@ namespace JiveXML {
     DataVect id; id.reserve(TrackRecordColl->size()); 
 
     //Now loop over the collection and retrieve data
-    TrackRecordCollection::const_iterator record;
     for (auto record : *TrackRecordColl ) {
 
       //Get the pdg code

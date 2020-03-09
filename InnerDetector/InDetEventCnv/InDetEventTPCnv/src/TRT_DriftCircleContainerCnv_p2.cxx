@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
@@ -10,7 +10,7 @@
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p2.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainerCnv_p2.h"
 #include "AthAllocators/DataPool.h"
@@ -21,7 +21,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"

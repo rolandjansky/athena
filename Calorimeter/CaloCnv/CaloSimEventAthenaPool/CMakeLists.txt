@@ -18,7 +18,3 @@ atlas_add_poolcnv_library( CaloSimEventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES CaloSimEvent/CaloCalibrationHitContainer.h
                            LINK_LIBRARIES AthenaPoolUtilities CaloSimEventTPCnv CaloSimEvent AthenaPoolCnvSvcLib )
-
-# Install files from the package:
-atlas_install_headers( CaloSimEventAthenaPool )
-

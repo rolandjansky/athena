@@ -49,7 +49,7 @@ all = tdt.getChainGroup(pattern)
 
 ### possible HLT objects
 from pprint import pprint as pp
-from TriggerJobOpts.TriggerEDM  import EDMDetails
+from TrigEDMConfig.TriggerEDM import EDMDetails
 collection2type = {}
 for t, details in EDMDetails.iteritems():
     try:

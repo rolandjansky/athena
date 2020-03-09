@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
 # import the InDetVKalVxInJetTool configurable
-from InDetVKalVxInJetTool.InDetVKalVxInJetToolConf import InDet__InDetVKalVxInJetTool
+InDet__InDetVKalVxInJetTool=CompFactory.InDet__InDetVKalVxInJetTool
 
 def InDetVKalVxInJetToolCfg(name, MSV = False, useBTagFlagsDefaults = True, **options):
     """Sets up a InDetVKalVxInJetTool tool and returns it.

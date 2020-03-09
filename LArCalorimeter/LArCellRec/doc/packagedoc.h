@@ -10,12 +10,12 @@ This package contains the LAr cell reconstruction tools used to create LArCell o
 
 @section LArCellRec_LArCellTool LArCell Builderg Tools
 
-LArCellBuilderFromLArHitTool and LArCellBuilderFromLArRawChannelTool
-implement  ICaloCellMakerTool interface, and build LArCell from LArHit and LArRawChannel respectively.
+LArCellBuilderFromLArRawChannelTool
+implement  ICaloCellMakerTool interface, and build LArCell from LArRawChannel.
 
 @section LArCellRec_LArCellCorrection LArCell Correction Tools
 
-LArCellEmMiscalib LArCellHVCorrection LArCellRescaler LArG3Escale
+LArCellEmMiscalib LArCellHVCorrection LArCellRescaler
 implement CaloCellCorrection interface, and apply various modification to LArCells.
 
 Details on CaloCell Reconstruction

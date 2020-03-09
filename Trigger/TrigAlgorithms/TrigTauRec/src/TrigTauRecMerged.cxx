@@ -56,7 +56,6 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   m_outputName("TrigTauRecMerged"),
   m_tools(this),
   m_endtools(this),
-  m_lumiTool("LuminosityTool"),
   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
   m_maxeta( 2.5 ),
   m_minpt( 10000 ),
@@ -87,8 +86,7 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   /** cone for trk seed  */
   declareProperty("trkcone",m_trkcone,"max distance track seed from roi center");
   
-  /** Luminosity tools - first is deprecated but kept in case of need  */
-  declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+  /** Luminosity tools */
   declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
   
   /** number of cells in ROI */
@@ -233,7 +231,6 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 {
   ATH_MSG_INFO( "TrigTauRecMerged::initialize()" );
 
-  m_tauEventData.setInTrigger(true);
   ////////////////////
   // Allocate Tools //
   ////////////////////
@@ -259,7 +256,6 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
     else {
       ATH_MSG_INFO( "REGTEST: add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() );
       if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itT)->name())) ;
-      (*p_itT)->setTauEventData(&m_tauEventData);
 
       // monitoring of RNN input variables
       ToolHandle<ITauToolBase> handle = *p_itT;
@@ -290,17 +286,8 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
     else {
       ATH_MSG_INFO( "REGTEST: add time for end tool "<< ( *p_itTe )->type() <<" "<< ( *p_itTe )->name() );
       if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itTe)->name())) ;
-      ( *p_itTe )->setTauEventData(&m_tauEventData);
     }
   }
-
-  m_lumiTool.disable();   // never used?
-  // // Try to retrieve the lumi tool
-  // if (m_lumiTool.retrieve().isFailure()) {                                     
-  //   msg() << MSG::WARNING << "Unable to retrieve Luminosity Tool" << endmsg;     
-  // } else {                                                                     
-  //   msg() << MSG::DEBUG << "Successfully retrieved Luminosity Tool" << endmsg; 
-  // }                                                                            
 
   if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
     ATH_MSG_WARNING( "Unable to retrieve LumiBlockMuTool" );
@@ -554,14 +541,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   //-------------------------------------------------------------------------
   // Get the online luminosity                                                                                                               
   //-------------------------------------------------------------------------
-  // double mu = 0.0;
-  // double avg_mu = 0.0;
-  // mu = m_lumiTool->lbLuminosityPerBCID() / m_lumiTool->muToLumi(); // (retrieve mu for the current BCID)                                             
-  // avg_mu = m_lumiTool->lbAverageInteractionsPerCrossing();
-  // msg() << MSG::DEBUG << "REGTEST: lbLuminosityPerBCID : " << m_lumiTool->lbLuminosityPerBCID() << endmsg;
-  // msg() << MSG::DEBUG << "REGTEST: muToLumi            : " << m_lumiTool->muToLumi() << endmsg;
-  // msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value  : " << mu << endmsg;
-  // msg() << MSG::DEBUG << "REGTEST: Average Mu Value    : " << avg_mu << endmsg;
 
   double mu = 0.0;
   double avg_mu = 0.0;
@@ -583,7 +562,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   // Copy the first vertex from a const object
   xAOD::Vertex theBeamspot;
   theBeamspot.makePrivateStore();
-  const xAOD::Vertex* ptrBeamspot = 0;
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   if(beamSpotHandle.isValid()){
 	
@@ -597,9 +575,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
     // Create a AmgSymMatrix to alter the vertex covariance mat.
     const AmgSymMatrix(3) &cov = beamSpotHandle->beamVtx().covariancePosition();
     theBeamspot.setCovariancePosition(cov);
-
-    ptrBeamspot = &theBeamspot;
-
   }
 
 
@@ -675,7 +650,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   //-------------------------------------------------------------------------
   // setup TauCandidate data
   //-------------------------------------------------------------------------
-  m_tauEventData.clear();
   xAOD::TauJetContainer *pContainer = new xAOD::TauJetContainer();
   xAOD::TauJetAuxContainer pAuxContainer;
 
@@ -690,23 +664,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
   // Set the store: eventually, we want to use a dedicated trigger version
   pTrackContainer->setStore(&pTrackAuxContainer);
-  m_tauEventData.setObject("TauTrackContainer", pTrackContainer);
-
-  // set TauCandidate properties (xAOD style)
-  m_tauEventData.xAODTauContainer = pContainer;
-
-  // This is potentially a bit dangerous, but all the tools using m_tauEventData
-  // are run in the current scope
-  m_tauEventData.tauAuxContainer = &pAuxContainer;
-
-  // Set the Objects that we can attach right now
-  // m_tauEventData.setObject("InTrigger?", true ); Set this in initialize, now a member variable of TauEventData
-  m_tauEventData.setObject("TrackContainer", RoITrackContainer);
-  m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
-  if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
-  if(beamSpotHandle.isValid()) m_tauEventData.setObject("Beamspot", ptrBeamspot);
-  if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
-
 
   //-------------------------------------------------------------------------
   // eventInitialize tauRec colls
@@ -733,7 +690,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   pContainer->push_back(p_tau);
   p_tau->setROIWord(roiDescriptor->roiWord());
   p_tau->setJet(theJetCollection, p_seed);
-  m_tauEventData.seedContainer = theJetCollection;
 
   // This sets one track and link. Need to have at least 1 track linked to retrieve track container
   // can't we instead implement in the EDM a function to retrieve the track container of a tau?
@@ -747,8 +703,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   }
 
   ATH_MSG_DEBUG( "roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() );
-
-  m_tauEventData.setObject("JetCollection", theJetCollection );
 
   //-------------------------------------------------------------------------
   // loop over booked tau tools
@@ -766,7 +720,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
     ++toolnum;
     if ( doTiming() && itimer != m_mytimers.end() ) (*itimer)->start();
 
-    if ( (*firstTool)->name().find("VertexVariables") != std::string::npos){
+    if ((*firstTool)->type() == "TauVertexFinder" ) {
+      processStatus = (*firstTool)->executeVertexFinder(*p_tau, RoIVxContainer ,RoITrackContainer);
+    }
+    else if ( (*firstTool)->type() == "TauTrackFinder") {
+      processStatus = (*firstTool)->executeTrackFinder(*p_tau, RoITrackContainer);
+    }
+    else if ( (*firstTool)->type() == "TauVertexVariables" ) {
       processStatus = (*firstTool)->executeVertexVariables(*p_tau, *dummyVxCont);
     }
     else {
@@ -791,9 +751,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   //check status
   if ( !processStatus.isSuccess() )  {   // some problem
     ATH_MSG_DEBUG( "The tau object has NOT been registered in the tau container" );
-    // ToolHandleArray<ITauToolBase> ::iterator tool = m_tools.begin();
-    // for(; tool != firstTool; ++tool ) (*tool)->cleanup( &m_tauEventData );
-    // (*tool)->cleanup( &m_tauEventData );
 
     xAOD::TauJet* bad_tau = pContainer->back();
     ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");

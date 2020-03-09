@@ -1,14 +1,17 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, getChainStepName, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastRecoCfg, l2MuFastHypoCfg
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
 
-def generateChains( flags, chainDict ):
+def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+    return HLTTest__TestHypoAlg( name, Input="" )
 
+def generateChains( flags, chainDict ):
     stepName = getChainStepName('Muon', 1)
     stepReco, stepView = createStepView(stepName)
 
@@ -23,24 +26,66 @@ def generateChains( flags, chainDict ):
                                     name = 'TrigL2MuFastHypo',
                                     muFastInfo = 'MuonL2SAInfo' )
 
-    l2muFastHypo.HypoTools = [ TrigMufastHypoToolFromDict(chainDict) ]
-
     acc.addEventAlgo(l2muFastHypo, sequenceName=stepView.getName())
 
-    l2muFastSequence = MenuSequence( Sequence = l2muFastReco.sequence(),
+    l2muFastSequence = CAMenuSequence( Sequence = l2muFastReco.sequence(),
                                      Maker = l2muFastReco.inputMaker(),
                                      Hypo = l2muFastHypo,
-                                     HypoToolGen = None,
+                                     HypoToolGen = TrigMufastHypoToolFromDict,
                                      CA = acc )
 
     l2muFastStep = ChainStep( stepName, [l2muFastSequence] )
 
     ### Set muon step2 ###
-    # Please set up L2muComb step here 
+    # Please set up L2muComb step here
 
+    #EF MS only
+    stepEFMSName = getChainStepName('EFMSMuon', 2)
+    stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
+
+    #Clone and replace offline flags so we can set muon trigger specific values
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+    muonflags.Muon.useTGCPriorNextBC=True
+    muonflags.Muon.enableErrorTuning=False
+    muonflags.lock()
+
+    accMS = ComponentAccumulator()
+    accMS.addSequence(stepEFMSView)
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    recoMS = InViewReco("EFMuMSReco")
+
+    from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
+    segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)
+    recoMS.mergeReco(segCfg)
+
+    from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
+    trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
+    recoMS.mergeReco(trkCfg)
+
+    accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
+
+    # TODO remove once full step is in place
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+    fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
+    def makeFakeHypoTool(name, cfg):
+        return HLTTest__TestHypoTool(name)
+
+    accMS.addEventAlgo(fakeHypoAlg, sequenceName=stepEFMSView.getName())
+
+    efmuMSSequence = CAMenuSequence( Sequence = recoMS.sequence(),
+                                     Maker = recoMS.inputMaker(),
+                                     Hypo = fakeHypoAlg, 
+                                     HypoToolGen = makeFakeHypoTool,
+                                     CA = accMS )
+
+    efmuMSStep = ChainStep( stepEFMSName, [efmuMSSequence] )
+
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
     import pprint
     pprint.pprint(chainDict)
-
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], [ l2muFastStep ] )
-
+    chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )
     return chain
+

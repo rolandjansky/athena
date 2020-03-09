@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,6 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
@@ -41,22 +40,15 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-#include <TError.h>
-#include <TH1F.h>
 #include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
+#include <TH2I.h>
+#include <TH1I.h>
 #include <inttypes.h> 
 
 #include <sstream>
  
-//#include "MuonCondInterface/IRPCConditionsSvc.h"
-
-class TFile;
-class RpcIdHelper;
 template <class ConcreteAlgorithm> class AlgFactory;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -128,8 +120,13 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   std::vector<Identifier>* m_padsId;
   std::map<std::string,int> m_hitsperchamber_map;
   
-  const MuonGM::MuonDetectorManager* m_muonMgr;
-  const RpcIdHelper* m_rpcIdHelper;
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   const IRPCcablingSvc* m_cabling;
    

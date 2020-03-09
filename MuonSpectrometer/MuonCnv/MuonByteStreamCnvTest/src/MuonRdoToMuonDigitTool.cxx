@@ -10,21 +10,17 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "MuonTGC_CnvTools/ITGC_RDO_Decoder.h"
+#include "MuonSTGC_CnvTools/ISTGC_RDO_Decoder.h"
+#include "MuonMM_CnvTools/IMM_RDO_Decoder.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-//#include "MDTcabling/MDTcablingSvc.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
 #include "MuonRDO/MdtAmtHit.h"
@@ -44,6 +40,14 @@
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
+#include "MuonRDO/STGC_RawData.h"
+#include "MuonRDO/STGC_RawDataCollection.h"
+#include "MuonRDO/STGC_RawDataContainer.h"
+
+#include "MuonRDO/MM_RawData.h"
+#include "MuonRDO/MM_RawDataCollection.h"
+#include "MuonRDO/MM_RawDataContainer.h"
+
 #include "MuonDigitContainer/MdtDigit.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
@@ -60,6 +64,14 @@
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
 
+#include "MuonDigitContainer/sTgcDigit.h"
+#include "MuonDigitContainer/sTgcDigitCollection.h"
+#include "MuonDigitContainer/sTgcDigitContainer.h"
+
+#include "MuonDigitContainer/MmDigit.h"
+#include "MuonDigitContainer/MmDigitCollection.h"
+#include "MuonDigitContainer/MmDigitContainer.h"
+
 #include "MuonByteStreamCnvTest/MuonRdoToMuonDigitTool.h"
 
 namespace std { template<typename _Tp> class auto_ptr; }
@@ -72,10 +84,9 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
     m_cscRdoDecoderTool("Muon::CscRDO_Decoder"),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder"),
     m_tgcRdoDecoderTool("Muon::TgcRDO_Decoder"),
-    m_mdtHelper(0), m_cscHelper(0), 
-    m_rpcHelper(0), m_tgcHelper(0), 
-    m_tgcCabling(0), m_mdtContainer(0), m_cscContainer(0),
-    m_rpcContainer(0), m_tgcContainer(0), 
+    m_stgcRdoDecoderTool("Muon::STGC_RDO_Decoder"),
+    m_mmRdoDecoderTool("Muon::MM_RDO_Decoder"),
+    m_tgcCabling(nullptr),
     m_is12foldTgc(true)
 {
 
@@ -85,12 +96,17 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
   declareProperty("DecodeCscRDO", m_decodeCscRDO = true);
   declareProperty("DecodeRpcRDO", m_decodeRpcRDO = true);
   declareProperty("DecodeTgcRDO", m_decodeTgcRDO = true);
+  declareProperty("DecodeSTGC_RDO", m_decodesTgcRDO = true);
+  declareProperty("DecodeMM_RDO", m_decodeMmRDO = true);
   
   declareProperty("cscCalibTool",  m_cscCalibTool);
   declareProperty("mdtRdoDecoderTool",  m_mdtRdoDecoderTool);
   declareProperty("cscRdoDecoderTool",  m_cscRdoDecoderTool);
   declareProperty("rpcRdoDecoderTool",  m_rpcRdoDecoderTool);
   declareProperty("tgcRdoDecoderTool",  m_tgcRdoDecoderTool);
+  declareProperty("stgcRdoDecoderTool",  m_stgcRdoDecoderTool);
+  declareProperty("mmRdoDecoderTool",  m_mmRdoDecoderTool);
+  declareProperty("MuonIdHelperTool",  m_muonIdHelperTool);
 
   declareProperty("show_warning_level_invalid_TGC_A09_SSW6_hit", m_show_warning_level_invalid_TGC_A09_SSW6_hit = false);
 }
@@ -102,34 +118,10 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
 
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_acSvc.retrieve() );
-
-  // initialize the identifier helpers
-
-  ATH_CHECK( detStore()->retrieve(m_mdtHelper, "MDTIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_cscHelper, "CSCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_rpcHelper, "RPCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_tgcHelper, "TGCIDHELPER") );
-
-  // get MDT cablingSvc
-  //  status = service("MDTcablingSvc", m_mdtCabling);
-  //
-  //if (status.isFailure()) {
-  // ATH_MSG_WARNING( "Could not get MDTcablingSvc !"  );
-  //m_mdtCabling = 0;
-  //return StatusCode::SUCCESS;
-  //} 
-  //  else {
-  //ATH_MSG_DEBUG( " Found the MDTcablingSvc. "  );
-  //}
-
-  // get RPC cablingSvc
-  ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-  ATH_CHECK( RpcCabGet.retrieve() );
-  ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK( m_cscCalibTool.retrieve() );
-
 
   ATH_CHECK(m_mdtRdoKey.initialize(m_decodeMdtRDO));
   ATH_CHECK(m_mdtDigitKey.initialize(m_decodeMdtRDO));
@@ -139,13 +131,17 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_CHECK(m_rpcDigitKey.initialize(m_decodeRpcRDO));
   ATH_CHECK(m_tgcRdoKey.initialize(m_decodeTgcRDO));
   ATH_CHECK(m_tgcDigitKey.initialize(m_decodeTgcRDO));
+  ATH_CHECK(m_stgcRdoKey.initialize(m_decodesTgcRDO));
+  ATH_CHECK(m_stgcDigitKey.initialize(m_decodesTgcRDO));
+  ATH_CHECK(m_mmRdoKey.initialize(m_decodeMmRDO));
+  ATH_CHECK(m_mmDigitKey.initialize(m_decodeMmRDO));
 
-
-  ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_cscRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
-
+  if (m_decodeMdtRDO) ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
+  if (m_decodeCscRDO) ATH_CHECK( m_cscRdoDecoderTool.retrieve() );
+  if (m_decodeRpcRDO) ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
+  if (m_decodeTgcRDO) ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
+  if (m_decodesTgcRDO) ATH_CHECK( m_stgcRdoDecoderTool.retrieve() );
+  if (m_decodeMmRDO) ATH_CHECK( m_mmRdoDecoderTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -159,35 +155,39 @@ StatusCode MuonRdoToMuonDigitTool::digitize() {
 
   if (m_decodeMdtRDO){
     SG::WriteHandle<MdtDigitContainer> wh_mdtDigit(m_mdtDigitKey);
-    ATH_CHECK(wh_mdtDigit.record(std::make_unique<MdtDigitContainer>(m_mdtHelper->module_hash_max())));
-    m_mdtContainer = wh_mdtDigit.ptr();
-    m_mdtContainer->addRef();
-    ATH_CHECK( decodeMdtRDO() );
+    ATH_CHECK(wh_mdtDigit.record(std::make_unique<MdtDigitContainer>(m_muonIdHelperTool->mdtIdHelper().module_hash_max())));
+    ATH_CHECK( decodeMdtRDO(wh_mdtDigit.ptr()) );
   }
 
   if (m_decodeCscRDO){
     SG::WriteHandle<CscDigitContainer> wh_cscDigit(m_cscDigitKey);
-    ATH_CHECK(wh_cscDigit.record(std::make_unique<CscDigitContainer> (m_cscHelper->module_hash_max())));
-    m_cscContainer = wh_cscDigit.ptr();
-    m_cscContainer->addRef();
-    ATH_CHECK( decodeCscRDO() );
+    ATH_CHECK(wh_cscDigit.record(std::make_unique<CscDigitContainer> (m_muonIdHelperTool->cscIdHelper().module_hash_max())));
+    ATH_CHECK( decodeCscRDO(wh_cscDigit.ptr()) );
   }
 
-  if (m_decodeRpcRDO && m_rpcCabling){
+  if (m_decodeRpcRDO ){
     SG::WriteHandle<RpcDigitContainer> wh_rpcDigit(m_rpcDigitKey);
-    ATH_CHECK(wh_rpcDigit.record(std::make_unique<RpcDigitContainer> (m_rpcHelper->module_hash_max())));
-    m_rpcContainer = wh_rpcDigit.ptr();
-    m_rpcContainer->addRef();
-    ATH_CHECK( decodeRpcRDO() );
+    ATH_CHECK(wh_rpcDigit.record(std::make_unique<RpcDigitContainer> (m_muonIdHelperTool->rpcIdHelper().module_hash_max())));
+    ATH_CHECK( decodeRpcRDO(wh_rpcDigit.ptr()) );
   }
 
   if(!m_tgcCabling && getTgcCabling().isFailure()) return StatusCode::FAILURE;
   if (m_decodeTgcRDO && m_tgcCabling){
     SG::WriteHandle<TgcDigitContainer> wh_tgcDigit(m_tgcDigitKey);
-    ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_tgcHelper->module_hash_max())));
-    m_tgcContainer = wh_tgcDigit.ptr();
-    m_tgcContainer->addRef();
-    ATH_CHECK( decodeTgcRDO() );
+    ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_muonIdHelperTool->tgcIdHelper().module_hash_max())));
+    ATH_CHECK( decodeTgcRDO(wh_tgcDigit.ptr()) );
+  }
+
+  if (m_decodesTgcRDO){
+    SG::WriteHandle<sTgcDigitContainer> wh_stgcDigit(m_stgcDigitKey);
+    ATH_CHECK(wh_stgcDigit.record(std::make_unique<sTgcDigitContainer> (m_muonIdHelperTool->stgcIdHelper().module_hash_max())));
+    ATH_CHECK( decodeSTGC_RDO(wh_stgcDigit.ptr()) );
+  }
+
+  if (m_decodeMmRDO){
+    SG::WriteHandle<MmDigitContainer> wh_mmDigit(m_mmDigitKey);
+    ATH_CHECK(wh_mmDigit.record(std::make_unique<MmDigitContainer> (m_muonIdHelperTool->mmIdHelper().module_hash_max())));
+    ATH_CHECK( decodeMM_RDO(wh_mmDigit.ptr()) );
   }
 
 
@@ -195,43 +195,27 @@ StatusCode MuonRdoToMuonDigitTool::digitize() {
 }
 
 
-StatusCode MuonRdoToMuonDigitTool::finalize() {
-    
-   ATH_MSG_DEBUG( "finalize."  );
-
-   if(m_mdtContainer) m_mdtContainer->release();
-   if(m_cscContainer) m_cscContainer->release();
-   if(m_rpcContainer) m_rpcContainer->release();
-   if(m_tgcContainer) m_tgcContainer->release();
-
-   return StatusCode::SUCCESS;
-}
-
-StatusCode MuonRdoToMuonDigitTool::decodeMdtRDO() {
+StatusCode MuonRdoToMuonDigitTool::decodeMdtRDO(MdtDigitContainer *mdtContainer) {
 
   ATH_MSG_DEBUG( "Decoding MDT RDO into MDT Digit"  );
-
-  // clean up the digit container
-  m_mdtContainer->cleanup();
 
   // retrieve the collection of RDO
   Identifier oldId;
   MdtDigitCollection * collection = 0;
-  const MdtCsmContainer* rdoContainer;
 
   SG::ReadHandle<MdtCsmContainer> rdoRH(m_mdtRdoKey);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No MDT RDO container found!"  );
     return StatusCode::SUCCESS;
   }
-  rdoContainer=rdoRH.cptr();
+  const MdtCsmContainer* rdoContainer=rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " MDT RDOs." );
   
   // now decode RDO into digits
   MdtCsmContainer::const_iterator mdtCSM = rdoContainer->begin();
   for (; mdtCSM!=rdoContainer->end();++mdtCSM)
     {
-      StatusCode status = this->decodeMdt( *mdtCSM, collection, oldId); 
+      StatusCode status = this->decodeMdt(mdtContainer, *mdtCSM, collection, oldId);
       if ( status.isFailure() ) return status;
     }
 
@@ -239,21 +223,14 @@ StatusCode MuonRdoToMuonDigitTool::decodeMdtRDO() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonRdoToMuonDigitTool::decodeCscRDO() {
+StatusCode MuonRdoToMuonDigitTool::decodeCscRDO(CscDigitContainer* cscContainer) {
 
   ATH_MSG_DEBUG( "Decoding CSC RDO into CSC Digit"  );
 
-  //  CscRDO_Decoder decoder;
-  //  decoder.set(m_cscHelper);
-
   m_acSvc->setStore( &*evtStore() );
-
-  // clean up the digit container
-  m_cscContainer->cleanup();
 
   Identifier oldId;
   CscDigitCollection * collection = 0;
-  const CscRawDataContainer* rdoContainer;
 
   // retrieve the collection of RDO
   SG::ReadHandle<CscRawDataContainer> rdoRH(m_cscRdoKey);
@@ -261,7 +238,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeCscRDO() {
     ATH_MSG_WARNING( "No CSC RDO container found!"  );
     return StatusCode::SUCCESS;
   }
-  rdoContainer=rdoRH.cptr();
+  const CscRawDataContainer* rdoContainer=rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " CSC RDOs." );
   // now decode RDO into digits
   auto it_rdoColl = rdoContainer->begin();
@@ -269,19 +246,16 @@ StatusCode MuonRdoToMuonDigitTool::decodeCscRDO() {
 
   for (; it_rdoColl!=lastRdoColl; ++it_rdoColl) {
     const CscRawDataCollection * rdoColl = *it_rdoColl;
-    StatusCode status = this->decodeCsc ( rdoColl, collection, oldId);
+    StatusCode status = this->decodeCsc (cscContainer, rdoColl, collection, oldId);
     if ( status.isFailure() ) return status;
   }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonRdoToMuonDigitTool::decodeRpcRDO() {
+StatusCode MuonRdoToMuonDigitTool::decodeRpcRDO(RpcDigitContainer *rpcContainer) {
 
     ATH_MSG_DEBUG( "Decoding RPC RDO into RPC Digit"  );
-
-    // clean up the digit container
-    m_rpcContainer->cleanup();
 
     RpcDigitCollection * collection = 0;
     const RpcPadContainer* rdoContainer;
@@ -299,8 +273,8 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpcRDO() {
        
     for (; rpcPAD!=rdoContainer->end();++rpcPAD)
       {
-	if ( (*rpcPAD)->size() > 0 ) {
-	  StatusCode status = this->decodeRpc ( *rpcPAD, collection ); 
+	if ( !(*rpcPAD)->empty() ) {
+	  StatusCode status = this->decodeRpc (rpcContainer, *rpcPAD, collection );
 	  if ( status.isFailure() ) return status;
 	}
       }
@@ -308,34 +282,30 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpcRDO() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonRdoToMuonDigitTool::decodeTgcRDO() {
+StatusCode MuonRdoToMuonDigitTool::decodeTgcRDO(TgcDigitContainer *tgcContainer) {
 
   ATH_MSG_DEBUG( "Decoding TGC RDO into TGC Digit"  );
 
   if(!m_tgcCabling && getTgcCabling().isFailure()) return StatusCode::FAILURE;
   
-  // clean up the digit container
-  m_tgcContainer->cleanup();
-  
   Identifier oldElementId;
 
   // retrieve the collection of RDO
-  const TgcRdoContainer* rdoContainer;
   SG::ReadHandle<TgcRdoContainer> rdoRH(m_tgcRdoKey);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No TGC RDO container found!"  );
     return StatusCode::SUCCESS;
   }
 
-  rdoContainer = rdoRH.cptr();
+  const TgcRdoContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " TGC RDOs." );
 
   TgcRdoContainer::const_iterator tgcRDO = rdoContainer->begin();
        
   for (; tgcRDO!=rdoContainer->end();++tgcRDO)
     {
-      if ( (*tgcRDO)->size() > 0 ) {
-	StatusCode status = this->decodeTgc ( *tgcRDO, oldElementId ); 
+      if ( !(*tgcRDO)->empty() ) {
+	StatusCode status = this->decodeTgc (tgcContainer, *tgcRDO, oldElementId );
 	if ( status.isFailure() ) return status;
       }
     }
@@ -343,11 +313,67 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgcRDO() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonRdoToMuonDigitTool::decodeMdt( const MdtCsm * rdoColl, MdtDigitCollection*& collection, Identifier& oldId ) {
+StatusCode MuonRdoToMuonDigitTool::decodeSTGC_RDO(sTgcDigitContainer* stgcContainer) {
 
-    IdContext mdtContext = m_mdtHelper->module_context();
+  ATH_MSG_DEBUG( "Decoding sTGC RDO into sTGC Digit"  );
+
+  m_acSvc->setStore( &*evtStore() );
+
+
+  Identifier oldId;
+  sTgcDigitCollection * collection = 0;
+
+  SG::ReadHandle<Muon::STGC_RawDataContainer> rdoRH(m_stgcRdoKey);
+  if (!rdoRH.isValid()) {
+    ATH_MSG_WARNING( "No sTGC RDO container found!" );
+    return StatusCode::SUCCESS;
+  }
+  const Muon::STGC_RawDataContainer* sTgcRDO=rdoRH.cptr();
+  ATH_MSG_DEBUG( "Retrieved " << sTgcRDO->size() << " sTGC RDOs." );
+
+  ATH_MSG_DEBUG("Converting sTGC RDOs to Digits");
+  for (const Muon::STGC_RawDataCollection * rdoColl : *sTgcRDO) { // Go through RDO container
+    ATH_MSG_DEBUG("rdoColl size = " << rdoColl->size() );
+    StatusCode status = this->decodeSTGC (stgcContainer, rdoColl, collection, oldId);
+    if (status.isFailure() ) return status;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode MuonRdoToMuonDigitTool::decodeMM_RDO(MmDigitContainer *mmContainer) {
+
+  ATH_MSG_DEBUG( "Decoding MM RDO into MM Digit"  );
+
+  m_acSvc->setStore( &*evtStore() );
+
+  Identifier oldId;
+  MmDigitCollection * collection = 0;
+
+  SG::ReadHandle<Muon::MM_RawDataContainer> rdoRH(m_mmRdoKey);
+  if (!rdoRH.isValid()) {
+    ATH_MSG_WARNING( "No MM RDO container found!" );
+    return StatusCode::SUCCESS;
+  }
+  const Muon::MM_RawDataContainer* MmRDO=rdoRH.cptr();
+
+  ATH_MSG_DEBUG( "Retrieved " << MmRDO->size() << " MM RDOs." );
+
+  ATH_MSG_DEBUG("Converting MM RDOs to Digits");
+  for (const Muon::MM_RawDataCollection * rdoColl : *MmRDO) { // Go through RDO container
+    ATH_MSG_DEBUG("rdoColl size = " << rdoColl->size() );
+    StatusCode status = this->decodeMM (mmContainer, rdoColl, collection, oldId);
+    if (status.isFailure() ) return status;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode MuonRdoToMuonDigitTool::decodeMdt( MdtDigitContainer *mdtContainer, const MdtCsm * rdoColl, MdtDigitCollection*& collection, Identifier& oldId ) {
+
+    IdContext mdtContext = m_muonIdHelperTool->mdtIdHelper().module_context();
  
-    if ( rdoColl->size() > 0 ) {
+    if ( !rdoColl->empty() ) {
         ATH_MSG_DEBUG( " Number of AmtHit in this Csm " 
                        << rdoColl->size()  );
 	
@@ -373,9 +399,9 @@ StatusCode MuonRdoToMuonDigitTool::decodeMdt( const MdtCsm * rdoColl, MdtDigitCo
 	
 	    // find here the Proper Digit Collection identifier, using the rdo-hit id
 	    // (since RDO collections are not in a 1-to-1 relation with digit collections)
-	    Identifier elementId = m_mdtHelper->elementID(newDigit->identify());
+	    Identifier elementId = m_muonIdHelperTool->mdtIdHelper().elementID(newDigit->identify());
 	    IdentifierHash coll_hash;
-	    if (m_mdtHelper->get_hash(elementId, coll_hash, &mdtContext)) {
+	    if (m_muonIdHelperTool->mdtIdHelper().get_hash(elementId, coll_hash, &mdtContext)) {
 	      ATH_MSG_WARNING( "Unable to get MDT digit collection hash id " 
                                << "context begin_index = " << mdtContext.begin_index()
                                << " context end_index  = " << mdtContext.end_index()
@@ -385,24 +411,23 @@ StatusCode MuonRdoToMuonDigitTool::decodeMdt( const MdtCsm * rdoColl, MdtDigitCo
 
      
 	    if (oldId != elementId) {
+           m_acSvc->setStore( &*evtStore() );
+           MdtDigitCollection *oldCollection;
+           ATH_CHECK( mdtContainer->naughtyRetrieve(coll_hash, oldCollection) );
+           if (nullptr ==  oldCollection) {
+              MdtDigitCollection * newCollection = 	  new MdtDigitCollection(elementId,coll_hash);
+              newCollection->push_back(newDigit);
+              collection = newCollection;
               m_acSvc->setStore( &*evtStore() );
-              MdtDigitContainer::const_iterator it_coll = m_mdtContainer->indexFind(coll_hash);
-              if (m_mdtContainer->end() ==  it_coll) {
-		MdtDigitCollection * newCollection = 
-		  new MdtDigitCollection(elementId,coll_hash);
-		newCollection->push_back(newDigit);
-		collection = newCollection;
-                m_acSvc->setStore( &*evtStore() );
-		StatusCode status = m_mdtContainer->addCollection(newCollection, coll_hash);
-		if (status.isFailure())
-		  ATH_MSG_WARNING( "Couldn't record MdtDigitCollection with key=" << coll_hash 
+              StatusCode status = mdtContainer->addCollection(newCollection, coll_hash);
+              if (status.isFailure())
+	     	  ATH_MSG_WARNING( "Couldn't record MdtDigitCollection with key=" << coll_hash 
                                    << " in StoreGate!"  );
-	      } else {  
-		MdtDigitCollection * oldCollection = const_cast<MdtDigitCollection*>( *it_coll );
-		oldCollection->push_back(newDigit);
-		collection = oldCollection;
-	      }
-	      oldId = elementId;
+	       } else {
+              oldCollection->push_back(newDigit);
+              collection = oldCollection;
+	       }
+	       oldId = elementId;
 	    } else {
 	      collection->push_back(newDigit);
 	    }
@@ -411,7 +436,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeMdt( const MdtCsm * rdoColl, MdtDigitCo
     return StatusCode::SUCCESS;
 }  
 
-StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoColl, CscDigitCollection*& collection, 
+StatusCode MuonRdoToMuonDigitTool::decodeCsc(CscDigitContainer* cscContainer, const CscRawDataCollection * rdoColl, CscDigitCollection*& collection,
                                               Identifier& oldId){// , CscRDO_Decoder& decoder) {
 
       ATH_MSG_DEBUG( " Number of RawData in this rdo " 
@@ -422,7 +447,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoCo
 
       //      decoder.setParams(samplingTime);
 
-      IdContext cscContext = m_cscHelper->module_context();
+      IdContext cscContext = m_muonIdHelperTool->cscIdHelper().module_context();
 
       /** for each Rdo, loop over RawData, converter RawData to digit
 	  retrieve/create digit collection, and insert digit into collection */
@@ -453,23 +478,23 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoCo
           int errorfindCharge = m_cscCalibTool->findCharge(samplingTime, samplingPhase, charges, charge, time);
           // WPARK: Potential problem! error code includes time out of range and aa>0
           // If this is the case, only very nice samples are converted to Digit. Sep 11, 2009
-	  if ( !adctocharge || errorfindCharge ) { 
+	  if ( !adctocharge || !errorfindCharge ) { 
 	    ATH_MSG_WARNING( " CSC conversion ADC to Charge failed " 
                              << "CSC Digit not build ... " 
                              << " or charge finding failed " << " ... skipping "  );
 	    continue;
 	  }
-	  ATH_MSG_DEBUG( "CSC RDO->CscDigit: " << m_cscHelper->show_to_string(channelId) );
+	  ATH_MSG_DEBUG( "CSC RDO->CscDigit: " << m_muonIdHelperTool->cscIdHelper().show_to_string(channelId) );
 	  int theCharge = static_cast<int>(charge);
 	  CscDigit * newDigit = new CscDigit(channelId, theCharge, time);
-	  ATH_MSG_DEBUG( "CSC RDO->Digit: " << m_cscHelper->show_to_string(newDigit->identify()) 
+	  ATH_MSG_DEBUG( "CSC RDO->Digit: " << m_muonIdHelperTool->cscIdHelper().show_to_string(newDigit->identify()) 
                          << " " << newDigit->charge() << " " << charge << " time= " << time  );
 
 	  for (uint16_t i=0; i< samples.size(); ++i) {
 	    ATH_MSG_DEBUG( "CSC RDO->Digit: " << samples[i]  );
 	  }
           IdentifierHash coll_hash;
-          if (m_cscHelper->get_hash(stationId, coll_hash, &cscContext)) {
+          if (m_muonIdHelperTool->cscIdHelper().get_hash(stationId, coll_hash, &cscContext)) {
             ATH_MSG_WARNING( "Unable to get CSC digiti collection hash id " 
                              << "context begin_index = " << cscContext.begin_index()
                              << " context end_index  = " << cscContext.end_index()
@@ -479,20 +504,20 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoCo
 
 	  if (oldId != stationId) {
             m_acSvc->setStore( &*evtStore() );
-            CscDigitContainer::const_iterator it_coll = m_cscContainer->indexFind(coll_hash);
-            if (m_cscContainer->end() ==  it_coll) {
-		CscDigitCollection * newCollection = new CscDigitCollection(stationId, coll_hash);
-		newCollection->push_back(newDigit);
-		collection = newCollection;
-                m_acSvc->setStore( &*evtStore() );
-		StatusCode status = m_cscContainer->addCollection(newCollection, coll_hash);
-		if (status.isFailure())
-		  ATH_MSG_WARNING( "Couldn't record CscDigitCollection with key=" << coll_hash 
+           CscDigitCollection * oldCollection;
+           ATH_CHECK(cscContainer->naughtyRetrieve(coll_hash, oldCollection));
+           if (nullptr ==  oldCollection) {
+              CscDigitCollection * newCollection = new CscDigitCollection(stationId, coll_hash);
+              newCollection->push_back(newDigit);
+              collection = newCollection;
+              m_acSvc->setStore( &*evtStore() );
+              StatusCode status = cscContainer->addCollection(newCollection, coll_hash);
+              if (status.isFailure())
+              ATH_MSG_WARNING( "Couldn't record CscDigitCollection with key=" << coll_hash 
                                    << " in StoreGate!"  );
-	    } else {  
-	      CscDigitCollection * oldCollection = const_cast<CscDigitCollection*>( *it_coll );
-	      oldCollection->push_back(newDigit);
-	      collection = oldCollection;
+	       } else {
+             oldCollection->push_back(newDigit);
+             collection = oldCollection;
 	    }
 	    oldId = stationId;
 	  } else {
@@ -503,9 +528,9 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoCo
       return StatusCode::SUCCESS;
 }
 
-StatusCode MuonRdoToMuonDigitTool::decodeRpc( const RpcPad * rdoColl, RpcDigitCollection*& collection ) {
+StatusCode MuonRdoToMuonDigitTool::decodeRpc(RpcDigitContainer* rpcContainer, const RpcPad * rdoColl, RpcDigitCollection*& collection ) {
 
-            IdContext rpcContext = m_rpcHelper->module_context();
+            IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
 
             ATH_MSG_DEBUG( " Number of CMs in this Pad " 
                            << rdoColl->size()  );
@@ -515,12 +540,12 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc( const RpcPad * rdoColl, RpcDigitCo
             uint16_t padId     = rdoColl->onlineId(); 
             uint16_t sectorId  = rdoColl->sector(); 
 
-            int stationName = m_rpcHelper->stationName(padOfflineId);
-            int stationEta  = m_rpcHelper->stationEta(padOfflineId);
-            int stationPhi  = m_rpcHelper->stationPhi(padOfflineId);
-            int doubletR    = m_rpcHelper->doubletR(padOfflineId);
+            int stationName = m_muonIdHelperTool->rpcIdHelper().stationName(padOfflineId);
+            int stationEta  = m_muonIdHelperTool->rpcIdHelper().stationEta(padOfflineId);
+            int stationPhi  = m_muonIdHelperTool->rpcIdHelper().stationPhi(padOfflineId);
+            int doubletR    = m_muonIdHelperTool->rpcIdHelper().doubletR(padOfflineId);
 	
-            Identifier elementId = m_rpcHelper->elementID(stationName, stationEta,
+            Identifier elementId = m_muonIdHelperTool->rpcIdHelper().elementID(stationName, stationEta,
                                                           stationPhi, doubletR);
 	
             // For each pad, loop on the coincidence matrices
@@ -555,10 +580,10 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc( const RpcPad * rdoColl, RpcDigitCo
                     {
                         collection = 0;
                         RpcDigit* newDigit = (*itVec);
-                        elementId = m_rpcHelper->elementID(newDigit->identify());
+                        elementId = m_muonIdHelperTool->rpcIdHelper().elementID(newDigit->identify());
                         
                         IdentifierHash coll_hash;
-                        if (m_rpcHelper->get_hash(elementId, coll_hash, &rpcContext)) {
+                        if (m_muonIdHelperTool->rpcIdHelper().get_hash(elementId, coll_hash, &rpcContext)) {
                           ATH_MSG_WARNING( "Unable to get RPC digit collection hash id " 
                                            << "context begin_index = " << rpcContext.begin_index()
                                            << " context end_index  = " << rpcContext.end_index()
@@ -567,21 +592,21 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc( const RpcPad * rdoColl, RpcDigitCo
                         } 
 
                         m_acSvc->setStore( &*evtStore() );
-                        RpcDigitContainer::const_iterator it_coll = m_rpcContainer->indexFind(coll_hash);
-                        if (m_rpcContainer->end() ==  it_coll) {
+                        RpcDigitCollection *oldCollection;
+                        ATH_CHECK(rpcContainer->naughtyRetrieve(coll_hash, oldCollection));
+                        if (nullptr ==  oldCollection) {
                             RpcDigitCollection * newCollection = new RpcDigitCollection(elementId, coll_hash);
                             newCollection->push_back(newDigit);
                             collection = newCollection;
                             m_acSvc->setStore( &*evtStore() );
-                            StatusCode status = m_rpcContainer->addCollection(newCollection, coll_hash);
+                            StatusCode status = rpcContainer->addCollection(newCollection, coll_hash);
                             if (status.isFailure())
                               ATH_MSG_WARNING( "Couldn't record RpcDigitCollection with key=" 
                                                << coll_hash << " in StoreGate!"  );
                         }
                         else
                         {
-	                   RpcDigitCollection * oldCollection = const_cast<RpcDigitCollection*>( *it_coll );
-	                   oldCollection->push_back(newDigit);
+	                       oldCollection->push_back(newDigit);
                            collection = oldCollection;
                         }
                     }
@@ -592,13 +617,13 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc( const RpcPad * rdoColl, RpcDigitCo
             return StatusCode::SUCCESS;
 }
 
-StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl, 
+StatusCode MuonRdoToMuonDigitTool::decodeTgc(TgcDigitContainer* tgcContainer, const TgcRdo *rdoColl, 
                                               Identifier& oldElementId ) { 
       TgcDigitCollection* collection = 0; 
 
       if(!m_tgcCabling && getTgcCabling().isFailure()) return StatusCode::FAILURE;
 
-      IdContext tgcContext = m_tgcHelper->module_context();
+      IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
 
       ATH_MSG_DEBUG( "Number of RawData in this rdo " 
                      << rdoColl->size()  );
@@ -607,7 +632,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl,
       TgcRdo::const_iterator itD  = rdoColl->begin();
       TgcRdo::const_iterator itDe = rdoColl->end();
 
-      std::map<std::vector<uint16_t>, uint16_t> stripMap;
+      std::map<std::array<uint16_t,5>, uint16_t> stripMap;
       if(m_is12foldTgc) { // Only when 12-fold TGC cabling is used 
 	// TGC2 Endcap Strip OR channel treatement preparation start
 	// Signals are ORed as follows: 
@@ -626,23 +651,23 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl,
 	  if((*itD)->sswId()==7) continue; // Exclude Forward
 	  if((*itD)->bitpos()<112 || (*itD)->bitpos()>199) continue; // Require C, D-input
 	  
-	  std::vector<uint16_t> stripId(5, 0);
-	  stripId.at(0) = (*itD)->subDetectorId();
-	  stripId.at(1) = (*itD)->rodId();
-	  stripId.at(2) = (*itD)->sswId();
-	  stripId.at(3) = (*itD)->bitpos();
-	  stripId.at(4) = (*itD)->bcTag();
+	  std::array<uint16_t,5> stripId;
+	  stripId[0] = (*itD)->subDetectorId();
+	  stripId[1] = (*itD)->rodId();
+	  stripId[2] = (*itD)->sswId();
+	  stripId[3] = (*itD)->bitpos();
+	  stripId[4] = (*itD)->bcTag();
 	  uint16_t stripSlbBits = 0x1 << ((*itD)->slbId()-16);
-	  std::map<std::vector<uint16_t>, uint16_t>::iterator itMap = stripMap.find(stripId); // Find correspond channel 
+	  std::map<std::array<uint16_t,5>, uint16_t>::iterator itMap = stripMap.find(stripId); // Find correspond channel 
 	  if(itMap==stripMap.end()) { // This is new one
-	    stripMap.insert(std::map<std::vector<uint16_t>, uint16_t>::value_type(stripId, stripSlbBits));
+	    stripMap.emplace(stripId, stripSlbBits);
 	  } else { // This already exists
 	    itMap->second |= stripSlbBits;
 	  }
 	}
 	// Covert to original hit patterns 
-	std::map<std::vector<uint16_t>, uint16_t>::iterator jtMap   = stripMap.begin();
-	std::map<std::vector<uint16_t>, uint16_t>::iterator jtMap_e = stripMap.end();
+	std::map<std::array<uint16_t,5>, uint16_t>::iterator jtMap   = stripMap.begin();
+	std::map<std::array<uint16_t,5>, uint16_t>::iterator jtMap_e = stripMap.end();
 	for(; jtMap!=jtMap_e; jtMap++) {
 	  if(jtMap->second<=31) {
 	    // x    : 5-bit variable
@@ -678,13 +703,13 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl,
 	       (*itD)->sswId()!=7 && // Exclude Forward
 	       (*itD)->bitpos()>=112 && (*itD)->bitpos()<=199 // Require C, D-input
 	       ) {
-	      std::vector<uint16_t> stripId(5, 0);
-	      stripId.at(0) = (*itD)->subDetectorId();
-	      stripId.at(1) = (*itD)->rodId();
-	      stripId.at(2) = (*itD)->sswId();
-	      stripId.at(3) = (*itD)->bitpos();
-	      stripId.at(4) = (*itD)->bcTag();
-	      std::map<std::vector<uint16_t>, uint16_t>::iterator itMap = stripMap.find(stripId); // Find correspond hit
+	      std::array<uint16_t,5> stripId;
+	      stripId[0] = (*itD)->subDetectorId();
+	      stripId[1] = (*itD)->rodId();
+	      stripId[2] = (*itD)->sswId();
+	      stripId[3] = (*itD)->bitpos();
+	      stripId[4] = (*itD)->bcTag();
+	      std::map<std::array<uint16_t,5>, uint16_t>::iterator itMap = stripMap.find(stripId); // Find correspond hit
 	      if(itMap!=stripMap.end()) {
 		uint16_t stripSlbBits = 0x1 << ((*itD)->slbId()-16);
 		if(!(itMap->second & stripSlbBits)) continue; // This hit is additional.
@@ -760,7 +785,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl,
 	      
 	      // check new element or not
               IdentifierHash coll_hash;
-              if (m_tgcHelper->get_hash(elementId, coll_hash, &tgcContext)) {
+              if (m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, coll_hash, &tgcContext)) {
                 ATH_MSG_WARNING( "Unable to get TGC digit collection hash " 
                                  << "context begin_index = " << tgcContext.begin_index()
                                  << " context end_index  = " << tgcContext.end_index()
@@ -771,18 +796,19 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl,
 	      if (elementId != oldElementId)
 		{
 		  // get collection
-                  m_acSvc->setStore( &*evtStore() );
-                  TgcDigitContainer::const_iterator it_coll = m_tgcContainer->indexFind(coll_hash);
-                  if (m_tgcContainer->end() !=  it_coll) {
-                       collection = const_cast<TgcDigitCollection*>( *it_coll );
+            m_acSvc->setStore( &*evtStore() );
+            TgcDigitCollection* aCollection = nullptr;
+            ATH_CHECK(tgcContainer->naughtyRetrieve(coll_hash, aCollection));
+            if (nullptr !=  aCollection) {
+                  collection = aCollection;
 		    }
 		  else
 		    {
 		      // create new collection
 		      ATH_MSG_DEBUG( "Created a new digit collection : " << coll_hash  );
 		      collection = new TgcDigitCollection(elementId, coll_hash);
-                      m_acSvc->setStore( &*evtStore() );
-		      ATH_CHECK( m_tgcContainer->addCollection(collection,coll_hash) );
+              m_acSvc->setStore( &*evtStore() );
+		      ATH_CHECK( tgcContainer->addCollection(collection,coll_hash) );
 		    }
 		  
 		  oldElementId = elementId;
@@ -811,6 +837,112 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl,
 	    }
 	}
       return StatusCode::SUCCESS;
+}
+
+StatusCode MuonRdoToMuonDigitTool::decodeSTGC(sTgcDigitContainer * stgcContainer, const Muon::STGC_RawDataCollection * rdoColl, sTgcDigitCollection*& collection, Identifier& oldId){
+      if ( !rdoColl->empty() ) {
+      ATH_MSG_DEBUG( " Number of RawData in this rdo " << rdoColl->size()  );
+      IdContext stgcContext = m_muonIdHelperTool->stgcIdHelper().module_context();
+
+      /** for each Rdo, loop over RawData, converter RawData to digit
+	  retrieve/create digit collection, and insert digit into collection */
+      for (const Muon::STGC_RawData * data : *rdoColl){
+	    sTgcDigit * newDigit = m_stgcRdoDecoderTool->getDigit(data);
+
+	    if (newDigit==NULL) {
+	      ATH_MSG_WARNING( "Error in sTGC RDO decoder"  );
+              continue;
+	    }
+	    ATH_MSG_DEBUG( "sTGC RDO->sTGCDigit: " << m_muonIdHelperTool->stgcIdHelper().show_to_string(newDigit->identify()) );
+	    ATH_MSG_DEBUG( "sTGC RDO->Digit: " << m_muonIdHelperTool->stgcIdHelper().show_to_string(newDigit->identify())
+                         << " charge: " << newDigit->charge() << " time: " << newDigit->time()  );
+
+	    Identifier elementId = m_muonIdHelperTool->stgcIdHelper().elementID(newDigit->identify());
+	    IdentifierHash coll_hash;
+	    if (m_muonIdHelperTool->stgcIdHelper().get_hash(elementId, coll_hash, &stgcContext)) {
+	      ATH_MSG_WARNING( "Unable to get sTGC digit collection hash id "
+                               << "context begin_index = " << stgcContext.begin_index()
+                               << " context end_index  = " << stgcContext.end_index()
+                               << " the identifier is " );
+	      elementId.show();
+	    }
+
+	    if (oldId != elementId) {
+          m_acSvc->setStore( &*evtStore() );
+          sTgcDigitCollection *   oldCollection;
+          ATH_CHECK(stgcContainer->naughtyRetrieve(coll_hash, oldCollection));
+              if (nullptr ==  oldCollection) {
+		        sTgcDigitCollection * newCollection = new sTgcDigitCollection(elementId,coll_hash);
+		        newCollection->push_back(newDigit);
+		        collection = newCollection;
+                m_acSvc->setStore( &*evtStore() );
+		        StatusCode status = stgcContainer->addCollection(newCollection, coll_hash);
+		        if (status.isFailure())
+		        ATH_MSG_WARNING( "Couldn't record sTgcDigitCollection with key=" << coll_hash 
+                                   << " in StoreGate!"  );
+	          } else {
+		        oldCollection->push_back(newDigit);
+		        collection = oldCollection;
+	          }
+	        oldId = elementId;
+	    } else {
+	      collection->push_back(newDigit);
+	    }
+      }
+    }
+    return StatusCode::SUCCESS;
+}
+
+StatusCode MuonRdoToMuonDigitTool::decodeMM(MmDigitContainer *mmContainer, const Muon::MM_RawDataCollection * rdoColl, MmDigitCollection*& collection, Identifier& oldId){
+      if ( !rdoColl->empty() ) {
+      ATH_MSG_DEBUG( " Number of RawData in this rdo " << rdoColl->size()  );
+      IdContext mmContext = m_muonIdHelperTool->mmIdHelper().module_context();
+
+      /** for each Rdo, loop over RawData, converter RawData to digit
+	  retrieve/create digit collection, and insert digit into collection */
+      for (const Muon::MM_RawData * data : *rdoColl) {
+	    MmDigit * newDigit = m_mmRdoDecoderTool->getDigit(data);
+
+	    if (newDigit==NULL) {
+	      ATH_MSG_WARNING( "Error in MM RDO decoder"  );
+              continue;
+	    }
+	    ATH_MSG_DEBUG( "MM RDO->MMDigit: " << m_muonIdHelperTool->mmIdHelper().show_to_string(newDigit->identify()) );
+
+	    Identifier elementId = m_muonIdHelperTool->mmIdHelper().elementID(newDigit->identify());
+	    IdentifierHash coll_hash;
+	    if (m_muonIdHelperTool->mmIdHelper().get_hash(elementId, coll_hash, &mmContext)) {
+	      ATH_MSG_WARNING( "Unable to get MM digit collection hash id "
+                               << "context begin_index = " << mmContext.begin_index()
+                               << " context end_index  = " << mmContext.end_index()
+                               << " the identifier is " );
+	      elementId.show();
+	    }
+
+	    if (oldId != elementId) {
+          m_acSvc->setStore( &*evtStore() );
+          MmDigitCollection * oldCollection;
+          ATH_CHECK( mmContainer->naughtyRetrieve(coll_hash, oldCollection) );
+              if (nullptr ==  oldCollection) {
+		        MmDigitCollection * newCollection = new MmDigitCollection(elementId,coll_hash);
+		        newCollection->push_back(newDigit);
+		        collection = newCollection;
+                m_acSvc->setStore( &*evtStore() );
+		        StatusCode status = mmContainer->addCollection(newCollection, coll_hash);
+		        if (status.isFailure())
+		        ATH_MSG_WARNING( "Couldn't record MmDigitCollection with key=" << coll_hash
+                                   << " in StoreGate!"  );
+	          } else {
+		        oldCollection->push_back(newDigit);
+		        collection = oldCollection;
+	          }
+	        oldId = elementId;
+	    } else {
+	      collection->push_back(newDigit);
+	    }
+      }
+    }
+    return StatusCode::SUCCESS;
 }
  
 StatusCode MuonRdoToMuonDigitTool::getTgcCabling() {

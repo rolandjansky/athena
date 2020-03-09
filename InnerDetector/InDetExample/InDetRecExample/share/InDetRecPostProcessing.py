@@ -103,7 +103,7 @@ if InDetFlags.doVertexFindingForMonitoring():
                                                                               MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()  )
   ToolSvc += InDetPriVxFinderToolNoBeamConstraint
   if (InDetFlags.doPrintConfigurables()):
-    print InDetPriVxFinderToolNoBeamConstraint
+    printfunc (InDetPriVxFinderToolNoBeamConstraint)
 
   from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetPriVxFinder
   InDetPriVxFinderNoBeamConstraint = InDet__InDetPriVxFinder(name                        = "InDetPriVxFinderNoBeamConstraint",
@@ -115,7 +115,7 @@ if InDetFlags.doVertexFindingForMonitoring():
 
   topSequence += InDetPriVxFinderNoBeamConstraint
   if InDetFlags.doPrintConfigurables():
-    print InDetPriVxFinderNoBeamConstraint
+    printfunc (InDetPriVxFinderNoBeamConstraint)
 
 if InDetFlags.doSplitVertexFindingForMonitoring():
   #
@@ -137,7 +137,7 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
                                                                     MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks())
   ToolSvc += InDetPriVxFinderToolSplit
   if (InDetFlags.doPrintConfigurables()):
-    print InDetPriVxFinderToolSplit
+    printfunc (InDetPriVxFinderToolSplit)
 
   from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetPriVxFinder
   InDetPriVxFinderSplit= InDet__InDetPriVxFinder(name                        = "InDetPriVxFinderSplit",
@@ -148,7 +148,7 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
                                                  doVertexSorting             = False)
   topSequence += InDetPriVxFinderSplit
   if InDetFlags.doPrintConfigurables():
-    print InDetPriVxFinderSplit
+    printfunc (InDetPriVxFinderSplit)
 
 # ---------------------------------------------------------------------------- 
 #
@@ -180,7 +180,7 @@ if InDetFlags.doV0Finder():
     ToolSvc += InDetV0Fitter
     #InDetV0Fitter.OutputLevel = DEBUG
     if (InDetFlags.doPrintConfigurables()):
-      print      InDetV0Fitter
+      printfunc (     InDetV0Fitter)
     #
     InDetVKVertexFitter  = None
     InDetKshortFitter    = None
@@ -198,7 +198,7 @@ if InDetFlags.doV0Finder():
     ToolSvc += InDetVKVertexFitter
     #InDetVKVertexFitter.OutputLevel = DEBUG
     if (InDetFlags.doPrintConfigurables()):
-      print InDetVKVertexFitter
+      printfunc (InDetVKVertexFitter)
       #
     from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     InDetKshortFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKKVFitter",
@@ -210,7 +210,7 @@ if InDetFlags.doV0Finder():
                                               MassForConstraint   = 497.672)
     ToolSvc += InDetKshortFitter
     if (InDetFlags.doPrintConfigurables()):
-      print InDetKshortFitter
+      printfunc (InDetKshortFitter)
     #
     from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     InDetLambdaFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKLFitter",
@@ -222,7 +222,7 @@ if InDetFlags.doV0Finder():
                                               MassForConstraint   = 1115.68)
     ToolSvc += InDetLambdaFitter
     if (InDetFlags.doPrintConfigurables()):
-      print InDetLambdaFitter
+      printfunc (InDetLambdaFitter)
     #
     from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     InDetLambdabarFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKLbFitter",
@@ -234,7 +234,7 @@ if InDetFlags.doV0Finder():
                                                  MassForConstraint   = 1115.68)
     ToolSvc += InDetLambdabarFitter
     if (InDetFlags.doPrintConfigurables()):
-      print InDetLambdabarFitter
+      printfunc (InDetLambdabarFitter)
   #
   # --- we always need the gamma tool
   #
@@ -250,7 +250,7 @@ if InDetFlags.doV0Finder():
                                            InputParticleMasses = [0.511,0.511])
   ToolSvc += InDetGammaFitter
   if (InDetFlags.doPrintConfigurables()):
-    print InDetGammaFitter
+    printfunc (InDetGammaFitter)
 
   # Track selector tool
   #
@@ -281,7 +281,7 @@ if InDetFlags.doV0Finder():
                                                                        IsConversion        = False)
     ToolSvc += InDetV0VxTrackSelector
     if (InDetFlags.doPrintConfigurables()):
-      print InDetV0VxTrackSelector
+      printfunc (InDetV0VxTrackSelector)
       pass
     pass
   
@@ -301,7 +301,7 @@ if InDetFlags.doV0Finder():
                                                          MaxChi2OfVtxEstimation = 2000.)
   ToolSvc += InDetV0VtxPointEstimator
   if (InDetFlags.doPrintConfigurables()):
-    print InDetV0VtxPointEstimator
+    printfunc (InDetV0VtxPointEstimator)
 
   #
   # InDetV0FinderTool
@@ -355,7 +355,7 @@ if InDetFlags.doV0Finder():
                                             Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
   ToolSvc += V0FinderTool
   if (InDetFlags.doPrintConfigurables()):
-    print V0FinderTool
+    printfunc (V0FinderTool)
 
   #
   # --- now configure the algorithm 
@@ -372,7 +372,7 @@ if InDetFlags.doV0Finder():
     
     topSequence += InDetV0Finder
     if (InDetFlags.doPrintConfigurables()):
-      print InDetV0Finder
+      printfunc (InDetV0Finder)
       pass
     pass
   
@@ -389,12 +389,12 @@ if InDetFlags.doSecVertexFinder():
   # --- setup of cut values for  Secondary vertexing  
   #
   if (not 'InDetSecondaryVertexCuts' in dir()):
-    print "InDetRecPostProcessing: InDetSecondaryVertexCuts not set before - import them now"
+    printfunc ("InDetRecPostProcessing: InDetSecondaryVertexCuts not set before - import them now")
     from InDetRecExample.ConfiguredSecondaryVertexCuts import ConfiguredSecondaryVertexCuts
     InDetSecondaryVertexCuts      = ConfiguredSecondaryVertexCuts(InDetFlags.secondaryVertexCutSetup(),
                                                                   InDetNewTrackingCuts.minSecondaryPt())
     if (InDetFlags.doPrintConfigurables()):
-      print InDetSecondaryVertexCuts.printInfo()         
+      printfunc (InDetSecondaryVertexCuts.printInfo()         )
     pass
   pass
   #
@@ -422,12 +422,12 @@ if InDetFlags.doConversions():
   # --- setup of cut values for  Conversion vertexing  
   #
   if (not 'InDetConversionVertexCuts' in dir()):
-    print "InDetRecPostProcessing: InDetConversionVertexCuts not set before - import them now"
+    printfunc ("InDetRecPostProcessing: InDetConversionVertexCuts not set before - import them now")
     from InDetRecExample.ConfiguredSecondaryVertexCuts import ConfiguredSecondaryVertexCuts
     InDetConversionVertexCuts      = ConfiguredSecondaryVertexCuts(InDetFlags.conversionVertexCutSetup(),
                                                                    InDetNewTrackingCuts.minPT())
     if (InDetFlags.doPrintConfigurables()):
-      print InDetConversionVertexCuts.printInfo()
+      printfunc (InDetConversionVertexCuts.printInfo())
     pass
   pass
   #
@@ -483,6 +483,8 @@ if rec.doPhysicsValidationAugmentation() :
     log.info('Package InDetPhysValMonitoring.InDetPhysValDecoration is missing.'\
                ' So, will not run the decoration. Module should become available in future'\
                ' versions of InDetPhysValMonitoring')
+    import traceback
+    log.info (traceback.format_exc())
     import sys 
     sys.exit(1)
     pass

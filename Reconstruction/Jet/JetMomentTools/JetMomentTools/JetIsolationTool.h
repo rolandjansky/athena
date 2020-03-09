@@ -139,7 +139,7 @@ public:
   StatusCode  finalize();
 
   // Jet Modifier methods.
-  int modify(xAOD::JetContainer& jets) const;
+  StatusCode modify(xAOD::JetContainer& jets) const;
   int modifyJet(xAOD::Jet& ) const{return 0;};
 
 private: 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuTagAmbiguitySolverTool.h"
@@ -19,7 +19,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
  
 #include "MuonSegment/MuonSegment.h"
 //#include "TrkParameters/MeasuredPerigee.h"
@@ -36,7 +36,6 @@ MuTagAmbiguitySolverTool::MuTagAmbiguitySolverTool(const std::string& t,
 				     const std::string& n,
 				     const IInterface*  p ):
   AthAlgTool(t,n,p),
-  p_muonHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),	 
   p_muonPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   p_muonIdHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   p_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"),
@@ -86,7 +85,7 @@ StatusCode MuTagAmbiguitySolverTool::initialize()
     m_tgcIdHelper = 0;
   }
 
-  ATH_CHECK( p_muonHelper.retrieve() );
+  ATH_CHECK( m_edmHelperSvc.retrieve() );
   ATH_CHECK( p_muonPrinter.retrieve() );
   ATH_CHECK( p_muonIdHelper.retrieve() );
   ATH_CHECK( p_segmentMatchingTool.retrieve() );
@@ -293,8 +292,8 @@ int MuTagAmbiguitySolverTool::ambiguousSegment( const Muon::MuonSegment& seg1, c
   if( &seg1 == &seg2 ) return 1;
 
   // check whether the segments are in the same station layer
-  Identifier ch1 = p_muonHelper->chamberId(seg1);
-  Identifier ch2 = p_muonHelper->chamberId(seg2);
+  Identifier ch1 = m_edmHelperSvc->chamberId(seg1);
+  Identifier ch2 = m_edmHelperSvc->chamberId(seg2);
   Muon::MuonStationIndex::StIndex st1 = p_muonIdHelper->stationIndex(ch1);
   Muon::MuonStationIndex::StIndex st2 = p_muonIdHelper->stationIndex(ch2);
   if( st1 != st2 ) return 0;
@@ -368,7 +367,7 @@ std::vector<  MuonCombined::MuonSegmentInfo > MuTagAmbiguitySolverTool::selectBe
       continue;
     } 
 
-    Identifier ch1 = p_muonHelper->chamberId(*museg1);
+    Identifier ch1 = m_edmHelperSvc->chamberId(*museg1);
     Muon::MuonStationIndex::StIndex st1 = p_muonIdHelper->stationIndex(ch1);
     int eta1 = p_muonIdHelper->stationEta(ch1);
 
@@ -380,7 +379,7 @@ std::vector<  MuonCombined::MuonSegmentInfo > MuTagAmbiguitySolverTool::selectBe
 	continue;
       } 
 
-      Identifier ch2 = p_muonHelper->chamberId(*museg2);
+      Identifier ch2 = m_edmHelperSvc->chamberId(*museg2);
       Muon::MuonStationIndex::StIndex st2 = p_muonIdHelper->stationIndex(ch2);    
       
       if( st1 != st2 ) continue;

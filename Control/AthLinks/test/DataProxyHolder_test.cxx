@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,6 +17,8 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
+#include "AthenaKernel/ThinningCache.h"
 #include <iostream>
 #include <cassert>
 
@@ -281,45 +283,90 @@ void test5 (SGTest::TestStore& store)
 }
 
 
-// thinning
+// thinning (MT)
 void test6 (SGTest::TestStore& store)
 {
   std::cout << "test6\n";
-  TestThinningSvc svc;
+
+  SG::ThinningCache cache;
+
   SG::DataProxyHolder h1;
   TestStore::sgkey_t sgkey = 0;
   size_t index = 10;
   
-  assert (h1.thin (sgkey, index) == false);
+  assert (h1.thin (sgkey, index, &cache) == false);
   assert (sgkey == 0);
   assert (index == 10);
 
   TestStore::sgkey_t sgkey_foo = store.stringToKey ("foo", fooclid);
   sgkey = sgkey_foo;
-  assert (h1.thin (sgkey, index) == false);
-  assert (sgkey == sgkey_foo);
-  assert (index == 10);
-
-  TestThinningSvc::instance (&svc, true);
-  assert (h1.thin (sgkey, index) == false);
+  assert (h1.thin (sgkey, index, &cache) == false);
   assert (sgkey == sgkey_foo);
   assert (index == 10);
 
   Foo* foo = new Foo(0);
   store.record (foo, "foo");
   h1.toTransient (sgkey);
-  assert (h1.thin (sgkey, index) == false);
+  assert (h1.thin (sgkey, index, &cache) == false);
+  assert (sgkey == sgkey_foo);
+  assert (index == 10);
+
+  SG::ThinningDecisionBase dec (20);
+  dec.thin (7);
+  dec.thin (8);
+  dec.buildIndexMap();
+  cache.addThinning ("foo", {sgkey_foo}, &dec);
+
+  assert (h1.thin (sgkey, index, &cache) == true);
+  assert (sgkey == sgkey_foo);
+  assert (index == 8);
+
+  index = 8;
+  assert (h1.thin (sgkey, index, &cache) == true);
+  assert (sgkey == 0);
+  assert (index == 0);
+}
+
+
+// thinning (old)
+void test6a (SGTest::TestStore& store)
+{
+  std::cout << "test6a\n";
+  TestThinningSvc svc;
+  SG::DataProxyHolder h1;
+  TestStore::sgkey_t sgkey = 0;
+  size_t index = 10;
+  
+  assert (h1.thin (sgkey, index, nullptr) == false);
+  assert (sgkey == 0);
+  assert (index == 10);
+
+  TestStore::sgkey_t sgkey_foo = store.stringToKey ("foo", fooclid);
+  sgkey = sgkey_foo;
+  assert (h1.thin (sgkey, index, nullptr) == false);
+  assert (sgkey == sgkey_foo);
+  assert (index == 10);
+
+  TestThinningSvc::instance (&svc, true);
+  assert (h1.thin (sgkey, index, nullptr) == false);
+  assert (sgkey == sgkey_foo);
+  assert (index == 10);
+
+  Foo* foo = new Foo(0);
+  store.record (foo, "foo");
+  h1.toTransient (sgkey);
+  assert (h1.thin (sgkey, index, nullptr) == false);
   assert (sgkey == sgkey_foo);
   assert (index == 10);
 
   svc.remap (10, 12);
-  assert (h1.thin (sgkey, index) == true);
+  assert (h1.thin (sgkey, index, nullptr) == true);
   assert (sgkey == sgkey_foo);
   assert (index == 12);
 
   svc.remap (20, IThinningSvc::RemovedIdx);
   index = 20;
-  assert (h1.thin (sgkey, index) == true);
+  assert (h1.thin (sgkey, index, nullptr) == true);
   assert (sgkey == 0);
   assert (index == 0);
 }
@@ -389,6 +436,7 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test4 (*store);
   test5 (*store);
   test6 (*store);
+  test6a (*store);
   test7 (*store);
   return 0;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_LARWHEELSOLID_H
@@ -68,6 +68,18 @@ inline const char *LArWheelSolidTypeString(LArWheelSolid_t type)
   case OuterLeadWheel: return("OuterLeadWheel");
   case InnerGlueWheel: return("InnerGlueWheel");
   case OuterGlueWheel: return("OuterGlueWheel");
+  case InnerAbsorberCone: return("InnerAbsorberCone");
+  case InnerElectrodCone: return("InnerElectrodCone");
+  case InnerGlueCone: return("InnerGlueCone");
+  case InnerLeadCone: return("InnerLeadCone");
+  case OuterAbsorberFrontCone: return("OuterAbsorberFrontCone");
+  case OuterElectrodFrontCone: return("OuterElectrodFrontCone");
+  case OuterGlueFrontCone: return("OuterGlueFrontCone");
+  case OuterLeadFrontCone: return("OuterLeadFrontCone");
+  case OuterAbsorberBackCone: return("OuterAbsorberBackCone");
+  case OuterElectrodBackCone: return("OuterElectrodBackCone");
+  case OuterGlueBackCone: return("OuterGlueBackCone");
+  case OuterLeadBackCone: return("OuterLeadBackCone");
   }
   return("unknown");
 }
@@ -76,7 +88,10 @@ class LArWheelSolid : public G4VSolid
 {
 public:
 
-  LArWheelSolid(const G4String& name, LArWheelSolid_t type, G4int zside = 1);
+  LArWheelSolid(const G4String& name, LArWheelSolid_t type,
+     G4int zside = 1,
+     LArWheelCalculator *calc = 0
+  );
   virtual ~LArWheelSolid();
 
   // Mandatory for custom solid Geant4 functions
@@ -104,7 +119,7 @@ public:
   // 07-Feb-2003 WGS: For compatibility with Geant 4.5.0
   virtual std::ostream& StreamInfo(std::ostream& os) const { return os; }
 
-  const G4Polycone *GetBoundingPolycone(void) const { return m_BoundingPolycone; }
+  const G4VSolid *GetBoundingShape(void) const { return m_BoundingShape; }
   const LArWheelCalculator *GetCalculator(void) const { return m_Calculator; }
   LArWheelSolid_t GetType(void) const { return m_Type; }
 
@@ -127,7 +142,6 @@ private:
   G4double m_MinPhi;
   G4double m_MaxPhi;
   const G4double m_PhiPosition;
-  G4Polycone* m_BoundingPolycone;
   G4VSolid* m_BoundingShape;
 #ifdef LARWHEELSOLID_USE_FANBOUND
   G4VSolid* m_FanBound;
@@ -151,13 +165,12 @@ private:
   void outer_solid_init(const G4String &);
   void set_phi_size(void);
 
-  virtual G4double distance_to_in(G4ThreeVector &, const G4ThreeVector &, int) const;
+  virtual G4double distance_to_in(G4ThreeVector &,
+                                  const G4ThreeVector &, int) const;
   G4double in_iteration_process(const G4ThreeVector &,
                                 G4double, G4ThreeVector &, int) const;
-  G4double search_for_nearest_point(
-	const G4ThreeVector &, const G4double,
-	const G4ThreeVector &, int
-  ) const;
+  G4double search_for_nearest_point(const G4ThreeVector &, const G4double,
+                                    const G4ThreeVector &, int) const;
   G4bool search_for_most_remoted_point(const G4ThreeVector &,
                                        const G4ThreeVector &,
                                        G4ThreeVector &, const int) const;
@@ -165,8 +178,8 @@ private:
                                  G4ThreeVector &, const int) const;
 
   typedef enum {
-	  NoCross, ExitAtInner, ExitAtOuter,
-	  ExitAtFront, ExitAtBack, ExitAtSide
+    NoCross, ExitAtInner, ExitAtOuter,
+    ExitAtFront, ExitAtBack, ExitAtSide
   } FanBoundExit_t;
 
   FanBoundExit_t find_exit_point(const G4ThreeVector &p,
@@ -179,14 +192,6 @@ private:
   G4bool check_D(G4double &b,
                  G4double A, G4double B, G4double C, G4bool) const;
 
-/*
-  FanBoundExit_t find_exit_point(const G4ThreeVector &p,
-                                 const G4ThreeVector &v,
-                                 EInside inside_bs,
-                                 G4ThreeVector &q) const;
-  G4bool fs_check_inner(const G4ThreeVector &p, const G4ThreeVector &v,
-                        G4bool surface, G4ThreeVector &q) const;
-*/
   G4int select_section(const G4double &Z) const;
 
   EInside Inside_accordion(const G4ThreeVector&) const;
@@ -234,15 +239,15 @@ protected:
     return "unknown";
   }
 
-  public:
-	static G4int Verbose;
-	void SetVerbose(G4int v){ Verbose = v; }
-	G4bool test_dti(const G4ThreeVector &p,
-	                const G4ThreeVector &v, const G4double distance) const;
-	G4bool test_dto(const G4ThreeVector &p,
-	                const G4ThreeVector &v, const G4double distance) const;
-  private:
-	const char *TypeStr(void) const { return LArWheelSolidTypeString(m_Type); }
+public:
+  static G4int Verbose;
+  void SetVerbose(G4int v){ Verbose = v; }
+  G4bool test_dti(const G4ThreeVector &p,
+                  const G4ThreeVector &v, const G4double distance) const;
+  G4bool test_dto(const G4ThreeVector &p,
+                  const G4ThreeVector &v, const G4double distance) const;
+private:
+  const char *TypeStr(void) const { return LArWheelSolidTypeString(m_Type); }
 #endif
 };
 

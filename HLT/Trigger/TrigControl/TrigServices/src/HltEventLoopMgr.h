@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -7,21 +7,21 @@
 
 // Trigger includes
 #include "TrigKernel/ITrigEventLoopMgr.h"
-#include "TrigKernel/HltPscErrorCode.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/EventContextClid.h"
 #include "AthenaKernel/Timeout.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h" // number_type
+#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 // Gaudi includes
+#include "GaudiKernel/EventIDBase.h" // number_type
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -45,9 +45,7 @@ class IAlgResourcePool;
 class IHiveWhiteBoard;
 class IIncidentSvc;
 class IJobOptionsSvc;
-class IROBDataProviderSvc;
 class IScheduler;
-class ITHistSvc;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
 class IIoComponentMgr;
@@ -78,33 +76,31 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode reinitialize() override;
-  virtual StatusCode restart() override;
   ///@}
 
   /// @name State transitions of ITrigEventLoopMgr interface
   ///@{
-  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt);
-  virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
+  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt) override;
+  virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt) override;
   ///@}
 
   /**
    * Implementation of IEventProcessor::executeRun which calls IEventProcessor::nextEvent
    * @param maxevt number of events to process, -1 means all
    */
-  virtual StatusCode executeRun(int maxevt=-1);
+  virtual StatusCode executeRun(int maxevt=-1) override;
 
   /**
    * Implementation of IEventProcessor::nextEvent which implements the event loop
    * @param maxevt number of events to process, -1 means all
    */
-  virtual StatusCode nextEvent(int maxevt=-1);
+  virtual StatusCode nextEvent(int maxevt=-1) override;
 
   /**
    * Implementation of IEventProcessor::executeEvent which processes a single event
    * @param ctx the current EventContext
    */
-  virtual StatusCode executeEvent( EventContext &&ctx );
+  virtual StatusCode executeEvent( EventContext &&ctx ) override;
 
   /**
    * create an Event Context object
@@ -114,7 +110,7 @@ public:
   /**
    * Implementation of IEventProcessor::stopRun (obsolete for online runnning)
    */
-  virtual StatusCode stopRun();
+  virtual StatusCode stopRun() override;
 
 private:
   // ------------------------- Helper types ------------------------------------
@@ -153,14 +149,14 @@ private:
   /** @brief Handle a failure to process an event
    *  @return FAILURE breaks the event loop
    **/
-  StatusCode failedEvent(hltonl::PSCErrorCode errorCode,
+  StatusCode failedEvent(HLT::OnlineErrorCode errorCode,
                          const EventContext& eventContext);
 
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
-  /// Uses AlgExecStateSvc to determine if any algorithm in the event returned Athena::Status::TIMEOUT
-  bool isTimedOut(const EventContext& eventContext) const;
+  /// Produce a subset of IAlgExecStateSvc::algExecStates with only non-success StatusCodes
+  std::unordered_map<std::string_view,StatusCode> algExecErrors(const EventContext& eventContext) const;
 
   /// Drain the scheduler from all actions that may be queued
   DrainSchedulerStatusCode drainScheduler();
@@ -182,19 +178,17 @@ private:
   ServiceHandle<StoreGateSvc>        m_evtStore;
   ServiceHandle<StoreGateSvc>        m_detectorStore;
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
-  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
-  ServiceHandle<ITHistSvc>           m_THistSvc;
   ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
   ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
   ServiceHandle<IConversionSvc>      m_outputCnvSvc{this, "OutputCnvSvc", "OutputCnvSvc"};
   ToolHandle<TrigCOOLUpdateHelper>   m_coolHelper{this, "CoolUpdateTool", "TrigCOOLUpdateHelper"};
   ToolHandle<HLTResultMTMaker>       m_hltResultMaker{this, "ResultMaker", "HLTResultMTMaker"};
+  ToolHandle<GenericMonitoringTool>  m_monTool{this, "MonTool", "", "Monitoring tool"};
 
   SmartIF<IHiveWhiteBoard> m_whiteboard;
   SmartIF<IAlgResourcePool> m_algResourcePool;
   SmartIF<IAlgExecStateSvc> m_aess;
   SmartIF<IScheduler> m_schedulerSvc;
-  SmartIF<ITrigROBDataProviderSvc> m_hltROBDataProviderSvc;
 
   // ------------------------- Other properties --------------------------------------
   Gaudi::Property<std::string> m_schedulerName{
@@ -202,9 +196,6 @@ private:
 
   Gaudi::Property<std::string> m_whiteboardName{
     this, "WhiteboardSvc", "EventDataSvc", "Name of the Whiteboard"};
-
-  Gaudi::Property<std::vector<std::string> > m_topAlgNames{
-    this, "TopAlg", {}, "List of top level algorithms names"};
 
   Gaudi::Property<float> m_hardTimeout{
     this, "HardTimeout", 10*60*1000/*=10min*/, "Hard event processing timeout in milliseconds"};
@@ -228,23 +219,33 @@ private:
     this, "TimeoutDebugStreamName", "HltTimeout",
     "Debug stream name for events with HLT timeout"};
 
+  Gaudi::Property<std::string> m_truncationDebugStreamName{
+    this, "TruncationDebugStreamName", "TruncatedHLTResult",
+    "Debug stream name for events with HLT result truncation"};
+
   Gaudi::Property<std::string> m_sorPath{
     this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
 
   Gaudi::Property<bool> m_setMagFieldFromPtree{
     this, "setMagFieldFromPtree", false, "Read magnet currents from ptree"};
 
+  Gaudi::Property<unsigned int> m_forceRunNumber{
+    this, "forceRunNumber", 0, "Override run number during prepareForRun"};
+
+  Gaudi::Property<unsigned long long> m_forceSOR_ns{
+    this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
+
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
 
-  SG::ReadHandleKey<EventInfo> m_eventInfoRHKey{
-    this, "EventInfoRHKey", "ByteStreamEventInfo", "StoreGate key for reading EventInfo"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoRHKey{
+    this, "EventInfoRHKey", "EventInfo", "StoreGate key for reading xAOD::EventInfo"};
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields
-  typedef EventID::number_type numt;
+  typedef EventIDBase::number_type numt;
   /**
    * Detector mask0,1,2,3 - bit field indicating which TTC zones have been built into the event,
    * one bit per zone, 128 bit total, significance increases from first to last
@@ -257,8 +258,6 @@ private:
   size_t m_localEventNumber{0};
   /// Event selector context
   IEvtSelector::Context* m_evtSelContext{nullptr};
-  /// Vector of top level algorithms
-  std::vector<SmartIF<IAlgorithm> > m_topAlgList;
   /// Vector of event start-processing time stamps in each slot
   std::vector<std::chrono::steady_clock::time_point> m_eventTimerStartPoint;
   /// Vector of flags to tell if a slot is idle or processing
@@ -278,8 +277,9 @@ private:
   /// Application name
   std::string m_applicationName;
   /// Worker ID
-  std::string m_workerId;
-
+  int m_workerID{0};
+  /// Worker PID
+  int m_workerPID{0};
 
 };
 

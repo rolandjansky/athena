@@ -64,6 +64,9 @@ private:
   /// Property: Output key.
   SG::TypelessWriteHandleKey m_key { this, "Key", CLID_NULL, "", "" };
 
+  Gaudi::Property<std::vector<std::string> > m_aliases
+  { this, "Aliases", {}, "Aliases to create for this object." };
+
   /// Cache sgkey of proxy corresponding to the original object.
   SG::sgkey_t m_sgkey;
 };

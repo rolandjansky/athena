@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBCaloPosTool.h"
@@ -7,7 +7,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h" 
 #include "GaudiKernel/IIncidentSvc.h"
 
 #include "EventInfo/EventInfo.h"
@@ -104,10 +103,10 @@ bool TBCaloPosTool::initHandles()
 	ATH_MSG_DEBUG ( " runs after 1000454, using Folders with Tile_LV_62..." );
       } 
 
-      detStore()->regHandle(m_deltaTable,deltaKey); 
-      detStore()->regHandle(m_thetaTable,thetaKey); 
-      detStore()->regHandle(m_zTable,zKey); 
-      detStore()->regHandle(m_etaTable,etaKey); 
+      ATH_CHECK ( detStore()->regHandle(m_deltaTable,deltaKey), false );
+      ATH_CHECK ( detStore()->regHandle(m_thetaTable,thetaKey), false );
+      ATH_CHECK ( detStore()->regHandle(m_zTable,zKey), false );
+      ATH_CHECK ( detStore()->regHandle(m_etaTable,etaKey), false );
 
       ATH_MSG_DEBUG ( " eta =    " <<   eta() );
       ATH_MSG_DEBUG ( " theta =  " << theta() );

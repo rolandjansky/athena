@@ -1,5 +1,4 @@
 ReadData             INFO in initialize()
-EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector        INFO Using standard collection ref 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector

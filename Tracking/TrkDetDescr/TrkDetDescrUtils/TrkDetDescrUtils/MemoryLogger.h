@@ -9,52 +9,60 @@
 #ifndef TRKDETDESCRUTILS_MEMORYLOGGER_H
 #define TRKDETDESCRUTILS_MEMORYLOGGER_H
 
-// STL
+#include <atomic>
 #include <iostream>
-//Gaudi
+// Gaudi
 #include "GaudiKernel/MsgStream.h"
 
 namespace Trk {
 
-  /**
-    @class MemoryLogger
+/**
+  @class MemoryLogger
 
-    A small helper class looking at
-    /proc/\<PID\>status
+  A small helper class looking at
+  /proc/\<PID\>status
 
-    to monitor the memory usage of the Geometry objects
+  to monitor the memory usage of the Geometry objects
 
-    @author Andreas.Salzburger@cern.ch
-    */
+  @author Andreas.Salzburger@cern.ch
+  */
 
-    class MemoryLogger {
+class MemoryLogger
+{
 
-      public:
-        /** Default constructor*/
-        MemoryLogger();
-        /** update the memory logger */
-        void refresh(int pid) const;
+public:
+  /** Default constructor*/
+  MemoryLogger();
+  /** update the memory logger */
+  void refresh(int pid) const;
 
-        /** vsize/rss returnal */
-        float vmSize() const;
-        float vmRss()  const;
+  /** vsize/rss returnal */
+  float vmSize() const;
+  float vmRss() const;
 
+private:
+  mutable std::atomic<float> m_vsize; //!< virtual memory size
+  mutable std::atomic<float> m_rss;   //!< real memory size
+};
 
-      private:
-        mutable float           m_vsize;  //!< virtual memory size
-        mutable float           m_rss;    //!< real memory size
+inline float
+MemoryLogger::vmSize() const
+{
+  return m_vsize;
+}
 
-    };
-
-inline float MemoryLogger::vmSize() const { return m_vsize; }
-
-inline float MemoryLogger::vmRss() const { return m_rss; }
+inline float
+MemoryLogger::vmRss() const
+{
+  return m_rss;
+}
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/
-MsgStream& operator << ( MsgStream& sl, const MemoryLogger& oac);
-std::ostream& operator << ( std::ostream& sl, const MemoryLogger& oac);
+MsgStream&
+operator<<(MsgStream& sl, const MemoryLogger& oac);
+std::ostream&
+operator<<(std::ostream& sl, const MemoryLogger& oac);
 
 } // end of namespace Trk
 
 #endif
-

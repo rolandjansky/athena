@@ -32,7 +32,8 @@ atlas_add_poolcnv_library( InDetConditionsAthenaPoolPoolCnv src/*.cxx
    TRTCond::StrawDxMultChanContainer TRTCond::StrawStatusMultChanContainer
    TRTCond::StrawStatusContainer
    MULT_CHAN_TYPES TRTCond::StrawT0MultChanContainer
-   TRTCond::RtRelationMultChanContainer TRTCond::StrawDxMultChanContainer
+   TRTCond::RtRelationMultChanContainer
+   TRTCond::StrawDxMultChanContainer
    TRTCond::StrawStatusMultChanContainer
    LINK_LIBRARIES AthenaPoolUtilities
    AthenaPoolCnvSvcLib TRT_ConditionsData )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -22,7 +22,6 @@
 
 #include <string>
 #include <set>
-#include "boost/foreach.hpp"
 #include "boost/type_traits/is_same.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"
@@ -117,7 +116,7 @@ namespace Trig {
 	//navigation->getAccessProxy()->record(destination, name);
 
       
-	BOOST_FOREACH(const typename T::base_value_type *obj, *source) {	
+	for(const typename T::base_value_type *obj : *source) {	
 	  if ( HLT::isPassing(bits, obj, source)  ) // if bits are missing or obj is realy marked as passing
 	    destination->push_back(const_cast<typename T::value_type>(obj));
 	}
@@ -156,8 +155,7 @@ namespace Trig {
     template<class T, class CONT, class LINK>
     struct insert_and_flatten<T, CONT, true, LINK> {
       static void do_it(std::vector<Trig::Feature<T> >& destination, const CONT* source, const HLT::TriggerElement* te, const std::string& label, 
-			unsigned int condition, HLT::NavigationCore* navigation,const LINK& lnk) {	
-	(void)lnk; //get rid of unused par warning
+			unsigned int condition, HLT::NavigationCore* navigation,const LINK& /*lnk*/) {	
 
 	//std::cout << "insert_and_flatten<true> " << label << " of container of size " << source->size() <<  std::endl;
       
@@ -167,7 +165,7 @@ namespace Trig {
 	  bits =getBits(source->size(), te, label , navigation);
 	}
       
-	BOOST_FOREACH(const T* obj, *source) {	
+	for(const T* obj : *source) {	
 	  if ( bits==0 || HLT::isPassing(bits, obj, source)  ) {// if bits are missing or obj is realy marked as passing
 	    //std::cout << "Pushing back new feature with obj " << obj << std::endl;
 	    destination.push_back(Trig::Feature<T>(obj, te, label,false,ElementLink<typename LINK::value_type>(obj,*source)));
@@ -243,8 +241,7 @@ namespace Trig {
       void _do_it(false_type dummy = false_type()) const {(void)dummy;/* do nothing */;}
     
       template<class FEATURE,bool do_flatten>
-      void _do_it(true_type dummy = true_type()) const {
-	(void)dummy; // turn of unused par warning
+      void _do_it(true_type /*dummy*/ = true_type()) const {
 
 	//const HLT::TriggerElement* sourceTE(0);
 	std::string sourceLabel;
@@ -318,7 +315,7 @@ namespace Trig {
 	  return; // that means it is plain error (it will be printed by the Navigation)
 	} else {
 	  // bifurcation point
-	  BOOST_FOREACH( const HLT::TriggerElement* predecesor_te, bif_tes ) 
+	  for( const HLT::TriggerElement* predecesor_te : bif_tes ) 
 	    collect(predecesor_te, data, label, condition, teName, navigation); 
 	}
       }
@@ -361,7 +358,7 @@ namespace Trig {
       }
 
       unsigned int currentPos=0;
-      BOOST_FOREACH(const typename CONT::base_value_type* obj, *cont) {
+      for(const typename CONT::base_value_type* obj : *cont) {
 	typename CONT::const_iterator orig_obj = std::find(orig_cont->begin(),orig_cont->end(),obj);
 
 	if(orig_obj == orig_cont->end()) {

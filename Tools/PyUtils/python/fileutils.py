@@ -78,7 +78,7 @@ def mkdir_p(dirs):
     for dir_ in dirs:
         try:
             os.makedirs(dir_)
-        except OSError, err:
+        except OSError as err:
             #FIXME: possible race condition in the isdir check. is a there a
             #way to avoid it?
             if ERROR_FILE_EXISTS in str(err) and os.path.isdir(dir_):

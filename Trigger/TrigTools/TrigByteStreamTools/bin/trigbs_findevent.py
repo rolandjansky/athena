@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """Find event in FILE(s).
 
 FILE can be a local file or a castor path. On castor, wildcards are supported but
@@ -61,10 +61,12 @@ def main():
    
    files = []
    for f in args.file:
-      if f.find('castor')!=-1: files += nsls(f)
-      else: files += [f]
+      if f.find('castor')!=-1:
+         files += nsls(f)
+      else:
+         files += [f]
 
-   if args.debug!=None:
+   if args.debug is not None:
       # Set/reset castor environment for debug stream access
       stage_host = os.environ.get('STAGE_HOST',None)
       stage_svcclass = os.environ.get('STAGE_SVCCLASS',None)
@@ -74,27 +76,31 @@ def main():
       for d in debug_dirs:
          files += nsls(os.path.join(d,'*.data'))
 
-      if stage_host: os.environ['STAGE_HOST'] = stage_host
-      if stage_svcclass: os.environ['STAGE_SVCCLASS'] = stage_svcclass
+      if stage_host:
+         os.environ['STAGE_HOST'] = stage_host
+      if stage_svcclass:
+         os.environ['STAGE_SVCCLASS'] = stage_svcclass
 
    ofs = None
-   if args.save!=None:
+   if args.save is not None:
       ofs = eformat.ostream(core_name=args.save)
 
    for f in files:
       ifs = eformat.istream(f)
-      if args.verbose==True: print '==%s' % f
+      if args.verbose:
+         print('==%s' % f)
       for e in ifs:
          found = True
-         if ofs: ofs.write(e)
-         if args.globalid!=None and e.global_id() not in args.globalid:
+         if ofs:
+            ofs.write(e)
+         if args.globalid is not None and e.global_id() not in args.globalid:
             found = False
-         if args.lvl1id!=None and e.lvl1_id() not in args.lvl1id:
+         if args.lvl1id is not None and e.lvl1_id() not in args.lvl1id:
             found = False
-         if args.time!=None and (e.bc_time_seconds(),e.bc_time_nanoseconds()) not in args.time:
+         if args.time is not None and (e.bc_time_seconds(),e.bc_time_nanoseconds()) not in args.time:
             found = False
          if found:
-            print f,fmtEvent(e,args.time!=None)
+            print('%s %s' % (f,fmtEvent(e,args.time is not None)))
       
 if __name__ == '__main__':
    try:

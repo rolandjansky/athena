@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////
@@ -12,10 +12,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include <Inventor/C/errors/debugerror.h>
-// FIXME! Remove!
-#define protected public
 #include <Inventor/nodes/SoSelection.h>
-#undef protected
 
 // Local
 #include "VP1AODSystems/AODSystemController.h"

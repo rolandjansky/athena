@@ -6,6 +6,7 @@
 #define G4ATLASALG_G4ATLASMTRUNMANAGER_H
 
 // Hide multi-threading classes from builds without G4MT
+#include "G4Types.hh"
 #ifdef G4MULTITHREADED
 
 // Geant4 includes
@@ -17,7 +18,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 // G4Atlas includes
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IPhysicsListSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 
@@ -51,6 +52,21 @@ public:
   /// and leaving them empty
   virtual void ThisWorkerReady() override final {};
   virtual void ThisWorkerEndEventLoop() override final {};
+
+  /// Configure the detector geometry service handle
+  void SetDetGeoSvc(const std::string& typeAndName) {
+    m_detGeoSvc.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Fast Simulation Master Tool handle
+  void SetFastSimMasterTool(const std::string& typeAndName) {
+    m_fastSimTool.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Physics List Tool handle
+  void SetPhysListSvc(const std::string& typeAndName) {
+    m_physListSvc.setTypeAndName(typeAndName);
+  }
 
 protected:
 
@@ -86,7 +102,7 @@ private:
 
   /// Handle to the physics list tool.
   /// Not ideal, because we can't configure this.
-  ToolHandle<IPhysicsListTool> m_physListTool;
+  ServiceHandle<IPhysicsListSvc> m_physListSvc;
 
   /// Handle to the fast sim tool.
   /// Not ideal, because we can't configure this.

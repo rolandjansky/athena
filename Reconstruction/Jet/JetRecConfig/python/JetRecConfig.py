@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -13,7 +13,7 @@ jetlog = Logging.logging.getLogger('JetRecConfig')
 import cppyy
 try:
     cppyy.loadDictionary('xAODBaseObjectTypeDict')
-except:
+except Exception:
     pass
 from ROOT import xAODType
 xAODType.ObjectType
@@ -25,7 +25,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 # So, import package conf modules rather than a dozen individual classes
 from JetRec import JetRecConf
 
-__all__ = ["xAOD", "JetRecCfg", "resolveDependencies"]
+__all__ = ["JetRecCfg", "resolveDependencies", "JetInputCfg"]
 
 ########################################################################
 # Top-level function for running jet finding
@@ -40,8 +40,15 @@ __all__ = ["xAOD", "JetRecCfg", "resolveDependencies"]
 # Receives the jet definition and input flags, mainly for input file
 # peeking such that we don't attempt to reproduce stuff that's already
 # in the input file
-def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix=""):
-    jetsfullname = jetnameprefix+jetdef.basename+jetnamesuffix+"Jets"
+def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix="", jetnameoverride=None):
+    # Ordinarily we want to have jet collection names be descriptive and derived from
+    # the configured reconstruction.
+    # Nevertheless, we allow an explicit specification when necessary
+    # e.g. to ensure that the correct name is used in grooming operations
+    if jetnameoverride:
+        jetsfullname = jetnameoverride
+    else:
+        jetsfullname = jetnameprefix+jetdef.basename+jetnamesuffix+"Jets"
     jetlog.info("Setting up to find {0}".format(jetsfullname))
 
     sequencename = jetsfullname
@@ -116,7 +123,7 @@ def resolveDependencies(jetdef):
     # Need to use a list, as the order matters.
     # The elements of the "final" list are tuples extracting
     # the modifier specification.
-    import JetModConfig
+    from . import JetModConfig
     mods_final, modprereqs = JetModConfig.getFinalModifierListAndPrereqs( mods_initial, jetdef )
 
     # Remove the duplicates in the mod list -- just do this
@@ -177,7 +184,7 @@ def classifyPrereqs(prereqs):
     for req in prereqs:
         key,val = req.split(":",1)
         jetlog.verbose( "Interpreted prereqs: {0} --> {1}".format(key,val) )
-        if not key in prereqdict.keys():
+        if key not in prereqdict.keys():
             prereqdict[key] = set()
         prereqdict[key].add(val)
             
@@ -189,7 +196,7 @@ def classifyPrereqs(prereqs):
 #
 def expandPrereqs(reqtype,prereqs):
     reqdefs = set()
-    from JetDefinition import JetGhost
+    from .JetDefinition import JetGhost
     for req in prereqs:
         if reqtype=="ghost":
             if req.__class__ == JetGhost:
@@ -203,6 +210,14 @@ def expandPrereqs(reqtype,prereqs):
             return None              
     return reqdefs
 
+########################################################################
+# For each modifier in the given list with a configurable input container
+# name ("JetContainer"), configure it to containerName.
+def configureContainerName(modifiers, containerName):
+    for mod in modifiers:
+        if "JetContainer" in mod.properties():
+            mod.JetContainer = containerName
+
 
 ########################################################################
 # Function producing an EventShapeAlg to calculate
@@ -210,7 +225,7 @@ def expandPrereqs(reqtype,prereqs):
 #
 def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
 
-    rhokey = "Kt4"+constit.label+"EventShape"
+    rhokey = nameprefix+"Kt4"+constit.label+"EventShape"
     rhotoolname = "EventDensity_Kt4"+constit.label
     
     from EventShapeTools import EventShapeToolsConf
@@ -233,11 +248,6 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
     components = ComponentAccumulator(sequenceName)
 
     jetlog.info("Inspecting input file contents")
-    # Get the list of SG keys for the first input file
-    # I consider it silly to run on a set of mixed file types
-    firstinput = configFlags.Input.Files[0]
-    import os, pickle
-    # PeekFiles returns a dict for each input file
     filecontents = configFlags.Input.Collections
     
     constit = inputdeps[0]
@@ -415,7 +425,7 @@ def getJetAlgorithm(jetname, jetdef, pjs, modlist):
     finder = getJetFinder(jetname, jetdef)
     finder.JetBuilder = builder
 
-    import JetModConfig
+    from . import JetModConfig
     mods = []
     for moddef,modspec in modlist:
         mod = JetModConfig.getModifier(jetdef,moddef,modspec)
@@ -465,4 +475,37 @@ def getJetRecTool(jetname, finder, pjs, mods):
         JetFinder = finder,
         JetModifiers = mods
     )
+    configureContainerName(jetrec.JetModifiers, jetname)
     return jetrec
+
+
+if __name__=="__main__":
+
+    # Setting needed for the ComponentAccumulator to do its thing
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True
+    
+    # Config flags steer the job at various levels
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1"]
+    ConfigFlags.Concurrency.NumThreads = 1
+    ConfigFlags.Concurrency.NumConcurrentEvents = 1
+    ConfigFlags.lock()
+
+    # Get a ComponentAccumulator setting up the fundamental Athena job
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
+    cfg=MainServicesThreadedCfg(ConfigFlags) 
+
+    # Add the components for reading in pool files
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    cfg.merge(PoolReadCfg(ConfigFlags))
+
+    # Add the components from our jet reconstruction job
+    from StandardJetDefs import AntiKt4EMTopo
+    AntiKt4EMTopo.ptminfilter = 15e3
+    AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Sort"] + ["JVT"] + ["PartonTruthLabel"]
+    cfg.merge(JetRecCfg(AntiKt4EMTopo,ConfigFlags,jetnameprefix="New"))
+
+    cfg.printConfig(withDetails=False,summariseProps=True)
+
+    cfg.run(maxEvents=10)

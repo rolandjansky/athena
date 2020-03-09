@@ -9,6 +9,7 @@ atlas_subdir( TrkAlignEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthContainers
+                          Control/CxxUtils
                           DetectorDescription/Identifier
                           Event/xAOD/xAODTracking
                           GaudiKernel
@@ -32,6 +33,6 @@ atlas_add_library( TrkAlignEvent
                    src/*.cxx
                    PUBLIC_HEADERS TrkAlignEvent
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthContainers Identifier xAODTracking GaudiKernel TrkEventPrimitives TrkTrack VxVertex
+                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthContainers CxxUtils Identifier xAODTracking GaudiKernel TrkEventPrimitives TrkTrack VxVertex
                    PRIVATE_LINK_LIBRARIES TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkRIO_OnTrack )
 

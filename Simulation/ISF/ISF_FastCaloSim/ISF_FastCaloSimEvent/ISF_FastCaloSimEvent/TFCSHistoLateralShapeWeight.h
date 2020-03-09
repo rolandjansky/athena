@@ -21,16 +21,19 @@ public:
   bool Initialize(TH1* hist);
   
   virtual void Print(Option_t *option = "") const override;
+  virtual void setMinWeight(float minWeight) {m_minWeight=minWeight;}
+  virtual void setMaxWeight(float maxWeight) {m_maxWeight=maxWeight;}
+  virtual float getMinWeight() const override;
+  virtual float getMaxWeight() const override;
+  
 protected:
   /// Histogram to be used for the shape simulation
   /// The histogram x-axis should be in dR^2=deta^2+dphi^2
   TH1* m_hist{nullptr};
+  float m_minWeight{-1.};
+  float m_maxWeight{-1.};
 
-  ClassDefOverride(TFCSHistoLateralShapeWeight,1)  //TFCSHistoLateralShapeWeight
+  ClassDefOverride(TFCSHistoLateralShapeWeight,2)  //TFCSHistoLateralShapeWeight
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSHistoLateralShapeWeight+;
-#endif
 
 #endif

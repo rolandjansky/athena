@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Python.h"
@@ -162,10 +162,12 @@ AthenaInternal::thinContainer( IThinningSvc* self,
 	 if ( iFilter == Py_True ) { filter[i] = true;
 	 } else                    { filter[i] = false;
 	 }
+#if PY_VERSION_HEX < 0x03000000
        } else if ( PyInt_CheckExact (iFilter) ) {
 	 if ( PyInt_AS_LONG (iFilter) ) { filter[i] = true;
 	 } else                         { filter[i] = false;
 	 }
+#endif
        } else if ( PyLong_CheckExact (iFilter) ) {
 	 if ( PyLong_AsLong (iFilter) ) { filter[i] = true;
 	 } else                         { filter[i] = false;
@@ -187,15 +189,21 @@ AthenaInternal::thinContainer( IThinningSvc* self,
 
      while (PyDict_Next(filter_, &itr_pos, &dict_key, &dict_value)) {
        // XXX FIXME: handle case where key is a C++ IdentifierHash ?
+#if PY_VERSION_HEX < 0x03000000
        std::size_t i = PyInt_AS_LONG(dict_key);
+#else
+       std::size_t i = PyLong_AsLong(dict_key);
+#endif
        if ( PyBool_Check (dict_value) ) {
 	 if ( dict_value == Py_True ) { filter[i] = true;
 	 } else                       { filter[i] = false;
 	 }
+#if PY_VERSION_HEX < 0x03000000
        } else if ( PyInt_CheckExact (dict_value) ) {
 	 if ( PyInt_AS_LONG (dict_value) ) { filter[i] = true;
 	 } else                            { filter[i] = false;
 	 }
+#endif
        } else if ( PyLong_CheckExact (dict_value) ) {
 	 if ( PyLong_AsLong (dict_value) ) { filter[i] = true;
 	 } else                            { filter[i] = false;
@@ -422,14 +430,22 @@ namespace SG {
       if (!pysc) {
 	PyROOT::throw_py_exception();
       }
+#if PY_VERSION_HEX < 0x03000000
       if ( !PyInt_Check (pysc) ) {
+#else
+      if ( !PyLong_Check (pysc) ) {
+#endif
 	Py_DECREF (pysc);
 	PyErr_SetString (PyExc_TypeError,
 			 (char*)"unexpected returned type");
 	PyROOT::throw_py_exception();
       }
 
+#if PY_VERSION_HEX < 0x03000000
       StatusCode sc (PyInt_AS_LONG( pysc ));
+#else
+      StatusCode sc (PyLong_AsLong( pysc ));
+#endif
       Py_DECREF (pysc);
       if ( !sc.isSuccess() ) {
 	PyErr_Format

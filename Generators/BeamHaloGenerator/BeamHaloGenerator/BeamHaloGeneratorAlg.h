@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMHALOGENERATORALG_H
@@ -75,9 +75,6 @@ private:
   
   /** A pointer to the THist service for validation plots. */
   ITHistSvc *m_tHistSvc;
-  
-  /** Random number service pointer */
-  IAtRndmGenSvc *m_AtRndmGenSvc;
   
   /** Name of the random number stream */
   std::string m_randomStream;

@@ -5,7 +5,7 @@
 ## Created:     March 2010
 ##
 ## Description: Here, the preInclude for Reco_trf for BeamSpot re-reconstruction is defined
-##              the _stanard implies this will be the default setup
+##              the _standard implies this will be the default setup
 ##
 ## $Id $
 ##=============================================================================
@@ -44,8 +44,6 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 if BeamSpotFlags.doIDReco():
     from ParticleBuilderOptions.AODFlags import AODFlags
     AODFlags.egammaTrackSlimmer=False
-    AODFlags.TauTrackSlimmer=False
-    AODFlags.MuonTrackSlimmer=False
 
     # Further code algorithms removals 
     rec.doAODCaloCells.set_Value_and_Lock(False)  

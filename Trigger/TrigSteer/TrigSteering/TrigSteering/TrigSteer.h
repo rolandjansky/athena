@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -14,7 +14,6 @@
  * @author Tomasz Bold     <Tomasz.Bold@cern.ch>     - UC Irvine
  *
  * File and Version Information:
- * $Id: TrigSteer.h,v 1.56 2009-05-05 20:29:23 tbold Exp $
 
  **********************************************************************************/
 
@@ -36,7 +35,6 @@
 #include "AthenaBaseComps/AthLegacySequence.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
@@ -49,7 +47,6 @@
 class StatusCode;
 class ITrigTimerSvc;
 class TrigTimer;
-class IIncidentSvc;
 class IROBDataProviderSvc;
 class ICoreDumpSvc;
 
@@ -103,8 +100,7 @@ namespace HLT {
    */
    class TrigSteer : public AthLegacySequence,
                      public Athena::TimeoutMaster,
-                     public virtual ISequenceProvider,
-                     public virtual IIncidentListener
+                     public virtual ISequenceProvider
    {
 
    public:
@@ -129,7 +125,6 @@ namespace HLT {
       */
       StatusCode initialize(); //!< Gaudi initialize
       StatusCode start();    //!< Gaudi start
-      StatusCode endRun();   //!< Gaudi endRun
       StatusCode stop();     //!< Gaudi stop
       StatusCode finalize(); //!< Gaudi finalize
 
@@ -140,9 +135,6 @@ namespace HLT {
          - create result
       */
       StatusCode execute(); //!< Gaudi execute
-
-      /** Handle incidents (for event timeouts) */
-      void handle (const Incident& inc);    //!< IIncidentListener::handle
     
       /** Method to find the sequence from the global sequence list, which produces
           the given TE type. This is needed by the HLT::Signature class */
@@ -212,7 +204,6 @@ namespace HLT {
       std::string m_lvlTopoConverterName;   //!< Topological trigger conversion
       std::string m_hltLevel;         //!< JO for trigger LVL [L2/EF/HLT]
 
-      float m_softEventTimeout;//!< Soft event timeout in seconds (0=disabled by default)
       float m_hardEventTimeout;//!< Hard event timeout in seconds (0=disabled by default)
       unsigned int m_doOperationalInfo;  //!< level of operational information collected by steering
       int  m_sortChains;                 //!< directive to sort chains before executing event
@@ -242,7 +233,6 @@ namespace HLT {
       ToolHandle< ResultBuilder > m_resultBuilder;        //!< tool that creates the trigger lvl result object
       ToolHandleArray< IMonitorToolBase > m_monTools;     //!< Monitoring tools
       ToolHandleArray< IMonitorToolBase > m_opiTools;     //!< OPI Monitoring tools (they are run before result is built and therfore can add some info to it)
-      ServiceHandle<IIncidentSvc> m_incSvc;               //!< IncidentSvc
       ServiceHandle<ICoreDumpSvc> m_coreDumpSvc;          //!< CoreDumpSvc
       ToolHandle<IExecutionOrderStrategy> m_executionOrderStrategy; //!< Tool altering order of chains execution
       ToolHandle<IEventInfoAccessTool> m_EventInfoTool;   //!< Tool  to modify EventInfo after execution
@@ -263,7 +253,6 @@ namespace HLT {
       TrigTimer* m_timerCallEB{0};                //!< time untill call of EB in the merged system 
 
       AbortingCookTimer m_abortTimer;   //!< Timer for hard event timeout (abort)
-      IncidentTimer m_incidentTimer;    //!< Timer for soft event timeout (fire incident)
    };
 } // end namespace
 

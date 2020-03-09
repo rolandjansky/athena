@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 
 
@@ -113,7 +114,7 @@ HltTauTools = [
 
 
 from AthenaCommon.AppMgr import ToolSvc
-print ToolSvc
+print (ToolSvc)
 
 for tool in EmTauTools + JetTools + XeTools + MuonTools + HltTauTools:
     ToolSvc += tool
@@ -150,4 +151,4 @@ def get_hlt_emulator(name, chains, level1_emulator):
     return hlt_emulator
 
 # ToolSvc += Level1Emulator
-print ToolSvc
+print (ToolSvc)

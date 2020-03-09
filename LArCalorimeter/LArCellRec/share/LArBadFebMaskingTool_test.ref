@@ -69,7 +69,7 @@ IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
-IOVSvcTool           INFO IOVRanges will be checked at every Event
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
 ClassIDSvc           INFO  getRegistryEntries: read 2071 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_CALO/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
@@ -310,7 +310,7 @@ ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for 
 ClassIDSvc           INFO  getRegistryEntries: read 4020 CLIDRegistry entries for module ALL
 ToolSvc.tool1        INFO  bit mask for errors to mask 16381
 ClassIDSvc           INFO  getRegistryEntries: read 64 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCablingService[0x9c1be00]+7f17d048f650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCablingService[0x9c1be00]+7f17d048f650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/OnOffIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/CalibIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/FebRodMap

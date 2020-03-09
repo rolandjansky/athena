@@ -44,17 +44,9 @@ OutputLevel = WARNING
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-# Must do tool configuration here for DB access to be autoconfigured from RecExCommon
-from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-lumiTool = LuminosityToolDefault()
-lumiTool.OutputLevel = WARNING
-ToolSvc += lumiTool
+from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+LuminosityCondAlgDefault()
 
-# from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
-# liveTool = TrigLivefractionToolDefault()
-# liveTool.OutputLevel = DEBUG
-# ToolSvc += liveTool
-        
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 

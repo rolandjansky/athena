@@ -20,10 +20,6 @@ class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
-
 class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthAlgTool {
  public:
       
@@ -44,9 +40,9 @@ class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthA
   const SCT_ID* m_sctId;
   const AtlasDetectorID* m_idHelper;
   
-  const InDetDD::PixelDetectorManager* m_pixelManager;
-
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  const InDetDD::SiDetectorElement* getPixelDetectorElement(const IdentifierHash& waferHash) const;
   const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash& waferHash) const;
 };
 

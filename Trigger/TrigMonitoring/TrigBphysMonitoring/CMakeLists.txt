@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaMonitoring
-                          Control/CxxUtils
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTrigBphys
@@ -24,7 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkVertexFitter/TrkVertexAnalysisUtils
                           Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigParticle )
+                          Trigger/TrigEvent/TrigParticle
+                          Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -36,8 +36,8 @@ atlas_add_component( TrigBphysMonitoring
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} xAODTracking TrigDecisionToolLib 
-                     TrigHLTMonitoringLib AthenaMonitoringLib TrkVertexAnalysisUtilsLib AthenaBaseComps CxxUtils xAODEventInfo 
-                     xAODMuon xAODTrigBphys xAODTrigMuon GaudiKernel TrkParameters TrkParametersBase VxVertex TrigMuonEvent TrigParticle )
+                     TrigHLTMonitoringLib AthenaMonitoringLib TrkVertexAnalysisUtilsLib AthenaBaseComps xAODEventInfo 
+                     xAODMuon xAODTrigBphys xAODTrigMuon GaudiKernel TrkParameters TrkParametersBase VxVertex TrigMuonEvent TrigParticle DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

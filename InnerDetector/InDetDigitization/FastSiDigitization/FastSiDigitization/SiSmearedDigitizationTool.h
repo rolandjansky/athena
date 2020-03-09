@@ -50,7 +50,6 @@ typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX * > ClusterInfo;
 
 class PixelID;
 class SCT_ID;
-class IModuleDistortionsTool;
 class TTree;
 class TFile;
 
@@ -60,14 +59,8 @@ namespace CLHEP {class HepRandomEngine;}
 namespace InDet {
   class ClusterMakerTool;
   class PixelCluster;
-  class IPixelClusteringTool;
   class SCT_Cluster;
   class SiCluster;
-}
-
-namespace InDetDD
-{
-  class PixelDetectorManager;
 }
 
 namespace Trk {
@@ -127,7 +120,7 @@ public:
   TimedHitCollection<SiHit>* m_thpcsi;
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;             //!< Random number service
 
-  const InDetDD::PixelDetectorManager* m_manager_pix;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   const PixelID* m_pixel_ID;                             //!< Handle to the ID helper

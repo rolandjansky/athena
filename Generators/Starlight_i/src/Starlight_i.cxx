@@ -49,7 +49,6 @@ namespace{
 Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator): 
              GenModule(name,pSvcLocator), m_events(0), 
 	     m_starlight(0),
-	     m_inputParameters(0),
 	     m_event(0),
 	     m_configFileName(""),
 	     m_beam1Z(0),
@@ -120,6 +119,8 @@ StatusCode Starlight_i::genInitialize()
 
     // create the starlight object
     m_starlight = new starlight();
+    // set input parameters
+    m_starlight->setInputParameters(&m_inputParameters);
     // and initialize
     m_starlight->init();
 
@@ -207,7 +208,7 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	double e  = (*part).GetE();
 	// mass fix implemented only for muons
 	if(abs(pid)==13) {
-          float mass = starlightConstants::muonMass;
+          float mass = m_inputParameters.muonMass();//0.1056583715;// starlightConstants::muonMass;
 	  e  = sqrt(px*px + py*py + pz*pz + mass*mass);
 	}
 	ATH_MSG_DEBUG( "saving particle " << ipart  );
@@ -239,8 +240,8 @@ bool Starlight_i::set_user_params()
     }
   }
   
-  inputParametersInstance.configureFromFile(m_configFileName);
-  if (!inputParametersInstance.init()) {
+  m_inputParameters.configureFromFile(m_configFileName);
+  if (!m_inputParameters.init()) {
     ATH_MSG_WARNING( "problems initializing input parameters. cannot initialize starlight. "  );
     return false;
   }

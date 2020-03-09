@@ -26,6 +26,5 @@ atlas_add_component( ISF_SimulationSelectors
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel BarcodeServicesLib ISF_Event ISF_Interfaces )
 
 # Install files from the package:
-atlas_install_headers( ISF_SimulationSelectors )
 atlas_install_python_modules( python/*.py )
 

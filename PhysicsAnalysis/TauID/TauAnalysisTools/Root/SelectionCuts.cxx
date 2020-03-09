@@ -15,7 +15,7 @@
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________
-SelectionCut::SelectionCut(std::string sName, TauAnalysisTools::TauSelectionTool* tTST)
+SelectionCut::SelectionCut(const std::string& sName, TauAnalysisTools::TauSelectionTool* tTST)
   : m_sName(sName)
   , m_hHistCutPre(0)
   , m_hHistCut(0)
@@ -533,9 +533,9 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau,
 //____________________________SelectionCutEleBDTWP______________________________
 //______________________________________________________________________________
 SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
-  : SelectionCut("CutEleBDTWP", tTST)
+  : SelectionCut("CutEleBDTWP", tTST),
+    m_sEleBDTDecorationName ("BDTEleScoreSigTrans")
 {
-  m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
   m_hHistCutPre = CreateControlPlot("hEleBDTWP_pre","EleBDTWP_pre;; events",6,-.5,5.5);
   m_hHistCut = CreateControlPlot("hEleBDTWP_cut","EleBDTWP_cut;; events",6,-.5,5.5);
   // only proceed if histograms are defined

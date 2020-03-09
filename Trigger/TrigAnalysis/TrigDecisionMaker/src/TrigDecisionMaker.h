@@ -34,7 +34,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
 
 // trigger/configuration stuff
 #include "TrigDecisionEvent/TrigDecision.h"

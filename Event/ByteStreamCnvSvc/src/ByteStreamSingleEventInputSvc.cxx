@@ -60,9 +60,6 @@ StatusCode ByteStreamSingleEventInputSvc::initialize() {
 }
 //________________________________________________________________________________
 StatusCode ByteStreamSingleEventInputSvc::stop() {
-   // Fire LastInputFile incident
-   FileIncident lastInputFileIncident(name(), "LastInputFile", "end");
-   m_incidentSvc->fireIncident(lastInputFileIncident);
    return(StatusCode::SUCCESS);
 }
 //----------------------------------------------------------------------------------------

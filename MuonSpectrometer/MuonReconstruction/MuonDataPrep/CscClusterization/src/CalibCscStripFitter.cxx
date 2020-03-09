@@ -7,8 +7,6 @@
 #include "CalibCscStripFitter.h"
 #include "CscCalibTools/ICscCalibTool.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "cmath"
 
 using std::string;
@@ -22,7 +20,6 @@ typedef ICscStripFitter::ChargeList ChargeList;
 CalibCscStripFitter::
 CalibCscStripFitter(string type, string aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),m_noiseOption(rms),
-    m_pmuon_detmgr(0), m_phelper(0),
     m_cscCalibTool("CscCalibTool/CscCalibTool", this) {
   
   declareInterface<ICscStripFitter>(this);
@@ -74,12 +71,7 @@ StatusCode CalibCscStripFitter::initialize() {
   }
 
   // Retrieve the detector descriptor.
-  if ( detStore()->retrieve(m_pmuon_detmgr).isFailure() ) {
-    ATH_MSG_ERROR ( " Cannot retrieve MuonGeoModel " );
-    return StatusCode::RECOVERABLE;
-  }
-  ATH_MSG_DEBUG ( "Retrieved geometry." );
-  m_phelper = m_pmuon_detmgr->cscIdHelper();
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -106,20 +98,20 @@ Result CalibCscStripFitter::fit(const ChargeList& chgs,
   //  double errorScaler = 4300./4151.06; // 1.03588
   
   IdentifierHash stripHash;
-  if (m_phelper->get_channel_hash(stripId, stripHash)){ 
+  if (m_idHelperSvc->cscIdHelper().get_channel_hash(stripId, stripHash)){ 
     ATH_MSG_WARNING ( "Unable to get CSC striphash id " << " the identifier is " );
     stripId.show();
   }
 
-  int zsec = m_phelper->stationEta(stripId);
-  int phisec = m_phelper->stationPhi(stripId);
-  int station = m_phelper->stationName(stripId) - 49;
+  int zsec = m_idHelperSvc->cscIdHelper().stationEta(stripId);
+  int phisec = m_idHelperSvc->cscIdHelper().stationPhi(stripId);
+  int station = m_idHelperSvc->cscIdHelper().stationName(stripId) - 49;
 
   int sector =  zsec*(2*phisec-station+1);
   
-  int wlay = m_phelper->wireLayer(stripId);
-  int measphi = m_phelper->measuresPhi(stripId);
-  int istrip = m_phelper->strip(stripId);
+  int wlay = m_idHelperSvc->cscIdHelper().wireLayer(stripId);
+  int measphi = m_idHelperSvc->cscIdHelper().measuresPhi(stripId);
+  int istrip = m_idHelperSvc->cscIdHelper().strip(stripId);
 
 
   double ped = m_cscCalibTool->stripPedestal(stripHash);

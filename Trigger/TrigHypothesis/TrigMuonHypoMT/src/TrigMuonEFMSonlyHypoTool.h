@@ -2,18 +2,15 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOTOOL_H 
-#define TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOTOOL_H 1
-#include <string>
-#include "AthenaBaseComps/AthAlgTool.h" 
+#ifndef TRIGMUONHYPOMT_TRIGMUONEFMSONLYHYPOTOOL_H 
+#define TRIGMUONHYPOMT_TRIGMUONEFMSONLYHYPOTOOL_H 1
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h" 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "xAODMuon/MuonContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 class StoreGateSvc;
-class TriggerElement;
 class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
   enum { MaxNumberTools = 20 };  
  public:
@@ -37,12 +34,12 @@ class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
     const xAOD::Muon* muon;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
-  StatusCode initialize() override;    
+  virtual StatusCode initialize() override;    
   StatusCode decide(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const ;
+ private:
   bool decideOnSingleObject(TrigMuonEFMSonlyHypoTool::MuonEFInfo& input, size_t cutIndex) const;
   StatusCode inclusiveSelection(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const;
   StatusCode multiplicitySelection(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const;
- private:
   HLT::Identifier m_decisionId;
   // Properties:
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
@@ -53,6 +50,8 @@ class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
     this, "AcceptAll", false, "Ignore selection" };
   Gaudi::Property<bool>  m_decisionPerRoI { 
     this, "DecisionPerRoI", true, "Is multiplicity requirement refering to muons ( false ) or RoIs with muons ( true ), relevant only in when multiplicity > 1" };
+  Gaudi::Property<bool> m_threeStationCut{
+    this, "RequireThreeStations", false, "Apply cut on N GoodPrecisionLayers in endcaps"};
   // Other members:   
   std::vector<size_t> m_bins={0};
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

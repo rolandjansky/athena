@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import copy
+from __future__ import print_function
+
 import unittest
 from mock import MagicMock
 from hypo_factory import (hypo_factory,
-                          HypoAlg,
                           JetStandardHypo,
                           JetSingleEtaRegionHypo,
                           JetMaximumBipartiteHypo,
@@ -127,7 +127,7 @@ class Test_hypo_factory(unittest.TestCase):
         """test JetMaximumBipartiteHypo construction"""
 
         hypo = JetMaximumBipartiteHypo(self.hypo_args)
-        print hypo.__class__.__name__
+        print (hypo.__class__.__name__)
         self.assertTrue(hypo.__class__.__name__ == 'JetMaximumBipartiteHypo')
 
 

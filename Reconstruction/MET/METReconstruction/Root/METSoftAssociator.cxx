@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METSoftAssociator.cxx
@@ -99,7 +99,7 @@ namespace met {
       }
       for(const auto& sig : *uniquePFOs) {
 	const PFO *pfo = static_cast<const PFO*>(sig);
-	if (fabs(pfo->charge())>FLT_MIN) { // Charged PFOs
+	if (pfo->isCharged()) { // Charged PFOs
 	  // We set a small -ve pt for cPFOs that were rejected
 	  // by the ChargedHadronSubtractionTool
 	  const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");	

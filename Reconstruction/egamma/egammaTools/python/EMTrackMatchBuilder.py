@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactory to instantiate EMTrackMatchBuilder with default configuration"
 __author__ = "Bruno Lenzi"
 
-import egammaToolsConf
+from egammaTools import egammaToolsConf
 from egammaRec.Factories import FcnWrapper, ToolFactory
 from egammaRec import egammaKeys
 from RecExConfig.RecFlags import rec
@@ -15,7 +15,6 @@ EMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
       ExtrapolationTool  = EMExtrapolationToolsCache,
       broadDeltaEta      = 0.1, #candidate match is done in 2 times this  so +- 0.2
       broadDeltaPhi      = 0.15,  #candidate match is done in 2 times this  so +- 0.3
-      useLastMeasurement = False, #important for GSF!!!
       useCandidateMatch  = True,
       useScoring         = True,
       SecondPassRescale  = True,

@@ -18,7 +18,7 @@ LUCID_SensitiveDetectorTool::LUCID_SensitiveDetectorTool(const std::string& type
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* LUCID_SensitiveDetectorTool::makeSD()
+G4VSensitiveDetector* LUCID_SensitiveDetectorTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   // Create a fresh SD

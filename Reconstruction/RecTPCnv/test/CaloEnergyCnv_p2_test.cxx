@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -92,6 +92,7 @@ void test1()
 
 int main()
 {
+  std::cout << "RecTPCnv/CaloEnergyCnv_p2\n";
   test1();
   return 0;
 }

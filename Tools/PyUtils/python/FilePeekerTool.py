@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.FilePeekerTool
 # @purpose peek into APR files to read in-file metadata without Athena (based on PyAthena.FilePeekerLib code by Sebastian Binet) 
@@ -58,24 +58,13 @@ class FilePeekerTool():
                 guid = d['value']
 
         meta = self.f.Get( 'MetaData' )
+        if not meta:
+            print ('No metadata', file=stdout)
+            return {}
 
         from AthenaPython.FilePeekerLib import toiter
 
         from PyCool import coral
-
-        attribute_methods = dir(coral.Attribute)
-        methnames = ['data<std::__cxx11::basic_string<char> >',
-                     'data<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >',
-                     'data<std::basic_string<char> >',
-                     'data<std::string>']
-        for m in methnames:
-            if m in attribute_methods:
-                attribute_getdata = m
-                break
-        else:
-            raise Exception("Can't find data method in Attribute")
-        def attr_str_data(attr):
-            return getattr(attr, attribute_getdata) ()
 
         nb = meta.GetEntry( 0 )
 
@@ -279,7 +268,7 @@ class FilePeekerTool():
                         spec   = a.specification()
                         a_type = spec.typeName()
                         if a_type.find('string') >= 0:
-                            a_data = attr_str_data(a)
+                            a_data = a.data('string')()
 #                           a_data = getattr(a, 'data<std::basic_string<char> >') ()
                             try:
                                 a_data = eval(a_data,{},{})
@@ -288,7 +277,7 @@ class FilePeekerTool():
                                 pass
 #                           print (spec.name(),a_data, file=stdout)
                         else:
-                            a_data = getattr(a,'data<%s>'%a_type)()
+                            a_data = a.data(a_type)()
                         #print ("%s: %s  %s" (spec.name(), a_data, type(a_data) ), file=stdout)
                         attr_data.append( (spec.name(), a_data) )
                     attrs.append(dict(attr_data))

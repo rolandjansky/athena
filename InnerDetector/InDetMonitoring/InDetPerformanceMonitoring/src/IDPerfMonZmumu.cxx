@@ -28,7 +28,6 @@
 
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
@@ -371,7 +370,7 @@ StatusCode IDPerfMonZmumu::execute()
 
     IegammaTrkRefitterTool::Cache cache1{}; 
     cache1.electron=egam;
-    fitStatus = m_TrackRefitter1->refitTrack( p1_comb->track(),cache1 );
+    fitStatus = m_TrackRefitter1->refitTrack(Gaudi::Hive::currentContext(),p1_comb->track(),cache1 );
     if (fitStatus.isFailure()) {
        ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");
        delete muonTrks;
@@ -386,7 +385,7 @@ StatusCode IDPerfMonZmumu::execute()
     }
     IegammaTrkRefitterTool::Cache cache2{}; 
     cache2.electron=egam; 
-    fitStatus = m_TrackRefitter2->refitTrack( p1_comb->track(),cache2 );
+    fitStatus = m_TrackRefitter2->refitTrack(Gaudi::Hive::currentContext(),p1_comb->track(),cache2 );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
       delete muonTrks;
@@ -404,7 +403,7 @@ StatusCode IDPerfMonZmumu::execute()
     IegammaTrkRefitterTool::Cache cache1{}; 
     cache1.electron=egam; 
     defaultMuonTrk2 = new Trk::Track(*p2_comb->track());
-    fitStatus = m_TrackRefitter1->refitTrack( p2_comb->track(),cache1 );
+    fitStatus = m_TrackRefitter1->refitTrack( Gaudi::Hive::currentContext(),p2_comb->track(),cache1 );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");      
       return StatusCode::SUCCESS;
@@ -416,7 +415,7 @@ StatusCode IDPerfMonZmumu::execute()
 
     IegammaTrkRefitterTool::Cache cache2{}; 
     cache2.electron=egam;  
-    fitStatus = m_TrackRefitter2->refitTrack( p2_comb->track(),cache2 );
+    fitStatus = m_TrackRefitter2->refitTrack( Gaudi::Hive::currentContext(),p2_comb->track(),cache2 );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
       return StatusCode::SUCCESS;

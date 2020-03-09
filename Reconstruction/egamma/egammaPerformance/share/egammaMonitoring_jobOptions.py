@@ -83,7 +83,7 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
 
         BypassphotonTrigItems += egammaConf.primary_double_pho
         BypassmySingleElectronTrigItems += egammaConf.primary_single_ele
-        print "egamma electron trigger =", BypassmySingleElectronTrigItems
+        print("egamma electron trigger = %s" % BypassmySingleElectronTrigItems)
 
         BypassMyTrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else None
 
@@ -149,7 +149,7 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
             if jobproperties.Beam.beamType()=='collisions':
                 elMonTool.FilterTools += [GetFilledBunchFilterTool()]
             monManEgamma.AthenaMonTools += [ elMonTool ]
-            print elMonTool
+            print(elMonTool)
 
             if DQMonFlags.useTrigger():
                 elMonToolWithTrigger = electronMonTool(name= "elMonToolWithTrigger",
@@ -164,7 +164,7 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                 if jobproperties.Beam.beamType()=='collisions':
                     elMonToolWithTrigger.FilterTools += [GetFilledBunchFilterTool()]
                 monManEgamma.AthenaMonTools += [ elMonToolWithTrigger ]
-                print elMonToolWithTrigger
+                print(elMonToolWithTrigger)
             
 
         if(egammaMonitorFwdEg):

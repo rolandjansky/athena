@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileHitCnv_p1.cxx 
@@ -16,7 +16,7 @@
 
 
 void
-TileHitCnv_p1::persToTrans(const TileHit_p1* persObj, TileHit* transObj, MsgStream &/*log*/)
+TileHitCnv_p1::persToTrans(const TileHit_p1* persObj, TileHit* transObj, MsgStream &/*log*/) const
 {
   size_t sz = persObj->m_energy.size();
    if (sz != persObj->m_time.size())
@@ -32,7 +32,7 @@ TileHitCnv_p1::persToTrans(const TileHit_p1* persObj, TileHit* transObj, MsgStre
 }
 
 void
-TileHitCnv_p1::transToPers(const TileHit* transObj, TileHit_p1* persObj, MsgStream &/*log*/)
+TileHitCnv_p1::transToPers(const TileHit* transObj, TileHit_p1* persObj, MsgStream &/*log*/) const
 {
    persObj->m_channelID         = transObj->identify().get_identifier32().get_compact();
 

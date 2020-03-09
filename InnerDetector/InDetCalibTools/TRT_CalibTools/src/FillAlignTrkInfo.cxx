@@ -13,7 +13,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkTrackSummaryTool/TrackSummaryTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "GaudiKernel/ListItem.h"
 

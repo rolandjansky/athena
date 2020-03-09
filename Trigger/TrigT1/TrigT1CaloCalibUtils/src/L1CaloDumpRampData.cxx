@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigT1CaloCalibUtils includes
@@ -14,7 +14,6 @@
 #include <TGraphErrors.h>
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "CxxUtils/make_unique.h"
 #include "TrigT1CaloCalibConditions/L1CaloRampDataContainer.h"
 
 L1CaloDumpRampData::L1CaloDumpRampData(const std::string& name, ISvcLocator* pSvcLocator)
@@ -59,7 +58,7 @@ std::string getTitle(uint32_t cool)
 
 StatusCode L1CaloDumpRampData::finalize()
 {
-  using CxxUtils::make_unique;
+  using std::make_unique;
   ATH_MSG_INFO("Finalizing " << name() << "...");
 
   const L1CaloRampDataContainer* rampDataContainer = nullptr;
@@ -107,7 +106,7 @@ StatusCode L1CaloDumpRampData::finalize()
     // overlay the fit function
     auto attrListIt = energyScanResults->chanAttrListPair(coolId);
     if(attrListIt != energyScanResults->end()) {
-      auto attrList = attrListIt->second;
+      const auto& attrList = attrListIt->second;
       double slope = attrList["Slope"].data<double>();
       double offset = attrList["Offset"].data<double>();
       double chi2 = attrList["Chi2"].data<double>();

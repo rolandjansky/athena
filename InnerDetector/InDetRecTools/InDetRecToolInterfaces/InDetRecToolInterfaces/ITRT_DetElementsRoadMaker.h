@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -55,11 +55,11 @@ namespace InDet {
       
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
-	 std::list<const InDetDD::TRT_BaseElement*>&)=0;
+	 std::vector<const InDetDD::TRT_BaseElement*>&) const =0;
 
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
-	 std::list<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >&)=0;
+	 std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >&) const=0;
       
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

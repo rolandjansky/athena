@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
 #include "MuonCombinedEvent/SegmentTag.h"
 #include "MuonSegmentTagTool.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
@@ -67,7 +67,6 @@ namespace MuonCombined {
 	p_MuTagAmbiguitySolverTool        ( "MuTagAmbiguitySolverTool/MuTagAmbiguitySolverTool"             ) ,
         m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
 	m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-	m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
 	m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
 	m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
 	m_surfaces(0),
@@ -102,8 +101,6 @@ namespace MuonCombined {
     declareProperty("TriggerHitCut"                   , m_triggerHitCut = true );
     declareProperty("MakeMuons"                       , m_makeMuons = false );
     declareProperty("IgnoreSiAssociatedCandidates"    , m_ignoreSiAssocated = true );
-    m_extrapolated.resize(15,0);
-    m_goodExtrapolated.resize(15,0);
 
   }
 
@@ -118,7 +115,7 @@ namespace MuonCombined {
     ATH_CHECK(p_MuTagMatchingTool.retrieve());
     ATH_CHECK(p_MuTagAmbiguitySolverTool.retrieve());
     ATH_CHECK(m_idHelper.retrieve());
-    ATH_CHECK(m_edmHelper.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_segmentSelector.retrieve());
     if( !m_caloExtensionTool.empty() )       ATH_CHECK(m_caloExtensionTool.retrieve());
 
@@ -208,7 +205,7 @@ namespace MuonCombined {
 	  if( m_triggerHitCut && hitCounts.nexpectedTrigHitLayers> 1 && hitCounts.nphiTrigHitLayers == 0 && hitCounts.netaTrigHitLayers == 0 ) continue;
         } 
 	if( m_segmentQualityCut > 0 ){
-	  Identifier chId = m_edmHelper->chamberId(**itSeg);
+	  Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
 	  Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chId);
 	  if( !m_triggerHitCut && stIndex == Muon::MuonStationIndex::EM ){
 	    // don't apply the TGC requirement for the first station as it sometimes has not trigger hits due to TGC acceptance
@@ -251,7 +248,7 @@ namespace MuonCombined {
 	   itSeg!=FilteredSegmentCollection.end(); ++itSeg, ++segmentCount)
 	{
 
-	  Identifier chId = m_edmHelper->chamberId(**itSeg);
+	  Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
 	  Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chId);
 	  if( stIndex == Muon::MuonStationIndex::BI || 
 	      stIndex == Muon::MuonStationIndex::BE )      hasSeg[0] = true;
@@ -335,7 +332,7 @@ namespace MuonCombined {
 	  if( fabs(dPhi) < 0.6 && qID*dTheta<0.2&&qID*dTheta>-0.6 ){
 	    hasAngleMatch = true;
 	    if( pID > 20000*(qID*etaID-2) ) {
-	      Identifier chId = m_edmHelper->chamberId(**itSeg);
+	      Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
               if( !m_idHelper->isCsc(chId) ) hasMatch = true;
 	      Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chId);
 	      if( stIndex == Muon::MuonStationIndex::BI || 

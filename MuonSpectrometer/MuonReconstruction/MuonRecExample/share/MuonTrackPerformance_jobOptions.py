@@ -15,5 +15,3 @@ if muonRecFlags.doStandalone:
                                          DoTruth = rec.doTruth(),
                                          DoTrackDebug = muonRecFlags.TrackPerfDebugLevel() )
 
-  if muonRecFlags.doNSWNewThirdChain():
-    topSequence.MuonStandalonePerformanceAlg.useNSW=True

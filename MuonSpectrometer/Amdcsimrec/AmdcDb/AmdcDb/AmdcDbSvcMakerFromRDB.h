@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AmdcDbSvcMakerFromRDB_H
@@ -12,7 +12,7 @@ class AmdcDbSvc;
 class IRDBRecord;
 class AmdcDbRecord;
 namespace AmdcDb_detail {
-  class VarDesc;
+  struct VarDesc;
 }
 
   /**

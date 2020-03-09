@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbSvcMakerFromAmdc.h"
@@ -7,6 +7,7 @@
 #include "AmdcDb/AmdcDbSvc.h"
 #include "AmdcDb/AmdcDbRecordset.h"
 #include "AmdcDb/AmdcDbRecord.h"
+#include <cmath>
  
 AmdcDbSvcMakerFromAmdc::AmdcDbSvcMakerFromAmdc(){
 
@@ -1632,11 +1633,11 @@ if ((StationNameHEAD[0] != 'T'
             DbVar = "IZ"     ; DbVarComment="Z (FOR BARREL) OR R (FOR END-CAPS) POS." ; iDbVal = DB_IZ 			                      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
             DbVar = "DPHI"  ; 
-            double PIS180 = 3.1415926535898/ 180. ;
-	    double PI2SN  = 360. / 8. ;
-	    dDbVal = pAmdcsimrec->PosPhi (DB_JTYP,DB_JFF,DB_IZ) / PIS180 -  ( DB_JFF * 1. - 1.) * PI2SN ; 
-	    DbVarComment="RELATIVE PHI POSITION OF THE STATION IN" ;
-	    pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
+            double PIS180 = M_PI/180.;
+            double PI2SN  = 360./8.;
+            dDbVal = pAmdcsimrec->PosPhi (DB_JTYP,DB_JFF,DB_IZ) / PIS180 -  ( DB_JFF * 1. - 1.) * PI2SN ; 
+            DbVarComment="RELATIVE PHI POSITION OF THE STATION IN" ;
+            pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
 
             DbVar = "Z"     ; DbVarComment="Z POSITION OF THE LOWEST Z EDGE OF THE S" ; dDbVal = pAmdcsimrec->PosZ   (DB_JTYP,DB_JFF,DB_IZ)/ 10.  ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
             DbVar = "R"     ; DbVarComment="RADIAL POSITION OF ITS INNERMOST EDGE"    ; dDbVal = pAmdcsimrec->PosR   (DB_JTYP,DB_JFF,DB_IZ)/ 10.  ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
@@ -1688,22 +1689,22 @@ if ((StationNameHEAD[0] != 'T'
 
           sDbVal_TYP  = pAmdcsimrec->StationName(DB_JTYP) ;
 	  
-	  iDbVal_IZ   = DB_IZ ;
-	  iDbVal_I    = pAmdcsimrec->IGEO   (DB_JTYP,DB_JFF,DB_IZ) ;
-	  iDbVal_ICUT = pAmdcsimrec->ICUT   (DB_JTYP,DB_JFF,DB_IZ) ;
-	  
-	  if ( DB_JFF == 1 ) iDbVal_IPHI_1 = 1 ;
-	  if ( DB_JFF == 2 ) iDbVal_IPHI_2 = 1 ;
-	  if ( DB_JFF == 3 ) iDbVal_IPHI_3 = 1 ;
-	  if ( DB_JFF == 4 ) iDbVal_IPHI_4 = 1 ;
-	  if ( DB_JFF == 5 ) iDbVal_IPHI_5 = 1 ;
-	  if ( DB_JFF == 6 ) iDbVal_IPHI_6 = 1 ;
-	  if ( DB_JFF == 7 ) iDbVal_IPHI_7 = 1 ;
-	  if ( DB_JFF == 8 ) iDbVal_IPHI_8 = 1 ;
+          iDbVal_IZ   = DB_IZ ;
+          iDbVal_I    = pAmdcsimrec->IGEO   (DB_JTYP,DB_JFF,DB_IZ) ;
+          iDbVal_ICUT = pAmdcsimrec->ICUT   (DB_JTYP,DB_JFF,DB_IZ) ;
+          
+          if ( DB_JFF == 1 ) iDbVal_IPHI_1 = 1 ;
+          if ( DB_JFF == 2 ) iDbVal_IPHI_2 = 1 ;
+          if ( DB_JFF == 3 ) iDbVal_IPHI_3 = 1 ;
+          if ( DB_JFF == 4 ) iDbVal_IPHI_4 = 1 ;
+          if ( DB_JFF == 5 ) iDbVal_IPHI_5 = 1 ;
+          if ( DB_JFF == 6 ) iDbVal_IPHI_6 = 1 ;
+          if ( DB_JFF == 7 ) iDbVal_IPHI_7 = 1 ;
+          if ( DB_JFF == 8 ) iDbVal_IPHI_8 = 1 ;
 
-          double PIS180 = 3.1415926535898/ 180. ;
-	  double PI2SN  = 360. / 8. ;
-	  dDbVal_DPHI = pAmdcsimrec->PosPhi (DB_JTYP,DB_JFF,DB_IZ) / PIS180 -  ( DB_JFF * 1. - 1.) * PI2SN ;
+          double PIS180 = M_PI/180.;
+          double PI2SN  = 360./8.;
+          dDbVal_DPHI = pAmdcsimrec->PosPhi (DB_JTYP,DB_JFF,DB_IZ) / PIS180 -  ( DB_JFF * 1. - 1.) * PI2SN ;
 	  
           dDbVal_Z = pAmdcsimrec->PosZ	(DB_JTYP,DB_JFF,DB_IZ)/ 10. ; 
           dDbVal_R = pAmdcsimrec->PosR	(DB_JTYP,DB_JFF,DB_IZ)/ 10. ; 

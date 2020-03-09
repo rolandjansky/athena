@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,15 +12,17 @@
 
 #undef NDEBUG
 
+//This is a test so no need to be thread safe
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "CaloTowerBuilderToolTestAlg.h"
 #include "CaloUtils/CaloTowerBuilderTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloTowerContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "boost/foreach.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
@@ -109,9 +111,9 @@ CaloTowerBuilderToolTestAlg::make_cells()
   const CaloDetDescrManager* ddman = 0;
   if ( detStore()->retrieve (ddman, "CaloMgr").isFailure() )
     std::abort();
-  BOOST_FOREACH (CaloCell_ID::SUBCALO subcalo, m_calos) {
-    BOOST_FOREACH (const CaloDetDescrElement* dde,
-                   ddman->element_range (subcalo))
+  for (CaloCell_ID::SUBCALO subcalo : m_calos) {
+    for (const CaloDetDescrElement* dde :
+           ddman->element_range (subcalo))
     {
       float energy = randf (100*GeV);
       cells->push_back (new CaloCell (dde, energy, 0, 0, 0, 

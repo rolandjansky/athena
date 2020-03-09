@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 
 #include "GaudiKernel/Property.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "TruthUtils/GeneratorName.h"
 
@@ -59,13 +58,6 @@ StatusCode HforTool::initialize() {
 	StatusCode sc = AthAlgTool::initialize();
 	if(sc.isFailure()) return sc;
 
-
-	//retrieve StoreGate
-	sc = service("StoreGateSvc", m_storeGate);
-	if (sc.isFailure()) {
-     		ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-    		return sc;
-  	}
 
 	//check if removal schema is supported
 	if(m_schema != "jetbased" && m_schema != "angularbased" && m_schema != "strict" )	{
@@ -204,7 +196,7 @@ std::string HforTool::getDecision(const std::string& schema) {
 void HforTool::findHFQuarks() {
   // Get the event / run number from StoreGate
   const EventInfo * currentEvent(NULL) ;
-  StatusCode sc = m_storeGate->retrieve(currentEvent) ;
+  StatusCode sc = evtStore()->retrieve(currentEvent) ;
   if ( sc.isFailure() ) {
     ATH_MSG_INFO("Couldnt retrieve EventInfo from StoreGateSvc");
     return ;
@@ -242,7 +234,7 @@ void HforTool::findHFQuarks() {
 	  ikey++ ) {
       ATH_MSG_DEBUG("SG key " << (*ikey));
       const McEventCollection * mymcevent(NULL) ;
-      sc = m_storeGate->retrieve(mymcevent, (*ikey)) ;
+      sc = evtStore()->retrieve(mymcevent, (*ikey)) ;
       if (sc.isFailure())
 	ATH_MSG_DEBUG("no McEventCollection found with key " << (*ikey));
       else {
@@ -260,7 +252,7 @@ void HforTool::findHFQuarks() {
   // Get the McEventCollection
   const McEventCollection* myMcEventCollection(NULL);
   /// @todo Use CHECK macro
-  sc = m_storeGate->retrieve(myMcEventCollection,m_McEventCollectionKey);
+  sc = evtStore()->retrieve(myMcEventCollection,m_McEventCollectionKey);
   if (sc.isFailure()) {
     ATH_MSG_INFO("McEventCollection not found");
     return ;
@@ -943,7 +935,7 @@ void HforTool::jetBasedRemoval()
   // find the jet collection
   ATH_MSG_DEBUG(" Using "<<m_JetContainer<<" jet collection");
   const JetCollection * aod_jets = 0;
-  StatusCode sc = m_storeGate->retrieve( aod_jets, m_JetContainer );
+  StatusCode sc = evtStore()->retrieve( aod_jets, m_JetContainer );
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("No ESD/AOD/DPD jet container found: key = " <<m_JetContainer);
     // return StatusCode::SUCCESS ;
@@ -1261,7 +1253,7 @@ void HforTool::checkSampleType()
 {
   // Get the event / run number from StoreGate
   const EventInfo * currentEvent(NULL) ;
-  StatusCode sc = m_storeGate->retrieve(currentEvent) ;
+  StatusCode sc = evtStore()->retrieve(currentEvent) ;
   if ( sc.isFailure() ) {
     ATH_MSG_INFO("Couldnt retrieve EventInfo from StoreGateSvc");
     return ;

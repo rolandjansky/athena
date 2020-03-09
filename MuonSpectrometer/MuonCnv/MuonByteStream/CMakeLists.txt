@@ -9,6 +9,7 @@ atlas_subdir( MuonByteStream )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           DetectorDescription/IRegionSelector
+			  Database/AthenaPOOL/AthenaPoolUtilities
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
                           GaudiKernel
@@ -23,17 +24,20 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonCnv/MuonMDT_CnvTools
                           MuonSpectrometer/MuonCnv/MuonRPC_CnvTools
                           MuonSpectrometer/MuonIdHelpers
+			  MuonSpectrometer/MuonAlignment/MuonAlignmentData
                           MuonSpectrometer/MuonRDO )
 
 # External dependencies:
 find_package( tdaq-common )
+find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_component( MuonByteStream
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel StoreGateLib SGtests CSCcablingLib RPCcablingInterfaceLib MuonIdHelpersLib MuonRDO TrigSteeringEvent AthViews)
+                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+		     DEFINITIONS ${CLHEP_DEFINITIONS}
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel StoreGateLib SGtests AthenaPoolUtilities CSCcablingLib RPCcablingInterfaceLib MuonIdHelpersLib MuonRDO TrigSteeringEvent AthViews)
 
 # Install files from the package:
 atlas_install_headers( MuonByteStream )

@@ -11,7 +11,6 @@ if not ('OutputLevel' in dir()):
 include("TriggerTest/TrigScanFiles.py")
 ###############################
 doTrigger=True
-TriggerModernConfig=True
 rec.doWriteAOD=True
 rec.doWriteESD=False
 rec.doWriteTAG=False
@@ -56,8 +55,7 @@ TriggerFlags.AODEDMSet="AODSLIM"
 #from ParticleBuilderOptions.AODFlags import AODFlags 
 #AODFlags.FastSimulation=False 
 # see comments in https://savannah.cern.ch/bugs/?83735
-#AODFlags.MuonTrackSlimmer=False
-#print AODFlags.Print()
+#printfunc (AODFlags.Print())
 
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
@@ -67,3 +65,8 @@ include("RecExCommon/RecExCommon_topOptions.py")
 StatusCodeSvc.AbortOnError=False
 
 include("TriggerTest/TriggerTestCommon.py")
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

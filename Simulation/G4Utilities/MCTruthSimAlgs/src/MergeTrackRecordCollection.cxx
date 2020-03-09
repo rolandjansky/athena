@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeTrackRecordCollection.h"
@@ -7,27 +7,20 @@
 #include "PileUpTools/IPileUpTool.h"
 
 MergeTrackRecordCollection::MergeTrackRecordCollection(const std::string& name,
-			       ISvcLocator* svcLoc)
-  : AthAlgorithm(name, svcLoc),
-    m_mergeTool("MergeTrackRecordCollTool", this)
+                               ISvcLocator* svcLoc)
+  : AthAlgorithm(name, svcLoc)
 {
-  declareProperty("MergeTrackRecordCollTool", m_mergeTool);
 }
+
 StatusCode MergeTrackRecordCollection::initialize() {
-  ATH_MSG_DEBUG ( "Initializing " << name() << " - package version " << PACKAGE_VERSION ); 
-  if(m_mergeTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve MergeTrackRecordCollTool!");
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG ( "Initializing " << name() );
+  ATH_CHECK(m_mergeTool.retrieve());
   ATH_MSG_DEBUG("Retrieved MergeTrackRecordCollTool (" << m_mergeTool->name() << ").");
- 
+
  return StatusCode::SUCCESS;
 }
+
 StatusCode MergeTrackRecordCollection::execute() {
-  ATH_MSG_DEBUG("execute()");  
+  ATH_MSG_DEBUG("execute()");
   return m_mergeTool->processAllSubEvents();
-}
-StatusCode MergeTrackRecordCollection::finalize() {
-  ATH_MSG_DEBUG("finalize.");
-  return StatusCode::SUCCESS;
 }

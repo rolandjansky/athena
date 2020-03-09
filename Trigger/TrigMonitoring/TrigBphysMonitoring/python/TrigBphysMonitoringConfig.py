@@ -1,14 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-
-
-#JW: quick methods to access as many triggers as possible
-
-#from TrigEDMConfig import TriggerEDM
-#containers = [x[0] for x in TriggerEDM.TriggerHLTList if "TrigBphysContainer" in x[0]]
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTMonitoring.HLTMonTriggerList import HLTMonTriggerList
 hltmonList = HLTMonTriggerList()
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 # default configuration for pp
 #if hltmonList.pp_mode :
@@ -16,16 +11,22 @@ containers = [
               "HLT_xAOD__TrigBphysContainer_L2BMuMuFex",  "HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
               #"HLT_xAOD__TrigBphysContainer_L2BMuMuXFex", 
               "HLT_xAOD__TrigBphysContainer_EFBMuMuXFex",
-              "HLT_xAOD__TrigBphysContainer_L2MultiMuFex","HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
-              "HLT_xAOD__TrigBphysContainer_L2TrackMass", "HLT_xAOD__TrigBphysContainer_EFTrackMass"
+              #"HLT_xAOD__TrigBphysContainer_L2MultiMuFex",
+              "HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
+              #"HLT_xAOD__TrigBphysContainer_L2TrackMass",
+              "HLT_xAOD__TrigBphysContainer_MultiTrkFex",
+              "HLT_xAOD__TrigBphysContainer_EFTrackMass"
               ]
+if TriggerFlags.EDMDecodingVersion == 3 :
+  # will add the MT version of TrigBphys containers once they are available in EDM
+  containers = [ "TrigBphysDimu", "TrigBphysEFDimu" ]
+  
 DetailedChains = {
-                  "BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)',
-                  "BMuMuX" : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]',
-                  "MultiMu": 'HLT_((mu[0-9]+_[2-9]mu[0-9]+)|(3mu[0-9]+))_(b.*)',
-                  "MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trk(.*)',
-                  "Tau3mu" : 'HLT_([2-3]?mu[0-9]+).*_bTau.*',
-                  "FTK"    : 'HLT_(2mu[0-9]+)_bBmumuxv2_Ftk'
+                  "BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?',
+                  "BMuMuX" : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23](_L1[0-9]?MU[0-9]+)?',
+                  "MultiMu": 'HLT_((mu[0-9]+_[2-9]mu[0-9]+)|(3mu[0-9]+))_(b.*)(_L1[0-9]?MU[0-9]+)?',
+                  "MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trk(.*)(_L1[0-9]?MU[0-9]+)?',
+                  "Tau3mu" : 'HLT_([2-3]?mu[0-9]+).*_bTau.*(_L1[0-9]?MU[0-9]+)?',
                  }
 DetailedL1TopoChains = {
                       "L1BPH-M-DR-low"    : "HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
@@ -33,12 +34,12 @@ DetailedL1TopoChains = {
                       #"L1BPH-M"           : "HLT_2mu6_bDimu_L1BPH-8M15-2MU6"
                        }
 EfficiencyChains = {
-                    "BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)",
-                    "BMuMuX" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]",
+                    "BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?",
+                    "BMuMuX" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23](_L1[0-9]?MU[0-9]+)?",
                     #"MultiMu": 'HLT_((mu[0-9]+_[2-9]mu[0-9]+)|(3mu[0-9]+))_(b.*)',
                     #"MuTrack": "HLT_(mu[0-9]+)_(b.*)_Trk(.*)"
                    }
-EffTrigDenom_noVtxOS = "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bDimu_novtx_noos"
+EffTrigDenom_noVtxOS = "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bDimu_novtx_noos(_L1[0-9]?MU[0-9]+)?"
 
 # configuration for HI and pPb
 if hltmonList.HI_mode :

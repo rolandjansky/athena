@@ -7,7 +7,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CxxUtils/phihelper.h"
@@ -18,7 +17,6 @@ TrigTauCaloRoiUpdaterMT::TrigTauCaloRoiUpdaterMT(const std::string & name, ISvcL
   AthAlgorithm(name, pSvcLocator) {}
 
 StatusCode TrigTauCaloRoiUpdaterMT::initialize() {
-  ATH_MSG_INFO( "Initializing " << name() << " ... " );
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
   ATH_MSG_DEBUG( "    " << m_dRForCenter     );
@@ -31,7 +29,6 @@ StatusCode TrigTauCaloRoiUpdaterMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-TrigTauCaloRoiUpdaterMT::~TrigTauCaloRoiUpdaterMT(){}
 
 StatusCode TrigTauCaloRoiUpdaterMT::execute() {
 
@@ -111,10 +108,5 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
   SG::WriteHandle< TrigRoiDescriptorCollection > outputRoiHandle = SG::makeHandle( m_roIOutputKey,ctx );
   CHECK( outputRoiHandle.record( std::move( roICollection ) ) );
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigTauCaloRoiUpdaterMT::finalize() {
-  ATH_MSG_INFO( "Finalizing " << name() << " ... " );
   return StatusCode::SUCCESS;
 }

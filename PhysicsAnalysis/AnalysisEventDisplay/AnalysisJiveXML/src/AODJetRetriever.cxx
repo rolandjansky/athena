@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AnalysisJiveXML/AODJetRetriever.h"
@@ -85,7 +85,7 @@ namespace JiveXML {
       }
     }else {
       //obtain all collections with the given keys
-      std::vector<std::string>::const_iterator keyIter,endIter;
+      std::vector<std::string>::const_iterator keyIter;
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
         if ( !evtStore()->contains<JetCollection>( (*keyIter) ) ){ continue; } // skip if not in SG
 	StatusCode sc = evtStore()->retrieve( jets, (*keyIter) );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,7 +21,6 @@ EtmissGoodnessManagerAlg::EtmissGoodnessManagerAlg(const std::string& name, ISvc
  : AthAlgorithm(name, pSvcLocator)
  , m_version(-1) // latest version
  , m_quality(-1) // unset
- , m_storeGate(0)
 {
   declareProperty( "SetAndLockVersion", m_version );
   declareProperty( "SetAndLockQuality", m_quality );
@@ -39,13 +38,6 @@ StatusCode EtmissGoodnessManagerAlg::initialize()
 
   // set output level
   MET::TMsgLogger::SetMinLevel(static_cast<MET::TMsgLevel>(msgLevel()));
-
-  // Get StoreGate service:
-  StatusCode status = service("StoreGateSvc", m_storeGate);
-  if( !status.isSuccess() ) {
-    ATH_MSG_WARNING ("Unable to get StoreGateSvc!");
-    return status;
-  }
 
   // now set version and quality
   MET::EtmissGoodnessManager& manager = MET::EtmissGoodnessManager::instance();
@@ -76,7 +68,7 @@ EtmissGoodnessManagerAlg::execute()
   const xAOD::EventInfo*  evt = 0;
   StatusCode status = StatusCode::SUCCESS;
   // retrieve event info
-  status = m_storeGate->retrieve(evt);
+  status = evtStore()->retrieve(evt);
   if ( !status.isSuccess() || evt==0 ) {
     ATH_MSG_WARNING ("Unable to retrieve EventInfo from StoreGate");
     return status;

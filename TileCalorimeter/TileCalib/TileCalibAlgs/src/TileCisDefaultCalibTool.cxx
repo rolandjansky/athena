@@ -20,6 +20,7 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingSvc.h"
+#include "TileConditions/TileInfo.h"
 
 
 #include "TFile.h"
@@ -31,8 +32,6 @@
 #include "TMath.h"
 #include <cmath>
 
-static const double c_dac2ChargeSmall(2.0 * 4.096 * 5.2 / 1023.0);
-static const double c_dac2ChargeLarge(2.0 * 4.096 * 100.0 / 1023.0);
 static const double c_defaultHiCalib(81.8);
 static const double c_defaultLoCalib(1.29);
 
@@ -44,6 +43,7 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   , m_cablingSvc("TileCablingSvc", name)
   , m_scanMap(0)
   , m_scanMapRMS(0)
+  , m_tileInfo(0)
 {
   declareInterface<ITileCalibTool>(this);
 
@@ -63,6 +63,7 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
 
   declareProperty("doSampleChecking", m_doSampleChecking = true); // do sample checking by default
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
 
   // Initialize arrays for results
   m_calib = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
@@ -107,6 +108,13 @@ StatusCode TileCisDefaultCalibTool::initialize() {
 
   CHECK( m_dqStatusKey.initialize() );
 
+  // get TileInfo
+  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+
+  // set important constants
+  m_dac2ChargeSmall = 2.0 * 4.096 * 5.2 / double(m_tileInfo->ADCmax());
+  m_dac2ChargeLarge = 2.0 * 4.096 * 100.0 / double(m_tileInfo->ADCmax());
+
   ATH_CHECK( m_rawChannelContainerKey.initialize() );
   ATH_CHECK( m_digitsContainerKey.initialize(m_doSampleChecking) );
 
@@ -145,8 +153,8 @@ StatusCode TileCisDefaultCalibTool::execute() {
   }
 
   // Find event's charge (for checking later that charge is in useful range)
-  double charge = (cispar[7] > 10) ? (double) dac * c_dac2ChargeLarge
-                                   : (double) dac * c_dac2ChargeSmall;
+  double charge = (cispar[7] > 10) ? (double) dac * m_dac2ChargeLarge
+                                   : (double) dac * m_dac2ChargeSmall;
 
   // Get TileRawChannelContainer
   SG::ReadHandle<TileRawChannelContainer> container(m_rawChannelContainerKey);
@@ -442,9 +450,9 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
 
         // find charge for this dac
         if (m_useSmallCap)
-          charge = (double) dac * c_dac2ChargeSmall;
+          charge = (double) dac * m_dac2ChargeSmall;
         else
-          charge = (double) dac * c_dac2ChargeLarge;
+          charge = (double) dac * m_dac2ChargeLarge;
 
         // check for problems in calibration range
         if (gain == 0) {

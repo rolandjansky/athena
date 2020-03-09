@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -10,7 +10,6 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
-#include "CxxUtils/make_unique.h"
 
 #include <TPRegexp.h>
 #include <TObjArray.h>
@@ -35,9 +34,10 @@
 
 #include "egammaMVACalib/egammaMVALayerDepth.h"
 #include "egammaMVACalibAnalysis/egammaMVACalib.h"
-#include "MVAUtils/BDT.h"
 #include "PathResolver/PathResolver.h"
 
+#include "MVAUtils/BDT.h"
+#include "MVAUtils/TMVAToMVAUtils.h"
 using namespace MVAUtils;
 
 #define CHECK_SETUPBDT(EXP) { \
@@ -420,7 +420,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   }
   else{
     ATH_MSG_DEBUG("setupBDT " << "Reading trees individually");
-    trees = CxxUtils::make_unique<TObjArray>();
+    trees = std::make_unique<TObjArray>();
     trees->SetOwner(); // to delete the objects when d-tor is called
     for (int i = 0; i < variables->GetEntries(); ++i)
     {
@@ -1510,12 +1510,11 @@ void egammaMVACalib::addReaderInfoToArrays(TMVA::Reader *reader,
 
   TMVA::MethodBDT* tbdt = dynamic_cast<TMVA::MethodBDT*>(reader->FindMVA("BDTG"));
   assert(tbdt);
-  BDT *bdt = new BDT(tbdt);
+  std::unique_ptr<BDT> bdt = TMVAToMVAUtils::convert(tbdt);
   TTree *tree = bdt->WriteTree(Form("BDT%d", index));
 
   variables->AddAtAndExpand(new TObjString(*vars), index);
   trees->AddAtAndExpand(tree, index);
-  delete bdt;
 }
 
 
@@ -1540,7 +1539,7 @@ double egammaMVACalib::get_shower_depth(double eta,
 TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
 {
   float dummyFloat;
-  TMVA::Reader *reader = new TMVA::Reader("Silent");
+  auto reader = std::make_unique<TMVA::Reader>("Silent");
 
   std::vector<egammaMVACalib::XmlVariableInfo> variable_infos = parseXml(xmlFileName);
   for (std::vector<egammaMVACalib::XmlVariableInfo>::const_iterator itvar = variable_infos.begin();
@@ -1571,7 +1570,7 @@ TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
   }
 
   reader->BookMVA("BDTG", xmlFileName);
-  return reader;
+  return reader.release();
 }
 
 //  LocalWords:  TObjArray

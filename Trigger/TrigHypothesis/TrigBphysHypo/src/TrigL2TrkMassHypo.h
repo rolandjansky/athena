@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,9 +8,8 @@
 
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h" 
-#include "GaudiKernel/IIncidentListener.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 class TriggerElement;
 class TrigBphysHelperUtilsTool;

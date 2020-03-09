@@ -1,30 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSystemExtensionTool.h"
 
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndexHelpers.h"
 #include "MuonDetDescrUtils/MuonChamberLayerDescription.h"
 
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonLayerEvent/MuonSystemExtensionCollection.h"
 
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-
+#include "MuonIdHelpers/MuonStationIndexHelpers.h"
 
 namespace Muon {
 
   MuonSystemExtensionTool::MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this)
   {
@@ -32,19 +27,10 @@ namespace Muon {
 
     declareProperty("Extrapolator",m_extrapolator );
     declareProperty("ParticleCaloExtensionTool",m_caloExtensionTool );    
-    declareProperty("MuonIdHelperTool",m_idHelper );    
-
-  }
-
-  MuonSystemExtensionTool::~MuonSystemExtensionTool() { }
-
-  StatusCode MuonSystemExtensionTool::finalize() {
-    return StatusCode::SUCCESS;
   }
 
   StatusCode MuonSystemExtensionTool::initialize() {
 
-    ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_caloExtensionTool.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
 
@@ -73,9 +59,6 @@ namespace Muon {
 
     }
 
-//    if( !initializeGeometryEndcap( MuonStationIndex::EndcapA ) ) return false;
-//    if( !initializeGeometryEndcap( MuonStationIndex::EndcapC ) ) return false;
-    
     return true;
   }
 

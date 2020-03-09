@@ -12,7 +12,6 @@ atlas_depends_on_subdirs(
    GaudiKernel
    Control/AthenaBaseComps
    Control/StoreGate
-   Control/CxxUtils
    DetectorDescription/AtlasDetDescr
    InnerDetector/InDetSimEvent
    LArCalorimeter/LArSimEvent
@@ -37,7 +36,7 @@ atlas_add_component( ISF_Algorithms
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel
-   AthenaBaseComps StoreGateLib CxxUtils AtlasDetDescr GeneratorObjects
+   AthenaBaseComps StoreGateLib AtlasDetDescr GeneratorObjects
    ISF_Event ISF_Interfaces PmbCxxUtils InDetSimEvent LArSimEvent TileSimEvent
    MuonSimEvent )
 

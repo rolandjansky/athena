@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonSegmentMomentum/MuonSegmentMomentumFromField.h"
+#include "MuonSegmentMomentumFromField.h"
 #include "MuonSegment/MuonSegment.h"
 #include <sstream>
 #include <iostream>
 #include <vector>
 #include "TrkGeometry/MagneticFieldProperties.h"
 
-#include "TrkExInterfaces/IPropagator.h"
-#include "TrkExInterfaces/INavigator.h"
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -24,30 +22,9 @@
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
 MuonSegmentMomentumFromField::MuonSegmentMomentumFromField(const std::string& type,const std::string& name,const IInterface* 
-							   parent):AthAlgTool(type,name,parent),
-								   m_magFieldSvc("AtlasFieldSvc",name),
-								   m_propagator("Trk::StraightLinePropagator/CosmicsPropagator"),
-								   m_navigator("Trk::Navigator/CosmicsNavigator")
+							   parent):AthAlgTool(type,name,parent)
 {
   declareInterface<IMuonSegmentMomentumEstimator>(this);
-
-
-  m_debug = false;
-  declareProperty("DoDebug",m_debug);
-
-  m_summary = false;
-  declareProperty("DoSummary",m_summary);
-
-  m_cosmics = false;
-  declareProperty("DoCosmics",m_cosmics);
-  declareProperty("MagFieldSvc",    m_magFieldSvc );
-  declareProperty("PropagatorTool",m_propagator);
-  declareProperty("NavigatorTool",m_navigator);
-  declareProperty("DoOld",m_doOld=false);
-}
-
-MuonSegmentMomentumFromField::~MuonSegmentMomentumFromField()
-{
 }
 
 StatusCode MuonSegmentMomentumFromField::initialize()
@@ -61,13 +38,13 @@ StatusCode MuonSegmentMomentumFromField::initialize()
 
   ATH_CHECK( m_navigator.retrieve() );
 
-  ATH_CHECK( detStore()->retrieve( m_cscid ) );
+  if (m_hasCSC) ATH_CHECK( detStore()->retrieve( m_cscid ) );
 
   ATH_CHECK( detStore()->retrieve( m_rpcid ) );
 
   ATH_CHECK( detStore()->retrieve( m_tgcid ) );
 
-  ATH_CHECK( detStore()->retrieve( m_stgcid ) );
+  if (m_hasSTgc) ATH_CHECK( detStore()->retrieve( m_stgcid ) );
 
   ATH_MSG_VERBOSE("End of Initializing");  
 
@@ -86,7 +63,7 @@ void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const std::vector 
       using fit to pairs of segments */
 
   ATH_MSG_VERBOSE(" Executing MuonSegmentMomentumTool  fitMomentumVectorSegments ");
-  if (m_debug||m_summary) std::cout << " fitMomentumVectorSegments " << segments.size() << " segments " << std::endl;
+  ATH_MSG_DEBUG(" fitMomentumVectorSegments " << segments.size() << " segments " );
 
   std::vector<const Muon::MuonSegment*>::const_iterator it = segments.begin();
   std::vector<const Muon::MuonSegment*>::const_iterator it2 = segments.begin();
@@ -106,7 +83,7 @@ void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const std::vector 
   }
 
 
-  if (m_debug||m_summary) std::cout << " Estimated signed momentum " << signedMomentum << std::endl;
+  ATH_MSG_DEBUG( " Estimated signed momentum " << signedMomentum );
 
 }
 
@@ -181,8 +158,8 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     if (!rot) continue;
     Identifier id=rot->identify();
 
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
-        || (m_tgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){    
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
+        || (m_stgcid && m_stgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){
       if (!firstphi1) firstphi1=rot;
       lastphi1=rot;
     }
@@ -195,8 +172,8 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     }
     if (!rot) continue;
     Identifier id=rot->identify();
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
-        || (m_tgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){    
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
+        || (m_stgcid && m_stgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){
       if (!firstphi2) firstphi2=rot;
       lastphi2=rot;
     }
@@ -235,7 +212,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
       const Trk::TrackParameters *par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
 								      (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
 								      Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
-      if (m_debug) std::cout << "par: " << par << " jac: " << jac << std::endl;
+      ATH_MSG_DEBUG("par: " << par << " jac: " << jac );
       if (par && jac && (*jac)(1,4)!=0){
         residual = worstseg->localParameters()[Trk::locY] - par->parameters()[Trk::locY];
         resi[i]   = residual; 
@@ -345,7 +322,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     if (!rot) continue;
     Identifier id=rot->identify();
 
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || 
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) ||
 	(m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))){    
       if (!firstphi1) firstphi1=rot;
       lastphi1=rot;
@@ -359,7 +336,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     }
     if (!rot) continue;
     Identifier id=rot->identify();
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || 
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) ||
 	(m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))){
       if (!firstphi2) firstphi2=rot;
       lastphi2=rot;

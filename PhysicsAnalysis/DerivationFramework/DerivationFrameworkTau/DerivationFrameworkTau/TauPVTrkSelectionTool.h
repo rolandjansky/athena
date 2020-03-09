@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,8 +41,8 @@ namespace DerivationFramework {
       std::string m_tauContainerName;
 
       bool m_useTruth;
-      bool m_maxDeltaR;
-      bool m_minPt;
+      double m_maxDeltaR;
+      double m_minPt;
 
       ToolHandle < TauAnalysisTools::ITauTruthTrackMatchingTool > m_T3MT;
 

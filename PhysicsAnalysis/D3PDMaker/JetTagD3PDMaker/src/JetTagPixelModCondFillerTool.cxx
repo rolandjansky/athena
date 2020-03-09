@@ -18,10 +18,8 @@ JetTagPixelModCondFillerTool::JetTagPixelModCondFillerTool
    const std::string& name,
    const IInterface* parent)
     : BlockFillerTool<InDetDD::SiDetectorElementCollection> (type, name, parent),
-      m_pixId(0),
-      m_pixelCondSummarySvc("",name)
+      m_pixId(0)
 {
-  declareProperty("PixelSummarySvc", m_pixelCondSummarySvc);
   declareProperty("MaxDeadModules", m_maxDeadModules=500);
 
   book().ignore(); // Avoid coverity warnings.
@@ -35,14 +33,14 @@ StatusCode JetTagPixelModCondFillerTool::initialize()
 {
   ATH_CHECK( detStore()->retrieve( m_pixId,"PixelID") );
 
-  if( m_pixelCondSummarySvc.empty() ){
-    ATH_MSG_FATAL( "PixelConditionsSummarySvc not configured "  );
-    ATH_MSG_FATAL( "you need to configure PixelConditionsSummarySvc to be able to dump pixel condition "  );
+  if( m_pixelCondSummaryTool.empty() ){
+    ATH_MSG_FATAL( "PixelConditionsSummaryTool not configured "  );
+    ATH_MSG_FATAL( "you need to configure PixelConditionsSummaryTool to be able to dump pixel condition "  );
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( m_pixelCondSummarySvc.retrieve() );
-  ATH_MSG_INFO( "Retrieved service " << m_pixelCondSummarySvc  );
+  ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
+  ATH_MSG_INFO( "Retrieved tool " << m_pixelCondSummaryTool  );
   return StatusCode::SUCCESS;
 }
 
@@ -96,8 +94,8 @@ bool JetTagPixelModCondFillerTool::selectModule(const InDetDD::SiDetectorElement
 
   IdentifierHash id_hash = m_pixId->wafer_hash(ident);
 
-  bool active = m_pixelCondSummarySvc->isActive(id_hash);
-  bool good = m_pixelCondSummarySvc->isGood(id_hash);
+  bool active = m_pixelCondSummaryTool->isActive(id_hash);
+  bool good = m_pixelCondSummaryTool->isGood(id_hash);
 
   return active && good;
 

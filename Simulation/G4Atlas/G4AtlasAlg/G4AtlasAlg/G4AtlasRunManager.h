@@ -16,7 +16,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IPhysicsListSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/IFluxRecorder.h"
@@ -65,8 +65,8 @@ public:
   }
 
   /// Configure the Physics List Tool handle
-  void SetPhysListTool(const std::string& typeAndName) {
-    m_physListTool.setTypeAndName(typeAndName);
+  void SetPhysListSvc(const std::string& typeAndName) {
+    m_physListSvc.setTypeAndName(typeAndName);
   }
 
   void SetRecordFlux(bool b, std::unique_ptr<IFluxRecorder> f) { m_recordFlux = b; m_fluxRecorder=std::move(f);}
@@ -101,7 +101,7 @@ private:
 
   ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
   ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
-  ToolHandle<IPhysicsListTool> m_physListTool;
+  ServiceHandle<IPhysicsListSvc> m_physListSvc;
 
   /// Handle to the user action service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;

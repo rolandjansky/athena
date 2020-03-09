@@ -23,8 +23,18 @@ static
 typename IDC::IDENTIFIABLE* 
 getCollection(  const Identifier collId, 
                 IDC* idc, 
-                const IDHELPER* idHelper, 
+                const IDHELPER& idHelper, 
                 MsgStream& log);
+
+template< class IDC, class IDHELPER >
+typename IDC::IDENTIFIABLE* 
+getCollection(  const Identifier collId, 
+                IDC* idc, 
+                const IDHELPER* idHelper, 
+                MsgStream& log) {
+  return getCollection<IDC, IDHELPER>(collId, idc, *idHelper, log);
+}
+
 
 }
 }

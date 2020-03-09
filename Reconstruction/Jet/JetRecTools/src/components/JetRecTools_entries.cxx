@@ -1,4 +1,5 @@
 #include "JetRecTools/JetTrackSelectionTool.h"
+#include "JetRecTools/JetTrackSelectionTool2.h"
 #include "JetRecTools/SimpleJetTrackSelectionTool.h"
 #include "JetRecTools/TrackVertexAssociationTool.h"
 #include "JetRecTools/TrackPseudoJetGetter.h"
@@ -17,6 +18,7 @@
 #include "JetRecTools/PuppiWeightTool.h"
 
 DECLARE_COMPONENT( JetTrackSelectionTool )
+DECLARE_COMPONENT( JetTrackSelectionTool2 )
 DECLARE_COMPONENT( SimpleJetTrackSelectionTool )
 DECLARE_COMPONENT( TrackVertexAssociationTool )
 DECLARE_COMPONENT( TrackPseudoJetGetter )

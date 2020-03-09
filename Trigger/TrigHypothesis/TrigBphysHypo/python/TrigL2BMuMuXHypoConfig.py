@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # -*- coding: utf-8 -*-
 from TrigBphysHypo.TrigBphysHypoConf import TrigL2BMuMuXHypo
@@ -37,10 +37,6 @@ class L2BMuMuXHypo_1 (TrigL2BMuMuXHypo):
         self.UpperDsMassCut = 2400.
 
 
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-
-
 class L2BMuMuXHypo_EF (TrigL2BMuMuXHypo):
     __slots__ = []
     def __init__(self, name = "L2BMuMuXHypo_EF"):
@@ -72,7 +68,3 @@ class L2BMuMuXHypo_EF (TrigL2BMuMuXHypo):
         self.UpperBcMassCut = 7050.
         self.LowerDsMassCut = 1600.
         self.UpperDsMassCut = 2400.
-
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")

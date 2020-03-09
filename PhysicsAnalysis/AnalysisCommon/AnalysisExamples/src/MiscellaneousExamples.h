@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISCELLANEOUS_EXAMPLES_H
@@ -33,7 +33,6 @@
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AnalysisTools/AnalysisTools.h"
 

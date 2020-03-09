@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoCnvTool.cxx 793565 2017-01-23 22:00:14Z leggett $
@@ -17,6 +17,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfoContainer.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // Local include(s):
 #include "EventInfoCnvTool.h"
@@ -57,14 +58,7 @@ namespace xAODMaker {
                                        const std::string& name,
                                        const IInterface* parent )
       : AthAlgTool( type, name, parent ),
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
-        m_beamCondSvc( "BeamCondSvc", name ),
-        m_lumiTool( "LuminosityTool" ),
-#endif
-#endif
         m_beamCondSvcAvailable( false ),
-        m_lumiToolAvailable( false ),
         m_disableBeamSpot( false ) {
 
       // Declare the interface(s) provided by the tool:
@@ -72,8 +66,6 @@ namespace xAODMaker {
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
       // Declare the tool's properties:
-      declareProperty( "BeamCondSvc", m_beamCondSvc );
-      declareProperty( "LuminosityTool", m_lumiTool );
       declareProperty( "DisableBeamSpot", m_disableBeamSpot );
 #endif
 #endif
@@ -98,31 +90,12 @@ namespace xAODMaker {
       if(m_disableBeamSpot){
          ATH_MSG_WARNING( "Beam conditions service manually disabled on EventInfo object" );
          m_beamCondSvcAvailable = false;
-      }
+      } 
+      
       // Try to access the beam conditions service:
-      if( m_beamCondSvcAvailable ) {
-         CHECK( m_beamCondSvc.retrieve() );
-      }
+      ATH_CHECK(m_beamSpotKey.initialize(m_beamCondSvcAvailable));
 
-      // Check if the luminosity tool will be available or not:
-      if( detStore()->contains< CondAttrListCollection >( LUMI_FOLDER_RUN11 ) ||
-          detStore()->contains< CondAttrListCollection >( LUMI_FOLDER_RUN12 ) ||
-          detStore()->contains< CondAttrListCollection >( LUMI_FOLDER_RUN21 ) ||
-          detStore()->contains< CondAttrListCollection >( LUMI_FOLDER_RUN22 ) ) {
-         ATH_MSG_INFO( "Taking luminosity information from: " << m_lumiTool );
-         m_lumiToolAvailable = true;
-      } else {
-         ATH_MSG_INFO( "Luminosity information not available" );
-         ATH_MSG_INFO( "Will take information from the EventInfo object" );
-         m_lumiToolAvailable = false;
-      }
-
-      // Try to access the luminosity tool:
-      if( m_lumiToolAvailable ) {
-         CHECK( m_lumiTool.retrieve() );
-      } else {
-        m_lumiTool.disable();
-      }
+      CHECK( m_lumiDataKey.initialize (SG::AllowEmpty) );
 #else
       //do nothing, lumi and beam conditions not available
 
@@ -141,13 +114,16 @@ namespace xAODMaker {
     * @param xaod The xAOD::EventInfo object to fill
     * @param pileUpInfo <code>true</code> for pile-up EventInfo objects
     * @param copyPileUpLinks Allows to turn the ElementLink creation on or off
+    * @param ctx Event context.
     * @returns <code>StatusCode::SUCCESS</code> if all went fine,
     *          something else if not
     */
    StatusCode EventInfoCnvTool::convert( const EventInfo* aod,
                                          xAOD::EventInfo* xaod,
                                          bool pileUpInfo,
-                                         bool copyPileUpLinks ) const {
+                                         bool copyPileUpLinks,
+                                         const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+   {
 
       if( ! aod ) {
          ATH_MSG_WARNING( "Null pointer received for input!" );
@@ -199,7 +175,7 @@ namespace xAODMaker {
       }
 
       // Copy the trigger properties into the xAOD object:
-      if( aod->trigger_info() && ( ! pileUpInfo ) ) {
+      if( aod->trigger_info() && !pileUpInfo  ) {
          xaod->setStatusElement( aod->trigger_info()->statusElement() );
          xaod->setExtendedLevel1ID( aod->trigger_info()->extendedLevel1ID() );
          xaod->setLevel1TriggerType( aod->trigger_info()->level1TriggerType() );
@@ -219,20 +195,29 @@ namespace xAODMaker {
  
       // Copy/calculate the pileup information:
       if( ! pileUpInfo ) {
-         if( m_lumiToolAvailable ) {
+         bool haveLumi = false;
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
-            float actualMu = 0.0;
-            const float muToLumi = m_lumiTool->muToLumi();
-            if( std::abs( muToLumi ) > 0.00001 ) {
-               actualMu = m_lumiTool->lbLuminosityPerBCID() / muToLumi;
-            }
-            xaod->setActualInteractionsPerCrossing( actualMu );
-            xaod->setAverageInteractionsPerCrossing(
-               m_lumiTool->lbAverageInteractionsPerCrossing() );
+         if (!m_lumiDataKey.empty()) {
+           SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey, ctx);
+           if (lumiData->lbAverageLuminosity() != 0 ||
+               lumiData->lbAverageInteractionsPerCrossing() != 0)
+           {
+             float actualMu = 0.0;
+             const float muToLumi = lumiData->muToLumi();
+             if( std::abs( muToLumi ) > 0.00001 ) {
+               unsigned int bcid = ctx.eventID().bunch_crossing_id();
+               actualMu = lumiData->lbLuminosityPerBCIDVector().at(bcid) / muToLumi;
+             }
+             xaod->setActualInteractionsPerCrossing( actualMu );
+             xaod->setAverageInteractionsPerCrossing(
+               lumiData->lbAverageInteractionsPerCrossing() );
+           }
+           haveLumi = true;
+         }
 #endif
 #endif
-         } else {
+         if (!haveLumi) {
             xaod->setActualInteractionsPerCrossing(
                aod->actualInteractionsPerCrossing() );
             xaod->setAverageInteractionsPerCrossing(
@@ -325,22 +310,23 @@ namespace xAODMaker {
          xaod->setSubEvents( subEvents );
       }
 
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE)
       // Fill the beam spot variables if the necessary service is available:
       if( m_beamCondSvcAvailable && ( ! pileUpInfo ) ) {
-         xaod->setBeamPos( m_beamCondSvc->beamPos()[ Amg::x ],
-                           m_beamCondSvc->beamPos()[ Amg::y ],
-                           m_beamCondSvc->beamPos()[ Amg::z ] );
-         xaod->setBeamPosSigma( m_beamCondSvc->beamSigma( 0 ),
-                                m_beamCondSvc->beamSigma( 1 ),
-                                m_beamCondSvc->beamSigma( 2 ) );
-         xaod->setBeamPosSigmaXY( m_beamCondSvc->beamSigmaXY() );
-         xaod->setBeamTiltXZ( m_beamCondSvc->beamTilt( 0 ) );
-         xaod->setBeamTiltYZ( m_beamCondSvc->beamTilt( 1 ) );
-         xaod->setBeamStatus( m_beamCondSvc->beamStatus() );
+         SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+         xaod->setBeamPos( beamSpotHandle->beamPos()[ Amg::x ],
+                           beamSpotHandle->beamPos()[ Amg::y ],
+                           beamSpotHandle->beamPos()[ Amg::z ] );
+         xaod->setBeamPosSigma( beamSpotHandle->beamSigma( 0 ),
+                                beamSpotHandle->beamSigma( 1 ),
+                                beamSpotHandle->beamSigma( 2 ) );
+         xaod->setBeamPosSigmaXY( beamSpotHandle->beamSigmaXY() );
+         xaod->setBeamTiltXZ( beamSpotHandle->beamTilt( 0 ) );
+         xaod->setBeamTiltYZ( beamSpotHandle->beamTilt( 1 ) );
+         xaod->setBeamStatus( beamSpotHandle->beamStatus() );
       }
-#endif
+#else
+      (void)ctx; // silence "unused" compiler warnings
 #endif
 
       // Finish with some printout:

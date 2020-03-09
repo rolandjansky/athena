@@ -32,9 +32,7 @@ def generateChainConfigs( chainDict ):
     else:
         theChainDef = listOfChainDefs[0]
 
-    log.debug("theChainDef.name: %s" , theChainDef.name)
-    log.debug("theChainDef.seed: %s" , theChainDef.seed)
-    log.debug("theChainDef.ChainSteps: %s" , theChainDef.steps)
+    log.debug("theChainDef %s" , theChainDef)
 
     return theChainDef
 

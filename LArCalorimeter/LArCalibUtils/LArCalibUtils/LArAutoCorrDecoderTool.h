@@ -9,7 +9,6 @@
 #define LARCALIBUTILS_LARAUTOCORRDECODERTOOL_H
 
 #include "LArElecCalib/ILArAutoCorrDecoderTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -18,12 +17,11 @@
 
 #include "StoreGate/DataHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "LArRawConditions/LArConditionsContainer.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
-class StoreGateSvc;
 
 class LArAutoCorrDecoderTool: public AthAlgTool,
 			      virtual public ILArAutoCorrDecoderTool
@@ -58,12 +56,14 @@ class LArAutoCorrDecoderTool: public AthAlgTool,
   const Eigen::MatrixXd ACDiagonal( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
   const Eigen::MatrixXd ACPhysics( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
 
-  const LArOnlineID*  m_onlineID;
+  const LArOnlineID_Base*  m_onlineID;
 
   std::string m_keyAutoCorr;
 
   const DataHandle<ILArAutoCorr> m_autoCorr;
 
+  // Running on cells or supercells?
+  bool m_isSC;
 };
 
 #endif

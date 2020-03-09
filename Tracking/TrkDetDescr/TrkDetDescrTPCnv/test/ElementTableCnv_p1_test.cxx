@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,7 +12,7 @@
 
 #undef NDEBUG
 #include "TrkDetDescrTPCnv/TrkGeometry/ElementTableCnv_p1.h"
-#include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -66,6 +66,7 @@ void testit (const Trk::ElementTable& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   Trk::ElementTable e;
   e.addElement (Trk::Material ( 1.5,  2.5,  3.5, 10,  4.5), "ten");
   e.addElement (Trk::Material (11.5, 12.5, 13.5, 20, 14.5), "twenty");

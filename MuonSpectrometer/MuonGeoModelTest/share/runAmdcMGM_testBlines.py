@@ -45,7 +45,7 @@ from AthenaCommon.AthenaCommonFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import jobproperties,athenaCommonFlags
 # import service manager
 from AthenaCommon.AppMgr import ServiceMgr
-import AthenaCommon.AtlasUnixStandardJob
+import AthenaCommon.AtlasUnixGeneratorJob
 
 ######################################################################## setup GeoModel
 # Turn off all detector systems except the Muon Spectrometer
@@ -84,7 +84,7 @@ from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 ######################################################################## end setup GeoModel
 
-theApp.EvtSel = "NONE"
+theApp.EvtSel = "EventSelector"
 theApp.EvtMax = 1
 
 # Set output level threshold 
@@ -103,24 +103,29 @@ print GeoModelSvc
 
 #***************************************************** HERE define alignment data from cond. tags
 if useAlign:
+    from McEventSelector import McEventSelectorConf
+    ServiceMgr+=McEventSelectorConf.McEventSelector('EventSelector',
+                                                    RunNumber = 310809,
+                                                    InitialTimeStamp = 1476741326)
     from IOVDbSvc.CondDB import conddb
     conddb.dbname = "COMP200"
-    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL')
-    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA')
-    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC')
-    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA')
-    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC')
-    from MuonCondTool.MuonCondToolConf import MuonAlignmentDbTool
-    MuonAlignmentDbTool = MuonAlignmentDbTool("MGM_AlignmentDbTool")
-    MuonAlignmentDbTool.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
-                                          "/MUONALIGN/MDT/ENDCAP/SIDEA",
-                                          "/MUONALIGN/MDT/ENDCAP/SIDEC",
-                                          "/MUONALIGN/TGC/SIDEA",
-                                          "/MUONALIGN/TGC/SIDEC"]
-    ToolSvc += MuonAlignmentDbTool
-    MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
-    MGM_AlignmentDbTool.OutputLevel = DEBUG
-    MGM_AlignmentDbTool.DumpALines = False
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC',className='CondAttrListCollection')
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA',className='CondAttrListCollection')
+    conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC',className='CondAttrListCollection')
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
+    condSequence+=MuonAlignmentCondAlg('MuonAlignmentCondAlg')
+    MuonAlignmentCondAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
+                                           "/MUONALIGN/MDT/ENDCAP/SIDEA",
+                                           "/MUONALIGN/MDT/ENDCAP/SIDEC",
+                                           "/MUONALIGN/TGC/SIDEA",
+                                           "/MUONALIGN/TGC/SIDEC"]
+    MuonAlignmentCondAlg.DumpALines = False
+    MuonAlignmentCondAlg.OutputLevel = DEBUG
 
 #***************************************************** HERE setup MuonDetectorManager
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool

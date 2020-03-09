@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ********************* WARNING **********************
 #
@@ -37,8 +37,6 @@
 #	Combined   <-- new
 #	Unknown    <-- should be temporary until you figure out what to classify it as
 #	Other?...maybe inDet(ID?), Truth
-
-from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 
 #####################
 #####################

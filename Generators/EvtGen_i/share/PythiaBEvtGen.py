@@ -122,13 +122,12 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 include( "GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.py" )
 
 Stream1 = AthenaPoolOutputStream( "Stream1" )
-Stream1.ForceRead=TRUE
 Stream1.OutputFile = "pythiaB.pool.root"
 # 2101 = EventInfo
 # 133273 = MCTruth (HepMC)
 Stream1.ItemList += [ "2101#*", "133273#*" ]
 
-include("AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include("AthenaServices/AthenaSealSvc_joboptions.py" )
 AthenaSealSvc.CheckDictionary = TRUE
 
 #==============================================================

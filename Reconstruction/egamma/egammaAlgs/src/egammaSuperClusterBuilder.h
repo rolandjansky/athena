@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,7 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloCellDetPos.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "egammaInterfaces/IegammaSwTool.h"
@@ -23,6 +24,7 @@
 
 #include <memory>
 
+class CaloDetDescrManager;
 /** Base class for electronSuperClusterBuilder and photonSuperClusterBuilder.
  *  The inheritance should be private. This class should never be instantiated
  *  by itself, and hence has no interface class
@@ -38,12 +40,14 @@ protected:
 
   /** Is clus in window center around ref? */
   bool matchesInWindow(const xAOD::CaloCluster *ref,
-		       const xAOD::CaloCluster *clus) const;
+                       const xAOD::CaloCluster *clus) const;
 
   /** Creates a new supercluster out of the input cluster */
   // not const because it calls CalibrateCluster
-  std::unique_ptr<xAOD::CaloCluster> createNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
-						      xAOD::EgammaParameters::EgammaType egType);
+  std::unique_ptr<xAOD::CaloCluster>
+  createNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
+                   const CaloDetDescrManager& mgr,
+                   xAOD::EgammaParameters::EgammaType egType) const;
 
   // some constants to use
   static constexpr float s_cellEtaSize = 0.025;
@@ -54,6 +58,7 @@ protected:
       "EtThresholdCut", 1.5*Gaudi::Units::GeV,
       "The minimum EM Et required of SEED clusters (not applied to secondaries)"};
 
+
   // these are calculated search window values
   float m_searchWindowEtaBarrel; //!< half of search window size, converted to units of eta
   float m_searchWindowPhiBarrel; //!< half of search window size, converted to units of phi
@@ -62,73 +67,89 @@ protected:
   //
 private:
 
+  struct CentralPosition {
+    float etaB = 999;
+    float phiB = 999;
+    float emaxB = -999*Gaudi::Units::GeV;
+    float etaEC = 999;
+    float phiEC = 999;
+    float emaxEC = -999*Gaudi::Units::GeV;
+  };
+  
   /** Find the reference position (eta, phi) relative to which cells are restricted.
       The return value is whether it succeeded in finding a positive energy max value. 
       (If rv = false, the output variables are passed as arguments are not updated.) 
   */
-  bool findCentralPosition(float& eta, float& phi, bool& isBarrel,
-			   const std::vector<const xAOD::CaloCluster*>& clusters) const;
+  CentralPosition findCentralPosition(const std::vector<const xAOD::CaloCluster*>& clusters) const;
 
-  /** Find the reference position (eta, phi) relative to which cells are restricted.
-      The return value is whether it succeeded in finding a positive energy max value. 
-      (If rv = false, the output variables are passed as arguments are not updated.) 
-  */
-  void findPhiSize(double& phiSizePlus, double& phiSizeMinus, float phi,
-		   const xAOD::CaloCluster* cluster) const;
+  struct PhiSize {
+    float plusB = 0;
+    float minusB = 0;
+    float plusEC = 0;
+    float minusEC = 0;
+  };
+  
+  /** Find the size of the cluster */  
+  PhiSize findPhiSize(const CentralPosition& cp0,
+                      const xAOD::CaloCluster* cluster) const;
 
   
   /** Add the EM cells from reference cluster to self; eta and phi are the ones to use for limiting size. 
-      This excludes L1 (which is done as a separate step) */
+      This excludes L1 (which is done as a separate step). note, use raw eta and phi! */
   StatusCode addEMCellsToCluster(xAOD::CaloCluster* newCluster,
-				 const xAOD::CaloCluster* ref,
-				 double eta, double phi, bool isBarrel) const;
+                                 const xAOD::CaloCluster* ref,
+                                 const CentralPosition& cp0) const;
 
-  /** Add the preshower and L1 EM cells from reference cluster to self */
+  /** Add the preshower and L1 EM cells from reference cluster to self; note, use raw eta and phi! */
   StatusCode addL0L1EMCellsToCluster(xAOD::CaloCluster* newCluster,
 				     const xAOD::CaloCluster* ref,
-				     double eta, double phi, bool isBarrel,
-				     double phiSizePlus, double phiSizeMinus) const;
-  
+				     const CentralPosition& cp0,
+				     const PhiSize& phiSize) const;
+ 
+  /** functions to add all tile Gap 3 cells in a window*/
+  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const;
+
+ 
   /** function to calibrate the new clusters energy */
   StatusCode calibrateCluster(xAOD::CaloCluster* newCluster,
-			      const xAOD::EgammaParameters::EgammaType egType) ;
-  // not const because it calls fillPositionsInCalo
-
+                              const CaloDetDescrManager& mgr,
+                              const xAOD::EgammaParameters::EgammaType egType) const ;
 
   /** function to decorate the calo cluster with position variables */
-  StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster); 
+  StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster,
+                                 const CaloDetDescrManager& mgr) const ;
   // above can't be const because m_caloCellDetPos acceses are not const
 
   /** functions to refine position in eta1*/
-  StatusCode refineEta1Position(xAOD::CaloCluster* cluster) const ;
-  StatusCode makeCorrection1(xAOD::CaloCluster* cluster,    
-			     const CaloSampling::CaloSample sample) const ;
-  
-  /** functions to add all tile Gap 3 cells in a window*/
-  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const;
+  StatusCode refineEta1Position(xAOD::CaloCluster* cluster,
+                                const CaloDetDescrManager& mgr) const;
+  StatusCode makeCorrection1(xAOD::CaloCluster* cluster,
+                             const CaloDetDescrManager& mgr,
+                             const CaloSampling::CaloSample sample) const;
 
   // these are calculated window values for the windows in which cells of topoclusters are edded
   float m_addCellsWindowEtaBarrel; //!< half of addCells window size, converted to units of eta
   float m_addCellsWindowPhiBarrel; //!< half of addCells window size, converted to units of phi
   float m_addCellsWindowEtaEndcap; //!< half of addCells window size, converted to units of eta
   float m_addCellsWindowPhiEndcap; //!< half of addCells window size, converted to units of phi
+  float m_extraL0L1PhiSize; //!< calculated value of cells to add in units of phi
 
-  /** @brief Size of search window in eta for the barrel */
+  /** @brief Size of topocluster search window in eta for the barrel */
   Gaudi::Property<int> m_searchWindowEtaCellsBarrel {this,
-      "SearchWindowEtaCellsBarrel", 3, 
+      "SearchWindowEtaCellsBarrel", 5, 
       "Number of cells in eta of window in which to search for topoclusters"};
 
-  /** @brief Size of search window in phi for the barrel */
+  /** @brief Size of topocluster search window in phi for the barrel */
   Gaudi::Property<int> m_searchWindowPhiCellsBarrel {this,
       "SearchWindowPhiCellsBarrel", 5,
       "Number of cells in phi of window in which to search for topoclusters"};
 
-  /** @brief Size of search window in eta for the end-cap*/
+  /** @brief Size of topocluster search window in eta for the end-cap*/
   Gaudi::Property<int> m_searchWindowEtaCellsEndcap {this,
-      "SearchWindowEtaCellsEndcap", 3, 
+      "SearchWindowEtaCellsEndcap", 5, 
       "Number of cells in eta of window in which to search for topoclusters"};
 
-  /** @brief Size of search window in phi for the end-cap*/
+  /** @brief Size of topocluster search window in phi for the end-cap*/
   Gaudi::Property<int> m_searchWindowPhiCellsEndcap {this,
       "SearchWindowPhiCellsEndcap", 5,
       "Number of cells in phi of window in which to search for topoclusters"};
@@ -140,7 +161,7 @@ private:
 
   /** @brief Size of windows et phi in which cells of topoclusters are edded for the barrel */
   Gaudi::Property<int>   m_addCellsWindowPhiCellsBarrel {this,
-      "AddCellsWindowPhiCellsBarrel", 999 /*7 for SW*/,
+      "AddCellsWindowPhiCellsBarrel", 999 ,
       "Number of cells in phi of window around topocluster center to add cells"};
 
   /** @brief Size of windows et eta in which cells of topoclusters are edded for the endcap */
@@ -150,21 +171,14 @@ private:
 
   /** @brief Size of windows et phi in which cells of topoclusters are edded for the endcap */
   Gaudi::Property<int>   m_addCellsWindowPhiCellsEndcap {this,
-      "AddCellsWindowPhiCellsEndcap", 999 /*5 for SW*/,
+      "AddCellsWindowPhiCellsEndcap", 999,
       "Number of cells in phi of window around topocluster center to add cells"};
 
-  /** @brief Whether to refine the eta1 calculation */
-  Gaudi::Property<bool> m_refineEta1 {this, "RefineEta1", true, 
-      "Whether to Refine Eta1 calculation"};
-   
-  /** @brief Whether to run cluster correction */
-  Gaudi::Property<bool> m_correctClusters {this, "CorrectClusters", true, 
-      "Whether to run cluster corrections"};
-
-  /** @brief Whether to run cluster calibration */
-  Gaudi::Property<bool> m_calibrateClusters {this, "CalibrateClusters", true, 
-      "Whether to run cluster calibrations"};
-
+  /** @brief "When adding L0 (PS) and L1 cells, how much wider than L2 is the acceptance */
+  Gaudi::Property<int> m_extraL0L1PhiSizeCells {this,
+      "ExtraL0L1PhiSize", 1,
+      "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells units) is the acceptance"};
+ 
   /** @brief Handle to the MVA calibration service **/
   ServiceHandle<IegammaMVASvc>  m_MVACalibSvc {this,
       "MVACalibSvc", "egammaMVASvc", "calibration service"};
@@ -176,8 +190,8 @@ private:
 
   /** @brief Pointer to the egammaCheckEnergyDepositTool*/
   ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this,
-      "egammaCheckEnergyDepositTool", "",
-      "Optional tool that performs basic checks of viability of cluster"};
+    "egammaCheckEnergyDepositTool", "",
+    "Optional tool that performs basic checks of viability of cluster"};
 
   /** @brief Position in Calo frame**/  
   CaloCellDetPos m_caloCellDetPos;

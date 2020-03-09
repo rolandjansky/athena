@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,6 +30,5 @@ reconstruction
   - IHadronicCalibrationTool.h    : extends ICellWeightTool for more refined hadronic calibration information
   - ICaloAffectedTool.h  : interface for tool providing affected region info for a given 4 momentum object
   - ICaloCellNormalizedQualityTool.h  : interface for tool computing a normalized pulse shape quality from the raw quality
-  - ICaloLumiBCIDTool.h : interface for tool computing BCID dependent pileup offset corrections
 
 */

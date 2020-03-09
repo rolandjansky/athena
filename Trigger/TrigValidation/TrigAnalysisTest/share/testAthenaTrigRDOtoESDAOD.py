@@ -14,7 +14,6 @@ include("TriggerTest/TrigScanFiles.py")
 ###############################
 
 doTrigger=True
-TriggerModernConfig=True
 rec.doWriteAOD=True
 rec.doWriteESD=True
 rec.doWriteTAG=False
@@ -66,3 +65,8 @@ StreamESD.CheckNumberOfWrites = True
 include("TriggerTest/TriggerTestCommon.py")
 
 preExec='rec.doFloatingPointException=True'
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

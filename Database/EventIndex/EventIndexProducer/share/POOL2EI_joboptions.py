@@ -55,7 +55,6 @@ try:
 except:
     svcMgr.EventSelector.InputCollections  = [ "test.root" ]
 
-
 #--------------------------------------------------------------
 # Output Event Index file name
 #--------------------------------------------------------------
@@ -130,25 +129,24 @@ rec.doWriteAOD=False
 rec.doWriteESD=False
 rec.doWriteTAG=False
 
-
-from RecExConfig.InputFilePeeker import inputFileSummary
+from PyUtils.MetaReaderPeekerFull import metadata, convert_itemList
 from AthenaCommon.GlobalFlags  import globalflags
 globalflags.InputFormat = 'pool'
-globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
+globalflags.DataSource = 'data' if metadata['eventTypes'][0] == "IS_DATA" else 'geant4'
 
 # set projectName from inputFileSummary
 try:
-    # in first place try to get it from tag_info
-    rec.projectName = inputFileSummary['tag_info']['project_name']
+    rec.projectName = metadata['/TagInfo']['project_name']
 except:
-    try: 
+    try:
         # in last place from metadata
-        rec.projectName = inputFileSummary['metadata']['/TagInfo']['project_name']
+        rec.projectName = metadata['/TagInfo']['project_name']
     except:
         pass
 
 # set RUN1 flag
-run_number = inputFileSummary['run_number'][0]
+run_number = metadata['runNumbers'][0]
+
 if run_number < 222222:
     job.pool2ei.RUN1 = True
 else:
@@ -156,17 +154,17 @@ else:
 
 log = logging.getLogger( "Py:pool2ei" )
 # if EVNT, disable trigger processing
-if  job.pool2ei.DoTriggerInfo:
-    if 'StreamEVGEN' in inputFileSummary['stream_names']:
-        log.info ("Disable trigger processing for EVNT files")
+if job.pool2ei.DoTriggerInfo:
+
+    if 'StreamEVGEN' in metadata['processingTags']:
+        log.info("Disable trigger processing for EVNT files")
         job.pool2ei.DoTriggerInfo = False
         job.pool2ei.HaveHlt = False
         job.pool2ei.HaveXHlt = False
 
-# if MC, check that trigger information is available in the metadata
-if inputFileSummary['evt_type'][0] == "IS_SIMULATION":
-    if 'metadata' not in inputFileSummary or '/TRIGGER/HLT/HltConfigKeys' not in inputFileSummary['metadata']:
-        log.info ("Disable trigger processing for MC files with no trigger inside")
+if metadata['eventTypes'][0] == "IS_SIMULATION":
+    if '/TRIGGER/HLT/HltConfigKeys' not in metadata['/TagInfo']:
+        log.info("Disable trigger processing for MC files with no trigger inside")
         job.pool2ei.DoTriggerInfo = False
         job.pool2ei.HaveHlt = False
         job.pool2ei.HaveXHlt = False
@@ -176,12 +174,13 @@ if job.pool2ei.DoTriggerInfo:
     # we should search for 'xAOD::TrigDecision' in eventdata_items but 'zero events' files do not
     # contain eventdata_items, so we look also for 'xAOD::TriggerMenuContainer' in metadata_items
     job.pool2ei.HaveXHlt = False
-    if inputFileSummary.has_key('eventdata_items') and 'xAOD::TrigDecision' \
-            in [ x[0] for x in inputFileSummary['eventdata_items'] ]:
+    eventdata_items = convert_itemList()
+    if eventdata_items and 'xAOD::TrigDecision' in [x[0] for x in eventdata_items]:
         job.pool2ei.HaveXHlt = True
-    if inputFileSummary.has_key('metadata_items') and 'xAOD::TriggerMenuContainer' \
-            in [ x[0] for x in inputFileSummary['metadata_items'] ]:
+    if 'xAOD::TriggerMenuContainer' in metadata['metadata_items']:
         job.pool2ei.HaveXHlt = True
+
+
 
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     trigcfg = TriggerConfigGetter("ReadPool")
@@ -189,7 +188,8 @@ if job.pool2ei.DoTriggerInfo:
     # ensure that /TRIGGER/HLT/PrescaleKey is always loaded
     # it is not loaded by TriggerConfigGetter when trigger metadata is missing
     # but it should have been loaded. We need LB-wise HLT prescale key
-    if trigcfg.hasLBwiseHLTPrescalesAndL1ItemDef is False and inputFileSummary['evt_type'][0] == "IS_DATA":
+
+    if trigcfg.hasLBwiseHLTPrescalesAndL1ItemDef is False and metadata['eventTypes'][0] == "IS_DATA":
         from IOVDbSvc.CondDB import conddb
         conddb.addFolderWithTag("TRIGGER", "/TRIGGER/HLT/PrescaleKey", "HEAD")
         conddb.addFolderWithTag("TRIGGER", "/TRIGGER/HLT/Prescales", "HEAD")

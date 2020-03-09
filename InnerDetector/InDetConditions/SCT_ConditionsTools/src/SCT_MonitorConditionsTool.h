@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_MONITORCONDITIONSTOOL_SCT_MONITORCONDITIONSTOOL_H
@@ -70,40 +70,15 @@ private:
   // ------------------------------------------------------------------------------------
   std::string getList(const Identifier& imodule, const EventContext& ctx) const;
 
-  bool stripIsNoisy(const int strip, const std::string& defectList) const;
-
-  bool chipIsNoisy(int strip, const std::string& defectList) const;
-
-  bool waferIsNoisy(const int strip, const std::string& defectList) const;
-
-  bool moduleIsNoisy(const std::string& defectList) const ;
-
-  bool inRange(const int theNumber, const std::string& stringRange) const;
-
-  bool inList(const int theNumber, const std::string& theList) const;
-
-  int  nBlock(const int theNumber, const std::string& stringRange) const;
-
-  int  nDefect(const int theNumber, const std::string& theList) const;
-
-  int  nBlock(const std::string& stringRange) const;
-
-  int  nDefect(const std::string& theList) const;
-
-  bool inRange(const int x, const int min, const int max) const;
-
   void expandRange(const std::string& rangeStr, std::set<int>& rangeList) const;
   
   void expandList(const std::string& defectStr, std::set<int>& defectList) const;
 
-  // small helper function
-  unsigned int computeIstrip4moncond(const Identifier& elementId) const;
-
   static const std::string s_separator;
 
-  IntegerProperty              m_nhits_noisychip{this, "Nnoisychip", 64};
-  IntegerProperty              m_nhits_noisywafer{this, "Nnoisywafer", 384};
-  IntegerProperty              m_nhits_noisymodule{this, "Nnoisycmodule", 768};
+  UnsignedIntegerProperty      m_nhits_noisychip{this, "Nnoisychip", 64};
+  UnsignedIntegerProperty      m_nhits_noisywafer{this, "Nnoisywafer", 384};
+  UnsignedIntegerProperty      m_nhits_noisymodule{this, "Nnoisycmodule", 768};
   const SCT_ID*                m_pHelper{nullptr};
 
   SG::ReadCondHandleKey<SCT_MonitorCondData> m_condKey{this, "CondKey", "SCT_MonitorCondData", "SCT noisy strips"};

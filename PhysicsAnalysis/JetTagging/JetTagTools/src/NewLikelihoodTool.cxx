@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/NewLikelihoodTool.h"
@@ -25,8 +25,6 @@ namespace Analysis {
     m_interpolate(false),
     m_smoothNTimes(1),
     m_vetoSmoothingOf(std::vector<std::string>()),
-    m_lhVariableValues(std::vector<Slice> ()),
-    m_likelihoodVector(std::vector<double>()),
     m_histograms(std::vector<std::string>()) {
    
     declareInterface<NewLikelihoodTool>(this);
@@ -57,16 +55,6 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
 
-  void NewLikelihoodTool::setLhVariableValue(std::vector<Slice>& value) {
-    m_lhVariableValues=value;
-  }
-
-  void NewLikelihoodTool::setLhVariableValue(Slice& value) {
-    std::vector<Slice> tmpVector;
-    tmpVector.push_back(value);
-    setLhVariableValue(tmpVector);
-  }
-
   void NewLikelihoodTool::defineHypotheses(const std::vector<std::string>& hyp) {
     m_hypotheses = hyp;
   }
@@ -79,12 +67,7 @@ namespace Analysis {
     for(unsigned int ih=0;ih<m_histograms.size();ih++) msg(MSG::INFO) << m_histograms[ih] << endmsg;
   }
 
-  void NewLikelihoodTool::clear() {
-    m_lhVariableValues.clear();
-    m_likelihoodVector.clear();
-  }
-
-  std::vector<std::string> NewLikelihoodTool::gradeList(const std::string& histoName) {
+  std::vector<std::string> NewLikelihoodTool::gradeList(const std::string& histoName) const {
     ATH_MSG_VERBOSE("#BTAG# gradeList() called for " << histoName);
     const std::string delimSlash("/");
     // first count slashes:
@@ -123,7 +106,7 @@ namespace Analysis {
     return gradeList;
   }
 
-  TH1* NewLikelihoodTool::prepareHistogram(const std::string& hypo, const std::string& hname) {
+  TH1* NewLikelihoodTool::prepareHistogram(const std::string& hypo, const std::string& hname) const {
     TH1* histoSum = nullptr;
 
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
@@ -180,7 +163,7 @@ namespace Analysis {
     return histoSum;
   }
 
-  void NewLikelihoodTool::smoothAndNormalizeHistogram(TH1* h, const std::string& hname = "") {
+  void NewLikelihoodTool::smoothAndNormalizeHistogram(TH1* h, const std::string& hname = "") const {
     if(h) {
       double norm = h->Integral();
       if(norm) {
@@ -244,37 +227,37 @@ namespace Analysis {
     }
   }
 
-  std::vector<double> NewLikelihoodTool::calculateLikelihood() {
-    m_likelihoodVector.clear();
+  std::vector<double> NewLikelihoodTool::calculateLikelihood(const std::vector<Slice>& lhVariableValues) const
+  {
     ATH_MSG_VERBOSE("#BTAG# calculate called for " << m_hypotheses.size() << " hypotheses.");
     std::vector<double> probDensityPerEventClassAllVariables;
     probDensityPerEventClassAllVariables.resize(m_hypotheses.size());
     for (unsigned int i = 0 ; i < m_hypotheses.size(); ++i) {
       probDensityPerEventClassAllVariables[i]=1.;
     }
-    ATH_MSG_VERBOSE("#BTAG# -- lhVarVal size= " << m_lhVariableValues.size());
+    ATH_MSG_VERBOSE("#BTAG# -- lhVarVal size= " << lhVariableValues.size());
     // loop on Tracks in the Jet (IP) / Vertices in the Jet (SV)
-    for (unsigned int iel = 0; iel<m_lhVariableValues.size(); iel++) {
+    for (unsigned int iel = 0; iel<lhVariableValues.size(); iel++) {
       ATH_MSG_VERBOSE( "#BTAG# -- element " << iel << " " 
-               << m_lhVariableValues[iel].name );
-      int ncompo = m_lhVariableValues[iel].composites.size();
+               << lhVariableValues[iel].name );
+      int ncompo = lhVariableValues[iel].composites.size();
       ATH_MSG_VERBOSE( "#BTAG# -- element " << iel << " " 
-               << m_lhVariableValues[iel].name
+               << lhVariableValues[iel].name
                << " has " << ncompo << " composites." );
       // loop on variables that make up the Tag, e.g. 
       // one 1D for IP2D, one 2D for IP3D, one 1D and one 2D for SV1, one 3D for SV2
       for (int icompo = 0;icompo<ncompo;icompo++) {
         double sum(0.);
         std::vector<double> tmpVector; 
-        std::string histName = m_lhVariableValues[iel].composites[icompo].name;
-        int idim = m_lhVariableValues[iel].composites[icompo].atoms.size();
+        std::string histName = lhVariableValues[iel].composites[icompo].name;
+        int idim = lhVariableValues[iel].composites[icompo].atoms.size();
         ATH_MSG_VERBOSE( "#BTAG#   -- composite " << icompo << " histo= "
              << histName << " dim= " << idim );
         for (unsigned int ihyp = 0 ; ihyp < m_hypotheses.size(); ++ihyp) {
           TH1* tmpHisto = this->prepareHistogram(m_hypotheses[ihyp],histName);
           if(tmpHisto) {
             if(1==idim) {
-              double valuex = m_lhVariableValues[iel].composites[icompo].atoms[0].value;
+              double valuex = lhVariableValues[iel].composites[icompo].atoms[0].value;
               int binx = (tmpHisto->GetXaxis())->FindBin(valuex);
               if(valuex >= tmpHisto->GetXaxis()->GetXmax()) binx = tmpHisto->GetXaxis()->GetNbins();
               if(valuex <= tmpHisto->GetXaxis()->GetXmin()) binx = 1;
@@ -305,8 +288,8 @@ namespace Analysis {
               sum += tmp;
             }
             if(2==idim) {
-              double valuex = m_lhVariableValues[iel].composites[icompo].atoms[0].value;
-              double valuey = m_lhVariableValues[iel].composites[icompo].atoms[1].value;
+              double valuex = lhVariableValues[iel].composites[icompo].atoms[0].value;
+              double valuey = lhVariableValues[iel].composites[icompo].atoms[1].value;
               int binx = (tmpHisto->GetXaxis())->FindBin(valuex);
               int biny = (tmpHisto->GetYaxis())->FindBin(valuey);
               if(valuex >= tmpHisto->GetXaxis()->GetXmax()) binx = tmpHisto->GetXaxis()->GetNbins();
@@ -341,9 +324,9 @@ namespace Analysis {
               sum += tmp;
             }
             if(3==idim) {
-              double valuex = m_lhVariableValues[iel].composites[icompo].atoms[0].value;
-              double valuey = m_lhVariableValues[iel].composites[icompo].atoms[1].value;
-              double valuez = m_lhVariableValues[iel].composites[icompo].atoms[2].value;
+              double valuex = lhVariableValues[iel].composites[icompo].atoms[0].value;
+              double valuey = lhVariableValues[iel].composites[icompo].atoms[1].value;
+              double valuez = lhVariableValues[iel].composites[icompo].atoms[2].value;
               int binx = (tmpHisto->GetXaxis())->FindBin(valuex);
               int biny = (tmpHisto->GetYaxis())->FindBin(valuey);
               int binz = (tmpHisto->GetZaxis())->FindBin(valuez);
@@ -413,15 +396,10 @@ namespace Analysis {
       }
     }
     if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "#BTAG#  Ending ..." << endmsg;
-    m_likelihoodVector=probDensityPerEventClassAllVariables;
-    return m_likelihoodVector;
+    return probDensityPerEventClassAllVariables;
   }
 
-  std::vector<double> NewLikelihoodTool::tagLikelihood() {
-    return m_likelihoodVector;
-  }
-
-  double NewLikelihoodTool::getEff(const std::string& hypo, const std::string& hname, const std::string& suffix) {
+  double NewLikelihoodTool::getEff(const std::string& hypo, const std::string& hname, const std::string& suffix) const {
     double eff(0.);
     TH1* numH = this->prepareHistogram(hypo, hname+"Eff"+suffix);
     TH1* denH = this->prepareHistogram(hypo, hname+"Norm"+suffix);

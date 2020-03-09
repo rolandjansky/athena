@@ -25,7 +25,6 @@ atlas_depends_on_subdirs(
    Reconstruction/egamma/egammaMVACalib
    PRIVATE
    Reconstruction/MVAUtils
-   Control/CxxUtils
    Tools/PathResolver
    ${extra_dep} )
 
@@ -39,7 +38,7 @@ atlas_add_library( egammaMVACalibAnalysisLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
    xAODTracking egammaMVACalibLib
-   PRIVATE_LINK_LIBRARIES CxxUtils PathResolver MVAUtils )
+   PRIVATE_LINK_LIBRARIES PathResolver MVAUtils )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( egammaMVACalibAnalysis
@@ -68,7 +67,7 @@ endif()
 # Not working now because egammaMVACalibDict was removed.
 #atlas_add_test( mem_test SCRIPT test/mem_test.py
 #                PROPERTIES TIMEOUT 300
-#                EXTRA_PATTERNS " GB$" )
+#                LOG_IGNORE_PATTERN " GB$" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

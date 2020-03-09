@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ namespace iFatras {
     Trk::RIO_OnTrack(locpos, locerr, RIO->identify()), //call base class constructor
     m_idDE(idDE),
     m_detEl( RIO->detectorElement() ),
-    m_globalPosition(0)
+    m_globalPosition()
   {
     m_rio.setElement(RIO);
   }
@@ -38,15 +38,14 @@ namespace iFatras {
 					     const Amg::Vector3D& globalPosition) :
     Trk::RIO_OnTrack(locpos, locerr, RIO->identify()), //call base class constructor
     m_idDE(idDE),
-    m_detEl( RIO->detectorElement() ),
-    m_globalPosition( new Amg::Vector3D(globalPosition) )
+    m_detEl( RIO->detectorElement() )
   {
+    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(globalPosition));
     m_rio.setElement(RIO);
   }
   
   // Destructor:
-  PlanarClusterOnTrack::~PlanarClusterOnTrack() {
-    delete m_globalPosition; }
+  PlanarClusterOnTrack::~PlanarClusterOnTrack() {}
 
   // Default constructor:
   PlanarClusterOnTrack::PlanarClusterOnTrack() :
@@ -63,18 +62,20 @@ namespace iFatras {
     m_rio(rot.m_rio),
     m_idDE(rot.m_idDE),
     m_detEl(rot.m_detEl),
-    m_globalPosition(rot.m_globalPosition ? new  Amg::Vector3D(*rot.m_globalPosition) : 0)
-  {}
+    m_globalPosition()
+  {
+    if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<Amg::Vector3D>(*rot.m_globalPosition));
+  }
 
   // assignment operator:
   PlanarClusterOnTrack& PlanarClusterOnTrack::operator=( const PlanarClusterOnTrack& rot) {
     if ( &rot != this) {
-      delete m_globalPosition;
       Trk::RIO_OnTrack::operator=(rot);
       m_rio            = rot.m_rio;
       m_idDE           = rot.m_idDE;
       m_detEl          = rot.m_detEl;
-      m_globalPosition = rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0;
+      if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
+      else if (m_globalPosition) m_globalPosition.release().reset();
     }
     return *this;
   }

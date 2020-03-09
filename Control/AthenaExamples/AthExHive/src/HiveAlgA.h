@@ -2,6 +2,12 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+/**
+ * @file  HiveAlgA.h
+ * @brief Simple Algorithm that reads the EventInfo obj, and writes
+ * two HiveDataObjs to the store
+ */
+
 #ifndef ATHEXHIVE_ALGA_H
 #define ATHEXHIVE_ALGA_H 1
 
@@ -35,8 +41,6 @@ private:
 
   SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "a1", "WHK 1"};
   SG::WriteHandleKey<HiveDataObj> m_wrh2 {this, "Key_W2", "a2", "WHK 2"};
-
-  std::atomic<int> m_i;
   
 };
 #endif

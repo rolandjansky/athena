@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
+                          Tracking/TrkEvent/TrkEventUtils
                           PRIVATE
                           Tracking/TrkEvent/TrkTrack
                           Trigger/TrigEvent/TrigParticle )
@@ -19,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrigTrackPRD_Association
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel TrkToolInterfaces TrigInterfacesLib TrigTimeAlgsLib TrkTrack TrigParticle )
+                     LINK_LIBRARIES GaudiKernel TrkToolInterfaces TrigInterfacesLib TrigTimeAlgsLib TrkTrack TrigParticle TrkEventUtils)
 
 # Install files from the package:
 atlas_install_headers( InDetTrigTrackPRD_Association )

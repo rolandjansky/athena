@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -29,16 +29,17 @@
 class MsgStream;
 
 template <>
-class TrigEMClusterConverterBase<TrigEMCluster_p1> : public T_AthenaPoolTPCnvBase<TrigEMCluster, TrigEMCluster_p1>  {
+class TrigEMClusterConverterBase<TrigEMCluster_p1> : public T_AthenaPoolTPCnvConstBase<TrigEMCluster, TrigEMCluster_p1>  {
  public:
-    TrigEMClusterConverterBase() : m_trigCaloClusterCnv(0) {}
+  using base_class::transToPers;
+  using base_class::persToTrans;
 
-    void persToTrans(const TrigEMCluster_p1* persObj,  TrigEMCluster* transObj,   MsgStream& log);
-    void transToPers(const TrigEMCluster* transObj, TrigEMCluster_p1* persObj, MsgStream& log);
+    TrigEMClusterConverterBase() {}
 
- protected:
-
-    ITPConverterFor<TrigCaloCluster>*   m_trigCaloClusterCnv;
+    virtual
+    void persToTrans(const TrigEMCluster_p1* persObj,  TrigEMCluster* transObj,   MsgStream& log) const override;
+    virtual
+    void transToPers(const TrigEMCluster* transObj, TrigEMCluster_p1* persObj, MsgStream& log) const override;
 };
 
 typedef TrigEMClusterConverterBase<TrigEMCluster_p1> TrigEMClusterCnv_p1;

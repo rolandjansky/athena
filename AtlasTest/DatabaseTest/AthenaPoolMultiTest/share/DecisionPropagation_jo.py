@@ -51,7 +51,6 @@ StreamAll.CheckNumberOfWrites = False
 StreamAll.WritingTool.AttributeListKey="SimpleTag"
 StreamAll.WritingTool.SaveDecisions = False
 StreamAll.TakeItemsFromInput = True
-StreamAll.ForceRead=TRUE
 
 #EventInfoTagBuilder.FilterString = "Stream"
 #EventInfoTagBuilder.PropagateInput=True

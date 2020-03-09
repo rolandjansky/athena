@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// File: McParticleEventTPCnv/McParticleEventTPCnvDict.h
@@ -12,10 +12,6 @@
 #ifndef MCPARTICLEEVENTTPCNV_MCPARTICLEEVENTTPCNVDICT_H
 #define MCPARTICLEEVENTTPCNV_MCPARTICLEEVENTTPCNVDICT_H
 
-#include "McParticleEventTPCnv/TruthParticleContainer_p1.h"
-#include "McParticleEventTPCnv/TruthParticleContainer_p2.h"
-#include "McParticleEventTPCnv/TruthParticleContainer_p3.h"
-#include "McParticleEventTPCnv/TruthParticleContainer_p4.h"
 #include "McParticleEventTPCnv/TruthParticleContainer_p5.h"
 #include "McParticleEventTPCnv/TruthParticleContainer_p6.h"
 

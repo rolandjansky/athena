@@ -6,23 +6,20 @@
 
 #ifndef JETMONITORING_JETSELECTORATTRIBUTE_H
 #define JETMONITORING_JETSELECTORATTRIBUTE_H
+#include "AsgTools/AsgTool.h"
 
 #include "JetInterface/IJetSelector.h"
+#include "JetMonitoring/JetHistoVarTool.h"
 
-#include "AsgTools/AsgTool.h"
+
+namespace JetVar {
+  class Variable;
+}
 
 class JetSelectorAttribute : public asg::AsgTool , virtual public IJetSelector
  { 
    ASG_TOOL_CLASS(JetSelectorAttribute,IJetSelector)
    public:
-
-   /// \class SelValueRetriever
-   /// SelValueRetriever retrieves the value on which this tool select jets.
-   /// concrete classes are used internally to retrieve the attribute according to its type. 
-   struct SelValueRetriever {
-     virtual float value(const xAOD::Jet& j) = 0;
-     virtual ~SelValueRetriever(){};
-   };
    
    JetSelectorAttribute(const std::string &t);
    virtual ~JetSelectorAttribute();
@@ -36,12 +33,8 @@ class JetSelectorAttribute : public asg::AsgTool , virtual public IJetSelector
    float m_min;
    float m_max;
 
-   std::string m_attName;
-   std::string m_attType;
-   
-   int m_vectorAttIndex; /// if the attribute is a vector we'll use the value at this index. else it is ignored.
-   SelValueRetriever *m_vretriever;
-   
+   ToolHandle<IJetHistoVarTool> m_var;
+
 };
 
 

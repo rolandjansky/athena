@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -18,7 +18,6 @@ TileClusterFilterAlg::TileClusterFilterAlg( const std::string& name, ISvcLocator
   declareProperty("TrackContainer", m_trackContainerName="SelectedTracks");
   declareProperty("TrackTools", m_trackInCalo);
   declareProperty("DeltaR", m_deltaR=0.2);
-  m_storeGate = 0;
 } 
 
 StatusCode TileClusterFilterAlg::initialize(){
@@ -26,7 +25,6 @@ StatusCode TileClusterFilterAlg::initialize(){
   ATH_MSG_INFO("TileClusterFilterAlg::initialize() ");
   
   CHECK(m_trackInCalo.retrieve());
-  CHECK(service("StoreGateSvc",m_storeGate));
   
   return StatusCode::SUCCESS;
 } 
@@ -44,7 +42,7 @@ StatusCode TileClusterFilterAlg::execute(){
 
   //Get the input tracks
   const TRACKCONTAINER* inputTracks = 0;
-  CHECK( m_storeGate->retrieve( inputTracks, m_trackContainerName ) );
+  CHECK( evtStore()->retrieve( inputTracks, m_trackContainerName ) );
 
   xAOD::CaloClusterContainer::const_iterator clusterItr = inputClusters->begin();
   xAOD::CaloClusterContainer::const_iterator clusterEnd = inputClusters->end();

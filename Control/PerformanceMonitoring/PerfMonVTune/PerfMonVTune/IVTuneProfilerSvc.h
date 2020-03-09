@@ -15,8 +15,8 @@ class IVTuneProfilerSvc : public virtual IService {
     /// Interface ID definition
     static const InterfaceID& interfaceID() { return IID_IVTuneProfilerService; }
 
-   /// Resume profiling
-   virtual StatusCode resumeProfiling() = 0; 
+    /// Resume profiling
+    virtual StatusCode resumeProfiling() = 0;
 
     /// Pause profiling
     virtual StatusCode pauseProfiling() = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/BeamHaloParticle.h"
@@ -70,7 +70,7 @@ int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *particleDataTable,
   }
   
   // Read mass from pdg table
-  const HepPDT::ParticleData* particleData = particleDataTable->particle(HepPDT::ParticleID(abs(m_pdgId)));
+  const HepPDT::ParticleData* particleData = particleDataTable->particle(HepPDT::ParticleID(std::abs(m_pdgId)));
   mass = 0;
   if(particleData) {
     mass = particleData->mass().value();
@@ -134,7 +134,7 @@ int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *particleDataTable,
   }
 
   // Read mass from pdg table
-  const HepPDT::ParticleData* particleData = particleDataTable->particle(HepPDT::ParticleID(abs(m_pdgId)));
+  const HepPDT::ParticleData* particleData = particleDataTable->particle(HepPDT::ParticleID(std::abs(m_pdgId)));
   mass = 0;
   if(particleData) {
     mass = particleData->mass().value();

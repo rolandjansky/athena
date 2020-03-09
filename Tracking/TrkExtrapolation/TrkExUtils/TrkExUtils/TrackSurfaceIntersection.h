@@ -12,7 +12,7 @@
 //Trk
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <memory>
-
+#include <atomic>
 class MsgStream;
 
 namespace Trk {
@@ -71,7 +71,8 @@ namespace Trk {
           const IIntersectionCache* cache() const;
 
       private:
-	  static unsigned long long	s_serialNumber;
+	  static std::atomic<unsigned long long>	s_serialNumber;
+
 	  unsigned long long		m_serialNumber;
 	  Amg::Vector3D			m_position;
 	  Amg::Vector3D			m_direction;

@@ -150,7 +150,7 @@ InDetFlags.doCaloSeededBrem.set_Value_and_Lock                     (False)
 # --- enable forward tracks
 InDetFlags.doForwardTracks.set_Value_and_Lock                      (False)
 # --- enable 
-InDetFlags.doTrackSegmentsPixelPrdAssociation.set_Value_and_Lock   (False)
+InDetFlags.doTrackSegmentsDisappearing.set_Value_and_Lock   (False)
 # --- enable low mu run setup
 InDetFlags.doLowMuRunSetup.set_Value_and_Lock                      (False)
 InDetFlags.doTRTSeededTrackFinder.set_Value_and_Lock               (False)

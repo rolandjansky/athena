@@ -32,7 +32,7 @@ class CscDigitToCscRDO : public AthAlgorithm {
   StatusCode finalize();
 
  private:
-   ToolHandle<IMuonDigitizationTool> m_digTool;
+   ToolHandle<IMuonDigitizationTool> m_digTool{this};
 };
 
 #endif

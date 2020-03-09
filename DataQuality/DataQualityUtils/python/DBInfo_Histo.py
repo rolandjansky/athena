@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 # +---------------------------------------------+
 # | Vassilis D. Kazazakis - DBInfo.py v1.0	|
@@ -30,9 +30,8 @@ def getFolderH():
     return "/GLOBAL/DETSTATUS/DQMFOFLH"
 
 def getDbName():
-#	return "OFLP200"
+    #	return "OFLP200"
     return "CONDBR2"
-#	return "STRMP200"
 
 def getSchema():
     #return "ATLAS_COOLOFL_GLOBAL"
@@ -78,7 +77,7 @@ def getChannelDict():
 ##     channelDict["IDPF"] = 160
 ##     channelDict["IDVX"] = 161
 ##     channelDict["IDBCM"] = 170
-	
+
 ##     # LAr 
 ##     channelDict["EMBA"] = 202
 ##     channelDict["EMBC"] = 203
@@ -184,14 +183,14 @@ def getChannelDict():
 ##     channelDict["TAUB"] = 551
 ##     channelDict["TAUCR"] = 552
 ##     channelDict["TAUE"] = 553
-	
+
     #########################################
     
     return channelDict
     
 def getChannelDictH():
     # This is all deprecated of course
-    print 'Why are you calling this function? This is very very deprecated ... - ponyisi, 17/6/10'
+    print('Why are you calling this function? This is very very deprecated ... - ponyisi, 17/6/10')
     channelDict = dict([])
 
 

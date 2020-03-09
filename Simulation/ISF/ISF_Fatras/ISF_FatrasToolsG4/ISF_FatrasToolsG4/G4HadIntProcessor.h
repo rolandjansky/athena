@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -125,15 +125,9 @@ namespace iFatras {
 
       // internal steering : clone type
       double                               m_minMomentum;
-      mutable bool                         m_cloneParameters;
-
-      /** describe deflection parametric/do real deflection */
-      bool                                  m_parametricScattering;
 
       //!< Geant4 engine
       mutable G4RunManager*                m_g4runManager;
-      G4VUserPhysicsList*                  m_g4physicsList;
-      G4LayerDetectorConstruction*         m_g4detector;
 
       //!< Geant4 processes <PDGcode, process>  TODO : fission, capture
       mutable std::map<int, G4VProcess*>   m_g4HadrInelasticProcesses;
@@ -150,9 +144,6 @@ namespace iFatras {
       ServiceHandle<ISF::IParticleBroker>  m_particleBroker;
       ServiceHandle<ISF::ITruthSvc>        m_truthRecordSvc;
 
-      /** MCTruth process code for TruthIncidents created by this tool */
-      Barcode::PhysicsProcessCode          m_processCode;
-
       /** Random engine  */
       CLHEP::HepRandomEngine*              m_randomEngine;
       std::string                          m_randomEngineName;       //!< Name of the random number stream
@@ -167,50 +158,17 @@ namespace iFatras {
       std::string                   m_validationTreeDescription; //!< validation tree description - second argument in TTree
       std::string                   m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out
 
-      TTree*                        m_validationTree;            //!< Root Validation Tree
 
-      // ----------- ntuple branches
-      mutable int                  m_layerIndex;                //!< ntuple variable : layer index of material effects update
-      mutable float                m_tInX0;                     //!< nutple variable : t/X0
-      mutable float                m_thetaMSproj;               //!< ntuple variable : projected ms
-      mutable float                m_thetaMSphi;                //!< ntuple variable : ms in phi
-      mutable float                m_thetaMStheta;              //!< ntuple variable : ms in theta
-      mutable float                m_deltaP;                    //!< nutple variable : energy loss
-      mutable float                m_deltaPsigma;               //!< ntuple variable : stragling on energy loss
-
-
-      bool                          m_bremValidation;
       std::string                   m_bremValidationTreeName;        //!< validation tree name - to be acessed by this from root
       std::string                   m_bremValidationTreeDescription; //!< validation tree description - second argument in TTree
       std::string                   m_bremValidationTreeFolder;      //!< stream/folder to for the TTree to be written out
 
-      TTree*                        m_bremValidationTree;            //!< Root Validation Tree
-
-      // ------ ntuple branches
-      mutable float                 m_bremPointX;               //!< ntuple variable : brem point x coordinate
-      mutable float                 m_bremPointY;               //!< ntuple variable : brem point y coordinate
-      mutable float                 m_bremPointR;               //!< ntuple variable : brem point r distance
-      mutable float                 m_bremPointZ;               //!< ntuple variable : brem point z coordinate
-      mutable float                 m_bremMotherEnergy;         //!< ntuple variable : brem mother energy
-      mutable float                 m_bremPhotonEnergy;         //!< ntuple variable : brem photon energy
-      mutable float                 m_bremPhotonAngle;          //!< ntuple variable : brem photon angle
 
       // --------------------------------------------------------------------------------
 
-      bool                          m_edValidation;
       std::string                   m_edValidationTreeName;        //!< validation tree name - to be acessed by this from root
       std::string                   m_edValidationTreeDescription; //!< validation tree description - second argument in TTree
       std::string                   m_edValidationTreeFolder;      //!< stream/folder to for the TTree to be written out
-
-      TTree*                        m_edValidationTree;           //!< Root Validation Tree
-
-      // ------ ntuple branches
-      mutable float                 m_edLayerIntersectX;          //!< ntuple variable : energy deposit x coordinate
-      mutable float                 m_edLayerIntersectY;          //!< ntuple variable : energy deposit y coordinate
-      mutable float                 m_edLayerIntersectZ;          //!< ntuple variable : energy deposit z coordinate
-      mutable float                 m_edLayerIntersectR;          //!< ntuple variable : energy deposit r coordinate
-      mutable float                 m_edLayerEnergyDeposit;       //!< ntuple variable : energy despoit - value
-      mutable float                 m_edLayerSample;              //!< ntuple variable : layer sample
   };
 
 }

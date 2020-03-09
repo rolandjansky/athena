@@ -59,8 +59,11 @@ conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 #--------------------------------------------------------------
 
 # Add in DoubleEventSelector
-svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "LArRDO.root" ]
-svcMgr.DoubleEventSelector.SecondaryaryInputCollections = [ "InDetRDO.root" ]
+svcMgr.DoubleEventSelector.InputCollections = [ "LArRDO.root" ]
+svcMgr.SecondaryEventSelector.InputCollections = [ "InDetRDO.root" ]
+
+svcMgr.DoubleEventSelector.OutputLevel = DEBUG
+svcMgr.SecondaryEventSelector.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -96,17 +99,20 @@ Stream1.ItemList   += ["SCT_RDO_Container#*"]
 Stream1.ItemList   += ["TRT_RDO_Container#*"]
 Stream1.ItemList   += ["PixelRDOElemLinkVec#*"]
 
-print Stream1.ItemList
+printfunc (Stream1.ItemList)
 
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
+AthenaEventLoopMgr.UseSecondaryEventNumber = True
+svcMgr += AthenaEventLoopMgr
 
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )

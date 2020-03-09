@@ -8,8 +8,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class MdtIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,8 @@ class ReadMdtDigit: public AthAlgorithm {
   //Ntuple ID
   std::string     m_NtupleLocID;
 
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   // Define variables in the Ntuple:
 

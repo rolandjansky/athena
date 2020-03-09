@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //  TopoCoreSimResult.h
@@ -8,8 +8,8 @@
 //  Created by Joerg Stelzer on 11/29/12.
 //
 
-#ifndef __L1TopoCoreSimulation__TopoCoreSimResult__
-#define __L1TopoCoreSimulation__TopoCoreSimResult__
+#ifndef L1TOPOCORESIMULATION_TOPOCORESIMRESULT_H
+#define L1TOPOCORESIMULATION_TOPOCORESIMRESULT_H
 
 #include <iostream>
 #include "L1TopoCoreSimulation/StatusCode.h"
@@ -45,9 +45,6 @@ namespace TCS {
 
       GlobalDecision m_globalDecision;
 
-      // flags if the decision field is up to date
-      bool m_valid;
-
       // map to all decision algorithms for configuration and decision
       std::vector<TCS::Connector*> m_connectors;
 
@@ -56,4 +53,4 @@ namespace TCS {
 } // end of namespace TCS
 
 
-#endif /* defined(__L1TopoCoreSimulation__TopoCoreSimResult__) */
+#endif /* defined(L1TOPOCORESIMULATION_TOPOCORESIMRESULT_H) */

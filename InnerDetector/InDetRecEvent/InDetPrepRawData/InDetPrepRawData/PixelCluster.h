@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,10 +49,10 @@ namespace InDet{
 
     /** Public, Copy, operator=, constructor*/
     PixelCluster();
-    PixelCluster(const PixelCluster &);
-    PixelCluster(PixelCluster &&);
-    PixelCluster & operator=(const PixelCluster & rhs);
-    PixelCluster & operator=(PixelCluster && rhs);
+    PixelCluster(const PixelCluster &) = default;
+    PixelCluster(PixelCluster &&) = default;
+    PixelCluster & operator=(const PixelCluster & rhs) = default;
+    PixelCluster & operator=(PixelCluster && rhs) = default;
     
 
     // legacy constructor with no ToT not LVL1 information
@@ -155,6 +155,8 @@ namespace InDet{
     void setTooBigToBeSplit(bool a);
     bool tooBigToBeSplit() const;
 
+    void setToTList (std::vector<int>&& totList);
+
 
   private:
     float m_omegax;
@@ -166,7 +168,7 @@ namespace InDet{
     bool  m_fake;
     bool  m_ambiguous;
     int   m_lvl1;
-    int   m_splitInfo;
+    unsigned int m_splitInfo;
     bool  m_tooBigToBeSplit;    
   };
 

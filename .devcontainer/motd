@@ -1,0 +1,12 @@
+                _ _____ _      _   ___ 
+               /_\_   _| |    /_\ / __|
+              / _ \| | | |__ / _ \\__ \
+             /_/ \_\_| |____/_/ \_\___/
+
+This is the ATLAS VS Code development image. To set up
+your build, set up your build environment as usual (using
+setupATLAS and asetup), and then set up your build like:
+
+cmake -DATLAS_PACKAGE_FILTER_FILE=some_filter_file.txt \
+   /workspace/athena/Projects/WorkDir/
+

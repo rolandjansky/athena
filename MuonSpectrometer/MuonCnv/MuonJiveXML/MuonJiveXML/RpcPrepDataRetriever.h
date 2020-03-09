@@ -11,7 +11,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class RpcIdHelper;
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 namespace JiveXML {
   
@@ -39,8 +41,10 @@ namespace JiveXML {
     ///The storegate key for the CSC collection
     std::string m_sgKey;
 
-    /// RPC identifier helper
-    const RpcIdHelper* m_rpcIdHelper;
+    /// Tool for RPC identifier helper
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
   };
   
 }

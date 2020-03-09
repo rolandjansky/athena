@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -20,7 +20,7 @@ namespace Simulation
 {
 
   BeamEffectsAlg::BeamEffectsAlg( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthAlgorithm( name, pSvcLocator ),
+    : AthReentrantAlgorithm( name, pSvcLocator ),
       m_inputMcEventCollection("GEN_EVENT"),
       m_outputMcEventCollection("BeamTruthEvent"),
       m_genEventManipulators(this), //private ToolHandleArray
@@ -38,11 +38,6 @@ namespace Simulation
                     "the initial switch to this code");
   }
 
-  /** Destructor */
-  BeamEffectsAlg::~BeamEffectsAlg()
-  {
-  }
-
   /** Athena algorithm's interface method initialize() */
   StatusCode BeamEffectsAlg::initialize()
   {
@@ -57,11 +52,11 @@ namespace Simulation
     return StatusCode::SUCCESS;
   }
 
-  StatusCode BeamEffectsAlg::execute()
+  StatusCode BeamEffectsAlg::execute(const EventContext& ctx) const
   {
     // Construct handles from the keys.
-    SG::ReadHandle<McEventCollection> h_inputMcEventCollection (m_inputMcEventCollection);
-    SG::WriteHandle<McEventCollection> h_outputMcEventCollection (m_outputMcEventCollection);
+    SG::ReadHandle<McEventCollection> h_inputMcEventCollection (m_inputMcEventCollection, ctx);
+    SG::WriteHandle<McEventCollection> h_outputMcEventCollection (m_outputMcEventCollection, ctx);
     if(!h_inputMcEventCollection.isValid()) {
       ATH_MSG_FATAL("No input McEventCollection called " << h_inputMcEventCollection.name() << " in StoreGate.");
       return StatusCode::FAILURE;
@@ -80,12 +75,6 @@ namespace Simulation
       }
     }
 
-    return StatusCode::SUCCESS;
-  }
-
-  /** Athena algorithm's interface method finalize() */
-  StatusCode BeamEffectsAlg::finalize()
-  {
     return StatusCode::SUCCESS;
   }
 

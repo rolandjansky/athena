@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGTOOLS_DL1TAG_C
@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <istream>
+#include <atomic>
 
 namespace xAOD {
   class Vertex_v1;
@@ -32,7 +33,7 @@ namespace lwt {
 
 namespace Analysis {
 
-  class DL1Tag : public AthAlgTool, public IMultivariateJetTagger
+  class DL1Tag : public extends<AthAlgTool, IMultivariateJetTagger>
   {
   public:
     DL1Tag(const std::string& name,
@@ -40,25 +41,29 @@ namespace Analysis {
 	   const IInterface*);
 
     virtual ~DL1Tag();
-    StatusCode initialize();
-    StatusCode finalize();
-    void finalizeHistos() {};
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-    void assignProbability(xAOD::BTagging* BTag, const std::map<std::string,double>& inputs, const std::string& jetauthor);
+    virtual
+    void assignProbability(xAOD::BTagging* BTag,
+                           const std::map<std::string,double>& inputs,
+                           const std::string& jetauthor) const override;
 
   private:
     typedef std::map<std::string, double> var_map;
-    typedef std::map<std::string, std::map<std::string, double> > map_var_map;
-    typedef std::map<std::string, std::string> str_map;
-    typedef std::map<std::string, std::vector<lwt::Input> > map_var;
-    typedef std::map<std::string, std::unique_ptr<lwt::LightweightNeuralNetwork>> nn_map;
 
     /** Key of calibration data: */
     SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
-    void load_calibration(const std::string& jetauthor);
+    std::unique_ptr<const lwt::LightweightNeuralNetwork>
+    load_calibration(const std::string& jetauthor,
+                     std::vector<lwt::Input>& variables,
+                     var_map& defaults) const;
 
-    void build_nn(const std::string& jetauthor, std::istream& nn_config_istream);
-    void fill_outputs(xAOD::BTagging* BTag, var_map outputs);
+    std::unique_ptr<const lwt::LightweightNeuralNetwork>
+    build_nn(std::istream& nn_config_istream,
+             std::vector<lwt::Input>& variables,
+             var_map& defaults) const;
+    void fill_outputs(xAOD::BTagging* BTag, var_map outputs) const;
 
     std::string m_calibrationDirectory;
     std::string m_calibrationSubDirectory;
@@ -66,14 +71,14 @@ namespace Analysis {
     bool m_forceDL1CalibrationAlias;
     std::string m_DL1CalibAlias;
 
-    nn_map m_NeuralNetworks;
+    std::unique_ptr<const lwt::LightweightNeuralNetwork> m_localNN;
+    var_map m_local_defaults;
+    std::vector<lwt::Input> m_local_variables;
 
     //error checking
-    int m_n_compute_errors;
+    mutable std::atomic<int> m_n_compute_errors;
 
     std::string m_LocalNNConfigFile;
-    map_var_map m_map_defaults;
-    map_var m_map_variables;
 
     /** This switch is needed to indicate what to do. The algorithm can be run to produce
 	reference histograms from the given MC files (m_runModus=0) or to work in analysis mode

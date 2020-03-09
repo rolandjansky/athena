@@ -77,7 +77,6 @@ private:
       mutable int m_numTracksPerVertex; //!< number of the tracks per vertex
 
       //tracks  
-      mutable int   m_numTracks; //!< total number of the tracks
 
       // perigee of original tracks with vertex point as origin
       mutable std::vector<float> *m_d0;

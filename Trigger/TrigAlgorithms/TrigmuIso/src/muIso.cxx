@@ -23,7 +23,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "TrigTimeAlgs/TrigTimer.h"
@@ -43,7 +42,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
@@ -51,7 +50,6 @@ class ISvcLocator;
 
 muIso::muIso(const std::string & name, ISvcLocator* pSvcLocator):
    HLT::FexAlgo(name, pSvcLocator),
-   //m_pStoreGate("StoreGateSvc", name),
    m_pTimerService("TrigTimerSvc", name)
 {
    //Monitored quantities
@@ -77,12 +75,6 @@ HLT::ErrorCode muIso::hltInitialize()
    ATH_MSG_DEBUG( "on initialize()"  );
 
    ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION  );
-
-   //if ( m_pStoreGate.retrieve().isFailure() ) {
-   //   ATH_MSG_ERROR("Cannot retrieve service StoreGateSvc");
-   //   return HLT::BAD_JOB_SETUP; 
-   //}
-   m_pStoreGate = store();
 
    // Timer Service
    if ( m_pTimerService.retrieve().isFailure() ) {
@@ -178,25 +170,6 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    m_ptFL        = -9999.;
    m_IDiso       = -9999.;
    m_isIsolated  = -1.0;
-
-   // Retrieve store
-   m_pStoreGate = store();
-
-   const xAOD::EventInfo* pEvent;
-   StatusCode sc = m_pStoreGate->retrieve(pEvent);
-   if (sc.isFailure()) {
-      m_ErrorFlagMI = 1;
-      ATH_MSG_ERROR( "Could not find xAOD::EventInfo object"  );
-      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
-   }
-
-   auto current_run_id = pEvent->runNumber();
-   auto current_event_id = pEvent->eventNumber();
-   auto current_bcg_id = pEvent->bcid();
-
-   ATH_MSG_DEBUG( " ---> Run Number       : " << current_run_id  );
-   ATH_MSG_DEBUG( " ---> Event Number     : " << std::hex << current_event_id << std::dec  );
-   ATH_MSG_DEBUG( " ---> Bunch Crossing ID: " << std::hex << current_bcg_id << std::dec  );
 
    ATH_MSG_DEBUG( "Configured to fex ID:   "  );
    ATH_MSG_DEBUG( "R ID:                   " << m_RID            );
@@ -401,25 +374,6 @@ StatusCode muIso::findIsolation( const xAOD::L2CombinedMuonContainer& muonColl,
    xAOD::L2IsoMuon* muonIS = new xAOD::L2IsoMuon();
    muonISColl.push_back(muonIS);
    muonIS->setPt(0.0);
-
-   // Retrieve store
-   m_pStoreGate = store();
-
-   const xAOD::EventInfo* pEvent;
-   StatusCode sc = m_pStoreGate->retrieve(pEvent);
-   if (sc.isFailure()) {
-      m_ErrorFlagMI = 1;
-      ATH_MSG_ERROR( "Could not find xAOD::EventInfo object"  );
-      return StatusCode::FAILURE;
-   }
-
-   auto current_run_id = pEvent->runNumber();
-   auto current_event_id = pEvent->eventNumber();
-   auto current_bcg_id = pEvent->bcid();
-
-   ATH_MSG_DEBUG( " ---> Run Number       : " << current_run_id  );
-   ATH_MSG_DEBUG( " ---> Event Number     : " << std::hex << current_event_id << std::dec  );
-   ATH_MSG_DEBUG( " ---> Bunch Crossing ID: " << std::hex << current_bcg_id << std::dec  );
 
    ATH_MSG_DEBUG( "Configured to fex ID:   "  );
    ATH_MSG_DEBUG( "R ID:                   " << m_RID            );

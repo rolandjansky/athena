@@ -1,4 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 __doc__ = "Factories to lazy instantiate Private/Public Tools and Algorithms"
 __authors__ = "Bruno Lenzi, Christos Anastopoulos, Jovan Mitrevski"
 from AthenaCommon.Logging import logging
@@ -194,7 +197,7 @@ class Factory:
     
     # Print, perhaps at some point could use a functio so as to override the behavioue
     if doPrint:
-      print obj
+      print (obj)
     
     return obj  
 

@@ -1,8 +1,4 @@
 <lcgdict>
-  <class name="IFillParamsTool"/>
-  <class name="IBunchGroupTool"/>
-  <class name="IBunchLumisTool"/>
-  <class name="IOnlineLumiCalibrationTool"/>
   <class name="OnlineLumiCalibrator"/>
 
   <class name="FillParamsUtil"/>

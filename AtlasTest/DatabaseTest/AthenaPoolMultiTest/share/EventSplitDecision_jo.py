@@ -99,7 +99,6 @@ StreamAll.CheckNumberOfWrites = False
 StreamAll.WritingTool.AttributeListKey="SimpleTag"
 StreamAll.WritingTool.SaveDecisions = True
 StreamAll.TakeItemsFromInput = True
-StreamAll.ForceRead=TRUE
 
 # Add the outputstreams to the execution sequence
 #athOutSeq+=StreamAll

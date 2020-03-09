@@ -26,12 +26,12 @@ public:
   RpcOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
-  SG::ReadHandleKey<RpcDigitContainer> m_bkgInputKey{ this, "BkgInputKey", "OriginalEvent_SG+RPC_DIGITS", "ReadHandleKey for Background Input RpcDigitContainer" };
-  SG::ReadHandleKey<RpcDigitContainer> m_signalInputKey{ this, "SignalInputKey", "BkgEvent_0_SG+RPC_DIGITS", "ReadHandleKey for Signal Input RpcDigitContainer" };
-  SG::WriteHandleKey<RpcDigitContainer> m_outputKey{ this, "OutputKey","StoreGateSvc+RPC_DIGITS", "WriteHandleKey for Output RpcDigitContainer" };
+  SG::ReadHandleKey<RpcDigitContainer> m_bkgInputKey{ this, "BkgInputKey", "Bkg_RPC_DIGITS", "ReadHandleKey for Background Input RpcDigitContainer" };
+  SG::ReadHandleKey<RpcDigitContainer> m_signalInputKey{ this, "SignalInputKey", "Sig_RPC_DIGITS", "ReadHandleKey for Signal Input RpcDigitContainer" };
+  SG::WriteHandleKey<RpcDigitContainer> m_outputKey{ this, "OutputKey","RPC_DIGITS", "WriteHandleKey for Output RpcDigitContainer" };
 
 };
 

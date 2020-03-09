@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,20 +8,20 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include "MuonCondData/MdtCondDbData.h"
 #include "Identifier/Identifier.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 
 #include <vector>
 
+class MdtCondDbData;
 class MuonStationIntersectSvc;
 class MsgStream;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Trk {
   class IPropagator;
@@ -32,7 +32,6 @@ namespace Trk {
 namespace Muon {
   class MuonSegment;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
 }
 
@@ -72,12 +71,19 @@ namespace Muon {
     /** @brief calculate holes */
     std::vector<Identifier> calculateHoles( const Identifier& chid, const Trk::TrackParameters& pars, const MeasVec& measurements ) const;
 
-    
-    ServiceHandle<MuonStationIntersectSvc> m_intersectSvc;     //<! pointer to hole search service
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
+
+    ServiceHandle<MuonStationIntersectSvc> m_intersectSvc;  //<! pointer to hole search service
     ToolHandle<Trk::IPropagator>        m_propagator;       //<! propagator
     ToolHandle<MuonIdHelperTool>        m_idHelperTool;     //<! tool to assist with Identifiers
-    ToolHandle<MuonEDMHelperTool>       m_helperTool;       //<! multipurpose helper tool
+    ServiceHandle<IMuonEDMHelperSvc>    m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>      m_printer;          //<! tool to print out EDM objects
+
+    SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
 
   };
 

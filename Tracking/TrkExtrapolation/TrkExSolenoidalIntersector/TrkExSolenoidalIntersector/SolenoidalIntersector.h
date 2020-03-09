@@ -22,7 +22,6 @@
 #include <mutex>
 #include <cmath>
 
-class IIncidentSvc;
 namespace Trk
 {
 

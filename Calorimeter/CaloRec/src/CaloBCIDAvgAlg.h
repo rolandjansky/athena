@@ -7,6 +7,7 @@
 #define CALOREC_CALOBCIDAVGALG_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadCondHandle.h"
@@ -17,13 +18,14 @@
 #include "LArElecCalib/ILArMinBiasAverage.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LumiBlockData/LuminosityCondData.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class CaloBCIDAvgAlg : public AthReentrantAlgorithm {
 public:
 
   // constructor 
-  CaloBCIDAvgAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   // Algorithm virtual methods 
   StatusCode initialize();
@@ -40,32 +42,25 @@ private:
   //ConditionsInput
   SG::ReadCondHandleKey<ILArOFC> m_ofcKey{this,"OFCKey","LArOFC","SG Key of OFC conditions object"};
   SG::ReadCondHandleKey<ILArShape> m_shapeKey{this,"ShapeKey","LArShape32","SG Key of Shape conditions object"};
-  SG::ReadCondHandleKey<ILArMinBiasAverage> m_minBiasAvgKey{this,"MinBiasAvgKey","LArPileupAverage","SGKey of LArMinBiasAverage object"};
+  SG::ReadCondHandleKey<ILArMinBiasAverage> m_minBiasAvgKey{this,"MinBiasAvgKey","LArPileupAverageSym","SGKey of LArMinBiasAverage object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArMCSym> m_mcSym{this,"MCSym","LArMCSym","SG Key of LArMCSym object"};
   SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey{this,"LuminosityCondDataKey","LuminosityCondData","SG Key of LuminosityCondData object"};
-
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey{this,"BUnchCrossingCondDataKey","BunchCrossingData","SG Key of BunchCrossing CDO"};
 
   //Tool Handles:
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+  // For online monitoring purposes
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
   //Other Properties
   Gaudi::Property<bool> m_isMC{this,"isMC",false,"Real data or MC"};
-  //Gaudi::Property<unsigned> m_firstSampleEMB{this,"firstSampleEMB",0,"First sample EMB in 4 samples mode"};
-  //Gaudi::Property<unsigned> m_firstSampleEMEC{this,"firstSampleEMEC",0,"First sample EMEC in 4 samples mode"};
   Gaudi::Property<unsigned> m_firstSampleHEC{this,"firstSampleHEC",1,"First sample HEC in 4 samples mode"};
-  //Gaudi::Property<unsigned> m_firstSampleFCAL{this,"firstSampleFCAL",0,"First sample FCAL in 4 samples mode"};
 
 
   const LArOnlineID* m_lar_on_id=nullptr;
 
   //Constants: 
   const unsigned m_bcidMax=3564;
-
-  //private methods: 
-  std::vector<float> accumulateLumi(const std::vector<float>& luminosity,
-                                    const unsigned int bcid,
-                                    const float xlumiMC) const;
 
 };
 

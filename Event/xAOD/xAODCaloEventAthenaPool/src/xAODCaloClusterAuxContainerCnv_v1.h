@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODCaloClusterAuxContainerCnv_v1.h 628099 2014-11-13 09:30:05Z krasznaa $
@@ -27,21 +27,24 @@
 /// $Date: 2014-11-13 10:30:05 +0100 (Thu, 13 Nov 2014) $
 ///
 class xAODCaloClusterAuxContainerCnv_v1 :
-   public T_AthenaPoolTPCnvBase< xAOD::CaloClusterAuxContainer,
-                                 xAOD::CaloClusterAuxContainer_v1 > {
+   public T_AthenaPoolTPCnvConstBase< xAOD::CaloClusterAuxContainer,
+                                      xAOD::CaloClusterAuxContainer_v1 > {
 
 public:
+   using base_class::persToTrans;
+   using base_class::transToPers;
+
    /// Default constructor
    xAODCaloClusterAuxContainerCnv_v1();
 
    /// Function converting from the old type to the current one
    virtual void persToTrans( const xAOD::CaloClusterAuxContainer_v1* oldObj,
                              xAOD::CaloClusterAuxContainer* newObj,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
    /// Dummy function inherited from the base class
    virtual void transToPers( const xAOD::CaloClusterAuxContainer*,
                              xAOD::CaloClusterAuxContainer_v1*,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
 
 }; // class xAODCaloClusterAuxContainerCnv_v1
 

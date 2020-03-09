@@ -16,7 +16,7 @@ if not 'InDetTrigFlags' in dir():
    # --- setup flags with default values
    log.info("InDetTrigRec_jobOptions: InDetTrigFlags not set - setting to defaults")
    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-   InDetTrigFlags.doNewTracking = True
+   InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
    #InDetTrigFlags.InDet25nsec = True      #autoconfig and runHLT_standalone setting for BS 
    InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
    #InDetTrigFlags.primaryVertexSetup = "DefaultFastFinding"
@@ -75,7 +75,7 @@ RegSelSvc.SCTConditionsTool = "SCT_ConditionsSummaryTool/"+SCT_ConditionsSetup.i
 RegSelSvc.TRTConditionsSvc = "TRT_ConditionsSummarySvc/"+TRT_ConditionsSetup.instanceName("InDetTRTConditionsSummaryService")
 
 #this should be our common cabling setup/
-# online running data are dealt with in the TriggerRelease 
+# online running data are dealt with in the TriggerJobOpts 
 include ("InDetRecExample/InDetRecCabling.py")
 
 

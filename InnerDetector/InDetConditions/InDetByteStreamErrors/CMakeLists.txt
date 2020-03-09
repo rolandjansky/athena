@@ -9,6 +9,7 @@ atlas_subdir( InDetByteStreamErrors )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/AthContainers
+                          Event/EventContainers
                           DetectorDescription/Identifier )
 
 # External dependencies:

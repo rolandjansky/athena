@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOALGMT_PRECISION_H
-#define TRIGEGAMMAHYPO_TRIGL2CALOHYPOALGMT_PRECISION_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGPRECISIONCALOHYPOALGMT_PRECISION_H
+#define TRIGEGAMMAHYPO_TRIGPRECISIONCALOHYPOALGMT_PRECISION_H 1
 
 #include <string>
 
@@ -26,14 +26,10 @@ class TrigEgammaPrecisionCaloHypoAlgMT : public ::HypoBase {
 
   TrigEgammaPrecisionCaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigEgammaPrecisionCaloHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private: 
-  TrigEgammaPrecisionCaloHypoAlgMT();
   ToolHandleArray< ITrigEgammaPrecisionCaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in roi" };  
@@ -41,4 +37,4 @@ class TrigEgammaPrecisionCaloHypoAlgMT : public ::HypoBase {
 
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOALG_H
+#endif //> !TRIGEGAMMAHYPO_TESTTRIGPRECISIONCALOHYPOALG_H

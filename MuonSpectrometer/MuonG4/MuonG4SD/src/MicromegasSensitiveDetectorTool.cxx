@@ -10,7 +10,7 @@ MicromegasSensitiveDetectorTool::MicromegasSensitiveDetectorTool(const std::stri
 {
 }
 
-G4VSensitiveDetector* MicromegasSensitiveDetectorTool::makeSD()
+G4VSensitiveDetector* MicromegasSensitiveDetectorTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   return new MicromegasSensitiveDetector(name(), m_outputCollectionNames[0]);

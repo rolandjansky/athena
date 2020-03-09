@@ -1,5 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+
+from __future__ import print_function
 
 # ------------------------------------------------------------
 #
@@ -35,13 +37,13 @@ InDetTrigClusterMakerTool = \
                              SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigClusterMakerTool
+  print (InDetTrigClusterMakerTool)
 ToolSvc += InDetTrigClusterMakerTool
 
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
 InDetTrigSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name="InDetTrigSiSpacePointMakerTool")
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigSiSpacePointMakerTool
+  print (InDetTrigSiSpacePointMakerTool)
 ToolSvc += InDetTrigSiSpacePointMakerTool      
   
 from SiTrigSpacePointFormation.SiTrigSpacePointFormationConf import InDet__SCT_TrigSpacePointTool
@@ -52,7 +54,7 @@ SCT_TrigSpacePointTool = InDet__SCT_TrigSpacePointTool(name="InDetTrigSCTSpacePo
                                                        )
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print SCT_TrigSpacePointTool 
+  print (SCT_TrigSpacePointTool )
 ToolSvc +=  SCT_TrigSpacePointTool
 
 
@@ -71,7 +73,7 @@ if InDetTrigFlags.loadRotCreator():
 
   ToolSvc += SCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print SCT_ClusterOnTrackTool
+    print (SCT_ClusterOnTrackTool)
 
   # tool to always make conservative pixel cluster errors
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
@@ -83,14 +85,14 @@ if InDetTrigFlags.loadRotCreator():
       
     ToolSvc += NeuralNetworkToHistoTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print NeuralNetworkToHistoTool
+      print (NeuralNetworkToHistoTool)
     
     from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
-    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelNnClusterNnCondAlg',          GetInputsInfo = do_runI)
-    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelNnClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
     if do_runI :
       TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
                                                                     PixelLorentzAngleTool              = TrigPixelLorentzAngleTool,
@@ -120,7 +122,7 @@ if InDetTrigFlags.loadRotCreator():
     TrigNnClusterizationFactory = None
 
   if (InDetTrigFlags.doPrintConfigurables()):
-    print TrigNnClusterizationFactory
+    print (TrigNnClusterizationFactory)
 
   InDetTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackTool",
                                                                     ErrorStrategy = 2,
@@ -131,7 +133,7 @@ if InDetTrigFlags.loadRotCreator():
   ToolSvc += InDetTrigPixelClusterOnTrackTool
 
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigPixelClusterOnTrackTool
+    print (InDetTrigPixelClusterOnTrackTool)
 
   # tool to always make conservative sct cluster errors
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
@@ -141,7 +143,7 @@ if InDetTrigFlags.loadRotCreator():
                                          LorentzAngleTool   = TrigSCTLorentzAngleTool)
   ToolSvc += InDetTrigBroadSCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigBroadSCT_ClusterOnTrackTool
+    print (InDetTrigBroadSCT_ClusterOnTrackTool)
 
   #--
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
@@ -152,7 +154,7 @@ if InDetTrigFlags.loadRotCreator():
   )
   ToolSvc += InDetTrigBroadPixelClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigBroadPixelClusterOnTrackTool
+    print (InDetTrigBroadPixelClusterOnTrackTool)
 
   # load RIO_OnTrackCreator for Inner Detector
   #
@@ -169,7 +171,7 @@ if InDetTrigFlags.loadRotCreator():
     InDetTrigRotCreator.ToolSCT_Cluster  = InDetTrigBroadSCT_ClusterOnTrackTool
 
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigRotCreator
+    print (InDetTrigRotCreator)
 
   #--
   from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
@@ -180,7 +182,7 @@ if InDetTrigFlags.loadRotCreator():
                               Mode            = 'indet')
   ToolSvc += InDetTrigBroadInDetRotCreator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigBroadInDetRotCreator
+    print (InDetTrigBroadInDetRotCreator)
 
   # load error scaling
   #TODO - instanceName?
@@ -192,19 +194,19 @@ if InDetTrigFlags.loadRotCreator():
   #
   if InDetTrigFlags.redoTRT_LR():
 
-    from InDetRecExample.TrackingCommon import getTRT_DriftCircleOnTrackTool
+    from InDetRecExample.TrackingCommon import getInDetTRT_DriftCircleOnTrackTool
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import \
         InDet__TRT_DriftCircleOnTrackUniversalTool
     InDetTrigTRT_RefitRotCreator = \
         InDet__TRT_DriftCircleOnTrackUniversalTool(name  = 'InDetTrigTRT_RefitRotCreator',
-                                                   RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
+                                                   RIOonTrackToolDrift = getInDetTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
                                                    ScaleHitUncertainty = 2.5) # fix from Thijs
 #    if InDetTrigFlags.doCommissioning():    #introduced for cosmics do not use for collisions
 #      InDetTrigTRT_RefitRotCreator.ScaleHitUncertainty = 5.
     ToolSvc += InDetTrigTRT_RefitRotCreator
       
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigTRT_RefitRotCreator
+      print (     InDetTrigTRT_RefitRotCreator)
   
     from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
     InDetTrigRefitRotCreator = Trk__RIO_OnTrackCreator(name              = 'InDetTrigRefitRotCreator',
@@ -218,7 +220,7 @@ if InDetTrigFlags.loadRotCreator():
 
     ToolSvc += InDetTrigRefitRotCreator
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigRefitRotCreator
+      print (     InDetTrigRefitRotCreator)
          
   else:
     InDetTrigRefitRotCreator = InDetTrigRotCreator
@@ -241,7 +243,7 @@ if InDetTrigFlags.loadUpdator():
 
   ToolSvc += InDetTrigUpdator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigUpdator
+    print (     InDetTrigUpdator)
 
   # ---------- control loading of the gsf updator
   if InDetTrigFlags.trackFitterType() is 'GaussianSumFilter' :
@@ -252,7 +254,7 @@ if InDetTrigFlags.loadUpdator():
                                                                  Updator = InDetTrigUpdator )
     ToolSvc += InDetTrigGsfMeasurementUpdator
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfMeasurementUpdator
+      print (     InDetTrigGsfMeasurementUpdator)
 
 #
 # ----------- control loading extrapolation
@@ -280,7 +282,7 @@ if InDetTrigFlags.loadExtrapolator():
     InDetTrigPropagator = InDetTrigRKPropagator
     
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigPropagator      
+    print (     InDetTrigPropagator      )
 
   #
   # Setup the Navigator (default, could be removed)
@@ -294,7 +296,7 @@ if InDetTrigFlags.loadExtrapolator():
 
   ToolSvc += InDetTrigNavigator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigNavigator
+    print (     InDetTrigNavigator)
 
   #
   # Setup the MaterialEffectsUpdator
@@ -304,7 +306,7 @@ if InDetTrigFlags.loadExtrapolator():
 
   ToolSvc += InDetTrigMaterialUpdator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigMaterialUpdator
+    print (     InDetTrigMaterialUpdator)
 
   #
   # Set up extrapolator
@@ -338,7 +340,7 @@ if InDetTrigFlags.loadExtrapolator():
 
   ToolSvc += InDetTrigExtrapolator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigExtrapolator                                          
+    print (     InDetTrigExtrapolator                                          )
 
 #
 # ----------- control loading of fitters
@@ -354,7 +356,7 @@ if InDetTrigFlags.loadFitter():
                                            WeightCutValueEndCap = 5.5)
     ToolSvc+=InDetTrigCompetingPixelTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigCompetingPixelTool
+      print (InDetTrigCompetingPixelTool)
 
     from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf \
          import InDet__CompetingSCT_ClustersOnTrackTool as IDCSCOTT
@@ -363,7 +365,7 @@ if InDetTrigFlags.loadFitter():
                                              WeightCutValueEndCap = 5.5)
     ToolSvc+=InDetTrigCompetingSctTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigCompetingSctTool
+      print (InDetTrigCompetingSctTool)
     
     from TrkCompetingRIOsOnTrackTool.TrkCompetingRIOsOnTrackToolConf \
          import Trk__CompetingRIOsOnTrackTool as CompRotTool
@@ -372,28 +374,28 @@ if InDetTrigFlags.loadFitter():
                                                        ToolForCompSCT_Clusters = InDetTrigCompetingSctTool)
     ToolSvc += InDetTrigKalmanCompetingROT_Tool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigKalmanCompetingROT_Tool
+      print (InDetTrigKalmanCompetingROT_Tool)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanPiecewiseAnnealingFilter as KPAF
     InDetTrigKalmanInternalDAF = KPAF(name = 'KalmanInternalDAF',
                                           CompetingRIOsOnTrackCreator = InDetTrigKalmanCompetingROT_Tool)
     ToolSvc += InDetTrigKalmanInternalDAF
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigKalmanInternalDAF
+      print (InDetTrigKalmanInternalDAF)
 
     if InDetTrigFlags.trackFitterType() is 'KalmanDNAFitter':
       from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
       InDetTrigDNAdjustor = Trk__InDetDynamicNoiseAdjustment(name       = 'InDetTrigDNAdjustor')
       ToolSvc += InDetTrigDNAdjustor
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigDNAdjustor
+        print (     InDetTrigDNAdjustor)
             
       from InDetDNASeparator.InDetDNASeparatorConf import InDet__InDetDNASeparator
       InDetTrigDNASeparator = InDet__InDetDNASeparator(name="InDetTrigDNASeparator")
             
       ToolSvc += InDetTrigDNASeparator
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigDNASeparator
+        print (     InDetTrigDNASeparator)
     
     else:
       InDetTrigDNAdjustor   = None
@@ -405,14 +407,14 @@ if InDetTrigFlags.loadFitter():
                                  StateChi2PerNDFPreCut = 30.0)
     ToolSvc += InDetTrigFKF
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigFKF
+      print (     InDetTrigFKF)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother as PublicBKS
     InDetTrigBKS = PublicBKS(name                        = 'InDetTrigBKS',
                                  InitialCovarianceSeedFactor = 200.)
     ToolSvc += InDetTrigBKS
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigBKS
+      print (     InDetTrigBKS)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierLogic as PublicKOL
     InDetTrigKOL = PublicKOL(name                    = 'InDetTrigKOL',
@@ -420,7 +422,7 @@ if InDetTrigFlags.loadFitter():
                                  StateChi2PerNDFCut      = 12.5)
     ToolSvc += InDetTrigKOL
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigKOL
+      print (     InDetTrigKOL)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__MeasRecalibSteeringTool
     InDetTrigMeasRecalibST = Trk__MeasRecalibSteeringTool(name='InDetTrigMeasRecalibST',
@@ -433,7 +435,7 @@ if InDetTrigFlags.loadFitter():
 
     ToolSvc += InDetTrigMeasRecalibST
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigMeasRecalibST
+      print (     InDetTrigMeasRecalibST)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
     InDetTrigTrackFitter = ConfiguredKalmanFitter(name                           = 'InDetTrigTrackFitter',
@@ -565,11 +567,6 @@ if InDetTrigFlags.loadFitter():
       InDetTrigTrackFitterTRT.MaxOutliers=99
             
   elif InDetTrigFlags.trackFitterType() is 'GaussianSumFilter' :
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    InDetTrigGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetTrigGsfMaterialUpdator')
-    ToolSvc += InDetTrigGsfMaterialUpdator
-    if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfMaterialUpdator
     #
     # component Reduction
     #
@@ -579,7 +576,14 @@ if InDetTrigFlags.loadFitter():
                                               MaximumNumberOfComponents = 12)
     ToolSvc += InDetTrigGsfComponentReduction
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfComponentReduction
+      print (     InDetTrigGsfComponentReduction)
+    
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+    InDetTrigGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetTrigGsfMaterialUpdator',
+                                                                      MultiComponentStateMerger = InDetTrigGsfComponentReduction)
+    ToolSvc += InDetTrigGsfMaterialUpdator
+    if (InDetTrigFlags.doPrintConfigurables()):
+      print (     InDetTrigGsfMaterialUpdator)
     #
     # declare the extrapolator
     #
@@ -590,11 +594,10 @@ if InDetTrigFlags.loadFitter():
                                                     StickyConfiguration           = True,
                                                     Navigator                     = InDetTrigNavigator,
                                                     GsfMaterialConvolution        = InDetTrigGsfMaterialUpdator,
-                                                    ComponentMerger               = InDetTrigGsfComponentReduction,
                                                     SurfaceBasedMaterialEffects   = False )
     ToolSvc += InDetTrigGsfExtrapolator
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfExtrapolator
+      print (     InDetTrigGsfExtrapolator)
     # load alternative track fitter
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
     InDetTrigTrackFitter = Trk__GaussianSumFitter(name                    = 'InDetTrigTrackFitter',
@@ -610,7 +613,7 @@ if InDetTrigFlags.loadFitter():
    # --- end of fitter loading
   ToolSvc += InDetTrigTrackFitter
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackFitter
+    print (     InDetTrigTrackFitter)
     
   if InDetTrigFlags.trackFitterType() is not 'GlobalChi2Fitter' :
     InDetTrigTrackFitterTRT=InDetTrigTrackFitter
@@ -620,7 +623,7 @@ if InDetTrigFlags.loadFitter():
     
   ToolSvc += InDetTrigTrackFitterTRT
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackFitterTRT
+    print (     InDetTrigTrackFitterTRT)
 
 
 
@@ -643,7 +646,7 @@ if InDetTrigFlags.loadAssoTool():
    
   ToolSvc += InDetTrigPrdAssociationTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigPrdAssociationTool
+    print (     InDetTrigPrdAssociationTool)
 
 #
 # ----------- control loading of Summary Tool
@@ -659,7 +662,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                CheckDeadRegions = True)
   ToolSvc += InDetTrigTestPixelLayerTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print  InDetTrigTestPixelLayerTool
+    print ( InDetTrigTestPixelLayerTool)
 
 
    #
@@ -680,7 +683,7 @@ if InDetTrigFlags.loadSummaryTool():
 
   ToolSvc += InDetTrigHoleSearchTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigHoleSearchTool
+    print (     InDetTrigHoleSearchTool)
 
   # Load BLayer tool
   from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
@@ -690,30 +693,20 @@ if InDetTrigFlags.loadSummaryTool():
                                                        CheckActiveAreas= True)
   ToolSvc += InDetTrigTestBLayerTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print  InDetTrigTestBLayerTool
+    print ( InDetTrigTestBLayerTool)
 
   #prevent loading of the pixel dE/dx tool  
   InDetTrigPixelToTPIDTool = None
-#   try:
-#     from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
-#     InDetTrigPixelToTPIDTool = InDet__PixelToTPIDTool(name = "InDetTrigPixelToTPIDTool")
-#     ToolSvc += InDetTrigPixelToTPIDTool
-    
-#   except:
-#     log.info("InDetTrigPixelToTPIDTool requested but not available")
   if (InDetTrigFlags.doPrintConfigurables()):
-    print     'InDetTrigPixelToTPIDTool ', InDetTrigPixelToTPIDTool
+    print (    'InDetTrigPixelToTPIDTool ', InDetTrigPixelToTPIDTool)
 
   #
   # Configrable version of loading the InDetTrackSummaryHelperTool
   #
   from AthenaCommon.GlobalFlags import globalflags
-  # Straw status DB Tool
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-  InDetTrigTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
-                                                              isGEANT4=(globalflags.DataSource == 'geant4'))
-
-
+  
+  from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
+  
   from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
@@ -729,7 +722,7 @@ if InDetTrigFlags.loadSummaryTool():
     
   ToolSvc += InDetTrigTrackSummaryHelperTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackSummaryHelperTool
+    print (     InDetTrigTrackSummaryHelperTool)
 
   #
   # Configurable version of TRT_ElectronPidTools
@@ -752,30 +745,35 @@ if InDetTrigFlags.loadSummaryTool():
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
 
-  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy
+  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy,TRT_ToT_dEdx
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   # Calibration DB Tool
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
   InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
-  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy",
+  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrig_TRT_LocalOccupancy",
                                                           isTrigger = True,
                                                           TRT_RDOContainerName="TRT_RDOs_EF",
                                                           TRTCalDbTool = InDetTRTCalDbTool,
                                                           TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
 
+  InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
+                                       TRTStrawSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
+                                       TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy)
+  ToolSvc += InDetTrigTRT_ToT_dEdx
+  
   
   InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
                                                                 TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
                                                                 TRTStrawSummaryTool= InDetTrigTRTStrawStatusSummaryTool,
                                                                 OccupancyUsedInPID = True,
+                                                                TRT_ToT_dEdx_Tool = InDetTrigTRT_ToT_dEdx,
                                                                 isData = (globalflags.DataSource == 'data'))
 
   ToolSvc += InDetTrigTRT_ElectronPidTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTRT_ElectronPidTool
+    print (     InDetTrigTRT_ElectronPidTool)
 
 
  
@@ -793,7 +791,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                     )
   ToolSvc += InDetTrigTrackSummaryTool
   if (InDetTrigFlags.doPrintConfigurables()):
-     print      InDetTrigTrackSummaryTool
+     print (     InDetTrigTrackSummaryTool)
 
 
 
@@ -813,7 +811,7 @@ if InDetTrigFlags.loadSummaryTool():
 
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigTrackSummaryHelperToolSharedHits
+      print (     InDetTrigTrackSummaryHelperToolSharedHits)
     #
     # Configurable version of TrkTrackSummaryTool
     #
@@ -826,7 +824,7 @@ if InDetTrigFlags.loadSummaryTool():
 
     ToolSvc += InDetTrigTrackSummaryToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigTrackSummaryToolSharedHits
+      print (     InDetTrigTrackSummaryToolSharedHits)
 
 
   else:   
@@ -843,7 +841,7 @@ if InDetTrigFlags.doNewTracking() or InDetTrigFlags.doBackTracking() or InDetTri
   
   ToolSvc += InDetTrigPatternPropagator
   if (InDetTrigFlags.doPrintConfigurables()):
-     print      InDetTrigPatternPropagator
+     print (     InDetTrigPatternPropagator)
 
   # fast Kalman updator tool
   #
@@ -852,7 +850,7 @@ if InDetTrigFlags.doNewTracking() or InDetTrigFlags.doBackTracking() or InDetTri
 
   ToolSvc += InDetTrigPatternUpdator
   if (InDetTrigFlags.doPrintConfigurables()):
-     print      InDetTrigPatternUpdator
+     print (     InDetTrigPatternUpdator)
 
 
 #
@@ -869,7 +867,7 @@ InDetTrigTRTDriftCircleCut = InDet__InDetTrtDriftCircleCutTool(
 
 ToolSvc += InDetTrigTRTDriftCircleCut
 if (InDetTrigFlags.doPrintConfigurables()):
-  print   InDetTrigTRTDriftCircleCut
+  print (  InDetTrigTRTDriftCircleCut)
 
 InDetTrigTRTDriftCircleCutForPatt = InDet__InDetTrtDriftCircleCutTool(
   name             = 'InDetTrigTRTDriftCircleCutForPatt',
@@ -880,7 +878,7 @@ InDetTrigTRTDriftCircleCutForPatt = InDet__InDetTrtDriftCircleCutTool(
 
 ToolSvc += InDetTrigTRTDriftCircleCut
 if (InDetTrigFlags.doPrintConfigurables()):
-  print   InDetTrigTRTDriftCircleCut
+  print (  InDetTrigTRTDriftCircleCut)
 
 
 
@@ -911,17 +909,7 @@ if InDetTrigFlags.doNewTracking():
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
       from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
-      # Copied from InDetAlignFolders.py
-      useDynamicAlignFolders = False
-      try:
-        from InDetRecExample.InDetJobProperties import InDetFlags
-        from IOVDbSvc.CondDB import conddb
-        if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-          useDynamicAlignFolders = True
-      except ImportError:
-        pass
-      condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                    UseDynamicAlignFolders = useDynamicAlignFolders)
+      condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
 
   # Local combinatorial track finding using space point seed and detector element road
   #
@@ -931,7 +919,6 @@ if InDetTrigFlags.doNewTracking():
                                                                  PropagatorTool	= InDetTrigPatternPropagator,
                                                                  UpdatorTool	= InDetTrigPatternUpdator,
                                                                  RIOonTrackTool   = InDetTrigRotCreator,
-                                                                 AssosiationTool  = InDetTrigPrdAssociationTool,
                                                                  usePixel         = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT           = DetFlags.haveRIO.SCT_on(),   
                                                                  PixelClusterContainer = 'PixelTrigClusters',
@@ -939,37 +926,46 @@ if InDetTrigFlags.doNewTracking():
                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                  SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
+  if DetFlags.haveRIO.pixel_on():
+    # Condition algorithm for SiCombinatorialTrackFinder_xk
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+      from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                            ReadKey = "PixelDetectorElementCollection",
+                                                            WriteKey = "PixelDetElementBoundaryLinks_xk")
   if DetFlags.haveRIO.SCT_on():
     # Condition algorithm for SiCombinatorialTrackFinder_xk
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
       from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
-  #to here
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                            ReadKey = "SCT_DetectorElementCollection",
+                                                            WriteKey = "SCT_DetElementBoundaryLinks_xk")
+      #to here
 
-#move 
-if InDetTrigFlags.doAmbiSolving():
-
-  from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
-  InDetTrigAmbiTrackSelectionTool = \
-      InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
-                                         AssociationTool    = InDetTrigPrdAssociationTool,
-                                         DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
-                                         minHits         = InDetTrigCutValues.minClusters(),
-                                         minNotShared    = InDetTrigCutValues.minSiNotShared(),
-                                         maxShared       = InDetTrigCutValues.maxShared(),
-                                         minTRTHits      = 0,  # used for Si only tracking !!!
-                                         Cosmics         = False,  #there is a different instance
-                                         UseParameterization = False,
-                                         # sharedProbCut   = 0.10,
-                                         # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
-                                         )
-   
-   
-  ToolSvc += InDetTrigAmbiTrackSelectionTool
-  if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigAmbiTrackSelectionTool
+import InDetRecExample.TrackingCommon as TrackingCommon
+from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
+InDetTrigAmbiTrackSelectionTool = \
+    InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
+                                       DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                       AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                       minHits         = InDetTrigCutValues.minClusters(),
+                                       minNotShared    = InDetTrigCutValues.minSiNotShared(),
+                                       maxShared       = InDetTrigCutValues.maxShared(),
+                                       minTRTHits      = 0,  # used for Si only tracking !!!
+                                       Cosmics         = False,  #there is a different instance
+                                       UseParameterization = False,
+                                       # sharedProbCut   = 0.10,
+                                       # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
+                                       )
+ 
+ 
+ToolSvc += InDetTrigAmbiTrackSelectionTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print (InDetTrigAmbiTrackSelectionTool)
 
 if InDetTrigFlags.doNewTracking():
 
@@ -1005,5 +1001,5 @@ if InDetTrigFlags.doNewTracking():
 
   ToolSvc += InDetTrigTrackSelectorTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackSelectorTool
+    print (     InDetTrigTrackSelectorTool)
 

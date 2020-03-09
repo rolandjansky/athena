@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // /***************************************************************************
@@ -76,24 +76,11 @@ StatusCode EnergyCMX::initialize()
 // Optional debug of menu at start of run
 //-------------------------------------------------
 
-StatusCode EnergyCMX::beginRun()
+StatusCode EnergyCMX::start()
 {
-
-  //int outputLevel = msgSvc()->outputLevel( name() );
   setupTriggerMenuFromCTP();
 
   return StatusCode::SUCCESS ;
-}
-
-
-//---------------------------------
-// finalise()
-//---------------------------------
-
-StatusCode EnergyCMX::finalize()
-{
-   ATH_MSG_INFO( "Finalizing" );
-   return StatusCode::SUCCESS ;
 }
 
 

@@ -10,7 +10,7 @@ theApp.EvtMax                   = 1
 AthenaSealSvc = Service( "AthenaSealSvc" )
 
 # Set up service
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
 # Add in your includes to check specific dictionaries: e.g. EventInfo:
 #include( "EventInfo/EventInfoDict_joboptions.py" )

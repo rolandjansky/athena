@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonSpectrometerProbeCollectorTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef Muon_MuonSpectrometerProbeCollectorTool_H
 #define Muon_MuonSpectrometerProbeCollectorTool_H
@@ -12,18 +8,11 @@
 /// General Classes
 #include <stdint.h>
 #include <algorithm>
-#include <math.h>
 #include <functional>
 #include <string>
 /// Gaudi Tools
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
-/// Storegate
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 /// ROOT Classes
 #include "TH1.h"
 #include "TH2.h"
@@ -51,10 +40,6 @@
 #include "MuonDQAUtils/IProbeCollectorTool.h"
 #include "MuonDQAUtils/IInsituTrackTools.h"
 
-class AtlasDetectorID;
-class Identifier;
-
-
 /** @class MuonSpectrometerProbeCollectorTool 
 
 This is for the Doxygen-Documentation.  
@@ -73,12 +58,10 @@ namespace Muon
       MuonSpectrometerProbeCollectorTool(const std::string&,const std::string&,const IInterface*);
 	
       /** default destructor */
-      virtual ~MuonSpectrometerProbeCollectorTool ();
+      virtual ~MuonSpectrometerProbeCollectorTool () {};
 	
       /** standard Athena-Algorithm method */
       virtual StatusCode initialize();
-      /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
 		
       StatusCode createProbeCollection();
 		
@@ -86,21 +69,15 @@ namespace Muon
 	
       Rec::TrackParticleContainer * m_MSProbeTrackContainer;
 
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream	m_log;
-      /// a handle on Store Gate 
-      StoreGateSvc* m_storeGate;
-      /// a handle on the Hist/TTree registration service
-      ITHistSvc * m_thistSvc;
       /// get a handle to the MuonSpectrometerProbeCollectorTool
       ToolHandle<IInsituTrackTools> m_InsituPerformanceTools;
 
       /** member variables for algorithm properties: */
-      // int/double/bool  m_propertyName;
       std::string	m_InnerTrackContainerName;
       std::string	m_MSTrackContainerName;
       std::string	m_CombinedMuonTracksContainerName;
-      bool		m_RequireTrigger;
+      bool    m_RequireTrigger;
+      float m_muonPtCut;
 
     }; 
 }

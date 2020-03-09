@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,6 @@
 #include "ParticleEvent/Neutrino.h"
 #include "ParticleEvent/NeutrinoContainer.h"
 #include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -59,7 +58,7 @@ void test1()
   std::cout << "test1\n";
 
   IParticleContainer* c = new IParticleContainer;
-  c->push_back (CxxUtils::make_unique<Neutrino>());
+  c->push_back (std::make_unique<Neutrino>());
   SGTest::store.record (c, "cont");
   ElementLink<VxContainer> origin ("vx", 0);
 

@@ -4,6 +4,9 @@
 
 #include "RatesAnalysis/RatesScanTrigger.h"
 
+#include "GaudiKernel/ITHistSvc.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
+
 RatesScanTrigger::RatesScanTrigger( const std::string& name, 
                                     const MsgStream& log,
                                     const double thresholdMin, const double thresholdMax, const uint32_t thresholdBins,  
@@ -11,11 +14,13 @@ RatesScanTrigger::RatesScanTrigger( const std::string& name,
                                     const double prescale,
                                     const std::string& seedName, const double seedPrescale,
                                     const ExtrapStrat_t extrapolation) :
-  RatesTrigger(name, log, prescale, -1, seedName, seedPrescale, false, extrapolation),
-  m_rateScanHist(nullptr), m_givenRateScanHist(false), m_thresholdPassed(0), m_behaviour(behaviour)
+  RatesTrigger(name, log, prescale, -1, seedName, seedPrescale, /*base histograms*/false, extrapolation),
+  m_rateScanHist(nullptr), m_rateScanHistCachedPtr(nullptr), m_thresholdPassed(0), m_behaviour(behaviour)
   {
-    m_rateScanHist = new TH1D(std::to_string(m_histoID++).data(),TString(name + ";Threshold;Rate [Hz]"), thresholdBins, thresholdMin, thresholdMax);
-    m_rateScanHist->SetName("rateVsThreshold");
+    m_rateScanHist = std::make_unique<TH1D>("", TString(name + ";Threshold;Rate [Hz]"), thresholdBins, thresholdMin, thresholdMax);
+    m_rateScanHist->Sumw2(true);
+
+    m_rateScanHistCachedPtr = m_rateScanHist.get();
   }
 
 RatesScanTrigger::RatesScanTrigger( const std::string& name, 
@@ -26,19 +31,20 @@ RatesScanTrigger::RatesScanTrigger( const std::string& name,
                                     const std::string& seedName, const double seedPrescale,
                                     const ExtrapStrat_t extrapolation) :
   RatesTrigger(name, log, prescale, -1, seedName, seedPrescale, false, extrapolation),
-  m_rateScanHist(nullptr), m_thresholdPassed(0), m_behaviour(behaviour)
+  m_rateScanHist(nullptr), m_rateScanHistCachedPtr(nullptr), m_thresholdPassed(0), m_behaviour(behaviour)
   {
     if (thresholdBinEdged.size() < 2) {
       m_log << MSG::ERROR << "Need more than one entry in thresholdBinEdged to define histogram binning." << endmsg;
       return;
     }
     size_t nBins = thresholdBinEdged.size() - 1;
-    m_rateScanHist = new TH1D(std::to_string(m_histoID++).data(),TString(name + ";Threshold;Rate [Hz]"), nBins, thresholdBinEdged.data());
-    m_rateScanHist->SetName("rateVsThreshold");
+    m_rateScanHist = std::make_unique<TH1D>("", TString(name + ";Threshold;Rate [Hz]"), nBins, thresholdBinEdged.data());
+    m_rateScanHist->Sumw2(true);
+
+    m_rateScanHistCachedPtr = m_rateScanHist.get();
   }
 
 RatesScanTrigger::~RatesScanTrigger() {
-  if (!m_givenRateScanHist) delete m_rateScanHist;
 }
 
 void RatesScanTrigger::passThreshold(const double t, const bool unbiasedEvent) {
@@ -53,15 +59,16 @@ void RatesScanTrigger::setPassedAndExecute(const double t, const WeightingValues
   execute(weights);
 }
 
-TH1D* RatesScanTrigger::getThresholdHist(bool clientIsTHistSvc) { 
-  if (clientIsTHistSvc) m_givenRateScanHist = true;
-  return m_rateScanHist;
+
+StatusCode RatesScanTrigger::giveThresholdHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name) { 
+  ATH_CHECK( svc->regHist(name, std::move(m_rateScanHist), m_rateScanHistCachedPtr) );
+  return StatusCode::SUCCESS;
 }
 
 void RatesScanTrigger::execute(const WeightingValuesSummary_t& weights) {
   if (m_thresholdPassed == std::numeric_limits<double>::min()) return; // Did not pass
   // This histogram we *do* include the extrapolation weight as we plot vs. some trigger property, not some event property
-  double w = m_totalPrescaleWeight * weights.m_enhancedBiasWeight * getExtrapolationFactor(weights);
+  double w = m_totalPrescaleWeight * weights.m_enhancedBiasWeight * getExtrapolationFactor(weights, m_extrapolationStrategy);
   // Fill the histogram cumulatively
   // We match exactly with the *lower* edge of all bins
   const int nBins = m_rateScanHist->GetNbinsX();
@@ -70,67 +77,63 @@ void RatesScanTrigger::execute(const WeightingValuesSummary_t& weights) {
     const double width = m_rateScanHist->GetBinWidth(bin);
     if ( (m_behaviour == kTriggerAboveThreshold && m_thresholdPassed < (low + width)) ||
          (m_behaviour == kTriggerBelowThreshold && m_thresholdPassed > low)) {
-      m_rateScanHist->Fill(m_rateScanHist->GetBinCenter(bin), w);
+      m_rateScanHistCachedPtr->Fill(m_rateScanHist->GetBinCenter(bin), w);
     }
   }
   // Underflow && Overflow
   const double xMin = m_rateScanHist->GetXaxis()->GetXmin();
   const double xMax = m_rateScanHist->GetXaxis()->GetXmax();
   if ( (m_behaviour == kTriggerAboveThreshold && m_thresholdPassed < xMin) || m_behaviour == kTriggerBelowThreshold ) {
-    m_rateScanHist->Fill(xMin - 1., w);
+    m_rateScanHistCachedPtr->Fill(xMin - 1., w);
   }
   if ( m_behaviour == kTriggerAboveThreshold || (m_behaviour == kTriggerBelowThreshold && m_thresholdPassed >= xMax) ) {
-    m_rateScanHist->Fill(xMax + 1, w);
+    m_rateScanHistCachedPtr->Fill(xMax + 1, w);
   }
-}
-
-void RatesScanTrigger::normaliseHist(const double ratesDenominator) {
-  RatesHistoBase::normaliseHist(ratesDenominator);
-  m_rateScanHist->Scale(1. / ratesDenominator);
 }
 
 const std::string RatesScanTrigger::printRate(const double ratesDenominator) const {
   std::stringstream ss;
   const int nBins = m_rateScanHist->GetNbinsX();
   ss << std::setfill(' '); 
-  ss << m_name << " [PS:" << m_prescale << "]" << std::endl;
+  ss << m_name << " [PS:" << m_prescale << "]";
   if (m_seed != "") ss << " <- " << m_seed << " [PS:" << m_seedPrescale << "]";
+  ss << " (Extrap:"<< getExtrapolationFactorString(m_extrapolationStrategy) << ")" << std::endl;
 
   if (m_behaviour == kTriggerBelowThreshold) {
 
-    ss << "    Threshold <= " << std::setw(11) << std::left << m_rateScanHist->GetXaxis()->GetXmin();
-    ss << " Rate:" << std::setw(11) << std::right << m_rateScanHist->GetBinContent(0)/ratesDenominator;
-    ss << " +- "   << std::setw(11) << std::left << m_rateScanHist->GetBinError(0)/ratesDenominator << " Hz" << std::endl;
+    ss << "    Threshold <= " << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetXaxis()->GetXmin();
+    ss << " Rate :" << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(0)/ratesDenominator;
+    ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(0)/ratesDenominator << " Hz" << std::endl;
 
     for (int bin = 1; bin <= nBins; ++bin) {
       ss << "    Threshold <= ";
-      ss << std::setw(11) << std::left << m_rateScanHist->GetBinLowEdge(bin) + m_rateScanHist->GetBinWidth(bin);
-      ss << " Rate:" << std::setw(11) << std::right << m_rateScanHist->GetBinContent(bin)/ratesDenominator;
-      ss << " +- "   << std::setw(11) << std::left << m_rateScanHist->GetBinError(bin)/ratesDenominator << " Hz";
+      ss << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinLowEdge(bin) + m_rateScanHist->GetBinWidth(bin);
+      ss << " Rate :" << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(bin)/ratesDenominator;
+      ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(bin)/ratesDenominator << " Hz";
       ss << std::endl;
     }
 
-    ss << "    Threshold >  " << std::setw(11) << std::left << m_rateScanHist->GetXaxis()->GetXmax();
-    ss << " Rate:" << std::setw(11) << std::right << m_rateScanHist->GetBinContent(nBins+1)/ratesDenominator;
-    ss << " +- "   << std::setw(11) << std::left << m_rateScanHist->GetBinError(nBins+1)/ratesDenominator << " Hz";
+    ss << "    Threshold >  " << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetXaxis()->GetXmax();
+    ss << " Rate :" << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(nBins+1)/ratesDenominator;
+    ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(nBins+1)/ratesDenominator << " Hz";
   
   } else if (m_behaviour == kTriggerAboveThreshold) {
 
-    ss << "    Threshold <  " << std::setw(11) << std::left << m_rateScanHist->GetXaxis()->GetXmin();
-    ss << " Rate:" << std::setw(11) << std::right << m_rateScanHist->GetBinContent(0)/ratesDenominator;
-    ss << " +- "   << std::setw(11) << std::left << m_rateScanHist->GetBinError(0)/ratesDenominator << " Hz" << std::endl;
+    ss << "    Threshold <  " << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetXaxis()->GetXmin();
+    ss << " Rate: " << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(0)/ratesDenominator;
+    ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(0)/ratesDenominator << " Hz" << std::endl;
   
     for (int bin = 1; bin <= nBins; ++bin) {
       ss << "    Threshold >= ";
-      ss << std::setw(11) << std::left << m_rateScanHist->GetBinLowEdge(bin);
-      ss << " Rate:" << std::setw(11) << std::right << m_rateScanHist->GetBinContent(bin)/ratesDenominator;
-      ss << " +- "   << std::setw(11) << std::left << m_rateScanHist->GetBinError(bin)/ratesDenominator << " Hz";
+      ss << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinLowEdge(bin);
+      ss << " Rate: " << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(bin)/ratesDenominator;
+      ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(bin)/ratesDenominator << " Hz";
       ss << std::endl;
     }
 
-    ss << "    Threshold >= " << std::setw(11) << std::left << m_rateScanHist->GetXaxis()->GetXmax();
-    ss << " Rate:" << std::setw(11) << std::right << m_rateScanHist->GetBinContent(nBins+1)/ratesDenominator;
-    ss << " +- "   << std::setw(11) << std::left << m_rateScanHist->GetBinError(nBins+1)/ratesDenominator << " Hz";
+    ss << "    Threshold >= " << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetXaxis()->GetXmax();
+    ss << " Rate: " << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(nBins+1)/ratesDenominator;
+    ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(nBins+1)/ratesDenominator << " Hz";
   
   }
 

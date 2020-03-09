@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_COMMONAUGMENTATION_H
@@ -30,7 +30,6 @@ namespace DerivationFramework {
         // Tools etc
         ToolHandleArray<IAugmentationTool> m_augmentationTools;
         ServiceHandle<IChronoStatSvc>      m_chronoSvc;
-        //ServiceHandle<StoreGateSvc>	   m_ometaStore;	
 	
 	// Accumulating variables
 	//int m_eventCount;

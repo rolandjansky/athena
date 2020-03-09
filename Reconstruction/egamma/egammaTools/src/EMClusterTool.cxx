@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EMClusterTool.h"
-
+#include "GaudiKernel/EventContext.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
@@ -13,6 +13,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellDetPos.h"
 #include "StoreGate/WriteHandle.h"
@@ -21,11 +22,11 @@
 // =============================================================
 EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent),
+  m_caloCellDetPos{},
   m_doTopoSeededContainer(false)
 {
   declareInterface<IEMClusterTool>(this);
   
-  m_caloCellDetPos = std::make_unique<CaloCellDetPos>();
 }
 
 EMClusterTool::~EMClusterTool() {  }
@@ -78,14 +79,16 @@ StatusCode EMClusterTool::finalize() {
 }
 
 // =========================================================================
-StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer, 
-				      xAOD::PhotonContainer *photonContainer) 
+StatusCode EMClusterTool::contExecute(const EventContext& ctx,
+                                      const CaloDetDescrManager& mgr,
+                                      xAOD::ElectronContainer *electronContainer, 
+                                      xAOD::PhotonContainer *photonContainer) const
 {
   // Create output cluster container and register in StoreGate
-  SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputClusterContainerKey);
+  SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputClusterContainerKey, ctx);
   ATH_CHECK(outputClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
 					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
-  SG::WriteHandle<CaloClusterCellLinkContainer> outputClusterContainerCellLink(m_outputClusterContainerCellLinkKey);
+  SG::WriteHandle<CaloClusterCellLinkContainer> outputClusterContainerCellLink(m_outputClusterContainerCellLinkKey, ctx);
   ATH_CHECK(outputClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
 
   // Create output cluster container for topo-seeded clusters and register in StoreGate
@@ -94,33 +97,35 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
   SG::WriteHandle<xAOD::CaloClusterContainer> outputTopoSeededClusterContainer;
   SG::WriteHandle<CaloClusterCellLinkContainer> outputTopoSeededClusterContainerCellLink;
   if (m_doTopoSeededContainer) {
-    outputTopoSeededClusterContainer = SG::WriteHandle<xAOD::CaloClusterContainer>(m_outputTopoSeededClusterContainerKey);
+    outputTopoSeededClusterContainer = SG::WriteHandle<xAOD::CaloClusterContainer>(m_outputTopoSeededClusterContainerKey, ctx);
     ATH_CHECK(outputTopoSeededClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
 						      std::make_unique<xAOD::CaloClusterAuxContainer>()));
-    outputTopoSeededClusterContainerCellLink = SG::WriteHandle<CaloClusterCellLinkContainer>(m_outputTopoSeededClusterContainerCellLinkKey);
+    outputTopoSeededClusterContainerCellLink = SG::WriteHandle<CaloClusterCellLinkContainer>(m_outputTopoSeededClusterContainerCellLinkKey, ctx);
     ATH_CHECK(outputTopoSeededClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
   }
   
   // Loop over electrons and create new clusters
   xAOD::EgammaParameters::EgammaType egType = xAOD::EgammaParameters::electron;
-  //Only do this for non-supercluster (i.e. default SW) electrons.
-  for (auto electron : *electronContainer){
-    setNewCluster(electron, outputClusterContainer.ptr(), egType);
+  if(electronContainer){
+    for (auto electron : *electronContainer){
+      setNewCluster(ctx,mgr, electron, outputClusterContainer.ptr(), egType);
+    }
   }
-  // Loop over photons and create new clusters
-  for (auto photon : *photonContainer){
-    egType = (xAOD::EgammaHelpers::isConvertedPhoton(photon) ? 
-	      xAOD::EgammaParameters::convertedPhoton :
-	      xAOD::EgammaParameters::unconvertedPhoton);
+  if(photonContainer){
+    // Loop over photons and create new clusters
+    for (auto photon : *photonContainer){
+      egType = (xAOD::EgammaHelpers::isConvertedPhoton(photon) ? 
+                xAOD::EgammaParameters::convertedPhoton :
+                xAOD::EgammaParameters::unconvertedPhoton);
     
-    if (!m_doTopoSeededContainer || !photon->author(xAOD::EgammaParameters::AuthorCaloTopo35) ){
-      setNewCluster(photon, outputClusterContainer.ptr(), egType);
-    }
-    else{
-      setNewCluster(photon, outputTopoSeededClusterContainer.ptr(), egType);
+      if (!m_doTopoSeededContainer || !photon->author(xAOD::EgammaParameters::AuthorCaloTopo35) ){
+        setNewCluster(ctx, mgr,photon, outputClusterContainer.ptr(), egType);
+      }
+      else{
+        setNewCluster(ctx, mgr,photon, outputTopoSeededClusterContainer.ptr(), egType);
+      }
     }
   }
-
   // Now finalize the cluster: based on code in CaloClusterStoreHelper::finalizeClusters
   // Note: I don't specifically set the IProxyDict, since I also don't set it when I create
   //    data handles, either. 
@@ -139,10 +144,12 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
   return StatusCode::SUCCESS;
 }
 
-// ==========================================================================
-void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
-                                  xAOD::CaloClusterContainer *outputClusterContainer,
-                                  xAOD::EgammaParameters::EgammaType egType)
+void
+EMClusterTool::setNewCluster(const EventContext& ctx,
+                             const CaloDetDescrManager& mgr,
+                             xAOD::Egamma* eg,
+                             xAOD::CaloClusterContainer* outputClusterContainer,
+                             xAOD::EgammaParameters::EgammaType egType) const
 {
   if (!eg) {return;}
 
@@ -151,19 +158,19 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
     return;
   }
   typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;
-  xAOD::CaloCluster* cluster = 0;
+  xAOD::CaloCluster* cluster = nullptr;
 
   //Special Case for topo seeded photons. 
   if (eg->author(xAOD::EgammaParameters::AuthorCaloTopo35)) {
     cluster = new xAOD::CaloCluster(*(eg->caloCluster()));
-    fillPositionsInCalo(cluster);
+    fillPositionsInCalo(cluster,mgr);
   } // Doing superClusters
   else if ( m_doSuperClusters){
     //copy over for super clusters 
     cluster = makeNewSuperCluster(*(eg->caloCluster()),eg);
   }
   else {
-    cluster = makeNewCluster(*(eg->caloCluster()), eg, egType);
+    cluster = makeNewCluster(ctx,*(eg->caloCluster()), mgr, eg, egType);
   }
   outputClusterContainer->push_back(cluster);
 
@@ -174,9 +181,13 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
   
 }
 
-// ==========================================================================
-xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg, 
-						 xAOD::EgammaParameters::EgammaType egType) {
+xAOD::CaloCluster*
+EMClusterTool::makeNewCluster(const EventContext& ctx,
+                              const xAOD::CaloCluster& cluster,
+                              const CaloDetDescrManager& mgr,
+                              xAOD::Egamma* eg,
+                              xAOD::EgammaParameters::EgammaType egType) const
+{
   //
   // Create new cluster based on an existing one
   // const CaloCluster* cluster : input cluster
@@ -184,12 +195,12 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
   // protection against cluster not in barrel nor endcap
   if (!cluster.inBarrel() && !cluster.inEndcap() ){
     ATH_MSG_ERROR("Cluster neither in barrel nor in endcap, Skipping cluster");
-    return 0;
+    return nullptr;
   }
   
   if ((int) egType < 0 || egType >= xAOD::EgammaParameters::NumberOfEgammaTypes){
     ATH_MSG_WARNING("Invalid egamma type");
-    return 0;
+    return nullptr;
   }
 
   bool isBarrel = xAOD::EgammaHelpers::isBarrel(&cluster);  
@@ -203,7 +214,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
   else  {//(egType == xAOD::EgammaParameters::unconvertedPhoton)
     cluSize = (isBarrel ? xAOD::CaloCluster::SW_37gam : xAOD::CaloCluster::SW_55gam);
   }
-  xAOD::CaloCluster *newCluster = makeNewCluster(cluster, cluSize);
+  xAOD::CaloCluster *newCluster = makeNewCluster(ctx,cluster, mgr,cluSize);
  
   if (newCluster && m_MVACalibSvc->execute(*newCluster,*eg).isFailure()){
     ATH_MSG_ERROR("Problem executing MVA cluster tool");
@@ -212,17 +223,21 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 }
 
 // ==========================================================================
-xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, 
-						 const xAOD::CaloCluster::ClusterSize& cluSize) {
+xAOD::CaloCluster*
+EMClusterTool::makeNewCluster(const EventContext& ctx,
+                              const xAOD::CaloCluster& cluster,
+                              const CaloDetDescrManager& mgr,
+                              const xAOD::CaloCluster::ClusterSize& cluSize) const
+{
 
   xAOD::CaloCluster* newClus = CaloClusterStoreHelper::makeCluster(cluster.getCellLinks()->getCellContainer(),
 								   cluster.eta0(),cluster.phi0(),
 								   cluSize);
   if(newClus){  
-    if (m_clusterCorrectionTool->execute(Gaudi::Hive::currentContext(),newClus).isFailure()){
+    if (m_clusterCorrectionTool->execute(ctx,newClus).isFailure()){
       ATH_MSG_ERROR("Problem executing cluster correction tool");
     }
-    fillPositionsInCalo(newClus);
+    fillPositionsInCalo(newClus,mgr);
     //Fill the raw state using the cluster with correct size  but not MVA
     newClus->setRawE(newClus->calE());
     newClus->setRawEta(newClus->calEta());
@@ -238,7 +253,10 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 
   return newClus;
 }
-xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,xAOD::Egamma *eg) {
+xAOD::CaloCluster*
+EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,
+                                   xAOD::Egamma* eg) const
+{
   //
   xAOD::CaloCluster* newClus = new xAOD::CaloCluster(cluster);
   if(m_applySuperClusters){ 
@@ -251,26 +269,27 @@ xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& c
 
   return newClus;
 }
-// ==========================================================================
-void EMClusterTool::fillPositionsInCalo(xAOD::CaloCluster* cluster) const{
+void
+EMClusterTool::fillPositionsInCalo(xAOD::CaloCluster* cluster, const CaloDetDescrManager& mgr) const
+{
 
   bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
   CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
   // eta and phi of the cluster in the calorimeter frame
-  double eta, phi;
-  m_caloCellDetPos->getDetPosition(sample, cluster->eta(), cluster->phi(), eta, phi); 
+  double eta;
+  double phi;
+  m_caloCellDetPos.getDetPosition(mgr,sample,cluster->eta(), cluster->phi(), eta, phi); 
 
   cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME,phi);
 
   //  eta in the second sampling
-  m_caloCellDetPos->getDetPosition(sample, cluster->etaBE(2), cluster->phiBE(2), eta, phi);
+  m_caloCellDetPos.getDetPosition(mgr,sample, cluster->etaBE(2), cluster->phiBE(2), eta, phi);
   cluster->insertMoment(xAOD::CaloCluster::ETA2CALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHI2CALOFRAME,phi);
   //  eta in the first sampling 
   sample = isBarrel ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
-  m_caloCellDetPos->getDetPosition(sample, cluster->etaBE(1), cluster->phiBE(1),eta, phi);
+  m_caloCellDetPos.getDetPosition(mgr,sample, cluster->etaBE(1), cluster->phiBE(1),eta, phi);
   cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME,phi);
-
 }

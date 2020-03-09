@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,9 +21,9 @@
 #include "VP1Base/VP1AthenaPtrs.h"
 
 #include "GeoModelKernel/GeoPVConstLink.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 //#include "InDetServMatGeoModel/InDetServMatManager.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "LArReadoutGeometry/EMBDetectorManager.h"
@@ -128,7 +128,7 @@ const T * VP1DetInfo::Imp::cachedRetrieve(const T*& cachedPtr, const char* prefe
     return ( cachedPtr==bad? 0 : cachedPtr );
   QString key(preferredKey);
   if (!configallows) {
-    VP1Msg::messageDebug("VP1DetInfo WARNING: Will not attempt to get (type="+QString(typeid(T).name())+", key="+key+") due to missing features in job!");
+    VP1Msg::messageDebug("VP1DetInfo WARNING: Will not attempt to get (type="+QString(typeid(T).name())+", key="+key+") due to missing/disabled features in job!");
     cachedPtr = bad;
     return 0;
   }

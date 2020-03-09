@@ -56,7 +56,10 @@ svcMgr.IOVDbSvc.DBInstance=""
 
 svcMgr.PoolSvc.SortReplicas=False
 
-runNoForFileName=2147483647
+if 'IOVBegin' in dir():
+   runNoForFileName=IOVBegin
+else:   
+   runNoForFileName=2147483647
 
 outObjects=[]
 outTags=[]
@@ -71,14 +74,14 @@ for f in folderInfo:
   tag=f[3]
   since=f[4]
   until=f[5]
-  print "Working on folder",fn,"IOV:",since,"-",until
+  printfunc ("Working on folder",fn,"IOV:",since,"-",until)
   #if since == 0:
-  #  print "ERROR: Found IOV begin = 0"
+  #  printfunc ("ERROR: Found IOV begin = 0")
     #sys.exit(-1)
   if 'OFC' in fn and not 'mu_20' in tag:
      continue
   if fn in mergeFolders:
-    if since>0 and since<runNoForFileName:
+    if since>0 and since<runNoForFileName and 'IOVBegin' not in dir():
       runNoForFileName=since
     if len(keySuffix)>0 and key.endswith(keySuffix):
       key=key[:-len(keySuffix)]
@@ -90,14 +93,14 @@ svcMgr.EventSelector.RunNumber = 2147483647
 
 OutputFileRec=fileName+"_"+str(runNoForFileName)+".pool.root"
 if os.access(OutputFileRec,os.F_OK):
-  print "File",OutputFileRec,"exists already, removing ...."
+  printfunc ("File",OutputFileRec,"exists already, removing ....")
   os.remove(OutputFileRec)
 
-print svcMgr.IOVDbSvc.Folders
+printfunc (svcMgr.IOVDbSvc.Folders)
 
-print "============ Output objects ============="
-print outObjects
-print outTags
+printfunc ("============ Output objects =============")
+printfunc (outObjects)
+printfunc (outTags)
 
 from LArCalibTools.LArCalibToolsConf import LArBlockCorrections
 topSequence+=LArBlockCorrections()
@@ -114,6 +117,8 @@ svcMgr.IOVDbSvc.dbConnection  = outputDB
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
 svcMgr.IOVRegistrationSvc.RecreateFolders = True
+if 'IOVBegin' in dir():
+   svcMgr.IOVRegistrationSvc.BeginRun=IOVBegin
 
 svcMgr.DetectorStore.Dump=True
 

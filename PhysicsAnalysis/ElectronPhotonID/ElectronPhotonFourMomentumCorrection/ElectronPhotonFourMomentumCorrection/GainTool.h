@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ELECTRONPHOTONFOURMOMENTUMCORRECTION_GAINTOOL_H
@@ -17,8 +17,8 @@ namespace egGain {
   class GainTool {
     
   public:
-    GainTool(std::string filenameTO, std::string filenameVar);
-    void Init(std::string filenameTO, std::string filenameVar);
+    GainTool(const std::string& filenameTO, const std::string& filenameVar);
+    void Init(const std::string& filenameTO, const std::string& filenameVar);
     virtual ~GainTool();
 
     double CorrectionGainTool(double eta_input, double energy_input, double energy_layer2_input,

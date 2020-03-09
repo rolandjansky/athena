@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # function to configure LArPileUpTool
 
@@ -22,7 +22,7 @@ def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitCon
 
 
     except Exception as configException:
-        print configException
-        print "ERROR Problem with configuration"
+        import traceback
+        traceback.print_exc()
 
     return theTool

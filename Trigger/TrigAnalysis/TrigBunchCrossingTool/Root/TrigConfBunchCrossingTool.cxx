@@ -75,7 +75,13 @@ namespace Trig {
 
       // Retrieve the trigger configuration service/tool:
 #ifndef XAOD_STANDALONE
-      ATH_CHECK( m_configSvc.retrieve() );
+      if (!m_configTool.empty()) {
+        ATH_MSG_DEBUG( "  xAODConfigTool is set - will read from xAOD metadata" );
+        ATH_CHECK( m_configTool.retrieve() );
+      } else {
+        ATH_MSG_DEBUG( "  xAODConfigTool is not set - will read from TrigConfigSvc" );
+        ATH_CHECK( m_configSvc.retrieve() );
+      }
 #else
       ATH_CHECK( m_configTool.retrieve() );
 #endif // not XAOD_STANDALONE
@@ -181,7 +187,11 @@ namespace Trig {
       // Decide where to take the configuration from:
       TrigConf::IILVL1ConfigSvc* configSvc = 0;
 #ifndef XAOD_STANDALONE
-      configSvc = m_configSvc.operator->();
+      if (m_configTool.isSet()) {
+        configSvc = m_configTool.operator->();
+      } else {
+        configSvc = m_configSvc.operator->();
+      }
 #else
       configSvc = m_configTool.operator->();
 #endif // not XAOD_STANDALONE

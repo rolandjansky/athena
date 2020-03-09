@@ -353,7 +353,7 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     rtrigEmCluster.setEta1(99.0);
   rtrigEmCluster.setRawEnergy(rtrigEmCluster.rawEnergy() + totalEnergy);
 
-#ifndef NDEBUG
+#if 0 // Can't call EtaPhiRange from a const method!
   if (msgLvl(MSG::DEBUG)) {
     if (m_geometryTool->EtaPhiRange(0, 1, energyEta, energyPhi)) {
       ATH_MSG_ERROR("problems with EtaPhiRange");

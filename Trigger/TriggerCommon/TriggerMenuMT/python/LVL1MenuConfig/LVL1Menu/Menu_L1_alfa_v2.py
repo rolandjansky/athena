@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------#
 def defineMenu():
 
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+    from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 
     Lvl1Flags.CTPVersion = 4 # new CTP
 

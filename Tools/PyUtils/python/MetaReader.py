@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import absolute_import
 import os
@@ -19,7 +19,8 @@ regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d
 regex_BS_files = re.compile(r'^(\w+):.*((\.D?RAW\..*)|(\.data$))')
 
 
-def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key_filter= []):
+def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, meta_key_filter = [],
+                  unique_tag_info_values = True):
     """
     This tool is independent of Athena framework and returns the metadata from a given file.
     :param filenames: the input file from which metadata needs to be extracted.
@@ -29,10 +30,10 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
     :return: a dictionary of metadata for the given input file.
     """
 
-    from RootUtils import PyROOTFixes
+    from RootUtils import PyROOTFixes  # noqa F401
 
     # Check if the input is a file or a list of files.
-    if isinstance(filenames, basestring):
+    if isinstance(filenames, str):
         filenames = [filenames]
 
     # Check if file_type is an allowed value
@@ -46,6 +47,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
     if mode not in ('tiny', 'lite', 'full', 'peeker'):
         raise NameError('Allowed values for "mode" parameter are: "tiny", "lite", "peeker" or "full"')
     msg.info('Current mode used: {0}'.format(mode))
+    msg.info('Current filenames: {0}'.format(filenames))
 
     if mode != 'full' and len(meta_key_filter) > 0:
         raise NameError('It is possible to use the meta_key_filter option only for full mode')
@@ -65,7 +67,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
                 with open(filename, 'rb') as binary_file:
                     magic_file = binary_file.read(4)
 
-                    if magic_file == 'root':
+                    if magic_file == 'root' or magic_file == b'root':
                         current_file_type = 'POOL'
                         meta_dict[filename]['file_type'] = 'POOL'
 
@@ -81,11 +83,9 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
                 if regex_BS_files.match(filename):
                     current_file_type = 'BS'
                     meta_dict[filename]['file_type'] = 'BS'
-                    print('############### BS online')
                 else:
                     current_file_type = 'POOL'
                     meta_dict[filename]['file_type'] = 'POOL'
-                    print('############### POOL online')
 
                 # add information about the file_size of the input filename
                 meta_dict[filename]['file_size'] = None  # None -> we can't read the file size for a remote file
@@ -97,7 +97,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
         if current_file_type == 'POOL':
             import ROOT
             # open the file using ROOT.TFile
-            current_file = ROOT.TFile.Open(filename)
+            current_file = ROOT.TFile.Open( _get_pfn(filename) )
 
             # open the tree 'POOLContainer' to read the number of entries
             if current_file.GetListOfKeys().Contains('POOLContainer'):
@@ -105,8 +105,16 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
             else:
                 meta_dict[filename]['nentries'] = None
 
+            # open the tree 'CollectionTree' to read auto flush
+            if current_file.GetListOfKeys().Contains('CollectionTree'):
+                meta_dict[filename]['auto_flush'] = current_file.Get('CollectionTree').GetAutoFlush()
+
             # read and add the 'GUID' value
             meta_dict[filename]['file_guid'] = _read_guid(filename)
+
+            # read and add compression level and algorithm
+            meta_dict[filename]['file_comp_alg'] = current_file.GetCompressionAlgorithm()
+            meta_dict[filename]['file_comp_level'] = current_file.GetCompressionLevel()
 
             # ----- read extra metadata required for 'lite' and 'full' modes ----------------------------------------#
             if mode != 'tiny':
@@ -203,6 +211,22 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
 
                     meta_dict[filename][key] = _convert_value(content)
 
+
+
+            # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
+            # ATEAM-560: https://its.cern.ch/jira/browse/ATEAM-560
+            # ATEAM-531: https://its.cern.ch/jira/browse/ATEAM-531
+            # This changes will remove all duplicates values presented in some files due
+            # to the improper merging of two IOVMetaDataContainers.
+            if unique_tag_info_values:
+                msg.info('MetaReader is called with the parameter "unique_tag_info_values" set to True. '
+                         'This is a workaround to remove all duplicate values from "/TagInfo" key')
+                if '/TagInfo' in meta_dict[filename]:
+                    for key, value in meta_dict[filename]['/TagInfo'].items():
+                        if isinstance(value, list):
+                            unique_list = list(set(value))
+                            meta_dict[filename]['/TagInfo'][key] = unique_list[0] if len(unique_list) == 1 else unique_list
+
             if promote is None:
                 promote = mode == 'lite' or mode == 'peeker'
 
@@ -275,7 +299,16 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
                 bs_metadata['lumiBlockNumbers'] = getattr(data_reader, 'lumiblockNumber')()
                 bs_metadata['projectTag'] = getattr(data_reader, 'projectTag')()
                 bs_metadata['stream'] = getattr(data_reader, 'stream')()
-                bs_metadata['beamType'] = getattr(data_reader, 'beamType')()
+                #bs_metadata['beamType'] = getattr(data_reader, 'beamType')()
+                beamTypeNbr= getattr(data_reader, 'beamType')()
+                #According to info from Rainer and Guiseppe the beam type is
+                #O: no beam
+                #1: protons
+                #2: ions
+                if (beamTypeNbr==0): bs_metadata['beamType'] = 'cosmics'
+                elif (beamTypeNbr==1 or beamTypeNbr==2):  bs_metadata['beamType'] = 'collisions'
+                else: bs_metadata['beamType'] = 'unknown'
+
                 bs_metadata['beamEnergy'] = getattr(data_reader, 'beamEnergy')()
 
                 meta_dict[filename]['eventTypes'] = bs_metadata.get('eventTypes', [])
@@ -285,7 +318,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
                 # Promote up one level
                 meta_dict[filename]['runNumbers'] = [bs_metadata.get('runNumbers', None)]
                 meta_dict[filename]['lumiBlockNumbers'] = [bs_metadata.get('lumiBlockNumbers', None)]
-                meta_dict[filename]['beam_type'] = [bs_metadata.get('beamType', None)]
+                meta_dict[filename]['beam_type'] = bs_metadata.get('beamType', None)
                 meta_dict[filename]['beam_energy'] = bs_metadata.get('beamEnergy', None)
                 meta_dict[filename]['stream'] = bs_metadata.get('stream', None)
 
@@ -295,7 +328,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
                     meta_dict[filename]['lumiBlockNumbers'].append(bs_metadata.get('LumiBlock', 0))
 
                 ievt = iter(bs)
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check()  # may raise a RuntimeError
                 processing_tags = [dict(stream_type = tag.type, stream_name = tag.name, obeys_lbk = bool(tag.obeys_lumiblock)) for tag in evt.stream_tag()]
                 meta_dict[filename]['processingTags'] = [x['stream_name'] for x in processing_tags]
@@ -303,7 +336,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
                 meta_dict[filename]['run_type'] = [eformat.helper.run_type2string(evt.run_type())]
 
                 # fix for ATEAM-122
-                if len(bs_metadata.get('eventTypes', '')) == 0:	 # see: ATMETADATA-6
+                if len(bs_metadata.get('eventTypes', '')) == 0:  # see: ATMETADATA-6
                     evt_type = ['IS_DATA', 'IS_ATLAS']
                     if bs_metadata.get('stream', '').startswith('physics_'):
                         evt_type.append('IS_PHYSICS')
@@ -327,6 +360,24 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
     return meta_dict
 
 
+def _get_pfn(filename):
+    """
+    Extract the actuall filename if LFN or PFN notation is used
+    """
+    pfx = filename[0:4]
+    if pfx == 'PFN:':
+        return filename[4:]
+    if pfx == 'LFN:':
+        import subprocess, os
+        os.environ['POOL_OUTMSG_LEVEL'] = 'Error'
+        output = subprocess.check_output(['FClistPFN','-l',filename[4:]]).split('\n')
+        if len(output) == 2:
+            return output[0]
+        msg.error( 'FClistPFN({0}) returned unexpected number of lines:'.format(filename) )
+        msg.error( '\n'.join(output) )
+    return filename
+
+
 def _read_guid(filename):
     """
     Extracts the "guid" (Globally Unique Identfier in POOL files and Grid catalogs) value from a POOL file.
@@ -334,24 +385,27 @@ def _read_guid(filename):
     :return: the guid value
     """
     import ROOT
-    root_file = ROOT.TFile.Open(filename)
+    root_file = ROOT.TFile.Open( _get_pfn(filename) )
     params = root_file.Get('##Params')
 
     regex = re.compile(r'^\[NAME=([a-zA-Z0-9_]+)\]\[VALUE=(.*)\]')
+    fid = None
 
     for i in range(params.GetEntries()):
         params.GetEntry(i)
-        param = params.db_string
+        # Work around apparent pyroot issue:
+        # If we try to access params.db_string directly, we see trailing
+        # garbage, which can confuse python's bytes->utf8 conversion
+        # and result in an error.
+        param = params.GetLeaf('db_string').GetValueString()
 
         result = regex.match(param)
         if result:
-            name = result.group(1)
-            value = result.group(2)
+            if result.group(1) == 'FID' :
+               # don't exit yet, it's the last FID entry that counts
+               fid = result.group(2)
 
-            if name == 'FID':
-                return value
-
-    return None
+    return fid
 
 
 def _extract_fields(obj):
@@ -610,6 +664,7 @@ def make_peeker(meta_dict):
             keys_to_keep = [
                 'TruthStrategy',
                 'SimBarcodeOffset',
+                'TRTRangeCut',
             ]
             for item in list(meta_dict[filename]['/Simulation/Parameters']):
                 if item not in keys_to_keep:
@@ -634,11 +689,14 @@ def promote_keys(meta_dict):
         for key in file_content:
             if key in md['metadata_items'] and regexEventStreamInfo.match(md['metadata_items'][key]):
                 md.update(md[key])
-                et = md['eventTypes'][0]
-                md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
 
-                md['mc_channel_number'] = et.get('mc_channel_number', 0)
-                md['eventTypes'] = et['type']
+                if len(md['eventTypes']):
+                    et = md['eventTypes'][0]
+                    md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
+                    md['mc_channel_number'] = et.get('mc_channel_number', 0)
+                    md['eventTypes'] = et['type']
+
+
                 md['lumiBlockNumbers'] = md['lumiBlockNumbers']
                 md['processingTags'] = md[key]['processingTags']
 
@@ -658,3 +716,50 @@ def promote_keys(meta_dict):
             md.pop('/Digitization/Parameters')
 
     return meta_dict
+
+
+def convert_itemList(metadata, layout):
+    """
+    This function will rearrange the itemList values to match the format of 'eventdata_items', 'eventdata_itemsList'
+    or 'eventdata_itemsDic' generated with AthFile
+    :param metadata: a dictionary obtained using read_metadata method.
+                     The mode for read_metadata must be 'peeker of 'full'
+    :param layout: the mode in which the data will be converted:
+                * for 'eventdata_items' use: layout= None
+                * for 'eventdata_itemsList' use: layout= '#join'
+                * for 'eventdata_itemsDic' use: layout= 'dict'
+    """
+
+    # Find the itemsList:
+    item_list = None
+
+    if 'itemList' in metadata:
+        item_list = metadata['itemList']
+    else:
+
+        current_key = None
+
+        for key in metadata:
+            if key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
+                current_key = key
+                break
+        if current_key is not None:
+            item_list = metadata[current_key]['itemList']
+
+    if item_list is not None:
+
+        if layout is None:
+            return item_list
+
+        elif layout == '#join':
+            return [k + '#' + v for k, v in item_list if k]
+
+
+        elif layout == 'dict':
+            from collections import defaultdict
+            dic = defaultdict(list)
+
+            for k, v in item_list:
+                dic[k].append(v)
+
+            return dict(dic)

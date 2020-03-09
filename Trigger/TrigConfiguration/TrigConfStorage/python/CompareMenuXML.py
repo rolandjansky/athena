@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import user,sys
+from __future__ import print_function
+
+import sys
 
 from xml.dom import minidom
 from xml.sax import parse
@@ -41,7 +43,7 @@ class CompareMenuXML(object):
 
 
     def write(self,line):
-        print line,
+        print (line, end='')
         self.textoutput += line + "<BR>"
 
 
@@ -74,11 +76,11 @@ class CompareMenuXML(object):
         equal = True
         if self.verboseLevel>0:
             if node1.compfield == 'single':
-                print >> self, "compare single %s with %s in context %s" % (node1.nodeName,node2.nodeName, node1.context)
+                print ("compare single %s with %s in context %s" % (node1.nodeName,node2.nodeName, node1.context), file=self)
             else:
                 val1 = node1.attributes[node1.compfield].value
                 val2 = node1.attributes[node2.compfield].value
-                print >> self, "compare %s (%s) with %s (%s) in context %s" % (node1.nodeName, val1, node2.nodeName, val2, node1.context)
+                print ("compare %s (%s) with %s (%s) in context %s" % (node1.nodeName, val1, node2.nodeName, val2, node1.context), file=self)
         # first compare the node itself
         if node1.nodeType==minidom.Node.TEXT_NODE:
             # CDATA
@@ -110,7 +112,7 @@ class CompareMenuXML(object):
                 break
 
         if not compField:
-            print >>self, "Don't know how to compare a node of type %s in context %s (was looking for a rule about %s), will abort" % ( node.nodeName, node.context, lookfor )
+            print ("Don't know how to compare a node of type %s in context %s (was looking for a rule about %s), will abort" % ( node.nodeName, node.context, lookfor ), file=self)
             sys.exit(0)
 
         return compField
@@ -130,7 +132,7 @@ class CompareMenuXML(object):
         if val1<val2: return -1
         if val1>val2: return 1
         if reqUniq:
-            raise RuntimeError, "Two equal nodes %s found with %s = %s and  %s = %s" % (node1.nodeName, node1.compfield, val1, node2.compfield, val2 )
+            raise RuntimeError ("Two equal nodes %s found with %s = %s and  %s = %s" % (node1.nodeName, node1.compfield, val1, node2.compfield, val2 ))
         else:
             return 0
 
@@ -150,17 +152,17 @@ class CompareMenuXML(object):
                 parNode = parNode.parentNode
 
             if not eNode.nodeName in self.uniqID:
-                print >>self, "Don't know how to compare two items of type %s , will abort" % eNode.nodeName
+                print ("Don't know how to compare two items of type %s , will abort" % eNode.nodeName, file=self)
                 sys.exit(0)
 
             if self.uniqID[eNode.nodeName] == 'single':
-                print >> self, "DIFF MISS: %s" % (eNode.nodeName),
+                print ("DIFF MISS: %s" % (eNode.nodeName), end='', file=self)
             else:
-                print >> self, "DIFF MISS: %s with %s %s" % (eNode.nodeName, self.uniqID[eNode.nodeName], eNode.attributes[self.uniqID[eNode.nodeName]].value),
+                print ("DIFF MISS: %s with %s %s" % (eNode.nodeName, self.uniqID[eNode.nodeName], eNode.attributes[self.uniqID[eNode.nodeName]].value), end='', file=self)
                 
             if parNode != eNode:
-                print >> self, "[from %s %s]" % (parNode.nodeName, parNode.attributes[self.uniqID[parNode.nodeName]].value),
-            print >> self, "appears only in menu %i" % (eMenu)
+                print ("[from %s %s]" % (parNode.nodeName, parNode.attributes[self.uniqID[parNode.nodeName]].value), end='', file=self)
+            print ("appears only in menu %i" % (eMenu), file=self)
             return True
         return False
 
@@ -173,17 +175,17 @@ class CompareMenuXML(object):
         if not equal:
             par1 = node1.parentNode
             par2 = node2.parentNode
-            print >> self, "DIFF DATA: %s with %s %s: different (%s != %s)" % (par1.nodeName, self.uniqID[par1.nodeName], par1.attributes[self.uniqID[par1.nodeName]].value, data1, data2)
+            print ("DIFF DATA: %s with %s %s: different (%s != %s)" % (par1.nodeName, self.uniqID[par1.nodeName], par1.attributes[self.uniqID[par1.nodeName]].value, data1, data2), file=self)
         return equal
 
 
 
     def compAttr(self, node1, node2):
         if node1.nodeName!=node2.nodeName:
-            raise RuntimeError, "Comparing attributes of two different element classes %s and  %s" % (node1.nodeName, node2.nodeName)
+            raise RuntimeError ("Comparing attributes of two different element classes %s and  %s" % (node1.nodeName, node2.nodeName))
         if self.verboseLevel>2:
-            if node1.attributes: print "Attribute 1",node1.attributes.items()
-            if node2.attributes: print "Attribute 2",node2.attributes.items()
+            if node1.attributes: print ("Attribute 1",node1.attributes.items())
+            if node2.attributes: print ("Attribute 2",node2.attributes.items())
         nodeName = node1.nodeName
         equal = True
         allAttr = []
@@ -192,23 +194,23 @@ class CompareMenuXML(object):
         if node1.attributes: allAttr += [x for x in node1.attributes.keys() if not x in ignorelist]
         if node2.attributes: allAttr += [x for x in node2.attributes.keys() if not (x in allAttr or x in ignorelist)]
         if self.verboseLevel>1:
-            print >> self, "Attributes of %s:" % node1.nodeName, allAttr
+            print ("Attributes of %s:" % node1.nodeName, allAttr, file=self)
         for a in allAttr:
             if (node1.attributes==None) or (not a in node1.attributes.keys()):
-                print >> self, "DIFF ATTR: %s: attribute '%s' exists only in document file 2 (%s)" % (nodeName, str(a), node2.attributes[a].value)
+                print ("DIFF ATTR: %s: attribute '%s' exists only in document file 2 (%s)" % (nodeName, str(a), node2.attributes[a].value), file=self)
                 equal=False
                 continue
             if (node2.attributes==None) or (not a in node2.attributes.keys()):
-                print >> self, "DIFF ATTR: %s: attribute '%s' exists only in document file 1 (%s)" % (nodeName, str(a), node1.attributes[a].value)
+                print ("DIFF ATTR: %s: attribute '%s' exists only in document file 1 (%s)" % (nodeName, str(a), node1.attributes[a].value), file=self)
                 equal=False
                 continue
             if self.verboseLevel>2:
-                print "Attribute %s : %s  vs. %s" % (a, node1.attributes[a].value, node2.attributes[a].value)
+                print ("Attribute %s : %s  vs. %s" % (a, node1.attributes[a].value, node2.attributes[a].value))
             if node1.attributes[a].value != node2.attributes[a].value:
                 if node1.compfield == 'single':
-                    print >> self, "DIFF ATTR: %s: different '%s' (%s != %s)" % (nodeName,str(a), node1.attributes[a].value, node2.attributes[a].value)
+                    print ("DIFF ATTR: %s: different '%s' (%s != %s)" % (nodeName,str(a), node1.attributes[a].value, node2.attributes[a].value), file=self)
                 else:
-                    print >> self, "DIFF ATTR: %s %s: different '%s' (%s != %s)" % (nodeName, node1.attributes[node1.compfield].value, str(a), node1.attributes[a].value, node2.attributes[a].value)
+                    print ("DIFF ATTR: %s %s: different '%s' (%s != %s)" % (nodeName, node1.attributes[node1.compfield].value, str(a), node1.attributes[a].value, node2.attributes[a].value), file=self)
                 equal=False
                 
         return equal

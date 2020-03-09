@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -98,9 +98,6 @@ namespace Muon
     
     /** copy content into this object. DOES NOT clear! */
     void copy( const MdtTwinPrepData& prd);
-    
-    /** frees memory of current object */
-    void clear();
   };
   
   //////////////////////////////////////////////////////////////////
@@ -121,9 +118,9 @@ namespace Muon
     // return globalPosition:
     inline const Amg::Vector3D& MdtTwinPrepData::globalPosition() const
       {
-	if (m_globalPosition==0) m_globalPosition = detectorElement()->surface(identify()).Trk::Surface::localToGlobal(localPosition());
-        
-	if (m_globalPosition==0) throw Trk::PrepRawDataUndefinedVariable();
+	if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(detectorElement()->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
+
+	if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
     
 	return *m_globalPosition;
       }
@@ -131,17 +128,11 @@ namespace Muon
     inline void MdtTwinPrepData::copy( const MdtTwinPrepData& RIO){
       m_tdcTwin = RIO.tdcTwin();
       m_adcTwin = RIO.adcTwin();
-      if (RIO.m_globalPosition!=0){
-	m_globalPosition = new Amg::Vector3D(*RIO.m_globalPosition);
+      if (RIO.m_globalPosition){
+	m_globalPosition.set(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
       }
  
     }
-  
-    inline void MdtTwinPrepData::clear(){
-      delete m_globalPosition;
-      m_globalPosition = 0;
-    }
-  
 
 }
 

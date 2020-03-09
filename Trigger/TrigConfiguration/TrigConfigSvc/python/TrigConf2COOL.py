@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file TrigCond2COOL.py
-## $Id: TrigConf2COOL.py,v 1.14 2009-05-06 13:09:27 stelzer Exp $
 ###############################################################
 #
 # The jobOptions to enable reading and writing of configuration
@@ -11,9 +10,6 @@
 #==============================================================
 #
 # Required libs:
-import os.path
-import threading
-
 from . import TrigConf2COOLLib as _impl
 
 from AthenaCommon.AppMgr import theApp

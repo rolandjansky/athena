@@ -103,7 +103,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doTruth = False
 InDetFlags.doDBMstandalone = True
-InDetFlags.doTrackSegmentsPixelPrdAssociation = False
+InDetFlags.doTrackSegmentsDisappearing = False
 
 # --- uncomment to change the default of one of the following options:
 InDetFlags.doLowPt                = False

@@ -4,7 +4,7 @@ from __future__ import print_function
 
 __author__ = 'Martin Woudstra <martin.woudstra@cern.ch>'
 
-import string,copy,os,weakref
+import copy,os,weakref
 
 from GaudiKernel.GaudiHandles import \
      GaudiHandle,GaudiHandleArray,\
@@ -666,7 +666,10 @@ class ConfiguredFactory(object):
     ## @arg @c parent : the parent (@c ConfiguredPlaceHolder) of the property
     def _resolveProperties(self,parent,props,indent="",propStack=None):
         newProps = {}
-        for name,value in props.items():
+        propnames = list(props.keys())
+        propnames.sort()
+        for name in propnames:
+            value = props[name]
             if value != Configurable.propertyNoValue:
                 newProps[name] = self._resolveProperty( parent, name, value, indent, propStack )
 
@@ -676,7 +679,10 @@ class ConfiguredFactory(object):
     def _resolveAllProperties(self,conf,indent="",propStack=None):
 
         defaultProps = conf.getDefaultProperties()
-        for name,value in defaultProps.items():
+        propnames = list(defaultProps.keys())
+        propnames.sort()
+        for name in propnames:
+            value = defaultProps[name]
             # skip non-configurables, since they don't need to be resolved
             propertyType = getPropertyType(conf,name)
             if not issubclass(propertyType,(GaudiHandle,GaudiHandleArray,Configurable)):
@@ -780,8 +786,8 @@ class ConfiguredFactory(object):
 
     def checkConfigurableType(self,conf,requiredType):
         """Check that the configurable <conf> has the correct type (conf.getType()). C++ and equivalent python type names can be mixed."""
-        typeRequested = string.translate( requiredType, ConfigurableDb._transtable )
-        typeFound     = string.translate( conf.getType(), ConfigurableDb._transtable )
+        typeRequested = requiredType.translate ( ConfigurableDb._transtable )
+        typeFound     = conf.getType().translate ( ConfigurableDb._transtable )
         if typeFound != typeRequested:
             raise TypeError("Requested configurable %s(%r) already exists with different type: %s" % (typeRequested,conf.getName(),typeFound))
         
@@ -1273,7 +1279,7 @@ class ConfiguredFactory(object):
                     
                 # turn filename syntax into module syntax: remove extension and replace / with . (dot)
                 confDbModule = os.path.splitext(localfile)[0].replace(os.sep,'.')
-                self.logger().debug( "importing %s..." % confDbModule )
+                self.logger().debug( "importing %s...", confDbModule )
                 try:
                     mod = __import__( confDbModule, globals(), locals(), [dbFile] )
                 except Exception as err:
@@ -1283,7 +1289,7 @@ class ConfiguredFactory(object):
                     nFiles += 1
 
         stopTime = time.time()
-        self.logger().info( "imported %i confDb modules in %.2f seconds" % (nFiles,stopTime-startTime) )
+        self.logger().info( "imported %i confDb modules in %.2f seconds", nFiles, stopTime-startTime )
         self._hasReadDB = True
         
 

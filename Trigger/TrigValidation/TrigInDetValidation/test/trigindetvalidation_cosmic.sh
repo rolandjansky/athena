@@ -40,10 +40,8 @@ WAITING=60
 # export ATHENA_NUM_PROC=1
 
 unset  ATHENA_NUM_PROC
-unset  ATHENA_PROC_NUMBER
  
 env | grep ATHENA_NUM_PROC
-env | grep ATHENA_PROC_NUMBER
 
 
 # count how many jobs are running ...

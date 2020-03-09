@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetTrackSelectorTool.h"
@@ -95,13 +95,11 @@ bool InDetTrackSelectorTool::decision(const Trk::Track & track, const Trk::Verte
 
   // number of hits, silicon hits, b-layer
   // first ask track for summary
+  std::unique_ptr<Trk::TrackSummary> summaryUniquePtr;
   const Trk::TrackSummary * summary = track.trackSummary();
   if (summary == 0 && m_trackSumToolAvailable) {
-    // ugly but one needs to cast the const away because the method needs to update the track (the tool is a friend of track)
-    Trk::Track & nonConstTrack = const_cast<Trk::Track &>(track);
-    m_trackSumTool->updateTrack(nonConstTrack);
-    // now get it from the track (the track has OWNERSHIP)
-    summary = nonConstTrack.trackSummary();
+    summaryUniquePtr = m_trackSumTool->summary(track);
+    summary = summaryUniquePtr.get();
   }
 
   if (0==summary) {

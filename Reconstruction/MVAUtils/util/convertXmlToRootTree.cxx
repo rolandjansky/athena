@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MVAUtils/BDT.h"
+#include "MVAUtils/TMVAToMVAUtils.h"
 #include "TMVA/Reader.h"
 #include "TMVA/MethodBDT.h"
 
@@ -12,15 +13,15 @@
 #include <TFile.h>
 #include <TRandom3.h>
 
-#include <vector>
-#include <iostream>
-
 #include "CxxUtils/checker_macros.h"
+#include <iostream> 
+#include <memory>
+#include <vector>
 
 using namespace std;
 
 /** 
-    A utility to convert xml files from TMVA into root TTrees for this package.
+    Utility to convert xml files from TMVA into root TTrees for this package.
 
     Usage: convertXmlToRootTree <inFile(xml)> [outFile(root)]
 
@@ -40,7 +41,6 @@ struct XmlVariableInfo {
 TString AnalysisType;
 unsigned int NClass;
 
-
 std::vector<XmlVariableInfo>
 parseVariables(TXMLEngine *xml, void* node, const TString & nodeName)
 {
@@ -48,13 +48,13 @@ parseVariables(TXMLEngine *xml, void* node, const TString & nodeName)
   if (!xml || !node) return result;
 
   // loop over all children inside <Variables> or <Spectators>
-  for (XMLNodePointer_t info_node = xml->GetChild(node); info_node != 0;
+  for (XMLNodePointer_t info_node = xml->GetChild(node); info_node != nullptr;
        info_node = xml->GetNext(info_node))
   {
     XMLAttrPointer_t attr = xml->GetFirstAttr(info_node);
     XmlVariableInfo varInfo;
     // loop over the attributes of each child
-    while (attr != 0)
+    while (attr != nullptr)
     {
       TString name = xml->GetAttrName(attr);
       if (name == "Expression")
@@ -102,11 +102,11 @@ parseXml  ATLAS_NOT_REENTRANT (const TString & xml_filename)
       result.insert(result.end(), r.begin(), r.end());
     }
     else if (nodeName == "GeneralInfo" && node) {
-      for (XMLNodePointer_t info_node = xml.GetChild(node); info_node != 0;
+      for (XMLNodePointer_t info_node = xml.GetChild(node); info_node != nullptr;
 	   info_node = xml.GetNext(info_node)){
 	XMLAttrPointer_t attr = xml.GetFirstAttr(info_node);
 	// loop over the attributes of each child
-	while (attr != 0) {
+	while (attr != nullptr) {
           // TString name = xml.GetAttrName(attr);
 	  TString value = xml.GetAttrValue(attr);
 	  attr = xml.GetNextAttr(attr);
@@ -141,8 +141,8 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
   if(argc>2) outFileName=argv[2];
   
   std::vector<XmlVariableInfo> variable_infos = parseXml(xmlFileName);
-  bool isRegression = ((AnalysisType != "Regression") ? false : true);
-  bool isMulti = ((AnalysisType == "Multiclass") ? true : false);
+  bool isRegression = (AnalysisType == "Regression");
+  bool isMulti = (AnalysisType == "Multiclass");
   TString varList;
   vector<float*> vars;
   vector<float> var_avgerage;
@@ -178,11 +178,11 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
     }
     else // should never happen
       {
-	cerr <<"Unknown type from parser "<< infoType.Data()<<endl;
-	//throw std::runtime_error("Unknown type from parser");
-	//	delete vars.back();
-	vars.pop_back();
-	return 0;
+        cerr <<"Unknown type from parser "<< infoType.Data()<<endl;
+        //throw std::runtime_error("Unknown type from parser");
+        //	delete vars.back();
+        vars.pop_back();
+        return 0;
       }
   }
 
@@ -195,7 +195,7 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
   if(method_bdt->GetOptions().Contains("BoostType=Grad")) isGrad = true;
   cout << "UseYesNoLeaf? " << useYesNoLeaf << endl;
   cout << "Gradient Boost? " << isGrad << endl;
-  MVAUtils::BDT* bdt = new MVAUtils::BDT( method_bdt, isRegression || isGrad, useYesNoLeaf);
+  std::unique_ptr<MVAUtils::BDT> bdt= TMVAToMVAUtils::convert(method_bdt, isRegression || isGrad, useYesNoLeaf);
   bdt->SetPointers(vars);
 
 
@@ -222,10 +222,6 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
   n->Write();
   f->Close();
   delete f;
-  delete bdt;
-  bdt = nullptr;
-
-
   cout << endl << "Reading BDT from root file and testing " << outFileName << endl;
 
   f = TFile::Open(outFileName, "READ");
@@ -235,7 +231,7 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
     return 0;
   }
   
-  bdt = new MVAUtils::BDT(bdt_tree);
+  bdt = std::make_unique<MVAUtils::BDT>(bdt_tree);
   bdt->SetPointers(vars);
   cout << bdt->GetResponse() << endl;
   cout << "MVAUtils::BDT : "

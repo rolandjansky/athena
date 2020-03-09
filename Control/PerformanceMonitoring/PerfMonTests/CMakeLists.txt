@@ -36,34 +36,34 @@ atlas_install_joboptions( share/*.py share/tests/*.py )
 atlas_add_test( NoopAlg
    SCRIPT test/NoopAlg.sh
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "running" )
+   LOG_IGNORE_PATTERN "running" )
 
 
 atlas_add_test( NoopAlg_WriteDataHdr
    SCRIPT test/NoopAlg_WriteDataHdr.sh
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "running" )
+   LOG_IGNORE_PATTERN "running" )
 
 
 atlas_add_test( NoopAlg_WriteEvtInfo
    SCRIPT test/NoopAlg_WriteEvtInfo.sh
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "running" )
+   LOG_IGNORE_PATTERN "running" )
 
 
 atlas_add_test( LeakyAlg
    SCRIPT test/LeakyAlg.sh
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "running" )
+   LOG_IGNORE_PATTERN "running" )
 
 
 atlas_add_test( BasicAlg
    SCRIPT test/BasicAlg.sh
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "running" )
+   LOG_IGNORE_PATTERN "running" )
 
 
 atlas_add_test( BaseLine
    SCRIPT test/BaseLine.sh
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "running" )
+   LOG_IGNORE_PATTERN "running" )

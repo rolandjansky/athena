@@ -7,7 +7,6 @@
 #include "../TrigRateMoni.h"
 #include "../TrigROBMoni.h"
 #include "../TrigMemMoni.h"
-#include "../TrigOpMoni.h"
 #include "../TrigCorMoni.h"
 #include "../TrigMemAuditor.h"
 #include "../TrigSignatureMoniMT.h"
@@ -21,7 +20,6 @@ DECLARE_COMPONENT( TrigRoIMoni )
 DECLARE_COMPONENT( TrigErrorMon )
 DECLARE_COMPONENT( TrigRateMoni )
 DECLARE_COMPONENT( TrigROBMoni )
-DECLARE_COMPONENT( TrigOpMoni )
 DECLARE_COMPONENT( TrigMemMoni )
 DECLARE_COMPONENT( TrigCorMoni )
 DECLARE_COMPONENT( TrigMemAuditor )

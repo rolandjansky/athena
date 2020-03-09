@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigMinBias.TrigMinBiasConf import TrigTrackCounter, TrigTrackCounterHypo, \
     TrigVertexCounter, TrigVertexCounterHypo
@@ -8,7 +8,7 @@ from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, Tri
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
 # Properties for histogram dimensions
-from TrigMinBiasProperties import trigMinBiasProperties
+from .TrigMinBiasProperties import trigMinBiasProperties
 
 fexes = {}
 hypos = {}

@@ -16,10 +16,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class Identifier;
-class RpcIdHelper;
-class TgcIdHelper;
 
 namespace MuonGM
 {
@@ -81,15 +80,12 @@ public:
 
 private:
     // helpers, managers, tools
-    const RpcIdHelper*					m_rpcIdHelper;
-    const TgcIdHelper*					m_tgcIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ToolHandle<Muon::IMuonClusterOnTrackCreator>	m_clusterCreator;
 
     // configuration
     bool						m_chooseBroadestCluster;
-    
-    // internal communication
-    mutable bool					m_isRpc;
     
     // private methods 
     void						applyClusterConsistency(

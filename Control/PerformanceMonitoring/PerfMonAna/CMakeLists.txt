@@ -24,4 +24,4 @@ atlas_add_alias( pmontree "pmontree.py" )
 atlas_add_alias( perfrtt "perfrtt.py" )
 atlas_add_alias( perfmon "perfmon.py" )
 atlas_add_alias( perf-dpmon "perf-dpmon.py" )
-
+atlas_add_alias( perfmonmt-plotter "perfmonmt-plotter.py" )

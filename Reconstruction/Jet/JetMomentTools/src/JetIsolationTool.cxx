@@ -294,10 +294,10 @@ StatusCode JetIsolationTool::initialize() {
 
 //**********************************************************************
 
-int JetIsolationTool::modify(xAOD::JetContainer& jets) const {
+StatusCode JetIsolationTool::modify(xAOD::JetContainer& jets) const {
 
   ATH_MSG_DEBUG("Modifying jets in container with size " << jets.size());
-  if ( jets.empty() ) return 0;
+  if ( jets.empty() ) return StatusCode::SUCCESS;
 
   // Find the pseudojet getter.
   // If one is not supplied, the InputType field for the first jet is used
@@ -313,7 +313,7 @@ int JetIsolationTool::modify(xAOD::JetContainer& jets) const {
     if ( ppjg == nullptr ) {
       ATH_MSG_WARNING("Unable to retrieve pseudojet getter for input index/name "
                       << iinp << "/" << sinp);
-      return 1;
+      return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Found pseudojet getter " << ppjg->name());
   } else {
@@ -321,7 +321,7 @@ int JetIsolationTool::modify(xAOD::JetContainer& jets) const {
   }
   if ( ppjg == nullptr ) {
     ATH_MSG_WARNING("Unable to retrieve pseudojet getter.");
-    return 1;
+    return StatusCode::FAILURE;
   }
     
   // Fetch the input pseudojets.
@@ -408,7 +408,7 @@ int JetIsolationTool::modify(xAOD::JetContainer& jets) const {
   }
 
   ATH_MSG_DEBUG("done");
-  return 0;
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

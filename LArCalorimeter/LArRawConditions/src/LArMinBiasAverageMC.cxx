@@ -2,27 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "LArRawConditions/LArMinBiasAverageMC.h" 
-#include "LArElecCalib/ILArMCSymTool.h"
-
-#include <iostream> 
-using namespace std ;
 
 float LArMinBiasAverageMC::dummy = ERRORCODE;
 
-LArMinBiasAverageMC::LArMinBiasAverageMC()  :LArMinBiasAverageComplete(),m_larmcsym("LArMCSymTool")
+LArMinBiasAverageMC::LArMinBiasAverageMC()  :LArMinBiasAverageComplete()
 {}
 
-StatusCode LArMinBiasAverageMC::initialize() 
-{
-  if(m_larmcsym.retrieve().isFailure()){
-      MsgStream log(Athena::getMessageSvc(), "LArMinBiasAverageMC");
-      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endmsg; 
-      return (StatusCode::FAILURE);
-  }
-
-   return (CONTAINER::initialize()) ;
+StatusCode LArMinBiasAverageMC::initialize() {
+  return (CONTAINER::initialize()) ;
 }
 
 LArMinBiasAverageMC::~LArMinBiasAverageMC() {}
@@ -30,10 +18,10 @@ LArMinBiasAverageMC::~LArMinBiasAverageMC() {}
 
 /* retrieve Average of E in Minimum Bias events ******************************
  */
-const float& LArMinBiasAverageMC::minBiasAverage(const HWIdentifier& CellID) const 
-{ 
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  return LArMinBiasAverageComplete::minBiasAverage(SymCellID); 
+const float& LArMinBiasAverageMC::minBiasAverage(const HWIdentifier&) const { 
+  
+  std::cout << "LArMinBiasAverageMC is deprecated. Use LArMinBiasAverageSym" << std::endl;
+  std::abort();
+  return LArMinBiasAverageMC::dummy;
 }
 

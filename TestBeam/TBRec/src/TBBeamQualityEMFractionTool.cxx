@@ -23,8 +23,6 @@ TBBeamQualityEMFractionTool::TBBeamQualityEMFractionTool(const std::string& name
 							 const std::string& type,
 							 const IInterface* parent)
   : TBBeamQualityTool(name,type,parent),
-    m_StoreGate(nullptr),
-    m_detStore(nullptr),
     m_emecID_help(nullptr),
     m_hecID_help(nullptr),
     m_fcalID_help(nullptr),
@@ -50,20 +48,6 @@ StatusCode TBBeamQualityEMFractionTool::initializeTool()
   
   StatusCode sc;
   
-  // accessing Store Gate
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ){
-    log << MSG::FATAL << "Unable to locate the StoreGateSvc Service" <<endmsg;
-    return sc;
-  }
-  
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-      return StatusCode::FAILURE;
-    }
-  
   m_hecID_help = NULL;
   m_emecID_help = NULL;
   m_fcalID_help = NULL;
@@ -71,7 +55,7 @@ StatusCode TBBeamQualityEMFractionTool::initializeTool()
   /*
   // retrieve detector description manager for LAr subsystem
   const DataHandle<LArDetDescrManager> m_larMgr;
-  sc = m_detStore->retrieve(m_larMgr);
+  sc = detStore()->retrieve(m_larMgr);
   if (sc.isFailure()) {
     log << MSG::ERROR << "unable to retrieve LArDetDescrManager from detector store"<< endmsg;
     return sc;
@@ -185,10 +169,10 @@ StatusCode TBBeamQualityEMFractionTool::accept(std::vector<std::string> m_partic
   //Accesing the CaloCellContainer
   const CaloCellContainer* cellContainer = nullptr;
   
-  sc = m_StoreGate->retrieve(cellContainer);
+  sc = evtStore()->retrieve(cellContainer);
   if (sc.isFailure()) {
     log << MSG::ERROR << "couldn't get the calo cells from storegate" << endmsg;
-    log << MSG::ERROR << "here is what is in storegate: " << m_StoreGate->dump() << endmsg;
+    log << MSG::ERROR << "here is what is in storegate: " << evtStore()->dump() << endmsg;
     return StatusCode::FAILURE;
   }
   

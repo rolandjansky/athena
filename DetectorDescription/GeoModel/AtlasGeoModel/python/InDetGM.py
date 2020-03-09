@@ -69,9 +69,6 @@ elif ( DetFlags.detdescr.ID_on() ):
     if ( DetFlags.detdescr.TRT_on() ):
         from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
         trtDetectorTool = TRT_DetectorTool()
-        if ( DetFlags.simulate.TRT_on() ):
-            trtDetectorTool.DoXenonArgonMixture = True
-            trtDetectorTool.DoKryptonMixture = True
         trtDetectorTool.useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 

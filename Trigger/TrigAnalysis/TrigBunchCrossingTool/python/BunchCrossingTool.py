@@ -123,26 +123,27 @@ def TrigConfBunchCrossingTool():
     __logger.info( "Set the default values for the TrigConfBunchCrossingTool "
                    "configuration" )
 
-    # Set up the trigger configuration service:
-#    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-#    if not hasattr( svcMgr, "TrigConfigSvc" ):
-#        __logger.error( "You have to make sure that TrigConfigSvc exists to use this "
-#                        "tool!" )
-#        __logger.error( "Try running in a RecExCommon environment..." )
-#        raise NameError( "ServiceMgr.TrigConfigSvc not configured" )
-#    __tool.ConfigSvc = svcMgr.TrigConfigSvc
-
-    # Now make sure that DSConfigSvc has access to the BG COOL folders:
-    from IOVDbSvc.CondDB import conddb
-    __dbConnection = "TRIGGER"
-    __folders = [ "LVL1/BunchGroupKey", "LVL1/BunchGroupDescription",
-                  "LVL1/BunchGroupContent" ]
-    for f in __folders:
-        if not conddb.folderRequested( "/TRIGGER/%s" % f ):
-            __logger.info( "Adding folder to IOVDbSvc: /TRIGGER/%s" % f ) 
-            conddb.addFolderWithTag( __dbConnection, "/TRIGGER/%s" % f, "HEAD" )
+    # Check for a TrigConfigSvc:
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr( svcMgr, "TrigConfigSvc" ):
+        __logger.info( "Job has no TrigConfigSvc, falling back to xAODConfigSvc")
+        from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+        from AthenaCommon.AppMgr import ServiceMgr
+        cfgsvc = TrigConf__xAODConfigSvc('xAODConfigSvc')
+        ServiceMgr += cfgsvc
+        __tool.ConfigSvc = cfgsvc
+    else: 
+        # We do have a TrigConfigSvc. Now make sure that DSConfigSvc has access to the BG COOL folders:
+        from IOVDbSvc.CondDB import conddb
+        __dbConnection = "TRIGGER"
+        __folders = [ "LVL1/BunchGroupKey", "LVL1/BunchGroupDescription",
+                      "LVL1/BunchGroupContent" ]
+        for f in __folders:
+            if not conddb.folderRequested( "/TRIGGER/%s" % f ):
+                __logger.info( "Adding folder to IOVDbSvc: /TRIGGER/%s" % f ) 
+                conddb.addFolderWithTag( __dbConnection, "/TRIGGER/%s" % f, "HEAD" )
+                pass
             pass
-        pass
 
     # Add the tool to ToolSvc and return it to the user:
     ToolSvc += __tool

@@ -7,7 +7,9 @@ from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 isData = False
@@ -34,9 +36,10 @@ steps += topSequence.L1Decoder
 steps+=_algoHLTCaloCell(OutputLevel=DEBUG)    
 steps+=_algoHLTTopoCluster(OutputLevel=DEBUG)    
 
+from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 
 filterL1RoIsAlg = RoRSeqFilter( "filterL1RoIsAlg")
-filterL1RoIsAlg.Input = ["L1EM"]
+filterL1RoIsAlg.Input = [mapThresholdToL1DecisionCollection("EM")]
 filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
 filterL1RoIsAlg.Chains = [ 
                            "HLT_e3_etcut", 

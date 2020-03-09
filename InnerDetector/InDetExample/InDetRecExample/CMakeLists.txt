@@ -8,8 +8,7 @@ atlas_subdir( InDetRecExample )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaCommon
-                          Database/RDBAccessSvc
-                          TestPolicy )
+                          Database/RDBAccessSvc )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

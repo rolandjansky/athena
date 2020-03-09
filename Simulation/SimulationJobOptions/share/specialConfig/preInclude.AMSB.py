@@ -19,6 +19,7 @@ def get_and_fix_PDGTABLE(replace):
                          '0.E+00'.ljust(15) + '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
                          name.strip() + ''.ljust(6) + charge.strip()+''.rjust(20-len(name.strip())) + '\n')
         else:
+            from past.builtins import xrange # Temporary workaround for python3 compatibility use range in CA-based config
             for i in xrange(len(lines)):
                 if re.search(r'M\s+'+str(pdgid)+'\s+\S+', lines[i]):
                     l = lines[i]

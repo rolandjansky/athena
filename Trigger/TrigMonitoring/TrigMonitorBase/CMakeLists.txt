@@ -27,10 +27,6 @@ atlas_add_component( TrigMonitorBase
                      src/components/*.cxx
                      LINK_LIBRARIES TrigMonitorBaseLib )
 
-atlas_add_test( HistoOperationLock_test
-                SOURCES test/HistoOperationLock_test.cxx
-                LINK_LIBRARIES TrigMonitorBaseLib )
-
 atlas_add_test( LBNHist_test
                 SOURCES test/LBNHist_test.cxx
                 LINK_LIBRARIES TrigMonitorBaseLib )

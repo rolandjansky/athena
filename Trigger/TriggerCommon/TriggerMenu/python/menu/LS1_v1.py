@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
 #------------------------------------------------------------------------#
 def setupMenu():
 
-    from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenu.menu.LS1_v1.py' )
@@ -13,7 +12,7 @@ def setupMenu():
     if tcl1.current:
         log.info("L1 items: %s" % tcl1.current.menu.items.itemNames())
     else:
-        log.info("ERROR L1 menu has not yet been defined")
+        log.info("L1 menu has not yet been defined")
 
     # INPUT FORMAT FOR CHAINS:
     # ['chainName',  'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep]
@@ -160,8 +159,6 @@ def setupMenu():
 
         ]
     
-
-    allL1TAUseeds = ",".join([ x for x in tcl1.current.menu.items.itemNames() if "TAU" in x ])
 
     TriggerFlags.CalibSlice.signatures   = [
         ['l1calocalib',              'L1_RD0_FILLED',     [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], -1],

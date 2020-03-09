@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATEBINDINGS_SGPYDATAMODEL_H
@@ -25,7 +25,7 @@ extern CLID PyCLID;
 
 // ROOT includes
 #include "TClass.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TClassRef.h"
 #include "TROOT.h"
 #include "TMethod.h"
@@ -240,7 +240,11 @@ namespace SG {
         if ( alias ) {
           tp = alias;
         } else {
+#if PY_VERSION_HEX < 0x03000000
           tp = PyString_FromString(cpp_tp.c_str());
+#else
+          tp = PyUnicode_FromString(cpp_tp.c_str());
+#endif
         }
         PyDict_SetItem(m_clids, clid, tp);
         // reverse look-up
@@ -268,14 +272,16 @@ namespace SG {
       CLID id = CLID_NULL;
       // FIXME: get rid of this massaging when/if ROOT finally
       // standardize on keeping the std:: namespace...
-      std::string tn = TClassEdit::ShortType(PyString_AS_STRING(tp),
+      std::string tpstr = RootUtils::PyGetString(tp).first;
+      std::string tn = TClassEdit::ShortType(tpstr.c_str(),
                                              TClassEdit::kDropAllDefault);
       m_clidSvc->getIDOfTypeName(tn, id).ignore();
       if ( id == CLID_NULL ) {
         // try an alias...
         PyObject* alias = PyDict_GetItemString(m_aliases, tn.c_str());
         if ( alias ){
-          m_clidSvc->getIDOfTypeName(PyString_AS_STRING(alias), id).ignore();
+          std::string aliasstr = RootUtils::PyGetString(alias).first;
+          m_clidSvc->getIDOfTypeName(aliasstr, id).ignore();
         }
       }
       if (id == CLID_NULL) {
@@ -291,14 +297,16 @@ namespace SG {
       CLID id = CLID_NULL;
       // FIXME: get rid of this massaging when/if ROOT finally
       // standardize on keeping the std:: namespace...
-      std::string tn = TClassEdit::ShortType(PyString_AS_STRING(tp),
+      std::string tpstr = RootUtils::PyGetString(tp).first;
+      std::string tn = TClassEdit::ShortType(tpstr.c_str(),
                                              TClassEdit::kDropAllDefault);
       m_clidSvc->getIDOfTypeInfoName(tn, id).ignore();
       if ( id == CLID_NULL ) {
         // try an alias...
         PyObject* alias = PyDict_GetItemString(m_aliases, tn.c_str());
         if ( alias ){
-          m_clidSvc->getIDOfTypeInfoName(PyString_AS_STRING(alias), 
+          std::string aliasstr = RootUtils::PyGetString(alias).first;
+          m_clidSvc->getIDOfTypeInfoName(aliasstr,
                                          id).ignore();
         }
       }
@@ -400,9 +408,10 @@ namespace SG {
       }
           
       CLID id = id_tmp;
-      const std::string skey = ( pykey == Py_None )
-        ? ""
-        : PyString_AS_STRING(pykey);
+      std::string skey;
+      if (pykey != Py_None) {
+        skey = RootUtils::PyGetString (pykey).first;
+      }
       SG::DataProxy* proxy = skey.empty()
         ? m_sgSvc->proxy(id)
         : m_sgSvc->proxy(id, skey);

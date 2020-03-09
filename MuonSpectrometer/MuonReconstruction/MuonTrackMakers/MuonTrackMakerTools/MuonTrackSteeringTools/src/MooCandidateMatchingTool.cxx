@@ -1,30 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooCandidateMatchingTool.h"
-#include "MuPatCandidateTool.h"
-#include "MuonTrackFindingEvent/MuPatTrack.h"
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatSegment.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
-
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
+#include "MuPatTrack.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatSegment.h"
 
 #include "MuonSegment/MuonSegment.h"
-
-#include "TrkTrack/Track.h"
-#include "TrkTrack/TrackStateOnSurface.h"
-
-#include "TrkParameters/TrackParameters.h"
-
-#include "TrkExInterfaces/IExtrapolator.h"
 
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -80,53 +63,18 @@ namespace Muon {
     clear();
   }
 
-  MooCandidateMatchingTool::MooTrackSegmentMatchResult::~MooTrackSegmentMatchResult() {
-  }
-
   void MooCandidateMatchingTool::MooTrackSegmentMatchResult::clear() {
     TrackSegmentMatchResult::clear();
     MCTBTrack = 0;
     MCTBSegment = 0;
   }
   
-  
   MooCandidateMatchingTool::MooCandidateMatchingTool(const std::string& t, const std::string& n, const IInterface* p)    
-    : AthAlgTool(t,n,p),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_slExtrapolator("Trk::Extrapolator/MuonStraightLineExtrapolator"),
-      m_atlasExtrapolator("Trk::Extrapolator/AtlasExtrapolator"), 
-      m_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"),
-      m_segmentMatchingToolTight("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"),
-      m_magFieldSvc("AtlasFieldSvc",n),
-      m_candidateTool("Muon::MuPatCandidateTool/MuPatCandidateTool"),
-      m_goodSegmentMatches(0),
-      m_goodSegmentMatchesTight(0),
-      m_segmentMatches(0),
-      m_segmentMatchesTight(0),
-      m_goodSegmentTrackMatches(0),
-      m_goodSegmentTrackMatchesTight(0),
-      m_sameSideOfPerigee(0),
-      m_otherSideOfPerigee(0),
-      m_sameSideOfPerigeeTrk(0),
-      m_otherSideOfPerigeeTrk(0),
-      m_segmentTrackMatches(0),
-      m_segmentTrackMatchesTight(0),
-      m_reasonsForMatchOk(TrackSegmentMatchResult::NumberOfReasons),
-      m_reasonsForMatchNotOk(TrackSegmentMatchResult::NumberOfReasons)
+    : AthAlgTool(t,n,p)
   {
-    for ( int i = 0; i < int(TrackSegmentMatchResult::NumberOfReasons); ++i ) {
-      m_reasonsForMatchOk[i]    = 0;
-      m_reasonsForMatchNotOk[i] = 0;
-    }
-
-
     declareInterface<MooCandidateMatchingTool>(this);
     declareInterface<IMuonTrackSegmentMatchingTool>(this);
-    declareProperty("SLExtrapolator",           m_slExtrapolator );
-    declareProperty("Extrapolator",             m_atlasExtrapolator );
-    declareProperty("MagFieldSvc",    m_magFieldSvc );
+
     declareProperty("RequireSameSide",          m_requireSameSide = false, "require entries to be on the same side of the Perigee or Calorimeter" );
     declareProperty("MinimumRadiusSideMatch",   m_minimumSideMatchRadius = 4000., "All intersects outside the radius will be accepted");
     declareProperty("CaloMatchZ",               m_caloMatchZ = 6500., "limit in Z to determine Calo crossing");
@@ -143,10 +91,11 @@ namespace Muon {
     declareProperty("AlignmentErrorPosY",       m_alignErrorPosY = 0.0, "Alignment precision in local Y direction");
     declareProperty("AlignmentErrorAngleX",     m_alignErrorAngleX = 0.0, "Alignment precision in local X angle");
     declareProperty("AlignmentErrorAngleY",     m_alignErrorAngleY = 0.0, "Alignment precision in local Y angle");
-    declareProperty("SegmentMatchingTool",      m_segmentMatchingTool);
-    declareProperty("SegmentMatchingToolTight", m_segmentMatchingToolTight);
-    declareProperty("DoTrackSegmentMatching",   m_doTrackSegmentMatching = false, "Apply dedicated track-segment matching");
-    declareProperty("TrackSegmentPreMatching",  m_trackSegmentPreMatchingStrategy = 0, "0=no segments match,1=any segment match,2=all segment match");
+
+    for (unsigned int i=0; i<TrackSegmentMatchResult::NumberOfReasons; i++) {
+      m_reasonsForMatchOk[i].store(0, std::memory_order_relaxed);
+      m_reasonsForMatchNotOk[i].store(0, std::memory_order_relaxed);
+    }
   }
 
   MooCandidateMatchingTool::~MooCandidateMatchingTool() { }
@@ -155,13 +104,14 @@ namespace Muon {
 
     ATH_CHECK( m_slExtrapolator.retrieve() );
     ATH_CHECK( m_atlasExtrapolator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_magFieldSvc.retrieve() );
     ATH_CHECK( m_segmentMatchingTool.retrieve() );
     ATH_CHECK( m_segmentMatchingToolTight.retrieve() );
-
+    ATH_CHECK( m_candidateTool.retrieve() );
+    
     return StatusCode::SUCCESS;
   }
 
@@ -265,7 +215,7 @@ namespace Muon {
         return false;
       }
 
-      if( m_idHelperTool->issTgc(*entry1.chamberIds().begin()) || m_idHelperTool->isMM(*entry1.chamberIds().begin()) ){
+      if( m_idHelperSvc->issTgc(*entry1.chamberIds().begin()) || m_idHelperSvc->isMM(*entry1.chamberIds().begin()) ){
 	return true;
       }
     }
@@ -365,7 +315,6 @@ namespace Muon {
 
       if ( !haveMatch ) {
         ATH_MSG_VERBOSE("track-segment match: -> Failed in comparing segments on track");
-        
         
         ++m_reasonsForMatchNotOk[TrackSegmentMatchResult::SegmentMatch];
         return false;
@@ -487,8 +436,8 @@ namespace Muon {
           } else {
             msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed";
           }
-          msg(MSG::DEBUG) << " segment match between segment-on-track " << MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.trackChamberId)) 
-                 << " and segment " <<  MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.segmentChamberId)) << endmsg;
+          msg(MSG::DEBUG) << " segment match between segment-on-track " << MuonStationIndex::chName(m_idHelperSvc->chamberIndex(info.trackChamberId)) 
+                 << " and segment " <<  MuonStationIndex::chName(m_idHelperSvc->chamberIndex(info.segmentChamberId)) << endmsg;
         }
         info.reason = TrackSegmentMatchResult::SegmentMatch;
         info.trackChamberId = closestSegment->chid;
@@ -567,7 +516,7 @@ namespace Muon {
       double posXCut2 = cuts.posXCut * cuts.posXCut + scaledPosXErr2;
       if ( info.localPosXDiff * info.localPosXDiff > posXCut2 ) {
         if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.segmentChamberId)) <<  " X position cut: "
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName(m_idHelperSvc->chamberIndex(info.segmentChamberId)) <<  " X position cut: "
                  << info.localPosXDiff << " > " << std::sqrt(posXCut2) << endmsg;
         }
         info.setCutFailed( TrackSegmentMatchResult::PosXCut );
@@ -583,7 +532,7 @@ namespace Muon {
       double posYCut2 = cuts.posYCut * cuts.posYCut + scaledPosYErr2;
       if ( info.localPosYDiff * info.localPosYDiff > posYCut2 ) {
         if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " Y position cut: "
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperSvc->chamberIndex(info.segmentChamberId))) << " Y position cut: "
                  << info.localPosYDiff << " > " << std::sqrt(posYCut2) << endmsg;
         } 
         info.setCutFailed( TrackSegmentMatchResult::PosYCut );
@@ -597,7 +546,7 @@ namespace Muon {
       if ( info.localPosXDiff * info.localPosXDiff > scaledPosXErr2 ) {
         if (msgLvl(MSG::DEBUG)) {
           double pull = info.localPosXDiff / std::sqrt(info.posXTotalErr2);
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " X position pull cut: |"
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperSvc->chamberIndex(info.segmentChamberId))) << " X position pull cut: |"
                  << pull << "| > " << cuts.posXPullCut << endmsg;
         }
         info.setCutFailed( TrackSegmentMatchResult::PosXPullCut );
@@ -611,7 +560,7 @@ namespace Muon {
       if ( info.localPosYDiff * info.localPosYDiff > scaledPosYErr2 ) {
         if (msgLvl(MSG::DEBUG)) {
           double pull = info.localPosYDiff / std::sqrt(info.posYTotalErr2);
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " Y position pull cut: |"
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperSvc->chamberIndex(info.segmentChamberId))) << " Y position pull cut: |"
                  << pull << "| > " << cuts.posYPullCut << endmsg;
         }
         info.setCutFailed( TrackSegmentMatchResult::PosYPullCut );
@@ -630,7 +579,7 @@ namespace Muon {
       double angleXCut2 = cuts.angleXCut * cuts.angleXCut + scaledAngleXErr2;
       if ( info.localAngleXDiff * info.localAngleXDiff > angleXCut2 ) {
         if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.segmentChamberId)) <<  " X angle cut: "
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName(m_idHelperSvc->chamberIndex(info.segmentChamberId)) <<  " X angle cut: "
                  << info.localAngleXDiff << " > " << std::sqrt(angleXCut2) << endmsg;
         }
         info.setCutFailed( TrackSegmentMatchResult::AngXCut );
@@ -646,7 +595,7 @@ namespace Muon {
       double angleYCut2 = cuts.angleYCut * cuts.angleYCut + scaledAngleYErr2;
       if ( info.localAngleYDiff * info.localAngleYDiff > angleYCut2 ) {
         if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " Y angle cut: "
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperSvc->chamberIndex(info.segmentChamberId))) << " Y angle cut: "
                  << info.localAngleYDiff << " > " << std::sqrt(angleYCut2) << endmsg;
         }
         info.setCutFailed( TrackSegmentMatchResult::AngYCut );
@@ -660,7 +609,7 @@ namespace Muon {
       if ( info.localAngleXDiff * info.localAngleXDiff > scaledAngleXErr2 ) {
         if (msgLvl(MSG::DEBUG)) {
           double pull = info.localAngleXDiff / std::sqrt(info.angleXTotalErr2);
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " X angle pull cut: |"
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperSvc->chamberIndex(info.segmentChamberId))) << " X angle pull cut: |"
                  << pull << "| > " << cuts.angleXPullCut << endmsg;
         }
         info.setCutFailed( TrackSegmentMatchResult::AngXPullCut );
@@ -674,7 +623,7 @@ namespace Muon {
       if ( info.localAngleYDiff * info.localAngleYDiff > scaledAngleYErr2 ) {
         if (msgLvl(MSG::DEBUG)) {
           double pull = info.localAngleYDiff / std::sqrt(info.angleYTotalErr2);
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " Y angle pull cut: |"
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperSvc->chamberIndex(info.segmentChamberId))) << " Y angle pull cut: |"
                  << pull << "| > " << cuts.angleYPullCut << endmsg;
         }
         info.setCutFailed( TrackSegmentMatchResult::AngYPullCut );
@@ -690,7 +639,7 @@ namespace Muon {
       // cut on matching chi-squared
       if ( info.matchChiSquared > cuts.matchChiSquaredCut ) {
         if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " match chi-squared cut: "
+          msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperSvc->chamberIndex(info.segmentChamberId))) << " match chi-squared cut: "
                  << info.matchChiSquared << " > " << cuts.matchChiSquaredCut << endmsg;
         }
         info.setCutFailed( TrackSegmentMatchResult::MatchChiSquaredCut );
@@ -762,7 +711,7 @@ namespace Muon {
       return;
     }
 
-    int sector2 = m_idHelperTool->sector(info.segmentChamberId);
+    int sector2 = m_idHelperSvc->sector(info.segmentChamberId);
     bool hasStereoAngle = false;
     
     // find closest track parameters
@@ -793,10 +742,10 @@ namespace Muon {
       // do not want to start from non-MS measurements
       Identifier id;
       if (meas) {
-        id = m_helperTool->getIdentifier(*meas);
+        id = m_edmHelperSvc->getIdentifier(*meas);
         if ( id.is_valid() ) {
-          if ( !m_idHelperTool->isMuon(id) ) continue;
-          if ( m_idHelperTool->isMdt(id) && m_idHelperTool->sector(id) != sector2 ) hasStereoAngle=true;
+          if ( !m_idHelperSvc->isMuon(id) ) continue;
+          if ( m_idHelperSvc->isMdt(id) && m_idHelperSvc->sector(id) != sector2 ) hasStereoAngle=true;
         }
       }
 
@@ -819,7 +768,7 @@ namespace Muon {
       }
       // store closest MDT or CSC ID (for printout and performance analysis)
       if ( std::abs(dist) < std::abs(closestIdDist) ) {
-        if ( meas && id.is_valid() && m_idHelperTool->isMuon(id) && (m_idHelperTool->isMdt(id) || m_idHelperTool->isCsc(id)) ) {
+        if ( meas && id.is_valid() && m_idHelperSvc->isMuon(id) && (m_idHelperSvc->isMdt(id) || m_idHelperSvc->isCsc(id)) ) {
           closestId = id;
           closestIdDist = dist;
         }
@@ -848,12 +797,12 @@ namespace Muon {
 
     // set the identification of the first entry (the track - taking the closest point)
     if ( closestPars && closestId.is_valid() ) {
-      info.trackChamberId = m_idHelperTool->chamberId( closestId );
+      info.trackChamberId = m_idHelperSvc->chamberId( closestId );
     }
 
     if ( msgLvl(MSG::VERBOSE) ) {
-      msg(MSG::DEBUG) << MSG::VERBOSE << "match Closest chamber: " << m_idHelperTool->toStringChamber(info.trackChamberId)
-             << " Segment: " << m_idHelperTool->toStringChamber(info.segmentChamberId);
+      msg(MSG::DEBUG) << MSG::VERBOSE << "match Closest chamber: " << m_idHelperSvc->toStringChamber(info.trackChamberId)
+             << " Segment: " << m_idHelperSvc->toStringChamber(info.segmentChamberId);
       const Trk::TrackParameters* tmpPars = 0;
       if (closestMeasPars) tmpPars = closestMeasPars->covariance() ? closestMeasPars : 0;
       if (tmpPars) {
@@ -878,14 +827,14 @@ namespace Muon {
 
     //if extrapolating within EM-EO, can use straight-line extrapolator even without momentum
     if ( !straightLineMatch && !entry1.hasMomentum() && info.trackChamberId.is_valid() ) {
-      MuonStationIndex::StIndex trackStationIndex = m_idHelperTool->stationIndex(info.trackChamberId);
+      MuonStationIndex::StIndex trackStationIndex = m_idHelperSvc->stationIndex(info.trackChamberId);
       MuonStationIndex::StIndex segmentStationIndex = entry2.stIndex;
       if ( ((trackStationIndex == MuonStationIndex::EM && segmentStationIndex == MuonStationIndex::EO) ||
             (trackStationIndex == MuonStationIndex::EO && segmentStationIndex == MuonStationIndex::EM)    ) &&
            closestPars->position().z() * entry2.entryPars().position().z() > 0.0 ) {
         straightLineMatch = true;
-	ATH_MSG_DEBUG("track in " << m_idHelperTool->toStringStation(info.trackChamberId) 
-		      << " and segment in " << m_idHelperTool->toStringStation(info.segmentChamberId)
+	ATH_MSG_DEBUG("track in " << m_idHelperSvc->toStringStation(info.trackChamberId) 
+		      << " and segment in " << m_idHelperSvc->toStringStation(info.segmentChamberId)
 		      << " => doing straight line extrapolation match");
         }
       }
@@ -906,13 +855,13 @@ namespace Muon {
         if (tmpPars) {
 	  
 	  //Check sector+
-	  if (!m_idHelperTool->isMuon(info.trackChamberId))
+	  if (!m_idHelperSvc->isMuon(info.trackChamberId))
 	    {
 	      info.reason = TrackSegmentMatchResult::SegmentMatching;
 	      return;
 	    }
-	  int trackSector   = m_idHelperTool->sector(info.trackChamberId);
-	  int segmentSector = m_idHelperTool->sector(info.segmentChamberId);
+	  int trackSector   = m_idHelperSvc->sector(info.trackChamberId);
+	  int segmentSector = m_idHelperSvc->sector(info.segmentChamberId);
 	  int sectorDiff = std::abs( trackSector - segmentSector );
 	  if ( sectorDiff > 1 && sectorDiff != 15 ) {
 	    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "track sector   =" << trackSector << " segment sector =" << segmentSector << " => not in neighbouring sectors " << endmsg;
@@ -934,8 +883,8 @@ namespace Muon {
         if ( !exPars ) {
          ATH_MSG_DEBUG("track-segment match: Failed to extrapolate measured track parameters\n"
 			  << m_printer->print(*closestPars)
-			  << "\nfrom " << m_idHelperTool->toStringChamber( info.trackChamberId ) 
-			  << " to segment surface " << m_idHelperTool->toStringChamber( info.segmentChamberId )
+			  << "\nfrom " << m_idHelperSvc->toStringChamber( info.trackChamberId ) 
+			  << " to segment surface " << m_idHelperSvc->toStringChamber( info.segmentChamberId )
 		       << " using " << extrapolator->name() );
           info.matchOK = false;
           info.reason = TrackSegmentMatchResult::ExtrapolFailed;
@@ -946,8 +895,8 @@ namespace Muon {
         if ( !exMeasPars ) {
           const Trk::IExtrapolator* extrapolator = straightLineMatch ? &(*m_slExtrapolator) : &(*m_atlasExtrapolator);
           ATH_MSG_DEBUG( "track-segment match: Did not get measured track parameters from extrapolation\n"
-			 << "\nfrom " << m_idHelperTool->toStringChamber( info.trackChamberId ) 
-			 << " to segment surface " << m_idHelperTool->toStringChamber( info.segmentChamberId )
+			 << "\nfrom " << m_idHelperSvc->toStringChamber( info.trackChamberId ) 
+			 << " to segment surface " << m_idHelperSvc->toStringChamber( info.segmentChamberId )
 			 << " using " << extrapolator->name() );
           delete exPars;
           info.reason = TrackSegmentMatchResult::ExtrapolNoErrors;
@@ -968,8 +917,8 @@ namespace Muon {
         if( !exPars ) {
          ATH_MSG_DEBUG("track-segment match: Failed to extrapolate track parameters without errors\n"
 			  << m_printer->print(*closestPars)
-			  << "\nfrom " << m_idHelperTool->toStringChamber( info.trackChamberId ) 
-			  << " to segment surface " << m_idHelperTool->toStringChamber( info.segmentChamberId )
+			  << "\nfrom " << m_idHelperSvc->toStringChamber( info.trackChamberId ) 
+			  << " to segment surface " << m_idHelperSvc->toStringChamber( info.segmentChamberId )
 		       << " using " << extrapolator->name());
           info.matchOK = false;
           info.reason = TrackSegmentMatchResult::ExtrapolFailed;
@@ -1429,8 +1378,8 @@ namespace Muon {
     Identifier chid1 = seg1.chid;
     Identifier chid2 = seg2.chid;
     if ( msgLvl(MSG::VERBOSE) ) {
-      msg(MSG::VERBOSE) << "check if chambers are neighbours: " <<  m_idHelperTool->toStringChamber( chid1 )
-                        << " and " << m_idHelperTool->toStringChamber( chid2 ) << ": ";
+      msg(MSG::VERBOSE) << "check if chambers are neighbours: " <<  m_idHelperSvc->toStringChamber( chid1 )
+                        << " and " << m_idHelperSvc->toStringChamber( chid2 ) << ": ";
     }
     // if in same chamber, then OK
     if ( chid1 == chid2 ) {
@@ -1444,10 +1393,10 @@ namespace Muon {
     }
 
     // check in phi
-    int secDiff = std::abs( m_idHelperTool->sector(chid1) - m_idHelperTool->sector(chid2) );
+    int secDiff = std::abs( m_idHelperSvc->sector(chid1) - m_idHelperSvc->sector(chid2) );
     if ( secDiff > 1 && secDiff != 15 ) {
-      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "sec1=" << m_idHelperTool->sector(chid1)
-                             << "sec2=" << m_idHelperTool->sector(chid2) << " => not in neighbouring phi " << endmsg;
+      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "sec1=" << m_idHelperSvc->sector(chid1)
+                             << "sec2=" << m_idHelperSvc->sector(chid2) << " => not in neighbouring phi " << endmsg;
       return false;
     }
 
@@ -1455,18 +1404,18 @@ namespace Muon {
     if ( seg1.isEndcap && seg2.isEndcap ) {
       // both in endcap
       // endcap: can compare eta indices
-      if ( std::abs( m_idHelperTool->stationEta(chid1) - m_idHelperTool->stationEta(chid2) ) > 1 ) {
+      if ( std::abs( m_idHelperSvc->stationEta(chid1) - m_idHelperSvc->stationEta(chid2) ) > 1 ) {
         if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "not in neighbouring eta" << endmsg;
         return false;
       }
     } else if ( !seg1.isEndcap && !seg2.isEndcap ) {
       // both in barrel
-      const std::string& stationName1 = m_idHelperTool->mdtIdHelper().stationNameString( m_idHelperTool->mdtIdHelper().stationName( chid1 ) );
-      const std::string& stationName2 = m_idHelperTool->mdtIdHelper().stationNameString( m_idHelperTool->mdtIdHelper().stationName( chid2 ) );
+      const std::string& stationName1 = m_idHelperSvc->mdtIdHelper().stationNameString( m_idHelperSvc->mdtIdHelper().stationName( chid1 ) );
+      const std::string& stationName2 = m_idHelperSvc->mdtIdHelper().stationNameString( m_idHelperSvc->mdtIdHelper().stationName( chid2 ) );
       std::string exceptions("MRFG");
       if ( exceptions.find(stationName1[2]) == std::string::npos && exceptions.find(stationName2[2]) == std::string::npos ) {
         // the normal case
-        if ( std::abs( m_idHelperTool->stationEta(chid1) - m_idHelperTool->stationEta(chid2) ) > 1 ) {
+        if ( std::abs( m_idHelperSvc->stationEta(chid1) - m_idHelperSvc->stationEta(chid2) ) > 1 ) {
           if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "not in neighbouring eta " << endmsg;
           return false;
         }

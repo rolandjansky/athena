@@ -14,11 +14,10 @@
 #include "CSC_Hid2RESrcID.h"
 
 #include "ByteStreamData/RawEvent.h" 
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include <string>
 
 class Identifier;
-class CscIdHelper;
 class CSCcablingSvc;
 class CscRawDataCollection;
 
@@ -64,7 +63,8 @@ namespace Muon {
   private: 
     
     CSC_Hid2RESrcID m_hid2re;
-    const CscIdHelper * m_cscHelper; 
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
     // event assembler
     FullEventAssembler<CSC_Hid2RESrcID> m_fea;    

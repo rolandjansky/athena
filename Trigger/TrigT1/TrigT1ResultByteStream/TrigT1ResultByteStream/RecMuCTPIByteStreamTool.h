@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_RECMUCTPIBYTESTREAMTOOL_H
@@ -9,7 +9,6 @@
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamData/RawEvent.h"
 
 // Trigger include(s):
@@ -62,8 +61,6 @@ private:
   MuCTPISrcIdMap* m_srcIdMap;
   /// Internal flag showing whether the RecRoI services were found
   bool m_cnvSvcPresent;
-  /// Handle to the DetectorStore
-  ServiceHandle< StoreGateSvc > m_detectorStore;
   /// Handle to the RPC RecRoISvc
   ServiceHandle< LVL1::RecMuonRoiSvc > m_rpcRoISvc;
   /// Handle to the TGC RecRoISvc

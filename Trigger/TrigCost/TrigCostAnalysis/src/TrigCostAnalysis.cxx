@@ -12,14 +12,18 @@
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthHistogramAlgorithm(name, pSvcLocator),
-  m_fullEventDumps(0) {
+  m_fullEventDumps(0),
+  m_maxViewsNumber(0) {
 }
 
 
 StatusCode  TrigCostAnalysis::initialize() {
   ATH_MSG_VERBOSE("In initialize()");
 
+  ATH_MSG_DEBUG("Reading from " << m_costDataKey.key() << ", " << m_HLTMenuKey.key());
   ATH_CHECK( m_costDataKey.initialize() );
+  ATH_CHECK( m_HLTMenuKey.initialize() );
+
   if (!m_enhancedBiasTool.name().empty()) {
     ATH_CHECK( m_enhancedBiasTool.retrieve() );
   } else {
@@ -29,13 +33,68 @@ StatusCode  TrigCostAnalysis::initialize() {
       return StatusCode::FAILURE;
     }
   }
+
   ATH_CHECK( m_TimeRangeLengthLB > 0 );
   if (m_hashDictionaryFromFile) {
     TrigConf::HLTUtils::file2hashes();
   }
+  
   return StatusCode::SUCCESS;
 }
 
+StatusCode TrigCostAnalysis::start() {
+  SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+  ATH_CHECK( hltMenuHandle.isValid() );
+  ATH_MSG_INFO("Configuring from " << m_HLTMenuKey << " with " << hltMenuHandle->size() << " chains");
+  using boost::property_tree::ptree; 
+
+  // Populate the reverse-hashing dictionary with all ALG NAMES.
+  // Obtain a mapping from NAME to TYPE from the configuration JSON 
+  m_storeIdentifiers.clear();
+  const ptree& menuData =  hltMenuHandle->data();
+  for (const auto& sequencer : menuData.get_child("sequencers")) {
+    ATH_MSG_VERBOSE("Found Sequencer:" << sequencer.first);
+    for (const auto& alg : sequencer.second) {
+      // Data stored in Gaudi format of "AlgClassType/AlgInstanceName"
+      size_t breakPoint = alg.second.data().find("/");
+      const std::string algType = alg.second.data().substr(0, breakPoint);
+      const std::string algName = alg.second.data().substr(breakPoint+1, alg.second.data().size());
+      m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
+      ATH_MSG_VERBOSE("AlgType:" << algType << ", AlgName:" << algName );
+      if (algType.find("EventViewCreatorAlgorithm") != std::string::npos) {
+        ATH_MSG_VERBOSE(algType << " is identified as a ViewCreator");
+        m_storeIdentifiers.insert(algName);
+      }
+    }
+  }
+
+  // As an initial guess, 25 should be a good uper maximum for the number of expected View instances.
+  ATH_CHECK( checkUpdateMaxView(25) );
+  return StatusCode::SUCCESS;
+}
+
+// TODO. Do a proper atomic check of m_maxViewsNumber. Call this from within the Monitor code.
+StatusCode TrigCostAnalysis::checkUpdateMaxView(const size_t max) {
+  if (max <= m_maxViewsNumber) {
+    return StatusCode::SUCCESS;
+  }
+  const size_t current = m_maxViewsNumber;
+  m_maxViewsNumber = max;
+  ATH_MSG_DEBUG("Extending maximum View instances from " << current << " to " << max);
+  for (size_t viewID = current; viewID <= m_maxViewsNumber; ++ viewID) {
+    // Allow for this many individual View instances
+    for (const std::string& store : m_storeIdentifiers) {
+      std::stringstream ss;
+      ss << store << "_view_" << viewID;
+      TrigConf::HLTUtils::string2hash(ss.str(), "STORE");
+    }
+    // And this many global Slots. Though, in general, it will be the Views which are driving this. 
+    std::stringstream ss;
+    ss << viewID << "_StoreGateSvc_Impl";
+    TrigConf::HLTUtils::string2hash(ss.str(), "STORE");
+  }
+  return StatusCode::SUCCESS;
+}
 
 float TrigCostAnalysis::getWeight(const EventContext& context) {
   // TODO Prescale of CostMon chain for P1
@@ -69,6 +128,7 @@ StatusCode TrigCostAnalysis::execute() {
     ATH_MSG_DEBUG("Monitoring event " << context.eventID().event_number() << " in range " << range->getName());
     
     SG::ReadHandle<xAOD::TrigCompositeContainer> costDataHandle(m_costDataKey, context);
+    ATH_CHECK( costDataHandle.isValid() );
 
     CostData costData;
     ATH_CHECK( costData.set(costDataHandle.get()) );
@@ -171,6 +231,7 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
   for ( const xAOD::TrigComposite* tc : *costDataHandle ) {
     const uint64_t start = tc->getDetail<uint64_t>("start"); // in mus
     const uint64_t stop  = tc->getDetail<uint64_t>("stop"); // in mus
+    const uint32_t slot  = tc->getDetail<uint32_t>("slot");
     const uint64_t start_ms_round = std::llround( start * 1e-3 ); // in ms
     const uint64_t stop_ms_round  = std::llround( stop  * 1e-3 ); // in ms
 
@@ -181,6 +242,7 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
 
     ss << "{id:" << algID++;
     ss << ", group:" << threadToCounterMap[threadID];
+    ss << ", className:'slot" << slot << "'";
     ss << ", content:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("alg"), "ALG");
     ss << "<br>" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("store"), "STORE") << "'";
     ss << ", duration:" << (stop - start); // For tooltip display: in mus

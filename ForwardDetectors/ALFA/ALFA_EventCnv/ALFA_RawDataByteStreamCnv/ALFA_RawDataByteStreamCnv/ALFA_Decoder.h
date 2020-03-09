@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_DECODER_H
@@ -17,8 +17,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "ByteStreamData/RawEvent.h" 
 
@@ -71,7 +69,6 @@ class ALFA_Decoder: public AthAlgTool {
   const eformat::FullEventFragment<const uint32_t*> * m_event;
   const eformat::ROBFragment<const uint32_t*> * m_robFrag;
 
-  StoreGateSvc *m_EvtStore;
   unsigned int                m_fragment_number;
 
   /// Service for reading bytestream

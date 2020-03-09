@@ -14,6 +14,7 @@
 #include "StoreGate/exceptions.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
+#include "TestOwner.h"
 #include <cassert>
 #include <iostream>
 
@@ -48,6 +49,18 @@ void test1()
 
   EXPECT_EXCEPTION (SG::ExcBadHandleKey,
                     k2 = "BarSvc+EventInfo/ddd/");
+
+
+  TestOwner owner;
+  SG::TypelessWriteHandleKey k3 (&owner, "CCCKey", 123, "ccc", "doc string");
+  assert (k3.clid() == 123);
+  assert (k3.key() == "ccc");
+  assert (k3.mode() == Gaudi::DataHandle::Writer);
+  assert (owner.getProperty ("CCCKey").name() == "CCCKey");
+  assert (owner.getProperty ("CCCKey").documentation() == "doc string");
+  assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::TypelessWriteHandleKey));
+  assert (owner.getProperty ("CCCKey").toString() == "'StoreGateSvc+ccc'");
+  assert (owner.getProperty ("CCCKey").ownerTypeName() == "TestOwner");
 }
 
 

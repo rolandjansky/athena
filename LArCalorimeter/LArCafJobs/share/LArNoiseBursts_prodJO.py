@@ -1,15 +1,10 @@
-import os
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-
-# etse a handle on the ServiceManager which holds all the services
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-
-# Particle Properties
-from PartPropSvc.PartPropSvcConf import PartPropSvc
 
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 AthenaEventLoopMgr.OutputLevel = WARNING
@@ -36,8 +31,6 @@ LArNoisyROSummaryGetter.ignoreExistingDataObject = lambda x: True
 LArNoisyROSummaryGetter()
 #topSequence.LArNoisyROAlg.BadFEBCut = 2000
 #topSequence.LArNoisyROAlg.SaturatedCellQualityCut = 111165535
-
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 #Necessary DLL's 
 theApp.Dlls += [ "LArRawUtils","LArROD", "LArTools"]
@@ -93,10 +86,9 @@ topSequence.LArCollisionTimeAlg.cutIteration = False
 topSequence.LArCollisionTimeAlg.OutputLevel = INFO
 ###################################################################
 
-if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
-   
+from PyUtils.MetaReaderPeeker import metadata
+if 'IS_SIMULATION' not in metadata['eventTypes']:
    from IOVDbSvc.CondDB import conddb
-   
    if not conddb.folderRequested('/TDAQ/RunCtrl/DataTakingMode'):
       conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode')
    if not conddb.folderRequested('/TDAQ/OLC/LHC/FILLPARAMS'):

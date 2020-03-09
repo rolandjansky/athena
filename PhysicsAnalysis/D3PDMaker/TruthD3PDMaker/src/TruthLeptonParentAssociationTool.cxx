@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id:
 /**
  * @file TruthD3PDMaker/src/TruthLeptonParentAssociationTool.cxx
  * @author Zach Marshall <zach.marshall@cern.ch>
@@ -18,7 +16,6 @@
 #include "McParticleEvent/TruthParticle.h"
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "boost/foreach.hpp"
 #include "HepPID/ParticleIDMethods.hh"
 #include <algorithm>
 
@@ -59,7 +56,7 @@ TruthLeptonParentAssociationTool::reset (const TruthParticle& p)
   const DataHandle<McEventCollection> mcec;
   if (evtStore()->retrieve<McEventCollection>(mcec,"GEN_EVENT").isSuccess()){ // Always run on EVGEN anyway...
     // Loop over GenEvent's.
-    BOOST_FOREACH (const HepMC::GenEvent* ev_in, *mcec) {
+    for (const HepMC::GenEvent* ev_in : *mcec) {
       if (!ev_in) continue;
       for (HepMC::GenEvent::particle_const_iterator itrPart = ev_in->particles_begin();
            itrPart!=ev_in->particles_end();++itrPart){

@@ -24,19 +24,13 @@
 #include <TEnv.h>
 #include <TLorentzVector.h>
 
-//JetInterface includes
-#include "JetInterface/IJetModifier.h"
-#include "JetInterface/ISingleJetModifier.h"
-
 //Package includes
 #include "JetCalibTools/IJetCalibrationTool.h"
+#include "JetCalibTools/JetEventInfo.h"
 
 class JetCalibrationToolBase
   : public asg::AsgTool,
-    public CP::CorrectionTool< xAOD::JetContainer >,
-    virtual public ::IJetCalibrationTool,
-    virtual public ::IJetModifier,
-    virtual public ::ISingleJetModifier
+    virtual public ::IJetCalibrationTool
 { 
 
   ASG_TOOL_CLASS( JetCalibrationToolBase, IJetCalibrationTool )
@@ -59,21 +53,7 @@ class JetCalibrationToolBase
   //default initializeTool()
   virtual StatusCode initialize() { return StatusCode::FAILURE; }
 
-  ///Implement IJetCalibrationTool interface :
-  virtual StatusCode applyCalibration(xAOD::Jet& jet) const;
-
-  virtual CP::CorrectionCode applyCorrection(xAOD::Jet&) { return CP::CorrectionCode::Ok; }
-
-  virtual CP::CorrectionCode calibratedCopy(const xAOD::Jet& inputJet, xAOD::Jet*& outputJet)  {
-    return CP::CorrectionTool< xAOD::JetContainer >::correctedCopy( inputJet, outputJet );
-  }
-
-  virtual CP::CorrectionCode correctedCopy(const xAOD::Jet& inputJet, xAOD::Jet*& outputJet) {
-    return calibratedCopy( inputJet, outputJet );
-  }
-
-  virtual int modify(xAOD::JetContainer&) const { return 0; }
-  virtual int modifyJet(xAOD::Jet&) const { return 0; }
+  virtual StatusCode applyCalibration(xAOD::JetContainer&) const { return StatusCode::SUCCESS; }
 
   virtual void setUnitsGeV(bool useGeV) { if (useGeV) m_GeV=1; else m_GeV=1000; }
 

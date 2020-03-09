@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_CoolInserter_h
@@ -11,7 +11,7 @@
 
 //athena
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 // COOL API: database service bootstrap
 #include "CoolApplication/Application.h"
@@ -28,18 +28,14 @@
 #include "CoolKernel/types.h"
 #include "CoolKernel/Record.h"
 
-
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 class RegionSelectionSvc;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
-class MdtIdHelper;	
-	
 namespace MuonCalib {
 
 class CalibDbConnection;
@@ -96,8 +92,13 @@ class CoolInserter : public AthAlgorithm {
   bool m_cool_connect, m_t0_created, m_rt_created;	
   //already filled chambers - do not double fill
   std::set<NtupleStationId> m_t0_filled, m_rt_filled;
-  const MdtIdHelper* m_mdtIdHelper;
-  const MuonGM::MuonDetectorManager* m_detMgr;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   std::ostringstream m_data_string;
   int m_n_tubes_added;
   int m_n_tubes_chamber;

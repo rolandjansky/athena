@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file AthenaServices/python/__init__.py
 ## Hook for the AthenaServices py-module
@@ -13,5 +13,5 @@ __all__ = [ 'SummarySvc' ]
 # from AthenaServices.AthenaServicesConf import AtDSFMTGenSvc
 
 import sys
-import AthenaServices.RedirectRngComps
+import AthenaServices.RedirectRngComps  # noqa: F401
 sys.modules[ "AthenaServices.AthenaServicesConf" ] = sys.modules[ "AthenaServices.RedirectRngComps" ]

@@ -27,12 +27,12 @@
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloID.h"
 
-unsigned int CaloSamplingHelper::m_EMMask     = 0x000000ff;
-unsigned int CaloSamplingHelper::m_HADMask    = 0x00ffff00;
-unsigned int CaloSamplingHelper::m_BarrelMask = 0x001ff00f;
-unsigned int CaloSamplingHelper::m_EndCapMask = 0x00e00ff0;
-unsigned int CaloSamplingHelper::m_LArMask    = 0x00e00fff;
-unsigned int CaloSamplingHelper::m_TileMask   = 0x001ff000;
+const unsigned int CaloSamplingHelper::m_EMMask     = 0x000000ff;
+const unsigned int CaloSamplingHelper::m_HADMask    = 0x00ffff00;
+const unsigned int CaloSamplingHelper::m_BarrelMask = 0x001ff00f;
+const unsigned int CaloSamplingHelper::m_EndCapMask = 0x00e00ff0;
+const unsigned int CaloSamplingHelper::m_LArMask    = 0x00e00fff;
+const unsigned int CaloSamplingHelper::m_TileMask   = 0x001ff000;
 
 CaloSamplingHelper::CaloSamplingHelper() {
 }

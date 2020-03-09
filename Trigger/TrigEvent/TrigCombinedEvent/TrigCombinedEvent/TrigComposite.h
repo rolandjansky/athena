@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOMBINEDEVENT_TRIGCOMPOSITE_H
@@ -157,9 +157,6 @@ class TrigComposite {
   template<typename T>
   void eraseDetail(const std::string& key);
 
-
-
-  //std::string name() { return m_name; };
   /**
    * @brief Deafault constructor, should not be normally used, needed by the persistency layer
    */
@@ -175,12 +172,6 @@ private:
   template<class T>
   void mustSet(const std::string& key);
 
-  //  bool nameExists(const std::string& name);
-  //  bool isSet(const std::string& name) const;
-  //  int setOrAddAny(const std::string& name, boost::any detail, bool isAdd);
-  
-  //mutable Athena::MsgStreamMember m_log;
-  
   typedef std::set<std::string> MustSetList;
 
   std::map<std::string, TrigFeatureLink > m_links;
@@ -218,12 +209,8 @@ private:
   const T& specimen() const; // needed in order to produce the "NULL" detail
   
 
-  //typedef std::pair<std::string, const void*> obj_store_t;
-  //std::vector<obj_store_t> m_objects;
-
   std::string m_name;
   bool m_locked;
-  //bool m_mustset;
 
 };
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DepositInCaloCnv_p2.h 
@@ -23,47 +23,34 @@
 class MsgStream;
 class DepositInCalo;
 
-class DepositInCaloCnv_p2 : public T_AthenaPoolTPCnvBase<DepositInCalo, 
-			                                 DepositInCalo_p2>
+class DepositInCaloCnv_p2 : public T_AthenaPoolTPCnvConstBase<DepositInCalo, 
+                                                              DepositInCalo_p2>
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
   DepositInCaloCnv_p2();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c DepositInCalo
    *  from its persistent representation @c DepositInCalo_p2
    */
   virtual void persToTrans( const DepositInCalo_p2* persObj, 
                             DepositInCalo* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c DepositInCalo_p2
    *  from its transient representation @c DepositInCalo
    */
   virtual void transToPers( const DepositInCalo* transObj, 
                             DepositInCalo_p2* persObj, 
-                            MsgStream& msg );
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
+                            MsgStream& msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline DepositInCaloCnv_p2::DepositInCaloCnv_p2()
 {}

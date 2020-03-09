@@ -272,12 +272,12 @@ const xAOD::JetContainer* JetMetTagTool::calibrateAndRecordShallowCopyJetCollect
   static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
   static SG::AuxElement::Decorator< float > decJvt("Jvt");
 
-  for ( xAOD::Jet *shallowCopyJet : * jetContainerShallowCopy ) {
+  if( m_jetCalibrationTool->applyCalibration(*jetContainerShallowCopy).isFailure() ){
+    ATH_MSG_WARNING( "Failed to apply calibration to the jet container");
+    return 0;
+  }
 
-    if( m_jetCalibrationTool->applyCalibration(*shallowCopyJet).isFailure() ){
-      ATH_MSG_WARNING( "Failed to apply calibration to the jet container");
-      return 0;
-    }
+  for ( xAOD::Jet *shallowCopyJet : * jetContainerShallowCopy ) {
     const xAOD::IParticleLink originLink( *jetContainer, shallowCopyJet->index() );
     accSetOriginLink(*shallowCopyJet) = originLink;
 

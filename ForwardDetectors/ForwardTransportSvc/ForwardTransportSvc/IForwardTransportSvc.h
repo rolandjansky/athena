@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IForwardTransportSvc_H
@@ -16,7 +16,6 @@
 
 #include "G4ThreeVector.hh"
 
-class IIncidentListener;
 class Incident;
 
 // Declaration of the interface ID (interface id, major version, minor version)

@@ -1,76 +1,70 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
-			MultiComponentState.h  -  description
-			-------------------------------------
+                        MultiComponentState.h  -  description
+                        -------------------------------------
 begin                : Friday 31st December 2004
-author               : atkinson, amorley
+author               : atkinson, amorley,anastopoulos
 email                : Anthony.Morley@cern.ch
 decription           : Basic definitions for a track state described by more
-		       than one set of Track Parameters. The resulting state is
-		       a mixture of components. Each component is described by
-		       a ComponentParameters object which is of the type
-                       std::pair< const TrackParameters*, double> 
-                       The double describes the weighting of the component - 
-                       or its relative importance in the mixture.			
+                       than one set of Track Parameters. The resulting state is
+                       a mixture of components.
+                       Each component is described by a ComponentParameters object
+                       which is of the type std::pair< std::unique_ptr<TrackParameters>, double>
+                       The double describes the weighting of the component -
+                       or its relative importance in the mixture.
 *********************************************************************************/
 
 #ifndef TrkMultiComponentState
 #define TrkMultiComponentState
 
 #include "TrkMultiComponentStateOnSurface/ComponentParameters.h"
-#include <list>
+#include <vector>
 
 class MsgStream;
+namespace Trk {
+/**
+ * MultiComponentState is just a typedef
+ */
+typedef std::vector<ComponentParameters> MultiComponentState;
 
-namespace Trk{
+namespace MultiComponentStateHelpers {
+/** Clone method */
+std::unique_ptr<MultiComponentState>
+clone(const MultiComponentState& in);
 
-class MultiComponentState : public std::list<ComponentParameters>{
- public:
+/** Clone with covariance matricies scaled by a factor */
+std::unique_ptr<MultiComponentState>
+cloneWithScaledError(const MultiComponentState& in, double);
 
-  /** Default constructor */
-  MultiComponentState();
+/** Clone with covariance matrix componants scaled by individual factors
+    This will only work if there are 5 track parameters in each componant
+*/
+std::unique_ptr<MultiComponentState>
+cloneWithScaledError(const MultiComponentState&, double, double, double, double, double);
 
-  /** Copy constructor */
-  MultiComponentState( const ComponentParameters& );
+/** Check to see if all components in the state have measured track parameters */
+bool
+isMeasured(const MultiComponentState& in);
 
-  /** Virtual destructor */
-  virtual ~MultiComponentState();
+/** Performing renormalisation of total state weighting to one */
+void
+renormaliseState(MultiComponentState&, double norm = 1);
 
-  /** Clone method */
-  virtual MultiComponentState* clone() const;
-
-  /** Clone with rescaled weight scaling factor */
-  virtual MultiComponentState* cloneWithWeightScaling( double ) const;
-
-  /** Clone with covariance matricies scaled by a factor */
-  virtual MultiComponentState* cloneWithScaledError( double ) const;
-
-  /** Clone with covariance matrix componants scaled by individual factors
-      This will only work if there are 5 track parameters in each componant
-  */
-  virtual MultiComponentState* cloneWithScaledError( double, double,
-                                                     double, double, 
-                                                     double ) const;
-
-  /** Check to see if all components in the state have measured track parameters */
-  virtual bool isMeasured() const;
-
-  /** Clone state performing renormalisation of total state weighting to one */
-  virtual MultiComponentState* clonedRenormalisedState() const;
-
-  /** Dump methods */
-  virtual MsgStream&    dump( MsgStream& ) const;
-  virtual std::ostream& dump( std::ostream& ) const;
-  
-};
+/** Dump methods */
+MsgStream&
+dump(MsgStream&, const MultiComponentState&);
+std::ostream&
+dump(std::ostream&, const MultiComponentState&);
 
 /** Overload of << operator for MsgStream and std::ostream */
-MsgStream& operator    << ( MsgStream&,    const MultiComponentState& );
-std::ostream& operator << ( std::ostream&, const MultiComponentState& );
-
+MsgStream&
+operator<<(MsgStream&, const MultiComponentState&);
+std::ostream&
+operator<<(std::ostream&, const MultiComponentState&);
+} // end of MultiComponentStateHelpers
 } // end Trk namespace
 
 #endif

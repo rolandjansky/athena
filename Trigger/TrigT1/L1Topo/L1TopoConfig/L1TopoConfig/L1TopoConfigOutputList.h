@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TopoCore__L1TopoConfigOutputList
-#define TopoCore__L1TopoConfigOutputList
+#ifndef TopoCore_L1TopoConfigOutputList
+#define TopoCore_L1TopoConfigOutputList
 
 #include <vector>
 #include <string>
+#include <unordered_set>
 
 namespace TXC {
   
@@ -116,7 +117,9 @@ namespace TXC {
       std::vector<TriggerLine> m_triggerlines;
 
       TXC::TriggerLine m_undef{"UNDEF","",0,0,0,0,0};
-      
+
+      std::unordered_set<std::string> m_triggernames;
+      std::unordered_set<unsigned int> m_triggercounters;
    };
 
 std::ostream & operator<<(std::ostream &, const L1TopoConfigOutputList &);

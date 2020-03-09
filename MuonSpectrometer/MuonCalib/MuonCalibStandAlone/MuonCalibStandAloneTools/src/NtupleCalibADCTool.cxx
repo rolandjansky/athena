@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -17,10 +17,6 @@
 //::           NtupleCalibADCTool              ::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 // standard C++ //
 #include <iostream>
 #include <fstream>
@@ -31,7 +27,6 @@
 // MuonGeoModel //
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // MuonCalib //
 #include "MdtCalibUtils/GlobalTimeFitter.h"
@@ -45,19 +40,15 @@
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MdtCalibT0/T0MTHistos.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
-//#include "MuonCalibData/MdtTubeFitContainer.h"      // SingleTubeCalib*
-//root;
+
 #include "TF1.h"
 #include "TTree.h"
 #include "TProfile.h"
 #include <stdio.h>
-//#include "TMath.h"
 
 //::::::::::::::::::::::::
 //:: NAMESPACE SETTINGS ::
 //::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -92,23 +83,20 @@ NtupleCalibADCTool::NtupleCalibADCTool(const std::string & t,
 	m_road_width = 3.0; // by default road width = 1 mm
 	declareProperty("roadWidth", m_road_width);
 
-	m_MDT_ID_helper = string("MDTIDHELPER");
+	m_MDT_ID_helper = std::string("MDTIDHELPER");
 	declareProperty("MDTIdHelper", m_MDT_ID_helper);
 
-	m_RPC_ID_helper = string("RPCIDHELPER");
+	m_RPC_ID_helper = std::string("RPCIDHELPER");
 	declareProperty("RPCIdHelper", m_RPC_ID_helper);
 
-	m_idToFixedIdToolType = string("MuonCalib::IdToFixedIdTool");
+	m_idToFixedIdToolType = std::string("MuonCalib::IdToFixedIdTool");
 	declareProperty("idToFixedIdToolType", m_idToFixedIdToolType);
 
-	m_idToFixedIdToolName = string("MuonCalib_IdToFixedIdTool");
+	m_idToFixedIdToolName = std::string("MuonCalib_IdToFixedIdTool");
 	declareProperty("idToFixedIdToolName", m_idToFixedIdToolName);
 
-	m_ROOT_file_name = string("NtupleCalibADCTool.root");
+	m_ROOT_file_name = std::string("NtupleCalibADCTool.root");
 	declareProperty("ROOTFileName", m_ROOT_file_name);
-	
-//	m_group_by = string("TUBE");
-//	declareProperty("GroupBy", m_group_by);
 
 /////////////////////////////
 // RESET PRIVATE VARIABLES //
@@ -161,13 +149,12 @@ for(int i=0;i<3;++i)
                             }	
 */
 m_MDT_fhit_adc.clear();      
-m_MDT_shit_adc.clear();      
+m_MDT_SiHitAdc.clear();      
 
       //  Other parameter
         m_nb_events = 0;
 	m_MdtIdHelper = 0;
 	m_RpcIdHelper = 0;
-	m_detMgr = 0;
 	m_id_tool = 0;
 	
 	m_qfitter = new QuasianalyticLineReconstruction();
@@ -217,8 +204,8 @@ StatusCode NtupleCalibADCTool::initialize(void) {
 // RPC ID helper //
 	ATH_CHECK( detStore()->retrieve(m_RpcIdHelper, m_RPC_ID_helper) );
 
-// muon detector manager //
-	ATH_CHECK( detStore()->retrieve(m_detMgr) );
+//retrieve detector manager from the conditions store
+	ATH_CHECK(m_DetectorManagerKey.initialize());
 
 // muon fixed id tool //
 	ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType,
@@ -233,41 +220,18 @@ StatusCode NtupleCalibADCTool::initialize(void) {
 
 	m_tfile = new TFile(m_ROOT_file_name.c_str(), "RECREATE");
 
-	/*
-//	m_tsfile = new TFile("TS_cor.txt","READ");
-	ifstream cor_db("TS_cor.txt"); 
-	if(!cor_db) cout<<" Can't find the timeslewing constants from current dir "<<endl;
-        string tempstring; 
-        while (getline(cor_db,tempstring))   {
-        istringstream sp1line(tempstring);
-        for(int i=0;i<16;++i)      {
-        cout<<"Radius Interval : "<<i<<" cor "<<cor[i]<<"\t"<<ADC0[i]<<"\t"<<low_bin[i]<<"\t"<<high_bin[i];
-        sp1line>>cor[i]>>ADC0[i]>>low_bin[i]>>high_bin[i];
-                                   }
-	                                     }
-	.delete();
-cor[15] = {-0.00205705,-0.00354407,-0.00306112,-0.00193288,-0.00109093,-0.000831173,-0.00066971,-0.000611956,-0.000610348,-0.00048119,-0.00045121,-0.000412511,-0.000346831,-0.00027503,0.000124506 };
-ADC0[15] = {-49.9848,131.757,168.377,180.345,168.991,174.58,209.455,230.637,214.304,200.673,200.648,199.065,163.635,161.754,89.7234 };
-high_bin[15] = {241.69,242.37,260.751,270.535,275.781,276.369,272.933,269.351,261.99,258.231,251.039,242.985,235.595,226.821,219.6 };
-low_bin[15] = {48.8971,53.4205,63.7885,74.7095,79.9586,81.4944,81.2939,79.9401,79.2682,77.0589,75.6614,74.56,73.1008,71.8534,64.8691 };
-
-	*/
 /////////////////////////////////
 // SET UP STRAIGHT-LINE FITTER //
 /////////////////////////////////
 
 	m_qfitter->setRoadWidth(m_road_width);
 	m_qfitter->switchOnRefit();
-//	m_qfitter->switchOffRefit();
 	m_qfitter->setTimeOut(m_time_out);
 	m_cfitter->setRoadWidth(m_road_width);
 	m_cfitter->setTimeOut(m_time_out);
 
 //get region selection service
 	ATH_CHECK( m_reg_sel_svc.retrieve() );
-
-//
-
 
 	return StatusCode::SUCCESS;
 
@@ -443,11 +407,11 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 		 if(!((hit2->adcCount()>50)&&(hit->adcCount()>50))) continue;
 		 if(hit2->tdcCount()>hit->tdcCount()) 	{
 			 m_MDT_fhit_adc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0); 
-			 m_MDT_shit_adc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
+			 m_MDT_SiHitAdc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
 			                                   	}
 		   else 	{  
 			 m_MDT_fhit_adc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
-			 m_MDT_shit_adc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0);
+			 m_MDT_SiHitAdc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0);
 			      	} 
 		   								}
 		// counter++;
@@ -461,10 +425,8 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 //     Selection segment
   
   if (m_refit_segments) {
-        Double_t slopeYZ=57.30*atan((segments[k]->direction()).y()/(segments[k]->direction()).z());
-	Double_t slopeXZ=57.30*atan((segments[k]->direction()).x()/(segments[k]->direction()).z());
-//	Double_t gslopeYZ=57.30*atan((segments[k]->globalDirection()).y()/(segments[k]->globalDirection()).z());
-//	Double_t gslopeXZ=57.30*atan((segments[k]->globalDirection()).x()/(segments[k]->globalDirection()).z());
+        Double_t slopeYZ=57.30*std::atan((segments[k]->direction()).y()/(segments[k]->direction()).z());
+	Double_t slopeXZ=57.30*std::atan((segments[k]->direction()).x()/(segments[k]->direction()).z());
 	m_MDT_segment_localangle_YZ[station_identifier]->Fill(slopeYZ,1.0);
 	m_MDT_segment_localangle_XZ[station_identifier]->Fill(slopeXZ,1.0);
 
@@ -477,34 +439,30 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 			        Double_t d = (segment_fitter->trackHits())[l]->signedDistanceToTrack();
 			        Double_t t = (segment_fitter->trackHits())[l]->driftTime() ;
 				Double_t distX=(segment_fitter->trackHits())[l]->distanceToReadout();
-				if((fabs(d)>15.0)||(fabs(r)>15.0)) continue;
+				if((std::abs(d)>15.0)||(std::abs(r)>15.0)) continue;
 				m_MDT_radius_vs_DistanceToSegmentTrack[station_identifier]->Fill(d,r,1.0);
                                 m_MDT_radius_vs_t[station_identifier]->Fill(t, r,1.0);
                                 m_MDT_adc_vs_radius[station_identifier]->Fill(r, adcCount,1.0);
                                 m_MDT_adc_vs_DistanceToSegmentTrack[station_identifier]->Fill(d, adcCount,1.0);	
-				Double_t resi = fabs(r)-fabs(d);
+				Double_t resi = std::abs(r)-std::abs(d);
 				m_MDT_adc_vs_residual[station_identifier]->Fill(resi, adcCount,1.0);
-           if((m_Recalc2ndCoordinate)&&(fabs(slopeXZ)<80.0)) 	{
+           if((m_Recalc2ndCoordinate)&&(std::abs(slopeXZ)<80.0)) 	{
 		  		m_MDT_adc_vs_posX[station_identifier]->Fill(distX, adcCount,1.0);
-		  		Double_t lenD=2.0*sqrt(225.0-d*d)/cos(fabs(slopeXZ)/57.30); 
+		  		Double_t lenD=2.0*std::sqrt(225.0-d*d)/std::cos(std::abs(slopeXZ)/57.30); 
 				m_MDT_adc_vs_pathD[station_identifier]->Fill(lenD, adcCount,1.0); 
 
 	   				}
 										} 
   			}
   	else 	 	{      // aux line for no refit segment
-	Double_t slopeYZ=57.30*atan((segments[k]->direction()).y()/(segments[k]->direction()).z());
-	Double_t slopeXZ=57.30*atan((segments[k]->direction()).x()/(segments[k]->direction()).z());
-	//Double_t gslopeYZ=57.30*atan((segments[k]->globalDirection()).y()/(segments[k]->globalDirection()).z());
-//	Double_t gslopeXZ=57.30*atan((segments[k]->globalDirection()).x()/(segments[k]->globalDirection()).z());
+	Double_t slopeYZ=57.30*std::atan((segments[k]->direction()).y()/(segments[k]->direction()).z());
+	Double_t slopeXZ=57.30*std::atan((segments[k]->direction()).x()/(segments[k]->direction()).z());
 	m_MDT_segment_localangle_YZ[station_identifier]->Fill(slopeYZ,1.0);
 	m_MDT_segment_localangle_XZ[station_identifier]->Fill(slopeXZ,1.0);
       
 			}
 
 //////##############################################################################################
-
-//	if(segment_fitter->fit(*(segments[k])))
 
 // Loop all hits in segments[k] and update the driftRadius by ADC correction  v500
 // only for the segments-chi2() < 5.0 segments
@@ -517,7 +475,7 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 	for (unsigned int l=0; l<segment_fitter->numberOfTrackHits();l++) 	{
 	                        Double_t r0 = (segment_fitter->trackHits())[l]->driftRadius();
 			        Double_t d0 = (segment_fitter->trackHits())[l]->signedDistanceToTrack();
-	                	m_MDT_residual_vs_radius[0][station_identifier]->Fill(r0,fabs(r0)-fabs(d0),1.0);
+	                	m_MDT_residual_vs_radius[0][station_identifier]->Fill(r0,std::abs(r0)-std::abs(d0),1.0);
 										}
 	 
 	if( !(segment_fitter->fit(*(segments[k])) ) ) ATH_MSG_WARNING( "Segment fit failed. Just going on." );
@@ -527,11 +485,11 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 	for (unsigned int l=0; l<segment_fitter->numberOfTrackHits();l++) 	{
 	                        Double_t r1 = (segment_fitter->trackHits())[l]->driftRadius();
 			        Double_t d1 = (segment_fitter->trackHits())[l]->signedDistanceToTrack();
-	                	m_MDT_residual_vs_radius[1][station_identifier]->Fill(r1,fabs(r1)-fabs(d1),1.0);
-				Int_t radius=static_cast<int>(fabs(r1));
+	                	m_MDT_residual_vs_radius[1][station_identifier]->Fill(r1,std::abs(r1)-std::abs(d1),1.0);
+				Int_t radius=static_cast<int>(std::abs(r1));
 			        if(radius>14) radius = 14;	
 				Int_t adcCount = (segment_fitter->trackHits())[l]->adcCount();
-			        m_r_MDT_residual_vs_adc[radius][station_identifier]->Fill(adcCount,fabs(r1)-fabs(d1),1.0);  // remove the delta ray
+			        m_r_MDT_residual_vs_adc[radius][station_identifier]->Fill(adcCount,std::abs(r1)-std::abs(d1),1.0);  // remove the delta ray
 										} 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -560,7 +518,7 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
         for (unsigned int l=0; l<segment_fitter2->numberOfTrackHits();l++) {
 	                        Double_t r2 = (segment_fitter2->trackHits())[l]->driftRadius();
 			        Double_t d2 = (segment_fitter2->trackHits())[l]->signedDistanceToTrack();
-                                m_MDT_residual_vs_radius[2][station_identifier]->Fill(r2,fabs(r2)-fabs(d2),1.0);  
+                                m_MDT_residual_vs_radius[2][station_identifier]->Fill(r2,std::abs(r2)-std::abs(d2),1.0);  
                                                                     }
                           }
 	                 
@@ -625,8 +583,15 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
 // GET THE GEOMETRY OF THE GIVEN CHAMBER //
 ///////////////////////////////////////////
 
+	SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+	const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+	if(MuonDetMgr==nullptr){
+	  ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+	  return; 
+	} 
+
 	Identifier station_id = m_id_tool->fixedIdToId(id);
-	const MuonGM::MdtReadoutElement *MdtRoEl =m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(station_id,1,1,1));
+	const MuonGM::MdtReadoutElement *MdtRoEl =MuonDetMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(station_id,1,1,1));
 
 	m_nb_ml[station_identifier] = m_MdtIdHelper->numberOfMultilayers(station_id);
 	m_nb_ly[station_identifier] = MdtRoEl->getNLayers();
@@ -641,16 +606,15 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
 
 // histograms //
 	ToString tostring;
-	string file_dir(id.stationNumberToFixedStationString(id.stationName())
+	std::string file_dir(id.stationNumberToFixedStationString(id.stationName())
 		+"_"+tostring(id.phi())+"_"+tostring(id.eta()));
-   string tempside=(id.eta()>0)?"A":"C";
-   string tempeta=tostring(abs(id.eta()));
+   std::string tempside=(id.eta()>0)?"A":"C";
+   std::string tempeta=tostring(abs(id.eta()));
    int tempphi=(file_dir.substr(2,1)=="L")?(2*(id.phi())-1):(2*(id.phi()));
    char sphi[4];
    snprintf(sphi,sizeof(sphi),"%02d",tempphi);
-   string chambername=file_dir.substr(0,3)+tempeta+tempside+sphi;
+   std::string chambername=file_dir.substr(0,3)+tempeta+tempside+sphi;
   
-  // string chambername=file_dir;
 	m_tfile->mkdir(file_dir.c_str());
 	m_tfile->cd(file_dir.c_str());
 
@@ -793,15 +757,15 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
      sprintf(delta_chi2,"%.7s_Segment_delta_chi2",chambername.c_str());
      m_MDT_segment_delta_chi2[station_identifier]= new TH1F(delta_chi2,delta_chi2,100,-5,5);
      m_MDT_segment_delta_chi2[station_identifier]->SetXTitle("Delta_Segment_chi2()");
-     char fhit[100],shit[100];
+     char fhit[100],SiHit[100];
       sprintf(fhit,"%.7s_fristHit_ADC_vs_TDC",chambername.c_str());
-      sprintf(shit,"%.7s_secondHit_ADC_vs_TDC",chambername.c_str());
-      m_MDT_fhit_adc[station_identifier]= new TH2F(fhit,shit,3000, 0,3000,500, 0, 500);
+      sprintf(SiHit,"%.7s_secondHit_ADC_vs_TDC",chambername.c_str());
+      m_MDT_fhit_adc[station_identifier]= new TH2F(fhit,SiHit,3000, 0,3000,500, 0, 500);
       m_MDT_fhit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
       m_MDT_fhit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
-      m_MDT_shit_adc[station_identifier]= new TH2F(shit,shit,3000,0,3000, 500, 0, 500);
-      m_MDT_shit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
-      m_MDT_shit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
+      m_MDT_SiHitAdc[station_identifier]= new TH2F(SiHit,SiHit,3000,0,3000, 500, 0, 500);
+      m_MDT_SiHitAdc[station_identifier]->SetXTitle("ADC count(ns)");	        
+      m_MDT_SiHitAdc[station_identifier]->SetYTitle("TDC count(ns)");	        
 
       m_tfile->cd("..");
 	return;

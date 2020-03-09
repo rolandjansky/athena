@@ -82,7 +82,6 @@ if writePool:
                       "McEventCollection#*",               # mc truth (hepmc)
 		      "CaloCellContainer#*"		   # CaloCells
 		]
-    Stream1.ForceRead=TRUE  #force read of output data
 
     theApp.Dlls += [ "CaloTools" ]
 

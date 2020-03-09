@@ -17,16 +17,19 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
 
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/PixelID.h"
+
 #include "PixelConditionsData/PixelOfflineCalibData.h"
+#include "PixelConditionsData/PixelDistortionData.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class PixelID;
-class IModuleDistortionsTool;
+#include "PixelGeoModel/IIBLParameterSvc.h"
 
-class StoreGateSvc;
-class IIBLParameterSvc;
+#include <atomic>
+#include <mutex>
 
 namespace InDet {
 
@@ -120,8 +123,8 @@ public:
   // Private data:
   ///////////////////////////////////////////////////////////////////
 
-  ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
-  StoreGateSvc*                                 m_detStore        ;
+  SG::ReadCondHandleKey<PixelDistortionData> m_distortionKey
+  {this, "PixelDistortionData", "PixelDistortionData", "Output readout distortion data"};
 
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
@@ -147,7 +150,8 @@ public:
   bool                               m_disableDistortions;
   bool                               m_rel13like         ;
   int                                m_positionStrategy  ;
-  mutable int                        m_errorStrategy     ;
+  mutable std::atomic_int            m_errorStrategy{2};
+  IntegerProperty                    m_errorStrategyProperty{this, "ErrorStrategy", 2, "Which calibration of cluster position errors"};
   
   
   /** @brief Flag controlling how module distortions are taken into account:
@@ -166,14 +170,14 @@ public:
   const PixelID*                     m_pixelid;
   
   /** Enable NN based calibration (do only if NN calibration is applied) **/
-  mutable bool                      m_applyNNcorrection;
-  mutable bool                      m_applydRcorrection;
+  mutable std::atomic_bool          m_applyNNcorrection{false};
+  BooleanProperty                   m_applyNNcorrectionProperty{this, "applyNNcorrection", false};
+  bool                              m_applydRcorrection;
   bool                              m_NNIBLcorrection;
   bool                              m_IBLAbsent;
   
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
-  ServiceHandle<StoreGateSvc>                           m_storeGate;            //!< Event store
   ServiceHandle<IIBLParameterSvc>                       m_IBLParameterSvc;
 
 
@@ -184,8 +188,13 @@ public:
   bool                                                  m_noNNandBroadErrors;
        /** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
-  SG::ReadHandleKey<InDet::PixelGangedClusterAmbiguities>    m_splitClusterHandle; 
-  mutable std::vector< std::vector<float> > m_fX, m_fY, m_fB, m_fC, m_fD;
+  SG::ReadHandleKey<InDet::PixelGangedClusterAmbiguities>    m_splitClusterMapKey; 
+  mutable std::vector< std::vector<float> > m_fX ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::vector< std::vector<float> > m_fY ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::vector< std::vector<float> > m_fB ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::vector< std::vector<float> > m_fC ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::vector< std::vector<float> > m_fD ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::mutex m_mutex;
   
   //moved from static to member variable
   static constexpr int s_nbinphi=9;

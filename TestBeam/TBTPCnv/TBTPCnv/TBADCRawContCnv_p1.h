@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBTPCNV_TBADCRAWCONTCNV_P1
@@ -12,14 +12,17 @@ class MsgStream;
 class TBADCRawCont;
 
 
-class TBADCRawContCnv_p1  : public T_AthenaPoolTPCnvBase<TBADCRawCont, TBADCRawCont_p1>
+class TBADCRawContCnv_p1  : public T_AthenaPoolTPCnvConstBase<TBADCRawCont, TBADCRawCont_p1>
 {
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   TBADCRawContCnv_p1() {}
 
-  virtual void          persToTrans(const TBADCRawCont_p1* pers, TBADCRawCont* trans, MsgStream &log);
-  virtual void          transToPers(const TBADCRawCont* trans, TBADCRawCont_p1* pers, MsgStream &log);
+  virtual void          persToTrans(const TBADCRawCont_p1* pers, TBADCRawCont* trans, MsgStream &log) const override;
+  virtual void          transToPers(const TBADCRawCont* trans, TBADCRawCont_p1* pers, MsgStream &log) const override;
 };
 
 

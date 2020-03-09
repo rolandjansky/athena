@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -66,6 +66,7 @@ StatusCode CaloCompactCellTool::getTransient
 StatusCode CaloCompactCellTool::getPersistent   //fill the CaloCompactCellContainer
 (const CaloCellContainer & theCellContainer,
  CaloCompactCellContainer * theCompactContainer,
+ const SG::ThinningDecisionBase* dec,
  int theVersion )
 {
   //ATH_MSG_DEBUG( "CaloCell container contains " << theCellContainer.size() << " cells. Write compact Ver: " << theVersion  );
@@ -84,7 +85,7 @@ StatusCode CaloCompactCellTool::getPersistent   //fill the CaloCompactCellContai
    {
      CaloCellPacker_400_500 packer;
 
-     packer.pack (theCellContainer, *theCompactContainer, theVersion);
+     packer.pack (theCellContainer, *theCompactContainer, dec, theVersion);
    }
    break;
 

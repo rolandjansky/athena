@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthParticleContainerCnv_p6.h 
@@ -24,11 +24,7 @@
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
 
 // McParticleEvent includes
-#define private public
-#define protected public
 #include "McParticleEvent/TruthParticleContainer.h"
-#undef private
-#undef protected
 
 // McParticleEventTPCnv includes
 #include "McParticleEventTPCnv/TruthParticleContainer_p6.h"
@@ -38,16 +34,15 @@ class MsgStream;
 class StoreGateSvc;
 class ITruthParticleCnvTool;
 
-class TruthParticleContainerCnv_p6 : public T_AthenaPoolTPCnvBase<
+class TruthParticleContainerCnv_p6 : public T_AthenaPoolTPCnvConstBase<
                                               TruthParticleContainer, 
 				              TruthParticleContainer_p6
                                             >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -57,32 +52,21 @@ class TruthParticleContainerCnv_p6 : public T_AthenaPoolTPCnvBase<
    */
   TruthParticleContainerCnv_p6( ITruthParticleCnvTool* cnvTool );
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c TruthParticleContainer
    *  from its persistent representation @c TruthParticleContainer_p6
    */
   virtual void persToTrans( const TruthParticleContainer_p6* persObj, 
 			    TruthParticleContainer* transObj, 
-			    MsgStream& msg ) ;
+			    MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c TruthParticleContainer_p6
    *  from its transient representation @c TruthParticleContainer
    */
   virtual void transToPers( const TruthParticleContainer* transObj, 
 			    TruthParticleContainer_p6* persObj, 
-			    MsgStream& msg ) ;
+			    MsgStream& msg ) const override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
  protected: 
 
   /** Pointer to the IAlgTool providing the conversion from a 
@@ -100,9 +84,6 @@ class TruthParticleContainerCnv_p6 : public T_AthenaPoolTPCnvBase<
 
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline TruthParticleContainerCnv_p6::TruthParticleContainerCnv_p6() :
   m_cnvTool   ( 0 ),

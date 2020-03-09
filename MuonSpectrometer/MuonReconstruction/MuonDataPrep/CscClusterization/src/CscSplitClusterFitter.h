@@ -16,6 +16,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 namespace Muon {
   class CscPrepData;
@@ -25,7 +26,6 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class CscIdHelper;
 class CscSplitClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
   
 public:
@@ -56,8 +56,8 @@ private:
   // Maximum charge ratio between peak strip and valley strip
   float m_max_qratio;
 
-  const MuonGM::MuonDetectorManager* m_detMgr;
-  const CscIdHelper* m_cscIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   // Cluster fitters.
   ToolHandle<ICscClusterFitter> m_pfitter_def;
   ToolHandle<ICscClusterFitter> m_pfitter_prec;

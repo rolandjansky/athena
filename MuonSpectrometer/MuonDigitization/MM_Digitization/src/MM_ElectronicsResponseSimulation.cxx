@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -7,13 +7,11 @@
 *  MC for micromegas athena integration
 *
 **/
-//~
-/// PROJECTS
-#include "GaudiKernel/MsgStream.h"
+
 #include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
 
-// #include <random>
-#include "TF1.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 std::vector<float> shaperInputTime;
 std::vector<float> shaperInputCharge;
@@ -39,6 +37,7 @@ MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
 	m_stripResponseQThreshold(0),
 	m_stripResponseDriftGapWidth(0),
 	m_stripResponseDriftVelocity(0),
+	m_useNeighborLogic(true),
 	m_decoupleShaperFunctionParamaters(false)
 {
 }
@@ -53,7 +52,6 @@ void MM_ElectronicsResponseSimulation::initialize()
 		peakTimeMultiplier = sqrt(m_peakTime / 50.);
 		m_alpha = 2.5 * peakTimeMultiplier;
 
-		m_electronicsThreshold = (m_stripResponseQThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
 		m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
 		m_h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
 		m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
@@ -63,7 +61,6 @@ void MM_ElectronicsResponseSimulation::initialize()
 		peakTimeMultiplier = (m_peakTime / 50.);
 		m_alpha = 2.5;
 
-		m_electronicsThreshold = (m_stripResponseQThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
 		m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
 		m_h_intFn->SetParameter( 0, m_alpha ); // previously split into the alpha parameter
 		m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
@@ -86,7 +83,6 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const M
 	vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
 
 	/// ToDo: include loop for calculating Trigger study vars
-	// MM_DigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
 	MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
 
 	return tmp;
@@ -100,8 +96,7 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(co
 	return tmp;
 }
 /*******************************************************************************/
-void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
-
+void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip){
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 
 		//find min and max times for each strip:
@@ -110,26 +105,29 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int
 		double maxChargeRightNeighbor = 0;
 
 		// find the maximum charge:
-		if ( ii > 0 ) {
-			shaperInputTime = tStrip.at(ii-1);
-			shaperInputCharge = qStrip.at(ii-1);
-			maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-		}
+		if(m_useNeighborLogic){// only check neighbor strips if VMM neighbor logic is enabled
+			if ( ii > 0 ) {
+				shaperInputTime = tStrip.at(ii-1);
+				shaperInputCharge = qStrip.at(ii-1);
+				maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+			}
 
-		if ( ii+1 < numberofStrip.size() ) {
-			shaperInputTime = tStrip.at(ii+1);
-			shaperInputCharge = qStrip.at(ii+1);
-			maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+			if ( ii+1 < numberofStrip.size() ) {
+				shaperInputTime = tStrip.at(ii+1);
+				shaperInputCharge = qStrip.at(ii+1);
+				maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+			}
 		}
-
 		shaperInputTime = tStrip.at(ii);
 		shaperInputCharge = qStrip.at(ii);
 		maxChargeThisStrip = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
 
 
+		//check if neighbor strip was above threshold
+		bool neighborFired = maxChargeLeftNeighbor > m_electronicsThreshold || maxChargeRightNeighbor > m_electronicsThreshold;
 
-		// Look at strip if it or its neighbor was above threshold:
-		if ( maxChargeLeftNeighbor > m_electronicsThreshold || maxChargeRightNeighbor > m_electronicsThreshold || maxChargeThisStrip > m_electronicsThreshold ) {
+		// Look at strip if it or its neighbor was above threshold  and if neighbor logic of the VMM is enabled:
+		if (maxChargeThisStrip > m_electronicsThreshold || (m_useNeighborLogic && neighborFired) ) {
 			shaperInputTime = tStrip.at(ii);
 			shaperInputCharge = qStrip.at(ii);
 			// float localPeak = 0;
@@ -165,7 +163,7 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int
 
 
 
-void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip){
 
 
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
@@ -288,7 +286,10 @@ int MM_ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
 			}
 		}
 	}
-	if(theFastestSignal==-1) std::cout << "There is something wrong in getIdTheFastestSignalInVMM" << std::endl;
+    if(theFastestSignal==-1) {
+        MsgStream log(Athena::getMessageSvc(),"MM_ElectronicsResponseSimulation");
+        log << MSG::WARNING << "There is something wrong in getIdTheFastestSignalInVMM" << endmsg;
+    }
 
 	return theFastestSignal;
 }
@@ -339,7 +340,6 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::applyDeadTimeStrip(const MM
 			electronicsAppliedDeadtimeStripTime.push_back(electronicsStripTime[i]);
 			electronicsAppliedDeadtimeStripCharge.push_back(electronicsStripCharge[i]);
 		}
-	//    else std::cout <<  "Killed due to the strip dead time" << std::endl;
 	}
 
 	MM_DigitToolOutput ElectronicsTriggerOutputAppliedDeadTime(

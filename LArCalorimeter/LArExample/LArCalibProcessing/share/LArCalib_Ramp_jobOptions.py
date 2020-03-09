@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -10,7 +12,11 @@ import commands
 #
 ###########################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 #include("RecExCommission/GetInputFiles.py")
 include("LArCalibProcessing/GetInputFiles.py")
 
@@ -107,6 +113,9 @@ if not 'StripsXtalkCorr' in dir():
 
 if not "ADCSaturation" in dir():
    ADCsaturation = 4090 # Set to 0 if you want to keep saturating pulses
+
+if not "RampRangeValue" in dir():
+   RampRangeValue = 3600 # Check on the raw data ADC sample before ped subtraction and pulse reconstruction to include point in fit
    
 if not 'KeyOutput' in dir():  
    KeyOutput = "LArRamp" # Key of LArRampComplete object in DetStore
@@ -156,7 +165,7 @@ if not 'ReadHECMapFromCOOL' in dir():
    ReadHECMapFromCOOL = True
 	
 if not 'InputHECMapPoolFileDir' in dir():
-   InputHECMapPoolFileDir  = commands.getoutput("pwd")
+   InputHECMapPoolFileDir  = subprocess.getoutput("pwd")
    
 if not 'InputHECMapPoolFileName' in dir():
    InputHECMapPoolFileName = "LArHECMap.pool.root"   
@@ -172,7 +181,7 @@ if not 'PedRunNumber' in dir():
    PedRunNumber = "1005020_1005021_1005022"
 
 if not 'InputPedPoolFileDir' in dir():
-   InputPedPoolFileDir  = commands.getoutput("pwd")
+   InputPedPoolFileDir  = subprocess.getoutput("pwd")
    
 if not 'InputPedPoolFileName' in dir():
    InputPedPoolFileName = "LArPedestal_" + str(PedRunNumber) +"_"+Partition.replace("*","")+ ".pool.root"
@@ -188,7 +197,7 @@ if not 'OFCRunNumber' in dir():
    OFCRunNumber = "30950"
 
 if not 'InputOFCPoolFileDir' in dir():
-   InputOFCPoolFileDir  = commands.getoutput("pwd")
+   InputOFCPoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'InputOFCPoolFileName' in dir():
    if PeakOF :
@@ -202,8 +211,10 @@ if not 'CaliOFCFolder' in dir():
    else:
       CaliOFCFolder  = LArCalib_Flags.LArOFCCaliFolderXtlk
 
-
-rs=FolderTagResover(DBConnectionCOOL)
+if 'dbname' in dir():
+   rs=FolderTagResover(dbname=dbname)
+else:
+   rs=FolderTagResover()
 if not 'LArRampFolderOutputTag' in dir():
    LArRampFolderOutputTag = rs.getFolderTagSuffix(LArCalib_Flags.LArRampFolder)
 if not 'PedLArCalibFolderTag' in dir(): 
@@ -213,10 +224,10 @@ if not 'LArCaliOFCFolderTag' in dir():
 del rs
    
 if not 'OutputRampRootFileDir' in dir():
-   OutputRampRootFileDir = commands.getoutput("pwd")
+   OutputRampRootFileDir = subprocess.getoutput("pwd")
    
 if not 'OutputRampPoolFileDir' in dir():
-   OutputRampPoolFileDir = commands.getoutput("pwd")
+   OutputRampPoolFileDir = subprocess.getoutput("pwd")
 
 if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB
@@ -301,10 +312,18 @@ RampLog.info( " OutputObjectSpecTagRamp            = "+OutputObjectSpecTagRamp )
 RampLog.info( " IOVBegin                           = "+str(IOVBegin) )
 RampLog.info( " IOVEnd                             = "+str(IOVEnd) )
 RampLog.info( " LArCalibOutputDB                   = "+OutputDB )
+for i in range(len(GainList)):
+   RampLog.info( " GainList                       = "+GainList[i] )
 RampLog.info( " ======================================================== " )
 #######################################################################################
 
 include ("LArConditionsCommon/LArMinimalSetup.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+if SuperCells:
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  LArOnOffIdMappingSC()
+  LArCalibIdMappingSC()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -313,6 +332,8 @@ include ("LArConditionsCommon/LArMinimalSetup.py")
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -349,8 +370,9 @@ theByteStreamInputSvc.MaxBadEvents=0
 ## All three are vectors of integers
 #################################################################
 
-from LArByteStream.LArByteStreamConf import LArRodDecoder
-svcMgr.ToolSvc += LArRodDecoder()
+if not SuperCells:
+   from LArByteStream.LArByteStreamConf import LArRodDecoder
+   svcMgr.ToolSvc += LArRodDecoder()
 
 #ToolSvc.LArRodDecoder.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
 #ToolSvc.LArRodDecoder.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
@@ -374,6 +396,10 @@ if ( runAccumulator ) :
    # can be used as a skeleton if needed but                                                     #
    # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
    #include("LArCalibProcessing/LArCalib_CalibrationPatterns.py")
+   ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
+   #if SuperCells is False:
+   #   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
+
    include("./LArCalib_CalibrationPatterns.py")
 
 else :
@@ -397,8 +423,10 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
-MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
+if 'BadChannelsFolder' not in dir():
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+if 'MissingFEBsFolder' not in dir():
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    RampLog.info( "Read Bad Channels from Oracle DB")
@@ -410,7 +438,8 @@ if ( ReadBadChannelFromCOOL ):
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
       #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLONL_LAR/" + conddb.dbname
       
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
@@ -426,12 +455,18 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
-include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")       
-topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
+if not SuperCells:
+   include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")       
+   topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
 if CheckBadEvents:
    from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
    theLArBadEventCatcher=LArBadEventCatcher()
@@ -441,6 +476,9 @@ if CheckBadEvents:
    theLArBadEventCatcher.StopOnError=False
    topSequence+=theLArBadEventCatcher 
 
+   
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
@@ -450,25 +488,25 @@ except:
    pass
 
 # Temperature folder
-conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-svcMgr.EventSelector.InitialTimeStamp = 1284030331
-import cx_Oracle
-import time
-import datetime
-try:
-   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-   cursor=connection.cursor()
-   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-   cursor.execute(sRequest)
-   times= cursor.fetchall()
-   d=times[0][1]
-   iovtemp=int(time.mktime(d.timetuple()))
-except:
-   iovtemp=1283145454
+#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#import cx_Oracle
+#import time
+#import datetime
+#try:
+#   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+#   cursor=connection.cursor()
+#   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+#   cursor.execute(sRequest)
+#   times= cursor.fetchall()
+#   d=times[0][1]
+#   iovtemp=int(time.mktime(d.timetuple()))
+#except:
+#   iovtemp=1283145454
 
 #print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
 #svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
@@ -515,7 +553,7 @@ if (CorrectBias or PeakOF or StripsXtalkCorr):
          RampLog.info( "Read OFC Cali from Oracle DB" )
       else :
          RampLog.info( "Read OFC Cali from SQLite file" )
-         
+
 if ( ReadPedFromCOOL ):
    if (CorrectBias or StripsXtalkCorr or PeakOF):
       PedestalFolder  = LArCalib_Flags.LArPedestalFolder
@@ -530,7 +568,6 @@ else:
       RampLog.info( "No PoolFileList found! Please list the POOL files containing Pedestal or read from COOL." )
       theApp.exit(-1)
 
-   
 if ( ReadOFCFromCOOL ):
    if PeakOF:
       if not 'CaliOFCTagSpec' in dir():
@@ -548,7 +585,6 @@ else:
          theApp.exit(-1)
 
 if ( len(PoolFileList)>0 ):
-      
    from AthenaCommon.ConfigurableDb import getConfigurable
    svcMgr += getConfigurable( "ProxyProviderSvc" )()
    svcMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
@@ -610,8 +646,8 @@ theLArRampBuilder.DAC0         = -1
 theLArRampBuilder.StoreRawRamp = SaveRawRamp
 theLArRampBuilder.StoreRecRamp = True
 theLArRampBuilder.Polynom      = 1    
-theLArRampBuilder.RampRange    = 3600 # Check on the raw data ADC sample before ped subtraction
-                                      # and pulse reconstruction to include point in fit
+theLArRampBuilder.RampRange    = RampRangeValue # Check on the raw data ADC sample before ped subtraction
+                                                # and pulse reconstruction to include point in fit
 theLArRampBuilder.correctBias  = CorrectBias
 theLArRampBuilder.ConsecutiveADCs = 0;
 theLArRampBuilder.minDAC = 10      # minimum DAC value to use in fit
@@ -620,6 +656,8 @@ theLArRampBuilder.DeadChannelCut = -9999
 theLArRampBuilder.GroupingType = GroupingType
 
 theLArRampBuilder.LongNtuple = SaveAllSamples
+
+theLArRampBuilder.isSC = SuperCells
 
 if ( isHEC ) :
    theLArRampBuilder.isHEC = isHEC
@@ -653,16 +691,22 @@ if ( ApplyAdHocCorrection ):
       if ( len(ChannelsToBePatchedHG) and len(ChannelsToBePatchedHG)==len(PatchesToBeAppliedHG) ):
          LArRampAdHocPatchingAlg.ChannelsToBePatchedHG = ChannelsToBePatchedHG
          LArRampAdHocPatchingAlg.PatchesToBeAppliedHG  = PatchesToBeAppliedHG
+         if 'ValuesToBePatchedHG' in dir():
+               LArRampAdHocPatchingAlg.ValuesToBeAppliedHG = ValuesToBePatchedHG
 
    if ( 'ChannelsToBePatchedMG' in dir() and 'PatchesToBeAppliedMG' in dir() ):
       if ( len(ChannelsToBePatchedMG) and len(ChannelsToBePatchedMG)==len(PatchesToBeAppliedMG) ):
          LArRampAdHocPatchingAlg.ChannelsToBePatchedMG = ChannelsToBePatchedMG
          LArRampAdHocPatchingAlg.PatchesToBeAppliedMG  = PatchesToBeAppliedMG
+         if 'ValuesToBePatchedMG' in dir():
+               LArRampAdHocPatchingAlg.ValuesToBeAppliedMG = ValuesToBePatchedMG
 
    if ( 'ChannelsToBePatchedLG' in dir() and 'PatchesToBeAppliedLG' in dir() ):
       if ( len(ChannelsToBePatchedLG) and len(ChannelsToBePatchedLG)==len(PatchesToBeAppliedLG) ):
          LArRampAdHocPatchingAlg.ChannelsToBePatchedLG = ChannelsToBePatchedLG
          LArRampAdHocPatchingAlg.PatchesToBeAppliedLG  = PatchesToBeAppliedLG
+         if 'ValuesToBePatchedLG' in dir():
+               LArRampAdHocPatchingAlg.ValuesToBeAppliedLG = ValuesToBePatchedLG
  
    topSequence+=LArRampAdHocPatchingAlg
 
@@ -672,8 +716,8 @@ if ( ApplyAdHocCorrection ):
 #                                                                    #
 ######################################################################
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
+#from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+#topSequence+=xAODMaker__EventInfoCnvAlg()
 
 if ( doLArCalibDataQuality  ) :
    from LArCalibDataQuality.Thresholds import rampThr, rampThrFEB
@@ -790,12 +834,14 @@ if (WriteNtuple):
    klist=[]
    for i in GainList:
       klist+=["LArRamp"+i]
-   LArRamps2Ntuple.ContainerKey = klist #Only for raw ramp
+   if not SuperCells: LArRamps2Ntuple.ContainerKey = klist #Only for raw ramp
+   if SuperCells: LArRamps2Ntuple.ContainerKey = ["LArRampHIGH"]     # Modification to avoid problems in LArRampBuilder
    LArRamps2Ntuple.NtupleName = "RAMPS"
    LArRamps2Ntuple.RawRamp = SaveRawRamp
    LArRamps2Ntuple.SaveAllSamples = SaveAllSamples
    LArRamps2Ntuple.ApplyCorr = ApplyCorr
    LArRamps2Ntuple.AddFEBTempInfo = False
+   LArRamps2Ntuple.isSC = SuperCells
    
    topSequence+= LArRamps2Ntuple
       
@@ -803,17 +849,25 @@ if (WriteNtuple):
       # Ramp points ntuple(s)
       from LArCalibTools.LArCalibToolsConf import LArAverages2Ntuple
       
-      LArAverages2NtupleHIGH=LArAverages2Ntuple("LArAverages2NtupleHIGH")
-      LArAverages2NtupleHIGH.ContainerKey = "HIGH"
-      topSequence+= LArAverages2NtupleHIGH
-      
-      LArAverages2NtupleMEDIUM=LArAverages2Ntuple("LArAverages2NtupleMEDIUM")
-      LArAverages2NtupleMEDIUM.ContainerKey = "MEDIUM"
-      topSequence+= LArAverages2NtupleMEDIUM
+      if not SuperCells:
+         LArAverages2NtupleHIGH=LArAverages2Ntuple("LArAverages2NtupleHIGH")
+         LArAverages2NtupleHIGH.ContainerKey = "HIGH"
+         topSequence+= LArAverages2NtupleHIGH
+         
+         LArAverages2NtupleMEDIUM=LArAverages2Ntuple("LArAverages2NtupleMEDIUM")
+         LArAverages2NtupleMEDIUM.ContainerKey = "MEDIUM"
+         topSequence+= LArAverages2NtupleMEDIUM
 
-      LArAverages2NtupleLOW=LArAverages2Ntuple("LArAverages2NtupleLOW")
-      LArAverages2NtupleLOW.ContainerKey = "LOW"
-      topSequence+= LArAverages2NtupleLOW
+         LArAverages2NtupleLOW=LArAverages2Ntuple("LArAverages2NtupleLOW")
+         LArAverages2NtupleLOW.ContainerKey = "LOW"
+         topSequence+= LArAverages2NtupleLOW
+      
+      if SuperCells:
+         LArAverages2NtupleSC=LArAverages2Ntuple("LArAverages2NtupleSC")
+         LArAverages2NtupleSC.ContainerKey = "SC"
+         LArAverages2NtupleSC.NSamples = 50
+         LArAverages2NtupleSC.isSC = SuperCells
+         topSequence+= LArAverages2NtupleSC
   
 ###########################################################################	
 	

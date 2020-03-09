@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBTrackCnv_p1.h"
-#define private public
-#define protected public
 #include "TBEvent/TBTrack.h"
-
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "TBTPCnv/TBTrack_p1.h"
 
@@ -16,63 +11,46 @@
 
 void
 TBTrackCnv_p1::persToTrans(const TBTrack_p1* pers, 
-                                     TBTrack* trans, MsgStream &/*log*/)
+                                     TBTrack* trans, MsgStream &/*log*/) const
 {
+  *trans = TBTrack (pers->m_residualu,
+                    pers->m_residualv);
 
-  trans->m_hitNumberU = pers->m_hitNumberU;
-  trans->m_hitNumberV = pers->m_hitNumberV;
-
-  unsigned int nResidualus = pers->m_residualu.size();
-  trans->m_residualu.reserve(nResidualus);
-  trans->m_residualu  = pers->m_residualu;
-
-  unsigned int nResidualvs = pers->m_residualv.size();
-  trans->m_residualv.reserve(nResidualvs);
-  trans->m_residualv  = pers->m_residualv;
-
-  trans->m_chi2       = pers->m_chi2;
-  trans->m_chi2u      = pers->m_chi2u;
-  trans->m_chi2v      = pers->m_chi2v;
-  trans->m_angle      = pers->m_angle;
-  trans->m_uslope     = pers->m_uslope;
-  trans->m_vslope     = pers->m_vslope;
-  trans->m_uintercept = pers->m_uintercept;
-  trans->m_vintercept = pers->m_vintercept;
-  trans->m_cryou      = pers->m_cryou;
-  trans->m_cryov      = pers->m_cryov;
-  trans->m_cryow      = pers->m_cryow;
-
+  trans->setChi2       (pers->m_chi2);
+  trans->setChi2_u     (pers->m_chi2u);
+  trans->setChi2_v     (pers->m_chi2v);
+  trans->setAngle      (pers->m_angle);
+  trans->setUslope     (pers->m_uslope);
+  trans->setVslope     (pers->m_vslope);
+  trans->setUintercept (pers->m_uintercept);
+  trans->setVintercept (pers->m_vintercept);
+  trans->setCryoHitu   (pers->m_cryou);
+  trans->setCryoHitv   (pers->m_cryov);
+  trans->setCryoHitw   (pers->m_cryow);
 }
 
 
 void
 TBTrackCnv_p1::transToPers(const TBTrack* trans, 
-                                     TBTrack_p1* pers, MsgStream &/*log*/)
+                                     TBTrack_p1* pers, MsgStream &/*log*/) const
 {
+  pers->m_hitNumberU  = trans->getHitNumberU();
+  pers->m_hitNumberV  = trans->getHitNumberV();
 
-  pers->m_hitNumberU  = trans->m_hitNumberU;
-  pers->m_hitNumberV  = trans->m_hitNumberV;
+  pers->m_residualu   = trans->getResidualu();
+  pers->m_residualv   = trans->getResidualv();
 
-  unsigned int nResidualus = trans->m_residualu.size();
-  pers->m_residualu.reserve(nResidualus);
-  pers->m_residualu   = trans->m_residualu;
-
-  unsigned int nResidualvs = trans->m_residualv.size();
-  pers->m_residualv.reserve(nResidualvs);
-  pers->m_residualv   = trans->m_residualv;
-
-  pers->m_chi2        = trans->m_chi2;
-  pers->m_chi2u       = trans->m_chi2u;
-  pers->m_chi2v       = trans->m_chi2v;
-  pers->m_angle       = trans->m_angle;
-  pers->m_uslope      = trans->m_uslope;
-  pers->m_vslope      = trans->m_vslope;
-  pers->m_uintercept  = trans->m_uintercept;
-  pers->m_vintercept  = trans->m_vintercept;
-  pers->m_cryou       = trans->m_cryou;
-  pers->m_cryov       = trans->m_cryov;
-  pers->m_cryow       = trans->m_cryow;
-
+  pers->m_chi2        = trans->getChi2_global();
+  pers->m_chi2u       = trans->getChi2_u();
+  pers->m_chi2v       = trans->getChi2_v();
+  pers->m_angle       = trans->getAngle();
+  pers->m_uslope      = trans->getUslope();
+  pers->m_vslope      = trans->getVslope();
+  pers->m_uintercept  = trans->getUintercept();
+  pers->m_vintercept  = trans->getVintercept();
+  pers->m_cryou       = trans->getCryoHitu();
+  pers->m_cryov       = trans->getCryoHitv();
+  pers->m_cryow       = trans->getCryoHitw();
   
 }
 

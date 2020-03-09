@@ -21,6 +21,7 @@
 #include <atomic>
 #include <limits>
 #include <map>
+#include <mutex>
 #include <unordered_map>
 
 namespace InDet {
@@ -102,7 +103,8 @@ namespace InDet {
 
     mutable std::atomic<ULong64_t> m_numTracksProcessed = 0; //!< a counter of the number of tracks proccessed
     mutable std::atomic<ULong64_t> m_numTracksPassed = 0; //!< a counter of the number of tracks that passed all cuts
-    mutable std::vector<ULong64_t> m_numTracksPassedCuts; //!< tracks the number of tracks that passed each cut family
+    mutable std::vector<ULong64_t> m_numTracksPassedCuts ATLAS_THREAD_SAFE; //!< tracks the number of tracks that passed each cut family. Guarded by m_mutex
+    mutable std::mutex m_mutex;
 
     constexpr static Double_t LOCAL_MAX_DOUBLE = 1.0e16;
     constexpr static Int_t LOCAL_MAX_INT = std::numeric_limits<Int_t>::max();

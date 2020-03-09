@@ -8,6 +8,9 @@
   we make no copyright claims on it.
 */
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 /* If we use autoconf.  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -16,10 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifndef FIX_UNUSED
-#define FIX_UNUSED(X) (void) (X) /* avoid warnings for unused params */
-#endif
 
 #include <getopt.h>
 
@@ -122,7 +121,6 @@ void clear_given (struct gengetopt_args_info *args_info)
 static
 void clear_args (struct gengetopt_args_info *args_info)
 {
-  FIX_UNUSED (args_info);
   args_info->runnumber_arg = NULL;
   args_info->runnumber_orig = NULL;
   args_info->lbstart_arg = NULL;
@@ -396,9 +394,8 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
 
 
 static void
-write_into_file(FILE *outfile, const char *opt, const char *arg, const char *values[])
+write_into_file(FILE *outfile, const char *opt, const char *arg, const char */*values*/[])
 {
-  FIX_UNUSED (values);
   if (arg) {
     fprintf(outfile, "%s=\"%s\"\n", opt, arg);
   } else {
@@ -617,7 +614,7 @@ check_multiple_option_occurrences(const char *prog_name, unsigned int option_giv
               /* specific occurrences */
               if (option_given != (unsigned int) min)
                 {
-                  fprintf (stderr, "%s: %s option occurrences must be %d\n",
+                  fprintf (stderr, "%s: %s option occurrences must be %u\n",
                     prog_name, option_desc, min);
                   error = 1;
                 }
@@ -626,7 +623,7 @@ check_multiple_option_occurrences(const char *prog_name, unsigned int option_giv
                 || option_given > (unsigned int) max)
             {
               /* range occurrences */
-              fprintf (stderr, "%s: %s option occurrences must be between %d and %d\n",
+              fprintf (stderr, "%s: %s option occurrences must be between %u and %u\n",
                 prog_name, option_desc, min, max);
               error = 1;
             }
@@ -636,7 +633,7 @@ check_multiple_option_occurrences(const char *prog_name, unsigned int option_giv
           /* at least check */
           if (option_given < min)
             {
-              fprintf (stderr, "%s: %s option occurrences must be at least %d\n",
+              fprintf (stderr, "%s: %s option occurrences must be at least %u\n",
                 prog_name, option_desc, min);
               error = 1;
             }
@@ -646,7 +643,7 @@ check_multiple_option_occurrences(const char *prog_name, unsigned int option_giv
           /* at most check */
           if (option_given > max)
             {
-              fprintf (stderr, "%s: %s option occurrences must be at most %d\n",
+              fprintf (stderr, "%s: %s option occurrences must be at most %u\n",
                 prog_name, option_desc, max);
               error = 1;
             }
@@ -718,10 +715,9 @@ cmdline_parser_required (struct gengetopt_args_info *args_info, const char *prog
 }
 
 int
-cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *prog_name, const char *additional_error)
+cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *prog_name, const char */*additional_error*/)
 {
   int error = 0;
-  FIX_UNUSED (additional_error);
 
   /* checks for required options */
   if (check_multiple_option_occurrences(prog_name, args_info->runnumber_given, args_info->runnumber_min, args_info->runnumber_max, "'--runnumber' ('-r')"))
@@ -776,7 +772,7 @@ static
 int update_arg(void *field, char **orig_field,
                unsigned int *field_given, unsigned int *prev_given, 
                char *value, const char *possible_values[],
-               const char *default_value,
+               const char */*default_value*/,
                cmdline_parser_arg_type arg_type,
                int check_ambiguity, int override,
                int no_free, int multiple_option,
@@ -787,12 +783,11 @@ int update_arg(void *field, char **orig_field,
   const char *val = value;
   int found;
   char **string_field;
-  FIX_UNUSED (field);
 
   stop_char = 0;
   found = 0;
 
-  if (!multiple_option && prev_given && (*prev_given || (check_ambiguity && *field_given)))
+  if (!multiple_option && field_given && prev_given && (*prev_given || (check_ambiguity && *field_given)))
     {
       if (short_opt != '-')
         fprintf (stderr, "%s: `--%s' (`-%c') option given more than once%s\n", 
@@ -805,8 +800,6 @@ int update_arg(void *field, char **orig_field,
       return 1; /* failure */
     }
 
-  FIX_UNUSED (default_value);
-    
   if (field_given && *field_given && ! override)
     return 0;
   if (prev_given)

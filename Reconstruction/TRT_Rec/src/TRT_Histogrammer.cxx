@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header:
@@ -7,12 +7,12 @@
 //
 
 #include <algorithm>
-#include <iostream>
 #include "GaudiKernel/SystemOfUnits.h"
-// #include "GaudiKernel/MsgStream.h"
 #include "TRT_Rec/TRT_Histogrammer.h"
 #include "TrkExInterfaces/IIntersector.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TRT_Rec/TRT_RoadData.h"
+#include "TRT_Rec/TRT_Fit.h"
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
@@ -33,7 +33,6 @@ TRT_Histogrammer::TRT_Histogrammer(const std::string&	type,
         m_n1Corr			(5),
         m_n2Corr			(14),
         m_wbin0				(0.0010),	// basic bin width in deltaPhi (1 mrad)
-        m_wbinPt			(0.3),          // low pt bin width increase term
 	m_fit				(0),
 	m_hMaxPt			(0),
 	m_iCorrMax			(0),
@@ -127,11 +126,6 @@ TRT_Histogrammer::bremLike (double rMax, double rPhiMax) const
     {
 	if (deflectionSignificance < 1.0)	return false;
     }
-
-//     std::cout << " brem-like: pt " << 1./(m_inversePt*Gaudi::Units::GeV) << "   nPeak " << m_hMaxPt
-// 	      << "   r,rLast " << rMax << "  "  << (**(m_hitPt[m_hMaxPt-1])).rhoRoad()
-// 	      << "   rPhi,rPhiMax " << m_fit->rPhi(rMax)
-// 	      << "  " << rPhiMax << std::endl;
 
     return true;
 }
@@ -230,13 +224,7 @@ TRT_Histogrammer::fitPeak (void)
         }
 	m_fit->solve();
 	
-        // Check all roadData to see if close to peak
-//  	std::cout << " fit params: " << 10000.*m_fit->aFit()
-//  		  << "  " << 10000.*m_fit->bFit() 
-//  		  << "   drphi (um) at dr = 100,500:    "
-//  		  << static_cast<int>(1000.*m_fit->rPhi(100.))
-//  		  << "  " << static_cast<int>(1000.*m_fit->rPhi(500.)) << std::endl;
-	
+
         m_hMaxPt = 0;
         for (std::vector<TRT_RoadData*>::const_iterator dit = m_roadData->begin();
 	     dit != m_roadData->end();
@@ -245,19 +233,12 @@ TRT_Histogrammer::fitPeak (void)
             TRT_RoadData& roadData = **dit;
 	    if (roadData.strawStatus() == TRT_RoadData::pendingStraw) continue;
 	    double dRPhi = residual(roadData);
-// 	    std::cout << m_hMaxPt << "  r  " << roadData.rhoRoad()
-// 		      << "  rPhi " << static_cast<int>(1000.*roadData.rPhiRoad())
-// 		      << "  drift " << static_cast<int>(1000.*roadData.driftDistance())
-// 		      << "  dRPhi " << static_cast<int>(1000.*dRPhi);
 
 	    if (fabs(dRPhi) <= m_scaleFactor*(*maxResid))
 	    {
 		m_hitPt[m_hMaxPt++] = dit;
-// 		std::cout << " stored " << m_hMaxPt;
 	    }
-// 	    std::cout << std::endl;
 	}
-//     std::cout << "Fit, hMax " << "  " << m_hMaxPt << std::endl;
     }
 }
 
@@ -270,11 +251,7 @@ TRT_Histogrammer::flagAssociations (void)
     for (unsigned i = 0; i != m_hMaxPt; ++i)
     {
         TRT_RoadData* roadData = *m_hitPt[i];
-// 	if (electronMode == 3)
-// 	{
-// 	    roadData.strawStatus(TRT_RoadData::confirmedStraw);
-// 	}
-// 	else if (roadData.strawStatus() == TRT_RoadData::pendingDrift)
+
 	if (roadData->strawStatus() == TRT_RoadData::pendingDrift)
 	{
 	    roadData->strawStatus(TRT_RoadData::confirmedDrift);
@@ -348,11 +325,6 @@ TRT_Histogrammer::makeHistograms (void)
     int		nCorr1		= nCorr2 - nCorr;
     m_scaleFactor = 1.;
     
-//     double	electronFactor	= 1.0;
-//     if (electronMode == 3) electronFactor = 2.5;
-//     //    m_scaleFactor = electronFactor*(1.0 + m_wbinPt*ptInv);
-//     m_scaleFactor = electronFactor;
-    //    std::cout << "ptInv, nCorr = " << ptInv << "  " << nCorr << std::endl;
 
     // Repeat series of loops if found peak is at edge
     int		iCorrDir	= 0;
@@ -414,15 +386,7 @@ TRT_Histogrammer::makeHistograms (void)
                 }
             }
 
-//  	    std::cout << "iCorr, nMax, hMax " << iCorr << "  " 
-//  		      << nMax << "  " << hMax << std::endl;
-//  	    std::cout << "hist elements" << std::endl;
-//  	    for (int j = 0; j < m_maxBin; j+=20)
-//  	    {
-//  		for (int i = 0; i != 20; i++) std::cout << hist[i+j] << "  ";
-//  		std::cout << std::endl;
-//  	    }
-//  	    std::cout << std::endl;
+
         }
 	
         // Check if peak at edge, but avoid oscillation
@@ -444,8 +408,7 @@ TRT_Histogrammer::makeHistograms (void)
             edge = false;
         }
     }
-//     std::cout << std::endl;
-//     std::cout << "Best iCorr, hMax " << m_iCorrMax << "  " << m_hMaxPt << std::endl;
+
 }
 
 void
@@ -482,7 +445,6 @@ TRT_Histogrammer::outlierRemoval (std::list<TRT_RoadData*>& driftHits)
 	    double resid = fabs(residual(*second) - 0.5*(residual(*first)+residual(*third)));
 	    resid /= sqrt(1.5);
 	
-	    //std::cout << " resid " << resid << " " << residual(*second) << std::endl;
 	
 	    if (resid > worst)
 	    {
@@ -495,7 +457,6 @@ TRT_Histogrammer::outlierRemoval (std::list<TRT_RoadData*>& driftHits)
 	
 	if (! second)	continue;
 	double resid = fabs(residual(*second));
-	//std::cout << " resid " << resid << " " << residual(*second) << std::endl;
 	if (resid > worst)
 	{
 	    outlier = second;
@@ -509,7 +470,6 @@ TRT_Histogrammer::outlierRemoval (std::list<TRT_RoadData*>& driftHits)
 	if (worst < 3.0 * 0.14) return;
 
 	// flag status and remove from list
-	//std::cout << " outlier " << worst << "  " << residual(*outlier) << std::endl;
 	outlier->strawStatus(TRT_RoadData::notConfirmed);
 	std::list<TRT_RoadData*>::iterator iter = find(driftHits.begin(), driftHits.end(), outlier);
 	if (iter != driftHits.end()) driftHits.erase(iter);

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 MergeConfigs: merges han text configuration files, warning on name conflicts
 @author Peter Onyisi <ponyisi@hep.uchicago.edu>
 """
+
+from __future__ import print_function
 
 def list_directories(parent_dir, recurse=True):
     """
@@ -61,9 +63,9 @@ def merge_han_configs(template, parent_dir, out, options):
         if not os.access(f, os.R_OK):
             continue
         if not _is_ok(dir, options):
-            print dir, 'excluded from merge'
+            print (dir, 'excluded from merge')
             continue
-        print 'Processing', f
+        print ('Processing', f)
         files.append(f)
         fobj = open(f, 'r')
         # reclevel = how nested we are; reclist = directories above us; kws = previous keywords
@@ -84,16 +86,16 @@ def merge_han_configs(template, parent_dir, out, options):
                 continue
             kws.append(match.group(1)); reclevel += 1; reclist.append(match.group(2))
             if kws[-1] in kwlist:
-                # print line
-                # print match.group(1), match.group(2),
+                # print (line)
+                # print (match.group(1), match.group(2),)
                 fullname = '/'.join(reclist)
-                # print fullname
+                # print (fullname)
                 if fullname in kwhash[match.group(1)]:
-                    # print reclist
-                    print 'ERROR: repeated definition of %s %s' % (match.group(1), fullname)
-                    print '       Current file is %s' % f
-                    print '       Earlier definition was in %s' % kwhash[match.group(1)][fullname]
-                    print '       Please fix this.  Merging will now stop.  Output file has not been created.'
+                    # print (reclist)
+                    print ('ERROR: repeated definition of %s %s' % (match.group(1), fullname))
+                    print ('       Current file is %s' % f)
+                    print ('       Earlier definition was in %s' % kwhash[match.group(1)][fullname])
+                    print ('       Please fix this.  Merging will now stop.  Output file has not been created.')
                     sys.exit(1)
                 else:
                     kwhash[match.group(1)][fullname] = f

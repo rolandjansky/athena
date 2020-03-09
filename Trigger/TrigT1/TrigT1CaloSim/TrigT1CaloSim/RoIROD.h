@@ -20,7 +20,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthContainers/DataVector.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKeyArray.h"
 

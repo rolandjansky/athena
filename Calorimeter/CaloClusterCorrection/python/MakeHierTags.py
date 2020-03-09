@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: MakeHierTags.py,v 1.5 2009-04-30 20:29:53 ssnyder Exp $
@@ -16,6 +16,8 @@
 #  mh = MakeHierTags ('swcool.db', CaloSwCorrections)
 #  mh.run()
 #
+
+from __future__ import print_function
 
 from PyCool import cool
 import CoolConvUtilities.AtlCoolLib as AtlCoolLib
@@ -93,7 +95,7 @@ class MakeHierTags:
                 toolversion = ''
 
             if not self.funcmap.has_key (toolfunc):
-                print "WARNING: skipping tagging for tool", toolfunc.__name__
+                print ("WARNING: skipping tagging for tool", toolfunc.__name__)
                 continue
             folder = self.funcmap[toolfunc]
             if not folder: continue
@@ -102,7 +104,7 @@ class MakeHierTags:
             htmp = corrclass + '-' + generation + version
             if htag == None:
                 htag = htmp
-                print htag
+                print (htag)
             else:
                 assert htag == htmp
 
@@ -132,7 +134,7 @@ class MakeHierTags:
                 (vlist, version) = self.corrtop.lookup_version (globver)
                 for f in self.folders:
                     self.make_magic_target (f, g, vlist, generation)
-                print "Made magic targets for", g
+                print ("Made magic targets for", g)
                 
         for f in self.folders:
             (dum1, dum2, corrclass, basename) = f.split ('/')
@@ -140,7 +142,7 @@ class MakeHierTags:
                        '-/GeoAtlas'
             toptag = corrclass + "-" + generation[:-1]
             self.set_tag (f, magictag, toptag, False)
-            print "Make magic", f
+            print ("Make magic", f)
         return
 
 
@@ -167,7 +169,7 @@ class MakeHierTags:
 
     def copy_tag (self, folder, src, target):
         if self.dryrun:
-            print '--> Clone in', folder, src, '->', target
+            print ('--> Clone in', folder, src, '->', target)
             return
 
         dbf = self.db.getFolder (folder)
@@ -179,8 +181,8 @@ class MakeHierTags:
         while objs.goToNext():
             objlist+=[objs.currentRef()]
         if len(objlist) == 0:
-            print "ERROR: No objects cloning tag %s in folder %s" % \
-                  (src, folder)
+            print ("ERROR: No objects cloning tag %s in folder %s" % 
+                   (src, folder))
         for obj in objlist:
             dbf.storeObject (obj.since(),
                              obj.until(),
@@ -189,26 +191,26 @@ class MakeHierTags:
                              target,
                              True)
         dbf.setTagDescription (target, "Copied from " + src)
-        #print "Cloned", folder, src, target
+        #print ("Cloned", folder, src, target)
         return
 
 
     def set_tag (self, folder, tag, htag, check = True):
         if self.dryrun:
-            print '--> Set htag in', folder, tag, htag
+            print ('--> Set htag in', folder, tag, htag)
             return
 
         oldtag = self.tags.get ((folder, htag))
         if oldtag == None:
             self.tags[(folder,htag)] = tag
             if not self.db.existsFolder(folder):
-                print "ERROR: Folder %s doesn't exist" % folder
+                print ("ERROR: Folder %s doesn't exist" % folder)
                 sys.exit(1)
             dbf = self.db.getFolder(folder)
             if check:
                 if not tag in dbf.listTags():
-                    print "ERROR: Tag %s doesn't exist in folder %s" \
-                          % (tag,folder)
+                    print ("ERROR: Tag %s doesn't exist in folder %s"
+                           % (tag,folder))
                     sys.exit(1)
             try:
                 zz=dbf.findTagRelation(htag) # will throw if htag doesn't exist
@@ -216,7 +218,7 @@ class MakeHierTags:
             except:
                 pass
             dbf.createTagRelation (htag, tag)
-            #print 'set_tag', folder, tag, htag
+            #print ('set_tag', folder, tag, htag)
         else:
             assert oldtag == tag, (tag, oldtag, folder, htag)
         return

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCOND_DETCONDCFLOAT_H
@@ -45,7 +45,7 @@
 class DetCondCFloat {
  public:
   DetCondCFloat();
-  DetCondCFloat(const int size,const std::string tag);
+  DetCondCFloat(const int size,const std::string& tag);
   virtual ~DetCondCFloat();
 
   int size() const;
@@ -77,7 +77,7 @@ CONDCONT_DEF( DetCondCFloat , 85257013 );
 
 inline DetCondCFloat::DetCondCFloat() : m_size(0), m_tag("null") {}
 
-inline DetCondCFloat::DetCondCFloat(int size,const std::string tag) : 
+inline DetCondCFloat::DetCondCFloat(int size,const std::string& tag) : 
 m_size(size), m_tag(tag) {}
 
 inline DetCondCFloat::~DetCondCFloat() {}

@@ -21,8 +21,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/ByteStreamCnvSvc
                           Event/ByteStreamData
                           Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )

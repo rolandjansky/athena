@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialProvider/TrkMaterialProviderTool.h"
@@ -33,26 +33,9 @@
 // for line-by-line debugging
 #define MYDEBUG() std::cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<std::endl
 
-void myLocal_resetTrack(Trk::Track& track ){
-
-  /* C.A this is kind of weird piece of code
-   * Actually the issue starts from the 
-   * define private public in the header
-   * then somehow this helpers can access the 
-   * guts of a Trk::Track
-   * Needs understanding of client and usage
-   */
-  if( track.m_cachedParameterVector.isValid() ){
-    track.m_cachedParameterVector.reset();
-  }
-
-  if( track.m_cachedMeasurementVector.isValid() ){
-    track.m_cachedMeasurementVector.reset();
-    
-  }
-  if( track.m_cachedOutlierVector.isValid() ){
-    track.m_cachedOutlierVector.reset();
-  }
+void myLocal_resetTrack(Trk::Track& track )
+{
+  track.reset();
 }
 
 // constructor
@@ -64,9 +47,9 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
 	m_caloMeasTool		("Rec::MuidCaloEnergyMeas/MuidCaloEnergyMeas"),
 	m_caloParamTool		("Rec::MuidCaloEnergyParam/MuidCaloEnergyParam"),
 	m_trackIsolationTool	("Rec::MuidTrackIsolation/MuidTrackIsolation"),
-	m_DetID(0),
-	m_calorimeterVolume(0),
-	m_indetVolume(0),
+	m_DetID(nullptr),
+	m_calorimeterVolume(nullptr),
+	m_indetVolume(nullptr),
         m_magFieldSvc           ("AtlasFieldSvc",n),
 	m_maxNTracksIso(2),
 	m_paramPtCut(15.0*Gaudi::Units::GeV),
@@ -109,6 +92,7 @@ Trk::TrkMaterialProviderTool::initialize()
   ATH_CHECK(m_elossupdator.retrieve());
   ATH_CHECK(m_scattool.retrieve());
   if(m_useCaloEnergyMeasurement) {
+    ATH_CHECK(m_trackIsolationTool.retrieve());
     if(m_useMuonCaloEnergyTool) {
       ATH_CHECK(m_muonCaloEnergyTool.retrieve());
       m_caloMeasTool.disable();
@@ -123,8 +107,8 @@ Trk::TrkMaterialProviderTool::initialize()
     m_caloMeasTool.disable();
     m_caloParamTool.disable();
     m_muonCaloEnergyTool.disable();
+    m_trackIsolationTool.disable();
   }
-  ATH_CHECK(m_trackIsolationTool.retrieve());
 
   ATH_CHECK(m_magFieldSvc.retrieve());
 
@@ -169,7 +153,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 
   // back extrapolate to perigee, get pAtCaloEntry from list of TSOSs 
   // and update/add calo+ID material to mstrack to be refitted.
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(track.trackStateOnSurfaces());
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS = track.trackStateOnSurfaces();
 
   // Iterators
   DataVector<const Trk::TrackStateOnSurface>::iterator lastIDwP  = inputTSOS->end();
@@ -257,7 +241,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 									    Trk::alongMomentum, 
 									    Trk::muon,
                                                                             Eloss, X0ScaleMS, ElossScaleMS,
-									    (firstMSwP == inputTSOS->end()) ? 0 : (*firstMSwP)->trackParameters(),
+									    (firstMSwP == inputTSOS->end()) ? nullptr : (*firstMSwP)->trackParameters(),
 									    false,
 									    true); 
   
@@ -277,13 +261,6 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
   // update the original vector
   this->updateVector(inputTSOS, firstCALO, firstMS, caloTSOS);
   myLocal_resetTrack(track);
-
-#ifdef DEBUGON
-    ATH_MSG_VERBOSE("NEW TSOS multiplicity : " << inputTSOS->size());
-    for(auto m : *inputTSOS) this->printTSOS(m, "NEW TSOS");
-#endif
-
-  return;
 }
 
 
@@ -292,8 +269,8 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
 {
   ATH_MSG_VERBOSE("updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack)");    
   
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(idTrack.trackStateOnSurfaces());
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_MS = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(extrapolatedTrack.trackStateOnSurfaces());
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = idTrack.trackStateOnSurfaces();
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_MS = extrapolatedTrack.trackStateOnSurfaces();
   
 
   // find last ID TSOS
@@ -387,7 +364,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
 									    Trk::alongMomentum, 
 									    Trk::muon,
                                                                             Eloss, X0ScaleMS, ElossScaleMS,
-									    (firstMSwP == inputTSOS_MS->end()) ? 0 : (*firstMSwP)->trackParameters(),
+									    (firstMSwP == inputTSOS_MS->end()) ? nullptr : (*firstMSwP)->trackParameters(),
 									    false,
 									    true); 
   
@@ -411,13 +388,6 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
   this->updateVector(inputTSOS_MS, firstCALO, firstMS, caloTSOS);
   
   myLocal_resetTrack(extrapolatedTrack);
-
-#ifdef DEBUGON
-    ATH_MSG_VERBOSE("NEW-MS TSOS multiplicity : " << inputTSOS_MS->size());
-    for(auto m : *inputTSOS_MS) printTSOS(m, "NEW-MS TSOS");
-#endif
-
-  return;
 }
 
 
@@ -516,7 +486,7 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
 									    Trk::alongMomentum, 
 									    Trk::muon,
                                                                             Eloss, X0ScaleMS, ElossScaleMS,
-									    (firstMSwP == inputTSOS_MS->end()) ? 0 : (*firstMSwP)->trackParameters(),
+									    (firstMSwP == inputTSOS_MS->end()) ? nullptr : (*firstMSwP)->trackParameters(),
 									    false,
 									    true); 
   
@@ -543,11 +513,11 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
     }
     double sintheta=std::sin((*caloTSOS)[i]->trackParameters()->parameters()[Trk::theta]);
     double qoverp=(*caloTSOS)[i]->trackParameters()->parameters()[Trk::qOverP];
-    const CaloEnergy *eloss=0;
+    const CaloEnergy *eloss=nullptr;
     if (meot) eloss=dynamic_cast<const CaloEnergy *>(meot->energyLoss());
     
-    Trk::EnergyLoss *neweloss=0;
-    Trk::ScatteringAngles *newsa=0;
+    Trk::EnergyLoss *neweloss=nullptr;
+    Trk::ScatteringAngles *newsa=nullptr;
     if (eloss) neweloss = new CaloEnergy(*eloss);
     else{
       Trk::MaterialProperties matprop(meot->thicknessInX0(),1.,0.,0.,0.,0.);
@@ -559,8 +529,6 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
     delete (*caloTSOS)[i];
   }
   delete caloTSOS; 
-    
-  return;
 }
 
 
@@ -726,9 +694,9 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 					   const Trk::Surface&		surf,
 					   Trk::PropDirection		dir,
 					   Trk::ParticleHypothesis	mateffects,
-                                           double&                      Eloss,
-                                           double&                      X0ScaleMS,
-                                           double&                      ElossScaleMS,
+             double&                      Eloss,
+             double&                      X0ScaleMS,
+             double&                      ElossScaleMS,
 					   const Trk::TrackParameters*	parms,
 					   bool                         boundaryCheck,
 					   bool                         removeOoC) const 
@@ -750,7 +718,8 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   double pOri  = parm.momentum().mag();
 
   // Get TSOS from extrapolateM (from TG)
-  const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir, boundaryCheck, mateffects);
+  std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir, 
+                                                                                            boundaryCheck, mateffects);
   
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM, no-removal");
 
@@ -795,10 +764,10 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   Eloss = ElossCalo;
 
 // remove ID and MS TSOSs
-  if(removeOoC && !caloTSOS->empty()) removeOutOfCalo(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
+  if(removeOoC && !caloTSOS->empty()) removeOutOfCalo(caloTSOS);
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
 // remove MS TSOSs
-  if(fremoveMS && !caloTSOS->empty()) removeMS(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
+  if(fremoveMS && !caloTSOS->empty()) removeMS(caloTSOS);
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
   
 #ifdef DEBUGON
@@ -806,8 +775,8 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 #endif
 
 
-  DataVector<const Trk::TrackStateOnSurface>*  finalCaloTSOS = 0;
-  if(caloTSOS->size()<1||Eloss<1000.) {
+  DataVector<const Trk::TrackStateOnSurface>*  finalCaloTSOS = nullptr;
+  if(caloTSOS->empty()||Eloss<1000.) {
     if(dir==Trk::alongMomentum&&pOri>4000.) {
         ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM caloTSOS->size() "<< caloTSOS->size() << " Eloss " << Eloss );
         ATH_MSG_WARNING(" momentum of track " << pOri);
@@ -925,7 +894,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 //  
 //  sigmaElossIoni should be scaled by 0.45 to go to Landau this is later done in updateEloss
 //
-      if(muonTrack.trackParameters() && muonTrack.trackParameters()->size()>0)
+      if(muonTrack.trackParameters() && !muonTrack.trackParameters()->empty())
 	m_muonCaloEnergyTool->calculateMuonEnergies( &muonTrack, 
 						     totalEloss, meanElossIoni, 0.45*sigmaElossIoni,  
 						     measCaloEnergy, measCaloEnergyError, fsrCaloEnergy, e_exp,
@@ -958,7 +927,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   // Check if we can use the measured eloss in the fit
   bool useMeasuredEnergy = m_useCaloEnergyMeasurement;
   if(pAtCaloEntry*sin(parm.parameters()[Trk::theta]) < m_paramPtCut) useMeasuredEnergy = false; 
-  if(!isIsolatedTrack(eta,phi)) useMeasuredEnergy = false;
+  if(useMeasuredEnergy && !isIsolatedTrack(eta,phi)) useMeasuredEnergy = false;
  
   // Total eloss
   double Eloss_tot=0.0;
@@ -1018,7 +987,7 @@ CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track) c
       }
     }
   }
-  return (CaloEnergy*)(0x0);
+  return (CaloEnergy*)nullptr;
 }
 
 
@@ -1027,7 +996,7 @@ CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track) c
 /**Helper to get last calo TSOS with TP*/
 const Trk::TrackStateOnSurface* Trk::TrkMaterialProviderTool::getCaloExitTSOS(const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS, Trk::PropDirection dir) const
 {
-  const Trk::TrackStateOnSurface* tsosAtCaloExit = 0;
+  const Trk::TrackStateOnSurface* tsosAtCaloExit = nullptr;
   if(dir==Trk::alongMomentum) {
     std::vector<const Trk::TrackStateOnSurface*>::const_reverse_iterator it = caloTSOS->rbegin();
     std::vector<const Trk::TrackStateOnSurface*>::const_reverse_iterator itEnd = caloTSOS->rend();
@@ -1056,7 +1025,7 @@ const Trk::TrackStateOnSurface* Trk::TrkMaterialProviderTool::getCaloExitTSOS(co
 /**Helper to get first calo TSOS with TP*/
 const Trk::TrackStateOnSurface* Trk::TrkMaterialProviderTool::getCaloEntryTSOS(const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS, Trk::PropDirection dir) const
 {
-  const Trk::TrackStateOnSurface* tsosAtCaloEntry = 0;
+  const Trk::TrackStateOnSurface* tsosAtCaloEntry = nullptr;
   if(dir==Trk::alongMomentum) {
     std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = caloTSOS->begin();
     std::vector<const Trk::TrackStateOnSurface*>::const_iterator itEnd = caloTSOS->end();
@@ -1220,10 +1189,10 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
           Trk::EnergyLoss* energyLossNew = new EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE, deltaE_ioni, sigmaDeltaE_ioni, deltaE_rad, sigmaDeltaE_rad, depth ) ;
           const Trk::Surface& surf = meot->associatedSurface();
           const Trk::MaterialEffectsOnTrack*  newMeot =  new Trk::MaterialEffectsOnTrack(X0ScaleMS*meot->thicknessInX0(), scatNew, energyLossNew, surf, meotPattern);
-          const Trk::TrackParameters* pars = 0;
+          const Trk::TrackParameters* pars = nullptr;
           if((*it)->trackParameters()) pars = (*it)->trackParameters()->clone();
 	// make new TSOS 
-          const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( 0, pars, 0, newMeot, typePattern );
+          const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, newMeot, typePattern );
           DataVector<const Trk::TrackStateOnSurface>* newTSOSvector = new DataVector<const Trk::TrackStateOnSurface>(SG::VIEW_ELEMENTS);
           newTSOSvector->push_back(&(*newTSOS));
 // replace TSOS in MS with new one
@@ -1257,8 +1226,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
 
   } // end debug
 
-  return;
-
+  
 }
 
 //* Helper to indentify detector volume**/
@@ -1303,7 +1271,7 @@ void Trk::TrkMaterialProviderTool::deleteTSOS(DataVector<const Trk::TrackStateOn
 
 
 //** Helper to printout TSOS details*/
-void Trk::TrkMaterialProviderTool::printTSOS(const Trk::TrackStateOnSurface* m, std::string tag) const
+void Trk::TrkMaterialProviderTool::printTSOS(const Trk::TrackStateOnSurface* m, const std::string& tag) const
 {
   unsigned int ivolGeo = getVolumeByGeo(m);
 
@@ -1420,9 +1388,9 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
   double deltaE_rad_tot = 0.; 
   double sigmaDeltaE_rad_tot =0.;
 
-  const Trk::TrackStateOnSurface* mprevious = 0;
-  const Trk::TrackStateOnSurface* mfirst = 0;
-  const Trk::TrackStateOnSurface* mlast = 0;
+  const Trk::TrackStateOnSurface* mprevious = nullptr;
+  const Trk::TrackStateOnSurface* mfirst = nullptr;
+  const Trk::TrackStateOnSurface* mlast = nullptr;
   Amg::Vector3D posFirst(0.,0.,0.);
   //   double distLast = 0.;
   double deltaEFirst = 0.;
@@ -1464,8 +1432,8 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
     if(m->materialEffectsOnTrack()) {
       double X0 = m->materialEffectsOnTrack()->thicknessInX0();
       const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(m->materialEffectsOnTrack());
-      const Trk::EnergyLoss* energyLoss = 0;
-      const Trk::ScatteringAngles* scat = 0;
+      const Trk::EnergyLoss* energyLoss = nullptr;
+      const Trk::ScatteringAngles* scat = nullptr;
       if(meot) {
 	energyLoss = meot->energyLoss();
 	if (!energyLoss) {
@@ -1552,7 +1520,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
         const Trk::TrackParameters* pars = m->trackParameters()->clone();
 
 	// make new TSOS 
-        const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( 0, pars, 0, meotLast, typePattern );
+        const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, meotLast, typePattern );
 
         newTSOSvector->push_back(newTSOS);
         ATH_MSG_VERBOSE(" NO aggregation and NO reposition   TSOS type " << newTSOS->dumpType() << " TSOS surface " << newTSOS->trackParameters()->associatedSurface() << " position x " << newTSOS->trackParameters()->position().x() << " y " << newTSOS->trackParameters()->position().y() << " z " << newTSOS->trackParameters()->position().z()   << " direction x " << newTSOS->trackParameters()->momentum().unit().x() << " y " << newTSOS->trackParameters()->momentum().unit().y() << " z " << newTSOS->trackParameters()->momentum().unit().z() << " p " << newTSOS->trackParameters()->momentum().mag() << " X0 " << X0_tot << " deltaE " << caloEnergyNew->deltaE() << " sigma deltaTheta " <<  scatNew->sigmaDeltaTheta()  );
@@ -1586,7 +1554,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
           const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot, scatNew, caloEnergyNew, surf, meotPattern);
           const Trk::TrackParameters* pars = m->trackParameters()->clone();
 	  //        make new TSOS 
-          const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( 0, pars, 0, meotLast, typePattern );
+          const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, meotLast, typePattern );
           newTSOSvector->push_back(newTSOS);
           ATH_MSG_VERBOSE(" NO aggregation and WITH reposition Thin Scatterer  TSOS type " << newTSOS->dumpType() << " TSOS surface " << newTSOS->trackParameters()->associatedSurface() << " position x " << newTSOS->trackParameters()->position().x() << " y " << newTSOS->trackParameters()->position().y() << " z " << newTSOS->trackParameters()->position().z()   << " direction x " << newTSOS->trackParameters()->momentum().unit().x() << " y " << newTSOS->trackParameters()->momentum().unit().y() << " z " << newTSOS->trackParameters()->momentum().unit().z() << " p " << newTSOS->trackParameters()->momentum().mag() << " X0 " << meotLast->thicknessInX0() << " deltaE " << caloEnergyNew->deltaE() << " sigma deltaTheta " <<  scatNew->sigmaDeltaTheta()  );
 
@@ -1640,8 +1608,8 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
           const Trk::TrackParameters* parsLast  = surfLast->createParameters<5,Trk::Charged>(0.,0.,dir.phi(),dir.theta(),qOverPNew);
 	  // make TSOS 
 	  //      
-          const Trk::TrackStateOnSurface* newTSOSFirst = new Trk::TrackStateOnSurface( 0, parsFirst,     0, meotFirst,   typePattern );
-          const Trk::TrackStateOnSurface* newTSOS  = new Trk::TrackStateOnSurface( 0, parsLast,   0, meotLast,   typePattern );
+          const Trk::TrackStateOnSurface* newTSOSFirst = new Trk::TrackStateOnSurface( nullptr, parsFirst,     nullptr, meotFirst,   typePattern );
+          const Trk::TrackStateOnSurface* newTSOS  = new Trk::TrackStateOnSurface( nullptr, parsLast,   nullptr, meotLast,   typePattern );
 
           ATH_MSG_VERBOSE(" first NO aggregation and WITH reposition   TSOS type " << newTSOSFirst->dumpType() << " TSOS surface " << newTSOSFirst->trackParameters()->associatedSurface() << " position x " << newTSOSFirst->trackParameters()->position().x() << " y " << newTSOSFirst->trackParameters()->position().y() << " z " << newTSOSFirst->trackParameters()->position().z()   << " direction x " << newTSOSFirst->trackParameters()->momentum().unit().x() << " y " << newTSOSFirst->trackParameters()->momentum().unit().y() << " z " << newTSOSFirst->trackParameters()->momentum().unit().z() << " p " << newTSOSFirst->trackParameters()->momentum().mag() << " X0 " << meotFirst->thicknessInX0()  << " deltaE " << energyLoss0->deltaE() << " sigma deltaTheta " <<  scatFirst->sigmaDeltaTheta()  );
           ATH_MSG_VERBOSE(" second NO aggregation and WITH reposition   TSOS type " << newTSOS->dumpType() << " TSOS surface " << newTSOS->trackParameters()->associatedSurface() << " position x " << newTSOS->trackParameters()->position().x() << " y " << newTSOS->trackParameters()->position().y() << " z " << newTSOS->trackParameters()->position().z()   << " direction x " << newTSOS->trackParameters()->momentum().unit().x() << " y " << newTSOS->trackParameters()->momentum().unit().y() << " z " << newTSOS->trackParameters()->momentum().unit().z() << " p " << newTSOS->trackParameters()->momentum().mag() << " X0 " << meotLast->thicknessInX0() << " deltaE " << caloEnergyNew->deltaE() << " sigma deltaTheta " <<  scatNew->sigmaDeltaTheta()  );
@@ -1780,13 +1748,13 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
         // make two scattering planes and TSOS 
         //
         //          prepare for first MaterialEffectsOnTrack with X0 = X0/2 Eloss = 0 and scattering2 = total2 / 2. depth = 0
-        const Trk::MaterialEffectsOnTrack*  meotFirst   =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatFirst,   0,   *surfFirst,   meotPattern);
+        const Trk::MaterialEffectsOnTrack*  meotFirst   =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatFirst,   nullptr,   *surfFirst,   meotPattern);
         //          prepare for second MaterialEffectsOnTrack with X0 =  X0/2 Eloss = Eloss total and scattering2 = total2 / 2. depth = 0
         const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatNew, caloEnergyNew, *surfLast, meotPattern);
         //
         //      
-        const Trk::TrackStateOnSurface* newTSOSFirst = new Trk::TrackStateOnSurface( 0, parsFirst,     0, meotFirst,   typePattern );
-        const Trk::TrackStateOnSurface* newTSOS  =  (elossFlag!=0 ?  new Trk::TrackStateOnSurface( 0, parsLast,   0, meotLast,   typePatternDeposit ) : new Trk::TrackStateOnSurface( 0, parsLast,   0, meotLast,   typePattern )) ;
+        const Trk::TrackStateOnSurface* newTSOSFirst = new Trk::TrackStateOnSurface( nullptr, parsFirst,     nullptr, meotFirst,   typePattern );
+        const Trk::TrackStateOnSurface* newTSOS  =  (elossFlag!=0 ?  new Trk::TrackStateOnSurface( nullptr, parsLast,   nullptr, meotLast,   typePatternDeposit ) : new Trk::TrackStateOnSurface( nullptr, parsLast,   nullptr, meotLast,   typePattern )) ;
         ATH_MSG_VERBOSE(" first WITH aggregation and WITH reposition   TSOS type " << newTSOSFirst->dumpType() << " TSOS surface " << newTSOSFirst->trackParameters()->associatedSurface() << " position x " << newTSOSFirst->trackParameters()->position().x() << " y " << newTSOSFirst->trackParameters()->position().y() << " z " << newTSOSFirst->trackParameters()->position().z()   << " direction x " << newTSOSFirst->trackParameters()->momentum().unit().x() << " y " << newTSOSFirst->trackParameters()->momentum().unit().y() << " z " << newTSOSFirst->trackParameters()->momentum().unit().z() << " p " << newTSOSFirst->trackParameters()->momentum().mag() << " X0 " << meotFirst->thicknessInX0()  << " deltaE 0 " << " sigma deltaTheta " <<  scatFirst->sigmaDeltaTheta()  );
         ATH_MSG_VERBOSE(" second WITH aggregation and WITH reposition   TSOS type " << newTSOS->dumpType() << " TSOS surface " << newTSOS->trackParameters()->associatedSurface() << " position x " << newTSOS->trackParameters()->position().x() << " y " << newTSOS->trackParameters()->position().y() << " z " << newTSOS->trackParameters()->position().z()   << " direction x " << newTSOS->trackParameters()->momentum().unit().x() << " y " << newTSOS->trackParameters()->momentum().unit().y() << " z " << newTSOS->trackParameters()->momentum().unit().z() << " p " << newTSOS->trackParameters()->momentum().mag() << " X0 " << meotLast->thicknessInX0() << " deltaE " << caloEnergyNew->deltaE() << " sigma deltaTheta " <<  scatNew->sigmaDeltaTheta()  );
         newTSOSvector->push_back(newTSOSFirst);
@@ -1800,17 +1768,17 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
         const Trk::TrackParameters* pars  = surf->createParameters<5,Trk::Charged>(0.,0.,dir.phi(),dir.theta(),qOverPNew);
 
         //        prepare for first MaterialEffectsOnTrack with X0 = X0/2 Eloss = 0 and scattering2 = total2 / 2. depth = 0
-        const Trk::MaterialEffectsOnTrack*  meotFirst   =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatFirst,   0,   *surfFirst,   meotPattern);
+        const Trk::MaterialEffectsOnTrack*  meotFirst   =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatFirst,   nullptr,   *surfFirst,   meotPattern);
 
         //        prepare for middle MaterialEffectsOnTrack with X0 =  0 Eloss = ElossNew and scattering2 = 0. depth = 0
-        const Trk::MaterialEffectsOnTrack*  meot =  new Trk::MaterialEffectsOnTrack(0., 0, caloEnergyNew, *surf, meotPattern);
+        const Trk::MaterialEffectsOnTrack*  meot =  new Trk::MaterialEffectsOnTrack(0., nullptr, caloEnergyNew, *surf, meotPattern);
 
         //        prepare for last MaterialEffectsOnTrack with X0 =  X0/2 Eloss = 0 total and scattering2 = total2 / 2. depth = 0
-        const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatNew, 0, *surfLast, meotPattern);
+        const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatNew, nullptr, *surfLast, meotPattern);
 
-        const Trk::TrackStateOnSurface* newTSOSFirst = new Trk::TrackStateOnSurface( 0, parsFirst,     0, meotFirst,   typePatternScat );
-        const Trk::TrackStateOnSurface* newTSOS  =    new Trk::TrackStateOnSurface( 0, pars,   0, meot,   typePatternDeposit );
-        const Trk::TrackStateOnSurface* newTSOSLast = new Trk::TrackStateOnSurface( 0, parsLast,     0, meotLast,   typePatternScat );
+        const Trk::TrackStateOnSurface* newTSOSFirst = new Trk::TrackStateOnSurface( nullptr, parsFirst,     nullptr, meotFirst,   typePatternScat );
+        const Trk::TrackStateOnSurface* newTSOS  =    new Trk::TrackStateOnSurface( nullptr, pars,   nullptr, meot,   typePatternDeposit );
+        const Trk::TrackStateOnSurface* newTSOSLast = new Trk::TrackStateOnSurface( nullptr, parsLast,     nullptr, meotLast,   typePatternScat );
 
         newTSOSvector->push_back(newTSOSFirst);
         newTSOSvector->push_back(newTSOS);
@@ -1867,7 +1835,7 @@ void Trk::TrkMaterialProviderTool::getMopAndIoniEnergyLoss(const std::vector<con
     }
     if(m->materialEffectsOnTrack()) {
       const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(m->materialEffectsOnTrack());
-      const Trk::EnergyLoss* energyLoss = 0;
+      const Trk::EnergyLoss* energyLoss = nullptr;
       if(meot) {
         energyLoss = meot->energyLoss();
         if (!energyLoss) {
@@ -1922,8 +1890,7 @@ bool Trk::TrkMaterialProviderTool::isIsolatedTrack(double eta, double phi) const
 
   ATH_MSG_VERBOSE("Isolation : Number of tracks in cone " << nTracks << " cut < " << m_maxNTracksIso);
 
-  if (nTracks > m_maxNTracksIso) return false;
-  return true;
+  return nTracks <= m_maxNTracksIso;
 }
 
 /** Function to get calorimeter measured energy loss*/

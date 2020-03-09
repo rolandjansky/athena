@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_Monitoring/TRT_Monitoring_Tool.h"
 
 #include "AthContainers/DataVector.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -598,7 +598,6 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 	ATH_CHECK( m_comTimeObjectKey.initialize() );
 	ATH_CHECK( m_trigDecisionKey.initialize() );
 
-	ATH_CHECK( m_lumiTool.retrieve() );
 	ATH_MSG_INFO("My TRT_DAQ_ConditionsSvc is " << m_DAQSvc);
 
 	return StatusCode::SUCCESS;
@@ -632,15 +631,6 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent() {
 			                m_trackCollectionKey.key() << " in StoreGate. Skipping TRT Track Monitoring.");
 			m_doTracksMon = false;
 		}
-	}
-
-	// NOTE: This is already retrieved during initialization
-	// Is this needed here?
-	if (m_lumiTool.retrieve().isFailure()) {
-		ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");
-		return StatusCode::FAILURE;
-	} else {
-		ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
 	}
 
 	//Book_TRT_RDOs registers all raw data histograms
@@ -1841,15 +1831,13 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 		InDetTimeCollection::const_iterator itrt_bcid = trtBCIDCollection->begin();
 
 		while (goodid_status == 0 && itrt_bcid != trtBCIDCollection->end()) {
-			if (!(*itrt_bcid)) continue;
-
-			const unsigned int trt_bcid = (*itrt_bcid)->second;
+			const unsigned int trt_bcid = (*itrt_bcid).second;
 
 			if (itrt_bcid > trtBCIDCollection->begin() && prev_bcid - trt_bcid == 0) {
 				goodid_status = 1;
 			} else if (itrt_bcid > trtBCIDCollection->begin() && prev_bcid - trt_bcid != 0) {
 				ATH_MSG_WARNING("TRT BCID is not consistent.  TRT RODID is " <<
-				                std::hex << (*itrt_bcid)->first << " trt bcid from ROD is " <<
+				                std::hex << (*itrt_bcid).first << " trt bcid from ROD is " <<
 				                std::hex << trt_bcid);
 			}
 
@@ -2474,7 +2462,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 	}
 
 	for (; p_trk != trackCollection.end(); ++p_trk) {
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
 		int nTRTHits = summary->get(Trk::numberOfTRTHits);
 
 		if (nTRTHits < m_minTRThits) continue;
@@ -3602,7 +3590,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 			continue;
 		}
 
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
 		int n_trt_hits = summary->get(Trk::numberOfTRTHits);
 		int n_sct_hits = summary->get(Trk::numberOfSCTHits);
 		int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
@@ -3854,8 +3842,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 	int runNumber;
 	runNumber = eventInfo.runNumber();
 	// get Online Luminosity
-	double intLum = (m_lumiTool->lbDuration() * m_lumiTool->lbAverageLuminosity());
-	double timeStampAverage = (maxtimestamp - 0.5 * m_lumiTool->lbDuration());
+	double intLum = (this->lbDuration() * this->lbAverageLuminosity());
+	double timeStampAverage = (maxtimestamp - 0.5 * this->lbDuration());
 	m_IntLum->SetBinContent(1, intLum);
 	m_LBvsLum->SetBinContent(lumiBlockNumber, intLum);
 	m_LBvsTime->SetBinContent(lumiBlockNumber, timeStampAverage);
@@ -3880,7 +3868,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
 		int trt_hits = summary->get(Trk::numberOfTRTHits);
 		int sct_hits = summary->get(Trk::numberOfSCTHits);
 		int pixel_hits = summary->get(Trk::numberOfPixelHits);

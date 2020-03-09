@@ -1,8 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//-*- mode: c++ -*-
+/// @author Alexander Madsen
+/// @author Nils Krumnack
+
+
+
 #ifndef EVENT_LOOP_GRID_DRIVER_H
 #define EVENT_LOOP_GRID_DRIVER_H
 
@@ -17,17 +21,15 @@ namespace EL {
 
   std::string getRootCoreConfig ();
 
-  class GridDriver : public Driver {
+  /// \brief a \ref Driver to submit jobs via ganga
+
+  class GridDriver final : public Driver {
 
   public:
 
     GridDriver ();
 
     void testInvariant () const;
-
-    virtual void doSubmit(const Job& job, const std::string& location) const;
-
-    virtual bool doRetrieve(const std::string& location) const;
 
     static void status(const std::string& location);
 
@@ -84,7 +86,20 @@ namespace EL {
     void gather(const std::string location) const;
     SH::SampleGrid* createSampleFromDQ2(const std::string& dataset) const;
 
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
+
+  private:
+    ::StatusCode doRetrieve (Detail::ManagerData& data) const;
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
     ClassDef(EL::GridDriver, 1);
+#pragma GCC diagnostic pop
   };
 }
 

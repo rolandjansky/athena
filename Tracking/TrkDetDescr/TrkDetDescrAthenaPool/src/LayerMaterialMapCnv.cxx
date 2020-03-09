@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -14,8 +14,7 @@
 //-----------------------------------------------------------------------------
 LayerMaterialMapCnv::LayerMaterialMapCnv(ISvcLocator* svcloc):
     LayerMaterialMapCnvBase(svcloc),
-    m_msgSvc( msgSvc() ),
-    m_log( m_msgSvc, "LayerMaterialMapCnv" )
+    m_msgSvc( msgSvc() )
 {
 }
 
@@ -25,48 +24,44 @@ LayerMaterialMapCnv::LayerMaterialMapCnv(ISvcLocator* svcloc):
 StatusCode LayerMaterialMapCnv::initialize()
 {
     StatusCode sc = LayerMaterialMapCnvBase::initialize();
+    MsgStream log (m_msgSvc, "ElementTableCnv");
     if( sc.isFailure() ) {
-        m_log << MSG::FATAL << "Could not initialize cnv base" << endmsg;
+        log << MSG::FATAL << "Could not initialize cnv base" << endmsg;
         return sc;
     }
     //-------------------------------------------------------------------------
     // Set up the message stream
     //-------------------------------------------------------------------------
-    m_log.setLevel( m_msgSvc->outputLevel() );
-    m_log << MSG::INFO << "LayerMaterialMapCnv::initialize()" << endmsg;
+    log << MSG::INFO << "LayerMaterialMapCnv::initialize()" << endmsg;
    
     return StatusCode::SUCCESS;
 }
 
-LayerMaterialMap_PERS * LayerMaterialMapCnv::createPersistent( Trk::LayerMaterialMap *transCont)
+
+LayerMaterialMap_PERS*
+LayerMaterialMapCnv::createPersistentWithKey (Trk::LayerMaterialMap* transCont,
+                                              const std::string& key)
 {   
-    m_log.setLevel( m_msgSvc->outputLevel() );
-    updateLog(); // Make m_log indicate the current key
-    return m_TPConverter_tlp1.createPersistent( transCont, m_log );
+  MsgStream log (m_msgSvc, "LayerMaterialMapCnv: " + key);
+  return m_TPConverter_tlp1.createPersistent( transCont, log );
 }
 
 
 //-----------------------------------------------------------------------------
 // Create transient collection
 //-----------------------------------------------------------------------------
-Trk::LayerMaterialMap *LayerMaterialMapCnv::createTransient()
+Trk::LayerMaterialMap*
+LayerMaterialMapCnv::createTransientWithKey (const std::string& key)
 {
-    m_log.setLevel( m_msgSvc->outputLevel() );
-    static pool::Guid tlp1_guid( "3DA92DBD-DA78-43A2-BFDF-9E19E2BF1E8A" );
+  static const pool::Guid tlp1_guid( "3DA92DBD-DA78-43A2-BFDF-9E19E2BF1E8A" );
 
-    Trk::LayerMaterialMap *p_collection = 0;
+  Trk::LayerMaterialMap *p_collection = 0;
 
-    if( compareClassGuid( tlp1_guid ) ) {
-       poolReadObject< Trk::LayerMaterialMap_tlp1 >( m_TPConverter_tlp1 );
-       p_collection = m_TPConverter_tlp1.createTransient( m_log );
-    }       
-    return p_collection;
-}
+  MsgStream log (m_msgSvc, "LayerMaterialMapCnv: " + key);
 
-void LayerMaterialMapCnv::updateLog(){ 
-     const DataObject* dObj = getDataObject();
-     if (dObj==0) return; // Can't do much if this fails.
-     const std::string  key = (dObj->name());
- 
-     m_log.m_source="LayerMaterialMapCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
+  if( compareClassGuid( tlp1_guid ) ) {
+    poolReadObject< Trk::LayerMaterialMap_tlp1 >( m_TPConverter_tlp1 );
+    p_collection = m_TPConverter_tlp1.createTransient( log );
+  }       
+  return p_collection;
 }

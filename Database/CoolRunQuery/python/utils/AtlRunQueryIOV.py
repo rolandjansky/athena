@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
 import sys,os,copy, time
 
 from PyCool import cool
@@ -86,7 +87,7 @@ class IOVRange:
             self.startTime = IOVTime(runStart, lbStart, timebased=False)
             self.endTime = IOVTime(runEnd, lbEnd, timebased=False)
         else:
-            print "IOVRange.__init__: Can't interpret arguments"
+            print ("IOVRange.__init__: Can't interpret arguments")
 
     def truncateToSingleRun(self,runnr):
         if self.startTime.run<runnr:

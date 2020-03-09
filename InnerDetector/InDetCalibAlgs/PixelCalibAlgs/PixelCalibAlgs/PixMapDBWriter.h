@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSSERVICES_PIXMAPDBWRITER_H
@@ -7,13 +7,13 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 
 class ISpecialPixelMapSvc;
 class PixelID;
-namespace InDetDD{
-  class PixelDetectorManager;
-}
 
 #include <string>
 #include <sstream>
@@ -57,7 +57,8 @@ class PixMapDBWriter : public AthAlgorithm{
   std::string m_pixMapFileName;
 
   const PixelID* m_pixelID;
-  const InDetDD::PixelDetectorManager* m_pixman; // kazuki
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
   std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
   std::vector<int> getPositionFromDCSID (std::string DCSID);

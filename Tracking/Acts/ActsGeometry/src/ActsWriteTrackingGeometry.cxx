@@ -6,12 +6,12 @@
 // ATHENA
 #include "AthenaKernel/RNGWrapper.h"
 #include "Acts/Utilities/Logger.hpp"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "ActsInterop/Logger.h"
 
 // PACKAGE
-#include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 
 // STL
@@ -19,7 +19,7 @@
 
 ActsWriteTrackingGeometry::ActsWriteTrackingGeometry(const std::string& name,
                                  ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator)
+    : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -34,13 +34,14 @@ StatusCode ActsWriteTrackingGeometry::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ActsWriteTrackingGeometry::execute() {
+StatusCode ActsWriteTrackingGeometry::execute(const EventContext& ctx) const {
   auto trackingGeometry = m_trackingGeometryTool->trackingGeometry();
 
   // Use nominal context
-  ActsGeometryContext defGctx;
+  //ActsGeometryContext defGctx;
+  const ActsGeometryContext& gctx = m_trackingGeometryTool->getGeometryContext(ctx);
 
-  m_objWriterTool->write(defGctx, *trackingGeometry);
+  m_objWriterTool->write(gctx, *trackingGeometry);
   return StatusCode::SUCCESS;
 }
 

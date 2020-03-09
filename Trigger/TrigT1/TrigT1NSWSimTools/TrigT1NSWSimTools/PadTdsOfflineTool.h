@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// -*-c++-*-
 #ifndef PADTDSOFFLINETOOL_H
 #define PADTDSOFFLINETOOL_H
 
@@ -14,11 +13,10 @@
 
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
 #include "PadTdsValidationTree.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class IIncidentSvc;
 class IAtRndmGenSvc;
-class sTgcIdHelper;
 class sTgcDigit;
 class TTree;
 class MuonSimDataCollection;
@@ -69,9 +67,9 @@ namespace NSWL1 {
                         const std::string& name,
                         const IInterface* parent);
         virtual ~PadTdsOfflineTool();
-        virtual StatusCode initialize();
-        virtual void handle (const Incident& inc);
-        StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1);
+        virtual StatusCode initialize() override;
+        virtual void handle (const Incident& inc) override;
+        virtual StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1) override;
 
     public:
         /** @name Sector indices
@@ -112,7 +110,7 @@ namespace NSWL1 {
         void printStgcGeometryFromAgdd() const; ///< test function to demonstrate the access to the AGDD parameters
         bool get_truth_hits_this_pad(const Identifier &pad_id, std::vector<MuonSimData::Deposit> &deposits); // simhits for a given pad
         /// get the output tree from the athena histogram service
-        TTree* get_tree_from_histsvc();
+        StatusCode get_tree_from_histsvc(TTree*&);
         /// whether it's a pad digit (based on 'channelType'
         bool is_pad_digit(const sTgcDigit* digit) const;
         int cache_index(const sTgcDigit* digit) const;
@@ -137,9 +135,9 @@ namespace NSWL1 {
         // needed Servives, Tools and Helpers
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
         ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-        const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
         // hidden variables
         std::vector< std::vector<std::shared_ptr<PadData>> > m_pad_cache;       //!< cache for the PAD hit data in the event (one per sector)

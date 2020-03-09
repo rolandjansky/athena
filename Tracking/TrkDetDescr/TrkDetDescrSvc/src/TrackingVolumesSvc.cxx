@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,14 +20,11 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-// needed for callback function
-#include "EventInfo/TagInfo.h"
 
 /** Constructor **/
 Trk::TrackingVolumesSvc::TrackingVolumesSvc(const std::string& a_name,ISvcLocator* svc) : 
     AthService(a_name,svc),
-    m_pDetStore("DetectorStore",name()),
-    m_buildGeometryFromTagInfo(false)
+    m_pDetStore("DetectorStore",name())
 { 
     m_volumes.reserve(Trk::ITrackingVolumesSvc::NumIdentifiers);
     m_volumeNames.reserve(Trk::ITrackingVolumesSvc::NumIdentifiers);
@@ -52,8 +49,6 @@ Trk::TrackingVolumesSvc::TrackingVolumesSvc(const std::string& a_name,ISvcLocato
   //declareProperty( "VolumeNames",       m_volumeNames, "The names of the TrackingVolume to be built"); 
   // EJWM - no point configuring this if the volume dimensions can't be configured. EJWM. 
   
-  // steering && configuration ---------------------------------------------------
-  declareProperty( "BuildVolumesFromTagInfo",   m_buildGeometryFromTagInfo);
 }
 
 
@@ -69,52 +64,21 @@ StatusCode Trk::TrackingVolumesSvc::initialize()
   // get the DetectorStore
   ATH_CHECK( m_pDetStore.retrieve() );
 
-  // ---------------------------------------------------------------------------------------------------
-
-  if (m_buildGeometryFromTagInfo){
-    // register the Callback
-    const DataHandle<TagInfo> tagInfoH;
-    std::string key = "ESDtags";
-    ATH_CHECK( m_pDetStore->regFcn(&ITrackingVolumesSvc::trackingVolumesInit,dynamic_cast<ITrackingVolumesSvc*>(this),tagInfoH,key) );
-  } else {
-
-      ATH_MSG_INFO ( "Building Geometry at initialisation time."  );
-
-      // call with dummy parameters
-      int par1 = 0;
-      std::list<std::string> par2;
- 
-      // build with no dependency on COOL
-      StatusCode result = trackingVolumesInit(par1,par2);
-      if (result.isFailure())
-      { 
-         ATH_MSG_FATAL ( "Unable to build the TrackingVolume!"  );
-         return result;
-      }
+  // record the volumes
+  for (unsigned int id=0 ; id!=ITrackingVolumesSvc::NumIdentifiers; id++){
+    // create Volume.   
+    StatusCode result = m_pDetStore->record(m_volumes[id], m_volumeNames[id]);
+    if (result.isFailure()){
+      ATH_MSG_FATAL ( "Couldn't write Volume "<<m_volumeNames[id]<<" to DetectorStore."  );
+      return result;
+    } else {
+      ATH_MSG_INFO ( "initialize() successful: TrackingVolume '" << m_volumeNames[id] << "' built and written to DetectorStore."  );
+    }    
   }
 
   ATH_MSG_INFO ( "initialize() successful! "  );
 
   return StatusCode::SUCCESS;
-}
-
-
-StatusCode Trk::TrackingVolumesSvc::trackingVolumesInit(IOVSVC_CALLBACK_ARGS)
-{
-
-  StatusCode result = StatusCode::SUCCESS;
-
-  for (unsigned int id=0 ; id!=ITrackingVolumesSvc::NumIdentifiers; id++){
-    // create Volume.   
-      result = m_pDetStore->record(m_volumes[id], m_volumeNames[id]);
-      if (result.isFailure()){
-        ATH_MSG_WARNING ( "Couldn't write Volume "<<m_volumeNames[id]<<" to DetectorStore."  );
-      } else
-        ATH_MSG_INFO ( "initialize() successful: TrackingVolume '" << m_volumeNames[id] << "' built and written to DetectorStore."  );
-
-    }
-
-  return result;
 }
 
 /** Finalize Service */

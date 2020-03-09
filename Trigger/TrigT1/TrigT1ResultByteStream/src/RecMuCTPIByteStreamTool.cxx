@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamData/RawEvent.h"
@@ -37,7 +37,6 @@ const InterfaceID& RecMuCTPIByteStreamTool::interfaceID() {
 RecMuCTPIByteStreamTool::RecMuCTPIByteStreamTool( const std::string& type, const std::string& name,
                                                   const IInterface* parent )
   : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ), m_cnvSvcPresent( true ),
-    m_detectorStore( "DetectorStore", name ),
     m_rpcRoISvc( LVL1::ID_RecRpcRoiSvc, name ),
     m_tgcRoISvc( LVL1::ID_RecTgcRoiSvc, name ),
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
@@ -66,14 +65,6 @@ StatusCode RecMuCTPIByteStreamTool::initialize() {
   if( sc.isFailure() ) {
     ATH_MSG_ERROR("Couldn't initialise the base class!");
     return sc;
-  }
-  
-  sc = m_detectorStore.retrieve();
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't access DetectorStore");
-    return sc;
-  } else {
-    ATH_MSG_DEBUG("Connected to DetectorStore");
   }
   
   sc = m_rpcRoISvc.retrieve();

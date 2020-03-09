@@ -8,7 +8,6 @@
 //#include "MDTcabling/IMDTcablingSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h" 
-#include "GaudiKernel/IIncidentSvc.h" 
 
 #include "StoreGate/StoreGateSvc.h"
 #include "Identifier/IdentifierHash.h"
@@ -308,13 +307,6 @@ const std::vector<IdentifierHash>&  MuonMDT_CablingSvc::getChamberHashVec(const 
 std::vector<uint32_t> MuonMDT_CablingSvc::getAllROBId() 
 {
     std::vector<uint32_t> allROBId;
-
-    //    if (m_useOldCabling) {
-    //	std::set< uint32_t > setOfRobIds =  m_oldCablingSvc->getROBid(0.,2.*3.141592,-3.,3.);
-    //	std::vector< uint32_t > robIds(setOfRobIds.size());
-    //	std::copy(setOfRobIds.begin(), setOfRobIds.end(), robIds.begin());
-    //	return robIds;
-    //    }
     
     allROBId = m_cablingMap->getAllROBId();
     

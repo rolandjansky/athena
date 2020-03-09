@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 The CTP monitors three different types of signals. In the XML file
@@ -29,8 +31,7 @@ For each of these type 64 L1Items can be monitored independently
 
 """
 
-from TriggerMenu.l1.Lvl1Menu import Lvl1Menu
-from TriggerMenu.l1.Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter, Lvl1CtpmonCounter
+from TriggerMenu.l1.Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 class MonitorDef:
 
@@ -194,23 +195,23 @@ class MonitorDef:
                     counts_LF_items[TAV].update( monItems[k] )
                     counts_HF_items[TAV].update( monItemsHF[k] )
 
-            counts_LF = dict( map(lambda (x,y) : (x,len(y)), counts_LF_items.items() ) )
-            counts_HF = dict( map(lambda (x,y) : (x,len(y)), counts_HF_items.items() ) )
+            counts_LF = dict( map(lambda x,y : (x,len(y)), counts_LF_items.items() ) )
+            counts_HF = dict( map(lambda x,y : (x,len(y)), counts_HF_items.items() ) )
 
             lutsLF = ( max(counts_LF.values())-1) / 8 + 1
             lutsHF = ( max(counts_HF.values())-1) / 8 + 1
 
             if lutsLF + lutsHF > 8:
-                print "WARNING: too many monitoring items are defined:"
-                print "   low frequency  TBP: %i" % counts_LF[TBP]
-                print "                  TAP: %i" % counts_LF[TAP]
-                print "                  TAV: %i" % counts_LF[TAV]
-                print "   required LUTs: %i" % lutsLF
-                print "   high frequency TBP: %i" % counts_HF[TBP]
-                print "                  TAP: %i" % counts_HF[TAP]
-                print "                  TAV: %i" % counts_HF[TAV]
-                print "   required LUTs: %i" % lutsHF
-                print "   this menu requires %i monitoring LUTs while only 8 are available" % (lutsLF + lutsHF)
+                print ("WARNING: too many monitoring items are defined:")
+                print ("   low frequency  TBP: %i" % counts_LF[TBP])
+                print ("                  TAP: %i" % counts_LF[TAP])
+                print ("                  TAV: %i" % counts_LF[TAV])
+                print ("   required LUTs: %i" % lutsLF)
+                print ("   high frequency TBP: %i" % counts_HF[TBP])
+                print ("                  TAP: %i" % counts_HF[TAP])
+                print ("                  TAV: %i" % counts_HF[TAV])
+                print ("   required LUTs: %i" % lutsHF)
+                print ("   this menu requires %i monitoring LUTs while only 8 are available" % (lutsLF + lutsHF))
             
 
 

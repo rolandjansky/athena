@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
@@ -6,8 +6,6 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.JobProperties import jobproperties as jp
 from RecExConfig.Configured import Configured
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 import traceback
 
 class CaloTowerEmGetter ( Configured )  :
@@ -31,13 +29,13 @@ class CaloTowerEmGetter ( Configured )  :
         # cannot have same name
         try:        
             from CaloRec.CaloRecConf import CaloTowerAlgorithm                
-        except:
+        except Exception:
             mlog.error("could not import CaloRec.CaloTowerAlgorithm")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         theCaloTowerAlgorithm=CaloTowerAlgorithm("EmTowerBldr")
-        self._CaloTowerAlgorithmHandle = theCaloTowerAlgorithm ;
+        self._CaloTowerAlgorithmHandle = theCaloTowerAlgorithm
 
 
         # configure CaloTowerAlgorithm here
@@ -47,9 +45,9 @@ class CaloTowerEmGetter ( Configured )  :
         try:
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
             theLArTowerBuilderTool=LArTowerBuilderTool("LArEmTwrBldr")
-        except:
+        except Exception:
             mlog.error("could not get handle to LArTowerBuilderTool or LArFCalTowerBuilderTool. Quit")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         theCaloTowerAlgorithm.TowerBuilderTools+= [ theLArTowerBuilderTool.getFullName() ]
@@ -91,7 +89,7 @@ class CaloTowerEmGetter ( Configured )  :
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
-        topSequence += theCaloTowerAlgorithm ;
+        topSequence += theCaloTowerAlgorithm
         
         return True
 

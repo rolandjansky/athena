@@ -2,20 +2,17 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TRT_GeometryCfg( flags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     acc = GeoModelCfg( flags )
     geoModelSvc=acc.getPrimary()
-    from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+    GeometryDBSvc=CompFactory.GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
+    TRT_DetectorTool=CompFactory.TRT_DetectorTool
     trtDetectorTool = TRT_DetectorTool()
-    trtDetectorTool.DoXenonArgonMixture = flags.Detector.SimulateTRT
-    trtDetectorTool.DoKryptonMixture = flags.Detector.SimulateTRT
     trtDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     geoModelSvc.DetectorTools += [ trtDetectorTool ]
     acc.addService(geoModelSvc)
@@ -34,7 +31,7 @@ def TRT_GeometryCfg( flags ):
         # Argon straw list
         acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer'))
     # TRT Condition Algorithm
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTAlignCondAlg
+    TRTAlignCondAlg=CompFactory.TRTAlignCondAlg
     TRTAlignCondAlg = TRTAlignCondAlg(name = "TRTAlignCondAlg",
                                       UseDynamicFolders = flags.GeoModel.Align.Dynamic)
     if flags.GeoModel.Align.Dynamic:
@@ -47,7 +44,7 @@ def TRT_GeometryCfg( flags ):
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align"))
-    if flags.Common.Project is not "AthSimulation": # Protection for AthSimulation builds
+    if flags.Common.Project != "AthSimulation": # Protection for AthSimulation builds
         if (not flags.Detector.SimulateTRT) or flags.Detector.OverlayTRT:
             acc.addCondAlgo(TRTAlignCondAlg)
 

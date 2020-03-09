@@ -26,7 +26,7 @@ G4AtlasRunManager::G4AtlasRunManager()
   , m_recordFlux(false)
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
-  , m_physListTool("PhysicsListToolBase")
+  , m_physListSvc("PhysicsListSvc", "G4AtlasRunManager")
   , m_userActionSvc("G4UA::UserActionSvc", "G4AtlasRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasRunManager")
 {  }
@@ -143,14 +143,14 @@ void G4AtlasRunManager::InitializePhysics()
   physicsInitialized = true;
 
   // Grab the physics list tool and set the extra options
-  if (m_physListTool.retrieve().isFailure()) {
+  if (m_physListSvc.retrieve().isFailure()) {
     ATH_MSG_ERROR ( "Could not retrieve the physics list tool" );
     G4ExceptionDescription description;
-    description << "InitializePhysics: Failed to retrieve IPhysicsListTool.";
+    description << "InitializePhysics: Failed to retrieve IPhysicsListSvc.";
     G4Exception("G4AtlasRunManager", "CouldNotRetrievePLTool", FatalException, description);
     abort(); // to keep Coverity happy
   }
-  m_physListTool->SetPhysicsOptions();
+  m_physListSvc->SetPhysicsOptions();
 
   // Fast simulations last
   if (m_fastSimTool.retrieve().isFailure()) {

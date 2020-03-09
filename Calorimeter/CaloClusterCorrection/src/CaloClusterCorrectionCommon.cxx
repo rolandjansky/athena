@@ -17,7 +17,6 @@
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CxxUtils/make_unique.h"
 #include <cmath>
 #include <cassert>
 

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "TrkEventPrimitives/LocalParameters.h"
@@ -42,8 +42,10 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
   m_detEl( RIO->detectorElement() )
 {
   m_rio.setElement(RIO);
-  const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>(&(m_detEl->surface(RIO->identify())));
-  if (slsf) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(slsf->localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ)));
+  if (m_detEl->surface(RIO->identify()).type()==Trk::Surface::Line){
+    const Trk::StraightLineSurface& slsf =static_cast<const Trk::StraightLineSurface&>((m_detEl->surface(RIO->identify())));
+    m_globalPosition.store(std::unique_ptr<const Amg::Vector3D>(slsf.localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ)));
+  } 
   Amg::Vector3D  loc_gDirection = predictedTrackDirection; 
   const double dr = driftRadius[Trk::driftRadius];
   //scaling the direction with drift radius   
@@ -119,9 +121,10 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
 { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
-    if (m_globalPosition) delete m_globalPosition.release().get();
     if (rot.m_globalPosition) {
       m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+    } else if (m_globalPosition) {
+      m_globalPosition.release().reset();
     }
     m_rio                   = rot.m_rio;
     m_localAngle            = rot.m_localAngle.load();
@@ -140,7 +143,6 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::
 { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
-    if (m_globalPosition) delete m_globalPosition.release().get();
     m_globalPosition        = std::move(rot.m_globalPosition);
     m_rio                   = rot.m_rio;
     m_localAngle            = rot.m_localAngle.load();

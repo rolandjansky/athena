@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/EventID.h"
 #include "EventTPCnv/EventIDCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 
 void EventIDCnv_p1::transToPers(const EventID* trans, EventID_p1* pers, MsgStream &log)
 {
@@ -52,7 +51,7 @@ EventID* EventIDCnv_p1::createTransient (const EventID_p1* persObj, MsgStream& l
 
 EventID* EventIDCnv_p1::createTransient (const EventID_p1* persObj, MsgStream& log) const
 {
-  auto trans = CxxUtils::make_unique<EventID>();
+  auto trans = std::make_unique<EventID>();
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

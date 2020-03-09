@@ -5,8 +5,7 @@ MuonStationBuilder= Muon__MuonStationBuilder(name = 'MuonStationBuilder',
                                              BuildBarrelStations = True,     
                                              BuildEndcapStations = True,
                                              BuildCSCStations = True,
-                                             BuildTGCStations = True,
-                                             ResolveActiveLayers = True )
+                                             BuildTGCStations = True)
 ToolSvc += MuonStationBuilder
 
 from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonInertMaterialBuilder

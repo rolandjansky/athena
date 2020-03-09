@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -22,9 +22,6 @@
 #include "StoreGate/setupStoreGate.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
-
-// ATLAS C++
-#include "CxxUtils/make_unique.h"
 
 //#include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -127,7 +124,7 @@ void test1() {
   assert( detStore->retrieve(tileID).isSuccess() );
 
 
-  std::unique_ptr<TileDigitsThresholdFilter> alg = CxxUtils::make_unique<TileDigitsThresholdFilter>("TileDigitsThresholdFilterTest", svcLoc);
+  std::unique_ptr<TileDigitsThresholdFilter> alg = std::make_unique<TileDigitsThresholdFilter>("TileDigitsThresholdFilterTest", svcLoc);
   assert( (alg->setProperty("TileCondToolDspThreshold", "TileCondToolDspThresholdMock/TileCondToolDspThresholdMock")).isSuccess() );
   assert( (alg->initialize()).isSuccess() );
 
@@ -144,7 +141,9 @@ void test1() {
       unsigned int channel = 0;
       for (const std::vector<float>& digits : TESTDIGITS) {
         HWIdentifier id = tileHWID->adc_id(ros, drawer, channel, adc);
-        digitsContainer->push_back(new TileDigits(id, digits));
+        if (digitsContainer->push_back(new TileDigits(id, digits)).isFailure()){
+          std::cout << "push_back fails\n";
+        }
         ++channel;
         std::cout << ((tileHWID->is_tile(id) ? "TILE" : "NOT TILE")) << " => " << tileHWID->to_string(id) << std::endl;
       }

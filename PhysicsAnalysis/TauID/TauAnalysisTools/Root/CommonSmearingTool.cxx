@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -67,7 +67,7 @@ using namespace TauAnalysisTools;
 */
 
 //______________________________________________________________________________
-CommonSmearingTool::CommonSmearingTool(std::string sName)
+CommonSmearingTool::CommonSmearingTool(const std::string& sName)
   : asg::AsgMetadataTool( sName )
   , m_mSF(0)
   , m_sSystematicSet(0)
@@ -85,8 +85,6 @@ CommonSmearingTool::CommonSmearingTool(std::string sName)
   , m_bPtTauEtaCalibIsAvailable(false)
   , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
-  m_mSystematics = {};
-
   declareProperty("InputFilePath",       m_sInputFilePath       = "" );
   declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty("ApplyFading",         m_bApplyFading         = true );

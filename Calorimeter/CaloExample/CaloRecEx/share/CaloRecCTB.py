@@ -132,7 +132,6 @@ svcMgr += MessageSvc( defaultLimit = 100000000 )
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream("Stream1")
 Stream1.OutputFile = "ctb_CaloESD.pool.root"
-Stream1.ForceRead=TRUE
 Stream1.ItemList+=["EventInfo#*"]
 Stream1.ItemList+=["McEventCollection#*"]    
 Stream1.ItemList += ["CaloCalibrationHitContainer#*"]

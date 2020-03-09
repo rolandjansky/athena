@@ -11,9 +11,21 @@
 
 #include "LuminosityCondAlg.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/WriteCondHandle.h"
 #include "CoolKernel/IObject.h"
 #include "CxxUtils/get_unaligned.h"
 #include <sstream>
+
+
+namespace {
+
+const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
+const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
+const EventIDRange fullrange (EventIDBase (0, UNDEFEVT, 0, 0, 0),
+                              EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM-1, 0, 0));
+
+} // anonymous namespace
 
 
 /**
@@ -48,10 +60,6 @@ LuminosityCondAlg::execute (const EventContext& ctx) const
 
   if (m_luminosityFolderInputKey.empty()) {
     // MC case.
-    const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
-    const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
-    EventIDRange fullrange (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                            EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
     range = fullrange;
   }
   else {
@@ -110,9 +118,9 @@ LuminosityCondAlg::updateAvgLumi (const CondAttrListCollection& lumiData,
   bunchInstLumiBlob = nullptr;
 
   const coral::AttributeList& attrList = lumiData.attributeList (m_lumiChannel);
-  if (attrList["Valid"].isNull()) {
-    ATH_MSG_ERROR ("Can't find luminosity information for channel " << m_lumiChannel);
-    return StatusCode::FAILURE;
+  if (attrList.size() == 0 || attrList["Valid"].isNull()) {
+    ATH_MSG_DEBUG ("Can't find luminosity information for channel " << m_lumiChannel);
+    return StatusCode::SUCCESS;
   }
 
   if (msgLvl (MSG::DEBUG)) {
@@ -187,7 +195,7 @@ LuminosityCondAlg::updateAvgLumi (const CondAttrListCollection& lumiData,
   lumi.setLbAverageInteractionsPerCrossing (LBAvEvtsPerBX);
 
   // Check validity of per-BCID luminosity (will issue warning in recalcPerBCIDLumi
-  int perBcidValid = (valid/10) % 10;
+  int perBcidValid = ((valid&0x3ff)/10) % 10;
   if ((perBcidValid > 0) && m_skipInvalid) {
     return StatusCode::SUCCESS;
   }
@@ -227,16 +235,21 @@ LuminosityCondAlg::updatePerBunchLumi (const EventContext& ctx,
                                        LuminosityCondData& lumi) const
 {
   if (lumi.lbAverageLuminosity() <= 0.) {
-    ATH_MSG_WARNING( "LBAvInstLumi is zero or negative in recalculatePerBCIDLumi():"
+    ATH_MSG_WARNING( "LBAvInstLumi is zero or negative in updatePerBunchLumi():"
                      << lumi.lbAverageLuminosity());
+    range = EventIDRange::intersect (range, fullrange);
     return StatusCode::SUCCESS;
   }
 
-  ATH_CHECK( updateMuToLumi (ctx, calibChannel, range, lumi) );
+  bool isValid = true;
+  ATH_CHECK( updateMuToLumi (ctx, calibChannel, range, lumi, isValid) );
 
   // Check here if we want to do this the Run1 way (hard) or the Run2 way (easy)
 
-  if (bunchInstLumiBlob != nullptr) { // Run2 way, easy
+  if (!isValid) {
+    // Skip if not valid.
+  }
+  else if (bunchInstLumiBlob != nullptr) { // Run2 way, easy
     ATH_CHECK( updatePerBunchLumiRun2 (*bunchInstLumiBlob,
                                        preferredChannel,
                                        lumi) );
@@ -248,7 +261,7 @@ LuminosityCondAlg::updatePerBunchLumi (const EventContext& ctx,
                                        lumi) );
   }
 
-  ATH_MSG_DEBUG( "finished recalculatePerBCIDLumi() for alg: "
+  ATH_MSG_DEBUG( "finished updatePerBunchLumi() for alg: "
                  << preferredChannel );
   return StatusCode::SUCCESS;
 }
@@ -261,12 +274,14 @@ LuminosityCondAlg::updatePerBunchLumi (const EventContext& ctx,
  * @param range Validity range of the conditions data being filled.
  *              Updated if needed.
  * @param lumi Output luminosity data being filled.
+ * @param isValid Set to false if data are not valid.
  */
 StatusCode
 LuminosityCondAlg::updateMuToLumi (const EventContext& ctx,
                                    unsigned int calibChannel,
                                    EventIDRange& range,
-                                   LuminosityCondData& lumi) const
+                                   LuminosityCondData& lumi,
+                                   bool& isValid) const
 {
   SG::ReadCondHandle<OnlineLumiCalibrationCondData> onlineLumiCalibration
     ( m_onlineLumiCalibrationInputKey, ctx );
@@ -285,9 +300,11 @@ LuminosityCondAlg::updateMuToLumi (const EventContext& ctx,
     ATH_MSG_WARNING(" Found muToLumi = " << muToLumi << " for backup channel " << m_calibBackupChannel);
   }
 
+  lumi.setMuToLumi (muToLumi);
+
   // Check validity
-  bool isValid = true;
-  int perBcidValid = (lumi.lbAverageValid()/10) % 10;
+  isValid = true;
+  int perBcidValid = ((lumi.lbAverageValid()&0x3ff)/10) % 10;
   if ((lumi.lbAverageValid() & 0x03) || (perBcidValid > 0)) {  // Skip if either per-BCID or LBAv is invalid
     isValid = false;
     if (m_skipInvalid) {
@@ -311,12 +328,11 @@ LuminosityCondAlg::updateMuToLumi (const EventContext& ctx,
 
     // Don't keep negative values
     muToLumi = 0.;
+    lumi.setMuToLumi (muToLumi);
   }
 
   ATH_MSG_DEBUG(" Found muToLumi = " << muToLumi << " for channel "
                 << calibChannel );
-
-  lumi.setMuToLumi (muToLumi);
 
   return StatusCode::SUCCESS;
 }
@@ -333,7 +349,7 @@ LuminosityCondAlg::updatePerBunchLumiRun2 (const coral::Blob& bunchInstLumiBlob,
                                            unsigned int preferredChannel,
                                            LuminosityCondData& lumi) const
 {
-  ATH_MSG_DEBUG( "starting Run2 recalculatePerBCIDLumi() for alg: " << preferredChannel );
+  ATH_MSG_DEBUG( "starting updatePerBunchLumiRun2() for alg: " << preferredChannel );
 
   // Check that the length isn't zero
   if (bunchInstLumiBlob.size() == 0) {
@@ -402,7 +418,7 @@ LuminosityCondAlg::updatePerBunchLumiRun1 (const EventContext& ctx,
                                            EventIDRange& range,
                                            LuminosityCondData& lumi) const
 {
-  ATH_MSG_DEBUG( "starting Run1 recalculatePerBCIDLumi() for alg: " << preferredChannel );
+  ATH_MSG_DEBUG( "starting updatePerBunchLumiRun1() for alg: " << preferredChannel );
     
   if (preferredChannel == 0) {
     return StatusCode::SUCCESS;
@@ -447,6 +463,10 @@ LuminosityCondAlg::updatePerBunchLumiRun1 (const EventContext& ctx,
 
   // Get the raw data for the preferred channel
   const std::vector<float>& rawLumiVec = bunchLumis->rawLuminosity(preferredChannel);
+  if (rawLumiVec.empty()) {
+    ATH_MSG_DEBUG( "Empty raw luminosity vector" );
+    return StatusCode::SUCCESS;
+  }
 
   //
   // Calibration step
@@ -469,9 +489,9 @@ LuminosityCondAlg::updatePerBunchLumiRun1 (const EventContext& ctx,
   double lumiSum = 0.;
   for (unsigned int bcid : luminousBunches) {
     // Don't waste time on zero lumi 
-    if (rawLumiVec[bcid] <= 0.) {
+    if (rawLumiVec.at(bcid) <= 0.) {
       ATH_MSG_DEBUG( "Calibrate BCID " << bcid << " with raw "
-                     << rawLumiVec[bcid] << " -> skipping" );
+                     << rawLumiVec.at(bcid) << " -> skipping" );
       continue;
     }
 

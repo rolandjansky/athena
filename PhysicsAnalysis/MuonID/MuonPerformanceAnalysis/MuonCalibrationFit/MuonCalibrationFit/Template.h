@@ -12,7 +12,6 @@
 
 #include "TSystem.h"
 #include "TStopwatch.h"
-#include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"

@@ -4,7 +4,6 @@
 
 #include "LArCalibUtils/LArAccumulatedCalibDigitContSplitter.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "CaloIdentifier/LArEM_ID.h"

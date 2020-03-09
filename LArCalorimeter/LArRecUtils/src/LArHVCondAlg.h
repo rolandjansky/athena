@@ -30,7 +30,6 @@
 
 
 // forward declaration
-class StoreGateSvc; 
 class CondAttrListCollection;
 class AthenaAttributeList;
 class LArEM_ID;

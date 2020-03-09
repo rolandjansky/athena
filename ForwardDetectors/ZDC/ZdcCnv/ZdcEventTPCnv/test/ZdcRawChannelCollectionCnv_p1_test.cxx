@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 
 #undef NDEBUG
 #include "ZdcEventTPCnv/ZdcRawChannelCollectionCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
@@ -61,7 +60,7 @@ void test1()
 
   ZdcRawChannelCollection trans1;
   for (int i=0; i < 10; i++) {
-    auto p = CxxUtils::make_unique<ZdcRawChannel>(Identifier (1234));
+    auto p = std::make_unique<ZdcRawChannel>(Identifier (1234));
     p->setSize (3);
     int o = i*100;
     for (int k=0; k < 3; k++) {

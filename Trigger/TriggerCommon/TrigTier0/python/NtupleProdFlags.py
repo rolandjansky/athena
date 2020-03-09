@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 
 from AthenaCommon.Logging import logging 
 	
@@ -50,7 +50,7 @@ class SliceTuples(JobProperty):
         if self.get_Value()==[]: return
         for sl in ','.join(self.get_Value()).split(','):
             if not sl.strip() in self.definedSlices:
-                raise RuntimeError, 'Slice "%s" is not a slice that has an ntuple defined! Must be on of %r !' % (sl,self.definedSlices)
+                raise RuntimeError ('Slice "%s" is not a slice that has an ntuple defined! Must be on of %r !' % (sl,self.definedSlices))
 
     def doSlice(self,slicename):
         """Checks if a slice was requested
@@ -58,8 +58,8 @@ class SliceTuples(JobProperty):
         This is for the individual slice to ease the entrance to their
         ntuple production. It respects the DisabledSlices Flag
         """
-        if not slicename in self.definedSlices:
-            raise RuntimeError, 'Slice "%s" is not a slice that has an ntuple defined! Must be on of %r !' % (slicename,self.definedSlices)
+        if slicename not in self.definedSlices:
+            raise RuntimeError ('Slice "%s" is not a slice that has an ntuple defined! Must be on of %r !' % (slicename,self.definedSlices))
         inSliceTuples = slicename in [sl.strip() for sl in ','.join(self.get_Value()).split(',')]
         inDisabledSlices = slicename in [sl.strip() for sl in NPF.DisabledSlices()]
         return inSliceTuples and not inDisabledSlices
@@ -87,7 +87,7 @@ class FileNames(JobProperty):
     def _do_action(self):
         """Check if number of filename agrees with number of slice groups"""
         if not NPF.SliceTuples.isDefault() and len(NPF.SliceTuples()) != len(self.get_Value()):
-            raise RuntimeError, "Expected %i root file names, since that many slice groups were defined" % len(NPF.SliceTuples())
+            raise RuntimeError ("Expected %i root file names, since that many slice groups were defined" % len(NPF.SliceTuples()))
 
     def forSlice(self,slicename): 
         """return the root file name for an individual slice
@@ -125,9 +125,9 @@ class DisabledSlices(JobProperty):
 
     def _do_action(self):
         """Check if only defined slices are listed"""
-        sl = [x for x in self.get_Value() if not x in NPF.SliceTuples.definedSlices]
+        sl = [x for x in self.get_Value() if x not in NPF.SliceTuples.definedSlices]
         if sl:
-            raise RuntimeError, 'Slices %s do not have an ntuple defined! Must be on of %r !' % (','.join(sl),NPF.SliceTuples.definedSlices)
+            raise RuntimeError ('Slices %s do not have an ntuple defined! Must be on of %r !' % (','.join(sl),NPF.SliceTuples.definedSlices))
 
 NPF.add_JobProperty(DisabledSlices)
 

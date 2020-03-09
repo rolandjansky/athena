@@ -6,7 +6,7 @@
 #
 from AthenaCommon.GlobalFlags import globalflags
 if not 'DQMonFlags' in dir():
-    print "TrigT1CaloMonitoring_forRecExCommission.py: DQMonFlags not yet imported - I import them now"
+    printfunc ("TrigT1CaloMonitoring_forRecExCommission.py: DQMonFlags not yet imported - I import them now")
     from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 # On Tier0 select monitoring tools according to processing step
@@ -142,4 +142,4 @@ if l1caloRawMon:
     L1Man.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
     L1Man.DataType            = DQMonFlags.monManDataType()
 
-print svcMgr.MessageSvc
+printfunc (svcMgr.MessageSvc)

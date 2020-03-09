@@ -10,8 +10,6 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // interfaces
-#include "TrkExInterfaces/IPropagator.h"
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
@@ -19,7 +17,6 @@
 #include <iostream>
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 
@@ -41,22 +38,10 @@ namespace Muon {
 
   MuonSeededSegmentFinder::MuonSeededSegmentFinder(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_segMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-      m_segMakerNoHoles("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-      m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_magFieldProperties(Trk::NoField),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+      m_magFieldProperties(Trk::NoField)
   {
     declareInterface<IMuonSeededSegmentFinder>(this);
 
-    declareProperty("IdHelper",m_idHelper);
-    declareProperty("Printer",m_printer);
-    declareProperty("MdtRotCreator",  m_mdtRotCreator );
-    declareProperty("Propagator",  m_propagator );
-    declareProperty("SegmentMaker",   m_segMaker);
-    declareProperty("SegmentMakerNoHoles",   m_segMakerNoHoles);
     declareProperty("AdcCut", m_adcCut = 50 );
     declareProperty("MdtSigmaFromTrack",m_maxSigma = 3);
   }
@@ -68,7 +53,7 @@ namespace Muon {
   StatusCode MuonSeededSegmentFinder::initialize()
   {
 
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+    ATH_CHECK(m_DetectorManagerKey.initialize());
     ATH_CHECK( m_segMaker.retrieve() );
     ATH_CHECK( m_segMakerNoHoles.retrieve() );
     ATH_CHECK( m_propagator.retrieve() );
@@ -77,11 +62,11 @@ namespace Muon {
     ATH_CHECK( m_printer.retrieve() );
 
     ATH_CHECK(m_key_mdt.initialize());
-    if(m_key_csc.key()!="") ATH_CHECK(m_key_csc.initialize());
+    ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty())); // check for layouts without CSCs
     ATH_CHECK(m_key_tgc.initialize());
     ATH_CHECK(m_key_rpc.initialize());
-    if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
-    if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
+    ATH_CHECK(m_key_stgc.initialize(!m_key_stgc.empty())); // check for layouts without STGCs
+    ATH_CHECK(m_key_mm.initialize(!m_key_mm.empty())); // check for layouts without MicroMegas
 
     return StatusCode::SUCCESS;
   }
@@ -172,6 +157,14 @@ namespace Muon {
   }
 
   std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds( const std::set<Identifier>& chIds ) const {
+
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return; 
+    } 
+
     // set of IdHashes corresponding to these identifiers
     std::set<IdentifierHash> chIdHs;
 
@@ -185,7 +178,7 @@ namespace Muon {
 	continue;
       }
 
-      const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(*chit);
+      const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(*chit);
       if ( !detEl ) {
 	ATH_MSG_WARNING(" Requested chamber does not exist in geometry:   " << m_idHelper->toStringChamber(*chit));
 	continue;
@@ -245,7 +238,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key());
       return;
     }
-
+    if(mdtPrdContainer->size()==0) return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -277,7 +270,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc.key());
       return;
     }
-
+    if(rpcPrdContainer->size()==0) return;
       
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -311,7 +304,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc.key());
       return;
     }
-
+    if(tgcPrdContainer->size()==0) return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -350,7 +343,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc.key());
       return;
     }
-
+    if(cscPrdContainer->size()==0) return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -392,7 +385,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve stgcPrepDataContainer " << m_key_stgc.key());
       return;
     }
-
+    if(stgcPrdContainer->size()==0) return;
 
     // loop over chambers and get collections                                                                                                                                                          
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -446,6 +439,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve mmPrepDataContainer " << m_key_mm.key());
       return;
     }
+    if(mmPrdContainer->size()==0) return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();

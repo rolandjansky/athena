@@ -25,8 +25,8 @@ class TRTHWMapCondAlg : public AthAlgorithm
   virtual StatusCode execute() override;
   virtual StatusCode finalize() override;
 
-  StatusCode build_BarrelHVLinePadMaps( TRTCond::HWMap* & writeCdo) const;
-  StatusCode build_EndcapHVLinePadMaps( TRTCond::HWMap* & writeCdo) const;
+  StatusCode build_BarrelHVLinePadMaps(EventIDRange& range, TRTCond::HWMap* writeCdo) const;
+  StatusCode build_EndcapHVLinePadMaps(EventIDRange& range, TRTCond::HWMap* writeCdo) const;
   int hashThisBarrelPad( int sector, int module, int padNum ) const;
   int hashThisEndcapCell( int sector, int wheel, int layer, int cellNum ) const;
 

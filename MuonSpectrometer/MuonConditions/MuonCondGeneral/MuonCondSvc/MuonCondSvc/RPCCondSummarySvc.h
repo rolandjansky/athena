@@ -11,6 +11,7 @@
 //Gaudi includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -25,12 +26,13 @@
 #include "MuonCondInterface/IRPC_STATUSConditionsSvc.h"
 #include "MuonCondInterface/IRPC_DCSConditionsSvc.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 //forward declarations
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
 class IdentifierHash;
-class RpcIdHelper;
 class StatusCode;
 class IRPCConditionsSvc;
 class IRPC_STATUSConditionsSvc;
@@ -88,8 +90,8 @@ public:
 private:
   
   ServiceHandleArray<IRPCConditionsSvc> m_reportingServices; //!< list of services to be used
-  const RpcIdHelper * m_pHelper;
-  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<IRPC_STATUSConditionsSvc> m_rpc_StatusSvc   ;
   ServiceHandle<IRPC_DCSConditionsSvc>    m_rpc_DCSSvc      ;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELGCBUILDER_H
@@ -9,22 +9,21 @@
 
 class TrigSiSpacePoint;
 class TrigSiSpacePoint;
-
 namespace InDetDD {
-  class PixelDetectorManager;
+  class SiDetectorElementCollection;
 }
 
 class PixelGCBuilder { 
 public:
-  PixelGCBuilder(const InDetDD::PixelDetectorManager* &manager, const PixelID*, int); 
+  PixelGCBuilder(const PixelID*, int);
   ~PixelGCBuilder();
 
   void formSpacePoints (const InDet::PixelClusterCollection& clusterColl,
+                        const InDetDD::SiDetectorElementCollection* elements,
 			std::vector<TrigSiSpacePoint*>& space_points);
 
 private:
   const PixelID* m_pixelID;
-  const InDetDD::PixelDetectorManager* m_manager;
   int m_OffsetEndcapPixels;
 };
 

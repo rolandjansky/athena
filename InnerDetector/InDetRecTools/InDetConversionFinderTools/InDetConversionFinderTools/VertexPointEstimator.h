@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETCONVERSIONFINDERTOOLS_VERTEXPOINTESTIMATOR_H
@@ -25,29 +25,57 @@ namespace InDet {
     virtual ~VertexPointEstimator();
     
     static const InterfaceID& interfaceID();
+
+    virtual StatusCode initialize() override;
     
-    virtual StatusCode initialize();
+    virtual StatusCode finalize() override;
+
+    typedef std::map<std::string, float> Values_t;
     
-    virtual StatusCode finalize();
-    
-    /** Get intersection point of two track helices.Based on pure geometric arguments.Return error flag if problems. */
-    Amg::Vector3D getCirclesIntersectionPoint(const Trk::Perigee*, const Trk::Perigee*, int, int&);
-    /** Return a map with the values calculated for the last pair
-      * to decorate the vertex once it is created **/
-    std::map<std::string, float> getLastValues();
-		
+    /** Get intersection point of two track helices.
+     * Based on pure geometric arguments.
+     * Return error flag if problems.
+     */
+    Amg::Vector3D getCirclesIntersectionPoint(const Trk::Perigee* per1,
+                                              const Trk::Perigee* per2,
+                                              unsigned int flag,
+                                              int& errorcode) const;
+
+
+    /** Get intersection point of two track helices.
+     * Based on pure geometric arguments.
+     * Return error flag if problems.
+     * Also return dictionary of values for decorations. 
+     */
+    Amg::Vector3D getCirclesIntersectionPoint(const Trk::Perigee* per1,
+                                              const Trk::Perigee* per2,
+                                              unsigned int flag,
+                                              int& errorcode,
+                                              Values_t& decors) const;
+
+    /** Return list of keys used for decorations. */
+    std::vector<std::string> decorKeys() const;
+
+
   private:
-    
-    double areaVar(double, double, double, double, double, double, double&);
-    double areaVar(double, double, double, double, double, double, double&, double&, double&);
+    Amg::Vector3D intersectionImpl (const Trk::Perigee *per1,
+                                    const Trk::Perigee *per2,
+                                    unsigned int flag,
+                                    int& errorcode,
+                                    float& deltaPhi,
+                                    float& deltaR) const;
+
+
+    double areaVar(double, double, double, double, double, double, double&) const;
+    double areaVar(double, double, double, double, double, double, double&, double&, double&) const;
     bool   circleIntersection(double, double, double, 
 			      double, double, double, 
 			      double&, double&, 
-			      double&, double&);
-    bool   secondDegree(double, double, double, double&, double&);
-    double areaTriangle(double, double, double, double, double, double);
+			      double&, double&) const;
+    bool   secondDegree(double, double, double, double&, double&) const;
+    double areaTriangle(double, double, double, double, double, double) const;
     
-    static double s_bmagnt;
+    static const double s_bmagnt;
     std::vector<double> m_maxDR;         /**maximum XY separation, non-intersecting circles*/
     std::vector<double> m_maxDZ;         /**maximum allowed track Z separation at the vertex */
     std::vector<double> m_maxR;          /** maximum allowed vertex radius */
@@ -58,8 +86,6 @@ namespace InDet {
     std::vector<double> m_maxHl;         /**maximum ratio H/l */
     std::vector<double> m_maxPhi;        /**maximum DPhi at the estimated vertex position */
     double m_maxChi2;                    /** max chi2 of the estimated vertex position*/
-    float m_deltaPhi;                    /** deltaPhi between tracks **/
-    float m_deltaR;                      /** Distance between helix centers minus the radii of each of them (D - R1 - R2) **/
   };
   
 }

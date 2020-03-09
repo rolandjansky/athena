@@ -242,6 +242,12 @@ PP="$PP"'|ConditionStore\+/'
 # New messages from geometry...
 PP="$PP"'| TrackingGeometrySvc '
 
+# This will be a warning, rather than a failure.
+PP="$PP"'|WARNING: new xAOD variables '
+
+# From MuonCondAlg.
+PP="$PP"'|Empty temporary A-line container'
+
 
 test=$1
 if [ -z "$testStatus" ]; then
@@ -291,6 +297,8 @@ else
 		echo "post.sh> ERROR: $joblog and $reflog differ"
                 exit 1
 	    fi
+
+            grep -H 'WARNING: new xAOD variables' ${joblog}
 	else
 	    tail $joblog
 	    echo "post.sh> WARNING: reference output $reflog not available "

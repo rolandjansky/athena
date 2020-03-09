@@ -17,7 +17,6 @@
 // Boost
 #include <boost/lexical_cast.hpp>
 // ATLAS cxx utils
-#include "CxxUtils/make_unique.h"
 #include "PmbCxxUtils/CustomBenchmark.h"
 // ROOT includes
 #include "TTree.h"
@@ -392,13 +391,18 @@ StatusCode ISF::SimKernel::execute()
     ATH_MSG_DEBUG  ( "Took " << numParticles << " particles from queue (remaining: " << m_particleBroker->numParticles() << ")" );
     ATH_MSG_VERBOSE( " -> All particles will be sent to '" << m_simSvcNames[simID] << "' simulator (SimSvcID=" << simID << ")"  );
 
+    // ensure that all particles in the vector have the same SimID
+    for ( const ISFParticle *particle : particles ) {
+      if ( particle->nextSimID() != simID ) {
+        ATH_MSG_WARNING( "Particle with SimID " << particle->nextSimID() << " found in vector with expected ID " << simID );
+      }
+    }
+
     // block defines scope for Benchmarks
     //  -> benchmarks will be stared/stopped automatically via the CustomBenchmarkGuard
     //     constructor and destructor, respectively
     {
       // setup sim svc benchmarks
-      //PMonUtils::CustomBenhmarkGuard benchPDG  ( m_benchPDGCode, pdgCode );
-      //PMonUtils::CustomBenchmarkGuard benchGeoID( m_benchGeoID  , geoID , numParticles );
       PMonUtils::CustomBenchmarkGuard benchSimID( m_benchSimID  , simID , numParticles );
 
       // ===> simulate particle
@@ -501,7 +505,7 @@ StatusCode ISF::SimKernel::prepareInput(SG::ReadHandle<McEventCollection>& input
   }
 
   // create copy
-  outputTruth = CxxUtils::make_unique<McEventCollection>(*inputTruth);
+  outputTruth = std::make_unique<McEventCollection>(*inputTruth);
 
   // Apply QS patch if required
   if(!m_qspatcher.empty()) {

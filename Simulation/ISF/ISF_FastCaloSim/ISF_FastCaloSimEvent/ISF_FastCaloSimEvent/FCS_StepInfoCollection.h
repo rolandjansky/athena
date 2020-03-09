@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_ISF_FCS_STEPINFOCOLLECTION_H
@@ -39,7 +39,7 @@ namespace ISF_FCS_Parametrization {
 } // namespace ShowerLib
 
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 CLASS_DEF( ISF_FCS_Parametrization::FCS_StepInfoCollection , 1330006248 , 1 )
 

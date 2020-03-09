@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_EventTPCnv/AFP_SIDLocRecoEvCollectionCnv_p1.h"
@@ -7,7 +7,7 @@
  
 static AFP_SIDLocRecoEventCnv_p1 recConv;
  
-void AFP_SIDLocRecoEvCollectionCnv_p1::transToPers(const AFP_SIDLocRecoEvCollection* transObj, AFP_SIDLocRecoEvCollection_p1* persObj, MsgStream& log) {
+void AFP_SIDLocRecoEvCollectionCnv_p1::transToPers(const AFP_SIDLocRecoEvCollection* transObj, AFP_SIDLocRecoEvCollection_p1* persObj, MsgStream& log) const {
    
   persObj->resize(transObj->size());
    
@@ -19,7 +19,7 @@ void AFP_SIDLocRecoEvCollectionCnv_p1::transToPers(const AFP_SIDLocRecoEvCollect
   }    
 }
  
-void AFP_SIDLocRecoEvCollectionCnv_p1::persToTrans(const AFP_SIDLocRecoEvCollection_p1* persObj, AFP_SIDLocRecoEvCollection* transObj, MsgStream& log) {
+void AFP_SIDLocRecoEvCollectionCnv_p1::persToTrans(const AFP_SIDLocRecoEvCollection_p1* persObj, AFP_SIDLocRecoEvCollection* transObj, MsgStream& log) const {
  
   transObj->reserve(persObj->size());
    

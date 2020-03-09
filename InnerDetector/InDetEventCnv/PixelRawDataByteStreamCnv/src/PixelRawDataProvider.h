@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,12 +19,14 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include <string>
 
+#include "PixelConditionsData/PixelCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 // Forward declarations
 class IPixelRawDataProviderTool;
 class PixelID;
 class IROBDataProviderSvc;
 class IRegSelSvc;
-class IPixelCablingSvc;
 
 class PixelRawDataProvider : public AthAlgorithm {
 
@@ -46,7 +48,6 @@ class PixelRawDataProvider : public AthAlgorithm {
 private:
 
   ServiceHandle<IRegSelSvc>             m_regionSelector;     
-  ServiceHandle<IPixelCablingSvc>      m_pixelCabling;
   ServiceHandle<IROBDataProviderSvc>   m_robDataProvider;
   ToolHandle<IPixelRawDataProviderTool> m_rawDataTool;
   const PixelID*                       m_pixel_id; 
@@ -54,6 +55,10 @@ private:
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   SG::WriteHandleKey<PixelRDO_Container> m_rdoContainerKey;
   SG::UpdateHandleKey<PixelRDO_Cache> m_rdoCacheKey;
+
+  SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
+    {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
+
 };
 
 #endif

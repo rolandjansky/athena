@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -36,20 +36,22 @@ public:
 
 private:
   std::shared_ptr<MsgStream> m_msg;
-  MSG::Level m_currentLevel;
 };
 
 
 std::unique_ptr<const Acts::Logger>
-makeActsAthenaLogger(IMessageSvc *svc, const std::string& name, int level, boost::optional<std::string> parent_name);
+makeActsAthenaLogger(IMessageSvc *svc, const std::string& name, 
+    int level, boost::optional<std::string> parent_name);
 
 std::unique_ptr<const Acts::Logger>
-makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name);
+makeActsAthenaLogger(const CommonMessagingBase* parent, const std::string& name);
 
 std::unique_ptr<const Acts::Logger>
-makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<std::string> parent_name);
+makeActsAthenaLogger(const CommonMessagingBase* parent, const std::string& name, 
+    boost::optional<std::string> parent_name);
 
 // problem: string literal does not play well with boost::optional
 std::unique_ptr<const Acts::Logger>
-makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, const std::string& parent_name); 
+makeActsAthenaLogger(const CommonMessagingBase* parent, const std::string& name, 
+    const std::string& parent_name); 
 

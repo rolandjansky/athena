@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -22,13 +22,16 @@
 class MsgStream;
 
 
-class TrigT2MbtsBitsCnv_p3 : public T_AthenaPoolTPCnvBase<TrigT2MbtsBits, TrigT2MbtsBits_p3> {
+class TrigT2MbtsBitsCnv_p3 : public T_AthenaPoolTPCnvConstBase<TrigT2MbtsBits, TrigT2MbtsBits_p3> {
  public:
-  
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
   TrigT2MbtsBitsCnv_p3() {}
   
-  virtual void persToTrans(const TrigT2MbtsBits_p3 *persObj, TrigT2MbtsBits *transObj, MsgStream &log);
-  virtual void transToPers(const TrigT2MbtsBits *transObj, TrigT2MbtsBits_p3 *persObj, MsgStream &log);  
+  virtual void persToTrans(const TrigT2MbtsBits_p3 *persObj, TrigT2MbtsBits *transObj, MsgStream &log) const override;
+  virtual void transToPers(const TrigT2MbtsBits *transObj, TrigT2MbtsBits_p3 *persObj, MsgStream &log) const override;
 
 };
 

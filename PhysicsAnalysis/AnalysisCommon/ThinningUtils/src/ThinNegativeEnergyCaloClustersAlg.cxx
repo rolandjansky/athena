@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinNegativeEnergyCaloClustersAlg.cxx
@@ -20,8 +20,10 @@
 #include <algorithm> 
 
 // FrameWork includes
+#include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -32,23 +34,10 @@
 ThinNegativeEnergyCaloClustersAlg::ThinNegativeEnergyCaloClustersAlg( const std::string& name,
                                              ISvcLocator* pSvcLocator ) :
 ::AthAlgorithm( name, pSvcLocator ),
-m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
-m_doThinning(true),
-m_caloClustersKey("CaloCalTopoClusters"),
 m_nEventsProcessed(0),
 m_nCaloClustersProcessed(0),
 m_nCaloClustersThinned(0)
 {
-    
-    declareProperty("ThinningSvc",          m_thinningSvc,
-                    "The ThinningSvc instance for a particular output stream" );
-    
-    declareProperty("ThinNegativeEnergyCaloClusters", m_doThinning,
-                    "Should the thinning of negative energy calo clusters be run?");
-   
-    declareProperty("CaloClustersKey", m_caloClustersKey,
-                    "StoreGate key for the CaloClustersContainer to be thinned");
-
 }
 
 // Destructor
@@ -63,7 +52,7 @@ StatusCode ThinNegativeEnergyCaloClustersAlg::initialize()
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
     
     // Print out the used configuration
-    ATH_MSG_DEBUG ( " using = " << m_thinningSvc );
+    ATH_MSG_DEBUG ( " using = " << m_streamName );
 
     // Is truth thinning required?
     if (!m_doThinning) {
@@ -72,6 +61,11 @@ StatusCode ThinNegativeEnergyCaloClustersAlg::initialize()
         ATH_MSG_INFO("Negative energy CaloClusters will be thinned");
     }
 
+    if (m_doThinning && m_streamName.empty()) {
+      ATH_MSG_ERROR( "StreamName property has not been initialized." );
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_caloClustersKey.initialize (m_streamName, m_doThinning) );
     
     // Initialize the counters to zero
     m_nEventsProcessed = 0;
@@ -104,16 +98,11 @@ StatusCode ThinNegativeEnergyCaloClustersAlg::execute()
     if (!m_doThinning) {
         return StatusCode::SUCCESS;
     } 
-    
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
     // Retrieve truth and vertex containers
-    const xAOD::CaloClusterContainer* caloClusters(0);
-    if (evtStore()->contains<xAOD::CaloClusterContainer>(m_caloClustersKey)) {
-        CHECK( evtStore()->retrieve( caloClusters , m_caloClustersKey ) );
-    } else {
-        ATH_MSG_INFO("No CaloClusterContainer with key "+m_caloClustersKey+" found. Thinning cannot be applied for this container");
-        m_doThinning = false;
-        return StatusCode::SUCCESS;
-    }
+    SG::ThinningHandle<xAOD::CaloClusterContainer> caloClusters (m_caloClustersKey, ctx);
 
     // Set up masks
     std::vector<bool> mask;
@@ -130,10 +119,7 @@ StatusCode ThinNegativeEnergyCaloClustersAlg::execute()
     }
 
     // Apply masks to thinning service
-    if (m_thinningSvc->filter(*caloClusters, mask, IThinningSvc::Operator::Or).isFailure()) {
-        ATH_MSG_ERROR("Application of thinning service failed for CaloClusters! ");
-        return StatusCode::FAILURE;
-    }
+    caloClusters.keep (mask);
     
     return StatusCode::SUCCESS;
 }

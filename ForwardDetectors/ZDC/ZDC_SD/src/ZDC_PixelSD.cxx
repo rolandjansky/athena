@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
 #include "ZDC_PixelSD.h"
-
-// Athena headers
-#include "CxxUtils/make_unique.h" // For make unique
 
 // Geant4 headers
 #include "G4Poisson.hh"
@@ -46,7 +43,7 @@ void ZDC_PixelSD::StartOfAthenaEvent()
 
 void ZDC_PixelSD::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<ZDC_SimPixelHit_Collection>();
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<ZDC_SimPixelHit_Collection>();
 }
 
 G4bool ZDC_PixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)

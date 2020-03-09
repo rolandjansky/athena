@@ -1,4 +1,4 @@
-from JetDefinition import JetModifier
+from .JetDefinition import JetModifier
 
 ########################################################################
 # Define the dictionary of tool configurations using the helpers defined
@@ -62,13 +62,14 @@ jetmomentmods = {
     # More complex cases here
     "CaloQuality":     JetModifier("JetCaloQualityTool", "caloqual",
                                    helperfn=JetMomentToolsConfig.getCaloQualityTool),
-    "ConstitFourMom":  JetModifier("JetConstitFourMomTool", "jetconstitfourmom_basename",
+    "ConstitFourMom":  JetModifier("JetConstitFourMomTool", "constitfourmom_basename",
                                    helperfn=JetMomentToolsConfig.getConstitFourMomTool,
                                    passJetDef=True),
     "JVF":             JetModifier("JetVertexFractionTool", "jvf",
                                    helperfn=JetMomentToolsConfig.getJVFTool,
-                                   prereqs = ["mod:TrackSumMoments"] ),
+                                   prereqs = ["mod:TrackMoments"] ),
     "JVT":             JetModifier("JetVertexTaggerTool", "jvt",
+                                   helperfn=JetMomentToolsConfig.getJVTTool,
                                    prereqs = [ "mod:JVF" ]),
     "OriginSetPV":     JetModifier("JetOriginCorrectionTool", "origin_setpv",
                                    prereqs = [ "mod:JVF" ]),

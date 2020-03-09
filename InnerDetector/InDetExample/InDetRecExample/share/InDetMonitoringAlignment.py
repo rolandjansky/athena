@@ -74,13 +74,15 @@ if not jobproperties.Beam.beamType()=='cosmics':
                                                                           #PassAllTracks           = True, ## Uncomment this line to bypass track slection
                                                                           IDTrackSelectionTool     = m_alignMonTrackSelectorTool[0],
                                                                           PrimVtxContainerName     = InDetKeys.xAODVertexContainer(),
-                                                                          UseIDTrackSelectionTool  = True))
+                                                                          UseIDTrackSelectionTool  = True,
+                                                                          DoEventPhaseCut          = InDetFlags.doTRTPhaseCalculation()))
     
     m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                     = "InDetAlignMonTrackSelectionTool_LoosePrimary_NoTRT",
                                                                           #PassAllTracks           = True, ## Uncomment this line to bypass track slection
                                                                           IDTrackSelectionTool     = m_alignMonTrackSelectorTool[1],
                                                                           PrimVtxContainerName     = InDetKeys.xAODVertexContainer(),
-                                                                          UseIDTrackSelectionTool  = True))
+                                                                          UseIDTrackSelectionTool  = True,
+                                                                          DoEventPhaseCut          = InDetFlags.doTRTPhaseCalculation()))
 
     
     #Adding the TrackSelectionTools to the Tool Service
@@ -88,8 +90,8 @@ if not jobproperties.Beam.beamType()=='cosmics':
     ToolSvc += m_alignMonTrackSelectionTool[1]
         
     #if (InDetFlags.doPrintConfigurables()):
-    print m_alignMonTrackSelectionTool[0]
-    print m_alignMonTrackSelectionTool[1]
+    printfunc (m_alignMonTrackSelectionTool[0])
+    printfunc (m_alignMonTrackSelectionTool[1])
                 
     #Starting the creation of the monitoring tools
         
@@ -103,7 +105,7 @@ if not jobproperties.Beam.beamType()=='cosmics':
 
         #ToolSvc += InDetAlignMonSivsTRT_noTrig
         if (InDetFlags.doPrintConfigurables()):
-            print InDetAlignMonSivsTRT_noTrig
+            printfunc (InDetAlignMonSivsTRT_noTrig)
 
 
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMonBeamSpot
@@ -114,7 +116,7 @@ if not jobproperties.Beam.beamType()=='cosmics':
         
         #ToolSvc += InDetAlignMonBeamSpot_noTrig
         if (InDetFlags.doPrintConfigurables()):
-            print InDetAlignMonBeamSpot_noTrig
+            printfunc (InDetAlignMonBeamSpot_noTrig)
 
 
         # Note this is not to be included in the tool service
@@ -162,7 +164,7 @@ else:
                                                                           Extrapolator           = InDetExtrapolator))
         ToolSvc += m_alignMonTrackSelectorTool[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_alignMonTrackSelectorTool[i]
+            printfunc (m_alignMonTrackSelectorTool[i])
             
         
     
@@ -170,16 +172,16 @@ else:
         m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                = m_alignMonTrackSelectionToolName[i],
                                                                               ## Uncomment this line to bypass track selection
                                                                               #PassAllTracks      = True,
-                                                                              #DoEventPhaseCut    = True,
                                                                               UseIDTrackSelectionTool  = True,
-                                                                              IDTrackSelectionTool     = m_alignMonTrackSelectorTool[i]))
+                                                                              IDTrackSelectionTool     = m_alignMonTrackSelectorTool[i],
+                                                                              DoEventPhaseCut = InDetFlags.doTRTPhaseCalculation()))
         
         if jobproperties.Beam.beamType()=='singlebeam':
             m_alignMonTrackSelectionTool[i].PassAllTracks = True
 
         ToolSvc += m_alignMonTrackSelectionTool[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_alignMonTrackSelectionTool[i]
+            printfunc (m_alignMonTrackSelectionTool[i])
     
 
 #
@@ -192,7 +194,9 @@ InDetAlignMonResiduals_noTrig = IDAlignMonResiduals (name           = "InDetAlig
                                                      propagator     = InDetPropagator,
                                                      Pixel_Manager  = InDetKeys.PixelManager(),
                                                      SCT_Manager    = InDetKeys.SCT_Manager(),
-                                                     TRT_Manager    = InDetKeys.TRT_Manager())  
+                                                     TRT_Manager    = InDetKeys.TRT_Manager())
+if not InDetFlags.doTRTPhaseCalculation():
+    InDetAlignMonResiduals_noTrig.ComTimeObjectName = ""
 
 if jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     InDetAlignMonResiduals_noTrig.tracksName = InDetKeys.Tracks()
@@ -203,7 +207,7 @@ else:
 
 #ToolSvc += InDetAlignMonResiduals_noTrig
 if (InDetFlags.doPrintConfigurables()):
-    print InDetAlignMonResiduals_noTrig
+    printfunc (InDetAlignMonResiduals_noTrig)
 
 #
 # Efficiencies
@@ -225,7 +229,7 @@ else:
 
 #ToolSvc += InDetAlignMonEfficiencies_noTrig
 if (InDetFlags.doPrintConfigurables()):
-    print InDetAlignMonEfficiencies_noTrig
+    printfunc (InDetAlignMonEfficiencies_noTrig)
 
 #
 # Generic Tracks
@@ -245,7 +249,7 @@ else:
 
 #ToolSvc += InDetAlignMonGenericTracks_noTrig
 if (InDetFlags.doPrintConfigurables()):
-    print InDetAlignMonGenericTracks_noTrig
+    printfunc (InDetAlignMonGenericTracks_noTrig)
 
 #
 # Track Segments
@@ -276,16 +280,18 @@ if jobproperties.Beam.beamType()=='cosmics':
     m_deltaPhi2D             = [ 0.02, 0.02, 0.02, 0.02,0.05]
     m_deltaQoverPt           = [ 0.05,  0.2, 0.05, 0.04, 0.1]
     m_deltaQoverPt2D         = [ 0.05,  0.2, 0.05, 0.04, 0.1]
+    from AthenaCommon import CfgGetter
 
+    indet_track_fitter = CfgGetter.getPublicTool('InDetTrackFitter')
     for i in range(5):
         m_trackSplitter.append(InDet__InDetTrackSplitterTool(name                  = m_trackSplitterName[i],
-                                                             TrackFitter           = InDetTrackFitter,
+                                                             TrackFitter           = indet_track_fitter,
                                                              OutputUpperTracksName = m_upperTracksName[i],
                                                              OutputLowerTracksName = m_lowerTracksName[i]))
         
         ToolSvc += m_trackSplitter[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_trackSplitter[i]
+            printfunc (m_trackSplitter[i])
 
         m_trackSegmentsUpLow.append(IDAlignMonTrackSegments(name                   = m_trackSegmentsUpLowName[i],
                                                             InputTracksName        = m_inputTracksUpLow[i],
@@ -306,7 +312,7 @@ if jobproperties.Beam.beamType()=='cosmics':
 
         #ToolSvc += m_trackSegmentsUpLow[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_trackSegmentsUpLow[i]
+            printfunc (m_trackSegmentsUpLow[i])
 
     #
     # Subdetector Vs Subdetector
@@ -344,16 +350,16 @@ if jobproperties.Beam.beamType()=='cosmics':
 
         #ToolSvc += m_trackSegments_Sub[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_trackSegments_Sub[i]
+            printfunc (m_trackSegments_Sub[i])
 
 ## only do trigger-aware monitoring if monTrigDecTool known by ToolSvc
 #if DQMonFlags.useTrigger():
 #    if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
-#        print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found, including it now"
+#        printfunc ("InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found, including it now")
 if not hasattr(ToolSvc, 'monTrigDecTool') or not doTriggerAwareMonitoring:
-    print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found or monitoring disabled: don't run trigger-aware monitoring"  
+    printfunc ("InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found or monitoring disabled: don't run trigger-aware monitoring"  )
 elif jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
-    print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: cosmics or singlebeam beamType: don't run trigger-aware monitoring"
+    printfunc ("InDetAlignmentMonitoring_InDetRec_jobOptions.py: cosmics or singlebeam beamType: don't run trigger-aware monitoring")
 else:
     InDetAlignMonSivsTRT = IDAlignMonSivsTRT (name           = "InDetAlignMonSivsTRT",
                                               trackSelection = m_alignMonTrackSelectionTool[1])
@@ -363,7 +369,9 @@ else:
                                                   tracksName     = InDetKeys.ExtendedTracks(),
                                                   Pixel_Manager  = InDetKeys.PixelManager(),
                                                   SCT_Manager    = InDetKeys.SCT_Manager(),
-                                                  TRT_Manager    = InDetKeys.TRT_Manager())   
+                                                  TRT_Manager    = InDetKeys.TRT_Manager())
+    if not InDetFlags.doTRTPhaseCalculation():
+        InDetAlignMonResiduals.ComTimeObjectName = ""
 
     InDetAlignMonEfficiencies = IDAlignMonEfficiencies (name           = "InDetAlignMonEfficiencies",
                                                         trackSelection = m_alignMonTrackSelectionTool[1],
@@ -418,19 +426,19 @@ else:
 
     #ToolSvc += InDetAlignMonResiduals
     if (InDetFlags.doPrintConfigurables()):
-        print InDetAlignMonResiduals
+        printfunc (InDetAlignMonResiduals)
     #ToolSvc += InDetAlignMonEfficiencies
     if (InDetFlags.doPrintConfigurables()):
-        print InDetAlignMonEfficiencies
+        printfunc (InDetAlignMonEfficiencies)
     #ToolSvc += InDetAlignMonGenericTracks
     if (InDetFlags.doPrintConfigurables()):
-        print InDetAlignMonGenericTracks
+        printfunc (InDetAlignMonGenericTracks)
     #ToolSvc += InDetAlignMonBeamSpot
     if (InDetFlags.doPrintConfigurables()):
-        print InDetAlignMonBeamSpot
+        printfunc (InDetAlignMonBeamSpot)
     #ToolSvc += InDetAlignMonSivsTRT
     if (InDetFlags.doPrintConfigurables()):
-        print InDetAlignMonSivsTRT
+        printfunc (InDetAlignMonSivsTRT)
       
 ## add an AthenaMonManager algorithm to the list of algorithms to be ran
 #from DataQualityTools.DQMonFlags import DQMonFlags
@@ -473,9 +481,9 @@ if jobproperties.Beam.beamType()=='collisions':
 if InDetAlignMonDoTruth:
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonTruthComparison ]
 if not hasattr(ToolSvc, 'monTrigDecTool') or not doTriggerAwareMonitoring:
-    print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring" 
+    printfunc ("InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring" )
 elif jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
-    print "singlebeam or cosmics: don't run trigger-aware monitoring"
+    printfunc ("singlebeam or cosmics: don't run trigger-aware monitoring")
 else:
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonResiduals ]
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonEfficiencies ]
@@ -495,4 +503,4 @@ if InDetAlignMonDoOutput:
 
 topSequence += InDetAlignMonManager
 if (InDetFlags.doPrintConfigurables()):
-    print InDetAlignMonManager
+    printfunc (InDetAlignMonManager)

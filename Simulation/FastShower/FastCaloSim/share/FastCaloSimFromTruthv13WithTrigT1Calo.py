@@ -17,7 +17,7 @@
 doTrigger = True # for example do not run trigger simulation
 # if needed to configure trigger
 # see https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerFlags
-include ( "TriggerRelease/TriggerFlags.py" )
+include ( "TriggerJobOpts/TriggerFlags.py" )
 
 # run only the TrigT1Calo simulation
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -12,7 +12,6 @@
 #include "CombinedScintillatorSD.hh"
 
 #include "CaloIdentifier/TileTBID.h"
-#include "CxxUtils/make_unique.h"// For make unique
 #include "StoreGate/StoreGateSvc.h"
 #include "TileSimEvent/TileHitVector.h"
 
@@ -72,7 +71,7 @@ void CombinedScintillatorSD::Initialize(G4HCofThisEvent* /* HCE */) {
   }
 
   if (!m_HitColl.isValid()) {
-    m_HitColl = CxxUtils::make_unique<TileHitVector>(m_HitColl.name());
+    m_HitColl = std::make_unique<TileHitVector>(m_HitColl.name());
   }
 }
 

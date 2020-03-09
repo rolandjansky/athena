@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,8 @@
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataCollection.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/ReadHandleKey.h"
@@ -57,20 +59,10 @@
 
 
 // ROOT includes
-#include <TError.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
+#include <TH2I.h>
 #include <inttypes.h> 
-#include "TGraphAsymmErrors.h"
-
 
 //================================================================================================================================
-class TFile;
-class RpcIdHelper;
 template <class ConcreteAlgorithm> class AlgFactory;
 
 
@@ -185,8 +177,13 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
 
  private:
   // Retrieving information and data
-  const RpcIdHelper* m_rpcIdHelper; 
-  const MuonGM::MuonDetectorManager* m_muonMgr; // to retrieve coincidence informations
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
   
   // Trigger type stuff
   StatusCode StoreTriggerType();

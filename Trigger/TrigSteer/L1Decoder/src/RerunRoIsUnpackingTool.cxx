@@ -30,7 +30,7 @@ StatusCode RerunRoIsUnpackingTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RerunRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
+StatusCode RerunRoIsUnpackingTool::updateConfiguration() {
   return StatusCode::SUCCESS;
 }
 
@@ -58,7 +58,7 @@ StatusCode RerunRoIsUnpackingTool::unpack(const EventContext& ctx,
       sourceDecision->getDetail( "thresholds", thresholds );
       
       ATH_MSG_DEBUG( "Thresholds in this RoI " << thresholds );
-      auto decision = newDecisionIn( decisionOutput );
+      auto decision = newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
       for ( auto th: thresholds ) {
 	ATH_MSG_DEBUG( "Activating because there are some chains to be rerun seeded from the threshold of ID " << th );
 	addChainsToDecision( th, decision, activeChains );    

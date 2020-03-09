@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-import sys,os
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+import sys
+import os
 
 class XML2JsonConverter(object):
     def __init__(self, tabsize = 4,  **args):
@@ -14,7 +15,7 @@ class XML2JsonConverter(object):
 
     def convertFile(self, inputfilename, jsonfilename = None ):
         if not inputfilename.endswith(".xml"):
-            print "judging by the suffix, %s is not an xml file" % inputfilename
+            print("judging by the suffix, %s is not an xml file" % inputfilename)
             return 1
         self.parseXMLFile( inputfilename )
         self.writeJsonFile( jsonfilename )
@@ -24,7 +25,7 @@ class XML2JsonConverter(object):
         import xml.etree.cElementTree as ET
         self.doc = ET.parse(filename)
         self.root = self.doc.getroot()
-        print "Parsed file %s" % filename
+        print("Parsed file %s" % filename)
         return self.doc
         
     def loadRules(self,docname):
@@ -133,7 +134,7 @@ class XML2JsonConverter(object):
                                      "Fixed" : "fixedParameters", "Input" : "inputs", "Output" : "outputs", "Generic" : "generics",
                                      "Variable" : "variableParameters", "Parameter" : "parameters"}
         else:
-            print "Unknown document with root element %s" % docname
+            print("Unknown document with root element %s" % docname)
             return 1
         return 0
 
@@ -195,27 +196,27 @@ class XML2JsonConverter(object):
         FH = open(filename, "w")
         json.dump(d, FH, indent=self.tabsize, separators=(',', ': '))
         FH.close()
-        print "Wrote file %s" % filename
+        print("Wrote file %s" % filename)
 
 
 
     def checkJsonConformity(self, filename):
-        print "Checking json conformity",
+        print("Checking json conformity", end=' ')
         import json
         FH = open(filename, "rb")
         try:
             json.load(FH)
-            print " ... OK"
-        except ValueError, e:
-            print " ... FAILED"
-            print e
+            print(" ... OK")
+        except ValueError as e:
+            print(" ... FAILED")
+            print(e)
         FH.close()
         
 
 
 def test():
     if len(sys.argv)<=1:
-        print "please specify xml file for conversion"
+        print("please specify xml file for conversion")
         return 1
 
     converter = XML2JsonConverter()

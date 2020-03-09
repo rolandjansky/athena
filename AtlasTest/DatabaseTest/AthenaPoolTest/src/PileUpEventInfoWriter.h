@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SRC_PILEUPEVENTINFOWRITER_H
-# define SRC_PILEUPEVENTINFOWRITER_H
+#define SRC_PILEUPEVENTINFOWRITER_H
 
 /**
  * @file PileUpEventInfoWriter.h
@@ -28,8 +28,6 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/IIncidentListener.h"
 
-
-class StoreGateSvc;
 
 class PileUpEventInfoWriter : public AthAlgorithm,
 			      virtual public IIncidentListener

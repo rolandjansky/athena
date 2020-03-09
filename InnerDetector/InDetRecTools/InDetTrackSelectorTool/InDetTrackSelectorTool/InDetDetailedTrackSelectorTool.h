@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDetailedTrackSelectorTool_InDetDetailedTrackSelectorTool_H
@@ -84,7 +84,8 @@ namespace InDet
       bool decision(const Trk::FitQuality*  TrkQuality) const;
       bool decision(double chi2, int ndf ) const;
       bool decision(const Trk::TrackSummary* summary,bool useSharedHitInfo,bool useTrtHitInfo, 
-      				const Trk::Perigee* track) const;
+                    const Trk::Perigee* track,
+                    const int nHitTrt, const int nHitTrtPlusOutliers) const;
 
       bool preselectionBeforeExtrapolation(const Trk::Perigee & myPerigee) const;
       Amg::Vector3D getPosOrBeamSpot(const xAOD::Vertex*) const;
@@ -111,8 +112,8 @@ namespace InDet
       int m_nHitPixPhysical; //!< at least n physical hits in pixel
       int m_nHitSiPhysical;  //!< at least n physical hits in pixel+SCT
 
-      mutable int m_nHitTrt;      //<! at least n hits in TRT
-      mutable int m_nHitTrtPlusOutliers; //<! at least n hits in TRT (including outliers)
+      int m_nHitTrt;      //<! at least n hits in TRT
+      int m_nHitTrtPlusOutliers; //<! at least n hits in TRT (including outliers)
 
       //<! for selecting electrons (soft E-ID)
       int m_nHitTrtHighE; //<! at least n high threshold hits in TRT

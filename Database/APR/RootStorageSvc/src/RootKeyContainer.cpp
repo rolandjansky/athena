@@ -17,7 +17,6 @@
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbArray.h"
 #include "StorageSvc/DbReflex.h"
 
@@ -38,7 +37,6 @@
 using namespace pool;
 
 RootKeyContainer::RootKeyContainer() : m_dbH(POOL_StorageType) {
-  DbInstanceCount::increment(this);
   m_ioHandler  = new RootKeyIOHandler;
   m_policy     = TObject::kOverwrite;    // On update write new versions
   m_canDestroy = true;
@@ -50,7 +48,6 @@ RootKeyContainer::RootKeyContainer() : m_dbH(POOL_StorageType) {
 
 /// Standard destructor
 RootKeyContainer::~RootKeyContainer()   {
-  DbInstanceCount::decrement(this);
   releasePtr(m_ioHandler);
   close();
 }

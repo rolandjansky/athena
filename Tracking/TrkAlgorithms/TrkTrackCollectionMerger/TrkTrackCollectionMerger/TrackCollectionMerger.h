@@ -15,8 +15,10 @@
 
 #include "TrkTrack/TrackCollection.h"
 
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
+
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
@@ -54,18 +56,24 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
       /** @brief Protected data:                                       */
       ///////////////////////////////////////////////////////////////////
-      SG::ReadHandleKeyArray<TrackCollection>  m_tracklocation; /** Vector of track collections to be merged. */
-      SG::WriteHandleKey<TrackCollection>  m_outtracklocation  ;  /** Combined track collection.   */
+      SG::ReadHandleKeyArray<TrackCollection>      m_tracklocation; /** Vector of track collections to be merged. */
+      SG::WriteHandleKey<TrackCollection>          m_outtracklocation  ;  /** Combined track collection.   */
+      SG::WriteHandleKey<Trk::PRDtoTrackMap>       m_assoMapName
+         {this,"AssociationMapName",""};  ///< the key given to the newly created association map
 
-      ToolHandle< Trk::IPRD_AssociationTool >                      m_assoTool          ;  /** association tool for PRDs */ 
-      ToolHandle< Trk::ITrackSummaryTool >                         m_trkSummaryTool    ;  /** summary tool with shared hits enabled */
+      ToolHandle<Trk::IPRDtoTrackMapTool>          m_assoTool
+         {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+
+      ToolHandle< Trk::IExtendedTrackSummaryTool > m_trkSummaryTool    ;  /** summary tool with shared hits enabled */
 
       ///////////////////////////////////////////////////////////////////
       /** @brief Protected methods:                                    */
       ///////////////////////////////////////////////////////////////////
 
       /** @brief A routine that merges the track collections. */
-      StatusCode    mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol);
+      StatusCode    mergeTrack(const TrackCollection* trackCol,
+                               Trk::PRDtoTrackMap &prd_to_track_map,
+                               TrackCollection* outputCol);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;

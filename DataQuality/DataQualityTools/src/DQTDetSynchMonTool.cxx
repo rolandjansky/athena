@@ -649,9 +649,8 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 	     = TRT_BCIDColl->begin();
 	   itrt_bcid != TRT_BCIDColl->end(); ++itrt_bcid ) {
        //log << MSG::DEBUG << "TRT BCID pointer found! " << endmsg;
-       if (!(*itrt_bcid)) continue;
        //Current bcid
-       m_trtbcidset.insert((uint16_t)(*itrt_bcid)->second);
+       m_trtbcidset.insert((uint16_t)(*itrt_bcid).second);
        //log << MSG::DEBUG << "TRT BCID found " << (*itrt_bcid)->second  << endmsg;      
        
      } // End for loop
@@ -667,9 +666,8 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 	     = SCT_BCIDColl->begin();
 	   isct_bcid != SCT_BCIDColl->end(); ++isct_bcid ) {
        //log << MSG::DEBUG << "SCT BCID pointer found! " << endmsg;
-       if (!(*isct_bcid)) continue;
        //Current bcid
-       m_sctbcidset.insert((uint16_t)(*isct_bcid)->second);
+       m_sctbcidset.insert((uint16_t)(*isct_bcid).second);
        //log << MSG::DEBUG << "SCT BCID found " << (*isct_bcid)->second  << endmsg;            
      } // End for loop
    }
@@ -684,9 +682,8 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 	     = Pixel_BCIDColl->begin();
 	   ipixel_bcid != Pixel_BCIDColl->end(); ++ipixel_bcid ) {
        //log << MSG::DEBUG << "Pixel BCID pointer found! " << endmsg;
-       if (!(*ipixel_bcid)) continue;
        //Current bcid
-       m_pixelbcidset.insert((uint16_t)(*ipixel_bcid)->second);
+       m_pixelbcidset.insert((uint16_t)(*ipixel_bcid).second);
        //log << MSG::DEBUG << "Pixel BCID found " << (*ipixel_bcid)->second  << endmsg;            
      } // End for loop
    }
@@ -701,9 +698,8 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 	     = TRT_LVL1IDColl->begin();
 	   itrt_lvl1id != TRT_LVL1IDColl->end(); ++itrt_lvl1id ) {
        //log << MSG::DEBUG << "TRT LVL1 ID pointer found! " << endmsg;
-       if (!(*itrt_lvl1id)) continue;
        //Current lvl1id
-       m_trtl1idset.insert((uint16_t)(*itrt_lvl1id)->second);
+       m_trtl1idset.insert((uint16_t)(*itrt_lvl1id).second);
        //log << MSG::DEBUG << "TRT LVL1 ID found " << (*itrt_lvl1id)->second  << endmsg;      
      } // End for loop
    }
@@ -718,9 +714,8 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 	     = SCT_LVL1IDColl->begin();
 	   isct_lvl1id != SCT_LVL1IDColl->end(); ++isct_lvl1id ) {
        //log << MSG::DEBUG << "SCT LVL1 ID pointer found! " << endmsg;
-       if (!(*isct_lvl1id)) continue;
        //Current lvl1id
-       m_sctl1idset.insert((uint16_t)(*isct_lvl1id)->second);
+       m_sctl1idset.insert((uint16_t)(*isct_lvl1id).second);
        //log << MSG::DEBUG << "SCT LVL1 ID found " << (*isct_lvl1id)->second  << endmsg;            
      } // End for loop
    }
@@ -735,9 +730,8 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 	     = Pixel_LVL1IDColl->begin();
 	   ipixel_lvl1id != Pixel_LVL1IDColl->end(); ++ipixel_lvl1id ) {
        //log << MSG::DEBUG << "Pixel LVL1 ID pointer found! " << endmsg;
-       if (!(*ipixel_lvl1id)) continue;
        //Current lvl1id
-       m_pixell1idset.insert((uint16_t)(*ipixel_lvl1id)->second);
+       m_pixell1idset.insert((uint16_t)(*ipixel_lvl1id).second);
        //log << MSG::DEBUG << "Pixel LVL1 ID found " << (*ipixel_lvl1id)->second  << endmsg;            
      } // End for loop
    }

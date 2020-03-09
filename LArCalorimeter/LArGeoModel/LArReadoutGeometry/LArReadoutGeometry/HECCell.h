@@ -9,6 +9,7 @@
 #include "GeoModelKernel/CellBinning.h"
 #include "GeoModelKernel/RCBase.h"
 #include "LArHV/HECHVSubgap.h"
+#include <mutex>
 
 /**
  * @class HECCell
@@ -201,6 +202,10 @@ class HECCell : public RCBase
 
   void initHV() const;
 
+  mutable std::mutex m_mut;
+
+  mutable bool m_initHVdone;
+
 };
 
 
@@ -211,7 +216,7 @@ inline HECCell::HECCell (unsigned int endcap, const HECDetDescr *hecDescriptor, 
   
   
   
-  :m_hecDetDescr(hecDescriptor),m_clockwork(phi | (eta<<6) | (endcap <<10))
+  :m_hecDetDescr(hecDescriptor),m_clockwork(phi | (eta<<6) | (endcap <<10)), m_initHVdone(false)
   
 {
   

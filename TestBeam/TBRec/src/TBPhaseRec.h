@@ -18,8 +18,6 @@
 #include <string>
 #include <vector>
 
-class StoreGateSvc;
-
 class TBPhaseRec : public AthAlgorithm
 {
  public:

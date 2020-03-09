@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -16,46 +16,34 @@ description          : Class for sorting components according to largest weight.
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
-namespace Trk{
-  
-class SortByLargerComponentWeight {
- public:
-  SortByLargerComponentWeight () {};
+namespace Trk {
 
-  bool operator () ( const ComponentParameters firstComponent,
-         const ComponentParameters secondComponent ) const
-
-    { return firstComponent.second > secondComponent.second; }
-
+class SortByLargerComponentWeight
+{
+public:
+  SortByLargerComponentWeight() = default;
+  bool operator()(const ComponentParameters firstComponent, const ComponentParameters secondComponent) const
+  {
+    return firstComponent.second > secondComponent.second;
+  }
 };
 
-class SortByLargerWeight {
-
- public:
-  SortByLargerWeight () {};
-
-  bool operator () ( const double& firstWeight,
-         const double& secondWeight ) const
-    
-    { return firstWeight > secondWeight; }
-
+class SortByLargerWeight
+{
+public:
+  SortByLargerWeight() = default;
+  bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight > secondWeight; }
 };
 
-class SortBySmallerWeight {
+class SortBySmallerWeight
+{
 
- public:
-  SortBySmallerWeight () {};
+public:
+  SortBySmallerWeight() = default;
 
-  bool operator () ( const double& firstWeight,
-                     const double& secondWeight ) const
-
-    { return firstWeight < secondWeight; }
-
+  bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight < secondWeight; }
 };
-
-
 
 }
 
 #endif
-

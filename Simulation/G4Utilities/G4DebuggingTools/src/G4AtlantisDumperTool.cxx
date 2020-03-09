@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4AtlantisDumperTool.h"
 
 namespace G4UA
@@ -23,7 +22,7 @@ namespace G4UA
   G4AtlantisDumperTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a G4AtlasDumper action");
-    auto action = CxxUtils::make_unique<G4AtlantisDumper>(m_config);
+    auto action = std::make_unique<G4AtlantisDumper>(m_config);
     actionList.eventActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );
     return action;

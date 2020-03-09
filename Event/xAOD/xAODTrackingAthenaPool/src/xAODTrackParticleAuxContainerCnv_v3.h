@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -27,20 +27,24 @@
 /// $Date$
 ///
 class xAODTrackParticleAuxContainerCnv_v3 :
-  public T_AthenaPoolTPCnvBase< xAOD::TrackParticleAuxContainer, xAOD::TrackParticleAuxContainer_v3 > 
+  public T_AthenaPoolTPCnvConstBase< xAOD::TrackParticleAuxContainer, xAOD::TrackParticleAuxContainer_v3 > 
 {
 public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
+
   /// Default constructor
   xAODTrackParticleAuxContainerCnv_v3();
 
   /// Function converting from the old type to the current one
   virtual void persToTrans( const xAOD::TrackParticleAuxContainer_v3* oldObj,
                             xAOD::TrackParticleAuxContainer* newObj,
-                            MsgStream& log );
+                            MsgStream& log ) const override;
   /// Dummy function inherited from the base class
   virtual void transToPers( const xAOD::TrackParticleAuxContainer*,
                             xAOD::TrackParticleAuxContainer_v3*,
-                            MsgStream& log );
+                            MsgStream& log ) const override;
 
 }; // class xAODTrackParticleAuxContainerCnv_v3
 	

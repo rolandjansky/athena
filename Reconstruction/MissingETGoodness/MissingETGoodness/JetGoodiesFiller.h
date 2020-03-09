@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MissingETGoodness_JetGoodiesFiller_H
@@ -12,7 +12,6 @@
 //#include "CLHEP/Units/SystemOfUnits.h"
 // #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 // #include "GaudiKernel/ITHistSvc.h"
 
 #include "MissingETGoodness/JetVarTool.h"
@@ -40,9 +39,6 @@ public:
   
 private:
   void initGoodiesMap();
-  
-  /** a handle on Store Gate for access to the Event Store */
-  StoreGateSvc* m_storeGate;
   
   static MET::Goodies& s_goodies;
   

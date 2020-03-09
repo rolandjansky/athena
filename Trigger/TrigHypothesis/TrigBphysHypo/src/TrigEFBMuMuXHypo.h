@@ -33,7 +33,7 @@
 //#include "TrigParticle/TrigEFBphys.h"
 //#include "TrigParticle/TrigEFBphysContainer.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"

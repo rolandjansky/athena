@@ -185,7 +185,7 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
 
   result->tags_["NRedBins"] = countRed;
   result->tags_["NYellowBins"] = countYellow;
-  result->object_ =  (std::auto_ptr<TObject>)(TObject*)(resulthisto);
+  result->object_ =  (boost::shared_ptr<TObject>)(TObject*)(resulthisto);
   if(countRed>=n_bins)
     {
       result->status_ = dqm_core::Result::Red;

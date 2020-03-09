@@ -43,7 +43,7 @@ void TrainMulti(  )
    dataloader->AddVariable( "ptjet", 'F' );
    dataloader->AddVariable( "ibl", 'I' );
    dataloader->AddVariable( "bl", 'I' );
-   dataloader->AddVariable( "etajet", 'F' );
+   dataloader->AddVariable( "etatrk", 'F' );
    //dataloader->AddVariable( "vChi2", 'F' );
    //dataloader->AddSpectator( "idMC",  'I' );
 
@@ -77,9 +77,9 @@ void TrainMulti(  )
    //dataloader->SetCut(TCut("idMC==0&&prbS>0&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12."),"Fragment");
    //dataloader->SetCut(TCut("idMC==1&&prbS>0&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12."),"Garbage");
    //dataloader->SetCut(TCut("idMC==3&&prbS>0&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12."),"Pileup");
-   dataloader->SetCut(TCut("idMC==2&&(SigR*SigR+SigZ*SigZ)>1.&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12.&&ptjet<2500000"),"Signal");
-   dataloader->SetCut(TCut("idMC==0&&(SigR*SigR+SigZ*SigZ)>1.&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12.&&ptjet<2500000"),"Fragment");
-   dataloader->SetCut(TCut("(idMC==1||idMC==3)&&(SigR*SigR+SigZ*SigZ)>1.&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12.&&ptjet<2500000"),"Garbage");
+   dataloader->SetCut(TCut("idMC==2&&(SigR*SigR+SigZ*SigZ)>1.&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12.&&ptjet<7000000"),"Signal");
+   dataloader->SetCut(TCut("idMC==0&&(SigR*SigR+SigZ*SigZ)>1.&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12.&&ptjet<7000000"),"Fragment");
+   dataloader->SetCut(TCut("(idMC==1||idMC==3)&&(SigR*SigR+SigZ*SigZ)>1.&&(-3)<d0&&d0<5.&&(-8)<Z0&&Z0<12.&&ptjet<7000000"),"Garbage");
 
    dataloader->PrepareTrainingAndTestTree( "", "SplitMode=Random:NormMode=NumEvents:!V" );
    //dataloader->PrepareTrainingAndTestTree( "", "SplitMode=Random:NormMode=NumEvents:!V:nTrain_Signal=5000:nTrain_Fragment=5000:nTrain_Garbage=10000:nTest_Signal=5000:nTest_Fragment=5000:nTest_Garbage=10000" );

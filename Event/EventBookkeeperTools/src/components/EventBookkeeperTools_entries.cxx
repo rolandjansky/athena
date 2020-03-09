@@ -1,14 +1,16 @@
-#include "EventBookkeeperTools/myCppFilterTest.h"
-#include "../SkimDecisionMultiFilter.h"
-#include "../EventCounterAlg.h"
-#include "EventBookkeeperTools/BookkeeperTool.h"
-#include "../StreamSelectorTool.h"
+#include "../BookkeeperDumperTool.h"
+#include "../BookkeeperTool.h"
+#include "../CppFilterTester.h"
 #include "../CutFlowSvc.h"
+#include "../EventCounterAlg.h"
+#include "../SkimDecisionMultiFilter.h"
+#include "../StreamSelectorTool.h"
 
-DECLARE_COMPONENT( myCppFilterTest )
-DECLARE_COMPONENT( SkimDecisionMultiFilter )
-DECLARE_COMPONENT( EventCounterAlg )
+DECLARE_COMPONENT( BookkeeperDumperTool )
 DECLARE_COMPONENT( BookkeeperTool )
-DECLARE_COMPONENT( StreamSelectorTool )
+DECLARE_COMPONENT( CppFilterTester )
 DECLARE_COMPONENT( CutFlowSvc )
+DECLARE_COMPONENT( EventCounterAlg )
+DECLARE_COMPONENT( SkimDecisionMultiFilter )
+DECLARE_COMPONENT( StreamSelectorTool )
 

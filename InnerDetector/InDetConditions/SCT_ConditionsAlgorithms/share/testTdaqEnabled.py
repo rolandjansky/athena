@@ -9,6 +9,11 @@
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixStandardJob
 
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testTdaqEnabled")
+msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Thread-specific setup
 #--------------------------------------------------------------
@@ -41,7 +46,7 @@ globalflags.DetDescrVersion="ATLAS-R2-2016-01-00-01"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
-print 'globalTags.DatabaseInstance', globalflags.DatabaseInstance
+msg.info(globalflags)
 
 
 #--------------------------------------------------------------

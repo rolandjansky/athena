@@ -27,7 +27,7 @@ using namespace std;
 // Constructor
 MDTCondSummarySvc::MDTCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  m_reportingServices(name),m_pHelper(0),
+  m_reportingServices(name),
   m_detStore("DetectorStore",name),m_noReports(true){
   // default services
   //  m_reportingServices.push_back("MDT_DCSConditionsSvc");
@@ -50,10 +50,10 @@ MDTCondSummarySvc::initialize(){
     msg(MSG::INFO) << "DetectorStore service found !" << endmsg;
   }  
   
-  sc = m_detStore->retrieve(m_pHelper, "MDTIDHELPER" );
+  sc = m_muonIdHelperTool.retrieve();
   if (sc.isFailure())
     {
-      msg(MSG::FATAL) << " Cannot retrieve MdtIdHelper " << endmsg;
+      msg(MSG::FATAL) << " Cannot retrieve MuonIdHelperTool " << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -129,8 +129,8 @@ StatusCode MDTCondSummarySvc::initInfo(IOVSVC_CALLBACK_ARGS){
 bool MDTCondSummarySvc::isGoodMultiLayer(const Identifier & Id) const{
   bool result=true;
   // check ID
-  Identifier MultilayerId = m_pHelper->multilayerID(Id);
-  Identifier ChamberId = m_pHelper->elementID(Id);
+  Identifier MultilayerId = m_muonIdHelperTool->mdtIdHelper().multilayerID(Id);
+  Identifier ChamberId = m_muonIdHelperTool->mdtIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
@@ -159,8 +159,8 @@ bool MDTCondSummarySvc::isGoodMultiLayer(const Identifier & Id) const{
 bool MDTCondSummarySvc::isGoodChannel(const Identifier & Id) const{
   bool result=true;   
   Identifier TubeId = Id;
-  Identifier MultilayerId = m_pHelper->multilayerID(Id);
-  Identifier ChamberId = m_pHelper->elementID(Id);
+  Identifier MultilayerId = m_muonIdHelperTool->mdtIdHelper().multilayerID(Id);
+  Identifier ChamberId = m_muonIdHelperTool->mdtIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
@@ -197,8 +197,8 @@ bool MDTCondSummarySvc::isGoodChannel(const Identifier & Id) const{
 bool MDTCondSummarySvc::isGood(const Identifier & Id) const{
   bool total_result = true;
 //  int counter=0;
-  Identifier MultilayerId = m_pHelper->multilayerID(Id);
-  Identifier ChamberId = m_pHelper->elementID(Id);
+  Identifier MultilayerId = m_muonIdHelperTool->mdtIdHelper().multilayerID(Id);
+  Identifier ChamberId = m_muonIdHelperTool->mdtIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
@@ -235,7 +235,7 @@ bool MDTCondSummarySvc::isGood(const Identifier & Id) const{
 bool MDTCondSummarySvc::isGoodChamber(const Identifier & Id) const{
   bool result=true;
   int counter =0;
-  // Identifier chamberId = m_pHelper->elementID(Id);
+  // Identifier chamberId = m_muonIdHelperTool->mdtIdHelper().elementID(Id);
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
     for (;svc not_eq  lastSvc;svc++){

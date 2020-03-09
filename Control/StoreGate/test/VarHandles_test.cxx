@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -43,7 +43,6 @@ bool operator==(const MyDataObj& lhs, const MyDataObj& rhs) {
 typedef std::list<int> IntList;
 /** @file DataHandle_test.cxx  unit test for DataHandle
  * @author ATLAS Collaboration
- * $Id: VarHandles_test.cxx 781577 2016-11-01 14:41:16Z ssnyder $
  ***************************************************************************/
 
 #include "AthenaKernel/CLASS_DEF.h"
@@ -102,7 +101,7 @@ namespace Athena_test {
     WriteHandle<MyDataObj> hMy ("hMy");
     assert(!hMy.isInitialized());
     assert(hMy.cachedPtr() == nullptr);
-    hMy.setProxyDict (&store);
+    assert(hMy.setProxyDict (&store).isSuccess());
     hMy = std::make_unique<MyDataObj>(4);
     //assert(hMy.setState(pMyProxy).isSuccess());
     assert(hMy.isInitialized());

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __PIXEL_CONVERT_H__
-#define __PIXEL_CONVERT_H__
+#ifndef PIXELCALIBALGS_PIXELCONVERT_H
+#define PIXELCALIBALGS_PIXELCONVERT_H
 
 #include <string>
 #include <sstream>
@@ -57,7 +57,7 @@ namespace PixelConvert {
 			    int phi,
 			    int eta);
 
-  int UnpackOfflineID(std::string offlineID,
+  int UnpackOfflineID(const std::string& offlineID,
 		      int& system,
 		      int& subSystem,
 		      int& endcap,
@@ -86,11 +86,11 @@ namespace PixelConvert {
 		  int phi,
 		  int eta);
 
-  std::string OnlineID(std::string offlineID);
+  std::string OnlineID(const std::string& offlineID);
 
   std::string OnlineID(int hashID);
 
-  std::string OnlineIDfromDCSID(std::string DCSID);
+  std::string OnlineIDfromDCSID(const std::string& DCSID);
 
   /*
     OFFLINE ID
@@ -113,7 +113,7 @@ namespace PixelConvert {
     hash ID.
    */
 
-  int OfflineID(std::string onlineID,
+  int OfflineID(const std::string& onlineID,
 	       int& system, 
 	       int& subSystem, 
 	       int& endcap, 
@@ -121,7 +121,7 @@ namespace PixelConvert {
 	       int& phi,
 	       int& eta);
 
-  std::string OfflineID(std::string onlineID);
+  std::string OfflineID(const std::string& onlineID);
 
   int OfflineID(int hashID,
 	       int& system, 
@@ -151,7 +151,7 @@ namespace PixelConvert {
     check is performed. 
    */
 
-  int HashID(std::string ID);
+  int HashID(const std::string& ID);
 
   int HashID(int system,
 	     int subSystem,
@@ -182,9 +182,9 @@ namespace PixelConvert {
      case the range cheching fails.
 
   */
-  std::string DCSID(std::string OnlineID);
+  std::string DCSID(const std::string& OnlineID);
 
-  int ReadMap(const std::string filename);
+  int ReadMap(const std::string& filename);
   unsigned int GetID(const unsigned int moduleID);
 
 }

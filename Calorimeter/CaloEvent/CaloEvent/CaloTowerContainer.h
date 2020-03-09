@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOTOWERCONTAINER_H
@@ -507,6 +507,9 @@ public:
 
 
 private:
+  friend class CaloTowerContainerCnv_p1;
+
+
   /*! \brief Tower grid \f$ ( \Delta \eta \times \Delta \varphi ) \f$ 
    *         descriptor 
    */

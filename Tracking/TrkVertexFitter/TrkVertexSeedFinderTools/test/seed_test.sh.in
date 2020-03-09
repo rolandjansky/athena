@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+
+@_command@ @_arg@

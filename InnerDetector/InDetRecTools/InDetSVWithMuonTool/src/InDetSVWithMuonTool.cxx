@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -194,8 +194,6 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
     std::vector<const xAOD::TrackParticle*>            SelSecTrk;
 
     xAOD::Vertex* secVrt = MuonVrtSec( InpTrk, PrimVrt, Muon, SelSecTrk );
-
-    m_fitSvc->clearMemory();
 
     return secVrt;
    }

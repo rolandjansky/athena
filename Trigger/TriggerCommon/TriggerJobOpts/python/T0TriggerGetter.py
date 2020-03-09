@@ -1,18 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-##  from AthenaCommon.GlobalFlags import jobproperties
-## ## from AthenaCommon.GlobalFlags import GlobalFlags
-##  from AthenaCommon.AthenaCommonFlags import jobproperties
-##  from RecExConfig.RecFlags  import jobproperties
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
-from AthenaCommon.AppMgr import ServiceMgr
 
 log = logging.getLogger( "T0TriggerGetter.py" )
 
-from TriggerMenu.menu.GenerateMenu import GenerateMenu
-from RecExConfig.Configured import Configured 
+from RecExConfig.Configured import Configured
 
 def withLVL1():
     return TriggerFlags.dataTakingConditions()=='Lvl1Only' or TriggerFlags.dataTakingConditions()=='FullTrigger'
@@ -22,7 +15,6 @@ def withHLT():
 
 class T0TriggerGetter(Configured):
 
-    #_output = {"HLT::HLTResult" : ["HLTResult_L2", "HLTResult_EF"] }
     _configured=True
     _done=False
     
@@ -34,7 +26,7 @@ class T0TriggerGetter(Configured):
 
         # setup configuration services
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-        cfg =  TriggerConfigGetter()
+        cfg =  TriggerConfigGetter()  # noqa: F841
 
         # after the menu xml file has been created or the TriggerDB access is configured,
         # the COOL/SQlite db can be written 
@@ -45,8 +37,18 @@ class T0TriggerGetter(Configured):
         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-	# tell TDT to use TrigConfigSvc (Since 00-03-40, defaults to not use it)
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+        from PyUtils.MetaReaderPeekerFull import metadata
+        if "metadata_items" in metadata and any(('TriggerMenu' in key) for key in metadata["metadata_items"].keys()):
+            # Use xAOD configuration. 
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            if not hasattr(svcMgr, 'xAODConfigSvc'):
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+                svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
+            ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+            ToolSvc.TrigDecisionTool.TrigConfigSvc = svcMgr.xAODConfigSvc
+        else:
+            # Use TrigConfigSvc
+            ToolSvc.TrigDecisionTool.TrigConfigSvc = "TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         from TrigEDMConfig.TriggerEDM import EDMLibraries
         ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
@@ -56,14 +58,14 @@ class T0TriggerGetter(Configured):
             # initialize LVL1ConfigSvc
             log.info("configuring lvl1")
             from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
-            lvl1 = Lvl1ResultBuilderGetter()
+            lvl1 = Lvl1ResultBuilderGetter()  # noqa: F841
 
         if withHLT():
             # setup HLT
             # initialize HLT config svc
             log.info("configuring hlt")
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-            hlt = HLTTriggerResultGetter()
+            hlt = HLTTriggerResultGetter()   # noqa: F841
 
         #Call the tools to unpack the bytestream
         #bsu=ByteStreamUnpackGetter()

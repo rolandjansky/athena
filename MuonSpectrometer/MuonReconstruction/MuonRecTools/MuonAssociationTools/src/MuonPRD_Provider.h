@@ -26,8 +26,6 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
  
 namespace Muon {
  
@@ -85,9 +83,8 @@ namespace Muon {
       return prd;
     }
     
-    ToolHandle<MuonIdHelperTool> m_idHelper;
-    const MmIdHelper*                   m_mmIdHelper;
-    const sTgcIdHelper*                 m_stgcIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     std::string         m_keyTgc;
     std::string         m_keyRpc;
     std::string         m_keyCsc;

@@ -37,7 +37,7 @@ class LArRawChannelBuilderToolBadChannelTool : public LArRawChannelBuilderToolBa
   StatusCode initTool();
 
  private:
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  ToolHandle<ILArBadChannelMasker> m_badChannelMask{this,"BadChannelMask", "BadLArRawChannelMask"};
     
 };
 

@@ -1,13 +1,16 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigConfigSvc.TrigConfigSvcConf import *
+from TrigConfigSvc.TrigConfigSvcConf import (TrigConf__LVL1ConfigSvc,
+                                             TrigConf__L1TopoConfigSvc,
+                                             TrigConf__HLTConfigSvc,
+                                             TrigConf__DSConfigSvc,
+                                             TrigConf__TrigConfigSvc)
 
 # Hack: xml.etree module is hidden by mistake in LCG56c
 from PyUtils.xmldict import import_etree
 etree = import_etree()
 import xml.etree.cElementTree as ET
 
-from string import find, split
 from os.path import exists, join, abspath
 
 from AthenaCommon.Logging import logging  # loads logger
@@ -24,7 +27,7 @@ def findFileInXMLPATH(filename):
 
     mlog = logging.getLogger("TrigConfigSvcConfig.py")
     mlog.debug("Searching XML config file for HLT")
-    if filename.find('./') is 0: ## this expected to be local file, name starts from ./
+    if filename.find('./') == 0: ## this expected to be local file, name starts from ./
         return filename
     else:
         mlog.debug("Nonlocal XML config file for HLT")
@@ -35,12 +38,12 @@ def findFileInXMLPATH(filename):
             return filename
 
         ## search XMLPATH path
-        if not environ.has_key('XMLPATH'): ## XMLPATH is not known ... no search is performed
+        if 'XMLPATH' not in environ: ## XMLPATH is not known ... no search is performed
             mlog.info("XML file: "+filename + " not found and XMLPATH not given" )
             return filename
 
         xmlpath = environ['XMLPATH']
-        paths = split(xmlpath, ":")
+        paths = xmlpath.split(":")
         for path in paths:
 
             test = join(path, filename)
@@ -49,6 +52,11 @@ def findFileInXMLPATH(filename):
                 return abspath(test)
 
             test = join(path, "TriggerMenuXML",filename)
+            if exists(test):
+                mlog.info("Found XML file: " + abspath(test))
+                return abspath(test)
+
+            test = join(path, "TriggerMenuMT",filename)
             if exists(test):
                 mlog.info("Found XML file: " + abspath(test))
                 return abspath(test)
@@ -77,7 +85,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             doc = ET.parse(self.XMLMenuFile)
             algs = self.getAllAlgorithms(doc)
             l2TEs, efTEs = self.getTEsByLevel(doc)
-            
+
             for te in l2TEs:
                 if te in algs.keys():
                     allalgs += algs[te]
@@ -85,7 +93,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             for te in efTEs:
                 if te in algs.keys():
                     allalgs += algs[te]
-                    
+
         return allalgs
 
 
@@ -106,7 +114,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             doc = ET.parse(self.XMLMenuFile)
             algs = self.getAllAlgorithms(doc)
             l2TEs, efTEs = self.getTEsByLevel(doc)
-            
+
             for te in l2TEs:
                 if te in algs.keys():
                     l2algs += algs[te]
@@ -114,7 +122,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             for te in efTEs:
                 if te in algs.keys():
                     efalgs += algs[te]
-                    
+
         return l2algs, efalgs
 
     def getTEsByLevel(self, doc = None):
@@ -180,7 +188,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
         algos = {}
         for seq in doc.getiterator("SEQUENCE"):
             algos[seq.get("output")] = seq.get("algorithm").split()
-        
+
         return algos
 
 
@@ -239,7 +247,7 @@ class LVL1ConfigSvc ( DefaultLVL1ConfigSvc ):
         log = logging.getLogger("LVL1ConfigSvc")
         log.warning( "LVL1ConfigSvc property XMLFile will soon be deprecated. Please use XMLMenuFile instead" )
         self.XMLMenuFile = xmlfile
-    
+
     def setDefaults(self, handle):
         pass
 
@@ -282,19 +290,20 @@ class TrigConfigSvc( TrigConf__TrigConfigSvc ):
 # possible states are: ds, xml
 
 
-class SetupTrigConfigSvc:
+class SetupTrigConfigSvc(object):
     """ A python singleton class for configuring the trigger configuration services"""
 
-    class __impl:
+    class __impl(object):
         """ Implementation of the singleton interface """
 
         def __init__(self):
             """
             state == xml -> read the trigger configuration from 2 xml files, one for L1, one for HLT
             stats == ds  -> read the trigger configuration from the detector store = esd header
+            state == none -> service is not directly serving the run3 configuration
             """
             self.states = ["xml"]
-            self.allowedStates = set(['xml','ds'])
+            self.allowedStates = set(['none','xml','ds'])
             self.initialised = False
 
             from AthenaCommon.Logging import logging
@@ -312,20 +321,20 @@ class SetupTrigConfigSvc:
 
         def SetStates(self, state):
             if self.initialised:
-                raise SetupTrigConfigSvc, 'state cannot be changed anymore, the athena service has already been added!'
+                raise (RuntimeError, 'state cannot be changed anymore, the athena service has already been added!')
 
             if not type(state) is list:
                 state = [state]
 
             if not set(state) <= self.allowedStates:
-                raise SetupTrigConfigSvc, 'unknown state %s, cannot set it!' %state
+                raise (RuntimeError, 'unknown state %s, cannot set it!' % state)
             else:
                 self.states = state
 
         def GetConfigurable(self):
             try:
                 self.InitialiseSvc()
-            except:
+            except Exception:
                 self.mlog.debug( 'ok, TrigConfigSvc already initialised' )
 
             return self.GetPlugin()
@@ -333,14 +342,14 @@ class SetupTrigConfigSvc:
 
         def InitialiseSvc(self):
             if self.initialised:
-                raise SetupTrigConfigSvc, 'athena service has already been added, do nothing.'
+                raise (RuntimeError, 'athena service has already been added, do nothing.')
 
             self.initialised = True
 
             from AthenaCommon.AppMgr import ServiceMgr
 
 
-            self.mlog.info( "initialising TrigConfigSvc using state %s" % self.states )
+            self.mlog.info( "initialising TrigConfigSvc using state %s", self.states )
             if 'xml' in self.states:
                 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -381,7 +390,7 @@ class SetupTrigConfigSvc:
 
         def GetPlugin(self):
             if not self.initialised:
-                raise SetupTrigConfigSvc, 'athena service has not been added, cannot return plugin!.'
+                raise (RuntimeError, 'athena service has not been added, cannot return plugin!.')
             from AthenaCommon.AppMgr import ServiceMgr
             return ServiceMgr.TrigConfigSvc
 
@@ -400,7 +409,6 @@ class SetupTrigConfigSvc:
 
     def __getattr__(self, attr):
         """ Delegate access to implementation """
-        from AthenaCommon.Logging import logging
         return getattr(self.__instance, attr)
 
     def __setattr__(self, attr, value):
@@ -409,31 +417,15 @@ class SetupTrigConfigSvc:
 
 
 def TrigConfigSvcCfg( flags ):
-    from AthenaCommon.Logging import log
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-    from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
-
-    l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
-    l1XMLFile = findFileInXMLPATH(flags.Trigger.LVL1ConfigFile)
-    log.debug( "LVL1ConfigSvc input file:"+l1XMLFile  )
-
-    l1ConfigSvc.XMLMenuFile = l1XMLFile
-    l1ConfigSvc.ConfigSource = "XML"
-
-    acc.addService( l1ConfigSvc )
-    return acc
+    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg
+    return TrigConfigSvcCfg( flags )
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True    
+    Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
     acc = TrigConfigSvcCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
-    
-
+    acc.store( open( "test.pkl", "wb" ) )
+    print("All OK")

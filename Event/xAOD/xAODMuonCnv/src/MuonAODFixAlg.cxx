@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonAODFixAlg.cxx 298140 2013-11-19 11:32:49Z emoyse $
@@ -15,7 +15,6 @@
 #include "MuonAODFixAlg.h"
 
 // Misc
-#include "CxxUtils/make_unique.h"
 #include <memory>
 
 namespace xAOD {
@@ -54,7 +53,7 @@ namespace xAOD {
                                        m_containerName) );
     
       muons = new xAOD::MuonContainer;
-      auto store = CxxUtils::make_unique<xAOD::MuonAuxContainer>();
+      auto store = std::make_unique<xAOD::MuonAuxContainer>();
       muons->setStore (store.get());
       for (const xAOD::Muon* oldMuon : *originalMuons) {
         xAOD::Muon* muon = new xAOD::Muon;

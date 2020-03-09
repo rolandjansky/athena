@@ -21,7 +21,6 @@ atlas_add_poolcnv_library( TileSimEventAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities GaudiKernel TileSimEvent TileSimEventTPCnv )
 
 # Install files from the package:
-atlas_install_headers( TileSimEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
@@ -34,7 +33,7 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TILESIMEVENTATHENAPOOL_REFERENCE_TAG
        TileSimEventAthenaPoolReference-01-00-00 )
-  run_tpcnv_test( TileSimEventTPCnv_HITS    HITS.04919495._000416
+  run_tpcnv_legacy_test( TileSimEventTPCnv_HITS    HITS.04919495._000416
                   REFERENCE_TAG ${TILESIMEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )

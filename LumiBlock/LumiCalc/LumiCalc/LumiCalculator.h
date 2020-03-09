@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUMICALC_LUMICALCULATOR_H
@@ -15,10 +15,6 @@
 namespace Root {
   class TGoodRunsList;
 }
-
-//class TTree;
-// MB 20100115: turn off for now, RootGraphics lib crashes on some non-cern sites.
-//class TCanvas;
 
 class LumiCalculator{
 
@@ -57,6 +53,8 @@ class LumiCalculator{
   void MakePlots(const std::string& triggerchain);
 
   void LoadChannelIds();
+
+  void ParseL1Trigger(std::string lowerch, CoolQuery* cq_trigger);
 
   //TCanvas* GetNiceCanvas(const char* name="tcan", const char* title="tcan");
 
@@ -179,7 +177,8 @@ class LumiCalculator{
   
   std::string m_triggerchain;
   std::vector<std::string> m_triggerlowerchains;
-  std::string m_L1triggerchain;
+  std::vector<std::string> m_L1triggerchains;  // Used for evaluating [L1_MU20,L1_MU21]
+  std::vector<cool::ChannelId> m_L1idList;
   std::string m_lbcollectionname;
 
   float m_effxsec;

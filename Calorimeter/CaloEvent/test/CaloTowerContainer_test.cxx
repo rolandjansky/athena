@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,6 @@
 #include "CaloEvent/CaloTowerContainer.h"
 #include "TestTools/expect_exception.h"
 #include "TestTools/FLOATassert.h"
-#include "boost/foreach.hpp"
 #include <iostream>
 #include <cstdarg>
 
@@ -260,8 +259,9 @@ void test3_check (T& p)
   assert ((*p.rbegin())->energy() == 100);
 
   double sum = 0;
-  BOOST_FOREACH (const CaloTower* i, p)
+  for (const CaloTower* i : p) {
     sum += i->energy();
+  }
   assert (sum == 3025);
 
   CaloTowerContainer::const_iterator cit = p.begin();

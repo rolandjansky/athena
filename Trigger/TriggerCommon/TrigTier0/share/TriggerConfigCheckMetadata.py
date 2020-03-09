@@ -8,19 +8,18 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 log = logging.getLogger( "TriggerConfigCheckMetadata.py" )
 
 if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput())>0 :
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeekerFull import metadata
     if not 'DQMonFlags' in dir():
-        print "DataQualityMon_RecExCommon_Flags_jobOptions.py: DQMonFlags not yet imported - I import them now"
+        printfunc ("DataQualityMon_RecExCommon_Flags_jobOptions.py: DQMonFlags not yet imported - I import them now")
         from AthenaMonitoring.DQMonFlags import DQMonFlags
-        
-    if inputFileSummary.has_key('metadata'):
-        hasLVL1 = inputFileSummary['metadata'].has_key('/TRIGGER/LVL1/Lvl1ConfigKey')
-        hasHLT  = inputFileSummary['metadata'].has_key('/TRIGGER/HLT/HltConfigKeys')
-        
+
+    if len(metadata) > 0:
+        hasLVL1 = any(('/TRIGGER/LVL1/Lvl1ConfigKey' in key or 'TriggerMenu' in key) for key in metadata["metadata_items"].keys())
+        hasHLT  = any(('/TRIGGER/HLT/HltConfigKeys' in key or 'TriggerMenu' in key) for key in metadata["metadata_items"].keys())
 
         if globalflags.DataSource()=='data':
             if hasLVL1 and not hasHLT:
-                log.warning("ERROR This pool file does not contain HLT trigger information ")
+                log.error("This pool file does not contain HLT trigger information ")
                 log.info("Disabling HLT monitoring, trigger aware DQMonitoring and trigger ntuples.")
                 TriggerFlags.dataTakingConditions.set_Value_and_Lock('Lvl1Only')
                 DQMonFlags.doHLTMon.set_Value_and_Lock(False) # now that some hltmon moved to ESDtoAOD
@@ -28,7 +27,7 @@ if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput
                 TriggerFlags.NtupleProductionFlags.ProductionLocation.set_Value_and_Lock('')
 
             if hasHLT and not hasLVL1:
-                log.warning("ERROR This pool file does not contain LVL1 trigger information ")
+                log.error("This pool file does not contain LVL1 trigger information ")
                 log.info("Disabling trigger ntuples and trigger aware DQMonitoring but not HLT monitoring.")
                 TriggerFlags.dataTakingConditions.set_Value_and_Lock('HltOnly')
                 TriggerFlags.NtupleProductionFlags.ProductionLocation.set_Value_and_Lock('')
@@ -44,7 +43,7 @@ if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput
                     treatException("Could not import MuonDQADetFlags")
 
             if not hasHLT and not hasLVL1:
-                log.warning("ERROR This pool file does not contain any trigger information ")
+                log.error("This pool file does not contain any trigger information ")
                 log.info("Disabling HLT monitoring and trigger aware DQMonitoring and trigger ntuples.")
                 TriggerFlags.dataTakingConditions.set_Value_and_Lock('NoTrigger')
                 rec.doTrigger.set_Value_and_Lock(False)
@@ -76,6 +75,6 @@ if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput
                 rec.doTrigger.set_Value_and_Lock(False)
             
     else:
-        log.warning("Either inputFileSummary does not have key 'metadata' or something strange is happening.")
+        log.warning("Either file(s) does not have key 'metadata' or something strange is happening.")
 else:
     log.warning("Wrong flags setting for pool input, try calling TriggerConfigGetter with 'ReadPool' or 'WritePool' as argument.")

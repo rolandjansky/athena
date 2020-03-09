@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTHITSUMMARYTOOL_H
@@ -8,23 +8,22 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "Identifier/Identifier.h"
+
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 class MsgStream;
 class MdtIdHelper;
 
 namespace Muon {
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonSegment;
   
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
 }
 
 namespace Muon {
@@ -53,9 +52,14 @@ namespace Muon {
   private:
 
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
-    ToolHandle<Muon::MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
-    const MuonGM::MuonDetectorManager* m_detMgr;
+
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
 
     double m_positionAlongTubeCut; //!< cut on the distance from the tube wall use for hole count
     double m_lowerADCBound; //!< lower bound for good MDT hits

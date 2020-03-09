@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -28,6 +28,7 @@ TPCnvElt<CNV, TPCNV>::TPCnvElt()
 /**
  * @brief Read the persistent object and convert it to transient.
  * @param parent The top-level pool converter object.
+ * @param key The SG key of the object being read.
  * @param msg MsgStream for error reporting.
  *
  * Returns a newly-allocated object.
@@ -36,14 +37,16 @@ TPCnvElt<CNV, TPCNV>::TPCnvElt()
  * Other errors are reported by raising exceptions.
  */
 template <class CNV, class TPCNV>
-typename TPCnvElt<CNV, TPCNV>::Trans_t*
-TPCnvElt<CNV, TPCNV>::createTransient (CNV& parent, MsgStream& msg)
+std::unique_ptr<typename TPCnvElt<CNV, TPCNV>::Trans_t>
+TPCnvElt<CNV, TPCNV>::createTransient (CNV& parent,
+                                       const std::string& key,
+                                       MsgStream& msg)
 {
   if (!parent.compareClassGuid (m_guid))
-    return nullptr;
+    return std::unique_ptr<typename TPCnvElt<CNV, TPCNV>::Trans_t>();
 
   std::unique_ptr<Pers_t> old (parent.template poolReadObject<Pers_t>() );
-  return m_cnv.createTransient(old.get(), msg);
+  return AthenaPoolCnvSvc::createTransient (m_cnv, old.get(), key, msg);
 }
 
 
@@ -51,6 +54,7 @@ TPCnvElt<CNV, TPCNV>::createTransient (CNV& parent, MsgStream& msg)
  * @brief Read the persistent object and convert it to transient.
  * @param parent The top-level pool converter object.
  * @param trans The transient object to modify.
+ * @param key The SG key of the object being read.
  * @param msg MsgStream for error reporting.
  *
  * Overwrites the provided transient object.
@@ -60,7 +64,9 @@ TPCnvElt<CNV, TPCNV>::createTransient (CNV& parent, MsgStream& msg)
  */
 template <class CNV, class TPCNV>
 bool
-TPCnvElt<CNV, TPCNV>::persToTrans (CNV& parent, Trans_t* trans, MsgStream& msg)
+TPCnvElt<CNV, TPCNV>::persToTrans (CNV& parent, Trans_t* trans,
+                                   const std::string& /*key*/,
+                                   MsgStream& msg)
 {
   if (!parent.compareClassGuid (m_guid))
     return false;
@@ -90,6 +96,7 @@ TPCnvElt<CNV, T_TPCnvNull<TRANS> >::TPCnvElt()
 /**
  * @brief Read the persistent object and convert it to transient.
  * @param parent The top-level pool converter object.
+ * @param key The SG key of the object being read.
  * @param msg MsgStream for error reporting.
  *
  * Specialization for the case of no conversion.
@@ -100,14 +107,16 @@ TPCnvElt<CNV, T_TPCnvNull<TRANS> >::TPCnvElt()
  * Other errors are reported by raising exceptions.
  */
 template <class CNV, class TRANS>
-typename TPCnvElt<CNV, T_TPCnvNull<TRANS> >::Trans_t*
+std::unique_ptr<typename TPCnvElt<CNV, T_TPCnvNull<TRANS> >::Trans_t>
 TPCnvElt<CNV, T_TPCnvNull<TRANS> >::createTransient (CNV& parent,
+                                                     const std::string& /*key*/,
                                                      MsgStream& /*msg*/)
 {
-  if (!parent.compareClassGuid (m_guid))
-    return nullptr;
-
-  return parent.template poolReadObject<Pers_t>();
+  Pers_t* p = nullptr;
+  if (parent.compareClassGuid (m_guid)) {
+    p = parent.template poolReadObject<Pers_t>();
+  }
+  return std::unique_ptr<typename TPCnvElt<CNV, T_TPCnvNull<TRANS> >::Trans_t>(p);
 }
 
 
@@ -115,6 +124,7 @@ TPCnvElt<CNV, T_TPCnvNull<TRANS> >::createTransient (CNV& parent,
  * @brief Read the persistent object and convert it to transient.
  * @param parent The top-level pool converter object.
  * @param trans The transient object to modify.
+ * @param key The SG key of the object being read.
  * @param msg MsgStream for error reporting.
  *
  * Specialization for the case of no conversion.
@@ -128,6 +138,7 @@ template <class CNV, class TRANS>
 bool
 TPCnvElt<CNV, T_TPCnvNull<TRANS> >::persToTrans (CNV& parent,
                                                  Trans_t* trans,
+                                                 const std::string& /*key*/,
                                                  MsgStream& /*msg*/)
 {
   if (!parent.compareClassGuid (m_guid))

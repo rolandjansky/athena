@@ -1,14 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # -------------------------------------------------------------
 # L1 Getter of the result
 # -------------------------------------------------------------
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import jobproperties
-from CaloRec.CaloCellFlags import jobproperties
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.Constants import *
-from AthenaCommon.Logging import logging  # loads logger
 from AthenaCommon.Include import include  # to include old style job options
 from AthenaCommon.AppMgr import theApp
 
@@ -23,8 +18,6 @@ class Lvl1ResultBuilderGetter(Configured):
     #_output = {"CTP_Decision":"CTP_Decision", "LVL1_ROI":"LVL1_ROI"}
 
     def configure(self):
-        log = logging.getLogger( "LVL1ResultBuilderGetter.py" )
-
         #         from AthenaServices.AthenaServicesConf import AthenaOutputStream
         #         from AthenaCommon.AppMgr import ServiceMgr
         #         from AthenaCommon.AlgSequence import AlgSequence

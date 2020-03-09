@@ -14,7 +14,6 @@
 #include <iomanip>
 #include <sstream>
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "StoreGate/ReadCondHandle.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILECELLFAKEPROB_H
@@ -15,6 +15,8 @@
  *  \date   August 25, 2005
  */
 
+#include "TileConditions/TileCablingSvc.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICellWeightTool.h"
 #include "Identifier/Identifier.h"
@@ -28,7 +30,7 @@ class TileCablingService;
 #include <string>
 #include <vector>
 
-class TileCellFakeProb: public AthAlgTool, virtual public ICellWeightTool {
+class TileCellFakeProb: public extends<AthAlgTool, ICellWeightTool> {
 
   public:
 
@@ -49,6 +51,16 @@ class TileCellFakeProb: public AthAlgTool, virtual public ICellWeightTool {
     /*! Reads in properties and creates list of miscalibrated cells */
     StatusCode createMiscalibratedCellList();
 
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
+
+    /*! Property: List of "dead" drawers */
+    Gaudi::Property<std::vector<std::string>> m_deadDrawerInput{this,
+        "DeadDrawerList", {}, "List of dead drawers"};
+
     /*! Pointer to CaloCellID */
     const CaloCell_ID * m_caloID;
     /*! Pointer to TileID */
@@ -57,9 +69,6 @@ class TileCellFakeProb: public AthAlgTool, virtual public ICellWeightTool {
     const TileHWID * m_tileHWID;
     /*! Pointer to TileCablingService */
     const TileCablingService* m_cabling;
-
-    /*! Property: List of "dead" drawers */
-    std::vector<std::string> m_deadDrawerInput;
 
     /*! List of "dead" cells and their weights */
     std::map<Identifier, double> m_celllist;

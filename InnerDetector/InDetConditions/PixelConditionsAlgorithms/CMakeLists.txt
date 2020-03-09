@@ -28,8 +28,10 @@ atlas_depends_on_subdirs(
    DetectorDescription/DetDescrCond/DetDescrConditions
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDecr/PixelReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
-   Tools/PathResolver)
+   Tools/PathResolver
+   Tracking/TrkDetDescr/TrkGeometry )
 
 # External dependencies:
 find_package( CLHEP )
@@ -41,9 +43,9 @@ find_package( ROOT COMPONENTS Core Hist RIO )
 atlas_add_library( PixelConditionsAlgorithmsLib
    PixelConditionsAlgorithms/*.h
    INTERFACE
-   PUBLIC_HEADERS PixelConditionsAlgorithms
+   NO_PUBLIC_HEADERS
    LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps PixelConditionsData DetDescrConditions
-   AthenaPoolUtilities PathResolver )
+   AthenaPoolUtilities PathResolver TrkGeometry)
 
 atlas_add_component( PixelConditionsAlgorithms
    src/*.h src/*.cxx src/components/*.cxx
@@ -52,7 +54,7 @@ atlas_add_component( PixelConditionsAlgorithms
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES}
    ${CLHEP_LIBRARIES} CommissionEvent AthenaBaseComps AthenaKernel AthenaPoolUtilities
    GaudiKernel PixelConditionsData SGTools StoreGateLib CoralDB
-   GeoModelUtilities Identifier InDetIdentifier InDetReadoutGeometry
+   GeoModelUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry
    PixelCablingLib PixelConditionsAlgorithmsLib PathResolver )
 
 # Install files from the package:

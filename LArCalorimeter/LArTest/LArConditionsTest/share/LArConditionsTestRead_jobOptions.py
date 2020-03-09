@@ -22,7 +22,7 @@ from AthenaCommon.GlobalFlags import GlobalFlags
 GlobalFlags.DataSource.set_geant4()
 GlobalFlags.DetGeo.set_atlas()
 include ("AtlasGeoModel/SetGeometryVersion.py")
-include ("AtlasGeoModel/GeoModelInit.py")
+from AtlasGeoModel import GeoModelInit
 include ("LArRawConditions/LArIdMap_ATLAS_jobOptions.py")
 
 # Other LAr related 
@@ -117,7 +117,7 @@ except:
 #--------------------------------------------------------------
 # Make sure AthenaSealSvc is loaded for dict check
 #--------------------------------------------------------------
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 # Check the dictionary in memory for completeness
 AthenaSealSvc = Service( "AthenaSealSvc" )
 AthenaSealSvc.CheckDictionary = TRUE

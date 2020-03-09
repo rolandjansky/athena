@@ -54,9 +54,9 @@ if hasattr(runArgs,"jobConfig"):
         for i in runArgs.jobConfig:
           exec(i)
           
-# Filepeeker to set up truth (and more in future)
-from RecExConfig.InputFilePeeker import inputFileSummary 
-isMC = False if inputFileSummary['evt_type'][0] == 'IS_DATA'  else True
+
+from PyUtils.MetaReaderPeeker import metadata
+isMC = False if metadata['eventTypes'][0] == 'IS_DATA' else True
 
 jobConfig['autoconfparams'] = 'DetDescrVersion'
 

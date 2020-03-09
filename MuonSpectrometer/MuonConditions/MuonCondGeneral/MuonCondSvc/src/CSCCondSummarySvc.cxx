@@ -28,7 +28,6 @@ using namespace std;
 CSCCondSummarySvc::CSCCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
   m_reportingServices(name),
-  m_cscHelper(0),
   m_detStore("DetectorStore",name),
   m_noReports(true){
   //  m_reportingServices.push_back("CSC_DCSConditionsSvc");
@@ -51,13 +50,8 @@ CSCCondSummarySvc::initialize(){
     msg(MSG::INFO) << "DetectorStore service found !" << endmsg;
   } 
  
-  sc = m_detStore->retrieve(m_cscHelper, "CSCIDHELPER" );
-  if (sc.isFailure())
-    {
-      msg(MSG::FATAL) << " Cannot retrieve CscIdHelper " << endmsg;
-      return sc;
-    }
-
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  
   if(m_usesimulation) {
     
     m_reportingServices.empty(); 
@@ -133,9 +127,9 @@ bool CSCCondSummarySvc::isGoodWireLayer(const Identifier & Id) const{
   bool result=true;
   // check ID
   
-  Identifier ChamberId = m_cscHelper->elementID(Id);
+  Identifier ChamberId = m_muonIdHelperTool->cscIdHelper().elementID(Id);
   
-  // Identifier WireLayerId = m_cscIdHelper->channelID(ChamberId, 1, wirelayer,1,1);
+  // Identifier WireLayerId = m_muonIdHelperTool->cscIdHelper().channelID(ChamberId, 1, wirelayer,1,1);
      
   if (not m_noReports){
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
@@ -167,8 +161,8 @@ bool CSCCondSummarySvc::isGoodWireLayer(const Identifier & Id) const{
 bool CSCCondSummarySvc::isGood(const Identifier & Id) const{
   bool total_result = true;
 //  int counter=0;
-//  Identifier WirelayerId = m_cscHelper->multilayerID(Id);
-  Identifier ChamberId = m_cscHelper->elementID(Id);
+//  Identifier WirelayerId = m_muonIdHelperTool->cscIdHelper().multilayerID(Id);
+  Identifier ChamberId = m_muonIdHelperTool->cscIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
@@ -201,7 +195,7 @@ bool CSCCondSummarySvc::isGood(const Identifier & Id) const{
 bool CSCCondSummarySvc::isGoodChamber(const Identifier & Id) const{
   bool result=true;
   int counter =0;
-  //Identifier chamberId = m_cscHelper->elementID(Id);
+  //Identifier chamberId = m_muonIdHelperTool->cscIdHelper().elementID(Id);
    ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
     for (;svc not_eq  lastSvc;svc++){

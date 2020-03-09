@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDET_INDETBEAMSPOTFINDER_H
@@ -110,10 +110,6 @@ namespace InDet {
 
     void convertVtxTypeNames();
 
-    bool m_sortByPileup{};
-    bool m_sortByBCID{};
-    int m_pileup{};
-    
     // Parameters for vertex selection criteria
     int m_minTrackNum{};         //min Tracks in a vertex to be added
     int m_maxTrackNum{};         //max Tracks in a vertex to be added
@@ -128,23 +124,14 @@ namespace InDet {
     IInDetBeamSpotTool * cloneTool( int );
     bool passVertexSelection(const xAOD::Vertex * );    
     //For forcing a specific run number
-    bool m_useForcedRun{};
-    unsigned int m_forcedRunNumber{}, m_forcedRunRange{}; 
-    int m_lbRangeOffset{};
-
-    bool m_setLBwithViewedEvents{};
-    bool m_setLBwithAcceptedEvents{};
 
     //    bool m_groupFitsByBCID; // each bcid is fitted separately
     bool m_useFilledBCIDsOnly{}; // Only use filled BCIDs not empty ones (data)
     std::string m_fitSortingKey{};
-    bool m_groupFitsByPileup{};
 
     bool m_writeAllVertices{};
     //std::map<unsigned int,long> m_nEvents;
     //std::map<BeamSpot::ID, long> m_nEvents;
-    unsigned int m_pileupMin{};
-    unsigned int m_pileupMax{};
    
     unsigned long m_secondsPerFit{}; 
    };

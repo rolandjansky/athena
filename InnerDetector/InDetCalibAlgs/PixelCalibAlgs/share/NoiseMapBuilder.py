@@ -29,6 +29,7 @@ doValidate = False
 ## Input files
 
 collection = []
+import os
 if os.path.isfile("inputfilelist"):
   for line in open("inputfilelist"):
     collection.append(line.strip())
@@ -44,36 +45,35 @@ globalflags.DataSource = 'data'
 
 
 ## input file parameters
+from PyUtils.MetaReader import read_metadata
+inputfile = read_metadata(collection[0])
+inputfile = inputfile[collection[0]]  # promote keys stored under input filename key one level up to access them directly
 
-import PyUtils.AthFile as AthFile
-inputfile = AthFile.fopen( collection[0] )
-
-if inputfile.fileinfos['file_type'] == 'bs':
+if inputfile['file_type'] == 'BS':
   globalflags.InputFormat = 'bytestream'
-elif inputfile.fileinfos['file_type'] == 'pool':
+elif inputfile['file_type'] == 'POOL':
   globalflags.InputFormat = 'pool'
 else:
   raise RuntimeError, "Unable to read input file (format not supported)"
 
-
-if inputfile.fileinfos['file_type'] == 'pool':
-  globalflags.DetDescrVersion = inputfile.fileinfos['geometry']
+if inputfile['file_type'] == 'POOL':
+  globalflags.DetDescrVersion = inputfile['GeoAtlas']
 else:
-  globalflags.ConditionsTag = 'CONDBR2-BLKPA-2016-07' # yosuke
- # globalflags.ConditionsTag = 'CONDBR2-BLKPA-2015-10' # steffen
+  globalflags.ConditionsTag = 'CONDBR2-BLKPA-2016-07'  # yosuke
+  # globalflags.ConditionsTag = 'CONDBR2-BLKPA-2015-10' # steffen
   globalflags.DatabaseInstance = 'CONDBR2'  ######################
-  #globalflags.ConditionsTag = 'OFLCOND-RUN12-SDR-22' #
+  # globalflags.ConditionsTag = 'OFLCOND-RUN12-SDR-22' #
 
-from IOVDbSvc.CondDB import conddb;
-conddb.addOverride("/PIXEL/NoiseMapLong","PixNoiseMapLong-RUN2-DATA-UPD4-02");
-conddb.addOverride("/PIXEL/NoiseMapShort","PixNoiseMapShort-RUN2-DATA-UPD4-02");
-conddb.addOverride("/PIXEL/PixMapLong","PixMapLong-RUN2-DATA-UPD1-02");
-conddb.addOverride("/PIXEL/PixMapShort","PixMapShort-RUN2-DATA-UPD1-02");
+from IOVDbSvc.CondDB import conddb
+conddb.addOverride("/PIXEL/NoiseMapLong","PixNoiseMapLong-RUN2-DATA-UPD4-02")
+conddb.addOverride("/PIXEL/NoiseMapShort","PixNoiseMapShort-RUN2-DATA-UPD4-02")
+conddb.addOverride("/PIXEL/PixMapLong","PixMapLong-RUN2-DATA-UPD1-02")
+conddb.addOverride("/PIXEL/PixMapShort","PixMapShort-RUN2-DATA-UPD1-02")
 
-#conddb.addOverride("/PIXEL/NoiseMapLong","PixNoiseMapLong-DATA-RUN2-000-00");
-#conddb.addOverride("/PIXEL/NoiseMapShort","PixNoiseMapShort-DATA-RUN2-000-00");
-#conddb.addOverride("/PIXEL/PixMapLong","PixMapLong-DATA-RUN2-000-00");
-#conddb.addOverride("/PIXEL/PixMapShort","PixMapShort-DATA-RUN2-000-00");
+#conddb.addOverride("/PIXEL/NoiseMapLong","PixNoiseMapLong-DATA-RUN2-000-00")
+#conddb.addOverride("/PIXEL/NoiseMapShort","PixNoiseMapShort-DATA-RUN2-000-00")
+#conddb.addOverride("/PIXEL/PixMapLong","PixMapLong-DATA-RUN2-000-00")
+#conddb.addOverride("/PIXEL/PixMapShort","PixMapShort-DATA-RUN2-000-00")
 globalflags.print_JobProperties()
 
 
@@ -101,15 +101,15 @@ conddb.setGlobalTag('CONDBR2-BLKPA-2014-03') ###########
 
 include("SpecialPixelMapSvc_jobOptions.py")
 
-if not 'doValidate' in dir() :
+if 'doValidate' not in dir() :
   doValidate=False
 
-if doValidate == False :
-#  conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-DATA-RUN2-000-00');
-#  conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-DATA-RUN2-000-00');
+if doValidate is False :
+#  conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-DATA-RUN2-000-00')
+#  conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-DATA-RUN2-000-00')
 
-  conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-RUN2-DATA-UPD1-02');
-  conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-RUN2-DATA-UPD1-02');
+  conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-RUN2-DATA-UPD1-02')
+  conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-RUN2-DATA-UPD1-02')
 else :
 #  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=CONDBR2</dbConnection> /PIXEL/NoiseMapShort<tag>PixNoiseMapShort-DATA-RUN2-000-00</tag>" ]
 #  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=CONDBR2</dbConnection> /PIXEL/NoiseMapLong<tag>PixNoiseMapLong-DATA-RUN2-000-00</tag>" ]
@@ -167,7 +167,9 @@ if doClusterization :
 
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
   topSequence += InDet__PixelClusterization("PixelClusterization")
-  print topSequence.PixelClusterization
+  import logging
+  logger = logging.getLogger( 'PixelCalibAlgs' )
+  logger.info(topSequence.PixelClusterization)
 
 #
 # include pixel monitoring package
@@ -195,7 +197,9 @@ if doClusterization :
 #  PixelMainsMon=PixelMainMon()
 #  ToolSvc += PixelMainsMon
 #  monMan.AthenaMonTools += [ PixelMainsMon ]
-#  print PixelMainsMon
+#  import logging
+#  logger = logging.getLogger( 'PixelCalibAlgs' )
+#  logger.info(PixelMainsMon)
 #
 ### FileKey must match that given to THistSvc
 #  monMan.FileKey = "GLOBAL"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetDetailedTrackSelectorTool.h"
@@ -183,6 +183,8 @@ namespace InDet
   // ---------------------------------------------------------------------
   bool 
   InDetDetailedTrackSelectorTool::decision(const Trk::Track& track,const Trk::Vertex* vertex) const{
+    int nHitTrt = m_nHitTrt;
+    int nHitTrtPlusOutliers = m_nHitTrtPlusOutliers;
     const Trk::Perigee* perigeeBeforeExtrapolation=dynamic_cast<const Trk::Perigee*>(track.perigeeParameters());
     if (perigeeBeforeExtrapolation && m_usePreselectionCuts){
 	    bool preselectionDecision=preselectionBeforeExtrapolation(*perigeeBeforeExtrapolation);
@@ -269,14 +271,12 @@ namespace InDet
     }
     if (m_useTrackSummaryInfo) {
       //number of hits, silicon hits, b-layer
-      const Trk::TrackSummary* summary = 0;
       // first ask track for summary
-      summary = track.trackSummary();
+      std::unique_ptr<Trk::TrackSummary> summaryUniquePtr;
+      const Trk::TrackSummary* summary = track.trackSummary();
       if (m_trackSumToolAvailable && summary == 0) {
-        // ugly but one needs to cast the const away because the method needs to update the track (the tool is a friend of track)
-        Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
-        m_trackSumTool->updateTrack(nonConstTrack);
-        summary = nonConstTrack.trackSummary();
+        summaryUniquePtr = m_trackSumTool->summary(track);
+        summary = summaryUniquePtr.get();
       }
       if (!m_trackSumToolAvailable) {
         ATH_MSG_WARNING( " No Track Summary Tool available. This should be the case only when running on AOD" );
@@ -287,27 +287,26 @@ namespace InDet
       }
       // get the minimum nimber of TRT hits based on eta of the track
       if(m_useEtaDepententMinHitTrt) {
-        m_nHitTrt = m_trtDCTool->minNumberDCs( (*track.trackParameters())[0] );
+        nHitTrt = m_trtDCTool->minNumberDCs( (*track.trackParameters())[0] );
         if(m_addToMinHitTrt!=0){
-          m_nHitTrt += m_addToMinHitTrt;
+          nHitTrt += m_addToMinHitTrt;
         }else{
-          m_nHitTrt = (int)((double)m_nHitTrt*m_scaleMinHitTrt);
+          nHitTrt = (int)((double)nHitTrt*m_scaleMinHitTrt);
         }
       }
       // get the minimum nimber of TRT hits + outliers based on eta of the track
       if(m_useEtaDepententMinHitTrtWithOutliers) {
-        m_nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( (*track.trackParameters())[0] );
+        nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( (*track.trackParameters())[0] );
         if(m_addToMinHitTrtWithOutliers!=0){
-          m_nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
+          nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
         }else{
-          m_nHitTrtPlusOutliers = (int)((double)m_nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
+          nHitTrtPlusOutliers = (int)((double)nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
         }
       }
-      if (!decision(summary,m_useSharedHitInfo,isInTrtAcceptance, perigeeBeforeExtrapolation)) {
-        summary=0;
+      if (!decision(summary,m_useSharedHitInfo,isInTrtAcceptance, perigeeBeforeExtrapolation,
+                    nHitTrt, nHitTrtPlusOutliers)) {
         return false;
       }
-      summary=0;
     }
     return true;  
   }
@@ -315,6 +314,8 @@ namespace InDet
   // ---------------------------------------------------------------------
   bool 
   InDetDetailedTrackSelectorTool::decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const{
+    int nHitTrt = m_nHitTrt;
+    int nHitTrtPlusOutliers = m_nHitTrtPlusOutliers;
     const Trk::TrackParameters* definintParameters=&(track.definingParameters());
     const Trk::Perigee* perigeeBeforeExtrapolation=dynamic_cast<const Trk::Perigee*>(definintParameters);
     if (perigeeBeforeExtrapolation && m_usePreselectionCuts) {
@@ -348,22 +349,24 @@ namespace InDet
         return false;
       }
       if(m_useEtaDepententMinHitTrt) {
-        m_nHitTrt = m_trtDCTool->minNumberDCs( (track.trackParameters())[0] );
+        nHitTrt = m_trtDCTool->minNumberDCs( (track.trackParameters())[0] );
         if(m_addToMinHitTrt!=0){
-          m_nHitTrt += m_addToMinHitTrt;
+          nHitTrt += m_addToMinHitTrt;
         }else{
-          m_nHitTrt = (int)((double)m_nHitTrt*m_scaleMinHitTrt);
+          nHitTrt = (int)((double)nHitTrt*m_scaleMinHitTrt);
         }
       }
       if(m_useEtaDepententMinHitTrtWithOutliers) {
-        m_nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( (track.trackParameters())[0] );
+        nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( (track.trackParameters())[0] );
         if(m_addToMinHitTrtWithOutliers!=0){
-          m_nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
+          nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
         }else{
-          m_nHitTrtPlusOutliers = (int)((double)m_nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
+          nHitTrtPlusOutliers = (int)((double)nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
         }
       }
-      if ((!perigeeBeforeExtrapolation) or (!decision(summary, m_useSharedHitInfo, isInTrtAcceptance, perigeeBeforeExtrapolation))) {
+      if ((!perigeeBeforeExtrapolation) or
+          (!decision(summary, m_useSharedHitInfo, isInTrtAcceptance, perigeeBeforeExtrapolation,
+                     nHitTrt, nHitTrtPlusOutliers))) {
 	      return false;
       }      
     }
@@ -442,8 +445,10 @@ namespace InDet
 
   // ---------------------------------------------------------------------
   bool 
-  InDetDetailedTrackSelectorTool::decision(const xAOD::TrackParticle& tp,const xAOD::Vertex* vertex) const 
+  InDetDetailedTrackSelectorTool::decision(const xAOD::TrackParticle& tp,const xAOD::Vertex* vertex) const
   {
+    int nHitTrt = m_nHitTrt;
+    int nHitTrtPlusOutliers = m_nHitTrtPlusOutliers;
     
     const Trk::Perigee& perigee=tp.perigeeParameters();
     if (m_usePreselectionCuts && !preselectionBeforeExtrapolation(perigee)) {
@@ -460,19 +465,19 @@ namespace InDet
       //number of hits, silicon hits, b-layer
 
       if(m_useEtaDepententMinHitTrt) {
-        m_nHitTrt = m_trtDCTool->minNumberDCs( &perigee );
+        nHitTrt = m_trtDCTool->minNumberDCs( &perigee );
         if(m_addToMinHitTrt!=0){
-          m_nHitTrt += m_addToMinHitTrt;
+          nHitTrt += m_addToMinHitTrt;
         }else{
-          m_nHitTrt = (int)((double)m_nHitTrt*m_scaleMinHitTrt);
+          nHitTrt = (int)((double)nHitTrt*m_scaleMinHitTrt);
         }
       }
       if(m_useEtaDepententMinHitTrtWithOutliers) {
-        m_nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( &perigee );
+        nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( &perigee );
         if(m_addToMinHitTrtWithOutliers!=0){
-          m_nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
+          nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
         }else{
-          m_nHitTrtPlusOutliers = (int)((double)m_nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
+          nHitTrtPlusOutliers = (int)((double)nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
         }
       }
       int nb = getCount(tp,xAOD::numberOfInnermostPixelLayerHits );
@@ -569,14 +574,14 @@ namespace InDet
    
       if (std::fabs(tp.eta())>m_TrtMaxEtaAcceptance) {
         int nh = getCount(tp,xAOD::numberOfTRTHits);
-        if(nh < m_nHitTrt) {
-          ATH_MSG_DEBUG("Track rejected because of nHitTrt "<<nh<<" < "<<m_nHitTrt);
+        if(nh < nHitTrt) {
+          ATH_MSG_DEBUG("Track rejected because of nHitTrt "<<nh<<" < "<<nHitTrt);
           return false;
         }
 
       int nhh = getCount(tp, xAOD::numberOfTRTHits ) + getCount(tp, xAOD::numberOfTRTOutliers );
-      if (nhh<m_nHitTrtPlusOutliers) {
-        ATH_MSG_DEBUG("Track rejected because of nHitTrtPlusOutliers "<<nhh<<" < "<<m_nHitTrtPlusOutliers);
+      if (nhh<nHitTrtPlusOutliers) {
+        ATH_MSG_DEBUG("Track rejected because of nHitTrtPlusOutliers "<<nhh<<" < "<<nHitTrtPlusOutliers);
         return false;
       }
 
@@ -841,7 +846,8 @@ namespace InDet
 
   // ---------------------------------------------------------------------
   bool InDetDetailedTrackSelectorTool::decision(const Trk::TrackSummary* summary,bool useSharedHitInfo,bool useTrtHitInfo,
-						const Trk::Perigee * track) const
+						const Trk::Perigee * track,
+                                                const int nHitTrt, const int nHitTrtPlusOutliers) const
   {
     if (summary==0) {
       ATH_MSG_WARNING( "Null TrackSummary pointer passed. Selection failed." );
@@ -979,15 +985,15 @@ namespace InDet
  
       int nh = summary->get(Trk::numberOfTRTHits);
       if(nh<0) nh=0;
-      if(nh < m_nHitTrt) {
-	ATH_MSG_DEBUG("Track rejected because of nHitTrt "<<nh<<" < "<<m_nHitTrt);
+      if(nh < nHitTrt) {
+	ATH_MSG_DEBUG("Track rejected because of nHitTrt "<<nh<<" < "<<nHitTrt);
 	return false;
       }
 
       int nhh = summary->get( Trk::numberOfTRTHits ) + summary->get( Trk::numberOfTRTOutliers );
       if (nhh<0) nhh=0;
-      if (nhh<m_nHitTrtPlusOutliers) {
-	ATH_MSG_DEBUG("Track rejected because of nHitTrtPlusOutliers "<<nhh<<" < "<<m_nHitTrtPlusOutliers);
+      if (nhh<nHitTrtPlusOutliers) {
+	ATH_MSG_DEBUG("Track rejected because of nHitTrtPlusOutliers "<<nhh<<" < "<<nHitTrtPlusOutliers);
 	return false;
       }
 

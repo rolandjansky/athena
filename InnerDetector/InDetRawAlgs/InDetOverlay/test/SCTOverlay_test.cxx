@@ -42,6 +42,7 @@ namespace OverlayTesting {
     virtual void SetUp() override {
       m_alg = new SCTOverlay{"SCTOverlay", g_svcLoc};
       ASSERT_TRUE( m_alg->setProperties().isSuccess() );
+      ASSERT_TRUE( g_svcLoc->service("StoreGateSvc", m_sg) );
 
       StoreGateSvc *detStore(nullptr);
       ASSERT_TRUE( OverlayTesting::g_svcLoc->service("DetectorStore", detStore, true).isSuccess() );
@@ -59,9 +60,7 @@ namespace OverlayTesting {
     }
 
     virtual void TearDown() override {
-      StoreGateSvc *evtStore(nullptr);
-      ASSERT_TRUE( OverlayTesting::g_svcLoc->service("StoreGateSvc", evtStore, true).isSuccess() );
-      evtStore->clearStore(true);
+      ASSERT_TRUE( m_sg->clearStore(true).isSuccess() );
       ASSERT_TRUE( m_alg->finalize().isSuccess() );
       delete m_alg;
     }
@@ -75,17 +74,22 @@ namespace OverlayTesting {
       ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
       ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     }
-    SCTOverlay* m_alg;
+    SCTOverlay* m_alg{};
+    StoreGateSvc* m_sg{};
   };   // SCTOverlay_test fixture
 
 
   TEST_F(SCTOverlay_test, set_properties) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isFailure() ); //inputs don't exist
+    ASSERT_TRUE( m_alg->execute(ctx).isFailure() ); //inputs don't exist
   }
 
   TEST_F(SCTOverlay_test, empty_containers_alg_execute) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<SCT_RDO_Container> inputSigDataHandle{"StoreGateSvc+SCT_RDOs_SIG"};
     const unsigned int containerSize(1188);
     inputSigDataHandle = std::make_unique<SCT_RDO_Container>(containerSize);
@@ -94,10 +98,12 @@ namespace OverlayTesting {
 
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
   }
 
   TEST_F(SCTOverlay_test, containers_with_matching_empty_collections) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<SCT_RDO_Container> inputSigDataHandle{"StoreGateSvc+SCT_RDOs_SIG"};
     const unsigned int containerSize(1188);
     IdentifierHash sigElementHash(1);
@@ -114,7 +120,7 @@ namespace OverlayTesting {
 
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<SCT_RDO_Container> outputDataHandle{"StoreGateSvc+SCT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -124,6 +130,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(SCTOverlay_test, containers_with_different_empty_collections) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<SCT_RDO_Container> inputSigDataHandle{"StoreGateSvc+SCT_RDOs_SIG"};
     const unsigned int containerSize(1188);
     IdentifierHash sigElementHash(1);
@@ -140,7 +148,7 @@ namespace OverlayTesting {
 
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<SCT_RDO_Container> outputDataHandle{"StoreGateSvc+SCT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -153,6 +161,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(SCTOverlay_test, containers_with_matching_collections_one_with_an_RDO) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<SCT_RDO_Container> inputSigDataHandle{"StoreGateSvc+SCT_RDOs_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -178,7 +188,7 @@ namespace OverlayTesting {
 
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<SCT_RDO_Container> outputDataHandle{"StoreGateSvc+SCT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -192,6 +202,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(SCTOverlay_test, containers_with_different_collections_one_RDO_each) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<SCT_RDO_Container> inputSigDataHandle{"StoreGateSvc+SCT_RDOs_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -226,7 +238,7 @@ namespace OverlayTesting {
 
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<SCT_RDO_Container> outputDataHandle{"StoreGateSvc+SCT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -247,6 +259,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(SCTOverlay_test, containers_with_matching_collections_with_adjecent_RDOs) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<SCT_RDO_Container> inputSigDataHandle{"StoreGateSvc+SCT_RDOs_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -281,7 +295,7 @@ namespace OverlayTesting {
 
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<SCT_RDO_Container> outputDataHandle{"StoreGateSvc+SCT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -295,6 +309,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(SCTOverlay_test, containers_with_matching_collections_signal_overlapping_with_early_bkg) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<SCT_RDO_Container> inputSigDataHandle{"StoreGateSvc+SCT_RDOs_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -329,7 +345,7 @@ namespace OverlayTesting {
 
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<SCT_RDO_Container> outputDataHandle{"StoreGateSvc+SCT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -351,6 +367,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(SCTOverlay_test, containers_with_matching_collections_monkey) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<SCT_RDO_Container> inputSigDataHandle{"StoreGateSvc+SCT_RDOs_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -385,7 +403,7 @@ namespace OverlayTesting {
 
     configureSCTOverlay();
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<SCT_RDO_Container> outputDataHandle{"StoreGateSvc+SCT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );

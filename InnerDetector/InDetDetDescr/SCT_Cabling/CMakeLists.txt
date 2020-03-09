@@ -36,9 +36,9 @@ atlas_add_component( SCT_Cabling
                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps Identifier GaudiKernel StoreGateLib SGtests AthenaPoolUtilities CoraCool InDetIdentifier PathResolver SCT_CablingLib )
 
 atlas_add_test( TestSCT_CablingCfg
-                SCRIPT share/TestSCT_CablingCfg.sh
+                SCRIPT python -m SCT_Cabling.TestSCT_CablingCfg
                 PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
+                ENVIRONMENT THREADS=1 )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

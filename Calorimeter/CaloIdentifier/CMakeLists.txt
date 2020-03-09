@@ -64,98 +64,98 @@ atlas_add_executable( test_lvl1_id
 #                test/GTower_ID_test.cxx
 #                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
 #                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-#                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+#                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 #atlas_add_test( JTower_ID_test
 #                SOURCES
 #                test/JTower_ID_test.cxx
 #                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
 #                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-#                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+#                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( LArEM_ID_test
                 SOURCES
                 test/LArEM_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( LArEM_SuperCell_ID_test
                 SOURCES
                 test/LArEM_SuperCell_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( LArHEC_ID_test
                 SOURCES
                 test/LArHEC_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( LArHEC_SuperCell_ID_test
                 SOURCES
                 test/LArHEC_SuperCell_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( LArFCAL_ID_test
                 SOURCES
                 test/LArFCAL_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( LArFCAL_SuperCell_ID_test
                 SOURCES
                 test/LArFCAL_SuperCell_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( LArMiniFCAL_ID_test
                 SOURCES
                 test/LArMiniFCAL_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( TileID_test
                 SOURCES
                 test/TileID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( Tile_SuperCell_ID_test
                 SOURCES
                 test/Tile_SuperCell_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( CaloCell_ID_test
                 SOURCES
                 test/CaloCell_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( CaloCell_SuperCell_ID_test
                 SOURCES
                 test/CaloCell_SuperCell_ID_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( CaloIDHelper_test
                 SOURCES
                 test/CaloIDHelper_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
-                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( CaloHelpersTest_test
                 SOURCES

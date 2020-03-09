@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IAuxStore.h 793731 2017-01-24 19:41:13Z ssnyder $
@@ -175,6 +175,18 @@ public:
    */
   virtual bool setOption (auxid_t /*auxid*/, const AuxDataOption& /*option*/)
   { return false; }
+
+
+  /// Mark that this type supports thinning operations.
+  /// See AthContainers/supportsThinning.h and
+  /// AthenaPoolCnvSvc/T_AthenaPoolCnv.h.
+  /// Helps guide which pool converter template will be used.
+  /// If false, the default pool converter will be used
+  /// rather than the aux store-specific one.
+  /// Ordinary xAOD type should not touch this, but
+  /// may be overridden in a derived class to handle
+  /// certain special cases.
+  static constexpr bool supportsThinning = true;
 };
 
 

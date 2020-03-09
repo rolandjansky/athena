@@ -23,6 +23,7 @@
   <class name="DataLink<SG::IConstAuxStore>" />
   <class name="SG::IAuxStoreIO"/>
   <class name="SG::IAuxStoreHolder"/>
+  <class name="SG::IAuxStoreCompression"/>
   <class name="SG::IAuxTypeVectorFactory"/>
   <class name="SG::AuxStoreInternal" id="77039D3D-4E24-46C1-B5D1-9AD5F17D3B09">
     <field name="m_vecs" transient="true"/>
@@ -49,6 +50,8 @@
   </read>
 
   <class name="SG::AuxElement::TypelessConstAccessor"/>
+
+  <class name="SG::ThinningDecision"/>
 
   <class name="SG::AuxElement::ConstAccessor<char>"/>
   <class name="SG::AuxElement::ConstAccessor<unsigned char>"/>

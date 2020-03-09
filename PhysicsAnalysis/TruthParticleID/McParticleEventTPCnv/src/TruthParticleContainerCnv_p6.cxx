@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthParticleContainerCnv_p6.cxx 
@@ -22,12 +22,8 @@
 #include "McParticleKernel/ITruthParticleCnvTool.h"
 
 // McParticleEvent includes
-#define private public
-#define protected public
 #include "McParticleEvent/TruthParticle.h"
 #include "McParticleEvent/TruthParticleContainer.h"
-#undef private
-#undef protected
 #include "McParticleEvent/TruthEtIsolationsContainer.h"
 
 // McParticleEventTPCnv includes
@@ -35,24 +31,11 @@
 
 #include "McParticleEvent/PileUpClassification.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers, 
 					   TruthParticleContainer* trans, 
-					   MsgStream& msg ) 
+					   MsgStream& msg ) const
 {
   msg << MSG::DEBUG 
       << "Loading TruthParticleContainer from persistent state..."
@@ -68,11 +51,13 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
   }
 
   // convert the ElementLink<McEventCollection>
+  ElementLink<McEventCollection> genEventEL;
   m_genEvtCnv.persToTrans( &pers->m_genEvent, 
-			   &trans->m_genEvent, 
+			   &genEventEL,
 			   msg );
+  trans->setGenEvent (genEventEL);
 
-  const McEventCollection* evt = trans->m_genEvent.getStorableObjectPointer();
+  const McEventCollection* evt = trans->genEventLink().getStorableObjectPointer();
   if ( 0 == evt ) {
     const std::string error("NULL pointer to McEventCollection !!");
     msg << MSG::ERROR << error
@@ -94,7 +79,7 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
                               trans ).isSuccess() ) {
       msg << MSG::ERROR
           << "Problem converting HepMC::GenEvent ["
-          << trans->m_genEvent.dataID()      << "][" 
+          << trans->genEventLink().dataID()      << "][" 
           << firstEvt << "]"
           << " to TruthParticleContainer !"
           << endmsg;
@@ -102,7 +87,7 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
     }
   }
 
-  if ( !trans->m_genEvent.isValid() ) {
+  if ( !trans->genEventLink().isValid() ) {
     const std::string err = "ElementLink to McEventCollection is not valid !";
     msg << MSG::ERROR << err << endmsg;
     throw std::runtime_error(err);
@@ -110,9 +95,11 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
 
   // convert the ElementLink<TruthEtIsolationsContainer>
   // this needs to be done *AFTER* the GenEvent->TPContainer conversion !!
+  ElementLink<TruthEtIsolationsContainer> etIsolEL;
   m_etIsolCnv.persToTrans( &pers->m_etIsolations, 
-			   &trans->m_etIsolations, 
+			   &etIsolEL,
 			   msg );
+  trans->setEtIsolations (etIsolEL);
 
   msg << MSG::DEBUG 
       << "Loaded TruthParticleContainer from persistent state [OK]"
@@ -123,45 +110,30 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
 void 
 TruthParticleContainerCnv_p6::transToPers( const TruthParticleContainer* trans,
 					   TruthParticleContainer_p6* pers, 
-					   MsgStream& msg ) 
+					   MsgStream& msg ) const
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of TruthParticleContainer..."
       << endmsg;
 
   // convert the ElementLink<McEventCollection>
-  m_genEvtCnv.transToPers( &trans->m_genEvent, 
+  m_genEvtCnv.transToPers( &trans->genEventLink(), 
                            &pers->m_genEvent, 
                            msg );
 
-  if ( !trans->m_genEvent.isValid() ) {
+  if ( !trans->genEventLink().isValid() ) {
     msg << MSG::WARNING
         << "Transient ElementLink is NOT valid !!" << endmsg;
   }
 
   // convert the ElementLink<TruthEtIsolationsContainer>
-  m_etIsolCnv.transToPers( &trans->m_etIsolations, 
+  m_etIsolCnv.transToPers( &trans->etIsolationsLink(), 
                            &pers->m_etIsolations, 
                            msg );
 
   return;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 
 

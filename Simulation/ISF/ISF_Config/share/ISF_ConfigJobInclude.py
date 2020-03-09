@@ -45,8 +45,8 @@ globalflags.Luminosity.set_Off()
 # --- set SimLayout (synchronised to globalflags)
 from G4AtlasApps.SimFlags import simFlags
 if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
-    print "ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!"
-    print "Please correct your job options."
+    printfunc ("ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!")
+    printfunc ("Please correct your job options.")
     # TODO: theApp.exit(1)?
     import sys
     sys.exit(1)
@@ -113,7 +113,7 @@ elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
 # non of the above
 
 elif not athenaCommonFlags.PoolEvgenInput.statusOn:
-    print "ISF Input Configuration: PoolEvgenInput off, likely running with a particle gun preInclude"
+    printfunc ("ISF Input Configuration: PoolEvgenInput off, likely running with a particle gun preInclude")
 # non of the above -> input via ISF_Flags
 else :
     if ISF_Flags.OverrideInputFiles():
@@ -121,6 +121,15 @@ else :
     getAlgorithm('ISF_Input_GenericFiles')
 
 from ISF_Example.ISF_Input import ISF_Input
+
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+if nThreads > 0:
+    from GaudiHive.GaudiHiveConf import ThreadPoolSvc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'ThreadPoolSvc'):
+        svcMgr+=ThreadPoolSvc("ThreadPoolSvc")
+    svcMgr.ThreadPoolSvc.ThreadInitTools+=["G4ThreadInitTool"]
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg")
@@ -208,4 +217,4 @@ if ISF_Flags.RunValgrind() :
     ServiceMgr += valgrindSvc
 
 # useful for debugging:
-print topSequence
+printfunc (topSequence)

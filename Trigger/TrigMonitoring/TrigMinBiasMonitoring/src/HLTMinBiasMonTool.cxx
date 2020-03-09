@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTMinBiasMonTool.cxx
@@ -209,7 +209,6 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
 	declareProperty("CollectiveHistogramForAlgorithm", m_collectiveHistogramForAlgorithm);
 
 	//Additional initialization for non-static members found by Coverity
-	m_detStore = 0;
 	m_ZdcID = 0;
 	declareProperty("MBTS_countsBothSides", m_mbtsCountsBothSides);
 	declareProperty("pixSpBarr",	m_pixSpBarr = 0);
@@ -227,25 +226,13 @@ StatusCode HLTMinBiasMonTool::init()
 {
     StatusCode sc;
 
-	/*sc = service("StoreGateSvc", m_storeGate);
-	if (sc.isFailure()) {
-		ATH_MSG_FATAL("Unable to locate Service StoreGateSvc");
-		return sc;
-	}*/
-
-	sc = service("DetectorStore", m_detStore);
-	if (sc.isFailure()) {
-		(*m_log) << MSG::ERROR << "Unable to get pointer to DetectorStore Service" << endmsg;
-		return sc;
-	}
-	
-	sc = m_detStore->retrieve(m_tileTBID);
+	sc = detStore()->retrieve(m_tileTBID);
 	if (sc.isFailure()) {
 		(*m_log) << MSG::ERROR << "Unable to retrieve TileTBID helper from DetectorStore" << endmsg;
 		return sc;
 	}
 	
-	sc = m_detStore->retrieve(m_ZdcID);
+	sc = detStore()->retrieve(m_ZdcID);
 	if (sc.isFailure()) {
 		(*m_log) << MSG::ERROR << "Unable to retrieve ZdcID helper from DetectorStore" << endmsg;
 		return sc;

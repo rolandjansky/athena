@@ -45,7 +45,7 @@ class sTGCRDOVariables : public ValAlgVariables
   ~sTGCRDOVariables() override final { deleteVariables(); }
 
   StatusCode initializeVariables() override final;
-  StatusCode fillVariables() override final;
+  StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) override final;
 
  private:
 

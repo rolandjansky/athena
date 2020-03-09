@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigSteering.TrigSteeringConf import *
 from TrigNavigation.TrigNavigationConfig import *
@@ -31,12 +31,12 @@ class RandomScaler( HLT__RandomScaler ):
         # Remove previous stream definitions
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr        
         if oldJobOptName:
-            svcMgr.AtRanluxGenSvc.Seeds = filter(lambda s:s.startswith(oldJobOptName+' ')==False,
-                                                 svcMgr.AtRanluxGenSvc.Seeds)
+            svcMgr.AtRanluxGenSvc.Seeds = list(filter(lambda s:s.startswith(oldJobOptName+' ')==False,
+                                                      svcMgr.AtRanluxGenSvc.Seeds))
         
         stream = self.getJobOptName()
-        svcMgr.AtRanluxGenSvc.Seeds = filter(lambda s:s.startswith(stream+' ')==False,
-                                             svcMgr.AtRanluxGenSvc.Seeds)
+        svcMgr.AtRanluxGenSvc.Seeds = list(filter(lambda s:s.startswith(stream+' ')==False,
+                                                  svcMgr.AtRanluxGenSvc.Seeds))
 
         # Add updated definition
         if luxury==None:  # This is also for backwards compatibility with AtRanLuxGenSvc
@@ -238,12 +238,12 @@ def getConfigurableByConfigName(alg):
     longname = alg
     #    print Configurable.allConfigurables.keys()
     #    print "longname = ", longname
-    if Configurable.allConfigurables.has_key(longname):
+    if longname in Configurable.allConfigurables:
         return Configurable.allConfigurables[longname]
 
     shortname = alg.split('/')[1]
     #    print "shortname = ", shortname
-    if Configurable.allConfigurables.has_key(shortname):
+    if shortname in Configurable.allConfigurables:
         return Configurable.allConfigurables[shortname]
 
     return None

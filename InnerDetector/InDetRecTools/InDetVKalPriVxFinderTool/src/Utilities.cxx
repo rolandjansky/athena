@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -280,7 +280,7 @@ namespace InDet {
     }
     Amg::Vector3D Vertex(0.,0.,0.);
     if(cnt>=2){
-      StatusCode sc=m_fitSvc->VKalVrtFitFast(SelectedTracks,Vertex);
+      StatusCode sc=m_fitSvc->VKalVrtFitFast(SelectedTracks,Vertex,*m_fitSvc->makeState());
       if(sc.isFailure()) Vertex<<0.,0.,0.;
     }
     return Vertex;
@@ -317,7 +317,7 @@ namespace InDet {
     }
     Amg::Vector3D Vertex(0.,0.,0.);
     if(cnt>=2){
-      StatusCode sc= m_fitSvc->VKalVrtFitFast(SelectedTrackParticles,Vertex);
+      StatusCode sc= m_fitSvc->VKalVrtFitFast(SelectedTrackParticles,Vertex,*m_fitSvc->makeState());
       if(sc.isFailure())Vertex<<0.,0.,0.;
     }
     return Vertex;

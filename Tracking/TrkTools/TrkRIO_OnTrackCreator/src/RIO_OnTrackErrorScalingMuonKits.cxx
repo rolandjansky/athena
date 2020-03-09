@@ -29,7 +29,7 @@ public:
     return MuonEtaPhiRIO_OnTrackErrorScaling::kNParamTypes;
   }
   virtual const char* const* paramNames()  const override {
-    return const_cast<const char* const*>(m_names);
+    return m_names;
   }
 private:
   char **m_names;
@@ -55,7 +55,7 @@ public:
 
 namespace {
   // register all kits with the help of a dummy function which sets a global anonymous bool
-  bool registered = ( []() -> bool {
+  bool registered = ( [] () ATLAS_NOT_THREAD_SAFE -> bool {
     return
          RIO_OnTrackErrorScalingKitManager::instance().registerKit("RPCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("RPC"))
       && RIO_OnTrackErrorScalingKitManager::instance().registerKit("TGCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("TGC"))

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -26,19 +26,11 @@ def getCscRange(name="CscRange", **kwargs):
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
 
-def getCscDigitizationTool(name="CscDigitizationTool", **kwargs):
+def getCscDigitizationToolBase(name, **kwargs):
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the CSC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", CSC_FirstXing() ) 
         kwargs.setdefault("LastXing",  CSC_LastXing() ) 
-
-    kwargs.setdefault("InputObjectName", "CSC_Hits")
-    kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
-    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        kwargs.setdefault("CSCSimDataCollectionOutputName", overlayFlags.bkgPrefix() + "CSC_SDO")
-    else:
-        kwargs.setdefault("CSCSimDataCollectionOutputName", "CSC_SDO")
 
     kwargs.setdefault("pedestal", 0.0) 	 
     kwargs.setdefault("WindowLowerOffset", -25.0) #-50.0,	 
@@ -51,14 +43,40 @@ def getCscDigitizationTool(name="CscDigitizationTool", **kwargs):
 
     return CfgMgr.CscDigitizationTool(name, **kwargs)
 
+
+def getCscDigitizationTool(name="CscDigitizationTool", **kwargs):
+    kwargs.setdefault("InputObjectName", "CSC_Hits")
+    kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
+    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("CSCSimDataCollectionOutputName", overlayFlags.bkgPrefix() + "CSC_SDO")
+    else:
+        kwargs.setdefault("CSCSimDataCollectionOutputName", "CSC_SDO")
+    return getCscDigitizationToolBase(name, **kwargs)
+
+
 def getCscOverlayDigitizationTool(name="CscOverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+CSC_DIGITS")
-    if not overlayFlags.isDataOverlay():
-        kwargs.setdefault("CSCSimDataCollectionOutputName",overlayFlags.evtStore()+"+CSC_SDO")
-    return CfgMgr.CscDigitizationTool(name,**kwargs)
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "CSC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("CSCSimDataCollectionOutputName", overlayFlags.sigPrefix() + "CSC_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() +  "+CSC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("CSCSimDataCollectionOutputName", overlayFlags.evtStore() + "+CSC_SDO")
+    return getCscDigitizationToolBase(name, **kwargs)
+
 
 def getCscOverlayDigitBuilder(name="CscOverlayDigitBuilder", **kwargs):
     kwargs.setdefault("DigitizationTool","CscOverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
+
     return CfgMgr.CscDigitBuilder(name,**kwargs)

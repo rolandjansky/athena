@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -19,36 +19,9 @@
 
 
 namespace {
-#if 0
-  inline double sgn(const double value) {
-    return value/fabs(value);
-  }
-  inline double square(const double tosquare) {
-    return std::pow(tosquare,2);
-  }
-#endif
-  //inline double getphipoca(const Trk::Perigee & myPerigee) {
-  //  return myPerigee.parameters()[Trk::d0]>=0 ? myPerigee.parameters()[Trk::phi0]+M_PI/2. :
-  //    myPerigee.parameters()[Trk::phi0]-M_PI/2.;
-  //}
   inline double getRadiusOfCurvature(const Trk::Perigee & myPerigee,const double Bzfield) {
     return sin(myPerigee.parameters()[Trk::theta])/(Bzfield*myPerigee.parameters()[Trk::qOverP]);
   }
-#if 0
-  inline const Amg::Vector3D getCenterOfCurvature(const Trk::Perigee & myPerigee,const double RadiusOfCurvature,const double phipoca) {
-    return Amg::Vector3D(myPerigee.associatedSurface().center().x()-RadiusOfCurvature*cos(phipoca),
-			 myPerigee.associatedSurface().center().y()-RadiusOfCurvature*sin(phipoca),
-			 myPerigee.associatedSurface().center().z()+RadiusOfCurvature*
-			 myPerigee.parameters()[Trk::phi0]/tan(myPerigee.parameters()[Trk::theta]));
-  }
-#endif
-  //  inline const Amg::Vector3D getSeedPoint(const Trk::Perigee & myPerigee,const Amg::Vector3D & center,
-  //					      const double radius,const double newphi) {
-  // short int sgnd0=(short int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
-  //return Amg::Vector3D(center.x()+radius*cos(newphi),
-  //		         center.y()+radius*sin(newphi),
-  //		         center.z()-radius*(newphi-sgnd0*M_PI/2.)/tan(myPerigee.parameters()[Trk::theta]));
-  //}
 }
 
 namespace Trk
@@ -69,48 +42,37 @@ namespace Trk
 
   StatusCode NewtonTrkDistanceFinder::initialize() 
   { 
-
-    StatusCode s = AlgTool::initialize();
-    if (s.isFailure() )
-    {
-      msg(MSG::FATAL) << "AlgTool::initialize() initialize failed!" << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-    if (m_magFieldSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not find magnetic field service." << endmsg;
-      return StatusCode::FAILURE;
-    }
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+    ATH_CHECK( AlgTool::initialize() );
+    ATH_CHECK( m_magFieldSvc.retrieve() );
+    ATH_MSG_DEBUG( "Initialize successful" );
     return StatusCode::SUCCESS;
   }
   StatusCode NewtonTrkDistanceFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
+    ATH_MSG_DEBUG( "Finalize successful" );
     return StatusCode::SUCCESS;
   }
 
-const TwoPointOnTrack NewtonTrkDistanceFinder::GetClosestPoints(const PointOnTrack & firsttrack,const PointOnTrack & secondtrack) {
-
-  
+const TwoPoints
+NewtonTrkDistanceFinder::GetClosestPoints (const PointOnTrack & firsttrack,
+                                           const PointOnTrack & secondtrack) const
+{
   //Now the direction of momentum at point of closest approach (but only direction, not versus)
-  m_a_phi0=firsttrack.getPerigee().parameters()[Trk::phi0];
-  m_a_cosphi0=-sin(m_a_phi0);//do i need it?
-  m_a_sinphi0=cos(m_a_phi0);//~?
+  const double a_phi0    = firsttrack.getPerigee().parameters()[Trk::phi0];
+  const double a_cosphi0 = -sin(a_phi0);//do i need it?
+  const double a_sinphi0 =  cos(a_phi0);//~?
   
   //Now initialize the variable you need to go on
-  m_a_x0=firsttrack.getPerigee().associatedSurface().center().x()+
-    firsttrack.getPerigee().parameters()[Trk::d0]*m_a_cosphi0;
-  m_a_y0=firsttrack.getPerigee().associatedSurface().center().y()+
-    firsttrack.getPerigee().parameters()[Trk::d0]*m_a_sinphi0;
-  m_a_z0=firsttrack.getPerigee().associatedSurface().center().z()+firsttrack.getPerigee().parameters()[Trk::z0];
+  const double a_x0=firsttrack.getPerigee().associatedSurface().center().x() +
+    firsttrack.getPerigee().parameters()[Trk::d0]*a_cosphi0;
+  const double a_y0=firsttrack.getPerigee().associatedSurface().center().y() +
+    firsttrack.getPerigee().parameters()[Trk::d0]*a_sinphi0;
+  const double a_z0=firsttrack.getPerigee().associatedSurface().center().z() +
+    firsttrack.getPerigee().parameters()[Trk::z0];
 
 #ifdef TrkDistance_DEBUG
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_a_x0 " << m_a_x0 << " m_a_y0 " << m_a_y0 << " m_a_z0 " << m_a_z0 << endmsg;
-#endif
-
-#ifdef TrkDistance_DEBUG
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_a_phi0 " << m_a_phi0 << endmsg;
+  ATH_MSG_DEBUG( "a_x0 " << a_x0 << " a_y0 " << a_y0 << " a_z0 " << a_z0 );
+  ATH_MSG_DEBUG( "m_a_phi0 " << a_phi0 );
 #endif
 
   double magnFieldVect[3];
@@ -122,36 +84,33 @@ const TwoPointOnTrack NewtonTrkDistanceFinder::GetClosestPoints(const PointOnTra
 
   
   //Magnetic field at (x0,y0,z0)
-  m_a_Bz=magnFieldVect[2]*299.792;//B field in Gev/mm
-  //EvaluateMagneticField(m_a_x0,b_y0,b_z0);  
+  const double a_Bz=magnFieldVect[2]*299.792;//B field in Gev/mm
+  //EvaluateMagneticField(a_x0,b_y0,b_z0);  
 
-  m_a_Rt=getRadiusOfCurvature(firsttrack.getPerigee(),m_a_Bz);
-  m_a_cotantheta=1./tan(firsttrack.getPerigee().parameters()[Trk::theta]);
+  const double a_Rt = getRadiusOfCurvature(firsttrack.getPerigee(),a_Bz);
+  const double a_cotantheta = 1./tan(firsttrack.getPerigee().parameters()[Trk::theta]);
   
 #ifdef TrkDistance_DEBUG
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_a_Rt" << m_a_Rt << " m_a_cotantheta " << m_a_cotantheta << endmsg;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Magnetic field at perigee is " << m_a_Bz << "GeV/mm " << endmsg;
+  ATH_MSG_DEBUG( "a_Rt" << a_Rt << " a_cotantheta " << a_cotantheta );
+  ATH_MSG_DEBUG( "Magnetic field at perigee is " << a_Bz << "GeV/mm " );
 #endif
 
   //Now the direction of momentum at point of closest approach (but only direction, not versus)
-  m_b_phi0=secondtrack.getPerigee().parameters()[Trk::phi0];
-  m_b_cosphi0=-sin(m_b_phi0);//do i need it?
-  m_b_sinphi0=cos(m_b_phi0);//~?
+  const double b_phi0    =  secondtrack.getPerigee().parameters()[Trk::phi0];
+  const double b_cosphi0 = -sin(b_phi0);//do i need it?
+  const double b_sinphi0 =  cos(b_phi0);//~?
   
   //Now initialize the variable you need to go on
-  m_b_x0=secondtrack.getPerigee().associatedSurface().center().x()+
-    secondtrack.getPerigee().parameters()[Trk::d0]*m_b_cosphi0;
-  m_b_y0=secondtrack.getPerigee().associatedSurface().center().y()+
-    secondtrack.getPerigee().parameters()[Trk::d0]*m_b_sinphi0;
-  m_b_z0=secondtrack.getPerigee().associatedSurface().center().z()+
+  const double b_x0=secondtrack.getPerigee().associatedSurface().center().x() +
+    secondtrack.getPerigee().parameters()[Trk::d0]*b_cosphi0;
+  const double b_y0=secondtrack.getPerigee().associatedSurface().center().y() +
+    secondtrack.getPerigee().parameters()[Trk::d0]*b_sinphi0;
+  const double b_z0=secondtrack.getPerigee().associatedSurface().center().z() +
     secondtrack.getPerigee().parameters()[Trk::z0];
   
 #ifdef TrkDistance_DEBUG
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "b_x0 " << m_b_x0 << " m_b_y0 " << m_b_y0 << " m_b_z0 " << m_b_z0 << endmsg;
-#endif
-
-#ifdef TrkDistance_DEBUG
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "b_phi0 " << m_b_phi0 << endmsg;
+  ATH_MSG_DEBUG( "b_x0 " << b_x0 << " b_y0 " << b_y0 << " b_z0 " << b_z0 );
+  ATH_MSG_DEBUG( "b_phi0 " << b_phi0 );
 #endif
 
 
@@ -161,26 +120,26 @@ const TwoPointOnTrack NewtonTrkDistanceFinder::GetClosestPoints(const PointOnTra
   m_magFieldSvc->getField(posXYZ,magnFieldVect);
   
   //Magnetic field at (x0,y0,z0)
-  m_b_Bz=magnFieldVect[2]*299.792;//B field in Gev/mm - for the moment use a constant field offline
+  const double b_Bz = magnFieldVect[2]*299.792;//B field in Gev/mm - for the moment use a constant field offline
   //use the right value expressed in GeV
   //EvaluateMagneticField(b_x0,b_y0,b_z0);
 
-  m_b_Rt=getRadiusOfCurvature(secondtrack.getPerigee(),m_b_Bz);
-  m_b_cotantheta=1./tan(secondtrack.getPerigee().parameters()[Trk::theta]);
+  const double b_Rt = getRadiusOfCurvature(secondtrack.getPerigee(),b_Bz);
+  const double b_cotantheta = 1./tan(secondtrack.getPerigee().parameters()[Trk::theta]);
   
 #ifdef TrkDistance_DEBUG
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "b_Rt" << m_b_Rt << " m_b_cotantheta " << m_b_cotantheta << endmsg;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Magnetic field at perigee is " << m_b_Bz << " GeV/mm " << endmsg;
+  ATH_MSG_DEBUG( "b_Rt" << b_Rt << " b_cotantheta " << b_cotantheta );
+  ATH_MSG_DEBUG( "Magnetic field at perigee is " << b_Bz << " GeV/mm " );
 #endif
 
 
   //Now prepare some more elaborate pieces for later
-  m_ab_Dx0=m_a_x0-m_b_x0-m_a_Rt*m_a_cosphi0+m_b_Rt*m_b_cosphi0;
-  m_ab_Dy0=m_a_y0-m_b_y0-m_a_Rt*m_a_sinphi0+m_b_Rt*m_b_sinphi0;
-  m_ab_Dz0=m_a_z0-m_b_z0+m_a_Rt*m_a_cotantheta*m_a_phi0-m_b_Rt*m_b_cotantheta*m_b_phi0;
+  const double ab_Dx0 = a_x0-b_x0-a_Rt*a_cosphi0+b_Rt*b_cosphi0;
+  const double ab_Dy0 = a_y0-b_y0-a_Rt*a_sinphi0+b_Rt*b_sinphi0;
+  const double ab_Dz0 = a_z0-b_z0+a_Rt*a_cotantheta*a_phi0-b_Rt*b_cotantheta*b_phi0;
 
 #ifdef TrkDistance_DEBUG
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_ab_Dx0 " << m_ab_Dx0 << " m_ab_Dy0 " << m_ab_Dy0 << " m_ab_Dz0 " << m_ab_Dz0 << endmsg;
+  ATH_MSG_DEBUG( "ab_Dx0 " << ab_Dx0 << " ab_Dy0 " << ab_Dy0 << " ab_Dz0 " << ab_Dz0 );
 #endif
  
 
@@ -188,160 +147,134 @@ const TwoPointOnTrack NewtonTrkDistanceFinder::GetClosestPoints(const PointOnTra
   //If you don't specify any point the default will be the point of closest approach!!
   //Another subroutine will be implemented if you want to use 
   //a certain seed
-  m_a_phi=firsttrack.getPhiPoint();//this has to be corrected as soon as you adjust the Trk2dDistanceSeeder...
-  m_b_phi=secondtrack.getPhiPoint();
+  double a_phi = firsttrack.getPhiPoint();//this has to be corrected as soon as you adjust the Trk2dDistanceSeeder...
+  double b_phi = secondtrack.getPhiPoint();
 
   //store cos and sin of phi
-  m_a_cosphi=-sin(m_a_phi);
-  m_a_sinphi=cos(m_a_phi);
-  m_b_cosphi=-sin(m_b_phi);
-  m_b_sinphi=cos(m_b_phi);
+  double a_cosphi = -sin(a_phi);
+  double a_sinphi =  cos(a_phi);
+  double b_cosphi = -sin(b_phi);
+  double b_sinphi =  cos(b_phi);
   
 
 #ifdef TrkDistance_DEBUG
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beginning phi is m_a_phi: " << m_a_phi << " m_b_phi " << m_b_phi << endmsg;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LOOP number 0" << endmsg;
+  ATH_MSG_DEBUG( "Beginning phi is a_phi: " << a_phi << " b_phi " << b_phi );
+  ATH_MSG_DEBUG( "LOOP number 0" );
 #endif
 
 
-  m_deltaa_phi=0.;
-  m_deltab_phi=0.;
-
-  m_loopsnumber=0;
+  int loopsnumber = 0;
   
   bool isok=false;
 
   while (!isok) {
 
-  #ifdef TrkDistance_DEBUG
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Entered LOOP number: " << m_loopsnumber << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "actual value of m_a_phi: " << m_a_phi << " of m_b_phi " << m_b_phi << endmsg;
+#ifdef TrkDistance_DEBUG
+    ATH_MSG_DEBUG( "Entered LOOP number: " << loopsnumber );
+    ATH_MSG_DEBUG( "actual value of a_phi: " << a_phi << " of b_phi " << b_phi );
 #endif
     
     
     //count the loop number
-    m_loopsnumber+=1;
+    ++loopsnumber;
     
     
 #ifdef TrkDistance_DEBUG
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "First point x: " << GetClosestPoints().first.x()  
-	<< "y: " << GetClosestPoints().first.y()  
-	<< "z: " << GetClosestPoints().first.z() << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Second point x: " << GetClosestPoints().second.x()  
-	<< "y: " << GetClosestPoints().second.y()  
-	<< "z: " << GetClosestPoints().second.z() << endmsg;
+    ATH_MSG_DEBUG( "First point x: " << GetClosestPoints().first.x()  
+                   << "y: " << GetClosestPoints().first.y()  
+                   << "z: " << GetClosestPoints().first.z() );
+    ATH_MSG_DEBUG( << "Second point x: " << GetClosestPoints().second.x()  
+                   << "y: " << GetClosestPoints().second.y()  
+                   << "z: " << GetClosestPoints().second.z() );
     
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ActualDistance: " << GetDistance() << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "real Dx0 " << m_ab_Dx0+m_a_Rt*m_a_cosphi-m_b_Rt*m_b_cosphi << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "real Dy0 " << m_ab_Dy0+m_a_Rt*m_a_sinphi-m_b_Rt*m_b_sinphi << endmsg;
+    ATH_MSG_DEBUG( "ActualDistance: " << GetDistance() );
+    ATH_MSG_DEBUG( "real Dx0 " << ab_Dx0+a_Rt*a_cosphi-b_Rt*b_cosphi );
+    ATH_MSG_DEBUG( "real Dy0 " << ab_Dy0+a_Rt*a_sinphi-b_Rt*b_sinphi );
 #endif
     
     //I remove the factor two from the formula
-    m_d1da_phi=(m_ab_Dx0-m_b_Rt*m_b_cosphi)*(-m_a_Rt*m_a_sinphi)+
-      (m_ab_Dy0-m_b_Rt*m_b_sinphi)*m_a_cosphi*m_a_Rt+
-      (m_ab_Dz0-m_a_Rt*m_a_cotantheta*m_a_phi+m_b_Rt*m_b_cotantheta*m_b_phi)*(-m_a_Rt*m_a_cotantheta);
+    const double d1da_phi =
+      (ab_Dx0-b_Rt*b_cosphi)*(-a_Rt*a_sinphi)+
+      (ab_Dy0-b_Rt*b_sinphi)*a_cosphi*a_Rt+
+      (ab_Dz0-a_Rt*a_cotantheta*a_phi+b_Rt*b_cotantheta*b_phi)*(-a_Rt*a_cotantheta);
     
     
     //same for second deriv respective to phi
-    m_d1db_phi=(m_ab_Dx0+m_a_Rt*m_a_cosphi)*m_b_Rt*m_b_sinphi-//attention!MINUS here
-      (m_ab_Dy0+m_a_Rt*m_a_sinphi)*m_b_cosphi*m_b_Rt+
-      (m_ab_Dz0-m_a_Rt*m_a_cotantheta*m_a_phi+m_b_Rt*m_b_cotantheta*m_b_phi)*(+m_b_Rt*m_b_cotantheta);
+    const double d1db_phi =
+      (ab_Dx0+a_Rt*a_cosphi)*b_Rt*b_sinphi-//attention!MINUS here
+      (ab_Dy0+a_Rt*a_sinphi)*b_cosphi*b_Rt+
+      (ab_Dz0-a_Rt*a_cotantheta*a_phi+b_Rt*b_cotantheta*b_phi)*(+b_Rt*b_cotantheta);
     
     //second derivatives (d^2/d^2(a) d^2/d^2(b) d^2/d(a)d(b) )
 
-    m_d2da_phi2=(m_ab_Dx0-m_b_Rt*m_b_cosphi)*(-m_a_Rt*m_a_cosphi)+
-      (m_ab_Dy0-m_b_Rt*m_b_sinphi)*(-m_a_Rt*m_a_sinphi)+
-      +m_a_Rt*m_a_Rt*(m_a_cotantheta*m_a_cotantheta);
+    const double d2da_phi2 =
+      (ab_Dx0-b_Rt*b_cosphi)*(-a_Rt*a_cosphi)+
+      (ab_Dy0-b_Rt*b_sinphi)*(-a_Rt*a_sinphi)+
+      +a_Rt*a_Rt*(a_cotantheta*a_cotantheta);
+
+    const double d2db_phi2 =
+      (ab_Dx0+a_Rt*a_cosphi)*(+b_Rt*b_cosphi)+
+      (ab_Dy0+a_Rt*a_sinphi)*(+b_Rt*b_sinphi)+
+      +b_Rt*b_Rt*(b_cotantheta*b_cotantheta);
 
 
+    const double d2da_phib_phi = -a_Rt*b_Rt*(a_sinphi*b_sinphi+a_cosphi*b_cosphi+a_cotantheta*b_cotantheta);
 
-    m_d2db_phi2=(m_ab_Dx0+m_a_Rt*m_a_cosphi)*(+m_b_Rt*m_b_cosphi)+
-      (m_ab_Dy0+m_a_Rt*m_a_sinphi)*(+m_b_Rt*m_b_sinphi)+
-      +m_b_Rt*m_b_Rt*(m_b_cotantheta*m_b_cotantheta);
+    //Calculate the determinant of the Jacobian
 
-
-    m_d2da_phib_phi=-m_a_Rt*m_b_Rt*(m_a_sinphi*m_b_sinphi+m_a_cosphi*m_b_cosphi+m_a_cotantheta*m_b_cotantheta);
-
-    //Calculate the determinant of the jakobian
-
-    m_det=m_d2da_phi2*m_d2db_phi2-m_d2da_phib_phi*m_d2da_phib_phi;
-
+    const double det = d2da_phi2*d2db_phi2-d2da_phib_phi*d2da_phib_phi;
 
 
 #ifdef TrkDistance_DEBUG
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_d1da_phi " << m_d1da_phi << " m_d1db_phi " << m_d1db_phi << " m_d2da_phi2 " << m_d2da_phi2 << " m_d2db_phi2 " << m_d2db_phi2 
-	<< " m_d2da_phib_phi " << m_d2da_phib_phi << " det " << m_det << endmsg;
+    ATH_MSG_DEBUG( "d1da_phi " << d1da_phi << " d1db_phi " << d1db_phi << " d2da_phi2 " << d2da_phi2 << " d2db_phi2 " << d2db_phi2 
+                   << " d2da_phib_phi " << d2da_phib_phi << " det " << det );
 #endif
     
     //if the quadratic form is defined negative or is semidefined, throw the event
     //(you are in a maximum or in a saddle point)
-    if (m_det<0) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hessian is negative: saddle point" << endmsg;
+    if (det<0) {
+      ATH_MSG_DEBUG( "Hessian is negative: saddle point" );
       throw Error::NewtonProblem("Hessian is negative");
     }
-    if (m_det>0&&m_d2da_phi2<0) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hessian indicates a maximum: derivative will be zero but result incorrect" << endmsg;
+    if (det>0&&d2da_phi2<0) {
+      ATH_MSG_DEBUG( "Hessian indicates a maximum: derivative will be zero but result incorrect" );
       throw Error::NewtonProblem("Maximum point found");
     }
 
-//Now apply the Newton formula in more than one dimension
-m_deltaa_phi=-(m_d2db_phi2*m_d1da_phi-m_d2da_phib_phi*m_d1db_phi)/m_det;
-m_deltab_phi=-(-m_d2da_phib_phi*m_d1da_phi+m_d2da_phi2*m_d1db_phi)/m_det;
+    //Now apply the Newton formula in more than one dimension
+    const double deltaa_phi = -(d2db_phi2*d1da_phi-d2da_phib_phi*d1db_phi)/det;
+    const double deltab_phi = -(-d2da_phib_phi*d1da_phi+d2da_phi2*d1db_phi)/det;
 
-  #ifdef TrkDistance_DEBUG
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_deltaa_phi: " << m_deltaa_phi << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_deltab_phi: " << m_deltab_phi << endmsg;
-  #endif
+#ifdef TrkDistance_DEBUG
+    ATH_MSG_DEBUG( "deltaa_phi: " << deltaa_phi );
+    ATH_MSG_DEBUG( "deltab_phi: " << deltab_phi );
+#endif
 
 
-    m_a_phi+=m_deltaa_phi;
-    m_b_phi+=m_deltab_phi;
+    a_phi += deltaa_phi;
+    b_phi += deltab_phi;
 
     //store cos and sin of phi
-    m_a_cosphi=-sin(m_a_phi);
-    m_a_sinphi=cos(m_a_phi);
-    m_b_cosphi=-sin(m_b_phi);
-    m_b_sinphi=cos(m_b_phi);
+    a_cosphi = -sin(a_phi);
+    a_sinphi =  cos(a_phi);
+    b_cosphi = -sin(b_phi);
+    b_sinphi =  cos(b_phi);
     
-    if (std::sqrt(std::pow(m_deltaa_phi,2)+std::pow(m_deltab_phi,2))<m_precision || 
-	m_loopsnumber>m_maxloopnumber) isok=true;
+    if (std::sqrt(std::pow(deltaa_phi,2)+std::pow(deltab_phi,2))<m_precision || 
+	loopsnumber>m_maxloopnumber) isok=true;
     
   }
 	
-  if (m_loopsnumber>m_maxloopnumber) throw Error::NewtonProblem("Could not find minimum distance: max loops number reached"); //now return error, see how to do it...
+  if (loopsnumber>m_maxloopnumber) throw Error::NewtonProblem("Could not find minimum distance: max loops number reached"); //now return error, see how to do it...
   
 
-  TwoPointOnTrack myresult=TwoPointOnTrack(PointOnTrack(firsttrack),PointOnTrack(secondtrack));
-
-  
-  myresult.first.setPhiPoint(m_a_phi);
-  myresult.second.setPhiPoint(m_b_phi);
-
-
-  return myresult;
-
+  return TwoPoints(Amg::Vector3D(a_x0+a_Rt*(a_cosphi-a_cosphi0),
+				 a_y0+a_Rt*(a_sinphi-a_sinphi0),
+				 a_z0-a_Rt*(a_phi-a_phi0)*a_cotantheta),
+		   Amg::Vector3D(b_x0+b_Rt*(b_cosphi-b_cosphi0),
+				 b_y0+b_Rt*(b_sinphi-b_sinphi0),
+				 b_z0-b_Rt*(b_phi-b_phi0)*b_cotantheta));
 }
 
-//these were only private method: now they are public!
 
-const TwoPoints NewtonTrkDistanceFinder::GetClosestPoints() const {
-  return TwoPoints(Amg::Vector3D(m_a_x0+m_a_Rt*(m_a_cosphi-m_a_cosphi0),
-				 m_a_y0+m_a_Rt*(m_a_sinphi-m_a_sinphi0),
-				 m_a_z0-m_a_Rt*(m_a_phi-m_a_phi0)*m_a_cotantheta),
-		   Amg::Vector3D(m_b_x0+m_b_Rt*(m_b_cosphi-m_b_cosphi0),
-				 m_b_y0+m_b_Rt*(m_b_sinphi-m_b_sinphi0),
-				 m_b_z0-m_b_Rt*(m_b_phi-m_b_phi0)*m_b_cotantheta));
-}
-
-  const Amg::Vector3D NewtonTrkDistanceFinder::GetCrossingPoint() const {
-    const TwoPoints thepoints=GetClosestPoints();
-    return (thepoints.first+thepoints.second)/2.;
-  }
-  
-  double NewtonTrkDistanceFinder::GetDistance() const {
-    const TwoPoints thepoints=GetClosestPoints();
-    return std::sqrt(std::pow(thepoints.first.x()-thepoints.second.x(),2)+
-		     std::pow(thepoints.first.y()-thepoints.second.y(),2)+
-		     std::pow(thepoints.first.z()-thepoints.second.z(),2));
-  }
-}
+} // namespace Trk

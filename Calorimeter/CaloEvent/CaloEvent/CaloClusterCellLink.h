@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -22,7 +22,6 @@
 
 
 class CaloClusterCellLink {
-  friend class CaloClusterCellLinksUpdater;
 
  public:
   typedef double weight_t;
@@ -122,7 +121,6 @@ class CaloClusterCellLink {
     : public std::iterator<std::bidirectional_iterator_tag, const CaloCell*>
   {
     friend class CaloClusterCellLink;
-    friend class CaloClusterCellLinksUpdater;
   public:
     iterator() = delete;
 

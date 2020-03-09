@@ -60,11 +60,11 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_disableTRTFromConditions(true),
     m_roiFileName        ("RSOutputTable.txt"),
     m_LArFebRodMapKey    ("/LAR/Identifier/FebRodMap"),
-    m_lutCreatorToolPixel("SiRegionSelectorTable/PixelRegionSelectorTable"),
-    m_lutCreatorToolSCT  ("SiRegionSelectorTable/SCT_RegionSelectorTable"),
-    m_lutCreatorToolTRT  ("TRT_RegionSelectorTable/TRT_RegionSelectorTable"),
-    m_lutCreatorToolLAR  ("LArRegionSelectorTable"),
-    m_lutCreatorToolTile ("TileRegionSelectorTable"),
+    m_lutCreatorToolPixel("SiRegionSelectorTable/PixelRegionSelectorTable", this),
+    m_lutCreatorToolSCT  ("SiRegionSelectorTable/SCT_RegionSelectorTable", this),
+    m_lutCreatorToolTRT  ("TRT_RegionSelectorTable", this),
+    m_lutCreatorToolLAR  ("LArRegionSelectorTable", this),
+    m_lutCreatorToolTile ("TileRegionSelectorTable", this),
     m_SCTCablingToolInc("SCT_CablingToolInc"),
     m_geoModelSvc("GeoModelSvc",name),
     m_DeltaZ(168),
@@ -74,16 +74,12 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_initCSC(true),
     m_initMM(true),
     m_initsTGC(true),
-    m_lutCreatorToolRPC  ("RPC_RegionSelectorTable"),
-    m_lutCreatorToolMDT  ("MDT_RegionSelectorTable"),
-    m_lutCreatorToolTGC  ("TGC_RegionSelectorTable"),
-    m_lutCreatorToolCSC  ("CSC_RegionSelectorTable"),
-    m_lutCreatorToolMM   ("MM_RegionSelectorTable"),
-    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable"),
-
-    m_initFTK(false),
-    m_lutCreatorToolFTK  ("FTK_RegionSelectorTable/FTK_RegionSelectorTable"),
-    m_ftklut(nullptr),
+    m_lutCreatorToolRPC  ("RPC_RegionSelectorTable", this),
+    m_lutCreatorToolMDT  ("MDT_RegionSelectorTable", this),
+    m_lutCreatorToolTGC  ("TGC_RegionSelectorTable", this),
+    m_lutCreatorToolCSC  ("CSC_RegionSelectorTable", this),
+    m_lutCreatorToolMM   ("MM_RegionSelectorTable", this),
+    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable", this),
     m_duplicateRemoval( true )
 {
   //! Declare properties
@@ -101,13 +97,19 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "enableCSC",   m_initCSC,      "enable CSC map" );
   declareProperty( "enableMM",    m_initMM,       "enable MM map" );
   declareProperty( "enablesTGC",  m_initsTGC,     "enable sTGC map" );
-  declareProperty( "enableFTK",   m_initFTK,      "enable FTK map" );
   declareProperty( "WriteTables", m_dumpTable,    "write out maps to files for debugging" );
   declareProperty( "OutputFile",  m_roiFileName,  "base filename used to write maps to" );
   declareProperty( "PixelRegionLUT_CreatorTool", m_lutCreatorToolPixel);
   declareProperty( "SCT_RegionLUT_CreatorTool",  m_lutCreatorToolSCT);
   declareProperty( "TRT_RegionLUT_CreatorTool",  m_lutCreatorToolTRT);
   declareProperty( "LArRegionSelectorTable",     m_lutCreatorToolLAR);
+  declareProperty( "TileRegionSelectorTable",    m_lutCreatorToolTile);
+  declareProperty( "RPCRegionSelectorTable",     m_lutCreatorToolRPC);
+  declareProperty( "MDTRegionSelectorTable",     m_lutCreatorToolMDT);
+  declareProperty( "TGCRegionSelectorTable",     m_lutCreatorToolTGC);
+  declareProperty( "CSCRegionSelectorTable",     m_lutCreatorToolCSC);
+  declareProperty( "MMRegionSelectorTable",      m_lutCreatorToolMM);
+  declareProperty( "sTGCRegionSelectorTable",    m_lutCreatorToolsTGC);
   declareProperty( "readSiROBListFromOKS",       m_readSiROBListFromOKS, "read silicon rob list to from oks");
   declareProperty( "DeletePixelHashList",        m_deletePixelHashList,  "delete pixel modules with these ids");
   declareProperty( "DeleteSCTHashList",          m_deleteSCTHashList,    "delete sct modules with these ids");
@@ -119,7 +121,7 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "DisablePixelFromConditions", m_disablePixelFromConditions=true, "disable Pixel modules based on the conditions summary svc");
   declareProperty( "DisableSCTFromConditions",   m_disableSCTFromConditions=true,   "disable SCT modules based on the conditions summary svc");
   declareProperty( "DisableTRTFromConditions",   m_disableTRTFromConditions=true,   "disable TRT modules based on the conditions summary svc");
-  declareProperty( "PixConditionsSvc",           m_PixConditionsSvc="PixelConditionsSummarySvc",  "name of conditions summary svc for the pixels");
+  declareProperty( "PixConditionsTool",          m_PixConditionsTool="PixelConditionsSummaryTool/InDetPixelConditionsSummaryTool", "name of conditions summary tool for the pixels");
   declareProperty( "SCTConditionsTool",          m_SCTConditionsTool="SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool",  "name of conditions summary tool for the SCT");
   declareProperty( "TRTConditionsSvc",           m_TRTConditionsSvc="TRT_ConditionsSummarySvc",  "name of conditions summary svc for the TRT");
 }
@@ -187,10 +189,6 @@ StatusCode RegSelSvc::initialize() {
     if ( !m_initTRT.value() )   trtflag   = "disabled"; 
   }
    
-  std::string ftkflag("enabled");  
-  if ( !m_initFTK.value() )  ftkflag = "disabled"; 
-  
-
   std::string rpcflag("enabled");
   std::string mdtflag("enabled");
   std::string tgcflag("enabled");
@@ -212,7 +210,7 @@ StatusCode RegSelSvc::initialize() {
   msg(MSG::INFO) << "detector switches:" 
                  << " indet=" << (m_initOnlyID.value() ? "enabled":"disabled");
   if( m_initOnlyID.value() )
-    msg() << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " ftk=" << ftkflag << " )"; 
+    msg() << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " )"; 
 
   msg() << " calo="  << (m_initOnlyCalo.value() ? "enabled":"disabled") 
         << " muon="  << (m_initOnlyMuon.value() ? "enabled":"disabled");
@@ -244,7 +242,7 @@ StatusCode RegSelSvc::initialize() {
   
 #endif
 
-  // add the incident handler for the calo and id initialisation during BeginRun  
+  // add the incident handler for the calo and id initialisation
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc",name());
   StatusCode sc = incidentSvc.retrieve(); 	 
   if (sc.isFailure() ) { 	 
@@ -253,7 +251,7 @@ StatusCode RegSelSvc::initialize() {
     errorFlag = true; 	 
   }  
   else { 	 
-    incidentSvc->addListener( this , "BeginRun"); 	 
+    incidentSvc->addListener( this , "BeginEvent");
     ATH_MSG_INFO( " registered Listener with IncidentSvc" );
   } 	 
 
@@ -291,18 +289,16 @@ StatusCode RegSelSvc::handle( IOVSVC_CALLBACK_ARGS ) {
 // StatusCode RegSelSvc::handle( IOVSVC_CALLBACK_ARGS ) {
 void RegSelSvc::handle(const Incident& incident) { 
 
-  //static bool initialised = false;
+  static bool initialised = false;
   
-  // listen for BeginRun
-  if (incident.type()=="BeginRun") { 
+  // listen for BeginEvent
+  if (incident.type()=="BeginEvent") {
     
-    //    MuonCreator m;
-
-    // only initialise if this is the first BeginRun
-    //   if ( initialised ) return;
+    // only initialise if this is the first BeginEvent
+    if ( initialised ) return;
 
     ATH_MSG_INFO( " handle incident type " << incident.type() );
-
+    initialised = true;
 
     // call Innr detector, Calo and Muon handlers 
     if ( m_initOnlyID )    handleID();
@@ -375,7 +371,7 @@ void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string
     std::vector<IdentifierHash>::iterator mitr(IDList.begin());
     std::vector<IdentifierHash>::iterator mend(IDList.end());
     
-    if ( detector==m_newsct ) {
+    if ( detector==m_newpixel or detector==m_newsct ) {
       // get ConditionsSummaryTool
       ToolHandle<IInDetConditionsTool> condsummary(serviceName, this);
       if ( condsummary.retrieve().isFailure() ) {
@@ -450,32 +446,6 @@ bool RegSelSvc::handleID() {
   // structures in the SiRegionSelectorTable so we don't need to 
   // do any more than just extract the tables.
   
-
-  if ( m_initFTK.value() ) { 
-
-    ATH_MSG_INFO( "setting up the FTK tables " );
-
-    StatusCode sc = readFromSG(m_lutCreatorToolFTK, m_ftklut);
-
-    if (sc.isFailure()){
-      ATH_MSG_WARNING( "Failed to initialize ftk lut" );
-      errorFlag = true;
-    } 
-    else { 
-      if ( m_ftklut ) {
-        ATH_MSG_INFO( "retrieved ftk RegSelSiLUT" );
-      }
-      else { 
-        ATH_MSG_ERROR( "retrieved ftk RegSelSiLUT is NULL" );
-        errorFlag = true;
-      }
-    }
-    
-  }
-  else { 
-    ATH_MSG_INFO( "not setting up the FTK tables " );
-  }
-
 
   //! Read PIXEL data from Detector Store
   if ( m_initPixel.value() ) { 
@@ -986,11 +956,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
     if ( m_newstgc ) m_newstgc->getHashList(selroi, IDList); 
     break;
   }
-  case FTK: { // FTK    
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getHashList(roi2, IDList); 
-    break;
-  }
   case LAR: {  // Liquid Argon Calorimeter
     m_larData.regionSelector(etaMin, etaMax, phiMin, phiMax, IDList);
     break;
@@ -1102,11 +1067,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
     if ( m_newstgc ) m_newstgc->getHashList(selroi, layer, IDList); 
     break;
   }
-  case FTK: { // FTK    
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getHashList(roi2, layer, IDList); 
-    break;
-  }
   case LAR: { // Liquid Argon Calorimeter
     m_larData.regionSelector(sampling, etaMin, etaMax, phiMin, phiMax, IDList);
     break;
@@ -1189,10 +1149,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   }
   case STGC: {
     if ( m_newstgc ) m_newstgc->getHashList(IDList); 
-    break;
-  }
-  case FTK: { // FTK    
-    if ( m_ftklut ) m_ftklut->getHashList(IDList); 
     break;
   }
   case LAR: {  // Liquid Argon Calorimeter
@@ -1283,10 +1239,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   }
   case STGC: {
     if ( m_newstgc ) m_newstgc->getHashList( layer, IDList); 
-    break;
-  }
-  case FTK: { // FTK    
-    if ( m_ftklut ) m_ftklut->getHashList( layer, IDList); 
     break;
   }
   case LAR: { // Liquid Argon Calorimeter
@@ -1406,11 +1358,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
     if ( m_newstgc ) m_newstgc->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
-  case FTK: { 
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getRobList(roi2, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
   case LAR: {  // Liquid Argon Calorimeter
     m_larData.regionSelectorRobIdUint( etaMin, etaMax, phiMin, phiMax, outputROBIDList);
     break;
@@ -1523,11 +1470,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
     if ( m_newstgc ) m_newstgc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
-  case FTK: { 
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getRobList(roi2, layer, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
   case LAR: { // Liquid Argon Calorimeter
     m_larData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
     break;
@@ -1594,10 +1536,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   }
   case CSC: { 
     if ( m_newcsc ) m_newcsc->getRobList(outputROBIDList);
-    break;
-  }
-  case FTK: { 
-    if ( m_ftklut ) m_ftklut->getRobList(outputROBIDList);
     break;
   }
   case LAR: {  // Liquid Argon Calorimeter
@@ -1675,10 +1613,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   }
   case CSC: { 
     if ( m_newcsc ) m_newcsc->getRobList( layer, outputROBIDList );
-    break;
-  }
-  case FTK: { 
-    if ( m_ftklut ) m_ftklut->getRobList( layer, outputROBIDList );
     break;
   }
   case LAR: { // Liquid Argon Calorimeter
@@ -1984,7 +1918,6 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
   case CSC: strcpy(strtmp,"CSC"); break;
   case MM: strcpy(strtmp,"MM"); break;
   case STGC: strcpy(strtmp,"sTGC"); break;
-  case FTK: strcpy(strtmp,"FTK"); break;
   default: break;
   }
 
@@ -2023,7 +1956,6 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
   case CSC: strcpy(strtmp,"CSC"); break;
   case MM:  strcpy(strtmp,"MM"); break;
   case STGC: strcpy(strtmp,"sTGC"); break;
-  case FTK: strcpy(strtmp,"FTK"); break;
   default: break;
   }
 
@@ -2138,7 +2070,6 @@ void RegSelSvc::getDetname(const std::string& detTypeStr, std::vector<std::strin
     detName.push_back("PIXEL");
     detName.push_back("SCT");
     detName.push_back("TRT");
-    detName.push_back("FTK");
   }
   else if(detTypeStr == "Calorimeter"){
     detName.push_back("LAR");
@@ -2356,7 +2287,7 @@ bool RegSelSvc::reinitialiseInternal() {
 
     // first disable modules from the conditions summary services
     //    if ( m_disableFromConditions ) disableIDFromConditions(m_newpixel, "PixelConditionsSummarySvc");
-    if ( m_disableFromConditions && m_disablePixelFromConditions ) disableIDFromConditions(m_newpixel, m_PixConditionsSvc);
+    if ( m_disableFromConditions && m_disablePixelFromConditions ) disableIDFromConditions(m_newpixel, m_PixConditionsTool);
 
     // now *disable* the modules from robs the user has flagged
     if ( m_deleteRobList.size() ) m_newpixel->disableRobList(m_deleteRobList);

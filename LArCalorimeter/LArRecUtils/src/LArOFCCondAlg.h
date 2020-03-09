@@ -64,17 +64,11 @@ private:
   bool m_isMC;
   bool m_isSuperCell;
   unsigned int m_firstSample;
-  int m_useDelta;
-  unsigned int m_deltaBunch;
   bool m_useHighestGainAutoCorr;
 
   unsigned int findTheNSamples(ILArShape::ShapeRef_t Shape,
                            unsigned int nsamples_AC_OFC,
                                            unsigned int nsamples_shape) const;
-
-  std::vector<float> getShapeAverages( const unsigned n_samples, 
-				       const unsigned n_deltaBunch, // in unit of 25 ns
-				       const std::vector<float>& shape, unsigned int firstSample) const;
 
   bool m_Dump;
 

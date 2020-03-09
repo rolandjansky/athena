@@ -261,6 +261,7 @@ class TileFragHash:
     FitFilter = 6
     FitFilterCool = 7
     FlatFilter = 8
+    WienerFilterOffline = 9
 
 
 from AthenaPython.PyAthenaComps import Alg, StatusCode
@@ -391,7 +392,7 @@ class PrepareDataAlg (Alg):
 
             mask = 0
             for chan in baddq.get (icoll, []):
-                mask |= (1<<(chan/3))
+                mask |= (1<<(chan//3))
             coll.setFragMemoryPar(mask)
 
             for addr, data in colldata:
@@ -680,7 +681,7 @@ ToolSvc += maketool ('tool11', bct1, TileDSPRawChannelContainer = 'TileRawChanne
                      NoiseFilterTools = [noisefilter])
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-topSequence += xAODMaker__EventInfoCnvAlg (DoBeginRun = False)
+topSequence += xAODMaker__EventInfoCnvAlg ()
 
 prepalg1 = PrepareDataAlg ('prepalg1')
 topSequence += prepalg1

@@ -20,8 +20,6 @@
 #include "TileGeoG4SD/TileSDOptions.h"
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
-// athena headers
-#include "CxxUtils/make_unique.h"
 // Geant4 headers
 #include "G4Step.hh"
 #include "G4Geantino.hh"
@@ -45,7 +43,7 @@ TileGeoG4SD::~TileGeoG4SD() {
 
 void TileGeoG4SD::Initialize(G4HCofThisEvent* /*HCE*/) {
   if (!m_HitColl.isValid())
-    m_HitColl = CxxUtils::make_unique<TileHitVector>(m_HitColl.name());
+    m_HitColl = std::make_unique<TileHitVector>(m_HitColl.name());
 }
 
 G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {

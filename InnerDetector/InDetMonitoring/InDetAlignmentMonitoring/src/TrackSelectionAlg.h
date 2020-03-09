@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKSELECTIONALG_H
@@ -10,8 +10,13 @@
 // AUTHORS: Ben Cooper
 // **********************************************************************
 
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkTrack/TrackCollection.h"
+#include "VxVertex/VxContainer.h"
+
 #include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
@@ -51,9 +56,9 @@ class TrackSelectionAlg : public AthAlgorithm
   int   m_minTRTHitsHT;
 
   //these member variables only play a role if use selectTracks() zero argument method above
-  std::string m_inputTrackCol;
-  std::string m_outputTrackCol;
-
+  SG::ReadHandleKey<TrackCollection> m_inputTrackCol{this, "InputTrackColName", "ExtendedTracks"};
+  SG::WriteHandleKey<TrackCollection> m_outputTrackCol{this, "OutputTrackColName", "MySelectedTracks"};
+  SG::ReadHandleKey<VxContainer> m_vertices{this, "PrimaryVertexName", "VxPrimaryCandidate"};
     
 };
 

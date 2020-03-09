@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesGroup.h"
@@ -24,7 +24,7 @@ RatesGroup::RatesGroup(const std::string& name, const MsgStream& log, const bool
   m_doCachedWeights(false),
   m_cachedWeights(),
   m_useCachedWeights(false),
-  m_doLumiExtrapolation(doExtrapolation),
+  m_extrapolationStrategy(doExtrapolation ? ExtrapStrat_t::kLINEAR : ExtrapStrat_t::kNONE),
   m_masterGroup(nullptr),
   m_uniqueTrigger(nullptr),
   m_isExpressGroup(false),
@@ -47,11 +47,12 @@ const std::string RatesGroup::printConfig() const {
 
 const std::string RatesGroup::printRate(const double ratesDenominator) const {
   std::stringstream ss;
-  ss <<"RateOR:" << std::setw(11) << std::right << m_rateAccumulatorOR/ratesDenominator 
+  ss <<"RateOR: " << std::setw(11) << std::right << m_rateAccumulatorOR/ratesDenominator 
      << " +- " << std::setw(11) << std::left << sqrt(m_rateAccumulatorOR2)/ratesDenominator << " Hz, "
-     << " RateAND:" << std::setw(11) << std::right << m_rateAccumulatorAND/ratesDenominator 
+     << " RateAND: " << std::setw(11) << std::right << m_rateAccumulatorAND/ratesDenominator 
      << " +- " << std::setw(11) << std::left << sqrt(m_rateAccumulatorAND2)/ratesDenominator << " Hz"
-     << " : " <<  m_name;
+     << " : " <<  m_name
+     << " (Extrap:"<< getExtrapolationFactorString(m_extrapolationStrategy) <<")";
   return ss.str();
 }
 
@@ -95,7 +96,7 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
     double weightHLT_AND = 1.;
     std::unordered_map<size_t, RatesCPS> weightHLT_CPS; // Map of CPS-group-hash to RatesCPS accumulators
 
-    for (const auto& trigger : triggers) { // 
+    for (const auto& trigger : triggers) { //
       if (trigger->getPassed()) {
 
         const double trigPrescaleReciprocal = 1. / trigger->getPrescale( m_isExpressGroup );
@@ -148,22 +149,24 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
   }
 
   //TODO - we currently only let groups scale linearly. Should change this.
-  const double w = weights.m_enhancedBiasWeight * (m_doLumiExtrapolation ? weights.m_linearLumiFactor : 1.);
+  const double w = weights.m_enhancedBiasWeight * getExtrapolationFactor(weights, m_extrapolationStrategy);
   const double wOR  = w * (1. - weightOR);
   const double wAND = w * weightAND;
-
-  //if (m_name == "Main") std::cout << ">>>>M>weightOR:" << weightOR << ",wOR:" << wOR << ",w:" << w << std::endl;
 
   m_rateAccumulatorOR   += wOR;
   m_rateAccumulatorAND  += wAND;
   m_rateAccumulatorOR2  += wOR * wOR;
   m_rateAccumulatorAND2 += wAND * wAND;
 
-  if (m_doHistograms) {
-    m_rateVsMu->Fill(weights.m_eventMu, wOR);
-    m_rateVsTrain->Fill(weights.m_distanceInTrain, wOR);
-    m_data->Fill(RatesBinIdentifier_t::kRATE_BIN_OR, wOR);
-    m_data->Fill(RatesBinIdentifier_t::kRATE_BIN_AND, wAND);
+  if (m_rateVsMuCachedPtr != nullptr) {
+    m_rateVsMuCachedPtr->Fill(weights.m_eventMu, wOR);
+  }
+  if (m_rateVsTrainCachedPtr != nullptr) {
+    m_rateVsTrainCachedPtr->Fill(weights.m_distanceInTrain, wOR);
+  }
+  if (m_dataCachedPtr != nullptr) {
+    if (!isZero(wOR)) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kPASS_WEIGHTED_OR_BIN, wOR);
+    if (!isZero(wAND)) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kPASS_WEIGHTED_AND_BIN, wAND);
   }
 
   if (m_uniqueTrigger != nullptr && m_uniqueTrigger->getDataHist() != nullptr) {
@@ -177,3 +180,24 @@ double RatesGroup::getUniqueWeight(const double ratesDenominator) const {
   if (isZero(diff)) return 0.;
   return diff / ratesDenominator; 
 }
+
+void RatesGroup::setExpressGroup(const bool i) { m_isExpressGroup = i; }
+
+void RatesGroup::setDoCachedWeights(const bool i) { m_doCachedWeights = i; } 
+
+void RatesGroup::setUseCachedWeights(const bool i) { m_useCachedWeights = i; }
+
+void RatesGroup::duplicateChildren(const RatesGroup* toDuplicate) { 
+  m_children = toDuplicate->getChildren(); m_masterGroup = toDuplicate;
+}
+
+double RatesGroup::getCachedWeight(const size_t l1Hash) const { return m_cachedWeights.at(l1Hash); }
+
+void RatesGroup::setUniqueTrigger(RatesTrigger* trigger) { m_uniqueTrigger = trigger; }
+
+RatesTrigger* RatesGroup::getUniqueTrigger() { return m_uniqueTrigger; }
+
+const std::unordered_map<size_t, std::set<const RatesTrigger*>>& RatesGroup::getChildren() const { 
+  return m_children;
+}
+

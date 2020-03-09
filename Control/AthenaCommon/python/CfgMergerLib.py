@@ -10,6 +10,7 @@ a set of python tools to analyze configurables and find candidates to be lumped
 together.
 """
 from __future__ import with_statement, print_function
+from past.builtins import basestring
 
 import os, sys
 

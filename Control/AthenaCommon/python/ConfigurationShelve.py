@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaCommon/python/ConfigurationShelve.py
 # @author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -49,7 +49,10 @@ def _monkeypatch_bug_34752():
          del GaudiHandleArray.__setstate__
       except AttributeError: pass # already done, or not relevant anymore
    return
-_monkeypatch_bug_34752()
+try:
+   _monkeypatch_bug_34752()
+except: # noqa: E722 
+   pass
 del _monkeypatch_bug_34752
 
 
@@ -199,19 +202,10 @@ def storeJobOptionsCatalogue( cfg_fname ):
 
  # now assume that if these services carry configuration, then they should exist
  # on the service manager configurable
-   cfgSvcs = []
-   for s in svcs:
-      if hasattr( svcMgr, s ):
-         cfgSvcs.append( s )
-
- # make sure to get the values for these special cases
-   for svcname in cfgSvcs:
-      svc = theApp.service( svcname )
-      props = []
-      for k,v in six.iteritems(svc.properties()):
-         if v.value() != C.propertyNoValue:
-            props.append( (k,v.value()) )
-      _fillCfg( svcname, props )
+   for svcname in svcs:
+      svc = getattr( svcMgr, svcname, None )
+      if svc:
+         _fillCfg( svcname, svc.getValuedProperties().items() )
 
  # make sure to propagate the EventLoop properties through the josvc
    try:
@@ -228,7 +222,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
       pass    # no properties defined for EventLoop type
 
  # get the values for all other components (these may contain duplicates of
- # the ones above in cfgSvcs, and there may even be conflicts)
+ # the ones above in svcs, and there may even be conflicts)
    import AthenaPython.PyAthena as PyAthena
    josvc = PyAthena.py_svc( 'JobOptionsSvc', iface = 'IJobOptionsSvc' )
 
@@ -314,7 +308,8 @@ def loadJobOptionsCatalogue( cfg_fname ):
       for n,v in six.iteritems(jocat[ client ]):
          # In Gaudi v28, the second argument of the ctor is passed by move,
          # which pyroot doesn't handle correctly.  Do this as a workaround.
-         p = gaudi.StringProperty( n, '' )
+         p = gaudi.StringProperty()
+         p.setName(n)
          try:
             p.fromString(v).ignore()
          except Exception:
@@ -328,7 +323,8 @@ def loadJobOptionsCatalogue( cfg_fname ):
       svc = PyAthena.py_svc( client, createIf = False, iface='IProperty' )
       for n,v in six.iteritems(jocfg[ client ]):
          # See comment above.
-         p = gaudi.StringProperty( n, '' )
+         p = gaudi.StringProperty()
+         p.setName(n)
          p.fromString(v).ignore()
          svc.setProperty( p )
 
@@ -429,8 +425,12 @@ def cmpConfigs (ref, chk, refName=None, chkName=None):
       jobofile = NamedTemporaryFile(suffix='.py')
       map (jobofile.writelines, [l+os.linesep for l in job])
       jobofile.flush()
-      from commands import getstatusoutput
+
+      from future import standard_library
+      standard_library.install_aliases()
+      from subprocess import getstatusoutput
       sc,out = getstatusoutput ('athena.py %s' % jobofile.name)
+
       jobofile.close()
       if sc==0:
          return fname

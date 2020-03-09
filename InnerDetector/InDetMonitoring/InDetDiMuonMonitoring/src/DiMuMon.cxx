@@ -8,7 +8,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "InDetDiMuonMonitoring/DiMuMon.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"

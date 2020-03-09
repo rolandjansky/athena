@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONHITSUMMARYTOOL_H
@@ -7,10 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
 
-
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 
 class Identifier;
@@ -22,7 +23,6 @@ namespace Trk {
 namespace Muon {
   
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
 
   /**
@@ -85,7 +85,9 @@ namespace Muon {
     void getMuonTrackSummary( Trk::MuonTrackSummary& muonSummary, const Trk::Track& track ) const;
     void calculateSummaryCounts( CompactSummary& sum) const;    
     ToolHandle<MuonIdHelperTool>   m_idHelper;
-    ToolHandle<MuonEDMHelperTool>  m_helper;
+    ServiceHandle<IMuonEDMHelperSvc>  m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<MuonEDMPrinterTool> m_printer;
     ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelperTool;
   };

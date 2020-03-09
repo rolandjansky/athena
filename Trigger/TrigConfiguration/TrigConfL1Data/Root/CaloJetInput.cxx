@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/CaloJetInput.h"
@@ -29,7 +29,12 @@ TrigConf::CaloJetInput::CaloJetInput( const std::string& name,
 }
 
 TrigConf::CaloJetInput::CaloJetInput() :
-   L1DataBaseclass()
+  L1DataBaseclass(),
+  m_Ptcut(0),
+  m_PhiMin(0),
+  m_PhiMax(0),
+  m_EtaMin(0),
+  m_EtaMax(0)
 {}
 
 TrigConf::CaloJetInput::~CaloJetInput()

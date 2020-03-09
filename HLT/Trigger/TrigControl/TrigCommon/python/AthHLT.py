@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Utilities used in athenaHLT.py
 #
@@ -23,7 +23,7 @@ class CondDB:
 
 @memoize
 def get_sor_params(run_number):
-   import cPickle as pickle
+   import pickle
    cool_cache = 'AthHLT.sor.pkl'
 
    try:
@@ -31,12 +31,12 @@ def get_sor_params(run_number):
       d = pickle.load(open(cool_cache, 'rb'))
       if d['RunNumber'] != run_number:
          raise Exception('Cache does not contain current run')
-      log.info('Reading cached SOR record for run %s from %s' % (run_number, cool_cache))
+      log.info('Reading cached SOR record for run %s from %s', run_number, cool_cache)
       return d
    except Exception as e:
       d = {}
-      log.verbose('Could not read SOR reacord from cache: %s' % e)
-      log.info('Reading SOR record for run %s from COOL' % run_number)
+      log.verbose('Could not read SOR record from cache: %s' % e)
+      log.info('Reading SOR record for run %s from COOL', run_number)
 
    from CoolConvUtilities import AtlCoolLib
    cdb = CondDB(run_number)
@@ -57,15 +57,39 @@ def get_sor_params(run_number):
    try:
       pickle.dump(d, open(cool_cache, 'wb'))
    except Exception:
-      log.info('Could not store SOR record in cache %s' % cool_cache)
+      log.info('Could not store SOR record in cache %s', cool_cache)
 
    return d
 
+
+@memoize
+def get_trigconf_keys(run_number):
+   """Read HLT keys from COOL"""
+
+   from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
+
+   cdb = CondDB(run_number)
+   db = TriggerCoolUtil.GetConnection(cdb.db_instance())
+   run_range = [[run_number,run_number]]
+   d = {}
+   d['SMK'] = TriggerCoolUtil.getHLTConfigKeys(db, run_range)[run_number]['SMK']
+   # First HLT/L1 prescale key used in the run
+   d['HLTPSK'] = TriggerCoolUtil.getHLTPrescaleKeys(db, run_range)[run_number]['HLTPSK2'][0][0]
+   d['LVL1PSK'] = TriggerCoolUtil.getL1ConfigKeys(db, run_range)[run_number]['LVL1PSK'][0][0]
+
+   return d
 
 #
 # Testing (used as ctest)
 #
 if __name__=='__main__':
+   # Can be used as script, e.g.: python -m TrigCommon.AthHLT 327265
+   import sys
+   if len(sys.argv)>1:
+      log.info('SOR parameters: %s', get_sor_params(int(sys.argv[1])))
+      sys.exit(0)
+
+   # Unit testing case:
    d = get_sor_params(327265)  # Run-2
    print(d)
    assert(d['DetectorMask']=='0000000000000000c10069fffffffff7')
@@ -73,3 +97,9 @@ if __name__=='__main__':
    d = get_sor_params(216416)  # Run-1
    print(d)
    assert(d['DetectorMask']==281474976710647)
+
+   d = get_trigconf_keys(360026)
+   print(d)
+   assert(d['SMK']==2749)
+   assert(d['LVL1PSK']==15186)
+   assert(d['HLTPSK']==17719)

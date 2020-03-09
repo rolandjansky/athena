@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxVectorBase.h 793298 2017-01-21 01:30:06Z ssnyder $
@@ -140,6 +140,22 @@ public:
    * @brief Set the store associated with this object.
    * @param store The new store.
    *
+   * This will set both the const and non-const store pointers, and also
+   * clear the cache.
+   *
+   * It is an error to set a store for a container for which index tracking
+   * is disabled.  That will raise an @c ExcUntrackedSetStore exception.
+   *
+   * nb. List the non-const overload before the const one; otherwise,
+   * we can't call the const one from python.
+   */
+  void setStore (SG::IAuxStore* store);
+
+
+  /**
+   * @brief Set the store associated with this object.
+   * @param store The new store.
+   *
    * This will clear the non-const store pointer, and also
    * clear the cache.
    *
@@ -147,19 +163,6 @@ public:
    * is disabled.  That will raise an @c ExcUntrackedSetStore exception.
    */
   void setStore (const SG::IConstAuxStore* store);
-
-
-  /**
-   * @brief Set the store associated with this object.
-   * @param store The new store.
-   *
-   * This will set both the const and non-const store pointers, and also
-   * clear the cache.
-   *
-   * It is an error to set a store for a container for which index tracking
-   * is disabled.  That will raise an @c ExcUntrackedSetStore exception.
-   */
-  void setStore (SG::IAuxStore* store);
 
 
   /**
@@ -187,6 +190,18 @@ public:
    * @param store The new store.
    */
   void setNonConstStore (SG::IAuxStore* store);
+
+
+  /// Mark that this type supports thinning operations.
+  /// See AthContainers/supportsThinning.h and
+  /// AthenaPoolCnvSvc/T_AthenaPoolCnv.h.
+  /// Helps guide which pool converter template will be used.
+  /// If false, the default pool converter will be used
+  /// rather than the aux store-specific one.
+  /// Ordinary xAOD type should not touch this, but
+  /// may be overridden in a derived class to handle
+  /// certain special cases.
+  static constexpr bool supportsThinning = true;
 
 
 protected:
@@ -715,6 +730,12 @@ private:
 
 
 } // namespace SG
+
+
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( SG::AuxVectorBase, 33347479, 1 )
+#endif
 
 
 #include "AthContainers/AuxVectorBase.icc"

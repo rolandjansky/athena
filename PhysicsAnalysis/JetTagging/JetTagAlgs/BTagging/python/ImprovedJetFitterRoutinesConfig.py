@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.ImprovedJetFitterInitializationHelperConfig import ImprovedJetFitterInitializationHelperCfg
 from BTagging.TrkDistanceFinderNeutralNeutralConfig import TrkDistanceFinderNeutralNeutralCfg
 from BTagging.TrkDistanceFinderNeutralChargedConfig import TrkDistanceFinderNeutralChargedCfg
 
-from TrkJetVxFitter.TrkJetVxFitterConf import Trk__JetFitterRoutines
+Trk__JetFitterRoutines=CompFactory.Trk__JetFitterRoutines
 
 def ImprovedJetFitterRoutinesCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a ImprovedJetFitterRoutines tool and returns it.
@@ -22,15 +23,9 @@ def ImprovedJetFitterRoutinesCfg(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accImprovedJetFitterInitializationHelper = ImprovedJetFitterInitializationHelperCfg('ImprovedJFInitHelper')
-        improvedJetFitterInitializationHelper = accImprovedJetFitterInitializationHelper.popPrivateTools()
-        acc.merge(accImprovedJetFitterInitializationHelper)
-        accTrkDistanceFinderNeutralNeutral = TrkDistanceFinderNeutralNeutralCfg('TrkDistFinderNeutralNeutral')
-        trkDistanceFinderNeutralNeutral = accTrkDistanceFinderNeutralNeutral.popPrivateTools()
-        acc.merge(accTrkDistanceFinderNeutralNeutral)
-        accTrkDistanceFinderNeutralCharged = TrkDistanceFinderNeutralChargedCfg('TrkDistFinderNeutralCharged')
-        trkDistanceFinderNeutralCharged = accTrkDistanceFinderNeutralCharged.popPrivateTools()
-        acc.merge(accTrkDistanceFinderNeutralCharged)
+        improvedJetFitterInitializationHelper = acc.popToolsAndMerge(ImprovedJetFitterInitializationHelperCfg('ImprovedJFInitHelper'))
+        trkDistanceFinderNeutralNeutral = acc.popToolsAndMerge(TrkDistanceFinderNeutralNeutralCfg('TrkDistFinderNeutralNeutral'))
+        trkDistanceFinderNeutralCharged = acc.popToolsAndMerge(TrkDistanceFinderNeutralChargedCfg('TrkDistFinderNeutralCharged'))
         #JFKalmanVertexOnJetAxisSmoother = acc.popToolsAndMerge(KalmanVertexOnJetAxisSmootherCfg('JFKalmanVertexOnJetAxisSmoother')
         defaults = {
                      'BeFast'               : False,

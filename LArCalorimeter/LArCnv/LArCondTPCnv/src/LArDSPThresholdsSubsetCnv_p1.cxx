@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCondTPCnv/LArDSPThresholdsSubsetCnv_p1.h"
@@ -7,37 +7,37 @@
 void
 LArDSPThresholdsSubsetCnv_p1::persToTrans(const DSPThresholdsPersType* persObj, 
 					  DSPThresholdsTransType* transObj, 
-					  MsgStream & /*log*/) {
-  // Copy conditions
-  unsigned int ncorrs           = persObj->m_subset.m_corrChannels.size();
+					  MsgStream & /*log*/)
+{
+  transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
+
   unsigned int nfebids          = persObj->m_subset.m_febIds.size();
   unsigned index                =0;
-  // resize subset to with then number of febids
-  transObj->m_subset.resize(nfebids);
 
-  for (unsigned int i = 0; i < nfebids; ++i){
-    // Set febid
-    transObj->m_subset[i].first = persObj->m_subset.m_febIds[i];
-    transObj->m_subset[i].second.resize(NCHANNELPERFEB);
+  auto subsetIt = transObj->subsetBegin();
+  for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
     // Loop over channels in feb 
     for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
-      transObj->m_subset[i].second[j].set(persObj->m_tQThr[index],persObj->m_samplesThr[index],persObj->m_trigSumThr[index]);
+      subsetIt->second[j].set(persObj->m_tQThr[index],persObj->m_samplesThr[index],persObj->m_trigSumThr[index]);
       ++index;
     }
   }    
-   
-  transObj->m_correctionVec.reserve(ncorrs);
+
+  unsigned int ncorrs           = persObj->m_subset.m_corrChannels.size();
+  DSPThresholdsTransType::CorrectionVec corrs;
+  corrs.resize(ncorrs);
   
   // Loop over corrections
   for (unsigned int i = 0; i < ncorrs; ++i){
-    transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
-    transObj->m_correctionVec[i].second.set(persObj->m_tQThr[index],persObj->m_samplesThr[index],persObj->m_trigSumThr[index]);
+    corrs[i].first = persObj->m_subset.m_corrChannels[i];
+    corrs[i].second.set(persObj->m_tQThr[index],persObj->m_samplesThr[index],persObj->m_trigSumThr[index]);
     ++index;
   }
+  transObj->insertCorrections (std::move (corrs));
+
   // Copy the rest
-  transObj->m_gain          = persObj->m_subset.m_gain; 
-  transObj->m_channel       = persObj->m_subset.m_channel;
-  transObj->m_groupingType  = persObj->m_subset.m_groupingType;
+  transObj->setChannel       (persObj->m_subset.m_channel);
+  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
   
   return;
 }
@@ -52,12 +52,15 @@ LArDSPThresholdsSubsetCnv_p1::transToPers(const DSPThresholdsTransType* transObj
 					MsgStream &log) 
 {
   // Get the number of channels, corrections and the size of pedestal and pedestalrms
-  unsigned int nfebs            = transObj->m_subset.size();
-  unsigned int ncorrs           = transObj->m_correctionVec.size();
+  unsigned int ncorrs           = transObj->correctionVecSize();
   unsigned int nsubsetsNotEmpty = 0;
- 
-  for (unsigned int i = 0; i < nfebs; ++i){
-    unsigned int nfebChans = transObj->m_subset[i].second.size();
+
+  const auto subsetEnd = transObj->subsetEnd();
+  for (auto subsetIt = transObj->subsetBegin();
+       subsetIt != subsetEnd;
+       ++subsetIt)
+  {
+    unsigned int nfebChans = subsetIt->second.size();
     if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
       log << MSG::ERROR 
 	  << "LArDSPThresholdsSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
@@ -75,28 +78,35 @@ LArDSPThresholdsSubsetCnv_p1::transToPers(const DSPThresholdsTransType* transObj
   persObj->m_trigSumThr.reserve(ncorrs+nsubsetsNotEmpty*NCHANNELPERFEB);
     
    //Copy subsets
-  for (unsigned int i = 0; i < nfebs; ++i) {//Loop over FEBs
-    unsigned int nfebChans = transObj->m_subset[i].second.size();
+  for (auto subsetIt = transObj->subsetBegin();
+       subsetIt != subsetEnd;
+       ++subsetIt)
+  {
+    unsigned int nfebChans = subsetIt->second.size();
     if (nfebChans==0) continue;
-    unsigned int febid = transObj->m_subset[i].first;
+    unsigned int febid = subsetIt->first;
     persObj->m_subset.m_febIds.push_back(febid);
     for (unsigned int j=0; j<nfebChans;++j) {  //Loop over channels in FEB
-      persObj->m_tQThr.push_back(transObj->m_subset[i].second[j].tQThr());
-      persObj->m_samplesThr.push_back(transObj->m_subset[i].second[j].samplesThr());
-      persObj->m_trigSumThr.push_back(transObj->m_subset[i].second[j].trigSumThr());
+      persObj->m_tQThr.push_back(subsetIt->second[j].tQThr());
+      persObj->m_samplesThr.push_back(subsetIt->second[j].samplesThr());
+      persObj->m_trigSumThr.push_back(subsetIt->second[j].trigSumThr());
     }
   }
 
   // Copy corrections
-  for (unsigned int i = 0; i < ncorrs; ++i){
-    persObj->m_subset.m_corrChannels.push_back(transObj->m_correctionVec[i].first);
-    persObj->m_tQThr.push_back(transObj->m_correctionVec[i].second.tQThr());
-    persObj->m_samplesThr.push_back(transObj->m_correctionVec[i].second.samplesThr());
-    persObj->m_trigSumThr.push_back(transObj->m_correctionVec[i].second.trigSumThr());
+  const auto corrEnd = transObj->correctionVecEnd();
+  for (auto corrIt = transObj->correctionVecBegin();
+       corrIt != corrEnd;
+       ++corrIt)
+  {
+    persObj->m_subset.m_corrChannels.push_back(corrIt->first);
+    persObj->m_tQThr.push_back(corrIt->second.tQThr());
+    persObj->m_samplesThr.push_back(corrIt->second.samplesThr());
+    persObj->m_trigSumThr.push_back(corrIt->second.trigSumThr());
   }
 
   // Copy the rest
-  persObj->m_subset.m_gain          = transObj->m_gain; 
-  persObj->m_subset.m_channel       = transObj->m_channel;
-  persObj->m_subset.m_groupingType  = transObj->m_groupingType;
+  persObj->m_subset.m_gain          = transObj->gain(); 
+  persObj->m_subset.m_channel       = transObj->channel();
+  persObj->m_subset.m_groupingType  = transObj->groupingType();
 }

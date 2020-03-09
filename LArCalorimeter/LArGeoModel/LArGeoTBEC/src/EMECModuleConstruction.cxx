@@ -25,20 +25,20 @@
 
 #include "GeoSpecialShapes/LArCustomShape.h"
 
-#include "GeoModelKernel/GeoElement.h"  
-#include "GeoModelKernel/GeoMaterial.h"  
-#include "GeoModelKernel/GeoFullPhysVol.h"  
-#include "GeoModelKernel/GeoPhysVol.h"  
-#include "GeoModelKernel/GeoVPhysVol.h"  
-#include "GeoModelKernel/GeoLogVol.h"  
-#include "GeoModelKernel/GeoPcon.h"  
-#include "GeoModelKernel/GeoCons.h"  
-#include "GeoModelKernel/GeoTubs.h"  
-#include "GeoModelKernel/GeoTube.h" 
-#include "GeoModelKernel/GeoNameTag.h"  
-#include "GeoModelKernel/GeoTransform.h"  
-#include "GeoModelKernel/GeoAlignableTransform.h"  
-#include "GeoModelKernel/GeoIdentifierTag.h"  
+#include "GeoModelKernel/GeoElement.h"
+#include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoVPhysVol.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoPcon.h"
+#include "GeoModelKernel/GeoCons.h"
+#include "GeoModelKernel/GeoTubs.h"
+#include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/Units.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -57,16 +57,16 @@
 
 static const bool DEBUG_EMEC = true;
 
-LArGeo::EMECModuleConstruction::EMECModuleConstruction( bool tbb, bool iwb, bool owb ) { 
+LArGeo::EMECModuleConstruction::EMECModuleConstruction( bool tbb, bool iwb, bool owb ) {
 
   m_isTB         = tbb;
   m_isInnerWheel = iwb;
-  m_isOuterWheel = owb; 
+  m_isOuterWheel = owb;
 
 /*
         for testbeams setups module could be positioned in arbitrary place,
         so envelope is created is such a way, so that the front face
-        of active region is at z = 0         
+        of active region is at z = 0
 */
 
 }
@@ -92,7 +92,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   //////////////////////////////////////////////////////////////////
 
   std::string name,symbol;
- 
+
   double density;
   double m1,m2,m3;
   double Totalthick,/*Totalthicko,Totalthicki,*/Totalthicke;
@@ -108,7 +108,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   const GeoElement* Al=materialManager->getElement("Aluminium");
   const GeoElement* Ar=materialManager->getElement("Argon");
   const GeoElement* Fe=materialManager->getElement("Iron");
-  const GeoElement* Cu=materialManager->getElement("Copper"); 
+  const GeoElement* Cu=materialManager->getElement("Copper");
   const GeoElement* Pb=materialManager->getElement("Lead");
 
   //LAr
@@ -116,7 +116,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   GeoMaterial* LAr = new GeoMaterial(name="LiquidArgon", density=1.396*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   LAr->add(Ar,1.);
   LAr->lock();
- 
+
   //Alu
 
   GeoMaterial* Alu = new GeoMaterial(name="Alu", density=2.7*GeoModelKernelUnits::g/Gaudi::Units::cm3);
@@ -203,10 +203,10 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   Gten->add(O,FracO);
   Gten->add(C,FracC);
   Gten->lock();
- 
+
   // Kapton 11-Jan-2002 ML from accbgeo.age: the Kapton_E density is 1.46g/cm3
   //        one assumes it is the same as for the Kapton_H -> C22 H10 O5 N2
- 
+
   GeoMaterial* Kapton= new GeoMaterial(name="Kapton",density=1.46*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   aH=10.*H->getA();
   aO= 5.*O->getA();
@@ -246,7 +246,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   GeoMaterial* Thin_abs = new GeoMaterial(name="Thinabs",density);
   Thin_abs->add(Glue,Fracgl);
   Thin_abs->add(Iron,Fracfe);
-  Thin_abs->add(Lead,Fracpb); 
+  Thin_abs->add(Lead,Fracpb);
   Thin_abs->lock();
 
   // THICK absorber: inner wheel
@@ -269,7 +269,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   GeoMaterial* Thick_abs = new GeoMaterial(name="Thickabs",density);
   Thick_abs->add(Glue,Fracgl);
   Thick_abs->add(Iron,Fracfe);
-  Thick_abs->add(Lead,Fracpb); 
+  Thick_abs->add(Lead,Fracpb);
   Thick_abs->lock();
 
   // Electrode,   as a mixture Kapton+Cu, 11-Jan-2002 ML
@@ -292,7 +292,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   Kapton_Cu->lock();
 
   //  ELECTRONICS as a mix_molecule CH2Ar made of
-  //                                CH2 (from polyethylene -CH2- chain) 
+  //                                CH2 (from polyethylene -CH2- chain)
   //                           and  Ar  (from Liquid Argon)
   aH =2.*H->getA();
   aC =1.*C->getA();
@@ -377,22 +377,22 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   // Define the mother volume for the emec.  Everything
   // else in the emec (wheels,structure, etc.) should be
   // placed inside here.
-  
+
 // J.T************
 // V.N: From LarWheelSolid, to get bounding polycone. Previoulsy G4 routine. No GeoModel equivalent so far ...
 //
-  
+
   double zWheelFrontFace 		= 3689.5*Gaudi::Units::mm;
-  
+
   double dWRPtoFrontFace 		= 11.*Gaudi::Units::mm;
 
   double dMechFocaltoWRP                 = 3691. *Gaudi::Units::mm;  //=endg_z1*Gaudi::Units::cm
-                                                         //"LArEMECNomLarOrig" 
+                                                         //"LArEMECNomLarOrig"
   double rOuterCutoff                    = 2034. *Gaudi::Units::mm;  //=endg_rlimit*Gaudi::Units::cm
                                               //"LArEMECMaxRadiusActivePart
 
-//*****************      
-  
+//*****************
+
   zWheelFrontFace+= dWRPtoFrontFace;
 
   // V.N : Select inner/outer radii depending on wheels.
@@ -405,7 +405,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   }
   else {
     Rin1 = 590.*Gaudi::Units::mm;
-    Rin2 = 678.*Gaudi::Units::mm; 
+    Rin2 = 678.*Gaudi::Units::mm;
   }
   if ( m_isOuterWheel ) {
     Rout1 = 2070.*Gaudi::Units::mm;
@@ -417,13 +417,13 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   }
 
   // --> EndOfRadiiSelection <--
-   
-  double emecMotherZplan[] = { 3639.5*Gaudi::Units::mm, 3639.5*Gaudi::Units::mm + 630.*Gaudi::Units::mm };    //cold (J.T)                               
-  double emecMotherRin[]   = { Rin1, Rin2 };	
-  double emecMotherRout[]  = { Rout1, Rout2 }; 
+
+  double emecMotherZplan[] = { 3639.5*Gaudi::Units::mm, 3639.5*Gaudi::Units::mm + 630.*Gaudi::Units::mm };    //cold (J.T)
+  double emecMotherRin[]   = { Rin1, Rin2 };
+  double emecMotherRout[]  = { Rout1, Rout2 };
   int lastPlaneEmec = ( sizeof( emecMotherZplan )/sizeof( double ) );
 
-  if ( m_isTB ) { 
+  if ( m_isTB ) {
      for ( int i = 0; i < lastPlaneEmec; i++ ) emecMotherZplan[ i ] -= zWheelFrontFace;
      zWheelFrontFace = 0.*Gaudi::Units::mm;
   }
@@ -435,7 +435,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 // This should be moved to a sub-routine as it is common to EMEC
 
   // Within the LAr endcap cryostat we have two LAr EM endcap wheels:
-  // an inner wheel and an outer wheel. 
+  // an inner wheel and an outer wheel.
 
   // The radial boundaries of the inner and outer wheels are defined
   // by values of eta, the distance from z=0 to the front face of the
@@ -459,7 +459,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 //--************
 
   double zWheelBackFaceMech = zWheelFrontFaceMech + zWheelThickness;
-   
+
   double zWheelInner[2];
   zWheelInner[0] = 0.;
   zWheelInner[1] = zWheelThickness;
@@ -494,7 +494,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   // If we simply left it at that, the outer wheel would protrude
   // beyond the edge of the cryostat.  We have to "slice off" the lip
   // of the outer wheel to create a shape that's roughtly like a
-  // bathtub plug. 
+  // bathtub plug.
 
   // Use the endpoints of the outer arrays to define lines in the
   // (z,r) plane.
@@ -543,12 +543,12 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   std::string emecMotherName = baseName + "::Mother";
 
   GeoPcon* emecMotherShape = new GeoPcon( phiPosition - phiSize, 2.*phiSize );  //start phi,total phi
-  for( int i = 0; i < lastPlaneEmec; i++ ) emecMotherShape->addPlane( emecMotherZplan[i], 
-  								      emecMotherRin[i], 
+  for( int i = 0; i < lastPlaneEmec; i++ ) emecMotherShape->addPlane( emecMotherZplan[i],
+  								      emecMotherRin[i],
 								      emecMotherRout[i] );
   const GeoLogVol* emecMotherLogical = new GeoLogVol( emecMotherName, emecMotherShape, LAr );
   GeoFullPhysVol* emecMotherPhysical = new GeoFullPhysVol( emecMotherLogical );
-     
+
   if ( m_isInnerWheel ) {
     std::string innerName = baseName + "::InnerWheel";
     GeoPcon* innerShape= new GeoPcon( phiPosition - phiSize, 2.*phiSize );
@@ -568,11 +568,11 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     LArCustomShape* innerAbsorberShape  = new LArCustomShape(IAWname);
     LArCustomShape* innerElectrodeShape = new LArCustomShape(IEWname);
 
-    GeoLogVol* innerAbsorberLogical  = 
+    GeoLogVol* innerAbsorberLogical  =
 	    new GeoLogVol( IAWname, innerAbsorberShape , innerAbsorberMaterial );
-    GeoLogVol* innerElectrodeLogical = 
+    GeoLogVol* innerElectrodeLogical =
 	    new GeoLogVol( IEWname, innerElectrodeShape, innerElectrodMaterial );
-		    
+
     GeoFullPhysVol* innerAbsorberPhysical  = new GeoFullPhysVol( innerAbsorberLogical );
     GeoPhysVol* innerElectrodePhysical = new GeoPhysVol( innerElectrodeLogical );
     innerPhysical->add( new GeoIdentifierTag( 1 ) );
@@ -583,9 +583,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
       StoredPhysVol *sPhysVol = new StoredPhysVol(innerPhysical);
       StatusCode status=detStore->record(sPhysVol,"EMEC_INNER_WHEEL_POS");
       if(!status.isSuccess()) throw std::runtime_error ("Cannot store EMEC_INNER_WHEEL");
-    }   
-  }    
-   
+    }
+  }
+
   if ( m_isOuterWheel ) {
     std::string outerName = baseName + "::OuterWheel";
     GeoPcon* outerShape= new GeoPcon( phiPosition - phiSize, 2.*phiSize );
@@ -606,25 +606,25 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     LArCustomShape* outerAbsorberShape  = new LArCustomShape( OAWname );
     LArCustomShape* outerElectrodeShape = new LArCustomShape( OEWname );
 
-    GeoLogVol* outerAbsorberLogical  = 
+    GeoLogVol* outerAbsorberLogical  =
 	    new GeoLogVol( OAWname,outerAbsorberShape ,outerAbsorberMaterial );
-    GeoLogVol* outerElectrodeLogical = 
+    GeoLogVol* outerElectrodeLogical =
 	    new GeoLogVol( OEWname,outerElectrodeShape, outerElectrodMaterial );
-		    
+
     GeoPhysVol* outerAbsorberPhysical  = new GeoPhysVol( outerAbsorberLogical );
     GeoPhysVol* outerElectrodePhysical = new GeoPhysVol( outerElectrodeLogical );
     outerPhysical->add( new GeoIdentifierTag( 1 ) );
     outerPhysical->add( outerAbsorberPhysical);
     outerPhysical->add( new GeoIdentifierTag( 1 ) );
-    outerPhysical->add( outerElectrodePhysical ); 
+    outerPhysical->add( outerElectrodePhysical );
     {
       StoredPhysVol *sPhysVol = new StoredPhysVol(outerPhysical);
       StatusCode status=detStore->record(sPhysVol,"EMEC_OUTER_WHEEL_POS");
       if(!status.isSuccess()) throw std::runtime_error ("Cannot store EMEC_OUTER_WHEEL");
-    }   
+    }
 
 
-  }         
+  }
 
 // ***********************************
 //Description of nonsensitive pieces:*
@@ -638,32 +638,30 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   // V.N : Select supports for front and back
   //
 
-  int FrontIndx=0, BackIndx=0;
+  EMECSupportConstruction::type_t
+    FrontIndx = EMECSupportConstruction::Front,
+    BackIndx = EMECSupportConstruction::Back;
 
-  if ( m_isInnerWheel && m_isOuterWheel ) {
-    FrontIndx = 0;
-    BackIndx = 1;
-  }
-  else if ( m_isInnerWheel && ! m_isOuterWheel ) {
-    FrontIndx = 10;
-    BackIndx = 11;
+  if ( m_isInnerWheel && ! m_isOuterWheel ) {
+    FrontIndx = EMECSupportConstruction::FrontInner;
+    BackIndx = EMECSupportConstruction::BackInner;
   }
   else if ( m_isOuterWheel && ! m_isInnerWheel ) {
-    FrontIndx = 12;
-    BackIndx = 13;
+    FrontIndx = EMECSupportConstruction::FrontOuter;
+    BackIndx = EMECSupportConstruction::BackOuter;
   }
 
   // V.N. --> Support selected
 
   z0 = zWheelFrontFace - 61.*Gaudi::Units::mm;
-  EMECSupportConstruction *fsc = new EMECSupportConstruction( FrontIndx, true, "LAr::EMEC::", M_PI/2 );
+  EMECSupportConstruction *fsc = new EMECSupportConstruction( FrontIndx, true, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol* physicalFSM = fsc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
   emecMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) );
   emecMotherPhysical->add( physicalFSM );
 
   z0 = zWheelFrontFace + 514.*Gaudi::Units::mm + 55.*Gaudi::Units::mm;
-  EMECSupportConstruction *bsc = new EMECSupportConstruction( BackIndx, true, "LAr::EMEC::", M_PI/2 );
+  EMECSupportConstruction *bsc = new EMECSupportConstruction( BackIndx, true, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol *physicalBSM = bsc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
   GeoTrf::Transform3D rotBSM(GeoTrf::RotateZ3D(2*M_PI/2)*GeoTrf::RotateX3D(-M_PI));
@@ -672,28 +670,28 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   if ( m_isOuterWheel ) {
     z0 = zWheelFrontFace + 514.*Gaudi::Units::mm/2;
-    EMECSupportConstruction *osc = new EMECSupportConstruction( 2, true, "LAr::EMEC::", M_PI/2 );
+    EMECSupportConstruction *osc = new EMECSupportConstruction( EMECSupportConstruction::Outer, true, true, "LAr::EMEC::", M_PI/2 );
     GeoPhysVol *physicalOSM = osc->GetEnvelope();
     emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-    emecMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) );  
+    emecMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) );
     emecMotherPhysical->add( physicalOSM );
   }
- 
+
   if ( m_isInnerWheel ) {
     z0 = zWheelFrontFace + 514.*Gaudi::Units::mm/2;
-    EMECSupportConstruction *isc = new EMECSupportConstruction( 3, true, "LAr::EMEC::", M_PI/2 );
+    EMECSupportConstruction *isc = new EMECSupportConstruction( EMECSupportConstruction::Inner, true, true, "LAr::EMEC::", M_PI/2 );
     GeoPhysVol *physicalISM = isc->GetEnvelope();
     emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-    emecMotherPhysical->add(new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) )  ;  
+    emecMotherPhysical->add(new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) )  ;
     emecMotherPhysical->add( physicalISM );
   }
- 
+
   z0 = zWheelFrontFace + 514.*Gaudi::Units::mm/2;
-  EMECSupportConstruction *msc = new EMECSupportConstruction( 4, true, "LAr::EMEC::", M_PI/2 );
+  EMECSupportConstruction *msc = new EMECSupportConstruction( EMECSupportConstruction::Middle, true, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol *physicalMSM = msc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-  emecMotherPhysical->add(new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) )  ;  
-  emecMotherPhysical->add( physicalMSM );  
+  emecMotherPhysical->add(new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) )  ;
+  emecMotherPhysical->add( physicalMSM );
 
   return emecMotherPhysical;
 }

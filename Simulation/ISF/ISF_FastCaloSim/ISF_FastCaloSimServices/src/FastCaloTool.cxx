@@ -185,9 +185,9 @@ StatusCode ISF::FastCaloTool::commonSetup()
 
   // loop on simulate tools
   for ( const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerTools_simulate) {
-    FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*tool));
+    const FastShowerCellBuilderTool* fcs=dynamic_cast< const FastShowerCellBuilderTool* >(tool.get());
     if(fcs) {
-      if(fcs->setupEvent(ctx, m_rndm).isFailure()) {
+      if(fcs->setupEvent(ctx, *m_rndm.get(ctx)).isFailure()) {
         ATH_MSG_ERROR( "Error executing tool " << tool->name() << " in setupEvent");
         return StatusCode::FAILURE;
       }
@@ -199,7 +199,7 @@ StatusCode ISF::FastCaloTool::commonSetup()
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FastCaloTool::simulate(const ISFParticle& isp, ISFParticleContainer& secondaries, McEventCollection*)
+StatusCode ISF::FastCaloTool::simulate(const ISFParticle& isp, ISFParticleContainer& secondaries, McEventCollection*) const
 {
 
   ATH_MSG_VERBOSE( "FastCaloTool " << name() << " simulate()" );
@@ -243,7 +243,7 @@ StatusCode ISF::FastCaloTool::simulate(const ISFParticle& isp, ISFParticleContai
 }
 
 
-StatusCode ISF::FastCaloTool::processOneParticle( const ISF::ISFParticle& isfp) {
+StatusCode ISF::FastCaloTool::processOneParticle( const ISF::ISFParticle& isfp) const {
   ATH_MSG_VERBOSE ( "Simulating pdgid = "<< isfp.pdgCode());
 
   std::vector<Trk::HitInfo>* hitVector= caloHits(isfp);
@@ -272,7 +272,7 @@ StatusCode ISF::FastCaloTool::processOneParticle( const ISF::ISFParticle& isfp) 
     //sc = tool->process(m_theContainer);
     if(fcs->process_particle(m_theContainer,hitVector,
                              isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode(),
-                             nullptr, m_rndm, stats, ctx).isFailure()) {
+                             nullptr, *m_rndm, stats, ctx).isFailure()) {
       ATH_MSG_WARNING( "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );
       return StatusCode::FAILURE;
     }

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelMaker.h"
- 
+#include "TileConditions/TileInfo.h"
+
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
 // access all RawChannels inside container
@@ -25,8 +26,10 @@ TileRawChannelMaker::TileRawChannelMaker(const std::string& name,
     ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
     , m_fitOverflow(false)      
+    , m_tileInfo(0)
 {
   declareProperty("FitOverflow", m_fitOverflow, "Fit or not overflows");
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
 
   m_overflowReplaceTimeCut = 50.0;
   m_overflowReplacePedestalCut  = 170.0;
@@ -64,6 +67,10 @@ StatusCode TileRawChannelMaker::initialize() {
 
   ATH_MSG_INFO( "Initialization completed successfully");
 
+  // TileInfo
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_ADCmaxMinusEps = m_tileInfo->ADCmax() - 0.01;  // indicates channels which were masked in background dataset
+
   return StatusCode::SUCCESS;
 }
 
@@ -77,7 +84,7 @@ StatusCode TileRawChannelMaker::execute() {
 
   if (!digitsContaner.isValid()) {
     ATH_MSG_WARNING( "Can't retrieve TileDigitsContainer '"
-                    << m_digitsContainerKey.key() << "' from TDS" );
+                     << m_digitsContainerKey.key() << "' from TDS" );
 
     return StatusCode::SUCCESS;
   }
@@ -105,7 +112,7 @@ StatusCode TileRawChannelMaker::execute() {
     // Iterate over all sub-algs
     for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
       // reconstruct all channels in one drawer
-      rawChannelBuilder->build(digitsCollection);
+      ATH_CHECK( rawChannelBuilder->build(digitsCollection) );
     }
 
   }
@@ -155,9 +162,16 @@ void TileRawChannelMaker::fitOverflowedChannels() {
       int nSatSamples = 0;
       std::vector<double> digits = pDigits->get_digits();
       for (size_t ii = 0; ii<digits.size(); ii++) {
-        if (digits[ii] > 1022.9) nSatSamples++;
+        if (digits[ii] > m_ADCmaxMinusEps) nSatSamples++;
       }
                 
+      // NOTE: Optimal filtering is always run first and the fit method is used just in cases when there is an overflow.
+      // NOTE: Mathematically, a maximum pedestal range is [-460.607488, 4556.603392] and it happens for the phase 0.1 ns.
+      //       Therefore, we use the following intervals:
+      //         - if optimal filtering is used: (-500, 4600)
+      //         - if fit method is used:        (5000, 9095)
+      // NOTE: Overlay magic number is 4800.
+
       if ( !fitOK || nSatSamples > 2)  {
           // If the fit is bad, reset the energy. 
           //The same if the number of saturated samples is 3 (or bigger)
@@ -169,10 +183,10 @@ void TileRawChannelMaker::fitOverflowedChannels() {
           if (fittedRwCh->quality() > 99999.9) quality += 100000.;
           rwCh->insert(0.0, 0.0, quality);
 
-          // 20000 - Indicates overflow, 6000 - indicates bad fit or >2 saturations.
-          // 30000 - Indicates overflow + underflow, 6000 - indicates bad fit or >2 saturations.
-          float pedestal = (rwCh->pedestal() < 29500.) ? (26000.)
-                                                       : (36000.);
+          // 20000 - Indicates overflow, 9400 - indicates bad fit or >2 saturations.
+          // 30000 - Indicates overflow + underflow, 9400 - indicates bad fit or >2 saturations.
+          float pedestal = (rwCh->pedestal() < 29500.) ? (29400.)
+                                                       : (39400.);
           rwCh->setPedestal(pedestal); 
       } else {
           //If the fit is OK replace
@@ -182,10 +196,10 @@ void TileRawChannelMaker::fitOverflowedChannels() {
           rwCh->insert(fittedRwCh->amplitude(), 
                        fittedRwCh->time(), 
                        fittedRwCh->quality()*(1./400.));
-          // 20000 - Indicates overflow, 3000 - indicates fitted
-          // 30000 - Indicates overflow + underflow, 3000 - indicates fitted.
-          float pedestal = (rwCh->pedestal() < 29500.) ? (fittedRwCh->pedestal() + 23000.)
-                                                       : (fittedRwCh->pedestal() + 33000.);
+          // 20000 - Indicates overflow, 5000 - indicates fitted
+          // 30000 - Indicates overflow + underflow, 5000 - indicates fitted.
+          float pedestal = (rwCh->pedestal() < 29500.) ? fittedRwCh->pedestal() + 25000.
+	                                               : fittedRwCh->pedestal() + 35000.;
           rwCh->setPedestal(pedestal); 
       }
 		

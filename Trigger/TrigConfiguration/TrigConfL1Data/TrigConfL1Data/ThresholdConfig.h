@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_ThresholdConfig
@@ -125,25 +125,6 @@ namespace TrigConf {
       const std::vector<TriggerThreshold*>& getBcmcmbThresholdVector()  const { return getThresholdVector(L1DataDef::BCMCMB); }
       const std::vector<TriggerThreshold*>& getLucidThresholdVector()   const { return getThresholdVector(L1DataDef::LUCID); }
       const std::vector<TriggerThreshold*>& getBptxThresholdVector()    const { return getThresholdVector(L1DataDef::BPTX); }
- 
-      #ifndef __GCCXML__
-
-      const std::vector<TriggerThreshold*>* getClusterThresholdPointer() const __attribute__ ((deprecated)) { return &m_ClusterThresholdVector;}
-      const std::vector<TriggerThreshold*>* getJetThresholdPointer()     const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::JET);}
-      const std::vector<TriggerThreshold*>* getFJetThresholdPointer()    const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::FJ);}
-      const std::vector<TriggerThreshold*>* getJbThresholdPointer()      const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::JB);}
-      const std::vector<TriggerThreshold*>* getJfThresholdPointer()      const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::JF);}
-      const std::vector<TriggerThreshold*>* getTotEtPointer()            const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::TE);}
-      const std::vector<TriggerThreshold*>* getJetEtPointer()            const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::JE);}
-      const std::vector<TriggerThreshold*>* getMissEtPointer()           const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::XE);}
-      const std::vector<TriggerThreshold*>* getMissEtSignPointer()       const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::XS);}
-      const std::vector<TriggerThreshold*>* getMuonThresholdPointer()    const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::MUON);}
-      const std::vector<TriggerThreshold*>* getRndmThresholdPointer()    const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::RNDM);}
-      const std::vector<TriggerThreshold*>* getBgrpThresholdPointer()    const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::BGRP);}
-      const std::vector<TriggerThreshold*>* getPclkThresholdPointer()    const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::PCLK);}
-      const std::vector<TriggerThreshold*>* getNimThresholdPointer()     const __attribute__ ((deprecated)) { return &getThresholdVector(L1DataDef::NIM);}
-
-      #endif
    };
 }
 

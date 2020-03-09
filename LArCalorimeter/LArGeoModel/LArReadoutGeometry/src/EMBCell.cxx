@@ -26,22 +26,29 @@ double EMBCell::getPhiLocalUpper(double /*r*/) const {
 }
 
 unsigned int EMBCell::getNumElectrodes() const {
-  if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  if(!m_initHVdone) initHV();
   return m_electrode.size();
 }
 
 const EMBHVElectrode & EMBCell::getElectrode (unsigned int i) const {
-  if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  if(!m_initHVdone) initHV();
   return *(m_electrode[i]);
 }
 
 const EMBPresamplerHVModule& EMBCell::getPresamplerHVModule () const {
-  if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  if(!m_initHVdone) initHV();
   return *m_presamplerModule;
 }
 
 
 void EMBCell::initHV() const {
+
+  if(m_initHVdone) return; // should be done only once
+
+  std::lock_guard<std::mutex> lock(m_mut);
 
   if (getSamplingIndex()==0) {
     const EMBPresamplerHVManager& presamplerHVManager=getDescriptor()->getManager()->getPresamplerHVManager();
@@ -102,6 +109,7 @@ void EMBCell::initHV() const {
     }
     
   }
+  m_initHVdone=true;
 } 
 
 

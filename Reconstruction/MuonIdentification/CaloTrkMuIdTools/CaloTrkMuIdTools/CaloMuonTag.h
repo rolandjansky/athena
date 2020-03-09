@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_CALOMUONTAG_H
@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
+#include <atomic>
 
 class TFile;
 class TH2F;
@@ -66,8 +67,8 @@ private:
 	int m_numCuts;
 	int m_numPtBins;
 
-	mutable int m_numTagged;
-	mutable int m_numRejected;
+	mutable std::atomic_int m_numTagged;
+	mutable std::atomic_int m_numRejected;
 
 };
 

@@ -19,13 +19,17 @@
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 
 
+//To access detector envelope
+#include "RegSelLUT/IRegionIDLUT_Creator.h"
+
+
 //forward declarations
 class IIncidentSvc;
 class TTree;
 
 
 namespace MuonGM {
-class MuonDetectorManager;
+    class MuonDetectorManager;
 }
 
 namespace NSWL1 {
@@ -60,13 +64,17 @@ namespace NSWL1 {
                         const std::string& name,
                         const IInterface* parent);
         virtual ~PadTriggerLogicOfflineTool();
-        virtual StatusCode initialize();
-        virtual void handle (const Incident& inc);
+        virtual StatusCode initialize() override;
+        virtual void handle (const Incident& inc) override;
         /// Log a message using the Athena controlled logging system
+
+        virtual
+        StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers) override;
+
+
+        int ROI2BandId(const float &EtaTrigAtCenter, const int &SectorType);//Recipe From Y.R (based on eta slicing of triggering bands see the implementation) 
         
-        StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers);
-
-
+        
         static std::vector<std::unique_ptr<PadTrigger>> build4of4SingleWedgeTriggers(const std::vector<std::shared_ptr<PadData>> &pads);
 
         /**
@@ -79,20 +87,21 @@ namespace NSWL1 {
             
     private:
         /// get the output tree from the athena histogram service
-        TTree* get_tree_from_histsvc();
+         const std::vector<float> m_etaBandsLargeSector;
+         const std::vector<float> m_etaBandsSmallSector;
+
+
+
+        StatusCode get_tree_from_histsvc(TTree*&);
 
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-
-        int     m_pad_cache_runNumber;                          //!< run number associated to the current PAD cache
-        int     m_pad_cache_eventNumber;                        //!< event number associated to the current PAD cache
-
 
         StringProperty   m_rndmEngineName;                      //!< property, todo
         StringProperty   m_sTgcDigitContainer;                  //!< property, todo
         StringProperty   m_sTgcSdoContainer;                    //!< property, todo
         FloatProperty    m_PadEfficiency;                       //!< property, todo
-
+        IntegerProperty m_phiIdBits;
         BooleanProperty  m_useSimple4of4;                       //!< property, todo
         BooleanProperty  m_doNtuple;                            //!< property, todo
 
@@ -100,6 +109,8 @@ namespace NSWL1 {
 
         void fillGeometricInformation(const std::shared_ptr<PadOfflineData>&);
          L1TdrStgcTriggerLogic m_tdrLogic;
+
+         ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC; 
     };  
 
 } // namespace NSWL1

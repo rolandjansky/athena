@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file D3PDMakerUtils/src/IndexMap.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -17,7 +15,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "boost/foreach.hpp"
 
 
 namespace D3PD {
@@ -329,7 +326,7 @@ std::string IndexMap::formatLabels() const
 {
   std::string out = *m_targetLabel;
   if (m_targetLabels) {
-    BOOST_FOREACH (const std::string& l, *m_targetLabels) {
+    for (const std::string& l : *m_targetLabels) {
       if (!out.empty())
         out += ",";
       out += l;

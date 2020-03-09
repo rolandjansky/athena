@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ class RpcPrepDataContainerCnv;
 namespace Muon 
 {
 
-    class RpcRdoToPrepDataTool;
+    class RpcRdoToPrepDataToolCore;
     class RpcPrepDataContainerCnv_p1;
     class RpcPrepDataContainerCnv_p2;
     
@@ -34,7 +34,7 @@ namespace Muon
 class RpcPrepData :   public MuonCluster
 {
 
-    friend class Muon::RpcRdoToPrepDataTool;
+    friend class Muon::RpcRdoToPrepDataToolCore;
     
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -158,9 +158,9 @@ inline int RpcPrepData::ambiguityFlag() const
   // return globalPosition:
  inline const Amg::Vector3D& RpcPrepData::globalPosition() const
    {
-     if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition());
+      if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
 
-      if (m_globalPosition==0) throw Trk::PrepRawDataUndefinedVariable();
+      if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
       return *m_globalPosition;
     }
 }

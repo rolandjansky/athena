@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -56,7 +56,8 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
         inline short EventSelection() const { return m_inTime; }
 
     private:
-        std::string m_mcEventCollection; 
+        SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventContainerKey{this,"McEventCollection","TruthEvents","ReadHandleKey for xAOD::TruthEventContainer"};
+        std::string m_mcEventCollection;
         double m_deltaRCut; //!< deltaR cut value of the cone matching (max distance between Jet axis and momentum of truth particel)
         double m_ptCut;     //!< pT cut for partons
         bool   m_noDoc;

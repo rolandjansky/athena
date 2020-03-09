@@ -13,7 +13,7 @@ from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
 # check (for robustness) if ID is on at all!
 if not DetFlags.detdescr.ID_on():
-  print "InDetRec_jobOptions.py: DetFlags ID is turned off. Not including anything!"
+  printfunc ("InDetRec_jobOptions.py: DetFlags ID is turned off. Not including anything!")
 else:
   # +++++++++++++++++++++++
   # Control 
@@ -30,24 +30,24 @@ else:
 
     # --- ensure that Calo clustering is running if we run in calo seeded mode 
     if InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and not DetFlags.detdescr.Calo_allOn():
-      print "*************************************************************"
-      print "* Major FAILURE : InDet reconstruction in seeded brem mode, *"
-      print "*                 but LAr is off                            *"
-      print "*************************************************************"
-      # raise RuntimeError,"Conflict in InDetRec setup: seeded Brem recovery, but Calo is off"
+      printfunc ("*************************************************************")
+      printfunc ("* Major FAILURE : InDet reconstruction in seeded brem mode, *")
+      printfunc ("*                 but LAr is off                            *")
+      printfunc ("*************************************************************")
+      # raise RuntimeError ("Conflict in InDetRec setup: seeded Brem recovery, but Calo is off")
       if InDetFlags.doBremRecovery.is_locked():
         InDetFlags.doBremRecovery.unlock()
-      print " ------------> WARNING: turning off brem recovery"
+      printfunc (" ------------> WARNING: turning off brem recovery")
       InDetFlags.doBremRecovery.set_Value_and_Lock(False)
       # --- ditto for calo seeded TRT segments
     if InDetFlags.doCaloSeededTRTSegments() and not DetFlags.detdescr.Calo_allOn():
-      print "******************************************************"
-      print "* Major FAILURE : Back tracking in Calo seeded mode, *"
-      print "*                 but Calo is off                    *"
-      print "******************************************************"
+      printfunc ("******************************************************")
+      printfunc ("* Major FAILURE : Back tracking in Calo seeded mode, *")
+      printfunc ("*                 but Calo is off                    *")
+      printfunc ("******************************************************")
       if InDetFlags.doCaloSeededTRTSegments.is_locked():
         InDetFlags.doCaloSeededTRTSegments.unlock()
-      print " ------------> WARNING: Using Standard Back Tracking (not calo seeded)"
+      printfunc (" ------------> WARNING: Using Standard Back Tracking (not calo seeded)")
       InDetFlags.doCaloSeededTRTSegments.set_Value_and_Lock(False)
 
     
@@ -60,15 +60,15 @@ else:
     #
     from InDetRecExample.InDetKeys import InDetKeys
     InDetKeys.lockAllExceptAlias()
-    print "Printing InDetKeys"
+    printfunc ("Printing InDetKeys")
     InDetKeys.print_JobProperties()
     
     #
     # --- setup of cut values for NewTracking  
     #
 
-    if (not 'InDetNewTrackingCuts' in dir()):
-      print "InDetRec_jobOptions: InDetNewTrackingCuts not set before - import them now"
+    if ('InDetNewTrackingCuts' not in dir()):
+      printfunc ("InDetRec_jobOptions: InDetNewTrackingCuts not set before - import them now")
       from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
       if InDetFlags.doDBMstandalone():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
@@ -99,8 +99,8 @@ else:
     #
     # --- setup of cut values for  Primary vertexing  
     #
-    if (not 'InDetPrimaryVertexingCuts' in dir()):
-      print "InDetRec_jobOptions: InDetPrimaryVertexingCuts not set before - import them now"
+    if ('InDetPrimaryVertexingCuts' not in dir()):
+      printfunc ("InDetRec_jobOptions: InDetPrimaryVertexingCuts not set before - import them now")
       from InDetRecExample.ConfiguredVertexingCuts import ConfiguredVertexingCuts
       InDetPrimaryVertexingCuts      = ConfiguredVertexingCuts(InDetFlags.primaryVertexCutSetup())
       InDetPrimaryVertexingCuts.printInfo()
@@ -182,15 +182,15 @@ else:
     # ------------------------------------------------------------
 
     # track collection keys for statistics
-    if not 'TrackCollectionKeys' in dir():
+    if 'TrackCollectionKeys' not in dir():
       TrackCollectionKeys        = []
 
-    if not 'TrackCollectionTruthKeys' in dir():
+    if 'TrackCollectionTruthKeys' not in dir():
       TrackCollectionTruthKeys   = []
 
-    if InDetFlags.doDBM() and not 'TrackCollectionKeysDBM' in dir():
+    if InDetFlags.doDBM() and 'TrackCollectionKeysDBM' not in dir():
       TrackCollectionKeysDBM = []
-    if InDetFlags.doDBM() and not 'TrackCollectionTruthKeysDBM' in dir():
+    if InDetFlags.doDBM() and 'TrackCollectionTruthKeysDBM' not in dir():
       TrackCollectionTruthKeysDBM = []
 
     # NewTracking collection keys
@@ -206,8 +206,8 @@ else:
     #
     if InDetFlags.doTrackSegmentsPixel():
       # --- load cuts for pixel segment finding
-      if (not 'InDetNewTrackingCutsPixel' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsPixel not set before - import them now"
+      if ('InDetNewTrackingCutsPixel' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsPixel not set before - import them now")
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsPixel = ConfiguredNewTrackingCuts("Pixel")
       InDetNewTrackingCutsPixel.printInfo()
@@ -229,8 +229,8 @@ else:
     #
     if InDetFlags.doTrackSegmentsSCT():
       # --- load cuts for SCT segment finding
-      if (not 'InDetNewTrackingCutsSCT' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsSCT not set before - import them now"
+      if ('InDetNewTrackingCutsSCT' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsSCT not set before - import them now")
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsSCT = ConfiguredNewTrackingCuts("SCT")
       InDetNewTrackingCutsSCT.printInfo()
@@ -306,20 +306,24 @@ else:
         #                                                 TrackCollectionTruthKeys)
 
 
-        from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-        InDetTRTonly_PRD_AssociationPhase = InDet__InDetTrackPRD_Association(name            = 'InDetTRTonly_PRD_AssociationPhase',
-                                                                        AssociationTool = InDetPrdAssociationTool,
-                                                                        TracksName      = copy.copy(TrackCollectionKeys)) 
+        # @TODO seems unused ??
+        import InDetRecExample.TrackingCommon   as TrackingCommon
+        InDetTRTonly_PRD_AssociationPhase = TrackingCommon.getInDetTrackPRD_Association(namePrefix = 'InDetTRTonly_',
+                                                                                        nameSuffix = "Phase",
+                                                                                        TracksName = copy.copy(TrackCollectionKeys))
+
+        # asso_tool_phase = TrackingCommon.getConstPRD_AssociationTool(namePrefix = 'InDetTRTonly_',nameSuffix     = "Phase")
+
         topSequence += InDetTRTonly_PRD_AssociationPhase
         if (InDetFlags.doPrintConfigurables()):
-          print InDetTRTonly_PRD_AssociationPhase
+          printfunc (InDetTRTonly_PRD_AssociationPhase)
 
-
+        from AthenaCommon import CfgGetter
         from TRT_SegmentsToTrack.TRT_SegmentsToTrackConf import InDet__TRT_SegmentsToTrack
         InDetTrkSegmenttoTrkPhase = InDet__TRT_SegmentsToTrack(name                      = "InDetTRT_SegmentsToTrack_BarrelPhase",
                                                         InputSegmentsCollection   = InDetKeys.TRT_Segments_Phase(),
                                                         OutputTrackCollection     = InDetKeys.TRT_Tracks_Phase(),
-                                                        TrackFitter               = InDetTrackFitter,
+                                                        TrackFitter               = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                         MinNHit                   = InDetNewTrackingCuts.minTRTonly(),
                                                         CombineTracks             = False,
                                                         OutputCombiCollection     = "",
@@ -328,7 +332,7 @@ else:
                                                         MaterialEffects           = False)
         topSequence += InDetTrkSegmenttoTrkPhase
         if InDetFlags.doPrintConfigurables():
-          print InDetTrkSegmenttoTrkPhase
+          printfunc (InDetTrkSegmenttoTrkPhase)
 
 
         include ("InDetRecExample/ConfiguredInDetTRTPhase.py")
@@ -354,8 +358,8 @@ else:
     #
     if InDetFlags.doTrackSegmentsTRT():
       # --- load cuts for TRT segment finding
-      if (not 'InDetNewTrackingCutsTRT' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsTRT not set before - import them now"
+      if ('InDetNewTrackingCutsTRT' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRT not set before - import them now")
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsTRT = ConfiguredNewTrackingCuts("TRT")
       InDetNewTrackingCutsTRT.printInfo()
@@ -451,8 +455,8 @@ else:
       if InDetFlags.doDVRetracking():
           # Cuts already defined in the mode, no need to re-load them
           InDetNewTrackingCutsLargeD0 = InDetNewTrackingCuts
-      if (not 'InDetNewTrackingCutsLargeD0' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsLargeD0 not set before - import them now"      
+      if ('InDetNewTrackingCutsLargeD0' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsLargeD0 not set before - import them now"      )
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
@@ -500,8 +504,8 @@ else:
       #
       # --- configure cuts for Low Pt tracking
       #
-      if (not 'InDetNewTrackingCutsLowPt' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsLowPt not set before - import them now"      
+      if ('InDetNewTrackingCutsLowPt' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsLowPt not set before - import them now"      )
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsLowPt = ConfiguredNewTrackingCuts("LowPt")
       InDetNewTrackingCutsLowPt.printInfo()
@@ -538,8 +542,8 @@ else:
       #
       # --- configure cuts for very Low Pt tracking
       #
-      if (not 'InDetNewTrackingCutsVeryLowPt' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsVeryLowPt not set before - import them now"      
+      if ('InDetNewTrackingCutsVeryLowPt' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsVeryLowPt not set before - import them now"      )
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsVeryLowPt = ConfiguredNewTrackingCuts("VeryLowPt")
       InDetNewTrackingCutsVeryLowPt.printInfo()
@@ -584,8 +588,8 @@ else:
 
     if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
       if InDetFlags.doSLHCVeryForward(): 
-       if (not 'InDetNewTrackingCutsForwardTracks' in dir()): 
-         print "InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"       
+       if ('InDetNewTrackingCutsForwardTracks' not in dir()): 
+         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"       )
          from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts 
          InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("VeryForwardSLHCTracks") 
          InDetNewTrackingCutsForwardTracks.printInfo() 
@@ -604,8 +608,8 @@ else:
 
 
       else:
-       if (not 'InDetNewTrackingCutsForwardTracks' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"      
+       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"      )
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardSLHCTracks")
         InDetNewTrackingCutsForwardTracks.printInfo()
@@ -629,8 +633,8 @@ else:
       #
       # --- configure cuts for forward tracklets
       #
-      if (not 'InDetNewTrackingCutsForwardTracks' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"      
+      if ('InDetNewTrackingCutsForwardTracks' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"      )
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardTracks")
         InDetNewTrackingCutsForwardTracks.printInfo()
@@ -651,8 +655,8 @@ else:
       #
       # --- configure cuts for Low Pt tracking
       #
-      if (not 'InDetNewTrackingCutsSLHCConversionFinding' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsSLHCConversionFinding not set before - import them now"
+      if ('InDetNewTrackingCutsSLHCConversionFinding' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsSLHCConversionFinding not set before - import them now")
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
       InDetNewTrackingCutsSLHCConversionFinding.printInfo()
@@ -675,31 +679,31 @@ else:
     #
     # ------------------------------------------------------------
     
-    if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+    if InDetFlags.doTrackSegmentsDisappearing():
       InputPixelInDetTracks = []
       InputPixelInDetTracks += InputCombinedInDetTracks
       if InDetFlags.doForwardTracks(): 
         InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
       # --- load cuts for pixel segment finding
-      if (not 'InDetNewTrackingCutsPixelPrdAssociation' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsPixelPrdAssociation not set before - import them now"
+      if ('InDetNewTrackingCutsDisappearing' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsDisappearing not set before - import them now")
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsPixelPrdAssociation = ConfiguredNewTrackingCuts("PixelPrdAssociation")
-      InDetNewTrackingCutsPixelPrdAssociation.printInfo()
+        InDetNewTrackingCutsDisappearing = ConfiguredNewTrackingCuts("Disappearing")
+      InDetNewTrackingCutsDisappearing.printInfo()
       # --- configure pixel segment finding
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetPixelTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.ResolvedPixelPrdAssociationTracks(),
+      InDetPixelTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.ResolvedDisappearingTracks(),
                                                                  InDetKeys.SiSpSeededPixelTracks(),
-                                                                 InDetNewTrackingCutsPixelPrdAssociation,
+                                                                 InDetNewTrackingCutsDisappearing,
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys)
 
       if InDetFlags.doTRTExtension() :
         include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
-        InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
-                                                                   InDetKeys.ResolvedPixelPrdAssociationTracks(),
-                                                                   InDetKeys.ExtendedTracksPixelPrdAssociation(),
-                                                                   InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
+        InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsDisappearing,
+                                                                   InDetKeys.ResolvedDisappearingTracks(),
+                                                                   InDetKeys.ExtendedTracksDisappearing(),
+                                                                   InDetKeys.ExtendedTracksMapDisappearing(),
                                                                    TrackCollectionKeys,
                                                                    TrackCollectionTruthKeys,
                                                                    False)
@@ -714,8 +718,8 @@ else:
       #
       # --- configure cuts
       #
-      if (not 'InDetNewTrackingCutsBeamGas' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsBeamGas not set before - import them now"      
+      if ('InDetNewTrackingCutsBeamGas' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsBeamGas not set before - import them now"      )
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsBeamGas = ConfiguredNewTrackingCuts("BeamGas")
       if (InDetFlags.doPrintConfigurables()):
@@ -752,9 +756,9 @@ else:
     # ------------------------------------------------------------
 
     if InDetFlags.doDBM():
-      # --- cuts                                                                                                                                                                                                                                 
-      if (not 'InDetNewTrackingCutsDBM' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsDBM not set before - import them now"
+      # --- cuts
+      if ('InDetNewTrackingCutsDBM' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsDBM not set before - import them now")
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsDBM = ConfiguredNewTrackingCuts("DBM")
         InDetNewTrackingCutsDBM.printInfo()
@@ -765,9 +769,10 @@ else:
         if DetFlags.haveRIO.pixel_on():
           PixelClusterOnTrackTool = PixelClusterOnTrackToolDBM
       if InDetFlags.loadFitter():
-        InDetTrackFitter = InDetTrackFitterDBM
-      if InDetFlags.doPattern():
-        InDetSiComTrackFinder = InDetSiComTrackFinderDBM
+        from AthenaCommon import CfgGetter
+        InDetTrackFitter = CfgGetter.getPublicTool('InDetTrackFitterDBM')
+      # if InDetFlags.doPattern():
+      #  InDetSiComTrackFinder = InDetSiComTrackFinderDBM
 
 #      InDetSiTrackerSpacePointFinder = InDetSiTrackerSpacePointFinderDBM
 
@@ -790,14 +795,23 @@ else:
     # --- Ambi solve the extended (Si + TRT) and TRT standalone tracks if both run
     if InDetFlags.doCosmics() and InDetFlags.doNewTracking() and len(InputCombinedInDetTracks) > 1:
       InputCosmicsCombinedAmbiSolver = list(InputCombinedInDetTracks)
+      
+      from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+      InDetAmbiguityScore_combinedCosmics = Trk__TrkAmbiguityScore(name                    = 'InDetCombinedCosmicsAmbiguityScore',
+                                                                   TrackInput              = InputCosmicsCombinedAmbiSolver,
+                                                                   TrackOutput             = 'ScoredMapCosmics',
+                                                                   AmbiguityScoreProcessor = '' )
+                                                                  
+      topSequence += InDetAmbiguityScore_combinedCosmics
+
       from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
       InDetAmbiguitySolver_combinedCosmics = Trk__TrkAmbiguitySolver(name               = 'InDetCombinedCosmicsAmbiSolver',
-                                                                     TrackInput         = InputCosmicsCombinedAmbiSolver,
+                                                                     TrackInput         = 'ScoredMapCosmics',
                                                                      TrackOutput        = "CombinedCosmicTracks",
                                                                      AmbiguityProcessor = InDetAmbiguityProcessorCosmics)
       topSequence += InDetAmbiguitySolver_combinedCosmics
       if (InDetFlags.doPrintConfigurables()):
-        print InDetAmbiguitySolver_combinedCosmics
+        printfunc (InDetAmbiguitySolver_combinedCosmics)
 
       InputCombinedInDetTracks = [ InDetKeys.CombinedCosmicTracks() ]
 	  
@@ -840,13 +854,16 @@ else:
         ToolSvc += InDetPRD_Provider
 
         # --- the truth track builder 
+        from AthenaCommon import CfgGetter
         from TrkTruthTrackTools.TrkTruthTrackToolsConf import Trk__TruthTrackBuilder
+        # @TODO should a track fitter be used which does not require a split cluster map ?
         InDetTruthTrackBuilder = Trk__TruthTrackBuilder(name                = 'InDetTruthTrackBuilder',
-                                                        TrackFitter         = InDetTrackFitter,
-                                                        ExtrapolationTool   = InDetExtrapolator,
+                                                        TrackFitter         = CfgGetter.getPublicTool('InDetTrackFitter'),
+                                                        ExtrapolationTool   = TrackingCommon.getInDetExtrapolator(),
                                                         RotCreatorTool      = InDetRotCreator,
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
                                                         MinDegreesOfFreedom = 1,
+                                                        MatEffects          =  InDetFlags.materialInteractionsType(), 
                                                         MinSiHits           =  InDetNewTrackingCuts.minClusters() )
         if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
             InDetTruthTrackBuilder.MinSiHitsForward = InDetNewTrackingCutsForwardTracks.minClusters()
@@ -854,18 +871,6 @@ else:
 #        InDetTruthTrackBuilder.OutputLevel = VERBOSE
         ToolSvc += InDetTruthTrackBuilder
         
-        # --- the trajectory manipulator
-        if not InDetFlags.doSLHC():
-            from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectoryManipulatorID
-            InDetTruthTrajectoryManipulator = InDet__PRD_TruthTrajectoryManipulatorID(name='InDetTruthTrajectoryManipulator')
-            ToolSvc += InDetTruthTrajectoryManipulator
-#            InDetTruthTrajectoryManipulator.OutputLevel = VERBOSE
-
-        # --- the trajectory shared cluster hits fixer
-#        from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySharedFixerID
-#        InDetTruthTrajectorySharedFixer = InDet__PRD_TruthTrajectorySharedFixerID(name = 'InDetTruthTrajectorySharedFixer' )                       
-#        ToolSvc += InDetTruthTrajectorySharedFixer
-
         # --- the truth PRD trajectory builder
         
         # 
@@ -884,8 +889,19 @@ else:
                                          InDetPRD_Provider               = InDetPRD_Provider,
                                          MinimumPt                       =  InDetNewTrackingCuts.minPT(),
                                          PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter ])
-        if not InDetFlags.doSLHC():
+        if not InDetFlags.doSLHC() and not InDetFlags.doIdealPseudoTracking():
+         # --- the trajectory manipulator
+            from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectoryManipulatorID
+            InDetTruthTrajectoryManipulator = InDet__PRD_TruthTrajectoryManipulatorID(name='InDetTruthTrajectoryManipulator')
+            ToolSvc += InDetTruthTrajectoryManipulator
+
+         # --- the trajectory shared cluster hits fixer
+#           from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySharedFixerID
+#           InDetTruthTrajectorySharedFixer = InDet__PRD_TruthTrajectorySharedFixerID(name = 'InDetTruthTrajectorySharedFixer' )                       
+#           ToolSvc += InDetTruthTrajectorySharedFixer
+            
             InDetPRD_TruthTrajectoryBuilder.PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectoryManipulator ]
+        
         ToolSvc+=InDetPRD_TruthTrajectoryBuilder
 #        InDetPRD_TruthTrajectoryBuilder.OutputLevel = VERBOSE
 
@@ -898,13 +914,14 @@ else:
           PRD_TruthTrajectorySelector  = [ InDetTruthTrajectorySelector ]          
 
         # --- the truth track creation algorithm
+        from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
         from TrkTruthTrackAlgs.TrkTruthTrackAlgsConf import Trk__TruthTrackCreation
         InDetTruthTrackCreation = Trk__TruthTrackCreation(name = 'InDetTruthTrackCreation',
                                                           PRD_TruthTrajectoryBuilder = InDetPRD_TruthTrajectoryBuilder,
                                                           TruthTrackBuilder          = InDetTruthTrackBuilder,
                                                           OutputTrackCollection      = InDetKeys.PseudoTracks(),
-                                                          AssoTool                   = InDetPrdAssociationTool,
-                                                          TrackSummaryTool           = InDetTrackSummaryToolSharedHits,
+                                                          AssociationTool            = getInDetPRDtoTrackMapToolGangedPixels(),
+                                                          TrackSummaryTool           = TrackingCommon.getInDetTrackSummaryToolSharedHits(),
                                                           PRD_TruthTrajectorySelectors  = PRD_TruthTrajectorySelector )
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
@@ -920,7 +937,7 @@ else:
 
         from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
         InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
-                                               Extrapolator = InDetExtrapolator)
+                                               Extrapolator = TrackingCommon.getInDetExtrapolator())
         ToolSvc += InDetTruthToTrack
     
         # Register the track collections for further processing - only if new tracking has not been running
@@ -968,17 +985,19 @@ else:
         TrackCollectionTruthKeys += [ InDetKeys.DBMTracksTruth() ]
       else:
         from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
+        from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
-                                                              AssoTool                = InDetPrdAssociationTool,
+                                                              AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
+                                                              AssociationMapName      = "" if not InDetFlags.doCosmics() else ("PRDtoTrackMap" + InDetKeys.UnslimmedTracks()),
                                                               UpdateSharedHitsOnly    = False,
                                                               UpdateAdditionalInfo    = True,
-                                                              SummaryTool             = InDetTrackSummaryToolSharedHits)
+                                                              SummaryTool             = TrackingCommon.getInDetTrackSummaryToolSharedHits())
         topSequence += TrkTrackCollectionMerger
 
         if (InDetFlags.doPrintConfigurables()):
-          print TrkTrackCollectionMerger
+          printfunc (TrkTrackCollectionMerger)
 
       # --- Delete unmerged tracks (Si, back-tracking, TRT)
         from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
@@ -1008,19 +1027,20 @@ else:
     
 
       # Dummy Merger to fill additional info for PRD-associated pixel tracklets
-      if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+      if InDetFlags.doTrackSegmentsDisappearing():
        DummyCollection = []
        if InDetFlags.doTRTExtension() :
-         DummyCollection += [ InDetKeys.ExtendedTracksPixelPrdAssociation()]
+         DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
        else :
          DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
+       from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
-                                                                 OutputTracksLocation    = InDetKeys.PixelPrdAssociationTracks(),
-                                                                 AssoTool                = InDetPrdAssociationTool,
+                                                                 OutputTracksLocation    = InDetKeys.DisappearingTracks(),
+                                                                 AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                                  UpdateSharedHitsOnly    = False,
                                                                  UpdateAdditionalInfo    = True,
-                                                                 SummaryTool             = InDetTrackSummaryToolSharedHits)
+                                                                 SummaryTool             = TrackingCommon.getInDetTrackSummaryToolSharedHits())
        #TrkTrackCollectionMerger_pix.OutputLevel = VERBOSE
        topSequence += TrkTrackCollectionMerger_pix
 
@@ -1029,13 +1049,13 @@ else:
           # set up the truth info for this container
           #
             include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PixelPrdAssociationTracks(),
-                                                         InDetKeys.PixelPrdAssociationDetailedTracksTruth(),
-                                                         InDetKeys.PixelPrdAssociationTracksTruth())
+            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.DisappearingTracks(),
+                                                         InDetKeys.DisappearingDetailedTracksTruth(),
+                                                         InDetKeys.DisappearingTracksTruth())
     
 
        if (InDetFlags.doPrintConfigurables()):
-         print TrkTrackCollectionMerger_pix
+         printfunc (TrkTrackCollectionMerger_pix)
 
 
     # ------------------------------------------------------------
@@ -1069,17 +1089,21 @@ else:
     #
     # ---------------------------------------------------------------- 
     if InDetFlags.doRefit():
+      from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
       from TrkRefitAlg.TrkRefitAlgConf import Trk__ReFitTrack
+      from AthenaCommon import CfgGetter
+      # @TODO for the track refit can a track fitter be used which requires a split cluster map ?
+      #       Should the scoring+split cluster map building be  executed ?
       InDetReFitTrack = Trk__ReFitTrack (name           = "InDetRefitTrack",
-                                         FitterTool     = InDetTrackFitter,
-                                         FitterToolTRT  = InDetTrackFitterTRT,
-                                         SummaryTool    = InDetTrackSummaryToolSharedHits,
-                                         AssoTool       = InDetPrdAssociationTool,
+                                         FitterTool     = CfgGetter.getPublicTool('InDetTrackFitter'),
+                                         FitterToolTRT  = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
+                                         SummaryTool    = TrackingCommon.getInDetTrackSummaryToolSharedHits(),
+                                         AssociationTool= getInDetPRDtoTrackMapToolGangedPixels(),
                                          TrackName      = InputTrackCollection,
                                          NewTrackName   = InDetKeys.RefittedTracks(),
                                          fitRIO_OnTrack = InDetFlags.refitROT(),
                                          useParticleHypothesisFromTrack = True)
-        
+
       if InDetFlags.materialInteractions():
         InDetReFitTrack.matEffects = InDetFlags.materialInteractionsType()
       else:
@@ -1087,7 +1111,7 @@ else:
             
       topSequence += InDetReFitTrack
       if (InDetFlags.doPrintConfigurables()):
-        print InDetReFitTrack
+        printfunc (InDetReFitTrack)
       # set input track name
       InputTrackCollection = InDetKeys.RefittedTracks()
       if InDetFlags.doTruth():
@@ -1124,7 +1148,7 @@ else:
         InDetTrkSlimmingToolTracks=InDetTrkSlimmingTool
 
       if (InDetFlags.doPrintConfigurables()):
-        print InDetTrkSlimmingTool
+        printfunc (InDetTrkSlimmingTool)
             
       from TrkTrackSlimmer.TrkTrackSlimmerConf import Trk__TrackSlimmer as ConfigurableTrackSlimmer
       InDetTrkSlimmer = ConfigurableTrackSlimmer(name                 = "InDetTrackSlimmer",
@@ -1134,7 +1158,7 @@ else:
                                                  OnlySetPersistificationHints = InDetFlags.doSlimPoolTrack() )
       topSequence += InDetTrkSlimmer
       if (InDetFlags.doPrintConfigurables()):
-        print InDetTrkSlimmer
+        printfunc (InDetTrkSlimmer)
 
       if not (InDetFlags.doMonitoringGlobal() or 
               InDetFlags.doNtupleCreation() or
@@ -1181,7 +1205,7 @@ else:
                                                    AliasName        = InDetKeys.Tracks())
         topSequence += InDetCopyAlg
         if (InDetFlags.doPrintConfigurables()) or True:
-          print InDetCopyAlg
+          printfunc (InDetCopyAlg)
       # --- for output
         InDetKeys.AliasToTracks = InputTrackCollection
       # --- input for next algorithm

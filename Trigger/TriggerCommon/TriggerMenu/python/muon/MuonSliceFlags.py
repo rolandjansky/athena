@@ -11,6 +11,14 @@ __doc__="Muon slice specific flags  "
 
 
 _flags = [] 
+class doTrigMuonConfig(JobProperty):
+    """ configure for trigger if true, offline if false """ 
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doTrigMuonConfig)
+
 class doSiTrack(JobProperty):
     """ do or not to do SiTrack algo """ 
     statusOn=True

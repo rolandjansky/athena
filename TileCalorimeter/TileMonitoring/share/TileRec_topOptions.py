@@ -195,23 +195,12 @@ if doTrigger:
         cfg = TriggerConfigGetter()
 
 
-topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
-
-
 if not athenaCommonFlags.isOnline():
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-    lumiTool = LuminosityToolDefault()
-    lumiTool.OutputLevel = INFO
-    ToolSvc += lumiTool
+    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+    LuminosityCondAlgDefault()
 else:
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-    ToolSvc += LuminosityToolOnline()
-
-if not athenaCommonFlags.isOnline() and False:
-    from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
-    liveTool = TrigLivefractionToolDefault()
-    liveTool.OutputLevel = INFO
-    ToolSvc += liveTool
+    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+    LuminosityCondAlgOnlineDefault()
 
 
 TileCorrectTime = True

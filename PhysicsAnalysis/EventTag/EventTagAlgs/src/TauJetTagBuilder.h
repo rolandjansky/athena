@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTTAGALGS_TAUJETTAGBUILDER_H
@@ -10,8 +10,6 @@
 */
 
 #include "TauTagTools/TauJetTagTool.h"
-
-class StoreGateSvc;
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"

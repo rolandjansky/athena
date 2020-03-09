@@ -4,33 +4,34 @@
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
-def createEgammaConfigFlags(): 
-    egcf=AthConfigFlags()
- 
+
+def createEgammaConfigFlags():
+    egcf = AthConfigFlags()
+
     # enable/disable the full egamma
-    egcf.addFlag("Egamma.enabled",True)
+    egcf.addFlag("Egamma.enabled", True)
 
     # do standard cluster-based egamma algorithm
-    egcf.addFlag("Egamma.doCaloSeeded",True)
-    egcf.addFlag("Egamma.doSuperclusters",True) # if true, do superculsers, false is SW
-    egcf.addFlag("Egamma.doTopoSeeded",True) # if doing SW, also add toposeeded electrons
+    egcf.addFlag("Egamma.doCaloSeeded", True)
+    egcf.addFlag("Egamma.doSuperclusters", True)  # if true, do superculsers, false is SW
+    egcf.addFlag("Egamma.doTopoSeeded", True)  # if doing SW, also add toposeeded electrons
 
     # do forward egamma
-    egcf.addFlag("Egamma.doForwardSeeded",True)
+    egcf.addFlag("Egamma.doForwardSeeded", True)
 
     # do egamma truth association when running on MC
-    egcf.addFlag("Egamma.doTruthAssociation",True)
+    egcf.addFlag("Egamma.doTruthAssociation", True)
 
     # run the GSF refitting
-    egcf.addFlag("Egamma.doGSF",True) 
+    egcf.addFlag("Egamma.doGSF", True)
 
     # build conversion vertices
-    egcf.addFlag("Egamma.doConversionBuilding",True) 
+    egcf.addFlag("Egamma.doConversionBuilding", True)
 
     # The cluster corrections/calib
     egcf.addFlag("Egamma.Calib.ClusterCorrectionVersion", 'v12phiflip_noecorrnogap')
     egcf.addFlag("Egamma.Calib.MVAVersion", 'egammaMVACalib/offline/v7')
-   
+
     ##################################################
     # The keys: should update to use file peeking info
     # Also not sure what's the best way to do this, might want to revisit
@@ -49,16 +50,22 @@ def createEgammaConfigFlags():
             return "AllCalo"
 
     egcf.addFlag("Egamma.Keys.Input.CaloCells", lambda prevFlags: _cellContainer(prevFlags))
-    egcf.addFlag("Egamma.Keys.Input.TopoClusters",'CaloTopoCluster') #input topoclusters
+    egcf.addFlag("Egamma.Keys.Input.TopoClusters", 'CaloTopoCluster')  # input topoclusters
     egcf.addFlag("Egamma.Keys.Input.TruthParticles", 'TruthParticles')
     egcf.addFlag("Egamma.Keys.Input.TruthEvents", 'TruthEvents')
+    egcf.addFlag("Egamma.Keys.Input.TrackParticles", 'InDetTrackParticles')  # input to GSF
 
     # the topoclusters selected for egamma from the input topoclusters
-    egcf.addFlag("Egamma.Keys.Internal.EgammaTopoClusters",'egammaTopoClusters') 
+    egcf.addFlag("Egamma.Keys.Internal.EgammaTopoClusters", 'egammaTopoClusters')
     egcf.addFlag("Egamma.Keys.Internal.EgammaRecs", 'egammaRecCollection')
     egcf.addFlag("Egamma.Keys.Internal.PhotonSuperRecs", 'PhotonSuperRecCollection')
     egcf.addFlag("Egamma.Keys.Internal.ElectronSuperRecs", 'ElectronSuperRecCollection')
- 
+
+    # These are the clusters that are used to determine which cells to write out to AOD
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeClusters", 'egamma711Clusters')
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeClustersSuppESD", '')
+    # don't define SuppAOD because the whole container is suppressed
+
     egcf.addFlag("Egamma.Keys.Output.ConversionVertices", 'GSFConversionVertices')
     egcf.addFlag("Egamma.Keys.Output.ConversionVerticesSuppESD", '-vxTrackAtVertex')
     egcf.addFlag("Egamma.Keys.Output.ConversionVerticesSuppAOD", '-vxTrackAtVertex')
@@ -71,29 +78,29 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.TopoSeededClustersSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.TopoSeededClustersSuppAOD", '-CellLink')
 
-    egcf.addFlag("Egamma.Keys.Output.Electrons",'Electrons')
-    egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD",'')
+    egcf.addFlag("Egamma.Keys.Output.Electrons", 'Electrons')
+    egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppAOD",
                  '-e033.-e011.-e333.-e335.-e337.-e377.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight')
 
     egcf.addFlag("Egamma.Keys.Input.ForwardTopoClusters", 'CaloCalTopoClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectrons", 'ForwardElectrons')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectronsSuppESD", '')
-    egcf.addFlag("Egamma.Keys.Output.ForwardElectronsSuppAOD", 
+    egcf.addFlag("Egamma.Keys.Output.ForwardElectronsSuppAOD",
                  '-isEMTight.-isEMMedium.-isEMLoose')
 
     egcf.addFlag("Egamma.Keys.Output.ForwardClusters", 'ForwardElectronClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppESD", '-SisterCluster')
-    egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppAOD", 
+    egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppAOD",
                  '-SisterCluster.-CellLink')
 
     egcf.addFlag("Egamma.Keys.Output.Photons", 'Photons')
     egcf.addFlag("Egamma.Keys.Output.PhotonsSuppESD", '')
-    egcf.addFlag("Egamma.Keys.Output.PhotonsSuppAOD", 
+    egcf.addFlag("Egamma.Keys.Output.PhotonsSuppAOD",
                  '-e033.-e011.-e333.-e335.-e337.-e377.-isEMLoose.-isEMTight')
 
     egcf.addFlag("Egamma.Keys.Output.GSFTrackParticles", 'GSFTrackParticles')
-    egcf.addFlag("Egamma.Keys.Output.GSFTrackParticlesSuppESD", 
+    egcf.addFlag("Egamma.Keys.Output.GSFTrackParticlesSuppESD",
                  '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi')
     egcf.addFlag("Egamma.Keys.Output.GSFTrackParticlesSuppAOD",
                  '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi')
@@ -107,14 +114,17 @@ def createEgammaConfigFlags():
 
     return egcf
 
+
 # self test
 import unittest
 
 class TestEgammaConfigFlags(unittest.TestCase):
+
     def runTest(self):
         flags = createEgammaConfigFlags()
         self.assertEqual(flags.Egamma.Keys.Output.Photons, "Photons")
         self.assertEqual(flags._get("Egamma.Keys.Output.Photons"), "Photons")
 
 if __name__ == "__main__":
+
     unittest.main()

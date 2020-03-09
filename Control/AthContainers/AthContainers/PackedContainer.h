@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,7 +19,6 @@
 
 #include "AthContainersInterfaces/IAuxSetOption.h"
 #include "AthContainers/PackedParameters.h"
-#include "CxxUtils/override.h"
 #include <vector>
 
 
@@ -72,7 +71,7 @@ public:
    *
    * See @c PackedParameters::setOptions for details.
    */
-  virtual bool setOption (const AuxDataOption& option) ATH_OVERRIDE;
+  virtual bool setOption (const AuxDataOption& option) override;
 
 
   /**

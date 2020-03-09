@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonContainerCnv_p4.h 
@@ -25,7 +25,7 @@
 #include "RecTPCnv/MuonContainer_p4.h"
 #include "RecTPCnv/MuonCnv_p4.h"
 
-typedef T_AthenaPoolTPCnvVector< 
+typedef T_AthenaPoolTPCnvVectorConst< 
             Analysis::MuonContainer, 
             MuonContainer_p4, 
             MuonCnv_p4 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigMissingETHypo.TrigMissingETHypoConf import TrigEFMissingETHypo
 
@@ -21,11 +21,11 @@ class EFMissingETHypoBase (TrigEFMissingETHypo):
 
     def onlineMonitoring(self, full=False):
         if "TrigEFMissingETHypoOnlineMonitoring" not in [t.name() for t in self.AthenaMonTools]:
-            from TrigMissingETHypo.TrigMissingETHypoMonitoring import TrigEFMissingETHypoOnlineMonitoring, TrigEFMissingETHypoFullOnlineMonitoring
+            from TrigMissingETHypo.TrigMissingETHypoMonitoring import TrigEFMissingETHypoOnlineMonitoring
             online = TrigEFMissingETHypoOnlineMonitoring()
             self.AthenaMonTools += [ online ]
 
-        if full == True and "TrigEFMissingETHypoFullOnlineMonitoring" not in [t.name() for t in self.AthenaMonTools]:
+        if full is True and "TrigEFMissingETHypoFullOnlineMonitoring" not in [t.name() for t in self.AthenaMonTools]:
             from TrigMissingETHypo.TrigMissingETHypoMonitoring import TrigEFMissingETHypoFullOnlineMonitoring
             onlineFull = TrigEFMissingETHypoFullOnlineMonitoring()
             self.AthenaMonTools += [ onlineFull ]

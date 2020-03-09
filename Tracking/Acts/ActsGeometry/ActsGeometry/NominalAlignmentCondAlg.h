@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 // PACKAGE
 
@@ -20,17 +19,15 @@ class ActsAlignmentStore;
 
 class ActsGeometryContext;
 
-
 /// @class NominalAlignmentCondAlg
 /// Conditions algorithm which produces an (effectively)
 /// infinitely valid ActsAlignmentStore which has
 /// nominal alignments (= identity deltas)
 ///
-class NominalAlignmentCondAlg  :  public AthAlgorithm {
+class NominalAlignmentCondAlg : public AthAlgorithm {
 
 public:
-
-  NominalAlignmentCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
+  NominalAlignmentCondAlg(const std::string &name, ISvcLocator *pSvcLocator);
   virtual ~NominalAlignmentCondAlg();
 
   virtual bool isClonable() const override { return true; }
@@ -40,10 +37,9 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-
-  SG::WriteCondHandleKey<ActsGeometryContext> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
+  SG::WriteCondHandleKey<ActsGeometryContext> m_wchk{
+      this, "ActsAlignmentKey", "ActsAlignment", "cond handle key"};
 
   ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
-
 };

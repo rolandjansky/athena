@@ -91,6 +91,8 @@ namespace InDet {
         const PixelID*                              m_pixIdHelper;
         std::string                                 m_pixClusterContainerName;          
         mutable const PixelClusterContainer*        m_pixClusterContainer;              
+        // For P->T converter of Pixel Clusters
+        SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
         
         const SCT_ID*                               m_sctIdHelper;                      
         std::string                                 m_sctClusterContainerName;          

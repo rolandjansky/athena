@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAMRPCRDODECODER_H
@@ -7,8 +7,11 @@
 
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
+
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <inttypes.h>
 #include <vector>
@@ -44,9 +47,9 @@ class RpcRDO_Decoder : virtual public IRPC_RDO_Decoder, public AthAlgTool
 	
  private:
 
-  const MuonGM::MuonDetectorManager* m_muonMgr;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
-  const RpcIdHelper*    m_rpcIdHelper;
   const IRPCcablingSvc* m_cablingSvc;
 
 };

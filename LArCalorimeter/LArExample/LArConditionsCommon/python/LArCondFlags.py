@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #======================================================================
 # File:   LArConditionsCommon/python/LArConditionsFlags.py
@@ -41,6 +41,7 @@ useMCShape                        bool
 useOFCOnlyCoolChannelSelection    bool
 ua2MeVFolder                      str
 MphysOverMcalFolder               str
+fSamplTag                         str #Only used in overlay
 methods
 -------------------------------------------
 config_ElecCalibMC(): sets flags for MC calibration constants 
@@ -163,6 +164,12 @@ class LArCondFolderTags(JobProperty):
     statusOn=True
     allowedTypes=['dict']
     StoredValue={}
+
+class LArfSamplTag(JobProperty):
+    ## Used only in overlay! 
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue=""
 
 class DDVtoElecCalibMCTag(JobProperty):
     ### explicit tag for some folders 
@@ -311,20 +318,20 @@ class LArCondFlags(JobPropertyContainer):
         ### set flags and tags for MC
         ###
 
-        if self.LArCondFolderTags().has_key("/LAR/BadChannels/BadChannels"):
+        if "/LAR/BadChannels/BadChannels" in self.LArCondFolderTags():
             self._log.info(' using user specified tag for /LAR/BadChannels/BadChannels ' + self.LArCondFolderTags()['/LAR/BadChannels/BadChannels'])
 
         # don't override anymore, use default tag linked from global tag
         #else :
         #    self.LArCondFolderTags()['/LAR/BadChannels/BadChannels']='LARBadChannelsBadChannels-MC-empty'
 
-        if self.LArCondFolderTags().has_key("/LAR/ElecCalibMC"):
+        if "/LAR/ElecCalibMC" in self.LArCondFolderTags():
             self._log.info(' using user specified tag for /LAR/ElecCalibMC' + self.LArCondFolderTags()['/LAR/ElecCalibMC'])
             return
 
         from AthenaCommon.JobProperties import jobproperties
         theDDV =  jobproperties.Global.DetDescrVersion()
-        print theDDV
+        self._log.info(theDDV)
         # set up sampling fraction according to physics list in digit configuration
         from AthenaCommon.DetFlags import DetFlags
         _digiFlagAvailable=True
@@ -332,7 +339,7 @@ class LArCondFlags(JobPropertyContainer):
         try:
             from Digitization.DigitizationFlags import jobproperties
         except Exception:
-            print " failed to import Digitization.DigitizationFlags, will not get physics list from Digitization.DigitizationFlags " 
+            self._log.warning(" failed to import Digitization.DigitizationFlags, will not get physics list from Digitization.DigitizationFlags ")
             _digiFlagAvailable=False              
 
         if _digiFlagAvailable  and DetFlags.digitize.any_on() :
@@ -389,7 +396,7 @@ class LArCondFlags(JobPropertyContainer):
         
         # add to the map
         if do_override:
-            if DDVtype=="" or not self.DDVtoElecCalibMCTag().has_key(DDVtype) :
+            if DDVtype=="" or DDVtype not in self.DDVtoElecCalibMCTag():
 
                 self._log.error(' unable to find a proper DDV type  for LAr conditions data, DDV '+theDDV+', DDVtype='+DDVtype+',  set DDVtype to the latest ')
                 DDVtype="ATLAS-GEO"+'-'+self.LArfSamplG4Phys()
@@ -439,10 +446,10 @@ class LArCondFlags(JobPropertyContainer):
             DDVtype=theDDV[0:10] # use "ATLAS-Comm"
 
         # set the tag for OnOffIdMap
-        if self.LArCondFolderTags().has_key("/LAR/Identifier/OnOffIdMap"):
+        if "/LAR/Identifier/OnOffIdMap" in self.LArCondFolderTags():
             self._log.info(' using user specified tag for /LAR/Identifier/OnOffIdMap' , self.LArCondFolderTags()['/LAR/Identifier/OnOffIdMap'])
         else :
-            if DDVtype=="" or not self.DDVtoOnOffIdMCTag().has_key(DDVtype) :
+            if DDVtype=="" or DDVtype not in self.DDVtoOnOffIdMCTag():
                 self._log.error(' unable to find a proper DDV type  for LArOnOffIdMap, DDV '+theDDV+', DDVtype='+DDVtype+',  set DDVtype to the latest ')
                 DDVtype="ATLAS-GEO"
 
@@ -450,10 +457,10 @@ class LArCondFlags(JobPropertyContainer):
             self.LArCondFolderTags()['/LAR/Identifier/OnOffIdMap']=tag
 
         # set the tag for CalibIdMap
-        if self.LArCondFolderTags().has_key("/LAR/Identifier/CalibIdMap"):
+        if "/LAR/Identifier/CalibIdMap" in self.LArCondFolderTags():
             self._log.info(' using user specified tag for /LAR/Identifier/CalibIdMap' , self.LArCondFolderTags()['/LAR/Identifier/CalibIdMap'])
         else :
-            if DDVtype=="" or not self.DDVtoCalibIdMCTag().has_key(DDVtype) :
+            if DDVtype=="" or DDVtype not in self.DDVtoCalibIdMCTag():
                 self._log.error(' unable to find a proper DDV type  for LArCalibIdMap, DDV '+theDDV+', DDVtype='+DDVtype+',  set DDVtype to the latest ')
                 DDVtype="ATLAS-GEO"
 
@@ -462,11 +469,11 @@ class LArCondFlags(JobPropertyContainer):
             
             
         # set the tag for FebRodMap
-        if self.LArCondFolderTags().has_key("/LAR/Identifier/FebRodMap"):
+        if "/LAR/Identifier/FebRodMap" in self.LArCondFolderTags():
             self._log.info(' using user specified tag for /LAR/Identifier/FebRodMap' , self.LArCondFolderTags()['/LAR/Identifier/FebRodMap'])
 
         else :
-            if DDVtype=="" or not self.DDVtoFebRodIdMCTag().has_key(DDVtype) :
+            if DDVtype=="" or DDVtype not in self.DDVtoFebRodIdMCTag():
                 self._log.error(' unable to find a proper DDV type  for LArFebRodMap, DDV '+theDDV+', DDVtype='+DDVtype+',  set DDVtype to the latest ')
                 DDVtype="ATLAS-GEO"
 
@@ -483,7 +490,7 @@ class LArCondFlags(JobPropertyContainer):
 
     def addTag(self, folder,conddb) :
         ### if there is a tag for this folder, set it to conddb 
-        if self.LArCondFolderTags().has_key(folder):
+        if folder in self.LArCondFolderTags():
             tag = self.LArCondFolderTags()[folder]
             self._log.info(' setting folder '+ folder + ' with tag '+ tag )
             conddb.addOverride(folder,tag)
@@ -497,7 +504,7 @@ jobproperties.add_Container(LArCondFlags)
 
 _list_LArCond=[LArfSamplG4Phys,LArDBConnection,
                LArCoolChannelSelection,LArForceIOVRunNumber,OFCShapeFolder,LArElecCalibSqlite,
-               LArCondFolderTags,DDVtoElecCalibMCTag,hasMphys,hasHVCorr,SingleVersion,useShape,useMCShape,
+               LArCondFolderTags,DDVtoElecCalibMCTag,hasMphys,hasHVCorr,SingleVersion,useShape,useMCShape,LArfSamplTag,
                DDVtoOnOffIdMCTag,DDVtoFebRodIdMCTag, DDVtoCalibIdMCTag, LoadElecCalib,useOFCOnlyCoolChannelSelection,ua2MeVFolder,useLArFEBGainThresholds,MphysOverMcalFolder
               ]
 

@@ -30,18 +30,18 @@ namespace LArGeo {
   /** @class LArGeo::EndcapCryostatConstruction
       @brief Description of the LAr End Cap cryostat, including MBTS description
    */
-  class EndcapCryostatConstruction 
+  class EndcapCryostatConstruction
     {
     public:
-    
-    EndcapCryostatConstruction(bool fullGeo);
+
+    EndcapCryostatConstruction(bool fullGeo, std::string emecVariantInner = "Wheel", std::string emecVariantOuter = "Wheel");
     virtual ~EndcapCryostatConstruction();
-    
+
     // Get the envelope containing one endcap (pos/neg)
     GeoFullPhysVol*     createEnvelope(bool bPos);
 
     virtual GeoVPhysVol* GetEnvelope() {return 0;};
-    
+
 
     // Set a vis limit for the FCAL
     void setFCALVisLimit(int limit) {m_fcalVisLimit=limit;}
@@ -58,8 +58,10 @@ namespace LArGeo {
     EMECConstruction          m_emec;
     HEC2WheelConstruction     m_hec2;
     FCALConstruction*         m_fcal;
-    
+
     bool                      m_fullGeo;  // true->FULL, false->RECO
+    std::string m_EMECVariantInner;
+    std::string m_EMECVariantOuter;
 
     friend class ::LArDetectorToolNV;
 

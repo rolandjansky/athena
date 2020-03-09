@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloEnergyCnv_p1.h 
@@ -36,33 +36,25 @@ class CaloEnergyCnv_p2 : public T_AthenaPoolTPPolyCnvBase< Trk::EnergyLoss,
                                                            CaloEnergy, 
                                                            CaloEnergy_p2 >
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
-
   /** Default constructor: 
    */
   CaloEnergyCnv_p2();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c CaloEnergy
    *  from its persistent representation @c CaloEnergy_p1
    */
-  virtual void persToTrans( const CaloEnergy_p2* persObj, 
-                            CaloEnergy* transObj, 
-                            MsgStream& msg );
+  void persToTrans( const CaloEnergy_p2* persObj, 
+                    CaloEnergy* transObj, 
+                    MsgStream& msg ) const;
 
   /** Method creating the persistent representation @c CaloEnergy_p1
    *  from its transient representation @c CaloEnergy
    */
-  virtual void transToPers( const CaloEnergy* transObj, 
-                            CaloEnergy_p2* persObj, 
-                            MsgStream& msg );
+  void transToPers( const CaloEnergy* transObj, 
+                    CaloEnergy_p2* persObj, 
+                    MsgStream& msg ) const;
 
   /**
    * @brief Register a streamer converter for backwards compatibility
@@ -71,15 +63,16 @@ class CaloEnergyCnv_p2 : public T_AthenaPoolTPPolyCnvBase< Trk::EnergyLoss,
    */
   static void registerStreamerConverter();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
 
+  virtual void persToTrans( const CaloEnergy_p2* persObj, 
+                            CaloEnergy* transObj, 
+                            MsgStream& msg ) override final;
+
+
+  virtual void transToPers( const CaloEnergy* transObj, 
+                            CaloEnergy_p2* persObj, 
+                            MsgStream& msg ) override final;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> RECTPCNV_CALOENERGYCNV_P2_H

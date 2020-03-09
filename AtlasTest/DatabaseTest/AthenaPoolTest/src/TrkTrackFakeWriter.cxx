@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,9 +17,6 @@
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "TrkTrackFakeWriter.h"
 
-
-// TES include
-#include "StoreGate/StoreGateSvc.h"
 
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
@@ -56,7 +53,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "StoreGate/ReadCondHandle.h"
 #include <map>
 
 // Constructor with parameters:
@@ -64,8 +61,6 @@ TrkTrackFakeWriter::TrkTrackFakeWriter(const std::string &name,
 ISvcLocator *pSvcLocator) 
 :
 AthAlgorithm(name,pSvcLocator),
-  m_pixMgrLocation("Pixel"),
-  m_pixMgr(0),
   m_eventcounter(0),
   m_doInDet(true),
   m_addBrokenTracks(true)
@@ -80,9 +75,7 @@ StatusCode TrkTrackFakeWriter::initialize()
   // Get the messaging service, print where you are
   ATH_MSG_INFO( "TrkTrackFakeWriter::initialize()"  );
 
-  if (m_doInDet){
-    ATH_CHECK( detStore()->retrieve(m_pixMgr, m_pixMgrLocation) );
-  }
+  ATH_CHECK( m_pixelDetEleCollKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -98,12 +91,18 @@ StatusCode TrkTrackFakeWriter::execute()
 //create a demo track collection
   TrackCollection* newTracks = new TrackCollection;
 
-  Trk::Track* track = FakeTrackBuilder::buildTrack(m_pixMgr);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements = *pixelDetEleHandle;
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_WARNING(m_pixelDetEleCollKey.fullKey() << " is not available.");
+  }
+
+  Trk::Track* track = FakeTrackBuilder::buildTrack(elements);
   newTracks->push_back(track);
   ATH_MSG_VERBOSE((*track) );
   
   if (m_addBrokenTracks) {
-    Trk::Track* track = FakeTrackBuilder::buildBrokenTrack(m_pixMgr);
+    Trk::Track* track = FakeTrackBuilder::buildBrokenTrack(elements);
     newTracks->push_back(track);
   }
 

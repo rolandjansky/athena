@@ -18,12 +18,16 @@
 
 
 
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h"
@@ -32,9 +36,13 @@
 #include "TrkSurfaces/CylinderBounds.h"
 
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsLayer_xk.h"
+#include "TRT_DetElementsRoadTool_xk/TRT_DetElementsRoadData_xk.h"
+
+#include <atomic>
 #include <list>
 #include <vector>
 #include <iosfwd>
+#include <mutex>
 
 class MsgStream;
 
@@ -79,11 +87,11 @@ namespace InDet {
       
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
-	 std::list<const InDetDD::TRT_BaseElement*>&);
+	 std::vector<const InDetDD::TRT_BaseElement*>&) const;
 
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
-	 std::list<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >&);
+	 std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >&) const;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -92,52 +100,72 @@ namespace InDet {
       MsgStream&    dump(MsgStream&    out) const;
       std::ostream& dump(std::ostream& out) const;
 
-    protected:
+    private:
       
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
+      SG::ReadCondHandleKey<TRT_DetElementsRoadData_xk> m_roadDataKey{this, "RoadDataKey",                       
+        "TRT_DetElementsRoadData_xk", "Key of TRT_DetElementsRoadData_xk"}; 
+
       ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
       MagField::IMagFieldSvc*               m_fieldService{}      ;
+      ServiceHandle<IGeoModelSvc>           m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
       ToolHandle<Trk::IPropagator>          m_proptool ;  // Propagator     tool
 
-      int                                  m_outputlevel{};
-      int                                  m_nprint{}   ;
-      int                                  m_sizeroad{} ;
       float                                m_width{}    ;  // Width of the roadInnerDetector/InDetRecTools/
       double                               m_step{}     ;  // Max step allowed
-      double                               m_rminTRT{}  ;
-      Trk::CylinderBounds                  m_bounds   ;  //  
-      int                                  m_map  [3] ;
-      std::vector<TRT_DetElementsLayer_xk> m_layer[3] ;  // Layers
 
-      std::string                          m_trt      ;  // PIX manager   location
       std::string                          m_fieldmode;  // Mode of magnetic field
       Trk::MagneticFieldMode               m_fieldModeEnum{Trk::FullField};
-      std::string                     m_callbackString;
 
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
-      
-      StatusCode mapDetectorElementsProduction(IOVSVC_CALLBACK_ARGS);
-      void detElementInformation(const InDetDD::TRT_BaseElement&,double*);
-      void detElementsRoadATL(std::list<Amg::Vector3D>&, 
-			      std::list<const InDetDD::TRT_BaseElement*>&);
-      void detElementsRoadCTB(std::list<Amg::Vector3D>&, 
-			      std::list<const InDetDD::TRT_BaseElement*>&);
-      double stepToDetElement
-	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&);
 
-      Trk::CylinderBounds getBound(const Trk::TrackParameters&);
+      void detElementsRoadATL(std::list<Amg::Vector3D>&, 
+			      std::vector<const InDetDD::TRT_BaseElement*>&) const;
+      void detElementsRoadCTB(std::list<Amg::Vector3D>&, 
+			      std::vector<const InDetDD::TRT_BaseElement*>&) const;
+      double stepToDetElement
+	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&) const;
+
+      Trk::CylinderBounds getBound(const Trk::TrackParameters&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
-  };
 
-  MsgStream&    operator << (MsgStream&   ,const TRT_DetElementsRoadMaker_xk&);
-  std::ostream& operator << (std::ostream&,const TRT_DetElementsRoadMaker_xk&); 
+      MsgStream&    dumpEvent     (MsgStream   & out, int size_road) const;
+
+      inline
+      const TRT_DetElementsLayerVectors_xk *getLayers() const {
+         SG::ReadCondHandle<TRT_DetElementsRoadData_xk> roadData(m_roadDataKey);
+         if (not roadData.isValid()) {
+            ATH_MSG_FATAL("Failed to get " << m_roadDataKey.key());
+         }
+         return roadData->getLayers();
+      }
+
+      inline
+        const Trk::CylinderBounds get_bounds() const{
+        SG::ReadCondHandle<TRT_DetElementsRoadData_xk> roadData(m_roadDataKey);
+        if (not roadData.isValid()) {
+          ATH_MSG_FATAL("Failed to get " << m_roadDataKey.key());
+        }
+        return roadData->getBounds();
+      }
+
+      inline
+        double getTRTMinR() const{
+        SG::ReadCondHandle<TRT_DetElementsRoadData_xk> roadData(m_roadDataKey);
+        if (not roadData.isValid()) {
+          ATH_MSG_FATAL("Failed to get " << m_roadDataKey.key());
+        }
+        double rmintrt = roadData->getTRTMinR();
+        return rmintrt;
+      }
+
+  };
 
 } // end of name space
 

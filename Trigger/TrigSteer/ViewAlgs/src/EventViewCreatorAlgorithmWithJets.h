@@ -32,8 +32,6 @@ class EventViewCreatorAlgorithmWithJets : public EventViewCreatorAlgorithm {
     EventViewCreatorAlgorithmWithJets();
 
     SG::WriteHandleKey< ConstDataVector<xAOD::JetContainer> > m_inViewJets {this,"InViewJets","Unspecified","Name with which the Jets should be inserted into the views"};
-
-    Gaudi::Property< std::string > m_jetsLink {this,"JetsLink","Unspecified","Name of EL to Jet object linked to the decision"};
 };
 
 #endif

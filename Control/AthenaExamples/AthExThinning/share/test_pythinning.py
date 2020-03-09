@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
-import user
+from __future__ import print_function
+
 import sys
 import os
-import commands
 from AthenaCommon import ChapPy
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###-----------------------------------------------------
 EVTMAX = 5
@@ -12,7 +16,7 @@ EVTMAX = 5
 ###-----------------------------------------------------
 ## For compatibility with ATN tests
 def workDir( fileName ):
-    if os.environ.has_key('ATN_WORK_AREA'):
+    if 'ATN_WORK_AREA' in  os.environ:
         workArea = os.environ['ATN_WORK_AREA']
     else:
         workArea = "/tmp"
@@ -23,16 +27,16 @@ def workDir( fileName ):
 
 ###-----------------------------------------------------
 def doValidation( validationName, refFileName, chkFileName, chkFilter ):
-    print "## Validation of [%s]" % validationName
-    print "## ref:    %s"   % refFileName
-    print "## chk:    %s"   % chkFileName
-    print "## filter: [%s]" % chkFilter
-    sc, out = commands.getstatusoutput( "cat %s | %s | diff -u %s -" % \
-                                        ( chkFileName, chkFilter,
-                                          refFileName ) )
-    if sc == 0 and len(out) == 0: print "==> Validation [OK]"
-    else:                         print "==> Validation [ERROR]\n",\
-                                        "*"*80,out,"*"*80
+    print ("## Validation of [%s]" % validationName)
+    print ("## ref:    %s"   % refFileName)
+    print ("## chk:    %s"   % chkFileName)
+    print ("## filter: [%s]" % chkFilter)
+    sc, out = subprocess.getstatusoutput( "cat %s | %s | diff -u %s -" % \
+                                          ( chkFileName, chkFilter,
+                                            refFileName ) )
+    if sc == 0 and len(out) == 0: print ("==> Validation [OK]")
+    else:                         print ("==> Validation [ERROR]\n",
+                                         "*"*80,out,"*"*80)
     return sc, out
 
 ###-----------------------------------------------------
@@ -41,31 +45,31 @@ def installRefFiles( fileNames ):
         for fileName in [ refFile, workDir(refFile) ]:
             if os.path.exists(fileName):
                 os.remove(fileName)
-        sc,out = commands.getstatusoutput( "get_files %s" % refFile )
+        sc,out = subprocess.getstatusoutput( "get_files %s" % refFile )
         if sc != 0:
-            print "## ERROR: could not retrieve [%s]" % refFile
-            print "## reason:\n",out
+            print ("## ERROR: could not retrieve [%s]" % refFile)
+            print ("## reason:\n",out)
             continue
         if os.path.exists(refFile) and \
            os.path.exists(workDir(refFile)) and \
            os.path.samefile( refFile, workDir(refFile) ):
-            print " -%s" % workDir(refFile)
+            print (" -%s" % workDir(refFile))
             continue
-        sc,out = commands.getstatusoutput( "mv %s %s" % ( refFile,
-                                                          workDir(refFile) ) )
+        sc,out = subprocess.getstatusoutput( "mv %s %s" % ( refFile,
+                                                            workDir(refFile) ) )
         if sc != 0:
-            print "## ERROR: could not install [%s] into [%s]" %\
-                  ( refFile, workDir(refFile) )
-            print "## reason:\n",out
+            print ("## ERROR: could not install [%s] into [%s]" %
+                   ( refFile, workDir(refFile) ))
+            print ("## reason:\n",out)
             continue
         else:
-            print " -%s" % workDir(refFile)
+            print (" -%s" % workDir(refFile))
     return
 
 ###-----------------------------------------------------
-print "#"*80
-print "## testing Thinning exercize..."
-print "## installing reference files..."
+print ("#"*80)
+print ("## testing Thinning exercize...")
+print ("## installing reference files...")
 installRefFiles( [ "AthExThinning_makeData.ref",
                    "pyWriteThinnedData.ref",
                    "ReadThinnedData.ref",
@@ -73,9 +77,9 @@ installRefFiles( [ "AthExThinning_makeData.ref",
                    ] )
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
-print "## Preparing input data..."
+print ("\n")
+print ("#"*80)
+print ("## Preparing input data...")
 jobOptions = [
     ChapPy.JobOptionsCmd( "OUTPUT=\"%s\"" % workDir("my.pydata.tothin.pool") ),
     ChapPy.JobOptions( "AthExThinning/AthExThinning_makeData.py" ),
@@ -88,8 +92,8 @@ athena.EvtMax = EVTMAX
 athena.run()
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
+print ("\n")
+print ("#"*80)
 sc,out = doValidation( "Input Data",
                        workDir("AthExThinning_makeData.ref"),
                        workDir("my.pydata.tothin.pool.log"),
@@ -98,9 +102,9 @@ if sc != 0:
     raise SystemExit("ERROR")
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
-print "## Testing [writing thinned data]..."
+print ("\n")
+print ("#"*80)
+print ("## Testing [writing thinned data]...")
 jobOptions = [
     ChapPy.JobOptionsCmd( "INPUT=[\"%s\"]" % workDir("my.pydata.tothin.pool") ),
     ChapPy.JobOptionsCmd( "OUTPUT=\"%s\""  % workDir("pythinned.data.pool") ),
@@ -115,8 +119,8 @@ athena.EvtMax = -1
 athena.run()
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
+print ("\n")
+print ("#"*80)
 sc,out = doValidation( "PyWriteThinnedData",
                        workDir("pyWriteThinnedData.ref"),
                        workDir("pythinned.data.pool.log"),
@@ -125,9 +129,9 @@ if sc != 0:
     raise SystemExit("ERROR")
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
-print "## Testing [reading thinned data]..."
+print ("\n")
+print ("#"*80)
+print ("## Testing [reading thinned data]...")
 jobOptions = [
     ChapPy.JobOptionsCmd( "INPUT=[\"%s\"]" % workDir("pythinned.data.pool") ),
     ChapPy.JobOptionsCmd( "OUTPUT=\"%s\""  % workDir("reaccessed.pythinned.data.pool") ),
@@ -141,8 +145,8 @@ athena.EvtMax = -1
 athena.run()
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
+print ("\n")
+print ("#"*80)
 sc,out = doValidation( "ReadThinnedData",
                        workDir("ReadThinnedData.ref"),
                        workDir("reaccessed.pythinned.data.pool.log"),
@@ -152,9 +156,9 @@ if sc != 0:
 
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
-print "## Testing [reading non-thinned data]..."
+print ("\n")
+print ("#"*80)
+print ("## Testing [reading non-thinned data]...")
 jobOptions = [
     ChapPy.JobOptionsCmd( "INPUT=[\"%s\"]" % workDir("non.pythinned.data.pool") ),
     ChapPy.JobOptionsCmd( "OUTPUT=\"%s\""  % workDir("reaccessed.non.pythinned.data.pool") ),
@@ -168,8 +172,8 @@ athena.EvtMax = -1
 athena.run()
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
+print ("\n")
+print ("#"*80)
 sc,out = doValidation( "ReadNonThinnedData",
                        workDir("ReadNonThinnedData.ref"),
                        workDir("reaccessed.non.pythinned.data.pool.log"),
@@ -177,7 +181,7 @@ sc,out = doValidation( "ReadNonThinnedData",
 if sc != 0:
     raise SystemExit("ERROR")
 
-print ""
-print "## [All tests completed]"
-print "## Bye."
-print "#"*80
+print ("")
+print ("## [All tests completed]")
+print ("## Bye.")
+print ("#"*80)

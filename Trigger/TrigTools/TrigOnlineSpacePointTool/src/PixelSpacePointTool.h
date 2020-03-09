@@ -4,15 +4,21 @@
 
 #ifndef PixelSpacePointTool_H
 #define PixelSpacePointTool_H
+
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
-#include "InDetPrepRawData/PixelClusterCollection.h"
-#include "TrigInDetEvent/TrigSiSpacePointCollection.h"
-#include "GaudiKernel/ToolHandle.h"
-#include <vector>
-#include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "PixelGCBuilder.h"
+
+#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "InDetPrepRawData/PixelClusterCollection.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "TrigInDetEvent/TrigSiSpacePointCollection.h"
+#include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "GaudiKernel/ToolHandle.h"
+
+#include <vector>
 
 class TrigSiSpacePoint;
 class PixelID;
@@ -52,6 +58,7 @@ private:
   double m_xCenter;
   double m_yCenter;
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   bool m_useBeamSpot;
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;

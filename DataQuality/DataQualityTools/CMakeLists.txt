@@ -23,6 +23,7 @@ atlas_depends_on_subdirs(
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetRawData
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecEvent
@@ -59,9 +60,9 @@ atlas_add_component( DataQualityTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests xAODCaloEvent xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking LUCID_RawEvent ZdcEvent ZdcIdentifier GaudiKernel InDetIdentifier InDetRawData InDetPrepRawData LArRawEvent LArRecEvent MagFieldInterfaces MuonCalibITools MuonIdHelpersLib MuonRDO MuonRecHelperToolsLib TagEvent RecBackgroundEvent RecoToolInterfaces TileEvent LWHists TrkParameters TrkExInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigT1Result MuonSelectorToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests xAODCaloEvent xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking LUCID_RawEvent ZdcEvent ZdcIdentifier GaudiKernel InDetIdentifier InDetRawData InDetReadoutGeometry InDetPrepRawData LArRawEvent LArRecEvent MagFieldInterfaces MuonCalibITools MuonIdHelpersLib MuonRDO MuonRecHelperToolsLib TagEvent RecBackgroundEvent RecoToolInterfaces TileEvent LWHists TrkParameters TrkExInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigT1Result MuonSelectorToolsLib )
 
 # Install files from the package:
-#atlas_install_headers( DataQualityTools )
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

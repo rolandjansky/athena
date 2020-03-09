@@ -1,5 +1,9 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #No input file -> use MC event selector
 import AthenaCommon.AtlasUnixGeneratorJob
+
+from AthenaCommon                       import CfgMgr
 
 from AthenaCommon.GlobalFlags import GlobalFlags
 GlobalFlags.DetGeo.set_commis()
@@ -33,8 +37,7 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 theApp.EvtMax=10
 
@@ -43,16 +46,6 @@ theTester=LArBadChannelTimingAlg()
 theTester.ReallyCheck=True
 topSequence+=theTester
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=False
-theLArBadChannelTool.DumpCache=False
-
-#theLArBadChannelTool.EMBAfile = "badchan1.txt"
-theLArBadChannelTool.EMBCfile = "badchan1.txt"
-
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
 
 svcMgr.IOVDbSvc.Folders+=["/LAR/ElecCalib/BadChannels<tag>TestTag</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
 

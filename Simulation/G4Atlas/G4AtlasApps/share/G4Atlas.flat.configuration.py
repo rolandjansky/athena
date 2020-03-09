@@ -27,13 +27,10 @@ from AthenaCommon.DetFlags import DetFlags
 ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
 
-## Tidy up NSW DetFlags: temporary measure
-DetFlags.sTGC_setOff()
-DetFlags.Micromegas_setOff()
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 
 ## Switch off tasks
 DetFlags.pileup.all_setOff()
@@ -53,6 +50,10 @@ DetFlags.writeRDOPool.all_setOff()
 # Switch off GeoModel Release in the case of parameterization
 if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
     simFlags.ReleaseGeoModel = False
+
+if jobproperties.Beam.beamType() == 'cosmics' or \
+   (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    simFlags.SimulateCavern = True
 
 ## Translate conditions tag into IOVDbSvc global tag: must be done before job properties are locked!!!
 from AthenaCommon.AppMgr import ServiceMgr
@@ -108,41 +109,20 @@ from AtlasGeoModel import SimEnvelopes
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 gms = GeoModelSvc()
 ## Cosmics GeoModel tweaks
-if jobproperties.Beam.beamType() == 'cosmics' or \
-   (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+if simFlags.SimulateCavern.get_Value():
     from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
     gms.DetectorTools += [ CavernInfraDetectorTool() ]
 ## Protects GeoModelSvc in the simulation from the AlignCallbacks
 gms.AlignCallbacks = False
 ## Muon GeoModel tweaks
 if DetFlags.Muon_on():
-    ## Turn off caching in the muon system
-    from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-    MuonDetectorTool = MuonDetectorTool()
-    MuonDetectorTool.FillCacheInitTime = 0 # default is 1
-    if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-        MuonDetectorTool.StationSelection  = 2
-        MuonDetectorTool.SelectedStations  = [ "EIL1" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL2" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL6" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL7" ]
-        MuonDetectorTool.SelectedStations  += [ "EIS*" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL10" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL11" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL12" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL17" ]
-        MuonDetectorTool.SelectedStations  += [ "CSS*" ]
-        MuonDetectorTool.SelectedStations  += [ "CSL*" ]
-        MuonDetectorTool.SelectedStations  += [ "T4E*" ]
-        MuonDetectorTool.SelectedStations  += [ "T4F*" ]
-
     ## Additional material in the muon system
     from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
     AGDD2Geo = AGDDtoGeoSvc()
     from AthenaCommon import CfgGetter
     if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders.__str__():
         AGDD2Geo.Builders += [CfgGetter.getPrivateTool("MuonSpectrometer", checkType=True)]
-    if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders.__str__():
             AGDD2Geo.Builders += [CfgGetter.getPrivateTool("NewSmallWheel", checkType=True)]
     theApp.CreateSvc += ["AGDDtoGeoSvc"]
@@ -158,7 +138,7 @@ if not simFlags.ISFRun:
     createSimulationParametersMetadata()
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if not athenaCommonFlags.PoolHitsOutput.statusOn:
-        print 'AtlasSimSkeleton._do_metadata :: no output HITS file, so no metadata writing required.'
+        printfunc ('AtlasSimSkeleton._do_metadata :: no output HITS file, so no metadata writing required.')
     else:
         from AthenaServices.AthenaServicesConf import AthenaOutputStream
         stream1_SimMetaData = AthenaOutputStream("StreamHITS_SimMetaData")
@@ -188,7 +168,6 @@ if not simFlags.ISFRun:
         #import EventInfoMgt.EventInfoMgtInit
 
         ## EventInfo & TruthEvent always written by default
-        stream1.ForceRead=True
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
                             "JetCollection#*"]
@@ -221,13 +200,11 @@ if not simFlags.ISFRun:
         if DetFlags.Muon_on():
             stream1.ItemList += ["RPCSimHitCollection#*",
                                  "TGCSimHitCollection#*",
-                                 "CSCSimHitCollection#*",
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
-            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-                stream1.ItemList += ["sTGCSimHitCollection#*"]
-                stream1.ItemList += ["MMSimHitCollection#*"]
-                stream1.ItemList += ["GenericMuonSimHitCollection#*"]
+            if MuonGeometryFlags.hasCSC(): stream1.ItemList += ["CSCSimHitCollection#*"]
+            if MuonGeometryFlags.hasSTGC(): stream1.ItemList += ["sTGCSimHitCollection#*"]
+            if MuonGeometryFlags.hasMM(): stream1.ItemList += ["MMSimHitCollection#*"]
 
         ## Lucid
         if DetFlags.Lucid_on():
@@ -348,7 +325,7 @@ if not simFlags.ISFRun:
         if athenaCommonFlags.SkipEvents.statusOn and athenaCommonFlags.SkipEvents()!=0:
             msg = "SimSkeleton._do_readevgen :: athenaCommonFlags.SkipEvents set in a job without an active "
             msg += "athenaCommonFlags.PoolEvgenInput flag: ignoring event skip request"
-            print msg
+            printfunc (msg)
 
     ## SimSkeleton._do_persistency
     from G4AtlasApps.SimFlags import simFlags

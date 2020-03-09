@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETREC_TRIGHLTJETDEBUG_H
 #define TRIGHLTJETREC_TRIGHLTJETDEBUG_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "StoreGate/StoreGateSvc.h"
 
 class TrigHLTJetDebug: public HLT::HypoAlgo {
 	
@@ -22,9 +21,6 @@ public:
 private:
   std::string m_chainName{""};
   std::string m_eventShapeSGKey{""};
-
-  /** @brief Pointer to StoreGateSvc service.*/
-  StoreGateSvc* m_storeGate{nullptr};
 
 }; 
 

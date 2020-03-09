@@ -18,7 +18,6 @@
 #include "PixelRawContByteStreamCnv.h"
 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelRawContByteStreamTool.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "InDetRawData/PixelRDORawData.h"

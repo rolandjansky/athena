@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.AutoConfigFlags import GetDetDescrInfo
+import re
 
 # Some comments from Ed about existing flags
 # MuonCnvExample
@@ -17,6 +19,17 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 # - MuonRecFlags.py - necessary, but needs cleaning up.
 # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecFlags.py
 
+def _muonAlignMode(flags):
+    # Small function that determines if the alignment flags should be true or false
+    # follows the logic in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignFlags.py
+    problematic_tags = ['COMCOND-HLT[A-C]-00[01]-00', 'COMCOND-ES1C-00[01]-00', 'COMCOND-REPC-001', 'COMCOND-SIM-01-00']
+    if any(re.match(tag,flags.IOVDb.DatabaseInstance) for tag in problematic_tags):
+        return False
+    elif flags.Input.isMC:
+        return False
+    else:
+        return True
+
 def createMuonConfigFlags(): 
     mcf=AthConfigFlags()
  
@@ -24,10 +37,9 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.doMDTs",True)
     mcf.addFlag("Muon.doTGCs",True)
     mcf.addFlag("Muon.doRPCs",True)
-    # TODO auto handle NSW here.
-    mcf.addFlag("Muon.doCSCs",True) 
-    mcf.addFlag("Muon.doMicromegas",False) 
-    mcf.addFlag("Muon.dosTGCs",False) 
+    mcf.addFlag("Muon.doCSCs",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasCSC',"True"))
+    mcf.addFlag("Muon.doMicromegas",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasMM',"True"))
+    mcf.addFlag("Muon.dosTGCs",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasSTGC',"True"))
     
     # stages of processing
     # 1. Digitization
@@ -49,7 +61,7 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.enableErrorTuning",False) # turn on error tuning to account for misalignments
     mcf.addFlag("Muon.useLooseErrorTuning",False) 
     mcf.addFlag("Muon.useTGCPriorNextBC",False) # Use TGC measurements from Prior and Next Bunch Crossings. These measurements are available in the real data since somewhere in 2008.
-    mcf.addFlag("Muon.useAlignmentCorrections",False) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database
+    mcf.addFlag("Muon.useAlignmentCorrections",True) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database
     mcf.addFlag("Muon.useWireSagCorrections",False) # tApply wire sag corrections.
     
     # makePRDs - surely this is top level and redundant with makeRIO?
@@ -61,7 +73,6 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.strategy", []) # CutSeedsOnTracks, CombineSegInStation, DynamicSeeding, PreferOutsideIn, AllowOneSharedHit, DoRefinement, DoAmbiSolving
     mcf.addFlag("Muon.trackBuilder", "Moore") # Allowed: 'Moore','TruthTracking','None'
     mcf.addFlag("Muon.refinementTool", "Moore") # Allowed: Moore TODO surely we can drop this if there is only one option?
-    mcf.addFlag("Muon.optimiseMomentumResolutionUsingChi2", False)
     mcf.addFlag("Muon.patternsOnly", False) # TODO probably can be dropped? Just disable later steps.
     mcf.addFlag("Muon.createTrackParticles", True ) # TODO do we ever turn this off?
     mcf.addFlag("Muon.straightLineFitMomentum", 2000.0 ) 
@@ -75,13 +86,13 @@ def createMuonConfigFlags():
     
     # CalibFlags
     mcf.addFlag("Muon.Calib.readMDTCalibFromBlob", True)  # Read mdt tube calibration from blob-folders
-    mcf.addFlag("Muon.Calib.correctMdtRtForBField", False) # Apply B-field correction to drift times
-    mcf.addFlag("Muon.Calib.correctMdtRtForTimeSlewing", False) # Apply time slewing correction to drift time
+    mcf.addFlag("Muon.Calib.correctMdtRtForBField", lambda prevFlags : (prevFlags.Input.isMC is False and prevFlags.Beam.Type=="collisions")) # Apply B-field correction to drift times only for collision data (as done in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0028)
+    mcf.addFlag("Muon.Calib.correctMdtRtForTimeSlewing", lambda prevFlags : prevFlags.Input.isMC is False) # Apply time slewing correction to drift time only for data (as done in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0028)
     mcf.addFlag("Muon.Calib.useMLRt", True) # use ML-RT functions from COOL
-    mcf.addFlag("Muon.Calib.applyRtScaling", True) # TODO - apparently not needed, but currently used in MuonCalibConfig.
+    mcf.addFlag("Muon.Calib.applyRtScaling", False) # TODO - apparently not needed, but currently used in MuonCalibConfig. Set false to match https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0072
     mcf.addFlag("Muon.Calib.correctMdtRtWireSag", False) # Apply RT wiresag correction
     mcf.addFlag("Muon.Calib.mdtCalibrationSource", "MDT") # Source for MDT t0s and rts
-    mcf.addFlag("Muon.Calib.mdtPropagationSpeedBeta", 0.85) #
+    mcf.addFlag("Muon.Calib.mdtPropagationSpeedBeta", lambda prevFlags : 1.0 if prevFlags.Input.isMC else 0.85) #
      
     mcf.addFlag("Muon.Calib.CscPedFromLocalFile", False)  
     mcf.addFlag("Muon.Calib.CscNoiseFromLocalFile", False)  
@@ -106,10 +117,10 @@ def createMuonConfigFlags():
     
     # Muon Align flags
 
-    mcf.addFlag("Muon.Align.UseALines", False)
-    mcf.addFlag("Muon.Align.UseBLines", 'none') # Can be ['none','all','barrel','endcaps']
-    mcf.addFlag("Muon.Align.UseILines", False)
-    mcf.addFlag("Muon.Align.UseAsBuilt", False)
+    mcf.addFlag("Muon.Align.UseALines", lambda prevFlags: (_muonAlignMode(prevFlags)))
+    mcf.addFlag("Muon.Align.UseBLines", lambda prevFlags: 'all' if _muonAlignMode(prevFlags) else 'none') # Can be ['none','all','barrel','endcaps']
+    mcf.addFlag("Muon.Align.UseILines", lambda prevFlags: (_muonAlignMode(prevFlags)))
+    mcf.addFlag("Muon.Align.UseAsBuilt", lambda prevFlags: (_muonAlignMode(prevFlags)))
 
     # TODO - add configuration for above    
         

@@ -28,7 +28,6 @@ find_package( XercesC )
 atlas_add_component( LArG4FCAL
                    src/*.cc
                    src/components/*.cxx
-                   PUBLIC_HEADERS LArG4FCAL
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES LArG4Code LArReadoutGeometry CaloG4SimLib StoreGateLib SGtests

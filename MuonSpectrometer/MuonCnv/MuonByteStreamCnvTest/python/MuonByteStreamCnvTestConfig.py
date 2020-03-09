@@ -1,56 +1,65 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
-def getMdtRdoToMdtDigit(name="MdtRdoToMdtDigitOverlay", **kwargs):
-    kwargs.setdefault("DecodeMdtRDO", True)
-    kwargs.setdefault("DecodeRpcRDO", False)
-    kwargs.setdefault("DecodeTgcRDO", False)
-    kwargs.setdefault("DecodeCscRDO", False)
+def getMdtRdoToMdtDigitAlg(name="MdtRdoToMdtDigitAlg", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.dataStore())
-    kwargs.setdefault("MdtRdoContainer", overlayFlags.dataStore()+"+MDTCSM")
-    kwargs.setdefault("MdtDigitContainer", overlayFlags.dataStore()+"+MDT_DIGITS")
-    return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("MdtRdoContainer", overlayFlags.bkgPrefix() + "MDTCSM")
+        kwargs.setdefault("MdtDigitContainer", overlayFlags.bkgPrefix() + "MDT_DIGITS")
+    else:
+        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+        kwargs.setdefault("MdtRdoContainer", overlayFlags.dataStore()+"+MDTCSM")
+        kwargs.setdefault("MdtDigitContainer", overlayFlags.dataStore()+"+MDT_DIGITS")
+    return CfgMgr.MdtRdoToMdtDigit(name, **kwargs)
 
 
-def getMdtRdoToMdtDigitAlg(name="MdtRdoToMdtDigitOverlayAlg", **kwargs):
-    kwargs.setdefault("MuonRdoToMuonDigitTool", "MdtRdoToMdtDigitOverlay")
-    return CfgMgr.MuonRdoToMuonDigit(name, **kwargs)
-
-
-def getRpcRdoToRpcDigit(name="RpcRdoToRpcDigitOverlay", **kwargs):
-    kwargs.setdefault("DecodeMdtRDO", False)
-    kwargs.setdefault("DecodeRpcRDO", True)
-    kwargs.setdefault("DecodeTgcRDO", False)
-    kwargs.setdefault("DecodeCscRDO", False)
+def getRpcRdoToRpcDigitAlg(name="RpcRdoToRpcDigitAlg", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.dataStore())
-    kwargs.setdefault("RpcRdoContainer", overlayFlags.dataStore()+"+RPCPAD")
-    kwargs.setdefault("RpcDigitContainer", overlayFlags.dataStore()+"+RPC_DIGITS")
-    return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("RpcRdoContainer", overlayFlags.bkgPrefix() + "RPCPAD")
+        kwargs.setdefault("RpcDigitContainer", overlayFlags.bkgPrefix() + "RPC_DIGITS")
+    else:
+        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+        kwargs.setdefault("RpcRdoContainer", overlayFlags.dataStore()+"+RPCPAD")
+        kwargs.setdefault("RpcDigitContainer", overlayFlags.dataStore()+"+RPC_DIGITS")
+    return CfgMgr.RpcRdoToRpcDigit(name, **kwargs)
 
 
-def getRpcRdoToRpcDigitAlg(name="RpcRdoToRpcDigitOverlayAlg", **kwargs):
-    kwargs.setdefault("MuonRdoToMuonDigitTool", "RpcRdoToRpcDigitOverlay")
-    return CfgMgr.MuonRdoToMuonDigit(name, **kwargs)
-
-
-def getTgcRdoToTgcDigit(name="TgcRdoToTgcDigitOverlay", **kwargs):
-    kwargs.setdefault("DecodeMdtRDO", False)
-    kwargs.setdefault("DecodeRpcRDO", False)
-    kwargs.setdefault("DecodeTgcRDO", True)
-    kwargs.setdefault("DecodeCscRDO", False)
+def getTgcRdoToTgcDigitAlg(name="TgcRdoToTgcDigitAlg", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.dataStore())
-    kwargs.setdefault("TgcRdoContainer", overlayFlags.dataStore()+"+TGCRDO")
-    kwargs.setdefault("TgcDigitContainer", overlayFlags.dataStore()+"+TGC_DIGITS")
-    return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("TgcRdoContainer", overlayFlags.bkgPrefix() + "TGCRDO")
+        kwargs.setdefault("TgcDigitContainer", overlayFlags.bkgPrefix() + "TGC_DIGITS")
+    else:
+        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+        kwargs.setdefault("TgcRdoContainer", overlayFlags.dataStore()+"+TGCRDO")
+        kwargs.setdefault("TgcDigitContainer", overlayFlags.dataStore()+"+TGC_DIGITS")
+    return CfgMgr.TgcRdoToTgcDigit(name, **kwargs)
 
 
-def getTgcRdoToTgcDigitAlg(name="TgcRdoToTgcDigitOverlayAlg", **kwargs):
-    kwargs.setdefault("MuonRdoToMuonDigitTool", "TgcRdoToTgcDigitOverlay")
-    return CfgMgr.MuonRdoToMuonDigit(name, **kwargs)
+def getSTGC_RdoToDigitAlg(name="STGC_RdoToDigitAlg", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("sTgcRdoContainer", overlayFlags.bkgPrefix() + "sTGCRDO")
+        kwargs.setdefault("sTgcDigitContainer", overlayFlags.bkgPrefix() + "sTGC_DIGITS")
+    else:
+        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+        kwargs.setdefault("sTgcRdoContainer", overlayFlags.dataStore()+"+sTGCRDO")
+        kwargs.setdefault("sTgcDigitContainer", overlayFlags.dataStore()+"+sTGC_DIGITS")
+    return CfgMgr.STGC_RdoToDigit(name, **kwargs)
+
+
+def getMM_RdoToDigitAlg(name="MM_RdoToDigitAlg", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("MmRdoContainer", overlayFlags.bkgPrefix() + "MMRDO")
+        kwargs.setdefault("MmDigitContainer", overlayFlags.bkgPrefix() + "MM_DIGITS")
+    else:
+        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+        kwargs.setdefault("MmRdoContainer", overlayFlags.dataStore()+"+MMRDO")
+        kwargs.setdefault("MmDigitContainer", overlayFlags.dataStore()+"+MM_DIGITS")
+    return CfgMgr.MM_RdoToDigit(name, **kwargs)
 
 
 def getMdtDigitToMdtRDO(name="MdtDigitToMdtRDO", **kwargs):
@@ -81,6 +90,26 @@ def getTgcDigitToTgcRDO(name="TgcDigitToTgcRDO", **kwargs):
     return CfgMgr.TgcDigitToTgcRDO(name, **kwargs)
 
 
+def getSTGC_DigitToRDO(name="STGC_DigitToRDO", **kwargs):
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "sTGCRDO")
+    else:
+        kwargs.setdefault("OutputObjectName", "sTGCRDO")
+    return CfgMgr.STGC_DigitToRDO(name, **kwargs)
+
+
+def getMM_DigitToRDO(name="MM_DigitToRDO", **kwargs):
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "MMRDO")
+    else:
+        kwargs.setdefault("OutputObjectName", "MMRDO")
+    return CfgMgr.MM_DigitToRDO(name, **kwargs)
+
+
 def getSigMdtDigitToMdtRDO(name="SigMdtDigitToMdtRDO", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("InputObjectName",overlayFlags.evtStore()+"+MDT_DIGITS")
@@ -99,30 +128,4 @@ def getSigTgcDigitToTgcRDO(name="SigTgcDigitToTgcRDO", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("InputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
     kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGCRDO")
-    return CfgMgr.TgcDigitToTgcRDO(name, **kwargs)
-
-
-def getOverlayCscDigitToCscRDO(name="OverlayCscDigitToCscRDO", **kwargs):
-    kwargs.setdefault("CscDigitToRDOTool","CscDigitToCscRDOTool4")
-    return CfgMgr.CscDigitToCscRDO(name, **kwargs)
-
-
-def getOverlayMdtDigitToMdtRDO(name="OverlayMdtDigitToMdtRDO", **kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+MDT_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.outputStore()+"+MDTCSM")
-    return CfgMgr.MdtDigitToMdtRDO(name, **kwargs)
-
-
-def getOverlayRpcDigitToRpcRDO(name="OverlayRpcDigitToRpcRDO", **kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+RPC_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.outputStore()+"+RPCPAD")
-    return CfgMgr.RpcDigitToRpcRDO(name, **kwargs)
-
-
-def getOverlayTgcDigitToTgcRDO(name="OverlayTgcDigitToTgcRDO", **kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+TGC_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.outputStore()+"+TGCRDO")
     return CfgMgr.TgcDigitToTgcRDO(name, **kwargs)

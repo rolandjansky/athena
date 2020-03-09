@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "WarmTCConstructionH62004.h"
@@ -34,7 +34,6 @@
 #include "GeoGenericFunctions/Variable.h"
 #include "GeoGenericFunctions/Sin.h"
 #include "GeoGenericFunctions/Cos.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"

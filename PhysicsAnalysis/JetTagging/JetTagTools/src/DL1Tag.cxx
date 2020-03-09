@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -51,14 +51,11 @@ namespace{
 namespace Analysis {
 
   DL1Tag::DL1Tag(const std::string& name, const std::string& n, const IInterface* p):
-    AthAlgTool(name, n,p),
+    base_class(name, n,p),
     m_calibrationDirectory("DL1"),
     m_n_compute_errors(0),
     m_runModus("analysis")
   {
-    // python binding
-    declareInterface<IMultivariateJetTagger>(this);
-
     // access to JSON NN configuration file from COOL:
     declareProperty("calibration_directory", m_calibrationDirectory);
     declareProperty("forceDL1CalibrationAlias", m_forceDL1CalibrationAlias = true);
@@ -80,23 +77,23 @@ namespace Analysis {
     // Read in the configuration of the neural net for DL1:
     if (m_LocalNNConfigFile.size() != 0) { // retrieve map of NN config and default values from local JSON file
       std::ifstream nn_config_ifstream(m_LocalNNConfigFile);
-      build_nn("local", nn_config_ifstream);
+      m_localNN = build_nn(nn_config_ifstream,
+                           m_local_variables,
+                           m_local_defaults);
     }
     else { // done in condition algorithm
     }
 
-    ATH_MSG_INFO(" Initialization of DL1Tag successful" );
+    ATH_MSG_DEBUG(" Initialization of DL1Tag successful" );
     return StatusCode::SUCCESS;
   }
 
 
-  void DL1Tag::build_nn(const std::string& jetauthor, std::istream& nn_config_istream) {
-    if (m_NeuralNetworks.count(jetauthor)) {
-      m_map_variables.erase(jetauthor);
-      m_map_defaults.erase(jetauthor);
-      m_NeuralNetworks.erase(jetauthor);
-    }
-
+  std::unique_ptr<const lwt::LightweightNeuralNetwork>
+  DL1Tag::build_nn(std::istream& nn_config_istream,
+                   std::vector<lwt::Input>& variables,
+                   var_map& defaults) const
+  {
     lwt::JSONConfig nn_config = lwt::parse_json(nn_config_istream);
     ATH_MSG_DEBUG("#BTAG# making NN with " << nn_config.layers.size() << " layers");
 
@@ -104,12 +101,16 @@ namespace Analysis {
       ATH_MSG_WARNING( "#BTAG# b-tagger without b-tagging option 'bottom' - please check the NN output naming convention.");
     }
 
-    m_NeuralNetworks.insert(std::make_pair(jetauthor, new lwt::LightweightNeuralNetwork(nn_config.inputs, nn_config.layers, nn_config.outputs)));
-    m_map_variables.insert(std::make_pair(jetauthor, nn_config.inputs));
-    m_map_defaults.insert(std::make_pair(jetauthor, nn_config.defaults));
+    defaults = std::move(nn_config.defaults);
+    variables = std::move(nn_config.inputs);
+    return std::make_unique<lwt::LightweightNeuralNetwork>(variables, nn_config.layers, nn_config.outputs);
   }
 
-  void DL1Tag::load_calibration(const std::string& jetauthor) {
+  std::unique_ptr<const lwt::LightweightNeuralNetwork>
+  DL1Tag::load_calibration(const std::string& jetauthor,
+                           std::vector<lwt::Input>& variables,
+                           var_map& defaults) const
+  {
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
     lwt::JSONConfig nn_config = readCdo->retrieveDL1NN(m_calibrationDirectory , jetauthor);
 
@@ -124,11 +125,9 @@ namespace Analysis {
     if (!(std::find((nn_config.outputs).begin(), (nn_config.outputs).end(), "bottom") != (nn_config.outputs).end())) {
       ATH_MSG_WARNING( "#BTAG# b-tagger without b-tagging option 'bottom' - please check the NN output naming convention.");
     }
-    auto lwNN = std::make_unique<lwt::LightweightNeuralNetwork>(nn_config.inputs, nn_config.layers, nn_config.outputs);
-    m_NeuralNetworks.insert(std::make_pair(jetauthor, std::move(lwNN)));
-    m_map_variables.insert(std::make_pair(jetauthor, nn_config.inputs));
-    m_map_defaults.insert(std::make_pair(jetauthor, nn_config.defaults));
-
+    defaults = std::move(nn_config.defaults);
+    variables = std::move(nn_config.inputs);
+    return std::make_unique<lwt::LightweightNeuralNetwork>(variables, nn_config.layers, nn_config.outputs);
   }
 
   StatusCode DL1Tag::finalize() { // all taken care of in destructor
@@ -136,11 +135,11 @@ namespace Analysis {
       ATH_MSG_WARNING("Neural network was unable to compute. Number of errors: "+ std::to_string(m_n_compute_errors));
     }
 
-    ATH_MSG_INFO(" #BTAG# Finalization of DL1Tag successfull" );
+    ATH_MSG_DEBUG(" #BTAG# Finalization of DL1Tag successfull" );
     return StatusCode::SUCCESS;
   }
 
-  void DL1Tag::fill_outputs(xAOD::BTagging *BTag, var_map outputs) {
+  void DL1Tag::fill_outputs(xAOD::BTagging *BTag, var_map outputs) const {
     if(m_runModus=="analysis") {
       if (!outputs.count("charm")) {
 	BTag->setVariable<double>(m_xAODBaseName, "pc", missing_weight);
@@ -173,9 +172,18 @@ namespace Analysis {
 
   void DL1Tag::assignProbability(xAOD::BTagging *BTag,
 				 const var_map &inputs,
-				 const std::string& assigned_jet_author){
-
+				 const std::string& assigned_jet_author) const
+  {
     std::string jetauthor = assigned_jet_author;
+
+    std::unique_ptr<const lwt::LightweightNeuralNetwork> nn;
+    const lwt::LightweightNeuralNetwork* nn_ptr = nullptr;
+
+    var_map defaults;
+    const var_map* defaults_ptr;
+
+    std::vector<lwt::Input> variables;
+    const std::vector<lwt::Input>* variables_ptr;
 
     if (m_LocalNNConfigFile.size()==0) {
       if (m_forceDL1CalibrationAlias) {
@@ -187,7 +195,10 @@ namespace Analysis {
 			" No likelihood value given back. ");
       }
       try {
-	load_calibration(jetauthor);
+	nn = load_calibration(jetauthor, variables, defaults);
+        nn_ptr = nn.get();
+        defaults_ptr = &defaults;
+        variables_ptr = &variables;
       } catch (std::exception& e) {
 	ATH_MSG_WARNING(
 	  "problem loading calibration for " + jetauthor +
@@ -197,25 +208,23 @@ namespace Analysis {
     }
     else {
       jetauthor = "local";
-    }
-
-    if(!m_NeuralNetworks.count(jetauthor)) {
-      ATH_MSG_WARNING("NN not loaded correctly.");
-      return;
+      nn_ptr = m_localNN.get();
+      defaults_ptr = &m_local_defaults;
+      variables_ptr = &m_local_variables;
     }
 
     var_map complete_inputs = add_check_variables(inputs);
-    var_map cleaned_inputs = replace_nan_with_defaults(complete_inputs, m_map_defaults.at(jetauthor));
+    var_map cleaned_inputs = replace_nan_with_defaults(complete_inputs, *defaults_ptr);
 
-    for (const auto& var: m_map_variables.at(jetauthor)) {
+    for (const lwt::Input& var : *variables_ptr) {
       if (cleaned_inputs.count(var.name) && std::isnan(cleaned_inputs.at(var.name))) {
-      ATH_MSG_WARNING( "#BTAG# 'nan' input for variable " + var.name + " --> will result in 'nan' classification output. Check NN configuration file for default settings.");
+        ATH_MSG_WARNING( "#BTAG# 'nan' input for variable " + var.name + " --> will result in 'nan' classification output. Check NN configuration file for default settings.");
       }
     }
 
     var_map outputs;
     try {
-      outputs = m_NeuralNetworks.at(jetauthor)->compute(cleaned_inputs);
+      outputs = nn_ptr->compute(cleaned_inputs);
     } catch (lwt::NNEvaluationException& e) {
       ATH_MSG_WARNING("Can't compute outputs, probably missing input values");
       m_n_compute_errors++;

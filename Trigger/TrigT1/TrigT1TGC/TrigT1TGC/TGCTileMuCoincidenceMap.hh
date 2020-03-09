@@ -12,12 +12,14 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
+#include "TrigT1TGC/TGCArguments.hh"
+
 namespace LVL1TGCTrigger {
  
 class TGCTileMuCoincidenceMap {
 public:
 
-  TGCTileMuCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+  TGCTileMuCoincidenceMap(TGCArguments*, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
                           const std::string& version="NA");
   virtual ~TGCTileMuCoincidenceMap();
 
@@ -55,6 +57,8 @@ public:
 
   bool readMap();  
 
+  TGCArguments* tgcArgs() const;
+  
 protected:
   enum {N_Side=2};
   enum {N_EndcapSector=48};
@@ -72,9 +76,13 @@ private:
   int m_map[N_Input_TileMuModule][N_Endcap_SSC][N_EndcapSector][N_Side];    
 
   std::string m_verName;
+  TGCArguments* m_tgcArgs;
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 
+inline TGCArguments* TGCTileMuCoincidenceMap::tgcArgs() const {
+  return m_tgcArgs;
+}
 
 inline  
  const std::string& TGCTileMuCoincidenceMap::getVersion() const

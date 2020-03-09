@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 #include "Identifier/Identifier.h"
 
 // Tracking:
-//#include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/Surface.h"
@@ -35,7 +34,6 @@
 //STL includes
 #include <sstream>
 
-#define PI 3.141592653589793238462643383
 
 class TRT_ID;
 
@@ -85,8 +83,8 @@ StatusCode TRT_LocalOccupancy::initialize()
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   //Initlalize ReadHandleKey
-  ATH_CHECK( m_trt_rdo_location.initialize() );
-  ATH_CHECK( m_trt_driftcircles.initialize() );
+  ATH_CHECK( m_trt_rdo_location.initialize(!m_trt_rdo_location.empty()) );
+  ATH_CHECK( m_trt_driftcircles.initialize(!m_trt_driftcircles.empty()) );
   ATH_CHECK( m_strawReadKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -165,6 +163,7 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
 
   float  averageocc   = 0;
   int	 nhits        = 0;
+  const std::array<std::array<int,NLOCALPHI>,NLOCAL> &stw_local = data->m_stw_local;
 
   for (int i=0; i<6; ++i){
      for (int j = 0; j < 32; j++){
@@ -173,8 +172,8 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
         if (hits_array<1) continue;
 	float occ=0;
 	occ =  (data->m_occ_local [i][j])*1.e-2 ;
-	if (data->m_stw_local[i][j] != 0){
-	  if(occ == 0 && float(hits_array)/data->m_stw_local[i][j] > 0.01){
+	if (stw_local[i][j] != 0){
+	  if(occ == 0 && float(hits_array)/stw_local[i][j] > 0.01){
 	    ATH_MSG_DEBUG("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array);
 	    continue;
 	  }
@@ -249,15 +248,13 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
   SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle{m_strawReadKey};
   const TRTCond::AliveStraws* strawCounts{*strawHandle};
 
+  const std::array<int,TRTCond::AliveStraws::NTOTAL> &straws = strawCounts->getStwTotal();
 
-  int*  straws = strawCounts->getStwTotal();
-    
-            
   occResults[-1] = (double)hitCounter[-1]/(double)straws[1];
   occResults[-2] = (double)hitCounter[-2]/(double)(straws[2] + straws[3]);
   occResults[1]  = (double)hitCounter[1] /(double)straws[4];
   occResults[2]  = (double)hitCounter[2] /(double)(straws[5] + straws[6]);
-   
+
   return occResults;
 }
 
@@ -452,9 +449,9 @@ int TRT_LocalOccupancy::mapPhiToPhisector(const double t_phi) const {
   // shift all phi to positive numbers
   float dphi = 0; // TBD
   
-  double phi2pi = (t_phi > 0) ? t_phi : t_phi + 2*PI;
+  double phi2pi = (t_phi > 0) ? t_phi : t_phi + 2*M_PI;
 
-  phisector = int ( (phi2pi + dphi)*32./(2*PI) );
+  phisector = int ( (phi2pi + dphi)*32./(2*M_PI) );
   return phisector;
 }
 
@@ -490,10 +487,14 @@ const TRT_LocalOccupancy::OccupancyData* TRT_LocalOccupancy::getData() const
 std::unique_ptr<TRT_LocalOccupancy::OccupancyData>
 TRT_LocalOccupancy::makeData() const
 {
-  auto data = std::make_unique<OccupancyData>();
 
   SG::ReadHandle<TRT_DriftCircleContainer> driftCircleContainer( m_trt_driftcircles );
-    
+  // count live straws
+  SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle{m_strawReadKey};
+  const TRTCond::AliveStraws* strawCounts{*strawHandle};
+
+  auto data = std::make_unique<OccupancyData>(strawCounts->getStwLocal());
+
   // put # hits in vectors
   if ( driftCircleContainer.isValid() ) {
     ATH_MSG_DEBUG("Found Drift Circles in StoreGate");
@@ -505,7 +506,6 @@ TRT_LocalOccupancy::makeData() const
       for(; p_rdo!=p_rdo_end; ++p_rdo){
 	const TRT_DriftCircle* rdo = (*p_rdo);
 	if(!rdo)        continue;
-	// if (isMiddleBXOn(rdo->getWord())) {
 	Identifier id = rdo->identify();
 	
 	int det      = m_TRTHelper->barrel_ec(         id)     ;
@@ -516,26 +516,20 @@ TRT_LocalOccupancy::makeData() const
 	data->m_hit_total[0]                        +=1;
 	data->m_hit_total[i_total]                  +=1;
 	data->m_hit_local[i_total-1][phi]           +=1;
-	//} // if (isMiddleBXOn)
       }
     }
   } else {
     ATH_MSG_WARNING("No TRT Drift Circles in StoreGate");
   }
 
+  const std::array<int,NTOTAL> &stw_total = strawCounts->getStwTotal();
+  const std::array<std::array<int,NLOCALPHI>,NLOCAL> &stw_local = strawCounts->getStwLocal();
 
-  // count live straws
-  SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle{m_strawReadKey};
-  const TRTCond::AliveStraws* strawCounts{*strawHandle};
-
-  data->m_stw_total 		=  strawCounts->getStwTotal();
-  data->m_stw_local 		=  strawCounts->getStwLocal();
-  
   // Calculate Occs:
   for (int i=0; i<NTOTAL; ++i) {
     float occ = 0;
     int hits  = data->m_hit_total[i];
-    int stws  = data->m_stw_total[i];
+    int stws  = stw_total[i];
     if (stws>0) occ = float(hits*100)/stws;
     data->m_occ_total[i] = int(occ);
   }
@@ -543,14 +537,13 @@ TRT_LocalOccupancy::makeData() const
     for (int j=0; j<NLOCALPHI; ++j) {
       float occ = 0;
       int hits  = data->m_hit_local[i][j];
-      int stws  = data->m_stw_local[i][j];
+      int stws  = stw_local[i][j];
       if (stws>0) occ = float(hits*100)/stws;
       data->m_occ_local[i][j] = int(occ);
     }
   }
    
-  ATH_MSG_DEBUG("Active straws: " << data->m_stw_total[0] << "\t total number of hits: " << data->m_hit_total[0] << "\t occ: " << data->m_occ_total[0] ); 
-//  printArrays( m_occdc_array, m_occdc_array_phi, m_occdc_array_det );
+  ATH_MSG_DEBUG("Active straws: " << stw_total[0] << "\t total number of hits: " << data->m_hit_total[0] << "\t occ: " << data->m_occ_total[0] );
   return data;
 }
 
@@ -558,17 +551,17 @@ TRT_LocalOccupancy::makeData() const
 std::unique_ptr<TRT_LocalOccupancy::OccupancyData>
 TRT_LocalOccupancy::makeDataTrigger() const
 {
-  auto data = std::make_unique<OccupancyData>();
   SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle{m_strawReadKey};
   const TRTCond::AliveStraws* strawCounts{*strawHandle};
 
-  data->m_stw_local 		=  strawCounts->getStwLocal();
-  data->m_stw_wheel 	        =  strawCounts->getStwWheel();
+  auto data = std::make_unique<OccupancyData>(strawCounts->getStwLocal());
+  const std::array<std::array<int,NLOCALPHI>,NLOCAL> &stw_local = strawCounts->getStwLocal();;
+  const std::array<std::array<int,NLOCALPHI>,NWHEEL> &stw_wheel = strawCounts->getStwWheel();
 
   for (int i=0; i<5; ++i){
     for (int j=0; j<NLOCALPHI; ++j){
-      data->m_stws_ratio[0][j]+=float(data->m_stw_wheel[i+3 ][j])/data->m_stw_local[1][j];
-      data->m_stws_ratio[1][j]+=float(data->m_stw_wheel[i+20][j])/data->m_stw_local[4][j];
+      data->m_stws_ratio[0][j]+=float(stw_wheel[i+3 ][j])/stw_local[1][j];
+      data->m_stws_ratio[1][j]+=float(stw_wheel[i+20][j])/stw_local[4][j];
     }
   }
 

@@ -1,51 +1,10 @@
-# import flags
-include("TrigUpgradeTest/testHLT_MT.py")
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#################################
-# Configure L1Decoder
-#################################
-
-# provide a minimal menu information
-if globalflags.InputFormat.is_bytestream():
-   topSequence.L1Decoder.ctpUnpacker.OutputLevel=DEBUG
-   topSequence.L1Decoder.roiUnpackers[0].OutputLevel=DEBUG
-
-# map L1 decisions for menu
-for unpack in topSequence.L1Decoder.roiUnpackers:
-    if unpack.name() is "EMRoIsUnpackingTool":
-        unpack.Decisions="L1EM"
-        emUnpacker=unpack
-    if unpack.name() is "MURoIsUnpackingTool":
-        unpack.Decisions="L1MU"
-        
-for unpack in topSequence.L1Decoder.rerunRoiUnpackers:
-    if unpack.name() is "EMRerunRoIsUnpackingTool":
-        unpack.Decisions="RerunL1EM"
-        unpack.SourceDecisions="L1EM"
-
-for unpack in topSequence.L1Decoder.rerunRoiUnpackers:
-    if unpack.name() is "EMRerunRoIsUnpackingTool":
-        unpack.SourceDecisions="L1EM"
-    if unpack.name() is "MURerunRoIsUnpackingTool":
-        unpack.SourceDecisions="L1MU"
-
-
-
-
-##########################################
-# Menu and CF construction
-##########################################
-
+setMenu             = "LS2_v1"
+doWriteRDOTrigger   = False
+doWriteBS           = False
+endJobAfterGenerate = False
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.triggerMenuSetup = "LS2_v1"
-
-
-
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-g = GenerateMenuMT()
-g.generateMT()
-
-
-
-
+TriggerFlags.generateMenuDiagnostics = True
+include("TriggerJobOpts/runHLT_standalone.py")
 

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MM_Digitization/MM_DigitToolInput.h"
 #include "MM_Digitization/MM_Response_DigitTool.h"
@@ -44,11 +42,8 @@ MM_DigitToolOutput MM_Response_DigitTool::digitize( /*const MmDigitToolInput& in
 /*******************************************************************************/
 StatusCode MM_Response_DigitTool::initialize()
 {
-  StoreGateSvc* detStore=0;
-  ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
-
-  if(detStore->contains<MuonDetectorManager>( "Muon" )){
-    ATH_CHECK( detStore->retrieve(m_muonGeoMgr) );
+  if(detStore()->contains<MuonDetectorManager>( "Muon" )){
+    ATH_CHECK( detStore()->retrieve(m_muonGeoMgr) );
     ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate.");
     m_idHelper = m_muonGeoMgr->mmIdHelper();
     ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );

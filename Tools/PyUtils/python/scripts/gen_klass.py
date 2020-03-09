@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.gen_klass.py
 # @purpose helper script to generate header and cxx files of various
@@ -7,6 +7,8 @@
 # @date   April 2008
 #
 # Use PyUtils/test/test_genklass.sh to check compilation of generated code
+
+from __future__ import print_function
 
 __author__ = "Sebastien Binet"
 __doc__ = """\
@@ -545,8 +547,8 @@ def gen_files(pkg="", klass="", klass_type='object', fname='foo',
     try:
         hdr = getattr(Templates, '%s_hdr_template'%klass_type)
         cxx = getattr(Templates, '%s_cxx_template'%klass_type)
-    except AttributeError,err:
-        print "::: UNKNOWN klass_type [%s] !" % klass_type
+    except AttributeError as err:
+        print ("::: UNKNOWN klass_type [%s] !" % klass_type)
         raise err
 
     namespace_klass = klass.replace('::','_')
@@ -595,8 +597,8 @@ def gen_pyfiles(pkg="", klass="", klass_type='pyalg', fname='foo'):
     """
     try:
         py_template = getattr(Templates, '%s_template'%klass_type)
-    except AttributeError,err:
-        print "::: UNKNOWN klass_type [%s] !" % klass_type
+    except AttributeError as err:
+        print ("::: UNKNOWN klass_type [%s] !" % klass_type)
         raise err
 
     invalid_py_chars = ( ':', '.', '>', '<', ' ' )
@@ -605,7 +607,7 @@ def gen_pyfiles(pkg="", klass="", klass_type='pyalg', fname='foo'):
         err = "::: INVALID class name ! (%s) !\n"%klass
         err += "::: python class names can *NOT* contain any character of %s"%\
                repr(invalid_py_chars)
-        print err
+        print (err)
         raise RuntimeError(err)
 
     fname=''.join([fname,'.py'])
@@ -658,8 +660,8 @@ def main(args):
 
     if args.klass_type in GenTypes.needing_iface and \
        ( args.ipkg is None or args.iklass is None ) :
-        print ":: You have to give 'ipkg' and 'iklass' options to properly ",
-        print "generate an implementation for '%s'"%args.klass_type
+        print (":: You have to give 'ipkg' and 'iklass' options to properly ",)
+        print ("generate an implementation for '%s'"%args.klass_type)
         return 3
 
 

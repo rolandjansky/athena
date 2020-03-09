@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -125,6 +125,28 @@ void MissingEtTruth::setEtSumTruth(MissingEtTruth::TruthIndex theTruth,
   
 }
 
+
+void MissingEtTruth::setExTruthVec(std::vector<double>&& exTruthVec)
+{
+  assert (exTruthVec.size() == Size);
+  m_exTruth = std::move (exTruthVec);
+}
+
+
+void MissingEtTruth::setEyTruthVec(std::vector<double>&& eyTruthVec)
+{
+  assert (eyTruthVec.size() == Size);
+  m_eyTruth = std::move (eyTruthVec);
+}
+
+
+void MissingEtTruth::setEtSumTruthVec(std::vector<double>&& etSumTruthVec)
+{
+  assert (etSumTruthVec.size() == Size);
+  m_etSumTruth = std::move (etSumTruthVec);
+}
+
+
 // get methods
 
 double MissingEtTruth::exTruth(MissingEtTruth::TruthIndex theTruth) const
@@ -140,6 +162,24 @@ double MissingEtTruth::eyTruth(MissingEtTruth::TruthIndex theTruth) const
 double MissingEtTruth::etSumTruth(MissingEtTruth::TruthIndex theTruth) const
 {
   return m_etSumTruth[theTruth] ;
+}
+
+
+const std::vector<double>& MissingEtTruth::exTruthVec() const
+{
+  return m_exTruth;
+}
+
+
+const std::vector<double>& MissingEtTruth::eyTruthVec() const
+{
+  return m_eyTruth;
+}
+
+
+const std::vector<double>& MissingEtTruth::etSumTruthVec() const
+{
+  return m_etSumTruth;
 }
 
 

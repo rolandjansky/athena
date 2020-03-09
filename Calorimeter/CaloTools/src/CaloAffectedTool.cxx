@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloAffectedTool.h" 
 #include "xAODBase/IParticle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -38,7 +37,7 @@ bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, const CaloAffectedRe
 
    if(!vAff) return false;
 
- static float epsilon=1e-6;
+ static const float epsilon=1e-6;
 
   //std::cout << " in isAffected " << p->eta() << " " << p->phi() << std::endl;
 
@@ -92,7 +91,7 @@ bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, const CaloAffectedR
 
   bool found = false;
 
-  static float epsilon=1e-6;
+  static const float epsilon=1e-6;
 
   layer_list.clear();
   problem_list.clear();

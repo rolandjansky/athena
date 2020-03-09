@@ -1,34 +1,36 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ReadNoiseFromCool.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-08-05
 
-import getopt,sys,os,string
+from __future__ import print_function
+
+import getopt,sys,os
 os.environ['TERM'] = 'linux'
 
 def usage():
-    print "Usage: ",sys.argv[0]," [OPTION] ... "
-    print "Dumps the TileCal noise from SAMPLE and OFNI folders"
-    print ""
-    print "-h, --help      shows this help"
-    print "-t, --tag=      specify tag to use, f.i. RUN2-HLT-UPD1-01 or COM-01"
-    print "-r, --run=      specify run  number, by default uses latest iov"
-    print "-l, --lumi=     specify lumi block number, default is 0"
-    print "-p, --ros=      specify partition (ros number), default is 1"
-    print "-d, --drawer=   specify drawer number, default is 0"
-    print "-c, --channel=  specify channel number, default is 0"
-    print "-g, -a, --adc=  specify gain (adc number), default is 0"
-    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
+    print ("Usage: ",sys.argv[0]," [OPTION] ... ")
+    print ("Dumps the TileCal noise from SAMPLE and OFNI folders")
+    print ("")
+    print ("-h, --help      shows this help")
+    print ("-t, --tag=      specify tag to use, f.i. RUN2-HLT-UPD1-01 or COM-01")
+    print ("-r, --run=      specify run  number, by default uses latest iov")
+    print ("-l, --lumi=     specify lumi block number, default is 0")
+    print ("-p, --ros=      specify partition (ros number), default is 1")
+    print ("-d, --drawer=   specify drawer number, default is 0")
+    print ("-c, --channel=  specify channel number, default is 0")
+    print ("-g, -a, --adc=  specify gain (adc number), default is 0")
+    print ("-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'")
     
 letters = "hr:l:s:t:p:d:c:a:g:"
 keywords = ["help","run=","lumi=","schema=","tag=","ros=","drawer=","channel=","adc=","gain="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetoptError, err:
-    print str(err)
+except getopt.GetoptError as err:
+    print (str(err))
     usage()
     sys.exit(2)
 
@@ -66,15 +68,15 @@ for o, a in opts:
         assert False, "unhandeled option"
 
         
-if not 'COOLONL_TILE' in schema and not 'sqlite' in schema:
-    print "This script works on the 'COOLONL_TILE/COMP200' or 'COOLONL_TILE/CONDBR2' schema" 
+if 'COOLONL_TILE' not in schema and 'sqlite' not in schema:
+    print ("This script works on the 'COOLONL_TILE/COMP200' or 'COOLONL_TILE/CONDBR2' schema" )
     sys.exit(2)
 
         
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobObjs.Classes import TileCalibUtils
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("readNoise")
 import logging
 log.setLevel(logging.DEBUG)
@@ -85,14 +87,15 @@ db = TileCalibTools.openDbConn(schema,'READONLY')
 
 folder1="/TILE/ONL01/NOISE/SAMPLE"
 folder2="/TILE/ONL01/NOISE/OFNI"
-if 'COMP200' in schema: folder1="/TILE/OFL01/NOISE/SAMPLE"
-log.info("Initializing ros %d, drawer %d for run %d, lumiblock %d" % (ros,drawer,run,lumi))
+if 'COMP200' in schema:
+    folder1="/TILE/OFL01/NOISE/SAMPLE"
+log.info("Initializing ros %d, drawer %d for run %d, lumiblock %d", ros,drawer,run,lumi)
 for folderPath in [folder1, folder2]:
 
     folderTag = TileCalibTools.getFolderTag(db, folderPath, tag)
-    log.info("Initializing folder %s with tag %s" % (folderPath, folderTag) )
+    log.info("Initializing folder %s with tag %s", folderPath, folderTag)
     blobReader = TileCalibTools.TileBlobReader(db,folderPath, folderTag)
-    log.info("... %s" % blobReader.getComment((run,lumi)))
+    log.info("... %s", blobReader.getComment((run,lumi)))
     blob = blobReader.getDrawer(ros, drawer,(run,lumi))
 
     if folderPath.find("SAMPLE")!=-1:

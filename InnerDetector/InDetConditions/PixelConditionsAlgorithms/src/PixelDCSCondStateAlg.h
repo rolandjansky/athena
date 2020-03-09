@@ -1,6 +1,12 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
+/**
+ * @file PixelConditionsAlgorithms/PixelDCSCondStatusAlg.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date November, 2019
+ * @brief Created pixel DCS module status in PixelDCSStatusData.
+ */
 
 #ifndef PIXELDCSCONDSTATEALG
 #define PIXELDCSCONDSTATEALG
@@ -12,6 +18,9 @@
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelDCSStateData.h"
+
+#include "InDetIdentifier/PixelID.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -23,16 +32,21 @@ class PixelDCSCondStateAlg : public AthReentrantAlgorithm {
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
-    virtual StatusCode finalize() override;
 
   private:
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState   {this, "ReadKeyState",   "/PIXEL/DCS/FSMSTATE",    "Key of input (raw) State conditions folder"};
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus  {this, "ReadKeyStatus",  "/PIXEL/DCS/FSMSTATUS",   "Key of input (raw) Status conditions folder"};
+    const PixelID* m_pixelID{nullptr};
 
-    SG::WriteCondHandleKey<PixelModuleData> m_writeKeyState {this, "WriteKeyState",  "PixelDCSStateCondData",  "Key of output (derived) State conditions folder"};
-    SG::WriteCondHandleKey<PixelModuleData> m_writeKeyStatus{this, "WriteKeyStatus", "PixelDCSStatusCondData", "Key of output (derived) Status conditions folder"};
+    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
-    ServiceHandle<ICondSvc> m_condSvc;
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+    {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
+
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState
+    {this, "ReadKeyState", "/PIXEL/DCS/FSMSTATE",    "Key of input DCS state conditions folder"};
+
+    SG::WriteCondHandleKey<PixelDCSStateData> m_writeKeyState 
+    {this, "WriteKeyState", "PixelDCSStateCondData",  "Key of output DCS state data"};
+
 };
 
-#endif // PIXELDCSCONDSTATEALG
+#endif

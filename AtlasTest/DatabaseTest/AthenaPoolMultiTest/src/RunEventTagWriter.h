@@ -15,7 +15,6 @@
 
 //#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 

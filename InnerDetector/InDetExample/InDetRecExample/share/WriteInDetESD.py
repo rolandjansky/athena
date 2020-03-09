@@ -23,7 +23,7 @@ if InDetFlags.doTRTPhaseCalculation():
 # ---------
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource == 'data' and InDetFlags.doHeavyIon():
-   print "---- > Heavy Ions: No Pixel, SCT or TRT cluster output written for data"
+   printfunc ("---- > Heavy Ions: No Pixel, SCT or TRT cluster output written for data")
 elif InDetFlags.writePRDs():
    InDetESDList+=["InDet::SCT_ClusterContainer#"+InDetKeys.SCT_Clusters()]
    InDetESDList+=["InDet::PixelClusterContainer#"+InDetKeys.PixelClusters()]
@@ -101,12 +101,12 @@ if InDetFlags.doBeamGas():
 if InDetFlags.doBeamHalo():
    InDetESDList+=["TrackCollection#"+InDetRecHaloTRTExtension.ForwardTrackCollection()] #ExtendedBeamGasTracks 
 
-if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+if InDetFlags.doTrackSegmentsDisappearing():
   if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
-      InDetESDList+=["TrackCollection#"+InDetKeys.PixelPrdAssociationTracks()]
+      InDetESDList+=["TrackCollection#"+InDetKeys.DisappearingTracks()]
   if InDetFlags.doTruth():
-      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'TruthCollection']
-      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'DetailedTruth']   
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.DisappearingTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.DisappearingTracks()+'DetailedTruth']   
    
 # Add TRT Segments (only if standalone is off).
 # -----------------
@@ -131,7 +131,6 @@ if globalflags.InputFormat()=='bytestream':
    InDetESDList+=['InDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
    InDetESDList+=['TRT_BSErrContainer#'+InDetKeys.TRT_ByteStreamErrs()]
    InDetESDList+=['TRT_BSIdErrContainer#'+InDetKeys.TRT_ByteStreamIdErrs()]
-   InDetESDList+=['SCT_ByteStreamFractionContainer#'+InDetKeys.SCT_ByteStreamFrac()]
 
 if InDetFlags.doxAOD():
   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."
@@ -144,6 +143,13 @@ if InDetFlags.doxAOD():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
+
+  from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+  from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+  for col in InDetPhysValFlags.validateExtraTrackCollections() :
+    prefix=extractCollectionPrefix(col)
+    InDetESDList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+prefix+'TrackParticlesAux.' + excludedAuxData]
 
   if InDetFlags.doStoreTrackSeeds():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"]
@@ -172,9 +178,9 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsPixel():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]
-  if InDetFlags.doTrackSegmentsPixelPrdAssociation():
-    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()]
-    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsDisappearing():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDisappearingTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDisappearingTrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsSCT():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSCTTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSCTTrackParticleContainer()+'Aux.' + excludedAuxData]

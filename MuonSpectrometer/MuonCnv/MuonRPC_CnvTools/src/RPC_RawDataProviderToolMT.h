@@ -12,8 +12,6 @@
 
 #include "RPC_RawDataProviderToolCore.h"
 
-class StoreGateSvc;
-class RpcPadIdHash;
 class ActiveStoreSvc;
 
 namespace Muon

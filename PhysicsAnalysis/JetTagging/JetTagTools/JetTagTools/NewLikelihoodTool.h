@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_NEWLIKELIHOODMULTIDTOOL_H
@@ -30,30 +30,24 @@ class NewLikelihoodTool : public AthAlgTool {
   NewLikelihoodTool(const std::string&,const std::string&,const IInterface*);
   virtual ~NewLikelihoodTool();
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   
   static const InterfaceID& interfaceID() { return IID_NewLikelihoodTool; };
   
   void defineHypotheses(const std::vector<std::string>&);
   
   void defineHistogram(const std::string& hname);
-  TH1* prepareHistogram(const std::string& hypo, const std::string& hname);
-  void smoothAndNormalizeHistogram(TH1* histo, const std::string& hname);
+  TH1* prepareHistogram(const std::string& hypo, const std::string& hname) const;
+  void smoothAndNormalizeHistogram(TH1* histo, const std::string& hname) const;
   
-  void setLhVariableValue(std::vector<Slice>& value);
-  void setLhVariableValue(Slice& value);
-  
-  std::vector<double> calculateLikelihood();
-  std::vector<double> tagLikelihood();
+  std::vector<double> calculateLikelihood(const std::vector<Slice>& lhVariableValues) const;
  
   void printStatus() const;
 
-  void clear();
-
   // helper functions:
-  double getEff(const std::string& hypo, const std::string& histo, const std::string& suffix);
-  std::vector<std::string> gradeList(const std::string& hname);
+  double getEff(const std::string& hypo, const std::string& histo, const std::string& suffix) const;
+  std::vector<std::string> gradeList(const std::string& hname) const;
 
  private:
 
@@ -68,12 +62,6 @@ class NewLikelihoodTool : public AthAlgTool {
   bool m_interpolate;
   int m_smoothNTimes;
   std::vector<std::string> m_vetoSmoothingOf;
-
-  /** Contains the value of the likelihood variables. */
-  std::vector<Slice> m_lhVariableValues;
-  
-  /** Contains the combined likelihood for each hypothesis. First entry is for signal. */
-  std::vector<double> m_likelihoodVector;
 
   std::vector<std::string> m_histograms;
 

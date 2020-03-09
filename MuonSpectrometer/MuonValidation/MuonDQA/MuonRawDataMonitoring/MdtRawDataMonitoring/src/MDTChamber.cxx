@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtRawDataMonitoring/MDTChamber.h"
@@ -43,10 +43,18 @@ MDTChamber::MDTChamber(std::string name) :
   mdttdctube(0),
   m_hardware_name(name),
   m_mdthitsperchamber_InnerMiddleOuterLumi_bin(0),
+  m_mdthitsperchamber_InnerMiddleOuterLumi_binx(0),
+  m_mdthitsperchamber_InnerMiddleOuterLumi_biny(0),
   m_mdthitspermultilayerLumi_bin_m1(0),
   m_mdthitspermultilayerLumi_bin_m2(0),
+  m_mdthitspermultilayerLumi_bin_m1_binx(0),
+  m_mdthitspermultilayerLumi_bin_m1_biny(0),
+  m_mdthitspermultilayerLumi_bin_m2_biny(0),
   m_mdthitsperML_byLayer_bin_m1(0),
-  m_mdthitsperML_byLayer_bin_m2(0)
+  m_mdthitsperML_byLayer_bin_m2(0),
+  m_binx(0),
+  m_biny_m1(0),
+  m_biny_m2(0)
 {
 
   m_barrel_region = 0;
@@ -142,7 +150,6 @@ MDTChamber::MDTChamber(std::string name) :
          }
     }
     else {
-	std::cout << "CHAMBER " << name.c_str() << " didn't make it into a crate!" << std::endl;
     }
   }
   else {
@@ -191,6 +198,8 @@ void MDTChamber::SetMDTHitsPerChamber_IMO_Bin(TH2F* h){
 
   int binx = h->GetXaxis()->FindBin( ecap_layer_IMO.c_str() );
   int biny = h->GetYaxis()->FindBin( statphi_IMO_s.c_str() );
+  m_mdthitsperchamber_InnerMiddleOuterLumi_binx = binx;
+  m_mdthitsperchamber_InnerMiddleOuterLumi_biny = biny;
   m_mdthitsperchamber_InnerMiddleOuterLumi_bin = h->GetBin(binx, biny);
 
 }
@@ -244,18 +253,24 @@ void MDTChamber::SetMDTHitsPerML_byLayer_Bins(TH2F* h_mdthitspermultilayerLumi, 
   m_mdthitspermultilayerLumi_bin_m1 = h_mdthitspermultilayerLumi->GetBin(binx, biny_m1);
   m_mdthitspermultilayerLumi_bin_m2 = h_mdthitspermultilayerLumi->GetBin(binx, biny_m2);
 
+
+  m_mdthitspermultilayerLumi_bin_m1_binx = binx;  
+  m_mdthitspermultilayerLumi_bin_m1_biny = biny_m1;
+  m_mdthitspermultilayerLumi_bin_m2_biny = biny_m2;
+
+  
   if((statphi_ml1_s.substr(0,2)=="11"||statphi_ml1_s.substr(0,2)=="15")  && m_hardware_name.at(0) =='E'  && (m_layer_region == 0 || m_layer_region == 3)) {
     statphi_ml1_s+=",R";   //Correction for EIR/EIM
     statphi_ml2_s+=",R";   //Correction for EIR/EIM
   }
 
-  binx = h_mdthitsperML_byLayer->GetXaxis()->FindBin(ecap_layer.c_str());
-  biny_m1 = h_mdthitsperML_byLayer->GetYaxis()->FindBin(statphi_ml1_s.c_str());
-  biny_m2 = h_mdthitsperML_byLayer->GetYaxis()->FindBin(statphi_ml2_s.c_str());
+  m_binx = h_mdthitsperML_byLayer->GetXaxis()->FindBin(ecap_layer.c_str());
+  m_biny_m1 = h_mdthitsperML_byLayer->GetYaxis()->FindBin(statphi_ml1_s.c_str());
+  m_biny_m2 = h_mdthitsperML_byLayer->GetYaxis()->FindBin(statphi_ml2_s.c_str());
 
   m_mdthitsperML_byLayer_bin_m1 = h_mdthitsperML_byLayer->GetBin(binx, biny_m1);
   m_mdthitsperML_byLayer_bin_m2 = h_mdthitsperML_byLayer->GetBin(binx, biny_m2);
-   
+
 
 }
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # job options to run tau reco on an ESD file  
  
@@ -139,7 +139,7 @@ jobproperties.CaloCellFlags.doLArDeadOTXCorr=False
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 print StreamESD.ItemList

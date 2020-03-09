@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PerfMonComps/python/PerfMonSerializer
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __version__ = "$Revision: 524466 $"
 __doc__ = "various utils to encode/decode perfmon (meta)data with base64"
@@ -27,10 +27,9 @@ def extract_pmon_files(fname):
         try:
             if os.path.exists(tmpdir):
                 shutil.rmtree(tmpdir)
-        except Exception,err:
-            print >> sys.stderr, "pmon.cleanup_pmon_ser: **warning**:\n%s" % (
-                err,
-                )
+        except Exception as err:
+            print("pmon.cleanup_pmon_ser: **warning**:\n%s", (err,), file=sys.stderr)
+
     atexit.register(cleanup_pmon_ser)
             
     tar = tarfile.open(fname, 'r')
@@ -63,7 +62,7 @@ def extract_pmon_infos(fname, only_summary=False):
 
     def dict_from_shelve(fname):
         db = {}
-        if open(fname, 'r').read(1024).startswith('SQLite format'):
+        if open(fname, 'rb').read(1024).startswith(b'SQLite format'):
             import PyUtils.dbsqlite as dbs
             db = dbs.open(fname, 'r')
         else:
@@ -171,7 +170,7 @@ def iextract_pmon_data(fname):
             data, step, idx, comp = (None, ) * 4
             if l.startswith('#'):
                 continue
-            #print "[%s]" % l.strip()
+            #print("[%s]" % l.strip())
             # handle things like:
             # /io/std::vector<unsigned int>#L1CaloUnpackingErrors ...
             # /io/std::map<std::string,std::vector<int> >#mapdata ...
@@ -179,7 +178,7 @@ def iextract_pmon_data(fname):
                  .replace('> >', '>->')
             
             fields = l.split()
-            #print "##",repr(l)
+            #print("##",repr(l))
             if fields[0].startswith(('/ini/','/evt/','/fin/',
                                      '/cbk/','/usr/',
                                      '/preLoadProxy/',
@@ -241,7 +240,7 @@ def iextract_pmon_data(fname):
                 mem['mall'][idx] = float(fields[8])/1024.
                 mem['nmall'][idx]= float(fields[9])
                 mem['nfree'][idx]= float(fields[10])
-                #print "==> [%s][%s][%s]" % (step, comp, idx), data, idx
+                #print("==> [%s][%s][%s]" % (step, comp, idx), data, idx)
 
                 if idx == 1:
                     d = cpu
@@ -285,7 +284,7 @@ def iextract_pmon_data(fname):
                 w['cpu']  = w['user'] + w['sys']
                 w['rt']   = float(fields[12])
 
-                #print "--> [%s][%s]" % (step, comp), data
+                #print("--> [%s][%s]" % (step, comp), data)
                 
             elif fields[0].startswith('/dso/'):
                 step = "dso"
@@ -332,7 +331,7 @@ def iextract_pmon_data(fname):
                     mem['mall'][idx] = 0.
                     mem['nmall'][idx]= 0.
                     mem['nfree'][idx]= 0.
-                #print "==> [%s][%s][%s]" % (step, comp, idx), data, idx
+                #print("==> [%s][%s][%s]" % (step, comp, idx), data, idx)
 
                 if idx == 1:
                     d = cpu
@@ -345,8 +344,8 @@ def iextract_pmon_data(fname):
                     pass
                 pass
             else:
-                print "warning: unhandled field [%s]" % (fields[0],)
-                print repr(l)
+                print("warning: unhandled field [%s]" % (fields[0],))
+                print(repr(l))
 
             # yields what we got so far
             yield step, idx, comp, out
@@ -438,9 +437,9 @@ def build_callgraph(fname):
             # ignore this component...
             continue
 
-        ## print "::: cur [%s] ctx=%s idx=[%s]... [%s%s]" % (
+        ## print("::: cur [%s] ctx=%s idx=[%s]... [%s%s]" % (
         ##     current_step, local_ctx, idx, '->' if idx==0 else '<-',comp,
-        ##     )
+        ##     ))
         if step != current_step and step in graph.keys():
             # new step...
             if current_step == 'ini' and step == 'evt':
@@ -450,7 +449,7 @@ def build_callgraph(fname):
                 # transition evt -> fin
                 current_step = 'fin'
                 # new context
-                ## print "-"*40, "[NEW CONTEXT]"
+                ## print("-"*40, "[NEW CONTEXT]")
                 local_ctx = GraphNode('PerfMonSlice')
                 graph[current_step].append(local_ctx)
 
@@ -467,7 +466,7 @@ def build_callgraph(fname):
             if idx == 0:
                 if current_step != 'fin':
                     # new context
-                    ## print "-"*40, "[NEW CONTEXT]"
+                    ## print("-"*40, "[NEW CONTEXT]")
                     local_ctx = GraphNode(comp)
                     graph[current_step].append(local_ctx)
                 else:
@@ -482,8 +481,8 @@ def build_callgraph(fname):
                 local_ctx.data_idx = (step, comp, idx)
                 local_ctx.data = table[step][comp][-1]
                 # close context
-                ## print "==>",local_ctx
-                ## print "-"*40, "[DEL CONTEXT] (%s)" % current_step
+                ## print("==>",local_ctx)
+                ## print("-"*40, "[DEL CONTEXT] (%s)" % current_step)
                 if current_step == 'fin':
                     return graph
                 pass
@@ -561,10 +560,10 @@ def cnv_callgraph_to_cachegrind(root, oname, metadata=None):
     def _get_data(node, op_name='self'):
         try:
             return callgraph_node_get_data(node, op_name)
-        except Exception,err:
-            print "."*80
-            print "node=%r" % node
-            print err
+        except Exception as err:
+            print("."*80)
+            print("node=%r" % node)
+            print(err)
             raise
         
     if metadata:
@@ -574,8 +573,8 @@ def cnv_callgraph_to_cachegrind(root, oname, metadata=None):
             try:
                 return metadata[node.name]
             except KeyError:
-                ## print "**err** domaindb[%s] does not exist !! ==> [%s]" % (
-                ##     node.name, metadata.get(node.parent.name,'N/A'))
+                ## print("**err** domaindb[%s] does not exist !! ==> [%s]" % (
+                ##     node.name, metadata.get(node.parent.name,'N/A')))
                 # fold everything into parent, if any
                 if node.parent:
                     return _get_meta(node.parent)
@@ -733,14 +732,14 @@ if __name__=='__main__':
     import os.path
 
     if len(sys.argv)<2:
-        print "Please supply one or more perfmon files to investigate (*.pmon, *.pmon.gz or *.pmon.dat)"
+        print("Please supply one or more perfmon files to investigate (*.pmon, *.pmon.gz or *.pmon.dat)")
         exit(1)
     for arg in sys.argv[1:]:
-        print "Investigating file",arg
+        print("Investigating file",arg)
         if not os.path.exists(arg):
-            print "  ==> Not found!"
+            print("  ==> Not found!")
             continue
-        print "::: keys:",extract_pmon_infos(fname=arg).keys()
+        print("::: keys:",extract_pmon_infos(fname=arg).keys())
         for only_summary in [True,False]:
             infodict=extract_pmon_infos(fname=arg,only_summary=only_summary)
             for use_base64 in [False,True]:
@@ -752,7 +751,7 @@ if __name__=='__main__':
                     decoded = decode(p)
                     decodeOk = (decoded==infodict)
                     s+=' [Decoding '+('OK' if decodeOk else 'FAILED')+']'
-                print s
+                print(s)
 
 
 
@@ -765,14 +764,14 @@ root_graph = pmon_ser.build_callgraph('foo.pmon.gz')
 evt = root_graph['evt'][-1]
 domains_stats = collections.defaultdict(float)
 for c in evt[0][0].children:
- #print c.name
+ #print(c.name)
  if c.name in ddb:
   domain = ddb[c.name]
   domains_stats[domain] += c.incl('cpu','cpu',2)
  else:
-  print '**err**',c.name
+  print('**err**',c.name)
 
-print dict(domains_stats)
+print(dict(domains_stats))
 {'admin': 0.0,         
  'aod': 4.0,           
  'calo': 889.0,        

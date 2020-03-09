@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -32,15 +32,13 @@
    } while( 0 )
 
 xAODEnergySumRoIAuxInfoCnv_v1::xAODEnergySumRoIAuxInfoCnv_v1()
-  : T_AthenaPoolTPCnvBase< xAOD::EnergySumRoIAuxInfo,
-                           xAOD::EnergySumRoIAuxInfo_v1 >() {
-
+{
 }
 
 void xAODEnergySumRoIAuxInfoCnv_v1::
 persToTrans( const xAOD::EnergySumRoIAuxInfo_v1* oldObj,
              xAOD::EnergySumRoIAuxInfo* newObj,
-             MsgStream& /*log*/ ) {
+             MsgStream& /*log*/ ) const {
 
    // Greet the user:
    //ATH_MSG( "Converting xAOD::EnergySumRoIAuxInfo_v1 to current version..." );
@@ -64,7 +62,7 @@ persToTrans( const xAOD::EnergySumRoIAuxInfo_v1* oldObj,
 
 void xAODEnergySumRoIAuxInfoCnv_v1::transToPers( const xAOD::EnergySumRoIAuxInfo*,
                                                 xAOD::EnergySumRoIAuxInfo_v1*,
-                                                MsgStream& log ) {
+                                                MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODEnergySumRoIAuxInfoCnv_v1::transToPers"

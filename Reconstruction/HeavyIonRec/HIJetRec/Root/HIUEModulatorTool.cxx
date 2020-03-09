@@ -9,7 +9,7 @@
 HIUEModulatorTool::HIUEModulatorTool(const std::string& n) : asg::AsgTool(n),
 							     m_shape(nullptr)
 {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   //should not need this due to ASG_TOOL_CLASS macro since 
   //athena only calls 3 arg constructor which explicitly declares athena interface?
   declareInterface<IHIUEModulatorTool>(this); 

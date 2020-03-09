@@ -23,6 +23,7 @@ def get_and_fix_PDGTABLE(replace):
                          '0.E+00'.ljust(15) + '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
                          name.strip() + ''.ljust(6) + charge.strip()+''.rjust(20-len(name.strip())) + '\n')
         else:
+            from past.builtins import xrange # Temporary workaround for python3 compatibility use range in CA-based config
             for i in xrange(len(lines)):
                 if re.search(r'M\s+'+str(pdgid)+'\s+\S+', lines[i]):
                     l = lines[i]
@@ -32,7 +33,7 @@ def get_and_fix_PDGTABLE(replace):
     update.write(''.join(lines))
     update.close()
 
-    print 'modfied PDGTABLE\n%s\n' % ''.join(lines)
+    printfunc ('modfied PDGTABLE\n%s\n' % ''.join(lines))
     sys.stdout.flush()
 
 def load_files_for_GMSB_scenario(simdict):
@@ -88,7 +89,7 @@ def load_files_for_GMSB_scenario(simdict):
                             ])
 
     else:
-        print 'GMSBIndex %i not supported' % GMSBIndex
+        printfunc ('GMSBIndex %i not supported' % GMSBIndex)
         raise
 
 doG4SimConfig = True
@@ -122,7 +123,7 @@ if doG4SimConfig:
     elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
         simFlags.PhysicsOptions += ["SleptonsPhysicsTool"]
     else:
-        print 'GMSBIndex %i not supported' % GMSBIndex
+        printfunc ('GMSBIndex %i not supported' % GMSBIndex)
         raise
     del GMSBIndex
 

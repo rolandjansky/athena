@@ -36,7 +36,7 @@ runDAOD = True # these are DAOD-s
 #-----------------------------------------------------------------------
 
 # make AthenaCommonFlags aware of which file we are using
-# AthenaCommonFlags are used run-time configuration (InputFilePeeker)
+# AthenaCommonFlags are used run-time configuration (MetaReader)
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 svcMgr.EventSelector.InputCollections = FNAME
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
@@ -46,9 +46,9 @@ athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 from AthenaCommon.GlobalFlags import globalflags
 #globalflags.DetGeo = 'atlas'
 
-from RecExConfig.InputFilePeeker import inputFileSummary
-globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
-globalflags.DetDescrVersion = inputFileSummary['geometry']
+from PyUtils.MetaReaderPeeker import metadata
+globalflags.DataSource = 'data' if metadata['eventTypes'][0] == "IS_DATA" else 'geant4'
+globalflags.DetDescrVersion = metadata['GeoAtlas']
 
 # if you are running with a geometry not yet included in xmlTags:
 # add your Geometry and Layout below.

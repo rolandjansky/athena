@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @purpose: test the TruthParticle class
@@ -33,13 +33,9 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 
 // McParticleEvent includes
-#define private public
-#define protected public
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "McParticleEvent/TruthParticle.h"
 #include "McParticleEvent/TruthEtIsolations.h"
-#undef private
-#undef protected
 
 class tp_test_err
   : public std::exception
@@ -92,6 +88,16 @@ make_map_t_pair(const HepMC::GenParticle &p,
   HepMcParticleLink link(p.barcode(), genEventIdx);
   return Map_t::value_type(link.compress(), &tp);
 }
+
+
+class TruthParticleProt
+  : public TruthParticle
+{
+public:
+  using TruthParticle::TruthParticle;
+  using TruthParticle::m_container;
+};
+
 
 class TruthParticleTest
 {
@@ -221,7 +227,7 @@ TruthParticleTest* makeTestData()
 void testConstructor( TruthParticleTest* tp )
 {
   {
-    TruthParticle mc;
+    TruthParticleProt mc;
 
     // FourMomentum
     TP_ASSERT( mc.px () == 0 );
@@ -232,12 +238,12 @@ void testConstructor( TruthParticleTest* tp )
     // TruthParticle-part
     TP_ASSERT( mc.genParticle() == 0   );
     TP_ASSERT( mc.m_container == 0   );
-    TP_ASSERT( mc.m_mothers.empty()  );
-    TP_ASSERT( mc.m_children.empty() );
+    TP_ASSERT( mc.nParents() == 0  );
+    TP_ASSERT( mc.nDecay() == 0 );
   }
 
   {
-    TruthParticle mc( tp->m_top, tp->m_mc );
+    TruthParticleProt mc( tp->m_top, tp->m_mc );
     // FourMomentum
     TP_ASSERT( mc.px () == tp->m_top->momentum().px() );
     TP_ASSERT( mc.py () == tp->m_top->momentum().py() );
@@ -247,8 +253,8 @@ void testConstructor( TruthParticleTest* tp )
     // TruthParticle-part
     TP_ASSERT( mc.genParticle() == tp->m_top );
     TP_ASSERT( mc.m_container == tp->m_mc  );
-    TP_ASSERT( mc.m_mothers.size()  == tp->m_nPartsIn  );
-    TP_ASSERT( mc.m_children.size() == tp->m_nPartsOut );
+    TP_ASSERT( mc.nParents()  == tp->m_nPartsIn  );
+    TP_ASSERT( mc.nDecay() == tp->m_nPartsOut );
   }
 
   return;
@@ -256,9 +262,9 @@ void testConstructor( TruthParticleTest* tp )
 
 void testCopyConstructor( TruthParticleTest* tp )
 {
-  TruthParticle top( tp->m_top, tp->m_mc );
+  TruthParticleProt top( tp->m_top, tp->m_mc );
   {
-    TruthParticle mc(top);
+    TruthParticleProt mc(top);
     // FourMomentum
     TP_ASSERT( std::abs( mc.px () - top.px() ) < tp->m_epsilon );
     TP_ASSERT( std::abs( mc.py () - top.py() ) < tp->m_epsilon );
@@ -270,8 +276,8 @@ void testCopyConstructor( TruthParticleTest* tp )
     // TruthParticle-part
     TP_ASSERT( mc.genParticle() == top.genParticle() );
     TP_ASSERT( mc.m_container == top.m_container  );
-    TP_ASSERT( mc.m_mothers.size()  == top.m_mothers.size()  );
-    TP_ASSERT( mc.m_children.size() == top.m_children.size() );
+    TP_ASSERT( mc.nParents()  == top.nParents()  );
+    TP_ASSERT( mc.nDecay() == top.nDecay() );
   }
   return;
 }
@@ -346,7 +352,7 @@ void testSettersAndGetters( TruthParticleTest* tp )
       TP_ASSERT( hepMc == *tp->m_top );
     }
 
-    for ( unsigned int i = 0; i != mc.m_children.size(); ++i ) {
+    for ( unsigned int i = 0; i != mc.nDecay(); ++i ) {
       caught = false;
       try {
 	TP_ASSERT( mc.genChild(i) != 0 );
@@ -356,7 +362,7 @@ void testSettersAndGetters( TruthParticleTest* tp )
       TP_ASSERT( !caught );
     }
 
-    for ( unsigned int i = 0; i != mc.m_children.size(); ++i ) {
+    for ( unsigned int i = 0; i != mc.nDecay(); ++i ) {
       caught = false;
       try {
 	TP_ASSERT( mc.child(i) != 0 );
@@ -379,7 +385,7 @@ void testSettersAndGetters( TruthParticleTest* tp )
       for ( unsigned int i = 0; i != indices.size(); ++i ) {
 	std::cout << "indices[" << i << "]= " << indices[i] << std::endl;
       }
-      for ( unsigned int i = 0; i != mc.m_children.size(); ++i ) {
+      for ( unsigned int i = 0; i != mc.nDecay(); ++i ) {
 	TP_ASSERT( mc.genChild(i) != 0 );
 	TP_ASSERT( mc.child(i)    != 0 );
 	std::cout << "child[" << i << "]= " 

@@ -20,7 +20,3 @@ atlas_add_poolcnv_library( ForwardRegion_EventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES ForwardRegion_SimEv/SimulationHitCollection.h
                            LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib AtlasSealCLHEP ForwardRegion_EventTPCnv ForwardRegion_SimEv GaudiKernel )
-
-# Install files from the package:
-atlas_install_headers( ForwardRegion_EventAthenaPool )
-

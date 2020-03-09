@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,7 +30,7 @@ This algorithm performs the following tasks:
 
 @section TrkTrackCollectionMerger_TrkTrackCollectionMergerTools Used Tools
 
-This algorithm uses the ITrackSummaryTool, IPRD_AssociationTool tools.
+This algorithm uses the ITrackSummaryTool, IPRDtoTrackMapTool tools.
 
 @section TrkTrackCollectionMerger_TrkTrackCollectionMergerContents Algorithm Contents
 

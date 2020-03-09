@@ -17,8 +17,13 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TrkParameters/TrackParameters.h"
+
+#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
+#include "TrkExInterfaces/IPropagator.h"
+
 
 #include <string>
 #include <set>
@@ -43,10 +48,6 @@ class MdtDriftCircleOnTrack;
 class MuonSegment;
 class IMuonSegmentMaker;
 class MdtPrepData;
-}
-
-namespace MuonGM {
-class MuonDetectorManager;
 }
 
 namespace Trk {
@@ -123,15 +124,17 @@ private:
       bool& doHoleSearch ) const;
 
 
-  const MuonGM::MuonDetectorManager*  m_detMgr;
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
-  ToolHandle<Muon::IMuonSegmentMaker>              m_segMaker;           //!< actual segment maker with hole search
-  ToolHandle<Muon::IMuonSegmentMaker>              m_segMakerNoHoles;    //!< actual segment maker no hole search
-  ToolHandle<Trk::IPropagator>                     m_propagator;         //!< propagator
-  ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator;      //!< IMdtDriftCircleOnTrackCreator
+  ToolHandle<Muon::IMuonSegmentMaker>              m_segMaker{this, "SegmentMaker", "Muon::DCMathSegmentMaker/DCMathSegmentMaker"};           //!< actual segment maker with hole search
+  ToolHandle<Muon::IMuonSegmentMaker>              m_segMakerNoHoles{this, "SegmentMakerNoHoles", "Muon::DCMathSegmentMaker/DCMathSegmentMaker"};    //!< actual segment maker no hole search
+  ToolHandle<Trk::IPropagator>                     m_propagator{this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};         //!< propagator
+  ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator{this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};      //!< IMdtDriftCircleOnTrackCreator
   Trk::MagneticFieldProperties                     m_magFieldProperties; //!< magnetic field properties
-  ToolHandle<Muon::MuonIdHelperTool>               m_idHelper;       //!< IdHelper tool
-  ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;            //!< EDM printer tool
+  ToolHandle<Muon::MuonIdHelperTool>               m_idHelper{this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};       //!< IdHelper tool
+  ToolHandle<Muon::MuonEDMPrinterTool>             m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //!< EDM printer tool
 
   SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
   SG::ReadHandleKey<Muon::CscPrepDataContainer> m_key_csc{this,"CscPrepDataContainer","CSC_Clusters","CSC PRDS"};

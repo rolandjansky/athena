@@ -32,7 +32,7 @@ Splitter3            INFO EventInfo event: 0 run: 0
 Splitter3           DEBUG Trigmask = 1
 Splitter3            INFO L1 failed
 Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_StreamAll2.root
-RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll2.root File version:61600
+RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll2.root File version:61800
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 1 run: 0
 Splitter1           DEBUG Trigmask = 2

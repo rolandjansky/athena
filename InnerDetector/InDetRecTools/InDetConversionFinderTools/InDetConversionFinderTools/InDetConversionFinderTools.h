@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -82,7 +82,8 @@ namespace InDet{
     ToolHandle<Trk::ITrackSelectorTool> m_trkSelector; /** Track Selector Tool. */
     
     
-    bool passPreSelection(const xAOD::TrackParticle* track_pos, const xAOD::TrackParticle* track_neg, std::vector<Amg::Vector3D>&  trackList, Amg::Vector3D& initPos, int& flag);
+    bool passPreSelection(const xAOD::TrackParticle* track_pos, const xAOD::TrackParticle* track_neg, std::vector<Amg::Vector3D>&  trackList, Amg::Vector3D& initPos, int& flag,
+                          std::map<std::string, float>& intersectionDecors);
 
     
     static double s_innerDetectorR;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -65,7 +65,7 @@ void test1()
   assert (n == 5);
   assert (flags.size() == 10);
   for (int i=0; i < 10; ++i) {
-    assert (flags[i] == (i%2 == 1));
+    assert (flags[i] == static_cast<unsigned char>(i%2 == 1));
   }
 }
 

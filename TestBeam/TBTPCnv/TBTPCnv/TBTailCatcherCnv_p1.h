@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------------
@@ -18,14 +18,17 @@ class MsgStream;
 class TBTailCatcher;
 
 
-class TBTailCatcherCnv_p1  : public T_AthenaPoolTPCnvBase<TBTailCatcher, TBTailCatcher_p1>
+class TBTailCatcherCnv_p1  : public T_AthenaPoolTPCnvConstBase<TBTailCatcher, TBTailCatcher_p1>
 {
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   TBTailCatcherCnv_p1() {}
 
-  virtual void          persToTrans(const TBTailCatcher_p1* pers, TBTailCatcher* trans, MsgStream &log);
-  virtual void          transToPers(const TBTailCatcher* trans, TBTailCatcher_p1* pers, MsgStream &log);
+  virtual void          persToTrans(const TBTailCatcher_p1* pers, TBTailCatcher* trans, MsgStream &log) const override;
+  virtual void          transToPers(const TBTailCatcher* trans, TBTailCatcher_p1* pers, MsgStream &log) const override;
 };
 
 

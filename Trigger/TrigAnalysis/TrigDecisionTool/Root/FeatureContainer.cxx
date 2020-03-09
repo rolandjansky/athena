@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -65,7 +65,7 @@ bool Trig::FeatureContainer::addWithChecking(const Combination& newComb)
 
 void Trig::FeatureContainer::append(const FeatureContainer& other)
 {  
-  BOOST_FOREACH(const Trig::Combination& comb, other.m_combinations)
+  for(const Trig::Combination& comb : other.m_combinations)
     addWithChecking(comb);
 }
 

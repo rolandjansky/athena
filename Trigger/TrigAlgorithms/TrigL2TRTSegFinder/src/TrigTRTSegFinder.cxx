@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -235,8 +235,9 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
     m_segFindTimer->start();
   }
 
-  m_segmentsmaker->newRegion(listTrtIds);
-  m_segmentsmaker->find(); 
+  std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
+     event_data = m_segmentsmaker->newRegion(listTrtIds);
+  m_segmentsmaker->find(*event_data);
 
   Trk::Segment* segment = 0;
   m_nsegments           = 0;
@@ -245,11 +246,11 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
   
   Trk::SegmentCollection* foundSegments  = new Trk::SegmentCollection;
   
-  while((segment = m_segmentsmaker->next())) {
+  while((segment = m_segmentsmaker->next(*event_data))) {
     ++m_nsegments; foundSegments->push_back(segment);
   }
   
-  m_segmentsmaker->endEvent();
+  m_segmentsmaker->endEvent(*event_data);
 
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "REGTEST: Found " << m_nsegments << " TRT segments" << endmsg;

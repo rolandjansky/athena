@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///============================================================
@@ -19,14 +19,11 @@
 /// Date : 25 February 2009
 ///============================================================
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloTowerContainer.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloTopoTowerAlg.h"
-#include "CxxUtils/make_unique.h"
 #include <string>
 
 ///==============================================

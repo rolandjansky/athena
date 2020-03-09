@@ -24,7 +24,13 @@ class IndexedJetsGrouper: public IJetGrouper{
 public:
   IndexedJetsGrouper(const std::vector<unsigned int>& indices);
   virtual ~IndexedJetsGrouper(){}
-  HypoJetGroupVector group(HypoJetIter&, HypoJetIter&) const override;
+
+  std::vector<HypoJetGroupVector>
+    group(HypoJetIter&, HypoJetIter&) const override;
+
+    std::optional<HypoJetGroupVector> next(HypoJetIter&,
+					 HypoJetIter&) const override;
+    
   std::string getName() const override;
   std::string toString() const override;
 private:

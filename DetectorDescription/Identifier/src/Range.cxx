@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  
@@ -1722,8 +1722,8 @@ Range::const_identifier_factory Range::factory_begin () const
 //----------------------------------------------- 
 Range::identifier_factory Range::factory_end () 
 { 
-  static Range r; 
-  static identifier_factory factory (r); 
+  static const Range r; 
+  static const identifier_factory factory (r); 
  
   return (factory); 
 } 
@@ -1731,7 +1731,7 @@ Range::identifier_factory Range::factory_end ()
 //----------------------------------------------- 
 Range::const_identifier_factory Range::factory_end () const 
 { 
-  static const_identifier_factory factory; 
+  static const const_identifier_factory factory; 
  
   return (factory); 
 } 
@@ -2418,19 +2418,12 @@ void MultiRange::add (const ExpandedIdentifier& id)
  
 //----------------------------------------------- 
 void MultiRange::remove_range (const ExpandedIdentifier& id) 
-{ 
-    // Remove all ranges for which id matches
-    range_vector::iterator first=m_ranges.begin();
-    range_vector::iterator last=m_ranges.end();
-    while (first != last) {
-	if (first->match(id)) {
-	    m_ranges.erase(first);  // remove range
-	    first=m_ranges.begin(); // restart loop every time
-	    last=m_ranges.end();    // when range removed 
-	} else {
-	    ++first;
-	}
-    }
+{
+  // Remove all ranges for which id matches
+  range_vector::iterator end =
+    std::remove_if (m_ranges.begin(), m_ranges.end(),
+                    [&] (const Range& r) { return r.match(id); });
+  m_ranges.erase (end, m_ranges.end());
 }
 
  
@@ -2543,7 +2536,7 @@ MultiRange::const_identifier_factory MultiRange::factory_begin () const
 //----------------------------------------------- 
 MultiRange::identifier_factory MultiRange::factory_end () 
 { 
-  static identifier_factory factory;
+  static const identifier_factory factory;
  
   return (factory); 
 } 
@@ -2551,7 +2544,7 @@ MultiRange::identifier_factory MultiRange::factory_end ()
 //----------------------------------------------- 
 MultiRange::const_identifier_factory MultiRange::factory_end () const 
 { 
-  static const_identifier_factory factory; 
+  static const const_identifier_factory factory; 
  
   return (factory); 
 } 

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawChannelContainerCnv.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArTPCnv/LArRawChannelContainerCnv_p1.h"
 
@@ -41,18 +40,18 @@ LArRawChannelContainerCnv::createTransient()
  // even newer representation of LArRawChannelContainer
   if( compareClassGuid(guid_p4) ) {
       LArRawChannelContainerCnv_p4   converter;
-      std::auto_ptr<LArRawChannelContainer_p4> col_vect( poolReadObject<LArRawChannelContainer_p4>() );
+      std::unique_ptr<LArRawChannelContainer_p4> col_vect( poolReadObject<LArRawChannelContainer_p4>() );
       trans_cont = converter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(guid_p3) ) {
       LArRawChannelContainerCnv_p3   converter;
-      std::auto_ptr<LArRawChannelContainer_p3> col_vect( poolReadObject<LArRawChannelContainer_p3>() );
+      std::unique_ptr<LArRawChannelContainer_p3> col_vect( poolReadObject<LArRawChannelContainer_p3>() );
       trans_cont = converter.createTransient( col_vect.get(), log );
   }
   // new representation of LArRawChannelContainer
   else if( compareClassGuid(guid_p2) ) {
       LArRawChannelContainerCnv_p2   converter;
-      std::auto_ptr<LArRawChannelContainer_p2> col_vect( poolReadObject<LArRawChannelContainer_p2>() );
+      std::unique_ptr<LArRawChannelContainer_p2> col_vect( poolReadObject<LArRawChannelContainer_p2>() );
       trans_cont = converter.createTransient( col_vect.get(), log );
 
   }
@@ -60,7 +59,7 @@ LArRawChannelContainerCnv::createTransient()
   else if( compareClassGuid(guid_p1) )
     {
       LArRawChannelContainerCnv_p1   converter;
-      std::auto_ptr<LArRawChannelContainer_p1> col_vect( poolReadObject<LArRawChannelContainer_p1>() );
+      std::unique_ptr<LArRawChannelContainer_p1> col_vect( poolReadObject<LArRawChannelContainer_p1>() );
       trans_cont = converter.createTransient( col_vect.get(), log );
     }
   // old representation of LArRawChannelContainer

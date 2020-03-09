@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
 			  PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
                           PRIVATE
                           Control/AthContainers
-                          Control/CxxUtils
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODMissingET
                           Event/xAOD/xAODParticleEvent
@@ -39,12 +38,12 @@ atlas_add_library( JetMissingEtTagToolsLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities xAODJet GaudiKernel TagEvent AnalysisUtilsLib JetSelectorToolsLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers CxxUtils xAODCore xAODMissingET xAODParticleEvent JetUtils )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers xAODCore xAODMissingET xAODParticleEvent JetUtils )
 
 atlas_add_component( JetMissingEtTagTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaPoolUtilities xAODJet GaudiKernel TagEvent AthContainers CxxUtils xAODCore xAODMissingET xAODParticleEvent AnalysisUtilsLib JetSelectorToolsLib JetUtils JetMissingEtTagToolsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaPoolUtilities xAODJet GaudiKernel TagEvent AthContainers xAODCore xAODMissingET xAODParticleEvent AnalysisUtilsLib JetSelectorToolsLib JetUtils JetMissingEtTagToolsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

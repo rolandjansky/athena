@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
+from AthenaCommon.SystemOfUnits import ns
 from AthenaCommon.GlobalFlags import globalflags
 
-# import the base class
-from LArRecUtils.LArRecUtilsConf import LArOFCTool
             
 def LArOFCToolDefault (name="LArOFCToolDefault", **kw): 
     # call base class constructor

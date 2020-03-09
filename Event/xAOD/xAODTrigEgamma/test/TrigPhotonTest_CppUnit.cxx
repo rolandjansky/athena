@@ -32,7 +32,7 @@ class TrigPhotonTest : public CppUnit::TestFixture
 };
 CPPUNIT_TEST_SUITE_REGISTRATION (TrigPhotonTest);
 
-//#include <TestPolicy/CppUnit_testdriver.cxx>
+//#include <TestTools/CppUnit_testdriver.cxx>
 
 #else
 

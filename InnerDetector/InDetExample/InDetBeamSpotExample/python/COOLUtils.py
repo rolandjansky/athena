@@ -143,9 +143,12 @@ class COOLQuery:
         self.lbDictCache = {'runnr': None, 'lbDict': None}
 
     def __del__(self):
-        self.cooldb.closeDatabase()
-        self.cooltrigdb.closeDatabase()
-        self.cooldcsdb.closeDatabase()
+        try:
+          self.cooldb.closeDatabase()
+          self.cooltrigdb.closeDatabase()
+          self.cooldcsdb.closeDatabase()
+        except:
+          print "DB time out -- ignore"
 
     def getRunStartTime(self,runnr):
         """Get start time of run in Unix time (seconds since epoch)."""

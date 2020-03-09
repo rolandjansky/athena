@@ -59,8 +59,8 @@ void test_ctor()
   SGTest::TestStore pool;
   SG::DataStore store (pool);
   assert (store.storeID() == StoreID::UNKNOWN);
-  store.setStoreID (StoreID::SPARE_STORE);
-  assert (store.storeID() == StoreID::SPARE_STORE);
+  store.setStoreID (StoreID::EVENT_STORE);
+  assert (store.storeID() == StoreID::EVENT_STORE);
 }
 
 
@@ -336,7 +336,7 @@ void test_keys()
   assert (store.addToStore (125, dp3).isSuccess());
   assert (store.addToStore (125, dp4).isSuccess());
   TestProvider prov;
-  dp4->setProvider (&prov, StoreID::SPARE_STORE);
+  dp4->setProvider (&prov, StoreID::EVENT_STORE);
 
   store.keys (125, v, true, false);
   assert (v.size() == 2);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETCOLLECTION_H
@@ -64,7 +64,10 @@ class JetCollection : public DataVector<Jet>
   
   void setOrdered(JetCollection::OrderedVar ordered )
     { m_ordered = ordered; return; };
-  
+
+  JetCollection::OrderedVar ordered() const
+    { return m_ordered; };
+
 
   // we redefine the insertion mechanisms to be sure to capture the jet moments
   // associated to the inserted jets and assign an id within this collection
@@ -97,6 +100,7 @@ class JetCollection : public DataVector<Jet>
   JetKeyDescriptorInstance * keyDesc() const ;
 
   protected:
+  friend class JetCollectionCnv_p6;
 
 #if !defined(__REFLEX__) && !defined(__CLING__)
   mutable DataLink<JetMomentMap>      m_momentMapLink;

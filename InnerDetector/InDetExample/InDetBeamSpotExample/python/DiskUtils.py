@@ -6,6 +6,7 @@ import itertools
 import os
 import re
 import subprocess
+import time
 
 # DEPRECATED CODE #############################################################
 
@@ -145,7 +146,11 @@ def get_lumi_blocks(root_file):
     from AthenaROOTAccess.transientTree import makeTree
     try:
         f = ROOT.TFile(root_file)
-        if not f.IsOpen(): raise AccessError('Unable to open file: ' + root_file)
+        if not f.IsOpen():
+          time.sleep(20)
+          f = ROOT.TFile(root_file)
+          if not f.IsOpen():
+            raise AccessError('Unable to open file: ' + root_file)
         t = f.Get('MetaData')
         tt = makeTree(t, dhTreeName='MetaDataHdr')
         for branch in tt.GetListOfBranches():
@@ -414,7 +419,10 @@ class FileSet:
     def _with_lumi_blocks_from_map(self, map_file):
         with open(map_file) as mf:
             for line in mf:
+                print(line)
                 fname = line.split(' ')[0]
+                print(line.split(' ')[0])
+                print(line.split(' ')[1])
                 lbs = set(int(l) for l in line.split(' ')[1].split(','))
                 self.lb_map[fname] = lbs
         def generator(s):

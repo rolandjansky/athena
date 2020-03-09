@@ -69,6 +69,23 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( LArFCalTowerBuilderTool
                 SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/LArFCalTowerBuilderTool_test.sh
-                PROPERTIES TIMEOUT 600
-                EXTRA_PATTERNS "[0-9] [A-Z]+ 20[123][0-9]|Reading file|^CORAL/Services/ConnectionService (Info|Warning)|^RelationalDatabase Info|^Data source lookup|^DetDescrCnvSvc +INFO|^CORAL/RelationalPlugins/frontier Info|^PluginManager Info|^RalSessionMgr Warning|^DBReplicaSvc +INFO|IOVDbSvc +INFO|^Py:Athena +INFO|^EventInfoMgtInit: Got release|^TEnvRec::ChangeValue|^PoolSvc +INFO|being retired|including file|Deaccess DbDatabase|^IoComponentMgr +INFO|File version|Global positioning|^Domain|duplicate entry|already loaded|RootDbase: all good|frontier.c|^Py:ConfigurableDb +(WARNING|INFO)|ApplicationMgr +INFO|INFO [sS]top|^CaloIdMgrDetDes.*INFO|^TTOnlineIDDetDe.*INFO|^CaloIDHelper_ID.*INFO|^AtlasDetectorID +INFO|^AthenaEventLoopMgrWARNING|^CaloDM_IDDetDes.*INFO|^CaloLVL1_IDDetD.*INFO|^LArFCAL_ID +INFO|^LArMiniFCAL_IDD.*INFO|^LArHEC_ID +INFO|^LArMiniFCAL_ID +INFO|TileTBIdDetDesc.*INFO|^TileIDDetDescrCnv +INFO|CaloCell_IDDetD.*INFO|TileID +INFO|^LArFCAL_IDDetDe.*INFO|^TileTBIDDetDesc.*INFO|^LArEM_ID +INFO|^LArHEC_IDDetDes.*INFO|^LArEM_IDDetDesc.*INFO|^EndcapDMConstru.*INFO|^GeoModelSvc +INFO|U-shape parameter|Cs Tube parameter|XMLFileCatalog Info|No IOVSvcTool associated|^RalSessionMgr Info|RDBMS technology|^AthenaRootStre.* INFO|^GUID: Class pool::DbString has GUID|INFO TileDddbManager|^HGTD_ID *INFO|Unable to locate catalog|^CORAL/|TFile::Init|MetaDataSvc"
-                 )
+                LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
+                PROPERTIES TIMEOUT 600 )
+
+atlas_add_test( LArRecUtilsConfig_test
+                SCRIPT python -m LArRecUtils.LArRecUtilsConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---" )
+
+atlas_add_test( LArADC2MeVCondAlgConfig_test
+                SCRIPT python -m LArRecUtils.LArADC2MeVCondAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---" )
+
+
+
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( flake8_share
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --ignore=F401,F821,ATL900 ${CMAKE_CURRENT_SOURCE_DIR}/share
+                POST_EXEC_SCRIPT nopost.sh )

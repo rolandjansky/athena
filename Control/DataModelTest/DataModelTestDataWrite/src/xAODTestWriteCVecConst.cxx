@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,6 @@
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "AthContainersInterfaces/AuxDataOption.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 
 
 namespace DMTest {
@@ -52,8 +51,8 @@ StatusCode xAODTestWriteCVecConst::initialize()
  */
 StatusCode xAODTestWriteCVecConst::execute (const EventContext& ctx) const
 {
-  auto coll = CxxUtils::make_unique<DMTest::CVec>();
-  auto store = CxxUtils::make_unique<DMTest::CAuxContainer>();
+  auto coll = std::make_unique<DMTest::CVec>();
+  auto store = std::make_unique<DMTest::CAuxContainer>();
   coll->setStore (store.get());
 
   SG::WriteHandle<DMTest::CVec> cvec (m_cvecKey, ctx);

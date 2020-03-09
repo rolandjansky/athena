@@ -20,7 +20,3 @@ atlas_add_poolcnv_library( G4SimAthenaPOOLPoolCnv
                            src/*.cxx
                            FILES TrackRecord/TrackRecordCollection.h
                            LINK_LIBRARIES AthenaPoolUtilities AtlasSealCLHEP GaudiKernel AthenaPoolCnvSvcLib G4SimTPCnv )
-
-# Install files from the package:
-atlas_install_headers( G4SimAthenaPOOL )
-

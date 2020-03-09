@@ -14,6 +14,16 @@ if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkTau.TauTruthCommon import *
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_JETM5Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_JETM5Stream )
+JETM5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+JETM5Stream.AcceptAlgs(["JETM5Kernel"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 expression = '( (EventInfo.eventTypeBitmask==1) || HLT_noalg_zb_L1ZB )'
@@ -30,7 +40,7 @@ thinningTools = []
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 JETM5MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name     = "JETM5MuonTPThinningTool",
-                                                                    ThinningService         = "JETM5ThinningSvc",
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM5MuonTPThinningTool
@@ -39,7 +49,7 @@ thinningTools.append(JETM5MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM5ElectronTPThinningTool",
-                                                                               ThinningService         = "JETM5ThinningSvc",
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM5ElectronTPThinningTool
@@ -47,7 +57,7 @@ thinningTools.append(JETM5ElectronTPThinningTool)
 
 # TrackParticles associated with photons
 JETM5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM5PhotonTPThinningTool",
-                                                                             ThinningService         = "JETM5ThinningSvc",
+                                                                             StreamName              = streamName,
                                                                              SGKey                   = "Photons",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM5PhotonTPThinningTool
@@ -56,7 +66,7 @@ thinningTools.append(JETM5PhotonTPThinningTool)
 # # TrackParticles associated with taus
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 # JETM5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM5TauTPThinningTool",
-#                                                                         ThinningService = "JETM5ThinningSvc",
+#                                                                         StreamName      = streamName,
 #                                                                         TauKey          = "TauJets",
 #                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 # ToolSvc += JETM5TauTPThinningTool
@@ -77,7 +87,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM5TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM5TruthThinningTool",
-                                                                        ThinningService        = "JETM5ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         ParticleSelectionString = truth_expression,
                                                                         PreserveDescendants     = preserveAllDescendants,
                                                                         PreserveGeneratorDescendants = not preserveAllDescendants,
@@ -94,19 +104,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM5Kernel",
 									SkimmingTools = [JETM5SkimmingTool],
 									ThinningTools = thinningTools)
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_JETM5Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_JETM5Stream )
-JETM5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-JETM5Stream.AcceptAlgs(["JETM5Kernel"])
-# for thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="JETM5ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

@@ -1,13 +1,10 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# The minimum required CMake version:
+# Set up the project.
 cmake_minimum_required( VERSION 3.6 )
-
-# Read in the project's version from a file called version.txt. But let it be
-# overridden from the command line if necessary.
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-set( ATHSIMULATION_PROJECT_VERSION ${_version}
-   CACHE STRING "Version of the AthSimulation project to build" )
+project( AthSimulation VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
 # Find the ATLAS CMake code:
@@ -21,6 +18,7 @@ find_package( Gaudi REQUIRED )
 find_package( Frontier_Client )
 find_package( PNG )
 find_package( VDT )
+find_package( TIFF )
 
 # Set the project into "SIMULATIONBASE mode".
 set( SIMULATIONBASE TRUE CACHE BOOL
@@ -49,10 +47,8 @@ list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 atlas_ctest_setup()
 
 # Declare project name and version
-atlas_project( AthSimulation ${ATHSIMULATION_PROJECT_VERSION}
-   USE AthSimulationExternals ${AthSimulationExternals_VERSION}
-   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
-   LANGUAGES C CXX Fortran )
+atlas_project( USE AthSimulationExternals ${AthSimulationExternals_VERSION}
+   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
 # Install the external configurations:
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
@@ -67,10 +63,6 @@ if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
    get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
    list( APPEND _replacements ${_buildDir} "\${AthSimulation_DIR}/../../../.." )
 endif()
-if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
-   list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
-      "\${AthSimulation_VERSION}" )
-endif()
 
 # Now generate and install the installed setup files:
 lcg_generate_env(
@@ -80,9 +72,13 @@ install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
 # Configure and install the post-configuration file:
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
+install( FILES
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Package up the release using CPack:

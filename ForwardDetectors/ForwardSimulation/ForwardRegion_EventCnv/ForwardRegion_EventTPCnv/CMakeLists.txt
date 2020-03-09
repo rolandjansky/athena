@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           ForwardDetectors/ForwardSimulation/ForwardRegion_SimEv
                           PRIVATE
+                          AtlasTest/TestTools
                           DetectorDescription/Identifier
                           GaudiKernel )
 
@@ -30,3 +31,12 @@ atlas_add_dictionary( ForwardRegion_EventTPCnvDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib ForwardRegion_SimEv Identifier GaudiKernel ForwardRegion_EventTPCnv )
 
+
+
+atlas_add_test( SimulationHitCnv_p1_test
+                SOURCES
+                test/SimulationHitCnv_p1_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ForwardRegion_EventTPCnv )
+
+                    

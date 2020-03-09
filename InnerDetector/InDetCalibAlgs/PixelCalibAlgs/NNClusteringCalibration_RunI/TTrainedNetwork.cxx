@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TTrainedNetwork.h"
@@ -11,13 +11,13 @@
 using namespace std;
 
 TTrainedNetwork::TTrainedNetwork()
+  : m_nInput(0),
+    m_nHidden(0),
+    m_nOutput(0),
+    m_ActivationFunction(1),
+    m_LinearOutput(false),
+    m_NormalizeOutput (false)
 {
-  mnInput=0;
-  mnHidden=0;
-  mnOutput=0;
-  mActivationFunction=1;
-  mLinearOutput=false;
-  mNormalizeOutput=false;
 }
 
 TTrainedNetwork::TTrainedNetwork(Int_t nInput,
@@ -29,23 +29,22 @@ TTrainedNetwork::TTrainedNetwork(Int_t nInput,
                                  Int_t activationFunction,
                                  bool linearOutput,
                                  bool normalizeOutput)
+  : m_nInput (nInput),
+    m_nHidden (nHidden),
+    m_nOutput (nOutput),
+    m_nHiddenLayerSize (nHiddenLayerSize),
+    m_ThresholdVectors (thresholdVectors),
+    m_WeightMatrices (weightMatrices),
+    m_ActivationFunction (activationFunction),
+    m_LinearOutput (linearOutput),
+    m_NormalizeOutput (normalizeOutput)
 {
-
-  mnInput=nInput;
-  mnHidden=nHidden;
-  mnOutput=nOutput;
-  mnHiddenLayerSize=nHiddenLayerSize;
-  mThresholdVectors=thresholdVectors;
-  mWeightMatrices=weightMatrices;
-  mActivationFunction=activationFunction;
-  mLinearOutput=linearOutput;
-  mNormalizeOutput=normalizeOutput;
 }
 
 TTrainedNetwork::~TTrainedNetwork()
 {
-  std::vector<TVectorD*>::const_iterator vectBegin=mThresholdVectors.begin();
-  std::vector<TVectorD*>::const_iterator vectEnd=mThresholdVectors.end();
+  std::vector<TVectorD*>::const_iterator vectBegin=m_ThresholdVectors.begin();
+  std::vector<TVectorD*>::const_iterator vectEnd=m_ThresholdVectors.end();
 
   for (std::vector<TVectorD*>::const_iterator vectIter=vectBegin;
        vectIter!=vectEnd;
@@ -54,8 +53,8 @@ TTrainedNetwork::~TTrainedNetwork()
     delete *vectIter;
   }
 
-  std::vector<TMatrixD*>::const_iterator matrixBegin=mWeightMatrices.begin();
-  std::vector<TMatrixD*>::const_iterator matrixEnd=mWeightMatrices.end();
+  std::vector<TMatrixD*>::const_iterator matrixBegin=m_WeightMatrices.begin();
+  std::vector<TMatrixD*>::const_iterator matrixEnd=m_WeightMatrices.end();
 
   for (std::vector<TMatrixD*>::const_iterator matrixIter=matrixBegin;
        matrixIter!=matrixEnd;
@@ -70,8 +69,8 @@ void TTrainedNetwork::setNewWeights(std::vector<TVectorD*> & thresholdVectors,
 				    std::vector<TMatrixD*> & weightMatrices)
 {
 
-  std::vector<TVectorD*>::const_iterator vectBegin=mThresholdVectors.begin();
-  std::vector<TVectorD*>::const_iterator vectEnd=mThresholdVectors.end();
+  std::vector<TVectorD*>::const_iterator vectBegin=m_ThresholdVectors.begin();
+  std::vector<TVectorD*>::const_iterator vectEnd=m_ThresholdVectors.end();
 
   for (std::vector<TVectorD*>::const_iterator vectIter=vectBegin;
        vectIter!=vectEnd;
@@ -80,8 +79,8 @@ void TTrainedNetwork::setNewWeights(std::vector<TVectorD*> & thresholdVectors,
     delete *vectIter;
   }
 
-  std::vector<TMatrixD*>::const_iterator matrixBegin=mWeightMatrices.begin();
-  std::vector<TMatrixD*>::const_iterator matrixEnd=mWeightMatrices.end();
+  std::vector<TMatrixD*>::const_iterator matrixBegin=m_WeightMatrices.begin();
+  std::vector<TMatrixD*>::const_iterator matrixEnd=m_WeightMatrices.end();
 
   for (std::vector<TMatrixD*>::const_iterator matrixIter=matrixBegin;
        matrixIter!=matrixEnd;
@@ -90,11 +89,11 @@ void TTrainedNetwork::setNewWeights(std::vector<TVectorD*> & thresholdVectors,
     delete *matrixIter;
   }
 
-  mThresholdVectors.clear();
-  mWeightMatrices.clear();
+  m_ThresholdVectors.clear();
+  m_WeightMatrices.clear();
 
-  mThresholdVectors=thresholdVectors;
-  mWeightMatrices=weightMatrices;
+  m_ThresholdVectors=thresholdVectors;
+  m_WeightMatrices=weightMatrices;
 
 }
 
@@ -104,21 +103,21 @@ std::vector<Double_t>  TTrainedNetwork::calculateOutputValues(std::vector<Double
   std::vector<Double_t> result;
 
   //now calculate the value using:
-  TVectorD** resultVector=new TVectorD*[mnHidden+1];
+  TVectorD** resultVector=new TVectorD*[m_nHidden+1];
   
 
-  if ((int)input.size()!=mnInput)
+  if ((int)input.size()!=m_nInput)
   {
-    std::cout << " Input size: " << input.size() << " doesn't match with network: " << mnInput << std::endl;
+    std::cout << " Input size: " << input.size() << " doesn't match with network: " << m_nInput << std::endl;
     delete[] resultVector;
     return result;
   }
   
-  for (Int_t o=0;o<mnHidden+1;++o)
+  for (Int_t o=0;o<m_nHidden+1;++o)
   {
 
-    int sizeActualLayer=(o<mnHidden)?mnHiddenLayerSize[o]:mnOutput;
-//    int sizePreviousLayer=(o==0)?mnInput:mnHiddenLayerSize[o-1];
+    int sizeActualLayer=(o<m_nHidden)?m_nHiddenLayerSize[o]:m_nOutput;
+//    int sizePreviousLayer=(o==0)?m_nInput:m_nHiddenLayerSize[o-1];
 
     resultVector[o]=new TVectorD(sizeActualLayer);
     
@@ -127,20 +126,20 @@ std::vector<Double_t>  TTrainedNetwork::calculateOutputValues(std::vector<Double
       Double_t nodeValue=0.;
       if (o==0)
       {
-        for (Int_t p=0;p<mnInput;++p)
+        for (Int_t p=0;p<m_nInput;++p)
         {
-          nodeValue+=mWeightMatrices[o]->operator() (p,s)*input[p];
+          nodeValue+=m_WeightMatrices[o]->operator() (p,s)*input[p];
         }
       }
       else
       {
-        for (Int_t p=0;p<mnHiddenLayerSize[o-1];++p)
+        for (Int_t p=0;p<m_nHiddenLayerSize[o-1];++p)
         {
-          nodeValue+=mWeightMatrices[o]->operator() (p,s)*resultVector[o-1]->operator()(p);
+          nodeValue+=m_WeightMatrices[o]->operator() (p,s)*resultVector[o-1]->operator()(p);
         }
       }
-      nodeValue+=mThresholdVectors[o]->operator() (s);
-      if (o!=mnHidden || (!mLinearOutput))
+      nodeValue+=m_ThresholdVectors[o]->operator() (s);
+      if (o!=m_nHidden || (!m_LinearOutput))
       {
         resultVector[o]->operator()(s) = sigmoid(nodeValue);
       }
@@ -153,30 +152,30 @@ std::vector<Double_t>  TTrainedNetwork::calculateOutputValues(std::vector<Double
   
   double sumLastLayer=0;
 
-  if (mNormalizeOutput)
+  if (m_NormalizeOutput)
   {
-    for (Int_t i=0;i<mnOutput;i++)
+    for (Int_t i=0;i<m_nOutput;i++)
     {
-      sumLastLayer+=resultVector[mnHidden]->operator()(i);
+      sumLastLayer+=resultVector[m_nHidden]->operator()(i);
     }
   }
   
 
-  for (Int_t i=0;i<mnOutput;i++)
+  for (Int_t i=0;i<m_nOutput;i++)
   {
-    if (!mNormalizeOutput)
+    if (!m_NormalizeOutput)
     {
-      result.push_back(resultVector[mnHidden]->operator()(i));
+      result.push_back(resultVector[m_nHidden]->operator()(i));
     }
     else
     {
-      result.push_back(resultVector[mnHidden]->operator()(i)/sumLastLayer);
+      result.push_back(resultVector[m_nHidden]->operator()(i)/sumLastLayer);
     }
   }
 
-  for (Int_t o=0;o<mnHidden+1;++o)
+  for (Int_t o=0;o<m_nHidden+1;++o)
   {
-    //int sizeActualLayer=(o<mnHidden)?mnHiddenLayerSize[o]:mnOutput;
+    //int sizeActualLayer=(o<m_nHidden)?m_nHiddenLayerSize[o]:m_nOutput;
     delete resultVector[o];
   }
   delete[] resultVector;

@@ -1,18 +1,19 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.InDetJetFitterUtilsConfig import InDetJetFitterUtilsCfg
 from BTagging.JetFitterSequentialVertexFitterConfig import JetFitterSequentialVertexFitterCfg
 from BTagging.VxInternalEdmFactoryConfig import VxInternalEdmFactoryCfg
 from BTagging.ImprovedJetFitterRoutinesConfig import ImprovedJetFitterRoutinesCfg
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from BTagging.JetFitterMode3dTo1dFinderConfig import JetFitterMode3dTo1dFinderCfg
 from BTagging.InDetImprovedJetFitterTrackSelectorToolConfig import InDetImprovedJetFitterTrackSelectorToolCfg
 from BTagging.ImprovedJetFitterInitializationHelperConfig import ImprovedJetFitterInitializationHelperCfg
 
 # import the InDetImprovedJetFitterVxFinder configurable
-from InDetSecVxFinderTool.InDetSecVxFinderToolConf import InDet__InDetImprovedJetFitterVxFinder
+InDet__InDetImprovedJetFitterVxFinder=CompFactory.InDet__InDetImprovedJetFitterVxFinder
 
 # define the class
 def NewJetFitterVxFinderCfg(flags, name = 'JFVxFinder', suffix = "", useBTagFlagsDefaults = True, options = {}):
@@ -32,26 +33,14 @@ def NewJetFitterVxFinderCfg(flags, name = 'JFVxFinder', suffix = "", useBTagFlag
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        if not 'InDetKeys' in dir():
-            from InDetRecExample.InDetKeys import InDetKeys
-        accInDetJetFitterUtils = InDetJetFitterUtilsCfg(flags, 'InDetJFUtils'+suffix)
-        inDetJetFitterUtils = accInDetJetFitterUtils.popPrivateTools()
-        acc.merge(accInDetJetFitterUtils)
-        accImprovedJetFitterRoutines = ImprovedJetFitterRoutinesCfg('ImprovedJFRoutines'+suffix)
-        improvedJetFitterRoutines = accImprovedJetFitterRoutines.popPrivateTools()
-        acc.merge(accImprovedJetFitterRoutines)
+        inDetJetFitterUtils = acc.popToolsAndMerge(InDetJetFitterUtilsCfg(flags, 'InDetJFUtils'+suffix))
+        improvedJetFitterRoutines = acc.popToolsAndMerge(ImprovedJetFitterRoutinesCfg('ImprovedJFRoutines'+suffix))
         jetFitterMode3dTo1dFinder = acc.popToolsAndMerge(JetFitterMode3dTo1dFinderCfg('JFMode3dTo1dFinder'+suffix))
         inDetImprovedJetFitterTrackSelectorTool = acc.popToolsAndMerge(InDetImprovedJetFitterTrackSelectorToolCfg('InDetImprovedJFTrackSelTool'+suffix))
-        accJetFitterSequentialVertexFitter = JetFitterSequentialVertexFitterCfg('JFSeqVxFitter'+suffix)
-        jetFitterSequentialVertexFitter = accJetFitterSequentialVertexFitter.popPrivateTools()
-        acc.merge(accJetFitterSequentialVertexFitter)
-        accExtrapolator = AtlasExtrapolatorCfg(flags, 'JFExtrapolator'+suffix)
-        jetFitterExtrapolator = accExtrapolator.popPrivateTools()
-        acc.merge(accExtrapolator)
+        jetFitterSequentialVertexFitter = acc.popToolsAndMerge(JetFitterSequentialVertexFitterCfg('JFSeqVxFitter'+suffix))
+        jetFitterExtrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags, 'JFExtrapolator'+suffix))
         improvedJetFitterInitializationHelper = acc.popToolsAndMerge(ImprovedJetFitterInitializationHelperCfg('ImprovedJFInitHelper'+suffix))
-        accVxInternalEdmFactory = VxInternalEdmFactoryCfg('VxInternalEdmFactory'+suffix)
-        vertexEdmFactory = accVxInternalEdmFactory.popPrivateTools()
-        acc.merge(accVxInternalEdmFactory)
+        vertexEdmFactory = acc.popToolsAndMerge(VxInternalEdmFactoryCfg('VxInternalEdmFactory'+suffix))
         defaults = { 'VxPrimaryContainer'                  : BTaggingFlags.PrimaryVertexCollectionName,
                      'MaxNumDeleteIterations'              : 30,
                      'VertexProbCut'                       : 0.001,

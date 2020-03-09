@@ -2,6 +2,9 @@
 ## EF Photon Hypo Configuration
 ## Ryan Mackenzie White <ryan.white@cern.ch>
 ############################################
+
+# flake8: noqa  (legacy trigger)
+
 from AthenaCommon.Logging import logging #AT
 import traceback #AT
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFPhotonHypo

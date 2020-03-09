@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 #include <fstream>
 #include <iostream>
 #include <mutex>

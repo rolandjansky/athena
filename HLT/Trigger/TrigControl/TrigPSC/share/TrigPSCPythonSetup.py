@@ -1,23 +1,28 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+###############################################################
 ## @file   TrigPSCPythonSetup.py
 ## @brief  Python setup for online running (similar to athena.py)
 ## @author Werner Wiedenmann <Werner.Wiedenmann@cern.ch>
 ###############################################################
- 
+from __future__ import print_function
+
+import builtins
+printfunc = getattr(builtins,'print')
+
 ### setup from a .pkl file
 from TrigPSC import PscConfig
 joPath = PscConfig.optmap['JOBOPTIONSPATH']
 if joPath[-4:] == '.pkl':
-   print "Configuring the job from a pickle file"
+   print("Configuring the job from a pickle file")
    import AthenaCommon.ConfigurationShelve
    AthenaCommon.ConfigurationShelve.loadJobOptionsCatalogue( joPath )
    del AthenaCommon.ConfigurationShelve
-   print "Job configuration loaded successfully from a pickle file"
+   print("Job configuration loaded successfully from a pickle file")
 
 else:
-
    import sys
    import os
-   import string
 
    ### Set up some common flags --------------------------------------------------
 
@@ -33,23 +38,21 @@ else:
    ### By default do not run in validation mode (do not lock this one!)
    from TriggerJobOpts.TriggerFlags import TriggerFlags
    TriggerFlags.Online.doValidation = False
-      
    del TriggerFlags
 
    ### Athena configuration -----------------------------------------------------
-   from GaudiPython import *
-   from AthenaCommon.Configurable import *
-   from AthenaCommon.OldStyleConfig import *
-   from AthenaCommon import CfgMgr
-   from AthenaCommon.Logging import *
-   from AthenaCommon.Constants import *
+   from GaudiPython import *                   # noqa: F401, F403
+   from AthenaCommon.Configurable import *     # noqa: F401, F403
+   from AthenaCommon.OldStyleConfig import *   # noqa: F401, F403
+   from AthenaCommon.Logging import *          # noqa: F401, F403
+   from AthenaCommon.Constants import *        # noqa: F401, F403
    import AthenaCommon.ExitCodes as ExitCodes
 
    ## create the application manager and start in a non-initialised state
    from AthenaCommon.AppMgr import theApp
-   from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theAuditorSvc
+   from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theAuditorSvc   # noqa: F401
 
-   ## These properties have alread been set on the C++ ApplicationMgr in the Psc
+   ## These properties have already been set on the C++ ApplicationMgr in the Psc
    ## but the configurable needs to have them set as well
    theApp.EventLoop         = "HltEventLoopMgr"
    theApp.MessageSvcType    = PscConfig.optmap["MESSAGESVCTYPE"]
@@ -72,23 +75,14 @@ else:
 
    del logLevel
 
+   from AthenaCommon.Logging import logging
+   psclog = logging.getLogger('TrigPSCPythonSetup')
+
    ## file inclusion and tracing
-   from AthenaCommon.Include import Include, IncludeError, include
+   from AthenaCommon.Include import IncludeError, include
 
    ## properties of the application manager
    theApp.StatusCodeCheck = False     # enabled via TriggerFlags.Online.doValidation (see below)
-
-   # Configure the CoreDumpSvc
-   if not hasattr(ServiceMgr,"CoreDumpSvc"):
-      from AthenaServices.Configurables import CoreDumpSvc
-      ServiceMgr += CoreDumpSvc()
-
-   # check if the CoreDumpSvc can provide the FatalHandler
-   # in case this is not available try for backward compatibility
-   # to load the old libAthenaServicesDict and try to install it from there
-   #
-   if 'FatalHandler' in ServiceMgr.CoreDumpSvc.properties():
-      ServiceMgr.CoreDumpSvc.FatalHandler = -1         # make SIG_INT fatal
 
    ## set resource limits
    from AthenaCommon.ResourceLimits import SetMaxLimits
@@ -97,27 +91,27 @@ else:
 
    ### run optional command before user job options script ----------------------
    if PscConfig.optmap['PRECOMMAND']:
-      print "\n"
-      print " +------------------------------------------------+ "
-      print " | Execute command before jobOptions script START.| "
-      print " +------------------------------------------------+ "
-      print " ---> Command = ", PscConfig.optmap['PRECOMMAND']
+      print("\n")
+      print(" +------------------------------------------------+ ")
+      print(" | Execute command before jobOptions script START.| ")
+      print(" +------------------------------------------------+ ")
+      print(" ---> Command = %s" % PscConfig.optmap['PRECOMMAND'])
       try:
-         exec PscConfig.optmap['PRECOMMAND']
-      except Exception, e:
+         exec(PscConfig.optmap['PRECOMMAND'])
+      except Exception as e:
          if isinstance( e, IncludeError ):
-            print sys.exc_type, e
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.INCLUDE_ERROR
             sys.exit( theApp._exitstate )         
          elif isinstance( e, ImportError ):
-            print sys.exc_type, e
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.IMPORT_ERROR
             sys.exit( theApp._exitstate )
          raise
-      print " +------------------------------------------------+ "
-      print " | Execute command before jobOptions script END.  | "
-      print " +------------------------------------------------+ "
-      print "\n"
+      print(" +------------------------------------------------+ ")
+      print(" | Execute command before jobOptions script END.  | ")
+      print(" +------------------------------------------------+ ")
+      print("\n")
 
    ### basic job configuration before user configuration ------------------------
    from TrigServices.TriggerUnixStandardSetup import setupCommonServices
@@ -126,7 +120,7 @@ else:
    ### run user jobOptions file -------------------------------------------------
    try:
       include( "%s" % PscConfig.optmap['JOBOPTIONSPATH'] )
-   except Exception, e:
+   except Exception as e:
       if isinstance(e,SystemExit):
          raise
 
@@ -140,9 +134,10 @@ else:
          if 'AthenaCommon' not in frame_info[0]:
             short_tb.append( frame_info )
 
-      print 'Shortened traceback (most recent user call last):'
-      print ''.join( traceback.format_list( short_tb ) ),
-      print ''.join( traceback.format_exception_only( exc_info[0], exc_info[1] ) ),
+      print('Shortened traceback (most recent user call last):')
+      print(''.join( traceback.format_list( short_tb )), end=' ')
+      print(''.join( traceback.format_exception_only( exc_info[0], exc_info[1] )), end= '')
+      sys.stdout.flush()
 
       # additional processing to get right error codes
       import AthenaCommon.ExitCodes as ExitCodes
@@ -163,27 +158,27 @@ else:
 
    ### run optional command after user job options script -----------------------
    if PscConfig.optmap['POSTCOMMAND']:
-      print "\n"
-      print " +------------------------------------------------+ "
-      print " | Execute command after jobOptions script START. | "
-      print " +------------------------------------------------+ "
-      print " ---> Command = ", PscConfig.optmap['POSTCOMMAND']
+      print("\n")
+      print(" +------------------------------------------------+ ")
+      print(" | Execute command after jobOptions script START. | ")
+      print(" +------------------------------------------------+ ")
+      print(" ---> Command = ", PscConfig.optmap['POSTCOMMAND'])
       try:
-         exec PscConfig.optmap['POSTCOMMAND']
-      except Exception, e:
+         exec(PscConfig.optmap['POSTCOMMAND'])
+      except Exception as e:
          if isinstance( e, IncludeError ):
-            print sys.exc_type, e
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.INCLUDE_ERROR
             sys.exit( ExitCodes.INCLUDE_ERROR )
          elif isinstance( e, ImportError ):
-            print sys.exc_type, e
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.IMPORT_ERROR
             sys.exit( ExitCodes.IMPORT_ERROR )
          raise
-      print " +------------------------------------------------+ "
-      print " | Execute command after jobOptions script END.   | "
-      print " +------------------------------------------------+ "
-      print "\n"
+      print(" +------------------------------------------------+ ")
+      print(" | Execute command after jobOptions script END.   | ")
+      print(" +------------------------------------------------+ ")
+      print("\n")
 
    ### final tweaks -------------------------------------------------------------
 
@@ -193,5 +188,25 @@ else:
 
    del TriggerFlags
 
-   ### setup everything ---------------------------------------------------------
-   theApp.setup()
+   ### Dump properties and convert to JSON if requested -------------------------
+   if PscConfig.dumpJobProperties:
+      from AthenaCommon import ConfigurationShelve
+      from TrigConfIO.JsonUtils import create_joboptions_json
+      ConfigurationShelve.storeJobOptionsCatalogue('HLTJobOptions.pkl')
+      fname = 'HLTJobOptions'
+      with open(fname+'.pkl', "rb") as f:
+         import pickle
+         jocat = pickle.load(f)   # basic job properties
+         jocfg = pickle.load(f)   # some specialized services
+         jocat.update(jocfg)       # merge the two dictionaries
+         psclog.info('Dumping joboptions to "%s.json"', fname)
+         create_joboptions_json(jocat, fname+".json")
+
+      if PscConfig.exitAfterDump:
+         theApp.exit(0)
+   else:
+      # storeJobOptionsCatalogue calls setup() itself, so we only need it here
+      theApp.setup()
+
+   ### Cleanup
+   del psclog

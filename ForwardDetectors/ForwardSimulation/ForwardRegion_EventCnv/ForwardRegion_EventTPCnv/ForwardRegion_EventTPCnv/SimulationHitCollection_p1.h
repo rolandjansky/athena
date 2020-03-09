@@ -24,7 +24,7 @@ public:
 	const std::string&  name() const { return m_name; }
 	const HitVector&    getVector() const {return m_cont;}
 
-private:
+public:
 	std::string m_name;
 	std::vector<SimulationHit_p1> m_cont;
 };

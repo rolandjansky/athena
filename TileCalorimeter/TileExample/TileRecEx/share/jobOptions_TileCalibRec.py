@@ -7,6 +7,7 @@
 from os import system
 from subprocess import check_output
 from subprocess import CalledProcessError
+import six
 
 from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
@@ -272,6 +273,7 @@ def FindFile(path, runinput, filter):
         files = []
         log.warn('Seems there are no such directory: ' + path)
 
+    files = [six.ensure_str(f) for f in files]
     for file_name in (files):
         try:
             good=(not file_name in open('/afs/cern.ch/user/t/tilebeam/ARR/bad_data_files').read())
@@ -288,7 +290,7 @@ def FindFile(path, runinput, filter):
             else:
                 fullname.append(path + '/' + file_name)
         else:
-            print "Excluding known bad data file",file_name
+            printfunc ("Excluding known bad data file",file_name)
 
     return [fullname, run]
 
@@ -453,9 +455,6 @@ if not 'TileEmulateDSP' in dir():
 if not 'doTileFlat' in dir():
     doTileFlat = False
 
-if not 'doTileOpt' in dir():
-    doTileOpt = False
-
 if not 'doTileOpt2' in dir():
     doTileOpt2 = not TileCompareMode and ReadDigits
 
@@ -467,6 +466,9 @@ if not 'doTileMF' in dir():
 
 if not 'doTileOF1' in dir():
     doTileOF1 = False
+
+if not 'doTileWiener' in dir():
+    doTileWiener = False
 
 if not 'doTileFit' in dir():
     doTileFit = not TileCompareMode and ReadDigits
@@ -513,7 +515,7 @@ if not 'OfcFromCOOL' in dir():
     else:
         OfcFromCOOL = False
 
-if useRODReco or doTileOpt2 or doTileMF or doTileOF1 or doTileOptATLAS or doTileFitCool or TileCompareMode or not 'TileUseCOOL' in dir():
+if useRODReco or doTileOpt2 or doTileMF or doTileOF1 or doTileOptATLAS or doTileWiener or doTileFitCool or TileCompareMode or not 'TileUseCOOL' in dir():
     TileUseCOOL = True
     TileUseCOOLOFC = not ReadPool or OfcFromCOOL
 
@@ -790,7 +792,7 @@ jobproperties.print_JobProperties('tree&value')
 include( "TileConditions/TileConditions_jobOptions.py" )
 tileInfoConfigurator.OutputLevel = OutputLevel
 # use correct timing constants for different run types
-print tileInfoConfigurator
+printfunc (tileInfoConfigurator)
 
 #============================================================
 #=== configure TileCondToolOfcCool
@@ -811,7 +813,7 @@ if not OfcFromCOOL and (doTileOpt2 or doTileOptATLAS or doTileOF1):
 
     #  'LAS' or "CIS" or 'PHY' pulse shape
 
-    print tileCondToolOfc
+    printfunc (tileCondToolOfc)
 
 #============================================================
 #=== adding Event Info
@@ -821,9 +823,10 @@ topSequence = AlgSequence()
 
 if not 'newRDO' in dir() or newRDO is None:
     if 'ReadRDO' in dir() and ReadRDO:
-        from RecExConfig.InputFilePeeker import inputFileSummary
+        from PyUtils.MetaReaderPeeker import convert_itemList
         from RecExConfig.ObjKeyStore import objKeyStore
-        objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+        objKeyStore.addManyTypesInputFile(convert_itemList(layout = '#join'))
+
         newRDO = objKeyStore.isInInput( "xAOD::EventInfo" )
     else:
         newRDO = True
@@ -834,12 +837,19 @@ else:
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     topSequence+=xAODMaker__EventInfoCnvAlg()
 
+#============================================================
+#=== configure BunchCrossingTool
+#============================================================
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+ToolSvc += BunchCrossingTool("LHC" if globalflags.DataSource() == "data" else "MC")
+
 #=============================================================
 #=== read ByteStream and reconstruct data
 #=============================================================
 tileRawChannelBuilderFitFilter = None
 tileRawChannelBuilderOpt2Filter = None
 tileRawChannelBuilderOptATLAS = None
+tileRawChannelBuilderWienerFilter = None
 tileDigitsContainer = ''
 if not ReadPool:
     include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
@@ -863,6 +873,7 @@ else:
         tileRawChannelBuilderFitFilter = theTileRawChannelGetter.TileRawChannelBuilderFitFilter()
         tileRawChannelBuilderOpt2Filter = theTileRawChannelGetter.TileRawChannelBuilderOpt2Filter()
         tileRawChannelBuilderOptATLAS = theTileRawChannelGetter.TileRawChannelBuilderOptATLAS()
+        tileRawChannelBuilderWienerFilter = theTileRawChannelGetter.TileRawChannelBuilderWienerFilter()
         if doRecoESD:
             topSequence.TileRChMaker.TileDigitsContainer="TileDigitsFlt"
             tileDigitsContainer = 'TileDigitsFlt'
@@ -876,13 +887,13 @@ if doTileFit and tileRawChannelBuilderFitFilter:
     tileRawChannelBuilderFitFilter.RMSChannelNoise = 3; 
     tileRawChannelBuilderFitFilter.UseDSPCorrection = not TileBiGainRun
 
-    print tileRawChannelBuilderFitFilter
+    printfunc (tileRawChannelBuilderFitFilter)
 
 if doTileFitCool:
     ToolSvc.TileRawChannelBuilderFitFilterCool.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
     ToolSvc.TileRawChannelBuilderFitFilterCool.UseDSPCorrection = not TileBiGainRun
     
-    print ToolSvc.TileRawChannelBuilderFitFilterCool
+    printfunc (ToolSvc.TileRawChannelBuilderFitFilterCool)
 
 if doTileOpt2:
 
@@ -893,7 +904,7 @@ if doTileOpt2:
                 tileRawChannelBuilderOpt2Filter.EmulateDSP = True # use dsp emulation
         tileRawChannelBuilderOpt2Filter.UseDSPCorrection = not TileBiGainRun
 
-        print tileRawChannelBuilderOpt2Filter
+        printfunc (tileRawChannelBuilderOpt2Filter)
 
 if doTileOptATLAS and tileRawChannelBuilderOptATLAS:
     if ReadPool:
@@ -907,7 +918,7 @@ if doTileOptATLAS and tileRawChannelBuilderOptATLAS:
         tileRawChannelBuilderOptATLAS.EmulateDSP = True # use dsp emulation
     tileRawChannelBuilderOptATLAS.UseDSPCorrection = not TileBiGainRun
 
-    print tileRawChannelBuilderOptATLAS
+    printfunc (tileRawChannelBuilderOptATLAS)
     
 if doTileMF:
 
@@ -924,7 +935,7 @@ if doTileMF:
         tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
         tileInfoConfigurator.setupCOOLAutoCr()
 
-    print ToolSvc.TileRawChannelBuilderMF 
+    printfunc (ToolSvc.TileRawChannelBuilderMF )
 
 if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
@@ -937,7 +948,20 @@ if doTileOF1:
         ToolSvc.TileRawChannelBuilderOF1.EmulateDSP = True # use dsp emulation
     ToolSvc.TileRawChannelBuilderOF1.UseDSPCorrection = not TileBiGainRun
 
-    print ToolSvc.TileRawChannelBuilderOF1    
+    printfunc (ToolSvc.TileRawChannelBuilderOF1    )
+
+if doTileWiener and tileRawChannelBuilderWienerFilter:
+    if PhaseFromCOOL:
+        tileRawChannelBuilderWienerFilter.correctTime = False # do not need to correct time with best phase
+
+    tileRawChannelBuilderWienerFilter.BestPhase = PhaseFromCOOL # Phase from COOL or assume phase=0
+
+    if TileMonoRun or TileRampRun:
+        if TileCompareMode or TileEmulateDSP:
+            tileRawChannelBuilderWienerFilter.EmulateDSP = True # use dsp emulation
+    tileRawChannelBuilderWienerFilter.UseDSPCorrection = not TileBiGainRun
+
+    printfunc (tileRawChannelBuilderWienerFilter)
 
 if (doEventDisplay or doCreatePool):
     # create TileHit from TileRawChannel and store it in TileHitVec
@@ -946,7 +970,7 @@ if (doEventDisplay or doCreatePool):
     theTileHitFromRawChGetter.TileRawChannelToHit().TileRawChannelContainer = "TileRawChannelOpt2"
     theTileHitFromRawChGetter.TileRawChannelToHit().UseSamplFract = False
 
-    print theTileHitFromRawChGetter.TileRawChannelToHit()
+    printfunc (theTileHitFromRawChGetter.TileRawChannelToHit())
 
 if doCaloCell:
    # create TileCell from TileRawChannel and store it in CaloCellContainer
@@ -1030,14 +1054,16 @@ if (doTileNtuple or doD3PD):
     if not hasattr(svcMgr,"THistSvc"):
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr+=THistSvc()
-    exec 'svcMgr.THistSvc.Output += [ "AANT DATAFILE=\'%(dir)s/tile_%(RunNum).f_%(Version)s.aan.root\' OPT=\'RECREATE\' " ] ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    datafile = '%(dir)s/tile_%(RunNum).f_%(Version)s.aan.root' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    svcMgr.THistSvc.Output += [ "AANT DATAFILE='" + datafile + "' OPT='RECREATE' " ]
     svcMgr.THistSvc.MaxFileSize = 32768
 
     from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
     topSequence += AANTupleStream( "AANTupleStream1" )
     AANTupleStream1 = topSequence.AANTupleStream1
     AANTupleStream1.ExtraRefNames = [ "StreamESD","StreamRDO" ]
-    exec 'AANTupleStream1.OutputName = \'%(dir)s/tile_%(RunNum).f_%(Version)s.aan.root\' ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    datafile = '%(dir)s/tile_%(RunNum).f_%(Version)s.aan.root' % {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    AANTupleStream1.OutputName = datafile
     AANTupleStream1.ExistDataHeader = False
 
 
@@ -1215,7 +1241,8 @@ if doTileMon:
     if not hasattr(svcMgr,"THistSvc"):
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr+=THistSvc()
-    exec 'svcMgr.THistSvc.Output += [ "Tile DATAFILE=\'%(dir)s/tilemon_%(RunNum).f_%(Version)s.root\' OPT=\'RECREATE\' " ] ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    datafile = '%(dir)s/tilemon_%(RunNum).f_%(Version)s.root' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    svcMgr.THistSvc.Output += [ "Tile DATAFILE='" + datafile + "' OPT=\'RECREATE\' " ]
 
     if (TileMonoRun):
         runType = 9
@@ -1258,7 +1285,7 @@ if doTileMon:
                                                FillPedestalDifference = True)
         #ToolSvc += theTileDigitsMon
         TileMon.AthenaMonTools += [ theTileDigitsMon ]
-        print theTileDigitsMon
+        printfunc (theTileDigitsMon)
 
     if doTileMonRch:
         b2d = TileCisRun or TileRampRun
@@ -1284,21 +1311,21 @@ if doTileMon:
         if doTileFitCool:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelFitCool"
 
-        if doTileOpt:
-            theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelOpt"
-
         if doTileOpt2:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelOpt2"
-            
+
         if doTileMF:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelMF"
+
+        if doTileWiener:
+            theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelWiener"
 
         if useRODReco:
             theTileRawChannelMon.TileRawChannelContainerDSP = "TileRawChannelCnt"
 
         #theTileRawChannelMon.MinAmpForCorrectedTime = 0.1
 
-        print theTileRawChannelMon
+        printfunc (theTileRawChannelMon)
 
     if doTileMonDQ:
         theTileDQFragMon = TileDQFragMonTool(name               = 'TileDQFragMon',
@@ -1326,9 +1353,6 @@ if doTileMon:
         if doTileFitCool:
             theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelFitCool"
 
-        if doTileOpt:
-            theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelOpt"
-
         if doTileOpt2:
             theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelOpt2"
 
@@ -1337,7 +1361,7 @@ if doTileMon:
 
         #ToolSvc += theTileDQFragMon;
         TileMon.AthenaMonTools += [ theTileDQFragMon ];
-        print theTileDQFragMon
+        printfunc (theTileDQFragMon)
 
     if doTileMonCell:
         if TileBiGainRun:
@@ -1350,7 +1374,7 @@ if doTileMon:
                                              histoPathBase      = "/Tile/Cell");
             #ToolSvc += theTileCellMonHG;
             TileMon.AthenaMonTools += [ theTileCellMonHG ];
-            print theTileCellMonHG;
+            printfunc (theTileCellMonHG)
 
         else:
             theTileCellMon = TileCellMonTool(name               = 'TileCellMon',
@@ -1366,7 +1390,7 @@ if doTileMon:
             #theTileCellMon.FillTimeHistograms = True
             #ToolSvc += theTileCellMon;
             TileMon.AthenaMonTools += [ theTileCellMon ];
-            print theTileCellMon;
+            printfunc (theTileCellMon)
 
     if doTileDigiNoiseMon:
         TileDigiNoiseMon = TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon',
@@ -1378,7 +1402,7 @@ if doTileMon:
         if not TileBiGainRun: TileDigiNoiseMon.TriggerTypes = [ 0x82 ]
         #ToolSvc += TileDigiNoiseMon;
         TileMon.AthenaMonTools += [ TileDigiNoiseMon ];
-        print TileDigiNoiseMon;
+        printfunc (TileDigiNoiseMon)
 
     if TileBiGainRun and doTileCellNoiseMon:
         TileCellNoiseMonLG = TileCellNoiseMonTool(name               = 'TileCellNoiseMonLG',
@@ -1390,7 +1414,7 @@ if doTileMon:
         TileCellNoiseMonLG.Xmax          =  2000.;
         #ToolSvc += TileCellNoiseMonLG;
         TileMon.AthenaMonTools += [ TileCellNoiseMonLG ];
-        print TileCellNoiseMonLG;
+        printfunc (TileCellNoiseMonLG)
 
 
         TileCellNoiseMonHG = TileCellNoiseMonTool(name               = 'TileCellNoiseMonHG',
@@ -1402,7 +1426,7 @@ if doTileMon:
         TileCellNoiseMonHG.Xmax          =  300.;
         #ToolSvc += TileCellNoiseMonHG;
         TileMon.AthenaMonTools += [ TileCellNoiseMonHG ];
-        print TileCellNoiseMonHG;
+        printfunc (TileCellNoiseMonHG)
 
     if (not TileBiGainRun) and doTileCellNoiseMon:
         TileCellNoiseMon = TileCellNoiseMonTool(name               = 'TileCellNoiseMon',
@@ -1414,7 +1438,7 @@ if doTileMon:
         TileCellNoiseMon.Xmax          =  2000.;
         #ToolSvc += TileCellNoiseMon;
         TileMon.AthenaMonTools += [ TileCellNoiseMon ];
-        print TileCellNoiseMon;
+        printfunc (TileCellNoiseMon)
 
 
     if doTileRawChannelTimeMonTool:
@@ -1429,7 +1453,7 @@ if doTileMon:
 
         #ToolSvc += TileRawChannelTimeMon
         TileMon.AthenaMonTools += [ TileRawChannelTimeMon ];
-        print TileRawChannelTimeMon
+        printfunc (TileRawChannelTimeMon)
 
 
 
@@ -1450,7 +1474,7 @@ if doTileMon:
 
         #ToolSvc += TileRawChannelNoiseMonLG;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMonLG ];
-        print TileRawChannelNoiseMonLG;
+        printfunc (TileRawChannelNoiseMonLG)
 
 
         TileRawChannelNoiseMonHG = TileRawChannelNoiseMonTool(name          = 'TileRawChannelNoiseMonHG',
@@ -1467,7 +1491,7 @@ if doTileMon:
 
         #ToolSvc += TileRawChannelNoiseMonHG;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMonHG ];
-        print TileRawChannelNoiseMonHG;
+        printfunc (TileRawChannelNoiseMonHG)
 
     if (not TileBiGainRun) and doTileRawChannelNoiseMon:
         TileRawChannelNoiseMon = TileRawChannelNoiseMonTool(name               = 'TileRawChannelNoiseMon',
@@ -1487,7 +1511,7 @@ if doTileMon:
 
         #ToolSvc += TileRawChannelNoiseMon;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMon ];
-        print TileRawChannelNoiseMon;
+        printfunc (TileRawChannelNoiseMon)
 
 
     ########### end doTileCellNoiseMon ##########
@@ -1499,7 +1523,7 @@ if doTileMon:
                                                 , histoPathBase       = "/Tile/TMDBDigits")
         
         TileMon.AthenaMonTools += [ TileTMDBDigitsMon ]
-        print TileTMDBDigitsMon
+        printfunc (TileTMDBDigitsMon)
 
 
     if doTileTMDBRawChannelMon:
@@ -1511,7 +1535,7 @@ if doTileMon:
 
 
         TileMon.AthenaMonTools += [TileTMDBRawChannelDspMon ]
-        print TileTMDBRawChannelDspMon
+        printfunc (TileTMDBRawChannelDspMon)
         
         TileTMDBRawChannelMon = CfgMgr.TileTMDBRawChannelMonTool(name                      = 'TileTMDBRawChannelMon'
                                                     , OutputLevel             = INFO
@@ -1522,7 +1546,7 @@ if doTileMon:
         
         
         TileMon.AthenaMonTools += [TileTMDBRawChannelMon ]
-        print TileTMDBRawChannelMon
+        printfunc (TileTMDBRawChannelMon)
 
 
     if doTileMonDigi or doTileMonRch or doTileMonCell or doTileMonDQ                \
@@ -1543,18 +1567,18 @@ if doTileCalib:
             theTileDigiNoiseCalibAlg = TileDigiNoiseCalibAlg( "theTileDigiNoiseCalibAlg" )
             theTileDigiNoiseCalibAlg.DoAvgCorr = False # False=> Full AutoCorr matrix calculation
             if TileNoiseFilter > 0:
-                exec 'theTileDigiNoiseCalibAlg.FileNamePrefix = \'Digi_NoiseCalib_%(Version)s\' '  %  {'Version': TileNoiseFilter }
+                theTileDigiNoiseCalibAlg.FileNamePrefix = 'Digi_NoiseCalib_%(Version)s'  %  {'Version': TileNoiseFilter }
             if Version != "0" and Version != "Ped.0" and Version != "Ped" :
                 VF = Version+"_tnf"+str(TileNoiseFilter)
-                exec 'theTileDigiNoiseCalibAlg.FileNamePrefix = \'Digi_NoiseCalib_%(Version)s\' '  %  {'Version': VF }
+                theTileDigiNoiseCalibAlg.FileNamePrefix = 'Digi_NoiseCalib_%(Version)s'  %  {'Version': VF }
             topSequence += theTileDigiNoiseCalibAlg
         theTileRawChNoiseCalibAlg = TileRawChNoiseCalibAlg("theTileRawChNoiseCalibAlg")
         theTileRawChNoiseCalibAlg.UseforCells = 1  # 1= Fixed , 2= Opt2
         if TileNoiseFilter > 0:
-            exec 'theTileRawChNoiseCalibAlg.FileNamePrefix = \'RawCh_NoiseCalib_%(Version)s\' ' % {'Version': TileNoiseFilter }
+            theTileRawChNoiseCalibAlg.FileNamePrefix = 'RawCh_NoiseCalib_%(Version)s' % {'Version': TileNoiseFilter }
         if Version != "0" and Version != "Ped.0" and Version != "Ped" :
             VF = Version + "_tnf" + str(TileNoiseFilter)
-            exec 'theTileRawChNoiseCalibAlg.FileNamePrefix = \'RawCh_NoiseCalib_%(Version)s\' '  %  {'Version': VF }
+            theTileRawChNoiseCalibAlg.FileNamePrefix = 'RawCh_NoiseCalib_%(Version)s'  %  {'Version': VF }
         topSequence += theTileRawChNoiseCalibAlg
 
         if TileEmulateDSP:
@@ -1575,7 +1599,7 @@ if doTileCalib:
         TileCalibAlg = TileTopCalibAlg()
         TileCalibAlg.RunNumber        = RunNumber
         TileCalibAlg.RunType          = 8
-        exec 'TileCalibAlg.FileName = \'%(dir)s/tileCalibCIS_%(RunNum).f_%(Version)s.root\' ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+        TileCalibAlg.FileName = '%(dir)s/tileCalibCIS_%(RunNum).f_%(Version)s.root' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
 
         # declare CIS tool(s) and set jobOptions if necessary
         TileCisTool = TileCisDefaultCalibTool()
@@ -1600,7 +1624,7 @@ if doTileCalib:
         TileCalibAlg = TileTopCalibAlg()
         TileCalibAlg.RunNumber        = RunNumber
         TileCalibAlg.RunType          = 8
-        exec 'TileCalibAlg.FileName = \'%(dir)s/tileCalibL1Calo_%(RunNum).f_%(Version)s.root\' ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+        TileCalibAlg.FileName = '%(dir)s/tileCalibL1Calo_%(RunNum).f_%(Version)s.root' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
 
         # declare Trigger tool(s) and set jobOptions if necessary
         TileTriggerTool = TileTriggerDefaultCalibTool()
@@ -1616,7 +1640,7 @@ if doTileCalib:
         from TileCalibAlgs.TileCalibAlgsConf import TileLaserDefaultCalibTool
 
         TileCalibAlg = TileLaserCalibAlg()
-        exec 'TileCalibAlg.FileName = \'%(dir)s/tileCalibLAS_%(RunNum).f_%(Version)s.root\' ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+        TileCalibAlg.FileName = '%(dir)s/tileCalibLAS_%(RunNum).f_%(Version)s.root' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
 
         # declare LASER tool(s) and set jobOptions if necessary
         TileLaserTool = TileLaserDefaultCalibTool()
@@ -1642,7 +1666,7 @@ if doCreatePool:
     # Pool Output
     include( "AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py" )
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-    exec 'FileName = \'%(dir)s/tile_%(RunNum).f_%(Version)s.pool.root\' ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    FileName = '%(dir)s/tile_%(RunNum).f_%(Version)s.pool.root' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
     Stream1 = AthenaPoolOutputStream( "Stream1", FileName )
 
     # list of output objects
@@ -1712,7 +1736,7 @@ if doAtlantis:
         ToolSvc += thexAODCaloClusterRetriever
         theEventData2XML.DataTypes += ["JiveXML::xAODCaloClusterRetriever/xAODCaloClusterRetriever"]
 
-    print theEventData2XML
+    printfunc (theEventData2XML)
 
 #-----------------------
 # And some final options
@@ -1728,7 +1752,7 @@ if not ReadPool:
         #svcMgr.ByteStreamInputSvc.DumpFlag = True
         ToolSvc.TileROD_Decoder.VerboseOutput = True
 
-print topSequence
+printfunc (topSequence)
 
 svcMgr.MessageSvc.OutputLevel = OutputLevel
 svcMgr.EventSelector.SkipEvents = EvtMin

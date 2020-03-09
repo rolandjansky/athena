@@ -1,4 +1,6 @@
-// $Id: PropertyMgr.cxx 615760 2014-09-09 12:50:01Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // Local include(s):
 #include "AsgTools/PropertyMgr.h"

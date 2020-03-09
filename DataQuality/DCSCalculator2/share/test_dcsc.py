@@ -11,7 +11,12 @@ from DQUtils.utils import pprint_objects
 from DQUtils.sugar import RunLumi
 
 from DQUtils.iov_differences import emit_iov_differences
-from DQUtils.lb_counts import sum_lbs
+
+def sum_lbs(iovs):
+    """
+    Sum the number of luminosity blocks spanned by a run
+    """
+    return sum(iov.until - iov.since for iov in iovs)
 
 def print_diff_lumi(diff):
     before, after = diff

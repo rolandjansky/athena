@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -21,10 +21,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include <string>
-
-// fwd declarations
-class StoreGateSvc;
-
 
 class VP1EventProd: public AthAlgorithm,
 		    public IIncidentListener

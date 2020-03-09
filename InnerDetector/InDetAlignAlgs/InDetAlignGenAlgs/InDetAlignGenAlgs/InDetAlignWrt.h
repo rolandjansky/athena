@@ -24,7 +24,6 @@ public:
   StatusCode  finalize(void);  
 
 private: 
-  ServiceHandle<IBeamCondSvc> m_beamcondsvc; 
   ToolHandle<IInDetAlignDBTool> p_iddbtool;
   ToolHandle<IInDetAlignDBTool> p_migratetool;
   const xAOD::EventInfo* p_eventinfo;
@@ -62,7 +61,6 @@ private:
   int m_par_systdisp;
   int m_par_irskip;
   int m_par_dispcsc;
-  bool m_par_wrtbeam;
   bool m_par_writetop;
   std::string m_par_topname;
 

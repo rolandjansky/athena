@@ -27,7 +27,6 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 
 class TileHWID;
-class TileInfo;
 //class TileFilterManager;
 
 class TileRawChannelBuilderMF: public TileRawChannelBuilder {

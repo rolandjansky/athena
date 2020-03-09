@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ATHENAPOOLCONVERTER_H
@@ -43,25 +43,25 @@ public:
    virtual ~AthenaPoolConverter();
 
    /// Gaudi Service Interface method implementations:
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
-   long repSvcType() const;
+   virtual long repSvcType() const override;
 
    /// Create a transient object from a POOL persistent representation.
    /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
    /// @param pObj [OUT] pointer to the transient object.
-   virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+   virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
 
    /// Create a POOL persistent representation for a transient object.
    /// @param pObj [IN] pointer to the transient object.
    /// @param pAddr [OUT] IOpaqueAddress of POOL persistent representation.
-   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
    /// Create a POOL persistent representation for a transient object.
    /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
    /// @param pObj [IN] pointer to the transient object.
-   virtual StatusCode fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj);
+   virtual StatusCode fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj) override;
 
    /// @return storage type.
    static long storageType();
@@ -70,7 +70,8 @@ public:
    static const CLID& classID();
 
    /// Implement cleanUp for AthenaPoolConverter to do nothing.
-   virtual StatusCode cleanUp();
+   virtual StatusCode cleanUp(const std::string& output) override;
+
 
 protected:
    /// Standard Service Constructor
@@ -80,24 +81,26 @@ protected:
    /// Convert an object into Persistent.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key) = 0;
+   virtual StatusCode DataObjectToPers(DataObject* pObj, IOpaqueAddress*& pAddr) = 0;
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& key) = 0;
+   virtual StatusCode DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj) = 0;
 
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
    /// @param token [IN] POOL token of the persistent representation.
-   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token) = 0;
+   /// @param key [IN] SG key of the object being read.
+   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token,
+                                       const std::string& key) = 0;
 
    /// Set POOL placement hint for a given type.
    /// @param tname [IN] type name.
    /// @param key [IN] SG key.
-   virtual void setPlacementWithType(const std::string& tname, const std::string& key = "");
+   virtual Placement setPlacementWithType(const std::string& tname, const std::string& key, const std::string& output);
    /// Set POOL placement hint; pure virtual method implemented by classes templated by type
-   virtual void setPlacement(const std::string& key = "") = 0;
+   virtual Placement setPlacement(const std::string& key, const std::string& output) = 0;
 
    /// @return data object from the converter.
    virtual const DataObject* getDataObject() const;
@@ -106,7 +109,6 @@ protected:
 
 protected: // data
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
-   Placement*            m_placement;
    RootType              m_classDesc;
 
    typedef std::map<std::string, std::string>         StringMap;
@@ -122,7 +124,7 @@ protected: // data
    const Token*          m_i_poolToken;
 
    typedef std::mutex CallMutex;
-   mutable CallMutex m_conv_mut;
+   CallMutex m_conv_mut;
 };
 
 #endif

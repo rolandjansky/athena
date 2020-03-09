@@ -74,7 +74,7 @@ namespace Trk {
     m_linkToVertices(actuallink) {
 
     ElementLink<TrackCollection> link;
-    link.setElement(const_cast<Trk::Track*>(track));
+    link.setElement(track);
     LinkToTrack * linkTT = new LinkToTrack(link);
     linkTT->setStorableObject(*trackTES);
     this->setOrigTrack(linkTT);
@@ -88,7 +88,7 @@ namespace Trk {
     m_linkToVertices(actuallink) {
 
     ElementLink<TrackParticleBaseCollection> link;
-    link.setElement(const_cast<Trk::TrackParticleBase*>(trackparticle));
+    link.setElement(trackparticle);
     LinkToTrackParticleBase * linkTT = new LinkToTrackParticleBase(link);
     linkTT->setStorableObject(*trkpartTES);
     this->setOrigTrack(linkTT);
@@ -119,6 +119,7 @@ namespace Trk {
       m_linkToVertices = rhs.m_linkToVertices;//YOU DON'T OWN THE OBJECT!please pay attention here!!!
     }
     return *this;
+
   }
 
   void Trk::MVFVxTrackAtVertex::setLinkToVertices(TrackToVtxLink* link) {

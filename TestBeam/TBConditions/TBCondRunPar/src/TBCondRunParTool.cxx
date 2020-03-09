@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TBCondRunParTool.cxx
 // Richard Hawkings, started 2/7/04
 
 #include "GaudiKernel/SmartDataPtr.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"

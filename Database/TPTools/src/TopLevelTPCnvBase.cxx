@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -61,7 +61,7 @@ void	TopLevelTPCnvBase::addTPConvertersTo( TopLevelTPCnvBase *cnv )
 {
    // loop over all registered converters 
    for( convIdMap_t::const_iterator itr = m_convIdMap.begin();
-	itr != m_convIdMap.end(); itr++ ) {
+	itr != m_convIdMap.end(); ++itr ) {
       // check if the converter is in the list of R/W converters
       if( m_converters.findConverter( itr->second->transientTInfo() ) == itr->second ) {
          // this is a R/W converter, add it for writing too
@@ -83,7 +83,7 @@ void	TopLevelTPCnvBase::addTPConvertersForReadingTo( TopLevelTPCnvBase *cnv )
    }
    // copy all TP converters to another topLevel conveter 
    for( convIdMap_t::const_iterator itr = m_convIdMap.begin();
-	itr != m_convIdMap.end(); itr++ ) {
+	itr != m_convIdMap.end(); ++itr ) {
       cnv->addExtTPConverterForReading( itr->second );
    }
    // prevent attempts to add the same converters again

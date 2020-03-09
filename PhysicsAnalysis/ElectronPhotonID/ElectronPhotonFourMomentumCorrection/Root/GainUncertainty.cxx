@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <ElectronPhotonFourMomentumCorrection/GainUncertainty.h>
-#include "CxxUtils/make_unique.h"
 #include "PathResolver/PathResolver.h"
 #include <TH1F.h>
 #include <TH1D.h>
@@ -19,7 +18,7 @@ namespace egGain {
   GainUncertainty::GainUncertainty(std::string filename) : asg::AsgMessaging("GainUncertainty") {
     
     ATH_MSG_INFO("opening file " << filename);
-    m_gainFile = CxxUtils::make_unique<TFile>(filename.c_str());
+    m_gainFile = std::make_unique<TFile>(filename.c_str());
 
     if (not (m_alpha_specialGainRun = (TH1F*)(m_gainFile->Get("alpha_specialGainRun")))) ATH_MSG_FATAL("cannot open histogram1");
     if (not (m_gain_impact_Zee = (TH1F*)(m_gainFile->Get("gain_impact_Zee")))) ATH_MSG_FATAL("cannot open histogram2");

@@ -9,6 +9,7 @@ atlas_subdir( TrigT1NSW )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
+                          MuonSpectrometer/MuonRDO
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/TrigT1NSWSimTools
                           PRIVATE
@@ -25,8 +26,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component( TrigT1NSW
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES} ${TBB_LIBRARIES} 
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} 
                      AthenaBaseComps GaudiKernel TrigInterfacesLib TrigT1NSWSimToolsLib AthenaMonitoringLib
                      StoreGateLib SGtests EventInfo )
 

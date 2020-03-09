@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
@@ -82,7 +81,7 @@ StatusCode MDT_MapConversion::initialize()
 
   
   IGeoModelSvc *geoModel;
-  service ("GeoModelSvc",geoModel); 
+  ATH_CHECK(service ("GeoModelSvc",geoModel));
   
   std::string AtlasVersion = geoModel->atlasVersion();
   std::string MuonVersion = geoModel->muonVersionOverride();
@@ -91,7 +90,7 @@ StatusCode MDT_MapConversion::initialize()
 
  
   IRDBAccessSvc *accessSvc;
-  service("RDBAccessSvc",accessSvc);
+  ATH_CHECK(service("RDBAccessSvc",accessSvc));
   
   
 

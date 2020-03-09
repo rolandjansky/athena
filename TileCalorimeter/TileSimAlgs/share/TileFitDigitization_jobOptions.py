@@ -41,7 +41,6 @@ TileFrameLength = 9; # correct frame length for all testbeams
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.OFPhysicsNSamples = TileFrameLength
 tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
 tileInfoConfigurator.NoiseScaleIndex = 3; # Noise for Fit method
 from AthenaCommon.AppMgr import ToolSvc
@@ -88,7 +87,6 @@ if doTileDigitToRawChannel:
     from TileRecUtils.TileRecFlags import jobproperties
     jobproperties.TileRecFlags.doTileFit = True
     jobproperties.TileRecFlags.doTileManyAmps = False
-    jobproperties.TileRecFlags.doTileOpt = False
     jobproperties.TileRecFlags.doTileOptATLAS = False
     jobproperties.TileRecFlags.doTileOpt2 = False
     

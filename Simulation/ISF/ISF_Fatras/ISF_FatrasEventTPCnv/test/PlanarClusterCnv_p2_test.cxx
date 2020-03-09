@@ -19,7 +19,6 @@
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "TestTools/leakcheck.h"
@@ -164,7 +163,7 @@ std::unique_ptr<iFatras::PlanarDetElement> makeEle(const Identifier& id,
     xform = Amg::getRotateX3D (0.5+o/100);
   else
     xform = Amg::getRotateY3D (0.5+o/100);
-  return CxxUtils::make_unique<iFatras::PlanarDetElement>
+  return std::make_unique<iFatras::PlanarDetElement>
     (id,
      idhash,
      Amg::Vector3D (10.5+o, 11.5+o, 12.5+o),
@@ -188,9 +187,9 @@ std::unique_ptr<iFatras::PlanarDetElement> makeEle(const Identifier& id,
 
 std::unique_ptr<IDHelpers> make_idhelpers (ISvcLocator* svcLoc)
 {
-  auto helpers = CxxUtils::make_unique<IDHelpers>();
-  auto pix_id = CxxUtils::make_unique<PixelID>();
-  auto sct_id = CxxUtils::make_unique<SCT_ID>();
+  auto helpers = std::make_unique<IDHelpers>();
+  auto pix_id = std::make_unique<PixelID>();
+  auto sct_id = std::make_unique<SCT_ID>();
   helpers->m_pix_id = pix_id.get();
   helpers->m_sct_id = sct_id.get();
 

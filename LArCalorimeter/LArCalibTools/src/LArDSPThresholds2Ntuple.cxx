@@ -27,25 +27,25 @@ StatusCode LArDSPThresholds2Ntuple::initialize() {
 
   StatusCode sc=LArCond2NtupleBase::initialize();
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "Base init failed" << endmsg;
+     ATH_MSG_ERROR( "Base init failed" );
      return StatusCode::FAILURE;
    }
 
    sc=m_nt->addItem("tQThr",m_tQThr);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem tQThr failed" << endmsg;
+     ATH_MSG_ERROR( "addItem tQThr failed" );
      return StatusCode::FAILURE;
    }
    
    sc=m_nt->addItem("samplesThr",m_samplesThr);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem samplesThr failed" << endmsg;
+     ATH_MSG_ERROR( "addItem samplesThr failed" );
      return StatusCode::FAILURE;
    }
    
    sc=m_nt->addItem("trigThr",m_trigThr);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem trigThr failed" << endmsg;
+     ATH_MSG_ERROR( "addItem trigThr failed" );
      return StatusCode::FAILURE;
    }
 
@@ -64,13 +64,13 @@ StatusCode LArDSPThresholds2Ntuple::stop() {
    if(m_doFlat) {
       sc=detStore()->retrieve(attrList,m_folder);
       if (sc.isFailure()) {
-         msg(MSG::ERROR) << "Failed to retrieve AthenaAttributeList with key " << m_folder << endmsg;
+         ATH_MSG_ERROR( "Failed to retrieve AthenaAttributeList with key " << m_folder );
          return sc;
       }
       
       const coral::Blob& blob = (attrList->coralList())["tQThr"].data<coral::Blob>();
       if (blob.size()<3) {
-        msg(MSG::INFO) << "Found empty blob, nothing to do"<<endmsg;
+        ATH_MSG_INFO( "Found empty blob, nothing to do");
         return StatusCode::SUCCESS;
       }
       
@@ -79,7 +79,7 @@ StatusCode LArDSPThresholds2Ntuple::stop() {
    } else {
       sc=m_detStore->retrieve(dc);
       if(sc!=StatusCode::SUCCESS) {
-           msg(MSG::ERROR) <<"Could not retrieve LArDSPThresholdsComplete...."<<endmsg;
+           ATH_MSG_ERROR("Could not retrieve LArDSPThresholdsComplete....");
            return StatusCode::FAILURE;
       }
    }
@@ -100,17 +100,17 @@ StatusCode LArDSPThresholds2Ntuple::stop() {
      }
      
      fillFromIdentifier(hwid);
-     //msg(MSG::INFO)<<"hwid: "<<hwid.getString()<<" "<<tQThr<<" : "<<samplesThr<<" : "<<trigThr<<endmsg;
+     //ATH_MSG_INFO("hwid: "<<hwid.getString()<<" "<<tQThr<<" : "<<samplesThr<<" : "<<trigThr);
      
      sc=ntupleSvc()->writeRecord(m_nt);      
      if (sc!=StatusCode::SUCCESS) {
-       msg(MSG::ERROR) << "writeRecord failed" << endmsg;
+       ATH_MSG_ERROR( "writeRecord failed" );
        return StatusCode::FAILURE;
      }
    }
    
  
-   msg(MSG::INFO) << "LArDSPThresholds2Ntuple has finished." << endmsg;
+   ATH_MSG_INFO( "LArDSPThresholds2Ntuple has finished." );
    return StatusCode::SUCCESS;
    
 }// end finalize-method.

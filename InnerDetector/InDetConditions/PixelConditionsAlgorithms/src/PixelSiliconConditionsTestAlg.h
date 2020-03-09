@@ -1,6 +1,12 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelConditionsAlgorithms/PixelSiliconConditionsTestAlg.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date November, 2019
+ * @brief Test algorithm to check the various contents from the Data.
+ */
 
 #ifndef PIXELSILICONcONDITIONSTESTALG_H
 #define PIXELSILICONcONDITIONSTESTALG_H
@@ -10,7 +16,10 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelDCSHVData.h"
+#include "PixelConditionsData/PixelDCSTempData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "PixelConditionsData/PixelDistortionData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 
@@ -27,10 +36,10 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
     SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
     {this, "PixelModuleData", "PixelModuleData", "Output key"};
 
-    SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp
+    SG::ReadCondHandleKey<PixelDCSTempData> m_readKeyTemp
     {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
 
-    SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV
+    SG::ReadCondHandleKey<PixelDCSHVData> m_readKeyHV
     {this, "ReadKeyHV", "PixelDCSHVCondData", "Key of input bias voltage conditions folder"};
 
     ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool
@@ -38,6 +47,9 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
 
     SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
     {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Output key"};
+
+    SG::ReadCondHandleKey<PixelDistortionData> m_distortionKey
+    {this, "PixelDistortionData", "PixelDistortionData", "Output key"};
 
 };
 

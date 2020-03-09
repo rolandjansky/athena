@@ -11,12 +11,8 @@
 #ifndef TrigInDetAnalysisExample_OfflineObjectSelection_H
 #define TrigInDetAnalysisExample_OfflineObjectSelection_H
 
-// xAOD
-// not actual XAOD, but this file safely includes 
-// the xAOD::TrackParticle header if it exists
-// which we use to decide whether this code should 
-// include all the xAOD classes or not
-#include "TrkParticleCreator/TrackParticleCreatorTool.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 /// Test for xAOD
 #ifdef XAODTRACKING_TRACKPARTICLE_H

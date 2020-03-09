@@ -17,7 +17,7 @@
 
 namespace Trk {
 
-  unsigned int VertexPositions::s_numberOfInstantiations=0;
+std::atomic<unsigned int> VertexPositions::s_numberOfInstantiations{0};
 
   VertexPositions::VertexPositions() : m_position(Amg::VectorX()),
 				       m_useWeightTimesPosition(false) {

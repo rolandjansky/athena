@@ -7,9 +7,13 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
 
 LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL), m_log(NULL), 
+  AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL),  
   m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL),m_caloId(NULL),
   m_FEBTempTool("LArFEBTempTool"), m_isSC(false)
 {
@@ -19,25 +23,25 @@ LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSv
   declareProperty("isFlat", m_isFlat=false);
   declareProperty("OffId", m_OffId=false);
   declareProperty("AddHash",m_addHash=true);
+  declareProperty("RealGeometry",m_realgeom=false);
 }
 
 LArCond2NtupleBase::~LArCond2NtupleBase() {
-  delete m_log;
+  ;
 }
 
 StatusCode LArCond2NtupleBase::initialize() {
-  m_log=new MsgStream(msgSvc(), name()); //backward compatiblity
   
   ATH_MSG_DEBUG("Initializing LArCond2Ntuple base class");
   
   if (m_ntpath.size()==0 || m_ntTitle.size()==0) {
-    msg(MSG::ERROR) << "Need to set variable 'm_ntpath' and 'm_ntTitle' in constructor of deriving class!" << endmsg;
+    ATH_MSG_ERROR( "Need to set variable 'm_ntpath' and 'm_ntTitle' in constructor of deriving class!" );
     return StatusCode::FAILURE;
   }
 
   size_t i=m_ntpath.rfind('/');
   if (i==std::string::npos) {
-    msg(MSG::ERROR) << "Expected at least on '/' in path " << m_ntpath << endmsg;
+    ATH_MSG_ERROR( "Expected at least on '/' in path " << m_ntpath );
     return StatusCode::FAILURE;
   }
   std::string basepath(m_ntpath.begin(),m_ntpath.begin()+i);
@@ -46,7 +50,7 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   NTupleFilePtr file1(ntupleSvc(),basepath);
   if (!file1){
-    msg(MSG::ERROR) << "Could not get NTupleFilePtr with path " << basepath << " failed" << endmsg;
+    ATH_MSG_ERROR( "Could not get NTupleFilePtr with path " << basepath << " failed" );
     return StatusCode::FAILURE;
   }
   NTuplePtr nt(ntupleSvc(),m_ntpath);
@@ -54,7 +58,7 @@ StatusCode LArCond2NtupleBase::initialize() {
     nt=ntupleSvc()->book(m_ntpath,CLID_ColumnWiseTuple,m_ntTitle);
   }
   if (!nt){
-    msg(MSG::ERROR) << "Booking of NTuple at "<< m_ntpath << " and name " << m_ntTitle << " failed" << endmsg;
+    ATH_MSG_ERROR( "Booking of NTuple at "<< m_ntpath << " and name " << m_ntTitle << " failed" );
     return StatusCode::FAILURE; 
   }
 
@@ -63,45 +67,32 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   m_detStore= &(*detStore()); //for backward compatiblity 
 
-  const CaloCell_ID* idHelper = nullptr;
-  if ( m_isSC ){
-    ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
-  }
-  else {
-    ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
-    ATH_CHECK( detStore()->retrieve (m_caloId, "CaloCell_ID") );
-  }
-  m_emId=idHelper->em_idHelper();
-  m_fcalId=idHelper->fcal_idHelper();
-  m_hecId=idHelper->hec_idHelper();
-
-  if (!m_emId) {
-    msg(MSG::ERROR) << "Could not access lar EM ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if (!m_fcalId) {
-    msg(MSG::ERROR) << "Could not access lar FCAL ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if (!m_hecId) {
-    msg(MSG::ERROR) << "Could not access lar HEC ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
+  const CaloIdManager* calo_id_manager;
+  ATH_CHECK(detStore()->retrieve(calo_id_manager,"CaloIdManager"));
 
   StatusCode sc;
   if ( m_isSC ){
-  const LArOnline_SuperCellID* ll;
-  sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-    return StatusCode::FAILURE;
-  }
-    else {
-      m_onlineId = (const LArOnlineID_Base*)ll;
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+      return StatusCode::FAILURE;
+    } else {
+      m_onlineId = ll;
       ATH_MSG_DEBUG("Found the LArOnlineID helper");
     }
-
+    m_caloId = calo_id_manager->getCaloCell_SuperCell_ID();
+    if(m_realgeom) {
+      const CaloSuperCellDetDescrManager* cddm=nullptr;
+      sc = detStore()->retrieve(cddm);
+      if ((!cddm) || sc.isFailure()) {
+         ATH_MSG_ERROR( "Could not get CaloSuperCellDetDescrManager !" );
+         return StatusCode::FAILURE;
+      } else {
+         m_dd_man = (const CaloDetDescrManager_Base*) cddm;
+         ATH_MSG_DEBUG("Found the CaloSuperCellDetDescrManager !" << m_dd_man);
+      }
+    }
   } else { // m_isSC
     const LArOnlineID* ll;
     sc = detStore()->retrieve(ll, "LArOnlineID");
@@ -109,16 +100,46 @@ StatusCode LArCond2NtupleBase::initialize() {
       msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
       return StatusCode::FAILURE;
     } else {
-      m_onlineId = (const LArOnlineID_Base*)ll;
+      m_onlineId = ll;
       ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
     }
-
+    m_caloId = calo_id_manager->getCaloCell_ID();
+    if(m_realgeom) {
+      const CaloDetDescrManager* cddm=nullptr;
+      sc = detStore()->retrieve(cddm);
+      if ((!cddm) || sc.isFailure()) {
+         ATH_MSG_ERROR( "Could not get CaloDetDescrManager !" );
+         return StatusCode::FAILURE;
+      } else {
+         m_dd_man = (const CaloDetDescrManager_Base*) cddm;
+         ATH_MSG_DEBUG("Found the CaloDetDescrManager !" << m_dd_man );
+      }
+    }
   } // end of m_isSC if
+
+  m_emId=m_caloId->em_idHelper();
+  m_fcalId=m_caloId->fcal_idHelper();
+  m_hecId=m_caloId->hec_idHelper();
+
+  if (!m_emId) {
+    ATH_MSG_ERROR( "Could not access lar EM ID helper" );
+    return StatusCode::FAILURE;
+  }
+  if (!m_fcalId) {
+    ATH_MSG_ERROR( "Could not access lar FCAL ID helper" );
+    return StatusCode::FAILURE;
+  }
+  if (!m_hecId) {
+    ATH_MSG_ERROR( "Could not access lar HEC ID helper" );
+    return StatusCode::FAILURE;
+  }
+
+
 
   if (m_addFEBTemp) {
     sc = m_FEBTempTool.retrieve();
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << " Can't get FEBTempTool." << endmsg;
+      ATH_MSG_ERROR( " Can't get FEBTempTool." );
       return sc;
     }
   }
@@ -126,65 +147,54 @@ StatusCode LArCond2NtupleBase::initialize() {
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_calibMapKey.initialize() );
-  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
 
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'channelId' failed" << endmsg;
+    ATH_MSG_ERROR( "addItem 'channelId' failed" );
     return StatusCode::FAILURE;
-  }
-
-  //Offline-identifier variables
-  if ( m_OffId ) {
-    sc=nt->addItem("offlineId",m_oflChanId,0x20000000,0x40000000);
-    if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'channelId' failed" << endmsg;
-      return StatusCode::FAILURE;
-    }
   }
 
   sc=nt->addItem("barrel_ec",m_barrel_ec,0,1);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'barrel_ec' failed" << endmsg;
+    ATH_MSG_ERROR( "addItem 'barrel_ec' failed" );
     return StatusCode::FAILURE;
   }
 
   sc=nt->addItem("pos_neg",m_pos_neg,0,1);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'pos_neg' failed" << endmsg;
+    ATH_MSG_ERROR( "addItem 'pos_neg' failed" );
     return StatusCode::FAILURE;
    }
 
   sc=nt->addItem("FT",m_FT,0,32);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'FT' failed" << endmsg;
+    ATH_MSG_ERROR( "addItem 'FT' failed" );
     return StatusCode::FAILURE;
   }
 
   sc=nt->addItem("slot",m_slot,1,15);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'slot' failed" << endmsg;
+    ATH_MSG_ERROR( "addItem 'slot' failed" );
     return StatusCode::FAILURE;
    }
 
   sc=nt->addItem("channel",m_channel,0,127);
   if (sc!=StatusCode::SUCCESS){
-    msg(MSG::ERROR) << "addItem 'channel' failed" << endmsg;
+    ATH_MSG_ERROR( "addItem 'channel' failed" );
     return StatusCode::FAILURE;
   }
 
-  if ( !m_isSC) {
-    sc=nt->addItem("calibLine",m_calibLine,0,127);
-    if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'calibLine' failed" << endmsg;
-      return StatusCode::FAILURE;
-    }
+  sc=nt->addItem("calibLine",m_calibLine,0,127);
+  if (sc!=StatusCode::SUCCESS) {
+    ATH_MSG_ERROR( "addItem 'calibLine' failed" );
+    return StatusCode::FAILURE;
   }
+  
 
   sc=nt->addItem("isConnected",m_isConnected,0,1);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'isConnected' failed" << endmsg;
+    ATH_MSG_ERROR( "addItem 'isConnected' failed" );
     return StatusCode::FAILURE;
   }
 
@@ -192,57 +202,84 @@ StatusCode LArCond2NtupleBase::initialize() {
   if (m_addHash) {
     sc=nt->addItem("channelHash",m_chanHash,0,200000);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'channelHash' failed" << endmsg;
+      ATH_MSG_ERROR( "addItem 'channelHash' failed" );
       return StatusCode::FAILURE;
     }
 
     sc=nt->addItem("febHash",m_febHash,0,2000);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'febHash' failed" << endmsg;
+      ATH_MSG_ERROR( "addItem 'febHash' failed" );
       return StatusCode::FAILURE;
     }
 
     if (m_OffId) {
       sc=m_nt->addItem("oflHash",m_oflHash,0,200000);
       if (sc!=StatusCode::SUCCESS) {
-	msg(MSG::ERROR) << "addItem 'oflHash' failed" << endmsg;
+	ATH_MSG_ERROR( "addItem 'oflHash' failed" );
 	return StatusCode::FAILURE;
       }
     }
   }//end-if addHash
 
 
-  //Offline-ID related variables
-  sc=nt->addItem("layer",m_layer,0,4);
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'layer' failed" << endmsg;
-    return StatusCode::FAILURE;
-   }
-  sc=nt->addItem("ieta",m_eta,0,510);
-  if (sc!=StatusCode::SUCCESS) {
-   msg(MSG::ERROR) << "addItem 'ieta' failed" << endmsg;
-   return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("iphi",m_phi,0,1023);
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'iphi' failed" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("region",m_region,0,5);
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'region' failed" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("detector",m_detector,0,2);
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'detector' failed" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  //Offline-identifier variables
+  if ( m_OffId ) {
+    sc=nt->addItem("offlineId",m_oflChanId,0x20000000,0x40000000);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'channelId' failed" );
+      return StatusCode::FAILURE;
+    }
+
+    sc=nt->addItem("layer",m_layer,0,4);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'layer' failed" );
+      return StatusCode::FAILURE;
+     }
+
+    if(m_realgeom) {
+      sc=nt->addItem("eta",m_reta);
+      if (sc!=StatusCode::SUCCESS) {
+       ATH_MSG_ERROR( "addItem 'eta' failed" );
+       return StatusCode::FAILURE;
+      }
+      sc=nt->addItem("phi",m_rphi);
+      if (sc!=StatusCode::SUCCESS) {
+        ATH_MSG_ERROR( "addItem 'phi' failed" );
+        return StatusCode::FAILURE;
+      }
+    } else {  
+      sc=nt->addItem("ieta",m_eta,0,510);
+      if (sc!=StatusCode::SUCCESS) {
+       ATH_MSG_ERROR( "addItem 'ieta' failed" );
+       return StatusCode::FAILURE;
+      }
+      sc=nt->addItem("iphi",m_phi,0,1023);
+      if (sc!=StatusCode::SUCCESS) {
+        ATH_MSG_ERROR( "addItem 'iphi' failed" );
+        return StatusCode::FAILURE;
+      }
+      sc=nt->addItem("layer",m_layer,0,4);
+      if (sc!=StatusCode::SUCCESS) {
+        ATH_MSG_ERROR( "addItem 'layer' failed" );
+        return StatusCode::FAILURE;
+      }
+      sc=nt->addItem("region",m_region,0,5);
+      if (sc!=StatusCode::SUCCESS) {
+        ATH_MSG_ERROR( "addItem 'region' failed" );
+        return StatusCode::FAILURE;
+      }
+      sc=nt->addItem("detector",m_detector,0,2);
+      if (sc!=StatusCode::SUCCESS) {
+        ATH_MSG_ERROR( "addItem 'detector' failed" );
+        return StatusCode::FAILURE;
+      }
+    }
+  } // m_OffId
 
   if (m_addBC) {
     sc=nt->addItem("badChan",m_badChanWord);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'badChan' failed" << endmsg;
+      ATH_MSG_ERROR( "addItem 'badChan' failed" );
       return StatusCode::FAILURE;
     }
   }
@@ -250,12 +287,12 @@ StatusCode LArCond2NtupleBase::initialize() {
   if (m_addFEBTemp) {
     sc=nt->addItem("FEBTemp1",m_FEBTemp1);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'FEBTemp1' failed" << endmsg;
+      ATH_MSG_ERROR( "addItem 'FEBTemp1' failed" );
       return StatusCode::FAILURE;
     }
     sc=nt->addItem("FEBTemp2",m_FEBTemp2);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'FEBTemp2' failed" << endmsg;
+      ATH_MSG_ERROR( "addItem 'FEBTemp2' failed" );
       return StatusCode::FAILURE;
     }
   }
@@ -266,6 +303,7 @@ StatusCode LArCond2NtupleBase::initialize() {
 
 bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
+ ATH_MSG_DEBUG("Starting.....");
  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
  const LArBadChannelCont *bcCont {*readHandle};
  if(m_addBC && !bcCont) {
@@ -278,19 +316,14 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
      ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
      return false;
  }
- const LArOnOffIdMapping* cabling=nullptr;
- if(!m_isSC) {
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-    cabling = *cablingHdl;
- } else {
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdlSC{m_cablingKeySC};
-    cabling = *cablingHdlSC;
- }
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling=*cablingHdl;
  if(!cabling) {
      ATH_MSG_WARNING( "Do not have cabling !" );
      return false;
  }
 
+ ATH_MSG_DEBUG("Starting 1.....");
  m_onlChanId = hwid.get_identifier32().get_compact();
  
  m_barrel_ec = m_onlineId->barrel_ec(hwid);
@@ -304,19 +337,26 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
    m_febHash=m_onlineId->feb_Hash(m_onlineId->feb_Id(hwid));
  }
 
- if ( !m_isSC) {
  m_calibLine=NOT_VALID;
  const std::vector<HWIdentifier>& calibLineV=clCont->calibSlotLine(hwid);
  if(calibLineV.size()) m_calibLine = m_onlineId->channel(calibLineV[0]);
- }
+ 
 
- m_detector=NOT_VALID; 
- m_region=NOT_VALID;
- m_layer=NOT_VALID;
- m_eta=NOT_VALID;
- m_phi=NOT_VALID;
- //m_oflChanId=NOT_VALID;
- //m_oflHash=NOT_VALID;
+ if ( m_OffId ) {
+  if(!m_realgeom) {
+   m_detector=NOT_VALID; 
+   m_region=NOT_VALID;
+   m_eta=NOT_VALID;
+   m_phi=NOT_VALID;
+  } else {
+   ATH_MSG_DEBUG(&m_reta << " " << &m_rphi << " " << &m_layer);
+   m_reta=NOT_VALID;
+   m_rphi=NOT_VALID;
+  } 
+  m_layer=NOT_VALID;
+  m_oflChanId=NOT_VALID;
+  if (m_addHash) m_oflHash=NOT_VALID;
+ }
  if (m_addBC) m_badChanWord=0;
  bool connected=false;
 
@@ -325,32 +365,51 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
      Identifier id=cabling->cnvToIdentifier(hwid);
      if ( m_OffId ) {
        m_oflChanId = id.get_identifier32().get_compact();
-       if (m_addHash) 
-	 m_oflHash=m_caloId->calo_cell_hash(id);
-     }
-   
-     if (m_emId->is_lar_em(id)) {
-       m_eta       = m_emId->eta(id);
-       m_phi       = m_emId->phi(id);
-       m_layer     = m_emId->sampling(id);
-       m_region    = m_emId->region(id);
-       m_detector  = std::abs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
-     }
-     else if (m_hecId->is_lar_hec(id)) {
-       m_eta       = m_hecId->eta(id);
-       m_phi       = m_hecId->phi(id);
-       m_layer     = m_hecId->sampling(id);
-       m_region    = m_hecId->region(id);
-       m_detector  = 3;
-     }
-     else if (m_fcalId->is_lar_fcal(id)) {
-       m_eta       = m_fcalId->eta(id);
-       m_phi       = m_fcalId->phi(id);
-       m_layer     = m_fcalId->module(id);
-       m_region    = 0;
-       m_detector  = 4;
-     }
-     connected=true;
+       if (m_addHash) m_oflHash=m_caloId->calo_cell_hash(id);
+
+       if (m_realgeom) {
+          const CaloDetDescrElement *elem = m_dd_man->get_element(id);
+          if(!elem) {
+             ATH_MSG_WARNING("Do not have CDDE for "<<id.getString());
+          } else {
+            m_reta = elem->eta_raw();
+            m_rphi = elem->phi_raw();
+          }  
+          if (m_emId->is_lar_em(id)) {
+            m_layer     = m_emId->sampling(id);
+          }
+          else if (m_hecId->is_lar_hec(id)) {
+            m_layer     = m_hecId->sampling(id);
+          }
+          else if (m_fcalId->is_lar_fcal(id)) {
+            m_layer     = m_fcalId->module(id);
+          }
+       } else {
+      
+          if (m_emId->is_lar_em(id)) {
+            m_eta       = m_emId->eta(id);
+            m_phi       = m_emId->phi(id);
+            m_layer     = m_emId->sampling(id);
+            m_region    = m_emId->region(id);
+            m_detector  = std::abs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
+          }
+          else if (m_hecId->is_lar_hec(id)) {
+            m_eta       = m_hecId->eta(id);
+            m_phi       = m_hecId->phi(id);
+            m_layer     = m_hecId->sampling(id);
+            m_region    = m_hecId->region(id);
+            m_detector  = 3;
+          }
+          else if (m_fcalId->is_lar_fcal(id)) {
+            m_eta       = m_fcalId->eta(id);
+            m_phi       = m_fcalId->phi(id);
+            m_layer     = m_fcalId->module(id);
+            m_region    = 0;
+            m_detector  = 4;
+          }
+          connected=true;
+       }
+     } // m_OffId
    }//end if is connected
  }catch (LArID_Exception & except) {}
 

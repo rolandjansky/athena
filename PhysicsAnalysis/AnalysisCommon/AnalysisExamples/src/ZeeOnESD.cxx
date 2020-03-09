@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "egammaEvent/Electron.h"
@@ -76,14 +75,6 @@ StatusCode ZeeOnESD::initialize() {
 
   ATH_MSG_INFO("Initializing ZeeOnESD");
 
-  /*
-  // don't need this
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-     ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-     return sc;
-  }
-  */
   StatusCode sc = service("THistSvc", m_thistSvc);
   if (sc.isFailure()) {
      ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");

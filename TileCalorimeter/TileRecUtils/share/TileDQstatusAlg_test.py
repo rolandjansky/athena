@@ -62,6 +62,7 @@ class TileFragHash:
     FitFilter = 6
     FitFilterCool = 7
     FlatFilter = 8
+    WienerFilterOffline = 9
 
 
 BEAM_TDC_FRAG = 0x000

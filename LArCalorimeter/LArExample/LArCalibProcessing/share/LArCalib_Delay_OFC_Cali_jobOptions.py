@@ -6,7 +6,9 @@
 # - usePatt - if <0 all patterns, if <0,15> or <0,13> if EMEC, fill only those pattern
 # - numPatt - either 16 for EMB or 14 for EMEC (with standard configuration)
 
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -18,7 +20,11 @@ import commands
 #
 ###########################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 #include("RecExCommission/GetInputFiles.py")
 include("LArCalibProcessing/GetInputFiles.py")
 
@@ -214,19 +220,20 @@ if not 'ReadPedFromCOOL' in dir():
    ReadPedFromCOOL = True
    
 if not 'InputPedPoolFileDir' in dir():
-   InputPedPoolFileDir  = commands.getoutput("pwd")
+   InputPedPoolFileDir  = subprocess.getoutput("pwd")
    
 ## AutoCorr
 if not 'ReadAutoCorrFromCOOL' in dir():
    ReadAutoCorrFromCOOL = True 
 
 if not 'InputAutoCorrPoolDir' in dir():
-   InputAutoCorrPoolDir = commands.getoutput("pwd")
+   InputAutoCorrPoolDir = subprocess.getoutput("pwd")
 
 ## Output
-
-   
-rs=FolderTagResover()
+if 'dbname' in dir():
+   rs=FolderTagResover(dbname=dbname)
+else:
+   rs=FolderTagResover()
 if not 'PedLArCalibFolderTag' in dir():
    PedLArCalibFolderTag=rs.getFolderTagSuffix(LArCalib_Flags.LArPedestalFolder)
 
@@ -244,10 +251,10 @@ if doOFC and not 'LArCalibOFCFolderOutputTag' in dir():
 del rs #Close database
    
 if not 'OutputRootFileDir' in dir():
-   OutputRootFileDir  = commands.getoutput("pwd")
+   OutputRootFileDir  = subprocess.getoutput("pwd")
    
 if not 'OutputPoolFileDir' in dir():
-   OutputPoolFileDir  = commands.getoutput("pwd")
+   OutputPoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB
@@ -338,7 +345,8 @@ if ( ReadBadChannelFromCOOL ):
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
       #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
       
 ###########################################################################
 #                             OFC properties
@@ -416,6 +424,14 @@ DelayOFCLog.info( " ======================================================== " )
 
 
 include ("LArConditionsCommon/LArMinimalSetup.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+if SuperCells:
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  LArOnOffIdMappingSC()
+  LArCalibIdMappingSC()
+#from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+#LArBadChannelAccess()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -424,6 +440,8 @@ include ("LArConditionsCommon/LArMinimalSetup.py")
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -484,6 +502,10 @@ if ( runAccumulator ) :
    # this is a OLD jobOptions which can maybe work but only for the barrel                        #
    # can be used as a skeleton if needed but                                                      #
    # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
+   ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
+   #if SuperCells is False:
+   #   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
+   
    include("./LArCalib_CalibrationPatterns.py")
 
 else:
@@ -496,8 +518,9 @@ else:
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
-include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")   
-topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
+if not SuperCells:
+   include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")   
+   topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
 if CheckBadEvents:
    from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
    theLArBadEventCatcher=LArBadEventCatcher()
@@ -507,7 +530,7 @@ if CheckBadEvents:
    theLArBadEventCatcher.StopOnError=False
    topSequence+=theLArBadEventCatcher      
       
-EventSelector.SkipEvents=skipEvents
+svcMgr.EventSelector.SkipEvents=skipEvents
 theApp.EvtMax = maxEvents
 
 ##########################################################################
@@ -522,24 +545,38 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+#include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+if 'BadChannelsFolder' not in dir():
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+if 'MissingFEBsFolder' not in dir():
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayOFCLog.info( "Read Bad Channels from Oracle DB")
 else :   
    DelayOFCLog. info( "Read Bad Channels from SQLite file") 
 
-if 'BadChannelsLArCalibFolderTag' in dir() :
+if 'BadChannelsFolder' in dir():
+ if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
-   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+ else :
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
 
-if 'MissingFEBsLArCalibFolderTag' in dir() :
+if 'MissingFEBsFolder' in dir():
+ if 'MissingFEBsLArCalibFolderTag' in dir() :
    MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
-   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+ else :
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+   
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
+
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
@@ -549,25 +586,25 @@ except:
    pass
 
 # Temperature folder
-conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-svcMgr.EventSelector.InitialTimeStamp = 1284030331
-import cx_Oracle
-import time
-import datetime
-try:
-   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-   cursor=connection.cursor()
-   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-   cursor.execute(sRequest)
-   times= cursor.fetchall()
-   d=times[0][1]
-   iovtemp=int(time.mktime(d.timetuple()))
-except:
-   iovtemp=1283145454
+#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#import cx_Oracle
+#import time
+#import datetime
+#try:
+#   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+#   cursor=connection.cursor()
+#   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+#   cursor.execute(sRequest)
+#   times= cursor.fetchall()
+#   d=times[0][1]
+#   iovtemp=int(time.mktime(d.timetuple()))
+#except:
+#   iovtemp=1283145454
 
-#print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
+#printfunc ("Setting timestamp for run ",RunNumberList[0]," to ",iovtemp)
 #svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
 svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
@@ -654,6 +691,7 @@ LArCaliWaveBuilder.CheckEmptyPhases = CheckEmptyPhases
 LArCaliWaveBuilder.NBaseline        = 0 # to avoid the use of the baseline when Pedestal are missing
 LArCaliWaveBuilder.UseDacAndIsPulsedIndex = False # should have an impact only for HEC
 LArCaliWaveBuilder.RecAllCells      = RecAllCells
+LArCaliWaveBuilder.isSC       = SuperCells
 LArCaliWaveBuilder.UsePattern = usePatt
 LArCaliWaveBuilder.NumPattern = numPatt
 
@@ -661,6 +699,9 @@ if StripsXtalkCorr:
    LArCaliWaveBuilder.ADCsaturation = 0
 else:
    LArCaliWaveBuilder.ADCsaturation = ADCsaturation
+
+if SuperCells:
+   LArCaliWaveBuilder.CablingKey="LArOnOffIdMapSC"
    
 topSequence+=LArCaliWaveBuilder
 
@@ -738,8 +779,9 @@ if doOFC:
 #                                                                        #
 ##########################################################################
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
+#if not SuperCells:
+#   from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+#   topSequence+=xAODMaker__EventInfoCnvAlg()
 
 if ( doLArCalibDataQuality  ) :
    from LArCalibDataQuality.LArCalibDataQualityConf import LArCaliWaveValidationAlg
@@ -831,6 +873,9 @@ if (WriteNtuple):
    LArCaliWaves2Ntuple.AddFEBTempInfo = False
    LArCaliWaves2Ntuple.SaveJitter = SaveJitter
    LArCaliWaves2Ntuple.KeyList     = [ KeyOutput ]
+   LArCaliWaves2Ntuple.isSC = SuperCells
+   if SuperCells:
+      LArCaliWaves2Ntuple.CalibMapKey = "LArCalibIdMapSC"
    
    topSequence+=LArCaliWaves2Ntuple
    
@@ -873,6 +918,7 @@ if ( WritePoolFile ) :
 if doOFC:
   from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
   theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
+  theLArAutoCorrDecoderTool.isSC = SuperCells
   ToolSvc += theLArAutoCorrDecoderTool
 
   from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
@@ -892,6 +938,7 @@ if doOFC:
      LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
   LArCaliOFCAlg.GroupingType = GroupingType
   LArCaliOFCAlg.DecoderTool=theLArAutoCorrDecoderTool
+  LArCaliOFCAlg.isSC = SuperCells
   topSequence+=LArCaliOFCAlg
 
 
@@ -911,6 +958,7 @@ if doOFC:
    LArOFC2Ntuple.ContainerKey = OFCKey 	   
    LArOFC2Ntuple.NtupleFile = "FILE2" 	   
    LArOFC2Ntuple.AddFEBTempInfo = False 	   
+   LArOFC2Ntuple.isSC = SuperCells
    topSequence+=LArOFC2Ntuple
 
    if os.path.exists(OutputRootFileDir+"/"+OutputOFCRootFileName): 
@@ -918,11 +966,6 @@ if doOFC:
    svcMgr += NTupleSvc()
    svcMgr.NTupleSvc.Output += [ "FILE2 DATAFILE='"+OutputRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
    
-      if os.path.exists(OutputRootFileDir+"/"+OutputOFCRootFileName): 
-         os.remove(OutputRootFileDir+"/"+OutputOFCRootFileName)  
-      svcMgr += NTupleSvc()
-      svcMgr.NTupleSvc.Output += [ "FILE2 DATAFILE='"+OutputRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
-
    
 ###########################################################################
 

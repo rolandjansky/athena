@@ -100,7 +100,11 @@ private:
     std::string m_outputContainer; //!< Name of the output TileDigitsContainer
     
     const TileHWID* m_tileHWID;
-    const TileInfo* m_tileInfo;      
+    
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    int m_i_ADCmax;
     
     TileRawChannelUnit::UNIT m_rChUnit; //!< Units used for the TileRawChannels (ADC, pCb, etc.)(see TileInfo.h)
     TileFragHash::TYPE m_rChType; //!< Type of TileRawChannels (Digitizar, OF1, OF2, Fit, etc.)(see TileFragHash.h)

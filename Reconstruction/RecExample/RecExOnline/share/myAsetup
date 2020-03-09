@@ -1,0 +1,18 @@
+[defaults]
+tags			= AtlasProduction,AtlasHLT
+release			= 19.3.0.1
+runtime			= True
+32bit			= False
+os			= slc6
+compiler		= gcc47
+optimised		= True
+testarea		= /det/dqm/GlobalMonitoring/SMW_test/AtlasProduction-19.3.0.1_21nov14/
+
+[environment]
+CORAL_DBLOOKUP_PATH=/sw/DbSuppForMx/lookup4oracle
+CORAL_AUTH_PATH=/sw/DbSuppForMx/lookup4oracle
+
+[epilog.sh]
+export CORAL_DBLOOKUP_PATH=/sw/DbSuppForMx/lookup4oracle
+export CORAL_AUTH_PATH=/sw/DbSuppForMx/lookup4oracle
+export CALIBPATH=/sw/extras/sw_tmp/current/hlt/CalibArea12112014:$CALIBPATH

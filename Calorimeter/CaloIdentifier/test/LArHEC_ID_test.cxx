@@ -13,8 +13,6 @@
 #undef NDEBUG
 
 #include "CaloIdentifier/LArHEC_ID.h"
-#include "CxxUtils/make_unique.h"
-#include "boost/foreach.hpp"
 #include <iostream>
 
 

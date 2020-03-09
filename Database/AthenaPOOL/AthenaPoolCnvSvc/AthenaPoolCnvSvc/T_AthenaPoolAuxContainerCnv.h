@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h
  * @author scott snyder <snyder@bnl.gov>
@@ -38,7 +36,7 @@
  */
 template <class AUXSTORE, class ... TPCNVS>
 class T_AthenaPoolAuxContainerCnv
-  : public T_AthenaPoolCustomCnv<AUXSTORE, AUXSTORE>
+  : public T_AthenaPoolCustomCnvWithKey<AUXSTORE, AUXSTORE>
 {
   friend class CnvFactory< T_AthenaPoolAuxContainerCnv >;
 
@@ -46,7 +44,7 @@ class T_AthenaPoolAuxContainerCnv
   friend class AthenaPoolCnvSvc::TPCnvElt;
 
 public:
-  typedef T_AthenaPoolCustomCnv<AUXSTORE, AUXSTORE> Base;
+  typedef T_AthenaPoolCustomCnvWithKey<AUXSTORE, AUXSTORE> Base;
 
 
   /**
@@ -59,19 +57,22 @@ public:
   /**
    * @brief Convert a transient object to persistent form.
    * @param trans The transient object to convert.
+   * @param key The SG key of the object being written.
    *
    * Returns a newly-allocated persistent object.
    */
-  virtual AUXSTORE* createPersistent( AUXSTORE* trans ) override;
+  virtual AUXSTORE* createPersistentWithKey( AUXSTORE* trans,
+                                             const std::string& key) override;
 
 
   /**
    * @brief Read the persistent object and convert it to transient.
+   * @param key The SG key of the object being read.
    *
    * Returns a newly-allocated transient object.
    * Errors are reported by raising exceptions.
    */
-  virtual AUXSTORE* createTransient() override;
+  virtual AUXSTORE* createTransientWithKey (const std::string& key) override;
 
   
 private:

@@ -65,7 +65,7 @@ protected:
     
   protected:
     void copyString( char* to, const std::string& from );
-    std::auto_ptr<TTree> m_result;
+    std::unique_ptr<TTree> m_result;
     char* m_status;
     static const int s_charArrSize;
   };
@@ -82,8 +82,8 @@ protected:
   typedef std::map<std::string,dqm_core::Result*>                      DQResultMap_t;
   typedef std::set<std::string>                                        DQParSet_t;
 
-  std::string           m_fileName;
-  std::auto_ptr<TFile>  m_file;
+  std::string             m_fileName;
+  std::unique_ptr<TFile>  m_file;
 	bool                  m_retainUnpubData;
   
   DQParSet_t            m_unpublishedDQPars;

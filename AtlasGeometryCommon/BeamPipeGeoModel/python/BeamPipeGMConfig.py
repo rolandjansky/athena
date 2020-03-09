@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def BeamPipeGeometryCfg(flags):
     result=GeoModelCfg(flags)
-    from BeamPipeGeoModel.BeamPipeGeoModelConf import BeamPipeDetectorTool
+    BeamPipeDetectorTool=CompFactory.BeamPipeDetectorTool
     result.getPrimary().DetectorTools += [ BeamPipeDetectorTool() ]
     return result

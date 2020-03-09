@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: CaloClusterGetterBase.py,v 1.9 2008-02-25 22:23:19 droussea Exp $
 #
 # File: CaloRec/python/CaloClusterGetterBase.py
 # Created: Mar 2007, sss
@@ -67,9 +66,9 @@ class CaloClusterGetterBase (Configured):
                 self._outputKey,
                 maker_tools = self.makeMakerTools (input_getter.outputKey()),
                 correction_tools = self.makeCorrectionTools ())
-        except:
+        except Exception:
             mlog.error("could not construct CaloClusterMaker Quit")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         self._handle = maker

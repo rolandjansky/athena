@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,7 +38,7 @@ namespace AFP
     /// not recognised variables names in the database (the message is
     /// returned instead of being printed because this is not Athena
     /// algorithm)
-    std::string setSpecification (const std::string specification);
+    std::string setSpecification (const std::string& specification);
     
     /// @brief Creates a list of Command objects to be called when
     /// reading database record.

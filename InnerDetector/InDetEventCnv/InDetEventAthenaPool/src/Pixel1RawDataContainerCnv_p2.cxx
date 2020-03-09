@@ -47,7 +47,7 @@ void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCo
     // it_Coll     = transCont->begin(); // reset the iterator, we used it!
     //}
     persCont->m_collections.resize(numColl);
-    log << MSG::INFO << " Preparing " << persCont->m_collections.size() << " Collections" << endmsg;
+    MSG_DEBUG(log, " Preparing " << persCont->m_collections.size() << " Collections" );
 
     for (unsigned int collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection

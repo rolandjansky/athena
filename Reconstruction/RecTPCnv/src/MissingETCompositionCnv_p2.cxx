@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@ typedef NavigableCnv_p2<MissingETComposition, Weight_p1> NavigableCnv_t;
 
 // specializing template for Weight_p1, filling weights
 
-static NavigableCnv_t    navCnv;
+static const NavigableCnv_t    navCnv;
 
 namespace MissingETHandlers
 {
@@ -28,14 +28,14 @@ namespace MissingETHandlers
 }
 
 void
-MissingETCompositionCnv_p2::transToPers(const MissingETComposition* transObj, MissingETComposition_p2* persObj, MsgStream &reporter ) {
+MissingETCompositionCnv_p2::transToPers(const MissingETComposition* transObj, MissingETComposition_p2* persObj, MsgStream &reporter ) const {
     // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toPers()" << endmsg;
     navCnv.transToPers( transObj, &persObj->m_nav, reporter );
     // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toPers() done ..." << endmsg;
 }
 
 void
-MissingETCompositionCnv_p2::persToTrans(const MissingETComposition_p2* persObj, MissingETComposition* transObj, MsgStream &reporter ) {
+MissingETCompositionCnv_p2::persToTrans(const MissingETComposition_p2* persObj, MissingETComposition* transObj, MsgStream &reporter ) const {
     // reporter << MSG::DEBUG << "MissingETCompositionCnv toTrans()" << endmsg;
     navCnv.persToTrans( &(persObj->m_nav), transObj, reporter );
     // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toTrans() done ..." << endmsg;

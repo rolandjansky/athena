@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -14,13 +14,6 @@
 // 16/05/2011: (FF) fix if primaryVertexContainer==NULL (coverity 21734)
 //   Dez 2011: (FF) switch to full LC calibrated tau 4-vector for some variables
 //-----------------------------------------------------------------------------
-//TODO: rename
-
-//#include <GaudiKernel/IToolSvc.h>
-//#include <GaudiKernel/ListItem.h>
-
-#include "tauRecTools/TauEventData.h"
-
 #include "tauRecTools/TauCommonCalcVars.h"
 #include "tauRecTools/KineUtils.h"
 #include <vector>
@@ -30,7 +23,6 @@
 
 TauCommonCalcVars::TauCommonCalcVars(const std::string &name) :
 TauRecToolBase(name) {
-    declareProperty("ConfigPath", m_configPath);
     //if TauTrackClassifier is not run, wide&passTrkSelector==classifiedIsolation==modifiedIsolationTrack
     declareProperty("isolationTrackType", m_isolationTrackType=xAOD::TauJetParameters::modifiedIsolationTrack);
 }
@@ -92,28 +84,12 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
 	  return StatusCode::SUCCESS;
 	}
       
-      //EM scale
-
       pTau.setDetail( xAOD::TauJetParameters::etOverPtLeadTrk, static_cast<float>( (emscale_ptEM + emscale_ptHad) / pTau.track(0)->pt() ) );
-
-        //switch to LC energy scale
-        //pDetails->setEtOverPtLeadTrk(pDetails->LC_TES_precalib() / fabs(pTau.track(0)->pt()));
     }
-
-    // XXX still need to decide whether we want to fill loose track variables anymore
-    // // Leading loose track pT and et/pt(lead loose track)
-    // if (pDetails->nLooseTrk() > 0) {
-    //     pDetails->setLeadLooseTrkPt(pDetails->looseTrk(0)->pt());
-    //     //EM scale
-    //     pDetails->setEtOverPtLeadLooseTrk((pDetails->seedCalo_etHadCalib() + pDetails->seedCalo_etEMCalib()) / fabs(pDetails->looseTrk(0)->pt()));
-    //     //LC scale
-    //     //pDetails->setEtOverPtLeadLooseTrk(pDetails->LC_TES_precalib() / fabs(pDetails->looseTrk(0)->pt()));
-    // }
 
     // invariant mass of track system
     std::vector<const xAOD::TauTrack*> tauTracks = pTau.tracks(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged);
     for( const xAOD::TauTrack* trk : pTau.tracks((xAOD::TauJetParameters::TauTrackFlag) m_isolationTrackType) ) tauTracks.push_back(trk);
-    // if ((pTau.nTracks() + pTau.nWideTracks()) > 0) {
     if (tauTracks.size()> 0) {
 
         TLorentzVector sumOfTrackVector;
@@ -130,8 +106,6 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
 	  ATH_MSG_VERBOSE("set massTrkSys " << tempfloat);
     }
 
-    // width of track system squared (trkWidth2)
-    //    if (pTau.nTracks() > 1) {  // originally looped over core+wide tracks below
     if (tauTracks.size()> 0 && pTau.nTracks()>1) {
 
       double leadTrkPhi = pTau.track(0)->phi();//fix this depending on how we choose to define this
@@ -158,12 +132,6 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
         else pTau.setDetail( xAOD::TauJetParameters::trkWidth2, static_cast<float>( 0. ) );
     }
 
-    // Calculation for seedCalo_trkAvgDist and seedCalo_trkRmsDist
-    
-    //FF: use now the 4-vector of the tau intermediate axis
-    //P4EEtaPhiM P4CaloSeed(1., pDetails->seedCalo_eta(), pDetails->seedCalo_phi(), 0.);
-    
-    //    if ((pTau.nWideTracks() + pTau.nTracks()) > 0) {
     if (tauTracks.size()> 0) {
 
         double ptSum = 0;
@@ -175,7 +143,7 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
 
         for (const xAOD::TauTrack* tauTrk : tauTracks){
 
-          double deltaR = Tau1P3PKineUtils::deltaR( (inTrigger() ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
+          double deltaR = Tau1P3PKineUtils::deltaR( ( m_in_trigger ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
 	
 	  ptSum += tauTrk->pt();
 	  sumWeightedDR += deltaR * (tauTrk->pt());

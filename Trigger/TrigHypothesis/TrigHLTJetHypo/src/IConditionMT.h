@@ -22,6 +22,7 @@ class ITrigJetHypoInfoCollector;
 class IConditionMT {
  public:
   virtual ~IConditionMT(){}
+
   virtual bool isSatisfied(const HypoJetVector&,
                            const std::unique_ptr<ITrigJetHypoInfoCollector>&) const = 0;
   

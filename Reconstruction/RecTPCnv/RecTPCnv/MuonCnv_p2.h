@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonCnv_p2.h 
@@ -28,13 +28,12 @@
 class MsgStream;
 namespace Analysis { class Muon; }
 
-class MuonCnv_p2 : public T_AthenaPoolTPCnvBase<Analysis::Muon, Muon_p2>
+class MuonCnv_p2 : public T_AthenaPoolTPCnvConstBase<Analysis::Muon, Muon_p2>
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
 
@@ -42,40 +41,30 @@ class MuonCnv_p2 : public T_AthenaPoolTPCnvBase<Analysis::Muon, Muon_p2>
    */
   MuonCnv_p2();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c Analysis::Muon
    *  from its persistent representation @c Muon_p1
    */
   virtual void persToTrans( const Muon_p2* persObj, 
                             Analysis::Muon* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c Muon_p1
    *  from its transient representation @c Analysis::Muon
    */
   virtual void transToPers( const Analysis::Muon* transObj, 
                             Muon_p2* persObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   void setKey ( const std::string key ) { m_muonCaloEnergyContainerName=key; }
   void setEventStore( const StoreGateSvc_t storeGate ) { m_storeGate=storeGate; }
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
  protected: 
 
   StoreGateSvc_t m_storeGate;
   std::string m_muonCaloEnergyContainerName;
-
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline MuonCnv_p2::MuonCnv_p2()
   : m_storeGate( "StoreGateSvc", "MuonContainerCnv" ) 

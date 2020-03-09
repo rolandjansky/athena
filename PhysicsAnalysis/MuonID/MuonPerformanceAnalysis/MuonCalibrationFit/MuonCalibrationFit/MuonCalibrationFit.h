@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalibrationFit_h
@@ -41,7 +41,6 @@
 #include <GaudiKernel/MsgStream.h>
 
 #include <boost/range/irange.hpp>
-#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 
 #include "MuonCalibrationFit/Regions.h"
@@ -103,7 +102,6 @@ private:
   int      m_ScanIter;
   int      m_FitTrial;
   int      m_UpdatedTemplates; //::: How many times have we recaclulated the templates?
-  bool     m_DumpFlag;
   TRandom3 m_Random;
   //:::
   std::vector< Tools::Info >* m_DataSingleInfo;
@@ -149,7 +147,6 @@ private:
   std::string m_ParNames[ Par::N ];
   int         m_Splitting;
   float       m_NumRandomValues;
-  float       m_MinMuonsPt;
   float       m_MinMuonsPtForJpsi;
   float       m_MaxMuonsPtForJpsi;
   float       m_MinLeadingMuonPtForZ;

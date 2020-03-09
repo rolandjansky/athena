@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # ParticleDataType.py
 # Author: Kyle Cranmer <Kyle.Cranmer@cern.ch>
@@ -14,4 +14,4 @@ Data=0
 Full=1
 FastShower=2
 Fast=3
-True=4
+Truth=4

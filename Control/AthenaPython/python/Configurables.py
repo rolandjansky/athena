@@ -6,9 +6,11 @@
 
 from __future__ import print_function
 
-import AthenaCommon.Constants as Lvl
-from AthenaCommon.Configurable import *
-from AthenaCommon import CfgMgr
+from AthenaCommon.Configurable import (ConfigurableAlgorithm,
+                                       ConfigurableService,
+                                       ConfigurableAlgTool,
+                                       ConfigurableAuditor)
+import six
 
 ### 
 class PyComponents(object):
@@ -29,7 +31,7 @@ def _get_prop_value(pycomp, propname):
     v = pycomp.properties()[propname]
     if v == pycomp.propertyNoValue:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if propname == 'OutputLevel':
+        if propname == 'OutputLevel' and hasattr (svcMgr, 'MessageSvc'):
             # special case of OutputLevel...
             v = getattr(svcMgr.MessageSvc, propname)
         else:
@@ -77,7 +79,7 @@ def declare_property (o, kw, property_name,
 class CfgPyAlgorithm( ConfigurableAlgorithm ):
     def __init__( self, name, **kw ):
         super( CfgPyAlgorithm, self ).__init__(name)
-        for n,v in kw.iteritems():
+        for n,v in six.iteritems (kw):
             setattr(self,n,v)
     # pickling support
     def __getstate__( self ):
@@ -122,7 +124,7 @@ class CfgPyAlgorithm( ConfigurableAlgorithm ):
 class CfgPyService( ConfigurableService ):
     def __init__( self, name, **kw ):
         super( CfgPyService, self ).__init__(name)
-        for n,v in kw.iteritems():
+        for n,v in six.iteritems (kw):
             setattr(self,n,v)
     # pickling support
     def __getstate__( self ):
@@ -167,7 +169,7 @@ class CfgPyService( ConfigurableService ):
 class CfgPyAlgTool( ConfigurableAlgTool ):
     def __init__( self, name, **kw ):
         super( CfgPyAlgTool, self ).__init__(name)
-        for n,v in kw.iteritems():
+        for n,v in six.iteritems (kw):
             setattr(self,n,v)
     # pickling support
     def __getstate__( self ):
@@ -209,7 +211,7 @@ class CfgPyAlgTool( ConfigurableAlgTool ):
 class CfgPyAud( ConfigurableAuditor ):
     def __init__( self, name, **kw ):
         super( CfgPyAud, self ).__init__(name)
-        for n,v in kw.iteritems():
+        for n,v in six.iteritems (kw):
             setattr(self,n,v)
     # pickling support
     def __getstate__( self ):
@@ -223,10 +225,14 @@ class CfgPyAud( ConfigurableAuditor ):
     def msg(self):
         import AthenaCommon.Logging as _L
         return _L.logging.getLogger( self.getJobOptName() )
-    def getGaudiType( self ): return 'Auditor'
-    def getType(self):        return 'PyAthena::Aud'
-    def getDlls(self):        return 'AthenaPython'
-    def getHandle(self):      return None
+    def getGaudiType( self ):
+        return 'Auditor'
+    def getType(self):
+        return 'PyAthena::Aud'
+    def getDlls(self):
+        return 'AthenaPython'
+    def getHandle(self):
+        return None
     def setup(self):
         from AthenaCommon import CfgMgr
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -320,7 +326,7 @@ def _install_fancy_attrs():
     msg('installing fancy getattrs... (%i)', ncomps)
     for k,comp in comps:
         msg('handling [%s]...', k)
-        for attr_name, attr in comp.__dict__.iteritems():
+        for attr_name, attr in six.iteritems (comp.__dict__):
             if _is_pycomp(attr):
                 msg(' ==> [%s]...', attr_name)
                 setattr(comp, attr_name,

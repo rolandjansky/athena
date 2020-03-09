@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_TRACKSELECTOR_H
@@ -34,24 +34,26 @@ public:
   virtual ~TrackSelector();
 
   static const InterfaceID& interfaceID();
-  virtual StatusCode initialize();
-  void prepare() {};
-  virtual StatusCode finalize();
-
-  inline void primaryVertex(const Amg::Vector3D& pv) { m_primaryVertex = pv; }
-  inline const Amg::Vector3D& primaryVertex() { return m_primaryVertex; }
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   //  inline void setSumTrkPt(double sum) { m_SumTrkPt = sum; }
 
   /** Returns true if the argument track fulfills the selection
    */
-  bool selectTrack(const xAOD::TrackParticle* track, double refPt = 0); 
+  bool selectTrack(const Amg::Vector3D& pv,
+                   const xAOD::TrackParticle* track,
+                   double refPt = 0) const;
+
+  /// Also return individual cuts.
+  bool selectTrack(const Amg::Vector3D& pv,
+                   const xAOD::TrackParticle* track,
+                   std::bitset<17>& failedCuts,
+                   double refPt = 0) const;
 
   inline const std::bitset<17> currentTrackpassedCuts() const { return m_passedCuts; }
 
 private:
-  Amg::Vector3D m_primaryVertex;
-
   /** Properties for V0 finding:
       not yet implemented */
 
@@ -105,7 +107,7 @@ private:
 
   int m_ntri;
   int m_ntrf;
-  int m_ntrc[numCuts];
+  mutable std::atomic<int> m_ntrc[numCuts];
 
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 

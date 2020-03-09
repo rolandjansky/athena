@@ -7,8 +7,7 @@ atlas_subdir( AtlasSealCLHEP )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolServices
-                          Control/CxxUtils )
+                          Database/AthenaPOOL/AthenaPoolServices )
 
 # External dependencies:
 find_package( CLHEP )

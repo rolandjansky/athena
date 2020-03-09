@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
                           MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibSvc
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
+                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonDigitization/MDT_Response
@@ -39,7 +40,7 @@ atlas_add_component( MDT_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier xAODEventInfo GaudiKernel GeneratorObjects MdtCalibData MdtCalibSvcLib MuonCondInterface MuonReadoutGeometry MuonDigitContainer MDT_Response MuonIdHelpersLib MuonSimData MuonSimEvent HitManagement PathResolver TrkDetDescrUtils EventPrimitives )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier xAODEventInfo GaudiKernel GeneratorObjects MdtCalibData MdtCalibSvcLib MuonCondInterface MuonCondData MuonReadoutGeometry MuonDigitContainer MDT_Response MuonIdHelpersLib MuonSimData MuonSimEvent HitManagement PathResolver TrkDetDescrUtils EventPrimitives )
 
 # Install files from the package:
 atlas_install_headers( MDT_Digitization )

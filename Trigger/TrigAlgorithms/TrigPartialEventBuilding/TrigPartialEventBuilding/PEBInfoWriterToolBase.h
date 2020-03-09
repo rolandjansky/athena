@@ -25,15 +25,15 @@ public:
   struct Input {
     Input(TrigCompositeUtils::Decision* d,
           const EventContext& ctx,
-          const TrigRoiDescriptor* r,
+          const ElementLink<TrigRoiDescriptorCollection>& r,
           const TrigCompositeUtils::Decision* pd)
     : decision(d),
       eventContext(ctx),
-      roi(r),
+      roiEL(r),
       previousDecisionIDs(TrigCompositeUtils::decisionIDs(pd).begin(), TrigCompositeUtils::decisionIDs(pd).end()) {}
     TrigCompositeUtils::Decision* decision;
     const EventContext& eventContext;
-    const TrigRoiDescriptor* roi;
+    const ElementLink<TrigRoiDescriptorCollection> roiEL;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   /// Structure holding the list of ROBs and SubDets
@@ -61,6 +61,10 @@ public:
 protected:
   /// Creates the PEBInfo which is attached to the decision in \c decide. Has to be implemented by the derived class.
   virtual PEBInfo createPEBInfo(const Input& input) const = 0;
+  /// MaxRoIs property
+  Gaudi::Property<int> m_maxRoIs {
+    this, "MaxRoIs", -1, "Create PEB list only for the first N RoIs from input decisions (<0 means no limit)"
+  };
 
 private:
   /// The decision id of the tool instance

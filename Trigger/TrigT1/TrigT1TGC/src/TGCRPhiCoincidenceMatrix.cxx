@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.hh"
@@ -16,10 +16,6 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 namespace LVL1TGCTrigger {
-
-extern bool g_OUTCOINCIDENCE;
-extern TGCCoincidences * g_TGCCOIN;
-extern bool g_DEBUGLEVEL;
 
 void TGCRPhiCoincidenceMatrix::inputR(int rIn, int dRIn, int ptRIn)
 {
@@ -76,28 +72,47 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
   for( int j=m_nPhiHit-1; j>=0; j-=1){     // left half-SSC has priority when both output same pT
     int subsector;
     int ptOut = -99;
+    int chargeOut = 2;
+    int CoincidenceTypeOut=-1;
+    bool isgoodMFOut=false;
+
     if(m_sectorLogic->getRegion()==Endcap){
       subsector = 4*(2*m_SSCId+m_r-1)+m_phi[j];
     } else {
       subsector = 4*(2*m_SSCId+m_r)+m_phi[j];
     }
     
+
     int type = m_map->getMapType(m_ptR, m_ptPhi[j]);
-    for( int pt=NumberOfPtLevel-1; pt>=0; pt-=1){
-      if(m_map->test(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),subsector,
-		   type, pt,
-		   m_dR,m_dPhi[j])) {
-	ptOut = pt;
-	break;
-      }
-    } // loop pt
-      
-    if (g_OUTCOINCIDENCE) {
+    // calculate pT of muon candidate
+    if(tgcArgs()->useRun3Config()){
+      //Algorithm for Run3
+      /*int pt=map->test_Run3(sectorLogic->getOctantID(),sectorLogic->getModuleID(),
+	subsector,type,dR,dPhi[j]); // this function will be implemented. 
+	ptOut = std::abs(pt)-1;
+	chargeOut = pt<0 ? 0:1;
+	//isgoodMFOut : will be set.
+      */
+      CoincidenceTypeOut=(type==0);
+    }
+    else{
+      for( int pt=NumberOfPtLevel-1; pt>=0; pt-=1){
+	if(m_map->test(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),subsector,
+		       type, pt,
+		       m_dR,m_dPhi[j])) {
+	  ptOut = pt;
+	  break;
+	}
+      } // loop pt
+    }
+
+
+    if (tgcArgs()->OUTCOINCIDENCE()) {
       TGCCoincidence * coin
 	= new TGCCoincidence(m_sectorLogic->getBid(), m_sectorLogic->getId(), m_sectorLogic->getModuleID(), 
 			     m_sectorLogic->getRegion(), m_SSCId, m_r, m_phi[j], subsector, 
 			     m_ptR, m_dR, m_ptPhi[j], m_dPhi[j], ptOut);
-      g_TGCCOIN->push_back(coin);
+      tgcArgs()->TGCCOIN()->push_back(coin);
     }
 
     // Trigger Out
@@ -110,11 +125,15 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       out->setPhi(m_phi[j]);
       out->setDR(m_dR);
       out->setDPhi(m_dPhi[j]);
+      out->setRoI(subsector);
+      out->setCharge(chargeOut);
+      out->setCoincidenceType(CoincidenceTypeOut);
+      out->setGoodMFFlag(isgoodMFOut);
       j0 = j;
     }
   }
 
-  if (g_DEBUGLEVEL){
+  if (tgcArgs()->DEBUGLEVEL()){
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) != StatusCode::FAILURE) {
@@ -140,10 +159,10 @@ void TGCRPhiCoincidenceMatrix::setRPhiMap(const TGCRPhiCoincidenceMap* map)
   this->m_map = map;
 }
 
-TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCSectorLogic* sL) 
+TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(TGCArguments* tgcargs,const TGCSectorLogic* sL) 
   : m_sectorLogic(sL),
     m_matrixOut(0), m_map(0),
-    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0)
+    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0), m_tgcArgs(tgcargs)
 {
   for (int i=0; i<MaxNPhiHit; i++) {
     m_phi[i]=0;

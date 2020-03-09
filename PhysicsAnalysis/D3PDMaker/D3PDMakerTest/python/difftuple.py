@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id$
 #
 # File: D3PDMakerTest/python/difftuple.py
 # Author: snyder@bnl.gov
 # Date: Feb, 2010
 # Purpose: Diff two root tuple files.
 #
+
+from __future__ import print_function
 
 # Always run in batch mode.
 import os
@@ -284,7 +284,7 @@ def compare (o1, o2, thresh = 1e-6, ithresh = None):
         x = abs(num / den)
         if callable(thresh): thresh = thresh(den)
         if x > thresh:
-            print 'fmismatch', o1, o2, x
+            print ('fmismatch', o1, o2, x)
             return False
         return True
     return o1 == o2
@@ -303,7 +303,7 @@ def diff_trees (t1, t2):
     n1 = t1.GetEntries()
     n2 = t2.GetEntries()
     if n1 != n2:
-        print 'Different nentries for tree', t1.GetName(), ': ', n1, n2
+        print ('Different nentries for tree', t1.GetName(), ': ', n1, n2)
         n1 = min(n1, n2)
     b1 = [b.GetName() for b in t1.GetListOfBranches()]
     b2 = [b.GetName() for b in t2.GetListOfBranches()]
@@ -315,7 +315,7 @@ def diff_trees (t1, t2):
             bb = branchmap.get (b)
             if not bb or bb not in b2:
                 if not ignore_p(b):
-                    print 'Branch', b, 'in first tree but not in second.'
+                    print ('Branch', b, 'in first tree but not in second.')
                 if bb: del branchmap[b]
             else:
                 b2.remove (bb)
@@ -324,7 +324,7 @@ def diff_trees (t1, t2):
             branchmap[b] = b
     for b in b2:
         if not ignore_p(b):
-            print 'Branch', b, 'in second tree but not in first.'
+            print ('Branch', b, 'in second tree but not in first.')
 
     for i in range (n1):
         t1.GetEntry(i)
@@ -355,9 +355,9 @@ def diff_trees (t1, t2):
             if b == 'MET_Goodness_HECf_Jet': thresh = 3e-6
             if b.find ('_blayerPrediction') >= 0: thresh = 4e-4
             if not compare (o1, o2, thresh = thresh, ithresh = ithresh):
-                print 'Branch mismatch', b, 'entry', i, ':', ithresh
-                print o1
-                print o2
+                print ('Branch mismatch', b, 'entry', i, ':', ithresh)
+                print (o1)
+                print (o2)
 
     return
 
@@ -365,9 +365,9 @@ def diff_trees (t1, t2):
 def diff_objstrings (k, s1, s2):
     # nb. != not working correctly for TObjString in 5.26.00c_python2.6
     if not (s1 == s2):
-        print 'Objstring', k, 'mismatch:'
-        print repr(s1)
-        print repr(s2)
+        print ('Objstring', k, 'mismatch:')
+        print (repr(s1))
+        print (repr(s2))
     return
 
 
@@ -377,16 +377,16 @@ def diff_dirs (f1, f2):
     k1.sort()
     k2.sort()
     if k1 != k2:
-        print "Key list mismatch for", f1.GetName(), f2.GetName(), ":"
-        print k1
-        print k2
+        print ("Key list mismatch for", f1.GetName(), f2.GetName(), ":")
+        print (k1)
+        print (k2)
     for k in k1:
         if k not in k2: continue
         o1 = f1.Get(k)
         o2 = f2.Get(k)
         if type(o1) != type(o2):
-            print 'Type mismatch for ', k
-            print o1, o2
+            print ('Type mismatch for ', k)
+            print (o1, o2)
         if k == 'Schema':
             pass
         elif isinstance (o1, ROOT.TTree):
@@ -396,7 +396,7 @@ def diff_dirs (f1, f2):
         elif isinstance (o1, ROOT.TObjString):
             diff_objstrings (k, o1, o2)
         else:
-            print k, type(o1)
+            print (k, type(o1))
     return
 
 

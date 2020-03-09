@@ -41,7 +41,6 @@ Trk::McEventNtupleTool::McEventNtupleTool(
         m_radiusRes(0.044),
         m_zPosRes(0.221),
         m_vtx_tree(nullptr),
-        m_quark_tree(nullptr),
         m_numTrueVertices{},
         m_true_pri_x{},
         m_true_pri_y{},
@@ -193,7 +192,6 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
       m_true_pri_x = (*pv_map_itr).second->position().x();
       m_true_pri_y = (*pv_map_itr).second->position().y();
       m_true_pri_z = (*pv_map_itr).second->position().z();
-      //std::cout<<"number of secondary vertices = "<<sec_vtx_ids_vec.size()<<std::endl;
       for (unsigned int sec_vtx_itr = 0; sec_vtx_itr < sec_vtx_ids_vec.size(); ++sec_vtx_itr)
       {
            std::map<int,HepMC::GenVertex *> sec_map =  sec_vtx_ids_vec[sec_vtx_itr];

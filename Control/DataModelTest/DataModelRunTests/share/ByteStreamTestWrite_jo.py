@@ -41,12 +41,14 @@ bswrite = ['DMTest::CVec#cvec.-dVar2.-dtest',
 
 from TrigNavigation.TrigNavigationConf import HLT__Navigation
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
-     DMTest__xAODTestDecor
-from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
+     DMTest__xAODTestDecor, \
+     DMTest__DummyDecisionWriter
+from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteHVec, \
      DMTest__xAODTestWriteCView, \
      DMTest__HLTResultWriter
+topSequence += DMTest__DummyDecisionWriter ("DummyDecisionWriter")
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec",
                                           CVecKey = 'HLT_DMTest__CVec_cvec')
 topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView",
@@ -95,15 +97,4 @@ StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutpu
 # List of DO's to write out
 StreamBSFileOutput.ItemList   += fullItemList
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
+include ('DataModelRunTests/commonTrailer.py')

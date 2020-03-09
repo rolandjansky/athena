@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventTPCnv/test/sTgcPrepDataContainerCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -13,7 +11,6 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepDataContainerCnv_p1.h"
 #include "TestTools/leakcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -90,10 +87,10 @@ void testit (const Muon::sTgcPrepDataContainer& trans1)
 std::unique_ptr<const Muon::sTgcPrepDataContainer>
 makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
 {
-  auto cont = CxxUtils::make_unique<Muon::sTgcPrepDataContainer>(5);
+  auto cont = std::make_unique<Muon::sTgcPrepDataContainer>(5);
 
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<Muon::sTgcPrepDataCollection>(IdentifierHash(hash));
+    auto coll = std::make_unique<Muon::sTgcPrepDataCollection>(IdentifierHash(hash));
     coll->setIdentifier (muo_dd.stgcIdHelper()->elementID (57, 2, hash));
 
     for (int i=0; i < 10; i++) {
@@ -108,7 +105,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
       Amg::MatrixX cov(1,1);
       cov(0,0) = 101 + offs;
 
-      auto cl = CxxUtils::make_unique<Muon::sTgcPrepData>
+      auto cl = std::make_unique<Muon::sTgcPrepData>
         (clusId,
          clusHash,
          locpos,
@@ -118,11 +115,10 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
          123+offs);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash);
+    assert(cont->addCollection (coll.release(), hash));
   }
 
-  // gcc4.9 doesn't allow returning cont directly here; fixed in 5.2.
-  return std::unique_ptr<const Muon::sTgcPrepDataContainer> (cont.release());
+  return cont;
 }
 
 
@@ -144,7 +140,8 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
 int main()
 {
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("MuonEventTPCnv_test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("MuonEventTPCnv/MuonEventTPCnv_test.txt", pSvcLoc))
+  {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }

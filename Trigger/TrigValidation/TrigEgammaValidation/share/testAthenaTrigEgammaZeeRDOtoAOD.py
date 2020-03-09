@@ -12,7 +12,6 @@ include("TriggerTest/TrigScanFiles.py")
 ###############################
 
 doTrigger=True
-TriggerModernConfig=True
 rec.doWriteAOD=True
 rec.doWriteESD=False
 rec.doWriteTAG=False
@@ -63,7 +62,6 @@ TriggerFlags.AODEDMSet="AODFULL"
 #from ParticleBuilderOptions.AODFlags import AODFlags 
 #AODFlags.FastSimulation=False 
 # see comments in https://savannah.cern.ch/bugs/?83735
-#AODFlags.MuonTrackSlimmer=False
 #print AODFlags.Print()
 
 #-----------------------------------------------------------

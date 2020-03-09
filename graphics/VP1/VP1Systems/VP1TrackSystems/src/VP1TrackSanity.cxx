@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -56,8 +56,6 @@ bool VP1TrackSanity::isSafe(const Trk::TrackParameters* pars ) const
 {
   if (!pars)
     return false;
-  if (!(&pars->associatedSurface()))
-    return false;
   //Fixme: More!
   return true;
 }
@@ -68,8 +66,6 @@ bool VP1TrackSanity::isSafe(const Trk::MeasurementBase* meas ) const
   if (!meas)
     return false;
   //TK: The following is mainly guess work - we need master Ed to implement really useful stuff!
-  if (!&meas->associatedSurface())
-    return false;
   if (!meas->associatedSurface().associatedDetectorElement())
     return false;
   if (!meas->associatedSurface().associatedDetectorElementIdentifier().is_valid())

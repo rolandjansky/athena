@@ -20,9 +20,8 @@ def getPhysicsValidationUserActionTool(name="ISFG4PhysicsValidationUserActionToo
 ### Base Version
 
 def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **kwargs):
-    from AthenaCommon.BeamFlags import jobproperties
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvc')
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault('ParticleBroker'     , ISF_Flags.ParticleBroker())
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'         )
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionPassBackTool
     return G4UA__iGeant4__TrackProcessorUserActionPassBackTool(name, **kwargs)
@@ -31,23 +30,26 @@ def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **
 ### Specialized Versions
 
 def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTool', **kwargs):
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.Simulator.get_Value() in ['FullG4MT']:
+        kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerToolMT')
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
     from AthenaCommon.BeamFlags import jobproperties
     from G4AtlasApps.SimFlags import simFlags
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-       (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if simFlags.SimulateCavern.get_Value():
         kwargs.setdefault('TruthVolumeLevel',  2)
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionFullG4Tool
     return G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)
 
 def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUserActionTool', **kwargs):
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvcNoOrdering')
     return getTrackProcessorUserActionTool(name, **kwargs)
 
 def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserActionTool', **kwargs):
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.Simulator.get_Value() in ['PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT']:
+        kwargs.setdefault('ParticleBroker', '')
     from AthenaCommon.SystemOfUnits import MeV
-    kwargs.setdefault('ParticleBroker'                     , 'ISF_AFIIParticleBrokerSvc')
     kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
     kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
     kwargs.setdefault('KillBoundaryParticlesBelowThreshold', True                       )
@@ -77,7 +79,11 @@ def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
     kwargs.setdefault('SenDetMasterTool', 'SensitiveDetectorMasterTool')
     kwargs.setdefault('FastSimMasterTool', 'FastSimulationMasterTool')
     from AthenaCommon import CfgMgr
-    return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
+    # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
+    if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT', 'PassBackG4', 'PassBackG4MT', 'G4FastCalo', 'G4FastCaloMT']:
+        return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
+    else:
+        return CfgMgr.iGeant4__G4LegacyTransportTool(name, **kwargs)
 
 def getFullGeant4Tool(name="ISF_FullGeant4Tool", **kwargs):
     kwargs.setdefault('UserActionSvc','G4UA::ISFFullUserActionSvc')

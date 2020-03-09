@@ -56,7 +56,7 @@ StatusCode ViewDataVerifier::initialize()
 StatusCode ViewDataVerifier::execute()
 {  
   // Retrieve the current view from the EventContext
-  auto viewProxy = getContext().getExtension<Atlas::ExtendedEventContext>().proxy();
+  auto viewProxy = Atlas::getExtendedEventContext(getContext()).proxy();
 
   ATH_MSG_DEBUG( "Executing " << name() << " running with store " << viewProxy->name() );
 

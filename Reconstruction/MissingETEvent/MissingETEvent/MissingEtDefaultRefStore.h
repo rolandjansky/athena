@@ -1,7 +1,7 @@
 // Yo emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef METREFINEMENT_MISSINGETDEFAULTREFSTORE_H
@@ -59,7 +59,7 @@
       // search store
       iterator fRef = this->begin();
       iterator lRef = this->end();
-      while ( fRef != lRef && pRef != fRef.getObjectPtr() ) { fRef++; }
+      while ( fRef != lRef && pRef != fRef.getObjectPtr() ) { ++fRef; }
       //
       return fRef;
     }
@@ -68,7 +68,7 @@
       // search store
       const_iterator fRef = this->begin();
       const_iterator lRef = this->end();
-      while ( fRef != lRef && pRef != fRef.getObjectPtr() ) { fRef++; }
+      while ( fRef != lRef && pRef != fRef.getObjectPtr() ) { ++fRef; }
       //
       return fRef;
     }

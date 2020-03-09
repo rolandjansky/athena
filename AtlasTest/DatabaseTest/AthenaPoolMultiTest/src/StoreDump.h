@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLMULTITEST_STOREDUMP_H
@@ -35,7 +35,6 @@ public:
   virtual StatusCode execute();
   virtual StatusCode finalize();
 private:
-  std::string m_storename;
   std::string m_key;
 };
 #endif

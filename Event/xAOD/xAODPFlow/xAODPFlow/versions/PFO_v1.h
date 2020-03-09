@@ -131,6 +131,9 @@ namespace xAOD {
     /** Accessor for cluster moments */
     bool getClusterMoment(float& theMoment, xAOD::CaloCluster::MomentType momentType) const;
 
+    /** Find out how many CaloCluster are linked */
+    unsigned int nCaloCluster() const;
+    
     /** Retrieve a const pointer to a CaloCluster */
     const CaloCluster* cluster(unsigned int index) const;
     /** Retrieve a const pointer to a Rec::TrackParticle */

@@ -1,11 +1,11 @@
 if 'inputfolder' not in dir():
-   inputfolder="/LAR/Configuration/DSPThreshold/Thresholds"
+   inputfolder="/LAR/Configuration/DSPThresholdFlat/Thresholds"
 
 if 'inputtag' not in dir():
    inputtag=""
 
 if 'inputdb' not in dir():
-   inputdb="COOLONL_LAR/COMP200"
+   inputdb="COOLONL_LAR/CONDBR2"
 
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
 from string import split,join
@@ -21,7 +21,7 @@ globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -37,13 +37,13 @@ from AtlasGeoModel import GeoModelInit
 
 #Get identifier mapping (needed by LArConditionsContainer)
                            
-svcMgr.IOVDbSvc.GlobalTag="LARCALIB-000-02"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-05"
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 theApp.EvtMax = 1
 svcMgr.EventSelector.RunNumber = 500000
 svcMgr.EventSelector.InitialTimeStamp=int(time())
-dbname="<db>COOLOFL_LAR/COMP200</db>"
+dbname="<db>COOLOFL_LAR/CONDBR2</db>"
 
 conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>"+dbname)
 conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>"+dbname)
@@ -72,7 +72,7 @@ svcMgr += NTupleSvc()
 svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='DSPthresholds.root' OPT='NEW'" ]
 
 #svcMgr.DetectorStore.Dump=True
-svcMgr.MessageSvc.OutputLevel = DEBUG
+svcMgr.MessageSvc.OutputLevel = WARNING
 
 svcMgr.IOVDbSvc.DBInstance=""
 svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/afs/cern.ch/user/l/larcalib/w0/stableConds/PoolCat_stable.xml",
@@ -82,4 +82,4 @@ svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/afs/cern.ch/user/l/larcalib/w0/
 
 svcMgr.MessageSvc.debugLimit = 5000000
 
-svcMgr.IOVDbSvc.OutputLevel=DEBUG
+#svcMgr.IOVDbSvc.OutputLevel=DEBUG

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,8 +13,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_LowMomentum.h"
-
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include <iomanip>
 #include <limits>
@@ -54,18 +52,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::initialize()
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
 
-  // Get tool for track-prd association
-  //
-  if ( m_useassoTool ) {
-    if ( m_assoTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool "<< m_assoTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_assoTool);
-    }
-  } else {
-    m_assoTool.disable();
-  }
+  // PRD-to-track association (optional)
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
 
   // Build framework
   //
@@ -112,6 +100,16 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
   float irstep = 1./m_r_rstep;
   int   irmax  = m_r_size-1;
 
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   // Get pixels space points containers from store gate 
   //
   if (m_pixel) {
@@ -124,7 +122,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
 
           float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-          if (m_useassoTool && isUsed(sp)) continue;
+          if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
 
@@ -151,7 +149,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
 
           float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-          if (m_useassoTool && isUsed(sp)) continue;
+          if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
 
@@ -186,6 +184,16 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   int   irmax  = m_r_size-1;
   float irstep = 1./m_r_rstep;
 
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap  *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   // Get pixels space points containers from store gate 
   //
   if (m_pixel && vPixel.size()) {
@@ -202,7 +210,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
         for (const Trk::SpacePoint* sp: **w) {
           float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-          if (m_useassoTool && isUsed(sp)) continue;
+          if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
 
@@ -234,7 +242,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
         for (const Trk::SpacePoint* sp: **w) {
           float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-          if (m_useassoTool && isUsed(sp)) continue;
+          if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
           int ir = static_cast<int>(sps->radius()*irstep);
           if (ir>irmax) ir = irmax;
@@ -406,8 +414,8 @@ MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpConditions(EventData& 
   out<<"| useSCT                  | "
      <<std::setw(12)<<m_sct 
      <<"                              |"<<endmsg;
-  out<<"| Use association tool ?  | "
-     <<std::setw(12)<<m_useassoTool 
+  out<<"| Use PRD-to-track assoc.?| "
+     <<std::setw(12)<< (!m_prdToTrackMap.key().empty() ? "yes" : "no ")
      <<"                              |"<<endmsg;
   out<<"| maxSize                 | "
      <<std::setw(12)<<m_maxsize 
@@ -712,18 +720,16 @@ void  InDet::SiSpacePointsSeedMaker_LowMomentum::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i<m_r_size;  ++i) {
 
     if (!data.r_map[i]) continue;
-    r = data.r_Sorted[i].begin();
 
-    while (r!=data.r_Sorted[i].end()) {
+    for (InDet::SiSpacePointForSeed* r  : data.r_Sorted[i]) {
       
       // Azimuthal angle sort
       //
-      float F = (*r)->phi();
+      float F = r->phi();
       if (F<0.) F+=pi2;
 
       int   f = static_cast<int>(F*m_sF);
@@ -731,7 +737,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
       else if (f > m_fNmax) f = 0;
 
       int z;
-      float Z = (*r)->z();
+      float Z = r->z();
 
       // Azimuthal angle and Z-coordinate sort
       //
@@ -742,10 +748,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
       }
       int n = f*SizeZ+z;
       ++data.nsaz;
-      data.rfz_Sorted[n].push_back(*r);
+      data.rfz_Sorted[n].push_back(r);
       if (!data.rfz_map[n]++) data.rfz_index[data.nrfz++] = n;
-      data.r_Sorted[i].erase(r++);
     }
+    data.r_Sorted[i].clear();
     data.r_map[i] = 0;
   }
   data.nr    = 0;
@@ -805,7 +811,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) c
   }
 
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -849,17 +855,17 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) c
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed, float K) const
 {
 
   const float COF  = 134*.07*9.;
   const float COFP = 134*.2*9.;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;
@@ -1011,21 +1017,6 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
       return;
     } 
   }
-}
-
-///////////////////////////////////////////////////////////////////
-// Test is space point used
-///////////////////////////////////////////////////////////////////
-
-bool InDet::SiSpacePointsSeedMaker_LowMomentum::isUsed(const Trk::SpacePoint* sp) const
-{
-  const Trk::PrepRawData* d = sp->clusterList().first;
-  if (!d || !m_assoTool->isUsed(*d)) return false;
-
-  d = sp->clusterList().second;
-  if (!d || m_assoTool->isUsed(*d)) return true;
-
-  return false;
 }
 
 ///////////////////////////////////////////////////////////////////

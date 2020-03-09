@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ReadAlignTrans - simple example of algorithm reading AlignableTransforms
@@ -12,7 +12,6 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "DetDescrCondExample/ReadAlignTrans.h"
 

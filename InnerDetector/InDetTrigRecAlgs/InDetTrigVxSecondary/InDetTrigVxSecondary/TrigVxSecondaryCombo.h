@@ -28,9 +28,6 @@
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
-class StoreGateSvc;
-
-
 class VxContainer;
 class TLorentzVector;
 

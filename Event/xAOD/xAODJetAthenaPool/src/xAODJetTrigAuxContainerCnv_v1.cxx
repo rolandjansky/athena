@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODJetTrigAuxContainerCnv_v1.cxx 800408 2017-03-13 09:28:39Z sschramm $
@@ -36,15 +36,13 @@
    } while( 0 )
 
 xAODJetTrigAuxContainerCnv_v1::xAODJetTrigAuxContainerCnv_v1()
-  : T_AthenaPoolTPCnvBase< xAOD::JetTrigAuxContainer,
-                           xAOD::JetTrigAuxContainer_v1 >() {
-
+{
 }
 
 void xAODJetTrigAuxContainerCnv_v1::
 persToTrans( const xAOD::JetTrigAuxContainer_v1* oldObj,
              xAOD::JetTrigAuxContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::JetTrigAuxContainer_v1 to current version..." );
@@ -84,7 +82,7 @@ persToTrans( const xAOD::JetTrigAuxContainer_v1* oldObj,
 void xAODJetTrigAuxContainerCnv_v1::
 transToPers( const xAOD::JetTrigAuxContainer*,
              xAOD::JetTrigAuxContainer_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODJetTrigAuxContainerCnv_v1::transToPers"

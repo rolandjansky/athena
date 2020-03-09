@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -16,15 +16,6 @@
 #ifndef CALOIDENTIFIER_TEST_HASH_TEST_H
 #define CALOIDENTIFIER_TEST_HASH_TEST_H
 
-
-#include "boost/foreach.hpp"
-
-
-#if __cplusplus > 201100
-# define TEST_LOOP(var, range) for(var : range)
-#else
-# define TEST_LOOP(var, range) BOOST_FOREACH(var, range)
-#endif
 
 #define HASH_TEST1(TYPE,RANGE_TYPE,EXTRA) do                               \
 {                                                                          \
@@ -52,7 +43,7 @@
     EXTRA                                                                  \
   }                                                                        \
                                                                            \
-  TEST_LOOP(Identifier id, idhelper.RANGE_TYPE##_range()) {                \
+  for (Identifier id : idhelper.RANGE_TYPE##_range()) {                    \
     IdentifierHash hashId;                                                 \
     assert (idhelper.get_hash (id, hashId, &context) == 0);                \
     hashsum -= hashId;                                                     \

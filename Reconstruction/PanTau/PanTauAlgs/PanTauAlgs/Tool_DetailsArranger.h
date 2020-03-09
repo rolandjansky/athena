@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,8 +43,6 @@ namespace PanTau {
 //    class TauDetailsContainer;
 //}
 
-//class StoreGateSvc;
-
 
 namespace PanTau {
 
@@ -74,8 +72,6 @@ namespace PanTau {
         virtual StatusCode execute(PanTau::PanTauSeed2* inSeed, xAOD::ParticleContainer& pi0Container);//, Analysis::TauDetailsContainer* detailsCont);
         
     protected:
-        
-        //StoreGateSvc*                                       m_sgSvc;
         
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
 	std::string m_Tool_InformationStoreName;

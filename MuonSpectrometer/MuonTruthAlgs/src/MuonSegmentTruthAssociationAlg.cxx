@@ -22,10 +22,15 @@ namespace Muon {
     AthAlgorithm(name,pSvcLocator),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_muonTrackTruthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool")
+    m_muonTrackTruthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool"),
+    m_hasCSC(true),
+    m_hasSTgc(true),
+    m_hasMM(true)
   {  
     declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 ,"barcode offset for matching truth particles");
-    declareProperty("doNSW",m_useNSW=false,"NSW flag");
+    declareProperty("HasCSC",m_hasCSC=true);
+    declareProperty("HasSTgc",m_hasSTgc=true);
+    declareProperty("HasMM",m_hasMM=true);
   }
 
   // Initialize method:
@@ -39,9 +44,9 @@ namespace Muon {
     ATH_CHECK(m_muonTruthSegmentContainerName.initialize());
     ATH_CHECK(m_muonSegmentCollectionName.initialize());
     ATH_CHECK(m_mcEventColl.initialize());
-    if(!m_useNSW) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
+    if(!(m_hasSTgc && m_hasMM)) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
     ATH_CHECK(m_muonSimData.initialize());
-    ATH_CHECK(m_cscSimData.initialize(!m_useNSW));
+    if (m_hasCSC) ATH_CHECK(m_cscSimData.initialize(true));
     ATH_CHECK(m_trackRecord.initialize());
     return StatusCode::SUCCESS;
   }
@@ -111,7 +116,7 @@ namespace Muon {
       if(!simDataMap.isPresent()) continue;
       muonSimData.push_back(simDataMap.cptr());
     }
-    if(!m_useNSW){
+    if(m_hasCSC){
       SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
       if(!cscSimDataMap.isValid()){
         ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");

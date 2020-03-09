@@ -30,7 +30,6 @@ using namespace std;
 RPCCondSummarySvc::RPCCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
   m_reportingServices(name),
-  m_pHelper(0),
   m_detStore("DetectorStore",name),
   m_rpc_StatusSvc("RPC_STATUSConditionsSvc",name),
   m_rpc_DCSSvc("RPC_DCSConditionsSvc",name),
@@ -59,12 +58,7 @@ RPCCondSummarySvc::initialize(){
     
   }  
  
- sc = m_detStore->retrieve(m_pHelper, "RPCIDHELPER" );
-  if (sc.isFailure()){
-     msg(MSG::FATAL) << " Cannot retrieve RpcIdHelper " << endmsg;
-     return sc;
-  }
-
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   if(m_usesimulation){
     msg(MSG::INFO) << "Load RPC_DCSService by hand for simulation maps !" << endmsg;
@@ -148,7 +142,7 @@ bool RPCCondSummarySvc::isGoodPanel(const Identifier & Id) const{
   
   bool result=true;
   int counter =0;
-  Identifier PanelId = m_pHelper->panelID(Id);
+  Identifier PanelId = m_muonIdHelperTool->rpcIdHelper().panelID(Id);
   //Identifier PanelId = Id;
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
@@ -174,7 +168,7 @@ bool RPCCondSummarySvc::isGoodStrip(const Identifier & Id) const{
   
   bool result=true;   
   Identifier StripId = Id;
-  Identifier PanelId = m_pHelper->panelID(Id);
+  Identifier PanelId = m_muonIdHelperTool->rpcIdHelper().panelID(Id);
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
   if (not m_noReports){

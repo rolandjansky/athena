@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Spacer.h"
@@ -21,6 +21,8 @@
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 // for cutouts:
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 
@@ -36,7 +38,7 @@ Spacer::Spacer(Component *ss): DetectorElement(ss->name)
   MYSQL* mysql = MYSQL::GetPointer();
   thickness = mysql->GetTechnology(s->name)->thickness;
   length = s->dy;
-  m_component = *s;	
+  m_component = *s;
 }
 
 
@@ -51,26 +53,22 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
   if (name == "SPA06" || name == "SPA01") {
     double excent = m_component.excent;
     double maxwLength = m_component.maxwdy;
-         
+
     const GeoShape* strd = new GeoTrd(thickness/2.,thickness/2.,
                                       width/2., longWidth/2., maxwLength/2.);
-    // std::cout<< "build SPA06 or SPA01: trapezoid "<<thickness<<" "<<thickness<<" "
-    //          << width << " " << longWidth << " " << maxwLength << std::endl;
     double upWidth = 0.;
     if ( excent > length ) upWidth = longWidth*(excent-length)/(excent-maxwLength);
-//          std::cout<<" SPA6: width, lwidth, length, excent, maxwlength, upWidth "
-//                   <<width<<" "<<longWidth<<" "<<length<<" "
-//                   <<excent<<" "<<maxwLength<<" "<<upWidth<<std::endl;
+
     if (excent > length && (length-maxwLength) > 0 ){
-             //std::cout<<" Here is an exagonal SPA ***** named "<<name<<" excent = "
-             //         <<excent<<" length = "<<length<<std::endl;
+      // std::cout<<" Here is an exagonal SPA ***** named "<<name<<" excent = "
+      //          <<excent<<" length = "<<length<<std::endl;
       GeoTrd* upTrd   = new GeoTrd(thickness/2.,thickness/2., longWidth/2., upWidth/2.,
-                                   (length-maxwLength)/2.);		
+                                   (length-maxwLength)/2.);
       strd = & ( (strd->add(  (*upTrd) << GeoTrf::TranslateZ3D( length/2. )) )
                  << GeoTrf::TranslateZ3D( (maxwLength - length)/2.) );
     }
 
-    const GeoMaterial* mtrd = matManager->getMaterial("std::Aluminium");
+    const GeoMaterial* mtrd = getMaterialManager()->getMaterial("std::Aluminium");
     const GeoLogVol* lspa = new GeoLogVol("CSCspacer", strd, mtrd);
     GeoPhysVol* pspa = new GeoPhysVol(lspa);
     return pspa;
@@ -78,23 +76,23 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
   } else {
     const GeoShape* strd = new GeoTrd(thickness/2, thickness/2,
                                       width/2, longWidth/2, length/2);
-    const GeoMaterial* mtrd = matManager->getMaterial("std::Air");
+    const GeoMaterial* mtrd = getMaterialManager()->getMaterial("std::Air");
     GeoLogVol* ltrd = new GeoLogVol("Spacer", strd, mtrd);
     GeoPhysVol* ptrd = new GeoPhysVol(ltrd);
-	
+
     double tckibeam = thickness/5.;
     double dx = tckibeam;
     double dy = 3.*tckibeam;
-	  
+
     GeoVPhysVol *ptrdtemp=NULL;
 
     GeoTrd* strd1 = new GeoTrd(dx/2, dx/2, dy/2, dy/2, length/2);
-    const GeoMaterial* mtrd1 = matManager->getMaterial("std::Aluminium");
+    const GeoMaterial* mtrd1 = getMaterialManager()->getMaterial("std::Aluminium");
     GeoLogVol* ltrd1 = new GeoLogVol("ibeam1", strd1, mtrd1);
     GeoPhysVol* ptrd1 = new GeoPhysVol(ltrd1);
-  
+
     GeoTrd* strd2 = new GeoTrd(dy/2, dy/2, dx/2, dx/2, length/2);
-    const GeoMaterial* mtrd2 = matManager->getMaterial("std::Aluminium");
+    const GeoMaterial* mtrd2 = getMaterialManager()->getMaterial("std::Aluminium");
     GeoLogVol* ltrd2 = new GeoLogVol("ibeam2", strd2, mtrd2);
     GeoPhysVol* ptrd2 = new GeoPhysVol(ltrd2);
 
@@ -103,13 +101,14 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
       ptrd->add(sd);
       ptrd->add(new GeoSerialIdentifier(0));
     }
+
     double newpos=-thickness/2.;
     double wherepos=newpos;
     double wherewidth=-width/2.;
     for (int j = 0; j < 3; j++) {
       for (int i = 0; i < 3; i++) {
         ptrdtemp = ptrd1;
-        if (i == 1){
+        if (i == 1) {
           ptrdtemp = ptrd2;
           tckibeam = dy;
         }
@@ -124,17 +123,17 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
       wherepos -= thickness;
       wherewidth += (width/2.-dy/2.);
     }
-	
+
     double vtubl=(width-5*tckibeam)/2.;
 
     GeoSerialDenominator* ntube = new GeoSerialDenominator(name + " vbeam");
-    if (!skip_spacer){
+    if (!skip_spacer) {
       ptrd->add(ntube);
       ptrd->add(new GeoSerialIdentifier(0));
     }
 
-    for (int k1 = 0; k1 < 2; k1++){
-      for (int k = 0; k < 2; k++){
+    for (int k1 = 0; k1 < 2; k1++) {
+      for (int k = 0; k < 2; k++) {
         GeoTransform* ttube = new GeoTransform(GeoTrf::RotateX3D(-90*Gaudi::Units::deg)* GeoTrf::Translate3D(
                                                0.,
                                                -(vtubl+tckibeam)/2.-(k-1)*(vtubl+tckibeam),
@@ -142,15 +141,16 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
         if (!skip_spacer) ptrd->add(ttube);
       }
     }
-        
-    return ptrd;	
+
+    return ptrd;
   }
-    
+
 }
 
 void Spacer::print()
 {
-	std::cout<<"Spacer "<<name<<" :"<<std::endl;
+  MsgStream log(Athena::getMessageSvc(), "MuGM:MuonChamber:Spacer");
+  log << MSG::INFO << "Spacer " << name << " :" << endmsg;
 }
-                                                                                
+
 } // namespace MuonGM

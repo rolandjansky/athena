@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCompressorTool.h 789457 2016-12-13 12:00:43Z krasznaa $
@@ -55,10 +55,9 @@ namespace xAODMaker {
       /// The number of mantissa bits to keep for the diagonal covariance matrix
       /// elements
       int m_diagCovMatrixBits;
+      // Flag to control compression scheme of off-diagonal elements
+      bool m_useOffDiagCompr;
 
-      /// Helper object for compressing the off-diagonal covariance matrix
-      /// elements
-      std::unique_ptr< xAOD::FloatCompressor > m_offDiagCovMatrixCompressor;
       /// Helper object for compressing the on-diagonal covariance matrix
       /// elements
       std::unique_ptr< xAOD::FloatCompressor > m_diagCovMatrixCompressor;

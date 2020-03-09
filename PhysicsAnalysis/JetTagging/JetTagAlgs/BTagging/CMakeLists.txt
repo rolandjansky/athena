@@ -39,10 +39,16 @@ atlas_add_library( BTaggingLib
                    src/BTagTool.cxx
                    src/BTagTrackAssociation.cxx
                    src/BTagSecVertexing.cxx
+                   src/BTagLightSecVertexing.cxx
                    src/JetBTaggerTool.cxx
                    src/JetBTaggerAlg.cxx
+                   src/JetBTaggingAlg.cxx
                    src/StandAloneJetBTaggerAlg.cxx
                    src/BTagJetPtScaling.cxx
+                   src/JetParticleAssociationAlg.cxx
+                   src/JetSecVertexingAlg.cxx
+                   src/JetSecVtxFindingAlg.cxx
+                   src/BTagTrackAugmenterAlg.cxx
                    PUBLIC_HEADERS BTagging
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel MagFieldInterfaces JetInterface VxVertex ParticleJetToolsLib JetTagToolsLib

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import MM_Digitization job properties
@@ -52,3 +52,26 @@ def MM_Response_DigitTool(name="MM_Response_DigitTool",**kwargs):
     return CfgMgr.MM_Response_DigitTool(name,**kwargs)
 
 
+def MM_OverlayDigitizationTool(name="MM_OverlayDigitizationTool",**kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "MM_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "MM_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() +  "+MM_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+MM_SDO")
+    return MM_DigitizationTool(name,**kwargs)
+
+def getMM_OverlayDigitizer(name="MM_OverlayDigitizer", **kwargs):
+    kwargs.setdefault("DigitizationTool","MM_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
+
+    return CfgMgr.MM_Digitizer(name,**kwargs)

@@ -1,5 +1,7 @@
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArGMCfg(configFlags):
@@ -8,7 +10,7 @@ def LArGMCfg(configFlags):
 
     doAlignment=configFlags.LAr.doAlign
     
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
+    LArDetectorToolNV=CompFactory.LArDetectorToolNV
     result.getPrimary().DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
     if not configFlags.Detector.SimulateCalo:
         result.getPrimary().DetectorTools["LArDetectorToolNV"].GeometryConfig = "RECO"
@@ -18,8 +20,13 @@ def LArGMCfg(configFlags):
             #Monte Carlo case:
             result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL"))
         else:
-            #Regular offline data processing
-            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL"))
+            if configFlags.Overlay.DataOverlay:
+                #Data overlay
+                result.merge(addFolders(configFlags, ["/LAR/Align"], "LAR_ONL"))
+                result.merge(addFolders(configFlags, ["/LAR/LArCellPositionShift"], "LAR_OFL", tag="LArCellPositionShift-ideal", db="OFLP200"))
+            else:
+                #Regular offline data processing
+                result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL"))
 
             
     return result
@@ -33,8 +40,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = LArGMCfg(ConfigFlags)
-    f=open('LArGMCfg.pkl','w')
+    f=open('LArGMCfg.pkl','wb')
     acc.store(f)
     f.close()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -9,13 +9,8 @@
 #ifndef ELELEMENTTABLE_CNV_H
 #define ELELEMENTTABLE_CNV_H
 
-// ATLAS persistency way:
-#define protected public
-#include "GaudiKernel/MsgStream.h"
-#undef protected
-
-
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "GaudiKernel/MsgStream.h"
 
 // the transient side
 #include "TrkGeometry/ElementTable.h"
@@ -24,7 +19,7 @@
 
 // useful typedefs to not change the code only once in case of schema evolution
 typedef Trk::ElementTable_p1    ElementTable_PERS;
-typedef T_AthenaPoolCustomCnv<Trk::ElementTable, ElementTable_PERS> ElementTableCnvBase;
+typedef T_AthenaPoolCustomCnvWithKey<Trk::ElementTable, ElementTable_PERS> ElementTableCnvBase;
 
 
 class ElementTableCnv : public ElementTableCnvBase {
@@ -36,18 +31,14 @@ class ElementTableCnv : public ElementTableCnvBase {
 public:
   ElementTableCnv( ISvcLocator *svcloc );
 protected:
-  virtual StatusCode initialize();
+  virtual ElementTable_PERS* createPersistentWithKey( Trk::ElementTable *transCont, const std::string& key) override;
+  virtual Trk::ElementTable* createTransientWithKey (const std::string& key) override;
  
-  virtual ElementTable_PERS* createPersistent( Trk::ElementTable *transCont);
-  virtual Trk::ElementTable* createTransient();
- 
- private:
-  void                      updateLog();    //!< This method modifies m_log to indicate the current key being converted
+
+private:
   IMessageSvc*              m_msgSvc;      //!< MsgStream svc
-  MsgStream                 m_log;         //!< MsgStream
-
   ElementTableCnv_p1        m_TPConverter;
-
 };//end of class definitions
+
 
 #endif // ELELEMENTTABLE_CNV_H

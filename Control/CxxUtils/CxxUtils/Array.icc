@@ -278,7 +278,7 @@ std::vector<unsigned int> Array<0>::shape() const
  * will always return 1.
  */
 inline
-unsigned int Array<0>::size (unsigned int UNUSED(dim) /*=0*/) const
+unsigned int Array<0>::size ([[maybe_unused]] unsigned int dim /*=0*/) const
 {
   assert (dim == 0);
   return 1;

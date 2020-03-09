@@ -14,12 +14,9 @@ TrigL2CaloHypoAlgMT::TrigL2CaloHypoAlgMT( const std::string& name,
 					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigL2CaloHypoAlgMT::~TrigL2CaloHypoAlgMT() {}
 
 StatusCode TrigL2CaloHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
-  
   ATH_CHECK( m_hypoTools.retrieve() );
   
   ATH_CHECK( m_clustersKey.initialize() );
@@ -28,20 +25,12 @@ StatusCode TrigL2CaloHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2CaloHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
-  if( not previousDecisionsHandle.isValid() ) {//implicit
-    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
-    return StatusCode::SUCCESS;      
-  }
-  
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  ATH_CHECK( previousDecisionsHandle.isValid() );
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
 
 
   // new decisions
@@ -57,15 +46,15 @@ StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {
   size_t counter=0;
   for ( const auto previousDecision: *previousDecisionsHandle ) {
     //get RoI  
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI" );
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // get View
-    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
-    ATH_CHECK( viewELInfo.isValid() );
-    auto clusterHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_clustersKey, context);
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    ATH_CHECK( viewEL.isValid() );
+    auto clusterHandle = ViewHelper::makeHandle( *viewEL, m_clustersKey, context);
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
@@ -76,14 +65,14 @@ StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {
     toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), previousDecision );
 
     {
-      auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, 0 );
+      auto el = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );
       ATH_CHECK( el.isValid() );
-      d->setObjectLink( "feature",  el );
+      d->setObjectLink( featureString(),  el );
     }
-    d->setObjectLink( "roi", roiELInfo.link );
+    d->setObjectLink( roiString(), roiELInfo.link );
     
     TrigCompositeUtils::linkToPrevious( d, previousDecision, context );
-    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
+    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
     counter++;
 
   }
@@ -95,19 +84,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {
     ATH_CHECK( tool->decide( toolInput ) );
   }
  
-  {// make output handle and debug
-
-    ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-    }
-  }
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }

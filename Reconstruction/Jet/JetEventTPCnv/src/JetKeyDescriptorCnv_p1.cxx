@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,15 +7,14 @@
 
 void JetKeyDescriptorCnv_p1::persToTrans( const JetKeyDescriptor_p1* persObj, 
                             JetKeyDescriptor* transObj, 
-                            MsgStream& msg )
-  
+                            MsgStream& msg ) const
 {
   msg << MSG::DEBUG << "JetKeyDescriptorCnv persToTrans Begin " << endmsg;
   
   msg << MSG::DEBUG << " Size : " << (persObj->m_catStore).size() << endmsg;
   if(msg.level() <= MSG::VERBOSE  ){
     for ( std::vector<std::string>::const_iterator it = (persObj->m_catStore).begin();
-	  it != (persObj->m_catStore).end(); it++ )
+	  it != (persObj->m_catStore).end(); ++it )
       {
 	msg << MSG::VERBOSE << "  " << *it << endmsg;
       }
@@ -62,8 +61,7 @@ void JetKeyDescriptorCnv_p1::persToTrans( const JetKeyDescriptor_p1* persObj,
 
 void JetKeyDescriptorCnv_p1::transToPers( const JetKeyDescriptor* transObj,
                                           JetKeyDescriptor_p1* persObj, 
-                                          MsgStream& msg )
-
+                                          MsgStream& msg ) const
 {
   msg << MSG::DEBUG << "JetKeyDescriptorCnv transToPers Begin " << endmsg;
   
@@ -72,7 +70,7 @@ void JetKeyDescriptorCnv_p1::transToPers( const JetKeyDescriptor* transObj,
       << endmsg;
   
   for ( JetKeyDescriptor::catlist_t::const_iterator it = (transObj->m_catStore).begin();
-        it != (transObj->m_catStore).end(); it++ )
+        it != (transObj->m_catStore).end(); ++it )
     {
       if(msg.level() <= MSG::VERBOSE  ) msg << MSG::VERBOSE << "  " << *it << endmsg;
       persObj->m_catStore.push_back(*it);
@@ -80,10 +78,10 @@ void JetKeyDescriptorCnv_p1::transToPers( const JetKeyDescriptor* transObj,
   
   unsigned int n(0);
   for ( JetKeyDescriptor::storelist_t::const_iterator iti = (transObj->m_keyStore).begin();
-        iti != (transObj->m_keyStore).end(); iti++ )
+        iti != (transObj->m_keyStore).end(); ++iti )
     {
       for ( JetKeyDescriptor::keystore_t::const_iterator ito = (*iti).begin();
-            ito != (*iti).end(); ito++ )
+            ito != (*iti).end(); ++ito )
         {
           if(msg.level() <= MSG::VERBOSE  ) msg << MSG::VERBOSE << "   " << *ito << " : " << n << endmsg;
           persObj->m_keyStore.push_back(*ito);

@@ -17,12 +17,10 @@
 #include <TH3F.h>
 #include <TH3D.h>
 
-#include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
 class JMSCorrection 
-  : virtual public ::IJetCalibrationTool,
-    virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationToolBase
 {
 
   ASG_TOOL_CLASS( JMSCorrection, IJetCalibrationTool )

@@ -14,24 +14,24 @@ def Lvl1SimulationSequence( flags = None ):
     # L1ConfigSvc CA has to be imported and merged
     # at the end the sequence added to the CA
     #
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('TriggerJobOpts.Lvl1Simulation')
+
     from AthenaCommon.CFElements import seqAND
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+    from AthenaCommon.AlgSequence import AthSequencer
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from AthenaCommon.Constants import DEBUG
-    
+
+    # this configuration of the LVL1ConfigSvc is only temporary
     TriggerFlags.readLVL1configFromXML = True
     TriggerFlags.outputLVL1configFile = None
-    from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
-    svcMgr += LVL1ConfigSvc()
-    svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
-
-
+    log.info("setting up LVL1ConfigSvc, including the menu generation")
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+    svcMgr += getL1ConfigSvc()
     
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
     caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
     caloTowerMaker.ExtraInputs   = ["LArTTL1Container#LArTTL1EM", "LArTTL1Container#LArTTL1HAD", "TileTTL1Container#TileTTL1Cnt" ]
-    caloTowerMaker.OutputLevel=DEBUG
     caloTowerMaker.ZeroSuppress = True
     caloTowerMaker.CellType     = 3
 
@@ -44,14 +44,10 @@ def Lvl1SimulationSequence( flags = None ):
     from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JetCMX
     from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EnergyCMX
     from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__RoIROD
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Tester
 
     from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
     from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
 
-    
-    from AthenaCommon.CFElements import seqAND
-    
     l1CaloSim = seqAND('l1CaloSim',[
         caloTowerMaker,
         #LVL1__Run2CPMTowerMaker( 'CPMTowerMaker', ExtraInputs=["XYZ#1"], ExtraOutputs=["XYZ#2"]) ,
@@ -89,10 +85,17 @@ def Lvl1SimulationSequence( flags = None ):
     from AthenaCommon.Include import include ## TODO, see if can be replaced by new JO
     include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )    
     from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
-    MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = True,
+    MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
                                                      DecodeRpcRDO = True,
                                                      DecodeTgcRDO = True,
-                                                     DecodeCscRDO = True ) 
+                                                     DecodeCscRDO = False,
+                                                     DecodeSTGC_RDO = False,
+                                                     DecodeMM_RDO = False,
+                                                     # for those subdetectors where the decoding is turned off, no need to create a RDO_Decoder ToolHandle
+                                                     mdtRdoDecoderTool="",
+                                                     cscRdoDecoderTool="",
+                                                     stgcRdoDecoderTool="",
+                                                     mmRdoDecoderTool="")
     
     MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
     from AthenaCommon.AppMgr import ToolSvc
@@ -128,10 +131,7 @@ def Lvl1SimulationSequence( flags = None ):
         # interesting is that this JO sets inexisting properties, commented out below
         LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                        InputData_perEvent  = "TGC_DIGITS", 
-                                      # ASDOutDataLocation = "ASDOutDataLocation",
-                                      # MuonTrigConfig     = "/Run/MuonTrigConfig",
                                        MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
-                                       MaskFileName        = "TrigT1TGCMaskedChannel.db",
                                        MaskFileName12      = "TrigT1TGCMaskedChannel._12.db"),
         muctpi
     ])
@@ -140,7 +140,6 @@ def Lvl1SimulationSequence( flags = None ):
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
-    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
     from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
     from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
     condSeq = AthSequencer("AthCondSeq")
@@ -151,6 +150,7 @@ def Lvl1SimulationSequence( flags = None ):
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1Topo    = False
+    ctp.UseCondL1Menu = False
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
 

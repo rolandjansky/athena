@@ -20,69 +20,69 @@ ISCT_CalibHistoTool::ISCT_CalibHistoTool() {
 
 int
 ISCT_CalibHistoTool::getNumberOfEventsInBin(const int nbin) const {
-  if (m_numberOfEventsHisto) return m_numberOfEventsHisto->GetBinContent(nbin);
-  std::cout << "ERROR: a histogram pointer, m_numberOfEventsHisto, is zero" << std::endl;
-  return 0;
+   if (m_numberOfEventsHisto) return m_numberOfEventsHisto->GetBinContent(nbin);
+   std::cout << "ERROR: a histogram pointer, m_numberOfEventsHisto, is zero" << std::endl;
+   return 0;
 }
 
 int
 ISCT_CalibHistoTool::size() const {
-  return m_numberOfEventsHisto->GetEntries();
+   return m_numberOfEventsHisto->GetEntries();
 }
 
 int
 ISCT_CalibHistoTool::size(const int histogramIndex) const {
-  TH1F* pHisto{nullptr};
-  int result{0};
-  try {
-    pHisto = m_phistoVector.at(histogramIndex);
-    result = pHisto->GetEntries();
-  } catch (const std::out_of_range& outOfRange) {
-    //do nothing, result is zero if the vector<>.at() throws
-  }
-  return result;
+   TH1F* pHisto{nullptr};
+   int result{0};
+   try {
+      pHisto = m_phistoVector.at(histogramIndex);
+      result = pHisto->GetEntries();
+   } catch (const std::out_of_range& outOfRange) {
+      //do nothing, result is zero if the vector<>.at() throws
+   }
+   return result;
 }
 
 double
 ISCT_CalibHistoTool::getBinForHistogramIndex(const int bin, const int histogramIndex) const {
-  TH1F* pHisto{nullptr};
-  double result{0.0};
-  try {
-    pHisto = m_phistoVector.at(histogramIndex);
-    result = pHisto->GetBinContent(bin);
-  } catch (const std::out_of_range& outOfRange) {
-    //do nothing, result is zero if the vector<>.at() throws
-  }
-  return result;
+   TH1F* pHisto{nullptr};
+   double result{0.0};
+   try {
+      pHisto = m_phistoVector.at(histogramIndex);
+      result = pHisto->GetBinContent(bin);
+   } catch (const std::out_of_range& outOfRange) {
+      //do nothing, result is zero if the vector<>.at() throws
+   }
+   return result;
 }
 
 void
 ISCT_CalibHistoTool::binHistograms(const int nLbMerged) {
-  int nLb{numberOfLb()};
-  int yAxisBins{static_cast<int>(TMath::Ceil(1.0*nLb/nLbMerged))};
+   int nLb{numberOfLb()};
+   int yAxisBins{static_cast<int>(TMath::Ceil(1.0*nLb/nLbMerged))};
 
-  for (std::vector<TH2F*>::iterator it{m_phistoVector2D.begin()}; it != m_phistoVector2D.end(); ++it) {
-    (*it)->SetBins(768, -0.5, 768+0.5, yAxisBins, 0.5, nLbMerged*yAxisBins+0.5);
-  }
+   for (std::vector<TH2F*>::iterator it{m_phistoVector2D.begin()}; it != m_phistoVector2D.end(); ++it) {
+      (*it)->SetBins(768, -0.5, 768+0.5, yAxisBins, 0.5, nLbMerged*yAxisBins+0.5);
+   }
 
 }
 
 void
 ISCT_CalibHistoTool::setNumberOfLb(const int nLb) {
-  m_nLb=nLb;
+   m_nLb=nLb;
 }
 
 int
 ISCT_CalibHistoTool::numberOfLb() const {
-  return m_nLb;
+   return m_nLb;
 }
 
 void
 ISCT_CalibHistoTool::setLbToMerge(const int nLbMerge) {
-  m_nLbMerge = nLbMerge;
+   m_nLbMerge = nLbMerge;
 }
 
 int
 ISCT_CalibHistoTool::LbToMerge() const {
-  return m_nLbMerge;
+   return m_nLbMerge;
 }

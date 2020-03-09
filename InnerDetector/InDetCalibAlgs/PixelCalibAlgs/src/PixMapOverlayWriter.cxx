@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // conditions
 #include "PixelCalibAlgs/PixMapOverlayWriter.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
+#include "PixelConditionsTools/ISpecialPixelMapSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
+#include "PixelConditionsTools/ISpecialPixelMapSvc.h"
 
 // geometry
 #include "InDetIdentifier/PixelID.h"

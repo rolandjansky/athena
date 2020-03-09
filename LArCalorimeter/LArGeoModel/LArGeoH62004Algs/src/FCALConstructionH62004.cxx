@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -64,9 +64,7 @@
 #include <stdexcept>
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "StoreGate/StoreGateSvc.h"
- 
+#include "GaudiKernel/Bootstrap.h" 
 
 //===================constructor
 

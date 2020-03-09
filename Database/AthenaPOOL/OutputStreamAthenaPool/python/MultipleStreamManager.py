@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################
 ##  AugmentedStreams & MultipleStreamManager classes  ##
 ##                                                    ##
 ##  creation: David Cote (May 2008)                   ##
 ########################################################
+from __future__ import print_function
 
 class AugmentedStreamBase:
     """This class manages common methods of AugmentedPoolStream and AugmentedByteStream."""
@@ -53,7 +54,7 @@ class AugmentedStreamBase:
             if self._ItemInList(item,aList):
                 aList.remove(item)
             else:
-                print self.Name,": WARNING you asked to remove item '%s' but this item is not present"%item
+                print(self.Name,": WARNING you asked to remove item '%s' but this item is not present",item)
         else:
             raise TypeError("AugmentedPoolStream._RemoveValidItemFromList() does not support item of type %s"%type(item))
         return
@@ -167,7 +168,6 @@ class AugmentedPoolStream( AugmentedStreamBase ):
         #event-by-event stream
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
         self.Stream = AthenaPoolOutputStream( StreamName, FileName, asAlg, noTag=noTag )
-        self.Stream.ForceRead=True;  #force read of output data objs
         if isVirtual == True:
             self.Stream.WriteOnExecute=False
             self.Stream.WriteOnFinalize=False
@@ -234,23 +234,23 @@ class AugmentedPoolStream( AugmentedStreamBase ):
 
     #########################################
     def Print(self):
-        print "**** AugmentedPoolStream",self.Name,"****"
-        print "Output file:"
-        print self.Stream.OutputFile
-        print "AcceptAlgs:"
-        print self.Stream.AcceptAlgs
-        print "RequireAlgs:"
-        print self.Stream.RequireAlgs
-        print "VetoAlgs:"
-        print self.Stream.VetoAlgs
-        print "OtherAlgs to bookkeep (but not directly used by the Stream):"
-        print self.OtherAlgs
-        print "Master prescale:"
-        print self.GetPrescale()
-        print "ItemList:"
-        print self.Stream.ItemList
-        print "MetaData ItemList:"
-        print self.Stream.MetadataItemList
+        print("**** AugmentedPoolStream",self.Name,"****")
+        print("Output file:")
+        print(self.Stream.OutputFile)
+        print("AcceptAlgs:")
+        print(self.Stream.AcceptAlgs)
+        print("RequireAlgs:")
+        print(self.Stream.RequireAlgs)
+        print("VetoAlgs:")
+        print(self.Stream.VetoAlgs)
+        print("OtherAlgs to bookkeep (but not directly used by the Stream):")
+        print(self.OtherAlgs)
+        print("Master prescale:")
+        print(self.GetPrescale())
+        print("ItemList:")
+        print(self.Stream.ItemList)
+        print("MetaData ItemList:")
+        print(self.Stream.MetadataItemList)
         return
 
 ##############################################
@@ -315,21 +315,21 @@ class AugmentedByteStream( AugmentedStreamBase ):
     def RemoveMetaDataItem(self, item): pass
 
     def Print(self):
-        print "**** AugmentedByteStream",self.Name,"****"
-        print "Output file:"
-        print self.bsOutputSvc.OutputDirectory+self.bsOutputSvc.SimpleFileName
-        print "AcceptAlgs:"
-        print self.Stream.AcceptAlgs
-        print "RequireAlgs:"
-        print self.Stream.RequireAlgs
-        print "VetoAlgs:"
-        print self.Stream.VetoAlgs
-        print "OtherAlgs to bookkeep (but not directly used by the Stream):"
-        print self.OtherAlgs
-        print "Master prescale:"
-        print self.GetPrescale()
-        print "ItemList:"
-        print "Not available for bytestream"
+        print("**** AugmentedByteStream",self.Name,"****")
+        print("Output file:")
+        print(self.bsOutputSvc.OutputDirectory+self.bsOutputSvc.SimpleFileName)
+        print("AcceptAlgs:")
+        print(self.Stream.AcceptAlgs)
+        print("RequireAlgs:")
+        print(self.Stream.RequireAlgs)
+        print("VetoAlgs:")
+        print(self.Stream.VetoAlgs)
+        print("OtherAlgs to bookkeep (but not directly used by the Stream):")
+        print(self.OtherAlgs)
+        print("Master prescale:")
+        print(self.GetPrescale())
+        print("ItemList:")
+        print("Not available for bytestream")
         return
 
 #############################################################
@@ -414,8 +414,9 @@ class AugmentedRootStream( AugmentedStreamBase ):
                                                StreamName = ParentStreamName )
                 pass
             except ImportError:
-                print self.Name,": INFO didn't find AnalysisTools.AnalysisToolsConf in release."
-                pass
+                print(self.Name,": INFO didn't find AnalysisTools.AnalysisToolsConf in release.")
+                import traceback
+                print(traceback.format_exc())
             pass
         
         # Make sure that THistSvc exists.
@@ -467,7 +468,7 @@ class AugmentedRootStream( AugmentedStreamBase ):
                 pass
             pass
         except ImportError:
-            print self.Name,": INFO didn't find D3PDMakerCoreComps in release."
+            print(self.Name,": INFO didn't find D3PDMakerCoreComps in release.")
             pass
 
         return
@@ -476,7 +477,7 @@ class AugmentedRootStream( AugmentedStreamBase ):
         """It's not impossible to change the file name after the stream has been created,
            but I didn't want to write this code unless there's actual need for it.
         """
-        print "**** ERROR: Can't change the name of the output ROOT file! ****"
+        print("**** ERROR: Can't change the name of the output ROOT file! ****")
         return
 
     #
@@ -488,23 +489,23 @@ class AugmentedRootStream( AugmentedStreamBase ):
     def RemoveMetaDataItem(self, item): pass
 
     def Print(self):
-        print "**** AugmentedRootStream",self.Name,"****"
-        print "Output file:"
-        print "  " + self.fileName
-        print "TTree name:"
-        print "  " + self.treeName
-        print "AcceptAlgs:"
-        print "  " + str( self.Stream.AcceptAlgs )
-        print "RequireAlgs:"
-        print "  " + str( self.Stream.RequireAlgs )
-        print "VetoAlgs:"
-        print "  " + str( self.Stream.VetoAlgs )
-        print "OtherAlgs to bookkeep (but not directly used by the Stream):"
-        print "  " + str( self.OtherAlgs )
-        print "Master prescale:"
-        print "  " + str( self.GetPrescale() )
-        print "ItemList:"
-        print "  Not available for ROOT (D3PD) stream"
+        print("**** AugmentedRootStream",self.Name,"****")
+        print("Output file:")
+        print("  " + self.fileName)
+        print("TTree name:")
+        print("  " + self.treeName)
+        print("AcceptAlgs:")
+        print("  " + str( self.Stream.AcceptAlgs ))
+        print("RequireAlgs:")
+        print("  " + str( self.Stream.RequireAlgs ))
+        print("VetoAlgs:")
+        print("  " + str( self.Stream.VetoAlgs ))
+        print("OtherAlgs to bookkeep (but not directly used by the Stream):")
+        print("  " + str( self.OtherAlgs ))
+        print("Master prescale:")
+        print("  " + str( self.GetPrescale() ))
+        print("ItemList:")
+        print("  Not available for ROOT (D3PD) stream")
         return
 
     def __iadd__( self, configs ):
@@ -518,7 +519,7 @@ class AugmentedRootStream( AugmentedStreamBase ):
         """This function forwards attribute requests which don't exist in this object to
            the D3PDMakerCoreComps.MakerAlg object.
         """
-        if self.__dict__.has_key( 'Stream' ) and hasattr( self.Stream, attr ):
+        if 'Stream' in self.__dict__ and hasattr( self.Stream, attr ):
             return getattr( self.Stream, attr )
         raise AttributeError( "D3PD Maker algorithm doesn't have property '%s'." % attr )
         return
@@ -655,11 +656,11 @@ class MultipleStreamManager:
         return True
 
     def Print(self):
-        print "**** MultipleStreamManager INFOS ****"
-        print "Number of streams:", self.nStream
+        print("**** MultipleStreamManager INFOS ****")
+        print("Number of streams:", self.nStream)
         i=0
         for Stream in self.StreamList:
-            print "----------------------- Stream #",i," -----------------------"
+            print("----------------------- Stream #",i," -----------------------")
             Stream.Print()
             i+=1
         return
@@ -729,30 +730,10 @@ class MultipleStreamManager:
                     Stream.AddItem("SkimDecisionCollection#"+sdw.SkimDecisionsContainerName)
         return
 
-    def CreateEventBookkeepersWriterForAllFilters(self,doMCTruth=False,cycle_number=0):
-        from EventBookkeeperTools.BookkeepingInfoWriter import EventBookkeepersWriter
-        ebw=EventBookkeepersWriter()
-        ebw.setDoMC( doMCTruth )
-        ebw.setCycle(cycle_number)
-
-        #Loop over all streams and add all associated algorithms to ebw
-        for Stream in self.StreamList:
-            for a in Stream.GetRequireAlgs():
-                ebw.addRequireAlg(a,StreamName=Stream.Name)
-            for a in Stream.GetAcceptAlgs():
-                ebw.addAcceptAlg(a,StreamName=Stream.Name)
-            for a in Stream.GetVetoAlgs():
-                ebw.addVetoAlg(a,StreamName=Stream.Name)
-            for a in Stream.GetOtherAlgsToBookkeep():
-                ebw.addOtherAlg(a,StreamName=Stream.Name)
-
-        return ebw
-
-
 
 ############################################################################
 # Create one instance of MultipleStreamManager (MSMgr) if not already done.
 # Otherwise, do dothing (avoid overwriting MSMgr!).
-if vars().has_key('MSMgr'):
+if 'MSMgr' in vars():
     raise RuntimeError("MSMgr already exists?!? This will almost certainly create erroneous results.")
 MSMgr=MultipleStreamManager()

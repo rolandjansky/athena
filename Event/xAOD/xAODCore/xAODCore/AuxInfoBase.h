@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AuxInfoBase.h 793737 2017-01-24 20:11:10Z ssnyder $
 #ifndef XAODCORE_AUXINFOBASE_H
 #define XAODCORE_AUXINFOBASE_H
 
@@ -169,11 +166,16 @@ namespace xAOD {
       /// @}
 
    protected:
+      /// Get the auxiliary ID for one of the persistent variables
+      template< typename T >
+      auxid_t getAuxID( const std::string& name,
+                        T& /*info*/,
+                        SG::AuxTypeRegistry::Flags flags =
+                        SG::AuxTypeRegistry::Flags::None );
       /// Register one of the persistent variables internally
       template< typename T >
-      auxid_t regAuxVar( const std::string& name,
-                         T& info,
-                         SG::AuxTypeRegistry::Flags flags = SG::AuxTypeRegistry::Flags::None );
+      void regAuxVar( auxid_t auxid, const std::string& name,
+                      T& info );
 
    private:
       /// Dynamic attributes selection implementation

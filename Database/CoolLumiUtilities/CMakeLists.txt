@@ -41,7 +41,7 @@ atlas_add_dictionary( CoolLumiUtilitiesDict
                       LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8})
 atlas_install_scripts( share/*.py )
 atlas_install_joboptions( share/*.txt )
 
@@ -89,17 +89,17 @@ atlas_add_test( FillParamsCondAlg_test
 
 atlas_add_test( OnlineLumiCalibrationCondAlgConfig_test
                 SCRIPT python -m CoolLumiUtilities.OnlineLumiCalibrationCondAlgConfig
-                 EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+                 LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 atlas_add_test( FillParamsCondAlgConfig_test
                 SCRIPT python -m CoolLumiUtilities.FillParamsCondAlgConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 atlas_add_test( BunchLumisCondAlgConfig_test
                 SCRIPT python -m CoolLumiUtilities.BunchLumisCondAlgConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 atlas_add_test( BunchGroupCondAlgConfig_test
                 SCRIPT python -m CoolLumiUtilities.BunchGroupCondAlgConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 

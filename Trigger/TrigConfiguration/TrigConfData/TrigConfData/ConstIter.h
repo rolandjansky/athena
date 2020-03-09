@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_CONSTITER_H
 #define TRIGCONFDATA_CONSTITER_H
 
 /**
- * @file TrigConfData/ConstIter.h
- * @author J. Stelzer
- * @date Feb 2019
  * @brief Forward iterator to traverse the main components of the trigger configuration
  */
 
-#include "CxxUtils/checker_macros.h"
+#include "TrigConfData/TSCheckMacros.h"
 
+#include <iostream>
 #include <functional>
 
 namespace TrigConf {
@@ -42,7 +40,7 @@ namespace TrigConf {
        * Iterators pointing to the front and back of the container, assuming that T can be created from the elements of V are created like this
        *@code
        ConstIter<V, T> begin( v );
-       ConstIter<V, T> end( v, v.size() );       
+       ConstIter<V, T> end( v, v.size() );
        @endcode
        *
        * An example for iterating over chains of an HLTMenu
@@ -53,7 +51,7 @@ namespace TrigConf {
        *@endcode
        */
       ConstIter( const V & buf, size_t offset = 0, 
-                 std::function<T(const typename V::value_type &)> f = [](auto x)->T{return {x};}) :
+                 std::function<T(const typename V::value_type &)> f = [](auto & x)->T{return {x};}) :
          m_buf(buf),
          m_offset(offset),
          m_data(),
@@ -122,7 +120,7 @@ namespace std {
         using value_type = const T;
         using pointer = const T*;
         using reference = const T&;
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = std::forward_iterator_tag;
     };
 }
 

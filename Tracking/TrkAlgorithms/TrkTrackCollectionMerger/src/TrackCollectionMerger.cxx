@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,6 @@ Trk::TrackCollectionMerger::TrackCollectionMerger
 
   declareProperty("TracksLocation",                 m_tracklocation          );
   declareProperty("OutputTracksLocation",           m_outtracklocation       ); 
-  declareProperty("AssoTool",                       m_assoTool               );
   declareProperty("SummaryTool" ,                   m_trkSummaryTool         );
   declareProperty("CreateViewColllection" ,         m_createViewCollection   );
   declareProperty("UpdateSharedHitsOnly" ,          m_updateSharedHitsOnly);
@@ -46,26 +45,17 @@ StatusCode Trk::TrackCollectionMerger::initialize()
 
   ATH_MSG_DEBUG("Initializing TrackCollectionMerger");
 
-  if ( m_assoTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO("Retrieved tool " << m_assoTool);
-
-  if (m_trkSummaryTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
-    return StatusCode::FAILURE;
-  } else 
-    ATH_MSG_INFO("Retrieved tool " << m_trkSummaryTool);
-
   if( m_updateSharedHitsOnly &&  m_updateAdditionalInfo){
     msg(MSG::WARNING) << "Both UpdateAdditionalInfo and UpdateSharedHitsOnly set true - UpdateAdditionalInfo includes a shared hits update. " << endmsg;
     msg(MSG::WARNING) << " If you *only* want to update shared hits, set UpdateAdditionalInfo=False and UpdateSharedHitsOnly=True" << endmsg;
   }
- 
+
   ATH_CHECK(  m_tracklocation.initialize() );
   ATH_CHECK( m_outtracklocation.initialize() );
- 
+
+  ATH_CHECK( m_trkSummaryTool.retrieve() );
+  ATH_CHECK( m_assoTool.retrieve() );
+  ATH_CHECK( m_assoMapName.initialize( !m_assoMapName.key().empty() ));
   return StatusCode::SUCCESS;
 }
 
@@ -75,10 +65,9 @@ StatusCode Trk::TrackCollectionMerger::initialize()
 ///////////////////////////////////////////////////////////////////
 StatusCode Trk::TrackCollectionMerger::execute()
 {
-  // clean up association tool
-  m_assoTool->reset();
-  
-  std::unique_ptr<TrackCollection> outputCol = m_createViewCollection ? 
+  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map(m_assoTool->createPRDtoTrackMap());
+
+  std::unique_ptr<TrackCollection> outputCol = m_createViewCollection ?
     std::make_unique<TrackCollection>(SG::VIEW_ELEMENTS) : std::make_unique<TrackCollection>();
   ATH_MSG_DEBUG("Number of Track collections " << m_tracklocation.size());
 
@@ -98,7 +87,7 @@ StatusCode Trk::TrackCollectionMerger::execute()
   // merging loop
   for(auto& tciter : trackCollections){
       // merge them in
-    if(mergeTrack(tciter,outputCol.get()).isFailure()){
+    if(mergeTrack(tciter, *prd_to_track_map, outputCol.get()).isFailure()){
 	     ATH_MSG_ERROR( "Failed to merge tracks! ");
       }
   }
@@ -107,14 +96,24 @@ StatusCode Trk::TrackCollectionMerger::execute()
 
   ATH_MSG_DEBUG("Update summaries");  
   // now loop over all tracks and update summaries with new shared hit counts
+  // @TODO magic! tracks are now non-const !??
   for (Trk::Track* trk : *outputCol) {
-    if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(*trk);
-    else if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(*trk);
-    else  m_trkSummaryTool->updateTrack(*trk);
+    if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(*trk, prd_to_track_map.get());
+    else if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(*trk, prd_to_track_map.get());
+    else  {
+       m_trkSummaryTool->computeAndReplaceTrackSummary(*trk, prd_to_track_map.get(), false /* DO NOT suppress hole search*/);
+    }
   }
 
   SG::WriteHandle<TrackCollection> h_write(m_outtracklocation);
   ATH_CHECK(h_write.record(std::move(outputCol)));	     
+
+  if (!m_assoMapName.key().empty()) {
+     SG::WriteHandle<Trk::PRDtoTrackMap> write_handle(m_assoMapName);
+     if (write_handle.record( m_assoTool->reduceToStorableMap(std::move(prd_to_track_map))).isFailure()) {
+        ATH_MSG_FATAL("Failed to add PRD to track association map.");
+     }
+  }
 
 
   //Print common event information
@@ -199,7 +198,9 @@ std::ostream& Trk::operator <<
 // Merge track collections and remove duplicates
 ///////////////////////////////////////////////////////////////////
 
-StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol)
+StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCol,
+                                                  Trk::PRDtoTrackMap &prd_to_track_map,
+                                                  TrackCollection* outputCol)
 {
   // loop over forward track, accept them and add them imto association tool
   if(trackCol && trackCol->size()) {
@@ -213,7 +214,7 @@ StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCo
       Trk::Track* newTrack = m_createViewCollection ? const_cast<Trk::Track*>(rf) : new Trk::Track(*rf);
       outputCol->push_back(newTrack);
       // add tracks into PRD tool
-      if (m_assoTool->addPRDs(*newTrack).isFailure())
+      if (m_assoTool->addPRDs(prd_to_track_map, *newTrack).isFailure())
 	      msg(MSG::WARNING) << "Failed to add PRDs to map" << endmsg;
     }
   }

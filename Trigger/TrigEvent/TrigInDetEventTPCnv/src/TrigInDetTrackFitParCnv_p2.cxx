@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 #include "TrigInDetEventTPCnv/TrigInDetTrackFitParCnv_p2.h"
-#include "CxxUtils/make_unique.h"
 #include <cstring>
 using std::memset;
 
@@ -64,7 +63,7 @@ TrigInDetTrackFitParCnv_p2 :: restoreCovariance(const TrigInDetTrackFitPar_p2* p
       L[i][j]=LT[j][i]=pP->m_cov[idx++];
     }
 
-  auto pV = CxxUtils::make_unique<std::vector<double> >();
+  auto pV = std::make_unique<std::vector<double> >();
 
   for(i=0;i<5;i++)
   

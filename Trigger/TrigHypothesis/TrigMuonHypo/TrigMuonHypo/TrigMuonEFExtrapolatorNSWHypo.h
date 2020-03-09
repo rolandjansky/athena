@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_TRIGMUONEFEXTRAPOLATORNSWHYPO_H 
@@ -7,8 +7,8 @@
 
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
-
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class StoreGateSvc;
@@ -30,7 +30,9 @@ class TrigMuonEFExtrapolatorNSWHypo: public HLT::HypoAlgo
       BooleanProperty m_acceptAll;
 
       // ToolHandle for EDM helper tool
-      ToolHandle<Muon::MuonEDMHelperTool>  m_edmhelperTool;
+      ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+         "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+         "Handle to the service providing the IMuonEDMHelperSvc interface" };
 
       // ToolHandle for IdHelperTool
       ToolHandle<Muon::MuonIdHelperTool>  m_idhelperTool;

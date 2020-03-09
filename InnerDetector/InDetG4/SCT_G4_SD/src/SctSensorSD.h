@@ -15,6 +15,7 @@
 // For the hits
 #include "InDetSimEvent/SiHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include <gtest/gtest_prod.h>
 
 // G4 needed classes
 class G4Step;
@@ -22,6 +23,10 @@ class G4TouchableHistory;
 
 class SctSensorSD : public G4VSensitiveDetector
 {
+ FRIEND_TEST( SctSensorSDtest, Initialize );
+ FRIEND_TEST( SctSensorSDtest, ProcessHits );
+ FRIEND_TEST( SctSensorSDtest, indexMethod );
+ FRIEND_TEST( SctSensorSDtest, AddHit );
 public:
   // Constructor
   SctSensorSD(const std::string& name, const std::string& hitCollectionName);

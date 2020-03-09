@@ -1,15 +1,10 @@
-import os
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-
-# etse a handle on the ServiceManager which holds all the services
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-
-# Particle Properties
-from PartPropSvc.PartPropSvcConf import PartPropSvc
 
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 AthenaEventLoopMgr.OutputLevel = WARNING
@@ -50,8 +45,6 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 # End of B.Trocme 11/2014 modification
 #topSequence.LArNoisyROAlg.BadFEBCut = 2000
 #topSequence.LArNoisyROAlg.SaturatedCellQualityCut = 111165535
-
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 #Necessary DLL's 
 theApp.Dlls += [ "LArRawUtils","LArROD", "LArTools"]
@@ -101,22 +94,6 @@ else :
 topSequence.LArCollisionTimeAlg.cutIteration = False
 topSequence.LArCollisionTimeAlg.OutputLevel = INFO
 ###################################################################
-
-if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
-   
-   from IOVDbSvc.CondDB import conddb
-
-# 11/2014 : 6 lines below commented by B.Trocme to avoid crash when 
-# running on cosmic (w/o LHC beam). One should implement a more clever
-# way to test if LHC parameters are available of not.
-#   if not conddb.folderRequested('/TDAQ/RunCtrl/DataTakingMode'):
-#      conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode')
-#   if not conddb.folderRequested('/TDAQ/OLC/LHC/FILLPARAMS'):
-#      conddb.addFolder('TDAQ', '/TDAQ/OLC/LHC/FILLPARAMS')
-#   if not conddb.folderRequested('/LHC/DCS/FILLSTATE'):
-#      conddb.addFolder('DCS_OFL', '/LHC/DCS/FILLSTATE')
-# End of B.Trocme 11/2014 modification
-
 
 from LArCafJobs.LArCafJobsConf import LArNoiseBursts
 topSequence += LArNoiseBursts( "LArNoiseBursts" )

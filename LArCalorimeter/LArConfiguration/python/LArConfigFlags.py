@@ -18,17 +18,14 @@ def createLArConfigFlags():
 
     lcf.addFlag("LAr.doCellNoiseMasking",True)
     lcf.addFlag("LAr.doCellSporadicNoiseMasking",True)
+    
     # Include MC shape folder
     lcf.addFlag("LAr.UseMCShape", True)
-    # Include Mphys pulse calibration folder
-    lcf.addFlag("LAr.HasMphys", True)
-    # Include HVCorr folder in MC
-    lcf.addFlag("LAr.HasHVCorr", True)
     # Name of sqlite file containing Electronic Calibration values
     lcf.addFlag("LAr.ElecCalibSqlite", "")
     # Load Electronic Calibration constants
     lcf.addFlag("LAr.LoadElecCalib", True)
-    # Folder name for Optimal Filtering coefficients
+    # Folder name for Optimal Filtering coefficients (empty means default)
     lcf.addFlag("LAr.OFCShapeFolder", "")
     # Load conditions with this `run-number' string
     lcf.addFlag("LAr.ForceIOVRunNumber", "")
@@ -37,6 +34,10 @@ def createLArConfigFlags():
     # DataBase server string
     lcf.addFlag("LAr.DBConnection", "")
 
+    # Do pileup OFC optimization
+    lcf.addFlag("LAr.ROD.DoOFCPileupOptimization",False)
+    # Number of collisions to optimize OFC for pileup
+    lcf.addFlag("LAr.ROD.NumberOfCollisions",0.)
     # Number of samples in LAr digitization + ROD emulation
     lcf.addFlag("LAr.ROD.nSamples", 5)
     # Index of first sample in LAr digitization + ROD emulation

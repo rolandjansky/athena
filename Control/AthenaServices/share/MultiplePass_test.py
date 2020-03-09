@@ -40,7 +40,6 @@ include( "AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py" )
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "Stream1" )
 Stream1.OutputFile = "MultiplePassFile.root"; # ** mandatory parameter ** // The output file name
-Stream1.ForceRead=TRUE  #force read of output data objs
 Stream1.ItemList=["EventInfo#*", "McEventCollection#*"]
 
 #--------------------------------------------------------------

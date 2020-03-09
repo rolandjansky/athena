@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ class ISimulationSelector : virtual public IAlgTool {
     virtual SimSvcID simSvcID() = 0;
 
     /** return the simulation flavor */
-    virtual ISF::SimulationFlavor simFlavor() = 0;
+    virtual ISF::SimulationFlavor simFlavor() const = 0;
 
     /** initialize Selector */
     virtual void initializeSelector() = 0;
@@ -66,7 +66,7 @@ class ISimulationSelector : virtual public IAlgTool {
     virtual void update(const ISFParticle& ) = 0;
 
     /** make the routing decision */
-    virtual bool selfSelect(const ISFParticle& particle) = 0;
+    virtual bool selfSelect(const ISFParticle& particle) const = 0;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
     virtual bool passSelectorCuts(const ISFParticle& particle) const = 0;

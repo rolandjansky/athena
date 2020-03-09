@@ -3,45 +3,60 @@
 # @file: TrigServicesConfig.py
 # @purpose: customized configurables
 
-from TrigServicesConf import TrigCOOLUpdateHelper as _TrigCOOLUpdateHelper
-      
+from TrigServices.TrigServicesConf import TrigCOOLUpdateHelper as _TrigCOOLUpdateHelper
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigCOOLUpdateHelper')
+ 
 class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
    __slots__ = ()
 
    def __init__(self, name='TrigCOOLUpdateHelper'):
       super(TrigCOOLUpdateHelper, self).__init__(name)
 
-      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
-      self.MonTool = GenericMonitoringTool('MonTool')
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.defineHistogram('TIME_CoolFolderUpdate', path='EXPERT', type='TH1F',
                                    title='Time for conditions update;time [ms]',
                                    xbins=100, xmin=0, xmax=200)
       return
 
-   def enable(self, folder='/TRIGGER/HLT/COOLUPDATE', tag=None):
-      """Enable the COOL folder updates (only use this for data)"""
+   def enable(self, folders = ['/Indet/Onl/Beampos',
+                               '/TRIGGER/LUMI/HLTPrefLumi',
+                               '/TRIGGER/HLT/PrescaleKey']):
+      """Enable COOL folder updates for given folders (only use this for data)"""
       
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
       if not hasattr(svcMgr,'IOVDbSvc'): return
       
-      self.coolFolder = folder
+      self.CoolFolderMap = '/TRIGGER/HLT/COOLUPDATE'
+      self.Folders = folders
+
       from IOVDbSvc.CondDB import conddb
-      if tag is None:
-         conddb.addFolder('TRIGGER',self.coolFolder)
-      else:
-         conddb.addFolderWithTag('TRIGGER',self.coolFolder,tag)
-      
+      conddb.addFolder('TRIGGER', self.CoolFolderMap)
+
+      # Make sure relevant folders are marked as 'extensible'
+      for i, dbf in enumerate(svcMgr.IOVDbSvc.Folders):
+         for f in self.Folders:
+            if f in dbf and '<extensible/>' not in f:
+               svcMgr.IOVDbSvc.Folders[i] += ' <extensible/>'
+               log.info('IOVDbSvc folder %s not marked as extensible. Fixing this...', f)
+
 
 def setupMessageSvc():
+   import os
    from AthenaCommon.AppMgr import theApp
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-   from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, WARNING, ERROR
+   from AthenaCommon.Constants import DEBUG, WARNING
 
    svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
-   MessageSvc.Format       = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+   MessageSvc.Format       = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
+   # Add timestamp when running in partition
+   if os.environ.get('TDAQ_PARTITION','') != 'athenaHLT':
+      MessageSvc.Format = "%t  " + MessageSvc.Format
+
    MessageSvc.ErsFormat    = "%S: %M"
    MessageSvc.printEventIDLevel = WARNING
 
@@ -59,6 +74,10 @@ def setupMessageSvc():
    MessageSvc.errorLimit   = 0
    MessageSvc.fatalLimit   = 0
 
+   # Message forwarding to ERS
+   MessageSvc.useErsError = ['*']
+   MessageSvc.useErsFatal = ['*']
+
    # set message limit to unlimited when general DEBUG is requested
    if MessageSvc.OutputLevel<=DEBUG :
       MessageSvc.defaultLimit = 0
@@ -69,14 +88,14 @@ def setupMessageSvc():
    MessageSvc.statLevel = WARNING
 
 # online ROB data provider service
-from TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
+from TrigServices.TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
 class HltROBDataProviderSvc(_HltROBDataProviderSvc):
    __slots__ = ()
 
    def __init__(self, name='ROBDataProviderSvc'):
       super(HltROBDataProviderSvc, self).__init__(name)
-      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
-      self.MonTool = GenericMonitoringTool('MonTool')
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.Histograms = [ 
          defineHistogram('TIME_ROBReserveData', path='EXPERT', type='TH1F',
                          title='Time to reserve ROBs for later retrieval;time [mu s]',
@@ -97,4 +116,27 @@ class HltROBDataProviderSvc(_HltROBDataProviderSvc):
                          title='Number of received ROBs for collect call;number',
                          xbins=100, xmin=0, xmax=2500)
          ]
+      return
+
+# online event loop manager
+from TrigServices.TrigServicesConf import HltEventLoopMgr as _HltEventLoopMgr
+class HltEventLoopMgr(_HltEventLoopMgr):
+   __slots__ = ()
+
+   def __init__(self, name='HltEventLoopMgr'):
+      super(HltEventLoopMgr, self).__init__(name)
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
+      self.MonTool.defineHistogram('ErrorAlgName,ErrorCode', path='EXPERT', type='TH2I',
+                                   title='Error StatusCodes per algorithm;Algorithm name;StatusCode',
+                                   xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
+      self.MonTool.defineHistogram('TotalTime', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (all events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTimeAccepted', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (accepted events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTimeRejected', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (rejected events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
       return

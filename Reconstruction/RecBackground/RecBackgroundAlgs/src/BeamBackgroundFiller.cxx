@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BeamBackgroundFiller.cxx 765686 2016-08-01 01:06:35Z ssnyder $
 #include "RecBackgroundAlgs/BeamBackgroundFiller.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -10,6 +9,12 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "CaloGeoHelpers/CaloSampling.h"
+
+#include <cmath>
+
+namespace {
+    static constexpr float const& myConst = 1e-3/3e8/1e-9;
+}
 
 //------------------------------------------------------------------------------
 BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
@@ -30,10 +35,7 @@ BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
   m_numTwoSided(0),
   m_numClusterShape(0),
   m_numJet(0),
-  m_direction(0),
-  m_helperTool("Muon::MuonEDMHelperTool"),
-  m_idHelperTool("Muon::MuonIdHelperTool"),
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
+  m_direction(0)
 {
 
   declareProperty("doMuonBoyCSCTiming", m_doMuonBoyCSCTiming = true);
@@ -63,20 +65,12 @@ BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
 
 }
 
-
-//------------------------------------------------------------------------------
-BeamBackgroundFiller::~BeamBackgroundFiller()
-{ 
-}
-
-
 //------------------------------------------------------------------------------
 StatusCode BeamBackgroundFiller::initialize() {
-  CHECK( m_helperTool.retrieve() );
-  CHECK( m_idHelperTool.retrieve() );
-  CHECK( m_idToFixedIdTool.retrieve() );
+  CHECK( m_edmHelperSvc.retrieve() );
+  CHECK( m_idHelperSvc.retrieve() );
 
-  ATH_CHECK(m_cscSegmentContainerReadHandleKey.initialize());
+  if (m_idHelperSvc->hasCSC()) ATH_CHECK(m_cscSegmentContainerReadHandleKey.initialize());
   ATH_CHECK(m_mdtSegmentContainerReadHandleKey.initialize());
   ATH_CHECK(m_caloClusterContainerReadHandleKey.initialize());
   ATH_CHECK(m_jetContainerReadHandleKey.initialize());
@@ -128,70 +122,81 @@ void BeamBackgroundFiller::FillMatchMatrix()
   m_matchMatrix.clear();
   m_resultClus.clear();
 
-  // select only the CSC segments with the global direction parallel to the beam pipe
-  SG::ReadHandle<Trk::SegmentCollection> cscSegmentReadHandle(m_cscSegmentContainerReadHandleKey);
-  
-  if (!cscSegmentReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to Trk::SegmentCollection with name: " << m_cscSegmentContainerReadHandleKey);
-  else ATH_MSG_DEBUG(m_cscSegmentContainerReadHandleKey << " retrieved from StoreGate");
-  
-  unsigned int cscSegmentCounter = 0;
-  for (auto thisCSCSegment : *cscSegmentReadHandle){
-    cscSegmentCounter++;
-    const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(thisCSCSegment);
-
-    if (!seg) std::abort();
-
-    Identifier id = m_helperTool->chamberId(*seg);
-    if ( !id.is_valid() ) continue;
-    if ( !m_idHelperTool->isMuon(id) ) continue;
-
-    if ( !m_idHelperTool->isCsc(id) ) continue;
-
-    const Amg::Vector3D& globalPos = seg->globalPosition();
-    const Amg::Vector3D& globalDir = seg->globalDirection();
-    double thetaPos = globalPos.theta();
-    double thetaDir = globalDir.theta();
-
-    double d2r = TMath::Pi()/180.;
-    if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaCsc*d2r) ) continue;
+  if (m_idHelperSvc->hasCSC()) {
+    // select only the CSC segments with the global direction parallel to the beam pipe
+    SG::ReadHandle<Trk::SegmentCollection> cscSegmentReadHandle(m_cscSegmentContainerReadHandleKey);
     
-    ElementLink<Trk::SegmentCollection> segLink;
-    segLink.toIndexedElement(*cscSegmentReadHandle, cscSegmentCounter-1);
-    m_indexSeg.push_back(segLink);
+    if (!cscSegmentReadHandle.isValid()) {
+      ATH_MSG_WARNING("Invalid ReadHandle to Trk::SegmentCollection with name: " << m_cscSegmentContainerReadHandleKey);
+    }
+    else {
+      ATH_MSG_DEBUG(m_cscSegmentContainerReadHandleKey << " retrieved from StoreGate");
+    
+      unsigned int cscSegmentCounter = 0;
+      for (auto thisCSCSegment : *cscSegmentReadHandle){
+        cscSegmentCounter++;
+        const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(thisCSCSegment);
+        
+        if (!seg) std::abort();
+        
+        Identifier id = m_edmHelperSvc->chamberId(*seg);
+        if ( !id.is_valid() ) continue;
+        if ( !m_idHelperSvc->isMuon(id) ) continue;
+        
+        if ( !m_idHelperSvc->isCsc(id) ) continue;
+        
+        const Amg::Vector3D& globalPos = seg->globalPosition();
+        const Amg::Vector3D& globalDir = seg->globalDirection();
+        double thetaPos = globalPos.theta();
+        double thetaDir = globalDir.theta();
+        
+        double d2r = M_PI/180.;
+        if( std::cos(2.*(thetaPos-thetaDir)) > std::cos(2.*m_cutThetaCsc*d2r) ) continue;
+        
+        ElementLink<Trk::SegmentCollection> segLink;
+        segLink.toIndexedElement(*cscSegmentReadHandle, cscSegmentCounter-1);
+        m_indexSeg.push_back(segLink);
+      }
+    }
   }
   
   // select only the MDT segments with the global direction parallel to the beam pipe
   SG::ReadHandle<Trk::SegmentCollection> mdtSegmentReadHandle(m_mdtSegmentContainerReadHandleKey);
   
-  if (!mdtSegmentReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to Trk::SegmentCollection with name: " << m_mdtSegmentContainerReadHandleKey);
-  else ATH_MSG_DEBUG(m_mdtSegmentContainerReadHandleKey << " retrieved from StoreGate");
-
-  unsigned int mdtSegmentCounter = 0;
-  for (auto thisMDTSegment : *mdtSegmentReadHandle){
-    mdtSegmentCounter++;
-    const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(thisMDTSegment);
-    if (!seg) std::abort();
-
-    Identifier id = m_helperTool->chamberId(*seg);
-    if ( !id.is_valid() ) continue;  
-    if ( !m_idHelperTool->isMuon(id) ) continue;
-
-    Muon::MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(id);
-
-    if(!( chIndex == Muon::MuonStationIndex::EIL || chIndex == Muon::MuonStationIndex::EIS )) continue;
-
-    const Amg::Vector3D& globalPos = seg->globalPosition();
-    const Amg::Vector3D& globalDir = seg->globalDirection();
-    double thetaPos = globalPos.theta();
-    double thetaDir = globalDir.theta();
-
-    double d2r = M_PI/180.;
-    if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaMdtI*d2r) ) continue;
+  if (!mdtSegmentReadHandle.isValid()) {
+    ATH_MSG_WARNING("Invalid ReadHandle to Trk::SegmentCollection with name: " << m_mdtSegmentContainerReadHandleKey);
+  }
+  else {
     
-    ElementLink<Trk::SegmentCollection> segLink;
-    segLink.toIndexedElement(*mdtSegmentReadHandle, mdtSegmentCounter-1);
-    m_indexSeg.push_back(segLink);
-
+    ATH_MSG_DEBUG(m_mdtSegmentContainerReadHandleKey << " retrieved from StoreGate");
+    
+    unsigned int mdtSegmentCounter = 0;
+    for (auto thisMDTSegment : *mdtSegmentReadHandle){
+      mdtSegmentCounter++;
+      const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(thisMDTSegment);
+      if (!seg) std::abort();
+      
+      Identifier id = m_edmHelperSvc->chamberId(*seg);
+      if ( !id.is_valid() ) continue;  
+      if ( !m_idHelperSvc->isMuon(id) ) continue;
+      
+      Muon::MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(id);
+      
+      if(!( chIndex == Muon::MuonStationIndex::EIL || chIndex == Muon::MuonStationIndex::EIS )) continue;
+      
+      const Amg::Vector3D& globalPos = seg->globalPosition();
+      const Amg::Vector3D& globalDir = seg->globalDirection();
+      double thetaPos = globalPos.theta();
+      double thetaDir = globalDir.theta();
+      
+      double d2r = M_PI/180.;
+      if( std::cos(2.*(thetaPos-thetaDir)) > std::cos(2.*m_cutThetaMdtI*d2r) ) continue;
+      
+      ElementLink<Trk::SegmentCollection> segLink;
+      segLink.toIndexedElement(*mdtSegmentReadHandle, mdtSegmentCounter-1);
+      m_indexSeg.push_back(segLink);
+      
+    }
   }
   
   m_resultSeg.assign(m_indexSeg.size(), int(0));
@@ -200,95 +205,99 @@ void BeamBackgroundFiller::FillMatchMatrix()
   // find matching clusters
   SG::ReadHandle<xAOD::CaloClusterContainer> caloClusterContainerReadHandle(m_caloClusterContainerReadHandleKey);
 
-  if (!caloClusterContainerReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to CaloClusterContainer with name: " << m_caloClusterContainerReadHandleKey);
-  else ATH_MSG_DEBUG(m_caloClusterContainerReadHandleKey << " retrieved from StoreGate");
-
-  unsigned int caloClusterCounter = 0;
-  for (auto thisCaloCluster : *caloClusterContainerReadHandle){
-    caloClusterCounter++;
-    
-    double eEmClus =
-      thisCaloCluster->eSample(CaloSampling::CaloSample::PreSamplerB) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::EMB1) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::EMB2) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::EMB3) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::PreSamplerE) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::EME1) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::EME2) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::EME3) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::FCAL0);
-    double eHadClus =
-      thisCaloCluster->eSample(CaloSampling::CaloSample::HEC0) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::HEC1) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::HEC2) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::HEC3) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileBar0) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileBar1) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileBar2) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileGap1) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileGap2) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileGap3) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileExt0) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileExt1) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::TileExt2) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::FCAL1) +
-      thisCaloCluster->eSample(CaloSampling::CaloSample::FCAL2);
-    double eClus = eEmClus + eHadClus;
-
-    // ignore low energy clusters
-    if( eClus < m_cutEnergy ) continue;
-
-    double rClus(0.);
-    if (!thisCaloCluster->retrieveMoment(xAOD::CaloCluster_v1::CENTER_MAG,rClus))
-      rClus = 0;
-    rClus = rClus/cosh(thisCaloCluster->eta());
-    
-    double phiClus = thisCaloCluster->phi();
-
-    // remove clusters at low radius (outside the CSC acceptance)
-    if( rClus < m_cutRadiusLow ) continue;
-    if( rClus > m_cutRadiusHigh ) continue;
-
-
-    std::vector<int> matchedSegmentsPerCluster;
-    matchedSegmentsPerCluster.assign(m_indexSeg.size(), int(0));
-    bool matched = false;
-    
-    for(unsigned int j=0; j<m_indexSeg.size(); j++) {
-      const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[j]);
-      if (!seg) std::abort();
-
-      Identifier id = m_helperTool->chamberId(*seg);
-      bool isCsc = m_idHelperTool->isCsc(id);
-
-      const Amg::Vector3D& globalPos = seg->globalPosition();
-      double phiSeg = globalPos.phi();
-      double rSeg = globalPos.perp();
-
-      // match in phi
-      double d2r = M_PI/180.;
-      if( TMath::Cos(phiClus-phiSeg) < TMath::Cos(m_cutPhiCsc*d2r) && isCsc ) continue;
-      if( TMath::Cos(phiClus-phiSeg) < TMath::Cos(m_cutPhiMdtI*d2r) && !isCsc ) continue;
-
-      // match in radius
-      if( TMath::Abs(rClus-rSeg) > m_cutRadiusCsc && isCsc ) continue;
-      if( TMath::Abs(rClus-rSeg) > m_cutRadiusMdtI && !isCsc ) continue;
-
-      matchedSegmentsPerCluster[j] = 1;
-      matched = true;
-      m_resultSeg[j] = m_resultSeg[j] | BeamBackgroundData::Matched;
-    }
-
-    if(!matched) continue;
-
-    ElementLink<xAOD::CaloClusterContainer> clusLink;
-    clusLink.toIndexedElement(*caloClusterContainerReadHandle, caloClusterCounter-1);
-    m_indexClus.push_back(clusLink);
-    m_matchMatrix.push_back(matchedSegmentsPerCluster);
-    m_numMatched++;
-    
+  if (!caloClusterContainerReadHandle.isValid()) {
+    ATH_MSG_WARNING("Invalid ReadHandle to CaloClusterContainer with name: " << m_caloClusterContainerReadHandleKey);
   }
+  else {
+    
+    ATH_MSG_DEBUG(m_caloClusterContainerReadHandleKey << " retrieved from StoreGate");
+    
+    unsigned int caloClusterCounter = 0;
+    for (auto thisCaloCluster : *caloClusterContainerReadHandle){
+      caloClusterCounter++;
+    
+      double eEmClus =
+	thisCaloCluster->eSample(CaloSampling::CaloSample::PreSamplerB) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::EMB1) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::EMB2) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::EMB3) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::PreSamplerE) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::EME1) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::EME2) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::EME3) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::FCAL0);
+      double eHadClus =
+	thisCaloCluster->eSample(CaloSampling::CaloSample::HEC0) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::HEC1) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::HEC2) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::HEC3) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileBar0) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileBar1) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileBar2) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileGap1) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileGap2) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileGap3) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileExt0) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileExt1) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::TileExt2) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::FCAL1) +
+	thisCaloCluster->eSample(CaloSampling::CaloSample::FCAL2);
+      double eClus = eEmClus + eHadClus;
 
+      // ignore low energy clusters
+      if( eClus < m_cutEnergy ) continue;
+
+      double rClus(0.);
+      if (!thisCaloCluster->retrieveMoment(xAOD::CaloCluster_v1::CENTER_MAG,rClus))
+	rClus = 0;
+      rClus = rClus/cosh(thisCaloCluster->eta());
+    
+      double phiClus = thisCaloCluster->phi();
+
+      // remove clusters at low radius (outside the CSC acceptance)
+      if( rClus < m_cutRadiusLow ) continue;
+      if( rClus > m_cutRadiusHigh ) continue;
+
+
+      std::vector<int> matchedSegmentsPerCluster;
+      matchedSegmentsPerCluster.assign(m_indexSeg.size(), int(0));
+      bool matched = false;
+    
+      for(unsigned int j=0; j<m_indexSeg.size(); j++) {
+	const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[j]);
+	if (!seg) std::abort();
+
+	Identifier id = m_edmHelperSvc->chamberId(*seg);
+	bool isCsc = m_idHelperSvc->isCsc(id);
+
+	const Amg::Vector3D& globalPos = seg->globalPosition();
+	double phiSeg = globalPos.phi();
+	double rSeg = globalPos.perp();
+
+	// match in phi
+	double d2r = M_PI/180.;
+	if( std::cos(phiClus-phiSeg) < std::cos(m_cutPhiCsc*d2r) && isCsc ) continue;
+	if( std::cos(phiClus-phiSeg) < std::cos(m_cutPhiMdtI*d2r) && !isCsc ) continue;
+
+	// match in radius
+	if( std::fabs(rClus-rSeg) > m_cutRadiusCsc && isCsc ) continue;
+	if( std::fabs(rClus-rSeg) > m_cutRadiusMdtI && !isCsc ) continue;
+
+	matchedSegmentsPerCluster[j] = 1;
+	matched = true;
+	m_resultSeg[j] = m_resultSeg[j] | BeamBackgroundData::Matched;
+      }
+
+      if(!matched) continue;
+
+      ElementLink<xAOD::CaloClusterContainer> clusLink;
+      clusLink.toIndexedElement(*caloClusterContainerReadHandle, caloClusterCounter-1);
+      m_indexClus.push_back(clusLink);
+      m_matchMatrix.push_back(matchedSegmentsPerCluster);
+      m_numMatched++;
+    
+    }
+  }
   m_resultClus.assign(m_indexClus.size(), int(1));
 }
 
@@ -326,18 +335,11 @@ void BeamBackgroundFiller::SegmentMethod()
 
     // muon segment: in-time (1), early (2), ambiguous (0)
     int timeStatus = 0;
-    double inTime = -(-TMath::Abs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
-    double early  = -( TMath::Abs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
-    if( TMath::Abs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
-    if( TMath::Abs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
-/*
-    // also take the CSC segments that fall outside of the time readout window on the early side
-    // CscTimeStatus::CscTimeEarly could be used here
-    Identifier id = m_helperTool->chamberId(*seg);
-    MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
-    int stationName = fid.stationName();
-    if( tSeg < early && (stationName==33 || stationName==34) ) timeStatus = 2;
-*/
+    double inTime = -(-std::fabs(zSeg) + globalPos.mag())*myConst;
+    double early  = -( std::fabs(zSeg) + globalPos.mag())*myConst;
+    if( std::fabs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
+    if( std::fabs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
+
     if( timeStatus == 2 ) {
       m_numSegmentEarly++;
       m_resultSeg[segIndex] = m_resultSeg[segIndex] | BeamBackgroundData::SegmentEarly;
@@ -370,23 +372,16 @@ void BeamBackgroundFiller::SegmentMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatusC = 0;
-      double inTime = -(-TMath::Abs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
-      double early  = -( TMath::Abs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
-      if( TMath::Abs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
-      if( TMath::Abs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
-/*
-      // also take the CSC segments that fall outside of the time readout window on the early side
-      // CscTimeStatus::CscTimeEarly could be used here
-      Identifier id = m_helperTool->chamberId(*seg);
-      MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
-      int stationName = fid.stationName();
-      if( tSegC < early && (stationName==33 || stationName==34) ) timeStatus = 2;
-*/
+      double inTime = -(-std::fabs(zSegC) + globalPos.mag())*myConst;
+      double early  = -( std::fabs(zSegC) + globalPos.mag())*myConst;
+      if( std::fabs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
+      if( std::fabs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
+
       double phiSegC = globalPos.phi();
 
       // match in phi
       double d2r = M_PI/180.;
-      if( TMath::Cos(phiSegA-phiSegC) < TMath::Cos(m_cutPhiSeg*d2r) ) continue;
+      if( std::cos(phiSegA-phiSegC) < std::cos(m_cutPhiSeg*d2r) ) continue;
 
 
       m_numSegmentACNoTime++;
@@ -397,7 +392,7 @@ void BeamBackgroundFiller::SegmentMethod()
       if( timeStatusA == 0 || timeStatusC == 0 ) continue;
 
       // check the time difference
-      if( TMath::Abs(tSegA - tSegC) > m_cutTimeDiffAC ) {
+      if( std::fabs(tSegA - tSegC) > m_cutTimeDiffAC ) {
         m_numSegmentAC++;
         m_resultSeg[segIndexA] = m_resultSeg[segIndexA] | BeamBackgroundData::SegmentAC;
         m_resultSeg[segIndexC] = m_resultSeg[segIndexC] | BeamBackgroundData::SegmentAC;
@@ -441,8 +436,8 @@ void BeamBackgroundFiller::OneSidedMethod()
     double tClus = clus->time();
 
     // calculate expected cluster time
-    double expectedClusterTimeAC = -( zClus + TMath::Sqrt(rClus*rClus + zClus*zClus))*(1e-3/3e8/1e-9);
-    double expectedClusterTimeCA = -(-zClus + TMath::Sqrt(rClus*rClus + zClus*zClus))*(1e-3/3e8/1e-9);
+    double expectedClusterTimeAC = -( zClus + std::sqrt(rClus*rClus + zClus*zClus))*myConst;
+    double expectedClusterTimeCA = -(-zClus + std::sqrt(rClus*rClus + zClus*zClus))*myConst;
 
     for(unsigned int segIndex=0; segIndex<m_indexSeg.size(); segIndex++) {
 
@@ -458,18 +453,11 @@ void BeamBackgroundFiller::OneSidedMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatus = 0;
-      double inTime = -(-TMath::Abs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
-      double early  = -( TMath::Abs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
-      if( TMath::Abs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
-      if( TMath::Abs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
-/*
-      // also take the CSC segments that fall outside of the time readout window on the early side
-      // CscTimeStatus::CscTimeEarly could be used here
-      Identifier id = m_helperTool->chamberId(*seg);
-      MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
-      int stationName = fid.stationName();
-      if( tSeg < early && (stationName==33 || stationName==34) ) timeStatus = 2;
-*/
+      double inTime = -(-std::fabs(zSeg) + globalPos.mag())*myConst;
+      double early  = -( std::fabs(zSeg) + globalPos.mag())*myConst;
+      if( std::fabs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
+      if( std::fabs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
+
       // reconstruct beam background direction: A->C (1), C->A (-1)
       int direction = 0;
       if( (zSeg>0 && timeStatus==2) || (zSeg<0 && timeStatus==1) ) direction = 1;
@@ -477,39 +465,39 @@ void BeamBackgroundFiller::OneSidedMethod()
 
 
       // check the cluster time without the beam background direction information
-      if( TMath::Abs(tClus - expectedClusterTimeAC) < m_cutClusTime ||
-          TMath::Abs(tClus - expectedClusterTimeCA) < m_cutClusTime ) {
+      if( std::fabs(tClus - expectedClusterTimeAC) < m_cutClusTime ||
+          std::fabs(tClus - expectedClusterTimeCA) < m_cutClusTime ) {
         m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::NoTimeLoose;
       }
-      if( (TMath::Abs(tClus - expectedClusterTimeAC) < m_cutClusTime && -tClus > m_cutClusTime) ||
-          (TMath::Abs(tClus - expectedClusterTimeCA) < m_cutClusTime && -tClus > m_cutClusTime) ) {
+      if( (std::fabs(tClus - expectedClusterTimeAC) < m_cutClusTime && -tClus > m_cutClusTime) ||
+          (std::fabs(tClus - expectedClusterTimeCA) < m_cutClusTime && -tClus > m_cutClusTime) ) {
         m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::NoTimeMedium;
       }
-      if( (TMath::Abs(tClus - expectedClusterTimeAC) < m_cutClusTime && -tClus > 2.*m_cutClusTime) ||
-          (TMath::Abs(tClus - expectedClusterTimeCA) < m_cutClusTime && -tClus > 2.*m_cutClusTime) ) {
+      if( (std::fabs(tClus - expectedClusterTimeAC) < m_cutClusTime && -tClus > 2.*m_cutClusTime) ||
+          (std::fabs(tClus - expectedClusterTimeCA) < m_cutClusTime && -tClus > 2.*m_cutClusTime) ) {
         m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::NoTimeTight;
       }
 
       // check the cluster time with the beam background direction information
       if( direction == 1 ) {
-        if( TMath::Abs(tClus - expectedClusterTimeAC) < m_cutClusTime ) {
+        if( std::fabs(tClus - expectedClusterTimeAC) < m_cutClusTime ) {
           m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::OneSidedLoose;
         }
-        if( TMath::Abs(tClus - expectedClusterTimeAC) < m_cutClusTime && -tClus > m_cutClusTime ) {
+        if( std::fabs(tClus - expectedClusterTimeAC) < m_cutClusTime && -tClus > m_cutClusTime ) {
           m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::OneSidedMedium;
         }
-        if( TMath::Abs(tClus - expectedClusterTimeAC) < m_cutClusTime && -tClus > 2.*m_cutClusTime ) {
+        if( std::fabs(tClus - expectedClusterTimeAC) < m_cutClusTime && -tClus > 2.*m_cutClusTime ) {
           m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::OneSidedTight;
         }
       } else
       if( direction == -1 ) {
-        if( TMath::Abs(tClus - expectedClusterTimeCA) < m_cutClusTime ) {
+        if( std::fabs(tClus - expectedClusterTimeCA) < m_cutClusTime ) {
           m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::OneSidedLoose;
         }
-        if( TMath::Abs(tClus - expectedClusterTimeCA) < m_cutClusTime && -tClus > m_cutClusTime ) {
+        if( std::fabs(tClus - expectedClusterTimeCA) < m_cutClusTime && -tClus > m_cutClusTime ) {
           m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::OneSidedMedium;
         }
-        if( TMath::Abs(tClus - expectedClusterTimeCA) < m_cutClusTime && -tClus > 2.*m_cutClusTime ) {
+        if( std::fabs(tClus - expectedClusterTimeCA) < m_cutClusTime && -tClus > 2.*m_cutClusTime ) {
           m_matchMatrix[clusIndex][segIndex] = m_matchMatrix[clusIndex][segIndex] | BeamBackgroundData::OneSidedTight;
         }
       }
@@ -561,18 +549,11 @@ void BeamBackgroundFiller::TwoSidedMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatusA = 0;
-      double inTime = -(-TMath::Abs(zSegA) + globalPos.mag())*(1e-3/3e8/1e-9);
-      double early  = -( TMath::Abs(zSegA) + globalPos.mag())*(1e-3/3e8/1e-9);
-      if( TMath::Abs(tSegA - inTime) < m_cutMuonTime ) timeStatusA = 1;
-      if( TMath::Abs(tSegA - early ) < m_cutMuonTime ) timeStatusA = 2;
-/*
-      // also take the CSC segments that fall outside of the time readout window on the early side
-      // CscTimeStatus::CscTimeEarly could be used here
-      Identifier id = m_helperTool->chamberId(*seg);
-      MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
-      int stationName = fid.stationName();
-      if( tSegA < early && (stationName==33 || stationName==34) ) timeStatusA = 2;
-*/
+      double inTime = -(-std::fabs(zSegA) + globalPos.mag())*myConst;
+      double early  = -( std::fabs(zSegA) + globalPos.mag())*myConst;
+      if( std::fabs(tSegA - inTime) < m_cutMuonTime ) timeStatusA = 1;
+      if( std::fabs(tSegA - early ) < m_cutMuonTime ) timeStatusA = 2;
+
       // take only the segments on side A (z > 0)
       if( zSegA < 0. ) continue;
 
@@ -591,18 +572,11 @@ void BeamBackgroundFiller::TwoSidedMethod()
 
         // muon segment: in-time (1), early (2), ambiguous (0)
         int timeStatusC = 0;
-        double inTime = -(-TMath::Abs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
-        double early  = -( TMath::Abs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
-        if( TMath::Abs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
-        if( TMath::Abs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
-/*
-        // also take the CSC segments that fall outside of the time readout window on the early side
-        // CscTimeStatus::CscTimeEarly could be used here
-        Identifier id = m_helperTool->chamberId(*seg);
-        MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
-        int stationName = fid.stationName();
-        if( tSegC < early && (stationName==33 || stationName==34) ) timeStatusC = 2;
-*/
+        double inTime = -(-std::fabs(zSegC) + globalPos.mag())*myConst;
+        double early  = -( std::fabs(zSegC) + globalPos.mag())*myConst;
+        if( std::fabs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
+        if( std::fabs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
+
         // take only the segments on side C (z < 0)
         if( zSegC > 0. ) continue;
 
@@ -616,7 +590,7 @@ void BeamBackgroundFiller::TwoSidedMethod()
         if( timeStatusA == 0 || timeStatusC == 0 ) continue;
 
         // check the time difference
-        if( TMath::Abs(tSegA - tSegC) > m_cutTimeDiffAC ) {
+        if( std::fabs(tSegA - tSegC) > m_cutTimeDiffAC ) {
           m_matchMatrix[clusIndex][segIndexA] = m_matchMatrix[clusIndex][segIndexA] | BeamBackgroundData::TwoSided;
           m_matchMatrix[clusIndex][segIndexC] = m_matchMatrix[clusIndex][segIndexC] | BeamBackgroundData::TwoSided;
           m_resultSeg[segIndexA] = m_resultSeg[segIndexA] | m_matchMatrix[clusIndex][segIndexA];
@@ -712,6 +686,7 @@ void BeamBackgroundFiller::ClusterShapeMethod()
       m_numClusterShape++;
     } 
   }
+
 }
 
 
@@ -732,42 +707,47 @@ void BeamBackgroundFiller::FindFakeJets()
   // find the jet that contains this cluster
   SG::ReadHandle<xAOD::JetContainer> jetContainerReadHandle(m_jetContainerReadHandleKey);
 
-  if(!jetContainerReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to JetContainer with name: " << m_jetContainerReadHandleKey);
-  else ATH_MSG_DEBUG(m_jetContainerReadHandleKey << " retrieved from StoreGate");
-
-  unsigned int jetCounter = 0;
-  for (auto thisJet : *jetContainerReadHandle){
-    bool isFakeJet = false;
-    int resultJet = 0;
-
-    xAOD::JetConstituentVector vec = thisJet->getConstituents();
-    xAOD::JetConstituentVector::iterator constIt = vec.begin();
-    xAOD::JetConstituentVector::iterator constItE = vec.end();
-
-    for(; constIt != constItE; ++constIt) {
-      if(constIt->type()!=xAOD::Type::CaloCluster)
-	continue;
-      const xAOD::CaloCluster* jetConst = dynamic_cast<const xAOD::CaloCluster*>(constIt->rawConstituent());
-
-      for(unsigned int clusIndex=0; clusIndex<m_indexClus.size(); clusIndex++) {
-        const xAOD::CaloCluster* clus = *m_indexClus[clusIndex];
-
-        if( jetConst == clus ) {
-          isFakeJet = true;
-          resultJet = resultJet | m_resultClus[clusIndex];
-        }
-      }
-    }
-
-    if( isFakeJet ) {
-      ElementLink<xAOD::JetContainer> jetLink;
-      jetLink.toIndexedElement(*jetContainerReadHandle, jetCounter);
-      m_indexJet.push_back(jetLink);
-      m_resultJet.push_back(resultJet);
-      m_numJet++;
-    }
-    jetCounter++;
+  if(!jetContainerReadHandle.isValid()) {
+    ATH_MSG_WARNING("Invalid ReadHandle to JetContainer with name: " << m_jetContainerReadHandleKey);
   }
+  else {
+    ATH_MSG_DEBUG(m_jetContainerReadHandleKey << " retrieved from StoreGate");
+
+    unsigned int jetCounter = 0;
+    for (auto thisJet : *jetContainerReadHandle){
+      bool isFakeJet = false;
+      int resultJet = 0;
+      
+      xAOD::JetConstituentVector vec = thisJet->getConstituents();
+      xAOD::JetConstituentVector::iterator constIt = vec.begin();
+      xAOD::JetConstituentVector::iterator constItE = vec.end();
+      
+      for(; constIt != constItE; ++constIt) {
+	if(constIt->type()!=xAOD::Type::CaloCluster)
+	  continue;
+	const xAOD::CaloCluster* jetConst = dynamic_cast<const xAOD::CaloCluster*>(constIt->rawConstituent());
+	
+	for(unsigned int clusIndex=0; clusIndex<m_indexClus.size(); clusIndex++) {
+	  const xAOD::CaloCluster* clus = *m_indexClus[clusIndex];
+	  
+	  if( jetConst == clus ) {
+	    isFakeJet = true;
+	    resultJet = resultJet | m_resultClus[clusIndex];
+	  }
+	}
+      }
+      
+      if( isFakeJet ) {
+	ElementLink<xAOD::JetContainer> jetLink;
+	jetLink.toIndexedElement(*jetContainerReadHandle, jetCounter);
+	m_indexJet.push_back(jetLink);
+	m_resultJet.push_back(resultJet);
+	m_numJet++;
+      }
+      jetCounter++;
+    }
+  }
+
 }
 
 
@@ -837,8 +817,3 @@ void BeamBackgroundFiller::FillBeamBackgroundData(SG::WriteHandle<BeamBackground
 		 m_numClusterShape);
 }
 
-
-//------------------------------------------------------------------------------
-StatusCode BeamBackgroundFiller::finalize() {
-  return StatusCode::SUCCESS;
-}

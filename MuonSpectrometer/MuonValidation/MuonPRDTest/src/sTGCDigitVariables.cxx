@@ -16,7 +16,7 @@
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
-StatusCode sTGCDigitVariables::fillVariables()
+StatusCode sTGCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
   ATH_MSG_DEBUG(" do fillNSWsTGCDigitVariables()");
   CHECK( this->clearVariables() );
@@ -71,7 +71,7 @@ StatusCode sTGCDigitVariables::fillVariables()
                          << " Station PhiMax ["  << stationPhiMax      << "]");
 
       int isSmall = stName[2] == 'S';
-      const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
       int channelNumber = 0;
       const Identifier phiId, etaId;

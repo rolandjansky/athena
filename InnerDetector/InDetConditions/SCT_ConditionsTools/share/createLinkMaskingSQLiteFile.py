@@ -1,5 +1,7 @@
 #!/bin/env python
 
+from __future__ import print_function
+
 # Taken from InnerDetector/InDetRecTools/TRT_ElectronPidTools/DatabaseTools/WritePyCoolAll.py
 # https://twiki.cern.ch/twiki/bin/view/Atlas/ConditionsSimpleExample
 # Usage: python ../athena/InnerDetector/InDetConditions/SCT_ConditionsTools/python/createLinkMaskingSQLiteFile.py
@@ -29,10 +31,11 @@ def main():
     dbString = "sqlite://;schema=%s;dbname=%s" % (dbFile, dbName)
     try:
         db = dbSvc.createDatabase(dbString)
-    except Exception, e:
-        print 'Problem creating database', e
+    except Exception:
+        import traceback
+        traceback.print_exc()
         sys.exit(-1)
-    print "Created database", dbString
+    print ("Created database", dbString)
     
     # setup folder 
     spec = cool.RecordSpecification()
@@ -58,13 +61,13 @@ def main():
                 }
     
     for waferID, lastProbedState in dataDict.items():
-        print "\nChannel", waferID
-        print "lastProbedState is", lastProbedState
+        print ("\nChannel", waferID)
+        print ("lastProbedState is", lastProbedState)
         data[fieldNames[0]] = lastProbedState
-        print "Will store this object for channel", waferID, data
+        print ("Will store this object for channel", waferID, data)
         folder.storeObject(0, cool.ValidityKeyMax, data, waferID)
 
-    print "\nClose database"
+    print ("\nClose database")
     db.closeDatabase()
 
 if __name__=="__main__":

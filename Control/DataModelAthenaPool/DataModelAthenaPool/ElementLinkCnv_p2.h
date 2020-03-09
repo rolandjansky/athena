@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELATHENAPOOL_ELEMENTLINKCNV_P2_H
@@ -13,6 +13,9 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "ElementLink_p2.h"
+namespace SG {
+  class ThinningCache;
+}
 
 /** @class ElementLinkCnv_p2<LINK>
  *  @brief Converter template for converters between transient
@@ -54,49 +57,86 @@ public:
     typedef	LINK_TYPE				                Link_t;
     typedef 	typename GeneratePersELinkType_p2< Link_t >::type	PersLink_t;
 
+    struct State
+    {
+      typedef std::map<std::string, unsigned int> IndexMap;
+
+      State();
+      State (ElementLinkContNames_p2& lookupTable);
+      State (const ElementLinkContNames_p2& lookupTable);
+
+      /// Map to find index of container name in lookup table
+      IndexMap                       m_nameIndexMap;
+      /// Lookup table with list of container names and starting element
+      /// link index for each container name change
+      ElementLinkContNames_p2*       m_lookupTable = nullptr;
+      const ElementLinkContNames_p2* m_clookupTable = nullptr;
+      /// Last container name added - for persToTrans
+      ///   must be string by value 
+      std::string                    m_lastNameAdded;
+      /// Last container name found - for transToPers
+      ///   use string ptr to avoid string copy
+      const std::string*             m_lastNameFound;
+      /// Last name inded
+      unsigned int                   m_lastNameIndex = 0;
+
+      void reset (ElementLinkContNames_p2& lookupTable);
+      void reset (const ElementLinkContNames_p2& lookupTable);
+
+    private:
+      const std::string* defaultLastName () const;
+    };
+
+
     ElementLinkCnv_p2();
     /// If client sets state of EL to persistible (i.e. with
     /// index,key), then set isPersistible to true (default is false)
     ElementLinkCnv_p2(bool isPersistible);
+
   
+    void transToPers (State& state,
+                      const Link_t& trans,
+                      PersLink_t& pers,
+                      const SG::ThinningCache* cache,
+                      MsgStream& log) const;
+
+    void transToPers (State& state,
+                      const Link_t& trans,
+                      PersLink_t& pers,
+                      MsgStream& log) const;
+
+    void persToTrans (State& state,
+                      const PersLink_t& pers,
+                      Link_t& trans,
+                      MsgStream& log) const;
+
+
     void         resetForCnv(ElementLinkContNames_p2& lookupTable);
     void         resetForCnv(const ElementLinkContNames_p2& lookupTable);
 
     virtual void persToTrans(const PersLink_t* pers, Link_t* trans, MsgStream& log) ;
     virtual void transToPers(const Link_t* trans, PersLink_t* pers, MsgStream& log) ;
 
-    virtual void persToTrans(const PersLink_t& pers, Link_t& trans, MsgStream& log) ;
-    virtual void transToPers(const Link_t& trans, PersLink_t& pers, MsgStream& log) ;
+    void persToTrans(const PersLink_t& pers, Link_t& trans, MsgStream& log) ;
+    void transToPers(const Link_t& trans, PersLink_t& pers, MsgStream& log) ;
+
 
 private:
 
     /// Add name to lookup table and return index
-    unsigned int getNameIndex    (const std::string& name);
+    unsigned int getNameIndex    (State& state, const std::string& name) const;
     /// Get the container name from lookup table
-    void         getContName     (unsigned int nameIndex, std::string*& name, MsgStream& log);
-    std::string* defaultLastName () const;
+    void         getContName     (State& state,
+                                  unsigned int nameIndex,
+                                  std::string const *& name,
+                                  MsgStream& log) const;
 
-    typedef std::map<std::string, unsigned int> IndexMap;
+    State m_state;
 
-    /// Map to find index of container name in lookup table
-    IndexMap                       m_nameIndexMap;
-    /// Lookup table with list of container names and starting element
-    /// link index for each container name change
-    ElementLinkContNames_p2*       m_lookupTable;
-    const ElementLinkContNames_p2* m_clookupTable;
-    /// Last container name added - for persToTrans
-    ///   must be string by value 
-    std::string                    m_lastNameAdded;
-    /// Last container name found - for transToPers
-    ///   use string ptr to avoid string copy
-    const std::string*             m_lastNameFound;
-    /// Last name inded
-    unsigned int                   m_lastNameIndex;
-
-    /// Can avoid call to toPersistent if work already done by caller
-    bool                           m_isPersistible;
-
+  /// Can avoid call to toPersistent if work already done by caller
+  bool                           m_isPersistible;
 };
+
 
 #ifndef __REFLEX__
 #include "ElementLinkCnv_p2.icc"

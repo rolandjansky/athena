@@ -25,11 +25,13 @@
 
 #include "TrkEventPrimitives/DriftCircleSide.h"
 #include "TrkEventPrimitives/DriftCircleStatus.h"
-#include <cassert>
 
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "AthLinks/ElementLink.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
+#include "CxxUtils/CachedUniquePtr.h"
+
+#include <cassert>
 
 typedef ElementLink<Muon::MdtPrepDataContainer> ElementLinkToIDC_MDT_Container;
 
@@ -248,7 +250,7 @@ private:
     ElementLinkToIDC_MDT_Container              m_rio;
 
     /** global position of the measurement. */
-    mutable const Amg::Vector3D*          m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
     
     /** Surface at postion of sagged wire. This is owned by this object, and will be deleted when it 
     is.*/
@@ -258,13 +260,13 @@ private:
     const MuonGM::MdtReadoutElement*            m_detEl;
 
     /** This angle is the position of the point of closest approach in cylindrical coordinates, and is needed to construct the global position*/
-    mutable float                               m_localAngle;
+    float 	                                m_localAngle;
     
     /** This is the position of the point of closest approach, in the local z coord (i.e. along the wire), and is needed to construct the global position*/
-    mutable float                               m_positionAlongWire;
+    float                                       m_positionAlongWire;
 
     /** This is the drift time used to obtain the drift radius */
-    mutable float                               m_driftTime;
+    float                                       m_driftTime;
     
     /** Records information about the 'strategy' used by Muon::MdtDriftCircleOnTrackCreator to make this object.*/    
     MuonDriftCircleErrorStrategy                m_errorStrategy;

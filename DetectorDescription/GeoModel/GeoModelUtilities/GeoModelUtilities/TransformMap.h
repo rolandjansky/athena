@@ -16,6 +16,8 @@ class TransformMap {
   bool setTransform(const T* obj, const X& xf);
   const X* getTransform(const T* obj) const;
 
+  const std::unordered_map<const T*, X>& container() const;
+
  private:
   std::unordered_map<const T*, X> m_container;
 };
@@ -23,8 +25,9 @@ class TransformMap {
 template<typename T, typename X> 
 bool TransformMap<T,X>::setTransform(const T* obj, const X& xf)
 {
-  auto result = m_container.emplace(obj, xf);
-  return result.second;
+  bool result = m_container.find(obj) == m_container.end();
+  m_container[obj] = xf;
+  return result;
 }
 
 template<typename T, typename X> 
@@ -39,7 +42,10 @@ const X* TransformMap<T,X>::getTransform(const T* obj) const
   }
 }
 
-#endif 
+template<typename T, typename X>
+const std::unordered_map<const T*, X>& TransformMap<T,X>::container() const
+{
+  return m_container;
+}
 
-
-
+#endif

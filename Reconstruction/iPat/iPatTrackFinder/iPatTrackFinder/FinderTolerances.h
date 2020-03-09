@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,9 +44,6 @@ public:
     
     /** handle for incident service */
     void		handle(const Incident& inc) ;
-
-    /** method registered for the callback chain */
-    // StatusCode		magneticFieldInitialize(IOVSVC_CALLBACK_ARGS);
 
     // clients: CombinationMaker, PrimaryCandidate, SecondaryCandidate
     double		halfField (void) const;

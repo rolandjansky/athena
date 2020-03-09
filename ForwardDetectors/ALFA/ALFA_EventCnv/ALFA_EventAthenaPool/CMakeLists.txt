@@ -26,7 +26,3 @@ atlas_add_poolcnv_library( ALFA_EventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES ALFA_SimEv/ALFA_HitCollection.h ALFA_SimEv/ALFA_ODHitCollection.h ALFA_RawEv/ALFA_DigitCollection.h ALFA_RawEv/ALFA_ODDigitCollection.h ALFA_RawEv/ALFA_RawDataContainer.h ALFA_LocRecEv/ALFA_LocRecEvCollection.h ALFA_LocRecEv/ALFA_LocRecODEvCollection.h ALFA_LocRecCorrEv/ALFA_LocRecCorrEvCollection.h ALFA_LocRecCorrEv/ALFA_LocRecCorrODEvCollection.h ALFA_GloRecEv/ALFA_GloRecEvCollection.h ALFA_CLinkEv/ALFA_CLinkEvent.h
                            LINK_LIBRARIES AthenaPoolUtilities StoreGateLib SGtests AthenaPoolCnvSvcLib AtlasSealCLHEP ALFA_CLinkEv ALFA_EventTPCnv ALFA_RawEv ALFA_GloRecEv ALFA_LocRecCorrEv ALFA_LocRecEv ALFA_SimEv GaudiKernel )
-
-# Install files from the package:
-atlas_install_headers( ALFA_EventAthenaPool )
-

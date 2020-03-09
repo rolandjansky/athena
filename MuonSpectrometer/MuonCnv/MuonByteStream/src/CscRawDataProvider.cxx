@@ -14,7 +14,7 @@
 Muon::CscRawDataProvider::CscRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rawDataTool     ("Muon::CSC_RawDataProviderTool/CscRawDataProviderTool", this),
+  m_rawDataTool     ("Muon::CSC_RawDataProviderToolMT/CscRawDataProviderTool", this),
   m_regionSelector  ("RegSelSvc",name)
 {
   declareProperty ("ProviderTool", m_rawDataTool);
@@ -39,7 +39,9 @@ StatusCode Muon::CscRawDataProvider::initialize() {
 
   // We only need the region selector in RoI seeded mode
   if(m_seededDecoding) ATH_CHECK( m_regionSelector.retrieve() );
-  
+
+  ATH_CHECK( m_ALineKey.initialize(m_seededDecoding) ); // !!! REMOVEME: when MuonDetectorManager in cond store
+
   return StatusCode::SUCCESS;
 }
 
@@ -53,7 +55,13 @@ StatusCode Muon::CscRawDataProvider::execute() {
   ATH_MSG_VERBOSE( "CscRawDataProvider::execute" );
 
   if(m_seededDecoding) {
-   
+
+    SG::ReadCondHandle<ALineMapContainer> readALineHandle(m_ALineKey);// !!! REMOVEME: when MuonDetectorManager in cond store
+    if(!readALineHandle.isValid()){// !!! REMOVEME: when MuonDetectorManager in cond store
+      ATH_MSG_WARNING("Cannot retrieve ALine Handle "<<m_ALineKey.key());// !!! REMOVEME: when MuonDetectorManager in cond store
+      return StatusCode::SUCCESS;// !!! REMOVEME: when MuonDetectorManager in cond store
+    }// !!! REMOVEME: when MuonDetectorManager in cond store
+  
     // read in the RoIs to process
     SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
     if(!muonRoI.isValid()){

@@ -264,8 +264,6 @@ if TileFELIX:
     ByteStreamCnvSvc.ROD2ROBmap += ["0x203", "0x500006"]
 
 
-topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
-
 TileCorrectTime = False    
 doTileOptATLAS = False
 

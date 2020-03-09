@@ -1,83 +1,85 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigL2MuonSA.TrigL2MuonSAConf import *
-from TrigL2MuonSA.TrigL2MuonSAMonitoring import *
+import TrigL2MuonSA.TrigL2MuonSAConf as MuonSA
+from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
 from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from AthenaCommon.DetFlags import DetFlags
-from TrigTimeMonitor.TrigTimeHistToolConfig import *
-from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
+from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForAlignedDet, MuonBackExtrapolatorForMisalignedDet,  MuonBackExtrapolatorForData
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-theDataPreparator    = TrigL2MuonSA__MuFastDataPreparator()
-thePatternFinder     = TrigL2MuonSA__MuFastPatternFinder()
-theStationFitter     = TrigL2MuonSA__MuFastStationFitter()
-theTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
-theTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
-ptFromAlphaBeta      = TrigL2MuonSA__PtFromAlphaBeta()
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigL2MuonSAConfig')
 
-rpcDataPreparator = TrigL2MuonSA__RpcDataPreparator()
-rpcDataPreparator.DecodeBS = DetFlags.readRDOBS.RPC_on()
-ToolSvc += rpcDataPreparator
+theStationFitter     = MuonSA.TrigL2MuonSA__MuFastStationFitter(PtFromAlphaBeta = MuonSA.TrigL2MuonSA__PtFromAlphaBeta())
 
-theDataPreparator.RPCDataPreparator = rpcDataPreparator
+theDataPreparator    = MuonSA.TrigL2MuonSA__MuFastDataPreparator()
+theDataPreparator.RPCDataPreparator = MuonSA.TrigL2MuonSA__RpcDataPreparator(DecodeBS = DetFlags.readRDOBS.RPC_on())
+theDataPreparator.MDTDataPreparator = MuonSA.TrigL2MuonSA__MdtDataPreparator(DecodeBS = DetFlags.readRDOBS.MDT_on())
+theDataPreparator.TGCDataPreparator = MuonSA.TrigL2MuonSA__TgcDataPreparator(DecodeBS = DetFlags.readRDOBS.TGC_on())
+theDataPreparator.CSCDataPreparator = MuonSA.TrigL2MuonSA__CscDataPreparator(DecodeBS = DetFlags.readRDOBS.CSC_on())
 
-mdtDataPreparator = TrigL2MuonSA__MdtDataPreparator()
-mdtDataPreparator.DecodeBS = DetFlags.readRDOBS.MDT_on()
+#Need different PRD collection names to run offline and Run 2 trigger in same job
+if not TriggerFlags.doMT():
+    from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool",OutputCollection="TrigMDT_DriftCircles")
+    ToolSvc += MdtRdoToMdtPrepDataTool
+    theDataPreparator.MDTDataPreparator.MdtPrepDataProvider =  MdtRdoToMdtPrepDataTool
+    theDataPreparator.MDTDataPreparator.MDTPrepDataContainer = MdtRdoToMdtPrepDataTool.OutputCollection
 
-theDataPreparator.MDTDataPreparator = mdtDataPreparator
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+    CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigCscRdoToPrepDataTool", OutputCollection="TrigCSC_Measurements")
+    ToolSvc += CscRdoToCscPrepDataTool
+    theDataPreparator.CSCDataPreparator.CscPrepDataProvider =  CscRdoToCscPrepDataTool
+    theDataPreparator.CSCDataPreparator.CSCPrepDataContainer = CscRdoToCscPrepDataTool.OutputCollection
 
-tgcDataPreparator = TrigL2MuonSA__TgcDataPreparator()
-tgcDataPreparator.DecodeBS = DetFlags.readRDOBS.TGC_on()
+    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
+    TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigTgcRdoToPrepDataTool",OutputCollection="TrigTGC_Measurements",OutputCoinCollection="TrigerT1CoinDataCollection")
+    ToolSvc += TgcRdoToTgcPrepDataTool
+    theDataPreparator.TGCDataPreparator.TgcPrepDataProvider =  TgcRdoToTgcPrepDataTool
+    theDataPreparator.TGCDataPreparator.TGCPrepDataContainer = TgcRdoToTgcPrepDataTool.OutputCollection
 
-theDataPreparator.TGCDataPreparator = tgcDataPreparator
+    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+    #InputCollection is really the output RPC coin collection...
+    RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigRpcRdoToPrepDataTool", TriggerOutputCollection="TrigRPC_Measurements", InputCollection="TrigRPC_triggerHits")
+    ToolSvc += RpcRdoToRpcPrepDataTool
+    theDataPreparator.RPCDataPreparator.RpcPrepDataProvider =  RpcRdoToRpcPrepDataTool
+    theDataPreparator.RPCDataPreparator.RpcPrepDataContainer = RpcRdoToRpcPrepDataTool.TriggerOutputCollection
 
-cscDataPreparator = TrigL2MuonSA__CscDataPreparator()
-cscDataPreparator.DecodeBS = DetFlags.readRDOBS.CSC_on()
-ToolSvc += cscDataPreparator
-theDataPreparator.CSCDataPreparator = cscDataPreparator
 
-ToolSvc += theDataPreparator
-ToolSvc += thePatternFinder
-ToolSvc += theStationFitter
-ToolSvc += theTrackFitter
-ToolSvc += theTrackExtrapolator
-ToolSvc += ptFromAlphaBeta
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 ToolSvc += MuonBackExtrapolatorForData()
 
+ToolSvc += MuonSA.TrigL2MuonSA__CscSegmentMaker()
+ToolSvc += MuonSA.TrigL2MuonSA__CscRegDict()
 
-ToolSvc += TrigL2MuonSA__CscSegmentMaker()
-ToolSvc += TrigL2MuonSA__CscRegDict()
-
-class PtBarrelLUTSvc(TrigL2MuonSA__PtBarrelLUTSvc):
+class PtBarrelLUTSvc(MuonSA.TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc'):
         super(PtBarrelLUTSvc ,self).__init__(name)
         self.LUTfile = "pt_barrel.lut"
         self.SP_LUTfile = "pt_barrelSP_new.lut"
 
-class PtBarrelLUTSvc_MC(TrigL2MuonSA__PtBarrelLUTSvc):
+class PtBarrelLUTSvc_MC(MuonSA.TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc_MC'):
         super(PtBarrelLUTSvc_MC ,self).__init__(name)
         self.LUTfile = "pt_barrel.mc10.lut"
 
-class PtEndcapLUTSvc(TrigL2MuonSA__PtEndcapLUTSvc):
+class PtEndcapLUTSvc(MuonSA.TrigL2MuonSA__PtEndcapLUTSvc):
     def __init__(self,name = 'PtEndcapLUTSvc'):
         super(PtEndcapLUTSvc ,self).__init__(name)
         self.FileName = "pt_endcap.lut"
         self.EMeanLUT = "pt_comb_mean.lut"
         self.ESigmaLUT = "pt_comb_sigma.lut"
 
-class PtEndcapLUTSvc_MC(TrigL2MuonSA__PtEndcapLUTSvc):                            
+class PtEndcapLUTSvc_MC(MuonSA.TrigL2MuonSA__PtEndcapLUTSvc):
     def __init__(self,name = 'PtEndcapLUTSvc_MC'):
         super(PtEndcapLUTSvc_MC ,self).__init__(name)
         self.FileName = "pt_endcap.mc10.lut"
         self.EMeanLUT = "pt_comb_mean.lut"
         self.ESigmaLUT = "pt_comb_sigma.lut"
 
-class AlignmentBarrelLUTSvc(TrigL2MuonSA__AlignmentBarrelLUTSvc):
+class AlignmentBarrelLUTSvc(MuonSA.TrigL2MuonSA__AlignmentBarrelLUTSvc):
     def __init__(self,name = 'AlignmentBarrelLUTSvc'):
         super(AlignmentBarrelLUTSvc ,self).__init__(name)
         self.LUTfile = "dZ_barrel.lut"
@@ -92,7 +94,7 @@ ServiceMgr += PtBarrelLUTSvc_MC()
 ServiceMgr += AlignmentBarrelLUTSvc()
 
 ### for athenaMT ###
-class TrigL2MuonSAMTConfig(MuFastSteering):
+class TrigL2MuonSAMTConfig(MuonSA.MuFastSteering):
 
     __slot__ = []
 
@@ -104,11 +106,10 @@ class TrigL2MuonSAMTConfig(MuFastSteering):
         super( TrigL2MuonSAMTConfig, self ).__init__( name )
 
         self.DataPreparator    = theDataPreparator
-        self.PatternFinder     = thePatternFinder
+        self.PatternFinder     = MuonSA.TrigL2MuonSA__MuFastPatternFinder()
         self.StationFitter     = theStationFitter
-        self.TrackFitter       = theTrackFitter
-        self.TrackExtrapolator = theTrackExtrapolator
-        self.StationFitter.PtFromAlphaBeta = ptFromAlphaBeta
+        self.TrackFitter       = MuonSA.TrigL2MuonSA__MuFastTrackFitter()
+        self.TrackExtrapolator = MuonSA.TrigL2MuonSA__MuFastTrackExtrapolator()
 
         self.R_WIDTH_TGC_FAILED = 200
         self.R_WIDTH_RPC_FAILED = 400
@@ -150,34 +151,28 @@ class TrigL2MuonSAMTConfig(MuFastSteering):
         # Default backextrapolator is for MC Misaligned Detector
         self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
 
-	# Setup MonTool for monitored variables in AthenaMonitoring package 
+        # Setup MonTool for monitored variables in AthenaMonitoring package
         # defined which histogram are created at TrigL2MuonSAMonitoring.py
-        try:
-            TriggerFlags.enableMonitoring = ["Validation"]
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                self.MonTool = TrigL2MuonSAMonitoring()
-        except AttributeError:
-            self.MonTool = ""
-            print name, ' Monitoring Tool failed'
+        self.MonTool = TrigL2MuonSAMonitoring()
 
         def setDefaults(cls,handle):
             if hasattr(handle,'BackExtrapolator'):
                 if handle.BackExtrapolator.name().find("AlignedBackExtrapolator")!=-1:
-                    print self.name," using BackExtrapolatorLUT for Aligned Detector"
+                    log.info("using BackExtrapolatorLUT for Aligned Detector")
                 if handle.BackExtrapolator.name().find("MisalignedBackExtrapolator")!=-1:
-                    print self.name," using BackExtrapolatorLUT for Misligned Detector"
+                    log.info("using BackExtrapolatorLUT for Misligned Detector")
                 if handle.BackExtrapolator.name().find("DataBackExtrapolator")!=-1:
-                    print self.name," using BackExtrapolatorLUT for Data"
+                    log.info("using BackExtrapolatorLUT for Data")
                     
         if TriggerFlags.run2Config=='2016':
             self.StationFitter.PtFromAlphaBeta.useCscPt = False
             self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
         else:
             self.StationFitter.PtFromAlphaBeta.useCscPt = True
-            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
+            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = False
 
 
-class TrigL2MuonSAConfig(MuFastSteering):
+class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
 
     __slot__ = []
 
@@ -189,11 +184,10 @@ class TrigL2MuonSAConfig(MuFastSteering):
         super( TrigL2MuonSAConfig, self ).__init__( name )
 
         self.DataPreparator    = theDataPreparator
-        self.PatternFinder     = thePatternFinder
+        self.PatternFinder     = MuonSA.TrigL2MuonSA__MuFastPatternFinder()
         self.StationFitter     = theStationFitter
-        self.TrackFitter       = theTrackFitter
-        self.TrackExtrapolator = theTrackExtrapolator
-        self.StationFitter.PtFromAlphaBeta = ptFromAlphaBeta
+        self.TrackFitter       = MuonSA.TrigL2MuonSA__MuFastTrackFitter()
+        self.TrackExtrapolator = MuonSA.TrigL2MuonSA__MuFastTrackExtrapolator()
 
         self.R_WIDTH_TGC_FAILED = 200
         self.R_WIDTH_RPC_FAILED = 400
@@ -235,14 +229,13 @@ class TrigL2MuonSAConfig(MuFastSteering):
         # Default backextrapolator is for MC Misaligned Detector
         self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
 
-        # adding Geometry Services
-
         # Monitoring system used by Run-2
         # Histograms for monitored variables
-        validation = TrigL2MuonSAValidationMonitoring()
-        online     = TrigL2MuonSAOnlineMonitoring()
-        cosmic     = TrigL2MuonSACosmicMonitoring()
-        time       = TrigTimeHistToolConfig('TimeHisto')
+        #from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        #validation = TrigL2MuonSAValidationMonitoring()
+        #online     = TrigL2MuonSAOnlineMonitoring()
+        #cosmic     = TrigL2MuonSACosmicMonitoring()
+        #time       = TrigTimeHistToolConfig('TimeHisto')
 
         #self.AthenaMonTools = [ validation, online, cosmic, time ]
         self.AthenaMonTools = [ ]
@@ -251,11 +244,11 @@ class TrigL2MuonSAConfig(MuFastSteering):
         def setDefaults(cls,handle):
             if hasattr(handle,'BackExtrapolator'):
                 if handle.BackExtrapolator.name().find("AlignedBackExtrapolator")!=-1:
-                    print self.name," using BackExtrapolatorLUT for Aligned Detector"
+                    log.info("using BackExtrapolatorLUT for Aligned Detector")
                 if handle.BackExtrapolator.name().find("MisalignedBackExtrapolator")!=-1:
-                    print self.name," using BackExtrapolatorLUT for Misligned Detector"
+                    log.info("using BackExtrapolatorLUT for Misligned Detector")
                 if handle.BackExtrapolator.name().find("DataBackExtrapolator")!=-1:
-                    print self.name," using BackExtrapolatorLUT for Data"
+                    log.info("using BackExtrapolatorLUT for Data")
                     
         if TriggerFlags.run2Config=='2016':
             self.StationFitter.PtFromAlphaBeta.useCscPt = False

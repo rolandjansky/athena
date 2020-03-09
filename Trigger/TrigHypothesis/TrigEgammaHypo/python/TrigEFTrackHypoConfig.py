@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##############################
 # EF Electron Track Hypothesis Algorithm Configuration:
@@ -9,11 +9,6 @@
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFTrackHypo
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-
-####
-#### !!!!!!!!!!!!!!!!!!!!!!!!!!
-# we have to do something with this, where was this defined before?
-from AthenaCommon.SystemOfUnits import GeV
 
 # monitoring
 class EFTrackHypo_OnlineMonitoring(TrigGenericMonitoringToolConfig):

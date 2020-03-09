@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ###########################################################################
 # SliceDef file for Combined Chains, used to implement TOPOS
@@ -115,12 +117,12 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
 #Helper
 
 def isJetTE(myString):
-#    print "Nils:Executing isJetTE: "+myString
+#    print ("Nils:Executing isJetTE: "+myString)
     if re.match("EF_[_0-9]+_HLThypo",myString) or re.match("EF_[_0-9]+_jetrec",myString) or ('HLThypo' in myString and re.match("EF_[_0-9]+",myString)) :
-#        print "BETTA Pass :",myString
+#        print ("BETTA Pass :",myString)
         return True
     else:
-#        print "BETTA Fail :",myString
+#        print ("BETTA Fail :",myString)
         return False
 
 ##############################################################################
@@ -168,11 +170,11 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     # Second TE: jets
     for cD in listOfChainDefs:
         if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if isJetTE(x)]:
-            #print "BETTA: found ", x
+            #print ("BETTA: found ", x)
             inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])]
-            print "Added the following to inputTEsEF:"
-            print cD.signatureList[-1]['listOfTriggerElements']
-            print ""
+            print ("Added the following to inputTEsEF:")
+            print (cD.signatureList[-1]['listOfTriggerElements'])
+            print ("")
             break
 
 
@@ -290,7 +292,7 @@ def _addRazor(theChainDef,chainDicts,listOfChainDefs):
     signatureListCopy = deepcopy(theChainDef.signatureList)
     signatureListCopy.reverse()
     for sig in signatureListCopy:
-        if not "xe" in sig['listOfTriggerElements'][-1]:
+        if "xe" not in sig['listOfTriggerElements'][-1]:
             inputTEsEFJet.append(sig['listOfTriggerElements'][-1])
             break
         
@@ -314,7 +316,7 @@ def _addRazor(theChainDef,chainDicts,listOfChainDefs):
             theChainDef.signatureList.pop( i )
             break
 
-    for j in xrange(i,len(theChainDef.signatureList) ):
+    for j in range(i,len(theChainDef.signatureList) ):
         theChainDef.signatureList[j]['signature_counter'] = theChainDef.signatureList[j]['signature_counter']  - 1
 
     outputTE = inputTEsEFJet[0]+'_hemisphRec'
@@ -423,10 +425,8 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import LeptonJetMatchAllTE
  
     dzmatching = False
-    drmatching = False
     for topo in chainDicts[0]['topo']:
         if "dz" in topo: dzmatching = True
-        if "dr" in topo: drmatching = True
  
  
     # obtain deltaR for Hypo configuration
@@ -472,13 +472,13 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
             for tes in mydict['listOfTriggerElements']:
 #                if isJetTE(tes):
                 if 'noCleaning' in tes or ('HLThypo' in tes and re.match("EF_[_0-9]+",tes)):
-                    #print "WOOF found my TE", tes
-                    #print "WOOF belongs to sign pos", mydict['signature_counter']
+                    #print ("WOOF found my TE", tes)
+                    #print ("WOOF belongs to sign pos", mydict['signature_counter'])
                     jetTElist.append(tes)
                     sigCounterlist.append(mydict['signature_counter'])
                     pos_sigCounterlist.append(i)
 #                else:
-#                    print "This is not a jet TE?"+ str(tes)
+#                    print ("This is not a jet TE?"+ str(tes))
                     
         if ('_b') in chnameToMatch: 
             jetTE = theChainDef.signatureList[-1]['listOfTriggerElements']
@@ -520,22 +520,22 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     if pos_sigCounter == -1:
         theChainDef.addSignature(theChainDef.signatureList[pos_sigCounter]['signature_counter']+1, [EFChainName])
     elif sigCounter == maxSigCounter:
-        #print "WOOOOOOF"
-        #print "WOOF: theChainDef.signatureList[pos_sigCounter]['signature_counter']+1", theChainDef.signatureList[pos_sigCounter]['signature_counter']+1
-        #print "WOOF: theChainDef.signatureList[pos_sigCounter-1]['signature_counter']+1", theChainDef.signatureList[pos_sigCounter-1]['signature_counter']+1
-        #print "WOOF: pos_sigCounter" , pos_sigCounter
-        #print "WOOF: sigCounter" , sigCounter
+        #print ("WOOOOOOF")
+        #print ("WOOF: theChainDef.signatureList[pos_sigCounter]['signature_counter']+1", theChainDef.signatureList[pos_sigCounter]['signature_counter']+1)
+        #print ("WOOF: theChainDef.signatureList[pos_sigCounter-1]['signature_counter']+1", theChainDef.signatureList[pos_sigCounter-1]['signature_counter']+1)
+        #print ("WOOF: pos_sigCounter" , pos_sigCounter)
+        #print ("WOOF: sigCounter" , sigCounter)
         theChainDef.addSignature(theChainDef.signatureList[pos_sigCounter]['signature_counter']+1, [EFChainName])
     else:
         theChainDef.insertSignature(sigCounter+1, [EFChainName])
-        #print "WOOF: theChainDef.signatureList[pos_sigCounter]['signature_counter']+1", theChainDef.signatureList[pos_sigCounter]['signature_counter']+1
-        #print "WOOF: theChainDef.signatureList[pos_sigCounter-1]['signature_counter']+1", theChainDef.signatureList[pos_sigCounter-1]['signature_counter']+1
-        #print "WOOF: pos_sigCounter" , pos_sigCounter
-        #print "WOOF: sigCounter" , sigCounter
+        #print ("WOOF: theChainDef.signatureList[pos_sigCounter]['signature_counter']+1", theChainDef.signatureList[pos_sigCounter]['signature_counter']+1)
+        #print ("WOOF: theChainDef.signatureList[pos_sigCounter-1]['signature_counter']+1", theChainDef.signatureList[pos_sigCounter-1]['signature_counter']+1)
+        #print ("WOOF: pos_sigCounter" , pos_sigCounter)
+        #print ("WOOF: sigCounter" , sigCounter)
 
 
-    #print "MEOW pos sig counter", pos_sigCounter
-    #print "MEOW chain def", theChainDef.signatureList
+    #print ("MEOW pos sig counter", pos_sigCounter)
+    #print ("MEOW chain def", theChainDef.signatureList)
 
     return theChainDef
 

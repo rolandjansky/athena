@@ -8,6 +8,9 @@
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
+
 #include <Eigen/Dense>
 
 #include <fstream>
@@ -51,6 +54,7 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("GroupingType",    m_groupingType);
   declareProperty("DelayShift",      m_delayShift=23); //Only for OF peak reco
   declareProperty("PeakOFTool",      m_peakOFTool); 
+  declareProperty("isSC",            m_isSC=false);
   declareProperty("isHEC",           m_ishec=false);
   declareProperty("HECKey",          m_hec_key="");
   declareProperty("BadChannelMask",  m_badChannelMask);
@@ -75,10 +79,37 @@ LArRampBuilder::~LArRampBuilder()
 
 StatusCode LArRampBuilder::initialize()
 {
-  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
+  /*StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     ATH_MSG_FATAL( "Could not get LArOnlineID helper !" );
     return StatusCode::FAILURE;
+  }*/
+  
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+    
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+    
   }
   
   ATH_CHECK( m_cablingKey.initialize() );

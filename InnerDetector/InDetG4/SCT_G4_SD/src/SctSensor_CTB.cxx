@@ -26,7 +26,7 @@
 #include "CLHEP/Geometry/Transform3D.h"
 
 // For make unique
-#include "CxxUtils/make_unique.h"
+#include <memory>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -40,7 +40,7 @@ SctSensor_CTB::SctSensor_CTB(const std::string& name, const std::string& hitColl
 
 void SctSensor_CTB::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<SiHitCollection>();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

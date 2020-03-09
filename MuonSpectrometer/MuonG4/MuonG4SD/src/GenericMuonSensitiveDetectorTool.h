@@ -13,7 +13,7 @@ public:
     GenericMuonSensitiveDetectorTool(const std::string& type, const std::string& name, const IInterface *parent);
     ~GenericMuonSensitiveDetectorTool() {}
 protected:
-    G4VSensitiveDetector* makeSD() override final;
+    G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: IOVDbSvc/python/ConditionsContainerAccess.py
 # Author: RD Schaffer (R.D.Schaffer@cern.ch)
@@ -40,10 +40,9 @@
 #        attrListColl.add(chans[i], iov)
 #        i += 1
 
-
+from __future__ import print_function
 import cppyy as PyLCGDict
-import os, sys, string
-
+import string
 
 class InterfaceRDS(object) :
   def __init__(self, t ) :
@@ -61,15 +60,15 @@ class InterfaceRDS(object) :
 
 class DescriptionDecoder(object) :
   def __init__(self, descr):
-    print descr
+    print(descr)
     self.descr = descr
   def extract(self, start, stop) :
-    print 'descr, size', self.descr, len(self.descr)
+    print('descr, size', self.descr, len(self.descr))
     begin = string.find(self.descr, start)
-    print 'begin', begin
+    print('begin', begin)
     begin += len(start)
     end = string.find(self.descr, stop)
-    print 'end', end
+    print('end', end)
     if begin < len(self.descr) and end < len(self.descr) :
       result = self.descr[begin:end]
     else :
@@ -119,7 +118,7 @@ class ConditionsContainerAccess(object) :
     self.header   = decoder.extract('<addrHeader>','</addrHeader>')
     self.header   += 'POOLContainer_CondAttrListCollection][CLID=x'
 
-    print "Type name, type, header ",self.typeName,self.type,self.header
+    print("Type name, type, header ",self.typeName,self.type,self.header)
 
   def getSingleCondContainer(self) :
     # Get IOpaqueAddress
@@ -149,11 +148,11 @@ class ConditionsContainerAccess(object) :
     #   cont         - the LArConditionsContainer object
 
     # Print out channels and IOV
-    print "Channels, IOV, and string addresses"
+    print("Channels, IOV, and string addresses")
     i = 0
     for chan in channels :
       iov = iovs[i]
-      print "added chan/iov: ", chan, iov.iovPrint()
+      print("added chan/iov: ", chan, iov.iovPrint())
       i += 1
       
     # print out collection
@@ -164,17 +163,17 @@ class ConditionsContainerAccess(object) :
     strAddress = self.header
 
     # Get IOpaqueAddress
-    print "Create IOpaqueAddress pointer"
+    print("Create IOpaqueAddress pointer")
     ioa = PyLCGDict.libPyROOT.MakeNullPointer('GenericAddress')
 
     # Get DataBucketBase pointer
-    print "Create DataBucketBase pointer"
+    print("Create DataBucketBase pointer")
     dbb = PyLCGDict.libPyROOT.MakeNullPointer('DataBucketBase')
     
     # Create IOA from string address
-    print "Create IOpaqueAddress for address list"
+    print("Create IOpaqueAddress for address list")
     sc = self.iaddr.createAddress( 0, 0, strAddress, ioa )
-    print "Status code: ", sc
+    print("Status code: ", sc)
 
     # Create CondAttrListCollAddress and add in attribute list
     CondAttrListCollAddress = PyLCGDict.makeClass('CondAttrListCollAddress')
@@ -183,13 +182,13 @@ class ConditionsContainerAccess(object) :
 
 
     # Read in object as DataObject (or DatabucketBase)
-    print "Retrieve data object for IOA"
+    print("Retrieve data object for IOA")
     sc = self.icnv.createObj(collAddr, dbb)
-    print "Status code: ", sc
+    print("Status code: ", sc)
     if sc.isFailure(): raise RuntimeError("Cannot read object")
 
     # Cast to correct type and return it
-    print "cast data object to correct type: ",self.typeName
+    print("cast data object to correct type: ",self.typeName)
     result = PyLCGDict.libPyROOT.MakeNullPointer(self.type)
     self.dbCast.castObject(self.typeName, dbb, result)
 

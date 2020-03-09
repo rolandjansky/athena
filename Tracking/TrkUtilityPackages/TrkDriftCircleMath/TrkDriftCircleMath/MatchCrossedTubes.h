@@ -19,11 +19,12 @@ namespace TrkDriftCircleMath {
     
 
     MatchCrossedTubes( bool onlyOnTrack=false ) : m_mode(onlyOnTrack) {
-      m_result.first.reserve(50);
-      m_result.second.reserve(50);
     }
     
-    const MatchResult& operator()( const DCOnTrackVec& hits, const DCVec& crossedTubes ){
+    const MatchResult operator()( const DCOnTrackVec& hits, const DCVec& crossedTubes ) const {
+      MatchResult result;
+      result.first.reserve(50);
+      result.second.reserve(50);
     
       DCOnTrackCit sit1     = hits.begin();
       DCOnTrackCit sit1_end = hits.end();
@@ -33,8 +34,8 @@ namespace TrkDriftCircleMath {
       SortDcsByY compDC;
       SameTube   sameTube;
 
-      m_result.first.clear();
-      m_result.second.clear();
+      result.first.clear();
+      result.second.clear();
 
       while( sit1 != sit1_end && sit2 != sit2_end ){
 	
@@ -62,7 +63,7 @@ namespace TrkDriftCircleMath {
 	// dc1 < dc2
 	if( compDC( *sit1, *sit2 ) ){
 /* 	  std::cout << " dc1 < dc2 " << std::endl; */
-	  m_result.first.push_back( *sit1 );
+	  result.first.push_back( *sit1 );
 	  ++sit1;
 	  // dc1 >= dc2
 	}else{
@@ -70,7 +71,7 @@ namespace TrkDriftCircleMath {
 	  // dc2 < dc1
 	  if( compDC( *sit2, *sit1 ) ){
 /* 	    std::cout << " dc1 > dc2 " << std::endl; */
-	    m_result.second.push_back( *sit2 );
+	    result.second.push_back( *sit2 );
 	    ++sit2;
 	    // dc1 == dc2
 	  }else{
@@ -87,21 +88,19 @@ namespace TrkDriftCircleMath {
 	}
 	if( m_mode && sit1->state() != DCOnTrack::OnTrack ) continue;
 /* 	std::cout << " dc1 < dc2" << std::endl; */
-	m_result.first.push_back( *sit1 );
+	result.first.push_back( *sit1 );
       }
       for( ; sit2!= sit2_end; ++sit2 ){
 /* 	std::cout << " dc1 > dc2" << std::endl; */
-	m_result.second.push_back( *sit2 );
+	result.second.push_back( *sit2 );
       }
       
-      return m_result;
+      return result;
     }
 
 
     private:
     bool m_mode;
-
-    MatchResult m_result;
   };
 
 }

@@ -22,8 +22,6 @@ namespace xAOD {
   class IParticle;
 }
 
-class StoreGateSvc;
-
 class CaloAffectedTool: public AthAlgTool,
 	             virtual public ICaloAffectedTool
 {

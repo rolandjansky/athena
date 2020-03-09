@@ -31,11 +31,11 @@ HIJetDiscriminatorTool::HIJetDiscriminatorTool(const std::string& t) : JetModifi
   declareProperty("MinimumETMaxCut",m_ET_min_cut=3000.);
 }
 
-int HIJetDiscriminatorTool::modify(xAOD::JetContainer& jets) const
+StatusCode HIJetDiscriminatorTool::modify(xAOD::JetContainer& jets) const
 {
   xAOD::JetContainer::iterator itB = jets.begin();
   xAOD::JetContainer::iterator itE = jets.end();
   xAOD::JetContainer::iterator lastFiltered=std::remove_if(itB, itE, Discrim(m_MaxOverMean_cut,m_ET_min_cut));
   jets.erase( lastFiltered, itE );
-  return 1;
+  return StatusCode::SUCCESS;
 }

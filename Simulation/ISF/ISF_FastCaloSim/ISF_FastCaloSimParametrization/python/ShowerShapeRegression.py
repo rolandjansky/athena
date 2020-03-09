@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __author__ = 'Christopher Bock - LMU'
 
@@ -94,7 +94,7 @@ class ShowerShapeRegressor():
 
         n_bins_x = cumulative_histogram.GetNbinsX()
         n_bins_y = cumulative_histogram.GetNbinsY()
-
+        from past.builtins import xrange # Temporary workaround for python2/3 compatibility - should really use range for python3
         for x in xrange(n_bins_x + 1):
             eta_value = cumulative_histogram.GetXaxis().GetBinCenter(x)
             for y in xrange(n_bins_y + 1):

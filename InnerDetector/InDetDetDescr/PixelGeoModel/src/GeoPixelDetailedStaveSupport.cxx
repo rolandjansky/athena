@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,6 +24,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 
 #include <algorithm>
+#include <cmath>
 using std::max;
 
 GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport()
@@ -834,9 +835,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   else
     {
       m_gmt_mgr->msg(MSG::INFO)<<"** TUBE : with Stycast "<<TubeGlueThick<<"  diam "<<TubeOuterDiam*0.5<<" "<<TubeInnerDiam*0.5<<endmsg;
-      double glueVolume = (TubeOuterDiam*0.5+TubeGlueThick)*(TubeOuterDiam*0.5+TubeGlueThick)*Gaudi::Units::pi*MiddleSectionLength;
-      double tubeOuterVolume = TubeOuterDiam*TubeOuterDiam*0.25*Gaudi::Units::pi*MiddleSectionLength;
-      double tubeInnerVolume = TubeInnerDiam*TubeInnerDiam*0.25*Gaudi::Units::pi*MiddleSectionLength;
+      double glueVolume = (TubeOuterDiam*0.5+TubeGlueThick)*(TubeOuterDiam*0.5+TubeGlueThick)*M_PI*MiddleSectionLength;
+      double tubeOuterVolume = TubeOuterDiam*TubeOuterDiam*0.25*M_PI*MiddleSectionLength;
+      double tubeInnerVolume = TubeInnerDiam*TubeInnerDiam*0.25*M_PI*MiddleSectionLength;
 
       const std::string compMatName="CoolingPipeGlue_IBL";
       const GeoMaterial* cp_material = m_mat_mgr->getCompositeMaterialForVolume(compMatName,
@@ -1621,7 +1622,7 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   double angle2=ComputeAngle(0.0,1.0,m_OmegaEndStavePointX-midSidePt_omega.x(),m_OmegaEndStavePointY-midSidePt_omega.y());
   double angle3=ComputeAngle(0.0,1.0,m_FoamEdgePointX-midSidePt.x(),m_FoamEdgePointY-midSidePt.y());
 
-  m_gmt_mgr->msg(MSG::DEBUG)<< "Verfi angles : "<<angle1<<" "<<angle2<<" "<<angle3<<"  / "<<angle1*180.0/3.1415<<" "<<angle2*180.0/3.1415<<endmsg;
+  m_gmt_mgr->msg(MSG::DEBUG)<< "Verfi angles : "<<angle1<<" "<<angle2<<" "<<angle3<<"  / "<<angle1*m_oneDegree<<" "<<angle2*m_oneDegree<<endmsg;
 
   // Compute mid stave side point
   GeoTrf::Vector3D midSidePoint(0.0,0.0,0.0);

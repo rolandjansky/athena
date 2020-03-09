@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DECODER_AFP_DECODER_H
@@ -16,7 +16,6 @@
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -32,10 +31,7 @@
 #include "AFP_RawEv/AFP_RawDataCollection.h"
 #include "AFP_RawEv/AFP_RawDataContainer.h"
 
-using eformat::helper::SourceIdentifier;
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-using OFFLINE_FRAGMENTS_NAMESPACE::FullEventFragment;
 class ISvcLocator;
 class StatusCode;
 
@@ -56,7 +52,7 @@ public:
   virtual StatusCode finalize();
 
   //  StatusCode getEvent();
-  StatusCode fillCollection(const ROBFragment *robFrag,
+  StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag,
                             AFP_RawDataContainer *rdoCont,
                             std::vector<unsigned int> *vecHash = NULL);
 
@@ -80,7 +76,6 @@ public:
 private:
   const eformat::FullEventFragment<const uint32_t *> *m_event;
   const eformat::ROBFragment<const uint32_t *> *m_robFrag;
-  StoreGateSvc *m_EvtStore;
   unsigned int m_fragment_number;
   unsigned int m_count_hits;
 

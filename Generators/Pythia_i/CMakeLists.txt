@@ -13,6 +13,7 @@ atlas_depends_on_subdirs(
    Generators/GeneratorModules
    Generators/Lhef_i
    Generators/Tauola_i
+   Control/CxxUtils
    PRIVATE
    Control/AthenaKernel
    Generators/AlpGen_i

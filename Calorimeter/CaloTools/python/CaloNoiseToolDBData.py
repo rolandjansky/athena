@@ -1,17 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # example of use of CaloNoiseToolDB returning cell noise from Cool DB
 
-from AthenaCommon.Logging import logging 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-
-from CaloRec.CaloCellFlags import jobproperties
+from AthenaCommon.Logging import logging
 
 # import the base class
 from CaloTools.CaloToolsConf import CaloNoiseToolDB
-
-
 
 class CaloNoiseToolDBData(CaloNoiseToolDB) :
 
@@ -34,7 +28,7 @@ class CaloNoiseToolDBData(CaloNoiseToolDB) :
             CaloNoiseToolDB.FolderNames=[folder,]
             if fixedLumi >= 0 :
                 CaloNoiseToolDB.Luminosity = fixedLumi
-                mlog.info("online mode: use fixed luminosity for scaling pileup noise: %f"%fixedLumi)
+                mlog.info("online mode: use fixed luminosity for scaling pileup noise: %f", fixedLumi)
             else:
                 if caloLumi:
                     lumiFolder='/CALO/Noise/PileUpNoiseLumi'
@@ -61,7 +55,7 @@ class CaloNoiseToolDBData(CaloNoiseToolDB) :
             # for luminosity
             if fixedLumi >= 0 :
                 CaloNoiseToolDB.Luminosity = fixedLumi
-                mlog.info("offline mode: use fixed luminosity for scaling pileup noise: %f"%fixedLumi)
+                mlog.info("offline mode: use fixed luminosity for scaling pileup noise: %f", fixedLumi)
             else :
                 CaloNoiseToolDB.Luminosity = -1
                 if caloLumi:
@@ -70,16 +64,15 @@ class CaloNoiseToolDBData(CaloNoiseToolDB) :
                     mlog.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
                 else:
                     lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
-                    conddb.addFolder('TRIGGER_ONL',lumiFolder);
+                    conddb.addFolder('TRIGGER_ONL',lumiFolder)
                     mlog.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
                 CaloNoiseToolDB.LumiFolderName = lumiFolder
 
             #In run 2 we automatically rescale the noise for HV changes
-            if  conddb.dbdata=="CONDBR2": #or True 
+            if  conddb.dbdata=="CONDBR2": #or True
+                from CaloRec.CaloCellFlags import jobproperties
                 if jobproperties.CaloCellFlags.doLArHVCorr():
                     mlog.info("Run2 & doLArHVCorr=True: Will rescale noise automatically for HV trips")
                     CaloNoiseToolDB.RescaleForHV=True
                     from LArCellRec.LArCellHVCorrDefault import LArCellHVCorrDefault
                     CaloNoiseToolDB.LArHVCellCorrTool=LArCellHVCorrDefault()
-
-

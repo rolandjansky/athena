@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelDigitization/FEI3SimTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date January, 2020
+ * @brief FEI3 simulation
+ */
 
 #ifndef PIXELDIGITIZATION_FEI3SimTool_H
 #define PIXELDIGITIZATION_FEI3SimTool_H

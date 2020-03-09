@@ -19,19 +19,20 @@ StatusCode PixelSiliconConditionsTestAlg::initialize()
   ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
-  ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_lorentzAngleTool.retrieve());
   ATH_CHECK(m_chargeDataKey.initialize());
+  ATH_CHECK(m_distortionKey.initialize());
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode PixelSiliconConditionsTestAlg::execute(){
 
-  SG::ReadCondHandle<PixelModuleData> hv(m_readKeyHV);
-  SG::ReadCondHandle<PixelModuleData> temp(m_readKeyTemp);
+  SG::ReadCondHandle<PixelDCSHVData> hv(m_readKeyHV);
+  SG::ReadCondHandle<PixelDCSTempData> temp(m_readKeyTemp);
   SG::ReadCondHandle<PixelModuleData> deadmap(m_moduleDataKey);
   SG::ReadCondHandle<PixelChargeCalibCondData> calib(m_chargeDataKey);
+  SG::ReadCondHandle<PixelDistortionData> distortion(m_distortionKey);
 
   for (int i=0; i<2048; i++) { 
     ATH_MSG_DEBUG("PIXEL Module hash=" << i 

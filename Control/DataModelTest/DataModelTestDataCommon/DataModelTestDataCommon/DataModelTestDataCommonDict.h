@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DataModelTestDataCommonDict.h,v 1.2 2005-12-01 19:07:55 ssnyder Exp $
@@ -32,6 +32,11 @@
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "DataModelTestDataCommon/CTrigAuxContainer.h"
 #include "DataModelTestDataCommon/CInfoAuxContainer.h"
+#include "DataModelTestDataCommon/CLinks.h"
+#include "DataModelTestDataCommon/CLinksContainer.h"
+#include "DataModelTestDataCommon/CLinksAuxInfo.h"
+#include "DataModelTestDataCommon/CLinksAuxContainer.h"
+#include "DataModelTestDataCommon/CLinksAOD.h"
 #include "DataModelTestDataCommon/setConverterLibrary.h"
 #include "AthLinks/ElementLink.h"
 

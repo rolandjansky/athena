@@ -25,6 +25,7 @@ CaloCellPosition2Ntuple::CaloCellPosition2Ntuple(const std::string& name, ISvcLo
   m_dx(0),
   m_dy(0),
   m_dz(0),
+  m_volume(0), 
   m_tree(NULL)
 {
   declareProperty("inputKey",m_key,"Key for CaloCellPositionShift");
@@ -57,6 +58,7 @@ StatusCode CaloCellPosition2Ntuple::initialize()
   m_tree->Branch("dx",&m_dx,"DeltaX/F");
   m_tree->Branch("dy",&m_dy,"DeltaY/F");
   m_tree->Branch("dz",&m_dz,"DeltaZ/F");
+  m_tree->Branch("volume",&m_volume,"volume/F");
 
   ATH_CHECK( m_thistSvc->regTree("/file1/cellpos/mytree",m_tree) );
 
@@ -105,6 +107,7 @@ StatusCode CaloCellPosition2Ntuple::stop()
        m_dx = m_cellPos->deltaX(i);
        m_dy = m_cellPos->deltaY(i);
        m_dz = m_cellPos->deltaZ(i);
+       m_volume = calodde->volume();
 
        m_tree->Fill();
 

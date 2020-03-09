@@ -1,4 +1,4 @@
-from AthenaCommon.Constants import ERROR,DEBUG
+from AthenaCommon.Constants import ERROR
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
@@ -15,7 +15,10 @@ def setMinimalCaloSetup() :
 # defined as private within this module, so that they can be configured only in functions in this module
 ########################
 
-def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
+def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
+   if not inputEDM:
+      from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
+      inputEDM = mapThresholdToL1RoICollection("FS")
    setMinimalCaloSetup()
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
@@ -43,7 +46,10 @@ def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix
    algo.OutputLevel=OutputLevel
    return algo
 
-def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
+def _algoL2Egamma(inputEDM="",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
+    if not inputEDM:
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
+        inputEDM = mapThresholdToL1RoICollection("EM")
     setMinimalCaloSetup()
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
     algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)
@@ -67,7 +73,7 @@ def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_L2CaloEMC
 
 def fastCaloEVCreator():   
     InViewRoIs="EMCaloRoIs"     
-    fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker" )
+    fastCaloViewsMaker = EventViewCreatorAlgorithm( "IMfastCalo" )
     fastCaloViewsMaker.ViewFallThrough = True
     fastCaloViewsMaker.RoIsLink = "initialRoI"
     fastCaloViewsMaker.InViewRoIs = InViewRoIs
@@ -96,7 +102,7 @@ def clusterFSInputMaker( ):
   """Creates the inputMaker for FS in menu"""
   RoIs = 'FSJETRoI'
   from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-  InputMakerAlg = InputMakerForRoI("clusterFSInputMaker", RoIsLink="initialRoI")
+  InputMakerAlg = InputMakerForRoI("IMclusterFS", RoIsLink="initialRoI")
   InputMakerAlg.RoIs=RoIs
   return InputMakerAlg
 
@@ -126,7 +132,6 @@ def HLTRoITopoRecoSequence(RoIs):
   
 def HLTLCTopoRecoSequence(RoIs='InViewRoIs'):
     cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsLC", algSuffix="LC")
-    cellMaker.OutputLevel=DEBUG
     topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMaker.CellsName, algSuffix="LC")
     RecoSequence = parOR("TopoClusterRecoSequenceLC",[cellMaker,topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)

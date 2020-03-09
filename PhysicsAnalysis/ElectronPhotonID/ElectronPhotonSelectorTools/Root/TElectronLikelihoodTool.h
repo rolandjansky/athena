@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // Dear emacs, this is -*-c++-*-
@@ -186,7 +186,7 @@ public:
   }
 
   /// Load the variable histograms from the pdf file.
-  int loadVarHistograms(std::string vstr, unsigned int varIndex);
+  int loadVarHistograms(const std::string& vstr, unsigned int varIndex);
 
   /// Define the binning 
   inline void setBinning ( const std::string& val ) { m_ipBinning = val; }
@@ -211,7 +211,7 @@ private:
   // variable names prescribed in fVariables.
 
   /// Description???
-  unsigned int getLikelihoodBitmask(std::string vars) const;
+  unsigned int getLikelihoodBitmask(const std::string& vars) const;
 
   double InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const;
   double InterpolatePdfs(unsigned int s_or_b,unsigned int ipbin,double et,double eta,int bin,unsigned int var) const;
@@ -357,7 +357,7 @@ private:
   static const std::string  fVariables                [s_fnVariables];
 
   unsigned int getIpBin(double ip) const;
-  void getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const;
+  void getBinName(char* buffer, int etbin,int etabin, int ipbin, const std::string& iptype) const;
 };
 
 } // End: namespace Root

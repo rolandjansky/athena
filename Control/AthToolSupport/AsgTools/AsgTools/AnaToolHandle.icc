@@ -1,11 +1,11 @@
-// Dear emacs, this is -*- c++ -*-
-//
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-//
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_ANATOOLHANDLE_ICC
 #define ASGTOOLS_ANATOOLHANDLE_ICC
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgTools/MessageCheckAsgTools.h>
 #include "CxxUtils/checker_macros.h"
 #include <assert.h>
 #include <cstdlib>
@@ -47,7 +47,7 @@ namespace asg
 
 #ifdef XAOD_STANDALONE
       to = ToolHandle<T1> (dynamic_cast<T1*>(&*from));
-      if (!from.empty() && &*to == nullptr)
+      if (!from.empty() && to.operator->() == nullptr)
       {
 	ANA_MSG_ERROR ("failed to cast from type " << typeid(T2).name() << " to  " << typeid(T1).name());
 	return StatusCode::FAILURE;
@@ -536,7 +536,7 @@ namespace asg
 	  ANA_MSG_ERROR ("trying to initialize ToolHandleArray property " << val_name << " with empty handle");
 	  return StatusCode::FAILURE;
 	}
-      
+
 	//strip the parent name
 	std::string tool_name = toolHandle.name();
 	tools.push_back (toolHandle.type() + "/" + tool_name);
@@ -846,6 +846,7 @@ namespace asg
       break;
     }
 
+    // cppcheck-suppress constStatement; false positive
     T *toolPtr = nullptr;
     ANA_CHECK (makeToolRetrieve (toolPtr, th));
 
@@ -1137,6 +1138,9 @@ namespace asg
       return detail::AnaToolHandleMode::USER;
 #endif
 
+    if (m_config.empty() && !m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))
+      return detail::AnaToolHandleMode::USER;
+
     if (m_config.empty() && m_name.empty())
       return detail::AnaToolHandleMode::EMPTY;
 
@@ -1289,7 +1293,7 @@ namespace asg
 
     try
     {
-      toolPtr = &*toolHandle;
+      toolPtr = toolHandle.operator->();
       if (toolPtr == nullptr)
       {
 	ANA_MSG_ERROR ("failed to retrieve tool from tool handle " << *m_handleUser);

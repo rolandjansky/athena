@@ -55,7 +55,7 @@ namespace MuonCombined {
   m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery"),
   m_momentumBalanceTool("Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignifTool"),
   m_muonRecovery(""),
-  m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality"),
+  m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality", this),
   m_trackScoringTool("Muon::MuonTrackScoringTool/MuonTrackScoringTool"),
   m_magFieldSvc("AtlasFieldSvc",name),
   m_DetID(0)
@@ -101,7 +101,8 @@ namespace MuonCombined {
       return StatusCode::FAILURE;
     }
     
-    ATH_CHECK( m_vertexKey.initialize() );
+    //The trigger doesn't use the vertex information
+    if(!m_vertexKey.empty()) ATH_CHECK( m_vertexKey.initialize() );
     
     return StatusCode::SUCCESS;
   }
@@ -409,21 +410,23 @@ namespace MuonCombined {
     float bs_z = 0.;
 
     const xAOD::Vertex* matchedVertex { nullptr };
-    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
-    if ( vertices.isValid() )
-    {
-      for (const auto& vx : *vertices)
-      {
-	for (const auto& tpLink : vx->trackParticleLinks())
+    if(!m_vertexKey.empty()){
+      SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+      if ( vertices.isValid() )
 	{
-	  if (*tpLink == &idTrackParticle)
-	  {
-	    matchedVertex = vx;
-	    break;
-	  }
+	  for (const auto& vx : *vertices)
+	    {
+	      for (const auto& tpLink : vx->trackParticleLinks())
+		{
+		  if (*tpLink == &idTrackParticle)
+		    {
+		      matchedVertex = vx;
+		      break;
+		    }
+		}
+	      if (matchedVertex) break;
+	    }
 	}
-	if (matchedVertex) break;
-      }
     }
     if(matchedVertex) {
       bs_x = matchedVertex->x();  

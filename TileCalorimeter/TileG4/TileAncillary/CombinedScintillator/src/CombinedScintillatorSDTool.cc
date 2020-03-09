@@ -62,7 +62,7 @@ StatusCode CombinedScintillatorSDTool::Gather() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* CombinedScintillatorSDTool::makeSD() {
+G4VSensitiveDetector* CombinedScintillatorSDTool::makeSD() const {
   ATH_MSG_DEBUG("Initializing SD");
   // Create a fresh SD
   return new CombinedScintillatorSD(name(), m_outputCollectionNames[0]);

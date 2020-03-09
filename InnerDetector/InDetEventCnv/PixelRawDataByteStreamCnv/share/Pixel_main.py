@@ -190,4 +190,3 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamRDO.ItemList   +=  ['TRT_RDO_Container#*','SCT_RDO_Container#*','PixelRDO_Container#*']
     StreamRDO.ItemList   +=  ['InDetSimDataCollection#*','McEventCollection#*']
     # --- Force read
-    StreamRDO.ForceRead  = TRUE;  #force read of output data objs

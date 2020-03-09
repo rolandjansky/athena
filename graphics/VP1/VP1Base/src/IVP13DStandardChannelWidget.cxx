@@ -27,6 +27,7 @@
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/actions/SoLineHighlightRenderAction.h>
+#include <Inventor/actions/SoBoxHighlightRenderAction.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/SoOffscreenRenderer.h>
 
@@ -243,10 +244,11 @@ void IVP13DStandardChannelWidget::create() {
 
   m_d->viewer->setSceneGraph(m_d->root);
   m_d->viewer->setGLRenderAction(new SoLineHighlightRenderAction());
+  //m_d->viewer->setGLRenderAction(new SoBoxHighlightRenderAction());
 
   // Default Transparency Type
   //  m_d->viewer->setTransparencyType( SoGLRenderAction::DELAYED_BLEND ); // old
-  m_d->viewer->setTransparencyType( SoGLRenderAction::BLEND ); // this looks better
+  m_d->viewer->setTransparencyType( SoGLRenderAction::BLEND ); // this looks better for geometry volumes
 
   //Setup camera info:
   foreach(IVP13DSystem*sys,m_d->systemsAllowedCameraList)

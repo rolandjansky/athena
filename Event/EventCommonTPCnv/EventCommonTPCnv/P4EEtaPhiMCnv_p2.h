@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // P4EEtaPhiMCnv_p2.h 
@@ -29,16 +29,14 @@
 // Forward declaration
 class MsgStream;
 
-class P4EEtaPhiMCnv_p2 : public T_AthenaPoolTPCnvBase<
+class P4EEtaPhiMCnv_p2 : public T_AthenaPoolTPCnvConstBase<
                                               P4EEtaPhiM, 
                                               P4EEtaPhiMFloat_p2
                                             >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers; 
+  using base_class::persToTrans;
 
   /** Default constructor: 
    */
@@ -48,33 +46,20 @@ class P4EEtaPhiMCnv_p2 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~P4EEtaPhiMCnv_p2();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c P4EEtaPhiM
    *  from its persistent representation @c P4EEtaPhiMFloat_p2
    */
   virtual void persToTrans( const P4EEtaPhiMFloat_p2* persObj, 
                             P4EEtaPhiM* transObj, 
-                            MsgStream &log );
+                            MsgStream &log ) const override;
 
   /** Method creating the persistent representation @c P4EEtaPhiMFloat_p2
    *  from its transient representation @c P4EEtaPhiM
    */
   virtual void transToPers( const P4EEtaPhiM* transObj, 
                             P4EEtaPhiMFloat_p2* persObj, 
-                            MsgStream &log );
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
+                            MsgStream &log ) const override;
 
 }; 
 

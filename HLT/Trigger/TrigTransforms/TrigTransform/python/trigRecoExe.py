@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Trigger executor to call base transforms
 # @details: Based on athenaExecutor with some modifications
@@ -12,16 +12,17 @@ msg = logging.getLogger("PyJobTransforms." + __name__)
 import os
 import fnmatch
 import re
+import subprocess
 
 from PyJobTransforms.trfExe import athenaExecutor
 
 #imports for preExecute
-from PyJobTransforms.trfUtils import asetupReport, cvmfsDBReleaseCheck
+from PyJobTransforms.trfUtils import asetupReport, cvmfsDBReleaseCheck, lineByLine
 import PyJobTransforms.trfEnv as trfEnv
 import PyJobTransforms.trfExceptions as trfExceptions
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 import TrigTransform.dbgAnalysis as dbgStream
-from TrigTransform.trigTranslate import writeTranslate as writeTranslate
+from TrigTransform.trigTranslate import getTranslated as getTranslated
 
 
 class trigRecoExecutor(athenaExecutor):
@@ -123,18 +124,13 @@ class trigRecoExecutor(athenaExecutor):
         #self._envUpdate.setStandardEnvironment(self.conf.argdict)
         self._prepAthenaCommandLine() 
         
-        #to get athenaHLT to read in the relevant parts from the runargs file we have to add the -F option
+        #to get athenaHLT to read in the relevant parts from the runargs file we have to translate them
         if 'athenaHLT' in self._exe:
-            self._cmd=['-F runtranslate.BSRDOtoRAW.py' if x=='runargs.BSRDOtoRAW.py' else x for x in self._cmd]
-            
-            # write runTranslate file to be used by athenaHLT
-            writeTranslate('runtranslate.BSRDOtoRAW.py', self.conf.argdict, name=self._name, substep=self._substep, first=self.conf.firstExecutor, output = outputFiles)
-            
-            #instead of running athenaHLT we can dump the options it has loaded
-            #note the -D needs to go after the -F in the command
-            if 'dumpOptions' in self.conf.argdict:
-                self._cmd=['-F runtranslate.BSRDOtoRAW.py -D' if x=='-F runtranslate.BSRDOtoRAW.py' else x for x in self._cmd]
-            
+            self._cmd.remove('runargs.BSRDOtoRAW.py')
+            # get list of translated arguments to be used by athenaHLT
+            optionList = getTranslated(self.conf.argdict, name=self._name, substep=self._substep, first=self.conf.firstExecutor, output = outputFiles)
+            self._cmd.extend(optionList)
+
             #Run preRun step debug_stream analysis if debug_stream=True
             if 'debug_stream' in self.conf.argdict:
                 inputFiles = dict()
@@ -196,25 +192,146 @@ class trigRecoExecutor(athenaExecutor):
         
         #now build command line as in athenaExecutor
         super(trigRecoExecutor, self)._prepAthenaCommandLine()
-            
+
+    #loop over current directory and find the output file matching input pattern
+    def _findOutputFiles(self, pattern):
+        #list to store the filenames of files matching pattern
+        matchedOutputFileNames = []
+        #list of input files that could be in the same folder and need ignoring
+        ignoreInputFileNames = []
+        for dataType, dataArg in self.conf.dataDictionary.iteritems():
+            if dataArg.io == 'input':
+                ignoreInputFileNames.append(dataArg.value[0])
+        #loop over all files in folder to find matching output files
+        for file in os.listdir('.'):
+            if fnmatch.fnmatch(file, pattern):
+                if file in ignoreInputFileNames:
+                    msg.info('Ignoring input file: %s' % file)
+                else:
+                    matchedOutputFileNames.append(file)
+        return matchedOutputFileNames
+
+    #run athenaHLT-select-PEB-stream.py to split a stream out of the BS file
+    #renames the split file afterwards
+    def _splitBSfile(self, outputStream, allStreamsFileName, splitFileName):
+        msg.info('Splitting stream %s from BS file' % outputStream)
+        splitStreamFailure=0
+        try:
+            cmd = 'athenaHLT-select-PEB-stream.py -s ' + outputStream + ' ' + allStreamsFileName
+            msg.info('running command for splitting (in original asetup env): %s' % cmd)
+            splitStreamFailure = subprocess.call(cmd, shell=True)
+            msg.debug('athenaHLT-select-PEB-stream.py splitting return code %s' % (splitStreamFailure) )
+        except OSError as e:
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                'Exception raised when selecting stream with athenaHLT-select-PEB-stream.py in file {0}: {1}'.format(allStreamsFileName, e))
+        if splitStreamFailure != 0:
+            msg.error('athenaHLT-select-PEB-stream.py returned error (%s) no split BS file created' % splitStreamFailure)
+            return 1
+        else:
+            #know that the format will be of the form ####._athenaHLT.####.data
+            expectedStreamFileName = '*_athenaHLT*.data'
+            #list of filenames of files matching expectedStreamFileName
+            matchedOutputFileName = self._findOutputFiles(expectedStreamFileName)
+            if(len(matchedOutputFileName)):
+                self._renamefile(matchedOutputFileName[0], splitFileName)
+                return 0
+            else:
+                msg.error('athenaHLT-select-PEB-stream.py did not created expected file (%s)' % expectedStreamFileName)
+                return 1
+
+    #rename a created file - used to overwrite filenames from athenaHLT into the requested argument name
+    def _renamefile(self, currentFileName, newFileName):
+        msg.info('Renaming file from %s to %s' % (currentFileName, newFileName))
+        try:
+            os.rename(currentFileName, newFileName)
+        except OSError as e:
+            msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(currentFileName, newFileName, e))
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                'Exception raised when renaming {0} #to {1}: {2}'.format(currentFileName, newFileName, e))
+
     def postExecute(self):
                 
+        #Adding check for HLTMPPU.*Child Issue in the log file
+        #   Throws an error message if there so we catch that the child died
+        #   Also sets the return code of the mother process to mark the job as failed
+        #   Is based on trfValidation.scanLogFile
+        log = self._logFileName
+        msg.debug('Now scanning logfile {0} for HLTMPPU Child Issues'.format(log))
+        # Using the generator so that lines can be grabbed by subroutines if needed for more reporting
+        try:
+            myGen = lineByLine(log, substepName=self._substep)
+        except IOError as e:
+            msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
+        for line, lineCounter in myGen:
+            # Check to see if any of the hlt children had an issue
+            if 'Child Issue' in line > -1:
+                try:
+                    signal = int((re.search('signal ([0-9]*)', line)).group(1))
+                except AttributeError:
+                    #signal not found in message, so return 1 to highlight failure
+                    signal = 1
+                msg.error('Detected issue with HLTChild, setting mother return code to %s' % (signal) )
+                self._rc = signal
+
+        #Merge child log files into parent log file
+        #is needed to make sure all child log files are scanned
+        #files are found by searching whole folder rather than relying on nprocs being defined
+        try:
+            #open original log file (log.BSRDOtoRAW) to merge child files into
+            with open(self._logFileName, 'a') as merged_file:
+                for file in os.listdir('.'):
+                    #expected child log files should be of the format athenaHLT:XX.out and .err
+                    if fnmatch.fnmatch(file, 'athenaHLT:*'):
+                        msg.info('Merging child log file (%s) into %s' % (file,self._logFileName))
+                        with open(file) as log_file:
+                            #write header infomation ### Output from athenaHLT:XX.out/err ###
+                            merged_file.write('### Output from {} ###\n'.format(file))
+                            #write out file line by line
+                            for line in log_file:
+                                merged_file.write(line)
+        except OSError as e:
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                        'Exception raised when merging log files into {0}: {1}'.format(self._logFileName, e))
+
         msg.info("Check for expert-monitoring.root file")
-        #the BS-BS step generates the file expert-monitoring.root
+        #the BS-BS step generates the files:
+        #   expert-monitoring.root (from mother process)
+        #   athenaHLT_workers/*/expert-monitoring.root (from child processes)        
         #to save on panda it needs to be renamed via the outputHIST_HLTMONFile argument
         expectedFileName = 'expert-monitoring.root'
-        #first check argument is in dict
-        if 'outputHIST_HLTMONFile' in self.conf.argdict:
-             #check file is created
-             if(os.path.isfile(expectedFileName)):
-                 msg.info('Renaming %s to %s' % (expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0]) ) 
-                 try:
-                      os.rename(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0])
-                 except OSError, e:
-                      raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                                    'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0], e))
-             else:
-                 msg.error('HLTMON argument defined %s but %s not created' % (self.conf.argdict['outputHIST_HLTMONFile'].value[0], expectedFileName ))
+
+        #first check athenaHLT step actually completed
+        if self._rc != 0:
+            msg.info('HLT step failed (with status %s) so skip HIST_HLTMON filename check' % self._rc)
+        #next check argument is in dictionary as a requested output
+        elif 'outputHIST_HLTMONFile' in self.conf.argdict:
+
+            #rename the mother file
+            expectedMotherFileName = 'expert-monitoring-mother.root'
+            if(os.path.isfile(expectedFileName)):
+                msg.info('Renaming %s to %s' % (expectedFileName, expectedMotherFileName) )
+                try:
+                    os.rename(expectedFileName, expectedMotherFileName)
+                except OSError as e:
+                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                        'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, expectedMotherFileName, e))
+            else:
+                msg.error('HLTMON argument defined but mother %s not created' % (expectedFileName ))
+
+            #merge worker files
+            expectedWorkerFileName = 'athenaHLT_workers/athenaHLT-01/' + expectedFileName
+            if(os.path.isfile(expectedWorkerFileName) and os.path.isfile(expectedMotherFileName)):
+                msg.info('Merging worker and mother %s files to %s' % (expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0]) )
+                try:
+                    #have checked that at least one worker file exists
+                    cmd = 'hadd ' + self.conf.argdict['outputHIST_HLTMONFile'].value[0] + ' athenaHLT_workers/*/expert-monitoring.root expert-monitoring-mother.root'
+                    subprocess.call(cmd, shell=True)
+                except OSError as e:
+                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                        'Exception raised when merging worker and mother {0} files to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0], e))
+            else:
+                msg.error('HLTMON argument defined %s but worker %s not created' % (self.conf.argdict['outputHIST_HLTMONFile'].value[0], expectedFileName ))
+
         else:
             msg.info('HLTMON argument not defined so skip %s check' % expectedFileName)
         
@@ -223,33 +340,16 @@ class trigRecoExecutor(athenaExecutor):
         msg.info("Search for created BS files, and rename if single file found")
         #The following is needed to handle the BS file being written with a different name (or names)
         #base is from either the tmp value created by the transform or the value entered by the user
-        if 'BS' in self.conf.dataDictionary:
+        if self._rc != 0:
+            msg.error('HLT step failed (with status %s) so skip BS filename check' % self._rc)
+        elif 'BS' in self.conf.dataDictionary:
             argInDict = self.conf.dataDictionary['BS']
-            #create expected string by taking only some of input
-            # removes uncertainty of which parts of the filename are used by athenaHLT
-            split_argInDict = argInDict.value[0].split('.')
-            #drop most of the input string to remove any potential ._####.data 
-            # already in argInDict - so just take first element from input
-            expectedOutputFileName = split_argInDict[0]
-            #expect file from athenaHLT to end _###.data so add ending
-            #TODO  a better ending check could be *_????.data
-            expectedOutputFileName+='*.data'
             #keep dataset in case need to update argument
             dataset_argInDict = argInDict._dataset
-            #list to store the filenames of files matching expectedOutputFileName
-            matchedOutputFileNames = []
-            #list of input files that could be in the same folder and need ignoring
-            ignoreInputFileNames = []
-            for dataType, dataArg in self.conf.dataDictionary.iteritems():
-                if dataArg.io == 'input':
-                    ignoreInputFileNames.append(dataArg.value[0])
-            #loop over all files in folder to find matching output files
-            for file in os.listdir('.'):
-                if fnmatch.fnmatch(file, expectedOutputFileName):
-                    if file in ignoreInputFileNames:
-                        msg.info('Ignoring input file: %s' % file)
-                    else: 
-                        matchedOutputFileNames.append(file)
+            #expected string based on knowing that the format will be of form: ####._HLTMPPy_####.data
+            expectedOutputFileName = '*_HLTMPPy_*.data'
+            #list of filenames of files matching expectedOutputFileName
+            matchedOutputFileNames = self._findOutputFiles(expectedOutputFileName)
             #check there are file matches and rename appropriately
             if(len(matchedOutputFileNames)>1):
                 msg.warning('Multiple BS files found: will only rename internal arg')
@@ -258,15 +358,25 @@ class trigRecoExecutor(athenaExecutor):
                 argInDict.value = matchedOutputFileNames
                 argInDict._dataset = dataset_argInDict
             elif(len(matchedOutputFileNames)):
-                msg.info('Single BS file found: will rename file')
-                msg.info('Renaming BS file from %s to %s' % (matchedOutputFileNames[0], argInDict.value[0]))
-                try:
-                    os.rename(matchedOutputFileNames[0], argInDict.value[0])
-                except OSError, e:
-                    msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
-                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                              'Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
-            else:
+                msg.info('Single BS file found: will split (if requested) and rename file')
+
+                #TODO (ATR-20974) First check if we want to produce the COST BS output
+                #if 'COST' in self.conf.dataDictionary:
+                #    splitFailed = self._splitBSfile('Cost', matchedOutputFileNames[0],self.conf.dataDictionary['COST'].value[0])
+                #    if(splitFailed):
+                #        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                #            'Did not produce any BS file when selecting stream with athenaHLT-select-PEB-stream.py in file')
+
+                # If a stream (not All) is selected then slim the output to the particular stream out of the original BS file with many streams
+                if 'streamSelection' in self.conf.argdict and self.conf.argdict['streamSelection'].value != "All":
+                    splitFailed = self._splitBSfile(self.conf.argdict['streamSelection'].value, matchedOutputFileNames[0], argInDict.value[0])
+                    if(splitFailed):
+                        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                            'Did not produce any BS file when selecting stream with athenaHLT-select-PEB-stream.py in file')
+                else:
+                    msg.info('Stream "All" requested, so not splitting BS file')
+                    self._renamefile(matchedOutputFileNames[0], argInDict.value[0])
+	    else:
                 msg.error('no BS files created with expected name: %s' % expectedOutputFileName )
         else:
             msg.info('BS output filetype not defined so skip BS filename check')
@@ -280,7 +390,9 @@ class trigRecoExecutor(athenaExecutor):
             if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
                 fileNameDbg= self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value                
                 msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
-                
+
+            #TODO add merging of mother and child debug files
+
             if(os.path.isfile(fileNameDbg[0])):
                 #keep filename if not defined
                 msg.info('Will use file created  in PreRun step {0}'.format(fileNameDbg) )

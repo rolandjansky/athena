@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -20,7 +20,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "egammaEvent/ElectronContainer.h"
@@ -50,9 +49,6 @@ class CheckD2PD : public AthAlgorithm {
 
  
  private:
-
-  /** a handle on Store Gate */
-  StoreGateSvc* m_storeGate;
 
   /** a handle on the Hist/TTree registration service */
   ITHistSvc * m_thistSvc;

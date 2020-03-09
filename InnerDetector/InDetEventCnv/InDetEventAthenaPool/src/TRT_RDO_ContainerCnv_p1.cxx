@@ -80,8 +80,8 @@ void TRT_RDO_ContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const TRT_RDO_C
     // Access directly from SG
 
     // Retrieve the digits by class, not by name
-    const DataHandle<TRT_RDO_Collection > it;
-    const DataHandle<TRT_RDO_Collection > last;
+    SG::ConstIterator<TRT_RDO_Collection > it;
+    SG::ConstIterator<TRT_RDO_Collection > last;
     
     // Failure means no collections
     StatusCode sc(m_storeGate->retrieve(it, last));
@@ -92,7 +92,7 @@ void TRT_RDO_ContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const TRT_RDO_C
       MSG_DEBUG(log,"[p1] using collections found in the StoreGate");
 
       for (; it != last; ++it) {
-	TRT_RDO_Collection* RDO_Collection = const_cast<TRT_RDO_Collection*>(it.cptr());
+	TRT_RDO_Collection* RDO_Collection = const_cast<TRT_RDO_Collection*>(&*it);
 	pers->push_back(RDO_Collection);
       }
     }

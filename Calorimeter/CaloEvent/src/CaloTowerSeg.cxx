@@ -13,7 +13,7 @@
 
 #include "CaloEvent/CaloTowerSeg.h"
 
-CaloPhiRange CaloTowerSeg::s_range;
+const CaloPhiRange CaloTowerSeg::s_range;
 
 
 /**
@@ -24,7 +24,7 @@ CaloTowerSeg::SubSeg CaloTowerSeg::subseg (double eta, double deta,
                                            double phi, double dphi) const
 {
   typedef SubSeg::index_t index_t;
-  static CaloPhiRange range;
+  static const CaloPhiRange range;
 
   index_t etamin = this->etaIndex (eta - deta + 0.001);
   if (etamin == CaloTowerSeg::outOfRange)

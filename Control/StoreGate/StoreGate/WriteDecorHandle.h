@@ -1,8 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
-// $Id$
 /**
  * @file StoreGate/WriteDecorHandle.h
  * @author scott snyder <snyder@bnl.gov>
@@ -191,11 +190,11 @@ public:
    * @brief Fetch the variable for one element, as a reference.
    * @param e The element for which to fetch the variable.
    */
-  reference_type operator() (const AuxElement& e) const;
+  reference_type operator() (const AuxElement& e);
 
 
   /**
-   * @brief Fetch the variable for one element, as a const reference.
+   * @brief Fetch the variable for one element, as a reference.
    * @param index The index of the desired element.
    *
    * This looks up the variable in the object referenced by this handle.
@@ -325,10 +324,10 @@ WriteDecorHandle<T, D> makeHandle (const WriteDecorHandleKey<T>& key,
  *        more confusing error.
  */
 template <class T>
-void makeHandle (const WriteDecorHandleKey<T>& /*key*/);
+void makeHandle (const WriteDecorHandleKey<T>& key);
 template <class T>
-void makeHandle (const WriteDecorHandleKey<T>& /*key*/,
-                 const EventContext& /*ctx*/);
+void makeHandle (const WriteDecorHandleKey<T>& key,
+                 const EventContext& ctx);
 
 
 } // namespace SG

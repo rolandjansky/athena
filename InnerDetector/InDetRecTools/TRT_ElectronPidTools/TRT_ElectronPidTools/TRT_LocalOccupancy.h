@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -78,15 +78,17 @@ namespace InDet
    static const int NTOTAL = 7;
    //(barrel, ECA, ECB)side C, (barrel, ECA, ECB)side A [6][32]
    static const int NLOCAL = 6;
+   static const int NWHEEL = 34;
    static const int NLOCALPHI = 32;
    struct OccupancyData {
+      OccupancyData(const std::array<std::array<int,NLOCALPHI>,NLOCAL> &local)
+         : m_stw_local(local)
+      {}
      int m_occ_total[NTOTAL] = {0};
      int m_hit_total[NTOTAL] = {0};
      int m_occ_local[NLOCAL][NLOCALPHI] = {{0}};
      int m_hit_local[NLOCAL][NLOCALPHI] = {{0}};
-     int* m_stw_total = nullptr;
-     int** m_stw_local = nullptr;
-     int** m_stw_wheel = nullptr;
+     const std::array<std::array<int,NLOCALPHI>,NLOCAL> &m_stw_local;
      float m_stws_ratio[2][NLOCALPHI] = {{0}};
    };
 
@@ -102,8 +104,6 @@ namespace InDet
       void  countHitsNearTrack (OccupancyData& data,
                                 int track_local[NLOCAL][NLOCALPHI]) const;
 
-      //   void  countHitsNearTrack(std::vector<IdentifierHash>* hash_vec);
-  //   void  countHitsNearTrack(IdentifierHash hash);
 
   
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_SIMPLEVERTEXCLUSTERFINDER_H
@@ -29,34 +29,38 @@ namespace Trk
 
    */
 
-  class SimpleVertexClusterFinder : public AthAlgTool, IVertexClusterFinder
+  class SimpleVertexClusterFinder : public extends<AthAlgTool, IVertexClusterFinder>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
-
     //default constructor due to Athena interface
     SimpleVertexClusterFinder(const std::string& t, const std::string& n, const IInterface*  p);
     
-    //destructor
-    virtual ~SimpleVertexClusterFinder();
 
-    virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image );
+    //destructor
+    virtual ~SimpleVertexClusterFinder() = default;
+
+    
+    virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image ) const override;
 
   private:
-
     float m_weightThreshold;
     float m_seedCutScale;
-
-    VertexImage m_image;
 
     typedef std::pair<int, float> binContent;
     typedef std::vector<binContent> Cluster;
 
-    Cluster * highestCluster( std::map<int, float> *binsRemaining );
-    void addBinsToCluster( Cluster *clust, Cluster::size_type oldEdge, std::map<int, float> * binsRemaining );
+    std::unique_ptr<Cluster>
+    highestCluster( const VertexImage& image,
+                    std::map<int, float>& binsRemaining ) const;
 
-    void getCenter( Cluster * cl, float & xpos, float & ypos, float & zpos);
+    void addBinsToCluster( const VertexImage& image,
+                           Cluster& clust,
+                           Cluster::size_type oldEdge,
+                           std::map<int, float>& binsRemaining ) const;
+
+    void getCenter( const VertexImage& image,
+                    const Cluster& cl,
+                    float & xpos, float & ypos, float & zpos) const;
 
   };
 }

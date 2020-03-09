@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -84,7 +84,6 @@ electronMonTool::electronMonTool(const std::string & type, const std::string & n
 
   // Name of the electron collection
   declareProperty("ElectronContainer", m_ElectronContainer = "Electrons", "Name of the electron collection" );
-  this->egammaMonToolBase::initialize();
 
   bool WithFullHistList = true;
   bool WithLimitedHistList = false;
@@ -144,7 +143,8 @@ StatusCode electronMonTool::bookHistogramsForOneElectronType(electronHist& myHis
 
   ATH_MSG_DEBUG("electronMonTool::bookHistogramsForOneElectron()");
 
-  int start, end;
+  int start;
+  int end;
   start = 0;
   end = ENDCAP;
 
@@ -558,7 +558,7 @@ StatusCode electronMonTool::fillHistograms() {
   }
 
   // Get electron container
-  const xAOD::ElectronContainer* electron_container=0;
+  const xAOD::ElectronContainer* electron_container=nullptr;
   sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
   if(sc.isFailure() || !electron_container){
     ATH_MSG_VERBOSE("no electron container found in TDS");

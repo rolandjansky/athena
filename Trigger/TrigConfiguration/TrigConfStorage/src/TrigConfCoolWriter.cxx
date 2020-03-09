@@ -359,7 +359,7 @@ TrigConf::TrigConfCoolWriter::writeHLTPayload( ValidityRange vr,
          rangeInfo("HLT menu", vr.since(), vr.until());
 
          // this call is needed to set the level of each sequence
-         TrigConf::HLTUtils::allTEsProduced( hltFrame );
+         TrigConf::HLTTEUtils::allTEsProduced( hltFrame );
 
          // writing the chains of the HLT menu
          try {
@@ -373,7 +373,7 @@ TrigConf::TrigConfCoolWriter::writeHLTPayload( ValidityRange vr,
 
             for ( const HLTChain* chain : hltFrame.getHLTChainList() ) {
                menuChannel++;
-               string concise = HLTUtils::ChainCondenseDisplay( *chain, hltFrame);
+               string concise = HLTTEUtils::ChainCondenseDisplay( *chain, hltFrame);
                Record payload = createHltMenuPayload( hltMenuFolder, *chain, concise );
                hltMenuFolder->storeObject(vr.since(), vr.until(), payload, menuChannel);
 

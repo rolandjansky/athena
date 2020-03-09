@@ -23,8 +23,7 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
   AthAlgTool(type, name, parent),
   m_roadData(0),
   m_rWidth_RPC_Failed(0), m_use_rpc(true),
-  m_regionSelector( "RegSelSvc", name ), 
-  m_mdtIdHelper(0)
+  m_regionSelector( "RegSelSvc", name )
 {
   declareInterface<TrigL2MuonSA::RpcRoadDefiner>(this);
 }
@@ -77,10 +76,10 @@ void TrigL2MuonSA::RpcRoadDefiner::setRpcGeometry(bool use_rpc)
 // --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::RpcRoadDefiner::setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
-                                                   const MdtIdHelper* mdtIdHelper)
+                                                   const Muon::MuonIdHelperTool* muonIdHelperTool)
 {
   m_regionSelector = regionSelector;
-  m_mdtIdHelper = mdtIdHelper;
+  m_muonIdHelperTool = muonIdHelperTool;
 }
 
 // --------------------------------------------------------------------------------
@@ -182,7 +181,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   std::vector<IdentifierHash> mdtHashList;
   
   // get sector_trigger and sector_overlap by using the region selector
-  IdContext context = m_mdtIdHelper->module_context();
+  IdContext context = m_muonIdHelperTool->mdtIdHelper().module_context();
   
   double etaMin =  p_roi->eta()-.02;
   double etaMax =  p_roi->eta()+.02;
@@ -203,14 +202,14 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   for(int i_hash=0; i_hash < (int)mdtHashList.size(); i_hash++){
     
     Identifier id;
-    int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
-    //	int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id);
+    int convert = m_muonIdHelperTool->mdtIdHelper().get_id(mdtHashList[i_hash], id, &context);
+    //	int convert = m_muonIdHelperTool->mdtIdHelper().get_id(mdtHashList[i_hash], id);
 
     if(convert!=0) ATH_MSG_ERROR("problem converting hash list to id");
     
     muonRoad.stationList.push_back(id);
-    int stationPhi = m_mdtIdHelper->stationPhi(id);
-    std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+    int stationPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
+    std::string name = m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(id));
     
     if ( name[1]=='M' && name[2]=='E' ) continue;//exclude BME
     if ( name[1]=='M' && name[2]=='G' ) continue;//exclude BMG

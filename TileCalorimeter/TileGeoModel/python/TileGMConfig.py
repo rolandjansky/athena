@@ -1,12 +1,16 @@
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
+
 def TileGMCfg(configFlags):
     result=GeoModelCfg(configFlags)
 
-    from TileGeoModel.TileGeoModelConf import TileDetectorTool
+    TileDetectorTool=CompFactory.TileDetectorTool
     result.getPrimary().DetectorTools += [ TileDetectorTool() ]
     if not configFlags.Detector.SimulateCalo:
         result.getPrimary().DetectorTools["TileDetectorTool"].GeometryConfig = "RECO"
@@ -15,7 +19,6 @@ def TileGMCfg(configFlags):
 
 
 if __name__ == "__main__":
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
@@ -23,5 +26,5 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     acc = TileGMCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
+    acc.store( open( "test.pkl", "wb" ) )
+    print("All OK")

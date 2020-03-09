@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //  ConfigException.h
@@ -8,8 +8,8 @@
 //  Created by Joerg Stelzer on 11/18/12.
 //
 
-#ifndef __TopoCore__Exception__
-#define __TopoCore__Exception__
+#ifndef L1TOPOCORESIMULATION_EXCEPTION_H
+#define L1TOPOCORESIMULATION_EXCEPTION_H
 
 #include <iostream>
 #include <sstream>
@@ -38,9 +38,8 @@ namespace TCS {
       
    private:
       std::string m_msg;
-      type_t m_type;
    };
    
 }
 
-#endif /* defined(__TopoCore__ConfigException__) */
+#endif /* defined(L1TOPOCORESIMULATION_EXCEPTION_H) */

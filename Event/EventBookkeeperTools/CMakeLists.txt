@@ -25,14 +25,21 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 # Component(s) in the package:
 atlas_add_component( EventBookkeeperTools
                      src/*.cxx
-                     Root/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaBaseComps AthenaKernel xAODCutFlow GaudiKernel SGTools StoreGateLib SGtests EventBookkeeperMetaData EventInfo xAODEventInfo )
 
 # Install files from the package:
-atlas_install_headers( EventBookkeeperTools )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/PrintCutFlow.py )
 
+# Tests
+atlas_add_test( CutflowSvcDummyAlg
+                SCRIPT athena EventBookkeeperTools/TestCutFlowSvcDummyAlg.py
+                PROPERTIES TIMEOUT 300 )
+atlas_add_test( CutflowSvcDumpBookkeepers
+                SCRIPT athena EventBookkeeperTools/TestCutFlowSvcDumpBookkeepers.py
+                PROPERTIES TIMEOUT 300 )
+atlas_add_test( CutflowSvcOutput
+                SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py
+                PROPERTIES TIMEOUT 300 )

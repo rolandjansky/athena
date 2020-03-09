@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_DBHelper
@@ -15,7 +15,6 @@
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 
-#include "boost/foreach.hpp"
 #include "boost/lexical_cast.hpp"
 
 #include "RelationalAccess/ITable.h"

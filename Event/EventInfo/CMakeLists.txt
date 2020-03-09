@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost COMPONENTS unit_test_framework )
 
 # Component(s) in the package:
 atlas_add_library( EventInfo
@@ -51,7 +52,11 @@ atlas_add_test( MergedEventInfo_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthLinks EventInfo )
 
-# Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-
+atlas_add_test( TagInfo_test                
+                SOURCES
+                test/TagInfo_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthLinks EventInfo ${Boost_LIBRARIES} 
+               )
+               
+set_target_properties( EventInfo_TagInfo_test  PROPERTIES ENABLE_EXPORTS True )

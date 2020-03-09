@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonSvc.h 
@@ -309,6 +309,9 @@ private:
 
   /// pmon-stream data file descriptor
   int m_stream;
+
+  /// Worker directory in athenaMP
+  std::string m_workerDir;
 
   /// number of events processed during the monitored job
   long m_nevts;

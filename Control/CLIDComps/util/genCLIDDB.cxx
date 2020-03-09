@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include <cassert>
-#include <exception>
 #include <iostream>
 #include <string>
+
 #include "GaudiKernel/IClassManager.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -15,22 +13,18 @@
 #include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 
+#include "AthenaKernel/errorcheck.h"
+
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
-
-using namespace std;
 
 // Suppress roofit banner.  Besides the output, it spins up cling and
 // spits out ubsan warnings.
 int doBanner() { return 0; }
 
 int inputError(const std::string& errDescr, const po::options_description& optDescr ) {
-  cerr << errDescr << "\n" << optDescr << endl;
+  std::cerr << errDescr << "\n" << optDescr << std::endl;
   return 1;
-}
-int gaudiError(const std::string& errDescr) {
-  cerr << errDescr << endl;
-  return 2;
 }
 
 //wrote a better version!
@@ -38,12 +32,13 @@ IAppMgrUI* initGaudi(const std::string& options, ISvcLocator*& svcLocator) {
   IAppMgrUI* theApp = Gaudi::createApplicationMgr();
   SmartIF<IProperty> propMgr(theApp);
   if(strlen(options.c_str())) {
-    propMgr->setProperty("JobOptionsPath",options); 
+    CHECK_WITH_CONTEXT( propMgr->setProperty("JobOptionsPath", options), "initGaudi", nullptr );
   } else {
-    propMgr->setProperty( "JobOptionsType", "NONE" ); //no joboptions given
+    //no joboptions given
+    CHECK_WITH_CONTEXT( propMgr->setProperty("JobOptionsType", "NONE"), "initGaudi", nullptr );
   }
-  theApp->configure();
-  theApp->initialize();
+  CHECK_WITH_CONTEXT( theApp->configure(), "initGaudi", nullptr );
+  CHECK_WITH_CONTEXT( theApp->initialize(), "initGaudi", nullptr );
   svcLocator = Gaudi::svcLocator();
   return theApp;
 
@@ -51,103 +46,96 @@ IAppMgrUI* initGaudi(const std::string& options, ISvcLocator*& svcLocator) {
 
 int main(int argc, char* argv[]) {
   // Declare the supported options.
-  po::options_description desc("clidDB_gen allowed options");
+
+  const std::string appName("genCLIDDB");
+  po::options_description desc(appName + " allowed options");
   desc.add_options()
     ("help,h", "produce help message")
-    ("package,p", po::value<string>(), "package we want to load clids from")
-    ("input,i", po::value<string>(), "optional path to input clid db file")
-    ("output,o", po::value<string>(), "optional path to resulting clid db file")
-    ("jobopts,j", po::value<string>(), "name of optional job options txt file, located at ../share/jobopts")
+    ("package,p", po::value<std::string>(), "package we want to load clids from")
+    ("input,i", po::value<std::string>(), "optional path to input clid db file")
+    ("output,o", po::value<std::string>(), "optional path to resulting clid db file")
+    ("jobopts,j", po::value<std::string>(), "name of optional job options txt file, located at ../share/jobopts")
     ;
-  string packageName("ALL");
-  string inputCLIDDB;
-  string outFileName;
+  std::string packageName("ALL");
+  std::string inputCLIDDB;
+  std::string outFileName;
 
   po::variables_map vm;
   try {
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);    
-  } catch (const exception& e) {
+  } catch (const std::exception& e) {
     return inputError(e.what(), desc);
   }
 
   if (vm.count("help")) {
-    cout << desc << endl;
+    std::cout << desc << std::endl;
     return 0;
   }
   
   if (vm.count("package")) {
-    cout << "Generating clid.db for package " 
-	 << vm["package"].as<string>() << ".\n";
-    packageName = vm["package"].as<string>();
+    packageName = vm["package"].as<std::string>();
   } else {
-    return inputError("Please specify a package using option --package.\n", 
-		      desc);
+    return inputError("Please specify a package using option --package.\n", desc);
   }
 
   if (vm.count("output")) {
-    outFileName = vm["output"].as<string>();
+    outFileName = vm["output"].as<std::string>();
   } else {
     outFileName = packageName + "_clid.db";
   }
-  cout << "Resulting clid.db will be written to " 
-       << outFileName << ".\n";
 
-  ISvcLocator* pSvcLoc(0);
-  if (vm.count("jobopts")) { 
-    if (!initGaudi(vm["jobopts"].as<string>(), pSvcLoc)) {
-      return gaudiError("clidDB_gen can not run");
-    }  
-  } else {
-    if (!initGaudi("CLIDComps/minimalPrintout.opts",pSvcLoc)) {
-      return gaudiError("clidDB_gen can not run");
-    }  
+  // Initialize Gaudi
+  ISvcLocator* pSvcLoc(nullptr);
+  std::string jobopts("CLIDComps/minimalPrintout.opts");
+  if (vm.count("jobopts")) {
+    jobopts = vm["jobopts"].as<std::string>();
+  }
+  if (!initGaudi(jobopts,pSvcLoc)) {
+    std::cerr << "cannot initialize Gaudi" << std::endl;
+    return 2;
   }
 
-  if ( 0 == pSvcLoc ) {
-    return gaudiError( "NULL pointer to ISvcLocator" );
+  // Now we can use the MessagesSvc
+  SmartIF<IMessageSvc> msgSvc(pSvcLoc);
+  if (!msgSvc.isValid()) {
+    std::cerr << "cannot retrieve MessageSvc" << std::endl;
+    return 2;
   }
+  MsgStream log(msgSvc, appName);
+
   SmartIF<IClassManager> pICM(pSvcLoc);
   if (!pICM.isValid()) {
-    gaudiError("can not get IClassManager");
+    log << MSG::ERROR << "cannot retrieve ClassManager" << endmsg;
+    return 2;
   }
 
-  IClassIDSvc* pClassIDSvc(0);
-  if (!(pSvcLoc->service("ClassIDSvc", pClassIDSvc, true).isSuccess())) {
-    cerr << "can not get ClassIDSvc, no clid.db will be generated" << endl;
-    return 1;
+  IClassIDSvc* pClassIDSvc(nullptr);
+  CHECK_WITH_CONTEXT( pSvcLoc->service("ClassIDSvc", pClassIDSvc, true), appName, 2 );
+
+  SmartIF<IProperty> pCLIDSvcProp(pClassIDSvc);
+  if (!pCLIDSvcProp.isValid()) {
+    log << MSG::ERROR << "cannot retrieve ClassIDSvc" << std::endl;
+    return 2;
   }
 
-  if ( 0 == pClassIDSvc ) {
-    return gaudiError("NULL pointer to IClassIDSvc");
-  }
+  log << MSG::INFO << "Writing clid.db for package "
+      << vm["package"].as<std::string>() << " to " << outFileName << "." << endmsg;
 
-  IProperty *pCLIDSvcProp(dynamic_cast<IProperty*>(pClassIDSvc));
-  if ( 0 == pCLIDSvcProp ) {
-    return gaudiError("NULL pointer to IClassIDSvc's property");
-  }
-
+  // Set properties on CLIDSvc
+  std::string dbfiles("{}");
   if (vm.count("input")) {
-    cout << "Reading clid.db from " 
-	 << vm["input"].as<string>() << ".\n";
-    if (!(pCLIDSvcProp->setProperty( "CLIDDBFiles", 
-				     "{\"" + vm["input"].as<string>() + "\"}" )).isSuccess()) {
-      return inputError("Error setting ClassIDSvc.CLIDDBFiles to " 
-			+ vm["input"].as<string>(), 
-			desc);
-    }
+    log << MSG::INFO << "Reading clid.db from " << vm["input"].as<std::string>() << "." << std::endl;
+    dbfiles = "{\"" + vm["input"].as<std::string>() + "\"}";
   }
+  CHECK_WITH_CONTEXT( pCLIDSvcProp->setProperty("CLIDDBFiles", dbfiles), appName, 2 );
+  CHECK_WITH_CONTEXT( pCLIDSvcProp->setProperty("OutputFileName", outFileName), appName, 2 );
 
-  pCLIDSvcProp->setProperty( "OutputFileName", outFileName );
-
-  if (!pICM->loadModule(packageName).isSuccess()) {
-    return gaudiError("can not load module " + packageName);
-  }
+  // Load the module
+  CHECK_WITH_CONTEXT( pICM->loadModule(packageName), appName, 2 );
 
   //fill clid db
-  if (!(pClassIDSvc->reinitialize()).isSuccess()) {
-    return gaudiError("can not reinitialize ClassIDSvc");
-  }
+  CHECK_WITH_CONTEXT( pClassIDSvc->reinitialize(), appName, 2 );
 
   //write out merged clid db on service finalize
   return (pClassIDSvc->finalize()).isSuccess() ? 0 : -1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDET_INDETBEAMSPOTROOFIT_H
@@ -43,8 +43,6 @@ namespace InDet {
     //Copy Constructor
     InDetBeamSpotRooFit( const InDetBeamSpotRooFit& rhs );
     
-    //assignment
-    InDetBeamSpotRooFit & operator =(const InDetBeamSpotRooFit & other) =default;
  
     //These are the member functions to keep:
     virtual StatusCode initialize();

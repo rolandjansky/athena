@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,7 +8,6 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "StoreGate/StoreGate.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -18,7 +17,6 @@
 DummyDumperAlg::DummyDumperAlg(const std::string& name, ISvcLocator* pSvcLocator) 
  : AthAlgorithm(name, pSvcLocator)
  , m_LumiBlockMetaDataTool("LumiBlockMetaDataTool")
- , m_storeGate(0)
  , m_tree(0)
  , m_eventCounter(0)
  , m_dummyInt(0)
@@ -59,12 +57,6 @@ StatusCode DummyDumperAlg::initialize()
        << m_LumiBlockMetaDataTool.type());
   }
 
-  /// get StoreGateSvc interface
-  if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    ATH_MSG_ERROR ("Cannot get StoreGateSvc.");
-    return StatusCode::FAILURE;
-  }
-
   // make tree
   m_tree = new TTree("tree","tree");
   if (m_ths->regTree (m_tree->GetName(), m_tree).isFailure())
@@ -99,7 +91,7 @@ DummyDumperAlg::execute()
 
   // retrieve event info
   const EventInfo*  p_evt = 0;
-  StatusCode status = m_storeGate->retrieve(p_evt);
+  StatusCode status = evtStore()->retrieve(p_evt);
 
   if(status.isSuccess() && p_evt!=0) {
     eventNumber = p_evt->event_ID()->event_number();

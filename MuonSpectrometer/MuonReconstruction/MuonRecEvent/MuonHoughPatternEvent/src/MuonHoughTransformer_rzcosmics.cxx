@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_rzcosmics.h"
 #include "CxxUtils/sincos.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughTransformer_rzcosmics::MuonHoughTransformer_rzcosmics(int nbins, int nbins_angle, double detectorsize, double detectorsize_angle, double threshold_histo, int number_of_sectors):MuonHoughTransformer(nbins, nbins_angle, detectorsize, detectorsize_angle, threshold_histo, number_of_sectors)
 {
@@ -16,7 +18,7 @@ MuonHoughTransformer_rzcosmics::MuonHoughTransformer_rzcosmics(int nbins, int nb
   m_cosphisec = new double[m_number_of_sectors];
 
   for (int phisector=0; phisector<m_number_of_sectors; phisector++) {
-    m_phisec[phisector] = (phisector+0.5)*MuonHough::Pi/(m_number_of_sectors+0.)-MuonHough::Pi; // phi [-Pi,0]
+    m_phisec[phisector] = (phisector+0.5)*M_PI/(m_number_of_sectors+0.)-M_PI; // phi [-Pi,0]
     CxxUtils::sincos sc (m_phisec[phisector]);
     m_sinphisec[phisector] = sc.sn;
     m_cosphisec[phisector] = sc.cs;
@@ -47,7 +49,6 @@ MuonHoughTransformer_rzcosmics::~MuonHoughTransformer_rzcosmics()
 
 void MuonHoughTransformer_rzcosmics::fillHit(MuonHoughHit* hit, double weight)
 {
-  //  std::cout << "MuonHoughTransformer_rzcosmics::WEIGHT " << weight << std::endl;
   
   const double invradius = 1./hit->getRadius();
   const double hitx = hit->getHitx();
@@ -103,20 +104,21 @@ int MuonHoughTransformer_rzcosmics::fillHisto(double rz0, double theta_in_grad, 
 
 MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(const MuonHoughHitContainer* event, std::pair <double,double> coordsmaximum,double maximum_residu_mm, double /*maximum_residu_angle*/, int maxsector, bool /*which_segment*/, int printlevel)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum");
   MuonHoughPattern* houghpattern = new MuonHoughPattern(MuonHough::hough_rzcosmics);
 
   double eradius=0.,er0=0.;
   const double theta = m_muonhoughmathutils.angleFromGradToRadial(coordsmaximum.second);
   const double rz0 = coordsmaximum.first;
 
-  const double phimax = m_phisec[maxsector]; //(maxsector + 0.5)*MuonHough::Pi/(m_number_of_sectors+0.) - MuonHough::Pi;
+  const double phimax = m_phisec[maxsector];
 
-  if (printlevel>=4)
+  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
     {
-      std::cout << "sector: " << maxsector << " phimax: " << phimax << std::endl;
-      std::cout << "coordsmaximumfirst: " << rz0 << std::endl;
-      std::cout << "coordsmaximumsecond: " << coordsmaximum.second << " coordsmaximumsecondinrad: " << theta << std::endl;
-      std::cout << "MuonHoughTransformer_rzcosmics::size of event: " << event->size() << std::endl;
+      log << MSG::VERBOSE << "sector: " << maxsector << " phimax: " << phimax << endmsg;
+      log << MSG::VERBOSE << "coordsmaximumfirst: " << rz0 << endmsg;
+      log << MSG::VERBOSE << "coordsmaximumsecond: " << coordsmaximum.second << " coordsmaximumsecondinrad: " << theta << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::size of event: " << event->size() << endmsg;
     }
 
   for (unsigned int i=0; i<event->size(); i++)
@@ -130,18 +132,18 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
       
       double residu_distance = m_muonhoughmathutils.signedDistanceToLine(hitz,perp,rz0,theta);
 	      
-      if (printlevel>=4) 
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE) 
 	{
-	  std::cout << "MuonHoughTransformer_rzcosmics::hitx: " << hitx << " hity: " << hity << " hitz: " << hitz << " perp: " << perp << std::endl;
-	  std::cout << "MuonHoughTransformer_rzcosmics::residu_distance: " << residu_distance << std::endl;
+	  log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::hitx: " << hitx << " hity: " << hity << " hitz: " << hitz << " perp: " << perp << endmsg;
+	  log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::residu_distance: " << residu_distance << endmsg;
 	} 
 
       if(std::abs(residu_distance)<maximum_residu_mm) // here no circular effect
 	{
-	  if (printlevel>=4)
+	  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 	    {
-	      std::cout << "MuonHoughTransformer_rzcosmics::hit added to houghpattern! detector: " << event->getHit(i)->getWhichDetector() << std::endl;
-	      if (event->getHit(i)->getAssociated()==true) std::cout << " hit already earlier associated to pattern!" << std::endl;
+	      log << MSG::VERBOSE<< "MuonHoughTransformer_rzcosmics::hit added to houghpattern! detector: " << event->getHit(i)->getWhichDetector() << endmsg;
+	      if (event->getHit(i)->getAssociated()==true)log << MSG::VERBOSE  << " hit already earlier associated to pattern!" << endmsg;
 	    }
 	  houghpattern->addHit(event->getHit(i));
 	  event->getHit(i)->setAssociated(true);
@@ -166,28 +168,27 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
   
   if (houghpattern->size()==0)
     {
-      if (printlevel>=4){std::cout << "MuonHoughTransformer_rzcosmics::WARNING : no hits found on pattern" << std::endl;}
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE){log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::WARNING : no hits found on pattern" << endmsg;}
     }
 
   else if (std::abs(eradius-rz0) > 500.)
     {
-      if (printlevel>=4){
-	std::cout << "MuonHoughTransformer_rzcosmics::WARNING Eradius or Etheta calc. WRONG" << std::endl;
-	std::cout << "MuonHoughTransformer_rzcosmics::eradius: " << rz0 << " etheta: " << theta << std::endl;
-	std::cout << "MuonHoughTransformer_rzcosmics::eradius: " << eradius << " etheta: " << theta << std::endl;
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE){
+	log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::WARNING Eradius or Etheta calc. WRONG" << endmsg;
+	log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::eradius: " << rz0 << " etheta: " << theta << endmsg;
+	log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::eradius: " << eradius << " etheta: " << theta << endmsg;
       }
       houghpattern->setERTheta(rz0);
     }
 
   updateParameters(houghpattern); // not possible when phi direction not known!
 
-  if (printlevel>=4)
+  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
     {
-      std::cout << "MuonHoughTransformer_rzcosmics::updateParameterstheta new phi: " << houghpattern->getEPhi() << " old phi: " << phimax << std::endl;
-      std::cout << "MuonHoughTransformer_rzcosmics::updateParameterstheta new r0: " << houghpattern->getERPhi() << " old r0: " << er0 << std::endl;
-
-      std::cout << "MuonHoughTransformer_rzcosmics::updateParameterstheta new theta: " << houghpattern->getETheta() << " old theta: " << theta << std::endl;
-      std::cout << "MuonHoughTransformer_rzcosmics::updateParameterstheta new z0: " << houghpattern->getERTheta() << " old z0: " << eradius << std::endl;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::updateParameterstheta new phi: " << houghpattern->getEPhi() << " old phi: " << phimax << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::updateParameterstheta new r0: " << houghpattern->getERPhi() << " old r0: " << er0 << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::updateParameterstheta new theta: " << houghpattern->getETheta() << " old theta: " << theta << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::updateParameterstheta new z0: " << houghpattern->getERTheta() << " old z0: " << eradius << endmsg;
     }
 
   return houghpattern;
@@ -245,8 +246,6 @@ void MuonHoughTransformer_rzcosmics::updateParameters(MuonHoughPattern* houghpat
   const double av_radii = sum_radii / (size+0.);
   const double av_z = sum_z / (size+0.);
   
-  //  std::cout << "av_radii: " << av_radii << " av_z: " << av_z << std::endl;
-
   double sumr = 0.;
   double sumz = 0.;
   for (unsigned int i=0; i<size; i++)
@@ -262,36 +261,27 @@ void MuonHoughTransformer_rzcosmics::updateParameters(MuonHoughPattern* houghpat
       sumz += weight*sign*z_offset;
     }
 
-  //  std::cout << "sum_weight: " << sum_weight << " sum_tanweight: " << sum_tanweight << std::endl;
-  
-  //  const double sum_tan = sum_tanweight/sum_weight;
   if (std::abs(sumr) < 0.000001 || std::abs(sumz) < 0.000001) {
-    // std::cout << " sum too small to update" << std::endl; 
     return;
   }
 
   double theta = std::atan2(sumr,sumz);
 
-  if (theta < 0) theta += MuonHough::Pi;
+  if (theta < 0) theta += M_PI;
   
   // if theta almost straight rely on hit for prediction (transform has difficulties prediction direction in this case):
   double offset = 0.02;
   if (theta < offset) {
     if (houghpattern->getHitz(0) < 0) {
-      theta = MuonHough::Pi - theta;
+      theta = M_PI - theta;
     }
   }
 
-  else if (theta > MuonHough::Pi-offset) {
+  else if (theta > M_PI-offset) {
     if (houghpattern->getHitz(0) > 0) {
-      theta = MuonHough::Pi - theta;
+      theta = M_PI - theta;
     }
   }
-
-  //  std::cout << "theta: << : " << theta << std::endl;
-
-//   double lambda = 0.;
-//   if (theta != 0) {lambda = av_radii/std::sin(theta);}
 
   const double rz0 = av_z * std::sin(theta) - av_radii * std::cos(theta);
 

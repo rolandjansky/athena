@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
@@ -104,20 +103,14 @@ StatusCode RpcDetectorStatusDbTool::initialize()
 
 StatusCode RpcDetectorStatusDbTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(I,keys)){
   
-  StatusCode sc=StatusCode::SUCCESS;
+  StatusCode sc;
   
   std::list<std::string>::const_iterator itr;
-
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    
     m_log << MSG::INFO << *itr << " I="<<I<<" ";
-   
-  
      if(*itr==m_FolderName) {
-       loadRpcDqStatus(I,keys);
-       
+       sc &= loadRpcDqStatus(I,keys);
      }
-    
   }
   
   return sc;

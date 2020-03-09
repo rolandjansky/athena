@@ -41,7 +41,6 @@ include( "TrigT1EventAthenaPool/TrigT1EventAthenaPool_joboptions.py" )
 include( "ByteStreamCnvSvc/WriteByteStream_EventStorage_jobOptions.py" )
 ServiceMgr.ByteStreamEventStorageOutputSvc.FileTag = "lvl1test"
 
-oStream.ForceRead = True
 oStream.ItemList += [ "ROIB::RoIBResult#*" ]
 oStream.ItemList += [ "CTP_RDO#*" ]
 oStream.ItemList += [ "MuCTPI_RDO#*" ]

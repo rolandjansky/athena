@@ -1,0 +1,45 @@
+//----------------------------------------------------------------------
+// ASD2PP_diff.db
+//-----------
+// Connection information between ASDs and Patch Panels (PPs)
+// This file describes diff from ASD2PP.db
+//
+// Table contents: iii nnnn
+//                 iii  = PP type
+//                 nnnn = Number of channels
+//
+//                     |-  ASD -||-- PP -|
+//                 q r  s t uuu   x y zz
+//                 q    = Side ( 0: A , 1:C )
+//                 r    = Sector ID
+//                 s    = Layer ID
+//                 t    = Chamber ID
+//                 uuu  = Wire-group ID
+//                 x    = PP ID
+//                 y    = PP input-connector ID
+//                 zz   = PP input-channel ID of a connector
+//---------------------------------------------------------------------- 
+// OWNER:  Hisaya Kurashige          SECTION: Connection
+//
+//               
+//                  Date      Who     Explanation of Changes
+//               ----------- ------- -----------------------------------
+// Version  0.00 29-OCT-2008  HK     Creation
+// Version  0.01 22-JUL-2009  Susumu Update for simulationd; just added 
+//                                   this message   
+//
+//----------------------------------------------------------------------
+//
+EWT 0
+EWD 0
+EST 0
+ESD 0
+FWT 0
+FWD 0
+FST 0
+FSD 0 
+EWI 0
+ESI 0
+FWI 0
+FSI 0
+//

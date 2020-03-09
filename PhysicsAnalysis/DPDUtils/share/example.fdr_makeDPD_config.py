@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #####################################################################
 #
 # DPD Group Configuration example 
@@ -51,7 +53,6 @@ StreamDPD.ItemList += ['Rec::TrackParticleContainer#TrackParticleCandidate']
 StreamDPD.ItemList += ['Rec::TrackParticleContainer#StacoTrackParticles']
 StreamDPD.ItemList += ['VxContainer#*']
 
-StreamDPD.ForceRead=TRUE;  #force read of output data objs
 
 #electron Filter 
 #StreamDPD.AcceptAlgs=["ElectronFilter"]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -10,6 +10,9 @@
 // DESCRIPTION:
 // Subject: MDT-->Offline Muon Data Quality
 ///////////////////////////////////////////////////////////////////////////////////////////
+#ifndef MDTChamber_H
+#define MDTChamber_H
+
 #include <string>
 
 class TH1F_LW;
@@ -71,8 +74,15 @@ class MDTChamber {
   inline int GetStationPhi() { return m_station_phi; }
 
   inline int GetMDTHitsPerChamber_IMO_Bin() { return m_mdthitsperchamber_InnerMiddleOuterLumi_bin; }
+  inline int GetMDTHitsPerChamber_IMO_BinX() { return m_mdthitsperchamber_InnerMiddleOuterLumi_binx; }
+  inline int GetMDTHitsPerChamber_IMO_BinY() { return m_mdthitsperchamber_InnerMiddleOuterLumi_biny; }
   inline int GetMDTHitsPerML_byLayer_Bin(int multi_layer) { return ( multi_layer == 1 ? m_mdthitsperML_byLayer_bin_m1 : m_mdthitsperML_byLayer_bin_m2); }
+  inline int GetMDTHitsPerML_byLayer_BinX() { return m_binx; }
+  inline int GetMDTHitsPerML_byLayer_BinY(int multi_layer) { return ( multi_layer == 1 ? m_biny_m1 : m_biny_m2); }
   inline int GetMDTHitsPerML_Bin(int multi_layer) { return ( multi_layer == 1 ? m_mdthitspermultilayerLumi_bin_m1 : m_mdthitspermultilayerLumi_bin_m2); }
+  inline int GetMDTHitsPerML_Binx() { return m_mdthitspermultilayerLumi_bin_m1_binx; }
+  inline int GetMDTHitsPerML_m1_Biny() { return m_mdthitspermultilayerLumi_bin_m1_biny; }
+  inline int GetMDTHitsPerML_m2_Biny() { return m_mdthitspermultilayerLumi_bin_m2_biny; }
 
   inline int GetCrate(){ return m_crate; }
   inline std::string GetCrate_String(){ return m_crate_str; }
@@ -95,8 +105,18 @@ class MDTChamber {
 
   //global bin vals for the colorful TH2F plots
   short int m_mdthitsperchamber_InnerMiddleOuterLumi_bin;
+  short int m_mdthitsperchamber_InnerMiddleOuterLumi_binx;
+  short int m_mdthitsperchamber_InnerMiddleOuterLumi_biny;
   short int m_mdthitspermultilayerLumi_bin_m1;
   short int m_mdthitspermultilayerLumi_bin_m2;
+  short int m_mdthitspermultilayerLumi_bin_m1_binx;
+  short int m_mdthitspermultilayerLumi_bin_m1_biny;
+  short int m_mdthitspermultilayerLumi_bin_m2_biny;
   short int m_mdthitsperML_byLayer_bin_m1;
   short int m_mdthitsperML_byLayer_bin_m2;
+  short int  m_binx; 
+  short int  m_biny_m1;
+  short int  m_biny_m2; 
 };
+
+#endif

@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.check_reflex
 # @purpose a script to check the definitions of (reflex) plugins
 #          across multiple so-called 'rootmap' files
 # @author Sebastien Binet
 # @date February 2010
+
+from __future__ import print_function
 
 __version__ = "$Revision: 276362 $"
 __doc__ = """
@@ -82,8 +84,8 @@ def main(args):
     """
     exitcode = 0
 
-    print ":"*80
-    print "::: chk-rflx :::"
+    print (":"*80)
+    print ("::: chk-rflx :::")
 
     import os
     import PyUtils.Dso as Dso
@@ -118,11 +120,11 @@ def main(args):
         keys = db.keys()
         keys.sort()
         for k in keys:
-            print "%s:" % k
+            print ("%s:" % k)
             libs = db[k]
             libs.sort()
             for lib in libs:
-                print "  ",fct(lib)
+                print ("  ",fct(lib))
         return
 
     import PyUtils.Dso as Dso
@@ -132,51 +134,51 @@ def main(args):
         libname = args.capabilities
         try:
             capabilities = dsodb.capabilities(libname)
-            print "::: capabilities of [%s]" % (libname,)
-            print os.linesep.join([" %s"%c for c in capabilities])
-        except ValueError,err:
+            print ("::: capabilities of [%s]" % (libname,))
+            print (os.linesep.join([" %s"%c for c in capabilities]))
+        except ValueError as err:
             exitcode = 1
             pass
 
     if args.chk_dups:
         libname = args.chk_dups
         try:
-            print "::: checking duplicates for [%s]..." % (libname,)
+            print ("::: checking duplicates for [%s]..." % (libname,))
             dups = dsodb.duplicates(libname, pedantic=args.pedantic)
             for k in dups:
-                print " -",k
-                print os.linesep.join([" %s"%v for v in dups[k]])
+                print (" -",k)
+                print (os.linesep.join([" %s"%v for v in dups[k]]))
             if len(dups.keys())>0:
                 exitcode = 1
-        except ValueError,err:
+        except ValueError as err:
             exitcode = 1
             pass
 
     if args.dump_content:
-        print "::: dumping content of all known plugins..."
+        print ("::: dumping content of all known plugins...")
         entries = dsodb.content(pedantic=args.pedantic)
         print_db(entries, args.detailed_dump)
-        print "::: known entries:",len(entries.keys())
+        print ("::: known entries:",len(entries.keys()))
 
     if args.dump_libs:
-        print "::: dumping all known libraries..."
+        print ("::: dumping all known libraries...")
         libs = dsodb.libs(detailedDump=args.detailed_dump)
         for lib in libs:
-            print " -",lib
-        print "::: known libs:",len(libs)
+            print (" -",lib)
+        print ("::: known libs:",len(libs))
 
     if args.dump_dso:
-        print "::: dumping all known dso/rootmap files..."
+        print ("::: dumping all known dso/rootmap files...")
         dso_files = [dso for dso in dsodb.dsoFiles]
         dso_files.sort()
         for dso_file in dso_files:
             if not args.detailed_dump:
                 dso_file = os.path.basename(dso_file)
-            print " -",dso_file
-        print "::: known dsos:",len(dso_files)
+            print (" -",dso_file)
+        print ("::: known dsos:",len(dso_files))
 
     if args.check_dict_dups:
-        print ":: checking dict. duplicates..."
+        print (":: checking dict. duplicates...")
         dups = dsodb.dictDuplicates(pedantic=args.pedantic)
         suppression_log = []
         for k in dups:
@@ -188,7 +190,7 @@ def main(args):
                 if all(suppressed):
                     msg = "---> ignoring [%s]" % (k,)
                     suppression_log.append(k[:])
-                    #print msg
+                    #print (msg)
                     pass
                 else:
                     # that's a new one !!
@@ -196,19 +198,19 @@ def main(args):
             else:
                 # that's a new one !!
                 exitcode = 1
-                # print "---> NOT ignoring [%s]" % (k,)
+                # print ("---> NOT ignoring [%s]" % (k,))
         print_db(dups, args.detailed_dump)
         if len(suppression_log):
-            print "-"*40
-            print "## ignoring the following dups':"
+            print ("-"*40)
+            print ("## ignoring the following dups':")
             for k in suppression_log:
-                print " -",k
-            print "-"*40
-        print "## all dups:",len(dups.keys())
-        print "##     dups:",len(dups.keys())-len(suppression_log)
+                print (" -",k)
+            print ("-"*40)
+        print ("## all dups:",len(dups.keys()))
+        print ("##     dups:",len(dups.keys())-len(suppression_log))
 
     if args.check_pf_dups:
-        print "::: checking (plugin factories) components dups..."
+        print ("::: checking (plugin factories) components dups...")
         dups = dsodb.pfDuplicates(pedantic=args.pedantic)
         suppression_log = []
         for k in dups:
@@ -220,7 +222,7 @@ def main(args):
                 if all(suppressed):
                     msg = "---> ignoring [%s]" % (k,)
                     suppression_log.append(k[:])
-                    #print msg
+                    #print (msg)
                     pass
                 else:
                     # that's a new one !!
@@ -228,19 +230,19 @@ def main(args):
             else:
                 # that's a new one !!
                 exitcode = 1
-                # print "---> NOT ignoring [%s]" % (k,)
+                # print ("---> NOT ignoring [%s]" % (k,))
         print_db(dups, args.detailed_dump)
         if len(suppression_log):
-            print "-"*40
-            print "## ignoring the following dups':"
+            print ("-"*40)
+            print ("## ignoring the following dups':")
             for k in suppression_log:
-                print " -",k
-            print "-"*40
-        print "## all dups:",len(dups.keys())
-        print "##     dups:",len(dups.keys())-len(suppression_log)
+                print (" -",k)
+            print ("-"*40)
+        print ("## all dups:",len(dups.keys()))
+        print ("##     dups:",len(dups.keys())-len(suppression_log))
 
     if args.check_all_dups:
-        print "::: checking all components dups..."
+        print ("::: checking all components dups...")
         dups = dsodb.pfDuplicates(pedantic=args.pedantic)
         dups.update(dsodb.dictDuplicates(pedantic=args.pedantic))
         
@@ -254,7 +256,7 @@ def main(args):
                 if all(suppressed):
                     msg = "---> ignoring [%s]" % (k,)
                     suppression_log.append(k[:])
-                    #print msg
+                    #print (msg)
                     pass
                 else:
                     # that's a new one !!
@@ -262,21 +264,21 @@ def main(args):
             else:
                 # that's a new one !!
                 exitcode = 1
-                # print "---> NOT ignoring [%s]" % (k,)
+                # print ("---> NOT ignoring [%s]" % (k,))
         print_db(dups, args.detailed_dump)
         if len(suppression_log):
-            print "-"*40
-            print "## ignoring the following dups':"
+            print ("-"*40)
+            print ("## ignoring the following dups':")
             for k in suppression_log:
-                print " -",k
-            print "-"*40
-        print "## all dups:",len(dups.keys())
-        print "##     dups:",len(dups.keys())-len(suppression_log)
+                print (" -",k)
+            print ("-"*40)
+        print ("## all dups:",len(dups.keys()))
+        print ("##     dups:",len(dups.keys())-len(suppression_log))
 
     if exitcode:
-        print "::: ERROR !!"
+        print ("::: ERROR !!")
     else:
-        print "::: All good."
+        print ("::: All good.")
 
-    print ":"*80
+    print (":"*80)
     return exitcode

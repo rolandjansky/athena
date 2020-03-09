@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,18 +16,10 @@
 #include <sstream>
 #include <vector>
 
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
  
 class Identifier;
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-  
 class MuonChamberIDSelector : public AthAlgorithm  {
 
  public:
@@ -51,15 +43,9 @@ class MuonChamberIDSelector : public AthAlgorithm  {
  
   //std::vector<Identifier> m_mdtchambersId;
  private: 
-  
-  StoreGateSvc* m_StoreGate ;  
-  const MuonGM::MuonDetectorManager*  m_detMgr;
- 
-  const MdtIdHelper*  m_mdtIdHelper;
-  const CscIdHelper*  m_cscIdHelper;
-  const RpcIdHelper*  m_rpcIdHelper;
-  const TgcIdHelper*  m_tgcIdHelper;
 
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
    
   std::vector<Identifier>* m_mdtchambersId;
   std::vector<Identifier>* m_rpcchambersId;  

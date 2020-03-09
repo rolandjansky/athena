@@ -36,6 +36,17 @@ StatusCode LArGainThresholds2Ntuple::stop() {
      ATH_MSG_ERROR( "Unable to retrieve LArFebConfig with key " << m_configKey.key());
      return StatusCode::FAILURE;
    }
+   StatusCode sc=m_nt->addItem("lower",lower,-1000,5000);
+   if (sc!=StatusCode::SUCCESS) {
+     ATH_MSG_ERROR( "addItem 'lower' failed" );
+     return StatusCode::FAILURE;
+   }
+   
+   sc=m_nt->addItem("upper",upper,-1000.,5000.);
+   if (sc!=StatusCode::SUCCESS) {
+     ATH_MSG_ERROR( "addItem 'upper' failed" );
+     return StatusCode::FAILURE;
+   }
 
    ATH_CHECK(m_nt->addItem("lower",lower,-1000,5000));
    ATH_CHECK(m_nt->addItem("upper",upper,-1000.,5000.));

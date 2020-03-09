@@ -1,4 +1,6 @@
-// $Id: ToolHandle.cxx 804869 2017-05-15 20:14:34Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // Local include(s):
 #include "AsgTools/ToolHandle.h"

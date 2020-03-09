@@ -19,8 +19,8 @@ if DetFlags.pileup.any_on():
     for alg in topSequence:
         index += 1 #count position
         if 'PileUpToolsAlg' in alg.name():
-            from AthenaCommon.CfgGetter import getPublicTool
-            alg.PileUpTools+=[getPublicTool("MergeHijingParsTool")]
+            from AthenaCommon.CfgGetter import getPrivateTool
+            alg.PileUpTools+=[getPrivateTool("MergeHijingParsTool")]
             break
         if 'MergeMcEventCollection' == alg.name():
             from MCTruthSimAlgs.MCTruthSimAlgsConf import MergeHijingPars

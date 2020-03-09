@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ################################################################################
 # Exception classes
@@ -9,7 +11,7 @@ __all__ = [ 'TransformError', 'TransformDefinitionError', 'TransformArgumentErro
             'JobOptionsNotFoundError', 'TransformErrorHandler', 'AthenaLogChecker',
             'TransformThreadTimeout', 'TransformThreadError' ]
 
-import sys,commands,re,os,copy
+import sys,re,os,copy
 from PyJobTransformsCore import fileutil, trfconsts, AtlasErrorCodes, VTimer
 from PyJobTransformsCore.xmlutil import XMLNode
 from PyJobTransformsCore.envutil import *
@@ -17,6 +19,9 @@ from PyJobTransformsCore.TransformLogger import TransformLogger
 #from AthenaCommon.Logging import logging
 from AthenaCommon.Include import IncludeError
 from PyJobTransformsCore.JobReport import *
+
+from future import standard_library
+standard_library.install_aliases()
 
 # some constants for shared library loading problems
 systemLibs = [ 'libc.so', 'libg2c.so', 'libstdc++.so', 'libshift.so',
@@ -40,7 +45,7 @@ def examineLoadLibrary(lib):
     # turn module name into library name
     if not lib.startswith('lib') and not lib.endswith('.so'):
         lib = 'lib' + lib + '.so'
-    print "Examining library " + lib
+    print ("Examining library " + lib)
     diagLines = []
     errorAcronym = None
     missingSystemLibs = []
@@ -172,7 +177,7 @@ class TransformErrorDiagnoser:
         #
         for acro,diag in self._diagnosers.items():
             if acro.search(acronym):
-                print "Diagnosing error %s with %s" % (acronym,diag.__name__)
+                print ("Diagnosing error %s with %s" % (acronym,diag.__name__))
                 if diag(error): break
         #
         # If no message, then set message to diagnosis (if present) or stderr (if present)
@@ -473,7 +478,7 @@ class TransformErrorHandler(TransformLogger):
     def handleException(self,e):
         """Return a filled ErrorInfo object if the error is handled, or None
         is the error is not handled"""
-        # print "Handling Exception %s %s" % (e.__class__.__name__, e.args)
+        # print ("Handling Exception %s %s" % (e.__class__.__name__, e.args))
         #
         # general pre-processing
         #
@@ -568,7 +573,7 @@ class TransformErrorHandler(TransformLogger):
                 diag += '%s not found.' % (lib)
             else:
                 self.logger().debug( "Found %s. Checking dependencies..." % full_lib )
-                lddOut = commands.getoutput( 'ldd %s' % (full_lib) )
+                lddOut = subprocess.getoutput( 'ldd %s' % (full_lib) )
                 missLibs = [ ]
                 subRE = "%s%s%s" % (r"^\s*",dllNameRE,r"\s+.*not found\s*.*$")
                 for line in lddOut:

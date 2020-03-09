@@ -10,8 +10,10 @@
 class CombinationsGrouper: public IJetGrouper{
  public:
   CombinationsGrouper(unsigned int);
-  HypoJetGroupVector group(HypoJetIter&,
-                           HypoJetIter&) const override;
+  std::vector<HypoJetGroupVector> group(HypoJetIter&,
+					HypoJetIter&) const override;
+  std::optional<HypoJetGroupVector> next(HypoJetIter&,
+					 HypoJetIter&) const override;
   std::string getName() const override; 
   std::string toString() const override;
  private:

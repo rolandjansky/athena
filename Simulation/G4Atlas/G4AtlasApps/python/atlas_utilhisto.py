@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 This Python module provides access to the HistogramDataSvc from the
@@ -8,6 +8,8 @@ ROOT file .
 """
 
 # TODO: Remove? Totally unused, I think.  (AB, 07/2011)
+
+from __future__ import print_function
 
 __author__ = 'M. Gallas'
 
@@ -79,9 +81,9 @@ class HistoAtHistoSvc(object):
         self.HistoSvcEntry=HistoSvc.retrieve(self.PathInHistoSvc+
                                               self.Name)
         if self.HistoRoot.GetNbinsX()==len(self.HistoSvcEntry.contents()):
-            print len(self.HistoSvcEntry.contents())
-            print self.HistoRoot.GetNbinsX()
-        print HistoSvc.dump()
+            print (len(self.HistoSvcEntry.contents()))
+            print (self.HistoRoot.GetNbinsX())
+        print (HistoSvc.dump())
         # ROOT starts at bin 1 and AIDA at bin 0
         for i in range(len(self.HistoSvcEntry.contents())):
             self.HistoSvcEntry.fill(self.HistoRoot.GetBinCenter(i+1),\

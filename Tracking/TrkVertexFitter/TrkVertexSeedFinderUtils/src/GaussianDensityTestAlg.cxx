@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // GaussianDensityTestAlg.cxx 
@@ -93,21 +93,21 @@ StatusCode GaussianDensityTestAlg::execute()
   analyzeTracks(trackVector, perigeeList);
 
   ATH_MSG_VERBOSE("Using density estimator");
-  m_estimator->reset();
-  m_estimator->addTracks(perigeeList);
+  std::unique_ptr<Trk::IVertexTrackDensityEstimator::ITrackDensity> dens;
+  double mode = m_estimator->globalMaximum (perigeeList, dens);
 
   if (m_firstEvent)
   {
     for (int i = 0; i < 800; i++)
     {
       double z = -200.0 + 0.25 + i*0.5;
-      double density = m_estimator->trackDensity(z);
+      double density = dens->trackDensity(z);
       m_h_density->Fill((float) z, (float) density);
     }
   }
   ATH_MSG_VERBOSE("Analyzing MC truth");
   std::vector<Amg::Vector3D> truth;
-  ATH_CHECK( findTruth(trackVector, truth) );
+  ATH_CHECK( findTruth(mode, trackVector, truth) );
   if (m_firstEvent)
   {
     ATH_MSG_VERBOSE("Filling truth vertex histogram");
@@ -173,10 +173,12 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
-  StatusCode GaussianDensityTestAlg::findTruth(const std::vector<Trk::ITrackLink*>& trackVector, std::vector<Amg::Vector3D>& truth) const
-  {
+StatusCode
+GaussianDensityTestAlg::findTruth(double mode,
+                                  const std::vector<Trk::ITrackLink*>& trackVector,
+                                  std::vector<Amg::Vector3D>& truth) const
+{
     double modeClosestDistance = std::numeric_limits<double>::max();
-    double mode = m_estimator->globalMaximum();
 
     xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > truthParticleAssoc("truthParticleLink");
 

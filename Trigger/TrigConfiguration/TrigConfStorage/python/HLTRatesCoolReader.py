@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from collections import namedtuple
 from struct import unpack_from, unpack
@@ -27,7 +29,7 @@ def __getCounts(pos, buf):
 
 def __printCounts(buf):
     ndata = len(buf)/20
-    print unpack(ndata*'IIIII', buf)
+    print (unpack(ndata*'IIIII', buf))
     
     
 def getL2Counts(run, lb, chainCounter):
@@ -63,7 +65,7 @@ def getL2Counts(run, lb, chainCounter):
                 res += [ (run, lb, CountRec(chainCounter,0,0,0,0) )]
             else:
                 if len(s)%20 != 0:
-                    raise RuntimeError, "the length of the data vector %i is not a multiple of 20" % len(s)
+                    raise RuntimeError ("the length of the data vector %i is not a multiple of 20" % len(s))
 
                 #__printCounts(s)
                 if pos==None:
@@ -78,6 +80,6 @@ def getL2Counts(run, lb, chainCounter):
 
 if __name__=="__main__":
 
-    print getL2Counts(166786, 300, 7)[0]
+    print (getL2Counts(166786, 300, 7)[0])
     
-    print [ (run, lb,cr.Raw) for (run, lb,cr) in getL2Counts(166786, None, 7)]
+    print ([ (run, lb,cr.Raw) for (run, lb,cr) in getL2Counts(166786, None, 7)])

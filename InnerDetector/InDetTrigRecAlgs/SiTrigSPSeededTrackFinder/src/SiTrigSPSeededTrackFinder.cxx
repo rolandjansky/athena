@@ -38,6 +38,8 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "TrigNavigation/NavigationCore.icc"
+
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -150,7 +152,6 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltInitialize() {
 
   msg() << MSG::INFO << "Using internal seedMaker: " << m_useSeedMaker << endmsg;
 
-
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
@@ -187,6 +188,34 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltInitialize() {
   return HLT::OK;
 }
 
+namespace InDet {
+  class FeatureAccessor : public HLT::FexAlgo 
+  {
+  public:
+    //make the getFeature method public
+    template<class T> HLT::ErrorCode getFeature(const HLT::TriggerElement* te, const T*&  feature, 
+                                                 const std::string& label = "") {
+      return HLT::Algo::getFeature(te,feature,label);
+    }
+  };
+
+  class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
+  {
+  public:
+    ExtendedSiTrackMakerEventData_xk(HLT::FexAlgo &algo, const HLT::TriggerElement*outputTE, const std::string &key) {
+      if (!key.empty()) {
+        const Trk::PRDtoTrackMap *prd_to_track_map_cptr;
+        HLT::ErrorCode stat = reinterpret_cast<FeatureAccessor &>(algo).getFeature(outputTE, prd_to_track_map_cptr, key);
+        if(stat!= HLT::OK){
+          throw std::runtime_error(std::string("Failed to get PRD to track map:") + key);
+        }
+        setPRDtoTrackMap(prd_to_track_map_cptr);
+      }
+    }
+  private:
+    void dummy() {}
+  };
+}
 
 ///////////////////////////////////////////////////////////////////
 // Execute HLT Algorithm
@@ -311,7 +340,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     //?
   }
  
-  InDet::SiTrackMakerEventData_xk trackEventData;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(*this, outputTE, m_prdToTrackMap);
   if(doTiming()) m_timerTrackMaker->start();
   if (m_fastTracking){
     m_trackmaker->newTrigEvent(trackEventData, PIX, SCT);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_SegmentToTrackTool/TRT_SegmentToTrackTool.h"
@@ -12,8 +12,6 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 //Extrapolator tool
 #include "TrkExInterfaces/IExtrapolator.h"
-//Association tool
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 //Scoring tool
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 //Magnetic field tool
@@ -32,32 +30,24 @@ namespace InDet {
     m_fieldUnitConversion(1000.),
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
     m_extrapolator ("Trk::Extrapolator/InDetExtrapolator"),
-    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"),
     m_magFieldSvc("AtlasFieldSvc", name),
-    m_trtId(nullptr),
-    m_finalTracks(nullptr),
-    m_nTrkScoreZero(0),
-    m_nTrkSegUsed(0),
-    m_nTRTTrk(0)
+    m_trtId(nullptr)
   {
     declareInterface<InDet::ITRT_SegmentToTrackTool>( this );
 
     m_doRefit            = false                                ;       //Do a final careful refit of tracks
-    m_useasso            = false                                ;       //Use association tool to clean up the seeds
 
     m_suppressHoleSearch = false                                ;       //Suppress hole search
     m_sharedFrac         = 0.3                                  ;       //Maximum fraction of shared hits !!!!!!!!!!!!!!!!!!!!!! offline 0.3!!!!!!!!!!!!!!!!!!!!!!!
 
     declareProperty("FinalRefit"                 ,m_doRefit           ); //Do a final careful refit of tracks
-    declareProperty("UseAssociationTool"         ,m_useasso           ); //Use the association tool
 
     declareProperty("SuppressHoleSearch"         ,m_suppressHoleSearch); //Suppress hole search during the track summary creation
     declareProperty("MaxSharedHitsFraction"      ,m_sharedFrac        ); //Maximum fraction of shared drift circles
 
     declareProperty("RefitterTool"               ,m_fitterTool        ); //Track refit tool
     declareProperty("Extrapolator"               ,m_extrapolator      ); //Extrapolator tool
-    declareProperty("AssociationTool"            ,m_assotool          ); //Association tool
     declareProperty("ScoringTool"                ,m_scoringTool       ); //Track scoring tool
 
     declareProperty( "MagFieldSvc"              ,m_magFieldSvc      ); //Magnetic field tool
@@ -85,9 +75,8 @@ namespace InDet {
 
     // Get association tool
     //
-    if(m_useasso){
-      ATH_CHECK( m_assotool.retrieve() );
-    }
+    ATH_CHECK(m_assoTool.retrieve( DisableTool{m_assoTool.name().empty()} ));
+    ATH_CHECK(m_trackSummaryTool.retrieve( DisableTool{m_trackSummaryTool.name().empty()} ));
 
     // Get the scoring tool
     //
@@ -127,7 +116,7 @@ namespace InDet {
   {
     int n = 65-m_fitterTool.type().size();
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-    n     = 65-m_assotool.type().size();
+    n     = 65-m_assoTool.type().size();
     std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
     n     = 65-m_scoringTool.type().size();
     std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
@@ -138,7 +127,7 @@ namespace InDet {
        <<"-------------------|"<<std::endl;
     out<<"| Tool for final track refitting    | "<<m_fitterTool.type()   <<s1<<std::endl;
     out<<"| Tool for track scoring            | "<<m_scoringTool.type()  <<s5<<std::endl;
-    out<<"| Association tool                  | "<<m_assotool.type()     <<s2<<std::endl;
+    out<<"| Association service               | "<<m_assoTool.type()     <<s2<<std::endl;
     out<<"|----------------------------------------------------------------------"
        <<"-------------------|";
     return out;
@@ -162,7 +151,7 @@ namespace InDet {
   }
 
 
-  Trk::Track* TRT_SegmentToTrackTool::segToTrack(const Trk::TrackSegment& tS) {
+  Trk::Track* TRT_SegmentToTrackTool::segToTrack(const Trk::TrackSegment& tS) const {
 
 
     ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
@@ -612,7 +601,9 @@ namespace InDet {
 	    delete newperpar; newperpar = 0;
 	  } else {
 	    // this is a HACK !!!
-	    AmgSymMatrix(5)& errmat = const_cast<AmgSymMatrix(5)&>(*perTrack->covariance());
+            // perTrack is owned by fitTrack which is not const here
+            // thus the const-ness is only removed from somthting which is not strictly const here.
+	    AmgSymMatrix(5)& errmat ATLAS_THREAD_SAFE = const_cast<AmgSymMatrix(5)&>(*perTrack->covariance());
 	    // overwrite cov in perTrack
 	    errmat = *newperpar->covariance();
 	    delete newperpar; newperpar = 0;
@@ -634,7 +625,8 @@ namespace InDet {
   }
 
 
-  bool TRT_SegmentToTrackTool::segIsUsed(const Trk::TrackSegment& tS ) {
+  bool TRT_SegmentToTrackTool::segIsUsed(const Trk::TrackSegment& tS,
+                                         const Trk::PRDtoTrackMap *prd_to_track_map) const {
 
     ATH_MSG_DEBUG ("Checking whether the TRT segment has already been used...");
 
@@ -642,6 +634,7 @@ namespace InDet {
     int nShared = 0;  // Shared drift circles in segment
     int nHits   = 0;  // Number of TRT measurements
 
+    if (!m_assoTool.name().empty() && !prd_to_track_map) ATH_MSG_ERROR("PRDtoTrackMap to be used but not provided by the client");
     // loop over the track states
     for(int it=0; it<int(tS.numberOfMeasurementBases()); ++it){
   
@@ -660,7 +653,7 @@ namespace InDet {
       // count up number of hits
       nHits++;
   
-      if(m_useasso && m_assotool->isUsed(*RawDataClus)) nShared++;
+      if(!m_assoTool.name().empty() && prd_to_track_map && prd_to_track_map->isUsed(*RawDataClus)) nShared++;
     }
   
     if(nShared >= int(m_sharedFrac * nHits)) {
@@ -673,7 +666,7 @@ namespace InDet {
 
   }
 
-  bool TRT_SegmentToTrackTool::toLower(const Trk::TrackSegment& tS) {
+  bool TRT_SegmentToTrackTool::toLower(const Trk::TrackSegment& tS) const {
 
     ATH_MSG_DEBUG ("Try to recover low TRT DC segments in crack...");
 
@@ -718,32 +711,14 @@ namespace InDet {
 
   }
 
-  void TRT_SegmentToTrackTool::resetAll() {
-
-    //clear internal statistical counter
-    m_nTrkScoreZero = 0;
-    m_nTrkSegUsed = 0;
-    m_nTRTTrk = 0;
-
-    //this is a map which contains pointers to copies of all the input tracks
-    m_trackScoreTrackMap.clear();
-
-    //final copy - ownership is passed out of algorithm
-    m_finalTracks = new TrackCollection;
- 
-    return;
-  }
-
-  void TRT_SegmentToTrackTool::resetAssoTool() {
-
-    if(m_useasso) m_assotool->reset();
-    return;
-
-  }
-
-  void TRT_SegmentToTrackTool::addNewTrack(Trk::Track* trk) {
-
+  void TRT_SegmentToTrackTool::addNewTrack(Trk::Track* trk, ITRT_SegmentToTrackTool::EventData &event_data) const {
+    // @TODO avoid non const member m_trackScoreTrackMap
     ATH_MSG_DEBUG ("Add track to the scoring multimap...");
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*trk,
+                                                         nullptr,
+                                                         m_suppressHoleSearch);
+    }
 
     //Score the track under investigation
     Trk::TrackScore score = m_scoringTool->score(*trk,m_suppressHoleSearch);
@@ -752,12 +727,12 @@ namespace InDet {
     if (score==0) {
       // statistics...
       ATH_MSG_DEBUG ("Track score is zero, reject it");
-      m_nTrkScoreZero++;
+      event_data.m_counter[ITRT_SegmentToTrackTool::EventData::knTrkScoreZero]++;
       // clean up
       delete trk;
     } else {
       // add track to map, map is sorted small to big !
-      m_trackScoreTrackMap.insert( std::make_pair(-score, trk) );
+      event_data.m_trackScores.push_back( std::make_pair(-score, trk) );
     }
    
     return;
@@ -765,33 +740,46 @@ namespace InDet {
   }
 
 
-  TrackCollection* TRT_SegmentToTrackTool::resolveTracks() {
+  TrackCollection* TRT_SegmentToTrackTool::resolveTracks(const Trk::PRDtoTrackMap *prd_to_track_map_in,
+                                                          ITRT_SegmentToTrackTool::EventData &event_data) const {
 
     ATH_MSG_DEBUG ("Resolving the TRT tracks in score map...");
 
-    m_nTrkSegUsed = 0;
-    m_nTRTTrk = 0;
+    //    if (m_assoTool.name().empty() && !prd_to_track_map_in) ATH_MSG_ERROR("PRDtoTrackMap to be used but not provided by the client");
 
-    // now loop as long as map is not empty
-    TrackScoreMap::iterator itnext;
-    for ( itnext = m_trackScoreTrackMap.begin(); itnext != m_trackScoreTrackMap.end(); ++itnext ) {
+    std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map;
+    if (!m_assoTool.name().empty()) {
+      prd_to_track_map=m_assoTool->createPRDtoTrackMap();
+      if (prd_to_track_map_in) {
+        *prd_to_track_map = *prd_to_track_map_in;
+      }
+    }
+
+    //final copy - ownership is passed out of algorithm
+    std::unique_ptr<TrackCollection> final_tracks = std::make_unique<TrackCollection>();
+    final_tracks->reserve( event_data.m_trackScores.size());
+    std::stable_sort(event_data.m_trackScores.begin(),
+                     event_data.m_trackScores.end(),
+                     []( const std::pair< Trk::TrackScore, Trk::Track* > &a,
+                         const std::pair< Trk::TrackScore, Trk::Track* > &b)
+                     {  return a.first < b.first; });
+
+    for (std::pair< Trk::TrackScore, Trk::Track* > &track_score : event_data.m_trackScores) {
    
-      ATH_MSG_DEBUG ("--- Trying next track "<<itnext->second<<"\t with score "<<-itnext->first);
+      ATH_MSG_DEBUG ("--- Trying next track "<<track_score.second<<"\t with score "<<-track_score.first);
    
       // some counters to be handled
       int nShared = 0;  // Shared drift circles in segment
       int nHits   = 0;  // Number of TRT measurements
    
       // get vector of TSOS
-      const DataVector<const Trk::TrackStateOnSurface>* tsos = (itnext->second)->trackStateOnSurfaces();
+      const DataVector<const Trk::TrackStateOnSurface>* tsos = (track_score.second)->trackStateOnSurfaces();
    
       // loop over vector of TSOS
-      DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
-      DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();
-      for ( ; iTsos != iTsosEnd ; ++iTsos) {
+      for ( const Trk::TrackStateOnSurface *a_tsos : *tsos) {
    
 	// get measurment from TSOS
-	const Trk::MeasurementBase* meas = (*iTsos)->measurementOnTrack();
+	const Trk::MeasurementBase* meas = a_tsos->measurementOnTrack();
 	if (!meas) continue;
    
 	// make sure it is a TRT_DC and not a pseudo measurement 
@@ -806,55 +794,37 @@ namespace InDet {
 	nHits++;
    
 	// count up number of shared hits
-	if(m_useasso && m_assotool->isUsed(*RawDataClus)) nShared++;
+	if(!m_assoTool.name().empty() && prd_to_track_map->isUsed(*RawDataClus)) nShared++;
       }
    
       ATH_MSG_DEBUG ("TRT-only has " << nHits << " hits and " << nShared << " of them are shared");
    
       // cut on the number of shared hits with the max fraction
       if(nShared >=  int(m_sharedFrac * nHits)) {
-	// statistics
-	m_nTrkSegUsed++;
-	ATH_MSG_DEBUG ("Too many shared hits, remove it !");
-	delete itnext->second;
-	continue;
+         // statistics
+         event_data.m_counter[ITRT_SegmentToTrackTool::EventData::knTrkSegUsed]++;
+         ATH_MSG_DEBUG ("Too many shared hits, remove it !");
+         delete track_score.second;
+         continue;
       }
     
       // ok, this seems like a useful track
-      m_finalTracks->push_back(itnext->second);
+      final_tracks->push_back(track_score.second);
    
-      // statistics
-      m_nTRTTrk++;
+      event_data.m_counter[ITRT_SegmentToTrackTool::EventData::knTRTTrk]++;
       ATH_MSG_DEBUG ("TRT-only is accepted");
    
       //Register the track with the association tool
-      if(m_useasso) {
-	StatusCode sc=m_assotool->addPRDs(*(itnext->second));
-	if(sc.isFailure()) {
+      if(!m_assoTool.name().empty()) {
+        if(m_assoTool->addPRDs(*prd_to_track_map,*(track_score.second)).isFailure()) {
 	  ATH_MSG_WARNING ("addPRDs() failed!");
 	}
       }
    
     }
    
-    return m_finalTracks;
+    return final_tracks.release();
 
   }
-
-
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator MsgStream
-  ///////////////////////////////////////////////////////////////////
-  MsgStream& operator << (MsgStream& sl,const InDet::TRT_SegmentToTrackTool& se){
-    return se.dump(sl);
-  }
-
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator std::ostream
-  ///////////////////////////////////////////////////////////////////
-  std::ostream& operator << (std::ostream& sl,const InDet::TRT_SegmentToTrackTool& se){
-    return se.dump(sl);
-  }   
-
 
 }

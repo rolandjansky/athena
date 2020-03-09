@@ -1,24 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/** Author: Ketevi A. Assamagan */
 
 #include "CscCalibTool.h"
 #include "StoreGate/DataHandle.h"
-#include "EventInfo/TagInfo.h"
 #include <sstream>
 
 #include <cmath>
 
-using namespace MuonCalib;
 using std::ostringstream;
 using std::setw;
 
 CscCalibTool::CscCalibTool
 ( const std::string& t, const std::string& n, const IInterface*  p )
-  : base_class(t,n,p),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", n)
+  : base_class(t,n,p)
 {
   declareProperty( "Slope", m_slope = 0.19 );
   declareProperty( "Noise", m_noise = 3.5 );
@@ -52,18 +47,18 @@ Double_t bipfunc(const Double_t *x, const Double_t *par){
   Double_t signalWidth = par[4]; //50 ns
   Double_t sum = integrationNumber+integrationNumber2;
   Double_t z0 = 0.5*( (sum+2)
-                      -sqrt(std::pow(sum+2,2)
+                      -std::sqrt(std::pow(sum+2,2)
                             -4*integrationNumber*(integrationNumber2+1))
                       );
 
   Double_t norm = (1.0 - z0 / (1 + integrationNumber2))
-    * TMath::Power(z0, 1.0 * integrationNumber)
-    * TMath::Exp(-z0);
+    * std::pow(z0, 1.0 * integrationNumber)
+    * std::exp(-z0);
 
   Double_t z = (x[0]-par[1])/signalWidth;//*3.47/samplingTime;
   Double_t amplitude =
     par[0]*(1-z/(1+integrationNumber2))
-    *TMath::Power(z,integrationNumber)*TMath::Exp(-1.0*z)/norm;
+    *std::pow(z,integrationNumber)*std::exp(-1.0*z)/norm;
   return amplitude;
 }
 // To add two bipolar function and get a distribution, this function is defined
@@ -71,7 +66,13 @@ Double_t dualbipfunc(const Double_t *x, const Double_t *par){
   return ( bipfunc(x,par) + bipfunc(x,&par[5]) );
 }
 
-
+StatusCode CscCalibTool::finalize() {
+  delete m_addedfunc;
+  delete m_bipolarFunc;
+  m_addedfunc = nullptr;
+  m_bipolarFunc = nullptr;
+  return StatusCode::SUCCESS;
+}
 
 
 StatusCode CscCalibTool::initialize() {
@@ -95,18 +96,15 @@ StatusCode CscCalibTool::initialize() {
   if (m_onlineHLT) {
     ATH_MSG_DEBUG( "T0BaseFolder and T0PhaseFolder are not loaded!!! HLT COOLDB does not have it!!");
   }
-  
-  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
-    return StatusCode::FAILURE;
-  }
-
-
-  m_addedfunc   =new TF1("addedfunc", dualbipfunc, 0,500,10);
-  m_bipolarFunc =new TF1("bipolarFunc",   bipfunc, -500,500,5);
+ 
+  ATH_CHECK(m_readKey.initialize()); 
 
   m_messageCnt_t0base=0;
   m_messageCnt_t0phase=0;
+
+  std::lock_guard<std::mutex> lock(m_mutex);
+  m_addedfunc   =new TF1("addedfunc", dualbipfunc, 0,500,10);
+  m_bipolarFunc =new TF1("bipolarFunc",   bipfunc, -500,500,5);
 
   return StatusCode::SUCCESS;
 }
@@ -116,10 +114,12 @@ float CscCalibTool::getPSlope(uint32_t stripHashId) const {
   
   float slope = m_slope;
   if ( m_readFromDatabase && m_slopeFromDatabase ) {
-     if ( !m_cscCoolStrSvc->getSlope(slope,stripHashId) ) {
-       ATH_MSG_WARNING ( " failed to access CSC conditions database - slope - " 
-                         << "strip hash id = " << stripHashId );
-     }
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelPSlope(stripHashId, slope).isSuccess()){
+      ATH_MSG_WARNING ( " failed to access CSC conditions database - slope - " 
+                        << "strip hash id = " << stripHashId );
+    }
   }
   ATH_MSG_DEBUG ( "The slope is " << slope << " for strip hash = " << stripHashId );
 
@@ -169,7 +169,9 @@ double CscCalibTool::stripNoise ( uint32_t stripHashId, const bool convert ) con
 
   float noise = m_noise;  /// ADC counts
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getNoise(noise,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelNoise(stripHashId, noise).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - noise - " 
                       << "strip hash id = " << stripHashId );
       noise = m_noise;
@@ -194,7 +196,9 @@ double CscCalibTool::stripRMS ( uint32_t stripHashId, const bool convert ) const
 
   float rms = m_noise;  /// ADC counts initialized with m_noise...
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getRMS(rms,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelRMS(stripHashId, rms).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - rms - " 
                       << "strip hash id = " << stripHashId );
       rms = m_noise;
@@ -220,7 +224,9 @@ double CscCalibTool::stripF001 ( uint32_t stripHashId, const bool convert ) cons
 
   float f001 = m_noise+m_pedestal;  /// ADC counts initialized with m_noise...
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getF001(f001,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelF001(stripHashId, f001).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - f001 - " 
                       << "strip hash id = " << stripHashId );
       f001 = 3.251*m_noise+m_pedestal;
@@ -244,7 +250,9 @@ double CscCalibTool::stripPedestal ( uint32_t stripHashId, const bool convert ) 
 
   float pedestal = m_pedestal;
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getPedestal(pedestal,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelPed(stripHashId, pedestal).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - pedestal - " 
                       << "strip hash id = " << stripHashId );
       pedestal = m_pedestal;
@@ -275,25 +283,17 @@ bool CscCalibTool::isGood ( uint32_t stripHashId ) const
 
 
 int CscCalibTool::stripStatusBit ( uint32_t stripHashId ) const {
-  
-  uint32_t status = 0x0;
+ 
+  int status = 0; 
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getStatus(status,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelStatus(stripHashId, status).isSuccess())
       ATH_MSG_WARNING ( " failed to access CSC conditions database - status - "
                         << "strip hash id = " << stripHashId );
-
-      uint8_t status2 = 0x0;
-      if ( (m_cscCoolStrSvc->getStatus(status2,stripHashId)).isFailure() ) {
-        ATH_MSG_WARNING ( " failed to access CSC conditions database old way - status - "
-                          << "strip hash id = " << stripHashId );
-      }else{
-        ATH_MSG_INFO ( " Accessed CSC conditions database old way - status - "
-                          << "strip hash id = " << stripHashId );
-      }
-    } else {
-      ATH_MSG_VERBOSE ( "The status word is " << std::hex << status 
-                        << " for strip hash = " << std::dec << stripHashId );
-    }
+    else
+      ATH_MSG_VERBOSE("The status word is " << std::hex << status << 
+                      " for strip hash = " << std::dec << stripHashId);
   }
   return status;
 }
@@ -306,7 +306,9 @@ bool CscCalibTool::stripT0phase ( uint32_t stripHashId ) const {
 
   if (! m_onlineHLT ) {
     if ( m_readFromDatabase ) {
-      if ( !m_cscCoolStrSvc->getT0Phase(t0phase,stripHashId) ) {
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+      const CscCondDbData* readCdo{*readHandle};
+      if(!readCdo->readChannelT0Phase(stripHashId, t0phase).isSuccess()){
         if (m_messageCnt_t0phase < 3) {
           ATH_MSG_WARNING ( " failed to access CSC conditions database - t0phase - "
                             << "strip hash id = " << stripHashId );
@@ -327,7 +329,9 @@ double CscCalibTool::stripT0base ( uint32_t stripHashId ) const {
   float t0base = 0.0;
   if (! m_onlineHLT ) {
     if ( m_readFromDatabase ) {
-      if ( !m_cscCoolStrSvc->getT0Base(t0base,stripHashId) ) {
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+      const CscCondDbData* readCdo{*readHandle};
+      if(!readCdo->readChannelT0Base(stripHashId, t0base).isSuccess()){
         
         if (m_messageCnt_t0base < 3) {
           ATH_MSG_WARNING ( " failed to access CSC conditions database - t0base - "
@@ -527,7 +531,9 @@ double CscCalibTool::adcCountToFemtoCoulomb(uint32_t stripHashId, const float ad
   float slope    = getPSlope(stripHashId);
 
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getPedestal(pedestal,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelPed(stripHashId, pedestal).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - pedestal - " 
                       << "strip hash id = " << stripHashId );
       pedestal = m_pedestal;
@@ -551,7 +557,9 @@ double CscCalibTool::adcCountToNumberOfElectrons(uint32_t stripHashId, const flo
   float pedestal = m_pedestal;
   float slope    = getPSlope(stripHashId);
   if ( m_readFromDatabase ) {
-     if ( !m_cscCoolStrSvc->getPedestal(pedestal,stripHashId) ) {
+     SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+     const CscCondDbData* readCdo{*readHandle};
+     if(!readCdo->readChannelPed(stripHashId, pedestal).isSuccess()){
        ATH_MSG_DEBUG ( "failed to access CSC Conditions database - pedestal - " 
                        << "strip hash id = " << stripHashId );
        pedestal = m_pedestal;
@@ -574,7 +582,9 @@ bool CscCalibTool::adcToCharge(const std::vector<uint16_t>& samples, uint32_t st
    float pedestal = m_pedestal;
    float slope    = getPSlope(stripHashId);
    if ( m_readFromDatabase ) {
-      if ( !m_cscCoolStrSvc->getPedestal(pedestal,stripHashId) ) {
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+      const CscCondDbData* readCdo{*readHandle};
+      if(!readCdo->readChannelPed(stripHashId, pedestal).isSuccess()){
         ATH_MSG_DEBUG ( "failed to access CSC Conditions database - pedestal - " 
                         << "strip hash id = " << stripHashId );
         pedestal = m_pedestal; 
@@ -602,7 +612,7 @@ bool CscCalibTool::adcToCharge(const std::vector<uint16_t>& samples, uint32_t st
 double CscCalibTool::getZ0() const{
   double sum = m_integrationNumber+m_integrationNumber2;
   double z0 = 0.5*( (sum+2)
-                    -sqrt(std::pow(sum+2,2)
+                    -std::sqrt(std::pow(sum+2,2)
                           -4*m_integrationNumber*(m_integrationNumber2+1))
                     );
   return z0;
@@ -635,7 +645,8 @@ std::vector<float> CscCalibTool::getSamplesFromBipolarFunc(const double driftTim
     result.push_back(0.0);
     return result;
   }
-  
+
+  std::lock_guard<std::mutex> lock(m_mutex);
   m_bipolarFunc->SetParameters(stripCharge0, driftTime0,
                                m_integrationNumber,m_integrationNumber2,m_signalWidth);
 
@@ -670,16 +681,16 @@ std::pair<double,double> CscCalibTool::addBipfunc(const double driftTime0,
     return result;
   }
   
+  std::lock_guard<std::mutex> lock(m_mutex);
   m_addedfunc->SetParameters(stripCharge0, driftTime0,
-                           m_integrationNumber,m_integrationNumber2,m_signalWidth,
-                           stripCharge1, driftTime1,
-                           m_integrationNumber,m_integrationNumber2,m_signalWidth);
+                             m_integrationNumber,m_integrationNumber2,m_signalWidth,
+                             stripCharge1, driftTime1,
+                             m_integrationNumber,m_integrationNumber2,m_signalWidth);
   result.second =m_addedfunc->GetMaximum(); // ==>stripCharges of added bipolars
   float tmax =m_addedfunc->GetX(result.second);
   result.first = tmax - getZ0()*m_signalWidth;
 
-  if (stripCharge0>0.0 && stripCharge1>0.0)
-    return result;
+  if (stripCharge0>0.0 && stripCharge1>0.0) return result;
 
   float bipmin = m_addedfunc->GetMinimum(); // ==>stripCharges of added bipolars
   float tmin = m_addedfunc->GetX(bipmin);
@@ -687,8 +698,6 @@ std::pair<double,double> CscCalibTool::addBipfunc(const double driftTime0,
     result.first = tmin-getZ0()*m_signalWidth;
     result.second = bipmin;
   }
-    
-
   
   //  To check out conversion is correct...
   ATH_MSG_VERBOSE ( "(" << driftTime0 << ":" << int(stripCharge0) << ")"
@@ -707,21 +716,3 @@ double CscCalibTool::getTimeOffset()        const {return m_timeOffset;}
 double CscCalibTool::getSignalWidth()       const {return m_signalWidth;}
 double CscCalibTool::getNumberOfIntegration()  const {return m_integrationNumber;}
 double CscCalibTool::getNumberOfIntegration2() const {return m_integrationNumber2;}
-
-
-std::string CscCalibTool::getDetDescr() const {
-
-  std::string detdescr = "";
-
-  const DataHandle<TagInfo> tagInfo;
-  if (detStore()->retrieve(tagInfo).isFailure()) {
-    ATH_MSG_ERROR ( "Could not retrieve tag info  from TDS. - abort ..." );
-    return detdescr;
-  }
-
-  tagInfo->findTag("GeoAtlas", detdescr);
-  ATH_MSG_VERBOSE ( "DetDescr tag = " << detdescr);
-  return detdescr;
-
-}
-

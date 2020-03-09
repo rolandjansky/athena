@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from JetTagTools.BTagFullLinearizedTrackFactoryConfig import BTagFullLinearizedTrackFactoryCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 # importi the FullLinearizedTrackFactory configurable
-from InDetSecVxFinderTool.InDetSecVxFinderToolConf import InDet__InDetJetFitterUtils
+InDet__InDetJetFitterUtils=CompFactory.InDet__InDetJetFitterUtils
 
 
 def InDetJetFitterUtilsCfg(flags, name = 'InDetJFUtils', useBTagFlagsDefaults = True, options = {}):
@@ -19,13 +20,8 @@ def InDetJetFitterUtilsCfg(flags, name = 'InDetJFUtils', useBTagFlagsDefaults = 
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accBTagFullLinearizedTrackFactory = BTagFullLinearizedTrackFactoryCfg(flags, 'JFFullLinearizedTrackFactory')
-        jetFitterFullLinearizedTrackFactory = accBTagFullLinearizedTrackFactory.popPrivateTools()
-        #jetFitterFullLinearizedTrackFactory = BTagFullLinearizedTrackFactoryCfg(flags, 'JFFullLinearizedTrackFactory')
-        acc.merge(accBTagFullLinearizedTrackFactory)
-        accExtrapolator = AtlasExtrapolatorCfg(flags, 'JFExtrapolator')
-        jetFitterExtrapolator = accExtrapolator.popPrivateTools()
-        acc.merge(accExtrapolator)
+        jetFitterFullLinearizedTrackFactory = acc.popToolsAndMerge(BTagFullLinearizedTrackFactoryCfg(flags, 'JFFullLinearizedTrackFactory')) 
+        jetFitterExtrapolator= acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags, 'JFExtrapolator'))
         defaults = { 'LinearizedTrackFactory': jetFitterFullLinearizedTrackFactory,
                      'Extrapolator' : jetFitterExtrapolator }
         for option in defaults:

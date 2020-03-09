@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloNoise2Ntuple
@@ -24,7 +25,7 @@ rec.RunNumber.set_Value_and_Lock(RunNumber)
 
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
-from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaCommon.Resilience import protectedInclude
 protectedInclude( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
@@ -69,15 +70,18 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-if "folderTag" in dir():
-   conddb.addOverride("/LAR/NoiseOfl/CellNoise",folderTag)
-
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 theCaloNoiseTool.RescaleForHV=False
 ToolSvc += theCaloNoiseTool
+
+if "dbNoise" in dir():
+   conddb.addMarkup("/LAR/NoiseOfl/CellNoise","<db>"+dbNoise+"</db>")
+
+if "folderTag" in dir():
+   conddb.addOverride("/LAR/NoiseOfl/CellNoise",folderTag)
 
 #--------------------------------------------------------------
 # Private Application Configuration options
@@ -108,7 +112,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='"+outputNtuple+"' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='"+outputNtuple+"' OPT='RECREATE'"]
 
 
 #--------------------------------------------------------------

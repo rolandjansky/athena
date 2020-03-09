@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -24,7 +24,6 @@ namespace D3PD{
 TileTriggerFillerTool::TileTriggerFillerTool(const string& type, 
         const string& name, const IInterface* parent):
   BlockFillerTool<TileTrigger>(type,name,parent),
-  m_detStore(0),
   m_TT_ID(0)
 {
   book().ignore(); // Avoid coverity warnings
@@ -36,8 +35,7 @@ TileTriggerFillerTool::TileTriggerFillerTool(const string& type,
  */
 StatusCode TileTriggerFillerTool::initialize()
 {
-  CHECK( service("DetectorStore",m_detStore) );
-  CHECK( m_detStore->retrieve(m_TT_ID) );
+  CHECK( detStore()->retrieve(m_TT_ID) );
   return StatusCode::SUCCESS;
 }
 

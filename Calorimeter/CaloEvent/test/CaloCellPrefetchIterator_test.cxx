@@ -31,6 +31,8 @@
 #include <iostream>
 #include <cassert>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 using Athena_test::randf;
 

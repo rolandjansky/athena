@@ -46,7 +46,7 @@ ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
   }
 
   StatusCode initializeVariables();
-  StatusCode fillVariables();
+  StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr);
 
  private:
 

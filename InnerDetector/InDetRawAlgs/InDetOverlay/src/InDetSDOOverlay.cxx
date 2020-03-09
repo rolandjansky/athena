@@ -7,7 +7,7 @@
 #include "InDetSimData/InDetSimData.h"
 
 InDetSDOOverlay::InDetSDOOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator) { }
+  AthReentrantAlgorithm(name, pSvcLocator) { }
 
 StatusCode InDetSDOOverlay::initialize()
 {
@@ -34,7 +34,7 @@ StatusCode InDetSDOOverlay::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode InDetSDOOverlay::execute()
+StatusCode InDetSDOOverlay::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
   
@@ -43,7 +43,7 @@ StatusCode InDetSDOOverlay::execute()
 
   const InDetSimDataCollection *bkgContainerPtr = nullptr;
   if (!m_bkgInputKey.key().empty()) {
-    SG::ReadHandle<InDetSimDataCollection> bkgContainer(m_bkgInputKey);
+    SG::ReadHandle<InDetSimDataCollection> bkgContainer(m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background InDetSimDataCollection container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -53,7 +53,7 @@ StatusCode InDetSDOOverlay::execute()
     ATH_MSG_DEBUG("Found background InDetSimDataCollection container " << bkgContainer.name() << " in store " << bkgContainer.store());
   }
 
-  SG::ReadHandle<InDetSimDataCollection> signalContainer(m_signalInputKey);
+  SG::ReadHandle<InDetSimDataCollection> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal InDetSimDataCollection container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -61,7 +61,7 @@ StatusCode InDetSDOOverlay::execute()
   ATH_MSG_DEBUG("Found signal InDetSimDataCollection container " << signalContainer.name() << " in store " << signalContainer.store());
 
   // Creating output RDO container
-  SG::WriteHandle<InDetSimDataCollection> outputContainer(m_outputKey);
+  SG::WriteHandle<InDetSimDataCollection> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<InDetSimDataCollection>()));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output InDetSimDataCollection container " << outputContainer.name() << " to store " << outputContainer.store());

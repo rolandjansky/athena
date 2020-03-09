@@ -36,12 +36,12 @@ StatusCode RpcOverlay::initialize()
 }
 
 //================================================================
-StatusCode RpcOverlay::execute()
+StatusCode RpcOverlay::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("RpcOverlay::execute() begin");
 
 
-  SG::ReadHandle<RpcDigitContainer> bkgContainer (m_bkgInputKey);
+  SG::ReadHandle<RpcDigitContainer> bkgContainer (m_bkgInputKey, ctx);
   if (!bkgContainer.isValid()) {
     ATH_MSG_ERROR("Could not get background RPC container " << bkgContainer.name() << " from store " << bkgContainer.store());
     return StatusCode::FAILURE;
@@ -50,7 +50,7 @@ StatusCode RpcOverlay::execute()
   ATH_MSG_DEBUG("RPC Background = " << Overlay::debugPrint(bkgContainer.cptr()));
   ATH_MSG_VERBOSE("RPC background has digit_size " << bkgContainer->digit_size());
 
-  SG::ReadHandle<RpcDigitContainer> signalContainer(m_signalInputKey);
+  SG::ReadHandle<RpcDigitContainer> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid() ) {
     ATH_MSG_ERROR("Could not get signal RPC container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -59,7 +59,7 @@ StatusCode RpcOverlay::execute()
   ATH_MSG_DEBUG("RPC Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
   ATH_MSG_VERBOSE("RPC signal has digit_size " << signalContainer->digit_size());
 
-  SG::WriteHandle<RpcDigitContainer> outputContainer(m_outputKey);
+  SG::WriteHandle<RpcDigitContainer> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<RpcDigitContainer>(bkgContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output RpcDigitContainer called " << outputContainer.name() << " to store " << outputContainer.store());

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LHCBunchCrossingTool.cxx 780643 2016-10-27 03:39:39Z ssnyder $
 
 // System include(s):
 #include <inttypes.h>
@@ -12,6 +11,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/IOVTime.h"
+#include "CxxUtils/get_unaligned.h"
 
 // DB include(s):
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -263,30 +263,15 @@ namespace Trig {
       const std::string folder = ( ( update_fillparams & ( ! update_bunchdata ) ) ?
                                    LHC_FILLPARAMS_FOLDER :
                                    LHC_BUNCHDATA_FOLDER );
-      std::string foldername, tag;
-      IOVRange range;
-      bool retrieved;
-      unsigned long long bytesRead;
-      float readTime;
-      if( ! m_iovSvc->getKeyInfo( folder, foldername, tag,
-                                  range, retrieved, bytesRead, readTime ) ) {
+      IIOVDbSvc::KeyInfo info;
+      if( ! m_iovSvc->getKeyInfo( folder, info ) ) {
          REPORT_ERROR( StatusCode::FAILURE )
             << "Couldn't get IOV data about folder: "
             << LHC_FILLPARAMS_FOLDER;
          return StatusCode::FAILURE;
       }
-      if( msgLvl( MSG::VERBOSE ) ) {
-         REPORT_MESSAGE( MSG::VERBOSE ) << "Information about folder: "
-                                        << folder;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  foldername: " << foldername;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  tag: " << tag;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  range: " << range;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  retrieved: " << retrieved;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  bytesRead: " << bytesRead;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  readTime: " << readTime;
-      }
       // Extract the starting time of the IOV:
-      IOVTime time = range.start();
+      IOVTime time = info.range.start();
       // Construct the ID:
       if( time.isRunEvent() ) {
          m_id = static_cast< configid_type >( ( ( time.run() & 0xffff ) << 16 ) |
@@ -1052,16 +1037,15 @@ namespace Trig {
       }
 
       // Skip the first byte:
-      const char* tmpptr = static_cast< const char* >( ints.startingAddress() );
+      const uint8_t* tmpptr = static_cast< const uint8_t* >( ints.startingAddress() );
       ++tmpptr;
 
       // Extract the intensities:
-      const TYPE* ptr = reinterpret_cast< const TYPE* >( tmpptr );
-      for( size_t i = 0; i < mask.size(); ++i, ++ptr ) {
+      for( size_t i = 0; i < mask.size(); ++i ) {
          // Only care about the bunches that the mask selects:
          if( mask[ i ] == state ) {
             // Convert the value to a float:
-            double value = static_cast< double >( *ptr );
+            double value = CxxUtils::get_unaligned<TYPE> (tmpptr);
             // Depending on the size of the storage, normalize
             // this relative value to 1.0:
             if( typeid( TYPE ) == typeid( int8_t ) ) {
@@ -1111,12 +1095,11 @@ namespace Trig {
       }
 
       // Skip the first byte:
-      const char* tmpptr = static_cast< const char* >( ints.startingAddress() );
+      const uint8_t* tmpptr = static_cast< const uint8_t* >( ints.startingAddress() );
       ++tmpptr;
 
       // Extract the intensities:
-      const TYPE* ptr = reinterpret_cast< const TYPE* >( tmpptr );
-      for( int i = 0; i < BunchCrossing::MAX_BCID; ++i, ++ptr ) {
+      for( int i = 0; i < BunchCrossing::MAX_BCID; ++i ) {
          // Skip the BCIDs that we're not interested in:
          if( std::find( bcids.begin(), bcids.end(), i ) ==
              bcids.end() ) {
@@ -1127,9 +1110,7 @@ namespace Trig {
          //double value = static_cast< double >( *ptr );
          // Above is undefined (and not portable!) because ptr may not
          // be aligned.  The sequence below should be well-defined.
-         union { TYPE val;  char buf[sizeof(TYPE)]; } u;
-         memcpy (u.buf, ptr, sizeof(TYPE));
-         double value = static_cast< double >( u.val );
+         double value = CxxUtils::get_unaligned<TYPE> (tmpptr);
 
          // Depending on the size of the storage, normalize
          // this relative value to 1.0:
@@ -1177,11 +1158,10 @@ namespace Trig {
       }
 
       // Extract how many BCIDs we store information about:
-      const char* tmpptr = static_cast< const char* >( ints.startingAddress() );
+      const uint8_t* tmpptr = static_cast< const uint8_t* >( ints.startingAddress() );
       ++tmpptr;
-      const int16_t* bcidptr = reinterpret_cast< const int16_t* >( tmpptr );
-      const int16_t bcid_size = *bcidptr;
-      ++bcidptr;
+      const uint8_t* bcidptr = tmpptr;
+      const int16_t bcid_size = CxxUtils::get_unaligned16 (bcidptr);
 
       // Check that the blob meets the exact size requirements:
       if( static_cast< size_t >( ints.size() ) !=
@@ -1193,16 +1173,15 @@ namespace Trig {
 
       // Extract the BCIDs of the stored intensities:
       std::vector< int16_t > stored_bcids;
-      for( int16_t i = 0; i < bcid_size; ++i, ++bcidptr ) {
-         stored_bcids.push_back( *bcidptr );
+      for( int16_t i = 0; i < bcid_size; ++i ) {
+         stored_bcids.push_back( CxxUtils::get_unaligned16 (bcidptr) );
       }
 
       // Now extract the intensities:
       std::map< int16_t, double > intensities;
-      const TYPE* ptr = reinterpret_cast< const TYPE* >( bcidptr );
-      for( int16_t i = 0; i < bcid_size; ++i, ++ptr ) {
+      for( int16_t i = 0; i < bcid_size; ++i ) {
          // Convert the value to a float:
-         double value = static_cast< double >( *ptr );
+         double value = CxxUtils::get_unaligned<TYPE> (bcidptr);
          // Depending on the size of the storage, normalize
          // this relative value to 1.0:
          if( typeid( TYPE ) == typeid( int8_t ) ) {

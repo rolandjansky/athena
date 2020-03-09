@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,17 +13,18 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/TRT_DriftCircleContainerCnv_p2.h"
 #include "TestTools/leakcheck.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
+
 #include "GaudiKernel/MsgStream.h"
+
 #include <cassert>
 #include <iostream>
-
+#include <memory>
 
 void compare (const Trk::PrepRawData& p1,
               const Trk::PrepRawData& p2)
@@ -84,10 +85,10 @@ void testit (const InDet::TRT_DriftCircleContainer& trans1)
 std::unique_ptr<const InDet::TRT_DriftCircleContainer>
 makeclusts (const TRT_ID& trt_id)
 {
-  auto cont = CxxUtils::make_unique<InDet::TRT_DriftCircleContainer>(5);
+  auto cont = std::make_unique<InDet::TRT_DriftCircleContainer>(5);
 
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<InDet::TRT_DriftCircleCollection>(IdentifierHash(hash));
+    auto coll = std::make_unique<InDet::TRT_DriftCircleCollection>(IdentifierHash(hash));
     coll->setIdentifier (trt_id.layer_id (hash));
 
     for (int i=0; i < 10; i++) {
@@ -102,7 +103,7 @@ makeclusts (const TRT_ID& trt_id)
         for (int j=0; j < 2; j++)
           cov(i,j) = 100*(i+1)*(j+1) + offs;
 
-      auto cl = CxxUtils::make_unique<InDet::TRT_DriftCircle>
+      auto cl = std::make_unique<InDet::TRT_DriftCircle>
         (clusId,
          locpos,
          rdoList,
@@ -111,7 +112,7 @@ makeclusts (const TRT_ID& trt_id)
          54321);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash);
+    assert( cont->addCollection (coll.release(), hash).isSuccess() );
   }
 
   // gcc4.9 doesn't allow returning cont directly here; fixed in 5.2.
@@ -139,7 +140,7 @@ void test1 (const TRT_ID& trt_id)
 
 const TRT_ID& make_dd()
 {
-  auto trt_id = CxxUtils::make_unique<TRT_ID>();
+  auto trt_id = std::make_unique<TRT_ID>();
   const TRT_ID& ret = *trt_id;
   IdDictParser parser;
   parser.register_external_entity ("InnerDetector",
@@ -152,7 +153,7 @@ const TRT_ID& make_dd()
   assert ( svcLoc->service("DetectorStore", detStore).isSuccess() );
   assert ( detStore->record (std::move (trt_id), "TRT_ID") );
 
-  auto sct_dd = CxxUtils::make_unique<InDetDD::TRT_DetectorManager>(detStore);
+  auto sct_dd = std::make_unique<InDetDD::TRT_DetectorManager>(detStore);
   assert ( detStore->record (std::move (sct_dd), "TRT_DetectorDescription") );
   return ret;
 }

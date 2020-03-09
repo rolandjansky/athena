@@ -10,7 +10,7 @@ namespace LVL1TGCTrigger {
 
 class TGCWireDoubletSB : public TGCDoubletSB {
 public:
-  TGCWireDoubletSB(){
+  TGCWireDoubletSB(TGCArguments* tgcargs):TGCDoubletSB(tgcargs){
     m_maxDev=7;
     m_nChAdj=4;
     m_iChBase=9;

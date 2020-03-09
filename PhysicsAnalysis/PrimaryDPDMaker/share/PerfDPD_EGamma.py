@@ -173,7 +173,7 @@ ToolSvc += DESDM_EGAMMACellsInConeThinningPh
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EGammaTracksThinning
 DESDM_EGAMMATracksThinningTool = DerivationFramework__EGammaTracksThinning(  name = "DESDM_EGAMMATracksThinning",
-                                                                       ThinningService = "DESDM_EGAMMAThinningSvc",
+                                                                       StreamName = primDPD.WriteDESDM_EGAMMAStream.StreamName,
                                                                        tracksCollectionName   = "Tracks" ,
                                                                        electronContainerName = "Electrons",
                                                                        photonContainerName   = "Photons",
@@ -182,60 +182,11 @@ DESDM_EGAMMATracksThinningTool = DerivationFramework__EGammaTracksThinning(  nam
                                                                        )
 ToolSvc += DESDM_EGAMMATracksThinningTool
 
-# ========>>> Egamma PrepRawData thinning =======================
-        
-# from RegionSelector.RegionSelectorConf import RegSelSvc
-# svcMgr += RegSelSvc("RegSelSvcInEGammaStream")
-# svcMgr.RegSelSvcInEGammaStream.enableID    = True
-# svcMgr.RegSelSvcInEGammaStream.enablePixel = True
-# svcMgr.RegSelSvcInEGammaStream.enableSCT   = True
-# svcMgr.RegSelSvcInEGammaStream.enableTRT   = True
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-# PixelRegionSelectorTable = SiRegionSelectorTable(name        = "PixRegSelectorTableForEgamma",
-#                                                  ManagerName = "Pixel",
-#                                                  DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                  OutputFile  = "RoITablePixel.txt",
-#                                                  PrintHashId = True,
-#                                                  PrintTable  = False)
-# ToolSvc += PixelRegionSelectorTable
-# print      PixelRegionSelectorTable
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-# SCT_RegionSelectorTable = SiRegionSelectorTable(name        = "SCT_RegSelectorTableForEgamma",
-#                                                 ManagerName = "SCT",
-#                                                 DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                 OutputFile  = "RoITableSCT.txt",
-#                                                 PrintHashId = True,
-#                                                 PrintTable  = False)
-# ToolSvc += SCT_RegionSelectorTable
-# print      SCT_RegionSelectorTable
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
-# TRT_RegionSelectorTable = TRT_RegionSelectorTable(name        = "TRT_RegSelectorTableForEgamma",
-#                                                   ManagerName = "TRT",
-#                                                   DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                   OutputFile  = "RoITableTRT.txt",
-#                                                   PrintHashId = True,
-#                                                   PrintTable  = False)
-# ToolSvc += TRT_RegionSelectorTable
-# print      TRT_RegionSelectorTable
-
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EGammaPrepRawDataThinning
-# DESDM_EGAMMAEGammaPrepRawDataThinningTool = DerivationFramework__EGammaPrepRawDataThinning(  name = "DESDM_EGAMMAEGammaPrepRawDataThinning",                                                                                             
-#                                                                                              ThinningService = "DESDM_EGAMMAThinningSvc",
-#                                                                                              RegSelSvc = "RegSelSvcInEGammaStream",
-#                                                                                              deltaR  = 0.5,
-#                                                                                              minEtEg = 0.
-#                                                                                              )
-# ToolSvc += DESDM_EGAMMAEGammaPrepRawDataThinningTool
-
-
 # ========>>> Trigger Tower thinning ===================================
 
 from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__TriggerTowerThinningAlg
 DESDM_EGAMMAL1CaloThinning = DerivationFramework__TriggerTowerThinningAlg( name = "DESDM_EGAMMAL1CaloThinning",
-                                                                           ThinService = "DESDM_EGAMMAThinningSvc",
+                                                                           StreamName = primDPD.WriteDESDM_EGAMMAStream.StreamName,
                                                                            TriggerTowerLocation = "xAODTriggerTowers",
                                                                            MinCaloCellET = 0.8,
                                                                            MinADC = 36,
@@ -284,23 +235,21 @@ StreamDESDM_EGAMMA.AcceptAlgs(["DESDM_EGAMMAKernel"])
 	
 # Thinning service name must match the one passed to the thinning tools
 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="DESDM_EGAMMAThinningSvc", outStreams=[evtStream] )
 
 from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 
 # build a new container with cells in big-clusters around egamma candidates and 
 # add it to the output
 
-from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
-DESDM_EGAMMACaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["EgammaDummyClustersEl","EgammaDummyClustersPh","egammaClusters"],
-                                                inputCellKey="AllCalo",
-                                                outputCellKey="DESDMEGAMMACellContainer")
+from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
+thinCaloCellsForDF (inputClusterKeys = ["EgammaDummyClustersEl","EgammaDummyClustersPh","egammaClusters"],
+                    streamName = StreamDESDM_EGAMMA.Name,
+                    outputCellKey = "DESDMEGAMMACellContainer")
+
 
 StreamDESDM_EGAMMA.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
-StreamDESDM_EGAMMA.AddItem("CaloCellContainer#DESDMEGAMMACellContainer")
    
 # remove un-necessary containers from the output ( note that I remove the original calo
 # cells container
@@ -439,7 +388,7 @@ outList = CfgItemList( 'EGAMMA',
     'TrackCollection#HLT_TrackCollection_InDetTrigTrackSlimmer_Photon_EFID',
     'TrackCollection#HLT_TrackCollection_InDetTrigTrackSlimmer_Tau_EFID',
     'TrackCollection#MuonSpectrometerTracks',
-    'TrackCollection#PixelPrdAssociationTracks',
+    'TrackCollection#DisappearingTracks',
     'TrackCollection#ResolvedForwardTracks',
     'TrackCollection#Tracks',
     'xAOD::EventShapeAuxInfo#Kt4EMPFlowEventShapeAux.',
@@ -715,7 +664,7 @@ outList = CfgItemList( 'EGAMMA',
     'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_eMuonEFInfo_CombTrackParticlesAux.',
     'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_eMuonEFInfo_ExtrapTrackParticlesAux.',
     'xAOD::TrackParticleAuxContainer#InDetForwardTrackParticlesAux.'+trackParticleAuxExclusions,
-    'xAOD::TrackParticleAuxContainer#InDetPixelPrdAssociationTrackParticlesAux.'+trackParticleAuxExclusions,
+    'xAOD::TrackParticleAuxContainer#InDetDisappearingTrackParticlesAux.'+trackParticleAuxExclusions,
     'xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.'+trackParticleAuxExclusions,
     'xAOD::TrackParticleAuxContainer#MSonlyTrackletsAux.'+trackParticleAuxExclusions,
     'xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux.'+trackParticleAuxExclusions,
@@ -933,7 +882,7 @@ outList = CfgItemList( 'EGAMMA',
     'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_eMuonEFInfo_CombTrackParticles',
     'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_eMuonEFInfo_ExtrapTrackParticles',
     'xAOD::TrackParticleContainer#InDetForwardTrackParticles',
-    'xAOD::TrackParticleContainer#InDetPixelPrdAssociationTrackParticles',
+    'xAOD::TrackParticleContainer#InDetDisappearingTrackParticles',
     'xAOD::TrackParticleContainer#InDetTrackParticles',
     'xAOD::TrackParticleContainer#MSonlyTracklets',
     'xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles',
@@ -1034,7 +983,6 @@ outList = CfgItemList( 'EGAMMA',
     'xAOD::MuonSegmentAuxContainer#MuonSegmentsAux.',
     'xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux.',
     'Muon::TgcPrepDataContainer#TGC_MeasurementsAllBCs',
-    'MuonCaloEnergyContainer#MuonCaloEnergyCollection',
     'DataHeader#StreamESD']
 )
 

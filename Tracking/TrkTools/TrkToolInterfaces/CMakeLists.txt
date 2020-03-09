@@ -22,10 +22,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkSegment
                           Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary )
+                          Tracking/TrkEvent/TrkTrackSummary
+                          Tracking/TrkEvent/TrkEventUtils )
 
 # Component(s) in the package:
 atlas_add_library( TrkToolInterfaces
                    PUBLIC_HEADERS TrkToolInterfaces
-                   LINK_LIBRARIES AthContainers AthLinks EventPrimitives xAODTracking xAODTruth GaudiKernel TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParticleBase TrkSegment TrkTrack TrkTrackSummary )
+                   LINK_LIBRARIES AthContainers AthLinks EventPrimitives xAODTracking xAODTruth GaudiKernel TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParticleBase TrkSegment TrkTrack TrkTrackSummary TrkEventUtils )
 

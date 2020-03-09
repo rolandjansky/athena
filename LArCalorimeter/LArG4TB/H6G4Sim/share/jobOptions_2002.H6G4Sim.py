@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #==============================================================
 #
 # Job options file for Geant4 Simulations
@@ -75,13 +76,13 @@ theApp.EvtMax = 1
 # -----
 G4Svc = Service( "G4Svc" )
 G4Svc.PhysicsList       =       "none"
-G4Svc.SaveHits          =       FALSE
-G4Svc.Visualize         =       FALSE
+G4Svc.SaveHits          =       False
+G4Svc.Visualize         =       False
 G4Svc.RunVerbosity      =           2
 G4Svc.EventVerbosity    =           0
 G4Svc.TrackingVerbosity =           0
-G4Svc.Listener		=	FALSE
-G4Svc.InteractiveG4	=       FALSE
+G4Svc.Listener		=	False
+G4Svc.InteractiveG4	=       False
 G4Svc.FADSMacro		=  "H6G4LArCal2002.mac:PhysicsList.mac"
 
 #--------------------------------------------------------------

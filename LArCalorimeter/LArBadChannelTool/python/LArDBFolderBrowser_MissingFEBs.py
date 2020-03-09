@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import AthenaCommon.SystemOfUnits as Units
+from __future__ import print_function
+
 from AthenaPython.PyAthena import StatusCode
-import AthenaPython.PyAthena as PyAthena
 import sys
-import os
-from PyCool import cool,coral
+from PyCool import cool
 
 import LArBadChannelBrowserTools
 
@@ -53,13 +52,14 @@ class LArDBFolderBrowser_MissingFEBs():
                                                                            self.nspace_LArBadChannelDBTools.getDefaultMsgStream())
 
         
-        print vect_MissingFebHWid.size()
-        for s in vect_MissingFebHWid: print s,
-        print ""
+        print (vect_MissingFebHWid.size())
+        for s in vect_MissingFebHWid:
+            print (s, end='')
+        print ("")
         
         # Add entry in dictionnary
         sChannelKey=coolChan
-        if not self.dict_vectMissingFebHWid.has_key(sChannelKey):
+        if sChannelKey not in self.dict_vectMissingFebHWid:
             self.dict_vectMissingFebHWid[sChannelKey]={}
             
         # Transform vect_BadChanNetry into python dictionnary
@@ -83,13 +83,14 @@ class LArDBFolderBrowser_MissingFEBs():
         listHWidKeys=[x for x in self.dict_vectMissingFebHWid[coolChan].keys()]
         listHWidKeys.sort()
 
-        print ""
+        print ("")
         for sHWid in listHWidKeys:
 
-            if self.dict_vectMissingFebHWid_Init[coolChan].has_key(sHWid):
+            if sHWid in self.dict_vectMissingFebHWid_Init[coolChan]:
                 sChanName,sStatus,sValueInit=self.dict_vectMissingFebHWid_Init[coolChan][sHWid]
                 sPrefix=""
-                if self.dict_vectMissingFebHWid_Status[coolChan][sHWid]!=STATUS_INIT:sPrefix="->"
+                if self.dict_vectMissingFebHWid_Status[coolChan][sHWid]!=STATUS_INIT:
+                    sPrefix="->"
                 self.MissingFeb_DisplayMissingFebLine(sPrefix,iChanCmpt,sHWid,sChanName,sStatus,"")
 
             if self.dict_vectMissingFebHWid_Status[coolChan][sHWid]!=STATUS_INIT:
@@ -103,9 +104,6 @@ class LArDBFolderBrowser_MissingFEBs():
 
         obj_HWid=self.class_HWIdentifier()
         obj_HWid.set(sHWid)
-        
-        cblSvc_id = self.larCablingSvc.cnvToIdentifier(obj_HWid)
-        cblSvc_string = self.onlineID.print_to_string(cblSvc_id)
 
         barrel_ec=self.onlineID.barrel_ec(obj_HWid)
         pos_neg=self.onlineID.pos_neg(obj_HWid)
@@ -114,21 +112,21 @@ class LArDBFolderBrowser_MissingFEBs():
         channel=self.onlineID.channel(obj_HWid)
         
         if sMessage=="":
-            print "    %5d :  %-10s  %1d %1d %2d %2d %3d %40s   %s " % (iChanCmpt+1,obj_HWid.getString(),
+            print ("    %5d :  %-10s  %1d %1d %2d %2d %3d %40s   %s " % (iChanCmpt+1,obj_HWid.getString(),
                                                                     barrel_ec,pos_neg,feedthrough,slot,channel,
-                                                                    sChanName,sStatusValue)
+                                                                    sChanName,sStatusValue))
         else:
-            print "%3s %5d :  %-10s  %1d %1d %2d %2d %3d %40s   %s %s" % (sMessage,iChanCmpt+1,obj_HWid.getString(),
+            print ("%3s %5d :  %-10s  %1d %1d %2d %2d %3d %40s   %s %s" % (sMessage,iChanCmpt+1,obj_HWid.getString(),
                                                                         barrel_ec,pos_neg,feedthrough,slot,channel,
-                                                                        sChanName,sStatusValue,sValueInit)
+                                                                        sChanName,sStatusValue,sValueInit))
             
     def MissingFeb_ShowMissingFebCorrectionsSummary(self,coolChan):
 
         listHWidKeys=[x for x in self.dict_vectMissingFebHWid[coolChan].keys()]
         listHWidKeys.sort()
 
-        print ""
-        print "Correction summary : "
+        print ("")
+        print ("Correction summary : ")
         iNbCorrection=0
         for index,sHWid in enumerate(listHWidKeys):
             if self.dict_vectMissingFebHWid_Status[coolChan][sHWid]!=STATUS_INIT:
@@ -137,13 +135,14 @@ class LArDBFolderBrowser_MissingFEBs():
                 self.MissingFeb_DisplayMissingFebLine(channelStatus,index,sHWid,sChanName,badChan_word,"")
                 iNbCorrection += 1
 
-        if iNbCorrection==0: print"-"
+        if iNbCorrection==0:
+            print ("-")
 
 
     def MissingFeb_TransformEntryIntoDictionnary(self,vMissingFEBHWid):
         """ Transform the missing FEB decoded from blob object into a python dictionnary """
         
-        print "--------------------------- Blob SIZE : ",vMissingFEBHWid.size()
+        print ("--------------------------- Blob SIZE : ",vMissingFEBHWid.size())
         iNbMissingFEB=vMissingFEBHWid.size()
 
         sChannelDict={}
@@ -171,10 +170,10 @@ class LArDBFolderBrowser_MissingFEBs():
         bEndOfCorrection=False
         while not bEndOfCorrection:
 
-            print ""
-            print ".. To add a missing feb    : enter barrel_ec pos_neg feedthrough slot "
-            print ".. To remove a missing feb : enter -(channel index) "
-            print ".. Other :   s (summary)  /  r (refresh list)  /  a (abort)  / q (save and quit)      .. > ",
+            print ("")
+            print (".. To add a missing feb    : enter barrel_ec pos_neg feedthrough slot ")
+            print (".. To remove a missing feb : enter -(channel index) ")
+            print (".. Other :   s (summary)  /  r (refresh list)  /  a (abort)  / q (save and quit)      .. > ",)
             tty = open("/dev/tty", "r+")
             rep=tty.readline()
             rep=rep.strip()
@@ -193,31 +192,39 @@ class LArDBFolderBrowser_MissingFEBs():
                 channel=0
                 bReadableAnswer=True
                 iCombinationAnswer=1
-            except: 
-                if rep=="a": sTxtAnswer="abort"
-                elif rep=="r": sTxtAnswer="refresh"
-                elif rep=="s": sTxtAnswer="summary"
-                elif rep=="q": sTxtAnswer="save-quit"
+            except Exception: 
+                if rep=="a":
+                    sTxtAnswer="abort"
+                elif rep=="r":
+                    sTxtAnswer="refresh"
+                elif rep=="s":
+                    sTxtAnswer="summary"
+                elif rep=="q":
+                    sTxtAnswer="save-quit"
                 else:
                     try:
                         iSelection=int(rep)
-                        if iSelection in range(1,iNbBadChannel+1): iSelectedIndex=iSelection
-                        if iSelection in range(-iNbBadChannel-1,0): iSelectedIndex=iSelection
-                        if iSelectedIndex==-99999: bReadableAnswer=False
-                    except:
+                        if iSelection in range(1,iNbBadChannel+1):
+                            iSelectedIndex=iSelection
+                        if iSelection in range(-iNbBadChannel-1,0):
+                            iSelectedIndex=iSelection
+                        if iSelectedIndex==-99999:
+                            bReadableAnswer=False
+                    except Exception:
                         iSelectedIndex=0
                         bReadableAnswer=False
                         continue
 
-            if bReadableAnswer==False:
-                print "could not decode answer... "
+            if bReadableAnswer is False:
+                print ("could not decode answer... ")
                 bEndOfCorrection=False
                 continue
 
             # Abort answer
             if sTxtAnswer=="abort":
                 iAbortConfirmation=LArBadChannelBrowserTools.YesNoQuestion("Are you sure you want to quit ? ")
-                if iAbortConfirmation==1: return 'a'
+                if iAbortConfirmation==1:
+                    return 'a'
                 bEndOfCorrection=False
 
             # Refresh answer
@@ -254,7 +261,7 @@ class LArDBFolderBrowser_MissingFEBs():
                 else:
                     iRes,sHWid,sChanName,sFebStatus=self.MissingFeb_GetChannelHWIdentifierAndStatus(barrel_ec,pos_neg,feedthrough,slot,channel)
                     if iRes==0 :
-                        print "FEB already defined as missing"
+                        print ("FEB already defined as missing")
                         sValueInit=self.dict_vectMissingFebHWid[coolChan][sHWid][2]
                     else:
                         sValueInit="None"
@@ -273,15 +280,20 @@ class LArDBFolderBrowser_MissingFEBs():
         """ Get channel HW identifier and its status """
         
         sid = self.onlineID.channel_Id(int(barrel_ec),int(pos_neg),int(feedthrough),int(slot),int(channel))
-        print str(barrel_ec)+" "+str(pos_neg)+" "+str(feedthrough)+" "+str(slot)+" "+str(channel)+"  =>  ",sid.getString()
+        print (str(barrel_ec)+" "+str(pos_neg)+" "+str(feedthrough)+" "+str(slot)+" "+str(channel)+"  =>  ",sid.getString())
 
         # Check if HW identifier is valid
         bValidWHidentifier=False
-        if self.onlineID.isEMBchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isEMECchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isHECchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isFCALchannel(sid): bValidWHidentifier=True
-        if bValidWHidentifier==False: return (-1,sid.getString(),"",0)
+        if self.onlineID.isEMBchannel(sid):
+            bValidWHidentifier=True
+        if self.onlineID.isEMECchannel(sid):
+            bValidWHidentifier=True
+        if self.onlineID.isHECchannel(sid):
+            bValidWHidentifier=True
+        if self.onlineID.isFCALchannel(sid):
+            bValidWHidentifier=True
+        if bValidWHidentifier is False:
+            return (-1,sid.getString(),"",0)
 
         for key in self.dict_vectMissingFebHWid.keys():
             for sHWid in self.dict_vectMissingFebHWid[key].keys():
@@ -299,8 +311,6 @@ class LArDBFolderBrowser_MissingFEBs():
         listKeys.sort()
 
         # Loop over cool channels
-        bStoreNewCoolChannels=False
-        bNewDBCreated=False
 
         vect_MissingFebHWid=cppyy.gbl.std.vector('HWIdentifier')()
 
@@ -312,10 +322,12 @@ class LArDBFolderBrowser_MissingFEBs():
 
             sHWid=key
             if self.dict_vectMissingFebHWid_Status[coolChan][sHWid]==STATUS_INIT:
-                sStatusFeb=self.dict_vectMissingFebHWid_Init[coolChan][sHWid][1]
+                #StatusFeb=self.dict_vectMissingFebHWid_Init[coolChan][sHWid][1]
+                pass
             elif self.dict_vectMissingFebHWid_Status[coolChan][sHWid]==STATUS_MODIFIED or self.dict_vectMissingFebHWid_Status[coolChan][sHWid]==STATUS_NEW:
                 iNbCorrection += 1
-                sStatusFeb=self.dict_vectMissingFebHWid[coolChan][sHWid][1]
+                #sStatusFeb=self.dict_vectMissingFebHWid[coolChan][sHWid][1]
+                pass
             elif self.dict_vectMissingFebHWid_Status[coolChan][sHWid]==STATUS_REMOVED:
                 iNbCorrection += 1
                 continue
@@ -327,9 +339,9 @@ class LArDBFolderBrowser_MissingFEBs():
 
         # if correction were made => store MissingFebHWid vector
         if iNbCorrection>0:
-            bStoreNewCoolChannels=True
+            pass
         else:
-            print "No correcton to save"
+            print ("No correcton to save")
             return
 
         # Create object based on new LArBadChannelState (via LArBadChannelDBTools python interface) 
@@ -340,13 +352,12 @@ class LArDBFolderBrowser_MissingFEBs():
         athenaAttrList=self.nspace_LArBadChannelDBTools.createFebPayload(vect_MissingFebHWid)
 
         # new DB creation
-        import os
         try:
             dbSave = dbSvc.createDatabase(dbstring)
-        except Exception,e:
-            print 'Problem opening database',e
+        except Exception as e:
+            print ('Problem opening database',e)
             sys.exit(-1)
-        print "Opened database",dbstring
+        print ("Opened database",dbstring)
             
         desc='<timeStamp>run-event</timeStamp><addrHeader><address_header service_type="71" clid="40774348" /></addrHeader><typeName>AthenaAttributeList</typeName>'
 
@@ -360,7 +371,7 @@ class LArDBFolderBrowser_MissingFEBs():
             elif typeName=="blob":
                 coolSpec.extend(attrSpec.name(),cool.StorageType.Blob64k)
             else:
-                print "Undefined cool.StorageType "+typeName
+                print ("Undefined cool.StorageType "+typeName)
 
         myfolder=dbSave.createFolder(dbFolderName, coolSpec, desc, cool.FolderVersioning.MULTI_VERSION,True)
 
@@ -388,47 +399,50 @@ class LArDBFolderBrowser_MissingFEBs():
         # Dump new database content to screen
         try:
             dbase = dbSvc.openDatabase(dbName,False)
-        except Exception,e:
-            print 'Problem opening database',e
+        except Exception as e:
+            print ('Problem opening database',e)
             sys.exit(-1)
-        print "Opened database",dbName
+        print ("Opened database",dbName)
 
         # Get Folder
         try:
             f = dbase.getFolder(dbFolderName)
-            print "Analysing Folder " + str(dbFolderName)
-        except:
-            print "Skipping " + str(dbFolderName)
+            print ("Analysing Folder " + str(dbFolderName))
+        except Exception:
+            print ("Skipping " + str(dbFolderName))
             return
 
         # get tags
         tags  = f.listTags()
 
         # SES
-        if tags.size()==0: tags.push_back("notag")
+        if tags.size()==0:
+            tags.push_back("notag")
 
-        print "for tags ",
-        for tag in tags: print tag
+        print ("for tags ", end='')
+        for tag in tags:
+            print (tag)
 
         bTagFound=False
         bSavingProcessError=False
 
         for tag in tags:
 
-            if tag!=selectedTag: continue
+            if tag!=selectedTag:
+                continue
 
             bTagFound=True
 
-            nobjs = f.countObjects( cool.ValidityKeyMin,cool.ValidityKeyMax,cool.ChannelSelection.all())
+            f.countObjects( cool.ValidityKeyMin,cool.ValidityKeyMax,cool.ChannelSelection.all())
             objs = f.browseObjects( cool.ValidityKeyMin,cool.ValidityKeyMax,cool.ChannelSelection.all())
             i = 0
             while objs.hasNext():
                 obj = objs.next()
-                print "Found object", i,
-                print "since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']',
-                print "until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']',
-                print "payload", obj.payload(),
-                print "chan",obj.channelId() 
+                print ("Found object", i, end='')
+                print ("since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']', end='')
+                print ("until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']', end='')
+                print ("payload", obj.payload(), end='')
+                print ("chan",obj.channelId() )
 
                 # Get components of payload object
                 payload=obj.payload()
@@ -447,21 +461,23 @@ class LArDBFolderBrowser_MissingFEBs():
 
                 sChannelKey=obj.channelId()
                 HWidChecked={}
-                for key in sChannelDict.keys(): HWidChecked[key]=0
+                for key in sChannelDict.keys():
+                    HWidChecked[key]=0
 
-                print " -> SQlite database content vs initial data : channel ", sChannelKey
+                print (" -> SQlite database content vs initial data : channel ", sChannelKey)
 
                 # Check all the saved data vs initial data
                 listHWidKeys=[x for x in sChannelDict.keys()]
                 for x in self.dict_vectMissingFebHWid_Status[sChannelKey].keys():
-                    if x not in listHWidKeys: listHWidKeys.append(x)
+                    if x not in listHWidKeys:
+                        listHWidKeys.append(x)
                 listHWidKeys.sort()
                 iChanCmpt=0
                 for keyHWid in listHWidKeys:
 
                     try:
                         sChanName,sFebStatus,sValueInit=sChannelDict[keyHWid]
-                    except:
+                    except Exception:
                         sChanName="UNDEFINED"
                         sFebStatus=0
 
@@ -476,7 +492,7 @@ class LArDBFolderBrowser_MissingFEBs():
                         self.MissingFeb_DisplayMissingFebLine(sPrefix,iChanCmpt,keyHWid,sChanName,sFebStatus,sSuffix)
 
                     if self.dict_vectMissingFebHWid_Status[sChannelKey][keyHWid]==STATUS_REMOVED:
-                        if sChannelDict.has_key(keyHWid):
+                        if keyHWid in sChannelDict:
                             sPrefix="ERR"
                             sSuffix=" deletion not taken into accout"+keyHWid
                             bSavingProcessError=True
@@ -507,21 +523,21 @@ class LArDBFolderBrowser_MissingFEBs():
                     iChanCmpt += 1
 
                 for key in self.dict_vectMissingFebHWid_Status[sChannelKey].keys():
-                    if not HWidChecked.has_key(key) and self.dict_vectMissingFebHWid_Status[sChannelKey][key]!=STATUS_REMOVED:
-                        print "ERROR : initial ",key," has not been saved"
-                    elif HWidChecked.has_key(key) and HWidChecked[key]==0:
-                        print "ERROR : ",key," has not been checked"
+                    if key not in  HWidChecked and self.dict_vectMissingFebHWid_Status[sChannelKey][key]!=STATUS_REMOVED:
+                        print ("ERROR : initial ",key," has not been saved")
+                    elif key in HWidChecked and HWidChecked[key]==0:
+                        print ("ERROR : ",key," has not been checked")
 
                 i += 1
 
 
             objs.close()
 
-        if bTagFound==False:
-            print "ERROR : tag "+selectedTag+" not found in saved SQlite file"
+        if bTagFound is False:
+            print ("ERROR : tag "+selectedTag+" not found in saved SQlite file")
             
-        if bSavingProcessError==True:
-            print "ERROR : found while making comparison between corrected and saved datas" 
+        if bSavingProcessError is True:
+            print ("ERROR : found while making comparison between corrected and saved datas" )
 
 
         dbase.closeDatabase()

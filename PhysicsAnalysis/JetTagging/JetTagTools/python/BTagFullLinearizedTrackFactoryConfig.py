@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 # import the FullLinearizedTrackFactory configurable
-from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+Trk__FullLinearizedTrackFactory=CompFactory.Trk__FullLinearizedTrackFactory
 
 def BTagFullLinearizedTrackFactoryCfg(flags, name = 'FullLinearizedTrackFactory', useBTagFlagsDefaults = True, **options ):
     """Sets up a BTagFullLinearizedTrackFactory tool and returns it.
@@ -17,9 +18,7 @@ def BTagFullLinearizedTrackFactoryCfg(flags, name = 'FullLinearizedTrackFactory'
     output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accExtrapolator = AtlasExtrapolatorCfg(flags, 'AtlasExtrapolator')
-        atlasExtrapolator= accExtrapolator.popPrivateTools()
-        acc.merge(accExtrapolator)
+        atlasExtrapolator= acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags, 'AtlasExtrapolator'))
         defaults = { 'Extrapolator'            : atlasExtrapolator}
         for option in defaults:
             options.setdefault(option, defaults[option])

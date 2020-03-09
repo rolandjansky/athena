@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -40,7 +40,8 @@ StatusCode DerivationFramework::DiLepSkim::initialize()
 bool DerivationFramework::DiLepSkim::eventPassesFilter() const
 {
   // we check the filters only if at least one trigger is passed
-  if(!m_dlf->GetTriggers()) return false;
+  uint32_t passFlags = 0;
+  if(!m_dlf->GetTriggers(passFlags)) return false;
 
   // retrieve particle containers
   const xAOD::ElectronContainer* elc = nullptr;
@@ -55,7 +56,7 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
   {
     for(const xAOD::Electron* el: *elc)
     {
-      if(m_dlf->PassSiEl(*el)) return true;
+      if(m_dlf->PassSiEl(passFlags, *el)) return true;
     }
   }
   else if(m_filter == Filters::SiPhX)
@@ -64,15 +65,15 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
     {
       for(const xAOD::Electron* el: *elc)
       {
-        if(m_dlf->PassSiPhX(**ph1, *el)) return true;
+        if(m_dlf->PassSiPhX(passFlags, **ph1, *el)) return true;
       }
       for(auto ph2 = ph1+1; ph2 != phc->cend(); ph2++)
       {
-        if(m_dlf->PassSiPhX(**ph1, **ph2)) return true;
+        if(m_dlf->PassSiPhX(passFlags, **ph1, **ph2)) return true;
       }
       for(const xAOD::Muon* mu: *muc)
       {
-        if(m_dlf->PassSiPhX(**ph1, *mu)) return true;
+        if(m_dlf->PassSiPhX(passFlags, **ph1, *mu)) return true;
       }
     }
   }
@@ -80,14 +81,14 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
   {
     for(const xAOD::Muon* mu: *muc)
     {
-      if(m_dlf->PassSiMu(*mu)) return true;
+      if(m_dlf->PassSiMu(passFlags, *mu)) return true;
     }
   }
   else if(m_filter == Filters::SiMuBa)
   {
     for(const xAOD::Muon* mu: *muc)
     {
-      if(m_dlf->PassSiMuBa(*mu)) return true;
+      if(m_dlf->PassSiMuBa(passFlags, *mu)) return true;
     }
   }
   else if(m_filter == Filters::DiEl)
@@ -96,7 +97,7 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
     {
       for(auto el2 = el1+1; el2 != elc->cend(); el2++)
       {
-        if(m_dlf->PassDiEl(**el1, **el2)) return true;
+        if(m_dlf->PassDiEl(passFlags, **el1, **el2)) return true;
       }
     }
   }
@@ -106,7 +107,7 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
     {
       for(auto ph2 = ph1+1; ph2 != phc->cend(); ph2++)
       {
-        if(m_dlf->PassDiPh(**ph1, **ph2)) return true;
+        if(m_dlf->PassDiPh(passFlags, **ph1, **ph2)) return true;
       }
     }
   }
@@ -116,7 +117,7 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
     {
       for(const xAOD::Photon* ph: *phc)
       {
-        if(m_dlf->PassDiElPh(*el, *ph)) return true;
+        if(m_dlf->PassDiElPh(passFlags, *el, *ph)) return true;
       }
     }
   }
@@ -126,7 +127,7 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
     {
       for(const xAOD::Photon* ph: *phc)
       {
-        if(m_dlf->PassDiLoElPh(*el, *ph)) return true;
+        if(m_dlf->PassDiLoElPh(passFlags, *el, *ph)) return true;
       }
     }
   }

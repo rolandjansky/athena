@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,7 +8,7 @@
 // ROOT  
 #include "TBaseClass.h"
 #include "TClass.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TClassTable.h"
 #include "TDataType.h"
 #include "TDataMember.h"
@@ -566,7 +566,10 @@ size_t TScopeAdapter::TypeSize()
 {
 // return total number of types in the system (this is stupid, as the number
 // of types is dynamic ...)
-   return gClassTable ? gClassTable->Classes() : 0;
+  // ??? The THREAD_SAFE here is in principle wrong.
+  // However, in practice it should be ok, and heads off a big mess downstream.
+  TClassTable* tab ATLAS_THREAD_SAFE = gClassTable;
+  return tab ? tab->Classes() : 0;
 }
 
 //____________________________________________________________________________
@@ -875,10 +878,8 @@ Bool_t TScopeAdapter::IsComplete() const
 // verify whether the dictionary of this class is fully available
    Bool_t b = kFALSE;
 
-   Int_t oldEIL = gErrorIgnoreLevel;
-   gErrorIgnoreLevel = 3000;
    std::string scname = Name( Reflex::SCOPED );
-   TClass* klass = TClass::GetClass( scname.c_str() );
+   TClass* klass = TClass::GetClass( scname.c_str(), true, true );
    if ( klass && klass->GetClassInfo() )     // works for normal case w/ dict
       b = gInterpreter->ClassInfo_IsLoaded( klass->GetClassInfo() );
    else {      // special case for forward declared classes
@@ -888,7 +889,6 @@ Bool_t TScopeAdapter::IsComplete() const
          gInterpreter->ClassInfo_Delete( ci );    // we own the fresh class info
       }
    }
-   gErrorIgnoreLevel = oldEIL;
    return b;
 }
 

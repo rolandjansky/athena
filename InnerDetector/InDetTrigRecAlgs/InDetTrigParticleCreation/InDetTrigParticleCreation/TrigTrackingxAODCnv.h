@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrkTrack/TrackCollection.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapExchangeTool.h"
 
 //!< Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
@@ -29,7 +30,6 @@
 #include <map>
 #include <string>
 
-class StoreGateSvc;
 class TH1F;
 class AtlasDetectorID;
 class Identifier;
@@ -64,13 +64,22 @@ namespace InDet
 
   private:
     ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
-    ToolHandle< Trk::IResidualPullCalculator > m_residualCalc;
+    ToolHandle< Trk::IResidualPullCalculator >   m_residualCalc;
+
+     /** Tool to emulate the run2 behaviour.
+      * The downstream clients will use the latest PRD association map indpendent of the feature that created it.
+      * If this tool is set, the map will be exchanged via the tool rather than being  attached as a feature.
+      */
+    PublicToolHandle<Trk::IPRDtoTrackMapExchangeTool>         m_prdToTrackMapExchange
+       {this, "PRDToTrackMapExchange", "" };
+
     const AtlasDetectorID* m_idHelper;
     const PixelID* m_pixelId;
 
     const TrackCollection*       m_tracks;
 
     bool                         m_doIBLresidual;
+    bool                         m_doSharedHits;  // if enabled will extract PRD-to-track map from output TE, the map has to be filled and stored by the preceding algorith,
 
     //Monitoring
     std::string                  m_slice_name;

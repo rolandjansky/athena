@@ -228,7 +228,7 @@ CondContBase::CondContBase (Athena::IRCUSvc& rcusvc,
  * @param ctx Event context for the current thread.
  *
  * Returns SUCCESS if the object was successfully inserted;
- * EXTENDS if the last existing range in the container was extended
+ * EXTENDED if the last existing range in the container was extended
  * to match the new range;
  * OVERLAP if the object was inserted but the range partially overlaps
  * with an existing one;
@@ -381,6 +381,7 @@ CondContBase::extendLastRangeBase (const EventIDRange& newRange,
   key_type stop;
   switch (m_keyType) {
   case KeyType::RUNLBN:
+  case KeyType::MIXED:  // To handle the extension case of insertMixed().
     if (!newRange.start().isRunLumi()) {
       MsgStream msg (Athena::getMessageSvc(), title());
       msg << MSG::ERROR << "CondContBase::extendLastRange: "
@@ -569,7 +570,7 @@ CondContSingleBase::ranges() const
  * The container will take ownership of this object.
  *
  * Returns SUCCESS if the object was successfully inserted;
- * EXTENDS if the last existing range in the container was extended
+ * EXTENDED if the last existing range in the container was extended
  * to match the new range;
  * OVERLAP if the object was inserted but the range partially overlaps
  * with an existing one;
@@ -822,6 +823,8 @@ CondContMixedBase::extendLastRange (const EventIDRange& /*newRange*/,
  * @param ctx Event context for the current thread.
  *
  * Returns SUCCESS if the object was successfully inserted;
+ * EXTENDED if the last existing range in the container was extended
+ * to match the new range;
  * OVERLAP if the object was inserted but the range partially overlaps
  * with an existing one;
  * DUPLICATE if the object wasn't inserted because the range
@@ -833,13 +836,25 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
                                 CondContBase::CondContSet::payload_unique_ptr t,
                                 const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
-  // Serialize insertions.  This may not actually be needed, but just in case.
+  // Serialize insertions.
   std::lock_guard<std::mutex> lock (m_mutex);
 
   const EventIDRange* range = nullptr;
   const void* tsmap_void = findBase (r.start(), &range);
   CondContSet* tsmap ATLAS_THREAD_SAFE =
     const_cast<CondContSet*>(reinterpret_cast<const CondContSet*> (tsmap_void));
+
+  if (!r.start().isTimeStamp() || !r.stop().isTimeStamp())
+  {
+    MsgStream msg (Athena::getMessageSvc(), title());
+    msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
+        << "Range does not have both start and stop timestamps defined."
+        << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  key_type start_key = keyFromTimestamp (r.start());
+  key_type stop_key  = keyFromTimestamp (r.stop());
 
   StatusCode sc = StatusCode::SUCCESS;
   sc.ignore();
@@ -849,12 +864,36 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
         r.start().lumi_block() != range->start().lumi_block() ||
         r.stop().lumi_block() != range->stop().lumi_block())
     {
-      MsgStream msg (Athena::getMessageSvc(), title());
-      msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
-          << "Run+lbn part of new range doesn't match existing range. "
-          << "New: " << r << "; existing: " << *range
-          << endmsg;
-      return StatusCode::FAILURE;
+      // Run+lbn part doesn't match.  If this range contains only a single
+      // timestamp range which matches the timestamp part of the key,
+      // then try to extend it.  Otherwise, give an error.
+
+      bool extended = false;
+      if (tsmap->size() == 1) {
+        CondContSet::const_iterator elt = tsmap->find (start_key);
+        if (elt) {
+          if (elt->first.m_start == start_key &&
+              elt->first.m_stop == stop_key)
+          {
+            if (extendLastRangeBase (r, ctx).isSuccess())
+            {
+              sc = CondContStatusCode::EXTENDED;
+              sc.ignore();
+              extended = true;
+            }
+          }
+        }
+      }
+
+      if (!extended) {
+        MsgStream msg (Athena::getMessageSvc(), title());
+        msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
+            << "Run+lbn part of new range doesn't match existing range, "
+            << "or can't extend. "
+            << "New: " << r << "; existing: " << *range
+            << endmsg;
+        return StatusCode::FAILURE;
+      }
     }
   }
   else {
@@ -871,32 +910,23 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
     }
   }
 
-  if (!r.start().isTimeStamp() || !r.stop().isTimeStamp())
-  {
-    MsgStream msg (Athena::getMessageSvc(), title());
-    msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
-        << "Range does not have both start and stop timestamps defined."
-        << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  key_type start_key = keyFromTimestamp (r.start());
-  key_type stop_key  = keyFromTimestamp (r.stop());
-
   CondContSet::EmplaceResult reslt =
     tsmap->emplace ( RangeKey(r, start_key, stop_key),
                      std::move(t), false, ctx );
 
-  if (reslt == CondContSet::EmplaceResult::DUPLICATE)
+  if (reslt == CondContSet::EmplaceResult::OVERLAP) {
+    return CondContStatusCode::OVERLAP;
+  }
+  else if (Category::isExtended (sc)) {
+    return sc;
+  }
+  else if (reslt == CondContSet::EmplaceResult::DUPLICATE)
   {
     return CondContStatusCode::DUPLICATE;
   }
   else if (reslt == CondContSet::EmplaceResult::EXTENDED)
   {
     std::abort();  // Shouldn't happen.
-  }
-  else if (reslt == CondContSet::EmplaceResult::OVERLAP) {
-    return CondContStatusCode::OVERLAP;
   }
   
   return sc;

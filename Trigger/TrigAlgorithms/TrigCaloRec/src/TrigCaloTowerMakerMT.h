@@ -18,7 +18,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloEvent/CaloTowerContainer.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
 class IAlgToolEFCalo;

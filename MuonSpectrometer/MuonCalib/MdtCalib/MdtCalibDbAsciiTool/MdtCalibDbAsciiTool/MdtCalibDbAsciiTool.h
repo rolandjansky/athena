@@ -1,31 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBDB_MDTCALIBDBASCIITOOL_H
 #define MDTCALIBDB_MDTCALIBDBASCIITOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MdtCalibInterfaces/IMdtCalibDBTool.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtRtRelationCollection.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+
 class IAtRndmGenSvc;
-
 class MdtCalibrationRegionSvc;
-class Identifier; 
-class StoreGateSvc; 
-class MdtIdHelper;
 
-namespace MuonGM{
-class MuonDetectorManager;
-}
-
-namespace MuonCalib
-{
-
-
+namespace MuonCalib {
 
 class MdtCalibDbAsciiTool: public AthAlgTool,
 	             virtual public IMdtCalibDBTool
@@ -47,7 +40,6 @@ private:
 
   /** Tool initialization */
   StatusCode initialize();
-  StatusCode finalize();
 
   /** retrieve from database all the constants: dummy*/
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
@@ -71,9 +63,13 @@ private:
   /** interprets file names in the calibration directory */
   bool interpret_chamber_name(const std::string &nm, const char *prefix, std::string & station, int &eta, int & phi) const;
 
-  StoreGateSvc* m_detStore;
-  const MdtIdHelper* m_mdtIdHelper;
-  const MuonGM::MuonDetectorManager* m_detMgr;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   MdtCalibrationRegionSvc* m_regionSvc;
   mutable MdtTubeCalibContainerCollection * m_tubeData;
   mutable MdtRtRelationCollection * m_rtData;
@@ -108,9 +104,6 @@ private:
   IAtRndmGenSvc* p_AtRndmGenSvc;
   CLHEP::HepRandomEngine* p_engine;
 
-  MsgStream* m_log;
-  bool       m_debug;
-  bool       m_verbose;
 };
 
 }

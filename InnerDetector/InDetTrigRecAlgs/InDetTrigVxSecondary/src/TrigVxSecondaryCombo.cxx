@@ -434,7 +434,7 @@ namespace InDet {
 	  }
 	  m_secVertexInfoContainer->push_back(const_cast<Trk::VxSecVertexInfo*>(m_secVertexInfo));
 	  
-	  m_secVertexInfoContainer->back()->getSVOwnership(true);
+	  m_secVertexInfoContainer->back()->setSVOwnership(true);
 	  m_nVxSecVertexInfo++;
 	}
 

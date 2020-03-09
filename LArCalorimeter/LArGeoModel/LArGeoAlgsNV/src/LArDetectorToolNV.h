@@ -16,7 +16,6 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 
 class LArDetectorManager;
-class StoreGateSvc;
 
 /** @class LArDetectorToolNV
     @brief LArDetectorToolNV is a standard GeoModel tool, which calls LArDetectorFactory::create(),
@@ -43,7 +42,7 @@ class LArDetectorToolNV : public GeoModelTool {
 
     // Callback function itself
     virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override final;
-	
+
  private:
     bool m_barrelSaggingOn;
     int  m_barrelVisLimit;
@@ -57,6 +56,9 @@ class LArDetectorToolNV : public GeoModelTool {
     const LArDetectorManager *m_manager;
 
     std::string m_geometryConfig; // FULL, SIMU, RECO
+
+    std::string m_EMECVariantInner;
+    std::string m_EMECVariantOuter;
 };
 
-#endif 
+#endif

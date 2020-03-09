@@ -19,6 +19,8 @@
 #include "LArRawConditions/LArCaliPulseParamsComplete.h"
 #include "LArRawConditions/LArDetCellParamsComplete.h"
 
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 
 LArRTMParamExtractor::LArRTMParamExtractor (const std::string& name, ISvcLocator* pSvcLocator) : 
@@ -28,6 +30,7 @@ LArRTMParamExtractor::LArRTMParamExtractor (const std::string& name, ISvcLocator
   declareProperty("KeyList"   ,m_keylist);
   declareProperty("TestMode"  ,m_testmode = false);
   declareProperty("IgnoreDACSelection", m_ignoreDACselection = false);
+  declareProperty("isSC", m_isSC = false);
 
   m_DAC.clear();
   int default_DAC[3] = { -1, -1, -1} ;
@@ -166,11 +169,35 @@ StatusCode LArRTMParamExtractor::stop()
   ATH_MSG_INFO( "in stop()" ) ;
   
   // get LArOnlineID helper
-  const LArOnlineID* onlineHelper;
-  StatusCode sc = detStore()->retrieve(onlineHelper, "LArOnlineID");
+  const LArOnlineID_Base* onlineHelper;
+  /*StatusCode sc = detStore()->retrieve(onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Could not get LArOnlineID" );
     return sc;
+  }*/
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
   }
 
   // Retrieve LArWFParamTool

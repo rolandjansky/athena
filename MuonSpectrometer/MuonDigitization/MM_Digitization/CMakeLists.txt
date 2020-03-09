@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/PileUpTools
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
-                          Event/xAOD/xAODEventInfo
                           GaudiKernel
                           MagneticField/MagFieldInterfaces
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
@@ -20,8 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/HitManagement
                           PRIVATE
                           Control/StoreGate
-                          Event/EventInfo
-                          Event/EventInfoMgt
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -52,13 +49,13 @@ atlas_add_library( MM_DigitizationLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier xAODEventInfo GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement PileUpToolsLib StoreGateLib SGtests MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} EventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement PileUpToolsLib StoreGateLib SGtests MuonIdHelpersLib
+                   PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
 
 atlas_add_component( MM_Digitization
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GeoPrimitives Identifier xAODEventInfo GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement StoreGateLib SGtests EventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives MM_DigitizationLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GeoPrimitives Identifier GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement StoreGateLib SGtests GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives MM_DigitizationLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

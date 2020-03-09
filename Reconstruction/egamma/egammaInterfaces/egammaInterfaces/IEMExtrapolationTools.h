@@ -14,7 +14,9 @@
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexFwd.h"
 #include "TrkCaloExtension/CaloExtension.h"
+
 #include <memory>
+#include <array>
 #include <unordered_map>
 
 
@@ -48,36 +50,19 @@ public:
   virtual StatusCode finalize() = 0;
 
   typedef  std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>> Cache;
-  /**  test for cluster/extrapolated track match, from Trk::TrackParticleBase,
-   *   returns true for good match, and the values for eta/phi, 
-   *     deltaEta/deltaPhi for sampling 2
-   */
-  virtual bool  matchesAtCalo(const EventContext&           ctx,
-                              const xAOD::CaloCluster*      cluster, 
-                              const xAOD::TrackParticle*    trkPB, 
-                              bool                          isTRT, 
-                              Trk::PropDirection            direction,
-                              std::vector<double>&          eta,
-                              std::vector<double>&          phi,
-                              std::vector<double>&          deltaEta,
-                              std::vector<double>&          deltaPhi,
-                              unsigned int                  extrapFrom = fromPerigee,
-                              Cache* cache=nullptr) const = 0;
-
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  
    *    whether or not to extrapolate to each calo sample
    */
   virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
-                                     const xAOD::CaloCluster*      cluster, 
-                                     const xAOD::TrackParticle*    trkPB,
-                                     bool                          isTRT,                         
+                                     const xAOD::CaloCluster&      cluster, 
+                                     const xAOD::TrackParticle&    trkPB,
                                      Trk::PropDirection            direction,
-                                     std::vector<double>&          eta,
-                                     std::vector<double>&          phi,
-                                     std::vector<double>&          deltaEta,
-                                     std::vector<double>&          deltaPhi,
+                                     std::array<double,4>&         eta,
+                                     std::array<double,4>&         phi,
+                                     std::array<double,4>&         deltaEta,
+                                     std::array<double,4>&         deltaPhi,
                                      unsigned int                  extrapFrom = fromPerigee,
                                      Cache* cache=nullptr) const = 0;
 
@@ -102,7 +87,8 @@ public:
                                 float *etaAtCalo,
                                 float *phiAtCalo) const =0;
 
-  /** get the momentum of the i-th at the vertex (designed for conversions) **/
+  /** get the momentum of the i-th trackParticle attached to the vertex 
+   * at the vertex (designed for conversions) **/
   virtual Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const = 0;
 
   /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and \<reuse\> is true **/

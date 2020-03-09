@@ -13,7 +13,6 @@
 
 class HWIdentifier;
 class LArOnlineID;
-class StoreGateSvc;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
@@ -63,7 +62,6 @@ class CBNT_TBRecBase : public AthAlgorithm {
 
   MsgStream* m_log;
 
-  StoreGateSvc* m_detStore; 
   const LArEM_ID* m_emId;
   const LArHEC_ID* m_hecId;
   const LArFCAL_ID* m_fcalId;

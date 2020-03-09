@@ -21,7 +21,8 @@
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
-class SCT_DigitizationTool;
+class IPileUpTool;
+
 /** Top algorithm class for SCT digitization */
 class SCT_Digitization : public AthAlgorithm {
 
@@ -32,15 +33,15 @@ class SCT_Digitization : public AthAlgorithm {
 
   /** Destructor */
   virtual ~SCT_Digitization() = default;
-    
+
   /** Basic algorithm methods */
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual bool isClonable() const override final { return true; }
 
  private:
 
-  ToolHandle<SCT_DigitizationTool> m_sctDigitizationTool{this, "DigitizationTool", "SCT_DigitizationTool", "SCT_DigitizationTool name"};
+  ToolHandle<IPileUpTool> m_sctDigitizationTool{this, "DigitizationTool", "SCT_DigitizationTool", "SCT_DigitizationTool name"};
 
 };
 

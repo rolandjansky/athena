@@ -17,8 +17,6 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     const IInterface*  p )
     :
     AthAlgTool(t,n,p),
-    m_idCnvTool("InDet::InDetEventCnvTool/InDetEventCnvTool"),
-    m_muonCnvTool("Muon::MuonEventCnvTool/MuonEventCnvTool"),
     m_detID(0),
     m_haveIdCnvTool(false),   // Will be set to true on retrieval
     m_haveMuonCnvTool(false), // Will be set to true on retrieval
@@ -39,18 +37,16 @@ Trk::EventCnvSuperTool::~EventCnvSuperTool(){
 
 StatusCode
 Trk::EventCnvSuperTool::initialize(){   
-    // Try to get det store and then AtlasID
-    StoreGateSvc *detStore = 0;
-    StatusCode sc = service( "DetectorStore", detStore );
+    // Try to get AtlasID
+    StatusCode sc = detStore()->retrieve( m_detID, "AtlasID" );
     if( sc.isFailure() ) {
-        msg(MSG::WARNING) << "Could not get DetectorStore, nor Id Helper, and so will be unable to do anything useful." << endmsg;
-    } else {    
-        sc = detStore->retrieve( m_detID, "AtlasID" );
-        if( sc.isFailure() ) {
-            msg(MSG::WARNING) << "Could not get AtlasDetectorID " << endmsg;
-        }
+        msg(MSG::WARNING) << "Could not get AtlasDetectorID " << endmsg;
     }
-        
+    
+    if (!m_doID && !m_doMuons){
+      ATH_MSG_WARNING("This tool has been configured without either Muons or ID, and so can't do anything. Problems likely.");
+    }
+    
     //Now try to get the tools
     if ( m_doID && !m_idCnvTool.empty() ) {
         if (m_idCnvTool.retrieve().isFailure() ) 
@@ -62,6 +58,8 @@ Trk::EventCnvSuperTool::initialize(){
             msg(MSG::VERBOSE) << "Retrieved tool " << m_idCnvTool << endmsg;
             m_haveIdCnvTool=true;
         }
+    } else {
+      m_idCnvTool.setTypeAndName("");
     }
 
     if ( m_doMuons && !m_muonCnvTool.empty() ) {
@@ -74,6 +72,8 @@ Trk::EventCnvSuperTool::initialize(){
             msg(MSG::VERBOSE) << "Retrieved tool " << m_muonCnvTool << endmsg;
             m_haveMuonCnvTool=true;
         }
+    } else {
+      m_muonCnvTool.setTypeAndName("");
     }
 
     // Print an extra warning if neither tool found.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBBPC_H
@@ -122,8 +122,6 @@ class TBBPC : public TBBeamDetector
   // overflow indicators
   bool m_xPosOverflow,   m_yPosOverflow;
   bool m_xPulseOverflow, m_yPulseOverflow;
-
-  bool m_overflowSetFlag;
 };
 
 CLASS_DEF( TBBPC , 228151918 , 1 )

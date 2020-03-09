@@ -9,7 +9,7 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
-from PyJobTransforms.trfExe import athenaExecutor, DQMergeExecutor, reductionFrameworkExecutor, reductionFrameworkExecutorNTUP
+from PyJobTransforms.trfExe import athenaExecutor, dummyExecutor, DQMergeExecutor, reductionFrameworkExecutor, reductionFrameworkExecutorNTUP
 from PyJobTransforms.trfArgs import addD3PDArguments, addPrimaryDPDArguments, addExtraDPDTypes, addReductionArguments
 
 
@@ -80,7 +80,7 @@ def addStandardRecoFiles(parser):
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', countable=False), 
                         help='Output DQ monitoring file', group='Reco Files')
     parser.add_argument('--outputTAGFile', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argTAGFile, io='output'), 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFile, io='output'), 
                         help='Output TAG file', group='Reco Files')
     parser.add_argument('--inputEVNTFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input'),
@@ -116,7 +116,7 @@ def addRecoSubsteps(executorSet):
     executorSet.add(athenaExecutor(name = 'AODtoAOD', skeletonFile = 'RecJobTransforms/skeleton.AODtoAOD_tf.py',
                                    substep = 'a2a', inData = ['AOD'], outData = ['AOD_RPR'],
                                    perfMonFile = None))
-    executorSet.add(athenaExecutor(name = 'AODtoTAG', skeletonFile = 'RecJobTransforms/skeleton.AODtoTAG_tf.py',
+    executorSet.add(dummyExecutor(name = 'AODtoTAG',
                                    inData = ['AOD', 'AOD_RPR'], outData = ['TAG'],))
     executorSet.add(athenaExecutor(name = 'AODtoHIST', skeletonFile = 'RecJobTransforms/skeleton.AODtoHIST_tf.py',
                                    inData = ['AOD'], outData = ['HIST_AOD'],))

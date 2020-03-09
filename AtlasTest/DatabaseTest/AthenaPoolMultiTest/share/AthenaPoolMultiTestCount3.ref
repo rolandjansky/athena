@@ -2,7 +2,6 @@ Athena               INFO including file "AthenaPoolUtilities/EventCount.py"
 ClassIDSvc           INFO  getRegistryEntries: read 69 CLIDRegistry entries for module EventSelectorAthenaPool
 ApplicationMgr       INFO Successfully loaded modules : EventSelectorAthenaPool
 Athena               INFO including file "AthenaPoolUtilities/EventCount_jobOptions.py"
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-02-00
 EventSelector        INFO Create PoolCollectionConverter -  CollectionType: ImplicitROOT Connection:  InputCollection: AthenaPoolMultiTest_Bad.root
 EventSelector        INFO EventSelection with query 
 EventSelector        INFO ----- EventSelectorAthenaPool Initialized Properly

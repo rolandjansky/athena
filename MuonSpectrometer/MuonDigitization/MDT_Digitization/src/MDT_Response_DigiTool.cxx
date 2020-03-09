@@ -2,8 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MDT_Digitization/MdtDigiToolInput.h"
 #include "MDT_Digitization/MDT_Response_DigiTool.h"
 
@@ -66,26 +64,21 @@ MDT_Response_DigiTool::digitize(const MdtDigiToolInput& input, CLHEP::HepRandomE
 
 StatusCode MDT_Response_DigiTool::initialize()
 {
-  StoreGateSvc* detStore=0;
-  StatusCode status = serviceLocator()->service("DetectorStore", detStore);
-
-  if (status.isSuccess()) {
-    if(detStore->contains<MuonDetectorManager>( "Muon" )){
-      status = detStore->retrieve(m_muonGeoMgr);
-      if (status.isFailure()) {
-	ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
-	return status;
-      }
-      else {
-	ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate.");
-	//initialize the MdtIdHelper
-	m_idHelper = m_muonGeoMgr->mdtIdHelper();
-	ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
-	if(!m_idHelper) return status;
-      }
+  if(detStore()->contains<MuonDetectorManager>( "Muon" )){
+    StatusCode status = detStore()->retrieve(m_muonGeoMgr);
+    if (status.isFailure()) {
+      ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
+      return status;
+    }
+    else {
+      ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate.");
+      //initialize the MdtIdHelper
+      m_idHelper = m_muonGeoMgr->mdtIdHelper();
+      ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
+      if(!m_idHelper) return status;
     }
   }
-
+ 
   initializeTube();
 
   return StatusCode::SUCCESS;

@@ -8,6 +8,7 @@ atlas_subdir( InDetExtensionProcessor )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkTrack
@@ -24,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetExtensionProcessor
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkEventPrimitives TrkTrack TrkFitterUtils StoreGateLib SGtests TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkFitterInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps CxxUtils GaudiKernel TrkEventPrimitives TrkTrack TrkFitterUtils StoreGateLib SGtests TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkFitterInterfaces TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetExtensionProcessor )

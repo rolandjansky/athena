@@ -5,9 +5,10 @@
 
 import curses
 
-import logging
-
-logger = logging.getLogger('iconfTool.' + __name__)
+def report():
+    print("Can not init textGUI, probably wrong terminal. Try setting export TERM=xterm-256color")
+    import sys
+    sys.exit(-1)
 
 
 class Pad(object):
@@ -27,11 +28,16 @@ class Pad(object):
         self.styles = None
         self.lines = []
         self.search_text = ''
-
-        self.initialize_styles()
+        try:
+            self.initialize_styles()
+        except Exception:
+            report()
         self.draw_all_structures()
         self.actual_y = 0
-        self.initialize_cursor()
+        try:
+            self.initialize_cursor()
+        except Exception:
+            report()
         self.refresh()
 
     def initialize_styles(self):

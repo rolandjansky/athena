@@ -20,8 +20,8 @@
 // FourMom includes
 #include "FourMom/Lib/P4BaseEEtaPhiM.h"
 #include "FourMom/FourMomentumError.h"
-#include "FourMom/DeepCopyPointer.h"
 
+#include <memory>
 // forward declare
 class P4ImplEEtaPhiMCnv_p1; // for persistency
 /** 
@@ -121,7 +121,7 @@ class P4ImplEEtaPhiM : public P4BaseEEtaPhiM
   double m_eta;
   double m_phi;
   double m_m;
-  DeepCopyPointer< ErrorType> m_error;
+  std::unique_ptr< ErrorType> m_error;
 
 };
 
@@ -135,7 +135,7 @@ inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( ) :
   m_eta( 0. ),
   m_phi( 0. ),
   m_m  ( 0.*CLHEP::GeV ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const P4ImplEEtaPhiM& rhs ) :
@@ -144,7 +144,7 @@ inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const P4ImplEEtaPhiM& rhs ) :
   m_eta( rhs.m_eta ),
   m_phi( rhs.m_phi ),
   m_m  ( rhs.m_m ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const double e,   const double eta,
@@ -154,7 +154,7 @@ inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const double e,   const double eta,
   m_eta( eta ),
   m_phi( phi ),
   m_m  ( m   ),
-  m_error(0)
+  m_error(nullptr)
 { 
   // could enforce phi range convention there
   // const double twopi =2.*M_PI;
@@ -168,7 +168,7 @@ inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const CLHEP::HepLorentzVector& hlv ) :
   m_eta( hlv.eta() ),
   m_phi( hlv.phi() ),
   m_m  ( hlv.m()   ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const I4Momentum& i4mom ) :
@@ -177,7 +177,7 @@ inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const I4Momentum& i4mom ) :
   m_eta( i4mom.eta() ),
   m_phi( i4mom.phi() ),
   m_m  ( i4mom.m()   ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const I4Momentum * const i4Mom ) :
@@ -186,7 +186,7 @@ inline P4ImplEEtaPhiM::P4ImplEEtaPhiM( const I4Momentum * const i4Mom ) :
   m_eta( i4Mom->eta() ),
   m_phi( i4Mom->phi() ),
   m_m  ( i4Mom->m()   ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplEEtaPhiM::~P4ImplEEtaPhiM()
@@ -272,7 +272,7 @@ inline void P4ImplEEtaPhiM::setErrors( const ErrorMatrixEEtaPhiM& err)
   //  if (err != 0) m_error = new FourMomentumError(*err);
   //  else m_error = 0;
 
-  m_error = DeepCopyPointer< ErrorType>(new ErrorType( err, *this));
+  m_error = std::make_unique< ErrorType>(err, *this);
 }
 
 

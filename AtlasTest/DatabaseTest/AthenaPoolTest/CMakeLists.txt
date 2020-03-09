@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PRIVATE
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           LArCalorimeter/LArRecEvent
-                          TestPolicy
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkCompetingRIOsOnTrack
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -63,7 +62,6 @@ atlas_add_component( AthenaPoolTest
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaPoolTestData CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier EventInfo GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetCompetingRIOsOnTrack InDetPrepRawData InDetRIO_OnTrack LArRecEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkTrack TrkVertexOnTrack )
 
 # Install files from the package:
-atlas_install_headers( AthenaPoolTest )
 atlas_install_joboptions( share/*.py )
 
 
@@ -75,7 +73,7 @@ function (athenapooltest_run_test testName jo pattern)
                   @ONLY )
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/athenapooltest_${testName}.sh
-                  ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolTest/AthenaPoolTest-01-00-05"
+                  ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolTest/AthenaPoolTest-01-00-06"
                   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check_with_select.sh ${testName} ${pattern}"
                   PROPERTIES TIMEOUT 900
                    )
@@ -95,17 +93,17 @@ athenapooltest_run_test( AthenaPoolTestRead AthenaPoolTestRead
 
 # Write with DoubleEventSelector
 athenapooltest_run_test( AthenaPoolTestWriteDoubleSelector AthenaPoolTestWriteDoubleSelector
-                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..AthenaPoolTest'"
                          DEPENDS AthenaPoolTestRead)
 athenapooltest_run_test( AthenaPoolTestReadDoubleSelector AthenaPoolTestReadDoubleSelector
-                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..AthenaPoolTest'"
                          DEPENDS AthenaPoolTestWriteDoubleSelector )
 
 # Add on test of navigation still using simple objects:
 # AthenaPoolTestWrite - Step2 - rewrite part in another file
 # DoubleEventSelector
 athenapooltest_run_test( AthenaPoolTestStep2WriteDoubleSelector AthenaPoolTestStep2WriteDoubleSelector
-                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..AthenaPoolTest'"
                          DEPENDS AthenaPoolTestReadDoubleSelector )
 # normal EventSelector
 athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
@@ -152,15 +150,15 @@ athenapooltest_run_test( LArCellContRead LArCellContReader_jobOptions
 
 # Read two RDOs with the DoubleEventSelector
 athenapooltest_run_test( ReadRDODoubleSelector ReadRDODoubleSelector
-                         "'^..DoubleEvent|^..RDOReader'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..RDOReader'"
                          DEPENDS LArCellContRead )
 athenapooltest_run_test( ReadCombinedRDO ReadCombinedRDO
-                         "'^..DoubleEvent|^..LArCellContFake|^..InDetRawDataFak'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..LArCellContFake|^..InDetRawDataFak'"
                          DEPENDS ReadRDODoubleSelector )
 
 # Test basic overlay algorithms with DoubleEventSelector
 athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
-                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..AthenaPoolAddr|^..Stream1|Found HelperTools'"
                          DEPENDS ReadCombinedRDO )
 
 # AthenaMT test for DoubleEventSelector

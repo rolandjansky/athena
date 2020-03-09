@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileRawChannelContainerCnv_p1.h 
@@ -13,9 +13,7 @@
 #define TILETPCNV_TILERAWCHANNELCONTAINERCNV_P1_H
 
 // TileTPCnv includes
-#define private public
 #include "TileTPCnv/TileRawChannelContainer_p1.h"
-#undef private 
 #include "TileTPCnv/TileRawChannelCnv_p1.h"
 #include "TileTPCnv/T_TilePoolContainerCnv.h"
 

@@ -28,7 +28,7 @@ namespace xAOD {
 
    std::vector< float >& HIEventShape_v2::etCos() {
 
-      static Accessor< std::vector< float > > acc( "etCos" );
+      static const Accessor< std::vector< float > > acc( "etCos" );
       return acc( *this );
    }
 
@@ -37,7 +37,7 @@ namespace xAOD {
 
    std::vector< float >& HIEventShape_v2::etSin() {
 
-      static Accessor< std::vector< float > > acc( "etSin" );
+      static const Accessor< std::vector< float > > acc( "etSin" );
       return acc( *this );
    }
 

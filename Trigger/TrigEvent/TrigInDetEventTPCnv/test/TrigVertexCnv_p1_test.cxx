@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,6 @@
 #include "TrigInDetEventTPCnv/TrigVertexCnv_p1.h"
 #include "TrigInDetEventTPCnv/TrigVertexCollectionCnv_tlp1.h"
 #include "TestTools/FLOATassert.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -154,10 +153,10 @@ TrigInDetTrack makeTrack (int offs)
       310.5*310.5+offs, 311.5+offs, 312.5+offs,
       313.5*313.5+offs, 314.5+offs,
       315.5*315.5+offs };
-  auto param = CxxUtils::make_unique<TrigInDetTrackFitPar>
+  auto param = std::make_unique<TrigInDetTrackFitPar>
     (2.5+offs, 3.5+offs, 4.5+offs, 5.5+offs, 6.5+offs, TrigInDetTrackFitPar::PERIGEE, 7.5+offs,
     new std::vector<double> (cov1));
-  auto endParam = CxxUtils::make_unique<TrigInDetTrackFitPar>
+  auto endParam = std::make_unique<TrigInDetTrackFitPar>
     (102.5+offs, 103.5+offs, 104.5+offs, 105.5+offs, 106.5+offs, TrigInDetTrackFitPar::BARREL, 107.5+offs,
     new std::vector<double> (cov2));
   TrigInDetTrack trans1 (param.release(), endParam.release(), 1.5+offs);
@@ -180,7 +179,7 @@ void test1()
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
 
-  auto tracks = CxxUtils::make_unique<TrackInVertexList>();
+  auto tracks = std::make_unique<TrackInVertexList>();
   TrigInDetTrack track1 = makeTrack(0);
   TrigInDetTrack track2 = makeTrack(500);
   tracks->push_back (&track1);

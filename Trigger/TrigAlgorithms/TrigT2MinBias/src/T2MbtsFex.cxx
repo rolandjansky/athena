@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "T2MbtsFex.h"
@@ -17,7 +17,6 @@ T2MbtsFex::T2MbtsFex(const std::string &name, ISvcLocator* pSvcLocator): HLT::Al
 									 m_timerAlg(0),
 									 m_timerSave(0),
 									 m_data("TrigDataAccess/TrigDataAccess"),
-									 m_detStore("DetectorStore", name),
 									 m_tileTBID(0),
 									 m_error(0),
 									 m_triggerEnergies(xAOD::TrigT2MbtsBits::NUM_MBTS,0.),
@@ -284,15 +283,9 @@ HLT::ErrorCode T2MbtsFex::hltInitialize() {
     return HLT::BAD_JOB_SETUP;
   }
   
-  // Connect to the Detector Store to retrieve TileTBID.
-  if(m_detStore.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_detStore.typeAndName());
-    return HLT::BAD_JOB_SETUP;
-  }
- 
  // Retrieve TileTBID helper from det store
   // (The MBTS was added to the Test Beam (TB) list.)
-  if(m_detStore->retrieve(m_tileTBID).isFailure()) {
+  if(detStore()->retrieve(m_tileTBID).isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve TileTBID helper from DetectorStore");
     return HLT::BAD_JOB_SETUP;
   }

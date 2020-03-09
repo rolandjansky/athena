@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,6 @@
 
 #include "AthenaPoolUtilities/TagAthenaAttributeList.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
 #include "PersistentDataModel/Token.h"
 
@@ -181,7 +180,7 @@ RegistrationStreamTagTool::fillAtt(std::vector< std::pair<std::string, std::stri
     else {
         // AttributeLists should have been filled by other Algorithms and put in StoreGate
         //   Choose the one for the tagKey from the itemlist
-        StatusCode retrieveStatus = m_storeGateSvc->retrieve(attributes, tagKey);
+        StatusCode retrieveStatus = evtStore()->retrieve(attributes, tagKey);
 	if (retrieveStatus.isFailure()) {
 	   ATH_MSG_ERROR("Could not retrieve attributes. Key/tagname " << tagKey);
 	   return  StatusCode::FAILURE;

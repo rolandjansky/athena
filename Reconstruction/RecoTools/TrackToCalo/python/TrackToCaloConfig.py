@@ -4,9 +4,10 @@ __doc__ = "Tool configuration for the track to calo tools."
 
 #---------------------------------------
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool=CompFactory.getComps("Trk__ParticleCaloExtensionTool","Rec__ParticleCaloCellAssociationTool",)
 
 def ParticleCaloExtensionToolCfg(flags, **kwargs):
     acc=ComponentAccumulator()
@@ -30,7 +31,7 @@ def ParticleCaloCellAssociationToolCfg(flags, **kwargs):
         acc.merge(pcExtrapToolAcc)
 
     # should this be a more global flag? It depends on whether you are in AOD
-    kwargs.setdefault("CaloCellContainer", flag.Egamma.Keys.Input.CaloCells)
+    kwargs.setdefault("CaloCellContainer", flags.Egamma.Keys.Input.CaloCells)
 
     cellAssocTool = Rec__ParticleCaloCellAssociationTool(**kwargs)
 

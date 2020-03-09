@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ImagingSeedTuningAlg.cxx 
@@ -583,20 +583,14 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
 double ImagingSeedTuningAlg::distanceAndError(const Trk::TrackParameters* params, const Amg::Vector3D * vertex, double & error) const
 {
     //find distance safely
-    bool isOK=false;
     double distance=0.;
     try {
-      Trk::PlaneSurface* mySurface=m_impactPoint3dEstimator->Estimate3dIP(params,vertex);
-      delete mySurface;
-      isOK=true;
+      std::unique_ptr<Trk::PlaneSurface> mySurface=m_impactPoint3dEstimator->Estimate3dIP(params,vertex,distance);
     }
     catch (error::ImpactPoint3dEstimatorProblem err) {
       msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << 
         err.p << endmsg;
     }
-    if (isOK) {
-      distance=m_impactPoint3dEstimator->getDistance();
-    }  
     if (distance<0) {
       msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endmsg;
     }

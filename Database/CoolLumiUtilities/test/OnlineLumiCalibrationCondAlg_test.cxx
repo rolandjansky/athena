@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file CoolLumiUtilities/test/OnlineLumiCalibrationCondAlg_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,8 +10,14 @@
 
 
 #undef NDEBUG
+
+// Disable checking due to use of AttributeList.
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "../src/OnlineLumiCalibrationCondAlg.h"
 #include "CoolLumiUtilities/OnlineLumiCalibrationCondData.h"
+#include "AthenaKernel/DummyRCUSvc.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
@@ -21,24 +25,6 @@
 #include "TestTools/initGaudi.h"
 #include <iostream>
 #include <cassert>
-
-
-class TestRCUSvc
-  : public Athena::IRCUSvc
-{
-public:
-  virtual StatusCode remove (Athena::IRCUObject* /*obj*/) override
-  {
-    return StatusCode::SUCCESS;
-  }
-  virtual size_t getNumSlots() const override { return 1; }
-  virtual void add (Athena::IRCUObject* /*obj*/) override
-  { }
-
-  virtual unsigned long addRef() override { std::abort(); }
-  virtual unsigned long release() override { std::abort(); }
-  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override { std::abort(); }
-};
 
 
 coral::AttributeList makeAL (float muToLumi,
@@ -92,7 +78,7 @@ void test1 (ISvcLocator* svcloc)
   alg.addRef();
   assert( alg.sysInitialize().isSuccess() );
 
-  TestRCUSvc rcu;
+  Athena_test::DummyRCUSvc rcu;
   DataObjID id1 ("testcalib");
   auto cc1 = std::make_unique<CondCont<CondAttrListCollection> > (rcu, id1);
   DataObjID id2 ("OnlineLumiCalibrationCondData");

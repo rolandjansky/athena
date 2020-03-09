@@ -36,11 +36,11 @@ StatusCode TgcOverlay::initialize()
 }
 
 //================================================================
-StatusCode TgcOverlay::execute() {
+StatusCode TgcOverlay::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("TgcOverlay::execute() begin");
 
 
-  SG::ReadHandle<TgcDigitContainer> bkgContainer (m_bkgInputKey);
+  SG::ReadHandle<TgcDigitContainer> bkgContainer (m_bkgInputKey, ctx);
   if (!bkgContainer.isValid()) {
     ATH_MSG_ERROR("Could not get background TgcDigitContainer called " << bkgContainer.name() << " from store " << bkgContainer.store());
     return StatusCode::FAILURE;
@@ -49,7 +49,7 @@ StatusCode TgcOverlay::execute() {
   ATH_MSG_DEBUG("TGC Background = " << Overlay::debugPrint(bkgContainer.cptr()));
   ATH_MSG_VERBOSE("TGC background has digit_size " << bkgContainer->digit_size());
 
-  SG::ReadHandle<TgcDigitContainer> signalContainer(m_signalInputKey);
+  SG::ReadHandle<TgcDigitContainer> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid() ) {
     ATH_MSG_ERROR("Could not get signal TgcDigitContainer called " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -58,7 +58,7 @@ StatusCode TgcOverlay::execute() {
   ATH_MSG_DEBUG("TGC Signal       = " << Overlay::debugPrint(signalContainer.cptr()));
   ATH_MSG_VERBOSE("TGC signal has digit_size " << signalContainer->digit_size());
 
-  SG::WriteHandle<TgcDigitContainer> outputContainer(m_outputKey);
+  SG::WriteHandle<TgcDigitContainer> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<TgcDigitContainer>(bkgContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output TgcDigitContainer called " << outputContainer.name() << " to store " << outputContainer.store());

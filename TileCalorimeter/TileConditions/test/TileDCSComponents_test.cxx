@@ -1,8 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "TileConditions/TileDCSState.h"
 #include "TileConditions/TileCalibData.h"
@@ -656,7 +659,7 @@ void testTileDCSCondAlg(ISvcLocator* svcLoc) {
   assert( (alg->setProperty("DCSChStatesInCOOL", TILE_DCS_CH_STATES_IN_COOL)).isSuccess() );
 
   assert( (alg->initialize()).isSuccess() );
-  TileCablingSvc::set_cabling_type(TileCablingService::RUN2aCabling);
+  TileCablingSvcMock::set_cabling_type(TileCablingService::RUN2aCabling);
 
   //assert(alg->setProperty("OutputLevel", 1)); // 1 == VERBOSE
 
@@ -874,7 +877,7 @@ int main() {
 
 
   IdDictParser parser;
-  TileCablingSvc::init_idhelpers (parser);
+  TileCablingSvcMock::init_idhelpers (parser);
 
   ServiceHandle<StoreGateSvc> conditionStore("ConditionStore", "");
   assert(conditionStore.retrieve().isSuccess());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELATHENAPOOL_NAVIGABLECNV_P1_H
@@ -16,6 +16,9 @@
 #include "AthLinks/ElementLinkVector.h"
 #include "ElementLinkVectorCnv_p1.h"
 #include "Navigable_p1.h"
+namespace SG {
+  class ThinningCache;
+}
 
 /** @class NavigableCnv_p1<NAV>
  *  @brief Converter template for converters between transient Navigable and its persistent representation. Template argument NAV is the type of the transient Navigable. 
@@ -23,20 +26,29 @@
 
 template <class NAV, typename RPAR = typename NAV::parameter_type>
 class NavigableCnv_p1
-   : public T_AthenaPoolTPCnvBase< NAV, typename GeneratePersNavigableType<NAV, RPAR >::type > {
+   : public T_AthenaPoolTPCnvConstBase< NAV, typename GeneratePersNavigableType<NAV, RPAR >::type > {
 public:
   typedef	NAV							Navigable_t;
   typedef 	typename GeneratePersNavigableType<Navigable_t, RPAR >::type	PersNavigable_t;
   typedef	ElementLinkVector<typename NAV::container_type > 	ElementLinkVect_t;
 
+  using base_class = T_AthenaPoolTPCnvConstBase< NAV, PersNavigable_t >;
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
   NavigableCnv_p1() {}
 
-  // standard interface for TP converter
-  virtual void transToPers(const Navigable_t* trans, PersNavigable_t* pers, MsgStream& log) ;
-  virtual void persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& log) ;
+  void transToPers(const Navigable_t& trans, PersNavigable_t& pers,
+                   const SG::ThinningCache* cache,
+                   MsgStream& log) const;
 
-  virtual void transToPers(const Navigable_t& trans, PersNavigable_t& pers, MsgStream& log) ;
-  virtual void persToTrans(const PersNavigable_t& pers, Navigable_t& trans, MsgStream& log) ;
+  void transToPers(const Navigable_t& trans, PersNavigable_t& pers, MsgStream& log) const;
+  void persToTrans(const PersNavigable_t& pers, Navigable_t& trans, MsgStream& log) const;
+
+  // standard interface for TP converter
+  virtual void transToPers(const Navigable_t* trans, PersNavigable_t* pers, MsgStream& log) const override;
+  virtual void persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& log) const override;
+
 
 protected:
   // converter for element link vector
@@ -48,20 +60,30 @@ protected:
 
 template <class NAV >
 class NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
-   : public T_AthenaPoolTPCnvBase< NAV, typename GeneratePersNavigableType<NAV >::type > {
+   : public T_AthenaPoolTPCnvConstBase< NAV, typename GeneratePersNavigableType<NAV >::type > {
 public:
   typedef	NAV							Navigable_t;
   typedef 	typename GeneratePersNavigableType<Navigable_t >::type	PersNavigable_t;
   typedef	ElementLinkVector<typename NAV::container_type > 	ElementLinkVect_t;
 
+  using base_class = T_AthenaPoolTPCnvConstBase< NAV, PersNavigable_t >;
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
   NavigableCnv_p1() {}
 
-  // standard interface for TP converter
-  virtual void transToPers(const Navigable_t* trans, PersNavigable_t* pers, MsgStream& log) ;
-  virtual void persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& log) ;
 
-  virtual void transToPers(const Navigable_t& trans, PersNavigable_t& pers, MsgStream& log) ;
-  virtual void persToTrans(const PersNavigable_t& pers, Navigable_t& trans, MsgStream& log) ;
+  void transToPers(const Navigable_t& trans, PersNavigable_t& pers,
+                   const SG::ThinningCache* cache,
+                   MsgStream& log) const;
+
+  void transToPers(const Navigable_t& trans, PersNavigable_t& pers, MsgStream& log) const;
+  void persToTrans(const PersNavigable_t& pers, Navigable_t& trans, MsgStream& log) const;
+
+  
+  // standard interface for TP converter
+  virtual void transToPers(const Navigable_t* trans, PersNavigable_t* pers, MsgStream& log) const override;
+  virtual void persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& log) const override;
 
 protected:
   // converter for element link vector

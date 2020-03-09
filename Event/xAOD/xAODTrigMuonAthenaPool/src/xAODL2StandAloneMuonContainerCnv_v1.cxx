@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODL2StandAloneMuonContainerCnv_v1.cxx 707606 2015-11-12 19:59:49Z krasznaa $
@@ -14,7 +14,6 @@
 #include "xAODL2StandAloneMuonContainerCnv_v1.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/versions/L2StandAloneMuonContainer_v1.h"
-#include "CxxUtils/make_unique.h"
 
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG
@@ -28,22 +27,20 @@
    } while( 0 )
 
 xAODL2StandAloneMuonContainerCnv_v1::xAODL2StandAloneMuonContainerCnv_v1()
-  : T_AthenaPoolTPCnvBase< xAOD::L2StandAloneMuonContainer,
-                           xAOD::L2StandAloneMuonContainer_v1 >() {
-
+{
 }
 
 void xAODL2StandAloneMuonContainerCnv_v1::
 persToTrans( const xAOD::L2StandAloneMuonContainer_v1* oldObj,
              xAOD::L2StandAloneMuonContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::L2StandAloneMuonContainer_v1 to current version..." );
 
    newObj->clear();
    for (size_t i = 0; i < oldObj->size(); i++)
-     newObj->push_back (CxxUtils::make_unique<xAOD::L2StandAloneMuon>());
+     newObj->push_back (std::make_unique<xAOD::L2StandAloneMuon>());
    
    // Print what happened:
    ATH_MSG( "Converting xAOD::L2StandAloneMuonContainer_v1 to current version "
@@ -58,7 +55,7 @@ persToTrans( const xAOD::L2StandAloneMuonContainer_v1* oldObj,
 void xAODL2StandAloneMuonContainerCnv_v1::
 transToPers( const xAOD::L2StandAloneMuonContainer*,
              xAOD::L2StandAloneMuonContainer_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODL2StandAloneMuonContainer_v1::transToPers"

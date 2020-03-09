@@ -22,17 +22,12 @@
 struct GaudiKernelFixtureBase{
   ISvcLocator* svcLoc{};
   static bool gaudiIsInitialised;
-  const std::string here;
-  GaudiKernelFixtureBase(const std::string & derivedLocation):here(derivedLocation){
-    //The following is to ensure I can run the Boost test executable outside ctest
-    //const std::string here=__FILE__;
-    const size_t lastSlash=here.find_last_of("/");
-    const std::string dir=here.substr(0,lastSlash+1);
-    const std::string searchPath=dir+"../share/";
-    //
+  const std::string jobOpts{};
+  GaudiKernelFixtureBase(const std::string & jobOptionFile = "IOVDbSvc_BoostTest.txt"):jobOpts(jobOptionFile){
     CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
     if (not gaudiIsInitialised){
-      gaudiIsInitialised=Athena_test::initGaudi("IOVDbSvc/IOVDbSvc_BoostTest.txt", svcLoc);
+      std::string fullJobOptsName="IOVDbSvc/" + jobOpts;
+      gaudiIsInitialised=Athena_test::initGaudi(fullJobOptsName, svcLoc);
     }
   }
 };

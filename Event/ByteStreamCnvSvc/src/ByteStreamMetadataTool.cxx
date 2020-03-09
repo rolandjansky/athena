@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ByteStreamMetadataTool.cxx
@@ -9,9 +9,6 @@
  **/
 
 #include "ByteStreamMetadataTool.h"
-
-//#include "GaudiKernel/IIncidentSvc.h"
-//#include "GaudiKernel/FileIncident.h"
 
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "StoreGate/StoreGateSvc.h"

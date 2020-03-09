@@ -73,10 +73,10 @@ char com[500];
 	  chkfile.close();
 	}
    while ( strlen(line)>0)
+     if(-1 == fclose(fich))
+     {
+       std::cerr<<"can not close file"<< std::endl;
      }
-  if(-1 == fclose(fich))
-    {
-      std::cerr<<"can not close file"<< std::endl;
     }
   return;
 }

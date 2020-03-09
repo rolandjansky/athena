@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # specifies CaloCell-> CaloTower combined 
 from AthenaCommon.Logging import logging
 from AthenaCommon.JobProperties import jobproperties as jp
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
+from AthenaCommon.SystemOfUnits import MeV
 import traceback
 
 from RecExConfig.Configured import Configured
@@ -32,13 +31,13 @@ class CaloTowerCmbGetter ( Configured )  :
         try:        
             from CaloRec.CaloRecConf import CaloTowerAlgorithm                
             theCaloTowerAlgorithm=CaloTowerAlgorithm("CmbTowerBldr")
-        except:
+        except Exception:
             mlog.error("could not import CaloRec.CaloTowerAlgorithm")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
 
-        self._CaloTowerAlgorithmHandle = theCaloTowerAlgorithm ;
+        self._CaloTowerAlgorithmHandle = theCaloTowerAlgorithm
 
 
         # configure CaloTowerAlgorithm here
@@ -47,9 +46,9 @@ class CaloTowerCmbGetter ( Configured )  :
         try:
             from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
             theTileTowerBuilderTool=TileTowerBuilderTool("TileCmbTwrBldr")
-        except:
+        except Exception:
             mlog.error("could not get handle to TileTowerBuilderTool Quit")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         # add the tool to list of tool ( should use ToolHandle eventually) 
@@ -59,9 +58,9 @@ class CaloTowerCmbGetter ( Configured )  :
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
             theLArTowerBuilderTool=LArTowerBuilderTool("LArCmbTwrBldr")
             theLArFCalTowerBuilderTool=LArFCalTowerBuilderTool("LArFCalCmbTwrBldr")            
-        except:
+        except Exception:
             mlog.error("could not get handle to LArTowerBuilderTool or LArFCalTowerBuilderTool. Quit")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         theCaloTowerAlgorithm.TowerBuilderTools+= [ theLArTowerBuilderTool.getFullName() ]
@@ -110,7 +109,7 @@ class CaloTowerCmbGetter ( Configured )  :
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
-        topSequence += theCaloTowerAlgorithm ;
+        topSequence += theCaloTowerAlgorithm
         
         return True
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationValidation_h
@@ -21,7 +21,7 @@ class PixelChargeInterpolationValidation{
 
 public:
 	
-	PixelChargeInterpolationValidation(std::string tag,
+	PixelChargeInterpolationValidation(const std::string& tag,
 			const PixelChargeInterpolationParameters &model);
 	
 	virtual ~PixelChargeInterpolationValidation();
@@ -35,7 +35,7 @@ public:
 	int Write(TDirectory *file = 0);
 	int Read(TDirectory *file = 0);
 
-	void WriteErrorsFile(std::string name);
+	void WriteErrorsFile(const std::string& name);
 
 private:
 

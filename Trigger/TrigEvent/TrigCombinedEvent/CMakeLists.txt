@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigNavigation
                           PRIVATE
                           AtlasTest/TestTools
-                          Control/CxxUtils
                           Control/AthenaKernel
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc )
 
@@ -48,5 +47,4 @@ atlas_add_test( TrigComposite_test
                 test/TrigComposite_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaKernel GaudiKernel TrigNavigationLib TestTools AthenaKernel TrigSerializeCnvSvcLib TrigCombinedEvent
-                EXTRA_PATTERNS ".*" )
-
+                POST_EXEC_SCRIPT nopost.sh )

@@ -89,6 +89,18 @@ applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot7Seq)
 #=======================================
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT7Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT7Stream )
+EXOT7Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT7Stream.AcceptAlgs(["EXOT7Kernel"])
+
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+
+#====================================================================
 # OPENING ANGLE TOOL
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__DeltaRTool
@@ -126,14 +138,14 @@ EXOT7StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EX
                                                                          expression = expression)
 
 ToolSvc += EXOT7StringSkimmingTool
-print EXOT7StringSkimmingTool
+printfunc (EXOT7StringSkimmingTool)
 
 # define thinning tool 
 thinningTools=[]
 # Tracks associated with jets (for e-in-jet OR)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 EXOT7JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7JetTPThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        JetKey                  = "AntiKt4LCTopoJets",
                                                                        SelectionString         = "AntiKt4LCTopoJets.pt > 15*GeV && AntiKt4LCTopoJets.eta > -2.8 && AntiKt4LCTopoJets.eta < 2.8",
                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -142,7 +154,7 @@ thinningTools.append(EXOT7JetTPThinningTool)
 
 # for HTT
 EXOT7CA8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7CA8JetTPThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        JetKey                  = "CamKt8LCTopoJets",
                                                                        SelectionString         = "CamKt8LCTopoJets.pt > 150*GeV && CamKt8LCTopoJets.eta > -2.7 && CamKt8LCTopoJets.eta < 2.7",
                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -150,7 +162,7 @@ ToolSvc += EXOT7CA8JetTPThinningTool
 thinningTools.append(EXOT7CA8JetTPThinningTool)
 
 EXOT7CA15JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7CA15JetTPThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        JetKey                  = "CamKt15LCTopoJets",
                                                                        SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV && CamKt15LCTopoJets.eta > -2.7 && CamKt15LCTopoJets.eta < 2.7",
                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -158,7 +170,7 @@ ToolSvc += EXOT7CA15JetTPThinningTool
 thinningTools.append(EXOT7CA15JetTPThinningTool)
 
 EXOT7Ak10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7Ak10JetTPThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        JetKey                  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta > -2.7 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta < 2.7",
                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -168,7 +180,7 @@ thinningTools.append(EXOT7CA15JetTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT7MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                       = "EXOT7MuonTPThinningTool",
-                                                                         ThinningService         = "EXOT7ThinningSvc",
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                          SelectionString = "Muons.pt > 7*GeV",
@@ -179,7 +191,7 @@ thinningTools.append(EXOT7MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT7ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT7ElectronTPThinningTool",
-                                                                               ThinningService         = "EXOT7ThinningSvc",
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                GSFTrackParticlesKey    = "GSFTrackParticles",
@@ -192,7 +204,7 @@ thinningTools.append(EXOT7ElectronTPThinningTool)
 # calo cluster thinning for electrons only (only affects egClusterCollection)
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 EXOT7ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name                    = "EXOT7ElectronCCThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        SGKey                   = "Electrons",
                                                                        CaloClCollectionSGKey   = "egammaClusters",
                                                                        #TopoClCollectionSGKey   = "CaloCalTopoCluster",
@@ -204,7 +216,7 @@ thinningTools.append(EXOT7ElectronCCThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT7CA15CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT7CA15CCThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        SGKey                   = "CamKt15LCTopoJets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV",
@@ -213,7 +225,7 @@ ToolSvc += EXOT7CA15CCThinningTool
 thinningTools.append(EXOT7CA15CCThinningTool)
 
 EXOT7CA8CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT7CA8CCThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        SGKey                   = "CamKt8LCTopoJets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "CamKt8LCTopoJets.pt > 150*GeV",
@@ -222,7 +234,7 @@ ToolSvc += EXOT7CA8CCThinningTool
 thinningTools.append(EXOT7CA8CCThinningTool)
 
 EXOT7A10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT7A10CCThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV",
@@ -246,7 +258,7 @@ thinningTools.append(EXOT7A10CCThinningTool)
 # MC thinning ( status && Eta cut && pdgids)
 #from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 #EXOT7MCThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT7MCThinningTool",
-#                                                                ThinningService = "EXOT7ThinningSvc",
+#                                                                StreamName              = streamName,
 #                                                                ParticleSelectionString = final_expression, 
 #                                                                PreserveDescendants = False)
 #
@@ -259,7 +271,7 @@ thinningTools.append(EXOT7A10CCThinningTool)
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT7MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7MCThinningTool",
-                                                             ThinningService = "EXOT7ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = True,
 	                                                     WriteBHadrons              = True,
@@ -279,7 +291,7 @@ EXOT7MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7MCThin
                                                              PreserveDescendants        = False)
 
 EXOT7TMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TMCThinningTool",
-                                                             ThinningService = "EXOT7ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = False,
 	                                                     WriteBHadrons              = False,
@@ -299,7 +311,7 @@ EXOT7TMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TMCTh
                                                              PreserveDescendants        = True)
 
 EXOT7TAMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TAMCThinningTool",
-                                                             ThinningService = "EXOT7ThinningSvc",
+                                                             StreamName                 = streamName,
                                                              WritePartons               = False,
                                                              WriteHadrons               = False,
                                                              WriteBHadrons              = False,
@@ -322,7 +334,7 @@ EXOT7TAMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TAMC
 #
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT7MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT7MCGenThinningTool",
-                                                                ThinningService = "EXOT7ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 ParticleSelectionString = "abs(TruthParticles.pdgId) ==25 || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==32 || abs(TruthParticles.pdgId)==5100021", 
                                                                 PreserveDescendants = False)
 
@@ -349,22 +361,6 @@ exot7Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT7Kernel_skim",
                                                          SkimmingTools = [EXOT7StringSkimmingTool])
 exot7Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT7Kernel",
                                                          ThinningTools = thinningTools)
-
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT7Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT7Stream )
-EXOT7Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT7Stream.AcceptAlgs(["EXOT7Kernel"])
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT7ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================

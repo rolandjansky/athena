@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: L1Muctpi.h 681356 2015-07-08 12:17:52Z wengler $
@@ -15,6 +15,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "TrigT1Interfaces/MuCTPICTP.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "TrigT1Result/MuCTPI_RDO.h"
 
 // Forward declaration(s):
 namespace TrigConf {
@@ -103,6 +108,9 @@ namespace LVL1MUCTPI {
       static const std::string m_DEFAULT_AODLocID;
       static const std::string m_DEFAULT_RDOLocID;
 
+      
+      SG::WriteHandleKey<LVL1::MuCTPICTP> m_muctpi2CtpKey { LVL1MUCTPI::DEFAULT_MuonCTPLocation };
+    SG::WriteHandleKey<MuCTPI_RDO> m_rdoOutputLocId{this, "RDOOutputLocID", "MUCTPI_RDO", "Location of MUCTPI RDOs"};
       // These properties control the way the overlap handling functions:
       std::string m_overlapStrategyName;
       std::string m_lutXMLFile;
@@ -121,7 +129,6 @@ namespace LVL1MUCTPI {
       std::string m_inputSource;
       std::string m_aodLocId;
       std::string m_rdoLocId;
-      std::string m_rdoOutputLocId;
       std::string m_roiOutputLocId;
       std::string m_ctpOutputLocId;
       std::string m_l1topoOutputLocId;

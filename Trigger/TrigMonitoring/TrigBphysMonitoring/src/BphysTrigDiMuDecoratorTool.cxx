@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // BphysTrigDiMuDecoratorTool.cxx 
@@ -17,7 +17,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
-#include "CxxUtils/make_unique.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "xAODTracking/TrackingPrimitives.h"
@@ -122,33 +121,32 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
                       << evtInfo->beamPosSigmaX() << " " << evtInfo->beamPosSigmaY() << " "
                       << evtInfo->beamPosSigmaZ() );
     }
-    std::unique_ptr<xAOD::Vertex> bsVertex = CxxUtils::make_unique<xAOD::Vertex>();
+    std::unique_ptr<xAOD::Vertex> bsVertex = std::make_unique<xAOD::Vertex>();
     bsVertex->makePrivateStore();
+    AmgSymMatrix(3) cov;
     if (evtInfo) {
         bsVertex->setX(evtInfo->beamPosX());
         bsVertex->setY(evtInfo->beamPosY());
         bsVertex->setZ(evtInfo->beamPosZ());
-        AmgSymMatrix(3) cov;
         cov(0,0) = evtInfo->beamPosSigmaX() * evtInfo->beamPosSigmaX();
         cov(1,1) = evtInfo->beamPosSigmaY() * evtInfo->beamPosSigmaY();
         cov(2,2) = evtInfo->beamPosSigmaZ() * evtInfo->beamPosSigmaZ();
-        bsVertex->setCovariancePosition(cov);
     } else {
         bsVertex->setX(0.);
         bsVertex->setY(0.);
         bsVertex->setZ(0.);
-        AmgSymMatrix(3) cov;
         cov(0,0) = 50.;
         cov(1,1) = 50.;
         cov(2,2) = 300.;
     }
+    bsVertex->setCovariancePosition(cov);
 
     vtxbs = bsVertex.get(); // get the pointer from the unique object
     
     if (!vtxbs) {
         ATH_MSG_DEBUG("Expected dummy vertex for BS");
     }
-    
+        
     if (pv) {
         ATH_MSG_VERBOSE("Using argument provided PV");
         vtxpv = pv;

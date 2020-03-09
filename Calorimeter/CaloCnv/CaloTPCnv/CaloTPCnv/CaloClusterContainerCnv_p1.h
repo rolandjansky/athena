@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOATHENAPOOL_CALOCLUSTERCONTAINERCNV_P1_H
@@ -15,6 +15,7 @@
 #include "CaloEvent/CaloCellLinkContainer.h"
 #include "CaloTPCnv/CaloClusterContainer_p1.h"
 
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 #include "AthLinks/ElementLink.h"
 
@@ -23,19 +24,30 @@ class CaloCluster;
 
 
 
-class CaloClusterContainerCnv_p1 {
+class CaloClusterContainerCnv_p1
+  : public T_AthenaPoolTPCnvConstBase<CaloClusterContainer, CaloClusterContainer_p1>
+{
 public:
-  CaloClusterContainerCnv_p1() {};
-  ~CaloClusterContainerCnv_p1() {}; 
+  using base_class::transToPers;
+  using base_class::persToTrans;
 
 
-  void persToTrans(const CaloClusterContainer_p1*, CaloClusterContainer*, MsgStream &log) ;
-  void transToPers(const CaloClusterContainer*, CaloClusterContainer_p1*, MsgStream &log) ;
+  virtual
+  void persToTrans (const CaloClusterContainer_p1* pers,
+                           CaloClusterContainer* trans,
+                           MsgStream &log) const override;
+
+
+  virtual
+  void transToPers (const CaloClusterContainer* trans,
+                    CaloClusterContainer_p1* pers,
+                    MsgStream &log) const override;
+
 
 private:
   //Conversion function for individual clusters (called in a loop over the container)
-  void persToTrans(const CaloClusterContainer_p1::CaloCluster_p*, CaloCluster*, MsgStream &) ;
-  void transToPers(const CaloCluster*, CaloClusterContainer_p1::CaloCluster_p*, MsgStream &) ;
+  void persToTrans(const CaloClusterContainer_p1::CaloCluster_p*, CaloCluster*, MsgStream &) const;
+  void transToPers(const CaloCluster*, CaloClusterContainer_p1::CaloCluster_p*, MsgStream &) const;
 
 
   //Sub-Converters:

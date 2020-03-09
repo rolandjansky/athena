@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,24 +20,16 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
 #include <inttypes.h>
 
 #include <sstream>
 #include <algorithm>
 #include <fstream>
 
-using namespace std;
-
-
 // New Sort Segments in the MDT Endcap into Sides and MDT Stations
 void
 MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegment,
-                                       vector<const Muon::MuonSegment*> (&sortedSegments)[2][4]){
+                                       std::vector<const Muon::MuonSegment*> (&sortedSegments)[2][4]){
     
   // Loop over all segments in event
   xAOD::MuonSegmentContainer::const_iterator mdtseg_itr = newsegment->begin();
@@ -57,13 +49,17 @@ MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegm
     // Loop through contained ROTs and identify used stations
     for(unsigned int iROT=0; iROT<segm->numberOfContainedROTs(); ++iROT){
       const Trk::RIO_OnTrack* rio = segm->rioOnTrack(iROT);
+      if(!rio){
+	ATH_MSG_DEBUG("No RIO");
+	continue;
+      }
       Identifier id = rio->identify();
       
       // Identify MDT Endcap Segments
-      if(m_mdtIdHelper->is_mdt(id))isMdt=true;
-      if(m_mdtIdHelper->isEndcap(id))isEndcap=true;
+      if(m_muonIdHelperTool->mdtIdHelper().is_mdt(id))isMdt=true;
+      if(m_muonIdHelperTool->mdtIdHelper().isEndcap(id))isEndcap=true;
       
-      int stationName = int(m_mdtIdHelper->stationName(id));
+      int stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
       // Large (L) = odd, greater r, Small (S) = even, lower r
       // 13=EIL 49=EIS 14=EEL 15=EES 17=EML 18=EMS 20=EOL 21=EOS
       if((stationName==13)||(stationName==49))nMdtMeas[0]++;// MDT

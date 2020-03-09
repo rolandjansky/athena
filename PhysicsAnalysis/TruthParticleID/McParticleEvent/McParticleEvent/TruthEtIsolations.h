@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthEtIsolations.h 
@@ -197,7 +197,8 @@ class TruthEtIsolations
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 
   /////////////////////////////////////////////////////////////////// 
- protected: 
+ protected:
+  friend class TruthEtIsolationsCnv_p1;
 
   /// @c ElementLink to the @c HepMC::GenEvent from which the Et isolations
   /// have been (or will be) computed

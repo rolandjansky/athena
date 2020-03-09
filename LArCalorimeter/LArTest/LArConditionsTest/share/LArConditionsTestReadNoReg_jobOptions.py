@@ -21,7 +21,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource.set_Value_and_Lock('geant4')
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 include ("AtlasGeoModel/SetGeometryVersion.py")
-include ("AtlasGeoModel/GeoModelInit.py")
+from AtlasGeoModel import GeoModelInit
 include ("LArRawConditions/LArIdMap_ATLAS_jobOptions.py")
 
 # Other LAr related 
@@ -94,7 +94,7 @@ theApp.EvtMax = 1
 #--------------------------------------------------------------
 # Make sure AthenaSealSvc is loaded for dict check
 #--------------------------------------------------------------
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 # Check the dictionary in memory for completeness
 AthenaSealSvc = Service( "AthenaSealSvc" )
 AthenaSealSvc.CheckDictionary = TRUE

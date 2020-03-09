@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+from __future__ import print_function
 
 from cPickle import dumps, loads
 from functools import wraps
@@ -15,7 +15,7 @@ def invariant(test_data_name):
             if "DQU_UPDATE_TEST_DATA" in environ:
                 with open(test_data_name, "w") as fd:
                     fd.write(dumps(result))
-                print "Wrote updated test data"
+                print("Wrote updated test data")
             else:
                 test_data = loads(resource_string("testdata", testfile))
                 assert result == test_data, "Data considered 'invariant' has changed"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,34 +42,28 @@
 namespace Trk
 {
 
-  static const InterfaceID IID_IVertexTrackCompatibilityEstimator("IVertexTrackCompatibilityEstimator", 1, 0);
-
-
   class VxTrackAtVertex;
 
   class IVertexTrackCompatibilityEstimator : virtual public IAlgTool 
   {
 
     public:
+       DeclareInterfaceID (IVertexTrackCompatibilityEstimator, 1, 0);
+
      /** 
       * Virtual destructor 
       */
-       virtual ~IVertexTrackCompatibilityEstimator(){};
-
-     /** 
-      * AlgTool interface methods 
-      */
-       static const InterfaceID& interfaceID() { return IID_IVertexTrackCompatibilityEstimator; };
+       virtual ~IVertexTrackCompatibilityEstimator() = default;
 
      /**
       * An estimate method, updating the Trk::VxTrackAtVertex internally
       */
-       virtual void estimate(VxTrackAtVertex &,const Amg::Vector3D & vertex)=0;
+       virtual void estimate(VxTrackAtVertex &,const Amg::Vector3D & vertex) const =0;
        
      /**
       * An estimate method, returning the compatibility value directly
       */    
-       virtual float compatibility(VxTrackAtVertex &,const Amg::Vector3D & vertex)=0;
+       virtual float compatibility(VxTrackAtVertex &,const Amg::Vector3D & vertex) const =0;
 
   };
 }

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaAlg.cxx 
@@ -19,7 +19,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaAlg.h"
-#include "AthenaPython/PyAthenaGILStateEnsure.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -48,7 +48,7 @@ Alg::~Alg()
 { 
   ATH_MSG_DEBUG("Calling destructor");
   if ( m_self ) {
-    PyGILStateEnsure ensure;
+    RootUtils::PyGILStateEnsure ensure;
     Py_DECREF( m_self );
     m_self = nullptr;
   }
@@ -93,7 +93,8 @@ StatusCode
 Alg::execute()
 {  
 //   ATH_MSG_DEBUG("Executing " << name() << "...");
-  PyObject* pycontext = PyCObject_FromVoidPtr ( const_cast<EventContext*>(&getContext()), nullptr);
+  PyObject* pycontext = PyCapsule_New ( const_cast<EventContext*>(&getContext()), nullptr, nullptr);
+
   StatusCode sc = PyAthena::callPyMethod( m_self, "sysExecute", pycontext );
   Py_DECREF (pycontext);
   return sc;
@@ -141,7 +142,7 @@ bool
 Alg::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {

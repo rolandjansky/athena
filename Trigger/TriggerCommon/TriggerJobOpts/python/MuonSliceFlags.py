@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Muon slice specific flags  """
 
-from AthenaCommon.JobProperties           import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties # noqa: F401
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 
@@ -12,6 +13,14 @@ __doc__="Muon slice specific flags  "
 
 
 _flags = [] 
+class doTrigMuonConfig(JobProperty):
+    """ configure for trigger if true, offline if false """ 
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doTrigMuonConfig)
+
 class doSiTrack(JobProperty):
     """ do or not to do SiTrack algo """ 
     statusOn=True

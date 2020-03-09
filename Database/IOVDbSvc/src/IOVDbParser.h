@@ -6,8 +6,8 @@
 //@brief helper class for IOVDbSvc implementing a simple XML-style parser to parse
 // the folder description string or the provided folder description in job options
 //@author Richard Hawkings, started 29/11/08
-#ifndef __IOVDBPARSER_H__
-#define __IOVDBPARSER_H__
+#ifndef IOVDbSvc_IOVDbParser_h
+#define IOVDbSvc_IOVDbParser_h
 
 #include <string>
 #include <map>

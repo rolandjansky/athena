@@ -1,6 +1,8 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 #include <vector>
 #include "TH1D.h"
-#include "TMath.h"
 
 using namespace std;
 
@@ -529,28 +531,28 @@ TrkD3PDsPlotsMaker(){
         int muonmu = -1, muonmu_moore = -1, muonmu_mboy = -1;
 
         for(unsigned int k=0 ; k<mu_moore_n; k++ ){
-          if (TMath::Sqrt((mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          if (std::sqrt((mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                    (mu_moore_eta->at(k) - mc_gen_eta->at(j)) * (mu_moore_eta->at(k) - mc_gen_eta->at(j))) < deltaR) {
           muonmu_moore = k;
-          deltaR = TMath::Sqrt((mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          deltaR = std::sqrt((mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                         (mu_moore_eta->at(k) - mc_gen_eta->at(j)) * (mu_moore_eta->at(k) - mc_gen_eta->at(j)));
           }
         }
         deltaR = 0.1;
         for(unsigned int k=0 ; k<mu_n; k++ ){
-          if (TMath::Sqrt((mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          if (std::sqrt((mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                    (mu_eta->at(k) - mc_gen_eta->at(j)) * (mu_eta->at(k) - mc_gen_eta->at(j))) < deltaR) {
           muonmu = k;
-          deltaR = TMath::Sqrt((mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          deltaR = std::sqrt((mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                         (mu_eta->at(k) - mc_gen_eta->at(j)) * (mu_eta->at(k) - mc_gen_eta->at(j)));
           }
         }
         deltaR = 0.1;
         for(unsigned int k=0 ; k<mu_mboy_n; k++ ){
-          if (TMath::Sqrt((mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          if (std::sqrt((mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                    (mu_mboy_eta->at(k) - mc_gen_eta->at(j)) * (mu_mboy_eta->at(k) - mc_gen_eta->at(j))) < deltaR) {
           muonmu_mboy = k;
-          deltaR = TMath::Sqrt((mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          deltaR = std::sqrt((mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                         (mu_mboy_eta->at(k) - mc_gen_eta->at(j)) * (mu_mboy_eta->at(k) - mc_gen_eta->at(j)));
           }
         }
@@ -599,28 +601,28 @@ TrkD3PDsPlotsMaker(){
         int muonmu = -1, muonmu_moore = -1, muonmu_mboy = -1;
 
         for(unsigned int k=0 ; k<mu_moore_n; k++ ){
-          if (TMath::Sqrt((mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          if (std::sqrt((mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                    (mu_moore_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_moore_eta->at(k) - ms_entry_truth_eta->at(j))) < deltaR) {
           muonmu_moore = k;
-          deltaR = TMath::Sqrt((mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          deltaR = std::sqrt((mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                         (mu_moore_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_moore_eta->at(k) - ms_entry_truth_eta->at(j)));
           }
         }
         deltaR = 0.1;
         for(unsigned int k=0 ; k<mu_n; k++ ){
-          if (TMath::Sqrt((mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          if (std::sqrt((mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                    (mu_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_eta->at(k) - ms_entry_truth_eta->at(j))) < deltaR) {
           muonmu = k;
-          deltaR = TMath::Sqrt((mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          deltaR = std::sqrt((mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                         (mu_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_eta->at(k) - ms_entry_truth_eta->at(j)));
           }
         }
         deltaR = 0.1;
         for(unsigned int k=0 ; k<mu_mboy_n; k++ ){
-          if (TMath::Sqrt((mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          if (std::sqrt((mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                    (mu_mboy_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_mboy_eta->at(k) - ms_entry_truth_eta->at(j))) < deltaR) {
           muonmu_mboy = k;
-          deltaR = TMath::Sqrt((mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          deltaR = std::sqrt((mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                         (mu_mboy_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_mboy_eta->at(k) - ms_entry_truth_eta->at(j)));
           }
         }

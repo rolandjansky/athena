@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # LArSCL1 creation from LArHits with LArSCL1Maker algorithm
 
@@ -21,7 +21,7 @@ class LArSCL1Getter ( Configured )  :
             theLArSCL1Getter=LArSCL1Getter()
         except:
             mlog.error("could not get handle to LArSCL1Getter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theLArSCL1Getter.usable():
@@ -36,7 +36,7 @@ class LArSCL1Getter ( Configured )  :
             from LArL1Sim.LArL1SimConf import LArSCL1Maker                
         except:
             mlog.error("could not import LArL1Sim.LArSCL1Maker")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theLArSCL1Maker=LArSCL1Maker()

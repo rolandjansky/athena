@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTTauMonTool.h
@@ -28,7 +28,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigTauEmulation/ILevel1EmulationTool.h"
 #include "TrigTauEmulation/IHltEmulationTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LumiBlockData/LuminosityCondData.h"
 
 // Forward declarations
 class StatusCode;
@@ -176,7 +177,8 @@ class HLTTauMonTool : public IHLTMonTool {
   ToolHandle<TrigTauEmul::IHltEmulationTool> m_hltemulationTool;
 
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
-  ToolHandle<ILuminosityTool>  m_luminosityToolOnline;
+  SG::ReadCondHandleKey<LuminosityCondData> m_luminosityCondDataKey
+  { this, "LuminosityCondDataKey", "LuminosityCondDataOnline", "" };
   float m_mu_offline;
   int m_mu_online;
 

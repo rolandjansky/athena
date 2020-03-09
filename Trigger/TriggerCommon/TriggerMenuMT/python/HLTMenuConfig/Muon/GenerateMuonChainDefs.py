@@ -10,7 +10,7 @@ logging.getLogger().info("Importing %s",__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as MuonChainConfiguration
-
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 
 def generateChainConfigs(chainDict):
@@ -19,23 +19,35 @@ def generateChainConfigs(chainDict):
     listOfChainDefs=[]
 
     for subChainDict in listOfChainDicts:
-        
+        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )        
         Muon = MuonChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Muon]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
+
         
 
     if len(listOfChainDefs)>1:
-        log.warning("Implement case for multi-electron chain!!") 
-        theChainDef = listOfChainDefs[0] #needs to be implemented properly
+         ## if 'noL1' in chainDict['chainName']:
+         ##    theChainDef = mergeSerial(listOfChainDefs)
+         ## else:
+            theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
 
-    log.debug("theChainDef.name: %s" , theChainDef.name)
-    log.debug("theChainDef.seed: %s" , theChainDef.seed)
-    log.debug("theChainDef.ChainSteps: %s" , theChainDef.steps)
-
     return theChainDef
+
+def mergeSerial(listOfChainDefs):
+
+    chaindef = listOfChainDefs[0]
+    listOfChainDefs.pop(0)
+    steps = chaindef.steps
+
+    for cdef in listOfChainDefs:
+        csteps = cdef.steps 
+        for step in csteps:
+            steps.append(step)
+
+    return chaindef
+
 
 

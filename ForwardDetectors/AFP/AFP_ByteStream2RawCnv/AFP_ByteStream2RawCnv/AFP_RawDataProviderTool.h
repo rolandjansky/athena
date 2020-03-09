@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DECODER_AFP_RAWDATAPROVIDERTOOL_H
@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 class AFP_RawData;
 class AFP_RawDataCollection;
 class AFP_RawDataContainer;
@@ -38,7 +37,7 @@ public:
   //  virtual StatusCode  execute();
   virtual StatusCode finalize();
 
-  StatusCode convert(std::vector<const ROBFragment *> &vecRobs,
+  StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *> &vecRobs,
                      AFP_RawDataContainer *rdoCont);
 
 private:

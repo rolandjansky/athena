@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_DIGITIZATION_H
@@ -8,26 +8,23 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-//class IPileUpTool; //Temporary for back-compatibility with 17.3.X.Y
-class AFP_PileUpTool; //Temporary for back-compatibility with 17.3.X.Y
+class IPileUpTool;
 
 class AFP_DigiTop: public AthAlgorithm
 {
- 
+
  public:
 
   AFP_DigiTop(const std::string& name,
               ISvcLocator* pSvcLocator);
- 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
-   
- private:
-  
-  //ToolHandle<IPileUpTool> m_digTool; //Temporary for back-compatibility with 17.3.X.Y
-  ToolHandle<AFP_PileUpTool> m_digTool; //Temporary for back-compatibility with 17.3.X.Y
+  virtual ~AFP_DigiTop() = default;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual bool isClonable() const override final { return true; }
 
+ private:
+
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "AFP_PileUpTool", ""};
 };
-  
+
 #endif

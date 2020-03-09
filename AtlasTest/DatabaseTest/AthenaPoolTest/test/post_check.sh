@@ -72,7 +72,8 @@ else
 		egrep -a -v 'ClassIDSvc' | 
 		egrep -a -v 'bmagatlas' | 
 		egrep -a -v 'GeoModel' | 
-		egrep -a -v 'LArNumberHelper'
+		egrep -a -v 'LArNumberHelper' |
+		egrep -a -v 'Service base class initialized successfully'
 
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 

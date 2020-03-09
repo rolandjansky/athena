@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,8 +21,6 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 #include "GaudiKernel/SystemOfUnits.h"
-// Framework
-#include "StoreGate/StoreGateSvc.h"
 
 //================ Constructor =================================================
 

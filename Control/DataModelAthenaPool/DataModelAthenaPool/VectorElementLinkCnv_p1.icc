@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file VectorElementLinkCnv_p1.icc
@@ -8,43 +8,62 @@
  **/
 
 
-template <typename LINK_VECT>
-void VectorElementLinkCnv_p1<LINK_VECT>::transToPers(const LinkVect_t* trans, PersLinkVect_t* pers, MsgStream& msg) 
-{
-   size_t link_n = trans->size();
-   pers->resize( link_n );
+#include "AthenaKernel/IThinningSvc.h"
+#include "AthenaKernel/getThinningCache.h"
 
-   typename LinkVect_t::const_iterator  ti = trans->begin();
-   typename PersLinkVect_t::iterator    pi = pers->begin();
+
+template <typename LINK_VECT>
+void VectorElementLinkCnv_p1<LINK_VECT>::transToPers(const LinkVect_t& trans,
+                                                     PersLinkVect_t& pers,
+                                                     const SG::ThinningCache* cache,
+                                                     MsgStream& msg)  const
+{
+   size_t link_n = trans.size();
+   pers.resize( link_n );
+
+   typename LinkVect_t::const_iterator  ti = trans.begin();
+   typename PersLinkVect_t::iterator    pi = pers.begin();
    while( link_n-- ) {
-      m_elLinkCnv.transToPers( *ti++, *pi++, msg );
+      m_elLinkCnv.transToPers( *ti++, *pi++, cache, msg );
    }
    return;
 }
 
 
-template <typename LINK_VECT >
-void VectorElementLinkCnv_p1< LINK_VECT >::persToTrans(const PersLinkVect_t* pers, LinkVect_t* trans, MsgStream& msg) 
+template <typename LINK_VECT>
+void VectorElementLinkCnv_p1<LINK_VECT>::transToPers(const LinkVect_t& trans,
+                                                     PersLinkVect_t& pers,
+                                                     MsgStream& msg)  const
 {
-   size_t link_n = pers->size();
-   trans->resize( link_n );
-   typename  PersLinkVect_t::const_iterator     pi = pers->begin();
-   typename  LinkVect_t::iterator               ti = trans->begin();
+  transToPers (trans, pers,
+               SG::getThinningCache(),
+               msg);
+}
+
+
+template <typename LINK_VECT >
+void
+VectorElementLinkCnv_p1< LINK_VECT >::persToTrans(const PersLinkVect_t& pers,
+                                                  LinkVect_t& trans,
+                                                  MsgStream& msg) const
+{
+   size_t link_n = pers.size();
+   trans.resize( link_n );
+   typename  PersLinkVect_t::const_iterator     pi = pers.begin();
+   typename  LinkVect_t::iterator               ti = trans.begin();
    while( link_n-- ) {
       m_elLinkCnv.persToTrans( *pi++, *ti++, msg );
    }
 }
 
 
-
-
 template <typename LINK_VECT>
 inline
 void
 VectorElementLinkCnv_p1<LINK_VECT>
-::transToPers(const LinkVect_t& trans, PersLinkVect_t& pers, MsgStream& msg) 
+::transToPers(const LinkVect_t* trans, PersLinkVect_t* pers, MsgStream& msg) const
 {
-   this->transToPers(&trans, &pers, msg);
+   this->transToPers(*trans, *pers, msg);
 }
 
 
@@ -52,7 +71,7 @@ template <typename LINK_VECT >
 inline
 void
 VectorElementLinkCnv_p1< LINK_VECT >
-::persToTrans(const PersLinkVect_t& pers, LinkVect_t& trans, MsgStream& msg) 
+::persToTrans(const PersLinkVect_t* pers, LinkVect_t* trans, MsgStream& msg) const
 {
-   this->persToTrans(&pers, &trans, msg);
+   this->persToTrans(*pers, *trans, msg);
 }

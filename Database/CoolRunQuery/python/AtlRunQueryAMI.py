@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryAMI.py
@@ -11,6 +11,7 @@
 # ----------------------------------------------------------------
 #
 
+from __future__ import print_function
 import re
 
 class ARQ_AMI:
@@ -36,10 +37,10 @@ class ARQ_AMI:
         if amiconf:
             if not path.exists(amiconf):
                 if verbose:
-                    print "WARNING: AMI config file", amiconf, "does not exist. Need to rely on valid voms proxy."
+                    print ("WARNING: AMI config file", amiconf, "does not exist. Need to rely on valid voms proxy.")
             elif stat(amiconf).st_mode & path.stat.S_IRUSR == 0:
                 if verbose:
-                    print "WARNING: AMI config file", amiconf, "exists but is not readable. Need to rely on valid voms proxy."
+                    print ("WARNING: AMI config file", amiconf, "exists but is not readable. Need to rely on valid voms proxy.")
             else:
                 useConfigFile = True
                 
@@ -48,33 +49,33 @@ class ARQ_AMI:
             ami=AMI()
             ami.readConfig(amiconf)
             if ami.checkAuth():
-                print "... connecting to CERN AMI replica with user+pw"
+                print ("... connecting to CERN AMI replica with user+pw")
                 return ami
             pyAMIEndPoint.setType("main")
             ami.certAuth()
             if ami.checkAuth():
-                print "... connecting to AMI main server with user+pw"
+                print ("... connecting to AMI main server with user+pw")
                 return ami
 
-            print "WARNING: Authentication in config file",amiconf,"not valid, check format, user, pw. Need to rely on valid voms proxy."
+            print ("WARNING: Authentication in config file",amiconf,"not valid, check format, user, pw. Need to rely on valid voms proxy.")
 
 
         pyAMIEndPoint.setType("replica")
         ami=AMI()
         if ami.checkAuth():
-            print "... connecting to CERN replica using voms-proxy"
+            print ("... connecting to CERN replica using voms-proxy")
             return ami
 
 
         pyAMIEndPoint.setType("main")
         ami.certAuth()
         if ami.checkAuth():
-            print "... connecting to main server using voms-proxy"
+            print ("... connecting to main server using voms-proxy")
             return ami
 
 
         if verbose:
-            print "WARNING voms-proxy authentication not valid. No access to AMI."
+            print ("WARNING voms-proxy authentication not valid. No access to AMI.")
         return None
 
 
@@ -91,7 +92,7 @@ class ARQ_AMI:
             conffilename = home + "/private/AMIConf.txt"
             cls._amiclient = cls.getAmiClient(conffilename)
             if cls._amiclient==None:
-                print "ERROR: voms-proxy authentication not valid and no AMI configuration file",conffilename,"supplied. No access to AMI!"
+                print ("ERROR: voms-proxy authentication not valid and no AMI configuration file",conffilename,"supplied. No access to AMI!")
                 cls._amiclient="No AMI"
         return cls._amiclient
 
@@ -104,7 +105,7 @@ class ARQ_AMI:
             amiclient.readConfig("./AMIConf.txt")
             return amiclient
         except ImportError:
-            print 'ERROR: could not load pyAMI'
+            print ('ERROR: could not load pyAMI')
             return None
 
 
@@ -113,9 +114,10 @@ class ARQ_AMI:
         try:
             result = cls.amiclient().execute(cmdList)
             return result.getDict()
-        except Exception as ex:
-            print "AMI exception '",type(ex),"' occured"
-            print ex
+        except Exception:
+            print ("AMI exception '",type(ex),"' occured")
+            import traceback
+            traceback.print_exc()
         return {}
 
 
@@ -125,13 +127,13 @@ class ARQ_AMI:
         except: return []
         if not run in cls.store:
             try:
-                print 'GetDataPeriodsForRun', '-runNumber=%i' % run
+                print ('GetDataPeriodsForRun', '-runNumber=%i' % run)
                 #result = cls.amiclient().execute(['GetDataPeriodsForRun', '-runNumber=%i' % run])
                 result = cls.amiexec(['GetDataPeriodsForRun', '-runNumber=%i' % run])
                 #cls.store[run] = sorted([ (int(e['periodLevel']),e['period'],e['project']) for e in result.getDict()['Element_Info'].values() ])
                 cls.store[run] = sorted([ (int(e['periodLevel']),e['period'],e['project']) for e in result['Element_Info'].values() ])
             except:
-                print "Exception"
+                print ("Exception")
                 cls.store[run] = []
         return [x[1] for x in cls.store[run]]
 
@@ -149,8 +151,9 @@ class ARQ_AMI:
             #rows = [ (e['period'], e['projectName']) for e in result.getDict()['Element_Info'].values() ]
             rows = [ (e['period'], e['projectName']) for e in result['Element_Info'].values() ]
             return sorted(rows)
-        except Exception , e:
-            print e
+        except Exception:
+            import traceback
+            traceback.printExc()
             return []
 
 
@@ -171,8 +174,9 @@ class ARQ_AMI:
                 else: pc = 10000*year + 100*(ord(period_letter.upper())-65) + period_number
                 cls.all_periods += [ ((year, period, pc), projectName+".period" + period) ]
             cls.all_periods.sort()
-        except Exception, e:
-            print e
+        except Exception:
+            import traceback
+            traceback.print_exc()
             pass
         return cls.all_periods
     
@@ -185,7 +189,7 @@ class ARQ_AMI:
                 cmd += [ '-projectName=data%02i%%' % (year-2000) ]
             #result = cls.amiclient().execute(cmd)
             result = cls.amiexec(cmd)
-            #print "amiCommand",' '.join(cmd)        
+            #print ("amiCommand",' '.join(cmd)        )
             #r = sorted([ int(e['runNumber']) for e in result.getDict()['Element_Info'].values() ])
             r = sorted([ int(e['runNumber']) for e in result['Element_Info'].values() ])
             return r
@@ -198,34 +202,34 @@ if __name__ == "__main__":
 
     choice = 1
     while choice != 0:
-        print "\n1 - periods for run"
-        print "2 - runs for period (and year)"
-        print "3 - periods (by year and/or level)"
-        print "4 - all periods (different format)"
-        print "5 - test AMI authentication"
-        print "\n0 - exit\n"
+        print ("\n1 - periods for run")
+        print ("2 - runs for period (and year)")
+        print ("3 - periods (by year and/or level)")
+        print ("4 - all periods (different format)")
+        print ("5 - test AMI authentication")
+        print ("\n0 - exit\n")
 
         choice = raw_input("  enter your choice: ")
         choice = int(choice) if choice.isdigit() else 0
         if choice==1:
             run = int(raw_input("  run number: "))
-            print ARQ_AMI.get_periods_for_run( [run] )
+            print (ARQ_AMI.get_periods_for_run( [run] ))
         elif choice==2:
             period = raw_input("  period           : ")
             year   = raw_input("  year <RET> = all : ")
             year   = int(year) if year.isdigit() else 0
-            print ', '.join([str(x) for x in ARQ_AMI.get_runs(period, year)])
+            print (', '.join([str(x) for x in ARQ_AMI.get_runs(period, year)]))
         elif choice==3:
             year   = raw_input("  year <RET> = all           : ")
             year   = int(year) if year.isdigit() else 0
             period = raw_input("  period [1|2|3] <RET> = all : ")
             period = int(period) if period.isdigit() else 0
-            print ARQ_AMI.get_periods(year, period)
+            print (ARQ_AMI.get_periods(year, period))
         elif choice==4:
-            print ARQ_AMI.get_all_periods()
+            print (ARQ_AMI.get_all_periods())
         elif choice==5:
             ami = ARQ_AMI.amiclient()
             if ami!="No AMI":
-                print "Successfully connected to AMI"
+                print ("Successfully connected to AMI")
             else:
-                print "Failed to connect to AMI"
+                print ("Failed to connect to AMI")

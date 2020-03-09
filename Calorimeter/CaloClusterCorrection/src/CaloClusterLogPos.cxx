@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloClusterLogPos.h"
@@ -8,7 +8,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/MsgStream.h"
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 
 using CLHEP::deg;
@@ -18,9 +17,7 @@ CaloClusterLogPos::CaloClusterLogPos(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
   :CaloClusterProcessor(type, name, parent),
-   m_offset(4.7),
-   m_calo_id(0),
-   m_calo_dd_man(0)
+   m_offset(4.7)
 {
   declareProperty ("LogPosOffset",m_offset) ;
 }
@@ -29,10 +26,6 @@ CaloClusterLogPos::CaloClusterLogPos(const std::string& type,
 StatusCode CaloClusterLogPos::initialize() {
 
   ATH_MSG_DEBUG("Initializing " << name() << endmsg ) ;
-
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();
 
   return StatusCode::SUCCESS;
 }

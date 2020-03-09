@@ -68,6 +68,12 @@ BOOST_AUTO_TEST_SUITE(IOVDbStringFunctionsTest)
     BOOST_TEST(IOVDbNamespace::iovFromLumiBlockString(lumiString) == iovLumi);
   }
   
+  BOOST_AUTO_TEST_CASE(sanitiseJsonString_test){
+    const std::string stringWithLineFeed{"this is\n an example \n"};
+    const std::string escapedString{"this is\\n an example \\n"};
+    BOOST_TEST(IOVDbNamespace::sanitiseJsonString(stringWithLineFeed) == escapedString);
+  }
+  
   BOOST_AUTO_TEST_CASE(parseClid){
     const std::string addrHeader="<addrHeader><address_header service_type=\"71\" clid=\"29079131\"/></addrHeader>";
     //note: there's no other sanity check here; a string will be parsed if it contains only clid="29079131"
@@ -101,7 +107,7 @@ BOOST_AUTO_TEST_SUITE(IOVDbStringFunctionsTest)
   
   BOOST_AUTO_TEST_CASE(sanitiseFilename){
     const std::string filePath="/this/is/full/Filename.txt";
-    const std::string sanitisedPath="_this_is_full_Filename.txt";
+    const std::string sanitisedPath="^this^is^full^Filename.txt";
     BOOST_TEST(IOVDbNamespace::sanitiseFilename(filePath) == sanitisedPath);
   }
   

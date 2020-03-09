@@ -62,21 +62,6 @@ if DetFlags.detdescr.TRT_on():
     print      TRT_RegionSelectorTable
 else :
     TRT_RegionSelectorTable = None
-
-if DetFlags.detdescr.FTK_on():
-    from InDetRegionSelector.InDetRegionSelectorConf import FTK_RegionSelectorTable
-    FTK_RegionSelectorTable = FTK_RegionSelectorTable(name        = "FTK_RegionSelectorTable",
-                                                      ManagerName = "FTK",
-                                                      OutputFile  = "RoITableFTK.txt",
-                                                      PrintHashId = True,
-                                                      PrintTable  = False)
-    ToolSvc += FTK_RegionSelectorTable
-    print      FTK_RegionSelectorTable
-else :
-    print "FTK_RegionSelectorTable not being set up"
-    FTK_RegionSelectorTable = None
-
-
 #
 # --- now load algorithm
 #

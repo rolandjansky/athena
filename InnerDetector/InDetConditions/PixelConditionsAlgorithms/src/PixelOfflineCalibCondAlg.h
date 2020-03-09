@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
+/**
+ * @file PixelConditionsAlgorithms/PixelOfflineCalibCondAlg.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date November, 2019
+ * @brief Store pixel offline calibration data in PixelOfflineCalibData.
+ */
 
 #ifndef PIXELOFFLINECALIBCONDALG
 #define PIXELOFFLINECALIBCONDALG
@@ -8,11 +14,10 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "DetDescrConditions/DetCondCFloat.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
-#include "DetDescrConditions/DetCondCFloat.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -24,19 +29,30 @@ class PixelOfflineCalibCondAlg : public AthReentrantAlgorithm {
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
-    virtual StatusCode finalize() override;
 
   private:
-    int m_inputSource;
-    std::string m_textFileName1;
-    std::string m_textFileName2;
-    std::string m_textFileName3;
-    int m_dump;
+    Gaudi::Property<int> m_inputSource
+    {this, "InputSource",2,"Source of data: 0 (none), 1 (text file), 2 (database)"};
 
-    SG::ReadCondHandleKey<DetCondCFloat> m_readKey{this, "ReadKey", "/PIXEL/PixReco", "Input key of pixreco conditions folder"};
-    SG::WriteCondHandleKey<PixelCalib::PixelOfflineCalibData> m_writeKey{this, "WriteKey", "PixelOfflineCalibData", "Output key of pixel module data"};
+    Gaudi::Property<std::string> m_textFileName1
+    {this, "PixelClusterErrorDataFile", "PixelClusterErrorData.txt","Read constants from this file"};
 
-    ServiceHandle<ICondSvc> m_condSvc;
+    Gaudi::Property<std::string> m_textFileName2
+    {this, "PixelClusterOnTrackErrorDataFile", "PixelClusterOnTrackErrorData.txt","Read constants from this file"};
+
+    Gaudi::Property<std::string> m_textFileName3
+    {this, "PixelChargeInterpolationDataFile", "PixelChargeInterpolationData.txt","Read constants from this file"};
+
+    Gaudi::Property<int> m_dump
+    {this, "DumpConstants", 0, "Dump constants to text file"};
+
+    SG::ReadCondHandleKey<DetCondCFloat> m_readKey
+    {this, "ReadKey", "/PIXEL/PixReco", "Input key of pixreco conditions folder"};
+
+    SG::WriteCondHandleKey<PixelCalib::PixelOfflineCalibData> m_writeKey
+    {this, "WriteKey", "PixelOfflineCalibData", "Output key of pixel module data"};
+
+    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif

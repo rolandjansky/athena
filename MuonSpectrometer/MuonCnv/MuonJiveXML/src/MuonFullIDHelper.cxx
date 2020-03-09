@@ -21,16 +21,16 @@ namespace JiveXML{
      * @param id the identifier
      * @param mdtHelper the identifier helper
      **/
-    std::string getFullID(Identifier id, const MdtIdHelper* mdtHelper) {
+    std::string getFullID(Identifier id, const MdtIdHelper& mdtHelper) {
       
       std::string idString = "7/";
-      idString  +=  mdtHelper->stationNameString(mdtHelper->stationName(id))+"/";
-      idString  +=  DataType(mdtHelper->stationEta(id)).toString()+"/";
-      idString  +=  DataType(mdtHelper->stationPhi(id)).toString()+"/";
+      idString  +=  mdtHelper.stationNameString(mdtHelper.stationName(id))+"/";
+      idString  +=  DataType(mdtHelper.stationEta(id)).toString()+"/";
+      idString  +=  DataType(mdtHelper.stationPhi(id)).toString()+"/";
       idString  +=  "MDT/";
-      idString  +=  DataType(mdtHelper->multilayer(id)).toString()+"/";
-      idString  +=  DataType(mdtHelper->tubeLayer(id)).toString()+"/";
-      idString  +=  DataType(mdtHelper->tube(id)).toString();
+      idString  +=  DataType(mdtHelper.multilayer(id)).toString()+"/";
+      idString  +=  DataType(mdtHelper.tubeLayer(id)).toString()+"/";
+      idString  +=  DataType(mdtHelper.tube(id)).toString();
       return  idString;
     }
 
@@ -40,19 +40,19 @@ namespace JiveXML{
      * @param id the identifier
      * @param rpcHelper the identifier helper
      **/
-    std::string getFullID(Identifier id, const RpcIdHelper* rpcHelper) {
+    std::string getFullID(Identifier id, const RpcIdHelper& rpcHelper) {
       
       std::string idString = "7/";
-      idString +=  rpcHelper->stationNameString(rpcHelper->stationName(id))+"/";
-      idString +=  DataType(rpcHelper->stationEta(id)).toString()+"/";
-      idString +=  DataType(rpcHelper->stationPhi(id)).toString()+"/";
+      idString +=  rpcHelper.stationNameString(rpcHelper.stationName(id))+"/";
+      idString +=  DataType(rpcHelper.stationEta(id)).toString()+"/";
+      idString +=  DataType(rpcHelper.stationPhi(id)).toString()+"/";
       idString +=  "RPC/";
-      idString +=  DataType(rpcHelper->doubletR(id)).toString()+"/";
-      idString +=  DataType(rpcHelper->doubletZ(id)).toString()+"/";
-      idString +=  DataType(rpcHelper->doubletPhi(id)).toString()+"/";
-      idString +=  DataType(rpcHelper->gasGap(id)).toString()+"/";
-      idString +=  DataType(rpcHelper->measuresPhi(id)).toString()+"/";
-      idString +=  DataType(rpcHelper->strip(id)).toString();
+      idString +=  DataType(rpcHelper.doubletR(id)).toString()+"/";
+      idString +=  DataType(rpcHelper.doubletZ(id)).toString()+"/";
+      idString +=  DataType(rpcHelper.doubletPhi(id)).toString()+"/";
+      idString +=  DataType(rpcHelper.gasGap(id)).toString()+"/";
+      idString +=  DataType(rpcHelper.measuresPhi(id)).toString()+"/";
+      idString +=  DataType(rpcHelper.strip(id)).toString();
       return  idString;
     }
 
@@ -63,16 +63,16 @@ namespace JiveXML{
      * @param id the identifier
      * @param tgcHelper the identifier helper
      **/
-    std::string getFullID(Identifier id, const TgcIdHelper* tgcHelper) {
+    std::string getFullID(Identifier id, const TgcIdHelper& tgcHelper) {
       
       std::string idString =  "7/";
-      idString +=  tgcHelper->stationNameString(tgcHelper->stationName(id))+"/";
-      idString +=  DataType(tgcHelper->stationEta(id)).toString()+"/";
-      idString +=  DataType(tgcHelper->stationPhi(id)).toString()+"/";
+      idString +=  tgcHelper.stationNameString(tgcHelper.stationName(id))+"/";
+      idString +=  DataType(tgcHelper.stationEta(id)).toString()+"/";
+      idString +=  DataType(tgcHelper.stationPhi(id)).toString()+"/";
       idString +=  "TGC/";
-      idString +=  DataType(tgcHelper->gasGap(id)).toString()+"/";
-      idString +=  DataType(tgcHelper->isStrip(id)).toString()+"/";
-      idString +=  DataType(tgcHelper->channel(id)).toString();
+      idString +=  DataType(tgcHelper.gasGap(id)).toString()+"/";
+      idString +=  DataType(tgcHelper.isStrip(id)).toString()+"/";
+      idString +=  DataType(tgcHelper.channel(id)).toString();
       return  idString;
     }
 
@@ -82,17 +82,17 @@ namespace JiveXML{
      * @param id the identifier
      * @param cscHelper the identifier helper
      **/
-    std::string getFullID(Identifier id, const CscIdHelper* cscHelper) {
+    std::string getFullID(Identifier id, const CscIdHelper& cscHelper) {
 
       std::string idString =  "7/";
-      idString +=  cscHelper->stationNameString(cscHelper->stationName(id))+"/";
-      idString +=  DataType(cscHelper->stationEta(id)).toString()+"/";
-      idString +=  DataType(cscHelper->stationPhi(id)).toString()+"/";
+      idString +=  cscHelper.stationNameString(cscHelper.stationName(id))+"/";
+      idString +=  DataType(cscHelper.stationEta(id)).toString()+"/";
+      idString +=  DataType(cscHelper.stationPhi(id)).toString()+"/";
       idString +=  "CSC/";
-      idString +=  DataType(cscHelper->chamberLayer(id)).toString()+"/";
-      idString +=  DataType(cscHelper->wireLayer(id)).toString()+"/";
-      idString +=  DataType(cscHelper->measuresPhi(id)).toString()+"/";
-      idString +=  DataType(cscHelper->strip(id)).toString();
+      idString +=  DataType(cscHelper.chamberLayer(id)).toString()+"/";
+      idString +=  DataType(cscHelper.wireLayer(id)).toString()+"/";
+      idString +=  DataType(cscHelper.measuresPhi(id)).toString()+"/";
+      idString +=  DataType(cscHelper.strip(id)).toString();
       return  idString;
     }
   }

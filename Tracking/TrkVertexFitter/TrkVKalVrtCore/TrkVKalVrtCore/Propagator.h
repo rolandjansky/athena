@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /* General track propagation implementation                */
 /* If external propagator is provided as                   */
@@ -10,8 +10,8 @@
 /* 							   */
 /*  Thread-safe implementation				   */
 /*---------------------------------------------------------*/
-#ifndef _TrkVKalVrtCore_Propagator_H
-#define _TrkVKalVrtCore_Propagator_H
+#ifndef TRKVKALVRTCORE_PROPAGATOR_H
+#define TRKVKALVRTCORE_PROPAGATOR_H
 
 
 namespace Trk {
@@ -19,6 +19,7 @@ namespace Trk {
 #define vkalUseRKMPropagator  0
 
 class VKalVrtControl;
+class IVKalState;
 
   typedef void (*addrPropagator)(long int ,long int, double*, double*, double*, double*, double*, double* );
 
@@ -38,8 +39,10 @@ class VKalVrtControl;
 //     ParNew[5] - track perigee parameters with respect to RefEnd point
      virtual void Propagate(long int TrkID, long int Charge, 
                             double *ParOld, double *CovOld, double *RefStart, 
-                            double *RefEnd, double *ParNew, double *CovNew) const =0;
-     virtual bool checkTarget(double *RefEnd) const =0;
+                            double *RefEnd, double *ParNew, double *CovNew,
+                            const IVKalState& istate) const =0;
+     virtual bool checkTarget(double *RefEnd,
+                              const IVKalState& istate) const =0;
 //
    };
 

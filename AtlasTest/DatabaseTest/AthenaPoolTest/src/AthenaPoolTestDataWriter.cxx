@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -521,12 +521,6 @@ StatusCode AthenaPoolTestDataWriter::execute()
     //  register as sub event of the overlaid
     auto newEvt = std::make_unique<EventInfo>(*evt);
 
-    // get StoreGate service
-    // StoreGateSvc* storeGate;
-    // if (service("StoreGateSvc", storeGate).isFailure()) {
-    //     ATH_MSG_ERROR("StoreGate service not found !");
-    //     return StatusCode::FAILURE;
-    // } 
     // pOverEvent->addSubEvt(25, PileUpTimeEventIndex::MinimumBias, newEvt, storeGate);
     pOverEvent->addSubEvt(25, PileUpTimeEventIndex::MinimumBias, std::move(newEvt), 0);
     ATH_CHECK( evtStore()->record(pOverEvent, "OverlayEvent") );

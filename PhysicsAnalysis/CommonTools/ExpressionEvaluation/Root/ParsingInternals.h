@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/include/phoenix_function.hpp>
-#include <boost/foreach.hpp>
 
 #include <iostream>
 #include <string>

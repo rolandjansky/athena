@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCellPacker_400_500.h,v 1.3 2009-03-19 01:42:14 ssnyder Exp $
@@ -29,6 +29,9 @@
 class CaloCellContainer;
 class CaloCell;
 class CaloCellPacker_400_500_test;
+namespace SG {
+  class ThinningDecisionBase;
+}
 
 /**
  * @brief Calo cell packer/unpacker v400/500.
@@ -145,10 +148,12 @@ public:
    * @brief Pack cells.
    * @param cells The input cell container.
    * @param packed The output packed cell container.
+   * @param dec If non-null, specification of elements to be thinned.
    * @param version The version of the header to initialize.
    */
   void pack (const CaloCellContainer& cells,
              CaloCompactCellContainer& packed,
+             const SG::ThinningDecisionBase* dec,
              int version) const;
 
 

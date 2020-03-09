@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_IBUILDTRUTHTAUS_H
@@ -35,6 +35,12 @@ class IBuildTruthTaus :
   ASG_TOOL_INTERFACE( TauAnalysisTools::IBuildTruthTaus )
 
 public:
+  class ITruthTausEvent
+  {
+  public:
+    virtual ~ITruthTausEvent() = default;
+  };
+  
   // initialize the tool
   virtual StatusCode initialize() = 0;
 
@@ -45,6 +51,7 @@ public:
   virtual xAOD::TruthParticleAuxContainer* getTruthTauAuxContainer() = 0;
 
   virtual StatusCode retrieveTruthTaus() = 0;
+  virtual StatusCode retrieveTruthTaus(ITruthTausEvent& truthTausEvent) const = 0;
 
 }; // class IBuildTruthTaus
 

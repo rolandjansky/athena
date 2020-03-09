@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthExJobOptions/CustomToolUsingTool2.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -13,14 +13,14 @@ __all__ = [ 'CustomToolUsingTool2' ]
 class CustomToolUsingTool2( object ):
    def __new__( cls, name = 'CustomToolUsingTool2' ):
     # first, look for already fully customized instance
-      from AthExJobOptionsConf import ToolUsingTool
+      from .AthExJobOptionsConf import ToolUsingTool
       try:
          return ToolUsingTool.configurables[ name ]
       except KeyError:
          pass
 
     # else, request a new instance, and add customization
-      from AthExJobOptionsConf import ConcreteTool
+      from .AthExJobOptionsConf import ConcreteTool
       tool = ToolUsingTool( name )
       tool.Factor = 42.
 

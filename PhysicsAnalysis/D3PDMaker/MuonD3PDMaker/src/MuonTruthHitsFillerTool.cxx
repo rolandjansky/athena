@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonD3PDMaker/src/MuonTruthHitsFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>, from code by Niels van Eldik.
@@ -16,7 +14,6 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "AthenaKernel/errorcheck.h"
 #include "HepMC/GenParticle.h"
-#include "boost/foreach.hpp"
 
 
 namespace D3PD {
@@ -128,14 +125,14 @@ StatusCode MuonTruthHitsFillerTool::fillHitCounts (int barcode)
   typedef Muon::MuonStationIndex MSI;
 
   bool found = false;
-  BOOST_FOREACH (const std::string& key, m_PRD_TruthNames) {
+  for (const std::string& key : m_PRD_TruthNames) {
     const PRD_MultiTruthCollection* collection = 0;
     if (!evtStore()->retrieve(collection, key).isSuccess()) {
       ATH_MSG_WARNING(  "PRD_MultiTruthCollection " << key << " NOT found");
       continue;
     }
 
-    BOOST_FOREACH(const PRD_MultiTruthCollection::value_type& mc, *collection) {
+    for (const PRD_MultiTruthCollection::value_type& mc : *collection) {
       // check if gen particle same as input
       if( mc.second->barcode() != barcode ) continue;
       found = true;

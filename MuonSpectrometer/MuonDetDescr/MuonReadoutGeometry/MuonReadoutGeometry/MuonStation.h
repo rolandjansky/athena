@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonStation_H
@@ -12,8 +12,6 @@
 
 class BLinePar;
 class MdtAsBuiltPar;
-class MsgStream;
-
 
 namespace MuonGM {
     
@@ -53,11 +51,6 @@ public:
                double m_LongSsize, double m_LongRsize, double m_LongZsize, int zi, int fi, 
                bool m_descratzneg);
    ~MuonStation();
-
-  //Declaring the Message method for further use
-  //MsgStream& msg( MSG::Level lvl ) const ;
-  //Declaring the Method providing Verbosity Level
-  //bool msgLevel( MSG::Level lvl ) ;
 
    inline int getPhiIndex() const; //!< a la AMDB
     
@@ -132,8 +125,6 @@ private:
 
   //Declaring private message stream member.
    mutable bool m_firstRequestBlineFixedP;
-   MsgStream* m_MsgStream;
-   inline MsgStream& reLog() const;
 
    std::string m_statname;
    double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, m_LongRsize, m_LongZsize, m_xAmdbCRO;
@@ -226,16 +217,6 @@ MuonStation::getNominalAmdbLRSToGlobal() const
 HepGeom::Transform3D 
 MuonStation::getAmdbLRSToGlobal() const
   {return (*m_amdbl_to_global)*(*m_delta_amdb_frame);}
-
-/* void MuonStation::addMuonReadoutElement(const MuonReadoutElement* a, int jobIndex) */
-/* { */
-/* //     std::cout<<"MuonStation with indices: "<<getStationType() */
-/* // 	     <<" Jzz/Jff = "<<getEtaIndex()<<"/"<<getPhiIndex() */
-/* // 	     <<" adding RE with IobIndex = "<<jobIndex<<std::endl; */
-/*     (*m_REinStation)[jobIndex]=a; */
-/* } */
-
-MsgStream& MuonStation::reLog() const {return *m_MsgStream;} 
 
 int MuonStation::nMuonReadoutElements() const
   {return m_REwithAlTransfInStation->size();}

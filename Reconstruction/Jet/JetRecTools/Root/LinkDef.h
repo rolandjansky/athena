@@ -3,6 +3,7 @@
 */
 
 #include <JetRecTools/JetTrackSelectionTool.h>
+#include <JetRecTools/JetTrackSelectionTool2.h>
 #include <JetRecTools/TrackVertexAssociationTool.h>
 #include <JetRecTools/TrackPseudoJetGetter.h>
 
@@ -27,6 +28,7 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class JetTrackSelectionTool+;
+#pragma link C++ class JetTrackSelectionTool2+;
 #pragma link C++ class TrackVertexAssociationTool+;
 #pragma link C++ class TrackPseudoJetGetter+;
 

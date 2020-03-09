@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ISF_Geant4UserActions/FastCaloSimParamAction.h"
+#include "FastCaloSimParamAction.h"
 
 
 #include <stdexcept>
@@ -46,7 +46,6 @@ namespace G4UA{
     , m_detStore("StoreGateSvc/DetectorStore","FastCaloSimParamAction")
     , m_current_calculator(nullptr)
     , m_current_calculator_Tile(nullptr)
-    , m_current_solid(nullptr)
     , m_current_transform(nullptr)
     , m_lar_helper(nullptr)
     , m_lar_emID(nullptr)

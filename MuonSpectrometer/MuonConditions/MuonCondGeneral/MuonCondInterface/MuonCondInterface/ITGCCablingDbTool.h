@@ -27,6 +27,8 @@ class ITGCCablingDbTool: virtual public IAlgTool,
   
   virtual StatusCode loadASD2PP_DIFF_12(IOVSVC_CALLBACK_ARGS) = 0;
 
+  virtual StatusCode readASD2PP_DIFF_12FromText() = 0;
+
   virtual std::vector<std::string>* giveASD2PP_DIFF_12(void) = 0;
 
   virtual std::string getFolderName(void) const = 0;

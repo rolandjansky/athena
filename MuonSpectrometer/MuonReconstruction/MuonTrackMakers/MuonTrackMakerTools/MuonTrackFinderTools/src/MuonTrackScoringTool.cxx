@@ -82,18 +82,14 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  Trk::TrackScore MuonTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
+  Trk::TrackScore MuonTrackScoringTool::score( const Trk::Track& track, const bool /*suppressHoleSearch*/ ) const
   {
 
-    const Trk::TrackSummary* summary = 0;
-    if (suppressHoleSearch)
-      summary = m_trkSummaryTool->createSummaryNoHoleSearch(track);
-    else
-      summary = m_trkSummaryTool->createSummary(track);
+    const Trk::TrackSummary* summary = track.trackSummary();
+    if (!summary) { throw std::logic_error("Summary requested for a non mutable track without a track summary."); }
 
     //log <<MSG::DEBUG<<"Track has TrackSummary "<<*summary<<endmsg;
     Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *summary) );
-    delete summary;
     return score;
   }
 

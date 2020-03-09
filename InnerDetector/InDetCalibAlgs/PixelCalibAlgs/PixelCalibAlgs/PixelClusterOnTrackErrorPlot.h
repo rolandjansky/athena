@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelClusterOnTrackErrorPlot_h
@@ -24,9 +24,9 @@ public :
 			bool oneconst = false);
 	virtual ~PixelClusterOnTrackErrorPlot();
 	void AddReference(PixelClusterOnTrackErrorData &parameters,
-			std::string title = "Reference", int color = 0,
-			std::string drawopt = "HIST"); 
-	void Plot(const std::string output);
+                          const std::string& title = "Reference", int color = 0,
+                          const std::string& drawopt = "HIST"); 
+	void Plot(const std::string& output);
 	void Write();
 	
 private:
@@ -50,16 +50,16 @@ private:
 	bool m_oneconst;
 
 	// utility methods!
-	void PlotDirection(std::string filename, std::string direction = "phi");
+	void PlotDirection(const std::string& filename, const std::string& direction = "phi");
 
-	void DrawOneHisto(TH1F *histo, std::string direction = "phi",float maximum = 0);
-	void DrawHistoMarkers(TH1F* histo, int divider, std::string options  = "Psame",  int goodj = 0);
+	void DrawOneHisto(TH1F *histo, const std::string& direction = "phi",float maximum = 0);
+	void DrawHistoMarkers(TH1F* histo, int divider, const std::string& options  = "Psame",  int goodj = 0);
 	void DrawLayerLegend(float xlegend, float ylegend);
-	void DrawAxis(float y1, float y2, float x1, float x2, std::string direction = "phi");
+	void DrawAxis(float y1, float y2, float x1, float x2, const std::string& direction = "phi");
 
 	std::vector < TH1F*> *HistogramsFromConstants(
 			PixelClusterOnTrackErrorData &parameters,
-			std::string direction = "phi", int color = 1, std::string title = "");
+			const std::string& direction = "phi", int color = 1, const std::string& title = "");
 };
 
 }

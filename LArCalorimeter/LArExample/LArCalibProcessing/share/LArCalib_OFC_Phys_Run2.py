@@ -37,7 +37,7 @@ if not 'DefaultPhase' in dir():
    DefaultPhase = 4
 
 if not 'TimeOffsetCorrection' in dir():   
-   TimeOffsetCorrection = 0
+   TimeOffsetCorrection = 12
 
 
 def DBConnectionFile(sqlitefile):
@@ -106,12 +106,12 @@ if not 'IOVBegin' in dir():
    from LArCalibProcessing.extractFolderInfo import *
    folderinfo=extractFolderInfo(dbname=InputDBConnectionPhysWave,checkFolders=[LArCalib_Flags.LArPhysWaveFolder,],
                                 selection="3:7,9:13,15:19,21:25,27:31,33:37") #Exclude FCAL channels that have infinete IOV
-   print folderinfo
+   printfunc (folderinfo)
    if len(folderinfo)==1:
       IOVBegin=folderinfo[0][4]
-      print "IOVStart taken from input PhysWave:", IOVBegin
+      printfunc ("IOVStart taken from input PhysWave:", IOVBegin)
    else:
-      print "Failed to extract IOV start of input PhysWave"
+      printfunc ("Failed to extract IOV start of input PhysWave")
       pass
    pass
 
@@ -167,7 +167,7 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOn()  #Switched off to avoid geometry
@@ -207,8 +207,11 @@ InputDBConnectionPhysWave="<db>%s</db>" % InputDBConnectionPhysWave
 conddb.addFolder("",LArCalib_Flags.LArPhysWaveFolder+InputDBConnectionPhysWave+ ChannelSelection) 
 
 #input AutoCorr
+atag=""
+if "AutoCorrFolderTag" in dir():
+   atag+="<tag>%s</tag>" %AutoCorrFolderTag
 InputDBConnectionAutoCorr="<db>%s</db>" % InputDBConnectionAutoCorr
-conddb.addFolder("",LArCalib_Flags.LArAutoCorrFolder+InputDBConnectionAutoCorr+ ChannelSelection) 
+conddb.addFolder("",LArCalib_Flags.LArAutoCorrFolder+InputDBConnectionAutoCorr+atag+ChannelSelection) 
 
 #input PhysicsAutoCorr:
 #rs=FolderTagResover(InputDBConnectionAutoCorrPhys)
@@ -249,6 +252,7 @@ from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
 from LArCalibUtils.LArCalibUtilsConf import LArOFPhasePicker
 
 for ofcdef in OFCDefs:
+   if ofcdef == 0: continue
    LArPhysOFCAlg=LArOFCAlg(ofcdef.Algoname)
    LArPhysOFCAlg.RunThreaded=RunThreaded
    LArPhysOFCAlg.ReadCaliWave = False
@@ -283,6 +287,15 @@ for ofcdef in OFCDefs:
          LArPhysOFCAlg.DecoderToolV2 = theLArPhysAutoCorrDecoderTool
       else:
          LArPhysOFCAlg.DecoderToolV2 = theLArAutoCorrDecoderTool
+
+   if ofcdef.Nsamples==4:
+         LArPhysOFCAlg.ReadDSPConfig   = ofcdef.ReadDSPConfig
+         LArPhysOFCAlg.DSPConfigFolder = ofcdef.DSPConfigFolder
+         conddb.addFolder("LAR_ONL","/LAR/Configuration/DSPConfiguration")
+         #conddb.addFolder("","<db>sqlite://;schema=/afs/cern.ch/atlas/maxidisk/d20/Automation/AtlasProduction-20.1.0.2/run/dspconfig_std.db;dbname=CONDBR2</db>/LAR/Configuration/DSPConfiguration")
+         #conddb.addFolder("","<db>sqlite://;schema=/afs/cern.ch/atlas/maxidisk/d20/Automation/AtlasProduction-20.1.0.2/run/dspconfig_run1.db;dbname=CONDBR2</db>/LAR/Configuration/DSPConfiguration")
+
+   LArPhysOFCAlg.OutputLevel=WARNING
 
    topSequence+=LArPhysOFCAlg
 
@@ -327,6 +340,7 @@ from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 #Output Folders:
 suffix="-RUN2-UPD3-00" #Hardcode for now
 for ofcdef in OFCDefs:
+   if ofcdef == 0: continue
    PoolFile=OutputPoolFileDir+"/"+OutputPoolFileName+ofcdef.Algoname+".pool.root"
    if os.path.exists(PoolFile): os.remove(PoolFile)
       
@@ -398,7 +412,7 @@ theApp.EvtMax = 1
 ###########################################################################
 
 #svcMgr.MessageSvc.OutputLevel  = WARNING
-#svcMgr.MessageSvc.defaultLimit = 10000
+svcMgr.MessageSvc.defaultLimit = 100000000
 #svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
 #svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = VERBOSE)

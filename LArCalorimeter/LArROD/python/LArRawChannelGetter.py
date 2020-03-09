@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies LArRawChannels getting
+
+from __future__ import print_function
 
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
@@ -24,8 +26,9 @@ class LArRawChannelGetter ( Configured )  :
                 from LArDigitization.LArDigitGetter import LArDigitGetter
                 theLArDigitGetter = LArDigitGetter()
             except Exception as configException:
-                print configException
                 mlog.error("could not get handle to LArDigitGetter Quit")
+                import traceback
+                mlog.error(traceback.format_exc())
                 return False
             if not theLArDigitGetter.usable():
                 mlog.error("LArDigitGetter unusable. Quite")
@@ -50,15 +53,8 @@ class LArRawChannelGetter ( Configured )  :
 
                 from AthenaCommon.GlobalFlags import globalflags
                 if globalflags.InputFormat() == 'bytestream':
-                    if not "LArDigitContainer/FREE" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                        svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
                     if not larRODFlags.keepDSPRaw():
-                        if "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                            svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("LArRawChannelContainer/LArRawChannels")
-                    else:
-                        if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                            svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
-
+                        topSequence.LArRawDataReaderAlg.LArRawChannelKey=""
 
                 if globalflags.DetGeo() == 'ctbh6' or globalflags.DetGeo() == 'ctbh8':        
                     from LArROD.LArRODConf import LArRawChannelBuilder
@@ -88,9 +84,6 @@ class LArRawChannelGetter ( Configured )  :
                        "lowNoiseMG","highNoiseMG","unstableNoiseMG",
                        "lowNoiseLG","highNoiseLG","unstableNoiseLG"
                       ]
-                    #ToolSvc+=theLArRCBMasker
-                    from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                    ToolSvc+=LArBadChanTool()
                     theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
                     theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel]
                     ToolSvc+=theLArRawChannelBuilderToolBadChannel
@@ -201,11 +194,11 @@ class LArRawChannelGetter ( Configured )  :
             # read from the bytestream ...
             # This name has to be coherent with the name in LArMonTools/LArRODMonTool_jobOptions.py
             if larRODFlags.doDSP() and larRODFlags.readRawChannels():  #Reading LArRawChannel
-                print "Reading RawChannels in DSP physics mode"
+                print ("Reading RawChannels in DSP physics mode")
                 # !!! The name of the LArRawChannels container read from the Bytestream is LArRawChannels_fB !!!
                 if not "LArRawChannelContainer/LArRawChannels_fB" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
                     svcMgr.ByteStreamAddressProviderSvc.TypeNames+=["LArRawChannelContainer/LArRawChannels_fB"]
-                print svcMgr.ByteStreamAddressProviderSvc.TypeNames
+                print (svcMgr.ByteStreamAddressProviderSvc.TypeNames)
       
         else:
 
@@ -214,8 +207,9 @@ class LArRawChannelGetter ( Configured )  :
                 from AthenaCommon import CfgGetter
                 topSequence += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
             except Exception as cfgException:
-                print cfgException
                 mlog.error("Failed to retrieve LArRawChannelBuilder. Quit")
+                import traceback
+                mlog.error(traceback.format_exc())
                 return False
 
         return True

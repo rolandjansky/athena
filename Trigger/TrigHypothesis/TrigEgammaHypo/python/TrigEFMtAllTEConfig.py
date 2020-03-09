@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigEgammaHypo.TrigEgammaHypoConf import *
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFMtAllTE
 from AthenaCommon.SystemOfUnits import GeV
-from TrigEgammaHypo.TrigEFMtAllTEMonitoring import *
 
 class TrigEFMtAllTE_Generic(TrigEFMtAllTE):
     def __init__(self, name='TrigEFMtAllTE_Generic', minMtCut = 20*GeV, maxNbElectrons = 10, minElectronEt = 10*GeV):

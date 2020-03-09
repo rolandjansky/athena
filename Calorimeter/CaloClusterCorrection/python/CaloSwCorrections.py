@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: CaloSwCorrections.py,v 1.40 2009-04-30 20:29:53 ssnyder Exp $
@@ -1114,7 +1114,7 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
         kw.update (kw_in)
 
         for kk in ['weighting', 'remdup', 'rembad']:
-            if kw.has_key (kk):
+            if kk in kw:
                 setattr (self, kk, kw[kk])
                 del kw[kk]
         

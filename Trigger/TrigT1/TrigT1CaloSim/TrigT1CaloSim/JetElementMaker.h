@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -21,8 +21,6 @@
 #include "AthContainers/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 //LVL1 Calo trigger includes
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
 
@@ -34,8 +32,6 @@
 //********************************************
 
 namespace LVL1 {
-
-//class StoreGateSvc;
 
 //                 JetElementMaker class declaration
 /*

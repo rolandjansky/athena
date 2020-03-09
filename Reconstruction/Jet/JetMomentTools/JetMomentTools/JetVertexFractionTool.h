@@ -63,7 +63,7 @@ public:  // methods
   // Inherited methods to modify a jet
   // Computes JVF for all jets from track sum information
   // Also adds JVF corrected to be insensitive to NPV
-  int modify(xAOD::JetContainer& jetCont) const;
+  StatusCode modify(xAOD::JetContainer& jetCont) const;
 
   // Local method to calculate and return the JVF vector
   const std::vector<float> getJetVertexFraction(const xAOD::VertexContainer*,

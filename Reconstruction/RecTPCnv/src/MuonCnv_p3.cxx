@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonCnv_p3.cxx 
@@ -23,11 +23,7 @@
 #include "ParticleEventTPCnv/ParticleBaseCnv_p1.h"
 
 // muonEvent includes
-#define private public
-#define protected public
 #include "muonEvent/Muon.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "RecTPCnv/MuonCnv_p3.h"
@@ -38,20 +34,17 @@ typedef ElementLinkCnv_p1<ElementLink<MuonCaloEnergyContainer> > caloEnergyLinkC
 typedef ElementLinkVectorCnv_p1<ElementLinkVector<Trk::SegmentCollection> > segmentLinkCnv_t;
 
 // pre-allocate converters
-static P4ImplIPtCotThPhiMCnv_p1   momCnv;
-static ParticleBaseCnv_p1     partBaseCnv;
-static TrackLinkCnv_t         trackCnv;
-static ClusterLinkCnv_t       clusterCnv;
-static segmentLinkCnv_t       segmentCnv;
-static caloEnergyLinkCnv_t    caloEnergyCnv;
+static const P4ImplIPtCotThPhiMCnv_p1   momCnv;
+static const ParticleBaseCnv_p1     partBaseCnv;
+static const TrackLinkCnv_t         trackCnv;
+static const ClusterLinkCnv_t       clusterCnv;
+static const segmentLinkCnv_t       segmentCnv;
+static const caloEnergyLinkCnv_t    caloEnergyCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Non-Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void MuonCnv_p3::persToTrans( const Muon_p3* pers,
 			      Analysis::Muon* trans, 
-			      MsgStream& msg ) 
+			      MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading Muon from persistent state..."
 //       << endmsg;
@@ -61,37 +54,55 @@ void MuonCnv_p3::persToTrans( const Muon_p3* pers,
   partBaseCnv.persToTrans( &pers->m_particleBase, &trans->particleBase(), msg );
 
   // element links
+  ElementLink<Rec::TrackParticleContainer> inDetTrackLink;
   trackCnv.persToTrans( &pers->m_inDetTrackParticle,
-                        &trans->m_inDetTrackParticle,
+                        &inDetTrackLink,
                         msg );
+  trans->setInDetTrackLink (inDetTrackLink);
 
+  ElementLink<Rec::TrackParticleContainer> muonSpectrometerTrackLink;
   trackCnv.persToTrans( &pers->m_muonSpectrometerTrackParticle,
-                        &trans->m_muonSpectrometerTrackParticle,
-                        msg );
+			&muonSpectrometerTrackLink,
+			msg );
+  trans->setMuonSpectrometerTrackLink (muonSpectrometerTrackLink);
 
+  ElementLink<Rec::TrackParticleContainer> muonExtrapTrackLink;
   trackCnv.persToTrans( &pers->m_muonExtrapolatedTrackParticle,
-			&trans->m_muonExtrapolatedTrackParticle,
+			&muonExtrapTrackLink,
 			msg );
+  trans->setMuonExtrapTrackLink (muonExtrapTrackLink,
+                                 pers->m_hasMuonExtrapolatedTrackParticle);
 
+  ElementLink<Rec::TrackParticleContainer> innerExtrapTrackLink;
   trackCnv.persToTrans( &pers->m_innerExtrapolatedTrackParticle,
-			&trans->m_innerExtrapolatedTrackParticle,
+			&innerExtrapTrackLink,
 			msg );
+  trans->setInnerExtrapTrackLink (innerExtrapTrackLink);
 
+  ElementLink<Rec::TrackParticleContainer> combinedTrackLink;
   trackCnv.persToTrans( &pers->m_combinedMuonTrackParticle,
-			&trans->m_combinedMuonTrackParticle,
+			&combinedTrackLink,
 			msg );
+  trans->setCombinedTrackLink (combinedTrackLink,
+                               pers->m_hasCombinedMuonTrackParticle);
 
+  ElementLink<CaloClusterContainer> clusterLink;
   clusterCnv.persToTrans( &pers->m_cluster,
-			  &trans->m_cluster,
+			  &clusterLink,
 			  msg );
+  trans->setClusterLink (clusterLink);
 
+  ElementLinkVector<Trk::SegmentCollection> muonSegmentLink;
   segmentCnv.persToTrans( &pers->m_muonSegments,
-                          &trans->m_muonSegments,
+                          &muonSegmentLink,
                           msg );
+  trans->setMuonSegmentLink (muonSegmentLink);
 
+  ElementLink<MuonCaloEnergyContainer> caloEnergyLink;
   caloEnergyCnv.persToTrans( &pers->m_caloEnergyLoss,
-                             &trans->m_caloEnergyLoss,
+                             &caloEnergyLink,
                              msg );
+  trans->setCaloEnergyLink (caloEnergyLink);
 
   // muon parameters
     const std::vector<float>& params = pers->m_parameters;
@@ -117,40 +128,30 @@ void MuonCnv_p3::persToTrans( const Muon_p3* pers,
     trans->set_parameter(MuonParameters::beta,               params[24] );
 
     // author
-    trans->m_author = static_cast<MuonParameters::Author>(pers->m_author);
-    trans->m_allAuthors = 0;
-    trans->add_author ( trans->m_author );
-
-    // needed ?
-    trans->m_hasCombinedMuon = pers->m_hasCombinedMuon;
-    trans->m_hasInDetTrackParticle = pers->m_hasInDetTrackParticle;
-    trans->m_hasMuonExtrapolatedTrackParticle = pers->m_hasMuonExtrapolatedTrackParticle;
-    trans->m_hasCombinedMuonTrackParticle = pers->m_hasCombinedMuonTrackParticle;
-  
-
-    // not used
-    trans->m_hasCluster = pers->m_hasCluster;
+    trans->set_author (static_cast<MuonParameters::Author>(pers->m_author));
+    trans->set_allAuthors (0);
+    trans->add_author ( trans->author() );
 
     // chi2 of the track matching
-    trans->m_matchChi2 = pers->m_matchChi2;
+    trans->set_matchChi2 (pers->m_matchChi2);
 
     // Low Pt muon stuff
-    trans->m_associatedEtaDigits = pers->m_associatedEtaDigits;
-    trans->m_associatedPhiDigits = pers->m_associatedPhiDigits;
+    trans->set_numberOfAssociatedEtaDigits (pers->m_associatedEtaDigits);
+    trans->set_numberOfAssociatedPhiDigits (pers->m_associatedPhiDigits);
 
-    trans->m_bestMatch = pers->m_bestMatch;
-    trans->m_matchNumberDoF = pers->m_matchNumberDoF;
+    trans->set_bestMatch (pers->m_bestMatch);
+    trans->set_matchNumberDoF (pers->m_matchNumberDoF);
 
     // this muon is also found by the lowPT reconstruction algorithm
-    trans->m_isAlsoFoundByLowPt = pers->m_isAlsoFoundByLowPt;
+    trans->set_isAlsoFoundByLowPt (pers->m_isAlsoFoundByLowPt);
 
     // this muon is also found by the Calo Muon ID reconstruction algorithm
-    trans->m_isAlsoFoundByCaloMuonId = pers->m_isAlsoFoundByCaloMuonId;
+    trans->set_isAlsoFoundByCaloMuonId (pers->m_isAlsoFoundByCaloMuonId);
 
     /** this calo muon is also reconstructed by one of the standard muon reco algorithms */
-    trans->m_caloMuonAlsoFoundByMuonReco = pers->m_caloMuonAlsoFoundByMuonReco;
+    trans->set_caloMuonAlsoFoundByMuonReco (pers->m_caloMuonAlsoFoundByMuonReco);
 
-    trans->m_isCorrected = pers->m_isCorrected;
+    trans->set_isCorrected (pers->m_isCorrected);
 
 //   msg << MSG::DEBUG << "Loaded Muon from persistent state [OK]"
 //       << endmsg;
@@ -160,7 +161,7 @@ void MuonCnv_p3::persToTrans( const Muon_p3* pers,
 
 void MuonCnv_p3::transToPers( const Analysis::Muon* trans, 
 			      Muon_p3* pers, 
-			      MsgStream& msg ) 
+			      MsgStream& msg ) const
 {
 
   msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p3 at " << pers << " Cannot write to Muon_p3" << endmsg;

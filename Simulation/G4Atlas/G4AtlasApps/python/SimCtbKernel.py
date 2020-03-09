@@ -226,10 +226,10 @@ class CtbSim(TBSimSkeleton):
             TBDetDescrLoader.OutputLevel = 5
         #
         ## Explicitly create DetectorGeometrySvc - temporary fix
-        from AthenaCommon.CfgGetter import getService, getPublicTool
+        from AthenaCommon.CfgGetter import getService
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr += getService('DetectorGeometrySvc')
-        ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
+        ServiceMgr += getService('PhysicsListSvc')
         AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
                                        'done')
 
@@ -374,10 +374,10 @@ class Tile2000_2003(TBSimSkeleton):
             TBDetDescrLoader.OutputLevel = 5
 
         ## Explicitly create DetectorGeometrySvc - temporary fix
-        from AthenaCommon.CfgGetter import getService, getPublicTool
+        from AthenaCommon.CfgGetter import getService
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr += getService('DetectorGeometrySvc')
-        ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
+        ServiceMgr += getService('PhysicsListSvc')
         AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
                                        'done')
 
@@ -504,10 +504,10 @@ class LArH6_TB(TBSimSkeleton):
             include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
 
         ## Explicitly create DetectorGeometrySvc - temporary fix
-        from AthenaCommon.CfgGetter import getService, getPublicTool
+        from AthenaCommon.CfgGetter import getService
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr += getService('DetectorGeometrySvc')
-        ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
+        ServiceMgr += getService('PhysicsListSvc')
         AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
                                        'done')
 

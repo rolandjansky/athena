@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkNeuralNetworkUtils/NeuralNetworkToHistoTool.h"
@@ -47,7 +47,14 @@ std::vector<TH1*> NeuralNetworkToHistoTool
 }
 
 TTrainedNetwork* NeuralNetworkToHistoTool
-::fromHistoToTrainedNetwork(std::vector<TH1*> & inputHistos) const
+::fromHistoToTrainedNetwork(const std::vector<TH1*> & inputHistos) const
+{
+  NetworkToHistoTool tool; 
+  return tool.fromHistoToTrainedNetwork(inputHistos); 
+}
+
+TTrainedNetwork* NeuralNetworkToHistoTool
+::fromHistoToTrainedNetwork(const std::vector<const TH1*> & inputHistos) const
 {
   NetworkToHistoTool tool; 
   return tool.fromHistoToTrainedNetwork(inputHistos); 
@@ -62,7 +69,7 @@ std::map<std::string,TH1*> NeuralNetworkToHistoTool
 }
 
 TTrainedNetwork* NeuralNetworkToHistoTool
-::networkFromHists(std::map<std::string,TH1*>& hists) 
+::networkFromHists(const std::map<std::string,const TH1*>& hists) 
   const 
 {
   NetworkToHistoTool tool; 

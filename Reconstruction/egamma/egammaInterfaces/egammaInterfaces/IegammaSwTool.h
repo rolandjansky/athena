@@ -42,8 +42,8 @@ class IegammaSwTool : virtual public IAlgTool
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   /** @brief execute method*/
-  virtual StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster) = 0;
-  virtual StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) = 0;
+  virtual StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster) const = 0;
+  virtual StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) const  = 0;
 };
 
 inline const InterfaceID& IegammaSwTool::interfaceID()

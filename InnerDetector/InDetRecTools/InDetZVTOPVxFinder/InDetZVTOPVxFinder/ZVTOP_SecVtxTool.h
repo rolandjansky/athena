@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,12 +75,12 @@ namespace InDet
        /** standard Athena-Algorithm method */
       virtual StatusCode finalize  ();
  
-     virtual const Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,const TLorentzVector & jetMomentum,const std::vector<const Trk::TrackParticleBase*> & inputTracks) const;
+     virtual Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,const TLorentzVector & jetMomentum,const std::vector<const Trk::TrackParticleBase*> & inputTracks) const;
 
      //Added purely to satisfy new inheritance in ISecVertexInJetFinder, not yet implemented --David S.
-     virtual const Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & primaryVertex, const TLorentzVector & jetMomentum,const std::vector<const xAOD::IParticle*> & inputTracks) const;
+     virtual Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & primaryVertex, const TLorentzVector & jetMomentum,const std::vector<const xAOD::IParticle*> & inputTracks) const;
 
-     virtual const Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,const TLorentzVector & jetMomentum,const std::vector<const Trk::Track*> & inputTracks) const;
+     virtual Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,const TLorentzVector & jetMomentum,const std::vector<const Trk::Track*> & inputTracks) const;
 
     private:
       

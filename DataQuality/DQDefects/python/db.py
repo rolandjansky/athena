@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Authors: Peter Waller <peter.waller@cern.ch> and "Peter Onyisi" <peter.onyisi@cern.ch>
@@ -10,7 +10,7 @@ This file defines DefectsDB and some of its public interface.
 To separate out the code into digestable units, this class is split into mixins
 which can be found defined in other files in this directory.
 
-The bulk of the core functionailty is found in this file.
+The bulk of the core functionality is found in this file.
 """
 
 
@@ -18,7 +18,7 @@ from logging import getLogger; log = getLogger("DQDefects.db")
 
 from contextlib import contextmanager
 
-from DQUtils import fetch_iovs, write_iovs, IOVSet
+from DQUtils import fetch_iovs, IOVSet
 from DQUtils.channel_mapping import list_to_channelselection
 
 from DQDefects import DEFAULT_CONNECTION_STRING
@@ -29,6 +29,12 @@ from .ids import DefectsDBIDsNamesMixin, choose_new_defect_id
 from .tags import DefectsDBTagsMixin
 from .virtual_mixin import DefectsDBVirtualDefectsMixin
 from .virtual_calculator import calculate_virtual_defects
+
+import six
+if six.PY2:
+    def _encode (s, enc): return s.encode(enc)
+else:
+    def _encode (s, enc): return s
 
 
 class DefectsDB(DefectsDBVirtualDefectsMixin, 
@@ -81,17 +87,18 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         self._create = create
         import collections
         tagtype = collections.namedtuple('tagtype', ['defects', 'logic'])
-        if isinstance(tag, basestring):
+        if isinstance(tag, six.string_types):
             self._tag = tagtype(tag, tag) if tag else tagtype("HEAD", "HEAD")
         else:
             try:
                 tag = tagtype._make(tag)
-            except:
+            except Exception:
                 raise TypeError('tag argument must be a 2-element sequence')
             if len(tag) != 2:
                 raise TypeError('tag argument must be a 2-element sequence')
-            self._tag = tag 
-        self._tag = tagtype(self._tag[0].encode('ascii'), self._tag[1].encode('ascii'))
+            self._tag = tag
+        self._tag = tagtype(_encode(self._tag[0],'ascii'),
+                            _encode(self._tag[1],'ascii'))
 
         # COOL has no way of emptying a storage buffer. Creating a new storage
         # buffer flushes the old one. Therefore, if an exception happens 
@@ -150,8 +157,9 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         if already_exists:
             raise DefectExistsError('Defect %s already exists' % oldname)
         
-        self.defects_folder.createChannel(did, name.encode('ascii'),
-                                          description.encode('utf-8'))
+        self.defects_folder.createChannel(did,
+                                          _encode(name,'ascii'),
+                                          _encode(description,'utf-8'))
         self._new_defect(did, name)
     
     def retrieve(self, since=None, until=None, channels=None, nonpresent=False,
@@ -224,7 +232,6 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
                 logic.set_evaluation(evaluate_full)
         
         # Figure out if the set of channels will produce too many ranges for COOL
-        filter_channels = None
         if query_channels is not None:
             query_channels = sorted(query_channels)
             query_ranges = list_to_channelselection(query_channels, None, True)
@@ -283,7 +290,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
             self.defects_folder.setupStorageBuffer()
             try:
                 yield
-            except:
+            except Exception:
                 log.warning("Exception raised during DefectsDB.storage_buffer. "
                             "Not flushing storage buffer - but COOL has no way "
                             "to empty it. ")
@@ -335,8 +342,8 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         
         p["present"] = present
         p["recoverable"] = recoverable
-        p["user"] = added_by.encode('utf-8')
-        p["comment"] = comment.encode('utf-8')
+        p["user"] = _encode(added_by, 'utf-8')
+        p["comment"] = _encode(comment, 'utf-8')
 
         defect_id = self.defect_chan_as_id(defect_id, True)
         

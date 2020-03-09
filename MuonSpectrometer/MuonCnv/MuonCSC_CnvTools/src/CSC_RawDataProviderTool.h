@@ -9,28 +9,16 @@
 #ifndef MUONCSC_CNVTOOLS_CSC_RAWDATAPROVIDERTOOL_H
 #define MUONCSC_CNVTOOLS_CSC_RAWDATAPROVIDERTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "CSC_RawDataProviderToolCore.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "MuonCSC_CnvTools/ICSC_ROD_Decoder.h"
-#include "MuonRDO/CscRawDataContainer.h"
-#include "MuonRDO/CscRawDataCollection_Cache.h"
-#include "CSCcabling/CSCcablingSvc.h"
-#include "CSC_Hid2RESrcID.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/ReadHandleKey.h"
-
-class IROBDataProviderSvc;
-
-namespace MuonGM
-{
-    class MuonDetectorManager;
-}
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon
 {
 
-class CSC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public AthAlgTool
+class CSC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public CSC_RawDataProviderToolCore
 {
 public:
     CSC_RawDataProviderTool(const std::string& t, const std::string& n, const IInterface* p);
@@ -40,8 +28,6 @@ public:
 
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize() override;
 
     virtual StatusCode convert(const ROBFragmentList& vecRobs,
                                const std::vector<IdentifierHash>& /*collections*/) override;
@@ -65,25 +51,9 @@ public:
     StatusCode convert(const EventContext& ctx) const;
 
 private:
+    
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  /** member variables for algorithm properties: */
-  ToolHandle<ICSC_ROD_Decoder>        m_decoder;
-
-  const MuonGM::MuonDetectorManager*  m_muonMgr;
-
-  SG::WriteHandleKey<CscRawDataContainer> m_containerKey{
-     this, "RdoLocation", "CSCRDO", "Name of the CSCRDO produced by RawDataProvider"};
-  SG::ReadHandleKey<xAOD::EventInfo>  m_eventInfoKey
-  { this, "EventInfoKey", "EventInfo", "" };
-  CSC_Hid2RESrcID                     m_hid2re;
-
-  ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
-  ServiceHandle<CSCcablingSvc>        m_cabling;
-
-  bool				      m_createContainerEachEvent;
-
-  /// CSC container cache key
-  SG::UpdateHandleKey<CscRawDataCollection_Cache> m_rdoContainerCacheKey ;
 };
 } // end of namespace
 

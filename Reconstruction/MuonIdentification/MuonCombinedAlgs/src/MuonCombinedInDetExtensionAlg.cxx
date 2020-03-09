@@ -12,22 +12,24 @@ MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& 
 {  
   declareProperty("MuonCombinedInDetExtensionTools",m_muonCombinedInDetExtensionTools);
   declareProperty("usePRDs",m_usePRDs=false);
-  declareProperty("useNSW", m_useNSW=false);
+  declareProperty("HasCSC", m_hasCSC=true);
+  declareProperty("HasSTgc", m_hasSTGC=true);
+  declareProperty("HasMM", m_hasMM=true);
 }
 
 MuonCombinedInDetExtensionAlg::~MuonCombinedInDetExtensionAlg(){}
 
 StatusCode MuonCombinedInDetExtensionAlg::initialize()
 {
-  ATH_MSG_VERBOSE(" usePRDs = "<< m_usePRDs << " and m_useNSW = "<<m_useNSW);
+  ATH_MSG_VERBOSE(" usePRDs = "<< m_usePRDs);
   ATH_CHECK(m_muonCombinedInDetExtensionTools.retrieve());
   ATH_CHECK(m_indetCandidateCollectionName.initialize());
   ATH_CHECK(m_MDT_ContainerName.initialize(m_usePRDs));
   ATH_CHECK(m_RPC_ContainerName.initialize(m_usePRDs));
   ATH_CHECK(m_TGC_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_CSC_ContainerName.initialize(m_usePRDs && !m_useNSW));
-  ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs && m_useNSW));
-  ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs && m_useNSW));
+  ATH_CHECK(m_CSC_ContainerName.initialize(m_usePRDs && m_hasCSC));
+  ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs && m_hasSTGC));
+  ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs && m_hasMM));
   ATH_CHECK(m_tagMap.initialize());
   ATH_CHECK(m_combTracks.initialize(m_combTracks.key()!=""));
   ATH_CHECK(m_METracks.initialize(m_METracks.key()!=""));
@@ -77,11 +79,11 @@ StatusCode MuonCombinedInDetExtensionAlg::execute()
     MuonCombined::IMuonCombinedInDetExtensionTool::MuonPrdData prdData;
     SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPRDContainer(m_MDT_ContainerName);
     prdData.mdtPrds=mdtPRDContainer.cptr();
-    if(!m_useNSW){
+    if(m_hasCSC){
       SG::ReadHandle<Muon::CscPrepDataContainer> cscPRDContainer(m_CSC_ContainerName);
       prdData.cscPrds=cscPRDContainer.cptr();
     }
-    else{
+    if(m_hasSTGC&&m_hasMM) {
       SG::ReadHandle<Muon::sTgcPrepDataContainer> stgcPRDContainer(m_sTGC_ContainerName);
       SG::ReadHandle<Muon::MMPrepDataContainer> mmPRDContainer(m_MM_ContainerName);
       prdData.stgcPrds=stgcPRDContainer.cptr();

@@ -1,20 +1,19 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.MuonSelectorToolConfig import MuonSelectorToolCfg
 from JetTagTools.MuonCorrectionsToolConfig import MuonCorrectionsToolCfg
 
 # import the JetVertexCharger configurable
 from JetTagTools.JetTagToolsConf import Analysis__JetVertexCharge
 
-def JetVertexChargeCfg( name = 'JetVertexCharge', useBTagFlagsDefaults = True, **options ):
+def JetVertexChargeCfg(flags, name = 'JetVertexCharge', useBTagFlagsDefaults = True, **options ):
 
     """Sets up a JetVertexCharge tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     taggerNameBase                      default: "JetVertexCharge"
     useForcedCalibration                default: False 
     kFactor                             default: 1.1
@@ -39,13 +38,9 @@ def JetVertexChargeCfg( name = 'JetVertexCharge', useBTagFlagsDefaults = True, *
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accMuonSelector = MuonSelectorToolCfg('MuonSelectorTool')
-        muonSelectorTool = accMuonSelector.popPrivateTools()
-        acc.merge(accMuonSelector)
-        accMuonCorrections = MuonCorrectionsToolCfg('MuonCorrectionsTool')
-        muonCorrectionsTool = accMuonCorrections.popPrivateTools()
-        acc.merge(accMuonCorrections)
-        defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+        muonSelectorTool = acc.popToolsAndMerge(MuonSelectorToolCfg('MuonSelectorTool'))
+        muonCorrectionsTool = acc.popToolsAndMerge(MuonCorrectionsToolCfg('MuonCorrectionsTool'))
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'taggerNameBase'                   : 'JetVertexCharge',
                      'useForcedCalibration'             : False,
                      'kFactor'                          : 1.1,

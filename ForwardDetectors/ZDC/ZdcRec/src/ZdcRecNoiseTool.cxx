@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -21,8 +21,6 @@
 #include <vector>
 #include <map>
 
-//#include <boost/foreach.hpp>
-
 //#include "Identifier/HWIdentifier.h"
 
 #include "GaudiKernel/IInterface.h"
@@ -33,10 +31,6 @@
 #include "ZdcEvent/ZdcDigitsCollection.h"
 #include "ZdcRec/ZdcRecNoiseTool.h"
 
-
-
-#define foreach         BOOST_FOREACH
-#define reverse_foreach BOOST_REVERSE_FOREACH
 
 
 //==================================================================================================

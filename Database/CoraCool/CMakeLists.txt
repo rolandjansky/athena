@@ -6,12 +6,10 @@
 atlas_subdir( CoraCool )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost COMPONENTS  unit_test_framework filesystem thread system)
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-# tag NEEDS_CORAL_RELATIONAL_ACCESS was not recognized in automatic conversion in cmt2cmake
 
 # Component(s) in the package:
 atlas_add_library( CoraCool
@@ -25,4 +23,44 @@ atlas_add_library( CoraCool
                    PUBLIC_HEADERS CoraCool
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} )
+                   
+atlas_add_test  ( CoraCoolDatabaseSvcFactory_test
+                  SOURCES
+                  test/CoraCoolDatabaseSvcFactory_test.cxx 
+                  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
+                  LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
+                  POST_EXEC_SCRIPT ""
+                  )
+                  
+atlas_add_test  ( CoraCoolDatabaseSvc_test
+                  SOURCES
+                  test/CoraCoolDatabaseSvc_test.cxx 
+                  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
+                  LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
+                  POST_EXEC_SCRIPT ""
+                  )                
 
+atlas_add_test  ( CoraCoolDatabase_test
+                  SOURCES
+                  test/CoraCoolDatabase_test.cxx 
+                  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
+                  LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
+                  POST_EXEC_SCRIPT ""
+                  )     
+                  
+atlas_add_test  ( CoraCoolFolder_test
+                  SOURCES
+                  test/CoraCoolFolder_test.cxx 
+                  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
+                  LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
+                  POST_EXEC_SCRIPT ""
+                  )   
+                  
+atlas_add_test  ( CoraCoolObjectIter_test
+                  SOURCES
+                  test/CoraCoolObjectIter_test.cxx 
+                  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}  ${CORAL_INCLUDE_DIRS}
+                  LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool
+                  POST_EXEC_SCRIPT ""
+                  )     
+                      

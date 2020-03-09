@@ -19,10 +19,8 @@ def regSelCfg( flags ):
         acc.merge( LArGMCfg(  flags ) )
 
         from LArRegionSelector.LArRegionSelectorConf import LArRegionSelectorTable
-        larTable =  LArRegionSelectorTable(name="LArRegionSelectorTable")
-        acc.addPublicTool( larTable )
-        regSel.LArRegionSelectorTable      = larTable
-        
+        regSel.LArRegionSelectorTable = LArRegionSelectorTable(name="LArRegionSelectorTable")
+
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         acc.merge( addFolders(flags, ['/LAR/Identifier/FebRodMap'], 'LAR' ))
 
@@ -34,80 +32,74 @@ def regSelCfg( flags ):
         acc.getService('GeoModelSvc').DetectorTools['TileDetectorTool'].GeometryConfig = 'RECO'
 
         from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
-        tileTable =  TileRegionSelectorTable(name="TileRegionSelectorTable")
-        acc.addPublicTool( tileTable )
+        regSel.TileRegionSelectorTable = TileRegionSelectorTable(name="TileRegionSelectorTable")
 
     if flags.Detector.GeometryPixel:
         regSel.enableID = True
         regSel.enablePixel = True        
         from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-        pixTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
-                                         ManagerName = "Pixel",
-                                         OutputFile  = "RoITablePixel.txt",
-                                         PrintHashId = True,
-                                         PrintTable  = False)
-        acc.addPublicTool(pixTable)
+        regSel.PixelRegionLUT_CreatorTool = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
+                                                                  ManagerName = "Pixel",
+                                                                  OutputFile  = "RoITablePixel.txt",
+                                                                  PrintHashId = True,
+                                                                  PrintTable  = False)
 
     if flags.Detector.GeometrySCT:
         regSel.enableID = True
         regSel.enableSCT = True
-
         from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-        sctTable = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
-                                         ManagerName = "SCT",
-                                         OutputFile  = "RoITableSCT.txt",
-                                         PrintHashId = True,
-                                         PrintTable  = False)
-        acc.addPublicTool(sctTable)
+        regSel.SCT_RegionLUT_CreatorTool = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
+                                                                 ManagerName = "SCT",
+                                                                 OutputFile  = "RoITableSCT.txt",
+                                                                 PrintHashId = True,
+                                                                 PrintTable  = False)
 
     if flags.Detector.GeometryTRT:
         regSel.enableID = True
         regSel.enableTRT = True
-
         from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
-        trtTable = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
-                                           ManagerName = "TRT",
-                                           OutputFile  = "RoITableTRT.txt",
-                                           PrintHashId = True,
-                                           PrintTable  = False)
-        acc.addPublicTool(trtTable)
+        regSel.TRT_RegionLUT_CreatorTool = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
+                                                                   ManagerName = "TRT",
+                                                                   OutputFile  = "RoITableTRT.txt",
+                                                                   PrintHashId = True,
+                                                                   PrintTable  = False)
 
-
-    if flags.Detector.GeometryRPC:
+    # by default, all 'enableX' flags of RegSelSvc are set to True, so turn them off if not needed
+    if not flags.Detector.GeometryRPC:
+        regSel.enableRPC  = False
+    else:
         regSel.enableMuon = True
-        regSel.enableRPC  = True
         from MuonRegionSelector.MuonRegionSelectorConf import RPC_RegionSelectorTable
-        rpcTable = RPC_RegionSelectorTable(name = "RPC_RegionSelectorTable")
-        acc.addPublicTool( rpcTable )
+        regSel.RPCRegionSelectorTable = RPC_RegionSelectorTable(name = "RPC_RegionSelectorTable")
 
-    if flags.Detector.GeometryMDT:
+    if not flags.Detector.GeometryMDT:
+        regSel.enableMDT  = False
+    else:
         regSel.enableMuon = True
-        regSel.enableMDT  = True
         from MuonRegionSelector.MuonRegionSelectorConf import MDT_RegionSelectorTable
-        mdtTable = MDT_RegionSelectorTable(name = "MDT_RegionSelectorTable")
-        acc.addPublicTool( mdtTable )
+        regSel.MDTRegionSelectorTable = MDT_RegionSelectorTable(name = "MDT_RegionSelectorTable")
 
-    if flags.Detector.GeometryTGC:
+    if not flags.Detector.GeometryTGC:
+        regSel.enableTGC  = False
+    else:
         regSel.enableMuon = True
-        regSel.enableTGC  = True
         from MuonRegionSelector.MuonRegionSelectorConf import TGC_RegionSelectorTable
-        tgcTable = TGC_RegionSelectorTable(name = "TGC_RegionSelectorTable")
-        acc.addPublicTool( tgcTable )
+        regSel.TGCRegionSelectorTable = TGC_RegionSelectorTable(name = "TGC_RegionSelectorTable")
 
-    if flags.Detector.GeometryCSC:
+    if not flags.Detector.GeometryCSC:
+        regSel.enableCSC  = False
+    else:
         regSel.enableMuon = True
-        regSel.enableCSC  = True
         from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
-        cscTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
-        acc.addPublicTool( cscTable )
+        regSel.CSCRegionSelectorTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
 
+    if not flags.Detector.GeometryMM:
+        regSel.enableMM = False
 
-    if flags.Detector.GeometryMM:
-        regSel.enableMM  = True   
+    if not flags.Detector.GeometrysTGC:
+        regSel.enablesTGC = False
 
     acc.addService( regSel )
-
-
 
     return acc
 
@@ -116,21 +108,19 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Constants import DEBUG
 
-    ConfigFlags.Detector.GeometryPixel = True     
-    ConfigFlags.Detector.GeometrySCT   = True 
-    ConfigFlags.Detector.GeometryTRT   = True 
-    ConfigFlags.Detector.GeometryLAr   = True     
-    ConfigFlags.Detector.GeometryTile  = True     
-    ConfigFlags.Detector.GeometryMDT   = True 
+    ConfigFlags.Detector.GeometryPixel = True
+    ConfigFlags.Detector.GeometrySCT   = True
+    ConfigFlags.Detector.GeometryTRT   = True
+    ConfigFlags.Detector.GeometryLAr   = True
+    ConfigFlags.Detector.GeometryTile  = True
+    ConfigFlags.Detector.GeometryMDT   = True
     ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True     
-    
+    ConfigFlags.Detector.GeometryRPC   = True
+
     ConfigFlags.Input.Files = defaultTestFiles.RAW    
     ConfigFlags.Input.isMC = False
     ConfigFlags.dump()
@@ -167,8 +157,8 @@ if __name__ == "__main__":
 
     cfg.getService("IOVDbSvc").OutputLevel=DEBUG
     
-    cfg.store( file( "test.pkl", "w" ) )
-    print "used flags"
+    cfg.store( open( "test.pkl", "wb" ) )
+    print("used flags")
     ConfigFlags.dump()
     cfg.run(0)
-    print "All OK"
+    print("All OK")

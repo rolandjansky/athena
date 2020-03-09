@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCALOTAGTOOL_H
@@ -32,6 +32,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 // - STL
+#include <atomic>
 #include <vector>
 
 
@@ -75,9 +76,9 @@ namespace MuonCombined {
     SG::ReadHandleKey<CaloCellContainer> m_caloCellCont{this,"CaloCells","AllCalo","calo cell container"};
     
     // --- Internal cache ---
-    mutable int m_nTrueMuons;          //!< Counts the number true muons
-    mutable int m_nTracksTagged;       //!< Counts the number of tracks tagged
-    mutable int m_nMuonsTagged;        //!< Counts the number of truth muons tagged
+    mutable std::atomic_int m_nTrueMuons;          //!< Counts the number true muons
+    mutable std::atomic_int m_nTracksTagged;       //!< Counts the number of tracks tagged
+    mutable std::atomic_int m_nMuonsTagged;        //!< Counts the number of truth muons tagged
     
     // --- Set up what to do and what not to do ---
     bool m_doCaloMuonTag;               //!< run CaloMuonTag Tool

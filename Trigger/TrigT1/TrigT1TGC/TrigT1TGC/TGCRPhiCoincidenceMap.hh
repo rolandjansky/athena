@@ -12,6 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonCondSvc/TGCTriggerData.h"
+#include "TrigT1TGC/TGCArguments.hh"
 
 namespace LVL1TGCTrigger {
 
@@ -28,7 +29,8 @@ public:
   bool  isFullCW() const;
   void  setFullCW( bool val);
 
-  TGCRPhiCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+  TGCRPhiCoincidenceMap(TGCArguments*,
+			const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
                         const std::string& version,
 			int   sideId=0, int octantId=0);
 
@@ -39,6 +41,8 @@ public:
   TGCRPhiCoincidenceMap& operator=(const TGCRPhiCoincidenceMap& right);
 
   bool readMap();  
+
+  TGCArguments* tgcArgs() const;
 
 private: // hide default constructor
   TGCRPhiCoincidenceMap() = delete;
@@ -64,10 +68,16 @@ private:
   int m_side;
   int m_octant;
   bool m_fullCW;
+  
+  TGCArguments* m_tgcArgs;
 
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 
+inline 
+TGCArguments* TGCRPhiCoincidenceMap::tgcArgs() const {
+  return m_tgcArgs;
+}
 
 inline  
  const std::string& TGCRPhiCoincidenceMap::getVersion() const

@@ -6,6 +6,7 @@
 #define G4ATLASALG_G4ATLASWORKERRUNMANAGER_H
 
 // Hide multi-threading classes from builds without G4MT
+#include "G4Types.hh"
 #ifdef G4MULTITHREADED
 
 #include "GaudiKernel/ToolHandle.h"
@@ -37,6 +38,29 @@ public:
 
   /// G4 function called at end of run
   void RunTermination() override final;
+
+  /// @name Methods to pass configuration in from G4AtlasUserWorkerThreadInitialization
+  /// @{
+  /// Configure the user action service handle
+  void SetUserActionSvc(const std::string& typeAndName) {
+    m_userActionSvc.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the detector geometry service handle
+  void SetDetGeoSvc(const std::string& typeAndName) {
+    m_detGeoSvc.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Sensitive Detector Master Tool handle
+  void SetSDMasterTool(const std::string& typeAndName) {
+    m_senDetTool.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Fast Simulation Master Tool handle
+  void SetFastSimMasterTool(const std::string& typeAndName) {
+    m_fastSimTool.setTypeAndName(typeAndName);
+  }
+  /// @}
 
 protected:
 

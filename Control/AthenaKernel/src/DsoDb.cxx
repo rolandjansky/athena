@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // DsoDb.cxx 
@@ -34,7 +34,7 @@
 #include <boost/regex.hpp>
 
 // ROOT includes
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 
 // fwk includes
 #include "GaudiKernel/System.h"
@@ -612,16 +612,16 @@ DsoDb::get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic) const
     if (pedantic) {
       libs = idb->second;
     } else {
-      std::set<std::string> baselibs;
+      std::unordered_set<std::string> baselibs;
       for (Libs_t::const_iterator 
              ilib = idb->second.begin(), 
              ilend= idb->second.end();
            ilib != ilend;
-           ++ilib) {
+           ++ilib)
+      {
         fs::path p(*ilib);
-        const std::string baselib = to_string(p.filename());
-        if (baselibs.find(baselib) == baselibs.end()) {
-          baselibs.insert(baselib);
+        if (! baselibs.emplace (to_string(p.filename())) . second) {
+          // String wasn't in the set.
           libs.push_back(*ilib);
         }
       }

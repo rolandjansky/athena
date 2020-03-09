@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           Tracking/TrkTools/TrkToolInterfaces
+                          Tracking/TrkEvent/TrkEventUtils
                           PRIVATE
                           Tracking/TrkEvent/TrkTrack )
 
@@ -17,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrackPRD_Association
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkToolInterfaces TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkToolInterfaces TrkTrack TrkEventUtils )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackPRD_Association )

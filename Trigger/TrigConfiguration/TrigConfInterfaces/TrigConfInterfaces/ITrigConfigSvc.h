@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ITrigConfigSvc.h 706340 2015-11-06 10:35:33Z krasznaa $
@@ -39,6 +39,8 @@ namespace TrigConf {
 
       /// Specify the interface declared by this class
       DeclareInterfaceID( ITrigConfigSvc, 0, 1 );
+
+      virtual std::string configurationSource() const = 0;
 
    }; // class ITrigConfigSvc
 

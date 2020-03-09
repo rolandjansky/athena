@@ -14,7 +14,7 @@
 
 template <class Collection>
 std::unique_ptr<Collection> IDC_MuonOverlayBase::copyCollection(const IdentifierHash &hashId,
-                                                                const Collection *collection)
+                                                                const Collection *collection) const
 {
   typedef typename Collection::base_value_type Datum;
 
@@ -35,7 +35,7 @@ template <class IDC_Container>
 StatusCode IDC_MuonOverlayBase::overlayContainerBase(const IDC_Container *bkgContainer,
                                                      const IDC_Container *signalContainer,
                                                      IDC_Container *outputContainer,
-                                                     bool isMultiHitCollection)
+                                                     bool isMultiHitCollection) const
 {
   typedef typename IDC_Container::base_value_type Collection;
 

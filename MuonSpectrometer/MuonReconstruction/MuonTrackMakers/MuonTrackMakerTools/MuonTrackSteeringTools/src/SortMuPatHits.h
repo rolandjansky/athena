@@ -8,7 +8,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "MuonTrackFindingEvent/MuPatHit.h"
+#include "MuPatHit.h"
 
 namespace Muon {
   

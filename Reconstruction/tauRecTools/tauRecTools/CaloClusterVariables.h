@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERVARIABLES_H
@@ -13,7 +13,6 @@ typedef xAOD::CaloVertexedCluster CaloVertexedClusterType;
 #else
 typedef xAOD::CaloVertexedTopoCluster CaloVertexedClusterType;
 #endif
-//#include "CaloEvent/CaloVertexedCluster.h"
 #include "CxxUtils/fpcompare.h"
 #include "xAODTau/TauJet.h"
 

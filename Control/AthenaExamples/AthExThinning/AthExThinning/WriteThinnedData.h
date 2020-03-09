@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // WriteThinnedData.h 
@@ -12,16 +12,16 @@
 #define ATHEXTHINNING_WRITETHINNEDDATA_H 
 
 /** @class WriteThinnedData 
- *  A simple algorithm exercizing the process of 
+ *  A simple algorithm exercising the process of 
  *  thinning a container.
  *  This algorithm takes as input a @c AthExParticles container from 
- *  @c StoreGateSvc and, using the @c IThinningSvc, removes part of the elements
+ *  @c StoreGateSvc and thins part of the elements
  *  of this container with the aim (in real world algorithms) of reducing 
  *  dataset disk space.
  *  
- *  For the purpose of this exercize, the container is thinned on the base of a
+ *  For the purpose of this exercise, the container is thinned on the base of a
  *  filter (a vector of booleans), keeping elements when the @c bool is @c true.
- *  This algorithm also exercizes a two-steps thinning to make sure that
+ *  This algorithm also exercises a two-steps thinning to make sure that
  *  multiple algorithms can cooperate to remove some elements in a multiple
  *  pass fashion (ie: alg1 removes particles with p_T < 10 GeV, then alg2
  *  removes particles with Chi2 < 0.2, etc...)
@@ -35,30 +35,30 @@
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "StoreGate/ThinningHandleKey.h"
 
 // DataModel includes
 #include "AthContainers/DataVector.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExIParticles.h"
+#include "AthExThinning/AthExElephantino.h"
+#include "AthExThinning/AthExDecay.h"
 
 // Forward declaration
-class IThinningSvc;
 class AthExParticles;
 //class AthExIParticles;
+namespace SG {
+  class ThinningDecisionBase;
+}
 
 namespace AthExThinning {
 
 class WriteThinnedData : public ::AthAlgorithm
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  // Copy constructor: 
-
+public: 
   /// Constructor with parameters: 
   WriteThinnedData( const std::string& name, ISvcLocator* pSvcLocator );
 
@@ -69,27 +69,17 @@ class WriteThinnedData : public ::AthAlgorithm
   //WriteThinnedData &operator=(const WriteThinnedData &alg); 
 
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
+protected: 
 
   /// Default constructor: 
   WriteThinnedData();
 
-  /// Exercize the following thinning tests:
+  /// Exercise the following thinning tests:
   ///  [testName = "test1"]
   ///   retrieve a @c AthExParticles container
   ///   remove some of the @c AthExParticle using an 'AND' filter
@@ -99,39 +89,55 @@ class WriteThinnedData : public ::AthAlgorithm
   ///  [testName = "test3"]
   ///   retrieve a @c AthExIParticles container
   ///   remove some of the @c AthExIParticle using an 'AND' filter
-  StatusCode test( const std::string& testName );
+  StatusCode test( const EventContext& ctx,
+                   int testNum, const std::string& testName );
 
   /// Apply the real thinning
-  StatusCode doThinningTest1( const AthExParticles& particles );
+  StatusCode doThinningTest1( const EventContext& ctx,
+                              const SG::ThinningHandleKey<AthExParticles>& particlesKey ) const;
 
   /// Apply the real thinning
-  StatusCode doThinningTest2( const AthExParticles& particles );
+  StatusCode doThinningTest2( const EventContext& ctx,
+                              const SG::ThinningHandleKey<AthExParticles>& particlesKey ) const;
 
   /// Apply the real thinning
-  StatusCode doThinningTest3( const AthExIParticles& iparticles );
+  StatusCode doThinningTest3( const EventContext& ctx,
+                              const SG::ThinningHandleKey<AthExIParticles>& iparticlesKey ) const;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
 
-  /// Pointer to IThinningSvc
-  ServiceHandle<IThinningSvc> m_thinningSvc;
-
+protected: 
   // Containers
   
   /// Particles input location
   StringProperty m_particlesName;
 
+  SG::ThinningHandleKey<AthExParticles> m_particlesKey1
+  { this, "ParticlesKey1", "", "" };
+  SG::ThinningHandleKey<AthExParticles> m_particlesKey2
+  { this, "ParticlesKey2", "", "" };
+
+  SG::ReadHandleKeyArray<AthExIParticles> m_iparticlesKeys
+  { this, "IParticlesKeys", {}, "" };
+
+  SG::ThinningHandleKey<AthExIParticles> m_iparticlesKey3
+  { this, "IParticlesKey3", "", "" };
+
   /// Decay input location
-  StringProperty m_decayName;
+  StringProperty m_decayName
+  { this, "Decay", "TwoBodyDecay", "Input location of Decay" };
+
+  SG::ReadHandleKeyArray<AthExDecay> m_decayKeys
+  { this, "DecayKeys", {}, "" };
 
   /// Elephantino input location
-  StringProperty m_elephantinoName;
+  StringProperty m_elephantinoName
+  { this, "Elephantino", "PinkElephantino", "Input location of Elephantino" };
+
+  SG::ReadHandleKeyArray<AthExElephantino> m_elephantinoKeys
+  { this, "ElephantinoKeys", {}, "" };
 
   /// Filter to apply on the Particles. For each element of the filter being 
-  /// @c true the @c IThinningSvc will be used to keep the according 
-  /// @c AthExParticle and remove all the other ones.
+  /// @c true the corresponding particle will be kept.
   BooleanArrayProperty m_filter;
 
 }; 

@@ -28,10 +28,26 @@ PEBInfoWriterToolBase::~PEBInfoWriterToolBase() {}
 // =============================================================================
 
 StatusCode PEBInfoWriterToolBase::decide(std::vector<Input>& inputs) const {
+  std::set<ElementLink<TrigRoiDescriptorCollection>> uniqueRoIs;
   for (Input& input : inputs) {
     // Skip if previous step for this chain didn't pass
     if (not TrigCompositeUtils::passed(m_decisionId.numeric(), input.previousDecisionIDs)) {
       ATH_MSG_DEBUG("Skipping chain because previous step didn't pass");
+      continue;
+    }
+
+    // Count unique RoIs
+    bool isUnique = uniqueRoIs.insert(input.roiEL).second;
+    ATH_MSG_DEBUG("RoI eta/phi = " << (*input.roiEL)->eta() << "/" << (*input.roiEL)->phi() << " has "
+                  << (isUnique ? "not yet" : "already") << " been processed. So far seen "
+                  << uniqueRoIs.size() << " unique RoIs");
+
+    // Skip processing if max RoIs limit reached
+    if (m_maxRoIs>=0 && static_cast<int>(uniqueRoIs.size()) > m_maxRoIs) {
+      ATH_MSG_DEBUG("Skipping this input decision because number of processed RoIs reached MaxRoIs ("
+                    << m_maxRoIs.value() << ")");
+      // Make an accept decision without adding PEB Info (PEB hypo is pass-through)
+      TrigCompositeUtils::addDecisionID(m_decisionId, input.decision);
       continue;
     }
 
@@ -40,15 +56,13 @@ StatusCode PEBInfoWriterToolBase::decide(std::vector<Input>& inputs) const {
 
     // Merge with previous ROBs    
     std::vector<uint32_t> previousRobs;
-    if (input.decision->getDetail(robListKey(), previousRobs)) {
-      pebInfo.robs.insert(previousRobs.begin(), previousRobs.end());
-    }
+    ATH_CHECK(input.decision->getDetail(robListKey(), previousRobs));
+    pebInfo.robs.insert(previousRobs.begin(), previousRobs.end());
 
     // Merge with previous SubDets
     std::vector<uint32_t> previousSubDets;
-    if (input.decision->getDetail(subDetListKey(), previousSubDets)) {
-      pebInfo.subdets.insert(previousSubDets.begin(), previousSubDets.end());
-    }
+    ATH_CHECK(input.decision->getDetail(subDetListKey(), previousSubDets));
+    pebInfo.subdets.insert(previousSubDets.begin(), previousSubDets.end());
 
     // Attach the PEB Info to the decision
     std::vector<uint32_t> robVec(pebInfo.robs.begin(), pebInfo.robs.end());

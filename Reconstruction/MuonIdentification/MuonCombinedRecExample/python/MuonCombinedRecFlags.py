@@ -212,6 +212,8 @@ class MuonCombinedRec(JobPropertyContainer):
         setDefault(self.TrackPerfDebugLevel,   muonRecFlags.TrackPerfDebugLevel())
         setDefault(self.TrackPerfSummaryLevel, muonRecFlags.TrackPerfSummaryLevel())
 
+        if not self.doMuGirl(): setDefault(self.doMuGirlLowBeta, False)
+
     def doAnyMuons(self):
         """Are we running any algorithm that produces Analysis::MuonContainer? Read-only."""
         return self.doMuonCollection() or self.doMuGirlLowBetaMuonCollection()

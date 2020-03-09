@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import subprocess
 import os
@@ -12,11 +14,11 @@ except IndexError:
 
 cmd = 'coverage run %s' % mod_name
 
-print cmd + ' ...'
+print (cmd + ' ...')
 subprocess.check_call(cmd, shell=True)
 
 cmd = 'coverage report -m'
-print cmd + ' ...'
+print (cmd + ' ...')
 cov_out = subprocess.check_output(cmd, shell=True)
 
 
@@ -49,11 +51,11 @@ for l in cov_out.strip().split('\n'):
 w = [max(len(t[i]) for t in ltokens) for i in range(4)]
 
 for t in ltokens:
-    print '%s %s %s %s %s' % (t[0].ljust(w[0]),
-                              t[1].ljust(w[1]),
-                              t[2].ljust(w[2]),
-                              t[3].ljust(w[3]),
-                              t[4])
+    print ('%s %s %s %s %s' % (t[0].ljust(w[0]),
+                               t[1].ljust(w[1]),
+                               t[2].ljust(w[2]),
+                               t[3].ljust(w[3]),
+                               t[4]))
             
     # else:
     #    print tokens[0]

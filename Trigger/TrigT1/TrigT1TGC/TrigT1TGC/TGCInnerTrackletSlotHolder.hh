@@ -6,6 +6,7 @@
 #define TGCInnerTrackletSlotHolder_hh
 
 #include "TrigT1TGC/TGCInnerTrackletSlot.hh"
+#include "TrigT1TGC/TGCArguments.hh"
 
 namespace LVL1TGCTrigger {
   //  class TGCInnerTrackletSlot;
@@ -13,7 +14,7 @@ namespace LVL1TGCTrigger {
   class TGCInnerTrackletSlotHolder {
   public: 
     /** Constructor */
-    TGCInnerTrackletSlotHolder();
+    TGCInnerTrackletSlotHolder( TGCArguments* );
     /** Destructor */
     ~TGCInnerTrackletSlotHolder() {};
 
@@ -36,10 +37,15 @@ namespace LVL1TGCTrigger {
       // slot23, slot24, slot01, slot02 go to A01 phi0/phi1 Endcap SL
     };
 
+    TGCArguments* tgcArgs() const;
+
   private:
     TGCInnerTrackletSlot m_innerTrackletSlot[NUMBER_OF_SIDES][NUMBER_OF_SLOTS];
+    TGCArguments* m_tgcArgs;
   };
-
+  inline TGCArguments* TGCInnerTrackletSlotHolder::tgcArgs() const {
+    return m_tgcArgs;
+  }
 } //end of namespace bracket
 
 #endif // TGCInnerTrackletSlotHolder_hh

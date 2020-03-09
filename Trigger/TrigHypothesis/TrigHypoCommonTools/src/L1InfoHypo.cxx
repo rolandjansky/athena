@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -122,7 +122,7 @@ HLT::ErrorCode L1InfoHypo::hltExecute(const HLT::TriggerElement* /*unused*/,bool
 		  << endmsg;
 	      return HLT::NO_LVL1_RESULT;
 	    }
-	  const std::vector<const LVL1CTP::Lvl1Item*>& items = m_lvl1Tool->createL1Items(*result);
+	  std::vector<const LVL1CTP::Lvl1Item*> items = m_lvl1Tool->createL1Items(*result);
 	  for (std::vector<const LVL1CTP::Lvl1Item*>::const_iterator item = items.begin(); item != items.end(); ++item) 
 	    {
 	      if(m_useBeforePrescaleBit) {

@@ -12,7 +12,7 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "Identifier/Identifier.h"
 
@@ -38,7 +38,7 @@ public:
 
   /** intialize the cabling service
    */
-  StatusCode set(const MdtIdHelper* m_mdtIdHelper); 
+  StatusCode set(const Muon::MuonIdHelperTool* muonIdHelperTool); 
 
   /** TMP method for sector 13 data */
   void setSpecialROBNumber(int specialROBNumber) {m_specialROBNumber=specialROBNumber;}
@@ -60,7 +60,7 @@ public:
 
  private: 
 
-  const MdtIdHelper* m_mdtIdHelper;
+  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
 
   int m_specialROBNumber;
 

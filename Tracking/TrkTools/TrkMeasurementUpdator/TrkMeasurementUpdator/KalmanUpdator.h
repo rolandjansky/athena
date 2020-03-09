@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -35,8 +35,8 @@ namespace Trk {
     state vector. Implemented fully in Eigen using the EDM natively.
     As a drawback due to Eigen's internal implementation of matrix
     operations, this tool is generally slower than its alternatives
-    which are written based on array or SMatrix internal representations
-    of EDM objects.
+    which are written based on array or SMatrix of fixed size Eigen 
+    internal representations of EDM objects.
 
     @author M. Elsing, W. Liebig <http://consult.cern.ch/xwho>
  */
@@ -53,65 +53,65 @@ class KalmanUpdator : virtual public IUpdator, public AthAlgTool {
 			
     //! measurement updator for the KalmanFitter getting the meas't coord' 
     //from Amg::Vector2D (use eg with PRD)
-    virtual const TrackParameters* addToState (const TrackParameters&, 
-                                               const Amg::Vector2D&, 
-                                               const Amg::MatrixX&) const override final;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const Amg::Vector2D&, 
+                                         const Amg::MatrixX&) const override final;
     //! measurement updator for the KalmanFitter getting the coordinates 
     //from LocalParameters (use eg with MeasurementBase, ROT)
-    virtual const TrackParameters* addToState (const TrackParameters&, 
-                                               const LocalParameters&, 
-                                               const Amg::MatrixX&) const override final;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const LocalParameters&, 
+                                         const Amg::MatrixX&) const override final;
     //! measurement updator interface for the KalmanFitter returning the fit quality 
     //of the state at the same time (Amg::Vector2D-version)
-    virtual const TrackParameters* addToState (const TrackParameters&, 
-                                               const Amg::Vector2D&, 
-                                               const Amg::MatrixX&, 
-                                               FitQualityOnSurface*& ) const override final;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const Amg::Vector2D&, 
+                                         const Amg::MatrixX&, 
+                                         FitQualityOnSurface*& ) const override final;
     //! measurement updator interface for the KalmanFitter returning the fit quality 
     //of the state at the same time (LocalParameters-version)
-    virtual const TrackParameters* addToState (const TrackParameters&, 
-                                               const LocalParameters&, 
-                                               const Amg::MatrixX&, 
-                                               FitQualityOnSurface*& ) const override final;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const LocalParameters&, 
+                                         const Amg::MatrixX&, 
+                                         FitQualityOnSurface*& ) const override final;
 
     //! reverse update eg for track property analysis (unbiased residuals) 
     //getting the measurement coordinates from the Amg::Vector2D class.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, 
-                                                    const Amg::Vector2D&, 
-                                                    const Amg::MatrixX&) const override final;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const Amg::Vector2D&, 
+                                              const Amg::MatrixX&) const override final;
     //! reverse update eg for track property analysis (unbiased residuals) 
     //getting the measurement coordinates from the LocalParameters class.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, 
-                                                    const LocalParameters&, 
-                                                    const Amg::MatrixX&) const override final ;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const LocalParameters&, 
+                                              const Amg::MatrixX&) const override final ;
     //! reverse updator for the KalmanFitter and other fitters using the 
     //interface with Amg::Vector2D and FitQualityOnSurface.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, 
-                                                    const Amg::Vector2D&, 
-                                                    const Amg::MatrixX&, 
-                                                    FitQualityOnSurface*& ) const override final;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const Amg::Vector2D&, 
+                                              const Amg::MatrixX&, 
+                                              FitQualityOnSurface*& ) const override final;
     //! reverse updator for the KalmanFitter and other fitters using 
     //the interface with LocalParameters and FitQualityOnSurface.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, 
-                                                    const LocalParameters&, 
-                                                    const Amg::MatrixX&, 
-                                                    FitQualityOnSurface*& ) const override final;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const LocalParameters&, 
+                                              const Amg::MatrixX&, 
+                                              FitQualityOnSurface*& ) const override final;
 		
     /** @brief trajectory state updator which combines two parts of a trajectory on a common surface.
 
         Make sure that the TPs' surfaces are identical and
         that the local hit is not duplicated in both trajectories!
     */
-    virtual const TrackParameters* combineStates   (const TrackParameters&, 
-                                                    const TrackParameters&) const override final;
+    virtual TrackParameters* combineStates   (const TrackParameters&, 
+                                              const TrackParameters&) const override final;
     /** @brief trajectory state updator which combines two parts of a trajectory 
      * on a common surface and provides the FitQuality.
 
         Make sure that the TPs' surfaces are identical and that the local hit is not duplicated!
     */
-    virtual const TrackParameters* combineStates   (const TrackParameters&, 
-                                                    const TrackParameters&, 
-                                                    FitQualityOnSurface*&) const override final;
+    virtual TrackParameters* combineStates   (const TrackParameters&, 
+                                              const TrackParameters&, 
+                                              FitQualityOnSurface*&) const override final;
 
     //! estimator for FitQuality on Surface from a full track state, that is a state 
     //which contains the current hit (expressed as Amg::Vector2D).
@@ -145,26 +145,26 @@ class KalmanUpdator : virtual public IUpdator, public AthAlgTool {
                                                                                  const Amg::MatrixX&, 
                                                                                  const int&, Trk::FitQualityOnSurface*&, 
                                                                                  bool ) const override final 
-    {return 0;}
+    {return nullptr;}
 
     //! gives back how updator is configured for inital covariances
-    virtual const std::vector<double>  initialErrors() const override final;
+    virtual std::vector<double>  initialErrors() const override final;
 		
 private:
     //! Common maths calculation code for addToState and removeFromState - Amg::Vector2D interface.
-    const TrackParameters* calculateFilterStep(const TrackParameters&,
-                                               const Amg::Vector2D&,
-                                               const Amg::MatrixX&,
-                                               const int,
-                                               FitQualityOnSurface*&,
-                                               bool) const;
+    TrackParameters* calculateFilterStep(const TrackParameters&,
+                                         const Amg::Vector2D&,
+                                         const Amg::MatrixX&,
+                                         const int,
+                                         FitQualityOnSurface*&,
+                                         bool) const;
     //! Common maths calculation code for addToState and removeFromState - LocalParameters interface.
-    const TrackParameters* calculateFilterStep(const TrackParameters&,
-                                               const LocalParameters&,
-                                               const Amg::MatrixX&,
-                                               const int, 
-                                               FitQualityOnSurface*&,
-                                               bool) const;
+    TrackParameters* calculateFilterStep(const TrackParameters&,
+                                         const LocalParameters&,
+                                         const Amg::MatrixX&,
+                                         const int, 
+                                         FitQualityOnSurface*&,
+                                         bool) const;
     /** also the chi2 calculation and FitQuality object creation is
         combined in an extra method. It is called by ___FitQuality() and calculateFilterStep()
         The sign controls the calculation in case a predicted input track state (sign=+1)

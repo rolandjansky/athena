@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file AthenaPoolCnvSvc/T_AuxContainerCopyTPCnv.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Oct, 2019
+ * @brief Convert aux container version by generic copy.
+ */
+
+
+template <class NEWTYPE, class OLDTYPE>
+void T_AuxContainerCopyTPCnv<NEWTYPE, OLDTYPE>::
+persToTrans( const OLDTYPE* oldObj,
+             NEWTYPE* newObj,
+             MsgStream& log ) const
+{
+   // Greet the user:
+   if( log.level() <= MSG::DEBUG ) {
+     log << MSG::DEBUG << "Converting " << ClassName<OLDTYPE>::name()
+         << " to " << ClassName<NEWTYPE>::name() << "..." << endmsg;
+   }                                         
+
+   // Clear the transient object:
+   newObj->resize( 0 );
+
+   // Copy the payload of the v1 object into the latest one by misusing
+   // the thinning code a bit...
+   SG::copyAuxStoreThinned( *oldObj, *newObj,
+                            static_cast<SG::ThinningDecisionBase*>(nullptr) );
+   
+   // Print what happened:
+   if( log.level() <= MSG::DEBUG ) {
+     log << MSG::DEBUG << "Converting " << ClassName<OLDTYPE>::name()
+         << " to " << ClassName<NEWTYPE>::name() << " [OK]" << endmsg;
+   }                                         
+
+   return;
+}
+
+/// This function should never be called, as we are not supposed to convert
+/// object before writing.
+///
+template <class NEWTYPE, class OLDTYPE>
+void T_AuxContainerCopyTPCnv<NEWTYPE, OLDTYPE>::
+transToPers( const NEWTYPE*,
+             OLDTYPE*,
+             MsgStream& log ) const
+{
+   log << MSG::ERROR
+       << "Somebody called transToPers for "
+       << ClassName<OLDTYPE>::name() << endmsg;
+   throw std::runtime_error( "Somebody called transToPers for " +
+                             ClassName<OLDTYPE>::name() );
+
+   return;
+}
+
+

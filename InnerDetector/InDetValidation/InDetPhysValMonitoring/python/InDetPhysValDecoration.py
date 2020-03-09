@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# block('InDetPhysValMonitoring/InDetPhysValDecoration.py')
-import ConfigUtils
+from __future__ import print_function
 
 # ---- definitions
 def metaDataKey() :
@@ -25,25 +24,25 @@ def findAlg(alg_name, search_outputstream_otherwise=True) :
   if not isinstance(alg_name, (list, tuple)) :
       raise Exception('logic error findAlg called with a non list argument %s / %s' %(alg_name,type(alg_name)))
 
-  from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+  from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
   count=0
   mon_man_index=None
   for child in topSequence.getChildren() :
      # if child.getName() in alg_name :
      if child.getName() in alg_name :
-         # print 'DEBUG findAlg %s =?=  %s ' %(child.getName(),alg_name)
+         # print ('DEBUG findAlg %s =?=  %s ' %(child.getName(),alg_name))
          mon_man_index = count
          if len(alg_name) == 1 :
            break
      count += 1
 
-  if mon_man_index == None and search_outputstream_otherwise:
+  if mon_man_index is None and search_outputstream_otherwise:
      count=0
      exclude_streams=['StreamBS']
      for child in topSequence.getChildren() :
          if child.getType() == 'AthenaOutputStream' and child.getName() not in exclude_streams:
-             # print 'DEBUG found %s at postion %i/%i' % (child.getFullName(),count,len(topSequence.getChildren() ) )
+             # print ('DEBUG found %s at postion %i/%i' % (child.getFullName(),count,len(topSequence.getChildren() ) ))
              mon_man_index = count
              break
          count += 1
@@ -59,16 +58,15 @@ def findMonMan() :
 
 def getMetaData() :
    '''
-   Try to determine from the meta data whether the decoration has been performed already.  
+   Try to determine from the meta data whether the decoration has been performed already.
    '''
    from RecExConfig.RecFlags import rec
    if not rec.readRDO():
-      from RecExConfig.InputFilePeeker import inputFileSummary
-      try:
-          # print 'DEBUG InDetPhysValMonitoring getMetaData %s' % inputFileSummary['metadata']
-          return inputFileSummary['tag_info'][metaDataKey()]
-      except Exception :
-          pass
+      from PyUtils.MetaReaderPeekerFull import metadata
+   try:
+      return metadata['/TagInfo'][metaDataKey()]
+   except Exception:
+      pass
    return ''
 
 def setMetaData() :
@@ -90,53 +88,21 @@ def setMetaData() :
        str='fromAOD'
 
    if metaDataKey() not in svcMgr.TagInfoMgr.ExtraTagValuePairs :
-      svcMgr.TagInfoMgr.ExtraTagValuePairs += [metaDataKey(), str]
-   # print 'DEBUG add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs
+      svcMgr.TagInfoMgr.ExtraTagValuePairs[metaDataKey()]=str
+   # print ('DEBUG add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs)
 
 
-from ConfigUtils import _args
-from ConfigUtils import injectNameArgument
-from ConfigUtils import dumpConfigurables
-from ConfigUtils import checkKWArgs
-from ConfigUtils import toolFactory
+from InDetRecExample.TrackingCommon import setDefaults
+from .ConfigUtils import toolFactory
+from .ConfigUtils import createExtendNameIfNotDefault
+from .ConfigUtils import createPublicTool
 
-from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-class InDetHoleSearchTool(object) :
-  '''
-  Namespace for inner detector hole search tools
-  '''
-  def __init__(self) :
-     raise('must not be instantiated. Only child classes should be instantiated.')
+def getPhysValMonInDetHoleSearchTool(**kwargs) :
+    from InDetRecExample.TrackingCommon import getInDetHoleSearchTool
+    kwargs= setDefaults( kwargs,
+                         name                         = 'PhysValMonInDetHoleSearchTool')
 
-  class PhysValMonInDetHoleSearchTool(InDet__InDetTrackHoleSearchTool) :
-      '''
-      default inner detector hole search tool
-      '''
-      @injectNameArgument
-      def __new__(cls, *args, **kwargs) :
-          # if cls.__name__ in cls.configurables :
-          #     print 'WARNING configurable %s exists already ' % cls.__name__
-          return InDet__InDetTrackHoleSearchTool.__new__(cls,*args,**kwargs)
-
-      @checkKWArgs
-      def __init__(self, **kwargs) :
-          from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
-          # If InDetSCT_ConditionsSummarySvc instance configured by InDetRecConditionsAccess.py is available, use it.
-          # Otherwise, the default SCT_ConditionsSummarySvc instance is used.
-          # @TODO find a better to solution to get the correct service for the current job.
-          SctSummaryTool = "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool"
-          if not hasattr(ToolSvc, SctSummaryTool):
-              SctSummaryTool = "SCT_ConditionsSummaryTool"
-          super(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool,self).__init__(**_args( kwargs,
-                                                                                                 name         = self.__class__.__name__,
-                                                                                                 Extrapolator = ToolSvc.InDetExtrapolator,
-                                                                                                 SctSummaryTool = SctSummaryTool,
-                                                                                                 usePixel     = True,
-                                                                                                 useSCT       = True,
-                                                                                                 # OutputLevel  = 1,
-                                                                                                 CountDeadModulesAfterLastHit = True) )
-
-
+    return getInDetHoleSearchTool(**kwargs)
 
 import InDetPhysValMonitoring.InDetPhysValMonitoringConf
 def getInDetPhysHitDecoratorAlg(**kwargs) :
@@ -146,13 +112,13 @@ def getInDetPhysHitDecoratorAlg(**kwargs) :
     of the algorithm will be extended by the collection name
     '''
     # @TODO use track particles from ? from InDetRecExample.InDetKeys import InDetKeys
-    return ConfigUtils.createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorAlg,
-                                                    'TrackParticleContainerName','InDetTrackParticles',
-                                                    kwargs,
-                                                    InDetTrackHoleSearchTool = toolFactory(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool),
-                                                    Updator = 'Trk::KalmanUpdator/TrkKalmanUpdator',
-                                                    ResidualPullCalculator = 'Trk::ResidualPullCalculator/ResidualPullCalculator',
-                                                    TrackParticleContainerName = 'InDetTrackParticles')
+    return createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorAlg,
+                                         'TrackParticleContainerName','InDetTrackParticles',
+                                         kwargs,
+                                         InDetTrackHoleSearchTool = toolFactory(getPhysValMonInDetHoleSearchTool),
+                                         Updator = 'Trk::KalmanUpdator/TrkKalmanUpdator',
+                                         ResidualPullCalculator = 'Trk::ResidualPullCalculator/ResidualPullCalculator',
+                                         TrackParticleContainerName = 'InDetTrackParticles')
 
 
 def getParameterErrDecoratorAlg(**kwargs) :
@@ -161,9 +127,9 @@ def getParameterErrDecoratorAlg(**kwargs) :
     If the collection name TrackParticleContainerName is specified and differs from the default, the name
     of the algorithm will be extended by the collection name
     '''
-    return ConfigUtils.createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.ParameterErrDecoratorAlg,
-                                                    'TrackParticleContainerName', 'InDetTrackParticles',
-                                                     kwargs)
+    return createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.ParameterErrDecoratorAlg,
+                                         'TrackParticleContainerName', 'InDetTrackParticles',
+                                         kwargs)
 
 def getInDetPhysValTruthDecoratorAlg(**kwargs) :
     '''
@@ -171,34 +137,34 @@ def getInDetPhysValTruthDecoratorAlg(**kwargs) :
     If the collection name TruthParticleContainerName is specified and differs from the default, the name
     of the algorithm will be extended by the collection name
     '''
-    return ConfigUtils.createExtendNameIfNotDefault(InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysValTruthDecoratorAlg,
-                                                    'TruthParticleContainerName','TruthParticles',
-                                                    kwargs,
-                                                    Extrapolator= 'Trk::Extrapolator/AtlasExtrapolator')
+    return createExtendNameIfNotDefault(InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysValTruthDecoratorAlg,
+                                        'TruthParticleContainerName','TruthParticles',
+                                        kwargs,
+                                        Extrapolator= 'Trk::Extrapolator/AtlasExtrapolator')
 
 def getInDetRttTruthSelectionTool(**kwargs) :
-    return ConfigUtils.createPublicTool(InDetPhysValMonitoring.InDetPhysValMonitoringConf.AthTruthSelectionTool,
-                                         kwargs,
-                                         # @TODO change name ? name = 'InDetRttTruthSelectionTool',
-                                         requireStatus1 = True,
-                                         requireCharged = True,
-                                         maxBarcode = ( 200*1000 if kwargs.pop("OnlyDressPrimaryTracks",True) else 2**31-1 ),
-                                         maxProdVertRadius = 110.,
-                                         maxEta = 2.5,
-                                         minPt = 400. )
+    return createPublicTool(InDetPhysValMonitoring.InDetPhysValMonitoringConf.AthTruthSelectionTool,
+                            kwargs,
+                            # @TODO change name ? name = 'InDetRttTruthSelectionTool',
+                            requireStatus1 = True,
+                            requireCharged = True,
+                            maxBarcode = ( 200*1000 if kwargs.pop("OnlyDressPrimaryTracks",True) else 2**31-1 ),
+                            maxProdVertRadius = 110.,
+                            maxEta = 2.5,
+                            minPt = 400. )
 
 def getInDetTruthSelectionTool(**kwargs) :
-    return getInDetRttTruthSelectionTool(**_args( kwargs,
-                                                  name = 'InDetTruthSelectionTool',
-                                                  maxProdVertRadius = -1 ) ) # disable production radius cut
+    return getInDetRttTruthSelectionTool(**setDefaults( kwargs,
+                                                        name = 'InDetTruthSelectionTool',
+                                                        maxProdVertRadius = -1 ) ) # disable production radius cut
 
 def getInDetPhysValTruthDecoratorAlgStableParticles(**kwargs) :
     '''
     Create a decoration algorithm which decorates stable truth particles only with track parameters at the perigee
     see @ref getInDetPhysValTruthDecoratorAlg for details.
     '''
-    return getInDetPhysValTruthDecoratorAlg(**_args(kwargs,
-                                                    TruthSelectionTool = getInDetTruthSelectionTool() ))
+    return getInDetPhysValTruthDecoratorAlg(**setDefaults(kwargs,
+                                                          TruthSelectionTool = getInDetTruthSelectionTool() ))
 
 def getTruthClassDecoratorAlg(**kwargs) :
     '''
@@ -206,9 +172,9 @@ def getTruthClassDecoratorAlg(**kwargs) :
     if the collection name TruthParticleContainerName is specified and differs from the default, the name
     of the algorithm will be extended by the collection name
     '''
-    return ConfigUtils.createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.TruthClassDecoratorAlg,
-                                                     'TruthParticleContainerName', 'TruthParticles',
-                                                     kwargs )
+    return createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.TruthClassDecoratorAlg,
+                                         'TruthParticleContainerName', 'TruthParticles',
+                                         kwargs )
 
 def getTrackDecorators(**kwargs) :
     '''
@@ -246,6 +212,8 @@ def getDecorators(**kwargs) :
         decorators += InDetPhysValMonitoring.InDetPhysValDecoration.getTruthDecorators( TruthParticleContainerName = truth_particle_container_name )
     if len(kwargs)> 0 :
         raise Exception( 'Unused kwargs: %s' % kwargs )
+    return decorators
+
 class InDetPhysValKeys :
     '''
     Keys to decorate and monitor GSF Tracks/TrackParticles
@@ -264,7 +232,6 @@ def getGSFTrackDecorators(**kwargs) :
     from InDetRecExample.InDetKeys import InDetKeys
     return getTrackDecorators(TrackParticleContainerName=InDetPhysValKeys.GSFTrackParticles)
 
-
 # Debugging
 # import trace
 # tracer = trace.Trace()
@@ -272,44 +239,43 @@ def getGSFTrackDecorators(**kwargs) :
 
 def _addDecorators(decorator_alg_list, add_after=None) :
   '''
-  Add the given decorator algorithms to the top sequence. 
+  Add the given decorator algorithms to the top sequence.
   The algorithm is to be run on RAW/RDO since it depends on full hit information
   which is generally not available at later stages. The decorations added by this
   algorithm are used by InDetPhysValMonitoring tool.
   '''
 
-  if add_after != None and not isinstance(add_after, (list, tuple)) :
-      import sys
-      raise Exception(' logic error findAlg called with a non list argument %s / %s' %(alg_name,type(alg_name)))
+  if add_after is not None and not isinstance(add_after, (list, tuple)) :
+      raise Exception(' logic error _addDecorators called with a non list argument %s / %s' %(add_after,type(add_after)))
 
   # Access the algorithm sequence:
-  from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+  from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  # print 'DEBUG add _addDecorators add after %s ' % (add_after)
+  # print ('DEBUG add _addDecorators add after %s ' % (add_after))
 
   # if there is a monitoring manager add decorator before
   mon_man_index=findMonMan()
-  if mon_man_index == None and add_after != None :
+  if mon_man_index is None and add_after is not None :
       alg_index = findAlg(add_after )
-      if alg_index != None :
+      if alg_index is not None :
           # add after the found algorithm
           mon_man_index =alg_index + 1
-  # print 'DEBUG _addDecorators after this %s ' % (mon_man_index)
+  # print ('DEBUG _addDecorators after this %s ' % (mon_man_index))
 
-  if mon_man_index == None :
+  if mon_man_index is None :
      for decorator_alg in decorator_alg_list :
-        if findAlg([decorator_alg.getName()], search_outputstream_otherwise=False) != None :
-            print 'DEBUG decorator %s already in sequence. Not adding again.' % (decorator_alg.getFullName())
+        if findAlg([decorator_alg.getName()], search_outputstream_otherwise=False) is not None :
+            print ('DEBUG decorator %s already in sequence. Not adding again.' % (decorator_alg.getFullName()))
             continue
-        print 'DEBUG add decorator %s at end of top sequence:' % (decorator_alg.getFullName())
+        print ('DEBUG add decorator %s at end of top sequence:' % (decorator_alg.getFullName()))
         topSequence += decorator_alg
 
   else :
       for decorator_alg in decorator_alg_list :
-         if findAlg([decorator_alg.getName()], search_outputstream_otherwise=False) != None :
-            print 'DEBUG decorator %s already in sequence. Not inserting again.' % (decorator_alg.getFullName())
+         if findAlg([decorator_alg.getName()], search_outputstream_otherwise=False) is not None :
+            print ('DEBUG decorator %s already in sequence. Not inserting again.' % (decorator_alg.getFullName()))
             continue
-         print 'DEBUG insert decorator %s at position %i' % (decorator_alg.getFullName(),mon_man_index)
+         print ('DEBUG insert decorator %s at position %i' % (decorator_alg.getFullName(),mon_man_index))
          topSequence.insert(mon_man_index,decorator_alg)
          mon_man_index += 1
   setMetaData()
@@ -322,8 +288,13 @@ def addGSFTrackDecoratorAlg() :
 
    from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
    if InDetPhysValFlags.doValidateGSFTracks() :
-      # print 'DEBUG add addGSFTrackDecoratorAlg'
-      decorators=getGSFTrackDecorators()
+      # print ('DEBUG add addGSFTrackDecoratorAlg')
+      decorators = getGSFTrackDecorators()
+      from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+      from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+      for col in InDetPhysValFlags.validateExtraTrackCollections() :
+          prefix=extractCollectionPrefix(col)
+          decorators += getTrackDecorators(TrackParticleContainerName=prefix+"TrackParticles")
       # add the InDetPhysValDecoratorAlgGSF after the egamma algorithms ran
       # they build the GSF track particles.
       _addDecorators( decorators, ['egamma','egammaTruthAssociationAlg'] )
@@ -333,11 +304,11 @@ def addGSFTrackDecoratorAlg() :
       #  - must slim GSF Tracks after decoration since the unslimmed GSF Tracks cannot be persistified
 
       from AthenaCommon.AppMgr import ToolSvc
-      # print ToolSvc
-      # print 'DEBUG has EMBremCollectionBuilder %s' % hasattr(ToolSvc,'EMBremCollectionBuilder')
+      # print (ToolSvc)
+      # print ('DEBUG has EMBremCollectionBuilder %s' % hasattr(ToolSvc,'EMBremCollectionBuilder'))
       if hasattr(ToolSvc,'EMBremCollectionBuilder') :
           decor_index = findAlg([decorators[0].getName()], search_outputstream_otherwise=False)
-          if decor_index != None :
+          if decor_index is not None :
               from TrkTrackSlimmer.TrkTrackSlimmerConf import Trk__TrackSlimmer as ConfigurableTrackSlimmer
               slimmer = ConfigurableTrackSlimmer(name                 = "RealGSFTrackSlimmer",
                                                  TrackLocation        = [ InDetPhysValKeys.GSFTracksUnslimmed ],
@@ -351,7 +322,7 @@ def addGSFTrackDecoratorAlg() :
               ToolSvc.EMBremCollectionBuilder.OutputTrackContainerName=InDetPhysValKeys.GSFTracksUnslimmed
               # ToolSvc.ResidualPullCalculator.OutputLevel = 1
 
-              from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+              from AthenaCommon.AlgSequence import AlgSequence
               topSequence = AlgSequence()
               topSequence.insert(decor_index+1,slimmer)
       # import sys
@@ -360,7 +331,7 @@ def addGSFTrackDecoratorAlg() :
 
 def addDecorator() :
   '''
-  Add the track particle decoration algorithm to the top sequence. 
+  Add the track particle decoration algorithm to the top sequence.
   The algorithm is to be run on RAW/RDO since it depends on full hit information
   which is generally not available at later stages. The decorations added by this
   algorithm are used by InDetPhysValMonitoring tool.
@@ -391,21 +362,22 @@ def addDecorator() :
     decorators += getDBMTrackDecorators()
 
   _addDecorators( decorators )
- 
+
 def addExtraMonitoring() :
   '''
-  IF monitoring is wished for GSF or DBM TrackParticles find the monitoring manager and 
+  IF monitoring is wished for GSF or DBM TrackParticles find the monitoring manager and
   add the corresponding monitoring tools.
   '''
   # hack to add monitors for DBM and GSF
   # the job option fragment which adds the InDetPhysValMonitoringTool for the default tracks
   # will call this method, so can abuse this method to also add the monitoring tools for DBM and GSF tracks
+  # @TODO delete function ?
   try:
    from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
    # flags are at this stage already initialised, so do not need to  InDetPhysValFlags.init()
    if InDetPhysValFlags.doValidateGSFTracks() or InDetPhysValFlags.doValidateDBMTracks() or InDetPhysValFlags.doValidateTightPrimaryTracks() :
        mon_index = findMonMan()
-       if mon_index != None :
+       if mon_index is not None :
            from AthenaCommon.AlgSequence import AlgSequence
            topSequence = AlgSequence()
            mon_manager = topSequence.getChildren()[mon_index]
@@ -414,12 +386,12 @@ def addExtraMonitoring() :
   except ImportError :
     import sys,traceback
     exc_type, exc_value, exc_traceback = sys.exc_info()
-    print "*** print_tb:"
+    print ("*** print_tb:")
     traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-    print "*** print_exception:"
+    print ("*** print_exception:")
     traceback.print_exception(exc_type, exc_value, exc_traceback,
                               limit=2, file=sys.stdout)
-    print "*** print_exc:"
+    print ("*** print_exc:")
     traceback.print_exc()
     raise
 
@@ -445,17 +417,17 @@ def canAddDecorator() :
 
     if rec.readRDO :
       try :
-        from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+        from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         import re
         pat =re.compile('.*(TrackParticleCnvAlg).*')
         for alg in topSequence.getChildren() :
-            if pat.match( alg.getFullName() ) != None :
+            if pat.match( alg.getFullName() ) is not None :
                 return True
 
       except :
         pass
-    
+
     return False
 
 def addDecoratorIfNeeded() :
@@ -464,7 +436,7 @@ def addDecoratorIfNeeded() :
    '''
 
    if  not canAddDecorator() :
-         print 'DEBUG addDecoratorIfNeeded ? Stage is too early or too late for running the decoration. Needs reconstructed tracks. Try again during next stage ?'
+         print ('DEBUG addDecoratorIfNeeded ? Stage is too early or too late for running the decoration. Needs reconstructed tracks. Try again during next stage ?')
          return
 
    meta_data = getMetaData()
@@ -478,4 +450,4 @@ def addDecoratorIfNeeded() :
    InDetPhysValFlags.init()
 
    # from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-   # print 'DEBUG addDecoratorIfNeeded add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs
+   # print ('DEBUG addDecoratorIfNeeded add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs)

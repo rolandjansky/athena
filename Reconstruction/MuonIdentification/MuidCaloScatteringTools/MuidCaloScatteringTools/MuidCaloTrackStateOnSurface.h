@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -23,10 +23,11 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include <atomic>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -99,11 +100,11 @@ private:
     double					m_paramPtCut;
     
     // counters (for finalize)
-    mutable int					m_count;
-    mutable int					m_countArbitrarySolution;
-    mutable int					m_countCompleteFailure;
-    mutable int					m_countInnerFailure;
-    mutable int					m_countOuterFailure;
+    mutable std::atomic_int			m_count;
+    mutable std::atomic_int			m_countArbitrarySolution;
+    mutable std::atomic_int			m_countCompleteFailure;
+    mutable std::atomic_int			m_countInnerFailure;
+    mutable std::atomic_int			m_countOuterFailure;
 };
 
 }	// end of namespace

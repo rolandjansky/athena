@@ -5,18 +5,12 @@
 # Declare the package name:
 atlas_subdir( TrigKernel )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel )
+# Header-only boost dependency
+find_package( Boost )
 
-# External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( tdaq-common COMPONENTS eformat )
-
-# Component(s) in the package:
+# Header-only library
 atlas_add_library( TrigKernel
-                   src/*.cxx
+                   INTERFACE
                    PUBLIC_HEADERS TrigKernel
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} GaudiKernel )
-
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                   LINK_LIBRARIES GaudiKernel CxxUtils )

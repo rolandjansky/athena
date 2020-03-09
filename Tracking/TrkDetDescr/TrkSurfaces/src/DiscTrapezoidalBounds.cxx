@@ -59,7 +59,7 @@ Trk::DiscTrapezoidalBounds::DiscTrapezoidalBounds(const DiscTrapezoidalBounds& d
   , m_boundValues(disctrbo.m_boundValues)
 {}
 
-Trk::DiscTrapezoidalBounds::~DiscTrapezoidalBounds() {}
+Trk::DiscTrapezoidalBounds::~DiscTrapezoidalBounds() = default;
 
 Trk::DiscTrapezoidalBounds&
 Trk::DiscTrapezoidalBounds::operator=(const DiscTrapezoidalBounds& disctrbo)

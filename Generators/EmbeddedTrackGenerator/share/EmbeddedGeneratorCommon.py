@@ -35,7 +35,7 @@ sg2 = StoreGateSvc("InputData_Event_SG")
 #================================================================
 # Output
 
-from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
 outStream = createOutputStream( "EmbeddedGeneratorOut" )
 outStream.Store = ServiceMgr.StoreGateSvc
 outStream.OutputFile  = OutputFile

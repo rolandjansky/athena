@@ -1,8 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import os,commands,time
+import os,time
 import stat as statconsts
-import envutil
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 __doc__ = """Module with utilities for rfio files"""
 
@@ -19,10 +22,11 @@ def rfstat(filename):
     """Return tuple (status,output) of rfstat shell command. Output is a list of strings
     (one entry per line). Raises RFIOError if rfstat command is not found."""
     statcmd = 'rfstat'
+    from PyJobTransformsCore import envutil
     if not envutil.find_executable(statcmd):
         raise RFIOError( '%s not found in PATH' % statcmd )
     cmd = '%s %s' % (statcmd,_remove_prefix(filename,'rfio:'))
-    status,output = commands.getstatusoutput( cmd )
+    status,output = subprocess.getstatusoutput( cmd )
     status >>= 8
 
     return (status, output.split(os.linesep))
@@ -33,10 +37,11 @@ def rfdir(dirname):
     The format is the same as the unix shell command \'ls -la\'
     Raises RFIOError if rfdir command is not found"""
     dircmd = 'rfdir'
+    from PyJobTransformsCore import envutil
     if not envutil.find_executable(dircmd):
         raise RFIOError( '%s not found in PATH' % dircmd )
     cmd = '%s %s' % (dircmd,_remove_prefix(dirname,'rfio:'))
-    status,ls_la = commands.getstatusoutput( cmd )
+    status,ls_la = subprocess.getstatusoutput( cmd )
     status >>= 8
     
     return (status, ls_la.split(os.linesep))

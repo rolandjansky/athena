@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr
 from AthenaCommon import CfgGetter
 #FIXME no need for all these getPrivateTool calls.
 def getPileUpMergeSvc(name="PileUpMergeSvc", **kwargs):

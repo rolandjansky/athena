@@ -42,7 +42,6 @@ oStream = AthenaOutputStream(
     OutputFile = "ByteStreamEventStorageOutputSvc"
     )
 
-oStream.ForceRead = TRUE
 if DetFlags.haveRIO.pixel_on():
   oStream.ItemList += [ "PixelRDO_Container#*" ]
 if DetFlags.haveRIO.SCT_on():

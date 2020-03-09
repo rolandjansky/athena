@@ -393,7 +393,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
 	    track->setXSlope(iter->x_slope);
 	    track->setYSlope(iter->y_slope);
 	    //			    track->setz_slope	iter->z_slope;
-	    track->setNHits(iter->nHits);
+	    // track->setNHits(iter->nHits);
 	    track->setNHoles(iter->nHoles);
 	    track->setChi2(iter->fChi2);
 
@@ -423,14 +423,14 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
               if (result < siHitContainer->size()) {
 		ATH_MSG_DEBUG("To the list of hits in a track adding hit "<<result<<"/"<<siHitContainer->size()<<".");
 
-		ElementLink< xAOD::AFPSiHitContainer >* hitLink = new ElementLink< xAOD::AFPSiHitContainer >;
-		hitLink->toIndexedElement(*siHitContainer, result);
-		track->addHit(*hitLink);
+		// ElementLink< xAOD::AFPSiHitContainer >* hitLink = new ElementLink< xAOD::AFPSiHitContainer >;
+		// hitLink->toIndexedElement(*siHitContainer, result);
+		// track->addHit(*hitLink);
 
-		ElementLink< xAOD::AFPTrackContainer >* trackLink = new ElementLink< xAOD::AFPTrackContainer >;
-		trackLink->toIndexedElement(*resultContainer, resultContainer->size() -1);
-		xAOD::AFPSiHit * hit = const_cast<xAOD::AFPSiHit*> (siHitContainer->at(result));
-		hit->addTrackLink(*trackLink);
+		// ElementLink< xAOD::AFPTrackContainer >* trackLink = new ElementLink< xAOD::AFPTrackContainer >;
+		// trackLink->toIndexedElement(*resultContainer, resultContainer->size() -1);
+		// xAOD::AFPSiHit * hit = const_cast<xAOD::AFPSiHit*> (siHitContainer->at(result));
+		// hit->addTrackLink(*trackLink);
 	      }
 	      else
 		ATH_MSG_WARNING("Track hit not found in hits list. HitID: "<<(*hitIter)

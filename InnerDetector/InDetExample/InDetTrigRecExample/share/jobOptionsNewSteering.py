@@ -186,7 +186,7 @@ theEFTrackHypo_e60 =  EFTrackHypo_e60()
 # Region Selector and Trigger 
 #--------------------------------------------------------------
 
-include( "TriggerRelease/TriggerFlags.py" )
+include( "TriggerJobOpts/TriggerFlags.py" )
 include( "RegionSelector/RegionSelector_jobOptions.py" )
 include( "InDetRegionSelector/InDetRegionSelectorTable_jobOptions.py" ) #include it temporarily!
 
@@ -434,7 +434,6 @@ if doWriteAOD:
    StreamAOD.OutputFile    = "InDetTrigRecAOD.root"
    
    #force read of input data to write in output data
-   StreamAOD.ForceRead = True
 
    #  EventInfo - needs to be always saved.
    StreamAOD.ItemList=[]
@@ -451,7 +450,6 @@ if doWriteESD:
    StreamESD.OutputFile    = "InDetTrigRecESD.root"
    
    #force read of input data to write in output data
-   StreamESD.ForceRead = True
 
    #  EventInfo - needs to be always saved.
    StreamESD.ItemList=[]

@@ -9,32 +9,7 @@ from __future__ import print_function
 import sys
 import os
 import os.path
-
-def lsroot(dir):
-   """Return list of all keys in 'dir' (recursively)"""
-
-   import ROOT
-   
-   def dols(dir, keys):
-      """Do the recursive traversal"""
-      dirList = dir.GetListOfKeys()
-      for k in dirList:
-         kname = k.GetName()
-         if k.GetClassName()=="TDirectoryFile" or k.GetClassName()=="TDirectory":
-            dir.cd(kname)
-            dols(ROOT.gDirectory, keys)
-         else:
-            keys += [dir.GetPath()+"/"+kname]
-      
-      dir.cd("..")
-      return
-
-   keys = []
-   basedir = dir.GetPath().rstrip("/") + "/"
-   dols(dir,keys)
-
-   # Return sorted list with base directory removed
-   return sorted([k.replace(basedir,"") for k in keys])
+from TrigValTools.TrigRootUtils import lsroot
 
 
 def diffFiles(ref,file,opts):
@@ -148,21 +123,10 @@ def main():
                      action = "store_true", default = False,
                      help = "be verbose")
 
-   parser.add_option("--atnMode",
-                     action = "store_true", default = False, help = "reference file is one from previous atn nightly test")
-   
    parser.add_option("--html",action="store_true",default=False,help="generate root html code to view results in web browser")
 
    (opts, args) = parser.parse_args()
    
-   if opts.atnMode and len(args)==1:
-      from TrigValTools.Utils import getPreviousNightlyPath
-      for i in range(1,7):
-         refFile = getPreviousNightlyPath(i) + "/" + args[0]
-         if os.path.isfile(refFile): break
-         print("Could not find file %s" % refFile)
-      args = [refFile] + args
-
    if len(args)!=2:
       parser.print_help()
       return 255

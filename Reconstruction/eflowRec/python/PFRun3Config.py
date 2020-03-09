@@ -1,5 +1,28 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+def getOfflinePFAlgorithm(inputFlags):
+
+    PFAlgorithm=CompFactory.PFAlgorithm
+    PFAlgorithm = PFAlgorithm("PFAlgorithm")   
+    
+    from eflowRec.PFCfg import getPFClusterSelectorTool
+    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","","PFClusterSelectorTool")
+
+    from eflowRec.PFCfg import getPFCellLevelSubtractionTool
+    PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool")]
+
+    if(False is inputFlags.PF.EOverPMode):
+        from eflowRec.PFCfg import getPFRecoverSplitShowersTool
+        PFAlgorithm.SubtractionToolList += [getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool")]
+
+    from eflowRec.PFCfg import getPFMomentCalculatorTool
+    PFAlgorithm.BaseToolList = [getPFMomentCalculatorTool(inputFlags,[])]
+    from eflowRec.PFCfg import getPFLCCalibTool
+    PFAlgorithm.BaseToolList += [getPFLCCalibTool(inputFlags)]
+
+    return PFAlgorithm
 
 def PFCfg(inputFlags,**kwargs):
 
@@ -8,81 +31,102 @@ def PFCfg(inputFlags,**kwargs):
     #Some such items may be best placed elsewehere (e.g. put magnetic field setup in magnetic field git folder etc)
     result=ComponentAccumulator()
 
-    from StoreGate.StoreGateConf import StoreGateSvc
+    StoreGateSvc=CompFactory.StoreGateSvc
     result.addService(StoreGateSvc("DetectorStore"))
+
+    #Alias calibrated topoclusters, if they exist already, such that overwrite won't fial
+    from SGComps.AddressRemappingConfig import InputRenameCfg
+    result.merge(InputRenameCfg("xAOD::CaloClusterContainer","CaloCalTopoClusters",""))
     
+    #Setup up general geometry
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    result.mergeAll(GeoModelCfg(inputFlags))
+    result.merge(GeoModelCfg(inputFlags))
 
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
-    result.merge(acc)
+    #Setup Pixel geometry including IBL and /Indet(/Onl)/Align folders
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg(inputFlags))
 
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = False))
+    #Setup Pixel conditions
+    PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
+    result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
 
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+    PixelDetectorElementCondAlg=CompFactory.PixelDetectorElementCondAlg
+    result.addCondAlgo(PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg"))
+
+    #Setup SCT conditions
+    SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
+    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
+
+    SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
     result.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
-    
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))    
 
-    from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+    GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
     from AthenaCommon import CfgGetter
     result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
     result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
 
-    from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
+    #Setup TRT geometry
+    TRT_DetectorTool=CompFactory.TRT_DetectorTool
     trtDetectorTool = TRT_DetectorTool()
+    #These two lines fix ATLASRECTS-5053. I expect eventually we can remove them, once the underlying issue is fixed.
+    trtDetectorTool.DoXenonArgonMixture = False
+    trtDetectorTool.DoKryptonMixture = False
     result.getService("GeoModelSvc").DetectorTools += [ trtDetectorTool ]
 
-    from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
+    #Setup up material for inner detector
+    InDetServMatTool=CompFactory.InDetServMatTool
     result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
-
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline,IOVDbSvcCfg
-    result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
-    result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
-    iovDbSvc=result.getService("IOVDbSvc")
-    iovDbSvc.FoldersToMetaData+=['/GLOBAL/BField/Maps']
-
-    from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
-    kwargs.setdefault( "UseDCS", True )
-    result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
-
+    #Setup up tracking geometry
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    acc = TrackingGeometrySvcCfg(inputFlags)
+    result.merge(acc)
+    
     #load folders needed for Run2 ID alignment
-    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
+    
+    #Setup up muon geometry
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    result.merge(MuonGeoModelCfg(inputFlags))    
 
-    #load folders needed for IBL
-    result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
+    #setup magnetic field service
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    result.merge(MagneticFieldSvcCfg(inputFlags))
 
     #hard-code MC conditions tag needed for my ESD file - must be a better way? how to auto-configure?
+    iovDbSvc=result.getService("IOVDbSvc")
     iovDbSvc.GlobalTag="OFLCOND-MC16-SDR-20"
+
+    #Configure topocluster algorithmsm, and associated conditions
+    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
+    result.merge(CaloTopoClusterCfg(inputFlags,doLCCalib=True))
     
-    from eflowRec.eflowRecConf import PFLeptonSelector
-    PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
-    result.addEventAlgo(PFLeptonSelector)
+    from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
+    result.merge(caloTopoCoolFolderCfg(inputFlags))
 
-    from eflowRec.eflowRecConf import PFTrackSelector
-    PFTrackSelector=PFTrackSelector("PFTrackSelector")
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    result.merge(CaloNoiseCondAlgCfg(inputFlags,"totalNoise"))
+    result.merge(CaloNoiseCondAlgCfg(inputFlags,"electronicNoise"))
 
-    from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
-    TrackCaloExtensionTool=eflowTrackCaloExtensionTool()
+    #Cache the track extrapolations
+    from TrackToCalo.CaloExtensionBuilderAlgCfg import getCaloExtenstionBuilderAlgorithm
+    result.addEventAlgo(getCaloExtenstionBuilderAlgorithm(inputFlags))
 
-    PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
+    #Configure the pflow algorithms
+    PFLeptonSelector=CompFactory.PFLeptonSelector
+    result.addEventAlgo(PFLeptonSelector("PFLeptonSelector"))
 
-    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-    TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
+    from eflowRec.PFCfg import getPFTrackSelectorAlgorithm
+    result.addEventAlgo(getPFTrackSelectorAlgorithm(inputFlags,"PFTrackSelector"))
 
-    TrackSelectionTool.CutLevel = "TightPrimary"
-    TrackSelectionTool.minPt = 500.0 
-    
-    PFTrackSelector.trackSelectionTool = TrackSelectionTool
-    
-    result.addEventAlgo(PFTrackSelector)
+    result.addEventAlgo(getOfflinePFAlgorithm(inputFlags))
+
+    from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
+    result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,""))
+    result.addEventAlgo(getNeutralPFOCreatorAlgorithm(inputFlags,""))
 
     return result
 

@@ -34,7 +34,7 @@ extern "C" {float divdif_(const float[],const float[],int*,float*,int* );}
 
 
 
-float data[] = {
+const float data[] = {
      0.05,   6.264762e-01,
      0.15,   6.671484e-01,
      0.25,   7.134157e-01,
@@ -51,7 +51,7 @@ float data[] = {
      1.35,  -1.170352e+00,
      1.45,  -9.312256e-01,
 };
-int shape[2] = {15, 2};
+const int shape[2] = {15, 2};
 
 
 #define ARSZ(x) (sizeof(x)/sizeof(x[0]))

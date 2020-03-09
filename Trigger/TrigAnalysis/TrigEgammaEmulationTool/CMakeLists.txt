@@ -22,15 +22,12 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTrigger
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
-   LumiBlock/LumiBlockComps
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    Reconstruction/RecoTools/RecoToolInterfaces
    Tools/PathResolver
    Trigger/TrigAnalysis/TrigDecisionTool
    Trigger/TrigConfiguration/TrigConfHLTData
    Trigger/TrigEvent/TrigSteeringEvent
-   Trigger/TrigHypothesis/TrigMultiVarHypo
-   Trigger/TrigAnalysis/TrigEgammaMatchingTool
    PRIVATE
    Control/AthenaBaseComps
    Control/StoreGate
@@ -49,22 +46,19 @@ atlas_add_library( TrigEgammaEmulationToolLib
    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AsgTools xAODBase
    xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma
    xAODTrigRinger xAODTrigger PATCoreLib EgammaAnalysisInterfacesLib
-   LumiBlockCompsLib InDetTrackSelectionToolLib RecoToolInterfaces
-   TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent TrigMultiVarHypoLib
-   TrigEgammaMatchingToolLib
+   InDetTrackSelectionToolLib RecoToolInterfaces
+   TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent 
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 atlas_add_component( TrigEgammaEmulationTool
-    src/*.h src/*.cxx src/components/*.cxx
+    src/components/*.cxx
     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES}
     AthContainers AsgTools xAODBase xAODCaloEvent xAODEgamma  xAODTracking
     xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger PATCoreLib
     ElectronPhotonSelectorToolsLib TrigDecisionToolLib TrigConfHLTData
-    TrigSteeringEvent TrigMultiVarHypoLib AthenaBaseComps StoreGateLib SGtests
-    GaudiKernel TrigEgammaMatchingToolLib LumiBlockCompsLib IsolationToolLib
+    TrigSteeringEvent 
+    AthenaBaseComps StoreGateLib SGtests
+    GaudiKernel 
+    IsolationToolLib
     TrigEgammaEmulationToolLib) 
 
-
-# Install files from the package:
-atlas_install_python_modules( python/TrigEgamma*.py )
-atlas_install_joboptions( share/test*.py )

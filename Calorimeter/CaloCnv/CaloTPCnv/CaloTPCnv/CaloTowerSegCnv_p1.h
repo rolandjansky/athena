@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOATHENAPOOL_CALOTOWERSEGCNV_P1_H
@@ -14,8 +14,8 @@ class CaloTowerSeg_p1;
 
 class CaloTowerSegCnv_p1 { //: public T_AthenaPoolTPCnvBase<CaloTowerSeg,CaloTowerSeg_p1> {
  public: 
-  void persToTrans(const CaloTowerSeg_p1*, CaloTowerSeg*) ;
-  void transToPers(const CaloTowerSeg*, CaloTowerSeg_p1*) ;
+  void persToTrans(const CaloTowerSeg_p1*, CaloTowerSeg*) const;
+  void transToPers(const CaloTowerSeg*, CaloTowerSeg_p1*) const;
 
 };
 

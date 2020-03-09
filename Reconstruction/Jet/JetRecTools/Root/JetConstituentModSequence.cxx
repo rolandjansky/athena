@@ -8,6 +8,18 @@
 
 #include "JetRecTools/JetConstituentModSequence.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODPFlow/PFO.h"
+#include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/PFOAuxContainer.h"
+#include "xAODPFlow/TrackCaloCluster.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterAuxContainer.h"
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
   asg::AsgTool(name),
@@ -60,6 +72,14 @@ StatusCode JetConstituentModSequence::initialize() {
       ATH_CHECK(m_outAllPFOKey.initialize());
       break;
     }
+    break;
+  case xAOD::Type::TrackCaloCluster:
+    m_inTCCKey = m_inputContainer;
+    m_outTCCKey = m_outputContainer;
+
+    ATH_CHECK(m_inTCCKey.initialize());
+    ATH_CHECK(m_outTCCKey.initialize());
+    break;
   default:
     ATH_MSG_ERROR(" Unsupported input type "<< m_inputType );
     return StatusCode::FAILURE;
@@ -87,15 +107,20 @@ int JetConstituentModSequence::execute() const {
 			       m_outClusterKey);
       if(!sc.isSuccess()){return 1;}
     }
-    break; 
-  }
-  
+    break; }
+
   case xAOD::Type::ParticleFlow: {
     if (m_trigger){return 2;}
     auto sc = copyModRecordPFO();
     if(!sc.isSuccess()){return 1;}
     break;
   }
+
+  case xAOD::Type::TrackCaloCluster : {
+    auto sc  = copyModRecord(m_inTCCKey, 
+			       m_outTCCKey);
+    if(!sc.isSuccess()){return 1;}
+    break;}
 
   default: {
     ATH_MSG_WARNING( "Unsupported input type " << m_inputType );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,6 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -123,10 +122,10 @@ void test1()
   Athena_test::Leakcheck check;
   
 
-  auto id = CxxUtils::make_unique<EventID> (1234, 2345, 3456, 4567, 5678, 6789,
-                                            4321, 5432, 6543, 7654);
+  auto id = std::make_unique<EventID> (1234, 2345, 3456, 4567, 5678, 6789,
+                                       4321, 5432, 6543, 7654);
 
-  auto etype = CxxUtils::make_unique<EventType>();
+  auto etype = std::make_unique<EventType>();
   etype->add_type (3);
   etype->add_type (13);
   etype->add_type (25);
@@ -145,7 +144,7 @@ void test1()
   streamTags.emplace_back ("fds", "qwe", false,
                            std::set<TriggerInfo::number_type> {13, 14},
                            std::set<TriggerInfo::number_type> {15, 110, 112});
-  auto tinfo = CxxUtils::make_unique<TriggerInfo>
+  auto tinfo = std::make_unique<TriggerInfo>
     (123,
      234,
      345,

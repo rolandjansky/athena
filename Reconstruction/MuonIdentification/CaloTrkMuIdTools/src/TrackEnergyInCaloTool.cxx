@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/TrackEnergyInCaloTool.h"
@@ -800,8 +800,7 @@ double TrackEnergyInCaloTool::etamin(const CaloCell_ID::CaloSample sample, const
 double TrackEnergyInCaloTool::energy(const Trk::TrackParameters *param, 
 					   Trk::ParticleHypothesis particleHypo) const 
 {
-  static Trk::ParticleMasses masses;
-  double mass =masses.mass[particleHypo]; 
+  double mass =m_particlemasses.mass[particleHypo]; 
   if (param){
     double pX = param->momentum().x();
     double pY = param->momentum().y();

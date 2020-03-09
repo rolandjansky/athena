@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        ConfiguredAsgPhotonIsEMSelectors
@@ -32,7 +32,7 @@ def ConfiguredAsgPhotonIsEMSelector( name, quality, menu=photonPIDmenu.menuDC14,
         raise
     
     # Get the label for user data
-    tmpName = (ntuple[1]).func_name
+    tmpName = (ntuple[1]).__name__
     labelName = "is" + ((tmpName.split("Selector")[0]).split("IsEM")[1])
 
     # Create and instance of the tool

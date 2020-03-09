@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBTDC_H
@@ -20,6 +20,7 @@ class TBTDC
 
   TBTDC(int tdc_value, int tdcmin_value, float scale_value=0.05);
   TBTDC(int phase_value, float scale_value=0.05);
+  TBTDC(int tdc_value, int tdcmin_value, float scale_value, int phase_value);
 
   inline int phase() const
     {return m_phase;}

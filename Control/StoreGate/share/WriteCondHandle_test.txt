@@ -1,0 +1,2 @@
+ApplicationMgr.ExtSvc={"StoreGateSvc/ConditionStore"};
+ConditionStore.ProxyProviderSvc="";

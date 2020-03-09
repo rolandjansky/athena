@@ -645,50 +645,6 @@ PileUpEventLoopMgr::setupStreams()
   return sc;
 }
 
-
-
-//=========================================================================
-// Run the algorithms beginRun hook
-//=========================================================================
-StatusCode PileUpEventLoopMgr::beginRunAlgorithms()
-{
-  // Call the execute() method of all top algorithms
-  for ( ListAlg::iterator ita = m_topAlgList.begin();
-        ita != m_topAlgList.end();
-        ita++ )
-    {
-      const StatusCode& sc = (*ita)->sysBeginRun();
-      if ( !sc.isSuccess() )
-        {
-          ATH_MSG_INFO ( "beginRun of algorithm " <<
-                         (*ita)->name() << " failed with StatusCode::" << sc );
-          return sc;
-        }
-    }
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
-// Run the algorithms endRun hook
-//=========================================================================
-StatusCode PileUpEventLoopMgr::endRunAlgorithms()
-{
-  // Call the execute() method of all top algorithms
-  for ( ListAlg::iterator ita = m_topAlgList.begin();
-        ita != m_topAlgList.end();
-        ita++ )
-    {
-      const StatusCode& sc = (*ita)->sysEndRun();
-      if ( !sc.isSuccess() )
-        {
-          ATH_MSG_INFO ( "endRun of algorithm "  <<
-                         (*ita)->name() << " failed with StatusCode::" << sc );
-          return sc;
-        }
-    }
-  return StatusCode::SUCCESS;
-}
-
 //=========================================================================
 // Run the algorithms for the current event
 //=========================================================================
@@ -747,7 +703,6 @@ StatusCode PileUpEventLoopMgr::executeEvent( EventContext&& ctx )
       if (!m_firstRun)
         {
           m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::EndRun));
-          CHECK(this->endRunAlgorithms());
         }
       m_firstRun=false;
       m_currentRun = ctx.eventID().run_number();
@@ -756,7 +711,6 @@ StatusCode PileUpEventLoopMgr::executeEvent( EventContext&& ctx )
 
       // Fire BeginRun "Incident"
       m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::BeginRun,ctx));
-      CHECK(this->beginRunAlgorithms());
     }
 
   bool eventFailed(false);

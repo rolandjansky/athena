@@ -115,15 +115,15 @@ writeDigitizationMetadata()
 # Pool Output (Change this to use a different file)
 #--------------------------------------------------------------
 if DetFlags.writeRDOPool.any_on():
+    premixing = digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi()
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if premixing:
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         eventInfoKey = overlayFlags.bkgPrefix() + "EventInfo"
     else:
         eventInfoKey = "EventInfo"
-    streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True, noTag=True, eventInfoKey=eventInfoKey)
-    streamRDO.ForceRead = True
+    streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True, noTag=not premixing, eventInfoKey=eventInfoKey)
     from Digitization.DigiOutput import getStreamRDO_ItemList
     streamRDO.ItemList = getStreamRDO_ItemList(logDigitization_flags)
     streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]
@@ -136,10 +136,3 @@ if DetFlags.writeRDOPool.any_on():
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel      = 3
 
-#--------------------------------------------------------------
-# Event related parameters
-#--------------------------------------------------------------
-# Number of events to be processed
-theApp.EvtMax = athenaCommonFlags.EvtMax()
-# Number of input events to be skipped
-ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()

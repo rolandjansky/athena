@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CablingCondAlgFromCoraCool_H
@@ -34,7 +34,7 @@ class SCT_ID;
 
 /**
  *    @class SCT_CablingCondAlgFromCoraCool
- *    @brief Service which fill the SCT Cabling from the database, using CoraCool.
+ *    @brief Condition algorithm which fills the SCT Cabling from the database, using CoraCool.
  *
  */
 
@@ -53,13 +53,15 @@ private:
 
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) const;
 
+  /// Input conditions folders
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyRod{this, "ReadKeyRod", "/SCT/DAQ/Config/ROD", "Key of input (raw) conditions folder of Rods"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyRodMur{this, "ReadKeyRodMur", "/SCT/DAQ/Config/RODMUR", "Key of input (raw) conditions folder of RodMurs"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyMur{this, "ReadKeyMur", "/SCT/DAQ/Config/MUR", "Key of input (raw) conditions folder of Murs"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyGeo{this, "ReadKeyGeo", "/SCT/DAQ/Config/Geog", "Key of input (raw) conditions folder of Geography"};
-  SG::WriteCondHandleKey<SCT_CablingData> m_writeKey{this, "WriteKey", "SCT_CablingData", "Key of output (derived) conditions folder"};
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+  /// Output condition data
+  SG::WriteCondHandleKey<SCT_CablingData> m_writeKey{this, "WriteKey", "SCT_CablingData", "Key of output (derived) conditions data"};
 
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   const SCT_ID* m_idHelper{nullptr};
 };//end of class
 

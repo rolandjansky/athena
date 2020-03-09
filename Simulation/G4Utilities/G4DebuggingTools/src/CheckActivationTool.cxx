@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "CheckActivationTool.h"
 
 namespace G4UA
@@ -19,7 +18,7 @@ namespace G4UA
   CheckActivationTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a CheckActivation action");
-    auto action = CxxUtils::make_unique<CheckActivation>();
+    auto action = std::make_unique<CheckActivation>();
     actionList.eventActions.push_back( action.get() );
     return action;
   }

@@ -3,6 +3,7 @@
 */
 
 // Hide multi-threading classes from builds without G4MT
+#include "G4Types.hh"
 #ifdef G4MULTITHREADED
 
 #include "G4AtlasAlg/G4AtlasMTRunManager.h"
@@ -27,7 +28,7 @@ G4AtlasMTRunManager::G4AtlasMTRunManager()
   : G4MTRunManager()
   , m_msg("G4AtlasMTRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasMTRunManager")
-  , m_physListTool("PhysicsListToolBase")
+  , m_physListSvc("PhysicsListSvc", "G4AtlasMTRunManager")
   , m_fastSimTool("FastSimulationMasterTool")
 {}
 
@@ -127,15 +128,15 @@ void G4AtlasMTRunManager::InitializePhysics()
   physicsInitialized = true;
 
   // Grab the physics list tool and set the extra options
-  if (m_physListTool.retrieve().isFailure()) {
+  if (m_physListSvc.retrieve().isFailure()) {
     ATH_MSG_ERROR("Could not retrieve the physics list tool");
     G4ExceptionDescription description;
-    description << "InitializePhysics: Failed to retrieve IPhysicsListTool.";
+    description << "InitializePhysics: Failed to retrieve IPhysicsListSvc.";
     G4Exception("G4AtlasMTRunManager", "CouldNotRetrievePLTool",
                 FatalException, description);
     abort(); // to keep Coverity happy
   }
-  m_physListTool->SetPhysicsOptions();
+  m_physListSvc->SetPhysicsOptions();
 
   // Setup the fast simulations
   const std::string methodName = "G4AtlasMTRunManager::InitializePhysics";

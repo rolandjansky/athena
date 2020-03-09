@@ -1,13 +1,12 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEMScaleCondAlg.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCablingSvc.h"
 
 
 #include "StoreGate/ReadCondHandle.h"
@@ -15,7 +14,6 @@
 
 TileEMScaleCondAlg::TileEMScaleCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name),
   m_useOflLasFib(false),
   m_maxChannels(0),
   m_maxGains(0),
@@ -23,9 +21,6 @@ TileEMScaleCondAlg::TileEMScaleCondAlg(const std::string& name, ISvcLocator* pSv
 {
 }
 
-
-TileEMScaleCondAlg::~TileEMScaleCondAlg() {
-}
 
 
 StatusCode TileEMScaleCondAlg::initialize() {
@@ -52,6 +47,9 @@ StatusCode TileEMScaleCondAlg::initialize() {
 
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
+
+  // Tile cabling service
+  ATH_CHECK( m_cablingSvc.retrieve() );
 
   ATH_CHECK( m_oflCisLinProxy.retrieve() );
   ATH_CHECK( m_oflCisNlnProxy.retrieve() );
@@ -84,10 +82,7 @@ StatusCode TileEMScaleCondAlg::initialize() {
     }
 
     //=== Resize onlCache to desired size
-    ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
-    ATH_CHECK( cablingSvc.retrieve());
-
-    const TileCablingService* cabling = cablingSvc->cablingService();
+    const TileCablingService* cabling = m_cablingSvc->cablingService();
     if (!cabling) {
       ATH_MSG_ERROR( "Unable to retrieve TileCablingService" );
       return StatusCode::FAILURE;

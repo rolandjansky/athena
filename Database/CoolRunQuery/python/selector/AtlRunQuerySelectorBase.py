@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
 from PyCool import cool
 from copy import deepcopy
 
@@ -61,11 +62,11 @@ class DataKey(object):
 
     def __eq__(self,other):
         if isinstance(other,DataKey):
-            #print "Compare (%s) with (%s) ==> %r" % (self._internal_key,other._internal_key, self._internal_key==other._internal_key)
+            #print ("Compare (%s) with (%s) ==> %r" % (self._internal_key,other._internal_key, self._internal_key==other._internal_key))
             eq = self._internal_key==other._internal_key and self._second_internal_key==other._second_internal_key
             return eq
         else:
-            #print "Compare (%s) with '%s' ==> %r" % (self._internal_key, other, self._internal_key==other)
+            #print ("Compare (%s) with '%s' ==> %r" % (self._internal_key, other, self._internal_key==other))
             eq = self._internal_key==other
             return eq
 
@@ -77,7 +78,7 @@ class DataKey(object):
                 return self._second_internal_key.__cmp__(other._second_internal_key)
             return self._internal_key.__cmp__(other._internal_key)
         else:
-            #print "Compare (%s) with '%s' ==> %r" % (self._internal_key, other, self._internal_key==other)
+            #print ("Compare (%s) with '%s' ==> %r" % (self._internal_key, other, self._internal_key==other))
             return self._internal_key==other
 
     def __hash__(self):
@@ -132,7 +133,7 @@ class Selector(object):
             raise RuntimeError("CondDB not yet set")
 
         Selector.__conddb = "CONDBR2" if run_number > 236100 else "COMP200"
-        print "Determinded %s, based on run number %i" % (Selector.__conddb, run_number)
+        print ("Determinded %s, based on run number %i" % (Selector.__conddb, run_number))
         return Selector.__conddb
 
     @staticmethod
@@ -261,7 +262,7 @@ class RunLBBasedCondition(Condition):
         for ch1,ch2 in sortedRanges:
             if chansel==None: chansel = cool.ChannelSelection(ch1,ch2,cool.ChannelSelection.sinceBeforeChannel)
             else:             chansel.addRange(ch1,ch2)
-        print self.name,"browsing objects with tag",self.tagname
+        print (self.name,"browsing objects with tag",self.tagname)
         return coolgen(f.browseObjects( iovmin, iovmax, chansel, self.tagname))
 
     def findPayload(self, runNr, iovpllist):
@@ -363,7 +364,7 @@ class RunLBBasedCondition(Condition):
 
 
     def select(self, runlist):
-        print self,
+        print (self, end='')
         sys.stdout.flush()
         start = time()
         newrunlist = []
@@ -382,7 +383,7 @@ class RunLBBasedCondition(Condition):
             condData[k].sort()
             #if k.startswith('ofllumi'):
             #    for x in condData[k]:
-            #        print k,x
+            #        print (k,x)
 
         condDataDict = {}
         runnrlist = [r.runNr for r in runlist]
@@ -410,7 +411,7 @@ class RunLBBasedCondition(Condition):
                 anyDataSelected = False
                 for iov, data in datavec:
                     #if k=="DQ":
-                    #    print "CCCCCCCCCCCC",k,data
+                    #    print ("CCCCCCCCCCCC",k,data)
                     self.selDataMissing = False
                     if self.ApplySelection(k) and not self.passes(data,k):
                         run.addResult(k, self.prettyValue(data,k), iov, reject=True)
@@ -426,8 +427,8 @@ class RunLBBasedCondition(Condition):
 
         duration = time() - start
 
-        if self.applySelection:  print " ==> %i runs found (%.2f sec)" % (len(runlist),duration)
-        else:                    print " ==> Done (%g sec)" % duration
+        if self.applySelection:  print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:                    print (" ==> Done (%g sec)" % duration)
 
         return runlist
 
@@ -535,7 +536,7 @@ class TimeBasedCondition(Condition):
 
 
     def select(self, runlist):
-        print self,
+        print (self, end='')
         sys.stdout.flush()
         start = time()
         newrunlist = []
@@ -619,8 +620,8 @@ class TimeBasedCondition(Condition):
 
         duration = time() - start
 
-        if self.applySelection: print " ==> %i runs found (%.2f sec)" % (len(runlist),duration)
-        else:                   print " ==> Done (%g sec)" % duration
+        if self.applySelection: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:                   print (" ==> Done (%g sec)" % duration)
 
         return runlist
 

@@ -25,7 +25,6 @@ atlas_add_poolcnv_library( TileEventAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities CaloDetDescrLib CaloIdentifier StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel TileEvent TileTPCnv )
 
 # Install files from the package:
-atlas_install_headers( TileEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
@@ -38,9 +37,9 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TILEEVENTATHENAPOOL_REFERENCE_TAG
        TileEventAthenaPoolReference-01-00-00 )
-  run_tpcnv_test( TileTPCnv_15.6.4    ESD-15.6.4
+  run_tpcnv_legacy_test( TileTPCnv_15.6.4    ESD-15.6.4
                   REFERENCE_TAG ${TILEEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( TileTPCnv_20.1.7.2  ESD-20.1.7.2
+  run_tpcnv_legacy_test( TileTPCnv_20.1.7.2  ESD-20.1.7.2
                   REFERENCE_TAG ${TILEEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )

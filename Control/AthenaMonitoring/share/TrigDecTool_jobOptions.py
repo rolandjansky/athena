@@ -51,7 +51,7 @@ if DQMonFlags.useTrigger():
    for tdt_menu, tdt_menu_item in tdt_local_hltconfig.__dict__.items():
       if not isinstance(tdt_menu_item, collections.Iterable): continue
       # work around possibly buggy category items
-      if isinstance(tdt_menu_item, basestring): 
+      if isinstance(tdt_menu_item, str): 
          tdt_local_logger.debug('String, not list: %s' % tdt_menu)
          tdt_menu_item = [tdt_menu_item]
       if len([_ for _ in tdt_menu_item if not (_.startswith('HLT_') or _.startswith('L1'))]) != 0:

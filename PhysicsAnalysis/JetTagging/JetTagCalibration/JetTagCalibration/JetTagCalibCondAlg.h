@@ -64,9 +64,8 @@ class JetTagCalibCondAlg : public AthAlgorithm {
   void registerHistogram(const std::string& tagger, const std::string& directory, const std::string& histoname);
   StatusCode createHistoMap(TFile* file, JetTagCalibCondData * histos);
   StatusCode objectTDirExists(const std::string& histname, TFile* file) const;
-  StatusCode getTObject(const std::string& histname, TFile* file, TObject*& hist) const;
   std::vector<std::string> tokenize(std::string str, std::string delim);
-  void smoothAndNormalizeHistogram(TObject*& h, const std::string& hname);
+  void smoothAndNormalizeHistogram(TH1* h, const std::string& hname);
   void smoothASH2D(TH2* input2D, int m1, int m2); 
   void initializeIPTag();
   void initializeIP2D();

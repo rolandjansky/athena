@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ValgrindAuditor.cxx,v 1.4 2008-10-14 12:31:40 fwinkl Exp $
@@ -19,7 +19,6 @@
 
 // Boost includes
 #include <boost/algorithm/string.hpp>
-#include "boost/foreach.hpp"
 
 using std::string;
 
@@ -77,7 +76,7 @@ StatusCode ValgrindAuditor::initialize()
                               "IgnoreFirstNEvents",
                               "DumpAfterEachInterval"};
 
-  BOOST_FOREACH( std::string prop, properties ) {
+  for( std::string prop : properties ) {
     if ( !setProperty(valSvcProp->getProperty(prop)) ) {
       msgStream() << MSG::ERROR << "Cannot set " << prop << " property." << endmsg;
       return StatusCode::FAILURE;
@@ -88,7 +87,7 @@ StatusCode ValgrindAuditor::initialize()
   m_eventCounter = 0;
 
   // Create regular expressions from algorithm names
-  BOOST_FOREACH( const std::string re, m_algs ) {
+  for( const std::string re : m_algs ) {
     try {
       m_algsRegEx.push_back( boost::regex(re) );
     }
@@ -131,8 +130,7 @@ StatusCode ValgrindAuditor::initialize()
   
   incSvc->addListener( this, IncidentType::BeginEvent, prio );
 
-  std::pair<NameEvt,NameEvt> h;
-  BOOST_FOREACH( h, m_hooks ) {
+  for( const std::pair<NameEvt,NameEvt>& h : m_hooks ) {
     // No regular expressions allowed for incidents. Take the original string.
     if ( h.first.second=="incident" ) incSvc->addListener( this, h.first.first.str(), prio );
     if ( h.second.second=="incident" ) incSvc->addListener( this, h.second.first.str(), prio );      

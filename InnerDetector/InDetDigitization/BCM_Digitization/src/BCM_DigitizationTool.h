@@ -10,8 +10,11 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "PileUpTools/PileUpMergeSvc.h"
+
 #include "InDetSimData/InDetSimData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
+#include "InDetSimEvent/SiHitCollection.h"
 #include "InDetSimEvent/SiHit.h"
 
 #include "InDetBCM_RawData/BCM_RDO_Container.h"
@@ -20,9 +23,6 @@
 #include "CLHEP/Geometry/Point3D.h"
 
 #include <bitset>
-
-// Data member classes
-class PileUpMergeSvc;
 
 namespace CLHEP
 {
@@ -77,24 +77,27 @@ class BCM_DigitizationTool : public PileUpToolBase {
   void fillRDO(unsigned int chan, int p1x, int p1w, int p2x, int p2w);
 
   // Digitization parameters
-  std::string m_hitCollName;      //!< Input simulation hit collection name
   std::vector<float> m_modNoise;  //!< RMS Gaussian noise
   std::vector<float> m_modSignal; //!< Most probable MIP signal
   std::vector<float> m_ninoThr;   //!< NINO threshold
-  float m_mipDeposit;             //!< Most probable MIP deposit in BCM pad
-  float m_effPrmDistance;         //!< Distance parameter in charge collection efficiency function
-  float m_effPrmSharpness;        //!< Sharpness parameter in charge collection efficiency function
-  float m_timeDelay;              //!< Time delay
+  Gaudi::Property<float> m_mipDeposit{this, "MIPDeposit", 0.0f, "Most probable MIP deposit in BCM pad"};
+  Gaudi::Property<float> m_effPrmDistance{this, "EffDistanceParam", 0.0f, "Distance parameter for efficiency calculation"};
+  Gaudi::Property<float> m_effPrmSharpness{this, "EffSharpnessParam", 0.0f, "Sharpness parameter for efficiency calculation"};
+  Gaudi::Property<float> m_timeDelay{this, "TimeDelay", 0.0f, "Pulse time delay"};
+
+  BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey{this, "HitCollName", "BCMHits", "Input simulation hits collection name"};
+  std::string m_inputObjectName{""};
 
   // Write handle keys
   SG::WriteHandleKey<BCM_RDO_Container> m_outputKey{this, "OutputRDOKey", "BCM_RDOs", ""};
   SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOKey{this, "OutputSDOKey", "BCM_SDO_Map", ""};
 
   // Output objects
-  BCM_RDO_Container* m_rdoContainer; //!< Output RDO container
-  InDetSimDataCollection* m_simDataCollMap; //!< Output SDO map
+  BCM_RDO_Container* m_rdoContainer{}; //!< Output RDO container
+  InDetSimDataCollection* m_simDataCollMap{}; //!< Output SDO map
 
-  PileUpMergeSvc* m_mergeSvc; //!< Handle for pileup merging service
+  ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in digitization"}; //!
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
 
   // Vectors to store G4 hit information

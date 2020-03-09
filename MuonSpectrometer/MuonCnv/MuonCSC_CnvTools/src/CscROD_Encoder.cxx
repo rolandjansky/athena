@@ -17,7 +17,7 @@
 
 /** constructor 
 */ 
-CscROD_Encoder::CscROD_Encoder() : m_cscRdo(0), m_cscHelper(0)
+CscROD_Encoder::CscROD_Encoder() : m_cscRdo(0)
 {}
 
 
@@ -37,7 +37,7 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
   CscRODReadOut rodReadOut;
 
   // initialize the identifier helper
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool);
 
  // first group the pads into their RPUs
  typedef std::vector<const CscRawData*> rpu;

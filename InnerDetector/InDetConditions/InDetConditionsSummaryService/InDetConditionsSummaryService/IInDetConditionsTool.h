@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -45,7 +45,10 @@ public:
   //@}
   ///goodFraction method gives the fraction of good elements in the range of identifiers
   virtual double goodFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd) const =0;
-   
+
+  virtual bool isBSActive(const IdentifierHash & moduleHash) const =0;
+  virtual bool isBSError(const IdentifierHash & moduleHash) const =0;
+
 };
 
 #endif

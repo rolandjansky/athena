@@ -47,7 +47,7 @@ class Help:
 
    def __call__( self, *args, **kw ):
       if args or kw:
-         apply( __builtins__[ 'help' ], args, kw )    # "normal" python help
+         __builtins__[ 'help' ] ( *args, **kw )    # "normal" python help
          return
 
       log.info( 'Welcome to the Athena Interactive Help' )
@@ -87,7 +87,8 @@ class Help:
             text = 'Your choice (use l to list topics,%s%s q to quit)? ' % \
                ((current.action and ' p to perform,' or ''),
                 (current.web and ' w for web,' or ''))
-            choice = raw_input( text )
+            from builtins import input
+            choice = input( text )
          except (KeyboardInterrupt,EOFError):
             print()
             break

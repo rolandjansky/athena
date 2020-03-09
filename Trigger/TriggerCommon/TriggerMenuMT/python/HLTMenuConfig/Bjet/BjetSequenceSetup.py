@@ -1,7 +1,12 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+# menu components
+from AthenaCommon.CFElements import seqAND
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from TrigEDMConfig.TriggerEDMRun3 import recordable
+
+#from AthenaCommon.Constants import DEBUG
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -10,234 +15,105 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 def getBJetSequence( step ):
     if step == "j":
         return bJetStep1Sequence()
-    if step == "jALLTE":
-        return bJetStep1SequenceALLTE()
-    if step == "gsc":
+    if step == "btag":
         return bJetStep2Sequence()
-    if step == "gscALLTE":
-        return bJetStep2SequenceALLTE()
-    if step == "bTag":
-        return bJetStep1Sequence()
     return None
 
 # ==================================================================================================== 
-#    step 1: jet reco and cut on 'j' threshold 
+#    step 1: This is Jet code. Not here!
+# ==================================================================================================== 
+
+# ==================================================================================================== 
+#    step 2: retrieving jets from jet-trigger code and optional first stage of fast tracking with primary vertex
 # ==================================================================================================== 
 
 def bJetStep1Sequence():
-    # menu components
-    from AthenaCommon.CFElements import parOR, seqAND
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+    jetsKey = "HLT_AntiKt4EMTopoJets_subjesgscIS_ftf"
+    prmVtxKey = "HLT_EFHistoPrmVtx"
 
-    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetAthSequence
-    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2", RoIsLink="initialRoI" )
+    InputMakerAlg.Views = "FullScanBjetView"
+    InputMakerAlg.InViewRoIs = "FullScanRoI"
+    InputMakerAlg.ViewFallThrough = True
 
-    # Start with b-jet-specific algo sequence
-    # Construct RoI. Needed input for Fast Tracking
-    from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
-    RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
-    RoIBuilder.JetInputKey = sequenceOut
-    RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
 
-    # Fast Tracking 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs()
+    outputJetName = "HLT_GSCJet"
+    outputRoIName = "HLT_GSCJet_RoIs"
 
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
-    theFTF_Jet = TrigFastTrackFinder_Jet()
-    theFTF_Jet.isRoI_Seeded = True
-    theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
-    viewAlgs.append( theFTF_Jet )
+    # Jet Selector
+    from TrigBjetHypo.TrigBjetHypoConf import TrigJetSelectorMT
+    jetSelector = TrigJetSelectorMT( "BJetSelector" )
+    jetSelector.JetMaxEta = 2.9
+    jetSelector.InputJets = jetsKey
+    jetSelector.InputVertex = prmVtxKey
+    jetSelector.OutputJets = recordable( outputJetName )
+    jetSelector.OutputRoi = outputRoIName
 
-    # Primary Vertex goes here
+    bJetEtSequence = seqAND( "bJetEtSequence",[jetSelector] )
+    InputMakerAlg.ViewNodeName = "bJetEtSequence"
 
-    # Shortlis of jets
-    from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
-    jetSplitter = TrigJetSplitterMT("TrigJetSplitterMT")
-    jetSplitter.ImposeZconstraint = True
-    jetSplitter.Jets = sequenceOut
-    jetSplitter.OutputJets = "SplitJets"
-    jetSplitter.OutputRoi = "SplitJets"
-    jetSplitter.OutputVertex = "PrimaryVertex" # TMP
-
-    fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
-    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,jetSplitter] )
+    # Sequence
+    BjetAthSequence = seqAND("BjetAthSequence_step1",[InputMakerAlg,bJetEtSequence])
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
-    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
-    hypo.Jets = jetSplitter.OutputJets
-    hypo.RoIs = jetSplitter.OutputRoi
-    hypo.RoILink = "step1RoI" # To be used in following step EventView
-    hypo.JetLink = "jets" # To be used in following step with EventView
+    hypo = TrigBjetEtHypoAlgMT( "TrigBjetEtHypoAlgMT" )
+    hypo.RoILink = "step1RoI"
+    hypo.PrmVtxLink = prmVtxKey.replace( "HLT_","" )
+    hypo.Jets = outputJetName
+    hypo.RoIs = outputRoIName
+    hypo.PrmVtx = prmVtxKey
+    hypo.RetrieveVertexFromEventView = False
 
-    # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
-
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
-
-def bJetStep1SequenceALLTE():
-    # menu components
-    from AthenaCommon.CFElements import parOR, seqAND
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-
-    # Construct jets
-    from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetAthSequence
-    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
-
-    # Start with b-jet-specific algo sequence
-    # Construct RoI. Needed input for Fast Tracking
-    from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
-    RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
-    RoIBuilder.JetInputKey = sequenceOut
-    RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
-
-    # Fast Tracking 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs()
-
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
-    theFTF_Jet = TrigFastTrackFinder_Jet()
-    theFTF_Jet.isRoI_Seeded = True
-    theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
-    viewAlgs.append( theFTF_Jet )
-
-    # Primary Vertex goes here
-
-    # Shortlis of jets
-    from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
-    jetSplitter = TrigJetSplitterMT("TrigJetSplitterMT")
-    jetSplitter.ImposeZconstraint = True 
-    jetSplitter.Jets = sequenceOut
-    jetSplitter.OutputJets = "SplitJets"
-    jetSplitter.OutputRoi = "SplitJets"
-    jetSplitter.OutputVertex = "PrimaryVertex" # TMP
-
-    fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
-    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,jetSplitter] )
-
-    # hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
-    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1_ALLTE")
-    hypo.Jets = jetSplitter.OutputJets
-    hypo.RoIs = jetSplitter.OutputRoi
-    hypo.RoILink = "initialRoI" # To be used in following step EventView
-    hypo.JetLink = "jets" # To be used in following step with EventView
-
-    # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence_step1_ALLTE",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
-
-    return MenuSequence( Sequence    = BjetAthSequence,
-                         Maker       = InputMakerAlg,
-                         Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
-
-
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 # ==================================================================================================== 
-#    step 2: precision tracking, gsc calibration and cut on gsc-corrected threshold
+#    step 3: Second stage of fast tracking, Precision tracking, and flavour tagging
 # ==================================================================================================== 
 
 def bJetStep2Sequence():
-    # menu components
-    from AthenaCommon.CFElements import seqAND
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+    roisLink = "step1RoI"
+    prmVtxKey = "HLT_EFHistoPrmVtx"
 
-    # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2", RoIsLink="initialRoI")
-    InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
-    InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
-    InputMakerAlg.Views = "BJetViews" # Name of output view
-    # RoIs
-    InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
-    InputMakerAlg.RoIsLink = "step1RoI" # RoIs linked to previous decision
-    # Jets
-    InputMakerAlg.InViewJets = "InViewJets" # Name Jets are inserted in the view
-    InputMakerAlg.JetsLink = "jets" # Jets linked to previous decision
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets( "IMBJet_step3",RoIsLink=roisLink )
+    InputMakerAlg.ViewFallThrough = True
+    InputMakerAlg.RequireParentView = True
+    InputMakerAlg.Views = "BTagViews"
+    InputMakerAlg.InViewRoIs = "InViewRoIs"
+    InputMakerAlg.InViewJets = "InViewJets"
+        
 
-    # Precision Tracking
-    #def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "InDetTrigPT" ):
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets" )
+    # Second stage of Fast Tracking and Precision Tracking
+    from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
+    secondStageAlgs, PTTracks, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs )
 
-    # gsc correction
-    from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
-    theGSC = getGSCFexSplitInstance("GSCFexSplitInstance")
-    theGSC.RoIs = InputMakerAlg.InViewRoIs
-    theGSC.JetKey = InputMakerAlg.InViewJets
-    theGSC.TrackKey = PTTrackParticles[0]
-    theGSC.PriVtxKey = "PrimaryVertex"
-    theGSC.JetOutputKey = "GSCJets"
+    # Flavour Tagging
+    from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
+    flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
 
-    step2Sequence = seqAND("step2Sequence",[theGSC])
-    InputMakerAlg.ViewNodeName = "step2Sequence"
-    
-    # hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
-    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
-    hypo.RoIs = "step1RoI"
-    hypo.Jets = theGSC.JetOutputKey
-    hypo.RoILink = InputMakerAlg.RoIsLink # To be used in following step EventView
-    hypo.JetLink = InputMakerAlg.JetsLink # To be used in following step with EventView
-    hypo.ReadFromView = True
+    preAlgs = []
+
+    bJetBtagSequence = seqAND( "bJetBtagSequence", preAlgs + secondStageAlgs + flavourTaggingAlgs )
+    InputMakerAlg.ViewNodeName = "bJetBtagSequence"
 
     # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg] + PTAlgs + [step2Sequence])
+    BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
 
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
+    hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
+    hypo.Tracks = PTTrackParticles[0]
+
+    from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
+                         HypoToolGen = TrigBjetBtagHypoToolFromDict )
 
-
-def bJetStep2SequenceALLTE():
-    # menu components
-    from AthenaCommon.CFElements import seqAND
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-
-    # input maker
-    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
-#    InputMakerAlg.RoIs="SplitJets" # TMP commenting
-
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets" )  
-    
-    # gsc correction
-    from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
-    theGSC = getGSCFexSplitInstance("GSCFexSplitInstance_ALLTE")
-    theGSC.TrackKey = PTTrackParticles[0]
-    theGSC.JetKey = "SplitJets"
-    theGSC.JetOutputKey = "GSCJets"
-    theGSC.PriVtxKey = "PrimaryVertex"
-
-    # hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
-    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
-    hypo.Jets = theGSC.JetOutputKey
-    hypo.RoIs = "SplitJets"
-    hypo.RoILink = "initialRoI"
-    hypo.JetLink = "jets"
-
-
-    # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence_step2ALLTE",[InputMakerAlg] + PTAlgs + [theGSC] )
-
-    return MenuSequence( Sequence    = BjetAthSequence,
-                         Maker       = InputMakerAlg,
-                         Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
-
-# ==================================================================================================== 
-#    step 3: secondary vertex and b-tagging
-# ==================================================================================================== 
 
 

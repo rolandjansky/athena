@@ -14,6 +14,8 @@ class ConfiguredTRTSegmentFinding:
     from InDetRecExample.InDetJobProperties import InDetFlags
     from InDetRecExample.InDetKeys          import InDetKeys
     from AthenaCommon.DetFlags              import DetFlags
+
+    import InDetRecExample.TrackingCommon   as TrackingCommon
     #
     # get ToolSvc and topSequence
     #
@@ -31,14 +33,15 @@ class ConfiguredTRTSegmentFinding:
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
+    prefix = 'InDetSegment'
+    suffix     = extension
     if usePrdAssociationTool:
-      from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-      InDetSegmentPRD_Association = InDet__InDetTrackPRD_Association(name            = 'InDetSegmentPRD_Association'+extension,
-                                                                     AssociationTool = InDetPrdAssociationTool,
-                                                                     TracksName      = list(InputCollections)) 
+      InDetSegmentPRD_Association = TrackingCommon.getInDetTrackPRD_Association(namePrefix = prefix,
+                                                                                nameSuffix = suffix,
+                                                                                TracksName = list(InputCollections))
       topSequence += InDetSegmentPRD_Association
       if (InDetFlags.doPrintConfigurables()):
-        print InDetSegmentPRD_Association
+        printfunc (InDetSegmentPRD_Association)
 
     # ---------------------------------------------------------------
     #
@@ -60,7 +63,7 @@ class ConfiguredTRTSegmentFinding:
        ToolSvc += InDetTRT_TrackSegmentsMakerPhase
        #InDetTRT_TrackSegmentsMakerPhase.OutputLevel = VERBOSE 
        if (InDetFlags.doPrintConfigurables()):
-         print InDetTRT_TrackSegmentsMakerPhase
+         printfunc (InDetTRT_TrackSegmentsMakerPhase)
 
       else:
        from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMaker_BarrelCosmics
@@ -72,7 +75,7 @@ class ConfiguredTRTSegmentFinding:
        ToolSvc += InDetTRT_TrackSegmentsMaker
        #InDetTRT_TrackSegmentsMaker.OutputLevel = VERBOSE
        if (InDetFlags.doPrintConfigurables()):
-         print InDetTRT_TrackSegmentsMaker
+         printfunc (InDetTRT_TrackSegmentsMaker)
 
     else:
       #
@@ -93,12 +96,11 @@ class ConfiguredTRTSegmentFinding:
       #
       from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMaker_ATLxk
       InDetTRT_TrackSegmentsMaker = InDet__TRT_TrackSegmentsMaker_ATLxk(name                    = 'InDetTRT_SeedsMaker'+extension,
-                                                                        TrtManagerLocation      = InDetKeys.TRT_Manager(),
                                                                         TRT_ClustersContainer   = InDetKeys.TRT_DriftCircles(),
                                                                         PropagatorTool          = InDetPatternPropagator,
                                                                         TrackExtensionTool      = InDetTRTExtensionTool,
-                                                                        UseAssosiationTool      = usePrdAssociationTool,
-                                                                        AssosiationTool         = InDetPrdAssociationTool,
+                                                                        PRDtoTrackMap           = prefix+'PRDtoTrackMap'+suffix \
+                                                                                                    if usePrdAssociationTool else '',
                                                                         RemoveNoiseDriftCircles = InDetFlags.removeTRTNoise(),
                                                                         MinNumberDriftCircles   = MinNumberDCs,
                                                                         NumberMomentumChannel   = NewTrackingCuts.TRTSegFinderPtBins(),
@@ -106,7 +108,18 @@ class ConfiguredTRTSegmentFinding:
                                                                         sharedFrac              = sharedFrac)
       ToolSvc += InDetTRT_TrackSegmentsMaker
       if (InDetFlags.doPrintConfigurables()):
-        print InDetTRT_TrackSegmentsMaker
+        printfunc (InDetTRT_TrackSegmentsMaker)
+
+      # Condition algorithm for InDet__TRT_TrackSegmentsMaker_ATLxk
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not hasattr(condSeq, "InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk"):
+        from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk
+        InDetTRT_TrackSegmentsMakerCondAlg = InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk(name                    = 'InDetTRT_SeedsMakerCondAlg'+extension,
+                                                                                        PropagatorTool          = InDetPatternPropagator,
+                                                                                        NumberMomentumChannel   = NewTrackingCuts.TRTSegFinderPtBins(),
+                                                                                        pTmin                   = pTmin)
+        condSeq += InDetTRT_TrackSegmentsMakerCondAlg
 
     #
     # --- TRT track reconstruction
@@ -120,7 +133,7 @@ class ConfiguredTRTSegmentFinding:
 
       topSequence += InDetTRT_TrackSegmentsFinderPhase
       if (InDetFlags.doPrintConfigurables()):
-       print InDetTRT_TrackSegmentsFinderPhase
+       printfunc (InDetTRT_TrackSegmentsFinderPhase)
 
     else:
 
@@ -139,7 +152,7 @@ class ConfiguredTRTSegmentFinding:
 
      topSequence += InDetTRT_TrackSegmentsFinder
      if (InDetFlags.doPrintConfigurables()):
-      print InDetTRT_TrackSegmentsFinder
+      printfunc (InDetTRT_TrackSegmentsFinder)
       
     #
     # --- load TRT validation alg
@@ -156,7 +169,7 @@ class ConfiguredTRTSegmentFinding:
                                                                                     MinNumberDCs         = MinNumberDCs)
       topSequence += InDetSegmentDriftCircleAssValidation
       if (InDetFlags.doPrintConfigurables()):
-        print InDetSegmentDriftCircleAssValidation
+        printfunc (InDetSegmentDriftCircleAssValidation)
 
     
     

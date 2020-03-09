@@ -17,15 +17,15 @@ StatusCode TrigCostDataStore<PAYLOAD>::initialize(size_t nSlots) {
 template<typename PAYLOAD>
 StatusCode TrigCostDataStore<PAYLOAD>::insert(const AlgorithmIdentifier& ai, const PAYLOAD& payload) {
   MsgStream& msg = *(ai.m_msg);
-  const EventContext& context = ai.m_context;
-  ATH_CHECK( checkSlot(context.slot(), msg) );
-  tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( context.slot() );
+  ATH_CHECK( checkSlot(ai.m_slotToSaveInto, msg) );
+  tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( ai.m_slotToSaveInto );
   typename tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::accessor acc;
   if (mapReference.insert(acc, ai)) {
     // Obtains lock on the key value 'name' until 'acc' goes out of scope or calls release()
     acc->second = payload;
   } else if (msg.level() <= MSG::WARNING) {
-    msg << MSG::WARNING << "Key caller:'" << ai.m_caller << "' store:'" << ai.m_store << "' already in the TrigCostDataStore" << endmsg; 
+    msg << MSG::WARNING << "Key caller:'" << ai.m_caller << "' store:'" << ai.m_store 
+      << "' slot:" << ai.m_realSlot <<" already in the TrigCostDataStore" << endmsg; 
   }
   return StatusCode::SUCCESS;
 }
@@ -33,19 +33,19 @@ StatusCode TrigCostDataStore<PAYLOAD>::insert(const AlgorithmIdentifier& ai, con
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename PAYLOAD>
-StatusCode TrigCostDataStore<PAYLOAD>::retrieve(const AlgorithmIdentifier& ai, PAYLOAD& payload) const {
+StatusCode TrigCostDataStore<PAYLOAD>::retrieve(const AlgorithmIdentifier& ai, 
+  typename tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_accessor& payload) const
+{
   MsgStream& msg = *(ai.m_msg);
-  const EventContext& context = ai.m_context;
-  ATH_CHECK( checkSlot(context.slot(), msg) );
-  const tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( context.slot() );
-  typename tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_accessor cacc; // Does not lock other const_accessor
-  if (!mapReference.find(cacc, ai)) {
+  ATH_CHECK( checkSlot(ai.m_slotToSaveInto, msg) );
+  const tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( ai.m_slotToSaveInto );
+  if (!mapReference.find(payload, ai)) {
     if (msg.level() <= MSG::DEBUG) {
-      msg << MSG::DEBUG << "Cannot access key caller:'" << ai.m_caller << "' store:'" << ai.m_store << "' from the the TrigCostDataStore" << endmsg;
+      msg << MSG::DEBUG << "Cannot access key caller:'" << ai.m_caller << "' store:'" << ai.m_store 
+        << "' slot:" << ai.m_realSlot << " from the the TrigCostDataStore" << endmsg;
     }
     return StatusCode::FAILURE;
   }
-  payload = cacc->second;
   return StatusCode::SUCCESS; 
 }
 

@@ -1,7 +1,3 @@
-from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
-theAddNoiseCellBuilderTool=AddNoiseCellBuilderTool()
+from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault
+theAddNoiseCellBuilderTool=AddNoiseCellBuilderToolDefault()
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool=CaloNoiseToolDefault('tool','CaloNoiseToolAtlfastIIF')
-
-theAddNoiseCellBuilderTool.CaloNoiseTool=theCaloNoiseTool.getFullName()

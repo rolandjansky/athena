@@ -1,29 +1,36 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 if 'OutputFile' not in dir():
     OutputFile="bc_output.txt"
 
 if 'DBInstance' not in dir():
    DBInstance="CONDBR2"
 
+if 'DBString' not in dir():
+   DBString="<db>COOLOFL_LAR/"
+
 if 'sqlite' in dir():
     dbStr="<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db>"
-    if not 'tag' in dir():
+    if 'tag' not in dir():
         tag="LARBadChannelsOflBadChannels-UPD4-00"
 else:
-    dbStr="<db>COOLOFL_LAR/"+DBInstance+"</db>"
+    dbStr=DBString+DBInstance+"</db>"
 
 if 'tag' in dir():
     tagStr="<tag>"+tag+"</tag>"
 else:
     tagStr=""
 
-if not 'IOVEndRun' in dir():
+if 'IOVEndRun' not in dir():
    IOVEndRun = -1
 
-if not 'IOVEndLB' in dir():
+if 'IOVEndLB' not in dir():
    IOVEndLB = -1
 
+if 'folderStr' not in dir():
+   folderStr="/LAR/BadChannelsOfl/BadChannels"
 
-if not 'ExecutiveSummaryFile' in dir():
+if 'ExecutiveSummaryFile' not in dir():
     ExecutiveSummaryFile=""
 
 
@@ -32,10 +39,11 @@ import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.GlobalFlags import  globalflags
 globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
-globalflags.DatabaseInstance=DBInstance
+if 'OFLP' not in DBInstance:
+   globalflags.DatabaseInstance=DBInstance
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -70,7 +78,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()  
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 
 from AthenaCommon.AlgSequence import AthSequencer

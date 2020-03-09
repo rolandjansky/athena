@@ -19,11 +19,11 @@
 #include "MuonCablingTools/RPCdef.h"
 #include "MuonCablingTools/dbline.h"
 
-#include "RPCcablingInterface/RDOindex.h"
-#include "RPCcablingInterface/RPCofflineId.h"
+#include "RPC_CondCabling/RDOindex.h"
+#include "RPC_CondCabling/RPCofflineId.h"
 #include "RPCcablingInterface/CablingRPCBase.h"
 
-#include "MuonRPC_Cabling/SectorLogicSetup.h"
+#include "RPC_CondCabling/SectorLogicSetup.h"
 
 
 class MuonRPC_CablingSvc;
@@ -47,8 +47,8 @@ class CablingRPC : public CablingRPCBase
 
     bool m_TestbeamFlag;
 
-    typedef std::vector < SectorLogicSetup > STvec;
-    typedef std::map < int,SectorLogicSetup*,std::less < int > > SLmap;
+    typedef std::vector < RPC_CondCabling::SectorLogicSetup > STvec;
+    typedef std::map < int, RPC_CondCabling::SectorLogicSetup*,std::less < int > > SLmap;
 
 
     //array; for each sectorlogic type returns the SectorLogicSetup

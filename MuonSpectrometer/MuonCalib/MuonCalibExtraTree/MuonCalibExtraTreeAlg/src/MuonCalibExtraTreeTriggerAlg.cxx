@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,8 +7,6 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibCaloHit.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibTriggerInfo.h"
 
-// Storegate
-#include "StoreGate/StoreGateSvc.h"
 // gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "TrkEventPrimitives/ParamDefs.h"
@@ -53,7 +51,7 @@
 namespace MuonCalib { 
 
 MuonCalibExtraTreeTriggerAlg::MuonCalibExtraTreeTriggerAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), p_StoreGateSvc(0),
+  AthAlgorithm(name, pSvcLocator),
   m_rpcRoiService( "LVL1RPC::RPCRecRoiSvc", name ),
   m_tgcRoiService( "LVL1TGC::TGCRecRoiSvc", name ),
   m_caloBranch("calo_"),
@@ -68,7 +66,7 @@ MuonCalibExtraTreeTriggerAlg::MuonCalibExtraTreeTriggerAlg(const std::string &na
   declareProperty("MBTSContainerLocation",m_mbtsLocation = "MBTSContainer");
   declareProperty("NtupleName",m_ntupleName = "PatternNtupleMaker");
   m_eventNumber=0;
-  m_detStore=NULL; m_tileID=NULL; m_tree=NULL;
+  m_tileID=NULL; m_tree=NULL;
 }  //end MuonCalibExtraTreeTriggerAlg::MuonCalibExtraTreeTriggerAlg
   
 MuonCalibExtraTreeTriggerAlg::~MuonCalibExtraTreeTriggerAlg() {
@@ -79,25 +77,8 @@ StatusCode MuonCalibExtraTreeTriggerAlg::initialize() {
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << "Initialisation started     " << endmsg;
 
-  // Set pointer on StoreGateSvc
-  StatusCode sc = service("StoreGateSvc", p_StoreGateSvc);
-  if (!sc.isSuccess() || 0 == p_StoreGateSvc) {
-    log << MSG::ERROR
-	<< "MuonCalibExtraTreeTriggerAlg::initialize "
-	<< "Could not find StoreGateSvc" << endmsg;
-    return( StatusCode::FAILURE );
-  }
-
-  // retrieve detector store
-  m_detStore = 0;
-  sc = service( "DetectorStore", m_detStore );
-  if (sc.isFailure()) {
-    log <<MSG::FATAL << "Could not get DetectorStore"<<endmsg;
-    return sc;
-  }
-
   if( m_doMuCTPI ){
-    sc = m_rpcRoiService.retrieve();
+    StatusCode sc = m_rpcRoiService.retrieve();
     if ( sc.isFailure() ) {
       log << MSG::FATAL << "Unable to access RPCRecRoiSvc" << endmsg;
       return sc;
@@ -111,7 +92,7 @@ StatusCode MuonCalibExtraTreeTriggerAlg::initialize() {
 
   if( m_doMBTS ){
     m_tileID = 0;
-    sc = m_detStore->retrieve(m_tileID);
+    StatusCode sc = detStore()->retrieve(m_tileID);
     if ( sc.isFailure()) {
       log << MSG::ERROR << "Unable to retrieve TileID helper from DetectorStore" << endmsg;
     }
@@ -172,13 +153,13 @@ void MuonCalibExtraTreeTriggerAlg::addCTP() {
   //=======================================================================
   MsgStream log(msgSvc(), name());
   log << MSG::DEBUG << " adding CTP information " << endmsg;
-  if( !p_StoreGateSvc->contains< CTP_RDO >( m_ctpLocation ) ) {
+  if( !evtStore()->contains< CTP_RDO >( m_ctpLocation ) ) {
     log << MSG::DEBUG << " CTP information no available in StoreGate at " << m_ctpLocation << endmsg;
     return;
   }
 
   const CTP_RDO* theCTP_RDO = 0;
-  if(p_StoreGateSvc->retrieve(theCTP_RDO, m_ctpLocation).isFailure()) {
+  if(evtStore()->retrieve(theCTP_RDO, m_ctpLocation).isFailure()) {
     log << MSG::WARNING << "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation << endmsg;
     return;
   }
@@ -199,13 +180,13 @@ void MuonCalibExtraTreeTriggerAlg::addMuCTPI() {
   m_muCTPIBranch.reset();
 
   // Get the MuCTPI RDO from StoreGate:
-  if( !p_StoreGateSvc->contains< MuCTPI_RDO >(m_muCPTILocation) ) {
+  if( !evtStore()->contains< MuCTPI_RDO >(m_muCPTILocation) ) {
     log << MSG::DEBUG << " MuCTPI information no available in StoreGate at " << m_muCPTILocation << endmsg;
     return;
   }
 
   const MuCTPI_RDO* muCTPI_RDO;
-  if ( p_StoreGateSvc->retrieve( muCTPI_RDO, m_muCPTILocation ).isFailure() ) {
+  if ( evtStore()->retrieve( muCTPI_RDO, m_muCPTILocation ).isFailure() ) {
     log << MSG::DEBUG << "Could not find MUCTPI_RDO at " << m_muCPTILocation << endmsg;
     return;
   }
@@ -247,18 +228,18 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
   m_caloBranch.reset();
 
   const CaloCellContainer* theCalocontainer;
-  if( !p_StoreGateSvc->contains<CaloCellContainer>(m_caloLocation) ) {
+  if( !evtStore()->contains<CaloCellContainer>(m_caloLocation) ) {
     log << MSG::DEBUG << " CaloCellContainer no available in StoreGate at " << m_caloLocation << endmsg;
     return;
   }
 
-  if(p_StoreGateSvc->retrieve(theCalocontainer,m_caloLocation).isFailure()) {
+  if(evtStore()->retrieve(theCalocontainer,m_caloLocation).isFailure()) {
     log<<MSG::WARNING<<" Cannot find CaloCell Container in TDS at " << m_caloLocation <<endmsg;
     return;
   }  
   log << MSG::VERBOSE << "Retrieval of CaloCell container succeeded at " << m_caloLocation << endmsg;
 
-  if( m_detStore && m_tileID ) {
+  if( m_tileID ) {
     double pi = 4*atan(1.);  
     double cellEnergyThreshold = 100. ;
     double eCellcut = 200.;
@@ -482,19 +463,19 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
 
   m_mbtsBranch.reset();
     
-  if( !p_StoreGateSvc->contains<TileCellContainer>(m_mbtsLocation) ) {
+  if( !evtStore()->contains<TileCellContainer>(m_mbtsLocation) ) {
     log << MSG::DEBUG << " MBTS TileCellContainer no available in StoreGate at " << m_mbtsLocation << endmsg;
     return;
   }
 
   const TileCellContainer* theMBTScontainer;
-  if(p_StoreGateSvc->retrieve(theMBTScontainer,m_mbtsLocation).isFailure()) {
+  if(evtStore()->retrieve(theMBTScontainer,m_mbtsLocation).isFailure()) {
     log<<MSG::WARNING<<" Cannot find MBTS Container in TDS at " << m_mbtsLocation << endmsg;
     return;
   }  
   log << MSG::VERBOSE << "Retrieval of MBTS container succeeded at " << m_mbtsLocation << endmsg;
          
-  if( m_detStore && m_tileID ) {  
+  if( m_tileID ) {  
     double pi = 4*atan(1.); 
     double energy[32],time[32];
     int module[32];

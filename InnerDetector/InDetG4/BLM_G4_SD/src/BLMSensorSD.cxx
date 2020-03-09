@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //###############################################
@@ -11,7 +11,6 @@
 #include "BLMSensorSD.h"
 
 // Athena headers
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 
 // Geant4 headers
@@ -24,6 +23,7 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include <memory> // For make unique
 
 BLMSensorSD::BLMSensorSD(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
@@ -35,7 +35,7 @@ BLMSensorSD::BLMSensorSD(const std::string& name, const std::string& hitCollecti
 // Initialize from G4 - necessary to new the write handle for now
 void BLMSensorSD::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<SiHitCollection>();
 }
 
 G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
@@ -50,7 +50,7 @@ G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     }
 
   //Get the Touchable History:
-  G4TouchableHistory*  myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
+  const G4TouchableHistory *myTouch = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
 
   int BEcopyNo =  myTouch->GetVolume()->GetCopyNo();
 

@@ -141,30 +141,29 @@ int main (int argc, char* argv[])
             const double eta = hist_pt_eta->GetYaxis()->GetBinCenter(yBin);
 
             // Set the main 4-vector and scale 4-vector
-	    if ( !vsE ){
+            if ( !vsE ){
               jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,massForScan));
               detectorEta(*jet) = eta;
               startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
-	    } else {
+            } else {
               const double E = pt; // pt is actually E if vsE
-	      const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
+              const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
               jet->setJetP4(xAOD::JetFourMom_t(pT,eta,0,massForScan));
               detectorEta(*jet) = eta;
               startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pT,eta,0,massForScan));
-	    }
+            }
+            const double startingE = startingScale(*jet).e();
 
             // Jet kinematics set, now apply calibration
-            xAOD::Jet* calibJet = nullptr;
-            calibTool->calibratedCopy(*jet,calibJet);
-
+            if(calibTool->modify(*jets).isFailure()){
+              std::cout << "Failed to apply jet calibration" << std::endl;
+              return 6;
+            }
             // Calculate the scale factors
-            const double JES     = calibJet->e()/startingScale(*jet).e();
+            const double JES     = jet->e()/startingE;
 
             // JMS retrieved, fill the plot(s)
             hist_pt_eta->SetBinContent(xBin,yBin,JES);
-            
-            // Clean up
-            delete calibJet;
         }
     }
 

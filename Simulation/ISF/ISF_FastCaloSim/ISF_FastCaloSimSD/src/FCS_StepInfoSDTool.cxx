@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FCS_StepInfoSDTool.h"
@@ -208,7 +208,7 @@ namespace FCS_Param
   //---------------------------------------------------------------------------
   // Create SD wrapper for current thread
   //---------------------------------------------------------------------------
-  G4VSensitiveDetector* FCS_StepInfoSDTool::makeSD()
+  G4VSensitiveDetector* FCS_StepInfoSDTool::makeSD() const
   {
     // Create the wrapper
     auto sdWrapper = new FCS_StepInfoSDWrapper("FCS_StepInfoSDWrapper", m_hitCollName);
@@ -264,7 +264,7 @@ namespace FCS_Param
       throw GaudiException("Failed to assign sd: " + sdName,
                            name(), StatusCode::FAILURE);
     }
-    return std::move(sd);
+    return sd;
   }
 
   //---------------------------------------------------------------------------
@@ -296,7 +296,7 @@ namespace FCS_Param
       throw GaudiException("Failed to assign sd: " + sdName,
                            name(), StatusCode::FAILURE);
     }
-    return std::move(sd);
+    return sd;
   }
 
 } // namespace FCS_Param

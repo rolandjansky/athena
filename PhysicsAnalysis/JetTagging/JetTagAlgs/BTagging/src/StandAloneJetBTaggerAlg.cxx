@@ -67,12 +67,11 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
     }
   // Should work only with AntiKtEMTopoJets collection, only this collection is b-tagged during reconstruction
   auto rec = xAOD::shallowCopyContainer (*h_JetCollectionName);
-  int ret = m_JetBTaggerTool->modify(*rec.first);
-  delete rec.first;
-  delete rec.second;
-  if (!ret) {
+  if(m_JetBTaggerTool->modify(*rec.first).isFailure()){
     ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
   }
+  delete rec.first;
+  delete rec.second;
 
   // Return gracefully:
   return StatusCode::SUCCESS;

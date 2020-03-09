@@ -18,6 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_component( AthExHive
                      src/*.cxx
+                     src/condEx/*.cxx
+                     src/loopTest/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaKernel AthenaBaseComps xAODEventInfo )
 

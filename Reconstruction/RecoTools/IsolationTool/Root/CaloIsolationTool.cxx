@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODMuon/Muon.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
-#include "boost/foreach.hpp"
 #include "boost/format.hpp"
 #include <cmath> 
 #include <map> 
@@ -477,9 +477,9 @@ namespace xAOD {
                                           derefMap_t& derefMap) const
   {
     /// get it from decoration
-    static SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
-    static SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
-    static SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
+    static const SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
+    static const SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
+    static const SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
     if(Decorated.isAvailable(*tp) && Decorated(*tp)){
       eta = Eta(*tp);
       phi = Phi(*tp);
@@ -491,7 +491,7 @@ namespace xAOD {
     if(mu){
       auto cluster = mu->cluster();
       if(cluster){
-        float etaT = 0, phiT = 0;
+        float etaT = 0, phiT = 0, dphiT = 0.;
         int nSample = 0;
         for(unsigned int i=0; i<CaloSampling::Unknown; i++) // dangerous?
         { 
@@ -499,12 +499,15 @@ namespace xAOD {
           if(!cluster->hasSampling(s)) continue;
           ATH_MSG_DEBUG("Sampling: " << i << "eta-phi (" << cluster->etaSample(s) << ", " << cluster->phiSample(s) << ")");
           etaT += cluster->etaSample(s);
-          phiT += cluster->phiSample(s);
+          if( nSample == 0 )
+            phiT = cluster->phiSample(s);
+          else
+            dphiT += xAOD::P4Helpers::deltaPhi( cluster->phiSample(s), phiT ) ;
           nSample++;
         }
         if(nSample>0){
           eta = etaT/nSample;
-          phi = phiT/nSample;
+          phi = phiT + dphiT/nSample;
 
           if(m_addCaloDeco && !Decorated.isAvailable(*tp)) decorateTrackCaloPosition(*tp, eta, phi);
           return true;
@@ -714,14 +717,16 @@ namespace xAOD {
         
     // Define a new Calo Cell list corresponding to EM Calo
     std::vector<CaloCell_ID::SUBCALO> Vec_EMCaloEnums;
-    for (unsigned int n=0; n < m_EMCaloNums.size(); ++n)
+    for (unsigned int n=0; n < m_EMCaloNums.size(); ++n) {
       Vec_EMCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_EMCaloNums[n] ));
-    CaloCellList* EMccl = new CaloCellList(container, Vec_EMCaloEnums);
+    }
+    CaloCellList EMccl(container, Vec_EMCaloEnums);
    
     std::vector<CaloCell_ID::SUBCALO> Vec_HadCaloEnums;
-    for (unsigned int n=0; n < m_HadCaloNums.size(); ++n) 
+    for (unsigned int n=0; n < m_HadCaloNums.size(); ++n) { 
       Vec_HadCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_HadCaloNums[n] ));
-    CaloCellList* HADccl = new CaloCellList(container, Vec_HadCaloEnums);
+    }
+    CaloCellList HADccl(container, Vec_HadCaloEnums);
     
     // Let's determine some values based on the input specs
     // Search for largest radius
@@ -729,54 +734,48 @@ namespace xAOD {
     for (unsigned int n=0; n< coneSizes.size(); n++)
       if (coneSizes[n] > Rmax) Rmax = coneSizes[n];
         
-    if (EMccl) {
-      // get the cells for the first one; by convention, it must be bigger than all the other cones.
-      EMccl->select(eta,phi,Rmax);
+    // get the cells for the first one; by convention, it must be bigger than all the other cones.
+    EMccl.select(eta,phi,Rmax);
 
-      for (CaloCellList::list_iterator it = EMccl->begin(); it != EMccl->end(); ++it) {
-	double etacel=(*it)->eta();
-	double phicel=(*it)->phi();
+    for (auto it: EMccl) {
+      double etacel=it->eta();
+      double phicel=it->phi();
         
-	double deleta = eta-etacel;
-        float delphi = Phi_mpi_pi(phi-phicel);
-	double drcel2 = (deleta*deleta) + (delphi*delphi);
+      double deleta = eta-etacel;
+      float delphi = Phi_mpi_pi(phi-phicel);
+      double drcel2 = (deleta*deleta) + (delphi*delphi);
         
-	for (unsigned int i = 0; i < coneSizes.size(); i++) {
-	  if (drcel2 < coneSizesSquared[i])
-	    result.etcones[i] += (*it)->et();
-	}
+      for (unsigned int i = 0; i < coneSizes.size(); i++) {
+	if (drcel2 < coneSizesSquared[i])
+	  result.etcones[i] += it->et();
       }
-    }
-    
-    if (HADccl) {
-      // get the cells for the first one; by convention, it must be bigger than all the other cones.
-      HADccl->select(eta, phi, Rmax);
+    }//end loop over cell-list
+  
+       
+    // get the cells for the first one; by convention, it must be bigger than all the other cones.
+    HADccl.select(eta, phi, Rmax);
 
-      for (CaloCellList::list_iterator it = HADccl->begin(); it != HADccl->end(); ++it) {
-	// Optionally remove TileGap cells
-	if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*it)->caloDDE()->getSampling())
-	{
-	  ATH_MSG_DEBUG("Excluding cell with Et = " << (*it)->et());
-	  continue;
-	}
+    for (auto it: HADccl) {
+      // Optionally remove TileGap cells
+      if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == it->caloDDE()->getSampling()) {
+	ATH_MSG_DEBUG("Excluding cell with Et = " << it->et());
+	continue;
+      }
 	
-	// if no TileGap cells excluded, log energy of all cells
-	double etacel = (*it)->eta();
-	double phicel = (*it)->phi();
+      // if no TileGap cells excluded, log energy of all cells
+      double etacel = it->eta();
+      double phicel = it->phi();
         
-	double deleta = eta-etacel;
-        float delphi = Phi_mpi_pi(phi-phicel);
-	double drcel2 = (deleta*deleta) + (delphi*delphi);
+      double deleta = eta-etacel;
+      float delphi = Phi_mpi_pi(phi-phicel);
+      double drcel2 = (deleta*deleta) + (delphi*delphi);
 
-	for (unsigned int i = 0; i < coneSizes.size(); i++) {
-	  if (drcel2 < coneSizesSquared[i]) 
-	    result.etcones[i] += (*it)->et();
-	}
+      for (unsigned int i = 0; i < coneSizes.size(); i++) {
+	if (drcel2 < coneSizesSquared[i]) 
+	  result.etcones[i] += it->et();
       }
-    }
-
-    delete EMccl;
-    delete HADccl;
+    }//end loop over cell-list
+    
     return true;
   }
 #endif
@@ -882,7 +881,7 @@ namespace xAOD {
     
     ATH_MSG_DEBUG("In CaloIsolationTool::topoClustCones");
     
-    BOOST_FOREACH (const CaloCluster* cl, clusts) {
+    for (const CaloCluster* cl : clusts) {
       float et = (m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt() );
       if(et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
@@ -915,7 +914,7 @@ namespace xAOD {
     
     ATH_MSG_DEBUG("In pflowObjCones obj eta = " << eta << " phi = " << phi);
     
-    BOOST_FOREACH (const PFO* cl, clusts) {
+    for (const PFO* cl : clusts) {
       float et = cl->pt();
       if (m_useEMScale)
 	et = cl->ptEM();
@@ -1020,7 +1019,7 @@ namespace xAOD {
       topoCore = fwdClus->p4(CaloCluster::State::UNCALIBRATED).Et();
       ATH_MSG_DEBUG("Including " << topoCore << " in the core transverse energy of the fwd electron");
     } else {
-      BOOST_FOREACH (const CaloCluster* cl, clusts) {
+      for (const CaloCluster* cl : clusts) {
 	ATH_MSG_DEBUG("cl: eta " << cl->eta() << " phi " << cl->phi() 
 		      << " E " << cl->p4(CaloCluster::State::UNCALIBRATED).E() 
 		      << " pt " << cl->p4(CaloCluster::State::UNCALIBRATED).Et() 
@@ -1147,7 +1146,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   {
     
     float pflowCore(0.);
-    BOOST_FOREACH (const PFO* cl, clusts) {
+    for (const PFO* cl : clusts) {
       ATH_MSG_DEBUG("pflo: eta " << cl->eta() << " phi " << cl->phi() << " pt " << cl->pt() << " ptEM = " << cl->ptEM()
 		    << " charge " << cl->charge());
       float dphi = Phi_mpi_pi(cl->phi()-phi);
@@ -1336,9 +1335,11 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if( tp ) return tp;
     const Muon* muon = dynamic_cast<const Muon*>(&particle);
     if( muon ) {
+      ATH_MSG_DEBUG("muon with author "<<muon->author()<<" and pT "<<muon->pt());
       const TrackParticle* tp = 0;
-      if(muon->inDetTrackParticleLink().isValid()) tp = *muon->inDetTrackParticleLink();
-      if( !tp ) tp = muon->primaryTrackParticle();
+      //note: if STACO, the track particle has no Trk::Track associated, so use the ID track
+      if(muon->primaryTrackParticleLink().isValid() && muon->author()!=2) tp = *muon->primaryTrackParticleLink();
+      if( !tp) tp = *muon->inDetTrackParticleLink();
       if( !tp ) {
         ATH_MSG_WARNING(" No TrackParticle found for muon " );
         return 0;
@@ -1396,12 +1397,11 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return true;
   }
 #endif // XAOD_ANALYSIS
-
   // FIXME! This should be updated to use the standard caching of extrapolation to calo
   void CaloIsolationTool::decorateTrackCaloPosition(const IParticle& p, float eta, float phi) const{
-    static SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
-    static SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
-    static SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
+    static const SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
+    static const SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
+    static const SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
 
     if(!dec_Decorated.isAvailable(p) || dec_Decorated.isAvailableWritable(p)){
       dec_Decorated(p) = 1;

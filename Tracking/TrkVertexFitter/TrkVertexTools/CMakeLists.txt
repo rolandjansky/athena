@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
-                          Control/CxxUtils
                           Event/EventPrimitives
                           Generators/GeneratorObjects
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -29,7 +28,7 @@ atlas_add_component( TrkVertexTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel xAODTracking GaudiKernel TrkVertexFitterInterfaces CxxUtils EventPrimitives GeneratorObjects TrkEventPrimitives VxVertex )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel xAODTracking GaudiKernel TrkVertexFitterInterfaces EventPrimitives GeneratorObjects TrkEventPrimitives VxVertex )
 
 # Install files from the package:
 atlas_install_headers( TrkVertexTools )

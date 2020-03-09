@@ -14,7 +14,7 @@ const int NumberOfStripTripletSBData = 8;
 class TGCStripTripletSB: public TGCSlaveBoard {
 
 public:
-  TGCStripTripletSB();
+  TGCStripTripletSB( TGCArguments* );
   virtual ~TGCStripTripletSB(){};
 
 protected:

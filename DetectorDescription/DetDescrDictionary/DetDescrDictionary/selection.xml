@@ -13,6 +13,7 @@
   <class name="std::pair<Identifier,int>" />
   <class name="std::map<HWIdentifier, float>" />
   <class name="std::pair<HWIdentifier, float>" />
+  <class pattern="std::*pair*<Identifier,int>" /> 
   <class pattern="std::*pair*<IdentifierHash,int>" /> 
   <class name="DataVector<std::pair<IdentifierHash, int> >" />
   <class name="std::vector<std::pair<IdentifierHash, int>* >"/>

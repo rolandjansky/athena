@@ -28,12 +28,11 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigConfHLTData/HLTChain.h"
 
-#include "AsgTools/AsgToolsConf.h"
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 #include "AsgTools/MsgStream.h"
 #include "AsgTools/MsgStreamMacros.h"
 #endif
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_ELECTRONICSRESPONSESIMULATION_H
@@ -23,20 +23,7 @@
 
 */
 
-
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/Service.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/StatusCode.h"
-
-
-/// ROOT
-#include <TROOT.h>
-#include <TH1.h>
-#include <TH1F.h>
-#include <TH2F.h>
 #include <TF1.h>
-#include <TMath.h>
 
 /// STD'S
 #include <algorithm>
@@ -57,16 +44,6 @@
 //VMM Mapping
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
 
-using std::vector;
-using std::cout;
-using std::endl;
-
-/// ROOT Classed
-class TF1;
-class TH1;
-class TH1F;
-class TH2F;
-
 class MM_ElectronicsResponseSimulation {
 
 public :
@@ -79,8 +56,8 @@ public :
   void initialize();
 
   void clearValues ();
-  void vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  void vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  void vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
+  void vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
   MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput);
   MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput);
 
@@ -102,6 +79,7 @@ public :
   inline void setStripResponseQThreshold    (float val) { m_stripResponseQThreshold    = val; };
   inline void setStripResponseDriftVelocity (float val) { m_stripResponseDriftVelocity = val; };
   inline void setStripResponseDriftGapWidth (float val) { m_stripResponseDriftGapWidth = val; };
+  inline void setNeighborLogic              (bool  val) { m_useNeighborLogic           = val; };
 
 
   float getPeakTime() const { return m_peakTime;};
@@ -113,9 +91,9 @@ public :
   float getARTdeadtime() const { return m_artDeadTime;};
 
 
-  vector <float>  getTStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
-  vector <float>  getQStripElectronics      () const { return m_qStripElectronics;};
-  vector <int>    getNStripElectronics      () const { return m_nStripElectronics;};
+  std::vector <float>  getTStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
+  std::vector <float>  getQStripElectronics      () const { return m_qStripElectronics;};
+  std::vector <int>    getNStripElectronics      () const { return m_nStripElectronics;};
 
 private:
 
@@ -130,12 +108,13 @@ private:
   float m_stripResponseQThreshold;
   float m_stripResponseDriftGapWidth;
   float m_stripResponseDriftVelocity;
+  bool  m_useNeighborLogic;
 
   int  m_decoupleShaperFunctionParamaters;
 
-  vector <float> m_tStripElectronicsAbThr;
-  vector <float> m_qStripElectronics;
-  vector <int>   m_nStripElectronics;
+  std::vector <float> m_tStripElectronicsAbThr;
+  std::vector <float> m_qStripElectronics;
+  std::vector <int>   m_nStripElectronics;
 
   TF1 *m_h_intFn;
 

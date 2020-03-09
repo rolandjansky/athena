@@ -13,7 +13,7 @@ class TauHypoProvider:
     
     def GetHypo(self, level, threshold, criteria, part, strategy):
 
-        hypoParameters = [level,str(threshold),criteria,part,strategy];
+        hypoParameters = [level,str(threshold),criteria,part,strategy]
         hypoName = '_'.join(hypoParameters)
         
         # Check if the access key is in the dictionary

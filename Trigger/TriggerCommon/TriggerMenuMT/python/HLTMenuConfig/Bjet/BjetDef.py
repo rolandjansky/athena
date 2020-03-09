@@ -14,11 +14,11 @@ from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 # fragments generating configuration will be functions in New JO, 
 # so let's make them functions already now
 #----------------------------------------------------------------
-def bjetSequenceCfg_j( flags ):    
+def bjetSequenceCfg_j( flags ):
     return getBJetSequence('j')
 
-def bjetSequenceCfg_gsc( flags ):    
-    return getBJetSequence('gsc')
+def bjetSequenceCfg_btag( flag ):
+    return getBJetSequence('btag')
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -27,7 +27,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-        
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -37,38 +37,49 @@ class BjetChainConfiguration(ChainConfigurationBase):
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
-        stepDictionary = {
-            "": [self.getBjetSequence_j(), self.getBjetSequence_gsc()]
-        }
+        stepDictionary = self.getStepDictionary()
         
         ## This needs to be configured by the Bjet Developer!!
         key = self.chainPart['extra'] 
-        steps=stepDictionary[key]
+        steps = stepDictionary[key]
 
         chainSteps = []
         for step in steps:
-            chainSteps+=[step]
+            chainstep = getattr(self, step)()
+            chainSteps += [chainstep]
     
         myChain = self.buildChain(chainSteps)
         return myChain
+
+
+    def getStepDictionary(self):
+        # --------------------
+        # define here the names of the steps and obtain the chainStep configuration 
+        # --------------------
+        stepDictionary = {
+            "": ["getBjetSequence_j","getBjetSequence_btag"]
+        }
         
+        return stepDictionary
 
     # --------------------
     # Configuration of steps
     # --------------------
     def getBjetSequence_j(self):
-        stepName = "Step1_bjet"
+        stepName = "Step2_bjet"
         log.debug("Configuring step " + stepName)
+        
         bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_j, None ) # the None will be used for flags in future
         return ChainStep(stepName, [bjetSeq])
 
-    def getBjetSequence_gsc(self):
-        stepName = "Step2_bjet"
+    def getBjetSequence_btag(self):
+        stepName = "Step3_bjet"
         log.debug("Configuring step " + stepName)
-        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_gsc, None ) # the None will be used for flags in future
+        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_btag, None ) # the None will be used for flags in future    
         return ChainStep(stepName, [bjetSeq])
-        
-            
+
+
+
             
 
         

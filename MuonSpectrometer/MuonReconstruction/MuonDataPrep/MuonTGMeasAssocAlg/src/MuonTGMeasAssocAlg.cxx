@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,11 +53,6 @@ Muon::MuonTGMeasAssocAlg::MuonTGMeasAssocAlg(const std::string &name, ISvcLocato
   m_trackingGeometry(0),
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_muonTgTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
-  m_mdtIdHelper(0),
-  m_rpcIdHelper(0),
-  m_cscIdHelper(0),
-  m_tgcIdHelper(0),
-  m_muonMgr(0),
   m_inputSegmentCollectionMoore("MooreSegments"),
   m_inputSegmentCollectionMoMu("MuonSegments_MoMu"),
   m_inputSegmentCollectionMBoy("ConvertedMBoySegments"),
@@ -65,7 +60,6 @@ Muon::MuonTGMeasAssocAlg::MuonTGMeasAssocAlg(const std::string &name, ISvcLocato
   m_inputRpcPrdCollection("RPC_Measurements"),  
   m_inputTgcPrdCollection("TGC_Measurements"),  
   m_inputCscPrdCollection("CSC_Clusters"),  
-  m_StoreGate(0),
   m_activeStore(0),
   m_mdtHits(0),
   m_rpcHits(0),
@@ -106,60 +100,21 @@ StatusCode Muon::MuonTGMeasAssocAlg::initialize()
   // Get the messaging service, print where you are
   ATH_MSG_INFO("MuonTGMeasAssocAlg::initialize()");
 
+  ATH_CHECK(m_DetectorManagerKey.initialize());
+
   StatusCode sc;
 
   // Get an Identifier helper object
-  StoreGateSvc* detStore(0);
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Detector service not found !");
-    return StatusCode::FAILURE;
-  } 
-
-  sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("StoreGate service not found !");
-    return StatusCode::FAILURE;
-  } 
-
   sc=service("ActiveStoreSvc",m_activeStore);
   if (sc.isFailure()) {
     ATH_MSG_FATAL("ActiveStore service not found !");
     return StatusCode::FAILURE;
   } 
 
-  sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
+  sc = m_muonIdHelperTool.retrieve();
   if (sc.isFailure())
   {
-    ATH_MSG_ERROR("Cannot retrieve MdtIdHelper");
-    return sc;
-  }
-
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
-    return sc;
-  }
-
-  sc = detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve cscIdHelper");
-    return sc;
-  }
-
-  sc = detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve TgcIdHelper");
-    return sc;
-  }
-  
-  sc = detStore->retrieve(m_muonMgr);
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager...");
+    ATH_MSG_ERROR("Cannot retrieve MuonIdHelperTool");
     return sc;
   }
   
@@ -188,10 +143,10 @@ StatusCode Muon::MuonTGMeasAssocAlg::initialize()
       if (!misalign.good()) break;
       Identifier id(0);
       if (station>=0) {
-	id = m_mdtIdHelper->elementID(station,eta,phi);
-        if (!m_mdtIdHelper->valid(id)) id = m_rpcIdHelper->elementID(station,eta,phi,1);
-	if (!m_rpcIdHelper->valid(id)) id = m_tgcIdHelper->elementID(station,eta,phi);
-	if (!m_tgcIdHelper->valid(id)) id = m_cscIdHelper->elementID(station,eta,phi);
+	id = m_muonIdHelperTool->mdtIdHelper().elementID(station,eta,phi);
+        if (!m_muonIdHelperTool->mdtIdHelper().valid(id)) id = m_muonIdHelperTool->rpcIdHelper().elementID(station,eta,phi,1);
+	if (!m_muonIdHelperTool->rpcIdHelper().valid(id)) id = m_muonIdHelperTool->tgcIdHelper().elementID(station,eta,phi);
+	if (!m_muonIdHelperTool->tgcIdHelper().valid(id)) id = m_muonIdHelperTool->cscIdHelper().elementID(station,eta,phi);
       }
       Amg::Translation3D shift(x,y,z); 
       Amg::Transform3D transf = shift * Amg::RotationMatrix3D::Identity();
@@ -212,17 +167,18 @@ StatusCode Muon::MuonTGMeasAssocAlg::execute()
   // Get the messaging service, print where you are
   ATH_MSG_INFO("MuonTGMeasAssocAlg::execute()");
 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
+
   StatusCode sc;
 
   if (!m_trackingGeometry) {
  
-    StoreGateSvc* detStore(0);
-    sc = service("DetectorStore", detStore);
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Detector service not found !");
-      return StatusCode::FAILURE;
-    } 
-    sc = detStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
+    sc = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Could not find tool "<< m_trackingGeometryName<<". Exiting.");
       return sc;
@@ -234,7 +190,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::execute()
   if (!m_stationMap.size()) {
     const Trk::TrackingVolume* vol = m_trackingGeometry->highestTrackingVolume();
     ATH_MSG_INFO("creating station map ");    
-    createStationMap(vol);
+    createStationMap(vol, MuonDetMgr);
     ATH_MSG_INFO("station map created with "<<m_stationMap.size()<<" members "); 
     // pass the map to the MuonTGMeasurementTool   
     // if (m_muonTgTool) m_muonTgTool->getMuonStationMap(&m_stationMap);
@@ -245,12 +201,12 @@ StatusCode Muon::MuonTGMeasAssocAlg::execute()
   // realign
   if (m_reAlign) reAlignStations();
 
-  sc = retrieveMeasurements();
+  sc = retrieveMeasurements(MuonDetMgr);
 
   if ( !sc.isFailure() && m_writeTgHits ) sc = storeMeasurements();
 
   if ( m_segmentsIn ) { 
-    sc = createStationSegmentCollection();
+    sc = createStationSegmentCollection(MuonDetMgr);
     if ( !sc.isFailure() && m_writeTgSegments ) sc = storeSegments();
   }
 
@@ -278,7 +234,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeMeasurements() {
  
   if ( m_allHits ) {
     std::string key = "MUON_TG_HITS";
-    sc = m_StoreGate->record(m_allHits,key);
+    sc = evtStore()->record(m_allHits,key);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("MuonTGMeasAssocAlg::storeMeasurements():recording  of hit collection failed");
     } else {
@@ -297,7 +253,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
  
   if ( m_allSegments ) {
     std::string key = "MUON_TG_SEGMENTS";
-    sc = m_StoreGate->record(m_allSegments,key);
+    sc = evtStore()->record(m_allSegments,key);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("MuonTGMeasAssocAlg::storeSegments():recording of segment collection failed");
     } else {
@@ -410,7 +366,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
   
 }
 
- StatusCode Muon::MuonTGMeasAssocAlg::createStationSegmentCollection() const
+ StatusCode Muon::MuonTGMeasAssocAlg::createStationSegmentCollection(const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG("MuonTGMeasAssocAlg::createStationSegmentCollection()" );
@@ -424,7 +380,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
   std::vector<const Trk::SegmentCollection*> segmColls;
   if (m_inputSegmentCollectionMoore != "") {
     const Trk::SegmentCollection* mooreColl = 0;
-    sc = m_StoreGate->retrieve(mooreColl, m_inputSegmentCollectionMoore );
+    sc = evtStore()->retrieve(mooreColl, m_inputSegmentCollectionMoore );
     if (!sc.isFailure()) {
       ATH_MSG_INFO(" retrieved segment collection " << m_inputSegmentCollectionMoore );
       segmColls.push_back(mooreColl);
@@ -435,7 +391,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
   }
   if (m_inputSegmentCollectionMoMu != "") {
     const Trk::SegmentCollection* momuColl = 0;
-    sc = m_StoreGate->retrieve(momuColl, m_inputSegmentCollectionMoMu );
+    sc = evtStore()->retrieve(momuColl, m_inputSegmentCollectionMoMu );
     if (!sc.isFailure()) {
       ATH_MSG_INFO(" retrieved segment collection " << m_inputSegmentCollectionMoMu );
       segmColls.push_back(momuColl);
@@ -446,7 +402,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
   }
   if (m_inputSegmentCollectionMBoy != "") {
     const Trk::SegmentCollection* mboyColl = 0;
-    sc = m_StoreGate->retrieve(mboyColl, m_inputSegmentCollectionMBoy );
+    sc = evtStore()->retrieve(mboyColl, m_inputSegmentCollectionMBoy );
     if (!sc.isFailure()) {
       ATH_MSG_INFO(" retrieved segment collection " << m_inputSegmentCollectionMBoy );
       segmColls.push_back(mboyColl);
@@ -475,21 +431,22 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
 	  if (detVols->size() ) detVol = detVols->front();
 	  if (!detVols->size() ) {
 	    ATH_MSG_ERROR( "missing station?" << segment->globalPosition() );  
-	    std::vector<const Trk::RIO_OnTrack*> rots = segment->containedROTs();
+	    std::vector<const Trk::RIO_OnTrack*> rots;
+	    for(unsigned int irot=0;irot<segment->numberOfContainedROTs();irot++) rots.push_back(segment->rioOnTrack(irot));
 	    if ( rots.size() > 0 ) {
 	      Identifier id = rots[0]->identify();
 	      Amg::Vector3D pos(0., 0., 0.);
-	      if (m_mdtIdHelper->is_mdt(id)) {
-		const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);			
+	      if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) {
+		const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(id);			
 		pos = mdtROE->tubePos(id);
-	      } else if ( m_mdtIdHelper->is_rpc(id)) {
-		const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id);			
+	      } else if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(id)) {
+		const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(id);			
 		pos = rpcROE->stripPos(id);
-	      } else if ( m_mdtIdHelper->is_csc(id)) {
-		const MuonGM::CscReadoutElement* cscROE = m_muonMgr->getCscReadoutElement(id);			
+	      } else if ( m_muonIdHelperTool->mdtIdHelper().is_csc(id)) {
+		const MuonGM::CscReadoutElement* cscROE = MuonDetMgr->getCscReadoutElement(id);			
 		pos = cscROE->stripPos(id);
-	      } else if ( m_mdtIdHelper->is_tgc(id)) {
-		const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(id);			
+	      } else if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(id)) {
+		const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(id);			
 		pos = tgcROE->channelPos(id);
 	      }
 	      const Trk::Layer* lay = m_trackingGeometry->associatedLayer(pos);
@@ -519,10 +476,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
 	    //					           new std::vector<const Trk::RIO_OnTrack*>(segment->containedROTs()),
 	    //						  new Trk::FitQuality( *(segment->fitQuality())) );
 	    DataVector<const Trk::MeasurementBase>* meas= new DataVector<const Trk::MeasurementBase>;
-	    if (segment->containedROTs().size()) {
-	      const std::vector<const Trk::RIO_OnTrack*> rots=segment->containedROTs();
-	      for (unsigned int im=0;im<rots.size();im++) meas->push_back(rots[im]);
-	    } 
+	    for(unsigned int irot=0;irot<segment->numberOfContainedROTs();irot++) meas->push_back(segment->rioOnTrack(irot));
 
 	    Trk::LocalDirection dir;
 	    plane->globalToLocalDirection(layPar->momentum(),dir);
@@ -559,7 +513,8 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
   
 }
 
-std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>* Muon::MuonTGMeasAssocAlg::createMdtHitCollectionLayers() const
+std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>* 
+Muon::MuonTGMeasAssocAlg::createMdtHitCollectionLayers(const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG( "MuonTGMeasAssocAlg::createHitCollectionLayers()" );
@@ -573,7 +528,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
  
   //Try to retrieve the MDT hit collection
   const Muon::MdtPrepDataContainer* mdt_container;
-  StatusCode sc_read = m_StoreGate->retrieve(mdt_container, m_inputMdtPrdCollection);
+  StatusCode sc_read = evtStore()->retrieve(mdt_container, m_inputMdtPrdCollection);
   if (sc_read.isFailure()) {
     ATH_MSG_ERROR( " Cannot retrieve MDT PrepData Container " );
     delete vec_alllayer;
@@ -583,7 +538,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
   const DataHandle<Muon::MdtPrepDataCollection> mdtCollection;
   const DataHandle<Muon::MdtPrepDataCollection> lastColl;
 
-  if (m_StoreGate->retrieve(mdtCollection,lastColl) ==StatusCode::SUCCESS) {
+  if (evtStore()->retrieve(mdtCollection,lastColl) ==StatusCode::SUCCESS) {
     for ( ; mdtCollection != lastColl ; ++mdtCollection ) {
        if (mdtCollection->size()>0) {
          for (Muon::MdtPrepDataCollection::const_iterator mdtPrd = mdtCollection->begin(); 
@@ -591,16 +546,16 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
            
            Identifier dig_id = (*mdtPrd)->identify();
 
-           const Trk::Layer* layer = associatedLayer(0,dig_id);	   
+           const Trk::Layer* layer = associatedLayer(0,dig_id,MuonDetMgr);	   
 
 	   if (!layer) {
 	     ATH_MSG_ERROR( "MuonTGMeasAssocAlg::No layer associated with this MDT  hit! (digit = " << dig_id  << ")" );
-	     ATH_MSG_ERROR( "station name,eta,phi" << m_mdtIdHelper->stationName(dig_id) << "," 
-                                                         <<  m_mdtIdHelper->stationEta(dig_id) << "," 
-                                                         << m_mdtIdHelper->stationPhi(dig_id) );
-	     ATH_MSG_ERROR( "multilayer,layer,tube:" << m_mdtIdHelper->multilayer(dig_id) << "," <<
-	                                                      m_mdtIdHelper->tubeLayer(dig_id) <<"," <<
-                                                              m_mdtIdHelper->tube(dig_id) );
+	     ATH_MSG_ERROR( "station name,eta,phi" << m_muonIdHelperTool->mdtIdHelper().stationName(dig_id) << "," 
+                                                         <<  m_muonIdHelperTool->mdtIdHelper().stationEta(dig_id) << "," 
+                                                         << m_muonIdHelperTool->mdtIdHelper().stationPhi(dig_id) );
+	     ATH_MSG_ERROR( "multilayer,layer,tube:" << m_muonIdHelperTool->mdtIdHelper().multilayer(dig_id) << "," <<
+	                                                      m_muonIdHelperTool->mdtIdHelper().tubeLayer(dig_id) <<"," <<
+                                                              m_muonIdHelperTool->mdtIdHelper().tube(dig_id) );
 	     continue;
 	   } 
  
@@ -619,7 +574,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 		 //Add the hit to the layer, order hits by tube number
 		 std::vector<const Trk::PrepRawData*>::iterator piter = (*itr)->second->begin();
                  while ( piter !=(*itr)->second->end() 
-			 && m_mdtIdHelper->tube(dig_id)> m_mdtIdHelper->tube((*piter)->identify()) ) piter++;                
+			 && m_muonIdHelperTool->mdtIdHelper().tube(dig_id)> m_muonIdHelperTool->mdtIdHelper().tube((*piter)->identify()) ) piter++;                
 		 //(*itr)->second->push_back(new Muon::MdtPrepData(*(*mdtPrd)));
                  //(*itr)->second->insert(piter,new Muon::MdtPrepData(*(*mdtPrd)));
                  (*itr)->second->insert(piter,*mdtPrd);
@@ -646,7 +601,8 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
   return vec_alllayer;
 }
 
-std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>* Muon::MuonTGMeasAssocAlg::createRpcHitCollectionLayers() const
+std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>* 
+Muon::MuonTGMeasAssocAlg::createRpcHitCollectionLayers(const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG( "MuonTGMeasAssocAlg::createRpcHitCollectionLayers()" );
@@ -658,7 +614,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   //Try to retrieve the RPC hit collection
   const Muon::RpcPrepDataContainer* rpc_container;
-  StatusCode sc_read = m_StoreGate->retrieve(rpc_container, m_inputRpcPrdCollection);
+  StatusCode sc_read = evtStore()->retrieve(rpc_container, m_inputRpcPrdCollection);
   if (sc_read.isFailure()) {
     ATH_MSG_ERROR( " Cannot retrieve RPC PrepData Container " );
     return vec_alllayer;
@@ -671,7 +627,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   int layerid;
 
-  if (m_StoreGate->retrieve(rpcCollection,lastColl) ==StatusCode::SUCCESS) {
+  if (evtStore()->retrieve(rpcCollection,lastColl) ==StatusCode::SUCCESS) {
     for ( ; rpcCollection != lastColl ; ++rpcCollection ) {
        if (rpcCollection->size()>0) {
          for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = rpcCollection->begin(); 
@@ -679,18 +635,18 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
            
            Identifier dig_id = (*rpcPrd)->identify();
 
-           const Trk::Layer* layer = associatedLayer(1,dig_id);	   
+           const Trk::Layer* layer = associatedLayer(1,dig_id,MuonDetMgr);	   
 	
 	   if (!layer) {
 	     ATH_MSG_ERROR( "       No layer associated with this RPC hit! (digit = " << dig_id  << ")" );
-	     ATH_MSG_ERROR( "station name,eta,phi" << m_rpcIdHelper->stationName(dig_id) << "," 
-                                                         << m_rpcIdHelper->stationEta(dig_id) << "," 
-                                                         << m_rpcIdHelper->stationPhi(dig_id) );
-             ATH_MSG_ERROR( "doubletR,doubletZ,doubletPhi,gasGap:"<<m_rpcIdHelper->doubletR(dig_id)<<","<<
-			    m_rpcIdHelper->doubletZ(dig_id)<<","<<
-			    m_rpcIdHelper->doubletPhi(dig_id) << ","<<
-			    m_rpcIdHelper->gasGap(dig_id));
-	     ATH_MSG_ERROR( "measuresPhi:"<<m_rpcIdHelper->measuresPhi(dig_id));
+	     ATH_MSG_ERROR( "station name,eta,phi" << m_muonIdHelperTool->rpcIdHelper().stationName(dig_id) << "," 
+                                                         << m_muonIdHelperTool->rpcIdHelper().stationEta(dig_id) << "," 
+                                                         << m_muonIdHelperTool->rpcIdHelper().stationPhi(dig_id) );
+             ATH_MSG_ERROR( "doubletR,doubletZ,doubletPhi,gasGap:"<<m_muonIdHelperTool->rpcIdHelper().doubletR(dig_id)<<","<<
+			    m_muonIdHelperTool->rpcIdHelper().doubletZ(dig_id)<<","<<
+			    m_muonIdHelperTool->rpcIdHelper().doubletPhi(dig_id) << ","<<
+			    m_muonIdHelperTool->rpcIdHelper().gasGap(dig_id));
+	     ATH_MSG_ERROR( "measuresPhi:"<<m_muonIdHelperTool->rpcIdHelper().measuresPhi(dig_id));
 	     continue;
 	   } 
  
@@ -747,7 +703,8 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
   return vec_alllayer;
 }
 
-std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>* Muon::MuonTGMeasAssocAlg::createCscHitCollectionLayers() const
+std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>* 
+Muon::MuonTGMeasAssocAlg::createCscHitCollectionLayers(const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG( "MuonTGMeasAssocAlg::createHitCollectionLayers()" );
@@ -761,7 +718,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   //Try to retrieve the CSC cluster collection
   const DataHandle<CscPrepDataContainer> csc_container ;
-  StatusCode sc_read = m_StoreGate->retrieve(csc_container, m_inputCscPrdCollection);
+  StatusCode sc_read = evtStore()->retrieve(csc_container, m_inputCscPrdCollection);
   if (sc_read.isFailure()) {
     ATH_MSG_ERROR( " Cannot retrieve CSC Cluster Container " );
     return vec_alllayer;
@@ -776,16 +733,16 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
            
 	Identifier dig_id = (*cscPrd)->identify();
 
-	const Trk::Layer* layer = associatedLayer(3,dig_id);	   
+	const Trk::Layer* layer = associatedLayer(3,dig_id,MuonDetMgr);	   
 	
 	if (!layer) {
 	  ATH_MSG_ERROR( "       No layer associated with this CSC hit! (digit = " << dig_id  << ")" );
-	  ATH_MSG_ERROR( "station name,eta,phi" << m_cscIdHelper->stationName(dig_id) << "," 
-                                                      << m_cscIdHelper->stationEta(dig_id) << "," 
-                                                      << m_cscIdHelper->stationPhi(dig_id) );
- 	  ATH_MSG_ERROR( "chamberLayer,wireLayer,measuresPhi:" << m_cscIdHelper->chamberLayer(dig_id)<<","<<
-                                                                        m_cscIdHelper->wireLayer(dig_id)<<","<<
-                                                                        m_cscIdHelper->measuresPhi(dig_id)); 
+	  ATH_MSG_ERROR( "station name,eta,phi" << m_muonIdHelperTool->cscIdHelper().stationName(dig_id) << "," 
+                                                      << m_muonIdHelperTool->cscIdHelper().stationEta(dig_id) << "," 
+                                                      << m_muonIdHelperTool->cscIdHelper().stationPhi(dig_id) );
+ 	  ATH_MSG_ERROR( "chamberLayer,wireLayer,measuresPhi:" << m_muonIdHelperTool->cscIdHelper().chamberLayer(dig_id)<<","<<
+                                                                        m_muonIdHelperTool->cscIdHelper().wireLayer(dig_id)<<","<<
+                                                                        m_muonIdHelperTool->cscIdHelper().measuresPhi(dig_id)); 
 	  continue;
 	}
  
@@ -839,7 +796,8 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
   return vec_alllayer;
 }
 
-std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>* Muon::MuonTGMeasAssocAlg::createTgcHitCollectionLayers() const
+std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>* 
+Muon::MuonTGMeasAssocAlg::createTgcHitCollectionLayers(const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG( "MuonTGMeasAssocAlg::createHitCollectionLayers():TGC" );
@@ -851,7 +809,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   //Try to retrieve the TGC hit collection
   const Muon::TgcPrepDataContainer* tgc_container;
-  StatusCode sc_read = m_StoreGate->retrieve(tgc_container, m_inputTgcPrdCollection);
+  StatusCode sc_read = evtStore()->retrieve(tgc_container, m_inputTgcPrdCollection);
   if (sc_read.isFailure()) {
     ATH_MSG_ERROR( " Cannot retrieve TGC PrepData Container " );
     return vec_alllayer;
@@ -864,7 +822,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   int layerid;
 
-  if (m_StoreGate->retrieve(tgcCollection,lastColl) ==StatusCode::SUCCESS) {
+  if (evtStore()->retrieve(tgcCollection,lastColl) ==StatusCode::SUCCESS) {
     for ( ; tgcCollection != lastColl ; ++tgcCollection ) {
        if (tgcCollection->size()>0) {
          for (Muon::TgcPrepDataCollection::const_iterator tgcPrd = tgcCollection->begin(); 
@@ -872,15 +830,15 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
            
            Identifier dig_id = (*tgcPrd)->identify();
 
-	   const Trk::Layer* layer = associatedLayer(2,dig_id);	   
+	   const Trk::Layer* layer = associatedLayer(2,dig_id,MuonDetMgr);	   
 	
 	   if (!layer) {
 	     ATH_MSG_ERROR( "       No layer associated with this TGC hit! (digit = " << dig_id  << ")" );
-	     ATH_MSG_ERROR( "station name,eta,phi" << m_tgcIdHelper->stationName(dig_id) << "," 
-		                                         << m_tgcIdHelper->stationEta(dig_id) << "," 
-                                                         << m_tgcIdHelper->stationPhi(dig_id) );
-	     ATH_MSG_ERROR( "gasGap,isStrip:" << m_tgcIdHelper->gasGap(dig_id)<<","<<
-	                                               m_tgcIdHelper->isStrip(dig_id)); 
+	     ATH_MSG_ERROR( "station name,eta,phi" << m_muonIdHelperTool->tgcIdHelper().stationName(dig_id) << "," 
+		                                         << m_muonIdHelperTool->tgcIdHelper().stationEta(dig_id) << "," 
+                                                         << m_muonIdHelperTool->tgcIdHelper().stationPhi(dig_id) );
+	     ATH_MSG_ERROR( "gasGap,isStrip:" << m_muonIdHelperTool->tgcIdHelper().gasGap(dig_id)<<","<<
+	                                               m_muonIdHelperTool->tgcIdHelper().isStrip(dig_id)); 
 	     continue;
 	   }
  
@@ -936,12 +894,12 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 }
 
 
-void Muon::MuonTGMeasAssocAlg::createStationMap(const Trk::TrackingVolume* vol) const
+void Muon::MuonTGMeasAssocAlg::createStationMap(const Trk::TrackingVolume* vol, const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
   if (vol->confinedVolumes()) {
     const std::vector<const Trk::TrackingVolume*> subVols = vol->confinedVolumes()->arrayObjects();
     std::vector<const Trk::TrackingVolume*>::const_iterator iter = subVols.begin();
-    for (;iter!=subVols.end();iter++) createStationMap(*iter);
+    for (;iter!=subVols.end();iter++) createStationMap(*iter, MuonDetMgr);
   }
   
   if (vol->confinedDetachedVolumes()) {
@@ -951,21 +909,21 @@ void Muon::MuonTGMeasAssocAlg::createStationMap(const Trk::TrackingVolume* vol) 
       if ( (*dter)->layerRepresentation() && (*dter)->layerRepresentation()->layerType()>0 ) {
         Identifier id((*dter)->layerRepresentation()->layerType());
         const MuonGM::MuonStation* mStation = 0;
-        if (m_mdtIdHelper->is_mdt(id)) mStation = m_muonMgr->getMdtReadoutElement(id)->parentMuonStation();      
-        if (m_rpcIdHelper->is_rpc(id)) mStation = m_muonMgr->getRpcReadoutElement(id)->parentMuonStation();      
-        if (m_tgcIdHelper->is_tgc(id)) {
-          if ( !m_muonMgr->getTgcReadoutElement(id) ) {     // tgc readout element not found, get any active layer to recover
+        if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) mStation = MuonDetMgr->getMdtReadoutElement(id)->parentMuonStation();      
+        if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) mStation = MuonDetMgr->getRpcReadoutElement(id)->parentMuonStation();      
+        if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) {
+          if ( !MuonDetMgr->getTgcReadoutElement(id) ) {     // tgc readout element not found, get any active layer to recover
             const Trk::Layer* lay = associatedLayer((*dter)->trackingVolume(),Identifier(0));
-            if (lay) mStation = m_muonMgr->getTgcReadoutElement(Identifier(lay->layerType()))->parentMuonStation();
+            if (lay) mStation = MuonDetMgr->getTgcReadoutElement(Identifier(lay->layerType()))->parentMuonStation();
           } else {
-	    mStation = m_muonMgr->getTgcReadoutElement(id)->parentMuonStation();      
+	    mStation = MuonDetMgr->getTgcReadoutElement(id)->parentMuonStation();      
           }  
         }
-        if (m_cscIdHelper->is_csc(id)) {
-          if ( !m_muonMgr->getCscReadoutElement(id) ) {
+        if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) {
+          if ( !MuonDetMgr->getCscReadoutElement(id) ) {
             const Trk::Layer* lay = associatedLayer((*dter)->trackingVolume(),Identifier(0));
-            if (lay) mStation = m_muonMgr->getCscReadoutElement(Identifier(lay->layerType()))->parentMuonStation();
-         } else  mStation = m_muonMgr->getCscReadoutElement(id)->parentMuonStation();    
+            if (lay) mStation = MuonDetMgr->getCscReadoutElement(Identifier(lay->layerType()))->parentMuonStation();
+         } else  mStation = MuonDetMgr->getCscReadoutElement(id)->parentMuonStation();    
 	} 
         // coming across station repeatedly 
         if (mStation && !m_stationMap[id].second )
@@ -1008,14 +966,14 @@ void Muon::MuonTGMeasAssocAlg::reAlignStations() const
   ATH_MSG_DEBUG( moved <<  " stations realigned ");
 }
 
-const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(int techn, Identifier id) const
+const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(int techn, Identifier id, const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
   const Trk::Layer* layer = 0;
   const MuonGM::MuonStation* mStation = 0;
-  if ( techn==0 ) mStation = m_muonMgr->getMdtReadoutElement(id)->parentMuonStation();      
-  if ( techn==1 ) mStation = m_muonMgr->getRpcReadoutElement(id)->parentMuonStation();      
-  if ( techn==2 ) mStation = m_muonMgr->getTgcReadoutElement(id)->parentMuonStation();      
-  if ( techn==3 ) mStation = m_muonMgr->getCscReadoutElement(id)->parentMuonStation();     
+  if ( techn==0 ) mStation = MuonDetMgr->getMdtReadoutElement(id)->parentMuonStation();      
+  if ( techn==1 ) mStation = MuonDetMgr->getRpcReadoutElement(id)->parentMuonStation();      
+  if ( techn==2 ) mStation = MuonDetMgr->getTgcReadoutElement(id)->parentMuonStation();      
+  if ( techn==3 ) mStation = MuonDetMgr->getCscReadoutElement(id)->parentMuonStation();     
 
   if (!mStation ) ATH_MSG_ERROR( "no associated GM station found for hit id:"<< id << ","<< techn );
   if (!mStation ) return layer;
@@ -1027,16 +985,16 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(int techn, Identifie
   if (!station) {
     ATH_MSG_WARNING("no associated TG station found for hit id:"<< id << ","<< techn);
     if (techn==2 && m_allowGeomAssoc) {
-      ATH_MSG_WARNING(m_tgcIdHelper->stationName(id)<<","<<m_tgcIdHelper->stationEta(id)<< ","<<m_tgcIdHelper->stationPhi(id));
+      ATH_MSG_WARNING(m_muonIdHelperTool->tgcIdHelper().stationName(id)<<","<<m_muonIdHelperTool->tgcIdHelper().stationEta(id)<< ","<<m_muonIdHelperTool->tgcIdHelper().stationPhi(id));
     
       //Get the TgcReadoutElement and the tube position from it
-      const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(id);                   
+      const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(id);                   
       Amg::Vector3D pos = tgcROE->channelPos(id);
       std::vector<const Trk::DetachedTrackingVolume*>* detVols = m_trackingGeometry->lowestDetachedTrackingVolumes(pos);
       for (unsigned int i = 0;i<detVols->size();i++) {
 	Identifier sId((*detVols)[i]->layerRepresentation()->layerType());
-	ATH_MSG_INFO("geom assoc with station:"<< (*detVols)[i]<<","<<(*detVols)[i]->name()<<","<<(*detVols)[i]->layerRepresentation()->layerType() <<":"<< m_tgcIdHelper->stationName(sId)<<","<<m_tgcIdHelper->stationEta(sId)
-	    <<","<<m_tgcIdHelper->stationPhi(sId) );
+	ATH_MSG_INFO("geom assoc with station:"<< (*detVols)[i]<<","<<(*detVols)[i]->name()<<","<<(*detVols)[i]->layerRepresentation()->layerType() <<":"<< m_muonIdHelperTool->tgcIdHelper().stationName(sId)<<","<<m_muonIdHelperTool->tgcIdHelper().stationEta(sId)
+	    <<","<<m_muonIdHelperTool->tgcIdHelper().stationPhi(sId) );
 	ATH_MSG_INFO("updating station map"); 
 	m_stationMap[stId]=std::pair<const MuonGM::MuonStation*,const Trk::DetachedTrackingVolume*>(mStation,(*detVols)[i]);   
       }  
@@ -1065,14 +1023,14 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(const Trk::TrackingV
       Identifier idLay( (*iLay)->layerType() );
       if (!id.get_identifier32().get_compact() && idLay.get_identifier32().get_compact()) return (*iLay);      
       if (!idLay.get_identifier32().get_compact()) continue;
-      if ( m_mdtIdHelper->is_mdt(id) &&
-	   m_mdtIdHelper->multilayer(idLay)==m_mdtIdHelper->multilayer(id) &&
-	   m_mdtIdHelper->tubeLayer(idLay)==m_mdtIdHelper->tubeLayer(id) ) return (*iLay);
-      if ( m_tgcIdHelper->is_tgc(id) &&
-	   m_tgcIdHelper->gasGap(idLay)==m_tgcIdHelper->gasGap(id) ) return (*iLay);
-      if ( m_cscIdHelper->is_csc(id) &&
-	   m_cscIdHelper->chamberLayer(idLay)==m_cscIdHelper->chamberLayer(id) &&
-	   m_cscIdHelper->wireLayer(idLay)==m_cscIdHelper->wireLayer(id) ) return (*iLay);
+      if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(id) &&
+	   m_muonIdHelperTool->mdtIdHelper().multilayer(idLay)==m_muonIdHelperTool->mdtIdHelper().multilayer(id) &&
+	   m_muonIdHelperTool->mdtIdHelper().tubeLayer(idLay)==m_muonIdHelperTool->mdtIdHelper().tubeLayer(id) ) return (*iLay);
+      if ( m_muonIdHelperTool->tgcIdHelper().is_tgc(id) &&
+	   m_muonIdHelperTool->tgcIdHelper().gasGap(idLay)==m_muonIdHelperTool->tgcIdHelper().gasGap(id) ) return (*iLay);
+      if ( m_muonIdHelperTool->cscIdHelper().is_csc(id) &&
+	   m_muonIdHelperTool->cscIdHelper().chamberLayer(idLay)==m_muonIdHelperTool->cscIdHelper().chamberLayer(id) &&
+	   m_muonIdHelperTool->cscIdHelper().wireLayer(idLay)==m_muonIdHelperTool->cscIdHelper().wireLayer(id) ) return (*iLay);
     }
     return layer;
   }
@@ -1083,11 +1041,11 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(const Trk::TrackingV
     for ( ; iLay!=confLays->end(); iLay++ ) {
       Identifier idLay( (*iLay)->layerType() );
       if (!id.get_identifier32().get_compact() && idLay.get_identifier32().get_compact()) return (*iLay);
-      if ( idLay.get_identifier32().get_compact()>0 && m_rpcIdHelper->is_rpc(id) &&
-	   m_rpcIdHelper->doubletR(idLay) == m_rpcIdHelper->doubletR(id) &&
-	   m_rpcIdHelper->doubletZ(idLay) == m_rpcIdHelper->doubletZ(id) &&
-	   //&& m_rpcIdHelper->doubletPhi(idLay) == m_rpcIdHelper->doubletPhi(id) &&
-	   m_rpcIdHelper->gasGap(idLay) == m_rpcIdHelper->gasGap(id) ) return (*iLay);
+      if ( idLay.get_identifier32().get_compact()>0 && m_muonIdHelperTool->rpcIdHelper().is_rpc(id) &&
+	   m_muonIdHelperTool->rpcIdHelper().doubletR(idLay) == m_muonIdHelperTool->rpcIdHelper().doubletR(id) &&
+	   m_muonIdHelperTool->rpcIdHelper().doubletZ(idLay) == m_muonIdHelperTool->rpcIdHelper().doubletZ(id) &&
+	   //&& m_muonIdHelperTool->rpcIdHelper().doubletPhi(idLay) == m_muonIdHelperTool->rpcIdHelper().doubletPhi(id) &&
+	   m_muonIdHelperTool->rpcIdHelper().gasGap(idLay) == m_muonIdHelperTool->rpcIdHelper().gasGap(id) ) return (*iLay);
     }
     return layer;
   }
@@ -1106,32 +1064,32 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(const Trk::TrackingV
 Identifier Muon::MuonTGMeasAssocAlg::getStationId( Identifier id ) const
 {
   Identifier stId(0);
-  if ( m_mdtIdHelper->is_mdt(id)) stId = m_mdtIdHelper->elementID(m_mdtIdHelper->stationName(id),
-								  m_mdtIdHelper->stationEta(id),
-								  m_mdtIdHelper->stationPhi(id));
+  if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) stId = m_muonIdHelperTool->mdtIdHelper().elementID(m_muonIdHelperTool->mdtIdHelper().stationName(id),
+								  m_muonIdHelperTool->mdtIdHelper().stationEta(id),
+								  m_muonIdHelperTool->mdtIdHelper().stationPhi(id));
   // BML station is an exception
-  if (m_mdtIdHelper->is_mdt(id) && m_mdtIdHelper->stationName(id)==2)
-                                  stId = m_rpcIdHelper->elementID(m_mdtIdHelper->stationName(id),
-  								  m_mdtIdHelper->stationEta(id),
-  								  m_mdtIdHelper->stationPhi(id),1);
+  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id) && m_muonIdHelperTool->mdtIdHelper().stationName(id)==2)
+                                  stId = m_muonIdHelperTool->rpcIdHelper().elementID(m_muonIdHelperTool->mdtIdHelper().stationName(id),
+  								  m_muonIdHelperTool->mdtIdHelper().stationEta(id),
+  								  m_muonIdHelperTool->mdtIdHelper().stationPhi(id),1);
              
-  if ( m_rpcIdHelper->is_rpc(id)) stId = m_rpcIdHelper->elementID(m_rpcIdHelper->stationName(id),
-  								  m_rpcIdHelper->stationEta(id),
-  								  m_rpcIdHelper->stationPhi(id),1);
+  if ( m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) stId = m_muonIdHelperTool->rpcIdHelper().elementID(m_muonIdHelperTool->rpcIdHelper().stationName(id),
+  								  m_muonIdHelperTool->rpcIdHelper().stationEta(id),
+  								  m_muonIdHelperTool->rpcIdHelper().stationPhi(id),1);
 
   // rpc not allways relevant    
-  if ( m_rpcIdHelper->is_rpc(id) && m_stationMap.size() && !(m_stationMap)[stId].second ) {
-                                  stId = m_mdtIdHelper->elementID(m_mdtIdHelper->stationName(id),
-								  m_mdtIdHelper->stationEta(id),
-								  m_mdtIdHelper->stationPhi(id) );
+  if ( m_muonIdHelperTool->rpcIdHelper().is_rpc(id) && m_stationMap.size() && !(m_stationMap)[stId].second ) {
+                                  stId = m_muonIdHelperTool->mdtIdHelper().elementID(m_muonIdHelperTool->mdtIdHelper().stationName(id),
+								  m_muonIdHelperTool->mdtIdHelper().stationEta(id),
+								  m_muonIdHelperTool->mdtIdHelper().stationPhi(id) );
   }
 
-  if ( m_tgcIdHelper->is_tgc(id)) stId = m_tgcIdHelper->elementID(m_tgcIdHelper->stationName(id),
-								  m_tgcIdHelper->stationEta(id),
-								  m_tgcIdHelper->stationPhi(id));
-  if ( m_cscIdHelper->is_csc(id)) stId = m_cscIdHelper->elementID(m_cscIdHelper->stationName(id),
-								  m_cscIdHelper->stationEta(id),
-								  m_cscIdHelper->stationPhi(id));
+  if ( m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) stId = m_muonIdHelperTool->tgcIdHelper().elementID(m_muonIdHelperTool->tgcIdHelper().stationName(id),
+								  m_muonIdHelperTool->tgcIdHelper().stationEta(id),
+								  m_muonIdHelperTool->tgcIdHelper().stationPhi(id));
+  if ( m_muonIdHelperTool->cscIdHelper().is_csc(id)) stId = m_muonIdHelperTool->cscIdHelper().elementID(m_muonIdHelperTool->cscIdHelper().stationName(id),
+								  m_muonIdHelperTool->cscIdHelper().stationEta(id),
+								  m_muonIdHelperTool->cscIdHelper().stationPhi(id));
 
   return stId;
 }

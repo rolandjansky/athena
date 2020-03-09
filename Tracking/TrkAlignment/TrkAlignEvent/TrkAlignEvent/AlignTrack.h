@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNEVENT_ALIGNTRACK_H
@@ -8,7 +8,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "AthContainers/DataVector.h"
-
+#include "CxxUtils/CachedUniquePtr.h"
 #include "TrkAlignEvent/AlignTSOS.h"
 #include "TrkTrack/Track.h"
 
@@ -255,7 +255,7 @@ namespace Trk {
    
     double              * m_trackAlignParamQuality; //!> describes the quality of contribution to track to alignment parameter (used by shifting derivatives)
 
-    mutable Trk::Track  * m_trackWithoutScattering; //!> the original track with ScatteringAngle pointers set to 0 (called for refit so scattering will be recalculated)
+    CxxUtils::CachedUniquePtr<Trk::Track> m_trackWithoutScattering; //!> the original track with ScatteringAngle pointers set to 0 (called for refit so scattering will be recalculated)
 
   }; // end class
 

@@ -176,7 +176,7 @@ except Exception:
 # uncomment
 # FIXME : there is a logic inconsistency
 # either the jet should add streamAOD at ESD building stage (preferred)
-# either from TriggerJobOpts.TriggerEDM import getAODList as getTriggerAODList should be used for trigger
+# either `from TrigEDMConfig.TriggerEDM import getTriggerEDMList` should be used for trigger
 # # Jets. : pass jets from input or from StreamESD to StreamAOD (some merging  inCfgItemList beforehand just in case)
 ## from RecExConfig.ObjKeyStore import cfgKeyStore
 ## jetAodList = CfgItemList( "JetAodList" )
@@ -331,5 +331,5 @@ for k in CILMergeAOD('DataVector<INavigable4Momentum>'):
 StreamAOD.ItemList = CILMergeAOD()
 
 if rec.OutputLevel() <= DEBUG:
-    print "RecoOutputESDList_jobOptions:: AOD Output list is :"
-    print StreamAOD.ItemList
+    printfunc ("RecoOutputESDList_jobOptions:: AOD Output list is :")
+    printfunc (StreamAOD.ItemList)

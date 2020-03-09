@@ -60,7 +60,7 @@ StatusCode PhantomBarrelSDTool::Gather() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* PhantomBarrelSDTool::makeSD() {
+G4VSensitiveDetector* PhantomBarrelSDTool::makeSD() const {
   ATH_MSG_DEBUG("Initializing SD");
   // Create a fresh SD
   return new PhantomBarrelSD(name(), m_outputCollectionNames[0]);

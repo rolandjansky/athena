@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -8,19 +8,14 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: CBTree.cxx,v 1.3 2008-03-27 18:17:52 leggett Exp $
  *
  *  Callback function trigger tree
  *
  *****************************************************************************/
 
-#ifndef IOVSVC_CBTREE_H
-#include "IOVSvc/CBTree.h"
-#endif
+#include "CBTree.h"
 
-#ifndef SGTOOLS_DATAPROXY_H
 #include "SGTools/DataProxy.h"
-#endif
 
 #include <iostream>
 

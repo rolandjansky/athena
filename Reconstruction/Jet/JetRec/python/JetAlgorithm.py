@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JetAlgorithm.py
 #
@@ -119,14 +119,16 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
         from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
         postalgs.append (ThinNegativeEnergyCaloClustersAlg ('ThinNegLCOriginTopoClusters',
                                                             ThinNegativeEnergyCaloClusters = True,
-                                                            CaloClustersKey = 'LCOriginTopoClusters'))
+                                                            CaloClustersKey = 'LCOriginTopoClusters',
+                                                            StreamName = 'StreamAOD'))
     if not IsInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_EMOrigin]
       if thinneg:
         from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
         postalgs.append (ThinNegativeEnergyCaloClustersAlg ('ThinNegEMOriginTopoClusters',
                                                             ThinNegativeEnergyCaloClusters = True,
-                                                            CaloClustersKey = 'EMOriginTopoClusters'))
+                                                            CaloClustersKey = 'EMOriginTopoClusters',
+                                                            StreamName = 'StreamAOD'))
     if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
       if not hasattr(job,"jetalgCHSPFlow"):
         ctools += [jtm.JetConstitSeq_PFlowCHS]
@@ -135,7 +137,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
           CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
             "ThinNegativeEnergyCHSNeutralPFOsAlg",
             NeutralPFOsKey="CHSNeutralParticleFlowObjects",
-            ThinNegativeEnergyNeutralPFOs = True
+            ThinNegativeEnergyNeutralPFOs = True,
+            StreamName = 'StreamAOD'
             )
           postalgs.append(CHSnPFOsThinAlg)
 

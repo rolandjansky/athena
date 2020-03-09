@@ -36,6 +36,7 @@ namespace G4UA
       double Xmin=0, Xmax=0;
       double Ymin=0, Ymax=0;
       double Zmin=0, Zmax=0;
+      std::vector<double> targetPdgIDs = {};
 
     };
 

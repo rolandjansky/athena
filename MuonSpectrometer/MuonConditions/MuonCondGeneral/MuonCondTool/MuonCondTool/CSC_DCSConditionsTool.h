@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_CSC_DCSCONDITIONSTOOL_H
@@ -11,11 +11,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCondInterface/ICSC_DCSConditionsTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class Identifier;
-class StoreGateSvc;
-
-class CscHelper;
 class IIOVSvc;
 class StatusCode;
 
@@ -70,7 +67,7 @@ public:
 
   std::map<Identifier, int> m_CSC_LayerMap;
   std::map<Identifier, int> m_CSC_LayerMap_test;
-  const CscIdHelper* m_cscIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool;
  
   std::vector<int> m_wireLayer;
   std::vector<Identifier> m_cachedDeadStationsId;

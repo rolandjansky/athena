@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTrigTrackPRD_Association_H
 #define InDetTrigTrackPRD_Association_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 //!< Trigger specific stuff
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -53,7 +54,13 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
      
       std::vector<std::string>              m_tracksName    ; // Name of track collections       
-      ToolHandle<Trk::IPRD_AssociationTool> m_assoTool      ; // Assotiation tool
+
+      ToolHandle<Trk::IPRDtoTrackMapTool>   m_assoTool
+         {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+
+      StringProperty m_assoMapName
+         {this,"AssociationMapName",""};  ///< the key given to the newly created association map
+
       int                                   m_outputlevel{}   ;
       int                                   m_tracksPRD[10];
       int                                   m_tracksPRDn[10];

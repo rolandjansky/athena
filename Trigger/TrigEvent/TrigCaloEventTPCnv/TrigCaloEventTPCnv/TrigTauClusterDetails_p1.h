@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -28,27 +28,27 @@ class TrigTauClusterDetails_p1
  private:
   
 	/**  EM Radius per sampling */
-	float m_EMRadius[NUMEMSAMP];
+        float m_EMRadius[NUMEMSAMP] = {0};
 	/**  HAD Radius per sampling */
-	float m_HADRadius[NUMHADSAMP];
+        float m_HADRadius[NUMHADSAMP] = {0};
 	/**  Width in EM samplings */
-	float m_EMenergyWidth[NUMEMSAMP];
+	float m_EMenergyWidth[NUMEMSAMP] = {0};
 	/**  Width in HAD samplings */
-        float m_HADenergyWidth[NUMHADSAMP];
+        float m_HADenergyWidth[NUMHADSAMP] = {0};
 
 	/**  EM Energy in the mormalization region (0.3x0.3) */
-        float m_EMenergyWide[NUMEMSAMP];
+        float m_EMenergyWide[NUMEMSAMP] = {0};
 	/**  EM Energy in the Nor region (0.2x0.2) */
-        float m_EMenergyMedium[NUMEMSAMP];
+        float m_EMenergyMedium[NUMEMSAMP] = {0};
 	/**  EM Energy in the Nar region (0.1x0.1) */
-        float m_EMenergyNarrow[NUMEMSAMP];
+        float m_EMenergyNarrow[NUMEMSAMP] = {0};
 
 	/**  HAD Energy in the normalization region (0.3x0.3) */
-        float m_HADenergyWide[NUMHADSAMP];
+        float m_HADenergyWide[NUMHADSAMP] = {0};
 	/**  HAD Energy in the Nor region (0.2x0.2) */
-        float m_HADenergyMedium[NUMHADSAMP];
+        float m_HADenergyMedium[NUMHADSAMP] = {0};
 	/**  HAD Energy in the Nar region (0.1x0.1) */
-        float m_HADenergyNarrow[NUMHADSAMP];
+        float m_HADenergyNarrow[NUMHADSAMP] = {0};
 
 };
 

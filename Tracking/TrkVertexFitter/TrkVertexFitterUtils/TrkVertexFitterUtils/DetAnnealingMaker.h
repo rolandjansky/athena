@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXADAPTIVEFITTERUTILS_DETANNEALINGMAKER_H
@@ -18,13 +18,12 @@
 
 namespace Trk
 {
-  class DetAnnealingMaker : public AthAlgTool, virtual public IVertexAnnealingMaker
+  class DetAnnealingMaker : public extends<AthAlgTool, IVertexAnnealingMaker>
   {
   public:
    
-    StatusCode initialize();
-   
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
    /**
     * Default constructor due to Athena interface
@@ -32,65 +31,58 @@ namespace Trk
     DetAnnealingMaker(const std::string& t, const std::string& n, const IInterface*  p);
     
    /**
-    * Destructor
+    * Resets the annealing process to its beginning
     */
-    virtual ~DetAnnealingMaker();
-
-   /**
-    * Rscets the annealing process to its beginning
-    */
-    void reset();
+    virtual void reset(AnnealingState& state) const override;
   
    /**
     * One more annealing step
     */
-    void anneal();
+    virtual void anneal(AnnealingState& state) const override;
 
    /**
     * Weight access method 
     */
-    double getWeight(double chisq,const std::vector<double>& allchisq) const;
+    virtual double getWeight(const AnnealingState& state,
+                             double chisq,
+                             const std::vector<double>& allchisq) const override;
 
    /**
     * Weight access method 
     */
-    double getWeight(double chisq) const;
+    virtual double getWeight(const AnnealingState& state,
+                             double chisq) const override;
 
    /**
     * Equilibrium is reached (last scheduled temperature) 
     */
-    bool isEquilibrium() const
+    virtual bool isEquilibrium(const AnnealingState& state) const  override
     {
-      return m_isequilibrium;
+      return state >= m_SetOfTemperatures.size();
     }
    
    /**
     * Access to the actual temperature value 
     */
-    double actualTemp() const 
+    virtual double actualTemp(const AnnealingState& state) const override
     {
-      return m_SetOfTemperatures[m_PtrToActualTemperature];
+      if (state >= m_SetOfTemperatures.size()) {
+        return m_SetOfTemperatures.back();
+      }
+      return m_SetOfTemperatures[state];
     }
          
     private:
    
    /**
-    * A vector of temperatures, you will start from SetOfTemperature[0] and Anneal towards SetOfTemperiture[last]
+    * A vector of temperatures, you will start from SetOfTemperature[0] and Anneal towards SetOfTemperature[last]
     */
      std::vector<double> m_SetOfTemperatures;
    
    /**
-    * If actualtemperature == SetOfTemperature[last] then annealing is finished and m_isequilibrium=true
-    */
-     bool m_isequilibrium;
-     
-   /**
     * Weight will be insensitive to chi2 at order of magnitude of the cutoff...
     */  
      double m_cutoff;
-     
-     //std::vector<double>::const_iterator m_PtrToActualTemperature;
-     unsigned int m_PtrToActualTemperature;
   };
 }
 #endif

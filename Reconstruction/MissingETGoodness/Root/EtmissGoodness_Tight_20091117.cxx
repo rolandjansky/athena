@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "MissingETGoodness/EtmissGoodness_Tight_20091117.h"
 #include "MissingETGoodness/TSelectionSetArchive.h"
-#include "CxxUtils/unused.h"
 
 ClassImp(MET::EtmissGoodness_Tight_20091117)
 
@@ -33,7 +32,8 @@ MET::EtmissGoodness_Tight_20091117::CreateSelection()
  *-------------------------------------------------------------------------*/
 namespace
 {
-  const bool UNUSED(dummy) =
+  [[maybe_unused]]
+  const bool dummy =
     MET::TSelectionSetArchive::instance().RegisterSelectionSetClass(MET::Tight,20091117,"MET::EtmissGoodness_Tight_20091117");
 }
 

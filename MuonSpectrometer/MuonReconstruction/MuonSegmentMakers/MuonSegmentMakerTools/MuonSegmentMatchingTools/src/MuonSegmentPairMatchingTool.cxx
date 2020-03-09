@@ -1,22 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentPairMatchingTool.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
-
-
 #include "MuonSegment/MuonSegment.h"
-
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "TrkEventPrimitives/LocalDirection.h"
-
 
 namespace {
   // limit angle difference to -pi < x <= pi
@@ -40,46 +34,19 @@ namespace Muon {
 
   MuonSegmentPairMatchingTool::MuonSegmentPairMatchingTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonSegmentPairMatchingTool>(this);
-
   }
-
-
-  MuonSegmentPairMatchingTool::~MuonSegmentPairMatchingTool(){}
-
 
   StatusCode MuonSegmentPairMatchingTool::initialize()
   {
-
-    if ( AthAlgTool::initialize().isFailure() ) {
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(AthAlgTool::initialize());
     
-    if (m_helperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_helperTool); 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
-    if (m_printer.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_printer); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_idHelper.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelper); 
-      return StatusCode::FAILURE;
-    }
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonSegmentPairMatchingTool::finalize()
-  {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 
@@ -88,11 +55,11 @@ namespace Muon {
 
     // get identifiers
     // and the detector region from identifier
-    Identifier chid1 = m_helperTool->chamberId(seg1);
-    MuonStationIndex::StIndex  station1    = m_idHelper->stationIndex( chid1 );
+    Identifier chid1 = m_edmHelperSvc->chamberId(seg1);
+    MuonStationIndex::StIndex  station1    = m_idHelperSvc->stationIndex( chid1 );
 
-    Identifier chid2 = m_helperTool->chamberId(seg2);
-    MuonStationIndex::StIndex  station2    = m_idHelper->stationIndex( chid2 );
+    Identifier chid2 = m_edmHelperSvc->chamberId(seg2);
+    MuonStationIndex::StIndex  station2    = m_idHelperSvc->stationIndex( chid2 );
 
     // Don't deal with overlap/merge of segments here
     if ( chid1 == chid2 ) return result;
@@ -128,11 +95,11 @@ namespace Muon {
     const MuonSegment& seg_a(*pSeg_a);
     const MuonSegment& seg_b(*pSeg_b);
 
-    Identifier chid_a = m_helperTool->chamberId(seg_a);
-    Identifier chid_b = m_helperTool->chamberId(seg_b);
+    Identifier chid_a = m_edmHelperSvc->chamberId(seg_a);
+    Identifier chid_b = m_edmHelperSvc->chamberId(seg_b);
 
-    int phiSector_a = m_idHelper->sector( chid_a );
-    int phiSector_b = m_idHelper->sector( chid_b );
+    int phiSector_a = m_idHelperSvc->sector( chid_a );
+    int phiSector_b = m_idHelperSvc->sector( chid_b );
 
     result.chid_a = chid_a;
     result.chid_b = chid_b;
@@ -229,7 +196,7 @@ namespace Muon {
         if( crot ) id = crot->containedROTs().front()->identify();
       }
       if( !id.is_valid() ) continue;
-      if(m_idHelper->measuresPhi(id)) {
+      if(m_idHelperSvc->measuresPhi(id)) {
         ContainPhiHits = true;
         break;
       }
@@ -256,7 +223,7 @@ namespace Muon {
         if( crot ) id = crot->containedROTs().front()->identify();
       }
       if( !id.is_valid() ) continue;
-      if(m_idHelper->measuresPhi(id)) {
+      if(m_idHelperSvc->measuresPhi(id)) {
         ContainPhiHits = true;
         break;
       }
@@ -271,7 +238,7 @@ namespace Muon {
     }
 
     result.shorttube_a = 99999.;
-    if( m_idHelper->isMdt(chid_a) ){
+    if( m_idHelperSvc->isMdt(chid_a) ){
       //make shortest tube calculations
       std::pair<Amg::Vector3D, Amg::Vector3D> stseg1 = getShortestTubePos(seg_a);
       double shorttube_lx_a = stseg1.first.x();
@@ -293,7 +260,7 @@ namespace Muon {
     }
 
     result.shorttube_b = 99999.;
-    if( m_idHelper->isMdt(chid_b) ){
+    if( m_idHelperSvc->isMdt(chid_b) ){
       std::pair<Amg::Vector3D, Amg::Vector3D> stseg2 = getShortestTubePos(seg_b);
       double shorttube_lx_b = stseg2.first.x();
       double shorttube_ly_b = stseg2.first.y();
@@ -335,8 +302,8 @@ namespace Muon {
       if( !roe) continue;
       
       //sanity check with getActiveTubeLength
-      int layer = m_idHelper->mdtIdHelper().tubeLayer(mdt->identify());
-      int tube  = m_idHelper->mdtIdHelper().tube(mdt->identify());
+      int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(mdt->identify());
+      int tube  = m_idHelperSvc->mdtIdHelper().tube(mdt->identify());
       double halfLength = 0.5*roe->getActiveTubeLength(layer,tube);
 
       if(2*halfLength > storedLength) continue;

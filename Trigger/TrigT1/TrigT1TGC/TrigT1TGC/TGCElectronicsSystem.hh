@@ -5,7 +5,7 @@
 #ifndef TGCElectronicsSystem_hh
 #define TGCElectronicsSystem_hh
 
-//#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCArguments.hh"
 #include "TrigT1TGC/TGCReadoutIndex.h"
 
 namespace LVL1TGCTrigger {
@@ -41,12 +41,14 @@ public:
   };
   TGCTMDB* getTMDB() const {return m_tmdb;}
 
-  TGCElectronicsSystem(TGCDatabaseManager* database, bool isAtlas=true);
+  TGCElectronicsSystem(TGCArguments*, TGCDatabaseManager* database, bool isAtlas=true);
   ~TGCElectronicsSystem();
 
+  TGCArguments* tgcArgs() const { return m_tgcArgs;}
+  
 private:
   // hide default/copy constructor and assignment operator
-  TGCElectronicsSystem();
+  TGCElectronicsSystem( TGCArguments* );
   TGCElectronicsSystem(const TGCElectronicsSystem& right);
   TGCElectronicsSystem& operator=(const TGCElectronicsSystem& right);
 
@@ -54,6 +56,7 @@ private:
   TGCDatabaseManager* m_DB;
   TGCSector* m_sector[NumberOfSide][NumberOfOctant][NumberOfModule];
   TGCTMDB*   m_tmdb;
+  TGCArguments* m_tgcArgs;
 };
 
 

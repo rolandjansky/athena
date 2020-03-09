@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ InDetTrigConfigRecLoadToolsCosmics
     various tools for cosmicsN slice
@@ -18,17 +20,17 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCo
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
 from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
+from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
 
 InDetTrigTrackSummaryHelperToolCosmics = \
     InDet__InDetTrackSummaryHelperTool(name = "InDetTrigSummaryHelperCosmics",
                                        HoleSearch   = InDetTrigHoleSearchTool,
-                                       TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
+                                       TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
                                        DoSharedHits = False)
 ToolSvc += InDetTrigTrackSummaryHelperToolCosmics
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigTrackSummaryHelperToolCosmics                                                    
+  print (     InDetTrigTrackSummaryHelperToolCosmics )
 
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigTrackSummaryToolCosmics = \
@@ -37,7 +39,7 @@ InDetTrigTrackSummaryToolCosmics = \
                           doHolesInDet           = True)
 ToolSvc += InDetTrigTrackSummaryToolCosmics
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigTrackSummaryToolCosmics
+  print (     InDetTrigTrackSummaryToolCosmics)
 
 from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetCosmicScoringTool
 InDetTrigScoringToolCosmics_SiPattern = \
@@ -49,16 +51,16 @@ InDetTrigScoringToolCosmics_SiPattern.minTRTHits = 0
 ToolSvc += InDetTrigScoringToolCosmics_SiPattern
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigScoringToolCosmics_SiPattern
+  print (     InDetTrigScoringToolCosmics_SiPattern)
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool
 from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
+import InDetRecExample.TrackingCommon as TrackingCommon
 
 InDetTrigAmbiTrackSelectionToolCosmicsN = InDet__InDetAmbiTrackSelectionTool \
   (name = 'InDetTrigAmbiTrackSelectionToolCosmicsN',
-   AssociationTool = InDetTrigPrdAssociationTool,
    minHits         = 0,
    minNotShared    = 3,
    maxShared       = 0,
@@ -66,7 +68,8 @@ InDetTrigAmbiTrackSelectionToolCosmicsN = InDet__InDetAmbiTrackSelectionTool \
    Cosmics=True,
    maxTracksPerSharedPRD = 10,
    UseParameterization = False,
-   DriftCircleCutTool = InDetTrigTRTDriftCircleCut)
+   DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+   AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels())
 
 ToolSvc += InDetTrigAmbiTrackSelectionToolCosmicsN
 
@@ -89,17 +92,7 @@ if DetFlags.haveRIO.SCT_on():
   condSeq = AthSequencer("AthCondSeq")
   if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
     from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
-    # Copied from InDetAlignFolders.py
-    useDynamicAlignFolders = False
-    try:
-      from InDetRecExample.InDetJobProperties import InDetFlags
-      from IOVDbSvc.CondDB import conddb
-      if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-        useDynamicAlignFolders = True
-    except ImportError:
-      pass
-    condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                  UseDynamicAlignFolders = useDynamicAlignFolders)
+    condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
 
 #SP formation
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
@@ -107,7 +100,7 @@ InDetTrigSiSpacePointMakerToolCosmics = InDet__SiSpacePointMakerTool(name = 'InD
                                                                      StripLengthTolerance = 0.05,
                                                                      UsePerpendicularProjection = True)
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigSiSpacePointMakerToolCosmics
+  print (InDetTrigSiSpacePointMakerToolCosmics)
 ToolSvc += InDetTrigSiSpacePointMakerToolCosmics
 
 from SiTrigSpacePointFormation.SiTrigSpacePointFormationConf import InDet__SCT_TrigSpacePointTool
@@ -122,5 +115,5 @@ SCT_TrigSpacePointToolCosmics = InDet__SCT_TrigSpacePointTool(name='InDetTrigSCT
                                                               )
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print SCT_TrigSpacePointToolCosmics
+  print (SCT_TrigSpacePointToolCosmics)
 ToolSvc +=  SCT_TrigSpacePointToolCosmics

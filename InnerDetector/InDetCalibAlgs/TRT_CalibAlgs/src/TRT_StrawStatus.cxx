@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,18 +40,6 @@ int last_lumiBlock0=-99;
 const size_t nBarrelStraws { 1642 };
 const size_t nEndcapStraws { 3840 };
 const size_t nAllStraws    { nBarrelStraws + nEndcapStraws };
-
-const size_t nBarrelBoards { 9 };
-const size_t nEndcapBoards { 20 };
-const size_t nAllBoards    { nBarrelBoards + nEndcapBoards };
-
-const size_t nBarrelChips  { 104 };
-const size_t nEndcapChips  { 240 };
-const size_t nAllChips     { nBarrelChips + nAllChips };
-
-const size_t nBarrelPads   { 2 * nBarrelChips };
-const size_t nEndcapPads   { 2 * nEndcapChips }; 
-const size_t nAllPads      { 2 * nAllChips }; 
 
 //================ Constructor =================================================
 

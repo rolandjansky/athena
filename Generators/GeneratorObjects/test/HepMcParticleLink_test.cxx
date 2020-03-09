@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,9 +14,6 @@
 // Framework
 #include "TestTools/initGaudi.h"
 
-// ATLAS C++
-#include "CxxUtils/make_unique.h"
-
 // Google Test
 #include "gtest/gtest.h"
 
@@ -28,7 +25,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // Athena headers
-#include "CxxUtils/make_unique.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
@@ -199,7 +195,7 @@ namespace MCTesting {
     std::cout << "*** HepMcParticleLink_test starts ***" <<std::endl;
 
     SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
-    inputTestDataHandle = CxxUtils::make_unique<McEventCollection>();
+    inputTestDataHandle = std::make_unique<McEventCollection>();
 
     HepMC::GenEvent* pEvent(buildEvent());
     inputTestDataHandle->push_back(pEvent);
@@ -241,7 +237,7 @@ namespace MCTesting {
     ASSERT_LT( gammaLink1, gammaLink11 );  //FIXME weird! Can't check ptr...
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true); // forceRemove=true to remove all proxies
+    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
     std::cout << "*** HepMcParticleLink_test OK ***" <<std::endl;
   }
 
@@ -249,7 +245,7 @@ namespace MCTesting {
     // create dummy input McEventCollection with a name that
     // HepMcParticleLink does not know about
     SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_EVENT"};
-    inputTestDataHandle = CxxUtils::make_unique<McEventCollection>();
+    inputTestDataHandle = std::make_unique<McEventCollection>();
     // Fill it with a dummy GenEvent
     inputTestDataHandle->push_back(new HepMC::GenEvent(20,1));
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
@@ -264,14 +260,14 @@ namespace MCTesting {
     ASSERT_TRUE( testLink1b.isValid() );
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true); // forceRemove=true to remove all proxies
+    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
   }
 
   TEST_F(HepMcParticleLink_test, truth_event_link) {
     // create dummy input McEventCollection with a name that
     // HepMcParticleLink knows about
     SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
-    inputTestDataHandle = CxxUtils::make_unique<McEventCollection>();
+    inputTestDataHandle = std::make_unique<McEventCollection>();
 
     // Add a dummy GenEvent
     const int process_id1(20);
@@ -409,7 +405,7 @@ namespace MCTesting {
 
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true); // forceRemove=true to remove all proxies
+    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
   }
 
 } // <-- namespace MCTesting

@@ -49,7 +49,6 @@ InDetFlags.Enabled.set_Value_and_Lock(True)
 doAODLVL1=False
 
 doTrigger=True
-TriggerModernConfig=True
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 no_Bphysics=True

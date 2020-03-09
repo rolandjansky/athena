@@ -28,6 +28,5 @@ atlas_add_component( ISF_Geant4Services
                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps StoreGateLib SGtests G4AtlasInterfaces ISF_Event ISF_Interfaces )
 
 # Install files from the package:
-atlas_install_headers( ISF_Geant4Services )
 atlas_install_python_modules( python/*.py )
 

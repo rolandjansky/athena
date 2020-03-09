@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: IoAnalyzer.py
 # @purpose: a set of classes to analyze (I/O) data from a perfmon tuple
@@ -97,10 +97,10 @@ class IoAnalyzer( Analyzer ):
         yMinRead  = []; yMaxRead  = []
         yMinWrite = []; yMaxWrite = []
         for dsName in dsNames:
-            if not monComp.data.has_key(dsName):
+            if dsName not in monComp.data:
                 continue
             data = monComp.data[dsName]
-            if not data.has_key('evt'):
+            if 'evt' not in data:
                 continue
             data['evt']['io/cpu/rr'] = data['evt']['io/user/rr'] \
                                      + data['evt']['io/sys/rr' ]
@@ -119,13 +119,13 @@ class IoAnalyzer( Analyzer ):
         yMaxWrite = max(yMaxWrite)
         
         for dsName in dsNames:
-            if not monComp.data.has_key(dsName):
+            if dsName not in monComp.data:
                 continue
             data = monComp.data[dsName]
-            if not data.has_key('evt'):
+            if 'evt' not in data:
                 continue
             bins = DataSetMgr.instances[dsName].bins
-            if not monComp.figs.has_key('evt/io'):
+            if 'evt/io' not in monComp.figs:
                 monComp.figs['evt/io'] = pylab.figure()
                 monComp.figs['evt/io'].add_subplot(221).hold( True )
                 monComp.figs['evt/io'].add_subplot(223).hold( True )
@@ -216,13 +216,13 @@ class IoAnalyzer( Analyzer ):
         # ROOT T/P separation overhead
         #
         for dsName in dsNames:
-            if not monComp.data.has_key(dsName):
+            if dsName not in monComp.data:
                 continue
             data = monComp.data[dsName]
-            if not data.has_key('evt'):
+            if 'evt' not in data:
                 continue
             bins = DataSetMgr.instances[dsName].bins
-            if not monComp.figs.has_key('evt/rio'):
+            if 'evt/rio' not in monComp.figs:
                 monComp.figs['evt/rio'] = pylab.figure()
                 monComp.figs['evt/rio'].add_subplot(221).hold( True )
                 monComp.figs['evt/rio'].add_subplot(223).hold( True )

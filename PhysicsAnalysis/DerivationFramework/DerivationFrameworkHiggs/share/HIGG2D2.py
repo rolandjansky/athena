@@ -36,28 +36,20 @@ HIGG2D2ThinningHelper.AppendToStream(HIGG2D2Stream)
 
 # MET/Jet tracks
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG2D2TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D2TPThinningTool",
-                                                                   ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
-                                                                   SelectionString        = thinning_expression,
-                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                   ApplyAnd               = True)
-ToolSvc += HIGG2D2TPThinningTool
-thinningTools.append(HIGG2D2TPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG2D2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D2JetTPThinningTool",
-                                                                         ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          JetKey                 = "AntiKt4LCTopoJets",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                         ApplyAnd               = True)
+                                                                         TrackSelectionString   = thinning_expression)
 ToolSvc += HIGG2D2JetTPThinningTool
 thinningTools.append(HIGG2D2JetTPThinningTool)
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 HIGG2D2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "HIGG2D2MuonTPThinningTool",
-                                                                           ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                           StreamName              = streamName,
                                                                            MuonKey                = "Muons",
                                                                            InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D2MuonTPThinningTool
@@ -66,7 +58,7 @@ thinningTools.append(HIGG2D2MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG2D2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "HIGG2D2ElectronTPThinningTool",
-                                                                                 ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey                  = "Electrons",
                                                                                  InDetTrackParticlesKey = "InDetTrackParticles",
                                                                                  BestMatchOnly          = False)
@@ -76,7 +68,7 @@ thinningTools.append(HIGG2D2ElectronTPThinningTool)
 # Tracks associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG2D2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "HIGG2D2TauTPThinningTool",
-                                                                         ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                         StreamName             = streamName,
                                                                          TauKey                 = "TauJets",
                                                                          ConeSize               = 0.6,
                                                                          InDetTrackParticlesKey = "InDetTrackParticles")
@@ -85,7 +77,7 @@ thinningTools.append(HIGG2D2TauTPThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 HIGG2D2MuonCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG2D2MuonCCThinningTool",
-                                                                     ThinningService       = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                     StreamName            = streamName,
                                                                      SGKey                 = "Muons",
                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                      SelectionString       = "Muons.pt>0.*GeV",
@@ -105,7 +97,7 @@ if useGenericTruthThinning:
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     HIGG2D2TruthThinningTool = DerivationFramework__GenericTruthThinning(name                         = "HIGG2D2TruthThinningTool", 
-                                                                         ThinningService              = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                         StreamName                   = streamName,
                                                                          ParticleSelectionString      = truth_expression,
                                                                          PreserveDescendants          = False,
                                                                          PreserveGeneratorDescendants = True,
@@ -113,7 +105,7 @@ if useGenericTruthThinning:
 else:
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     HIGG2D2TruthThinningTool = DerivationFramework__MenuTruthThinning(name                         = "HIGG2D2TruthThinningTool",
-                                                                      ThinningService              = "HIGG2D2ThinningSvc",
+                                                                      StreamName                   = streamName,
                                                                       WritePartons                 = False,
                                                                       WriteHadrons                 = False,
                                                                       WriteBHadrons                = True,

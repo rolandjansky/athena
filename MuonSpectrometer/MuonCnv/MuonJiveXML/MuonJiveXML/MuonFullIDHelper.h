@@ -23,10 +23,10 @@ namespace JiveXML{
   namespace MuonFullIDHelper{
 
     //Static convertor methods for each subsystem
-    std::string getFullID(Identifier,const MdtIdHelper*);
-    std::string getFullID(Identifier,const RpcIdHelper*);
-    std::string getFullID(Identifier,const TgcIdHelper*);
-    std::string getFullID(Identifier,const CscIdHelper*);
+    std::string getFullID(Identifier,const MdtIdHelper&);
+    std::string getFullID(Identifier,const RpcIdHelper&);
+    std::string getFullID(Identifier,const TgcIdHelper&);
+    std::string getFullID(Identifier,const CscIdHelper&);
 
   }
 }

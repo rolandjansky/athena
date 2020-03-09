@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ADDNOISE_CELLBUILDERTOOL_H
@@ -11,14 +11,13 @@
 // Michael Duehrssen
 
 #include "FastCaloSim/BasicCellBuilderTool.h"
-#include "CaloInterface/ICaloNoiseTool.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CaloInterface/ICaloEstimatedGainTool.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include <string>
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 class AddNoiseCellBuilderTool: public BasicCellBuilderTool
 {
@@ -37,11 +36,15 @@ public:
                               const EventContext& ctx) const override;
 private:
 
-  ToolHandle<ICaloNoiseTool> m_noiseTool;   //NoiseTool - public
-  ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
-  CLHEP::HepRandomEngine*        m_randomEngine{};
-  std::string                    m_randomEngineName{"FastCaloSimNoiseRnd"};         //!< Name of the random number stream
-  bool m_donoise{true};
+  SG::ReadCondHandleKey<CaloNoise> m_noiseKey
+  { this, "NoiseKey", "electronicNoise", "Calo noise CDO" };
+
+  ToolHandle<ICaloEstimatedGainTool> m_estimatedGain
+  { this, "CaloEstimatedGainTool", "CaloEstimatedGainTool", "Estimated gain tool." };
+
+  ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomSvc", "AthRNGSvc", ""};
+  Gaudi::Property<std::string> m_randomEngineName{this, "RandomStreamName", "FastCaloSimNoiseRnd", "Name of the random number stream"};
+  Gaudi::Property<bool> m_donoise{this, "doNoise", true};
 };
 
 #endif

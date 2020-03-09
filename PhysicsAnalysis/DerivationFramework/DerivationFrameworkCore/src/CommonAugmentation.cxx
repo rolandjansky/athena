@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 #include "AthLinks/ElementLink.h"
 #include "GaudiKernel/Chrono.h"
 
-#include "StoreGate/StoreGateSvc.h"             // Storegate stuff
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/DefaultKey.h"
 #include "SGTools/StlVectorClids.h"
@@ -33,7 +32,6 @@
 DerivationFramework::CommonAugmentation::CommonAugmentation(const std::string& name, ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
 m_chronoSvc("ChronoStatSvc", name) 
-//m_ometaStore("StoreGateSvc/MetaDataStore", name )
 {
     // ------- Python changeable properties -------
     declareProperty("AugmentationTools",     m_augmentationTools);

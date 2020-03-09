@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSurveyConstraintTool/SurveyConstraintTestAlg.h"
 #include "InDetSurveyConstraintTool/ISurveyConstraint.h"
 #include "GaudiKernel/MsgStream.h"
 
+#include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "GaudiKernel/IHistogramSvc.h" 
@@ -25,7 +25,6 @@ SurveyConstraintTestAlg::SurveyConstraintTestAlg(const std::string& name, ISvcLo
 AthAlgorithm(name, pSvcLocator),
   m_toolsvc{},            //!< Pointer to tool service
   m_SurvConstr{},
-  m_pixelManager{},
   m_pixid{},
   m_sctid{},
   m_h_PixEC_Align_Disk{},
@@ -54,10 +53,6 @@ StatusCode SurveyConstraintTestAlg::initialize(){
   // Get SurveyConstraint from ToolService
   ATH_CHECK( m_toolsvc->retrieveTool("SurveyConstraint",m_SurvConstr));
  
-  // get PixelManager
-  ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
-  
-  
   // get ID helpers from detector store (relying on GeoModel to put them)
   ATH_CHECK(detStore()->retrieve(m_pixid));
   ATH_CHECK(detStore()->retrieve(m_sctid));
@@ -160,21 +155,20 @@ ATH_MSG_INFO( "execute()" );
  double deltachisq = 0;
  Amg::VectorX DOCA_Vector(6);
  Amg::MatrixX DOCA_Matrix(6,6);
- InDetDD::SiDetectorElementCollection::const_iterator iter;  
 
  // Pix EC
  bool NewDisk = true, NewSector = true;
  int previous_disk = -1, previous_sector = -1;
  for(int i=0;i!=m_NLoop;++i){
-   if(i!=0){m_SurvConstr -> finalize();m_SurvConstr -> setup_SurveyConstraintModules();}
-   for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
-     const Identifier Pixel_ModuleID = (*iter)->identify(); 
+   if(i!=0){m_SurvConstr -> finalize().ignore();m_SurvConstr -> setup_SurveyConstraintModules();}
+   for (PixelID::const_id_iterator wafer_it=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
+     const Identifier Pixel_ModuleID = *wafer_it;
      if(std::abs(m_pixid->barrel_ec(Pixel_ModuleID)) == 2){
-       m_SurvConstr -> computeConstraint(Pixel_ModuleID,
-                                       dparams,        
-                                       deltachisq,
-                                       DOCA_Vector,  
-                                       DOCA_Matrix); 
+       ATH_CHECK(m_SurvConstr -> computeConstraint(Pixel_ModuleID,
+                                                   dparams,
+                                                   deltachisq,
+                                                   DOCA_Vector,
+                                                   DOCA_Matrix));
        
        
        if(previous_disk == m_pixid->layer_disk(Pixel_ModuleID) && 
@@ -203,14 +197,14 @@ ATH_MSG_INFO( "execute()" );
  }
  
  // Pix B
- for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
-   const Identifier Pixel_ModuleID = (*iter)->identify(); 
+ for (PixelID::const_id_iterator wafer_it=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
+   const Identifier Pixel_ModuleID = *wafer_it;
    if(m_pixid->barrel_ec(Pixel_ModuleID) == 0){
-     m_SurvConstr -> computeConstraint(Pixel_ModuleID,
-             dparams,        
-             deltachisq,
-             DOCA_Vector,  
-             DOCA_Matrix); 
+     ATH_CHECK(m_SurvConstr -> computeConstraint(Pixel_ModuleID,
+                                                 dparams,
+                                                 deltachisq,
+                                                 DOCA_Vector,
+                                                 DOCA_Matrix));
      ATH_MSG_DEBUG( "Pixel Barrel ModuleID = " <<  Pixel_ModuleID);
      ATH_MSG_DEBUG( "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")");
      ATH_MSG_DEBUG( "chi^2 = " << deltachisq);
@@ -227,11 +221,11 @@ ATH_MSG_INFO( "execute()" );
  for (SCT_ID::const_id_iterator wafer_it=m_sctid->wafer_begin(); wafer_it!=m_sctid->wafer_end(); ++wafer_it) {
    const Identifier SCT_ModuleID = *wafer_it; 
    if(std::abs(m_sctid->barrel_ec(SCT_ModuleID)) == 2){
-     m_SurvConstr -> computeConstraint(SCT_ModuleID,
-             dparams,        
-             deltachisq,
-             DOCA_Vector,  
-             DOCA_Matrix); 
+     ATH_CHECK(m_SurvConstr -> computeConstraint(SCT_ModuleID,
+                                                 dparams,
+                                                 deltachisq,
+                                                 DOCA_Vector,
+                                                 DOCA_Matrix));
      ATH_MSG_DEBUG( "SCT_ModuleID = " <<  SCT_ModuleID);
      ATH_MSG_DEBUG( "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")");
      ATH_MSG_DEBUG( "chi^2 = " << deltachisq);
@@ -248,11 +242,11 @@ ATH_MSG_INFO( "execute()" );
  for (SCT_ID::const_id_iterator wafer_it=m_sctid->wafer_begin(); wafer_it!=m_sctid->wafer_end(); ++wafer_it) {
    const Identifier SCT_ModuleID = *wafer_it;
    if(m_sctid->barrel_ec(SCT_ModuleID) == 0){
-     m_SurvConstr -> computeConstraint(SCT_ModuleID,
-             dparams,        
-             deltachisq,
-             DOCA_Vector,  
-             DOCA_Matrix); 
+     ATH_CHECK(m_SurvConstr -> computeConstraint(SCT_ModuleID,
+                                                 dparams,
+                                                 deltachisq,
+                                                 DOCA_Vector,
+                                                 DOCA_Matrix));
      ATH_MSG_DEBUG( "SCT Barrel ModuleID = " <<  SCT_ModuleID);
      ATH_MSG_DEBUG( "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")");
      ATH_MSG_DEBUG( "chi^2 = " << deltachisq);

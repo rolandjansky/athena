@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -19,7 +19,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "HepPDT/ParticleData.hh"
@@ -29,7 +28,8 @@
 
 #include "IdDictDetDescr/IdDictManager.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "TrkTruthData/TrackTruth.h"
 #include "TrkTruthData/TrackTruthCollection.h"
@@ -37,7 +37,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 //#include "TrkParameters/MeasuredPerigee.h"
-#include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -64,7 +63,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::string;
 
 #define STR(s) STR_EXP(s)
@@ -314,6 +313,7 @@ StatusCode IDStandardPerformance::initialize()
   ATH_CHECK(m_SCTtracksName.initialize(m_doHitBasedMatching));
   ATH_CHECK( m_TRTtracksKey.initialize(m_doHitBasedMatching) );
   ATH_CHECK( m_evt.initialize() );
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   sc = ManagedMonitorToolBase::initialize();
   return sc;
@@ -2136,9 +2136,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       continue;
     }
     const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(particle);
-    //    auto_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
-    //    if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
-    //    else {
     if (generatedTrackPerigee){
       zVertex+=generatedTrackPerigee->parameters()[Trk::z0];
       nPrimaries++;
@@ -3015,7 +3012,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       // V47: Create generated track perigee to cut on truth tracks
       float track_truth_d0 = 999.;
       float track_truth_phi = 999.;
-      auto_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
+      unique_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
       if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
       else {
 	track_truth_d0 = generatedTrackPerigee->parameters()[Trk::d0];
@@ -3578,6 +3575,13 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
 void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
   // This function determines general track properties and hit efficiencies and can be run both on data and MC
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
+
   const int nPixelLayers=m_PIX_Mgr->numerology().numLayers();
   const int nPixelDisks=m_PIX_Mgr->numerology().numDisks();
 
@@ -3641,7 +3645,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     //Trk::Track& nonConstTrack = const_cast<Trk::Track&>(**trksItr);
     //m_trkSummaryTool->updateTrack(nonConstTrack);
     //Trk::TrackSummary* summary = new Trk::TrackSummary(*(nonConstTrack.trackSummary()));
-    auto_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->createSummary(**trksItr));
+    unique_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->createSummary(**trksItr));
 
     if (msgLvl(MSG::VERBOSE)) {
       msg() << "Analyze Hit Content using TrackSummary object" << endmsg;
@@ -3725,7 +3729,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     // to avoid crashes that sometimes occur for low pt tracks for the hole search tool
     if (msgLvl(MSG::VERBOSE)) msg() << "Calculate hit efficiencies and residuals for track : pT = " << trkpt << "  eta = " << trketa<<endmsg;
     if (trkpt>0.8) {
-      auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
+      unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
 
       // Loop over all hits on track
       DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
@@ -4020,7 +4024,6 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		    dynamic_cast<const InDet::PixelCluster*>(prd);
 		  if (sc)
 		    element = sc->detectorElement();
-		  //element = m_PIX_Mgr->getDetectorElement(surfaceID);
 		}
 	      if (!element && m_idHelper->is_sct(surfaceID))
 		{
@@ -4058,10 +4061,12 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	      Trk::ResidualPull::ResidualType resType = m_isUnbiased
                                                       ? Trk::ResidualPull::Unbiased
                                                       : Trk::ResidualPull::Biased;
-              const auto_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,
+              const std::unique_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,
                                                              trackParameters,
                                                              resType));
-              fillPixelTrackPullHistos(surfaceID, *TSOSItr, residualPull);
+              if (m_idHelper->is_pixel(surfaceID)) {
+                 fillPixelTrackPullHistos(surfaceID, *TSOSItr, residualPull, elements);
+              }
 
               if (msgLvl(MSG::VERBOSE)) msg() << "obtained Hit Residual and Pull " << endmsg;
               residualLocX = 1000*residualPull->residual()[Trk::loc1]; // residuals in microns
@@ -4197,7 +4202,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	  //get pixel hits
 	  for (; PixtrksItr != PixtrksItrE; ++PixtrksItr) {
 
-	    auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**PixtrksItr));
+	    unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**PixtrksItr));
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
 	    Identifier SurfaceID;
 
@@ -4288,7 +4293,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	  //get SCT tracks
 	  for (; SCTtrksItr != SCTtrksItrE; ++SCTtrksItr) {
 
-	    auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**SCTtrksItr));
+	    unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**SCTtrksItr));
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
 	    Identifier SurfaceID;
 
@@ -4384,7 +4389,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	  //get TRT tracks
 	  for (; TRTtrksItr != TRTtrksItrE; ++TRTtrksItr) {
 
-	    auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**TRTtrksItr));
+	    unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**TRTtrksItr));
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
 	    Identifier SurfaceID;
 
@@ -4510,7 +4515,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	      
 	      
 	    
-	    auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
+	    unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
 	    Identifier SurfaceID;
 	    const Trk::Perigee* startPerigee = (*trksItr)->perigeeParameters();
@@ -4800,14 +4805,16 @@ void IDStandardPerformance::SetSafeMinimumMaximum(TH1* h, float min, float max) 
 void
 IDStandardPerformance::fillPixelTrackPullHistos(const Identifier& elementID
                                               , const Trk::TrackStateOnSurface* trackState
-                                              , const auto_ptr<const Trk::ResidualPull>& trackPull)
+                                              , const std::unique_ptr<const Trk::ResidualPull>& trackPull
+                                              , const InDetDD::SiDetectorElementCollection* elements)
 {
-  const InDetDD::SiDetectorElement* element = m_PIX_Mgr->getDetectorElement(elementID);
+  if (not m_idHelper->is_pixel(elementID)) {
+    ATH_MSG_FATAL( "This is not a pixel" );
+    throw std::logic_error("fillPixelTrackPullHistos called for a non-Pixel detector element.");
+  }
+  const InDetDD::SiDetectorElement* element = elements->getDetectorElement(m_pixelID->wafer_hash(elementID));
   if (not element) {
     return;
-  }
-  if (not m_idHelper->is_pixel(elementID)) {
-    msg(MSG::FATAL) << "This is not a pixel" << endmsg;
   }
   bool isBarrel = m_pixelID->is_barrel(elementID);
   int layer = m_pixelID->layer_disk(elementID);

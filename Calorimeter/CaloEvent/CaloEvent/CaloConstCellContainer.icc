@@ -199,7 +199,7 @@ CaloConstCellContainer::findCellVector (const std::vector<IdentifierHash> & theV
 
 /** @brief order container */
 inline
-void CaloConstCellContainer::order()
+void CaloConstCellContainer::order ()
 {
   baseContainer()->order();
 }

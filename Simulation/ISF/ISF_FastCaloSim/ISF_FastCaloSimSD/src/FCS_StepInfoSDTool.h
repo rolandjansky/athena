@@ -57,7 +57,7 @@ namespace FCS_Param
   private:
 
     /// Create the SD wrapper for current worker thread
-    G4VSensitiveDetector* makeSD() override final;
+    G4VSensitiveDetector* makeSD() const override final;
 
     /// Initialize Calculator Services
     virtual StatusCode initializeCalculators();

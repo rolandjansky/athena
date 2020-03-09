@@ -8,6 +8,7 @@
 ###############################################################
 
 from __future__ import print_function
+import six
 
 __doc__ = """py-module to hold a few tools and utilities to help debugging
 configurables and/or Athena application.
@@ -42,6 +43,9 @@ def hookStrace(out=None):
     """
     import os
     if out is None: out = 'athena.strace.log.%i' % os.getpid()
+    if six.PY3:
+        import io
+        file = io.IOBase
     if isinstance(out, file):
         out = out.name
     elif not isinstance(out,str):
@@ -60,4 +64,32 @@ def hookStrace(out=None):
     # verify the process' existence (will raise OSError if failed)
     os.waitpid( pid, os.WNOHANG )
     os.kill( pid, 0 )
+    return
+
+
+def allowPtrace():
+    """On kernels with Yama enabled, ptrace may not work by default on processes
+which are not decendants of the tracing process.  Among other things, that
+causes the way we attach the debugger to fail.  However, we can disable this
+on a per-process basis.  Do that here.
+
+See https://www.kernel.org/doc/Documentation/security/Yama.txt and prctl(2).
+"""
+
+    # First test to see if ptrace restrictions are enabled.
+    import os
+    # Return if this kernel does not support ptrace restrictions.
+    if not os.path.exists ('/proc/sys/kernel/yama/ptrace_scope'): return
+
+    # Return if ptrace restrictions are disabled.
+    if open('/proc/sys/kernel/yama/ptrace_scope').readline().strip() == '0':
+        return
+
+    # Use prctl to try to enable ptrace.
+    from ctypes import CDLL
+    libc = CDLL("libc.so.6")
+    # Args are PTRACE_SET_PTRACER (4HYama) and
+    # PR_SET_PTRACER_ANY ((unsigned long)-1).
+    libc.prctl (0x59616d61, 0xffffffffffffffff)
+
     return

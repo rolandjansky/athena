@@ -19,7 +19,3 @@ atlas_add_poolcnv_library( AnalysisTriggerEventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES AnalysisTriggerEvent/CTP_Decision.h AnalysisTriggerEvent/LVL1_ROI.h
                            LINK_LIBRARIES AthenaPoolUtilities GaudiKernel AthenaPoolCnvSvcLib AnalysisTriggerEvent AnalysisTriggerEventTPCnv )
-
-# Install files from the package:
-atlas_install_headers( AnalysisTriggerEventAthenaPool )
-

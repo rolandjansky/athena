@@ -24,7 +24,6 @@
 #include "StorageSvc/DbReflex.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/IDbDatabase.h"
 #include "StorageSvc/IDbContainer.h"
@@ -34,6 +33,11 @@
 
 using namespace std;
 using namespace pool;
+
+ostream& operator << (ostream& os, const Token::OID_t oid ) {
+   os << "("<<oid.first<<","<<oid.second<<")";
+   return os;
+}
 
 static const Guid s_localDb("00000000-0000-0000-0000-000000000000");
 static DbPrintLvl::MsgLevel dbg_lvl = DbPrintLvl::Debug;
@@ -48,7 +52,6 @@ DbDatabaseObj::DbDatabaseObj( const DbDomain& dom,
   m_info(0), m_string_t(0), m_fileAge(0)
 {
   DbPrint log( m_dom.name() );
-  DbInstanceCount::increment(this);
   m_logon = pfn;
   std::unique_ptr<DbToken> tok(new DbToken());
   tok->setTechnology(dom.type().type());
@@ -97,7 +100,6 @@ DbDatabaseObj::DbDatabaseObj( const DbDomain& dom,
 
 // Standard Destructor
 DbDatabaseObj::~DbDatabaseObj()  {
-  DbInstanceCount::decrement(this);
   clearEntries();
   cleanup();
   if( m_string_t ) {
@@ -126,6 +128,7 @@ DbStatus DbDatabaseObj::cleanup()  {
   }
   m_linkMap.clear();
   m_linkVec.clear();
+  m_indexMap.clear();
   m_shapeMap.clear();
   m_paramMap.clear();
   m_classMap.clear();
@@ -194,6 +197,7 @@ DbStatus DbDatabaseObj::makeLink(const Token* pTok, Token::OID_t& refLnk) {
         link->setDb(dbn);
         // Update the transient list of links
 	m_linkMap.insert( LinkMap::value_type(link->contKey(), link.get()));
+        m_indexMap.insert( IndexMap::value_type(link->oid().first, m_linkVec.size()));
         m_linkVec.push_back( link.release() );
         return Success;
       }
@@ -336,6 +340,7 @@ DbStatus DbDatabaseObj::open()   {
         l1->setKey(DbToken::TOKEN_CONT_KEY);
         // Update the transient list of links
         m_linkMap.insert( LinkMap::value_type(l1->contKey(), l1.get()));
+        m_indexMap.insert( IndexMap::value_type(l1->oid().first, m_linkVec.size()));
         m_linkVec.push_back( l1.release() );
 
         // Add link to "##Links" container
@@ -350,6 +355,7 @@ DbStatus DbDatabaseObj::open()   {
         l2->setKey(DbToken::TOKEN_CONT_KEY);
         // Update the transient list of links
         m_linkMap.insert( LinkMap::value_type(l2->contKey(), l2.get()));
+        m_indexMap.insert( IndexMap::value_type(l2->oid().first, m_linkVec.size()));
         m_linkVec.push_back( l2.release() );
 
         if ( m_shapes.open(dbH,"##Shapes",m_string_t,type(),mode()).isSuccess() )    {
@@ -402,6 +408,7 @@ DbStatus DbDatabaseObj::open()   {
 	    if ( m_linkMap.find(link->contKey()) == m_linkMap.end() )  {
 	      m_linkMap.insert( LinkMap::value_type(link->contKey(), link.get()));
 	    }
+            m_indexMap.insert( IndexMap::value_type(link->oid().first, m_linkVec.size()));
 	    m_linkVec.push_back(link.release());
             it.object()->~DbString(); m_links.free(it.object());
           }
@@ -668,29 +675,43 @@ DbStatus DbDatabaseObj::params(Parameters& vals)   {
   return Error;
 }
 
-/// Calculate required OID modification (shift) for source OID (oid) for a given merge section
-DbStatus DbDatabaseObj::getRedirection(const Token::OID_t& oid, int merge_section, Token::OID_t& shift)
+// Calculate new OID from the source OID (oid) for a given merge section
+// Only redirect non-indexed OIDs
+DbStatus DbDatabaseObj::getRedirection(const Token::OID_t& oid, int merge_section, Token::OID_t& new_oid)
 {
-   if( merge_section > 0 ) {
-      // find the offset in the links table
-      Sections::const_iterator j = m_sections.find("##Links");
-      if( j == m_sections.end() )
+   new_oid = oid;
+   DbToken* link = nullptr;
+   if( oid.first > 0xFFFFFFFF ) {
+      // for indexed entries find Link vector entry directly
+      auto iter = m_indexMap.find( oid.first );
+      if( iter == m_indexMap.end() )
          return Error;
-      const ContainerSections& sections = (*j).second;
-      if( merge_section < (int)sections.size() ) {
-         shift.first = sections[merge_section].start;
-      }
-      DbToken* link = m_linkVec[ oid.first + shift.first ];
-       if( link->isLocal() ) {
-         // MN: assuming only internal links need OID_2 adjustment
-         // find the start of the section for this container
-         j = m_sections.find( link->contID() );
+      new_oid.first = iter->second;
+      link = m_linkVec[ new_oid.first ];
+   }
+   if( merge_section > 0 ) {
+      if( oid.first <= 0xFFFFFFFF ) {
+         // for non-indexed entries find the correct section for the Links table and add offset
+         // 1. find the offset in the links table
+         Sections::const_iterator j = m_sections.find("##Links");
          if( j == m_sections.end() )
             return Error;
          const ContainerSections& sections = (*j).second;
-         if( merge_section < (int)sections.size() ) {
-            shift.second = sections[merge_section].start;
-         }
+         if( merge_section >= (int)sections.size() )
+            return Error;
+         new_oid.first =  oid.first + sections[merge_section].start;
+         link = m_linkVec[ new_oid.first ];
+      }
+      if( link->isLocal() && oid.second <= 0xFFFFFFFF ) {
+         // MN: assuming only non-indexed internal links need OID_2 adjustment
+         // find the start of the section for this container
+         Sections::const_iterator j = m_sections.find( link->contID() );
+         if( j == m_sections.end() )
+            return Error;
+         const ContainerSections& sections = (*j).second;
+         if( merge_section >= (int)sections.size() )
+            return Error;
+         new_oid.second += sections[merge_section].start; 
       }
    }
    return Success;
@@ -701,24 +722,17 @@ DbStatus DbDatabaseObj::getLink(const Token::OID_t& oid, int merge_section, Toke
 {
    if ( 0 == m_info ) open();
    if ( 0 != m_info && 0 != pTok && oid.first >= 0 ) {
-      Token::OID_t shift(0,0);
-      if( merge_section > 0 ) {
-         if( getRedirection(oid, merge_section, shift) != Success )
-            return Error; 
-      }
-      int lnk = oid.first + shift.first;
-      if( lnk >= int(m_linkVec.size()) )
-         return Error;
-
-      pTok->oid().first  = lnk;
-      pTok->oid().second = oid.second + shift.second;
+      Token::OID_t redirected(0,0);
+      if( getRedirection(oid, merge_section, redirected) != Success )
+         return Error; 
+      pTok->oid() = redirected;
       if( !(pTok->type() & DbToken::TOKEN_FULL_KEY) )  {
          if( typeid(*pTok) == typeid(DbToken) )  {
 	    DbToken* pdbTok = (DbToken*)pTok;
 	    pdbTok->setKey(DbToken::TOKEN_FULL_KEY);
          }
       }
-      m_linkVec[lnk]->set(pTok);
+      m_linkVec[ redirected.first ]->set(pTok);
       return Success;
    }
    return Error;
@@ -728,7 +742,7 @@ DbStatus DbDatabaseObj::getLink(const Token::OID_t& oid, int merge_section, Toke
 std::string DbDatabaseObj::cntName(const Token& token) {
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
-    int lnk = token.oid().first; // Remove leading 32 bit, switch to index later
+    int lnk = m_indexMap[token.oid().first]; // Map link to index
     if ( lnk >= 0 )  {
       Redirections::iterator i=m_redirects.find(token.dbID().toString());
       Sections::const_iterator j=m_sections.find("##Links");
@@ -752,7 +766,6 @@ std::string DbDatabaseObj::cntName(const Token& token) {
   return "";
 }
 
-
 DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object) 
 {
    if( 0 == m_info ) open();
@@ -763,7 +776,20 @@ DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object)
       if( token.dbID() == name() ) {
          // Regular read operation, make sure we know the container name
          if( containerName.empty() ) {
-             containerName = m_linkVec[ oid.first ]->contID();
+            auto iter = m_indexMap.find(oid.first);
+            if( iter != m_indexMap.end() ) {
+               containerName = m_linkVec[ iter->second ]->contID();
+            } else {
+               if( unsigned(oid.first) < m_indexMap.size() ) {
+                  // try a direct link table access
+                  containerName = m_linkVec[ oid.first ]->contID();
+               } else {
+                  DbPrint log( name() );
+                  log << DbPrintLvl::Error << "OID1 not found in the index redirection map. Token=" << token.toString()
+                      << DbPrint::endmsg;
+                  return Error;
+               }
+            }
          }
          Sections::const_iterator j = m_sections.find( containerName );
          if( j != m_sections.end() ) {
@@ -781,20 +807,19 @@ DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object)
          // We get here if the token is *part* of a merged file, but still hosted within this DB
          Redirections::iterator i = m_redirects.find( token.dbID().toString() );
          // find out which section to read from
-         if( i!=m_redirects.end() ) sectionN = i->second.first;
-         if( sectionN > 0 ) {
-            Token::OID_t shift(0,0);
-            getRedirection(oid, sectionN, shift);
-            if( DbPrintLvl::outputLvl == DbPrintLvl::Verbose ) {
-               DbPrint log( name() );
-               log << DbPrintLvl::Verbose << "Reading object OID=(" << oid.first << ", " << oid.second
-                   << ")  from merged file section # " << sectionN
-                   << ", Adjusted OID=(" << oid.first + shift.first << ", " << oid.second + shift.second << ")"
-                   << DbPrint::endmsg;
-            }
-            oid.first += shift.first;
-            oid.second += shift.second;
+         if( i == m_redirects.end() )
+            return Error;
+         sectionN = i->second.first;
+         Token::OID_t redirected(0,0);
+         if( getRedirection(oid, sectionN, redirected) == Error )
+            return Error;
+         if( DbPrintLvl::outputLvl <= DbPrintLvl::Verbose ) {
+            DbPrint log( name() );
+            log << DbPrintLvl::Verbose << "Reading object OID=" << oid
+                << "  from merged file section # " << sectionN
+                << ", Adjusted OID=" << redirected << DbPrint::endmsg;
          }
+         oid = redirected;
          containerName = m_linkVec[ oid.first ]->contID();
       }
 

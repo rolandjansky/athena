@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenu.l1.Lvl1Thresholds import LVL1Threshold, ThresholdValue
+from TriggerMenu.l1.Lvl1Thresholds import ThresholdValue
 from TriggerMenu.l1.Limits import CaloLimits as CL
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 ClusterOff   = CL.ClusterOff
 IsolationOff = CL.IsolationOff
@@ -345,7 +344,7 @@ class ThresholdDef:
 
         thr_mbtsA = tc.registerThr('MBTS_A', 'MBTS', mapping=0)
         thr_mbtsC = tc.registerThr('MBTS_C', 'MBTS', mapping=1)
-        for x in xrange(16):
+        for x in range(16):
             if tc.getRegisteredThreshold('MBTS_A%i' % x):
                 thr_mbtsA.thresholdValues += [ tc.getRegisteredThreshold('MBTS_A%i' % x).thresholdValues[0] ]
             if tc.getRegisteredThreshold('MBTS_C%i' % x):

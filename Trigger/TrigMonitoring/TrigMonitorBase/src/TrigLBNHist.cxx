@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -8,7 +8,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/foreach.hpp>
 #include <cmath>
 
 //#include <iostream>
@@ -46,13 +45,13 @@ ITrigLBNHist::~ITrigLBNHist() {
 
 
 void ITrigLBNHist::set_lbn(unsigned int l) {
-  BOOST_FOREACH(ITrigLBNHist* h, AllTrigLBNHists::s_lbnHistograms)
+  for(ITrigLBNHist* h : AllTrigLBNHists::s_lbnHistograms)
     h->lbn(l);  
 }
 
 // this is not bad duplication we can not use the same function, guess why!
 void ITrigLBNHist::force_lbn(unsigned int l ) {  
-  BOOST_FOREACH(ITrigLBNHist* h, AllTrigLBNHists::s_lbnHistograms)
+  for(ITrigLBNHist* h : AllTrigLBNHists::s_lbnHistograms)
     h->force(l);
 }
 
@@ -390,7 +389,7 @@ bool TrigLBNHist<HTYPE>::fetchLateEventsHist() {
     return true;
   //   cerr << "late events for " << this->GetName() << endl;
 
-  //m_lateEvents.histogram = (HTYPE*)lock_histogram_operation<HTYPE>((HTYPE*)this)->Clone((m_name+"_lateevents").c_str());
+  //m_lateEvents.histogram = (HTYPE*)oh_lock_histogram<HTYPE>((HTYPE*)this)->Clone((m_name+"_lateevents").c_str());
   TH1::AddDirectory(false);
   m_lateEvents.histogram = new HTYPE(*this);
   m_lateEvents.histogram->SetName((m_name+"_lateevents").c_str());
@@ -409,7 +408,7 @@ template<class HTYPE>
 bool TrigLBNHist<HTYPE>::addNewHist(unsigned lbn, bool force) {
   //std::cout << " will make new histogram " << m_name << " for LBN : " << lbn << " force " << force << std::endl;
 
-  //  HTYPE *newHist = (HTYPE*) lock_histogram_operation<HTYPE>((HTYPE*)this)->Clone(m_name.c_str());
+  //  HTYPE *newHist = (HTYPE*) oh_lock_histogram<HTYPE>((HTYPE*)this)->Clone(m_name.c_str());
 
   TH1::AddDirectory(false);
   HTYPE* newHist = new HTYPE(*this);

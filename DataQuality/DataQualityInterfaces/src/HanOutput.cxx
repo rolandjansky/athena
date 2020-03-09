@@ -245,7 +245,7 @@ flushResults()
 			parentName = i->second->getName();
 			bool use_full_name = false;
 			if (m_config) {
-			  std::auto_ptr<const HanConfigAssessor> a(m_config->GetAssessor(parentName, parname));
+			  std::unique_ptr<const HanConfigAssessor> a(m_config->GetAssessor(parentName, parname));
 			  if (a.get()) {
 			    std::string store_using_path;
 			    const HanConfigParMap* hcpm = a->GetAnnotation("store_using_path");

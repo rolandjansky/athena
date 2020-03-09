@@ -24,7 +24,7 @@ if [ -z ${SKIPEVENTS} ]; then
 fi
 
 if [ -z ${JOBOPTION} ]; then
-  export JOBOPTION="TriggerRelease/runHLT_standalone.py"
+  export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 fi
 
 if [ -z ${JOB_LOG} ]; then
@@ -43,6 +43,13 @@ if [ -z ${SLOTS} ]; then
   export SLOTS="1"
 fi
 
+# Run with PerfMon by default
+if [ -z ${DOPERFMON} ] || [ ${DOPERFMON} -ne 0 ]; then
+  export PERFMONFLAG="--perfmon"
+else
+  export PERFMONFLAG=""
+fi
+
 if [ -z ${STDCMATH} ] || [ ${STDCMATH} -eq 0 ]; then
   if [ -f ${ATLASMKLLIBDIR_PRELOAD}/libimf.so ]; then
     export MATHLIBOPT="--imf"
@@ -57,9 +64,7 @@ fi
 ###
 
 if [[ $INPUT == "run2data" ]]; then
-  export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
-elif [[ $INPUT == "run2dataFTK" ]]; then
-  export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0002.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0003.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0004.1"
+  export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1"
 elif [[ $INPUT == "run2mc_ttbar" ]]; then
   # ttbar RDO_FTK produced in 21.3
   export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000065.pool.root.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000235.pool.root.1"
@@ -78,11 +83,22 @@ fi
 
 ######################################
 
+# Generate empty PoolFileCatalog.xml - this prevents incorrect handling of crashes on the grid
+ART_AVAILABLE=`which art.py >/dev/null 2>&1; echo $?`
+if [[ $ART_AVAILABLE == "0" ]]; then
+  echo "Executing art.py createpoolfile"
+  art.py createpoolfile
+fi
+
+######################################
+
 if [[ ${FROMPICKLE} == "1" ]]; then
   echo "Running athena from pickle file ${JOBOPTION} with the command:"
   (set -x
   athena.py \
   ${MATHLIBOPT} \
+  ${PERFMONFLAG} \
+  ${ATHENAOPTS} \
   ${JOBOPTION} >${JOB_LOG} 2>&1
   ) 2>&1
 else
@@ -90,6 +106,8 @@ else
   (set -x
   athena.py \
   ${MATHLIBOPT} \
+  ${PERFMONFLAG} \
+  ${ATHENAOPTS} \
   --threads ${THREADS} \
   --concurrent-events ${SLOTS} \
   --filesInput "${DS}" \

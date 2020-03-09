@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACKFAKEREADER_H
@@ -26,7 +26,8 @@
 
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include <string>
 
 
@@ -64,9 +65,8 @@ private:
 
     void compareTracks(const Trk::Track* ref, const Trk::Track* readTrk);
  
-    /// Access to event store
-    std::string  m_pixMgrLocation;                    //!< Location of pixel Manager 
-    const InDetDD::PixelDetectorManager*  m_pixMgr;   //!< Detector Manager
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+
 };
 
 #endif // INDETRAWDATAFAKEREADER_H

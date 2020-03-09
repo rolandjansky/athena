@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCALOEVENTTPCNV_TRIGCALOCLUSTERCNV_P3_H
@@ -12,18 +12,21 @@
 
 class MsgStream;
 
-class TrigCaloClusterCnv_p3 : public T_AthenaPoolTPCnvBase<TrigCaloCluster, TrigCaloCluster_p3>
+class TrigCaloClusterCnv_p3 : public T_AthenaPoolTPCnvConstBase<TrigCaloCluster, TrigCaloCluster_p3>
 {
  public:
-  
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
   TrigCaloClusterCnv_p3() {}
   
   virtual void persToTrans( const TrigCaloCluster_p3 *persObj,
 			    TrigCaloCluster    *transObj,
-			    MsgStream            &log );
+			    MsgStream            &log ) const override;
   virtual void transToPers( const TrigCaloCluster    *transObj,
 			    TrigCaloCluster_p3 *persObj,
-			    MsgStream            &log );
+			    MsgStream            &log ) const override;
   
 };
 

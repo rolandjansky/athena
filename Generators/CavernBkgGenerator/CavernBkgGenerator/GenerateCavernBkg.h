@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATECAVERNBKG_H
@@ -49,7 +49,6 @@ private:
   std::string            m_infile;
   //@}
 
-  McEventCollection*     m_mcEvtColl;
   std::vector<long int>  m_seeds;
 
   // Accessors to the event

@@ -29,18 +29,18 @@ StatusCode LAruA2MeV2Ntuple::stop() {
  
  sc=m_nt->addItem("icell",cellIndex,0,2000);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log) << MSG::ERROR << "addItem 'Cell Index' failed" << endmsg;
+   {ATH_MSG_ERROR( "addItem 'Cell Index' failed" );
     return StatusCode::FAILURE;
    }
  sc=m_nt->addItem("uAMeV",uA2MeV,-1000.,5000.);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log) << MSG::ERROR << "addItem 'uAMeV' failed" << endmsg;
+   {ATH_MSG_ERROR( "addItem 'uAMeV' failed" );
     return StatusCode::FAILURE;
    }
 
  sc=m_nt->addItem("DAC2uA",DAC2uA,-1000.,5000.);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log) << MSG::ERROR << "addItem 'DAC2uA' failed" << endmsg;
+   {ATH_MSG_ERROR( "addItem 'DAC2uA' failed" );
     return StatusCode::FAILURE;
    }
 
@@ -48,16 +48,16 @@ StatusCode LAruA2MeV2Ntuple::stop() {
  const ILAruA2MeV* laruA2MeVComplete;
  sc=m_detStore->retrieve(laruA2MeVComplete,m_uA2MeVKey);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log) << MSG::ERROR << "Unable to retrieve LAruA2MeVComplete with key " 
-	<< m_uA2MeVKey << " from DetectorStore" << endmsg;
+   {ATH_MSG_ERROR( "Unable to retrieve LAruA2MeVComplete with key " 
+	<< m_uA2MeVKey << " from DetectorStore" );
    return StatusCode::FAILURE;
    } 
 
  const ILArDAC2uA* larDAC2uAComplete;
  sc=m_detStore->retrieve(larDAC2uAComplete,m_DAC2uAKey);
  if (sc!=StatusCode::SUCCESS) {
-   (*m_log) << MSG::ERROR << "Unable to retrieve LArDAC2uAComplete with key " 
-	    << m_DAC2uAKey << " from DetectorStore" << endmsg;
+   ATH_MSG_ERROR( "Unable to retrieve LArDAC2uAComplete with key " 
+	    << m_DAC2uAKey << " from DetectorStore" );
    return StatusCode::FAILURE;
  } 
 
@@ -81,14 +81,14 @@ StatusCode LAruA2MeV2Ntuple::stop() {
      sc=ntupleSvc()->writeRecord(m_nt);
 
      if (sc!=StatusCode::SUCCESS) {
-       (*m_log) << MSG::ERROR << "writeRecord failed" << endmsg;
+       ATH_MSG_ERROR( "writeRecord failed" );
        return StatusCode::FAILURE;
      }
      cellCounter++;
    }//end if connected
  }//end loop over online ID
 
- (*m_log) << MSG::INFO << "LAruA2MeV2Ntuple has finished." << endmsg;
+ ATH_MSG_INFO( "LAruA2MeV2Ntuple has finished." );
  return StatusCode::SUCCESS;
 }// end finalize-method.
    

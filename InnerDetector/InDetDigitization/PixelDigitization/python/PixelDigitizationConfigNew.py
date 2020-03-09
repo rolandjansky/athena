@@ -1,23 +1,28 @@
 """Define methods to construct configured Pixel Digitization tools and algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from AthenaConfiguration.ComponentFactory import CompFactory
 from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
-from PixelDigitization.PixelDigitizationConf import (
-    PixelDigitizationTool, PixelDigitization, ChargeCollProbSvc,
-    EnergyDepositionTool, SensorSimPlanarTool, SensorSim3DTool,
-    RD53SimTool, FEI4SimTool, FEI3SimTool,
+from PixelConditionsAlgorithms.PixelConditionsConfig import (
+    PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
+    PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
+    PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
+    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg, 
+    PixelTDAQCondAlgCfg
+# NEW FOR RUN3    PixelDeadMapCondAlgCfg
 )
+
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
 from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
+
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-from StoreGate.StoreGateConf import StoreGateSvc
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the Pixel Digitization code
@@ -26,6 +31,7 @@ def Pixel_FirstXing(flags):
         return -25
     else:
         return -50
+
 
 def Pixel_LastXing(flags):
     if flags.Beam.estimatedLuminosity > 0.5e33:
@@ -36,13 +42,25 @@ def Pixel_LastXing(flags):
     else:
         return 100
 
-def PixelItemList():
-    """Return list of item names needed for Pixel output"""
-    return ["InDet::SiClusterContainer#*", "InDet::PixelGangedClusterAmbiguities#*", "PixelRDO_Container#*"]
 
-def ChargeCollProbSvcCfg(name="ChargeCollProbSvc", **kwargs):
-    """Return a Charge Collection Prob service"""
-    return ChargeCollProbSvc(name, **kwargs)
+def RadDamageUtilCfg(flags, name="RadDamageUtil", **kwargs):
+    """Return a configured RadDamageUtil"""
+    kwargs.setdefault("defaultRamo", 1)
+    kwargs.setdefault("betaElectrons", 4.5e-16)
+    kwargs.setdefault("betaHoles", 6.0e-16)
+    kwargs.setdefault("saveDebugMaps", False)
+    RadDamageUtil = CompFactory.RadDamageUtil
+    return RadDamageUtil(name, **kwargs)
+
+
+def EfieldInterpolatorCfg(flags, name="EfieldInterpolator", **kwargs):
+    """Return a configured EfieldInterpolator"""
+    kwargs.setdefault("initialized", False)
+    kwargs.setdefault("useSpline", True)
+    kwargs.setdefault("sensorDepth", 200)
+    EfieldInterpolator = CompFactory.EfieldInterpolator
+    return EfieldInterpolator(name, **kwargs)
+
 
 def EnergyDepositionToolCfg(flags, name="EnergyDepositionTool", **kwargs):
     """Return a configured EnergyDepositionTool"""
@@ -53,66 +71,115 @@ def EnergyDepositionToolCfg(flags, name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("doBichselBetaGammaCut", 0.7) # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)          # needs validation
     kwargs.setdefault("doPU", True)
+    EnergyDepositionTool = CompFactory.EnergyDepositionTool
     return EnergyDepositionTool(name, **kwargs)
 
+
 def SensorSimPlanarToolCfg(flags, name="SensorSimPlanarTool", **kwargs):
-    """Return a ComponentAccumulator with configured SensorSimPlanarTool"""
+    """Return ComponentAccumulator with configured SensorSimPlanarTool"""
     acc = PixelSiPropertiesCfg(flags)
     SiTool = acc.popPrivateTools()
     LorentzTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
+    SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
     return acc
 
+
 def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
-    """Return a ComponentAccumulator with configured SensorSim3DTool"""
+    """Return ComponentAccumulator with configured SensorSim3DTool"""
     acc = PixelSiPropertiesCfg(flags)
     SiTool = acc.popPrivateTools()
-    LorentzTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
+    acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
+    SensorSim3DTool = CompFactory.SensorSim3DTool
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))
     return acc
+
 
 def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Barrel"""
     kwargs.setdefault("BarrelEC", 0)
+    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    RD53SimTool = CompFactory.RD53SimTool
     return RD53SimTool(name, **kwargs)
+
 
 def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Endcap"""
     kwargs.setdefault("BarrelEC", 2)
+    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    RD53SimTool = CompFactory.RD53SimTool
     return RD53SimTool(name, **kwargs)
 
+
 def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
-    """Return a FEI4SimTool configured for Barrel"""    
+    """Return a FEI4SimTool configured for Barrel"""
     kwargs.setdefault("BarrelEC", 0)
+    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    FEI4SimTool = CompFactory.FEI4SimTool
     return FEI4SimTool(name, **kwargs)
+
 
 def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Endcap"""
     kwargs.setdefault("BarrelEC", 4)
+    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    FEI4SimTool = CompFactory.FEI4SimTool
     return FEI4SimTool(name, **kwargs)
+
 
 def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Barrel"""
     kwargs.setdefault("BarrelEC", 0)
+    FEI3SimTool = CompFactory.FEI3SimTool
     return FEI3SimTool(name, **kwargs)
+
 
 def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Endcap"""
     kwargs.setdefault("BarrelEC", 2)
+    FEI3SimTool = CompFactory.FEI3SimTool
     return FEI3SimTool(name, **kwargs)
 
+
 def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kwargs):
-    """Return a ComponentAccumulator with configured PixelDigitizationTool"""
+    """Return ComponentAccumulator with configured PixelDigitizationTool"""
     acc = PixelGeometryCfg(flags)
-    acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
+
+    # module parameters
+    acc.merge(PixelConfigCondAlgCfg(flags,
+                                    UseCalibConditions=True,
+                                    UseDeadmapConditions=True,
+                                    UseDCSStateConditions=False,
+                                    UseDCSStatusConditions=False,
+                                    UseDCSHVConditions=True,
+                                    UseDCSTemperatureConditions=True,
+                                    UseTDAQConditions=False))
+    # charge calibration
     acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    # DCS setup
+    acc.merge(PixelDCSCondHVAlgCfg(flags))
+    acc.merge(PixelDCSCondTempAlgCfg(flags))
+    # cabling setup
+    acc.merge(PixelHitDiscCnfgAlgCfg(flags))
+    acc.merge(PixelReadoutSpeedAlgCfg(flags))
+    acc.merge(PixelCablingCondAlgCfg(flags))
+    # deadmap
+    acc.merge(PixelDCSCondStateAlgCfg(flags))
+    acc.merge(PixelDCSCondStatusAlgCfg(flags))
+# NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge(PixelTDAQCondAlgCfg(flags))
+    # offline calibration
+    acc.merge(PixelDistortionAlgCfg(flags))
+    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
+
+    acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
     acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
     acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     acc.merge(PixelCablingSvcCfg(flags))
-    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
+
     # set up tool handle lists
     chargeTools = []
     feSimTools = []
@@ -129,52 +196,60 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     kwargs.setdefault("InputObjectName", "PixelHits")
     kwargs.setdefault("ChargeTools", chargeTools)
     kwargs.setdefault("FrontEndSimTools", feSimTools)
-    kwargs.setdefault("EnergyDepositionTool", EnergyDepositionToolCfg(flags)) 
+    kwargs.setdefault("EnergyDepositionTool", EnergyDepositionToolCfg(flags))
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", Pixel_FirstXing(flags))
         kwargs.setdefault("LastXing", Pixel_LastXing(flags))
+
+    PixelDigitizationTool = CompFactory.PixelDigitizationTool
     acc.setPrivateTools(PixelDigitizationTool(name, **kwargs))
     return acc
 
+
 def PixelDigitizationToolCfg(flags, name="PixelDigitizationTool", **kwargs):
-    """Return a ComponentAccumulator with configured BasicPixelDigitizationTool"""
+    """Return ComponentAccumulator with configured BasicPixelDigitizationTool"""
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
 
+
 def PixelGeantinoTruthDigitizationToolCfg(flags, name="PixelGeantinoTruthDigitizationTool", **kwargs):
-    """Return a configured PixelDigitizationTool"""
+    """Return configured PixelDigitizationTool"""
     kwargs.setdefault("ParticleBarcodeVeto", 0)
+    PixelDigitizationTool = CompFactory.PixelDigitizationTool
     return PixelDigitizationTool(name, **kwargs)
 
-def PixelDigitizationHSToolCfg(flags, name="PixelDigitizationToolHS", **kwargs):
-    """Return a ComponentAccumulator with PixelDigitizationTool configured for Hard Scatter"""
+
+def PixelDigitizationHSToolCfg(flags, name="PixelDigitizationHSTool", **kwargs):
+    """Return ComponentAccumulator with PixelDigitizationTool configured for Hard Scatter"""
     kwargs.setdefault("HardScatterSplittingMode", 1)
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
 
-def PixelDigitizationPUToolCfg(flags, name="PixelDigitizationToolPU", **kwargs):
-    """Return a ComponentAccumulator with PixelDigitizationTool configured for PileUp"""
+
+def PixelDigitizationPUToolCfg(flags, name="PixelDigitizationPUTool", **kwargs):
+    """Return ComponentAccumulator with PixelDigitizationTool configured for PileUp"""
     kwargs.setdefault("HardScatterSplittingMode", 2)
     kwargs.setdefault("RDOCollName", "Pixel_PU_RDOs")
     kwargs.setdefault("SDOCollName", "Pixel_PU_SDO_Map")
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
 
-def PixelDigitizationSplitNoMergePUToolCfg(flags, name="PixelDigitizationToolSplitNoMergePU", **kwargs):
-    """Return a ComponentAccumulator with PixelDigitizationTool configured for PileUpPixelHits"""
+
+def PixelDigitizationSplitNoMergePUToolCfg(flags, name="PixelDigitizationSplitNoMergePUTool", **kwargs):
+    """Return ComponentAccumulator with PixelDigitizationTool configured for PileUpPixelHits"""
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("InputObjectName", "PileupPixelHits")
     kwargs.setdefault("RDOCollName", "Pixel_PU_RDOs")
     kwargs.setdefault("SDOCollName", "Pixel_PU_SDO_Map")
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
 
-def PixelDigitizationOverlayToolCfg(flags, name="PixelDigitizationOverlayTool", **kwargs):
-    """Return a ComponentAccumulator with PixelDigitizationTool configured for overlay"""
-    acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
-    kwargs.setdefault("RDOCollName", flags.Overlay.Legacy.EventStore + "+PixelRDOs")
-    kwargs.setdefault("SDOCollName", flags.Overlay.Legacy.EventStore + "+PixelSDO_Map")
+
+def PixelOverlayDigitizationToolCfg(flags, name="PixelOverlayDigitizationTool", **kwargs):
+    """Return ComponentAccumulator with PixelDigitizationTool configured for overlay"""
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("RDOCollName", flags.Overlay.SigPrefix + "PixelRDOs")
+    kwargs.setdefault("SDOCollName", flags.Overlay.SigPrefix + "PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
+
 
 def PixelRangeCfg(flags, name="PixelRange", **kwargs):
     """Return a configured PileUpXingFolder tool"""
@@ -182,32 +257,78 @@ def PixelRangeCfg(flags, name="PixelRange", **kwargs):
     kwargs.setdefault("LastXing", Pixel_LastXing(flags))
     kwargs.setdefault("CacheRefreshFrequency", 1.0) # default 0 no dataproxy reset
     kwargs.setdefault("ItemList", ["SiHitCollection#PixelHits"])
+    PileUpXingFolder = CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
-def PixelDigitizationBasicCfg(toolCfg, flags, name="PixelDigitizationBasic", **kwargs):
-    """Return a ComponentAccumulator with basic toolCfg type Pixel digitization"""
+
+def PixelOutputCfg(flags):
+    """Return ComponentAccumulator with Output for Pixel. Not standalone."""
+    acc = ComponentAccumulator()
+    ItemList = ["PixelRDO_Container#*"]
+    if flags.Digitization.TruthOutput:
+        ItemList += ["InDetSimDataCollection#*"]
+        acc.merge(TruthDigitizationOutputCfg(flags))
+    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    return acc
+
+
+def PixelDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator for Pixel digitization"""
+    acc = ComponentAccumulator()
+    if "PileUpTools" not in kwargs:
+        PileUpTools = acc.popToolsAndMerge(PixelDigitizationToolCfg(flags))
+        kwargs["PileUpTools"] = PileUpTools
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
+    return acc
+
+
+def PixelOverlayDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with Pixel Overlay digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
-        tool = acc.popToolsAndMerge(toolCfg(flags))
+        tool = acc.popToolsAndMerge(PixelOverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(PixelDigitization(name, **kwargs))
+
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
+
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
+    PixelDigitization = CompFactory.PixelDigitization
+    acc.addEventAlgo(PixelDigitization(name="PixelOverlayDigitization", **kwargs))
     return acc
 
-def PixelDigitizationCfg(toolCfg, flags, name="PixelDigitization", **kwargs):
-    """Return a ComponentAccumulator with toolCfg type Pixel digitization and Output"""
-    acc = PixelDigitizationBasicCfg(toolCfg, flags, name, **kwargs)
-    acc.merge(OutputStreamCfg(flags, "RDO", PixelItemList()))
+
+# with output defaults
+def PixelDigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator for Pixel digitization and Output"""
+    acc = PixelDigitizationBasicCfg(flags, **kwargs)
+    acc.merge(PixelOutputCfg(flags))
     return acc
 
+
+def PixelOverlayDigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator with Pixel Overlay digitization and Output"""
+    acc = PixelOverlayDigitizationBasicCfg(flags, **kwargs)
+    acc.merge(PixelOutputCfg(flags))
+    return acc
+
+
+# additional specialisations
 def PixelDigitizationHSCfg(flags, name="PixelDigitizationHS", **kwargs):
-    """Return a ComponentAccumulator with Hard Scatter Pixel Digitization"""
-    return PixelDigitizationCfg(PixelDigitizationHSToolCfg, flags, name, **kwargs)
+    """Return ComponentAccumulator for Hard-Scatter-only Pixel digitization and Output"""
+    acc = PixelDigitizationHSToolCfg(flags)
+    kwargs["PileUpTools"] = acc.popPrivateTools()
+    acc = PixelDigitizationBasicCfg(flags, name=name, **kwargs)
+    acc.merge(PixelOutputCfg(flags))
+    return acc
+
 
 def PixelDigitizationPUCfg(flags, name="PixelDigitizationPU", **kwargs):
-    """Return a ComponentAccumulator with Hard Scatter Pixel Digitization"""
-    return PixelDigitizationCfg(PixelDigitizationPUToolCfg, flags, name, **kwargs)
-
-def PixelDigitizationOverlayCfg(flags, name="PixelDigitizationOverlay", **kwargs):
-    """Return a ComponentAccumulator with Hard Scatter Pixel Digitization"""
-    return PixelDigitizationBasicCfg(PixelDigitizationOverlayToolCfg, flags, name, **kwargs)
-
+    """Return ComponentAccumulator with Pile-up-only Pixel digitization and Output"""
+    acc = PixelDigitizationPUToolCfg(flags)
+    kwargs["PileUpTools"] = acc.popPrivateTools()
+    acc = PixelDigitizationBasicCfg(flags, name=name, **kwargs)
+    acc.merge(PixelOutputCfg(flags))
+    return acc

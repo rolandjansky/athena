@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -13,6 +13,7 @@
 //
 
 
+#include "./AcceptAllConditionMT.h"
 #include "./EtaEtConditionMT.h"
 #include "./EtaEtAsymmetricConditionMT.h"
 #include "./DijetConditionMT.h"
@@ -20,6 +21,14 @@
 #include "./TLAConditionMT.h"
 
 #include "./conditionsFactoryMT.h"
+
+ConditionsMT conditionsFactoryAcceptAllMT(std::size_t capacity){
+
+  ConditionsMT conditions;
+  conditions.push_back
+    ( std::make_unique<AcceptAllConditionMT>(capacity));
+  return conditions;
+}
 
 ConditionsMT conditionsFactoryEtaEtMT(const std::vector<double>& etaMins,
                                     const std::vector<double>& etaMaxs,
@@ -29,19 +38,21 @@ ConditionsMT conditionsFactoryEtaEtMT(const std::vector<double>& etaMins,
   ConditionsMT conditions;
   for (std::size_t i = 0; i != thresholds.size(); ++i){
     
-    std::shared_ptr<IConditionMT> pCondition(nullptr);
-
     if (asymmetricEtas[i] != 0){
-      pCondition.reset(new EtaEtAsymmetricConditionMT(etaMins[i],
-                                                      etaMaxs[i],
-                                                      thresholds[i]));
+      conditions.push_back
+	(
+         (std::make_unique<EtaEtAsymmetricConditionMT>(etaMins[i],
+                                                       etaMaxs[i],
+                                                       thresholds[i])));
+      
     } else {
-      pCondition.reset(new EtaEtConditionMT(etaMins[i],
-                                            etaMaxs[i],thresholds[i]));
+      conditions.push_back
+	(
+         (std::make_unique<EtaEtConditionMT>(etaMins[i],
+                                             etaMaxs[i],thresholds[i])));
     }
-
-    conditions.push_back(ConditionBridgeMT(pCondition));      
   }
+
   return conditions;
 }
 
@@ -56,15 +67,15 @@ ConditionsMT conditionsFactoryDijetMT(const std::vector<double>& massMins,
   ConditionsMT conditions;
   
   for(std::size_t i = 0; i < massMins.size(); ++i){
-    std::shared_ptr<IConditionMT>
-      pCondition(new DijetConditionMT(massMins[i],
-                                      massMaxs[i],
-                                      detaMins[i],
-                                      detaMaxs[i],
-                                      dphiMins[i],
-                                      dphiMaxs[i]));
+    conditions.push_back
+      (
+       std::make_unique<DijetConditionMT>(massMins[i],
+                                          massMaxs[i],
+                                          detaMins[i],
+                                          detaMaxs[i],
+                                          dphiMins[i],
+                                          dphiMaxs[i]));
     
-    conditions.push_back(ConditionBridgeMT(pCondition));
   }
   return conditions;
 }
@@ -78,28 +89,32 @@ ConditionsMT conditionsFactoryTLAMT(const std::vector<double>& etaMins,
                                     const std::vector<double>& massMaxs){
 
   ConditionsMT conditions;
-  std::shared_ptr<IConditionMT> 
-    pCondition(new TLAConditionMT(etaMins,
-                                  etaMaxs, 
-                                  ystarMins,
-                                  ystarMaxs,
-                                  massMins,
-                                  massMaxs));
+  conditions.push_back
+    (
+     std::make_unique<TLAConditionMT>(etaMins,
+                                      etaMaxs, 
+                                      ystarMins,
+                                      ystarMaxs,
+                                      massMins,
+                                      massMaxs));
   
-  conditions.push_back(ConditionBridgeMT(pCondition));
   return conditions;
 }
 
 
 
-ConditionsMT conditionsFactoryHTMT(double htMin){
+ConditionsMT conditionsFactoryHTMT(double htMin,
+				   double etmin,
+				   double absetamin,
+				   double absetamax
+				   ){
   
   ConditionsMT conditions;
-  
-  std::shared_ptr<IConditionMT> pCondition(new HTConditionMT(htMin));
-  
-  conditions.push_back(ConditionBridgeMT(pCondition));
+  conditions.push_back
+    (
+     std::make_unique<HTConditionMT>(htMin, etmin, absetamin, absetamax));
   return conditions;
+  
 }
 
 

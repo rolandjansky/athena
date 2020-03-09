@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialOnTrack/EnergyLoss.h"
@@ -8,7 +8,7 @@
 void EnergyLossCnv_p1 :: persToTrans(
    const Trk::EnergyLoss_p1 *persObj,
    Trk :: EnergyLoss    *transObj,
-   MsgStream& ) 
+   MsgStream& ) const
 {
   *transObj = Trk::EnergyLoss (persObj->m_deltaE,
                                persObj->m_sigmaDeltaE,
@@ -22,7 +22,7 @@ void EnergyLossCnv_p1 :: persToTrans(
 void EnergyLossCnv_p1 :: transToPers(
    const Trk::EnergyLoss    *transObj,
    Trk::EnergyLoss_p1 *persObj,
-   MsgStream& ) 
+   MsgStream& ) const
 {
   persObj->m_deltaE              = (float)transObj->deltaE();
   persObj->m_sigmaDeltaE         = (float)transObj->sigmaDeltaE();

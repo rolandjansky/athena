@@ -15,9 +15,9 @@
 
 
 #include "RPCcablingInterface/CablingRPCBase.h"
-#include "RPCcablingInterface/CMAparameters.h"
+#include "RPC_CondCabling/CMAparameters.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "RPCcablingInterface/RDOindex.h"
+#include "RPC_CondCabling/RDOindex.h"
 
 // forward declaration
 class Identifier;

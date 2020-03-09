@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
@@ -16,7 +16,7 @@ class TrigEFMtAllTEValidationMonitoring(TrigGenericMonitoringToolConfig):
 class TrigEFMtAllTEOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigEFMtAllTEOnlineMonitoring"):
         """ defines histograms for online """
-        super(TrigEFElectronHypoOnlineMonitoring, self).__init__(name)
+        super(TrigEFMtAllTEOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
 
         self.Histograms += [ defineHistogram('mt_electron1',      type='TH1F', title="Transverse mass after cut", xbins=100, xmin=0, xmax=100) ]

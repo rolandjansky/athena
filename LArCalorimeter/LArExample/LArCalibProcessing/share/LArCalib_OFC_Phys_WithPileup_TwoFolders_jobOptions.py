@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -11,7 +13,11 @@ import commands
 #
 ###########################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 
 ###########################################################################
 #             PhysWaveShifter properties                                  #
@@ -28,7 +34,8 @@ if not 'doPhysWaveShifter' in dir():
 
 if not 'InputKey' in dir():   
    if (doPhysWaveShifter) :
-      InputKey = "LArPhysWaveUnShifted"
+      if not SuperCells: InputKey = "LArPhysWaveUnShifted"
+      if SuperCells:     InputKey = "LArPhysWave"
    else :
       InputKey = "LArPhysWave"  # no shift applied to the PhysWave   
 
@@ -78,7 +85,7 @@ if not 'ReadAutoCorrFromCOOL' in dir():
    ReadAutoCorrFromCOOL = True
 
 if not 'InputAutoCorrPoolDir' in dir():
-   InputAutoCorrPoolDir = commands.getoutput("pwd")
+   InputAutoCorrPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputAutoCorrPoolFileName' in dir():
    InputAutoCorrPoolFileName = "LArAutoCorr.pool.root"
@@ -89,7 +96,7 @@ if not 'ReadPhysWaveFromCOOL' in dir():
    ReadPhysWaveFromCOOL = True
 
 if not 'InputPhysWavePoolDir' in dir():
-   InputPhysWavePoolDir = commands.getoutput("pwd")
+   InputPhysWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPhysWavePoolFileName' in dir():
    InputPhysWavePoolFileName = "LArPhysWave.pool.root"  
@@ -100,7 +107,7 @@ if not 'ReadPhysCaliTdiffFromCOOL' in dir():
    ReadPhysCaliTdiffFromCOOL = True
 
 if not 'InputPhysCaliTdiffPoolDir' in dir():
-   InputPhysCaliTdiffPoolDir = commands.getoutput("pwd")
+   InputPhysCaliTdiffPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPhysCaliTdiffPoolFileName' in dir():
    InputPhysCaliTdiffPoolFileName = "LArPhysCaliTdiff.pool.root"
@@ -238,10 +245,10 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd   
 
 if not 'OutputOFCRootFileDir' in dir():
-   OutputOFCRootFileDir = commands.getoutput("pwd")
+   OutputOFCRootFileDir = subprocess.getoutput("pwd")
    
 if not 'OutputPoolFileDir' in dir():
-   OutputPoolFileDir = commands.getoutput("pwd")
+   OutputPoolFileDir = subprocess.getoutput("pwd")
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 OFCFileTag += "_"+str(Nsamples)+"samples"
@@ -272,21 +279,26 @@ else:
 
 #Shift (can be output or input)
 if "OFCBinFolder" not in dir():
-   OFCBinFolder="/LAR/ElecCalibOfl/OFCBin/PhysWaveShifts"
+   if not SuperCells: OFCBinFolder="/LAR/ElecCalibOfl/OFCBin/PhysWaveShifts"
+   if SuperCells:     OFCBinFolder="/LAR/ElecCalibOflSC/OFCBin/PhysWaveShifts"
 
 
 #output Folders:
 if "FolderOFC" not in dir():
-   FolderOFC   = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples3bins17phases"
+   if not SuperCells: FolderOFC   = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples3bins17phases"
+   if SuperCells:     FolderOFC   = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/5samples3bins17phases"
 
 if "FolderShape" not in dir():
-   FolderShape = "/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases"
+   if not SuperCells: FolderShape = "/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases"
+   if SuperCells:     FolderShape = "/LAR/ElecCalibOflSC/Shape/RTM/5samples3bins17phases"
 
 if "FolderOFC2" not in dir():
-   FolderOFC2   = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples"
+   if not SuperCells: FolderOFC2   = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples"
+   if SuperCells:     FolderOFC2   = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/5samples"
 
 if "FolderShape2" not in dir():
-   FolderShape2 = "/LAR/ElecCalibOfl/Shape/RTM/5samples"
+   if not SuperCells: FolderShape2 = "/LAR/ElecCalibOfl/Shape/RTM/5samples"
+   if SuperCells:     FolderShape2 = "/LAR/ElecCalibOflSC/Shape/RTM/5samples"
 
 
 rs=FolderTagResover()
@@ -364,6 +376,10 @@ if ( ReadAutoCorrFromCOOL ):
       InputDBConnectionAutoCorr = DBConnectionFile(InputAutoCorrSQLiteFile)
    else:
       InputDBConnectionAutoCorr = DBConnectionCOOL
+   if 'InputPhysAutoCorrSQLiteFile' in dir():
+      InputDBConnectionPhysAutoCorr = DBConnectionFile(InputAutoCorrSQLiteFile)
+   else:
+      InputDBConnectionPhysAutoCorr = InputDBConnectionAutoCorr
 
 if ( ReadPhysWaveFromCOOL ):      
    if 'InputPhysWaveSQLiteFile' in dir():
@@ -401,9 +417,11 @@ OFCLog.info( " ======================================================== " )
 OFCLog.info( " RunNumber                          = "+str(RunNumber) )
 if ( ReadAutoCorrFromCOOL ):
    OFCLog.info( " InputDBConnectionAutoCorr          = "+InputDBConnectionAutoCorr )
+   OFCLog.info( " InputDBConnectionPhysAutoCorr      = "+InputDBConnectionPhysAutoCorr )
    OFCLog.info( " AutoCorrLArCalibFolderTag             = "+AutoCorrLArCalibFolderTag)
 else :
    OFCLog.info( " InputAutoCorrPoolFileName          = "+InputAutoCorrPoolDir+"/"+InputAutoCorrPoolFileName )
+   OFCLog.info( " InputPhysAutoCorrPoolFileName          = "+InputPhysAutoCorrPoolDir+"/"+InputPhysAutoCorrPoolFileName )
    
 
 if ( ReadPhysWaveFromCOOL ):
@@ -460,28 +478,29 @@ topSequence = AlgSequence()
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetGeo.set_Value_and_Lock('atlas')
-globalflags.Luminosity.set_Value_and_Lock('zero')
-globalflags.DataSource.set_Value_and_Lock('data')
-globalflags.InputFormat.set_Value_and_Lock('bytestream')
-globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
+include("LArCalibProcessing/LArCalib_MinimalSetup.py")
+#from AthenaCommon.GlobalFlags import globalflags
+#globalflags.DetGeo.set_Value_and_Lock('atlas')
+#globalflags.Luminosity.set_Value_and_Lock('zero')
+#globalflags.DataSource.set_Value_and_Lock('data')
+#globalflags.InputFormat.set_Value_and_Lock('bytestream')
+#globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 
-from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-21-00-01"
+#from AthenaCommon.JobProperties import jobproperties
+#jobproperties.Global.DetDescrVersion = "ATLAS-GEO-21-00-01"
 
-from AthenaCommon.DetFlags import DetFlags
-DetFlags.Calo_setOn()  #Switched off to avoid geometry
-DetFlags.ID_setOff()
-DetFlags.Muon_setOff()
-DetFlags.Truth_setOff()
-DetFlags.LVL1_setOff()
-DetFlags.digitize.all_setOff()
-#DetFlags.Print()
+#from AthenaCommon.DetFlags import DetFlags
+#DetFlags.Calo_setOn()  #Switched off to avoid geometry
+#DetFlags.ID_setOff()
+#DetFlags.Muon_setOff()
+#DetFlags.Truth_setOff()
+#DetFlags.LVL1_setOff()
+#DetFlags.digitize.all_setOff()
+##DetFlags.Print()
 
-#Set up GeoModel (not really needed but crashes without)
-from AtlasGeoModel import SetGeometryVersion
-from AtlasGeoModel import GeoModelInit
+##Set up GeoModel (not really needed but crashes without)
+#from AtlasGeoModel import SetGeometryVersion
+#from AtlasGeoModel import GeoModelInit
 
 #Get identifier mapping
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
@@ -516,6 +535,9 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
    conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
@@ -550,6 +572,12 @@ else:
    else:
       OFCLog.info( "No PoolFileList found! Please list the POOL files containing AutoCorrelation Matrix or read from COOL." )
       theApp.exit(-1)      
+   if 'InputPhysAutoCorrPoolFileName' in dir():
+      OFCLog.info( "Read PhysAutoCorr from POOL file")
+      PoolFileList += [ InputPhysAutoCorrPoolDir+"/"+InputPhysAutoCorrPoolFileName ]
+   else:
+      OFCLog.info( "No PoolFileList found! Please list the POOL files containing PhysAutoCorrelation Matrix or read from COOL." )
+      theApp.exit(-1)   
       
 if ( ReadPhysWaveFromCOOL ):
    if (doPhysWaveShifter or isFCAL) :
@@ -629,6 +657,7 @@ if (doPhysWaveShifter) :
    LArPhysWaveShifter.UsePhysCaliTdiff       = UsePhysCaliTdiff
    LArPhysWaveShifter.CellByCellShiftsKey    = "LArPhysCaliTdiff"
    LArPhysWaveShifter.OutputShiftsKey        = ShiftKey
+   LArPhysWaveShifter.isSC                   = SuperCells
    topSequence += LArPhysWaveShifter   
 
 else:
@@ -643,12 +672,14 @@ else:
 from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
 theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
 theLArAutoCorrDecoderTool.UseAlwaysHighGain=True
+theLArAutoCorrDecoderTool.isSC = SuperCells
 ToolSvc += theLArAutoCorrDecoderTool
 
 if NColl > 0:
    theLArPhysAutoCorrDecoderTool = LArAutoCorrDecoderTool("LArPhysAutoCorrDecoderTool")
    theLArPhysAutoCorrDecoderTool.DecodeMode=1
    theLArPhysAutoCorrDecoderTool.UseAlwaysHighGain=True
+   theLArPhysAutoCorrDecoderTool.isSC = SuperCells
    theLArPhysAutoCorrDecoderTool.KeyAutoCorr="LArPhysAutoCorr"
    ToolSvc += theLArPhysAutoCorrDecoderTool
 
@@ -676,6 +707,7 @@ LArPhysOFCAlg.UseDelta = 0 #Only for high-mu OFCs
 LArPhysOFCAlg.KeyOFC   = OFCKey
 LArPhysOFCAlg.KeyShape = ShapeKey
 LArPhysOFCAlg.DecoderTool = theLArAutoCorrDecoderTool
+LArPhysOFCAlg.isSC = SuperCells
 if Nsamples==4:
    LArPhysOFCAlg.ReadDSPConfig   = ReadDSPConfig
    LArPhysOFCAlg.DSPConfigFolder = DSPConfigFolder
@@ -705,6 +737,7 @@ LArPhysOFCAlg2.UseDelta = 0 #Only for high-mu OFCs
 LArPhysOFCAlg2.KeyOFC   = OFCKey2
 LArPhysOFCAlg2.KeyShape = ShapeKey2
 LArPhysOFCAlg2.DecoderTool = theLArAutoCorrDecoderTool
+LArPhysOFCAlg2.isSC = SuperCells
 
 if Nsamples2==4:
    LArPhysOFCAlg2.ReadDSPConfig   = ReadDSPConfig2
@@ -734,6 +767,7 @@ if NColl > 0:
    LArPhysOFCAlgmu.UseDelta = UseDelta
    LArPhysOFCAlgmu.KeyOFC   = OFCKey+"_mu"
    LArPhysOFCAlgmu.DecoderTool = theLArPhysAutoCorrDecoderTool
+   LArPhysOFCAlgmu.isSC = SuperCells
 
    if Nsamples==4:
       LArPhysOFCAlgmu.ReadDSPConfig   = ReadDSPConfig
@@ -763,6 +797,7 @@ if NColl > 0:
    
    LArPhysOFCAlgmu2.KeyOFC   = OFCKey2+"_mu"
    LArPhysOFCAlgmu2.DecoderTool = theLArPhysAutoCorrDecoderTool
+   LArPhysOFCAlgmu2.isSC = SuperCells
    
    if Nsamples2==4:
       LArPhysOFCAlgmu2.ReadDSPConfig   = ReadDSPConfig2
@@ -779,12 +814,14 @@ if ( WriteNtuple ) :
    LArOFC2Ntuple1.ContainerKey = OFCKey
    LArOFC2Ntuple1.NtupleName   = OFCTreeName	   
    LArOFC2Ntuple1.AddFEBTempInfo   = False   
+   LArOFC2Ntuple1.isSC = SuperCells
    topSequence+=LArOFC2Ntuple1
 
    LArOFC2Ntuple2 = LArOFC2Ntuple("LArOFC2Ntuple2")
    LArOFC2Ntuple2.ContainerKey = OFCKey2
    LArOFC2Ntuple2.NtupleName   = OFCTreeName2 	   
    LArOFC2Ntuple2.AddFEBTempInfo   = False 	   
+   LArOFC2Ntuple2.isSC = SuperCells
    topSequence+=LArOFC2Ntuple2
 
    if NColl > 0:
@@ -792,12 +829,14 @@ if ( WriteNtuple ) :
       LArOFC2Ntuple1mu.ContainerKey = OFCKey+"_mu"
       LArOFC2Ntuple1mu.NtupleName   = OFCTreeName+"_mu"
       LArOFC2Ntuple1mu.AddFEBTempInfo   = False   
+      LArOFC2Ntuple1mu.isSC = SuperCells
       topSequence+=LArOFC2Ntuple1mu
  
       LArOFC2Ntuple2mu = LArOFC2Ntuple("LArOFC2Ntuple2mu")
       LArOFC2Ntuple2mu.ContainerKey = OFCKey2+"_mu"
       LArOFC2Ntuple2mu.NtupleName   = OFCTreeName2+"_mu"
-      LArOFC2Ntuple2mu.AddFEBTempInfo   = False 	   
+      LArOFC2Ntuple2mu.AddFEBTempInfo   = False 	
+      LArOFC2Ntuple2mu.isSC = SuperCells   
       topSequence+=LArOFC2Ntuple2mu
 
    if ( FillShape ):
@@ -808,12 +847,14 @@ if ( WriteNtuple ) :
       LArShape2Ntuple1.ContainerKey = ShapeKey
       LArShape2Ntuple1.NtupleName   = ShapeTreeName
       LArShape2Ntuple1.AddFEBTempInfo   = False
+      LArShape2Ntuple1.isSC = SuperCells
       topSequence+=LArShape2Ntuple1
 
       LArShape2Ntuple2 = LArShape2Ntuple("LArShape2Ntuple2")
       LArShape2Ntuple2.ContainerKey = ShapeKey2 	   
       LArShape2Ntuple2.NtupleName   = ShapeTreeName2
       LArShape2Ntuple2.AddFEBTempInfo   = False
+      LArShape2Ntuple2.isSC = SuperCells
       topSequence+=LArShape2Ntuple2
 
 
@@ -822,6 +863,7 @@ if ( WriteNtuple ) :
       LArFebTimeOffset2Ntuple                = LArFebTimeOffset2Ntuple( "LArFebTimeOffset2Ntuple" )
       LArFebTimeOffset2Ntuple.ContainerKey   = "FebTimeOffset"
       LArFebTimeOffset2Ntuple.AddFEBTempInfo   = False
+      LArFebTimeOffset2Ntuple.isSC = SuperCells
 
       topSequence+=LArFebTimeOffset2Ntuple
 
@@ -830,6 +872,7 @@ if ( WriteNtuple ) :
       LArWFParams2Ntuple.DumpOFCBin=True
       LArWFParams2Ntuple.AddFEBTempInfo   = False
       LArWFParams2Ntuple.OFCBinKey  =ShiftKey
+      LArWFParams2Ntuple.isSC = SuperCells
       topSequence+=LArWFParams2Ntuple
       
    theApp.HistogramPersistency = "ROOT"

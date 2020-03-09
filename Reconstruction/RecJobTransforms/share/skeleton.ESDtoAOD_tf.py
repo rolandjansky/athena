@@ -30,11 +30,41 @@ if hasattr(runArgs,"inputESDFile"):
     rec.readRDO.set_Value_and_Lock( False )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
 
+## Pre-exec
+if hasattr(runArgs,"preExec"):
+    recoLog.info("transform pre-exec")
+    for cmd in runArgs.preExec:
+        recoLog.info(cmd)
+        exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preInclude"): 
+    for fragment in runArgs.preInclude:
+        print("preInclude",fragment)
+        include(fragment)
+
 ## Outputs
 if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True ) 
     athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
+    # Begin temporary trigger block
+    if TriggerFlags.doMT():
+        # Don't run any trigger - only pass the HLT contents from ESD to AOD
+        from RecExConfig.RecAlgsFlags import recAlgs
+        recAlgs.doTrigger.set_Value_and_Lock( False )
+        rec.doTrigger.set_Value_and_Lock( False )
+        # Add HLT output
+        from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+        hltOutput = HLTTriggerResultGetter()
+        # Add Trigger menu metadata
+        if rec.doFileMetaData():
+            from RecExConfig.ObjKeyStore import objKeyStore
+            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+            objKeyStore.addManyTypesMetaData( metadataItems )
+    else: # not TriggerFlags.doMT()
+        pass # See TriggerJobOpts/python/TriggerGetter.py for Run 2. Called by RecExCommon
 
 if hasattr(runArgs,"outputTAGFile"):
     # should be used as outputTAGFile_e2a=myTAG.root so that it does not trigger AODtoTAG
@@ -87,19 +117,6 @@ if hasattr(runArgs, 'outputXML_JiveXMLFile'):
 
 rec.OutputFileNameForRecoStep="ESDtoAOD"
 
-## Pre-exec
-if hasattr(runArgs,"preExec"):
-    recoLog.info("transform pre-exec")
-    for cmd in runArgs.preExec:
-        recoLog.info(cmd)
-        exec(cmd)
-
-## Pre-include
-if hasattr(runArgs,"preInclude"): 
-    for fragment in runArgs.preInclude:
-        print("preInclude",fragment)
-        include(fragment)
-
 #========================================================
 # Central topOptions (this is one is a string not a list)
 #========================================================
@@ -112,7 +129,7 @@ if hasattr(runArgs,"outputAODFile"):
         try:
             StreamAOD.ExtendProvenanceRecord = False
         except:
-            print("StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
+            recoLog.info("StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
 
 #D3PDMaker outputs
 if hasattr(runArgs,"outputNTUP_MINBIASFile"):

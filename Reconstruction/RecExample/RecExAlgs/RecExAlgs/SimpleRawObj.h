@@ -4,7 +4,7 @@
 
 #ifndef SIMPLERAWOBJ_H
 #define SIMPLERAWOBJ_H 1
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "SGTools/BuiltinsClids.h"
 
 typedef int SimpleRawObj;

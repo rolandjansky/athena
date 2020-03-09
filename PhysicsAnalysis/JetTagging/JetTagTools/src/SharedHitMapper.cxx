@@ -5,7 +5,6 @@
 #include "JetTagTools/SharedHitMapper.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkTrack/Track.h"
 #include <string>
 #include "InDetIdentifier/PixelID.h"
@@ -85,23 +84,12 @@ SharedHitMapper::~SharedHitMapper() {
 }
 
 StatusCode SharedHitMapper::initialize() {
-  StatusCode sc = service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("StoreGate service not found !");
-    return StatusCode::FAILURE;
-  }
   if(!m_useTrackSummaryShared) {
-    StoreGateSvc* detStore = 0;
-    sc = service( "DetectorStore", detStore );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Could not get DetectorStore");
-      return sc;
-    }
-    sc = detStore->retrieve(m_pixelId, "PixelID");
+    StatusCode sc = detStore()->retrieve(m_pixelId, "PixelID");
     if (sc.isFailure()) {
       ATH_MSG_ERROR("Could not get PixelID helper !");
     }
-    sc = detStore->retrieve(m_sctId, "SCT_ID");
+    sc = detStore()->retrieve(m_sctId, "SCT_ID");
     if (sc.isFailure()) {
       ATH_MSG_ERROR("Could not get SCT_ID helper !");
     }
@@ -117,7 +105,7 @@ StatusCode SharedHitMapper::execute() {
 
   /** retrieve input tracks: */
   const xAOD::TrackParticleContainer* inputTracks(0);
-  StatusCode sc = m_StoreGate->retrieve(inputTracks, m_inputTrackCollection);
+  StatusCode sc = evtStore()->retrieve(inputTracks, m_inputTrackCollection);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("TrackParticles " << m_inputTrackCollection << " not found in StoreGate.");
     return StatusCode::SUCCESS;
@@ -301,7 +289,7 @@ StatusCode SharedHitMapper::execute() {
 
   if (mlog.level() <= MSG::DEBUG) assoc->dump();
 
-  if(m_StoreGate->record(assoc,m_sharedHitMapLocation,false).isFailure()) {
+  if(evtStore()->record(assoc,m_sharedHitMapLocation,false).isFailure()) {
     ATH_MSG_ERROR("recording of SharedHitAssoc " << m_sharedHitMapLocation << " failed.");
   } else {
     ATH_MSG_VERBOSE("Recording of SharedHitAssoc " << m_sharedHitMapLocation << " succeeded, coll is now const." );

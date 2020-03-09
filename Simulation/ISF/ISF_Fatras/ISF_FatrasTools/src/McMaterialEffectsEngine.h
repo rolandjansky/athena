@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -182,8 +182,6 @@ namespace iFatras {
     /** Name of the random number stream */
     std::string                                      m_randomEngineName;                 
     
-    /** the tracking geometry owned by the navigator */
-    mutable const Trk::TrackingGeometry*             m_trackingGeometry;         
     /** ToolHandle to the TrackingGeometrySvc */
     ServiceHandle<Trk::ITrackingGeometrySvc>         m_trackingGeometrySvc;          
     /** default name of the TrackingGeometry  */

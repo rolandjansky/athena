@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCOND_KEYTRANS_H
@@ -35,8 +35,11 @@ class DetCondKeyTrans {
   // print the set of key/transform pairs to stdout
   void print() const;
 
- private:
   typedef std::map<std::string,HepGeom::Transform3D> KeyTrans;
+  const KeyTrans& keyTrans() const;
+
+
+private:
   KeyTrans m_keytrans;
 };
 

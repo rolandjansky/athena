@@ -12,6 +12,7 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/TrackCollection.h"
 
 class SCT_ID;
@@ -24,10 +25,12 @@ class SCTLorentzMonAlg : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms(const EventContext& ctx) const override final;
 
  private:
-  enum SiliconSurface { surface100, surface111, allSurfaces, nSurfaces };
-  enum Sides { side0, side1, bothSides, nSidesInclBoth };
+  enum SiliconSurface { surface100, surface111, nSurfaces };
+  enum Sides { side0, side1, nSides };
 
   const SCT_ID* m_pSCTHelper{nullptr};
+
+  ToolHandle<Trk::ITrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryTool"};
 
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamEventStorageInputSvc.h"
@@ -11,17 +11,14 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "EventStorage/pickDataReader.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/Property.h"
 
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModel/Token.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-//#include "xAODEventInfo/EventInfo.h"
-//#include "xAODEventInfo/EventAuxInfo.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 #include "eformat/HeaderMarker.h"
 #include "eformat/SourceIdentifier.h"
@@ -45,7 +42,6 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
         m_evtInFile(0),
 	m_sgSvc("StoreGateSvc", name),
 	m_mdSvc("StoreGateSvc/InputMetaDataStore", name),
-	m_incidentSvc("IncidentSvc", name),
         m_attlistsvc("ByteStreamAttListMetadataSvc", name),
         m_robProvider("ROBDataProviderSvc", name),
 	m_sequential(false),
@@ -78,11 +74,6 @@ StatusCode ByteStreamEventStorageInputSvc::initialize() {
    // Retrieve InputMetaDataStore
    if (!m_mdSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get InputMetaDataStore.");
-      return(StatusCode::FAILURE);
-   }
-   // Retrieve IncidentSvc
-   if (!m_incidentSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get IncidentSvc.");
       return(StatusCode::FAILURE);
    }
    // Retrieve AttListSvc
@@ -128,9 +119,6 @@ StatusCode ByteStreamEventStorageInputSvc::finalize() {
   
    if (!m_sgSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release StoreGateSvc");
-   }
-   if (!m_incidentSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release IncidentSvc");
    }
    if (!m_robProvider.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release rob data provider");
@@ -526,28 +514,50 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
     //add the Dhe self reference to the object vector
     Dh->insert(Dhe);
 
-    if (m_sgSvc->contains<EventInfo>("ByteStreamEventInfo")) {
-      // Temporary event header pointer for retrieval of the old one , if exists
-      const EventInfo* Ei_temp = nullptr;
-      //Ei_temp = m_sgSvc->retrieve<EventInfo>("ByteStreamEventInfo");
-      if (m_sgSvc->retrieve(Ei_temp,"ByteStreamEventInfo").isSuccess()) {
+    // Cleanup EventInfo from the previous event, if exists
+    if (m_sgSvc->contains<xAOD::EventInfo>(m_eventInfoKey.value())) {
+      // Temporary event info pointer for retrieval of the old one
+      const xAOD::EventInfo* Ei_temp{nullptr};
+      if (m_sgSvc->retrieve(Ei_temp, m_eventInfoKey.value()).isSuccess()) {
         StatusCode sc = m_sgSvc->remove(Ei_temp);
         if (!sc.isSuccess()) {
-          ATH_MSG_ERROR("Failed to remove ByteStreamEventInfo");
+          ATH_MSG_ERROR("Failed to remove EventInfo");
         }
       }
     }
-    // Now add ref to EventInfo objects
-    IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
-    StatusCode ioc = m_sgSvc->recordAddress("ByteStreamEventInfo",iop);
-    if (ioc.isSuccess()) {
-      const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
-      if (ptmp !=0) {
-        DataHeaderElement DheEI(ptmp, 0, "ByteStreamEventInfo");
-        Dh->insert(DheEI);
+    if (m_sgSvc->contains<xAOD::EventAuxInfo>(m_eventInfoKey.value() + "Aux.")) {
+      // Temporary event info Aux store pointer for retrieval of the old one
+      const xAOD::EventAuxInfo* EiAux_temp{nullptr};
+      if (m_sgSvc->retrieve(EiAux_temp, m_eventInfoKey.value() + "Aux.").isSuccess()) {
+        StatusCode sc = m_sgSvc->remove(EiAux_temp);
+        if (!sc.isSuccess()) {
+          ATH_MSG_ERROR("Failed to remove EventAuxInfo");
+        }
       }
-      //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);
     }
+
+    // Now add ref to xAOD::EventInfo
+    IOpaqueAddress* iopx = new ByteStreamAddress(ClassID_traits<xAOD::EventInfo>::ID(), m_eventInfoKey.value(), "");
+    StatusCode iocx = m_sgSvc->recordAddress(m_eventInfoKey.value(), iopx);
+    if (iocx.isSuccess()) {
+      const SG::DataProxy* ptmpx = m_sgSvc->transientProxy(ClassID_traits<xAOD::EventInfo>::ID(), m_eventInfoKey.value());
+      if (ptmpx !=0) {
+        DataHeaderElement DheEIx(ptmpx, 0, m_eventInfoKey.value());
+        Dh->insert(DheEIx);
+      }
+    }
+
+    // Now add ref to xAOD::EventAuxInfo
+    IOpaqueAddress* iopaux = new ByteStreamAddress(ClassID_traits<xAOD::EventAuxInfo>::ID(), m_eventInfoKey.value() + "Aux.", "");
+    StatusCode iocaux = m_sgSvc->recordAddress(m_eventInfoKey.value() + "Aux.", iopaux);
+    if (iocaux.isSuccess()) {
+      const SG::DataProxy* ptmpaux = m_sgSvc->transientProxy(ClassID_traits<xAOD::EventAuxInfo>::ID(), m_eventInfoKey.value() + "Aux.");
+      if (ptmpaux !=0) {
+        DataHeaderElement DheEIAux(ptmpaux, 0, m_eventInfoKey.value() + "Aux.");
+        Dh->insert(DheEIAux);
+      }
+    }
+
     // Record new data header.Boolean flags will allow it's deletionin case
     // of skipped events.
     return m_sgSvc->record<DataHeader>(Dh, "ByteStreamDataHeader", true, false, true);

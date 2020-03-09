@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEventCnv/TrkEventTPCnv
                           PRIVATE
                           Control/AthenaKernel
-                          Control/CxxUtils
                           DetectorDescription/GeoPrimitives )
 
 # External dependencies:
@@ -32,11 +31,11 @@ atlas_add_tpcnv_library( TrackParticleTPCnv
                          src/Particle/*.cxx
                          PUBLIC_HEADERS TrackParticleTPCnv
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities Particle TrkParameters TrkParticleBase TrkTrack VxVertex TrkEventTPCnv AthenaKernel CxxUtils GeoPrimitives )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities Particle TrkParameters TrkParticleBase TrkTrack VxVertex TrkEventTPCnv AthenaKernel GeoPrimitives )
 
 atlas_add_dictionary( TrackParticleTPCnvDict
                       TrackParticleTPCnv/TrackParticleTPCnvDict.h
                       TrackParticleTPCnv/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities Particle TrkParameters TrkParticleBase TrkTrack VxVertex TrkEventTPCnv AthenaKernel CxxUtils GeoPrimitives TrackParticleTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities Particle TrkParameters TrkParticleBase TrkTrack VxVertex TrkEventTPCnv AthenaKernel GeoPrimitives TrackParticleTPCnv )
 

@@ -11,6 +11,7 @@
 // Athena headers
 #include "LUCID_SimEvent/LUCID_SimHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include <gtest/gtest_prod.h>
 
 class LUCID_HitHelper;
 
@@ -19,6 +20,9 @@ class G4TouchableHistory;
 
 class LUCID_SensitiveDetector : public G4VSensitiveDetector
 {
+ FRIEND_TEST( LUCID_SensitiveDetectortest, Initialize );
+ FRIEND_TEST( LUCID_SensitiveDetectortest, ProcessHits );
+ FRIEND_TEST( LUCID_SensitiveDetectortest, AddHit );
 public:
   // Constructor
   LUCID_SensitiveDetector(const std::string& name, const std::string& hitCollectionName);

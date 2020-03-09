@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,7 +45,6 @@ namespace ISF {
      
     private:
       ParticleOrder                         m_geoIDorder[AtlasDetDescr::fNumAtlasRegions]; //!< particle order per sub detector
-      ParticleOrder                         m_simIDorder[ISF::fMaxNumAtlasSimIDs];         //!< particle order per sim svc
   }; 
   
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 
 DerivationFramework::DiLepFilters::DiLepFilters(const std::string& t, const std::string& n, const IInterface* p)
                                                : AthAlgTool(t, n, p), m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
-                                                 m_pass_siph(false), m_pass_diph(false), m_pass_simu(false),
                                                  m_el_eta(0.), m_ph_eta(0.), m_mu_eta(0.), m_mu_beta(0.),
                                                  m_el_d0(0.), m_mu_d0(0.),
                                                  m_siel_pt(0.), m_siph_pt(0.), m_siph_xpt(0.), m_simu_pt(0.),
@@ -59,18 +58,15 @@ StatusCode DerivationFramework::DiLepFilters::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool DerivationFramework::DiLepFilters::GetTriggers()
+bool DerivationFramework::DiLepFilters::GetTriggers(uint32_t& passFlags) const
 {
-  m_pass_siph = false;
-  m_pass_diph = false;
-  m_pass_simu = false;
-  m_pass_simuba = false;
+  passFlags = 0;
 
   for(const std::string& tn: m_trig_siph)
   {
     if(m_tdt->isPassed(tn))
     {
-      m_pass_siph = true;
+      passFlags |= PASS_SIPH;
       break;
     }
   }
@@ -78,7 +74,7 @@ bool DerivationFramework::DiLepFilters::GetTriggers()
   {
     if(m_tdt->isPassed(tn))
     {
-      m_pass_diph = true;
+      passFlags |= PASS_DIPH;
       break;
     }
   }
@@ -86,7 +82,7 @@ bool DerivationFramework::DiLepFilters::GetTriggers()
   {
     if(m_tdt->isPassed(tn))
     {
-      m_pass_simu = true;
+      passFlags |= PASS_SIMU;
       break;
     }
   }
@@ -94,24 +90,27 @@ bool DerivationFramework::DiLepFilters::GetTriggers()
   {
     if(m_tdt->isPassed(tn))
     {
-      m_pass_simuba = true;
+      passFlags |= PASS_SIMUBA;
       break;
     }
   }
 
-  return m_pass_siph || m_pass_diph || m_pass_simu || m_pass_simuba;
+  return passFlags != 0;
 }
 
-bool DerivationFramework::DiLepFilters::PassSiEl(const xAOD::Electron& el) const
+bool DerivationFramework::DiLepFilters::PassSiEl(const uint32_t passFlags,
+                                                 const xAOD::Electron& el) const
 {
-  if(!m_pass_siph) return false;
+  if (! (passFlags&PASS_SIPH) ) return false;
 
   return PassCuts(el, m_siel_pt);
 }
 
-bool DerivationFramework::DiLepFilters::PassSiPhX(const xAOD::Photon& ph, const xAOD::Electron& el) const
+bool DerivationFramework::DiLepFilters::PassSiPhX(const uint32_t passFlags,
+                                                  const xAOD::Photon& ph,
+                                                  const xAOD::Electron& el) const
 {
-  if(!m_pass_siph) return false;
+  if (! (passFlags&PASS_SIPH) ) return false;
 
   if(SameCluster(ph, el)) return false;
 
@@ -121,9 +120,11 @@ bool DerivationFramework::DiLepFilters::PassSiPhX(const xAOD::Photon& ph, const 
   return true;
 }
 
-bool DerivationFramework::DiLepFilters::PassSiPhX(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const
+bool DerivationFramework::DiLepFilters::PassSiPhX(const uint32_t passFlags,
+                                                  const xAOD::Photon& ph1,
+                                                  const xAOD::Photon& ph2) const
 {
-  if(!m_pass_siph) return false;
+  if (! (passFlags&PASS_SIPH) ) return false;
 
   if(SameCluster(ph1, ph2)) return false;
 
@@ -133,9 +134,11 @@ bool DerivationFramework::DiLepFilters::PassSiPhX(const xAOD::Photon& ph1, const
   return false;
 }
 
-bool DerivationFramework::DiLepFilters::PassSiPhX(const xAOD::Photon& ph, const xAOD::Muon& mu) const
+bool DerivationFramework::DiLepFilters::PassSiPhX(const uint32_t passFlags,
+                                                  const xAOD::Photon& ph,
+                                                  const xAOD::Muon& mu) const
 {
-  if(!m_pass_siph) return false;
+  if (! (passFlags&PASS_SIPH) ) return false;
 
   if(!PassCuts(ph, m_siph_pt)) return false;
   if(!PassCuts(mu, m_siph_xpt, m_mu_eta)) return false;
@@ -143,23 +146,27 @@ bool DerivationFramework::DiLepFilters::PassSiPhX(const xAOD::Photon& ph, const 
   return true;
 }
 
-bool DerivationFramework::DiLepFilters::PassSiMu(const xAOD::Muon& mu) const
+bool DerivationFramework::DiLepFilters::PassSiMu(const uint32_t passFlags,
+                                                 const xAOD::Muon& mu) const
 {
-  if(!m_pass_simu) return false;
+  if (! (passFlags&PASS_SIMU) ) return false;
 
   return PassCuts(mu, m_simu_pt, m_mu_eta);
 }
 
-bool DerivationFramework::DiLepFilters::PassSiMuBa(const xAOD::Muon& mu) const
+bool DerivationFramework::DiLepFilters::PassSiMuBa(const uint32_t passFlags,
+                                                   const xAOD::Muon& mu) const
 {
-  if(!m_pass_simuba) return false;
+  if (! (passFlags&PASS_SIMUBA) ) return false;
 
   return PassCuts(mu, m_simuba_pt, m_mu_beta);
 }
 
-bool DerivationFramework::DiLepFilters::PassDiEl(const xAOD::Electron& el1, const xAOD::Electron& el2) const
+bool DerivationFramework::DiLepFilters::PassDiEl(const uint32_t passFlags,
+                                                 const xAOD::Electron& el1,
+                                                 const xAOD::Electron& el2) const
 {
-  if(!m_pass_diph) return false;
+  if (! (passFlags&PASS_DIPH) ) return false;
 
   if(SameCluster(el1, el2)) return false;
 
@@ -169,9 +176,11 @@ bool DerivationFramework::DiLepFilters::PassDiEl(const xAOD::Electron& el1, cons
   return true;
 }
 
-bool DerivationFramework::DiLepFilters::PassDiPh(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const
+bool DerivationFramework::DiLepFilters::PassDiPh(const uint32_t passFlags,
+                                                 const xAOD::Photon& ph1,
+                                                 const xAOD::Photon& ph2) const
 {
-  if(!m_pass_diph) return false;
+  if (! (passFlags&PASS_DIPH) ) return false;
 
   if(SameCluster(ph1, ph2)) return false;
 
@@ -181,9 +190,11 @@ bool DerivationFramework::DiLepFilters::PassDiPh(const xAOD::Photon& ph1, const 
   return true;
 }
 
-bool DerivationFramework::DiLepFilters::PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const
+bool DerivationFramework::DiLepFilters::PassDiElPh(const uint32_t passFlags,
+                                                   const xAOD::Electron& el,
+                                                   const xAOD::Photon& ph) const
 {
-  if(!m_pass_diph) return false;
+  if (! (passFlags&PASS_DIPH) ) return false;
 
   if(SameCluster(el, ph)) return false;
 
@@ -193,9 +204,11 @@ bool DerivationFramework::DiLepFilters::PassDiElPh(const xAOD::Electron& el, con
   return true;
 }
 
-bool DerivationFramework::DiLepFilters::PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const
+bool DerivationFramework::DiLepFilters::PassDiLoElPh(const uint32_t passFlags,
+                                                     const xAOD::Electron& el,
+                                                     const xAOD::Photon& ph) const
 {
-  if(!m_pass_diph) return false;
+  if (! (passFlags&PASS_DIPH) ) return false;
 
   if(SameCluster(el, ph)) return false;
 

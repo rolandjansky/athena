@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/ReadRpcDigit.h"
@@ -14,7 +14,7 @@ static const int maxDig  = 2000;
 ReadRpcDigit::ReadRpcDigit(const std::string &name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_activeStore("ActiveStoreSvc", name),
-    m_ntuplePtr(0), m_rpcIdHelper(0)
+    m_ntuplePtr(nullptr)
 {
   declareProperty("NtupleLocID", m_NtupleLocID);  
   declareProperty("WriteRpcNtuple", m_rpcNtuple = false);
@@ -29,7 +29,7 @@ StatusCode ReadRpcDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;  
 
@@ -63,7 +63,7 @@ StatusCode ReadRpcDigit::execute()
 
   std::string key = "RPC_DIGITS";
 
-  const DataHandle<RpcDigitContainer> rpc_container;
+  const RpcDigitContainer* rpc_container = nullptr;
   ATH_CHECK( (*m_activeStore)->retrieve(rpc_container, key) );
   
   ATH_MSG_DEBUG("****** rpc->size() : " << rpc_container->size() );
@@ -84,19 +84,19 @@ StatusCode ReadRpcDigit::execute()
 	   dig != (*c)->end(); ++dig) 
 	{
 	  Identifier dig_id = (*dig)->identify();
-	  if ( m_rpcIdHelper->valid(dig_id) ) 
+	  if ( m_muonIdHelperTool->rpcIdHelper().valid(dig_id) ) 
 	    {
 	      
 	      m_time[m_nDig]         = (*dig)->time();
-	      m_station[m_nDig]      = m_rpcIdHelper->stationName(dig_id);
-	      m_eta[m_nDig]          = m_rpcIdHelper->stationEta(dig_id);
-	      m_phi[m_nDig]          = m_rpcIdHelper->stationPhi(dig_id);
-	      m_doubletR[m_nDig]     = m_rpcIdHelper->doubletR(dig_id);
-	      m_doubletZ[m_nDig]     = m_rpcIdHelper->doubletZ(dig_id);
-	      m_doubletPhi[m_nDig]   = m_rpcIdHelper->doubletPhi(dig_id);
-	      m_gasGap[m_nDig]       = m_rpcIdHelper->gasGap(dig_id); 
-	      m_measuresPhi[m_nDig]  = m_rpcIdHelper->measuresPhi(dig_id);
-	      m_strip[m_nDig]        = m_rpcIdHelper->strip(dig_id);
+	      m_station[m_nDig]      = m_muonIdHelperTool->rpcIdHelper().stationName(dig_id);
+	      m_eta[m_nDig]          = m_muonIdHelperTool->rpcIdHelper().stationEta(dig_id);
+	      m_phi[m_nDig]          = m_muonIdHelperTool->rpcIdHelper().stationPhi(dig_id);
+	      m_doubletR[m_nDig]     = m_muonIdHelperTool->rpcIdHelper().doubletR(dig_id);
+	      m_doubletZ[m_nDig]     = m_muonIdHelperTool->rpcIdHelper().doubletZ(dig_id);
+	      m_doubletPhi[m_nDig]   = m_muonIdHelperTool->rpcIdHelper().doubletPhi(dig_id);
+	      m_gasGap[m_nDig]       = m_muonIdHelperTool->rpcIdHelper().gasGap(dig_id); 
+	      m_measuresPhi[m_nDig]  = m_muonIdHelperTool->rpcIdHelper().measuresPhi(dig_id);
+	      m_strip[m_nDig]        = m_muonIdHelperTool->rpcIdHelper().strip(dig_id);
 	    }
 
 	  ++m_nDig;

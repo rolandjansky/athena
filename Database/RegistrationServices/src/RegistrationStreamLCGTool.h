@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGISTRATIONSVC_REGSTREAMLCGTOOL_H
-# define REGISTRATIONSVC_REGSTREAMLCGTOOL_H
+#define REGISTRATIONSVC_REGSTREAMLCGTOOL_H
 
 /**
  * @file RegistrationStreamLCGTool.h
@@ -135,7 +135,6 @@ protected:
    BooleanProperty          m_slave;
 
    /// Pointer to StoreGateSvc
-   ServiceHandle<StoreGateSvc>    m_storeGateSvc;
    ServiceHandle<StoreGateSvc>    m_metadataStore;
    /// Access to the PoolSvc
    ServiceHandle<IPoolSvc>        m_poolSvc;

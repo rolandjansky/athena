@@ -22,7 +22,7 @@ find_package( HepMC )
 # Component(s) in the package:
 atlas_add_library( McEventCollectionFilterLib
                    src/*.cxx
-                   PUBLIC_HEADERS McEventCollectionFilter
+                   NO_PUBLIC_HEADERS
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES StoreGateLib SGtests

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloCellCalcEnergyCorr
@@ -9,27 +10,26 @@ sqlite="EMB_EMEC_PS_800HV_CellEnergyCorrection.db"
 
 # write here the run number and lumiblock of a time after temperature drop
 
-RunNumber = 212588
+RunNumber = 274936
 LumiBlock = 1
 
 #LastRunNumber = 999999
 
-GlobalTag =  'COMCOND-ES1PA-006-02'
-Geometry = 'ATLAS-GEO-18-00-00'
+GlobalTag =  'CONDBR2-ES1PA-2017-09'
+Geometry = 'ATLAS-R2-2015-04-00-00'
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
 
-from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
-trigDB=indirectOpen('COOLONL_TRIGGER/COMP200',oracle=True)
+trigDB=indirectOpen('COOLONL_TRIGGER/CONDBR2',oracle=True)
 trigfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
 runiov=(RunNumber << 32)+ LumiBlock
-print " runiov ", runiov
+printfunc (" runiov ", runiov)
 obj=trigfolder.findObject(runiov,0)
 payload=obj.payload()
-TimeStamp=payload['StartTime']/1000000000L
+TimeStamp=payload['StartTime']/1000000000
 trigDB.closeDatabase()
 
 # this setting is just to get directly pileup noise as b and write back the same in the database...
@@ -38,7 +38,7 @@ jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.)
 
 #TimeStamp = 1274368420
 
-print " TimeStamp : ",TimeStamp
+printfunc (" TimeStamp : ",TimeStamp)
 
 
 #from PerfMonComps.PerfMonFlags import jobproperties
@@ -107,6 +107,10 @@ theRescaler.HVvalues = [ 0.992, 0.992, 0.992, 0.992, 0.992, 0.992, 0.992, 0.992,
 
 topSequence += theRescaler
 
+from CaloCondPhysAlgs.CaloCondPhysAlgsConf import LArHVMapTool
+theLArHV=LArHVMapTool("LArHVMapTool")
+ToolSvc += theLArHV
+
 #--------------------------------------------------------------
 #--- Dummy event loop parameters
 #--------------------------------------------------------------
@@ -146,7 +150,7 @@ theOutputConditionsAlg.LB1 = 1
 #theOutputConditionsAlg.Run2 = LastRunNumber + 1
 #theOutputConditionsAlg.LB2 = 0
 	
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname=COMP200"
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname=CONDBR2"
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
 svcMgr.IOVRegistrationSvc.RecreateFolders = True #Allow add in a second tag

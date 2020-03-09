@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOATHENAPOOL_CALOSHOWERCONTAINERCNV_P1_H
@@ -22,13 +22,17 @@ class CaloShowerContainer;
 //typedef T_AthenaPoolTPCnvVector<CaloShowerContainer, CaloShowerContainer_p1, CaloShowerCnv_p1> CaloShowerContainerCnvBasep1_t;
 
 class CaloShowerContainerCnv_p1
-  : public T_AthenaPoolTPCnvBase<CaloShowerContainer, CaloShowerContainer_p1>
+  : public T_AthenaPoolTPCnvConstBase<CaloShowerContainer, CaloShowerContainer_p1>
 {
 public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
+
   CaloShowerContainerCnv_p1();
 
-  virtual void persToTrans(const CaloShowerContainer_p1*, CaloShowerContainer*, MsgStream &log) override final;
-  virtual void transToPers(const CaloShowerContainer*, CaloShowerContainer_p1*, MsgStream &log) override final;
+  virtual void persToTrans(const CaloShowerContainer_p1*, CaloShowerContainer*, MsgStream &log) const override final;
+  virtual void transToPers(const CaloShowerContainer*, CaloShowerContainer_p1*, MsgStream &log) const override final;
 
  private:
   CaloClusterMomentStoreCnv_p1 m_momentStoreCnv;

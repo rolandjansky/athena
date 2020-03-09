@@ -87,7 +87,6 @@ INSTAN_BOTH(LArNoiseP);
 //=== LArOFCP
 #include "LArRawConditions/LArOFCP1.h"
 #include "LArRawConditions/LArOFCComplete.h"
-#include "LArRawConditions/LArOFCMC.h"
 #include "LArRawConditions/LArOFCP.h"
 INSTAN_CC(LArOFCP1);
 INSTAN_CS(LArOFCP);

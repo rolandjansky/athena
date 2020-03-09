@@ -5,6 +5,7 @@
 #
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from AtlasGeoModel.CommonGMJobProperties import CommonGMFlags
+from AthenaCommon import Logging
 
 # -------------------------------------------------------------------------------------
 #  LAr geometry flags initialization
@@ -48,13 +49,13 @@ class LArGMFlags(CommonGMFlags, object):
 
     def dump(self):
 
-        print "Geometry tag LArGMFlags : ",self.__dict__["geomTag"]," ------------------------------------"
-        print "Sagging              = ",self.__dict__["Sagging"]
-        print "BarrelOn             = ",self.__dict__["BarrelOn"]
-        print "EndcapON             = ",self.__dict__["EndcapOn"]
-        print "Detailed Absorber    = ",self.__dict__["DetAbs"]
-        print "Detailed Absorber EC = ",self.__dict__["DetAbs_EC"]
-        print "FCal geotype         = ",self.__dict__["FCal_GeoType"]
+        Logging.log.info("Geometry tag LArGMFlags : "+self.__dict__["geomTag"]+" ------------------------------------")
+        Logging.log.info("Sagging              = "+self.__dict__["Sagging"])
+        Logging.log.info("BarrelOn             = "+self.__dict__["BarrelOn"])
+        Logging.log.info("EndcapON             = "+self.__dict__["EndcapOn"])
+        Logging.log.info("Detailed Absorber    = "+self.__dict__["DetAbs"])
+        Logging.log.info("Detailed Absorber EC = "+self.__dict__["DetAbs_EC"])
+        Logging.log.info("FCal geotype         = "+self.__dict__["FCal_GeoType"])
 
 
 
@@ -130,13 +131,13 @@ class LArGeometryFlags_JobProperties(JobPropertyContainer):
 
     def dump(self):
 
-        print "Sagging              = ", self.Sagging()
-        print "Barrel_On            = ", self.BarrelOn()
-        print "Endcap_On            = ", self.EndcapOn()
-        print "Detailed absorber    = ", self.DetailedAbsorber()
-        print "Detailed absorber EC = ", self.DetailedAbsorber_EC()
+        Logging.log.info("Sagging              = "+self.Sagging())
+        Logging.log.info("Barrel_On            = "+self.BarrelOn())
+        Logging.log.info("Endcap_On            = "+self.EndcapOn())
+        Logging.log.info("Detailed absorber    = "+self.DetailedAbsorber())
+        Logging.log.info("Detailed absorber EC = "+self.DetailedAbsorber_EC())
 
-        print "FCal GeoType         = ", self.FCalGeoType()
+        Logging.log.info("FCal GeoType         = "+self.FCalGeoType())
 
 
 jobproperties.add_Container(LArGeometryFlags_JobProperties)

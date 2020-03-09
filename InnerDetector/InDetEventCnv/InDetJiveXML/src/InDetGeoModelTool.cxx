@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/InDetGeoModelTool.h"
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 
 #include "IdDictDetDescr/IdDictManager.h"
@@ -35,14 +34,8 @@ namespace JiveXML {
   StatusCode InDetGeoModelTool::initialize(){
 
     /**
-     * Check for Pixel geo model manager and ID helper
+     * Check for Pixel ID helper
      */
-
-    // Get geo model manager
-    if ( detStore()->retrieve(m_PixelGeoManager, "Pixel").isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel GeoModel Manager!" << endmsg;
-      return StatusCode::RECOVERABLE;
-    }
 
     // Get identifier helper
     if (detStore()->retrieve(m_PixelIDHelper, "PixelID").isFailure()) {

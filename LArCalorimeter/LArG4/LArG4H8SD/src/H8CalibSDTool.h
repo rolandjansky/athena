@@ -35,7 +35,7 @@ namespace LArG4
     StatusCode initializeCalculators() override final;
 
     /// Create the SD wrapper for current worker thread
-    G4VSensitiveDetector* makeSD() override final;
+    G4VSensitiveDetector* makeSD() const override final;
 
     /// Hit collection name
     std::string m_hitCollName;

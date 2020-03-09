@@ -92,7 +92,7 @@ if mode=="Back":
   os.environ["BACKTRACKDEBUG"] = "1"
 
 print AthTruthSelectionTool
-ToolSvc += AthTruthSelectionTool
+#ToolSvc += AthTruthSelectionTool
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
 tool1 = InDetPhysValMonitoringTool()
@@ -102,7 +102,7 @@ tool1.TrackSelectionTool=InDetTrackSelectorTool
 tool1.useTrkSelectPV= False
 tool1.FillTrackInJetPlots = True
 print tool1
-ToolSvc += tool1
+#ToolSvc += tool1
 
 monMan.AthenaMonTools += [tool1]
 

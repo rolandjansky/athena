@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISCT_CablingTool_h
@@ -69,7 +69,7 @@ class ISCT_CablingTool: virtual public IAlgTool {
   virtual bool empty() const = 0;
   virtual bool empty(const EventContext& ctx) const = 0;
 
-  /// get hash from a module serial number, needed in the conditions service because configurations are stored by module s/n
+  /// get hash from a module serial number, needed in the conditions tool because configurations are stored by module s/n
   virtual IdentifierHash getHashFromSerialNumber(const SCT_SerialNumber& sn) const = 0;
   virtual IdentifierHash getHashFromSerialNumber(const SCT_SerialNumber& sn, const EventContext& ctx) const = 0;
 

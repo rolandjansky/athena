@@ -8,7 +8,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "DecisionHandling/HypoBase.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
 #include "ITrigMissingETHypoToolMT.h"
@@ -23,18 +23,16 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
 
   TrigMissingETHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigMissingETHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private:
 
   // TODO: Consider taking muonContainer etc in case they are needed in future.
-  StatusCode decide(const xAOD::TrigMissingETContainer*,
+  StatusCode decide(const xAOD::TrigMissingETContainer* metContainer,
                     TrigCompositeUtils::DecisionContainer* newDecisions,
-                    const TrigCompositeUtils::DecisionContainer* previousDecisions
+                    const TrigCompositeUtils::DecisionContainer* oldDecisions,
+                    const EventContext& context
         ) const;
 
   ToolHandleArray<ITrigMissingETHypoToolMT> m_hypoTools {

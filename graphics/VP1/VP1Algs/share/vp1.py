@@ -35,7 +35,8 @@ if not 'vp1SpacePoints' in dir(): vp1SpacePoints=False
 if not 'vp1Cavern' in dir(): vp1Cavern=False
 if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
-if not 'vp1NSW' in dir(): vp1NSW=False
+if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
+if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
 def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
 
@@ -57,13 +58,6 @@ if (vp1FatrasCalo and not vp1Calo):
 if ( vp1FatrasTruthKey != "" and not vp1Fatras ):
     vp1CfgErr("FatrasTruthKey set but Fatras not enabled. Unsetting FatrasTruthKey.")
     vp1FatrasTruthKey=""
-
-if (vp1NSW and not vp1Muon):
-    vp1CfgErr("Muon New Small Wheel (NSW) turned on, but no Muon geometry. Disabling NSW.")
-    vp1NSW=False
-
-
-
 
 print "*** VP1 NOTE *** setting COIN_GLXGLUE env vars to make screenshots working remotely..."
 print "*** VP1 NOTE *** COIN_GLXGLUE_NO_GLX13_PBUFFERS=1 - " + "COIN_GLXGLUE_NO_PBUFFERS=1"
@@ -89,8 +83,8 @@ if (vp1InputFiles == []):
 
     # Set geometry version
     if (not "DetDescrVersion" in dir()):
-        #DetDescrVersion = "ATLAS-GEO-20-00-01" # old
-        DetDescrVersion = "ATLAS-R2-2015-03-01-00" # for the new Rel. 21
+        DetDescrVersion = "ATLAS-R2-2016-01-00-01" # default Run 2 geometry
+
     globalflags.DetDescrVersion = DetDescrVersion
     
     # Set conditions tag
@@ -98,7 +92,6 @@ if (vp1InputFiles == []):
         vp1GlobCond="OFLCOND-SDR-BS7T-05-14"
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(vp1GlobCond)
-
 
     ### NEW FOR REL. >= 22
 
@@ -139,7 +132,6 @@ else:
         # Set geometry version
         if (not "DetDescrVersion" in dir()):
             DetDescrVersion = "ATLAS-GEO-10-00-02"
-
         globalflags.DetDescrVersion = DetDescrVersion
             
         # Set conditions tag
@@ -173,6 +165,7 @@ else:
         # AutoConfiguration enabled
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         athenaCommonFlags.FilesInput=vp1InputFiles
+        
         from RecExConfig.RecFlags import rec
         rec.AutoConfiguration=['everything']
         rec.doAOD.set_Value_and_Lock(False)
@@ -181,10 +174,11 @@ else:
         # Override geometry tag from command line
         if("DetDescrVersion" in dir()):
             from AthenaCommon.GlobalFlags import globalflags
-            globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
+            globalflags.DetDescrVersion = DetDescrVersion
+            #globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
 
+        athenaCommonFlags.EvtMax=-1
         include('RecExCond/RecExCommon_flags.py')
-        theApp.EvtMax = -1
 
         # Override global conditions tag from command line
         if('vp1GlobCond' in dir()):
@@ -245,7 +239,12 @@ if (vp1ID): DetFlags.ID_setOn()
 else:       DetFlags.ID_setOff()
 if (vp1Calo): DetFlags.Calo_setOn()
 else:         DetFlags.Calo_setOff()
-if (vp1Muon): DetFlags.Muon_setOn()
+if (vp1Muon):
+    DetFlags.Muon_setOn()
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+    if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+    if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
 else:         DetFlags.Muon_setOff()
 if (vp1LUCID): DetFlags.Lucid_setOn()
 else:          DetFlags.Lucid_setOff()
@@ -255,16 +254,30 @@ if (vp1ForwardRegion): DetFlags.FwdRegion_setOn()
 else:          DetFlags.FwdRegion_setOff()
 if (vp1ZDC): DetFlags.ZDC_setOn()
 else:          DetFlags.ZDC_setOff()
-if (vp1NSW): 
-    DetFlags.Micromegas_setOn()
-    DetFlags.sTGC_setOn()
-    
     
 DetFlags.Print()
 
 # --- GeoModel
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
+from AthenaCommon.AppMgr import ToolSvc
+
+if vp1Muon and len(vp1NSWAGDDFiles)>0:
+    print "*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) instead from built-in geometry"
+    from AthenaCommon.AppMgr import theApp
+    from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+    AGDD2Geo = AGDDtoGeoSvc()
+    theApp.CreateSvc += ["AGDDtoGeoSvc"]
+    svcMgr += AGDD2Geo
+    from AthenaCommon import CfgMgr
+    from MuonAGDD.MuonAGDDConf import NSWAGDDTool
+    NSWAGDDTool = CfgMgr.NSWAGDDTool("NewSmallWheel", DefaultDetector="Muon", ReadAGDD=False, XMLFiles=vp1NSWAGDDFiles, Volumes=["NewSmallWheel"])
+    AGDD2Geo.Builders += [ NSWAGDDTool ]
+if vp1Muon and vp1MuonLayout!="":
+    print "*** VP1 NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout
+    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    GeoModelSvc = GeoModelSvc()
+    GeoModelSvc.MuonVersionOverride=vp1MuonLayout
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -273,60 +286,17 @@ if vp1Cavern:
   svcMgr.GeoModelSvc.DetectorTools += [ CavernInfraDetectorTool() ]
 
 # --- AGDD2Geo
-# Switch it on if
+# Switch it ON if
 #  - Muon is ON
 #  - Major geometry version is greater than 10
 if (vp1Muon):
-    if (vp1NSW): 
-      #DetDescrVersion="ATLAS-GEO-21-00-01"
-      # include('MuonGeoModelTest/NSWGeoSetup.py')
-      from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-      GeoModelSvc = GeoModelSvc()
-      GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.08.01-NSW"
-    
-      from MuonAGDD.MuonAGDDConf import NSWAGDDTool
-      nTool=NSWAGDDTool('NewSmallWheel')
-      nTool.ReadAGDD=False
-      nTool.XMLFiles += ["stations.v2.03.xml"]
-      nTool.DefaultDetector="Muon"
-      nTool.Locked=False
-      nTool.Volumes += ["NewSmallWheel"]
-      ToolSvc+=nTool
-    
-      from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
-      Agdd2Geo=AGDDtoGeoSvc()
-      Agdd2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
-      theApp.CreateSvc += ["AGDDtoGeoSvc"]
-      svcMgr += Agdd2Geo
-    
     from AtlasGeoModel import Agdd2Geo
     
-    # if(vp1FullToroids or vp1NSW):
-    #     from AtlasGeoModel import Agdd2Geo
-    # else:
-    #     from AthenaCommon.GlobalFlags import globalflags
-    #     DDV = globalflags.DetDescrVersion()
-    #     if(DDV.__contains__('ATLAS-GEO')):
-    #         seconddash = DDV.find('-',8);
-    #         majorddversstr = DDV[seconddash+1:seconddash+3];
-    #         majorddversint = int(majorddversstr);
-    #         if(majorddversint>10):
-    #             # Additional material in the muon system
-    #             from AGDD2Geo.AGDD2GeoConf import AGDD2GeoSvc
-    #             AGDD2GeoSvc=AGDD2GeoSvc()
-    #             AGDD2GeoSvc.PrintSections=False
-    #             AGDD2GeoSvc.Sections += ["ATLAS Feet"]
-    #             AGDD2GeoSvc.Sections += ["Atlas Barrel Toroidal Magnets"]
-    #             AGDD2GeoSvc.Sections += ["Atlas ECT Toroidal Magnets"]
-    #             AGDD2GeoSvc.DisableSections = False
-    #             AGDD2GeoSvc.Locked = False
-    #             theApp.CreateSvc += ["AGDD2GeoSvc"]
-    #             svcMgr += AGDD2GeoSvc
 
 #MagneticField:
-#include("BFieldAth/BFieldAth_jobOptions.py") # OLD
-import MagFieldServices.SetupField # NEW
+import MagFieldServices.SetupField
 
+# Fatras
 if (vp1Fatras):
     from FatrasExample.FatrasJobProperties import FatrasFlags
     FatrasFlags.SingleTrackSimulation.set_Value(vp1InputFiles==[])
@@ -334,6 +304,7 @@ if (vp1Fatras):
     jobproperties.FastSimulation.doFatrasID.set_Value(True)
     jobproperties.FastSimulation.doFatrasMuon.set_Value(vp1FatrasMuon)
     FatrasFlags.FastCaloSim.set_Value(vp1FatrasCalo)
+
 
 if (vp1InputFiles != []):
     import AthenaPoolCnvSvc.ReadAthenaPool
@@ -566,3 +537,4 @@ if (vp1Multinp):
     VP1Alg.MFAvailableLocalInputDirectories = vp1MultiAvailableSrcDirs
 
 topSequence.TimeOut=0
+

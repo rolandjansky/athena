@@ -84,7 +84,7 @@ AtlfastPoolTest.OutputLevel = 2
 #--------------------------------------------------------------
 # Include AthenaSealSvc and dicts that are 
 # not linked against converters (temporary)
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
 include( "FourMom/FourMomDict_joboptions.py" )
 

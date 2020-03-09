@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTGCDetectorHelper_H
 #define sTGCDetectorHelper_H
 
 #include <map>
+#include <string>
 
 class sTGCDetectorDescription;
 class AGDDDetectorPositioner;

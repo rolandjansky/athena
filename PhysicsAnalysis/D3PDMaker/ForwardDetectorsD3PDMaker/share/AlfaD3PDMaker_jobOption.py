@@ -30,7 +30,7 @@ globalflags.print_JobProperties()
 if globalflags.DataSource == "data":
     #--------------------------------------------------------------
     # JobOptions for the loading of the AthenaSealSvc
-	include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
 	# Add in dictionary name:
 	AthenaSealSvc = Service( "AthenaSealSvc" )

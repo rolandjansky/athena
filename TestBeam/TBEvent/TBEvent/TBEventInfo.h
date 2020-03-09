@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBEVENTINFO_H
@@ -32,23 +32,24 @@ class TBEventInfo
   // Constructors and Destructor //
   /////////////////////////////////
 
-  TBEventInfo() { 
-    m_ev_number=0;
-    m_ev_clock=0;
-    m_ev_type=0;
-    m_run_num=0;
-    m_beam_moment=0;
-    m_beam_part="";
-    m_cryoX=0;
-    m_cryoAngle=0;
-    m_tableY=0; };
+  TBEventInfo()
+    : m_ev_number(0),
+      m_ev_clock(0),
+      m_ev_type(0),
+      m_run_num(0),
+      m_beam_moment(0),
+      m_cryoX(0),
+      m_cryoAngle(0),
+      m_tableY(0)
+  {
+  }
     
   TBEventInfo(int ev_number,
 	      int ev_clock,
 	      int ev_type,
 	      unsigned int run_num,
 	      float beam_moment,
-	      std::string beam_part,
+	      const std::string& beam_part,
 	      float cryoX,
 	      float cryoAngle,
 	      float tableY) :    m_ev_number(ev_number), m_ev_clock(ev_clock),   m_ev_type(ev_type),   m_run_num(run_num),  m_beam_moment(beam_moment),  m_beam_part(beam_part),  m_cryoX(cryoX),  m_cryoAngle(cryoAngle),  m_tableY(tableY) {};

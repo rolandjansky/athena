@@ -219,7 +219,6 @@ QratCscClusterFitter::
 QratCscClusterFitter(string type, string aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),
     m_detMgr(nullptr), 
-    m_cscIdHelper(nullptr), 
     m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
 {
   declareInterface<ICscClusterFitter>(this);
@@ -280,7 +279,8 @@ StatusCode QratCscClusterFitter::initialize() {
     ATH_MSG_FATAL ( "Could not find the MuonGeoModel Manager! " );
     return StatusCode::FAILURE;
   } 
-  m_cscIdHelper = m_detMgr->cscIdHelper();
+  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   if ( m_alignmentTool.retrieve().isFailure() )   {
     ATH_MSG_WARNING ( name() << ": unable to retrieve cluster fitter " << m_alignmentTool );
@@ -326,8 +326,8 @@ StatusCode QratCscClusterFitter::initialize() {
 //**********************************************************************
 
 const DataNames& QratCscClusterFitter::dataNames() const {
-  static DataNames dnames;
-  if ( ! dnames.size() ) {
+  auto init = [&](){
+    DataNames dnames;
     bool dofixed = false;
     bool docharge = false;
     if ( m_posopt_phi == "POLYNOMIAL"  ||  m_posopt_phi == "TABLE"  ||  m_posopt_phi == "ATANH") {
@@ -350,7 +350,9 @@ const DataNames& QratCscClusterFitter::dataNames() const {
       dnames.push_back("scordiff");
       dnames.push_back("dscordiff");
     }
-  }
+    return dnames;
+  };
+  static DataNames dnames ATLAS_THREAD_SAFE = init();
   return dnames;
 }
   
@@ -389,17 +391,17 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
   Identifier idStrip0 = pstrip->identify();
 
   const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
-  bool measphi = m_cscIdHelper->CscIdHelper::measuresPhi(idStrip0);
+  bool measphi = m_muonIdHelperTool->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   unsigned int maxstrip = pro->maxNumberOfStrips(measphi);
-  unsigned int strip0 = m_cscIdHelper->strip(idStrip0) - 1;
+  unsigned int strip0 = m_muonIdHelperTool->cscIdHelper().strip(idStrip0) - 1;
 
-  //  int zsec    = m_cscIdHelper->stationEta(idStrip0);
-  int station = m_cscIdHelper->stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
-  //  int phisec  = m_cscIdHelper->stationPhi(idStrip0);
+  //  int zsec    = m_muonIdHelperTool->cscIdHelper().stationEta(idStrip0);
+  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
+  //  int phisec  = m_muonIdHelperTool->cscIdHelper().stationPhi(idStrip0);
 
   //  int sector  = zsec*(2*phisec - station + 1);
-  //  int wlay    = m_cscIdHelper->wireLayer(idStrip0);
+  //  int wlay    = m_muonIdHelperTool->cscIdHelper().wireLayer(idStrip0);
 
   CscPlane plane = findPlane(station, measphi);
   if ( plane == UNKNOWN_PLANE ) {
@@ -414,8 +416,8 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
   for ( unsigned int istrip=0; istrip<nstrip; ++istrip ) {
     Identifier id = sfits[istrip].strip->identify();
     //    if (sfits[istrip].charge>=20000) ++nstrip_threshold;
-    ATH_MSG_VERBOSE ( "  " <<  station << " : " << measphi << "  " << m_cscIdHelper->wireLayer(id)
-                      << "  " << istrip << " " << m_cscIdHelper->strip(id)
+    ATH_MSG_VERBOSE ( "  " <<  station << " : " << measphi << "  " << m_muonIdHelperTool->cscIdHelper().wireLayer(id)
+                      << "  " << istrip << " " << m_muonIdHelperTool->cscIdHelper().strip(id)
                       << " " << sfits[istrip].charge );
   }
   
@@ -751,7 +753,7 @@ double QratCscClusterFitter::getCorrectedError(const CscPrepData* pclu, double s
   double dpos = Amg::error(pclu->localCovariance(),ierr);
 
   Identifier idStrip0 = pclu->identify();
-  int station = m_cscIdHelper->stationName(idStrip0) - 49; // 1=CSS, 2=CSL
+  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
   // Calculate the angle of incidence.
   double tantht = 0.0;
   if ( station == 1 ) {
@@ -796,7 +798,7 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits) const {
     // Fetch the chamber type.
     const CscStripPrepData* pstrip = sfits[0].strip;
     Identifier idStrip0 = pstrip->identify();
-    int station = m_cscIdHelper->stationName(idStrip0) - 49; // 1=CSS, 2=CSL
+    int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
     // Calculate the angle of incidence.
     double tantht = 0.0;
     double pos = res.position;

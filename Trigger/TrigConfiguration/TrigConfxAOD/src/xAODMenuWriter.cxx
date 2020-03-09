@@ -27,28 +27,7 @@
 
 // Local include(s):
 #include "xAODMenuWriter.h"
-
-namespace {
-   /// Helper operator for printing the contents of vectors
-   template< typename T >
-   MsgStream& operator<< ( MsgStream& out,
-                           const std::vector< T >& vec ) {
-
-      // A little prefix:
-      out << "[";
-      // Print the contents:
-      for( size_t i = 0; i < vec.size(); ++i ) {
-         out << vec[ i ];
-         if( i < vec.size() - 1 ) {
-            out << ", ";
-         }
-      }
-      // A little postfix:
-      out << "]";
-      // Return the stream:
-      return out;
-   }
-}
+#include "PrintVectorHelper.h"
 
 namespace TrigConf {
 

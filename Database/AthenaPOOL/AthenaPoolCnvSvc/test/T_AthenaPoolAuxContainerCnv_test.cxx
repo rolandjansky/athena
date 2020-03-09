@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/test/T_AthenaPoolAuxContainerCnv_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +18,12 @@
 #include "TestTools/initGaudi.h"
 #include "CxxUtils/ubsan_suppress.h"
 #include "AthenaPoolCnvSvcTestDict.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "TestThinningSvc.icc"
 #include "TestCnvSvcBase.icc"
 #include "TSystem.h"
@@ -99,6 +104,35 @@ public:
 };
 
 
+void test1_checkThinned (const YAuxCont_v2* pers,
+                         const size_t N,
+                         const SG::auxid_t x_auxid,
+                         const SG::auxid_t l_auxid)
+{
+  typedef ElementLink<DataVector<Y_v2> > Link_t;
+
+  assert (pers->size() == N-1);
+  const int* x = reinterpret_cast<const int*> (pers->getData (x_auxid));
+  const Link_t* l = reinterpret_cast<const Link_t*> (pers->getData (l_auxid));
+  for (size_t i = 0; i < N-1; i++) {
+    size_t ii = i;
+    if (i >= 7) ii = i+1;
+    assert (x[i] == static_cast<int>(ii)*2);
+    if (ii == 5) {
+      assert (l[i].key() == 0);
+      assert (l[i].index() == 0);
+    }
+    else {
+      assert (l[i].dataID() == "vec");
+      if (i < 5)
+        assert (l[i].index() == ii);
+      else
+        assert (l[i].index() == ii-1);
+    }
+  }
+}
+
+
 // Writing
 void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
 {
@@ -126,7 +160,7 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
   }
   SGTest::store.record (trans2, "store");
 
-  YAuxCont_v2* pers2a = cnv.createPersistent (trans2);
+  YAuxCont_v2* pers2a = cnv.createPersistentWithKey (trans2, "store");
   assert (pers2a->size() == trans2->size());
   const int* x2a = reinterpret_cast<const int*> (pers2a->getData (x_auxid));
   const Link_t* l2a = reinterpret_cast<const Link_t*> (pers2a->getData (l_auxid));
@@ -143,31 +177,51 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
     thinsvc.remap (vec, i, i-1);
   thinsvc.remap (trans2, 7, IThinningSvc::RemovedIdx);
 
-  YAuxCont_v2* pers2b = cnv.createPersistent (trans2);
-  assert (pers2b->size() == trans2->size()-1);
-  const int* x2b = reinterpret_cast<const int*> (pers2b->getData (x_auxid));
-  const Link_t* l2b = reinterpret_cast<const Link_t*> (pers2b->getData (l_auxid));
-  for (size_t i = 0; i < N-1; i++) {
-    size_t ii = i;
-    if (i >= 7) ii = i+1;
-    assert (x2b[i] == static_cast<int>(ii)*2);
-    if (ii == 5) {
-      assert (l2b[i].key() == 0);
-      assert (l2b[i].index() == 0);
-    }
-    else {
-      assert (l2b[i].dataID() == "vec");
-      if (i < 5)
-        assert (l2b[i].index() == ii);
-      else
-        assert (l2b[i].index() == ii-1);
-    }
-  }
+  YAuxCont_v2* pers2b = cnv.createPersistentWithKey (trans2, "store");
+  test1_checkThinned (pers2b, N, x_auxid, l_auxid);
 
   TestThinningSvc::instance (nullptr, true);
+
+  SG::sgkey_t sgkey_store =
+    SGTest::store.stringToKey ("store",
+                               ClassID_traits<YAuxCont_v2>::ID());
+  SG::sgkey_t sgkey_vec =
+    SGTest::store.stringToKey ("vec",
+                               ClassID_traits<DataVector<Y_v2> >::ID());
+
+  SG::ThinningCache cache;
+  SG::ThinningDecisionBase dec_store;
+  dec_store.resize (N);
+  dec_store.thin (7);
+  dec_store.buildIndexMap();
+  cache.addThinning ("store",
+                     std::vector<SG::sgkey_t> { sgkey_store },
+                     &dec_store);
+
+  SG::ThinningDecisionBase dec_vec;
+  dec_vec.resize (N);
+  dec_vec.thin (5);
+  dec_vec.buildIndexMap();
+  cache.addThinning ("vec",
+                     std::vector<SG::sgkey_t> { sgkey_vec },
+                     &dec_vec);
+  EventContext ctx;
+  Atlas::ExtendedEventContext ectx;
+  ectx.setThinningCache (&cache);
+  Atlas::setExtendedEventContext (ctx, std::move (ectx));
+  Gaudi::Hive::setCurrentContext (ctx);
+
+  YAuxCont_v2* pers2c = cnv.createPersistentWithKey (trans2, "store");
+  test1_checkThinned (pers2c, N, x_auxid, l_auxid);
+
+  ectx.setThinningCache (nullptr);
+  Atlas::setExtendedEventContext (ctx, std::move (ectx));
+  Gaudi::Hive::setCurrentContext (ctx);
+
   delete trans2;
   delete pers2a;
   delete pers2b;
+  delete pers2c;
 }
 
 

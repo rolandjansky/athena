@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMEVENTSTORAGEINPUTSVC_H
@@ -22,7 +22,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
-class IIncidentSvc;
 
 /** @class ByteStreamEventStorageInputSvc
  *  @brief This class is the ByteStreamInputSvc for reading events written by EventStorage.
@@ -93,7 +92,6 @@ private: // data
    /// Pointer to StoreGate
    ServiceHandle<StoreGateSvc> m_sgSvc; //!< StoreGateSvc
    ServiceHandle<StoreGateSvc> m_mdSvc; //!< StoreGateSvc
-   ServiceHandle<IIncidentSvc> m_incidentSvc; //!< IncidentSvc
    ServiceHandle<IByteStreamFreeMetadataSvc> m_attlistsvc; 
    ServiceHandle<IROBDataProviderSvc> m_robProvider;
 
@@ -112,6 +110,7 @@ private: // properties
    Gaudi::Property<bool>    m_procBadEvent;  //!< DEFUNCT process bad events, which fail check_tree().
    Gaudi::Property<int>    m_maxBadEvts;    //!< DEFUNCT number of bad events allowed before quitting.
    std::vector<std::string> m_keys;
+   Gaudi::Property<std::string> m_eventInfoKey{this, "EventInfoKey", "EventInfo", ""};
 
 private: // internal helper functions
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,7 +14,7 @@
 void
 JetMomentMapCnv_p1::transToPers(const JetMomentMap* ,
 				JetMomentMap_p1* ,
-				MsgStream &reporter )
+				MsgStream &reporter ) const
 {
   reporter << MSG::WARNING << "JetMomentMapConverterBase toPers() Template _p1: deprecated ! This should not be used." << endmsg;
   
@@ -23,7 +23,7 @@ JetMomentMapCnv_p1::transToPers(const JetMomentMap* ,
 void
 JetMomentMapCnv_p1::persToTrans(const JetMomentMap_p1* ,
 				JetMomentMap* ,
-				MsgStream &reporter )
+				MsgStream &reporter ) const
 {
   reporter << MSG::WARNING << "JetMomentMapConverterBase toTrans() Template _p1 : unusable yet" << endmsg;
   

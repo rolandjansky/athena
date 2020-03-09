@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCRODREADOUT_H
@@ -51,14 +51,12 @@ namespace Muon
       /** Convert BS (ROB fragment) to RDO */ 
       StatusCode byteStream2Rdo(const ByteStream& bs, 
 				TgcRdo& tgcRdo, 
-				uint32_t source_id, 
-				MsgStream& vlog);
+				uint32_t source_id);
       /** Convert BS (ROB fragment) to RDO and compare decoded RDO container 
        *  and another RDO container decoded by other converter */ 
       StatusCode check(const ByteStream& bs, 
 		       TgcRdo& tgcRdo, 
-		       uint32_t source_id, 
-		       MsgStream& vlog);
+		       uint32_t source_id);
       /** Compare two RDO containers */ 
       StatusCode compare(TgcRdo* rdo, TgcRdo* newRdo); 
       /** Compare two RDOs */ 
@@ -148,9 +146,6 @@ namespace Muon
 
       /** TGC SLB data helper */
       TgcSlbDataHelper* m_tgcSlbDataHelper;
-
-      /** Message stream */
-      mutable MsgStream* m_log;
 
       TgcRODReadOut & operator=(const TgcRODReadOut &right);
       TgcRODReadOut(const TgcRODReadOut&);

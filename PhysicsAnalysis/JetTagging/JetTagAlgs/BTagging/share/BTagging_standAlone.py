@@ -167,7 +167,6 @@ if OverridePixMapOverlay != "":
 if WriteNewAODFile:
   from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
   StreamAOD = AthenaPoolOutputStream( "StreamAOD", "newAOD.pool.root", True )
-  StreamAOD.ForceRead = True 
   StreamAOD.ExtendProvenanceRecord = False 
   StreamAOD.TakeItemsFromInput=True
   taggedJetList = []

@@ -8,7 +8,6 @@
 #include "BCM_RDO_ContainerCnv.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 BCM_RDO_Container_p0* BCM_RDO_ContainerCnv::createPersistent(BCM_RDO_Container* transCont) {
   MsgStream log(msgSvc(), "BCM_RDO_ContainerCnv");

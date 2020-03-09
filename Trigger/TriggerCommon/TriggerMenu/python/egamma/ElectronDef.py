@@ -245,9 +245,9 @@ class L2EFChain_e(L2EFChainDef):
         
         # Here we revert to the traditional sequence
         # But apply selection at L2Electron
+        seq_dict['fastrec']=[fastrec_algo,fastrec_hypo]
+        log.debug('FastRec sequence %s'%seq_dict['fastrec'])
         if dofastrecseq:
-            seq_dict['fastrec']=[fastrec_algo,fastrec_hypo]
-            log.debug('FastRec sequence %s'%seq_dict['fastrec'])
             # remove track hypo from precisetrack step
             precisetrack = self.el_sequences['precisetrack']
             precisetrack.pop()

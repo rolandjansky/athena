@@ -27,6 +27,7 @@ TileExpertDump::TileExpertDump(const std::string& name, ISvcLocator* pSvcLocator
   : AthAlgorithm(name, pSvcLocator)
   , m_emExpertOptions(0)
   , m_tileHWID(0)
+  , m_tileInfo(0)
 {
   declareProperty("PrintExpertEmscale"     , m_printExpertEmscale=false      ,"Switch on expert calibration chain printout");
   declareProperty("PrintExpertEmscaleOnl"  , m_printExpertEmscaleOnl=false   ,"Switch on expert onl calibration chain printout");
@@ -45,6 +46,7 @@ TileExpertDump::TileExpertDump(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("useOnlLasLin"    , m_OnlLasLin     = false, "Use calibration of OnlLasLin");
   declareProperty("useOnlCes"       , m_OnlCes        = false, "Use calibration of OnlCes");
   declareProperty("useOnlEms"       , m_OnlEms        = false, "Use calibration of OnlEms");
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -70,6 +72,10 @@ StatusCode TileExpertDump::initialize() {
   CHECK( m_tileExpertToolEmscale.retrieve() );
 
   m_tileExpertToolEmscale->setEmOptions(m_emExpertOptions);
+
+  //=== Get TileInfo and set max ADC counts
+  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_i_ADCmax = m_tileInfo->ADCmax();
 
   return StatusCode::SUCCESS;
 }
@@ -178,7 +184,7 @@ void TileExpertDump::printExpertEmscale() {
   unsigned int drawer = 0;
   unsigned int channel = 0;
   for (unsigned int adc = 0; adc < TileCalibUtils::MAX_GAIN; ++adc) {
-    for (unsigned int adcCounts = 0; adcCounts < 1024; ++adcCounts) {
+    for (int adcCounts = 0; adcCounts < m_i_ADCmax; ++adcCounts) {
       double energy = static_cast<float>(adcCounts);
       ATH_MSG_INFO( ros << "/" << drawer << "/" << channel << "/" << adc << " : "
                    << "ADC counts = " << adcCounts

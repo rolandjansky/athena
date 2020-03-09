@@ -5,7 +5,7 @@
 #include "TAURoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 
 /////////////////////////////////////////////////////////////////// 
@@ -32,11 +32,25 @@ StatusCode TAURoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TAURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
+StatusCode TAURoIsUnpackingTool::start() {
+  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("TAU") == 0;  } ) );
+  // for taus, since there is threshold name change from HA to TAU we need to fill up mapping wiht same threshold but prefixed by HA
+  // TODO remove once L1 configuration switches to TAU
+  for ( const auto& [threshold, chains] : m_thresholdToChainMapping ) {
+    if ( threshold.name().find("TAU") == 0 ) {
+      std::string newThresholdName = "HA"+threshold.name().substr(3);
+      ATH_MSG_INFO("Temporary fix due to renaming the HA to TAU thresholds, adding decoding of " << newThresholdName );
+      m_thresholdToChainMapping[HLT::Identifier(newThresholdName)] = chains;
+    }
+  }
+
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode TAURoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
-  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::TAU; }, 
-			    m_configSvc->ctpConfig()->menu().itemVector(),
-			    seeding ) );
 
   m_tauThresholds.clear();
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::TAU ), m_tauThresholds ) );
@@ -79,7 +93,7 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
         
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
+      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
       
       for ( auto th: m_tauThresholds ) {
 	ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
@@ -95,8 +109,8 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
       
 
       // TODO would be nice to have this. Requires modifying the TC class: decision->setDetail( "Thresholds", passedThresholds ); // record passing threshold names ( for easy debugging )            
-      decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
-      decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
+      decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+      decision->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     }     
   }
   for ( auto roi: *trigRoIs ) {

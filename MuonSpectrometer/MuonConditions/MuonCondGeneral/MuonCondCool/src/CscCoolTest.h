@@ -10,9 +10,11 @@ CscCoolStrSvc*/
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 //#include "MuonCondData/CscCalibData.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 //namespace MuonCalib {
 /**
@@ -28,7 +30,6 @@ CscCoolStrSvc*/
 	Using an appropriate jobOptions file, this algoritm can be used to test this functionality.
 */
 
-class CscIdHelper;
 
 class CscCoolTest: public AthAlgorithm
 {
@@ -51,7 +52,8 @@ class CscCoolTest: public AthAlgorithm
 
     bool m_doStatusTest;
 
-    const CscIdHelper *m_cscId;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
 };
 

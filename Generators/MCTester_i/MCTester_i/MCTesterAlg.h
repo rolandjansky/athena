@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ATHALGORITHM_MCTESTER_H_
@@ -13,8 +13,6 @@
 #include "HepMCEvent.H"
 #include "Generate.h"
 #include "Setup.H"
-
-class StoreGateSvc;
 
 /**
   @class MCTesterAlg
@@ -54,7 +52,6 @@ public:
    StatusCode MC_Validate_check4MomentumSum(HepMCEvent * e);
 
    // Some storegate variables
-   StoreGateSvc* m_sgSvc;
    std::string m_key; 
    std::string m_infokey;
 

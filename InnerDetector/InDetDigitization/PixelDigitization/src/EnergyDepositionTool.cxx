@@ -1,14 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// EnergyDepositionTool.cxx
-//   Implementation file for class EnergyDepositionTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-// Details in head file
-///////////////////////////////////////////////////////////////////
 
 #include "EnergyDepositionTool.h"
 
@@ -17,7 +9,7 @@
 #include "TMath.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -39,29 +31,8 @@ using namespace std;
 
 // Constructor with parameters:
 EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::string& name,const IInterface* parent):
-  AthAlgTool(type,name,parent),
-  m_numberOfSteps(50),
-  m_numberOfCharges(10),
-  m_disableDistortions(false),
-  m_doBichsel(false),
-  m_doBichselBetaGammaCut(0.1),        // replace momentum cut
-  m_doDeltaRay(false),                 // need validation
-  m_doPU(true)
-{ 
+  AthAlgTool(type,name,parent) {}
 
-  declareProperty("DeltaRayCut", m_DeltaRayCut = 117.);
-  declareProperty("nCols", m_nCols = 1);
-  declareProperty("LoopLimit", m_LoopLimit = 100000);
-  declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelPlanar");
-  declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelPlanar");
-  declareProperty("DisableDistortions",m_disableDistortions, "Disable simulation of module distortions");
-  declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
-  declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
-  declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
-  declareProperty("doPU", m_doPU, "Whether we apply Bichsel model on PU");
-}
-
-// Destructor:
 EnergyDepositionTool::~EnergyDepositionTool(){}
 
 //=======================================
@@ -71,16 +42,12 @@ StatusCode EnergyDepositionTool::initialize() {
   
   ATH_MSG_INFO("You are using EnergyDepositionTool for solid-state silicon detectors.");
 
+  ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
+
   //Setup distortions tool
   if (!m_disableDistortions) {
     ATH_MSG_DEBUG("Getting distortions tool");
-    if (!m_pixDistoTool.empty()) {
-      CHECK(m_pixDistoTool.retrieve());
-      ATH_MSG_DEBUG("Distortions tool retrieved");
-    }
-    else {
-      ATH_MSG_DEBUG("No distortions tool selected");
-    }
+    ATH_CHECK(m_distortionKey.initialize());
   }
 
   if(m_doBichsel){
@@ -93,7 +60,7 @@ StatusCode EnergyDepositionTool::initialize() {
     for(int iParticleType = 1; iParticleType <= n_ParticleType; iParticleType++){
     
       std::ifstream inputFile;
-      TString inputFileName = TString::Format("PixelDigitization/Bichsel_%d%s.dat", iParticleType, m_nCols == 1 ? "" : TString::Format("_%dsteps", m_nCols).Data());
+      TString inputFileName = TString::Format("PixelDigitization/Bichsel_%d%s.dat", iParticleType, m_nCols==1 ? "" : TString::Format("_%dsteps",(int)m_nCols).Data());
 
       std::string FullFileName = PathResolverFindCalibFile(std::string(inputFileName.Data()));
       inputFile.open(FullFileName.data());
@@ -317,14 +284,13 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit> &phit, c
 void EnergyDepositionTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
 
   // If tool is NONE we apply no correction.
-  if (m_pixDistoTool.empty()) return;
   Amg::Vector3D dir(element->hitPhiDirection()*(xf-xi), element->hitEtaDirection()*(yf-yi), element->hitDepthDirection()*(zf-zi));
 
   Amg::Vector2D locposi = element->hitLocalToLocal(yi, xi);
   Amg::Vector2D locposf = element->hitLocalToLocal(yf, xf);
 
-  Amg::Vector2D newLocposi = m_pixDistoTool->correctSimulation(element->identify(), locposi, dir);
-  Amg::Vector2D newLocposf = m_pixDistoTool->correctSimulation(element->identify(), locposf, dir);
+  Amg::Vector2D newLocposi = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixelID->wafer_hash(element->identify()), locposi, dir);
+  Amg::Vector2D newLocposf = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixelID->wafer_hash(element->identify()), locposf, dir);
 
   // Extract new coordinates and convert back to hit frame.
   xi = newLocposi[Trk::x] * element->hitPhiDirection();

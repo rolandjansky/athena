@@ -16,6 +16,8 @@
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 
+#include "MuonHoughPatternTools/MuonLayerHoughTool.h"
+
 class ICscSegmentFinder;
 namespace Muon {
   
@@ -29,7 +31,6 @@ namespace Muon {
   class IMuonClusterSegmentFinder;
   class IMuonClusterSegmentFinderTool;
   class IMuonRecoValidationTool;
-  class MuonLayerHoughTool;
   class MdtDriftCircleOnTrack;
   class MuonClusterOnTrack;
   class MuonLayerSegmentFinderTool : virtual public IMuonLayerSegmentFinderTool,  public AthAlgTool {
@@ -66,6 +67,10 @@ namespace Muon {
                           const std::vector<const MuonClusterOnTrack*>&    clusters,
                           std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const;
 
+    /** storegate */
+    SG::ReadHandleKey<MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
+        "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
+
     /** tool handles */
     ToolHandle<MuonIdHelperTool>                      m_idHelper; 
     ToolHandle<MuonEDMPrinterTool>                    m_printer; 
@@ -75,7 +80,6 @@ namespace Muon {
     ToolHandle<ICscSegmentFinder>                     m_csc4dSegmentFinder;
     ToolHandle<IMuonClusterSegmentFinder>             m_clusterSegmentFinder;
     ToolHandle<IMuonClusterSegmentFinderTool>         m_clusterSegMakerNSW;
-    ToolHandle<MuonLayerHoughTool>                    m_layerHoughTool;
     mutable ToolHandle<IMuonRecoValidationTool>               m_recoValidationTool;
     MuonSectorMapping                                 m_muonSectorMapping;
   };

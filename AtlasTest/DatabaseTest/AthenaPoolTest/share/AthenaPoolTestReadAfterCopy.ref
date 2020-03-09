@@ -86,7 +86,6 @@ ClassIDSvc           INFO  getRegistryEntries: read 1020 CLIDRegistry entries fo
 ClassIDSvc           INFO ClassIDSvc Initialized successfully 
 AthenaPoolCnvSvc     INFO Loading POOL XMLAuthenticationService.
 InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-20-04
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-05-36
 EventSelector        INFO Create PoolCollectionConverter -  CollectionType: ImplicitROOT Connection:  InputCollection: SimplePoolFile2.root
 SimplePoolFile2.root   Always Root file version:51400
 EventSelector        INFO EventSelection with query  'Query':

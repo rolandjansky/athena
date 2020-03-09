@@ -12,7 +12,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "EventInfo/EventID.h"
 
 class TrigMuonRoITool: public extends<AthAlgTool, ITrigMuonRoITool>
 {
@@ -24,29 +23,13 @@ class TrigMuonRoITool: public extends<AthAlgTool, ITrigMuonRoITool>
 
     virtual StatusCode initialize() override;
 
-    /// iterator over muon RoIs in time with event in MuCTPi format
-    virtual std::vector<ROIB::MuCTPIRoI>::const_iterator begin_InTimeRoIs() override;
-    virtual std::vector<ROIB::MuCTPIRoI>::const_iterator end_InTimeRoIs() override;
+    /// Decoding the muCTPi RoIB and DAQ ROB and return in and out of time RoIs
+    virtual std::unique_ptr<TrigMuonRoITool::MuonRois> decodeMuCTPi() override;
 
-    /// iterator over muon RoIs out of time with event in MuCTPi format
-    /// pair < Muon RoI in RoIB format, difference: RoI(BCID)-event(BCID) >
-    virtual std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator begin_OutOfTimeRoIs() override;
-    virtual std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator end_OutOfTimeRoIs() override;
 
     private:
 
-    /// run number - 32 bit unsigned
-    EventID::number_type      m_run_no ;
-    /// event number - 32 bit unsigned
-    EventID::number_type      m_event_number ;
-    /// bunch crossing ID,  32 bit unsigned
-    EventID::number_type      m_bunch_crossing_id ;
-    /// time stamp - posix time in seconds from 1970, 32 bit unsigned
-    EventID::number_type      m_time_stamp ;
-    /// time stamp ns - ns time offset for time_stamp, 32 bit unsigned
-    EventID::number_type      m_time_stamp_ns_offset ;
-    /// luminosity block identifier, 32 bit unsigned
-    EventID::number_type      m_lumi_block ;
+    SG::ReadHandleKey<MuCTPI_RDO> m_muCTPIKey{this, "MUCTPILocation", "MUCTPI_RDO", "Location of MUCTPI RDO"};
 
     typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
     /// Reference to the ROBDataProviderSvc service
@@ -60,13 +43,6 @@ class TrigMuonRoITool: public extends<AthAlgTool, ITrigMuonRoITool>
 
     /// Number of pt Thresholds
     static const uint32_t NUMBER_OF_PT_THRESHOLDS = 6;   // Number of pT thresholds
-
-    /// trigger muCTPi RoIs from DAQ ROB in RoIB format
-    std::vector<ROIB::MuCTPIRoI>                  m_inTime_muCTPIRoIs;     // RoIs from DAQ muCTPi ROB (in time with event BCID)
-    std::vector< std::pair<ROIB::MuCTPIRoI,int> > m_outOfTime_muCTPIRoIs;  // RoIs from DAQ muCTPi ROB (out of time with event BCID)
-
-    /// Helper for decoding the muCTPi RoIB and DAQ ROB
-    void decodeMuCTPi();
 
     /// Helper for converting a mirod DAQ data word to a muCTPi RoIB data word
     uint32_t mirodToRoIBDataWord( uint32_t data_word );

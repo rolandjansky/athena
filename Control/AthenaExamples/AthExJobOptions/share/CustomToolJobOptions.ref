@@ -14,12 +14,10 @@ Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -IDTrackCaloDepositsDecoratorTool: MuonTPTools.MuonTPToolsConf - ['DerivationFrameworkMuons.DerivationFrameworkMuonsConf']
 Py:ConfigurableDb WARNING   -MuonTPExtrapolationTool: MuonTPTools.MuonTPToolsConf - ['DerivationFrameworkMuons.DerivationFrameworkMuonsConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
-{'TheTool': <ToolUsingTool/YourTopAlg.ToolUsingTool at 0x7fed06ae9470>, 'ErrorMax': '<no value>', 'RndmFactor': '<no value>', 'PublicToolList': PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6']), 'AuditExecute': '<no value>', 'EmptyPublicTool': PublicToolHandle(''), 'AuditReinitialize': '<no value>', 'EmptyPrivateTool': PrivateToolHandle(''), 'InputKey': '<no value>', 'AuditRestart': '<no value>', 'OutputKey': '<no value>', 'MonitorService': '<no value>', 'Enable': '<no value>', 'Timeline': '<no value>', 'AuditFinalize': '<no value>', 'PrivateToolList': PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3']), 'AuditEndRun': '<no value>', 'NeededResources': [], 'AuditBeginRun': '<no value>', 'AutoRetrieveTools': '<no value>', 'FilterCircularDependencies': '<no value>', 'ExtraOutputs': [], 'IsIOBound': '<no value>', 'AuditInitialize': '<no value>', 'OutputLevel': '<no value>', 'ExtraInputs': [], 'AuditStop': '<no value>', 'DetStore': ServiceHandle('StoreGateSvc/DetectorStore'), 'TheSvc': ServiceHandle('ConcreteSvc'), 'Cardinality': '<no value>', 'EvtStore': ServiceHandle('StoreGateSvc'), 'AuditStart': '<no value>', 'RegisterForContextService': '<no value>', 'AuditAlgorithms': '<no value>', 'ThePublicTool': PublicToolHandle('ConcreteTool'), 'ErrorCounter': '<no value>'}
+{'TheTool': <ToolUsingTool/YourTopAlg.ToolUsingTool at 0x7fed06ae9470>, 'ErrorMax': '<no value>', 'RndmFactor': '<no value>', 'PublicToolList': PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6']), 'AuditExecute': '<no value>', 'EmptyPublicTool': PublicToolHandle(''), 'AuditReinitialize': '<no value>', 'EmptyPrivateTool': PrivateToolHandle(''), 'InputKey': '<no value>', 'AuditRestart': '<no value>', 'OutputKey': '<no value>', 'MonitorService': '<no value>', 'Enable': '<no value>', 'Timeline': '<no value>', 'AuditFinalize': '<no value>', 'PrivateToolList': PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3']), 'NeededResources': [], 'AutoRetrieveTools': '<no value>', 'FilterCircularDependencies': '<no value>', 'ExtraOutputs': [], 'IsIOBound': '<no value>', 'AuditInitialize': '<no value>', 'OutputLevel': '<no value>', 'ExtraInputs': [], 'AuditStop': '<no value>', 'DetStore': ServiceHandle('StoreGateSvc/DetectorStore'), 'TheSvc': ServiceHandle('ConcreteSvc'), 'Cardinality': '<no value>', 'EvtStore': ServiceHandle('StoreGateSvc'), 'AuditStart': '<no value>', 'RegisterForContextService': '<no value>', 'AuditAlgorithms': '<no value>', 'ThePublicTool': PublicToolHandle('ConcreteTool'), 'ErrorCounter': '<no value>'}
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
 |-Atomic                     = False
 |-AuditAlgorithms            = False
-|-AuditBeginRun              = False
-|-AuditEndRun                = False
 |-AuditExecute               = False
 |-AuditFinalize              = False
 |-AuditInitialize            = False
@@ -52,8 +50,6 @@ Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 |-Timeline                   = True
 |=/***** Algorithm TopAlgorithm/MyTopAlg *************************************************************
 | |-AuditAlgorithms            = False
-| |-AuditBeginRun              = False
-| |-AuditEndRun                = False
 | |-AuditExecute               = False
 | |-AuditFinalize              = False
 | |-AuditInitialize            = False
@@ -144,8 +140,6 @@ Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 | \----- (End of Algorithm TopAlgorithm/MyTopAlg) ----------------------------------------------------
 |=/***** Algorithm TopAlgorithm/YourTopAlg ***********************************************************
 | |-AuditAlgorithms            = False
-| |-AuditBeginRun              = False
-| |-AuditEndRun                = False
 | |-AuditExecute               = False
 | |-AuditFinalize              = False
 | |-AuditInitialize            = False

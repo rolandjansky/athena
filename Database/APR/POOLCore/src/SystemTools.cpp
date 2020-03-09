@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "POOLCore/SystemTools.h"
@@ -55,24 +55,12 @@ namespace pool
    }
 
 
-   static MSG::Level OutputLevel = MSG::NIL;
-   
-   MSG::Level SystemTools::SetOutputLvl(MSG::Level new_ol) {
-      MSG::Level old_ol = OutputLevel;
-      OutputLevel = new_ol;
-      return old_ol;
-   }
-
-   
    MSG::Level SystemTools::GetOutputLvl()
    {
       // Priority to the ENV setting so debugging is easy
-      static MSG::Level ol = GetOutputLvlFromEnv();
+      static const MSG::Level ol = GetOutputLvlFromEnv();
       if( ol != MSG::NIL )
          return ol;
-      // Next programatically set level
-      if( OutputLevel!= MSG::NIL )
-         return OutputLevel;
       // Last the default
       return MSG::WARNING;
    }

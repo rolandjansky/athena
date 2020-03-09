@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigRNNOutputAuxContainerCnv_v1.h 707590 2015-11-12 19:09:03Z krasznaa $
@@ -18,21 +18,25 @@
 /// Converter class used for reading xAOD::EmTauRoIAuxContainer_v1
 ///
 class xAODTrigRNNOutputAuxContainerCnv_v1 :
-   public T_AthenaPoolTPCnvBase< xAOD::TrigRNNOutputAuxContainer,
-                                 xAOD::TrigRNNOutputAuxContainer_v1 > {
+   public T_AthenaPoolTPCnvConstBase< xAOD::TrigRNNOutputAuxContainer,
+                                      xAOD::TrigRNNOutputAuxContainer_v1 > {
 
 public:
+   using base_class::transToPers;
+   using base_class::persToTrans;
+
+
    /// Default constructor
    xAODTrigRNNOutputAuxContainerCnv_v1();
 
    /// Function converting from the old type to the current one
    virtual void persToTrans( const xAOD::TrigRNNOutputAuxContainer_v1* oldObj,
                              xAOD::TrigRNNOutputAuxContainer* newObj,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
    /// Dummy function inherited from the base class
    virtual void transToPers( const xAOD::TrigRNNOutputAuxContainer*,
                              xAOD::TrigRNNOutputAuxContainer_v1*,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
 
 }; // class xAODTrigRNNOutputAuxContainerCnv_v1
 

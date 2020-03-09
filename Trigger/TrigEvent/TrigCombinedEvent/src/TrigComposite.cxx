@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include <iostream>
 //#include <cmath>
 #include <stdexcept>
-#include <boost/foreach.hpp>	
 #include "TrigCombinedEvent/TrigComposite.h"
-#include "CxxUtils/unused.h"
 
 
 using namespace std;
@@ -37,7 +35,7 @@ TrigComposite::TrigComposite(const std::string& name, std::string& label1, TrigF
 
 template<typename T>
 void TrigComposite::setFormat(const std::vector<std::string>& keys,  bool mustBeSet) {
-  BOOST_FOREACH(const std::string& key, keys) {
+  for(const std::string& key : keys) {
     addDetail<T>(key);
     if (mustBeSet) {
       mustSet<T>(key);
@@ -136,14 +134,16 @@ void TrigComposite::eraseDetail(const std::string& key) {
 template<typename T>
 std::map<std::string, T>& TrigComposite::detailsMap() {
   // this should never be needed, need to add compile error here
-  int UNUSED(z) =
+  [[maybe_unused]]
+  int z =
     sizeof(struct TrigComposite_does_not_support_that_type_as_a_detail);
 }
 
 template<typename T>
 const std::map<std::string, T>& TrigComposite::detailsMap() const {
   // this should never be needed, need to add compile error here
-  int UNUSED(z) =
+  [[maybe_unused]]
+  int z =
     sizeof(struct TrigComposite_does_not_support_that_type_as_a_detail);
 
 }
@@ -183,7 +183,7 @@ MsgStream& print(MsgStream& log, const TrigComposite& d, const std::string& deta
     log << "TrigComposite: Details stored as " << detailsName << " are (key, value): ";
 
     typedef typename std::map<std::string, T>::value_type key_value;
-    BOOST_FOREACH( const key_value& kv, d.allDetails<T>()) {
+    for( const key_value& kv : d.allDetails<T>()) {
       log << "(" << kv.first << ", " << kv.second << ")   ";
     }
     log << endmsg;
@@ -207,7 +207,7 @@ MsgStream& operator<< ( MsgStream& log, const TrigComposite& d ) {
 
   if ( ! d.allDetails<TrigFeatureLink>().empty() ) {
     typedef std::map<std::string, TrigFeatureLink>::value_type key_value;
-    BOOST_FOREACH( const key_value& kv, d.allDetails<TrigFeatureLink>()) {
+    for( const key_value& kv : d.allDetails<TrigFeatureLink>()) {
       log << "(" << kv.first << ", " << "CLID:" << kv.second.clid() <<")   ";
     }
     

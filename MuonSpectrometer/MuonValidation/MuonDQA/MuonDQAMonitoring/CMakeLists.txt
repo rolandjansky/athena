@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DataQuality/DataQualityInterfaces
                           Event/EventInfo
-                          TestPolicy
                           Trigger/TrigT1/TrigT1Result )
 
 # External dependencies:
@@ -30,4 +29,4 @@ atlas_add_component( MuonDQAMonitoring
 # Install files from the package:
 atlas_install_headers( MuonDQAMonitoring )
 atlas_install_joboptions( share/*.py )
-
+atlas_install_python_modules( python/*.py )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -8,13 +8,12 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: IOVSvc.cxx,v 1.66 2008-06-04 23:35:03 leggett Exp $
  *
  *  Provides automatic updating and callbacks for time dependent data
  *
  *****************************************************************************/
 
-#include "IOVSvc/IOVSvc.h"
+#include "IOVSvc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
@@ -73,6 +72,7 @@ IOVSvc::IOVSvc( const std::string& name, ISvcLocator* svc )
   declareProperty("preLoadRanges",m_preLoadRanges=false);
   declareProperty("preLoadData",m_preLoadData=false);
   declareProperty("partialPreLoadData",m_partialPreLoadData=true);
+  declareProperty("preLoadExtensibleFolders", m_preLoadExtensibleFolders=true);
   declareProperty("updateInterval", m_updateInterval="Event");
   declareProperty("sortKeys",m_sortKeys=true);
   declareProperty("forceResetAtBeginRun", m_forceReset=false);
@@ -127,7 +127,7 @@ StatusCode IOVSvc::finalize()
 /// Register a DataProxy with the service
 ///
 StatusCode 
-IOVSvc::regProxy( const DataProxy *proxy, const std::string& key,
+IOVSvc::regProxy( DataProxy *proxy, const std::string& key,
                   const std::string& storeName ) {
 
   std::lock_guard<std::recursive_mutex> lock(m_lock);
@@ -202,7 +202,7 @@ IOVSvc::regProxy( const CLID& clid, const std::string& key,
 /// Deregister a DataProxy with the service
 ///
 StatusCode 
-IOVSvc::deregProxy( const DataProxy *proxy ) {
+IOVSvc::deregProxy( DataProxy *proxy ) {
 
 
   std::lock_guard<std::recursive_mutex> lock(m_lock);
@@ -265,7 +265,7 @@ IOVSvc::ignoreProxy( const CLID& clid, const std::string& key,
 /// Replace a registered DataProxy with a new version
 ///
 StatusCode 
-IOVSvc::replaceProxy( const DataProxy* pOld, const DataProxy* pNew, 
+IOVSvc::replaceProxy( DataProxy* pOld, DataProxy* pNew, 
                       const std::string& storeName ) {
 
   StatusCode sc(StatusCode::FAILURE);
@@ -551,12 +551,12 @@ StatusCode
 IOVSvc::reinitialize()
 {
   // Set flag to reset all proxies 
-
+  StatusCode sc;
   toolMap::iterator itr = m_toolMap.begin();
   for ( ; itr!=m_toolMap.end(); ++itr) {
-    itr->second->reinitialize();
+    sc &= itr->second->reinitialize();
   }
-  return (StatusCode::SUCCESS);
+  return sc;
 
 }
 
@@ -568,15 +568,19 @@ StatusCode
 IOVSvc::createIOVTool( const std::string& storeName, IIOVSvcTool*& ist ) {
 
   std::string store(storeName);
+  std::string toolName("IOVSvcTool");
   if (storeName == "default") store = defaultStore;
 
-  ATH_MSG_DEBUG( "Creating IOVSvcTool associated with store \"" << store
+  // Append the store name if not default
+  if (store != defaultStore) toolName += ("_" + store);
+
+  ATH_MSG_DEBUG( "Creating " << toolName << " associated with store \"" << store
                  << "\""  );
 
   toolMap::iterator itr = m_toolMap.find( store );
   if ( itr == m_toolMap.end() ) {
     ist = nullptr;
-    if (p_toolSvc->retrieveTool( "IOVSvcTool/" + store, ist, this ).isFailure()) {
+    if (p_toolSvc->retrieveTool( "IOVSvcTool/" + toolName, ist, this ).isFailure()) {
       ATH_MSG_ERROR( "Unable to create IOVSvcTool associated with store \"" 
                      << store << "\""  );
       return StatusCode::FAILURE;
@@ -633,7 +637,7 @@ IOVSvc::getTool( const std::string& storeName, bool createIF ) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 IIOVSvcTool* 
-IOVSvc::getTool( const DataProxy* proxy ) const {
+IOVSvc::getTool( DataProxy* proxy ) const {
 
 
   IIOVSvcTool *ist(0);

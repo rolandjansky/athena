@@ -9,17 +9,21 @@
 #include "CoralBase/Blob.h"
 
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 
 LArCalibLineMappingAlg::LArCalibLineMappingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_readKey("/LAR/Identifier/CalibIdMap"),
-  m_writeKey("LArCalibLineMap","LArCalibLineMap"),
-  m_condSvc("CondSvc",name)
+  m_writeKey("LArCalibLineMap"),
+  m_condSvc("CondSvc",name),
+  m_isSuperCell(false),
+  m_maxCalibLines(4)
 {
   declareProperty("ReadKey",m_readKey);
   declareProperty("WriteKey",m_writeKey);
-  //declareProperty("isSuperCell",m_isSuperCell,"switch to true to use the SuperCell Identfier helper");
+  declareProperty("isSuperCell",m_isSuperCell);
+  declareProperty("MaxCL",m_maxCalibLines,"in case of SuperCell should be set to higher value then default 4");
 }
 
 LArCalibLineMappingAlg::~LArCalibLineMappingAlg() {}
@@ -60,9 +64,17 @@ StatusCode LArCalibLineMappingAlg::execute() {
     return StatusCode::FAILURE;
   }
 
-  const LArOnlineID* onlineID;
-  ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));
-  
+  const LArOnlineID_Base* onlineID;
+  if(m_isSuperCell) {
+    const LArOnline_SuperCellID* scidhelper;
+    ATH_CHECK(detStore()->retrieve(scidhelper,"LArOnline_SuperCellID"));
+    onlineID=scidhelper; //cast to base-class
+  } else {
+    const LArOnlineID* idhelper;
+    ATH_CHECK(detStore()->retrieve(idhelper,"LArOnlineID"));
+    onlineID=idhelper; //cast to base-class
+  }   
+
   std::unique_ptr<LArCalibLineMapping> calibLineMap=std::make_unique<LArCalibLineMapping>(onlineID);
 
   std::vector<std::vector<HWIdentifier> >&onlHashToCalibLines=calibLineMap->m_onlHashToCalibLines; //basically a shorthand
@@ -82,7 +94,7 @@ StatusCode LArCalibLineMappingAlg::execute() {
   for (;blobIdx<nEntries && chanIdx<chanMax;++chanIdx) {
     const unsigned nCalibLines=pBlobCalib[blobIdx++];
     totCalibLines+=nCalibLines;
-    if (nCalibLines>4) {
+    if (nCalibLines>m_maxCalibLines) {
       msg(MSG::ERROR) << "Found unresonable large number of calib lines (" << nCalibLines << ") for channel hash " << chanIdx << endmsg;
       return StatusCode::FAILURE;
     }

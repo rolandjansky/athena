@@ -14,7 +14,6 @@
 
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
 #include "IdDictParser/IdDictParser.h"
-#include "CxxUtils/make_unique.h"
 #include <iostream>
 
 
@@ -117,7 +116,7 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
   HASH_TEST1(module,mod,HASH_TEST_EXTRA(module));
 
   CellCounter counts;
-  TEST_LOOP(Identifier id, idhelper.minifcal_range()) {
+  for (Identifier id : idhelper.minifcal_range()) {
     IdentifierHash hashId = idhelper.channel_hash (id);
     assert (hashId == idhelper.channel_hash_binary_search (id));
 
@@ -151,7 +150,7 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
   }
   counts.report();
 
-  TEST_LOOP(Identifier id, idhelper.mod_range()) {
+  for (Identifier id : idhelper.mod_range()) {
     IdentifierHash hashId = idhelper.module_hash(id);
     printf ("Region %-18s eta: %8.6f %8.6f %1d %3d phi: %3.1f %8.6f %1d %3d\n",
             idhelper.show_to_string(id).c_str(),

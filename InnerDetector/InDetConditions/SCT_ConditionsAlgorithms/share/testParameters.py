@@ -1,8 +1,13 @@
 ###############################################################
 #
-# Job options file to test DCS conditions tool
+# Job options file to test conditions parameters tool
 #
 #==============================================================
+
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testParameters")
+msg.setLevel(logging.INFO)
 
 #--------------------------------------------------------------
 # Standard includes
@@ -40,7 +45,7 @@ globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
-print globalflags
+msg.info(globalflags)
 
 from RecExConfig.RecFlags import rec
 rec.projectName.set_Value_and_Lock("data12_8TeV")

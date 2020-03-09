@@ -5,6 +5,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
 #include "RIO_OnTrackErrorScalingDbOverrideCondAlg.h"
 #include "RIO_OnTrackErrorScalingKit.h"
+#include "CxxUtils/checker_macros.h"
 
 RIO_OnTrackErrorScalingDbOverrideCondAlg::RIO_OnTrackErrorScalingDbOverrideCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -12,7 +13,7 @@ RIO_OnTrackErrorScalingDbOverrideCondAlg::RIO_OnTrackErrorScalingDbOverrideCondA
 {
 }
 
-StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::initialize() {
+StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::initialize ATLAS_NOT_THREAD_SAFE () {
   ATH_CHECK(m_condSvc.retrieve());
   if (m_writeKey.key().empty()) {
     ATH_MSG_FATAL("No conditions data write key specified.");

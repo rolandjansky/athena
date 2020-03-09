@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -361,7 +361,7 @@ namespace InDet
 
   } 
 
-  const Trk::VxSecVertexInfo* 
+  Trk::VxSecVertexInfo*
   InDetImprovedJetFitterVxFinder::findSecVertex(const xAOD::Vertex & primaryVertex,
      const TLorentzVector & jetMomentum,
      const std::vector<const xAOD::IParticle*> & inputTracks) const{
@@ -401,7 +401,7 @@ namespace InDet
       }
     }
     Trk::RecVertex dummy;
-    const Trk::VxSecVertexInfo* secVxInfo=doTheFinding(primaryVertex,
+    Trk::VxSecVertexInfo* secVxInfo=doTheFinding(primaryVertex,
                                                        jetMomentum,
                                                        selectedTracks);
 
@@ -409,7 +409,7 @@ namespace InDet
   }
   
   
-  const Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
+  Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
                                                                             const TLorentzVector & jetMomentum,
                                                                             const std::vector<const Trk::TrackParticleBase*> & myTracks) const {
     if (msgLvl(MSG::VERBOSE)) msg() << " Starting findSecVertex " << endmsg;
@@ -440,7 +440,7 @@ namespace InDet
   
 
   
-  const Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::doTheFinding(const xAOD::Vertex & primaryVertex, //const Trk::RecVertex & /* primaryVertex */,
+  Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::doTheFinding(const xAOD::Vertex & primaryVertex, //const Trk::RecVertex & /* primaryVertex */,
                                                                             const TLorentzVector & jetMomentum,
                                                                            const std::vector<const Trk::ITrackLink*> & myTracks) const
   {
@@ -881,7 +881,7 @@ namespace InDet
         if (myCandidate->chiSquared()<0 ||
             myCandidate->numberDoF()<0)
         {
-          msg(MSG::WARNING) << " Fit for V0 candidate failed: chi2 or ndf negative. Deleting candidate..." << endmsg;
+          msg(MSG::DEBUG) << " Fit for V0 candidate failed: chi2 or ndf negative. Deleting candidate..." << endmsg;
           delete myCandidate;
           myCandidate=0;
           continue;
@@ -1956,7 +1956,7 @@ namespace InDet
      
      if (positionsOfSeedingVertices.size()!=0) 
      {
-       Amg::Vector3D theSeedVertex=m_mode3dfinder->getMode(positionsOfSeedingVertices);
+       Amg::Vector3D theSeedVertex=m_mode3dfinder->getMode(0, 0, positionsOfSeedingVertices);
        if (m_revertFromPositiveToNegativeTags==false)
        {
          if ((theSeedVertex-primaryVertexRecVertex.position()).dot(JFseedDirection)>0) 
@@ -2046,7 +2046,7 @@ namespace InDet
                                                                              myTwoTrackVerticesInJet,
                                                                              mySelectedTracksInJet);
       
-     myOutputInfo->getSVOwnership(true);
+     myOutputInfo->setSVOwnership(true);
 
 
      delete signalVertex;

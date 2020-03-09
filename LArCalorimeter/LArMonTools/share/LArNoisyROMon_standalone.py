@@ -90,9 +90,7 @@ if 'conditionsTag' not in dir():
 else:
    svcMgr.IOVDbSvc.GlobalTag=conditionsTag
 
-from RecExConfig.InputFilePeeker import inputFileSummary
 from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
-#objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
 
 # First block the reading of LArNoisyROSummary from ESD
 #objKeyStore.readInputFile('RecExPers/OKS_streamESD.py')

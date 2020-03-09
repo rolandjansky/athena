@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TrkJetVxFitter.TrkJetVxFitterConf import Trk__TrkDistanceFinderNeutralCharged
+Trk__TrkDistanceFinderNeutralCharged=CompFactory.Trk__TrkDistanceFinderNeutralCharged
 
 def TrkDistanceFinderNeutralChargedCfg(name, **options):
     """Sets up a TrkDistanceFinderNeutralCharged tool and returns it.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMEVENTPTCNV_BYTESTREAMMETADATAPTCNV_P1_H
@@ -12,9 +12,7 @@
  * @author  <vaniachine@anl.gov>
  */
 
-#define private public
 #include "ByteStreamEventTPCnv/ByteStreamMetadata_p1.h"
-#undef private
 
 class ByteStreamMetadataPTCnv_p1 : ByteStreamMetadata_p1 {
 public:

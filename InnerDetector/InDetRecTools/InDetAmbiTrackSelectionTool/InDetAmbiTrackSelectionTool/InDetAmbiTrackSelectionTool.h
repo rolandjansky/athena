@@ -17,7 +17,7 @@
 
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 
 #include "GaudiKernel/ToolHandle.h"
@@ -57,23 +57,19 @@ namespace InDet
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize() override;
 
-    virtual const Trk::Track* getCleanedOutTrack(const Trk::Track*, const Trk::TrackScore score) override;
-    virtual StatusCode registerPRDs(const Trk::Track* ptrTrack) override;
-    virtual void reset() override;
-    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack) const override;
-      
-      
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track, const Trk::TrackScore score, Trk::PRDtoTrackMap &prd_to_track_map) const override;
+
   private:
       
     /** method to create a new track from a vector of TSOS's */
     Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
-      
-    /**Association tool - used to work out which (if any) PRDs are shared between 
-       tracks*/
-    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "Trk::PRD_AssociationTool/PRD_AssociationTool"};
+
     /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
     PublicToolHandle<ITrtDriftCircleCutTool> m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};
     ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this, "IBLParameterSvc", "IBLParameterSvc"};
+
+    ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
+         {this, "AssociationTool", "Trk::PRDtoTrackMapTool" };
 
     /**atlas id helper*/
     const SiliconID* m_detID{nullptr};
@@ -93,20 +89,6 @@ namespace InDet
     IntegerProperty m_maxSplitSize{this, "MaximalSplitSize", 49, "A.S.: remove that when solved properly by updating the SplitProb info with isExcluded. A.S.: to be removed once EDM is updated"};
   }; 
 } // end of namespace
-
-inline StatusCode InDet::InDetAmbiTrackSelectionTool::registerPRDs(const Trk::Track* ptrTrack)
-{
-  return m_assoTool->addPRDs(*ptrTrack);
-}
-
-inline void InDet::InDetAmbiTrackSelectionTool::reset()
-{
-  m_assoTool->reset();
-}
-inline std::vector<const Trk::PrepRawData*> InDet::InDetAmbiTrackSelectionTool::getPrdsOnTrack(const Trk::Track* ptrTrack) const
-{
-  return m_assoTool->getPrdsOnTrack(*ptrTrack);
-}
 
 
 #endif 

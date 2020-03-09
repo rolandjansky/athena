@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+
 class AtlasDetectorID;
 
 namespace Trk 
@@ -28,7 +31,6 @@ namespace Trk
   class IPRD_TruthTrajectorySelector;  
   class ITruthTrackBuilder;
   class ITrackSelectorTool;
-  class IPRD_AssociationTool;
   class ITrackSummaryTool;
     
   /** @class TruthTrackCreation
@@ -60,19 +62,20 @@ namespace Trk
 
     private:
 
-       Gaudi::Property<SG::WriteHandleKey<TrackCollection>> m_outputTrackCollectionName{this, "OutputTrackCollection", "TruthTracks", "Output Truth Track Collection"};
-       Gaudi::Property<SG::WriteHandleKey<TrackCollection>> m_skippedTrackCollectionName{this, "OutputSkippedTrackCollection", "SkippedTruthTracks", "Output Skipped Truth Track Collection"};    
-                                                
+       SG::WriteHandleKey<TrackCollection> m_outputTrackCollectionName{this, "OutputTrackCollection", "TruthTracks", "Output Truth Track Collection"};
+       SG::WriteHandleKey<TrackCollection> m_skippedTrackCollectionName{this, "OutputSkippedTrackCollection", "SkippedTruthTracks", "Output Skipped Truth Track Collection"};
+
         ToolHandle<Trk::IPRD_TruthTrajectoryBuilder>        m_prdTruthTrajectoryBuilder;      //!< truth tools
         ToolHandle<Trk::ITruthTrackBuilder>                 m_truthTrackBuilder;              //!< truth tools
 
         ToolHandleArray<Trk::IPRD_TruthTrajectorySelector>  m_prdTruthTrajectorySelectors;    //!< PRD truth trajectory selectors
         ToolHandleArray<Trk::ITrackSelectorTool>            m_trackSelectors;                 //!< track selectors for a posteriory track selection
-        ToolHandle<Trk::IPRD_AssociationTool>               m_assoTool;                       //!< association tool for PRDs
-        ToolHandle<Trk::ITrackSummaryTool>                  m_trackSummaryTool;               //!< summary tool for completing the track
+        ToolHandle<Trk::IPRDtoTrackMapTool>                 m_assoTool
+           {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
 
-      
-    }; 
+        ToolHandle<Trk::IExtendedTrackSummaryTool>          m_trackSummaryTool;               //!< summary tool for completing the track
+
+    };
 } // end of namespace
 
 #endif 

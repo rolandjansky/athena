@@ -1,30 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef MUONCALIB_MUONCALIBALG_H
 #define MUONCALIB_MUONCALIBALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-class StoreGateSvc;
-class MdtIdHelper;
-
-class CscIdHelper;
 class ICscStripFitter;
 
-class RpcIdHelper;
-class TgcIdHelper;
 class TileTBID;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Muon {
   class RpcPrepData;
@@ -61,9 +53,8 @@ namespace MuonCalib {
 
     /**
        Algorithm initialize:
-       - retrieves StoreGateSvc
        - retrieves MuonCalibTool
-       - retrieves auxillairy classes to construct Calib EDM classes (IdHelpers, IdToFixedIdTool, DetectorStore)
+       - retrieves auxillairy classes to construct Calib EDM classes (IdHelpers, IdToFixedIdTool)
        
      */
     StatusCode initialize();     
@@ -104,8 +95,11 @@ namespace MuonCalib {
     /** retrieve event trigger time information from storegate and convert to MuonCalibTriggerTimeInfo */
     const MuonCalibTriggerTimeInfo* retrieveTriggerTimeInfo() const;
 
-    const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to MuonDetectorManager 
-    StoreGateSvc* p_StoreGateSvc;                   //!< Pointer to StoreGateSvc 
+    /** retrieve MuonDetectorManager from the conditions store */
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
+
     std::string m_globalPatternLocation;            //!< Location of the MuonCalibPattern in StoreGate
 
     /* RtCalibration initialization */
@@ -121,15 +115,10 @@ namespace MuonCalib {
     // time samples and extract strip charge
     ToolHandle<ICscStripFitter> m_stripFitter;
 
-
     // Tool to cut on identifiers
     ToolHandle<IMuonIdCutTool> m_muonIdCutTool;
    
-    /* Pointers to the Identifier Helpers */
-    const MdtIdHelper*  m_mdtIdHelper;              //!< MDT specific ID helper
-    const CscIdHelper*  m_cscIdHelper;              //!< CSC specific ID helper
-    const RpcIdHelper*  m_rpcIdHelper;              //!< RPC specific ID helper
-    const TgcIdHelper*  m_tgcIdHelper;              //!< TGC specific ID helper
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     std::vector <const MuonCalibEvent*> m_events;         //!< vector holding pointers to events, for deletion at finalize
 

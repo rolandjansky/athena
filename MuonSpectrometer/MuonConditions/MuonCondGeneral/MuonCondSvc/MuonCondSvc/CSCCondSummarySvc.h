@@ -13,6 +13,7 @@
 //Gaudi Includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //local includes
 #include "MuonCondSvc/MuonHierarchy.h"
@@ -27,11 +28,12 @@
 #include "Identifier/Identifier.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 //forward declarations
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
 class IdentifierHash;
-class CscIdHelper;
 class StatusCode;
 
 class Identifier;
@@ -71,6 +73,8 @@ public:
   //StringArrayProperty m_reportingServices; //!< list of services to be used
  ServiceHandleArray<ICSCConditionsSvc> m_reportingServices; //!< list of services to be used
  
+ ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+   "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
  std::vector<Identifier> m_emptyId;
  std::vector<std::string> m_empty;

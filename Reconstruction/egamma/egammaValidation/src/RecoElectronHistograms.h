@@ -33,7 +33,7 @@ namespace egammaMonitoring{
 
     using ParticleHistograms::fill;
     
-    void fill(const xAOD::Electron& elrec) override;
+    void fill(const xAOD::Electron& elrec);
 
   private:    
 

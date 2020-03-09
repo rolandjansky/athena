@@ -11,13 +11,18 @@ def addTruthJetsIfNotExising(truth_jets_name) :
     # the jet collection name does not exist in the input file
     # add a jet finder algorithm in front of the monitoring if the algorithm
     # does not yet exist.
-    if not IsInInputFile('xAOD::JetContainer',truth_jets_name) :
-        try :
-            from RecExConfig.InputFilePeeker import inputFileSummary
-            print 'DEBUG addTruthJetsIfNotExising %s not in %s [file_type=%s]' % ( truth_jets_name, inputFileSummary['eventdata_itemsDic'], inputFileSummary['file_type']  )
-            if truth_jets_name in inputFileSummary['eventdata_itemsDic'] :
+    if not IsInInputFile('xAOD::JetContainer', truth_jets_name):
+        try:
+            from AthenaCommon.Logging import logging
+            log = logging.getLogger('InDetPhysValMonitoring/addTruthJets.py')
+
+            from PyUtils.MetaReaderPeeker import convert_itemList, metadata
+            eventdata_itemsDic = convert_itemList(layout='dict')
+            log.info('DEBUG addTruthJetsIfNotExising {} not in {} [file_type={}]'.format(truth_jets_name, eventdata_itemsDic, metadata['file_type']))
+
+            if truth_jets_name in eventdata_itemsDic:
                 return
-        except :
+        except:
             pass
 
         # Access the algorithm sequence:

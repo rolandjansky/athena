@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script for building the release on top of externals built using one of the
 # scripts in this directory.
 #
@@ -8,13 +10,13 @@ _time_() { local c="time -p " ; while test "X$1" != "X" ; do c+=" \"$1\"" ; shif
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a] [-x] [-N]"
+    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a] [-x opt] [-N]"
     echo " -c: Execute CMake step"
     echo " -m: Execute make step"
     echo " -i: Execute install step"
     echo " -p: Execute CPack step"
     echo " -a: Abort on error"
-    echo " -x: Add extra CMake argument"
+    echo " -x: Extra configuration argument(s) for CMake"
     echo " -N: Use Ninja"
 
     echo "If none of the c, m, i or p options are set then the script will do"
@@ -30,6 +32,7 @@ EXE_MAKE=""
 EXE_INSTALL=""
 EXE_CPACK=""
 NIGHTLY=true
+EXTRACMAKE=()
 BUILDTOOLTYPE=""
 BUILDTOOL="make -k"
 INSTALLRULE="install/fast"
@@ -57,7 +60,7 @@ while getopts ":t:b:hcmipax:N" opt; do
             NIGHTLY=false
             ;;
         x)
-            EXTRACMAKE=$OPTARG
+            EXTRACMAKE+=($OPTARG)
             ;;
         N)
             BUILDTOOL="ninja -k 0"
@@ -115,7 +118,7 @@ if [ -n "$EXE_CMAKE" ]; then
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
     { _time_ cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
-        ${EXTRACMAKE} \
+        ${EXTRACMAKE[@]} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthSimulationSrcDir}; } 2>&1 | tee cmake_config.log
 fi
@@ -139,7 +142,7 @@ fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    { DESTDIR=${BUILDDIR}/install/AthSimulation/${NICOS_PROJECT_VERSION} _time_ ${BUILDTOOL} ${INSTALLRULE}; } \
+    { DESTDIR=${BUILDDIR}/install _time_ ${BUILDTOOL} ${INSTALLRULE}; } \
 	 2>&1 | tee cmake_install.log
 fi
 

@@ -27,4 +27,4 @@ atlas_add_component( TGC_CondCabling
 
 # Install files from the package:
 atlas_install_headers( TGC_CondCabling )
-
+atlas_install_runtime( share/*.db )

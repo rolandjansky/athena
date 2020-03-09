@@ -9,9 +9,9 @@ from MuonTrackSteeringTools.MuonTrackSteeringToolsConf import Muon__MuPatCandida
 mpct = Muon__MuPatCandidateTool()
 ToolSvc += mpct
 
-from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperTool
-meht = Muon__MuonEDMHelperTool()
-ToolSvc += meht
+from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+mehs = Muon__MuonEDMHelperSvc()
+ToolSvc += mehs
 
 from MuonTrackSteeringTools.MuonTrackSteeringToolsConf import Muon__MuonTrackSteering
 mtst = Muon__MuonTrackSteering()

@@ -80,7 +80,6 @@ private:
   unsigned int m_numOfHitsAccepted ;
   unsigned int m_numOfProcessedTracks ;
   float m_DoMCCosmicTimeShift;
-//  StoreGateSvc     * m_store_gate;
 
   TFile* m_f;
   TNtuple* m_ntuple;

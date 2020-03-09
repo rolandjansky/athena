@@ -6,6 +6,7 @@
 #define TRT_PAI_effectiveGas_h
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 
@@ -68,7 +69,7 @@ private:
   double m_S2 ;              // dN/dx scale
   double m_ne ;              // Electron density
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

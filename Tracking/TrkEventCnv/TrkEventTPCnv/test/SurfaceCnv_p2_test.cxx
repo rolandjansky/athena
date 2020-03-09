@@ -16,7 +16,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "TestTools/FLOATassert.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "Gaudi/PluginService.h"
 #include "TestTools/leakcheck.h"
@@ -169,7 +168,7 @@ struct make_surf
 {
   std::unique_ptr<SURF> operator() (const TestElement& elt)
   {
-    return CxxUtils::make_unique<SURF> (elt, elt.identify());
+    return std::make_unique<SURF> (elt, elt.identify());
   }
 };
 
@@ -178,7 +177,7 @@ struct make_surf<Trk::DiscSurface>
 {
   std::unique_ptr<Trk::DiscSurface> operator() (const TestElement& elt)
   {
-    return CxxUtils::make_unique<Trk::DiscSurface> (elt);
+    return std::make_unique<Trk::DiscSurface> (elt);
   }
 };
 
@@ -186,7 +185,7 @@ struct make_surf<Trk::DiscSurface>
 template <class SURF>
 void add_det_surface (unsigned int val)
 {
-  auto detel = CxxUtils::make_unique<TestElement> (val);
+  auto detel = std::make_unique<TestElement> (val);
   auto surf = make_surf<SURF>() (*detel.release());
   
   ToolHandle<Trk::IEventCnvSuperTool> h ("TestCnvTool");
@@ -216,22 +215,22 @@ void test1()
   testit<StraightLineSurfaceCnv_p2> (*h->getSurface (Identifier (3)));
   testit<SaggedLineSurfaceCnv_p2> (*h->getSurface (Identifier (4)));
 
-  Trk::DiscSurface disc (CxxUtils::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)));
+  Trk::DiscSurface disc (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)));
   testit<DiscSurfaceCnv_p2> (disc);
 
-  Trk::ConeSurface cone (CxxUtils::make_unique<Amg::Transform3D>(Amg::getRotateY3D (0.5)));
+  Trk::ConeSurface cone (std::make_unique<Amg::Transform3D>(Amg::getRotateY3D (0.5)));
   testit<ConeSurfaceCnv_p2> (cone);
 
-  Trk::CylinderSurface cyl (CxxUtils::make_unique<Amg::Transform3D>(Amg::getRotateZ3D (0.5)));
+  Trk::CylinderSurface cyl (std::make_unique<Amg::Transform3D>(Amg::getRotateZ3D (0.5)));
   testit<CylinderSurfaceCnv_p2> (cyl);
 
-  Trk::PerigeeSurface per (CxxUtils::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.7)));
+  Trk::PerigeeSurface per (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.7)));
   testit<PerigeeSurfaceCnv_p2> (per);
 
-  Trk::PlaneSurface plane (CxxUtils::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.7)));
+  Trk::PlaneSurface plane (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.7)));
   testit<PlaneSurfaceCnv_p2> (plane);
 
-  Trk::StraightLineSurface sl (CxxUtils::make_unique<Amg::Transform3D>(Amg::getRotateY3D (0.7)));
+  Trk::StraightLineSurface sl (std::make_unique<Amg::Transform3D>(Amg::getRotateY3D (0.7)));
   testit<StraightLineSurfaceCnv_p2> (sl);
 }
 

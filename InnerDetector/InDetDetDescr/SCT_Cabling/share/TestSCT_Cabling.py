@@ -2,6 +2,11 @@
 # Job options file to test the Cabling
 ################################################################################
 
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("TestSCT_Cabling")
+msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Thread-specific setup
 #-------------------------------------------------------------- 
@@ -13,7 +18,6 @@ if numThreads > 0:
   AlgScheduler.ShowControlFlow( True )
   AlgScheduler.ShowDataDependencies( True )
 
-# ******** SETUP 20.1.3 ****************
 #--------------------------------------------------------------
 # use auditors
 #--------------------------------------------------------------
@@ -37,7 +41,7 @@ globalflags.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="geant4"
-print globalflags
+msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup

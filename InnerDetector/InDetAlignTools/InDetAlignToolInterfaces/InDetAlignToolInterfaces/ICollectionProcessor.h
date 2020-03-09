@@ -45,7 +45,7 @@ namespace InDetAlignment {
   
   inline const InterfaceID& ICollectionProcessor::interfaceID()
     {
-      static InterfaceID s_myID("ICollectionProcessor", 1 , 0);
+      static const InterfaceID s_myID("ICollectionProcessor", 1 , 0);
       return s_myID;
       //return IID_InDetAlignment_ICollectionProcessor;
     }

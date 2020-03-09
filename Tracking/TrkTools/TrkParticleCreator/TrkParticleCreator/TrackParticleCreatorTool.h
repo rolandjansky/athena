@@ -28,7 +28,7 @@ changes : 11.02.04 added docu
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParticleBase/TrackParticleBase.h" // for TrackParticleOrigin enum
 #include "TrkParameters/TrackParameters.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
@@ -91,27 +91,29 @@ class TrackParticleCreatorTool : public extends<AthAlgTool, ITrackParticleCreato
     @param TrackParticleContainer needed to have an AuxStore, if provided particle will be added to store which takes ownership
     @param xAOD::Vertex Pointer to a valid vxCandidate (i.e. do not pass a zero!). Ownership is not taken (i.e. it will not be deleted)
     @param prtOrigin Particle type
-    @warning In my opinion, the interface is not optimal - we're not taking ownership of the Trk::Track or Vx::Candidate, 
-    so they should be passed by reference.
+    @param prd_to_track_map an optional PRD-to-track map to compute shared hits.
     */
     virtual
     xAOD::TrackParticle* createParticle( const Trk::Track& track,
                                          xAOD::TrackParticleContainer* container,
                                          const xAOD::Vertex* vxCandidate,
-                                         xAOD::ParticleHypothesis prtOrigin) const override;
+                                         xAOD::ParticleHypothesis prtOrigin,
+                                         const Trk::PRDtoTrackMap *prd_to_track_map) const override;
 
     /** Method to construct a TrackParticle from a passed Track. Currently, it will ONLY fill the MeasuredPerigee
     i.e. the TrackParticle will not be complete
-    @param track element link to a valid track (i.e. do not pass a zero!). 
+    @param track element link to a valid track (i.e. do not pass a zero!).
     @param TrackParticleContainer needed to have an AuxStore, if provided particle will be added to store which takes ownership
     @param xAOD::Vertex Pointer to a valid vxCandidate (i.e. do not pass a zero!). Ownership is not taken (i.e. it will not be deleted)
-    @param prtOrigin 
+    @param prtOrigin
+    @param prd_to_track_map an optional PRD-to-track map to compute shared hits.
     */
     virtual
     xAOD::TrackParticle* createParticle( const ElementLink<TrackCollection>& trackLink,
                                          xAOD::TrackParticleContainer* container,
                                          const xAOD::Vertex* vxCandidate,
-                                         xAOD::ParticleHypothesis prtOrigin) const override;
+                                         xAOD::ParticleHypothesis prtOrigin,
+                                         const Trk::PRDtoTrackMap *prd_to_track_map) const override;
 
     /** create a xAOD::TrackParticle out of constituents */
     virtual
@@ -156,11 +158,19 @@ private:
   const AtlasDetectorID* m_detID;
   const PixelID* m_pixelID;
   
-  ToolHandle< ITrackSummaryTool > m_trackSummaryTool;
-  ToolHandle< IExtrapolator >  m_extrapolator;
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertex;
-  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool;
-
+ //Need to change to private when is safe to do so
+  PublicToolHandle<IExtendedTrackSummaryTool> m_trackSummaryTool{this,
+    "TrackSummaryTool","Trk::TrackSummaryTool/AtlasTrackSummaryTool"};
+  
+  PublicToolHandle<IExtrapolator>  m_extrapolator{this,
+    "Extrapolator","Trk::Extrapolator/AtlasExtrapolator"};
+  
+  ToolHandle<Reco::ITrackToVertex> m_trackToVertex{this,
+    "TrackToVertex","Reco::TrackToVertex/TrackToVertex"};
+  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool{this,
+    "MuonSummaryTool","Muon::MuonHitSummaryTool/MuonHitSummaryTool"};
+ 
+ 
   /** to query magnetic field configuration */
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
   ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;
@@ -187,6 +197,7 @@ private:
   bool m_useMuonSummaryTool;
   bool m_forceTrackSummaryUpdate; /** use to force an update of the track summary
   rather than using the cached summary */
+  bool m_computeAdditionalInfo; ///< if the track contains a summary, the shared, expected hit, and PID  information will be recomputed. The summary of the track is not updated.
     /** the following keep options are mutually exclusive **/
   bool m_keepParameters;  /** keep all TrackParameters */
   bool m_keepFirstParameters; ///< keep the first parameters when creating track particles.
@@ -203,6 +214,7 @@ private:
   double m_minPt;
   
   bool castPerigeeAndCheck(const Trk::Track* track, const Trk::Perigee* &aPer) const;
+  bool m_updateTrack;
 };
 
 inline void TrackParticleCreatorTool::setFitQuality( xAOD::TrackParticle& tp, const FitQuality& fq ) const {

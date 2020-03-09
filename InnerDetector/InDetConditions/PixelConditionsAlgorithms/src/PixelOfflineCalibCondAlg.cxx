@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelOfflineCalibCondAlg.h"
@@ -10,14 +10,8 @@
 #include <sstream>
 
 PixelOfflineCalibCondAlg::PixelOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name)
+  ::AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("InputSource",m_inputSource=2,"Source of data: 0 (none), 1 (text file), 2 (database)");
-  declareProperty("PixelClusterErrorDataFile", m_textFileName1="PixelClusterErrorData.txt","Read constants from this file"); 
-  declareProperty("PixelClusterOnTrackErrorDataFile", m_textFileName2="PixelClusterOnTrackErrorData.txt","Read constants from this file"); 
-  declareProperty("PixelChargeInterpolationDataFile", m_textFileName3="PixelChargeInterpolationData.txt","Read constants from this file"); 
-  declareProperty("DumpConstants", m_dump=0, "Dump constants to text file"); 
 }
 
 StatusCode PixelOfflineCalibCondAlg::initialize() {
@@ -25,7 +19,10 @@ StatusCode PixelOfflineCalibCondAlg::initialize() {
 
   ATH_CHECK(m_condSvc.retrieve());
 
-  ATH_CHECK(m_readKey.initialize());
+  if (m_inputSource==2 && m_readKey.key().empty()) {
+     ATH_MSG_ERROR("The database is set to be input source (2) but the ReadKey is empty.");
+  }
+  ATH_CHECK(m_readKey.initialize(m_inputSource==2));
 
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
@@ -49,7 +46,7 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
   std::unique_ptr<PixelCalib::PixelOfflineCalibData> writeCdo(std::make_unique<PixelCalib::PixelOfflineCalibData>());
 
   if (m_inputSource==0) {
-    ATH_MSG_WARNING("So far do nithing!! return StatusCode::FAILURE");
+    ATH_MSG_WARNING("So far do nothing!! return StatusCode::FAILURE");
     return StatusCode::FAILURE;
   }
   else if (m_inputSource==1) {
@@ -153,11 +150,6 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
   }
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode PixelOfflineCalibCondAlg::finalize() {
-  ATH_MSG_DEBUG("PixelOfflineCalibCondAlg::finalize()");
   return StatusCode::SUCCESS;
 }
 

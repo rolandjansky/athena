@@ -68,6 +68,7 @@ StatusCode PRD_MultiTruthMaker::initialize()
   ATH_CHECK(m_PRDTruthNameTRT.initialize(not m_PRDTruthNameTRT.key().empty()));
 
   // Read Cond Handle Key
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;

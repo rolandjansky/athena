@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys,os
 
@@ -65,7 +67,7 @@ def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
         tpcl1.writeXML()
         return tpcl1.menu
     else:
-        print "Did not find file %s" % menu
+        print ("Did not find file %s" % menu)
         return None
 
 
@@ -80,7 +82,7 @@ def findUnneededRun2():
         TF.triggerMenuSetup = menu
         tpcl1 = TriggerConfigLVL1()
 
-        print set(tpcl1.registeredItems.keys()) - set(Lvl1Flags.items())
+        print (set(tpcl1.registeredItems.keys()) - set(Lvl1Flags.items()))
 
 
 
@@ -102,7 +104,7 @@ def findRequiredItemsFromXML():
         r = L1MenuXMLReader(xmlfile)
         allItems.update( [x['name'] for x in r.getL1Items()] )
         allThrs.update( [x['name'] for x in r.getL1Thresholds()] )
-        print menu, len(allItems), len(allThrs)
+        print (menu, len(allItems), len(allThrs))
 
     from pickle import dump
     f = open("L1Items.pickle","w")
@@ -123,12 +125,12 @@ def findUnneededRun1(what="items"):
     else:
         unneeded = sorted(list(set( tpcl1.registeredThresholds.keys() ) - allThrs))
 
-    print "==> unneeded ",what,":",len(unneeded)
+    print ("==> unneeded ",what,":",len(unneeded))
 
     import re
     p = re.compile('.*$')
 
-    print [x for x in unneeded if p.match(x)]
+    print ([x for x in unneeded if p.match(x)])
 
 def findFreeCTPIDs(menu):
     from pickle import load
@@ -138,7 +140,7 @@ def findFreeCTPIDs(menu):
     TF.triggerMenuSetup = menu
     tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )
 
-    print set(Lvl1Flags.CtpIdMap().keys()) - allItems
+    print (set(Lvl1Flags.CtpIdMap().keys()) - allItems)
 
 
     

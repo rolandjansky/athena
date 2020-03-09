@@ -50,7 +50,7 @@ StatusCode ReadMeta::initialize() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
-   incSvc->addListener(this, "EndFile", 50); // pri has to be > 10 to be before MetaDataSvc.
+   incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________

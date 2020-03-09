@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGTOOL_JETFITTERNNTOOL_C
@@ -43,36 +43,29 @@ namespace Analysis {
 class IJetFitterTagInfo;
 
 
-static const InterfaceID IID_JetFitterNNTool("Analysis::JetFitterNNTool", 1, 0);
-
-  class JetFitterNNTool : public IJetFitterClassifierTool, public AthAlgTool 
+  class JetFitterNNTool : public extends<AthAlgTool, IJetFitterClassifierTool>
   {
-    
   public:
-    
-    /** AlgTool interface methods */
-    static const InterfaceID& interfaceID() { return IID_JetFitterNNTool; };
 
     JetFitterNNTool(const std::string& name,
                     const std::string& n, const IInterface* p);
-    ~JetFitterNNTool();
-    
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    
+    virtual ~JetFitterNNTool();
+
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+
+    virtual
     StatusCode fillLikelihoodValues(xAOD::BTagging* BTag,
 				    const std::string & jetauthor,
 				    const std::string& inputbasename,
 				    const std::string& outputbasename,
 				    double jetpT,
 				    double jeteta,
-				    double IP3dlike=-5000);
+				    double IP3dlike=-5000) const override;
     
   private:
 
-    void loadCalibration(const std::string & jetauthor);
-
-    std::map<std::string,TTrainedNetwork*> m_NN;
+    std::unique_ptr<TTrainedNetwork> loadCalibration(const std::string & jetauthor) const;
 
     std::string m_calibrationDirectory;
 

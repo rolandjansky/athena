@@ -31,6 +31,7 @@
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolTiming.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Calo includes
 #include "CaloInterface/ICaloCellMakerTool.h"
@@ -147,6 +148,13 @@ class TileCellBuilderFromHit
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
         "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
+
 
     const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
     const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager

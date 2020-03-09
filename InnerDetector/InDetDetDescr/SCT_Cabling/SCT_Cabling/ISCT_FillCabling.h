@@ -1,5 +1,6 @@
+
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISCT_FillCabling_H
@@ -30,10 +31,10 @@ class StatusCode;
  */
 class ISCT_FillCabling: virtual public IAlgTool {
  public:
-  ///Virtual destructor
+  /// Virtual destructor
   virtual ~ISCT_FillCabling() = default;
   
-  /// interfaceID re-implemented from IInterface
+  /// InterfaceID re-implemented from IInterface
   DeclareInterfaceID(ISCT_FillCabling, 1, 0);
 
   /** May set the data source to textFile, database etc
@@ -41,22 +42,22 @@ class ISCT_FillCabling: virtual public IAlgTool {
    */
   virtual StatusCode setDataSource(const std::string& dataSource) = 0;
   
-  /** Gets the data source
+  /** Get the data source
    * @return @c string name of datasource
    */
   virtual std::string getDataSource() const = 0;
   
-  /**Get the cabling maps
+  /** Get the cabling maps
    * @return @c cabling map object
    */
   virtual SCT_CablingData getMaps() const = 0;
   
-  /**Report whether the map was filled
+  /** Report whether the map was filled
    * @return @c bool
    */
   virtual bool filled() const = 0;
   
-  /**Report whether the object can fill its data during the initialize phase
+  /** Report whether the object can fill its data during the initialize phase
    * @return @c bool
    */
   virtual bool canFillDuringInitialize() const = 0;

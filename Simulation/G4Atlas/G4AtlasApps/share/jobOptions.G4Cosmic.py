@@ -20,7 +20,7 @@ globalflags.ConditionsTag = "OFLCOND-RUN12-SDR-21" # Probably want a different c
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsOutput = 'test.HITS.pool.root'
-athenaCommonFlags.EvtMax = 3
+athenaCommonFlags.EvtMax = 1000
 
 ## Set beam type
 from AthenaCommon.BeamFlags import jobproperties

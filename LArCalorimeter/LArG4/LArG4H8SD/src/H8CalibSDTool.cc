@@ -60,7 +60,7 @@ StatusCode H8CalibSDTool::initializeCalculators()
   //---------------------------------------------------------------------------
   // Create SD wrapper for current thread
   //---------------------------------------------------------------------------
-  G4VSensitiveDetector* H8CalibSDTool::makeSD()
+  G4VSensitiveDetector* H8CalibSDTool::makeSD() const
   {
     // Create the wrapper
     auto sdWrapper = new CalibSDWrapper("H8CalibSDWrapper", m_hitCollName);

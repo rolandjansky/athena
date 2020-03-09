@@ -22,6 +22,5 @@ This package contains various classes for H8 Test Beam simulation:
 --------------------------------
 
 @include requirements
-@htmlinclude used_packages.html 
 
 */

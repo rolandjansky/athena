@@ -5,8 +5,6 @@
 #include "DecisionSvc.h"
 
 // Gaudi include files
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/EventContext.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include <algorithm>
@@ -48,11 +46,6 @@ DecisionSvc::initialize()
 
   // Get handle to exec state service for retrieving decisions
   ATH_CHECK( m_algstateSvc.retrieve() );
-
-  // Must listen to EndEvent (why?)
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  ATH_CHECK( incSvc.retrieve() );
-  //incSvc->addListener(this, "EndEvent", 100);
 
   ATH_CHECK(m_evtStore.retrieve());
 
@@ -340,24 +333,6 @@ DecisionSvc::isEventAccepted( const std::string& stream,
 
   return result;
 }
-
-//__________________________________________________________________________
-void
-DecisionSvc::handle(const Incident& inc)
-{
-  const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-  std::string fileName;
-  if (fileInc == nullptr) {
-    fileName = "Undefined ";
-  } else {
-    fileName = fileInc->fileName();
-  }
-
-  ATH_MSG_DEBUG("handle() " << inc.type() << " for file: " << fileName);
-
-  return;
-}
-
 
 StatusCode DecisionSvc::start()
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************************
@@ -16,7 +16,7 @@ TrackLinks.h is needed to be able to add ParticleLinks<TrackParticleContainer>
 
 #include "ParticleEvent/ParticleLinks.h"
 #include "Particle/TrackParticleContainer.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef  ParticleLinks<Rec::TrackParticleContainer> TrackLinks ;
 typedef  ElementLink<Rec::TrackParticleContainer> TrackLink ;

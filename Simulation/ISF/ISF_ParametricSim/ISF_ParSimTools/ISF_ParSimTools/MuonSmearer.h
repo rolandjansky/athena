@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -58,18 +58,20 @@ namespace iParSim {
       MuonSmearer(const std::string&,const std::string&,const IInterface*);
       
       /**Destructor*/
-      ~MuonSmearer();
+      virtual ~MuonSmearer();
       
-      /** AlgTool initailize method.*/
-      StatusCode initialize();
+      /** AlgTool initialize method.*/
+      virtual StatusCode initialize() override;
       
       /** AlgTool finalize method */
-      StatusCode finalize();
+      virtual StatusCode finalize() override;
 
       /** Smear the existing xAOD::TrackParticle */
+      virtual
       bool smear(xAOD::TrackParticle* xaodTP, CLHEP::HepRandomEngine *randomEngine) const override;
       
       /** Return the pdg code of the smearer */
+      virtual
       unsigned int pdg() const override;
 
     private:

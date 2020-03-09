@@ -12,6 +12,7 @@
 //Trk
 #include "TrkParameters/TrackParameters.h"
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
+#include "CxxUtils/checker_macros.h"
 
 class AtlasDetectorID;            // to identify measurements
 namespace Trk {
@@ -23,7 +24,7 @@ namespace Trk {
       @author Wolfgang Liebig <http://consult.cern.ch/xwho/people/54608>
     */
 
-  class ProtoTrajectoryUtility {
+  class ATLAS_NOT_THREAD_SAFE ProtoTrajectoryUtility {
       
   public:
     //! Default constructor

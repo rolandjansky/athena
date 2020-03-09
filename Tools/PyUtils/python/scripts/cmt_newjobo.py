@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.cmt_newalg
 # @purpose streamline and ease the creation of a skeleton joboption
@@ -7,7 +7,7 @@
 
 #Note - this code could use a serious rewrite, I just hacked it together to get something working
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __version__ = "$Revision: 801598 $"
 __author__ = "Will Buttinger"
@@ -121,8 +121,8 @@ def main(args):
     full_jobo_name = args.joboName
     full_alg_name = args.alg
 
-    print textwrap.dedent("""\
-    ::: create jobo [%(full_jobo_name)s] for alg [%(full_alg_name)s]""" %locals())
+    print (textwrap.dedent("""\
+    ::: create jobo [%(full_jobo_name)s] for alg [%(full_alg_name)s]""" %locals()))
 
     #following code borrowed from gen_klass
     jobo = getattr(Templates, 'jobo_template')
@@ -133,7 +133,7 @@ def main(args):
     fname = args.joboName+'.py'
     #first check doesn't exist 
     if os.path.isfile(fname):
-       print ":::  ERROR %s already exists" % fname
+       print (":::  ERROR %s already exists" % fname)
        return -1
     o_hdr = open(fname, 'w')
     o_hdr.writelines(jobo%d)

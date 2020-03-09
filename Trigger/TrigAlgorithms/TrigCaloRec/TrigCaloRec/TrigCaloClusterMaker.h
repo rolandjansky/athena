@@ -87,6 +87,9 @@ class TrigCaloClusterMaker : public HLT::FexAlgo {
   std::vector<unsigned int> m_size;  
   std::vector<double>       m_N_BAD_CELLS;
   std::vector<double>       m_ENG_FRAC_MAX;
+
+  // Create decorator to hold the number of cluster cells
+  SG::AuxElement::Decorator<int> *m_ncellDeco;
   
 public:
 

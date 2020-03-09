@@ -5,8 +5,6 @@
 ///////////////////////////////////////////////////////////////////
 // CaloTrackingGeometryBuilder.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-// DataModel
-#include "StoreGate/StoreGateSvc.h"
 // Calo
 #include "CaloTrackingGeometry/CaloTrackingGeometryBuilder.h"
 #include "CaloTrackingGeometry/ICaloSurfaceHelper.h"

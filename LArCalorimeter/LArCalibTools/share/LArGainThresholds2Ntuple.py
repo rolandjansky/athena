@@ -28,7 +28,7 @@ from AtlasGeoModel import GeoModelInit
 
 #Get identifier mapping (needed by LArConditionsContainer)
                            
-svcMgr.IOVDbSvc.GlobalTag="LARCALIB-RUN2-02"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2017-04"
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 theApp.EvtMax = 1

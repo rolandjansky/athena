@@ -47,7 +47,7 @@ public:
 
   VolumeHandleSharedData * commondata;
   GeoPVConstLink pV;
-  const SbMatrix accumTrans;//Fixme: Use pointer - and free once children are created AND nodesep has been build. Or just construct on the fly!
+  const SbMatrix accumTrans;//FIXME: Use pointer - and free once children are created AND nodesep has been build. Or just construct on the fly!
 
   VP1ExtraSepLayerHelper * attachsepHelper;
   VP1ExtraSepLayerHelper * attachlabelSepHelper;
@@ -239,7 +239,7 @@ void VolumeHandle::ensureBuildNodeSep()
   m_d->label_sep = new SoSeparator;
   m_d->label_sep->ref();
 
-  m_d->nodesep = new SoSeparator;//Fixme: rendercaching??
+  m_d->nodesep = new SoSeparator;//FIXME: rendercaching??
   //   m_d->nodesep->renderCaching.setValue(SoSeparator::ON);
   //   m_d->nodesep->boundingBoxCaching.setValue(SoSeparator::ON);
   m_d->nodesep->ref();//Since we are keeping it around irrespective of whether it is attached or not.
@@ -258,7 +258,7 @@ void VolumeHandle::ensureBuildNodeSep()
   //What phi sector do we belong in?
   int iphi = m_d->commondata->phiSectorManager()->getVolumeType(m_d->accumTrans, shape);
 
-  if (iphi>=-1 ) {
+  if (iphi >= -1 ) {
     //VP1Msg::messageDebug("Cylinders [iphi >= -1]...");
     //Substitute shapes that are essentially cylinders with such. This
     //can be done safely since this tube won't need
@@ -285,7 +285,7 @@ void VolumeHandle::ensureBuildNodeSep()
     m_d->nodesep->addChild(VP1LinAlgUtils::toSoTransform(Amg::EigenTransformToCLHEP(dynamic_cast<const GeoShapeShift*>(m_d->pV->getLogVol()->getShape())->getX())));
 
   //Add shape child(ren) and get the separator (helper) where we attach the nodesep when volume is visible:
-  if (iphi>=-1) {
+  if (iphi >= -1) {
     m_d->nodesep->addChild(shape);
     m_d->attachsepHelper = m_d->commondata->phiSectorManager()->getSepHelperForNode(m_d->commondata->subSystemFlag(), iphi);
     m_d->attachlabelSepHelper = m_d->commondata->phiSectorManager()->getLabelSepHelperForNode(m_d->commondata->subSystemFlag(), iphi);

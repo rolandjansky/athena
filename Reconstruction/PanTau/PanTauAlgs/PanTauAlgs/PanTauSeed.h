@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_PANTAUSEED_H
@@ -10,10 +10,6 @@
 #include <string>
 
 #include "xAODBase/IParticle.h"
-
-//CxxUtils for override final
-#include "CxxUtils/final.h"
-#include "CxxUtils/override.h"
 
 #include "PanTauAlgs/TauConstituent.h"
 #include "PanTauAlgs/TauFeature.h"

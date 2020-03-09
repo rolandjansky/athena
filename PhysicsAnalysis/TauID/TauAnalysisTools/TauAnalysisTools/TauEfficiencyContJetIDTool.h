@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUEFFICIENCYCONTJETIDTOOL_H
@@ -30,7 +30,7 @@ class TauEfficiencyContJetIDTool : public CommonEfficiencyTool
 
 public:
 
-  TauEfficiencyContJetIDTool(std::string sName);
+  TauEfficiencyContJetIDTool(const std::string& sName);
 
   ~TauEfficiencyContJetIDTool();
 

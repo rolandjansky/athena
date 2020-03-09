@@ -1,0 +1,5 @@
+ApplicationMgr.ExtSvc={"MagField::AtlasFieldSvc/AtlasFieldSvc"};
+AtlasFieldSvc.UseDCS=false;
+AtlasFieldSvc.UseMapsFromCool=false;
+
+ToolSvc.Trk::DetAnnealingMaker.SetOfTemperatures = {3, 2, 1};

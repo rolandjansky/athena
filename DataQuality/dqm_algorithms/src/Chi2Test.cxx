@@ -91,11 +91,12 @@ dqm_algorithms::Chi2Test::execute(	const std::string & name ,
   }
 
   try {
-    refhist = static_cast<TH1 *>( config.getReference() );
+    refhist = dynamic_cast<TH1 *>( config.getReference() );
   }
   catch ( dqm_core::Exception & ex ) {
    throw dqm_core::BadRefHist(ERS_HERE,name," Could not retreive reference");
   }
+  if (!refhist) { throw dqm_core::BadRefHist(ERS_HERE,name,"Bad reference type"); }
 
   if (histogram->GetDimension() != refhist->GetDimension() ) {
     throw dqm_core::BadRefHist( ERS_HERE, "Dimension", name );

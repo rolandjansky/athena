@@ -6,7 +6,6 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "xAODJet/JetAuxContainer.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
 

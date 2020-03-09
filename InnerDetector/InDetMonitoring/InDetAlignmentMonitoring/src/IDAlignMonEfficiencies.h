@@ -12,12 +12,16 @@
 
 #include <vector>
 
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkTrack/TrackCollection.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //forward declaration
 class TH1F;
@@ -428,11 +432,12 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   //const InDetDD::TRT_DetectorManager    *m_TRT_Mgr;
 
   std::string m_stream;
-  std::string m_tracksName;
+  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "ExtendedTracks"};
   ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;
   ToolHandle<Trk::ITrackHoleSearchTool>   m_holeSearchTool; 
   ToolHandle<InDetAlignMon::TrackSelectionTool>   m_trackSelection; 
   ToolHandle<IInDetAlignHitQualSelTool>  m_hitQualityTool;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "SG Key of EventInfo object"};
   float m_minSiliconEffWindow;
   float m_maxSiliconEffWindow;
   std::string m_triggerChainName;

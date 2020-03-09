@@ -18,7 +18,7 @@ def _setupAtlasUnixGeneratorJob():
     from McEventSelector.McEventSelectorConf import McCnvSvc
     svcMgr += McCnvSvc()
     if hasattr(svcMgr, 'EventSelector'):
-        log.warning('EventSelector of type %s already exists. Will not add McEventSelector.' % svcMgr.EventSelector.getType())
+        log.warning('EventSelector of type %s already exists. Will not add McEventSelector.', svcMgr.EventSelector.getType())
     else:
         from McEventSelector.McEventSelectorConf import McEventSelector
         svcMgr += McEventSelector("EventSelector")
@@ -31,7 +31,7 @@ def _setupAtlasUnixGeneratorJob():
     from AthenaCommon.AlgSequence import AthSequencer
     topSequence = AthSequencer("AthAlgSeq")
     from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-    topSequence += xAODMaker__EventInfoCnvAlg(DoBeginRun = False, AODKey = 'McEventInfo')
+    topSequence += xAODMaker__EventInfoCnvAlg(AODKey = 'McEventInfo')
 
     return
 

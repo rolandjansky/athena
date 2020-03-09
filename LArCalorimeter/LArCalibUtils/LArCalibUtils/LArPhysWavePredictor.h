@@ -19,7 +19,7 @@
 #include <string>
 
 class ILArBadChannelMasker;
-class LArOnlineID;
+class LArOnlineID_Base;
 
 class LArPhysWavePredictor : public AthAlgorithm
 {
@@ -38,11 +38,12 @@ class LArPhysWavePredictor : public AthAlgorithm
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
-  const LArOnlineID* m_onlineHelper;
+  const LArOnlineID_Base* m_onlineHelper;
   bool m_testmode;
   bool m_storeEmpty;
   bool m_dumpMphysMcali;
   bool m_normalizeCali;
+  bool m_isSC;
   
   std::vector<std::string> m_keyCali;
   std::string m_keyPhys;

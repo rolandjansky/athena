@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_ITAUTRUTHMATCHINGTOOL_H
@@ -50,8 +50,12 @@ public:
   // apply match to all taus in a vector
   virtual std::vector<const xAOD::TruthParticle*> applyTruthMatch(const std::vector<const xAOD::TauJet*>& vTaus) = 0;
 
+  virtual std::unique_ptr<ITruthTausEvent> getEvent() const = 0;
+
   // get pointer to truth tau, if no truth tau was found a null pointer is returned
   virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau) = 0;
+  virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau,
+                                              ITruthTausEvent& truthTausEvent) const = 0;
 
   // wrapper function to get truth tau visible TLorentzvector
   virtual TLorentzVector getTruthTauP4Vis(const xAOD::TauJet& xTau) = 0;

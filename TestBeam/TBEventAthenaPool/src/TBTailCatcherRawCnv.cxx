@@ -25,7 +25,7 @@ TBTailCatcherRawCnv::~TBTailCatcherRawCnv()
 StatusCode TBTailCatcherRawCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBTailCatcherRawCnv");
@@ -35,14 +35,16 @@ StatusCode TBTailCatcherRawCnv::initialize()
 }
 
 
-StatusCode TBTailCatcherRawCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
+StatusCode TBTailCatcherRawCnv::PoolToDataObject(DataObject*& pObj,
+                                                 const Token* token,
+                                                 const std::string& key)
 {
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
   MsgStream log(msgSvc(), "TBTailCatcherRawCnv::PoolToDataObject" );
    
-  StatusCode sc = TBTailCatcherRawCnvBase::PoolToDataObject(pObj, token);
+  StatusCode sc = TBTailCatcherRawCnvBase::PoolToDataObject(pObj, token, key);
   if (sc.isFailure()) {
     log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;
@@ -59,11 +61,4 @@ StatusCode TBTailCatcherRawCnv::PoolToDataObject(DataObject*& pObj, const Token*
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBTailCatcherRawCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBTailCatcherRawCnv::DataObjectToPool" );
-  
-  return TBTailCatcherRawCnvBase::DataObjectToPool( pObj, tname) ;
 }

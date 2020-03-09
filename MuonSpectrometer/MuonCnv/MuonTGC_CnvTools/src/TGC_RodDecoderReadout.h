@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,6 +55,10 @@ namespace Muon
       bool m_showStatusWords;
       /** Flag for skipping coincidence objects (for TrigT1TGC running on data) **/ 
       bool m_skipCoincidence;
+
+      // counters to see how often we use the cache for the raw data collections
+      unsigned int m_nCache = 0;
+      unsigned int m_nNotCache = 0;
     };
 } // end of namespace
 

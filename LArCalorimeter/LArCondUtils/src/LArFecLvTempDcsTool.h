@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDUTILS_LARFECLVTEMPDCSTOOL_H
@@ -30,7 +30,6 @@
 
 // forward declaration
 //using namespace coral;
-class StoreGateSvc; 
 class LArFecLvTempDcs;
 class AttributeList;
 class HWIdentifier;
@@ -59,7 +58,7 @@ class LArFecLvTempDcsTool: public AthAlgTool, virtual public ILArFecLvTempDcsToo
 
   private:
 
-  void translateFec( const coral::AttributeList, LArFecLvTempDcs& ) const;
+  void translateFec( const coral::AttributeList&, LArFecLvTempDcs& ) const;
 
   const LArOnlineID* m_larOnlineId;
   std::string m_foldername;

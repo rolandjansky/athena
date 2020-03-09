@@ -29,6 +29,7 @@ class TileHWID;
 class TileRawChannel;
 class TileRawChannelContainer;
 class TileRawChannelCollection;
+class TileInfo;
 
 /**
  @class TileRawChannelNoiseFilter
@@ -77,6 +78,10 @@ class TileRawChannelNoiseFilter: public extends<AthAlgTool, ITileRawChannelTool>
     bool m_useTwoGaussNoise;
     bool m_useGapCells;
     float m_maxNoiseSigma;
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    float m_ADCmaskValueMinusEps; //!< indicates channels which were masked in background dataset
 };
 
 #endif // TILERAWCHANNELNOISEFILTER_H

@@ -34,6 +34,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileContainer.h"
 #include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -91,6 +92,12 @@ class TileMuonReceiverDecision: public AthAlgorithm {
 
   ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
       "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+  /**
+   * @brief Name of Tile cabling service
+   */
+  ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+      "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
 
   bool m_run2;

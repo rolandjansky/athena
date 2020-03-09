@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOCLUSTERLOCALCALIBCONE_H
@@ -29,7 +29,6 @@ class TFile;
 class CaloCell_ID;
 class CaloDetDescrManager;
 class ICalorimeterNoiseTool;
-class StoreGateSvc;
 
 class CaloClusterLocalCalibCone : public AthAlgTool, virtual public CaloClusterCollectionProcessor
 {
@@ -153,8 +152,6 @@ class CaloClusterLocalCalibCone : public AthAlgTool, virtual public CaloClusterC
 
   std::vector<std::vector<TProfile2D *> > m_data;
 
-  const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd_man; 
   ICalorimeterNoiseTool * m_noiseTool;
 };
 

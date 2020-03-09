@@ -7,7 +7,7 @@ import unittest
 import pickle
 import os
 
-from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argSubstep, trfArgParser, argList, argBool, argPOOLFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool, argSubstepString
+from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argSubstep, trfArgParser, argList, argBool, argPOOLFile, argEVNT_TRFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool, argSubstepString
 #from PyJobTransforms.trfLogger import stdLogLevels
 #from PyJobTransforms.trfDecorators import silent
 #from PyJobTransforms.trfExitCodes import trfExit
@@ -136,10 +136,10 @@ def addCosmicsTrfArgs(parser):
 def addTrackRecordArgs(parser):
     parser.defineArgGroup('TrackRecords', 'TrackRecord related options')
     parser.add_argument('--inputEVNT_TRFile', nargs='+',
-                        type=argFactory(argPOOLFile, io='input'),
+                        type=argFactory(argEVNT_TRFile, io='input'),
                         help='Input Track Record file - sometimes used in Cosmic ray or cavern background simulation jobs.', group='TrackRecords')
     parser.add_argument('--outputEVNT_TRFile', nargs='+',
-                        type=argFactory(argPOOLFile, io='output', type='evnt'),
+                        type=argFactory(argEVNT_TRFile, io='output', type='evnt'),
                         help='Output Track Record file - sometimes used in Cosmic ray or cavern background simulation jobs.', group='TrackRecords')
     parser.add_argument('--trackRecordType',
                         type=argFactory(argSubstepString), metavar='CONFIGNAME',

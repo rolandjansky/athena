@@ -422,7 +422,7 @@ TObject* MonitoringFile::mergeObjsMultiCycles(const std::string& keyname,
 	idx < cycles.size(); ++idx) {
       TKey* nextKey = dir->GetKey(keyname.c_str(), cycles[idx]);
       if (nextKey != 0) {
-	 std::auto_ptr<TObject> nextObj(nextKey->ReadObj());
+	 std::unique_ptr<TObject> nextObj(nextKey->ReadObj());
 	 if (nextObj.get() == 0) {
 	    std::cerr << "MonitoringFile::mergeObjsMultiCycles(): "
 		      << "In directory \"" << dir->GetPath() << "\",\n"
@@ -558,7 +558,7 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
 	   //std::cerr<<"Skipping keyname "<keyname<<std::endl;
 	   continue; //skip everything except directories 
 	 }
-	 std::auto_ptr<TObject> obj(key->ReadObj());
+	 std::unique_ptr<TObject> obj(key->ReadObj());
          if (obj.get() == 0) {
             std::cerr << "MonitoringFile::mergeDirectory(): "
                << "In directory \"" << inputDir->GetPath() << "\",\n"
@@ -764,7 +764,7 @@ mergeFiles( std::string outFileName, const std::vector<std::string>& files )
   typedef std::vector<TFile*>  TFileList_t;
   typedef std::map<TFile*, std::string> PrefixIgnore_t;
   
-  std::auto_ptr<TFile> outfile( TFile::Open(outFileName.c_str(),"RECREATE",outFileName.c_str(),m_fileCompressionLevel) );
+  std::unique_ptr<TFile> outfile( TFile::Open(outFileName.c_str(),"RECREATE",outFileName.c_str(),m_fileCompressionLevel) );
   if( outfile.get() == 0 ) {
     std::cerr << "MonitoringFile::mergeFiles(): "
               << "Output file not opened\n";
@@ -1100,7 +1100,7 @@ copyHistograms( std::string outFileName, std::string dirName )
     reducedmap.insert( *idir );
   }
   
-  std::auto_ptr<TFile> outfile( TFile::Open(outFileName.c_str(),"RECREATE",outFileName.c_str(),m_fileCompressionLevel) );
+  std::unique_ptr<TFile> outfile( TFile::Open(outFileName.c_str(),"RECREATE",outFileName.c_str(),m_fileCompressionLevel) );
   if( outfile.get() == 0 ) {
     std::cerr << "MonitoringFile::copyHistograms(): "
               << "Output file not opened\n";
@@ -2147,7 +2147,7 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
          for( i = v_dirsStat.begin(); i != v_dirsStat.end(); i++ ) {
             // retrieve histogram for current LB interval
             TDirectory *dir_current = (*i);
-	    std::auto_ptr<TObject> objThis((TObject*) dir_current->Get(histFullName.c_str()));
+	    std::unique_ptr<TObject> objThis((TObject*) dir_current->Get(histFullName.c_str()));
 
             if( ! objThis.get() ) { // histogram does not exist in this LB interval
                continue;
@@ -2381,7 +2381,7 @@ bool
 MonitoringFile::
 CheckHistogram(TFile* f,const char* HistoName)
 {
-  std::auto_ptr<TObject> obj(f->Get(HistoName));
+  std::unique_ptr<TObject> obj(f->Get(HistoName));
   if (! obj.get()) {
     //std::cerr<<"No such histogram \""<< HistoName << "\"\n";
     return false;

@@ -19,7 +19,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/MdtData.h"
@@ -35,7 +34,6 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 class StoreGateSvc;
-class MdtIdHelper;
 namespace MuonGM{
      class MuonDetectorManager;
      class MdtReadoutElement;
@@ -135,7 +133,8 @@ namespace TrigL2MuonSA {
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MuonGM::MdtReadoutElement* m_mdtReadout;
     const MuonGM::MuonStation* m_muonStation;
-    const MdtIdHelper* m_mdtIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     IdentifierHash m_hash_id;
     
     // Region Selector

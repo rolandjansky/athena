@@ -7,7 +7,6 @@
 // Richard Hawkings, started 25/9/03
 
 #include <algorithm>
-#include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
@@ -20,7 +19,7 @@ static const InterfaceID
 AlignTransTool::AlignTransTool(const std::string& type,
       const std::string& name, const IInterface* parent)
       : AthAlgTool(type,name,parent), 
-      p_condstore(0),m_lastkey("null")
+        m_lastkey("null")
 {
   declareInterface<AlignTransTool>(this);
 }
@@ -34,9 +33,6 @@ const InterfaceID& AlignTransTool::interfaceID()
 StatusCode AlignTransTool::initialize() 
 {
   ATH_MSG_INFO("AlignTransTool initialize method called");
-  // get storegate access to conditions store
-  if (StatusCode::SUCCESS!=service("DetectorStore",p_condstore))
-    ATH_MSG_FATAL("Detector store not found");
 
   m_keyvec.clear();
 
@@ -54,13 +50,13 @@ const AlignableTransform* AlignTransTool::getptr(const std::string key) const {
   // directly or in parent collection
   // first look directly
   const AlignableTransform* pat;
-  if (StatusCode::SUCCESS!=p_condstore->retrieve(pat,key)) {
+  if (StatusCode::SUCCESS!=detStore()->retrieve(pat,key)) {
     // didn't find it, try to find the corresponding collection by stripping
     // the leaf name
     std::string keyc=key.substr(0,key.find_last_of("/"));
     const AlignableTransformContainer* patc;
     pat=0;
-    if (StatusCode::SUCCESS==p_condstore->retrieve(patc,keyc)) {
+    if (StatusCode::SUCCESS==detStore()->retrieve(patc,keyc)) {
       // search in the container
       for (DataVector<AlignableTransform>::const_iterator dva=patc->begin();
 	   dva!=patc->end();++dva) {

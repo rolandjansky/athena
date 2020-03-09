@@ -40,7 +40,7 @@ public:
 
   HIJetClusterIndexAssociationTool(const std::string& t);
  
-  int modify(xAOD::JetContainer& jets) const;
+  StatusCode modify(xAOD::JetContainer& jets) const;
   int modifyJet(xAOD::Jet&) const {return 1;};
 
 private:

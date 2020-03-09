@@ -33,6 +33,8 @@ static const InterfaceID IID_ITileROD_Decoder("TileROD_Decoder", 1, 0);
 TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& name,
                                  const IInterface* parent)
   : AthAlgTool(type, name, parent)
+  , m_ampMinThresh_pC(-1.)
+  , m_ampMinThresh_MeV(-1.)
   , m_of2Default(true)
   , m_MBTS(nullptr)
   , m_hid2re(nullptr)
@@ -50,9 +52,20 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   }
 }
 
-void TileROD_Decoder::updateAmpThreshold() {
-  m_ampMinThresh_pC = m_ampMinThresh * (12.5 / 1023.);
-  m_ampMinThresh_MeV = m_ampMinThresh * (12.5 / 1023. / 1.05 * 1000.);
+void TileROD_Decoder::updateAmpThreshold(int run) {
+  if (m_ampMinThresh_MeV < 0 || m_ampMinThresh_pC < 0){
+    if (run < 0) run = m_fullTileRODs;
+    if (run >= 4444444) { // FIXME: should put correct run number here, once it is known
+      m_ampMinThresh_pC  = m_ampMinThresh * (25.  / 4095.);
+      m_ampMinThresh_MeV = m_ampMinThresh * (25.  / 4095. / 1.05 * 1000.);
+    } else {
+      m_ampMinThresh_pC  = m_ampMinThresh * (12.5 / 1023.);
+      m_ampMinThresh_MeV = m_ampMinThresh * (12.5 / 1023. / 1.05 * 1000.);
+    }
+  }
+  ATH_MSG_DEBUG("in TileROD_Decoder::updateAmpThreshold, m_ampMinThresh = " << m_ampMinThresh);
+  ATH_MSG_DEBUG("in TileROD_Decoder::updateAmpThreshold, m_ampMinThresh_MeV = " << m_ampMinThresh_MeV);
+  ATH_MSG_DEBUG("in TileROD_Decoder::updateAmpThreshold, m_ampMinThresh_pC = " << m_ampMinThresh_pC);
 }
 
 /** destructor
@@ -88,8 +101,6 @@ int TileROD_Decoder::getErrorCounter() {
 
 StatusCode TileROD_Decoder::initialize() {
   
-  updateAmpThreshold();
-
   m_rc2bytes5.setVerbose(m_verbose);
   m_rc2bytes2.setVerbose(m_verbose);
   m_rc2bytes.setVerbose(m_verbose);
@@ -137,6 +148,8 @@ StatusCode TileROD_Decoder::initialize() {
     m_L2Builder.disable();
   }
   
+  updateAmpThreshold();
+
   // Initialize
   this->m_hashFunc.initialize(m_tileHWID);
   
@@ -985,6 +998,8 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
                                    DigitsMetaData_t& digitsMetaData,
                                    const uint32_t* p, pDigiVec & pDigits) const
 {
+
+
   int size = *(p) - sizeOverhead;
 
   // second word is frag ID (0x100-0x4ff) and frag type
@@ -1041,9 +1056,9 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
 
   const uint32_t* const end_data = data + size;
   while (data < end_data) {
-    if ((*data & 0x00FFFF00) == 0x00BABE00) {
-      unsigned int miniDrawer = *data & 0xFF;
-
+    if ((*data & 0xFFFF0000) == 0xABCD0000) {
+      unsigned int miniDrawer = *(data+6) & 0xFF;
+     
       if ((++data < end_data) && (*data == 0x12345678) && (++data < end_data)) {
 
         unsigned int fragSize   = *data & 0xFF;
@@ -1061,10 +1076,10 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
         // check trailer
         const uint32_t* trailer = data + paramsSize + 3 + fragSize; // 2 = (BCID + L1ID)
 
-        if ((trailer + 3) <= end_data // 3 = (trailer size)
+
+        if ((trailer + 1) <= end_data // 3 = (trailer size)
             && *trailer == 0x87654321
-            && *(++trailer) == 0xBCBCBCDC
-            && *(++trailer) == (0x00DEAD00 | (miniDrawer) | (miniDrawer << 24))) {
+            ) {
 
           if (paramsSize == 3){
             runNumber[miniDrawer]  = *(++data);
@@ -1087,6 +1102,8 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
           bcid[miniDrawer] = (*(++data) >> 16) & 0xFFFF;
           l1id[miniDrawer] = *(++data);
 
+
+          
 
           if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::VERBOSE) << "FRAG6: Found MD[" << miniDrawer << "] fragment"
@@ -3494,7 +3511,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
 
     // This is looking at event data via member variables.  Won't work with MT.
     if (Gaudi::Hive::currentContext().slot() > 1) {
-      ATH_MSG_ERROR("TileROD_Decderr::make_copyHLT is not MT-safe but used in "
+      ATH_MSG_ERROR("TileROD_Decoder::make_copyHLT is not MT-safe but used in "
                     "a MT job.  Results will likely be wrong.");
     }
     if (m_MBTS && MBTS_chan >= 0) {

@@ -43,6 +43,7 @@ namespace MuonCombined {
       OutputData(xAOD::MuonContainer& container) : muonContainer(&container),
                                                    combinedTrackParticleContainer(0),extrapolatedTrackParticleContainer(0),
 	                                           msOnlyExtrapolatedTrackParticleContainer(0),
+	                                           combinedTrackCollection(0),extrapolatedTrackCollection(0),msOnlyExtrapolatedTrackCollection(0),
                                                    xaodSegmentContainer(0), muonSegmentCollection(0),
                                                    slowMuonContainer(0), clusterContainer(0) {
       }
@@ -57,6 +58,15 @@ namespace MuonCombined {
 
       /** container for the extrapolated track particles */
       xAOD::TrackParticleContainer* msOnlyExtrapolatedTrackParticleContainer;
+
+      /** container for the combined tracks */
+      TrackCollection* combinedTrackCollection;
+
+      /** container for the extrapolated tracks */
+      TrackCollection* extrapolatedTrackCollection;
+
+      /** container for the extrapolated tracks */
+      TrackCollection* msOnlyExtrapolatedTrackCollection;
 
       /** container for the xAOD segments from MuGirl */
       xAOD::MuonSegmentContainer* xaodSegmentContainer; 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRingsBuilder.h 713524 2015-12-09 08:56:24Z wsfreund $
@@ -9,10 +9,6 @@
 // Base includes:
 #include "CaloRingerTools/ICaloRingsBuilder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
-//CxxUtils for override final
-#include "CxxUtils/final.h"
-#include "CxxUtils/override.h"
 
 // STL includes:
 #include <string>
@@ -66,28 +62,28 @@ class CaloRingsBuilder : public ::AthAlgTool,
     /**
      * @brief initialize method
      **/
-    virtual StatusCode initialize() ATH_OVERRIDE;
+    virtual StatusCode initialize() override;
 
     /**
      * @brief method for working on containers
      **/
     virtual StatusCode preExecute( xAOD::CaloRingsContainer* crCont
                                  , xAOD::RingSetContainer* rsCont
-                                 , const std::size_t nReserve = 0) ATH_OVERRIDE;
+                                 , const std::size_t nReserve = 0) override;
     /**
      * @brief build CaloRings for IParticle
      **/
     virtual StatusCode execute(const xAOD::IParticle &particle,
-        ElementLink<xAOD::CaloRingsContainer> &clRingsLink) ATH_OVERRIDE;
+        ElementLink<xAOD::CaloRingsContainer> &clRingsLink) override;
     /**
      * @brief build CaloRings for CaloCluster
      **/
     virtual StatusCode execute(const xAOD::CaloCluster &cluster,
-        ElementLink<xAOD::CaloRingsContainer> &clRingsLink) ATH_OVERRIDE;
+        ElementLink<xAOD::CaloRingsContainer> &clRingsLink) override;
     /**
      * @brief finalize method
      **/
-    virtual StatusCode finalize() ATH_OVERRIDE;
+    virtual StatusCode finalize() override;
     /// @}
 
     /// Extra methods:
@@ -95,21 +91,21 @@ class CaloRingsBuilder : public ::AthAlgTool,
     /**
      * @brief Retrieve RawConfiguration Collection
      **/
-    const xAOD::RingSetConf::RawConfCollection &rawConf() ATH_OVERRIDE {
+    const xAOD::RingSetConf::RawConfCollection &rawConf() override {
       return m_rsRawConfCol;
     };
     /**
      * @brief Retrieve whether it was set used shower shape barycenter
      **/
-    bool useShowerShapeBarycenter() ATH_OVERRIDE {
+    bool useShowerShapeBarycenter() override {
       return m_useShowShapeBarycenter;
     };
     /// @}
 
-    std::size_t nRingSets() const ATH_OVERRIDE { return m_nRingSets; }
+    std::size_t nRingSets() const override { return m_nRingSets; }
 
-    const SG::WriteHandleKey<xAOD::CaloRingsContainer>& crContName() const ATH_OVERRIDE { return m_crContName; }
-    const SG::WriteHandleKey<xAOD::RingSetContainer>& rsContName() const ATH_OVERRIDE { return m_rsContName; }
+    const SG::WriteHandleKey<xAOD::CaloRingsContainer>& crContName() const override { return m_crContName; }
+    const SG::WriteHandleKey<xAOD::RingSetContainer>& rsContName() const override { return m_rsContName; }
 
   protected:
 

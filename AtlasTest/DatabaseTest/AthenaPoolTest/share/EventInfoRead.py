@@ -87,7 +87,8 @@ topSequence += EventInfoReader( "EventInfoReader" )
 svcMgr.MessageSvc.OutputLevel = INFO
 svcMgr.MessageSvc.debugLimit  = 100000
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 EventInfoReader.OutputLevel   = DEBUG

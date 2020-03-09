@@ -14,7 +14,7 @@ fi
 
 if [ -z ${JOBOPTION} ]; then
   if [[ $INPUT == "data" ]]; then
-    export JOBOPTION="TriggerRelease/runHLT_standalone.py"
+    export JOBOPTION="TriggerJobOpts/runHLT_standalone_run2.py"
   else
     export JOBOPTION="TriggerTest/testCommonSliceAthenaTrigRDO.py"
   fi
@@ -55,6 +55,15 @@ elif [[ $INPUT == 'data' ]]; then
 else 
   # Default - ttbar
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000065.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000235.pool.root.1"]'
+fi
+
+######################################
+
+# Generate empty PoolFileCatalog.xml - this prevents incorrect handling of crashes on the grid
+ART_AVAILABLE=`which art.py >/dev/null 2>&1; echo $?`
+if [[ $ART_AVAILABLE == "0" ]]; then
+  echo "Executing art.py createpoolfile"
+  art.py createpoolfile
 fi
 
 ######################################

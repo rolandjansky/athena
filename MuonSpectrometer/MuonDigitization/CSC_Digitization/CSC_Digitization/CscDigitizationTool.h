@@ -12,7 +12,7 @@
 #include "CSC_Digitization/CSC_Digitizer.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
 #include "MuonSimEvent/CSCSimHit.h"
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "HitManagement/TimedHitCollection.h"
@@ -83,8 +83,11 @@ public: //possibly these should be private?
 
 private:
 
-  PublicToolHandle<ICscCalibTool> m_pcalib{this, "cscCalibTool", "CscCalibTool", ""};
+  ToolHandle<ICscCalibTool> m_pcalib{this, "cscCalibTool", "CscCalibTool", "CSC calibration tool"};
 
+  BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<CSCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "CSC_Hits", "name of the input objects"}; // name of the input objects
+  std::string m_inputObjectName{""};
   SG::WriteHandleKey<CscSimDataCollection> m_cscSimDataCollectionWriteHandleKey{this,"CSCSimDataCollectionOutputName","CSC_SDO","WriteHandleKey for Output CscSimDataCollection"};
   SG::WriteHandleKey<CscDigitContainer> m_cscDigitContainerKey{this,"OutputObjectName","CSC_DIGITS","CSC digit container object"};
   //SG::WriteHandle<CscDigitContainer> m_container;
@@ -93,7 +96,8 @@ private:
   const MuonGM::MuonDetectorManager * m_geoMgr{nullptr};
   CSC_Digitizer             * m_cscDigitizer{nullptr};
 
-  const CscIdHelper         * m_cscIdHelper{nullptr};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   Gaudi::Property<double> m_pedestal{this, "pedestal",0.0, ""};
   Gaudi::Property<bool> m_maskBadChannel{this, "maskBadChannels", true, ""};
@@ -114,7 +118,6 @@ private:
   Gaudi::Property<bool>   m_NInterFixed{this, "NInterFixed", false, ""};
 
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service
-  Gaudi::Property<std::string> m_inputObjectName{this, "InputObjectName", "CSC_Hits", "name of the input objects"}; // name of the input objects
 
   ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 

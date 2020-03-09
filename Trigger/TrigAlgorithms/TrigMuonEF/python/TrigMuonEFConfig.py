@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # TrigMuonEF configurables
 #
@@ -19,6 +21,9 @@ from RecExConfig.RecFlags import rec
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+
+from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 #Offline calorimeter isolation tool
 #from TrackInCaloTools import TrackInCaloTools
@@ -60,7 +65,7 @@ TrigCaloFillRectangularCluster = PublicToolFactory( Cccc.CaloFillRectangularClus
 
 if not hasattr(ServiceMgr,"TrackingVolumesSvc"):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
-    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
+    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc")
 
 def TMEF_MaterialEffectsUpdator(name='TMEF_MaterialEffectsUpdator',**kwargs):
     return CfgMgr.Trk__MaterialEffectsUpdator(name,**kwargs)
@@ -101,7 +106,7 @@ def TMEF_CaloTrackStateOnSurface(name='TMEF_CaloTrackStateOnSurface',**kwargs):
 
 def TMEF_TrackSummaryTool(name='TMEF_TrackSummaryTool',**kwargs):
     # always setup muon tool
-    kwargs.setdefault("MuonSummaryHelperTool", "MuonTrackSummaryHelper")
+    kwargs.setdefault("MuonSummaryHelperTool", "MuonTrackSummaryHelperTool")
     kwargs.setdefault("doSharedHits", False)
     # only add ID tool if ID is on
     if DetFlags.detdescr.ID_on():
@@ -160,7 +165,6 @@ def TMEF_TrackCleaner(name = 'TMEF_TrackCleaner',**kwargs):
     if not TriggerFlags.run2Config == '2016':
         kwargs.setdefault("Iterate", False)
         kwargs.setdefault("RecoverOutliers", False)
-    from MuonRecExample.MuonRecFlags import muonRecFlags
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("RecoverOutliers", False)
     return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
@@ -191,7 +195,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
     #kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum())
     kwargs.setdefault("LowMomentum", 10.*GeV)
     kwargs.setdefault("MinEnergy", 0.3*GeV)
-    kwargs.setdefault("PerigeeAtSpectrometerEntrance", True)
+    kwargs.setdefault("PerigeeAtSpectrometerEntrance", False)
     kwargs.setdefault("ReallocateMaterial", False)
     kwargs.setdefault("Vertex2DSigmaRPhi", 100.*mm)
     kwargs.setdefault("Vertex3DSigmaRPhi", 6.*mm)
@@ -207,12 +211,12 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
 
     # extra w.r.t. Muid Offline
     kwargs.setdefault("Cleaner", "TMEF_TrackCleaner")
-    from MuonRecExample.MuonRecFlags import muonRecFlags
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator", "")
 
     kwargs.setdefault("UseCaloTG", True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
+    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     if muonRecFlags.enableErrorTuning():
         kwargs.setdefault("MuonErrorOptimizer", CfgGetter.getPublicToolClone("TMEF_MuidErrorOptimisationTool",
                                                                              "MuonErrorOptimisationTool",
@@ -221,14 +225,15 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
                                                                              RefitTool = CfgGetter.getPublicToolClone("TMEF_MuidRefitTool",
                                                                                                                       "MuonRefitTool",
                                                                                                                       AlignmentErrors = False,
-                                                                                                                      Fitter = CfgGetter.getPublicTool("iPatFitter"))))
+                                                                                                                      Fitter = CfgGetter.getPublicTool("iPatFitter"))
+                                                                             ))
 
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
 
 def TMEF_MuonTrackQuery(name='TMEF_MuonTrackQuery',**kwargs):
     kwargs.setdefault("MdtRotCreator","MdtDriftCircleOnTrackCreator")
-    kwargs.setdefault("Fitter", 'TMEF_CombinedMuonTrackBuilder')
+    kwargs.setdefault("Fitter", 'TMEF_iPatFitter')
     return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
 
 
@@ -236,7 +241,6 @@ def TMEF_MatchMaker(name='TMEF_MatchMaker',**kwargs):
     kwargs.setdefault("AmbiguityProcessor", "MuonAmbiProcessor")
     kwargs.setdefault("MatchQuality", "TMEF_MatchQuality")
     kwargs.setdefault("CaloTSOS", "TMEF_CaloTrackStateOnSurface") # not in Muid?
-#    kwargs.setdefault("OutwardsTrackBuilder", "TMEF_OutwardsCombinedMuonTrackBuilder") # extra in Muid (not yet configured here)
     kwargs.setdefault("TrackBuilder", "TMEF_CombinedMuonTrackBuilder")
     kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     kwargs.setdefault("Propagator", "TMEF_Propagator")
@@ -309,17 +313,6 @@ def TMEF_MuonCombinedPropagator(name='TMEF_MuonCombinedPropagator',**kwargs):
     from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator
     return Trk__RungeKuttaPropagator(name, **kwargs)
 
-def TMEF_OutwardsMuonTrackCleaner(name='TMEF_OutwardsMuonTrackCleaner',**kwargs):
-    if TriggerFlags.run2Config=='2016':
-        kwargs.setdefault('PullCut',    3.0)
-        kwargs.setdefault('PullCutPhi', 3.0)
-    else:
-        kwargs.setdefault('PullCut',    4.0)
-        kwargs.setdefault('PullCutPhi', 4.0)
-    kwargs.setdefault('Fitter',     'TMEF_MuonCombinedTrackFitter')
-    kwargs.setdefault('SLFitter',   'TMEF_iPatSLFitter')
-    return CfgMgr.Muon__MuonTrackCleaner(name, **kwargs)
-
 def TMEF_MuonCombinedTrackFitter(name='TMEF_MuonCombinedTrackFitter',**kwargs):
     kwargs.setdefault('ExtrapolationTool',     'AtlasExtrapolator')#gpt
     kwargs.setdefault('NavigatorTool',         ToolSvc.MuonNavigator)
@@ -340,22 +333,11 @@ def TMEF_MuonCombinedTrackFitter(name='TMEF_MuonCombinedTrackFitter',**kwargs):
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     return  Trk__GlobalChi2Fitter(name, **kwargs)
 
-def TMEF_OutwardsCombinedMuonTrackBuilder(name='TMEF_OutwardsCombinedMuonTrackBuilder',**kwargs):
-    kwargs.setdefault('Cleaner', 'TMEF_OutwardsMuonTrackCleaner')
-    kwargs.setdefault('Fitter',  'TMEF_MuonCombinedTrackFitter')
-    kwargs.setdefault('TrackSummaryTool', 'TMEF_TrackSummaryTool')#gpt
-    kwargs.setdefault('MuonHoleRecovery', 'MuonSegmentRegionRecoveryTool')#gpt
-    kwargs.setdefault('AllowCleanerVeto', False)
-    from MuidTrackBuilder.MuidTrackBuilderConf import Rec__OutwardsCombinedMuonTrackBuilder
-    return Rec__OutwardsCombinedMuonTrackBuilder(name, **kwargs)
-
 def TMEF_MuonCombinedFitTagTool(name="TMEF_MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackBuilder",         'TMEF_CombinedMuonTrackBuilder' )
     if not TriggerFlags.run2Config == '2016':
-        kwargs.setdefault("OutwardsTrackBuilder", '')
         kwargs.setdefault("MuonRecovery",         '' )
     else:
-        kwargs.setdefault("OutwardsTrackBuilder", 'TMEF_OutwardsCombinedMuonTrackBuilder')
         kwargs.setdefault("MuonRecovery",         'TMEF_MuidMuonRecovery' )
     kwargs.setdefault("TrackQuery",           'TMEF_MuonTrackQuery' )
     kwargs.setdefault("MatchQuality",         'TMEF_MatchQuality' )
@@ -365,17 +347,27 @@ def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
     kwargs.setdefault("TrackBuilder","TMEF_CombinedMuonTrackBuilder")
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 
+def TrigMuonAmbiProcessor(name="TrigMuonAmbiProcessor",**kwargs) :
+    # definition mostly copied from MuonRecExample/python/MooreTools.py
+    import InDetRecExample.TrackingCommon as TrackingCommon
+    kwargs.setdefault("AssociationTool",TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels())
+    kwargs.setdefault("DropDouble", False)
+    kwargs.setdefault("ScoringTool", "MuonTrackScoringTool")
+    kwargs.setdefault("SelectionTool", "MuonAmbiSelectionTool" )
+    return CfgMgr.Trk__TrackSelectionProcessorTool(name,**kwargs)
+
 def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-
     kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
+    kwargs.setdefault("AmbiguityProcessor", CfgGetter.getPublicTool('TrigMuonAmbiProcessor'))
     kwargs.setdefault('MakeTrackAtMSLink',True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     kwargs.setdefault("FillTimingInformation",False)
     kwargs.setdefault("MuonSelectionTool", "")
+    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
@@ -397,7 +389,10 @@ def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwa
     kwargs.setdefault('MuonRecoValidationTool','')
     kwargs.setdefault('MuonPRDSelectionTool','TMEF_MuonPRDSelectionTool')
     kwargs.setdefault('MuonClusterSegmentFinder','TMEF_MuonClusterSegmentFinder')
-    kwargs.setdefault('NSWMuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
+    if not MuonGeometryFlags.hasCSC():
+        kwargs.setdefault('Csc2DSegmentMaker', '')
+        kwargs.setdefault('Csc4DSegmentMaker', '')
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): kwargs.setdefault('NSWMuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):
@@ -433,14 +428,41 @@ def TMEF_CombinedStauTrackBuilder( name='TMEF_CombinedStauTrackBuilder', **kwarg
    return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
 
 def TMEF_MuonStauSegmentRegionRecoveryTool(name='TMEF_MuonStauSegmentRegionRecoveryTool',**kwargs ):
-   kwargs.setdefault('SeededSegmentFinder', CfgGetter.getPublicTool('MuonStauSeededSegmentFinder') )
-   kwargs.setdefault('ChamberHoleRecoveryTool', CfgGetter.getPublicTool('MuonStauChamberHoleRecoveryTool') )
-   kwargs.setdefault('Fitter',  CfgGetter.getPublicTool('TMEF_CombinedStauTrackBuilderFit') )
-   return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
-
+    kwargs.setdefault('SeededSegmentFinder', CfgGetter.getPublicTool('MuonStauSeededSegmentFinder') )
+    kwargs.setdefault('ChamberHoleRecoveryTool', CfgGetter.getPublicTool('MuonStauChamberHoleRecoveryTool') )
+    kwargs.setdefault('Fitter',  CfgGetter.getPublicTool('TMEF_CombinedStauTrackBuilderFit') )
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline:
+        kwargs.setdefault('MdtCondKey', "")
+    return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
+    
 def TMEF_CombinedStauTrackBuilderFit( name='TMEF_CombinedStauTrackBuilderFit', **kwargs ):
    kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
    return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
+
+def TMEF_MdtRawDataProviderTool(name="TMEF_MdtRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "MdtROD_Decoder")
+    if DetFlags.overlay.MDT_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation",overlayFlags.dataStore()+"+MDTCSM")
+    return CfgMgr.Muon__MDT_RawDataProviderTool(name,**kwargs)
+
+def TMEF_RpcRawDataProviderTool(name = "TMEF_RpcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "RpcROD_Decoder")
+    if DetFlags.overlay.RPC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+RPCPAD")
+    return CfgMgr.Muon__RPC_RawDataProviderTool(name,**kwargs)
+
+def TMEF_TgcRawDataProviderTool(name = "TMEF_TgcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "TgcROD_Decoder")
+    if DetFlags.overlay.TGC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+TGCRDO")
+    return CfgMgr.Muon__TGC_RawDataProviderTool(name,**kwargs)
+
+def TMEF_CscRawDataProviderTool(name = "TMEF_CscRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "CscROD_Decoder")
+    if DetFlags.overlay.CSC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
+    return CfgMgr.Muon__CSC_RawDataProviderTool(name,**kwargs)
 
 # TrigMuonEF classes
 class TrigMuonEFTrackBuilderConfig ():
@@ -464,36 +486,88 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
     def __init__( self, name="TrigMuonEFStandaloneTrackTool", **kwargs ):
         super( TrigMuonEFStandaloneTrackToolConfig, self ).__init__( name, **kwargs )
 
-        self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
+        if MuonGeometryFlags.hasCSC(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
         self.SegmentsFinderTool = CfgGetter.getPublicToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
-                                                                HoughPatternFinder = CfgGetter.getPublicTool("MuonLayerHoughTool"))
+                                                                HoughPatternFinder = CfgGetter.getPublicTool("MuonLayerHoughTool"),
+                                                                Csc2dSegmentMaker=("Csc2dSegmentMaker/Csc2dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""),
+                                                                Csc4dSegmentMaker=("Csc4dSegmentMaker/Csc4dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""))
 
         CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False
         CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
         CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
-        self.MdtRawDataProvider = "MdtRawDataProviderTool"
-        self.RpcRawDataProvider = "RpcRawDataProviderTool"
-        self.TgcRawDataProvider = "TgcRawDataProviderTool"
+        self.MdtRawDataProvider = "TMEF_MdtRawDataProviderTool"
+        self.CscRawDataProvider = "TMEF_CscRawDataProviderTool"
+        self.RpcRawDataProvider = "TMEF_RpcRawDataProviderTool"
+        self.TgcRawDataProvider = "TMEF_TgcRawDataProviderTool"
+
+        #Need to run non-MT version of decoding tools in the trigger since the caching is not available in MT versions
+        #Need different PRD container names to run offline and trigger in same jobs, but there are many tools that depend on these containers...
+        #Since this is legacy code only used for validation comparisons against the Run 3 triggers, will do the not-particularly-nice solution of
+        #creating containers with unique names only if we are running offline and trigger in the same jobs, and otherwise just use the default names.
+        #This means that the trigger output when running the trigger as part of RAWtoESD is not 100% correct (the pattern finding uses the correct containers,
+        #so it's a small effect overall anyway), but that's an use case not currently needed for trigger validation purposes
+        from AthenaCommon.AppMgr import ToolSvc
+        #MDT
+        from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
+        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigEFMdtRdoToPrepDataTool")
+        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigEFCscRdoToPrepDataTool")
+        TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigEFTgcRdoToPrepDataTool")
+        RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigEFRpcRdoToPrepDataTool")
+        if not rec.doRDOTrigger and rec.doESD:
+            MdtRdoToMdtPrepDataTool.OutputCollection = "TrigMDT_DriftCircles"
+            CscRdoToCscPrepDataTool.OutputCollection = "TrigCSC_Measurements"
+            TgcRdoToTgcPrepDataTool.OutputCollection = "TrigTGC_Measurements"
+            TgcRdoToTgcPrepDataTool.OutputCoinCollection = "TrigerT1CoinDataCollection"
+            RpcRdoToRpcPrepDataTool.TriggerOutputCollection="TrigRPC_Measurements"
+            #InputCollection is really the output RPC coin collection...
+            RpcRdoToRpcPrepDataTool.InputCollection="TrigRPC_triggerHits"
+        else:
+            MdtRdoToMdtPrepDataTool.OutputCollection = "MDT_DriftCircles"
+            CscRdoToCscPrepDataTool.OutputCollection = "CSC_Measurements"
+            TgcRdoToTgcPrepDataTool.OutputCollection = "TGC_Measurements"
+            TgcRdoToTgcPrepDataTool.OutputCoinCollection = "TrigT1CoinDataCollection"
+            RpcRdoToRpcPrepDataTool.TriggerOutputCollection="RPC_Measurements"
+            RpcRdoToRpcPrepDataTool.InputCollection="RPC_triggerHits"
+
+        ToolSvc += MdtRdoToMdtPrepDataTool
+        self.MdtPrepDataContainer =  MdtRdoToMdtPrepDataTool.OutputCollection
+        self.MdtPrepDataProvider=MdtRdoToMdtPrepDataTool
+        #CSC
+        ToolSvc += CscRdoToCscPrepDataTool
+        self.CscPrepDataProvider=CscRdoToCscPrepDataTool
+        #We use the clusters not the PRD hits directly for CSCs
+        self.CscPrepDataContainer="CSC_Clusters"
+        #TGC
+        ToolSvc += TgcRdoToTgcPrepDataTool
+        self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool
+        self.TgcPrepDataContainer=TgcRdoToTgcPrepDataTool.OutputCollection
+        #RPC
+        ToolSvc += RpcRdoToRpcPrepDataTool
+        self.RpcPrepDataProvider=RpcRdoToRpcPrepDataTool
+        self.RpcPrepDataContainer=RpcRdoToRpcPrepDataTool.TriggerOutputCollection
+
         self.DecodeMdtBS = DetFlags.readRDOBS.MDT_on()
         self.DecodeRpcBS = DetFlags.readRDOBS.RPC_on()
         self.DecodeTgcBS = DetFlags.readRDOBS.TGC_on()
-        self.DecodeCscBS = DetFlags.readRDOBS.CSC_on()
+        if MuonGeometryFlags.hasCSC(): self.DecodeCscBS = DetFlags.readRDOBS.CSC_on()
 
         # use seeded decoding
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
             self.useMdtSeededDecoding = True
             self.useRpcSeededDecoding = True
             self.useTgcSeededDecoding = True
-            self.useCscSeededDecoding = True
+            if MuonGeometryFlags.hasCSC(): self.useCscSeededDecoding = True
 
             # use ROB based seeded decoding instead of PRD based
             self.useTgcRobDecoding = False # neither available nor needed
             self.useCscRobDecoding = False # neither available nor needed
 
 
-        from MuonRecExample.MuonRecFlags import muonRecFlags
         self.useRpcData=muonRecFlags.doRPCs()
         self.useTgcData=muonRecFlags.doTGCs()
         self.useCscData=muonRecFlags.doCSCs()
@@ -513,13 +587,15 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.maxRpcHits      = 0
         self.maxMdtHits      = 0
         self.doCache = True
-        self.IgnoreMisalginedCSCs = True
+        self.IgnoreMisalginedCSCs = False
 
         self.TrackBuilderTool  = "TMEF_TrackBuilderTool"
         self.TrkSummaryTool = "TMEF_TrackSummaryTool"
         self.MuonCandidateTool = "TMEF_MuonCandidateTool"
 
         self.TrackToTrackParticleConvTool = "MuonParticleCreatorTool"
+
+        import MuonCondAlg.MdtCondDbAlgConfig #MDT conditions, needed for the MuonStationIntersectSvc
 
         #from MuonRecExample.MuonRecTools import MuonSTEP_Propagator
         #MuonSTEP_Propagator.OutputLevel=5
@@ -566,7 +642,6 @@ def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
     kwargs.setdefault('removeSelf',True)
     kwargs.setdefault('useAnnulus',False)
     kwargs.setdefault('useVarIso',True)
-    kwargs.setdefault('removeSelfType',0)
     # Get the track selection tool
     from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
     trkseltool = InDet__InDetTrackSelectionTool()
@@ -574,8 +649,8 @@ def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
         trkseltool.CutLevel='Loose'
     elif 'TightTSel' in name:
         trkseltool.CutLevel='TightPrimary'
-    print 'TMEF_TrackIsolationTool added trackselection tool:'
-    print trkseltool
+    print ('TMEF_TrackIsolationTool added trackselection tool:')
+    print (trkseltool)
     kwargs.setdefault('TrackSelectionTool',trkseltool)
     return TrigMuonEFTrackIsolationTool(name, **kwargs)
 
@@ -593,8 +668,6 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
         self.IsolationTool = TMEF_IsolationTool
 
         # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
 
         # Only run algo on combined muons
@@ -624,8 +697,6 @@ class TrigMuonEFMSTrackIsolationConfig (TrigMuonEFTrackIsolation):
         self.IsolationTool = TMEF_IsolationTool
 
         # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
 
         # Only run algo on combined muons
@@ -660,22 +731,9 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         # Isolation tool
         self.IsolationTool = TMEF_VarIsolationTool
 
-        # Which isolation to run?
-        if "FTK" in name:
-            self.IsoType=2
-            self.IsolationTool.removeSelfType=1 # use LeadTrk by default
-        else:
-            self.IsoType=1
-        # Options: 1=ID+EF, 2=FTK+L2
 
         # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
-
-        # FTK tracks
-        self.FTKTrackParticles = "InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig"
-
 
         # Only run algo on combined muons
         self.requireCombinedMuon = True
@@ -695,39 +753,6 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         timetool.TimerHistLimits=[0,1000]
 
         self.AthenaMonTools = [ validation_trkiso, online_trkiso, timetool ]
-
-
-class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
-    __slots__ = ()
-
-    def __init__( self, name="TrigMuonEFTrackIsolationAnnulusConfig" ):
-        super( TrigMuonEFTrackIsolationAnnulusConfig, self ).__init__( name )
-
-        # configure the isolation tool
-        TMEF_AnnulusIsolationTool = TMEF_TrackIsolationTool('TMEF_AnnulusIsolationTool',
-                                                            useVarIso=False,
-                                                            useAnnlus=True,
-                                                            annulusSize=0.1)
-
-        # Isolation tool
-        self.IsolationTool = TMEF_AnnulusIsolationTool
-
-        # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
-
-        # Only run algo on combined muons
-        self.requireCombinedMuon = True
-
-        # Use offline isolation variables
-        self.useVarIso = False
-
-        # histograms
-        self.histoPathBase = ""
-        validation_trkiso = TrigMuonEFTrackIsolationValidationMonitoring()
-        online_trkiso     = TrigMuonEFTrackIsolationOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation_trkiso, online_trkiso ]
 
 
 def InDetTrkRoiMaker_Muon(name="InDetTrkRoiMaker_Muon",**kwargs):
@@ -843,8 +868,6 @@ class TrigMuonEFTrackIsolationMTConfig (TrigMuonEFTrackIsolationAlgMT):
         self.OnlineIsolationTool = TMEF_IsolationTool
 
         # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
 
         # Only run algo on combined muons

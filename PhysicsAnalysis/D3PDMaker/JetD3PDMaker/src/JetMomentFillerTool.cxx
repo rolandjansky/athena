@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file JetD3PDMaker/src/JetMomentFillerTool.cxx
  * @author Pier-Olivier DeViveiros < viveiros AT physics.utoronto.ca >
@@ -19,7 +17,6 @@
 #include "CaloEvent/CaloCluster.h"
 #include "AthenaKernel/errorcheck.h"
 #include "boost/tokenizer.hpp"
-#include "boost/foreach.hpp"
 
 
 namespace {
@@ -186,7 +183,7 @@ StatusCode JetMomentFillerTool::fill(const Jet& p)
         typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
         boost::char_separator<char> sep(" ,");
         tokenizer tokens(m_momentList[i], sep);
-        BOOST_FOREACH (const std::string& s, tokens) {
+        for (const std::string& s : tokens) {
           m_momentList[i] = s;
           if (std::find ( moment_keys.begin(), moment_keys.end(), s) !=
               moment_keys.end())

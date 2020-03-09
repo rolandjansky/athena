@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##############################
 # L2 Electron Fex Algorithm Configuration:
@@ -7,8 +7,6 @@
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronFex
 from AthenaCommon.SystemOfUnits import GeV, mm
-
-from AthenaCommon.AppMgr import ToolSvc
 
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator

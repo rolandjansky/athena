@@ -33,7 +33,7 @@ if __name__ == "__main__":
     #acc.getService("StoreGateSvc").Dump=True
     acc.getService("ConditionStore").Dump=True
     acc.printConfig(withDetails=True)
-    f=open('AtlasGeoModelCfg_EVNT.pkl','w')
+    f=open('AtlasGeoModelCfg_EVNT.pkl','wb')
     acc.store(f)
     f.close()
     ConfigFlags.dump()

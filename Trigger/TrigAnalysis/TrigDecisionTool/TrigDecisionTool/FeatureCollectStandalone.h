@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_FeatureCollectStandalone_H
@@ -21,7 +21,6 @@
 
 #include <string>
 #include <set>
-#include "boost/foreach.hpp"
 #include "boost/type_traits/is_same.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"
@@ -43,7 +42,6 @@
 
 #include "TrigNavStructure/TrigNavStructure.h"
 
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/Check.h"
 
 #include "TrigNavStructure/TypedHolder.h"
@@ -186,11 +184,10 @@ namespace HLT{
   template<>
   class TypedHolder<TrigRoiDescriptor,TrigRoiDescriptorCollection> : public TypelessHolder, public asg::AsgMessaging {
   public:
-    TypedHolder(const BaseHolder& baseholder, EventPtr store, const std::string& container_name = "") 
+    TypedHolder(const BaseHolder& baseholder, EventPtr store, const std::string& /*container_name*/ = "") 
       : TypelessHolder(baseholder.typeClid(),baseholder.label(),baseholder.subTypeIndex()), 
 	asg::AsgMessaging("TypedHolder"),
 	m_store(store){
-      (void)container_name;//unused
     };
     
     StatusCode get(const TrigRoiDescriptor*& destination, HLT::TriggerElement::ObjectIndex idx){

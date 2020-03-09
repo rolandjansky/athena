@@ -24,7 +24,7 @@
  **
  **************************************************************************/
 
-#include "TrigConfigSvc/TrigConfDataIOVChanger.h"
+#include "./TrigConfDataIOVChanger.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -57,9 +57,7 @@ TrigConfDataIOVChanger::TrigConfDataIOVChanger(const std::string &name, ISvcLoca
   : AthAlgorithm(name, pSvcLocator),
     m_AdjustIOV(false),
     m_LastRun(0),
-    m_storeGate("StoreGateSvc", name),
-    m_metaDataStore("StoreGateSvc/MetaDataStore",name),
-    m_detStore("StoreGateSvc/DetectorStore",name)
+    m_metaDataStore("StoreGateSvc/MetaDataStore",name)
 {
   declareProperty("AdjustIOV", m_AdjustIOV, "Set to true if the IOV needs adjustment (MC production), false (default) for data-reco");
 }
@@ -72,8 +70,6 @@ StatusCode
 TrigConf::TrigConfDataIOVChanger::initialize() {
 
    ATH_MSG_DEBUG("Initializing TrigConfDataIOVChanger..." << endl << "Properties:");
-
-   CHECK(m_storeGate.retrieve());
 
    CHECK(m_metaDataStore.retrieve());
 
@@ -115,45 +111,45 @@ TrigConf::TrigConfDataIOVChanger::execute() {
    // (perhaps at some point a forced copy flag
    // will be implemented, but for now...)
    // ----------------------------------------
-   const DataHandle<CondAttrListCollection> listColl;
-   const DataHandle<AthenaAttributeList> attList;
+   const CondAttrListCollection* listColl = nullptr;
+   const AthenaAttributeList* attList = nullptr;
 
-   if( m_detStore->retrieve(listColl, TRIGGER_CONF_HLTMENU  ).isSuccess() && listColl) {
+   if( detStore()->retrieve(listColl, TRIGGER_CONF_HLTMENU  ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_HLTMENU);    
    } else {
       ATH_MSG_INFO("Failed to read " << TRIGGER_CONF_HLTMENU);    
    }
-   if( m_detStore->retrieve( attList, TRIGGER_CONF_HLTKEYS  ).isSuccess() && listColl) {
+   if( detStore()->retrieve( attList, TRIGGER_CONF_HLTKEYS  ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_HLTKEYS);    
    } else {
       ATH_MSG_INFO("Failed to read " << TRIGGER_CONF_HLTKEYS);    
    }
-   if( m_detStore->retrieve( attList, TRIGGER_CONF_LVL1KEY  ).isSuccess() && listColl) {
+   if( detStore()->retrieve( attList, TRIGGER_CONF_LVL1KEY  ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_LVL1KEY);    
    } else {
       ATH_MSG_INFO("Failed to read " << TRIGGER_CONF_LVL1KEY);    
    }
-   if( m_detStore->retrieve(listColl, TRIGGER_CONF_LVL1MENU ).isSuccess() && listColl) {
+   if( detStore()->retrieve(listColl, TRIGGER_CONF_LVL1MENU ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_LVL1MENU);    
    } else {
       ATH_MSG_INFO("Failed to read " << TRIGGER_CONF_LVL1MENU);    
    }
-   if( m_detStore->retrieve(listColl, TRIGGER_CONF_LVL1PS   ).isSuccess() && listColl) {
+   if( detStore()->retrieve(listColl, TRIGGER_CONF_LVL1PS   ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_LVL1PS);    
    } else {
       ATH_MSG_INFO("Failed to read " << TRIGGER_CONF_LVL1PS);    
    } 
-   if( m_detStore->retrieve(listColl, TRIGGER_CONF_LVL1ITD   ).isSuccess() && listColl) {
+   if( detStore()->retrieve(listColl, TRIGGER_CONF_LVL1ITD   ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_LVL1ITD);
    } else {
       ATH_MSG_INFO("Failed to read " << TRIGGER_CONF_LVL1ITD);
    }
-   if( m_detStore->retrieve(listColl, TRIGGER_CONF_HLTPS   ).isSuccess() && listColl) {
+   if( detStore()->retrieve(listColl, TRIGGER_CONF_HLTPS   ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_HLTPS);
    } else {
       ATH_MSG_INFO("Failed to read " << TRIGGER_CONF_HLTPS);
    }
-   if( m_detStore->retrieve(listColl, TRIGGER_CONF_HLTPSK   ).isSuccess() && listColl) {
+   if( detStore()->retrieve(listColl, TRIGGER_CONF_HLTPSK   ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_HLTPSK);
    } else {
       ATH_MSG_INFO("Failed to read " << TRIGGER_CONF_HLTPSK);
@@ -169,8 +165,8 @@ TrigConf::TrigConfDataIOVChanger::execute() {
 
    // Second retrieve all meta data containers from the MetaDataStore
    // (the one that goes out into the ESD/AOD)
-   const DataHandle<IOVMetaDataContainer> cont;
-   const DataHandle<IOVMetaDataContainer> contEnd;
+   SG::ConstIterator<IOVMetaDataContainer> cont;
+   SG::ConstIterator<IOVMetaDataContainer> contEnd;
 
    CHECK(m_metaDataStore->retrieve(cont, contEnd));
 

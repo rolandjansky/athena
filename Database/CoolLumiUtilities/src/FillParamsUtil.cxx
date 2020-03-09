@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CoolLumiUtilities/FillParamsUtil.h"
@@ -107,9 +107,6 @@ FillParamsUtil::setValue(const coral::AttributeList& attrList) {
   for (unsigned int i = 0; i < nb1; i++, p++) {
     m_beam1Bunches.push_back(*p);
     // std::cout << "nBeam1 is  " << *p << std::endl;
-    if (i==nb1) {
-      std::cout << "####################" << std::endl;
-	}
   }
 
   // Decode beam2 list
@@ -117,9 +114,6 @@ FillParamsUtil::setValue(const coral::AttributeList& attrList) {
     // unsigned int tmp = *p;
     //    std::cout << "#2 is " << tmp << std::endl;
     m_beam2Bunches.push_back(*p);
-    if (i==nb2){
-      std::cout << "####################" << std::endl;
-    }
   }
 
   
@@ -128,9 +122,6 @@ FillParamsUtil::setValue(const coral::AttributeList& attrList) {
     //unsigned int tmp = *p;
     //    std::cout << "Luminous bunch is   " << tmp << std::endl;
     m_luminousBunches.push_back(*p);
-    if (i==ncol){
-      std::cout << "####################" << std::endl;
-    }
   }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,7 +8,6 @@
 
 #include "RecExAlgs/SimpleRawObjMaker.h"
 #include "RecExAlgs/SimpleRawObj.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //================ Constructor =================================================
 
@@ -40,15 +39,6 @@ StatusCode SimpleRawObjMaker::initialize()
                << " Raw Message is: " << m_rawMessage << endmsg
                << " will write out RawObj with key " << m_rawObjOutputName);
 
-
-  // retrieve the StoreGate Service (delete if not needed)
-  if (!evtStore().retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Could not retrieve StoreGateSvc!");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("StoreGateSvc retrieved!");
-  }
-  
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }

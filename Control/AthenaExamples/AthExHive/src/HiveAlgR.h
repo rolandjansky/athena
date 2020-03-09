@@ -2,6 +2,13 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+/**
+ * @file  HiveAlgR.h
+ * @brief Re-entrant Algorithm that reads the EventInfo obj, and writes
+ * a HiveDataObjs to the store
+ */
+
+
 #ifndef ATHEXHIVE_HIVEALGR_H
 #define ATHEXHIVE_HIVEALGR_H 1
 
@@ -12,6 +19,7 @@
 #include "AthExHive/HiveDataObj.h"
 #include "xAODEventInfo/EventInfo.h"
 
+// to make an Algorithm Re-entrant, you must inherit from AthReentrantAlgorithm
 class HiveAlgR  :  public AthReentrantAlgorithm {
   
 public:
@@ -21,11 +29,12 @@ public:
   HiveAlgR (const std::string& name, ISvcLocator* pSvcLocator);
   ~HiveAlgR ();
   
-  // Define the initialize, execute and finalize methods:
-  
+  // Define the initialize, execute and finalize methods: 
   StatusCode initialize();
-  StatusCode execute(const EventContext&) const;
   StatusCode finalize();
+
+  // Re-entrant version of execute is const and takes an EventContext param
+  StatusCode execute(const EventContext&) const;
   
 private:
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file ISF_Config/python/ISF_jobProperties.py
 ## @brief Python module to hold common flags to configure JobOptions
@@ -118,12 +118,12 @@ class UsingGeant4(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
-# currently unused:
-#class ParticleBroker(JobProperty):
-#    """Steering of ISF: set the Particle Broker Service"""
-#    statusOn     = True
-#    allowedTypes = ['str']
-#    StoredValue  = 'ISF_ParticleBrokerSvc'
+
+class ParticleBroker(JobProperty):
+    """Steering of ISF: set the Particle Broker Service"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_ParticleBrokerSvc'
 
 class OverrideInputFiles(JobProperty):
     """Steering of ISF: set input override"""
@@ -199,7 +199,7 @@ jobproperties.ISF_jobProperties.add_JobProperty(Input)
 jobproperties.ISF_jobProperties.add_JobProperty(Simulator)
 jobproperties.ISF_jobProperties.add_JobProperty(HITSMergingRequired)
 jobproperties.ISF_jobProperties.add_JobProperty(UsingGeant4)
-#jobproperties.ISF_jobProperties.add_JobProperty(ParticleBroker)
+jobproperties.ISF_jobProperties.add_JobProperty(ParticleBroker)
 jobproperties.ISF_jobProperties.add_JobProperty(OverrideInputFiles)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainBeamPipe)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainID)

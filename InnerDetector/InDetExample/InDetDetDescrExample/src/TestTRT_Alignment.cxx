@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/TestTRT_Alignment.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 #include <iostream>

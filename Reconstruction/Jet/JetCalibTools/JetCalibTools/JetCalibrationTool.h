@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.h 
@@ -64,13 +64,7 @@ public:
   //PATInterfaces inherited method
   StatusCode finalize();
 
-  ///Implement IJetCalibrationTool interface :
-  virtual StatusCode applyCalibration(xAOD::Jet& jet) const;
-  //PATInterfaces version of applyCalibration
-  virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet);
-
-  virtual int modify(xAOD::JetContainer&) const;
-  virtual int modifyJet(xAOD::Jet&) const;
+  virtual StatusCode applyCalibration(xAOD::JetContainer&) const;
 
   // Retrieve pTmax from in situ corrections
   virtual VecD retrieveEtaIntercalPtMax(){return m_relInsituPtMax;}
@@ -125,6 +119,8 @@ private:
   bool m_doResidual;
   bool m_doOrigin;
   bool m_doGSC;
+
+  std::string m_gscDepth; // if not set then use the one defined in the config
 
   // vector with pTmax of each in situ correction
   VecD m_relInsituPtMax, m_absInsituPtMax;

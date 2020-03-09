@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,9 +18,12 @@ LArCalibParamsCnv::~LArCalibParamsCnv()
 
 
 /// Extend base-class conversion method
-StatusCode LArCalibParamsCnv::PoolToDataObject(DataObject*& pObj, const Token* token) {
+StatusCode LArCalibParamsCnv::PoolToDataObject(DataObject*& pObj,
+                                               const Token* token,
+                                               const std::string& key)
+{
   StatusCode sc;
-  sc=LArCalibParamsCnvBase::PoolToDataObject(pObj,token);
+  sc=LArCalibParamsCnvBase::PoolToDataObject(pObj,token,key);
   if (sc.isFailure()) return sc;
   LArCalibParams* larCalibParams=NULL;
   SG::fromStorable(pObj,larCalibParams);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -12,10 +12,7 @@
 #ifndef TRKEVENTATHENAPOOL_SEGMENTCOLLECTIONCNV_H
 #define TRKEVENTATHENAPOOL_SEGMENTCOLLECTIONCNV_H
 
-// Hack so we can access the private data. EJWM
-#define protected public
 #include "GaudiKernel/MsgStream.h"
-#undef protected
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "AthenaPoolCnvSvc/AthenaPoolCnvTPExtension.h"
@@ -48,14 +45,13 @@ public:
   SegmentCollectionCnv( ISvcLocator *svcloc );
 
 protected:
-  virtual SegmentCollection_PERS *createPersistent( Trk::SegmentCollection *transCont);
-  virtual Trk::SegmentCollection *createTransient();
+  virtual SegmentCollection_PERS *createPersistent( Trk::SegmentCollection *transCont) override;
+  virtual Trk::SegmentCollection *createTransient() override;
 
-  virtual AthenaPoolTopLevelTPCnvBase* getTopLevelTPCnv() { return &m_TPConverterForPER; }
+  virtual AthenaPoolTopLevelTPCnvBase* getTopLevelTPCnv() override { return &m_TPConverterForPER; }
 
 private:
   void    initializeOldExtConverters();  //!< setup old extended converters when reading old data
-  void    updateLog(); //!< This method modifies m_log to indicate the current key being converted
 
   IMessageSvc           *m_msgSvc;
   MsgStream             m_log;

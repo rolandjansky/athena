@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryParser.py
@@ -11,6 +11,7 @@
 # Created: Nov 13, 2008
 # ----------------------------------------------------------------
 #
+from __future__ import print_function
 import sys,os,re
 import urllib
 
@@ -104,24 +105,24 @@ class ArgumentParser:
         (self.dName, self.NotInAll, self.vetoedbits) = InitDetectorMaskDecoder(run2=True) # needs to be fixed (made run-dependent) - move into Det Selector
 
     def ParserUsage( self ):
-        print ' '
-        print 'Parser usage: python %s <string_argument>' % sys.argv[0]
-        print ' '
-        print 'A query starts with the keyword "f(ind)", several queries can be combined with "and", "(and) not"'
-        print 'The requested response information is given through the keyword "sh(ow)" (the query must be terminated by a "/")'
-        print ' '
-        print 'Query words:'
+        print (' ')
+        print ('Parser usage: python %s <string_argument>' % sys.argv[0])
+        print (' ')
+        print ('A query starts with the keyword "f(ind)", several queries can be combined with "and", "(and) not"')
+        print ('The requested response information is given through the keyword "sh(ow)" (the query must be terminated by a "/")')
+        print (' ')
+        print ('Query words:')
         for key in self.queryArgs:
-            print "   %s " % self.queryArgs[key][4]
-        print ' ' 
-        print 'Parts of a keyword written in paranthesis are optional'
-        print ' ' 
-        print 'Examples: '
-        print ' ' 
-        print '  find run 90272 and runs 90275-91900 and magnet toroid and magnet solenoid / show run and events'
-        print '  f r 90272 and r 90275-91900 and m t and m s / sh r and ev [same as above in short-hand version]'
-        print '  find runs 90275-91900 and not run 90280 and not dq EMEC r and show run and dq EMEC' 
-        print ' '
+            print ("   %s " % self.queryArgs[key][4])
+        print (' ' )
+        print ('Parts of a keyword written in paranthesis are optional')
+        print (' ' )
+        print ('Examples: ')
+        print (' ' )
+        print ('  find run 90272 and runs 90275-91900 and magnet toroid and magnet solenoid / show run and events')
+        print ('  f r 90272 and r 90275-91900 and m t and m s / sh r and ev [same as above in short-hand version]')
+        print ('  find runs 90275-91900 and not run 90280 and not dq EMEC r and show run and dq EMEC' )
+        print (' ')
 
     def replaceNumbers( self, n ):
         return n.replace('k','000').replace('m','000000')
@@ -147,7 +148,7 @@ class ArgumentParser:
         list_of_runs = GetRuns(arg)
                 
         if len(list_of_runs)==0:
-            print "No runs matching pattern"
+            print ("No runs matching pattern")
             sys.exit(0)
                     
         return "--run " + ','.join([str(r) for r in list_of_runs])
@@ -195,14 +196,14 @@ class ArgumentParser:
             if len(a) == 2:
                 arg = a[1].strip()
             else:
-                print 'ERROR in argument of command "olc lumi": no argument given' 
+                print ('ERROR in argument of command "olc lumi": no argument given' )
                 sys.exit()
 
         # make equal to 'lumi' (for backward compatibility)
         if cmd.lower() == 'lumi':
             atlqarg = 'olclumi'
             if not arg:
-                print 'ERROR in argument of command "olc lumi": no argument given' 
+                print ('ERROR in argument of command "olc lumi": no argument given' )
                 sys.exit()
 
         # special case for 'lhc'
@@ -213,7 +214,7 @@ class ArgumentParser:
                 if   val == '1' or val == 'T': val = 'TRUE'
                 elif val == '0' or val == 'F': val = 'FALSE'
                 elif val != 'TRUE' and val != 'FALSE':
-                    print 'ERROR in argument of command "lhc": "%s". Value must be boolean (true/false or 1/0)' % val
+                    print ('ERROR in argument of command "lhc": "%s". Value must be boolean (true/false or 1/0)' % val)
                     sys.exit()
                 arg += ' ' + val
         
@@ -518,9 +519,9 @@ class ArgumentParser:
 
         # sanity check
         if mask == 0:
-            print 'ERROR: could not find detector: "%s" in detector list' % arg
-            print self.dName
-            print 'Note: search is case INSENSITIVE'
+            print ('ERROR: could not find detector: "%s" in detector list' % arg)
+            print (self.dName)
+            print ('Note: search is case INSENSITIVE')
             self.ParseError( '' )
 
         # decide whether detectors are required IN or OUT of partition
@@ -531,10 +532,10 @@ class ArgumentParser:
         return "--" + atlqarg + ' "%i%s' % (mask,anyflag) + '"'
         
     def ParseError( self, errtext, pos = -1 ):
-        print ' '
-        print 'ERROR in argument: "%s"' % self.const_arg
-        print "%s" % errtext
-        print ' '
+        print (' ')
+        print ('ERROR in argument: "%s"' % self.const_arg)
+        print ("%s" % errtext)
+        print (' ')
         sys.exit(1)
 
     def MatchingQueryArg(self, arg):
@@ -684,15 +685,15 @@ class ArgumentParser:
             elif idx>0 and (oargs[idx-1]=='grl' or oargs[idx-1]=='xmlfile'):
                 extraargs['xmlfile']  = '--xmlfile %s' % oa
             else:
-                print "Extra argument '%s' unknown. Exiting." % oa
+                print ("Extra argument '%s' unknown. Exiting." % oa)
                 sys.exit(1)
             idx+=1
 
         if 'verbose' in extraargs:
-            print "Parser: '%s'" % self.const_arg
-            print '  find argument: "%s"' % findarg.strip()
-            print '  show argument: "%s"' % showarg.strip()
-            print '  extra argument: "%s"' % otherarg.strip()
+            print ("Parser: '%s'" % self.const_arg)
+            print ('  find argument: "%s"' % findarg.strip())
+            print ('  show argument: "%s"' % showarg.strip())
+            print ('  extra argument: "%s"' % otherarg.strip())
 
         # no defaults for MC
         if self.isMCDB: nodef_flag = True
@@ -717,11 +718,11 @@ if __name__=='__main__':
     ap = ArgumentParser()
 
     if len(sys.argv) <= 1:
-        print 'No query argument given'
+        print ('No query argument given')
         sys.exit(1)
 
     if sys.argv[1].lower() == 'detmask':
-        print 'Detector mask %s correspond to:\n%s' % (sys.argv[2], DecodeDetectorMask( int(sys.argv[2] )))
+        print ('Detector mask %s correspond to:\n%s' % (sys.argv[2], DecodeDetectorMask( int(sys.argv[2] ))))
         sys.exit()
 
     if sys.argv[1].lower() == 'help':
@@ -729,5 +730,5 @@ if __name__=='__main__':
         sys.exit(1)
  
     atlqueryarg = ap.ParseArgument( ' '.join(sys.argv[1:]) )
-    print "\nAtlRunQuery.py %s\n" % atlqueryarg
+    print ("\nAtlRunQuery.py %s\n" % atlqueryarg)
 

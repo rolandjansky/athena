@@ -202,7 +202,7 @@ namespace Trk
 
   // Surface return (with on demand construction)
   template <int DIM,class T,class S>
-  const Amg::RotationMatrix3D CurvilinearParametersT<DIM,T,S>::measurementFrame() const
+  Amg::RotationMatrix3D CurvilinearParametersT<DIM,T,S>::measurementFrame() const
   {
     Amg::RotationMatrix3D mFrame;
     // the columnes
@@ -216,7 +216,7 @@ namespace Trk
   }
 
   template<int DIM,class T,class S>
-  const CurvilinearUVT CurvilinearParametersT<DIM,T,S>::curvilinearFrame() const
+  CurvilinearUVT CurvilinearParametersT<DIM,T,S>::curvilinearFrame() const
   {
     CurvilinearUVT curvilinFrame(this->momentum().unit());
     return curvilinFrame;
@@ -246,7 +246,8 @@ namespace Trk
     {
       double phi   = updatedParameters[Trk::phi];
       double theta = updatedParameters[Trk::theta];
-      double p     = this->charge()/updatedParameters[Trk::qOverP];
+      double p     = fabs(1./updatedParameters[Trk::qOverP]);
+      this->m_chargeDef.setCharge( sgn(updatedParameters[Trk::qOverP]) );
       // assign them and update the momentum 3 vector
       this->m_parameters[Trk::phi]    = phi;
       this->m_parameters[Trk::theta]  = theta;

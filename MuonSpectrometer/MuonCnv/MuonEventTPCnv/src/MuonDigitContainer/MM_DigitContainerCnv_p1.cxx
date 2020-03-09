@@ -51,13 +51,7 @@ StatusCode Muon::MM_DigitContainerCnv_p1::initialize(MsgStream &log) {
   } else {
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the MM IdHelper." << endmsg;
   }
-
-  sc = detStore->retrieve(m_muonDetMgr);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
-    return sc;
-  }
-
+  
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
   return StatusCode::SUCCESS;
 }

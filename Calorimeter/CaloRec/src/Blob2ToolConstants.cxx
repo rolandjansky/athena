@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloRec/Blob2ToolConstants.h"
@@ -11,7 +11,6 @@
 #include "CoralBase/AttributeListException.h"
 #include "CoralBase/Blob.h"
 #include "GaudiKernel/MsgStream.h"
-#include "CxxUtils/make_unique.h"
 
 #include "TBufferFile.h"
 #include "TClass.h"
@@ -171,7 +170,7 @@ coral::AttributeList* Blob2ToolConstants::ToolConstantsToAttrList(const CaloRec:
     spec->extend("Constants","blob");             //Holds the map<string,Arrayrep>
 
 
-    auto attrList = CxxUtils::make_unique<coral::AttributeList>(*spec);
+    auto attrList = std::make_unique<coral::AttributeList>(*spec);
 
     spec->release();
     // cppcheck-suppress memleak

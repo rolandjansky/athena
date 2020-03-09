@@ -1,16 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRecValidationNtuples/MuonInsideOutAnalysis.h"
 #include "MuonRecValidationNtuples/MuonInsideOutValidationNtuple.h"
-#include "MuGirlStau/MuonBetaCalculationUtils.h"
-
+#include "MuonRecValidationNtuples/MuonBetaCalculationUtils.h"
 
 #include "TTree.h"
 #include "TH1.h"
 #include "TH2.h"
 #include <iostream>
+
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace Muon {
 
@@ -26,7 +28,8 @@ namespace Muon {
     //tree.SetMakeClass(1);
     // loop over tree
     Long64_t nentries = tree.GetEntries();
-    std::cout << " Opening tree " << nentries << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"MuonInsideOutAnalysis");
+    if (log.level()<=MSG::INFO) log << MSG::INFO << "Opening tree " << nentries << endmsg;
     for (Long64_t jentry=0; jentry<nentries;jentry++) {
       
       // load tree and get entries
@@ -36,8 +39,10 @@ namespace Muon {
       
       
       if( jentry%1000 == 0 ){
-        std::cout << " new event " << jentry << std::endl;
-        std::cout << " tracks " << ntuple.trackParticleBlock.pt->size() << " segments " << ntuple.segmentBlock.quality->size() << std::endl;
+        if (log.level()<=MSG::INFO) {
+          log << MSG::INFO << " new event " << jentry << endmsg;
+          log << MSG::INFO << " tracks " << ntuple.trackParticleBlock.pt->size() << " segments " << ntuple.segmentBlock.quality->size() << endmsg;
+        }
       }
       
       // to simplify the analysis we in the beginning look up the indicies of objects corresponding to a given track identifier
@@ -168,7 +173,7 @@ namespace Muon {
               for( unsigned int co=0;co<2;++co ){
 
                 std::set<int> selection = {1};
-                TimePointBetaFit::FitResult betaFitResult = fitBeta( ntuple, pos->second,selection);
+                TimePointBetaFitter::FitResult betaFitResult = fitBeta( ntuple, pos->second,selection);
                 if( betaFitResult.status != 0 ) betaRegionPlots.mdt.fill( betaFitResult.beta, betaTruth, betaFitResult.chi2, betaFitResult.ndof );
                 if( isBarrel ){
 
@@ -226,7 +231,8 @@ namespace Muon {
     for( std::vector<int>::const_iterator it=indexVec.begin();it!=indexVec.end();++it ){
 
       if( *it < 0 || *it >= (int)ntuple.candidateBlock.ntimes->size() ) {
-        std::cout << " WARNING, index out of range: " << (*it) << " max " << ntuple.candidateBlock.ntimes->size() << std::endl;
+        MsgStream log(Athena::getMessageSvc(),"MuonInsideOutAnalysis");
+        if (log.level()<=MSG::WARNING) log << MSG::WARNING << "index out of range: " << (*it) << " max " << ntuple.candidateBlock.ntimes->size() << endmsg;
         continue;
       }
       if( (*ntuple.candidateBlock.stage)[*it] != stage ) continue;
@@ -285,9 +291,6 @@ namespace Muon {
     for( std::vector<int>::const_iterator it=indexVec.begin();it!=indexVec.end();++it ){
 
       bool sameTrack = (*ntuple.segmentBlock.truth.barcode)[*it] == barcode_trk;
-      // std::cout << " seg: stage " << (*ntuple.segmentBlock.stage)[*it] << " " << stage
-      //           << " bc " << (*ntuple.segmentBlock.truth.barcode)[*it] << " " <<  barcode_trk 
-      //           << " str " << matchingStrategy << " ac " << testStrategy(matchingStrategy,sameTrack) << std::endl;
       // select stage + same track only same barcode for now
       if( (*ntuple.segmentBlock.stage)[*it] != stage ) continue;
       ++nseg;
@@ -296,7 +299,6 @@ namespace Muon {
       segmentPlots.fill( ntuple.segmentBlock, *it, p, (*ntuple.trackParticleBlock.truth.beta)[trkIndex] );
 
     }
-    // std::cout << " nsegments " << nseg << std::endl;
     return nseg;
   }
 
@@ -307,7 +309,6 @@ namespace Muon {
     unsigned int nhough = 0;
     int barcode_trk = (*ntuple.trackParticleBlock.truth.barcode)[trkIndex];
     float p = (*ntuple.trackParticleBlock.p)[trkIndex]*0.001;
-    //std::cout << " handleHough " << indexVec.size() << std::endl;
     for( std::vector<int>::const_iterator it=indexVec.begin();it!=indexVec.end();++it ){
       
       // same track
@@ -369,7 +370,8 @@ namespace Muon {
     for( std::vector<int>::const_iterator it=indexVec.begin();it!=indexVec.end();++it ){
 
       if( *it < 0 || *it >= (int)ntuple.timeBlock.type->size() ) {
-        std::cout << " WARNING, index out of range: " << (*it) << " max " << ntuple.timeBlock.type->size() << std::endl;
+        MsgStream log(Athena::getMessageSvc(),"MuonInsideOutAnalysis");
+        if (log.level()<=MSG::WARNING) log << MSG::WARNING << "index out of range: " << (*it) << " max " << ntuple.timeBlock.type->size() << endmsg;
         continue;
       }
 
@@ -384,17 +386,18 @@ namespace Muon {
     }
   }
 
-  TimePointBetaFit::FitResult MuonInsideOutAnalysis::fitBeta( MuonInsideOutValidationNtuple& ntuple, 
+  TimePointBetaFitter::FitResult MuonInsideOutAnalysis::fitBeta( MuonInsideOutValidationNtuple& ntuple, 
                                                               const std::vector<int>& indexVec, std::set<int> types ) {
 
-    TimePointBetaFit fitter;
-    std::map<int,TimePointBetaFit::HitVec> hitsPerCandidate;
+    TimePointBetaFitter fitter;
+    std::map<int,TimePointBetaFitter::HitVec> hitsPerCandidate;
 
+    MsgStream log(Athena::getMessageSvc(),"MuonInsideOutAnalysis");
     // loop over hits
     for( std::vector<int>::const_iterator it=indexVec.begin();it!=indexVec.end();++it ){
 
       if( *it < 0 || *it >= (int)ntuple.timeBlock.type->size() ) {
-        std::cout << " WARNING, index out of range: " << (*it) << " max " << ntuple.timeBlock.type->size() << std::endl;
+        if (log.level()<=MSG::WARNING) log << MSG::WARNING << "index out of range: " << (*it) << " max " << ntuple.timeBlock.type->size() << endmsg;
         continue;
       }
 
@@ -404,46 +407,41 @@ namespace Muon {
       float time = (*ntuple.timeBlock.time)[*it];
       float error = (*ntuple.timeBlock.err)[*it];
       int candidateIndex =  (*ntuple.timeBlock.stage)[*it];
-      //if( type == 1 || type == 10 ) time -= 1.5;
-      //if( type == 12 ) error *= 0.3;
-      //if( type == 10 ) time -= (*ntuple.timeBlock.timeCor)[*it];
 
-      hitsPerCandidate[candidateIndex].push_back( TimePointBetaFit::Hit((*ntuple.timeBlock.d)[*it], time, error ) );
+      hitsPerCandidate[candidateIndex].push_back( TimePointBetaFitter::Hit((*ntuple.timeBlock.d)[*it], time, error ) );
     }
     
-    std::map<int,TimePointBetaFit::HitVec>::iterator cit = hitsPerCandidate.begin();
-    std::map<int,TimePointBetaFit::HitVec>::iterator cit_end = hitsPerCandidate.end();
+    std::map<int,TimePointBetaFitter::HitVec>::iterator cit = hitsPerCandidate.begin();
+    std::map<int,TimePointBetaFitter::HitVec>::iterator cit_end = hitsPerCandidate.end();
     if( hitsPerCandidate.size() > 1 ){
-      std::cout << " multple candidates for track " << hitsPerCandidate.size() << std::endl;
-      fitter.setDebugLevel(10);
+      if (log.level()<=MSG::INFO) log << MSG::INFO << "multple candidates for track " << hitsPerCandidate.size() << endmsg;
     }
 
-    TimePointBetaFit::FitResult result;
+    TimePointBetaFitter::FitResult result;
     for( ;cit!=cit_end;++cit ){
       /// fit beta 
-      TimePointBetaFit::HitVec& hits = cit->second;
-      TimePointBetaFit::FitResult candidateResult = fitter.fitWithOutlierLogic(hits);
+      TimePointBetaFitter::HitVec& hits = cit->second;
+      TimePointBetaFitter::FitResult candidateResult = fitter.fitWithOutlierLogic(hits);
     
       float chi2ndof = candidateResult.chi2/candidateResult.ndof;
-      if( hits.size() > 1 && candidateResult.status != 0 && chi2ndof>5 ){
-        MuonBetaCalculationUtils betaUtils(0.);
-        std::cout << " Beta " << candidateResult.beta << " of fit for types ";
-        for( auto type : types ) std::cout << " " << type;
-        std::cout << " with large chi2 " << chi2ndof << " hits " << hits.size() << std::endl;
-        for( auto& hit : hits ){
-          const char* text = hit.useInFit ? "    hit " : " outlier ";
-          std::cout << text << ": dist "<< std::setw(7) << (int)hit.distance 
-                    << " time " << std::setprecision(3) << std::setw(6) << hit.time - betaUtils.calculateTof(1.,hit.distance)
-                    << " beta " << std::setw(6) << betaUtils.calculateBeta(hit.time,hit.distance) 
-                    << " error " << std::setw(6) << hit.error << " residual " << std::setw(6) << hit.residual << " pull " << std::setw(6) << hit.residual/hit.error << std::endl;
+      if (log.level()<=MSG::INFO) {
+        if( hits.size() > 1 && candidateResult.status != 0 && chi2ndof>5 ){
+          MuonBetaCalculationUtils betaUtils(0.);
+          log << MSG::INFO << "Beta " << candidateResult.beta << " of fit for types ";
+          for( auto type : types ) std::cout << " " << type;
+          log << MSG::INFO << " with large chi2 " << chi2ndof << " hits " << hits.size() << endmsg;
+          for( auto& hit : hits ){
+            const char* text = hit.useInFit ? "    hit " : " outlier ";
+            log << MSG::INFO << text << ": dist "<< std::setw(7) << (int)hit.distance 
+                      << " time " << std::setprecision(3) << std::setw(6) << hit.time - betaUtils.calculateTof(1.,hit.distance)
+                      << " beta " << std::setw(6) << betaUtils.calculateBeta(hit.time,hit.distance) 
+                      << " error " << std::setw(6) << hit.error << " residual " << std::setw(6) << hit.residual << " pull " << std::setw(6) << hit.residual/hit.error << endmsg;
+          }
         }
       }
       if( candidateResult.status != 0 ){
         if( result.status == 0 || result.ndof < candidateResult.ndof ) result = candidateResult;
       }
-    }
-    if( hitsPerCandidate.size() > 1 ){
-      fitter.setDebugLevel(0);
     }
     return result;
   }

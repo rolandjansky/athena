@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IHLTConfigSvc.h 660352 2015-04-13 23:03:15Z stelzer $
@@ -13,6 +13,8 @@
 
 // Local include(s):
 #include "TrigConfInterfaces/IIHLTConfigSvc.h"
+
+#include <string>
 
 namespace TrigConf {
 

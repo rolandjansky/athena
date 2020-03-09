@@ -7,7 +7,6 @@ atlas_subdir( GeoModelSvc )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          Control/CxxUtils
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/SGTools
@@ -24,7 +23,7 @@ find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_component( GeoModelSvc
@@ -32,10 +31,9 @@ atlas_add_component( GeoModelSvc
                      src/GeoDbTagSvc.cxx
                      src/RDBMaterialManager.cxx
                      src/components/GeoModelSvc_entries.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps CxxUtils AthenaKernel SGTools StoreGateLib SGtests GeoModelUtilities EventInfo GaudiKernel )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GeoModelUtilities EventInfo GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( GeoModelSvc )
 atlas_install_joboptions( share/*.py )
 

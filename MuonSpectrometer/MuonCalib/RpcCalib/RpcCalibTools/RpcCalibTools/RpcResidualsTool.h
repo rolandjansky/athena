@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_RESIDUALTOOL
-#define  RPC_RESIDUALTOOL
+#define RPC_RESIDUALTOOL
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthLinks/DataLink.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -20,13 +20,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "RpcCalibTools/RpcExtrapolationTool.h"
 
-class RpcIdHelper;
 class IRegSelSvc;
-namespace Muon{
-  class MuonIdHelperTool;
-}
-
-
 
 struct RpcResiduals{
 
@@ -42,17 +36,15 @@ struct RpcResiduals{
 
 class RpcResidualsTool: public AthAlgTool{
 
-
  public:
 
   RpcResidualsTool(const std::string& type, const std::string& name,
 			  const IInterface* parent );
-  virtual ~RpcResidualsTool();
+  virtual ~RpcResidualsTool() {};
 
   static const InterfaceID& interfaceID( );
   
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
 
   void getRpcResiduals(TrackCollection::const_iterator theTrack, std::vector<RpcResiduals> &theResult);
 
@@ -63,10 +55,14 @@ class RpcResidualsTool: public AthAlgTool{
 
   std::string m_clusCollection;
   ActiveStoreSvc* m_activeStore;
-  const MuonGM::MuonDetectorManager* m_muonMgr;
-  ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+  
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   RpcExtrapolationTool*           m_rpcExtrapolTool;
-  const RpcIdHelper* m_rpcIdHelper;
 };
 
 

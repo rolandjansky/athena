@@ -157,6 +157,8 @@ typedef enum e_DataPeriodBinning
   PeriodBinningD_EFH23J_G = 3
 } DataPeriodBinning;
 
+struct ROOT6_NamespaceAutoloadHook{};
+
 }
 
 #endif // TAUANALYSISTOOLS_ENUMS_H

@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_ATHENAKERNELDICT_H
@@ -20,11 +20,13 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ICutFlowSvc.h"
 #include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/ISecondaryEventSelector.h"
 
 #include "AthenaKernel/DsoDb.h"
 #include "AthenaKernel/AthDsoUtils.h"
 #include "AthenaKernel/tools/AthenaPackageInfo.h"
 #include "AthenaKernel/DataBucketBase.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 
 #include "GaudiKernel/MsgStream.h"
 

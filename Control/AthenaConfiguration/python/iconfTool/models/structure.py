@@ -38,7 +38,10 @@ class Structure(object):
                 structure_point = structure_point[groups[i]]
             if groups:
                 last = groups[-1]
-                structure_point[last] = value
+                if last in structure_point and type(structure_point[last]) is dict and type(value) is dict:
+                    structure_point[last].update(value)
+                else:
+                    structure_point[last] = value
         return structure_dict
 
     def generate_for_element(self, grouping_element, structure):

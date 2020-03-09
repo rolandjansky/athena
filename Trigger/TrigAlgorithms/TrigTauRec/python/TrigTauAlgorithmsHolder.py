@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -9,14 +9,13 @@
 #@author Felix Friedrich <felix.friedrich@cern.ch>
 ################################################################################
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
+from AthenaCommon.SystemOfUnits import mm, MeV, GeV
 
 cached_instances = {}
 
 sPrefix = 'TrigTau_'
 bAODmode = False
-doCellCorrection = False
+doVertexCorrection = False
 
 # standard container names
 _DefaultVertexContainer = "PrimaryVertices" #????
@@ -61,32 +60,10 @@ def getJetSeedBuilder():
         return cached_instances[_name]
     
     from tauRecTools.tauRecToolsConf import JetSeedBuilder
-    JetSeedBuilder = JetSeedBuilder(name = _name,
-            #JetCollection = seed_collection_name,
-            maxDist = 0.2,
-            minPt = 10.*GeV,
-            SwitchJetsEmScale = False)
+    JetSeedBuilder = JetSeedBuilder(name = _name)
             
     cached_instances[_name] = JetSeedBuilder
     return JetSeedBuilder
-
-########################################################################
-# Tau energy calibration and tau axis direction
-def getPileUpCorrection():
-    _name = sPrefix + 'IDPileUp'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from tauRecTools.tauRecToolsConf import TauIDPileupCorrection
-    TauPileUp = TauIDPileupCorrection( name = _name, 
-                                       averageEstimator = 20.,
-                                       calibrationFile1Prong = "fitted.pileup_1prong_hlt_2015.root",
-                                       calibrationFile3Prong = "fitted.pileup_multiprongs_hlt_2015.root",
-                                       useMu = True)
-
-    cached_instances[_name] = TauPileUp
-    return TauPileUp
 
 ########################################################################
 # Tau energy calibration and tau axis direction
@@ -99,8 +76,8 @@ def getTauAxis():
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    CellCorrection = doCellCorrection,
-                                    AxisCorrection = False)
+                                    VertexCorrection = doVertexCorrection
+                                  )
     # No Axis correction at trigger level
                                     
     cached_instances[_name] = TauAxisSetter                
@@ -118,7 +95,7 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
 
 ##    calibFileName = "TES2015_LC_online.root"
     calibFileName = "TES2016_LC_online.root"
-    if caloOnly == True :
+    if caloOnly:
 ##        calibFileName = "TES2015_LC_online.root"
         calibFileName = "TES2016_LC_online_inc.root"
     
@@ -129,6 +106,8 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
                                     doAxisCorrection = correctAxis)
 
     TauCalibrateLC.isCaloOnly = caloOnly
+    #Need to empty the vertex key collection in the trigger case
+    TauCalibrateLC.Key_vertexInputContainer = ""
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
@@ -145,6 +124,8 @@ def getMvaTESVariableDecorator():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
     MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
+
+    MvaTESVariableDecorator.Key_vertexInputContainer = ""
 
     ToolSvc += MvaTESVariableDecorator
     cached_instances[_name] = MvaTESVariableDecorator
@@ -181,10 +162,8 @@ def getCellVariables(cellConeSize=0.2):
     TauCellVariables = TauCellVariables(name = _name,
             CellEthreshold = 0.2*GeV,
             StripEthreshold = 0.2*GeV,
-            EMSumThreshold = 0.5*GeV,
-            EMSumRadius = 0.2,
             CellCone = cellConeSize,
-            CellCorrection = doCellCorrection)
+            VertexCorrection = doVertexCorrection)
             
     cached_instances[_name] = TauCellVariables   
     return TauCellVariables
@@ -357,17 +336,11 @@ def getTauVertexVariables():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from tauRec.tauRecFlags import jobproperties
-
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                              Key_vertexInputContainer = _DefaultVertexContainer,
                                               TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
-                                              #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
-                                              Key_trackPartInputContainer = _DefaultTrackContainer # ATM only needed in case old API is used
-                                              #OutputLevel = 2
                                               )
     
     cached_instances[_name] = TauVertexVariables    
@@ -387,7 +360,7 @@ def getTauSubstructure():
                                                           # parameters for CaloIsoCorrected variable
                                                           maxPileUpCorrection = 4000., #MeV
                                                           pileUpAlpha = 1.0,
-                                                          VertexCorrection = doCellCorrection,
+                                                          VertexCorrection = doVertexCorrection,
                                                           inAODmode = bAODmode)
     
     cached_instances[_name] = TauSubstructureVariables
@@ -403,7 +376,7 @@ def getElectronVetoVars():
     
     from tauRecTools.tauRecToolsConf import TauElectronVetoVariables
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
-                                                        CellCorrection = doCellCorrection)
+                                                        VertexCorrection = doVertexCorrection)
     
     cached_instances[_name] = TauElectronVetoVariables
     return TauElectronVetoVariables
@@ -514,9 +487,6 @@ def getPi0BonnSelector():
     cached_instances[_name] = TauPi0BonnSelector
     return TauPi0BonnSelector
 
-
-
-
 #########################################################################
 # Photon Shot Finder algo
 def getTauShotFinder():    
@@ -525,28 +495,15 @@ def getTauShotFinder():
     if _name in cached_instances:
         return cached_instances[_name]
     
-    #from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    #TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name=sPrefix+'tauShotCellContainerFinalizer')
-    #from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += TauCellContainerFinalizer
-    
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
         CaloWeightTool = getCellWeightTool(),
-        ReaderOption = "Silent:!Color",
-        BDTWeightFile_barrel =  "TauShotsBDTWeights.xml",
-        BDTWeightFile_endcap1 = "TauShotsBDTWeights.xml",
-        BDTWeightFile_endcap2 = "TauShotsBDTWeights.xml",
         NCellsInEta           = 5,
         MinPtCut              = (400.*MeV,320.*MeV,9999999.*MeV,350.*MeV,320.*MeV),
         AutoDoubleShotCut     = (10000.*MeV,10000.*MeV,9999999.*MeV,10000.*MeV,10000.*MeV),
-        MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
         )
     cached_instances[_name] = TauShotFinder
     return TauShotFinder
-
-
-
 
 #########################################################################
 def getInDetTrackSelectionToolForTJVA():
@@ -677,8 +634,8 @@ def getTauVertexFinder(doUseTJVA=False):
                                       AssociatedTracks="GhostTrack", # OK??
                                       InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
                                       Key_JetTrackVtxAssoc_forTaus= "JetTrackVtxAssoc_forTaus",
-                                      Key_vertexInputContainer = _DefaultVertexContainer,
-                                      Key_trackPartInputContainer= _DefaultTrackContainer,
+                                      Key_vertexInputContainer = "",
+                                      Key_trackPartInputContainer= "",
                                       OnlineMaxTransverseDistance = 2.5*mm,   # ATR-15665
                                       # OnlineMaxLongitudinalDistance = 2 *mm,
                                       OnlineMaxZ0SinTheta = 3.0 *mm    
@@ -722,7 +679,7 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     MaxJetDrTau = 0.2,
                                     MaxJetDrWide          = 0.4,
                                     TrackSelectorToolTau  = getInDetTrackSelectorTool(),
-                                    Key_trackPartInputContainer = _DefaultTrackContainer,
+                                    Key_trackPartInputContainer = "",
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     maxDeltaZ0wrtLeadTrk = maxDeltaZ0, #in mm
                                     removeTracksOutsideZ0wrtLeadTrk = applyZ0cut,
@@ -732,6 +689,8 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     )
     # Selector not needed for fast-tracks
     # Extrapolator never needed
+
+    TauTrackFinder.tauParticleCache = ""
 
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
@@ -788,13 +747,13 @@ def getTauTrackClassifier():
 
     ToolSvc += EFtrackBDT
 
-    classifier = TauTrackClassifier(
+    trackclassifier = TauTrackClassifier(
         name=_name, 
         Classifiers=[EFtrackBDT]
     )
 
-    cached_instances[_name] = classifier
-    return classifier
+    cached_instances[_name] = trackclassifier
+    return trackclassifier
 
 ########################################################################
 # TauIDVarCalculator
@@ -808,6 +767,7 @@ def getTauIDVarCalculator():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauIDVarCalculator            
     TauIDVarCalculator = TauIDVarCalculator(name=_name)
+    TauIDVarCalculator.Key_vertexInputContainer = ""
     
     ToolSvc += TauIDVarCalculator                                 
     cached_instances[_name] = TauIDVarCalculator

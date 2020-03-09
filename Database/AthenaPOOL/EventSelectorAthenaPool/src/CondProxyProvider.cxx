@@ -105,49 +105,54 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
    
    // Create DataHeader iterators
    m_headerIterator = &m_poolCollectionConverter->executeQuery();
-   if (!m_headerIterator->next()) {
-     m_poolCollectionConverter->disconnectDb().ignore();
-     delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
-      m_inputCollectionsIterator++;
-      if (m_inputCollectionsIterator != m_inputCollectionsProp.value().end()) {
-         // Create PoolCollectionConverter for input file
-         m_poolCollectionConverter = getCollectionCnv();
-         if (m_poolCollectionConverter == 0) {
-            return(StatusCode::FAILURE);
-         }
-         // Get DataHeader iterator
-         m_headerIterator = &m_poolCollectionConverter->executeQuery();
-         if (!m_headerIterator->next()) {
-            return(StatusCode::FAILURE);
+   for (int verNumber = 0; verNumber < 100; verNumber++) {
+      if (!m_headerIterator->next()) {
+         m_poolCollectionConverter->disconnectDb().ignore();
+         delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
+         m_inputCollectionsIterator++;
+         if (m_inputCollectionsIterator != m_inputCollectionsProp.value().end()) {
+            // Create PoolCollectionConverter for input file
+            m_poolCollectionConverter = getCollectionCnv();
+            if (m_poolCollectionConverter == 0) {
+               return(StatusCode::FAILURE);
+            }
+            // Get DataHeader iterator
+            m_headerIterator = &m_poolCollectionConverter->executeQuery();
+            if (!m_headerIterator->next()) {
+               return(StatusCode::FAILURE);
+            }
+         } else {
+            break;
          }
       }
+      SG::VersionedKey myVersKey(name(), verNumber);
+      Token* token = new Token;
+      token->fromString(m_headerIterator->eventRef().toString());
+      TokenAddress* tokenAddr = new TokenAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), "", myVersKey, IPoolSvc::kInputStream, token);
+      if (!detectorStoreSvc->recordAddress(tokenAddr).isSuccess()) {
+         ATH_MSG_ERROR("Cannot record DataHeader.");
+         return(StatusCode::FAILURE);
+      }
    }
-   Token* token = new Token;
-   token->fromString(m_headerIterator->eventRef().toString());
-   TokenAddress* tokenAddr = new TokenAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), "", name(), IPoolSvc::kInputStream, token);
-   if (!detectorStoreSvc->recordAddress(tokenAddr).isSuccess()) {
-      ATH_MSG_ERROR("Cannot record DataHeader.");
-      return(StatusCode::FAILURE);
-   }
-   if (!detectorStoreSvc->contains<DataHeader>("CondProxyProvider")) {
-      ATH_MSG_DEBUG("Cannot find DataHeader in DetectorStore.");
-      return(StatusCode::SUCCESS);
-   }
-   const DataHandle<DataHeader> dataHeader;
-   if (!detectorStoreSvc->retrieve(dataHeader, "CondProxyProvider").isSuccess()) {
+   std::list<SG::ObjectWithVersion<DataHeader> > allVersions;
+   if (!detectorStoreSvc->retrieveAllVersions(allVersions, name()).isSuccess()) {
       ATH_MSG_DEBUG("Cannot retrieve DataHeader from DetectorStore.");
       return(StatusCode::SUCCESS);
    }
-   ATH_MSG_DEBUG("The current File contains: " << dataHeader->size() << " objects");
-   for (const auto& element : *dataHeader) {
-      SG::TransientAddress* tadd = element.getAddress();
-      if (tadd->clID() == ClassID_traits<DataHeader>::ID()) {
-         delete tadd; tadd = 0;
-      } else {
-         ATH_MSG_DEBUG("preLoadAddresses: DataObject address, clid = " << tadd->clID() << ", name = " << tadd->name());
-         tads.push_back(tadd);
+   for (std::list<SG::ObjectWithVersion<DataHeader> >::iterator iter = allVersions.begin();
+                   iter != allVersions.end(); iter++) {
+      SG::ReadHandle<DataHeader> dataHeader = iter->dataObject;
+      ATH_MSG_DEBUG("The current File contains: " << dataHeader->size() << " objects");
+      for (const auto& element : *dataHeader) {
+         SG::TransientAddress* tadd = element.getAddress();
+         if (tadd->clID() == ClassID_traits<DataHeader>::ID()) {
+            delete tadd; tadd = 0;
+         } else {
+            ATH_MSG_DEBUG("preLoadAddresses: DataObject address, clid = " << tadd->clID() << ", name = " << tadd->name());
+            tads.push_back(tadd);
+         }
+         EventSelectorAthenaPoolUtil::registerKeys(element, &*detectorStoreSvc);
       }
-      EventSelectorAthenaPoolUtil::registerKeys(element, &*detectorStoreSvc);
    }
    if (!detectorStoreSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release DetectorStoreSvc.");

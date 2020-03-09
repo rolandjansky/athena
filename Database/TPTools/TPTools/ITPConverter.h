@@ -81,7 +81,7 @@ public:
   virtual void	converterNotFound( const std::type_info& converterType,
 				   ITPConverter *c,
 				   const std::string& typeName,
-				   MsgStream& log );
+				   MsgStream& log ) const;
 
   /** method called when the right TP converter was not found during reading
       - useful as a debugging hook, prints a detailed error message
@@ -94,7 +94,7 @@ public:
   virtual void	converterNotFound( unsigned typeID,
 				   ITPConverter *c,
 				   const std::string& typeName,
-				   MsgStream& log );
+				   MsgStream& log ) const;
 };
 
 

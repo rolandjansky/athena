@@ -46,7 +46,7 @@ TableEntry AlgorithmTableConstructor::getTableEntry(const std::string name) {
   tableEntry.setEntry("timePerCall", hist("Time_perCall")->GetMean());
   tableEntry.setEntry("timePerEvent", hist("Time_perEvent")->GetMean());
 
-  return std::move(tableEntry);
+  return tableEntry;
 }
 
 void AlgorithmTableConstructor::tablePostProcessing(std::vector<TableEntry>& tableEntries, const float walltime) {

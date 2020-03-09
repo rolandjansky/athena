@@ -22,7 +22,8 @@
 
 #include "TrigInDetAnalysisExample/ChainString.h"
 
-#include "TrkParticleCreator/TrackParticleCreatorTool.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -126,6 +127,9 @@ public:
   }
 
   void set_ptmin( double d=0 ) { m_ptmin=d; }
+
+  size_t get_jets( Trig::FeatureContainer::combination_const_iterator citr, 
+		   std::vector<TrackTrigObject>& objects, const std::string& key="" );
 
 protected:
 

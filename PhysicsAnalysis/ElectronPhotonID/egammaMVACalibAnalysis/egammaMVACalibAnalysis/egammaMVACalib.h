@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef egammaMVACalibAnalysisNew_H
@@ -113,6 +113,9 @@ class egammaMVACalib : public asg::AsgMessaging
 		   bool ignoreSpectators = true);
 
     virtual ~egammaMVACalib();
+
+    egammaMVACalib (const egammaMVACalib&) = delete;
+    egammaMVACalib& operator= (const egammaMVACalib&) = delete;
 
     void setPeakCorrection(ShiftType shift_type) { m_shiftType = shift_type; };
     /** Set the peak correction by a capital string **/

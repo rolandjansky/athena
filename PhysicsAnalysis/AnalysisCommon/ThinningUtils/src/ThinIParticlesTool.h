@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,10 +24,10 @@
 // STL includes
 #include <string>
 #include <vector>
+#include <atomic>
 
 // Framework includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 // AthAnalysisBase doesn't currently include the Trigger Service
@@ -38,6 +38,9 @@
 // EDM includes
 #include "xAODBase/IParticleContainer.h"
 #include "xAODParticleEvent/IParticleLink.h"
+#include "xAODParticleEvent/IParticleLinkContainer.h"
+#include "StoreGate/ThinningHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 
 // Forward declarations
 namespace ExpressionParsing {
@@ -91,29 +94,25 @@ private:
   /// The expression parser
   ExpressionParsing::ExpressionParser *m_parser;
 
-  /// Pointer to IThinningSvc
-  ServiceHandle<IThinningSvc> m_thinningSvc;
+  StringProperty m_streamName
+  { this, "StreamName", "", "Name of the stream for which thinning is done" };
 
-
-  /// Name of the xAOD::IParticleContainer to thin
-  StringProperty m_ipartKey;
+  /// The xAOD::IParticleContainer to thin
+  SG::ThinningHandleKey<xAOD::IParticleContainer> m_ipartKey
+  { this, "IParticlesToThin", "", "The xAOD::IParticleContainer to be thinned" };
 
   /// List of names of the object collections
-  StringArrayProperty m_inCollKeyList;
+  SG::ReadHandleKeyArray<xAOD::IParticleLinkContainer> m_inCollKeyList
+  { this, "InputContainerList", {}, "Containers from which to extract the information which xAOD::IParticles should be kept" };
 
   /// The selection string that will select which xAOD::IParticles to keep from
   /// an xAOD::IParticleContainer
-  StringProperty m_selection;
-
-  /// Can take the mask from storegate, by specifying this key
-  StringProperty m_maskStoregate;
-
-  /// The number of given xAOD::IParticles in the current event
-  mutable std::size_t m_nTotalIParticles;
+  StringProperty m_selection
+  { this, "Selection", "", "The selection string that defines which xAOD::IParticles to select from the container" };
 
   // Declare some counters and initialize them to zero
   /// Event counter
-  mutable unsigned long m_nEventsProcessed;
+  mutable std::atomic<unsigned long> m_nEventsProcessed;
 
 };
 

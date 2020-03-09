@@ -59,7 +59,7 @@ atlas_add_test( CaloCellLinkContainerCnv_p2_test
                 test/CaloCellLinkContainerCnv_p2_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel CaloTPCnv
-                EXTRA_PATTERNS "Athena::getMessageSvc" )
+                LOG_IGNORE_PATTERN "Athena::getMessageSvc" )
 
 atlas_add_test( CaloClusterContainerCnv_test
                 SOURCES
@@ -84,6 +84,6 @@ atlas_add_test( CaloCompactCellTool_test
    LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloIdentifier
    AthenaKernel StoreGateLib GaudiKernel LArRecEvent TileEvent TestTools
    IdDictParser CaloTPCnv
-   EXTRA_PATTERNS "SGAudSvc +INFO|^lar decode|^HistogramPersis.* INFO|initialize_from_dict|mask/zero|^JobOptionsSvc +INFO|^AtlasDetectorID::"
+   LOG_IGNORE_PATTERN "SGAudSvc +INFO|^lar decode|initialize_from_dict|mask/zero|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

@@ -19,7 +19,6 @@
 
 
 namespace LVL1TGCTrigger {
-  extern bool g_DEBUGLEVEL;
 
 void TGCPatchPanel::showResult() const
 {
@@ -96,9 +95,9 @@ std::string TGCPatchPanel::getTypeName(int /*typeIn*/) const
   return "NOT DEF";
 }
 
-TGCPatchPanel::TGCPatchPanel()
+TGCPatchPanel::TGCPatchPanel( TGCArguments* tgcargs )
   :m_id(0), m_type(0), m_region(FORWARD),
-   m_bunchCounter(0), m_hasASDOut(false), m_hasBIDOut(false), m_nHit(0)
+   m_bunchCounter(0), m_hasASDOut(false), m_hasBIDOut(false), m_nHit(0), m_tgcArgs(tgcargs)
 {
   for(int i=0; i<NumberOfPatchPanelOut; i+=1) {
     m_idSlaveBoard[i] = 0;
@@ -240,7 +239,7 @@ void TGCPatchPanel::clockIn(int bunch, TGCDatabaseManager* db)
     m_nHit=createOutput();
     if(m_connectionInPP->existOredSignal()) m_nHit+=doOrLogic();
     // 18-Jan-01 Fixed by KH
-    if( g_DEBUGLEVEL && ( (m_nHit>0) || m_hasBIDOut || m_hasASDOut) ) showResult();
+    if( tgcArgs()->DEBUGLEVEL() && ( (m_nHit>0) || m_hasBIDOut || m_hasASDOut) ) showResult();
 
 #ifdef TGCDEBUG
     if  ( (m_nHit>0) || m_hasBIDOut || m_hasASDOut)  showResult();

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonSegmentTrackMaker/MuPatTrackBuilder.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuPatTrackBuilder.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
-#include "MuonRecToolInterfaces/IMuonTrackFinder.h"
 #include "StoreGate/DataHandle.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/Track.h"
@@ -18,41 +17,24 @@
 
 using namespace Muon;
 
-MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcLocator)
-   : AthAlgorithm(name,pSvcLocator),
-     m_segmentKey("MooreSegments"),
-     m_spectroTrackKey("MuonSpectrometerTracks"),
-     m_spectroPartiKey("MuonSpectrometerParticles"),
-     m_extrapPartiKey("ExtrapolatedMuonSpectrometerParticles"),
-     m_trackMaker("Muon::MuonTrackFinder/MuonTrackSteering"),
-     m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool")
-{
-  // MoMu Key segments (per chamber)
-  declareProperty("TrackSteering",m_trackMaker);
-  declareProperty("MuonSegmentCollection", m_segmentKey);
-  declareProperty("SpectrometerTrackOutputLocation", m_spectroTrackKey);
-  declareProperty("SpectrometerParticleOutputLocation", m_spectroPartiKey);
-  declareProperty("ExtrapolatedParticleOutputLocation", m_extrapPartiKey);
-}
-
-MuPatTrackBuilder::~MuPatTrackBuilder()
-{;}
-
 StatusCode MuPatTrackBuilder::initialize()
 {
   if (m_trackMaker.retrieve().isFailure()){
     msg(MSG::FATAL) <<"Could not get " << m_trackMaker <<endmsg; 
     return StatusCode::FAILURE;
   }
-  if (m_helper.retrieve().isFailure()){
-    msg(MSG::FATAL) <<"Could not get " << m_helper <<endmsg; 
+  if (m_edmHelperSvc.retrieve().isFailure()){
+    msg(MSG::FATAL) <<"Could not get " << m_edmHelperSvc <<endmsg; 
     return StatusCode::FAILURE;
   }
   if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved " << m_trackMaker << endmsg;
   
- ATH_CHECK( m_segmentKey.initialize() );
- ATH_CHECK( m_spectroTrackKey.initialize() );
- ATH_CHECK( m_spectroPartiKey.initialize() );
+  ATH_CHECK( m_segmentKey.initialize() );
+  ATH_CHECK( m_spectroTrackKey.initialize() );
+
+  if ( not m_monTool.name().empty() ) {
+    ATH_CHECK( m_monTool.retrieve() );
+  }
 
   return StatusCode::SUCCESS; 
 }
@@ -97,11 +79,28 @@ StatusCode MuPatTrackBuilder::execute()
   }
   ATH_MSG_DEBUG ("TrackCollection '" << m_spectroTrackKey.key() << "' recorded in storegate, ntracks: " << newtracks->size());
 
+  //---------------------------------------------------------------------------------------------------------------------//
+  //------------                Monitoring of muon segments and tracks inside the trigger algs               ------------//
+  //------------ Author:  Laurynas Mince                                                                     ------------//
+  //------------ Created: 03.10.2019                                                                         ------------//
+  //---------------------------------------------------------------------------------------------------------------------//
+
+  // Only run monitoring for online algorithms
+  if ( not m_monTool.name().empty() ) {
+    auto mstrks_n   = Monitored::Scalar<int>("mstrks_n", newtracks->size());
+    auto mstrks_pt  = Monitored::Collection("mstrks_pt", *newtracks,
+                      [](auto const& mstrk) {return mstrk->perigeeParameters()->momentum().perp()/1000.0;}); // pT converted to GeV
+    auto mstrks_eta = Monitored::Collection("mstrks_eta", *newtracks,
+                      [](auto const& mstrk) {return -log(tan(mstrk->perigeeParameters()->parameters()[Trk::theta] *0.5));});
+    auto mstrks_phi = Monitored::Collection("mstrks_phi", *newtracks,
+                      [](auto const& mstrk) {return mstrk->perigeeParameters()->parameters()[Trk::phi0];});
+    auto mssegs_n   = Monitored::Scalar<int>("mssegs_n", msc.size());
+    auto mssegs_eta = Monitored::Collection("mssegs_eta", msc, [](auto const& seg) {return seg->globalDirection().eta();});
+    auto mssegs_phi = Monitored::Collection("mssegs_phi", msc, [](auto const& seg) {return seg->globalDirection().phi();});
+
+    auto monitorIt = Monitored::Group(m_monTool, mstrks_n, mstrks_pt, mstrks_eta, mstrks_phi, mssegs_n, mssegs_eta, mssegs_phi);
+  }
+
   return StatusCode::SUCCESS;
 } // execute
-
-StatusCode MuPatTrackBuilder::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 

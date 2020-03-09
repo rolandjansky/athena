@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """Provide a  look up tables that connects logical algortihm names to
 factory functions and arguments.
@@ -17,7 +19,7 @@ except ImportError:
     GeV = 1000.
 
 
-from eta_string_conversions import eta_string_to_floats
+from .eta_string_conversions import eta_string_to_floats
 
 
 class Alg(object):
@@ -139,7 +141,7 @@ class AlgFactory(object):
         """Instantiate a python object for TrigHLTJetRec that will
         use TriggerTower objcts as as input."""
 
-        merge_param_str = str(self.fex_params.merge_param).zfill(2)
+        # merge_param_str = str(self.fex_params.merge_param).zfill(2)
     
         factory = 'TrigHLTJetRecFromTriggerTower'
         # add factory to instance label to facilitate log file searches
@@ -254,7 +256,7 @@ class AlgFactory(object):
         factory = 'TrigHLTJetRecGroomer'
         # add factory to instance label to facilitate log file searches                      
         name = '"%s_%s"' %(factory, self.fex_params.fex_label)
-        print 'after name' #Nima!
+        print ('after name') #Nima!
         kwds = {
             'name': name,  # instance label                                     
             'merge_param': "'%s'" % merge_param_str,
@@ -465,10 +467,6 @@ class AlgFactory(object):
 
     def superRoIMaker(self):
         factory = 'SeededAlgo'
-
-        params = {'UseRoiSizes':False,
-                  'EtaHalfWidth':0.5,
-                  'PhiHalfWidth':0.5}
 
         name = '"SeededAlgo_%s"' % self.seed
 

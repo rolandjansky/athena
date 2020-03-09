@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloUtils/CaloClusterOverlapHelper.h"
@@ -80,7 +80,7 @@ bool CaloClusterOverlapHelper::getOverlap(const cell_list_t& cells,
       // loop cells
       cell_list_t::const_iterator fCell(cells.begin());
       cell_list_t::const_iterator lCell(cells.end());
-      for ( ; fCell != lCell; fCell++ )
+      for ( ; fCell != lCell; ++fCell )
 	{
 	  ef1 += (*fCell)->e();
 	}
@@ -104,7 +104,7 @@ bool CaloClusterOverlapHelper::getOverlap(const CaloCluster* pClus1,
       // calculate shared energy
       cell_list_t::const_iterator fCell(cList.begin());
       cell_list_t::const_iterator lCell(cList.end());
-      for ( ; fCell != lCell; fCell++ )
+      for ( ; fCell != lCell; ++fCell )
 	{
 	  eShared += (*fCell)->e();
 	}
@@ -126,7 +126,7 @@ bool CaloClusterOverlapHelper::getOverlap(const cell_list_t& cells,
       // calculate shared energy
       cell_list_t::const_iterator fCell(cList.begin());
       cell_list_t::const_iterator lCell(cList.end());
-      for ( ; fCell != lCell; fCell++ )
+      for ( ; fCell != lCell; ++fCell )
 	{
 	  eShared += (*fCell)->e();
 	}

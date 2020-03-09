@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetRec/TrigHLTJetDebug.h"
@@ -21,12 +21,6 @@ TrigHLTJetDebug::~TrigHLTJetDebug() { }
 HLT::ErrorCode TrigHLTJetDebug::hltInitialize() {
   ATH_MSG_INFO("Initializing " << name() << "...");
  
- StatusCode sc = service("StoreGateSvc", m_storeGate); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Unable to locate Service StoreGateSvc");
-    return HLT::FATAL;
-  }
- 
   return HLT::OK; 
 }
 
@@ -46,7 +40,7 @@ HLT::ErrorCode TrigHLTJetDebug::hltExecute(const HLT::TriggerElement* inputTE, b
   const xAOD::EventShape* pEventShape = nullptr;
   StatusCode sc;
   
-  sc = m_storeGate-> retrieve(pEventShape, m_eventShapeSGKey);
+  sc = evtStore()-> retrieve(pEventShape, m_eventShapeSGKey);
   if (sc.isFailure()) {
     ATH_MSG_FATAL ( "Unable to locate retrieve event shape with key "
                     << m_eventShapeSGKey);

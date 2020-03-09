@@ -34,7 +34,6 @@
 
 class string;
 class ISvcLocator;
-class StoreGateSvc;
      
 class AddTrigMap : public AthAlgorithm 
 {

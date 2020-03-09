@@ -3,7 +3,6 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
 def AtlasGeometryCfg (flags):
     acc = ComponentAccumulator()
@@ -20,7 +19,6 @@ def AtlasGeometryCfg (flags):
     #acc.merge(ForDetGeometryCfg(flags))
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     acc.merge(BeamPipeGeometryCfg(flags))
-    if (flags.Detector.Simulate and flags.Beam.Type == "cosmics") or flags.Detector.SimulateCavern:
-        from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
-        gms.DetectorTools += [ CavernInfraDetectorTool() ]
+    from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg
+    acc.merge(CavernGeometryCfg(flags))
     return acc

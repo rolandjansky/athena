@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGTAUHYPO_TrigTauCaloHypoAlgMT_H
 #define TRIGTAUHYPO_TrigTauCaloHypoAlgMT_H
@@ -24,19 +24,13 @@ class TrigTauCaloHypoAlgMT : public ::HypoBase {
 
   TrigTauCaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigTauCaloHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private: 
-  TrigTauCaloHypoAlgMT();
   ToolHandleArray< ITrigTauGenericHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< xAOD::TauJetContainer > m_tauJetKey { this, "taujets", "taujets", "taujets in view" };
-  
-
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TESTTRIGL2TAUCALOHYPOALG_H

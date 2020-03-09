@@ -5,7 +5,6 @@
 #ifndef CALOREC_CALOCELLCONTAINERCORRECTORTOOL_H
 #define CALOREC_CALOCELLCONTAINERCORRECTORTOOL_H
 
-class StoreGateSvc; 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloEvent/CaloCellContainer.h"

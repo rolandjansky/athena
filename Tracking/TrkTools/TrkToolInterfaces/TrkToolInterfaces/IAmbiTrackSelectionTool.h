@@ -16,6 +16,7 @@ namespace Trk
 {
   class Track;
   class PrepRawData;
+  class PRDtoTrackMap;
   
   static const InterfaceID IID_IAmbiTrackSelectionTool("InDet::IAmbiTrackSelectionTool", 1, 0);
 
@@ -29,20 +30,19 @@ namespace Trk
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    /** performs cleaning of a track from already used hits.
-        returns input pointer, if track is ok as is,
-        returns different pointer, if a new, fragmentary Trk::Track has been created,
-        returns 0, if the track should be discarded altogether.
-	No delete operation is done, the client has to take care of this!
+    /** Performs cleaning of a track from already used hits.
+        @param track the input track to be checked and cleaned.
+        @param prd_to_track_map a map to identify shared hits.
+        @param score the score tha twas given to the input track
+        @return tuple where the first element is a potiner to a new track or a nullptr and the second element is a flag which is set to false if the input track is to be rejected.
+        The second element of the returned tuple is false if the input input track is to be rejected.
+        The input track is rejected if it does not fulfil quality criteria or if a new cleaned track is created
+        replacing the input track. The second element of the returned tuple is true if the input track does not
+        reuire cleaning, fulfils the quality criteria and should be kept.
     */
-    virtual const Trk::Track* getCleanedOutTrack(const Trk::Track*, const Trk::TrackScore score) =0;
-
-    /** These methods are meant to access some functionality of the association tool
-        used by the selection tool. For their functionality please, see IPRD_AssociationTool.
-    */
-    virtual StatusCode registerPRDs(const Trk::Track* ptrTrack) = 0;
-    virtual void reset() = 0;
-    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack) const =0;
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
+                                                            const Trk::TrackScore score,
+                                                            Trk::PRDtoTrackMap &prd_to_track_map) const =0;
   };
 
   inline const InterfaceID& Trk::IAmbiTrackSelectionTool::interfaceID()

@@ -17,8 +17,7 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           PhysicsAnalysis/AnalysisCommon/ParticleEvent
                           PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
-                          PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
-                          TestPolicy )
+                          PhysicsAnalysis/D3PDMaker/D3PDMakerUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

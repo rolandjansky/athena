@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -166,10 +166,10 @@ StatusCode AthenaMon::finalize()
 }
 
 /*---------------------------------------------------------------*/
-StatusCode AthenaMon::beginRun()
+StatusCode AthenaMon::start()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "beginRun()" << endmsg;
+  log << MSG::INFO << "start()" << endmsg;
   
   // histograms already booked
   if(m_bookHistsinInitialize)
@@ -184,10 +184,10 @@ StatusCode AthenaMon::beginRun()
 }
 
 /*---------------------------------------------------------------*/
-StatusCode AthenaMon::endRun()
+StatusCode AthenaMon::stop()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "endRun()" << endmsg;
+  log << MSG::INFO << "stop()" << endmsg;
   
   std::vector<IMonitorToolBase*>::iterator it = m_monTools.begin();
   for (; it < m_monTools.end(); it++)

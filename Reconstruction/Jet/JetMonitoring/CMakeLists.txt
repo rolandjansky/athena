@@ -9,13 +9,17 @@ atlas_subdir( JetMonitoring )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthToolSupport/AsgTools
                           Event/xAOD/xAODHIEvent
-                          Event/xAOD/xAODJet
+                          Event/xAOD/xAODJet 
                           GaudiKernel
-                          Reconstruction/Jet/JetInterface
+                          Reconstruction/Jet/JetInterface 
+                          Trigger/TrigEvent/TrigDecisionInterface 
+                          Control/AthenaMonitoring
                           PRIVATE
                           Control/AthContainers
-                          Control/AthenaMonitoring
-                          Reconstruction/Jet/JetUtils )
+                          Trigger/TrigAnalysis/TrigDecisionTool
+                          Reconstruction/Jet/JetUtils
+			  Event/FourMomUtils
+                          )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -26,7 +30,7 @@ atlas_add_component( JetMonitoring
                      Root/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODHIEvent xAODJet GaudiKernel JetInterface AthContainers AthenaMonitoringLib JetUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODHIEvent xAODJet GaudiKernel JetInterface AthContainers AthenaMonitoringLib JetUtils FourMomUtils)
 
 # Install files from the package:
 atlas_install_headers( JetMonitoring )

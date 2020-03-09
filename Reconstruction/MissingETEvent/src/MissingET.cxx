@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -17,7 +17,7 @@ PURPOSE:  Base Class for MissingETEvent package, it owns the region object
 
 //fix by Andrei Gaponenko
 MissingET::MissingET(const MissingET& b)
-: m_regions(b.m_regions ? new MissingEtRegions(*b.m_regions) : 0)
+: m_regions(b.m_regions ? std::make_unique<MissingEtRegions>(*b.m_regions) : 0)
 , m_source(b.m_source)
 , m_ex(b.m_ex)
 , m_ey(b.m_ey)
@@ -27,8 +27,7 @@ MissingET::MissingET(const MissingET& b)
 //fix by Andrei Gaponenko
 MissingET& MissingET::operator=(const MissingET& b) {
   if(this != &b) {
-    delete m_regions;   // added this line to avoid memory leaks !
-    m_regions = (b.m_regions ? new MissingEtRegions(*b.m_regions) : 0);
+    m_regions = (b.m_regions ? std::make_unique<MissingEtRegions>(*b.m_regions) : 0);
     m_source = b.m_source;
     m_ex = b.m_ex;
     m_ey = b.m_ey;
@@ -40,7 +39,6 @@ MissingET& MissingET::operator=(const MissingET& b) {
 
 // default contructor
 MissingET::MissingET() :
-  m_regions(0),
   m_source(MissingET::Unknown),
   m_ex(0.),
   m_ey(0.),
@@ -49,7 +47,6 @@ MissingET::MissingET() :
 
 //contructor with source specifier
 MissingET::MissingET(MissingET::Source aSource) :
-  m_regions(0),
   m_source(aSource),
   m_ex(0.),
   m_ey(0.),
@@ -76,11 +73,23 @@ MissingET::MissingET(MissingET::Source aSource, MissingEtRegions* theRegions) :
 { }
 
 
+/// Full constructor.
+MissingET::MissingET(MissingET::Source aSource,
+                     std::unique_ptr<MissingEtRegions> theRegions,
+                     double ex,
+                     double ey,
+                     double etSum) :
+  m_regions(std::move(theRegions)),
+  m_source(aSource),
+  m_ex(ex),
+  m_ey(ey),
+  m_etSum(etSum)
+{ }
+
+
 // destructor
 MissingET::~MissingET()
 {
-  // it owns the regions object 
- delete m_regions;
 }
 
 // set methods
@@ -152,9 +161,9 @@ double MissingET::phi() const
 }
 
 // retrieve the regions
-MissingEtRegions* MissingET::getRegions() const
+const MissingEtRegions* MissingET::getRegions() const
 {
-  return m_regions;
+  return m_regions.get();
 }
   
 // return the source information

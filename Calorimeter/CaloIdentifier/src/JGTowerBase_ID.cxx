@@ -15,7 +15,6 @@
 #include <iostream>
 #include <math.h>
 #include <assert.h>
-#include "boost/foreach.hpp"
 
 using CxxUtils::strformat;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationPDGIDSelectChain_h
@@ -21,7 +21,7 @@ public:
   void set_SimulateOnlyOnePDGID() {SetBit(kSimulateOnlyOnePDGID);};
   void reset_SimulateOnlyOnePDGID() {ResetBit(kSimulateOnlyOnePDGID);};
 
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr,TFCSExtrapolationState* extrapol=nullptr);
 protected:
@@ -31,9 +31,5 @@ private:
 
   ClassDefOverride(TFCSParametrizationPDGIDSelectChain,1)  //TFCSParametrizationPDGIDSelectChain
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationPDGIDSelectChain+;
-#endif
 
 #endif

@@ -2,13 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-
 #include "TrigMuonEFCombinerHypoAlg.h"
 #include "AthViews/ViewHelper.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using namespace TrigCompositeUtils; 
 
@@ -17,37 +13,21 @@ using namespace TrigCompositeUtils;
 
 TrigMuonEFCombinerHypoAlg::TrigMuonEFCombinerHypoAlg( const std::string& name,
 						  ISvcLocator* pSvcLocator ) :
-//  ::AthReentrantAlgorithm( name, pSvcLocator )
   ::HypoBase( name, pSvcLocator )
 {
 
 } 
-
-TrigMuonEFCombinerHypoAlg::~TrigMuonEFCombinerHypoAlg() 
-{}
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMuonEFCombinerHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce(m_muonKey);
   ATH_CHECK(m_muonKey.initialize());
 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMuonEFCombinerHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -60,11 +40,8 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
 
   // common for all hypos, to move in the base class
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
-  if ( not previousDecisionsHandle.isValid() ) { // implict
-     ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
-     return StatusCode::SUCCESS;
-  }
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  ATH_CHECK( previousDecisionsHandle.isValid() );
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
 
   // new output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
@@ -77,14 +54,13 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
   // loop over previous decisions
   for ( const auto previousDecision: *previousDecisionsHandle ) {
      // get RoIs
-    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     auto roiEL = roiInfo.link;
-    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
     // get View
-    auto viewEL = previousDecision->objectLink<ViewContainer>( "view" );
+    auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
     ATH_CHECK( viewEL.isValid() );
 
     // get muons
@@ -108,9 +84,8 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
       // pussh_back to toolInput
       toolInput.emplace_back( newd, roi, muon, previousDecision );
 
-      newd -> setObjectLink( "feature", muonEL );
-      newd -> setObjectLink( "roi",     roiEL  );
-      newd -> setObjectLink( "view",    viewEL );
+      newd -> setObjectLink( featureString(), muonEL );
+      newd->setObjectLink( viewString(),    viewEL);
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
@@ -134,19 +109,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
     }
   } // End of tool algorithms */	
 
-  { // make output handle and debug, in the base class
-    ATH_MSG_DEBUG ( "Exit with " << outputHandle->size() << " decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-      
-    } else ATH_MSG_WARNING( "Output decisions are NOT valid with key : " << decisionOutput().key() );
-  }
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute success");
   return StatusCode::SUCCESS;

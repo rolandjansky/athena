@@ -1,8 +1,7 @@
 # tauRec package
 
 This package is primarily the python steering package for tau reconstruction.  This package has one
-has one factory algorithm: TauProcessorAlg that calls tools defined in tauRecTools.  (Note TauTrackSlimmer
-could be depreciated.)
+has one factory algorithm: TauProcessorAlg that calls tools defined in tauRecTools.
 
 ## Tau Reconstruction chain:
 

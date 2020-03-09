@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #-----Python imports---#
 import os, sys, time, shutil
@@ -23,7 +23,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         os.putenv('XRD_ENABLEFORKHANDLERS','1')
         os.putenv('XRD_RUNFORKHANDLER','1')
 
-        from AthenaMPFlags import jobproperties as jp
+        from .AthenaMPFlags import jobproperties as jp
         self.WorkerTopDir = jp.AthenaMPFlags.WorkerTopDir()
         self.OutputReportFile = jp.AthenaMPFlags.OutputReportFile()
         self.CollectSubprocessLogs = jp.AthenaMPFlags.CollectSubprocessLogs()
@@ -56,10 +56,47 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         self.configureStrategy(self.Strategy,self.IsPileup,self.EventsBeforeFork)
         
     def configureStrategy(self,strategy,pileup,events_before_fork):
-        from AthenaMPFlags import jobproperties as jp
+        from .AthenaMPFlags import jobproperties as jp
         from AthenaCommon.ConcurrencyFlags import jobproperties as jp
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
-        chunk_size = jp.AthenaMPFlags.ChunkSize()
+        if (jp.AthenaMPFlags.ChunkSize() > 0):
+            chunk_size = jp.AthenaMPFlags.ChunkSize()
+            msg.info('Chunk size set to %i', chunk_size)
+        #Use auto flush only if file is compressed with LZMA, else use default chunk_size
+        elif (jp.AthenaMPFlags.ChunkSize() == -1):
+            from PyUtils.MetaReaderPeeker import metadata
+            if (metadata['file_comp_alg'] == 2):
+                chunk_size = metadata['auto_flush']
+                msg.info('Chunk size set to auto flush (%i)', chunk_size)
+            else:
+                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue
+                msg.info('LZMA algorithm not in use, chunk_size set to default (%i)', chunk_size)
+        #Use auto flush only if file is compressed with LZMA or ZLIB, else use default chunk_size
+        elif (jp.AthenaMPFlags.ChunkSize() == -2):
+            from PyUtils.MetaReaderPeeker import metadata
+            if (metadata['file_comp_alg'] == 1 or metadata['file_comp_alg'] == 2):
+                chunk_size = metadata['auto_flush']
+                msg.info('Chunk size set to auto flush (%i)', chunk_size)
+            else:
+                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+                msg.info('LZMA nor ZLIB in use, chunk_size set to default (%i)', chunk_size)
+        #Use auto flush only if file is compressed with LZMA, ZLIB or LZ4, else use default chunk_size
+        elif (jp.AthenaMPFlags.ChunkSize() == -3):
+            from PyUtils.MetaReaderPeeker import metadata
+            if (metadata['file_comp_alg'] == 1 or metadata['file_comp_alg'] == 2 or metadata['file_comp_alg'] == 4):
+                chunk_size = metadata['auto_flush']
+                msg.info('Chunk size set to auto flush (%i)', chunk_size)
+            else:
+                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+                msg.info('LZMA, ZLIB nor LZ4 in use, chunk_size set to default (%i)', chunk_size)
+        #Use auto flush value for chunk_size, regarldess of compression algorithm
+        elif (jp.AthenaMPFlags.ChunkSize() <= -4):
+            from PyUtils.MetaReaderPeeker import metadata
+            chunk_size = metadata['auto_flush']
+            msg.info('Chunk size set to auto flush (%i)', chunk_size)
+        else:
+            chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+            msg.warning('Invalid ChunkSize, Chunk Size set to default (%i)', chunk_size)
         debug_worker = jp.ConcurrencyFlags.DebugWorkers()
         use_shared_reader = jp.AthenaMPFlags.UseSharedReader()
         use_shared_writer = jp.AthenaMPFlags.UseSharedWriter()
@@ -69,10 +106,10 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                 from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                 svcMgr.EventSelector.SharedMemoryTool = AthenaSharedMemoryTool("EventStreamingTool")
-                if sys.modules.has_key('AthenaPoolCnvSvc.ReadAthenaPool'):
+                if 'AthenaPoolCnvSvc.ReadAthenaPool' in sys.modules:
                     svcMgr.AthenaPoolCnvSvc.InputStreamingTool = AthenaSharedMemoryTool("InputStreamingTool")
             if use_shared_writer:
-                if sys.modules.has_key('AthenaPoolCnvSvc.WriteAthenaPool'):
+                if 'AthenaPoolCnvSvc.WriteAthenaPool' in sys.modules:
                     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                     from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                     svcMgr.AthenaPoolCnvSvc.OutputStreamingTool += [ AthenaSharedMemoryTool("OutputStreamingTool_0") ]
@@ -139,12 +176,12 @@ def setupEvtSelForSeekOps():
    #import sys
    #from AthenaCommon.Logging import log as msg
    msg.debug("setupEvtSelForSeekOps:")
-   if sys.modules.has_key('AthenaRootComps.ReadAthenaRoot'):
+   if 'AthenaRootComps.ReadAthenaRoot' in  sys.modules:
        # athenarootcomps has seeking enabled by default
        msg.info('=> Seeking enabled.')
        return
    
-   if not sys.modules.has_key('AthenaPoolCnvSvc.ReadAthenaPool'):
+   if 'AthenaPoolCnvSvc.ReadAthenaPool' not in sys.modules:
       ## user did not import that module so we give up
       msg.info( "Cannot enable 'seeking' b/c module " + \
                  "[AthenaPoolCnvSvc.ReadAthenaPool] hasn't been imported..." )

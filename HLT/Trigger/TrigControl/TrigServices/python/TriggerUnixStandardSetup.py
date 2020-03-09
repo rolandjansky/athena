@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -37,6 +37,11 @@ def setupCommonServices():
     import StoreGate.StoreGateConf as StoreGateConf
     svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
+    # Configure the CoreDumpSvc
+    if not hasattr(svcMgr, "CoreDumpSvc"):
+        from AthenaServices.Configurables import CoreDumpSvc
+        svcMgr += CoreDumpSvc()
+
     # ThreadPoolService thread local initialization
     from GaudiHive.GaudiHiveConf import ThreadPoolSvc
     svcMgr += ThreadPoolSvc("ThreadPoolSvc")
@@ -44,7 +49,7 @@ def setupCommonServices():
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
     svcMgr += AlgResourcePool( OutputLevel = INFO,
-                               TopAlg=["AthMasterSeq"])       # this should enable control flow
+                               TopAlg=["AthSequencer/AthMasterSeq"] )
 
     from AthenaCommon.AlgSequence import AlgSequence
     from SGComps.SGCompsConf import SGInputLoader
@@ -66,7 +71,7 @@ def setupCommonServices():
     ROOT6Setup()
 
     # Setup online THistSvc unless specifically configured otherwise
-    #    setup the THistSvc early and force the creation of the ThistSvc 
+    #    setup the THistSvc early and force the creation of the THistSvc 
     #    so that it can be used by infrastructure services to book histograms  
     #    (to avoid problems e.g. with histograms in ROBDataProviderSvc)
     if _Conf.useOnlineTHistSvc:
@@ -101,19 +106,23 @@ def setupCommonServices():
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
     # Online services for ByteStream input/output
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigByteStreamInputSvc, TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConfig import TrigByteStreamInputSvc
     svcMgr += TrigByteStreamCnvSvc("ByteStreamCnvSvc") # this name is hard-coded in some converters
     svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
     svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")
     svcMgr += TrigEventSelectorByteStream("EventSelector", ByteStreamInputSvc = svcMgr.ByteStreamInputSvc)
     theApp.EvtSel = "EventSelector"
 
-    # make the HltEventLoopMgr service available
-    svcMgr.HltEventLoopMgr = theApp.service( "HltEventLoopMgr" )     # already instantiated
-    svcMgr.HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
-    svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
-    svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
-    svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
+    # Online event loop manager
+    from TrigServices.TrigServicesConfig import HltEventLoopMgr
+    loopMgr = HltEventLoopMgr("HltEventLoopMgr")
+    loopMgr.WhiteboardSvc = "EventDataSvc"
+    loopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+    loopMgr.EvtSel = svcMgr.EventSelector
+    loopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
+    svcMgr += loopMgr
+    theApp.EventLoop = loopMgr.name()
 
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()
@@ -142,9 +151,11 @@ def setupCommonServices():
 def setupCommonServicesEnd():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr    
     from AthenaCommon.Logging import logging
+    from AthenaCommon.AlgSequence import AlgSequence
 
     log = logging.getLogger( 'TriggerUnixStandardSetup::setupCommonServicesEnd:' )
-    
+    topSequence = AlgSequence()
+
     # --- create the ByteStreamCnvSvc after the Detector Description otherwise
     # --- the initialization of converters fails
     #from AthenaCommon.AppMgr import theApp
@@ -154,7 +165,7 @@ def setupCommonServicesEnd():
     if _Conf.useOnlineTHistSvc:
         svcMgr.THistSvc.Output = []
         if len(svcMgr.THistSvc.Input)>0:
-            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.' % svcMgr.THistSvc.Input)
+            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.', svcMgr.THistSvc.Input)
             svcMgr.THistSvc.Input = []
 
     # For offline running make sure at least the EXPERT stream is defined
@@ -162,21 +173,27 @@ def setupCommonServicesEnd():
         if 1 not in [ o.count('EXPERT') for o in svcMgr.THistSvc.Output ]:
             svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'"]
 
+    # Basic operational monitoring
+    from TrigOnlineMonitor.TrigOnlineMonitorConfig import TrigOpMonitor
+    topSequence += TrigOpMonitor()
+
     # Set default properties for some important services after all user job options
-    log.info('Configure core services for online runnig')
+    log.info('Configure core services for online running')
 
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
-    svcMgr.CoreDumpSvc.CallOldHandler = True
+    svcMgr.CoreDumpSvc.CallOldHandler = False
+    svcMgr.CoreDumpSvc.StackTrace = True
     svcMgr.CoreDumpSvc.FatalHandler = 0   # no extra fatal handler
-    svcMgr.CoreDumpSvc.TimeOut = 60000000000        # no timeout for stack trace generation -> changed to 60s (ATR17112)
+    svcMgr.CoreDumpSvc.TimeOut = 60000000000        # timeout for stack trace generation changed to 60s (ATR-17112)
 
     # Disable StatusCodeSvc (causes problems with shutting down children at stop in HLTPU)
     svcMgr.StatusCodeSvc.SuppressCheck = True
     svcMgr.StatusCodeSvc.AbortOnError = False
         
     svcMgr.IOVSvc.updateInterval = "RUN"
-    svcMgr.IOVSvc.preLoadData = True  
-    svcMgr.IOVSvc.forceResetAtBeginRun = False 
+    svcMgr.IOVSvc.preLoadData = True
+    svcMgr.IOVSvc.preLoadExtensibleFolders = False  # ATR-19392
+    svcMgr.IOVSvc.forceResetAtBeginRun = False
 
     if hasattr(svcMgr,'IOVDbSvc'):
         svcMgr.IOVDbSvc.CacheAlign = 0  # VERY IMPORTANT to get unique queries for folder udpates (see Savannah #81092)

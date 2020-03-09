@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1ZDC/TrigT1ZDC.h"
@@ -87,14 +87,6 @@ namespace LVL1 {
 		      << endmsg;
     }
     
-    // Retrieve ZDC identifier helper from det store
-    //sc = m_detStore->retrieve(m_tileTBID);
-    //if (sc.isFailure()) {
-    //  m_log << MSG::ERROR
-    //	    << "Unable to retrieve TileTBID helper from DetectorStore" << endmsg;
-    //  return sc;
-    //}
-
     // Get level 1 ZDC threshold settings from the level 1
     // configuration service.  The thresholds are in GeV and are not a
     // ptcut.  The ptcut() methods just returns the value in the xml file.

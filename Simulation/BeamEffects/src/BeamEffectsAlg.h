@@ -1,14 +1,14 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMEFFECTS_BEAMEFFECTSALG_H
 #define BEAMEFFECTS_BEAMEFFECTSALG_H
 
 // base class header
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 // Athena includes
 #include "StoreGate/ReadHandleKey.h"
@@ -32,12 +32,12 @@ namespace Simulation
 
   /** @class BeamEffectsAlg
 
-      This AthAlgorithm reads in the McEventCollection produced by the
+      This AthReentrantAlgorithm reads in the McEventCollection produced by the
       generator and writes out an updated McEventCollection for use by
       simulation.  The IGenEventManipulators are used to apply the
       effects of beam properties to the GenEvents.
      */
-  class BeamEffectsAlg : public AthAlgorithm
+  class BeamEffectsAlg : public AthReentrantAlgorithm
   {
 
     friend class SimTesting::BeamEffectsAlg_test;
@@ -48,17 +48,16 @@ namespace Simulation
     BeamEffectsAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
     /** Destructor */
-    virtual ~BeamEffectsAlg();
+    virtual ~BeamEffectsAlg() = default;
 
     /** Athena algorithm's interface method initialize() */
-    StatusCode initialize() override final;
+    virtual StatusCode initialize() override final;
+
     /** Athena algorithm's interface method execute() */
-    StatusCode execute() override final;
-    /** Athena algorithm's interface method finalize() */
-    StatusCode finalize() override final;
+    virtual StatusCode execute(const EventContext& ctx) const override final;
 
     /** Can clone for AthenaMT **/
-    bool isClonable() const override { return true; }
+    virtual bool isClonable() const override final { return true; }
 
   private:
 

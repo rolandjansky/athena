@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENABARCODECNV_P1_H
@@ -16,37 +16,34 @@
 class MsgStream;
 
 class AthenaBarCodeCnv_p1 :
-	public T_AthenaPoolTPCnvBase<AthenaBarCodeImpl, AthenaBarCode_p1>
+	public T_AthenaPoolTPCnvConstBase<AthenaBarCodeImpl, AthenaBarCode_p1>
 {
 public:
+        using base_class::transToPers;
+        using base_class::persToTrans;
+
+
 	AthenaBarCodeCnv_p1()
-          : m_UUIDHash(0)
 	{
 	}
 	
 	virtual void persToTrans(const AthenaBarCode_p1* persObj,
-			AthenaBarCodeImpl* transObj, MsgStream &) ;
+			AthenaBarCodeImpl* transObj, MsgStream &) const override;
 	virtual void transToPers(const AthenaBarCodeImpl* transObj,
-			AthenaBarCode_p1* persObj, MsgStream &) ;
-
-  AthenaBarCode_t m_UUIDHash;
-  
-protected:
-
-
+			AthenaBarCode_p1* persObj, MsgStream &) const override;
 };
 
 inline void AthenaBarCodeCnv_p1::transToPers(const AthenaBarCodeImpl* trans,
-				      AthenaBarCode_p1* pers, MsgStream &) {
+				      AthenaBarCode_p1* pers, MsgStream &) const {
   pers->m_athenabarcode = trans->getAthenaBarCode();
   //  ATH_MSG_DEBUG("AthenaBarCodeCnv_p1::transToPers::pers->m_barcode="<<std::hex
   //		<<pers->m_athenabarcode);
 }
 
 inline void AthenaBarCodeCnv_p1::persToTrans(const AthenaBarCode_p1* pers,
-				      AthenaBarCodeImpl* trans, MsgStream &) {
+				      AthenaBarCodeImpl* trans, MsgStream &) const {
 
-  static unsigned short msgCount(0);
+  static std::atomic<unsigned short> msgCount{0};
   const int ABCMAXMSGCOUNT=10;
 
   if(pers->m_athenabarcode==IAthenaBarCode::UNDEFINEDBARCODE) {

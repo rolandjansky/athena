@@ -121,7 +121,6 @@ job.ParticleDecayer.ThetaEndCapBarrel    = 0.628796286 #0.439067982 = eta of 1.5
 #---------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "StreamEVGEN" )
-Stream1.ForceRead=TRUE
 Stream1.OutputFile = "ParticleDecayer.EVNT.pool.root"
 Stream1.ItemList += [ "2101#*", "133273#*" ]
 

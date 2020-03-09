@@ -76,13 +76,15 @@ StatusCode PrimaryDPDPrescaler::initialize()
   ATH_MSG_DEBUG( "Accept Algs, Size: "  <<  m_theAcceptAlgs.size()  <<  " Empty: " << m_theAcceptAlgs.empty() );
   for(std::vector<Gaudi::Algorithm*>::iterator i=m_theAcceptAlgs.begin(),end=m_theAcceptAlgs.end(); i != end; ++i) {
     ATH_MSG_DEBUG( (*i)->name() );
-    cutFlowSvc()->registerCut((*i)->name(), "", cutID());
+    // TODO: update to the new interface
+    // cutFlowSvc()->registerCut((*i)->name(), "", cutID());
   }
 
   ATH_MSG_DEBUG( "Require Algs, Size: " <<  m_theRequireAlgs.size()  <<  " Empty: " << m_theRequireAlgs.empty() );
   for(std::vector<Gaudi::Algorithm*>::iterator i=m_theRequireAlgs.begin(),end=m_theRequireAlgs.end(); i != end; ++i) {
     ATH_MSG_DEBUG(  (*i)->name() );
-    cutFlowSvc()->registerCut((*i)->name(), "", cutID());
+    // TODO: update to the new interface
+    // cutFlowSvc()->registerCut((*i)->name(), "", cutID());
   }
 
 
@@ -105,7 +107,6 @@ StatusCode PrimaryDPDPrescaler::initialize()
   ATH_CHECK( incSvc.retrieve() );
   incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
   incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
-  //incSvc->addListener(this, "LastInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
 
   ResetSelfDescription(); 
 
@@ -245,7 +246,7 @@ void PrimaryDPDPrescaler::handle(const Incident& inc) {
   
   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
   if (fileInc == 0) {
-    ATH_MSG_ERROR( " Unable to get FileName from BeginFile/EndFile incident" );
+    ATH_MSG_ERROR( " Unable to get FileName from BeginInputFile/EndInputFile incident" );
     return;
   }
   const std::string fileName = fileInc->fileName();

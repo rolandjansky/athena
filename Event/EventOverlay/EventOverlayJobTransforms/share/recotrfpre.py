@@ -26,4 +26,3 @@ rec.Commissioning.set_Value_and_Lock(True)
 jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0)
 from CaloRec.CaloCellFlags import jobproperties
 jobproperties.CaloCellFlags.doLArCellEmMisCalib=False
-include.block("TrigT2CaloCommon/LArCellBuilding.py")

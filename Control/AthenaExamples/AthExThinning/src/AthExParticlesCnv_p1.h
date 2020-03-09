@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthExParticlesCnv_p1.h 
@@ -31,53 +31,38 @@
 // Forward declaration
 class MsgStream;
 
-class AthExParticlesCnv_p1 : public T_AthenaPoolTPCnvBase<
+class AthExParticlesCnv_p1 : public T_AthenaPoolTPCnvWithKeyBase<
                                               AthExParticles, 
 				              AthExParticles_p1
                                               >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPersWithKey;
+  using base_class::persToTransWithKey;
+
 
   /** Default constructor: 
    */
   AthExParticlesCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c Particles
    *  from its persistent representation @c Particles_p1
    */
-  virtual void persToTrans( const AthExParticles_p1* persObj, 
-			    AthExParticles* transObj, 
-			    MsgStream &msg );
+  virtual void persToTransWithKey( const AthExParticles_p1* persObj, 
+                                   AthExParticles* transObj,
+                                   const std::string& key,
+                                   MsgStream &msg ) const override;
 
   /** Method creating the persistent representation @c Particles_p1
    *  from its transient representation @c Particles
    */
-  virtual void transToPers( const AthExParticles* transObj, 
-			    AthExParticles_p1* persObj, 
-			    MsgStream &msg );
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
+  virtual void transToPersWithKey( const AthExParticles* transObj, 
+                                   AthExParticles_p1* persObj, 
+                                   const std::string& key,
+                                   MsgStream &msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline AthExParticlesCnv_p1::AthExParticlesCnv_p1()
 {}

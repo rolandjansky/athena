@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,6 +18,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "Python.h"
 #include "TCustomPyTypes.h"
+#include "Utility.h"
 
 #if PY_VERSION_HEX >= 0x03000000
 // TODO: this will break functionality
@@ -81,6 +82,9 @@ PyTypeObject TCustomFloat_Type = {     // python float is a C/C++ double
 #if PY_VERSION_HEX >= 0x02060000
    , 0                        // tp_version_tag
 #endif
+#if PY_VERSION_HEX >= 0x03040000
+   , 0                        // tp_finalize
+#endif
 };
 
 //= long type allowed for reference passing ==================================
@@ -137,6 +141,9 @@ PyTypeObject TCustomInt_Type = {       // python int is a C/C++ long
 #if PY_VERSION_HEX >= 0x02060000
    , 0                        // tp_version_tag
 #endif
+#if PY_VERSION_HEX >= 0x03040000
+   , 0                        // tp_finalize
+#endif
 };
 
 //= instancemethod object with a more efficient call function ================
@@ -146,7 +153,8 @@ static int numfree = 0;
 #define PyMethod_MAXFREELIST 256
 #endif
 
-PyObject* TCustomInstanceMethod_New( PyObject* func, PyObject* self, PyObject* pyclass )
+PyObject* TCustomInstanceMethod_New( PyObject* func, PyObject* self,
+                                     [[maybe_unused]] PyObject* pyclass )
 {
 // from instancemethod, but with custom type (at issue is that instancemethod is not
 // meant to be derived from)
@@ -326,6 +334,9 @@ PyTypeObject TCustomInstanceMethod_Type = {
 #endif
 #if PY_VERSION_HEX >= 0x02060000
    , 0                        // tp_version_tag
+#endif
+#if PY_VERSION_HEX >= 0x03040000
+   , 0                        // tp_finalize
 #endif
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -18,7 +18,6 @@ TileTrackFilterAlg::TileTrackFilterAlg( const std::string& name,ISvcLocator* pSv
     AthAlgorithm( name, pSvcLocator ),
     m_track_iso_tool("TrackIsolationTool"){
 //==============================================================================================
-    m_storeGate = 0;
     m_outputCont = 0;
     declareProperty("track_iso_tool", m_track_iso_tool );
     declareProperty("InputTracksName", m_trackContainerName = "TrackParticleCandidate"); // INPUT TRACK CONTAINER
@@ -39,7 +38,6 @@ StatusCode TileTrackFilterAlg::initialize(){
     ATH_MSG_INFO("TileTrackFilterAlg::initialize() ");
 
     CHECK(m_track_iso_tool.retrieve());
-    CHECK(service("StoreGateSvc",m_storeGate));
 
     return StatusCode::SUCCESS;
 } // TileTrackFilterAlg::initialize()
@@ -50,7 +48,7 @@ StatusCode TileTrackFilterAlg::execute(){
 
     // TRACKPARTICLE OUTPUT CONTAINER
     m_outputCont = new TRACKCONTAINER( SG::VIEW_ELEMENTS );
-    CHECK( m_storeGate->record( m_outputCont, m_outputTracksName ) );
+    CHECK( evtStore()->record( m_outputCont, m_outputTracksName ) );
     
     // NUMBER OF TRACKPARTICLECANDIDATES
     int counter = 0;
@@ -58,7 +56,7 @@ StatusCode TileTrackFilterAlg::execute(){
 
     // GET HANDLE ON TRACKPARTICLE CONTAINER AND RETRIEVE FROM STOREGATE
     const TRACKCONTAINER* trackcoll = 0;
-    CHECK( m_storeGate->retrieve( trackcoll, m_trackContainerName ) );
+    CHECK( evtStore()->retrieve( trackcoll, m_trackContainerName ) );
 
     // ALLOW FOR MULTIPLE TRACKPARTICLE TYPES
     std::vector<TRACKCONTAINER::const_iterator> start;

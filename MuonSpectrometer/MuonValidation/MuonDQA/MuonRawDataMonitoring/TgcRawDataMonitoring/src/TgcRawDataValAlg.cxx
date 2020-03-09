@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,9 +17,6 @@
 // GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
-// Cabling Service
-//#include "TGCcablingInterface/ITGCcablingServerSvc.h"
-
 #include "Identifier/Identifier.h"
 
 // MuonRDO
@@ -27,28 +24,17 @@
 #include "MuonRDO/TgcRdoIdHash.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
-#include "MuonDigitContainer/TgcDigitContainer.h"
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
-//#include "MuonDQAUtils/TGCDQAUtils.h"
-
  
 #include "TgcRawDataMonitoring/TgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include <TError.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
 #include <inttypes.h> 
 
 #include <sstream>
 #include <math.h>
-
-using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -73,12 +59,11 @@ TgcRawDataValAlg::initialize(){
 
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
   
-  // Retrieve the MuonDetectorManager  
-  ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
-  ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
+// MuonDetectorManager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
-  ATH_CHECK(  detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
-  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+
   //histograms directory names
   m_generic_path_tgcmonitoring = "Muon/MuonRawDataMonitoring/TGC";
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloDisabledTowersContainer.h"
@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <memory>
 
-#include "CxxUtils/make_unique.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -29,7 +28,7 @@ L1CaloDisabledTowersContainer::L1CaloDisabledTowersContainer(const std::string& 
 
 DataObject* L1CaloDisabledTowersContainer::makePersistent() const
 {
-  using CxxUtils::make_unique;
+  using std::make_unique;
 
   if(m_coolFolderKey.empty()) return nullptr;
 

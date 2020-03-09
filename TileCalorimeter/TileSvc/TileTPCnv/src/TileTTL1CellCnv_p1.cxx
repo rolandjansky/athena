@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileTTL1CellCnv_p1.cxx 
@@ -15,7 +15,7 @@
 
 
 void
-TileTTL1CellCnv_p1::persToTrans(const TileTTL1Cell_p1* persObj, TileTTL1Cell* transObj, MsgStream &/*log*/)
+TileTTL1CellCnv_p1::persToTrans(const TileTTL1Cell_p1* persObj, TileTTL1Cell* transObj, MsgStream &/*log*/) const
 {
   *transObj = TileTTL1Cell (Identifier(Identifier32(persObj->m_channelID)),
                             persObj->m_eneTower,
@@ -26,7 +26,7 @@ TileTTL1CellCnv_p1::persToTrans(const TileTTL1Cell_p1* persObj, TileTTL1Cell* tr
 
 
 void
-TileTTL1CellCnv_p1::transToPers(const TileTTL1Cell* transObj, TileTTL1Cell_p1* persObj, MsgStream &/*log*/)
+TileTTL1CellCnv_p1::transToPers(const TileTTL1Cell* transObj, TileTTL1Cell_p1* persObj, MsgStream &/*log*/) const
 {
   persObj->m_channelID = transObj->identify().get_identifier32().get_compact();
 

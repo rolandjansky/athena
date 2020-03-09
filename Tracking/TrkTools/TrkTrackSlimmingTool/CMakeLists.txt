@@ -8,8 +8,9 @@ atlas_subdir( TrkTrackSlimmingTool )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Tracking/TrkTools/TrkToolInterfaces
-                          PRIVATE
+			  Tracking/TrkTools/TrkToolInterfaces
+			  Control/CxxUtils
+			  PRIVATE
                           DetectorDescription/AtlasDetDescr
                           GaudiKernel
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -27,7 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrkTrackSlimmingTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps TrkToolInterfaces AtlasDetDescr GaudiKernel TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkTrackSummary )
+		     LINK_LIBRARIES AthenaBaseComps TrkToolInterfaces CxxUtils AtlasDetDescr GaudiKernel TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkTrackSummary )
 
 # Install files from the package:
 atlas_install_headers( TrkTrackSlimmingTool )

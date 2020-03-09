@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LArPhaseToolTB.h,v 1.1 2006-06-27 18:32:03 ssnyder Exp $
@@ -19,9 +19,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
-
-
-class StoreGateSvc;
 
 
 /*

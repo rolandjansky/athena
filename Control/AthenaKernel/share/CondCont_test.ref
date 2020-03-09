@@ -1,5 +1,5 @@
 test1
-ClassIDSvc           INFO  getRegistryEntries: read 52 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3 CLIDRegistry entries for module ALL
 UNKNOWN_CLASS:c...  ERROR CondContBase::insertBase: EventIDRange {[40,l:2] - [t:543]} is neither fully RunEvent nor TimeStamp
 UNKNOWN_CLASS:c...  ERROR CondContBase::erase: Non-Run/LBN key used in Run/LBN container.
 UNKNOWN_CLASS:c...  ERROR CondContBase::erase: Non-Timestamp key used in timestamp container.
@@ -14,7 +14,7 @@ UNKNOWN_CLASS:c...  ERROR CondContBase::insertBase: EventIDRange {[40,l:2] - [t:
 UNKNOWN_CLASS:c...  ERROR CondCont<T>::insert: Not most-derived class; CLID used: 932847546; container CLID: 932847547
 test3
 test4
-UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Run+lbn part of new range doesn't match existing range. New: {[2,t:150,l:10] - [2,t:150,l:15]}; existing: {[2,t:100,l:10] - [2,t:103.500000000,l:20]}
+UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Run+lbn part of new range doesn't match existing range, or can't extend. New: {[2,t:150,l:10] - [2,t:150,l:15]}; existing: {[2,t:100,l:10] - [2,t:103.500000000,l:20]}
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Range does not have both start and stop timestamps defined.
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::findMixed: No valid timestamp in key used with mixed container.
 UNKNOWN_CLASS:c...  ERROR CondContBase::findBase: Non-Run/LBN key used in Run/LBN container.
@@ -22,5 +22,8 @@ UNKNOWN_CLASS:c...  ERROR CondContMixedBase::findMixed: No valid timestamp in ke
 UNKNOWN_CLASS:c...  ERROR CondContBase::findBase: Non-Run/LBN key used in Run/LBN container.
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::erase: erase() is not implemented for mixed containers.
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::extendLastRange: extendLastRange() is not implemented for mixed containers.
+UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Run+lbn part of new range doesn't match existing range, or can't extend. New: {[2,t:120,l:10] - [2,t:130,l:30]}; existing: {[2,t:100,l:10] - [2,t:103.500000000,l:20]}
+UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Run+lbn part of new range doesn't match existing range, or can't extend. New: {[20,t:120,l:10] - [20,t:150,l:40]}; existing: {[20,t:120,l:10] - [20,t:130,l:30]}
+UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Run+lbn part of new range doesn't match existing range, or can't extend. New: {[1,t:25,l:30] - [1,t:30,l:50]}; existing: {[1,t:25,l:30] - [1,t:30,l:40]}
 testThread
 testThreadMixed

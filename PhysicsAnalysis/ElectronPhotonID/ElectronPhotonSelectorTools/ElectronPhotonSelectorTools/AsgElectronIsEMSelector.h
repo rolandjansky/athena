@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -42,7 +42,7 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
 
   public:
   /** Standard constructor */
-  AsgElectronIsEMSelector(std::string myname);
+  AsgElectronIsEMSelector(const std::string& myname);
 
   /** Standard destructor */
   virtual ~AsgElectronIsEMSelector();

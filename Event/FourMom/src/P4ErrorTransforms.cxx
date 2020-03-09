@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FourMom/P4ErrorTransforms.h"
@@ -10,22 +10,22 @@
 
 namespace P4ErrorTransforms {
 
-  ErrorMatrixEEtaPhiM* toEEtaPhiM( const ErrorMatrixPxPyPzE& em,
-				   double px, double py, double pz, double E)
+std::unique_ptr<ErrorMatrixEEtaPhiM> toEEtaPhiM( const ErrorMatrixPxPyPzE& em,
+                                                 double px, double py, double pz, double E)
   {
     P4JacobianPxPyPzE2EEtaPhiM J( px, py, pz, E);
     CLHEP::HepSymMatrix res(4);
     res = em.hsm().similarity(J);
-    return new ErrorMatrixEEtaPhiM(res);
+    return std::make_unique<ErrorMatrixEEtaPhiM>(res);
   }
 
-  ErrorMatrixPxPyPzE* toPxPyPzE( const ErrorMatrixEEtaPhiM& em,
-				 double E, double eta, double phi, double M)
+std::unique_ptr<ErrorMatrixPxPyPzE> toPxPyPzE( const ErrorMatrixEEtaPhiM& em,
+                                               double E, double eta, double phi, double M)
   {
     P4JacobianEEtaPhiM2PxPyPzE J( E, eta, phi, M);
     CLHEP::HepSymMatrix res(4);
     res = em.hsm().similarity(J);
-    return new ErrorMatrixPxPyPzE(res);
+    return std::make_unique<ErrorMatrixPxPyPzE>(res);
   }
 
 

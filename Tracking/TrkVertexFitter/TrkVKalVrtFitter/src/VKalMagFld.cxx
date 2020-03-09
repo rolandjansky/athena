@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //  AtlasMagFld object inherits from Trk::baseMagFld.  So pointer
@@ -8,7 +8,7 @@
 //
 //
 //  MAGNETIC FIELD IS ALWAYS GIVEN AT GLOBAL REFERENCE FRAME !!!
-//    ref.frame origin (m_refFrameX, m_refFrameY, m_refFrameZ) is always added to coordinates
+//    ref.frame origin (state.m_refFrameX, state.m_refFrameY, state.m_refFrameZ) is always added to coordinates
 //    supplied to getMagFld().
 //    default of ref.frame origin is (0,0,0) but may be changed if input tracks have different frame.
 // 
@@ -61,9 +61,9 @@ namespace Trk{
                                     double &bx, double &by, double &bz) const
   {   
       double fieldXYZ[3];  double BField[3];
-      fieldXYZ[0]= (x +m_magFrameX) *m_mm;
-      fieldXYZ[1]= (y +m_magFrameY) *m_mm;
-      fieldXYZ[2]= (z +m_magFrameZ) *m_mm;
+      fieldXYZ[0]= (x +m_magFrameX) * CLHEP::mm;
+      fieldXYZ[1]= (y +m_magFrameY) * CLHEP::mm;
+      fieldXYZ[2]= (z +m_magFrameZ) * CLHEP::mm;
       if( m_VKalAthenaField ) {
          m_VKalAthenaField->getField(fieldXYZ,BField); 
          bx = BField[0]/CLHEP::tesla;
@@ -77,19 +77,4 @@ namespace Trk{
 //std::cout<<" Fix mag.="<<bz<<'\n';
        }
    }
-//--------------------------------------------------------------------------
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//  Setting interface
-  void TrkVKalVrtFitter::setAthenaField(MagField::IMagFieldSvc * pnt)
-  {
-     m_fitField->setAtlasField(pnt);
-     //m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
-  }
-
-
-  void TrkVKalVrtFitter::setAthenaField(const double  Field)
-  {
-     m_fitField->setAtlasField( Field );
-     //m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
-  }
 }

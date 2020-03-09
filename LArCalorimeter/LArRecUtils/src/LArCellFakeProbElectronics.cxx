@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -162,7 +162,7 @@ StatusCode LArCellFakeProbElectronics::read_problems()
 /////////////////////////////////////
 // add cell to  list of dead cells //
 /////////////////////////////////////
-StatusCode LArCellFakeProbElectronics::add_cell(int iBarrel,int iSide,int iFT,int iSlot,int iChannel,double weight)
+void LArCellFakeProbElectronics::add_cell(int iBarrel,int iSide,int iFT,int iSlot,int iChannel,double weight)
 {
   try {
     HWIdentifier l_channelId = m_onlineHelper->channel_Id (iBarrel,
@@ -184,6 +184,4 @@ StatusCode LArCellFakeProbElectronics::add_cell(int iBarrel,int iSide,int iFT,in
                     << iChannel 
                     );
   }
-  
-  return StatusCode::SUCCESS;
 }

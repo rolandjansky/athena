@@ -9,7 +9,6 @@
 /** @file AthenaHiveEventLoopMgr.h
     @brief The default ATLAS batch event loop manager.
 
-  * $Id: AthenaHiveEventLoopMgr.h 780883 2016-10-27 20:16:15Z leggett $
 */
 
 #include <string>
@@ -160,12 +159,6 @@ protected:
   /// Run the algorithms for the current event
   virtual StatusCode executeAlgorithms();
 
-  /// Fire BeginRun Incident, run the algorithms beginRun hook
-  StatusCode beginRunAlgorithms();
-
-  /// Fire EndEvtLoop,EndRun, run the algorithms endRun hook
-  StatusCode endRunAlgorithms();
-
   /// Initialize all algorithms and output streams
   StatusCode initializeAlgorithms();
 
@@ -193,7 +186,7 @@ protected:
   /// Declare the root address of the event
   int declareEventRootAddress(EventContext&);
   /// Create event context
-  EventContext createEventContext();
+  virtual EventContext createEventContext() override;
   /// Drain the scheduler from all actions that may be queued
   int drainScheduler(int& finishedEvents);
   /// Instance of the incident listener waiting for AbortEvent. 

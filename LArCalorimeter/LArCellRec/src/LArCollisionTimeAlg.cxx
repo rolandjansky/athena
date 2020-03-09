@@ -139,7 +139,7 @@ StatusCode LArCollisionTimeAlg::execute()
   if (ncellA>m_minCells && ncellC > m_minCells && std::fabs(timeA-timeC)<m_timeCut) setFilterPassed(true);
   else                        setFilterPassed(false);
 
-  //std::cout << " ncellA, ncellA, energyA, energyC, timeA, timeC  " << ncellA << " " << ncellC << " " << energyA << " " << energyC << " " << timeA << " " << timeC << std::endl;
+  ATH_MSG_DEBUG( " ncellA, ncellA, energyA, energyC, timeA, timeC  " << ncellA << " " << ncellC << " " << energyA << " " << energyC << " " << timeA << " " << timeC);
   auto tmplarTime = std::make_unique<LArCollisionTime>(ncellA,ncellC,energyA,energyC,timeA,timeC);
   // Construct the output object
   SG::WriteHandle<LArCollisionTime> larTime (m_collTimeName);

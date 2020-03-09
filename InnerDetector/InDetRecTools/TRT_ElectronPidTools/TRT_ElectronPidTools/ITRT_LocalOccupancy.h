@@ -48,22 +48,6 @@ namespace InDet
    /** Return the global occupancy of the event*/
    virtual std::vector<float> GlobalOccupancy( ) const = 0 ;
 
-   /* virtual int **getOccLocalWheel()   = 0; */
-   /* virtual int **getOccLocalStraw()   = 0; */
-
-   /* virtual int  *getHitTotal()        = 0; */
-   /* virtual int **getHitLocal()        = 0; */
-   /* virtual int **getHitLocalWheel()   = 0; */
-   /* virtual int **getHitLocalStraw()   = 0; */
-
-   /* virtual int  *getStwTotal()        = 0; */
-   /* virtual int **getStwLocal()        = 0; */
-   /* virtual int **getStwLocalWheel()   = 0; */
-   /* virtual int **getStwLocalStraw()   = 0; */
-
-   /* virtual int **getOccLocalPrivate() = 0; */
-   /* virtual int **getHitLocalPrivate() = 0; */
-   /* virtual int **getStwLocalPrivate() = 0; */
   };
 
 }

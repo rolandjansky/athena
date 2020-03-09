@@ -129,7 +129,7 @@ RootNtupleOutputStream::initialize()
     return StatusCode::FAILURE;
   }
 
-  // For 'write on finalize', we set up listener for 'LastInputFile'
+  // For 'write on finalize', we set up listener for 'MetaDataStop'
   // and perform write at this point. This happens at 'stop' of the
   // event selector. RDS 04/2010
   if (m_writeOnFinalize) {

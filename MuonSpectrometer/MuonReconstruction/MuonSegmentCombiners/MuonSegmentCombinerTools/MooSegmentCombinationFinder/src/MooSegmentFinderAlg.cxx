@@ -12,8 +12,6 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 
   m_keyTgc("TGC_Measurements"),
@@ -77,6 +75,7 @@ StatusCode MooSegmentFinderAlg::initialize()
 
   ATH_CHECK( m_patternCombiLocation.initialize() );
   ATH_CHECK( m_segmentLocation.initialize() );
+  ATH_CHECK( m_houghDataPerSectorVecKey.initialize() );
   
   return StatusCode::SUCCESS; 
 }
@@ -111,12 +110,12 @@ StatusCode MooSegmentFinderAlg::execute()
   m_segmentFinder->findSegments( mdtCols, cscCols, tgcCols, rpcCols, output );
 
   if(output.patternCombinations){
-    if( patHandle.record(std::make_unique<MuonPatternCombinationCollection>(std::move(*(output.patternCombinations)))).isSuccess() ){
+    if( patHandle.record(std::unique_ptr<MuonPatternCombinationCollection>(output.patternCombinations)).isSuccess() ){
       ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
     }else{
       ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
     }
-    delete output.patternCombinations;
+    output.patternCombinations = nullptr;
   }
   else{
     if( patHandle.record(std::make_unique<MuonPatternCombinationCollection>()).isSuccess() ){
@@ -124,6 +123,14 @@ StatusCode MooSegmentFinderAlg::execute()
     }else{
       ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
     }
+  }
+
+  // write hough data to SG
+  if (output.houghDataPerSectorVec) {
+    SG::WriteHandle<Muon::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
+    ATH_CHECK(handle.record(std::move(output.houghDataPerSectorVec)));
+  } else {
+    ATH_MSG_VERBOSE("HoughDataPerSectorVec was empty, key: " << m_houghDataPerSectorVecKey.key());
   }
 
   //do cluster based segment finding

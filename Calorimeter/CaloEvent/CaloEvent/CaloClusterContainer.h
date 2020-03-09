@@ -28,6 +28,8 @@ PURPOSE:  Container for CaloCluster objects
 #include "CaloEvent/CaloTowerSeg.h"
 #include "CaloEvent/CaloCluster.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
+#include "CxxUtils/checker_macros.h"
+
 
 DATAVECTOR_VIRTBASES1 (CaloCluster, INavigable4Momentum);
 
@@ -75,7 +77,7 @@ class CaloClusterContainer : public DataVector<CaloCluster>
   void print();
 
   /** reimplementation of push_back */
-  void push_back(const CaloCluster *);
+  void push_back ATLAS_NOT_THREAD_SAFE(const CaloCluster *);
   void push_back(CaloCluster *);
 
  private:

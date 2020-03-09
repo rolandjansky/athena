@@ -13,7 +13,7 @@ public:
     MDTSensitiveDetectorCosmicsTool(const std::string& type, const std::string& name, const IInterface *parent);
     ~MDTSensitiveDetectorCosmicsTool() {}
 protected:
-    G4VSensitiveDetector* makeSD() override final;
+    G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif

@@ -33,12 +33,13 @@
 #include "TileIdentifier/TileFragHash.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "TileConditions/TileCondToolEmscale.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
@@ -110,6 +111,12 @@ class TileHitToRawChannel: public AthAlgorithm {
     bool m_tileThresh;   //!< If true => apply threshold on the conversion to raw channels
     double m_threshHi; //!< Value of the mimimal amplitude required to do the conversion to raw channel in high gain (not used for low gain)
     double m_ampMaxHi; //!< Value of the maximum amplitude to be stored as a high gain channel. For larger amplitudes, the channel is converted to low gain
+
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     ServiceHandle<IAthRNGSvc> m_atRndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number generator engine to use
 

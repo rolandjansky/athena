@@ -29,7 +29,8 @@ public:
   SG::ReadCondHandleKey<AthenaAttributeList>   m_readKey;
   SG::WriteCondHandleKey<LArCalibLineMapping>  m_writeKey;
   ServiceHandle<ICondSvc> m_condSvc;
-  //bool m_isSuperCell;
+  bool m_isSuperCell;
+  unsigned m_maxCalibLines;
 
 };
 

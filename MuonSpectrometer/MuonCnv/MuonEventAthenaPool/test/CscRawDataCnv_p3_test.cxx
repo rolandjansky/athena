@@ -14,6 +14,8 @@
 #include "../src/CscRawDataCnv_p3.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/initGaudi.h"
+#include "muIdHelper.icc"
 #include <cassert>
 #include <iostream>
 
@@ -32,10 +34,11 @@ void compare (const CscRawData& p1,
 }
 
 
-void testit (const CscRawData& trans1)
+void testit (const CscRawData& trans1, Muon::MuonIdHelperSvc* muIdSvc)
 {
   MsgStream log (0, "test");
   CscRawDataCnv_p3 cnv;
+  cnv.setMuonIdHelperSvc(muIdSvc);
   CscRawData_p3 pers;
   cnv.transToPers (&trans1, &pers, log);
   CscRawData trans2;
@@ -44,7 +47,7 @@ void testit (const CscRawData& trans1)
 }
 
 
-void test1()
+void test1(Muon::MuonIdHelperSvc* muIdSvc)
 {
   std::cout << "test1\n";
 
@@ -52,15 +55,21 @@ void test1()
 
   CscRawData trans1 (std::vector<uint16_t>(3001, 3002),
                      3, 4, 5, 6);
-  testit (trans1);
+  testit (trans1, muIdSvc);
   CscRawData trans2 (std::vector<uint16_t>(3011, 3012),
                      13, 14, 15, 16, 17, 18);
-  testit (trans2);
+  testit (trans2, muIdSvc);
 }
 
 
 int main()
 {
-  test1();
+  ISvcLocator* pSvcLoc;
+  if (!Athena_test::initGaudi("MuonEventAthenaPool_test.txt", pSvcLoc)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+  Muon::MuonIdHelperSvc* muIdSvc = muIdHelperSvc();
+  test1(muIdSvc);
   return 0;
 }

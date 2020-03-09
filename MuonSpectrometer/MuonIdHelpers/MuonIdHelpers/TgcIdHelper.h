@@ -200,7 +200,6 @@ class TgcIdHelper : public MuonIdHelper
       ChannelMin           =   1,
       ChannelMax           = 135
     };
-  inline virtual void create_mlog() const;
 };
 
 // For backwards compatibility

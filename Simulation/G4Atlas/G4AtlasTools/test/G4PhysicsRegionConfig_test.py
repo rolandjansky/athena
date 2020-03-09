@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+
 """Run tests on G4PhysicsRegionConfig configuration
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -69,11 +71,8 @@ if __name__ == '__main__':
   ConfigFlags.dump()
 
 
-  f=open("test.pkl","w")
+  f=open("test.pkl","wb")
   cfg.store(f) 
   f.close()
 
-
-
-  print cfg._publicTools
-  print "-----------------finished----------------------"
+  print("-----------------finished----------------------")

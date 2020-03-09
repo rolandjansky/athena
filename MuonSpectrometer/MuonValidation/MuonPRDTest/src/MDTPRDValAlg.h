@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTPRDValAlg_H
@@ -15,6 +15,8 @@
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <sstream>   
 #include <string>
 #include <vector>
@@ -26,15 +28,12 @@ class MuonSimData;
 class Identifier;
 class TTree;
 class TFile;
-class MdtIdHelper;
 class ITHistSvc;
 class MsgStream;
-class StoreGateSvc;
 
 // pre-declarations
 namespace MuonGM {
   class MdtReadoutElement;
-  class MuonDetectorManager;
 }
 
 class MDTPRDValAlg: public AthAlgorithm {
@@ -125,24 +124,18 @@ class MDTPRDValAlg: public AthAlgorithm {
   /**MDT barrel eta cut, applicable to the MDT 2D cross section plot */
   double m_BarrelEtaCut;
 
-  bool m_histo_flag;
   std::string m_chamberName;
   std::string m_StationSize;
   int m_StationEta;
   int m_StationPhi;
   int m_LastEvent;
 
-  /**Pointer On MuonDetectorManager */
-  const MuonGM::MdtReadoutElement* m_descriptor;
-  const MuonGM::MuonDetectorManager* m_pMuonMgr;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
-  /**Pointers On Helpers */
-  const MdtIdHelper*  m_mdtIdHelper;
-  
   MsgStream*          m_log;
   bool                m_debug;
   bool                m_verbose;
-  StoreGateSvc*       m_sgSvc;
   bool isVerbose() {return (msgLevel() <= MSG::VERBOSE);}
 
   void addMcEventCollection( TruthMap& truthMap ) const;
@@ -183,7 +176,7 @@ class MDTPRDValAlg: public AthAlgorithm {
   double m_Validation_MDT_ExY;
   double m_Validation_MDT_ExZ;
   double m_Validation_MDT_ExR;
-  char m_Validation_MDT_StationName[3]; // string in as char array
+  char m_Validation_MDT_StationName[4]; // string in as char array
   int m_Validation_MDT_StationEta;
   int m_Validation_MDT_StationPhi;
   int m_Validation_MDT_IDTube;

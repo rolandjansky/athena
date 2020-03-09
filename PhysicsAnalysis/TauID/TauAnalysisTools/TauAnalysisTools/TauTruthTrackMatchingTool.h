@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TAUANALYSISTOOLS_TAUTRUTHTRACKMATCHINGTOOL_H
@@ -26,6 +26,8 @@
 
 // EDM include(s)
 #include "xAODTruth/TruthVertex.h"
+
+#include "CxxUtils/CachedValue.h"
 
 
 namespace TauAnalysisTools
@@ -56,25 +58,24 @@ public:
 
   virtual ~TauTruthTrackMatchingTool();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // classify vector of tracks
-  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks);
+  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks) const override;
 
   // classify a single track
-  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle);
+  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle) const override;
 
 private:
 
-  StatusCode classifyConversion(const TAUTRACKPARTICLE& xTrackParticle, const xAOD::TruthParticle& xTruthParticle);
-  StatusCode checkTrackType(const TAUTRACKPARTICLE& xTrackParticle);
-  StatusCode checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle);
-  bool checkTruthParent(const xAOD::TruthParticle& xTruthParticle, int& iDepth, std::string& sHistory);
-  const xAOD::TruthParticle* getTruthParticle(const TAUTRACKPARTICLE& xTrackParticle);
+  StatusCode classifyConversion(const TAUTRACKPARTICLE& xTrackParticle, const xAOD::TruthParticle& xTruthParticle) const;
+  StatusCode checkTrackType(const TAUTRACKPARTICLE& xTrackParticle) const;
+  StatusCode checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle) const;
+  bool checkTruthParent(const xAOD::TruthParticle& xTruthParticle, int& iDepth, std::string& sHistory) const;
+  const xAOD::TruthParticle* getTruthParticle(const TAUTRACKPARTICLE& xTrackParticle) const;
 
 private:
-  bool m_bIsHadronicTrackAvailable;
-  bool m_bIsHadronicTrackAvailableChecked;
+  CxxUtils::CachedValue<bool> m_bIsHadronicTrackAvailable;
 
 }; // class TauTruthTrackMatchingTool
 

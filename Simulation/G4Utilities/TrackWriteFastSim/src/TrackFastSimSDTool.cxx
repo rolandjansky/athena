@@ -16,7 +16,7 @@ TrackFastSimSDTool::TrackFastSimSDTool(const std::string& type, const std::strin
   m_noVolumes=true;
 }
 
-G4VSensitiveDetector* TrackFastSimSDTool::makeSD()
+G4VSensitiveDetector* TrackFastSimSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
 

@@ -669,12 +669,8 @@ if doLAr :
     if doMask:
        from LArCellRec.LArCellRecConf import LArCellNoiseMaskingTool
        theLArCellMaskingTool = LArCellNoiseMaskingTool()
-       from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-       theLArBadChannelTool=LArBadChanTool()
-       ToolSvc+=theLArBadChannelTool
        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker   
        theLArMasker=LArBadChannelMasker("LArMasker")
-       theLArMasker.TheLArBadChanTool = theLArBadChannelTool
        theLArMasker.DoMasking=True
        theLArMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
        ToolSvc+=theLArMasker
@@ -1095,7 +1091,6 @@ if doWriteESD:
 
     Stream1.ItemList = fullItemList
     Stream1.TakeItemsFromInput=TRUE
-    Stream1.ForceRead=TRUE
 
 
 # This is a way to block a usage of those folders from "default" Db:

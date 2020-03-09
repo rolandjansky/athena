@@ -363,7 +363,6 @@ MET::Goodies& JetGoodiesFiller::s_goodies(MET::Goodies::instance());
 
 JetGoodiesFiller::JetGoodiesFiller(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator) ,
-     m_storeGate(0),
      m_JetVariables ("JetVarTool")
 {  
   declareProperty( "NamePrimaryJetAlg",   m_PrimaryJetAlg = "AntiKt4TopoJets");

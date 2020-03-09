@@ -17,11 +17,11 @@ string findRef()
     {
       fgets(line,999,f);
       line[strlen(line)-1] = 0;
-    }
   
-  if(-1 == fclose(f)){
-    std::cerr<<"can not close file"<< std::endl;
-  }
+      if(-1 == fclose(f)){
+        std::cerr<<"can not close file"<< std::endl;
+      }
+    }
 
   string temp(line);
   string temp2="";

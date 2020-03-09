@@ -1,13 +1,14 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from CaloTools.CaloToolsConf import CaloNoiseCondAlg
+CaloNoiseCondAlg=CompFactory.CaloNoiseCondAlg
 from AthenaCommon.Logging import logging
 
 def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
     if noisetype not in ("electronicNoise","pileupNoise","totalNoise"):
-        raise RunTimeError("Requested noise of unknown type %s" % noisetype)
+        raise RuntimeError("Requested noise of unknown type %s" % noisetype)
 
     noiseAlgName="Calo_"+noisetype+"Alg"
     
@@ -106,11 +107,11 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
             result.merge(addFolders(configFlags,"/TILE/OFL02/NOISE/CELL","TILE_OFL",className="CondAttrListCollection"))
 
 
-            if configFlags.Calo.Cell.doLArHVCorr:
-                mlog.info("Run2 & doLArHVCorr=True: Will rescale noise automatically for HV trips")
+            if configFlags.LAr.doHVCorr:
+                log.info("Run2 & doLArHVCorr=True: Will rescale noise automatically for HV trips")
                 theCaloNoiseAlg.useHVCorr=True
-                from LArCalibUtils.LArHVScaleCorrConfig import LArHVScaleCorrCfg
-                result.merge(LArHVScaleCorr(configFlags))
+                from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+                result.merge(LArHVScaleCfg(configFlags))
                 pass
             pass
         else: #COMP200 case:
@@ -140,7 +141,6 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
     acc=MainServicesThreadedCfg(ConfigFlags)
-#    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
 

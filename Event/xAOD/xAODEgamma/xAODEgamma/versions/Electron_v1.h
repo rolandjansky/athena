@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Electron_v1.h 636327 2014-12-16 16:34:24Z christos $
@@ -19,10 +19,6 @@
 //TrackParticle Includes
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
-//CxxUtils for override final
-#include "CxxUtils/final.h"
-#include "CxxUtils/override.h"
 
 namespace xAOD {
 
@@ -73,7 +69,7 @@ namespace xAOD {
     /// @{
 
     /// @brief The type of the object as a simple enumeration
-    virtual Type::ObjectType type() const ATH_FINAL; //Always an Electron.
+    virtual Type::ObjectType type() const final; //Always an Electron.
 
     /// @}
 
@@ -116,7 +112,7 @@ namespace xAOD {
 
     
     ///@brief Set method for Track to Calo Match values.
-    bool  setTrackCaloMatchValue( float value, const EgammaParameters::TrackCaloMatchType information );
+    bool  setTrackCaloMatchValue( const float value, const EgammaParameters::TrackCaloMatchType information );
 
     ///@brief Accessor to the  matching track(s) float information (index = 0 is the best match)
     /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
@@ -127,7 +123,7 @@ namespace xAOD {
     ///@brief Accessor to the  matching track(s) int information (index = 0 is the best match)
     /// Will lead to an exception if the information is not available.
     uint8_t trackParticleSummaryIntValue( const SummaryType information, int index = 0) const;
-    float  trackParticleSummaryFloatValue(  const SummaryType information, int index =  0) const;
+    float  trackParticleSummaryFloatValue( const SummaryType information, int index =  0) const;
 
     /// @}
 

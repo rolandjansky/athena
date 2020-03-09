@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTCONVERTERTOOL_H
@@ -15,8 +15,8 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 #include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
 
@@ -30,13 +30,10 @@ namespace Muon {
     MuonSegmentConverterTool(const std::string&, const std::string&, const IInterface*);
     
     /** @brief destructor */
-    ~MuonSegmentConverterTool();
+    ~MuonSegmentConverterTool() {};
     
     /** @brief initialize method, method taken from bass-class AlgTool */
     StatusCode initialize();
-
-    /** @brief finialize method, method taken from bass-class AlgTool */
-    StatusCode finalize();
     
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonSegmentConverterTool; }
@@ -55,8 +52,10 @@ namespace Muon {
     void addClusterTiming( const MuonSegment& seg , xAOD::MuonSegment& xaodSeg) const;
 
     ToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool;
-    ToolHandle<MuonIdHelperTool>  m_idHelper;
-    ToolHandle<MuonEDMHelperTool> m_edmHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelper {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<IMuonHitTimingTool> m_hitTimingTool;
 
   };

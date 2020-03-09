@@ -58,13 +58,12 @@ theApp.EvtMax = 50
 #---------------------------------------------------------------
 include("GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.py")
 
-include("AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include("AthenaServices/AthenaSealSvc_joboptions.py" )
 AthenaSealSvc.CheckDictionary = TRUE
 
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "StreamEVGEN" )
-#Stream1.ForceRead=TRUE
 Stream1.OutputFile = "r1040b0pyquench.root"
 # 2101 = EventInfo
 # 133273 = MCTruth (HepMC)

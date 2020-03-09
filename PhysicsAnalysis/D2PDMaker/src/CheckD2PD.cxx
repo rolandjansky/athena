@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //===========================================================================
@@ -19,7 +19,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -50,7 +49,6 @@ using Athena::Units::GeV;
 CheckD2PD::CheckD2PD(const std::string& name,
                      ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_storeGate(0),
   m_thistSvc(0),
  m_dpd_composite1_number(0),
  m_dpd_composite1_mass(0),
@@ -118,18 +116,8 @@ StatusCode CheckD2PD::initialize()
        << "Initializing CheckD2PD"
        << endmsg;
 
-  // StoreGate for EventStore
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) 
-    {
-      msg() << MSG::ERROR
-           << "Unable to retrieve pointer to StoreGateSvc"
-           << endmsg;
-      return sc;
-    }
-
   // The histogramming service
-  sc = service("THistSvc", m_thistSvc);
+  StatusCode sc = service("THistSvc", m_thistSvc);
   if (sc.isFailure())
     {
       msg() << MSG::ERROR
@@ -409,7 +397,7 @@ StatusCode CheckD2PD::checkD2PD()
   const CompositeParticleContainer* compPartCont3(0);
   const CompositeParticleContainer* compPartCont4(0);
   const CompositeParticleContainer* compPartCont5(0);
-  sc=m_storeGate->retrieve( compPartCont1, m_compPartCollName1 );
+  sc=evtStore()->retrieve( compPartCont1, m_compPartCollName1 );
   if( sc.isFailure()  ||  !compPartCont1 )
     {
       msg() << MSG::WARNING
@@ -421,7 +409,7 @@ StatusCode CheckD2PD::checkD2PD()
   
   if ( m_compPartCollName2 != "" )
     {
-      sc=m_storeGate->retrieve( compPartCont2, m_compPartCollName2 );
+      sc=evtStore()->retrieve( compPartCont2, m_compPartCollName2 );
       if( sc.isFailure()  ||  !compPartCont2 )
         {
           msg() << MSG::WARNING
@@ -434,7 +422,7 @@ StatusCode CheckD2PD::checkD2PD()
 
   if ( m_compPartCollName3 != "" )
     {
-      sc=m_storeGate->retrieve( compPartCont3, m_compPartCollName3 );
+      sc=evtStore()->retrieve( compPartCont3, m_compPartCollName3 );
       if( sc.isFailure()  ||  !compPartCont3 )
         {
           msg() << MSG::WARNING
@@ -447,7 +435,7 @@ StatusCode CheckD2PD::checkD2PD()
 
   if ( m_compPartCollName4 != "" )
     {
-      sc=m_storeGate->retrieve( compPartCont4, m_compPartCollName4 );
+      sc=evtStore()->retrieve( compPartCont4, m_compPartCollName4 );
       if( sc.isFailure()  ||  !compPartCont4 )
         {
           msg() << MSG::WARNING
@@ -460,7 +448,7 @@ StatusCode CheckD2PD::checkD2PD()
 
   if ( m_compPartCollName5 != "" )
     {
-      sc=m_storeGate->retrieve( compPartCont5, m_compPartCollName5 );
+      sc=evtStore()->retrieve( compPartCont5, m_compPartCollName5 );
       if( sc.isFailure()  ||  !compPartCont5 ) 
         {
           msg() << MSG::WARNING

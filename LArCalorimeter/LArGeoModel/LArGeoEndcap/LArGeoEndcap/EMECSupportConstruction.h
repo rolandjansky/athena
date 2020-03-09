@@ -44,13 +44,20 @@ namespace LArGeo {
       @brief GeoModel description of the EMEC Support Structures
    */
 class EMECSupportConstruction
-  {
+{
   public:
+    typedef enum {
+        Front = 0, Back, Outer, Inner, Middle,
+        FrontInner = 10, BackInner = 11,
+        FrontOuter = 12, BackOuter = 13,
+    } type_t;
+
     EMECSupportConstruction(
-      int type,
-      bool module = false,
-      std::string basename = "LAr::EMEC::",
-      double position = 0.
+        type_t type,
+        bool pos_zside = true,
+        bool is_module = false,
+        std::string basename = "LAr::EMEC::",
+        double position = 0.
     );
     virtual ~EMECSupportConstruction();
 
@@ -90,25 +97,26 @@ class EMECSupportConstruction
 
 	GeoPcon* getPcon(std::string) const;
 
-    int m_Type;
+    type_t m_Type;
+    bool m_pos_zside;
     bool m_isModule;
     std::string m_BaseName;
     double m_Position, m_PhiStart, m_PhiSize;
 
-        const GeoMaterial* m_LAr;
-        const GeoMaterial* m_Alu;
-        const GeoMaterial* m_Gten;
-        const GeoMaterial* m_PermaliE730;
-        const GeoMaterial* m_G10FeInner;
-        const GeoMaterial* m_G10FeOuter;
-        const GeoMaterial* m_Kapton_Cu;
-        const GeoMaterial* m_Cable;
-        const GeoMaterial* m_Copper;
-        const GeoMaterial* m_Lead;
+    const GeoMaterial* m_LAr;
+    const GeoMaterial* m_Alu;
+    const GeoMaterial* m_Gten;
+    const GeoMaterial* m_PermaliE730;
+    const GeoMaterial* m_G10FeInner;
+    const GeoMaterial* m_G10FeOuter;
+    const GeoMaterial* m_Kapton_Cu;
+    const GeoMaterial* m_Cable;
+    const GeoMaterial* m_Copper;
+    const GeoMaterial* m_Lead;
 
 	IRDBRecordset_ptr m_DB_EmecGeometry, m_DB_EmecWheelParameters, m_DB_mn;
 	IRDBRecordset_ptr m_DB_boxes, m_DB_numbers, m_DB_tubes, m_DB_pcons;
-        IRDBRecordset_ptr m_DB_emecExtraCyl;
+    IRDBRecordset_ptr m_DB_emecExtraCyl;
 };
 
 } // namespace LArGeo

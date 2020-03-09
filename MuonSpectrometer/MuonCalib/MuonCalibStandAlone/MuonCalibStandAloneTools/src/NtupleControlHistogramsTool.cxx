@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -32,7 +32,6 @@
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 // MuonReadoutGeometry //
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 // MuonCalib //
@@ -141,7 +140,6 @@ NtupleControlHistogramsTool::NtupleControlHistogramsTool(const std::string & t,
 	m_nb_events = 0;
 	m_MdtIdHelper = 0;
 	m_RpcIdHelper = 0;
-	m_detMgr = 0;
 	m_id_tool = 0;
 	
 	m_qfitter = new StraightPatRec();
@@ -190,8 +188,8 @@ StatusCode NtupleControlHistogramsTool::initialize(void) {
 // RPC ID helper //
 	ATH_CHECK( detStore()->retrieve(m_RpcIdHelper, m_RPC_ID_helper) );
 
-// muon detector manager //
-	ATH_CHECK( detStore()->retrieve(m_detMgr) );
+//retrieve detector manager from the conditions store
+	ATH_CHECK(m_DetectorManagerKey.initialize());
 
 // muon fixed id tool //
 	ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType,
@@ -958,9 +956,16 @@ void NtupleControlHistogramsTool::createMaps(const MuonFixedId & id) {
 // GET THE GEOMETRY OF THE GIVEN CHAMBER //
 ///////////////////////////////////////////
 
+	SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+	const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+	if(MuonDetMgr==nullptr){
+	  ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+	  return;
+	} 
+
 	Identifier station_id = m_id_tool->fixedIdToId(id);
 	const MuonGM::MdtReadoutElement *MdtRoEl =
-			m_detMgr->getMdtReadoutElement(
+			MuonDetMgr->getMdtReadoutElement(
 	    		m_MdtIdHelper->channelID(station_id,1,1,1));
 
 	m_nb_ml[station_identifier] = m_MdtIdHelper->numberOfMultilayers(
@@ -977,7 +982,7 @@ void NtupleControlHistogramsTool::createMaps(const MuonFixedId & id) {
 	// loop over possible Z doublets
 		for (int z_doublet=0; z_doublet<4; z_doublet++){
 			const MuonGM::RpcReadoutElement *RpcRoEl = 
-					m_detMgr->getRpcRElement_fromIdFields(
+					MuonDetMgr->getRpcRElement_fromIdFields(
 						m_MdtIdHelper -> stationName(station_id),// int stationName,
 						m_MdtIdHelper -> stationEta(station_id), // int stationEta,
 						m_MdtIdHelper -> stationPhi(station_id), // int stationPhi

@@ -1,4 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 __author__  = 'Javier Montejo'
 __version__="$Revision: 1.01 $"
 __doc__="Interface to retrieve lists of unprescaled triggers according to types and periods"
@@ -52,7 +55,7 @@ class TriggerAPI:
     @classmethod
     def setRelease(cls, release):
         import re
-        if release and re.match('21\.1(\.[0-9]+)+$',release):
+        if release and re.match(r'21\.1(\.[0-9]+)+$',release):
             cls.release = release
         elif release=="current": #Don't allow the release to be automatically overwritten
             cls.release = release
@@ -184,7 +187,7 @@ class TriggerAPI:
             del cls.dbQueries[(period,grl)]
         with open(cls.privatePickleFile, 'w') as f:
             pickle.dump( cls.dbQueries , f)
-        print sorted(cls.dbQueries.keys())
+        print (sorted(cls.dbQueries.keys()))
 
 def main(dumpFullPickle=False):
     ''' Run some tests or dump the full pickle for CalibPath '''
@@ -192,20 +195,20 @@ def main(dumpFullPickle=False):
     if dumpFullPickle:
         for triggerPeriod in TriggerPeriod:
             unprescaled = TriggerAPI.getLowestUnprescaled(triggerPeriod,TriggerType.mu_single)
-            print triggerPeriod
-            print sorted(unprescaled)
+            print (triggerPeriod)
+            print (sorted(unprescaled))
         #Cache also one run for the example script
         unprescaled = TriggerAPI.getLowestUnprescaled(337833,TriggerType.mu_single)
-        print 337833
-        print sorted(unprescaled)
+        print (337833)
+        print (sorted(unprescaled))
         TriggerAPI.dumpFullPickle()
     else:
         try: period = int(sys.argv[1])
-        except: period = TriggerPeriod.y2018
+        except Exception: period = TriggerPeriod.y2018
         for triggerType in TriggerType:
             unprescaled = TriggerAPI.getLowestUnprescaled(period,triggerType)
-            print triggerType
-            print sorted(unprescaled)
+            print (triggerType)
+            print (sorted(unprescaled))
 
 if __name__ == "__main__":
         dumpFullPickle = ("dumpFullPickle" in sys.argv)

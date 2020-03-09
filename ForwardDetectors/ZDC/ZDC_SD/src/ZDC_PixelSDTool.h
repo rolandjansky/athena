@@ -28,7 +28,7 @@ class ZDC_PixelSDTool : public SensitiveDetectorBase
   StatusCode Gather() override final; //FIXME would be good to be able to avoid this.
 
   // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 
 };
 

@@ -13,9 +13,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel )
 
 # External dependencies:
-find_package( gperftools COMPONENTS tcmalloc profiler )
+find_package( gperftools COMPONENTS profiler )
 
-# tag use_gpt_profiler was not recognized in automatic conversion in cmt2cmake
+# Don't build the package if GPerfTools is not available.
+if( NOT GPERFTOOLS_FOUND )
+  message( WARNING "GPerfTools not available. Not building PerfMonGPerfTools." )
+  return()
+endif()
 
 # Component(s) in the package:
 atlas_add_component( PerfMonGPerfTools

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,6 +18,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "Python.h"
 #include "TTupleOfInstances.h"
+#include "Utility.h"
 #include "TPython.h"
 #include "TClass.h"
 
@@ -107,7 +108,9 @@ PyTypeObject TTupleOfInstances_Type = {
 #if PY_VERSION_HEX >= 0x02060000
    , 0                        // tp_version_tag
 #endif
-
+#if PY_VERSION_HEX >= 0x03040000
+   , 0                        // tp_finalize
+#endif
 };
 
 } // namespace PyROOT

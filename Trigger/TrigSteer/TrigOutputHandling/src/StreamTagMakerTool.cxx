@@ -1,8 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StreamTagMakerTool.h"
+#include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTChain.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 #include "eformat/StreamTag.h"
 
 using namespace TrigCompositeUtils;
@@ -10,7 +13,8 @@ using namespace TrigCompositeUtils;
 // =============================================================================
 
 StreamTagMakerTool::StreamTagMakerTool( const std::string& type, const std::string& name, const IInterface* parent ):
-  base_class( type, name, parent ) {}
+   base_class( type, name, parent )
+{}
 
 // =============================================================================
 
@@ -22,23 +26,45 @@ StatusCode StreamTagMakerTool::initialize() {
   renounceArray( m_pebDecisionKeys );
   ATH_CHECK( m_pebDecisionKeys.initialize() );
   ATH_CHECK( m_finalChainDecisions.initialize() );
-  // Transform string->vector<string> map from the ChainToStream property into id->StreamTagInfo map
-  for (const auto& [chainName, streamTagInfoAsStringVec] : m_chainToStreamProperty) {
-    if (streamTagInfoAsStringVec.size()!=4) {
-      ATH_MSG_ERROR("Invalid StreamTagInfo object, expected 4 elements {name,type,obeysLumiBlock,forceFullEventBuilding}, but received"
-                    << streamTagInfoAsStringVec.size() << " elements for chain " << chainName);
-      return StatusCode::FAILURE;
-    }
-    StreamTagInfo streamTagInfo = {
-      streamTagInfoAsStringVec[0],
-      streamTagInfoAsStringVec[1],
-      (streamTagInfoAsStringVec[2] == "True" || streamTagInfoAsStringVec[2] == "true"),
-      (streamTagInfoAsStringVec[3] == "True" || streamTagInfoAsStringVec[3] == "true")
-    };
-    ATH_MSG_DEBUG( "Chain " << chainName << " accepts events to stream " << std::get<1>(streamTagInfo) << "_" << std::get<0>(streamTagInfo) );
-    m_mapping[ HLT::Identifier( chainName ) ] = streamTagInfo;
+
+  ATH_CHECK( m_hltMenuKey.initialize() );
+
+  auto hltMenu = SG::makeHandle( m_hltMenuKey );
+  if( ! hltMenu.isValid() ) {
+    ATH_MSG_FATAL("Failed to get the HLT menu from the DetectorStore");
+    return StatusCode::FAILURE;
   }
 
+  ATH_MSG_INFO("Configuring from HLTMenu from DetStore with " << hltMenu->size() << " chains");
+  for (const TrigConf::Chain & chain : *hltMenu) {
+    std::vector<TrigConf::DataStructure> streams = chain.streams();
+    if (streams.empty()) {
+      ATH_MSG_ERROR("Chain " << chain.name() << " has no streams assigned");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Chain " << chain.name() << " is assigned to " << streams.size() << " streams");
+    m_mapping[ HLT::Identifier( chain.name() ) ] = {};
+    for (const TrigConf::DataStructure& stream : streams) {
+      try {
+        std::string stream_name         = stream.getAttribute("name");
+        std::string stream_type         = stream.getAttribute("type");
+        std::string_view obeyLB         = stream.getAttribute("obeyLB");
+        std::string_view fullEventBuild = stream.getAttribute("forceFullEventBuilding");
+        StreamTagInfo streamTag = {
+          stream_name,
+          stream_type,
+          obeyLB == "true",
+          fullEventBuild == "true"
+        };
+        m_mapping[ HLT::Identifier(chain.name()).numeric() ].push_back(streamTag);
+        ATH_MSG_DEBUG("-- " << stream_type << "_" << stream_name
+                      << " (obeyLB=" << obeyLB << ", forceFullEventBuilding=" << fullEventBuild << ")");
+      } catch (const std::exception& ex) {
+        ATH_MSG_ERROR("Failure reading stream tag configuration from JSON: " << ex.what());
+        return StatusCode::FAILURE;
+      }
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -48,12 +74,17 @@ StatusCode StreamTagMakerTool::finalize() {
 
 // =============================================================================
 
-StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
+StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const {
   // obtain chain decisions,
   using namespace TrigCompositeUtils;
-  auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
+  auto chainsHandle = SG::makeHandle( m_finalChainDecisions, ctx );
   if (!chainsHandle.isValid()) {
-    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    SmartIF<IAlgExecStateSvc> aess = svcLoc()->service<IAlgExecStateSvc>("AlgExecStateSvc", false);
+    if (aess.isValid() && aess->eventStatus(ctx) != EventStatus::Success) {
+      ATH_MSG_WARNING("Failed event, " << m_finalChainDecisions.key() << " is unavailable. Skipping stream tag making.");
+      return StatusCode::SUCCESS;
+    }
+    ATH_MSG_ERROR("Unable to read in the " << m_finalChainDecisions.key() << " from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
   }
 
@@ -71,53 +102,61 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   }
 
   if (passRawChains == nullptr || rerunChains == nullptr) {
-    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
   }
 
   DecisionIDContainer passRawIDs;
   decisionIDs(passRawChains, passRawIDs);
+  DecisionIDContainer rerunIDs;
+  decisionIDs(rerunChains, rerunIDs);
 
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
-  ATH_CHECK(fillPEBInfoMap(chainToPEBInfo));
+  ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
 
-  // for each accepted chain lookup the map of chainID -> ST
+  // for each accepted chain look up the map of chainID -> ST
   for ( DecisionID chain: passRawIDs ) {
 
     // Note: The default is to NOT allow rerun chains to add a stream tag
     if (!m_allowRerunChains) {
-      const auto iterator = std::find(decisionIDs(rerunChains).begin(), decisionIDs(rerunChains).end(), chain);
-      if ( iterator != decisionIDs(rerunChains).end() ) {
+      if ( rerunIDs.find(chain) != rerunIDs.end() ) {
         // This chain has entries in both the passedRaw and rerun sets. As we are not allowing rerun chains, we skip this one.
         continue;
       }
     }
 
+    if (TrigCompositeUtils::isLegId(HLT::Identifier(chain)) )
+      continue;
+    
     auto mappingIter = m_mapping.find( chain );
-    // each chain has to have stream
     if( mappingIter == m_mapping.end() ) {
-      ATH_MSG_ERROR("Each chain has to have stream associated whereas the " << HLT::Identifier( chain ) << " does not" );
+      ATH_MSG_ERROR("Each chain has to have the StreamTag associated whereas the " << HLT::Identifier( chain ) << " does not" );
       return StatusCode::FAILURE;
     }
-
-    auto [st_name, st_type, obeysLB, forceFullEvent] = mappingIter->second;
-    std::set<uint32_t> robs;
-    std::set<eformat::SubDetector> subdets;
-    if (!forceFullEvent) {
-      auto it = chainToPEBInfo.find(chain);
-      if (it != chainToPEBInfo.end()) {
-        ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " adds PEBInfo " << it->second << " to stream " << st_type << "_" << st_name);
-        // Copy ROB IDs directly
-        robs = it->second.robs;
-        // Convert SubDet IDs from uint32_t to eformat::SubDetector aka uint8_t
-        for (const uint32_t subdetid : it->second.subdets) {
-          subdets.insert(static_cast<eformat::SubDetector>( subdetid & 0xFF ));
+    
+    const std::vector<StreamTagInfo>& streams = mappingIter->second;
+    for (const StreamTagInfo& streamTagInfo : streams) {
+      auto [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
+      ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " accepted event into stream " << st_type << "_" << st_name
+                    << " (obeysLB=" << obeysLB << ", forceFullEvent=" << forceFullEvent << ")");
+      std::set<uint32_t> robs;
+      std::set<eformat::SubDetector> subdets;
+      if (!forceFullEvent) {
+        auto it = chainToPEBInfo.find(chain);
+        if (it != chainToPEBInfo.end()) {
+          ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " adds PEBInfo " << it->second << " to stream " << st_type << "_" << st_name);
+          // Copy ROB IDs directly
+          robs = it->second.robs;
+          // Convert SubDet IDs from uint32_t to eformat::SubDetector aka uint8_t
+          for (const uint32_t subdetid : it->second.subdets) {
+            subdets.insert(static_cast<eformat::SubDetector>( subdetid & 0xFF ));
+          }
         }
       }
-    }
 
-    eformat::helper::StreamTag streamTag(st_name, st_type, obeysLB, robs, subdets);
-    resultToFill.addStreamTag(streamTag); // TODO assume multiple streams per chain?
+      eformat::helper::StreamTag streamTag(st_name, st_type, obeysLB, robs, subdets);
+      ATH_CHECK(resultToFill.addStreamTag(streamTag));
+    }
   }
 
   ATH_MSG_DEBUG("Number of streams for event " <<  resultToFill.getStreamTags().size() );
@@ -126,10 +165,10 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
 
 // =============================================================================
 
-StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEBInfoWriterToolBase::PEBInfo>& map) const {
+StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEBInfoWriterToolBase::PEBInfo>& map, const EventContext& ctx) const {
   for (const auto& key: m_pebDecisionKeys) {
     // Retrieve the decision container
-    auto handle = SG::makeHandle(key); //TODO: pass EventContext& explicitly here
+    auto handle = SG::makeHandle(key, ctx);
     if (not handle.isValid())  {
       ATH_MSG_DEBUG("Missing input " <<  key.key() << " likely rejected");
       continue;

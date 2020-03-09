@@ -8,6 +8,10 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 #include <set>
 #include <map>
 
@@ -76,6 +80,7 @@ namespace Trk {
 
   /**returns a vector of PRDs belonging to the passed track.
     It's basically for the convenience of users and is created purely from the passed track.
+
     i.e. there is no caching if you do it multiple times on the same track, you're being 
     inefficient!!
     @param track this Track will be iterated through and all PrepRawData added to a vector
@@ -112,9 +117,12 @@ namespace Trk {
   private:
     // Holds the associations.
     Maps m_maps;
+    SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
+       {this,"PRDtoTrackMap",""};
 
-    ToolHandle<Muon::MuonIdHelperTool>    m_idHelperTool;
-
+    PublicToolHandle<Muon::MuonIdHelperTool>    m_idHelperTool
+       {this,"MuonIdHelperTool","Muon::MuonIdHelperTool/MuonIdHelperTool"};
+    bool m_setupCorrect;
 };
 
 
@@ -126,6 +134,7 @@ inline bool Trk::PRD_AssociationTool::isUsed(const Maps& maps,
 
 inline bool Trk::PRD_AssociationTool::isUsed(const PrepRawData& prd) const
 {
+  if (!m_prdToTrackMap.key().empty()) {return SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap)->isUsed(prd);}
   return isUsed (m_maps, prd);
 }
 
@@ -137,6 +146,7 @@ inline bool Trk::PRD_AssociationTool::isShared(const Maps& maps,
 
 inline bool Trk::PRD_AssociationTool::isShared(const PrepRawData& prd) const
 {
+  if (!m_prdToTrackMap.key().empty()) {return SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap)->isShared(prd);}
   return isShared (m_maps, prd);
 }
 

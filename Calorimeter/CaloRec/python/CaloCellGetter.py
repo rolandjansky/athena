@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
 # not all possibility of CaloCellMaker_jobOptions.py integrated yet
-from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.Resilience import treatException
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import traceback
@@ -18,11 +18,12 @@ class CaloCellGetter (Configured)  :
     def configure(self):
         from AthenaCommon.Logging import logging
         mlog = logging.getLogger('CaloCellGetter::configure:')
-        mlog.info ('entering')        
+        mlog.info ('entering')
 
         doStandardCellReconstruction = True
         from CaloRec.CaloCellFlags import jobproperties
-        
+        from AthenaCommon.AppMgr import ToolSvc
+
         if not jobproperties.CaloCellFlags.doFastCaloSim.statusOn:
             doFastCaloSim = False
             mlog.info("doFastCaloSim not set, so not using it")
@@ -48,8 +49,6 @@ class CaloCellGetter (Configured)  :
             from LArROD.LArRODFlags import larRODFlags
             from AthenaCommon.GlobalFlags import globalflags
             if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
-                if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                    svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
                 from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
                 LArRawChannelBuilderDefault()
           
@@ -70,22 +69,20 @@ class CaloCellGetter (Configured)  :
         # cannot have same name
         try:        
             from CaloRec.CaloRecConf import CaloCellMaker                
-        except:
+        except Exception:
             mlog.error("could not import CaloRec.CaloCellMaker")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         theCaloCellMaker = CaloCellMaker()
-        self._CaloCellMakerHandle = theCaloCellMaker ;
+        self._CaloCellMakerHandle = theCaloCellMaker
 
-        from AthenaCommon.AppMgr import ToolSvc
+
 
         if doStandardCellReconstruction:
             # configure CaloCellMaker here
             # check LArCellMakerTool_jobOptions.py for full configurability 
             # FIXME 
-
-            from RecExConfig.RecFlags import rec
 
             if rec.doLArg():
                 from LArCabling.LArCablingAccess import LArOnOffIdMapping
@@ -94,9 +91,9 @@ class CaloCellGetter (Configured)  :
                 try:
                     from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
                     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
-                except:
+                except Exception:
                     mlog.error("could not get handle to LArCellBuilderFromLArRawChannel Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
 
                 if jobproperties.CaloCellFlags.doLArCreateMissingCells():
@@ -113,18 +110,18 @@ class CaloCellGetter (Configured)  :
                 if globalflags.DataSource() == 'data' and globalflags.InputFormat() == 'bytestream':
                     try:
                         svcMgr.ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
-                        if not "TileDigitsContainer/TileDigitsCnt" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
+                        if "TileDigitsContainer/TileDigitsCnt" not in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
                             svcMgr.ByteStreamAddressProviderSvc.TypeNames+=["TileBeamElemContainer/TileBeamElemCnt",
                                                                             "TileDigitsContainer/TileDigitsCnt",
                                                                             "TileL2Container/TileL2Cnt",
                                                                             "TileLaserObject/TileLaserObj",
                                                                             "TileMuonReceiverContainer/TileMuRcvCnt" ]
-                    except:
+                    except Exception:
                         mlog.warning("Cannot add TileDigitsContainer/TileDigitsCnt et al. to bytestream list")
 
                     # set options for TileRawChannelMaker
                     from TileRecUtils.TileRecFlags import jobproperties
-                    jobproperties.TileRecFlags.TileRunType = 1;  # physics run type
+                    jobproperties.TileRecFlags.TileRunType = 1  # physics run type
 
                     # reading of digits can be disabled before calling CaloCellGetter
                     # if this is not done, but digits are not available in BS file
@@ -133,7 +130,6 @@ class CaloCellGetter (Configured)  :
                         and not (jobproperties.TileRecFlags.doTileFlat        \
                                  or jobproperties.TileRecFlags.doTileFit      \
                                  or jobproperties.TileRecFlags.doTileFitCool  \
-                                 or jobproperties.TileRecFlags.doTileOpt      \
                                  or jobproperties.TileRecFlags.doTileOF1      \
                                  or jobproperties.TileRecFlags.doTileOpt2     \
                                  or jobproperties.TileRecFlags.doTileOptATLAS \
@@ -142,39 +138,39 @@ class CaloCellGetter (Configured)  :
                         from AthenaCommon.BeamFlags import jobproperties
                         # run Opt filter with iterations by default, both for cosmics and collisions before 2011
                         # run Opt filter without iterations for collisions in 2011 and later 
-                        if not 'doTileOpt2' in dir():
+                        if 'doTileOpt2' not in dir():
                             from RecExConfig.AutoConfiguration import GetRunNumber
                             rn = GetRunNumber()
                             if rn > 0 and rn < 171194:  
                                 doTileOpt2 = True
                             elif jobproperties.Beam.beamType()=='collisions':
-                                doTileOpt2 = False; # use OF without iterations for collisions
+                                doTileOpt2 = False # use OF without iterations for collisions
                             else:
-                                doTileOpt2 = True; # always run OF with iterations for cosmics
+                                doTileOpt2 = True # always run OF with iterations for cosmics
                                     
-                        # jobproperties.TileRecFlags.calibrateEnergy=True; # use pCb for RawChannels
+                        # jobproperties.TileRecFlags.calibrateEnergy=True # use pCb for RawChannels
                         # please, note that time correction and best phase are used only for collisions
                         if doTileOpt2:
-                            jobproperties.TileRecFlags.doTileOpt2 = True;  # run optimal filter with iterations
-                            jobproperties.TileRecFlags.doTileOptATLAS = False;  # disable optimal filter without iterations
-                            jobproperties.TileRecFlags.correctAmplitude = False;  # don't do parabolic correction
+                            jobproperties.TileRecFlags.doTileOpt2 = True  # run optimal filter with iterations
+                            jobproperties.TileRecFlags.doTileOptATLAS = False  # disable optimal filter without iterations
+                            jobproperties.TileRecFlags.correctAmplitude = False  # don't do parabolic correction
                             if jobproperties.Beam.beamType() == 'collisions':
-                                jobproperties.TileRecFlags.correctTime = True;  # apply time correction in physics runs
-                                jobproperties.TileRecFlags.BestPhaseFromCOOL = False;  # best phase is not needed for iterations
+                                jobproperties.TileRecFlags.correctTime = True  # apply time correction in physics runs
+                                jobproperties.TileRecFlags.BestPhaseFromCOOL = False  # best phase is not needed for iterations
                         else:
-                            jobproperties.TileRecFlags.doTileOpt2 = False;  # disable optimal filter with iterations
-                            jobproperties.TileRecFlags.doTileOptATLAS = True;  # run optimal filter without iterations
-                            jobproperties.TileRecFlags.correctAmplitude = True;  # apply parabolic correction
+                            jobproperties.TileRecFlags.doTileOpt2 = False  # disable optimal filter with iterations
+                            jobproperties.TileRecFlags.doTileOptATLAS = True  # run optimal filter without iterations
+                            jobproperties.TileRecFlags.correctAmplitude = True  # apply parabolic correction
                             if jobproperties.Beam.beamType() == 'collisions':
-                                jobproperties.TileRecFlags.correctTime = False;  # don't need time correction if best phase is used
-                                jobproperties.TileRecFlags.BestPhaseFromCOOL = True;  # use best phase stored in DB
+                                jobproperties.TileRecFlags.correctTime = False  # don't need time correction if best phase is used
+                                jobproperties.TileRecFlags.BestPhaseFromCOOL = True  # use best phase stored in DB
 
                     try:
                         from TileRecUtils.TileRawChannelGetter import TileRawChannelGetter
-                        theTileRawChannelGetter = TileRawChannelGetter()
-                    except:
+                        theTileRawChannelGetter = TileRawChannelGetter() # noqa: F841
+                    except Exception:
                         mlog.error("could not load TileRawChannelGetter Quit")
-                        print traceback.format_exc()
+                        print(traceback.format_exc())
                         return False
 
                     try:
@@ -182,7 +178,7 @@ class CaloCellGetter (Configured)  :
                         from AthenaCommon.AlgSequence import AlgSequence
                         topSequence = AlgSequence()
                         topSequence += TileDigitsFilter()
-                    except:
+                    except Exception:
                         mlog.error("Could not configure TileDigitsFilter")
 
                 from AthenaCommon.AlgSequence import AthSequencer
@@ -202,8 +198,8 @@ class CaloCellGetter (Configured)  :
                     if globalflags.DataSource() == 'data' and globalflags.InputFormat() == 'bytestream':
                         if jobproperties.TileRecFlags.readDigits():
                             # everything is already corrected at RawChannel level
-                            theTileCellBuilder.correctTime = False;
-                            theTileCellBuilder.correctAmplitude = False;
+                            theTileCellBuilder.correctTime = False
+                            theTileCellBuilder.correctAmplitude = False
                         else:
                             rawChannelContainer = 'TileRawChannelCnt'
                             # by default parameters are tuned for opt.filter without iterations
@@ -212,7 +208,7 @@ class CaloCellGetter (Configured)  :
                             theTileCellBuilder.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
                             if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() <= jobproperties.TileRecFlags.TimeMinForAmpCorrection() :
                                 from AthenaCommon.BeamFlags import jobproperties
-                                mlog.info("adjusting min/max time of parabolic correction for %s" % jobproperties.Beam.bunchSpacing)
+                                mlog.info("adjusting min/max time of parabolic correction for %s", jobproperties.Beam.bunchSpacing)
                                 halfBS = jobproperties.Beam.bunchSpacing.get_Value()/2.
                                 jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
                                 jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
@@ -222,9 +218,9 @@ class CaloCellGetter (Configured)  :
 
                     theCaloCellMaker += theTileCellBuilder
                     theCaloCellMaker.CaloCellMakerToolNames += [theTileCellBuilder]
-                except:    
+                except Exception:
                     mlog.error("could not get handle to TileCellBuilder Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
              
 
@@ -237,11 +233,11 @@ class CaloCellGetter (Configured)  :
                 theCaloCellMaker += theEmptyCellBuilderTool
                 theCaloCellMaker.CaloCellMakerToolNames += [ theEmptyCellBuilderTool ]
 
-                print theEmptyCellBuilderTool
+                print(theEmptyCellBuilderTool)
                 mlog.info("configure EmptyCellBuilderTool worked")
-            except:
+            except Exception:
                 mlog.error("could not get handle to EmptyCellBuilderTool Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
             
 
@@ -252,33 +248,26 @@ class CaloCellGetter (Configured)  :
                 theCaloCellMaker += theFastShowerCellBuilderTool
                 theCaloCellMaker.CaloCellMakerToolNames += [ theFastShowerCellBuilderTool ]
                 mlog.info("configure FastShowerCellBuilderTool worked")
-            except:
+            except Exception:
                 mlog.error("could not get handle to FastShowerCellBuilderTool Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
 
 
             doFastCaloSimNoise=jobproperties.CaloCellFlags.doFastCaloSimNoise()
             if doFastCaloSimNoise:
                 try:
-                    from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
-                    theAddNoiseCellBuilderTool=AddNoiseCellBuilderTool()
+                    from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault
+                    theAddNoiseCellBuilderTool=AddNoiseCellBuilderToolDefault()
                     
-                    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-                    theCaloNoiseTool = CaloNoiseToolDefault()
-                    from AthenaCommon.AppMgr import ToolSvc
-                    ToolSvc += theCaloNoiseTool
-                    
-                    theAddNoiseCellBuilderTool.CaloNoiseTool=theCaloNoiseTool.getFullName()
-                    
-                    print theAddNoiseCellBuilderTool
+                    print(theAddNoiseCellBuilderTool)
 
                     theCaloCellMaker += theAddNoiseCellBuilderTool
                     theCaloCellMaker.CaloCellMakerToolNames += [ theAddNoiseCellBuilderTool ]
                     mlog.info("configure AddNoiseCellBuilderTool worked")
-                except:
+                except Exception:
                     mlog.error("could not get handle to AddNoiseCellBuilderTool Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
 
 
@@ -306,9 +295,9 @@ class CaloCellGetter (Configured)  :
             try:
                 from LArCellRec.LArCellRecConf import LArCellMerger
                 theLArCellMerger = LArCellMerger()
-            except:
+            except Exception:
                 mlog.error("could not get handle to LArCellMerge Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
             theLArCellMerger.RawChannelsName = larRODFlags.RawChannelFromDigitsContainerName()
             theCaloCellMaker += theLArCellMerger
@@ -330,18 +319,18 @@ class CaloCellGetter (Configured)  :
             try:
                 from LArCellRec.LArCellRecConf import LArCellNoiseMaskingTool
                 theLArCellNoiseMaskingTool = LArCellNoiseMaskingTool()
-            except:
+            except Exception:
                 mlog.error("could not get handle to LArCellNoiseMaskingTool Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
 
             if doSporadicMask:
                 try:
                     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
                     theLArSporadicNoiseMasker = LArBadChannelMasker("LArSporadicNoiseMasker")
-                except:
+                except Exception:
                     mlog.error("could not access bad channel tool Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
                 theLArSporadicNoiseMasker.DoMasking = True
                 theLArSporadicNoiseMasker.ProblemsToMask = ["sporadicBurstNoise"]
@@ -352,9 +341,9 @@ class CaloCellGetter (Configured)  :
                 try:
                     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
                     theLArNoiseMasker = LArBadChannelMasker("LArNoiseMasker")
-                except:
+                except Exception:
                     mlog.error("could not access bad channel tool Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
                 theLArNoiseMasker.DoMasking=True
                 theLArNoiseMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
@@ -383,9 +372,9 @@ class CaloCellGetter (Configured)  :
                 theLArBadFebMaskingTool = LArBadFebMaskingTool()
                 if (rec.doExpressProcessing() or athenaCommonFlags.isOnline()): # In online or express processing, EventInfo::LArError is triggered if >=4 FEB with data corrupted
                     theLArBadFebMaskingTool.minFebInError = 4
-            except:
+            except Exception:
                 mlog.error("could not get handle to LArBadFebMaskingTool Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
             theCaloCellMaker += theLArBadFebMaskingTool
 
@@ -404,9 +393,9 @@ class CaloCellGetter (Configured)  :
             try:
                 from LArCellRec.LArCellRecConf import LArCellGainPathology
                 theLArCellGainPathology = LArCellGainPathology()
-            except:
+            except Exception:
                 mlog.error("could not get handle to LArCellGainPatholog< Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
             theCaloCellMaker += theLArCellGainPathology
 
@@ -439,14 +428,14 @@ class CaloCellGetter (Configured)  :
             try:
                 from LArCellRec.LArCellRecConf import LArCellEmMiscalib
                 theLArCellEmMiscalib = LArCellEmMiscalib("LArCellEmMiscalib")
-            except:
+            except Exception:
                 mlog.error("could not get handle to LArCellEmMisCalib Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
 
             # examples on how to change miscalibration. Default values are 0.005 and 0.007 
-            #        theLArCellEmMiscalib.SigmaPerRegion = 0.005;
-            #        theLArCellEmMiscalib.SigmaPerCell = 0.005;
+            #        theLArCellEmMiscalib.SigmaPerRegion = 0.005
+            #        theLArCellEmMiscalib.SigmaPerCell = 0.005
 
             try:
                 from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
@@ -454,9 +443,9 @@ class CaloCellGetter (Configured)  :
                 theMisCalibTool = CaloCellContainerCorrectorTool("MisCalibTool",
                         CaloNums=[ SUBCALO.LAREM ],
                         CellCorrectionToolNames=[ theLArCellEmMiscalib])
-            except:
+            except Exception:
                 mlog.error("could not get handle to MisCalibTool Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
 
             theCaloCellMaker+=theMisCalibTool
@@ -478,9 +467,9 @@ class CaloCellGetter (Configured)  :
                 theCaloCellPedestalCorr = CaloCellPedestalCorrDefault()
                 theCaloCellMaker += theCaloCellPedestalCorr
                 theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellPedestalCorr]
-            except:
+            except Exception:
                 mlog.error("could not get handle to CaloCellPedestalCorr")
-                print traceback.format_exc()
+                print(traceback.format_exc())
 
 
         # 
@@ -497,20 +486,11 @@ class CaloCellGetter (Configured)  :
        
 
         if doHVCorr:
-            from LArCellRec.LArCellRecConf import LArCellHVCorrAlg
-            theLArCellHVCorrAlg = LArCellHVCorrAlg()
-            try:
-                from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
-                from CaloIdentifier import SUBCALO 
-                theHVCorrTool = CaloCellContainerCorrectorTool("HVCorrTool",
-                        CaloNums=[ SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.LARFCAL ],
-                        CellCorrectionToolNames=[ theLArCellHVCorrAlg])
-            except:
-                mlog.error("could not get handle to HVCorrTool Quit")
-                print traceback.format_exc()
-                return False
-            theCaloCellMaker += theHVCorrTool
-            theCaloCellMaker.CaloCellMakerToolNames += [theHVCorrTool]
+            from LArCellRec.LArCellRecConf import LArCellContHVCorrTool
+            theLArCellHVCorrTool = LArCellContHVCorrTool()
+    
+            #theCaloCellMaker += theHVCorrTool
+            theCaloCellMaker.CaloCellMakerToolNames += [theLArCellHVCorrTool]
 
         #
         # correction to undo online calibration and apply new LAr electronics calibration for ADC->MeV conversion
@@ -530,18 +510,18 @@ class CaloCellGetter (Configured)  :
             try:
                 from LArCellRec.LArCellRecConf import LArCellRecalibration
                 theLArCellRecalibration = LArCellRecalibration("LArCellRecalibration")
-            except:
+            except Exception:
                 mlog.error("could not get handle to LArCellRecalibration Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
 
             # get new ADC2MeVTool
             try:
                 from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
                 theLArADC2MeVToolDefault = LArADC2MeVToolDefault()
-            except:
+            except Exception:
                 mlog.error("Could not get handle to LArADC2MeVToolDefault Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
             ToolSvc += theLArADC2MeVToolDefault
 
@@ -549,9 +529,9 @@ class CaloCellGetter (Configured)  :
             try:
                 from LArRecUtils.LArADC2MeVToolOnline import LArADC2MeVToolOnline
                 theLArADC2MeVToolOnline = LArADC2MeVToolOnline()
-            except:
+            except Exception:
                 mlog.error("Could not get handle to LArADC2MeVToolOnline Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
             ToolSvc += theLArADC2MeVToolOnline
 
@@ -565,9 +545,9 @@ class CaloCellGetter (Configured)  :
                 theLArRecalibrationTool = CaloCellContainerCorrectorTool("LArRecalibrationTool",
                         CaloNums=[ SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.LARFCAL ],
                         CellCorrectionToolNames=[ theLArCellRecalibration])
-            except:
+            except Exception:
                 mlog.error("could not get handle to HVCorrTool Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
             theCaloCellMaker += theLArRecalibrationTool
             theCaloCellMaker.CaloCellMakerToolNames += [theLArRecalibrationTool]
@@ -588,9 +568,9 @@ class CaloCellGetter (Configured)  :
            try:
                from CaloTools.CaloMBAverageToolDefault import CaloMBAverageToolDefault
                theCaloMBAverageTool = CaloMBAverageToolDefault()
-           except:
+           except Exception:
                mlog.error("could not get handle to CaloMBAverageTool  Quit")
-               print traceback.format_exc()
+               print(traceback.format_exc())
                return False
            ToolSvc+=theCaloMBAverageTool
 
@@ -598,9 +578,9 @@ class CaloCellGetter (Configured)  :
                from CaloCellCorrection.CaloCellCorrectionConf import CaloCellMBAverageCorr
                theCaloCellMBAverageCorr = CaloCellMBAverageCorr("CaloCellMBAverageCorr")
                theCaloCellMBAverageCorr.CaloMBAverageTool = theCaloMBAverageTool
-           except:
+           except Exception:
                mlog.error("could not get handle to  CaloCellMBAverageCorr  Quit")
-               print traceback.format_exc()
+               print(traceback.format_exc())
                return False
 
            try:
@@ -609,9 +589,9 @@ class CaloCellGetter (Configured)  :
               theMBAverageTool = CaloCellContainerCorrectorTool("MBAverageTool",
                            CaloNums = [ SUBCALO.NSUBCALO],
                            CellCorrectionToolNames = [theCaloCellMBAverageCorr] )
-           except:
+           except Exception:
                mlog.error("could not get handle to CaloCellContainerCorrectorTool/MBAverageTool Quit")
-               print traceback.format_exc()
+               print(traceback.format_exc())
                return False
 
            theCaloCellMaker += theMBAverageTool
@@ -630,10 +610,10 @@ class CaloCellGetter (Configured)  :
            try:
                from CaloCellCorrection.CaloCellCorrectionConf import CaloCellNeighborsAverageCorr
                theCaloCellNeighborsAverageCorr = CaloCellNeighborsAverageCorr("CaloCellNeighborsAverageCorr")
-               theCaloCellNeighborsAverageCorr.testMode = False;
-           except:
+               theCaloCellNeighborsAverageCorr.testMode = False
+           except Exception:
                mlog.error("could not get handle to  CaloCellNeighborsAverageCorr  Quit")
-               print traceback.format_exc()
+               print(traceback.format_exc())
                return False
            theCaloCellMaker +=  theCaloCellNeighborsAverageCorr
            theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellNeighborsAverageCorr]
@@ -655,14 +635,13 @@ class CaloCellGetter (Configured)  :
             try:
                 from LArCellRec.LArCellDeadOTXCorrToolDefault import LArCellDeadOTXCorrToolDefault
                 theLArCellDeadOTXCorr = LArCellDeadOTXCorrToolDefault()
-            except:
+            except Exception:
                 mlog.error("could not get handle to LArCellDeadOTXCorr Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
 
             theCaloCellMaker += theLArCellDeadOTXCorr
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellDeadOTXCorr]
 
-        doCaloEnergyRescaler=False
         if jobproperties.CaloCellFlags.doCaloCellEnergyCorr() and globalflags.DataSource() == 'data' and not athenaCommonFlags.isOnline():
             
             try:
@@ -671,34 +650,29 @@ class CaloCellGetter (Configured)  :
                 theCCERescalerTool.Folder = "/LAR/CellCorrOfl/EnergyCorr"
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/CellCorrOfl/EnergyCorr<tag>EnergyScale-00</tag><db>sqlite://;schema=escale.db;dbname=COMP200</db>")
-                conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr")
+                conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr",className="AthenaAttributeList")
                 theCaloCellMaker += theCCERescalerTool
                 theCaloCellMaker.CaloCellMakerToolNames += [theCCERescalerTool]
-            except:
+            except Exception:
                 mlog.error("could not get handle to CaloCellEnergyRescaler Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
             pass
 
 
         if jobproperties.CaloCellFlags.doCaloCellTimeCorr() and globalflags.DataSource() == 'data' and not athenaCommonFlags.isOnline():
             try:
-                from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
                 from CaloCellCorrection.CaloCellCorrectionConf import CaloCellTimeCorrTool
                 theLArTimeCorr = CaloCellTimeCorrTool()
                 theLArTimeCorr.Folder = "/LAR/TimeCorrectionOfl/CellTimeOffset"
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/TimeCorrectionOfl/CellTimeOffset<tag>LARTimeCorrectionOflCellTimeOffset-empty</tag><db>sqlite://;schema=timecorr.db;dbname=COMP200</db>")
-                conddb.addFolder("LAR_OFL", "/LAR/TimeCorrectionOfl/CellTimeOffset")
-                theCaloTimeCorrTool = CaloCellContainerCorrectorTool("LArTimeCorrTool",
-                                                                   CellCorrectionToolNames=[theLArTimeCorr]
-                                                                   )
-                theCaloCellMaker += theCaloTimeCorrTool
-                theCaloCellMaker.CaloCellMakerToolNames += [theCaloTimeCorrTool]
+                conddb.addFolder("LAR_OFL", "/LAR/TimeCorrectionOfl/CellTimeOffset",className="AthenaAttributeList")
+                theCaloCellMaker.CaloCellMakerToolNames += [theLArTimeCorr]
                 
-            except:
+            except Exception:
                 mlog.error("could not get handle to CaloCellTimeCorrTool Quit")
-                print traceback.format_exc()
+                print(traceback.format_exc())
                 return False
   
             pass
@@ -740,7 +714,7 @@ class CaloCellGetter (Configured)  :
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
-        topSequence += theCaloCellMaker ;
+        topSequence += theCaloCellMaker
         
         return True
 

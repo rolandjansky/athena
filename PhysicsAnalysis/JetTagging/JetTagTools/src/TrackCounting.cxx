@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/TrackCounting.h"
@@ -186,8 +186,6 @@ namespace Analysis {
  
     /** extract the TrackParticles from the jet and apply track selection: */
     int nbTrack = 0;
-    m_trackSelectorTool->primaryVertex(m_priVtx->recVertex().position());
-    m_trackSelectorTool->prepare();
     std::vector<const xAOD::TrackParticle*>* trackVector = NULL;
     const Analysis::TrackAssociation *trkInJet = jetToTag.getAssociation<TrackAssociation>("Tracks");
     if(!trkInJet){
@@ -199,7 +197,7 @@ namespace Analysis {
       for( jetItr = trackVector->begin(); jetItr != trackVector->end() ; ++jetItr ) {
 	const xAOD::TrackParticle * aTemp = *jetItr;
 	nbTrack++;
-	if( m_trackSelectorTool->selectTrack(aTemp) ) {
+	if( m_trackSelectorTool->selectTrack(m_priVtx->recVertex().position(), aTemp) ) {
 	  
 	  TrackGrade * theGrade = m_trackGradeFactory->getGrade(*aTemp,
 								jetToTag.p4() );

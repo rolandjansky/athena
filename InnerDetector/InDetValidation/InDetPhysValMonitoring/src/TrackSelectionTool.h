@@ -9,7 +9,10 @@
 #include "PATCore/IAsgSelectionTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "AsgTools/AsgTool.h"
+#include "CxxUtils/checker_macros.h"
 
+#include <atomic>
+#include <mutex>
 
 class TrackSelectionTool:
   public virtual ::IAsgSelectionTool,
@@ -28,9 +31,10 @@ public:
 private:
   asg::AcceptInfo m_accept;
   std::vector<std::pair<std::string, std::string> > m_cuts;
-  mutable ULong64_t m_numProcessed; // !< a counter of the number of tracks proccessed
-  mutable ULong64_t m_numPassed; // !< a counter of the number of tracks that passed all cuts
-  mutable std::vector<ULong64_t> m_numPassedCuts; // !< tracks the number of tracks that passed each cut family
+  mutable std::atomic<ULong64_t> m_numProcessed; // !< a counter of the number of tracks proccessed
+  mutable std::atomic<ULong64_t> m_numPassed; // !< a counter of the number of tracks that passed all cuts
+  mutable std::vector<ULong64_t> m_numPassedCuts ATLAS_THREAD_SAFE; // !< tracks the number of tracks that passed each cut family. Guarded by m_mutex
+  mutable std::mutex m_mutex;
 
   // Cut vales;
   float m_maxPt;

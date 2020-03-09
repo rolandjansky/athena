@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -13,14 +13,9 @@
 #include "GaudiKernel/IDataProviderSvc.h"
 
 #include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/Surface.h"
 
@@ -28,8 +23,6 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 //#include "MuonSegmentMakerToolInterfaces/IMuTagMatchingTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 //#include "TrkParameters/Perigee.h"
@@ -79,18 +72,11 @@ MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
   AthAlgTool(t,n,p)
   , p_IExtrapolator("Trk::Extrapolator/AtlasExtrapolator")
   , p_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator")
-  , m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
-  , m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool")
   , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   , m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool")
   , m_selectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool")
   , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
   , p_StoreGateSvc(0)
-  , m_detMgr(0)
-  , m_mdtIdHelper(0)
-  , m_cscIdHelper(0)
-  , m_rpcIdHelper(0)
-  , m_tgcIdHelper(0)
 {
   declareInterface<IMuTagMatchingTool>(this);
   declareProperty( "IExtrapolator" , p_IExtrapolator ) ;
@@ -166,29 +152,15 @@ StatusCode MuTagMatchingTool::initialize()
 
 //Retrieve IdHelpers
   
-  // retrieve MuonDetectorManager
-  ATH_CHECK( detStore()->retrieve(m_detMgr) );
+// MuonDetectorManager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
-  ATH_CHECK( m_idHelper.retrieve() );
-  ATH_CHECK( m_helper.retrieve() );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_edmHelperSvc.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
   ATH_CHECK( m_pullCalculator.retrieve() );
-
-  // initialize MuonIdHelpers
-  if (m_detMgr) {
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-  } else {
-    m_mdtIdHelper = 0;
-    m_cscIdHelper = 0;
-    m_rpcIdHelper = 0;
-    m_tgcIdHelper = 0;
-  }
   
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode MuTagMatchingTool::finalize(){
@@ -221,14 +193,19 @@ bool MuTagMatchingTool::match( const Trk::TrackParameters*       atSurface,
 
 std::string MuTagMatchingTool::segmentStationString( const Muon::MuonSegment* segment ) const {
   std::string station;
-  
+
   for( unsigned int i = 0; i<segment->numberOfContainedROTs(); ++i ){
+    const Trk::RIO_OnTrack* rot=segment->rioOnTrack(i);
+    if(!rot){
+      ATH_MSG_DEBUG("no ROT");
+      continue;
+    }
     Identifier segID = segment->rioOnTrack(i)->identify();
-    if( m_mdtIdHelper->is_mdt(segID) ){
-      station = m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName( segID ) );
+    if( m_muonIdHelperTool->mdtIdHelper().is_mdt(segID) ){
+      station = m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName( segID ) );
       break;
-    } else if( m_cscIdHelper->is_csc(segID) ){
-      station = m_cscIdHelper->stationNameString( m_cscIdHelper->stationName( segID ) );
+    } else if( m_muonIdHelperTool->isCsc(segID) ){
+      station = m_muonIdHelperTool->cscIdHelper().stationNameString( m_muonIdHelperTool->cscIdHelper().stationName( segID ) );
       break ;
     }
   }
@@ -724,8 +701,8 @@ void MuTagMatchingTool::nrTriggerHits( const Muon::MuonSegment* seg, int& nRPC, 
     if( !rot ) {
       continue;
     }
-    if( m_rpcIdHelper->is_rpc( rot->identify() ) ) ++nRPC;
-    if( m_tgcIdHelper->is_tgc( rot->identify() ) ) ++nTGC;
+    if( m_muonIdHelperTool->rpcIdHelper().is_rpc( rot->identify() ) ) ++nRPC;
+    if( m_muonIdHelperTool->tgcIdHelper().is_tgc( rot->identify() ) ) ++nTGC;
   }
   
 }
@@ -845,11 +822,20 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
     ATH_MSG_DEBUG( " info.pullXZ " << info.pullXZ ); 
  
 
-     Identifier chId = m_helper->chamberId(*segment);
-     Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chId);
+     Identifier chId = m_edmHelperSvc->chamberId(*segment);
+     Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(chId);
 //
 //  residuals and pulls in X coordinate (along tube)
 //
+
+// MuonDetectorManager from the conditions store
+     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+     if(MuonDetMgr==nullptr){
+       ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+       return info; 
+     } 
+
      bool first = true;
      double maxResXMdt = -1e9;
      double maxResPhi  = -1e9;
@@ -868,12 +854,12 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 	 Identifier id = mdt->identify();
 	 
 	 // get layer index
-	 int lay = m_idHelper->mdtIdHelper().tubeLayer(id);
-	 int tube = m_idHelper->mdtIdHelper().tube(id); 
+	 int lay = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id);
+	 int tube = m_muonIdHelperTool->mdtIdHelper().tube(id); 
 	 
-	 const MuonGM::MdtReadoutElement* detEl = mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : m_detMgr->getMdtReadoutElement(id);
+	 const MuonGM::MdtReadoutElement* detEl = mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : MuonDetMgr->getMdtReadoutElement(id);
 	 if( !detEl ){
-	   ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_idHelper->toString(id));
+	   ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_muonIdHelperTool->toString(id));
 	   continue;
 	 }
 	 double tubeLen = detEl->getActiveTubeLength(lay,tube);
@@ -881,10 +867,10 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 	 // use SL within station to speed up extrapolation    
 	 const Trk::TrackParameters* exP = p_propagator->propagate(*exTrack, mdt->associatedSurface(), Trk::anyDirection, false, Trk::NoField);
 	 if( !exP ){
-           ATH_MSG_WARNING("Failed to extrapolate to " << m_idHelper->toString(id));
+           ATH_MSG_WARNING("Failed to extrapolate to " << m_muonIdHelperTool->toString(id));
 	   continue;
 	 }
-	 ATH_MSG_DEBUG(m_idHelper->toString(id) << " exPos " << exP->parameters()[Trk::locR] << " y " << exP->parameters()[Trk::locZ]
+	 ATH_MSG_DEBUG(m_muonIdHelperTool->toString(id) << " exPos " << exP->parameters()[Trk::locR] << " y " << exP->parameters()[Trk::locZ]
 		       << " tubeL " << tubeLen);
 	 double exResidual = fabs(exP->parameters()[Trk::locZ]) - 0.5*tubeLen;
 	 if( maxResXMdt < exResidual ) maxResXMdt = exResidual;
@@ -893,12 +879,12 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
        }else{
 	 
 	 // get id and check that it is a muon hit id
-	 Identifier id = m_helper->getIdentifier(**mit);
-	 if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
-	 if( !m_idHelper->measuresPhi(id) ) continue;
+	 Identifier id = m_edmHelperSvc->getIdentifier(**mit);
+	 if( !id.is_valid() || !m_muonIdHelperTool->isMuon(id) ) continue;
+	 if( !m_muonIdHelperTool->measuresPhi(id) ) continue;
 	 const Trk::TrackParameters* exP = p_propagator->propagate(*exTrack, (*mit)->associatedSurface(), Trk::anyDirection, false, Trk::NoField);
 	 if( !exP ){
-	   ATH_MSG_WARNING("Failed to extrapolate to " << m_idHelper->toString(id));
+	   ATH_MSG_WARNING("Failed to extrapolate to " << m_muonIdHelperTool->toString(id));
 	   continue;
 	 }
 	 const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( *mit, exP, Trk::ResidualPull::Unbiased );
@@ -921,7 +907,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 	   if( fabs(residual) < fabs(minResPhi) ) minResPhi  = residual;
 	   if( fabs(pull) > fabs(minPullPhi) )    minPullPhi = pull;
 	 }
-	 ATH_MSG_DEBUG(m_idHelper->toString(id) << " residual " << residual << " pull " << pull);
+	 ATH_MSG_DEBUG(m_muonIdHelperTool->toString(id) << " residual " << residual << " pull " << pull);
 	 delete resPull;
 	 delete exP;
        }
@@ -1013,7 +999,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
      if( stIndex == Muon::MuonStationIndex::BM ) info.stationLayer = 2;
      if( stIndex == Muon::MuonStationIndex::BO ) info.stationLayer = 3;
      if( stIndex == Muon::MuonStationIndex::BE ) info.stationLayer = 4;
-     if( stIndex == Muon::MuonStationIndex::EI ) info.stationLayer = m_idHelper->isMdt(chId) ? 11 : 21;
+     if( stIndex == Muon::MuonStationIndex::EI ) info.stationLayer = m_muonIdHelperTool->isMdt(chId) ? 11 : 21;
      if( stIndex == Muon::MuonStationIndex::EM ) info.stationLayer = 12;     
      if( stIndex == Muon::MuonStationIndex::EO ) info.stationLayer = 13;
      if( stIndex == Muon::MuonStationIndex::EE ) info.stationLayer = 14;
@@ -1168,7 +1154,7 @@ bool MuTagMatchingTool::isCscSegment( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_cscIdHelper->is_csc( rot->identify() ) ) isCsc=true;
+    if( m_muonIdHelperTool->isCsc( rot->identify() ) ) isCsc=true;
   }
 
   return isCsc;
@@ -1189,7 +1175,7 @@ unsigned int MuTagMatchingTool::cscHits( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_cscIdHelper->is_csc( rot->identify() ) ) ++nrHits;
+    if( m_muonIdHelperTool->isCsc( rot->identify() ) ) ++nrHits;
   }
   
   return nrHits ;

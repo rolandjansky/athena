@@ -2,11 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "AthLinks/ElementLink.h"
 #include "TrigMuonEFTrackIsolationHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -21,32 +16,16 @@ TrigMuonEFTrackIsolationHypoAlg::TrigMuonEFTrackIsolationHypoAlg( const std::str
 {}
 
 
-TrigMuonEFTrackIsolationHypoAlg::~TrigMuonEFTrackIsolationHypoAlg() 
-{}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMuonEFTrackIsolationHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
   ATH_CHECK( m_hypoTools.retrieve() );
 
   renounce( m_muonKey );
   ATH_CHECK( m_muonKey.initialize() );
- 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMuonEFTrackIsolationHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -59,11 +38,8 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
   ATH_MSG_DEBUG("Executing ...");
 
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
-  if ( not previousDecisionsHandle.isValid() ) { //implicit
-    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
-    return StatusCode::SUCCESS;
-  }  
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  ATH_CHECK( previousDecisionsHandle.isValid() );
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
 
   // prepare output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
@@ -73,14 +49,13 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
   size_t counter = 0;
   for ( const auto previousDecision: *previousDecisionsHandle ) {
     // get RoIs
-    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString()  );
     auto roiEL = roiInfo.link;
-    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>("roi");
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor *roi = *roiEL;
 
     // get View
-    auto viewEL = previousDecision->objectLink<ViewContainer>("view");
+    auto viewEL = previousDecision->objectLink<ViewContainer>(viewString());
     ATH_CHECK( viewEL.isValid() );
 
     // get Muon
@@ -101,10 +76,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
 
     toolInput.emplace_back( newd, roi, muon, previousDecision );
 
-    newd -> setObjectLink( "feature", muonEL );
-    newd -> setObjectLink( "roi", roiEL );
-    newd -> setObjectLink( "view", viewEL );
-
+    newd -> setObjectLink( featureString(), muonEL );
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
 
@@ -128,18 +100,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     }
   } // End of tool algorithm
 
-  { //  debu printout
-    ATH_MSG_DEBUG ( "Exit with "<< outputHandle->size() <<" decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {   
-      for ( auto decisionObject: *outputHandle )  {
-        TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-        ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-    }
-  }
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   return StatusCode::SUCCESS;
 }

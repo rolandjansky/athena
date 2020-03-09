@@ -27,7 +27,7 @@ Trk::PerigeeSurface::PerigeeSurface(const Amg::Vector3D& gp)
   : Surface()
   , m_lineDirection(nullptr)
 {
-  Surface::m_center = std::make_unique<Amg::Vector3D>(gp);
+  Surface::m_center = std::make_unique<const Amg::Vector3D>(gp);
   Surface::m_transform = std::make_unique<Amg::Transform3D>();
   (*Surface::m_transform) = Amg::Translation3D(gp.x(), gp.y(), gp.z());
 }
@@ -36,12 +36,12 @@ Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform)
   : Surface()
   , m_lineDirection(nullptr)
 {
-  Surface::m_transform.store(std::unique_ptr<Amg::Transform3D>(tTransform));
+  Surface::m_transform=std::unique_ptr<Amg::Transform3D>(tTransform);
 }
 
 Trk::PerigeeSurface::PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform)
   : Surface(std::move(tTransform))
-  , m_lineDirection(0)
+  , m_lineDirection(nullptr)
 {}
 
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf)
@@ -49,7 +49,7 @@ Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf)
   , m_lineDirection(nullptr)
 {
   if (pesf.m_center)
-    Surface::m_center = std::make_unique<Amg::Vector3D>(*pesf.m_center);
+    Surface::m_center = std::make_unique<const Amg::Vector3D>(*pesf.m_center);
   if (pesf.m_transform)
     Surface::m_transform = std::make_unique<Amg::Transform3D>(*pesf.m_transform);
 }
@@ -59,12 +59,12 @@ Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf, const Amg::Trans
   , m_lineDirection(nullptr)
 {
   if (pesf.m_center)
-    Surface::m_center = std::make_unique<Amg::Vector3D>(shift * (*pesf.m_center));
+    Surface::m_center = std::make_unique<const Amg::Vector3D>(shift * (*pesf.m_center));
   if (pesf.m_transform)
     Surface::m_transform = std::make_unique<Amg::Transform3D>(shift * (*pesf.m_transform));
 }
 
-Trk::PerigeeSurface::~PerigeeSurface() {}
+Trk::PerigeeSurface::~PerigeeSurface() = default;
 
 // assignment operator
 Trk::PerigeeSurface&
@@ -109,7 +109,7 @@ Trk::PerigeeSurface::localToGlobal(const Amg::Vector2D& locpos,
 {
   // this is for a tilted perigee surface
   if (Surface::m_transform) {
-    // get the vector perpenticular to the momentum and the straw axis
+    // get the vector perpendicular to the momentum and the straw axis
     Amg::Vector3D radiusAxisGlobal(lineDirection().cross(glomom));
     Amg::Vector3D locZinGlobal = transform() * Amg::Vector3D(0., 0., locpos[Trk::locZ]);
     // transform zPosition into global coordinates and add locR * radiusAxis
@@ -156,7 +156,7 @@ Trk::PerigeeSurface::globalToLocal(const Amg::Vector3D& glopos,
 }
 
 // return the measurement frame - this is the frame where the covariance is defined
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::PerigeeSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D& glomom) const
 {
   Amg::RotationMatrix3D mFrame;

@@ -3,12 +3,14 @@
 */
 #include "TrigMessageSvc.h"
 #include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/Message.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/System.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaInterprocess/Incidents.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 #include "ers/ers.h"
 
@@ -53,6 +55,15 @@ StatusCode TrigMessageSvc::initialize()
   StatusCode sc = Service::initialize();
   if (sc.isFailure()) return sc;
 
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
+  sc = incSvc.retrieve();
+  if (sc.isFailure()) {
+    reportMessage(name(), MSG::WARNING, "Cannot find IncidentSvc");
+  }
+  else {
+    incSvc->addListener(this, AthenaInterprocess::UpdateAfterFork::type());
+  }
+
   m_doSuppress = m_suppress && (!m_suppressRunningOnly);
 
   if (m_color) {
@@ -79,9 +90,24 @@ StatusCode TrigMessageSvc::start()
 
 StatusCode TrigMessageSvc::stop()
 {
+  // Disable asynchronous reporting again
+  if (m_asyncReporting) {
+    m_messageActionsQueue.emplace( [this]() {m_asyncReporting = false;} );
+    reportMessage(name(), MSG::INFO, "Disabling asynchronous message reporting");
+    m_thread.join();
+  }
+
   m_doPublish = false;
   m_doSuppress = m_suppress && (!m_suppressRunningOnly);
   return StatusCode::SUCCESS;
+}
+
+void TrigMessageSvc::handle(const Incident& incident)
+{
+  if (incident.type() == AthenaInterprocess::UpdateAfterFork::type()) {
+    reportMessage(name(), MSG::INFO, "Enabling asynchronous message reporting");
+    m_thread = std::thread( &TrigMessageSvc::asyncReporting, this);
+  }
 }
 
 void TrigMessageSvc::bookHistograms()
@@ -94,7 +120,7 @@ void TrigMessageSvc::bookHistograms()
   }
 
   // monitoring information root directory
-  const std::string path = "/EXPERT/" + name() + "/";
+  const std::string path = "/EXPERT/HLTFramework/" + name() + "/";
   const int nLevelBins = MSG::NUM_LEVELS - m_publishLevel;
   m_msgCountHist = new TH1I("MessageCount", "Messages while RUNNING;Severity;Count",
                             nLevelBins, 0, nLevelBins);
@@ -229,9 +255,26 @@ StatusCode TrigMessageSvc::finalize()
 
 void TrigMessageSvc::reportMessage(const Message& msg, int outputLevel)
 {
-  std::unique_lock<std::recursive_mutex> lock(m_reportMutex);
-  i_reportMessage(msg, outputLevel);
+  if (m_asyncReporting) {
+    // msg has to be copied as the reference may become invalid by the time it is used
+    m_messageActionsQueue.emplace([this, m=Message(msg), outputLevel]() {
+      this->i_reportMessage(m, outputLevel); });
+  }
+  else {
+    i_reportMessage(msg, outputLevel);
+  }
 }
+
+void TrigMessageSvc::asyncReporting()
+{
+  m_asyncReporting = true;
+  std::function<void()> action;
+  while ( m_asyncReporting || !m_messageActionsQueue.empty() ) {
+    m_messageActionsQueue.pop(action);
+    action();
+  }
+}
+
 
 /**
  *  Internal implementation of reportMessage(const Message&,int) without lock.
@@ -245,7 +288,7 @@ void TrigMessageSvc::i_reportMessage(const Message& msg, int outputLevel)
   if ( m_doPublish && key>=static_cast<int>(m_publishLevel) ) {
     m_msgCountHist->Fill(key-m_publishLevel, 1);
     { // Adding bins on the fly needs to be protected by mutex
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_msgCountSrcHist->Fill(key-m_publishLevel, msg.getSource().c_str(), 1);
       m_msgCountSrcHist->LabelsDeflate("Y");
     }
@@ -388,7 +431,7 @@ int TrigMessageSvc::outputLevel() const
   return m_outputLevel;
 }
 
-int TrigMessageSvc::outputLevel(const std::string& source) const
+int TrigMessageSvc::outputLevel(std::string_view source) const
 {
   std::unique_lock<std::recursive_mutex> lock(m_thresholdMapMutex);
   auto it = m_thresholdMap.find(source);
@@ -400,24 +443,17 @@ void TrigMessageSvc::setOutputLevel(int new_level)
   m_outputLevel = new_level;
 }
 
-void TrigMessageSvc::setOutputLevel(const std::string& source, int level)
+void TrigMessageSvc::setOutputLevel(std::string_view source, int level)
 {
   std::unique_lock<std::recursive_mutex> lock(m_thresholdMapMutex);
 
   // only write if we really have to...
-  auto i = m_thresholdMap.find(source);
-  if (i == m_thresholdMap.end()) {
-    m_thresholdMap[source] = level;
-  }
-  else if (i->second != level) {
+  auto i = m_thresholdMap.find( source );
+  if ( i == m_thresholdMap.end() ) {
+    m_thresholdMap.emplace( source, level );
+  } else if ( i->second != level ) {
     i->second = level;
   }
-}
-
-void TrigMessageSvc::resetOutputLevels()
-{
-  std::unique_lock<std::recursive_mutex> lock(m_thresholdMapMutex);
-  m_thresholdMap.clear();
 }
 
 int TrigMessageSvc::messageCount(MSG::Level level) const

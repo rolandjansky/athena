@@ -365,7 +365,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
 
   for (; clusCollIter != clusCollIterEnd; clusCollIter++, iClusterNumber++ ){
     xAOD::CaloCluster* parentCluster = (*clusCollIter);
-    CaloClusterCellLink* cellLinks=parentCluster->getCellLinks();
+    CaloClusterCellLink* cellLinks=parentCluster->getOwnCellLinks();
     if (!cellLinks) {
       msg(MSG::ERROR) << "Can't get valid links to CaloCells (CaloClusterCellLink)!" << endmsg;
       return StatusCode::FAILURE;

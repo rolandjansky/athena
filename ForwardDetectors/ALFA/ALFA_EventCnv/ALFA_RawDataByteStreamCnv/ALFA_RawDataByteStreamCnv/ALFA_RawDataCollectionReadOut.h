@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RAWDATACOLLECTIONREADOUT_H
@@ -9,8 +9,6 @@
 #include "ALFA_RawDataReadOut.h"
 #include "ALFA_RawDataReadOut_charge.h"
 #include <stdint.h>
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "AthenaKernel/MsgStreamMember.h"
@@ -116,7 +114,6 @@ class ALFA_RawDataCollectionReadOut : public ALFA_ReadOut
 
   // Private methods
   void setZero();
-  //StoreGateSvc *m_EvtStore;
   //mutable Athena::MsgStreamMember m_msg;
 
   // Methods for the decoding

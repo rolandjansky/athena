@@ -41,14 +41,6 @@ class doTileFitCool(JobProperty):
     StoredValue  = False
     
 #
-class doTileOpt(JobProperty):
-    """ Use Optimal Filtering for energy reconstruction
-    """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-#
 class doTileOpt2(JobProperty):
     """ Use Optimal Filtering (version 2) for energy reconstruction
     """
@@ -91,6 +83,14 @@ class doTileManyAmps(JobProperty):
 #
 class doTileMF(JobProperty):
     """ Use Matched filter method for energy reconstruction
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+#
+class doTileWiener(JobProperty):
+    """ Use Wiener filter method for energy reconstruction
     """
     statusOn     = True
     allowedTypes = ['bool']
@@ -259,13 +259,13 @@ list_jobproperties = [
     doTileFlat,
     doTileFit,
     doTileFitCool,
-    doTileOpt,
     doTileOF1,
     doTileOpt2,
     doTileQIE,
     doTileManyAmps,
     doTileMF,
     doTileOptATLAS,
+    doTileWiener,
     TileRawChannelContainer,
     TileDigitsContainer,
     TileRunType,

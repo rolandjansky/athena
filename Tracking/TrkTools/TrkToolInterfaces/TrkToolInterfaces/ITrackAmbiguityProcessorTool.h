@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,10 +9,16 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkTrack/TrackCollection.h" // typedef
+#include "AthenaKernel/CLASS_DEF.h"
 
 static const InterfaceID IID_ITrackAmbiguityProcessorTool("Trk::ITrackAmbiguityProcessorTool", 1, 0);
 
 namespace Trk {
+
+  class PRDtoTrackMap;
+
+  typedef std::vector<std::pair<const Track*, float>> TracksScores;
+
 
 /** @brief Interface for resolving hit assoication ambiguities in a given track collection.
 
@@ -27,20 +33,30 @@ class ITrackAmbiguityProcessorTool : virtual public IAlgTool
 	static const InterfaceID& interfaceID( ) ;
 	/** (in concrete object) Returns a processed TrackCollection from the passed 'tracks'
 	@param tracks collection of tracks which will have ambiguities resolved. Will not be modified.
-	@return new collections of tracks, with ambiguities resolved. Ownership is passed on 
-	(i.e. client handles deletion)*/
-	virtual TrackCollection*  process(const TrackCollection* tracks)=0;
+        @param prd_to_track_map on optional prd-to-track map being filled by the processor.
+	@return new collections of tracks, with ambiguities resolved. Ownership is passed on.
+	(i.e. client handles deletion).
 
-        /** statistics */
-        virtual void statistics() {};
+        If no prd-to-track map is given the processor might create one internally (for internal
+        use only, or exported to storegate).
+        */
+        virtual TrackCollection*  process(const TrackCollection *, Trk::PRDtoTrackMap *prd_to_track_map=nullptr) const = 0;
+        virtual TrackCollection*  process(const TracksScores *) const = 0 ;
+
+        /** Print statistics at the end of the processing.
+        */
+        virtual void statistics() = 0;
 
 };
 
 inline const InterfaceID& Trk::ITrackAmbiguityProcessorTool::interfaceID()
 {
-	return IID_ITrackAmbiguityProcessorTool;
+  return IID_ITrackAmbiguityProcessorTool;
 }
 
 } //end ns
+
+CLASS_DEF( Trk::TracksScores, 22699437, 0 )
+
 
 #endif // TrackAmbiguityProcessorTool_H

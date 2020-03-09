@@ -116,7 +116,9 @@ private:
     BooleanProperty 			m_compact_ids_only;
     BooleanProperty 			m_do_checks;
     BooleanProperty 			m_do_neighbours;
-    BooleanProperty             m_useCSC;
+    BooleanProperty             m_hasCSC;
+    BooleanProperty             m_hasSTgc;
+    BooleanProperty             m_hasMM;
 };
 #endif
 

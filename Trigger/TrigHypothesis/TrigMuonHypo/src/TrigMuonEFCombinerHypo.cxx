@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonHypo/TrigMuonEFCombinerHypo.h"
@@ -7,12 +7,12 @@
 #include "xAODMuon/MuonContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadCondHandle.h"
 
 class ISvcLocator;
 
 TrigMuonEFCombinerHypo::TrigMuonEFCombinerHypo(const std::string & name, ISvcLocator* pSvcLocator):
-  HLT::HypoAlgo(name, pSvcLocator),
-  m_lumiTool("LuminosityTool/LuminosityTool")
+  HLT::HypoAlgo(name, pSvcLocator)
 {
         declareProperty("AcceptAll", m_acceptAll=true);
 	declareProperty("RejectCBmuons", m_rejectCBmuons=false);
@@ -23,7 +23,6 @@ TrigMuonEFCombinerHypo::TrigMuonEFCombinerHypo(const std::string & name, ISvcLoc
 	def_thrs.push_back(0.*CLHEP::GeV);
 	declareProperty("PtBins", m_ptBins=def_bins);
 	declareProperty("PtThresholds", m_ptThresholds=def_thrs);
-	declareProperty("LumiTool", m_lumiTool);
 	declareMonitoredStdContainer("Pt",  m_fex_pt);
 	declareMonitoredStdContainer("Eta", m_fex_eta);
 	declareMonitoredStdContainer("Phi", m_fex_phi);
@@ -52,11 +51,8 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltInitialize(){
 		  << " CLHEP::GeV");
     }
   }
-  if(m_lumiTool.retrieve().isFailure()){
-    ATH_MSG_WARNING("Unable to retrieve luminosity tool");
-  }
-  else{
-    ATH_MSG_DEBUG("Sucessfully retrieved luminosty tool"); 
+  if( m_luminosityCondDataKey.initialize().isFailure() ) {
+    return HLT::ERROR;
   }
   ATH_MSG_INFO("Initialization completed successfully");
   return HLT::OK;
@@ -175,9 +171,10 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	if(pass==true){
 	  m_fex_bcid = pEvent->bcid();
 
-	  if(m_lumiTool){
-	    m_fex_rate = m_lumiTool->lbLuminosityPerBCID()*crosssection;
-	  }
+          const EventContext& ctx = Gaudi::Hive::currentContext();
+          unsigned int bcid = ctx.eventID().bunch_crossing_id();
+          SG::ReadCondHandle<LuminosityCondData> lumiData (m_luminosityCondDataKey);
+          m_fex_rate = lumiData->lbLuminosityPerBCIDVector().at(bcid)*crosssection;
 	}
 	return HLT::OK;
 }  

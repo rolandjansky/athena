@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -55,7 +55,7 @@ void SbPolyhedrizeAction::handleShift(const GeoShapeShift *shift)
   #include <VP1HEPVis/SbRotation.h> //using doubles instead of floats.
   HEPVis::SbRotation rot(rotation(0,0),rotation(1,0),rotation(2,0),0,
 			 rotation(0,1),rotation(1,1),rotation(2,1),0,
-			 rotation(0,2),rotation(1,2),rotation(2.2),0,
+			 rotation(0,2),rotation(1,2),rotation(2,2),0,
 			  0,0,0,1);
   //---
 

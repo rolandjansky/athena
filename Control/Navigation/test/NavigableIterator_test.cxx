@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: NavigableIterator_test.cxx,v 1.2 2008-09-09 18:52:06 ssnyder Exp $
@@ -16,7 +16,6 @@
 #include "Navigation/Navigable.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthContainers/DataVector.h"
-#include "CxxUtils/unused.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -112,7 +111,8 @@ template <class NAV>
 void test2 (NAV& nav)
 {
   typedef typename NAV::object_iter iter;
-  iter UNUSED(beg) = nav.begin();
+  [[maybe_unused]]
+  iter beg = nav.begin();
   iter end = nav.end();
 
   iter mid = end;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @author: Sebastien Binet <binet@cern.ch>
 # @date:   March 2008
@@ -126,6 +126,7 @@ def forking(func, *args, **kwargs):
             exc_string = traceback.format_exc(limit=10)
             for l in exc_string.splitlines():
                 print ("[%d]"%os.getpid(),l.rstrip())
+            sys.stdout.flush()
             result = exc, exc_string
             status = 1
         with os.fdopen(pwrite, 'wb') as f:
@@ -186,7 +187,7 @@ class Async(object):
                 return func.on_success(result)
             finally:
                 func.on_closing()
-        name = '%s-%s' % (func.__name__, func.counter.next())
+        name = '%s-%s' % (func.__name__, next(func.counter))
         thread = self.threadfactory(None, func_wrapper, name)
         thread.start()
         return thread

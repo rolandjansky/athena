@@ -10,7 +10,7 @@ RPCSensitiveDetectorCosmicsTool::RPCSensitiveDetectorCosmicsTool(const std::stri
 {
 }
 
-G4VSensitiveDetector* RPCSensitiveDetectorCosmicsTool::makeSD()
+G4VSensitiveDetector* RPCSensitiveDetectorCosmicsTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   return new RPCSensitiveDetectorCosmics(name(), m_outputCollectionNames[0]);

@@ -24,7 +24,6 @@
 #include "tauRecTools/ITauToolBase.h"
 #include "tauRecTools/TauJetRNNEvaluator.h"
 
-#include "LumiBlockComps/ILuminosityTool.h" 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 
@@ -66,8 +65,6 @@ class TrigTauRecMerged: public HLT::FexAlgo {
 
  private:
 
-  TauEventData m_tauEventData;
-
   void setEmptyTauTrack( xAOD::TauJet* &tauJet,
 			 xAOD::TauTrackContainer* &tauTrackCont);
 
@@ -100,7 +97,6 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   ToolHandleArray<ITauToolBase>  m_endtools;
 
   /** Luminosity Tool */
-  ToolHandle<ILuminosityTool>  m_lumiTool; 
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
   /** Beam spot service */

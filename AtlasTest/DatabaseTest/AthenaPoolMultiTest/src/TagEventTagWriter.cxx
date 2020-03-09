@@ -11,7 +11,6 @@
 
 #include "TagEventTagWriter.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/TagAthenaAttributeList.h"
 #include "AthenaPoolUtilities/AthenaAttributeListSpecification.h"
 

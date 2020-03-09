@@ -3,8 +3,8 @@
 */
 
 #include <iostream>
-#include "TrigMuonBackExtrapolator/TrigMuonBackExtrapolator.h"
-#include "TrigMuonBackExtrapolator/BackExtrapolator.h"
+#include "TrigMuonBackExtrapolator.h"
+#include "BackExtrapolator.h"
 
 
 TrigMuonBackExtrapolator::TrigMuonBackExtrapolator(const std::string& t, 

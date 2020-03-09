@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISSINGETEVENT_MissingEtTruth_H
@@ -58,10 +58,18 @@ class MissingEtTruth : public MissingET
   void setEyTruth(TruthIndex aTruth,  double theEy);
   void setEtSumTruth(TruthIndex aTruth, double theEtSum);
   
+  void setExTruthVec(std::vector<double>&& exCaloVec);
+  void setEyTruthVec(std::vector<double>&& exCaloVec);
+  void setEtSumTruthVec(std::vector<double>&& etSumCaloVec);
+
   // retrieve Truth contributions 
   double exTruth(TruthIndex aTruth) const;
   double eyTruth(TruthIndex aTruth) const;
   double etSumTruth(TruthIndex aTruth) const;
+
+  const std::vector<double>& exTruthVec() const;
+  const std::vector<double>& eyTruthVec() const;
+  const std::vector<double>& etSumTruthVec() const;
   
 
  protected:

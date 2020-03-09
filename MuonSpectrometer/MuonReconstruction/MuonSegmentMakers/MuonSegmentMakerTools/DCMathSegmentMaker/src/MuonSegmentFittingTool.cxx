@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentFittingTool.h"
@@ -131,16 +131,17 @@ namespace Muon {
       return 0;
     }
 
-    Trk::Track* cleanTrack = m_trackCleaner->clean(*newtrack);
+    std::unique_ptr<Trk::Track> cleanTrack = m_trackCleaner->clean(*newtrack);
     if( !cleanTrack && !isCurvedSegment ) {
       ATH_MSG_VERBOSE("     lost in cleaner ");
       delete newtrack;
       return 0;
     }
 
-    if( cleanTrack != newtrack && !isCurvedSegment ) {
+    if( !(*cleanTrack->perigeeParameters() == *newtrack->perigeeParameters()) && !isCurvedSegment ) {
       delete newtrack;
-      newtrack = cleanTrack;
+      //using release until the entire code can be migrated to use smart pointers
+      newtrack = cleanTrack.release();
     }
     
     const Trk::FitQuality* fq = newtrack->fitQuality();
@@ -205,10 +206,7 @@ namespace Muon {
 
     segLocPos[Trk::locX] = lpos[Trk::locX];
     if( m_updatePrecisionCoordinate ) segLocPos[Trk::locY] = lpos[Trk::locY];
-    double& locAngleXZ = const_cast<double&>(segLocDir.angleXZ());
-    double& locAngleYZ = const_cast<double&>(segLocDir.angleYZ());
-    locAngleXZ = ldir.angleXZ();
-    if( m_updatePrecisionCoordinate ) locAngleYZ = ldir.angleYZ();
+    segLocDir = Trk::LocalDirection(ldir.angleXZ(), m_updatePrecisionCoordinate ? ldir.angleYZ() : segLocDir.angleYZ());
     
     if(exPars->covariance())  locerr = *exPars->covariance();
 

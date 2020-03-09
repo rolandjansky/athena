@@ -48,7 +48,7 @@ theApp.TopAlg   += [ "LArCellContFakeWriter" ]
 #--------------------------------------------------------------
 # JobOptions for the loading of the AthenaSealSvc
 #--------------------------------------------------------------
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
 
 # Check the dictionary in memory for completeness

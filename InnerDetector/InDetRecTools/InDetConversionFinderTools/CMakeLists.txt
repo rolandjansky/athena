@@ -46,3 +46,8 @@ atlas_add_component( InDetConversionFinderTools
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces Particle TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack AthLinks InDetPrepRawData TrkSurfaces TrkMeasurementBase TrkRIO_OnTrack VxVertex TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces InDetConversionFinderToolsLib )
 
+
+atlas_add_test( VertexPointEstimator_test
+                SOURCES test/VertexPointEstimator_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} InDetConversionFinderToolsLib )

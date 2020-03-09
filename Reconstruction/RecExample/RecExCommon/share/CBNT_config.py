@@ -149,7 +149,7 @@ if rec.doHeavyIon():
 
    
 if recAlgs.doTrigger() or ( rec.readESD() and not rec.noESDTrigger()) :
-        protectedInclude ("TriggerRelease/jobOfragment_TriggerCBNT.py")
+        protectedInclude ("TriggerJobOpts/jobOfragment_TriggerCBNT.py")
             
 
 if rec.doAOD() or rec.readAOD():

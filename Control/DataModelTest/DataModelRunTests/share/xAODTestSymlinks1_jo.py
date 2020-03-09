@@ -45,12 +45,12 @@ if nThreads >= 1:
 
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteCInfo, \
      DMTest__xAODTestReadSymlink, \
      DMTest__xAODTestReadSymlinkTool, \
      DMTest__xAODTestAlg
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
-     DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteCInfoTool, \
      DMTest__xAODTestWriteSymlinks
 
@@ -68,15 +68,4 @@ topSequence += DMTest__xAODTestAlg ("xAODTestAlg",
                                              readSymlinkTool])
 
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
+include ('DataModelRunTests/commonTrailer.py')

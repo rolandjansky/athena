@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -37,10 +37,8 @@
 #include <vector>
 #include <math.h>
 
-class StoreGateSvc;//Needed for DetStore
 class IAthenaOutputStreamTool;//Needed to write to POOL/root file
 class IIOVRegistrationSvc;//Needed for register with COOL
-class IIncidentSvc;//Need to retrieve dB at initialize
 
 class T2SampCalibTool : virtual public IT2HadCalibTool, public AthAlgTool, virtual public IIncidentListener  {
  public:
@@ -91,8 +89,6 @@ class T2SampCalibTool : virtual public IT2HadCalibTool, public AthAlgTool, virtu
    std::string m_obj_key;
    const DataHandle<T2CaloJetCalib_dBObj> m_lvl2_calib_handle;
 
-   //Need detector store for dB
-   StoreGateSvc* m_detStore;
    //Global dB object for reading
    T2CaloJetCalib_dBObj* m_lvl2_calib;
 

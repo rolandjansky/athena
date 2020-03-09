@@ -447,12 +447,12 @@ const xAOD::JetContainer* TrackCaloClusterRecValidationTool::calibrateAndRecordS
   static SG::AuxElement::Decorator< float > decJvt("JvtUpdate");
 
   int pos = std::find(m_jetCalibrationCollections.begin(), m_jetCalibrationCollections.end(), name) - m_jetCalibrationCollections.begin();
-  for ( xAOD::Jet *shallowCopyJet : * jetContainerShallowCopy ) {
-    
-    if( m_jetCalibrationTools[pos]->applyCalibration(*shallowCopyJet).isFailure() ){
-      ATH_MSG_WARNING( "Failed to apply calibration to the jet container"); 
-      return 0;
-    }
+  if( m_jetCalibrationTools[pos]->applyCalibration(*jetContainerShallowCopy).isFailure() ){
+    ATH_MSG_WARNING( "Failed to apply calibration to the jet container"); 
+    return 0;
+  }
+
+  for ( xAOD::Jet *shallowCopyJet : * jetContainerShallowCopy ) { 
     const xAOD::IParticleLink originLink( *jetContainer, shallowCopyJet->index() );
     accSetOriginLink(*shallowCopyJet) = originLink;
   }

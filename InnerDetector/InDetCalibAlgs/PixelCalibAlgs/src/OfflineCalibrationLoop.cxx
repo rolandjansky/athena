@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OfflineCalibrationLoop_cxx
@@ -22,10 +22,10 @@
 
 namespace PixelCalib{
 
-OfflineCalibrationLoop::OfflineCalibrationLoop(std::string starting_tag,
-						std::string input,
-						std::string final_tag,
-						std::string collection):
+OfflineCalibrationLoop::OfflineCalibrationLoop(const std::string& starting_tag,
+                                               const std::string& input,
+                                               const std::string& final_tag,
+                                               const std::string& collection):
 			PixelNtupleTracks(input,collection),
 			m_timer(0), m_Calibration(0), m_Validation(0),
 			m_StartingTag(starting_tag), m_FinalTag(final_tag){
@@ -83,7 +83,7 @@ OfflineCalibrationLoop::~OfflineCalibrationLoop(){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void OfflineCalibrationLoop::ReadHistoFile(std::string input){
+void OfflineCalibrationLoop::ReadHistoFile(const std::string& input){
 
 	m_timer->Start();
 
@@ -234,7 +234,8 @@ void OfflineCalibrationLoop::Iterate(long maxentries){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void OfflineCalibrationLoop::Analyze(std::string reference,std::string reference_tag){
+void OfflineCalibrationLoop::Analyze(const std::string& reference,
+                                     const std::string& reference_tag){
 
 	m_timer->Start();
 

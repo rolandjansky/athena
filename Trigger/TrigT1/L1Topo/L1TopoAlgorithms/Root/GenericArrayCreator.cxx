@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  GenericArrayCreator.cxx
 //  L1TopoCoreSimulation
@@ -14,9 +14,6 @@
 #include "L1TopoCommon/Exception.h"
 
 #include <typeinfo>
-
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
 
 REGISTER_ALG_TCS(GenericArrayCreator)
 
@@ -33,14 +30,14 @@ TCS::GenericArrayCreator::sort(const InputTOBArray & input, TOBArray & output) {
    // plain copy
    try {
       const ClusterTOBArray & in = dynamic_cast<const ClusterTOBArray &>(input);
-      foreach(const ClusterTOB * cluster, in) {
+      for(const ClusterTOB * cluster : in) {
          output.push_back( GenericTOB(*cluster) );
       }
    }
    catch(const std::bad_cast& bc) {
       try {
          const JetTOBArray & in = dynamic_cast<const JetTOBArray &>(input);
-         foreach(const JetTOB * jet, in) {
+         for(const JetTOB * jet : in) {
             output.push_back( GenericTOB(*jet, m_jetsize) );
          }
          return StatusCode::SUCCESS;

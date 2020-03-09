@@ -7,20 +7,15 @@
 #include "HiveAlgR.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include <thread>
-#include <chrono>
-#include <ctime>
-#include <memory>
-
-DECLARE_COMPONENT(HiveAlgR)
-
 HiveAlgR::HiveAlgR( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator )
 {}
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 HiveAlgR::~HiveAlgR() {}
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgR::initialize() {
 
   info() << "initialize: " << index() << endmsg;
@@ -31,20 +26,20 @@ StatusCode HiveAlgR::initialize() {
   return StatusCode::SUCCESS;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgR::finalize() {
   info() << "finalize: " << index() << endmsg;
   return StatusCode::SUCCESS;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgR::execute(const EventContext& ctx) const {
 
-  info() << "execute_R: " << index() << " on " << ctx << endmsg;
-
+  info() << "execute: " << index() << " on " << ctx << endmsg;
 
   SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
   ATH_MSG_INFO("   EventInfo:  r: " << evt->runNumber()
                << " e: " << evt->eventNumber() );
-
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
   ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 

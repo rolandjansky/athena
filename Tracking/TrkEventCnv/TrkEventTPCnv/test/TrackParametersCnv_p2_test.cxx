@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,6 @@
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp5.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "TestTools/FLOATassert.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
@@ -114,7 +113,7 @@ void test1()
   testit (trans2c);
 
   Trk::StraightLineSurface slsurf
-    (CxxUtils::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)));
+    (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)));
   Trk::AtaStraightLine trans3 (200, 100, 1.4, 0.7, 2e-3, slsurf, nullptr);
   testit (trans3);
 
@@ -123,7 +122,7 @@ void test1()
   testit (trans3c);
 
   Trk::ConeSurface csurf
-    (CxxUtils::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)).release(), 0.45);
+    (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)).release(), 0.45);
   Trk::AtaCone trans4 (200, 100, 1.4, 0.7, 2e-3, csurf, nullptr);
   testit (trans4);
 

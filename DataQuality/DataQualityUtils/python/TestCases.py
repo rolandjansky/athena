@@ -2,9 +2,10 @@
 
 # None of this works, but keep it around in case someone wants to resurrect it later...
 # - PO 20180419
+from __future__ import print_function
 
 import unittest
-import sys, os, shutil
+import os, shutil
 
 TESTING_DIR = '/afs/cern.ch/user/a/atlasdqm/dqmdisk1/testing_references'
 
@@ -14,10 +15,10 @@ class DQUTestCase(unittest.TestCase):
         
     def test_01_Merging(self):
         '''Test that histogram merging + postprocessing works'''
-        print
-        print 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-        print 'Running merge test ....'
-        print 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        print()
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        print('Running merge test ....')
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
         outdir = os.environ.get('TMPDIR', '.')
         inlist = os.path.join(TESTING_DIR, 'test_merging')
         self.outfile = os.path.join(outdir, 'data09_calophys.00128005.physics_CosmicMuons.root')
@@ -26,10 +27,10 @@ class DQUTestCase(unittest.TestCase):
         
     def test02_WebDisplay(self):
         '''Test that a terminal web display job works'''
-        print
-        print 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-        print 'Running web display test ....'
-        print 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        print()
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        print('Running web display test ....')
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
         outdir = os.environ.get('TMPDIR', '.')
         infile = os.path.join(TESTING_DIR, 'data09_calophys.00128005.physics_CosmicMuons.root')
         rv = os.system('cd %s ; DQWebDisplay.py %s TestDisplay 123' % (outdir, infile))
@@ -37,10 +38,10 @@ class DQUTestCase(unittest.TestCase):
         
     def test_03_WebDisplay(self):
         '''Test that a terminal web display job works in temporary accumulation mode'''
-        print
-        print 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-        print 'Running intermediate web display test ....'
-        print 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        print()
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        print('Running intermediate web display test ....')
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
         outdir = os.environ.get('TMPDIR', '.')
         infile = os.path.join(TESTING_DIR, 'data09_calophys.00128005.physics_CosmicMuons.root')
         from DataQualityConfigurations.TestDisplay import dqconfig
@@ -48,7 +49,7 @@ class DQUTestCase(unittest.TestCase):
         if cachedir == '':
             self.fail('Unable to test intermediate web displays; no histogramCache directory set')
         if not os.access(cachedir, os.W_OK):
-            print "No write permissions for cache dir %s; skipping test" % cachedir
+            print("No write permissions for cache dir %s; skipping test" % cachedir)
             return
         cachefilename = os.path.basename(infile).rsplit('.',1)[-2] + '.CACHE_1'
         shutil.copy(infile, os.path.join(cachedir, cachefilename))

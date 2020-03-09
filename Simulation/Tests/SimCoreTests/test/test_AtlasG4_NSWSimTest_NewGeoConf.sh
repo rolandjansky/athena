@@ -13,7 +13,7 @@ AtlasG4_tf.py \
 --outputHITSFile 'test.HITS.pool.root' \
 --maxEvents '200' \
 --randomSeed '10' \
---geometryVersion 'ATLAS-R3-2021-00-00-00_VALIDATION' \
+--geometryVersion 'ATLAS-R3-2021-01-00-00_VALIDATION' \
 --conditionsTag 'OFLCOND-RUN12-SDR-25' \
 --physicsList 'FTFP_BERT' \
 --postInclude 'G4AtlasTests/postInclude.DCubeTest.py,PyJobTransforms/UseFrontier.py' \

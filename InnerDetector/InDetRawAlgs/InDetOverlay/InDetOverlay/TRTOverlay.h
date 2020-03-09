@@ -5,7 +5,7 @@
 #ifndef INDETOVERLAY_TRTOVERLAY_H
 #define INDETOVERLAY_TRTOVERLAY_H
 
-#include <AthenaBaseComps/AthAlgorithm.h>
+#include <AthenaBaseComps/AthReentrantAlgorithm.h>
 #include <InDetRawData/TRT_RDO_Container.h>
 
 #include "AthenaKernel/IAthRNGSvc.h"
@@ -20,37 +20,35 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class TRTOverlay : public AthAlgorithm
+class TRTOverlay : public AthReentrantAlgorithm
 {
 public:
 
   TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
 
   StatusCode overlayContainer(const TRT_RDO_Container *bkgContainer,
                               const TRT_RDO_Container *signalContainer,
                               TRT_RDO_Container *outputContainer,
-                              const InDetSimDataCollection *signalSDOCollection);
+                              const InDetSimDataCollection *signalSDOCollection) const;
 
   void mergeCollections(TRT_RDO_Collection *bkgCollection,
                         TRT_RDO_Collection *signalCollection,
                         TRT_RDO_Collection *outputCollection,
                         double occupancy,
                         const InDetSimDataCollection *signalSDOCollection,
-                        CLHEP::HepRandomEngine *rndmEngine);
+                        CLHEP::HepRandomEngine *rndmEngine) const;
 
   const TRT_ID *m_trtId{};
 
-  SG::ReadHandleKey<TRT_RDO_Container> m_bkgInputKey{this, "BkgInputKey", "OriginalEvent_SG+TRT_RDOs"," ReadHandleKey for Background Input TRT_RDO_Container"};
-  SG::ReadHandleKey<TRT_RDO_Container> m_signalInputKey{this, "SignalInputKey", "BkgEvent_0_SG+TRT_RDOs", "ReadHandleKey for Signal Input TRT_RDO_Container"};
-  SG::WriteHandleKey<TRT_RDO_Container> m_outputKey{this, "OutputKey", "StoreGateSvc+TRT_RDOs", "WriteHandleKey for Output TRT_RDO_Container"};
-  SG::ReadHandleKey<InDetSimDataCollection> m_signalInputSDOKey{this, "SignalInputSDOKey", "BkgEvent_0_SG+TRT_SDO_Map", "ReadHandleKey for Signal Input InDetSimDataCollection for TRT"};
-
-  BooleanProperty m_includeBkg { this, "includeBkg", true, "Include Background RDO Container" };
+  SG::ReadHandleKey<TRT_RDO_Container> m_bkgInputKey{this, "BkgInputKey", "Bkg_TRT_RDOs"," ReadHandleKey for Background Input TRT_RDO_Container"};
+  SG::ReadHandleKey<TRT_RDO_Container> m_signalInputKey{this, "SignalInputKey", "Sig_TRT_RDOs", "ReadHandleKey for Signal Input TRT_RDO_Container"};
+  SG::WriteHandleKey<TRT_RDO_Container> m_outputKey{this, "OutputKey", "TRT_RDOs", "WriteHandleKey for Output TRT_RDO_Container"};
+  SG::ReadHandleKey<InDetSimDataCollection> m_signalInputSDOKey{this, "SignalInputSDOKey", "Sig_TRT_SDO_Map", "ReadHandleKey for Signal Input InDetSimDataCollection for TRT"};
 
   // Following tools, services and configurables are there only for the correct of HT hits
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service"};      // Random number service

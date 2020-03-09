@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/MuonCalibExtraTreeAlg.h"
@@ -11,18 +11,14 @@
 
 #include "AthContainers/DataVector.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonCalibNtuple/RootFileManager.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonPattern/MuonPattern.h"
 #include "TrkPrepRawData/PrepRawData.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 /*#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -49,7 +45,6 @@ namespace MuonCalib{
   
 MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
-  m_muonIdHelper(0),
   m_patterns(0),
   m_doPhi(false),
   m_ntupleName(""), m_patternLocation(""),m_delayFinish(false),
@@ -70,19 +65,12 @@ MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg(const std::string &name, ISvcLocato
   declareProperty("TrackFillerTools", m_track_fillers);
   declareProperty("IdToFixedIdTool", m_idToFixedIdTool);
   declareProperty("SegmentOnTrackSelector", m_segmentOnTrackSelector);
-  m_detMgr=NULL;    
 }  //end MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg
   
 MuonCalibExtraTreeAlg::~MuonCalibExtraTreeAlg() {
 }
 
 StatusCode MuonCalibExtraTreeAlg::initialize() {
-  StatusCode sc = detStore()->retrieve( m_detMgr );
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL(" Cannot retrieve MuonDetDescrMgr " << endmsg);
-    return StatusCode::FAILURE;
-  } 
-  m_muonIdHelper = m_detMgr->mdtIdHelper();
     
   return StatusCode::SUCCESS;
 }  // end MuonCalibExtraTreeAlg::initialize

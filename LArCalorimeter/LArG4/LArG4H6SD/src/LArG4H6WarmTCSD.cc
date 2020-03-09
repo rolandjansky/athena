@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H6WarmTCSD.h"
@@ -23,8 +23,6 @@
 #include "G4Trap.hh"
 #include "G4VSolid.hh"
 #include "G4LogicalVolume.hh"
-
-#include "CxxUtils/make_unique.h" // For make unique
 
 #undef DEBUG_ME
 
@@ -69,7 +67,7 @@ void LArG4H6WarmTCSD::Initialize(G4HCofThisEvent*)
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: "<<SensitiveDetectorName<<" initializing coll.: "<<collectionName[0]<<std::endl;
 #endif
-  if (!m_Collection.isValid()) m_Collection = CxxUtils::make_unique<LArG4H6WarmTCHitCollection>();
+  if (!m_Collection.isValid()) m_Collection = std::make_unique<LArG4H6WarmTCHitCollection>();
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: initialized "<<collectionName[0]<<" with HCID: "<<G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0])<<std::endl;
 #endif

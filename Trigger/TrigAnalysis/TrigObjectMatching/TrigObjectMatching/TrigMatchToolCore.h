@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,6 +13,7 @@
 // STL include(s):
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 
 // includes for trigger matching framework
 #include "TrigObjectMatching/ObjectMatching.h"
@@ -22,6 +23,9 @@
 
 // includes for navigation access
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
+
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Trig {
    class FeatureContainer;
@@ -34,6 +38,10 @@ namespace Trig {
  */
 
 class TrigMatchToolCore : public ObjectMatching {
+
+private:
+  struct SlotCache;
+
 
 public:
    // Default constructor and destructor
@@ -53,7 +61,7 @@ public:
    template< typename trigType >
    std::vector< const trigType* >
    getTriggerObjects( const std::string& chainName,
-                      bool onlyPassedFeatures );
+                      bool onlyPassedFeatures ) const;
 
    /**************************************************
     *     Offline -> Trigger Object matching         *
@@ -70,7 +78,7 @@ public:
                           const std::string& chainName, 
                           float maxDistance,
                           bool onlyPassedFeatures,
-                          const DistanceFunctor< trigType, baseType >* metric );
+                          const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // matching using the default metric - same as above except
    // will match using deltaR, so no metric is needed
@@ -79,7 +87,7 @@ public:
    matchToTriggerObjects( const baseType *baseObject,
                           const std::string& chainName, 
                           float maxDistance = 0.1,
-                          bool onlyPassedFeatures = false );
+                          bool onlyPassedFeatures = false ) const;
 
    /**
     * @brief matchToTriggerObject returns the object of type trigType
@@ -92,7 +100,7 @@ public:
                          const std::string& chainName, 
                          float maxDistance,
                          bool onlyPassedFeatures,
-                         const DistanceFunctor< trigType, baseType >* metric );
+                         const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // matching using the default metric - same as above except
    // will use match using deltaR, so no metric is needed
@@ -101,7 +109,7 @@ public:
    matchToTriggerObject( const baseType* baseObject,
                          const std::string& chainName, 
                          float maxDistance = 0.1,
-                         bool onlyPassedFeatures = false );
+                         bool onlyPassedFeatures = false ) const;
 
    // C++ will happily cast a bool to a float, which means you can
    // call the above like matchToTriggerObject(object, chain, false)
@@ -110,7 +118,7 @@ public:
    const trigType*
    matchToTriggerObject( const baseType * /*baseObject*/,
                          const std::string& /*chainName*/, 
-                         bool /*onlyPassedFeatures*/ ) {
+                         bool /*onlyPassedFeatures*/ ) const {
 
       this->warning( "You have called matchToTriggerObject incorrectly.");
       this->warning( "Note that the correct use is: object to match to, "
@@ -136,7 +144,7 @@ public:
                           float maxDistance,
                           bool onlyBestMatch,
                           bool onlyPassedFeatures,
-                          const DistanceFunctor< trigType, baseType >* metric );
+                          const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // matching using the default metric - same as above except
    // will use match using deltaR, so no metric is needed
@@ -146,7 +154,7 @@ public:
                           const std::string& chainName, 
                           float maxDistance = 0.1,
                           bool onlyBestMatch = true,
-                          bool onlyPassedFeatures = false );
+                          bool onlyPassedFeatures = false ) const;
 
    // Versions with std::vector instead of DataVector
    template< typename trigType, typename baseType >
@@ -156,7 +164,7 @@ public:
                           float maxDistance,
                           bool onlyBestMatch,
                           bool onlyPassedFeatures,
-                          const DistanceFunctor< trigType, baseType > *metric );
+                          const DistanceFunctor< trigType, baseType > *metric ) const;
 
    template< typename trigType, typename baseType >
    std::vector< const trigType* >
@@ -164,7 +172,7 @@ public:
                           const std::string& chainName, 
                           float maxDistance = 0.1,
                           bool onlyBestMatch = true,
-                          bool onlyPassedFeatures = false );
+                          bool onlyPassedFeatures = false ) const;
 
    /**
     * @brief unmatchedTriggerObjects returns a vector of trigger
@@ -181,7 +189,7 @@ public:
                             float maxDistance,
                             bool onlyBestMatch,
                             bool onlyPassedFeatures,
-                            const DistanceFunctor< trigType, baseType >* metric );
+                            const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // matching using the default metric - same as above except
    // will use match using deltaR, so no metric is needed
@@ -191,7 +199,7 @@ public:
                             const std::string& chainName, 
                             float maxDistance = 0.1,
                             bool onlyBestMatch = true,
-                            bool onlyPassedFeatures = false );
+                            bool onlyPassedFeatures = false ) const;
 
    // versions with std::vectors instead of DataVectors
    template< typename trigType, typename baseType >
@@ -201,7 +209,7 @@ public:
                             float maxDistance,
                             bool onlyBestMatch,
                             bool onlyPassedFeatures,
-                            const DistanceFunctor< trigType, baseType >* metric );
+                            const DistanceFunctor< trigType, baseType >* metric ) const;
 
    template< typename trigType, typename baseType >
    std::vector< const trigType* >
@@ -209,7 +217,7 @@ public:
                             const std::string& chainName, 
                             float maxDistance = 0.1,
                             bool onlyBestMatch = true,
-                            bool onlyPassedFeatures = false );
+                            bool onlyPassedFeatures = false ) const;
 
    /**************************************************
     *      Offline -> Trigger Chain matching         *
@@ -230,7 +238,7 @@ public:
    chainPassedByObject( const baseType* baseObject,
                         const std::string& chainName,
                         float maxDistance,
-                        const DistanceFunctor< trigType, baseType > *metric );
+                        const DistanceFunctor< trigType, baseType > *metric ) const;
 
    // default metric version - matching will be done via deltaR,
    // so it is not necessary to supply a metric
@@ -238,7 +246,7 @@ public:
    bool
    chainPassedByObject( const baseType *baseObject,
                         const std::string &chainName,
-                        float maxDistance = 0.1 );
+                        float maxDistance = 0.1 ) const;
 
    /**
     * @brief chainsPassedByObject returns a list of the chains
@@ -254,14 +262,14 @@ public:
    std::vector< std::string >
    chainsPassedByObject( const baseType* baseObject,
                          float maxDistance,
-                         const DistanceFunctor< trigType, baseType >* metric );
+                         const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // default metric version - matching will be done via
    // deltaR, so a metric is not required
    template< typename trigType, typename baseType >
    std::vector< std::string >
    chainsPassedByObject( const baseType *baseObject,
-                         float maxDistance = 0.1 );
+                         float maxDistance = 0.1 ) const;
 
    /**************************************************
     *      Trigger Chain -> Offline matching         *
@@ -281,7 +289,7 @@ public:
                    const std::string& chainName,
                    bool onlyPassedFeatures, 
                    float maxDistance,
-                   const DistanceFunctor< trigType, baseType >* metric );
+                   const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // default metric version - matching will be done via deltaR,
    // and so it is not necessary to supply a metric
@@ -290,7 +298,7 @@ public:
    objectsInChain( const std::vector< const baseType* >& baseObjects,
                    const std::string& chainName,
                    bool onlyPassedFeatures = false, 
-                   float maxDistance = 0.1 );
+                   float maxDistance = 0.1 ) const;
 
    /**
     * @brief matchToAllObjects returns a map from matched objects
@@ -302,7 +310,7 @@ public:
    matchToAllTriggerObjects( const baseType* baseObject,
                              float maxDistance,
                              bool onlyPassedFeatures,
-                             const DistanceFunctor< trigType, baseType >* metric );
+                             const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // default metric version - matching will be done via deltaR,
    // and so it is not necessary to supply a metric
@@ -310,7 +318,7 @@ public:
    std::map< const trigType*, std::vector< std::string > >
    matchToAllTriggerObjects( const baseType* baseObject,
                              float maxDistance = 0.1,
-                             bool onlyPassedFeatures = false );
+                             bool onlyPassedFeatures = false ) const;
 
    /**********************************************************/
    /*           Setting running parameters                   */
@@ -332,21 +340,11 @@ public:
     */
    TrigMatchToolCore::FeatureLabelHolder
    setFeatureLabel( const std::string& label ) {
-      m_featureLabel = label;
-      m_caches = &m_cacheMap[label];
-      return FeatureLabelHolder( this );
-   }
-
-   /**
-    * @brief resetFeatureLabel is used to reset the label to be used
-    *        when extracting features from the navigation.  It should not
-    *        be necessary for users to call this function - it will be
-    *        reset automatically.
-    */
-   void resetFeatureLabel()
-   {
-     m_featureLabel = "";
-     m_caches = &m_cacheMap[""];
+      SlotCache& slotCache = *m_slotCache;
+      std::unique_lock<SlotCache::mutex_t> lock (slotCache.m_mutex);
+      slotCache.m_featureLabel = label;
+      slotCache.m_caches = &slotCache.m_cacheMap[label];
+      return FeatureLabelHolder( this, slotCache, std::move(lock) );
    }
 
    // This class does two things for us
@@ -358,11 +356,16 @@ public:
    class FeatureLabelHolder {
 
    public:
-      FeatureLabelHolder( TrigMatchToolCore* matchTool )
-         : m_matchTool( matchTool ) {}
+      FeatureLabelHolder( TrigMatchToolCore* matchTool,
+                          SlotCache& slotCache,
+                          std::unique_lock<std::recursive_mutex>&& lock)
+         : m_matchTool( matchTool ),
+           m_slotCache( slotCache ),
+           m_lock( std::move (lock) )
+      {}
 
       ~FeatureLabelHolder() {
-         m_matchTool->resetFeatureLabel();
+         m_slotCache.resetFeatureLabel();
       }
 
       TrigMatchToolCore* operator->() const {
@@ -375,7 +378,10 @@ public:
 
    private:
       TrigMatchToolCore *m_matchTool;
+      SlotCache& m_slotCache;
+      std::unique_lock<std::recursive_mutex> m_lock;
    }; // class FeatureLabelHolder
+
 
 protected:
    void setTDT( Trig::TrigDecisionToolCore* tdt ) {
@@ -385,42 +391,68 @@ protected:
    // called on end event if we're able to get access to such information
    virtual void endEvent();
 
-   void buildL1L2Map();
 
-   // List of chain names.
-   // The first m_nConfiguredChainNames are those that come from
-   // the configuration.  The remainder are those added for user
-   // queries (they could be regexps).
-   std::vector< std::string > m_chainNames;
-   size_t m_nConfiguredChainNames;
-
-   // cache the map from l1 items to the combined l2
-   // string for access in the tdt
-   std::map< std::string, std::string > m_l1l2Map;
-
-   // Rebuild map from chain names to indices.
-   void buildChainIndexMap();
+   // Clear saved chain name -> index mapping and rebuild from current
+   // configuration.
+   void clearChainIndex();
 
 
 private:
-   // Map from chain names to indices.
-   typedef std::unordered_map<std::string, size_t> chainIndexMap_t ;
-   chainIndexMap_t m_chainIndexMap;
+   // Associate from chain name to integer index, and l1l2map.
+   // Methods of this class are thread-safe.
+   class ChainNameIndex
+   {
+   public:
+     ChainNameIndex (TrigMatchToolCore* core);
+     size_t chainNameToIndex (const std::string& chainName);
+     std::vector<std::string> configuredChainNames();
+     std::string chainName (size_t index);
+     void clear();
+     std::string propagateChainNames (const std::string& chainName);
+    
 
-   // function for printing warnings - note that this depends on whether
+   private:
+     void assertConfiguredChainNames();
+
+     typedef std::mutex mutex_t;
+     typedef std::lock_guard<mutex_t> lock_t;
+
+     mutex_t m_mutex;
+    
+     TrigMatchToolCore* m_core;
+
+     // List of chain names.
+     // The first m_nConfiguredChainNames are those that come from
+     // the configuration.  The remainder are those added for user
+     // queries (they could be regexps).
+     std::vector< std::string > m_chainNames;
+     size_t m_nConfiguredChainNames = 0;
+
+     // Map from chain names to indices.
+     typedef std::unordered_map<std::string, size_t> chainIndexMap_t ;
+     chainIndexMap_t m_chainIndexMap;
+
+     // cache the map from l1 items to the combined l2
+     // string for access in the tdt
+     std::map< std::string, std::string > m_l1l2Map;
+   };
+   mutable ChainNameIndex m_chainNameIndex ATLAS_THREAD_SAFE;
+
+
+  // function for printing warnings - note that this depends on whether
    // you are in ARA or not
-   virtual void warning( const std::string& w ) = 0;
+   virtual void warning( const std::string& w ) const = 0;
 
    // status functions for determining what information we have access to
    // This allows the correct caching to take place based upon whether or
    // not the tool is running in athena.  In athena, we can register with
    // store gate to get call backs when the trig decision changes, but
    // we cannot get this info in ARA.
-   virtual bool changedDecisionAware() { return false; };
+   virtual bool changedDecisionAware() const { return false; };
 
-   // ensure that configured chain names is good to go.  Note that 
+   // return configured chain names.  Note that 
    // this is different for ARA and athena versions of the tool.
-   virtual void assertConfiguredChainNames() = 0;
+   virtual std::vector<std::string> getConfiguredChainNames() const = 0;
 
    // Functionality for loading the trigger objects from the navigation
 
@@ -428,20 +460,22 @@ private:
    // an abstract function, as the exact method is different for
    // ARA and Athena.
    virtual Trig::FeatureContainer
-   getFeatureContainer( const std::string &chainName, const int condition ) = 0;
+   getFeatureContainer( const std::string &chainName, const int condition ) const = 0;
 
    // determine how to propagate L1 chain names to L2 chain names
    template< typename trait >
    std::string propagateChainNames( const std::string& chainName,
-                                    const trait* ) {
+                                    const trait* ) const
+   {
       return chainName;
    }
    std::string propagateChainNames( const std::string& chainName,
-                                    const TrigMatch::AncestorAttached* ) {
+                                    const TrigMatch::AncestorAttached* ) const
+   {
       return this->propagateChainNames( chainName );
    }
-   virtual std::string propagateChainNames( const std::string& chainName );
-   virtual std::string lowerChainName( const std::string& chainName ) = 0;
+   virtual std::string propagateChainNames( const std::string& chainName ) const;
+   virtual std::string lowerChainName( const std::string& chainName ) const = 0;
 
    // fills objects with the trigger objects from the chain name
    // with only passed features as desired.  Queries cache first
@@ -449,37 +483,40 @@ private:
    template< typename trigType >
    void getObjects( std::vector< const trigType* >& objects,
                     const std::string& chainName,
-                    bool onlyPassedFeatures );
+                    bool onlyPassedFeatures ) const;
 
    template< typename trigType >
    void getObjects( std::vector< const trigType* >& objects,
                     size_t chainIndex,
-                    bool onlyPassedFeatures );
+                    bool onlyPassedFeatures ) const;
     
    // function for loading objects that are attached directly
    // to the navigation
    template< typename trigType >
-   void collectObjects( std::vector< const trigType* >& objects,
+   void collectObjects( const std::string& featureLabel,
+                        std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer &featureContainer,
                         bool onlyPassedFeatures,
-                        const TrigMatch::DirectAttached* );
+                        const TrigMatch::DirectAttached* ) const;
 
    // function for loading objects that are attached as
    // containers to the navigation
    template< typename trigType, typename contType >
-   void collectObjects( std::vector< const trigType* >& objects,
+   void collectObjects( const std::string& featureLabel,
+                        std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer& featureContainer,
                         bool onlyPassedFeatures,
-                        const contType* );
+                        const contType* ) const;
 
    // function for loading l1 objects from the navigation
    template<typename trigType>
-   void collectObjects( std::vector< const trigType* >& objects,
+   void collectObjects( const std::string& featureLabel,
+                        std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer& featureContainer,
                         bool onlyPassedFeatures,
-                        const TrigMatch::AncestorAttached* );
+                        const TrigMatch::AncestorAttached* ) const;
 
-   size_t chainNameToIndex (const std::string& chainName);
+   size_t chainNameToIndex (const std::string& chainName) const;
 
    /**
     * @brief Alternate version of @c getTriggerObjects taking a chain index.
@@ -487,7 +524,7 @@ private:
    template< typename trigType >
    std::vector< const trigType* >
    getTriggerObjects( size_t chainIndex,
-                      bool onlyPassedFeatures );
+                      bool onlyPassedFeatures ) const;
 
    /**
     * @brief matchToTriggerObjects returns the objects of type trigType
@@ -500,14 +537,14 @@ private:
                           size_t chainIndex,
                           float maxDistance,
                           bool onlyPassedFeatures,
-                          const DistanceFunctor< trigType, baseType >* metric );
+                          const DistanceFunctor< trigType, baseType >* metric ) const;
 
    template< typename trigType, typename baseType >
    bool
    chainPassedByObject( const baseType* baseObject,
                         size_t chainIndex,
                         float maxDistance,
-                        const DistanceFunctor< trigType, baseType > *metric );
+                        const DistanceFunctor< trigType, baseType > *metric ) const;
 
    // cache from chainName and onlyPassedFeatures to std::vector<Trig::Feature<trigType> >
    class TrigFeatureCacheBase {
@@ -575,34 +612,99 @@ private:
       size_t m_size[2];
    }; // class TrigFeatureCache
 
-   template <typename trigType>
-   TrigFeatureCache<trigType>& getCache (int& type_key);
-
-   TrigFeatureCacheBase*& getCache1 (const std::type_info* tid, int& type_key);
-
    // TDT access
    Trig::TrigDecisionToolCore* m_trigDecisionToolCore;
 
-   // Feature labels
-   std::string     m_featureLabel;
 
-   typedef std::unordered_map<const std::type_info*, int> typeMap_t;
-   typeMap_t m_typeMap;
+   class TypeMap
+   {
+   public:
+     int key (const std::type_info* tid);
 
-   typedef std::vector<TrigFeatureCacheBase*> cacheVec_t;
+   private:
+     typedef std::mutex mutex_t;
+     typedef std::lock_guard<mutex_t> lock_t;
+
+     typedef std::unordered_map<const std::type_info*, int> typeMap_t;
+     typeMap_t m_typeMap;
+     mutex_t m_mutex;
+   };
+   mutable TypeMap m_typeMap ATLAS_THREAD_SAFE;
+
+
+   struct SlotCache
+   {
+     SlotCache()
+     {
+       m_caches = &m_cacheMap[""];
+     }
+
+     ~SlotCache()
+     {
+       for (const cacheMap_t::value_type& p : m_cacheMap) {
+         for (TrigFeatureCacheBase* cache : p.second) {
+           delete cache;
+         }
+       }
+     }
+
+     void clear()
+     {
+       lock_t lock (m_mutex);
+       for (const cacheMap_t::value_type& p : m_cacheMap) {
+         for (TrigFeatureCacheBase* cache : p.second) {
+           cache->clear();
+         }
+       }
+       std::vector<Trig::FeatureContainer>().swap (m_featureContainers);
+       std::vector<bool>().swap (m_featureContainersValid);
+     }
+     
+     /**
+      * @brief resetFeatureLabel is used to reset the label to be used
+      *        when extracting features from the navigation.  It should not
+      *        be necessary for users to call this function - it will be
+      *        reset automatically.
+      */
+     void resetFeatureLabel()
+     {
+       m_featureLabel = "";
+       m_caches = &m_cacheMap[""];
+     }
+
+     std::string m_featureLabel;
+
+     typedef std::vector<TrigFeatureCacheBase*> cacheVec_t;
    
-   // Current cache vector.
-   cacheVec_t* m_caches;
+     // Current cache vector.
+     cacheVec_t* m_caches;
 
-   typedef std::unordered_map<std::string, cacheVec_t> cacheMap_t;
-   cacheMap_t m_cacheMap;
+     typedef std::unordered_map<std::string, cacheVec_t> cacheMap_t;
+     cacheMap_t m_cacheMap;
+ 
+     std::vector<Trig::FeatureContainer> m_featureContainers;
+     std::vector<bool> m_featureContainersValid;
+     size_t m_nFeatureContainers = 100;
+
+    typedef std::recursive_mutex mutex_t;
+     typedef std::lock_guard<mutex_t> lock_t;
+     mutex_t m_mutex;
+   };
+   mutable SG::SlotSpecificObj<SlotCache> m_slotCache ATLAS_THREAD_SAFE;
+
+   template <typename trigType>
+   TrigFeatureCache<trigType>& getCache (int type_key,
+                                         SlotCache& slotCache,
+                                         const SlotCache::lock_t& lock) const;
+
+   TrigFeatureCacheBase*& getCache1 (const std::type_info* tid, int type_key,
+                                     SlotCache& slotCache,
+                                     const SlotCache::lock_t& lock) const;
 
    const Trig::FeatureContainer&
-   getCachedFeatureContainer (size_t chainIndex);
-
-   std::vector<Trig::FeatureContainer> m_featureContainers;
-   std::vector<bool> m_featureContainersValid;
-   size_t m_nFeatureContainers;
+   getCachedFeatureContainer (size_t chainIndex,
+                              SlotCache& cache,
+                              const SlotCache::lock_t& lock) const;
 
 }; // end TrigMatchToolCore declaration
 

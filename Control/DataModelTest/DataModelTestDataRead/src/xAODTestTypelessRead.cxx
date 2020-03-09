@@ -29,7 +29,6 @@
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/StrFormat.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/System.h"
 #include <memory>
 #include <sstream>
@@ -250,8 +249,8 @@ xAODTestTypelessRead::testit (const char* key)
     // Passing this as the third arg of record will make the object const.
     bool LOCKED = false;
 
-    auto objnew = CxxUtils::make_unique<OBJ>();
-    auto store  = CxxUtils::make_unique<AUX>();
+    auto objnew = std::make_unique<OBJ>();
+    auto store  = std::make_unique<AUX>();
     objnew->setStore (store.get());
     copy (*objnew, *obj);
     CHECK (evtStore()->record (std::move(objnew), m_writePrefix + key, LOCKED));
@@ -277,7 +276,7 @@ xAODTestTypelessRead::testit_view (const char* key)
   }
 
   if (!m_writePrefix.empty()) {
-    CHECK (evtStore()->record (CxxUtils::make_unique<OBJ>(*obj),
+    CHECK (evtStore()->record (std::make_unique<OBJ>(*obj),
                                m_writePrefix + key, false));
   }
   return StatusCode::SUCCESS;

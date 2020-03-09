@@ -105,7 +105,6 @@ svcMgr += MessageSvc( defaultLimit = 100000000 )
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream("Stream1")
 Stream1.OutputFile = "ctb_CaloDigit.pool.root"
-Stream1.ForceRead=TRUE
 Stream1.ItemList+=["EventInfo#*"]
 Stream1.ItemList+=["LArRawChannelContainer#*"]
 Stream1.ItemList+=["TileRawChannelContainer#*"]

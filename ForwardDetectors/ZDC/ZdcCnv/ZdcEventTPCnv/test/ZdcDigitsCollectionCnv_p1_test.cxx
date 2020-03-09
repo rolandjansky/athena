@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 
 #undef NDEBUG
 #include "ZdcEventTPCnv/ZdcDigitsCollectionCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
@@ -60,7 +59,7 @@ void test1()
   ZdcDigitsCollection trans1;
   for (int i = 0; i < 10; i++) {
     int o = i*100;
-    auto p = CxxUtils::make_unique<ZdcDigits> (Identifier (1234+o));
+    auto p = std::make_unique<ZdcDigits> (Identifier (1234+o));
     p->set_digits_gain0_delay0 (std::vector<int> {1+o});
     p->set_digits_gain0_delay1 (std::vector<int> {2+o, 3+o});
     p->set_digits_gain1_delay0 (std::vector<int> {4+o, 5+o, 6+o});

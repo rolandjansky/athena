@@ -44,7 +44,7 @@ StatusCode TileGeoG4SDTool::Gather()
 }
 
 
-G4VSensitiveDetector* TileGeoG4SDTool::makeSD()
+G4VSensitiveDetector* TileGeoG4SDTool::makeSD() const
 {
   // Make sure the job has been set up properly
   ATH_MSG_DEBUG( "Initializing SD" );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationHistograms_C
@@ -27,7 +27,7 @@
 
 namespace PixelCalib{
 
-PixelChargeInterpolationHistograms::PixelChargeInterpolationHistograms(std::string tag,
+PixelChargeInterpolationHistograms::PixelChargeInterpolationHistograms(const std::string& tag,
 		const PixelChargeInterpolationParameters &model):
 	m_tag(tag),
 	m_parameters(0),

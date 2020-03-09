@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -9,6 +9,8 @@
 
 #ifndef HyiPar_h
 #define HyiPar_h
+
+#include "CxxUtils/unused.h"
 
 extern "C" { void* hyipar_address_(void); }
 
@@ -51,8 +53,8 @@ private:
       int         ipr;
     };
 
-    int m_dummy;
-    float m_realdummy;
+    int ATH_UNUSED_MEMBER(m_dummy);
+    float ATH_UNUSED_MEMBER(m_realdummy);
     static HYIPAR* s_hyipar;
 };
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTauJetAuxContainerCnv_v2.h 632169 2014-11-29 15:13:34Z krasznaa $
@@ -28,26 +28,28 @@
 /// $Date: 2014-11-29 09:13:34 -0600 (Sat, 29 Nov 2014) $
 ///
 class xAODTauJetAuxContainerCnv_v2 :
-   public T_AthenaPoolTPCnvBase< xAOD::TauJetAuxContainer,
-                                 xAOD::TauJetAuxContainer_v2 > {
+   public T_AthenaPoolTPCnvWithKeyBase< xAOD::TauJetAuxContainer,
+                                        xAOD::TauJetAuxContainer_v2 > {
 
 public:
+   using base_class::transToPersWithKey;
+   using base_class::persToTransWithKey;
+
+
    /// Default constructor
    xAODTauJetAuxContainerCnv_v2();
 
    /// Function converting from the old type to the current one
-   virtual void persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
-                             xAOD::TauJetAuxContainer* newObj,
-                             MsgStream& log );
+   virtual void persToTransWithKey( const xAOD::TauJetAuxContainer_v2* oldObj,
+                                    xAOD::TauJetAuxContainer* newObj,
+                                    const std::string& key,
+                                    MsgStream& log ) const override;
    /// Dummy function inherited from the base class
-   virtual void transToPers( const xAOD::TauJetAuxContainer*,
-                             xAOD::TauJetAuxContainer_v2*,
-                             MsgStream& log );
-
-  inline void setKey(const std::string& k){ m_key=k;}
-
-private:
-  std::string m_key;
+   virtual void transToPersWithKey( const xAOD::TauJetAuxContainer*,
+                                    xAOD::TauJetAuxContainer_v2*,
+                                    const std::string& key,
+                                    MsgStream& log ) const override;
 }; // class xAODTauJetAuxContainer_v2
+
 
 #endif // XAODTAUATHENAPOOL_XAODTAUJETAUXCONTAINERCNV_V2_H

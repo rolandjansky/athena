@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import re, copy
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon.Logging import logging
-log = logging.getLogger('MenuComponents')
+log = logging.getLogger( __name__ )
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
@@ -29,7 +29,7 @@ class Node(object):
     def getInputList(self):
         return self.inputs
 
-    def __str__(self):
+    def __repr__(self):
         return "Node::%s  [%s] -> [%s]"%(self.Alg.name(), ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
 
@@ -50,14 +50,14 @@ class AlgNode(Node):
         if type(cval) is list:
             cval.append(name)
             return setattr(self.Alg, prop, cval)
-        else: 
+        else:
             return setattr(self.Alg, prop, name)
 
     def resetPar(self, prop):
         cval = self.Alg.getProperties()[prop]
         if type(cval) is list:
             return setattr(self.Alg, prop, [])
-        else: 
+        else:
             return setattr(self.Alg, prop, "")
 
     def getPar(self, prop):
@@ -72,11 +72,11 @@ class AlgNode(Node):
 
     def resetInput(self):
         self.resetPar(self.inputProp)
-        
+
     def addOutput(self, name):
         outputs = self.readOutputList()
         if name in outputs:
-            log.debug("Warning, %s already set in %s, DH not added",name, self.name)
+            log.debug("Output DH not added in %s: %s already set!", self.name, name)
         else:
             if self.outputProp != '':
                 self.setPar(self.outputProp,name)
@@ -99,7 +99,7 @@ class AlgNode(Node):
     def addInput(self, name):
         inputs = self.readInputList()
         if name in inputs:
-            log.debug("Warning, %s already set in %s, DH not added",name, self.name)
+            log.debug("Input DH not added in %s: %s already set!", self.name, name)
         else:
             if self.inputProp != '':
                 self.setPar(self.inputProp,name)
@@ -119,27 +119,33 @@ class AlgNode(Node):
             inputs.append(cval)
         return inputs
 
-    def __str__(self):
+    def __repr__(self):
         return "Alg::%s  [%s] -> [%s]"%(self.Alg.name(), ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
 
+def algColor(alg):
+    """ Set given color to Alg type"""
+    if isHypoBase(alg):
+        return "darkorchid1"
+    if isInputMakerBase(alg):
+        return "cyan3"
+    if isFilterAlg(alg):
+        return "chartreuse3"
+    return "cadetblue1"
+
+
 class HypoToolConf(object):
-    """ Class to group info on hypotools"""
+    """ Class to group info on hypotools for ChainDict"""
     def __init__(self, hypoToolGen):
         self.hypoToolGen = hypoToolGen
-        self.name=hypoToolGen.__name__ if hypoToolGen else "None"
-        self.conf=''
+        self.name=hypoToolGen.__name__
+
 
     def setConf( self, chainDict):
         if type(chainDict) is not dict:
             raise RuntimeError("Configuring hypo with %s, not good anymore, use chainDict" % str(chainDict) )
         self.chainDict = chainDict
 
-    # def setName(self, name):
-    #     self.name=name
-
-    # def setConf(self, conf):
-    #     self.conf=conf
 
     def create(self):
         """creates instance of the hypo tool"""
@@ -148,13 +154,27 @@ class HypoToolConf(object):
 
 class HypoAlgNode(AlgNode):
     """Node for HypoAlgs"""
+    initialOutput= 'StoreGateSvc+UNSPECIFIED_OUTPUT'
     def __init__(self, Alg):
         assert isHypoBase(Alg), "Error in creating HypoAlgNode from Alg "  + Alg.name()
         AlgNode.__init__(self, Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.tools = []
         self.previous=[]
 
+    def addOutput(self, name):
+        outputs = self.readOutputList()
+        if name in outputs:
+            log.debug("Output DH not added in %s: %s already set!", self.name, name)
+        elif self.initialOutput in outputs:
+            AlgNode.addOutput(self, name)
+        else:
+            log.error("Hypo " + self.name +" has already %s as configured output: you may want to duplicate the Hypo!" + outputs[0])
+
+
+
+
     def addHypoTool (self, hypoToolConf):
+        log.debug("   Adding HypoTool %s to %s", hypoToolConf.chainDict['chainName'], self.Alg.name())
         if hypoToolConf.chainDict['chainName'] not in self.tools:
             ## HypoTools are private, so need to be created when added to the Alg
             ## this incantation may seem strange, however it is the only one which works
@@ -175,12 +195,11 @@ class HypoAlgNode(AlgNode):
         self.resetOutput()
         self.resetInput()
 
-    def __str__(self):
+    def __repr__(self):
         return "HypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s]"%(self.Alg.name(),' '.join(map(str, self.getInputList())),
                                                                                  ' '.join(map(str, self.getOutputList())),
                                                                                  ' '.join(map(str, self.previous)),
                                                                                  ' '.join(map(str, self.tools)))
-
 
 
 class SequenceFilterNode(AlgNode):
@@ -194,7 +213,7 @@ class SequenceFilterNode(AlgNode):
     def getChains(self):
         return self.getPar("Chains")
 
-    def __str__(self):
+    def __repr__(self):
         return "SequenceFilter::%s  [%s] -> [%s], chains=%s"%(self.Alg.name(),' '.join(map(str, self.getInputList())),' '.join(map(str, self.getOutputList())), self.getChains())
 
 
@@ -209,36 +228,46 @@ class InputMakerNode(AlgNode):
     def __init__(self, Alg):
         assert isInputMakerBase(Alg), "Error in creating InputMakerNode from Alg "  + Alg.name()
         AlgNode.__init__(self,  Alg, 'InputMakerInputDecisions', 'InputMakerOutputDecisions')
+        input_maker_output = CFNaming.inputMakerOutName(self.Alg.name(),"out")
+        self.addOutput(input_maker_output)
 
 
 from DecisionHandling.DecisionHandlingConf import ComboHypo
 class ComboMaker(AlgNode):
-    def __init__(self, name):
+    def __init__(self, name, multiplicity):
+        #Alg = RecoFragmentsPool.retrieve( self.create, name )
+        log.debug("ComboMaker init: Alg %s", name)
         Alg = ComboHypo(name)
-        log.debug("Making combo Alg %s", name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.prop="MultiplicitiesMap"
+        self.mult=list(multiplicity)
 
+    def create (self, name):
+        log.debug("ComboMaker.create %s",name)
+        return ComboHypo(name)
 
-    def addChain(self, chain):
-        log.debug("ComboMaker %s adding chain %s", self.Alg.name(),chain)
-        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-        dictDecoding = DictFromChainName.DictFromChainName()
-        allMultis = [int(mult) for mult in dictDecoding.getChainMultFromName(chain)]       
-        newdict = {chain : allMultis}
+    def addChain(self, chainDict):
+        chainName = chainDict['chainName']
+        log.debug("ComboMaker %s adding chain %s", self.Alg.name(),chainName)
+        allMultis = self.mult
+        newdict = {chainName : allMultis}
 
         cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
         if type(cval) is dict:
-            if chain in cval.keys():
-                log.error("ERROR in cofiguration: ComboAlg %s has already been configured for chain %s", self.Alg.name(), chain)
+            if chainName in cval.keys():
+                log.error("ERROR in cofiguration: ComboAlg %s has already been configured for chain %s", self.Alg.name(), chainName)
             else:
-                cval[chain]=allMultis
+                cval[chainName]=allMultis
         else:
             cval=newdict
 
         setattr(self.Alg, self.prop, cval)
         log.debug("ComboAlg %s has now these chains chain %s", self.Alg.name(), self.getPar(self.prop))
 
+
+    def getChains(self):
+        cval = self.Alg.getProperties()[self.prop]
+        return cval
 
 
 
@@ -266,296 +295,466 @@ def isFilterAlg(alg):
 
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
-        self.name = CFNaming.menuSequenceName(Hypo.name())
-        self.sequence     = Node( Alg=Sequence)
+    """ By construction it has one Hypo Only; behaviour changed to support muFastOvlpRmSequence() which has two, but this will change"""
+
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen):
+        assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
+        self._sequence     = Node( Alg=Sequence)
         self._maker       = InputMakerNode( Alg = Maker )
-        self.hypoToolConf = HypoToolConf( HypoToolGen )
-        self._hypo        = HypoAlgNode( Alg = Hypo )
-        self.inputs=[]
-        self.outputs=[]
-        self.seed=''
-        self.reuse = False # flag to draw dot diagrmas
-        self.ca = CA
+        self._seed=''
 
+        if isinstance(Hypo, list): # we will remove support for this and will issue error
+            log.warning("Sequence %s has more than one Hypo; correct your sequence in the next development cycle", self.name)
+            assert len(Hypo) == len(HypoToolGen), "The number of hypo algs {} and hypo tools {} not the same".format( len(Hypo), len(HypoToolGen) )
 
+        input_maker_output= self.maker.readOutputList()[0] # only one since it's merged
 
-    def replaceHypoForCombo(self, HypoAlg):
-        log.debug("set new Hypo %s for combo sequence %s ", HypoAlg.name(), self.name)
-        self._hypo = HypoAlgNode( Alg=HypoAlg )
+        #### Add input/output Decision to Hypo, handle first somewhat ill-defined case
+        if isinstance(Hypo, list):
+            self._hypo         = [ HypoAlgNode( Alg = alg ) for alg in Hypo ]
+            self._hypoToolConf = [ HypoToolConf( tool ) for tool in HypoToolGen ]
+            self._name         = [ CFNaming.menuSequenceName(alg.name()) for alg in self._hypo ]
 
-    def replaceHypoForDuplication(self, HypoAlg):
-        log.debug("set new Hypo %s for duplicated sequence %s, resetting decisions ", HypoAlg.name(), self.name)        
-        self._hypo = HypoAlgNode( Alg=HypoAlg )
-        # do we need this?
-        #       self._hypo.resetInput()
-        #       self._hypo.resetOutput()
+            hypo_input = input_maker_output
+            for hypo_alg_node in self._hypo:
+                hypo_output = CFNaming.hypoAlgOutName(hypo_alg_node.Alg.name())
+                hypo_alg_node.addOutput(  hypo_output )
+                hypo_alg_node.setPreviousDecision( hypo_input )
+                hypo_input = hypo_output
 
-    def resetConnections(self):
-        self.inputs=[]
-        self.outputs=[]
-        
+        else:
+            self._name = CFNaming.menuSequenceName(Hypo.name())
+            self._hypoToolConf = HypoToolConf( HypoToolGen )
+            self._hypo = HypoAlgNode( Alg = Hypo )
+            hypo_output = CFNaming.hypoAlgOutName(Hypo.name())
+            self._hypo.addOutput(hypo_output)
+            self._hypo.setPreviousDecision( input_maker_output)
+
+        log.debug("MenuSequence.connect: connecting InputMaker and HypoAlg and OverlapRemoverAlg, adding: \n\
+        InputMaker::%s.output=%s",\
+                        self.maker.Alg.name(), input_maker_output)
+
+        if type(self._hypo) is list:
+            hypo_input_total = []
+            [ hypo_input_total.extend( alg_node.Alg.getInputList() )  for alg_node in self._hypo ]
+            hypo_output_total = []
+            [ hypo_output_total.extend( alg_node.Alg.getOutputList() )  for alg_node in self._hypo ]
+
+            for hp, hp_in, hp_out in zip( self._hypo, hypo_input_total, hypo_output_total):
+                log.debug("HypoAlg::%s.previousDecision=%s, \n\
+                HypoAlg::%s.output=%s",\
+                          hp.Alg.name(), hp_in, hp.Alg.name(), hp_out)
+        else:
+           log.debug("HypoAlg::%s.previousDecision=%s, \n \
+           HypoAlg::%s.output=%s",\
+                           self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), self.hypo.readOutputList()[0])
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def sequence(self):
+        return self._sequence
+
     @property
     def maker(self):
-        if self.ca is not None:
-            makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
-            self._maker.Alg = makerAlg
-            # return InputMakerNode(Alg=makerAlg)
+        return self._maker
+
+
+    @property
+    def hypo(self):
+        return self._hypo
+
+
+    def getOutputList(self):
+        outputlist = []
+        if type(self._hypo) is list:
+
+            for hypo in self._hypo:
+                outputlist.append(hypo.readOutputList()[0])
+        else:
+            outputlist.append(self._hypo.readOutputList()[0])
+
+        return outputlist
+
+
+    def connectToFilter(self, outfilter):
+        """ Connect filter to the InputMaker"""
+        self._maker.addInput(outfilter)
+      
+
+    def connect(self, Hypo, HypoToolGen):
+        """ Sets the input and output of the hypo, and links to the input maker """
+        input_maker_output= self._maker.readOutputList()[0] # only one since it's merged
+
+         #### Add input/output Decision to Hypo
+        if type(Hypo) is list:
+            self.name=[]
+            self.hypoToolConf=[]
+            self._hypo=[]
+            hypo_input_total=[]
+            hypo_output_total=[]
+            hypo_input = input_maker_output
+            for hypo_alg, hptool in zip(Hypo, HypoToolGen):
+              self.name.append( CFNaming.menuSequenceName(hypo_alg.name()) )
+              self.hypoToolConf.append( HypoToolConf( hptool ) )
+
+              hypo_input_total.append(hypo_input)
+              hypo_output = CFNaming.hypoAlgOutName(hypo_alg.name())
+              hypo_output_total.append(hypo_output)
+
+              hypo_node = HypoAlgNode( Alg = hypo_alg )
+              hypo_node.addOutput(hypo_output)
+              hypo_node.setPreviousDecision(hypo_input)
+              
+              self._hypo.append( hypo_node )
+              hypo_input = hypo_output
+            log.warning("Sequence %s has more than one Hypo; correct your sequence for next develpments", self.name)
+        else:
+           self.name = CFNaming.menuSequenceName(Hypo.name())
+           self.hypoToolConf = HypoToolConf( HypoToolGen )
+           self._hypo = HypoAlgNode( Alg = Hypo )
+           hypo_output = CFNaming.hypoAlgOutName(Hypo.name())
+           self._hypo.addOutput(hypo_output)
+           self._hypo.setPreviousDecision( input_maker_output)
+
+
+        log.debug("MenuSequence.connect: connecting InputMaker and HypoAlg and OverlapRemoverAlg, adding: \n\
+        InputMaker::%s.output=%s",\
+                        self._maker.Alg.name(), input_maker_output)
+        if type(self._hypo) is list:
+           for hp, hp_in, hp_out in zip( self._hypo, hypo_input_total, hypo_output_total):
+              log.debug("HypoAlg::%s.previousDecision=%s, \n\
+                         HypoAlg::%s.output=%s",\
+                              hp.Alg.name(), hp_in, hp.Alg.name(), hp_out)
+        else:
+           log.debug("HypoAlg::%s.previousDecision=%s, \n\
+                      HypoAlg::%s.output=%s",\
+                           self._hypo.Alg.name(), input_maker_output, self._hypo.Alg.name(), self._hypo.readOutputList()[0])
+
+
+    def createHypoTools(self, chainDict):
+        if type(self._hypoToolConf) is list:
+            log.warning ("This sequence %s has %d multiple HypoTools ",self.sequence.name, len(self.hypoToolConf))
+            for hypo, hypoToolConf in zip(self._hypo, self._hypoToolConf):
+                hypoToolConf.setConf( chainDict )
+                hypo.addHypoTool(self._hypoToolConf)
+        else:
+            self._hypoToolConf.setConf( chainDict )
+            self._hypo.addHypoTool(self._hypoToolConf) #this creates the HypoTools  
+
+
+    def addToSequencer(self, stepReco, seqAndView, already_connected):
+        ath_sequence = self.sequence.Alg
+        name = ath_sequence.name()
+        if name in already_connected:
+            log.debug("AthSequencer %s already in the Tree, not added again",name)
+            return stepReco, seqAndView, already_connected        
+        else:
+            already_connected.append(name)
+            stepReco += ath_sequence
+        if type(self._hypo) is list:
+           for hp in self._hypo:
+              seqAndView += hp.Alg
+        else:
+           seqAndView += self._hypo.Alg
+        return stepReco, seqAndView, already_connected        
+
+
+    def buildCFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
+        cfseq_algs.append(self._maker)
+        cfseq_algs.append(self.sequence )
+
+        file.write("    %s[fillcolor=%s]\n"%(self._maker.Alg.name(), algColor(self._maker.Alg)))
+        file.write("    %s[fillcolor=%s]\n"%(self.sequence.Alg.name(), algColor(self.sequence.Alg)))
+        
+        if type(self._hypo) is list:
+            for hp in self._hypo:
+                cfseq_algs.append(hp)
+                file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
+                all_hypos.append(hp)
+        else:
+            cfseq_algs.append(self._hypo)
+            file.write("    %s[color=%s]\n"%(self._hypo.Alg.name(), algColor(self._hypo.Alg)))
+            all_hypos.append(self._hypo)
+            if not isCombo:
+                if type(self._hypo) is list:
+                    last_step_hypo_nodes.append(self._hypo[-1])
+                else:
+                    last_step_hypo_nodes.append(self._hypo)
+
+        return cfseq_algs, all_hypos, last_step_hypo_nodes
+
+
+    def getTools(self):
+        if type(self._hypo) is list:
+            return self._hypo[0].tools
+        else:
+            return self._hypo.tools
+
+    def setSeed( self, seed ):
+        self._seed = seed
+
+    def __repr__(self):
+        if type(self._hypo) is list:
+           hyponame=[]
+           hypotool=[]
+           for hp, hptool in zip(self._hypo, self.hypoToolConf):
+              hyponame.append( hp.Alg.name() )
+              hypotool.append( hptool.name )
+           return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s"\
+           %(self.name, hyponame, self._maker.Alg.name(), self.sequence.Alg.name(), hypotool)
+        else:
+           hyponame = self._hypo.Alg.name()
+           hypotool = self.hypoToolConf.name
+           return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
+           %(self.name, hyponame, self._maker.Alg.name(), self.sequence.Alg.name(), hypotool)
+
+
+class CAMenuSequence(MenuSequence):
+    ''' MenuSequence with Compoment Accumulator '''
+
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA):
+        self.ca = CA
+        MenuSequence.__init__(self, Sequence, Maker,  Hypo, HypoToolGen)
+
+    @property
+    def sequence(self):
+        makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
+        self._maker.Alg = makerAlg
+        return self._sequence
+
+    @property
+    def maker(self):
+        makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
+        self._maker.Alg = makerAlg
         return self._maker
 
     @property
     def hypo(self):
-        if self.ca is not None:
-            hypoAlg = self.ca.getEventAlgo(self._hypo.Alg.name())
-            self._hypo.Alg = hypoAlg
-            # return HypoAlgNode(Alg=hypoAlg)
+        hypoAlg = self.ca.getEventAlgo(self._hypo.Alg.name())
+        self._hypo.Alg = hypoAlg
         return self._hypo
 
-    def connectToFilter(self, outfilter):
-        """ Sets the input and output of the hypo, and links to the input maker """
-
-        #### Connect filter to the InputMaker
-        self.maker.addInput(outfilter)
-        input_maker_output = CFNaming.inputMakerOutName(self.maker.Alg.name(),outfilter)
-        self.maker.addOutput(input_maker_output)
-
-        #### Add input/output Decision to Hypo
-        self.hypo.setPreviousDecision( input_maker_output)
-        hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
-        if len(self.hypo.getOutputList()):
-            log.error("Hypo " + self.hypo.name() +" has already an output configured: you may want to duplicate the Hypo!")
-        self.hypo.addOutput(hypo_output)
-
-        # needed for drawing
-        self.inputs.append(outfilter)
-        self.outputs.append(hypo_output)
-
-
-        log.debug("MenuSequence.connectToFilter: connecting InputMaker and HypoAlg, adding: \n\
-        InputMaker::%s.output=%s, \n\
-        HypoAlg::%s.previousDecision=%s, \n\
-        HypoAlg::%s.output=%s",\
-                self.maker.Alg.name(), input_maker_output, self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), hypo_output )
-
-    def __str__(self):
-        hypotool = self.hypoToolConf.name 
-        return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s"\
-        %(self.name, self.hypo.Alg.name(), self.maker.Alg.name(), self.sequence.Alg.name(), hypotool)
-
 
 #################################################
-#### CONFIGURATION FOR L1DECODER
-#################################################
-## It might be moved somewhere in the cofiguration later one
-# This is amp between the L1 items and the name of teh Decisions in the L1Decoder unpacking tools
-def DoMapSeedToL1Decoder(seed):
-    mapSeedToL1Decoder = {  "EM" : "L1EM",
-                            "MU" : "L1MU",
-                            "J"  : "L1J",
-                            "TAU": "L1TAU",
-                            "XE" : "L1MET",
-                            "XS" : "L1MET",
-                            "TE" : "L1MET"}
 
-    # remove actual threshold value from L1 seed string
-    stripSeed  = filter(lambda x: x.isalpha(), seed)
-    if stripSeed not in mapSeedToL1Decoder:
-        log.error("Seed "+ seed + " not mapped to any Decision objects! Available are: " + str(mapSeedToL1Decoder.values()))
-    return (mapSeedToL1Decoder[stripSeed])
+#from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getAllThresholdsFromItem, getUniqueThresholdsFromItem
 
-#################################################
 
 class Chain(object):
     """Basic class to define the trigger menu """
-    def __init__(self, name, Seed, ChainSteps=[]):
+    __slots__='name','steps','vseeds','L1decisions'
+    def __init__(self, name, ChainSteps, L1Thresholds):
+        """
+        Construct the Chain from the steps
+        Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages
+        """
         self.name = name
         self.steps=ChainSteps
-        self.seed=Seed
-        self.vseeds=[]
-        vseeds = Seed.strip().split("_")
-        if vseeds[0] == 'L1': 
-            vseeds.pop(0) #remove first L1 string
-        else:
-            log.debug('Threshol(d)s were passed')
-        # split multi seeds
-        for seed in vseeds:
-            split=re.findall(r"(\d+)?([A-Z]+\d+)", seed)
-            mult,single = split[0]
-            if not mult: 
-                mult=1
-            else: 
-                mult=int(mult)
-            for m in range(0,mult):
-                self.vseeds.append(single)
+        self.vseeds=L1Thresholds
 
-        # group_seed is used to se tthe seed type (EM, MU,JET), removing the actual threshold
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+        # L1decisions are used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
-        self.group_seed = [DoMapSeedToL1Decoder(stri) for stri in self.vseeds]
-        self.setSeedsToSequences() # save seed of each menuseq
+        self.L1decisions = [ mapThresholdToL1DecisionCollection(stri) for stri in L1Thresholds]
+        log.debug("L1Decisions: %s", ' '.join(self.L1decisions))
 
+        self.setSeedsToSequences()
         isCombo=False
+        #TO DO: check that all the steps are combo
         for step in self.steps:
             if step.isCombo:
-                step.combo.addChain(self.name)
                 isCombo=True
 
-        log.debug("Made %s Chain %s with seeds: %s ", "combo" if isCombo else "", name, self.vseeds)
-                
+        log.debug("Made %s Chain %s with seeds: %s ", "combo" if isCombo else "", name, self.L1decisions)
+
+
+    def checkMultiplicity(self):
+        if len(self.steps) == 0:
+            return 0
+        mult=[sum(step.multiplicity) for step in self.steps] # on mult per step
+        not_empty_mult = [m for m in mult if m!=0]
+        if len(not_empty_mult) == 0: #empty chain?
+            log.error("checkMultiplicity: Chain %s has all steps with multiplicity =0: what to do?", self.name)
+            return 0
+        if not_empty_mult.count(not_empty_mult[0]) != len(not_empty_mult):
+            log.error("checkMultiplicity: Chain %s has steps with differnt multiplicities: %s", self.name, ' '.join(mult))
+            return 0
+
+        if not_empty_mult[0] != len(self.vseeds):
+            log.error("checkMultiplicity: Chain %s has %d multiplicity per step, and %d L1Decisions", self.name, mult, len(self.vseeds))
+            return 0
+        return not_empty_mult[0]
+
+
+
     def setSeedsToSequences(self):
-        # set the seed to the menusequences
-        sequences1=self.steps[0].sequences
-        tot_seq=len(sequences1)
-        tot_seed=len(self.vseeds)
-        if tot_seq==tot_seed:
-            nseq=0
-            for seed in self.vseeds:
-                for step in self.steps:
-                    if len(step.sequences) == 0:
-                        continue
-                    seq=step.sequences[nseq]
-                    seq.seed ="L1"+filter(lambda x: x.isalpha(), seed)
-                    log.debug( "Chain %s adding seed %s to sequence %d in step %s", self.name, seq.seed, nseq, step.name )
-                nseq+=1
+        """ Set the L1 seeds (L1Decisions) to the menu sequences """
+        if len(self.steps) == 0:
+            return
 
-        else:
-            log.error("found %d sequences in this chain and %d seeds. What to do??", tot_seq, tot_seed)
+        # TODO: check if the number of seeds is sufficient for all the seuqences, no action of no steps are configured
+        for step in self.steps:
+            for seed, seq in zip(self.L1decisions, step.sequences):
+                seq.setSeed( seed )
+                log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence in step %s", self.name, seed, step.name )
 
-    def decodeHypoToolConfs(self, allChainDicts):
-        """ This is extrapolating the hypotool configuration from the (combined) chain name"""
-        import copy
-        from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import getChainDictFromChainName
-        chainDict = getChainDictFromChainName(self.name, allChainDicts)
+    def getChainLegs(self):
+        """ This is extrapolating the chain legs"""
+        from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
+        listOfChainDictsLegs = splitChainInDict(self.name)
+        legs = [part['chainName'] for part in listOfChainDictsLegs]
+        return legs
 
+
+    def decodeHypoToolConfs(self):
+        """ This is extrapolating the hypotool configuration from the chain name"""
+        log.debug("decodeHypoToolConfs for chain %s", self.name)
+        from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
+        listOfChainDictsLegs = splitChainInDict(self.name)
         for step in self.steps:
             if len(step.sequences) == 0:
                 continue
 
-            if len(chainDict['chainParts']) != len(step.sequences):              
-                log.error("Error in step %s: found %d chain parts and %d sequences", step.name, len(chainDict['chainParts']), len(step.sequences))
+            step_mult = [str(m) for m in step.multiplicity]
+            menu_mult = [part['chainParts'][0]['multiplicity'] for part in listOfChainDictsLegs ]
+            if step_mult != menu_mult:
+                # need to agree on the procedure: if the jet code changes the chainparts accordingly, this will never happen
+                log.warning("Got multiplicty %s from chain parts, but have %s legs. This is expected now for jets, so this tmp fix is added:", menu_mult, step_mult)
+                chainDict = listOfChainDictsLegs[0]
+                chainDict['chainName']= self.name # rename the chaindict to remove the leg name
+                for seq in step.sequences:
+                    seq.createHypoTools( chainDict ) #this creates the HypoTools                    
+                continue
 
-            for seq, chainDictPart in zip(step.sequences, chainDict['chainParts']):
-                if seq.ca is not None: # The CA merging took care of everything
-                    continue
-
-                onePartChainDict = copy.deepcopy( chainDict )
-                onePartChainDict['chainParts'] = [ chainDictPart ]
-
-                seq.hypoToolConf.setConf( onePartChainDict )
-                seq.hypo.addHypoTool(seq.hypoToolConf) #this creates tge HypoTools
-
-                
-    def __str__(self):
-        return "--- Chain %s ---\n + Seed: %s \n + Steps: %s \n"%(\
-                    self.name, self.seed, ' '.join(map(str, self.steps)))
+            # add one hypotool per sequence and chain part
+            for seq, onePartChainDict in zip(step.sequences, listOfChainDictsLegs):
+                seq.createHypoTools( onePartChainDict )#this creates the HypoTools
 
 
-##
+    def __repr__(self):
+        return "--- Chain %s --- \n + Seeds: %s \n + Steps: \n %s \n"%(\
+                    self.name, ' '.join(map(str, self.L1decisions)), '\n '.join(map(str, self.steps)))
+
+
+
+
 class CFSequence(object):
-    """Class to describe the ChainStep + filter
-
-    
+    """Class to describe the flow of decisions through ChainStep + filter with their connections (input, output)
+    A Filter can have more than one input/output if used in different chains, so this class stores and manages all of them (when doing the connect)
     """
     def __init__(self, ChainStep, FilterAlg):
         self.filter = FilterAlg
         self.step = ChainStep
-        self.connect()
+        if self.step.isCombo:
+            self.connectCombo()
+        self.setDecisions()
+        log.debug("CFSequence.__init: created %s ",self)
+
+    def setDecisions(self):
+        """ Set the output decision of this CFSequence as the hypo outputdecision; In case of combo, takes the Combo outputs"""
         self.decisions=[]
-        for sequence in self.step.sequences:                
-            self.decisions.extend(sequence.outputs)
         if not len(self.step.sequences):
-            self.decisions.extend(self.filter.getOutputList())
+            self.decisions.extend(self.filter.readOutputList())
+        else:
+            if self.step.isCombo:
+                self.decisions.extend(self.step.combo.getOutputList())
+            else:
+                for sequence in self.step.sequences:
+                    sequence_outputs=sequence.getOutputList()
+                    for output in sequence_outputs:
+                        self.decisions.append(output)
+
+        log.debug("CFSequence: set out decisions: %s", self.decisions)
 
 
-    def connect(self):
-        """Connect filter to ChainStep (all its sequences)
+    def connect(self, connections):
+        """Connect filter to ChainStep (and all its sequences) through these connections (which are sets of filter outputs)
         if a ChainStep contains the same sequence multiple times (for multi-object chains),
         the filter is connected only once (to avoid multiple DH links)
         """
-
-        log.debug("CFSequence: Connect Filter %s with %d menuSequences of step %s", self.filter.Alg.name(), len(self.step.sequences), self.step.name)
-        filter_output = self.filter.getOutputList()
-        if len(filter_output) == 0:
+        log.debug("CFSequence: connect Filter %s with %d menuSequences of step %s, using %d connections", self.filter.Alg.name(), len(self.step.sequences), self.step.name, len(connections))
+        if len(connections) == 0:
             log.error("ERROR, no filter outputs are set!")
-
-        
+            #raise("CFSequence: Invalid Filter Configuration")
 
         if len(self.step.sequences):
             # check whether the number of filter outputs are the same as the number of sequences in the step
-            if len(filter_output) != len(self.step.sequences):
-                log.error("Found %d filter outputs and %d MenuSequences in Step %s", len(self.filter.getOutputList()), len(self.step.sequences), self.step.name)
+            if len(connections) != len(self.step.sequences):
+                log.error("Found %d connections and %d MenuSequences in Step %s", len(connections), len(self.step.sequences), self.step.name)
+                #raise("CFSequence: Invalid Filter Configuration")
             nseq=0
             for seq in self.step.sequences:
-                filter_out = filter_output[nseq]
-                log.debug("Found input %s to sequence::%s from Filter::%s (from seed %s)", filter_out, seq.name, self.filter.Alg.name(), seq.seed)
+                filter_out = connections[nseq]
+                log.debug("CFSequence: Found input %s to sequence::%s from Filter::%s (from seed %s)", filter_out, seq.name, self.filter.Alg.name(), seq.seed)
                 seq.connectToFilter( filter_out )
                 nseq+=1
-        
-            if self.step.isCombo:
-                self.connectCombo()
-            
         else:
           log.debug("This CFSequence has no sequences: outputs are the Filter outputs")
 
 
 
     def connectCombo(self):
-        """ reset sequence outputs, they will be replaced by new combo outputs"""
-        
+        """ connect Combo to Hypos"""
         for seq in self.step.sequences:
-            seq.outputs=[]
-
-        for seq in self.step.sequences:
-            combo_input=seq.hypo.getOutputList()[0]
+            if type(seq.getOutputList()) is list:
+               combo_input=seq.getOutputList()[-1] # last one?
+            else:
+               combo_input=seq.getOutputList()[0]
             self.step.combo.addInput(combo_input)
-            log.debug("Adding inputs %s to combo %s", combo_input, self.step.combo.Alg.name())
+            log.debug("CFSequence.connectCombo: adding input to  %s: %s",  self.step.combo.Alg.name(), combo_input)
             # inputs are the output decisions of the hypos of the sequences
-            # outputs are the modified name of input deciions that need to be connected to the next filter
-            combo_output=CFNaming.comboHypoOutputName (combo_input)
+            combo_output=CFNaming.comboHypoOutputName (self.step.combo.Alg.name(), combo_input)
             self.step.combo.addOutput(combo_output)
-            seq.outputs.append(combo_output)
-            log.debug("CFSequence.connectCombo: Adding outputs %s to combo %s", combo_output, self.step.combo.Alg.name())
+            log.debug("CFSequence.connectCombo: adding output to  %s: %s",  self.step.combo.Alg.name(), combo_output)
 
 
-    def __str__(self):
-        return "--- CFSequence ---\n + Filter: %s \n +  %s \n + decisions: %s\n"%(\
-                    self.filter.Alg.name(), self.step, self.decisions)
+
+    def __repr__(self):
+        return "--- CFSequence ---\n + Filter: %s \n + decisions: %s\n +  %s \n"%(\
+                    self.filter.Alg.name(), self.decisions, self.step)
 
 
+
+class StepComp(object):
+    """ Class to build hte ChainStep, for including empty sequences"""
+    def __init__(self, sequence, multiplicity,empty):
+        self.sequence=sequence
+        self.multiplicity=multiplicity
+        self.empty=empty
 
 class ChainStep(object):
-    """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined"""
-    def __init__(self, name,  Sequences=[], multiplicity=1):
+    """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
+    def __init__(self, name,  Sequences=[], multiplicity=[1]):
+
         self.name = name
-        self.sequences=[]
+        self.sequences=Sequences
         self.multiplicity = multiplicity
-        self.isCombo=multiplicity>1
-        #self.isCombo=len(Sequences)>1
+        self.isCombo=sum(multiplicity)>1
         self.combo=None
         if self.isCombo:
-            self.makeCombo(Sequences)
-        else:
-            self.sequences = Sequences
+            self.makeCombo(Sequences )
+        self.decisions = []
 
     def makeCombo(self, Sequences):
-        # For combo sequences, duplicate the sequence, the Hypo with differnt names and create the ComboHypoAlg
-        self.combo = ComboMaker(CFNaming.comboHypoName(self.name))
-        duplicatedHypos = []
-        for sequence in Sequences:
-            oldhypo=sequence.hypo.Alg
-            duplicatedHypos.append(oldhypo.name())
-            ncopy=duplicatedHypos.count(oldhypo.name())
+        if len(Sequences)==0:
+            return
+        hashableMult = tuple(self.multiplicity)
+        self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult)
 
-            new_sequence=copy.deepcopy(sequence)
-            new_sequence.name = CFNaming.comboSequenceCopyName(sequence.name,ncopy, self.name)
 
-            newHypoAlgName = CFNaming.comboHypoCopyName(oldhypo.name(),ncopy, self.name)
-            new_hypoAlg=oldhypo.clone(newHypoAlgName) # need to reset decisions?
-            new_sequence.replaceHypoForCombo(new_hypoAlg)
-            self.sequences.append(new_sequence)
+    def __repr__(self):
+        return "--- ChainStep %s ---\n + isCombo = %d, multiplicity = %d \n + MenuSequences = %s"%(self.name, self.isCombo,sum(self.multiplicity), ' '.join(map(str, [seq.name for seq in self.sequences]) ))
 
-    def __str__(self):
-        return "--- ChainStep %s ---\n + isCombo: %d \n +  %s \n "%(self.name, self.isCombo, ' '.join(map(str, self.sequences) ))
 
+def createComboAlg(dummyFlags, name, multiplicity):
+    return ComboMaker(name, multiplicity)
 
 
 # this is fragment for New JO
@@ -613,7 +812,7 @@ class InViewReco( ComponentAccumulator ):
         if viewMaker:
             self.viewMakerAlg = viewMaker
         else:
-            self.viewMakerAlg = EventViewCreatorAlgorithm(name+'ViewsMaker',
+            self.viewMakerAlg = EventViewCreatorAlgorithm("IM"+name,
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI', # -||-
                                                           InViewRoIs      = name+'RoIs',
@@ -667,10 +866,8 @@ class RecoFragmentsPool(object):
         if requestHash not in cls.fragments:
             recoFragment = creator( flags, **kwargs )
             cls.fragments[requestHash] = recoFragment
-            log.debug( "created reconstruction fragment using function: %s", creator.func_name )
             return recoFragment
         else:
-            log.debug( "reconstruction fragment that would be created from %s is taken from the cache", creator.func_name )
             return cls.fragments[requestHash]
 
 

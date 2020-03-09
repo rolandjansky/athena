@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCSensitiveDetectorCosmics.h"
 #include "G4ThreeVector.hh"
 #include "G4Trd.hh"
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MuonSimEvent/RpcHitIdHelper.h"
 #include <string>
 #include "G4Geantino.hh"
@@ -29,7 +28,7 @@ RPCSensitiveDetectorCosmics::RPCSensitiveDetectorCosmics(const std::string& name
 
 void RPCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
-  if (!m_myRPCHitColl.isValid()) m_myRPCHitColl = CxxUtils::make_unique<RPCSimHitCollection>();
+  if (!m_myRPCHitColl.isValid()) m_myRPCHitColl = std::make_unique<RPCSimHitCollection>();
   if (verboseLevel>1) G4cout << "Initializing SD" << G4endl;
   // FIXME this next bit probebly only needs to be done once pre job
   // rather than once per G4Event?

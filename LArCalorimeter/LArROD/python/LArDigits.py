@@ -19,20 +19,20 @@ class DefaultLArDigitThinner (LArDigitThinner) :
             self.EnergyCut_HEC  = 5000
             self.EnergyCut_FCAL = 20000
 
+        from AthenaCommon.AlgSequence import AlgSequence
+        topSequence = AlgSequence()
         from AthenaCommon.GlobalFlags import globalflags
         if globalflags.DataSource()=='data':
-            if globalflags.InputFormat() == 'bytestream':
-                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                if not "LArDigitContainer/FREE" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                    svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
+           if globalflags.InputFormat() == 'bytestream':
+                from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
+                if LArRawDataReadingAlg() not in topSequence:
+                     topSequence+=LArRawDataReadingAlg()
                 self.InputContainerName="FREE"
 
         LArOnOffIdMapping()
 
         if addToAlgSeq : 
-          from AthenaCommon.AlgSequence import AlgSequence
-          topSequence = AlgSequence()
-          topSequence += self
+             topSequence += self
 
      def setDefaults(self, handle):
         pass

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENEVENTSSELECTORTOOL_H
@@ -14,8 +14,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
-
-class StoreGateSvc;
 
 /** @class EvenEventsSelectorTool
  *  @brief This class provides an example for reading with a ISelectorTool to veto events on AttributeList.

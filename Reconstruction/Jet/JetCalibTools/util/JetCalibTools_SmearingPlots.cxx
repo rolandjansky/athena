@@ -169,10 +169,9 @@ int main (int argc, char* argv[])
                 xAOD::JetFourMom_t fourvec(rand.Uniform(20.e3,1000.e3),rand.Uniform(-2,2),rand.Uniform(-3.14,3.14),10.e3);
                 jet->setJetP4(fourvec);
                 startingScale.setAttribute(*jet,fourvec);
-                xAOD::Jet* smearedJet = nullptr;
-                jetCalibTool->calibratedCopy(*jet,smearedJet);
-                //calibTool->calibratedCopy(*jet,smearedJet);
-                delete smearedJet;
+                // Apply calibration
+                if(jetCalibTool->modify(*jets).isFailure())
+                  exit(1);
             }
             delete jetCalibTool;
             printf("Iteration %d: %f seconds\n",numTest+1,(clock()-startTime)/((double)CLOCKS_PER_SEC));
@@ -200,27 +199,24 @@ int main (int argc, char* argv[])
             startingScale.setAttribute(*jet,fourvec);
 
             // Jet kinematics set, now apply the smearing correction
-            xAOD::Jet* smearedJet = nullptr;
-            calibTool->calibratedCopy(*jet,smearedJet);
+            if(calibTool->modify(*jets).isFailure())
+              exit(1);
 
             // Ensure the expected scale was written (within 1 MeV, for floating point differences)
-            if (fabs(endingScale(*smearedJet).pt() - smearedJet->pt()) > 1.e-3)
+            if (fabs(endingScale(*jet).pt() - jet->pt()) > 1.e-3)
             {
-                printf("ERROR: mismatch between ending scale (%.3f) and jet pT (%.3f)\n",endingScale(*smearedJet).pt(),smearedJet->pt());
+                printf("ERROR: mismatch between ending scale (%.3f) and jet pT (%.3f)\n",endingScale(*jet).pt(),jet->pt());
                 exit(1);
             }
-            if (endingScale(*smearedJet).pt() == startingScale(*smearedJet).pt())
+            if (endingScale(*jet).pt() == startingScale(*jet).pt())
             {
                 // This can happen (smearing factor can be exactly 1), but it should be rare
-                printf("WARNING: starting and ending scales are identical: %.3f\n",endingScale(*smearedJet).pt());
+                printf("WARNING: starting and ending scales are identical: %.3f\n",endingScale(*jet).pt());
             }
 
             // Fill the histograms
-            hist_pt->Fill(smearedJet->pt()/1.e3);
-            hist_m->Fill(smearedJet->m()/1.e3);
-
-            // Clean up
-            delete smearedJet;
+            hist_pt->Fill(jet->pt()/1.e3);
+            hist_m->Fill(jet->m()/1.e3);
         }
     }
 

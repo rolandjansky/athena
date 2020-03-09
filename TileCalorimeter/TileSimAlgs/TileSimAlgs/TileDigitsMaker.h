@@ -30,12 +30,12 @@
 // Tile includes
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileDQstatus.h"
 #include "TileConditions/TileCondToolPulseShape.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileEvent/TileDQstatus.h"
-#include "TileRecUtils/ITileDQstatusTool.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -84,13 +84,19 @@ class TileDigitsMaker: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
-    StatusCode FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel) const;
+    StatusCode overlayBackgroundDigits( const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[] );
+
+    StatusCode FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel) const;
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
                                                           "input Tile hit container key"};
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainer_DigiHSTruthKey{this,"TileHitContainer_DigiHSTruth","TileHitCnt_DigiHSTruth",
                                                           "input Tile hit container key"};
+
+    Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+    SG::ReadHandleKey<TileDigitsContainer> m_inputDigitContainerKey{this, "InputTileDigitContainer","",""};
+    std::string m_inputDigitContainerName{""};
 
     SG::WriteHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer",
                                                                  "TileDigitsCnt",
@@ -121,7 +127,6 @@ class TileDigitsMaker: public AthAlgorithm {
     const TileHWID* m_tileHWID;
     const TileInfo* m_tileInfo;
     const TileCablingService* m_cabling; //!< TileCabling instance
-    const TileDQstatus* m_DQstatus;
 
     std::vector<HWIdentifier *> m_all_ids;
     std::vector<double *> m_drawerBufferHi; //!< Vector used to store pointers to digits for a single drawer (high gain)
@@ -131,8 +136,12 @@ class TileDigitsMaker: public AthAlgorithm {
 
     int m_nSamples;           //!< Number of time slices for each channel
     int m_iTrig;           //!< Index of the triggering time slice
-    float m_adcMax;        //!< ADC saturation value 
-    float m_adcMaxHG;      //!< ADC saturation value - 0.5 
+    int m_i_ADCmax;        //!< ADC saturation value
+    float m_f_ADCmax;      //!< ADC saturation value
+    float m_f_ADCmaxHG;    //!< ADC saturation value - 0.5 
+    float m_ADCmaxMinusEps;//!< ADC saturation value - 0.01 or something small
+    float m_ADCmaxPlusEps; //!< ADC saturation value + 0.01 or something small
+    float m_f_ADCmaskValue;      //!< indicates channels which were masked in background dataset
     bool m_tileNoise;      //!< If true => generate noise in TileDigits
     bool m_tileCoherNoise; //!< If true => generate coherent noise in TileDigits
     bool m_tileThresh;     //!< If true => apply threshold to Digits
@@ -153,6 +162,12 @@ class TileDigitsMaker: public AthAlgorithm {
     int m_binTime0Lo;                   //!< Index of time=0 bin for low gain pulse shape
     double m_timeStepLo;                //!< Time step in low gain pulse shape: 25.0 / nBinsPerXLo
 
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
+
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service to use
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
@@ -167,11 +182,9 @@ class TileDigitsMaker: public AthAlgorithm {
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
-    ToolHandle<ITileDQstatusTool> m_DQstatusTool { this,
-        "TileDQstatusTool", "TileDQstatusTool", "Tool to create TileDQstatus" };
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey {this,
+        "TileDQstatus", "", "Input TileDQstatus key" };
 
-    SG::WriteHandleKey<TileDQstatus> m_DQstatusKey {this,
-        "TileDQstatus", "TileDQstatus", "Output TileDQstatus key" };
 };
 
 #endif // TILESIMALGS_TILEDIGITSMAKER_H

@@ -15,8 +15,6 @@
 
 namespace LVL1TGCTrigger {
 
-  extern bool g_DEBUGLEVEL;
-
 int TGCSector::distributeSignal(const TGCASDOut* ASDOut)
 {
   int idPP,conPP,chPP;
@@ -38,7 +36,7 @@ int TGCSector::distributeSignal(const TGCASDOut* ASDOut)
     notFound = m_ASDToPP[PPType]->getConnection(m_sideId,layer,rNumber,ch,&idPP,&conPP,&chPP);
   }
 
-  if (g_DEBUGLEVEL) {
+  if (tgcArgs()->DEBUGLEVEL()) {
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
@@ -78,11 +76,12 @@ int TGCSector::getPatchPanelType(TGCSignalType signal, int layer) const
   }
 }
 
-TGCSector::TGCSector() 
+TGCSector::TGCSector( TGCArguments* tgcargs) 
     : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
       m_sideId(0), m_octantId(0), m_moduleId(0), 
       m_forwardBackward(ForwardSector), 
-      m_SL(0), m_TMDB(0)  
+      m_SL(0), m_TMDB(0),
+      m_tgcArgs(tgcargs)
 {
   for(unsigned int iPatchPanelType=0; iPatchPanelType<NumberOfPatchPanelType; iPatchPanelType++) {
     m_ASDToPP[iPatchPanelType] = 0;
@@ -99,12 +98,14 @@ TGCSector::TGCSector()
   }
 }
 
-TGCSector::TGCSector(int idIn, TGCRegionType type, 
-		     TGCForwardBackwardType forwardBackward, 
-		     const TGCDatabaseManager* db,
-		     const TGCTMDB*            tm)
+  TGCSector::TGCSector(TGCArguments* tgcargs,
+		       int idIn, TGCRegionType type, 
+		       TGCForwardBackwardType forwardBackward, 
+		       const TGCDatabaseManager* db,
+		       const TGCTMDB*            tm)
   : m_id(idIn),m_regionType(type),m_numberOfHit(0),
-    m_TMDB(tm)
+    m_TMDB(tm),
+    m_tgcArgs(tgcargs)
 {
   m_sideId = (idIn/NumberOfModule)/NumberOfOctant;
   m_octantId = (idIn/NumberOfModule)%NumberOfOctant;
@@ -188,10 +189,10 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
       m_numberOfPP[jpp] = connection->getPPToSB()->getNumber(jpp);
       m_PP[jpp] = new TGCPatchPanel* [m_numberOfPP[jpp]];
       for(int i=0; i<m_numberOfPP[jpp]; i+=1){
-	if     (jpp==WTPP) { m_PP[jpp][i] = new TGCWireTripletPP; }
-	else if(jpp==WDPP) { m_PP[jpp][i] = new TGCWireDoubletPP; }
-	else if(jpp==STPP) { m_PP[jpp][i] = new TGCStripTripletPP;}
-	else if(jpp==SDPP) { m_PP[jpp][i] = new TGCStripDoubletPP;}
+	if     (jpp==WTPP) { m_PP[jpp][i] = new TGCWireTripletPP(tgcArgs()); }
+	else if(jpp==WDPP) { m_PP[jpp][i] = new TGCWireDoubletPP(tgcArgs()); }
+	else if(jpp==STPP) { m_PP[jpp][i] = new TGCStripTripletPP(tgcArgs());}
+	else if(jpp==SDPP) { m_PP[jpp][i] = new TGCStripDoubletPP(tgcArgs());}
 	m_PP[jpp][i]->setId(connection->getPPToSB()->getId(jpp,i));
 	m_PP[jpp][i]->setType(jpp);
 	m_PP[jpp][i]->setRegion(m_regionType);
@@ -207,10 +208,10 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
       m_numberOfSB[jsb] = connection->getSBToHPB()->getNumber(jsb);
       m_SB[jsb] = new TGCSlaveBoard* [m_numberOfSB[jsb]];
       for(int i=0; i<m_numberOfSB[jsb]; i+=1) {
-	if     (jsb==WTSB) { m_SB[jsb][i] = new TGCWireTripletSB; }
-	else if(jsb==WDSB) { m_SB[jsb][i] = new TGCWireDoubletSB; }
-	else if(jsb==STSB) { m_SB[jsb][i] = new TGCStripTripletSB;}
-	else if(jsb==SDSB) { m_SB[jsb][i] = new TGCStripDoubletSB;}
+	if     (jsb==WTSB) { m_SB[jsb][i] = new TGCWireTripletSB(tgcArgs()); }
+	else if(jsb==WDSB) { m_SB[jsb][i] = new TGCWireDoubletSB(tgcArgs()); }
+	else if(jsb==STSB) { m_SB[jsb][i] = new TGCStripTripletSB(tgcArgs());}
+	else if(jsb==SDSB) { m_SB[jsb][i] = new TGCStripDoubletSB(tgcArgs());}
 	m_SB[jsb][i]->setId(connection->getSBToHPB()->getId(jsb,i));
 	m_SB[jsb][i]->setType(jsb);
 	m_SB[jsb][i]->setRegion(m_regionType);
@@ -235,7 +236,7 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
     }
      
     //m_SL
-    m_SL = new TGCSectorLogic(m_regionType, m_id);
+    m_SL = new TGCSectorLogic(tgcArgs(),m_regionType, m_id);
     m_SL->getSSCController()->setNumberOfWireHighPtBoard(connection->getHPBToSL()->getNumber(WHPB));
   } else {
     //Inner
@@ -248,8 +249,8 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
       m_numberOfPP[jpp] = connection->getPPToSB()->getNumber(jpp);
       m_PP[jpp] = new TGCPatchPanel* [m_numberOfPP[jpp]];
       for(int i=0; i<m_numberOfPP[jpp]; i+=1){
-        if(jpp==WIPP) { m_PP[jpp][i] = new TGCWireInnerPP;   }
-        else if(jpp==SIPP) { m_PP[jpp][i] = new TGCStripInnerPP;  }
+        if(jpp==WIPP) { m_PP[jpp][i] = new TGCWireInnerPP(tgcArgs());   }
+        else if(jpp==SIPP) { m_PP[jpp][i] = new TGCStripInnerPP(tgcArgs());  }
         m_PP[jpp][i]->setId(connection->getPPToSB()->getId(jpp,i));
         m_PP[jpp][i]->setType(jpp);
         m_PP[jpp][i]->setRegion(m_regionType);
@@ -264,7 +265,7 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
     for( jsb=WISB; jsb<NumberOfSlaveBoardType; jsb+=1){
       m_numberOfSB[jsb] = 1;
       m_SB[jsb] = new TGCSlaveBoard* [m_numberOfSB[jsb]];
-      m_SB[jsb][0] = new TGCInnerSB;       
+      m_SB[jsb][0] = new TGCInnerSB(tgcArgs());
       m_SB[jsb][0]->setType(jsb);
       m_SB[jsb][0]->setRegion(m_regionType);
       m_SB[jsb][0]->setId(0); 

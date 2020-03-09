@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
 #include "ALFA_SensitiveDetector.h"
-
-// Athena headers
-#include "CxxUtils/make_unique.h" // For make unique
 
 // Geant4 headers
 #include "G4ParticleDefinition.hh"
@@ -52,8 +49,8 @@ void ALFA_SensitiveDetector::StartOfAthenaEvent()
 // Initialize from G4 - necessary to new the write handle for now
 void ALFA_SensitiveDetector::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitCollection.isValid()) m_HitCollection = CxxUtils::make_unique<ALFA_HitCollection>(m_HitCollection.name());
-  if (!m_ODHitCollection.isValid()) m_ODHitCollection = CxxUtils::make_unique<ALFA_ODHitCollection>(m_ODHitCollection.name());
+  if (!m_HitCollection.isValid()) m_HitCollection = std::make_unique<ALFA_HitCollection>(m_HitCollection.name());
+  if (!m_ODHitCollection.isValid()) m_ODHitCollection = std::make_unique<ALFA_ODHitCollection>(m_ODHitCollection.name());
 }
 
 bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)

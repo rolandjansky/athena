@@ -15,7 +15,6 @@
 #include "StorageSvc/DbHeap.h"
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbContainer.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbContainerImp.h"
 
 using namespace std;
@@ -27,13 +26,11 @@ DbContainerImp::DbContainerImp()
   m_canUpdate(false),
   m_canDestroy(false)
 {
-  DbInstanceCount::increment(this);
   m_stackType = NONE;
 }
 
 /// Standard Destructor
 DbContainerImp::~DbContainerImp() {
-  DbInstanceCount::decrement(this);
   m_stack.clear();
 }
 

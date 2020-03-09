@@ -56,6 +56,7 @@ TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("PriVtxKey",          m_priVtxKey = "xPrimVx");
   declareProperty("UsePriVtxKeyBackup", m_usePriVtxKeyBackup = true);
   declareProperty("PriVtxKeyBackup",    m_priVtxKeyBackup = "EFHistoPrmVtx");
+  declareProperty("JetCalibrationName", m_jetName = "");
 
   declareProperty("BTagTool",           m_bTagTool);
   declareProperty("BTagTrackAssocTool", m_bTagTrackAssocTool);
@@ -294,7 +295,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
     // Tag jet 
     const xAOD::Jet*  const_jet = jet;
-    sc = m_bTagTool->tagJet(const_jet, trigBTagging, primaryVertex);
+    sc = m_bTagTool->tagJet(const_jet, trigBTagging, m_jetName, primaryVertex);
     if(sc.isFailure()) {
       if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed in taggers call" << endmsg;
     }

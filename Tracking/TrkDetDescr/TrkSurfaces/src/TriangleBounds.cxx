@@ -66,7 +66,7 @@ Trk::TriangleBounds::TriangleBounds(const TriangleBounds& tribo)
 {}
 
 // destructor
-Trk::TriangleBounds::~TriangleBounds() {}
+Trk::TriangleBounds::~TriangleBounds() = default;
 
 Trk::TriangleBounds&
 Trk::TriangleBounds::operator=(const TriangleBounds& tribo)

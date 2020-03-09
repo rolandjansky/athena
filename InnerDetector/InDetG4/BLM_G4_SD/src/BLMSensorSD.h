@@ -16,12 +16,16 @@
 // Athena headers
 #include "InDetSimEvent/SiHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include <gtest/gtest_prod.h>
 
 // G4 needed classes
 class G4Step;
 
 class BLMSensorSD : public G4VSensitiveDetector
 {
+ FRIEND_TEST( BLMSensorSDtest, Initialize );
+ FRIEND_TEST( BLMSensorSDtest, ProcessHits );
+ FRIEND_TEST( BLMSensorSDtest, AddHit );
  public:
   // Constructor
   BLMSensorSD(const std::string& name, const std::string& hitCollectionName);

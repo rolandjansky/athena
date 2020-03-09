@@ -90,7 +90,11 @@ else
 		# ignore root collect key 
 		egrep -a -v 'NewEventCollection.root, recovered' |\
                 # ignore new file catalog messages
-                egrep -a -v 'registerPFN'
+                egrep -a -v 'registerPFN' |\
+                # ignore root version changes
+                egrep -a -v 'File version:' |\
+                # output stream helper tools
+                egrep -a -v 'Found HelperTools'
 
 	    diffStatus=$?
 	    if [ $diffStatus -ne 1 ] 

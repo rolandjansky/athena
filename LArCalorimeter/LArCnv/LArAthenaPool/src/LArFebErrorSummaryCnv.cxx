@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFebErrorSummaryCnv.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArTPCnv/LArFebErrorSummaryCnv_p1.h"
 
@@ -34,7 +33,7 @@ LArFebErrorSummaryCnv::createTransient()
   static pool::Guid   guid_p1("9448FB64-AB7E-4995-A5FC-23E9A6C1AF80");
 
   if( compareClassGuid(guid_p1) ) {
-      std::auto_ptr<LArFebErrorSummary_p1> col_vect( poolReadObject<LArFebErrorSummary_p1>() );
+      std::unique_ptr<LArFebErrorSummary_p1> col_vect( poolReadObject<LArFebErrorSummary_p1>() );
       trans = m_converter.createTransient( col_vect.get(), log );
   }
   else {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
@@ -10,7 +10,7 @@ namespace Trk
 {
 
   VertexImageMaker::VertexImageMaker(const std::string& t, const std::string& n, const IInterface*  p) :
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_xbins(                   32         ) , 
     m_ybins(                   32         ) ,
     m_zbins(                 2048         ) ,   
@@ -24,9 +24,7 @@ namespace Trk
     m_cutoffFreqDenominator_xy( 2         ) ,
     m_cutoffFreqDenominator_z(  1         ) ,
     m_angularCutoffParameter(   0.75      ) ,
-    m_x_min(0), m_x_max(0), m_y_min(0), m_y_max(0), m_z_min(0), m_z_max(0),
     m_wx(0.0f), m_wy(0.0f), m_wz(0.0f), m_filttot(0), 
-    m_histRS(NULL), m_histFS(NULL),
     m_plan_r2c(NULL), m_plan_c2r(NULL)	          {
 
     declareProperty("xbins"                   , m_xbins                    );
@@ -45,6 +43,7 @@ namespace Trk
     declareInterface<IVertexImageMaker>(this);
   } //End constructor
 
+
   StatusCode VertexImageMaker::initialize() {
     
     //Calculate binwidths
@@ -55,23 +54,20 @@ namespace Trk
     //calculate total number of bins needed for filter
     m_filttot = m_xbins * m_ybins * ( m_zbins/2 + 1);
 
-    msg(MSG::INFO) << "Initializing frequency space filter" << endmsg;
+    ATH_MSG_INFO( "Initializing frequency space filter"  );
     initFSFilter();
 
     //Allocate memory to histogram (used for both real and freq space)
-    msg(MSG::INFO) << "Allocating memory to fftw - Histogram size : " << m_xbins << " , " << m_ybins << " , " << m_zbins << endmsg;
-    m_histRS = (float*)fftwf_malloc( sizeof(float) * m_filttot * 2 );
+    ATH_MSG_INFO( "Allocating memory to fftw - Histogram size : " << m_xbins << " , " << m_ybins << " , " << m_zbins  );
+    float* histRS = (float*)fftwf_malloc( sizeof(float) * m_filttot * 2 );
     //Get a complex casted version for easier access to the freq space using same bin numbering
-    m_histFS = (fftwf_complex*) m_histRS;
+    fftwf_complex* histFS = (fftwf_complex*) histRS;
 
-    msg(MSG::INFO) << "Setting up FFTW plans" << endmsg;
-    m_plan_r2c = fftwf_plan_dft_r2c_3d(m_xbins, m_ybins, m_zbins, m_histRS, m_histFS, FFTW_MEASURE);
-    m_plan_c2r = fftwf_plan_dft_c2r_3d(m_xbins, m_ybins, m_zbins, m_histFS, m_histRS, FFTW_MEASURE);
+    ATH_MSG_INFO( "Setting up FFTW plans"  );
+    m_plan_r2c = fftwf_plan_dft_r2c_3d(m_xbins, m_ybins, m_zbins, histRS, histFS, FFTW_MEASURE);
+    m_plan_c2r = fftwf_plan_dft_c2r_3d(m_xbins, m_ybins, m_zbins, histFS, histRS, FFTW_MEASURE);
 
-
-    //Make the image object
-    m_image = VertexImage( m_histRS, m_xbins, m_ybins, m_zbins,
-                           m_xrange, m_yrange, m_zrange);
+    fftwf_free( histRS );
 
 
     return StatusCode::SUCCESS;
@@ -84,74 +80,87 @@ namespace Trk
 
     fftwf_destroy_plan(m_plan_r2c);
     fftwf_destroy_plan(m_plan_c2r);
-    fftwf_free( m_histRS );
     fftwf_cleanup();
 
-    msg(MSG::INFO) << "Finalize ImageingSeedFinder successful" << endmsg;
+    ATH_MSG_INFO( "Finalize ImageingSeedFinder successful"  );
 
     return StatusCode::SUCCESS;
   }// End ImagingSeedFinder finalize
 
-  VertexImage VertexImageMaker::makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint ) {
 
-    //Calculate ranges
-    if( constraint ) {
-      m_x_min = constraint->position().x() - m_xrange;
-      m_x_max = constraint->position().x() + m_xrange;
-      m_y_min = constraint->position().y() - m_yrange;
-      m_y_max = constraint->position().y() + m_yrange;
-      m_z_min = constraint->position().z() - m_zrange;
-      m_z_max = constraint->position().z() + m_zrange;
-    } else {
-      m_x_min = - m_xrange;
-      m_x_max = + m_xrange;
-      m_y_min = - m_yrange;
-      m_y_max = + m_yrange;
-      m_z_min = - m_zrange;
-      m_z_max = + m_zrange;
-    }
+  std::unique_ptr<VertexImage>
+  VertexImageMaker::makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,
+                                     const xAOD::Vertex * constraint ) const
+  {
+    float* histRS = (float*)fftwf_malloc( sizeof(float) * m_filttot * 2 );
+    fftwf_complex* histFS = (fftwf_complex*) histRS;
+
+    auto image = std::make_unique<VertexImage> (histRS, fftwf_free,
+                                                m_xbins, m_ybins, m_zbins,
+                                                m_xrange, m_yrange, m_zrange);
 
    //Fill the histogram
-    msg(MSG::DEBUG) <<"Filling Histogram ..." << endmsg;
-    fillHist( parametersList );
+    ATH_MSG_DEBUG("Filling Histogram ..."  );
+    fillHist( *image, parametersList, constraint );
 
     //Forward transform
-    msg(MSG::DEBUG) <<"R2C Fourier ..." << endmsg;
-    fftwf_execute( m_plan_r2c );
+    ATH_MSG_DEBUG("R2C Fourier ..."  );
+    fftwf_execute_dft_r2c ( m_plan_r2c, histRS, histFS );
 
-    msg(MSG::DEBUG) <<"Filtering ..." << endmsg;
-    filterFSHist();
+    ATH_MSG_DEBUG("Filtering ..."  );
+    filterFSHist (*image);
 
     //back transform
-    msg(MSG::DEBUG) <<"C2R Fourier" << endmsg;
-    fftwf_execute( m_plan_c2r );
+    ATH_MSG_DEBUG("C2R Fourier"  );
+    fftwf_execute_dft_c2r ( m_plan_c2r, histFS, histRS );
 
-    return m_image;
+    return image;
   }
 
   // --------------------------------------------------------------------------------
   // VertexImageMaker Fill histogram
-  void VertexImageMaker::fillHist(std::vector<const Trk::TrackParameters*> parametersList ){
+  void VertexImageMaker::fillHist(VertexImage& image,
+                                  const std::vector<const Trk::TrackParameters*>& parametersList,
+                                  const xAOD::Vertex * constraint) const
+  {
     //Method for backprojecting all the tracks through the bin space
     //Method based on paper "A Fast Voxel Traversal Algorithm for Ray Tracing" by John Amanatides and Andrew Woo
     // from Proceedings of EUROGRAPHICS Vol 87, 1987
 
+    //Histogram ranges
+    float x_min = - m_xrange;
+    float x_max =   m_xrange;
+    float y_min = - m_yrange;
+    float y_max =   m_yrange;
+    float z_min = - m_zrange;
+    float z_max =   m_zrange;
+
+
+    //Calculate ranges
+    if( constraint ) {
+      x_min += constraint->position().x();
+      x_max += constraint->position().x();
+      y_min += constraint->position().y();
+      y_max += constraint->position().y();
+      z_min += constraint->position().z();
+      z_max += constraint->position().z();
+    }
+
+    float* histRS = image.getHist();
     
     //Resetting histogram
     for ( int iBin=0; iBin<m_filttot*2/*m_binstot*/; iBin++){
-	m_histRS[iBin] = 0.0;
+	histRS[iBin] = 0.0;
     }
 
     //loop over track params
-    for( std::vector<const Trk::TrackParameters*>::iterator trk_itr = parametersList.begin(); trk_itr != parametersList.end(); trk_itr++){
-
-
+    for (const Trk::TrackParameters* par : parametersList) {
       //get parametric linearization of track first with t=0 at point given by track parameters (doesn't really matter where it is)
 
       //position
-      float x = (*trk_itr)->position()[Trk::x]; 
-      float y = (*trk_itr)->position()[Trk::y];
-      float z = (*trk_itr)->position()[Trk::z]; 
+      float x = par->position()[Trk::x]; 
+      float y = par->position()[Trk::y];
+      float z = par->position()[Trk::z]; 
 
       //3d slope of track is 
       // | sinTheta*cosPhi |
@@ -160,9 +169,9 @@ namespace Trk
 
       // vec{pos} = vec{x}_{pca} + t*vec{slope}
 
-      float px = (*trk_itr)->momentum()[Trk::px];
-      float py = (*trk_itr)->momentum()[Trk::py];
-      float pz = (*trk_itr)->momentum()[Trk::pz];
+      float px = par->momentum()[Trk::px];
+      float py = par->momentum()[Trk::py];
+      float pz = par->momentum()[Trk::pz];
       float p = sqrt( px*px + py*py + pz*pz );
 
       float stcp = px / p;
@@ -195,14 +204,14 @@ namespace Trk
 
       //first solve for the parametric sol'ns for the intersections with the 6 planes of the box
       float t[6] = {
-        ( m_x_min - x )/(stcp),
-        ( m_x_max - x )/(stcp),
+        ( x_min - x )/(stcp),
+        ( x_max - x )/(stcp),
         
-        ( m_y_min - y )/(stsp),
-        ( m_y_max - y )/(stsp),
+        ( y_min - y )/(stsp),
+        ( y_max - y )/(stsp),
         
-        ( m_z_min - z )/(ct),
-        ( m_z_max - z )/(ct)
+        ( z_min - z )/(ct),
+        ( z_max - z )/(ct)
       };
 
       //need to find the smallest value of t that is inside the box for all variables
@@ -215,17 +224,17 @@ namespace Trk
         float ycurr = y + t[i]*stsp;
         float zcurr = z + t[i]*ct;
 
-        if( xcurr >= m_x_min && xcurr <= m_x_max &&
-            ycurr >= m_y_min && ycurr <= m_y_max &&
-            zcurr >= m_z_min && zcurr <= m_z_max ) {
+        if( xcurr >= x_min && xcurr <= x_max &&
+            ycurr >= y_min && ycurr <= y_max &&
+            zcurr >= z_min && zcurr <= z_max ) {
 
           //this value of t hits the box, so don't want to skip projecting it
           fail = false;
 
           //set starting bin values and current value of t
-          xbin = int ( ((float) m_xbins)*(xcurr-m_x_min)/(m_x_max-m_x_min) );
-          ybin = int ( ((float) m_ybins)*(ycurr-m_y_min)/(m_y_max-m_y_min) );
-          zbin = int ( ((float) m_zbins)*(zcurr-m_z_min)/(m_z_max-m_z_min) );
+          xbin = int ( ((float) m_xbins)*(xcurr-x_min)/(x_max-x_min) );
+          ybin = int ( ((float) m_ybins)*(ycurr-y_min)/(y_max-y_min) );
+          zbin = int ( ((float) m_zbins)*(zcurr-z_min)/(z_max-z_min) );
           tcurr = t[i];
 
           //in case curr == max, need to adjust the bin number
@@ -241,17 +250,17 @@ namespace Trk
           if(stcp==0)
             tMaxX = FLT_MAX;
           else
-            tMaxX = (stepX > 0) ? (m_x_min + ((float)xbin+1)*m_wx - xcurr)/(stcp) + tcurr : (m_x_min +((float)(xbin))*m_wx - xcurr)/(stcp) + tcurr;
+            tMaxX = (stepX > 0) ? (x_min + ((float)xbin+1)*m_wx - xcurr)/(stcp) + tcurr : (x_min +((float)(xbin))*m_wx - xcurr)/(stcp) + tcurr;
           if(stsp==0)
             tMaxY = FLT_MAX;
           else
-            tMaxY = (stepY > 0) ? (m_y_min + ((float)ybin+1)*m_wy - ycurr)/(stsp) + tcurr : (m_y_min +((float)(ybin))*m_wy - ycurr)/(stsp) + tcurr;
+            tMaxY = (stepY > 0) ? (y_min + ((float)ybin+1)*m_wy - ycurr)/(stsp) + tcurr : (y_min +((float)(ybin))*m_wy - ycurr)/(stsp) + tcurr;
           if(ct==0)
             tMaxZ = FLT_MAX;
           else
-            tMaxZ = (stepZ > 0) ? (m_z_min + ((float)zbin+1)*m_wz - zcurr)/(ct) + tcurr : (m_z_min +((float)(zbin))*m_wz - zcurr)/(ct) + tcurr;
+            tMaxZ = (stepZ > 0) ? (z_min + ((float)zbin+1)*m_wz - zcurr)/(ct) + tcurr : (z_min +((float)(zbin))*m_wz - zcurr)/(ct) + tcurr;
 
-          break; //dont keep going or will find instead the exit from the box
+          break; //don't keep going or will find instead the exit from the box
         }
       }
       if(fail) //miss box entirely so don't use this track
@@ -266,24 +275,24 @@ namespace Trk
         //so that bin doesn't get any weight, and the result is the same as if both stepped at same time
         if( tMaxX < tMaxY ) {
           if(tMaxX < tMaxZ) { //leave x bin first
-            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += (tMaxX - tcurr)*angularCutoffFactor; //add the path length to the bin we are about to leave
+            histRS[image.getRMBin( xbin, ybin, zbin )] += (tMaxX - tcurr)*angularCutoffFactor; //add the path length to the bin we are about to leave
             tcurr = tMaxX; //set a new current value of t
             tMaxX += tDeltaX; //set the max in x to the next time the path hits a boundary in x
             xbin += stepX; //increment the bin
           } else { //leave z bin first
-            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += (tMaxZ - tcurr)*angularCutoffFactor;
+            histRS[image.getRMBin( xbin, ybin, zbin )] += (tMaxZ - tcurr)*angularCutoffFactor;
             tcurr = tMaxZ;
             tMaxZ += tDeltaZ;
             zbin+=stepZ;
           }
         } else {
           if(tMaxY < tMaxZ) { //leave y bin first
-            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += (tMaxY - tcurr)*angularCutoffFactor;
+            histRS[image.getRMBin( xbin, ybin, zbin )] += (tMaxY - tcurr)*angularCutoffFactor;
             tcurr = tMaxY;
             tMaxY += tDeltaY;
             ybin+=stepY;
           } else { //leave z bin first
-            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += (tMaxZ - tcurr)*angularCutoffFactor;
+            histRS[image.getRMBin( xbin, ybin, zbin )] += (tMaxZ - tcurr)*angularCutoffFactor;
             tcurr = tMaxZ;
             tMaxZ += tDeltaZ;
             zbin+=stepZ;
@@ -356,11 +365,13 @@ namespace Trk
 
   // --------------------------------------------------------------------------------
   // Filter frequency space histogram
-  void VertexImageMaker::filterFSHist(){
-
+  void VertexImageMaker::filterFSHist (VertexImage& image) const
+  {
+    fftwf_complex* histFS = (fftwf_complex*) image.getHist();
+    
     for(int ifilt=0; ifilt<m_filttot; ifilt++) {
-      m_histFS[ifilt][0] *= m_histFSFilter[ifilt];
-      m_histFS[ifilt][1] *= m_histFSFilter[ifilt];
+      histFS[ifilt][0] *= m_histFSFilter[ifilt];
+      histFS[ifilt][1] *= m_histFSFilter[ifilt];
     }
 
   }//End filterFSHist

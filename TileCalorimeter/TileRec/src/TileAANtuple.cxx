@@ -149,6 +149,7 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("TileRawChannelContainerOF1", m_of1RawChannelContainerKey = "");      //
   declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainerKey = "");      //
   declareProperty("TileRawChannelContainerMF", m_mfRawChannelContainerKey = "");      //
+  declareProperty("TileRawChannelContainerWiener", m_wienerRawChannelContainerKey = "");//
   declareProperty("TileMuRcvRawChannelContainer", m_tileMuRcvRawChannelContainerKey = "MuRcvRawChCnt");// TMDB
   declareProperty("TileMuRcvDigitsContainer", m_tileMuRcvDigitsContainerKey = "MuRcvDigitsCnt");// TMDB
   declareProperty("TileMuRcvContainer", m_tileMuRcvContainerKey = "TileMuRcvCnt");// TMDB
@@ -230,6 +231,7 @@ StatusCode TileAANtuple::initialize() {
   ATH_CHECK( m_qieRawChannelContainerKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_dspRawChannelContainerKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_of1RawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_wienerRawChannelContainerKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_l2CntKey.initialize(m_compareMode) );
   
   ATH_MSG_INFO( "initialization completed" ) ;
@@ -338,14 +340,15 @@ StatusCode TileAANtuple::execute() {
   
   // store TileRawChannels
   // start from DSP channels - so we can find out what is the DSP units
-  empty &= storeRawChannels(ctx, m_dspRawChannelContainerKey,  m_arrays->m_eDsp,  m_arrays->m_tDsp,  m_arrays->m_chi2Dsp, m_arrays->m_pedDsp, true ).isFailure();
-  empty &= storeRawChannels(ctx, m_rawChannelContainerKey,     m_arrays->m_ene,   m_arrays->m_time,  m_arrays->m_chi2,    m_arrays->m_ped,    false).isFailure();
-  empty &= storeMFRawChannels(ctx, m_mfRawChannelContainerKey, m_arrays->m_eMF,   m_arrays->m_tMF,   m_arrays->m_chi2MF,  m_arrays->m_pedMF,  false).isFailure();
-  empty &= storeRawChannels(ctx, m_fitRawChannelContainerKey,  m_arrays->m_eFit,  m_arrays->m_tFit,  m_arrays->m_chi2Fit, m_arrays->m_pedFit, false).isFailure();
-  empty &= storeRawChannels(ctx, m_fitcRawChannelContainerKey, m_arrays->m_eFitc, m_arrays->m_tFitc, m_arrays->m_chi2Fitc,m_arrays->m_pedFitc,false).isFailure();
-  empty &= storeRawChannels(ctx, m_optRawChannelContainerKey,  m_arrays->m_eOpt,  m_arrays->m_tOpt,  m_arrays->m_chi2Opt, m_arrays->m_pedOpt, false).isFailure();
-  empty &= storeRawChannels(ctx, m_qieRawChannelContainerKey,  m_arrays->m_eQIE,  m_arrays->m_tQIE,  m_arrays->m_chi2QIE, m_arrays->m_pedQIE, false).isFailure();
-  empty &= storeRawChannels(ctx, m_of1RawChannelContainerKey,  m_arrays->m_eOF1,  m_arrays->m_tOF1,  m_arrays->m_chi2OF1, m_arrays->m_pedOF1, false).isFailure();
+  empty &= storeRawChannels(ctx,   m_dspRawChannelContainerKey,    m_arrays->m_eDsp,     m_arrays->m_tDsp,     m_arrays->m_chi2Dsp,    m_arrays->m_pedDsp,    true ).isFailure();
+  empty &= storeRawChannels(ctx,   m_rawChannelContainerKey,       m_arrays->m_ene,      m_arrays->m_time,     m_arrays->m_chi2,       m_arrays->m_ped,       false).isFailure();
+  empty &= storeMFRawChannels(ctx, m_mfRawChannelContainerKey,     m_arrays->m_eMF,      m_arrays->m_tMF,      m_arrays->m_chi2MF,     m_arrays->m_pedMF,     false).isFailure();
+  empty &= storeRawChannels(ctx,   m_fitRawChannelContainerKey,    m_arrays->m_eFit,     m_arrays->m_tFit,     m_arrays->m_chi2Fit,    m_arrays->m_pedFit,    false).isFailure();
+  empty &= storeRawChannels(ctx,   m_fitcRawChannelContainerKey,   m_arrays->m_eFitc,    m_arrays->m_tFitc,    m_arrays->m_chi2Fitc,   m_arrays->m_pedFitc,   false).isFailure();
+  empty &= storeRawChannels(ctx,   m_optRawChannelContainerKey,    m_arrays->m_eOpt,     m_arrays->m_tOpt,     m_arrays->m_chi2Opt,    m_arrays->m_pedOpt,    false).isFailure();
+  empty &= storeRawChannels(ctx,   m_qieRawChannelContainerKey,    m_arrays->m_eQIE,     m_arrays->m_tQIE,     m_arrays->m_chi2QIE,    m_arrays->m_pedQIE,    false).isFailure();
+  empty &= storeRawChannels(ctx,   m_of1RawChannelContainerKey,    m_arrays->m_eOF1,     m_arrays->m_tOF1,     m_arrays->m_chi2OF1,    m_arrays->m_pedOF1,    false).isFailure();
+  empty &= storeRawChannels(ctx,   m_wienerRawChannelContainerKey, m_arrays->m_eWiener,  m_arrays->m_tWiener,  m_arrays->m_chi2Wiener, m_arrays->m_pedWiener, false).isFailure();
   
   // store TMDB data
   //
@@ -1827,6 +1830,7 @@ void TileAANtuple::DIGI_addBranch(void)
             || !m_dspRawChannelContainerKey.empty()
             || !m_mfRawChannelContainerKey.empty()
             || !m_of1RawChannelContainerKey.empty()
+            || !m_wienerRawChannelContainerKey.empty()
             || !m_bsInput) ) {
           
           m_ntuplePtr->Branch(NAME2("gain",f_suf),            m_arrays->m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
@@ -1847,6 +1851,7 @@ void TileAANtuple::DIGI_addBranch(void)
                   || !m_qieRawChannelContainerKey.empty()
                   || !m_of1RawChannelContainerKey.empty()
                   || !m_dspRawChannelContainerKey.empty()
+                  || !m_wienerRawChannelContainerKey.empty()
                   || m_bsInput) {
                 
                 m_ntuplePtr->Branch(NAME2("gain",f_suf),      m_arrays->m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
@@ -1911,31 +1916,38 @@ void TileAANtuple::DIGI_addBranch(void)
     }
     
     if (!m_qieRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eQIE",f_suf),    m_arrays->m_eQIE[ir],        NAME3("eQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tQIE",f_suf),    m_arrays->m_tQIE[ir],        NAME3("tQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedQIE",f_suf),  m_arrays->m_pedQIE[ir],    NAME3("pedQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2QIE",f_suf), m_arrays->m_chi2QIE[ir],  NAME3("chi2QIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eQIE",f_suf),       m_arrays->m_eQIE[ir],             NAME3("eQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tQIE",f_suf),       m_arrays->m_tQIE[ir],             NAME3("tQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedQIE",f_suf),     m_arrays->m_pedQIE[ir],         NAME3("pedQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2QIE",f_suf),    m_arrays->m_chi2QIE[ir],       NAME3("chi2QIE",f_suf,"[4][64][48]/F")); // float
     }
 
     if (!m_of1RawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eOF1",f_suf),    m_arrays->m_eOF1[ir],        NAME3("eOF1",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tOF1",f_suf),    m_arrays->m_tOF1[ir],        NAME3("tOF1",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedOF1",f_suf),  m_arrays->m_pedOF1[ir],    NAME3("pedOF1",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2OF1",f_suf), m_arrays->m_chi2OF1[ir],  NAME3("chi2OF1",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eOF1",f_suf),       m_arrays->m_eOF1[ir],             NAME3("eOF1",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tOF1",f_suf),       m_arrays->m_tOF1[ir],             NAME3("tOF1",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedOF1",f_suf),     m_arrays->m_pedOF1[ir],         NAME3("pedOF1",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2OF1",f_suf),    m_arrays->m_chi2OF1[ir],       NAME3("chi2OF1",f_suf,"[4][64][48]/F")); // float
     }
     
     if (!m_dspRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eDsp",f_suf),    m_arrays->m_eDsp[ir],        NAME3("eDsp",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tDsp",f_suf),    m_arrays->m_tDsp[ir],        NAME3("tDsp",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedDsp",f_suf),  m_arrays->m_pedDsp[ir],    NAME3("pedDsp",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2Dsp",f_suf), m_arrays->m_chi2Dsp[ir],  NAME3("chi2Dsp",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eDsp",f_suf),       m_arrays->m_eDsp[ir],             NAME3("eDsp",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tDsp",f_suf),       m_arrays->m_tDsp[ir],             NAME3("tDsp",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedDsp",f_suf),     m_arrays->m_pedDsp[ir],         NAME3("pedDsp",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2Dsp",f_suf),    m_arrays->m_chi2Dsp[ir],       NAME3("chi2Dsp",f_suf,"[4][64][48]/F")); // float
+    }
+
+    if (!m_wienerRawChannelContainerKey.empty()) {
+      m_ntuplePtr->Branch(NAME2("eWiener",f_suf),    m_arrays->m_eWiener[ir],       NAME3("eWiener",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tWiener",f_suf),    m_arrays->m_tWiener[ir],       NAME3("tWiener",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedWiener",f_suf),  m_arrays->m_pedWiener[ir],   NAME3("pedWiener",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2Wiener",f_suf), m_arrays->m_chi2Wiener[ir], NAME3("chi2Wiener",f_suf,"[4][64][48]/F")); // float
     }
     
     if (!m_mfRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eMF",f_suf),    m_arrays->m_eMF[ir],        NAME3("eMF",f_suf,"[4][64][48][7]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tMF",f_suf),    m_arrays->m_tMF[ir],        NAME3("tMF",f_suf,"[4][64][48][7]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2MF",f_suf), m_arrays->m_chi2MF[ir],     NAME3("chi2MF",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedMF",f_suf),  m_arrays->m_pedMF[ir],      NAME3("pedMF",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eMF",f_suf),        m_arrays->m_eMF[ir],               NAME3("eMF",f_suf,"[4][64][48][7]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tMF",f_suf),        m_arrays->m_tMF[ir],               NAME3("tMF",f_suf,"[4][64][48][7]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2MF",f_suf),     m_arrays->m_chi2MF[ir],         NAME3("chi2MF",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedMF",f_suf),      m_arrays->m_pedMF[ir],           NAME3("pedMF",f_suf,"[4][64][48]/F")); // float
     }
     
     if (m_bsInput) {
@@ -2065,6 +2077,13 @@ void TileAANtuple::DIGI_clearBranch(void) {
     CLEAR2(m_arrays->m_tMF, size);
     CLEAR2(m_arrays->m_chi2MF, size);
     CLEAR2(m_arrays->m_pedMF, size);
+  }
+
+  if (!m_wienerRawChannelContainerKey.empty()) {
+    CLEAR2(m_arrays->m_eWiener, size);
+    CLEAR2(m_arrays->m_tWiener, size);
+    CLEAR2(m_arrays->m_pedWiener, size);
+    CLEAR2(m_arrays->m_chi2Wiener, size);
   }
   
   if (m_bsInput) {

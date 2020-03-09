@@ -30,10 +30,10 @@ public:
 private:
   /** @brief the Calo Extension tool*/
   ToolHandle<Trk::IParticleCaloExtensionTool> m_lastParticleCaloExtensionTool {this,
-    "LastCaloExtentionTool", "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"};
+    "LastCaloExtensionTool", "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"};
 
   ToolHandle<Trk::IParticleCaloExtensionTool> m_perigeeParticleCaloExtensionTool {this,
-    "PerigeeCaloExtentionTool", "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"};
+    "PerigeeCaloExtensionTool", "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"};
 
   //Cache collections for GSF Track Particle extrapolation Perigee
   SG::WriteHandleKey<CaloExtensionCollection>  m_GSFPerigeeCacheKey{this,

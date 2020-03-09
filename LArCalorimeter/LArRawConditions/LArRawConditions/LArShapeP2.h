@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARSHAPEP2
@@ -10,6 +10,7 @@
 #include <vector> 
 
 class LArCompactSubsetChannelProxy;
+class LArCompactSubsetConstChannelProxy;
 
 /** c-struct reproducing the structure of the persistent data
  * @author M. Delmastro
@@ -35,6 +36,7 @@ public:
              const std::vector<float>& shapeDer,
              unsigned int index);
   LArShapeP2(const LArCompactSubsetChannelProxy& other);
+  LArShapeP2(const LArCompactSubsetConstChannelProxy& other);
 
   size_t shapeSize() const { return waveSize(0); }
   size_t shapeDerSize() const { return waveSize(1); }
@@ -59,10 +61,11 @@ class LArConditionsSubsetTraits<LArShapeP2>
 public:
   typedef unsigned int  FebId; 
   typedef LArCompactSubsetChannelProxy        Reference;
-  typedef LArCompactSubsetChannelProxy        ConstReference;
+  typedef LArCompactSubsetConstChannelProxy   ConstReference;
   typedef LArCompactSubsetChannelPointer      Pointer;
   typedef LArCompactSubsetChannelPointer      ConstPointer;
   typedef LArCompactSubsetChannelVector       ChannelVector; 
+  typedef LArCompactSubsetConstChannelVector  ConstChannelVector; 
   typedef LArCompactSubsetChannelVectorPointer  ChannelVectorPointer;
   typedef LArCompactSubsetFebPair             FebPair;
   typedef FebPair                             FebPairReference;
@@ -71,6 +74,17 @@ public:
   static ConstReference empty()
   {
     return ConstReference();
+  }
+
+
+  template <class OTHERIT, class COPIER>
+  static void copySubset (OTHERIT otherBeg,
+                          OTHERIT otherEnd,
+                          SubsetVector& to,
+                          COPIER copier)
+  {
+    SubsetVector::copySubset<LArShapeP2> (otherBeg, otherEnd,
+                                          to, copier);
   }
 };
 

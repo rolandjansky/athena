@@ -153,7 +153,7 @@ ToolSvc += AthenaOutputStreamTool("CondStream2",OutputFile = "SimplePoolFile.roo
 
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 
-print fullItemList
+print (fullItemList)
 
 # Stream's output file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -199,14 +199,14 @@ dbFiller = ParameterDbFiller.ParameterDbFiller()
 dbFiller.setBeginRun(beginRun)
 dbFiller.setEndRun(endRun)
 # set parameters
-for i in range(len(simParams)/2):
+for i in range(len(simParams)//2):
     dbFiller.addSimParam(simParams[2*i], simParams[2*i+1])
 # generate db
 dbFiller.genSimDb()
 
 # create digit parameters db
 # set parameters
-for i in range(len(digitParams)/2):
+for i in range(len(digitParams)//2):
     dbFiller.addDigitParam(digitParams[2*i], digitParams[2*i+1])
 # generate db
 dbFiller.genDigitDb()

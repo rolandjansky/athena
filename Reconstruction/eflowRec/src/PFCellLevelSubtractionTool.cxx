@@ -18,6 +18,7 @@
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
 #include "eflowRec/eflowRingThicknesses.h"
+#include "eflowRec/PFSubtractionStatusSetter.h"
 
 #include "CaloEvent/CaloCluster.h"
 
@@ -26,7 +27,6 @@
 
 #include "xAODPFlow/PFO.h"
 
-#include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowCaloObjectMaker.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -175,21 +175,21 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
     continue;
     }
     
-    const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEflowCaloObject->efRecLink();
+    const std::vector<std::pair<eflowTrackClusterLink*,bool> >& matchedTrackList = thisEflowCaloObject->efRecLink();
 
     int nTrackMatches = thisEflowCaloObject->nTracks();
     
     for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
       
-      eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
+      eflowRecTrack* efRecTrack = (matchedTrackList[iTrack].first)->getTrack();
       
       std::vector<eflowRecCluster*> matchedClusters;
       matchedClusters.clear();
       std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
       for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
       
-      std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
+      std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
+      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
 
       eflowCellList calorimeterCellList;
       Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
@@ -310,12 +310,15 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 void PFCellLevelSubtractionTool::performSubtraction() {
 
   ATH_MSG_DEBUG("In performSubtraction");
+
+  PFSubtractionStatusSetter pfSubtractionStatusSetter;
   
   unsigned int nEFCaloObs = m_eflowCaloObjectContainer->size();
   for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb) {
     eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iEFCalOb);
 
     unsigned int nClusters = thisEflowCaloObject->nClusters();
+
     ATH_MSG_DEBUG("Have got an eflowCaloObject with " << nClusters << " clusters");
     
     if (nClusters < 1) {
@@ -348,21 +351,27 @@ void PFCellLevelSubtractionTool::performSubtraction() {
 
     ATH_MSG_DEBUG("About to perform subtraction for this eflowCaloObject");
 
+    const std::vector<std::pair<eflowTrackClusterLink*, bool> >& matchedTrackList = thisEflowCaloObject->efRecLink();
+
     if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
+
       /* Check if we can annihilate right away */
-      std::vector<xAOD::CaloCluster*> clusterList;
+      std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterList;
       unsigned nCluster = thisEflowCaloObject->nClusters();
       for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
-        clusterList.push_back(thisEflowCaloObject->efRecCluster(iCluster)->getCluster());
+        clusterList.push_back(std::pair(thisEflowCaloObject->efRecCluster(iCluster)->getCluster(),false));
       }
       Subtractor::annihilateClusters(clusterList);
+
+      //Now we should mark all of these clusters as being subtracted
+      pfSubtractionStatusSetter.markSubtractionStatus(clusterList, *thisEflowCaloObject);
+
     } else {
-    
+
       /* Subtract the track from all matched clusters */
-      const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEflowCaloObject->efRecLink();
       
       for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
-	eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
+	eflowRecTrack* efRecTrack = (matchedTrackList[iTrack].first)->getTrack();
 	
 	ATH_MSG_DEBUG("Have got eflowRecTrack number " << iTrack << " for this eflowCaloObject");
 	
@@ -373,7 +382,6 @@ void PFCellLevelSubtractionTool::performSubtraction() {
      
 	if (efRecTrack->isInDenseEnvironment()) continue;
 
-
 	ATH_MSG_DEBUG("Have bin and am not in dense environment for this eflowCaloObject");
       
 	std::vector<eflowRecCluster*> matchedClusters;
@@ -383,18 +391,22 @@ void PFCellLevelSubtractionTool::performSubtraction() {
 
 	ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
 	
-	std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-	for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
+	std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
+	for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
 
 	ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
       
 	Subtractor::subtractTracksFromClusters(efRecTrack, clusterSubtractionList);
+	//Now need to mark which clusters were modified in the subtraction procedure
+	pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
 	
 	ATH_MSG_DEBUG("Have performed subtraction for this eflowCaloObject");
       
 	/* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
 	if (canAnnihilated(0, expectedSigma, clusterEnergy)) {
 	  Subtractor::annihilateClusters(clusterSubtractionList);
+	  //Now we should mark all of these clusters as being subtracted
+	  pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
 	}
 	
 	ATH_MSG_DEBUG("Have checked if can annihilate clusters for this eflowCaloOject");
@@ -458,5 +470,3 @@ void PFCellLevelSubtractionTool::printAllClusters(const eflowRecClusterContainer
     }
   }
 }
-
-//bool PFCellLevelSubtractionTool::runInGoldenMode() { return ((m_goldenModeString.value() == "golden1") || (m_goldenModeString.value() == "golden2")); }

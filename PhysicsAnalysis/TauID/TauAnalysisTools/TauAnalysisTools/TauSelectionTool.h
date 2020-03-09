@@ -132,11 +132,11 @@ private:
   template<typename T, typename U>
   void FillValueVector(std::vector<T>& vRegion, U tVal);
   template<typename T>
-  void PrintConfigRegion(std::string sCutName, std::vector<T>& vRegion);
+  void PrintConfigRegion(const std::string& sCutName, std::vector<T>& vRegion);
   template<typename T>
-  void PrintConfigValue(std::string sCutName, std::vector<T>& vRegion);
+  void PrintConfigValue(const std::string& sCutName, std::vector<T>& vRegion);
   template<typename T>
-  void PrintConfigValue(std::string sCutName, T& sVal);
+  void PrintConfigValue(const std::string& sCutName, T& sVal);
 
   // bitmask of tau selection cuts
   int m_iSelectionCuts;
@@ -200,8 +200,8 @@ private:
   std::map<SelectionCuts, TauAnalysisTools::SelectionCut*> m_cMap;
 
   void setupCutFlowHistogram();
-  int convertStrToJetIDWP(std::string sJetIDWP);
-  int convertStrToEleBDTWP(std::string sEleBDTWP);
+  int convertStrToJetIDWP(const std::string& sJetIDWP);
+  int convertStrToEleBDTWP(const std::string& sEleBDTWP);
   std::string convertJetIDWPToStr(int iJetIDWP);
   std::string convertEleBDTWPToStr(int iEleBDTWP);
 

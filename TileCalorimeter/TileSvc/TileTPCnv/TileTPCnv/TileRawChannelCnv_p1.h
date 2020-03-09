@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileRawChannelCnv_p1.h 
@@ -23,9 +23,12 @@
 
 class MsgStream;
 
-class TileRawChannelCnv_p1 : public T_AthenaPoolTPCnvBase<TileRawChannel, TileRawChannel_p1> {
+class TileRawChannelCnv_p1 : public T_AthenaPoolTPCnvConstBase<TileRawChannel, TileRawChannel_p1> {
 
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -34,12 +37,12 @@ public:
   /** Method creating the transient representation TileRawChannel
    *  from its persistent representation TileRawChannel_p1
    */
-  virtual void persToTrans(const TileRawChannel_p1* persObj, TileRawChannel* transObj, MsgStream &log);
+  virtual void persToTrans(const TileRawChannel_p1* persObj, TileRawChannel* transObj, MsgStream &log) const override;
 
   /** Method creating the persistent representation TileRawChannel_p1
    *  from its transient representation TileRawChannel
    */
-  virtual void transToPers(const TileRawChannel* transObj, TileRawChannel_p1* persObj, MsgStream &log);
+  virtual void transToPers(const TileRawChannel* transObj, TileRawChannel_p1* persObj, MsgStream &log) const override;
 
 };
 

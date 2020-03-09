@@ -52,13 +52,20 @@ SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvc
   : ::AthReentrantAlgorithm(name, pSvcLocator)
 {
   m_ignoreDefects.value().push_back("NOISE_SLOPE");
+  m_ignoreDefectParameters.value().push_back(-1000.);
+
   m_ignoreDefects.value().push_back("OFFSET_SLOPE");
+  m_ignoreDefectParameters.value().push_back(-1000.);
+
   m_ignoreDefects.value().push_back("GAIN_SLOPE");
+  m_ignoreDefectParameters.value().push_back(-1000.);
+
   m_ignoreDefects.value().push_back("BAD_OPE");
   m_ignoreDefectParameters.value().push_back(-1000.);
-  m_ignoreDefectParameters.value().push_back(-1000.);
-  m_ignoreDefectParameters.value().push_back(-1000.);
-  m_ignoreDefectParameters.value().push_back(-1000.);
+
+  m_ignoreDefects.value().push_back("NO_HI");
+  m_ignoreDefectParameters.value().push_back(1.);
+  // 1. means 100%. Only NO_HI defects with >100% are considered, i.e., all NO_HI defects are ignored.
 }
 
 StatusCode SCT_ReadCalibDataCondAlg::initialize() {

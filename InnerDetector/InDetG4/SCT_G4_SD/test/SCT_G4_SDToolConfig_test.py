@@ -3,11 +3,13 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
+
+from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 if __name__ == '__main__':
-  
+
 
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
@@ -19,14 +21,14 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  ConfigFlags.Sim.ISF.Run = True
+  ConfigFlags.Sim.ISFRun = True
 
   #Provide input
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
-  
-  # Finalize 
+
+  # Finalize
   ConfigFlags.lock()
 
 
@@ -46,23 +48,23 @@ if __name__ == '__main__':
   acc2.addPublicTool(tool2)
   cfg.merge(acc2)
 
-  acc, tool = SctSensorSDCfg(ConfigFlags) 
-  acc.addPublicTool(tool) 
+  acc, tool = SctSensorSDCfg(ConfigFlags)
+  acc.addPublicTool(tool)
   cfg.merge(acc)
 
   tool3  = SctSensor_CTBCfg()
   cfg.addPublicTool(tool3)
-  
+
 
 
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
 
-  f=open("test.pkl","w")
-  cfg.store(f) 
+  f=open("test.pkl","wb")
+  cfg.store(f)
   f.close()
 
 
 
-  print cfg._publicTools
-  print "-----------------finished----------------------"
+  print(cfg._publicTools)
+  print("-----------------finished----------------------")

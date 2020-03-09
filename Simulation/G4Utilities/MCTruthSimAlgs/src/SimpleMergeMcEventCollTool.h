@@ -13,7 +13,6 @@
 #include <utility> /* pair */
 
 class McEventCollection;
-class StoreGateSvc;
 
 namespace HepMC {
   class GenParticle;

@@ -11,37 +11,37 @@
 
 namespace Trk {
 
-  /** @class GeometrySignature
-  
-     An enumeration object that puts the signature
-     of a GeometryBuilder to all subvolumes
-      
-    @author Andreas.Salzburger@cern.ch
-    
-    */
-    
-    enum GeometrySignature {
-        Global                 =  0,       
-        ID                     =  1,
-        BeamPipe               =  2,
-        Calo                   =  3,
-        MS                     =  4,
-        Cavern                 =  5,
-        NumberOfSignatures     =  6,
-        Unsigned               = 99
-    };
+/** @class GeometrySignature
 
-    enum GeometryType {
-        Static                  = 0,
-        Dense                   = 1,
-        DenseWithLayers         = 1,
-        Detached                = 2,
-        Master                  = 3,
-        NumberOfGeometryTypes   = 3   
-    };
+   An enumeration object that puts the signature
+   of a GeometryBuilder to all subvolumes
 
+  @author Andreas.Salzburger@cern.ch
+
+  */
+
+enum GeometrySignature
+{
+  Global = 0,
+  ID = 1,
+  BeamPipe = 2,
+  Calo = 3,
+  MS = 4,
+  Cavern = 5,
+  NumberOfSignatures = 6,
+  Unsigned = 99
+};
+
+enum GeometryType
+{
+  Static = 0,
+  Dense = 1,
+  DenseWithLayers = 1,
+  Detached = 2,
+  Master = 3,
+  NumberOfGeometryTypes = 3
+};
 
 } // end of namespace
-
 
 #endif // TRKDETDESCRUITLS_GEOMETRYSIGNATURE_H

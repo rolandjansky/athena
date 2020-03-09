@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/RegistrationServices
                           GaudiKernel
                           PRIVATE
-                          Control/CxxUtils
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloTriggerTool
                           Control/AthenaKernel
@@ -25,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TestLArHardwareID
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CxxUtils AthenaBaseComps GaudiKernel CaloIdentifier CaloTriggerToolLib AthenaKernel StoreGateLib SGtests LArCablingLib LArIdentifier LArRecConditions PathResolver )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel CaloIdentifier CaloTriggerToolLib AthenaKernel StoreGateLib SGtests LArCablingLib LArIdentifier LArRecConditions PathResolver )
 
 # Install files from the package:
 atlas_install_headers( TestLArHardwareID )

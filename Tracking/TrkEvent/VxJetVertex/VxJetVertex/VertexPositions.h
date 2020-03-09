@@ -18,7 +18,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "VxJetVertex/JetVtxParamDefs.h"
 #include "GaudiKernel/MsgStream.h"
-
+#include <atomic>
 /** The standard namespace for VxVertexPositions */
 namespace Trk {
 
@@ -51,7 +51,7 @@ namespace Trk {
     bool m_useWeightTimesPosition; //bool for storing weightTimesPosition
 
     /** number of objects of this type in memory */
-    static unsigned int s_numberOfInstantiations;
+    static std::atomic<unsigned int> s_numberOfInstantiations;
   };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug 

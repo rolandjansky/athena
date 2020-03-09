@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,54 +17,84 @@
 #include "SiClusterizationTool/PixelClusteringToolBase.h"
 
 #include "Identifier/Identifier.h"
-#include "InDetRawData/InDetRawDataCollection.h"
-#include "InDetRawData/PixelRDORawData.h"
-#include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
-#include "PixelGeoModel/IBLParameterSvc.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-
 // forward declare not possible (typedef)
 #include "InDetPrepRawData/PixelClusterCollection.h"
+#include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
+#include "InDetRawData/InDetRawDataCollection.h"
+#include "InDetRawData/PixelRDORawData.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
+#include "TrkSurfaces/RectangleBounds.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <atomic>
 #include <vector>
 
-class IIncidentSvc;
 class PixelID;
 
 namespace InDetDD {
   class SiDetectorElement;
-  class SiDetectorManager;
 }
 
 namespace InDet {
+  
+  class rowcolID {
+  public:
+    
+    rowcolID(int ncl, int row, int col, int tot, int lvl1, Identifier id):
+      NCL(ncl), ROW(row), COL(col), TOT(tot), LVL1(lvl1), ID(id) {};
+      
+    ~rowcolID() {};      
+    
+    int        NCL;
+    int        ROW;
+    int        COL;
+    int        TOT;
+    int       LVL1;
+    Identifier ID ;
+  };
 
+  class network {
+  public:
+    network():
+      NC(0), CON({0,0,0,0}) {};
+      
+    ~network() {};
+
+    int               NC;
+    std::array<int,4> CON;
+  };
+  
+  const auto pixel_less = [] (rowcolID const&  id1,rowcolID const& id2) -> bool {
+    if(id1.COL == id2.COL) 
+      return id1.ROW < id2.ROW;
+    return id1.COL < id2.COL;
+  };
+  
+  
   class PixelCluster;
   class IPixelClusterSplitter;
   class IPixelClusterSplitProbTool;
-
-
+  
   class MergedPixelsTool : public PixelClusteringToolBase
   {
   public:
 
 
     // Constructor with parameters:
-    MergedPixelsTool
-      (const std::string& type,
-       const std::string& name,
-       const IInterface* parent);
+    MergedPixelsTool(const std::string& type,
+                     const std::string& name,
+                     const IInterface* parent);
 
     virtual ~MergedPixelsTool() = default;
 
     // Called by the PixelPrepRawDataFormation algorithm once for every pixel 
     // module (with non-empty RDO collection...). 
     // It clusters together the RDOs with a pixell cell side in common.
-    virtual PixelClusterCollection *clusterize
-      (const InDetRawDataCollection<PixelRDORawData>& RDOs,
-       const InDetDD::SiDetectorManager& manager,
-       const PixelID& pixelID) const;
+    virtual PixelClusterCollection *clusterize(const InDetRawDataCollection<PixelRDORawData>& RDOs,
+                                               const PixelID& pixelID) const;
     //   void init(int posstrategy, int errorstrategy);
 
     // Once the lists of RDOs which makes up the clusters have been found by the
@@ -111,8 +141,6 @@ namespace InDet {
     // The second argument is the pixel module the hit belongs to.
 
     bool isGanged(const Identifier& rdoID,
-                  //  const Identifier& elementID,
-                  //  const PixelID& pixelID,
                   const InDetDD::SiDetectorElement* element,
                   Identifier & gangedID) const;
 
@@ -125,35 +153,34 @@ namespace InDet {
                        RDO_GroupVector::iterator lastGroup,
                        TOT_GroupVector::iterator totGroup,
                        TOT_GroupVector::iterator lvl1Group,
-                       InDetDD::SiDetectorElement* element,
+                       const InDetDD::SiDetectorElement* element,
                        const PixelID& pixelID) const;
+    
+    // Check if cluster has to be split                     
+    StatusCode checkClusterSplitting(PixelCluster* cluster,
+                                     std::vector<InDet::PixelCluster*>& splitClusters,
+                                     const InDetDD::SiDetectorElement* element,
+                                     const Trk::RectangleBounds* mybounds,
+                                     const PixelID& pixelID,
+                                     const int& groupSize,
+                                     int& clusterNumber) const;
+                       
+    // Checks if RDOs would be merged. This is based on a 4 cell connected component finding. 
+    PixelClusterCollection* clusterizeFast(const InDetRawDataCollection<PixelRDORawData> &collection,
+                                           const PixelID& pixelID) const;                   
 
-    // Functions for merging broken cluster segments (to be used for upgrade studies)
-    // ITk: This function checks if two barrel clusters are potentially a single cluster which is broken into two pieces  
-    bool mergeTwoBrokenClusters(const std::vector<Identifier>& group1, 
-                                const std::vector<Identifier>& group2,
-                                InDetDD::SiDetectorElement* element,
-                                const PixelID& pixelID) const;
-    // ITk: this function checks if two to-be-merged barrel proto-clusters have sizeZ consistent with cluster positions 
-    bool mergeTwoClusters(const std::vector<Identifier>& group1, 
-                          const std::vector<Identifier>& group2,
-                          InDetDD::SiDetectorElement* element,
-                          const PixelID& pixelID) const;
+                                          
+    void addClusterNumber(const int& r, 
+                          const int& Ncluster,
+                          const std::vector<network>& connections,    
+                          std::vector<rowcolID>& collectionID) const;
+                          
+    bool checkDuplication(const PixelID& pixelID,
+                          const Identifier& rdoID, 
+                          const int& lvl1, 
+                          std::vector<rowcolID>& collectionID) const;
+                       
 
-    // ITk: checkSizeZ compares cluster sizeZ with expected cluster size for this cluster position (+/-200 mm for beam spread)
-    // checkSizeZ()=-1 if cluster is too small
-    // checkSizeZ()=0 if cluster sizeZ is within allowed range
-    // checkSizeZ()=1 if cluster is too large
-    // in the future, it may be changed to return deltaSizeZ 
-    int checkSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
-    // this function returns expected sizeZ
-    int expectedSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
-    // this function returns size of the maximum gap between two cluster fragments  
-    int maxGap(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
-    //------- end of declaration of new functions
-
-
-    ServiceHandle<IIncidentSvc>                         m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
     ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;
     /// for cluster splitting
     BooleanProperty m_emulateSplitter{this, "EmulateSplitting", false, "don't split - only emulate the split"};
@@ -163,14 +190,9 @@ namespace InDet {
     ToolHandle<InDet::IPixelClusterSplitProbTool> m_splitProbTool{this, "SplitProbTool", "", "ToolHandle for the split probability tool"};
     ToolHandle<InDet::IPixelClusterSplitter> m_clusterSplitter{this, "ClusterSplitter", "", "ToolHandle for the split probability tool"};
     BooleanProperty m_doIBLSplitting{this, "DoIBLSplitting", false};
-    StringProperty m_splitClusterMapName{this, "SplitClusterAmbiguityMap", "SplitClusterAmbiguityMap", "No longer used Remove later //!< split cluster ambiguity map"};
-    BooleanProperty m_doMergeBrokenClusters{this, "DoMergeBrokenClusters", false, "ITk: switch to turn ON/OFF merging of broken clusters"};
-    BooleanProperty m_doRemoveClustersWithToTequalSize{this, "DoRemoveClustersWithToTequalSize", false, "ITk: switch to remove clusters with ToT=size"};
-    BooleanProperty m_doCheckSizeBeforeMerging{this, "DoCheckSizeBeforeMerging", false, "ITk: switch to check size of to-be-merged clusters"};
-    DoubleProperty m_beam_spread{this, "BeamSpread", 200.0, "ITK: size of the luminous region, need to check cluster size"};
-    DoubleProperty m_lossThreshold{this, "LossProbability", 0.001, "ITk: maximum probability to loose N_mis consequitive pixels in a cluster"};
-    DoubleProperty m_pixelEff{this, "MinPixelEfficiency", 0.90, "ITK: pixel efficiency (it depends on cluster eta; use smaller pixel efficiency)"};
-    IntegerArrayProperty m_minToT{this, "ToTMinCut", {0,0,0,0,0,0,0}, "Minimum ToT cut [IBL, b-layer, L1, L2, Endcap, DBM, ITk extra"};
+    BooleanProperty m_doFastClustering{this, "DoFastClustering", false};
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
     bool m_IBLAbsent{true};
 

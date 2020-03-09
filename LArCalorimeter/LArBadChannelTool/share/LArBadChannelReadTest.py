@@ -1,8 +1,12 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 FEBFolder = "/LAR/BadChannels/MissingFEBs"
 FEBFile = "../share/badfebs.txt"
 
 #No input file -> use MC event selector
 import AthenaCommon.AtlasUnixGeneratorJob
+
+from AthenaCommon                       import CfgMgr
 
 from AthenaCommon.GlobalFlags import GlobalFlags
 GlobalFlags.DetGeo.set_commis()
@@ -50,8 +54,7 @@ svcMgr.EventSelector.FirstEvent        = 1
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 theApp.EvtMax=1
 
@@ -65,23 +68,13 @@ theApp.EvtMax=1
 from LArCalibTest.LArCalibTestConf import DumpCaloBadChannels
 theDumper=DumpCaloBadChannels()
 theDumper.FileName="list.txt"
-topSequence+=theDumper;
+topSequence+=theDumper
 
 #Thats the registration algo
 #from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelDBAlg
 #topSequence += LArBadChannelDBAlg( "BadChanAlg" )
 
 
-
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=False
-theLArBadChannelTool.DumpCache=True
-#theLArBadChannelTool.ASCIIFileName="/home/wlampl/LArCondPatcher/dead_dummy.txt"
-#theLArBadChannelTool.EMBAfile ="/afs/cern.ch/user/t/todorov/scratch0/testarea/rel_5/LArCalorimeter/LArBadChannelTool/share/noisePb_29142.txt"
-#theLArBadChannelTool.EMBCfile ="/afs/cern.ch/user/t/todorov/scratch0/testarea/rel_5/LArCalorimeter/LArBadChannelTool/share/noisePb_29142.txt"
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
 
 svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/BadChannels<tag>LARBadChannelsBadChannels-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
 svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/MissingFEBs<tag>LARBadChannelsMissingFEBs-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]

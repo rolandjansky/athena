@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AppMgr import ServiceMgr
@@ -20,7 +20,7 @@ if DetFlags.readRDOBS.Muon_on():
 
 def MdtROD_Decoder(name="MdtROD_Decoder",**kwargs):
     # setup cabling service needed by this tool
-    import MuonCablingConfig
+    from . import MuonCablingConfig
     return CfgMgr.MdtROD_Decoder(name,**kwargs)
 
 
@@ -28,7 +28,7 @@ def MdtRawDataProviderTool(name="MdtRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "MdtROD_Decoder")
     if DetFlags.overlay.MDT_on() and overlayFlags.isDataOverlay():
       kwargs.setdefault("RdoLocation",overlayFlags.dataStore()+"+MDTCSM")
-    return CfgMgr.Muon__MDT_RawDataProviderTool(name,**kwargs)
+    return CfgMgr.Muon__MDT_RawDataProviderToolMT(name,**kwargs)
 
 
 #================================================================================
@@ -37,7 +37,7 @@ def MdtRawDataProviderTool(name="MdtRawDataProviderTool",**kwargs):
     
 def RpcROD_Decoder(name="RpcROD_Decoder",**kwargs):
     # setup cabling service needed by this tool
-    import MuonCablingConfig
+    from . import MuonCablingConfig
     return CfgMgr.Muon__RpcROD_Decoder(name,**kwargs)
 
 
@@ -45,7 +45,7 @@ def RpcRawDataProviderTool(name = "RpcRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "RpcROD_Decoder")
     if DetFlags.overlay.RPC_on() and overlayFlags.isDataOverlay():
       kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+RPCPAD")
-    return CfgMgr.Muon__RPC_RawDataProviderTool(name,**kwargs)
+    return CfgMgr.Muon__RPC_RawDataProviderToolMT(name,**kwargs)
 
 
 #================================================================================
@@ -54,7 +54,7 @@ def RpcRawDataProviderTool(name = "RpcRawDataProviderTool",**kwargs):
 
 def TgcROD_Decoder(name = "TgcROD_Decoder",**kwargs):
     # setup cabling service needed by this tool
-    import MuonCablingConfig
+    from . import MuonCablingConfig
     return CfgMgr.Muon__TGC_RodDecoderReadout(name,**kwargs)
 
 
@@ -62,7 +62,7 @@ def TgcRawDataProviderTool(name = "TgcRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "TgcROD_Decoder")
     if DetFlags.overlay.TGC_on() and overlayFlags.isDataOverlay():
       kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+TGCRDO")
-    return CfgMgr.Muon__TGC_RawDataProviderTool(name,**kwargs)
+    return CfgMgr.Muon__TGC_RawDataProviderToolMT(name,**kwargs)
 
 
 
@@ -78,7 +78,7 @@ def CscRawDataProviderTool(name = "CscRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "CscROD_Decoder")
     if DetFlags.overlay.CSC_on() and overlayFlags.isDataOverlay():
       kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
-    return CfgMgr.Muon__CSC_RawDataProviderTool(name,**kwargs)
+    return CfgMgr.Muon__CSC_RawDataProviderToolMT(name,**kwargs)
     
 
 #

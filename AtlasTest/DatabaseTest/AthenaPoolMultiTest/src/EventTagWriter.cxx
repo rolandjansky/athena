@@ -11,7 +11,6 @@
 
 #include "EventTagWriter.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "GaudiKernel/RndmGenerators.h"

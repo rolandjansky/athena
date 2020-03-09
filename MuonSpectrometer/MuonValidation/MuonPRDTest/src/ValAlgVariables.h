@@ -35,7 +35,7 @@ class ValAlgVariables
   virtual ~ValAlgVariables() {};
 
   virtual StatusCode initializeVariables() = 0;
-  virtual StatusCode fillVariables() = 0;
+  virtual StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) = 0;
 
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }

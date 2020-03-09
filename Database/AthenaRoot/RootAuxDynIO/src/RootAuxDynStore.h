@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ROOTAUXDYNSTORE_H
@@ -16,7 +16,7 @@ class RootAuxDynStore : public SG::AuxStoreInternal
 {
 public:
   RootAuxDynStore(RootAuxDynReader& reader, long long entry, bool standalone,
-                  std::mutex* iomtx = nullptr);
+                  std::recursive_mutex* iomtx = nullptr);
   
   virtual ~RootAuxDynStore() {}
 
@@ -61,7 +61,7 @@ private:
   mutable mutex_t m_mutex;
 
   /// Optional mutex used to serialize I/O with RootStorageSvc (not owned)
-  std::mutex       *m_iomutex;
+  std::recursive_mutex       *m_iomutex;
 };
 
   

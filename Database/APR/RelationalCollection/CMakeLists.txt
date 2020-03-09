@@ -10,8 +10,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Database/APR/CollectionBase
                           Database/APR/POOLCore
                           Database/PersistentDataModel
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )

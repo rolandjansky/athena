@@ -26,10 +26,10 @@ namespace Trk {
   public :  
 
     /** Default Constructor needed for POOL */
-     MaterialInteraction(){}    
+     MaterialInteraction()= default;    
 
     /** Descructor */
-    ~MaterialInteraction() {}
+    ~MaterialInteraction() = default;
     
     /** dE/dl ionization energy loss per path unit */
     double dEdl_ionization(double p, const Material* mat, ParticleHypothesis particle, double& sigma, double& kazL) const;   
@@ -44,7 +44,7 @@ namespace Trk {
     
   private : 
 
-    static  ParticleMasses                 s_particleMasses;    //!< Struct of Particle masses
+    static  const ParticleMasses                 s_particleMasses;    //!< Struct of Particle masses
     
   };
  

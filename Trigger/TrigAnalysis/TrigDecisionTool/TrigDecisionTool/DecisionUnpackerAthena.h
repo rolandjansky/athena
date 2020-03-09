@@ -14,6 +14,10 @@
 #include "TrigDecisionTool/Logger.h"
 #include "AsgTools/AsgMessaging.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
+#include "TrigDecisionEvent/TrigDecision.h"
+
 
 class StoreGateSvc;
 
@@ -33,7 +37,7 @@ namespace Trig{
 
   class DecisionUnpackerAthena : public IDecisionUnpacker, public Logger {
   public:
-    DecisionUnpackerAthena(StoreGateSvc* sg, const std::string& key);
+    DecisionUnpackerAthena( SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey );
     virtual ~DecisionUnpackerAthena();
     virtual StatusCode unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
 				      std::map<CTPID, LVL1CTP::Lvl1Item*>&,

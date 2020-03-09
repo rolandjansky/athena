@@ -1,0 +1,64 @@
+#
+# ATLAS-specific valgrind suppressions.
+#
+# This file should contain suppressions that are not covered by any of the other
+# files and appear in standard ATLAS jobs.
+#
+# When adding a new entry, make sure that the first line describes the source
+# of the problem and add any relevant comments (e.g. Jira tickets).
+#
+
+#
+# Frontier (ATEAM-90)
+#
+{
+	FrontierClient:frontier_str_copy/wordcopy_fwd_dest_aligned
+	Memcheck:Addr8
+	fun:_wordcopy_fwd_dest_aligned
+	fun:bcopy
+	fun:frontier_str_copy
+}
+
+#
+# ROOT/cling related leaks (should probably report those)
+#
+{
+   ROOT/cling
+   Memcheck:Leak
+   match-leak-kinds: possible
+   obj:*/lib/libCling.so.*
+}
+
+#
+# Oracle client
+#
+{
+  Oracle
+  Memcheck:Value4
+  obj:*/oracle/*/libclntsh*.so.*
+}
+{
+  Oracle
+  Memcheck:Value8
+  obj:*/oracle/*/libclntsh*.so.*
+}
+{
+  Oracle
+  Memcheck:Cond
+  obj:*/oracle/*/libclntsh*.so.*
+}
+{
+  Oracle
+  Memcheck:Value4
+  obj:*/oracle/*/libnnz*.so.*
+}
+{
+  Oracle
+  Memcheck:Value8
+  obj:*/oracle/*/libnnz*.so.*
+}
+{
+  Oracle
+  Memcheck:Cond
+  obj:*/oracle/*/libnnz*.so.*
+}

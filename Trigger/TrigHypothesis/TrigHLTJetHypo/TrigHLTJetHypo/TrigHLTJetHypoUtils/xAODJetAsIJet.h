@@ -26,6 +26,9 @@ namespace HypoJet{
     double rapidity() const override;
     TLorentzVector p4() const override;
     unsigned int position() const override;
+
+
+    virtual std::optional<const xAOD::Jet*> xAODJet() const override;
     bool getAttribute(const std::string&, float&) const override;
 
   private:

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonSvc.cxx
@@ -11,6 +11,7 @@
 
 // Python includes
 #include "Python.h"
+#include "patchlevel.h"
 
 #ifdef Py_False
 #undef Py_False
@@ -29,6 +30,7 @@
 #include <sys/times.h>
 #include <string.h>
 #include <libgen.h> // for basename
+#include <filesystem>
 
 // STL includes
 
@@ -276,6 +278,13 @@ PerfMonSvc::postFinalize()
 
   RootUtils::PyGILStateEnsure gil;
 
+  auto cwd = std::filesystem::current_path();
+  if (!m_workerDir.empty()) {
+    // The Python service relies on the current directory being the worker directory.
+    // This is the case in athena but not necessarily in other applications (ATR-19462)
+    std::filesystem::current_path(m_workerDir);
+  }
+
   if ( m_pySvc ) {
     /// loop over the perf-tools and harvest 'finalize' perf-data
     stopAud( "fin", "PerfMonSlice" );
@@ -361,6 +370,9 @@ PerfMonSvc::postFinalize()
 
   m_pf = true;
 
+  // Restore working directory
+  std::filesystem::current_path(cwd);
+
   //delete m_ntuple; m_ntuple = 0;
   PerfMon::Tuple::CompTuple_t().swap (m_ntuple.comp);
   PerfMon::Tuple::IoCompTuple_t().swap (m_ntuple.iocomp);
@@ -396,13 +408,17 @@ PerfMonSvc::io_reinit()
     ATH_MSG_ERROR("Could not retrieve new value for [" <<  stream_name << "] !");
     return StatusCode::FAILURE;
   }
+  if (stream_name.empty()) {
+    ATH_MSG_DEBUG("io_reinit called in parent process. No actions required.");
+    return StatusCode::SUCCESS;
+  }
 
   // io_retrieve gives us a name like 
   //  <amp-root-dir>/<child-pid>/mpid_<worker-id>__<ntuple-name>
   // but many pieces in perfmon assume <ntuple-name> as a name...
   //  -> take the dirname from that file and append the original-basename
-  std::string dname = my_dirname(stream_name);
-  stream_name = dname + "/" + my_basename(orig_stream_name);
+  m_workerDir = my_dirname(stream_name);
+  stream_name = m_workerDir + "/" + my_basename(orig_stream_name);
 
   ATH_MSG_INFO("reopening [" << stream_name << "]...");
   fflush(NULL); //> flushes all output streams...
@@ -412,11 +428,12 @@ PerfMonSvc::io_reinit()
                   << strerror(errno));
     return StatusCode::FAILURE;
   }
+
   // re-open the previous file
   int old_stream = open(orig_stream_name.c_str(), O_RDONLY);
   if (old_stream < 0) {
     ATH_MSG_ERROR("could not reopen previously open file ["
-                  << m_outFileName.value() << ".pmon.stream] !");
+                  << orig_stream_name << "] !");
     return StatusCode::FAILURE;
   }
   m_stream = open(stream_name.c_str(),
@@ -624,7 +641,11 @@ StatusCode PerfMonSvc::initialize()
       PMON_WARNING("Problem during pmon-dso-logger installation");
       ::throw_py_exception();
     }
+#if PY_MAJOR_VERSION < 3
     long do_dso = PyInt_AS_LONG(res);
+#else
+    long do_dso = PyLong_AS_LONG(res);
+#endif
     Py_DECREF( res );
 
     if (do_dso) {
@@ -786,6 +807,7 @@ PerfMonSvc::domain(const std::string& compName, std::string& domain) const
     ::throw_py_exception();
   }
 
+#if PY_MAJOR_VERSION < 3
   if (!PyString_Check(py_domain)) {
     PMON_WARNING("domains_db() returned a non-string for component ["
 		    << compName << "]");
@@ -795,6 +817,17 @@ PerfMonSvc::domain(const std::string& compName, std::string& domain) const
 
   domain = std::string(PyString_AS_STRING(py_domain));
   Py_DECREF(db);
+#else
+  if (!PyUnicode_Check(py_domain)) {
+    PMON_WARNING("domains_db() returned a non-unicode for component ["
+		    << compName << "]");
+    Py_DECREF(db);
+    ::throw_py_exception();
+  }
+
+  domain = std::string(PyUnicode_AsUTF8(py_domain));
+  Py_DECREF(db);
+#endif
 
   return;
 }

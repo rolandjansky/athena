@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1MuctpiTool.cxx 794528 2017-01-30 12:36:33Z fwinkl $
 
 // STL include(s):
 #include <iostream>
@@ -140,12 +139,6 @@ namespace LVL1MUCTPI {
     MsgWriter::instance()->setMinType( msg().level() );
     MsgWriter::instance()->setSource( name() );
 
-    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "L1MuctpiTool");
-    CHECK(incidentSvc.retrieve());
-    incidentSvc->addListener(this,"BeginRun", 100);
-    incidentSvc.release().ignore();
-    
-
     // Create the MuCTPI simulation:
     m_theMuctpi = new MuctpiSim();
 
@@ -279,26 +272,11 @@ namespace LVL1MUCTPI {
     return StatusCode::SUCCESS;
   }
 
-  // Assuming from example code that I have to catch begin run myself and call the respective function
-  // TODO: Check if this is the right way to do this
-
-  void L1MuctpiTool::handle(const Incident& incident) {
-
-    if (incident.type()!="BeginRun") return;
-    ATH_MSG_DEBUG( "In L1MuctpiTool BeginRun incident");
-    
-    StatusCode sc = beginRun();
-    if( sc.isFailure() ) {
-      ATH_MSG_ERROR( "ERROR in MuCTPITool configuration");
-    }
-  }
-  
-
-  StatusCode L1MuctpiTool::beginRun( ) {
+  StatusCode L1MuctpiTool::start( ) {
 
     // Init message
     ATH_MSG_INFO( "=======================================" );
-    ATH_MSG_INFO( "Begin Run for L1MuctpiTool."  );
+    ATH_MSG_INFO( "Start for L1MuctpiTool."  );
     ATH_MSG_INFO( "=======================================" );
 
     Configuration muctpiConfiguration;

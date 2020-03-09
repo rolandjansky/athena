@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -245,8 +245,6 @@ class TrigCountDumper : public AthAlgorithm {
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
   /// The trigger configuration service to get the information from
   ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc;
-  /// Handle used (sometimes) when reading MC files
-  ServiceHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
   /// Type definition for the menu map
   typedef std::map<uint32_t,trigcount::TriggerMenu> MenuMap_t;
   /// Map of super master keys to trigger menus

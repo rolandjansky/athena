@@ -1,5 +1,10 @@
 import AthenaCommon.AtlasUnixStandardJob
 
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testSummary")
+msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Thread-specific setup
 #--------------------------------------------------------------
@@ -29,7 +34,7 @@ globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
-print globalflags
+msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -74,7 +79,7 @@ job = AlgSequence()
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
-print "conddb.dbdata", conddb.dbdata
+msg.info("conddb.dbdata", conddb.dbdata)
 IOVDbSvc.OutputLevel = 3
 
 from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup

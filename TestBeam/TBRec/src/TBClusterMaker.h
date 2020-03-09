@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBCLUSTERMAKER_H
@@ -16,7 +16,6 @@
  * Like all other cluster maker tools this class derives from
  * CaloClusterMakerTool.  */
 
-class StoreGateSvc; 
 class CaloDetDescrManager; 
 class CaloDetDescrElement;
 class ICalorimeterNoiseTool;
@@ -91,8 +90,6 @@ class TBClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionPro
   //int m_numCluIterationsNonConverged;
 
   /** Services */
-  StoreGateSvc* m_eventStore;
-  StoreGateSvc* m_detectorStore;
   const CaloDetDescrManager* m_calo_DDM;
   const CaloCell_ID* m_calo_id;
   IToolSvc* m_toolSvc;

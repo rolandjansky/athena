@@ -22,9 +22,9 @@
 
 // FourMom includes
 #include "FourMom/Lib/P4BasePxPyPzE.h"
-#include "FourMom/DeepCopyPointer.h"
 #include "FourMom/FourMomentumError.h"
 
+#include <memory>
 // Forward declaration
 class P4ImplPxPyPzECnv_p1; //> for persistency
 
@@ -128,7 +128,7 @@ class P4ImplPxPyPzE : public P4BasePxPyPzE
   double m_py;
   double m_pz;
   double m_e;
-  DeepCopyPointer< ErrorType> m_error;
+  std::unique_ptr< ErrorType> m_error;
 
 }; 
 
@@ -142,7 +142,7 @@ inline P4ImplPxPyPzE::P4ImplPxPyPzE( ) :
   m_py ( 0.*CLHEP::GeV ),
   m_pz ( 0.*CLHEP::GeV ),
   m_e  ( 0.*CLHEP::GeV ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPxPyPzE::P4ImplPxPyPzE( const P4ImplPxPyPzE& rhs ) :
@@ -151,7 +151,7 @@ inline P4ImplPxPyPzE::P4ImplPxPyPzE( const P4ImplPxPyPzE& rhs ) :
   m_py ( rhs.m_py ),
   m_pz ( rhs.m_pz ),
   m_e  ( rhs.m_e  ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPxPyPzE::P4ImplPxPyPzE( const double px, 
@@ -163,7 +163,7 @@ inline P4ImplPxPyPzE::P4ImplPxPyPzE( const double px,
   m_py( py ),
   m_pz( pz ),
   m_e ( e  ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPxPyPzE::P4ImplPxPyPzE( const CLHEP::HepLorentzVector& hlv ) :
@@ -172,7 +172,7 @@ inline P4ImplPxPyPzE::P4ImplPxPyPzE( const CLHEP::HepLorentzVector& hlv ) :
   m_py( hlv.py() ),
   m_pz( hlv.pz() ),
   m_e ( hlv.e()  ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPxPyPzE::P4ImplPxPyPzE( const I4Momentum& i4Mom ) :
@@ -181,7 +181,7 @@ inline P4ImplPxPyPzE::P4ImplPxPyPzE( const I4Momentum& i4Mom ) :
   m_py ( i4Mom.py() ),
   m_pz ( i4Mom.pz() ),
   m_e  ( i4Mom.e()  ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPxPyPzE::P4ImplPxPyPzE( const I4Momentum* const i4Mom ) :
@@ -190,7 +190,7 @@ inline P4ImplPxPyPzE::P4ImplPxPyPzE( const I4Momentum* const i4Mom ) :
   m_py ( i4Mom->py() ),
   m_pz ( i4Mom->pz() ),
   m_e  ( i4Mom->e()  ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPxPyPzE::~P4ImplPxPyPzE()
@@ -266,7 +266,7 @@ inline void P4ImplPxPyPzE::set4Mom( const CLHEP::HepLorentzVector& hlv )
 
 inline void P4ImplPxPyPzE::setErrors( const ErrorMatrixPxPyPzE& err)
 {
-  m_error = DeepCopyPointer< ErrorType>(new ErrorType( err, *this));
+  m_error = std::make_unique< ErrorType>( err, *this);
 }
 
 #endif //> FOURMOM_P4IMPLPXPYPZE_H

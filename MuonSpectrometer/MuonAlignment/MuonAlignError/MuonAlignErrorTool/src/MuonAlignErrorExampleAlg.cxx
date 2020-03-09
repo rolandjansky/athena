@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignErrorTool/MuonAlignErrorExampleAlg.h"
@@ -9,7 +9,6 @@
 #include <iostream>
 
 using namespace MuonAlign;
-using namespace std;
 
 MuonAlignErrorExampleAlg::MuonAlignErrorExampleAlg (const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name, pSvcLocator),
@@ -17,11 +16,9 @@ MuonAlignErrorExampleAlg::MuonAlignErrorExampleAlg (const std::string& name, ISv
   m_debug(0),
   m_cham_per_dev(0),
   m_dev_per_track(0),
-  m_idHelperTool("Muon::MuonIdHelperTool"),
-  m_idTool("MuonCalib::IdToFixedIdTool")
+  m_idTool("MuonCalib::IdToFixedIdTool/IdToFixedIdTool")
 {
   declareProperty("alignErrorTool", m_alignErrorTool);
-  declareProperty("muonIdHelperTool", m_idHelperTool);
   declareProperty("idTool", m_idTool);
 }
 
@@ -32,7 +29,7 @@ StatusCode MuonAlignErrorExampleAlg::initialize () {
   m_cham_per_dev = new TH1F("cham_per_dev", "# of chamber layers per alignment deviation", 10, 0., 10.); 
   m_dev_per_track = new TH1F("dev_per_track", "# of chamber layers per alignment deviation", 10, 0., 10.); 
 
-  //m_idHelperTool.retrieve();
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -72,21 +69,20 @@ void MuonAlignErrorExampleAlg::muonTrack (const Trk::Track* track) const {
 
     (*it)->getListOfHits(hits);
 
-    //std::set<Identifier> myidset_all;
     std::set<std::string> myidset_all;
     for(std::vector<const Trk::RIO_OnTrack*>::iterator jt(hits.begin()), end(hits.end()); jt!=end; ++jt) {
         // JOCHEN WAY
         Identifier myid = ((const Trk::RIO_OnTrack*)(*jt))->identify();
-        //myidset_all.insert(m_idHelperTool->chamberId(myid));
-      
-        // CAMILLA WAY
-        MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(myid);
-        if (!calibId.isValid()) {
-          continue;
-        }
-        std::string completename = hardwareName(calibId);
-	std::cout << "complete chamber name is " << completename << " chamber name is " << completename.substr(0, 2) << std::endl;
-        myidset_all.insert(completename.substr(0,2));
+
+        if (!(m_idHelperSvc->isMM(myid)||m_idHelperSvc->issTgc(myid))) {
+          // CAMILLA WAY
+          MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(myid);
+          if (!calibId.isValid()) {
+            continue;
+          }
+          std::string completename = hardwareName(calibId);
+          myidset_all.insert(completename.substr(0,2));
+        } else myidset_all.insert(m_idHelperSvc->toStringStation(myid));
     }
     m_cham_per_dev->Fill(myidset_all.size());
 

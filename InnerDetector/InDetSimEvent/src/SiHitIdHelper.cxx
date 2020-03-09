@@ -9,6 +9,7 @@
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 
+#include "G4Types.hh"
 #ifdef G4MULTITHREADED
 #  include "GaudiKernel/ContextSpecificPtr.h"
 #endif

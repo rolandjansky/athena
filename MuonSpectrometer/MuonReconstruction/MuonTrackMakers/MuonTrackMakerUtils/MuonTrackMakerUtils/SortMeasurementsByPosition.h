@@ -11,7 +11,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include <functional>
 #include <iostream>
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "CxxUtils/fpcompare.h"
 
 namespace Muon {
@@ -121,15 +121,15 @@ namespace Muon {
       return dist > 0.;
     }
 
-    SortTSOSs( const MuonEDMHelperTool* h, const MuonIdHelperTool*  idh ) : m_helperTool(h),m_idHelperTool(idh) {}
+    SortTSOSs( const IMuonEDMHelperSvc* h, const MuonIdHelperTool*  idh ) : m_helperTool(h),m_idHelperTool(idh) {}
   
-    const MuonEDMHelperTool* m_helperTool;
+    const IMuonEDMHelperSvc* m_helperTool;
     const MuonIdHelperTool*  m_idHelperTool;
   };
 
 
 
-  class SortMeasurementsByPosition : public std::binary_function<const Trk::MeasurementBase*,const Trk::MeasurementBase*,bool> {
+  class SortMeasurementsByPosition {
   public:
     
     SortMeasurementsByPosition(bool hasEndcap=true) : 
@@ -143,12 +143,6 @@ namespace Muon {
       double d1 = m_isEndcap ? fabs(m1->globalPosition().z()) : fabs(m1->globalPosition().perp());
       double d2 = m_isEndcap ? fabs(m2->globalPosition().z()) : fabs(m2->globalPosition().perp());
       bool result = d1 < d2;
-/*       bool result2 = fabs(m1->globalPosition().perp()) < fabs(m2->globalPosition().perp());  */
-/*       if( m_isEndcap ) result2 = fabs(m1->globalPosition().z()) < fabs(m2->globalPosition().z());  */
-
-/*       std::cout << " meas 1 " << meas1 << " d " << d1 << "   meas2 " << meas2 << " d " << d2  */
-/* 		<< "   result " << result << " result2 " << result2 << std::endl; */
-/*       if( result != result2 ) std::cout << " ERROR these number should be the same!!! " << std::endl; */
       return result;
     }
   private:

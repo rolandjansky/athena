@@ -5,6 +5,7 @@
 #ifndef TGCSlaveBoard_hh
 #define TGCSlaveBoard_hh
 
+#include "TrigT1TGC/TGCArguments.hh"
 #include "TrigT1TGC/TGCSlaveBoardOut.hh"
 #include "TrigT1TGC/TGCPatchPanel.hh"
 #include "TrigT1TGC/TGCPatchPanelOut.hh"
@@ -29,7 +30,7 @@ class TGCSlaveBoard {
 
 public:
 
-  TGCSlaveBoard(); 
+  TGCSlaveBoard( TGCArguments* ); 
   virtual ~TGCSlaveBoard(); 
   TGCSlaveBoard(const TGCSlaveBoard& right); 
   TGCSlaveBoard& operator=(const TGCSlaveBoard& right); 
@@ -60,6 +61,8 @@ public:
   void storeSlbIn();
   const std::bitset<200>& GetSlbIn(void) const { return m_slbin; } // for readout
 
+  TGCArguments* tgcArgs() const;
+  
 protected:
   void collectInput();
   void doMaskOperation(){};
@@ -82,7 +85,15 @@ protected:
   TGCPatchPanel* m_patchPanel;
   TGCPatchPanelOut* m_patchPanelOut;
   std::bitset<200> m_slbin; // store SlaveBoard input for readout
+
+  TGCArguments* m_tgcArgs;
+  
 };
+
+  inline TGCArguments* TGCSlaveBoard::tgcArgs() const {
+    return m_tgcArgs;
+  }
+
 
 } //end of namespace bracket
 

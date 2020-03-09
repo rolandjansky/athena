@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/PixelClusterRetriever.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "JiveXML/DataType.h"
 
@@ -14,7 +13,6 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 
 #include "InDetIdentifier/PixelID.h"
@@ -40,6 +38,12 @@ namespace JiveXML {
     declareProperty("PixelTruthMap" , m_PixelTruthMapName = "PRD_MultiTruthPixel");
   }
 
+  StatusCode PixelClusterRetriever::initialize() {
+    ATH_CHECK(m_pixelDetEleCollKey.initialize());
+
+    return m_geo.retrieve();
+  }
+
   /**
    * Implementation of DataRetriever interface
    * - For each cluster get the coordinates
@@ -52,6 +56,12 @@ namespace JiveXML {
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
     
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+    if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
 
     //Retrieve the cluster container
     const InDet::SiClusterContainer* SiClusterCont;
@@ -109,7 +119,8 @@ namespace JiveXML {
         if (not cluster) continue;
         //and the detector element for that cluster via the id
         Identifier id = m_geo->PixelIDHelper()->wafer_id(cluster->identify());
-        InDetDD::SiDetectorElement* element = m_geo->PixelGeoManager()->getDetectorElement(id);
+        IdentifierHash wafer_hash = m_geo->PixelIDHelper()->wafer_hash(id);
+        const InDetDD::SiDetectorElement* element = elements->getDetectorElement(wafer_hash);
         if (!element){
           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not obtain Detector Element with ID " << id << endmsg;
           continue ;

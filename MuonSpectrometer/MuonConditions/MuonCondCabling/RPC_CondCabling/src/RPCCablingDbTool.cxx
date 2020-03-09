@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
@@ -81,25 +80,12 @@ StatusCode RPCCablingDbTool::initialize()
   log << MSG::INFO << "Initializing - folders names are: conf "<<m_mapFolder <<" / corr "<<m_corrFolder<< endmsg;
    				    
 
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-
-  // retrieve the rpc id helper
-  sc = m_detStore->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Can't retrieve RpcIdHelper" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // Get interface to IOVSvc
   m_IOVSvc = 0;
   bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
+  StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
   {
        log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
@@ -119,7 +105,7 @@ StatusCode RPCCablingDbTool::initialize()
 
  
 //   const DataHandle<CondAttrListCollection> MapData;
-//   sc=m_detStore->regFcn(&IRPCCablingDbTool::loadRPCMap,
+//   sc=detStore()->regFcn(&IRPCCablingDbTool::loadRPCMap,
 // 			dynamic_cast<IRPCCablingDbTool*>(this),
 // 			MapData, m_mapFolder);
   
@@ -170,7 +156,7 @@ StatusCode RPCCablingDbTool::loadRPCMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   const CondAttrListCollection * atrc;
   log << MSG::INFO << "Try to read from folder <"<<m_mapFolder<<">"<<endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_mapFolder);
+  sc=detStore()->retrieve(atrc,m_mapFolder);
   if(sc.isFailure())  {
     log << MSG::ERROR 
 	<< "could not retreive the CondAttrListCollection from DB folder " 
@@ -212,7 +198,7 @@ StatusCode RPCCablingDbTool::loadRPCCorr(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   const CondAttrListCollection * atrc;
   log << MSG::INFO << "Try to read from folder <"<<m_corrFolder<<">"<<endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_corrFolder);
+  sc=detStore()->retrieve(atrc,m_corrFolder);
   if(sc.isFailure())  {
     log << MSG::ERROR 
 	<< "could not retreive the CondAttrListCollection from DB folder " 

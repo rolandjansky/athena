@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHISTUTILS_MUONSEGMENTSLIMPLOTS_H
@@ -51,7 +51,6 @@ class MuonSegmentSlimPlots:public PlotBase {
       TH2* eff_chamberIndex_perSector_denominator;
       TH2* eff_chamberIndex_perSector;
 
-      const float myPi = 3.14159;
       //const char *StationName[9] = {"BI", "BM", "BO", "BE", "EI", "EM", "EO", "EE", "CS"};//For filling in monitoring plots
       const float Chamberarea[17] = {0.465313, 0.589744, 0.393503, 0.516815, 0.404094, 
                                     0.588759, 0.0700091, 0.204258, 0.50283, 0.577781, 

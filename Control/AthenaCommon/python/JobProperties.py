@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File: JobProperties/python/JobProperties.py
@@ -15,6 +15,8 @@
 """
 
 from __future__ import print_function
+from past.builtins import cmp
+import functools
 import six
 
 #
@@ -100,6 +102,8 @@ class _JobPropertyMeta(type):
         return type.__new__( self, name, bases, dct )
 
 
+@functools.total_ordering
+@six.add_metaclass(_JobPropertyMeta)
 class JobProperty(object):
     """ Base class for the job properties.  
         
@@ -123,7 +127,6 @@ class JobProperty(object):
         The actual Value of the JobProperty is (statusOn AND StoredValue)
 
     """
-    __metaclass__ = _JobPropertyMeta
 
     statusOn=False
     allowedTypes=list()
@@ -151,6 +154,9 @@ class JobProperty(object):
     def __nonzero__(self):
         return self.get_Value()
     
+    def __bool__(self):
+        return self.get_Value()
+    
     def __eq__(self, rhs):
         if isinstance(rhs, JobProperty):
             # FIXME: should we only allow comparison between same class
@@ -158,6 +164,14 @@ class JobProperty(object):
             #        OTOH, JobProperty-derived classes are 'singleton'...
             return self() == rhs()
         return self() == rhs
+
+    def __lt__(self, rhs):
+        if isinstance(rhs, JobProperty):
+            # FIXME: should we only allow comparison between same class
+            #        rather than b/w JobProperties ?
+            #        OTOH, JobProperty-derived classes are 'singleton'...
+            return self() < rhs()
+        return self() < rhs
 
     def __cmp__(self, rhs):
         if isinstance (rhs, JobProperty):
@@ -204,7 +218,7 @@ class JobProperty(object):
             self.__dict__['statusOn']=True
             self._do_action()
         else:
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
 
     def set_Off(self):
         """ Sets statusOn equals to False. 
@@ -213,7 +227,7 @@ class JobProperty(object):
             self.__dict__['statusOn']=False
             self._undo_action()
         else:
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
 
     def lock(self):
         """ lock the property
@@ -265,7 +279,7 @@ class JobProperty(object):
                         (n_value, self._context_name)
                         )
             elif name == 'StoredValue' and self._locked:
-                self._log.info('The JobProperty %s is blocked' % self.__name__)
+                self._log.info('The JobProperty %s is blocked', self.__name__)
             else: 
                 self.__dict__[name] = n_value
         elif name == '__name__' or name == '_context_name':
@@ -550,6 +564,8 @@ class JobPropertyContainer (object):
                 module=__import__(module_name,globals(),locals(),\
                               ['JobProperties'])
         except ImportError:
+            import traceback
+            traceback.print_exc()
             self._log.error(" import_JobProperties: No module named %s",
                             module_name)
             return None
@@ -730,7 +746,7 @@ class JobPropertyContainer (object):
         """
         tp=type(data)
         if tp.__name__=='dict':
-            list_context=JobProperty._nInstancesContextDict.keys()
+            list_context=list(JobProperty._nInstancesContextDict.keys())
             for i in data.keys():
                 for j in data[i].keys():
                     if list_context.count(i+'.'+j)==1:

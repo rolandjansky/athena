@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigSteerMonitor.TrigSteerMonitorConf import *
 
@@ -115,15 +115,6 @@ class TrigRateMoniConfig20s(TrigRateMoni):
     def target(self):
         return [ "Online" ]    
 
-
-class TrigOpMonitor(TrigOpMoni):
-    """ Trigger operation monitor """
-    def __init__(self,name="TrigOpMonitor"):
-        super(TrigOpMonitor, self).__init__(name)
-        
-    def target(self):
-        return [ "Online", "Validation" ]
-
 class TrigMemMonitor(TrigMemMoni):
     """ Memory monitor """
     def __init__(self,name="TrigMemMonitor"):
@@ -161,7 +152,6 @@ TrigSteerMonitorToolList = [  TrigRateMoniConfig20s(),   # leave first(!) so it 
                               TrigSignatureMoniConfigValidation(), TrigSignatureMoniConfigOnline(),
                               TrigTEMoniConfig(), 
                               TrigChainMoniConfig(),                                                            
-                              TrigOpMonitor(),
                               TrigMemMonitor(),
                               TrigROBMoniConfig(),
                               TrigCorMonitor() ]

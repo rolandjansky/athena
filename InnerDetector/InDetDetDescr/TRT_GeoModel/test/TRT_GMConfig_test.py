@@ -20,6 +20,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     acc = TRT_GeometryCfg(ConfigFlags)
-    f=open('TRT_GeometryCfg.pkl','w')
+    f=open('TRT_GeometryCfg.pkl','wb')
     acc.store(f)
     f.close()

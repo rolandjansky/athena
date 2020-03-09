@@ -21,9 +21,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AppMgr import ToolSvc,theApp,ServiceMgr
 topSequence = AlgSequence()
 
-# add EventInfo to xAOD::EventInfo conversion
-topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
-
 # setup athenaCommonFlags
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.EvtMax = EvtMax

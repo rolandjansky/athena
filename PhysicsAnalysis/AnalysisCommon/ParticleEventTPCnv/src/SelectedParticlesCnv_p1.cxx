@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // SelectedParticlesCnv_p1.cxx 
@@ -20,7 +20,7 @@
 void 
 SelectedParticlesCnv_p1::persToTrans( const SelectedParticles_p1* pers,
 			     SelectedParticles* trans, 
-			     MsgStream& msg ) 
+			     MsgStream& msg ) const
 {
    msg << MSG::DEBUG << "Creating transient state of SelectedParticles"
        << endmsg;
@@ -31,7 +31,7 @@ SelectedParticlesCnv_p1::persToTrans( const SelectedParticles_p1* pers,
 void 
 SelectedParticlesCnv_p1::transToPers( const SelectedParticles* trans, 
 			     SelectedParticles_p1* pers, 
-			     MsgStream& msg ) 
+			     MsgStream& msg ) const
 {
    msg << MSG::DEBUG << "Creating persistent state of SelectedParticles"
        << endmsg;

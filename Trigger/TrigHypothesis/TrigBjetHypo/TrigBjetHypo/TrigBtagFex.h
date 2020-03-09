@@ -312,6 +312,7 @@ class TrigBtagFex: public HLT::FexAlgo {
   std::string m_priVtxKey;
   bool m_usePriVtxKeyBackup;
   std::string m_priVtxKeyBackup;
+  std::string m_jetName;
 };
 
 #endif

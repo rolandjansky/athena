@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETRAWDATABYTESTREAM_SCT_RODDECODER_H 
@@ -10,7 +10,7 @@
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
@@ -59,18 +59,16 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @brief Fill SCT RDO Collection with decoded ROB data
    *
    * Decode the rob data fragment and fill the collection SCT_RDO_Collection with the RDO built by the makeRDO(..) method.
-   * rdoIdc, errs, and bsFracCont are updated based on robFrag and vecHash.
+   * rdoIdc, and errs are updated based on robFrag and vecHash.
    *
    * @param robFrag ROB fragment.
    * @param rdoIDCont RDO ID Container to be filled.
    * @param errs Byte stream error container.
-   * @param bsFracCont Byte stream fraction container.
    * @param vecHash Vector of hashes.
    */
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                     ISCT_RDO_Container& rdoIDCont,
-                                    InDetBSErrContainer* errs,
-                                    SCT_ByteStreamFractionContainer* bsFracCont,
+                                    IDCInDetBSErrContainer& errs,
                                     const std::vector<IdentifierHash>* vecHash = nullptr) const override;
 
  private:
@@ -107,8 +105,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param errorType Error type info.
    * @param errs Byte stream error container.
    */
-  void addRODError(uint32_t rodID, int errorType,
-                   InDetBSErrContainer* errs) const;
+  StatusCode addRODError(uint32_t rodID, int errorType,
+			 IDCInDetBSErrContainer& errs) const;
   /**
    * @brief Add single eror
    *
@@ -116,9 +114,9 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param bsErrorType Byte Stream error type info.
    * @param errs Byte stream error container.
    */
-  bool addSingleError(const IdentifierHash& hashID,
-                      int bsErrorType,
-                      InDetBSErrContainer* errs) const;
+  StatusCode addSingleError(const IdentifierHash& hashID,
+			    int bsErrorType,
+			    IDCInDetBSErrContainer& errs) const;
 
   /**
    * @brief Set first temporarily masked chip information from byte stream trailer
@@ -127,9 +125,9 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param firstTempMaskedChip  Firt temporarily masked chip info.
    * @param errs Byte stream error container.
    */
-  void setFirstTempMaskedChip(const IdentifierHash& hashID, 
-                              unsigned int firstTempMaskedChip, 
-                              InDetBSErrContainer* errs) const;
+  StatusCode setFirstTempMaskedChip(const IdentifierHash& hashID, 
+				    unsigned int firstTempMaskedChip, 
+				    IDCInDetBSErrContainer& errs) const;
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */

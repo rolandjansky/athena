@@ -10,7 +10,6 @@ DecisionSummaryMakerAlg::DecisionSummaryMakerAlg(const std::string& name, ISvcLo
 DecisionSummaryMakerAlg::~DecisionSummaryMakerAlg() {}
 
 StatusCode DecisionSummaryMakerAlg::initialize() {
-  //ATH_MSG_DEBUG("Use macros for logging!");
   renounceArray( m_finalDecisionKeys );
   ATH_CHECK( m_finalDecisionKeys.initialize() ); 
   ATH_CHECK( m_summaryKey.initialize() );
@@ -22,7 +21,7 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
     ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be read from " << conf.collection );
   }
 
-  if (m_enableCostMonitoring) {
+  if (m_doCostMonitoring) {
     CHECK( m_trigCostSvcHandle.retrieve() );
     CHECK( m_costWriteHandleKey.initialize() );
   }
@@ -139,7 +138,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
         rerunIDs.begin(), rerunIDs.end() );
 
   // Do cost monitoring
-  if (m_enableCostMonitoring) {
+  if (m_doCostMonitoring) {
     SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = createAndStore(m_costWriteHandleKey, context);
     // Populate collection (assuming monitored event, otherwise collection will remain empty)
     ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));

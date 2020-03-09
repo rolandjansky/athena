@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -22,10 +22,7 @@
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
 
 #include "SCT_Cabling/ISCT_CablingTool.h"
-
-//typedef
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -33,16 +30,13 @@
 
 #include <string>
 
-class StoreGateSvc;
 class TrigRoiDescriptor;
 class SCT_ID;
 class IRegSelSvc;
 class IROBDataProviderSvc;
 class MsgStream;
 class IRoiDescriptor;
-class ISCTRawDataProviderTool;
 class Incident;
-class SCT_ByteStreamFractionContainer;
 
 namespace InDet {
   class TrigSCTRawDataProvider :  virtual public ITrigRawDataProviderTool,
@@ -70,18 +64,14 @@ namespace InDet {
   private:
     ServiceHandle<IRegSelSvc>           m_regionSelector;     
     ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
-    ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;
-    ServiceHandle<StoreGateSvc>         m_storeGate;
-    ServiceHandle<StoreGateSvc>         m_detStore; 
+    ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this, "RawDataTool", "SCTRawDataProviderTool"};
     ToolHandle<ISCT_CablingTool>        m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
     const SCT_ID*                       m_id; 
     //! the RDO container
     SCT_RDO_Container*                  m_container;
-    InDetBSErrContainer*                m_bsErrCont;
-    SCT_ByteStreamFractionContainer*    m_bsFracCont;
+    IDCInDetBSErrContainer*             m_bsErrCont;
     std::string                         m_RDO_Key;
     std::string                         m_bsErrCont_Key;
-    std::string                         m_bsFracCont_Key;
 
     //
   };

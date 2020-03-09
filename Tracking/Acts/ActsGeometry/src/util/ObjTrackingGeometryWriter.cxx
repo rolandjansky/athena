@@ -7,9 +7,9 @@
 #include "ObjTrackingGeometryWriter.h"
 
 #include <iostream>
-#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Geometry/TrackingVolume.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 Acts::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
     const ObjTrackingGeometryWriter::Config& cfg)

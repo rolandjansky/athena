@@ -1,12 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 13.08.2008, AUTHORs: SILVESTRO DI LUISE -  MAURO IODICE
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-#define PI 3.14159265
 
 #include "MuonCalibStandAloneExtraTools/MdtDqaNtupleAnalysis.h"
 
@@ -14,7 +8,6 @@
 #include "MuonCalibStandAloneExtraTools/MDTName.h"
 
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
-// #include "MuonCalibStandAloneExtraTools/MdtTubeAnalysis.h"
 #include "MuonCalibStandAloneExtraTools/MDTDeadElementsAnalysis.h"
 #include "MuonCalibStandAloneExtraTools/MDTDqaDeadElements.h"
 #include "MuonCalibStandAloneExtraTools/TimeAndAdcFitter.h"
@@ -29,16 +22,14 @@
 #include "MuonCalibEventBase/MuonCalibMdtTruthHit.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
 
-//
 //MuonCalib container classes
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 #include "TKey.h"
-
-using namespace std;
+#include "TF1.h"
+#include "TH1F.h"
+#include "TH2F.h"
 
 namespace MuonCalib {
 
@@ -49,16 +40,6 @@ MdtDqaNtupleAnalysis::MdtDqaNtupleAnalysis(bool verbose, std::string outputFileN
   m_verbose = verbose ;
   m_outputFileName = outputFileName ;
   p_reg_sel_svc = NULL ;
-  // m_filetitle = "NtupleAnalysis.root" ;
-  // m_file = new TFile(m_filetitle, "RECREATE");
-  // m_outputFileName = "NtupleAnalysisSummary.txt" ;
-  // bookHistos();
-}
-
-//====================================================================================
-MdtDqaNtupleAnalysis::~MdtDqaNtupleAnalysis() {
-  // writeHistos();
-  // m_file->Close();
 }
 
 //====================================================================================
@@ -69,7 +50,7 @@ StatusCode MdtDqaNtupleAnalysis::initialize(RegionSelectionSvc *reg_sel_svc, His
   m_ADCCUT=ADCCUT;
   
   PhiEtaNameConverter phiEtaConverter;
-  string testName="BIL1A01";
+  std::string testName="BIL1A01";
   MDTName NameConverter(testName);
   m_SectorMin = 20;
   m_SectorMax = 0;
@@ -82,7 +63,9 @@ StatusCode MdtDqaNtupleAnalysis::initialize(RegionSelectionSvc *reg_sel_svc, His
     if(sector>m_SectorMax) m_SectorMax = sector;
     if(sector<m_SectorMin) m_SectorMin = sector;
   }
-  
+
+  m_evtCounter=0;  
+
   return StatusCode::SUCCESS;
 }
   
@@ -90,87 +73,39 @@ StatusCode MdtDqaNtupleAnalysis::initialize(RegionSelectionSvc *reg_sel_svc, His
 void MdtDqaNtupleAnalysis::handleEvent( const MuonCalibEvent& event, int /*eventnumber*/, 
 const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){    
   
- string histoType;
+ std::string histoType;
 
  TFile *mdtDqaRoot =  m_histoManager->rootFile();
 
  float ADCCUT=m_ADCCUT;
- //float CHI2CUT=50.;
 
  if( !p_reg_sel_svc){
-   //   std::cout << "Region Selection Service NOT INITIALIZED " << std::endl;
    return;
  }
- // if(m_verbose) std::cout << "Handling Event " <<event.eventInfo().eventNumber()<<std::endl;
 
  ToString ts;
  PhiEtaNameConverter phiEtaConverter;
 
- //int evtNumber = event.eventInfo().eventNumber();
  //Event counting
- static int evtCounter=0; 
- evtCounter++; 
- //std::cout<<" evtcounter "<<evtCounter<<" "<<event.eventInfo().eventNumber()<<std::endl;
+ m_evtCounter++; 
  
  // Some checks. ..... -----------------------
  int minNumberHits = 0;
- // int maxNumberHits = 50000;
- // int minNumberHits = 50000;
  int maxNumberHits = 1000000;
- 
- // int minEventCounter = 46884;
- // int maxEventCounter = 46886;
- // int minEventCounter = 25951;
- // int maxEventCounter = 25953;
- // int minEventCounter = 2038;
- // int maxEventCounter = 2042;
  int minEventCounter = 0;
  int maxEventCounter = 10000000;
  
-  /*
-    const MuonCalibTruthCollection* truthColl  = event.calibTruthCollection();
-    MuonCalibTruthCollection::MdtTruthVecCit mdt_truth_it = truthColl->mdtTruthCollectionBegin();
-    MuonCalibTruthCollection::MdtTruthVecCit mdt_truth_it_end = truthColl->mdtTruthCollectionEnd();
-    //for(; mdt_truth_it!=mdt_truth_it_end; ++mdt_truth_it){
-    //std::cout << **mdt_truth_it << std::endl;
-    //}
-    */
-
  const MuonCalibRawHitCollection* rawColl = event.rawHitCollection();
 
  // SELECT RANGE IN EVENT COUNTER !!!!!!
- if( evtCounter<minEventCounter || evtCounter>maxEventCounter ) return;
+ if( m_evtCounter<minEventCounter || m_evtCounter>maxEventCounter ) return;
 
- if( rawColl->numberOfMuonCalibRawMdtHits() + event.numberOfHits() > maxNumberHits){
-   //   std::cout << "MdtDqaNtupleAnalysis::handleEvent : Event (eventInfo) " 
-   //	     << event.eventInfo().eventNumber() 
-   //	     << " Event (counter) "<<evtCounter
-   //	     <<" has too many hits: "
-   //	     << rawColl->numberOfMuonCalibRawMdtHits() <<" + "<<event.numberOfHits()  <<std::endl;
-   return;
- }
- if( rawColl->numberOfMuonCalibRawMdtHits() + event.numberOfHits() < minNumberHits){
-   //   std::cout << "MdtDqaNtupleAnalysis::handleEvent : Event (eventInfo) " 
-   //	     << event.eventInfo().eventNumber()
-   //	     << " Event (counter) "<<evtCounter
-   //	     <<" has too few hits: " 
-   //	     << rawColl->numberOfMuonCalibRawMdtHits() <<" + "<<event.numberOfHits() << std::endl;
-   return;
- }
+ if( rawColl->numberOfMuonCalibRawMdtHits() + event.numberOfHits() > maxNumberHits) return;
+ if( rawColl->numberOfMuonCalibRawMdtHits() + event.numberOfHits() < minNumberHits) return;
  //------------------------------------------------------------------------------
     
  MuonCalibRawHitCollection::MuonCalibRawMdtHitVecCit rmdt_hit_it = rawColl->rawMdtHitCollectionBegin();
  MuonCalibRawHitCollection::MuonCalibRawMdtHitVecCit rmdt_hit_it_end = rawColl->rawMdtHitCollectionEnd();
-
- // if(m_verbose) {
- //   std::cout<<" ===  General === "<< std::endl;
- //   std::cout<<"<rawColl->numberOfMuonCalibRawMdtHits(): "<<rawColl->numberOfMuonCalibRawMdtHits()<<std::endl;
- //   std::cout<<"event.numberOfHits: "<< event.numberOfHits() <<std::endl;
- //   std::cout<<"=================="<<std::endl;
- // }
- //==============================
-
- // if(m_verbose) std::cout<<" Sectors "<<m_SectorMin<<" ... "<<m_SectorMax<<std::endl;
 
  //===== RAW HITS LOOP ===========================================================
 
@@ -189,13 +124,11 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
 	 chamberMultiAdcCut[iside][isec][istation][ieta]=0;
        }}}}
 
- // int counter=1;
  // === RAW HITS LOOP START  ======================================================= 
  for(; rmdt_hit_it!=rmdt_hit_it_end; ++rmdt_hit_it){
 
    if (p_reg_sel_svc->isInRegion((*rmdt_hit_it)->identify())) {  
 
-     //      if( (*rmdt_hit_it)->occupancy() != -1 ) continue;
      MuonFixedId id = (*rmdt_hit_it)->identify();
 
      MDTName chamb(id);
@@ -204,58 +137,33 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
      int rawTime = (*rmdt_hit_it)->tdcCount();
 
      int rstn=id.stationName();
-     //int reta =id.eta(); //OLD
-     //     int reta=chamb.getOfflineEta();
-     //int rphi =id.phi();
-//      int rphi=chamb.getOfflineSector();
-     // int rphi2 = phi_8to16(rstn,rphi);
-     //int rphi2 = phiEtaConverter.phi_8to16(rstn,rphi);
      int rphi2=chamb.getOnlineSector();
 
-     // double localPos_x = (*rmdt_hit_it)->localPosition().x();
      double localPos_y = (*rmdt_hit_it)->localPosition().y();
      double localPos_z = (*rmdt_hit_it)->localPosition().z();
-
-     // cout << " Hit Position x, y, z : " << localPos_x << " " << localPos_y <<" " << localPos_z << endl;
 
      bool doSector=false;
      if(rphi2>= m_SectorMin && rphi2<=m_SectorMax) doSector=true;
      if(!doSector) continue;
 
-     string region = chamb.getRegion();
+     std::string region = chamb.getRegion();
      // THE FOLLOWING ASSIGNMENT TO Endcap Chambers can change if, 
      // for example, BEE or BIS7,8 chambers have to be assigned to Endcap
 
-     //     if(m_verbose){
-     //       std::cout<<"Raw Hits "<< counter++<<" "<<(*rmdt_hit_it)->identify() 
-     //		<<" "<<(*rmdt_hit_it)->tdcCount()<<" "<<(*rmdt_hit_it)->adcCount()
-     //		<<" "<<(*rmdt_hit_it)->driftTime()
-     //		<<" "<<(*rmdt_hit_it)->occupancy()<<std::endl;
-     //       std::cout<<" rphi2: "<<rphi2<<" rstn: "<<rstn<<" reta: "<<reta<<std::endl;
-     //     }
-
-     string stn = id.stationNumberToFixedStationString(rstn);
-     // string cname = stn+"_"+ts(reta)+"_"+ts(rphi2);
-     //string side = "A";
-     //if(reta<0) side="C";
-     string side=chamb.getSide();
+     std::string stn = id.stationNumberToFixedStationString(rstn);
+     std::string side=chamb.getSide();
      int rside = 1;
-     //if(reta<0) rside=-1; 
      if(chamb.isBackward()) rside=-1; 
      
-     string phisec;
+     std::string phisec;
      if(rphi2<10) phisec = "0"+ts(rphi2);
      if(rphi2>=10) phisec = ts(rphi2);
 
-     //int absEta=abs(reta);
-
      int absEta=chamb.getOnlineEta();
      //format BIL5A03
-     string chamberName = chamb.getOnlineName();
-     //     if(m_verbose) std::cout<<"ChamberName: "<<chamberName<<std::endl;
+     std::string chamberName = chamb.getOnlineName();
 
      //-- Multiplicity
-
      int iside = 1;
      if(chamb.isBackward()) iside=0; 
      chamberMulti[iside][rphi2-1][rstn-1][absEta-1]++;  //Controllare!!!!
@@ -264,7 +172,6 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
      //---------------------- 
      int tubestot;
      int tubesPerLayer;
-     //      int nMezz;
      int imezz = 0;
      int tubeOffset[2];
      tubeOffset[0]=m_histoManager->GetTubeOffsetML1(chamberName) ;
@@ -272,17 +179,14 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
 
      int itubeLong=0;
 
-     //      int nTubesPerMezz = 8;
      int nLayersPerML=3;
      if(stn.substr(0,2)=="BI" || stn.substr(0,2)=="EI" || stn.substr(0,3)=="BEE") { // CHECK THIS FURTHER !!!!!!!!!
-       //	nTubesPerMezz = 6;
        nLayersPerML=4;
      }
      
      int nLayers=nLayersPerML*2;
 
      if(stn.substr(0,3)=="BIS" && absEta==8) {
-       //        nTubesPerMezz = 8;
        nLayersPerML=3;
        nLayers=nLayersPerML;
      }
@@ -307,8 +211,8 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
        h2->Fill( (float)tube, layMl );
      }
 
-     string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
-     string expertDirName = chamberDirName+"/Expert";
+     std::string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
+     std::string expertDirName = chamberDirName+"/Expert";
      TDirectory *expertRootDir = mdtDqaRoot->GetDirectory(expertDirName.c_str());
 
      expertRootDir->cd();
@@ -326,14 +230,7 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
      if (h) {
        tubestot=h->GetNbinsX();
        tubesPerLayer=tubestot/nLayers;
-       //	nMezz=tubesPerLayer/nTubesPerMezz;
-       //FROM SILVESTRO  imezz=int((tube-1)/nTubesPerMezz)+1 + (Mlayer-1)*nMezz;
-       imezz=(id.mdtMezzanine())%100;
-       
-       // cout << "DEBUG DEBUG tube, Ly, ML "<< tube<<" "<<layer<<" "<<Mlayer << endl;
-       // cout << "DEBUG DEBUG imezz vecchio: "<< imezz << endl;
-       // cout << "DEBUG DEBUG imezz from MuonFixedId: "<< (id.mdtMezzanine())%100 << endl;
-       
+       imezz=(id.mdtMezzanine())%100;       
        itubeLong=tube+tubesPerLayer*(layer-1)+tubesPerLayer*nLayersPerML*(Mlayer-1);
        h->Fill( itubeLong*1. );
      }
@@ -363,36 +260,31 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
      //tdc vs adc mezz 
      histoType = "tdc_Vs_adc_mezz_"+ts(imezz);
      if(imezz<20) {
-       //       if(m_verbose) std::cout<<" imezz "<<imezz
-       //			      <<" "<<tube<<" "<<layer<<" "<<Mlayer<<std::endl;
        h2 = (TH2F*) m_histoManager->GetMdtHisto(histoType,chamb);
        if(h2) h2->Fill( rawCharge, rawTime );
      }
 
      // OVERVIEW
       // region Overview plot
-     string stationLayer = "UNDEFINED";
+     std::string stationLayer = "UNDEFINED";
      if(chamb.isInner()) stationLayer = "Inner";
      if(chamb.isMiddle()) stationLayer = "Middle";
      if(chamb.isOuter()) stationLayer = "Outer";
      if(chamb.isExtra()) stationLayer = "extra";  //for now, extra station stored in middle station histogram
 
-     string tit2="";
-     if(region=="Barrel") tit2+="B";
-     else tit2+="E";
+     std::string title2="";
+     if(region=="Barrel") title2+="B";
+     else title2+="E";
      
-     tit2+=side;
-     tit2+="_";
+     title2+=side;
+     title2+="_";
 
-     // histoType = "HitsPerML_"+tit2+stationLayer;
      histoType = "A_HitsPerML_"+stationLayer;
      h2 = (TH2F*) m_histoManager->GetMdtHisto(histoType,region,side);
      float xbin = absEta;
      if (stn == "BIM" ) xbin=absEta+6;
      if (stn == "EEL") xbin=absEta+2;
      if (stn == "EES") xbin=absEta+2;
-     //if (stn == "BOG" ) xbin=absEta*2;  CONTROLLARE!!!
-     //if (stn == "BOF" ) xbin=absEta*2-1;
      if(h2 && rawCharge > ADCCUT) h2->Fill( xbin , rphi2 + 0.25*(2*Mlayer-3) );
 
      // GLOBAL plot --- All Chambers together
@@ -420,45 +312,25 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
      if(h2 && rawCharge >  ADCCUT) h2->Fill( xbinGlobal , rphi2 + 0.25*(2*Mlayer-3) );
      
      histoType = "HitsPerML_"+stationLayer;
-     //     if(m_verbose) std::cout<<" histoType "<<histoType<<std::endl;
      h = (TH1F*) m_histoManager->GetMdtHisto(histoType,region,side,rphi2);
      if(h && rawCharge >  ADCCUT) h->Fill( absEta + 0.1*(2*Mlayer-3) );
 
      histoType = "TDC_AllChambers_"+stationLayer;
-     //     if(m_verbose) std::cout<<" histoType "<<histoType<<" "<<side<<" "<<rphi2<<std::endl;
      h = (TH1F*) m_histoManager->GetMdtHisto(histoType,region,side,rphi2);
      if(h && rawCharge > ADCCUT) h->Fill( rawTime );
      
-     // histoType = "TDC_AllChambers_"+stationLayer+"_AdcCut";
-     // if(m_verbose) std::cout<<" histoType "<<histoType<<" "<<side<<" "<<rphi2<<std::endl;
-     // h = (TH1F*) m_histoManager->GetMdtHisto(histoType,region,side,rphi2);
-     // if(h && rawCharge >  ADCCUT) h->Fill( rawTime );
-     
-     // histoType = "HitsPerChamber"+stn;
-     // if(m_verbose) std::cout<<" histoType "<<histoType<<" "<<side<<" "<<rphi2<<std::endl;
-     // h = (TH1F*) m_histoManager->GetMdtHisto(histoType,region,side,rphi2);
-     // if(h) h->Fill( absEta );
-     
      histoType = "z_HitsVsMezzanine";
-     //     if(m_verbose) std::cout<<" histoType "<<histoType<<std::endl;
      h2 = (TH2F*) m_histoManager->GetMdtHisto(histoType,region,side,rphi2);
      if( h2 && rawCharge > ADCCUT) h2->Fill(chamberName.c_str(),imezz,1);
      
-     //     if(m_verbose) std::cout<<"-- "<<std::endl;
-
-   } // p_reg -> hit IsInRegion 
-   
+   } // p_reg -> hit IsInRegion    
  }//for 
 
- // if(m_verbose) std::cout<<" loop end "<<std::endl;
-      
  //---- Fill Multiplicity ---------
  TH1F *hmulti;
- //TH1F *hmultiAdc;
- //TH2F *hmulti2;
 
- string side="C";
- string region = "Barrel";
+ std::string side="C";
+ std::string region = "Barrel";
 
  for (int nregions=0;nregions<2;nregions++) {
    if (nregions==1) region = "Endcap";
@@ -482,7 +354,7 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
 	   
 	   if (multi !=0 ){
 	     MuonFixedId id;
-	     string stn=id.stationNumberToFixedStationString(istation+1);
+	     std::string stn=id.stationNumberToFixedStationString(istation+1);
 	     
 	     MDTName chamb_mult(stn,ieta+1,side,isec+1);
 	     
@@ -494,105 +366,20 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
 	   }// if multi!=0
 	 }// loop on eta
        }//loop on  chamber
-       
-       //       if (sectorMulti !=0 ) {
-	 // histoType="HitMultiplicity";
-	 // if(m_verbose) cout<<" histoType "<<histoType<<" "<<sectorMulti<<endl;
-	 // hmulti = (TH1F*) m_histoManager->GetMdtHisto(histoType,region,side,isec+1);
-	 // if(hmulti) hmulti->Fill(sectorMulti);
-	 
-	 // histoType="HitMultiplicityAdcCut";
-// 	  histoType="HitMultiplicity";
-// 	  if(m_verbose) cout<<" histoType "<<histoType<<endl;
-// 	  hmulti = (TH1F*) m_histoManager->GetMdtHisto(histoType,region,side,isec+1);
-// 	  if(hmulti) hmulti->Fill(sectorMultiAdcCut);
- 
-	 //	       histoType="HitMultiplicityVsEvent";
-	 //	       if(m_verbose) cout<<" histoType "<<histoType<<endl;
-	 //	       hmulti2 = (TH2F*) m_histoManager->GetMdtHisto(histoType,region,side,isec+1);
-	 //               //DEBUG cout<<" "<<hmulti2<<" "<<evtCounter<<" "<<sectorMulti<<endl;
-	 //	       // if(hmulti2) hmulti2->Fill(evtCounter*1.,sectorMulti);
-	 //	       if(hmulti2) hmulti2->Fill((float)evtNumber,sectorMulti);
-       //       }
      }//sector
    }//side
  }//regions
 
- // if(m_verbose) std::cout << "end handle event" << std::endl;
  
 }  //end MdtDqaNtupleAnalysis::handleEvent
   
-//==================================================================
-//
-//
-//
-//==================================================================
-  
-  /*
-    int NtupleAnalysis::segmentR( MuonCalibSegment* segment, string reference, &idRmin, &idRmax ){
-    std::vector<MdtCalibHitBase*>::const_iterator hit_it = segment->mdtHOTBegin();
-    std::vector<MdtCalibHitBase*>::const_iterator hit_it_end = segment->mdtHOTEnd();
-
-    double Rmin=9999999999999.;
-    idmin=0;
-    for(; hit_it != hit_it_end; ++hit_it){
-    MuonFixedId ID;
-    ID =  (*hit_it)->identify();
-    double x =ID.globalPosition().x();
-    double y =ID.globalPosition().y();
-    double z =ID.globalPosition().z();
-
-    double R = sqrt(x*x+y*y+z*z);
-    if(R < Rmin) { 
-    Rmin=R;
-    idmin=ID;
-    } 
-    }
-
-    return idmin;
-
-    }
-
-    int NtupleAnalysis::segmentRmax( MuonCalibSegment* segment, string reference ){
-    std::vector<MdtCalibHitBase*>::const_iterator hit_it = segment->mdtHOTBegin();
-    std::vector<MdtCalibHitBase*>::const_iterator hit_it_end = segment->mdtHOTEnd();
-
-    double Rmax=0.;
-    idmax=0;
-    for(; hit_it != hit_it_end; ++hit_it){
-    MuonFixedId ID;
-    ID =  (*hit_it)->identify();
-    double x =ID.globalPosition().x();
-    double y =ID.globalPosition().y();
-    double z =ID.globalPosition().z();
-
-    double R = sqrt(x*x+y*y+z*z);
-    if(R > Rmax) { 
-    Rmax=R;
-    idmax=ID;
-    } 
-    }
-
-    return idmax;
-
-    }
-
-  */
-
 void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {    
 
-  //  std::cout<<" histogramAnalysis START ....."<<std::endl;
   bool WriteMdtDqaDbToTextFile = false; 
   
   ToString ts;
 
-  if(f->IsZombie()) {
-    //    std::cout<<"Pointer to root file IsZombie !!! "<<std::endl;
-    return;
-  }
-  //  if(f->IsOpen()) {
-  //    std::cout<<"Root file is open "<<std::endl;
-  //  }
+  if(f->IsZombie()) return;
 
   bool doDeadElementsAnalysis = true;
   bool doTubeEfficiency = true;
@@ -600,7 +387,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
   bool doResidualsFit = true;
  
   if (doDeadElementsAnalysis) {
-    //    cout<< "MdtDqaNtupleAnalysis::histogramAnalysis starting deadElementsAnalysis ..." << endl;
     if(m_DeadElementsAlgorithm==0) {
       MDTDeadElementsAnalysis *mdtTubeAna = new MDTDeadElementsAnalysis();
       mdtTubeAna->setNoVerbose();
@@ -621,23 +407,21 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
   
   if (doTubeEfficiency) {
   // LOOP over chambers and apply algorithms per chamber.
-    string region;
-    string sector;
-    string chamber;
-    string regionDirName;
-    string sectorDirName;
-    string chamberDirName;
-    string deadStatusDirName;
-    string expertDirName;
-    string effiDirName;
+    std::string region;
+    std::string sector;
+    std::string chamber;
+    std::string regionDirName;
+    std::string sectorDirName;
+    std::string chamberDirName;
+    std::string deadStatusDirName;
+    std::string expertDirName;
+    std::string effiDirName;
     TDirectory *RegionDir;
     TDirectory *SectorDir;
     TDirectory *ChamberDir;
     TDirectory *DeadStatusDir;
     TDirectory *ExpertDir;
     TDirectory *EffiDir;
-
-  //  cout<<"Start of efficiency analysis"<<endl;
 
     for (int iregion=1; iregion<=4; iregion++) {
       if (iregion==1) region="Barrel_A";
@@ -661,7 +445,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
       if(hgO) hgO->Reset();
       if(iregion>2 && hgE) hgE->Reset();
       
-      //    cout<< " histogramAnalysis:: Starting Efficiency Analysis on " << region << endl;
       for (int isector=1; isector<=16; isector++) {
 	
 	if (isector<10) sector="0"+ts(isector);
@@ -690,22 +473,19 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	
 	if (!ChamberDir) continue;
 	if (!EffiDir) { 
-	  //	  cout<< " something is wrong. Missing directory: "<<effiDirName<<endl;
 	  continue;
 	}
 	if (!DeadStatusDir) { 
-	  //	  cout<< " something is wrong. Missing directory: "<<deadStatusDirName<<endl;
 	  continue;
 	}
 	if (!ExpertDir) { 
-	  //	  cout<< " something is wrong. Missing directory: "<<expertDirName<<endl;
 	  continue;
 	}
 
 	//
 	// APPLY ALGORITHMS TO chamber histograms HERE 
 	//
-	string histoName;
+	std::string histoName;
 	
 	TH1F *heffiEntries;
 	TH1F *heffiCounts;
@@ -725,8 +505,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	heffi = (TH1F*) ChamberDir->Get(histoName.c_str());
 
 	if (!heffiEntries || !heffiCounts || !heffi) { 
-	  //	  cout << "MdtDqa Efficiency histogram :" << histoName<<" NOT FOUND in "
-	  //	       <<chamberDirName << endl;
 	  continue;
 	}
 
@@ -737,10 +515,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	if (chamb.isExtra()) histoName = "TubeEfficiency_extra"; 
 	hg = (TH1F*) RegionDir->Get(histoName.c_str());
 	if (!hg) {
-	  //	  if (!(histoName=="UNDEFINED") ) {
-	  //	    cout << "MdtDqa Efficiency histogram :" << histoName<<" NOT FOUND in "
-	  //		 <<regionDirName << endl;
-	  //	  }
 	  continue;
 	}
 
@@ -748,7 +522,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
         heffi->Reset();
 
         // Now we use this strange strategy to obtain chamber layout parameters:
-        //
         EffiDir->cd();
         int numberOfML=0;
         int numberOfLayers=0;
@@ -777,11 +550,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	  }
         }
         
-	//        int tubesPerLy = numberOfTubesPerLy[0];
-	//        if (numberOfTubesPerLy[1]>numberOfTubesPerLy[0]) tubesPerLy = numberOfTubesPerLy[1];
-
 	ChamberDir->cd();
-
 
         // HERE NOW COMPUTE EFFICIENCIES, ERRORS AND FILL THE HISTOGRAMS
         if (heffiEntries->GetEntries() != 0 ) {
@@ -798,7 +567,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 		// THE FOLLOWING HAS TO BE FIXED AFTER THE EfficiencyPerTube HISTOGRAM HAS BEEN FIXED!
 		// FOR NOW WE CONSIDER OFFSET AT 0 ....WHICH IS WRONG !
 		iTube = iTube + tubeOffset[iML-1];
-		//iTube = iTube + 0 ;
 
 		int ibin = (iML-1)*numberOfLayers*numberOfTubesPerLy[k]+(iLy-1)*(numberOfTubesPerLy[k]+tubeOffset[iML-1]+tubeOffset_atend[iML-1])+iTube;
 		//calculate efficiency and errors
@@ -814,7 +582,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 		heffi->SetBinError(ibin,error);
 		// Filling Global plots
 		if (hg && efficiency>0. && error >0. && entries>40) {
-		  //		  if (efficiency>0.5 && efficiency<0.85) cout << " LOW EFFI Chamber "<<chamber<<" "<<efficiency << endl;
 		  hg->Fill(efficiency);
 		}
 	      } // loop over tube
@@ -840,16 +607,10 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 		// THE FOLLOWING HAS TO BE FIXED AFTER THE EfficiencyPerTube HISTOGRAM HAS BEEN FIXED!
 		// FOR NOW WE CONSIDER OFFSET AT 0 ....WHICH IS WRONG !
 		int Tube = TubeBin + tubeOffset[ML-1];
-		//int Tube = TubeBin + 0 ;
 		
 		// AND ATTENTION WHEN THE EfficiencyPerTube WILL BE OK YOU MUST UNCOMMENT THE FOLLOWING LINE !!!!
-		// int ibin = (ML-1)*numberOfLayers*tubesPerLy+(Ly-1)*tubesPerLy+Tube;
-		//int ibin = (ML-1)*numberOfLayers*numberOfTubesPerLy[ML-1]+(Ly-1)*numberOfTubesPerLy[ML-1]+Tube;
 		int ibin = (ML-1)*numberOfLayers*numberOfTubesPerLy[ML-1]+(Ly-1)*(numberOfTubesPerLy[ML-1]+tubeOffset[ML-1]+tubeOffset_atend[ML-1])+Tube;
 
-		// cout << " DEBUG ML Ly Tube ibin numberOfLayers tubesPerLy "
-		//      << ML<<" "<< Ly<<" "<< Tube<<" "<< ibin<<" "<< numberOfLayers 
-		//      <<" "<< tubesPerLy << endl;
 		// get from heffi(ibin) and put in heffiPerLy(TubeBin)
 		heffiPerLy->SetBinContent(TubeBin, heffi->GetBinContent(ibin));
 		heffiPerLy->SetBinError(TubeBin, heffi->GetBinError(ibin));
@@ -858,68 +619,21 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
           } // loop over Layer 
         } // loop over ML
 
-        // Now we should fill the histograms histoName = "DeadTubes_ML"+ts(iML)+"_L"+ts(iLy);
-
-        /*
-        TH1F *hdeadTubeMap;
-        TH1F *hdeadPerLy;
-         
-        DeadStatusDir->cd();
-        histoName = "DeadTubeMap";
-        hdeadTubeMap = (TH1F*) DeadStatusDir->Get(histoName.c_str());
-        if (!hdeadTubeMap) {
-             cout << "MdtDqa DeadStatus histogram :" << histoName<<" NOT FOUND in "
-                  <<deadStatusDirName << endl;
-             continue;
-         }
-        //loop over multilayers
-        for (int ML=1; ML<=numberOfML; ML++) {
-          //loop over layers
-          for (int Ly=1; Ly<=numberOfLayers; Ly++) {
-              //loop over tubes
-              for (int TubeBin=1; TubeBin<=numberOfTubesPerLy[ML-1]; TubeBin++) {
-
-                  histoName = "DeadTubes_ML"+ts(ML)+"_L"+ts(Ly);
-                  hdeadPerLy= (TH1F*) DeadStatusDir->FindObjectAny(histoName.c_str());
-                  if (hdeadPerLy) {
-
-                     int Tube = TubeBin + tubeOffset[ML-1];
-                     int ibin = (ML-1)*numberOfLayers*tubesPerLy+(Ly-1)*tubesPerLy+Tube;
-
-                     // cout << " DEBUG ML Ly Tube ibin numberOfLayers tubesPerLy "
-                     //      << ML<<" "<< Ly<<" "<< Tube<<" "<< ibin<<" "<< numberOfLayers 
-                     //      <<" "<< tubesPerLy << endl;
-                     // get from heffi(ibin) and put in heffiPerLy(TubeBin)
-                     float dstatus = 1.;
-                     if ((( (int)hdeadTubeMap->GetBinContent(ibin))%10)!=0) dstatus = 0.;
-                     hdeadPerLy->SetBinContent(TubeBin, dstatus);
-                  }
-
-              } // loop over tube
-          } // loop over Layer 
-        } // loop over ML
-        */
-
-	
 	} // end of chambers loop
       } //end of sectors loop
     } //end of regions loop
   
-  //  cout<<"End of efficiency analysis"<<endl<<endl<<endl;
-    
   }   //end if doTubeEfficiency
 
   //
   if (doTDCADCfitting ) {
-    //    cout<< "MdtDqaNtupleAnalysis::histogramAnalysis starting TDC and ADC fitting" << endl;
-
     TimeAndAdcFitter *myFitter = new TimeAndAdcFitter();
     float tdc2ns = 0.78125;
 
     double minEntries = 1000.;
     double entries(0);
 
-    string histoName;
+    std::string histoName;
     TH1F *hh;
     TH1F *htpar;
     TH1F *hapar;
@@ -941,13 +655,13 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
     AdcpfitDefault[2]= 0.;
     AdcpfitDefault[3]= 0.;
     
-    string region;
-    string sector;
-    string chamber;
-    string chamberType;
-    string regionDirName;
-    string sectorDirName;
-    string chamberDirName;
+    std::string region;
+    std::string sector;
+    std::string chamber;
+    std::string chamberType;
+    std::string regionDirName;
+    std::string sectorDirName;
+    std::string chamberDirName;
     TDirectory *RegionDir;
     TDirectory *SectorDir;
     TDirectory *ChamberDir;
@@ -958,8 +672,8 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
       if (iregion==3) region="Endcap_A";
       if (iregion==4) region="Endcap_C";
       
-      string Region="Barrel";
-      string Side="A";
+      std::string Region="Barrel";
+      std::string Side="A";
       if (iregion==3||iregion==4 ) Region="Endcap";
       if (iregion==2||iregion==4 ) Side="C";
       
@@ -974,7 +688,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	
 	SectorDir = (TDirectory*)f->Get(sectorDirName.c_str());
 	if (!SectorDir) continue;
-	//	cout<< " histogramAnalysis:: Starting TDC ADC fitting on " << region <<" Sector "<<isector<< endl;
 
       //
       // APPLY ALGORITHMS TO SECTOR histograms HERE 
@@ -982,19 +695,15 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	int KMAX=3;
 	if(iregion>2) KMAX=4;
 	for (int k=1;k<=KMAX;k++) {
-	  string stationLayer;
+	  std::string stationLayer;
 	  if (k==1)  stationLayer = "Inner";
 	  if (k==2)  stationLayer = "Middle";
 	  if (k==3)  stationLayer = "Outer";
 	  if (k==4)  stationLayer = "extra";
 	  histoName = "TDC_AllChambers_"+stationLayer;
-	  // string hnamet0=regionDirName+"/t0PerSector_"+stationLayer;
-	  // string hnametdrift=regionDirName+"/tdriftPerSector_"+stationLayer;
-
 	  hh = (TH1F*) m_histoManager->GetMdtHisto(histoName,Region,Side,isector);
 
 	  if (!hh) {
-	    //	    std::cout<<"No pointer to histo "<<histoName<<" in "<<sectorDirName <<std::endl;
 	    continue;
 	  }
         
@@ -1009,30 +718,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 
             myFitter->doTimeFit(hh,nParams,&pfit[0],&errfit[0],&chi2,&ndof );
 	    
-//            float t0 = pfit[4]*tdc2ns;
-//            float tdrift = (pfit[5]-pfit[4])*tdc2ns;
-            //float chi2ndof = chi2/ndof;
-//	    float t0err = errfit[4]*tdc2ns;
-//            float tdrifterr = pow(errfit[4]*errfit[4] + errfit[5]*errfit[5], 0.5)*tdc2ns;
- 
-            /*
-            TH1F *ht0 = (TH1F*) f->Get(hnamet0.c_str());
-            TH1F *htdrift = (TH1F*) f->Get(hnametdrift.c_str());
-
-            if (!ht0) {
-               // std::cout<<"No pointer to histo "<<hnamet0<<" "<<hh<<std::endl;
-               continue;
-            }
-            if (!htdrift) {
-               // std::cout<<"No pointer to histo "<<hnametdrift<<" "<<hh<<std::endl;
-               continue;
-            }
-            int ibin = isector;
-	    ht0->SetBinContent(ibin,t0);
-	    ht0->SetBinError(ibin,t0err);
-	    htdrift->SetBinContent(ibin,tdrift);
-	    htdrift->SetBinError(ibin,tdrifterr);
-            */
 	  }
 	}
       
@@ -1050,14 +735,14 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	  ChamberDir->cd();
 	  chamberType = chamber.substr(0,3);
 	  MDTName chamb(chamber);
-	  string side = chamb.getSide();
-	  string stationLayer = "UNDEFINED";
+	  std::string side = chamb.getSide();
+	  std::string stationLayer = "UNDEFINED";
 	  if(chamb.isInner()) stationLayer = "Inner";
 	  if(chamb.isMiddle()) stationLayer = "Middle";
 	  if(chamb.isOuter()) stationLayer = "Outer";
 	  if(chamb.isExtra()) stationLayer = "extra";
-	  string hnamet0Sect=regionDirName+"/t0PerSector_"+stationLayer;
-	  string hnametdriftSect=regionDirName+"/tdriftPerSector_"+stationLayer;
+	  std::string hnamet0Sect=regionDirName+"/t0PerSector_"+stationLayer;
+	  std::string hnametdriftSect=regionDirName+"/tdriftPerSector_"+stationLayer;
 	  TH2F *ht0Sect = (TH2F*) f->Get(hnamet0Sect.c_str());
 	  TH2F *htdriftSect = (TH2F*) f->Get(hnametdriftSect.c_str());
 	  
@@ -1066,15 +751,12 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	  // APPLY ALGORITHMS TO chamber histograms HERE 
 	  //
 	  MdtDqaDb *chamberDqaDb = new MdtDqaDb(chamber);
-	  //MDTDQADB MdtDqaDb * chamberDqaDb = new MdtDqaDb();
-	  //MDTDQADB chamberDqaDb->m_chamberName = chambname;
 	  for (int ML=1; ML<=2; ML++) {    // loop over ML
             // start the TDC FIT :
             if (ML==1)  histoName = "A_TDC_ML1";
             if (ML==2)  histoName = "A_TDC_ML2";
             hh = (TH1F*) ChamberDir->Get(histoName.c_str());
             if (!hh) {
-	      //              std::cout<<"No pointer to histo "<<histoName<<" in "<<chamberDirName <<std::endl;
               continue;
             }
 
@@ -1098,8 +780,8 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	      if (ML==1) chamberDqaDb->SetML1(t0,tdrift,chi2ndof,t0err,tdrifterr );
 	      if (ML==2) chamberDqaDb->SetML2(t0,tdrift,chi2ndof,t0err,tdrifterr );
 	      // here add t0 and tdrift to the Sector OVERVIEW histograms :
-	      string hnamet0=sectorDirName+"/OVERVIEW/t0PerML"+chamberType;
-	      string hnametdrift=sectorDirName+"/OVERVIEW/tdriftPerML"+chamberType;
+	      std::string hnamet0=sectorDirName+"/OVERVIEW/t0PerML"+chamberType;
+	      std::string hnametdrift=sectorDirName+"/OVERVIEW/tdriftPerML"+chamberType;
 	      if (chamberType=="BOG" || chamberType=="BOF") {
 		hnamet0=sectorDirName+"/OVERVIEW/t0PerMLBOGBOF";
 		hnametdrift=sectorDirName+"/OVERVIEW/tdriftPerMLBOGBOF";
@@ -1108,11 +790,9 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	      TH1F *htdrift = (TH1F*) f->Get(hnametdrift.c_str());
 
 	      if (!ht0) {
-		// std::cout<<"No pointer to histo "<<hnamet0<<" "<<hh<<std::endl;
 		continue;
 	      }
 	      if (!htdrift) {
-		// std::cout<<"No pointer to histo "<<hnametdrift<<" "<<hh<<std::endl;
 		continue;
 	      }
 	      int ibin = eta_id*2-1;
@@ -1152,7 +832,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
             if (ML==2)  histoName = "C_ADC_ML2";
             hh = (TH1F*) ChamberDir->Get(histoName.c_str());
             if (!hh) {
-	      //              std::cout<<"No pointer to histo "<<histoName<<" in "<<chamberDirName <<std::endl;
               continue;
             }
             float ADCCUT= m_ADCCUT;   // MUST BE SET BY JOB OPTION !
@@ -1192,19 +871,15 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
   if (doResidualsFit) {
   // LOOP over chambers and apply algorithms per chamber.
   //
-    string region;
-    string sector;
-    string chamber;
-    string regionDirName;
-    string sectorDirName;
-    string chamberDirName;
-    // string deadStatusDirName;
-    // string effiDirName;
+    std::string region;
+    std::string sector;
+    std::string chamber;
+    std::string regionDirName;
+    std::string sectorDirName;
+    std::string chamberDirName;
     TDirectory *RegionDir;
     TDirectory *SectorDir;
     TDirectory *ChamberDir;
-    // TDirectory *DeadStatusDir;
-    // TDirectory *EffiDir;
 
     for (int iregion=1; iregion<=4; iregion++) {
       if (iregion==1) region="Barrel_A";
@@ -1222,7 +897,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
       if(hMean) hMean->Reset();
       if(hWidth) hWidth->Reset();
 
-      //    cout<< " histogramAnalysis:: Starting Residuals Fit on " << region << endl;
       for (int isector=1; isector<=16; isector++) {
 
 	if (isector<10) sector="0"+ts(isector);
@@ -1237,28 +911,14 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	  chamber=key->GetName();
 	  if (chamber=="OVERVIEW") continue;
 	  chamberDirName = sectorDirName+"/"+chamber;
-	  // effiDirName = chamberDirName+"/Efficiency";
-	  // deadStatusDirName = chamberDirName+"/DeadStatus";
-	  
 	  ChamberDir = (TDirectory*)f->Get(chamberDirName.c_str());
-	  // EffiDir = (TDirectory*)f->Get(effiDirName.c_str());
-	  // DeadStatusDir = (TDirectory*)f->Get(deadStatusDirName.c_str());
-	  
 	  if (!ChamberDir) continue;
-	  // if (!EffiDir) { 
-	  //    cout<< " something is wrong. Missing directory: "<<effiDirName<<endl;
-	  //    continue;
-	  // }
-	  // if (!DeadStatusDir) { 
-	  //    cout<< " something is wrong. Missing directory: "<<deadStatusDirName<<endl;
-	  //    continue;
-	  // }
-
 	  ChamberDir->cd();
+
 	  //
 	  // APPLY ALGORITHMS TO chamber histograms HERE 
 	  //
-	  string histoName;
+	  std::string histoName;
 	  
 	  TH2F *hsegResid;
 	  
@@ -1266,8 +926,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	  hsegResid = (TH2F*) ChamberDir->Get(histoName.c_str());
 
 	  if (!hsegResid) { 
-	    //	    cout << "MdtDqa  histogram :" << histoName<<" NOT FOUND in "
-	    //		 <<chamberDirName << endl;
 	    continue;
 	  }
 
@@ -1293,62 +951,11 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 		hres->Delete();
 		continue;
 	      }
-	      /* DOUBLE GAUSSIAN FIT
-               TF1 * func = new TF1("doublegaus","gaus(0)+gaus(3)");
-               double hmax = hres->GetMaximum();
-               int binMax = hres->GetMaximumBin();
-               double hmean = hres->GetBinCenter(binMax);
-               // double hmean = hres->GetMean();
-               double hrms = hres->GetRMS();
-               func->SetParameter(0,hmax/10);
-               func->SetParLimits(0,0.,hmax/5.);
-               func->SetParameter(1,hmean);
-               func->SetParameter(2,0.3);
-               func->SetParameter(3,hmax);
-               func->SetParameter(4,hmean);
-               func->SetParameter(5,0.1);
-               // double xmin = -1.5;
-               // double xmax = 1.5;
-               double xmin = hmean - hrms;
-               double xmax = hmean + hrms;
-               hres->Fit("doublegaus","Q,0","",xmin,xmax);
-               double meanWide = func->GetParameter(1);
-               double widthWide = func->GetParameter(2);
-               double meanNarrow = func->GetParameter(4);
-               double widthNarrow = func->GetParameter(5);
-               double amplitWide = func->GetParameter(0);
-               double amplitNarrow = func->GetParameter(3);
-               // if ( widthNarrow>0.15) {
-               //    cout << "CHAMBER "<<chamber 
-               //         << " entries "<< hres->GetEntries()
-               //         << " Ratio wide/narrow "<< amplitWide/amplitNarrow
-               //         << " meanWide widthWide meanNarrow widthNarrow "
-               //         << meanWide<<" "<< widthWide<<" "
-               //         << meanNarrow<<" "<< widthNarrow <<endl; 
-               // }
-
-               bool badChi2 = (func->GetChisquare())/(func->GetNDF()) > 50;
-               // bool badRatio = amplitWide > amplitNarrow/3.;
-               bool badWidths = (widthNarrow>1)||(widthWide<widthNarrow);
-               bool badMean = (meanNarrow<-1.) || (meanNarrow>1.);
-
-               if (badChi2 || badWidths || badMean ) {
-                  // cout << " DEBUG DEBUG: chamber, bin1, bin2 "<< chamber<<" "<< bin1<<" "<< bin2<<endl;
-                  // cout << " DEBUG DEBUG: xmin, xmax "<< xmin<<" "<<xmax<<endl;
-                  // cout << " DEBUG DEBUG: hmean hrms : "<< hmean<<" "<<hrms << endl;
-                  // cout << " DEBUG DEBUG: chi2, ndef, width, mean : " << func->GetChisquare() << " "
-                  //     << func->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow << endl;
-
-                  widthNarrow = 0.9;
-                  meanNarrow = 0.9;
-               }
-*/
 
 // FIT Constant+Gaussian :
 
 	      TF1 *func = new TF1("cgaus","pol0(0)+gaus(1)");
 	      double hmax = hres->GetMaximum();
-	      // double hmean = hres->GetMean();
 	      int binMax = hres->GetMaximumBin();
 	      double hmean = hres->GetBinCenter(binMax);
 	      double hrms = hres->GetRMS();
@@ -1356,8 +963,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	      func->SetParameter(1,hmax);
 	      func->SetParameter(2,hmean);
 	      func->SetParameter(3,0.2);
-	      // double xmin = -1.5;
-	      // double xmax = 1.5;
 	      double xmin = hmean - hrms;
 	      double xmax = hmean + hrms;
 	      hres->Fit("cgaus","Q,0","",xmin,xmax);
@@ -1365,14 +970,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	      double amplitNarrow = func->GetParameter(1);
 	      double meanNarrow = func->GetParameter(2);
 	      double widthNarrow = func->GetParameter(3);
-	      // if ( widthNarrow>0.15) {
-	      //    cout << "CHAMBER "<<chamber 
-	      //         << " entries "<< hres->GetEntries()
-	      //         << " Ratio wide/narrow "<< amplitWide/amplitNarrow
-	      //         << " meanWide widthWide meanNarrow widthNarrow "
-	      //         << meanWide<<" "<< widthWide<<" "
-	      //         << meanNarrow<<" "<< widthNarrow <<endl; 
-	      // }
 
 	      bool badChi2 = (func->GetChisquare())/(func->GetNDF()) > 20.;
 	      bool badWidths = (widthNarrow>1.);
@@ -1380,56 +977,9 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	      bool badNoise = (amplitNoise>hmax/3.) || (amplitNoise>amplitNarrow/2. );
 
 	      if (badChi2 || badWidths || badMean || badNoise ) {
-		// cout << " DEBUG DEBUG: chamber, bin1, bin2 "<< chamber<<" "<< bin1<<" "<< bin2<<endl;
-		// cout << " DEBUG DEBUG: xmin, xmax "<< xmin<<" "<<xmax<<endl;
-		// cout << " DEBUG DEBUG: hmean hrms : "<< hmean<<" "<<hrms << endl;
-		// cout << " DEBUG DEBUG: chi2, ndef, width, mean, noise : " << func->GetChisquare() << " "
-		//      << func->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow <<" "<< amplitNoise<< endl;
 		widthNarrow = 0.9;
 		meanNarrow = 0.9;
 	      }
-
-/*   SIMPLE GAUSSIAN FIT
-               TF1 * func = new TF1("gaus","gaus(0)");
-               double hmax = hres->GetMaximum();
-               // double hmean = hres->GetMean();
-               int binMax = hres->GetMaximumBin();
-               double hmean = hres->GetBinCenter(binMax);
-               double hrms = hres->GetRMS();
-               func->SetParameter(0,hmax);
-               func->SetParameter(1,hmean);
-               func->SetParameter(2,hrms);
-               // double xmin = -1.5;
-               // double xmax = 1.5;
-               double xmin = hmean - hrms;
-               double xmax = hmean + hrms;
-               hres->Fit("gaus","Q,0","",xmin,xmax);
-               double amplitNarrow = func->GetParameter(0);
-               double meanNarrow = func->GetParameter(1);
-               double widthNarrow = func->GetParameter(2);
-               // if ( widthNarrow>0.15) {
-               //    cout << "CHAMBER "<<chamber 
-               //         << " entries "<< hres->GetEntries()
-               //         << " Ratio wide/narrow "<< amplitWide/amplitNarrow
-               //         << " meanWide widthWide meanNarrow widthNarrow "
-               //         << meanWide<<" "<< widthWide<<" "
-               //         << meanNarrow<<" "<< widthNarrow <<endl; 
-               // }
-
-               bool badChi2 = (func->GetChisquare())/(func->GetNDF()) > 10.;
-               bool badWidths = (widthNarrow>1.);
-               bool badMean = (meanNarrow<-1.) || (meanNarrow>1.);
-
-               if (badChi2 || badWidths || badMean ) {
-                  cout << " DEBUG DEBUG: chamber, bin1, bin2 "<< chamber<<" "<< bin1<<" "<< bin2<<endl;
-                  cout << " DEBUG DEBUG: xmin, xmax "<< xmin<<" "<<xmax<<endl;
-                  cout << " DEBUG DEBUG: hmean hrms : "<< hmean<<" "<<hrms << endl;
-                  cout << " DEBUG DEBUG: chi2, ndef, width, mean : " << func->GetChisquare() << " "
-                       << func->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow << endl;
-                  widthNarrow = 0.9;
-                  meanNarrow = 0.9;
-               }
-*/
 
 	      if(hWidth) hWidth->Fill(radius,(float)widthNarrow);
 	      if(hMean) hMean->Fill(radius,(float)meanNarrow);
@@ -1449,10 +999,10 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
     // TO BE ACTIVATED VIA JOB_OPTION - still to do
     //
   if ( WriteMdtDqaDbToTextFile ) {
-    string mdtDqaTextFileName = m_outputFileName+".txt";
-    ofstream outputFile(mdtDqaTextFileName.c_str());
+    std::string mdtDqaTextFileName = m_outputFileName+".txt";
+    std::ofstream outputFile(mdtDqaTextFileName.c_str());
     std::vector<MdtDqaDb*>::iterator it;
-    for (std::vector<MdtDqaDb*>::iterator it = m_MdtDqaDbList.begin();
+    for (it = m_MdtDqaDbList.begin();
 	 it!=m_MdtDqaDbList.end();++it) {
       (*it)-> Print();
       (*it)-> Print(&outputFile);
@@ -1462,7 +1012,6 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 
   // Clean (reset) m_MdtDqaDbList 
 
-  //  std::cout<<" ... histogramAnalysis DONE "<<std::endl;
   return;
 } // MdtDqaNtupleAnalysis::histogramAnalysis
 

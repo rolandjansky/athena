@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileCosmicMuonCnv_p2.h 
@@ -23,9 +23,12 @@
 
 class MsgStream;
 
-class TileCosmicMuonCnv_p2 : public T_AthenaPoolTPCnvBase<TileCosmicMuon, TileCosmicMuon_p2> {
+class TileCosmicMuonCnv_p2 : public T_AthenaPoolTPCnvConstBase<TileCosmicMuon, TileCosmicMuon_p2> {
 
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -34,12 +37,12 @@ public:
   /** Method creating the transient representation TileCosmicMuon
    *  from its persistent representation TileCosmicMuon_p2
    */
-  virtual void persToTrans(const TileCosmicMuon_p2* persObj, TileCosmicMuon* transObj, MsgStream &log);
+  virtual void persToTrans(const TileCosmicMuon_p2* persObj, TileCosmicMuon* transObj, MsgStream &log) const override;
 
   /** Method creating the persistent representation TileCosmicMuon_p2
    *  from its transient representation TileCosmicMuon
    */
-  virtual void transToPers(const TileCosmicMuon* transObj, TileCosmicMuon_p2* persObj, MsgStream &log);
+  virtual void transToPers(const TileCosmicMuon* transObj, TileCosmicMuon_p2* persObj, MsgStream &log) const override;
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -105,10 +105,6 @@ namespace psc {
     // LAr and Tile
     void fill_enabled_robs(const boost::property_tree::ptree& ros2robs);
     void fill_enabled_dets(const boost::property_tree::ptree& ros2robs);
-
-    // fill in the TrigDBConnectionConfig appropriately
-    void fill_dbCon(const boost::property_tree::ptree& hlt,
-                    TrigConf::TrigDBConnectionConfig& dbcon);
 
     void updatePids();
     void updateSeed();

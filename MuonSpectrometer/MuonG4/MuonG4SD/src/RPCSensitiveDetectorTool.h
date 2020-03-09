@@ -14,7 +14,7 @@ public:
     RPCSensitiveDetectorTool(const std::string& type, const std::string& name, const IInterface *parent);
     ~RPCSensitiveDetectorTool() {}
 protected:
-    G4VSensitiveDetector* makeSD() override final;
+    G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,7 +12,7 @@
 
 #undef NDEBUG
 #include "TrkDetDescrTPCnv/TrkGeometry/MaterialPropertiesCnv_p1.h"
-#include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -64,13 +64,14 @@ void testit (const Trk::MaterialProperties& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   Trk::Material mat1 (1.5, 2.5, 3.5, 4.5, 5.5);
   testit (Trk::MaterialProperties (mat1, 2));
 
   Trk::Material mat2 (1.5, 2.5, 3.5, 4.5, 5.5, 6.5);
   testit (Trk::MaterialProperties (mat2, 3));
 
-  auto mc = CxxUtils::make_unique<Trk::MaterialComposition>();
+  auto mc = std::make_unique<Trk::MaterialComposition>();
   mc->emplace_back (1, 2);
   mc->emplace_back (3, 4);
   mc->emplace_back (5, 6);

@@ -1,9 +1,11 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from optparse import OptionParser
-from countGuidsClient import countGuidsClient
+from .countGuidsClient import countGuidsClient
 import sys, re, os
 from sys import exit
 
@@ -29,7 +31,7 @@ parser.add_option("--old", dest="athenaeum", default=False, action="store_true",
 (options, args) = parser.parse_args()
 
 if not options.dataset and not options.remoteFile:
-   print os.path.basename(sys.argv[0]) + " requires dataset name or remote file name (-g option) (-h for help)"
+   print (os.path.basename(sys.argv[0]) + " requires dataset name or remote file name (-g option) (-h for help)")
    exit(10)
 
 client = countGuidsClient()
@@ -46,31 +48,31 @@ try:
    else:
       results = client.countGuids(options.dataset, options.query, options.tokens)
 
-except KeyboardInterrupt, e:
-   print "Keyboard interrupt " + str(e)
+except KeyboardInterrupt as e:
+   print ("Keyboard interrupt " + str(e))
    exit(100)
 
 # ------  Results processing
 if options.debug:
   for line in client.output:
-      print line.rstrip()	
+      print (line.rstrip()	)
 
 if results == None:
    code = client.checkError()
    if code:
       exit(code)
-   print "ERROR! GUID count probably failed"
+   print ("ERROR! GUID count probably failed")
    for line in client.output:
-      print line.rstrip()
+      print (line.rstrip())
    exit(1)
 
 # -----  Print out GUIDs
 if not results[0]:
-   print "No GUIDs found"
+   print ("No GUIDs found")
 else:
-   print "#Events, GUIDs: " + str(results[0])
+   print ("#Events, GUIDs: " + str(results[0]))
    for line in results[1]:
-      print line[0] + " " + str( line[1])
+      print (line[0] + " " + str( line[1]))
 
 
 

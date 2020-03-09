@@ -1,4 +1,4 @@
-#include "TrigMuonBackExtrapolator/TrigMuonBackExtrapolator.h"
+#include "../TrigMuonBackExtrapolator.h"
 
 DECLARE_COMPONENT( TrigMuonBackExtrapolator )
 

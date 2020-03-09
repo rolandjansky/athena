@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ namespace Trk {
                                                     const  Amg::Vector3D& momentum,
                                                     ParticleHypothesis particle,
                                                     int process,
-                                                    const Trk::Material* extMatProp=0) const;
+                                                    const Trk::Material* extMatProp=nullptr) const;
 
        /** the helper function for a brem photon record */
        virtual void recordBremPhoton(double ,
@@ -108,7 +108,7 @@ namespace Trk {
           Can be implemented optionally. Provides the possibility of
 	  doing non-local MaterialEffectsUpdates for different models
       */
-       virtual void modelAction(const TrackParameters* parm=0) const { if(parm) return; }
+       virtual void modelAction(const TrackParameters* parm=nullptr) const { if(parm) return; }
                                                                 
   };
 
@@ -122,7 +122,7 @@ inline const Trk::TrackParameters*  Trk::ITimedMatEffUpdator::interact(double ,
                                                                        int, 
                                                                        const Trk::Material*  ) const 
 {
-  return 0;
+  return nullptr;
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/SegmentOnTrackSelector.h"
@@ -7,11 +7,8 @@
 #include "MuonCalibEvent/MuonCalibPatternCollection.h"
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
-//MuonCalibITools
 #include "MuonCalibITools/IIdToFixedIdTool.h"
-//MuonRecHelperTools
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
 namespace MuonCalib {
@@ -21,17 +18,13 @@ SegmentOnTrackSelector::SegmentOnTrackSelector(const std::string &type,const std
   m_pattern_location(""),
   m_min_hits_on_track(3),
   m_max_hits_not_on_track(1),
-  m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
-  m_muonIdHelperTool("Muon::MuonIdHelperTool") 
+  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 {
   declareInterface<ISegmentOnTrackSelector>(this);
   declareProperty("PattternLocation", m_pattern_location);
   declareProperty("MinHitsOnTrack", m_min_hits_on_track);
   declareProperty("MaxHitsNotOnTrack", m_max_hits_not_on_track);
-  declareProperty("MuonEDMHelperTool", m_helperTool);
   declareProperty("IdToFixedIdTool", m_idToFixedIdTool);
-  declareProperty("MuonIdHelperTool", m_muonIdHelperTool);
 }
 
 StatusCode SegmentOnTrackSelector::initialize() {
@@ -39,20 +32,12 @@ StatusCode SegmentOnTrackSelector::initialize() {
     ATH_MSG_FATAL("Cannot run without patterns!");
     return StatusCode::FAILURE;
   }
-  if(!m_helperTool.retrieve().isSuccess()) {
-    ATH_MSG_FATAL("Cannot retrieve muon EDM helper!");
-    return StatusCode::FAILURE;
-  }
-  if(!m_idToFixedIdTool.retrieve().isSuccess())	{
-    ATH_MSG_FATAL("Cannot retrieve idToFixedId tool");
-    return StatusCode::FAILURE;
-  }
-  if(!m_muonIdHelperTool.retrieve().isSuccess()) {
-    ATH_MSG_FATAL("Cannot retrieve id helper tool tool");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_edmHelperSvc.retrieve());
+  ATH_CHECK(m_idToFixedIdTool.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
+
   return StatusCode::SUCCESS;
-}  //end SegmentOnTrackSelector::initialize
+}
 
 StatusCode SegmentOnTrackSelector::finalize() {
   return StatusCode::SUCCESS;
@@ -129,9 +114,9 @@ inline void SegmentOnTrackSelector::getIdentifiers(const Trk::Track &tk, std::se
     if( !(*tsit)->type(Trk::TrackStateOnSurface::Measurement) )
       continue;
     const Trk::MeasurementBase* measurement = (*tsit)->measurementOnTrack();
-    Identifier id = m_helperTool->getIdentifier(*measurement);
-    if(!m_muonIdHelperTool->isMuon(id)) continue;
-    if(!m_muonIdHelperTool->isMdt(id) && !m_muonIdHelperTool->isCsc(id)) continue;
+    Identifier id = m_edmHelperSvc->getIdentifier(*measurement);
+    if(!m_idHelperSvc->isMuon(id)) continue;
+    if(!m_idHelperSvc->isMdt(id) && !m_idHelperSvc->isCsc(id)) continue;
     ids.insert(m_idToFixedIdTool->idToFixedId(id));
   }
 }  //end SegmentOnTrackSelector::getIdentifiers

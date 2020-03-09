@@ -27,6 +27,5 @@ atlas_add_component( MuonCalibMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests GaudiKernel CscCalibData MuonCondData MuonCondInterface MuonReadoutGeometry MuonIdHelpersLib )
 
 # Install files from the package:
-atlas_install_headers( MuonCalibMonitoring )
 atlas_install_joboptions( share/*.py )
 

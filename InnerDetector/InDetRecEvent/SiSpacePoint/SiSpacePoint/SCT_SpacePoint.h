@@ -6,8 +6,6 @@
 // SCT_SpacePoint.h
 //   Header file for class SCT_SpacePoint
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // Class to handle SPs for SCT
 ///////////////////////////////////////////////////////////////////
 // Version 1.0   12/12/2005 Martin Siebel
@@ -28,6 +26,11 @@ namespace Trk
 
 namespace InDet
 {
+
+  /**
+   * @class SCT_SpacePoint
+   * An SCT_SpacePoint is created from two SCT_Cluster's from two different wafers.
+   */
   
   class SCT_SpacePoint : public Trk::SpacePoint 
     {
@@ -38,13 +41,15 @@ namespace InDet
 
     public:
       
-      /** default constructor */
+      /** Default constructor */
       SCT_SpacePoint() ;
 
-      /** parametrised constructors 
-       In order to ensure initialisation, the global Position has to be 
-      on the surface associated to the FIRST member of the PRD-pair clusList. */
-
+      /**
+       * @name Parametrised constructors
+       * In order to ensure initialisation, the global Position has to be
+       * on the surface associated to the FIRST member of the PRD-pair clusList.
+       */
+      //@{
       SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
 		     const Amg::Vector3D* position, 
 		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
@@ -62,7 +67,8 @@ namespace InDet
 		     const Amg::Vector3D& position,
 		     const Amg::MatrixX& loccov,//assumes ownership of loccov
 		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
-      
+      //@}
+
       /** Copy Constructor */
       SCT_SpacePoint(const SCT_SpacePoint &) ;
 
@@ -77,6 +83,7 @@ namespace InDet
       
       /**Interface method for output, to be overloaded by child classes* */
       virtual MsgStream&    dump( MsgStream& out ) const ;  
+
       /**Interface method for output, to be overloaded by child classes* */
       virtual std::ostream& dump( std::ostream& out ) const ;
       

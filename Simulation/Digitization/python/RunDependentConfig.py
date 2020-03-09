@@ -63,7 +63,7 @@ def buildListOfModifiers():
             from RunDependentSimComps.RunDMCFlags import runDMCFlags
             myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
             #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
-        except:
+        except KeyError:
             myInitialTimeStamp = 1
 
         Modifiers += add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
@@ -88,7 +88,7 @@ def getEvtIdModifierSvc(name="EvtIdModifierSvc", **kwargs):
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += theEvtIdModifierSvc
     from AthenaCommon.AppMgr import theApp
-    if not "EvtIdModifierSvc" in theApp.CreateSvc:
+    if "EvtIdModifierSvc" not in theApp.CreateSvc:
         theApp.CreateSvc += ["EvtIdModifierSvc"]
     return theEvtIdModifierSvc
 

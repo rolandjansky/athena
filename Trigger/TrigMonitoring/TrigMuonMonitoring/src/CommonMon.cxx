@@ -4067,19 +4067,17 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   ATH_MSG_DEBUG("Container of muon particle with key " << muonKey << " found in Store Gate with size " << muonCont->size()); 
 
   // get vertex
-  // std::string vxKey = "VxPrimaryCandidate";  // attention
-  std::string vxKey = "HLT_xAOD__VertexContainer_xPrimVx";  // May change to Offline Vx container key if possible
+  const std::string vxKey = "PrimaryVertices";
   const xAOD::VertexContainer* vxCont = 0;
   sc = m_storeGate->retrieve(vxCont, vxKey);
   if (sc.isFailure()) {
-    ATH_MSG_INFO("Container of muon particle with key " << vxKey << " not found in Store Gate");
+    ATH_MSG_WARNING("Container of vertex container with key " << vxKey << " not found in Store Gate");
     return StatusCode::SUCCESS;
   }
 
   // need to select vertex!!!
-  xAOD::VertexContainer::const_iterator p;
   const xAOD::Vertex* vtx = 0;
-  for (p = vxCont->begin(); p != vxCont->end(); ++p) {
+  for (xAOD::VertexContainer::const_iterator p = vxCont->begin(); p != vxCont->end(); ++p) {
     //reject dummy vertex.
     //note1: Trk::NoVtx(=0) means dummy vertex.
     //note2: There are mainly Trk::PriVtx(=1) but also there may be

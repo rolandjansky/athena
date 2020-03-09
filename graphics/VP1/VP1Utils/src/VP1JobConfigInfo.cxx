@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -52,6 +52,7 @@ public:
 };
 
 GeoPVConstLink VP1JobConfigInfo::Imp::geoModelWorld;
+// init default values
 bool VP1JobConfigInfo::Imp::initialised = false;
 bool VP1JobConfigInfo::Imp::hasGeoModelExperiment = false;
 bool VP1JobConfigInfo::Imp::hasPixelGeometry = false;
@@ -62,7 +63,7 @@ bool VP1JobConfigInfo::Imp::hasBeamPipeGeometry = false;
 bool VP1JobConfigInfo::Imp::hasLArGeometry = false;
 bool VP1JobConfigInfo::Imp::hasTileGeometry = false;
 bool VP1JobConfigInfo::Imp::hasMuonGeometry = false;
-bool VP1JobConfigInfo::Imp::hasMuonNSWGeometry = true; //FIXME!!!
+bool VP1JobConfigInfo::Imp::hasMuonNSWGeometry = false; 
 bool VP1JobConfigInfo::Imp::hasLUCIDGeometry = false;
 bool VP1JobConfigInfo::Imp::hasBCMGeometry = false;
 bool VP1JobConfigInfo::Imp::hasCavernInfraGeometry = false;
@@ -179,17 +180,17 @@ bool VP1JobConfigInfo::Imp::actualInit( StoreGateSvc* detStore )
     std::string name = av.getName();
     if ( !hasPixelGeometry && name=="Pixel") {
       hasPixelGeometry = true;
-      if ( !hasBCMGeometry) {
-	//Loop under the pixel volume to check if there is BCM volumes
-	//present in the current config:
-	GeoVolumeCursor pv(av.getVolume());
-	while (!pv.atEnd()) {
-	  if (pv.getVolume()->getLogVol()->getName()=="bcmModLog") {
-	    hasBCMGeometry = true;
-	    break;
-	  }
-	  pv.next();
-	}
+      if ( !hasBCMGeometry ) {
+	    //Loop under the top Pixel volume to check if there are BCM volumes
+	    //present in the current config:
+	    GeoVolumeCursor pv(av.getVolume());
+	    while (!pv.atEnd()) {
+	        if (pv.getVolume()->getLogVol()->getName()=="bcmModLog") {
+	        hasBCMGeometry = true;
+	        break;
+	        }
+	        pv.next();
+	    }
       }
     }
     if ( !hasSCTGeometry && name=="SCT") hasSCTGeometry = true;
@@ -200,7 +201,21 @@ bool VP1JobConfigInfo::Imp::actualInit( StoreGateSvc* detStore )
     if ( !hasLArGeometry && name=="LArEndcapPos") hasLArGeometry = true;
     if ( !hasLArGeometry && name=="LArEndcapNeg") hasLArGeometry = true;
     if ( !hasTileGeometry && name=="Tile") hasTileGeometry = true;
-    if ( !hasMuonGeometry && name=="Muon") hasMuonGeometry = true;
+    if ( !hasMuonGeometry && name=="Muon") {
+        hasMuonGeometry = true;
+        if ( !hasMuonNSWGeometry ) {
+            //Loop under the top Muon volume to check if there are NSW volumes
+        	//present in the current config:
+           	GeoVolumeCursor pv(av.getVolume());
+	        while (!pv.atEnd()) {
+	            if (pv.getVolume()->getLogVol()->getName()=="NewSmallWheel") {
+	            hasMuonNSWGeometry = true;
+	            break;
+	            }
+	        pv.next();
+	        }   
+        }
+    }
     if ( !hasLUCIDGeometry && (name=="LucidSideA"||name=="LucidSideC")) hasLUCIDGeometry = true;
     //FIXME: Look for CavernInfra as well!!!
 

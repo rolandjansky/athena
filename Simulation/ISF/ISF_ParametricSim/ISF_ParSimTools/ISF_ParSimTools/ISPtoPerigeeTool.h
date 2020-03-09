@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,18 +42,20 @@ namespace iParSim {
       ISPtoPerigeeTool(const std::string&,const std::string&,const IInterface*);
 
       /**Destructor*/
-      ~ISPtoPerigeeTool ();
+      virtual ~ISPtoPerigeeTool ();
 
-      /** AlgTool initailize method.*/
-      StatusCode initialize();
+      /** AlgTool initialize method.*/
+      virtual StatusCode initialize() override;
       
       /** AlgTool finalize method */
-      StatusCode finalize();
+      virtual StatusCode finalize() override;
       
       /** Return track parameters of the ISF Particle */
+      virtual
       const Trk::TrackParameters* extractTrkParameters(const ISF::ISFParticle& isp) const override;
 
       /** Return the position of the perigee (beam spot) */
+      virtual
       const Amg::Vector3D getPerigee() const override;
 
     protected:

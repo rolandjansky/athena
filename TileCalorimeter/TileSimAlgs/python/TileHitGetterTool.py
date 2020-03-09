@@ -4,8 +4,6 @@
 # TileHitContainer filling  from TileHitVector
 # with TileHitVectToCnt algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -27,9 +25,9 @@ class TileHitGetterTool ( Configured )  :
         try:
             from TileSimAlgs.TileHitGetterTool import TileHitGetterTool
             theTileHitGetterTool=TileHitGetterTool()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileHitGetterTool Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileHitGetterTool.usable():
@@ -42,13 +40,13 @@ class TileHitGetterTool ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileSimAlgs.TileSimAlgsConf import TileHitVecToCntTool                
-        except:
+        except Exception:
             mlog.error("could not import TileSimAlgs.TileHitVecToCntTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileHitVecToCntTool=TileHitVecToCntTool()
-        self._TileHitVecToCntToolHandle = theTileHitVecToCntTool ;
+        self._TileHitVecToCntToolHandle = theTileHitVecToCntTool
 
         # Configure TileHitVecToCntTool here
         # Check  TileDigitizationCosmics_jobOptions.py,

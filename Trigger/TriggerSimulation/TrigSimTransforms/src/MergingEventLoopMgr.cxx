@@ -516,22 +516,12 @@ namespace TrigSim {
 
                 if(!m_firstRun) {
                     m_incidentSvc->fireIncident(Incident( name(), "EndRun"));
-
-                    sc = endRunAlgorithms();
-                    if(sc.isFailure()) {
-                        break;
-                    }
                 }
 
                 m_currentRun = pPrimEvt->event_ID()->run_number();
                 m_firstRun = false;
 
                 m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,Gaudi::Hive::currentContext()));
-
-                sc = beginRunAlgorithms();
-                if(sc.isFailure()) {
-                        break;
-                }
             }
 
 
@@ -895,8 +885,7 @@ namespace TrigSim {
 
 
         m_incidentSvc->fireIncident(Incident(name(), "EndRun"));
-        endRunAlgorithms().ignore();
-        
+
         return sc;
     }
 //------------------------------------------------------------------------------
@@ -964,40 +953,7 @@ namespace TrigSim {
 
         return failed ? StatusCode::FAILURE : StatusCode::SUCCESS;
     }
-//------------------------------------------------------------------------------
-    StatusCode MergingEventLoopMgr::beginRunAlgorithms() {
-        bool failed = false;
 
-        for(ListAlg::iterator it = m_topAlgList.begin(); it != m_topAlgList.end(); ++it) {
-            m_log << MSG::DEBUG << "Calling sysBeginRun() for algorithm: "
-                  << (*it)->name() << endmsg;
-            
-            if((*it)->sysBeginRun().isFailure()) {
-                m_log << MSG::ERROR << "Algorithm failed in sysBeginRun(): "
-                      << (*it)->name() << endmsg;
-                failed = true;
-            } 
-        }
-
-        return failed ? StatusCode::FAILURE : StatusCode::SUCCESS;
-    }
-//------------------------------------------------------------------------------
-    StatusCode MergingEventLoopMgr::endRunAlgorithms() {
-        bool failed = false;
-
-        for(ListAlg::iterator it = m_topAlgList.begin(); it != m_topAlgList.end(); ++it) {
-            m_log << MSG::DEBUG << "Calling sysEndRun() for algorithm: "
-                  << (*it)->name() << endmsg;
-            
-            if((*it)->sysEndRun().isFailure()) {
-                m_log << MSG::ERROR << "Algorithm failed in sysEndRun(): "
-                      << (*it)->name() << endmsg;
-                failed = true;
-            } 
-        }
-
-        return failed ? StatusCode::FAILURE : StatusCode::SUCCESS;
-    }
 //------------------------------------------------------------------------------
     StatusCode MergingEventLoopMgr::executeAlgorithms() {
 

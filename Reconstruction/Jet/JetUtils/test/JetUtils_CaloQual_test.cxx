@@ -18,7 +18,7 @@
 #else
 // Done like this so that this will compile in both releases 20 and 21.
 # include "AthLinks/ElementLink.h"
-# include "SGTools/CLASS_DEF.h"
+# include "AthenaKernel/CLASS_DEF.h"
 # ifdef SGTOOLS_CURRENTEVENTSTORE_H
 #  include "SGTools/TestStore.h"
 # endif

@@ -17,9 +17,7 @@ for n in ['AthExDecayCnv_p1',
           'AthExFatObjectCnv_p1',
           'TruthEtIsolationsCnv_p1',
           'TruthEtIsolationsContainerCnv_p1',
-          'TruthParticleContainerCnv_p1',
           'TruthParticleContainerCnv_p6',
-          'RootTruthParticleContainerCnv_p4',
           ]:
     print "::: loading T/P converter [%s]..." % (n,)
     cnv = svc.load_tpcnv(n)

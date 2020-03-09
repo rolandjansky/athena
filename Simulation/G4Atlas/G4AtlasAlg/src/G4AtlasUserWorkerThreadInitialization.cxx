@@ -3,6 +3,7 @@
 */
 
 // Hide multi-threading classes from builds without G4MT
+#include "G4Types.hh"
 #ifdef G4MULTITHREADED
 
 #include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
@@ -12,7 +13,12 @@ G4WorkerRunManager* G4AtlasUserWorkerThreadInitialization::
 CreateWorkerRunManager() const
 {
   // TODO: maybe better to just use the pseudo-singleton mechanism
-  return G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+  auto* workerRunManager = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+  workerRunManager->SetUserActionSvc(m_userActionSvcName);
+  workerRunManager->SetDetGeoSvc(m_detGeoSvcName);
+  workerRunManager->SetSDMasterTool(m_senDetToolName);
+  workerRunManager->SetFastSimMasterTool(m_fastSimToolName);
+  return workerRunManager;
 }
 
 #endif // G4MULTITHREADED

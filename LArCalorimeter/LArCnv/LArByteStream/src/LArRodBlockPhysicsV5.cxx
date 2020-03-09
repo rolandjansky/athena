@@ -879,7 +879,6 @@ setHeader16(FEB_SN_h,0xdede);
 setHeader16(InFPGAFormat,0x0);
 setHeader16(InFPGAFormat_h,0x2);
 
-
 // Gain block...
 n = m_GainBlock.size();
 //BlockOffset=0;
@@ -993,8 +992,7 @@ if (n)
    // Three final magic words
    m_vFragment->push_back(0x0); // For the moment
    m_vFragment->push_back(0x12345678); // For the moment
-   sum+=0x12345678;
-   sum+=m_vFragment->size()+1;
+   //sum+=m_vFragment->size()+1;
    m_vFragment->push_back(sum& 0x7fffffff);
    
    setHeader32(NWTot,m_vFragment->size());

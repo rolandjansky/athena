@@ -191,11 +191,9 @@ int main(int argc, char* argv[]){
     // Shallow copy 
     auto jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
 
-    // Iterate over the shallow copy
-    for( xAOD::Jet* jet : *( jets_shallowCopy.first ) ) {
-       CHECK_WITH_CONTEXT( jetCalibrationTool.applyCalibration( *jet ), APP_NAME, 1 );
-      // Do something
-    }
+    // Calibrate the shallow copy
+    CHECK_WITH_CONTEXT( jetCalibrationTool.applyCalibration( *(jets_shallowCopy.first) ), APP_NAME, 1 );
+
     delete jets_shallowCopy.first;
     delete jets_shallowCopy.second;
   

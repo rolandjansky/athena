@@ -26,14 +26,21 @@ def createTriggerFlags():
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
     
-    # if 1, Run1 decoding version is set; if 2, Run2 
-    flags.addFlag('Trigger.EDMDecodingVersion', 2)
+    # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
+    flags.addFlag('Trigger.EDMDecodingVersion', 3)
 
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
 
     # only enable services for analysis and BS -> ESD processing (we need better name)
-    flags.addFlag('Trigger.doTriggerConfigOnly', False)    
+    flags.addFlag('Trigger.doTriggerConfigOnly', False)
+
+    # Enables collection and export of detailed monitoring data of the HLT execution
+    flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
+    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor')
+    flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
+    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', True) # Defaulting to "True" is temporary
+
 
     # enable Bcm inputs simulation
     flags.addFlag('Trigger.L1.doBcm', True)
@@ -46,15 +53,21 @@ def createTriggerFlags():
 
     # list of thresholds (not sure if we want to use new flags to generate L1, leaving out for now?)
     
+    # partition name used to determine online vs offline BS result writing
+    import os
+    flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
     
-    # enable streaming of HLT content as BS payload
+    # write BS output file
     flags.addFlag('Trigger.writeBS', False)
 
+    # Write transient BS before executing HLT algorithms (for running on MC RDO with clients which require BS inputs)
+    flags.addFlag('Trigger.doTransientByteStream', False)
+
     # list of EDM objects to be written to AOD
-    flags.addFlag('Trigger.AODEDMSet', [])
+    flags.addFlag('Trigger.AODEDMSet', 'AODSLIM')
 
     # list of objects to be written to ESD
-    flags.addFlag('Trigger.ESDEDMSet', [])
+    flags.addFlag('Trigger.ESDEDMSet', 'ESD')
 
     # tag to be used for condutions used by HLT code
     flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
@@ -76,11 +89,15 @@ def createTriggerFlags():
     # use or not frontier proxies
     flags.addFlag('Trigger.triggerUseFrontier', False)
 
-    # the configuration name, see TriggerFlags for full info
-    flags.addFlag('Trigger.triggerConfig', 'MCRECO:DEFAULT')
+    # the configuration source
+    # see https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerConfigFlag
+    flags.addFlag('Trigger.triggerConfig', 'FILE')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'Physics_pp_v7_primaries')
+    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1')
+
+    # name of the trigger menu
+    flags.addFlag('Trigger.generateMenuDiagnostics', False)
 
     # version of the menu
     from AthenaCommon.AppMgr import release_metadata
@@ -88,21 +105,22 @@ def createTriggerFlags():
                   lambda prevFlags:  release_metadata()['release'] )
     
     # generate or not the HLT configuration
-    flags.addFlag('Trigger.generateHLTConfig', False)
+    flags.addFlag('Trigger.generateHLTMenu', False)
     
     # HLT XML file name 
-    flags.addFlag('Trigger.HLTConfigFile',
-                lambda prevFlags: 'HLTconfig_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+    flags.addFlag('Trigger.HLTMenuFile',
+                  lambda prevFlags: 'HLTMenu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
 
     # generate or not the L1 configuration
-    flags.addFlag('Trigger.generateLVL1Config', False)
+    flags.addFlag('Trigger.generateL1Menu', False)
     
     # L1 XML file name 
     flags.addFlag('Trigger.LVL1ConfigFile',
-                lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+                  lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
 
-    # generate or not the L1 topo configuration
-    flags.addFlag('Trigger.generateLVL1TopoConfig', False)
+    # L1 Json file name 
+    flags.addFlag('Trigger.L1MenuFile',
+                  lambda prevFlags: 'L1Menu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
     
     # L1 topo XML file name
     def _deriveTopoConfigName(prevFlags):
@@ -154,9 +172,16 @@ def createTriggerFlags():
     # muons
     flags.addFlag('Trigger.muon.doEFRoIDrivenAccess', False)
 
+    # muon offline reco flags varaint for trigger
+    def __muon():
+        from MuonConfig.MuonConfigFlags import createMuonConfigFlags
+        return createMuonConfigFlags()
+    flags.addFlagsCategory('Trigger.Offline', __muon)
+
+
     from TriggerJobOpts.MenuConfigFlags import createMenuFlags
     flags.join( createMenuFlags() )
-                
+
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
     # readLVL1Calo, readLVL1Muon, fakeLVL1, useCaloTTL
@@ -184,7 +209,30 @@ def createTriggerFlags():
 import unittest
 class __YearDependentFlagTest(unittest.TestCase):    
     def runTest(self):
-        flags = createTriggerFlags()
+        """... Check if year dependent flags propagate the info correctly"""
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.run2Config='2017'
         self.assertEqual(flags.Trigger.egamma.clusterCorrectionVersion, "v12phiflip_noecorrnogap", " dependent flag setting does not work")
         flags.dump()
+
+class __UseOfOfflineRecoFlagsTest(unittest.TestCase):
+    def runTest(self):
+        """... Check if offline reco flags can be added to trigger"""
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        flags.Trigger.Offline.Muon.doMDTs=False
+        flags.Muon.doMDTs=True
+        self.assertEqual(flags.Trigger.Offline.Muon.doMDTs, False, " dependent flag setting does not work")
+        self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
+
+        newflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+
+        self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
+        self.assertEqual(newflags.Muon.doMDTs, False, " dependent flag setting does not work")
+        newflags.dump()
+
+if __name__ == "__main__":
+    suite = unittest.TestSuite()
+    suite.addTest(__YearDependentFlagTest())
+    suite.addTest(__UseOfOfflineRecoFlagsTest())
+    runner = unittest.TextTestRunner(failfast=False)
+    runner.run(suite)

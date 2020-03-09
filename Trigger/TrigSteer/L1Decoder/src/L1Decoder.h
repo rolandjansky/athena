@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_L1Decoder_h
@@ -45,8 +45,14 @@ protected: // protected to support unit testing
 private:
 
   ///@{ @name Properties
+
+  /// Level-1 result with RoIs from Run-2 hardware systems
   SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey{this, "RoIBResult", "RoIBResult", 
       "Name of RoIBResult"};
+
+  /// Level-1 result with RoIs from Run-3 hardware systems
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultKey{this, "L1TriggerResult", "L1TriggerResult",
+      "Name of the L1 Trigger Result"};
 
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{this, "L1DecoderSummaryKey", "L1DecoderSummary", 
       "Chains status after L1 and prescaling"}; // Note: was previously property 'Chains' with default value 'HLTChains'
@@ -54,21 +60,11 @@ private:
   SG::WriteHandleKey<TrigTimeStamp> m_startStampKey{ this, "StartStampKey", "L1DecoderStart", 
       "Object with the time stamp when decoding started" };
 
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIKey{
-    this, "OutputFSTrigRoI", "FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all chains in which FS reconstruction happens and have no dependencey on L1 information"};
-
-  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_FSDecisions{
-    this, "FSDecisions", "FSDecisions", "Name of the decisions container (suitable for filters) containing all unprescaled chains"};
-
-  Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
+  Gaudi::Property<bool> m_doCostMonitoring{this, "DoCostMonitoring", false, 
     "Enables start-of-event cost monitoring behavior."};
 
-  Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 
+  Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor_CostMonDS_L1All", 
     "Name of the chain which should enable HLT cost montoring."};
-
-  Gaudi::Property<std::map<std::string, std::string>> m_chainToCTPProperty{
-    this, "ChainToCTPMapping", {}, "Seeding in the form: HLT_chain : L1_item"};
-  ///@}
 
   ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
       "The trigger cost service" };
@@ -79,7 +75,7 @@ private:
   ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers{this, "roiUnpackers", {},
       "Tools unpacking RoIs"};
 
-  ToolHandle<IPrescalingTool> m_prescaler{this, "prescaler", "PrescalingEmulationTool/PrescalingEmulationTool", 
+  ToolHandle<IPrescalingTool> m_prescaler{this, "prescaler", "PrescalingTool/PrescalingTool", 
       "Prescaling tool"};
 
   ToolHandleArray<IRoIsUnpackingTool> m_rerunRoiUnpackers{this, "rerunRoiUnpackers", {}, 

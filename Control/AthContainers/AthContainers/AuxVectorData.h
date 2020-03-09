@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxVectorData.h 793052 2017-01-19 15:05:28Z ssnyder $
@@ -363,20 +363,23 @@ protected:
    * @brief Set the store associated with this object.
    * @param store The new store.
    *
-   * This will clear the non-const store pointer, and also
+   * This will set both the const and non-const store pointers, and also
    * clear the cache.
+   *
+   * nb. List the non-const overload before the const one; otherwise,
+   * we can't call the const one from python.
    */
-  void setStore (const SG::IConstAuxStore* store);
+  void setStore (SG::IAuxStore* store);
 
 
   /**
    * @brief Set the store associated with this object.
    * @param store The new store.
    *
-   * This will set both the const and non-const store pointers, and also
+   * This will clear the non-const store pointer, and also
    * clear the cache.
    */
-  void setStore (SG::IAuxStore* store);
+  void setStore (const SG::IConstAuxStore* store);
 
 
   /**
@@ -579,7 +582,6 @@ public:
   void* getDecorationArray (SG::auxid_t auxid) const;
 
 
-protected:
   /**
    * @brief Return a pointer to the start of an aux data vector.
    * @param auxid The desired aux data item.
@@ -591,6 +593,7 @@ protected:
   void* getDataArray (SG::auxid_t auxid);
 
 
+protected:
   /// Minimum length to use for the cache vector.
   /// Only changed by unit tests.
   static size_t s_minCacheLen ATLAS_THREAD_SAFE;

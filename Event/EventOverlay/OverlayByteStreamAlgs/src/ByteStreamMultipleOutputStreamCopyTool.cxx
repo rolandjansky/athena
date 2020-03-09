@@ -422,7 +422,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::finalizeOutput()
 }
 
 //__________________________________________________________________________
-StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  typeKeys ) {
+StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  typeKeys, const std::string& /*outputName*/ ) {
   if ( typeKeys.size()!=0){
     MsgStream log(msgSvc(), name());
     ATH_MSG_WARNING( " Streaming objects is not supported.  The whole input event is written out" );
@@ -431,7 +431,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const TypeKeyPa
   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const DataObjectVec& dataObjects) {
+StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const DataObjectVec& dataObjects, const std::string& /*outputName*/ ) {
   if ( dataObjects.size()!=0){
     ATH_MSG_WARNING( " Streaming objects is not supported.  The whole input event is written out" );
   }

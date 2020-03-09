@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RNGCOMPS_ATHRNGSVC_H
@@ -14,7 +14,6 @@
 
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 namespace ATHRNG {
   class RNGWrapper;

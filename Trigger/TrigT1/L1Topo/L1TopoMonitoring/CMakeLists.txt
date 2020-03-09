@@ -21,6 +21,5 @@ atlas_add_component( L1TopoMonitoring
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel L1TopoConfig L1TopoRDO TrigT1Result )
 
 # Install files from the package:
-atlas_install_headers( L1TopoMonitoring )
 atlas_install_joboptions( share/*.py )
 

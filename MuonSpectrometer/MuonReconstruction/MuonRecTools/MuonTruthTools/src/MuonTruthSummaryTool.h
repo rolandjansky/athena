@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRUTHSUMMARYTOOL_H
@@ -7,16 +7,20 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include <string>
 #include <set>
-#include <map>
+#include <unordered_map>
+#include <mutex>
+#include <atomic>
+#include <functional>
 
 namespace Trk {
   class Track;
@@ -53,13 +57,13 @@ namespace Muon {
     int getPdgId( int barcode ) const;
 
     /** add identifier */
-    void add( const Identifier& id, int level );
+    void add( const Identifier& id, int level ) const ;
 
     /** add segment */
-    void add( const MuonSegment& seg, int level );
+    void add( const MuonSegment& seg, int level ) const ;
 
     /** add track */
-    void add( const Trk::Track& track, int level );
+    void add( const Trk::Track& track, int level ) const ;
     
 
     /** print summary */
@@ -67,27 +71,38 @@ namespace Muon {
 
     void handle(const Incident& inc);
 
+    struct IdentifierHash
+    {
+      size_t operator() (const Identifier& id) const
+      {
+        return std::hash<Identifier::value_type>{}(id.get_compact());
+      }
+    };
+
   private:
 
     /** add measurements */
-    void add( const std::vector<const Trk::MeasurementBase*>& measurements, int level );
-    void getTruth() const;
-    std::string printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found );
+    void add( const std::vector<const Trk::MeasurementBase*>& measurements, int level ) const ;
+    std::string printSummary( const std::unordered_set<Identifier, IdentifierHash>& truth, 
+      const std::unordered_set<Identifier, IdentifierHash>& found );
 
-    ToolHandle<MuonIdHelperTool>                m_idHelper;
-    ToolHandle<MuonEDMHelperTool>               m_helper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<IMuonEDMHelperSvc>            m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<MuonEDMPrinterTool>              m_printer;
     ServiceHandle< IIncidentSvc >               m_incidentSvc;
-    mutable bool m_wasInit;
-    bool m_useNSW;
+    mutable std::atomic<bool> m_wasInit;
 
     SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_TruthNames{this,"TruthNames",{"RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"},"truth names"};
 
-    mutable std::map<int,int>                           m_pdgIdLookupFromBarcode;
-    mutable std::map<Identifier,int>                    m_truthHits; // map containing truth hits associated with muons, stores barcode as second element
-    mutable std::map<int,std::set<Identifier> >         m_truthDataPerLevel;
-    mutable std::map<int,unsigned int >         m_lossesPerLevel; // We can get rid of the mutable, once printSummary() isn't const.
-    mutable unsigned int                        m_truthHitsTotal;
+    mutable std::unordered_map<int,int> m_pdgIdLookupFromBarcode ATLAS_THREAD_SAFE; // protected by mutex
+    mutable std::unordered_map<Identifier,int,IdentifierHash> m_truthHits ATLAS_THREAD_SAFE; // protected by mutex. map containing truth hits associated with muons, stores barcode as second element
+    mutable std::unordered_map<int,std::unordered_set<Identifier, IdentifierHash>> m_truthDataPerLevel ATLAS_THREAD_SAFE; // protected by mutex
+    std::unordered_map<int,unsigned int> m_lossesPerLevel;
+    mutable unsigned int m_truthHitsTotal ATLAS_THREAD_SAFE; // protected by mutex
+
+    mutable std::recursive_mutex                m_mutex;
     
     TTree *                                     m_tree;
     ITHistSvc *                                 m_thistSvc;

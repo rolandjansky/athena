@@ -26,6 +26,7 @@
 
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
 
+#include "TrigNavigation/NavigationCore.icc"
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////
@@ -137,6 +138,33 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltInitialize() {
   return HLT::OK;
 }
 
+namespace InDet {
+    class FeatureAccessor : public HLT::FexAlgo 
+    {
+    public:
+       //make the getFeature method public
+       template<class T> HLT::ErrorCode getFeature(const HLT::TriggerElement* te, const T*&  feature, 
+                                                    const std::string& label = "") {
+           return HLT::Algo::getFeature(te,feature,label);
+       }
+    };
+
+    class ExtendedSiCombinatorialTrackFinderData_xk : public SiCombinatorialTrackFinderData_xk {
+    public:
+      ExtendedSiCombinatorialTrackFinderData_xk(HLT::FexAlgo &algo, const HLT::TriggerElement* outputTE, const std::string &key) {
+        const Trk::PRDtoTrackMap *prd_to_track_map_cptr;
+        HLT::ErrorCode stat = reinterpret_cast<FeatureAccessor &>(algo).getFeature(outputTE, prd_to_track_map_cptr, key);
+        if(stat!= HLT::OK){
+          throw std::runtime_error(std::string("Failed to get PRD to track map:") + key);
+        }
+        setPRDtoTrackMap(prd_to_track_map_cptr);
+      }
+
+    protected:
+      void dummy() override {}
+    };
+}
+
 ///////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
@@ -207,14 +235,16 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
   }
 
   // Event dependent data of SiCombinatorialTrackFinder_xk
-  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
+  InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(*this, outputTE, m_prdToTrackMap);
 
   ///Initialize the TRT seeded track tool's new event
+  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p;
+  std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p (m_trtExtension->newEvent());
   if(!m_doFullScan){
-    m_trackmaker->newRegion(combinatorialData, listOfPixIds, listOfSCTIds); //RoI-based reconstruction
+    event_data_p = m_trackmaker->newRegion(combinatorialData, listOfPixIds, listOfSCTIds); //RoI-based reconstruction
   }
   else{
-    m_trackmaker->newEvent(combinatorialData); // FullScan mode
+    event_data_p = m_trackmaker->newEvent(combinatorialData); // FullScan mode
   }
 
   if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Begin looping over all TRT segments in the event" << endmsg;
@@ -238,7 +268,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
       if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number Of ROTs " << (trackTRT->numberOfMeasurementBases()) << endmsg;
       if(trackTRT->numberOfMeasurementBases()>9){  //Ask for at least 10 TRT hits in order to process
         m_nTrtSegGood++;
-        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(combinatorialData, *trackTRT); //Get the possible Si extensions
+        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*event_data_p, *trackTRT); //Get the possible Si extensions
 
 	if(trackSi.size()==0){
 	  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "No Si track candidates associated to the TRT track " << endmsg;
@@ -269,7 +299,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	    Trk::Track* globalTrackNew = 0;
 
 	    if(int(temptsos->size())>=4 && m_doExtension){
-	      std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*itt));
+               std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*itt),*ext_event_data_p);
 
 	      if(tn.size()) {
 

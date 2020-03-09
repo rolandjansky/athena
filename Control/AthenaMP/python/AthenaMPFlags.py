@@ -90,6 +90,10 @@ class MemSamplingInterval(JobProperty):
 
 class ChunkSize(JobProperty):
     """ Size of event chunks in the shared queue
+        if chunk_size==-1, chunk size is set to auto_flush for files compressed with LZMA
+        if chunk_size==-2, chunk size is set to auto_flush for files compressed with LZMA or ZLIB
+        if chunk_size==-3, chunk size is set to auto_flush for files compressed with LZMA, ZLIB, or LZ4
+        if chunk_size<=-4, chunk size is set to auto_flush
     """
     statusOn = True
     allowedTypes = ['int']

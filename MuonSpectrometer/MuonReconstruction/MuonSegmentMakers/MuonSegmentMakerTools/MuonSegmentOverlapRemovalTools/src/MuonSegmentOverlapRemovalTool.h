@@ -8,15 +8,16 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonSegment/MuonSegmentCombination.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 namespace Muon {
   
   class MuonSegment;
-  class MuonEDMHelperTool;
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
 
   /**
      @brief tool to remove overlaps between segments
@@ -28,13 +29,10 @@ namespace Muon {
     MuonSegmentOverlapRemovalTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonSegmentOverlapRemovalTool ();
+    virtual ~MuonSegmentOverlapRemovalTool () {};
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
  
      /** @brief remove duplicates from a vector of segments. The caller should take 
          ownership of the segments */
@@ -52,8 +50,10 @@ namespace Muon {
     //cleaning of MuonSegmentCombinations is turned off, so perhaps this can be removed entirely
     SegVec removeDuplicates( MuonSegmentCombination::SegmentVec& segments ) const;
 
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
-    ToolHandle<Muon::MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
 
     bool m_removePartialOverlaps; //!< remove partial overlaps between segments

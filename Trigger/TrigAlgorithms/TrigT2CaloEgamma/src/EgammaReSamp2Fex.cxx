@@ -428,7 +428,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   rtrigEmCluster.setRawPhi(energyPhi);
   rtrigEmCluster.setNCells(ncells);
 
-#ifndef NDEBUG
+#if 0 // Can't call EtaPhiRange from a const method!
   // This will internaly define normal, narrow and large clusters
   if (msgLvl(MSG::DEBUG)) {
     if (m_geometryTool->EtaPhiRange(0, 2, energyEta, energyPhi)) {

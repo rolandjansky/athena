@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasThreadedJob.py
 ## @brief py-module to configure the Athena AppMgr for threaded (Hive) jobs
@@ -21,8 +21,7 @@ def _setupAtlasThreadedJob():
         theApp.MessageSvcType = "MessageSvc"
 
     svcMgr.MessageSvc.defaultLimit = 0
-    msgFmt = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
-    svcMgr.MessageSvc.Format = msgFmt
+    svcMgr.MessageSvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
 
     theApp.StatusCodeCheck = False
 
@@ -53,13 +52,24 @@ def _setupAtlasThreadedJob():
     topSequence += SGInputLoader (FailIfNoProxy = False)
     AlgScheduler.setDataLoaderAlg ('SGInputLoader' )
 
-    from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+    if theApp._opts.mtes :
+        # Multi-threaded Event Service
+        from AthenaServices.AthenaServicesConf import AthenaMtesEventLoopMgr
+        
+        svcMgr += AthenaMtesEventLoopMgr()
+        svcMgr.AthenaMtesEventLoopMgr.WhiteboardSvc = "EventDataSvc"
+        svcMgr.AthenaMtesEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+        svcMgr.AthenaMtesEventLoopMgr.EventRangeChannel = theApp._opts.mtes_channel
+        
+        theApp.EventLoop = "AthenaMtesEventLoopMgr"
+    else:
+        from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
 
-    svcMgr += AthenaHiveEventLoopMgr()
-    svcMgr.AthenaHiveEventLoopMgr.WhiteboardSvc = "EventDataSvc"
-    svcMgr.AthenaHiveEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+        svcMgr += AthenaHiveEventLoopMgr()
+        svcMgr.AthenaHiveEventLoopMgr.WhiteboardSvc = "EventDataSvc"
+        svcMgr.AthenaHiveEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
 
-    theApp.EventLoop = "AthenaHiveEventLoopMgr"
+        theApp.EventLoop = "AthenaHiveEventLoopMgr"
 
     # enable timeline recording
     from GaudiHive.GaudiHiveConf import TimelineSvc

@@ -37,7 +37,7 @@ StatusCode JetOriginCorrectionTool::initialize() {
 
 //**********************************************************************
 
-int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
+StatusCode JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
   // static accessor for PV index access
   static SG::AuxElement::ConstAccessor<int> PVIndexAccessor("PVIndex");
 
@@ -51,7 +51,7 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
                     << ": filling jet with null");
     xAOD::JetFourMom_t null;    
     for(xAOD::Jet * j : jetCont) j->setAttribute<xAOD::JetFourMom_t>(m_correctionName, null);
-    return 0;
+    return StatusCode::SUCCESS;
   }
 
   auto vxContainer = handle.cptr();
@@ -81,7 +81,7 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
                         <<m_correctionName);
         xAOD::JetFourMom_t null;
         for (xAOD::Jet* j : jetCont) j->setAttribute<xAOD::JetFourMom_t>(m_correctionName,null);
-        return 0;
+        return StatusCode::SUCCESS;
       }
       
     }
@@ -103,7 +103,7 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
     jet->setAssociatedObject("OriginVertex", vx);
 
   }
-  return 0;
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

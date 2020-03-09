@@ -31,10 +31,10 @@ class MuonCombinedMuonCandidateAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool{this,"MuonCandidateTool","MuonCombined::MuonCandidateTool/MuonCandidateTool","Muon Candidate Tool"};
+  ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool;
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_muonTrackParticleLocation{this,"MuonSpectrometerTrackParticleLocation","MuonSpectrometerTrackParticles","MS Track Particle collection"};
   SG::WriteHandleKey<MuonCandidateCollection> m_candidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","Muon candidate collection"};
-  SG::WriteHandleKey<TrackCollection> m_msOnlyTracks{this,"MSOnlyExtrapolatedTrackLocation","MSOnlyExtrapolatedMuonTracks","MS extrapolated muon tracks"};
+  SG::WriteHandleKey<TrackCollection> m_msOnlyTracks{this,"MSOnlyExtrapolatedTrackLocation","MSOnlyExtrapolatedTracks","MS extrapolated muon tracks"};
 };
 
 

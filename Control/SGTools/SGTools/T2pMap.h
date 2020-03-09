@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGTOOLS_T2PMAP_H
@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 #include "AthenaKernel/IPageAccessControlSvc.h"
 
 namespace SG { 
@@ -31,6 +32,7 @@ class T2pMap {
 
   // associate a void* (T*) with a proxy
   bool t2pRegister(const void* const pTrans, DataProxy* const pPers) {
+    std::lock_guard<std::mutex> lock (m_mutex);
     bool success(m_t2p.insert (std::make_pair (pTrans, pPers)) . second);
     if (m_pac) m_pac->controlPage(pTrans);
     return success;
@@ -38,6 +40,7 @@ class T2pMap {
 
   // locate a proxy in t2p map
   DataProxy* locatePersistent(const void* const pTransient) const {
+    std::lock_guard<std::mutex> lock (m_mutex);
     t2p::const_iterator i = m_t2p.find(pTransient);
 
     if (i == m_t2p.end())
@@ -48,11 +51,13 @@ class T2pMap {
 
   // clear the t2p map
   void clear() {
+    std::lock_guard<std::mutex> lock (m_mutex);
     m_t2p.clear();
   }
 
   // remove a void* from t2p
   void t2pRemove(const void* const pTrans) {
+    std::lock_guard<std::mutex> lock (m_mutex);
     m_t2p.erase(pTrans);
   }
 
@@ -65,7 +70,7 @@ class T2pMap {
  private:
   IPageAccessControlSvc* m_pac;
   t2p m_t2p;
-
+  mutable std::mutex m_mutex;
 };
 
 }

@@ -8,7 +8,7 @@
 # ------------------------
 include( "TrigBphysMonitoring/configureBphysTrackingServices.py" )
 
-#print "JWW: apply temp fix TrkVKalVrtFitter.firstMeasuredPoint = False"
+#printfunc ("JWW: apply temp fix TrkVKalVrtFitter.firstMeasuredPoint = False")
 TrkVKalVrtFitter.FirstMeasuredPoint = False
 
 # ----------------------------------
@@ -36,7 +36,7 @@ ExampleJpsiFinder = Analysis__JpsiFinder(name                        = "BPhysJps
                                          VertexPointEstimator        = VtxPointEstimator,
                                          useMCPCuts                  = False)
 ToolSvc += ExampleJpsiFinder
-print      ExampleJpsiFinder
+printfunc (ExampleJpsiFinder)
 
 #-------------------------------------------------------------
 # User analysis steering algorithm
@@ -55,7 +55,7 @@ dimuDeco = BphysTrigDiMuDecoratorTool(name = "BphysTrigDiMuDecoratorTool",
                                   OutputLevel=INFO)
 
 ToolSvc += dimuDeco
-print      dimuDeco
+printfunc (dimuDeco)
 
 decoAlg = BphysTrigDecoratorAlg(name="BphysTrigDecoratorAlg",
                                 OutputLevel=INFO,

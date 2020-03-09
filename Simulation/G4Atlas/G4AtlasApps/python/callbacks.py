@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Collection of standard callback functions to be used in the sim initialisation, e.g.
@@ -6,6 +6,8 @@ Collection of standard callback functions to be used in the sim initialisation, 
 from G4AtlasApps import callbacks
 SimFlags.InitFunctions.add_function("postInit", callbacks.use_classicalrk4_stepper)
 """
+
+from __future__ import print_function
 
 
 ## Change the field stepper
@@ -35,8 +37,8 @@ def do_recursive_geometry_test():
 
 # Add a truth catch for LLP decay processes
 def add_LLP_truth_strategies():
-    print "ERROR add_LLP_truth_strategies is obsolete"
-    print "Please request a replacement configuration"
+    print ("ERROR add_LLP_truth_strategies is obsolete")
+    print ("Please request a replacement configuration")
     import sys
     sys.exit(1)
     ## from G4AtlasApps import AtlasG4Eng,PyG4Atlas

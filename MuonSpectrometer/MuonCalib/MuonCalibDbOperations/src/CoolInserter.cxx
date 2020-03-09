@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -24,14 +24,8 @@
 
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-	
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
+
 //c - c++
 #include "iostream"
 #include "sstream"
@@ -41,7 +35,7 @@
 //using namespace cool;
 namespace MuonCalib {
 
-CoolInserter::CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),  m_version("v0.0"), p_reg_sel_svc(NULL), m_cool_connect(false), m_t0_created(false), m_rt_created(false), m_mdtIdHelper(NULL), m_detMgr(NULL) {
+CoolInserter::CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),  m_version("v0.0"), p_reg_sel_svc(NULL), m_cool_connect(false), m_t0_created(false), m_rt_created(false) {
   declareProperty("CoolConnectionString", m_cool_connection_string);
   declareProperty("RtVersion", m_version);
   declareProperty("T0Tag", m_tagt0);
@@ -63,73 +57,50 @@ CoolInserter::CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : 
 }
 
 StatusCode CoolInserter::initialize() {
-  MsgStream log(msgSvc(), name());
 //check jo
   if(m_tagt0.size() != m_t0_folder.size() || m_tagrt.size() != 	m_rt_folder.size()) {
-    log << MSG::FATAL << "Configuration error: Number of folders and tags do not match!"<< endmsg;
+    ATH_MSG_FATAL("Configuration error: Number of folders and tags do not match!");
     return StatusCode::FAILURE;
   }
-  StoreGateSvc * detStore;
-  StatusCode sc=service("DetectorStore", detStore);
-  if(!sc.isSuccess()) {
-    log << MSG::FATAL << "Cannot retrieve Store Gate!" << endmsg;
-    return sc;
-  }
-     
-  sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-  if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endmsg;
-    return sc;
-  }
+
+  ATH_CHECK(m_idHelperSvc.retrieve());
   
-  sc = detStore->retrieve( m_detMgr );
-  if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endmsg;
-    return sc;	 
-  }   
+  ATH_CHECK(m_DetectorManagerKey.initialize());
   
-//get region selection service
-  sc=service("RegionSelectionSvc", p_reg_sel_svc);
-  if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
-    return sc;
-  }		
-//connect to cool database
+  //get region selection service
+  ATH_CHECK(service("RegionSelectionSvc", p_reg_sel_svc));
+
+  //connect to cool database
   try {
     m_db = m_app.databaseService().openDatabase(m_cool_connection_string ,false );
   }
   catch ( cool::DatabaseDoesNotExist  & e ) {
-    log<<MSG::INFO<<"Creating new database."<<endmsg;
+    ATH_MSG_INFO("Creating new database.");
     try {
       m_db = m_app.databaseService().createDatabase(m_cool_connection_string);
     }
     catch(cool::Exception & e) {
-      log << MSG::FATAL << "Cannot create database and datbasae does not exist!" << endmsg;
+      ATH_MSG_FATAL("Cannot create database and datbasae does not exist!");
       return StatusCode::FAILURE;
     }
   }
   m_cool_connect=true;
   if(m_t0_folder.size()) {
-    log << MSG::INFO <<"Replication into t0 folders: ";
+    ATH_MSG_INFO("Replication into t0 folders: ");
     for(unsigned int i=0; i<m_t0_folder.size(); i++) {
-      log<<m_t0_folder[i] << "(" << m_tagt0[i] << ") ";
+      ATH_MSG_INFO(m_t0_folder[i] << "(" << m_tagt0[i] << ") ");
     }
-    log<<endmsg;
   }
   if(m_rt_folder.size()) {
-    log << MSG::INFO <<"Replication into rt folders: ";
+    ATH_MSG_INFO("Replication into rt folders: ");
     for(unsigned int i=0; i<m_rt_folder.size(); i++) {
-      log<<m_rt_folder[i] << "(" << m_tagrt[i] << ") ";
+      ATH_MSG_INFO(m_rt_folder[i] << "(" << m_tagrt[i] << ") ");
     }
-    log<<endmsg;
   }
-//retrieve calibration sources
-  sc=m_calibration_sources.retrieve();
-  if(!sc.isSuccess()) {
-    log << MSG::FATAL <<"Cannot retrieve calibration sources!"<<endmsg;
-    return sc;
-  }	
-//get iov
+  //retrieve calibration sources
+  ATH_CHECK(m_calibration_sources.retrieve());
+
+   //get iov
   for(unsigned int i=0; i<m_calibration_sources.size(); i++) {
     int iov_start(-1), iov_end(-1);
     m_calibration_sources[i]->SetIOV(iov_start, iov_end);
@@ -139,7 +110,7 @@ StatusCode CoolInserter::initialize() {
       m_iov_end = iov_end;
   }
   if(m_iov_start<0 || m_iov_end==-1) {
-    log << MSG::FATAL << "IOV has to be set, if no calibration source provides it!"<<endmsg;
+    ATH_MSG_FATAL("IOV has to be set, if no calibration source provides it!");
     return StatusCode::FAILURE;
   }
   IOVTime start(m_iov_start, 0);
@@ -151,8 +122,8 @@ StatusCode CoolInserter::initialize() {
     IOVTime end(m_iov_end, 0);
     m_iovt_end = end.re_time();
   }
-  log << MSG::INFO << "IOV is "<<m_iov_start<<" to "<<m_iov_end<<endmsg;
-//fill compressed flags
+  ATH_MSG_INFO("IOV is "<<m_iov_start<<" to "<<m_iov_end);
+  //fill compressed flags
   if(m_compressed_t0.size() < m_t0_folder.size())	
     for(unsigned int i=m_compressed_t0.size(); i<m_t0_folder.size(); i++)
       m_compressed_t0.push_back(false);
@@ -163,8 +134,7 @@ StatusCode CoolInserter::initialize() {
 }
 		
 StatusCode CoolInserter::finalize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalizing "<<endmsg;
+  ATH_MSG_INFO("finalizing ");
   try {
     for(unsigned int i=0; i<m_mdtt0_fld.size(); i++)
       m_mdtt0_fld[i]->flushStorageBuffer();	
@@ -172,18 +142,17 @@ StatusCode CoolInserter::finalize() {
       m_mdtrt_fld[i]->flushStorageBuffer();
   }
   catch(std::exception & e) {
-    log << MSG::FATAL << "Exception in finalize: " << e.what() <<endmsg;
+    ATH_MSG_FATAL("Exception in finalize: " << e.what());
     return StatusCode::FAILURE;
   }	
   return StatusCode::SUCCESS;	
 }
 
 StatusCode CoolInserter::execute() {
-  MsgStream log(msgSvc(), name());
   for(unsigned int i=0; i<m_calibration_sources.size(); i++) {
-    log << MSG::INFO << "Now running " <<m_calibration_sources[i] <<endmsg;
+    ATH_MSG_INFO("Now running " <<m_calibration_sources[i]);
     if (!m_calibration_sources[i]->InstertCalibration(this, static_cast<bool>(m_t0_folder.size()), static_cast<bool>(m_rt_folder.size()))) {
-      log << MSG::FATAL << "Calibration Source " << m_calibration_sources[i].name() << " failed!" << endmsg;
+      ATH_MSG_FATAL("Calibration Source " << m_calibration_sources[i].name() << " failed!");
       return StatusCode::FAILURE;
     }
   }
@@ -194,7 +163,15 @@ bool CoolInserter::StartT0Chamber(const NtupleStationId & sid) {
   m_n_tubes_added=0;
   m_sid=sid;
   m_sid.SetMultilayer(0);
-  if (!m_sid.InitializeGeometry(m_mdtIdHelper, m_detMgr))
+
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return false; 
+  } 
+
+  if (!m_sid.InitializeGeometry(m_idHelperSvc->mdtIdHelper(), MuonDetMgr))
     return false;
 //get number of tubes
   int max_nly(-1);
@@ -226,7 +203,6 @@ bool CoolInserter::AppendT0(float t0, int validflag, float adc0) {
 }
 
 bool CoolInserter::StoreT0Chamber(const NtupleStationId & id,  const std::string & file, unsigned int creation_flags) {
-  MsgStream log(msgSvc(), name());
   MuonFixedId fid(id.FixedId());	
 //generate fixed if for chamber
   if(!p_reg_sel_svc->isInRegion(fid)) {
@@ -239,7 +215,7 @@ bool CoolInserter::StoreT0Chamber(const NtupleStationId & id,  const std::string
   m_t0_filled.insert(id);
 //check number of added tubes
   if (m_n_tubes_added < m_n_tubes_chamber) {
-    log << MSG::WARNING << "Filling missing tubes with average for chamber" << m_sid.regionId()<<endmsg;
+    ATH_MSG_WARNING("Filling missing tubes with average for chamber" << m_sid.regionId());
     m_aver_t0/=m_n_tubes_added;
     m_aver_adc/=m_n_tubes_added;
     for(int i=m_n_tubes_added; i<m_n_tubes_chamber; i++) {
@@ -251,7 +227,7 @@ bool CoolInserter::StoreT0Chamber(const NtupleStationId & id,  const std::string
     for(unsigned int i=0; i<m_t0_folder.size(); i++) {
       if(!m_db->existsFolder(m_t0_folder[i])) {
 	if(!create_folder(i, false)) {
-	  log << MSG::FATAL << "Cannot create folder '" << m_t0_folder[i] <<"'!"<<endmsg;
+	  ATH_MSG_FATAL("Cannot create folder '" << m_t0_folder[i] <<"'!");
 	  return false;
 	}
       }
@@ -298,7 +274,6 @@ bool CoolInserter::StoreT0Chamber(const NtupleStationId & id,  const std::string
 }
 
 bool CoolInserter::StoreRtChamber(const NtupleStationId & id, const std::map<int, SamplePoint> & points, const std::string & file, unsigned int creation_flags) {
-  MsgStream log(msgSvc(), name());
 //generate fixed if for chamber
   MuonFixedId fid(id.FixedId());
   if(!p_reg_sel_svc->isInRegion(fid))	{
@@ -334,7 +309,7 @@ bool CoolInserter::StoreRtChamber(const NtupleStationId & id, const std::map<int
       
       if(!m_db->existsFolder(m_rt_folder[i]))	{
 	if(!create_folder(i, true)) {
-	  log << MSG::FATAL << "Cannot create folder '" << m_rt_folder[i] <<"'!"<<endmsg;
+	  ATH_MSG_FATAL("Cannot create folder '" << m_rt_folder[i] <<"'!");
 	  return false;
 	}
       }

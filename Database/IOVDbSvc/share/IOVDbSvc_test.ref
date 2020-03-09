@@ -37,7 +37,7 @@ IOVDbSvc             INFO Initialised with 2 connections and 2 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO Opening COOL connection for sqlite://none;schema=mytest.db;dbname=OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
-IOVSvcTool           INFO IOVRanges will be checked at every Event
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
 IOVDbSvc             INFO Disconnecting from sqlite://none;schema=mytest.db;dbname=OFLP200
 test1
 IOVDbSvc             INFO Opening COOL connection for sqlite://none;schema=mytest.db;dbname=OFLP200

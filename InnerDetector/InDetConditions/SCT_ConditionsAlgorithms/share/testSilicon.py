@@ -2,6 +2,11 @@ useDB=True
 
 import AthenaCommon.AtlasUnixStandardJob
 
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testSilicon")
+msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Thread-specific setup
 #--------------------------------------------------------------
@@ -31,7 +36,7 @@ globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="geant4"
-print globalflags
+msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup

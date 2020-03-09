@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PyAnalysisExamples/MySelectionAlg.h"
@@ -8,7 +8,6 @@
 #include "PyAnalysisExamples/MyTool.h"
 #include "PyAnalysisExamples/MyObj.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "AthContainers/ConstDataVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 

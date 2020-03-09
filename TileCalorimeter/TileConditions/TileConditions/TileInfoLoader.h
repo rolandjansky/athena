@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TILERECALGS_TILEINFOLOADER_H
-#define TILERECALGS_TILEINFOLOADER_H
+#ifndef TILECONDITIONS_TILEINFOLOADER_H
+#define TILECONDITIONS_TILEINFOLOADER_H
 //****************************************************************************
 // Filename : TileInfoLoader.h
 // Author   : Ed Frank
@@ -35,16 +35,14 @@
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 // Athena includes
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <string>
 
 class TilePulseShapes;
-class TileOptFilterWeights;
+class TileWienerFilterWeights;
 class StoreGateSvc;
 class TileCablingSvc;
 template<class TYPE> class SvcFactory;
@@ -52,7 +50,7 @@ class TileInfo;
 
 static const InterfaceID IID_TileInfoLoader("TileInfoLoader", 1, 0);
 
-class TileInfoLoader: public AthService {
+class ATLAS_CHECK_THREAD_SAFETY TileInfoLoader: public AthService {
 
     friend class SvcFactory<TileInfoLoader> ;
 
@@ -118,10 +116,13 @@ private:
     double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
     int    m_nPhElec;
     int    m_nPhElecVec[7];
+    int    m_ADCmax;
+    int    m_ADCmaskValue;
+    
 
 
-    /** Pointer to Optimal Filtering weights*/
-    TileOptFilterWeights* m_OFWeights;
+    /** Pointer to Wiener Filtering weights*/
+    TileWienerFilterWeights* m_WFWeights;
 
     /** Filenames of input files */
     std::string m_digitsShapeFileHi;
@@ -131,8 +132,7 @@ private:
     std::string m_MuL1ShapeFile;
     std::string m_DecoCovaFilePrefix;
 
-    bool m_loadOptFilterWeights;
-    bool m_loadOptFilterCorrelation;
+    bool m_loadWienerFilterWeights;
 
     // name of TileCalibContainer in detector store
     std::string m_calibCntName;
@@ -149,4 +149,4 @@ private:
     TileInfoLoader& operator=(const TileInfoLoader&);
 };
 
-#endif  // TileInfoLoader.h
+#endif  // TILECONDITIONS_TILEINFOLOADER_H

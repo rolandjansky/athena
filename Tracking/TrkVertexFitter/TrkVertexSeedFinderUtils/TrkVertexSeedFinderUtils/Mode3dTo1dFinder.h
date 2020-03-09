@@ -29,39 +29,81 @@ namespace Trk
 
   class IMode1dFinder;
   
-  class Mode3dTo1dFinder : public AthAlgTool, virtual public IMode3dFinder
+  class Mode3dTo1dFinder : public extends<AthAlgTool, IMode3dFinder>
   {
   public:
+    // Standard Athena constructor.
+    Mode3dTo1dFinder (const std::string& t,
+                      const std::string& n,
+                      const IInterface*  p);
+
+
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     
-    //default constructor due to Athena interface
-      Mode3dTo1dFinder(const std::string& t, const std::string& n, const IInterface*  p);
-      
-      //destructor
-      virtual ~Mode3dTo1dFinder();
-            
-      //obtain the 3d-mode (position) from a list of positions (distribution in space)
-      virtual const Amg::Vector3D getMode(const std::vector<Trk::PositionAndWeight> &) const override;
+    
+    /**
+     * @brief Obtain the 3d-mode (position) from a list of positions
+     *        (distribution in space)
+     * @param vx Primary vertex x-coordinate.
+     * @param vy Primary vertex y-coordinate.
+     * @param points List of points with weights.
+     */
+    virtual const Amg::Vector3D
+    getMode (const double vx,
+             const double vy,
+             const std::vector<Trk::PositionAndWeight>& points) const override;
+    
 
-      //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
-      virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const override;
+    /**
+     * @brief Obtain the 3d-mode (position) from a list of positions
+     *        (distribution in space)
+     * @param vx Primary vertex x-coordinate.
+     * @param vy Primary vertex y-coordinate.
+     * @param points List of points with weights.
+     * @param info[out] Optionally returns an object for retrieving
+     *                  additional information.  May be left null if additional
+     *                  information is not available.
+     */
+    virtual const Amg::Vector3D
+    getMode (const double vx,
+             const double vy,
+             const std::vector<Trk::PositionAndWeight>& points,
+             std::unique_ptr<IMode3dInfo>& info) const override;
+                                         
+
+    /**
+     * @brief Obtain the 3d-mode (position) from a list of positions
+     *        (distribution in space)
+     * @param vx Primary vertex x-coordinate.
+     * @param vy Primary vertex y-coordinate.
+     * @param points List of points --- unweighted!
+     */
+    virtual const Amg::Vector3D
+    getMode (const double vx,
+             const double vy,
+             const std::vector<Amg::Vector3D>& points) const override;
+
+
+    /**
+     * @brief Obtain the 3d-mode (position) from a list of positions
+     *        (distribution in space)
+     * @param vx Primary vertex x-coordinate.
+     * @param vy Primary vertex y-coordinate.
+     * @param points List of points --- unweighted!
+     * @param info[out] Optionally returns an object for retrieving
+     *                  additional information.  May be left null if additional
+     *                  information is not available.
+     */
+    virtual const Amg::Vector3D
+    getMode (const double vx,
+             const double vy,
+             const std::vector<Amg::Vector3D>& points,
+             std::unique_ptr<IMode3dInfo>& info) const override;
      
 
-      //The below four functions are dummy functions so that this compiles. The functions are needed in the interface IMode3dFinder.h for Mode3dFromFsmw1dFinder (the seed finder for the Inclusive Secondary Vertex Finder)
-      virtual void setPriVtxPosition( double, double ) override;
-      virtual unsigned int Modes1d(std::vector<float> &, std::vector<float> &, 
-				   std::vector<float> &, std::vector<float> &) const override;
-
-      virtual const std::vector<int> & AcceptedCrossingPointsIndices() const override;
-      virtual void getCorrelationDistance( double &cXY, double &cZ ) override;
-      
   private:
-      
-      ToolHandle< IMode1dFinder > m_mode1dfinder;
-
-      //this variable is needed for the above dummy functions
-      mutable std::vector<int>  m_acceptedCrossingPoint;
+    ToolHandle< IMode1dFinder > m_mode1dfinder;
   };
 }
 #endif

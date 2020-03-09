@@ -16,11 +16,15 @@ atlas_depends_on_subdirs( PUBLIC
    Event/xAOD/xAODEventInfo
    )
 
+# External dependencies:
+find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+
 # Component(s) in the package:
 atlas_add_component( AFP_Monitoring
    src/*.cxx
    src/components/*.cxx
    PUBLIC_HEADERS AFP_Monitoring
+   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES AthenaMonitoringLib LWHists xAODForward xAODEventInfo AFP_RawEv)
 
 atlas_install_headers( AFP_Monitoring )

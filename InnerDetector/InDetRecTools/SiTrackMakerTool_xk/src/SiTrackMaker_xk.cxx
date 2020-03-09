@@ -116,7 +116,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
 
   ATH_CHECK(m_caloCluster.initialize(m_useBremModel && m_useCaloSeeds));
   ATH_CHECK(m_caloHad.initialize( !m_useSSSfilter && m_useHClusSeed) );
-  
+
   if (m_pTmin < 20.) m_pTmin = 20.;
   return StatusCode::SUCCESS;
 }
@@ -173,8 +173,8 @@ MsgStream& InDet::SiTrackMaker_xk::dumpconditions(MsgStream& out) const
   out<<"| Tool for road builder   | "<<m_roadmaker  .type() <<s6<<std::endl;
   out<<"} Tool for track finding  | "<<m_tracksfinder.type()<<s4<<std::endl;
   out<<"| Use association tool ?  | "
-     <<std::setw(12)<<m_useassoTool 
-     <<"                                                  |"<<std::endl;
+     <<std::setw(12)<<m_useassoTool
+     << std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]      <<s3<<std::endl;
   out<<"| Seeds filter level      | "<<std::setw(12)<<m_seedsfilter
      <<"                                                  |"<<std::endl;
@@ -665,14 +665,14 @@ InDet::TrackQualityCuts InDet::SiTrackMaker_xk::setTrackQualityCuts(bool simpleT
   trackquality.setIntCut("MaxNumberOfHoles"    ,m_nholesmax  ); 
   trackquality.setIntCut("MaxHolesGae"         ,m_dholesmax  ); 
 
-  if (m_useassoTool) trackquality.setIntCut("UseAssociationTool",1);
-  else               trackquality.setIntCut("UseAssociationTool",0);
-  if (m_cosmicTrack) trackquality.setIntCut("CosmicTrack"       ,1); 
-  else               trackquality.setIntCut("CosmicTrack"       ,0);
-  if (simpleTrack)   trackquality.setIntCut("SimpleTrack"       ,1);
-  else               trackquality.setIntCut("SimpleTrack"       ,0);
-  if (m_multitracks) trackquality.setIntCut("doMultiTracksProd" ,1);
-  else               trackquality.setIntCut("doMultiTracksProd" ,0);
+  if (m_useassoTool)                  trackquality.setIntCut("UseAssociationTool",1);
+  else                                trackquality.setIntCut("UseAssociationTool",0);
+  if (m_cosmicTrack)                  trackquality.setIntCut("CosmicTrack"       ,1); 
+  else                                trackquality.setIntCut("CosmicTrack"       ,0);
+  if (simpleTrack)                    trackquality.setIntCut("SimpleTrack"       ,1);
+  else                                trackquality.setIntCut("SimpleTrack"       ,0);
+  if (m_multitracks)                  trackquality.setIntCut("doMultiTracksProd" ,1);
+  else                                trackquality.setIntCut("doMultiTracksProd" ,0);
 
   // Double cuts
   //

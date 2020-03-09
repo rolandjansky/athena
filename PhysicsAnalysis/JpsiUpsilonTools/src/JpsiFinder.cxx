@@ -433,10 +433,10 @@ namespace Analysis {
     
     xAOD::Vertex* JpsiFinder::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,const xAOD::TrackParticleContainer* importedTrackCollection) const {
         
-        Trk::TrkV0VertexFitter* concreteVertexFitter=0;
+        const Trk::TrkV0VertexFitter* concreteVertexFitter=0;
         if (m_useV0Fitter) {
             // making a concrete fitter for the V0Fitter
-            concreteVertexFitter = dynamic_cast<Trk::TrkV0VertexFitter * >(&(*m_iV0VertexFitter));
+            concreteVertexFitter = dynamic_cast<const Trk::TrkV0VertexFitter * >(m_iV0VertexFitter.get());
             if(concreteVertexFitter == 0) {
                 ATH_MSG_FATAL("The vertex fitter passed is not a V0 Vertex Fitter");
                 return NULL;

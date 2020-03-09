@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 ## Simple wrapper to invoke AthFileLite metadata grabber and
 #  produce AthFile-like text output
 #
 # $Id: dumpAthfilelite.py 618684 2014-09-26 11:46:14Z graemes $
+
+from __future__ import print_function
 
 import argparse
 import os
@@ -35,11 +37,11 @@ def main():
             
         metadata = afl.fileinfo
         
-        print "="*80
-        print filename
-        print "="*80
+        print ("="*80)
+        print (filename)
+        print ("="*80)
         pprint.pprint(metadata)
-        print "="*80
+        print ("="*80)
 
 if __name__ == "__main__":
     main()

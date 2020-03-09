@@ -5,7 +5,7 @@
 #include "EMRoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 
 /////////////////////////////////////////////////////////////////// 
@@ -22,26 +22,26 @@ EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type,
 {
 }
 
+using namespace TrigCompositeUtils;
+
 
 StatusCode EMRoIsUnpackingTool::initialize() {
 
-  CHECK( RoIsUnpackingToolBase::initialize() );
-  CHECK( m_configSvc.retrieve() );
-  CHECK( m_trigRoIsKey.initialize() );
-  CHECK( m_recRoIsKey.initialize() );
-
+  ATH_CHECK( RoIsUnpackingToolBase::initialize() );
+  ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_trigRoIsKey.initialize() );
+  ATH_CHECK( m_recRoIsKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
-  using namespace TrigConf;
-  
-  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::EM; }, 
-			    m_configSvc->ctpConfig()->menu().itemVector(),
-			    seeding ) );
+StatusCode EMRoIsUnpackingTool::start() {
+  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("EM") == 0;  } ) );
+  return StatusCode::SUCCESS;
+}
 
+StatusCode EMRoIsUnpackingTool::updateConfiguration() {
   m_emThresholds.clear();
-
+  using namespace TrigConf;
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   auto filteredThresholds= thresholdConfig->getThresholdVector( L1DataDef::EM );
   ATH_MSG_DEBUG( "Number of filtered thresholds " << filteredThresholds.size() );
@@ -59,8 +59,6 @@ StatusCode EMRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::S
   } else {
     ATH_MSG_INFO( "Configured " << m_emThresholds.size() << " thresholds" );
   }
-
-  
 
   return StatusCode::SUCCESS;
 }
@@ -104,7 +102,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 			  
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
+      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
 
       std::vector<unsigned> passedThresholdIDs;
       for ( auto th: m_emThresholds ) {
@@ -121,8 +119,8 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 	}
       }
       decision->setDetail( "thresholds", passedThresholdIDs );
-      decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
-      decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
+      decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+      decision->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     }     
   }
   for ( auto roi: *trigRoIs ) {

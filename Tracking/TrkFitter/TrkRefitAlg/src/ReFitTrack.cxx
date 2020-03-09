@@ -23,8 +23,6 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "VxVertex/VxContainer.h"
@@ -44,7 +42,6 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
   m_ITrackFitter("TrkKalmanFitter/KalmanFitter"),
   m_ITrackFitterTRT(""),
   m_trkSummaryTool(""),
-  m_assoTool(""),
   m_trkSelectorTool(""),
   m_constrainFitMode(0),
   m_vxContainerName("VxPrimaryCandidate"),
@@ -58,7 +55,6 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("FitterTool",           m_ITrackFitter, "ToolHandle for track fitter implementation");
   declareProperty("FitterToolTRT",        m_ITrackFitterTRT, "ToolHandle for TRT track fitter implementation");
   declareProperty("SummaryTool" ,         m_trkSummaryTool, "ToolHandle for track summary tool");
-  declareProperty("AssoTool",             m_assoTool, "ToolHandle for PRD association tool");
   declareProperty("TrackSelectionTool",   m_trkSelectorTool, "ToolHandle for track selection tool");
   declareProperty("runOutlier",           m_runOutlier,   "switch to control outlier finding in track fit");
   declareProperty("matEffects",           m_matEffects,   "type of material interaction in extrapolation");
@@ -129,6 +125,8 @@ StatusCode Trk::ReFitTrack::initialize()
   ATH_CHECK( m_trackName.initialize() );
   ATH_CHECK( m_vxContainerName.initialize() );
   ATH_CHECK( m_newTrackName.initialize() );
+  ATH_CHECK( m_pixelDetEleCollKey.initialize() );
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -137,9 +135,7 @@ StatusCode Trk::ReFitTrack::initialize()
 StatusCode Trk::ReFitTrack::execute() 
 {
   ATH_MSG_DEBUG ("ReFitTrack::execute()");
-
-  // clean up association tool
-  m_assoTool->reset();
+  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map(m_assoTool->createPRDtoTrackMap());
 
   SG::ReadHandle<TrackCollection> tracks (m_trackName);
 
@@ -169,8 +165,8 @@ StatusCode Trk::ReFitTrack::execute()
   ParticleHypothesis hypo=m_ParticleHypothesis;
 
   // create new collection of tracks to write in storegate
-  auto newtracks = std::make_unique<TrackCollection>();
-  SG::WriteHandle<TrackCollection> outputtracks (m_newTrackName);
+  //  auto newtracks = std::make_unique<TrackCollection>();
+  std::vector<std::unique_ptr<Trk::Track> > new_tracks;
 
   // loop over tracks
   for (TrackCollection::const_iterator itr  = (*tracks).begin(); itr < (*tracks).end(); itr++){
@@ -178,7 +174,7 @@ StatusCode Trk::ReFitTrack::execute()
     ATH_MSG_VERBOSE ("input track:" << **itr);
 
     if (m_usetrackhypo) hypo=(**itr).info().particleHypothesis();
-    Track* newtrack=0;
+    std::unique_ptr<Trk::Track> newtrack;
     bool trtonly=false;
     
     bool passedSelection = true; 
@@ -190,10 +186,17 @@ StatusCode Trk::ReFitTrack::execute()
    
     if (m_ITrackFitterTRT.name()!="" && m_trkSummaryTool.name()!=""){
       ATH_MSG_VERBOSE ("Creating summary");
-      const Trk::TrackSummary *summary = m_trkSummaryTool->createSummaryNoHoleSearch(**itr);
-      if ( (**itr).measurementsOnTrack()->size() - summary->get(numberOfTRTHits)<3 )
+      // @TODO does not need PRDtoTrackMap
+      unsigned int n_trt_hits;
+      if ((*itr)->trackSummary()) {
+         n_trt_hits = (*itr)->trackSummary()->get(numberOfTRTHits);
+      }
+      else {
+         std::unique_ptr<const Trk::TrackSummary> summary(  m_trkSummaryTool->summaryNoHoleSearch(**itr, prd_to_track_map.get()));
+         n_trt_hits = summary->get(numberOfTRTHits);
+      }
+      if ( (**itr).measurementsOnTrack()->size() - n_trt_hits<3 )
         trtonly=true;
-      delete summary;
     }
 
     if (passedSelection) {
@@ -236,20 +239,19 @@ StatusCode Trk::ReFitTrack::execute()
          // for ( ; measIter != measIterEnd; ++measIter) 
          //    vec.push_back((*measIter));
          // refit with the beamspot / vertex
-         newtrack = (trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(vec, *origPerigee, m_runOutlier,hypo);
+         newtrack.reset((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(vec, *origPerigee, m_runOutlier,hypo));
          // now delete the vsvx
-        
       } else {
-        newtrack = (trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(**itr,m_runOutlier,hypo);
+         newtrack.reset((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(**itr,m_runOutlier,hypo));
       }
     } // passed selection
 
-    if (newtrack) newtracks->push_back(newtrack);
+    if (newtrack) new_tracks.push_back(std::move(newtrack));
 
     if (msgLvl(MSG::DEBUG)) {
-      if (newtrack==0) ATH_MSG_DEBUG ("Refit Failed");
+      if (!newtrack) ATH_MSG_DEBUG ("Refit Failed");
       else {
-      
+
         // ATH_MSG_VERBOSE ("re-fitted track:" << *newtrack);
         const Trk::Perigee *aMeasPer=
           dynamic_cast<const Trk::Perigee*>(newtrack->perigeeParameters () );
@@ -270,24 +272,23 @@ StatusCode Trk::ReFitTrack::execute()
   ATH_MSG_VERBOSE ("Add PRDs to assoc tool.");
 
   // recreate the summaries on the final track collection with correct PRD tool
-  TrackCollection::const_iterator t  = newtracks->begin();
-  TrackCollection::const_iterator te = newtracks->end  ();
-  for ( ; t!=te; ++t) {
-    if((m_assoTool->addPRDs(**t)).isFailure()) {ATH_MSG_WARNING("Failed to add PRDs to map");}
+  for(const std::unique_ptr<Trk::Track> &new_track : new_tracks ) {
+    if((m_assoTool->addPRDs(*prd_to_track_map, *new_track)).isFailure()) {ATH_MSG_WARNING("Failed to add PRDs to map");}
   }
-  
+
   ATH_MSG_VERBOSE ("Recalculate the summary");
-  
+  // and copy tracks from vector of non-const tracks to collection of const tracks 
+  std::unique_ptr<TrackCollection> new_track_collection = std::make_unique<TrackCollection>();
+  new_track_collection->reserve(new_tracks.size());
   // now recalculate the summary ... the usual nasty const cast is needed here
-  t  = newtracks->begin();
-  for ( ; t!=te; ++t) {
-    Trk::Track& nonConstTrack = const_cast<Trk::Track&>(**t);
-    m_trkSummaryTool->updateTrack(nonConstTrack);
+  for(std::unique_ptr<Trk::Track> &new_track : new_tracks ) {
+    // @TODO need solution which does not modify the Track
+    m_trkSummaryTool->computeAndReplaceTrackSummary(*new_track, prd_to_track_map.get(), false /* DO NOT suppress hole search*/);
+    new_track_collection->push_back(std::move(new_track));
   }
 
   ATH_MSG_VERBOSE ("Save tracks");
-
-  ATH_CHECK(outputtracks.record(std::move(newtracks)));
+  ATH_CHECK(SG::WriteHandle<TrackCollection>(m_newTrackName).record(std::move(new_track_collection)));
 
   return StatusCode::SUCCESS;
 }

@@ -195,13 +195,12 @@ if __name__=="__main__":
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
     pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
-    cfg.getEventAlgo("OutputStreamxAOD").ForceRead = True
   
     # Optionally, print the contents of the store every event
     cfg.getService("StoreGateSvc").Dump = args.dumpSG
 
     # Save this configuration to a pickle file
-    f=open("JetRecTest.pkl","w")
+    f=open("JetRecTest.pkl","wb")
     cfg.store(f)
     f.close()
 

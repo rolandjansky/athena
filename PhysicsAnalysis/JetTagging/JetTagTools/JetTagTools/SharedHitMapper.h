@@ -15,7 +15,6 @@
 
 //namespace xAOD { class TrackParticle; }
 
-class StoreGateSvc;
 class PixelID;
 class SCT_ID;
 
@@ -50,8 +49,6 @@ private:
   int m_npd[m_nbpd];
   int m_nsl[m_nbsl];
   int m_nsd[m_nbsd];
-
-  StoreGateSvc* 		m_StoreGate; 
 };
 
 

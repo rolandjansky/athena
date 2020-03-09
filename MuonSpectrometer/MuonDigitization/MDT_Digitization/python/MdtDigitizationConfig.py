@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import MDT_Digitization job properties
@@ -20,6 +20,7 @@ def MDT_LastXing():
     return 150
 
 def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
+   import MuonCondAlg.MdtCondDbAlgConfig # MT-safe conditions access
    kwargs.setdefault("MaskedStations", [])
    kwargs.setdefault("UseDeadChamberSvc", True)
    kwargs.setdefault("DiscardEarlyHits", True)
@@ -84,12 +85,26 @@ def MDT_Response_DigiTool(name="MDT_Response_DigiTool",**kwargs):
 
 def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+MDT_DIGITS")
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "MDT_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "MDT_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() +  "+MDT_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+MDT_SDO")
     kwargs.setdefault("GetT0FromBD", overlayFlags.isDataOverlay())
-    if not overlayFlags.isDataOverlay():
-        kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+MDT_SDO")
     return MdtDigitizationTool(name,**kwargs)
 
 def getMDT_OverlayDigitizer(name="MDT_OverlayDigitizer", **kwargs):
     kwargs.setdefault("DigitizationTool","Mdt_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
+
     return CfgMgr.MDT_Digitizer(name,**kwargs)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMINBIAS_TRIGCOUNTSPACEPOINTS_H
@@ -12,7 +12,6 @@
 #include "xAODTrigMinBias/TrigSpacePointCounts.h"
 #include "xAODTrigMinBias/TrigHisto2D.h"
 
-class StoreGateSvc;
 class SCT_ID;
 class PixelID;
 class TrigSpacePointCounts;
@@ -49,7 +48,6 @@ class TrigCountSpacePoints: public HLT::AllTEAlgo {
   HLT::ErrorCode checkDetectorMask();
   
   Bool_t                        m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
-  ServiceHandle<StoreGateSvc>   m_detStore;
   ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
   
   bool m_doPixelSp; //!< Flag to switch on or off Pixel space point retrieval 

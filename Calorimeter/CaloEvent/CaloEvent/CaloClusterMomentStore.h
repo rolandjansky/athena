@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOCLUSTERMOMENTSTORE_H
@@ -67,7 +67,7 @@ class CaloClusterMomentStore
 
       /*! \brief Iterator advance method */
       CaloClusterMomentIterator next()
-        ATH_CLING_BODY( { m_actual++; return *this; } )
+        ATH_CLING_BODY( { ++m_actual; return *this; } )
       /*! \brief Iterator post advance operator */
       CaloClusterMomentIterator operator++()    { return this->next(); }
       /*! \brief Iterator prior advance operator */
@@ -75,7 +75,7 @@ class CaloClusterMomentStore
       
       /*! \brief Iterator reverse method */
       CaloClusterMomentIterator prev()
-        ATH_CLING_BODY( { m_actual--; return *this; } )
+        ATH_CLING_BODY( { --m_actual; return *this; } )
       /*! \brief Iterator post reverse operator */
       CaloClusterMomentIterator operator--()    { return this->prev(); }
       /*! \brief Iterator prior reverse operator */

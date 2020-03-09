@@ -9,9 +9,9 @@ atlas_subdir( FourMom )
 atlas_depends_on_subdirs( PUBLIC
                           Event/EventKernel
                           Event/EventPrimitives
+                          Control/CxxUtils
                           PRIVATE
-                          AtlasTest/TestTools
-                          TestPolicy )
+                          AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -25,7 +25,7 @@ atlas_add_library( FourMom
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} EventKernel EventPrimitives
+		   LINK_LIBRARIES ${CLHEP_LIBRARIES} EventKernel EventPrimitives CxxUtils
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TestTools )
 
 atlas_add_dictionary( FourMomDict

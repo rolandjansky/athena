@@ -9,10 +9,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "MuonRDO/CscRawDataContainer.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class TH1F;
 class TH2F;
-class CscIdHelper;
 
 namespace Muon {
     class ICSC_RDO_Decoder;
@@ -46,7 +46,8 @@ class CscRdoValAlg: public ManagedMonitorToolBase
   size_t m_cscNoiseCut;
   SG::ReadHandleKey<CscRawDataContainer> m_cscRdoKey{this,"CSCRawDataKey","CSCRDO","CSC RDO"};
   std::string m_cscRDOPath, m_cscGenPath;
-  const CscIdHelper * m_cscIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   // CSC RDO Decoder
   ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;

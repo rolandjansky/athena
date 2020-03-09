@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_T_ATHENAPOOLCUSTCNV_H
@@ -45,29 +45,31 @@ protected:
 
    /// Set POOL placement for type P.
    template <class P>
-   void setPlacementForP(P& p, const std::string& key = "");
+   Placement setPlacementForP(P& p, const std::string& key, const std::string& output);
 
    /// Convert an object into Persistent.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key);
+   virtual StatusCode DataObjectToPers(DataObject* pObj, IOpaqueAddress*& pAddr);
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& key);
+   virtual StatusCode DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj);
 
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
    /// @param token [IN] POOL token of the persistent representation.
-   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token);
+   /// @param key [IN] SG key of the object being read.
+   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token,
+                                       const std::string& key);
 
    /// Write an object into POOL returning its token.
    /// @param pObj  [IN]  pointer to the object to be written.
    /// @param token [OUT] POOL token of the persistent representation.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
    template <class P>
-   StatusCode objectToPool(P* pObj, Token*& token, const std::string& key = "");
+   StatusCode objectToPool(P* pObj, Token*& token, const std::string& key, const std::string& output);
 
    /// Read an object from POOL.
    /// @param token [IN]  POOL token of the persistent representation.

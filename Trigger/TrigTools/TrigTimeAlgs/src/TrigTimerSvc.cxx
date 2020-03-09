@@ -65,7 +65,7 @@ StatusCode TrigTimerSvc::start ( ) {
   // Book histogram
   ServiceHandle<ITHistSvc> histSvc("THistSvc", name());
   ATH_CHECK(histSvc.retrieve());
-  const std::string histPath = "/EXPERT/" + name() + "/";
+  const std::string histPath = "/EXPERT/HLTFramework/" + name() + "/";
   const auto& v = m_histProp_timerCalls.value();
   m_hist_timerCalls = new TH1F("TimerCalls", v.title().c_str(), v.bins(), v.lowEdge(), v.highEdge());
   ATH_CHECK(histSvc->regHist(histPath + m_hist_timerCalls->GetName(), m_hist_timerCalls));

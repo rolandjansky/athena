@@ -219,8 +219,7 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
 	m_finQueue.pop_front();
 
 	if(m_finQueue.size()) {
-	  if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
-	     || m_processGroup->map_async(0,0,m_finQueue.front())) {
+	  if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())) {
 	    // To Do: how to report this error to the pilot?
 	    ATH_MSG_ERROR("Problem scheduling finalization on PID=" << m_finQueue.front());
 	    return StatusCode::FAILURE;
@@ -300,8 +299,7 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
 	// If this is the only element in the queue then start its finalization
 	// Otherwise it has to wait its turn until all previous processes have been finalized
 	if(m_finQueue.size()==1) {
-	  if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,childPid)
-	     || m_processGroup->map_async(0,0,childPid)) {
+	  if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,childPid)) {
 	    ATH_MSG_ERROR("Problem scheduling finalization on PID=" << childPid);
 	    return StatusCode::FAILURE;
 	  }
@@ -317,13 +315,20 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
 	ATH_MSG_DEBUG("Finished finalization of PID=" << childPid);
 	pid_t pidFront = m_finQueue.front();
 	if(pidFront==childPid) {
-	  // pid received as expected. Remove it from the queue
+	  // pid received as expected
+
+	  // Set the process free
+	  if(m_processGroup->map_async(0,0,pidFront)) {
+	    ATH_MSG_ERROR("Failed to set the process PID=" << pidFront << " free");
+	    return StatusCode::FAILURE;
+	  }
+
+	  // Remove it from the queue
 	  m_finQueue.pop_front();
 	  ATH_MSG_DEBUG("PID=" << childPid << " removed from the queue");
 	  // Schedule finalization of the next process in the queue
 	  if(m_finQueue.size()) {
-	    if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
-	       || m_processGroup->map_async(0,0,m_finQueue.front())) {
+	    if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())) {
 	      ATH_MSG_ERROR("Problem scheduling finalization on PID=" << m_finQueue.front());
 	      return StatusCode::FAILURE;
 	    }

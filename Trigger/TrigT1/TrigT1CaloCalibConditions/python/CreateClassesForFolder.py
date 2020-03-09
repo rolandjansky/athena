@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
 CreateClassesForFolder.py
@@ -86,7 +86,6 @@ _container_src = """#include "TrigT1CaloCalibConditions/${ContainerName}.h"
 #include <algorithm>
 #include <memory>
 
-#include "CxxUtils/make_unique.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -108,7 +107,7 @@ ${ContainerName}::${ContainerName}(const std::string& folderKey)
 
 DataObject* ${ContainerName}::makePersistent() const
 {
-  using CxxUtils::make_unique;
+  using std::make_unique;
 
   if(m_coolFolderKey.empty()) return nullptr;
 

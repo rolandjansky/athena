@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H8CalibSDTool.h"
@@ -19,7 +19,6 @@
 // #include "H8CalibrationDefaultCalculator.h"
 
 // #include "CaloG4Sim/CalibrationDefaultProcessing.h"
-#include "CxxUtils/make_unique.h"
 
 
 LArG4H8CalibSDTool::LArG4H8CalibSDTool(const std::string& type, const std::string& name, const IInterface *parent)
@@ -100,7 +99,7 @@ StatusCode LArG4H8CalibSDTool::initializeSD()
 StatusCode LArG4H8CalibSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
   m_barCrySD  ->EndOfAthenaEvent( &*m_HitColl );
   m_bpInSD    ->EndOfAthenaEvent( &*m_HitColl );
   m_bpDeadSD  ->EndOfAthenaEvent( &*m_HitColl );

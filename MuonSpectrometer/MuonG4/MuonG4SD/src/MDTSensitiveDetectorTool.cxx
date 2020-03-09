@@ -10,7 +10,7 @@ MDTSensitiveDetectorTool::MDTSensitiveDetectorTool(const std::string& type, cons
 {
 }
 
-G4VSensitiveDetector* MDTSensitiveDetectorTool::makeSD()
+G4VSensitiveDetector* MDTSensitiveDetectorTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   return new MDTSensitiveDetector(name(), m_outputCollectionNames[0]);

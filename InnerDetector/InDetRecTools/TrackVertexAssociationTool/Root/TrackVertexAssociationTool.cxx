@@ -4,7 +4,6 @@
 
 #include "TrackVertexAssociationTool/TrackVertexAssociationTool.h"
 
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
@@ -36,6 +35,8 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) 
 StatusCode TrackVertexAssociationTool::initialize()
 {
   ATH_MSG_INFO(" Initializing TrackVertexAssociationTool");
+
+  ATH_CHECK( m_eventInfo.initialize() );
 
   if ( m_wp == "Electron" ) {
     m_d0_cut = -1;
@@ -207,8 +208,8 @@ TrackVertexAssociationTool::MatchStatus TrackVertexAssociationTool::isMatch(cons
   // 1. vertex fit info was flagged to be used but track wasn't used in any vertex fit
   // 2. vertex fit info wasn't flagged to be used
 
-  const xAOD::EventInfo *evt{0};
-  if (evtStore()->retrieve(evt, "EventInfo").isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
+  if (!evt.isValid()) {
     throw std::runtime_error("Could not retrieve EventInfo");
   }
 

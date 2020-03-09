@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RecJiveXML/JetRecJetRetriever.h"
@@ -14,12 +14,6 @@
 
 #include "JetTagEvent/TrackAssociation.h"
 #include "TrkTrack/TrackCollection.h"
-//#include "TrkParameters/Perigee.h"
-//#include "TrkParameters/MeasuredPerigee.h"
-//#include "Particle/TrackParticleContainer.h"
-
-//#include "JetUtils/JetCaloHelper.h"
-//#include "JetUtils/JetCaloQualityUtils.h"
 
 
 namespace JiveXML {
@@ -146,7 +140,7 @@ namespace JiveXML {
    */
   StatusCode JetRecJetRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
+    ATH_MSG_DEBUG( "in retrieveAll()" );
     
     const DataHandle<JetCollection> iterator, end;
     const JetCollection* jets;
@@ -177,8 +171,7 @@ namespace JiveXML {
         std::string::size_type position = iterator.key().find("HLTAutoKey",0);
         if ( m_doWriteHLT ){ position = 99; } // override SG key find
 
-//      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " JetRecJet: HLTAutoKey in " << iterator.key() << " at position " 
-//           << position << endmsg;
+
         if ( position != 0 ){  // SG key doesn't contain HLTAutoKey         
          if (iterator.key()!=m_sgKeyFavourite) {
              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
@@ -193,17 +186,16 @@ namespace JiveXML {
       }
     }else {
       //obtain all collections with the given keys
-      std::vector<std::string>::const_iterator keyIter,endIter;
-      for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
-       if ( !evtStore()->contains<JetCollection>( (*keyIter) ) ){ continue; } // skip if not in SG
-       StatusCode sc = evtStore()->retrieve( jets, (*keyIter) );
+      for (const auto & thisKey:m_otherKeys){
+       if ( !evtStore()->contains<JetCollection>( thisKey ) ){ continue; } // skip if not in SG
+       StatusCode sc = evtStore()->retrieve( jets, thisKey );
        if (!sc.isFailure()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << (*keyIter) << ")" << endmsg;
+          ATH_MSG_DEBUG( "Trying to retrieve " << dataTypeName() << " (" << thisKey << ")" );
           DataMap data = getData(jets);
-          if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
-           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endmsg;
+          if ( FormatTool->AddToEvent(dataTypeName(), thisKey, &data).isFailure()){
+           ATH_MSG_WARNING( "Collection " << thisKey << " not found in SG " );
          }else{
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
+            ATH_MSG_DEBUG( dataTypeName() << " (" << thisKey << ") retrieved" );
          }
        }
       }
@@ -267,8 +259,7 @@ namespace JiveXML {
 
 
 
-//    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Loop over cell collections, Size of collection: " << 
-//        jets->size() << endmsg;
+
 
     StatusCode sc = fillPerigeeList();
     if (!sc.isFailure()) {
@@ -306,8 +297,6 @@ namespace JiveXML {
         pt << endmsg; }
 
        for (unsigned int i=0; i<m_perigeeVector.size(); i++) {
-//         if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " perigee iterator at " 
-//	     << i << " with d0 " << m_perigeeVector[i]->parameters()[Trk::d0]/CLHEP::cm << endmsg; }
 
        if ( m_perigeeVector[i] ){
 // manual match works for both track types !
@@ -315,9 +304,6 @@ namespace JiveXML {
          allPer = m_perigeeVector[i];
          manualPerigeeMatch(allPer,aTemp->perigee(), permatched);
        
-////// direct match works only for pure TrackParticles, not with typecast !
-//         if ( m_perigeeVector[i] == aTemp->measuredPerigee() ){
-//////
          if ( permatched ){
            countPerigee++;
            countMatches++;
@@ -394,37 +380,12 @@ namespace JiveXML {
       isUgly.push_back(DataType( 0 ));  // placeholder
       emfrac.push_back(DataType( 0.5 )); // placeholder
 
-      ///// need proper replacement from xAOD, esp emfrac
-      //  isGood.push_back(DataType(JetCaloQualityUtils::isGood(*itr)));
-      //  isBad.push_back(DataType(JetCaloQualityUtils::isBad(*itr)));
-      //  isUgly.push_back(DataType(JetCaloQualityUtils::isUgly(*itr)));
-      //  emfrac.push_back(DataType(JetCaloHelper::jetEMFraction(*itr)));
+
 
      jvf.push_back(DataType((*itr)->getMoment("JVF")));
 
      m_writeJetQuality = false; // over-write flag. JetQuality broken after xAOD migration
 
-     /* not working after xAOD migration
-      if ( m_writeJetQuality ){ // extended jet quality
-	qualityLAr.push_back(DataType(JetCaloQualityUtils::jetQualityLAr(*itr)));
-	qualityTile.push_back(DataType(JetCaloQualityUtils::jetQualityTile(*itr)));
-        time.push_back(DataType(JetCaloQualityUtils::jetTime(*itr))); //(*itr)->getJetTime() without sign
-        timeClusters.push_back(DataType(JetCaloQualityUtils::jetTimeClusters(*itr)));
-        n90cells.push_back(DataType(JetCaloQualityUtils::nLeadingCells(*itr,0.9))); //(*itr)->getMoment("n90")
-        n90const.push_back(DataType(JetCaloQualityUtils::nLeadingConstituents(*itr,0.9)));
-        hecf.push_back(DataType(JetCaloQualityUtils::hecF(*itr)));
-        tileGap3f.push_back(DataType(JetCaloQualityUtils::tileGap3F(*itr)));
-        fcorCell.push_back(DataType((*itr)->getMoment("BCH_CORR_CELL")));
-        fcorDotx.push_back(DataType((*itr)->getMoment("BCH_CORR_DOTX")));
-        fcorJet.push_back(DataType((*itr)->getMoment("BCH_CORR_JET")));
-        fcorJetForCell.push_back(DataType((*itr)->getMoment("BCH_CORR_JET_FORCELL")));
-        nbadcells.push_back(DataType((*itr)->getMoment("N_BAD_CELLS_CORR")));
-        int SamplingMax = CaloSampling::Unknown;
-        fracSamplingMax.push_back(DataType(JetCaloQualityUtils::fracSamplingMax(*itr, SamplingMax)));
-        sMax.push_back(DataType(SamplingMax));
-        OutOfTimeEfrac.push_back(DataType(JetCaloQualityUtils::jetOutOfTimeEnergyFraction(*itr,25)));
-      } // extended jet quality
-      */
 
     } // end jet loop
 
@@ -452,9 +413,6 @@ namespace JiveXML {
     dataMap["trackIndex multiple=\""+trackMultStr+"\""] = trackIndexVec;
     dataMap["trackKey multiple=\""+trackMultStr+"\""] = trackKeyVec;
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "tracks multiple: " << trackMultStr << endmsg;
-
-    //std::cout << " cell multiple: " << std::setprecision (6) << cellMult 
-    //          << ", string: " << cellMultStr << std::endl; 
 
 
     // Start with mandatory entries

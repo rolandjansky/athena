@@ -11,7 +11,7 @@ set -x
 AtlasG4_tf.py   --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/NSW/evntgen/*.root \
                 --conditionsTag OFLCOND-RUN12-SDR-25 \
                 --DataRunNumber 222500  \
-                --geometryVersion ATLAS-R3-2021-00-00-00_VALIDATION \
+                --geometryVersion ATLAS-R3-2021-01-00-00_VALIDATION \
                 --outputHITSFile NSW_SingleMuon_EvntGen.hits.pool.root  \
                 --maxEvents -1
                 

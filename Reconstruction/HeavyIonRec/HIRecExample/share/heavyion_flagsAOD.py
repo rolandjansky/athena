@@ -34,7 +34,6 @@ if not jobproperties.HIRecExampleFlags.ppMode:
 
   AODFlags.TauRec = False
   AODFlags.Tau1p3p = False
-  AODFlags.TauTrackSlimmer = False
 
   # almost always (check AODFlags.py)
   AODFlags.FastSimulation = False

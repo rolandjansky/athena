@@ -14,11 +14,13 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class TH1;
 class TH1F;
 class TH2F;
 
-class CscIdHelper;
 class ICscStripFitter;
 class ICscCalibTool;
 
@@ -71,7 +73,8 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     unsigned int m_qmaxADCCut;
 
     // Id helper
-    const CscIdHelper *m_cscIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     // Strip fitter.
     ToolHandle<ICscStripFitter> m_stripFitter;

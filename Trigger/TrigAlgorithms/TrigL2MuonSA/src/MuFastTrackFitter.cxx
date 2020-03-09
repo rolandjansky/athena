@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastTrackFitter.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -24,7 +22,6 @@ TrigL2MuonSA::MuFastTrackFitter::MuFastTrackFitter(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-  m_storeGateSvc( "StoreGateSvc", name ),
   m_use_mcLUT(true),
   m_use_endcapInnerFromBarrel(false),
   m_sagittaRadiusEstimate("TrigL2MuonSA::SagittaRadiusEstimate"),
@@ -54,9 +51,6 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::initialize()
       return sc;
    }
    
-   // Locate the StoreGateSvc
-   ATH_CHECK( m_storeGateSvc.retrieve() );
-
    ATH_CHECK( m_sagittaRadiusEstimate.retrieve() );
    ATH_CHECK( m_alphaBetaEstimate.retrieve() );
    ATH_CHECK( m_ptFromRadius.retrieve() );

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackParticleAssocsCnv_p1.cxx 
@@ -25,19 +25,6 @@
 // some useful typedefs
 typedef TrackParticleAssocs::object_link TrackParticleLink_t;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 #define LOG_MSG(log,lvl,msg) \
    log << lvl; \
@@ -46,7 +33,7 @@ typedef TrackParticleAssocs::object_link TrackParticleLink_t;
 void 
 TrackParticleAssocsCnv_p1::persToTrans( const TrackParticleAssocs_p1* pers, 
 				   TrackParticleAssocs* trans, 
-				   MsgStream& msg )
+				   MsgStream& msg ) const
 {
    LOG_MSG(msg, MSG::DEBUG, "Loading TrackParticleAssocs from persistent state..." );
 
@@ -86,7 +73,7 @@ TrackParticleAssocsCnv_p1::persToTrans( const TrackParticleAssocs_p1* pers,
 void 
 TrackParticleAssocsCnv_p1::transToPers( const TrackParticleAssocs* trans, 
 				   TrackParticleAssocs_p1* pers, 
-				   MsgStream& msg )
+				   MsgStream& msg ) const
 {
   LOG_MSG(msg, MSG::DEBUG, "Creating persistent state of TrackParticleAssocs...");
 

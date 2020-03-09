@@ -28,7 +28,7 @@ JetFilterTool::JetFilterTool(const std::string& n)
 
 //**********************************************************************
 
-int JetFilterTool::modify(xAOD::JetContainer& jets) const {
+StatusCode JetFilterTool::modify(xAOD::JetContainer& jets) const {
   ATH_MSG_DEBUG(" Filtering at  : " << m_ptMin );
   
   xAOD::JetContainer::iterator itB = jets.begin();
@@ -37,7 +37,7 @@ int JetFilterTool::modify(xAOD::JetContainer& jets) const {
   
   jets.erase( lastFiltered, itE );
 
-  return 1;
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

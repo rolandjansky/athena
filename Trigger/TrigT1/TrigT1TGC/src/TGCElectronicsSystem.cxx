@@ -33,9 +33,10 @@ void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
   
 }
 
-TGCElectronicsSystem::TGCElectronicsSystem()
+TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
   :m_DB(0),
-   m_tmdb(0)
+   m_tmdb(0),
+   m_tgcArgs(tgcargs)
 {
   for(int side=0; side < NumberOfSide; side++){
     for(int oct=0; oct < NumberOfOctant; oct++){
@@ -48,10 +49,12 @@ TGCElectronicsSystem::TGCElectronicsSystem()
 
 }
 
-TGCElectronicsSystem::TGCElectronicsSystem(TGCDatabaseManager* database,
-					   bool                ):
+  TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs,
+					     TGCDatabaseManager* database,
+					     bool                ):
   m_DB(database),
-  m_tmdb(0)
+  m_tmdb(0),
+  m_tgcArgs(tgcargs)
 { 
   // TileMu
   m_tmdb = new TGCTMDB();
@@ -65,10 +68,10 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCDatabaseManager* database,
         SectorId   = getSectorId(side,oct,mod);
         RegionType = getRegionType(mod);
         forwardBackward = getForwardBackward(side,oct,mod);
-        m_sector[side][oct][mod] = new TGCSector(SectorId, RegionType, 
-					       forwardBackward, 
-					       m_DB,
-					       m_tmdb);
+        m_sector[side][oct][mod] = new TGCSector(tgcArgs(),SectorId, RegionType, 
+						 forwardBackward, 
+						 m_DB,
+						 m_tmdb);
       } // loop module
     } // loop octant
   } //loop side

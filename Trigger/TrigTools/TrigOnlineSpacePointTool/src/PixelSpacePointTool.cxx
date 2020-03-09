@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
@@ -7,9 +7,9 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include <string>
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+
+#include <string>
 
 static const InterfaceID IID_IPixelSpacePointTool
             ("PixelSpacePointTool", 135, 0);
@@ -42,16 +42,7 @@ PixelSpacePointTool::PixelSpacePointTool( const std::string& type,
 StatusCode PixelSpacePointTool::initialize()  {
   ATH_MSG_DEBUG(name() << " in initialize");
 
-  const InDetDD::PixelDetectorManager * mgr;
-  StatusCode sc=detStore()->retrieve(mgr, "Pixel");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR(name() << "failed to get Pixel Manager");
-    return StatusCode::FAILURE;
-  } else { 
-    ATH_MSG_DEBUG(name() << "Got Pixel Manager");
-  }
- 
-  // Get SCT & pixel helpers
+  // Get pixel helper
 
   if (detStore()->retrieve(m_id_pixel, "PixelID").isFailure()) {
      ATH_MSG_FATAL("Could not get Pixel ID helper"); 
@@ -60,7 +51,7 @@ StatusCode PixelSpacePointTool::initialize()  {
 
   m_cntx_pixel = m_id_pixel->wafer_context();
 
-  sc = AthAlgTool::initialize(); 
+  StatusCode sc = AthAlgTool::initialize(); 
 
   sc=m_numberingTool.retrieve();
   if(sc.isFailure()) {
@@ -68,7 +59,9 @@ StatusCode PixelSpacePointTool::initialize()  {
     return sc;
   }
 
-  m_builder = new PixelGCBuilder(mgr, m_id_pixel, m_numberingTool->offsetEndcapPixels());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+
+  m_builder = new PixelGCBuilder(m_id_pixel, m_numberingTool->offsetEndcapPixels());
 
   ATH_MSG_INFO("PixelSP_ContainerName: " << m_spacepointContainerName);
   m_spacepointContainer = new TrigSiSpacePointContainer(m_id_pixel->wafer_hash_max());
@@ -117,6 +110,14 @@ StatusCode PixelSpacePointTool::finalize()
 
 StatusCode PixelSpacePointTool::fillCollections(ClusterCollectionData& clusterCollData) 
 { 
+
+  // Get PixelDetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(pixelDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
 
   StatusCode sc;
   int nSP=0;
@@ -192,7 +193,7 @@ StatusCode PixelSpacePointTool::fillCollections(ClusterCollectionData& clusterCo
       SiSpacePointData newSpacePointData;
 
       if ( m_timers ) m_timer[0]->resume();
-      m_builder->formSpacePoints(*(*iter_coll), newSpacePointData);
+      m_builder->formSpacePoints(*(*iter_coll), elements, newSpacePointData);
       if ( m_timers ) m_timer[0]->pause();
 
       if(!newSpacePointData.empty()) 

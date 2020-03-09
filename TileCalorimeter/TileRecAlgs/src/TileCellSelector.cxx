@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -11,12 +11,14 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileInfo.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
 
 // Atlas includes
 #include "StoreGate/ReadHandle.h"
+#include "CxxUtils/StrFormat.h"
 
 #include "boost/date_time/local_time/local_time.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -27,10 +29,9 @@
 
 using xAOD::EventInfo;
 
-static const char * drwname(int id) {
-  static char name[5][6] = { "", "LBA", "LBC", "EBA", "EBC" };
-  sprintf(name[0], "%s%2.2d", name[id >> 8], id % 0x100 + 1);
-  return name[0];
+static std::string drwname(int id) {
+  static const char name[5][6] = { "", "LBA", "LBC", "EBA", "EBC" };
+  return CxxUtils::strformat ("%s%2.2d", name[id >> 8], id % 0x100 + 1);
 }
 
 TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLocator)
@@ -58,6 +59,7 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   , m_evtBCID(0)
   , m_tileFlag(0)
   , m_tileError(0)
+  , m_tileInfo(0)
 {
 
   declareProperty( "MinEnergyCell", m_minEneCell = -5000.);   // cut on cell energy
@@ -85,6 +87,10 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "MinTimeMBTS", m_minTimeChan[2] = -100.);  // cut on channel time
   declareProperty( "MaxTimeMBTS", m_maxTimeChan[2] =  100.);  // cut on channel time
   declareProperty( "PtnTimeMBTS", m_ptnTimeChan[2] =  10);  // channel time pattern
+
+  declareProperty( "SelectGain",  m_selectGain = 2); // 0 - select LG only,  1 - HG only, 2 - both gains
+  m_skipGain[TileID::LOWGAIN] = false;
+  m_skipGain[TileID::HIGHGAIN] = false;
 
   // pattern - decimal number with up to 5 digits
   // only values 1(=true) and 0(=false) for every digit are used
@@ -125,6 +131,9 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "MaxVerboseCnt",m_maxVerboseCnt=20); // max number of verbose output lines about drawer off
 
   declareProperty("TileBadChanTool", m_tileBadChanTool);
+
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
+
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 }
 
@@ -142,6 +151,10 @@ StatusCode TileCellSelector::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_tileID, "TileID"));
   ATH_CHECK(detStore()->retrieve(m_tileHWID, "TileHWID"));
+
+  ATH_CHECK(detStore()->retrieve(m_tileInfo, m_infoName));
+  m_ADCmaxMinusEps = m_tileInfo->ADCmax() - 0.01;
+  m_ADCmaskValueMinusEps = m_tileInfo->ADCmaskValue() - 0.01;  // indicates channels which were masked in background dataset
 
   m_cabling = TileCablingService::getInstance();
 
@@ -207,6 +220,22 @@ StatusCode TileCellSelector::initialize() {
 
     ATH_CHECK( m_rawChannelContainerKey.initialize() );
 
+  }
+
+  switch (m_selectGain) {
+    case 0:
+      ATH_MSG_INFO( "Select Low gain channels only");
+      m_skipGain[TileID::LOWGAIN] = false;
+      m_skipGain[TileID::HIGHGAIN] = true;
+      break;
+    case 1:
+      ATH_MSG_INFO( "Select High gain channels only");
+      m_skipGain[TileID::LOWGAIN] = true;
+      m_skipGain[TileID::HIGHGAIN] = false;
+      break;
+    default:
+      ATH_MSG_INFO( "Select both gains");
+      break;
   }
 
   if (!m_digitsContainerKey.key().empty()) {
@@ -643,7 +672,7 @@ StatusCode TileCellSelector::execute() {
             bool ene1Ok = false;
             bool time1Ok = false;
 
-            if (!bad1) {
+            if ( !(bad1 || m_skipGain[tile_cell->gain1()]) ) {
               if (time1 < m_minTimeChan[ch_type] ) {
                 time1Ok = m_bitTimeChan[ch_type][0];
               } else if (time1 > m_maxTimeChan[ch_type] ) {
@@ -676,7 +705,7 @@ StatusCode TileCellSelector::execute() {
             bool ene2Ok = false;
             bool time2Ok = false;
 
-            if (!bad2) {
+            if ( !(bad2 || m_skipGain[tile_cell->gain2()]) ) {
               if (ene2 < m_minEneChan[ch_type] ) {
                 ene2Ok = m_bitEneChan[ch_type][0];
               } else if (ene2 > m_maxEneChan[ch_type] ) {
@@ -710,7 +739,7 @@ StatusCode TileCellSelector::execute() {
             bool over2=false;
             if (checkOver) {
               over1 = ( (!bad1) && (tile_cell->qbit1() & TileCell::MASK_OVER) && tile_cell->gain1()==TileID::LOWGAIN);
-              over2 = ( (!bad2) && (tile_cell->qbit2() & TileCell::MASK_OVER) && tile_cell->gain1()==TileID::LOWGAIN);
+              over2 = ( (!bad2) && (tile_cell->qbit2() & TileCell::MASK_OVER) && tile_cell->gain2()==TileID::LOWGAIN);
             }
             
             if ((ene1Ok && time1Ok) || over1) {
@@ -1182,6 +1211,7 @@ StatusCode TileCellSelector::execute() {
             HWIdentifier chId = m_tileHWID->channel_id(adcId);
             m_tileHWID->get_hash(chId, hash, &chan_context);
             if ( m_chanToSkip[hash] ) continue;
+            int adc = m_tileHWID->adc(adcId);
             int channel = m_tileHWID->channel(adcId);
             int ch_type = 0;
             if (channel == chMBTS) {
@@ -1191,7 +1221,6 @@ StatusCode TileCellSelector::execute() {
               ch_type = 1;
             }
             if (emptyBad  && !m_chanBad[hash] ) {
-              int adc = m_tileHWID->adc(adcId);
               m_chanBad[hash] = m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc).isBad() ||
                 (DQstatus && !DQstatus->isAdcDQgood(ros,drawer,channel,adc)) ||
                 (m_checkDCS && m_tileDCS->getDCSStatus(ros, drawer, channel) > TileDCSState::WARNING);
@@ -1212,7 +1241,8 @@ StatusCode TileCellSelector::execute() {
 
               if ( (m_skipMasked && m_chanBad[hash]) ||
                    (m_skipMBTS && channel == chMBTS) ||
-                   (m_skipEmpty && TileDQstatus::isChEmpty(ros, drawer, channel) > 0) )
+                   (m_skipEmpty && TileDQstatus::isChEmpty(ros, drawer, channel) > 0) ||
+                   m_skipGain[adc] )
                 continue;
 
               bool ampOk = false;
@@ -1478,7 +1508,7 @@ StatusCode TileCellSelector::execute() {
                            (m_skipEmpty && chEmpty > 0) );
             bool checkCh = !( (m_skipMasked && m_chanBad[hash]) ) && useCh && m_checkJumps;
 
-            int err = TileRawChannelBuilder::CorruptedData(ros,drawer,channel,adc,samples,dmin,dmax);
+            int err = TileRawChannelBuilder::CorruptedData(ros,drawer,channel,adc,samples,dmin,dmax,m_ADCmaxMinusEps,m_ADCmaskValueMinusEps);
 
             if (badname[0]==0) {
               if (err && err>-3) { // do not consider all zeros in empty samples as error
@@ -1510,7 +1540,7 @@ StatusCode TileCellSelector::execute() {
               }
             }
 
-            if (dmax > 1022.99 && (!err)  // overflow without bad patterns
+            if (dmax > m_ADCmaxMinusEps && (!err)  // overflow without bad patterns
                 && (useCh)                // normal connected channel
                 && (badname[0] == 0 || badname[1] == 'w' // no digital error
                 || (badname[4] == 'Q' && !m_skipMasked))) { // error from TileCell but it is ignored
@@ -1647,7 +1677,7 @@ StatusCode TileCellSelector::execute() {
                   }
                   jumpZer = true;
                 }
-                if (dmax > 1022.9) {
+                if (dmax > m_ADCmaxMinusEps) {
                   if (!accJump) {
                     ++nJump;
                     accJump = true;
@@ -1712,7 +1742,7 @@ StatusCode TileCellSelector::execute() {
             } else if (m_chanSel[hash]) {
               bool accEmin = (m_chanEne[hash] < m_minEneChan[ch_type]);
               bool accEmax = (m_chanEne[hash] > m_maxEneChan[ch_type]);
-              bool jumpOve = (dmax>1022.9);
+              bool jumpOve = (dmax>m_ADCmaxMinusEps);
               ATH_MSG_VERBOSE(evtnum.str()
                               << " chan " << std::left << std::setw(14) << m_tileHWID->to_string(adcId)
                               << enename << m_chanEne[hash] << "  samp = " << samples[0]
@@ -1806,8 +1836,7 @@ StatusCode TileCellSelector::execute() {
                 float dmin, dmax;
 
                 int err = TileRawChannelBuilder::CorruptedData(ros, drawer,
-                    channel, adc, samples, dmin, dmax);
-
+							       channel, adc, samples, dmin, dmax, m_ADCmaxMinusEps,m_ADCmaskValueMinusEps);
                 if (err) {
                   bool isConnected = (chEmpty < 2);
                   if (isConnected || err != -2) {
@@ -1841,7 +1870,7 @@ StatusCode TileCellSelector::execute() {
 
                 bool accEmin = (m_chanEne[hash]<m_minEneChan[ch_type]);
                 bool accEmax = (m_chanEne[hash]>m_maxEneChan[ch_type]);
-                bool jumpOve = (dmax > 1022.9);
+                bool jumpOve = (dmax > m_ADCmaxMinusEps);
 
                 ATH_MSG_VERBOSE(evtnum.str()
                                 << " chan " << std::left << std::setw(14) << m_tileHWID->to_string(adcId)
@@ -2035,14 +2064,14 @@ int TileCellSelector::Are3FF(std::vector<float> & OptFilterDigits, int gain, int
       if (dig > dmax) dmax = dig;
       else if (dig < dmin) dmin = dig;
     }
-    allSaturated = (dmin > 1022.99);
+    allSaturated = (dmin > m_ADCmaxMinusEps);
 
     // FIXME:: set these parameters from JobOptions
     // FIXME:: move this method to base class 
     const float epsilon = 4.1; // allow +/- 2 counts fluctuations around const value
     const float delta[4] = {29.9, 29.9, 49.9, 99.9};  // jump levels between constLG, constHG, non-constLG, non-constHG
     const float level0 = 29.9; // jump from this level to zero is bad
-    const float level1 = 99.9; // jump from this level to 1023 is bad 
+    const float level1 = 99.9; // jump from this level to m_tileInfo->ADCmax() is bad 
     const float level2 = 199.9; // base line at this level is bad
     const float delt = std::min(std::min(std::min(delta[0], delta[1]), std::min(delta[2], delta[3])), level0);
 
@@ -2075,11 +2104,11 @@ int TileCellSelector::Are3FF(std::vector<float> & OptFilterDigits, int gain, int
         gain += 2; // shift index by 2, i.e. use thresholds for non-const levels
       }
 
-      if (dmin < 0.01 && dmax > 1022.99) { // jump from zero to saturation
+      if (dmin < 0.01 && dmax > m_ADCmaxMinusEps) { // jump from zero to saturation
         error = 1;
       } else if (dmin < 0.01 && abovemin > level0 && nmin > 1) { // at least two samples at zero, others - above pedestal
         error = 2;
-      } else if (dmax > 1022.99 && belowmax < level1 && nmax > 1) { // at least two saturated. others - close to pedestal
+      } else if (dmax > m_ADCmaxMinusEps && belowmax < level1 && nmax > 1) { // at least two saturated. others - close to pedestal
         error = 3;
       } else if (dmin>level2 && (gain==0 || ch_type<2) ) { // baseline above threshold is bad
         error = 9;                                         // but should not apply that to MBTS

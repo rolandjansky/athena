@@ -763,8 +763,8 @@ if doCBNT:
    # Trigger
    # --------------------------
    if doTrigger:
-      include( "TriggerRelease/jobOfragment_forRecExTB.py" )
-      include( "TriggerRelease/jobOfragment_TriggerCBNT.py" )
+      include( "TriggerJobOpts/jobOfragment_forRecExTB.py" )
+      include( "TriggerJobOpts/jobOfragment_TriggerCBNT.py" )
 
    # output stream for CBNT
    from AthenaCommon.AppMgr import ServiceMgr

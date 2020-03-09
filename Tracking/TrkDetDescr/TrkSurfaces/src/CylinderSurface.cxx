@@ -8,7 +8,6 @@
 
 // Trk
 #include "TrkSurfaces/CylinderSurface.h"
-#include "CxxUtils/unused.h"
 #include "TrkSurfaces/RealQuadraticEquation.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
@@ -77,7 +76,7 @@ Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans)
 
 // constructor by radius and halflength
 Trk::CylinderSurface::CylinderSurface(double radius, double hlength)
-  : Trk::Surface(0)
+  : Trk::Surface(nullptr)
   , m_bounds(new Trk::CylinderBounds(radius, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
@@ -85,7 +84,7 @@ Trk::CylinderSurface::CylinderSurface(double radius, double hlength)
 
 // constructor by radius, halflenght and phisector
 Trk::CylinderSurface::CylinderSurface(double radius, double hphi, double hlength)
-  : Trk::Surface(0)
+  : Trk::Surface(nullptr)
   , m_bounds(new Trk::CylinderBounds(radius, hphi, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
@@ -102,7 +101,7 @@ Trk::CylinderSurface::CylinderSurface(Trk::CylinderBounds* cbounds)
 }
 
 // destructor (will call destructor from base class which deletes objects)
-Trk::CylinderSurface::~CylinderSurface() {}
+Trk::CylinderSurface::~CylinderSurface() = default;
 
 Trk::CylinderSurface&
 Trk::CylinderSurface::operator=(const CylinderSurface& csf)
@@ -144,7 +143,7 @@ Trk::CylinderSurface::operator==(const Trk::Surface& sf) const
 }
 
 // return the measurement frame: it's the tangential plane
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::CylinderSurface::measurementFrame(const Amg::Vector3D& pos, const Amg::Vector3D&) const
 {
   Amg::RotationMatrix3D mFrame;
@@ -204,7 +203,7 @@ Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vect
     radius = glopos.perp();
   }
   // return true or false
-  return ((fabs(radius - bounds().r()) > inttol) ? false : true);
+  return (fabs(radius - bounds().r()) <= inttol);
 }
 
 bool
@@ -220,7 +219,7 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
                                                bool forceDir,
                                                Trk::BoundaryCheck bchk) const
 {
-  bool needsTransform = (m_transform || m_associatedDetElement) ? true : false;
+  bool needsTransform = m_transform || m_associatedDetElement;
   // create the hep points
   Amg::Vector3D point1 = pos;
   Amg::Vector3D direction = dir;
@@ -334,10 +333,11 @@ Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, con
   }
 
   // minimal distance to cylinder axis
-  // The UNUSED declaration is to suppress redundant division checking here.
+  // The [[maybe_unused]] declaration is to suppress redundant division checking here.
   // Even a tiny change in rmin (~1e-13) can cause huge changes in the
   // reconstructed output, so don't change how it's evaluated.
-  const double UNUSED(rmin_tmp) = B * B / A;
+  [[maybe_unused]]
+  const double rmin_tmp = B * B / A;
   const double rmin2 = C - rmin_tmp;
   const double rmin = rmin2 < 0 ? 0 : sqrt(rmin2);
 
@@ -349,9 +349,10 @@ Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, con
       double first = B / A;
       return Trk::DistanceSolution(2, currDist, true, first, first);
     } else {
-      // The UNUSED declaration here suppresses redundant division checking.
+      // The [[maybe_unused]] declaration here suppresses redundant division checking.
       // We don't want to rewrite how this is evaluated due to instabilities.
-      const double UNUSED(b_a) = B / A;
+      [[maybe_unused]]
+      const double b_a = B / A;
       const double x = sqrt((radius - rmin) * (radius + rmin) / A);
       double first = b_a - x;
       double second = b_a + x;

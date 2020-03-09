@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////
@@ -83,7 +83,7 @@ StatusCode EventBoost::execute() {
   for(it=mcCollptr->begin(); it!=mcCollptr->end(); it++) {
 
     const HepMC::GenEvent* genEvt = (*it);
-    EventCopy(genEvt);
+    ATH_CHECK(EventCopy(genEvt));
 
   }
 

@@ -2,17 +2,13 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCStripTripletSB.cxx,v 1.6 2009-05-14 01:28:04 isaya Exp $
-// ref. SOS054V06,SOS053V04
 #include "TrigT1TGC/TGCStripTripletSB.hh"
 #include <iostream>
 #include <cstdlib>
 
 namespace LVL1TGCTrigger {
 
-extern bool g_STRICTST;
-
-TGCStripTripletSB::TGCStripTripletSB():TGCSlaveBoard()
+TGCStripTripletSB::TGCStripTripletSB( TGCArguments* tgcargs ):TGCSlaveBoard(tgcargs)
 {}
 
 void TGCStripTripletSB::createSlaveBoardOut()
@@ -112,44 +108,36 @@ void TGCStripTripletSB::doCoincidence()
        +b &  d & !c
 */
 
-      if(g_STRICTST){
-	for(int i=base+1; i<base+length; i++){
-	  m_coincidenceOut->setChannel(i,( b[i-1] & b[i] ));
-	}
-      } else {
+      int i=base;
+      m_coincidenceOut->setChannel(i,( b[i] & !b[i+1] ));
 
-	int i=base;
-	m_coincidenceOut->setChannel(i,( b[i] & !b[i+1] ));
-	
-	i=base+1;
-	m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+      i=base+1;
+      m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 				      ( b[i-1] & !b[i] )|
 				      ( b[i]   & !b[i-1] & !b[i+1] )|
 				      ( b[i-1] &  b[i+1] & !b[i] )));
 	
-	for( i=base+2; i<base+length-1; i+=1){
-	  m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+      for( i=base+2; i<base+length-1; i+=1){
+        m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 					( b[i-1] & !b[i-2] & !b[i] )|
 					( b[i-2] &  b[i]   & !b[i-1] )|
 					( b[i]   & !b[i-1] & !b[i+1] )|
 					( b[i-1] &  b[i+1] & !b[i] )));
-	}
-	i=base+length-1;
-	m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+      }
+      i=base+length-1;
+      m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 				      ( b[i-1] & !b[i-2] & !b[i] )|
 				      ( b[i-2] &  b[i]   & !b[i-1] )|
 				      ( b[i]   & !b[i-1] )));
-	
-      }
 
 #ifdef TGCCOUT
       std::cout << "StripTripletCoincidence OUT ";
       m_coincidenceOut->printb();
       std::cout << std::endl;
 #endif
-	
+
     }
-    
+
     delete [] b;
   }
 }

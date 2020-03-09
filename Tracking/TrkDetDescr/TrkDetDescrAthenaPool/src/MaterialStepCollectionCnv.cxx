@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -16,64 +16,31 @@
 
 MaterialStepCollectionCnv::MaterialStepCollectionCnv( ISvcLocator *svcloc ) :
  MaterialStepCollectionCnvBase(svcloc),
- m_msgSvc( msgSvc() ),
- m_log( m_msgSvc, "MaterialStepCollectionCnv" )
+ m_msgSvc( msgSvc() )
  {}
  
-//-----------------------------------------------------------------------------
-// Initializer
-//-----------------------------------------------------------------------------
-StatusCode MaterialStepCollectionCnv::initialize()
+MaterialStepCollection_PERS*
+MaterialStepCollectionCnv::createPersistentWithKey ( Trk::MaterialStepCollection *transCont,
+                                                     const std::string& key)
 {
-  if (MaterialStepCollectionCnvBase::initialize().isFailure() )
-  {
-    m_log << MSG::FATAL << "Could not initialize MaterialStepCollectionCnvBase" << endmsg;
-    return StatusCode::FAILURE;
+  MsgStream log (m_msgSvc, "MaterialStepCollectionCnv:" + key);
+  return m_TPConverter.createPersistent( transCont, log );
+}
+
+
+Trk::MaterialStepCollection*
+MaterialStepCollectionCnv::createTransientWithKey (const std::string& key)
+{
+  MsgStream log (m_msgSvc, "MaterialStepCollectionCnv:" + key);
+
+  static const pool::Guid p1_guid( "DF8A7FA8-693F-44E0-A5E5-F9907B8B429E" );
+
+  Trk::MaterialStepCollection* tCollection = 0;
+  if( compareClassGuid( p1_guid ) ) {
+
+    std::unique_ptr< MaterialStepCollection_PERS >  p_coll( poolReadObject< MaterialStepCollection_PERS >() );
+    tCollection = m_TPConverter.createTransient( p_coll.get(), log );
   }
-  
-  return StatusCode::SUCCESS;
  
-}
-
-MaterialStepCollection_PERS* MaterialStepCollectionCnv::createPersistent( Trk::MaterialStepCollection *transCont) {
-
-   // Message stream handling
-   m_log.setLevel( m_msgSvc->outputLevel() );
-   updateLog(); 
-
-   // call to the converter
-   MaterialStepCollection_PERS * pVxCont = m_TPConverter.createPersistent( transCont, m_log );
- 
-   return pVxCont;
-
-}//end of create persistent method
-
-
-Trk::MaterialStepCollection * MaterialStepCollectionCnv::createTransient()
-{
-   // Message stream handling
-   m_log.setLevel( m_msgSvc->outputLevel() );
-   updateLog(); 
-
-   static pool::Guid p1_guid( "DF8A7FA8-693F-44E0-A5E5-F9907B8B429E" );
-
-
-   Trk::MaterialStepCollection* tCollection = 0;
-   if( compareClassGuid( p1_guid ) ) {
-
-      std::auto_ptr< MaterialStepCollection_PERS >  p_coll( poolReadObject< MaterialStepCollection_PERS >() );
-      tCollection = m_TPConverter.createTransient( p_coll.get(), m_log );
-   }
- 
-   return tCollection;
-
-}
-
-void MaterialStepCollectionCnv::updateLog(){ 
-    
-     const DataObject* dObj = getDataObject();
-     if (dObj==0) return; // Can't do much if this fails.
-     const std::string  key = (dObj->name());
- 
-     m_log.m_source="MaterialStepCollectionCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
+  return tCollection;
 }

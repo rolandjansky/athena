@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           CPAlgorithm.h  -  description
@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigT1CaloEvent/CPMTower.h"
 #include "TrigT1CaloEvent/EmTauROI.h"
@@ -45,7 +45,7 @@ The CPAlgorithm:<br>
 class CPAlgorithm {
 public: 
   
-  CPAlgorithm( double eta, double phi, const CPMTowerMap_t* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
+  CPAlgorithm( double eta, double phi, const CPMTowerMap_t* ttContainer, ServiceHandle<TrigConf::ILVL1ConfigSvc> config, int slice = -1);
 
   ~CPAlgorithm();
   
@@ -68,7 +68,7 @@ public:
 private: //atribs
   double m_refEta;
   double m_refPhi;
-  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
   /** Algorithm results */
   double m_eta;

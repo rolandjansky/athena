@@ -1,22 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibPatRec/MuonSegmentToCalibSegment.h"
 
-// gaudi
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-// idhelpers
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 // muon geomodel
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 
 #include "MuonPattern/MuonPatternCombination.h"
@@ -60,11 +48,6 @@ namespace MuonCalib {
 
   MuonSegmentToCalibSegment::MuonSegmentToCalibSegment(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_detMgr(NULL),
-    m_mdtIdHelper(NULL),
-    m_cscIdHelper(NULL),
-    m_rpcIdHelper(NULL),
-    m_tgcIdHelper(NULL),
     m_calibrationTool("MdtCalibrationTool",this),
     m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool")
@@ -97,45 +80,16 @@ namespace MuonCalib {
   }
 
   // Initialize
-  StatusCode MuonSegmentToCalibSegment::initialize(){
-    //
-    if(m_segmentLocationVector.value().size() < m_segment_authors.size())
-    	{
-	m_segment_authors.resize(m_segmentLocationVector.value().size(), -1);
-	}
-/*    m_log << MSG::INFO << "Initialisation started     " << endmsg;
-    //
-    //
-    m_log << MSG::INFO << "================================" << endmsg;
-    m_log << MSG::INFO << "= Proprieties are     " << endmsg;
-    std::vector<std::string>::const_iterator segLocit     = m_segmentLocationVector.value().begin();  
-    std::vector<std::string>::const_iterator segLocit_end = m_segmentLocationVector.value().end();      
-    for ( ; segLocit != segLocit_end ; ++segLocit) {
-      m_log << MSG::INFO << "= SegmentLocation       " << *segLocit << endmsg;
+  StatusCode MuonSegmentToCalibSegment::initialize() {
+    if(m_segmentLocationVector.value().size() < m_segment_authors.size()) {
+      m_segment_authors.resize(m_segmentLocationVector.value().size(), -1);
     }
-    m_log << MSG::INFO << "= SegmentCscLocation    " << m_segmentCscLocation    << endmsg;
-    m_log << MSG::INFO << "= SegmentCombiLocation          " << m_segmentCombiLocation          << endmsg;
-    
-    m_log << MSG::INFO << "= PatternLocation     " << m_patternLocation     << endmsg;
-    m_log << MSG::INFO << "================================" << endmsg;*/
 
     std::string managerName="Muon";
-    ATH_CHECK( detStore()->retrieve(m_detMgr) );
-    ATH_CHECK( m_idToFixedIdTool.retrieve() );
-    ATH_CHECK( m_assocTool.retrieve() );
-
-    // initialize MuonIdHelpers
-    if (m_detMgr) {
-      m_mdtIdHelper = m_detMgr->mdtIdHelper();
-      m_cscIdHelper = m_detMgr->cscIdHelper();
-      m_rpcIdHelper = m_detMgr->rpcIdHelper();
-      m_tgcIdHelper = m_detMgr->tgcIdHelper();
-    } else {
-      m_mdtIdHelper = 0;
-      m_cscIdHelper = 0;
-      m_rpcIdHelper = 0;
-      m_tgcIdHelper = 0;
-    }
+    ATH_CHECK(m_DetectorManagerKey.initialize());
+    ATH_CHECK(m_idToFixedIdTool.retrieve() );
+    ATH_CHECK(m_assocTool.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
     // Get the maximum number of segments each algorithm can
     // store in the ntuple
@@ -157,11 +111,6 @@ namespace MuonCalib {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonSegmentToCalibSegment::finalize(){
-    ATH_MSG_DEBUG( "Finalisation started     "  );
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode MuonSegmentToCalibSegment::savePatterns( const MuonCalibPatternCollection* newPatterns) const
   {
     ATH_CHECK( evtStore()->record(newPatterns, m_patternLocation) );
@@ -178,7 +127,14 @@ namespace MuonCalib {
 
     ATH_MSG_DEBUG( " convertPatterns() "  );
 
-    if( !m_readSegments ) {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return StatusCode::FAILURE; 
+    } 
+
+   if( !m_readSegments ) {
 
       const MuonSegmentCombinationCollection* segCombis = retrieveSegmentCombinations();
       
@@ -214,12 +170,7 @@ namespace MuonCalib {
 	    Muon::MuonSegmentCombination::SegmentVec* stationSegs = (*sit)->stationSegments( i ) ;
 	    
 	    ATH_MSG_VERBOSE( "New station with " << stationSegs->size() << " segments "  );
-	    
-	    // 	  if( stationSegs->size() != 1 ) {
-	    // 	    m_log << MSG::DEBUG << " -> skipping station, to many segments " << endmsg;
-	    // 	    continue;
-	    // 	  }
-	    
+
 	    Muon::MuonSegmentCombination::SegmentVec::iterator segit     = stationSegs->begin();
 	    Muon::MuonSegmentCombination::SegmentVec::iterator segit_end = stationSegs->end();
 	    
@@ -231,7 +182,7 @@ namespace MuonCalib {
 		continue;
 	      }
 	      
-	      MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg );
+	      MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg, MuonDetMgr );
 	      mdtSeg->setAuthor(seg->author()); 
 	      calibpat->addMuonSegment( mdtSeg );
 	    }
@@ -290,7 +241,7 @@ namespace MuonCalib {
 	    ATH_MSG_DEBUG( "WARNING, empty muoncalibpattern created"  );
 	    MuonCalibPattern* pat = new MuonCalibPattern();
 	    
-	    MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg );
+	    MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg, MuonDetMgr );
 	    if(*autIt<0)
 		    mdtSeg->setAuthor(seg->author()); 
 	    else
@@ -314,8 +265,6 @@ namespace MuonCalib {
 	ATH_CHECK( savePatterns(patterns) );
 	return StatusCode::SUCCESS;
       }
-
-      //      m_segmentAuthor = segmentAuthor(m_segmentCscLocation);
       
       MuonSegmentCombinationCollection::const_iterator sit = segCombis->begin();
       MuonSegmentCombinationCollection::const_iterator sit_end = segCombis->end();
@@ -350,11 +299,6 @@ namespace MuonCalib {
 	  
 	  ATH_MSG_VERBOSE( "New Csc station with " << stationSegs->size() << " segments "  );
 	  
-	  // 	  if( stationSegs->size() != 1 ) {
-	  // 	    m_log << MSG::DEBUG << " -> skipping station, too many segments " << endmsg;
-	  // 	    continue;
-	  // 	  }
-	  
 	  Muon::MuonSegmentCombination::SegmentVec::iterator segit     = stationSegs->begin();
 	  Muon::MuonSegmentCombination::SegmentVec::iterator segit_end = stationSegs->end();
 
@@ -366,7 +310,7 @@ namespace MuonCalib {
 	      continue;
 	    }
 	    
-	    MuonCalibSegment* CscSeg = createMuonCalibSegment( *seg );
+	    MuonCalibSegment* CscSeg = createMuonCalibSegment( *seg, MuonDetMgr );
 	    CscSeg->setAuthor(seg->author()); 
 	    calibpat->addMuonSegment( CscSeg );
 	  }
@@ -377,7 +321,7 @@ namespace MuonCalib {
       }
     
 
-    }//if(m_useCscSegments)
+    }
     // store patterns in storegate
     ATH_CHECK( savePatterns(patterns) );
     return StatusCode::SUCCESS;
@@ -386,57 +330,53 @@ namespace MuonCalib {
   Identifier MuonSegmentToCalibSegment::getChId( const Muon::MuonSegment& seg ) const
   {
     
-    const std::vector<const Trk::RIO_OnTrack*>& rots = seg.containedROTs();
-    if( rots.empty() ) {
+    if( seg.numberOfContainedROTs()==0 ) {
       ATH_MSG_DEBUG( " Oops, segment without hits!!! "  );
       return Identifier();
     }
 
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rit = rots.begin();
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rit_end = rots.end();
-    
-    for( ; rit!=rit_end;++rit ){
+    for(unsigned int irot=0;irot<seg.numberOfContainedROTs();irot++){
       
       // use pointer to rot
-      const Trk::RIO_OnTrack* rot = *rit;
+      const Trk::RIO_OnTrack* rot = seg.rioOnTrack(irot);
       
-      if( m_mdtIdHelper->is_mdt( rot->identify() ) ){
+      if( m_idHelperSvc->mdtIdHelper().is_mdt( rot->identify() ) ){
 	return rot->identify();
-      }else if( m_cscIdHelper->is_csc( rot->identify() ) ){
+      }else if( m_idHelperSvc->cscIdHelper().is_csc( rot->identify() ) ){
 	return rot->identify();
       }
     }
 
     // if we get here the segment did not contain any csc or mdt hits, in which case we return the identifier of the first rot
-    return rots.front()->identify();
+    return seg.rioOnTrack(0)->identify();
   }
 
-  Amg::Transform3D MuonSegmentToCalibSegment::getGlobalToStation( const Identifier& id ) const
+  Amg::Transform3D MuonSegmentToCalibSegment::getGlobalToStation( const Identifier& id, const MuonGM::MuonDetectorManager* MuonDetMgr  ) const
   {
     
-    if( m_mdtIdHelper->is_mdt( id ) ){
-      const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(id);
+    if( m_idHelperSvc->mdtIdHelper().is_mdt( id ) ){
+      const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->GlobalToAmdbLRSTransform();
       }
-    }else if( m_cscIdHelper->is_csc( id ) ){
-      const MuonGM::CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(id);
+    }else if( m_idHelperSvc->cscIdHelper().is_csc( id ) ){
+      const MuonGM::CscReadoutElement* detEl = MuonDetMgr->getCscReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
-    }else if( m_tgcIdHelper->is_tgc( id ) ){
-      const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(id);
+    }else if( m_idHelperSvc->tgcIdHelper().is_tgc( id ) ){
+      const MuonGM::TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
-    }else if( m_rpcIdHelper->is_rpc( id ) ){
-      const MuonGM::RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(id);
+    }else if( m_idHelperSvc->rpcIdHelper().is_rpc( id ) ){
+      const MuonGM::RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
@@ -509,7 +449,7 @@ namespace MuonCalib {
   }
 
 
-  MuonCalibSegment* MuonSegmentToCalibSegment::createMuonCalibSegment( const Muon::MuonSegment& seg ) const 
+  MuonCalibSegment* MuonSegmentToCalibSegment::createMuonCalibSegment( const Muon::MuonSegment& seg, const MuonGM::MuonDetectorManager* MuonDetMgr  ) const 
   {
     // convert MuonSegment to MuonCalibSegment
 
@@ -517,7 +457,7 @@ namespace MuonCalib {
     
     // global to station transformation for this chamber
     Amg::Transform3D gToStationCheck = seg.associatedSurface().transform().inverse();
-    Amg::Transform3D gToStation = getGlobalToStation( chid );
+    Amg::Transform3D gToStation = getGlobalToStation( chid, MuonDetMgr );
     // create the local position and direction vector
     Amg::Vector3D  segPosG(seg.globalPosition());
     Amg::Vector3D segDirG(seg.globalDirection());
@@ -526,9 +466,6 @@ namespace MuonCalib {
     Amg::Vector3D segPosL  = gToStation*segPosG;
     Amg::Vector3D segDirL = gToStation.linear()*segDirG;
     Amg::Vector3D segDirLCheck = gToStationCheck.linear()*segDirG;
-    // 	    std::cout << "   local segment  " << segPosL << " dir " << segDirL.unit() << std::endl;
-    // 	    std::cout << "   global segment " << segPosG << " dir " << segDirG.unit() << std::endl;
-//    bool mdtSegment = false;
 	
     double qualityFactor(1e9);
     if( seg.fitQuality() ){ 
@@ -584,7 +521,7 @@ namespace MuonCalib {
           } else { continue;}
       }
       
-      if( m_mdtIdHelper->is_mdt(id)) {
+      if( m_idHelperSvc->mdtIdHelper().is_mdt(id)) {
         if (competingRio) {
           ATH_MSG_WARNING( "  MDT hit is competing Rio !!! "  );
          continue;
@@ -615,7 +552,6 @@ namespace MuonCalib {
           ATH_MSG_WARNING( "This has no StraightLineSurface  !!! "  );
           continue;
         }
-//        mdtSegment = true;
 
 // Prd has no second coordinate        
 	Amg::Vector3D tubePosLoc = gToStation*prd->globalPosition();
@@ -645,7 +581,6 @@ namespace MuonCalib {
         Amg::Vector3D tubePosLocAtDCA = tubePosLoc + ScaleOnTube * tubeDirLoc ;
         Amg::Vector3D segPosLocAtDCA  = segPosLoc  + ScaleOnSeg  * segDirLoc ;
 
-//        Amg::Vector3D tubePosAtDCA = gToStation.inverse()*tubePosLocAtDCA;
         Amg::Vector3D segPosAtDCA  = gToStation.inverse()*segPosLocAtDCA ;
 
 
@@ -685,7 +620,6 @@ namespace MuonCalib {
           tubePosLoc = tubePosLocAtDCA ;
         }
 
-//	const Trk::LocalPosition* lpos = prd->detectorElement()->surface(id).globalToLocal(mrot->globalPosition(), 5000 );
 
 	double xLocTwin(-99999999.);
 
@@ -693,9 +627,9 @@ namespace MuonCalib {
 	if( prd->localPosition()[Trk::locY] ){
 	  Identifier test_prd_Id = prd->detectorElement()->identify();
 	  ATH_MSG_DEBUG( " Twin Position :  prd->localPosition()[Trk::locY] = " <<  prd->localPosition()[Trk::locY] 
-                         << " in station " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(test_prd_Id))
-                         << "  multilayer = " << m_mdtIdHelper->multilayer(test_prd_Id) << "  layer = " << m_mdtIdHelper->tubeLayer(test_prd_Id)
-                         << " tube = " <<  m_mdtIdHelper->tube(test_prd_Id) << "  modulo4 = " << (m_mdtIdHelper->tube(test_prd_Id)%4)  );
+                         << " in station " << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(test_prd_Id))
+                         << "  multilayer = " << m_idHelperSvc->mdtIdHelper().multilayer(test_prd_Id) << "  layer = " << m_idHelperSvc->mdtIdHelper().tubeLayer(test_prd_Id)
+                         << " tube = " <<  m_idHelperSvc->mdtIdHelper().tube(test_prd_Id) << "  modulo4 = " << (m_idHelperSvc->mdtIdHelper().tube(test_prd_Id)%4)  );
 	  
       
 	 Amg::Vector3D lposTrking(0.,0., prd->localPosition()[Trk::locY]);
@@ -708,10 +642,6 @@ namespace MuonCalib {
 
 	Amg::Vector3D tubePos    = gToStation.inverse()*tubePosLoc;
 //      If the wire is rotated wrt segmentsurface we need this transform
-//	Amg::Vector3D tubePos    = detEl->surface(id).transform()*tubePosLoc;
-
-	// 	std::cout << " loc pos " << tubePosLoc << " gpos " << tubePos << std::endl;
-
 	// get distance to readoud from detector manager
 	double distRo_det = detEl->distanceFromRO(mrot->globalPosition(), id);
 	  
@@ -741,14 +671,13 @@ namespace MuonCalib {
 		t0Shift=seg.time();
 		}
 	MdtCalibrationSvcInput input;
-	// if( m_doTof ) input.tof = tubePos.mag()/299.792458;
 	if( m_doTof ) input.tof = calibHit.globalPointOfClosestApproach().mag()*(1./299.792458); 
 	input.trackDirection = &seg.globalDirection(); 
  	
 	input.pointOfClosestApproach = &calibHit.globalPointOfClosestApproach();
 	bool sameChamber = false; 
 	if (cachedId.is_valid()) { 
-	  sameChamber = (m_mdtIdHelper->stationName(id) == m_mdtIdHelper->stationName(cachedId)) && (m_mdtIdHelper->stationEta(id) == m_mdtIdHelper->stationEta(cachedId)) && (m_mdtIdHelper->stationPhi(id) == m_mdtIdHelper->stationPhi(cachedId)); 
+	  sameChamber = (m_idHelperSvc->mdtIdHelper().stationName(id) == m_idHelperSvc->mdtIdHelper().stationName(cachedId)) && (m_idHelperSvc->mdtIdHelper().stationEta(id) == m_idHelperSvc->mdtIdHelper().stationEta(cachedId)) && (m_idHelperSvc->mdtIdHelper().stationPhi(id) == m_idHelperSvc->mdtIdHelper().stationPhi(cachedId)); 
 	} 
 	if (!sameChamber) ATH_MSG_DEBUG( "Moving to a new chamber! " << cachedId << " to " << id  );
 	// We're done with the cached Id for now, so immediately reassign it 
@@ -800,7 +729,6 @@ namespace MuonCalib {
 		}
 	ATH_MSG_DEBUG( "B-field correction: " << calibHit.lorentzTime()  );
 
-	//        std::cout << " Drift radius ROT " << rot->localParameters()[Trk::driftRadius] << " Calibsvc " << driftR <<std::endl;
 	// fill distance to track
 	calibHit.setDistanceToTrack( rtrk, 0. );
 	    
@@ -829,10 +757,7 @@ namespace MuonCalib {
 	basehit->setSegmentT0Applied(apply_t0);
 	mdtSeg->addHitOnTrack(basehit);
 
-	// 	std::cout << " MDT hit " << calibHit << std::endl;
-	// 	std::cout << " base hit " << *basehit << std::endl;
-
-      }else if( m_rpcIdHelper->is_rpc( id ) ){
+      }else if( m_idHelperSvc->rpcIdHelper().is_rpc( id ) ){
 	// rpc ROT
 	++nr;
 
@@ -856,27 +781,23 @@ namespace MuonCalib {
 
   	  const Muon::RpcPrepData* rprd = rrot->prepRawData();
 	  id = rprd->identify();
-	//	m_rpcIdHelper->print(id);
 	  int nStrips = rprd->rdoList().size();
 	// get detector element
 	  const MuonGM::RpcReadoutElement* detEl = rprd->detectorElement();
 
 	
-  	  double stripWidth =  detEl->StripWidth( m_rpcIdHelper->measuresPhi(id ));
+  	  double stripWidth =  detEl->StripWidth( m_idHelperSvc->rpcIdHelper().measuresPhi(id ));
 	  double time = rprd->time();
 	  double error = sqrt( rrot->localCovariance()(0,0) );
 	  Amg::Vector3D rgp = rrot->globalPosition();
-//          if (competingRio) {
-//            error = sqrt( rotc->localCovariance()(0,0) );
-//	    rgp = rotc->globalPosition();
-//          }
+
 	  Amg::Vector3D rlp = gToStation*rgp;
 
 	// get strip lengths
-	  double stripLen = detEl->StripLength(m_rpcIdHelper->measuresPhi(id));
+	  double stripLen = detEl->StripLength(m_idHelperSvc->rpcIdHelper().measuresPhi(id));
 
 	  double distRO;
-	  if( m_rpcIdHelper->measuresPhi(id) ){
+	  if( m_idHelperSvc->rpcIdHelper().measuresPhi(id) ){
 	    distRO = detEl->distanceToPhiReadout( rgp, id );
   	  }else{
 	    distRO = detEl->distanceToEtaReadout( rgp, id );
@@ -891,7 +812,7 @@ namespace MuonCalib {
 	
 	  mdtSeg->addHitOnTrack( rpcCH );
         }
-      }else if( m_tgcIdHelper->is_tgc( id ) ){
+      }else if( m_idHelperSvc->tgcIdHelper().is_tgc( id ) ){
 	++nt;
 
         int nRios = 1;
@@ -915,17 +836,13 @@ namespace MuonCalib {
 	  const Muon::TgcPrepData* tprd = trot->prepRawData();
 	  id = tprd->identify();
 	  ATH_MSG_DEBUG( "TGC RIO "  );
-	//	m_tgcIdHelper->print(id);
 
 	  int nStrips = tprd->rdoList().size();
-//          if (competingRio) {
-//           nStrips = rotc->numberOfContainedROTs();
-//          }
 
 	  double stripWidth;
-	  bool measuresPhi = (bool) m_tgcIdHelper->isStrip(tprd->identify());
-	  int gasGap = m_tgcIdHelper->gasGap(tprd->identify());
-	  int channel = m_tgcIdHelper->channel(tprd->identify());
+	  bool measuresPhi = (bool) m_idHelperSvc->tgcIdHelper().isStrip(tprd->identify());
+	  int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(tprd->identify());
+	  int channel = m_idHelperSvc->tgcIdHelper().channel(tprd->identify());
 	  const MuonGM::TgcReadoutElement* detEl = tprd->detectorElement();
 	  if (!measuresPhi){
 	    stripWidth = detEl->gangMaxZ(gasGap,channel)-detEl->gangMinZ(gasGap,channel);
@@ -936,10 +853,6 @@ namespace MuonCalib {
 
 	  double error = sqrt( trot->localCovariance()(0,0) );
 	  Amg::Vector3D tgp = trot->globalPosition();
-//        if (competingRio) {
-//          error = sqrt( rotc->localCovariance()(0,0) );
-//          tgp = rotc->globalPosition();
-//        }
 
 	  Amg::Vector3D tlp = gToStation*tgp;
 	  TgcCalibHitBase* tgcCH = new TgcCalibHitBase( nStrips, stripWidth, error, tgp, tlp );
@@ -950,7 +863,7 @@ namespace MuonCalib {
 
 	  mdtSeg->addHitOnTrack( tgcCH );
         }
-      }else if( m_cscIdHelper->is_csc( id ) ){
+      }else if( m_idHelperSvc->cscIdHelper().is_csc( id ) ){
 	++nc;
 
         int nRios = 1;
@@ -970,24 +883,16 @@ namespace MuonCalib {
 
   	  const Muon::CscPrepData* cprd = crot->prepRawData();
 	  Identifier id = cprd->identify();
-	// m_cscIdHelper->print(id);
 
 	  int nStrips = cprd->rdoList().size();
-//        if (competingRio) {
-//          nStrips = rotc->numberOfContainedROTs();
-//        }
 
-	  int measuresPhi    = m_cscIdHelper->measuresPhi(id);
-	  int chamberLayer   = m_cscIdHelper->chamberLayer(id);
+	  int measuresPhi    = m_idHelperSvc->cscIdHelper().measuresPhi(id);
+	  int chamberLayer   = m_idHelperSvc->cscIdHelper().chamberLayer(id);
 	  double stripWidth   = cprd->detectorElement()->cathodeReadoutPitch( chamberLayer, measuresPhi );
 	  int charge = cprd->charge();
 
 	  double error = sqrt( crot->localCovariance()(0,0) );
 	  Amg::Vector3D cgp = crot->globalPosition();
-//          if (competingRio) {
-//            error = sqrt( rotc->localCovariance()(0,0) );
-//            cgp = rotc->globalPosition();
-//          }
 
   	  Amg::Vector3D clp = gToStation *cgp;
 	  CscCalibHitBase* cscCH = new CscCalibHitBase( nStrips, stripWidth, charge, error, cgp, clp );
@@ -1000,10 +905,6 @@ namespace MuonCalib {
           ATH_MSG_DEBUG( "mdtSeg->cscHitsOnTrack()=" << mdtSeg->cscHitsOnTrack()  );
           ATH_MSG_DEBUG( "mdtSeg->hitsOnTrack()=" << mdtSeg->hitsOnTrack()  );
 	// set the global to amdb transform in case of first hit
-	//if( rit == rots.begin() ) {
-	  // global to AMDB transform
-	//  gToStation = prd->detectorElement()->GlobalToAmdbLRSTransform();
-	//}
        }
 
       }else{
@@ -1071,16 +972,16 @@ namespace MuonCalib {
 	  std::vector< const Trk::PrepRawData* >::const_iterator prd_it = prdvec.begin();
 	  for( ; prd_it!= prdvec.end() ;++prd_it ) {
 	    Identifier id = (*prd_it)->identify();
-	    if( m_mdtIdHelper->is_mdt(id) ) {
+	    if( m_idHelperSvc->mdtIdHelper().is_mdt(id) ) {
 	      nmdt += 1000; //a mdt is always an eta-hit.
-	    } else if ( m_rpcIdHelper->is_rpc(id) ) {
-	      if      ( m_rpcIdHelper->measuresPhi(id) ) nrpc += 1;
+	    } else if ( m_idHelperSvc->isRpc(id) ) {
+	      if      ( m_idHelperSvc->rpcIdHelper().measuresPhi(id) ) nrpc += 1;
 	      else    nrpc += 1000 ;
-	    } else if ( m_tgcIdHelper->is_tgc(id) ) {
-	      if      ( m_tgcIdHelper->isStrip(id) ) ntgc +=    1 ;
+	    } else if ( m_idHelperSvc->isTgc(id) ) {
+	      if      ( m_idHelperSvc->tgcIdHelper().isStrip(id) ) ntgc +=    1 ;
 	      else    ntgc += 1000 ;
-	    } else if ( m_cscIdHelper->is_csc(id) ) {
-	      if      ( m_cscIdHelper->measuresPhi(id) ) ncsc += 1 ;
+	    } else if ( m_idHelperSvc->isCsc(id) ) {
+	      if      ( m_idHelperSvc->cscIdHelper().measuresPhi(id) ) ncsc += 1 ;
 	      else    ncsc += 1000 ;
 	    } else    ATH_MSG_INFO( "PrepRawData on pat is not a muon-technom_logy"  );
 	  }
@@ -1101,7 +1002,7 @@ namespace MuonCalib {
     const Muon::MuonSegmentQuality* q = dynamic_cast<const Muon::MuonSegmentQuality*>(seg.fitQuality());
 
     if( !q ) {
-//    NO quality available for CSC   std::cout << "dynamic_cast MdtSegmentQuality failed" << std::endl;
+//    NO quality available for CSC   
       return 0;
     }
     ATH_MSG_DEBUG( "Got MuonSegmentQuality "

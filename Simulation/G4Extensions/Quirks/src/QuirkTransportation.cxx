@@ -83,7 +83,6 @@ QuirkTransportation::QuirkTransportation( G4int verboseLevel )
     m_threshold_Warning_Energy( 100 * CLHEP::MeV ),  
     m_threshold_Important_Energy( 250 * CLHEP::MeV ), 
     m_thresholdTrials( 10 ), 
-    m_unimportant_Energy( 1 * CLHEP::MeV ),  // Not used
     m_noLooperTrials(0),
     m_sumEnergyKilled( 0.0 ), m_maxEnergyKilled( 0.0 ), 
     m_shortStepOptimisation(false),    // Old default: true (=fast short steps)

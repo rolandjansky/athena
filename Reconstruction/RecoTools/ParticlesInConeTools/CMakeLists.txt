@@ -7,7 +7,7 @@ atlas_subdir( ParticlesInConeTools )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/SGTools
+                          Control/AthenaKernel
                           Control/AthLinks
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODPFlow
@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ParticlesInConeTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthLinks xAODCaloEvent xAODPFlow xAODTracking xAODTruth GaudiKernel AthContainers AsgTools AthenaBaseComps )
+                     LINK_LIBRARIES AthLinks xAODCaloEvent xAODPFlow xAODTracking xAODTruth GaudiKernel AthenaKernel AthContainers AsgTools AthenaBaseComps )
 
 # Install files from the package:
 atlas_install_headers( ParticlesInConeTools )

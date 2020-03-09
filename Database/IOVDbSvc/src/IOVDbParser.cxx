@@ -104,12 +104,12 @@ IOVDbParser::getKey(const std::string& key, const std::string& defvalue,
 
 std::pair<std::string, bool>
 IOVDbParser::at(const std::string & searchKey, const std::string &defaultValue) const{
-  try{
+  KeyValMap::const_iterator it = m_keys.find(searchKey);
+  if (it != m_keys.end()) {
     //may contain return or newline character
-    return std::pair<std::string, bool>(IOVDbNamespace::spaceStrip(m_keys.at(searchKey)), true);
-  }catch (std::out_of_range & e){
-    return std::pair<std::string, bool> (defaultValue, false);
+    return std::pair<std::string, bool>(IOVDbNamespace::spaceStrip(it->second), true);
   }
+  return std::pair<std::string, bool> (defaultValue, false);
 }
 
 std::string 

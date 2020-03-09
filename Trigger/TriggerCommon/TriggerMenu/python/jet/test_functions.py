@@ -1,11 +1,14 @@
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """Excerciser functions for JetDef.py"""
 
 def _generate(d, silent):
 
     if silent:
+        from StdOutController import StdOutController
         controller = StdOutController()
         controller.off()
         
@@ -19,7 +22,7 @@ def _generate(d, silent):
 def show_names():
 
     from test_dicts import dicts
-    for name in sorted([d['chainName'] for d in dicts]): print name
+    for name in sorted([d['chainName'] for d in dicts]): print (name)
 
     
 def run_all_dicts(silent,
@@ -33,45 +36,38 @@ def run_all_dicts(silent,
     m =  'have [%d] dicts, set $JETDEF_DEBUG, '\
          '$JETDEF_DEBUG_NO_INSTANTIATION'\
          ' to write to disk' % (len(dicts))
-    print m
+    print (m)
 
     names = chains.split(':') if chains else []
     if names:
-        print 'searching for  %d chains' % len(names)
+        print ('searching for  %d chains' % len(names))
         dicts = [d for d in dicts if d['chainName'] in names]
-        print 'found %d chains' % len(dicts)
+        print ('found %d chains' % len(dicts))
     else:
-        print 'processsing all %d dicts' % len(dicts)
-    
-    devnull = open(os.devnull, 'w')
-    old_out = sys.stdout
-    old_err = sys.stderr
+        print ('processsing all %d dicts' % len(dicts))
     
     result = []
     ndicts = 0
-    toSkip = (
-        'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
-        'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
-        )
+    #toSkip = (
+    #    'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
+    #    'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
+    #    )
     for d in dicts:
         # if d['chainName'] in toSkip or '_PS_' in d['chainName']:
-        #    print d['chainName']
+        #    print (d['chainName'])
         #    continue
         
-        if printChains: print ndicts, d['chainName']
-        # sys.stdout = devnull
-        # sys.stderr = devnull
+        if printChains: print (ndicts, d['chainName'])
         try:
             result.append(_generate(d, silent))
-        except Exception, e:
-            print d['chainName']
-            print e
+        except Exception:
+            print (d['chainName'])
+            import traceback
+            traceback.print_exc()
             assert False
         ndicts += 1
-        # sys.stdout = old_out
-        # sys.stderr = old_err
 
-    print 'have [%d] chainDefs' % len(result)
+    print ('have [%d] chainDefs' % len(result))
     return result
 
 def run_test_dicts(silent, dicts=[]):
@@ -79,13 +75,14 @@ def run_test_dicts(silent, dicts=[]):
 
     chainDefs = []
     for d in dicts:
-        print d['chainName']
+        print (d['chainName'])
         try:
             cd = _generate(d, silent)
             chainDefs.append(cd)
-        except Exception, e:
-            print '(Error)ChainDef creation failed: ', str(e)
-            print exc2string2()
+        except Exception:
+            print ('(Error)ChainDef creation failed: ')
+            import traceback
+            traceback.print_exc()
 
     return chainDefs
 
@@ -103,8 +100,8 @@ def run_from_topo(silent, dicts):
         from triggerMenuXML_dicts import triggerMenuXML_dicts as dicts
 
     dicts = [d for d in dicts if has_topo(d)]
-    print 'have [%d] chaindefs, use env variables to write to disk' % (
-        len(dicts))
+    print ('have [%d] chaindefs, use env variables to write to disk' % (
+        len(dicts)))
     return [_generate(d, silent) for d in dicts]
 
 def get_dicts(module_name='test_dicts'):
@@ -113,23 +110,22 @@ def get_dicts(module_name='test_dicts'):
 
 
 def usage():
-    print 'test_functions: Create ChainDefs instances from dictionaries'
-    print '   -a run all the dicts gathered from building TriggerMenuXML'
-    print '   -l run on colon separated chain names'
-    print '   -m <module_name> run from dicts in module <module_name>'
-    print '   -t run topo chains from . TriggerMEnuXML dicts'
-    print '   -s silent (but stops pdb prompt...)'
-    print '   -n show the available chain names'
-    print '   -e print only ErrorChainDef objects'
+    print ('test_functions: Create ChainDefs instances from dictionaries')
+    print ('   -a run all the dicts gathered from building TriggerMenuXML')
+    print ('   -l run on colon separated chain names')
+    print ('   -m <module_name> run from dicts in module <module_name>')
+    print ('   -t run topo chains from . TriggerMEnuXML dicts')
+    print ('   -s silent (but stops pdb prompt...)')
+    print ('   -n show the available chain names')
+    print ('   -e print only ErrorChainDef objects')
 
 if __name__ == '__main__':
     import getopt, sys, os
-    from exc2string import exc2string2 
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'htasm:nl:e', [])
     except getopt.GetoptError as err:
-        print str(err) # will print something like "option -a not recognized"
+        print (str(err)) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
 
@@ -163,13 +159,11 @@ if __name__ == '__main__':
             print_error_only = True
         
         else:
-            print 'unknown option', o, do_all
+            print ('unknown option', o, do_all)
             usage()
             sys.exit(0)
 
-    print 'importing modules (slow!)'
-    from AthenaCommon.Include import include
-    from AthenaCommon.OldStyleConfig import  Service
+    print ('importing modules (slow!)')
     # from StdOutController import StdOutController
     # import importlib
 
@@ -190,7 +184,7 @@ if __name__ == '__main__':
         to_print = [c for c in chainConfigs if
                     c.__class__.__name__ != 'ChainDef']
 
-    for c in to_print: print '\n' + str(c)
+    for c in to_print: print ('\n' + str(c))
          
     n_ChainDef = 0
     n_ErrorChainDef = 0
@@ -200,9 +194,9 @@ if __name__ == '__main__':
         else:
             n_ErrorChainDef += 1
 
-    print 'Retrieved dicts                %d' % len(dicts)
-    print 'name selector                  %s' % chains
-    print 'No of ChainConfig objects      %d' % n_ChainDef
-    print 'No of ErrorChainConfig objects %d' % n_ErrorChainDef
-    print 'done'
+    print ('Retrieved dicts                %d' % len(dicts))
+    print ('name selector                  %s' % chains)
+    print ('No of ChainConfig objects      %d' % n_ChainDef)
+    print ('No of ErrorChainConfig objects %d' % n_ErrorChainDef)
+    print ('done')
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonAuditor.cxx 
@@ -106,30 +106,6 @@ void PerfMonAuditor::afterExecute( INamedInterface* component,
 				   const StatusCode& ) 
 {
   return m_monSvc->stopAud( PerfMon::Steps[State::evt], component->name() );
-}
-
-void PerfMonAuditor::beforeBeginRun( INamedInterface* /*component*/ )
-{
-  // don't poll for before begin run
-  return;
-}
-
-void PerfMonAuditor::afterBeginRun( INamedInterface* /*component*/ )
-{
-  // don't poll for after begin run
-  return;
-}
-
-void PerfMonAuditor::beforeEndRun( INamedInterface* /*component*/ )
-{
-  // don't poll for before end-run
-  return;
-}
-
-void PerfMonAuditor::afterEndRun( INamedInterface* /*component*/ )
-{
-  // don't poll for after end run
-  return;
 }
 
 void PerfMonAuditor::beforeFinalize( INamedInterface* component )

@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ANALYSISEXAMPLES_VFITZMMONAOD_H
@@ -26,7 +26,6 @@
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AnalysisTools/AnalysisTools.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -78,9 +77,6 @@ class VFitZmmOnAOD : public AthAlgorithm {
 
    /// get a handle to the tool helper
    ToolHandle<AnalysisTools> m_analysisTools;
-
-   /// a handle on Store Gate 
-  //  StoreGateSvc* m_storeGate; // not used anymore
 
    /// a handle on the Hist/TTree registration service
    ITHistSvc * m_thistSvc;

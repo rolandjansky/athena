@@ -42,7 +42,7 @@ TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvc
     declareProperty( "ClusEt",              m_clusEtthr = 20.0*CLHEP::GeV );
     declareProperty( "TrackPt",              m_trackPtthr = 5.0*CLHEP::GeV );
     declareProperty( "CaloTrackdEtaNoExtrap",        m_calotrkdeta_noextrap );
-    declareProperty( "TrackPtHighEt",              m_trackPtthr = 2.0*CLHEP::GeV );
+    declareProperty( "TrackPtHighEt",              m_trackPtthr_highet = 2.0*CLHEP::GeV );
     declareProperty( "CaloTrackdEtaNoExtrapHighEt",        m_calotrkdeta_noextrap_highet = 0);
     declareProperty( "CaloTrackdETA",        m_calotrackdeta = 0);
     declareProperty( "CaloTrackdPHI",        m_calotrackdphi = 0); 

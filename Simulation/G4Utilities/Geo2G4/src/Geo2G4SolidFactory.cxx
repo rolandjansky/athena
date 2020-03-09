@@ -4,6 +4,7 @@
 
 #include "Geo2G4SolidFactory.h"
 #include "LArWheelSolid.h"
+#include "LArWheelSliceSolid.h"
 #include "LArWheelSolidDDProxy.h"
 
 #include "GeoSpecialShapes/LArCustomShape.h"
@@ -60,58 +61,76 @@ typedef std::map<const GeoShape*, G4VSolid*, std::less<const GeoShape*> > shapes
 typedef std::map<std::string, G4VSolid*,std::less<std::string> > customSolidMap;
 
 const Geo2G4SolidFactory::LArWheelSolid_typemap Geo2G4SolidFactory::s_lwsTypes = {
-        { "LAr::EMEC::InnerWheel::Absorber",         {InnerAbsorberWheel, 1} },
-        { "LAr::EMEC::Pos::InnerWheel::Absorber",    {InnerAbsorberWheel, 1} },
+/* entries w/o explicit Pos/Neg kept for backward compatibility */
+    { "LAr::EMEC::InnerWheel::Absorber",           {InnerAbsorberWheel, 1} },
+    { "LAr::EMEC::InnerWheel::Electrode",          {InnerElectrodWheel, 1} },
+    { "LAr::EMEC::InnerWheel::Glue",               {InnerGlueWheel, 1} },
+    { "LAr::EMEC::InnerWheel::Lead",               {InnerLeadWheel, 1} },
 
-        { "LAr::EMEC::OuterWheel::Absorber",         {OuterAbsorberWheel, 1} },
-        { "LAr::EMEC::Pos::OuterWheel::Absorber",    {OuterAbsorberWheel, 1} },
+    { "LAr::EMEC::OuterWheel::Absorber",           {OuterAbsorberWheel, 1} },
+    { "LAr::EMEC::OuterWheel::Electrode",          {OuterElectrodWheel, 1} },
+    { "LAr::EMEC::OuterWheel::Glue",               {OuterGlueWheel, 1} },
+    { "LAr::EMEC::OuterWheel::Lead",               {OuterLeadWheel, 1} },
 
-        { "LAr::EMEC::InnerWheel::Electrode",        {InnerElectrodWheel, 1} },
-        { "LAr::EMEC::Pos::InnerWheel::Electrode",   {InnerElectrodWheel, 1} },
+    { "LAr::EMEC::Pos::InnerWheel::Absorber",      {InnerAbsorberWheel, 1} },
+    { "LAr::EMEC::Pos::InnerWheel::Electrode",     {InnerElectrodWheel, 1} },
+    { "LAr::EMEC::Pos::InnerWheel::Glue",          {InnerGlueWheel, 1} },
+    { "LAr::EMEC::Pos::InnerWheel::Lead",          {InnerLeadWheel, 1} },
 
-        { "LAr::EMEC::OuterWheel::Electrode",        {OuterElectrodWheel, 1} },
-        { "LAr::EMEC::Pos::OuterWheel::Electrode",   {OuterElectrodWheel, 1} },
+    { "LAr::EMEC::Pos::OuterWheel::Absorber",      {OuterAbsorberWheel, 1} },
+    { "LAr::EMEC::Pos::OuterWheel::Electrode",     {OuterElectrodWheel, 1} },
+    { "LAr::EMEC::Pos::OuterWheel::Glue",          {OuterGlueWheel, 1} },
+    { "LAr::EMEC::Pos::OuterWheel::Lead",          {OuterLeadWheel, 1} },
 
-        { "LAr::EMEC::Neg::InnerWheel::Absorber",    {InnerAbsorberWheel, -1} },
+    { "LAr::EMEC::Neg::InnerWheel::Absorber",      {InnerAbsorberWheel, -1} },
+    { "LAr::EMEC::Neg::InnerWheel::Electrode",     {InnerElectrodWheel, -1} },
+    { "LAr::EMEC::Neg::InnerWheel::Glue",          {InnerGlueWheel, -1} },
+    { "LAr::EMEC::Neg::InnerWheel::Lead",          {InnerLeadWheel, -1} },
 
-        { "LAr::EMEC::Neg::OuterWheel::Absorber",    {OuterAbsorberWheel, -1} },
+    { "LAr::EMEC::Neg::OuterWheel::Absorber",      {OuterAbsorberWheel, -1} },
+    { "LAr::EMEC::Neg::OuterWheel::Electrode",     {OuterElectrodWheel, -1} },
+    { "LAr::EMEC::Neg::OuterWheel::Glue",          {OuterGlueWheel, -1} },
+    { "LAr::EMEC::Neg::OuterWheel::Lead",          {OuterLeadWheel, -1} },
 
-        { "LAr::EMEC::Neg::InnerWheel::Electrode",   {InnerElectrodWheel, -1} },
+    { "LAr::EMEC::InnerModule::Absorber",          {InnerAbsorberModule, 1} },
+    { "LAr::EMEC::InnerModule::Electrode",         {InnerElectrodModule, 1} },
+    { "LAr::EMEC::OuterModule::Absorber",          {OuterAbsorberModule, 1} },
+    { "LAr::EMEC::OuterModule::Electrode",         {OuterElectrodModule, 1} },
 
-        { "LAr::EMEC::Neg::OuterWheel::Electrode",   {OuterElectrodWheel, -1} },
+    { "LAr::EMEC::Pos::InnerCone::Absorber",       {InnerAbsorberCone, 1} },
+    { "LAr::EMEC::Pos::InnerCone::Electrode",      {InnerElectrodCone, 1} },
+    { "LAr::EMEC::Pos::InnerCone::Glue",           {InnerGlueCone, 1} },
+    { "LAr::EMEC::Pos::InnerCone::Lead",           {InnerLeadCone, 1} },
 
-        { "LAr::EMEC::InnerModule::Absorber",        {InnerAbsorberModule, 1} },
+    { "LAr::EMEC::Neg::InnerCone::Absorber",       {InnerAbsorberCone, -1} },
+    { "LAr::EMEC::Neg::InnerCone::Electrode",      {InnerElectrodCone, -1} },
+    { "LAr::EMEC::Neg::InnerCone::Glue",           {InnerGlueCone, -1} },
+    { "LAr::EMEC::Neg::InnerCone::Lead",           {InnerLeadCone, -1} },
 
-        { "LAr::EMEC::OuterModule::Absorber",        {OuterAbsorberModule, 1} },
+    { "LAr::EMEC::Pos::OuterFrontCone::Absorber",  {OuterAbsorberFrontCone, 1} },
+    { "LAr::EMEC::Pos::OuterFrontCone::Electrode", {OuterElectrodFrontCone, 1} },
+    { "LAr::EMEC::Pos::OuterFrontCone::Glue",      {OuterGlueFrontCone, 1} },
+    { "LAr::EMEC::Pos::OuterFrontCone::Lead",      {OuterLeadFrontCone, 1} },
 
-        { "LAr::EMEC::InnerModule::Electrode",       {InnerElectrodModule, 1} },
+    { "LAr::EMEC::Neg::OuterFrontCone::Absorber",  {OuterAbsorberFrontCone, -1} },
+    { "LAr::EMEC::Neg::OuterFrontCone::Electrode", {OuterElectrodFrontCone, -1} },
+    { "LAr::EMEC::Neg::OuterFrontCone::Glue",      {OuterGlueFrontCone, -1} },
+    { "LAr::EMEC::Neg::OuterFrontCone::Lead",      {OuterLeadFrontCone, -1} },
 
-        { "LAr::EMEC::OuterModule::Electrode",       {OuterElectrodModule, 1} },
+    { "LAr::EMEC::Pos::OuterBackCone::Absorber",   {OuterAbsorberBackCone, 1} },
+    { "LAr::EMEC::Pos::OuterBackCone::Electrode",  {OuterElectrodBackCone, 1} },
+    { "LAr::EMEC::Pos::OuterBackCone::Glue",       {OuterGlueBackCone, 1} },
+    { "LAr::EMEC::Pos::OuterBackCone::Lead",       {OuterLeadBackCone, 1} },
 
-        { "LAr::EMEC::InnerWheel::Glue",             {InnerGlueWheel, 1} },
-        { "LAr::EMEC::Pos::InnerWheel::Glue",        {InnerGlueWheel, 1} },
-
-        { "LAr::EMEC::InnerWheel::Lead",             {InnerLeadWheel, 1} },
-        { "LAr::EMEC::Pos::InnerWheel::Lead",        {InnerLeadWheel, 1} },
-
-        { "LAr::EMEC::OuterWheel::Glue",             {OuterGlueWheel, 1} },
-        { "LAr::EMEC::Pos::OuterWheel::Glue",        {OuterGlueWheel, 1} },
-
-        { "LAr::EMEC::OuterWheel::Lead",             {OuterLeadWheel, 1} },
-        { "LAr::EMEC::Pos::OuterWheel::Lead",        {OuterLeadWheel, 1} },
-
-        { "LAr::EMEC::Neg::InnerWheel::Glue",        {InnerGlueWheel, -1} },
-
-        { "LAr::EMEC::Neg::OuterWheel::Glue",        {OuterGlueWheel, -1} },
-
-        { "LAr::EMEC::Neg::InnerWheel::Lead",        {InnerLeadWheel, -1} },
-
-        { "LAr::EMEC::Neg::OuterWheel::Lead",        {OuterLeadWheel, -1} }
+    { "LAr::EMEC::Neg::OuterBackCone::Absorber",   {OuterAbsorberBackCone, -1} },
+    { "LAr::EMEC::Neg::OuterBackCone::Electrode",  {OuterElectrodBackCone, -1} },
+    { "LAr::EMEC::Neg::OuterBackCone::Glue",       {OuterGlueBackCone, -1} },
+    { "LAr::EMEC::Neg::OuterBackCone::Lead",       {OuterLeadBackCone, -1} },
 };
 
 Geo2G4SolidFactory::Geo2G4SolidFactory() :
-        m_msg("Geo2G4SolidFactory"),
-        m_detStore( "StoreGateSvc/DetectorStore", "Geo2G4SolidFactory" )
+    m_msg("Geo2G4SolidFactory"),
+    m_detStore( "StoreGateSvc/DetectorStore", "Geo2G4SolidFactory" )
 {
 }
 
@@ -512,53 +531,15 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       else
         {
           theSolid = nullptr;
-//          if(customName == "LAr::EMEC::InnerWheel::Absorber" || customName == "LAr::EMEC::Pos::InnerWheel::Absorber"){
-//           theSolid = new LArWheelSolid(customName, InnerAbsorberWheel, 1);
-//         } else if(customName == "LAr::EMEC::OuterWheel::Absorber" ||  customName == "LAr::EMEC::Pos::OuterWheel::Absorber"){
-//            theSolid = new LArWheelSolid(customName, OuterAbsorberWheel, 1);
-//          } else if(customName == "LAr::EMEC::InnerWheel::Electrode" || customName == "LAr::EMEC::Pos::InnerWheel::Electrode"){
-//            theSolid = new LArWheelSolid(customName, InnerElectrodWheel, 1);
-//          } else if(customName == "LAr::EMEC::OuterWheel::Electrode" || customName == "LAr::EMEC::Pos::OuterWheel::Electrode"){
-//            theSolid = new LArWheelSolid(customName, OuterElectrodWheel, 1);
-//          } else if(customName == "LAr::EMEC::Neg::InnerWheel::Absorber"){
-//            theSolid = new LArWheelSolid(customName, InnerAbsorberWheel, -1);
-//          } else if(customName == "LAr::EMEC::Neg::OuterWheel::Absorber"){
-//            theSolid = new LArWheelSolid(customName, OuterAbsorberWheel, -1);
-//          } else if(customName == "LAr::EMEC::Neg::InnerWheel::Electrode"){
-//            theSolid = new LArWheelSolid(customName, InnerElectrodWheel, -1);
-//          } else if(customName == "LAr::EMEC::Neg::OuterWheel::Electrode"){
-//            theSolid = new LArWheelSolid(customName, OuterElectrodWheel, -1);
-//          } else if(customName == "LAr::EMEC::InnerModule::Absorber"){
-//            theSolid = new LArWheelSolid(customName, InnerAbsorberModule, 1);
-//          } else if(customName == "LAr::EMEC::OuterModule::Absorber"){
-//            theSolid = new LArWheelSolid(customName, OuterAbsorberModule, 1);
-//          } else if(customName == "LAr::EMEC::InnerModule::Electrode"){
-//            theSolid = new LArWheelSolid(customName, InnerElectrodModule, 1);
-//          } else if(customName == "LAr::EMEC::OuterModule::Electrode"){
-//            theSolid = new LArWheelSolid(customName, OuterElectrodModule, 1);
-//          } else if(customName == "LAr::EMEC::InnerWheel::Glue" ||  customName == "LAr::EMEC::Pos::InnerWheel::Glue"){
-//            theSolid = new LArWheelSolid(customName, InnerGlueWheel, 1);
-//          } else if(customName == "LAr::EMEC::InnerWheel::Lead" ||  customName == "LAr::EMEC::Pos::InnerWheel::Lead"){
-//            theSolid = new LArWheelSolid(customName, InnerLeadWheel, 1);
-//          } else if(customName == "LAr::EMEC::OuterWheel::Glue" ||  customName == "LAr::EMEC::Pos::OuterWheel::Glue"){
-//            theSolid = new LArWheelSolid(customName, OuterGlueWheel, 1);
-//          } else if(customName == "LAr::EMEC::OuterWheel::Lead" ||  customName == "LAr::EMEC::Pos::OuterWheel::Lead"){
-//            theSolid = new LArWheelSolid(customName, OuterLeadWheel, 1);
-//          } else if(customName == "LAr::EMEC::Neg::InnerWheel::Glue"){
-//            theSolid = new LArWheelSolid(customName, InnerGlueWheel, -1);
-//          } else if(customName == "LAr::EMEC::Neg::InnerWheel::Lead"){
-//            theSolid = new LArWheelSolid(customName, InnerLeadWheel, -1);
-//          } else if(customName == "LAr::EMEC::Neg::OuterWheel::Glue"){
-//            theSolid = new LArWheelSolid(customName, OuterGlueWheel, -1);
-//          } else if(customName == "LAr::EMEC::Neg::OuterWheel::Lead"){
-//            theSolid = new LArWheelSolid(customName, OuterLeadWheel, -1);
-//          }
-
-        theSolid = createLArWheelSolid(customName, s_lwsTypes.at(customName) ); // map.at throws std::out_of_range exception on unknown shape name
-        if ( nullptr == theSolid ) {
-                std::string error = std::string("Can't create LArWheelSolid for name ") + customName + " in Geo2G4SolidFactory::Build";
-                throw std::runtime_error(error);
-        }
+          if(customName.find("Slice") != std::string::npos){
+            theSolid = createLArWheelSliceSolid(customShape);
+          } else {
+            theSolid = createLArWheelSolid(customName, s_lwsTypes.at(customName) ); // map.at throws std::out_of_range exception on unknown shape name
+          }
+          if ( nullptr == theSolid ) {
+            std::string error = std::string("Can't create LArWheelSolid for name ") + customName + " in Geo2G4SolidFactory::Build";
+            throw std::runtime_error(error);
+          }
 
           if(theSolid != nullptr) customSolids[customName] = theSolid;
         }
@@ -591,4 +572,17 @@ G4VSolid* Geo2G4SolidFactory::createLArWheelSolid(const std::string& name, const
                 delete theLWS_p;
         }
         return theLWS;
+}
+
+G4VSolid* Geo2G4SolidFactory::createLArWheelSliceSolid(const LArCustomShape* customShape) const
+{
+    LArWheelSliceSolid *theLWS = new LArWheelSliceSolid(customShape->name(), customShape->calculator());
+
+    LArWheelSolidDDProxy *theLWS_p = new LArWheelSolidDDProxy(theLWS);
+    // ownership is passed to detStore
+    if(detStore()->record(theLWS_p, theLWS->GetName()).isFailure()){
+        ATH_MSG_WARNING("Can't store proxy for LArWheelSolid to the DetectorStore");
+        delete theLWS_p;
+    }
+    return theLWS;
 }

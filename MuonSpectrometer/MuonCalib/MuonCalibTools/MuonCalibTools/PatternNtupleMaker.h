@@ -23,9 +23,6 @@
 #include <string>
 #include <map>
 
-class StoreGateSvc;
-
-
 namespace MuonCalib {
   class MuonCalibEvent;
   class MuonFixedId;
@@ -55,8 +52,6 @@ namespace MuonCalib {
     virtual bool analyse();   //!< Interface method: writes the Tree.
 
   private:
-    StoreGateSvc*  m_storeGate; //!< Pointer to StoreGateSvc (obsolete, by the way, should be removed)
-
     bool handleEventInfo( const MuonCalibEventInfo* eventInfo, const MuonCalibTriggerTimeInfo* trigTimeInfo);  //!< Feeds MuonCalibEventInfo to muonCalibBranchNtuple
     bool handleTruthCollection( const MuonCalibTruthCollection* truthCollection );  //!< Feeds MuonCalibTruthCollection to muonCalibBranchNtuple
     bool handlePattern( const MuonCalibPattern* pattern );                          //!< Feeds MuonCalibPattern to muonCalibBranchNtuple

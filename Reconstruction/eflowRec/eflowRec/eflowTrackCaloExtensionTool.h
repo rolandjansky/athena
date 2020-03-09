@@ -53,6 +53,12 @@ private:
 
   std::unique_ptr<Trk::TrackParametersIdHelper> m_trackParametersIdHelper;
 
+  //output particle calo extension collection
+  SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
+      "PFParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache"};
+
+  Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
+
 };
 
 inline const InterfaceID& eflowTrackCaloExtensionTool::interfaceID() {

@@ -101,63 +101,63 @@ public:
   virtual DiscSurface* clone() const override;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
-  virtual const ParametersT<5, Charged, DiscSurface>* createTrackParameters(double l1,
-                                                                            double l2,
-                                                                            double phi,
-                                                                            double theta,
-                                                                            double qop,
-                                                                            AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, DiscSurface>* createTrackParameters(double l1,
+                                                                      double l2,
+                                                                      double phi,
+                                                                      double theta,
+                                                                      double qop,
+                                                                      AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, DiscSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
-  virtual const ParametersT<5, Charged, DiscSurface>* createTrackParameters(const Amg::Vector3D& position,
-                                                                            const Amg::Vector3D& momentum,
-                                                                            double charge,
-                                                                            AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, DiscSurface>* createTrackParameters(const Amg::Vector3D& position,
+                                                                      const Amg::Vector3D& momentum,
+                                                                      double charge,
+                                                                      AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, DiscSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
-  virtual const ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(double l1,
-                                                                              double l2,
-                                                                              double phi,
-                                                                              double theta,
-                                                                              double qop,
-                                                                              AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(double l1,
+                                                                        double l2,
+                                                                        double phi,
+                                                                        double theta,
+                                                                        double qop,
+                                                                        AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, DiscSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
-  virtual const ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(const Amg::Vector3D& position,
-                                                                              const Amg::Vector3D& momentum,
-                                                                              double charge,
-                                                                              AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Neutral, DiscSurface>* createNeutralParameters(const Amg::Vector3D& position,
+                                                                        const Amg::Vector3D& momentum,
+                                                                        double charge,
+                                                                        AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, DiscSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, DiscSurface>* createParameters(double l1,
-                                                           double l2,
-                                                           double phi,
-                                                           double theta,
-                                                           double qop,
-                                                           AmgSymMatrix(DIM) * cov = 0) const
+  ParametersT<DIM, T, DiscSurface>* createParameters(double l1,
+                                                     double l2,
+                                                     double phi,
+                                                     double theta,
+                                                     double qop,
+                                                     AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, DiscSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, DiscSurface>* createParameters(const Amg::Vector3D& position,
-                                                           const Amg::Vector3D& momentum,
-                                                           double charge,
-                                                           AmgSymMatrix(DIM) * cov = 0) const
+  ParametersT<DIM, T, DiscSurface>* createParameters(const Amg::Vector3D& position,
+                                                     const Amg::Vector3D& momentum,
+                                                     double charge,
+                                                     AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, DiscSurface>(position, momentum, charge, *this, cov);
   }
@@ -186,7 +186,7 @@ public:
                            double tol2 = 0.) const override;
 
   /** Specialized for DiscSurface : LocalParameters to Vector2D */
-  virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
+  virtual Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
 
   /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
@@ -287,7 +287,7 @@ DiscSurface::insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck&
   return (bounds().inside(locpos, bchk));
 }
 
-inline const Amg::Vector2D
+inline Amg::Vector2D
 DiscSurface::localParametersToPosition(const LocalParameters& locpars) const
 {
   if (locpars.contains(Trk::locR) && locpars.contains(Trk::locPhi))

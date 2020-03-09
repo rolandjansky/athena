@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -218,10 +218,14 @@ int main(int argc, const char *argv[])
                if (newDocument!=NULL)     delete newDocument;
             }
             catch (const SAXException& e) {
-               std::cout << "xml error: " << e.getMessage( ) << "\n";
+               char* s = XMLString::transcode(e.getMessage( ));
+               std::cout << "xml error: " << s << "\n";
+               XMLString::release (&s);
             }
             catch (const DOMException& e) {
-               std::cout << "xml error: " << e.getMessage( ) << "\n";
+               char* s = XMLString::transcode(e.getMessage( ));
+               std::cout << "xml error: " << s << "\n";
+               XMLString::release (&s);
             }
          }
       }

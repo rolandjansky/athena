@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackSelectorTool.h"
@@ -7,7 +7,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
@@ -27,7 +27,6 @@ namespace Muon {
   MuonTrackSelectorTool::MuonTrackSelectorTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
       m_ntotalTracks(0),
@@ -69,7 +68,7 @@ namespace Muon {
 
   StatusCode MuonTrackSelectorTool::initialize()
   {
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_trackSummaryTool.retrieve() );

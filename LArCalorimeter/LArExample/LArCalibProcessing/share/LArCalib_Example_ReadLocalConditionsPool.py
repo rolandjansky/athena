@@ -4,7 +4,7 @@
 #
 ###################################################################
 
-include("AthenaSealSvc/AthenaSealSvc_joboptions.py")
+include("AthenaServices/AthenaSealSvc_joboptions.py")
 include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 include("LArAthenaPool/LArAthenaPool_joboptions.py" )
 include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py") 

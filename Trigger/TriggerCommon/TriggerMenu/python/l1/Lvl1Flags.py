@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Lvl1 specific flags
@@ -6,7 +6,7 @@ Lvl1 specific flags
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.Logging import logging
-from Limits import Limits
+from .Limits import Limits
 
 __author__  = 'J.Stelzer'
 __version__="$Revision: 1.78 $"
@@ -27,7 +27,7 @@ class CTPVersion(JobProperty):
 
     def _do_action(self):
         """Load the limits"""
-        from Limits import Limits
+        from .Limits import Limits
         Limits.setLimits(self.get_Value())
 
 

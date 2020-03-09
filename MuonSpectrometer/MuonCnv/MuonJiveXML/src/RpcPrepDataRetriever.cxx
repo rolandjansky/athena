@@ -7,7 +7,6 @@
 #include "MuonJiveXML/MuonFullIDHelper.h"
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace JiveXML {
@@ -30,12 +29,7 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
 
-    StatusCode sc=detStore()->retrieve(m_rpcIdHelper);
-    if (sc.isFailure())
-      {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve RpcIdHelper!" << endmsg;
-        return StatusCode::FAILURE;
-      }
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }        
@@ -85,7 +79,7 @@ namespace JiveXML {
         }
   
 	Amg::Vector3D globalPos = element->stripPos(id);  
-        int measuresPhi = m_rpcIdHelper->measuresPhi(id);
+        int measuresPhi = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
         double stripLength = element->StripLength(measuresPhi);
         double stripWidth = element->StripWidth(measuresPhi);
 
@@ -94,7 +88,7 @@ namespace JiveXML {
         z.push_back(DataType(globalPos.z()/CLHEP::cm));
         lengthVec.push_back(DataType(stripLength/CLHEP::cm));
         widthVec.push_back(DataType(stripWidth/CLHEP::cm));
-        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_rpcIdHelper)));
+        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_muonIdHelperTool->rpcIdHelper())));
         idVec.push_back(DataType( id.get_compact() ));
         barcode.push_back(DataType(0));
       }

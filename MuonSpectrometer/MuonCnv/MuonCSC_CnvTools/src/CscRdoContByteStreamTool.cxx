@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRdoContByteStreamTool.h"
@@ -46,16 +46,7 @@ StatusCode Muon::CscRdoContByteStreamTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  //  StoreGateSvc * detStore;
-  //  status = service("DetectorStore", detStore);
-  //  if (status.isFailure()) {
-  //    ATH_MSG_FATAL ( "DetectorStore service not found !" );
-  //    return StatusCode::FAILURE;
-  //  } else {}
- 
-  // Get the RPC id helper from the detector store
-  const CscIdHelper* csc_id;
-  if ( detStore()->retrieve(csc_id, "CSCIDHELPER").isFailure()) {
+  if ( m_muonIdHelperTool.retrieve().isFailure()) {
     ATH_MSG_FATAL ( "Could not get CscIdHelper !" );
     return StatusCode::FAILURE;
   } 
@@ -64,13 +55,11 @@ StatusCode Muon::CscRdoContByteStreamTool::initialize()
   }
   
   // create CSC RDO ID to source ID mapper
-  m_hid2re.set( m_cabling, csc_id );
+  m_hid2re.set( m_cabling, m_muonIdHelperTool.get() );
   if ( m_isCosmic ) { 
     m_hid2re.set_isCosmic();
     if ( m_isOldCosmic ) m_hid2re.set_isOldCosmic();
   }
-  
-  m_cscHelper = csc_id;
   
   return StatusCode::SUCCESS;
 }
@@ -89,7 +78,7 @@ StatusCode Muon::CscRdoContByteStreamTool::convert(const CONTAINER* cont, RawEve
 					     MsgStream& log)
 {
   m_fea.clear();
-  m_fea.idMap().set( m_cabling, m_cscHelper );
+  m_fea.idMap().set( m_cabling, m_muonIdHelperTool.get() );
   if(m_cabling->nROD()==16) m_fea.setRodMinorVersion(0x400);
   else m_fea.setRodMinorVersion(m_rodVersion);
 
@@ -120,7 +109,7 @@ StatusCode Muon::CscRdoContByteStreamTool::convert(const CONTAINER* cont, RawEve
 
       // map the RDO onto Encoder
       mapEncoder[rodId].setRdo(*it_col);
-      mapEncoder[rodId].setIdHelper(m_cscHelper);
+      mapEncoder[rodId].setIdHelper(m_muonIdHelperTool.get());
     } 
 
   // loop over map and fill all ROD Data Blocks

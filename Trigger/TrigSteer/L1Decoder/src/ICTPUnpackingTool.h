@@ -21,12 +21,6 @@ public:
   DeclareInterfaceID(ICTPUnpackingTool, 1, 0);
 
   /**
-   * Invoked when there is a potential change of the configuration. Typically beginRun.
-   * it obtains the information about the L1 item -> HLT seeding relation in a form of a map where the key is the HLT chain name and value is the L1 item
-   **/
-  virtual StatusCode updateConfiguration( const std::map<std::string, std::string>& seeding ) = 0; 
-
-  /**
    * The method decodes CTP bits content of the RoIBResult and fills the list of chains which are activated by those bits
    *
    * The mapping ctpToChain is expected to contain the CTP bit number mapping to the chain identifiers

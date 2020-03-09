@@ -158,7 +158,6 @@ class QuirkTransportation : public G4VProcess
      G4double             m_transportEndKineticEnergy;
      G4ThreeVector        m_transportEndSpin;
      G4bool               m_momentumChanged;
-     G4bool               m_energyChanged;
      G4double             m_candidateEndGlobalTime;
        // The particle's state after this Step, Store for DoIt
 
@@ -188,10 +187,6 @@ class QuirkTransportation : public G4VProcess
      G4double m_threshold_Warning_Energy;     //  Warn above this energy
      G4double m_threshold_Important_Energy;   //  Hesitate above this
      G4int    m_thresholdTrials;              //    for this no of trials
-       // Above 'important' energy a 'looping' particle in field will 
-       //   *NOT* be abandoned, except after fThresholdTrials attempts.
-     G4double m_unimportant_Energy;
-       //  Below this energy, no verbosity for looping particles is issued
 
   // Counter for steps in which particle reports 'looping',
   //   if it is above 'Important' Energy 

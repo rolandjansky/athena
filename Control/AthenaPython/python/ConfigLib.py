@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaPython/ConfigLib.py
 # @purpose functions to ease the configuration of reading/copying files
 # @date January 2010
 
 from __future__ import print_function
+from past.builtins import basestring
+import six
 
 __doc__ = "functions to ease the configuration of reading/copying files"
 __version__ = "$Revision: 285924 $"
@@ -117,7 +119,6 @@ def _copy_file_impl(cfg, hints):
             import AthenaPoolCnvSvc.WriteAthenaPool as wap
 
             outstream = wap.AthenaPoolOutputStream(af.infos['stream_names'][0], dst)
-            outstream.ForceRead=True
             outstream.TakeItemsFromInput=True
 
             pass
@@ -125,7 +126,7 @@ def _copy_file_impl(cfg, hints):
         if do_write is not None:
             try:
                 cfg.rec["doWrite"+do_write] = True
-            except AttributeError:
+            except AttributeError as err:
                 cfg.msg.info(err)
                 pass
             
@@ -142,7 +143,7 @@ def _copy_file_impl(cfg, hints):
             cfg.acf['PoolRDOOutput'] = dst
         try:
             cfg.rec["doWrite"+do_write] = True
-        except AttributeError:
+        except AttributeError as err:
             cfg.msg.info(err)
             pass
         pass 
@@ -269,11 +270,11 @@ class AutoCfg(object):
         
         from AthenaCommon.AthenaCommonFlags import jobproperties as jp
         acf = jp.AthenaCommonFlags
-        for k,v in self.acf.iteritems():
+        for k,v in six.iteritems (self.acf):
             getattr(acf, k).set_Value_and_Lock(v)
 
         from RecExConfig.RecFlags import rec
-        for k,v in self.rec.iteritems():
+        for k,v in six.iteritems (self.rec):
             globals()[k] = False # FIXME: backward compat...
             getattr(rec, k).set_Value_and_Lock(v)
             
@@ -287,7 +288,7 @@ class AutoCfg(object):
             return auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
         else:
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-            import AthenaPoolCnvSvc.ReadAthenaPool
+            import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401
             svcMgr.EventSelector.InputCollections = acf.FilesInput()
 
     @property

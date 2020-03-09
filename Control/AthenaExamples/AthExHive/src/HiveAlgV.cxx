@@ -1,20 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgV.h"
-#include <thread>
-#include <chrono>
 #include <vector>
-#include <memory>
 
 HiveAlgV::HiveAlgV( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::HiveAlgBase( name, pSvcLocator )
 {}
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 HiveAlgV::~HiveAlgV() {}
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgV::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
@@ -24,14 +23,17 @@ StatusCode HiveAlgV::initialize() {
   ATH_MSG_INFO(m_rhv.keys() << " : " << m_rhv.size());
   ATH_MSG_INFO(m_whv.keys() << " : " << m_whv.size());
 
+  // initialize base class
   return HiveAlgBase::initialize ();
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgV::finalize() {
   ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode HiveAlgV::execute() {
 
   ATH_MSG_DEBUG("execute " << name());
@@ -51,6 +53,7 @@ StatusCode HiveAlgV::execute() {
   return sc;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 StatusCode
 HiveAlgV::read() const {
   StatusCode sc { StatusCode::SUCCESS };
@@ -66,6 +69,7 @@ HiveAlgV::read() const {
   return sc;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void
 HiveAlgV::write() {
   std::vector< SG::WriteHandle<HiveDataObj> > whv = m_whv.makeHandles();

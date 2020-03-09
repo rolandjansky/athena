@@ -16,7 +16,6 @@ namespace InDet {
   void SiCombinatorialTrackFinderData_xk::setTools(const Trk::IPatternParametersPropagator* propTool,
                                                    const Trk::IPatternParametersUpdator* updatorTool,
                                                    const Trk::IRIO_OnTrackCreator* rioTool,
-                                                   const Trk::IPRD_AssociationTool* assoTool,
                                                    MagField::IMagFieldSvc* fieldService,
                                                    const IInDetConditionsTool* pixCondTool,
                                                    const IInDetConditionsTool* sctCondTool,
@@ -27,7 +26,6 @@ namespace InDet {
     m_tools.setTools(propTool,
                      updatorTool,
                      rioTool,
-                     assoTool,
                      fieldService);
     m_tools.setTools(pixCondTool,
                      sctCondTool);
@@ -38,6 +36,26 @@ namespace InDet {
     m_trajectory.setTools(&m_tools);
     
     m_initialized = true;
+  }
+
+  void SiCombinatorialTrackFinderData_xk::setPixContainer(const InDet::PixelClusterContainer* pixcont) {
+    m_pixcontainer = pixcont;
+  }
+
+  void SiCombinatorialTrackFinderData_xk::setSctContainer(const InDet::SCT_ClusterContainer* sctcont) {
+    m_sctcontainer = sctcont;
+  }
+
+  const InDet::PixelClusterContainer* SiCombinatorialTrackFinderData_xk::pixContainer() const {
+    return m_pixcontainer;
+  }
+
+  const InDet::SCT_ClusterContainer* SiCombinatorialTrackFinderData_xk::sctContainer() const {
+    return m_sctcontainer;
+  }
+
+  const Trk::PRDtoTrackMap* SiCombinatorialTrackFinderData_xk::PRDtoTrackMap() const {
+    return m_tools.PRDtoTrackMap();
   }
 
   bool SiCombinatorialTrackFinderData_xk::isInitialized() const {
@@ -134,6 +152,10 @@ namespace InDet {
 
   double& SiCombinatorialTrackFinderData_xk::xi2maxlink() {
     return m_xi2maxlink;
+  }
+
+  void SiCombinatorialTrackFinderData_xk::setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) {
+    m_tools.setPRDtoTrackMap(prd_to_track_map);
   }
 
 } // end of name space

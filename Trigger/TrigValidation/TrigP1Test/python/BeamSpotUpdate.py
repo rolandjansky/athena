@@ -3,44 +3,75 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
-athenaMT event modifier to test beamspot update.
-On import of this module, it creates an sqlite file with the beamspot COOL folder
-and an initial value. The udpates are configured through Config.hltCounterChange
-and on each update a new IOV is added to the COOL folder. Use this together with
-the BeamspotFromSqlite modifier in runHLT_standalone.py.
+Module to test beamspot updates using a local sqlite file. Two steps are necessary:
 
-Usage: athenaMT -Z TrigP1Test.BeamSpotUpdate -c BeamspotFromSqlite=True ...
+1) Create a modified bytestream file that contains the correct COOL update information
+   in the CTP fragment. To do this simply run this script with a RAW file and it will
+   write a modified file into the current directory with beamspot updates on LBs as
+   specified in Config.lb_updateBeamspot.
+
+2) Configure a job with the BeamSpotWriteAlg in the topSequence. This algorithm will
+   write a new beamspot into the sqlite file one LB before the actual update is
+   triggered via the CTP fragment. See TrigP1Test/share/testHLT_beamspot.py
+   for an example.
 """
 
 import os
 import sys
 import logging
 import eformat
-from TrigByteStreamTools import trigbs_replaceLB
+from TrigByteStreamTools import trigbs_modifyEvent
 from TrigByteStreamTools import CTPfragment
+from AthenaPython import PyAthena
 
 class Config:
-  """Configuration options for this module"""
-  lb_updateBeamspot = {2:(2,4),        # LB : (LB of beamspot update, status)
-                       4:(5,7),
-                       6:(6,7)}  
+   """Configuration options for this module"""
+   lb_updateBeamspot = {3:(4,4),        # LB : (LB of beamspot update, status)
+                        4:(5,7),
+                        8:(9,7)
+   }
 
-trigbs_replaceLB.Config.eventsPerLB = 5
-
-log = logging.getLogger(__name__)
-log.info('Will perform beamspot udpate on these LBs (LB,status): %s' % sorted(Config.lb_updateBeamspot.values()))
-
+trigbs_modifyEvent.Config.eventsPerLB = 5
 folderList = []    # list of COOL folder updates
+log = logging.getLogger(__name__)
+
+class BeamSpotWriteAlg(PyAthena.Alg):
+   """Algorithm to write a new Beamspot to COOL (sqlite file) for given LBs"""
+
+   def __init__(self, name='BeamSpotWriteAlg', **kwargs):
+      super(BeamSpotWriteAlg, self).__init__(name, **kwargs)
+      setup()
+      return
+
+   def execute(self):
+      if self.getContext() is None:
+         self.log.info('No EventContext available')
+         return PyAthena.StatusCode.Success
+
+      # Write beamspot to sqlite one LB before the update appears in the
+      # CTP fragmment. Beamspot position derived from LB number.
+      run = self.getContext().eventID().run_number()
+      lb = self.getContext().eventID().lumi_block() + 1
+      if lb in Config.lb_updateBeamspot:
+         l, status = Config.lb_updateBeamspot.pop(lb)
+         setBeamSpot(run, l, l/100.0, 1+l/100.0, -4-l/10.0, status)
+
+      return PyAthena.StatusCode.Success
+
 
 def setBeamSpot(run,lb,x,y,z,
                 status=7,
                 dbname='sqlite://;schema=beampos.db;dbname=CONDBR2',
                 tag='IndetBeamposOnl-HLT-UPD1-001-00'):
 
-   print('============================= Creating new beamspot in COOL ===================================')
+   log.info('============================= Creating new beamspot in COOL ===================================')
+   log.info('run=%d, lb=%d, x=%f, y=%f, z=%f', run, lb, x, y, z)
    sys.stdout.flush()
-   os.system("beamSpotOnl_set.py --rs=%d --ls=%d '%s' '%s' %d %f %f %f" % (run,lb,dbname,tag,status,x,y,z))
-   print('===============================================================================================')
+   os.system("CORAL_DBLOOKUP_PATH=$PWD beamSpotOnl_set.py --run=%d --lbn=%d %d %f %f %f" % (run,lb,status,x,y,z))
+   if log.level<=logging.DEBUG:
+      log.info('Current content of beampos.db sqlite file:')
+      os.system("AtlCoolConsole.py 'sqlite://;schema=beampos.db;dbname=CONDBR2' <<< 'more Indet/Onl/Beampos'")
+   log.info('===============================================================================================')
    sys.stdout.flush()   
 
 
@@ -72,49 +103,76 @@ def addFolderUpdate(event):
    
 def modify(event):
    event = eformat.write.FullEventFragment(event)
-    
+
    # Modify LB and HLT counter in CTP fragment
-   newevt = trigbs_replaceLB.modify(event)
+   newevt = trigbs_modifyEvent.modify(event)
    lb = newevt.lumi_block()
 
-   # Set new beamspot (randomized by LB number)   
+   # Write conditions update into CTP fragment
    if lb in Config.lb_updateBeamspot:
       lb_for_update,status = Config.lb_updateBeamspot.pop(lb)
-      setBeamSpot(newevt.run_no(), lb_for_update,
-                  lb/100.0, 1+lb/100.0, -4-lb/10.0,
-                  status)
 
       fe = CTPfragment.FolderEntry()
       fe.folderIndex = 0  # /Indet/Onl/Beampos
       fe.lumiBlock = lb_for_update
       folderList.append(fe)
-      log.info('Added COOL folder update to event: folderIndex=%d, LB=%d' % (fe.folderIndex,fe.lumiBlock))
+      log.info('Added COOL folder update to event: folderIndex=%d, LB=%d', fe.folderIndex,fe.lumiBlock)
       
    return addFolderUpdate(newevt).readonly()
 
-# Create an open-ended IOV with a default beamspot
-# This happens at the very beginning when athenaMT/PT imports this module
-setBeamSpot(1,0,0.06,1.06,-4.6,4)
+
+def setup():
+   """Initial setup"""
+
+   log.info('Will perform beamspot udpate on these LBs (LB,status): %s', sorted(Config.lb_updateBeamspot.values()))
+
+   # Create dblookup file for beamSpotOnl_set.py
+   dblookup="""\
+<?xml version="1.0" ?>
+<servicelist>
+  <logicalservice name="COOLONL_INDET">
+    <service name="sqlite_file:beampos.db" accessMode="update" />
+  </logicalservice>
+</servicelist>
+"""
+   with open('dblookup.xml','w') as f:
+      f.write(dblookup)
+
+   # Delete any previous sqlite file
+   try:
+      os.remove('beampos.db')
+   except OSError:
+      pass
+
+   # Create an open-ended IOV with a default beamspot
+   setBeamSpot(1,0,0.06,1.06,-4.6,4)
+
 
 # For standalone running and writing a new output file
 if __name__ == '__main__':
-  import argparse
-  from eformat import EventStorage
+   import argparse
+   from eformat import EventStorage
 
-  parser = argparse.ArgumentParser(description=__doc__)
+   parser = argparse.ArgumentParser(description=__doc__)
+   parser.add_argument('file', metavar='FILE', nargs=1, help='input file')
+   parser.add_argument('-n', '--events', type=int, default=-1, help='number of events to process')
+   parser.add_argument('-o', '--output', type=str, help='core output file name')
 
-  parser.add_argument('file', metavar='FILE', nargs=1, help='input file')
-  args = parser.parse_args()
-  dr = EventStorage.pickDataReader(args.file[0])
-  output = eformat.ostream(core_name = 'test',
-                           run_number = dr.runNumber(),
-                           trigger_type = dr.triggerType(),
-                           detector_mask = dr.detectorMask(),
-                           beam_type = dr.beamType(),
-                           beam_energy = dr.beamEnergy(),
-                           meta_data_strings=dr.freeMetaDataStrings(),
-                           compression=dr.compression())
+   args = parser.parse_args()
+   dr = EventStorage.pickDataReader(args.file[0])
+   output = eformat.ostream(core_name = args.output or dr.fileNameCore(),
+                            run_number = dr.runNumber(),
+                            trigger_type = dr.triggerType(),
+                            detector_mask = dr.detectorMask(),
+                            beam_type = dr.beamType(),
+                            beam_energy = dr.beamEnergy(),
+                            meta_data_strings=dr.freeMetaDataStrings(),
+                            compression=dr.compression())
 
-  for event in eformat.istream(args.file[0]):
-    newevt = modify(event)
-    output.write(newevt)
+   i = 0
+   for event in eformat.istream(args.file[0]):
+      i += 1
+      if args.events>0 and i>args.events:
+         break
+      newevt = modify(event)
+      output.write(newevt)

@@ -7,7 +7,6 @@
 #include "TestDriver.h"
 
 #include "StorageSvc/DbType.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "PersistentDataModel/Token.h"
 
 void testTechnology( TestDriver& driver, const pool::DbType& tech )
@@ -27,7 +26,6 @@ void testTechnology( TestDriver& driver, const pool::DbType& tech )
 
 int main( int, char** )
 {
-   pool::DbInstanceCount::doTracing( true );
    try {
       std::cout << "[OVAL] Creating the test driver." << std::endl;
       TestDriver driver;
@@ -44,11 +42,6 @@ int main( int, char** )
    catch ( std::exception& e ) {
       std::cerr << e.what() << std::endl;
       return 1;
-   }
-
-   if( Token::numInstances() == 0 ) {
-      // disable debug dump
-      pool::DbInstanceCount::doTracing( false );
    }
 
    std::cout << "[OVAL] Exiting..." << std::endl;

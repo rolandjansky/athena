@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -127,7 +127,7 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
     trans.push_back (new X(i));
 
   {
-    XCont_p2* pers2 = cnv.createPersistent (&trans);
+    XCont_p2* pers2 = cnv.createPersistentWithKey (&trans, "key");
     assert (pers2->m_v.size() == N);
     for (size_t i = 0; i < N; i++)
       assert (pers2->m_v[i].m_a == static_cast<int>(i*10));

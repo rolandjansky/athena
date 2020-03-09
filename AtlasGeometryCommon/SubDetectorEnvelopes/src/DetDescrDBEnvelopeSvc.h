@@ -19,9 +19,12 @@
 // interface header file
 #include "SubDetectorEnvelopes/IEnvelopeDefSvc.h"
 
-// forward declarations
-class IRDBAccessSvc;
-class IGeoModelSvc;
+// Database includes
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+
+// GeoModel
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+
 
 /** datatype used for fallback solution */
 typedef std::vector< double >           FallbackDoubleVector;
@@ -71,10 +74,10 @@ class DetDescrDBEnvelopeSvc : public extends<AthService, IEnvelopeDefSvc> {
     bool enableFallback();
 
     /** the DetectorDescription database access method */
-    IRDBAccessSvc                     *m_dbAccess;
+    ServiceHandle<IRDBAccessSvc>       m_dbAccess{this, "RDBAccessSvc", "RDBAccessSvc"};
 
     /** ATLAS GeoModel */
-    IGeoModelSvc                      *m_geoModel;
+    ServiceHandle<IGeoModelSvc>       m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
 
     /** main DDDB node for the ATLAS detector */
     std::string                        m_atlasNode;

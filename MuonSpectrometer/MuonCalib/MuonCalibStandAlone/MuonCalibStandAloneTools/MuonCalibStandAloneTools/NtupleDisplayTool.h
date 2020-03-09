@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 19.10.2007, AUTHOR: STEFFEN KAISER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef MuonCalib_NtupleDisplayToolH
 #define MuonCalib_NtupleDisplayToolH
@@ -36,17 +32,15 @@ class TCanvas;
 class TControlBar;
 class TApplication;
 
-class MdtIdHelper;
-
 // STL //
 #include <string>
 
 // MuonCalib
 #include "MdtCalibInterfaces/IMdtPatRecFitter.h"
 
-namespace MuonGM{
-class MuonDetectorManager;
-}
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 class RegionSelectionSvc;
 
 namespace MuonCalib {
@@ -64,18 +58,12 @@ class NtupleDisplayTool : public AthAlgTool, virtual public NtupleCalibrationToo
     public:
         // Constructors //
         NtupleDisplayTool(const std::string& t, const std::string& n, const IInterface* p);
-        ///< Default constructor.
 
-        inline ~NtupleDisplayTool(){}
+        ~NtupleDisplayTool()=default;
         ///< Destructor
-
-        // Methods //
 	
 	/** tool initialize */
 	StatusCode initialize();
-	
-	/** tool finalize */
-	StatusCode finalize();
 	
         StatusCode handleEvent(const MuonCalibEvent & event, int evnt_nr, const std::vector<MuonCalibSegment *> &segments, unsigned int position);
         ///< analysis of the given segment of
@@ -90,9 +78,13 @@ class NtupleDisplayTool : public AthAlgTool, virtual public NtupleCalibrationToo
 		}
 
     private:
-            //for retrieving the chamber geometry
-            const MdtIdHelper* m_mdtIdHelper;
-            const MuonGM::MuonDetectorManager* m_detMgr;
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+	    // MuonDetectorManager from the conditions store
+	    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+		"MuonDetectorManager", 
+		"Key of input MuonDetectorManager condition data"};    
+
             const MuonCalib::IIdToFixedIdTool *m_id_tool;
             
             

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 
 #undef NDEBUG
 #include "ALFA_EventTPCnv/ALFA_RawDataCollectionCnv_charge_p1.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
@@ -94,7 +93,7 @@ void test1()
   ALFA_RawDataCollection_charge trans1 (1124, 1123);
   for (int i=0; i < 10; i++) {
     int o = i*100;
-    auto p = CxxUtils::make_unique<ALFA_RawData_charge> (123+o);
+    auto p = std::make_unique<ALFA_RawData_charge> (123+o);
     init_RawData (*p, o);
     trans1.push_back (std::move(p));
   }

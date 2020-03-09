@@ -1,12 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMonitoringEvent/TrigMonAlg.h"
-#undef private
-#undef protected
 
 #include <iostream>
 #include "TrigMonitoringEventTPCnv/TrigMonAlg_p1.h"
@@ -14,7 +10,7 @@
 
 void TrigMonAlgCnv_p1::persToTrans(const TrigMonAlg_p1* persObj, 
 				   TrigMonAlg* transObj, 
-				   MsgStream &log)
+				   MsgStream &log) const
 {
   if(log.level() <= MSG::DEBUG) {
     log << MSG::DEBUG << "TrigMonAlgCnv_p1::persToTrans called " << endmsg;
@@ -27,12 +23,12 @@ void TrigMonAlgCnv_p1::persToTrans(const TrigMonAlg_p1* persObj,
 
 void TrigMonAlgCnv_p1::transToPers(const TrigMonAlg* transObj, 
 				   TrigMonAlg_p1* persObj, 
-				   MsgStream &log)
+				   MsgStream &log) const
 {
   if(log.level() <= MSG::DEBUG) {
     log << MSG::DEBUG << "TrigMonAlgCnv_p1::transToPers called " << endmsg;
   }
 
-  persObj->m_byte = transObj->m_byte;
-  persObj->m_word = transObj->m_word;
+  persObj->m_byte = transObj->getByte();
+  persObj->m_word = transObj->getWord();
 }

@@ -74,7 +74,6 @@ namespace G4UA{
       int                                                           m_scEnd;
       int                                                           m_gen;
       int                                                           m_geoID;
-      float                                                         m_theta;
       float                                                         m_pth;
       float                                                         m_pph;
       float                                                         m_p;

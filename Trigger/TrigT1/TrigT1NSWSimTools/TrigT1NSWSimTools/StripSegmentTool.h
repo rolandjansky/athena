@@ -23,7 +23,6 @@
 #include "TrigT1NSWSimTools/IStripSegmentTool.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
-
 //forward declarations
 class IIncidentSvc;
 class TTree;
@@ -54,9 +53,10 @@ namespace NSWL1 {
                       const std::string& name,
                       const IInterface* parent);
     virtual ~StripSegmentTool();
-    virtual StatusCode initialize();
-    virtual void handle (const Incident& inc);
-    StatusCode find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters);
+    virtual StatusCode initialize() override;
+    virtual void handle (const Incident& inc) override;
+    virtual
+    StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& ) override;
 
     
   private:
@@ -68,13 +68,14 @@ namespace NSWL1 {
         
         // needed Services, Tools and Helpers
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-
         // analysis ntuple
         TTree* m_tree;                                          //!< ntuple for analysis
         BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink                         
         StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink                          
+        IntegerProperty m_rIndexBits;
+        IntegerProperty m_dThetaBits;
+
         // analysis variable to be put into the ntuple
-        int m_seg_n;                                            //!< number of Segments found
         std::vector<int> *m_seg_wedge1_size;                        //!< theta
         std::vector<int> *m_seg_wedge2_size;                        //!< theta
         std::vector<float> *m_seg_theta;                        //!< theta
@@ -84,8 +85,6 @@ namespace NSWL1 {
         std::vector<float> *m_seg_eta_inf;  
         std::vector<float> *m_seg_phi;
         std::vector<int> *m_seg_bandId;
-        std::vector<int> *m_seg_secId;
-        std::vector<int> *m_seg_bcId;
         std::vector<int> *m_seg_phiId;
         std::vector<int> *m_seg_rIdx;
         std::vector<float> *m_seg_global_r;
@@ -96,8 +95,6 @@ namespace NSWL1 {
         std::vector<float> *m_seg_dir_y;
         std::vector<float> *m_seg_dir_z; 
 
-        int m_rIndexBits;
-        int m_dThetaBits;
         StatusCode FetchDetectorEnvelope();
         std::pair<float,float> m_zbounds;
         std::pair<float,float> m_etabounds;
@@ -109,11 +106,7 @@ namespace NSWL1 {
         float m_dtheta_max;          
         
     protected:
-        SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
-        ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;
-            
-         
-     
+        ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;     
     
   };  // end of StripSegmentTool class
     

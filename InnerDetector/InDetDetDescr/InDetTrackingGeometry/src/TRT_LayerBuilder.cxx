@@ -27,15 +27,13 @@
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 // InDetDD
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
 #include "InDetIdentifier/TRT_ID.h"
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/SystemOfUnits.h"
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 // STL
 #include <map>
 

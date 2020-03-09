@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -10,7 +12,11 @@ import commands
 #
 ###########################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 
 ###########################################################################
 #               Input selection (OFC Phys)
@@ -35,7 +41,7 @@ if not 'ReadOFCFromCOOL' in dir():
    ReadOFCFromCOOL = True
 
 if not 'InputPoolDir' in dir():
-   InputPoolDir = commands.getoutput("pwd")
+   InputPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPoolFileName' in dir():
    InputPoolFileName = "LArOFCShapePhys.pool.root"
@@ -45,7 +51,7 @@ if not 'ReadShapeFromCOOL' in dir():
    ReadShapeFromCOOL = True
 
 if not 'InputShapePoolDir' in dir():
-   InputShapePoolDir = commands.getoutput("pwd")
+   InputShapePoolDir = subprocess.getoutput("pwd")
 
 
 ## COOL Channel selection
@@ -73,12 +79,20 @@ if not 'Nsamples' in dir():
    Nsamples = 5
 
 if not 'OFCFolder' in dir() :
-   OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+str(Nsamples)+"samples3bins17phases"
-   #OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples"
+   if not SuperCells:
+     OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+str(Nsamples)+"samples3bins17phases"
+     #OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples"
+   if SuperCells:
+     OFCFolder  = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/"+str(Nsamples)+"samples3bins17phases"
+     #OFCFolder  = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/5samples"
    
 if not 'ShapeFolder' in dir() :
-   ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/"+str(Nsamples)+"samples3bins17phases"
-   #ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/5samples"
+   if not SuperCells:
+     ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/"+str(Nsamples)+"samples3bins17phases"
+     #ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/5samples"
+   if SuperCells:
+     ShapeFolder  =  "/LAR/ElecCalibOflSC/Shape/RTM/"+str(Nsamples)+"samples3bins17phases"
+     #ShapeFolder  =  "/LAR/ElecCalibOflSC/Shape/RTM/5samples"
 
 if not 'OFCKey' in dir() :
    OFCKey = "LArOFC"
@@ -112,10 +126,10 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd   
 
 if not 'OutputOFCRootFileDir' in dir():
-   OutputOFCRootFileDir = commands.getoutput("pwd")
+   OutputOFCRootFileDir = subprocess.getoutput("pwd")
    
 if not 'OutputPoolFileDir' in dir():
-   OutputPoolFileDir = commands.getoutput("pwd")
+   OutputPoolFileDir = subprocess.getoutput("pwd")
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 
@@ -135,9 +149,11 @@ if 'OutputSQLiteFile' in dir():
 
 #outputs
 if not 'FolderShapeOutput' in dir():
-   FolderShapeOutput = "/LAR/ElecCalibOfl/Shape/RTM/"+str(Nsamples)+"samples1phase"
+   if not SuperCells: FolderShapeOutput = "/LAR/ElecCalibOfl/Shape/RTM/"+str(Nsamples)+"samples1phase"
+   if SuperCells:     FolderShapeOutput = "/LAR/ElecCalibOflSC/Shape/RTM/"+str(Nsamples)+"samples1phase"
 if not 'FolderOFCOutput' in dir():
-   FolderOFCOutput = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+str(Nsamples)+"samples1phase"
+   if not SuperCells: FolderOFCOutput = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+str(Nsamples)+"samples1phase"
+   if SuperCells:     FolderOFCOutput = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/"+str(Nsamples)+"samples1phase"
 
 rs=FolderTagResover()
 
@@ -286,6 +302,9 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
    
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
+   
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
 try:
@@ -356,6 +375,7 @@ LArOFPhasePick.KeyShape = "LArShapeIn"
 LArOFPhasePick.GroupingType = GroupingType
 LArOFPhasePick.DefaultPhase = DefaultPhase
 LArOFPhasePick.TimeOffsetCorrection = TimeOffsetCorrection
+LArOFPhasePick.isSC = SuperCells
 topSequence += LArOFPhasePick
 
 if NColl > 0:
@@ -367,6 +387,7 @@ if NColl > 0:
    LArOFPhasePickermu.GroupingType = GroupingType
    LArOFPhasePickermu.DefaultPhase = DefaultPhase
    LArOFPhasePickermu.TimeOffsetCorrection = TimeOffsetCorrection
+   LArOFPhasePickermu.isSC = SuperCells
    topSequence += LArOFPhasePickermu
 
 ###########################################################################
@@ -377,6 +398,7 @@ if ( WriteNtuple ) :
    LArOFC2Ntup = LArOFC2Ntuple("LArOFC2Ntuple")
    LArOFC2Ntup.ContainerKey = OFCKey
    LArOFC2Ntup.AddFEBTempInfo = False
+   LArOFC2Ntup.isSC = SuperCells
    topSequence+=LArOFC2Ntup
    
    if NColl > 0:
@@ -384,6 +406,7 @@ if ( WriteNtuple ) :
       LArOFC2Ntuplemu.ContainerKey = OFCKey+"_mu"
       LArOFC2Ntuplemu.NtupleName="OFC_mu"
       LArOFC2Ntuplemu.AddFEBTempInfo = False
+      LArOFC2Ntuplemu.isSC = SuperCells  
       topSequence+=LArOFC2Ntuplemu
 
    theApp.HistogramPersistency = "ROOT"

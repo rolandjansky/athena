@@ -28,13 +28,13 @@ namespace TrigTauEmul {
     declareProperty("HLTTriggerCondition", m_HLTTriggerCondition=TrigDefs::Physics);
     declareProperty("L1TriggerCondition", m_L1TriggerCondition=TrigDefs::Physics);
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
     std::string tdt_name;
     declareProperty("TrigDecTool", tdt_name="TrigDecTool");
     m_trigdec_tool = new ToolHandle<Trig::TrigDecisionTool> (tdt_name);
 #endif
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
     m_trigdec_tool = new ToolHandle<Trig::TrigDecisionTool> ();
     declareProperty("TrigDecTool", *m_trigdec_tool);
 #endif
@@ -51,12 +51,12 @@ namespace TrigTauEmul {
   // Copy constructor
   HltEmulationTool::HltEmulationTool(const HltEmulationTool& other): asg::AsgTool(other.name() + "_copy")
   {
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
     std::string tdt_name = "TrigDecisionTool_copy";
     m_trigdec_tool = new ToolHandle<Trig::TrigDecisionTool> (tdt_name);
 #endif
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
     m_trigdec_tool = new ToolHandle<Trig::TrigDecisionTool> ();
     declareProperty("TrigDecTool", *m_trigdec_tool);
 #endif

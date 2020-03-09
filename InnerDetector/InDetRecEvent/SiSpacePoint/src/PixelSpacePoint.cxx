@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkPrepRawData/PrepRawData.h"
@@ -23,20 +23,20 @@ namespace InDet
   /** Constructor without globCovariance */
   
   PixelSpacePoint::PixelSpacePoint(  IdentifierHash elementId, 
-				     const Trk::PrepRawData* clus ) 
+                                     const Trk::PrepRawData* clus ) 
     :
     SpacePoint()
   {
-    assert (clus!=0);
+    assert (clus!=nullptr);
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
     Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
 
     const  Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
-    assert (tmpPos!=0) ;
+    assert (tmpPos!=nullptr) ;
     m_position = *tmpPos;
     delete tmpPos;
 
-    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,0);
+    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
     m_elemIdList.first = elementId ;
     m_elemIdList.second = 0 ;
     setupGlobalFromLocalCovariance();
@@ -46,45 +46,61 @@ namespace InDet
   
   /** Constructor with globCovariance */
   PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId, 
-				    const Trk::PrepRawData* clus, 
-				    const Amg::MatrixX* globcov ) 
+                                    const Trk::PrepRawData* clus, 
+                                    const Amg::MatrixX* globcov ) 
     :
     SpacePoint()
   {
-    assert (clus!=0);
+    assert (clus!=nullptr);
     m_globalCovariance = *globcov;
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
     Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
     delete globcov;
 
     const Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
-    assert (tmpPos!=0) ;
+    assert (tmpPos!=nullptr) ;
     m_position = *tmpPos;
     delete tmpPos ;
 
-    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,0);
+    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
     m_elemIdList.first = elementId ;
     m_elemIdList.second = 0 ;
   }
   
   /** Constructor with globCovariance */
   PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId, 
-				    const Trk::PrepRawData* clus, 
-				    const Amg::MatrixX& globcov ) 
+                                    const Trk::PrepRawData* clus, 
+                                    const Amg::MatrixX& globcov ) 
     :
     SpacePoint()
   {
-    assert (clus!=0);
+    assert (clus!=nullptr);
     m_globalCovariance = globcov;
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
     Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
 
     const Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
-    assert (tmpPos!=0) ;
+    assert (tmpPos!=nullptr) ;
     m_position = *tmpPos;
     delete tmpPos ;
 
-    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,0);
+    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
+    m_elemIdList.first = elementId ;
+    m_elemIdList.second = 0 ;
+  }
+  
+  /** Constructor with globPosition and globCovariance */
+  PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId,
+                                    const Trk::PrepRawData* clus,
+                                    const Amg::Vector3D& globpos,
+                                    const Amg::MatrixX& globcov)
+    :
+    SpacePoint()
+  {
+    assert (clus!=nullptr);
+    m_position         = globpos;
+    m_globalCovariance = globcov;
+    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
     m_elemIdList.first = elementId ;
     m_elemIdList.second = 0 ;
   }
@@ -139,10 +155,10 @@ namespace InDet
   //assignment operator
   PixelSpacePoint& PixelSpacePoint::operator=(const PixelSpacePoint& PSP)
   {
-    if (&PSP !=this) 
-      {
-	Trk::SpacePoint::operator=(PSP);
-      }
+    if (&PSP !=this) {
+      Trk::SpacePoint::operator=(PSP);
+    }
+    
     return *this;
   }
 

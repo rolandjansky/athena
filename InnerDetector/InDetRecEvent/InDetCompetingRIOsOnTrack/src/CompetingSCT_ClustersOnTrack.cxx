@@ -61,7 +61,6 @@ InDet::CompetingSCT_ClustersOnTrack& InDet::CompetingSCT_ClustersOnTrack::operat
         // clear rots
         clearChildRotVector();
         delete m_containedChildRots;
-        if (m_globalPosition) delete m_globalPosition.release().get();
         m_containedChildRots = new std::vector<const InDet::SCT_ClusterOnTrack*>;
 
         std::vector<const InDet::SCT_ClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
@@ -70,6 +69,8 @@ InDet::CompetingSCT_ClustersOnTrack& InDet::CompetingSCT_ClustersOnTrack::operat
 
         if (compROT.m_globalPosition) {
             m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+        } else if (m_globalPosition) {
+            m_globalPosition.release().reset();
         }
     }
     return (*this);

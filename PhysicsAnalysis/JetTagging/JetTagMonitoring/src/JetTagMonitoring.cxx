@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include "ITrackToVertex/ITrackToVertex.h"
@@ -72,8 +72,7 @@ JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string &
   m_trackToVertexTool("Reco::TrackToVertex"),
   m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool"), // added by SARA
   m_histogramsCreated(false),
-  m_switch_off(false),
-  m_pixelCondSummarySvc("PixelConditionsSummarySvc",name)
+  m_switch_off(false)
 {
 
   declareProperty("JetContainer",           m_jetName           = "AntiKt4EMTopoJets");
@@ -133,7 +132,7 @@ JetTagMonitoring::~JetTagMonitoring() {}
 //** --------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
+void JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
 
   // msg(MSG::VERBOSE) << "in JetTagMonitoring::registerHist " << h1->GetName() << endmsg;
   ATH_MSG_VERBOSE("in JetTagMonitoring::registerHist " << h1->GetName());
@@ -141,22 +140,18 @@ StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
   StatusCode sc = theGroup.regHist(h1);
   if (! sc.isSuccess())
     ATH_MSG_WARNING("Could not register histogram ");
-
-  return sc;
 }
 
 //** --------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, LWHist* h1) {
+void JetTagMonitoring::registerHist(MonGroup& theGroup, LWHist* h1) {
 
   ATH_MSG_VERBOSE("in JetTagMonitoring::registerHist " << h1->GetName());
 
   StatusCode sc = theGroup.regHist(h1);
   if (!sc.isSuccess())
     ATH_MSG_WARNING("Could not register histogram ");
-
-  return sc;
 }
 
 
@@ -820,9 +815,6 @@ JetTagMonitoring::Jet_t JetTagMonitoring::getTaggabilityLabel(const xAOD::Jet *j
   //Work around, but compared to _all not needed.
   //   m_track_selector_eff->Fill(jet->eta(), jet->phi(), 1.);
 
-  m_trackSelectorTool->primaryVertex(m_priVtx->position());
-  m_trackSelectorTool->prepare();
-
   std::vector<const xAOD::IParticle*> trackVector = jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack); 
 
   bool isSuspectJet = false;
@@ -840,13 +832,14 @@ JetTagMonitoring::Jet_t JetTagMonitoring::getTaggabilityLabel(const xAOD::Jet *j
     m_tracks_all_2D->Fill(trk_eta, trk_phi, 1.);
     m_tracks_all_2D_LS->Fill(trk_eta, trk_phi, 1.);
 
-    if ( m_trackSelectorTool->selectTrack(trackPart) ) {
+    std::bitset<17> failedCuts;
+    if ( m_trackSelectorTool->selectTrack(m_priVtx->position(), trackPart, failedCuts) ) {
 
       m_tracks_passedCuts_2D->Fill(trk_eta, trk_phi);
       nTrk++;
 
     } else {
-      const std::bitset<17> passedCuts = m_trackSelectorTool->currentTrackpassedCuts(); // SARA: changed the variable from "failedCuts" to "passedCuts" since it actually contains a bitmap of passedCuts (to avoid future confusion)
+      const std::bitset<17> passedCuts = ~failedCuts;
       fillBadTrackBits(passedCuts, trk_eta, trk_phi);
 
       if ( !passedCuts[deadBLayer] || !passedCuts[nHitBLayer] || !passedCuts[nHitSi] ) // if at least one associated track does not pass the deadBLayer, nHitBLayer or nSiHit requirement the jet will be labeled suspectJet

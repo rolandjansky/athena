@@ -11,6 +11,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthLinks/ElementLink.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include <string>
 #include <vector>
@@ -48,6 +50,9 @@ class SimpleView : public IProxyDict
 		 **/
                  void linkParent( const IProxyDict* parent );
 
+		/// Set a filtering rule for anything loaded via fallthrough
+		void setFilter( std::vector< std::string > const& inputFilter )
+		{ m_fallFilter = inputFilter; }
 
 		/// get proxy for a given data object address in memory,
 		/// but performs a deep search among all possible 'symlinked' containers
@@ -171,11 +176,16 @@ class SimpleView : public IProxyDict
                 // prints content of the view 
                 std::string dump( const std::string& indent = "" ) const;
 
+    void setROI(const ElementLink<TrigRoiDescriptorCollection>& roi);
+    const ElementLink<TrigRoiDescriptorCollection>& getROI() const;
+
 	protected:
 		//Connection to the whole event store
 		ServiceHandle< StoreGateSvc > m_store;
+		ElementLink<TrigRoiDescriptorCollection> m_roi;
 		std::string m_name;
                 std::vector< const SimpleView* > m_parents;
+		std::vector< std::string > m_fallFilter;
 
                 // The real implementation of proxy(), with control for whole-event store access
                 SG::DataProxy* findProxy( const CLID& id, const std::string& key, const bool allowFallThrough ) const;

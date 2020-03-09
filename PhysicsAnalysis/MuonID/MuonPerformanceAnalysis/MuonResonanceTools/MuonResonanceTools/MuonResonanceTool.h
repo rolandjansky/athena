@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -34,15 +34,15 @@ class MuonResonanceTool
   MuonResonanceTool(std::string myname);
   virtual ~MuonResonanceTool();
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
   /// find the resonances 
-  void findResonance(const xAOD::MuonContainer* , bool isMC) const;
+  virtual void findResonance(const xAOD::MuonContainer* , bool isMC) override;
   TString tp_types[TRACKBINS] = {"CB", "ID", "ME"};
   int NSys = SYSBINS; 
   
   /// retrieve booked histograms
-  std::vector< HistData > retrieveBookedHistograms();
+  virtual std::vector< HistData > retrieveBookedHistograms() override;
   
 
  private:

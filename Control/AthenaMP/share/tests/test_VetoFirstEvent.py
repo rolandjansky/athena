@@ -58,7 +58,7 @@ rec.doWriteTAG=False
 
 # if needed to configure trigger
 # see https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerFlags
-# include ( "TriggerRelease/TriggerFlags.py" )
+# include ( "TriggerJobOpts/TriggerFlags.py" )
 
 # if needed to configure AOD building
 # see https://twiki.cern.ch/twiki/bin/view/Atlas/UserAnalysisTest#The_AOD_Production_Flags

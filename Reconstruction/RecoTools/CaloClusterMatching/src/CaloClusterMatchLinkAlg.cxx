@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloClusterMatchLinkAlg.cxx 
@@ -17,32 +17,10 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "CaloClusterMatching/TopoClusterMap.h"
-#include "CaloClusterMatching/ICaloClusterMatchingTool.h"
 
 
 namespace ClusterMatching {
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  // Constructors
-  ////////////////
-  CaloClusterMatchLinkAlg::CaloClusterMatchLinkAlg( const std::string& name, 
-						    ISvcLocator* pSvcLocator ) : 
-    ::AthReentrantAlgorithm( name, pSvcLocator ),
-    m_clusterMatch("ClusterMatching::CaloClusterMatchingTool/CaloClusterMatch")
-  {
-    //
-    // Property declaration
-    // 
-    //declareProperty( "Property", m_nProperty );
-
-    declareProperty( "ClusterMatchTool",    m_clusterMatch               );
-    declareProperty( "UseLeadCellEtaPhi",   m_useLeadCellEtaPhi=false    );
-    declareProperty( "ClusterSortMethod",   m_clusterSortMethod=MatchedE );
-
-  }
-
+  
   // Destructor
   ///////////////
   CaloClusterMatchLinkAlg::~CaloClusterMatchLinkAlg()
@@ -101,26 +79,5 @@ namespace ClusterMatching {
 
     return StatusCode::SUCCESS;
   }
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
 
 }

@@ -1,14 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file:    GaudiSequencer/python/PyComps.py
 # @purpose: a set of python components for event filtering
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'A set of python components for event filtering'
-__version__ = '$Revision: 1.4 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
-import AthenaCommon.SystemOfUnits as Units
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
 

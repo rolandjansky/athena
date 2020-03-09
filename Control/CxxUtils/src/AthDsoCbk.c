@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* implementation for AthDsoCbk */
@@ -7,6 +7,12 @@
 /* CxxUtils includes */
 #include "CxxUtils/AthDsoCbk.h"
 #include "CxxUtils/unused.h"
+
+#ifdef __GNUC__
+// Suppress a couple unused argument warnings we get with -Wpedantic.
+// The usual methods won't work since this is C, not C++.
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 #ifndef __linux__
 
@@ -98,7 +104,7 @@ static struct dlfcn_hook ath_dl_hook = {
 static pthread_mutex_t ath_dl_hook_lock = PTHREAD_MUTEX_INITIALIZER; 
 
 void* 
-ath_dlopen( const char *fname, int mode, void *UNUSED(dl_caller) ) 
+ath_dlopen( const char *fname, int mode, void *dl_caller ) 
 {
   struct ath_dso_event dso_evt;
   int idx;
@@ -142,7 +148,7 @@ ath_dlclose( void *handle )
 }
 
 void*
-ath_dlsym( void *handle, const char *name, void *UNUSED(dl_caller) ) 
+ath_dlsym( void *handle, const char *name, void *dl_caller ) 
 {
   void *result = 0;
   pthread_mutex_lock(&ath_dl_hook_lock);
@@ -154,7 +160,7 @@ ath_dlsym( void *handle, const char *name, void *UNUSED(dl_caller) )
 }
 
 void*
-ath_dlvsym( void *handle, const char *name, const char *version, void *UNUSED(dl_caller) ) 
+ath_dlvsym( void *handle, const char *name, const char *version, void *dl_caller ) 
 {
   void *result = 0;
   pthread_mutex_lock(&ath_dl_hook_lock);
@@ -202,7 +208,7 @@ ath_dladdr1( const void *address, Dl_info *info, void **extra_info, int flags )
 }
 
 int
-ath_dlinfo( void *handle, int request, void *arg, void *UNUSED(dl_caller) ) 
+ath_dlinfo( void *handle, int request, void *arg, void *dl_caller ) 
 {
   if( dl_caller ) {}
   int result = 0;
@@ -215,7 +221,7 @@ ath_dlinfo( void *handle, int request, void *arg, void *UNUSED(dl_caller) )
 }
 
 void*
-ath_dlmopen( Lmid_t nsid, const char *file, int mode, void *UNUSED(dl_caller) ) 
+ath_dlmopen( Lmid_t nsid, const char *file, int mode, void *dl_caller ) 
 {
   if( dl_caller ) {}
   void *result = 0;

@@ -6,12 +6,15 @@
 
 namespace LVL1TGCTrigger {
   /** Constructor */
-  TGCInnerTrackletSlotHolder::TGCInnerTrackletSlotHolder() {
+  TGCInnerTrackletSlotHolder::TGCInnerTrackletSlotHolder( TGCArguments* tgcargs):
+    m_tgcArgs(tgcargs)
+  {
     for(int sideId=0; sideId<NUMBER_OF_SIDES; sideId++) { // Side A and Side C
       for(int slotId=FIRST_SLOT; slotId<NUMBER_OF_SLOTS+FIRST_SLOT; slotId++) { // Slot01 - Slot24
 	m_innerTrackletSlot[sideId][slotId-FIRST_SLOT].setSideId(sideId);
 	// There is offset of 1. Slot01 is m_innerTrackletSlot[sideId][0]. 
 	m_innerTrackletSlot[sideId][slotId-FIRST_SLOT].setSlotId(slotId); 
+	m_innerTrackletSlot[sideId][slotId-FIRST_SLOT].setTgcArguments( tgcArgs() );
       }
     }
   }

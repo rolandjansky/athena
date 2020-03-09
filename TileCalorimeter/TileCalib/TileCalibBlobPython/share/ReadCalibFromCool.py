@@ -1,47 +1,49 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ReadCalibFromCool.py
 # Andrei Artamonov 2009-11-03
 
-import getopt,sys,os,string
+from __future__ import print_function
+
+import getopt,sys,os
 os.environ['TERM'] = 'linux'
 
 def usage():
-    print "Usage: ",sys.argv[0]," [OPTION] ... "
-    print "Dumps the TileCal constants from various schemas / folders / tags"
-    print ""
-    print "-h, --help      shows this help"
-    print "-f, --folder=   specify status folder to use f.i. /TILE/OFL02/CALIB/CIS/LIN "
-    print "-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-00"
-    print "-r, --run=      specify run  number, by default uses latest iov"
-    print "-l, --lumi=     specify lumi block number, default is 0"
-    print "-b, --begin=    specify run number of first iov in multi-iov mode, by default uses very first iov"
-    print "-e, --end=      specify run number of last iov in multi-iov mode, by default uses latest iov"
-    print "-m, --module=   specify module to use, default is not set"
-    print "-N, --chmin=    specify minimal channel to use, default is 0"
-    print "-X, --chmax=    specify maximal channel to use, default is 47"
-    print "-c, --chan=     specify channel to use , default is all channels from chmin to chmax"
-    print "-g, --gain=, -a, --adc=  specify adc(gain) to print or number of adcs to print with - sign, default is -2"
-    print "-n, --nval=     specify number of values to output, default is all"
-    print "-C, --comment   print comment for every IOV"
-    print "-d, --default   print also default values stored in AUX01-AUX20 "
-    print "-b, --blob      print additional blob info"
-    print "-H, --hex       print frag id instead of module name"
-    print "-P, --pmt       print pmt number in addition to channel number"
-    print "-p, --prefix=   print some prefix on every line "
-    print "-k, --keep=     field numbers or channel numbers to ignore, e.g. '0,2,3,EBch0,EBch1,EBch12,EBch13,EBspD4ch18,EBspD4ch19,EBspC10ch4,EBspC10ch5' "
-    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
-    print "-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'"
+    print ("Usage: ",sys.argv[0]," [OPTION] ... ")
+    print ("Dumps the TileCal constants from various schemas / folders / tags")
+    print ("")
+    print ("-h, --help      shows this help")
+    print ("-f, --folder=   specify status folder to use f.i. /TILE/OFL02/CALIB/CIS/LIN ")
+    print ("-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-00")
+    print ("-r, --run=      specify run  number, by default uses latest iov")
+    print ("-l, --lumi=     specify lumi block number, default is 0")
+    print ("-b, --begin=    specify run number of first iov in multi-iov mode, by default uses very first iov")
+    print ("-e, --end=      specify run number of last iov in multi-iov mode, by default uses latest iov")
+    print ("-m, --module=   specify module to use, default is not set")
+    print ("-N, --chmin=    specify minimal channel to use, default is 0")
+    print ("-X, --chmax=    specify maximal channel to use, default is 47")
+    print ("-c, --chan=     specify channel to use , default is all channels from chmin to chmax")
+    print ("-g, --gain=, -a, --adc=  specify adc(gain) to print or number of adcs to print with - sign, default is -2")
+    print ("-n, --nval=     specify number of values to output, default is all")
+    print ("-C, --comment   print comment for every IOV")
+    print ("-d, --default   print also default values stored in AUX01-AUX20 ")
+    print ("-b, --blob      print additional blob info")
+    print ("-H, --hex       print frag id instead of module name")
+    print ("-P, --pmt       print pmt number in addition to channel number")
+    print ("-p, --prefix=   print some prefix on every line ")
+    print ("-k, --keep=     field numbers or channel numbers to ignore, e.g. '0,2,3,EBch0,EBch1,EBch12,EBch13,EBspD4ch18,EBspD4ch19,EBspC10ch4,EBspC10ch5' ")
+    print ("-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db")
+    print ("-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'")
 
 letters = "hr:l:s:t:f:D:n:b:e:m:N:X:c:a:g:p:dBCHPk:"
 keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","module=","begin=","end=","chmin=","chmax=","gain=","adc=","chan=","nval=","prefix=","default","blob","hex","pmt","keep=","comment"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetoptError, err:
-    print str(err)
+except getopt.GetoptError as err:
+    print (str(err))
     usage()
     sys.exit(2)
 
@@ -134,10 +136,10 @@ for o, a in opts:
 
 
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobPython.TileCalibTools import MAXRUN, MAXLBK
+from TileCalibBlobObjs.Classes import TileCalibUtils
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("ReadCalibFrCool")
 import logging
 logLevel=logging.DEBUG
@@ -150,36 +152,39 @@ log1.setLevel(logLevel)
 if len(dbname)<7 and run!=2147483647:
     dbname = 'COMP200' if run<232000 else 'CONDBR2'
 
-if not 'COOLO' in schema and not ':' in schema and not ';' in schema:
+if 'COOLO' not in schema and ':' not in schema and ';' not in schema:
     schema='sqlite://;schema='+schema+';dbname='+(dbname if len(dbname) else 'CONDBR2')
 
 if schema=='COOLONL_TILE/COMP200':
     if not (folderPath.startswith('/TILE/ONL01/') or folderPath.startswith('/TILE/OFL01/')):
-        print "Folder %s doesn't exist in schema %s " % (folderPath,schema)
+        print ("Folder %s doesn't exist in schema %s " % (folderPath,schema))
         sys.exit(2)
 
 if schema=='COOLONL_TILE/CONDBR2':
     if not folderPath.startswith('/TILE/ONL01/'):
-        print "Folder %s doesn't exist in schema %s, only /TILE/ONL01 " % (folderPath,schema)
+        print ("Folder %s doesn't exist in schema %s, only /TILE/ONL01 " % (folderPath,schema))
         sys.exit(2)
 
 if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
     if not folderPath.startswith('/TILE/OFL02/'):
-        print "Folder %s doesn't exist in schema %s " % (folderPath,schema)
+        print ("Folder %s doesn't exist in schema %s " % (folderPath,schema))
         sys.exit(2)
 
+if iov:
+    run=end
+    lumi=0
 
 #=== set database
 db = TileCalibTools.openDbConn(schema,'READONLY')
 folderTag = TileCalibTools.getFolderTag(schema if 'COMP200' in schema or 'OFLP200' in schema else db, folderPath, tag)
-log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
+log.info("Initializing folder %s with tag %s", folderPath, folderTag)
 
 #=== initialize blob reader
 blobReader = TileCalibTools.TileBlobReader(db,folderPath, folderTag)
 #blobReader.log().setLevel(logging.DEBUG)
 
 #=== get drawer with status at given run
-log.info("Initializing for run %d, lumiblock %d" % (run,lumi))
+log.info("Initializing for run %d, lumiblock %d", run,lumi)
 flt=None
 r=5
 d=0
@@ -189,7 +194,8 @@ while not flt:
     d-=1
     if d<0:
         r-=1
-        if r<0: break
+        if r<0:
+            break
         d=TileCalibUtils.getMaxDrawer(r)-1
     flt = blobReader.getDrawer(r, d, (run,lumi), False, False)
 if flt:
@@ -198,15 +204,19 @@ if flt:
     mchan=flt.getNChans()
     mgain=flt.getNGains()
     mval=flt.getObjSizeUint32()
-    log.info( "Blob type: %d  Version: %d  Nchannels: %d  Ngains: %d  Nval: %d" % (blobT,blobV,mchan,mgain,mval) )
-    if nadc<-mgain: nadc=-mgain
-    if nchan<mchan: nchan=mchan
-    if ngain<mgain: ngain=mgain
+    log.info( "Blob type: %d  Version: %d  Nchannels: %d  Ngains: %d  Nval: %d", blobT,blobV,mchan,mgain,mval)
+    if nadc<-mgain:
+        nadc=-mgain
+    if nchan<mchan:
+        nchan=mchan
+    if ngain<mgain:
+        ngain=mgain
 else:
     mgain=1
-if nadc==-1: nadc=-ngain
+if nadc==-1:
+    nadc=-ngain
 
-log.info("Comment: %s" % blobReader.getComment((run,lumi)))
+log.info("Comment: %s", blobReader.getComment((run,lumi)))
 
 #=== check ROS and module numbers
 if one_mod:
@@ -231,17 +241,22 @@ if chan_n >= 0 and chan_n < nchan:
     chanmin = chan_n
     chanmax = chan_n+1
 else:
-    if chanmin<0: chanmin = 0
-    if chanmax<0: chanmax = nchan
-    else: chanmax += 1
+    if chanmin<0:
+        chanmin = 0
+    if chanmax<0:
+        chanmax = nchan
+    else:
+        chanmax += 1
 
 if nadc >= 0 and nadc < ngain:
     gainmin = nadc
     gainmax = nadc+1
 else:
     gainmin = 0
-    if nadc<0: gainmax = -nadc
-    else: gainmax = ngain
+    if nadc<0:
+        gainmax = -nadc
+    else:
+        gainmax = ngain
 
 
 #=== Filling the iovList
@@ -256,19 +271,20 @@ if iov:
 
     try:
       dbobjs = blobReader.getDBobjsWithinRange(COOL_part,COOL_chan)
-      if (dbobjs == None): raise Exception("No DB objects retrieved when building IOV list!")
+      if (dbobjs is None):
+          raise Exception("No DB objects retrieved when building IOV list!")
       while dbobjs.goToNext():
-	obj = dbobjs.currentRef()
-	objsince = obj.since()
-	sinceRun = objsince >> 32
-	sinceLum = objsince & 0xFFFFFFFF
-	since    = (sinceRun, sinceLum)
-	objuntil = obj.until()
-	untilRun = objuntil >> 32
-	untilLum = objuntil & 0xFFFFFFFF
-	until    = (untilRun, untilLum)
-	iovList.append((since, until))
-    except:
+        obj = dbobjs.currentRef()
+        objsince = obj.since()
+        sinceRun = objsince >> 32
+        sinceLum = objsince & 0xFFFFFFFF
+        since    = (sinceRun, sinceLum)
+        objuntil = obj.until()
+        untilRun = objuntil >> 32
+        untilLum = objuntil & 0xFFFFFFFF
+        until    = (untilRun, untilLum)
+        iovList.append((since, until))
+    except Exception:
       log.warning( "Warning: can not read IOVs from input DB file" )
       sys.exit(2)
 
@@ -281,7 +297,7 @@ if iov:
         for i,iovs in enumerate(iovList):
             run = iovs[0][0]
             lumi = iovs[0][1]
-            if (run<begin and run>be) or run==begin :
+            if (run<begin and run>be) or (run==begin and lumi==0) :
                 be=run
                 ib=i
             if run>=end and run<en:
@@ -289,17 +305,19 @@ if iov:
                 ie=i+1
         log.info( "" )
         if be != begin:
-            log.info( "Changing begin run from %d to %d (start of IOV)" % (begin,be) )
+            log.info( "Changing begin run from %d to %d (start of IOV)", begin,be)
             begin=be
         if en != end:
-            if en>end: log.info( "Changing end run from %d to %d (start of next IOV)" % (end,en) )
-            else: log.info( "Changing end run from %d to %d (start of last IOV)" % (end,en) )
+            if en>end:
+                log.info( "Changing end run from %d to %d (start of next IOV)", end,en)
+            else:
+                log.info( "Changing end run from %d to %d (start of last IOV)", end,en)
             end=en
         iovList=iovList[ib:ie]
         if COOL_chan == 1000:
-            log.info( "%d IOVs in total for comment field" % len(iovList) )
+            log.info( "%d IOVs in total for comment field", len(iovList) )
         else:
-            log.info( "%d IOVs in total for %s" % (len(iovList),modulename) )
+            log.info( "%d IOVs in total for %s", len(iovList),modulename)
 else:
     iovList.append(((run,lumi),(MAXRUN, MAXLBK)))
 
@@ -322,8 +340,10 @@ extbar = [ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
 ch2pmt = [ dummy, barrel, barrel, extbar, extbar ]
 gname=[]
 if mgain!=2:
-    for i in xrange(mgain+1): gname+=[ "g "+str(i) ]
-else: gname = [ "LG", "HG" ]
+    for i in range(mgain+1):
+        gname+=[ "g "+str(i) ]
+else:
+    gname = [ "LG", "HG" ]
 
 #=== loop over all partitions,modules,channels
 pref = ""
@@ -336,16 +356,17 @@ for iovs in iovList:
         log.info( pref + blobReader.getComment(iovs[0]) )
     if prefix and prefix.startswith("Write"):
         comm = blobReader.getComment(iovs[0])
-        if ": " in comm: comm = comm[comm.find(": ")+2:]
-        print '%s --update --folder=%s --tag=%s --run=%i --lumi=%i --comment="%s"' % (prefix,folderPath,folderTag,iovs[0][0],iovs[0][1],comm)
+        if ": " in comm:
+            comm = comm[comm.find(": ")+2:]
+        print ('%s --update --folder=%s --tag=%s --run=%i --lumi=%i --comment="%s"' % (prefix,folderPath,folderTag,iovs[0][0],iovs[0][1],comm))
     miss=0
     good=0
-    for ros in xrange(rosmin,rosmax):
-	for mod in xrange(modmin, min(modmax,TileCalibUtils.getMaxDrawer(ros))):
-	    if hexid:
-		modName = "0x%x" % ((ros<<8)+mod)
-	    else:
-		modName = TileCalibUtils.getDrawerString(ros,mod)
+    for ros in range(rosmin,rosmax):
+        for mod in range(modmin, min(modmax,TileCalibUtils.getMaxDrawer(ros))):
+            if hexid:
+                modName = "0x%x" % ((ros<<8)+mod)
+            else:
+                modName = TileCalibUtils.getDrawerString(ros,mod)
             if modName in ['EBA39','EBA40','EBA41','EBA42','EBA55','EBA56','EBA57','EBA58',
                            'EBC39','EBC40','EBC41','EBC42','EBC55','EBC56','EBC57','EBC58' ]:
                 modSpec = 'EBspC10'
@@ -366,11 +387,11 @@ for iovs in iovList:
                 flt = blobReader.getDrawer(ros, mod,iovs[0], False, False)
                 if flt is None or isinstance(flt, (int)):
                     miss+=1
-                    print "%s is missing in DB" % modName
+                    print ("%s is missing in DB" % modName)
                 else:
                     good+=1
                     if blob:
-                        print "%s  Blob type: %d  Version: %d  Nchannels: %d  Ngains: %d  Nval: %d" % (modName, flt.getObjType(), flt.getObjVersion(), flt.getNChans(), flt.getNGains(), flt.getObjSizeUint32())
+                        print ("%s  Blob type: %d  Version: %d  Nchannels: %d  Ngains: %d  Nval: %d" % (modName, flt.getObjType(), flt.getObjVersion(), flt.getNChans(), flt.getNGains(), flt.getObjSizeUint32()))
                     mval0 = 0
                     mval = flt.getObjSizeUint32()
                     if nval<0 and -nval<=mval:
@@ -384,31 +405,31 @@ for iovs in iovList:
                     chmax = chanmax if chanmax<mchan else mchan
                     gnmin = gainmin if gainmin<mgain else mgain
                     gnmax = gainmax if gainmax<mgain else mgain
-                    for chn in xrange(chmin,chmax):
-                        for adc in xrange(gnmin,gnmax):
+                    for chn in range(chmin,chmax):
+                        for adc in range(gnmin,gnmax):
                             if pmt:
                                 msg = "%s pm %02i ch %02i %s  " % ( modName, abs(ch2pmt[ros][chn]), chn, gname[adc] )
                             else:
                                 msg = "%s %2i %1i  " % ( modName, chn, adc )
-                            for val in xrange(mval0,mval):
+                            for val in range(mval0,mval):
                                 if str(val) in keep or modName in keep or  modSpec in keep or modName[:3] in keep or  modName[:2] in keep \
                                     or ("%sch%i"% (modName,chn)) in keep or ("%sch%i"% (modSpec,chn)) in keep or ("%sch%i"% (modName[:3],chn)) in keep or ("%sch%i"% (modName[:2],chn)) in keep \
                                     or ("%sch%ig%i"% (modName,chn,adc)) in keep or ("%sch%ig%i"% (modSpec,chn,adc)) in keep or ("%sch%ig%i"% (modName[:3],chn,adc)) in keep or ("%sch%ig%i"% (modName[:2],chn,adc)) in keep:
                                     msg += "   keep   "
                                 else:
                                     msg += "  %f" % flt.getData(chn, adc, val)
-                            print pref+msg
-            except Exception, e:
-                print e
+                            print (pref+msg)
+            except Exception as e:
+                print (e)
     if miss:
         if iovs[0][0]!=2147483647:
-            print "%3i drawers are preseint in DB for run %d lb %d" % (good,iovs[0][0],iovs[0][1])
-            print "%3i drawers are missing  in DB for run %d lb %d" % (miss,iovs[0][0],iovs[0][1])
+            print ("%3i drawers are preseint in DB for run %d lb %d" % (good,iovs[0][0],iovs[0][1]))
+            print ("%3i drawers are missing  in DB for run %d lb %d" % (miss,iovs[0][0],iovs[0][1]))
         else:
-            print "%3i drawers are preseint in DB" % (good)
-            print "%3i drawers are missing  in DB" % (miss)
+            print ("%3i drawers are preseint in DB" % (good))
+            print ("%3i drawers are missing  in DB" % (miss))
         if good==0:
-            print "Please, check that you are using correct schema and correct tag"
+            print ("Please, check that you are using correct schema and correct tag")
 
 #=== close DB
 db.closeDatabase()

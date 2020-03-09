@@ -4,7 +4,7 @@
 
 #include "SCT_DetectorElementCondAlg.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
@@ -113,7 +113,7 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
 
   // Apply alignment using readCdo passed to SiDetectorElement
   for (InDetDD::SiDetectorElement* newEl: *writeCdo) {
-    newEl->updateCache();
+    newEl->setCache();
   }
 
   // Record WriteCondHandle

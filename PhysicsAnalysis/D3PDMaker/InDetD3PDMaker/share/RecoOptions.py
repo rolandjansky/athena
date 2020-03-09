@@ -158,10 +158,8 @@ include("InDetRecExample/InDetRec_all.py")
 # Event related parameters
 #--------------------------------------------------------------
 if doWriteESD:
-  StreamESD.ForceRead = True
   StreamESD.OutputFile = "/tmp/pbehera/InDetRecESD_new.root"
     
 if doWriteAOD:
-  StreamAOD.ForceRead = True
   StreamAOD.OutputFile = "/tmp/pbehera/InDetRecAOD_new.root"
  

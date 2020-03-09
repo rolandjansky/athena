@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /****************************************
@@ -37,7 +37,7 @@ information VKalVrt is able to provide:
 #include "xAODBase/IParticleContainer.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include <vector>
-
+#include "CxxUtils/checker_macros.h"
 
 
 namespace Trk {
@@ -87,8 +87,9 @@ namespace Trk {
 
     /* get minimal distance to any material layer */
     double dstToMatLay() const;
+
     /* set minimal distance to any material layer  */
-    void setDstToMatLay(double) const;
+    void setDstToMatLay(double Value);
 
     /* get number of 2track vertices */
     int n2trackvertices() const;
@@ -100,10 +101,10 @@ namespace Trk {
     const xAOD::Vertex* pseudoVertex() const;
 
     /* get list of bad TP */
-    const std::vector<const Trk::TrackParticleBase*> badTracksTP() const;
+    std::vector<const Trk::TrackParticleBase*> badTracksTP() const;
 
     /* get list of bad Tracks */
-    const std::vector<const xAOD::IParticle*> badTracksIP() const;
+    std::vector<const xAOD::IParticle*> badTracksIP() const;
 
     /* set origin collection for IParticle */
     void setIParticleOrigin(const xAOD::IParticleContainer* iparticleTES);
@@ -117,7 +118,7 @@ namespace Trk {
     double m_mass;
     double m_energyFraction;
     double m_energyTrkInJet;
-    mutable double m_dstToMatLayer;
+    double m_dstToMatLayer;
     int m_n2trackvertices;
     int m_nBigImpTracks;
     std::vector<ElementLink<Trk::TrackParticleBaseCollection> > m_badTracksTP;
@@ -143,11 +144,11 @@ namespace Trk {
   inline double VxSecVKalVertexInfo::dstToMatLay() const {
     return m_dstToMatLayer;
   }
+    /* set minimal distance to any material layer  */
+   inline void VxSecVKalVertexInfo::setDstToMatLay(double Value) {
+      m_dstToMatLayer=Value;
+    }
 
-  inline void VxSecVKalVertexInfo::setDstToMatLay(double Value) const {
-    m_dstToMatLayer=Value;
-  }
-  
   inline int VxSecVKalVertexInfo::n2trackvertices() const {
     return m_n2trackvertices;
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoTestAlg.h"
@@ -27,7 +27,7 @@ StatusCode L1TopoTestAlg::execute()
   ATH_MSG_INFO ("execute");
 
   // Retrieve and print the L1Topo RDOs from the DAQ RODs
-  const DataHandle<L1TopoRDOCollection> rdos = 0;
+  const L1TopoRDOCollection* rdos = 0;
   StatusCode sc = StatusCode::SUCCESS;
   sc = evtStore()->retrieve(rdos);
   if (sc.isFailure() or 0 == rdos) {

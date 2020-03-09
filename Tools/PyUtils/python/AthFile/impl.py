@@ -16,7 +16,6 @@ import os
 import subprocess
 import sys
 import six
-from past.builtins import basestring
 
 import PyUtils.Helpers as H
 from PyUtils.Helpers    import ShutUp
@@ -391,7 +390,7 @@ class AthFileServer(object):
         import hashlib
         md5 = hashlib.md5()
         do_close = False
-        if isinstance(f, basestring):
+        if isinstance(f, str):
             protocol,fname = self.fname(f)
             f = self._root_open(fname)
             do_close = True
@@ -584,7 +583,7 @@ class AthFileServer(object):
     def md5sum(self, fname):
         """return the md5 checksum of file ``fname``
         """
-        if isinstance(fname, basestring):
+        if isinstance(fname, str):
             protocol,fname = self.fname(fname)
         
         md5 = self._md5_for_file(fname)
@@ -926,7 +925,7 @@ class AthFileServer(object):
 
         _is_root_file = None
         do_close = True
-        if isinstance(fname, basestring):
+        if isinstance(fname, str):
             if not self.exists(fname):
                 import errno
                 raise IOError(
@@ -1024,9 +1023,6 @@ class FilePeeker(object):
         # user-driven (and might need user-customized macros or configurations)
         self._sub_env['ROOTENV_NO_HOME'] = '1'
 
-        # prevent from running athena-mp unadvertantly...
-        self._sub_env['ATHENA_PROC_NUMBER'] ='0'
-
         # prevent from running athena in interactive mode (and freeze)
         if 'PYTHONINSPECT' in self._sub_env:
             del self._sub_env['PYTHONINSPECT']
@@ -1049,7 +1045,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         root = self.pyroot
         do_close = True
-        if isinstance(fname, basestring):
+        if isinstance(fname, str):
             f = self._root_open(fname, raw=False)
         else:
             f = fname
@@ -1111,7 +1107,7 @@ class FilePeeker(object):
         is_empty = False
         root = self.pyroot
         do_close = True
-        if isinstance(fname, basestring):
+        if isinstance(fname, str):
             f = self._root_open(fname, raw=False)
         else:
             f = fname
@@ -1186,9 +1182,6 @@ class FilePeeker(object):
                             """ % str([file_name])
                         app << """
                             import os
-                            # prevent from running athena-mp in child processes
-                            os.putenv('ATHENA_PROC_NUMBER','0')
-    
                             # prevent from running athena in interactive mode (and freeze)
                             if 'PYTHONINSPECT' in os.environ:
                                 del os.environ['PYTHONINSPECT']
@@ -1408,7 +1401,7 @@ class FilePeeker(object):
         ievt = iter(bs)
         for i in range(evtmax):
             try:
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check() # may raise a RuntimeError
                 stream_tags = [dict(stream_type=tag.type,
                                     stream_name=tag.name,

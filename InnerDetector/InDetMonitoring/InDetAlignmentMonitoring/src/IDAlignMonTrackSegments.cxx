@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -17,7 +17,6 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "IDAlignMonTrackSegments.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkTrack/TrackCollection.h"
 #include "InDetTrackSplitterTool/IInDetTrackSplitterTool.h"
 #include "TrackSelectionTool.h"
 #include <iostream>
@@ -113,9 +112,6 @@ IDAlignMonTrackSegments::IDAlignMonTrackSegments( const std::string & type, cons
   declareProperty("MatchedRCut", m_matchedRcut = 0.2);
   declareProperty("UseCTBSplitTracks", m_useCTBSplitTracks);
   declareProperty("TrackSplitter", m_trackSplitter);
-  declareProperty("InputTracksName", m_inputTracksName =  "InDetCosmic_Tracks");
-  declareProperty("UpperTracksName", m_upperTracksName =  "InDetCosmic_Tracks_Upper");
-  declareProperty("LowerTracksName", m_lowerTracksName =  "InDetCosmic_Tracks_Lower");
   declareProperty("trackSelectionUp", m_trackSelectionUpper);
   declareProperty("trackSelectionLow", m_trackSelectionLower);
   declareProperty("DeltaD0Range", m_deltaD0Range);
@@ -178,6 +174,10 @@ StatusCode IDAlignMonTrackSegments::initialize() {
     ATH_MSG_DEBUG( "Successfully initialized tools/services" );
   }
 
+  ATH_CHECK(m_inputTracksName.initialize());
+  ATH_CHECK(m_upperTracksName.initialize());
+  ATH_CHECK(m_lowerTracksName.initialize());
+
   return StatusCode::SUCCESS;
 
 }
@@ -197,9 +197,9 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     // book histograms that are only relevant for cosmics data...
   }
 
-  std::string outputDirName = "IDAlignMon/" + m_inputTracksName + "_" + m_triggerChainName + "/TrackSegments";
+  std::string outputDirName = "IDAlignMon/" + m_inputTracksName.key() + "_" + m_triggerChainName + "/TrackSegments";
   if(m_useCTBSplitTracks)
-    outputDirName = "IDAlignMon/" + m_upperTracksName + "_" + m_lowerTracksName + "_" + m_triggerChainName + "/TrackSegments";
+    outputDirName = "IDAlignMon/" + m_upperTracksName.key() + "_" + m_lowerTracksName.key() + "_" + m_triggerChainName + "/TrackSegments";
 
   MonGroup al_mon ( this, outputDirName, run );
   
@@ -221,7 +221,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     RegisterHisto(al_mon,m_upper_hist->nhitsPix);  
     m_upper_hist->nhitsSct = TH1F_LW::create("nhits_sctUp","Number of SCT hits for every track in Upper Track Collection",21,-0.5,20.5);
     RegisterHisto(al_mon,m_upper_hist->nhitsSct);  
-    m_upper_hist->phi0 = TH1F_LW::create("Upper_phi0","#phi_{0}^{Upper}", 60,-3.14,m_upperPhi);
+    m_upper_hist->phi0 = TH1F_LW::create("Upper_phi0","#phi_{0}^{Upper}", 60,-M_PI,m_upperPhi);
     RegisterHisto(al_mon,m_upper_hist->phi0);  
     m_upper_hist->eta0 = TH1F_LW::create("Upper_eta0","#eta_{0}^{Upper}",100,-2.1,2.1);
     RegisterHisto(al_mon,m_upper_hist->eta0);  
@@ -243,7 +243,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     RegisterHisto(al_mon,m_lower_hist->nhitsPix);  
     m_lower_hist->nhitsSct = TH1F_LW::create("nhits_sctLow","Number of SCT hits for every track in Lower Track Collection",21,-0.5,20.5);
     RegisterHisto(al_mon,m_lower_hist->nhitsSct);  
-    m_lower_hist->phi0 = TH1F_LW::create("Lower_phi0","#phi_{0}^{Low} ", 60,-3.14,m_upperPhi);
+    m_lower_hist->phi0 = TH1F_LW::create("Lower_phi0","#phi_{0}^{Low} ", 60,-M_PI,m_upperPhi);
     RegisterHisto(al_mon,m_lower_hist->phi0);  
     m_lower_hist->eta0 = TH1F_LW::create("Lower_eta0","#eta_{0}^{Low} ",100,-2.1,2.1);
     RegisterHisto(al_mon,m_lower_hist->eta0);  
@@ -282,7 +282,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_d0->VsPhi0[charge] = MakeHist("delta_d0VsPhi0"+histNames[charge]
 					    ,"d_{0}^{Low} - d_{0}^{Upper} Vs #phi_{0}^{Upper}"+chargeNames[charge]+"; #phi_{0}^{Upper} [mm]; #Delta d_{0} [mm]" 
-					    ,9,-3.14,m_upperPhi,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
+					    ,9,-M_PI,m_upperPhi,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsPhi0[charge]);  
 
       m_delta_d0->VsPt[charge] = MakeHist("delta_d0VsPt"+histNames[charge]
@@ -318,7 +318,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_z0->VsPhi0[charge] = MakeHist("delta_z0VsPhi0"+histNames[charge]
 					    ,"z_{0}^{Upper} - z_{0}^{Low} Vs #phi_{0}^{Upper}"+chargeNames[charge]
-					    ,9,-3.14,m_upperPhi, 50, -m_deltaZ0Range, m_deltaZ0Range); 
+					    ,9,-M_PI,m_upperPhi, 50, -m_deltaZ0Range, m_deltaZ0Range); 
       RegisterHisto(al_mon,m_delta_z0->VsPhi0[charge]);  
       
       m_delta_z0->VsPt[charge] = MakeHist("delta_z0VsPt"+histNames[charge]
@@ -355,7 +355,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_phi0->VsPhi0[charge] = MakeHist("delta_phi0VsPhi0"+histNames[charge]
 					      ,"#phi_{0}^{Low} - #phi_{0}^{Upper} Vs #phi_0^{Upper}"+chargeNames[charge]
-					      ,9,-3.14,m_upperPhi,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
+					      ,9,-M_PI,m_upperPhi,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
       RegisterHisto(al_mon,m_delta_phi0->VsPhi0[charge]);  
       
       m_delta_phi0->VsPt[charge] = MakeHist("delta_phi0VsPt"+histNames[charge]
@@ -391,7 +391,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_eta0->VsPhi0[charge] = MakeHist("delta_eta0VsPhi0"+histNames[charge]
 					      ,"#eta_{0}^{Upper} - #eta_{0}^{low} Vs Phi0^{Upper}"+chargeNames[charge]
-					      ,9,-3.14,m_upperPhi,50, -0.02, 0.02);
+					      ,9,-M_PI,m_upperPhi,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsPhi0[charge]);  
 
       m_delta_eta0->VsPt[charge] = MakeHist("delta_eta0VsPt"+histNames[charge]
@@ -432,7 +432,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_qOverPt->VsPhi0[charge] = MakeHist("delta_qOverPtVsPhi0"+histNames[charge]
 						 ,"Q/p_{T}^{Low} - Q/p_{T}^{Upper} (1/GeV) Vs #phi_{0}^{Upper}"+chargeNames[charge]
-						 ,8,-3.14,m_upperPhi,50,-1*m_deltaQoverPtRange2D,m_deltaQoverPtRange2D);
+						 ,8,-M_PI,m_upperPhi,50,-1*m_deltaQoverPtRange2D,m_deltaQoverPtRange2D);
       RegisterHisto(al_mon,m_delta_qOverPt->VsPhi0[charge]);  
 
       m_delta_qOverPt->VsPt[charge] = MakeHist("delta_qOverPtVsPt"+histNames[charge]
@@ -468,7 +468,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_PtqOverPt->VsPhi0[charge] = MakeHist("delta_PtqOverPtVsPhi0"+histNames[charge]
 						 ,"p_{T}^{Upper}.(Q/p_{T}^{Low} - Q/p_{T}^{Upper}) Vs #phi_{0}^{Upper}"+chargeNames[charge]
-						 ,8,-3.14,m_upperPhi,50,-1*m_deltaPtQoverPtRange2D,m_deltaPtQoverPtRange2D);
+						 ,8,-M_PI,m_upperPhi,50,-1*m_deltaPtQoverPtRange2D,m_deltaPtQoverPtRange2D);
       RegisterHisto(al_mon,m_delta_PtqOverPt->VsPhi0[charge]);  
 
       m_delta_PtqOverPt->VsPt[charge] = MakeHist("delta_PtqOverPtVsPt"+histNames[charge]
@@ -494,7 +494,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_nHits->VsPhi0[charge] = MakeHist("delta_nHitsVsPhi0"+histNames[charge]
 					       ,"NHits^{upper} - NHits^{lower} Vs #phi_{0}^{Upper}"+chargeNames[charge]
-					       ,8,-3.14,m_upperPhi, 61, -30.5, 30.5);
+					       ,8,-M_PI,m_upperPhi, 61, -30.5, 30.5);
       RegisterHisto(al_mon,m_delta_nHits->VsPhi0[charge]);  
 
       m_delta_nHits->VsZ0[charge] = MakeHist("delta_nHitsVsZ0"+histNames[charge]
@@ -527,7 +527,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
     m_delta_charge->VsPhi0[0] = MakeHist("delta_chargeVsPhi0"
 					 ,"Charge^{upper} - Charge^{lower} Vs #phi_{0}^{Upper}; #phi [rad]; #Delta q"
-					 ,8,-3.14,m_upperPhi, 5, -2.5, 2.5);
+					 ,8,-M_PI,m_upperPhi, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsPhi0[0]);  
 
     m_delta_charge->VsZ0[0] = MakeHist("delta_chargeVsZ0"
@@ -546,7 +546,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     RegisterHisto(al_mon,m_delta_charge->VsEta[0]);  
     
     //========== Debugging
-    m_debug_phi0 = TH1F_LW::create("debug_phi0","#phi_{0} difference for the closest tracks (no match req.) ",10,-3.14,3.14);
+    m_debug_phi0 = TH1F_LW::create("debug_phi0","#phi_{0} difference for the closest tracks (no match req.) ",10,-M_PI,M_PI);
     RegisterHisto(al_mon,m_debug_phi0);  
     
     m_debug_eta0 = TH1F_LW::create("debug_eta0","#eta_{0} difference for the closest tracks (no match req.) ",10,-2.1,2.1);
@@ -598,83 +598,56 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   const DataVector<Trk::Track>* tracksLower(0);
 
   //if (false) {
-  //  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- START -- upper track collection = "<< m_upperTracksName << std::endl
-  //	      << "                                                                 lower track collection = "<< m_lowerTracksName 
+  //  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- START -- upper track collection = "<< m_upperTracksName.key() << std::endl
+  //	      << "                                                                 lower track collection = "<< m_lowerTracksName.key() 
   //	      << std::endl;
   //}
 
-  if(m_useCTBSplitTracks){
-    
-    if(!evtStore()->contains<TrackCollection>(m_upperTracksName)){
-      if(m_events == 1) {
-	      ATH_MSG_WARNING( "Unable to get " << m_upperTracksName << " TrackCollections" );
-      }else ATH_MSG_DEBUG( "Unable to get " << m_upperTracksName << " TrackCollections" );
-      return StatusCode::SUCCESS;
-    }
-    
-    if (!evtStore()->contains<TrackCollection>(m_lowerTracksName)){
-      if(m_events == 1) {
-	      ATH_MSG_WARNING( "Unable to get " << m_lowerTracksName << " TrackCollections" );
-      }else ATH_MSG_DEBUG( "Unable to get " << m_lowerTracksName << " TrackCollections" );
-      return StatusCode::SUCCESS;
-    }
-    
-    tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
-    if (!tracksUpper) {
-      ATH_MSG_DEBUG( "TrackCollection with name "<<m_upperTracksName<<" is NULL" );
-    }
+  //Get the Upper Tracks
+  SG::ReadHandle<TrackCollection> upperTracks{m_upperTracksName};
+  if (not upperTracks.isValid()) {
+    ATH_MSG_ERROR(m_upperTracksName << " could not be retrieved");
+    return StatusCode::RECOVERABLE;
+  }
+  tracksUpper = m_trackSelectionUpper->selectTracks(upperTracks);
+  if (!tracksUpper) {
+    ATH_MSG_DEBUG( "TrackCollection with name "<<m_upperTracksName.key()<<" is NULL" );
+  }
 
-    tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
-    if (!tracksLower) {
-      ATH_MSG_DEBUG( "TrackCollection with name "<<m_lowerTracksName<<" is NULL" );
-    }
-    
-  }else{
-    
+  //Get the Lower Tracks
+  SG::ReadHandle<TrackCollection> lowerTracks{m_lowerTracksName};
+  if (not lowerTracks.isValid()) {
+    ATH_MSG_ERROR(m_lowerTracksName << " could not be retrieved");
+    return StatusCode::RECOVERABLE;
+  }
+  tracksLower = m_trackSelectionLower->selectTracks(lowerTracks);
+  if (!tracksLower) {
+    ATH_MSG_DEBUG( "TrackCollection with name "<<m_lowerTracksName<<" is NULL" );
+  }
+
+  if (not m_useCTBSplitTracks){
     //We only need the inputTracks if we're splitting them ourselves
-    if (!evtStore()->contains<TrackCollection>(m_inputTracksName)){
-      if(m_events == 1){ 
-	      ATH_MSG_WARNING( "Unable to get " << m_inputTracksName << " TrackCollections" );
-      }else ATH_MSG_DEBUG( "Unable to get " << m_inputTracksName << " TrackCollections");
-      return StatusCode::SUCCESS;
-    }
-    
     //Split the tracks.
-    const DataVector<Trk::Track>* tracksIn; 
-    StatusCode sc = evtStore()->retrieve(tracksIn, m_inputTracksName);
-    if (sc.isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << endmsg;
+    SG::ReadHandle<TrackCollection> tracksIn{m_inputTracksName};
+    if (not tracksIn.isValid()) {
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName.key()<<" found in StoreGate" << endmsg;
       
     }else{
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << endmsg;
       
     }
     //if (false) {
-    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- going to split tracks for track collection: " << m_inputTracksName 
+    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- going to split tracks for track collection: " << m_inputTracksName.key() 
     //		<< " with size: " <<  tracksIn->size()                                                                 
     //		<< std::endl;
     //}
     //This records the upper and lower track collections to storeGate 
-    m_trackSplitter->splitTracks(tracksIn);
+    m_trackSplitter->splitTracks(tracksIn.get());
     //if (false) {
-    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- track collection: " << m_inputTracksName 
+    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- track collection: " << m_inputTracksName.key() 
     //		<< " (size: " <<  tracksIn->size() <<" ) splitting completed "                                                                 
     //		<< std::endl;
     //}
-    //Get the Upper Tracks
-    tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
-    if (!tracksUpper) {
-      ATH_MSG_INFO( "TrackCollection with name "<<m_upperTracksName<<" is NULL" );
-      
-    }
-
-    //Get the Lower Tracks
-    tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
-    if (!tracksLower) {
-      ATH_MSG_INFO( "TrackCollection with name "<<m_lowerTracksName<<" is NULL" );
-      
-    }
-
   }
 
   //if (false) {

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // FPEAuditor.h 
@@ -19,9 +19,9 @@
 
 // FrameWork includes
 #include "GaudiKernel/Auditor.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthCommonMsg.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 
 #include <signal.h>
 #include <fenv.h>
@@ -30,11 +30,10 @@
 class INamedInterface;
 
 
-class FPEAuditor : virtual public Auditor, public AthMessaging
+class FPEAuditor : public AthCommonMsg<Auditor>
 { 
   using Auditor::before;
   using Auditor::after;
-  using AthMessaging::msg;
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
@@ -48,36 +47,20 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   virtual ~FPEAuditor();
 
   /// Gaudi hooks
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  virtual void beforeInitialize(INamedInterface* alg);
-  virtual void afterInitialize(INamedInterface* alg);
-  virtual void beforeReinitialize(INamedInterface* alg);
-  virtual void afterReinitialize(INamedInterface* alg);
-  virtual void beforeExecute(INamedInterface* alg);
-  virtual void afterExecute(INamedInterface* alg, const StatusCode&);
-  virtual void beforeBeginRun(INamedInterface* alg);
-  virtual void afterBeginRun(INamedInterface *alg);
-  virtual void beforeEndRun(INamedInterface* alg);
-  virtual void afterEndRun(INamedInterface *alg);
-  virtual void beforeFinalize(INamedInterface* alg);
-  virtual void afterFinalize(INamedInterface* alg);
+  // standard event auditing...
+  virtual void before(StandardEventType evt, INamedInterface* comp) override;
+  virtual void after(StandardEventType evt, INamedInterface* comp, const StatusCode& sc) override;
 
   // custom event auditing...
 
   /// Audit the start of a custom "event".
   virtual void before(IAuditor::CustomEventTypeRef evt, 
-		      INamedInterface* caller)
+		      INamedInterface* caller) override
   { return this->before (evt, caller->name()); }
 
   /**
@@ -85,12 +68,12 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
    * the @c INamedInterface.
    */
   virtual void before (IAuditor::CustomEventTypeRef evt, 
-		       const std::string& caller);
+		       const std::string& caller) override;
   
   /// Audit the end of a custom "event".
   virtual void after (IAuditor::CustomEventTypeRef evt, 
 		      INamedInterface* caller, 
-		      const StatusCode& sc)
+		      const StatusCode& sc) override
   { return this->after (evt, caller->name(), sc); }
   
   /**
@@ -98,14 +81,12 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
    * the @c INamedInterface.
    */
   virtual void after  (CustomEventTypeRef evt, const std::string& caller,
-		       const StatusCode& sc);
+		       const StatusCode& sc) override;
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
-
-  std::string m_evtInfoKey;
 
   /** report fpes which happened during step 'step' on behalf of 'caller'
    */
@@ -135,12 +116,12 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
 
   void UninstallHandler();
   
-  bool m_SigHandInstalled;
-  
   //fexcept_t m_flagp;
   
   /// The FP environment before we initialize.
   fenv_t m_env;
+
+  std::atomic<int> m_nexceptions;
 }; 
 
 // I/O operators

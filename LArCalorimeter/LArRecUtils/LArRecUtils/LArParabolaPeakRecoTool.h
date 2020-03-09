@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBUTILS_LARPARABOLAPEAKRECOTOOL_H
 #define LARCALIBUTILS_LARPARABOLAPEAKRECOTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
-//#include "StoreGate/StoreGateSvc.h"
 
 /**
   @brief Given a set of multiple samples, this class finds a peak using Parabola fit.

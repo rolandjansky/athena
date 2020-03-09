@@ -89,10 +89,12 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
   std::pair<xAOD::JetContainer*, xAOD::ShallowAuxContainer*> jets_shallowCopy = xAOD::shallowCopyContainer(*jets);
   for (const auto &jet : *jets_shallowCopy.first) {
     if (jet->pt() > 100000.) passUncalibMonojetCut = true;
-    if (m_jetCalibrationTool->applyCalibration(*jet).getCode() == CP::CorrectionCode::Error) {
-      ATH_MSG_ERROR("Problem applying jet calibration");
-      return false;
-    }
+  }
+  if (m_jetCalibrationTool->applyCalibration(*jets_shallowCopy.first).isFailure()) {
+    ATH_MSG_ERROR("Problem applying jet calibration");
+    return false;
+  }
+  for (const auto &jet : *jets_shallowCopy.first) {
     xAOD::Jet* newJet = new xAOD::Jet();
     newJet->makePrivateStore(*jet);
     recoJets->push_back(newJet);

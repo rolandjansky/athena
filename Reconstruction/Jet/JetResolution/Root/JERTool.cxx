@@ -15,14 +15,14 @@
 
 // Non-local includes
 #include "PathResolver/PathResolver.h"
-#ifndef ASGTOOL_STANDALONE
+#ifndef XAOD_STANDALONE
 #  include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
 // Local includes
 #include "JetResolution/JERTool.h"
 
-/*#ifdef ASGTOOL_ATHENA
+/*#ifndef XAOD_STANDALONE
 static const bool autoConfigDefault = true;
 #else
 static const bool autoConfigDefault = false;
@@ -128,7 +128,7 @@ StatusCode JERTool::initialize()
   ATH_MSG_INFO("Initializing JER provider");
 
   // Auto-configuration currently disabled
-  #ifdef ASGTOOL_ATHENA
+  #ifndef XAOD_STANDALONE
   /*if(m_useAutoConfig){
     ATH_CHECK( autoConfigure() );
   }*/

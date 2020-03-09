@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigRNNOutputContainerCnv_v1.cxx 707590 2015-11-12 19:09:03Z krasznaa $
@@ -28,16 +28,14 @@
    } while( 0 )
   
 xAODTrigRNNOutputContainerCnv_v1::xAODTrigRNNOutputContainerCnv_v1()
-   : T_AthenaPoolTPCnvBase< xAOD::TrigRNNOutputContainer,
-                            xAOD::TrigRNNOutputContainer_v1 >() {
-
+{
 }
   
 
 void xAODTrigRNNOutputContainerCnv_v1::
 persToTrans( const xAOD::TrigRNNOutputContainer_v1* oldObj,
              xAOD::TrigRNNOutputContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
   
    // Greet the user:
    ATH_MSG( "Converting xAOD::TrigRNNOutputContainer_v1 to current "
@@ -65,7 +63,7 @@ persToTrans( const xAOD::TrigRNNOutputContainer_v1* oldObj,
 void xAODTrigRNNOutputContainerCnv_v1::
 transToPers( const xAOD::TrigRNNOutputContainer*,
              xAOD::TrigRNNOutputContainer_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODTrigRNNOutputContainerCnv_v1::transToPers"

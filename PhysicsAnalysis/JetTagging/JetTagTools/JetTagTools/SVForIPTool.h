@@ -37,24 +37,24 @@ namespace Analysis {
 
     SVForIPTool(const std::string& name,
                     const std::string& n, const IInterface* p);
-    ~SVForIPTool();
+    virtual ~SVForIPTool();
     
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
       /**Method to get the B flight direction from the secondary vertex info */
     void getDirectionFromSecondaryVertexInfo(Amg::Vector3D & SvxDirection,
                                              bool & canUseSvxDirection,
                                              xAOD::BTagging * BTag,
                                              const std::string & secVxFinderName,
-                                             const xAOD::Vertex & priVtx);
+                                             const xAOD::Vertex & priVtx) const;
                                              // const Trk::RecVertex & priVtx);
     
 
     /**Method to get the tracks from V0 from the secondary vertex info */
     void getTrkFromV0FromSecondaryVertexInfo(std::vector<const xAOD::TrackParticle*> & TrkFromV0,
                                              xAOD::BTagging * BTag,
-                                             const std::string & secVxFinderName);
+                                             const std::string & secVxFinderName) const;
 
 
   private:

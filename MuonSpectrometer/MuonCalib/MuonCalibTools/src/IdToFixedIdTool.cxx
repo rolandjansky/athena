@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibTools/IdToFixedIdTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include <iostream>
 #include <string>
@@ -21,11 +15,6 @@ IdToFixedIdTool::IdToFixedIdTool(const std::string& t,
 				 const std::string& n,
 				 const IInterface* p)
   : AthAlgTool(t,n,p),
-    p_MuonMgr( 0 ),
-    p_MdtIdHelper( 0 ),
-    p_CscIdHelper( 0 ),
-    p_RpcIdHelper( 0 ),
-    p_TgcIdHelper( 0 ),
     m_print_level(0)
 {
   declareInterface< IIdToFixedIdTool >(this) ;
@@ -40,28 +29,11 @@ StatusCode IdToFixedIdTool::initialize()
 {
   ATH_MSG_VERBOSE("Initialisation started");
   
-  StatusCode status = AlgTool::initialize();
-  if ( status.isFailure() ) return status;
-  
-  StoreGateSvc* detStore=0;
-  status = serviceLocator()->service("DetectorStore", detStore);
- 
-  if ( status.isSuccess() ) {
-    status = detStore->retrieve( p_MuonMgr );
-    if ( status.isFailure() ) {
-      ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
-    } else {
-      p_MdtIdHelper = p_MuonMgr->mdtIdHelper();
-      p_CscIdHelper = p_MuonMgr->cscIdHelper();    
-      p_RpcIdHelper = p_MuonMgr->rpcIdHelper();
-      p_TgcIdHelper = p_MuonMgr->tgcIdHelper();
-      ATH_MSG_INFO(" Retrieved IdHelpers: (muon, mdt, csc, rpc and tgc) ");
-    }
-  } else {
-    ATH_MSG_ERROR(" MuonDetDescrMgr not found in DetectorStore ");
-  }
+  ATH_CHECK(AlgTool::initialize());
 
-  return status;
+  ATH_CHECK( m_idHelperSvc.retrieve() );
+
+  return StatusCode::SUCCESS;
 }
 
 MuonFixedId IdToFixedIdTool::idToFixedId(const Identifier& id) const
@@ -69,63 +41,61 @@ MuonFixedId IdToFixedIdTool::idToFixedId(const Identifier& id) const
   bool done;
 
   ATH_MSG_VERBOSE("IdToFixedId started");
-  m_fixedId.clear();
+  MuonFixedId fixedId;
 
-  if( !(p_MdtIdHelper->is_muon(id)) ){
+  if( !(m_idHelperSvc->isMuon(id)) ){
     ATH_MSG_DEBUG(" MuonIdentifier doesn't correspond to a muon ");
   } else {
     //setting the Muon specific fields
-    done = m_fixedId.setStationName( m_fixedId.stationStringToFixedStationNumber( p_MdtIdHelper->stationNameString( p_MdtIdHelper->stationName( id ) ) ) );
-    //    if(done) done = m_fixedId.setStationEta( p_MdtIdHelper->stationEta( id ) );
-    //    if(done) done = m_fixedId.setStationPhi( p_MdtIdHelper->stationPhi( id ) );
+    done = fixedId.setStationName( fixedId.stationStringToFixedStationNumber( m_idHelperSvc->mdtIdHelper().stationNameString( m_idHelperSvc->mdtIdHelper().stationName( id ) ) ) );
     if(!done)  ATH_MSG_INFO("Something went wrong in the conversion id->fid (general) ");
-    if( p_MdtIdHelper->is_mdt(id) ){
-      done = m_fixedId.setTechnology(0) ; // MDT = 0;
+    if( m_idHelperSvc->isMdt(id) ){
+      done = fixedId.setTechnology(0) ; // MDT = 0;
       //setting the Mdt specific fields
-      if(done) done = m_fixedId.setStationEta( p_MdtIdHelper->stationEta( id ) );
-      if(done) done = m_fixedId.setStationPhi( p_MdtIdHelper->stationPhi( id ) );
+      if(done) done = fixedId.setStationEta( m_idHelperSvc->mdtIdHelper().stationEta( id ) );
+      if(done) done = fixedId.setStationPhi( m_idHelperSvc->mdtIdHelper().stationPhi( id ) );
       
-    if(done) done = m_fixedId.setMdtTube( p_MdtIdHelper->tube( id ) );
-      if(done) done = m_fixedId.setMdtTubeLayer( p_MdtIdHelper->tubeLayer( id ) );
-      if(done) done = m_fixedId.setMdtMultilayer( p_MdtIdHelper->multilayer( id ) );
+    if(done) done = fixedId.setMdtTube( m_idHelperSvc->mdtIdHelper().tube( id ) );
+      if(done) done = fixedId.setMdtTubeLayer( m_idHelperSvc->mdtIdHelper().tubeLayer( id ) );
+      if(done) done = fixedId.setMdtMultilayer( m_idHelperSvc->mdtIdHelper().multilayer( id ) );
       if(!done)  ATH_MSG_INFO("Something went wrong in the conversion id->fid (MDT) ");
-    } else if ( p_RpcIdHelper->is_rpc(id) ){
-      done = m_fixedId.setTechnology(3) ; // RPC = 3;
+    } else if ( m_idHelperSvc->isRpc(id) ){
+      done = fixedId.setTechnology(3) ; // RPC = 3;
       //setting the Rpc specific fields
-      if(done) done = m_fixedId.setStationEta( p_RpcIdHelper->stationEta( id ) );
-      if(done) done = m_fixedId.setStationPhi( p_RpcIdHelper->stationPhi( id ) );
+      if(done) done = fixedId.setStationEta( m_idHelperSvc->rpcIdHelper().stationEta( id ) );
+      if(done) done = fixedId.setStationPhi( m_idHelperSvc->rpcIdHelper().stationPhi( id ) );
       
-      if(done) done = m_fixedId.setRpcDoubletR( p_RpcIdHelper->doubletR( id ) );
-      if(done) done = m_fixedId.setRpcDoubletZ( p_RpcIdHelper->doubletZ( id ) );
-      if(done) done = m_fixedId.setRpcDoubletPhi( p_RpcIdHelper->doubletPhi( id ) );
-      if(done) done = m_fixedId.setRpcGasGap( p_RpcIdHelper->gasGap( id ) );
-      if(done) done = m_fixedId.setRpcMeasuresPhi( p_RpcIdHelper->measuresPhi( id ) );
-      if(done) done = m_fixedId.setRpcStrip( p_RpcIdHelper->strip( id ) );
+      if(done) done = fixedId.setRpcDoubletR( m_idHelperSvc->rpcIdHelper().doubletR( id ) );
+      if(done) done = fixedId.setRpcDoubletZ( m_idHelperSvc->rpcIdHelper().doubletZ( id ) );
+      if(done) done = fixedId.setRpcDoubletPhi( m_idHelperSvc->rpcIdHelper().doubletPhi( id ) );
+      if(done) done = fixedId.setRpcGasGap( m_idHelperSvc->rpcIdHelper().gasGap( id ) );
+      if(done) done = fixedId.setRpcMeasuresPhi( m_idHelperSvc->rpcIdHelper().measuresPhi( id ) );
+      if(done) done = fixedId.setRpcStrip( m_idHelperSvc->rpcIdHelper().strip( id ) );
       if(!done)  ATH_MSG_INFO("Something went wrong in the conversion id->fid (RPC) ");
-    } else if ( p_CscIdHelper->is_csc(id) ){
-      done = m_fixedId.setTechnology(1) ; // CSC = 1;
+    } else if ( m_idHelperSvc->isCsc(id) ){
+      done = fixedId.setTechnology(1) ; // CSC = 1;
       //setting the Csc specific fields
-      if(done) done = m_fixedId.setStationEta( p_CscIdHelper->stationEta( id ) );
-      if(done) done = m_fixedId.setStationPhi( p_CscIdHelper->stationPhi( id ) );
+      if(done) done = fixedId.setStationEta( m_idHelperSvc->cscIdHelper().stationEta( id ) );
+      if(done) done = fixedId.setStationPhi( m_idHelperSvc->cscIdHelper().stationPhi( id ) );
 
-      if(done) done = m_fixedId.setCscChamberLayer( p_CscIdHelper->chamberLayer( id ) );
-      if(done) done = m_fixedId.setCscWireLayer( p_CscIdHelper->wireLayer( id ) );
-      if(done) done = m_fixedId.setCscMeasuresPhi( p_CscIdHelper->measuresPhi( id ) );
-      if(done) done = m_fixedId.setCscStrip( p_CscIdHelper->strip( id ) );
+      if(done) done = fixedId.setCscChamberLayer( m_idHelperSvc->cscIdHelper().chamberLayer( id ) );
+      if(done) done = fixedId.setCscWireLayer( m_idHelperSvc->cscIdHelper().wireLayer( id ) );
+      if(done) done = fixedId.setCscMeasuresPhi( m_idHelperSvc->cscIdHelper().measuresPhi( id ) );
+      if(done) done = fixedId.setCscStrip( m_idHelperSvc->cscIdHelper().strip( id ) );
       if(!done)  ATH_MSG_INFO("Something went wrong in the conversion id->fid (CSC) ");
-    } else if ( p_TgcIdHelper->is_tgc(id) ){
-      done = m_fixedId.setTechnology(2) ; // TGC = 2;
+    } else if ( m_idHelperSvc->isTgc(id) ){
+      done = fixedId.setTechnology(2) ; // TGC = 2;
       //setting the Tgc specific fields
-      if(done) done = m_fixedId.setStationEta( p_TgcIdHelper->stationEta( id ) );
-      if(done) done = m_fixedId.setStationPhi( p_TgcIdHelper->stationPhi( id ) );
+      if(done) done = fixedId.setStationEta( m_idHelperSvc->tgcIdHelper().stationEta( id ) );
+      if(done) done = fixedId.setStationPhi( m_idHelperSvc->tgcIdHelper().stationPhi( id ) );
 
-      if(done) done = m_fixedId.setTgcGasGap( p_TgcIdHelper->gasGap( id ) );
-      if(done) done = m_fixedId.setTgcIsStrip( p_TgcIdHelper->isStrip( id ) );
-      if(done) done = m_fixedId.setTgcChannel( p_TgcIdHelper->channel( id ) );
+      if(done) done = fixedId.setTgcGasGap( m_idHelperSvc->tgcIdHelper().gasGap( id ) );
+      if(done) done = fixedId.setTgcIsStrip( m_idHelperSvc->tgcIdHelper().isStrip( id ) );
+      if(done) done = fixedId.setTgcChannel( m_idHelperSvc->tgcIdHelper().channel( id ) );
       if(!done)  ATH_MSG_INFO("Something went wrong in the conversion id->fid (TGC) ");
     }
   }
-  return m_fixedId;
+  return fixedId;
 }
 
 StatusCode IdToFixedIdTool::finalize()
@@ -138,14 +108,14 @@ Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
   ATH_MSG_VERBOSE("FixedIdToId started     ");
   Identifier tmp;
   if( fid.is_mdt() ){
-    tmp = p_MdtIdHelper->channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
+    tmp = m_idHelperSvc->mdtIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
 		     fid.eta(),
 		     fid.phi(),
 		     fid.mdtMultilayer(),
 		     fid.mdtTubeLayer(),
 		     fid.mdtTube() );
   } else if( fid.is_rpc() ){
-    tmp = p_RpcIdHelper->channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
+    tmp = m_idHelperSvc->rpcIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
 		     fid.eta(),
 		     fid.phi(), 
 		     fid.rpcDoubletR(),
@@ -154,8 +124,8 @@ Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
 		     fid.rpcGasGap(),
 		     fid.rpcMeasuresPhi(),
 		     fid.rpcStrip() );
-  } else if( fid.is_csc() ){ 
-     tmp = p_CscIdHelper->channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
+  } else if( m_idHelperSvc->hasCSC() && fid.is_csc()){ 
+     tmp = m_idHelperSvc->cscIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
 		      fid.eta(),
 		      fid.phi(),
 		      fid.cscChamberLayer(),
@@ -163,7 +133,7 @@ Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
 		      fid.cscMeasuresPhi(),
 		      fid.cscStrip() );
   } else if( fid.is_tgc() ){
-    tmp = p_TgcIdHelper->channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
+    tmp = m_idHelperSvc->tgcIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
 		     fid.eta(),
 		     fid.phi(),
 		     fid.tgcGasGap(),
@@ -211,7 +181,7 @@ Identifier IdToFixedIdTool::regionKeyToId(std::string region) const
     ml=0;
    } 
    // figure out what to do here when ml!=0 ...
-   Identifier athenaId = p_MdtIdHelper->elementID(stnName,eta,phi);
+   Identifier athenaId = m_idHelperSvc->mdtIdHelper().elementID(stnName,eta,phi);
    return athenaId;
 }
 
@@ -223,7 +193,7 @@ void IdToFixedIdTool::print(const Identifier& id) const
   if(id != test) 
     ATH_MSG_WARNING("SOMETHING WENT WRONG PROCESSING FIXEDID<->ID");
       
-  p_MdtIdHelper->print(id);
+  m_idHelperSvc->mdtIdHelper().print(id);
 }
 
 void IdToFixedIdTool::print(const MuonFixedId& fid) const

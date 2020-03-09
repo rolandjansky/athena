@@ -6,6 +6,7 @@
 
 include.block("MuonRegionSelector/MuonRegionSelectorTable_jobOptions.py")
 
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 # get DetFlags
 from AthenaCommon.DetFlags import DetFlags
@@ -40,7 +41,8 @@ else :
 
 #### CSC ####
 
-if DetFlags.detdescr.CSC_on():
+# could avoid first check in case DetFlags.detdescr.CSC_on() would take into account MuonGeometryFlags already
+if MuonGeometryFlags.hasCSC() and DetFlags.detdescr.CSC_on():
     from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
     CSC_RegionSelectorTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
 
@@ -63,7 +65,8 @@ else :
 
 #### New small wheel ####
 
-if DetFlags.detdescr.Micromegas_on():
+# could avoid first check in case DetFlags.detdescr.Micromegas_on() would take into account MuonGeometryFlags already
+if MuonGeometryFlags.hasMM() and DetFlags.detdescr.Micromegas_on():
     from MuonRegionSelector.MuonRegionSelectorConf import MM_RegionSelectorTable
     MM_RegionSelectorTable = MM_RegionSelectorTable(name = "MM_RegionSelectorTable")
 
@@ -73,7 +76,8 @@ else :
     MM_RegionSelectorTable = None
 
 
-if DetFlags.detdescr.sTGC_on():
+# could avoid first check in case DetFlags.detdescr.sTGC_on() would take into account MuonGeometryFlags already
+if MuonGeometryFlags.hasSTGC() and DetFlags.detdescr.sTGC_on():
     from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegionSelectorTable
     sTGC_RegionSelectorTable = sTGC_RegionSelectorTable(name = "sTGC_RegionSelectorTable")
 

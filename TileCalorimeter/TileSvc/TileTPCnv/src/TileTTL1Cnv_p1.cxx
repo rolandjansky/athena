@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileTTL1Cnv_p1.cxx 
@@ -15,7 +15,7 @@
 
 
 void
-TileTTL1Cnv_p1::persToTrans(const TileTTL1_p1* persObj, TileTTL1* transObj, MsgStream &/*log*/)
+TileTTL1Cnv_p1::persToTrans(const TileTTL1_p1* persObj, TileTTL1* transObj, MsgStream &/*log*/) const
 {
   *transObj = TileTTL1 (Identifier(Identifier32(persObj->m_channelID)),
                         persObj->m_TTL1digits);
@@ -23,7 +23,7 @@ TileTTL1Cnv_p1::persToTrans(const TileTTL1_p1* persObj, TileTTL1* transObj, MsgS
 
 
 void
-TileTTL1Cnv_p1::transToPers(const TileTTL1* transObj, TileTTL1_p1* persObj, MsgStream &/*log*/)
+TileTTL1Cnv_p1::transToPers(const TileTTL1* transObj, TileTTL1_p1* persObj, MsgStream &/*log*/) const
 {
   persObj->m_channelID = transObj->identify().get_identifier32().get_compact();
   persObj->m_TTL1digits = transObj->fsamples();

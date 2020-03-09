@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // author: jie.yu@cern.ch
@@ -18,8 +18,8 @@ class JetParticleCenterOfMassAssociation : public JetParticleAssociation {
 
         JetParticleCenterOfMassAssociation(const std::string& name);
 
-        const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
-            match(const xAOD::JetContainer&) const;
+        virtual const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
+            match(const xAOD::JetContainer&, const xAOD::IParticleContainer&) const override;
 
         inline double getAngleSize(const double& par_R) const{ 
             double result = acos(1-par_R*0.5);
@@ -28,7 +28,6 @@ class JetParticleCenterOfMassAssociation : public JetParticleAssociation {
 
 
     private:
-        std::string m_inputTrackCollectionName;
         double m_partMatchCone;
         double m_parentJetCone;
 };

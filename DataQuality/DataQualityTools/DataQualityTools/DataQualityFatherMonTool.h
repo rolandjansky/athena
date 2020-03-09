@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,7 +19,6 @@
 //
 // StoreGate and Gaudi
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/StatusCode.h"
 
 //
@@ -75,7 +74,6 @@ class DataQualityFatherMonTool: public ManagedMonitorToolBase
 
 protected:
 
-  StoreGateSvc* m_detStore  ;
   bool m_doRunCosmics;
   bool m_doRunBeam;
   bool m_doOfflineHists;

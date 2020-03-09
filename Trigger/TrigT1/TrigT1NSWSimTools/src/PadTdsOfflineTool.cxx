@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AGDDKernel/AGDDDetector.h"
@@ -12,18 +11,18 @@
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/EventContext.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -39,7 +38,8 @@
 
 namespace NSWL1 {
     
-    struct PadHits {
+    class PadHits {
+    public:
         Identifier      t_id;
         std::shared_ptr<PadOfflineData> t_pad;
         int             t_cache_index;
@@ -61,7 +61,6 @@ namespace NSWL1 {
         m_rndmSvc("AtRndmGenSvc",name),
         m_rndmEngine(0),
         m_detManager(0),
-        m_sTgcIdHelper(0),
         m_pad_cache_runNumber(-1),
         m_pad_cache_eventNumber(-1),
         m_pad_cache_status(CLEARED),
@@ -123,29 +122,16 @@ namespace NSWL1 {
         std::string algo_name = pnamed->name();
 
         if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-            if(TTree *tree = get_tree_from_histsvc()){
-                m_validation_tree.init_tree(tree);
-            } else {
-                ATH_MSG_FATAL("cannot book requested output tree");
-                return StatusCode::FAILURE;
-            }
+         TTree *tree=nullptr;
+         ATH_CHECK( get_tree_from_histsvc(tree));
+          m_validation_tree.init_tree(tree);
         }           
         // retrieve the Incident Service
-        if( m_incidentSvc.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Incident Service successfully rertieved");
-        }
+        ATH_CHECK( m_incidentSvc.retrieve() );
         m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
         // retrieve the Random Service
-        if( m_rndmSvc.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Random Number Service successfully retrieved");
-        }
+        ATH_CHECK( m_rndmSvc.retrieve() );
 
         // retrieve the random engine
         m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
@@ -154,22 +140,8 @@ namespace NSWL1 {
             return StatusCode::FAILURE;
         }
 
-        //  retrieve the MuonDetectormanager
-        if( detStore()->retrieve( m_detManager ).isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-        }
-
-        //  retrieve the sTGC offline Id helper
-        if( detStore()->retrieve( m_sTgcIdHelper ).isFailure() ){
-            ATH_MSG_FATAL("Failed to retrieve sTgcIdHelper");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
-        }
-
+        ATH_CHECK(detStore()->retrieve(m_detManager));
+        ATH_CHECK(m_idHelperSvc.retrieve());
         bool testGeometryAccess=false; // for now this is just an example DG-2014-07-11
         if(testGeometryAccess)
             printStgcGeometryFromAgdd();
@@ -255,16 +227,11 @@ namespace NSWL1 {
             return StatusCode::FAILURE;
         }
         // retrieve the current run number and event number
-        const EventInfo* pevt = 0;
-        StatusCode sc = evtStore()->retrieve(pevt);
-        if ( !sc.isSuccess() ) {
-            ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current PAD cache" );
-            m_pad_cache_runNumber   = -1;
-            m_pad_cache_eventNumber = -1;
-        } else {
-            m_pad_cache_runNumber = pevt->event_ID()->run_number();
-            m_pad_cache_eventNumber = pevt->event_ID()->event_number();
-        }
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+
+        m_pad_cache_runNumber = ctx.eventID().run_number();
+        m_pad_cache_eventNumber = ctx.eventID().event_number();
+
         if (m_pad_cache_status==CLEARED) {
             // renew the PAD cache if this is the next event
             m_pad_cache_status = fill_pad_cache();
@@ -338,7 +305,7 @@ namespace NSWL1 {
                             //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
                             //S.I
                             //std::shared_ptr<PadOfflineData> pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
-                            auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                            auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_detManager);
                             //pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
                             pad_hits.emplace_back(Id, pad, cache_index(digit));//avoids extra copy
                             //S.I
@@ -350,6 +317,7 @@ namespace NSWL1 {
 
         store_pads(pad_hits);
         print_pad_cache();
+        //The other tools should have separated Ntuple filling from the actual trigger stuff at least like this here      
         if(m_doNtuple) this->fill_pad_validation_id();
         ATH_MSG_DEBUG( "fill_pad_cache: end of processing" );
         return OK;
@@ -419,36 +387,30 @@ namespace NSWL1 {
     //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::is_pad_digit(const sTgcDigit* digit) const
     {
-        return (digit &&
-                m_sTgcIdHelper->channelType(digit->identify())==0);
+        return (digit && m_idHelperSvc->stgcIdHelper().channelType(digit->identify())==0);
     }
     //------------------------------------------------------------------------------
     int PadTdsOfflineTool::cache_index(const sTgcDigit* digit) const
     {
         Identifier Id = digit->identify();    
-        int stationEta = m_sTgcIdHelper->stationEta(Id);
-        int stationPhi = m_sTgcIdHelper->stationPhi(Id);
-        std::string stName = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
+        int stationEta = m_idHelperSvc->stgcIdHelper().stationEta(Id);
+        int stationPhi = m_idHelperSvc->stgcIdHelper().stationPhi(Id);
+        std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(Id));
         int isSmall = stName[2] == 'S';
         int trigger_sector = (isSmall)? stationPhi*2-1 : stationPhi*2-2;
         return (stationEta>0)? trigger_sector + 16 : trigger_sector;
     }
     //------------------------------------------------------------------------------
-    TTree* PadTdsOfflineTool::get_tree_from_histsvc()
+    StatusCode PadTdsOfflineTool::get_tree_from_histsvc(TTree*& tree)
     {
-        TTree *tree=NULL;
-        ITHistSvc* tHistSvc=NULL;
+        ITHistSvc* tHistSvc=nullptr;
         m_validation_tree.clear_ntuple_variables();
-        if(service("THistSvc", tHistSvc).isFailure()) {
-            ATH_MSG_FATAL("Unable to retrieve THistSvc");
-        } else {         
-            std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
-            std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
-            if(tHistSvc->getTree(treename, tree).isFailure()) {            
-                ATH_MSG_FATAL(("Could not retrieve the analysis ntuple "+treename+" from the THistSvc").c_str());
-            }
-        }
-        return tree;
+        ATH_CHECK(service("THistSvc", tHistSvc));
+        std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+        std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
+        ATH_CHECK(tHistSvc->getTree(treename, tree));
+
+        return StatusCode::SUCCESS;
     }
     //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::determine_delay_and_bc(const sTgcDigit* digit, const int &pad_hit_number,
@@ -562,15 +524,15 @@ namespace NSWL1 {
     {
         if(!is_pad_digit(digit)) return;
         Identifier Id = digit->identify();    
-        std::string stName = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
-        int stationEta     = m_sTgcIdHelper->stationEta(Id);
-        int stationPhi     = m_sTgcIdHelper->stationPhi(Id);
-        int multiplet      = m_sTgcIdHelper->multilayer(Id);
-        int gas_gap        = m_sTgcIdHelper->gasGap(Id);
-        int channel_type   = m_sTgcIdHelper->channelType(Id);
-        int channel        = m_sTgcIdHelper->channel(Id);    
-        int pad_eta        = m_sTgcIdHelper->padEta(Id);
-        int pad_phi        = m_sTgcIdHelper->padPhi(Id);
+        std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(Id));
+        int stationEta     = m_idHelperSvc->stgcIdHelper().stationEta(Id);
+        int stationPhi     = m_idHelperSvc->stgcIdHelper().stationPhi(Id);
+        int multiplet      = m_idHelperSvc->stgcIdHelper().multilayer(Id);
+        int gas_gap        = m_idHelperSvc->stgcIdHelper().gasGap(Id);
+        int channel_type   = m_idHelperSvc->stgcIdHelper().channelType(Id);
+        int channel        = m_idHelperSvc->stgcIdHelper().channel(Id);
+        int pad_eta        = m_idHelperSvc->stgcIdHelper().padEta(Id);
+        int pad_phi        = m_idHelperSvc->stgcIdHelper().padPhi(Id);
 
         ATH_MSG_DEBUG("sTGC Pad hit:"
                     <<" cache index ["<<cache_index(digit)<<"]"

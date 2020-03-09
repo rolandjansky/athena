@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleShallowCloneContainerCnv.h 
@@ -14,53 +14,18 @@
 // STL includes
 
 // AthenaPoolCnvSvc includes
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 
 // ParticleEventTPCnv includes
-#include "ParticleEventTPCnv/ParticleShallowCloneContainer_p1.h"
+#include "ParticleEventTPCnv/ParticleShallowCloneContainerCnv_p1.h"
 
 // ParticleEvent includes
 #include "ParticleEvent/ParticleShallowCloneContainer.h"
 
 
-// Forward declaration
+typedef T_AthenaPoolTPCnvCnv< ParticleShallowCloneContainer,
+                              ParticleShallowCloneContainerCnv_p1 >
+  ParticleShallowCloneContainerCnv;
 
-// the latest persistent representation type of DataCollection:
-typedef ParticleShallowCloneContainer_p1  ParticleShallowCloneContainer_PERS;
-
-class ParticleShallowCloneContainerCnv : public T_AthenaPoolCustomCnv< ParticleShallowCloneContainer, 
-                                                                       ParticleShallowCloneContainer_PERS 
-                                                                       > 
-
-{
-
-  // make the factory for this converter our friend
-  friend class CnvFactory<ParticleShallowCloneContainerCnv>;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
-
-  /** Create the converter from the service locator
-   */
-public:
-  ParticleShallowCloneContainerCnv(ISvcLocator* svcloc);
-protected:
-
-  /** Build the persistent representation from the transient one.
-   */
-  virtual ParticleShallowCloneContainer_PERS*
-    createPersistent( ParticleShallowCloneContainer* transCont );
-  
-  /** Build the transient representation from a persistent one
-   */
-  virtual ParticleShallowCloneContainer* createTransient();
-
-};
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> PARTICLEEVENTATHENAPOOL_COMPOSITEPARTICLECONTAINERCNV_H

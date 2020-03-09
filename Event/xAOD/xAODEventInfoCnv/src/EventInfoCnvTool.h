@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoCnvTool.h 793565 2017-01-23 22:00:14Z leggett $
@@ -16,10 +16,12 @@
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
 // Beam condition include(s):
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 // Luminosity include(s):
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "LumiBlockData/LuminosityCondData.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
 #endif
 #endif
 
@@ -48,21 +50,23 @@ namespace xAODMaker {
                         const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::EventInfo object with data
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
-                                  bool copyPileUpLinks = true ) const;
+                                  bool copyPileUpLinks = true,
+                                  const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
    private:
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
       /// Connection to the beam spot service
-      ServiceHandle< IBeamCondSvc > m_beamCondSvc;
-      /// Connection to the luminosity tool
-      ToolHandle< ILuminosityTool > m_lumiTool;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
+      SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
+      { this, "LumiDataKey", "", "SG key for luminosity data" };
 #endif
 #endif
 
@@ -70,9 +74,6 @@ namespace xAODMaker {
       bool m_beamCondSvcAvailable;
 
       
-      /// Internal flag for the availability of the luminosity tool
-      bool m_lumiToolAvailable;
-
       /// Flag to disable beamspot service for AthenaMT migration purposes
       bool m_disableBeamSpot;
 

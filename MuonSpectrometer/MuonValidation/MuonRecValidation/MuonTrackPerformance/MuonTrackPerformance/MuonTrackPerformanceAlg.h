@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKPERFORMANCEALG_H
 #define MUONTRACKPERFORMANCEALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
@@ -18,14 +19,16 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTruthData/TruthTrajectory.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
-
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "GeneratorObjects/McEventCollection.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include <fstream>
 #include <iostream>
@@ -33,7 +36,6 @@
 #include <vector>
 #include <set>
 
-class MsgStream;
 class TFile;
 class TruthTrajectory;
 
@@ -44,13 +46,9 @@ namespace HepMC{
 namespace Trk {
   class Track;
   class TrackSummary;
-  class ITrackSummaryHelperTool;  
 }
 
 namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
   class MuonSegmentCombination;
   class MuonSegment;
 }
@@ -296,12 +294,13 @@ private:
   bool m_isCombined;
   bool m_doSegments;
   bool m_writeToFile;
-  bool m_doNSW;
   bool m_doStau;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
-  ToolHandle<Muon::MuonEDMHelperTool> m_helper;
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    "Handle to the service providing the IMuonEDMHelperSvc interface" };
   ToolHandle<Muon::IMuonTrackTruthTool> m_truthTool;
   ToolHandle<Trk::ITrackSummaryHelperTool>    m_summaryHelperTool;
   MsgStream* m_log;

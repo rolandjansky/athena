@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: L1Muctpi.cxx 794528 2017-01-30 12:36:33Z fwinkl $
@@ -28,8 +28,6 @@
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/NimCTP.h"
 
-// The output object of the simulation
-#include "TrigT1Result/MuCTPI_RDO.h"
 
 // Inlcudes for the MuCTPI simulation
 #include "L1Muctpi.h"
@@ -75,9 +73,10 @@ namespace LVL1MUCTPI {
     declareProperty( "InputSource", m_inputSource = "DIGITIZATION" );
     declareProperty( "AODLocID", m_aodLocId = m_DEFAULT_AODLocID );
     declareProperty( "RDOLocID", m_rdoLocId = m_DEFAULT_RDOLocID );
-    declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
     declareProperty( "RoIOutputLocID", m_roiOutputLocId = LVL1MUCTPI::DEFAULT_MuonRoIBLocation );
-    declareProperty( "CTPOutputLocID", m_ctpOutputLocId = LVL1MUCTPI::DEFAULT_MuonCTPLocation );
+    //declareProperty( "CTPOutputLocID", m_ctpOutputLocId = LVL1MUCTPI::DEFAULT_MuonCTPLocation );
+    declareProperty( "CTPOutputLocID", m_muctpi2CtpKey );
+
     declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = LVL1MUCTPI::DEFAULT_MuonL1TopoLocation);
     // These are just here for flexibility, normally they should not be changed:
     declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
@@ -127,6 +126,10 @@ namespace LVL1MUCTPI {
     CHECK(incidentSvc.retrieve());
     incidentSvc->addListener(this,"BeginRun", 100);
     incidentSvc.release().ignore();
+
+    ATH_CHECK( m_muctpi2CtpKey.initialize() );
+    if(!m_rdoOutputLocId.empty()) ATH_CHECK( m_rdoOutputLocId.initialize());
+
 
     
     // Now this is a tricky part. We have to force the message logging of the
@@ -482,6 +485,7 @@ namespace LVL1MUCTPI {
     ATH_MSG_DEBUG( "CTP word recorded to StoreGate with key: "
 		   << m_ctpOutputLocId );
 
+
     // Save the output of the simulation
     CHECK( saveOutput() );
 
@@ -641,10 +645,13 @@ namespace LVL1MUCTPI {
    */
   StatusCode L1Muctpi::saveOutput_MuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord)
   {
-    MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
-    CHECK( evtStore()->record( muCTPI_RDO, m_rdoOutputLocId ) );
-    ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate with key: "
-		   << m_rdoOutputLocId );
+    if(!m_rdoOutputLocId.empty()){
+      MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
+      auto rdoHandle = SG::makeHandle(m_rdoOutputLocId);
+      ATH_CHECK(rdoHandle.record(std::unique_ptr<MuCTPI_RDO>(muCTPI_RDO)));
+      ATH_MSG_DEBUG( "MuCTPI_RDO object recorded with key: "
+		     << m_rdoOutputLocId.key() );
+    }
     return StatusCode::SUCCESS;
   }
 
@@ -661,6 +668,11 @@ namespace LVL1MUCTPI {
       CHECK( evtStore()->record( theCTPResult, m_ctpOutputLocId ) );
       ATH_MSG_DEBUG( "CTP word recorded to StoreGate with key: "
                      << m_ctpOutputLocId );
+
+      auto obj = std::make_unique<LVL1::MuCTPICTP>( m_theMuctpi->getCTPData() );
+      auto writeHandle = SG::makeHandle( m_muctpi2CtpKey );
+      writeHandle.put( std::move(obj) );
+
 
       // create MuCTPI RDO
       // const std::list< unsigned int >& daqData = m_theMuctpi->getDAQData();

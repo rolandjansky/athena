@@ -1,7 +1,6 @@
 ## @file EventSelectorAthenaPool_jobOptions.py
 ## @brief EventSelector job options file to illustrate available EventSelector properties.
 ## @author Peter van Gemmeren <gemmeren@anl.gov>
-## $Id: EventSelectorAthenaPool_jobOptions.py,v 1.15 2008-05-28 20:50:28 gemmeren Exp $
 ###############################################################
 #
 # EventSelectorAthenaPool job options file
@@ -57,7 +56,7 @@ svcMgr += AthenaPoolCnvSvc()
 EventPersistencySvc = Service( "EventPersistencySvc" )
 EventPersistencySvc.CnvServices += [ "AthenaPoolCnvSvc" ]
 
-from StoreGate.StoreGateConf import ProxyProviderSvc
+from SGComps.SGCompsConf import ProxyProviderSvc
 svcMgr += ProxyProviderSvc()
 #
 # AddressProvider for the ProxyProviderSvc.

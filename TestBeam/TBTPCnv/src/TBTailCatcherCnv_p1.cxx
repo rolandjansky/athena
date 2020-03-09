@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBTailCatcherCnv_p1.h"
-#define private public
-#define protected public
 #include "TBEvent/TBTailCatcher.h"
-
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "TBTPCnv/TBTailCatcher_p1.h"
 
@@ -18,7 +13,7 @@
 
 void
 TBTailCatcherCnv_p1::persToTrans(const TBTailCatcher_p1* pers, 
-                                     TBTailCatcher* trans, MsgStream &/*log*/)
+                                     TBTailCatcher* trans, MsgStream &/*log*/) const
 {
 
   const unsigned nScints = pers->m_signal.size();
@@ -54,7 +49,7 @@ TBTailCatcherCnv_p1::persToTrans(const TBTailCatcher_p1* pers,
 
 void
 TBTailCatcherCnv_p1::transToPers(const TBTailCatcher* trans, 
-                                     TBTailCatcher_p1* pers, MsgStream &/*log*/)
+                                     TBTailCatcher_p1* pers, MsgStream &/*log*/) const
 {
 
   const unsigned nScints = trans->size();
@@ -83,9 +78,6 @@ TBTailCatcherCnv_p1::transToPers(const TBTailCatcher* trans,
     pers -> m_overflow.push_back(        scint->isOverflow() );
 	}
 
-  unsigned int nSignals=trans->m_signals.size();
-  pers->m_signals.reserve(nSignals);
-  pers->m_signals = trans->m_signals;
-
+  pers->m_signals = trans->getSignals();
 }
 

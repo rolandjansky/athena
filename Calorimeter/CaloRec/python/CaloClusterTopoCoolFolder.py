@@ -12,7 +12,6 @@ def _setupCaloClusterTopoCoolFolder():
     if globalflags.DataSource() == 'data':
        doOverride=False
     else: 
-       from AthenaCommon.JobProperties import jobproperties
        theDDV =  jobproperties.Global.DetDescrVersion()
        if theDDV.startswith("ATLAS-CSC"):
            doOverride=True

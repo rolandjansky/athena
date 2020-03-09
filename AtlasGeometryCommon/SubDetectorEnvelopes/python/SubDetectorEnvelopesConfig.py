@@ -167,6 +167,8 @@ class Volume:
 
 # For new configuration - doesn't have access to DetFlags as of writing, so all HGTD stuff is missing.
 # Just copied from above.
+
+#New configuration in SubDetectorEnvelopesConfigNew.py
 def EnvelopeDefSvc(flags,  **kwargs):
     kwargs.setdefault("DBInDetNode"       , 'InDetEnvelope'    )
     kwargs.setdefault("DBBeamPipeNode"    , 'BeamPipeEnvelope' )

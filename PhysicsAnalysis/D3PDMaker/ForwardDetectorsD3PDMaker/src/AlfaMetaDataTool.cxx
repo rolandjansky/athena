@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -421,11 +421,7 @@ namespace D3PD
    unsigned long long AlfaMetaDataTool::CalcDCSId(eDCSItem eItem)
    {
 	   unsigned long long ullID;
-	   string Folder, Foldername, Tag;
-	   IOVRange Range;
-	   bool bRetrieved;
-	   unsigned long long ullBytesRead;
-	   float fReadTime;
+	   string Folder;
 
 	   switch(eItem)
 	   {
@@ -457,13 +453,14 @@ namespace D3PD
 		   break;
 	   }
 
-	   if(!m_iovSvc->getKeyInfo(Folder,Foldername,Tag,Range,bRetrieved,ullBytesRead,fReadTime)) {
+       IIOVDbSvc::KeyInfo info;
+	   if(!m_iovSvc->getKeyInfo(Folder,info)) {
 				msg(MSG::ERROR)<<"Couldn't get IOV data about folder: "<<Folder<<endmsg;
 				return 0;
 	   }
 
 	   // Construct the ID:
-	   IOVTime time=Range.start();
+	   const IOVTime& time=info.range.start();
 	   if(time.isRunEvent()){
 		   ullID=static_cast<unsigned long long>(((time.run()&0xffff)<<16)|(time.event()&0xffff));
 	   }

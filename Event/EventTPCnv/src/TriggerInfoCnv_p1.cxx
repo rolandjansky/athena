@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/TriggerInfo.h"
 #include "EventTPCnv/TriggerInfoCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 
 
 void TriggerInfoCnv_p1::transToPers(const TriggerInfo* trans, TriggerInfo_p1* pers, MsgStream &log)
@@ -53,7 +52,7 @@ TriggerInfo* TriggerInfoCnv_p1::createTransient (const TriggerInfo_p1* persObj, 
 
 TriggerInfo* TriggerInfoCnv_p1::createTransient (const TriggerInfo_p1* persObj, MsgStream& log) const
 {
-  auto trans = CxxUtils::make_unique<TriggerInfo>();
+  auto trans = std::make_unique<TriggerInfo>();
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }
@@ -66,7 +65,7 @@ TriggerInfo_p1* TriggerInfoCnv_p1::createPersistent (const TriggerInfo* transObj
 
 TriggerInfo_p1* TriggerInfoCnv_p1::createPersistent (const TriggerInfo* transObj, MsgStream& log) const
 {
-  auto pers = CxxUtils::make_unique<TriggerInfo_p1>();
+  auto pers = std::make_unique<TriggerInfo_p1>();
   transToPers(transObj, pers.get(), log);
   return(pers.release());
 }

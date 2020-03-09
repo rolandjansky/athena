@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -15,45 +15,44 @@
 #ifndef TRIGBJETHYPO_TRIGBJETETHYPOTOOL_H
 #define TRIGBJETHYPO_TRIGBJETETHYPOTOOL_H 1
 
+#include "AthenaBaseComps/AthAlgTool.h" 
+
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaBaseComps/AthAlgTool.h" 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "AthLinks/ElementLinkVector.h"
 
-#include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
-static const InterfaceID IID_TrigBjetEtHypoTool("TrigBjetEtHypoTool",1,0);
-
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 
 class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
+
+ public:
+  struct TrigBjetEtHypoToolInfo {
+    TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
+    ElementLink< xAOD::JetContainer > jetEL;
+    ElementLink< xAOD::VertexContainer > vertexEL;
+    TrigCompositeUtils::Decision* decision;
+  };
+
   
  public:
-
   /** @brief Constructor. */
   TrigBjetEtHypoTool (const std::string& type,
 		      const std::string& name,
 		      const IInterface* parent );
-  /** @brief Destructor. */
-  virtual ~TrigBjetEtHypoTool ();
 
-  StatusCode initialize() override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
 
-  static const InterfaceID& interfaceID();
+  TrigCompositeUtils::DecisionID decisionId() const;
+  const HLT::Identifier getId() const;
 
-  TrigCompositeUtils::DecisionID decisionId() const {
-    return m_id.numeric();
-  }
-
-  const HLT::Identifier getId() const {
-    return m_id;
-  }
-
-  StatusCode decide(  const xAOD::Jet*,bool& ) const;
+  StatusCode decide( std::vector< TrigBjetEtHypoToolInfo >& ) const;
 
  private:
-  HLT::Identifier m_id;
+  HLT::Identifier m_decisionId;
 
   /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
   Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
@@ -65,11 +64,4 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
   Gaudi::Property< float > m_maxEtaThreshold {this,"MaxEtaThreshold",0.0,"Max Eta threshold cut"};
 };
 
-inline const InterfaceID& TrigBjetEtHypoTool::interfaceID()
-{
-  return IID_TrigBjetEtHypoTool;
-}
-
-
-#endif  // !TRIGBJETHYPO_TRIGBJETETHYPOTOOL_H   
-
+#endif  // !TRIGBJETHYPO_TRIGBJETETHYPOTOOL_H

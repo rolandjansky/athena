@@ -7,9 +7,9 @@
 
 #include <inttypes.h> 
 #include "CSCcabling/CSCcablingSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class Identifier;
-class CscIdHelper;
 class CscRawDataCollection;
 
 /* this class provides conversion between CSC RDO Id and RESrcID.
@@ -27,11 +27,11 @@ public:
   /** default constrcutor
       you must then use the set method to set the cabling service and the id helper 
   */ 
-  CSC_Hid2RESrcID () { m_cabling = 0;  m_cscIdHelper = 0; m_isCosmic=false; m_isOldCosmic = false; m_robIDs.clear(); } 
+  CSC_Hid2RESrcID () { m_cabling = 0;  m_muonIdHelperTool = 0; m_isCosmic=false; m_isOldCosmic = false; m_robIDs.clear(); } 
 
   /** the full constructor
   */
-  CSC_Hid2RESrcID (CSCcablingSvc * p_cabling, const CscIdHelper* cscHelper) { this->set(p_cabling, cscHelper); }
+  CSC_Hid2RESrcID (CSCcablingSvc * p_cabling, const Muon::MuonIdHelperTool* muonIdHelperTool) { this->set(p_cabling, muonIdHelperTool); }
 
   /** destructor 
   */ 
@@ -40,9 +40,9 @@ public:
   /** initialize the identifier helper
   */
 
-  void set(CSCcablingSvc * p_cabling, const CscIdHelper* cscHelper) { 
+  void set(CSCcablingSvc * p_cabling, const Muon::MuonIdHelperTool* muonIdHelperTool) { 
     m_cabling = p_cabling; 
-    m_cscIdHelper = cscHelper; 
+    m_muonIdHelperTool = muonIdHelperTool; 
     m_isCosmic=false; 
     m_isOldCosmic = false; 
     this->fillAllRobIds();
@@ -86,7 +86,7 @@ private:
 
 private:
 
-  const CscIdHelper * m_cscIdHelper; 
+  const Muon::MuonIdHelperTool * m_muonIdHelperTool; 
   bool m_isCosmic;
   bool m_isOldCosmic;
   CSCcablingSvc * m_cabling;

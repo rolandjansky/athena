@@ -1,13 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-
-# include the python fragment to set up the default bphysics vertex fitter
-#include("TrigBphysHypo/TrigBphysVertexingConfig.py")
-
-from TrigBphysHypo.TrigBphysHypoConf       import TrigBphysHelperUtilsTool
-from TrigBphysHypo.TrigBphysHypoConf       import TrigEFBMuMuFex 
-from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-from TrigBphysHypo import TrigBphysVertexingConfig
+from TrigBphysHypo.TrigBphysHypoConf       import TrigEFBMuMuFex
+from TrigBphysHypo import TrigBphysVertexingConfig  # noqa: F401
 
 from AthenaCommon.AppMgr import ToolSvc
 

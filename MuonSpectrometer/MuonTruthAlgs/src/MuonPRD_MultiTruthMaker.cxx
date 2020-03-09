@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -7,15 +7,8 @@
 
 #include "MuonTruthAlgs/MuonPRD_MultiTruthMaker.h"
 
-#include "Identifier/Identifier.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonGeoModel/DetectorElement.h"
-
 #include <iterator>
 #include <typeinfo>
-
-//#include <ext/functional>
 
 //================================================================
 MuonPRD_MultiTruthMaker::MuonPRD_MultiTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -33,7 +26,7 @@ MuonPRD_MultiTruthMaker::MuonPRD_MultiTruthMaker(const std::string &name, ISvcLo
     declareProperty("CSC_SDO_Container",          m_CSC_SimDataMapName="CSC_SDO");
     declareProperty("RPC_SDO_Container",          m_RPC_SimDataMapName="RPC_SDO");
     declareProperty("TGC_SDO_Container",          m_TGC_SimDataMapName="TGC_SDO");
-    declareProperty("STGC_SDO_Container",         m_STGC_SimDataMapName="STGC_SDO");
+    declareProperty("STGC_SDO_Container",         m_STGC_SimDataMapName="sTGC_SDO");
     declareProperty("MM_SDO_Container",           m_MM_SimDataMapName="MM_SDO");
 
   // Output
@@ -43,41 +36,31 @@ MuonPRD_MultiTruthMaker::MuonPRD_MultiTruthMaker(const std::string &name, ISvcLo
     declareProperty("TGC_PRD_TruthContainer",     m_TGC_PRD_TruthName="TGC_TruthMap");
     declareProperty("STGC_PRD_TruthContainer",    m_STGC_PRD_TruthName="STGC_TruthMap");
     declareProperty("MM_PRD_TruthContainer",      m_MM_PRD_TruthName="MM_TruthMap");
-
-    //technology flags
-    declareProperty("UseNSW",                     m_useNSW=false);
-    declareProperty("UseCSC",                     m_useCSC=true);
 }
 
 //================================================================
 StatusCode MuonPRD_MultiTruthMaker::initialize()
 {
   ATH_MSG_DEBUG( "MuonPRD_MultiTruthMaker::initialize()" );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK(m_MDT_ContainerName.initialize());
-  ATH_CHECK(m_CSC_ContainerName.initialize(m_useCSC));
+  ATH_CHECK(m_CSC_ContainerName.initialize(m_idHelperSvc->hasCSC()));
   ATH_CHECK(m_RPC_ContainerName.initialize());
   ATH_CHECK(m_TGC_ContainerName.initialize());
-  ATH_CHECK(m_STGC_ContainerName.initialize(m_useNSW));
-  ATH_CHECK(m_MM_ContainerName.initialize(m_useNSW));
+  ATH_CHECK(m_STGC_ContainerName.initialize(m_idHelperSvc->hasSTgc()));
+  ATH_CHECK(m_MM_ContainerName.initialize(m_idHelperSvc->hasMM()));
   ATH_CHECK(m_MDT_SimDataMapName.initialize());
-  ATH_CHECK(m_CSC_SimDataMapName.initialize(m_useCSC));
+  ATH_CHECK(m_CSC_SimDataMapName.initialize(m_idHelperSvc->hasCSC()));
   ATH_CHECK(m_RPC_SimDataMapName.initialize());
   ATH_CHECK(m_TGC_SimDataMapName.initialize());
-  ATH_CHECK(m_STGC_SimDataMapName.initialize(m_useNSW));
-  ATH_CHECK(m_MM_SimDataMapName.initialize(m_useNSW));
+  ATH_CHECK(m_STGC_SimDataMapName.initialize(m_idHelperSvc->hasSTgc()));
+  ATH_CHECK(m_MM_SimDataMapName.initialize(m_idHelperSvc->hasMM()));
   ATH_CHECK(m_MDT_PRD_TruthName.initialize());
-  ATH_CHECK(m_CSC_PRD_TruthName.initialize(m_useCSC));
+  ATH_CHECK(m_CSC_PRD_TruthName.initialize(m_idHelperSvc->hasCSC()));
   ATH_CHECK(m_RPC_PRD_TruthName.initialize());
   ATH_CHECK(m_TGC_PRD_TruthName.initialize());
-  ATH_CHECK(m_STGC_PRD_TruthName.initialize(m_useNSW));
-  ATH_CHECK(m_MM_PRD_TruthName.initialize(m_useNSW));
-  return StatusCode::SUCCESS;
-}
-
-//================================================================
-StatusCode MuonPRD_MultiTruthMaker::finalize() 
-{
-  ATH_MSG_DEBUG( "MuonPRD_MultiTruthMaker::finalize()" );
+  ATH_CHECK(m_STGC_PRD_TruthName.initialize(m_idHelperSvc->hasSTgc()));
+  ATH_CHECK(m_MM_PRD_TruthName.initialize(m_idHelperSvc->hasMM()));
   return StatusCode::SUCCESS;
 }
 
@@ -87,13 +70,11 @@ StatusCode MuonPRD_MultiTruthMaker::execute() {
 
     std::vector<StatusCode> retvals;
     retvals.push_back(buildPRD_Truth<Muon::MdtPrepDataContainer, MuonSimDataCollection>(m_MDT_ContainerName, m_MDT_SimDataMapName, m_MDT_PRD_TruthName));
-    if(m_useCSC) retvals.push_back(buildPRD_Truth<Muon::CscPrepDataContainer, CscSimDataCollection> (m_CSC_ContainerName, m_CSC_SimDataMapName, m_CSC_PRD_TruthName));
+    if(m_idHelperSvc->hasCSC()) retvals.push_back(buildPRD_Truth<Muon::CscPrepDataContainer, CscSimDataCollection> (m_CSC_ContainerName, m_CSC_SimDataMapName, m_CSC_PRD_TruthName));
     retvals.push_back(buildPRD_Truth<Muon::RpcPrepDataContainer, MuonSimDataCollection>(m_RPC_ContainerName, m_RPC_SimDataMapName, m_RPC_PRD_TruthName));
     retvals.push_back(buildPRD_Truth<Muon::TgcPrepDataContainer, MuonSimDataCollection>(m_TGC_ContainerName, m_TGC_SimDataMapName, m_TGC_PRD_TruthName));
-    if(m_useNSW){
-      retvals.push_back(buildPRD_Truth<Muon::sTgcPrepDataContainer, MuonSimDataCollection>(m_STGC_ContainerName, m_STGC_SimDataMapName, m_STGC_PRD_TruthName));
-      retvals.push_back(buildPRD_Truth<Muon::MMPrepDataContainer, MuonSimDataCollection>(m_MM_ContainerName, m_MM_SimDataMapName, m_MM_PRD_TruthName));
-    }
+    if (m_idHelperSvc->hasSTgc()) retvals.push_back(buildPRD_Truth<Muon::sTgcPrepDataContainer, MuonSimDataCollection>(m_STGC_ContainerName, m_STGC_SimDataMapName, m_STGC_PRD_TruthName));
+    if (m_idHelperSvc->hasMM()) retvals.push_back(buildPRD_Truth<Muon::MMPrepDataContainer, MuonSimDataCollection>(m_MM_ContainerName, m_MM_SimDataMapName, m_MM_PRD_TruthName));
 
     bool ok = true;
     for(std::vector<StatusCode>::const_iterator i = retvals.begin(); i!=retvals.end(); i++) {

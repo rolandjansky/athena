@@ -1,38 +1,32 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMDIGITTORDO_H
 #define MMDIGITTORDO_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
-
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
-
 class MmIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class MM_DigitToRDO : public AthAlgorithm
+class MM_DigitToRDO : public AthReentrantAlgorithm
 {
 
 public:
 
   MM_DigitToRDO (const std::string& name, ISvcLocator* pSvcLocator);
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual ~MM_DigitToRDO() = default;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
   virtual StatusCode finalize() override;
 
 private:
-
-protected:
-  
-  const MmIdHelper*  m_idHelper;
-  SG::WriteHandleKey<Muon::MM_RawDataContainer> m_rdoContainer;
-  SG::ReadHandleKey<MmDigitContainer> m_digitContainer;
+  const MmIdHelper*  m_idHelper{};
+  SG::WriteHandleKey<Muon::MM_RawDataContainer> m_rdoContainer{this, "OutputObjectName", "MMRDO","WriteHandleKey for Output MM_RawDataContainer"};
+  SG::ReadHandleKey<MmDigitContainer> m_digitContainer{this, "InputObjectName", "MM_DIGITS", "ReadHAndleKey for Input MmDigitContainer"};
 };
 
 #endif

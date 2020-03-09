@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBADCRawContCnv_p1.h"
-#define private public
-#define protected public
 #include "TBEvent/TBADCRawCont.h"
-
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "TBTPCnv/TBADCRawCont_p1.h"
 
@@ -16,7 +11,7 @@
 
 void
 TBADCRawContCnv_p1::persToTrans(const TBADCRawCont_p1* pers, 
-                                     TBADCRawCont* trans, MsgStream &/*log*/)
+                                     TBADCRawCont* trans, MsgStream &/*log*/) const
 {
 
 	const unsigned nADCRaws = pers->m_adc.size();
@@ -43,7 +38,7 @@ TBADCRawContCnv_p1::persToTrans(const TBADCRawCont_p1* pers,
 
 void
 TBADCRawContCnv_p1::transToPers(const TBADCRawCont* trans, 
-                                     TBADCRawCont_p1* pers, MsgStream &/*log*/)
+                                     TBADCRawCont_p1* pers, MsgStream &/*log*/) const
 {
 
   const unsigned nADCRaws = trans->size();

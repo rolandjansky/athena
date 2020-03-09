@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbSessionObj.cpp 726071 2016-02-25 09:23:05Z krasznaa $
@@ -18,7 +18,6 @@
 #include "DbDomainObj.h"
 #include "POOLCore/DbPrint.h"
 #include "StorageSvc/IOODatabase.h"
-#include "StorageSvc/DbInstanceCount.h"
 
 #include "Gaudi/PluginService.h"
 
@@ -28,14 +27,12 @@ using namespace pool;
 DbSessionObj::DbSessionObj()
 : Base("DbSession", pool::READ, POOL_StorageType)
 {
-  DbInstanceCount::increment(this);
 }
 
 // Standard Destructor
 DbSessionObj::~DbSessionObj()  {
   clearEntries();
   for( auto& i : m_dbTypes )  releasePtr( i.second );
-  DbInstanceCount::decrement(this);
 }
 
 // Open session

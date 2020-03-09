@@ -13,7 +13,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/IHLTOutputTool.h"
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
-
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 /**
  * @class TriggerSummaryAlg
  * @brief In addition, a merged decisions collection is prepared. But not currently written.
@@ -46,7 +46,8 @@ class TriggerSummaryAlg : public ::AthReentrantAlgorithm {
   
   // TODO (tamartin / tbold) move this to DecisionSummaryMakerAlg ?
   ToolHandleArray<IHLTOutputTool> m_outputTools{ this, "OutputTools", {}, "Set of tools to prepare make HLT output ready for writing out" };
-
+  
+  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring" };
 }; 
 
 #endif //> !DECISIONHANDLING_TRIGGERSUMMARY_H

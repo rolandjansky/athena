@@ -1,4 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 __author__  = 'Javier Montejo'
 __version__="$Revision: 1.01 $"
 __doc__="Class defining data periods and access to GRLs"
@@ -145,7 +148,7 @@ class TriggerPeriodData:
             for run in grlroot.findall('NamedLumiRange/LumiBlockCollection'):
                 testgrl[ int(run.find('Run').text)] = [(int(x.get('Start')), int(x.get('End'))) for x in run.findall('LBRange')]
             return any(len(lb)!=0 for lb in testgrl.itervalues())
-        except:
+        except Exception:
             return False
 
     def skimPeriod(self, period):
@@ -216,8 +219,8 @@ class TriggerPeriodData:
                 if not any([run >= x[0] and run <= x[1] for x in ranges]): self.grl.pop(run)
 
 def test():
-    print TriggerPeriodData( TriggerPeriod.y2017 ).grl
-    print TriggerPeriodData( TriggerPeriod.y2017lowmu ).grl
+    print (TriggerPeriodData( TriggerPeriod.y2017 ).grl)
+    print (TriggerPeriodData( TriggerPeriod.y2017lowmu ).grl)
 
 if __name__ == "__main__":
     sys.exit(test())

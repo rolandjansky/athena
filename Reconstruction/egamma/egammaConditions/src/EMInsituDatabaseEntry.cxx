@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaConditions/EMInsituDatabaseEntry.h"
-#include <iostream>
 #include "egammaConditions/EMClusterErrorsMatrix.h"
+#include <iostream>
+#include <utility>
 
 //ClassImp(EMInsituDatabaseEntry)
 
@@ -19,7 +20,7 @@ EMInsituDatabaseEntry::EMInsituDatabaseEntry()
 EMInsituDatabaseEntry::EMInsituDatabaseEntry(std::string dbaseID)
 {
 	clear();
-	setDatabaseID(dbaseID);
+	setDatabaseID(std::move(dbaseID));
 }
 
 /** Default Destructor*/
@@ -55,7 +56,7 @@ EMInsituDatabaseEntry& EMInsituDatabaseEntry::operator = (const EMInsituDatabase
 bool EMInsituDatabaseEntry::setMatrix(const EMClusterErrorsMatrix &apClusterErrorsMatrix)
 {
   //std::cerr << "setMatrix called"<< std::endl;
-  if (apClusterErrorsMatrix.m_matrix.size()==0) {
+  if (apClusterErrorsMatrix.m_matrix.empty()) {
     return false;
   }
   clear();
@@ -70,8 +71,8 @@ bool EMInsituDatabaseEntry::setMatrix(const EMClusterErrorsMatrix &apClusterErro
     std::vector<double> axisBinning = apClusterErrorsMatrix.m_axis.at(i).getBinningInformation();
     m_vecInt_Info.push_back((int)axisBinning.size());
     m_vecString.push_back(apClusterErrorsMatrix.m_axis.at(i).getName());
-    for (unsigned int j=0; j < axisBinning.size(); j++) {
-      m_vecFloat_Info.push_back(axisBinning.at(j));
+    for (double j : axisBinning) {
+      m_vecFloat_Info.push_back(j);
     }
   }
 
@@ -135,7 +136,7 @@ bool EMInsituDatabaseEntry::getMatrix(EMClusterErrorsMatrix &apClusterErrorsMatr
     for (int j=0; j<m_vecInt_Info.at(m); j++) {
       axisBinning.push_back(m_vecFloat_Info.at(n++));
     }
-    apClusterErrorsMatrix.m_axis.push_back(EMAPMatrixAxis(m_vecString.at(s++),axisBinning));
+    apClusterErrorsMatrix.m_axis.emplace_back(m_vecString.at(s++),axisBinning);
     apClusterErrorsMatrix.m_base.push_back(ib);
     ib+=m_vecInt_Info.at(m++);
   }
@@ -170,7 +171,7 @@ bool EMInsituDatabaseEntry::getMatrix(EMClusterErrorsMatrix &apClusterErrorsMatr
 /** Setting DatabaseID */
 void	EMInsituDatabaseEntry::setDatabaseID(std::string dbaseID)
 {
-	m_DatabaseID	= dbaseID;
+	m_DatabaseID	= std::move(dbaseID);
 }
 
 

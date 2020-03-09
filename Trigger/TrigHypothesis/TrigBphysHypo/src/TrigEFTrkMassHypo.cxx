@@ -22,15 +22,12 @@
 
 #include "TrigEFTrkMassHypo.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 #include <math.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 //#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"

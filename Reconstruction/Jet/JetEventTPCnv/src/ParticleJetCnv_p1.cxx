@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleJetCnv_p1.cxx 
@@ -36,40 +36,14 @@
 
 
 // converters
-static P4ImplPxPyPzECnv_p1   momCnv;
-static ParticleBaseCnv_p1 partBaseCnv;
+static const P4ImplPxPyPzECnv_p1   momCnv;
+static const ParticleBaseCnv_p1 partBaseCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-#if 0
-// This is copied from JetUtils/JetCaloHelper... avoid to depend on JetUtils
-static std::string calosampling_name[24] = {
-  "PreSamplerB", "EMB1", "EMB2", "EMB3",
-  "PreSamplerE", "EME1", "EME2", "EME3",
-  "HEC0", "HEC1", "HEC2", "HEC3",
-  "TileBar0", "TileBar1", "TileBar2",
-  "TileGap1", "TileGap2", "TileGap3",
-  "TileExt0", "TileExt1", "TileExt2",     // Tile extended barrel
-  "FCAL0", "FCAL1", "FCAL2"              // Forward EM endcap
-};
-#endif
 
 void 
 ParticleJetCnv_p1::persToTrans( const ParticleJet_p1* pers,
 				Jet* trans, 
-				MsgStream& msg ) 
+				MsgStream& msg ) const
 {
   msg << MSG::DEBUG << "ParticleJet_p1 Loading Jet from persistent state...  pers="<< pers
       << "  trans="<< trans
@@ -121,7 +95,7 @@ ParticleJetCnv_p1::persToTrans( const ParticleJet_p1* pers,
 void 
 ParticleJetCnv_p1::transToPers( const Jet* /*trans*/, 
 				ParticleJet_p1* , 
-				MsgStream& msg ) 
+				MsgStream& msg ) const
 {
   msg << MSG::ERROR << "Creating persistent state of ParticleJet... This should not happen anymore"
       << endmsg;

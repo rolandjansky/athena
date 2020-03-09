@@ -21,7 +21,6 @@ include("TriggerTest/TrigScanFiles.py")
 doTrigger=True
 #doTriggerConfigOnly=True 
 rec.doESD=False
-TriggerModernConfig=True
 rec.doWriteAOD=False
 rec.doWriteESD=False
 rec.doWriteTAG=False
@@ -88,5 +87,10 @@ Service ("StoreGateSvc" ).ActivateHistory=False
 
 preExec='rec.doFloatingPointException=True'
 
-print AlgSequence()
-print ServiceMgr
+printfunc (AlgSequence())
+printfunc (ServiceMgr)
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

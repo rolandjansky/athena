@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOLROOTACCESS_TEVENT_H
@@ -63,11 +63,11 @@ namespace POOL {
          ServiceHandle<StoreGateSvc>& inputMetaStore() { return m_inputMetaStore; }
 
          template<typename T> void setEvtLoopProperty( const char* name, const T& val ) {
-            m_joSvc->addPropertyToCatalogue( m_evtLoop.name() , StringProperty( name,  Gaudi::Utils::toString ( val ) ) );
+            m_joSvc->addPropertyToCatalogue( m_evtLoop.name() , StringProperty( name,  Gaudi::Utils::toString ( val ) ) ).ignore();
          }
 
          template<typename T> void setEvtSelProperty( const char* name, const T& val ) {
-            m_joSvc->addPropertyToCatalogue( m_evtSelect.name() , StringProperty( name,  Gaudi::Utils::toString ( val ) ) );
+            m_joSvc->addPropertyToCatalogue( m_evtSelect.name() , StringProperty( name,  Gaudi::Utils::toString ( val ) ) ).ignore();
          }
 
          //forward retrieve calls to the evtStore
@@ -90,9 +90,6 @@ namespace POOL {
          template<typename T> StatusCode retrieveMetaInput( const T*& obj, const std::string& key ) {
             return inputMetaStore()->retrieve( obj, key );
          }
-
-	 //shortcut for access IOVMetadataContainer metadata
-	 std::string retrieveIOVMetadata(const std::string& folder, const std::string& key);
 
          int getEntry( long entry ); //return -1 if failure. otherwise 0
          long getEntries();

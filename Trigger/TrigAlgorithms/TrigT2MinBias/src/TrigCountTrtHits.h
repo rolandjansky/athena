@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMINBIAS_TRIGCOUNTTRTHITS_H
@@ -45,10 +45,6 @@ class TrigCountTrtHits: public HLT::AllTEAlgo {
   HLT::ErrorCode checkDetectorMask();
   Bool_t m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
   
-  /** A data member to retain a connection to the Detector Store. */
-  ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<StoreGateSvc> m_storeGate;
-
   /** For access to the TRT identifiers */
   const TRT_ID *m_trtHelper;
 

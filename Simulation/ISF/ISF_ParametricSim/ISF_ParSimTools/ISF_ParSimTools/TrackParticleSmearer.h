@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,19 +51,19 @@ namespace iParSim {
     TrackParticleSmearer(const std::string&,const std::string&,const IInterface*);
 
     /**Destructor*/
-    ~TrackParticleSmearer();
+    virtual ~TrackParticleSmearer();
 
-    /** AlgTool initailize method.*/
-    StatusCode initialize();
+    /** AlgTool initialize method.*/
+    virtual StatusCode initialize() override;
 
     /** AlgTool finalize method */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     /** handle for incident service */
-    void handle(const Incident& inc);
+    virtual void handle(const Incident& inc) override;
 
     /** Creates a new ISFParticle from a given ParticleState, universal transport tool */
-    virtual ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine *randomEngine);
+    virtual ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine *randomEngine) const override;
 
   protected:
 

@@ -32,28 +32,20 @@ TAUP1ThinningHelper.AppendToStream( TAUP1Stream )
 
 # MET/Jet tracks
 thinning_expression                              = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-TAUP1MetTPThinningTool                           = DerivationFramework__TrackParticleThinning(
-                                                     name                      = "TAUP1MetTPThinningTool",
-                                                     ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
-                                                     SelectionString           = thinning_expression,
-                                                     InDetTrackParticlesKey    = "InDetTrackParticles",
-                                                     ApplyAnd                  = True)
-ToolSvc                                         += TAUP1MetTPThinningTool
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 TAUP1JetTPThinningTool                           = DerivationFramework__JetTrackParticleThinning(
                                                      name                      = "TAUP1JetTPThinningTool",
-                                                     ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
+                                                     StreamName                = streamName,
                                                      JetKey                    = "AntiKt4LCTopoJets",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
-                                                     ApplyAnd                  = True)
+                                                     TrackSelectionString      = thinning_expression)
 ToolSvc                                         += TAUP1JetTPThinningTool
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 TAUP1CaloClusterThinning                         = DerivationFramework__CaloClusterThinning(
                                                      name                      = "TAUP1ClusterThinning",
-                                                     ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
+                                                     StreamName                = streamName,
                                                      SGKey                     = "TauJets",
                                                      TopoClCollectionSGKey     = "CaloCalTopoClusters")
 ToolSvc                                         += TAUP1CaloClusterThinning
@@ -62,7 +54,7 @@ ToolSvc                                         += TAUP1CaloClusterThinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 TAUP1ElectronTPThinningTool                      = DerivationFramework__EgammaTrackParticleThinning(
                                                      name                      = "TAUP1ElectronTPThinningTool",
-                                                     ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
+                                                     StreamName              = streamName,
                                                      SGKey                     = "Electrons",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles")
 ToolSvc                                         += TAUP1ElectronTPThinningTool
@@ -71,7 +63,7 @@ ToolSvc                                         += TAUP1ElectronTPThinningTool
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 TAUP1MuonTPThinningTool                          = DerivationFramework__MuonTrackParticleThinning(
                                                      name                      = "TAUP1MuonTPThinningTool",
-                                                     ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
+                                                     StreamName              = streamName,
                                                      MuonKey                   = "Muons",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles")
 ToolSvc                                         += TAUP1MuonTPThinningTool
@@ -80,7 +72,7 @@ ToolSvc                                         += TAUP1MuonTPThinningTool
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 TAUP1TauTPThinningTool                           = DerivationFramework__TauTrackParticleThinning(
                                                      name                      = "TAUP1TauTPThinningTool",
-                                                     ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
+                                                     StreamName              = streamName,
                                                      TauKey                    = "TauJets",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
                                                      ConeSize                  = 0.6)

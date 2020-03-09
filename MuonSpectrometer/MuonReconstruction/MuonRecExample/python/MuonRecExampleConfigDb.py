@@ -8,6 +8,8 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 addNamesToSkipIfNotAvailable( "MuonIsolationTool" )
 addTypesOnlyToSkip( "ICaloNoiseTool" )
@@ -61,22 +63,20 @@ addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraigh
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
+addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
 addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool")
 
 addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
 
-addTool("Muon::MuonTrackToSegmentTool", "MuonTrackToSegmentTool")
+addTool("MuonRecExample.MooreTools.MuonTrackToSegmentTool", "MuonTrackToSegmentTool")
 
-addTool("MuonRecExample.MuonRecTools.MuonEDMHelperTool", "MuonEDMHelperTool")
+addService("MuonRecExample.MuonRecTools.MuonEDMHelperSvc", "MuonEDMHelperSvc")
 
 addTool("MuonRecExample.MuonRecTools.MuonEDMPrinterTool", "MuonEDMPrinterTool")
 
 addTool("MuonRecExample.MuonRecTools.MuonKalmanTrackFitter","MuonKalmanTrackFitter")
 
-# TODO: this should be cleaned up: all clients should use one and the same MuonTrackSummaryTool instance name
-# currently both names are used (with and without the "Tool" ending
-addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryHelper","MuonTrackSummaryHelper")
-addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryHelper","MuonTrackSummaryHelperTool")
+addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryHelperTool","MuonTrackSummaryHelperTool")
 
 addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryTool","MuonTrackSummaryTool")
 
@@ -86,7 +86,7 @@ addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2TrackFitter
 addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2SLTrackFitter", StraightLine=True )
 
 addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentum", "MuonSegmentMomentum" )
-addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField" )
+addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
     
 addTool( "MuonRecExample.MuonRecTools.MuonPhiHitSelector", "MuonPhiHitSelector" )
 
@@ -122,12 +122,12 @@ addTool("Trk::ResidualPullCalculator","ResidualPullCalculator",
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.RpcPrepDataProviderTool", "RpcPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MdtPrepDataProviderTool", "MdtPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.TgcPrepDataProviderTool", "TgcPrepDataProviderTool" )
-addTool( "MuonRecExample.MuonPrdProviderToolsConfig.CscPrepDataProviderTool", "CscPrepDataProviderTool" )
-addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MM_PrepDataProviderTool", "MM_PrepDataProviderTool" )
-addTool( "MuonRecExample.MuonPrdProviderToolsConfig.STGC_PrepDataProviderTool", "STGC_PrepDataProviderTool" )
-
-#addAlgorithm("MuonRecExample.MuonPrdProviderToolsConfig.CscRdoToCscPrepData", "CscRdoToCscPrepData")
-
+if MuonGeometryFlags.hasCSC():
+    addTool( "MuonRecExample.MuonPrdProviderToolsConfig.CscPrepDataProviderTool", "CscPrepDataProviderTool" )
+    addAlgorithm("MuonRecExample.MuonPrdProviderToolsConfig.CscRdoToCscPrepData", "CscRdoToCscPrepData")
+if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+    addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MM_PrepDataProviderTool", "MM_PrepDataProviderTool" )
+    addTool( "MuonRecExample.MuonPrdProviderToolsConfig.STGC_PrepDataProviderTool", "STGC_PrepDataProviderTool" )
 
 ################################################################################
 # Tools from MuonRecExample.MooreTools
@@ -156,6 +156,7 @@ addTool("MuonRecExample.MooreTools.MuonSeededSegmentFinder", "MuonSeededSegmentF
 
 addTool( "MuonRecExample.MooreTools.MuonRefitTool", "MuonRefitTool")
 
+
 addTool("MuonRecExample.MooreTools.MuonErrorOptimisationTool","MuonErrorOptimisationTool")
 
 addTool( "MuonRecExample.MooreTools.MuonTrackCleaner", "MuonTrackCleaner" )
@@ -163,12 +164,11 @@ addTool( "MuonRecExample.MooreTools.MuonTrackCleaner", "MuonTrackCleaner" )
 addToolClone( "MuonClusterOnTrackCreator", "FixedErrorMuonClusterOnTrackCreator",
               DoFixedErrorCscEta = True, FixedErrorCscEta = .5 )
 
-addTool( "MuonRecExample.MuonRecTools.CscClusterOnTrackCreator", "CscClusterOnTrackCreator"  )
+if MuonGeometryFlags.hasCSC():
+    addTool( "MuonRecExample.MuonRecTools.CscClusterOnTrackCreator", "CscClusterOnTrackCreator"  )
+    addTool( "MuonRecExample.MuonRecTools.CscBroadClusterOnTrackCreator", "CscBroadClusterOnTrackCreator" )
 
-
-addTool( "MuonRecExample.MuonRecTools.CscBroadClusterOnTrackCreator", "CscBroadClusterOnTrackCreator" )
-
-addTool( "MuonRecExample.MooreTools.MuonChamberHoleRecoveryTool", "MuonChamberHoleRecoveryTool" )
+addTool( "MuonRecExample.MooreTools.MuonChamberHoleRecoveryTool", "MuonChamberHoleRecoveryTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""), CscPrepDataContainer=("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""))
 
 addTool( "MuonRecExample.MooreTools.MuonSegmentRegionRecoveryTool", "MuonSegmentRegionRecoveryTool" )
 
@@ -210,36 +210,39 @@ addTool( "MuonRecExample.MooreTools.MooTrackFitter", "MooSLTrackFitter",
 
 addTool( "MuonRecExample.MooreTools.MooTrackBuilder", "MooTrackBuilderTemplate")
 
+if MuonGeometryFlags.hasCSC():
+    addTool("MuonRecExample.CscTools.CscAlignmentTool","CscAlignmentTool")
+    addTool("MuonRecExample.CscTools.CscClusterUtilTool","CscClusterUtilTool")
+    addTool("MuonRecExample.CscTools.QratCscClusterFitter","QratCscClusterFitter")
+    addTool("MuonRecExample.CscTools.CscPeakThresholdClusterBuilderTool","CscPeakThresholdClusterBuilderTool")
+    addTool("MuonRecExample.CscTools.CscThresholdClusterBuilderTool","CscThresholdClusterBuilderTool")
+    addTool("MuonRecExample.CscTools.CalibCscStripFitter","CalibCscStripFitter")
+    addTool("MuonRecExample.CscTools.SimpleCscClusterFitter","SimpleCscClusterFitter")
+    addTool("MuonRecExample.CscTools.CscSplitClusterFitter","CscSplitClusterFitter")
+    
+    addTool("MuonRecExample.CscTools.Csc2dSegmentMaker","Csc2dSegmentMaker")
+    addTool("MuonRecExample.CscTools.Csc4dSegmentMaker","Csc4dSegmentMaker")
+    addTool("MuonRecExample.CscTools.CscSegmentUtilTool","CscSegmentUtilTool")
 
-addTool("MuonRecExample.CscTools.CscAlignmentTool","CscAlignmentTool")
-addTool("MuonRecExample.CscTools.CscClusterUtilTool","CscClusterUtilTool")
-addTool("MuonRecExample.CscTools.QratCscClusterFitter","QratCscClusterFitter")
-addTool("MuonRecExample.CscTools.CscPeakThresholdClusterBuilderTool","CscPeakThresholdClusterBuilderTool")
-addTool("MuonRecExample.CscTools.CscThresholdClusterBuilderTool","CscThresholdClusterBuilderTool")
-addTool("MuonRecExample.CscTools.CalibCscStripFitter","CalibCscStripFitter")
-addTool("MuonRecExample.CscTools.SimpleCscClusterFitter","SimpleCscClusterFitter")
-addTool("MuonRecExample.CscTools.CscSplitClusterFitter","CscSplitClusterFitter")
-
-addTool("MuonRecExample.CscTools.Csc2dSegmentMaker","Csc2dSegmentMaker")
-addTool("MuonRecExample.CscTools.Csc4dSegmentMaker","Csc4dSegmentMaker")
-addTool("MuonRecExample.CscTools.CscSegmentUtilTool","CscSegmentUtilTool")
-
-addAlgorithm("MuonRecExample.CscTools.CscThresholdClusterBuilder","CscThresholdClusterBuilder")
+    addAlgorithm("MuonRecExample.CscTools.CscThresholdClusterBuilder","CscThresholdClusterBuilder")
 
 ################################################################################
 # Tools from MuonRecExample.NSWTools  (NSW - MicroMegas and STgc reconstruction tools)
 ################################################################################
 addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.UTPCMMClusterBuilderTool","UTPCMMClusterBuilderTool")
+addTool("MuonRecExample.NSWTools.ProjectionMMClusterBuilderTool","ProjectionMMClusterBuilderTool")
+addTool("MuonRecExample.NSWTools.ConstraintAngleMMClusterBuilderTool","ConstraintAngleMMClusterBuilderTool")
+
 addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
 
 ################################################################################
 # Tools from MuonRecExample.MuPatTools
 ################################################################################
 
-addTool( "MuonRecExample.MuPatTools.MuPatCandidateTool","MuPatCandidateTool")
+addTool( "MuonRecExample.MuPatTools.MuPatCandidateTool","MuPatCandidateTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
 
-addTool( "MuonRecExample.MuPatTools.MuPatHitTool", "MuPatHitTool" )
+addTool( "MuonRecExample.MuPatTools.MuPatHitTool", "MuPatHitTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
 
 
 ################################################################################

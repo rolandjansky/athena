@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*- c++ -*-
@@ -25,21 +25,25 @@
 /// @author Teng Jian Khoo <Teng.Jian.Khoo@cern.ch>
 ///
 class xAODJetTrigAuxContainerCnv_v1 :
-   public T_AthenaPoolTPCnvBase< xAOD::JetTrigAuxContainer,
-                                 xAOD::JetTrigAuxContainer_v1 > {
+   public T_AthenaPoolTPCnvConstBase< xAOD::JetTrigAuxContainer,
+                                      xAOD::JetTrigAuxContainer_v1 > {
 
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
    /// Default constructor
    xAODJetTrigAuxContainerCnv_v1();
 
    /// Function converting from the old type to the current one
    virtual void persToTrans( const xAOD::JetTrigAuxContainer_v1* oldObj,
                              xAOD::JetTrigAuxContainer* newObj,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
    /// Dummy function inherited from the base class
    virtual void transToPers( const xAOD::JetTrigAuxContainer*,
                              xAOD::JetTrigAuxContainer_v1*,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
 
 }; // class xAODJetTrigAuxContainerCnv_v1
 #endif // ifndef SIMULATIONBASE

@@ -62,13 +62,8 @@ InDetFlags.doPrintConfigurables = True
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.TRT_BuildStrawLayers = True
 
-from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline, LuminosityToolDefault
-theLumiTool = LuminosityToolOnline()
-from IOVDbSvc.CondDB import conddb
-conddb.addFolder('TRIGGER', '/TRIGGER/LUMI/LBLB')
-theLumiTool.LBLBFolderName = "/TRIGGER/LUMI/LBLB"
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theLumiTool
+from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+theLumiTool = LuminosityCondAlgOnlineDefault()
 
 include("InDetRecExample/InDetRec_all.py")
 from TRT_Monitoring.TRT_MonitoringConf import TRT_Monitoring_Tool

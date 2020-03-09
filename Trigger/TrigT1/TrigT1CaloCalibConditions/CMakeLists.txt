@@ -11,8 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Database/AthenaPOOL/AthenaPoolUtilities
                           GaudiKernel
-                          PRIVATE
-                          Control/CxxUtils )
+                          PRIVATE )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -25,13 +24,13 @@ atlas_add_library( TrigT1CaloCalibConditions
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CORAL_LIBRARIES} AthContainers AthenaPoolUtilities GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( TrigT1CaloCalibConditionsDict
                       TrigT1CaloCalibConditions/TrigT1CaloCalibConditionsDict.h
                       TrigT1CaloCalibConditions/selection.xml
                       INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaPoolUtilities GaudiKernel CxxUtils TrigT1CaloCalibConditions )
+                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaPoolUtilities GaudiKernel TrigT1CaloCalibConditions )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

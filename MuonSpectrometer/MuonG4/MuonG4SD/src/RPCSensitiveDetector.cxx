@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCSensitiveDetector.h"
@@ -10,7 +10,6 @@
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 
-#include "CxxUtils/make_unique.h" // For make unique
 //#include "SimHelpers/DetectorGeometryHelper.h"
 #include "MCTruth/TrackHelper.h"
 #include <sstream>
@@ -28,7 +27,7 @@ RPCSensitiveDetector::RPCSensitiveDetector(const std::string& name, const std::s
 
 void RPCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-  if (!m_myRPCHitColl.isValid()) m_myRPCHitColl = CxxUtils::make_unique<RPCSimHitCollection>();
+  if (!m_myRPCHitColl.isValid()) m_myRPCHitColl = std::make_unique<RPCSimHitCollection>();
   //FIXME probably only need to call this bit at start of the event
   //loop rather than the start of each G4Event.
   if (verboseLevel>5) G4cout << "Initializing SD"  << G4endl;

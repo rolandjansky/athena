@@ -32,12 +32,10 @@ IdentifiableCacheBase::IdentifiableCacheBase (IdentifierHash maxHash,
 IdentifiableCacheBase::IdentifiableCacheBase (IdentifierHash maxHash,
                                               const IMaker* maker, size_t lockBucketSize)
   : m_vec(maxHash),
-    m_maker (maker)
+    m_maker (maker), m_NMutexes(lockBucketSize), m_currentHashes(0)
 {
-   m_NMutexes = lockBucketSize;
    if(m_NMutexes>0) m_HoldingMutexes = std::make_unique<mutexPair[]>(m_NMutexes);
    for(auto &h : m_vec) h.store(nullptr, std::memory_order_relaxed); //Ensure initialized to null - I'm not sure if this is implicit
-   m_currentHashes.store(0, std::memory_order_relaxed);
 }
 
 
@@ -75,13 +73,17 @@ int IdentifiableCacheBase::tryLock(IdentifierHash hash, IDC_WriteHandleBase &loc
 void IdentifiableCacheBase::clear (deleter_f* deleter)
 {
   size_t s = m_vec.size();
-  for (size_t i=0; i<s ;i++) {
-    const void* ptr = m_vec[i].exchange(nullptr);
-    if (ptr && ptr < ABORTED){
-      deleter (ptr);
-    }
+  if(0 != m_currentHashes.load(std::memory_order_relaxed)){
+     for (size_t i=0; i<s ;i++) {
+       const void* ptr = m_vec[i].exchange(nullptr);
+       if (ptr && ptr < ABORTED){
+         deleter (ptr);
+      }
+     }
+     m_currentHashes.store(0, std::memory_order_relaxed);
+  }else{
+    for (size_t i=0; i<s ;i++) m_vec[i].store(nullptr, std::memory_order_relaxed);//Need to clear incase of aborts
   }
-  m_currentHashes.store(0, std::memory_order_relaxed);
 #ifndef NDEBUG
   for(size_t i =0; i<m_NMutexes; i++){
      if(m_HoldingMutexes[i].counter!=0) std::cout << " counter is " << m_HoldingMutexes[i].counter << std::endl;

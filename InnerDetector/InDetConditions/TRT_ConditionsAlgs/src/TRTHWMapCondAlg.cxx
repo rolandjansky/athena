@@ -4,7 +4,7 @@
 
 #include "TRTHWMapCondAlg.h"
 #include "CoralBase/AttributeListSpecification.h"
-
+#include <memory>
 
 TRTHWMapCondAlg::TRTHWMapCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
@@ -57,62 +57,30 @@ StatusCode TRTHWMapCondAlg::execute()
 
   //  // ____________ Construct new Write Cond Object  ____________
 
-  TRTCond::HWMap* writeCdo = new TRTCond::HWMap();
-
+  std::unique_ptr<TRTCond::HWMap> writeCdo=std::make_unique<TRTCond::HWMap>();
 
   // ____________ Compute the Write Cond Object (HWMap)  ____________
 
-  if(StatusCode::SUCCESS != build_BarrelHVLinePadMaps( writeCdo ) ) {
+  EventIDRange rangeBarrel, rangeEndcap;
+
+  if(StatusCode::SUCCESS != build_BarrelHVLinePadMaps(rangeBarrel, writeCdo.get() ) ) {
      ATH_MSG_ERROR ("Problem filling barrel map.");
-     delete writeCdo;
      return StatusCode::FAILURE;     
   }
-  if(StatusCode::SUCCESS != build_EndcapHVLinePadMaps( writeCdo ) ) {
+  if(StatusCode::SUCCESS != build_EndcapHVLinePadMaps(rangeEndcap, writeCdo.get() ) ) {
      ATH_MSG_ERROR ("Problem filling endcap map.");
-     delete writeCdo;
      return StatusCode::FAILURE;     
   }
 
-  //__________ Assign range of the Barrel ReadHandle___________ 
-  EventIDRange rangeBarrel;
-  SG::ReadCondHandle<CondAttrListCollection> readBarrelHandle{m_BarrelReadKey};
-  if(!readBarrelHandle.range(rangeBarrel)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for " << readBarrelHandle.key());
-        delete writeCdo;
-        return StatusCode::FAILURE;
-  }
+  EventIDRange rangeW=EventIDRange::intersect(rangeBarrel,rangeEndcap);
 
-  //__________ Assign range of the Endcap A ReadHandle___________ 
-  EventIDRange rangeEndA;
-  SG::ReadCondHandle<CondAttrListCollection> readEndAHandle{m_EndAReadKey};
-  if(!readEndAHandle.range(rangeEndA)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for " << readEndAHandle.key());
-        delete writeCdo;
-        return StatusCode::FAILURE;
-  }
-
-  //__________ Assign range of the Endcap C ReadHandle___________ 
-  EventIDRange rangeEndC;
-  SG::ReadCondHandle<CondAttrListCollection> readEndCHandle{m_EndCReadKey};
-  if(!readEndCHandle.range(rangeEndC)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for " << readEndCHandle.key());
-        delete writeCdo;
-        return StatusCode::FAILURE;
-  }
-
- 
-  EventIDRange rangeW1 = EventIDRange::intersect(rangeBarrel,rangeEndA);
-  EventIDRange rangeW  = EventIDRange::intersect(rangeW1,rangeEndC);
- 
   // Record  CDO
-  if(writeHandle.record(rangeW,writeCdo).isFailure()) {
+  if(writeHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
     ATH_MSG_ERROR("Could not record " << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");
-    delete writeCdo;
     return StatusCode::FAILURE;
   }
-
 
   return StatusCode::SUCCESS;
 }
@@ -203,7 +171,7 @@ StatusCode TRTHWMapCondAlg::finalize()
 //////////
 /// Build HV-line/pad map for Barrel
 /////
-StatusCode TRTHWMapCondAlg::build_BarrelHVLinePadMaps( TRTCond::HWMap* & writeCdo) const{
+StatusCode TRTHWMapCondAlg::build_BarrelHVLinePadMaps(EventIDRange& range, TRTCond::HWMap* writeCdo) const{
   StatusCode sc(StatusCode::SUCCESS);
 
     std::map< std::string, std::vector<int> > fuseBoxPadMapEven;
@@ -377,6 +345,11 @@ StatusCode TRTHWMapCondAlg::build_BarrelHVLinePadMaps( TRTCond::HWMap* & writeCd
 		 << writeCdo->get_Barrel_HV_Names()->size() << " channels.");
 
   SG::ReadCondHandle<CondAttrListCollection> readBarrelHandle{m_BarrelReadKey};
+  if(!readBarrelHandle.range(range)) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << readBarrelHandle.key());
+    return StatusCode::FAILURE;
+  }
+
   const CondAttrListCollection* DCSCondFolder{*readBarrelHandle};
   if ( DCSCondFolder == nullptr ) {
     ATH_MSG_WARNING("Couldn't retrieve folder /TRT/DCS/HV/BARREL. Has it been loaded into IOVDbSvc?");
@@ -386,6 +359,8 @@ StatusCode TRTHWMapCondAlg::build_BarrelHVLinePadMaps( TRTCond::HWMap* & writeCd
     ATH_MSG_WARNING("CondAttrListCollection for folder /TRT/DCS/HV/BARREL is missing ");
     return StatusCode::FAILURE;
   }
+
+
   // Loop through the channel names.
   CondAttrListCollection::name_const_iterator nameItr;
   for ( nameItr = DCSCondFolder->name_begin(); nameItr != DCSCondFolder->name_end(); ++nameItr ) {
@@ -403,7 +378,7 @@ StatusCode TRTHWMapCondAlg::build_BarrelHVLinePadMaps( TRTCond::HWMap* & writeCd
 //////////
 /// Build HV-line/pad maps for Endcaps
 /////
-StatusCode TRTHWMapCondAlg::build_EndcapHVLinePadMaps( TRTCond::HWMap*& writeCdo) const{
+StatusCode TRTHWMapCondAlg::build_EndcapHVLinePadMaps(EventIDRange& range, TRTCond::HWMap* writeCdo) const{
   StatusCode sc(StatusCode::SUCCESS);
 
   // Loop through all possible pads
@@ -482,7 +457,13 @@ StatusCode TRTHWMapCondAlg::build_EndcapHVLinePadMaps( TRTCond::HWMap*& writeCdo
   // EndcapA
 
   // Get the CondAttrListCollection for Endcap A
+  EventIDRange rangeA;
   SG::ReadCondHandle<CondAttrListCollection> readEndAHandle{m_EndAReadKey};
+  if(!readEndAHandle.range(rangeA)) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << readEndAHandle.key());
+    return StatusCode::FAILURE;
+  }
+
   const CondAttrListCollection* DCSCondFolder{*readEndAHandle};
   if ( DCSCondFolder == nullptr ) {
     ATH_MSG_WARNING("Couldn't retrieve folder /TRT/DCS/HV/ENDCAPA. Has it been loaded into IOVDbSvc?");
@@ -506,8 +487,13 @@ StatusCode TRTHWMapCondAlg::build_EndcapHVLinePadMaps( TRTCond::HWMap*& writeCdo
   // EndcapC
 
   // Get the CondAttrListCollection for Endcap C
+  EventIDRange rangeC;
   SG::ReadCondHandle<CondAttrListCollection> readEndCHandle{m_EndCReadKey};
   const CondAttrListCollection* DCSCondFolder1{*readEndCHandle};
+  if(!readEndCHandle.range(rangeC)) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << readEndCHandle.key());
+    return StatusCode::FAILURE;
+  }
   if ( DCSCondFolder1 == nullptr ) {
     ATH_MSG_WARNING("Couldn't retrieve folder /TRT/DCS/HV/ENDCAPC. Has it been loaded into IOVDbSvc?");
     return StatusCode::FAILURE;
@@ -527,7 +513,7 @@ StatusCode TRTHWMapCondAlg::build_EndcapHVLinePadMaps( TRTCond::HWMap*& writeCdo
     }
   }
 
-
+  range=EventIDRange::intersect(rangeA,rangeC);
   return sc;
 }
 

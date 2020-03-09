@@ -47,7 +47,6 @@ namespace Trk {
                                 const double& = -1.0);
 
   private: 
-    static  Amg::Vector2D  s_localTrack;
   };
 }
 

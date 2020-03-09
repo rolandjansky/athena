@@ -8,7 +8,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
+#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <unordered_map>
 
@@ -37,43 +40,81 @@ namespace Trk
   //                         from Trk::Vertex      to Amg::Vector3D
 
 
-  class ZScanSeedFinder : public AthAlgTool, virtual public IVertexSeedFinder
+  class ZScanSeedFinder : public extends<AthAlgTool, IVertexSeedFinder>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    // Standard Gaudi constructor.
+    ZScanSeedFinder (const std::string& t,
+                     const std::string& n,
+                     const IInterface*  p);
 
-    //default constructor due to Athena interface
-    ZScanSeedFinder(const std::string& t, const std::string& n, const IInterface*  p);
-    
-    //destructor
+
     virtual ~ZScanSeedFinder();
 
-    // Interface for Tracks with starting seed/linearization point
-    virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint=0);
+
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+
     
-    /** Interface for MeasuredPerigee with starting point */
-    virtual Amg::Vector3D findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint=0);
+    using IVertexSeedFinder::findSeed;
 
-    // Interface for finding vector of seeds from tracks
-    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const xAOD::Vertex * constraint=0);
+    /**
+     *  Finds a linearization point out of a vector of tracks
+     *  and returns it as an Amg::Vector3D object. If you want an 
+     *  additional constraint can be taken into account.
+     */
+    virtual Amg::Vector3D
+    findSeed (const std::vector<const Trk::Track*> & vectorTrk,
+              const xAOD::Vertex * constraint=0) const override;
+    
 
-    // Interface for finding vector of seeds from track parameters
-    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0);
+    /** 
+     * Finds a linearization point out of a vector of TrackParameters
+     *  and returns it as an Amg::Vector3D object. If you want an 
+     * additional constraint can be taken into account.
+     */
+    virtual Amg::Vector3D
+    findSeed (const std::vector<const Trk::TrackParameters*> & perigeeList,
+              const xAOD::Vertex * constraint=0) const override;
 
-    //The below four functions are dummy functions so that this compiles. The functions are needed in the interface IMode3dFinder.h for Mode3dFromFsmw1dFinder (the seed finder for the Inclusive Secondary Vertex Finder)
 
-    virtual void setPriVtxPosition( double vx, double vy );
+    /**
+     * Finds full vector of linearization points from a vector of tracks
+     *  and returns it as an Amg::Vector3D object.  Intended for seed finders that produce all at once.
+     *  If you want an additional constraint can be taken into account.
+     */
+    virtual std::vector<Amg::Vector3D>
+    findMultiSeeds (const std::vector<const Trk::Track*>& vectorTrk,
+                    const xAOD::Vertex * constraint=0) const override;
 
-    virtual int perigeesAtSeed( std::vector<const Trk::TrackParameters*> * a,
-                              const std::vector<const Trk::TrackParameters*> & b) const;
 
-    virtual int getModes1d(std::vector<float>& a, std::vector<float>& b, 
-			   std::vector<float>& c, std::vector<float>& d) const;
-    virtual void getCorrelationDistance( double &cXY, double &cZ );
+    /**
+     * Finds full vector of linearization points from a vector
+     * of TrackParameters and returns it as an Amg::Vector3D object.
+     * Intended for seed finders that produce all at once.
+     * If you want an additional constraint can be taken into account.
+     */
+    virtual std::vector<Amg::Vector3D>
+    findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,
+                   const xAOD::Vertex * constraint=0) const override;
 
 
   private:
+    /// Estimate z-position and weight for one track.
+    std::pair<double, double>
+    estimateWeight (const Trk::Perigee& iTrk,
+                    const xAOD::Vertex* constraint) const;
+
+    std::vector<Trk::DoubleAndWeight>
+    getPositionsUncached (const std::vector<const Trk::TrackParameters*> & perigeeList,
+                          const xAOD::Vertex * constraint) const;
+
+
+    std::vector<Trk::DoubleAndWeight>
+    getPositionsCached (const std::vector<const Trk::TrackParameters*> & perigeeList,
+                        const xAOD::Vertex * constraint) const;
+
+    
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfo", "EventInfo", "key for EventInfo retrieval" };
 
     ToolHandle< IMode1dFinder > m_mode1dfinder;
@@ -89,41 +130,54 @@ namespace Trk
     double m_expPt;
     bool m_cacheWeights;
 
-    // functor to hash key for unordered_map
-    struct hash_perigee {
-      size_t operator()(const Trk::Perigee& perigee) const
-      {
-	return 
-	  std::hash<double>()(perigee.parameters()[Trk::d0]) ^
-	  std::hash<double>()(perigee.parameters()[Trk::z0]) ^
-	  std::hash<double>()(perigee.parameters()[Trk::phi]) ^
-	  std::hash<double>()(perigee.parameters()[Trk::theta]) ^
-	  std::hash<double>()(perigee.parameters()[Trk::qOverP]); 
-      }
+
+    struct Cache {
+      typedef std::pair<Trk::Perigee, Amg::Vector2D> key_t;
+      typedef std::pair<double, double> value_t;
+
+      // functor to hash key for unordered_map
+      struct hash_perigee {
+        size_t operator()(const key_t& p) const
+        {
+          return 
+            std::hash<double>()(p.first.parameters()[Trk::d0]) ^
+            std::hash<double>()(p.first.parameters()[Trk::z0]) ^
+            std::hash<double>()(p.first.parameters()[Trk::phi]) ^
+            std::hash<double>()(p.first.parameters()[Trk::theta]) ^
+            std::hash<double>()(p.first.parameters()[Trk::qOverP]) ^
+            std::hash<double>()(p.second.x()) ^
+            std::hash<double>()(p.second.y());
+        }
+      };
+
+      // functor to compare two unordered_map Key values for equality
+      struct pred_perigee {
+        bool operator()(const key_t& left, const key_t& right) const
+        {
+          const AmgVector(5)& lparams = left.first.parameters();
+          const AmgVector(5)& rparams = right.first.parameters();
+          return 
+            lparams[Trk::d0]     == rparams[Trk::d0] &&
+            lparams[Trk::z0]     == rparams[Trk::z0] &&
+            lparams[Trk::phi]    == rparams[Trk::phi] &&
+            lparams[Trk::theta]  == rparams[Trk::theta] &&
+            lparams[Trk::qOverP] == rparams[Trk::qOverP] &&
+            left.second.x() == right.second.x() &&
+            left.second.y() == right.second.y();
+        }
+      };
+
+
+      // hashtable to avoid computing perigee more than once per track
+      typedef std::unordered_map< key_t, value_t, hash_perigee, pred_perigee>
+      WeightMap_t;
+      WeightMap_t m_weightMap;
+
+      EventContext::ContextEvt_t m_evt = -1;
+      std::mutex m_mutex;
     };
 
-    // functor to compare two unordered_map Key values for equality
-    struct pred_perigee {
-      bool operator()(const Trk::Perigee& left, const Trk::Perigee& right) const
-      {
-	return 
-	  (left.parameters()[Trk::d0] == right.parameters()[Trk::d0]) &&
-	  (left.parameters()[Trk::z0] == right.parameters()[Trk::z0]) &&
-	  (left.parameters()[Trk::phi] == right.parameters()[Trk::phi]) &&
-	  (left.parameters()[Trk::theta] == right.parameters()[Trk::theta]) &&
-	  (left.parameters()[Trk::qOverP] == right.parameters()[Trk::qOverP]);
-      }
-    };
-
-    // hashtable to avoid computing perigee more than once per track
-    std::unordered_map< Trk::Perigee , std::pair<double, double>, hash_perigee, pred_perigee> m_weightMap;
-
-    // record of last seen values; if any of these change, the cached perigees are invalidated
-    uint32_t m_cachedRunNumber;
-    unsigned long long m_cachedEventNumber;
-    double m_cachedConstraintX;
-    double m_cachedConstraintY;
-
+    mutable SG::SlotSpecificObj<Cache> m_cache ATLAS_THREAD_SAFE;
   };
 }
 #endif

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOSAMPLINGDATA_H
@@ -103,6 +103,8 @@ class CaloSamplingData
   };
 
  private:
+  friend class CaloSamplingDataCnv_p1;
+  friend class CaloSamplingDataContainerCnv_p1;
   friend class CaloClusterContainerCnv_p4;
   friend class CaloClusterContainerCnv_p5;
   friend class CaloClusterContainerCnv_p6;

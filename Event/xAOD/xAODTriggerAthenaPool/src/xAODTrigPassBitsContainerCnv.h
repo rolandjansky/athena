@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigPassBitsContainerCnv.h 755768 2016-06-17 13:43:10Z krasznaa $
@@ -45,7 +45,8 @@ public:
    xAODTrigPassBitsContainerCnv( ISvcLocator* svcLoc );
 
    /// Function reading in the persistent object from disk
-   virtual xAOD::TrigPassBitsContainer* createTransient() override final;
+   virtual xAOD::TrigPassBitsContainer*
+   createTransientWithKey (const std::string& key) override final;
 };
 
 #endif // XAODTRIGGERATHENAPOOL_XAODTRIGPASSBITSCONTAINERCNV_H

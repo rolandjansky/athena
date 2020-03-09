@@ -113,7 +113,12 @@ void FastPixelClusterization::initializeGeometry(const InDetDD::PixelDetectorMan
 
 
 
-void FastPixelClusterization::addHit( const Identifier waferId, const IdentifierHash  hashElemId, const unsigned int phi_channel, const unsigned int rz_channel, const PixelRDORawData* pHit ) {
+void FastPixelClusterization::addHit( const Identifier waferId,
+                                      const IdentifierHash hashElemId,
+                                      const unsigned int phi_channel,
+                                      const unsigned int rz_channel,
+                                      const PixelRDORawData* pHit,
+                                      const InDetDD::SiDetectorElement* element ) {
 
 #ifdef CLUSTERING_DBG   
   std::cout << "phi_channel = " << phi_channel << "  rz_channel = " << rz_channel << std::endl; 
@@ -139,7 +144,7 @@ void FastPixelClusterization::addHit( const Identifier waferId, const Identifier
     m_element = waferId;
     m_currentClusterColl = new InDet::PixelClusterCollection(hashElemId);
     m_currentClusterColl->setIdentifier(waferId);
-    m_detEl=m_man->getDetectorElement(hashElemId);
+    m_detEl=element;
 
     // Add the hit
     filling_withHit(phi_channel, rz_channel,tot);
@@ -198,7 +203,7 @@ void FastPixelClusterization::addHit( const Identifier waferId, const Identifier
 	m_splittedCollection=false;
       }
 
-    m_detEl=m_man->getDetectorElement(hashElemId);
+    m_detEl=element;
 
     // Add the hit
 

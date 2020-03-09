@@ -1,6 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/**
+ * @file  HiveAlgB.h
+ * @brief Simple Algorithm that writes a single HiveDataObj to the store.
+ * It will also accumulate some data on a per-slot basis using a 
+ * ContextSpecificData<int>
+ */
+
 
 #ifndef ATHEXHIVE_ALGB_H
 #define ATHEXHIVE_ALGB_H 1
@@ -9,8 +17,6 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthExHive/IHiveExSvc.h"
 
 #include <string>
 
@@ -35,6 +41,9 @@ private:
 
   SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "b1", "WHK 1"};
 
+  // context specific data: which hides an array structure behind a simple
+  // interface, keeping separate versions of the data for each concurrent
+  // event (slot)
   Gaudi::Hive::ContextSpecificData<int> m_di;
 
 };

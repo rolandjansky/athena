@@ -25,7 +25,6 @@
 
 //#include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
-//#include "StoreGate/StoreGateSvc.h"
 // Trk
 //#include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkParameters/TrackParameters.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -18,14 +18,13 @@
 
 TileCellFakeProb::TileCellFakeProb(const std::string& type,
     const std::string& name, const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-  , m_caloID(0)
-  , m_tileID(0)
-  , m_tileHWID(0)
-  , m_cabling(0)
+  : base_class(type, name, parent)
+  , m_caloID(nullptr)
+  , m_tileID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_cabling(nullptr)
 {
-  declareInterface<ICellWeightTool>(this);
-  declareProperty("DeadDrawerList", m_deadDrawerInput);
+
 }
 
 StatusCode TileCellFakeProb::initialize() {
@@ -39,8 +38,10 @@ StatusCode TileCellFakeProb::initialize() {
   // Get the TileHWID helper from the detector store
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
+  ATH_CHECK( m_cablingSvc.retrieve());
+
   // Instantiate Cabling Svc to initialize pointers to helpers there
-  m_cabling = TileCablingService::getInstance();
+  m_cabling = m_cablingSvc->cablingService();
   if (m_cabling == 0) {
     ATH_MSG_FATAL( " Cannot get instance of TileCablingService" );
     return StatusCode::FAILURE;

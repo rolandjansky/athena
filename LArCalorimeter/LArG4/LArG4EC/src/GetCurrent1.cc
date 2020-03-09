@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
@@ -8,6 +8,7 @@
 #include "globals.hh"
 
 #include "EnergyCalculator.h"
+#include "HVHelper.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -215,7 +216,7 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
 
     //std::cout << "\tvmap: (" << vmap[0] << ", " << vmap[1] << ", " << vmap[2] << ")" << std::endl;
 
-    const G4double HV_value = get_HV_value(Pe, gap1);
+    const G4double HV_value = m_HVHelper->GetVoltage(Pe, gap1);
 
     int Pe_fan = 0;
     const G4double dte = elc()->DistanceToTheNearestFan(Pe, Pe_fan);
@@ -283,43 +284,6 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
 
     //std::cout<<"GetCurrent1::edep="<<edep<<" current="<<current <<" gaperr="<<gaperr<<std::endl;
     return current;
-  }
-
-
-  G4double  LArG4::EC::EnergyCalculator::get_HV_value(
-                                                      const G4ThreeVector& p, const std::pair<G4int, G4int> &gap) const
-  {
-    const G4int atlas_side = (lwc()->GetAtlasZside() > 0) ? 0 : 1;
-
-    G4ThreeVector p1 ( p );
-    p1[2] += lwc()->GetElecFocaltoWRP() + lwc()->GetdWRPtoFrontFace();
-    const G4double eta = p1.pseudoRapidity();
-    G4int eta_section = -1;
-    for(G4int i = 1; i <= s_NofEtaSection; ++ i){
-      if(eta <= s_HV_Etalim[i]){
-        eta_section = i - 1;
-        break;
-      }
-    }
-    if(!(eta_section>=0 && eta_section <=s_NofEtaSection-1)) throw std::runtime_error("Index out of range");
-
-    //assert(eta_section >= 0 && eta_section < s_NofEtaSection);
-
-    /*(right side of e large phi)*/   /*left side of electrode(small phi)*/
-    const G4int e_side = (gap.second > 0) ?   1   :    0;
-
-    const G4int first_electrode = s_HV_Start_phi[atlas_side][eta_section][e_side];
-
-    if(first_electrode < 0 || first_electrode >= lwc()->GetNumberOfFans()){
-      ATH_MSG_FATAL(" get_HV_value: first_electrode number is out of range");
-      G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException,
-                  "get_HV_value: first_electrode number is out of range");
-    }
-
-    G4int phi_section = lwc()->PhiGapNumberForWheel(gap.first) - first_electrode;
-    if(phi_section < 0) phi_section += lwc()->GetNumberOfFans();
-
-    return s_HV_Values[atlas_side][eta_section][e_side][phi_section];
   }
 
   /*

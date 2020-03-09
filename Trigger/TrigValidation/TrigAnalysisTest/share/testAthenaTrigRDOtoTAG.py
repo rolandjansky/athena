@@ -17,7 +17,6 @@ rec.doCBNT=False
 
 doTrigger=True
 
-TriggerModernConfig=True
 
 rec.doWriteAOD=False
 rec.doWriteESD=False

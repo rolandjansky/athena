@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addAlgorithm,addTool,addService
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 addTool("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFStandaloneTrackToolConfig", "TrigMuonEFStandaloneTrackTool")
 
@@ -34,6 +35,7 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_OutwardsMuonTrackCleaner","TMEF_Outwar
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCombinedTrackFitter","TMEF_MuonCombinedTrackFitter")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_OutwardsCombinedMuonTrackBuilder","TMEF_OutwardsCombinedMuonTrackBuilder")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCombinedFitTagTool","TMEF_MuonCombinedFitTagTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TrigMuonAmbiProcessor","TrigMuonAmbiProcessor")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCreatorTool","TMEF_MuonCreatorTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCandidateTool","TMEF_MuonCandidateTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_TrkMaterialProviderTool", "TMEF_TrkMaterialProviderTool")
@@ -41,7 +43,7 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_TrkMaterialProviderTool", "TMEF_TrkMat
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCandidateTrackBuilderTool", "TMEF_MuonCandidateTrackBuilderTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonInsideOutRecoTool", "TMEF_MuonInsideOutRecoTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonPRDSelectionTool", "TMEF_MuonPRDSelectionTool")
-addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonLayerSegmentFinderTool", "TMEF_MuonLayerSegmentFinderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonLayerSegmentFinderTool", "TMEF_MuonLayerSegmentFinderTool", Csc2DSegmentMaker=("Csc2dSegmentMaker/Csc2dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""), Csc4DSegmentMaker=("Csc4dSegmentMaker/Csc4dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""))
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonClusterSegmentFinderTool", "TMEF_MuonClusterSegmentFinderTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonClusterSegmentFinder", "TMEF_MuonClusterSegmentFinder")
 
@@ -51,6 +53,11 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauCandidateTrackBuilderTool", "T
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_CombinedStauTrackBuilder", "TMEF_CombinedStauTrackBuilder")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauSegmentRegionRecoveryTool", "TMEF_MuonStauSegmentRegionRecoveryTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_CombinedStauTrackBuilderFit", "TMEF_CombinedStauTrackBuilderFit")
+
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MdtRawDataProviderTool", "TMEF_MdtRawDataProviderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_CscRawDataProviderTool", "TMEF_CscRawDataProviderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_RpcRawDataProviderTool", "TMEF_RpcRawDataProviderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_TgcRawDataProviderTool", "TMEF_TgcRawDataProviderTool")
 
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFTrackIsolationConfig", "TrigMuonEFTrackIsolation")
 

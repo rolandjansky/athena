@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 #include "MuonRDO/TgcRdoIdHash.h"
 
 // GeoModel
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
@@ -152,11 +151,11 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 	else { eta = gposout.eta();  phi = gposout.phi(); } 
 
 	const Identifier tcdidout = tcd->channelIdOut();
-	int etaout = abs(int(m_tgcIdHelper->stationEta(tcdidout)));
+	int etaout = abs(int(m_muonIdHelperTool->tgcIdHelper().stationEta(tcdidout)));
 	if(ef==0) etaout = 0;
 
 	const Identifier tcdidin  = tcd->channelIdIn();
-	int etain  = abs(int(m_tgcIdHelper->stationEta(tcdidin)));
+	int etain  = abs(int(m_muonIdHelperTool->tgcIdHelper().stationEta(tcdidin)));
 	if(ef==0) etain  = 0;
 
 	// Fill vectors for different Coincidence Types

@@ -12,12 +12,15 @@
 ///
 /// Tool to attach the LC constituent level 4-vector to EM Jets
 
-#include "JetRec/JetModifierBase.h"
+#include "AsgTools/AsgTool.h"
+#include "JetInterface/IJetModifier.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include <vector>
 
-class JetConstitFourMomTool : public JetModifierBase {
+class JetConstitFourMomTool : public asg::AsgTool,
+                              public IJetModifier {
+
   ASG_TOOL_CLASS(JetConstitFourMomTool, IJetModifier)
 
  public:
@@ -27,9 +30,7 @@ class JetConstitFourMomTool : public JetModifierBase {
 
   StatusCode initialize();
 
-  // From IJetModifier base class
-  int modify(xAOD::JetContainer& jets) const;
-  int modifyJet(xAOD::Jet&) const {return 0;}
+  StatusCode modify(xAOD::JetContainer& jets) const;
 
  private:
   

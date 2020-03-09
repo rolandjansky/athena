@@ -6,11 +6,8 @@
 #define LARRAWCONDITIONS_LArMinBiasAverageMC_H
 
 #include "LArRawConditions/LArMinBiasAverageComplete.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
-
-class ILArMCSymTool;
 
 /** Implementation of the interface ILArMinBiasAverage for MC
  *  Derives from LArMinBiasAverageComplete, and implements the phi-z symmetry
@@ -34,11 +31,6 @@ class LArMinBiasAverageMC: public LArMinBiasAverageComplete {
   
   static float dummy;
   
- private: 
-  
-  // helper for MC z-phi symmetry 
-  ToolHandle<ILArMCSymTool> m_larmcsym;
-
 };
 
 #include "AthenaKernel/CondCont.h"

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Because the obvious solution doesn't work on lxplus :(
 
@@ -10,9 +10,10 @@
 
 # Code from Michael Robellard's comment made 28 Feb 2010
 def splitThousands(s, tSep=',', dSep='.'):
-    if s == None:
+    if s is None:
         return 0
-    if isinstance(s, int) or isinstance(s, long) or isinstance(s, float):
+    from builtins import int
+    if isinstance(s, int) or isinstance(s, float):
         s = str(s)
     if s[0] == '-' or s[0] == '+':
         lhs=s[0]

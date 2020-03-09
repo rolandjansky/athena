@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATH_SEGMENTFINDER_H
 #define DCMATH_SEGMENTFINDER_H
 
-#include <cmath>
-#include <vector>
-
+#include "CxxUtils/checker_macros.h"
 #include "TrkDriftCircleMath/Line.h"
 #include "TrkDriftCircleMath/LocDir.h"
 #include "TrkDriftCircleMath/DriftCircle.h"
@@ -25,6 +23,9 @@
 #include "TrkDriftCircleMath/MatchCrossedTubes.h"
 #include "TrkDriftCircleMath/CurvedSegmentFinder.h"
 
+#include <cmath>
+#include <mutex>
+#include <vector>
 
 namespace TrkDriftCircleMath {
 
@@ -34,17 +35,18 @@ namespace TrkDriftCircleMath {
     /// copy c'tor deleted to prevent ownership/leak issues 
     SegmentFinder(const SegmentFinder &) = delete;
     /// assignment deleted to prevent ownership/leak issues 
-		SegmentFinder & operator=(const SegmentFinder &) = delete;
-		//
+    SegmentFinder & operator=(const SegmentFinder &) = delete;
+    //
     SegmentFinder(double roadWidth, double deltaCut, bool fullScan);
-    virtual ~SegmentFinder();
-    virtual void handleHits(  const DCVec& dcs, const CLVec& clusters ) const;
+    ~SegmentFinder();
+    void handleHits( const DCVec& dcs, const CLVec& clusters,
+                     ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments ) const;
 
     SegVec findSegments( const DCVec& dcs ) const;
     SegVec findSegments( const DCVec& dcs, const CLVec& clusters ) const;
     SegVec cleanSegments( const SegVec& segments ) const;
     SegVec refitSegments( const SegVec& segs ) const;
-    bool   dropHits( Segment& segment ) const;
+    bool   dropHits( Segment& segment, bool& hasDroppedHit, unsigned int& dropDepth ) const;
 
     void  setTGCPullCut(double cut);
     void  setRPCPullCut(double cut);
@@ -61,7 +63,7 @@ namespace TrkDriftCircleMath {
     void  setUseChamberPhi( bool useChamberPhi );
     void  setRemoveSingleOutliers( bool removeSingleOutliers );
     void  setCurvedSegmentFinder( bool doCurvedSegmentFinder );
-    void  setFitter( DCSLFitter* fitter ) {
+    void  setFitter( const DCSLFitter* fitter ) {
       if( m_ownsFitter ) delete m_fitter;
       m_ownsFitter = false;
       m_fitter = fitter;
@@ -74,9 +76,6 @@ namespace TrkDriftCircleMath {
     void  debug(bool debug) { m_debugLevel = debug ? 1 : 0; }
     void  debugLevel(int debugLevel) { m_debugLevel = debugLevel; }
 
-    const std::vector<int>& dropAcceptStatistics() const;
-    const std::vector<int>& dropRejectStatistics() const;
-
   protected:
     //SegVec  fullMatch( const Segment& seg ) const;
 
@@ -87,9 +86,12 @@ namespace TrkDriftCircleMath {
     unsigned int emptyCrossedTubes( const Line& line, const DCVec& closeEmptyTubes ) const;
     DCVec        emptyNeighbours( const DCVec& dcs ) const;
 
-    void handleSeedPair( const DriftCircle& seed1, const DriftCircle& seeds2, const DCVec& dcs, const CLVec& cls ) const;
-    void fullScan( const DCVec& seeds, const DCVec& dcs, const CLVec& cls ) const;
-    void twoMultiLayerScan( const DCVec& seeds_ml1, const DCVec& seeds_ml2, const DCVec& dcs, const CLVec& cls ) const;
+    void handleSeedPair( const DriftCircle& seed1, const DriftCircle& seeds2, const DCVec& dcs, const CLVec& cls, MatchDCWithLine& matchWithLine,
+                         ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments ) const;
+    void fullScan( const DCVec& seeds, const DCVec& dcs, const CLVec& cls,
+                   ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments ) const;
+    void twoMultiLayerScan( const DCVec& seeds_ml1, const DCVec& seeds_ml2, const DCVec& dcs, const CLVec& cls,
+                            ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments ) const;
 
     bool directionCheck( const LocDir& locDir ) const;
 
@@ -128,16 +130,12 @@ namespace TrkDriftCircleMath {
     double m_deltaCutT0;
     bool   m_useSegmentQuality;
     bool   m_recoverMdtHits;
-    mutable unsigned int m_dropDepth;
-    mutable bool m_hasDroppedHit;
 
-    mutable ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY> > m_segments;
-    mutable TangentToCircles  m_tanCreator;
-    bool                      m_ownsFitter;
-    mutable DCSLFitter*       m_fitter; 
-    mutable DCSLHitSelector   m_hitSelector;
-    mutable MatchDCWithLine   m_matchWithLine;
-    mutable MatchCrossedTubes m_matchCrossed; 
+    TangentToCircles m_tanCreator;
+    bool m_ownsFitter;
+    const DCSLFitter* m_fitter;
+    DCSLHitSelector m_hitSelector;
+    MatchCrossedTubes m_matchCrossed;
 
     bool m_removeSingleOutliers;
     bool m_fullScan;
@@ -152,9 +150,9 @@ namespace TrkDriftCircleMath {
     const ChamberGeometry* m_mdtGeometry;
     int m_debugLevel;
 
-    mutable std::vector<int> m_dropDepthAcceptCounts;
-    mutable std::vector<int> m_dropDepthRejectCounts;
-
+    mutable std::vector<int> m_dropDepthAcceptCounts ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    mutable std::vector<int> m_dropDepthRejectCounts ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    mutable std::mutex m_mutex;
 
   };
 

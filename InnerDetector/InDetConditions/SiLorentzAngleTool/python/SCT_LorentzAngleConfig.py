@@ -3,18 +3,18 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaCommon import Logging
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
-from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleCondAlg
+from AthenaConfiguration.ComponentFactory import CompFactory
+SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
+SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 def SCT_LorentzAngleToolCfg(flags, name="SCT_LorentzAngleTool", **kwargs):
     """Return a SiLorentzAngleTool configured for SCT"""
     kwargs.setdefault("DetectorName", "SCT")
     kwargs.setdefault("SiLorentzAngleCondData", "SCTSiLorentzAngleCondData")
+    kwargs.setdefault("DetEleCollKey", "SCT_DetectorElementCollection")
     kwargs.setdefault("UseMagFieldSvc", True)
     return SiLorentzAngleTool(name, **kwargs)
 

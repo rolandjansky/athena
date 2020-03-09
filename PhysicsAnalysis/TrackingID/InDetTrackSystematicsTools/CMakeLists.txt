@@ -20,7 +20,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTruth
    Event/xAOD/xAODJet
    PRIVATE
-   Control/CxxUtils
    Event/FourMomUtils
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODCore
@@ -37,7 +36,7 @@ atlas_add_library( InDetTrackSystematicsToolsLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces xAODTracking
    xAODTruth xAODJet
-   PRIVATE_LINK_LIBRARIES CxxUtils FourMomUtils xAODEventInfo PathResolver )
+   PRIVATE_LINK_LIBRARIES FourMomUtils xAODEventInfo PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( InDetTrackSystematicsTools
@@ -53,13 +52,13 @@ if( XAOD_STANDALONE )
       util/InDetTrackSystsToolTester.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODTracking
-      xAODCore CxxUtils InDetTrackSystematicsToolsLib )
+      xAODCore InDetTrackSystematicsToolsLib )
 endif()
 
 atlas_add_executable( graph_to_function
    util/graph_to_function.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

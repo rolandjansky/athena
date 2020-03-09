@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,7 +12,6 @@
 
 #include "RunEventMetaWriter.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
 

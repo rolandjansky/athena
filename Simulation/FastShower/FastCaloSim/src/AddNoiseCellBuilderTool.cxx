@@ -1,16 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/AddNoiseCellBuilderTool.h"
 #include "FastCaloSim/FastSimCell.h"
 
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileCell.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include <map>
 #include <iomanip>
@@ -21,13 +23,7 @@ AddNoiseCellBuilderTool::AddNoiseCellBuilderTool(
                                                  const std::string& name,
                                                  const IInterface* parent)
   : BasicCellBuilderTool(type, name, parent)
-  , m_noiseTool("CaloNoiseTool/calonoisetool")
-  , m_rndmSvc("AtRndmGenSvc", name)
 {
-  declareProperty("CaloNoiseTool",         m_noiseTool);
-  declareProperty("doNoise",               m_donoise);
-  declareProperty("RandomStreamName",      m_randomEngineName,     "Name of the random number stream");
-
 }
 
 
@@ -42,17 +38,11 @@ StatusCode AddNoiseCellBuilderTool::initialize()
 
   ATH_CHECK(BasicCellBuilderTool::initialize());
 
-  ATH_CHECK(m_noiseTool.retrieve());
+  ATH_CHECK(m_noiseKey.initialize());
+  ATH_CHECK(m_estimatedGain.retrieve());
 
   // Random number service
-  ATH_CHECK(m_rndmSvc.retrieve());
-
-  //Get own engine with own seeds:
-  m_randomEngine = m_rndmSvc->GetEngine(m_randomEngineName);
-  if (!m_randomEngine) {
-    ATH_MSG_ERROR("Could not get random engine '" << m_randomEngineName << "'");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmGenSvc.retrieve());
 
   ATH_MSG_DEBUG("Initialization finished");
   return StatusCode::SUCCESS;
@@ -62,27 +52,29 @@ StatusCode
 AddNoiseCellBuilderTool::process (CaloCellContainer* theCellContainer,
                                   const EventContext& ctx) const
 {
-  m_rndmSvc->print(m_randomEngineName);
-  //m_randomEngine->showStatus();
+  // Set the RNG to use for this event.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  rngWrapper->setSeed( m_randomEngineName, ctx );
+  CLHEP::HepRandomEngine *randomEngine = rngWrapper->getEngine(ctx);
+
   unsigned int rseed=0;
   while(rseed==0) {
-    rseed=(unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) * std::numeric_limits<unsigned int>::max() );
+    rseed=(unsigned int)( CLHEP::RandFlat::shoot(randomEngine) * std::numeric_limits<unsigned int>::max() );
   }
 
   ATH_MSG_INFO("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt()/*<<" rseed="<<rseed*/);
 
+  SG::ReadCondHandle<CaloNoise> noise (m_noiseKey, ctx);
+
   double E_tot=0;
   double Et_tot=0;
-  CaloCellContainer::iterator f_cell = theCellContainer->begin();
-  CaloCellContainer::iterator l_cell = theCellContainer->end();
-  for ( ; f_cell!=l_cell; ++f_cell)
+  for (CaloCell* cell : *theCellContainer)
     {
-      CaloCell* cell = (*f_cell) ;
       if(!cell) continue;
       const CaloDetDescrElement* theDDE=cell->caloDDE();
       if(!theDDE) continue;
 
-      CaloGain::CaloGain gain=m_noiseTool->estimatedGain(cell,ICaloNoiseToolStep::CELLS);
+      CaloGain::CaloGain gain=m_estimatedGain->estimatedGain (ctx, *cell,ICaloEstimatedGainTool::Step::CELLS);
 
 #if FastCaloSim_project_release_v1 == 12
       CaloCell_ID::SUBCALO calo=theDDE->getSubCalo();
@@ -96,9 +88,8 @@ AddNoiseCellBuilderTool::process (CaloCellContainer* theCellContainer,
 #endif
 
       if(m_donoise) {
-        double sigma=m_noiseTool->elecNoiseRMS(cell);
-        //double enoise=m_rand->Gaus(0.0,1.0)*sigma;
-        double enoise=CLHEP::RandGaussZiggurat::shoot(m_randomEngine,0.0,1.0)*sigma;
+        double sigma = noise->getNoise (cell->caloDDE()->calo_hash(), cell->gain());
+        double enoise=CLHEP::RandGaussZiggurat::shoot(randomEngine,0.0,1.0)*sigma;
         /*
           if(cell->energy()>1000) {
           ATH_MSG_DEBUG("sample="<<cell->caloDDE()->getSampling()<<" eta="<<cell->eta()<<" phi="<<cell->phi()<<" gain="<<gain<<" e="<<cell->energy()<<" sigma="<<sigma<<" enoise="<<enoise);

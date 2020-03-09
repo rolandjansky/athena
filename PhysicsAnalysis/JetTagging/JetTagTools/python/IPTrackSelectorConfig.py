@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.BTagTrackToVertexToolConfig import BTagTrackToVertexToolCfg
 
 # import the TrackSelector configurable
-from JetTagTools.JetTagToolsConf import Analysis__TrackSelector
+Analysis__TrackSelector=CompFactory.Analysis__TrackSelector
 
 def IPTrackSelectorCfg(flags, name = 'IPTrackSelector', useBTagFlagsDefaults = True, **options ):
     """Sets up a IPTrackSelector tool and returns it.

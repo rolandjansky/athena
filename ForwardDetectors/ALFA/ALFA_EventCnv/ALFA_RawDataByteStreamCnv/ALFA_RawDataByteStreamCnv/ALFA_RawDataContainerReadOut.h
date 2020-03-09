@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_RAWDATACONTAINERREADOUT_H
@@ -10,8 +10,6 @@
 
 #include <stdint.h>
 #include <vector>
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "AthenaKernel/MsgStreamMember.h"

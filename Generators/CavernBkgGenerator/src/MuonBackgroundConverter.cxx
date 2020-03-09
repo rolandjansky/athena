@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -54,7 +54,7 @@
 MuonBackgroundConverter::MuonBackgroundConverter( const std::string& name, ISvcLocator* pSvcLocator ) 
   : GenModule( name, pSvcLocator ),
     m_nEvents(0),
-    m_smearPhi(false),
+    //m_smearPhi(false),
     m_used(0),
     m_rndmSvc("AtRndmGenSvc", name ),
     m_rndmEngine(0),

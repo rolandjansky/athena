@@ -1,12 +1,12 @@
 #
 # Minimal example to build a trigger menu
 #
-from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1            
-from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
-from TriggerMenu.l1.Lvl1MenuItems import LVL1MenuItem
-from TriggerMenu.l1.TriggerTypeDef import TT
-from TriggerMenu.l1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
-from TriggerMenu.l1.Logic import Logic
+from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1            
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1MenuItems import LVL1MenuItem
+from TriggerMenuMT.L1.Config.TriggerTypeDef import TT
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
+from TriggerMenuMT.L1.Base.Logic import Logic
 
 # Define L1 menu thresholds and items
 Lvl1Flags.RemapThresholdsAsListed = True

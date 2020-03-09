@@ -15,7 +15,7 @@
 
 #include "TTree.h"
 
-StatusCode MMSimHitVariables::fillVariables() 
+StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) 
 {
 
   ATH_MSG_INFO("do fillNSWMMHitVariables()");
@@ -132,7 +132,7 @@ StatusCode MMSimHitVariables::fillVariables()
     ATH_MSG_DEBUG("MicroMegas geometry, retrieving detector element for: isSmall " << isSmall << " eta " << m_MmIdHelper->stationEta(offId)
                   << " phi " << m_MmIdHelper->stationPhi(offId) << " ml " << m_MmIdHelper->multilayer(offId) );
 
-    const MuonGM::MMReadoutElement* detEl = m_detManager->getMMReadoutElement(offId);
+    const MuonGM::MMReadoutElement* detEl = MuonDetMgr->getMMReadoutElement(offId);
 
     if( !detEl ){
       ATH_MSG_WARNING("MicroMegas geometry, failed to retrieve detector element for: " << m_MmIdHelper->print_to_string(offId) );

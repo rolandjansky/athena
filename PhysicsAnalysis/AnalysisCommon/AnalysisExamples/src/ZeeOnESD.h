@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZEEONESD_H
@@ -20,7 +20,6 @@
 #include "GaudiKernel/Algorithm.h"
 //#include "GaudiKernel/ObjectVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -52,9 +51,6 @@ class ZeeOnESD : public AthAlgorithm {
    StatusCode zee_on_esd();
 
  private:
-
-   /// a handle on Store Gate - don't need this with AthAlgorithm
-   //   StoreGateSvc* m_storeGate;
 
    /** a handle on the Hist/TTree registration service */
    ITHistSvc * m_thistSvc;

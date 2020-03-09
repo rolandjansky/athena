@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -*-c++-*- header for IJetFitterVariablesFactory
@@ -43,6 +43,7 @@ namespace Analysis {
     //virtual void setOrigin(const xAOD::Vertex* priVtx) = 0;
     
     virtual StatusCode fillMSVVariables(const xAOD::Jet &, xAOD::BTagging* BTag, const Trk::VxSecVKalVertexInfo* myInfoVKal, xAOD::VertexContainer* btagVertex, const xAOD::Vertex& PV, std::string basename)const  = 0;
+    virtual StatusCode createMSVContainer(const xAOD::Jet &, const Trk::VxSecVKalVertexInfo* myInfoVKal, xAOD::VertexContainer* btagVertex, const xAOD::Vertex& PV)const  = 0;
 
 
     static const InterfaceID& interfaceID() { return IID_IMSVVariablesFactory; };

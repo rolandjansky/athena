@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Efficient pythonic CoraCool bindings
@@ -14,18 +14,9 @@
 #include <CoolKernel/IFolder.h>
 #include <CoolKernel/IDatabase.h>
 
-using cool::IFolderPtr;
-using cool::IDatabasePtr;
-using cool::ChannelSelection;
-using cool::ValidityKey;
-
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
-
-using coral::Attribute;
-using coral::AttributeSpecification;
-using coral::AttributeList;
 
 #include <CoraCool/CoraCoolDatabaseSvcFactory.h>
 #include <CoraCool/CoraCoolDatabaseSvc.h>
@@ -36,7 +27,6 @@ using coral::AttributeList;
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-using boost::bind;
 
 #include <string>
 #include <iostream>
@@ -44,6 +34,15 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+
+using boost::bind;
+using cool::IFolderPtr;
+using cool::IDatabasePtr;
+using cool::ChannelSelection;
+using cool::ValidityKey;
+using coral::Attribute;
+using coral::AttributeSpecification;
+using coral::AttributeList;
 
 typedef boost::function<PyObject* (const AttributeList&)> 
     coral_attribute_fetcher_t;
@@ -135,7 +134,11 @@ bool make_fetchers(
     for (Py_ssize_t i = 0; i < count; i++)
     {
         PyObject *py_name = PySequence_GetItem(to_fetch, i);
+#if PY_VERSION_HEX < 0x03000000
         const char *name = PyString_AsString(py_name);
+#else
+        const char *name = _PyUnicode_AsString(py_name);
+#endif
         const string type = attribute_list[name].specification().typeName();
                        
         coral_attribute_fetcher_t pf = create_attribute_fetcher(name, type);

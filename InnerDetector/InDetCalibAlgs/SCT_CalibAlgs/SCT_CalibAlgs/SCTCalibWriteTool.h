@@ -51,167 +51,167 @@ class CondAttrListCollection;
  **/
 class SCTCalibWriteTool : public AthAlgTool {
 
-public:
-  // Constructor
-  SCTCalibWriteTool(const std::string& type, const std::string& name, const IInterface* parent);
-  // Destructor
-  virtual ~SCTCalibWriteTool() = default;
+   public:
+      // Constructor
+      SCTCalibWriteTool(const std::string& type, const std::string& name, const IInterface* parent);
+      // Destructor
+      virtual ~SCTCalibWriteTool() = default;
 
-  // overloading functions
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  static const InterfaceID& interfaceID();
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
+      // overloading functions
+      virtual StatusCode initialize();
+      virtual StatusCode finalize();
+      static const InterfaceID& interfaceID();
+      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
 
-  std::string
-  addDefect(const std::string& defectlist,const int defectBeginChannel,const int defectEndChannel) const;
+      std::string
+      addDefect(const std::string& defectlist,const int defectBeginChannel,const int defectEndChannel) const;
 
-  std::string
-  addNumber(const std::string numStr,const unsigned long long number) const;
+      std::string
+      addNumber(const std::string numStr,const unsigned long long number) const;
 
-  std::string
-  createDefectString(const int defectBeginChannel,const int defectEndChannel) const;
+      std::string
+      createDefectString(const int defectBeginChannel,const int defectEndChannel) const;
 
-  StatusCode
-  createCondObjects(const Identifier& wafer_id, const SCT_ID* m_sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const;
+      StatusCode
+      createCondObjects(const Identifier& wafer_id, const SCT_ID* m_sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const;
 
-  StatusCode createListStrip(const Identifier& wafer_id,
-                             const SCT_ID* m_sctId,
-                             const int samplesize,
-                             const std::string& defectType,
-                             const float threshold,
-                             const std::string& defectList) const;
+      StatusCode createListStrip(const Identifier& wafer_id,
+                                 const SCT_ID* m_sctId,
+                                 const int samplesize,
+                                 const std::string& defectType,
+                                 const float threshold,
+                                 const std::string& defectList) const;
 
-  StatusCode createListChip(const Identifier& wafer_id,
-                            const SCT_ID* m_sctId,
-                            const int samplesize,
-                            const std::string& defectType,
-                            const float threshold,
-                            const std::string& defectList) const;
+      StatusCode createListChip(const Identifier& wafer_id,
+                                const SCT_ID* m_sctId,
+                                const int samplesize,
+                                const std::string& defectType,
+                                const float threshold,
+                                const std::string& defectList) const;
 
-  StatusCode createListEff(const Identifier& wafer_id,
-                           const SCT_ID* m_sctId,
-                           const int samplesize,
-                           const float eff) const;
-
-  StatusCode createListNO(const Identifier& wafer_id,
-                          const SCT_ID* m_sctId,
-                          const int samplesize,
-                          const float noise_occ) const;
-
-  StatusCode createListRawOccu(const Identifier& wafer_id,
+      StatusCode createListEff(const Identifier& wafer_id,
                                const SCT_ID* m_sctId,
                                const int samplesize,
-                               const float raw_occu) const;
+                               const float eff) const;
 
-  StatusCode createListBSErr(const Identifier& wafer_id,
-                             const SCT_ID* m_sctId,
-                             const int samplesize,
-                             const std::string& errorList,
-                             const std::string& probList) const ;
+      StatusCode createListNO(const Identifier& wafer_id,
+                              const SCT_ID* m_sctId,
+                              const int samplesize,
+                              const float noise_occ) const;
 
-  StatusCode createListLA(const Identifier& wafer_id,
-                          const SCT_ID* m_sctId,
-                          const int samplesize,
-                          const int module,
-                          const float lorentz,
-                          const float err_lorentz,
-                          const float chisq,
-                          const float fitParam_a,
-                          const float err_a,
-                          const float fitParam_b,
-                          const float err_b,
-                          const float fitParam_sigma,
-                          const float err_sigma,
-                          const float MCW,
-                          const float err_MCW) const;
+      StatusCode createListRawOccu(const Identifier& wafer_id,
+                                   const SCT_ID* m_sctId,
+                                   const int samplesize,
+                                   const float raw_occu) const;
 
-  StatusCode wrapUpNoisyChannel();
-  StatusCode wrapUpDeadStrips();
-  StatusCode wrapUpDeadChips();
-  StatusCode wrapUpEfficiency();
-  StatusCode wrapUpNoiseOccupancy();
-  StatusCode wrapUpRawOccupancy();
-  StatusCode wrapUpBSErrors();
-  StatusCode wrapUpLorentzAngle();
+      StatusCode createListBSErr(const Identifier& wafer_id,
+                                 const SCT_ID* m_sctId,
+                                 const int samplesize,
+                                 const std::string& errorList,
+                                 const std::string& probList) const ;
 
-private:
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfo", "ByteStreamEventInfo"};
+      StatusCode createListLA(const Identifier& wafer_id,
+                              const SCT_ID* m_sctId,
+                              const int samplesize,
+                              const int module,
+                              const float lorentz,
+                              const float err_lorentz,
+                              const float chisq,
+                              const float fitParam_a,
+                              const float err_a,
+                              const float fitParam_b,
+                              const float err_b,
+                              const float fitParam_sigma,
+                              const float err_sigma,
+                              const float MCW,
+                              const float err_MCW) const;
 
-  int stringToInt(const std::string& s) const;
+      StatusCode wrapUpNoisyChannel();
+      StatusCode wrapUpDeadStrips();
+      StatusCode wrapUpDeadChips();
+      StatusCode wrapUpEfficiency();
+      StatusCode wrapUpNoiseOccupancy();
+      StatusCode wrapUpRawOccupancy();
+      StatusCode wrapUpBSErrors();
+      StatusCode wrapUpLorentzAngle();
 
-  StatusCode streamOutCondObjects(const std::string& foldername);
-  StatusCode streamOutCondObjectsWithErrMsg(const std::string& foldername);
+   private:
+      SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfo", "ByteStreamEventInfo"};
 
-  StatusCode registerCondObjects(const std::string& foldername,const std::string& tagname) const;
-  StatusCode recordAndStream(const CondAttrListCollection* pCollection,const std::string& foldername, bool& flag);
-  StatusCode registerCondObjectsWithErrMsg(const std::string& foldername,const std::string& tagname) const;
+      int stringToInt(const std::string& s) const;
 
-  coral::AttributeListSpecification* createBasicDbSpec(const bool capsFormat) const;
-  void setBasicValues(coral::AttributeList& attrList, const Identifier& wafer_id, const int samplesize,const SCT_ID* m_sctId, const bool capsFormat) const;
-  // small helper function
-  unsigned int computeIstrip4moncond(const Identifier& elementId) const;
+      StatusCode streamOutCondObjects(const std::string& foldername);
+      StatusCode streamOutCondObjectsWithErrMsg(const std::string& foldername);
 
-  const CondAttrListCollection* getAttrListCollectionByFolder(const std::string&) const;
+      StatusCode registerCondObjects(const std::string& foldername,const std::string& tagname) const;
+      StatusCode recordAndStream(const CondAttrListCollection* pCollection,const std::string& foldername, bool& flag);
+      StatusCode registerCondObjectsWithErrMsg(const std::string& foldername,const std::string& tagname) const;
 
-  // would it make sense to change the strings to properties?
-  // that would be a fairly simple fix
-  static const std::string s_separator;
-  static const std::string s_defectFolderName;
-  static const std::string s_deadStripFolderName;
-  static const std::string s_deadChipFolderName;
-  static const std::string s_effFolderName;
-  static const std::string s_noFolderName;
-  static const std::string s_RawOccuFolderName;
-  static const std::string s_BSErrFolderName;
-  static const std::string s_LAFolderName;
+      coral::AttributeListSpecification* createBasicDbSpec(const bool capsFormat) const;
+      void setBasicValues(coral::AttributeList& attrList, const Identifier& wafer_id, const int samplesize,const SCT_ID* m_sctId, const bool capsFormat) const;
+      // small helper function
+      unsigned int computeIstrip4moncond(const Identifier& elementId) const;
 
-  // cache for the Collections, access by foldername
-  mutable std::mutex m_mutex{};
-  mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap ATLAS_THREAD_SAFE; // Guarded by m_mutex
-  CondAttrListCollection*      m_attrListColl{nullptr};
-  CondAttrListCollection*      m_attrListColl_deadStrip{nullptr};
-  CondAttrListCollection*      m_attrListColl_deadChip{nullptr};
-  CondAttrListCollection*      m_attrListColl_eff{nullptr};
-  CondAttrListCollection*      m_attrListColl_no{nullptr};
-  CondAttrListCollection*      m_attrListColl_RawOccu{nullptr};
-  CondAttrListCollection*      m_attrListColl_BSErr{nullptr};
-  CondAttrListCollection*      m_attrListColl_LA{nullptr};
-  BooleanProperty              m_writeCondObjs{this, "WriteCondObjs", true};
-  BooleanProperty              m_regIOV{this, "RegisterIOV", true};
-  BooleanProperty              m_readWriteCool{this, "ReadWriteCool", true};
-  BooleanProperty              m_twoStepWriteReg{this, "TwoStepWriteReg", false};
-  BooleanProperty              m_manualiov{this, "ManualIOV", true};
-  IntegerProperty              m_version{this, "Version", 0};
-  IntegerProperty              m_beginRun{this, "BeginRun", IOVTime::MINRUN};
-  IntegerProperty              m_endRun{this, "EndRun", IOVTime::MAXRUN};
-  StringProperty               m_streamName{this, "StreamName", "CondStreamTest"};
-  StringProperty               m_tagID4NoisyStrips{this, "TagID4NoisyStrips", ""};
-  StringProperty               m_tagID4DeadStrips{this, "TagID4DeadStrips", ""};
-  StringProperty               m_tagID4DeadChips{this, "TagID4DeadChips", ""};
-  StringProperty               m_tagID4Efficiency{this, "TagID4Efficiency", ""};
-  StringProperty               m_tagID4NoiseOccupancy{this, "TagID4NoiseOccupancy", ""};
-  StringProperty               m_tagID4RawOccupancy{this, "TagID4RawOccupancy", ""};
-  StringProperty               m_tagID4BSErrors{this, "TagID4BSErrors", ""};
-  StringProperty               m_tagID4LorentzAngle{this, "TagID4LorentzAngle", ""};
+      const CondAttrListCollection* getAttrListCollectionByFolder(const std::string&) const;
 
-  IIOVRegistrationSvc*         m_regSvc{nullptr};
-  IAthenaOutputStreamTool*     m_streamer{nullptr};
+      // would it make sense to change the strings to properties?
+      // that would be a fairly simple fix
+      static const std::string s_separator;
+      static const std::string s_defectFolderName;
+      static const std::string s_deadStripFolderName;
+      static const std::string s_deadChipFolderName;
+      static const std::string s_effFolderName;
+      static const std::string s_noFolderName;
+      static const std::string s_RawOccuFolderName;
+      static const std::string s_BSErrFolderName;
+      static const std::string s_LAFolderName;
 
-  bool                         m_defectRecorded{false};
-  bool                         m_deadStripRecorded{false};
-  bool                         m_deadChipRecorded{false};
-  bool                         m_effRecorded{false};
-  bool                         m_noRecorded{false};
-  bool                         m_RawOccuRecorded{false};
-  bool                         m_BSErrRecorded{false};
-  bool                         m_LARecorded{false};
-  const SCT_ID*                m_pHelper{nullptr};
+      // cache for the Collections, access by foldername
+      mutable std::mutex m_mutex{};
+      mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      CondAttrListCollection*      m_attrListColl{nullptr};
+      CondAttrListCollection*      m_attrListColl_deadStrip{nullptr};
+      CondAttrListCollection*      m_attrListColl_deadChip{nullptr};
+      CondAttrListCollection*      m_attrListColl_eff{nullptr};
+      CondAttrListCollection*      m_attrListColl_no{nullptr};
+      CondAttrListCollection*      m_attrListColl_RawOccu{nullptr};
+      CondAttrListCollection*      m_attrListColl_BSErr{nullptr};
+      CondAttrListCollection*      m_attrListColl_LA{nullptr};
+      BooleanProperty              m_writeCondObjs{this, "WriteCondObjs", true};
+      BooleanProperty              m_regIOV{this, "RegisterIOV", true};
+      BooleanProperty              m_readWriteCool{this, "ReadWriteCool", true};
+      BooleanProperty              m_twoStepWriteReg{this, "TwoStepWriteReg", false};
+      BooleanProperty              m_manualiov{this, "ManualIOV", true};
+      IntegerProperty              m_version{this, "Version", 0};
+      IntegerProperty              m_beginRun{this, "BeginRun", IOVTime::MINRUN};
+      IntegerProperty              m_endRun{this, "EndRun", IOVTime::MAXRUN};
+      StringProperty               m_streamName{this, "StreamName", "CondStreamTest"};
+      StringProperty               m_tagID4NoisyStrips{this, "TagID4NoisyStrips", ""};
+      StringProperty               m_tagID4DeadStrips{this, "TagID4DeadStrips", ""};
+      StringProperty               m_tagID4DeadChips{this, "TagID4DeadChips", ""};
+      StringProperty               m_tagID4Efficiency{this, "TagID4Efficiency", ""};
+      StringProperty               m_tagID4NoiseOccupancy{this, "TagID4NoiseOccupancy", ""};
+      StringProperty               m_tagID4RawOccupancy{this, "TagID4RawOccupancy", ""};
+      StringProperty               m_tagID4BSErrors{this, "TagID4BSErrors", ""};
+      StringProperty               m_tagID4LorentzAngle{this, "TagID4LorentzAngle", ""};
+
+      IIOVRegistrationSvc*         m_regSvc{nullptr};
+      IAthenaOutputStreamTool*     m_streamer{nullptr};
+
+      bool                         m_defectRecorded{false};
+      bool                         m_deadStripRecorded{false};
+      bool                         m_deadChipRecorded{false};
+      bool                         m_effRecorded{false};
+      bool                         m_noRecorded{false};
+      bool                         m_RawOccuRecorded{false};
+      bool                         m_BSErrRecorded{false};
+      bool                         m_LARecorded{false};
+      const SCT_ID*                m_pHelper{nullptr};
 };
 
 inline const InterfaceID& SCTCalibWriteTool::interfaceID() {
-  static const InterfaceID IID{"SCTCalibWriteTool", 1, 0};
-  return IID;
+   static const InterfaceID IID{"SCTCalibWriteTool", 1, 0};
+   return IID;
 }
 
 #endif // SCTCalibWriteTool.h

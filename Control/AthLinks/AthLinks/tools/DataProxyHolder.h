@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -28,6 +28,9 @@
 
 
 namespace SG {
+
+
+class ThinningCache;
 
 
 /**
@@ -346,16 +349,19 @@ public:
 
 
   /**
-   * @brief Adjust for thinning.
+   * @brief Adjust for thinning, with explicitly provided thinning cache.
    * @param sgkey Reference to the hashed SG key.
    * @param index Index of this link.
+   * @param thinningCache Thinning cache for the current stream
+   *                      (may be null).
    *
    * If this link points to a container that has been thinned,
    * @c sgkey and @c index will be adjusted accordingly.
    *
    * Returns @c true if the index was changed; @c false otherwise.
    */
-  bool thin (sgkey_t& sgkey, size_t& index);
+  bool thin (sgkey_t& sgkey, size_t& index,
+             const SG::ThinningCache* thinningCache);
 
 
   /**

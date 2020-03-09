@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -37,12 +37,25 @@ def getTgcRange(name="TgcRange", **kwargs):
 
 def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
-    if not overlayFlags.isDataOverlay():
-        kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+TGC_SDO")
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName",overlayFlags.sigPrefix()+"TGC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName",overlayFlags.sigPrefix()+"TGC_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+TGC_SDO")
     return TgcDigitizationTool(name,**kwargs)
 
 def getTGC_OverlayDigitizer(name="TGC_OverlayDigitizer", **kwargs):
     kwargs.setdefault("DigitizationTool","Tgc_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
+
     return CfgMgr.TGCDigitizer(name,**kwargs)

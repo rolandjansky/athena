@@ -14,7 +14,6 @@
 
 #include <TRandom.h>
 
-class StoreGateSvc;
 class TFile;
 class TTree;
 class CaloCell_ID;

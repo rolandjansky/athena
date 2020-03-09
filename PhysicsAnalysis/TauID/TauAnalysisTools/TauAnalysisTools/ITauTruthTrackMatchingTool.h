@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_ITAUTRUTHTRACKMATCHINGTOOL_H
@@ -48,10 +48,10 @@ public:
   virtual StatusCode initialize() = 0;
 
   // classify vector of tracks
-  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks) = 0;
+  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks) const = 0;
 
   // classify a single track
-  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle) = 0;
+  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle) const = 0;
 
 }; // class ITauTruthTrackMatchingTool
 

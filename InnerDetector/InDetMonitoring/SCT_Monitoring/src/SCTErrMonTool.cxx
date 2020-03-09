@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*    @file SCTErrMonTool.cxx
@@ -10,32 +10,26 @@
 
 #include "SCTErrMonTool.h"
 
-// conditions stuff
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
-
-#include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetRawData/SCT3_RawData.h"
-#include "InDetRawData/InDetRawDataContainer.h"
-#include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
-#include "LWHists/TH2I_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "LWHists/TProfile2D_LW.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "TH1F.h"
+#include "TH1I.h"
 #include "TH2F.h"
-#include "TH2I.h"
 #include "TProfile.h"
 
 #include <iostream>
+#include <map>
+#include <utility>
 
 using namespace std;
 using namespace SCT_Monitoring;
@@ -64,13 +58,6 @@ namespace {
   }
 
   bool
-  checkOverThreshold(TH2* pHistogram, const int xbin, const int ybin, const float threshold) {
-    double histogramBinContent{pHistogram->GetBinContent(xbin, ybin)};
-
-    return (histogramBinContent > threshold);
-  }
-
-  bool
   thereAreEnoughEntries(TH2* pHistogramArray[], const float threshold) {
     double histogramEntries0{pHistogramArray[0]->GetEntries()};
     double histogramEntries1{pHistogramArray[1]->GetEntries()};
@@ -96,22 +83,6 @@ namespace {
     for (int xb{1}; xb < xbins; ++xb) {
       for (int yb{1}; yb < ybins; ++yb) {
         if (eitherSideIsOverThreshold(pHistogram, xb, yb, threshold)) {
-          countArray[generalIndex]++;
-          countArray[regionIndex]++;
-        }
-      }
-    }
-  }
-
-  void
-  countNoisyModulesRN(const int regionIndex, const int generalIndex, TH2* pHistogram[],
-                      const float threshold, int countArray[]) {
-    const int xbins{pHistogram[0]->GetNbinsX() + 1};
-    const int ybins{pHistogram[0]->GetNbinsY() + 1};
-
-    for (int xb{1}; xb < xbins; ++xb) {
-      for (int yb{1}; yb < ybins; ++yb) {
-        if (checkOverThreshold(pHistogram[0], xb, yb, threshold)) {
           countArray[generalIndex]++;
           countArray[regionIndex]++;
         }
@@ -426,10 +397,10 @@ SCTErrMonTool::fillHistograms() {
   if (pEvent->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error) {
     // ATH_MSG_WARNING("SCT_Flag==FALSE:: LVL1ID Errors >500 ");
     m_NumberOfSCTFlagErrorsVsLB->Fill(m_current_lb);
-    m_FractionOfSCTFlagErrorsPerLB->Fill(m_current_lb,1);
+    m_FractionOfSCTFlagErrorsPerLB->Fill(m_current_lb, 1);
     sctflag = true;
   } else {
-    m_FractionOfSCTFlagErrorsPerLB->Fill(m_current_lb,0);
+    m_FractionOfSCTFlagErrorsPerLB->Fill(m_current_lb, 0);
   }
   m_NumberOfEventsVsLB->Fill(m_current_lb);
 
@@ -632,7 +603,7 @@ SCTErrMonTool::procHistograms() {
 //          SCTErrMonTool :: fillByteStreamErrorsHelper, Martin Flechl 10/09/2009
 // ====================================================================================================
 int
-SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>* errors,
+SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
                                           TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][N_ENDCAPSx2],
                                           bool lumi2DHist, int err_type) {
 
@@ -680,7 +651,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>* errors,
 
   //--- Count BS errors
   int nerrors{0};
-  for (const IdentifierHash& hash: *errors) {
+  for (const auto& hash: errors) {
     nerrors++;
     if (not hash.is_valid()) continue;
 
@@ -734,9 +705,9 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>* errors,
 //          SCTErrMonTool :: numByteStreamErrors, Daniel Damiani 04/07/2011
 // ====================================================================================================
 void
-SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc) const {
+SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>& errors, int& ntot, int& nbar, int& neca, int& necc) const {
 
-  for (const IdentifierHash& fit: *errors) {
+  for (const auto& fit: errors) {
     if (fit.is_valid()) {
       Identifier fitId{m_pSCTHelper->wafer_id(fit)};
       int layer{m_pSCTHelper->layer_disk(fitId)};
@@ -781,7 +752,7 @@ SCTErrMonTool::fillByteStreamErrors() {
     bs_errs[ENDCAP_C_INDEX] = 0; // ECC
     // get number of BS errors
     numByteStreamErrors(m_byteStreamErrTool->getErrorSet(errType),
-                        bs_errs[GENERAL_INDEX],bs_errs[BARREL_INDEX],bs_errs[ENDCAP_A_INDEX],bs_errs[ENDCAP_C_INDEX]);
+                        bs_errs[GENERAL_INDEX], bs_errs[BARREL_INDEX], bs_errs[ENDCAP_A_INDEX], bs_errs[ENDCAP_C_INDEX]);
     // fill number of BS errors vs LBs
     for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
       if (not sctflag) m_ByteStreamVsLB[errType][reg]->Fill(current_lb, static_cast<double>(bs_errs[reg]));
@@ -830,8 +801,8 @@ SCTErrMonTool::fillByteStreamErrors() {
   }
 
   //--- Fill map histograms for each BS
-  int total_errors{0};
-  for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
+  int total_errors = 0;
+  for (int errType = 0; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
     total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), m_pallErrs, false, errType);
     if (m_doPerLumiErrors and m_doErr2DPerLumiHists) {
       fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), m_pallErrsPerLumi, false, errType);
@@ -1536,11 +1507,6 @@ SCTErrMonTool::fillCondDBMaps() {
       if (failedbooking == false) {
         countNoisyModules(reg, GENERAL_INDEX, hitsHisto_tmp, m_noiseThreshold, NoisyModules);
       }
-      failedbooking = getHisto(lyr, reg, 2, hitsHisto_tmp);
-      if (failedbooking == false) {
-        countNoisyModulesRN(reg, GENERAL_INDEX, hitsHisto_tmp, m_noiseThreshold, RNoisyModules);
-      }
-      //if (m_pnoiseoccupancymapHistoVectorBar[lyr]) countNoisyModulesRN(BARREL_INDEX, GENERAL_INDEX, m_pnoiseoccupancymapHistoVectorBar[lyr], m_noiseThreshold, RNoisyModules);
       // noisy modules recent
       if (m_environment == AthenaMonManager::online) {
         failedbooking = getHistoRecent(lyr, reg, 0, hitsHisto_tmp);
@@ -1723,15 +1689,13 @@ SCTErrMonTool::resetConfigurationDetails() {
 // ====================================================================================================
 bool
 SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* histo[2]) const {
-  static const string trm[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
+  static const string trm[2][N_REGIONS] = { // 2 is the number of types (noise, eff)
     {"SCT/SCTEC/Noise/noiseoccupancymapECm_","SCT/SCTB/Noise/noiseoccupancymap_", "SCT/SCTEA/Noise/noiseoccupancymapECp_"},
-    {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"},
-    {"SCT/SCTEC/RatioNoise/noiseoccupancymapECC_", "SCT/SCTB/RatioNoise/noiseoccupancymapBar_", "SCT/SCTEA/RatioNoise/noiseoccupancymapECA_"}
+    {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"}
   };
-  static const string trm_trig[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
+  static const string trm_trig[2][N_REGIONS] = { // 2 is the number of types (noise, eff)
     {"SCT/SCTEC/Noise/noiseoccupancymaptriggerECm_", "SCT/SCTB/Noise/noiseoccupancymaptrigger_", "SCT/SCTEA/Noise/noiseoccupancymaptriggerECp_"},
-    {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"},
-    {"SCT/SCTEC/RatioNoise/noiseoccupancymapECC_", "SCT/SCTB/RatioNoise/noiseoccupancymapBar_", "SCT/SCTEA/RatioNoise/noiseoccupancymapECA_"}
+    {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"}
   };
   string shname1{m_path + trm[type][reg] + to_string(layer)};
   string shname2{m_path + trm[type][reg] + to_string(layer)};
@@ -1781,57 +1745,6 @@ SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int type, TH
   return false;
 }
 
-TProfile2D_LW*
-SCTErrMonTool::prof2Factory(const string& name, const string& title, const unsigned int& bec,
-                            vector<TProfile2D_LW*>& storageVector) const {
-  int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, nEta{N_ETA_BINS},
-      firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, nPhi{N_PHI_BINS};
-  if (bec != BARREL) {
-    firstEta = FIRST_ETA_BIN_EC;
-    lastEta = LAST_ETA_BIN_EC;
-    firstPhi = FIRST_PHI_BIN_EC;
-    lastPhi = LAST_PHI_BIN_EC;
-    nEta = N_ETA_BINS_EC;
-    nPhi = N_PHI_BINS_EC;
-  }
-  TProfile2D_LW* tmp{TProfile2D_LW::create(name.c_str(), title.c_str(),
-                                    nEta, firstEta - 0.5, lastEta + 0.5,
-                                    nPhi, firstPhi - 0.5, lastPhi + 0.5)};
-  tmp->SetXTitle("Index in the direction of #eta");
-  tmp->SetYTitle("Index in the direction of #phi");
-  storageVector.push_back(tmp);
-  return tmp;
-}
-
-bool
-SCTErrMonTool::isEndcapC(const int moduleNumber) const {
-  bool moduleinEndcapC{false};
-
-  if ((0 <= moduleNumber) and (moduleNumber < f_mod[BARREL_INDEX])) {
-    moduleinEndcapC = true;
-  }
-  return moduleinEndcapC;
-}
-
-bool
-SCTErrMonTool::isBarrel(const int moduleNumber) const {
-  bool moduleinBarrel{false};
-
-  if ((f_mod[BARREL_INDEX] <= moduleNumber) and (moduleNumber < f_mod[ENDCAP_A_INDEX])) {
-    moduleinBarrel = true;
-  }
-  return moduleinBarrel;
-}
-
-bool
-SCTErrMonTool::isEndcapA(const int moduleNumber) const {
-  bool moduleinEndcapA{false};
-
-  if ((f_mod[ENDCAP_A_INDEX] <= moduleNumber) and (moduleNumber < n_mod[GENERAL_INDEX])) {
-    moduleinEndcapA = true;
-  }
-  return moduleinEndcapA;
-}
 //====================================================================================================
 //                          SCTErrMonTool :: fillWafer, Keisuke Kouda 12.09.2016
 //====================================================================================================
@@ -1874,7 +1787,7 @@ void SCTErrMonTool::fillWafer(moduleGeo_t module, TH2F* histo) const {
         if (iyMin==iyMax+1) weight *= wyOne;
         else if (iy==iyMin) weight *= wyMin;
         else if (iy==iyMax+1) weight *= wyMax;
-        histo->SetBinContent(ix,iy,histo->GetBinContent(ix,iy)+weight);//Fill(ix, iy, weight);//
+        histo->SetBinContent(ix, iy, histo->GetBinContent(ix,iy)+weight); //Fill(ix, iy, weight);//
       }
     }
   }
@@ -1893,24 +1806,24 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
  
   //BadLinkLevelError
   for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
-    const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
-    for (const IdentifierHash& waferHash: *sctErrors) {
+    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
+    for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadLinkError.insert(waferHash);
     }
   }
 
   //BadRODLevelError
   for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
-    const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
-    for (const IdentifierHash& waferHash: *sctErrors) {
+    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
+    for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadRODError.insert(waferHash);
     }
   }
 
   //BadError = BadLinkLevelError + BadRODLevelError
   for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
-    const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
-    for (const IdentifierHash& waferHash: *sctErrors) {
+    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
+    for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadError.insert(waferHash);
     }
   }
@@ -1978,7 +1891,7 @@ double SCTErrMonTool::calculateDetectorCoverage( const TH2F* histo ) const {
 
   for (unsigned int i{0}; i < m_nBinsEta; i++) {
     for (unsigned int j{0}; j < m_nBinsPhi; j++) {
-      double waferCell{m_mapSCT[all]->GetBinContent(i+1,j+1) - histo->GetBinContent(i+1,j+1)};
+      double waferCell{m_mapSCT[all]->GetBinContent(i+1, j+1) - histo->GetBinContent(i+1, j+1)};
 
       if (waferCell >= m_WafersThreshold) {
         occupancy += 1.0;

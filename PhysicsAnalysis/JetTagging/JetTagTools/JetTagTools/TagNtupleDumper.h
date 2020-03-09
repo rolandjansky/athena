@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGTOOLS_TAGNTUPLEDUMPER_C
@@ -23,16 +23,18 @@
 #include <istream>
 #include <map>
 #include <utility>
+#include <mutex>
 
 class TTree;
 // class TFile;
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Analysis {
 
-  class TagNtupleDumper : public AthAlgTool, public IMultivariateJetTagger
+  class TagNtupleDumper : public extends<AthAlgTool, IMultivariateJetTagger>
   {
   public:
     TagNtupleDumper(const std::string& name,
@@ -40,18 +42,22 @@ namespace Analysis {
                     const IInterface*);
 
     virtual ~TagNtupleDumper();
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
+    virtual
     void assignProbability(xAOD::BTagging* BTag,
                            const std::map<std::string,double>& inputs,
-                           const std::string& jetauthor);
+                           const std::string& jetauthor) const override;
 
   private:
     ServiceHandle<ITHistSvc> m_hist_svc;
-    std::map< std::pair<std::string, std::string>, float* > m_features;
     std::string m_stream;
-    std::map<std::string, TTree*> m_trees;
+
+    mutable std::map< std::pair<std::string, std::string>, float* > m_features ATLAS_THREAD_SAFE;
+    mutable std::map<std::string, TTree*> m_trees ATLAS_THREAD_SAFE;
+    // Serialize access.
+    mutable std::mutex m_mutex ATLAS_THREAD_SAFE;
 
   }; // end class
 

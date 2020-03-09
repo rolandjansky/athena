@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_RORSEQFILTER_H
 #define DECISIONHANDLING_RORSEQFILTER_H 1
@@ -11,7 +11,7 @@
 #include "AthContainers/ConstDataVector.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 /**
  * @class Filtering algorithm for HLT Step sequencer
@@ -49,8 +49,6 @@ class RoRSeqFilter
  public: 
   RoRSeqFilter( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~RoRSeqFilter(); 
-
 /**
  * @brief Setup input and output handles. Renounce all input handles. Get IDs for all configured chains.
  **/
@@ -62,12 +60,7 @@ class RoRSeqFilter
  **/
   virtual StatusCode  execute() override;
 
-/**
- * @brief Currently a noop
- **/
-  virtual StatusCode  finalize() override;
-
- private: 
+ private:
   RoRSeqFilter();
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>  m_inputKeys{ this, "Input", {}, "Inputs to the filter" };
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputKeys{ this, "Output", {}, "Output" };

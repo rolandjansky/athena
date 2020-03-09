@@ -1,25 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArWheelSolidDDProxy
 // proxy for LArWheelSolid to store in DetectorDescription
 // Author: D. A. Maximov
 
-#ifndef __LArWheelSolidDDProxy_HH__
-#define __LArWheelSolidDDProxy_HH__
+#ifndef GEO2G4_LARWHEELSOLIDDDPROXY_H
+#define GEO2G4_LARWHEELSOLIDDDPROXY_H
 
 // #include "AthenaKernel/MsgStreamMember.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
-
-class LArWheelSolid;
+class G4VSolid;
 
 class LArWheelSolidDDProxy {
 public:
 
-  LArWheelSolidDDProxy(LArWheelSolid* plws);
+  LArWheelSolidDDProxy(G4VSolid* plws);
   virtual ~LArWheelSolidDDProxy();
 
   // Mandatory for custom solid Geant4 functions
@@ -33,7 +32,7 @@ public:
                          G4bool* validNorm = 0,
                          G4ThreeVector* n = 0) const; */
   int Inside(const CLHEP::Hep3Vector&) const;
-  
+
   double DistanceToIn(const CLHEP::Hep3Vector&, const CLHEP::Hep3Vector&) const;
   double DistanceToIn(const CLHEP::Hep3Vector&) const;
 
@@ -56,7 +55,7 @@ public:
 
 private:
 
-  LArWheelSolid * m_plws;
+  G4VSolid * m_plws;
 
 };
 
@@ -65,4 +64,4 @@ private:
 //This is required and checked at compile time when you try to record/retrieve
 CLASS_DEF(LArWheelSolidDDProxy, 900345679 , 1)
 
-#endif // __LArWheelSolidDDProxy_HH__
+#endif // GEO2G4_LARWHEELSOLIDDDPROXY_H

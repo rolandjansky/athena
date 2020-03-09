@@ -176,6 +176,11 @@ protected:
   /// do we want basic, or rigorous roi track containment
   bool         m_containTracks;
 
+  bool         m_legacy;
+
+  //  Gaudi::Property<std::string> m_sliceTagArse{this, "SliceTag", "TIDAMonTool/"};
+
+
 };
 
 

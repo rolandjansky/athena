@@ -1,19 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigBphysAuxContainerCnv.cxx
 
 // System include(s):
 #include <exception>
+#include <mutex>
 
 // Local include(s):
 #include "xAODTrigBphysAuxContainerCnv.h"
-
-xAODTrigBphysAuxContainerCnv::xAODTrigBphysAuxContainerCnv( ISvcLocator* svcLoc )
-   : xAODTrigBphysAuxContainerCnvBase( svcLoc ) {
-
-}
 
 
 #define LOAD_DICTIONARY( name ) do {  TClass* cl = TClass::GetClass( name ); \
@@ -22,37 +18,17 @@ xAODTrigBphysAuxContainerCnv::xAODTrigBphysAuxContainerCnv( ISvcLocator* svcLoc 
 
 xAOD::TrigBphysAuxContainer*
 xAODTrigBphysAuxContainerCnv::
-createPersistent( xAOD::TrigBphysAuxContainer* trans ) {
+createPersistentWithKey( xAOD::TrigBphysAuxContainer* trans,
+                         const std::string& key)
+{
+  // ??? Still needed?
+  std::once_flag flag;
+  std::call_once (flag,
+                  [this] {
+                    LOAD_DICTIONARY("ElementLink<DataVector<xAOD::TrigBphys_v1> >" );
+                    LOAD_DICTIONARY("std::vector<ElementLink<DataVector<xAOD::TrackParticle_v1> >" );
+                  });
 
-    static bool dictLoaded(false);
-    if (!dictLoaded) {
-        LOAD_DICTIONARY("ElementLink<DataVector<xAOD::TrigBphys_v1> >" );
-        LOAD_DICTIONARY("std::vector<ElementLink<DataVector<xAOD::TrackParticle_v1> >" );
-        dictLoaded = true;
-    }
-    
-    
-   // Create a copy of the container:
-   xAOD::TrigBphysAuxContainer* result =
-      new xAOD::TrigBphysAuxContainer( *trans );
-
-   return result;
-}
-
-xAOD::TrigBphysAuxContainer* xAODTrigBphysAuxContainerCnv::createTransient() {
-
-   // The known ID(s) for this container:
-   //static const pool::Guid v1_guid( "4A2F55AF-D465-42A8-A4CF-2DB84D9628E5" ); // original
-   static const pool::Guid v1_guid( "C7246162-DB5D-4ACA-BF20-838A1B2BC4A3"); // new
-
-   // Check which version of the container we're reading:
-   if( compareClassGuid( v1_guid ) ) {
-      // It's the latest version, read it directly:
-      return poolReadObject< xAOD::TrigBphysAuxContainer >();
-   }
-
-   // If we didn't recognise the ID:
-   throw std::runtime_error( "Unsupported version of "
-                             "xAOD::TrigBphysAuxContainer found" );
-   return 0;
+  // Create a copy of the container:
+  return xAODTrigBphysAuxContainerCnvBase::createPersistentWithKey (trans, key);
 }

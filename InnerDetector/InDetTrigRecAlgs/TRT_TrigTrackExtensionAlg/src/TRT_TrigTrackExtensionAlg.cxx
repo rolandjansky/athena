@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -92,7 +92,8 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
 	  << inputTracks->size() << " input tracks " << endmsg;
   }
 
-  m_trtExtension->newEvent();
+  std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
+     event_data = m_trtExtension->newEvent();
 
   // Loop through all input track and output tracks collection production
   //
@@ -108,7 +109,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
     ++m_nTracks;
          
     std::vector<const Trk::MeasurementBase*>& tn = 
-      m_trtExtension->extendTrack(*(*t));
+      m_trtExtension->extendTrack(*(*t), *event_data);
 
     if(!tn.size())
       continue;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthParticleContainer.h 
@@ -97,6 +97,11 @@ class TruthParticleContainer : public DataVector<TruthParticle>
    */
   const HepMC::GenEvent* genEvent() const;
 
+  /** Retrieve the @c HepMC::GenEvent this @c TruthParticleContainer
+   *  is proxying, as a link.
+   */
+  const ElementLink<McEventCollection>& genEventLink() const;
+
   /** Retrieve the name (@c StoreGate location) of the 
    *  @c HepMC::GenEvent this @c TruthParticleContainer is proxying
    */
@@ -135,6 +140,11 @@ class TruthParticleContainer : public DataVector<TruthParticle>
    * (or a @c HepMC::GenParticle)
    */
   const TruthEtIsolations::EtIsol_t* etIsolations( const int barcode ) const;
+
+  /** 
+   * return the link to truth Et isolations.
+   */
+  const ElementLink<TruthEtIsolationsContainer>& etIsolationsLink() const;
 
   /**
    * Return the Et isolation for a given particle and a given cone size
@@ -222,6 +232,13 @@ const HepMC::GenEvent* TruthParticleContainer::genEvent() const
 }
 
 inline 
+const ElementLink<McEventCollection>&
+TruthParticleContainer::genEventLink() const
+{
+  return m_genEvent;
+}
+
+inline 
 std::size_t TruthParticleContainer::genEventIdx() const
 {
   return m_genEvent.index();
@@ -251,6 +268,12 @@ TruthParticleContainer::etIsolations( const int barcode ) const
   return hasEtIsol( barcode ) 
     ? (*m_etIsolations)->etIsolations(barcode) 
     : 0;
+}
+
+inline const ElementLink<TruthEtIsolationsContainer>&
+TruthParticleContainer::etIsolationsLink() const
+{
+  return m_etIsolations;
 }
 
 inline double 

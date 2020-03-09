@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSurveyConstraintTool/SurveyConstraint.h"
@@ -18,7 +18,6 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h" 
@@ -27,16 +26,22 @@
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/RndmGenerators.h"
-// CLHEP includes
 
+#include <cmath>
 
+// use anonymous namespace to be only valid inside this .cxx file
+namespace {
+  constexpr long double operator"" _degree ( long double deg ){
+      return deg * M_PI / 180;
+  }
+  static constexpr double const& phiModEnd = 26.25;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
 SurveyConstraint::SurveyConstraint(const std::string& type,
 				   const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    m_pixelManager(0),
     m_idHelper{},
     m_pixid(0),
     m_sctid(0),
@@ -212,15 +217,8 @@ StatusCode SurveyConstraint::initialize(){
   }
   msg(MSG::INFO) << "got ID helpers from detector store (relying on GeoModel to put them)" << endmsg;
 
-  // get PixelManager
-  sc = detStore()->retrieve(m_pixelManager, "Pixel");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get PixelManager !" << endmsg;
-    return sc;
-  }
-  msg(MSG::INFO) << "got m_pixelManager" << endmsg;
-  
-  // ReadCondHandleKey
+  // ReadCondHandleKeys
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // random number service
@@ -461,7 +459,6 @@ void SurveyConstraint::setup_SurveyConstraintModules()
   }
 
   int nSCT(0), nPixel(0);
-  InDetDD::SiDetectorElementCollection::const_iterator iter, iter2;  
   std::vector< Amg::Vector3D > localSurveyCoords;
   Amg::Transform3D SurveyTransRand, SurveyTransRandSect;
   SurveyTransRand.setIdentity();
@@ -560,14 +557,21 @@ void SurveyConstraint::setup_SurveyConstraintModules()
   bool first = true, NewDisk = true, NewSector = true, firstB = true;
   unsigned int nPixMod = 0,nPixModInMap = 0,nPixModEC = 0,nPixModPointsEC = 0;
   int previous_disk = -1, previous_sector = -1;
-  for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
-    const Identifier Pixel_ModuleID = (*iter)->identify(); 
+  // Get SiDetectorElementCollection from ConditionStore for Pixel
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
+  for (const InDetDD::SiDetectorElement* element: *pixelElements) {
+    const Identifier Pixel_ModuleID = element->identify(); 
     ++nPixMod;
     
     if (m_ModuleMap.find(Pixel_ModuleID) == m_ModuleMap.end()) {
       ++nPixModInMap;
       SurveyConstraintModule* newPixel_Module = new SurveyConstraintModule(Pixel_ModuleID,true);
-      Amg::Transform3D globaltolocal = (*iter)->transform().inverse();
+      Amg::Transform3D globaltolocal = element->transform().inverse();
       newPixel_Module->set_globaltolocal(globaltolocal);
       m_ModuleMap[Pixel_ModuleID] = newPixel_Module;
       ++nPixel;
@@ -647,8 +651,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
           Amg::Vector3D currentPoint = CurrentTrans *temp;
           //Amg::Vector3D currentPoint = temp.transform(CurrentTrans);
           // Transform the local (survey and current) constraint points into the global coordinate system
-          Amg::VectorX globalSurveyPoint  = (*iter)->globalPosition( surveyPoint);	  
-          Amg::VectorX globalCurrentPoint = (*iter)->globalPosition( currentPoint );
+          Amg::VectorX globalSurveyPoint  = element->globalPosition( surveyPoint);	  
+          Amg::VectorX globalCurrentPoint = element->globalPosition( currentPoint );
 
 
 
@@ -721,8 +725,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
                 //m_survey_IDAlignDBTool->tweakTrans(Pixel_ModuleID,3,SurveyTransRand);
                 Amg::Vector3D currentPoint = CurrentTrans *temp;
                 // Transform the local (survey and current) constraint points into the global coordinate system
-                Amg::VectorX globalSurveyPoint  = (*iter)->globalPosition( surveyPoint );	  
-                Amg::VectorX globalCurrentPoint = (*iter)->globalPosition( currentPoint );
+                Amg::VectorX globalSurveyPoint  = element->globalPosition( surveyPoint );	  
+                Amg::VectorX globalCurrentPoint = element->globalPosition( currentPoint );
     
                 SurveyConstraintPoint newCPoint( globalSurveyPoint, globalCurrentPoint );            
                 newPixel_Module->addModuleConstraintPoint(newCPoint); 
@@ -749,13 +753,13 @@ void SurveyConstraint::setup_SurveyConstraintModules()
         std::vector< SurveyConstraintPoint > Stavepoints;
         // Pix EC
         unsigned int nPixModEC2 = 0,nPixModPixModEC = 0,nPixModECPixModEC = 0,nSameLayer = 0,nNotIdentical = 0;
-        for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
-          const Identifier Pixel_ModuleID = (*iter)->identify(); 
+        for (PixelID::const_id_iterator wafer_it=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
+          const Identifier Pixel_ModuleID = *wafer_it;
           if(abs(m_pixid->barrel_ec(Pixel_ModuleID)) == 2){
             ++nPixModEC2;
-            for (iter2 = m_pixelManager->getDetectorElementBegin(); iter2 != m_pixelManager->getDetectorElementEnd(); ++iter2) {
+            for (PixelID::const_id_iterator wafer_it2=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
               ++nPixModPixModEC;
-              const Identifier Pixel_ModuleID2 = (*iter2)->identify(); 
+              const Identifier Pixel_ModuleID2 = *wafer_it2; 
               if(m_pixid->barrel_ec(Pixel_ModuleID2) == m_pixid->barrel_ec(Pixel_ModuleID)){
                 ++nPixModECPixModEC;
                 if(m_pixid->layer_disk(Pixel_ModuleID2) == m_pixid->layer_disk(Pixel_ModuleID)){
@@ -795,13 +799,13 @@ void SurveyConstraint::setup_SurveyConstraintModules()
   
   // Pix B
   nPixModEC2 = 0;nPixModPixModEC = 0;nPixModECPixModEC = 0;nSameLayer = 0;nNotIdentical = 0;
-  for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
-    const Identifier Pixel_ModuleID = (*iter)->identify(); 
+  for (PixelID::const_id_iterator wafer_it=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) { 
+    const Identifier Pixel_ModuleID = *wafer_it; 
     if(m_pixid->barrel_ec(Pixel_ModuleID) != 0) continue;
     ++nPixModEC2;
-    for (iter2 = m_pixelManager->getDetectorElementBegin(); iter2 != m_pixelManager->getDetectorElementEnd(); ++iter2) {
+    for (PixelID::const_id_iterator wafer_it2=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
       ++nPixModPixModEC;
-      const Identifier Pixel_ModuleID2 = (*iter2)->identify(); 
+      const Identifier Pixel_ModuleID2 = *wafer_it2;
       if(m_pixid->barrel_ec(Pixel_ModuleID2) != m_pixid->barrel_ec(Pixel_ModuleID))continue;
       ++nPixModECPixModEC;
       if(m_pixid->layer_disk(Pixel_ModuleID2) != m_pixid->layer_disk(Pixel_ModuleID))continue;
@@ -1084,13 +1088,14 @@ int SurveyConstraint::SectorNumber(int phi_module) {
 
 
 double SurveyConstraint::PhiModuleToSector(int phi_module) {
-  if(phi_module%6 == 0) return ( 7.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 1) return (15   - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 2) return (22.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 3) return (30   - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 4) return (37.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 5) return (45   - 26.25) * (3.14159265/180.);
-  return -1;
+  int phiMod6 = phi_module%6;
+  if(phiMod6 == 0) return ( 7.5 - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 1) return (15   - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 2) return (22.5 - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 3) return (30   - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 4) return (37.5 - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 5) return (45   - phiModEnd) * 1.0_degree;
+  else return -1;
 }
 
   //__________________________________________________________________________

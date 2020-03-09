@@ -5,6 +5,7 @@
 #ifndef TGGSectorLogic_hh
 #define TGGSectorLogic_hh
 
+#include "TrigT1TGC/TGCArguments.hh"
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
@@ -21,6 +22,10 @@
 #include "TrigT1TGC/TGCSLSelectorOut.hh"
 #include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
 
+//for Run3
+#include "TrigT1TGC/TGCTrackSelector.h"
+
+
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
@@ -32,15 +37,22 @@ class  TGCHighPtBoard;
 class  TGCHighPtChipOut;
 class  TGCTMDB;
 
+//for Run3
+class TGCTrackSelectorOut;
+
+
 class TGCSectorLogic {
 public:
   TGCSectorLogic(const TGCSectorLogic& right);
 
   TGCSLSelectorOut* getSelectorOutput() const;
+  void getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const ;
+
   int  getTileMuonWord() const;
   int  getInnerStationWord() const;
 
   void eraseSelectorOut(); 
+
   void clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
                int bidIn);
 
@@ -64,7 +76,7 @@ public:
 		    const TGCTileMuCoincidenceMap* mapTM);
   void showResult(TGCSLSelectorOut* out);
  
-  TGCSectorLogic(TGCRegionType regionIn, int id);
+  TGCSectorLogic(TGCArguments*, TGCRegionType regionIn, int id);
   ~TGCSectorLogic();
 
   int getNumberOfSubSectorCluster() const; 
@@ -76,6 +88,8 @@ public:
 
   void setInnerTrackletSlots(const TGCInnerTrackletSlot* innerTrackletSlots[]);
   
+  TGCArguments* tgcArgs() const;
+
 protected: 
   enum {MaxNumberOfWireHighPtBoard =2};
   void collectInput();
@@ -101,9 +115,17 @@ private:
   const TGCInnerCoincidenceMap*  m_mapInner;
   const TGCTileMuCoincidenceMap*  m_mapTileMu;
   const TGCTMDB*            m_pTMDB;
+
+  // for Run2
   TGCSLPreSelector m_preSelector; 
   TGCSLSelector m_selector;
-  TGCSLSelectorOut* m_selectorOut; 
+  TGCSLSelectorOut* m_selectorOut;
+  
+  // for Run3
+  TGCTrackSelector m_trackSelector;
+  std::shared_ptr<TGCTrackSelectorOut> m_trackSelectorOut;
+
+ 
   int m_wordTileMuon;
   int m_wordInnerStation;
 
@@ -116,7 +138,13 @@ private:
   const TGCInnerTrackletSlot* m_innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR];
   bool m_useInner;
   bool m_useTileMu;
+  TGCArguments* m_tgcArgs;
 };
+
+inline
+TGCArguments* TGCSectorLogic::tgcArgs() const {
+  return m_tgcArgs;
+}
 
 inline
  int TGCSectorLogic::getNumberOfSubSectorCluster() const
@@ -175,10 +203,6 @@ inline
 {
   return m_wordInnerStation;
 }
-
-#ifdef GENRPHIMAP
-  extern std::ofstream rphimap;
-#endif
 
 } //end of namespace bracket
 

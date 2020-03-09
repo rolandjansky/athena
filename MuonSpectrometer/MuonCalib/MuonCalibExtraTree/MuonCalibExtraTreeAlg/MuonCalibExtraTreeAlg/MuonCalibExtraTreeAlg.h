@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_EXTRATREEALG_H
@@ -20,16 +20,9 @@
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 
-class StoreGateSvc;
 class TFile;
 class TDirectory;
 class TTree;
-
-class MdtIdHelper;
-
-namespace MuonGM {
- class MuonDetectorManager;
-}
 
 namespace MuonCalib {
 class IExtraTreeFillerTool;
@@ -70,8 +63,6 @@ class  ISegmentOnTrackSelector;
     bool  createHitBranch(TTree* tree);    //!< creates MuonCalibHit_EBranch
     bool  createTrackBranch(TTree* tree);  //!< creates hit overlap between two tracks
 
-    const MuonGM::MuonDetectorManager*      m_detMgr;      //<! MuonDetector manager
-    const MdtIdHelper*                      m_muonIdHelper;//<! //  const MuonPrdPatternCollection* m_patterns;    //!< Athena pattern Collection
     const MuonPatternCombinationCollection* m_patterns;    //!< Athena pattern Collection
 
     bool        m_doPhi;                         //!< property flagging wether to store PhiHits on ExtraTree

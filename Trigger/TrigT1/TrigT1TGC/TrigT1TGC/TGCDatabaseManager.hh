@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 
+#include "TrigT1TGC/TGCArguments.hh"
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCElectronicsSystem.hh"
 #include "TrigT1TGC/TGCConnectionPPToSB.hh"
@@ -40,8 +41,9 @@ public:
   TGCConnectionInPP* getConnectionInPP(TGCPatchPanel* patchPanel) const;
   void addConnectionInPP(const TGCPatchPanel* patchPanel, const TGCConnectionInPP* connectionInPP);
 
-  TGCDatabaseManager();
-  TGCDatabaseManager(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+  TGCDatabaseManager(TGCArguments*);
+  TGCDatabaseManager(TGCArguments*,
+		     const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
                      const std::string& version, bool flag=false);
   ~TGCDatabaseManager();
   TGCDatabaseManager(const TGCDatabaseManager& right);
@@ -52,6 +54,7 @@ public:
   static const std::string& getFilename(int type); 
   static const std::vector<std::string > splitCW(const std::string& input, char delimiter); 
 
+  TGCArguments* tgcArgs() const;
 
 private:
   TGCRPhiCoincidenceMap* m_mapRphi[NumberOfSide][NumberOfOctant];
@@ -61,7 +64,15 @@ private:
   TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
 
   std::map<PatchPanelIDs, std::pair<const TGCConnectionInPP, PatchPanelPointers> > m_patchPanelToConnectionInPP;
+  
+  TGCArguments* m_tgcArgs;
+  
 };
+
+inline
+TGCArguments* TGCDatabaseManager::tgcArgs() const {
+  return m_tgcArgs;
+}
 
 inline 
 TGCRPhiCoincidenceMap* TGCDatabaseManager::getRPhiCoincidenceMap(int sideId, int octantId) const

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,8 +15,7 @@
 /** Constructor **/
 ISF::GenericParticleOrderingTool::GenericParticleOrderingTool(const std::string& t, const std::string& n, const IInterface* p) :
   base_class(t,n,p),
-  m_geoIDorder(),
-  m_simIDorder()
+  m_geoIDorder()
 {
   declareProperty( "OrderID",
                    m_geoIDorder[AtlasDetDescr::fAtlasID]=1,

@@ -299,12 +299,64 @@ protected:
   virtual void loop() = 0;
 
 
+  /// new MT feature access
+
+  template<class Collection>
+  bool selectTracks( TrigTrackSelector* selector, 
+		     //		     const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> roi_link,  
+		     const ElementLink<TrigRoiDescriptorCollection>& roi_link,
+		     const std::string& key="" )  {
+
+
+    /// will need this printout for debugging the feature access, so leave this commented 
+    /// until it has been properly debugged, then it can be removed
+    //    std::cout << "try " << key << "\t" << m_provider->evtStore()->template transientContains<Collection>(key) << std::endl;
+
+    /// will not use the te name here, but keep it on just the 
+    /// same for the time being, for subsequent development 
+    std::string key_collection = key;
+    std::string key_tename     = "";
+    size_t pos = key_collection.find("/");
+    if ( pos!=std::string::npos ) {
+      key_collection = key.substr( pos+1, key.size()-pos );
+      key_tename     = key.substr( 0, pos );
+    }
+
+    std::pair< typename Collection::const_iterator, 
+	       typename Collection::const_iterator > itrpair;
+
+    SG::ReadHandle<Collection> handle(key);
+
+    itrpair = (*m_tdt)->associateToEventView( handle, roi_link );
+                      
+    if ( itrpair.first != itrpair.second ) {
+      selector->selectTracks( itrpair.first, itrpair.second );
+      return true;
+    }
+    else {
+      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection (" << key << ") is empty " << endmsg;
+      return false;
+    }
+  }
+
+
+
+  /// lagacy run 2 access
+
   template<class Collection>
   bool selectTracks( TrigTrackSelector* selector, Trig::FeatureContainer::combination_const_iterator citr,  const std::string& key="" ) {
 
     //    std::cout << "try " << key << "\t" << m_provider->evtStore()->template transientContains<Collection>(key) << std::endl;
 
-    std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
+    std::string key_collection = key;
+    std::string key_tename     = "";
+    size_t pos = key_collection.find("/");
+    if ( pos!=std::string::npos ) {
+      key_collection = key.substr( pos+1, key.size()-pos );
+      key_tename     = key.substr( 0, pos );
+    }
+
+    std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key_collection, TrigDefs::alsoDeactivateTEs, key_tename );
     if ( !trackcollections.empty() ) {
       // NB!! a combination should never have more than one entry for a track collection from a single algorithm, for single object triggers
       for ( unsigned ifeat=0 ; ifeat<trackcollections.size() ; ifeat++ ) {

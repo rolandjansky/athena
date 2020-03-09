@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -94,7 +94,6 @@ public:
   double met() const { return m_met->met(); }
   double phi() const { /*VP1Msg::messageVerbose("phi: " + QString::number(m_met->phi()) );*/ return m_met->phi(); }
   double sumet() const { return m_met->sumet(); }
-  const MissingEtCollHandle* collHandle() { theCollHandle = dynamic_cast<const MissingEtCollHandle*>(collHandle()); return theCollHandle; }
 
 
   //	double eta() const { /*VP1Msg::messageVerbose("eta: " + QString::number(m_met->eta()) );*/ return m_met->eta(); }

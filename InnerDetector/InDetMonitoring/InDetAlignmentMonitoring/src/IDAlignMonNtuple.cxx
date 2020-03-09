@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -16,16 +16,12 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
-//#include "IdDictDetDescr/IdDictManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 
 
-#include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TrackTruth.h"
-#include "TrkTruthData/TrackTruthCollection.h"
-//#include "TrkTruthToTrack/TruthToTrack.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
@@ -40,8 +36,6 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
-
-#include "VxVertex/VxContainer.h"
 
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
@@ -67,14 +61,11 @@ IDAlignMonNtuple::IDAlignMonNtuple( const std::string & type, const std::string 
   m_truthToTrack = ToolHandle<Trk::ITruthToTrack>("Trk::TruthToTrack/InDetTruthToTrack");
   m_residualPullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
 
-  declareProperty("tracksName",m_tracksName="ExtendedTracks");
-  declareProperty("tracksTruthName",m_tracksTruthName="ExtendedTracksTruthCollection");
   declareProperty("CheckRate",m_checkrate=1000);
   declareProperty("TruthToTrackTool",m_truthToTrack);
   declareProperty("TrulyUnBiasedSCT",m_unbiasedSCT=true);
   declareProperty("UsePrepRawData",m_usePRD=false);
   declareProperty("ResidualPullCalculatorTool", m_residualPullCalculator);
-  declareProperty("VxPrimContainerName"  , m_VxPrimContainerName);
 
 }
 
@@ -99,6 +90,10 @@ StatusCode IDAlignMonNtuple::initialize()
 
   if(m_unbiasedSCT) msg(MSG::INFO) << "Using Truly unbiased SCT residuals" << endmsg;
   if(m_usePRD) msg(MSG::INFO) << "Using PrepRawData for hits information" << endmsg;   
+
+  ATH_CHECK(m_tracksName.initialize());
+  ATH_CHECK(m_tracksTruthName.initialize());
+  ATH_CHECK(m_VxPrimContainerName.initialize());
      
   return StatusCode::SUCCESS;
 }
@@ -114,7 +109,7 @@ StatusCode IDAlignMonNtuple::bookHistograms()
   
   std::string directoryStructure = "/NTUPLES/ALIGNMONITOR";
   //std::string fullNtuplePath = "/NTUPLES/ALIGNMONITOR/Alignment/tree";
-  std::string fullNtuplePath = "/NTUPLES/ALIGNMONITOR/" + m_tracksName + "/tree";
+  std::string fullNtuplePath = "/NTUPLES/ALIGNMONITOR/" + m_tracksName.key() + "/tree";
   //NTupleFilePtr file( m_ntupleSvc, directoryStructure );
   NTuplePtr nt(m_ntupleSvc, fullNtuplePath );
   
@@ -211,32 +206,29 @@ StatusCode IDAlignMonNtuple::fillHistograms()
   float xv=0.0;
   float yv=0.0;
   float zv=0.0;
-  const VxContainer* vertices;
   int ntrkMax=0;
   int nVtx = 0;
+
+  SG::ReadHandle<VxContainer> vertices{m_VxPrimContainerName};
+  if (not vertices.isValid()) {
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name  "<<m_VxPrimContainerName.key()<<" found in StoreGate" << endmsg;
+    return StatusCode::SUCCESS;
+  } else {
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name  "<<m_VxPrimContainerName.key()<< " with size " << vertices->size() <<" found  in StoreGate" << endmsg;
   
-  if (evtStore()->contains<VxContainer>(m_VxPrimContainerName)) {
-    StatusCode scv = evtStore()->retrieve (vertices,m_VxPrimContainerName);
-    if (scv.isFailure()) {
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name  "<<m_VxPrimContainerName<<" found in StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    } else {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name  "<<m_VxPrimContainerName<< " with size " << vertices->size() <<" found  in StoreGate" << endmsg;
-  
-      VxContainer::const_iterator vxItr  = vertices->begin();
-      VxContainer::const_iterator vxItrE = vertices->end();    
-      nVtx = vertices->size();
-      for (; vxItr != vxItrE; ++vxItr) {
-	int numTracksPerVertex = (*vxItr)->vxTrackAtVertex()->size();
-	if (numTracksPerVertex>ntrkMax) {
-	  ntrkMax=numTracksPerVertex;
-	  xv=(*vxItr)->recVertex().position()[0];
-	  yv=(*vxItr)->recVertex().position()[1];
-	  zv=(*vxItr)->recVertex().position()[2];
-	}
+    VxContainer::const_iterator vxItr  = vertices->begin();
+    VxContainer::const_iterator vxItrE = vertices->end();    
+    nVtx = vertices->size();
+    for (; vxItr != vxItrE; ++vxItr) {
+      int numTracksPerVertex = (*vxItr)->vxTrackAtVertex()->size();
+      if (numTracksPerVertex>ntrkMax) {
+        ntrkMax=numTracksPerVertex;
+        xv=(*vxItr)->recVertex().position()[0];
+        yv=(*vxItr)->recVertex().position()[1];
+        zv=(*vxItr)->recVertex().position()[2];
       }
     }
-  } else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "StoreGate does not contain VxPrimaryCandidate Container" << endmsg;
+  }
   
 
   if (xv==-999 || yv==-999 || zv==-999) {
@@ -261,28 +253,23 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
   //-------------------------------------------------------------
 
-  if (m_tracksName.empty()) msg(MSG::ERROR) << " no track collection given"<<endmsg;
+  if (m_tracksName.key().empty()) msg(MSG::ERROR) << " no track collection given"<<endmsg;
 
-  //const Rec::TrackParticleContainer* tracks        = new Rec::TrackParticleContainer;
-  const TrackCollection* tracks;//        = new TrackCollection;
-  
-  StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "No TrackCollection with name "<<m_tracksName<<" found in StoreGate" << endmsg;
-    return sc;
+  SG::ReadHandle<TrackCollection> tracks{m_tracksName};
+  if (not tracks.isValid()) {
+    msg(MSG::ERROR) << "No TrackCollection with name "<<m_tracksName.key()<<" found in StoreGate" << endmsg;
+    return StatusCode::RECOVERABLE;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_tracksName<<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_tracksName.key()<<" found in StoreGate" << endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
   }
 
-  const TrackTruthCollection  * truthMap  = NULL;
-
-  sc = evtStore()->retrieve(truthMap, m_tracksTruthName);
-  if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackTruthCollection with name "<< m_tracksTruthName <<" found in StoreGate" << endmsg;
+  SG::ReadHandle<TrackTruthCollection> truthMap{m_tracksTruthName};
+  if (not truthMap.isValid()) {
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackTruthCollection with name "<< m_tracksTruthName.key() <<" found in StoreGate" << endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Truth information will not be filled in the AlignMonNtuple" << endmsg;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name "<< m_tracksTruthName <<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name "<< m_tracksTruthName.key() <<" found in StoreGate" << endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< truthMap->size() <<" truth tracks from StoreGate" << endmsg;
   }
     
@@ -585,7 +572,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
             
 
     //tracktruth stuff (put in separate method)
-    if (truthMap) {
+    if (truthMap.get()) {
 	  
       //the key for the truth std::map is an ElementLink<TrackCollection> object
       //comprises a pointer to the track and reconstructed track collection

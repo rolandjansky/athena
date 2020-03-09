@@ -80,7 +80,6 @@ if doTileDigitToRawChannel:
     from TileRecUtils.TileRecFlags import jobproperties
     jobproperties.TileRecFlags.doTileFit = True
     jobproperties.TileRecFlags.doTileManyAmps = False
-    jobproperties.TileRecFlags.doTileOpt = False
     jobproperties.TileRecFlags.doTileOptATLAS = False
     jobproperties.TileRecFlags.doTileOpt2 = False
     

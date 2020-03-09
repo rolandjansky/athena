@@ -18,7 +18,6 @@ atlas_depends_on_subdirs( PUBLIC
                           TestBeam/TBEvent
                           PRIVATE
                           Calorimeter/CaloEvent
-                          Control/CxxUtils
                           Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArElecCalib )
 
@@ -30,7 +29,7 @@ atlas_add_component( LArEventTest
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArCablingLib TBEvent CaloEvent CxxUtils xAODEventInfo )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArCablingLib TBEvent CaloEvent xAODEventInfo )
 
 # Install files from the package:
 atlas_install_headers( LArEventTest )

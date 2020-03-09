@@ -45,7 +45,7 @@
 #include "xAODTrigEgamma/TrigElectronContainer.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h" 
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 //namespace Trk

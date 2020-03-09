@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -18,6 +18,7 @@
 #@date May 2011
 ################################################################################
 
+from __future__ import print_function
 from tauRec.tauRecFlags import jobproperties
 
 def getTauConversionFinderTool():
@@ -140,14 +141,14 @@ def getPhotonConversionTool():
                                         VertexForConstraint = [0.,0.,0.],
                                         CovVrtForConstraint = [0.015*0.015,0.,0.015*0.015,0.,0.,10000.*10000.])
         ToolSvc += InDetConversionVxFitterTool 
-        print      InDetConversionVxFitterTool
+        print (     InDetConversionVxFitterTool)
 
         # Distance of minimum approach utility
         #
         from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__SeedNewtonTrkDistanceFinder
         InDetConversionTrkDistanceFinder = Trk__SeedNewtonTrkDistanceFinder(name = 'InDetConversionTrkDistanceFinder'+name)
         ToolSvc += InDetConversionTrkDistanceFinder 
-        print      InDetConversionTrkDistanceFinder
+        print (     InDetConversionTrkDistanceFinder)
 
         # Straight line propagator needed to clean-up single track conversions
         #
@@ -158,7 +159,7 @@ def getPhotonConversionTool():
         from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__ConversionFinderUtils
         InDetConversionHelper = InDet__ConversionFinderUtils(name = "InDetConversionFinderUtils"+name)
         ToolSvc += InDetConversionHelper
-        print      InDetConversionHelper
+        print (     InDetConversionHelper)
 
         # Track selector tool
         #
@@ -181,7 +182,7 @@ def getPhotonConversionTool():
                                           RatioV0          =  -1.  )
 
         ToolSvc += InDetConversionTrackSelector
-        print      InDetConversionTrackSelector
+        print (     InDetConversionTrackSelector)
 
 
         # Track pairs selector
@@ -200,7 +201,7 @@ def getPhotonConversionTool():
                              MinTrackAngle              = 0.
                                                                                                      )
         ToolSvc += InDetConversionTrackPairsSelector
-        print      InDetConversionTrackPairsSelector
+        print (     InDetConversionTrackPairsSelector)
 
         # Vertex point estimator
         #
@@ -221,7 +222,7 @@ def getPhotonConversionTool():
                                    MaxPhi                 = [ 0.05, 0.1, 0.2 ]
                                                                             )
         ToolSvc += InDetConversionVtxPointEstimator
-        print      InDetConversionVtxPointEstimator
+        print (     InDetConversionVtxPointEstimator)
 
         # Conversion post selector
         #
@@ -243,7 +244,7 @@ def getPhotonConversionTool():
                                       MaxPhiVtxTrk     = 0.05
                                                                                       ) 
         ToolSvc += InDetConversionPostSelector
-        print      InDetConversionPostSelector
+        print (     InDetConversionPostSelector)
 
         # Single track conversion tool
         #
@@ -259,7 +260,7 @@ def getPhotonConversionTool():
                                      MinRatioOfHLhits           = 0.95 
                                                                                 )
         ToolSvc += InDetSingleTrackConversion
-        print      InDetSingleTrackConversion
+        print (     InDetSingleTrackConversion)
 ## Oct 5, following egamma
         from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__InDetConversionFinderTools
         MyInDetConversionFinderTools = InDet__InDetConversionFinderTools(
@@ -281,7 +282,7 @@ def getPhotonConversionTool():
                                                 IsConversion               = True         
                                                                                                   )
         ToolSvc += MyInDetConversionFinderTools
-        print      MyInDetConversionFinderTools
+        print (     MyInDetConversionFinderTools)
 
         from tauRecTools.tauRecToolsConf import PhotonConversionVertex
         photonConv = PhotonConversionVertex(name                        = "PhotonConversionVertex",

@@ -11,10 +11,10 @@
 #include <fstream>
 #include <iostream>
 #include "ObjSurfaceWriter.h"
-#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 namespace Acts {
 class TrackingVolume;

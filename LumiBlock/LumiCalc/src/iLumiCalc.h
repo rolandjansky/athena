@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "cmdline.h"
 #include "LumiCalc/LumiCalculator.h"
 #include "LumiCalc/CoolQuery.h"
 #include "LumiCalc/LumiBlockRangeContainerConverter.h"
@@ -11,12 +10,17 @@
 #include "GoodRunsLists/TGRLCollection.h"
 #include "GoodRunsLists/TMsgLogger.h"
 #include "DBDataModel/CollectionMetadata.h"
-#include <iomanip>
+#include "CxxUtils/checker_macros.h"
+
+#include "cmdline.h"
+
 #include <TROOT.h>
 #include <TStopwatch.h>
 #include <TString.h>
 #include <TFile.h>
 #include <TTree.h>
+
+#include <iomanip>
 #include <stdio.h>
 #include <sys/stat.h> 
 #include <sys/types.h>
@@ -182,30 +186,3 @@ bool FileExists(std::string strFilename) {
    
   return(blnReturn); 
 }
-
-//______________________________________________________________
-void print_usage(){
-
-  std::cout << std::endl;
-  std::cout << " --->>> i L U M I C A L C . E X E <<<---"<< std::endl;
-  std::cout << std::endl;
-  std::cout << "iLumiCalc.exe: this c++ program calculates integrated luminosity" << std::endl ;
-  std::cout << "by looping over a list of lumiblocks, given a set of input options." << std::endl;
-  std::cout << "Input file can be either an xml file, or a TAG file." << std::endl;
-  std::cout << std::endl;
-  std::cout << "Type: iLumiCalc.exe --help for the complete list of options" << std::endl ;
-  std::cout << std::endl;
-  std::cout << "Further help: https://twiki.cern.ch/twiki/bin/view/Atlas/CoolLumiCalc"<< std::endl;
-  std::cout << std::endl;
-  exit(-1);
-
-}
-
-
-//______________________________________________________________
-void print_credits(){
-  std::cout << "ATLAS - A Toroidal LHC Aparatus" << std::endl;
-  exit(-1);
-}
-
-

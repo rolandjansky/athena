@@ -59,7 +59,6 @@ LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,
     m_rodPhysicsV5(0),
     m_rodPhysicsV6(0),
     m_robFrag(0),
-    m_larCellFromDigit(0),
     m_error(0)
  {
   declareInterface< LArRodDecoder  >( this );
@@ -77,7 +76,6 @@ LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,
   declareProperty("BEPreselection",m_vBEPreselection,"For channel-selection: Barrel=0, Endcap=1");
   declareProperty("PosNegPreselection",m_vPosNegPreselection,"For channel-selection: C-Side:0, A-Side: 1");
   declareProperty("FTNumPreselection",m_vFTPreselection,"For channel-selection: Feedthrough numbers (e.g. 0 - 31 for barrel)");
-  declareProperty("UseCellMakerTool",m_useCellMakerTool=false);
   declareProperty("MultiDSPMode", m_MultiDSPMode=false);
   declareProperty("CheckSum", m_CheckSum=false);
   declareProperty("StatusMask", m_StatusMask=0x00000212);
@@ -258,29 +256,6 @@ LArRodDecoder::initialize()
    m_BlStructArray[10].push_back(m_rodAccumV3);  //12 Accumulated mode v3 
 
    m_larblockstruct = (LArRodBlockStructure*)NULL;
-
-   if (m_useCellMakerTool) {
-     IAlgTool* algTool;
-     sc=toolSvc->retrieveTool("LArCellBuilderDriver",algTool);
-     if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Unable to retrieve LArCellBuilderDriver" << endmsg;
-       msg(MSG::ERROR) << "No LArDigit to LArCell conversion" << endmsg;
-       // This should not prevent the tool to be initialized
-       sc = StatusCode::SUCCESS;
-     } else {
-       if(!(m_larCellFromDigit=dynamic_cast<LArCellBuilderDriver*>(algTool))){
-	 msg(MSG::ERROR) << "Unable to dynamic cast LArCellBuilderDriver" <<endmsg;
-	 return StatusCode::FAILURE;
-       }
-       sc = m_larCellFromDigit->initialize();
-       if (sc.isFailure()) {
-	 msg(MSG::ERROR) << "Unable to initialize LArCellBuilderDriver" << endmsg;
-       }
-       // Warn the tools that they are not supposed to fill
-       // the LArRawChannelCollection
-       m_larCellFromDigit->initEventTools();
-     }
-   }//if m_useCellMakerTool
 
 
    //Build list of preselected Feedthroughs

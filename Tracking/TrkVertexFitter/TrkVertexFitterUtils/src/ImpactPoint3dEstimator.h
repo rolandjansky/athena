@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERUTILS_IMPACTPOINT3DESTIMATOR_H
@@ -36,56 +36,33 @@ namespace Trk
 {
   class IExtrapolator;
 
-  class ImpactPoint3dEstimator : public AthAlgTool, virtual public IImpactPoint3dEstimator
+  class ImpactPoint3dEstimator : public extends<AthAlgTool, IImpactPoint3dEstimator>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
   /**
    * Default constructor due to Athena interface
    */
     ImpactPoint3dEstimator(const std::string& t, const std::string& n, const IInterface*  p);
-    
-   /**
-    * Destructor
-    */
-    ~ImpactPoint3dEstimator();
-    
-   /**
-    * Actual estimate method
-    */
-//    void Estimate3dIP(const ParametersBase* trackPerigee,const Vertex* theVertex);
-    
-   /**
-    * Access to the plane through 3D impact point
-    */  
- //   PlaneSurface* getPlaneThrough3dIP() const;
-   
-   
-   /**
-    * New method implementing the features of two above methods at once
-    */
-    template<typename T> PlaneSurface* _Estimate3dIPNoCurvature(const T*, const Amg::Vector3D* theVertex) const;
 
-    PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Amg::Vector3D* theVertex) const;
+    virtual ~ImpactPoint3dEstimator();
+    
+    virtual std::unique_ptr<PlaneSurface>
+    Estimate3dIP(const Trk::TrackParameters* trackPerigee,
+                 const Amg::Vector3D* theVertex,
+                 double& distance) const override;
 
-    PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Amg::Vector3D* theVertex) const;
+    virtual std::unique_ptr<PlaneSurface>
+    Estimate3dIP(const Trk::NeutralParameters* neutralPerigee,
+                 const Amg::Vector3D* theVertex,
+                 double& distance) const override;
    
-    /**
-     * Access to the 3D impact point
-     */
-    Amg::Vector3D* get3dIP() const;
-
-    /**
-     * Access to the IP 3D distance
-     */
-    double getDistance() const;
- 
     /**
       * Actual estimate method, changing the state of Trk::VxTrackAtVertex
       */
-    bool addIP3dAtaPlane(VxTrackAtVertex &,const Amg::Vector3D & vertex) const;
+    virtual bool addIP3dAtaPlane(VxTrackAtVertex &,const Amg::Vector3D & vertex) const override;
 
     /**
       *
@@ -94,12 +71,18 @@ namespace Trk
       * intersecting the track at point of closest approach, with track ortogonal to the plane and center 
       * of the plane defined as the given vertex.
       */
-    Trk::AtaPlane * IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const;
+    virtual const Trk::AtaPlane * IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const override;
 
     //Same for neutrals
-    Trk::NeutralAtaPlane * IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const;
+    virtual const Trk::NeutralAtaPlane * IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const override;
 
   private:
+    template<typename T>
+    std::unique_ptr<PlaneSurface>
+    Estimate3dIPNoCurvature(const T*,
+                            const Amg::Vector3D* theVertex,
+                            double& distance) const;
+
     
     
     ToolHandle< Trk::IExtrapolator > m_extrapolator;
@@ -108,18 +91,8 @@ namespace Trk
     int m_maxiterations;
     double m_precision;
     
-    mutable Amg::Vector3D* m_vertex;
-    
-    mutable double m_distance;
-    
-
   };
 
-
-  inline double ImpactPoint3dEstimator::getDistance() const
-  {
-    return m_distance;
-  }
 }
 
 #endif

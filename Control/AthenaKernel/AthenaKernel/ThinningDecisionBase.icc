@@ -1,0 +1,51 @@
+/*
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
+/**
+ * @file AthenaKernel/ThinningDecisionBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2019
+ * @brief Hold thinning decisions for one container.
+ */
+
+
+namespace SG {
+
+
+/**
+ *@ brief Return true if element @c ndx should be thinned.
+ */
+inline
+bool ThinningDecisionBase::thinned (size_t ndx) const
+{
+  return m_mask.test (ndx);
+}
+
+
+/**
+ * @brief Return the total size of the container being thinned.
+ */
+inline
+size_t ThinningDecisionBase::size() const
+{
+  return m_mask.size();
+}
+
+
+/**
+ * @brief Return the index corresponding to @c ndxOrig after thinning.
+ * @param ndxOrig Original container index.
+ *
+ * Returns the index at which element @c ndxOrig ends up after thinning.
+ * If the element was thinned away, returns @c RemovedIdx.
+ *
+ * This information is available only after @c buildIndexMap has been called.
+ */
+inline
+size_t ThinningDecisionBase::index (size_t ndxOrig) const
+{
+  return m_indexMap.at (ndxOrig);
+}
+
+
+} // namespace SG

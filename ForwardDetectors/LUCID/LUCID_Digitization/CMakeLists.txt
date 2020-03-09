@@ -29,7 +29,6 @@ atlas_add_component( LUCID_Digitization
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib xAODEventInfo LUCID_RawEvent LUCID_SimEvent GaudiKernel GeneratorObjects HitManagement )
 
 # Install files from the package:
-atlas_install_headers( LUCID_Digitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

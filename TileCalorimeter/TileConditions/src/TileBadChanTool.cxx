@@ -15,6 +15,9 @@
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/ReadCondHandle.h"
 
+// Gaudi includes
+#include "GaudiKernel/EventContext.h"
+
 #include <string>
 #include <algorithm>
 
@@ -117,10 +120,20 @@ CaloBadChannel TileBadChanTool::caloStatus(Identifier cell_id) const {
 //
 //____________________________________________________________________
 const TileBchStatus&
+TileBadChanTool::getAdcStatus(const HWIdentifier& adc_id, const EventContext& ctx) const {
+
+  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey, ctx);
+  return badChannels->getAdcStatus(adc_id);
+
+}
+
+//
+//____________________________________________________________________
+const TileBchStatus&
 TileBadChanTool::getAdcStatus(const HWIdentifier& adc_id) const {
 
-  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
-  return badChannels->getAdcStatus(adc_id);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getAdcStatus(adc_id, ctx);
 
 }
 
@@ -159,9 +172,31 @@ TileBadChanTool::getChannelStatus(IdentifierHash hash_id) const {
 //
 //____________________________________________________________________
 const TileBchStatus&
+TileBadChanTool::getChannelStatus(const HWIdentifier& channel_id, const EventContext& ctx) const {
+
+  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey, ctx);
+  return badChannels->getChannelStatus(channel_id);
+
+}
+
+//
+//____________________________________________________________________
+const TileBchStatus&
 TileBadChanTool::getChannelStatus(const HWIdentifier& channel_id) const {
 
-  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getChannelStatus(channel_id, ctx);
+
+}
+
+//
+//____________________________________________________________________
+const TileBchStatus&
+TileBadChanTool::getChannelStatus(unsigned int drawerIdx, unsigned int channel, const EventContext& ctx) const {
+
+  HWIdentifier channel_id = m_tileHWID->channel_id(m_roses[drawerIdx], m_drawers[drawerIdx], channel);
+
+  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey, ctx);
   return badChannels->getChannelStatus(channel_id);
 
 }
@@ -171,10 +206,20 @@ TileBadChanTool::getChannelStatus(const HWIdentifier& channel_id) const {
 const TileBchStatus&
 TileBadChanTool::getChannelStatus(unsigned int drawerIdx, unsigned int channel) const {
 
-  HWIdentifier channel_id = m_tileHWID->channel_id(m_roses[drawerIdx], m_drawers[drawerIdx], channel);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getChannelStatus(drawerIdx, channel, ctx);
 
-  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
-  return badChannels->getChannelStatus(channel_id);
+}
+
+//
+//____________________________________________________________________
+const TileBchStatus&
+TileBadChanTool::getAdcStatus(unsigned int drawerIdx, unsigned int channel, unsigned int adc, const EventContext& ctx) const {
+
+  HWIdentifier adc_id =  m_tileHWID->adc_id(m_roses[drawerIdx], m_drawers[drawerIdx], channel, adc);
+
+  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey, ctx);
+  return badChannels->getAdcStatus(adc_id);
 
 }
 
@@ -183,10 +228,8 @@ TileBadChanTool::getChannelStatus(unsigned int drawerIdx, unsigned int channel) 
 const TileBchStatus&
 TileBadChanTool::getAdcStatus(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  HWIdentifier adc_id =  m_tileHWID->adc_id(m_roses[drawerIdx], m_drawers[drawerIdx], channel, adc);
-
-  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
-  return badChannels->getAdcStatus(adc_id);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getAdcStatus(drawerIdx, channel, adc, ctx);
 
 }
 
@@ -210,9 +253,9 @@ uint32_t TileBadChanTool::encodeStatus(const TileBchStatus& status) const {
 
 }
 
-const std::vector<float>& TileBadChanTool::getTripsProbabilities(unsigned int ros) const {
+const std::vector<float>& TileBadChanTool::getTripsProbabilities(unsigned int ros, const EventContext& ctx) const {
 
-  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
+  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey, ctx);
 
   const std::vector<std::vector<float>>& tripsProbs = badChannels->getTripsProbabilities();
 
@@ -223,13 +266,27 @@ const std::vector<float>& TileBadChanTool::getTripsProbabilities(unsigned int ro
   return m_defaultTripsProbs;
 }
 
+const std::vector<float>& TileBadChanTool::getTripsProbabilities(unsigned int ros) const {
 
-bool TileBadChanTool::isDrawerMasked(unsigned int frag_id) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getTripsProbabilities(ros, ctx);
 
-  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
+}
+
+
+bool TileBadChanTool::isDrawerMasked(unsigned int frag_id, const EventContext& ctx) const {
+
+  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey, ctx);
   const std::vector<int>& maskedDrawers = badChannels->getMaskedDrawers();
 
   return std::binary_search (maskedDrawers.begin(),
                              maskedDrawers.end(),
                              frag_id);
+}
+
+bool TileBadChanTool::isDrawerMasked(unsigned int frag_id) const {
+
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isDrawerMasked(frag_id, ctx);
+
 }

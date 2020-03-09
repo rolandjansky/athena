@@ -54,11 +54,11 @@ int getPar()
 	line[strlen(line)-1] = 0;
       else 
 	return -1;
-    }
   
-  if(-1 == fclose(f)){
-    std::cerr<<"can not close file"<< std::endl;
-  }
+      if(-1 == fclose(f)){
+        std::cerr<<"can not close file"<< std::endl;
+      }
+    }
 
   string temp(line);
   string temp2="";
@@ -114,17 +114,17 @@ void saveHisto(TH1F *h1, char *opt)
   
   // std::cout << com << std::endl;
 
-  char line[999];
+  char line[999] = {0};
   FILE *f=gSystem->OpenPipe(com.Data(),"r");
   if(f)
     {
       fgets(line,999,f);
       line[strlen(line)-1] = 0;
-    }
   
-  if(-1 == fclose(f)){
-    std::cerr<<"can not close file"<< std::endl;
-  }
+      if(-1 == fclose(f)){
+        std::cerr<<"can not close file"<< std::endl;
+      }
+    }
 
   float lim=atof(line);
 
@@ -193,17 +193,17 @@ void saveHisto(TH1F *h1)
   //  TString com="grep \"RTTParm_truth_"+name+ " \"  CaloRec_RTT*_log | cut -d= -f2 | tail -n1";
   TString com="grep RTTParm_truth_"+name+ " "+filePar +" | cut -d= -f2 | tail -n1";
   
-  char line[999];
+  char line[999] = {0};
   FILE *f=gSystem->OpenPipe(com.Data(),"r");
   if(f)
     {
       fgets(line,999,f);
       line[strlen(line)-1] = 0;
-    }
   
-  if(-1 == fclose(f)){
-    std::cerr<<"Can not close file"<< std::endl;
-  }
+      if(-1 == fclose(f)){
+        std::cerr<<"Can not close file"<< std::endl;
+      }
+    }
 
   float lim=atof(line);
 
@@ -585,7 +585,7 @@ m_tmp2->Fill(EtaGen[indEle[iele]]);
 		      double deta = EtaGen[indEle[iele]] - cl_eta[ic];
 		      double dphi = PhiGen[indEle[iele]] - cl_phi[ic];
 		      if (dphi > M_PI) 
-			double dphi = fabs(dphi) - 2.*M_PI;
+			dphi = fabs(dphi) - 2.*M_PI;
 		      double dr = sqrt(dphi*dphi + deta*deta);
 		    
 		      if (dr < drmin) 
@@ -699,7 +699,7 @@ m_tmp2->Fill(EtaGen[indEle[iele]]);
 			double deta = EtaGen[indEle[iele]] - cl_eta[ic];
 			double dphi = PhiGen[indEle[iele]] - cl_phi[ic];
 			if (dphi > M_PI) 
-			  double dphi = fabs(dphi) - 2.*M_PI;
+			  dphi = fabs(dphi) - 2.*M_PI;
 			double dr = sqrt(dphi*dphi + deta*deta);
 		    
 			if (dr < drmin) 
@@ -811,7 +811,7 @@ else
 			double deta = EtaGen[indEle[iele]] - cl_eta[ic];
 			double dphi = PhiGen[indEle[iele]] - cl_phi[ic];
 			if (dphi > M_PI) 
-			  double dphi = fabs(dphi) - 2.*M_PI;
+			  dphi = fabs(dphi) - 2.*M_PI;
 			double dr = sqrt(dphi*dphi + deta*deta);
 		    
 			if (dr < drmin) 

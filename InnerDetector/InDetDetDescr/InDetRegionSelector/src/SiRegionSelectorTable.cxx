@@ -39,7 +39,6 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
      m_printHashId(true),
      m_printTable(false),
      m_noDBM(true),
-     m_pixIdMapping("PixelCablingSvc", name),
      m_sctCablingToolInc("SCT_CablingToolInc")
 {
   declareInterface<IRegionIDLUT_Creator>(this);
@@ -75,10 +74,12 @@ SiRegionSelectorTable::initialize(){
     return StatusCode::FAILURE;
   } 
  
-  StatusCode  sc;
+  ATH_CHECK(m_condCablingKey.initialize());
 
-  sc = createTable();
-  return sc;
+  ATH_MSG_WARNING("So far, this prevents the conditions migration!! The createTable() should NOT be used in the initilization step...");
+  ATH_CHECK(createTable());
+
+  return StatusCode::SUCCESS;
 }
 
 
@@ -120,12 +121,7 @@ SiRegionSelectorTable::createTable()
     if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
   }
 
-  if (manager->isPixel()) {
-    if (m_pixIdMapping.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the Pixel Mapping tool." << endmsg;
-      return StatusCode::FAILURE;
-    }
-  } else { // SCT
+  if (!manager->isPixel()) { // SCT
     if (m_sctCablingToolInc.retrieve().isFailure()) {
       msg(MSG::ERROR) << "Can't get the SCT_CablingToolInc." << endmsg;
       return StatusCode::FAILURE;
@@ -140,6 +136,8 @@ SiRegionSelectorTable::createTable()
   if   ( manager->isPixel() ) rd = new RegSelSiLUT(RegSelSiLUT::PIXEL);
   else                        rd = new RegSelSiLUT(RegSelSiLUT::SCT);
 
+
+  SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
 
   SiDetectorElementCollection::const_iterator iter;
   for (iter = manager->getDetectorElementBegin(); iter != manager->getDetectorElementEnd(); ++iter){
@@ -176,7 +174,7 @@ SiRegionSelectorTable::createTable()
 	  if ( m_noDBM && std::fabs(barrelEC)>3 ) continue; // skip DBM modules
 
 	  layerDisk = pixelId->layer_disk(element->identify());
-	  robId=m_pixIdMapping->getRobID(element->identify());
+    robId=pixCabling->find_entry_offrob(element->identify());
 	}
 	else { 
 	  msg(MSG::ERROR) << " could not get PixelID for " << element->getIdHelper() << endmsg;

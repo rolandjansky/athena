@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_SIMULATIONSELECTORS_BASESIMULATIONSELECTOR_H
@@ -48,7 +48,7 @@ class BaseSimulationSelector : public extends<AthAlgTool, ISimulationSelector> {
     virtual SimSvcID simSvcID() override;
 
     /** return the simulation flavor */
-    virtual ISF::SimulationFlavor simFlavor() override;
+    virtual ISF::SimulationFlavor simFlavor() const override;
 
     /** initialize Selector */
     virtual void initializeSelector() override;
@@ -65,7 +65,7 @@ class BaseSimulationSelector : public extends<AthAlgTool, ISimulationSelector> {
     virtual void update(const ISFParticle& ) override;
 
     /** make the routing decision */
-    virtual bool selfSelect(const ISFParticle& particle) override;
+    virtual bool selfSelect(const ISFParticle& particle) const override;
 
   private:
     ServiceHandle<ISimulationSvc>       m_simulator;  //!< simulation service assigned to a single advisor

@@ -21,8 +21,7 @@
 #include "CLHEP/Random/RandFlat.h"
 
 // To get TRT dig. settings:
-#include "StoreGate/StoreGateSvc.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include <vector>
 #include <map>

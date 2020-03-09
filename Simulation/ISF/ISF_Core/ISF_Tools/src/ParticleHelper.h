@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,8 +45,8 @@ namespace ISF {
       ParticleHelper( const std::string& t, const std::string& n, const IInterface* p );
 
       // Athena algtool's Hooks
-      StatusCode  initialize();
-      StatusCode  finalize();
+      virtual StatusCode  initialize() override;
+      virtual StatusCode  finalize() override;
 
       /** Create a new particle */
       virtual ISFParticle* createParticle( double x, double y, double z,

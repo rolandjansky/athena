@@ -1,17 +1,45 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
+_steeringFlags = [ 'doGlobalMon', 'LVL1CaloMon', 'doCTPMon', 'doHLTMon',
+                   'doPixelMon', 'doSCTMon', 'doTRTMon', 'doInDetMon',
+                   'doLArMon', 'doTileMon',
+                   'doCaloGlobalMon', 'doMuonMon',
+                   'doLucidMon', 'doAFPMon',
+                   'doHIMon', 'doEgammaMon', 'doJetMon', 'doMissingEtMon',
+                   'doTauMon', 'doJetTagMon' ]
+
+_lowLevelSteeringFlags = [ 'InDet.doGlobalMon', 'InDet.doAlignMon',
+                           'InDet.doPerfMon',  'Muon.doRawMon',
+                           'Muon.doTrackMon', 'Muon.doAlignMon',
+                           'Muon.doSegmentMon',
+                           'Muon.doPhysicsMon', 'Muon.doTrkPhysMon',
+                           'Muon.doCombinedMon'
+                           ]
+
 def createDQConfigFlags():
     acf=AthConfigFlags()
     acf.addFlag('DQ.doMonitoring', True)
-    acf.addFlag('DQ.doGlobalMon', True)
     acf.addFlag('DQ.doStreamAwareMon', True)
     acf.addFlag('DQ.disableAtlasReadyFilter', False)
+    acf.addFlag('DQ.enableLumiAccess', True)
     acf.addFlag('DQ.FileKey', 'CombinedMonitoring')
     acf.addFlag('DQ.useTrigger', True)
+
+    # temp thing for steering from inside old-style ...
+    acf.addFlag('DQ.isReallyOldStyle', False)
+
+    # steering ...
+    for flag in _steeringFlags + _lowLevelSteeringFlags:
+        acf.addFlag('DQ.Steering.' + flag, True)
+    # HLT steering ...
+    from PyUtils.moduleExists import moduleExists
+    if moduleExists ('TrigHLTMonitoring'):
+        from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
+        acf.join(createHLTDQConfigFlags())
     return acf
 
 def createComplexDQConfigFlags():
@@ -43,4 +71,9 @@ def getEnvironment(flags):
         return 'online'
     else:
         # this could use being rethought to properly encode input and output types perhaps ...
-        return 'tier0'
+        return 'tier0ESD'
+
+def allSteeringFlagsOff():
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    for flag in _steeringFlags:
+        setattr(getattr(ConfigFlags, 'DQ.Steering'), flag, False)

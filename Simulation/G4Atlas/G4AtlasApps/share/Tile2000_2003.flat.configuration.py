@@ -47,7 +47,7 @@ ServiceMgr += IOVDbSvc()
 if not hasattr(globalflags, "ConditionsTag") or not globalflags.ConditionsTag.get_Value():
     msg = "Tile2000_2003._do_jobproperties :: conditions tag has not been set and is no longer guessed by SimAtlasKernel. "
     msg += "You must set the globaltags.ConditionsTag flag in your job options."
-    print msg
+    printfunc (msg)
     raise SystemExit("Tile2000_2003._do_jobproperties :: Global ConditionsTag not set")
 if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
     ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
@@ -118,10 +118,10 @@ if jobproperties.AthenaCommonFlags.PoolHitsOutput.statusOn :
     TBDetDescrLoader.OutputLevel = 5
 
 ## Explicitly create DetectorGeometrySvc - temporary fix
-from AthenaCommon.CfgGetter import getService, getPublicTool
+from AthenaCommon.CfgGetter import getService
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr += getService('DetectorGeometrySvc')
-ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
+ServiceMgr += getService('PhysicsListSvc')
 
 ## TBSimSkeleton._do_metadata
 from G4AtlasApps.G4Atlas_Metadata import createTBSimulationParametersMetadata
@@ -157,7 +157,6 @@ if not simFlags.ISFRun:
         #import EventInfoMgt.EventInfoMgtInit
 
         ## EventInfo & TruthEvent always written by default
-        stream1.ForceRead=True
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
                             "JetCollection#*"]
@@ -193,11 +192,6 @@ if not simFlags.ISFRun:
                                  "CSCSimHitCollection#*",
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
-            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-                stream1.ItemList += ["sTGCSimHitCollection#*"]
-                stream1.ItemList += ["MMSimHitCollection#*"]
-                stream1.ItemList += ["GenericMuonSimHitCollection#*"]
 
         ## Lucid
         if DetFlags.Lucid_on():
@@ -318,7 +312,7 @@ if not simFlags.ISFRun:
         if athenaCommonFlags.SkipEvents.statusOn and athenaCommonFlags.SkipEvents()!=0:
             msg = "SimSkeleton._do_readevgen :: athenaCommonFlags.SkipEvents set in a job without an active "
             msg += "athenaCommonFlags.PoolEvgenInput flag: ignoring event skip request"
-            print msg
+            printfunc (msg)
 
     ## SimSkeleton._do_persistency
     from G4AtlasApps.SimFlags import simFlags

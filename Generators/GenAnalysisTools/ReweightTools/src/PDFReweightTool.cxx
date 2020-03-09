@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -17,7 +17,6 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "AthContainers/DataVector.h"
 #include "GeneratorObjects/McEventCollection.h"
 
@@ -33,7 +32,6 @@ PDFReweightTool::PDFReweightTool(const std::string& type,
 	: AthAlgTool(type, name, parent), 
 	m_evt(NULL),
 	m_mceventTESout(NULL),
-	m_storeGate(NULL),
 	m_fl1(0),
 	m_fl2(0),
 	m_x1(0.),
@@ -65,15 +63,6 @@ StatusCode PDFReweightTool::initialize() {
 	<< "Initializing PDF Reweighting Tool " 
 	<< endmsg;	
 
-	//retrieve StoreGate
-	StatusCode sc = service("StoreGateSvc", m_storeGate);
-	if (sc.isFailure()) {
-     		msg(MSG::ERROR)
-          	<< "Unable to retrieve pointer to StoreGateSvc"
-          	<< endmsg;
-    		return sc;
-  	}
-	
 	//consistency check for the tool propierties
 	//check #1	
 	if(m_GeneratorUse && m_DifferentCMEnergies)	{
@@ -205,7 +194,7 @@ StatusCode PDFReweightTool::execute() {
 	//in a new McEventCollection is requested 
 	if(!m_GeneratorUse && m_McEventCollectionOut!="")	{
 		m_mceventTESout = new McEventCollection();
-		sc = m_storeGate->record( m_mceventTESout, m_McEventCollectionOut);
+		sc = evtStore()->record( m_mceventTESout, m_McEventCollectionOut);
   		if( sc.isFailure() ) {
      			msg(MSG::WARNING)
           		<< "New MC event container was not recorded in TDS"
@@ -220,7 +209,7 @@ StatusCode PDFReweightTool::execute() {
 	
 	if(!m_GeneratorUse) { //runs on a POOL file (EVNT, AOD and etc.)
 		if(m_McEventCollection!="") {//input McEventCollection is specified
-			sc = m_storeGate->retrieve( mceventTES, m_McEventCollection);
+			sc = evtStore()->retrieve( mceventTES, m_McEventCollection);
   			if( sc.isFailure()  ||  !mceventTES ) {
      				msg(MSG::WARNING)
           			<< "No MC event container found in TDS"

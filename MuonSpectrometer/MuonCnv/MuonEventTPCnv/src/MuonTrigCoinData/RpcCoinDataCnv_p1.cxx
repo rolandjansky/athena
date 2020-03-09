@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -10,7 +10,6 @@
 
 #include "MuonTrigCoinData/RpcCoinData.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinDataCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 
 Muon::RpcCoinData
 RpcCoinDataCnv_p1::
@@ -29,7 +28,7 @@ createRpcCoinData( const Muon::RpcCoinData_p1 *persObj,
   for (short x : persObj->m_rdoList)
     rdoList.emplace_back ((unsigned int) x+id32);
 
-  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
+  auto cmat = std::make_unique<Amg::MatrixX>(1,1);
   (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
 
   Muon::RpcCoinData data (id,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -100,12 +100,19 @@ MufastOTRHypo::getRoIFeature(uint32_t roiWord) {
     int BCID_diff = 0;
     unsigned int sysID = 0;
   
-    for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
-           it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
-        if( ((*it).first).roIWord() == roiWord ) {
-            BCID_diff = (*it).second;
+    //get muon RoIs
+    auto roiVectors = m_trigMuonRoITool->decodeMuCTPi();
+    if(!roiVectors){
+      ATH_MSG_VERBOSE("No RoIs found");
+      return std::pair<unsigned int,int>(sysID,BCID_diff);
+    }
+
+    //loop over out of time RoIs
+    for(auto it : *(roiVectors->outOfTimeRois)){
+        if( ((it).first).roIWord() == roiWord ) {
+            BCID_diff = (it).second;
 	    unsigned int temp_sysID =
-            getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
+            getBitMaskValue(((it).first).getSectorAddress(), LVL1::SysIDMask );
             if( temp_sysID & 0x2 ) sysID = 1;
             else if( temp_sysID & 0x1 ) sysID = 2;
 	    break;

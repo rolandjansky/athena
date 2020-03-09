@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCcablingServerSvc_H
@@ -11,6 +11,8 @@
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "MuonCablingServers/ICallBackRPCcablingServerSvc.h"
 
+#include <atomic>
+
 class StoreGateSvc;
 class ITagInfoMgr;
 
@@ -20,8 +22,8 @@ class RPCcablingServerSvc : public AthService,
                             virtual public IRPCcablingServerSvc, virtual public ICallBackRPCcablingServerSvc 
 {
     private:
-    mutable BooleanProperty m_atlas;
-    mutable bool  m_tagsCompared;
+    BooleanProperty m_atlas;
+    mutable std::atomic_bool m_tagsCompared;
     bool m_forcedUse;
     BooleanProperty m_useMuonRPC_CablingSvc;
 

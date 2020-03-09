@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODBTaggingTrigAuxContainerCnv.h 705820 2015-11-04 14:54:05Z krasznaa $
@@ -9,14 +9,15 @@
 #define XAODBTAGGINGATHENAPOOL_XAODBTAGGINGTRIGAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODBTagging/BTaggingTrigAuxContainer.h"
+#include "xAODBTaggingTrigAuxContainerOfflineCnv_v1.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::BTaggingTrigAuxContainer,
-                               xAOD::BTaggingTrigAuxContainer >
+typedef T_AthenaPoolAuxContainerCnv< xAOD::BTaggingTrigAuxContainer,
+                                     xAODBTaggingTrigAuxContainerOfflineCnv_v1 >
    xAODBTaggingTrigAuxContainerCnvBase;
 
 /**
@@ -34,23 +35,17 @@ typedef T_AthenaPoolCustomCnv< xAOD::BTaggingTrigAuxContainer,
  * $Date: 2015-11-04 15:54:05 +0100 (Wed, 04 Nov 2015) $
  */
 class xAODBTaggingTrigAuxContainerCnv :
-   public xAODBTaggingTrigAuxContainerCnvBase {
-
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODBTaggingTrigAuxContainerCnv >;
-
-protected:
-   /// Converter constructor
+   public xAODBTaggingTrigAuxContainerCnvBase
+{
 public:
-   xAODBTaggingTrigAuxContainerCnv( ISvcLocator* svcLoc );
-protected:
+   using xAODBTaggingTrigAuxContainerCnvBase::xAODBTaggingTrigAuxContainerCnvBase;
+
 
    /// Function preparing the container to be written out
    virtual xAOD::BTaggingTrigAuxContainer*
-   createPersistent( xAOD::BTaggingTrigAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::BTaggingTrigAuxContainer* createTransient();
-
+   createPersistentWithKey( xAOD::BTaggingTrigAuxContainer* trans,
+                            const std::string& key) override;
 }; // class xAODBTaggingTrigAuxContainerCnv
+
 
 #endif // XAODBTAGGINGATHENAPOOL_XAODBTAGGINGTRIGAUXCONTAINERCNV_H

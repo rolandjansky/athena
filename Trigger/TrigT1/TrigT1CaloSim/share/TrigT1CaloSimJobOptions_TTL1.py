@@ -56,7 +56,8 @@ if job.TriggerTowerMaker.BaselineCorrection:
             pedestalProvider = LVL1__L1DynamicPedestalProviderTxt('L1DynamicPedestalProviderTxt',
                                                                   InputFileEM='DynamicPedestalCorrectionEM.txt',
                                                                   InputFileHAD='DynamicPedestalCorrectionHAD.txt')
-            pedestalProvider.BeamIntensityPattern=inputFileSummary['metadata']['/Digitization/Parameters']['BeamIntensityPattern']
+            from PyUtils.MetaReaderPeeker import metadata
+            pedestalProvider.BeamIntensityPattern = metadata['BeamIntensityPattern']
             ToolSvc += pedestalProvider
     ToolSvc.L1TriggerTowerTool.L1DynamicPedestalProvider=pedestalProvider
 

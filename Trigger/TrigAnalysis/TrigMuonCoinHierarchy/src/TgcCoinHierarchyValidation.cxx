@@ -37,7 +37,6 @@ namespace Trigger {
   TgcCoinHierarchyValidation::TgcCoinHierarchyValidation(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
      ,m_tgcCoinSvc(0)
-     ,m_tgcHelper(0)
      ,m_tgcCabling(0)
      ,m_timingName("UNKNOWN")
      ,m_bc(UINT_MAX)
@@ -81,20 +80,7 @@ namespace Trigger {
     }
 
     // Prepare hit analysis //
-    if(m_doHit){
-      const MuonGM::MuonDetectorManager *p_muonMgr;
-      sc = detStore()->retrieve(p_muonMgr);
-      if(sc.isFailure()) {
-        ATH_MSG_FATAL("Could not retrieve MuonDetectorManager");
-        return sc;
-      }
-
-      m_tgcHelper = p_muonMgr->tgcIdHelper();
-      if(!m_tgcHelper) {
-        ATH_MSG_FATAL("Could not retrieve TGC Helper");
-        return StatusCode::FAILURE;
-      }
-    }
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     // Prepare log maker //
     if(!m_logName.empty()){
@@ -255,11 +241,6 @@ namespace Trigger {
       return false;
     }
 
-    if(!TgcCabGet->isConfigured()){
-      ATH_MSG_FATAL("TgcCablingServiceSvc failed about isConfigured() in doAnalysisHit().");
-      return false;
-    }
-
     sc = TgcCabGet->giveCabling(m_tgcCabling);
     if(!sc.isSuccess()){
       ATH_MSG_FATAL("TgcCabGet is failed in doAnalysisHit().");
@@ -350,27 +331,27 @@ namespace Trigger {
   }
 
   int TgcCoinHierarchyValidation::getSTATION(const Identifier id){
-    return  m_tgcHelper->stationName(id);
+    return  m_muonIdHelperTool->tgcIdHelper().stationName(id);
   }
 
   int TgcCoinHierarchyValidation::getStEta(const Identifier id){
-    return m_tgcHelper->stationEta(id);
+    return m_muonIdHelperTool->tgcIdHelper().stationEta(id);
   }
 
   int TgcCoinHierarchyValidation::getStPhi(const Identifier id){
-    return m_tgcHelper->stationPhi(id);
+    return m_muonIdHelperTool->tgcIdHelper().stationPhi(id);
   }
 
   int TgcCoinHierarchyValidation::getGasgap(const Identifier id){
-    return m_tgcHelper->gasGap(id);
+    return m_muonIdHelperTool->tgcIdHelper().gasGap(id);
   }
 
   int TgcCoinHierarchyValidation::getChannel(const Identifier id){
-    return m_tgcHelper->channel(id);
+    return m_muonIdHelperTool->tgcIdHelper().channel(id);
   }
 
   int TgcCoinHierarchyValidation::getIsStrip(const Identifier id){
-    return m_tgcHelper->isStrip(id);
+    return m_muonIdHelperTool->tgcIdHelper().isStrip(id);
   }
 
 

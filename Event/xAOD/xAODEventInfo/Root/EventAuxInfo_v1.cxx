@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: EventAuxInfo_v1.cxx 657675 2015-03-30 01:36:11Z ssnyder $
 
 // Local include(s):
 #include "xAODEventInfo/versions/EventAuxInfo_v1.h"
@@ -91,9 +89,15 @@ namespace xAOD {
       AUX_VARIABLE( beamStatus );
 
       // Detector flags:
-#define DET_FLAG(VAR) \
- m_decorFlags.insert (AUX_VARIABLE( VAR, SG::AuxTypeRegistry::Flags::Atomic ))
-      
+#define DET_FLAG(VAR)                                                   \
+      AUX_VARIABLE( VAR, SG::AuxTypeRegistry::Flags::Atomic );          \
+      do {                                                              \
+         static const auxid_t auxid =                                   \
+            getAuxID( #VAR, VAR,                                        \
+                      SG::AuxTypeRegistry::Flags::Atomic );             \
+         m_decorFlags.insert( auxid );                                  \
+      } while( false )
+
       DET_FLAG( pixelFlags );
       DET_FLAG( sctFlags );
       DET_FLAG( trtFlags );

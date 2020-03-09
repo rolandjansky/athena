@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_GETLCCLASSIFICATION_H
@@ -17,8 +17,6 @@
  * single pion simulations to classify as hadronic or electromagnetic.
  * The output histograms need a combination step to calculate the
  * actual probabilty distributions. */
-
-class StoreGateSvc;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

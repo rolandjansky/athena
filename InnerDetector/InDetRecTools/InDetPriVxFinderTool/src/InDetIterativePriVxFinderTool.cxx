@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -186,7 +186,7 @@ InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES)
       }
       if (selectionPassed) {
         ElementLink<TrackCollection> link;
-        link.setElement(const_cast<Trk::Track*>(*itr));
+        link.setElement(*itr);
         Trk::LinkToTrack* linkTT = new Trk::LinkToTrack(link);
         linkTT->setStorableObject(*trackTES);
         selectedTracks.push_back(linkTT);
@@ -227,7 +227,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
       if (selectionPassed) {
         ElementLink<Trk::TrackParticleBaseCollection> link;
-        link.setElement(const_cast<Trk::TrackParticleBase*>(*itr));
+        link.setElement(*itr);
         Trk::LinkToTrackParticleBase* linkTT = new Trk::LinkToTrackParticleBase(link);
         linkTT->setStorableObject(*trackTES);
         selectedTracks.push_back(linkTT);
@@ -279,7 +279,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
       if (selectionPassed) {
         ElementLink<xAOD::TrackParticleContainer> link;
-        link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+        link.setElement(*itr);
         Trk::LinkToXAODTrackParticle* linkTT = new Trk::LinkToXAODTrackParticle(link);
         linkTT->setStorableObject(*trackParticles);
         selectedTracks.push_back(linkTT);
@@ -426,13 +426,10 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
             counter += 1;
           }
         } else { //check first whether it is not too far away!
-          bool isOK = false;
           double distance = 0.;
           try
           {
-            Trk::PlaneSurface* mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter, &actualVertex);
-            delete mySurface;
-            isOK = true;
+            std::unique_ptr<Trk::PlaneSurface> mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter, &actualVertex, distance);
           }
           catch (error::ImpactPoint3dEstimatorProblem err)
           {
@@ -441,10 +438,6 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
             endmsg;
           }
 
-
-          if (isOK) {
-            distance = m_ImpactPoint3dEstimator->getDistance();
-          }
 
           if (distance < 0) {
             msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endmsg;

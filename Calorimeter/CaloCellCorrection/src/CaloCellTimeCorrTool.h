@@ -1,26 +1,25 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//Dear emacs, this is -*-c++-*-
+
 
 #ifndef CALOCELLCORRECTION_CALOCELLTIMECORRTOOL_H
 #define CALOCELLCORRECTION_CALOCELLTIMECORRTOOL_H
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "CaloInterface/ICaloCellMakerTool.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"  
 
-#include "CaloUtils/CaloCellCorrection.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "StoreGate/DataHandle.h"  
-#include "AthenaKernel/IOVSvcDefs.h"
-#include <string>
-
-class CaloCell;
-class CaloCondBlobFlt;
+class CaloCellContainer;
 
 /** @class CaloCellTimeCorrTool
     @brief Tool to shift cell time values
 */
 
-class CaloCellTimeCorrTool : public CaloCellCorrection {
+class CaloCellTimeCorrTool 
+  : public extends<AthAlgTool, ICaloCellMakerTool> 
+{
 public:
   
   CaloCellTimeCorrTool (const std::string& type, const std::string& name, 
@@ -28,18 +27,13 @@ public:
 
   ~CaloCellTimeCorrTool();
   virtual StatusCode initialize() override;
+  
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
-  virtual void MakeCorrection (CaloCell* theCell,
-                               const EventContext& ctx) const override;
-
- private: 
-  /// IOV callback method
-  StatusCode load(IOVSVC_CALLBACK_ARGS); 
-
-  const DataHandle<AthenaAttributeList> m_attrList;
-  const CaloCondBlobFlt* m_corrValues;
-
-  std::string m_key;
+private: 
+  SG::ReadCondHandleKey<AthenaAttributeList> m_timeShiftFldr{this,"Folder","/CALO/Ofl/CellTimeCorr","Key (=foldername) of AttrListCollection"};
+  
 };
 
 #endif     

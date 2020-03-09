@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_ALG_H
@@ -57,6 +57,7 @@ class TrigMonAlg
   double elapsed()  const { return stop().getElapsed(start()); }
   
  private:
+  friend class TrigMonAlgCnv_p1;
   
   std::vector<uint8_t>      m_byte;     // Encoded bytes: position, caching state, rois
   std::vector<uint32_t>     m_word;     // Encoded words: first two entries are timers)

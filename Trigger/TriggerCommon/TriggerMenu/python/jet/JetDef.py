@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """Accept requests from central trigger menu. Check incoming information for
 validity and repackage before forwarding ot to the ChainDef generating
 code."""
 import os
-import re
 import copy
 import sys
 import getopt
@@ -12,20 +13,19 @@ import shelve
 
 from TriggerMenu.menu.L1Seeds import getInputTEfromL1Item
 
-from JetSequencesBuilder import JetSequencesBuilder
+from .JetSequencesBuilder import JetSequencesBuilder
 from TriggerMenu.menu.ChainDef import (ChainDef,
                                        ErrorChainDef)
-from exc2string import exc2string2
-from InstantiatorFactory import instantiatorFactory
-from SequenceTree import SequenceLinear
-from ChainConfigMaker import chainConfigMaker
-from AlgFactory import AlgFactory
+from .InstantiatorFactory import instantiatorFactory
+from .SequenceTree import SequenceLinear
+from .ChainConfigMaker import chainConfigMaker
+from .AlgFactory import AlgFactory
 
 
 try:
     from AthenaCommon.Logging import logging
     logger = logging.getLogger("TriggerMenu.jet.generateJetChainDefs")
-except:
+except Exception:
     logger = None
 
 
@@ -147,17 +147,15 @@ def _make_sequences(alg_lists, start_te, chain_name):
 
 def _make_chaindef(from_central, instantiator):
 
-    # print '----> _make_chaindef: dumping from central\n'
-    # print from_central
-    # print
+    # print ('----> _make_chaindef: dumping from central\n')
+    # print (from_central)
+    # print ()
     # assert False
 
     _check_input(from_central)
 
     # rearrange the input data to produce chain_config
     chain_config = chainConfigMaker(from_central)
-
-    chain_name = chain_config.chain_name
 
     alg_factory = AlgFactory(chain_config)
     seq_builder = JetSequencesBuilder(alg_factory, chain_config)
@@ -167,6 +165,7 @@ def _make_chaindef(from_central, instantiator):
     alg_lists = seq_builder.make_alglists()
     # ... but chain names start with HLT_
     #header = 'HLT_'
+    #chain_name = chain_config.chain_name
     #if not chain_name.startswith(header):
     #    chain_name = header + chain_name
     #    final_chain_name= header + from_central['chainName']
@@ -282,7 +281,7 @@ def _make_start_te(chain_config):
     # its return type can vary....
     try:
         te = getInputTEfromL1Item(chain_config.seed)
-    except:
+    except Exception:
         raise RuntimeError(
             'JetDef._make_start_te: Unable to obtain te name for L1')
 
@@ -337,9 +336,10 @@ def generateHLTChainDef(caller_data):
         # instantiator instantiation can fail if there are
         # ATLAS import errors
         instantiator = instantiatorFactory(use_atlas_config)
-    except Exception, e:
-        tb = exc2string2()
-        msg = 'JetDef Instantiator error: error: %s\n%s' % (str(e), tb)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        msg = 'JetDef Instantiator error: error: %s\n' % (str(e))
         cd = ErrorChainDef(msg, chain_name)
         if debug:
             # for debugging, output the original incoming dictionary
@@ -349,7 +349,8 @@ def generateHLTChainDef(caller_data):
 
     try:
         cd, chain_config = _make_chaindef(caller_data_copy, instantiator)
-    except Exception, e:
+    except Exception as e:
+        traceback.print_exc()
         tb = exc2string2()
         msg = 'JetDef error: error: %s\n%s' % (str(e), tb)
         cd = ErrorChainDef(msg, chain_name)
@@ -389,14 +390,14 @@ def dump_chaindef(caller_data, cd, chain_config, no_instantiation_flag):
                                            'chain_defs.db'))
             db[chain_name] = cd
             db.close()
-        except:
-            print 'Error shelving ChainDef object'
+        except Exception:
+            print ('Error shelving ChainDef object')
 
-    print 'Debug output written to ', fn
+    print ('Debug output written to ', fn)
 
 
 def usage():
-    print """\
+    print ("""\
     python JetDef.py
 
     Run the jet slice configuration code in stand alone node.
@@ -421,14 +422,14 @@ def usage():
     export JETDEF_DEBUG=1;export JETDEF_NO_INSTANTIATION=1
 
     will produce useful debug information in /tmp/<usename>.
- """
+ """)
 
 if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
+        print (str(err)) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
 
@@ -444,8 +445,8 @@ if __name__ == '__main__':
     from test_functions import run_test_dicts
     chain_defs = run_test_dicts()
     for c in chain_defs:
-        print '\n-----------------------\n'
-        print c
+        print ('\n-----------------------\n')
+        print (c)
 
-    print 'done'
+    print ('done')
     

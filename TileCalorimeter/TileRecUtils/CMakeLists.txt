@@ -29,7 +29,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
                           TileCalorimeter/TileDetDescr
-                          Tools/PathResolver )
+                          Tools/PathResolver
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -65,7 +66,7 @@ atlas_add_dictionary( TileRecUtilsDict
 atlas_add_test( TileCellBuilder_test
   SCRIPT test/TileCellBuilder_test.sh
   PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
+  LOG_IGNORE_PATTERN "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
 
 
 # The entries 
@@ -75,23 +76,72 @@ atlas_add_test( TileCellBuilder_test
 atlas_add_test( TileCellBuilderFromHit_test
   SCRIPT test/TileCellBuilderFromHit_test.sh
   PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|IncrementalExecutor::executeFunction|You are probably missing the definition|Maybe you need to load|No RecFlags available" )
+  LOG_IGNORE_PATTERN "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|IncrementalExecutor::executeFunction|You are probably missing the definition|Maybe you need to load|No RecFlags available" )
 
 
 atlas_add_test( TileRawChannelBuilder_test
   SCRIPT test/TileRawChannelBuilder_test.sh
   PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
+  LOG_IGNORE_PATTERN "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
 
 
 atlas_add_test( TileDQstatusAlg_test
   SCRIPT test/TileDQstatusAlg_test.sh
   PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
+  LOG_IGNORE_PATTERN "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
 
 
 atlas_add_test( TileDQstatusTool_test
   SCRIPT test/TileDQstatusTool_test.sh
   PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
+  LOG_IGNORE_PATTERN "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
 
+# Check python syntax:
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TileRawChannelBuilderFitConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelBuilderFitConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelBuilderOptConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelBuilderOptConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelBuilderMFConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelBuilderMFConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCellNoiseFilterConfig_test
+                 SCRIPT python -m TileRecUtils.TileCellNoiseFilterConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCellBuilderConfig_test
+                 SCRIPT python -m TileRecUtils.TileCellBuilderConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileDQstatusConfig_test
+                 SCRIPT python -m TileRecUtils.TileDQstatusConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelCorrectionConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelCorrectionConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelMakerConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelMakerConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCellMakerConfig_test
+                 SCRIPT python -m TileRecUtils.TileCellMakerConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)

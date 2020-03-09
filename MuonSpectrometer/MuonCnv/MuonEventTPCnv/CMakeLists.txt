@@ -33,7 +33,6 @@ atlas_depends_on_subdirs(
    PRIVATE
    AtlasTest/TestTools
    Control/AthenaKernel
-   Control/CxxUtils
    Control/StoreGate
    Database/TPTools
    DetectorDescription/AGDD/AGDDKernel
@@ -45,6 +44,9 @@ atlas_depends_on_subdirs(
    Event/EventPrimitives
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
    MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
    MuonSpectrometer/MuonIdHelpers
@@ -52,7 +54,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkMeasurementBase
    Tracking/TrkEvent/TrkPseudoMeasurementOnTrack )
 
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_tpcnv_library( MuonEventTPCnv
@@ -71,7 +73,7 @@ atlas_add_tpcnv_library( MuonEventTPCnv
    MuonDigitContainer MuonChamberT0s MuonCompetingRIOsOnTrack MuonPrepRawData
    MuonRIO_OnTrack MuonSegment MuonTrigCoinData MuonSimData MuonRDO TrkSurfaces
    TrkRIO_OnTrack TrkEventTPCnv
-   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils StoreGateLib GeoPrimitives
+   PRIVATE_LINK_LIBRARIES AthenaKernel StoreGateLib GeoPrimitives
    EventPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkEventPrimitives
    TrkMeasurementBase )
 
@@ -83,11 +85,8 @@ atlas_add_dictionary( OLD_MuonEventTPCnvDict
    MuonEventTPCnv/OLD_MuonEventTPCnvDict.h MuonEventTPCnv/OLD_selection.xml
    LINK_LIBRARIES MuonEventTPCnv )
 
+atlas_install_joboptions( share/*.txt )
 
-# Helper variable for running the tests:
-set( _jobOPath "${CMAKE_CURRENT_SOURCE_DIR}/share" )
-set( _jobOPath "${_jobOPath}:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}" )
-set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 
 # Set up the tests of the package:
 foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
@@ -125,14 +124,14 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
-      CxxUtils StoreGateLib TPTools AGDDKernel AtlasDetDescr 
-      IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry
+      LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
+      StoreGateLib TPTools AGDDKernel AtlasDetDescr 
+      IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
-      TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv
-      EXTRA_PATTERNS "MultiRange built successfully|element hash max"
-      PROPERTIES TIMEOUT 300
-      ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
+      TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv AthenaKernel
+      LOG_IGNORE_PATTERN "MultiRange built successfully|element hash max|DEBUG|Strip range"
+      PROPERTIES TIMEOUT 300 )
+   set_target_properties ( MuonEventTPCnv_${name} PROPERTIES ENABLE_EXPORTS True )
 
 endforeach()
 

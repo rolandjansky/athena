@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_RPCROD_DECODER_H
 #define MUONBYTESTREAM_RPCROD_DECODER_H
-
-#include <stdint.h>
-#include <cassert>
 
 #include "TrigT1RPChardware/RPCRODDecode.h"
 #include "TrigT1RPChardware/RPCRXRODDecode.h"
@@ -22,24 +19,24 @@
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
-#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "eformat/Issue.h"
 #include "eformat/SourceIdentifier.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/GaudiException.h"
+
+#include <atomic>
+#include <cassert>
+#include <stdint.h>
 
 // start preparing for BS errors 
 //#include "MuonByteStreamErrors/RpcByteStreamErrorContainer.h"
 //#include "RpcByteStreamAccess/IRPC_ByteStreamErrorSvc.h"
 
 // #include "minibench.h"
-class StoreGateSvc;
-
 
 namespace Muon
 {
@@ -86,9 +83,7 @@ namespace Muon
     
   private:
     
-    //niko
     bool m_decodeSL; 
-    //ServiceHandle<IRPC_ByteStreamErrorSvc> m_byteStreamErrSvc;
 
     typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType BS;
     
@@ -97,9 +92,6 @@ namespace Muon
     StatusCode fillCollection_v240(BS data, const uint32_t data_size, RpcPad& v) const;
     
     StatusCode fillCollection_v300(BS data, const uint32_t data_size, RpcPad& v,
-                                   const uint16_t& subDetector, RpcSectorLogicContainer*) const;
-    
-    StatusCode fillCollection_v301(BS data, const uint32_t data_size, RpcPad& v,
                                    const uint16_t& subDetector, RpcSectorLogicContainer*) const;
     
     // decoding of real data - 2010 & 2011 _v302 
@@ -124,10 +116,8 @@ namespace Muon
                                                 const int nFooter) const;
     
     //====LBTAG==== Added 02112008 for buffer format check
-    mutable int m_previous;
-    mutable int m_printerror;
-    mutable bool m_RPCcheckform[13];
-    mutable int  m_RPCcheckfail[13];
+    int m_printerror;
+    mutable std::atomic_int m_RPCcheckfail[13];
     IntegerProperty m_maxprinterror;
     
     //====LBTAG==== Added 02112008 for buffer format check
@@ -137,15 +127,15 @@ namespace Muon
   private:
     
     //RpcPadIdHash*                      m_hashfunc;
-    //ServiceHandle<StoreGateSvc>        m_storeGate;
     const IRPCcablingSvc*              m_cabling;
-    const RpcIdHelper*                 m_pRpcIdHelper;
+
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
     // re-define the ROB number
     IntegerProperty m_specialROBNumber;
     // flag to read old sector 13 data
     BooleanProperty m_sector13Data;
-    // mutable MiniBenchInternals::Bench m_bench;
 
     //RpcByteStreamErrorContainer *m_bsErrCont;
     //std::string m_bsErrContainerName; 
@@ -162,9 +152,8 @@ namespace Muon
     int  decoded;
     MatrixReadOut matrix;
     StatusCode sc = StatusCode::SUCCESS;
-    
-    //initialize check vector 
-    for (int i=0; i<13; i++)m_RPCcheckform[i]=false;
+
+    int previous=0;
     
     //Loop on buffer 
     for (int i=ini; i < end; i++){          
@@ -172,13 +161,12 @@ namespace Muon
       
       //RX Header
       if(decoded==0x9){
-        if(m_previous == 0){
-          m_RPCcheckform[0]=true;
-          m_previous = 1;
+        if(previous == 0){
+          previous = 1;
         }
         else {
           ++m_RPCcheckfail[0]; 
-          m_previous=0;
+          previous=0;
 	  //m_bsErrCont->addError((*pdata)[i],Muon::RXHeaderErrors);
           sc = StatusCode::FAILURE;
           return sc;
@@ -187,26 +175,24 @@ namespace Muon
       
       // RX SubHeader
       else if(decoded==0xe){
-        if(m_previous == 1){
-          m_previous = 2;
-          m_RPCcheckform[1]=true;
+        if(previous == 1){
+          previous = 2;
         }
         else {
           ++m_RPCcheckfail[1]; 
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
       }
       //PAD Header
       else if(decoded==0x5){
-        if(m_previous == 2){
-          m_previous = 3;
-          m_RPCcheckform[2]=true;
+        if(previous == 2){
+          previous = 3;
         }
         else {
           ++m_RPCcheckfail[2];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -214,17 +200,15 @@ namespace Muon
       
       //PAD or SL Subheader
       else if(decoded==0x6){
-        if(m_previous == 3){
-          m_previous = 4;
-          m_RPCcheckform[3]=true;
+        if(previous == 3){
+          previous = 4;
         }
-        else if(m_previous == 8){
-          m_previous = 9;
-          m_RPCcheckform[10]=true;
+        else if(previous == 8){
+          previous = 9;
         }
         else {
           ++m_RPCcheckfail[3];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -232,13 +216,12 @@ namespace Muon
       
       //CM Header
       else if(decoded==0xc){
-        if(m_previous == 4){
-          m_previous = 5;
-          m_RPCcheckform[4]=true;
+        if(previous == 4){
+          previous = 5;
         }
         else {
           ++m_RPCcheckfail[4];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -246,13 +229,12 @@ namespace Muon
       
       //CM Subheader
       else if(decoded==0x8){
-        if(m_previous == 5){
-          m_previous=6;
-          m_RPCcheckform[5]=true;
+        if(previous == 5){
+          previous=6;
         }
         else {
           ++m_RPCcheckfail[5];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -260,11 +242,9 @@ namespace Muon
       
       //CM Footer
       else if(decoded==0x4){
-        if(m_previous == -1 || m_previous == 6){
-          m_previous=4;
-          m_RPCcheckform[6]=true;
+        if(previous == -1 || previous == 6){
+          previous=4;
           if(matrix.checkCRC8((ubit16)(*pdata)[i])){
-            m_RPCcheckform[12]=true;
           }
           else {
             ++m_RPCcheckfail[12];
@@ -273,7 +253,7 @@ namespace Muon
         }
         else {
           ++m_RPCcheckfail[6];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -281,13 +261,12 @@ namespace Muon
       
       //PAD Prefooter
       else if(decoded==0xa){
-        if(m_previous == 4){
-          m_previous=7;
-          m_RPCcheckform[7]=true;
+        if(previous == 4){
+          previous=7;
         }
         else {
           ++m_RPCcheckfail[7];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -295,13 +274,12 @@ namespace Muon
       
       //PAD Footer
       else if(decoded==0x7){
-        if(m_previous == 7){
-          m_previous=2;
-          m_RPCcheckform[8]=true;
+        if(previous == 7){
+          previous=2;
         }
         else {
           ++m_RPCcheckfail[8];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -309,13 +287,12 @@ namespace Muon
       
       //SL Header
       else if(decoded==0xd){
-        if(m_previous == 2){
-          m_previous=8;
-          m_RPCcheckform[9]=true;
+        if(previous == 2){
+          previous=8;
         }
         else {
           ++m_RPCcheckfail[9];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -323,32 +300,31 @@ namespace Muon
       
       //SL Footer
       else if(decoded==0xf){
-        if(m_previous == 9 || m_previous == -1){
-          m_previous=10;
-          m_RPCcheckform[10]=true;
+        if(previous == 9 || previous == -1){
+          previous=10;
         }
         else{
           ++m_RPCcheckfail[10];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
       }
       //RX Footer
       else if(decoded==0xb){
-        if(m_previous == 10){
-          m_previous=0;
+        if(previous == 10){
+          previous=0;
           // ===== end of fragment reached =====
           return sc;
         }
         else{
           ++m_RPCcheckfail[11];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
       }
-      else { m_previous=-1;
+      else { previous=-1;
       }
     }
     sc = StatusCode::FAILURE;
@@ -439,16 +415,9 @@ namespace Muon
       ATH_MSG_VERBOSE("choosing fillCollection_v240");
     }
     else if ( ( (version&0x03000000) == 0x03000000) && 
-             ( (data[0]&0xffff0000) != 0)          && 
-             ( m_sector13Data ) ) 
-    {
-      type = 2;
-      ATH_MSG_VERBOSE("choosing fillCollection_v301");
-    }
-    else if ( ( (version&0x03000000) == 0x03000000) && 
 	      ( (data[0]&0xffff0000) != 0) ) // this is the current data format - 2011 May 13
     {
-      type = 3;
+      type = 2;
       ATH_MSG_VERBOSE("choosing fillCollection_v302");
     }
     
@@ -459,54 +428,8 @@ namespace Muon
     
     StatusCode cnv_sc;
 
-    /*
-    // unpack the 32 bits words into 16 bits 
-    // no ROD header and footer 
-    std::vector<uint16_t> p = get16bits_v301(data,robFrag.rod_ndata(),0,0);
-    
-    // two RX fragment in the data vector: look for the RX HEADERS
-    int krx=0;
-    if( ((p[0] & 0xf000) >> 12)==0x9 ){
-      for(unsigned int kid=1; kid<p.size(); ++kid){        
-        if( ((p[kid] & 0xf000) >> 12)==0x9 ) {krx=kid; break;}
-      }
-    }
-    
-    if(krx != 0){
-      
-      //== LBTAG == Check buffer format for first RX frag.
-      StatusCode cdf = checkdataformat(&p,0,krx);  
-      if( cdf.isFailure() && m_printerror <= m_maxprinterror) {
-        if (cdf == StatusCode::FAILURE)ATH_MSG_VERBOSE("RPC RX fragment format error --> Event is recoverable, no action");
-        if (cdf == StatusCode::RECOVERABLE)ATH_MSG_VERBOSE("RPC CRC transmission error --> Event is recoverable, no action");
-        if( m_printerror == m_maxprinterror )ATH_MSG_VERBOSE(" Limit for RPC data format error reached. No more warnings for this error "); 
-        ++m_printerror;
-      }
-      
-      //== LBTAG == Check buffer format for second RX frag.
-      cdf = checkdataformat(&p,krx,p.size());  
-      if( cdf.isFailure() && m_printerror <= m_maxprinterror) {
-        if (cdf == StatusCode::FAILURE)ATH_MSG_VERBOSE("RPC RX fragment format error --> Event is recoverable, no action");
-        if (cdf == StatusCode::RECOVERABLE)ATH_MSG_VERBOSE("RPC CRC transmission error --> Event is recoverable, no action");
-        if( m_printerror == m_maxprinterror )ATH_MSG_VERBOSE(" Limit for RPC fragment error reached. No more warnings for this error "); 
-        ++m_printerror;
-      }
-    }
-    else {
-      if( ((p[0] & 0xf000) >> 12)==0x9 && ((p[p.size()-1] & 0xf000) >> 12)==0xb){
-        StatusCode cdf = checkdataformat(&p,0,p.size());  
-        if( cdf.isFailure() && m_printerror <= m_maxprinterror) {
-          if (cdf == StatusCode::FAILURE)ATH_MSG_VERBOSE("RPC RX fragment format error --> Event is recoverable, no action");
-          if (cdf == StatusCode::RECOVERABLE)ATH_MSG_VERBOSE("RPC CRC transmission error --> Event is recoverable, no action");
-          if( m_printerror == m_maxprinterror )ATH_MSG_VERBOSE(" Limit for RPC fragment error reached. No more warnings for this error "); 
-          ++m_printerror;
-        }
-      }
-    }
-    */
-
-    // here optimize decoding of ROB fragment (for data only type==3)
-    if (type==3)
+    // here optimize decoding of ROB fragment (for data only type==2)
+    if (type==2)
     {
       std::map<Identifier,RpcPad*> mapOfCollections; 
       // Request to update to range-based for-loop
@@ -574,7 +497,7 @@ namespace Muon
         }
       }
       return cnv_sc;
-    }//endif (type==3)
+    }//endif (type==2)
     
     // Request to update to range-based for-loop
     for(const IdentifierHash& it : collections){
@@ -595,11 +518,8 @@ namespace Muon
         {
           case 0: cnv_sc = fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
           case 1: cnv_sc = fillCollection_v300(data,robFrag.rod_ndata(),*coll,subDetector, RPC_SECTORLOGIC); break;
-          case 2: cnv_sc = fillCollection_v301(data,robFrag.rod_ndata(),*coll,subDetector, RPC_SECTORLOGIC ); break;
-          case 3: cnv_sc = fillCollection_v302(data,robFrag.rod_ndata(),*coll,sourceId, RPC_SECTORLOGIC); break;
-	        //case 3: cnv_sc = fillCollection_v302new(data,robFrag.rod_ndata(),*coll,sourceId); break;
-
-          default: fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
+          case 2: cnv_sc = fillCollection_v302(data,robFrag.rod_ndata(),*coll,sourceId, RPC_SECTORLOGIC); break;
+          default: cnv_sc = fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
         }
         
         if( cnv_sc.isFailure() )
@@ -710,7 +630,7 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE ) )
       msg(MSG::VERBOSE) << "The offline ID request for conversion is "
-      << m_pRpcIdHelper->show_to_string(thisPadOfflineId) << endmsg;
+      << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) << endmsg;
     
     bool isSLHeader    =false;
     bool isSLSubHeader =false;
@@ -1096,7 +1016,7 @@ namespace Muon
             << sectorLogic << endmsg;
           } else {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-            << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << " associated to PAD n. " << PadID << " at side " 
             << side << " and  sector " << sectorLogic << endmsg; 
           }
@@ -1106,7 +1026,7 @@ namespace Muon
             
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << " match found with ID " 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
             << " requested for the conversion; return this collection" 
             << endmsg; 
             
@@ -1123,7 +1043,7 @@ namespace Muon
           {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << " match NOT found with ID "  
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
             << " requested for the conversion" << endmsg;  
           }
           
@@ -1276,503 +1196,6 @@ namespace Muon
     // m_bench.point(2);
     return StatusCode::SUCCESS; 
   }
-  
-  //#include "RpcROD_Decoder_v302.cxx"
-
-  /****** OLD FORMATS FOR SECTOR LOGIC *********/
-  /**   fill RpcPads from a block of integers 
-   New version for data format 3.1 (ATLAS cosmics - NEW RPC READOUT)
-   */ 
-  inline StatusCode 
-  RpcROD_Decoder::fillCollection_v301(BS data, const uint32_t data_size,
-                                      RpcPad& v, const uint16_t& subDetector, RpcSectorLogicContainer* sectorLogicContainer ) const
-  {
-    bool skipSectorLogicDecoding = (sectorLogicContainer == nullptr);
-    if(skipSectorLogicDecoding)
-      ATH_MSG_DEBUG("Skip SectorLogic decoding, so SLROC.decodeFragment is not being processed");
-
-    // unpack the 32 bits words into 16 bits 
-    // no ROD header and footer 
-    std::vector<uint16_t> p = get16bits_v301(data,data_size,0,0);
-    
-    const int size = p.size();
-    
-    //#ifndef NVERBOSE
-    ATH_MSG_VERBOSE ("**********Decoder dumping the words******** ");
-    if (size > 0 && msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "The size of this ROD-read is " << size << endmsg;
-      for (int i=0; i < size; i++)
-        msg(MSG::VERBOSE) << "word " << i << " = " << MSG::hex << p[i] << MSG::dec << endmsg;
-    }
-    //#endif
-    
-    uint16_t side  = (subDetector == eformat::MUON_RPC_BARREL_A_SIDE) ? 1:0;    
-    
-    
-    // TMP FIXME the sector number needs to be fixed !!
-    uint16_t sector = 0;
-    
-    // counter of the numerb of sector logic fragments found
-    uint16_t SLindex = 0;
-    
-    // the identifier of this collection 
-    Identifier thisPadOfflineId = v.identify();
-    
-    // Identifier of the collection in data
-    Identifier padOfflineId;
-    bool foundPad=false;
-    
-    
-    ATH_MSG_VERBOSE( "The offline ID request for conversion is " << m_pRpcIdHelper->show_to_string(thisPadOfflineId) );
-    
-    
-    bool isSLHeader    =false;
-    bool isSLFooter    =false;
-    bool isSLFragment  =false;
-    bool isRXHeader    =false;
-    bool isRXFooter    =false;
-    bool isPADFragment =false;
-    bool isPadHeader   =false;
-    bool isPadSubHeader=false;
-    bool isPadPreFooter=false;
-    bool isPadFooter   =false;
-    
-    //return;
-    
-    RPCRODDecode myRPC;
-    RXReadOutStructure  RXROS;
-    PadReadOutStructure PDROS;
-    SectorLogicReadOutStructure SLROS;
-    MatrixReadOutStructure matrixROS;
-    
-    
-    char recField;
-    unsigned short int PadID=99;
-    unsigned int SLBodyWords=0;
-    unsigned int SL_data_sise = 500; //same value used for the size of SLBuff
-    unsigned short int SLBuff[500];
-    
-    //RpcSectorLogic* sl;
-    
-    for (uint16_t i = 0; i < size; ++i) 
-    {
-      
-      //std::cout << "REGISTER: " << i << std::endl;
-      
-      isRXHeader    =false;
-      isRXFooter    =false;
-      isPadHeader   =false;
-      isPadSubHeader=false;
-      isPadPreFooter=false;
-      isPadFooter   =false;
-      isSLHeader    =false;
-      isSLFooter    =false;
-      uint32_t currentWord = p[i];
-      
-      //#ifndef NVERBOSE
-      ATH_MSG_VERBOSE (" -->current data word is "<<std::hex<<currentWord<<std::dec);
-      //#endif  
-      
-      RXROS.decodeFragment(currentWord,recField);
-      PDROS.decodeFragment(currentWord,recField);
-      if(!skipSectorLogicDecoding){
-        SLROS.decodeFragment(currentWord,recField);
-      }
-      
-      if (RXROS.isHeader() && !isSLFragment) isRXHeader=true;
-      else if (RXROS.isFooter() && !isSLFragment) isRXFooter=true;
-      else if (PDROS.isHeader() && !isSLFragment) isPadHeader=true;
-      else if (PDROS.isSubHeader() && !isSLFragment) isPadSubHeader=true;
-      else if (PDROS.isPreFooter() && !isSLFragment) isPadPreFooter=true;
-      else if (PDROS.isFooter() && !isSLFragment) isPadFooter=true;
-      else if (SLROS.isHeader()) isSLHeader=true;
-      else if (SLROS.isFooter()) isSLFooter=true;
-
-      // The SLROS functions still return values (based on default values)
-      if(skipSectorLogicDecoding){
-        isSLHeader    = false;
-        isSLFragment  = false;
-        isSLFooter    = false;
-      }
-      
-      //#ifndef NVERBOSE
-      if (msgLvl(MSG::VERBOSE))
-      {
-       msg(MSG::VERBOSE) <<" RX Header: "<<isRXHeader
-       <<" RX Footer: "<<isRXFooter
-       <<endmsg;
-       msg(MSG::VERBOSE) <<" Pad Header: "<<isPadHeader
-       <<" Pad SubHeader: "<<isPadSubHeader
-       <<" Pad PreFooter: "<<isPadPreFooter
-       <<" Pad Footer: "<<isPadFooter
-       <<endmsg;
-       msg(MSG::VERBOSE) <<" isPADFragment: "<<isPADFragment
-       <<endmsg;
-       msg(MSG::VERBOSE) <<" SL Header: "<<isSLHeader
-       <<" SL Footer: "<<isSLFooter
-       <<endmsg;
-       msg(MSG::VERBOSE) <<" isSLFragment: "<<isSLFragment
-       <<endmsg;
-     }
-      //#endif   
-      
-      if(isRXHeader) { 
-        //#ifndef NVERBOSE
-        ATH_MSG_VERBOSE (" this is a RX Header ");
-        ATH_MSG_VERBOSE (" Sector ID="<<RXROS.RXid());
-        //#endif
-        
-        // set sector ID
-        // sector = RXROS.RXid();
-        
-      } else if(isRXFooter) { 
-        //#ifndef NVERBOSE
-        ATH_MSG_VERBOSE (" this is a RX Footer ");
-        //#endif
-      } else if(isSLHeader || isSLFragment)  {
-        
-        isSLFooter ? isSLFragment=false : isSLFragment=true;
-        
-        // push only the lowest 16 bits
-        int foundSL = myRPC.pushWord(currentWord,0);
-        
-        // Check the Sector Logic Fragment      
-        if(foundSL && msgLvl(MSG::VERBOSE)) 
-        {
-          //#ifndef NVERBOSE
-          msg(MSG::VERBOSE) <<"SectorLogicReadOut checkFragment: "
-          << myRPC.SLFragment()->checkFragment()<<endmsg;
-          msg(MSG::VERBOSE) << myRPC.SLFragment()<<endmsg;
-          //#endif
-        }
-        
-        if(isSLHeader) SLBodyWords=0;
-        
-        // Decode the sector logic footer
-        else if(isSLFooter ) {
-
-          //#ifndef NVERBOSE
-          if (SLindex>1) {
-            msg(MSG::ERROR) << "More than 2 SL fragments in sector " << sector << endmsg;
-          }
-          //#endif
-          
-          if (msgLvl(MSG::VERBOSE))
-          {
-	          //#ifndef NVERBOSE
-            msg(MSG::VERBOSE) <<" Number of data words in SectorLogicReadOut= "
-            <<SLBodyWords<<endmsg;   
-            msg(MSG::VERBOSE) <<" TEST SL: "<<foundSL<<endmsg;
-	          //#endif  
-
-	          //#ifndef NVERBOSE
-	          // Print out a raw dump of the SL fragment 
-            for(unsigned short j=0; j<SLBodyWords; j++) {
-              msg(MSG::VERBOSE) <<" SL data word "<<j<<" : "<<std::hex<<SLBuff[j]<<MSG::dec<<endmsg;
-            }
-          }
-          //#endif
-          
-          // Found the sector logic footer, the sector logic fragment 
-          // can be added to the sector logic container
-          
-          SectorLogicReadOut* sectorLogic = myRPC.SLFragment();
-          // decode the SL hits and push back in the sector logic
-          uint16_t nSLlink = 8;
-          uint16_t nSLgate = 7;
-          
-          if ( sectorLogicContainer                   && 
-              !sectorLogicContainer->findSector(56,0) && 
-              !sectorLogicContainer->findSector(55,0)   ) {
-            // fill the hit content for the first sector
-            RpcSectorLogic* sl1 = new RpcSectorLogic(56,0,0,0);
-            RpcSectorLogic* sl2 = new RpcSectorLogic(55,0,0,0);
-            
-            for (int igate = 0 ; igate < nSLgate ; ++igate) {
-              
-              for (int ilink = 0 ; ilink < nSLlink ; ++ilink) {
-                
-                // choose the sectorlogic to be updated according to the link number 
-                // TMP FIXME !
-                RpcSectorLogic* sl;
-                if (ilink<3) {
-                  sl = sl1;
-                }
-                else {
-                  sl = sl2;
-                }
-                
-                uint16_t ptid  = sectorLogic->ptid(ilink,igate);
-                //#ifndef NVERBOSE
-                ATH_MSG_VERBOSE ("SL: pt for link=" << ilink 
-				        << " gate=" << igate << "  is: " << ptid);
-                //#endif
-                if (ptid != 0) {  
-                  //#ifndef NVERBOSE
-                  ATH_MSG_VERBOSE ("SL: found an hit for link=" << ilink
-				          << " gate=" << igate);
-                  //#endif
-                  uint16_t cmadd = sectorLogic->cmadd(ilink,igate);
-                  
-                  uint16_t bcid  = igate;
-                  uint16_t tower = ilink+2*SLindex;
-                  
-                  uint16_t opl   = sectorLogic->opl(ilink,igate);
-                  uint16_t ovphi = sectorLogic->ovphi(ilink,igate);
-                  uint16_t oveta = sectorLogic->oveta(ilink,igate);
-                  
-                  uint16_t triggerBcid  = sectorLogic->bcid(ilink,igate);
-                  
-                  // create the hit and push back in the sl
-                  RpcSLTriggerHit* slHit = new RpcSLTriggerHit(bcid,tower,ptid,cmadd,
-                                                               opl,ovphi,oveta,triggerBcid);
-                  sl->push_back(slHit);
-                  
-                }
-                
-                
-              }
-              
-            }
-            
-	          if (msgLvl(MSG::VERBOSE)){
-              msg(MSG::VERBOSE) << "Size of sector 55: " << sl2->size() << endmsg;
-              msg(MSG::VERBOSE) << "Size of sector 56: " << sl1->size() << endmsg;
-            }
-            // flag the two sectors as decoded
-            //bool setSector1 = sectorLogicContainer->setSector(56,0);
-            //bool setSector2 = sectorLogicContainer->setSector(55,0);
-            
-            // add dummy trigger rates
-            sl1->addTriggerRate(0.0);
-            sl2->addTriggerRate(0.0);
-            
-            if ( sectorLogicContainer ) sectorLogicContainer->push_back(sl1);
-            if ( sectorLogicContainer ) sectorLogicContainer->push_back(sl2);
-            
-          }
-          
-        } else {
-          if (SLBodyWords>=SL_data_sise) {
-            if (msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE)
-              << "Sector Logic payload corrupted" << endmsg;
-            return StatusCode::FAILURE;
-          }
-          SLBuff[SLBodyWords]=currentWord;
-          SLBodyWords++;
-        } // isSLHeader
-        
-      } else if(isPadHeader || isPADFragment)  {
-        
-        // Now decoding the header of the pad
-        //#ifndef NVERBOSE
-        ATH_MSG_VERBOSE (" Pad Header or Pad Fragment ");
-        //#endif
-        
-        PDROS.decodeFragment(currentWord,recField);
-        
-        if(recField == 'H') {
-          
-          PadID=PDROS.padid();
-          
-          if (PadID<3) {
-            sector=56;
-          }
-          else {
-            sector=55;
-            // move the pad value to the 0-2 range;
-            PadID -= 3;
-          }
-          
-          side = (sector<32) ? 0:1;
-          uint16_t sectorLogic = sector-side*32;
-          
-          // get the offline ID of the pad
-          if(!m_cabling->giveOffflineID(side,sectorLogic,PadID,padOfflineId))
-          {
-            if (msgLvl(MSG::VERBOSE) ) 
-              msg(MSG::VERBOSE) 
-              << "Cannot retrieve the OfflineID for the PAD n. " 
-              << PadID << " at side " << side << " and  sector " 
-              << sectorLogic << endmsg;
-          }
-          else 
-            if (msgLvl(MSG::VERBOSE) ) 
-              msg(MSG::VERBOSE) 
-              << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
-              << " associated to PAD n. " << PadID << " at side " 
-              << side << " and  sector " << sectorLogic << endmsg; 
-          
-          // check if it's the pad to convert
-          if (thisPadOfflineId == padOfflineId) {
-            
-            if (msgLvl(MSG::VERBOSE) ) 
-              msg(MSG::VERBOSE) 
-              << " match found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
-              << " requested for the conversion; return this collection" 
-              << endmsg; 
-            
-            foundPad = true;
-            
-            //#ifndef NVERBOSE
-            ATH_MSG_VERBOSE ("Found the pad to convert !");
-            //#endif
-            v.setOnlineId(PadID);
-            v.setSector(sector);
-            
-            // set the lvl1 id
-            v.setLvl1Id(PDROS.l1id());
-            
-          }
-          else
-          {
-            if (msgLvl(MSG::VERBOSE) ) 
-              msg(MSG::VERBOSE) 
-              << " match NOT found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
-              << " requested for the conversion" << endmsg; 
-          } 
-        }
-        
-        // if it's a subheader, set the bcid
-        if (recField == 'S') {
-          
-          if (foundPad) {
-            v.setBcId(PDROS.bcid());
-            //#ifndef NVERBOSE
-            ATH_MSG_VERBOSE ("Found the subheader, setting bcid to: " 
-			     << PDROS.bcid());
-            //#endif
-          }
-          
-        }
-        
-        if (recField == 'P') {
-          //#ifndef NVERBOSE
-          ATH_MSG_VERBOSE ("Found the prefooter");
-          //#endif  
-          //v.setStatus(PDROS.status());
-          //if (PDROS.status()!=0) {
-          //#ifndef NVERBOSE
-          //  msg(MSG::WARNING) << "Pad Busy status not zero ! value: " << MSG::hex
-          //      << PDROS.status() << MSG::dec << endmsg;
-          //#endif  
-          //}
-        }
-        
-        if(recField == 'F') {
-          //#ifndef NVERBOSE
-          ATH_MSG_VERBOSE (" Pad Footer ");
-          //#endif
-          v.setErrorCode(PDROS.errorCode());
-          if (PDROS.errorCode()!=0) {
-            //#ifndef NVERBOSE
-            ATH_MSG_VERBOSE ("Pad Error flag not zero ! value: " << MSG::hex
-			     << PDROS.errorCode() << MSG::dec);
-            //#endif  
-          }
-          
-          // found the pad, bail out
-          if (foundPad) {
-            foundPad=false;
-            return StatusCode::SUCCESS;
-          }
-        }
-        
-        isPadFooter ? isPADFragment=false : isPADFragment=true; 
-        
-        //#ifndef NVERBOSE
-        if (msgLvl(MSG::VERBOSE)) {
-          msg(MSG::VERBOSE) <<" current word "<<std::hex<<currentWord<<MSG::dec<<endmsg;
-
-          msg(MSG::VERBOSE) <<" ==isPADFragment= "<<isPADFragment<<endmsg;
-          msg(MSG::VERBOSE) <<" calling pushword: "<<std::hex<<currentWord<<MSG::dec<<endmsg;
-        }
-        //#endif
-        
-        int foundCM = 0;
-        foundCM = myRPC.pushWord(currentWord,0);
-        
-        if(foundCM==1) {
-          //#ifndef NVERBOSE
-          ATH_MSG_VERBOSE (myRPC.CMFragment());
-          //#endif
-          // If the pad is the good one, add the CMs to the container   
-          if (foundPad) {
-            MatrixReadOut* matrix = myRPC.CMFragment();
-            
-            //std::cout << myRPC.CMFragment()<< std::endl;
-            
-            matrixROS = matrix->getHeader();  
-            uint16_t cmaId  = matrixROS.cmid();
-            uint16_t fel1id = matrixROS.fel1id();
-            
-            matrixROS = matrix->getSubHeader();
-            uint16_t febcid = matrixROS.febcid();
-            
-            //#ifndef NVERBOSE
-            ATH_MSG_VERBOSE ("Creating a new CM, cmaId=" << cmaId << " fel1id=" << fel1id
-			     << " febcid=" << febcid);
-            //#endif
-            
-            // Create the new cm
-            RpcCoinMatrix * coinMatrix = new RpcCoinMatrix (padOfflineId,cmaId,fel1id,febcid);
-            
-            //std::cout << matrix->numberOfBodyWords() << std::endl;
-            
-            // Loop on the hits and push them in the coin matrix
-            for (int i=0 ; i<matrix->numberOfBodyWords() ; ++i) {
-              
-              matrixROS = matrix->getCMAHit(i);
-              
-              uint16_t bcid = matrixROS.bcid();
-              uint16_t time = matrixROS.time();
-              uint16_t ijk  = matrixROS.ijk();
-              
-              RpcFiredChannel* firedChan=0;
-              
-              if (ijk < 7 ) {
-                uint16_t channel = matrixROS.channel();
-                firedChan = new RpcFiredChannel(bcid,time,ijk,channel);
-                //#ifndef NVERBOSE
-                ATH_MSG_VERBOSE ("Adding a fired channel, bcid=" << bcid << " time=" 
-				        << " ijk=" << ijk << " channel=" << channel);
-                //#endif
-                
-                // add the fired channel to the matrix
-                coinMatrix->push_back(firedChan);    
-              }
-              else if (ijk==7) {
-                uint16_t overlap   = matrixROS.overlap();
-                uint16_t threshold = matrixROS.threshold();
-                firedChan = new RpcFiredChannel(bcid,time,ijk,threshold,overlap);
-                //#ifndef NVERBOSE
-                ATH_MSG_VERBOSE ("Adding a fired channel, bcid=" << bcid << " time=" 
-				        << " ijk=" << ijk << " overlap=" << overlap 
-				        << " threshold=" << threshold);
-                //#endif
-                
-                // add the fired channel to the matrix
-                coinMatrix->push_back(firedChan);    
-              }   
-            }
-            
-            v.push_back(coinMatrix);
-            
-          } // end of the matrix decoding
-          
-          (myRPC.CMFragment())->reset();
-          
-        } // end of the pad decoding
-        
-      }
-      
-    }
-    
-    return StatusCode::SUCCESS; 
-  }
-  
   
   /**   fill RpcPads from a block of integers 
    New version for data format 3.0 (ATLAS cosmics)
@@ -2096,7 +1519,7 @@ namespace Muon
           else 
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
-              << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+              << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
               << " associated to PAD n. " << PadID << " at side " 
               << side << " and  sector " << sectorLogic << endmsg;
           
@@ -2105,7 +1528,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion; return this collection" 
               << endmsg; 
             
@@ -2126,7 +1549,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match NOT found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion" << endmsg;
           } 
         }
@@ -2273,7 +1696,7 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
       << "The offline ID request for conversion is " 
-      << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
+      << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
       << endmsg;
     
     // remove the rod header and footer then
@@ -2368,7 +1791,7 @@ namespace Muon
         else 
           if (msgLvl(MSG::VERBOSE) ) 
             msg(MSG::VERBOSE) 
-            << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << " associated to PAD n. " << padId << " at side " 
             << side << " and  sector " << slogic << endmsg;
         
@@ -2380,15 +1803,15 @@ namespace Muon
         if (thisPadOfflineId == padOfflineId) {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << "Found the collection to return " 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
             << endmsg;
           v.setOnlineId(padId);
           v.setStatus(status);
           v.setSector(sectorID);
         } else {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
-            << "!=" << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
+            << "!=" << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << endmsg;
         } 
         char cmaHeader    = 'U';

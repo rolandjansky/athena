@@ -8,7 +8,7 @@ if DetFlags.readRDOBS.pixel_on():
   InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder")
   ToolSvc += InDetPixelRodDecoder
   if (InDetFlags.doPrintConfigurables()):
-    print      InDetPixelRodDecoder
+    printfunc      (InDetPixelRodDecoder)
   #InDetPixelRodDecoder.OutputLevel = VERBOSE
   
   from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
@@ -16,7 +16,7 @@ if DetFlags.readRDOBS.pixel_on():
                                                            Decoder = InDetPixelRodDecoder)
   #ToolSvc += InDetPixelRawDataProviderTool
   if (InDetFlags.doPrintConfigurables()):
-    print      InDetPixelRawDataProviderTool
+    printfunc      (InDetPixelRawDataProviderTool)
   #InDetPixelRawDataProviderTool.OutputLevel = VERBOSE
   
   # load the PixelRawDataProvider
@@ -26,7 +26,7 @@ if DetFlags.readRDOBS.pixel_on():
                                                    ProviderTool = InDetPixelRawDataProviderTool)
   topSequence += InDetPixelRawDataProvider
   if (InDetFlags.doPrintConfigurables()):
-    print          InDetPixelRawDataProvider
+    printfunc          (InDetPixelRawDataProvider)
   #InDetPixelRawDataProvider.OutputLevel = VERBOSE
 
   #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/"+InDetKeys.PixelRDOs() ]
@@ -35,14 +35,14 @@ if DetFlags.readRDOBS.SCT_on():
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
   InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder")
   if (InDetFlags.doPrintConfigurables()):
-    print      InDetSCTRodDecoder
+    printfunc      (InDetSCTRodDecoder)
   #InDetSCTRodDecoder.OutputLevel = VERBOSE
   
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
   InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool",
                                                       Decoder = InDetSCTRodDecoder)
   if (InDetFlags.doPrintConfigurables()):
-    print      InDetSCTRawDataProviderTool
+    printfunc      (InDetSCTRawDataProviderTool)
   #InDetSCTRawDataProviderTool.OutputLevel = VERBOSE
   
   # load the SCTRawDataProvider
@@ -51,14 +51,14 @@ if DetFlags.readRDOBS.SCT_on():
                                               RDOKey       = InDetKeys.SCT_RDOs(),
                                               ProviderTool = InDetSCTRawDataProviderTool)
   if (InDetFlags.doPrintConfigurables()):
-    print          InDetSCTRawDataProvider
+    printfunc          (InDetSCTRawDataProvider)
   topSequence += InDetSCTRawDataProvider
   #InDetSCTRawDataProvider.OutputLevel = VERBOSE
 
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTEventFlagWriter
   InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter")
   if (InDetFlags.doPrintConfigurables()):
-    print InDetSCTEventFlagWriter
+    printfunc (InDetSCTEventFlagWriter)
   topSequence += InDetSCTEventFlagWriter
 
   #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/"+InDetKeys.SCT_RDOs()]
@@ -70,7 +70,7 @@ if DetFlags.readRDOBS.TRT_on():
   
   ToolSvc += InDetTRTRodDecoder
   if (InDetFlags.doPrintConfigurables()):
-    print      InDetTRTRodDecoder
+    printfunc      (InDetTRTRodDecoder)
   #InDetTRTRodDecoder.OutputLevel = VERBOSE
   
   from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
@@ -78,7 +78,7 @@ if DetFlags.readRDOBS.TRT_on():
                                                       Decoder = InDetTRTRodDecoder)
   #ToolSvc += InDetTRTRawDataProviderTool
   if (InDetFlags.doPrintConfigurables()):
-    print      InDetTRTRawDataProviderTool
+    printfunc      (InDetTRTRawDataProviderTool)
   #InDetTRTRawDataProviderTool.OutputLevel = VERBOSE
   
   # load the TRTRawDataProvider
@@ -88,7 +88,7 @@ if DetFlags.readRDOBS.TRT_on():
                                               ProviderTool = InDetTRTRawDataProviderTool)
   topSequence += InDetTRTRawDataProvider
   if (InDetFlags.doPrintConfigurables()):
-    print          InDetTRTRawDataProvider
+    printfunc          (InDetTRTRawDataProvider)
   #InDetTRTRawDataProvider.OutputLevel = VERBOSE
 
   #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/"+InDetKeys.TRT_RDOs() ]
@@ -98,7 +98,7 @@ if DetFlags.readRDOBS.BCM_on():
   InDetBCMRodDecoder = BCM_RodDecoder(name = "InDetBCMRodDecoder")
   ToolSvc += InDetBCMRodDecoder
   if (InDetFlags.doPrintConfigurables()):
-    print      InDetBCMRodDecoder
+    printfunc      (InDetBCMRodDecoder)
   #InDetBCMRodDecoder.OutputLevel = VERBOSE
   
   from BCM_RawDataByteStreamCnv.BCM_RawDataByteStreamCnvConf import BCM_RawDataProviderTool
@@ -106,7 +106,7 @@ if DetFlags.readRDOBS.BCM_on():
                                                         Decoder = InDetBCMRodDecoder)
   ToolSvc += InDetBCMRawDataProviderTool
   if (InDetFlags.doPrintConfigurables()):
-    print      InDetBCMRawDataProviderTool
+    printfunc      (InDetBCMRawDataProviderTool)
   #InDetBCMRawDataProviderTool.OutputLevel = VERBOSE
   
   # load the BCM_RawDataProvider
@@ -116,7 +116,7 @@ if DetFlags.readRDOBS.BCM_on():
                                                 ProviderTool = InDetBCMRawDataProviderTool)
   topSequence += InDetBCMRawDataProvider
   if (InDetFlags.doPrintConfigurables()):
-    print          InDetBCMRawDataProvider
+    printfunc          (InDetBCMRawDataProvider)
   #InDetBCMRawDataProvider.OutputLevel = VERBOSE
 
   #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "BCM_RDO_Container/"+InDetKeys.BCM_RDOs() ]

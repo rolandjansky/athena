@@ -1,7 +1,7 @@
 //Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRECCONDITIONS_LARCALIBLINEMAPPING_
@@ -12,7 +12,7 @@
 #include "Identifier/IdentifierHash.h"
 #include <vector>
 
-class LArOnlineID;
+class LArOnlineID_Base;
 
 class LArCalibLineMapping {
 
@@ -20,14 +20,14 @@ class LArCalibLineMapping {
 
  public:
   LArCalibLineMapping()=delete;
-  LArCalibLineMapping(const LArOnlineID* onlineId);
+  LArCalibLineMapping(const LArOnlineID_Base* onlineId);
 
   const std::vector<HWIdentifier>& calibSlotLine(const HWIdentifier id) const;
   const std::vector<HWIdentifier>& calibSlotLineFromHash(const IdentifierHash h) const;
   
  private:
   std::vector<std::vector<HWIdentifier> > m_onlHashToCalibLines;
-  const LArOnlineID* m_onlineId ;
+  const LArOnlineID_Base* m_onlineId ;
 
 };
 

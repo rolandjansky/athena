@@ -51,7 +51,13 @@ StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
     return StatusCode::SUCCESS;
   }
 
-  CHECK(m_modulator_tool->retrieveShape());
+  // FIXME: m_modulator_tool->retrieveShape() is non-const.
+  // It should be made const in order to be able to safely call it from here.
+  // However, this method already needs updating to work in MT (and is checked
+  // above), so just use a const_cast for now to allow this to compile
+  // when ToolHandle restrictions are enabled.
+  IHIUEModulatorTool* modtool_nc = const_cast<IHIUEModulatorTool*> (m_modulator_tool.get());
+  CHECK(modtool_nc->retrieveShape());
 
   for(auto pCell : *theCells)
   {

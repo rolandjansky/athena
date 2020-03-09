@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-
+from past.builtins import cmp
 
 class Lvl1MonCounters(object):
 
@@ -34,6 +34,11 @@ class Lvl1MonCounter(object):
         if(self.name!=o.name):
             return cmp(self.name,o.name)
         return cmp(self.multiplicity,o.multiplicity)
+
+    def __lt__(self, o):
+        if(self.name!=o.name):
+            return self.name < o.name
+        return self.multiplicity < o.multiplicity
     
 class Lvl1CtpinCounter(Lvl1MonCounter):
 

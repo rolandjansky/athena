@@ -38,27 +38,11 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 # Get tools from toolSvc or create
 from AthenaCommon.AppMgr import ToolSvc
 
-# Must do tool configuration here for DB access to be autoconfigured from RecExCommon
-name = "LuminosityTool"
-if not hasattr(ToolSvc, name):
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-    ToolSvc += LuminosityToolDefault(name)
+from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+LuminosityCondAlgDefault()
+from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault
+TrigLiveFractionCondAlgDefault()
 
-ToolSvc.LuminosityTool.OutputLevel = DEBUG
-# ToolSvc.LuminosityTool.FillParamsTool = ""  # Try turning something off
-
-if not hasattr(ToolSvc, "TrigLivefractionTool"):
-    from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
-    ToolSvc += TrigLivefractionToolDefault("TrigLivefractionTool")
-
-#liveTool = getattr(ToolSvc, "TrigLivefractionTool")
-ToolSvc.TrigLivefractionTool.OutputLevel = DEBUG
-
-# Make some other things debug
-ToolSvc.OnlineLumiCalibrationTool.OutputLevel = DEBUG
-ToolSvc.BunchLumisTool.OutputLevel = DEBUG
-ToolSvc.FillParamsTool.OutputLevel = DEBUG
-        
 # add LumiCalcMuWriter, should only be done in RAW->ESD transform
 from LumiBlockComps.LumiBlockCompsConf import LumiBlockTester
 muTester = LumiBlockTester("LumiBlockTester")

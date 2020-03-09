@@ -207,24 +207,15 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
 
   // EXECUTE OFFLINE TOOLS
 
-
-  // calJet is a pointer to the new, calibrated jet
-  xAOD::Jet* calJet = nullptr;
-  m_jetGSCCalib_tool->calibratedCopy(jet,calJet);
-
-//  std::cout << "TrigGSCFex: New jet"
-//	    << " pt: "  << calJet->p4().Pt()
-//	    << " eta: " << calJet->p4().Eta()
-//	    << " phi: " << calJet->p4().Phi()
-//	    << " m: "   << calJet->p4().M()
-//	    << std::endl;
-  
   xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
   xAOD::JetContainer* jc = new xAOD::JetContainer;
   jc->setStore(&trigJetTrigAuxContainer);
-  jc->push_back ( new xAOD::Jet(*calJet) );
-  delete calJet;
-
+  jc->push_back ( new xAOD::Jet(jet) );
+  if(m_jetGSCCalib_tool->applyCalibration(*jc).isFailure()){
+    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "Failed to apply jet calibration tool" << endmsg;
+    return HLT::TOOL_FAILURE;
+  }
+  
 //  std::cout << "TrigGSCFex: New jet back"
 //	    << " pt: "  << jc->back()->p4().Pt()
 //	    << " eta: " << jc->back()->p4().Eta()

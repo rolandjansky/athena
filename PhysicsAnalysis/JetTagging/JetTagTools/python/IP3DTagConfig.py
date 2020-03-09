@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
@@ -11,19 +12,18 @@ from JetTagTools.InDetTrackSelectorConfig import InDetTrackSelectorCfg
 from JetTagTools.SpecialTrackAssociatorConfig import SpecialTrackAssociatorCfg
 
 # import the IPTag configurable
-from JetTagTools.JetTagToolsConf import Analysis__IPTag
+Analysis__IPTag=CompFactory.Analysis__IPTag
 
 def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP3DTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     referenceType                       default: BTaggingFlags.ReferenceType
     impactParameterView                 default: "3D"
     trackGradePartitions                default: [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
     RejectBadTracks                     default: False
-    originalTPCollectionName            default: BTaggingFlags.TrackParticleCollectionName
     jetCollectionList                   default: BTaggingFlags.Jets
     unbiasIPEstimation                  default: False (switch to true (better!) when creating new PDFs)
     SecVxFinderName                     default: "SV1"
@@ -50,17 +50,16 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
             svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
             trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
             trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
-            likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg('IP3DNewLikelihoodTool', 'IP3D'))
+            likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D'))
             inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
             trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator'))
 
-            defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+            defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
-                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
+                     'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'impactParameterView'              : '3D',
                      'trackGradePartitions'             : grades,
                      'RejectBadTracks'                  : True,
-                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'unbiasIPEstimation'               : False,
                      'UseCHypo'                         : True,

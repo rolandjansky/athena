@@ -1,17 +1,15 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_ITRIGL2CALOPRECISIONHYPOTOOL_H
-#define TRIGEGAMMAHYPO_ITRIGL2CALOPRECISIONHYPOTOOL_H 1
+#ifndef TRIGEGAMMAHYPO_ITPRECISIONCALOHYPOTOOL_H
+#define TRIGEGAMMAHYPO_ITPRECISIONCALOHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
-
-
-
+#include "DecisionHandling/TrigCompositeUtils.h"
 
 
 /**
- * @class Base for tools dooing L2 Calo Hypo selection
+ * @class Base for tools dooing precision Calo Hypo selection
  * @brief 
  **/
 
@@ -60,4 +58,4 @@ class ITrigEgammaPrecisionCaloHypoTool
 }; 
 
 
-#endif //> !TRIGEGAMMAHYPO_ITRIGL2CALOPRECISIONHYPOTOOL_H
+#endif //> !TRIGEGAMMAHYPO_ITPRECISIONCALOHYPOTOOL_H

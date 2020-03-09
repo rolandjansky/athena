@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,8 +22,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef __IDSCAN_HITFILTER_H__
-#define __IDSCAN_HITFILTER_H__
+#ifndef IDSCANHITFILTER_IDSCANHITFILTER_H
+#define IDSCANHITFILTER_IDSCANHITFILTER_H
 
 #include <vector>
 #include <list>
@@ -56,11 +56,12 @@ class IDScanHitFilter: public iHitFilter, public AthAlgTool, virtual public ITri
 
   virtual StatusCode initialize() override;
 
+  virtual
   void findTracks( std::vector<const TrigSiSpacePoint* >, 
 		   TrigInDetTrackCollection&, 
 		   const IRoiDescriptor*, double zvertex,
 		   double shiftx, double shifty,
-		   const int missing_layers);
+		   const int missing_layers) override;
 
  private:
 

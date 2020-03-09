@@ -176,9 +176,9 @@ StatusCode ParticleSelectionAlg::finalize()
 
 
 
-StatusCode ParticleSelectionAlg::beginRun()
+StatusCode ParticleSelectionAlg::start()
 {
-  ATH_MSG_DEBUG ("BeginRun " << name() << "...");
+  ATH_MSG_DEBUG ("start " << name() << "...");
 
   // Nothing to be done here, if cut-flow bookkeeping was not requested
   if (!m_doCutFlow){ return StatusCode::SUCCESS; }

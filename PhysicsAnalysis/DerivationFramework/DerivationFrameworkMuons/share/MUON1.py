@@ -37,7 +37,7 @@ triggerList1 = ['HLT_.*mu\d+.*']
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 MUON1ThinningHelper = ThinningHelper( "MUON1ThinningHelper" )
 MUON1ThinningHelper.TriggerChains = '|'.join(triggerList1)
-print MUON1ThinningHelper.TriggerChains
+printfunc (MUON1ThinningHelper.TriggerChains)
 MUON1ThinningHelper.AppendToStream( MUON1Stream )
 
 #====================================================================
@@ -76,7 +76,7 @@ ToolSvc += MUON1AugmentTool1a
 MUON1AugmentTools.append(MUON1AugmentTool1a)
 skimmingORs.append(brPrefix1a+'DIMU_pass>0')
 thinningORs.append(brPrefix1a+'DIMU_trkStatus>0')
-print MUON1AugmentTool1a
+printfunc (MUON1AugmentTool1a)
 
 
 ### Jpsi for tag-probe
@@ -111,7 +111,7 @@ ToolSvc += MUON1AugmentTool1b
 MUON1AugmentTools.append(MUON1AugmentTool1b)
 skimmingORs.append(brPrefix1b+'DIMU_pass>0')
 thinningORs.append(brPrefix1b+'DIMU_trkStatus>0')
-print MUON1AugmentTool1b
+printfunc (MUON1AugmentTool1b)
 
 
 ### Jpsi for calibration
@@ -146,7 +146,7 @@ ToolSvc += MUON1AugmentTool1c
 MUON1AugmentTools.append(MUON1AugmentTool1c)
 skimmingORs.append(brPrefix1c+'DIMU_pass>0')
 thinningORs.append(brPrefix1c+'DIMU_trkStatus>0')
-print MUON1AugmentTool1c
+printfunc (MUON1AugmentTool1c)
 
 ### Upsilon tagging
 brPrefix1d = 'MUON1d'
@@ -179,7 +179,7 @@ ToolSvc += MUON1AugmentTool1d
 MUON1AugmentTools.append(MUON1AugmentTool1d)
 skimmingORs.append(brPrefix1d+'DIMU_pass>0')
 thinningORs.append(brPrefix1d+'DIMU_trkStatus>0')
-print MUON1AugmentTool1d
+printfunc (MUON1AugmentTool1d)
 
 ### isolation decorations
 from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1IDTrackDecorator as MUON1AugmentTool2a
@@ -189,12 +189,12 @@ MUON1AugmentTool2a.SelectionFlagValue = 0
 
 ToolSvc += MUON1AugmentTool2a
 MUON1AugmentTools.append(MUON1AugmentTool2a)
-print MUON1AugmentTool2a
+printfunc (MUON1AugmentTool2a)
 
 from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1MSTrackDecorator as MUON1AugmentTool3
 ToolSvc += MUON1AugmentTool3
 MUON1AugmentTools.append(MUON1AugmentTool3)
-print MUON1AugmentTool3
+printfunc (MUON1AugmentTool3)
 
 #====================================================================
 # SKIMMING
@@ -214,10 +214,9 @@ MUON1ThinningTools = []
 thinning_expression1 = '||'.join(thinningORs)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON1ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON1ThinningTool1",
-                                                                ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression1,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON1ThinningTool1
 MUON1ThinningTools.append(MUON1ThinningTool1)
 
@@ -225,7 +224,7 @@ MUON1ThinningTools.append(MUON1ThinningTool1)
 thinning_expression2 = ""
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON1ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON1ThinningTool2",
-                                                                    ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = MUON1Stream.Name,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.5,
@@ -238,19 +237,19 @@ MUON1ThinningTools.append(MUON1ThinningTool2)
 # keep topoclusters around muons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 MUON1ThinningTool4 = DerivationFramework__CaloClusterThinning(name                    = "MUON1ThinningTool4",
-                                                              ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                              StreamName              = MUON1Stream.Name,
                                                               SGKey                   = "Muons",
                                                               SelectionString         = "Muons.pt>4*GeV",
                                                               TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                               ConeSize                = 0.5)
 ToolSvc += MUON1ThinningTool4
-print MUON1ThinningTool4
+printfunc (MUON1ThinningTool4)
 MUON1ThinningTools.append(MUON1ThinningTool4)
 
 ### also for forward tracks
 thinning_expression3 = "Muons.muonType==4"
 MUON1ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                   = "MUON1ThinningTool2f",
-                                                                    ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = MUON1Stream.Name,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression3,
                                                                     ConeSize                = 0.5,
@@ -260,9 +259,11 @@ ToolSvc += MUON1ThinningTool2f
 MUON1ThinningTools.append(MUON1ThinningTool2f)
 
 ### cell thinning
-from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
-theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"],
-                                       outputCellKey="DFMUONCellContainer")
+from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
+thinCaloCellsForDF (inputClusterKeys = ["MuonClusterCollection"],
+                    streamName = MUON1Stream.Name,
+                    outputCellKey = "DFMUONCellContainer")
+
 #====================================================================
 # JetTagNonPromptLepton decorations
 #====================================================================
@@ -277,7 +278,8 @@ if not hasattr(DerivationFrameworkJob,"MUONSequence"):
 
 from DerivationFrameworkMuons import  JPsiVertexFitSetup
 MUON1AugmentTools += JPsiVertexFitSetup.AddJPsiVertexingAlgs('MUON1',False)
-for t in MUON1AugmentTools: print t
+for t in MUON1AugmentTools:
+  printfunc (t)
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
@@ -294,8 +296,8 @@ MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
 from AthenaCommon import CfgMgr
 
-tighttrackvertexassotool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=3, doPV=True) 
-ToolSvc+=tighttrackvertexassotool 
+trackvertexassotool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool", WorkingPoint='Loose')
+ToolSvc+=trackvertexassotool
 
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
 TrackIsolationLoose500 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolLoose500')
@@ -308,13 +310,13 @@ TrackIsolationTight1000 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolTig
 TrackIsolationTight1000.TrackSelectionTool.minPt         = 1000
 TrackIsolationTight1000.TrackSelectionTool.CutLevel      = "Loose"
 TrackIsolationTight1000.UseTTVAtool = True
-TrackIsolationTight1000.TrackVertexAssociationTool = tighttrackvertexassotool
+TrackIsolationTight1000.TrackVertexAssociationTool = trackvertexassotool
 ToolSvc += TrackIsolationTight1000
 TrackIsolationTight500 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolTight500')
 TrackIsolationTight500.TrackSelectionTool.minPt         = 500
 TrackIsolationTight500.TrackSelectionTool.CutLevel      = "Loose"
 TrackIsolationTight500.UseTTVAtool = True
-TrackIsolationTight500.TrackVertexAssociationTool = tighttrackvertexassotool
+TrackIsolationTight500.TrackVertexAssociationTool = trackvertexassotool
 ToolSvc += TrackIsolationTight500
 
 import ROOT, PyCintex

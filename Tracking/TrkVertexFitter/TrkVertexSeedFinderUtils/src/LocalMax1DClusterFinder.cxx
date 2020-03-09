@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -21,7 +21,7 @@ namespace Trk
   }
 
   LocalMax1DClusterFinder::LocalMax1DClusterFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_weightThreshold( 1500.0 ) ,
     m_mergeParam( 0.95 ),
     m_clusterWindowXY( 0.34 ),
@@ -38,27 +38,13 @@ namespace Trk
     declareProperty("refineZ", m_refineZ);
     //use gaussian window for z projection
     declareProperty("gaussianWindow", m_gaussianWindow);
-    declareInterface<IVertexClusterFinder>(this);
   }
   
-  LocalMax1DClusterFinder::~LocalMax1DClusterFinder() {}
   
-  StatusCode LocalMax1DClusterFinder::initialize() { 
-    //no initializiation needed
-    msg(MSG::INFO) << "Initialize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-  
-  StatusCode LocalMax1DClusterFinder::finalize() 
-  {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-
   // --------------------------------------------------------------------------------
   // Find vertex clusters of input image
-  std::vector<Amg::Vector3D> LocalMax1DClusterFinder::findVertexClusters( const VertexImage & image ){
+  std::vector<Amg::Vector3D> LocalMax1DClusterFinder::findVertexClusters( const VertexImage & image ) const
+  {
 
     std::vector<float> zproj;
 
@@ -174,7 +160,7 @@ namespace Trk
 	      if ( 4 * (w2 - w1) + 2 * (w1 - w3) > 0 ) {
 		z = z2 + (z2 - z1) * (w3 - w1)/(4 * (w2 - w1) + 2 * (w1 - w3));
 	      } else {  // degenerate (linear) or concave up cases should never happen since z2 is a local maximum
-		msg(MSG::WARNING) << "unexpected histogram shape ("<<w1<<","<<w2<<","<<w3<<")" << endmsg;
+		ATH_MSG_WARNING( "unexpected histogram shape ("<<w1<<","<<w2<<","<<w3<<")"  );
 		z = image.getRelPosZ(m.first);
 	      }
 	    } else {
@@ -185,7 +171,7 @@ namespace Trk
       }
     }
 
-    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endmsg;
+    ATH_MSG_DEBUG( "returning " << vertices.size() << " clusters"  );
     return vertices;
 
   } //End findLocalMax1DClusterFinder

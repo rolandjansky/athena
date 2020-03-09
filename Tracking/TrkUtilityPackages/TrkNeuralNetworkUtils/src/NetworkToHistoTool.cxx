@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TH1D.h>
@@ -138,13 +138,17 @@ NetworkToHistoTool::histsFromNetwork(const TTrainedNetwork* trainedNetwork)
 
 
 TTrainedNetwork* 
-NetworkToHistoTool::networkFromHists(std::map<std::string,TH1*>& inputHistos) 
+NetworkToHistoTool::networkFromHists(const std::map<std::string,const TH1*>& inputHistos) 
   const
 {
+  auto getHist = [&inputHistos] (const std::string& name) -> const TH1*
+                 {
+                   auto it = inputHistos.find (name);
+                   if (it == inputHistos.end()) return nullptr;
+                   return it->second;
+                 };
 
-  
-
-  TH1* histoLayersInfo = inputHistos["LayersInfo"]; 
+  const TH1* histoLayersInfo = getHist ("LayersInfo");
 
   if (histoLayersInfo==0)
   {
@@ -191,8 +195,8 @@ NetworkToHistoTool::networkFromHists(std::map<std::string,TH1*>& inputHistos)
 
     TVectorD* thresholdVector=new TVectorD(layerSize);
     TMatrixD* weightMatrix=new TMatrixD(previousLayerSize,layerSize);
-   
-    TH1* histoThreshLayer = inputHistos[threName]; 
+
+    const TH1* histoThreshLayer = getHist (threName);
     if (!histoThreshLayer)
       throw std::runtime_error("could not find " + threName); 
 
@@ -212,7 +216,7 @@ NetworkToHistoTool::networkFromHists(std::map<std::string,TH1*>& inputHistos)
 
     std::string weightsName = (boost::format("Layer%i_weights") % i).str();
 
-    TH1* histoWeightsLayer = inputHistos[weightsName]; 
+    const TH1* histoWeightsLayer = getHist (weightsName);
     if (!histoWeightsLayer) { 
       throw std::runtime_error("could not find " + weightsName); 
     }
@@ -237,7 +241,7 @@ NetworkToHistoTool::networkFromHists(std::map<std::string,TH1*>& inputHistos)
 
   }
   
-  TH1* histoInputs = inputHistos["InputsInfo"]; 
+  const TH1* histoInputs = getHist ("InputsInfo");
   std::vector<TTrainedNetwork::Input> inputs; 
   if (!histoInputs) { 
     for (unsigned i = 0 ; i < nInput; i++) { 
@@ -282,12 +286,21 @@ std::vector<TH1*> NetworkToHistoTool
 }
 
 TTrainedNetwork* NetworkToHistoTool
-::fromHistoToTrainedNetwork(std::vector<TH1*>& hists) const 
+::fromHistoToTrainedNetwork(const std::vector<TH1*>& hists) const 
 {
-  std::map<std::string, TH1*> hist_map; 
-  for (std::vector<TH1*>::const_iterator itr = hists.begin(); 
-       itr != hists.end(); itr++) { 
-    hist_map[(*itr)->GetName()] = *itr; 
+  std::map<std::string, const TH1*> hist_map;
+  for (const TH1* h : hists) {
+    hist_map[h->GetName()] = h;
+  }
+  return networkFromHists(hist_map); 
+}
+
+TTrainedNetwork* NetworkToHistoTool
+::fromHistoToTrainedNetwork(const std::vector<const TH1*>& hists) const 
+{
+  std::map<std::string, const TH1*> hist_map;
+  for (const TH1* h : hists) {
+    hist_map[h->GetName()] = h;
   }
   return networkFromHists(hist_map); 
 }

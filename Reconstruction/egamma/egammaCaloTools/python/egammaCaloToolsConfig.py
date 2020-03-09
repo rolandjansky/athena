@@ -4,11 +4,12 @@ __doc__ = "Tool configuration to instantiate all egammaCaloTools with default co
 
 #---------------------------------------
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def CaloFillRectangularClusterCfg(flags):
     result=ComponentAccumulator()
 
-    from CaloClusterCorrection.CaloClusterCorrectionConf import CaloFillRectangularCluster
+    CaloFillRectangularCluster=CompFactory.CaloFillRectangularCluster
     caloFillRectangularCluster = CaloFillRectangularCluster(eta_size = 5,
                                                             phi_size = 7,
                                                             cells_name = flags.Egamma.Keys.Input.CaloCells)

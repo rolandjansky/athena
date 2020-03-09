@@ -39,12 +39,6 @@ svcMgr.PoolSvc.WriteCatalog = 'xmlcatalog_file:PoolFileCatalog.xml'
 from AthenaServices.AthenaServicesConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 
-###############################
-# Load thinning service
-###############################
-from AthenaServices.AthenaServicesConf import ThinningSvc
-svcMgr += ThinningSvc( OutputLevel = VERBOSE )
-
 #####################################################
 # ReadThinnedData
 # --> read "swiss" DataVector

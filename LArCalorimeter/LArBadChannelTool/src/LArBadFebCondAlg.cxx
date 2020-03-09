@@ -75,29 +75,7 @@ StatusCode LArBadFebCondAlg::execute() {
     for (auto& idBC : bcVec) {
       badFebCont->add(idBC.first,idBC.second);
     }
-       
-     
-    if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
-       
-       const LArOnlineID* onlineID;
-       ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));	       
-       LArBadChannelDecoder decoder(&(*onlineID), msg());
-       std::vector<std::pair<HWIdentifier,LArBadFeb> > bcVec = decoder.readFebASCII(m_inputFileName);
-       for (auto& idBC : bcVec) {
-         badFebCont->add(idBC.first,idBC.second);
-       }
-     } //end if have ASCII filename
- 
- 
- 
-     size_t nChanBeforeMege=badFebCont->size();
-     badFebCont->sort(); //Sorts vector of bad febs and merges duplicate entries
-     
-     ATH_MSG_INFO("Read a total of " << badFebCont->size() << " problematic febs from database");
-     if (nChanBeforeMege!=badFebCont->size()) {
-       ATH_MSG_INFO("Merged " << nChanBeforeMege-badFebCont->size() << " duplicate entries");
-     }
- 
+    //
     // Define validity of the output cond object and record it
     if(!readHandle.range(rangeW)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
@@ -113,6 +91,27 @@ StatusCode LArBadFebCondAlg::execute() {
 
   }
 
+  if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
+     
+     const LArOnlineID* onlineID;
+     ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));	       
+     LArBadChannelDecoder decoder(&(*onlineID), msg());
+     std::vector<std::pair<HWIdentifier,LArBadFeb> > bcVec = decoder.readFebASCII(m_inputFileName);
+     for (auto& idBC : bcVec) {
+       badFebCont->add(idBC.first,idBC.second);
+     }
+   } //end if have ASCII filename
+ 
+ 
+ 
+   size_t nChanBeforeMege=badFebCont->size();
+   badFebCont->sort(); //Sorts vector of bad febs and merges duplicate entries
+   
+   ATH_MSG_INFO("Read a total of " << badFebCont->size() << " problematic febs from database");
+   if (nChanBeforeMege!=badFebCont->size()) {
+     ATH_MSG_INFO("Merged " << nChanBeforeMege-badFebCont->size() << " duplicate entries");
+   }
+ 
   if(writeHandle.record(rangeW,badFebCont.release()).isFailure()) {
     ATH_MSG_ERROR("Could not record LArBadFebCont object with " 
 		  << writeHandle.key() 

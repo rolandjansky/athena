@@ -17,7 +17,7 @@
 #include "InDetReadoutGeometry/Version.h" 
 #include "InDetReadoutGeometry/SiCommonItems.h" 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h" 
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h" 
 
 #include "SCT_GeoModel/SCT_Barrel.h"
 #include "SCT_GeoModel/SCT_Forward.h"
@@ -81,6 +81,9 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
   // Create the geometry manager.
   m_geometryManager = new SCT_GeometryManager{m_db};
   m_geometryManager->setOptions(options);
+
+  // Add SiCommonItems to SCT_DetectorManager to hold and delete it.
+  m_detectorManager->setCommonItems(m_geometryManager->commonItems());
 
   m_useDynamicAlignFolders = options.dynamicAlignFolders();
  

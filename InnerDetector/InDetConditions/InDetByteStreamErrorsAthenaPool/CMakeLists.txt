@@ -22,7 +22,6 @@ atlas_add_poolcnv_library( InDetByteStreamErrorsAthenaPoolPoolCnv src/*.cxx
    FILES InDetByteStreamErrors/InDetBSErrContainer.h
    InDetByteStreamErrors/TRT_BSIdErrContainer.h
    InDetByteStreamErrors/TRT_BSErrContainer.h
-   InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h
    LINK_LIBRARIES AthenaPoolUtilities Identifier InDetByteStreamErrors TestTools AthAllocators
    AthenaPoolCnvSvcLib )
 
@@ -36,6 +35,11 @@ atlas_add_dictionary( InDetByteStreamErrorsAthenaPoolCnvDict
 atlas_add_test( InDetBSErrContainerCnv_p1_test
    SOURCES test/InDetBSErrContainerCnv_p1_test.cxx
    src/InDetBSErrContainerCnv_p1.cxx
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
+
+atlas_add_test( IDCInDetBSErrContainerCnv_p1_test
+   SOURCES test/IDCInDetBSErrContainerCnv_p1_test.cxx
+   src/IDCInDetBSErrContainerCnv.cxx
    LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
 
 atlas_add_test( TRT_BSErrContainerCnv_p1_test

@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Qt5 COMPONENTS Core ) # needed for QDebug
 find_package( CLHEP ) # to be dropped when migrated all methods to the new Eigen-based GeoTrf
 find_package( Eigen )
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 
 
@@ -30,8 +30,8 @@ endif(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
 atlas_add_library( GeoRead
                    src/*.cpp
                    PUBLIC_HEADERS GeoRead
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelDBManager TFPersistification)
+                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelDBManager TFPersistification)
                    #LINK_LIBRARIES ${CLHEP_LIBRARIES} Qt5::Widgets GeoModelKernel GeoModelDBManager TFPersistification VP1Base )
 # TODO: we should get rid of VP1Base::VP1Msg dependency, since GeoRead should not depend on VP1 packages. Maybe we can move VP1Msg to a standalone package.
 

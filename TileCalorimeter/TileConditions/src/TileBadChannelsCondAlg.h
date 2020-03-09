@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEBADCHANNELSCONDALG_H
@@ -11,6 +11,7 @@
 #include "TileConditions/TileBadChannels.h"
 #include "TileConditions/ITileCondProxy.h"
 #include "TileConditions/TileCondIdTransforms.h"
+#include "TileConditions/TileCablingSvc.h"
 #include "TileCalibBlobObjs/TileCalibDrawerBch.h"
 #include "TileCalibBlobObjs/TileBchDecoder.h"
 
@@ -58,8 +59,17 @@ class TileBadChannelsCondAlg: public AthAlgorithm {
     SG::WriteCondHandleKey<TileBadChannels> m_badChannelsKey{this, "TileBadChannels", "TileBadChannels",
                                                              "Output Tile bad channels status"};
 
-    ServiceHandle<ICondSvc> m_condSvc;
+   /**
+    * @brief Name of conditions service
+    */
+    ServiceHandle<ICondSvc> m_condSvc{this,
+        "CondSvc", "CondSvc", "The conditions service"};
 
+   /**
+    * @brief Name of Tile cabling service
+    */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service" };
 
     ToolHandle<TileCondIdTransforms> m_tileIdTrans{this, "TileCondIdTransforms", "TileCondIdTransforms",
                                                    "Tile Id transform helper"};

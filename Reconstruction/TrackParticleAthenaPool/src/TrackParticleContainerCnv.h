@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -12,10 +12,7 @@
 #ifndef TRACKPARTICLECONTAINER_CNV_H
 #define TRACKPARTICLECONTAINER_CNV_H
 
-// Hack so we can access the private data. EJWM
-#define protected public
 #include "GaudiKernel/MsgStream.h"
-#undef protected
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
@@ -46,18 +43,17 @@ class TrackParticleContainerCnv : public TrackParticleContainerCnvBase
 public:
   TrackParticleContainerCnv( ISvcLocator *svcloc );
 protected:
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  virtual TrackParticleContainer_PERS *createPersistent( Rec::TrackParticleContainer *transCont);
-  virtual Rec::TrackParticleContainer *createTransient();
+  virtual TrackParticleContainer_PERS *createPersistent( Rec::TrackParticleContainer *transCont) override;
+  virtual Rec::TrackParticleContainer *createTransient() override;
 
-  virtual AthenaPoolTopLevelTPCnvBase*	getTopLevelTPCnv() { return &m_TPConverter_tlp3; }
+  AthenaPoolTopLevelTPCnvBase*	getTopLevelTPCnv()
+  { return &m_TPConverter_tlp3; }
 
  
  private:
-  
   IMessageSvc          *m_msgSvc;
-  MsgStream             m_log;
   TrackParticleContainerCnv_tlp1	m_TPConverter_tlp1;
   TrackParticleContainerCnv_tlp2	m_TPConverter_tlp2;
   TrackParticleContainerCnv_tlp3	m_TPConverter_tlp3;

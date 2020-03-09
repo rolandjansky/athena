@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging
@@ -12,24 +14,36 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
             from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg
             theNegativeEnergyNeutralPFOsThinner = ThinNegativeEnergyNeutralPFOsAlg(
                 "ThinNegativeEnergyNeutralPFOsAlg",
-                ThinNegativeEnergyNeutralPFOs = True
+                ThinNegativeEnergyNeutralPFOs = True,
+                StreamName = 'StreamAOD'
             )
-            print theNegativeEnergyNeutralPFOsThinner
+            print (theNegativeEnergyNeutralPFOsThinner)
 
-            CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
-                "ThinNegativeEnergyCHSNeutralPFOsAlg",
-                NeutralPFOsKey="CHSNeutralParticleFlowObjects",
-                ThinNegativeEnergyNeutralPFOs = True
-                )
-            print CHSnPFOsThinAlg
+            CHSnPFOsThinAlg = None
+
+            from RecExConfig.ObjKeyStore import cfgKeyStore
+
+            from JetRec.JetRecFlags import jetFlags
+            if (jetFlags.useTracks or
+                cfgKeyStore.isInInput ('xAOD::PFOContainer',
+                                       'CHSNeutralParticleFlowObjects')):
+                CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
+                    "ThinNegativeEnergyCHSNeutralPFOsAlg",
+                    NeutralPFOsKey="CHSNeutralParticleFlowObjects",
+                    ThinNegativeEnergyNeutralPFOs = True,
+                    StreamName = 'StreamAOD'
+                    )
+                print (CHSnPFOsThinAlg)
 
         except Exception:
             mlog.error("could not get handle to ThinNegativeEnergyNeutralPFOsAlg")
-            print traceback.format_exc()
+            import traceback
+            traceback.print_exc()
             return False 
         mlog.info("now adding to topSequence")
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         topSequence += theNegativeEnergyNeutralPFOsThinner
-        topSequence += CHSnPFOsThinAlg
+        if CHSnPFOsThinAlg:
+            topSequence += CHSnPFOsThinAlg
         return True

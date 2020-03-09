@@ -39,17 +39,6 @@ DetFlags.Muon_setOn()
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
-# Needed to call the DB containing the deviations
-# example from Monica Verducci
-from MuonCondSvc.MuonCondSvcConf import MuonAlignmentErrorDbSvc
-MuonAlignmentErrorDbSvc.OutputLevel = INFO
-svcMgr += MuonAlignmentErrorDbSvc()
-
-from MuonCondTool.MuonCondToolConf import MuonAlignmentErrorDbTool
-MuonAlignmentErrorDbTool = MuonAlignmentErrorDbTool("MuonAlignmentErrorDbTool")
-MuonAlignmentErrorDbTool.OutputLevel = INFO
-
-toolSvc += MuonAlignmentErrorDbTool
 #dbConn="sqlite://;schema=test.sqlite;dbname=COMP200" # LOCAL VERSION
 
 svcMgr.IOVDbSvc.OutputLevel = INFO

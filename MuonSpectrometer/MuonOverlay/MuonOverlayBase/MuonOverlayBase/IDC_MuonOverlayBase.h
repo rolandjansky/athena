@@ -19,21 +19,21 @@
 #ifndef IDC_MUONOVERLAYCOMMON_H
 #define IDC_MUONOVERLAYCOMMON_H
 
-#include <AthenaBaseComps/AthAlgorithm.h>
+#include <AthenaBaseComps/AthReentrantAlgorithm.h>
 #include <Identifier/IdentifierHash.h>
 
 
-class IDC_MuonOverlayBase : public AthAlgorithm
+class IDC_MuonOverlayBase : public AthReentrantAlgorithm
 {
 public:
   IDC_MuonOverlayBase(const std::string &name, ISvcLocator *pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator) {}
+    : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 protected:
   template <class IDC_Container>
   StatusCode overlayContainer(const IDC_Container *bkgContainer,
                               const IDC_Container *signalContainer,
-                              IDC_Container *outputContainer)
+                              IDC_Container *outputContainer) const
   {
     return overlayContainerBase(bkgContainer, signalContainer, outputContainer, false);
   }
@@ -41,7 +41,7 @@ protected:
   template <class IDC_Container>
   StatusCode overlayMultiHitContainer(const IDC_Container *bkgContainer,
                                       const IDC_Container *signalContainer,
-                                      IDC_Container *outputContainer)
+                                      IDC_Container *outputContainer) const
   {
     return overlayContainerBase(bkgContainer, signalContainer, outputContainer, true);
   }
@@ -51,11 +51,11 @@ private:
   StatusCode overlayContainerBase(const IDC_Container *bkgContainer,
                                   const IDC_Container *signalContainer,
                                   IDC_Container *outputContainer,
-                                  bool isMultiHitCollection);
+                                  bool isMultiHitCollection) const;
 
   template <class Collection>
   std::unique_ptr<Collection> copyCollection(const IdentifierHash &hashId,
-                                             const Collection *collection);
+                                             const Collection *collection) const;
 
 };
 

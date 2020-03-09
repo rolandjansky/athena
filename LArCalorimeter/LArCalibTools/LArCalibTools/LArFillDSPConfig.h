@@ -40,6 +40,7 @@ class LArFillDSPConfig: public AthAlgorithm
 
   std::string m_folderName;
   bool m_dump;
+  bool m_lowmu;
 }; 
 
 #endif 

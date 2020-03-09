@@ -1,49 +1,68 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg, MdtCalibrationDbSvcCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
+from MuonConfig.MuonCalibConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO should maybe shift this elsewhere?
-from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
-from MuonClusterOnTrackCreator.MuonClusterOnTrackCreatorConf import Muon__CscClusterOnTrackCreator, Muon__MuonClusterOnTrackCreator
-from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
+Muon__MdtDriftCircleOnTrackCreator=CompFactory.Muon__MdtDriftCircleOnTrackCreator
+Muon__CscClusterOnTrackCreator, Muon__MuonClusterOnTrackCreator=CompFactory.getComps("Muon__CscClusterOnTrackCreator","Muon__MuonClusterOnTrackCreator",)
+Trk__RIO_OnTrackCreator=CompFactory.Trk__RIO_OnTrackCreator
+Muon__TriggerChamberClusterOnTrackCreator=CompFactory.Muon__TriggerChamberClusterOnTrackCreator
 
-def CscClusterOnTrackCreatorCfg(flags,**kwargs):
-    from  MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg
-    
+def TriggerChamberClusterOnTrackCreatorCfg(flags, name="TriggerChamberClusterOnTrackCreator", **kwargs):
     result=ComponentAccumulator()
+    acc =  MuonClusterOnTrackCreatorCfg(flags)
+    muon_cluster_creator=acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("ClusterCreator", muon_cluster_creator)
+    result.setPrivateTools(Muon__TriggerChamberClusterOnTrackCreator(name, **kwargs))
+    return result
+
+def CscClusterOnTrackCreatorCfg(flags,name="CscClusterOnTrackCreator", **kwargs):
+    from MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg, CscClusterUtilToolCfg, CalibCscStripFitterCfg
+
+    result=ComponentAccumulator()    
+    acc = QratCscClusterFitterCfg(flags)
+    qrat = acc.popPrivateTools()
+    result.merge(acc)
+    kwargs.setdefault("CscClusterFitter", qrat )
     
-    acc, qrat = QratCscClusterFitterCfg(flags)
-    result.addPublicTool(qrat)
+    acc = CalibCscStripFitterCfg(flags)
+    strip_fitter = acc.popPrivateTools()
+    result.merge(acc)
+    kwargs.setdefault("CscStripFitter", strip_fitter)
+    
+    acc = CscClusterUtilToolCfg(flags)
+    cluster_util_tool = acc.popPrivateTools()
+    kwargs.setdefault("CscClusterUtilTool", cluster_util_tool )
     result.merge(acc)
     
-    # TODO fix this
-    # kwargs.setdefault("CscStripFitter", getPublicTool("CalibCscStripFitter") )
-    kwargs.setdefault("CscClusterFitter", qrat )
-    # kwargs.setdefault("CscClusterUtilTool", getPublicTool("CscClusterUtilTool") )
-    if False  : # enable CscClusterOnTrack error scaling :
-        from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,createAndAddCondAlg
-        createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
-
-        kwargs.setdefault("CSCErrorScalingKey","/MUON/TrkErrorScalingCSC")
-
     if not flags.Input.isMC: # collisions real data or simulated first data
         # scale CSC and hit errors 
         kwargs.setdefault("ErrorScalerBeta", 0.070 )
 
-    csc_cluster_creator = Muon__CscClusterOnTrackCreator(**kwargs)
-    result.addPublicTool(csc_cluster_creator, primary=True)
+    result.setPrivateTools(Muon__CscClusterOnTrackCreator(name,**kwargs))
+    
     return result
 
 
-def MdtDriftCircleOnTrackCreatorCfg(flags,**kwargs):
+def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", **kwargs):
     result=ComponentAccumulator()
     
     # setup dependencies missing in C++. TODO: fix in C++
-    acc  = MdtCalibrationSvcCfg(flags)
-    result.merge(acc)
+    #
+    # acc = MdtCalibrationDbSvcCfg(flags)
+    # result.merge(acc)
     
-    acc = MdtCalibrationDbSvcCfg(flags)
+    acc = MdtCalibrationDbToolCfg(flags)
+    mdt_calibibration_db_tool = acc.getPrimary()
     result.merge(acc)
+    kwargs.setdefault("CalibrationDbTool", mdt_calibibration_db_tool)
+
+    acc = MdtCalibrationToolCfg(flags)
+    mdt_calibibration_tool = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("CalibrationTool", mdt_calibibration_tool)
 
     kwargs.setdefault("DoMagneticFieldCorrection", flags.Muon.Calib.correctMdtRtForBField)
     kwargs.setdefault("DoWireSag", flags.Muon.useWireSagCorrections)
@@ -59,7 +78,6 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,**kwargs):
         kwargs.setdefault("DoTofCorrection", True)
         kwargs.setdefault("DoFixedError", False)
         kwargs.setdefault("DoErrorScaling", False)
-        kwargs.setdefault("MuonTofTool", None)
         kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))  # MJW: should this be Collision_G4 ???
         kwargs.setdefault("UseParametrisedError", False)
 
@@ -69,10 +87,10 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,**kwargs):
     
     kwargs.setdefault("IsMC", flags.Input.isMC)
                  
-    result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(**kwargs),primary=True)
+    result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(name, **kwargs),primary=True)
     return result
     
-def MuonClusterOnTrackCreatorCfg(flags,**kwargs):
+def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwargs):
     result=ComponentAccumulator()
     if not flags.Input.isMC: # collisions real data or simulated first data
         # scale TGC eta hit errors as long as TGC eta are not well aligned
@@ -81,7 +99,7 @@ def MuonClusterOnTrackCreatorCfg(flags,**kwargs):
 
     # TODO Fixme - the cxx class retrieves public MuonIdHelperTool ... should be private / service.
     
-    muon_cluster_rot_creator = Muon__MuonClusterOnTrackCreator(**kwargs)
+    muon_cluster_rot_creator = Muon__MuonClusterOnTrackCreator(name, **kwargs)
     result.addPublicTool(muon_cluster_rot_creator, primary=True)
     return result
 
@@ -99,7 +117,7 @@ def MuonClusterOnTrackCreatorCfg(flags,**kwargs):
 #         super(MuonRotCreator,self).__init__(name,**kwargs)
 # end of class MuonRotCreator
 
-def MuonRotCreatorCfg(flags, **kwargs):
+def MuonRotCreatorCfg(flags, name="MuonRotCreator", **kwargs):
     result=ComponentAccumulator()
     
     acc=MdtDriftCircleOnTrackCreatorCfg(flags)
@@ -116,7 +134,7 @@ def MuonRotCreatorCfg(flags, **kwargs):
     kwargs.setdefault("ToolTRT_DriftCircle", None)
     kwargs.setdefault("Mode", 'muon' )
     
-    muon_rot_creator = Trk__RIO_OnTrackCreator(**kwargs)
+    muon_rot_creator = Trk__RIO_OnTrackCreator(name, **kwargs)
     result.addPublicTool(muon_rot_creator,primary=True)
     return result
     

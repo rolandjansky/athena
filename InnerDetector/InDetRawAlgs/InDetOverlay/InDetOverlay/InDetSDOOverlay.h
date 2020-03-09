@@ -5,16 +5,16 @@
 #ifndef INDETOVERLAY_INDETSDOOVERLAY_H
 #define INDETOVERLAY_INDETSDOOVERLAY_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
-class InDetSDOOverlay : public AthAlgorithm
+class InDetSDOOverlay : public AthReentrantAlgorithm
 {
 public:
   InDetSDOOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
   SG::ReadHandleKey<InDetSimDataCollection> m_bkgInputKey{ this, "BkgInputKey", "", "ReadHandleKey for Background Input InDetSimDataCollection" };

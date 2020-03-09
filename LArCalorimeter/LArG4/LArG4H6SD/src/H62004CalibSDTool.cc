@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "H62004CalibSDTool.h"
-
-// Framework utilities
-#include "CxxUtils/make_unique.h"
 
 // LArG4 includes
 #include "LArG4Code/VolumeUtils.h"
@@ -38,7 +35,7 @@ namespace LArG4
     auto parsedVolumes = findLogicalVolumes(volumes, msg());
 
     // Create the simple SD
-    auto sd = CxxUtils::make_unique<LArG4H62004CalibSD>(sdName, calc, m_doPID);
+    auto sd = std::make_unique<LArG4H62004CalibSD>(sdName, calc, m_doPID);
     sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID, m_caloDmID);
 
     // Assign the volumes to the SD

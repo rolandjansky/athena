@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGETCNV_P1_H
@@ -22,17 +22,21 @@ PURPOSE:  Transient/Persisten converter for MissingET class
 
 class MsgStream;
 
-class MissingETCnv_p1 : public T_AthenaPoolTPCnvBase<MissingET, MissingET_p1>
+class MissingETCnv_p1 : public T_AthenaPoolTPCnvConstBase<MissingET, MissingET_p1>
 {
     public:
+        using base_class::transToPers;
+        using base_class::persToTrans;
+
+
         MissingETCnv_p1() {};
         virtual void persToTrans( const MissingET_p1    *persObj,
                                   MissingET             *transObj,
-                                  MsgStream             &msg );
+                                  MsgStream             &msg ) const override;
 
         virtual void transToPers( const MissingET       *transObj,
                                   MissingET_p1          *persObj,
-                                  MsgStream             &msg );
+                                  MsgStream             &msg ) const override;
 };
 
 #endif // RECTPCNV_MISSINGETCNV_P1_H

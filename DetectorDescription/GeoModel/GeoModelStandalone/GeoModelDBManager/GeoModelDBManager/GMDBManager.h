@@ -9,8 +9,6 @@
 #ifndef GMDBManager_H
 #define GMDBManager_H
 
-//#include "GeoModelKernel/GeoNodeAction.h"
-//#include "GeoModelKernel/GeoGraphNode.h"
 
 // include Qt
 #include <QSqlDatabase>
@@ -52,20 +50,29 @@ public:
 	bool isOpen() const;
 
 	/**
-	 * @brief Print names of all PhysVol objects in db
+	 * @brief Print names of all GeoPhysVol objects in db
 	 */
 	void printAllPhysVols() const;
+
+	/**
+	 * @brief Print names of all GeoFullPhysVol objects in db
+	 */
 	void printAllFullPhysVols() const;
 
 	/**
-	 * @brief Print names of all PhysVol objects in db
+	 * @brief Print names of all GeoLogVol objects in db
 	 */
 	void printAllLogVols() const;
 
 	/**
-	 * @brief Print names of all PhysVol objects in db
+	 * @brief Print names of all GeoMaterial objects in db
 	 */
 	void printAllMaterials() const;
+
+	/**
+	 * @brief Print names of all GeoElement objects in db
+	 */
+	void printAllElements() const;
 
 	/**
 	 * @brief Print names of all PhysVol objects in db
@@ -73,9 +80,11 @@ public:
 	void printAllShapes() const;
 
 	/**
-	 * @brief Print names of all PhysVol objects in db
+	 * @brief Print names of all GeoSerialDenominator objects in db
 	 */
 	void printAllSerialDenominators() const;
+
+
 	void printAllSerialTransformers() const;
 	void printAllFunctions() const;
 	void printAllTransforms() const;
@@ -101,7 +110,8 @@ public:
 
 	// ADD methods
 	QVariant addShape(const QString &type, const QString &parameters);
-	QVariant addMaterial(const QString &name);
+	QVariant addMaterial(const QString &name, const QString &density, const QString &elements);
+	QVariant addElement(const QString &name, const QString &symbol, const QString &elZ, const QString &elA);
 	QVariant addLogVol(const QString &name, const QVariant &shapeId, const QVariant &materialId);
 	QVariant addPhysVol(const QVariant &logVolId, const QVariant &parentPhysVolId, bool isRootVolume = false);
 	QVariant addFullPhysVol(const QVariant &logVolId, const QVariant &parentPhysVolId, bool isRootVolume = false);
@@ -175,7 +185,7 @@ private:
 
 	void showError(const QSqlError &err) const;
 
-  QString m_dbpath;
+    QString m_dbpath;
 	QSqlDatabase m_db;
 	bool m_dbIsOK;
 

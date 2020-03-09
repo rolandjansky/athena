@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -16,8 +16,8 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-
-#include "PixelConditionsServices/IPixelTDAQSvc.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 #include <set>
 #include <map>
@@ -30,7 +30,6 @@ class CondAttrListCollection;
 
 
 class TestPixelModuleDisablingSvc:  public AthService,
-  virtual public IPixelTDAQSvc,
   virtual public IIncidentListener
 {
 
@@ -46,7 +45,6 @@ class TestPixelModuleDisablingSvc:  public AthService,
 
   virtual bool tdaq_module_enabled(const Identifier& moduleId);
   virtual bool tdaq_module_enabled(const IdentifierHash & elementHash);
-  virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS){return StatusCode::SUCCESS;}
 
  public:
   typedef SimpleProperty< std::vector<uint32_t> > Uint32ArrayProperty;
@@ -58,7 +56,6 @@ class TestPixelModuleDisablingSvc:  public AthService,
 
   ServiceHandle< StoreGateSvc > m_detStore;
   const PixelID* m_pixelID;
-  unsigned int m_print;
   bool m_print_disabled;
   void print_disabled_modules();
   std::set<Identifier> m_disabled_modules;

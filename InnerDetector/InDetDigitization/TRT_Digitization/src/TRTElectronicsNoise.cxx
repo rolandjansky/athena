@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTElectronicsNoise.h"
@@ -18,7 +18,7 @@
 
 //_____________________________________________________________________________
 TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
-					 CLHEP::HepRandomEngine *elecNoiseRndmEngine )
+                                         CLHEP::HepRandomEngine *elecNoiseRndmEngine )
   : m_settings(digset),
     m_msg("TRTElectronicsNoise")
 {
@@ -45,7 +45,7 @@ TRTElectronicsNoise::~TRTElectronicsNoise(){}
 
 //_____________________________________________________________________________
 void TRTElectronicsNoise::getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxLTOverNoiseAmp,
-							unsigned long nsamplings, CLHEP::HepRandomEngine* rndmEngine) {
+                                                        unsigned long nsamplings, CLHEP::HepRandomEngine* rndmEngine) {
 
   // Note: The offset structure is not the same as in
   // addElectronicsNoise(), but that is OK, since it is not the exact
@@ -71,8 +71,8 @@ void TRTElectronicsNoise::getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxL
 
 //_____________________________________________________________________________
 double TRTElectronicsNoise::getMax(unsigned int firstbinslowsignal,
-				   unsigned int firstbinfastsignal,
-				   const unsigned int& binsinwindow )
+                                   unsigned int firstbinfastsignal,
+                                   const unsigned int& binsinwindow )
 {
 
   // This method assumes that firstbinslowsignal + binsinwindow doesn't
@@ -140,7 +140,7 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
     if ( limit > nbins ) limit = nbins;
     for (unsigned int j(i); j < limit; ++j) {
       m_cachedFastNoiseAfterSignalShaping[j] +=
-	m_tmpArray[i] * m_noiseSignalShape[j-i] * fractionOfFastNoise;
+        m_tmpArray[i] * m_noiseSignalShape[j-i] * fractionOfFastNoise;
     };
   };
 
@@ -165,8 +165,8 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
     if (limit > nbins) limit = nbins;
     for (unsigned int j(i); j < limit; ++j) {
       m_cachedSlowNoiseAfterSignalShaping[j] +=
-	m_tmpArray[i] * m_noiseSignalShape[j-i] *
-	m_fractionOfSlowNoise;
+        m_tmpArray[i] * m_noiseSignalShape[j-i] *
+        m_fractionOfSlowNoise;
     };
   };
 
@@ -202,7 +202,7 @@ void TRTElectronicsNoise::tabulateNoiseSignalShape() {
 
 //_____________________________________________________________________________
 void TRTElectronicsNoise::addElectronicsNoise(std::vector<double>& signal,
-					      const double& noiseamplitude,
+                                              const double& noiseamplitude,
                                               CLHEP::HepRandomEngine *rndmEngine) {
 
   // complain if uninitialized? (fixme)
@@ -228,9 +228,9 @@ void TRTElectronicsNoise::addElectronicsNoise(std::vector<double>& signal,
 
   //Find array offset for slow periodic signal:
   int offset_slowperiodic(CLHEP::RandFlat::shootInt(rndmEngine,
-                          m_cachedSlowNoiseAfterSignalShaping.size()
-                          - nsignalbins-n_slowperiodic_shift
-                          - slowperiodic_constshift));
+                                                    m_cachedSlowNoiseAfterSignalShaping.size()
+                                                    - nsignalbins-n_slowperiodic_shift
+                                                    - slowperiodic_constshift));
 
   offset_slowperiodic -= ( offset_slowperiodic % m_nbins_periodic );
   offset_slowperiodic -= slowperiodic_constshift;
@@ -251,7 +251,7 @@ void TRTElectronicsNoise::addElectronicsNoise(std::vector<double>& signal,
   for ( unsigned int i(0); i<nsignalbins; ++i) {
     signal[i] += noiseamplitude *
       ( m_cachedFastNoiseAfterSignalShaping[offset_fast + i] +
-	m_cachedSlowNoiseAfterSignalShaping[offset_slowperiodic + i] );
+        m_cachedSlowNoiseAfterSignalShaping[offset_slowperiodic + i] );
   };
 }
 
@@ -298,10 +298,10 @@ double TRTElectronicsNoise::NoiseShape(const double& time) const {
 
   if (time_ns<15.5)
     tmp += m_noisepars1[0]*exp(-0.5*((time_ns-m_noisepars1[1])/m_noisepars1[2])
-			       *((time_ns-m_noisepars1[1])/m_noisepars1[2])) + m_noisepars1[3];
+                               *((time_ns-m_noisepars1[1])/m_noisepars1[2])) + m_noisepars1[3];
   else
     tmp += m_noisepars2[0]*exp(-0.5*((time_ns-m_noisepars2[1])/m_noisepars2[2])
-			       *((time_ns-m_noisepars2[1])/m_noisepars2[2])) + m_noisepars2[3];
+                               *((time_ns-m_noisepars2[1])/m_noisepars2[2])) + m_noisepars2[3];
 
   tmp *= 0.001;
 

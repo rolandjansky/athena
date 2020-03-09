@@ -16,7 +16,6 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/ITriggerTime.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"

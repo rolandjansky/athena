@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DigitizationTool.h"
@@ -18,7 +18,7 @@
 
 // Det Descr includes
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // Data Handle
 #include "StoreGate/ReadCondHandle.h"
@@ -58,13 +58,6 @@ SCT_DigitizationTool::~SCT_DigitizationTool() {
 StatusCode SCT_DigitizationTool::initialize() {
   ATH_MSG_DEBUG("SCT_DigitizationTool::initialize()");
 
-  if (m_inputObjectName == "") {
-    ATH_MSG_FATAL("Property InputObjectName not set !");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Input objects: '" << m_inputObjectName << "'");
-  }
-
   // +++ Init the services
   ATH_CHECK(initServices());
 
@@ -83,12 +76,17 @@ StatusCode SCT_DigitizationTool::initialize() {
   } else {
     m_sct_RandomDisabledCellGenerator.disable();
   }
-  
-  // Initialize ReadHandleKey
-  if (!m_hitsContainerKey.key().empty()) {
-    ATH_MSG_INFO("Loading single input HITS");
+
+  // check the input object name
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
+    return StatusCode::FAILURE;
   }
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_hitsContainerKey.key().empty()));
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   // +++ Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
@@ -168,7 +166,9 @@ StatusCode SCT_DigitizationTool::initServices() {
   // SiDigitization.
   ATH_CHECK(detStore()->retrieve(m_detID, "SCT_ID"));
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
   ATH_CHECK(m_rndmSvc.retrieve());
 
   return StatusCode::SUCCESS;
@@ -644,7 +644,7 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
     // Under the current scheme time bin and ERRORS are hard-coded to
     // default values.
     int ERRORS{0};
-    static std::vector<int> dummyvector;
+    static const std::vector<int> dummyvector;
     for (; i_chargedDiode != i_chargedDiode_end; ++i_chargedDiode) {
       unsigned int flagmask{static_cast<unsigned int>((*i_chargedDiode).second.flag() & 0xFE)};
 
@@ -722,7 +722,7 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
   // this is a list<pair<time_t, DataLink<SiHitCollection> >
 
   // In case of single hits container just load the collection using read handles
-  if (!m_hitsContainerKey.key().empty()) {
+  if (!m_onlyUseContainerName) {
     SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get SCT SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());

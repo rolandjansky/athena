@@ -1,23 +1,25 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/AthenaJobConfigRun3
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def McEventSelectorCfg(configFlags):
     cfg=ComponentAccumulator()
 
-    from AthenaCommon import AtlasUnixStandardJob
-
-    from McEventSelector.McEventSelectorConf import McCnvSvc
+    McCnvSvc=CompFactory.McCnvSvc
     mcCnvSvc = McCnvSvc()
     cfg.addService(mcCnvSvc)
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
     cfg.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[mcCnvSvc.getFullJobOptName(),]))
 
-    from McEventSelector.McEventSelectorConf import McEventSelector
+    McEventSelector=CompFactory.McEventSelector
     evSel=McEventSelector("EventSelector")
-    evSel.RunNumber = configFlags.Input.RunNumber
+    rn = configFlags.Input.RunNumber
+    if isinstance(rn, type([])):
+        rn = rn[0]
+    evSel.RunNumber = rn
     evSel.InitialTimeStamp = configFlags.Input.InitialTimeStamp
     cfg.addService(evSel)
     cfg.setAppProperty("EvtSel",evSel.getFullJobOptName())

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -23,7 +23,6 @@
 #include "EventContainers/SelectAllObject.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CxxUtils/make_unique.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "TileGeoModel/TileDetectorTool.h"
@@ -140,7 +139,7 @@ StatusCode TileFCSmStepToTileHitVec::execute()
   const double size_correction = 2.75 + 1.5/2.;
 
   const ISF_FCS_Parametrization::FCS_StepInfoCollection* inCollect;
-  std::unique_ptr<TileHitVector> FCS_hits = CxxUtils::make_unique<TileHitVector>();
+  std::unique_ptr<TileHitVector> FCS_hits = std::make_unique<TileHitVector>();
 
   // Get FCS_StepInfo from FCS_StepInfoCollection
   ATH_CHECK(evtStore()->retrieve(inCollect,m_FCS_StepInfo)); //FIXME use a ReadHandle

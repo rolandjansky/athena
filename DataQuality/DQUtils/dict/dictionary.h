@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file intentionally sparse on comments
@@ -13,9 +13,17 @@
 #ifdef _XOPEN_SOURCE
 # undef _XOPEN_SOURCE
 #endif
+// Following needed to avoid deprecated/removed "register" keyword
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wkeyword-macro"
+#endif
 #define register
 #include <Python.h>
 #undef register
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
 
 #include <CoolKernel/ChannelSelection.h>
 #include <CoolKernel/IObject.h>

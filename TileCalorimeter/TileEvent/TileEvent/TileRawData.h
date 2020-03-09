@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -66,15 +66,15 @@ public:
     // Can be used in a cast operation : (std::string) TileRawData
     virtual operator std::string() const;
 
-    static void print_to_stream ( const std::vector<float> val,
+    static void print_to_stream ( const std::vector<float>& val,
                                   const std::string & label, 
                                   std::ostringstream & text);
   
-    static void print_to_stream ( const std::vector<double> val,
+    static void print_to_stream ( const std::vector<double>& val,
                                   const std::string & label, 
                                   std::ostringstream & text);
 
-    static void print_to_stream ( const std::vector<uint32_t> val,
+    static void print_to_stream ( const std::vector<uint32_t>& val,
                                   const std::string & label, 
                                   std::ostringstream & text);
 private:

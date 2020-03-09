@@ -125,6 +125,13 @@ namespace Analysis {
 
     m_directoryMap.clear();
 
+    //IP taggers
+    if (std::find(m_taggers.begin(), m_taggers.end(), "IP2D") != m_taggers.end() or
+      std::find(m_taggers.begin(), m_taggers.end(), "IP3D") != m_taggers.end() or
+      std::find(m_taggers.begin(), m_taggers.end(), "SV1") != m_taggers.end()) {
+        initializeIPTag();
+    }
+
     //IP2D tagger
     if (std::find(m_taggers.begin(), m_taggers.end(), "IP2D") != m_taggers.end()) {
       initializeIP2D();
@@ -225,10 +232,6 @@ namespace Analysis {
   void JetTagCalibCondAlg::initializeIP2D() {
     ATH_MSG_DEBUG("initialize IP2D paths of the calibration file");
 
-    this->initializeIPTag();
-
-    //check that grades are defined
-       
     //check that hypotheses for likelihood tool are defined
     std::string hName;
     for(unsigned int i=0;i<m_IP2D_trackGradePartitions.size();i++) {
@@ -243,9 +246,6 @@ namespace Analysis {
   void JetTagCalibCondAlg::initializeIP3D() {
     ATH_MSG_DEBUG("initialize IP3D paths of the calibration file");
 
-    this->initializeIPTag();
-
-    
     //check that hypotheses for likelihood tool are defined
     std::string hName;
     for(unsigned int i=0;i<m_IP2D_trackGradePartitions.size();i++) {
@@ -270,8 +270,6 @@ namespace Analysis {
   
   void JetTagCalibCondAlg::initializeSV1() {
     ATH_MSG_DEBUG("initialize SV1 paths of the calibration file");
-
-    this->initializeIPTag();
 
     std::string hName;
     for(unsigned int ih=0;ih<m_IPTag_hypotheses.size();ih++) {
@@ -508,14 +506,13 @@ namespace Analysis {
     // Open the file
     std::string pfname, tech;
     m_poolsvc->catalog()->getFirstPFN(coolguid, pfname, tech );
-    TFile* pfile = TFile::Open(pfname.c_str(),"READ");
-    if (pfile==nullptr || !pfile->IsOpen()) {
-      delete pfile;
+    std::unique_ptr< TFile > pfile(TFile::Open(pfname.c_str(),"READ"));
+    if (pfile.get()==nullptr || !pfile.get()->IsOpen()) {
       ATH_MSG_WARNING("Problems opening input file "+pfname);
       return StatusCode::FAILURE;
     }
 
-    StatusCode sc = createHistoMap(pfile, writeCdo.get());
+    StatusCode sc = createHistoMap(pfile.get(), writeCdo.get());
     if(sc != StatusCode::SUCCESS){
     // do nothing for the moment
     }
@@ -536,58 +533,79 @@ namespace Analysis {
           hFullName+="/"; hFullName+=channel; 
           hFullName+="/"; hFullName+=hname;
           ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
-          TObject* hPointer = nullptr;
-          if (getTObject(hFullName, pfile, hPointer)) {
-            if(hPointer) {
-              ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram or string: " << hPointer);
-              if (tagger.find("DL1")!=std::string::npos ) {
-                ATH_MSG_DEBUG("#BTAG# Build DL1 NN config for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
-                TObjString* cal_string = dynamic_cast<TObjString*>(hPointer);
-                std::istringstream nn_config_sstream(cal_string->GetString().Data());
-                lwt::JSONConfig nn_config = lwt::parse_json(nn_config_sstream);
-                ATH_MSG_DEBUG("#BTAG# Layers size << " << nn_config.layers.size());
+          std::unique_ptr< TObject > hPointer(pfile->Get(hFullName.c_str()));
+          if(hPointer) {
+            ATH_MSG_DEBUG( "#BTAG# Cached pointer to TObject: " << hPointer.get());
+            if (tagger.find("DL1")!=std::string::npos ) {
+              ATH_MSG_DEBUG("#BTAG# Build DL1 NN config for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
+              TObjString* cal_string = dynamic_cast<TObjString*>(hPointer.get());
+              std::istringstream nn_config_sstream(cal_string->GetString().Data());
+              lwt::JSONConfig nn_config = lwt::parse_json(nn_config_sstream);
+              ATH_MSG_DEBUG("#BTAG# Layers size << " << nn_config.layers.size());
 
-                writeCdo->addDL1NN(tagger, channel, nn_config);
-              }
-              else {
-                if ((tagger.find("MV2")!=std::string::npos ) or (tagger.find("SoftMu")!=std::string::npos ) or (tagger.find("MultiSV") !=std::string::npos)) {
-                  ATH_MSG_DEBUG("#BTAG# Build BDT for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
-                  TTree *tree = dynamic_cast<TTree*>(hPointer);
-                  if (tree) {
-                    ATH_MSG_DEBUG("#BTAG# The TTree to build the BDT for " << tagger<< " is valid");
-                    MVAUtils::BDT* bdt = new MVAUtils::BDT(tree);
-                    writeCdo->addBdt(tagger,channel,bdt);
+              writeCdo->addDL1NN(tagger, channel, nn_config);
+            } else if ((tagger.find("MV2")!=std::string::npos ) or (tagger.find("SoftMu")!=std::string::npos ) or (tagger.find("MultiSV") !=std::string::npos)) {
+                ATH_MSG_DEBUG("#BTAG# Build BDT for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
+                TTree *tree = dynamic_cast<TTree*>(hPointer.get());
+                if (tree) {
+                  ATH_MSG_DEBUG("#BTAG# The TTree to build the BDT for " << tagger<< " is valid");
+                  MVAUtils::BDT* bdt = new MVAUtils::BDT(tree); //Bdt deletion in JetTagCalibCondData destructor
+                  writeCdo->addBdt(tagger,channel,bdt);
+                }
+                TObjArray * toa = dynamic_cast<TObjArray*>(hPointer.get());
+                if (toa) {
+                  ATH_MSG_DEBUG("#BTAG# The TObjArray to build the input variables of BDT for " << tagger<< " is valid");
+                  std::vector<std::string> inputVars; inputVars.clear();
+                  std::string commaSepVars="";
+                  TObjString *tos= nullptr;
+                  if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
+                  commaSepVars=tos->GetString().Data();
+                  while (commaSepVars.find(",")!=std::string::npos) {
+                    inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
+                    commaSepVars.erase(0,commaSepVars.find(",")+1);
                   }
-                  else {
-                    writeCdo->addHisto(i,fname,hPointer);
-                  }
+                  inputVars.push_back(commaSepVars.substr(0,-1));
+                  ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
+                  for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
+                  writeCdo->addInputVars(tagger,fname,inputVars);
+                }
+              } else if (tagger.find("RNNIP")!=std::string::npos) {
+                ATH_MSG_DEBUG("#BTAG# Build RNN config for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
+                TObjString* cal_string = dynamic_cast<TObjString*>(hPointer.get());
+                std::string calstring;
+                if (cal_string == 0){  //catch if no string was found
+                  ATH_MSG_WARNING("can't retrieve calibration: " + hFullName);
+                  calstring = std::string();
                 }
                 else {
-                  if (tagger == "IP2D" || tagger == "IP3D" || tagger == "SV1") {
-                    ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
-                    smoothAndNormalizeHistogram(hPointer, hname);
-                  }
-                  writeCdo->addHisto(i,fname,hPointer);
+                  calstring = cal_string->GetString().Data();
                 }
+                writeCdo->addIPRNN(tagger,channel,calstring);
+              } else {
+                //The other ones are histograms
+                TH1* h = dynamic_cast<TH1*>(hPointer.get());
+                if (!h) {
+                  ATH_MSG_WARNING("#BTAG# This object is not an histogram: " << hFullName);
+                  continue;
+                }
+                h->SetDirectory(nullptr);
+                hPointer.release();
+                if (tagger == "IP2D" || tagger == "IP3D" || tagger == "SV1") {
+                  ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
+                  smoothAndNormalizeHistogram(h, hname);
+                }
+                writeCdo->addHisto(i,fname,h); //Histo deletion in JetTagCalibCondData destructor
               }
-
-              const TString rootClassName=hPointer->ClassName();
-              if (rootClassName=="TTree") {
-                ((TTree*)hPointer)->LoadBaskets();
-                ((TTree*)hPointer)->SetDirectory(0);
-              } 
-            
-            } else {
-              ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " << fname );
-            }
           } else {
-            ATH_MSG_WARNING("#BTAG# error: histogram "<<hFullName
+            ATH_MSG_WARNING("#BTAG# TObject can not be loaded. Error: histogram "<<hFullName
                           <<" does not exist - you are probably using an old database tag");
           }
-
         } //end loop mapped alias
       } //end loop histograms
     } //end loop tagger
+
+    // close the file
+    pfile->Close();
 
     if(histoWriteHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
       ATH_MSG_ERROR("#BTAG# Could not record vector of histograms maps " << histoWriteHandle.key()
@@ -597,10 +615,6 @@ namespace Analysis {
     }
     ATH_MSG_INFO("recorded new CDO " << histoWriteHandle.key() << " with range " << rangeW << " into Conditions Store");
               
-    // close the file
-    pfile->Close();
-    delete pfile;
-
     return StatusCode::SUCCESS;
   }
  
@@ -647,7 +661,6 @@ namespace Analysis {
 	bool foundalias=false;
 
 	for(unsigned int k=0; k<aliaslist.size(); ++k){
-
 	  std::string aliasentry = aliaslist[k];
 	  if("none" == aliasentry){
 	    ATH_MSG_DEBUG("#BTAG# first alias entry is none - replace with original channel" 
@@ -749,42 +762,8 @@ namespace Analysis {
      return StatusCode::SUCCESS;
   }
 
-  StatusCode JetTagCalibCondAlg::getTObject(const std::string& histname, TFile * pfile, TObject*& hist) const {
-     // now read the histogram into memor
-     ATH_MSG_DEBUG("Getting object "+histname+" from file");
-     std::unique_ptr<TObject> hist_raw(pfile->Get(histname.c_str()));
-     hist = dynamic_cast<TObject *>(hist_raw.get());
-     hist_raw.release();
-     if (hist==nullptr) {
-       ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
-       return StatusCode::FAILURE;
-     }
-     else {
-       // make this histogram unassociated with the TFile, so file can be closed
-       // only for histogram objects, others do not get associated
-       // TTrees have special treatment 
-       TH1* ihist=dynamic_cast<TH1*>(hist);
-       if (ihist!=nullptr) ihist->SetDirectory(0);
-       // if it is a TDirectory, also need special treatment to unassociate parent
-       TDirectory* idir=dynamic_cast<TDirectory*>(hist);
-       if (idir!=nullptr) {
-         TDirectory* mdir=idir->GetMotherDir();
-         if (mdir!=nullptr) {
-           ATH_MSG_DEBUG("Disconnecting TDirectory "+histname+" from parent");
-           mdir->GetList()->Remove(idir);
-           idir->SetMother(0);
-         } else {
-           ATH_MSG_WARNING("Could not get MotherDir for TDirectory "+histname);
-         }
-       }
-     }
-
-     return StatusCode::SUCCESS;
-   }
-  
-  void JetTagCalibCondAlg::smoothAndNormalizeHistogram(TObject*& hist, const std::string& hname) {
+  void JetTagCalibCondAlg::smoothAndNormalizeHistogram(TH1* h, const std::string& hname) {
     //Select small part of NewLikelihoodTool to reproduce CalibrationBroker behaviour (smooth and normalize histogram)
-    TH1* h = dynamic_cast<TH1*>(hist);
     if(h) {
       double norm = h->Integral();
       if(norm) {

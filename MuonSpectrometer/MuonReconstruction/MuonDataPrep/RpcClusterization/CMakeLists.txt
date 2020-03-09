@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          TestPolicy
                           PRIVATE
                           MuonSpectrometer/MuonIdHelpers )
 

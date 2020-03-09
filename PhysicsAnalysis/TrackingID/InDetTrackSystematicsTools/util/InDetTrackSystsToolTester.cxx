@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System includes:
@@ -36,10 +36,9 @@
 
 // Other includes:
 #include "xAODCore/ShallowCopy.h"
-#include "CxxUtils/make_unique.h"
 
 using std::string;
-using CxxUtils::make_unique;
+using std::make_unique;
 
 
 #define CHECK( ARG )                                     \

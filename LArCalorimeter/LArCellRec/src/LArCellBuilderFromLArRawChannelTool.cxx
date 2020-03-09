@@ -24,6 +24,7 @@
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <bitset>
 
@@ -159,7 +160,7 @@ LArCellBuilderFromLArRawChannelTool::process (CaloCellContainer* theCellContaine
       *pCell = LArCell (theDDE,
 			id,
 			rawChan.energy(),
-			rawChan.time(),
+			rawChan.time()*Gaudi::Units::picosecond/Gaudi::Units::nanosecond,    // convert time from ps (LArRawChannel) to ns
 			rawChan.quality(),
 			rawChan.provenance(),
 			rawChan.gain());

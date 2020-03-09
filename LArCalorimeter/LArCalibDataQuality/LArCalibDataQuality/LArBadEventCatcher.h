@@ -15,7 +15,6 @@
 #define LARCALIBUTILS_LARBADEVENTCATCHER
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFPATHENAPOOL_AFPCONTAINER_P1_H
@@ -34,6 +34,7 @@ class AFP_RawDataContainer_p1: public std::vector<AFP_RawDataCollection_p1>
         TimeStampns=0;
         LumiBlock=0;
         bcId=0;
+        lvl1Id = 0;
  };
  
  friend class AFP_RawDataContainerCnv_p1;

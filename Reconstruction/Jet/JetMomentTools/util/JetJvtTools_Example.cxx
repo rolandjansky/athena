@@ -162,7 +162,7 @@ int main(int argc, char* argv[]){
       jvtTool.updateJvt( *jet );
       // Do something
     }
-    fjvtTool.modify(*( jets_shallowCopy.first ));
+    RETURN_CHECK( APP_NAME, fjvtTool.modify(*( jets_shallowCopy.first )) );
     delete jets_shallowCopy.first;
     delete jets_shallowCopy.second;
   

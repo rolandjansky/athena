@@ -100,8 +100,8 @@ echo \"art-result: $? DirectIOART_Athena_RecoTF_inputRDO_protocol_{protocol}\"""
 # art-include: 21.0/Athena
 # art-include: master/Athena\n
 set -e\n
-export ATHENA_PROC_NUMBER=2
-Reco_tf.py --AMI q221 --inputRDOFile {turl} --outputRDO_TRIGFile art.pool.root\n
+export ATHENA_CORE_NUMBER=2
+Reco_tf.py --AMI q221 --multiprocess --inputRDOFile {turl} --outputRDO_TRIGFile art.pool.root\n
 echo \"art-result: $? DirectIOART_AthenaMP_RecoTF_inputRDO_protocol_{protocol}\"""".format(turl=item.values()[0], protocol=item.keys()[0])
         outfile.write(outstring)
         outfile.close()
@@ -138,8 +138,8 @@ echo \"art-result: $? DirectIOART_Athena_RecoTF_inputBS_protocol_{protocol}\""""
 # art-include: 21.0/Athena
 # art-include: master/Athena\n
 set -e\n
-export ATHENA_PROC_NUMBER=2
-Reco_tf.py --AMI q431 --inputBSFile {turl} --outputESDFile art.pool.root\n
+export ATHENA_CORE_NUMBER=2
+Reco_tf.py --AMI q431 --multiprocess --inputBSFile {turl} --outputESDFile art.pool.root\n
 echo \"art-result: $? DirectIOART_AthenaMP_RecoTF_inputBS_protocol_{protocol}\"""".format(turl=item.values()[0], protocol=item.keys()[0])
         outfile.write(outstring)
         outfile.close()

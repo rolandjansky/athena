@@ -27,10 +27,11 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArIdentifier
    LArCalorimeter/LArRecEvent
    LArCalorimeter/LArCabling
+   LArCalorimeter/LArRawConditions
    LumiBlock/LumiBlockComps
    TileCalorimeter/TileConditions
    TileCalorimeter/TileEvent
-   Trigger/TrigAnalysis/TrigAnalysisInterfaces
+   Control/CxxUtils
    PRIVATE
    Calorimeter/CaloCondBlobObjs
    Control/AthAllocators
@@ -55,12 +56,20 @@ atlas_add_component( CaloTools
    CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib
    AthenaPoolUtilities AtlasDetDescr Identifier GaudiKernel LArIdentifier
    LArRecEvent LArToolsLib LumiBlockCompsLib TileConditionsLib TileEvent
-   CaloCondBlobObjs AthAllocators IdDictParser xAODBase xAODEventInfo
-   TileIdentifier )
+   CxxUtils CaloCondBlobObjs AthAllocators IdDictParser xAODBase xAODEventInfo
+   TileIdentifier LArRawConditions )
 
 # Install files from the package:
 atlas_install_headers( CaloTools )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
-atlas_add_test( CaloNoiseToolConfigTest SCRIPT python -m CaloTools.CaloNoiseToolConfig POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( CaloEstimatedGainToolConfig_test
+                SCRIPT python -m CaloTools.CaloEstimatedGainToolConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( CaloEstimatedGainTool_test
+                SCRIPT python -m CaloTools.CaloEstimatedGainTool_test
+                LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing|TestAlg" )
+

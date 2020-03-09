@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTATHENAPOOL_TGCPREPDATACONTAINERCNV_H
@@ -15,10 +15,6 @@
 
 class StoreGateSvc;
 class TgcIdHelper;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 // the latest persistent representation type of DataCollection:
 typedef  Muon::TgcPrepDataContainer_p3  TgcPrepDataContainer_PERS;

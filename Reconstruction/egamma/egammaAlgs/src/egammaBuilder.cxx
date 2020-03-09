@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 /********************************************************************
@@ -41,10 +41,9 @@ and eventually conversions.
 
 #include "egammaUtils/egammaDuplicateRemoval.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -63,7 +62,7 @@ and eventually conversions.
 egammaBuilder::egammaBuilder(const std::string& name, 
         ISvcLocator* pSvcLocator): 
     AthAlgorithm(name, pSvcLocator),
-    m_timingProfile(0)
+    m_timingProfile(nullptr)
 {
 }
 
@@ -103,6 +102,9 @@ StatusCode egammaBuilder::initialize()
     // retrieve ambiguity tool
     ATH_CHECK( m_ambiguityTool.retrieve() );
 
+    //retrieve shower builder
+    ATH_CHECK( m_ShowerTool.retrieve() );
+    
     ATH_MSG_INFO("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
     ATH_CHECK( m_egammaTools.retrieve() );
 
@@ -186,6 +188,9 @@ StatusCode egammaBuilder::execute(){
 
     ATH_MSG_DEBUG("Executing egammaBuilder");
 
+    // This we can drop once the Alg becomes re-entrant
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
     // Chrono name for each Tool
     std::string chronoName;
 
@@ -227,12 +232,7 @@ StatusCode egammaBuilder::execute(){
         std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
         if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
         //
-        for (auto egRec : *egammaRecs){
-            if (m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
-                ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-                return StatusCode::FAILURE;
-            }
-        }
+          ATH_CHECK(m_trackMatchBuilder->executeRec(ctx,egammaRecs.ptr()));
         //
         if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
     }
@@ -243,7 +243,7 @@ StatusCode egammaBuilder::execute(){
         chronoName = this->name()+"_"+m_conversionBuilder->name();         
         if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
         for (auto egRec : *egammaRecs) {
-            if (m_conversionBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
+            if (m_conversionBuilder->executeRec(ctx,egRec).isFailure()){
                 ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
                 return StatusCode::FAILURE;  
             }
@@ -315,17 +315,32 @@ StatusCode egammaBuilder::execute(){
     if (m_doTopoSeededPhotons) {
         CHECK( addTopoSeededPhotons(photonContainer.ptr(), clusters.ptr()) );
     }
-
+ 
+    const CaloDetDescrManager* calodetdescrmgr = nullptr;                                                                 
+    ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );   
     // Call tools
+
+    /*
+     * Shower Shapes
+     */
+    if (electronContainer.ptr()) {
+      for (xAOD::Electron* electron : *electronContainer) {
+        ATH_CHECK(m_ShowerTool->execute(ctx, *calodetdescrmgr, electron));
+      }
+    }
+    if (photonContainer.ptr()) {
+      for (xAOD::Photon* photon : *photonContainer) {
+        ATH_CHECK(m_ShowerTool->execute(ctx, *calodetdescrmgr, photon));
+      }
+    }
+
     // First the final cluster/calibration
     ATH_MSG_DEBUG("Executing : " << m_clusterTool);  
-    if ( m_clusterTool->contExecute(electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
+    if ( m_clusterTool->contExecute(ctx, *calodetdescrmgr ,electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }
 
-    // This we can drop once the Alg becomes re-entrant
-    const EventContext ctx = Gaudi::Hive::currentContext();
 
     for (auto& tool : m_egammaTools)
     {
@@ -334,12 +349,12 @@ StatusCode egammaBuilder::execute(){
 
     for (auto& tool : m_electronTools)
     {
-        CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), nullptr) );
     }
 
     for (auto& tool : m_photonTools)
     {
-        CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, nullptr, photonContainer.ptr()) );
     }
     ATH_MSG_DEBUG("execute completed successfully");
 
@@ -410,34 +425,27 @@ bool egammaBuilder::getElectron(const egammaRec* egRec,
 
     electron->setCharge(electron->trackParticle()->charge());
 
-    //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
-    float deltaEta = static_cast<float>(egRec->deltaEta(0));
-    float deltaPhi = static_cast<float>(egRec->deltaPhi(0));
-    float deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(0));
-    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta0 );
-    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi0 );
-    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled0 );
+     //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
+    std::array<double,4> deltaEta = egRec->deltaEta();
+    std::array<double,4> deltaPhi = egRec->deltaPhi();
+    std::array<double,4> deltaPhiRescaled = egRec->deltaPhiRescaled();
 
-    deltaEta = static_cast<float>(egRec->deltaEta(1));
-    deltaPhi = static_cast<float>(egRec->deltaPhi(1));
-    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(1));
-    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta1 );
-    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi1 );
-    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled1);
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[0]),xAOD::EgammaParameters::deltaEta0);
+    electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[0]),xAOD::EgammaParameters::deltaPhi0 );
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[0]), xAOD::EgammaParameters::deltaPhiRescaled0);
 
-    deltaEta = static_cast<float>(egRec->deltaEta(2));
-    deltaPhi = static_cast<float>(egRec->deltaPhi(2));
-    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(2));
-    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta2 );
-    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi2 );
-    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled2);
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[1]), xAOD::EgammaParameters::deltaEta1);
+    electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[1]),xAOD::EgammaParameters::deltaPhi1 );
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[1]), xAOD::EgammaParameters::deltaPhiRescaled1);
 
-    deltaEta = static_cast<float>(egRec->deltaEta(3));
-    deltaPhi = static_cast<float>(egRec->deltaPhi(3));
-    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(3));
-    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta3 );
-    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi3 );
-    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled3);
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[2]), xAOD::EgammaParameters::deltaEta2);
+    electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[2]),xAOD::EgammaParameters::deltaPhi2 );
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[2]), xAOD::EgammaParameters::deltaPhiRescaled2);
+
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[3]), xAOD::EgammaParameters::deltaEta3);
+    electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[3]),xAOD::EgammaParameters::deltaPhi3 );
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[3]), xAOD::EgammaParameters::deltaPhiRescaled3);
+
 
     float deltaPhiLast = static_cast<float>(egRec->deltaPhiLast ());
     electron->setTrackCaloMatchValue(deltaPhiLast,xAOD::EgammaParameters::deltaPhiFromLastMeasurement );
@@ -469,7 +477,8 @@ bool egammaBuilder::getPhoton(const egammaRec* egRec,
     photon->setVertexLinks( vertexLinks );
 
     // Transfer deltaEta/Phi info
-    float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
+    float deltaEta = egRec->deltaEtaVtx();
+    float deltaPhi = egRec->deltaPhiVtx();
     if (!photon->setVertexCaloMatchValue( deltaEta,
                 xAOD::EgammaParameters::convMatchDeltaEta1) )
     {
@@ -545,12 +554,11 @@ bool egammaBuilder::clustersOverlap(const xAOD::CaloCluster *refCluster,
         const xAOD::CaloClusterContainer *clusters)
 {
     if (!refCluster || !clusters) return false;
-    CaloPhiRange phiHelper;
 
     for (const auto cluster: *clusters)
     {
         if (fabs(refCluster->eta() - cluster->eta()) < m_minDeltaEta &&
-                fabs(phiHelper.diff(refCluster->phi(), cluster->phi())) < m_minDeltaPhi)
+                fabs(CaloPhiRange::diff(refCluster->phi(), cluster->phi())) < m_minDeltaPhi)
             return true;
     }
     return false;

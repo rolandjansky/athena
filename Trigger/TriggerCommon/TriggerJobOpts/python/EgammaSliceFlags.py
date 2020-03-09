@@ -10,7 +10,7 @@ __author__  = 'T. Bold, P.Urquijo, R. White'
 __version__="$Revision: 1.42 $"
 __doc__="Egamma slice specific flags  "
 
-log = logging.getLogger( 'TriggerMenu.EgammaSliceFlags' )
+log = logging.getLogger( 'TriggerJobOpts.EgammaSliceFlags' )
 _flags = [] 
 class doSiTrack(JobProperty):
     """ do or not to do SiTrack algo """ 

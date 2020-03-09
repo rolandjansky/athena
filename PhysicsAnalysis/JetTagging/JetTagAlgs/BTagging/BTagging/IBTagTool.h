@@ -25,8 +25,6 @@
 namespace Analysis
 {
 
-static const InterfaceID IID_IBTagTool("IBTagTool", 1, 0);
-  
   /** \class IBTagTools.
     Interface class for the btagging tool(s). Don't mix it with the ITagJetTagTool interface class
     for the JetTagging classes.
@@ -37,17 +35,13 @@ static const InterfaceID IID_IBTagTool("IBTagTool", 1, 0);
 class IBTagTool : virtual public IAlgTool 
 {
  public:
+       DeclareInterfaceID( IBTagTool, 1, 0 );
 
        /** Virtual destructor */
-       virtual ~IBTagTool(){};
+       virtual ~IBTagTool() = default;
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IBTagTool; };
-
-       virtual StatusCode initialize() = 0;
-       virtual StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const xAOD::Vertex* vtx = 0) = 0;
-       virtual StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) = 0;
-       virtual StatusCode finalize() = 0;
+       virtual StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const std::string &jetName, const xAOD::Vertex* vtx = 0) const = 0;
+       virtual StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer, const std::string &jetName) const = 0;
        virtual void finalizeHistos() = 0;
 
 };

@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileCell creation from TileBeamElem
 # with TileRawChannelToHit algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -23,9 +21,9 @@ class TileHitFromRawChGetter ( Configured )  :
         try:
             from TileRecAlgs.TileHitFromRawChGetter import TileHitFromRawChGetter
             theTileHitFromRawChGetter=TileHitFromRawChGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileHitFromRawChGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileHitFromRawChGetter.usable():
@@ -38,13 +36,13 @@ class TileHitFromRawChGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileRecAlgs.TileRecAlgsConf import TileRawChannelToHit                
-        except:
+        except Exception:
             mlog.error("could not import TileRecAlgs.TileRawChannelToHit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileRawChannelToHit=TileRawChannelToHit()
-        self._TileRawChannelToHit = theTileRawChannelToHit ;
+        self._TileRawChannelToHit = theTileRawChannelToHit
 
         # Configure TileRawChannelToHit here
         # Check TileRecAlgs_jobOptions.py for full configurability
@@ -69,7 +67,7 @@ class TileHitFromRawChGetter ( Configured )  :
         mlog.info(" now adding to topSequence")        
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileRawChannelToHit;
+        topSequence += theTileRawChannelToHit
         
         return True
 

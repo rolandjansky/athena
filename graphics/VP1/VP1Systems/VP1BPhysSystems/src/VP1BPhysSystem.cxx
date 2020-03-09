@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ void VP1BPhysSystem::actualBuild() {
 		return;
 	}
   
-	EventID* eventID = eventInfo->event_ID(); // Get EventInfo
+	const EventID* eventID = eventInfo->event_ID(); // Get EventInfo
 	int evtNum = eventID->event_number();
 	int runNum = eventID->run_number();
 

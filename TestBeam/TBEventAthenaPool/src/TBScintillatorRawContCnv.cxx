@@ -25,7 +25,7 @@ TBScintillatorRawContCnv::~TBScintillatorRawContCnv()
 StatusCode TBScintillatorRawContCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBScintillatorRawContCnv");
@@ -35,14 +35,16 @@ StatusCode TBScintillatorRawContCnv::initialize()
 }
 
 
-StatusCode TBScintillatorRawContCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
+StatusCode TBScintillatorRawContCnv::PoolToDataObject(DataObject*& pObj,
+                                                      const Token* token,
+                                                      const std::string& key)
 {
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
   MsgStream log(msgSvc(), "TBScintillatorRawContCnv::PoolToDataObject" );
    
-  StatusCode sc = TBScintillatorRawContCnvBase::PoolToDataObject(pObj, token);
+  StatusCode sc = TBScintillatorRawContCnvBase::PoolToDataObject(pObj, token, key);
   if (sc.isFailure()) {
     log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;
@@ -59,11 +61,4 @@ StatusCode TBScintillatorRawContCnv::PoolToDataObject(DataObject*& pObj, const T
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBScintillatorRawContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBScintillatorRawContCnv::DataObjectToPool" );
-  
-  return TBScintillatorRawContCnvBase::DataObjectToPool( pObj, tname) ;
 }

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it is really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRunClusterCorrections.h,v 1.4 2009-05-20 20:48:51 ssnyder Exp $
@@ -36,7 +36,8 @@
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class StoreGateSvc;
+#include "CxxUtils/checker_macros.h"
+
 class MsgStream;
 class IToolSvc;
 
@@ -151,7 +152,7 @@ public:
 
 
   /// Standard initialize method.
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE /*Can Register callbacks but no need to be thread safe*/ () override;
 
 
   /// Standard finalize method.
@@ -265,7 +266,7 @@ private:
    * @brief Create all tools that we can during initialization.
    *        Set up to create remaining tools during a callback.
    */
-  StatusCode createTools();
+  StatusCode createTools ATLAS_NOT_THREAD_SAFE /*Binds to CallBack*/ ();
 
 
   /**
@@ -274,7 +275,7 @@ private:
    * Note that we cannot return @c FAILURE after the first callback
    * has been registered (see comment in @c createTools).
    */
-  void registerCallbacks();
+  void registerCallbacks ATLAS_NOT_THREAD_SAFE /*Registers callback*/ ();
 
 
   /**
@@ -292,9 +293,8 @@ private:
    * This is called when tool constants read from the DB have changed
    * (or after the DB is accessed for the first time).
    */
-  StatusCode updateTools (IOVSVC_CALLBACK_ARGS);   
+  StatusCode updateTools ATLAS_NOT_THREAD_SAFE /*callbacks*/ (IOVSVC_CALLBACK_ARGS);   
 
-  //StatusCode updateToolsInline (IOVSVC_CALLBACK_ARGS);   
 
 
   /**
@@ -310,7 +310,7 @@ private:
    * and ${BE} will be expanded to either `b' or `e', depending on the
    * setting of the @c region property.
    */
-  StatusCode clsnameFromDBConstants  (Tool& tool);
+  StatusCode clsnameFromDBConstants ATLAS_NOT_THREAD_SAFE (Tool& tool);
 
 
   /**
@@ -321,13 +321,13 @@ private:
    * exist in the @c ToolConstants structure, use instead the longest
    * matching prefix.
    */
-  StatusCode fixPrefix (Tool& tool);
+  StatusCode fixPrefix ATLAS_NOT_THREAD_SAFE (Tool& tool);
 
 
   /**
    * @brief Fill in @c m_toolorder to run corrections in the proper order.
    */
-  StatusCode orderCorrections (bool allowMissing);
+  StatusCode orderCorrections ATLAS_NOT_THREAD_SAFE (bool allowMissing);
 
 
   /**
@@ -336,9 +336,9 @@ private:
    * @param pname The constant name (without prefix).
    * @param out[out] The retrieved parameter.
    */
-  StatusCode getConstant (const Tool& tool,
-                          const std::string& pname,
-                          int& out);
+  StatusCode getConstant ATLAS_NOT_THREAD_SAFE (const Tool& tool,
+                                                const std::string& pname,
+                                                int& out);
 
   //-----------
   // Properties
@@ -355,12 +355,6 @@ private:
 
   /// If true, don't clear out the values of long properties.
   bool m_noClearProps;
-
-  /// The event store.
-  //ServiceHandle<StoreGateSvc> m_storeGate;
-
-  /// The detector store.
-  //ServiceHandle<StoreGateSvc> m_detStore;
 
   /// The job options service.
   ServiceHandle<IJobOptionsSvc> m_jos;

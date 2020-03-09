@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BaseSimulationSelector.h"
@@ -55,7 +55,7 @@ ISF::BaseSimulationSelector::~BaseSimulationSelector() { }
 
 /** make the routing decision */
 bool
-ISF::BaseSimulationSelector::selfSelect(const ISFParticle& particle)
+ISF::BaseSimulationSelector::selfSelect(const ISFParticle& particle) const
 {
   bool pass = passSelectorCuts(particle);
   pass = ( m_invertCuts ? (!pass) : pass );
@@ -80,7 +80,7 @@ ISF::SimSvcID ISF::BaseSimulationSelector::simSvcID() {
 }
 
 /** return the simulation service ID */
-ISF::SimulationFlavor ISF::BaseSimulationSelector::simFlavor() {
+ISF::SimulationFlavor ISF::BaseSimulationSelector::simFlavor() const {
   return m_simflavor;
 }
 

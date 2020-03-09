@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTTAGALGS_ANALYSISTAGBUILDER_H
@@ -15,8 +15,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "JetMissingEtTagTools/JetMissingEtIdentificationTagTool.h"
-
-class StoreGateSvc;
 
 class AnalysisTagBuilder : public AthAlgorithm, public TagBuilderBase
 {

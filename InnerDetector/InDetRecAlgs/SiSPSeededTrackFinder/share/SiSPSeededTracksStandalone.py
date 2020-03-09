@@ -7,10 +7,20 @@
 #==============================================================
 
 # Configuration flags
-doPixel = False
-doSCT = True
-doBeamSpot = True
-doPrint = True
+if not "doPixel" in dir():
+    doPixel = False
+if not "doSCT" in dir():
+    doSCT = True
+if not "doBeamSpot" in dir():
+    doBeamSpot = True
+if not "doPrint" in dir():
+    doPrint = True
+if not "EvtMax" in dir():
+    EvtMax = 10
+if not "inputBSFiles" in dir():
+    # Set input byte stream file (from q431 test)
+    inputBSFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"]
+
 # Combinations of
 # doPixel = True,  doSCT = True,  doBeamSpot = True,  doPrint = True
 # doPixel = True,  doSCT = False, doBeamSpot = False, doPrint = True
@@ -78,7 +88,7 @@ globalflags.DetGeo="atlas"
 globalflags.InputFormat="bytestream"
 globalflags.DataSource="data"
 if doPrint:
-    print globalflags
+    printfunc (globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -126,8 +136,6 @@ conddb.dbdata="CONDBR2"
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2018-03"
 IOVDbSvc.OutputLevel = WARNING
 
-# Set input byte stream file (from q431 test)
-inputBSFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"]
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
 ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -193,10 +201,20 @@ if doPixel:
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+        condSeq += PixelDistortionAlg(name="PixelDistortionAlg")
     # Takne from InDetRecExample/share/InDetRecLoadTools.py
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
-    createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelNnClusterNnCondAlg",          GetInputsInfo = do_runI)
-    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,"PixelNnClusterNnWithTrackCondAlg", GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelClusterNnCondAlg",          GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,"PixelClusterNnWithTrackCondAlg", GetInputsInfo = do_runI)
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+        from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                              ReadKey = "PixelDetectorElementCollection",
+                                                              WriteKey = "PixelDetElementBoundaryLinks_xk")
+    if numThreads >= 2:
+        condSeq.InDetSiDetElementBoundaryLinksPixelCondAlg.Cardinality = numThreads
 
 # Set up SCT conditions
 SCT_ConditionsSummaryTool = None
@@ -246,9 +264,11 @@ if doSCT:
         from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
         condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
     # Taken from InDetRecExample/share/InDetRecLoadTools.py
-    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
         from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
+        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                              ReadKey = "SCT_DetectorElementCollection",
+                                                              WriteKey = "SCT_DetElementBoundaryLinks_xk")
 
 if doPixel or doSCT:
     # This is for both Pixel and SCT.
@@ -320,7 +340,6 @@ if doPixel:
     InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
                                                           clusteringTool          = InDetMergedPixelsTool,
                                                           gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                          DetectorManagerName     = InDetKeys.PixelManager(), 
                                                           DataObjectName          = InDetKeys.PixelRDOs(),
                                                           ClustersName            = InDetKeys.PixelClusters())
     topSequence += InDetPixelClusterization
@@ -391,12 +410,15 @@ if (NewTrackingCuts.mode() == "LowPt" or
     NewTrackingCuts.mode() == "BeamGas" or
     NewTrackingCuts.mode() == "ForwardTracks" or
     NewTrackingCuts.mode() == "ForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "PixelPrdAssociation" or
+    NewTrackingCuts.mode() == "Disappearing" or
     NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or
     NewTrackingCuts.mode() == "SLHCConversionFinding"):
+
     usePrdAssociationTool = True
+
 else:
     usePrdAssociationTool = False
+
 InDetPrdAssociationTool = None
 if usePrdAssociationTool:
     # Taken from InDetRecExample/share/InDetRecLoadTools.py
@@ -422,8 +444,7 @@ InDetSiSpacePointsSeedMaker = SiSpacePointsSeedMaker(name                   = "I
                                                      SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                      radMax                 = NewTrackingCuts.radMax(),
                                                      RapidityCut            = NewTrackingCuts.maxEta(),
-                                                     UseAssociationTool     = usePrdAssociationTool,
-                                                     AssociationTool        = InDetPrdAssociationTool,
+                                                     PRDtoTrackMap          = "", # @TODO
                                                      maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds(),
                                                      maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds())
 if not doBeamSpot:
@@ -447,10 +468,8 @@ ToolSvc += InDetPatternPropagator
 # Set up InDet__SiDetElementsRoadMaker_xk (private)
 # Taken from InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
 if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
     condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                  UseDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders(),
                                                   usePixel = doPixel,
                                                   useSCT = doSCT)
 from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadMaker_xk
@@ -512,10 +531,8 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              UpdatorTool           = InDetPatternUpdator,
                                                              RIOonTrackTool        = InDetRotCreator,
                                                              SctSummaryTool        = SCT_ConditionsSummaryTool,
-                                                             AssosiationTool       = InDetPrdAssociationTool,
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
-                                                             PixManagerLocation    = InDetKeys.PixelManager(),
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
                                                              SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
 
@@ -561,6 +578,7 @@ if not doBeamSpot:
 
 # Set up SiSPSeededTrackFinder (alg)
 # InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
+from InDetRecExample import TrackingCommon as TrackingCommon
 from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDetSiSpTrackFinder"+NewTrackingCuts.extension(),
                                                           TrackTool      = InDetSiTrackMaker,
@@ -568,6 +586,7 @@ InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDe
                                                           SeedsTool      = InDetSiSpacePointsSeedMaker,
                                                           useZvertexTool = InDetFlags.useZvertexTool() and NewTrackingCuts.mode() != "DBM",
                                                           ZvertexTool    = InDetZvertexMaker,
+                                                          TrackSummaryTool = TrackingCommon.getInDetTrackSummaryToolNoHoleSearch(), 
                                                           useNewStrategy = InDetFlags.useNewSiSPSeededTF() and NewTrackingCuts.mode() != "DBM",
                                                           useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
                                                           useZBoundFinding = NewTrackingCuts.doZBoundary() and NewTrackingCuts.mode() != "DBM")
@@ -579,17 +598,17 @@ if not doSCT:
     InDetSiSPSeededTrackFinder.SpacePointsSCTName = ""
 
 if doPrint:
-    print InDetSiSPSeededTrackFinder
+    printfunc (InDetSiSPSeededTrackFinder)
 if numThreads >= 2:
     InDetSiSPSeededTrackFinder.Cardinality = numThreads
 topSequence += InDetSiSPSeededTrackFinder
 
 # Print algorithms
 if doPrint:
-    print topSequence
+    print (topSequence)
 
 # Set the number of events to be processed
-theApp.EvtMax = 10
+theApp.EvtMax = EvtMax
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

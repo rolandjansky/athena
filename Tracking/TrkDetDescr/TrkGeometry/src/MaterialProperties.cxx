@@ -72,7 +72,7 @@ Trk::MaterialProperties& Trk::MaterialProperties::operator *=( float scale )
   return(*this);
 }
 
-void Trk::MaterialProperties::addMaterial(const Trk::Material& mat, float dInX0) const {
+void Trk::MaterialProperties::addMaterial(const Trk::Material& mat, float dInX0){
   
       //!< @todo update ?
       // averaging factors based on thickness
@@ -94,7 +94,7 @@ void Trk::MaterialProperties::addMaterial(const Trk::Material& mat, float dInX0)
       m_zOaTrTd = m_material.A > 0 ? m_dInX0*m_material.X0*m_material.Z/m_material.A*m_material.rho : 0;      
 }
 
-void Trk::MaterialProperties::setMaterial(const Trk::Material& mat, float thickness) const {
+void Trk::MaterialProperties::setMaterial(const Trk::Material& mat, float thickness) {
     // just overwrite what you have
     m_material = mat;
     m_dInX0    = thickness/mat.X0;
@@ -102,7 +102,7 @@ void Trk::MaterialProperties::setMaterial(const Trk::Material& mat, float thickn
     m_zOaTrTd   = mat.Z/mat.A*mat.rho*thickness;
 }
 
-void Trk::MaterialProperties::setDeDx(float dEdX) const
+void Trk::MaterialProperties::setDeDx(float dEdX)
 {
     // set the DE/DX value
     m_material.dEdX = dEdX;

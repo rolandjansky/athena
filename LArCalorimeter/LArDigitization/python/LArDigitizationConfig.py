@@ -1,8 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
 def isOverlay():
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
+        return True
     # steer random overlay configuration
     from AthenaCommon.AppMgr import ServiceMgr
     if hasattr(ServiceMgr,'PileUpMergeSvc') :
@@ -14,8 +17,8 @@ def isOverlay():
                     if DetFlags.overlay.LAr_on():
                         return True
                 else: #fallback for older releases
-                    from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-                    if OverlayFlags.doLAr():
+                    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+                    if overlayFlags.doLAr():
                         return True
     return False
 
@@ -69,6 +72,7 @@ def getLArRangeFCAL(name="LArRangeFCAL", **kwargs):
 
 
 def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOverlay()=False,outputKey='LArDigitContainer_MC'):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'LArPileUpToolDefault:' )
     mlog.info(" ---- in getLArPileUpTool " )
@@ -79,6 +83,10 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         protectedInclude( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
         protectedInclude( "LArDetDescr/LArDetDescr_joboptions.py" )
         protectedInclude("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
+    else: 
+        if overlayFlags.isDataOverlay():
+            #Shape taken from real-data DB has a different SG key
+            kwargs.setdefault('ShapeKey',"LArShape")
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
     kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
@@ -102,6 +110,11 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
 
     kwargs.setdefault('RndmEvtOverlay', isOverlay() )
 
+    if useLArFloat():
+        kwargs.setdefault("LArHitContainers",[])
+    else:
+        kwargs.setdefault("LArHitFloatContainers",[])
+
     if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault('DigitContainer', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
@@ -118,8 +131,13 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     kwargs.setdefault('Nsamples', larRODFlags.nSamples() )
     kwargs.setdefault('firstSample', larRODFlags.firstSample() )
 
-    if  isOverlay() :
-         kwargs.setdefault('RandomDigitContainer', 'LArDigitContainer_MC' )
+    if isOverlay() :
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("OnlyUseContainerName", False)
+            kwargs.setdefault('InputDigitContainer',  overlayFlags.bkgPrefix() + 'LArDigitContainer_MC' )
+        else:
+            kwargs.setdefault('InputDigitContainer', 'LArDigitContainer_MC' )
 
     # ADC2MeVCondAlgo
     from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
@@ -175,6 +193,5 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     return CfgMgr.LArPileUpTool(name, **kwargs)
 
 def getLArDigitMaker(name="digitmaker1" , **kwargs):
-    print "in getLArDigitMaker "
     kwargs.setdefault('LArPileUpTool', 'LArPileUpTool')
     return CfgMgr.LArDigitMaker(name, **kwargs)

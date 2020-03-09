@@ -4,6 +4,17 @@
 #
 #==============================================================
 
+if not "doPrint" in dir():
+    doPrint = False
+if not "EvtMax" in dir():
+    EvtMax = 10
+
+msg = None
+if doPrint:
+    from AthenaCommon.Logging import logging
+    msg = logging.getLogger("testSCTEncode")
+    msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Standard includes
 #--------------------------------------------------------------
@@ -39,7 +50,8 @@ globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="geant4"
-print globalflags
+if doPrint:
+    msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -68,7 +80,8 @@ DetFlags.readRDOPool.all_setOff()
 DetFlags.readRDOPool.SCT_setOn()
 DetFlags.writeRIOPool.all_setOff()
 
-DetFlags.Print()
+if doPrint:
+    DetFlags.Print()
 
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
@@ -112,10 +125,11 @@ StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutpu
 StreamBSFileOutput.ItemList += [ "SCT_RDO_Container#SCT_RDOs" ]
 
 # Print algorithms
-print topSequence
+if doPrint:
+    msg.info(topSequence)
 
 # Set the number of events to be processed
-theApp.EvtMax = 10
+theApp.EvtMax = EvtMax
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

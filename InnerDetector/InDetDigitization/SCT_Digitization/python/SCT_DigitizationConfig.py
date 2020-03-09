@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 # The earliest bunch crossing time for which interactions will be sent
@@ -105,7 +105,7 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     # If noise is turned off:
     if not digitizationFlags.doInDetNoise.get_Value():
         ###kwargs.setdefault("OnlyHitElements", True)
-        print 'SCT_Digitization:::: Turned off Noise in SCT_FrontEnd'
+        print('SCT_Digitization:::: Turned off Noise in SCT_FrontEnd')
         kwargs.setdefault("NoiseOn", False)
         kwargs.setdefault("AnalogueNoiseOn", False)
     else:
@@ -252,9 +252,9 @@ def SCT_DigitizationToolSplitNoMergePU(name="SCT_DigitizationToolSplitNoMergePU"
 def SCT_OverlayDigitizationTool(name="SCT_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
-        kwargs.setdefault("InputSingleHitsName", "SCT_Hits")
-        kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + overlayFlags.sigPrefix() + "SCT_RDOs")
-        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + overlayFlags.sigPrefix() + "SCT_SDO_Map")
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "SCT_SDO_Map")
     else:
         kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() + "+SCT_RDOs")
         kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+SCT_SDO_Map")
@@ -288,4 +288,12 @@ def SCT_DigitizationPU(name="SCT_DigitizationPU",**kwargs):
 
 def SCT_OverlayDigitization(name="SCT_OverlayDigitization",**kwargs):
     kwargs.setdefault("DigitizationTool", "SCT_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
+
     return CfgMgr.SCT_Digitization(name,**kwargs)

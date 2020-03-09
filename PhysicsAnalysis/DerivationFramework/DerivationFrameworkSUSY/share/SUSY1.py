@@ -53,7 +53,7 @@ SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 SUSY1TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY1TPThinningTool",
-								 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = streamName,
 								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
 								 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY1TPThinningTool
@@ -62,7 +62,7 @@ thinningTools.append(SUSY1TPThinningTool)
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name			 = "SUSY1MuonTPThinningTool",
-									 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
 									 MuonKey		 = "Muons",
 									 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY1MuonTPThinningTool
@@ -71,7 +71,7 @@ thinningTools.append(SUSY1MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY1ElectronTPThinningTool",
-										 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
 										 SGKey			 = "Electrons",
 										 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY1ElectronTPThinningTool
@@ -80,7 +80,7 @@ thinningTools.append(SUSY1ElectronTPThinningTool)
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY1PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY1PhotonTPThinningTool",
-										 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
 										 SGKey			 = "Photons",
 										 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY1PhotonTPThinningTool
@@ -89,7 +89,7 @@ thinningTools.append(SUSY1PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 SUSY1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name		= "SUSY1TauTPThinningTool",
-									ThinningService = SUSY1ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
 									TauKey  	= "TauJets",
 									InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY1TauTPThinningTool
@@ -98,7 +98,7 @@ thinningTools.append(SUSY1TauTPThinningTool)
 # Calo Clusters associated with Photons
 #from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 #SUSY1PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "SUSY1PhotonCCThinningTool",
-#                                                                                     ThinningService         = SUSY1ThinningHelper.ThinningSvc(),
+#                                                                                     StreamName              = streamName,
 #                                                                                     SGKey                   = "Photons",
 #                                                                                     CaloClCollectionSGKey   = "egammaClusters",
 #                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -110,7 +110,7 @@ thinningTools.append(SUSY1TauTPThinningTool)
 
 # Calo Clusters associated with Electrons
 #SUSY1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "SUSY1ElectronCCThinningTool",
-#                                                                                     ThinningService         = SUSY1ThinningHelper.ThinningSvc(),
+#                                                                                     StreamName              = streamName,
 #                                                                                     SGKey                   = "Electrons",
 #                                                                                     CaloClCollectionSGKey   = "egammaClusters",
 #                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -123,7 +123,7 @@ thinningTools.append(SUSY1TauTPThinningTool)
 # Calo Clusters associated with jets
 #from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__JetCaloClusterThinning
 #SUSY1aKt4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "SUSY1aKt4CCThinningTool",
-#                                                                     ThinningService         = SUSY1ThinningHelper.ThinningSvc(),
+#                                                                      StreamName              = streamName,
 #                                                                      SGKey                   = "AntiKt4LCTopoJets",
 #                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
 #                                                                      SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",
@@ -150,7 +150,7 @@ if DerivationFrameworkIsMonteCarlo:
   
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY1TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY1TruthThinningTool",
-                                                       ThinningService              = SUSY1ThinningHelper.ThinningSvc(),
+                                                       StreamName                   = streamName,
                                                        WritePartons                 = False,
                                                        WriteHadrons                 = False,
                                                        WriteBHadrons                = True,

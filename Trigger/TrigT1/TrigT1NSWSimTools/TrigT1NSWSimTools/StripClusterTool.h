@@ -62,9 +62,10 @@ namespace NSWL1 {
                       const std::string& name,
                       const IInterface* parent);
     virtual ~StripClusterTool();
-    virtual StatusCode initialize();
-    virtual void handle (const Incident& inc);
-    StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData>>& clusters);
+    virtual StatusCode initialize() override;
+    virtual void handle (const Incident& inc) override;
+    virtual
+    StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData>>& clusters) override;
   private:
     // methods implementing the internal data processing
 
@@ -77,7 +78,6 @@ namespace NSWL1 {
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
     ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 

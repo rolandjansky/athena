@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSEnergyBinParametrization_h
@@ -33,7 +33,7 @@ class TFCSEnergyBinParametrization:public TFCSEnergyParametrization
   virtual void set_pdgid_Ekin_bin_probability(int id,std::vector< float > prob);
   virtual bool load_pdgid_Ekin_bin_probability_from_file(int id, TFile* file, std::string prob_object_name);
   
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   virtual bool is_match_Ekin_bin(int Ekin_bin) const override;
   
@@ -47,9 +47,5 @@ class TFCSEnergyBinParametrization:public TFCSEnergyParametrization
   ClassDefOverride(TFCSEnergyBinParametrization,1)  //TFCSEnergyBinParametrization
  
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSEnergyBinParametrization+;
-#endif
 
 #endif

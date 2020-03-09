@@ -58,7 +58,6 @@ Stream1 = Algorithm( "Stream1" )
 Stream1.Output = OUTPUT
 Stream1.EvtConversionSvc     ="AthenaPoolCnvSvc"
 PoolSvc = Service( "PoolSvc" )
-Stream1.ForceRead=TRUE;  #force read of output data objs
 
 # list of output objects 
 include( "ParticleBuilderOptions/AOD_OutputList_jobOptions.py")

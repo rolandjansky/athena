@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ## Configuration Access to OFFLINE DB (COMP200)
 
@@ -30,7 +32,7 @@ def MDTCondSummarySvc(name,**kwargs):
 
          kwargs['ConditionsServices'] = []  # COOL folders not available online
      else: 
-         print "non-online", conddb.dbdata , globalflags.DatabaseInstance, globalflags.DataSource, globalflags.ConditionsTag   
+         print ("non-online", conddb.dbdata , globalflags.DatabaseInstance, globalflags.DataSource, globalflags.ConditionsTag   )
          #if globalflags.DatabaseInstance == 'CONDBR2' or globalflags.ConditionsTag == 'CONDBR2-ES1PA-2014-00':
          if globalflags.DataSource != 'data':
 

@@ -1171,7 +1171,7 @@ bool finder_entry::operator==(const finder_entry& merp) const{
   else return false;
 }
 bool finder_entry::operator!=(const finder_entry& merp) const{
-  return !(*this!=merp);
+  return !(*this==merp);
 }
 
 ROI::ROI(double the_theta, double the_phi, double the_m_x, double the_m_y, int the_roi):

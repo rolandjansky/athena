@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -31,7 +31,7 @@ if not hasattr (svcMgr, 'ByteStreamCnvSvc'):
     svcMgr += CfgMgr.ByteStreamCnvSvc ("ByteStreamCnvSvc")
 
 # Properties
-svcMgr.EventSelector.ByteStreamInputSvc = "ByteStreamInputSvc";
+svcMgr.EventSelector.ByteStreamInputSvc = "ByteStreamInputSvc"
 
 svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
 
@@ -52,9 +52,9 @@ svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ]
 # Add in MetaData Stores
 from StoreGate.StoreGateConf import StoreGateSvc
 if not hasattr (svcMgr, 'InputMetaDataStore'):
-    svcMgr += StoreGateSvc( "MetaDataStore" )
-if not hasattr (svcMgr, 'MetaDataStore'):
     svcMgr += StoreGateSvc( "InputMetaDataStore" )
+if not hasattr (svcMgr, 'MetaDataStore'):
+    svcMgr += StoreGateSvc( "MetaDataStore" )
 
 # enable IOVDbSvc to read metadata
 svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"

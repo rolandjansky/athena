@@ -1,6 +1,5 @@
 #!/bin/sh
-# art-type: build
-# art-ci: master
+
 rm -rf test.pkl
 python -m TrigT2CaloCommon.TrigCaloDataAccessConfig
 STA=$?
@@ -11,6 +10,6 @@ then
 fi
 
 echo "configuration stored in the pickle"
-confTool.py --print test.pkl
+confTool.py --printConf test.pkl
 echo "running athena " 
 athena test.pkl

@@ -7,9 +7,6 @@
 if not 'doTileFlat' in dir():
     doTileFlat = False
 
-if not 'doTileOpt' in dir():
-    doTileOpt = False
-
 if not 'doTileOpt2' in dir():
     doTileOpt2 = False
 
@@ -58,7 +55,6 @@ if not 'doSim' in dir():
 # this is already done at digitization step
 if doSim:
     doTileFlat = False
-    doTileOpt  = False
     doTileOpt2 = False
     doTileOptATLAS = False
     doTileFit  = False
@@ -94,7 +90,6 @@ from TileRecUtils.TileRecFlags import jobproperties
 jobproperties.TileRecFlags.doTileFlat=doTileFlat
 jobproperties.TileRecFlags.doTileFit=doTileFit
 jobproperties.TileRecFlags.doTileFitCool=doTileFitCool
-jobproperties.TileRecFlags.doTileOpt=doTileOpt
 jobproperties.TileRecFlags.doTileOpt2=doTileOpt2
 jobproperties.TileRecFlags.doTileOptATLAS=doTileOptATLAS
 jobproperties.TileRecFlags.doTileManyAmps=False

@@ -26,6 +26,8 @@ def getLArRawChannelBuilder(name="LArRawChannelBuilder" , **kwargs):
     LArOFCCondAlgDefault()
 
 
+    kwargs.setdefault("ShapeKey","LArShapeSym")
+
     from LArROD.LArRODFlags import larRODFlags
     kwargs.setdefault('firstSample',larRODFlags.firstSample())
     

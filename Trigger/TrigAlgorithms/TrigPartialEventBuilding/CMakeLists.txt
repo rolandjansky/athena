@@ -10,14 +10,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/DecisionHandling
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
-                          Control/AthViews )
+                          Control/CxxUtils )
 
 # Component(s) in the package
 atlas_add_library( TrigPartialEventBuildingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigPartialEventBuilding
-                   LINK_LIBRARIES DecisionHandlingLib TrigSteeringEvent
-                   PRIVATE_LINK_LIBRARIES AthViews )
+                   LINK_LIBRARIES DecisionHandlingLib TrigSteeringEvent )
 
 atlas_add_component( TrigPartialEventBuilding
                      src/components/*.cxx

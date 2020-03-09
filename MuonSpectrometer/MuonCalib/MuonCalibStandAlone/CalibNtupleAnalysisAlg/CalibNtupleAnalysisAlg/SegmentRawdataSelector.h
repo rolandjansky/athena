@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_SegmentRawdataSelector_h
@@ -12,19 +12,14 @@
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibSegmentPreparationTool.h"
 
-//c - c++
 #include "set"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 class RegionSelectionSvc;
-class StoreGateSvc;
-class MdtIdHelper;
-
-
-namespace MuonGM {
-class MuonDetectorManager;
-}
 
 namespace MuonCalib {
 class IIdToFixedIdTool;
@@ -35,13 +30,11 @@ class SegmentRawdataSelector : public AthAlgTool, virtual public CalibSegmentPre
  public:
 //=========================constructor==========================================
   SegmentRawdataSelector(const std::string &t, const std::string &n, const IInterface *p);
-  inline ~SegmentRawdataSelector() {}
+  inline ~SegmentRawdataSelector()=default;
 //=========================public member functions==============================
   //initialize and finalize
-  StatusCode initialize(void);
-  inline StatusCode finalize(void) {
-    return StatusCode :: SUCCESS;
-  }
+  StatusCode initialize();
+
   //load event
   void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
@@ -53,11 +46,15 @@ class SegmentRawdataSelector : public AthAlgTool, virtual public CalibSegmentPre
   //! pointer to region selection service
   ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
   // helpers //
-  std::string m_MDT_ID_helper; // name of the MDT ID helper
   std::string m_idToFixedIdToolType; // type of the muon fixed id tool
   std::string m_idToFixedIdToolName; // name of the muon fixed id tool
-  const MdtIdHelper *m_MdtIdHelper;  // pointer to the MDT ID helper
-  const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon detector manager
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   const MuonCalib::IIdToFixedIdTool *m_id_tool;// identifier converter
   //store segments, because we have to delete them
   std::set<MuonCalibSegment *> m_segments;

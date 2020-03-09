@@ -14,7 +14,6 @@
 
 #include "CaloIdentifier/LArEM_SuperCell_ID.h"
 #include "IdDictParser/IdDictParser.h"
-#include "CxxUtils/make_unique.h"
 #include <iostream>
 
 

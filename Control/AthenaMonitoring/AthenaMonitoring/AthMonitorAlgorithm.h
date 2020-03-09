@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,18 +19,20 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoring/IDQFilterTool.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
-#include "LumiBlockComps/ILuminosityTool.h"
-#include "TrigDecisionInterface/ITrigDecisionTool.h"
-#include "LumiBlockComps/ITrigLivefractionTool.h"
-
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "LumiBlockData/LuminosityCondData.h"
+#include "LumiBlockData/LBDurationCondData.h"
+#include "LumiBlockData/TrigLiveFractionCondData.h"
 
 class AthMonitorAlgorithm : public AthReentrantAlgorithm {
 public:
@@ -75,37 +77,89 @@ public:
      */
     virtual StatusCode fillHistograms(const EventContext& ctx) const = 0;
 
-
-    /**
-     * Adds variables from an event to a group by name.
-     * 
-     * @param groupName The string name of the GenericMonitoringTool
-     * @param variables Variables desired to be saved.
-     * @return StatusCode
+    /** @defgroup Group Filling Functions
+     *  A group of functions which fill monitored variables in groups.
+     *  @{
      */
-    template <typename... T>
-    void fill( const std::string& groupName, T&&... variables ) const {
-        fill(getGroup(groupName),std::forward<T>(variables)...);
-    }
-
+    /**
+     * Fills a vector of variables to a group by reference. (BASE FILL)
+     *
+     * At the end of the fillHistograms routine, one should save the monitored variables
+     * to the group. This function wraps the process of getting the desired group by a
+     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(),
+     * which also disables the auto-fill feature to avoid double-filling. Note, users
+     * should avoid using this specific function name 'fill' in daughter classes.
+     *
+     * @param groupHandle A reference of the GenericMonitoringTool to which add variables
+     * @param variables Rvalue reference to vector of monitored variables to be saved. Note,
+     *                  the vector will not be valid after calling this function! Use
+     *                  const lvalue variant if you want to keep your vectors.
+     */
+    void fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
+               std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>&& variables ) const;
 
     /**
-     * Adds variables from an event to a group by the group's object reference.
-     * 
-     * At the end of the fillHistograms routine, one should save the monitored variables 
-     * to the group. This function wraps the process of getting the desired group by a 
-     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(), 
-     * which also disables the auto-fill feature to avoid double-filling. Note, users 
-     * should avoid using this specific function name in daughter classes.
-     * 
-     * @param groupHandle A reference of the GenericMonitoringTool to which add variables.
-     * @param variables Variables desired to be saved
-     * @return StatusCode
+     * Fills a vector of variables to a group by reference. Calls BASE FILL.
+     *
+     * At the end of the fillHistograms routine, one should save the monitored variables
+     * to the group. This function wraps the process of getting the desired group by a
+     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(),
+     * which also disables the auto-fill feature to avoid double-filling. Note, users
+     * should avoid using this specific function name 'fill' in daughter classes.
+     *
+     * @param groupHandle A reference of the GenericMonitoringTool to which add variables
+     * @param variables Vector of monitored variables to be saved
+     */
+
+    void fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
+               const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& variables ) const {
+        fill(groupHandle, std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{variables});
+    };
+
+    /**
+     * Fills a variadic list of variables to a group by reference. Calls BASE FILL.
+     *
+     * @param groupHandle Reference to the GenericMonitoringTool
+     * @param variables... Variadic list of monitored variables to be saved
      */
     template <typename... T>
     void fill( const ToolHandle<GenericMonitoringTool>& groupHandle, T&&... variables ) const {
-        Monitored::Group(groupHandle,std::forward<T>(variables)...).fill();
+        fill(groupHandle, std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{std::forward<T>(variables)...});
     }
+
+    /**
+     * Fills a vector of variables to a group by name. Calls BASE FILL.
+     *
+     * @param groupHandle Reference to the GenericMonitoringTool
+     * @param variables Rvalue reference to vector of monitored variables to be saved. Note,
+     *                  the vector will not be valid after calling this function! Use
+     *                  const lvalue variant if you want to keep your vectors.
+     */
+    void fill( const std::string& groupName,
+               std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>&& variables ) const;
+
+    /**
+     * Fills a vector of variables to a group by name. Calls BASE FILL.
+     *
+     * @param groupHandle Reference to the GenericMonitoringTool
+     * @param variables Vector of monitored variables to be saved
+     */
+    void fill( const std::string& groupName,
+               const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& variables ) const {
+        fill( getGroup(groupName), std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{variables});
+    }
+
+    /**
+     * Fills a variadic list of variables to a group by name. Calls BASE FILL.
+     *
+     * @param groupName The string name of the GenericMonitoringTool
+     * @param variables... Variadic list of monitored variables to be saved
+     */
+    template <typename... T>
+    void fill( const std::string& groupName, T&&... variables ) const {
+        fill(getGroup(groupName), std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{std::forward<T>(variables)...});
+    }
+    /** @} */ // end of fill group
 
 
     /**
@@ -149,7 +203,7 @@ public:
      *
      * @return the current value of the class's Environment_t instance.
      */
-    Environment_t environment() const;
+    Environment_t environment() const { return m_environment; }
 
 
     /**
@@ -165,7 +219,7 @@ public:
      *
      * @return the current value of the class's DataType_t instance.
      */
-    DataType_t dataType() const;
+    DataType_t dataType() const { return m_dataType; }
 
 
     /** 
@@ -188,16 +242,16 @@ public:
      */
     ToolHandle<GenericMonitoringTool> getGroup( const std::string& name ) const;
 
+
     /** 
      * Get the trigger decision tool member.
      * 
-     * The trigger decision tool is used to check whether a specific trigger is 
+     * The trigger decision tool is used to check whether a specific trigger is
      * passed by an event.
      * 
      * @return m_trigDecTool
      */
-    const ToolHandle<Trig::ITrigDecisionTool>& getTrigDecisionTool() const;
-
+    const ToolHandle<Trig::TrigDecisionTool>& getTrigDecisionTool() const;
 
     /** 
      * Check whether triggers are passed
@@ -217,7 +271,7 @@ public:
      * @param ctx EventContext for the event
      * @return a SG::ReadHandle<xAOD::EventInfo>
      */
-    SG::ReadHandle<xAOD::EventInfo> GetEventInfo(const EventContext&) const;
+    SG::ReadHandle<xAOD::EventInfo> GetEventInfo( const EventContext& ) const;
 
     /** @defgroup lumi Luminosity Functions
      *  A group of functions which all deal with calculating luminosity.
@@ -227,42 +281,42 @@ public:
     /**
      * Calculate the average mu, i.e. <mu>.
      */
-    virtual float lbAverageInteractionsPerCrossing() const;
+    virtual float lbAverageInteractionsPerCrossing( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate instantaneous number of interactions, i.e. mu.
      */
-    virtual float lbInteractionsPerCrossing() const;
+    virtual float lbInteractionsPerCrossing( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1).
      */
-    virtual float lbAverageLuminosity() const;
+    virtual float lbAverageLuminosity( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the instantaneous luminosity per bunch crossing.
      */
-    virtual float lbLuminosityPerBCID() const;
+    virtual float lbLuminosityPerBCID( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      *  Calculate the duration of the luminosity block (in seconds)
      */
-    virtual double lbDuration() const;
+    virtual double lbDuration( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the average luminosity livefraction
      */
-    virtual float lbAverageLivefraction() const;
+    virtual float lbAverageLivefraction( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the live fraction per bunch crossing ID.
      */
-    virtual float livefractionPerBCID() const;
+    virtual float livefractionPerBCID( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the average integrated luminosity multiplied by the live fraction.
      */
-    virtual double lbLumiWeight() const;
+    virtual double lbLumiWeight( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /** @} */ // end of lumi group
 
@@ -295,12 +349,16 @@ protected:
     // Using the new way to declare JO properties: Gaudi::Property<int> m_myProperty {this,"MyProperty",0};
     ToolHandleArray<GenericMonitoringTool> m_tools {this,"GMTools",{}}; ///< Array of Generic Monitoring Tools
     // Keep TDT public until final decision from trigger on interface
-    PublicToolHandle<Trig::ITrigDecisionTool> m_trigDecTool {this, "TrigDecisionTool",""}; ///< Tool to tell whether a specific trigger is passed
+    PublicToolHandle<Trig::TrigDecisionTool> m_trigDecTool {this, "TrigDecisionTool",""}; ///< Tool to tell whether a specific trigger is passed
     ToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""}; ///< Tool to unpack trigger categories into a trigger list
     ToolHandleArray<IDQFilterTool> m_DQFilterTools {this,"FilterTools",{}}; ///< Array of Data Quality filter tools
 
-    ToolHandle<ILuminosityTool> m_lumiTool {this,"lumiTool","LuminosityTool"}; ///< Tool for calculating various luminosity quantities
-    ToolHandle<ITrigLivefractionTool> m_liveTool {this,"liveTool","TrigLivefractionTool"}; ///< Tool for calculating various live luminosity quantities
+    SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
+    {this,"LuminosityCondDataKey","LuminosityCondData","SG Key of LuminosityCondData object"};
+    SG::ReadCondHandleKey<LBDurationCondData> m_lbDurationDataKey
+    {this,"LBDurationCondDataKey","LBDurationCondData","SG Key of LBDurationCondData object"};
+    SG::ReadCondHandleKey<TrigLiveFractionCondData> m_trigLiveFractionDataKey
+    {this,"TrigLiveFractionCondDataKey","TrigLiveFractionCondData", "SG Key of TrigLiveFractionCondData object"};
 
     AthMonitorAlgorithm::Environment_t m_environment; ///< Instance of the Environment_t enum
     AthMonitorAlgorithm::DataType_t m_dataType; ///< Instance of the DataType_t enum
@@ -311,11 +369,16 @@ protected:
     std::vector<std::string> m_vTrigChainNames; ///< Vector of trigger chain names parsed from trigger chain string
 
     Gaudi::Property<std::string> m_fileKey {this,"FileKey",""}; ///< Internal Athena name for file
-    bool m_hasRetrievedLumiTool; ///< Allows use of various luminosity functions
     Gaudi::Property<bool> m_useLumi {this,"EnableLumi",false}; ///< Allows use of various luminosity functions
     Gaudi::Property<float> m_defaultLBDuration {this,"DefaultLBDuration",60.}; ///< Default duration of one lumi block
     Gaudi::Property<int> m_detailLevel {this,"DetailLevel",0}; ///< Sets the level of detail used in the monitoring
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey {this,"EventInfoKey","EventInfo"}; ///< Key for retrieving EventInfo from StoreGate
+
+
+private:
+    typedef std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> MonVarVec_t;
+    std::string m_name;
+    std::unordered_map<std::string, size_t> m_toolLookupMap;
 };
 
 #endif

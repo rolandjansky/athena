@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 #
 # File: DataModelRunTests/share/setCatalog.py
@@ -10,12 +10,14 @@
 # Needed to avoid races when running tests in parallel.
 #
 
-PoolSvc = Service( 'PoolSvc' )
-PoolSvc.WriteCatalog = 'file:' + FILECATALOG
+if 'FILECATALOG' in globals():
+    from PoolSvc import PoolSvcConf
+    PoolSvc = PoolSvcConf.PoolSvc()
+    PoolSvc.WriteCatalog = 'file:' + FILECATALOG
 
-import os
-try:
-    os.remove (FILECATALOG)
-except OSError:
-    pass
+    import os
+    try:
+        os.remove (FILECATALOG)
+    except OSError:
+        pass
 

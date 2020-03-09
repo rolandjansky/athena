@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -21,7 +21,7 @@ from AthenaCommon.BeamFlags import jobproperties
 import traceback
 
 from RecExConfig.Configured import Configured
-from TauRecRunConfigured import TauRecRunConfigured
+from .TauRecRunConfigured import TauRecRunConfigured
 
 # global tauRec config keys
 _outputType = "xAOD::TauJetContainer"
@@ -29,7 +29,6 @@ _outputKey = "TauJets"
 _outputAuxType = "xAOD::TauJetAuxContainer"
 _outputAuxKey = "TauJetsAux."
 _track_collection = "InDetTrackParticles"
-_jet_collection = "AntiKt4LCTopoJets"
 
 ################################################################################
 ## @class TauRecRunner
@@ -136,7 +135,7 @@ class TauRecRunner ( TauRecRunConfigured ) :
             
         except Exception:
             mlog.error("could not append tools to TauRunner")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         # run first part of Tau Builder

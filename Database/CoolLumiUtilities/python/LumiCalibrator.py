@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # LumiCalibrator
@@ -12,6 +12,7 @@
 # This must be initialized with the payload of a calibration record from COOL, then the raw luminosity
 # will be calibrated with a call to calibrate
 
+from __future__ import print_function
 import math
 
 from CoolLumiUtilities.LumiBlobConversion import bConvertList
@@ -75,9 +76,9 @@ class LumiCalibrator:
         self.parVec = bConvertList(s, 4, self.nPar)
 
         if self.verbose:
-            print 'LumiCalibrator.setCalibration for %s found %d parameters: ' % (self.fType, self.nPar)
-            print self.parVec
-            print ' muToLumi = %f' % self.muToLumi
+            print('LumiCalibrator.setCalibration for %s found %d parameters: ' % (self.fType, self.nPar))
+            print(self.parVec)
+            print(' muToLumi = %f' % self.muToLumi)
 
 
         algname = self.fType
@@ -90,12 +91,12 @@ class LumiCalibrator:
             algname = algname[:-9]
             
         if self.verbose:
-            print 'LumiCalibrator.setCalibration - Found poly: %d curr: %d' % (polyPos, currPos)
+            print('LumiCalibrator.setCalibration - Found poly: %d curr: %d' % (polyPos, currPos))
             
         if polyPos > currPos:
 
             if self.verbose:
-                print 'LumiCalibrator.setCalibration - reading polynomial from', self.parVec[-4:-1]
+                print('LumiCalibrator.setCalibration - reading polynomial from', self.parVec[-4:-1])
                 
             self.polyParC = self.parVec.pop()
             self.polyParB = self.parVec.pop()
@@ -112,8 +113,8 @@ class LumiCalibrator:
 
                 self.currVersion = int(self.parVec[npar])
                 if self.verbose:
-                    print 'LumiCalibrator.setCalibration - found %d parameters in %s' % (npar, algname)
-                    print 'LumiCalibrator.setCalibration - reading current vers %d from position %d' % (self.currVersion, npar)                    
+                    print('LumiCalibrator.setCalibration - found %d parameters in %s' % (npar, algname))
+                    print('LumiCalibrator.setCalibration - reading current vers %d from position %d' % (self.currVersion, npar))                    
 
                 if self.currVersion == 4:
                     self.currType = int(self.parVec.pop())
@@ -129,7 +130,7 @@ class LumiCalibrator:
                 self.nPar -= 3
 
                 if self.verbose:
-                    print 'LumiCalibrator.setCalibration found current correction %d type %d' % (self.currVersion, self.currType) 
+                    print('LumiCalibrator.setCalibration found current correction %d type %d' % (self.currVersion, self.currType)) 
 
         elif currPos > polyPos:
 
@@ -139,14 +140,14 @@ class LumiCalibrator:
             self.currType = 1 # Use A+C by default
 
             if self.verbose:
-                print 'LumiCalibrator.setCalibration - found %d parameters in %s' % (npar, algname)
+                print('LumiCalibrator.setCalibration - found %d parameters in %s' % (npar, algname))
             if polyPos > 0:
                 npar += 4
 
             self.currVersion = int(self.parVec[npar])
 
             if self.verbose:
-                print 'LumiCalibrator.setCalibration - reading current vers %d from position %d' % (self.currVersion, npar)
+                print('LumiCalibrator.setCalibration - reading current vers %d from position %d' % (self.currVersion, npar))
                     
             if self.currVersion == 4:
                 self.currType = int(self.parVec.pop())
@@ -162,11 +163,11 @@ class LumiCalibrator:
             self.nPar -= 3
             
             if self.verbose:
-                print 'LumiCalibrator.setCalibration found current correction %d type %d' % (self.currVersion, self.currType)
+                print('LumiCalibrator.setCalibration found current correction %d type %d' % (self.currVersion, self.currType))
                 
             if polyPos > 0:    
                 if self.verbose:
-                    print 'LumiCalibrator.setCalibration - reading polynomial from  list' , self.parVec[-4:]
+                    print('LumiCalibrator.setCalibration - reading polynomial from  list' , self.parVec[-4:])
                 
                 self.polyParC = self.parVec.pop()
                 self.polyParB = self.parVec.pop()
@@ -180,7 +181,7 @@ class LumiCalibrator:
         self.oldCurrentA = self.currentA
         self.oldCurrentC = self.currentC
         
-        if currPayload == None:
+        if currPayload is None:
             self.currentA = -1.
             self.currentC = -1.
         else:
@@ -189,18 +190,18 @@ class LumiCalibrator:
 
 
         if self.verbose:
-            print 'LumiCalibrator.setLucidCurrent found Side A: %f Side C: %f' % (self.currentA, self.currentC)
+            print('LumiCalibrator.setLucidCurrent found Side A: %f Side C: %f' % (self.currentA, self.currentC))
             
     def dump(self):
 
-        print 'Calibration: %s, muToLumi: %f', (self.fType, self.muToLumi)
+        print('Calibration: %s, muToLumi: %f', (self.fType, self.muToLumi))
         if self.fType == 'Logarithm':
-            print 'par[0]: %f', self.parVec[0]
+            print('par[0]: %f', self.parVec[0])
 
         elif self.fType == 'LookupTable_EventAND_Lin':
-            print 'par[0]: %f', self.parVec[0]
-            print 'par[1]: %f', self.parVec[1]
-            print 'par[5]: %f', self.parVec[5]
+            print('par[0]: %f', self.parVec[0])
+            print('par[1]: %f', self.parVec[1])
+            print('par[5]: %f', self.parVec[5])
             
     # Take raw luminosity (rate) value and return calibrated luminosity
     def calibrate(self, rawLumi):
@@ -209,7 +210,7 @@ class LumiCalibrator:
         self.rflag = 0 # Success unless we fail
 
         if (rawLumi < 0.):
-            print 'LumiCalibrator.calibrate(%f) - non-physical value!' % rawLumi
+            print('LumiCalibrator.calibrate(%f) - non-physical value!' % rawLumi)
             self.rflag = 1
             return 0.
 
@@ -238,7 +239,7 @@ class LumiCalibrator:
             except Exception as e:
                 cal = 0.
                 self.rflag = 1
-                print 'LumiCalibrator.calibLookupTable(%f) - Error: %s' % (rawLumi, e)
+                print('LumiCalibrator.calibLookupTable(%f) - Error: %s' % (rawLumi, e))
                 
         elif calibstr.find('LookupTable_EventAND_Log') == 0:
 
@@ -247,7 +248,7 @@ class LumiCalibrator:
             except Exception as e:
                 cal = 0.
                 self.rflag = 1
-                print 'LumiCalibrator.calibLookupTableLog(%f) - Error: %s' % (rawLumi, e)
+                print('LumiCalibrator.calibLookupTableLog(%f) - Error: %s' % (rawLumi, e))
 
         elif calibstr.find('LookupTable_EventANDFull_Log') == 0:
 
@@ -256,7 +257,7 @@ class LumiCalibrator:
             except Exception as e:
                 cal = 0.
                 self.rflag = 1
-                print 'LumiCalibrator.calibLookupTableFullLog(%f) - Error: %s' % (rawLumi, e)
+                print('LumiCalibrator.calibLookupTableFullLog(%f) - Error: %s' % (rawLumi, e))
                 
         elif calibstr.find('LookupTablePoisson_Lin') == 0:
 
@@ -265,7 +266,7 @@ class LumiCalibrator:
             except Exception as e:
                 cal = 0.
                 self.rflag = 1
-                print 'LumiCalibrator.calibLookupTablePoisson(%f) - Error: %s' % (rawLumi, e)
+                print('LumiCalibrator.calibLookupTablePoisson(%f) - Error: %s' % (rawLumi, e))
                 
         elif calibstr.find('LookupTableZeroPoisson_Lin') == 0:
 
@@ -274,10 +275,10 @@ class LumiCalibrator:
             except Exception as e:
                 cal = 0.
                 self.rflag = 1
-                print 'LumiCalibrator.calibLookupTableZeroPoisson(%f) - Error: %s' % (rawLumi, e)
+                print('LumiCalibrator.calibLookupTableZeroPoisson(%f) - Error: %s' % (rawLumi, e))
 
         else:    
-            print 'LumiCalibrator.calibrate(%f) - Unknown calibration type %s!' % (rawLumi, self.fType)
+            print('LumiCalibrator.calibrate(%f) - Unknown calibration type %s!' % (rawLumi, self.fType))
             self.rflag = 1
             cal = 0.
 
@@ -307,7 +308,7 @@ class LumiCalibrator:
             cal = self.polyCorrection(cal)
 
         else:
-            print 'LumiCalibrator.calibrate() - I am so confused: %s' % calibstr
+            print('LumiCalibrator.calibrate() - I am so confused: %s' % calibstr)
             
         return self.muToLumi * cal
 
@@ -326,7 +327,7 @@ class LumiCalibrator:
             current = self.currentC
 
         else:
-            print 'LumiCalibrator.currentCorrection() - unknown current type: %d' % self.currType 
+            print('LumiCalibrator.currentCorrection() - unknown current type: %d' % self.currType) 
             self.rflag = 1
             return mu
 
@@ -335,8 +336,8 @@ class LumiCalibrator:
 
         if current == -1.:
             if self.verbose:
-                print 'LumiCalibrator.currentCorrection() - invalid LUCID currents found - A: %f C: %f' % (self.currentA, self.currentC)
-                print 'LumiCalibrator.currentCorrection() - try using last values found - A: %f C: %f' % (self.oldCurrentA, self.oldCurrentC)
+                print('LumiCalibrator.currentCorrection() - invalid LUCID currents found - A: %f C: %f' % (self.currentA, self.currentC))
+                print('LumiCalibrator.currentCorrection() - try using last values found - A: %f C: %f' % (self.oldCurrentA, self.oldCurrentC))
                 
             self.rflag = 1 # Flag this as bad
 
@@ -366,10 +367,10 @@ class LumiCalibrator:
             correction = 100./(100.+self.currParA+self.currParB*current+self.currParC*current**2)
 
         else:
-            print 'LumiCalibrator.currentCorrection() - unknown calibration version %d' % self.currVersion
+            print('LumiCalibrator.currentCorrection() - unknown calibration version %d' % self.currVersion)
 
         if self.verbose and self.currVersion != 0:
-            print 'LumiCalibrator.currentCorrection() - version %d -> currentA = %f, currentC = %f, correction = %f' % (self.currVersion, self.currentA, self.currentC, correction)
+            print('LumiCalibrator.currentCorrection() - version %d -> currentA = %f, currentC = %f, correction = %f' % (self.currVersion, self.currentA, self.currentC, correction))
 
         return mu*correction
 
@@ -386,7 +387,7 @@ class LumiCalibrator:
             mucorr = self.polyParA + self.polyParB * mu + self.polyParC * mu * mu
 
         else:
-            print 'LumiCalibrator.polyCorrection() - unknown calibration version %d' % self.polyVersion
+            print('LumiCalibrator.polyCorrection() - unknown calibration version %d' % self.polyVersion)
 
         return mucorr    
 
@@ -414,7 +415,7 @@ class LumiCalibrator:
                 break
 
         if self.rflag == 1:
-            print 'LumiCalibrator.calibPolynomial(%f) - Value out of range' % rawLumi
+            print('LumiCalibrator.calibPolynomial(%f) - Value out of range' % rawLumi)
 
         return cal
 
@@ -430,12 +431,12 @@ class LumiCalibrator:
         try:
             cal = -invEff*math.log(1.-rawLumi)
             
-        except:
+        except Exception:
             cal = 0.
             self.rflag = 1
             # Don't print for simple saturation
             if rawLumi != 1.:
-                print 'LumiCalibrator.calibLogarithm(%f) - Unphysical input!' % rawLumi
+                print('LumiCalibrator.calibLogarithm(%f) - Unphysical input!' % rawLumi)
             
         return cal
 
@@ -453,16 +454,16 @@ class LumiCalibrator:
         # rawLumi can be > 1 here, check value against maxRawLumiPerBX
         if rawLumi > maxRawLumiperBX:
             self.rflag = 1
-            print 'LumiCalibrator.calibHitLogarithm(%f) - input greater than max range %f!' % (rawLumi, maxRawLumiperBX)
+            print('LumiCalibrator.calibHitLogarithm(%f) - input greater than max range %f!' % (rawLumi, maxRawLumiperBX))
             return cal
         
         try:
             cal = -invEff*math.log(1.-rawLumi/channels)/(1-offset)
             
-        except:
+        except Exception:
             cal = 0.
             self.rflag = 1
-            print 'LumiCalibrator.calibHitLogarithm(%f) - Unphysical input!' % rawLumi
+            print('LumiCalibrator.calibHitLogarithm(%f) - Unphysical input!' % rawLumi)
             
         return cal
     
@@ -475,7 +476,7 @@ class LumiCalibrator:
         
         if rawLumi < 0.:
             self.rflag = 1
-            print 'LumiCalibrator.calibLookupTable(%f) - Unphysical input to LUT!' % rawLumi
+            print('LumiCalibrator.calibLookupTable(%f) - Unphysical input to LUT!' % rawLumi)
 
         elif rawLumi > 0.:
             sigo = self.parVec[0]
@@ -497,7 +498,7 @@ class LumiCalibrator:
         
         if (rawLumi < 0.) or (rawLumi >= 1.):
             self.rflag = 1
-            print 'LumiCalibrator.calibLookupTableLog(%f) - Unphysical input to LUT!' % rawLumi
+            print('LumiCalibrator.calibLookupTableLog(%f) - Unphysical input to LUT!' % rawLumi)
 
         elif rawLumi > 0.:
             sigo = self.parVec[0]
@@ -539,7 +540,7 @@ class LumiCalibrator:
                 return munew
 
 
-        print 'LumiCalibrator.calibLookupTable(', rawPerBX, ') - did not converge (Vincent method)!'
+        print('LumiCalibrator.calibLookupTable(', rawPerBX, ') - did not converge (Vincent method)!')
         return munew
     
     # From Mika
@@ -557,7 +558,7 @@ class LumiCalibrator:
 
         # Check that starting value is in the valid range
         if rawPerBX < rbxl or rawPerBX > rbxu:
-            print 'LumiCalibrator.calibLookupTable(', rawPerBX, ') - raw lumi value outside of LUT range', rbxl, 'to', rbxu, '!'
+            print('LumiCalibrator.calibLookupTable(', rawPerBX, ') - raw lumi value outside of LUT range', rbxl, 'to', rbxu, '!')
             return 0.
 
         # Restrict to a fixed number of iterations
@@ -578,7 +579,7 @@ class LumiCalibrator:
                 return muvm
 
         # Did not converge
-        print 'LumiCalibrator.calibLookupTable(', rawPerBX, ') - did not converge (Mika method)!'
+        print('LumiCalibrator.calibLookupTable(', rawPerBX, ') - did not converge (Mika method)!')
         return muvm
     
     def rpbx(self, sr, muvis):
@@ -593,7 +594,7 @@ class LumiCalibrator:
         
         if (rawLumi < 0.) or (rawLumi >= 1.):
             self.rflag = 1
-            print 'LumiCalibrator.calibLookupTableFullLog(%f) - Unphysical input to LUT!' % rawLumi
+            print('LumiCalibrator.calibLookupTableFullLog(%f) - Unphysical input to LUT!' % rawLumi)
 
         elif rawLumi > 0.:
             sigA = self.parVec[0]
@@ -638,7 +639,7 @@ class LumiCalibrator:
                 return munew
 
 
-        print 'LumiCalibrator.calibLookupTable(', rawPerBX, ') - did not converge (Vincent method)!'
+        print('LumiCalibrator.calibLookupTable(', rawPerBX, ') - did not converge (Vincent method)!')
         return munew
     
     # From Mika
@@ -659,7 +660,7 @@ class LumiCalibrator:
 
         # Check that starting value is in the valid range
         if rawPerBX < rbxl or rawPerBX > rbxu:
-            print 'LumiCalibrator.calibLookupTable(', rawPerBX, ') - raw lumi value outside of LUT range', rbxl, 'to', rbxu, '!'
+            print('LumiCalibrator.calibLookupTable(', rawPerBX, ') - raw lumi value outside of LUT range', rbxl, 'to', rbxu, '!')
             return 0.
 
         # Restrict to a fixed number of iterations
@@ -680,19 +681,19 @@ class LumiCalibrator:
                 return muvm
 
         # Did not converge
-        print 'LumiCalibrator.calibLookupTable(', rawPerBX, ') - did not converge (Mika method)!'
+        print('LumiCalibrator.calibLookupTable(', rawPerBX, ') - did not converge (Mika method)!')
         return muvm
     
     def rpbxFull(self, ra, rc, sr, muvis):
-        return 1 - math.exp(-ra*muvis) - mathexp(-rc*muvis) + math.exp(-sr*muvis)
+        return 1 - math.exp(-ra*muvis) - math.exp(-rc*muvis) + math.exp(-sr*muvis)
 
     # LookupTablePoisson_Lin':
     def calibLookupTablePoisson(self, rawLumi):
 
         offset = self.parVec[0]
         maxRawLumiperBX = self.parVec[1]
-        mu_max = self.parVec[2]
-        points = self.parVec[3]
+        #mu_max = self.parVec[2]
+        #points = self.parVec[3]
         nRefs = int(self.parVec[4])
         ref = self.parVec[5:]
 
@@ -702,7 +703,7 @@ class LumiCalibrator:
         self.rflag = 1
 
         if rawLumi > maxRawLumiperBX:
-            print 'LumiCalibrator.calibLookupTablePoisson(%f) - input greater than max range %f!' % (rawLumi, maxRawLumiperBX)
+            print('LumiCalibrator.calibLookupTablePoisson(%f) - input greater than max range %f!' % (rawLumi, maxRawLumiperBX))
             return cal
 
         # Iteratively solve
@@ -732,7 +733,7 @@ class LumiCalibrator:
 
             if munew <= 0.:
                 cal = 0.
-                print 'LumiCalibrator.calibLookupTablePoisson(%f) - failed to converge (went negative)!'% (rawLumi)
+                print('LumiCalibrator.calibLookupTablePoisson(%f) - failed to converge (went negative)!'% (rawLumi))
                 return cal
 
             if math.fabs(munew-mu)/munew < 1.e-5:
@@ -740,7 +741,7 @@ class LumiCalibrator:
                 return cal/(1-offset)
                 
 
-        print 'LumiCalibrator.calibLookupTablePoisson(%f) - failed to converge (trials)!'% (rawLumi)
+        print('LumiCalibrator.calibLookupTablePoisson(%f) - failed to converge (trials)!'% (rawLumi))
         return cal/(1-offset)
 
     # LookupTableZeroPoisson_Lin':
@@ -748,8 +749,8 @@ class LumiCalibrator:
 
         offset = self.parVec[0]
         maxRawLumiperBX = self.parVec[1]
-        mu_max = self.parVec[2]
-        points = self.parVec[3]
+        #mu_max = self.parVec[2]
+        #points = self.parVec[3]
         nRefs = int(self.parVec[4])
         ref = self.parVec[5:]
 
@@ -759,7 +760,7 @@ class LumiCalibrator:
         self.rflag = 1
 
         if rawLumi > maxRawLumiperBX:
-            print 'LumiCalibrator.calibLookupTableZeroPoisson(%f) - input greater than max range %f!' % (rawLumi, maxRawLumiperBX)
+            print('LumiCalibrator.calibLookupTableZeroPoisson(%f) - input greater than max range %f!' % (rawLumi, maxRawLumiperBX))
             return cal
 
         # Iteratively solve
@@ -787,7 +788,7 @@ class LumiCalibrator:
             cal = munew
             
             if munew <= 0.:
-                print 'LumiCalibrator.calibLookupTableZeroPoisson(%f) - failed to converge (negative)!'% (rawLumi)
+                print('LumiCalibrator.calibLookupTableZeroPoisson(%f) - failed to converge (negative)!'% (rawLumi))
                 cal = 0.
                 return cal
 
@@ -795,5 +796,5 @@ class LumiCalibrator:
                 self.rflag = 0
                 return cal/(1-offset)
 
-        print 'LumiCalibrator.calibLookupTableZeroPoisson(%f) - failed to converge (trials)!'% (rawLumi)
+        print('LumiCalibrator.calibLookupTableZeroPoisson(%f) - failed to converge (trials)!'% (rawLumi))
         return cal/(1-offset)

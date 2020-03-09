@@ -10,7 +10,7 @@ namespace MuonGM {
   MuonClusterReadoutElement::MuonClusterReadoutElement(GeoVFullPhysVol* pv, std::string,
 						       int zi, int fi, bool is_mirrored,
 						       MuonDetectorManager* mgr)
-    : MuonReadoutElement(pv, zi, fi, is_mirrored, mgr), m_surfaceData(0), m_surfaceDataBackup(0)
+    : MuonReadoutElement(pv, zi, fi, is_mirrored, mgr), m_surfaceData(0)
   {
     
   }
@@ -22,17 +22,12 @@ namespace MuonGM {
   
 
   void MuonClusterReadoutElement::shiftSurface(const Identifier&) const{
-    if( m_surfaceDataBackup ){
-      delete m_surfaceDataBackup;
-    }
-    m_surfaceDataBackup = m_surfaceData;
     fillCache();
   }
 
   void MuonClusterReadoutElement::restoreSurfaces() const {
     delete m_surfaceData;
-    if( m_surfaceDataBackup ) m_surfaceData = m_surfaceDataBackup;
-    else fillCache();
+    fillCache();
   }
 
 

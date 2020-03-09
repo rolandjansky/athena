@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloPedestalGenerator.h"
@@ -10,7 +10,7 @@
 #include "CLHEP/Random/RandGaussZiggurat.h" 
 #include "CLHEP/Random/Randomize.h"
 
-L1CaloPedestalGenerator::L1CaloPedestalGenerator(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator), m_detStore(0), m_storeGate(0), m_caloMgr(0), m_lvl1Helper(0), m_towerKey(0), m_IntTTContainer(0)
+L1CaloPedestalGenerator::L1CaloPedestalGenerator(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator), m_caloMgr(0), m_lvl1Helper(0), m_towerKey(0), m_IntTTContainer(0)
 {
     declareProperty("TriggerTowerLocation", m_TTLocation  = "LVL1TriggerTowers");
     declareProperty("PedestalMean", m_pedMean  = 10.);
@@ -30,23 +30,8 @@ StatusCode L1CaloPedestalGenerator::initialize()
     ATH_MSG_INFO("From Initialize...");
     StatusCode sc;
 
-    //get a pointer to DetectorStore services
-    sc = service("DetectorStore", m_detStore);
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR( "Cannot access DetectorStore" );
-        return StatusCode::FAILURE;
-    }
-
-    //get a pointer to Event StoreGate services
-    sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR( "Cannot access StoreGate" );
-        return StatusCode::FAILURE;
-    }
-
-
   // Retrieve CaloIdManager
-    sc = m_detStore->retrieve(m_caloMgr);
+    sc = detStore()->retrieve(m_caloMgr);
     if (sc.isFailure()) {
         ATH_MSG_ERROR( "Unable to retrieve CaloIdManager from DetectorStore" );
         return StatusCode::FAILURE;
@@ -75,7 +60,7 @@ StatusCode L1CaloPedestalGenerator::execute()
     m_IntTTContainer = new std::map<unsigned int, LVL1::InternalTriggerTower*>;
 
     TriggerTowerCollection* VectorOfTTs = new TriggerTowerCollection;
-    sc = m_storeGate->record(VectorOfTTs, m_TTLocation);
+    sc = evtStore()->record(VectorOfTTs, m_TTLocation);
 
     if (sc.isSuccess()) ATH_MSG_DEBUG( "Stored TTs in TES at "<< m_TTLocation );
     else {
@@ -167,7 +152,7 @@ StatusCode L1CaloPedestalGenerator::execute()
 
 	ATH_MSG_DEBUG( VectorOfTTs->size()<<" TTs have been generated");
 
-    sc = m_storeGate->setConst(VectorOfTTs);
+    sc = evtStore()->setConst(VectorOfTTs);
     if (sc.isSuccess()) ATH_MSG_DEBUG( "TT container locked");
     else {
         ATH_MSG_ERROR( "failed to lock TT container");

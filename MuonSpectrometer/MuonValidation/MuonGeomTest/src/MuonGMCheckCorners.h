@@ -21,7 +21,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
@@ -82,12 +83,7 @@ class MuonGMCheckCorners: public AthAlgorithm
   StoreGateSvc*      	        p_EventStore;
   ActiveStoreSvc*      	        p_ActiveStore;
  
- // Pointer to MuonDetectorManager (imt addition)
-  const MuonGM::MuonDetectorManager*	p_MuonMgr;
-  const RpcIdHelper*            p_RpcIdHelper;
-  const TgcIdHelper*            p_TgcIdHelper;
-  const CscIdHelper*            p_CscIdHelper;
-  const MdtIdHelper*            p_MdtIdHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   void checkreadoutcscgeo();
   void checkreadoutrpcgeo();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBTOOLBASE_H
@@ -19,16 +19,18 @@
 *******************************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonCondData/CscCondDataContainer.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonCondData/CscCondDbData.h"
 #include "CscCalibTools/ICscCalibTool.h"
+#include "CxxUtils/checker_macros.h"
 
-#include <inttypes.h>
-#include <vector>
-#include "TMath.h"
 #include "TF1.h"
-#include "TH1.h"
 
+#include <atomic>
+#include <inttypes.h>
+#include <mutex>
+#include <vector>
+
+class CscCondDbData;
 
 class CscCalibTool : public extends<AthAlgTool, ICscCalibTool> {
 
@@ -37,6 +39,7 @@ public:
   virtual ~CscCalibTool () = default;
 
   virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
 
   /** given a charge on the CSC strip, convert that to ADC counts
       this is needed in the digitization for example where it is the charges
@@ -119,15 +122,14 @@ public:
   // this function is defined. Return value is pair and the first one is driftTime.
   virtual std::pair<double,double> addBipfunc(const double driftTime0, const double stripCharge0,
                                               const double driftTime1, const double stripCharge1) const override final;
-  virtual std::string getDetDescr() const override final;
 
   // 09/2010
   virtual std::vector<float> getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0) const override final;
   virtual double getLatency() const override final;
 
 
-  mutable int m_messageCnt_t0base;
-  mutable int m_messageCnt_t0phase;
+  mutable std::atomic_int m_messageCnt_t0base;
+  mutable std::atomic_int m_messageCnt_t0phase;
   //private:
   //  ../src/CscCalibTool.cxx: In member function 'virtual bool CscCalibTool::stripT0phase(uint32_t) const':
   //  ../src/CscCalibTool.cxx:351: error: increment of data-member 'CscCalibTool::m_messageCnt_t0phase' in read-only structure
@@ -141,7 +143,7 @@ private:
 
 protected:
 
-  ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
+  SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
 
   bool  m_readFromDatabase;
   bool  m_slopeFromDatabase;
@@ -166,8 +168,9 @@ protected:
   float m_latencyInDigitization; // new in 12/2010 for New Digitization package...
 
   unsigned int m_nSamples;
-  mutable TF1* m_addedfunc;
-  mutable TF1* m_bipolarFunc;
+  mutable TF1* m_addedfunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable TF1* m_bipolarFunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::mutex m_mutex;
 
   bool m_onlineHLT;
   bool m_use2Samples; // for the use of only 2 samples for strip charge

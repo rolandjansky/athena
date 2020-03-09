@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Tracking/TrkEvent/TrkPrepRawData
                           Tracking/TrkTools/TrkToolInterfaces
+                          Tracking/TrkEvent/TrkEventUtils
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -25,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetAssociationTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel InDetPrepRawData TrkPrepRawData TrkToolInterfaces AtlasDetDescr InDetIdentifier InDetRIO_OnTrack TrkDetElementBase TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel InDetPrepRawData TrkPrepRawData TrkToolInterfaces AtlasDetDescr InDetIdentifier InDetRIO_OnTrack TrkDetElementBase TrkRIO_OnTrack TrkTrack TrkEventUtils )
 
 # Install files from the package:
 atlas_install_headers( InDetAssociationTools )

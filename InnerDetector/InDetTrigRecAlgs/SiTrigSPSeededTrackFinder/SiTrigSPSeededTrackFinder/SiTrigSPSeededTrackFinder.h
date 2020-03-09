@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,8 @@
 
 //!< Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
+
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 //forward declarations
 class TrigTimer;
@@ -112,7 +114,10 @@ namespace InDet {
     
     //!< Trigger part
     ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
-    
+
+    StringProperty m_prdToTrackMap
+       {this,"PRDtoTrackMap",""};                        //!< optional map between PRDs and tracks to identify shared hits.
+
     double       m_etaHalfWidth;   //!< ROI half-width in eta.
     double       m_phiHalfWidth;   //!< ROI half-width in phi.
     bool           m_doFullScan;   //!< skip the RegionSelector and newRegion() reconstruction 

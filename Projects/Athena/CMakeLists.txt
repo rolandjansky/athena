@@ -1,20 +1,18 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# The minimum required CMake version:
+# Set up the project.
 cmake_minimum_required( VERSION 3.6 )
-
-# Read in the project's version from a file called version.txt. But let it be
-# overridden from the command line if necessary.
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-set( ATHENA_PROJECT_VERSION ${_version}
-   CACHE STRING "Version of the Athena project to build" )
+project( Athena VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
 # Set the versions of the TDAQ externals to pick up for the build:
 if( NOT LCG_NIGHTLY )
    if( NOT "$ENV{LCG_NIGHTLY}" STREQUAL "" )
-       set( LCG_NIGHTLY $ENV{LCG_NIGHTLY} CACHE STRING "LCG nightly build flavor" )
-       message( STATUS "Using LCG_NIGHTLY: ${LCG_NIGHTLY}" )
+      set( LCG_NIGHTLY $ENV{LCG_NIGHTLY} CACHE STRING
+         "LCG nightly build flavor" )
+      message( STATUS "Using LCG_NIGHTLY: ${LCG_NIGHTLY}" )
    endif()
 endif()
 
@@ -26,9 +24,9 @@ if( LCG_NIGHTLY )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "03-03-00" CACHE STRING
+    set( TDAQ-COMMON_VERSION "03-04-01" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( TDAQ_VERSION "08-02-01" CACHE STRING
+    set( TDAQ_VERSION "08-03-01" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
 
@@ -42,6 +40,13 @@ set( TDAQ_ATROOT
 mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
+# Configure flake8:
+set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+   CACHE STRING "Default flake8 command" )
+
+set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 
@@ -53,6 +58,13 @@ find_package( Gaudi REQUIRED )
 find_package( Doxygen )
 find_package( PNG )
 find_package( VDT )
+find_package( TIFF )
+
+# Set up the correct runtime environment for OpenBLAS.
+set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
+   CACHE PATH "Directory holding OpenBlasEnvironmentConfig.cmake" )
+mark_as_advanced( OpenBlasEnvironment_DIR )
+find_package( OpenBlasEnvironment )
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
@@ -73,11 +85,9 @@ list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 # Set up CTest:
 atlas_ctest_setup()
 
-# Declare project name and version
-atlas_project( Athena ${ATHENA_PROJECT_VERSION}
-   USE AthenaExternals ${AthenaExternals_VERSION}
-   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
-   LANGUAGES C CXX Fortran )
+# Set up the "ATLAS project".
+atlas_project( USE AthenaExternals ${AthenaExternals_VERSION}
+   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
 # Install the external configurations:
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
@@ -91,10 +101,6 @@ set( _replacements )
 if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
    get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
    list( APPEND _replacements ${_buildDir} "\${Athena_DIR}/../../../.." )
-endif()
-if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
-   list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
-      "\${Athena_VERSION}" )
 endif()
 
 # Now generate and install the installed setup files:
@@ -116,9 +122,13 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
 string( REPLACE "${TDAQ_VERSION}" "\${TDAQ_VERSION}"
    TDAQ_ATROOT "${TDAQ_ATROOT}" )
 
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
+install( FILES
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Package up the release using CPack:

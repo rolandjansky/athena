@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DECODER_AFP_RAWDATAPROVIDER_H
@@ -34,9 +34,6 @@ public:
   virtual StatusCode finalize() { return StatusCode::SUCCESS; }
 
 private:
-  int m_nRawDataCollection;
-  int m_nRawData;
-
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
   ToolHandle<AFP_RawDataProviderTool> m_rawDataTool;
 

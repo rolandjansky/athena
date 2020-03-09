@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileBeamElemCnv_p1.cxx 
@@ -15,7 +15,7 @@
 
 
 void
-TileBeamElemCnv_p1::persToTrans(const TileBeamElem_p1* persObj, TileBeamElem* transObj, MsgStream &/*log*/)
+TileBeamElemCnv_p1::persToTrans(const TileBeamElem_p1* persObj, TileBeamElem* transObj, MsgStream &/*log*/) const
 {
   std::vector<uint32_t> digits (persObj->m_digits.begin(),
                                 persObj->m_digits.end());
@@ -26,7 +26,7 @@ TileBeamElemCnv_p1::persToTrans(const TileBeamElem_p1* persObj, TileBeamElem* tr
 
 
 void
-TileBeamElemCnv_p1::transToPers(const TileBeamElem* transObj, TileBeamElem_p1* persObj, MsgStream &/*log*/)
+TileBeamElemCnv_p1::transToPers(const TileBeamElem* transObj, TileBeamElem_p1* persObj, MsgStream &/*log*/) const
 {
   persObj->m_channelID = transObj->adc_HWID().get_identifier32().get_compact();
   persObj->m_digits.assign (transObj->get_digits().begin(),

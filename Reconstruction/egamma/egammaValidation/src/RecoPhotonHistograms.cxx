@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RecoPhotonHistograms.h"
 
 using namespace egammaMonitoring;
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/AnaToolHandle.h" //just to get ATH_CHECK? should be a better way!
+#include "GaudiKernel/ITHistSvc.h"
+#include <cmath>
 
 StatusCode RecoPhotonHistograms::initializePlots() {
 
@@ -33,7 +34,7 @@ void RecoPhotonHistograms::fill(const xAOD::Photon& phrec) {
 
       float x = tmp->decayVtx()->x();
       float y = tmp->decayVtx()->y();
-      trueR = sqrt( x*x + y*y );
+      trueR = std::sqrt( x*x + y*y );
 
     }
   }

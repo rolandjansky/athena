@@ -19,23 +19,13 @@ InputMakerForRoI:: InputMakerForRoI( const std::string& name,
 : InputMakerBase( name, pSvcLocator ) {}
 
 
-InputMakerForRoI::~ InputMakerForRoI() {}
-
 StatusCode  InputMakerForRoI::initialize() {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-  
-  // specific:
   ATH_MSG_DEBUG("Will produce output RoI collections: " << m_RoIs);
   CHECK( m_RoIs.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode  InputMakerForRoI::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {  
+StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Executing " << name() << "..." );
   
   // call base class helper method to read input decisions, loop over them create outputs and connect them, returns with outputHandles filled
@@ -55,9 +45,8 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
       continue;
     }
     if( outputHandle->size() == 0){ // input filtered out
-      ATH_MSG_DEBUG( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty. Is this expected?");
-      //      continue;
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty.");
+      continue;
     }
     ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
     // loop over output decisions in container of outputHandle, follow link to inputDecision
@@ -94,6 +83,3 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
 
   return StatusCode::SUCCESS;
 }
-
-
-

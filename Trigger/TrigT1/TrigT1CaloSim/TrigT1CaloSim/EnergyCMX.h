@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
  /***************************************************************************
@@ -26,7 +26,6 @@
 
  // Athena/Gaudi includes
  #include "GaudiKernel/DataSvc.h"
- #include "StoreGate/StoreGateSvc.h"
  
  // LVL1 Calo Trigger
  #include "TrigT1CaloUtils/CrateEnergy.h"
@@ -70,10 +69,9 @@
    // Methods used by Athena to run the algorithm
    //------------------------------------------------------
 
-   StatusCode initialize() ;
-   StatusCode beginRun() ;
-   StatusCode execute() ;
-   StatusCode finalize() ;
+   virtual StatusCode initialize() override;
+   virtual StatusCode start() override;
+   virtual StatusCode execute() override;
 
 private: // Private attributes
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;

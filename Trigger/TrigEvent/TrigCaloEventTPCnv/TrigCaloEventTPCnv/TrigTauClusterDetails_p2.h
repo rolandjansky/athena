@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -26,7 +26,7 @@ class TrigTauClusterDetails_p2
   
  private:
   
-        float m_allEMFloats[20];
+        float m_allEMFloats[20] = {0};
 	/**  EM Radius per sampling */
 //	  float m_EMRadius[NUMEMSAMP];
 	/**  Width in EM samplings */
@@ -38,7 +38,7 @@ class TrigTauClusterDetails_p2
 	/**  EM Energy in the Nar region (0.1x0.1) */
 //        float m_EMenergyNarrow[NUMEMSAMP];
 
-        float m_allHADFloats[15];
+        float m_allHADFloats[15] = {0};
 	/**  HAD Radius per sampling */
 //	  float m_HADRadius[NUMHADSAMP];
 	/**  Width in HAD samplings */

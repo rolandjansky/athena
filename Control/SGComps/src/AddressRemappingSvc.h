@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGCOMPS_ADDRESSREMAPPINGSVC_H
@@ -21,6 +21,7 @@
 #include "AthenaKernel/RCUObject.h"
 #include "AthenaBaseComps/AthService.h"
 #include "SGTools/TransientAddress.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 #include <string>
@@ -51,7 +52,7 @@ public:
 
 public: // Non-static members
    /// Required of all Gaudi services:
-   virtual StatusCode initialize() override;
+   virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
    /// Required of all Gaudi services:
    virtual StatusCode finalize() override;
 
@@ -126,7 +127,7 @@ private:
    /**
     * @brief Set up input rename mappings during initialization.
     */
-   StatusCode initInputRenames();
+   StatusCode initInputRenames ATLAS_NOT_THREAD_SAFE ();
    StatusCode renameTads (IAddressProvider::tadList& tads);
 
    void initDeletes();

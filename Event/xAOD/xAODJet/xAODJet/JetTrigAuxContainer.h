@@ -1,12 +1,12 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_JETTRIGAUXCONTAINER_H
 #define XAODJET_JETTRIGAUXCONTAINER_H
-#ifndef SIMULATIONBASE
+
 // Local include(s):
 #include "xAODJet/versions/JetTrigAuxContainer_v2.h"
 
@@ -25,5 +25,4 @@ namespace xAOD {
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::JetTrigAuxContainer, 1285854532, 1 )
 
-#endif //SIMULATIONBASE
-#endif // XAODJET_JETAUXCONTAINER_H
+#endif // XAODJET_JETTRIGAUXCONTAINER_H

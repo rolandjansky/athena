@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -24,7 +24,6 @@
 
 //MuonReadoutGeometry
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 //MuonCalibITools
 #include "MuonCalibITools/IIdToFixedIdTool.h"
@@ -79,8 +78,8 @@ StatusCode BarrelSecondCoordinatePreparationTool::initialize(void) {
 /////////////
   ATH_MSG_INFO( "Initializing tool..." );
 
-// muon detector manager //
-  ATH_CHECK( detStore()->retrieve(m_detMgr) );
+//retrieve detector manager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
 // muon fixed id tool //
   ATH_CHECK( toolSvc()->retrieveTool("MuonCalib::IdToFixedIdTool",
@@ -222,6 +221,13 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
   vector<int> in_seg_sector;
   vector<int> num_hits_same_layer;
 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return false; 
+  } 
+
   vector<MuonCalibRawRpcHit *>::iterator raw_it = raw_hits.begin();
   while (raw_it != raw_hits.end()) {
     bool bad_hit = false;
@@ -317,7 +323,7 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
   for (unsigned int l=0; l<MDT_segment.mdtHOT().size(); l++) {
     MuonFixedId ID(MDT_segment.mdtHOT()[l]->identify());
     Identifier atl_id = m_id_tool->fixedIdToId(ID);
-    const MuonGM::MdtReadoutElement *MdtRoEl = m_detMgr->getMdtReadoutElement(atl_id);
+    const MuonGM::MdtReadoutElement *MdtRoEl = MuonDetMgr->getMdtReadoutElement(atl_id);
     double tube_length(MdtRoEl->tubeLength(atl_id));
     
     Amg::Vector3D loc_position(MDT_segment.mdtHOT()[l]->localPosition());

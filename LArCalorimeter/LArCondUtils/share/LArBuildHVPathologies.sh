@@ -35,12 +35,13 @@ fi
 echo " Produce HV pathology DB from input file " $inputTextFile
 echo " IoV start to use for UPD4 tag " ${runStart} ${lbStart}
 
+# Fix me !!! Get it automatically
 upd1TagName="LARHVPathologiesOflPathologies-RUN2-UPD1-00"
-upd4TagName="LARHVPathologiesOflPathologies-RUN2-UPD4-01"
+upd4TagName="LARHVPathologiesOflPathologies-RUN2-UPD4-02"
 
 echo " Run athena to produce sqlite file"
 
-athena.py -c "InputFile=\"${inputTextFile}\";tagName=\"${upd1TagName}\"" LArCondUtils/LArHVPathologyDbWrite.py > write.log 2>&1
+athena.py -c "RunNumber=$runStart;LBNumber=$lbStart;InputFile=\"${inputTextFile}\";tagName=\"${upd1TagName}\"" LArCondUtils/LArHVPathologyDbWrite.py > write.log 2>&1
 
 if [ $? -ne 0 ];  then
     echo " Athena reported an error! Please check write.log!"
@@ -56,7 +57,7 @@ fi
 
 echo " Run athena to test sqlite file reading"
 
-athena.py  LArCondUtils/LArHVPathologyDbRead.py > read.log 2>&1
+athena.py  -c 'inputsqlite="larhvpathology.db";' LArCondUtils/LArHVPathologyDbRead.py > read.log 2>&1
 
 if [ $? -ne 0 ];  then
     echo " Athena reported an error! Please check read.log!"

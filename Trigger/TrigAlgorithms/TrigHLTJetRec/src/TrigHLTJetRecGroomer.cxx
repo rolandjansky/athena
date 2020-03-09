@@ -13,7 +13,7 @@
 
 TrigHLTJetRecGroomer::TrigHLTJetRecGroomer(const std::string& name,
                                            ISvcLocator* pSvcLocator)
-    : TrigHLTJetRecFromCluster(name,pSvcLocator)
+  : TrigHLTJetRecFromCluster(name,pSvcLocator),m_jetTrimTool("",this)
 {
     declareProperty("jetTrimTool",m_jetTrimTool);
 }

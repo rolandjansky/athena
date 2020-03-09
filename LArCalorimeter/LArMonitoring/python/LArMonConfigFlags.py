@@ -12,9 +12,7 @@
 
 __author__ = "P. Strizenec"
 __version__= "$Revision: 0.1 $"
-__doc__    = "LArMonConfigFlags"
-
-__all__    = [ "LArMonConfigFlags" ]
+__doc__    = "create LArMonConfigFlags"
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 

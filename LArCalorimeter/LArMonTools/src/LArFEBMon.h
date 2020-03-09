@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONTOOLS_LARFEBMON_H
@@ -73,8 +73,6 @@ private:
   std::vector<int> m_febInErrorTree;
   std::vector<int> m_febErrorTypeTree;
   
-  // a handle on StoreGate 
-  //   StoreGateSvc* m_storeGate;
   const LArOnlineID* m_onlineHelper;
   LArOnlineIDStrHelper* m_strHelper;
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MissingFEBKey", "LArBadFeb", "SG key for missing FEBs"};

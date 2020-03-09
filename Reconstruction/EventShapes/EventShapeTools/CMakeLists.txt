@@ -28,7 +28,7 @@ atlas_add_library( EventShapeToolsLib
                    PUBLIC_HEADERS EventShapeTools
                    INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${FASTJET_LIBRARIES} AsgTools GaudiKernel EventShapeInterface JetRec JetInterface
+                   LINK_LIBRARIES ${FASTJET_LIBRARIES} AsgTools GaudiKernel EventShapeInterface JetRecLib JetInterface
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODEventShape JetEDM )
 
 atlas_add_component( EventShapeTools

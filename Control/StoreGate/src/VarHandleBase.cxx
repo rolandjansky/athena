@@ -964,11 +964,11 @@ namespace SG {
   {
     if (m_key->isEventStore()) {
       if (ctx)
-        return ctx->getExtension<Atlas::ExtendedEventContext>().proxy();
+        return Atlas::getExtendedEventContext(*ctx).proxy();
       if (m_storeWasSet && m_store) return m_store;
 
-      if ( Gaudi::Hive::currentContext().hasExtension<Atlas::ExtendedEventContext>() ) {
-        return  Gaudi::Hive::currentContext().getExtension<Atlas::ExtendedEventContext>().proxy();
+      if ( Atlas::hasExtendedEventContext (Gaudi::Hive::currentContext()) ) {
+        return Atlas::getExtendedEventContext (Gaudi::Hive::currentContext()).proxy();
       } else {
         return nullptr;
       }
@@ -999,7 +999,7 @@ namespace SG {
     }
     m_store = storeFromHandle (ctx);
     m_storeWasSet = (ctx && m_store ==
-                     ctx->getExtension<Atlas::ExtendedEventContext>().proxy());
+                     Atlas::getExtendedEventContext(*ctx).proxy());
     return true;
   }
 

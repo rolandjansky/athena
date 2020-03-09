@@ -1,12 +1,13 @@
 """Define methods to configure ReadCalibChipDataTool
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ReadCalibChipDataTool
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipNoiseCondAlg
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipGainCondAlg
+SCT_ReadCalibChipDataTool=CompFactory.SCT_ReadCalibChipDataTool
+SCT_ReadCalibChipNoiseCondAlg=CompFactory.SCT_ReadCalibChipNoiseCondAlg
+SCT_ReadCalibChipGainCondAlg=CompFactory.SCT_ReadCalibChipGainCondAlg
 
 def SCT_ReadCalibChipDataToolCfg(flags, name="InDetSCT_ReadCalibChipDataTool", **kwargs):
     """Return a ReadCalibChipDataTool configured for SCT"""
@@ -20,9 +21,21 @@ def SCT_ReadCalibChipDataCfg(flags, name="SCT_ReadCalibChip", **kwargs):
     acc = ComponentAccumulator()
     # folders
     noiseFolder = kwargs.get("noiseFolder", "/SCT/DAQ/Calibration/ChipNoise")
-    acc.merge(addFoldersSplitOnline(flags, "SCT", noiseFolder, noiseFolder, "CondAttrListCollection"))
     gainFolder = kwargs.get("gainFolder", "/SCT/DAQ/Calibration/ChipGain")
-    acc.merge(addFoldersSplitOnline(flags, "SCT", gainFolder, gainFolder, "CondAttrListCollection"))
+    if flags.Overlay.DataOverlay:
+        forceDb="OFLP200"
+        noiseTag="SctDaqCalibrationChipNoise-Apr10-01"
+        gainTag="SctDaqCalibrationChipGain-Apr10-01"
+    else:
+        forceDb=None
+        noiseTag=None
+        gainTag=None
+
+    acc.merge(addFoldersSplitOnline(flags, "SCT", noiseFolder, noiseFolder, "CondAttrListCollection",
+                                    forceDb=forceDb, tag=noiseTag))
+    acc.merge(addFoldersSplitOnline(flags, "SCT", gainFolder, gainFolder, "CondAttrListCollection",
+                                    forceDb=forceDb, tag=gainTag))
+
     # Algorithms
     noiseAlg = SCT_ReadCalibChipNoiseCondAlg(name=name + "NoiseCondAlg", ReadKey=noiseFolder)
     acc.addCondAlgo(noiseAlg)
@@ -31,4 +44,3 @@ def SCT_ReadCalibChipDataCfg(flags, name="SCT_ReadCalibChip", **kwargs):
     tool = kwargs.get("ReadCalibChipDataTool", SCT_ReadCalibChipDataToolCfg(flags))
     acc.setPrivateTools(tool)
     return acc
-

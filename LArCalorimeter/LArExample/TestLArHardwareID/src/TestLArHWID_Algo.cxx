@@ -13,8 +13,6 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloID.h"
 #include "CaloIdentifier/CaloCell_ID.h"

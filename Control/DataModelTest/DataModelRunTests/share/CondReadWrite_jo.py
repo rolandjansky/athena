@@ -90,8 +90,5 @@ svcMgr.IOVDbSvc.CacheAlign = 0  # VERY IMPORTANT to get unique queries for folde
 svcMgr.IOVDbSvc.CacheRun = 0
 svcMgr.IOVDbSvc.CacheTime = 0
 
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
+
+include ('DataModelRunTests/commonTrailer.py')

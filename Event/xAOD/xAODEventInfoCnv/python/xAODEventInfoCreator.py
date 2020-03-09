@@ -3,7 +3,7 @@
 # $Id: xAODEventInfoCreator.py 682548 2015-07-13 13:57:15Z krasznaa $
 
 # Import the configurable(s):
-from xAODEventInfoCnv.xAODEventInfoCnvConf import *
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 
 ## Helper function for creating xAOD::EventInfo
 def xAODEventInfoCreator( sequence = None, stream = None, key = "",
@@ -21,22 +21,20 @@ def xAODEventInfoCreator( sequence = None, stream = None, key = "",
            translated.
     """
 
-    # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
-    logger = logging.getLogger( "xAODRoICreator" )
+    logger = logging.getLogger( "xAODEventInfoCreator" )
 
     # Tell the user what's happening:
     logger.info( "Creating xAOD::EventInfo" )
 
     # Get the main sequence if necessary:
-    if sequence == None:
+    if sequence is None:
         from AthenaCommon.AlgSequence import AlgSequence
         sequence = AlgSequence()
         pass
 
     # Access the stream if necessary:
-    if stream == None:
+    if stream is None:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         stream = MSMgr.GetStream( "StreamXAOD" )
         pass

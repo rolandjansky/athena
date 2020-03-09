@@ -37,7 +37,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/Units.h"
-#include "CxxUtils/make_unique.h"
 
 #include "LArHV/LArHVManager.h"
 #include "LArHV/EMBHVManager.h"
@@ -137,9 +136,9 @@ StatusCode LArBarrelCalculator::initialize()
     {
       ATH_MSG_DEBUG(" LArBarrelCalculator: start reading of current maps");
       m_accmap = AccMap::GetAccMap();
-      m_etamap1 = CxxUtils::make_unique<MapEta>(1);
-      m_etamap2 = CxxUtils::make_unique<MapEta>(2);
-      if (m_IflMapTrans) m_etamap3 = CxxUtils::make_unique<MapEta>(3);
+      m_etamap1 = std::make_unique<MapEta>(1);
+      m_etamap2 = std::make_unique<MapEta>(2);
+      if (m_IflMapTrans) m_etamap3 = std::make_unique<MapEta>(3);
       ATH_MSG_DEBUG(" LArBarrelCalculator: end of reading current maps");
     }
   // Initialize HV values

@@ -1,13 +1,17 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthPhotonHistograms.h"
 
 using namespace egammaMonitoring;
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "xAODBase/IParticle.h"
+#include "xAODTruth/TruthParticle.h" 
+#include "xAODTruth/xAODTruthHelpers.h"
+#include <cmath>
 
 StatusCode TruthPhotonHistograms::initializePlots() {
 
@@ -34,7 +38,7 @@ void TruthPhotonHistograms::fill(const xAOD::IParticle& phrec) {
 
       float x = tmp->decayVtx()->x();
       float y = tmp->decayVtx()->y();
-      trueR = sqrt( x*x + y*y );
+      trueR = std::sqrt( x*x + y*y );
 
     }
   }

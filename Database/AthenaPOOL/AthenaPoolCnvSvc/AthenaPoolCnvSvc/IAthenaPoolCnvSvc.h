@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_IATHENAPOOLCNVSVC_H
@@ -41,17 +41,7 @@ public:
    virtual ~IAthenaPoolCnvSvc() {}
 
    /// Disconnect to the output connection.
-   virtual StatusCode disconnectOutput() = 0;
-
-   /// @return the connection specification from connected stream property.
-   virtual const std::string& getOutputConnectionSpec() const = 0;
-
-   /// @return the pool container to be used.
-   virtual std::string getOutputContainer(const std::string& typeName,
-		   const std::string& key = "") const = 0;
-
-   /// Access to the technology type for the current output connection
-   virtual pool::DbType technologyType(const std::string& containerName) const = 0;
+   virtual StatusCode disconnectOutput(const std::string& outputConnectionSpec) = 0;
 
    /// @return pointer to PoolSvc instance.
    virtual IPoolSvc* getPoolSvc() = 0;
@@ -60,7 +50,7 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   virtual Token* registerForWrite(Placement* placement, const void* obj, const RootType& classDesc) const = 0;
+   virtual Token* registerForWrite(Placement* placement, const void* obj, const RootType& classDesc) = 0;
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
@@ -96,6 +86,10 @@ public:
    /// @param refAddress [OUT] converted string form.
    virtual StatusCode convertAddress(const IOpaqueAddress* pAddress, std::string& refAddress) = 0;
 
+   /// Extract/deduce the DB technology from the connection
+   /// string/file specification
+   virtual StatusCode decodeOutputSpec(std::string& connectionSpec, int& outputTech) const = 0;
+
    /// Make this a server.
    virtual StatusCode makeServer(int num) = 0;
 
@@ -106,7 +100,7 @@ public:
    virtual StatusCode registerCleanUp(IAthenaPoolCleanUp* cnv) = 0;
 
    /// Implement cleanUp to call all registered IAthenaPoolCleanUp cleanUp() function.
-   virtual StatusCode cleanUp() = 0;
+   virtual StatusCode cleanUp(const std::string& connection) = 0;
 
    /// Set the input file attributes, if any are requested from jobOpts
    /// @param fileName [IN] name of the input file

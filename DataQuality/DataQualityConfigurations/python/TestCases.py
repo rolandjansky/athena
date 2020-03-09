@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import unittest
 import os, sys
@@ -10,7 +12,7 @@ class DQCTestCase(unittest.TestCase):
     def do_imports(self, verbose=False):
         import DataQualityConfigurations
         for i in DataQualityConfigurations.__all__:
-            if verbose: print 'Importing', i
+            if verbose: print ('Importing', i)
             modname = 'DataQualityConfigurations.%s' % i
             __import__(modname)
             self.modlist.append(sys.modules[modname])

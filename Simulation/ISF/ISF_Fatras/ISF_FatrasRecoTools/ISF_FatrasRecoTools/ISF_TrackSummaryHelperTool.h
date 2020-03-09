@@ -1,17 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_TRACKSUMMARYHELPERTOOL_H
 #define ISF_TRACKSUMMARYHELPERTOOL_H
 
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include <bitset>
+#include <stdexcept>
 
 class PixelID;
 class SCT_ID;
@@ -25,7 +28,7 @@ namespace Trk {
 }
 
 namespace iFatras {
-  class ISF_TrackSummaryHelperTool : public extends<AthAlgTool, Trk::ITrackSummaryHelperTool> {
+  class ISF_TrackSummaryHelperTool : public extends<AthAlgTool, Trk::IExtendedTrackSummaryHelperTool> {
   public:
     /** constructor */
     ISF_TrackSummaryHelperTool(const std::string&,const std::string&,const IInterface*);
@@ -34,9 +37,27 @@ namespace iFatras {
     virtual ~ISF_TrackSummaryHelperTool();
       
     /** standard AlgTool methods: initialise retrieves Tools, finalize does nothing */
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
+    /** Input : rot, tsos
+        Output: Changes in information and hitPattern
+        Input quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits in hitPattern.
+    */
+    virtual void analyse(const Trk::Track& track,
+                         const Trk::PRDtoTrackMap *prd_to_track_map,
+                         const Trk::RIO_OnTrack* rot,
+                         const Trk::TrackStateOnSurface* tsos,
+                         std::vector<int>& information,
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
+
+    virtual void analyse(const Trk::Track& track,
+                         const Trk::PRDtoTrackMap *prd_to_track_map,
+                         const Trk::CompetingRIOsOnTrack* crot,
+                         const Trk::TrackStateOnSurface* tsos,
+                         std::vector<int>& information,
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
+
     /** Input : rot, tsos
 	Output: Changes in information and hitPattern
 	Input: quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits inhitPattern.
@@ -44,36 +65,72 @@ namespace iFatras {
     virtual void analyse(const Trk::Track& track,
 			 const Trk::RIO_OnTrack* rot,
 			 const Trk::TrackStateOnSurface* tsos,
-			 std::vector<int>& information, 
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const ;
-    
+			 std::vector<int>& information,
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override
+    {
+      analyse(track,nullptr,rot,tsos,information,hitPattern);
+    }
+
     /** Not used --> running with RIO_OnTrack only
     */
     virtual void analyse(const Trk::Track& track,
 			 const Trk::CompetingRIOsOnTrack* crot,
 			 const Trk::TrackStateOnSurface* tsos,
-			 std::vector<int>& information, 
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const;
-  
+			 std::vector<int>& information,
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override
+    {
+      analyse(track,nullptr, crot,tsos,information,hitPattern);
+    }
+
     /** Not used --> HoleSearchTool not used
     */
-    void searchForHoles(const Trk::Track& track, 
+    virtual
+    void searchForHoles(const Trk::Track& track,
 			std::vector<int>& information ,
-			const Trk::ParticleHypothesis partHyp = Trk::pion) const ;
-  
-    /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
-    void updateSharedHitCount(const Trk::Track& track, Trk::TrackSummary& summary) const;
+			const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
+
+      /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
+    virtual void updateSharedHitCount(const Trk::Track& track,
+                                      const Trk::PRDtoTrackMap *prd_to_track_map,
+                                      Trk::TrackSummary& summary) const override;
+
+  /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
+    virtual
+    void updateSharedHitCount(const Trk::Track& /*track*/,
+                              Trk::TrackSummary& /*summary*/) const override
+    {
+      ATH_MSG_DEBUG("updateSharedHitCount not implemented !!");
+    }
+
     /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */
-    void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const;
+    virtual
+    void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const override;
     /** This method updates the expect... hit info*/
-    void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const;
+    virtual
+    void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const override;
     
     /** @copydoc Trk::ITrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&)*/
     
-    virtual void addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&) const;
+    virtual void addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&) const override;
     
     
   private:
+
+    inline
+    bool isShared(const Trk::PRDtoTrackMap *prd_to_track_map,
+                  const Trk::PrepRawData& prd) const {
+      if (prd_to_track_map) {
+        return prd_to_track_map->isShared(prd);
+      }
+      else {
+        if (!m_assoTool.isEnabled()) {
+          throw std::logic_error("Shared hits to be computed but no PRDtoTrack provided "
+                                 " (and no association tool configured (deprecated))");
+        }
+        return m_assoTool->isShared(prd);
+      }
+    }
+
     /**ID pixel helper*/
     bool m_usePixel;
     const PixelID* m_pixelId;

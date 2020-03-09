@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,6 +17,9 @@
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
+
+// Amg include
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 	
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG
@@ -30,14 +33,13 @@ do {                                         \
 } while( 0 )
 	
 xAODTrackParticleAuxContainerCnv_v1::xAODTrackParticleAuxContainerCnv_v1()
-    : T_AthenaPoolTPCnvBase< xAOD::TrackParticleAuxContainer, xAOD::TrackParticleAuxContainer_v1 >() 
 {
 }
 	
 void xAODTrackParticleAuxContainerCnv_v1::
 persToTrans(  const xAOD::TrackParticleAuxContainer_v1* oldObj, 
               xAOD::TrackParticleAuxContainer* newObj,
-              MsgStream& log ) {
+              MsgStream& log ) const {
 	
   // Greet the user:
   ATH_MSG( "Converting xAOD::TrackParticleAuxContainer_v1 to current version..." );
@@ -67,6 +69,8 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v1* oldObj,
   unsigned int index=0;
   float x,y;
   uint8_t numberOfBLayerHits=0,numberOfBLayerSharedHits=0,numberOfBLayerOutliers=0,numberOfBLayerSplitHits=0,expectBLayerHit=0;
+  std::vector<float> covMatrixVec;
+
   for( size_t i = 0; i < oldInt.size(); ++i ) {
     index=0;
     if (oldInt[ i ]->indexOfParameterAtPosition (index, xAOD::FirstMeasurement)){
@@ -78,11 +82,11 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v1* oldObj,
     }
     
 
-    static SG::AuxElement::ConstAccessor< uint8_t > numberOfBLayerHitsAcc( "numberOfBLayerHits" );
-    static SG::AuxElement::ConstAccessor< uint8_t > numberOfBLayerSharedHitsAcc( "numberOfBLayerSharedHits" );
-    static SG::AuxElement::ConstAccessor< uint8_t > numberOfBLayerOutliersAcc( "numberOfBLayerOutliers" );
-    static SG::AuxElement::ConstAccessor< uint8_t > numberOfBLayerSplitHitsAcc( "numberOfBLayerSplitHits" );
-    static SG::AuxElement::ConstAccessor< uint8_t > expectBLayerHitAcc( "expectBLayerHit" );
+    static const SG::AuxElement::ConstAccessor< uint8_t > numberOfBLayerHitsAcc( "numberOfBLayerHits" );
+    static const SG::AuxElement::ConstAccessor< uint8_t > numberOfBLayerSharedHitsAcc( "numberOfBLayerSharedHits" );
+    static const SG::AuxElement::ConstAccessor< uint8_t > numberOfBLayerOutliersAcc( "numberOfBLayerOutliers" );
+    static const SG::AuxElement::ConstAccessor< uint8_t > numberOfBLayerSplitHitsAcc( "numberOfBLayerSplitHits" );
+    static const SG::AuxElement::ConstAccessor< uint8_t > expectBLayerHitAcc( "expectBLayerHit" );
 
     if( numberOfBLayerHitsAcc.isAvailable( *( oldInt[ i ] ) ) ) {
 
@@ -117,6 +121,19 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v1* oldObj,
       newInt[ i ]->setSummaryValue( expectBLayerHit ,xAOD::expectInnermostPixelLayerHit);
       
     }
+
+
+    static const SG::AuxElement::ConstAccessor< std::vector<float> > definingParametersCovMatrixAcc( "definingParametersCovMatrix" );
+
+    if( definingParametersCovMatrixAcc.isAvailable( *( oldInt[ i ] ) ) ) {
+
+      covMatrixVec = definingParametersCovMatrixAcc( *( oldInt[ i ] ) );
+      xAOD::ParametersCovMatrix_t cov;
+      Amg::expand( covMatrixVec.begin(), covMatrixVec.end(),cov );
+      newInt[ i ]->setDefiningParametersCovMatrix(cov);
+
+    }
+
   }
   
   // FIXME - what do we do about the identifier?
@@ -133,7 +150,7 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v1* oldObj,
 ///
 void xAODTrackParticleAuxContainerCnv_v1::transToPers( const xAOD::TrackParticleAuxContainer*,
                                                        xAOD::TrackParticleAuxContainer_v1*,
-                                                       MsgStream& log ) {
+                                                       MsgStream& log ) const {
 	
   log << MSG::ERROR
       << "Somebody called xAODTrackParticleAuxContainerCnv_v1::transToPers"

@@ -58,7 +58,6 @@ myOutStream = AthenaPoolOutputStream( "myOutStream" )
 myOutStream.EvtConversionSvc = "AthenaPoolCnvSvc"
 myOutStream.OutputFile = "boosted.pool.root"
 myOutStream.ItemList += [ "EventInfo#*", "McEventCollection#*" ]
-myOutStream.ForceRead=TRUE
 
 ##################################################
 # Do consistency checks                          #

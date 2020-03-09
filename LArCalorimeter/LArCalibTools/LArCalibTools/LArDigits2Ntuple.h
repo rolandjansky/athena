@@ -6,6 +6,8 @@
 #define LARDIGITS2NTUPLE_H
 
 #include "LArCalibTools/LArCond2NtupleBase.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArDigits2Ntuple : public LArCond2NtupleBase
 {
@@ -30,6 +32,11 @@ class LArDigits2Ntuple : public LArCond2NtupleBase
   NTuple::Item<short> m_gain;
   NTuple::Item<long> m_IEvent;
   NTuple::Array<short>  m_samples;
+  NTuple::Item<long> m_bcid;
+
+  bool m_fillBCID;
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey { this, "EventInfoKey", "EventInfo", "SG for EventInfo Key" };
+
 };
 
 #endif

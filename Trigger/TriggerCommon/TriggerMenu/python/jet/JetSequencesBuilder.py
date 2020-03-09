@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ This module sets up the algorithm lists for sequences, and supplies
 the list with a name (alias) which will be used later in the construction
@@ -30,7 +32,6 @@ sequence of sequences.
 """
 
 from TriggerMenu.commonUtils  import makeCaloSequences
-from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
 
 class AlgList(object):
     def __init__(self, alg_list, alias, attach_to=''):
@@ -92,7 +93,6 @@ class JetSequencesBuilder(object):
                        'cmfs2': self.make_cmfs2,  # cluster maker full scan
                        'ed': self.make_ed,  # energy density
                        'sk': self.make_sk,  # SoftKiller
-                       'ftk': self.make_ftk,  # run algos for ftk track finding and xaod conversion
                        'tm': self.make_tm, # track moments helper
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
@@ -156,8 +156,6 @@ class JetSequencesBuilder(object):
             # ('tc', 'FS'): ['fs', 'cmfs', 'ed', 'jr'],
             #('tc', 'FS', False): ['fs2', 'ed', 'jr'],
             ('tc','FS',False,'notrk'): ['fs2','cmfs1','cmfs2','ed','jr'],
-            ('tc','FS',False,'ftk'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
-            ('tc','FS',False,'ftkrefit'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
             ('tc', 'PS', False, 'notrk'): ['ps', 'cm', 'jr'],
             ('ion', 'FS', False, 'notrk'): ['fs2','cmfs1','hicm','hijr'],
@@ -165,8 +163,6 @@ class JetSequencesBuilder(object):
             ('tc', 'FS', True, 'notrk'): ['fs2', 'cmfs1', 'cmfs2','ed', 'tr'],
             # SoftKiller topoclusters, no need for EventDensity for rho*area subtraction
             ('sktc','FS',False, 'notrk'):    ['fs2','cmfs1','cmfs2','sk','jr'],
-            ('sktc','FS',False, 'ftk'):      ['fs2','cmfs1','cmfs2','sk','ftk','tm','jr'],
-            ('sktc','FS',False,' ftkrefit'): ['fs2','cmfs1','cmfs2','sk','ftk','tm','jr'],
             }.get((data_type,
                    scan_type,
                    do_trimming,trkopt), [])
@@ -293,25 +289,6 @@ class JetSequencesBuilder(object):
 
         return AlgList(algs, alias=alias)
 
-    def make_ftk(self):
-        """Return FTK sequence"""
-        alias = 'ftktracking'
-        
-        ftkopt = self.chain_config.menu_data.trkopt
-        if ftkopt == 'ftk': 
-            ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
-        elif ftkopt == 'ftkrefit':
-            ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx", "refit"]).getSequence()
-            alias = 'ftkrefittracking'
-        ftkalgo_list = []
-
-        for seq in ftksequence_list:
-                for a in seq:
-                        print "adding ftk algo ", a
-                        ftkalgo_list.append(AlgStringProxy(a))
-
-        return AlgList(ftkalgo_list, alias=alias)
-
     def make_tm(self):
         """make track moment helpers Alglist"""
         alias = 'trkmomhelpers'
@@ -365,7 +342,6 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         fex_params = menu_data.fex_params
-        cluster_params = menu_data.cluster_params
 
         alias = 'hijetrec_%s' % fex_params.fex_label
 
@@ -377,7 +353,6 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         fex_params = menu_data.fex_params
-        cluster_params = menu_data.cluster_params
 
         # set jes label according to whether the JES corrections will
         # be done by JetRecTool
@@ -455,6 +430,7 @@ class JetSequencesBuilder(object):
         if f is None:
             msg = '%s._make_jh: unknown hypotype %s' % (
                 self.__class__.__name__, hypo.hypo_type)
+            raise RuntimeError(msg)
     
         return AlgList(f(), alias)
 
@@ -462,11 +438,8 @@ class JetSequencesBuilder(object):
     def make_jh_ht(self):
         """Create an alg_list for 2015 JetRec hypo sequence"""
 
-        menu_data = self.chain_config.menu_data
-        hypo = menu_data.hypo_params
         f = self.alg_factory.hlthypo2_ht
 
-        hypo = menu_data.hypo_params
         alias = 'hthypo_%s' % self.chain_name_esc
 
         return AlgList(f(), alias)

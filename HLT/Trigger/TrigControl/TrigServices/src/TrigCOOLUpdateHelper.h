@@ -20,9 +20,9 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
-#include "EventInfo/EventID.h"
+#include "GaudiKernel/EventIDBase.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 // TDAQ includes
@@ -35,9 +35,7 @@ class IIOVDbSvc;
  * Struct to hold CLID <-> folder name mapping
  */
 struct FolderInfo {
-  FolderInfo() : clid(CLID_NULL) {}
-  FolderInfo(const CLID& cl, const std::string& k) : clid(cl), key(k) {}
-  CLID clid;
+  CLID clid{CLID_NULL};
   std::string key;
 };
 
@@ -51,7 +49,7 @@ struct FolderUpdate {
     folderIndex(entry.folderIndex),
     needsUpdate(true) {}
 
-  EventID::number_type lumiBlock;
+  EventIDBase::number_type lumiBlock;
   CTPfragment::FolderIndex folderIndex;
   bool needsUpdate;
 };
@@ -104,7 +102,7 @@ private:
    * @param currentRun Current run number
    * @param dropObject Drop object and reset cache
    */
-  StatusCode resetFolder(const std::string& folder, EventID::number_type currentRun,
+  StatusCode resetFolder(const std::string& folder, EventIDBase::number_type currentRun,
                          bool dropObject = false);
 
   /**
@@ -113,7 +111,7 @@ private:
    * @param currentRun Current run number
    * @param dropObject Drop object and reset cache
    */
-  StatusCode resetFolders(const std::vector<std::string>& folders, EventID::number_type currentRun,
+  StatusCode resetFolders(const std::vector<std::string>& folders, EventIDBase::number_type currentRun,
                           bool dropObject = false);
 
   /// CLID/name mapping of COOL folders
@@ -134,7 +132,10 @@ private:
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", {}, "Monitoring tool"};
 
   Gaudi::Property<std::string> m_coolFolderName{
-    this, "coolFolder", {}, "Name of COOL folder containing folder map"};
+    this, "CoolFolderMap", {}, "Name of COOL folder containing folder map"};
+
+  Gaudi::Property<std::vector<std::string>> m_folders{
+    this, "Folders", {}, "List of folders that can be updated during the run"};
 
   Gaudi::Property<uint32_t> m_ctpRobId{
     this, "CtpRobId", 0x770001, "ROB ID of CTP fragment containing the extra payload"};

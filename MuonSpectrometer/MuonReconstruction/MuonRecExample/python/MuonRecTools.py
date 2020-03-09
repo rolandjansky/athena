@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
@@ -7,17 +7,18 @@ from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
 from AthenaCommon.Constants import *
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
-from MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude,ExtraFlags
+from MuonRecExample.MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude,ExtraFlags
 
-from MuonRecFlags import muonRecFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.setDefaults()
 
-from MuonStandaloneFlags import muonStandaloneFlags
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 muonStandaloneFlags.setDefaults()
 
 from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
@@ -32,6 +33,8 @@ from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicT
 # temporarily for backwards compat. TO BE REMOVED
 from AthenaCommon.CfgGetter import addTool,addToolClone,addService
 
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 #--------------------------------------------------------------------------------
 # Hit-on-track creation tools
@@ -91,7 +94,6 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
         kwargs.setdefault("DoTofCorrection", True)
         kwargs.setdefault("DoFixedError", False)
         kwargs.setdefault("DoErrorScaling", False)
-        kwargs.setdefault("MuonTofTool", None)
         kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))  # MJW: should this be Collision_G4 ???
         kwargs.setdefault("UseParametrisedError", False)
 
@@ -113,7 +115,6 @@ def MdtTubeHitOnTrackCreator(name="MdtTubeHitOnTrackCreator",**kwargs):
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
 
 def MdtDriftCircleOnTrackCreatorStau(name="MdtDriftCircleOnTrackCreatorStau",**kwargs ):
-    kwargs.setdefault("MuonTofTool", getPublicTool("StauBetaTofTool") )
     kwargs.setdefault("TimingMode", 3 )
     kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_t0fit') )
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
@@ -174,6 +175,7 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
     getPublicTool("MuonHoughPatternTool") 
     if muonStandaloneFlags.reconstructionMode() == 'collisions':  
         kwargs.setdefault("MDT_TDC_cut", False)
+    if muonStandaloneFlags.reconstructionMode() == 'collisions' or TriggerFlags.MuonSlice.doTrigMuonConfig:  
         kwargs.setdefault("RecordAll",False)
     return CfgMgr.Muon__MuonHoughPatternFinderTool(name,**kwargs) 
 
@@ -230,20 +232,31 @@ def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
     return CfgMgr.Trk__Extrapolator(name,**kwargs)
 # end of factory function MuonExtrapolator
 
+def MuonIdHelperTool(name="MuonIdHelperTool",**kwargs):
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
+    getService("MuonIdHelperSvc")
+    return Muon__MuonIdHelperTool(name,**kwargs)
+
+def MuonIdHelperSvc(name="MuonIdHelperSvc",**kwargs):
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
+    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC())
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC())
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM())
+    return Muon__MuonIdHelperSvc(name,**kwargs)
+
 def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
     kwargs.setdefault("Propagators",["Trk::STEP_Propagator/MuonStraightLinePropagator"])
     kwargs.setdefault("STEP_Propagator","Trk::STEP_Propagator/MuonStraightLinePropagator")
     return MuonExtrapolator(name,**kwargs)
 
-def MuonEDMHelperTool(name='MuonEDMHelperTool',**kwargs):
+def MuonEDMHelperSvc(name='MuonEDMHelperSvc',**kwargs):
     # configure some tools that are used but are not declared as properties (they should be!)
     getPublicTool("MuonIdHelperTool")
-    getPublicTool("MuonExtrapolator")
     getPublicTool("AtlasExtrapolator")
 
-    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperTool
-    return Muon__MuonEDMHelperTool(name,**kwargs)
-# end of factory function MuonEDMHelperTool
+    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+    return Muon__MuonEDMHelperSvc(name,**kwargs)
+# end of factory function MuonEDMHelperSvc
 
 from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMPrinterTool
 class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
@@ -252,15 +265,12 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
     def __init__(self,name='MuonEDMPrinterTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
         super(MuonEDMPrinterTool,self).__init__(name,**kwargs)
-        getPublicTool("MuonIdHelperTool")
-        getPublicTool("MuonEDMHelperTool")
+        kwargs.setdefault("MuonIdHelperTool", "MuonIdHelperTool")
+        getService("MuonEDMHelperSvc")
 # end of class MuonEDMPrinterTool
 
 
-def MuonTrackSummaryHelper(name="MuonTrackSummaryHelper",**kwargs):
-    AtlasTrackingGeometrySvc = getService("AtlasTrackingGeometrySvc")
-    kwargs.setdefault("TrackingGeometryName", AtlasTrackingGeometrySvc.TrackingGeometryName)
-    kwargs.setdefault("DoHolesOnTrack", False)
+def MuonTrackSummaryHelperTool(name="MuonTrackSummaryHelperTool",**kwargs):
     kwargs.setdefault("CalculateCloseHits", True)
 
     from MuonTrackSummaryHelperTool.MuonTrackSummaryHelperToolConf import Muon__MuonTrackSummaryHelperTool
@@ -275,7 +285,7 @@ class MuonTrackSummaryTool(Trk__TrackSummaryTool,ConfiguredBase):
 
     def __init__(self,name="MuonTrackSummaryTool",**kwargs):
         self.applyUserDefaults(kwargs,name)
-        kwargs.setdefault("MuonSummaryHelperTool", "MuonTrackSummaryHelper" )
+        kwargs.setdefault("MuonSummaryHelperTool", "MuonTrackSummaryHelperTool" )
         kwargs.setdefault("doSharedHits", False )
         kwargs.setdefault("AddDetailedMuonSummary", True )
         super(MuonTrackSummaryTool,self).__init__(name,**kwargs)
@@ -395,6 +405,10 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     kwargs.setdefault("UsePreciseError", True)
     kwargs.setdefault("SinAngleCut", 0.4)
 
+    #MDT conditions information not available online
+    if(athenaCommonFlags.isOnline):
+        kwargs.setdefault("MdtCondKey","")
+
     # MuonCompetingClustersCreator apparently just takes default
     kwargs.setdefault("MuonClusterCreator", getPrivateTool("MuonClusterOnTrackCreator") )
     
@@ -434,7 +448,10 @@ def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwa
 # end of factory function DCMathSegmentMaker
 
 def MuonLayerHoughTool(name='MuonLayerHoughTool',extraFlags=None,**kwargs):
-    kwargs.setdefault("DoTruth", rec.doTruth() )
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("DoTruth", False)
+    else:
+        kwargs.setdefault("DoTruth", rec.doTruth())
     return CfgMgr.Muon__MuonLayerHoughTool(name,**kwargs)
 
 def MuonSegmentFittingTool(name='MuonSegmentFittingTool',extraFlags=None,**kwargs):
@@ -458,8 +475,9 @@ if DetFlags.detdescr.Muon_on() and rec.doMuon():
     getPublicTool("MuonEDMPrinterTool")
     getPublicTool("MuonSegmentMomentum")
     getPublicTool("MuonClusterOnTrackCreator")
-    getPrivateTool("CscClusterOnTrackCreator")
-    getPrivateTool("CscBroadClusterOnTrackCreator")
+    if MuonGeometryFlags.hasCSC():
+        getPrivateTool("CscClusterOnTrackCreator")
+        getPrivateTool("CscBroadClusterOnTrackCreator")
     getPublicTool("MdtDriftCircleOnTrackCreator")
     getPublicTool("MdtTubeHitOnTrackCreator")
         

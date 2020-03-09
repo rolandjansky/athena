@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import eformat
 import operator
+from functools import reduce
 
 detmaskmap = {
     'FORWARD_AFP': 'AFP',
@@ -115,7 +116,7 @@ def decodeBlack(mask, defects=False):
     return sorted(rv)
 
 def getRunMask(run):
-    from PyCool import cool, coral
+    from PyCool import cool
     dbSvc = cool.DatabaseSvcFactory.databaseService()
     # Necessary to work around COOL database lookup stupidity
     db = dbSvc.openDatabase('oracle://ATLAS_COOLPROD;dbname=CONDBR2;schema=ATLAS_COOLONL_TDAQ', True)

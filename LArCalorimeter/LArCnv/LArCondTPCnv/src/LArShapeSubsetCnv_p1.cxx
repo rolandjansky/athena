@@ -1,13 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArConditionsSubset.h"
-#undef private
-#undef protected
-
 #include "LArCondTPCnv/LArShapeSubsetCnv_p1.h"
 
 void
@@ -15,26 +10,23 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
                                   LArShapeTransType1* transObj, 
                                   MsgStream & log)
 {
+    transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
+
     // Copy conditions
-    unsigned int ncorrs        = persObj->m_subset.m_corrChannels.size();
     unsigned int nfebids       = persObj->m_subset.m_febIds.size();
     unsigned int nShapes       = persObj->m_vShapeSize;
     unsigned int nShapeDers    = persObj->m_vShapeDerSize;
     unsigned int shapeIndex    = 0;
     unsigned int shapederIndex = 0;
     
-    // resize subset to with then number of febids
-    transObj->m_subset.resize(nfebids);
-
     // Loop over febs
-    unsigned int febid        = 0;
     unsigned int ifebWithData = 0; // counter for febs with data
 
-    for (unsigned int i = 0; i < nfebids; ++i){
+    auto subsetIt = transObj->subsetBegin();
+    for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
         // Set febid
-        febid = transObj->m_subset[i].first = persObj->m_subset.m_febIds[i];
-        // Fill channels with empty shape vectors
-        transObj->m_subset[i].second.resize(NCHANNELPERFEB);
+        unsigned int febid = subsetIt->first;
+
         bool hasSparseData       = false;
         unsigned int chansSet    = 0;
         unsigned int chansOffset = 0;
@@ -80,16 +72,16 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
                 }
 
                 // This channel has shapes, resize vectors
-                transObj->m_subset[i].second[j].m_vShape.resize(nShapes);
-                transObj->m_subset[i].second[j].m_vShapeDer.resize(nShapeDers);
+                subsetIt->second[j].m_vShape.resize(nShapes);
+                subsetIt->second[j].m_vShapeDer.resize(nShapeDers);
 
                 for (unsigned int k = 0; k < persObj->m_vShapeSize; ++k){
-                    transObj->m_subset[i].second[j].m_vShape[k] = persObj->m_vShape[shapeIndex];
+                    subsetIt->second[j].m_vShape[k] = persObj->m_vShape[shapeIndex];
                     shapeIndex++;
                 }
                 // Loop over shapeders per channel
                 for (unsigned int k = 0; k < persObj->m_vShapeDerSize; ++k){
-                    transObj->m_subset[i].second[j].m_vShapeDer[k] = persObj->m_vShapeDer[shapederIndex];
+                    subsetIt->second[j].m_vShapeDer[k] = persObj->m_vShapeDer[shapederIndex];
                     shapederIndex++;
                 }
             }
@@ -108,16 +100,18 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
 
         }
     }
-    
+
     // Copy corrections
-    
+    unsigned int ncorrs        = persObj->m_subset.m_corrChannels.size();
+    LArShapeTransType1::CorrectionVec corrs;
+
     if (ncorrs) {
         // corrs exist - resize vector
         std::vector<float> vShape(nShapes,0.0);
         std::vector<float> vShapeDer(nShapeDers,0.0);
         LArShapeP1  larShapeP1(vShape, vShapeDer);
 
-        transObj->m_correctionVec.resize(ncorrs, LArShapeTransType1::CorrectionPair(0, larShapeP1));
+        corrs.resize(ncorrs, LArShapeTransType1::CorrectionPair(0, larShapeP1));
     }
 
     // Loop over corrections
@@ -132,24 +126,23 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
                 << endmsg;
             return;
         }
-        transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
+        corrs[i].first = persObj->m_subset.m_corrChannels[i];
         // Loop over shapes per channel
         for (unsigned int k = 0; k < persObj->m_vShapeSize; ++k){
-            transObj->m_correctionVec[i].second.m_vShape[k] = persObj->m_vShape[shapeIndex];
+            corrs[i].second.m_vShape[k] = persObj->m_vShape[shapeIndex];
             shapeIndex++;
         }
         // Loop over shapeders per channel
         for (unsigned int k = 0; k < persObj->m_vShapeDerSize; ++k){
-            transObj->m_correctionVec[i].second.m_vShapeDer[k] = persObj->m_vShapeDer[shapederIndex];
+            corrs[i].second.m_vShapeDer[k] = persObj->m_vShapeDer[shapederIndex];
             shapederIndex++;
         }
     }
+    transObj->insertCorrections (std::move (corrs));
 
     // Copy the rest
-    transObj->m_gain          = persObj->m_subset.m_gain; 
-    transObj->m_channel       = persObj->m_subset.m_channel;
-    transObj->m_groupingType  = persObj->m_subset.m_groupingType;
-
+    transObj->setChannel       (persObj->m_subset.m_channel);
+    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 
@@ -160,7 +153,6 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
                                   LArShapePersType1* persObj, 
                                   MsgStream &log) 
 {
-    
     // Copy conditions
 
     // We copy all shapes into a single vector and the same for
@@ -194,9 +186,8 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
     //
 
     // Get the number of channels, corrections and the size of shape and shapeder
-    unsigned int nfebs            = transObj->m_subset.size();
     unsigned int nsubsetsNotEmpty = 0;
-    unsigned int ncorrs           = transObj->m_correctionVec.size();
+    unsigned int ncorrs           = transObj->correctionVecSize();
     unsigned int nchans           = 0;
     unsigned int nShapes          = 0;
     unsigned int nShapeDers       = 0;
@@ -205,9 +196,12 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
 
     // Find the number of shapes/shapeders and check for sparse
     // conditions, e.g. MC conditions
-    for (unsigned int i = 0; i < nfebs; ++i){
-
-        unsigned int nfebChans = transObj->m_subset[i].second.size();
+    const auto subsetEnd = transObj->subsetEnd();
+    for (auto subsetIt = transObj->subsetBegin();
+         subsetIt != subsetEnd;
+         ++subsetIt)
+    {
+        unsigned int nfebChans = subsetIt->second.size();
 
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
@@ -220,12 +214,12 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
         // Loop over channels and check if this subset has sparse data
         bool subsetIsSparse = false;
         for (unsigned int j = 0; j < nfebChans; ++j) {
-            const LArShapeP1& shape = transObj->m_subset[i].second[j];
+            const LArShapeP1& shape = subsetIt->second[j];
             if (shape.m_vShape.size() == 0) {
                 if (!subsetIsSparse) {
                     // save febids for sparse subsets
                     subsetIsSparse = true;
-                    febsWithSparseData.push_back(transObj->m_subset[i].first);
+                    febsWithSparseData.push_back(subsetIt->first);
                 }
             }
             else {
@@ -239,10 +233,10 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
             }
         }
     }
-    if (!foundNShapes) {
+    if (!foundNShapes && ncorrs > 0) {
         // Save the number of shapes and derivatives from first
         // correct - couldn't find it from channels
-            const LArShapeP1& shape = transObj->m_correctionVec[0].second;
+            const LArShapeP1& shape = transObj->correctionVecBegin()->second;
             nShapes                 = shape.m_vShape.size();
             nShapeDers              = shape.m_vShapeDer.size();
     }
@@ -274,14 +268,16 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
 
     // Copy conditions in subset
     unsigned int isparse = 0;
-    for (unsigned int i = 0; i < nfebs; ++i){
-
-        unsigned int nfebChans = transObj->m_subset[i].second.size();
+    for (auto subsetIt = transObj->subsetBegin();
+         subsetIt != subsetEnd;
+         ++subsetIt)
+    {
+        unsigned int nfebChans = subsetIt->second.size();
 
         // skip subsets without any channels
         if (nfebChans == 0) continue;
         
-        unsigned int febid = transObj->m_subset[i].first;
+        unsigned int febid = subsetIt->first;
         persObj->m_subset.m_febIds.push_back(febid);
 
 
@@ -305,7 +301,7 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
             if (isSparse) {
                 // subset with sparse data
 
-                if (transObj->m_subset[i].second[j].m_vShape.size() > 0) {
+                if (subsetIt->second[j].m_vShape.size() > 0) {
                     // store the channel number in bit map
                     if (j < chansOffset || (j - chansOffset) > 31) {
                         log << MSG::ERROR 
@@ -327,11 +323,11 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
             if (saveShapes) {
                 // save shapes
                 for (unsigned int k = 0; k < nShapes; ++k){
-                    persObj->m_vShape.push_back(transObj->m_subset[i].second[j].m_vShape[k]);
+                    persObj->m_vShape.push_back(subsetIt->second[j].m_vShape[k]);
                 }
                 // save shapeders
                 for (unsigned int k = 0; k < nShapeDers; ++k){
-                    persObj->m_vShapeDer.push_back(transObj->m_subset[i].second[j].m_vShapeDer[k]);
+                    persObj->m_vShapeDer.push_back(subsetIt->second[j].m_vShapeDer[k]);
                 }
             }
 
@@ -345,24 +341,27 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
 
         }
     }
-    
+
     // Copy corrections
-    for (unsigned int i = 0; i < ncorrs; ++i){
+    const auto corrEnd = transObj->correctionVecEnd();
+    for (auto corrIt = transObj->correctionVecBegin();
+         corrIt != corrEnd;
+         ++corrIt)
+    {
         // Save channel id in febid vector
-        persObj->m_subset.m_corrChannels.push_back(transObj->m_correctionVec[i].first);
+        persObj->m_subset.m_corrChannels.push_back(corrIt->first);
         // Shapes
         for (unsigned int k = 0; k < nShapes; ++k){
-            persObj->m_vShape.push_back(transObj->m_correctionVec[i].second.m_vShape[k]);
+            persObj->m_vShape.push_back(corrIt->second.m_vShape[k]);
         }
         // ShapeDers
         for (unsigned int k = 0; k < nShapeDers; ++k){
-            persObj->m_vShapeDer.push_back(transObj->m_correctionVec[i].second.m_vShapeDer[k]);
+            persObj->m_vShapeDer.push_back(corrIt->second.m_vShapeDer[k]);
         }
     }
 
     // Copy the rest
-    persObj->m_subset.m_gain          = transObj->m_gain; 
-    persObj->m_subset.m_channel       = transObj->m_channel;
-    persObj->m_subset.m_groupingType  = transObj->m_groupingType;
-    
+    persObj->m_subset.m_gain          = transObj->gain(); 
+    persObj->m_subset.m_channel       = transObj->channel();
+    persObj->m_subset.m_groupingType  = transObj->groupingType();
 }

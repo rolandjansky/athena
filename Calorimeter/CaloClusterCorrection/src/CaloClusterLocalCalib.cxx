@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloClusterCorrection/CaloClusterLocalCalib.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ListItem.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //Needed for abs option
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -94,8 +93,8 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
         
         double oldEnergy = theCluster->e();           
         
-        const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance(); 
-        const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();   
+        const CaloCell_ID*               calo_id  = nullptr;
+        ATH_CHECK(detStore()->retrieve(calo_id,"CaloCell_ID"));   
               
 //         Make new Cluster and CellColl
         CaloCellContainer* myCellColl = new CaloCellContainer(SG::OWN_ELEMENTS);  

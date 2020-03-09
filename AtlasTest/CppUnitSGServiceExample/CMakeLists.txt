@@ -11,8 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/AthContainers
                           Control/StoreGate
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( CppUnitSGServiceExample )

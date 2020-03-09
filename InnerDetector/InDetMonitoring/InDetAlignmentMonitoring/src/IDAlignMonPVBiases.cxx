@@ -36,8 +36,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "xAODEventInfo/EventInfo.h"
 
 //#include "AthenaMonitoring/AthenaMonManager.h"
 #include "IDAlignMonPVBiases.h"
@@ -169,7 +167,9 @@ StatusCode IDAlignMonPVBiases::initialize()
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelection << endmsg;
   }
 
-  ATH_CHECK( m_vertexKey.initialize() );
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_trackParticleKey.initialize());
+  ATH_CHECK(m_vertexKey.initialize());  
 /*
   //create tree and branches
   if(m_Tree == 0) {
@@ -247,7 +247,7 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
    
 	const int nphiBins = 50;
 	const int nphiBinsMap = 20;
-        double maxPhi = 3.1;
+        double maxPhi = M_PI;
 
 	const int netaBins = 50; 
 	const int netaBinsMap = 20;
@@ -401,20 +401,18 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
     /////////////////////////////////////////////////
     //Histo's from IDAMonGenericTracks.cxx///////////
     /////////////////////////////////////////////////
-      const float m_Pi = 3.14156;
-  
       m_d0_pt         = new TH2F("d0_pt"       , "d0 vs pt"           , nD0Bins,d0bin,NpTbins,ptBin);
 
       m_d0_pt = new TProfile("prof", "d0 vs pT;pT (GeV);d0 (mm)", NpTbins, ptBin);
-      m_trk_d0_wrtPV_vs_phi_vs_eta         = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
-      m_trk_d0_wrtPV_vs_phi_vs_eta_barrel  = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
-      m_trk_d0_wrtPV_vs_phi_vs_eta_ecc     = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
-      m_trk_d0_wrtPV_vs_phi_vs_eta_eca     = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
+      m_trk_d0_wrtPV_vs_phi_vs_eta         = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*M_PI,  100, -0.5, 0.5 );
+      m_trk_d0_wrtPV_vs_phi_vs_eta_barrel  = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*M_PI,  100, -0.5, 0.5 );
+      m_trk_d0_wrtPV_vs_phi_vs_eta_ecc     = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*M_PI,  100, -0.5, 0.5 );
+      m_trk_d0_wrtPV_vs_phi_vs_eta_eca     = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*M_PI,  100, -0.5, 0.5 );
   
-      m_trk_z0_wrtPV_vs_phi_vs_eta         = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
-      m_trk_z0_wrtPV_vs_phi_vs_eta_barrel  = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
-      m_trk_z0_wrtPV_vs_phi_vs_eta_ecc     = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
-      m_trk_z0_wrtPV_vs_phi_vs_eta_eca     = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
+      m_trk_z0_wrtPV_vs_phi_vs_eta         = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*M_PI,  100, -1, 1 );
+      m_trk_z0_wrtPV_vs_phi_vs_eta_barrel  = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*M_PI,  100, -1, 1 );
+      m_trk_z0_wrtPV_vs_phi_vs_eta_ecc     = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*M_PI,  100, -1, 1 );
+      m_trk_z0_wrtPV_vs_phi_vs_eta_eca     = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*M_PI,  100, -1, 1 );
 
       RegisterHisto(al_mon, m_d0_pt );
 
@@ -492,11 +490,10 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
   ** Event Information
   *******************************************************************/
   ATH_MSG_DEBUG("Retrieving event info.");
-  const xAOD::EventInfo * eventInfo;
-  if (evtStore()->retrieve(eventInfo).isFailure())
+  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_eventInfoKey};
+  if (not eventInfo.isValid()) {
     ATH_MSG_ERROR("Could not retrieve event info.");
-  else
-  {
+  } else {
     m_runNumber = eventInfo->runNumber();
     m_evtNumber = eventInfo->eventNumber();
     m_lumi_block = eventInfo->lumiBlock();
@@ -506,10 +503,10 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
   /******************************************************************
   ** Retrieve Trackparticles
   ******************************************************************/
-  const xAOD::TrackParticleContainer* tracks = 0;
-  if( ! evtStore()->retrieve( tracks, "InDetTrackParticles").isSuccess() ){
-	msg(MSG::WARNING) << "Failed to retrieve event info collection. Exiting." << endmsg;
-	return StatusCode::FAILURE;
+  SG::ReadHandle<xAOD::TrackParticleContainer> tracks{m_trackParticleKey};
+  if (not tracks.isValid()) {
+    msg(MSG::WARNING) << "Failed to retrieve track paritcle collection. Exiting." << endmsg;
+    return StatusCode::FAILURE;
   }
 
   /**
@@ -517,7 +514,7 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
    */
 
   SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
-  if (!vertices.isValid()) {
+  if (not vertices.isValid()) {
     ATH_MSG_WARNING( "Failed to retrieve vertex container with key " << m_vertexKey.key() );
     return StatusCode::FAILURE;
   }

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file DCubeClient/python/DCubeConfig.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
@@ -106,7 +106,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
                   fileXML.write( line+"\n" )
           fileXML.close()
           self.info("DCubeConfig has been saved to file %s" % configURI)
-        except IOError, value:
+        except IOError as value:
             msg = "creation of XML file %s failed - %s" % ( configURI, str(value) )
             self.epanic( msg )
 
@@ -129,7 +129,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
             try:
                 os.rename( fileURI, backupURI )
                 self.info("backup file %s from file %s has been created" % ( backupURI, fileURI ) )
-            except OSError, value:
+            except OSError as value:
                 msg = "creation of backup file %s failed - %s" % ( backupURI, str(value) )
                 self.epanic( msg )
         
@@ -171,7 +171,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
         try:
             self.refFileHandle = ROOT.TFile.Open( self.refFileURI, "READ" )
             self.debug("done")
-        except:
+        except Exception:
             pass
 
         if ( not self.refFileHandle ):
@@ -261,7 +261,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
         cMatch = dict( zip (whats, [False for i in range(5)] ) )
        
 
-        for k,v in cPairs.iteritems():
+        for k,v in cPairs.items():
             cliValue, xmlValue = v
             msg = "what=%-10s fromCLI=%-23s fromXML=%-23s" % ( k , cliValue, xmlValue )
             if ( cliValue.strip() == xmlValue.strip() ): 
@@ -310,7 +310,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
                                                                                                os.path.abspath( self.opts.config) ) )
 
        
-        configs = self.__config.keys()
+        configs = list(self.__config.keys())
         configs.sort( reverse=True )
         for config in configs:
             if  self.__match( runConfig, config, strict ):
@@ -476,10 +476,10 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
              os.path.getsize( configURI ) ):
             try:
                 xmldoc = xml.dom.minidom.parse( configURI )    
-            except xml.parsers.expat.ExpatError, value:
+            except xml.parsers.expat.ExpatError as value:
                 self.panic("configuration file parsing failed, %s" % str( value ) )
                 return False
-            except xml.dom.DOMException, value:
+            except xml.dom.DOMException as value:
                 self.panic("configuration file parsing failed, %s" % str( value ) )
                 return False
 
@@ -618,7 +618,7 @@ class test_DCubeConfig( unittest.TestCase ):
     def test_01_constructor( self ):
         try:
             self.config = DCubeConfig( self.parsed )
-        except:
+        except Exception:
             pass
         self.assertEqual( isinstance( self.config, DCubeConfig), True )
 
@@ -631,7 +631,7 @@ class test_DCubeConfig( unittest.TestCase ):
     # @param self "Me, myself and Irene"
     def test_03_get( self ):
         configNode = self.config.getConfig( strict = False )
-        print configNode
+        print(configNode)
         
 
 

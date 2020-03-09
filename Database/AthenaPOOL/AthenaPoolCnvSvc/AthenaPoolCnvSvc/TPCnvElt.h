@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,6 +17,7 @@
 #define ATHENAPOOLCNVSVC_TPCNVELT_H
 
 
+#include "AthenaPoolCnvSvc/T_AthenaPoolCreateFuncs.h"
 #include "PersistentDataModel/Guid.h"
 #include <typeinfo>
 #include <memory>
@@ -73,6 +74,7 @@ public:
   /**
    * @brief Read the persistent object and convert it to transient.
    * @param parent The top-level pool converter object.
+   * @param key The SG key of the object being read.
    * @param msg MsgStream for error reporting.
    *
    * Returns a newly-allocated object.
@@ -80,13 +82,15 @@ public:
    * type that this converter handles, return nullptr.
    * Other errors are reported by raising exceptions.
    */
-  Trans_t* createTransient (CNV& parent, MsgStream& msg);
+  std::unique_ptr<Trans_t>
+  createTransient (CNV& parent, const std::string& key, MsgStream& msg);
 
 
   /**
    * @brief Read the persistent object and convert it to transient.
    * @param parent The top-level pool converter object.
    * @param trans The transient object to modify.
+   * @param key The SG key of the object being read.
    * @param msg MsgStream for error reporting.
    *
    * Overwrites the provided transient object.
@@ -94,7 +98,7 @@ public:
    * type that this converter handles, returns false.
    * Other errors are reported by raising exceptions.
    */
-  bool persToTrans (CNV& parent, Trans_t* trans, MsgStream& msg);
+  bool persToTrans (CNV& parent, Trans_t* trans, const std::string& key, MsgStream& msg);
 
   
 private:
@@ -128,6 +132,7 @@ public:
   /**
    * @brief Read the persistent object and convert it to transient.
    * @param parent The top-level pool converter object.
+   * @param key The SG key of the object being read.
    * @param msg MsgStream for error reporting.
    *
    * Returns a newly-allocated object.
@@ -135,13 +140,15 @@ public:
    * type that this converter handles, return nullptr.
    * Other errors are reported by raising exceptions.
    */
-  Trans_t* createTransient (CNV& parent, MsgStream& msg);
+  std::unique_ptr<Trans_t>
+  createTransient (CNV& parent, const std::string& key, MsgStream& msg);
 
 
   /**
    * @brief Read the persistent object and convert it to transient.
    * @param parent The top-level pool converter object.
    * @param trans The transient object to modify.
+   * @param key The SG key of the object being read.
    * @param msg MsgStream for error reporting.
    *
    * Overwrites the provided transient object.
@@ -149,7 +156,7 @@ public:
    * type that this converter handles, returns false.
    * Other errors are reported by raising exceptions.
    */
-  bool persToTrans (CNV& parent, Trans_t* trans, MsgStream& msg);
+  bool persToTrans (CNV& parent, Trans_t* trans, const std::string& key, MsgStream& msg);
 
   
 private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -267,12 +267,7 @@ namespace Trk
     /**
      * Set method for ImpactPoint3dAtaPlane.
      */
-      void setImpactPoint3dAtaPlane(AtaPlane* myIP3dAtaPlane);
-      
-    /**
-     * Returns ImpactPoint3dAtaPlane. 
-     */
-      AtaPlane * ImpactPoint3dAtaPlane(void);
+      void setImpactPoint3dAtaPlane(const AtaPlane* myIP3dAtaPlane);
       
     /**
      * Returns ImpactPoint3dAtaPlane.(const access) 
@@ -282,12 +277,7 @@ namespace Trk
     /**
      * Set method for ImpactPoint3dNeutralAtaPlane.
      */
-      void setImpactPoint3dNeutralAtaPlane(NeutralAtaPlane* myIP3dNeutralAtaPlane);
-      
-    /**
-     * Returns ImpactPoint3dNeutralAtaPlane. 
-     */
-      NeutralAtaPlane * ImpactPoint3dNeutralAtaPlane(void);
+      void setImpactPoint3dNeutralAtaPlane(const NeutralAtaPlane* myIP3dNeutralAtaPlane);
       
     /**
      * Returns ImpactPoint3dNeutralAtaPlane.(const access) 
@@ -362,8 +352,8 @@ namespace Trk
      * Needed by the IVertexTrackCompatibilityEstimator to estimate in a faster way    
      * the compatibility of a vertex with the track.				       
      */ 									       
-      AtaPlane * m_ImpactPoint3dAtaPlane;
-      NeutralAtaPlane * m_ImpactPoint3dNeutralAtaPlane;
+      const AtaPlane * m_ImpactPoint3dAtaPlane;
+      const NeutralAtaPlane * m_ImpactPoint3dNeutralAtaPlane;
   
 //hacks related to the new link structure
       ITrackLink * m_trackOrParticleLink;  
@@ -403,33 +393,23 @@ namespace Trk
     return new VxTrackAtVertex(*this);
   }
 
-  inline void VxTrackAtVertex::setImpactPoint3dAtaPlane(AtaPlane * myIP3dAtaPlane)
+  inline void VxTrackAtVertex::setImpactPoint3dAtaPlane(const AtaPlane * myIP3dAtaPlane)
   { 
     if (m_ImpactPoint3dAtaPlane != 0) delete m_ImpactPoint3dAtaPlane;
     m_ImpactPoint3dAtaPlane=myIP3dAtaPlane;
   }  
 
-  inline AtaPlane * VxTrackAtVertex::ImpactPoint3dAtaPlane(void)
-  {
-    return m_ImpactPoint3dAtaPlane;
-  }
- 
   inline const AtaPlane * VxTrackAtVertex::ImpactPoint3dAtaPlane(void) const
   {
     return m_ImpactPoint3dAtaPlane;
   }
 
-  inline void VxTrackAtVertex::setImpactPoint3dNeutralAtaPlane(NeutralAtaPlane * myIP3dNeutralAtaPlane)
+  inline void VxTrackAtVertex::setImpactPoint3dNeutralAtaPlane(const NeutralAtaPlane * myIP3dNeutralAtaPlane)
   { 
     if (m_ImpactPoint3dNeutralAtaPlane != 0) delete m_ImpactPoint3dNeutralAtaPlane;
     m_ImpactPoint3dNeutralAtaPlane=myIP3dNeutralAtaPlane;
   }  
 
-  inline NeutralAtaPlane * VxTrackAtVertex::ImpactPoint3dNeutralAtaPlane(void)
-  {
-    return m_ImpactPoint3dNeutralAtaPlane;
-  }
- 
   inline const NeutralAtaPlane * VxTrackAtVertex::ImpactPoint3dNeutralAtaPlane(void) const
   {
     return m_ImpactPoint3dNeutralAtaPlane;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // SelectedParticlesCnv_p1.h 
@@ -25,49 +25,36 @@
 class MsgStream;
 class SelectedParticles;
 
-class SelectedParticlesCnv_p1 : public T_AthenaPoolTPCnvBase<
+class SelectedParticlesCnv_p1 : public T_AthenaPoolTPCnvConstBase<
                                           SelectedParticles, 
                                           SelectedParticles_p1
                                        >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
   SelectedParticlesCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c SelectedParticles
    *  from its persistent representation @c SelectedParticles_p1
    */
   virtual void persToTrans( const SelectedParticles_p1* pers, 
                             SelectedParticles* trans, 
-                            MsgStream& msg ) ;
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c SelectedParticles_p1
    *  from its transient representation @c SelectedParticles
    */
   virtual void transToPers( const SelectedParticles* trans, 
                             SelectedParticles_p1* pers, 
-                            MsgStream& msg ) ;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
+                            MsgStream& msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline SelectedParticlesCnv_p1::SelectedParticlesCnv_p1()
 {}

@@ -19,7 +19,7 @@ echo $AtlasVersion
 if [ ${AtlasVersion:0:4} == "21.0" ]; then
     DetDesVer='"ATLAS-R2-2016-01-00-01"'
 elif [ ${AtlasVersion:0:4} == "21.3" ]; then
-    DetDesVer='"ATLAS-R3-2021-00-00-00"'
+    DetDesVer='"ATLAS-R3-2021-01-00-00"'
 else
     DetDesVer='"ATLAS-R2-2015-03-04-00"'
 fi

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -58,8 +58,6 @@ private:
   bool        m_dumpLarCells;
   bool        m_useCuts;
   short       m_trackType;
-
-  StoreGateSvc* m_storeGate;
 
   // TOOLHANDLES
   ToolHandle<ITrackTools> m_trackInCalo;

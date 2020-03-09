@@ -19,7 +19,8 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
 #include "RegionSelector/IRegSelSvc.h"
-
+#include "MuonRDO/TgcRdoContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 //#include "TGCcablingInterface/ITGCcablingServerSvc.h"
 //#include "TGCcablingInterface/ITGCcablingSvc.h"
@@ -46,7 +47,6 @@ namespace LVL2_MUON_CALIBRATION {
 }
 
 class RpcPad;
-class StoreGateSvc;
 class ROBDataProviderSvc;
 
 inline unsigned bcBitmap(uint16_t bcTag) { 
@@ -105,8 +105,8 @@ namespace TrigL2MuonSA {
 
   private:
 
-    Gaudi::Property< bool > m_writeToFile {
-	this, "WriteToFile", false, ""};
+    Gaudi::Property< bool > m_writeToFile { this, "WriteToFile", false, "" };
+    SG::ReadHandleKey<TgcRdoContainer> m_tgcRdoKey{this, "TgcRdoContainer", "TGCRDO", "Tgc RDO Input"};
 
     // name of the calibration buffer or of the 
     // output file
@@ -115,9 +115,6 @@ namespace TrigL2MuonSA {
 
     // output file 
     std::ofstream* m_outputFile;
-
-    // Reference to StoreGateSvc;
-    ServiceHandle<StoreGateSvc>    m_storeGate;
 
     // the region selector
     ServiceHandle<IRegSelSvc>  m_regionSelector;

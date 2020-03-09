@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigEMCluster.h"
@@ -9,7 +9,7 @@
 
 
 void TrigEMClusterCnv_p1::transToPers(const TrigEMCluster*, 
-                                     TrigEMCluster_p1*, MsgStream &log )
+                                     TrigEMCluster_p1*, MsgStream &log ) const
 {
 
   log << MSG::DEBUG << "TrigEMClusterCnv_p1::tranToPers" << endmsg;
@@ -36,7 +36,7 @@ void TrigEMClusterCnv_p1::transToPers(const TrigEMCluster*,
 }
 
 void TrigEMClusterCnv_p1::persToTrans(const TrigEMCluster_p1* pers, 
-                                     TrigEMCluster* trans, MsgStream &log )
+                                     TrigEMCluster* trans, MsgStream &log ) const
 {
 
   log << MSG::DEBUG << "TrigEMClusterCnv_p1::persToTrans" << endmsg;
@@ -57,7 +57,8 @@ void TrigEMClusterCnv_p1::persToTrans(const TrigEMCluster_p1* pers,
   trans->m_emaxs1     = pers->m_emaxs1;
   trans->m_e2tsts1    = pers->m_e2tsts1;
 
-  fillTransFromPStore( &m_trigCaloClusterCnv, pers->m_trigCaloCluster, trans, log );
+  ITPConverterFor<TrigCaloCluster>* cnv = nullptr;
+  fillTransFromPStore( &cnv, pers->m_trigCaloCluster, trans, log );
 
 
 

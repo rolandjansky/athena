@@ -48,6 +48,12 @@ printIdTrkDxAODConf = InDetDxAODFlags.PrintIdTrkDxAODConf()  # True
 # Create split-tracks if running on cosmics
 makeSplitTracks = InDetDxAODFlags.MakeSplitCosmicTracks() and athCommonFlags.Beam.beamType() == 'cosmics'
 
+# general skimming based on this string input
+skimmingExpression = InDetDxAODFlags.SkimmingExpression() # *empty string*
+
+# thinning of pixel clusters
+pixelClusterThinningExpression = InDetDxAODFlags.PixelClusterThinningExpression() # *empty string*
+
 ## Autoconfiguration adjustements
 isIdTrkDxAODSimulation = False
 if (globalflags.DataSource == 'geant4'):
@@ -313,6 +319,13 @@ if TrtZSel or TrtJSel:
         print JPSI_SkimmingTool
 
 
+if skimmingExpression: 
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    stringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "stringSkimmingTool",
+                                                                     expression = skimmingExpression)
+    
+    ToolSvc += stringSkimmingTool 
+
 
 DRAW_ZMUMU_SkimmingTool=None
 if DRAWZSel:
@@ -360,8 +373,10 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD.properties()
 
     # to store dEdx info
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    from InDetRecExample.TrackingCommon import getInDetTRT_LocalOccupancy
+    TRT_dEdx_Tool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
     ToolSvc += TRT_dEdx_Tool
 
     # to get shared hit info
@@ -412,9 +427,18 @@ if dumpPixInfo:
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDCSStateConditions=True,
+                                    UseDCSStatusConditions=True)
+
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
       condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+    if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
+      condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
 
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
@@ -578,6 +602,8 @@ if TrtJSel:
 if DRAWZSel:
   skimmingTools.append(DRAW_ZMUMU_SkimmingTool)
 
+if skimmingExpression:
+    skimmingTools.append(stringSkimmingTool)
 
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
@@ -596,12 +622,24 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningTool",
-                                                                 ThinningService         = "IDTRKThinningSvc",
+                                                                 StreamName              = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName,
                                                                  SelectionString         = thinTrackSelection,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
 ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
+
+if pixelClusterThinningExpression: 
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
+    trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning( 
+        name                          = "TrackMeasurementThinningTool",
+        ThinningService               = "IDTRKThinningSvc",
+        SelectionString               = pixelClusterThinningExpression,
+        TrackMeasurementValidationKey = "PixelClusters",
+        ApplyAnd                      = False)
+
+    ToolSvc += trackMeasurementThinningTool 
+    thinningTools.append(trackMeasurementThinningTool)
 
 #====================================================================
 # Create the derivation Kernel and setup output stream
@@ -636,10 +674,8 @@ streamName = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKVALIDStream )
 IDTRKVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDTRKVALIDStream.AcceptAlgs(["DFTSOS_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDTRKThinningSvc", outStreams=[evtStream] )
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 

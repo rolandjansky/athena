@@ -8,7 +8,7 @@ EvtMin=1 # some number
 EvtMax=1000 #9000 #100 events
 doTileFit=True
 doTileFlat=False
-doTileOpt=False
+doTileOpt2=False
 
 #**************************************************************
 #
@@ -181,8 +181,8 @@ elif TileMonoRun:
     TileRunType = 8
     if not 'doTileFlat' in dir():
         doTileFlat=True
-    if not 'doTileOpt' in dir():
-        doTileOpt=True
+    if not 'doTileOpt2' in dir():
+        doTileOpt2=True
     if not 'TileFrameLength' in dir():
         TileFrameLength=9
 
@@ -195,8 +195,8 @@ elif TileLasRun:
     TileRunType = 2
     if not 'doTileFlat' in dir():
         doTileFlat=True
-    if not 'doTileOpt' in dir():
-        doTileOpt=True
+    if not 'doTileOpt2' in dir():
+        doTileOpt2=True
     if not 'TileFrameLength' in dir():
         TileFrameLength=9
     
@@ -204,8 +204,8 @@ elif TileLedRun:
     TileRunType = 2
     if not 'doTileFlat' in dir():
         doTileFlat=True
-    if not 'doTileOpt' in dir():
-        doTileOpt=True
+    if not 'doTileOpt2' in dir():
+        doTileOpt2=True
     if not 'TileFrameLength' in dir():
         TileFrameLength=9
     
@@ -214,8 +214,8 @@ else:
         TileRunType = 1
         if not 'doTileFlat' in dir():
             doTileFlat=True
-        if not 'doTileOpt' in dir():
-            doTileOpt=True
+        if not 'doTileOpt2' in dir():
+            doTileOpt2=True
 
     if not 'TileFrameLength' in dir():
         TileFrameLength = 9; # the value we expect in single gain run
@@ -223,8 +223,8 @@ else:
     if not 'doTileFlat' in dir():
         doTileFlat = True
 
-    if not 'doTileOpt' in dir():
-        doTileOpt = True
+    if not 'doTileOpt2' in dir():
+        doTileOpt2 = True
 
     if not 'doTileFit' in dir():
         doTileFit = True
@@ -238,8 +238,8 @@ else:
 if not 'doTileFlat' in dir():
     doTileFlat = False
 
-if not 'doTileOpt' in dir():
-    doTileOpt = False
+if not 'doTileOpt2' in dir():
+    doTileOpt2 = False
 
 if not 'doTileFit' in dir():
     doTileFit = True
@@ -247,7 +247,7 @@ if not 'doTileFit' in dir():
 from TileRecUtils.TileRecFlags import jobproperties
 
 jobproperties.TileRecFlags.doTileFit=doTileFit
-jobproperties.TileRecFlags.doTileOpt=doTileOpt
+jobproperties.TileRecFlags.doTileOpt2=doTileOpt2
 jobproperties.TileRecFlags.doTileFlat=doTileFlat
 jobproperties.TileRecFlags.doTileManyAmps=False
 

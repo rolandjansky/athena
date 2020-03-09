@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  A Muon GeoVDetectorElement
  -----------------------------------------
 ***************************************************************************/
-
-//<doc><file>	$Id: MuonReadoutElement.cxx,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -18,11 +15,9 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/StraightLineSurface.h"
-
-// Test
+#include <TString.h> // for Form
 
 namespace MuonGM {
 
@@ -31,10 +26,9 @@ namespace MuonGM {
 					 MuonDetectorManager* mgr)
     : TrkDetElementBase(pv),
       m_Ssize(-9999.), m_Rsize(-9999.), m_Zsize(-9999.), m_LongSsize(-9999.),
-      m_LongRsize(-9999.), m_LongZsize(-9999.), m_caching(-1), m_MsgStream(NULL),
-      m_eta(-1), m_phi(-1), m_id_max_init_field(-1), m_absTransform(nullptr),m_defTransform(nullptr)
+      m_LongRsize(-9999.), m_LongZsize(-9999.), m_caching(-1), 
+      m_eta(-1), m_phi(-1), m_id_max_init_field(-1)
   {
-    //m_msgSvc = Athena::getMessageSvc();
     m_stationS = 0.;
     m_zi = zi;
     m_fi = fi;
@@ -57,12 +51,6 @@ namespace MuonGM {
 
   MuonReadoutElement::~MuonReadoutElement()
   {
-    delete m_MsgStream; m_MsgStream=0;
-  }
-
-  void MuonReadoutElement::clear() const {
-    delete m_absTransform; m_absTransform = nullptr;
-    delete m_defTransform; m_defTransform = nullptr;    
   }
 
   const Amg::Vector3D MuonReadoutElement::globalPosition() const
@@ -93,7 +81,7 @@ namespace MuonGM {
 	if (m_statname.substr(2,1) == "E" || m_statname.substr(2,1) == "F" || m_statname.substr(2,1) == "G") return false;
 	if (m_statname.substr(2,1) == "M" || m_statname.substr(2,1) == "R") return true;
       }
-    std::cerr<<" MuonReadoutElement - is this Station  in a largeSector ???? - DEFAULT answer is NO"<<std::endl;
+    throw std::runtime_error(Form("File: %s, Line: %d\nMuonReadoutElement::largeSector() - is this Station in a largeSector ???? - DEFAULT answer is NO", __FILE__, __LINE__));
     return false;
   }
 
@@ -139,37 +127,8 @@ namespace MuonGM {
 
   PVConstLink MuonReadoutElement::parentStationPV() const
   {
-    //  std::cout<<" Looking for parent of MuonReadoutElement named "
-    //           <<getStationName()<<"/"<<getTechnologyName()
-    //           <<" located at zi/fi "<<getAmdbZi()<<"/"<<getAmdbFi()<<std::endl;
-
     return m_parentStationPV;
   }
-
-  // Amg::Vector3D MuonReadoutElement::parentStationPos() const
-  // {
-  //   //    std::cout<<"MuonReadoutElement::parentStationPos() "<<std::endl;
-  //   HepGeom::Point3D<double> pos(0.,0.,0.);
-  //   HepGeom::Point3D<double> st_centre_chFrame(0.,0.,0.);
-
-  //   PVConstLink par = parentStationPV();
-  //   if (par == PVConstLink(0)) {
-  //     std::cerr<<"MuonReadoutElement::parentStationPos() *** parent not found"<<std::endl;
-  //     throw;
-  //   }
-    
-  //   Query<unsigned int > c = parentStationPV()->indexOf(getMaterialGeom());
-  //   if (c.isValid())
-  //     {
-  //       //        std::cout<<" index of child is "<<c<<std::endl;
-  //       HepGeom::Transform3D par_to_child = par->getXToChildVol( c );
-  //       //        std::cout<<" centre of the child in the Station frame "<<par_to_child*HepGeom::Point3D<double>(0.,0.,0.)<<std::endl;
-  //       st_centre_chFrame = (par_to_child.inverse())*HepGeom::Point3D<double>(0.,0.,0.);
-  //       //        std::cout<<" centre of the station in the RE frame is "<<st_centre_chFrame<<std::endl;
-  //     }
-  //   pos = absTransformCLHEP()*st_centre_chFrame;
-  //   return Amg::Vector3D(pos.x(),pos.y(),pos.z());
-  // }
 
   int MuonReadoutElement::getIndexOfREinMuonStation() const
   {
@@ -180,8 +139,7 @@ namespace MuonGM {
   {
     PVConstLink par = parentStationPV();
     if (par == PVConstLink(0)) {
-      std::cerr<<"MuonReadoutElement::setIndexOfREinMuonStation() *** parent station not found"<<std::endl;
-      throw;
+      throw std::runtime_error(Form("File: %s, Line: %d\nMuonReadoutElement::setIndexOfREinMuonStation() - parent station not found", __FILE__, __LINE__));
     }
     Query<unsigned int > c = par->indexOf(getMaterialGeom());
     if (c.isValid())
@@ -195,19 +153,12 @@ namespace MuonGM {
   {
     PVConstLink par = parentStationPV();
     if (par == PVConstLink(0)) {
-      std::cerr<<"MuonReadoutElement::parentStationPos() *** parent not found"<<std::endl;
-      throw;
+      throw std::runtime_error(Form("File: %s, Line: %d\nMuonReadoutElement::toParentStation() - parent not found", __FILE__, __LINE__));
     }
     
     GeoTrf::Transform3D par_to_child = GeoTrf::Transform3D::Identity();
 
     if ( m_indexOfREinMuonStation >=0 ) par_to_child = par->getXToChildVol( (unsigned int)m_indexOfREinMuonStation );
-#ifndef NDEBUG
-    else
-      {
-        reLog()<<MSG::ERROR<<"No index to REinMuonStation computed/found until now"<<endmsg;
-      }
-#endif
     return par_to_child;
   }
 
@@ -257,7 +208,6 @@ namespace MuonGM {
     if (smallSector()) phi = phi+M_PI/8.;
     Amg::Vector3D Saxis = Amg::Vector3D(-sin(phi), cos(phi), 0.);
     Amg::Vector3D scVec = Amg::Vector3D(scentre.x(), scentre.y(), 0.);
-    //std::cout<<"  MuonReadoutElement::parentStation_s_amdb() phi "<<phi<<" Saxis "<<Saxis.x()<<" "<<Saxis.y()<<std::endl;
     double s = scVec.x()*Saxis.x()+scVec.y()*Saxis.y();
     return s;    
   }

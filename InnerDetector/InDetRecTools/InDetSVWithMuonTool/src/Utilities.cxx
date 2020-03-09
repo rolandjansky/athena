@@ -100,9 +100,10 @@ namespace InDet{
 
 
   StatusCode InDetSVWithMuonTool::VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listTrk,
-                                                      Amg::Vector3D  & FitVertex)
+                                                     Amg::Vector3D  & FitVertex,
+                                                     Trk::IVKalState& istate)
   const
-  {  return m_fitSvc->VKalVrtFitFast(listTrk,FitVertex);  }
+  {  return m_fitSvc->VKalVrtFitFast(listTrk,FitVertex,istate);  }
 
 
 
@@ -114,11 +115,14 @@ namespace InDet{
                                                   std::vector<double>&             ErrorMatrix,
                                                   std::vector<double>&             Chi2PerTrk,
                                                   std::vector< std::vector<double> >& TrkAtVrt,
-                                                  double& Chi2 ) const
+                                                  double& Chi2,
+                                                  Trk::IVKalState& istate,
+                                                  bool ifCovV0) const
   {
      std::vector<const xAOD::NeutralParticle*> netralPartDummy(0);
      return m_fitSvc->VKalVrtFit( listPart, netralPartDummy,Vertex, Momentum, Charge,
-                                  ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
+                                  ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2,
+                                  istate, ifCovV0);
 
   }
 

@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BeamBackgroundFiller.h 693115 2015-09-04 07:22:39Z salekd $
 #ifndef RECBACKGROUNDALGS_BEAMBACKGROUNDFILLER
 #define RECBACKGROUNDALGS_BEAMBACKGROUNDFILLER
 
 #include "RecBackgroundEvent/BeamBackgroundData.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonSegment/MuonSegment.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonCalibITools/IIdToFixedIdTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkSegment/Segment.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -39,11 +37,10 @@ class BeamBackgroundFiller : public AthAlgorithm
 {
 public:
   BeamBackgroundFiller(const std::string& name, ISvcLocator* pSvcLocator);
-  ~BeamBackgroundFiller();
+  ~BeamBackgroundFiller()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
 private:
   // Function matching calorimeter clusters with muon segments
@@ -129,11 +126,10 @@ private:
   ElementLinkVector<xAOD::JetContainer> m_indexJet;  // link to the jet
   std::vector<int> m_resultJet;  // summary of the results for each jet
 
-
-  // tools
-  ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
-  ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
-  ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    "Handle to the service providing the IMuonEDMHelperSvc interface" };
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 #endif

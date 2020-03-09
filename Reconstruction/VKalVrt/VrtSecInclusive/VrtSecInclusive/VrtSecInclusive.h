@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // VKalVrt.h
@@ -13,7 +13,6 @@
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 //
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 //#include "TrkTrack/TrackInfo.h"
@@ -306,6 +305,8 @@ namespace VKalVrtAthena {
     const Trk::Perigee* GetPerigee( const xAOD::TrackParticle* i_ntrk);
     
     StatusCode RefitVertex( WrkVrt& WrkVrt, const xAOD::TrackParticleContainer* );
+    StatusCode RefitVertex( WrkVrt& WrkVrt, const xAOD::TrackParticleContainer*,
+                            Trk::IVKalState& istate);
     
     void  FillCovMatrix(int iTrk, std::vector<double> & Matrix, AmgSymMatrix(5)& );
     

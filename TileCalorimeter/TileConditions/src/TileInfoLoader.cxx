@@ -24,7 +24,7 @@
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
-#include "TileConditions/TileOptFilterWeights.h"
+#include "TileConditions/TileWienerFilterWeights.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -38,7 +38,6 @@
 #include "AthenaKernel/errorcheck.h"
 
 // Gaudi includes
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -57,7 +56,7 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   : AthService(name, pSvcLocator)
   , m_detStore("DetectorStore", name)
   , m_pulsevar(new TilePulseShapes())
-  , m_OFWeights(new TileOptFilterWeights())
+  , m_WFWeights(new TileWienerFilterWeights())
 {
 
   //==========================================================
@@ -191,25 +190,24 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   declareProperty("filename_DecoCovaFilePrefix" ,m_DecoCovaFilePrefix  = "DecoCovaMatrix");
 
   //==========================================================
-  //=== TileOptFilterWeights configuration
+  //=== Digitization
   //==========================================================
-  declareProperty("LoadOptFilterWeights"       ,m_loadOptFilterWeights          = false);
-  declareProperty("OFPhysicsNSamples"          ,m_OFWeights->m_NSamples_Phys    = 7);
-  declareProperty("filenameNoiseCISSuffix"     ,m_OFWeights->m_noiseCISSuffix     = "510082_CIS");
-  declareProperty("filenameNoisePhysicsSuffix" ,m_OFWeights->m_noisePhysicsSuffix = "520020_Phys");
-  declareProperty("filenameDeltaCISSuffix"     ,m_OFWeights->m_deltaCISSuffix     = "of2_Delta_CIS_7Samples");
-  declareProperty("filenameDeltaPhysicsSuffix" ,m_OFWeights->m_deltaPhysicsSuffix = "of2_Delta_Phys_7Samples");
-  declareProperty("LoadOptFilterCorrelation"   ,m_loadOptFilterCorrelation      = false);
-  declareProperty("filenameNoiseCorrSuffix"    ,m_OFWeights->m_noiseCorrSuffix    = "520020_Phys");
-  declareProperty("filenameDeltaCorrSuffix"    ,m_OFWeights->m_deltaCorrSuffix    = "Delta_Phys_9Samples");
-  declareProperty("DeltaConf"                  ,m_OFWeights->m_DeltaConf        = true);
+  declareProperty("ADCmax"                     ,m_ADCmax = 1023);
+  declareProperty("ADCmaskValue"               ,m_ADCmaskValue = 2047);
+
+  //==========================================================
+  //=== TileWienerFilterWeights configuration
+  //==========================================================
+  declareProperty("LoadWienerFilterWeights"    ,m_loadWienerFilterWeights    = false);
+  declareProperty("WienerFilterPhysicsNSamples",m_WFWeights->m_NSamples_Phys = 7);
+  declareProperty("WienerFilterLuminosity"     ,m_WFWeights->m_Luminosity    = 40);
 }
 
 //*****************************************************************************
 TileInfoLoader::~TileInfoLoader() {
 //*****************************************************************************
   delete m_pulsevar;
-  delete m_OFWeights;
+  delete m_WFWeights;
 }
 
 //*****************************************************************************
@@ -256,9 +254,10 @@ StatusCode TileInfoLoader::initialize() {
   std::copy (std::begin(m_emscaleE), std::end(m_emscaleE), std::begin(info->m_emscaleE));
   std::copy (std::begin(m_emscaleMBTS), std::end(m_emscaleMBTS), std::begin(info->m_emscaleMBTS));
   std::copy (std::begin(m_nPhElecVec), std::end(m_nPhElecVec), std::begin(info->m_nPhElecVec));
+  info->m_ADCmax = m_ADCmax;
+  info->m_ADCmaskValue = m_ADCmaskValue;
 
-  
-  m_OFWeights->m_NSamples_Phys = info->m_nSamples; // to make sure that everything is consistent
+  m_WFWeights->m_NSamples_Phys = info->m_nSamples; // to make sure that everything is consistent
 
   //=== Find the detector store service.
   CHECK( m_detStore.retrieve() );
@@ -395,9 +394,8 @@ StatusCode TileInfoLoader::initialize() {
   // only if we want to use them (i.e. when we also read all calib files)
   info->m_pulseShapes = m_pulsevar;
 
-  // point to OptFilterWeights or Correlation
-  if (m_loadOptFilterWeights) info->m_OptFilterWeights=m_OFWeights;
-  if (m_loadOptFilterCorrelation) info->m_OptFilterCorrelation= m_OFWeights;
+  // point to WienerFilterWeights
+  if (m_loadWienerFilterWeights) info->m_WienerFilterWeights=m_WFWeights;
 
   //=== Initialize and register TileInfo object
   CHECK( info->initialize() );
@@ -807,6 +805,7 @@ void TileInfoLoader::buildCovMatrix (TileInfo& info)
 
             // load tokens to be searched for in a string
             char* word;
+            char* saveptr;
             const char* TOKENS = { " \t\n" };
 
             // read Matrix
@@ -820,9 +819,9 @@ void TileInfoLoader::buildCovMatrix (TileInfo& info)
                 if (*buff == '!' || *buff == '*') continue;
                 //
                 if (column == 0) {
-                  word = strtok(buff, TOKENS);
+                  word = strtok_r(buff, TOKENS, &saveptr);
                 } else {
-                  word = strtok(NULL, TOKENS);
+                  word = strtok_r(NULL, TOKENS, &saveptr);
                 }
                 double pippo = (word) ? atof(word) : 0.0;
                 //            int nread = sscanf(buff, "%1f", &pippo);

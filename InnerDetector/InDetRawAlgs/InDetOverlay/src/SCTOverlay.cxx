@@ -37,10 +37,10 @@ namespace Overlay
   void mergeCollections(SCT_RDO_Collection *bkgCollection,
                         SCT_RDO_Collection *signalCollection,
                         SCT_RDO_Collection *outputCollection,
-                        IDC_OverlayBase *algorithm)
+                        const IDC_OverlayBase *algorithm)
   {
     // We want to use the SCT_ID helper provided by SCTOverlay, thus the constraint
-    SCTOverlay *parent = dynamic_cast<SCTOverlay *>(algorithm);
+    const SCTOverlay *parent = dynamic_cast<const SCTOverlay *>(algorithm);
     if (!parent) {
       throw std::runtime_error("mergeCollections<SCT_RDORawData>() called by a wrong parent algorithm? Must be SCTOverlay.");
     }
@@ -163,11 +163,6 @@ StatusCode SCTOverlay::initialize()
 {
   ATH_MSG_DEBUG("Initializing...");
 
-  if (!m_includeBkg) {
-    ATH_MSG_DEBUG("Disabling use of background RDOs...");
-    ATH_CHECK( m_bkgInputKey.assign("") );
-  }
-
   // Check and initialize keys
   ATH_CHECK( m_bkgInputKey.initialize(!m_bkgInputKey.key().empty()) );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgInputKey);
@@ -185,7 +180,7 @@ StatusCode SCTOverlay::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCTOverlay::execute()
+StatusCode SCTOverlay::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
   
@@ -193,8 +188,8 @@ StatusCode SCTOverlay::execute()
   ATH_MSG_VERBOSE("Retrieving input RDO containers");
 
   const SCT_RDO_Container *bkgContainerPtr = nullptr;
-  if (m_includeBkg) {
-    SG::ReadHandle<SCT_RDO_Container> bkgContainer(m_bkgInputKey);
+  if (!m_bkgInputKey.empty()) {
+    SG::ReadHandle<SCT_RDO_Container> bkgContainer(m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background SCT RDO container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -205,7 +200,7 @@ StatusCode SCTOverlay::execute()
     ATH_MSG_DEBUG("SCT Background = " << Overlay::debugPrint(bkgContainer.cptr(), 50));
   }
 
-  SG::ReadHandle<SCT_RDO_Container> signalContainer(m_signalInputKey);
+  SG::ReadHandle<SCT_RDO_Container> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal SCT RDO container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -214,7 +209,7 @@ StatusCode SCTOverlay::execute()
   ATH_MSG_DEBUG("SCT Signal     = " << Overlay::debugPrint(signalContainer.cptr(), 50));
 
   // Creating output RDO container
-  SG::WriteHandle<SCT_RDO_Container> outputContainer(m_outputKey);
+  SG::WriteHandle<SCT_RDO_Container> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<SCT_RDO_Container>(signalContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output SCT RDO container " << outputContainer.name() << " to store " << outputContainer.store());

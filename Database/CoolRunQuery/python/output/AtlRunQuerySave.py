@@ -1,6 +1,6 @@
 #!/usr/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQuerySave.py
@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------------------------------------------
 # Creation of Pickled dictionary for output
 # ---------------------------------------------------------------------------------------------------
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 from CoolRunQuery.AtlRunQueryQueryConfig import QC
 from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey
@@ -65,8 +65,8 @@ def AddUpEvents(runlist):
 def SaveResultTxt(runlist, header):
         # write header to text file
     f = open( '%s/QueryResult.txt' % QC.datapath, 'w' )
-    print >> f, "data keys:", ', '.join([h.ResultKey for h in header])
-    print >> f, 'number of runs: %i' % len(runlist)
+    print ("data keys:", ', '.join([h.ResultKey for h in header]), file=f)
+    print ('number of runs: %i' % len(runlist), file=f)
 
     # now get the values for each run and write to file
     for r in runlist:
@@ -77,8 +77,8 @@ def SaveResultTxt(runlist, header):
         for k in Run.ShowOrder:  line += [r.data[k.ResultKey]]
         for head,item in zip(header,line):
             if isinstance(item,tuple): item = '|'.join([str(x) for x in item])
-            print >> f, '%40s: %s' % (head.ResultKey, item)
-        print >> f, '\n'
+            print ('%40s: %s' % (head.ResultKey, item), file=f)
+        print ('\n', file=f)
     f.close()
 
 
@@ -88,8 +88,8 @@ def SaveTypelessPickleResult(pdic, filename = 'atlrunquery.pickle'):
     # write pickle output
     pf = open( '%s/atlrunquery.pickle' % QC.datapath, 'w' )
     try: pickle.dump(pdic, pf)
-    except Exception, e:
-        print 'ERROR: could not pickle results dictionary: "%r"' % e
+    except Exception as e:
+        print ('ERROR: could not pickle results dictionary: "%r"' % e)
         sys.exit(1)
     pf.close()
 

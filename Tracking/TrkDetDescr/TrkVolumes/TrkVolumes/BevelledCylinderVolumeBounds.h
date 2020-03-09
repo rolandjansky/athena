@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 #include "TrkVolumes/BevelledCylinderVolumeBoundaryAccessors.h"
 // Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/CachedUniquePtr.h"
 
 class MsgStream;
 
@@ -121,7 +122,7 @@ namespace Trk {
     bool inside(const Amg::Vector3D& , double tol=0.) const override;
     
     /** Method to decompose the Bounds into boundarySurfaces */
-    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
+    const std::vector<const Trk::Surface*>* decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
     ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
@@ -208,9 +209,9 @@ namespace Trk {
     BevelledCylinderVolumeBoundaryAccessors            m_boundaryAccessors;
 
     /** numerical stability */
-    static double s_numericalStable;
+    static const double s_numericalStable;
     
-    mutable Trk::Volume*                  m_subtractedVolume;  
+    CxxUtils::CachedUniquePtrT<Trk::Volume> m_subtractedVolume;  
  };
 
  inline BevelledCylinderVolumeBounds* BevelledCylinderVolumeBounds::clone() const

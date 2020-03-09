@@ -1,7 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 from time import sleep
 import pickle
 import os
@@ -14,21 +15,21 @@ class Cache(object):
         self.cachedir = cachedir.rstrip('/') if os.path.exists(cachedir) else None
         self.form = form
         if self.cachedir:
-            print "Initializing the cache at",cachedir.rstrip('/')
+            print ("Initializing the cache at",cachedir.rstrip('/'))
             
 
     def __call__(self, f, *args, **kwds):
         if not self.cachedir:
             return f  # caching is automatically disabled if no cache directory exists
 
-        print "Providing cache functionality for function '%s()'" % f.func_name
+        print ("Providing cache functionality for function '%s()'" % f.func_name)
         def newf(*args, **kwds):
             key = kwds['cachekey']
             if not self.__is_cached(key):
                 self.__write_to_cache(key,f(*args, **kwds))
             else:
                 if DEBUG:
-                    print "DEBUG: returning cached value for '%s'" % (self.form % key)
+                    print ("DEBUG: returning cached value for '%s'" % (self.form % key))
                 pass
             return self._cache[key]
         return newf
@@ -48,7 +49,7 @@ class Cache(object):
         try:
             pickle.dump(value, pf)
         except:
-            print 'ERROR: could not write to cache: ' + pfname
+            print ('ERROR: could not write to cache: ' + pfname)
             sys.exit(1)
         pf.close()
         
@@ -63,12 +64,12 @@ class Cache(object):
             pf = open( pfname, 'r' )
         except:
             if DEBUG:
-                print 'DEBUG: could not read from cache: ' + pfname
+                print ('DEBUG: could not read from cache: ' + pfname)
             return False
         try:
             self._cache[key] = pickle.load(pf)
         except:
-            print "ERROR: could not unpickle '%s'" % pfname
+            print ("ERROR: could not unpickle '%s'" % pfname)
             sys.exit(1)
         pf.close()
         return True
@@ -80,10 +81,10 @@ class Cache(object):
 if __name__ == "__main__":
     @Cache("/afs/cern.ch/user/s/stelzer/runsummary/cache/","simple_%i_second%i")
     def aFunction(x,y,cachekey):
-        print "expensive"
+        print ("expensive")
         return (3*x,y*y,x+y)
 
     x=13
-    print aFunction(x,y=2,cachekey=(x,2))
-    print aFunction(x,1,cachekey=(x,1))
+    print (aFunction(x,y=2,cachekey=(x,2)))
+    print (aFunction(x,1,cachekey=(x,1)))
 

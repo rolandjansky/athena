@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -155,15 +155,10 @@ StatusCode iFatras::TransportTool::finalize()
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*)
+ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*) const
 {
   // copy the current particle onto the particle clipboard
   ISF::ParticleClipboard::getInstance().setParticle( isp);
-
-  // retrieve decay helper is not done already
-  if (m_particleDecayHelper.empty()) {
-    if (retrieveTool<iFatras::IParticleDecayHelper>(m_particleDecayHelper).isFailure()) ATH_MSG_WARNING( "decay helper not retrieved" );
-  }          
 
   // if process/generation not set, assume primary
   //if (m_validationOutput && !isp.getUserInformation()) {

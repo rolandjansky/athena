@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 Module for creating the rob fragments normally send through the RoIB
 using the information readout from the ROSs.
@@ -52,7 +52,7 @@ def modify(event):
 
   # There are no CTP ROBs, event can not be recovered and should be skipped
   if (not DaqRobs[0]) and (not L2Robs[0]):
-    logging.warning(' Plugin "addL1": No DAQ CTP fragment. Event can not be recovered. Event will be skipped. L1 id = %d, Global id = %d ' % (event.lvl1_id(), event.global_id()))
+    logging.warning(' Plugin "addL1": No DAQ CTP fragment. Event can not be recovered. Event will be skipped. L1 id = %d, Global id = %d ', event.lvl1_id(), event.global_id())
     return False
 
   # Workaround for corrupted events
@@ -128,7 +128,7 @@ def CTPreco(input_file,output_file):
 
 if __name__ == "__main__":
   if len(sys.argv)!=3:
-    print 'usage:',sys.argv[0],'<infile> <outfile>'
+    print('usage: %s <infile> <outfile>' % sys.argv[0])
     sys.exit(1)
     
   CTPreco(sys.argv[1],sys.argv[2])

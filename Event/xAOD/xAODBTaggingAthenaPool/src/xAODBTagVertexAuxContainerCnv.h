@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODBTaggingAuxContainerCnv.h 566967 2013-10-24 13:24:31Z krasznaa $
@@ -9,14 +9,13 @@
 #define XAODBTAGGINGATHENAPOOL_XAODBTAGVERTEXAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODBTagging/BTagVertexAuxContainer.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::BTagVertexAuxContainer,
-                               xAOD::BTagVertexAuxContainer >
+typedef T_AthenaPoolAuxContainerCnv< xAOD::BTagVertexAuxContainer >
    xAODBTagVertexAuxContainerCnvBase;
 
 /**
@@ -34,19 +33,17 @@ typedef T_AthenaPoolCustomCnv< xAOD::BTagVertexAuxContainer,
  * $Date: 2013-10-24 15:24:31 +0200 (Thu, 24 Oct 2013) $
  */
 class xAODBTagVertexAuxContainerCnv :
-   public xAODBTagVertexAuxContainerCnvBase {
-
+   public xAODBTagVertexAuxContainerCnvBase
+{
 public:
-  /// Converter constructor
-   xAODBTagVertexAuxContainerCnv( ISvcLocator* svcLoc );
+   using xAODBTagVertexAuxContainerCnvBase::xAODBTagVertexAuxContainerCnvBase;
 
-protected:
+
    /// Function preparing the container to be written out
    virtual xAOD::BTagVertexAuxContainer*
-   createPersistent( xAOD::BTagVertexAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::BTagVertexAuxContainer* createTransient();
-
+   createPersistentWithKey( xAOD::BTagVertexAuxContainer* trans,
+                            const std::string& key ) override;
 }; // class xAODBTaggingAuxContainerCnv
+
 
 #endif // XAODBTAGGINGATHENAPOOL_XAODBTAGGINGAUXCONTAINERCNV_H

@@ -23,6 +23,7 @@
 #include <string>
 
 class ITrigJetHypoInfoCollector;
+class xAODJetCollector;
 
 class IGroupsMatcherMT{
  public:
@@ -31,10 +32,10 @@ class IGroupsMatcherMT{
   virtual std::optional<bool>
     match(const HypoJetGroupCIter&,
 	  const HypoJetGroupCIter&,
+	  xAODJetCollector&,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 	  bool debug=false) const = 0;
   
-  virtual ConditionsMT getConditions() const noexcept = 0;
   virtual std::string toString() const = 0;
 };
 

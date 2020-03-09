@@ -34,7 +34,7 @@
 #include "CoolKernel/types.h"
 #include "CoolKernel/Record.h"
 #include "CoralBase/AttributeListSpecification.h"
-
+#include "CaloCondPhysAlgs/LArHVMapTool.h"
 
 CaloCellCalcEnergyCorr::CaloCellCalcEnergyCorr( const std::string& name, 
 						ISvcLocator* pSvcLocator ) : 

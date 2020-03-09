@@ -20,7 +20,6 @@
 #include "TrkValTools/GenParticleJetFinder.h"
 #include "TrkValTools/EventPropertyNtupleTool.h"
 #include "TrkValTools/EventToTrackLinkNtupleTool.h"
-#include "TrkValTools/TrkObserverTool.h"
 
 DECLARE_COMPONENT( Trk::BasicValTrkParticleNtupleTool )
 DECLARE_COMPONENT( Trk::TrackInformationNtupleTool )
@@ -44,5 +43,4 @@ DECLARE_COMPONENT( Trk::GenParticleJetFinder )
 DECLARE_COMPONENT( Trk::JetTruthNtupleTool )
 DECLARE_COMPONENT( Trk::EventPropertyNtupleTool )
 DECLARE_COMPONENT( Trk::EventToTrackLinkNtupleTool )
-DECLARE_COMPONENT( Trk::TrkObserverTool )
 

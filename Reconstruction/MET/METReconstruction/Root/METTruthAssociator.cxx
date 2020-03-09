@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTruthAssociator.cxx 
@@ -197,7 +197,7 @@ namespace met {
 	    ATH_MSG_VERBOSE("Jet contains truth particle with pt " << truth->pt()
 			    << " status " << truth->status()
 			    << " pdgId " << truth->pdgId() );
-	    if(fabs(truth->charge())>1e-9) {
+	    if(fabs(truth->charge())>1e-6) {
 	      trkvec += *truth;
 	    }
 	    if(!truth->isMuon()) {
@@ -267,7 +267,7 @@ namespace met {
       ATH_MSG_VERBOSE("Accepted soft truth particle with pt " << truth->pt()
 		      << " status " << truth->status()
 		      << " pdgId " << truth->pdgId() );
-      if(fabs(truth->charge())>1e-9) {
+      if(fabs(truth->charge())>1e-6) {
 	// in ID acceptance
 	if(fabs(truth->eta())<2.5) *metCoreChargedCentralTruth += truth;
 	*metCoreChargedTruth += truth;

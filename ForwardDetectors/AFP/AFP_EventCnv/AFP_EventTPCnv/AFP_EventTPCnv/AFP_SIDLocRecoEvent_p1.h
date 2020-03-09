@@ -16,19 +16,19 @@ class AFP_SIDLocRecoEvent_p1
   
  private: 
   
-	int m_iAlgoNum;
-	int m_nStationID;
+	int m_iAlgoNum = 0;
+	int m_nStationID = 0;
 	
-	float m_x;
-	float m_y;
-	float m_z;
-	float m_x_slope;
-	float m_y_slope;
-	float m_z_slope;
+	float m_x = 0;
+	float m_y = 0;
+	float m_z = 0;
+	float m_x_slope = 0;
+	float m_y_slope = 0;
+	float m_z_slope = 0;
 	
-	float m_nHits;
-	float m_nHoles;
-	float m_fChi2;	
+	float m_nHits = 0;
+	float m_nHoles = 0;
+	float m_fChi2 = 0;	
 
 };
 

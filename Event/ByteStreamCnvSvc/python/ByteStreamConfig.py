@@ -1,85 +1,81 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def TrigBSReadCfg( inputFlags ):
+def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     """
     Creates accumulator for BS reading
     """
-    filenames = inputFlags.Input.Files
-
-    
 
     acc = ComponentAccumulator()
     
-    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream
+    ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream=CompFactory.getComps("ByteStreamCnvSvc","ByteStreamEventStorageInputSvc","EventSelectorByteStream",)
 
-    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoSelectorTool 
-    xconv = xAODMaker__EventInfoSelectorTool()
-
-    eventSelector = EventSelectorByteStream("EventSelector")
-    eventSelector.HelperTools += [xconv]
-    acc.addService( eventSelector )
-    acc.setAppProperty( "EvtSel", eventSelector.name() )
+    if inputFlags.Input.SecondaryFiles:
+        filenames = inputFlags.Input.SecondaryFiles
+        eventSelector = EventSelectorByteStream("SecondaryEventSelector", IsSecondary=True)
+        acc.addService( eventSelector )
+    else:
+        filenames = inputFlags.Input.Files
+        xAODMaker__EventInfoSelectorTool, = CompFactory.getComps("xAODMaker__EventInfoSelectorTool",)
+        xconv = xAODMaker__EventInfoSelectorTool()
+        eventSelector = EventSelectorByteStream("EventSelector")
+        eventSelector.HelperTools += [xconv]
+        acc.addService( eventSelector )
+        acc.setAppProperty( "EvtSel", eventSelector.name() )
 
     bsInputSvc = ByteStreamEventStorageInputSvc( "ByteStreamInputSvc" )
     bsInputSvc.FullFileName = filenames
+    if inputFlags.Overlay.DataOverlay:
+        bsInputSvc.EventInfoKey = inputFlags.Overlay.BkgPrefix + "EventInfo"
     acc.addService( bsInputSvc )
 
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
     eventPersistencySvc = EvtPersistencySvc( "EventPersistencySvc" )
     acc.addService( eventPersistencySvc )
     
     bsCnvSvc = ByteStreamCnvSvc()
-    eventSelector.ByteStreamInputSvc = bsInputSvc.name();
+    eventSelector.ByteStreamInputSvc = bsInputSvc.name()
     eventPersistencySvc.CnvServices = [ bsCnvSvc.name() ]
     acc.addService( bsCnvSvc )
 
-    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
+    ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
     robDPSvc = ROBDataProviderSvc()
     acc.addService( robDPSvc ) 
 
-    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc()
+    ByteStreamAddressProviderSvc=CompFactory.ByteStreamAddressProviderSvc
+    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)
     acc.addService( bsAddressProviderSvc )
-
-    from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
-    iovMetaDataTool = IOVDbMetaDataTool()
-    acc.addPublicTool( iovMetaDataTool )
     
-    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
-    bsMetaDataTool = ByteStreamMetadataTool()
-    acc.addPublicTool( bsMetaDataTool )
-    
-    from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
-    metaDataStore = StoreGateSvc("MetaDataStore")   
-    acc.addService( metaDataStore )
-    inputMetaDataStore = StoreGateSvc("InputMetaDataStore")   
-    acc.addService( inputMetaDataStore )
+    ProxyProviderSvc=CompFactory.ProxyProviderSvc
 
-    from AthenaServices.AthenaServicesConf import MetaDataSvc
-    metaDataSvc = MetaDataSvc()
-    acc.addService( metaDataSvc )
-
-    metaDataSvc.MetaDataContainer = "MetaDataHdr"
-    metaDataSvc.MetaDataTools = [ iovMetaDataTool, bsMetaDataTool ]    
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    acc.merge(MetaDataSvcCfg(inputFlags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"]))
     
     proxy = ProxyProviderSvc()
-    proxy.ProviderNames += [ bsAddressProviderSvc.name(), metaDataSvc.name() ]
+    proxy.ProviderNames += [ bsAddressProviderSvc.name() ]
     acc.addService( proxy )
 
-    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamAttListMetadataSvc
+    ByteStreamAttListMetadataSvc=CompFactory.ByteStreamAttListMetadataSvc
     acc.addService( ByteStreamAttListMetadataSvc() )
     
-           
-    # this is trigger specific and should only be loaded if some doTrigger flags is set
-    # or it should be moved elsewhere, however, since there is no better location now let is stick here
-    bsCnvSvc.InitCnvs += [ "EventInfo",
-                        "HLT::HLTResult" ]
+    bsCnvSvc.InitCnvs += [ "EventInfo",]
+
+    return acc
+
+def TrigBSReadCfg(inputFlags):
+
+    acc=ByteStreamReadCfg( inputFlags )
+
+    bsCnvSvc=acc.getService("ByteStreamCnvSvc")
+    bsCnvSvc.InitCnvs += ["HLT::HLTResult" ]
     
+    bsAddressProviderSvc=acc.getService("ByteStreamAddressProviderSvc")
+
     bsAddressProviderSvc.TypeNames += [
         "TileCellIDC/TileCellIDC",
         "MdtDigitContainer/MDT_DIGITS",
@@ -102,8 +98,10 @@ def TrigBSReadCfg( inputFlags ):
 
 
     
-    if inputFlags.Input.isMC == False:        
+    if inputFlags.Input.isMC is False:
         bsCnvSvc.GetDetectorMask=True
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(inputFlags,'/TDAQ/RunCtrl/SOR_Params','TDAQ' ))
         # still need to figure out how conditions are setup in new system
         #from IOVDbSvc.CondDB import conddb
         #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )
@@ -120,6 +118,5 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
 
     acc = TrigBSReadCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
-
+    acc.store( open( "test.pkl", "wb" ) )
+    print("All OK")

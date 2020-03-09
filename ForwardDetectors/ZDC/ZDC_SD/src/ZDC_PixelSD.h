@@ -11,6 +11,7 @@
 // Athena headers
 #include "ZDC_SimEvent/ZDC_SimPixelHit_Collection.h"
 #include "StoreGate/WriteHandle.h"
+#include <gtest/gtest_prod.h>
 
 // STL header
 #include <string>
@@ -22,6 +23,11 @@ class G4HCofThisEvent;
 class ZDC_PixelSD : public G4VSensitiveDetector
 {
 
+ FRIEND_TEST( ZDC_PixelSDtest, ProcessHits );
+ FRIEND_TEST( ZDC_PixelSDtest, Initialize );
+ FRIEND_TEST( ZDC_PixelSDtest, StartOfAthenaEvent );
+ FRIEND_TEST( ZDC_PixelSDtest, EndOfAthenaEvent );
+ FRIEND_TEST( ZDC_PixelSDtest, AddHit );
  public:
   // Constructor
   ZDC_PixelSD(const std::string& name, const std::string& hitCollectionName);

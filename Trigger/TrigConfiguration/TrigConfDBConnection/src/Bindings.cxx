@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/python.hpp>
@@ -67,7 +67,7 @@ PyObject*
 assignString(frontier::Session& s) {
    std::string fieldvalue;
    s.assignString(&fieldvalue);
-   return PyString_FromString(fieldvalue.c_str());
+   return PyUnicode_FromString(fieldvalue.c_str());
 }
 
 
@@ -97,7 +97,7 @@ PyObject*
 getString(frontier::AnyData& data) {
    std::string* str = data.getString();
    if(str==0) return 0;
-   return PyString_FromString(data.getString()->c_str());
+   return PyUnicode_FromString(data.getString()->c_str());
 }
 
 

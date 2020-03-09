@@ -8,7 +8,7 @@ using xAOD::JetContainer;
 
 //**********************************************************************
 TriggerJetGroomerTool::TriggerJetGroomerTool(const std::string& name): 
-  AsgTool(name), m_groomer("") {
+  AsgTool(name), m_groomer("",this),m_modifiers(this),m_jetPseudoJetRetriever("",this) {
   declareProperty("JetGroomer", m_groomer);
   declareProperty("JetModifiers", m_modifiers);
   declareProperty("JetPseudojetRetriever", m_jetPseudoJetRetriever);
@@ -90,7 +90,8 @@ TriggerJetGroomerTool::groom(const JetContainer* in,
   ATH_MSG_DEBUG("Executing " << m_modifiers.size() << " jet modifiers.");
   for (const auto& mod : m_modifiers){
     ATH_MSG_DEBUG("  Executing modifier " << mod->name());
-    mod->modify(*out) ;
+    if(mod->modify(*out).isFailure())
+      ATH_MSG_DEBUG("    Modifier returned FAILURE!");
   }
   ATH_MSG_DEBUG("mofidier execution ends");
 

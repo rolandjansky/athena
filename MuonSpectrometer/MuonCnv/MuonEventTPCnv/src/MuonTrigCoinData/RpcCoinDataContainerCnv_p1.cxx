@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Takashi Kubota - June 30, 2008 */
@@ -13,7 +13,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinDataCnv_p1.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinDataContainerCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 
 // // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -171,7 +170,7 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
               const MuonGM::RpcReadoutElement* detEl =
                 m_muonDetMgr->getRpcReadoutElement(deIDHash);
 
-              auto chan = CxxUtils::make_unique<Muon::RpcCoinData>
+              auto chan = std::make_unique<Muon::RpcCoinData>
                 (chanCnv.createRpcCoinData (pchan,
                                             clusId,
                                             detEl,

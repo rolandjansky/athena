@@ -1,24 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatCandidateTool.h"
 #include "MuPatHitTool.h"
-#include "MuonTrackFindingEvent/MuPatTrack.h"
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatSegment.h"
+#include "MuPatTrack.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatSegment.h"
 #include "SortMuPatHits.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
-
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonSegmentInfoExtender.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -37,7 +28,6 @@
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
 #include <sstream>
 #include <string>
 #include <set>
@@ -49,49 +39,23 @@
 namespace Muon {
 
   MuPatCandidateTool::MuPatCandidateTool(const std::string& t, const std::string& n, const IInterface* p)    
-    : AthAlgTool(t,n,p),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-      m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_hitHandler("Muon::MuPatHitTool/MuPatHitTool"),
-      m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
-      m_segmentExtender("Muon::MuonSegmentInfoExtender/MuonSegmentInfoExtender"),
-      m_incidentSvc("IncidentSvc",n)
+    : AthAlgTool(t,n,p)
   {
     declareInterface<MuPatCandidateTool>(this);
-    declareProperty("MdtRotCreator",          m_mdtRotCreator);
-    declareProperty("CscRotCreator",          m_cscRotCreator);
-    declareProperty("CreateCompetingROTsPhi", m_createCompetingROTsPhi = false);
-    declareProperty("CreateCompetingROTsEta", m_createCompetingROTsEta = true);
-    declareProperty("DoMdtRecreation",        m_doMdtRecreation = false );
-    declareProperty("DoCscRecreation",        m_doCscRecreation = false );
-    declareProperty("SegmentExtender",        m_segmentExtender );
-    declareProperty("HitTool", m_hitHandler );
   }
-    
-  MuPatCandidateTool::~MuPatCandidateTool() { }
-    
+        
   StatusCode MuPatCandidateTool::initialize(){
-
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
-    if ( ! m_cscRotCreator.empty() ) ATH_CHECK( m_cscRotCreator.retrieve() );
-    ATH_CHECK( m_compClusterCreator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_hitHandler.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_incidentSvc.retrieve() );
-
-    m_incidentSvc->addListener( this, std::string("EndEvent"));
-
-    ATH_CHECK( m_segmentSelector.retrieve() );
-    if( !m_segmentExtender.empty() && m_segmentExtender.retrieve().isFailure() ){
-      ATH_MSG_WARNING("Could not get " << m_segmentExtender);
-      // Just a warning...
+    if (!m_cscRotCreator.empty()) {
+      if (!m_idHelperSvc->hasCSC()) ATH_MSG_WARNING("The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it, but double-check configuration");
+      else ATH_CHECK( m_cscRotCreator.retrieve() );
     }
+    ATH_CHECK( m_compClusterCreator.retrieve() );
+    ATH_CHECK( m_hitHandler.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK( m_segmentSelector.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -102,37 +66,37 @@ namespace Muon {
 
   MuPatSegment* MuPatCandidateTool::createSegInfo( const MuonSegment& segment ) const
   {
-    Identifier chid = m_helperTool->chamberId(segment);
-    if( m_idHelperTool->isTrigger(chid) ){
-      ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperTool->toStringChamber(chid) );
+    Identifier chid = m_edmHelperSvc->chamberId(segment);
+    if( m_idHelperSvc->isTrigger(chid) ){
+      ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperSvc->toStringChamber(chid) );
       return 0;
     }
     MuPatSegment* info = new MuPatSegment();
     info->segment = &segment;
     info->chid = chid;
-    info->chIndex = m_idHelperTool->chamberIndex(info->chid);
-    std::set<Identifier> chIds = m_helperTool->chamberIds(segment);
+    info->chIndex = m_idHelperSvc->chamberIndex(info->chid);
+    std::set<Identifier> chIds = m_edmHelperSvc->chamberIds(segment);
     std::set<Identifier>::iterator chit = chIds.begin();
     std::set<Identifier>::iterator chit_end = chIds.end();
     for( ;chit!=chit_end;++chit ){
-      MuonStationIndex::ChIndex chIdx = m_idHelperTool->chamberIndex(*chit);
+      MuonStationIndex::ChIndex chIdx = m_idHelperSvc->chamberIndex(*chit);
       info->addChamber(chIdx);
       // set default name
       if ( !info->name.empty() ) info->name += "+";
       // stationname_eta_phi
       std::ostringstream oss;
       oss << MuonStationIndex::chName(chIdx)
-          << "_" << m_idHelperTool->stationEta(*chit) << "_" << m_idHelperTool->stationPhi(*chit);
+          << "_" << m_idHelperSvc->stationEta(*chit) << "_" << m_idHelperSvc->stationPhi(*chit);
       info->name += oss.str();
     }
-    info->stIndex = m_idHelperTool->stationIndex(info->chid);
-    info->isEndcap = m_idHelperTool->isEndcap(info->chid);
-    info->isMdt = m_idHelperTool->isMdt(info->chid);
+    info->stIndex = m_idHelperSvc->stationIndex(info->chid);
+    info->isEndcap = m_idHelperSvc->isEndcap(info->chid);
+    info->isMdt = m_idHelperSvc->isMdt(info->chid);
     info->usedInFit = 0;
     info->quality = m_segmentSelector->quality( segment );
     info->segQuality = dynamic_cast<const MuonSegmentQuality*>(segment.fitQuality());
 
-    info->segPars = m_helperTool->createTrackParameters( segment, 5000., 0. );    
+    info->segPars = m_edmHelperSvc->createTrackParameters( segment, 5000., 0. );    
     if( !info->segPars ) {
       ATH_MSG_WARNING(" failed to create track parameter for segment " );
     }
@@ -140,8 +104,6 @@ namespace Muon {
     updateHits(*info,info->segment->containedMeasurements(),m_doMdtRecreation,m_doCscRecreation, true );
     MuPatHitList& hitList = info->hitList();
     m_hitHandler->create( segment, hitList );
-
-    if (!m_segmentExtender.empty()) m_segmentExtender->extendInfo( info ); 
 
     return info;
   }
@@ -151,12 +113,6 @@ namespace Muon {
     // add segment to candidate
     can.addSegment(&segInfo,track);
     return recalculateCandidateSegmentContent( can );
-    
-//    can.hitList().clear();
-//    m_hitHandler->create( can.track(),can.hitList() ); 	  
-    // update the hit summary
-    //    updateHits(can,can.track().measurementsOnTrack()->stdcont());
-
   }
   
   MuPatTrack* MuPatCandidateTool::copyCandidate( MuPatTrack& canIn ) const {
@@ -249,6 +205,14 @@ namespace Muon {
   void MuPatCandidateTool::updateHits( MuPatCandidateBase& entry, const MuPatCandidateTool::MeasVec& measurements, 
 				     bool recreateMDT, bool recreateCSC, bool createComp ) const {
 
+    std::lock_guard<std::mutex> lock{m_mutex};    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    CacheEntry* ent{m_cache.get(ctx)};
+    if (ent->m_evt != ctx.evt()) {
+      ent->m_evt = ctx.evt();
+      ent->cleanUp();
+    }
+
     MeasVec etaHits;
     MeasVec phiHits;
     MeasVec fakePhiHits;
@@ -285,25 +249,25 @@ namespace Muon {
 
       const Trk::MeasurementBase* meas = *sit;
       
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() ) {
 	fakePhiHits.push_back(meas);
 	continue;
       }
 
       // skip ID hits
-      if( !m_idHelperTool->isMuon(id) ) continue;
+      if( !m_idHelperSvc->isMuon(id) ) continue;
 
-      Identifier chId = m_idHelperTool->chamberId(id);
-      MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
-      MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(chId);      
-      if( !hasEndcap ) hasEndcap = m_idHelperTool->isEndcap(id);
+      Identifier chId = m_idHelperSvc->chamberId(id);
+      MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
+      MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);      
+      if( !hasEndcap ) hasEndcap = m_idHelperSvc->isEndcap(id);
 
       bool measuresPhi = false;
       
-      bool isMdt =  m_idHelperTool->isMdt(id);
-      bool isCsc = m_idHelperTool->isCsc(id); 
-      bool isNSW = m_idHelperTool->isMM(id) || m_idHelperTool->issTgc(id); 
+      bool isMdt =  m_idHelperSvc->isMdt(id);
+      bool isCsc = m_idHelperSvc->isCsc(id); 
+      bool isNSW = m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id); 
       // only add precision hits 
       if( isMdt || isCsc || isNSW ) { 
 	entry.addChamber(chIndex); // will also add stationIndex 
@@ -319,18 +283,18 @@ namespace Muon {
 	  }else{	
 	    const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
 	    if( !mdt ){
-	      ATH_MSG_WARNING(" found MdtDriftCircleOnTrack without MDT identifier " << m_idHelperTool->toString(id) );
+	      ATH_MSG_WARNING(" found MdtDriftCircleOnTrack without MDT identifier " << m_idHelperSvc->toString(id) );
 	      continue;
 	    }
 	    ATH_MSG_DEBUG(" recreating MdtDriftCircleOnTrack " );
 	    const MdtDriftCircleOnTrack* newMdt = m_mdtRotCreator->createRIO_OnTrack(*mdt->prepRawData(),mdt->globalPosition());
-	    m_measurementsToBeDelete.push_back(newMdt);
+	    ent->m_measurementsToBeDeleted.push_back(newMdt);
 	    meas = newMdt;
 	  }
 	}
       
 
-	bool isSmall = m_idHelperTool->isSmallChamber(id);
+	bool isSmall = m_idHelperSvc->isSmallChamber(id);
 	if( isSmall ) hasSmall = true;
 	else          hasLarge = true;
 
@@ -338,20 +302,20 @@ namespace Muon {
         previssmall=isSmall;
         prevstIndex=stIndex;
  
-	unsigned int ml = m_idHelperTool->mdtIdHelper().multilayer(id);
+	unsigned int ml = m_idHelperSvc->mdtIdHelper().multilayer(id);
 	if( ml == 1 ) ++nmdtHitsMl1;
 	else          ++nmdtHitsMl2;
       }else{
 
-	measuresPhi = m_idHelperTool->measuresPhi(id);
+	measuresPhi = m_idHelperSvc->measuresPhi(id);
 	
-	bool isRpc = m_idHelperTool->isRpc(id);
+	bool isRpc = m_idHelperSvc->isRpc(id);
 	if( isRpc ){
 	  if( measuresPhi ) ++nrpcHitsPhi;
 	  else              ++nrpcHitsEta;
 	}
 
-	bool isTgc = m_idHelperTool->isTgc(id);
+	bool isTgc = m_idHelperSvc->isTgc(id);
 	if( isTgc ){
 	  if( measuresPhi ) ++ntgcHitsPhi;
 	  else              ++ntgcHitsEta;
@@ -362,12 +326,12 @@ namespace Muon {
 	  if( recreateCSC ) {
 	    const CscClusterOnTrack* csc = dynamic_cast<const CscClusterOnTrack*>(meas);
 	    if( !csc ){
-	      ATH_MSG_WARNING(" found CscClusterOnTrack without CSC identifier " << m_idHelperTool->toString(id) );
+	      ATH_MSG_WARNING(" found CscClusterOnTrack without CSC identifier " << m_idHelperSvc->toString(id) );
 	      continue;
 	    }
 	    ATH_MSG_DEBUG(" recreating CscClusterOnTrack " );
 	    const MuonClusterOnTrack* newCsc = m_cscRotCreator->createRIO_OnTrack(*csc->prepRawData(),csc->globalPosition());
-	    m_measurementsToBeDelete.push_back(newCsc);
+	    ent->m_measurementsToBeDeleted.push_back(newCsc);
 	    meas = newCsc;
 
 	  }
@@ -398,8 +362,8 @@ namespace Muon {
     }
     
     if( createComp ){
-      if( m_createCompetingROTsEta && !triggerHitsEta.empty() ) createAndAddCompetingROTs(triggerHitsEta,etaHits,allHits);
-      if( m_createCompetingROTsPhi && !triggerHitsPhi.empty() ) createAndAddCompetingROTs(triggerHitsPhi,phiHits,allHits);
+      if( m_createCompetingROTsEta && !triggerHitsEta.empty() ) createAndAddCompetingROTs(triggerHitsEta, etaHits, allHits, ent->m_measurementsToBeDeleted);
+      if( m_createCompetingROTsPhi && !triggerHitsPhi.empty() ) createAndAddCompetingROTs(triggerHitsPhi, phiHits, allHits, ent->m_measurementsToBeDeleted);
     }
 
     entry.nmdtHitsMl1 = nmdtHitsMl1;
@@ -428,16 +392,17 @@ namespace Muon {
       if( compclus ){
 	rots.insert(rots.end(),compclus->containedROTs().begin(),compclus->containedROTs().end());
       }else{
-	Identifier id = m_helperTool->getIdentifier(meas);
+	Identifier id = m_edmHelperSvc->getIdentifier(meas);
 	ATH_MSG_WARNING(" Trigger Measurement is not a MuonClusterOnTrack or CompetingMuonClustersOnTrack!!  " 
-	       << m_idHelperTool->toString(id) );	    
+	       << m_idHelperSvc->toString(id) );	    
       }
     }
   }
 
   void MuPatCandidateTool::createAndAddCompetingROTs( const std::vector<const MuonClusterOnTrack*>& rots, 
-						    MuPatCandidateTool::MeasVec& hits,
-						    MuPatCandidateTool::MeasVec& allHits ) const {
+                                                      MuPatCandidateTool::MeasVec& hits,
+                                                      MuPatCandidateTool::MeasVec& allHits,
+                                                      MuPatCandidateTool::MeasVec& measurementsToBeDeleted ) const {
 
     typedef std::map<Identifier, std::vector<const MuonClusterOnTrack*> > IdClusMap;
     typedef IdClusMap::iterator IdClusIt;
@@ -451,7 +416,7 @@ namespace Muon {
       const MuonClusterOnTrack* clus = *it;
       
       Identifier id = clus->identify();
-      Identifier detId = m_idHelperTool->detElId(id);
+      Identifier detId = m_idHelperSvc->detElId(id);
       idClusters[detId].push_back(clus);
     }
 
@@ -461,51 +426,56 @@ namespace Muon {
     IdClusIt chit_end = idClusters.end();
     for( ;chit!=chit_end;++chit ){
       if( msgLvl(MSG::VERBOSE) ) {
-	msg(MSG::VERBOSE) << " in " << m_idHelperTool->toStringDetEl(chit->first)
-	       << "  clusters: " << chit->second.size() << std::endl;
+        msg(MSG::VERBOSE) << " in " << m_idHelperSvc->toStringDetEl(chit->first)
+          << "  clusters: " << chit->second.size() << std::endl;
 
-	std::vector<const MuonClusterOnTrack*>::iterator clit = chit->second.begin();
-	std::vector<const MuonClusterOnTrack*>::iterator clit_end = chit->second.end();
-	for( ;clit!=clit_end;++clit){
-	  msg(MSG::VERBOSE) << "   " << m_idHelperTool->toString((*clit)->identify());
+        std::vector<const MuonClusterOnTrack*>::iterator cl_it = chit->second.begin();
+        std::vector<const MuonClusterOnTrack*>::iterator cl_it_end = chit->second.end();
+        for( ;cl_it!=cl_it_end;++cl_it){
+          msg(MSG::VERBOSE) << "   " << m_idHelperSvc->toString((*cl_it)->identify());
 	  
-	  // hack to get correct print-out
-	  if( clit+1 == clit_end ) msg(MSG::VERBOSE) << endmsg;
-	  else                     msg(MSG::VERBOSE) << std::endl;
-	}
+          // hack to get correct print-out
+          if( cl_it+1 == cl_it_end ) msg(MSG::VERBOSE) << endmsg;
+          else                     msg(MSG::VERBOSE) << std::endl;
+        }
       }
 
       if( chit->second.empty() ){
-	ATH_MSG_WARNING(" empty list, could not create CompetingMuonClustersOnTrack in chamber   "
-	       << m_idHelperTool->toString(chit->first) );
-	continue;
+        ATH_MSG_WARNING(" empty list, could not create CompetingMuonClustersOnTrack in chamber   "
+          << m_idHelperSvc->toString(chit->first) );
+        continue;
       }
 
       // only create competing ROT if there is more than one PRD
       if( chit->second.size() == 1 ) {
-	hits.push_back(chit->second.front());
-	allHits.push_back(chit->second.front());
-	continue;
+        hits.push_back(chit->second.front());
+        allHits.push_back(chit->second.front());
+        continue;
       }
 
       // create list of PRDs 
       std::list<const Trk::PrepRawData*> prds;
-      std::vector<const MuonClusterOnTrack*>::iterator clit = chit->second.begin();
-      std::vector<const MuonClusterOnTrack*>::iterator clit_end = chit->second.end();
-      for( ;clit!=clit_end;++clit){
-	prds.push_back( (*clit)->prepRawData() );
+      std::vector<const MuonClusterOnTrack*>::iterator cl_it = chit->second.begin();
+      std::vector<const MuonClusterOnTrack*>::iterator cl_it_end = chit->second.end();
+      for( ;cl_it!=cl_it_end;++cl_it){
+        const Trk::PrepRawData* prd = (*cl_it)->prepRawData();
+        if (prd){ 
+          prds.push_back( prd );
+        } else {
+          ATH_MSG_ERROR("MuonClusterOnTrack has no PRD.");
+        }
       }
 
       const CompetingMuonClustersOnTrack* comprot = m_compClusterCreator->createBroadCluster(prds,0);
       if( !comprot ){
-	ATH_MSG_WARNING(" could not create CompetingMuonClustersOnTrack in chamber   " << m_idHelperTool->toString(chit->first));
-	continue;
+        ATH_MSG_WARNING(" could not create CompetingMuonClustersOnTrack in chamber   " << m_idHelperSvc->toString(chit->first));
+        continue;
       }
       hits.push_back(comprot);
       allHits.push_back(comprot);
       
       // add to garbage collection
-      m_measurementsToBeDelete.push_back(comprot);
+      measurementsToBeDeleted.push_back(comprot);
     }
   }
 
@@ -531,16 +501,16 @@ namespace Muon {
       if( !meas ) continue;
 
       // get chamber index
-      Identifier id = m_helperTool->getIdentifier(*meas);
-      if( !id.is_valid() || !m_idHelperTool->isMuon(id) ) continue;
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
       
       // don't include trigger hits
-      if( m_idHelperTool->isTrigger(id) ) continue;
+      if( m_idHelperSvc->isTrigger(id) ) continue;
 
-      chambers.insert(m_idHelperTool->chamberIndex(id));
+      chambers.insert(m_idHelperSvc->chamberIndex(id));
       
       if( msgLvl(MSG::VERBOSE) ) {
-	msg(MSG::VERBOSE) << " in recal " << m_idHelperTool->toString(id) << endmsg;
+	msg(MSG::VERBOSE) << " in recal " << m_idHelperSvc->toString(id) << endmsg;
       }
 
     }
@@ -582,7 +552,7 @@ namespace Muon {
     for(  ; it!=it_end; ++it ){
       if( !(*it)->info().id.is_valid() ) continue;
       // only want MDT or CSC detEls
-      if ( !m_idHelperTool->isMdt( (*it)->info().id ) && !m_idHelperTool->isCsc( (*it)->info().id ) ) continue;
+      if ( !m_idHelperSvc->isMdt( (*it)->info().id ) && !m_idHelperSvc->isCsc( (*it)->info().id ) ) continue;
 
       const Trk::MeasurementBase& meas = (*it)->measurement();
       const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);
@@ -605,8 +575,14 @@ namespace Muon {
   
   void MuPatCandidateTool::cleanUp() const {
     // delete segments and clear vector
-    std::for_each( m_measurementsToBeDelete.begin(),m_measurementsToBeDelete.end(),MuonDeleteObject<const Trk::MeasurementBase>() );
-    m_measurementsToBeDelete.clear();
+    std::lock_guard<std::mutex> lock{m_mutex};
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    CacheEntry* ent{m_cache.get(ctx)};
+    if (ent->m_evt != ctx.evt()) {
+      ent->m_evt = ctx.evt();
+    }
+    m_hitHandler->cleanUp();
+    ent->cleanUp();
   }
 
   std::string MuPatCandidateTool::print( const MuPatSegment& segment, int level ) const {
@@ -665,15 +641,6 @@ namespace Muon {
 
     return "Unknown candidate type";
   }
-
-  
-  void MuPatCandidateTool::handle(const Incident& inc) {
-    // Only clear cache for EndEvent incident
-    if (inc.type() != "EndEvent") return;
-    
-    cleanUp();
-    
-  }  
 
 } // namespace Muon
 

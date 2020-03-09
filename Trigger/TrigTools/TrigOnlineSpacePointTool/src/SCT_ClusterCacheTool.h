@@ -70,7 +70,6 @@ private:
   SCT_RDO_Container* m_rdoContainer;
   std::string m_rdoContainerName;
   std::string m_bsErrContainerName;
-  std::string m_bsFracContainerName;
   bool m_doBS;
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

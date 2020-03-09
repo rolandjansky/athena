@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_CondCabling/TGCCablingDbTool.h" 
@@ -30,8 +30,8 @@ TGCCablingDbTool::TGCCablingDbTool(const std::string& type,
   declareProperty("Folder", m_Folder="/TGC/CABLING/MAP_SCHEMA");
 
   // ASD2PP_diff_12.db is the text database for the TGCcabling12 package
-  declareProperty("filename_ASD2PP_DIFF_12", m_filename="ASD2PP_diff_12.db");
-  declareProperty("readASD2PP_DIFF_12FromText", m_readASD2PP_DIFF_12FromText=false);
+  declareProperty("filename_ASD2PP_DIFF_12", m_filename="ASD2PP_diff_12_ONL.db");
+  declareProperty("readASD2PP_DIFF_12FromText", m_readASD2PP_DIFF_12FromText=true);
 }
 
 
@@ -111,17 +111,17 @@ std::vector<std::string>* TGCCablingDbTool::giveASD2PP_DIFF_12() {
 StatusCode TGCCablingDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
   ATH_MSG_INFO("loadParameters from DB");
 
+  StatusCode sc;
   std::list<std::string>::const_iterator itr = keys.begin();
   std::list<std::string>::const_iterator itr_e = keys.end();
-  
   for(; itr!=itr_e; ++itr) {
     ATH_MSG_INFO("loadParameters " << (*itr) << " I=" << I << " ");
     if((*itr)==m_Folder) {
-      loadASD2PP_DIFF_12(I, keys);
+      sc &= loadASD2PP_DIFF_12(I, keys);
     }
   }
   
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode TGCCablingDbTool::loadASD2PP_DIFF_12(IOVSVC_CALLBACK_ARGS_P(/*I*/, /*keys*/)) {
@@ -207,7 +207,7 @@ StatusCode TGCCablingDbTool::readASD2PP_DIFF_12FromText() {
   // Copy database into m_ASD2PP_DIFF_12
   while(getline(inASDToPP, buf)){ 
     m_ASD2PP_DIFF_12->push_back(buf);
-    ATH_MSG_INFO(m_filename.c_str() << " L" << ++nLines << ": " << buf.c_str());
+    ATH_MSG_DEBUG(m_filename.c_str() << " L" << ++nLines << ": " << buf.c_str());
   }
 
   inASDToPP.close(); 

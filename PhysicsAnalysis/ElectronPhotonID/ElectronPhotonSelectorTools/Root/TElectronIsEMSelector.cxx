@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -895,7 +895,7 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 
     int ibin_et_TRT = -1;
     // loop on ET range
-    if(m_cutBinET_TRT.size()>0){
+    if(!m_cutBinET_TRT.empty()){
       for (unsigned int ibinET=0;ibinET<=m_cutBinET_TRT.size();++ibinET) {
 	if ( ibinET == 0 ) {
 	  if (et < m_cutBinET_TRT[ibinET] ) {
@@ -960,7 +960,7 @@ std::vector<int> Root::TElectronIsEMSelector::FindEtEtaBin(double et, double eta
   //Try to figure out in which bin we belong
   int ibin_et = -1;
   // loop on ET range
-  if(m_cutBinET.size()>0){
+  if(!m_cutBinET.empty()){
     for (unsigned int ibinET=0;ibinET<=m_cutBinET.size();++ibinET) {
       if ( ibinET == 0 ) {
 	if (et < m_cutBinET[ibinET] ) {
@@ -1021,7 +1021,7 @@ bool Root::TElectronIsEMSelector::CheckVar(const std::vector<T>& vec, int choice
   // 5 : vs combinedTRTNB
 
   // if size of vector is 0 it means cut is not defined
-  if (vec.size() == 0) return false;
+  if (vec.empty()) return false;
 
   unsigned int etaNB = m_cutBinEta.size();
   unsigned int etaTRTNB = m_cutBinEta_TRT.size();

@@ -1,20 +1,21 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def createLArRoI_Map( flags ):
     acc = ComponentAccumulator()
-    from LArRawUtils.LArRawUtilsConf import LArRoI_Map
+    LArRoI_Map=CompFactory.LArRoI_Map
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 
-    from LArCabling.LArCablingConf import LArCablingLegacyService
+    LArCablingLegacyService=CompFactory.LArCablingLegacyService
     cablingTool = LArCablingLegacyService() # this is realy a tool
     # needed by above
     acc.merge( LArFebRodMappingCfg( flags ))
     acc.merge( LArCalibIdMappingCfg( flags ))
 
-    from CaloTriggerTool.CaloTriggerToolConf import CaloTriggerTowerService
+    CaloTriggerTowerService=CompFactory.CaloTriggerTowerService
     triggerTowerTool = CaloTriggerTowerService()                                              
     acc.merge(addFolders(flags, ['/LAR/Identifier/LArTTCellMapAtlas'], 'LAR'))
     acc.merge(addFolders(flags, ['/LAR/Identifier/OnOffIdMap'], 'LAR'))
@@ -33,7 +34,7 @@ def createLArRoI_Map( flags ):
 def trigCaloDataAccessSvcCfg( flags ):    
 
     acc = ComponentAccumulator()
-    from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
+    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svc = TrigCaloDataAccessSvc()
 
     # since the svc depends on calo geometry configure it here
@@ -48,15 +49,18 @@ def trigCaloDataAccessSvcCfg( flags ):
     
     acc.merge( createLArRoI_Map( flags ) )
 
-    # Needed by LArBadChanLegacyTool, refrerenced from LArCellCont.
+    # Needed by bad channel maskers, refrerenced from LArCellCont.
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc.merge(addFolders(flags, ['/LAR/BadChannels/BadChannels'], 'LAR'))
     acc.merge(addFolders(flags, ['/LAR/BadChannels/MissingFEBs'], 'LAR'))
 
-    from TileConditions.TileConditionsConfig import tileCondCfg
-    acc.merge( tileCondCfg (flags) )
+    from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
+    acc.merge( TileEMScaleCondAlgCfg(flags) )
 
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+    from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
+    acc.merge( TileBadChannelsCondAlgCfg(flags) )
+
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     import math
     mon = GenericMonitoringTool("TrigCaloDataAccessSvcMon")
     mon.defineHistogram("TIME_locking_LAr_RoI",
@@ -98,7 +102,7 @@ if __name__ == "__main__":
 
     acc.merge( trigCaloDataAccessSvcCfg( ConfigFlags ) )
     
-    from TrigT2CaloCommon.TrigT2CaloCommonConf import TestCaloDataAccess
+    TestCaloDataAccess=CompFactory.TestCaloDataAccess
     testAlg = TestCaloDataAccess()
     acc.addEventAlgo(testAlg)    
     
@@ -120,7 +124,7 @@ if __name__ == "__main__":
     print(acc.getPublicTool("LArRoI_Map"))
 
     print("running this configuration")
-    of = open("test.pkl", "w")
+    of = open("test.pkl", "wb")
     acc.store(of)
     of.close()
 

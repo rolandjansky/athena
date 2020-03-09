@@ -20,13 +20,16 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArRawConditions
+                          LArCalorimeter/LArCOOLConditions
                           Tools/PathResolver )
 
 # Component(s) in the package:
 atlas_add_component( LArCalibTest
-                     src/*.cxx
+                     src/LAr*.cxx
+                     src/DumpCaloBadChannels.cxx
+                     src/FixLArElecCalib.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloConditions CaloIdentifier AthenaBaseComps GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCablingLib CaloDetDescrLib StoreGateLib SGtests xAODEventInfo LArRawConditions PathResolver )
+                     LINK_LIBRARIES CaloConditions CaloIdentifier AthenaBaseComps GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCablingLib CaloDetDescrLib StoreGateLib SGtests xAODEventInfo LArRawConditions LArCOOLConditions PathResolver )
 
 # Install files from the package:
 atlas_install_headers( LArCalibTest )

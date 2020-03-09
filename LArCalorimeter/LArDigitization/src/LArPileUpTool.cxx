@@ -19,13 +19,12 @@
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CaloIdentifier/LArNeighbours.h"
 #include "Identifier/IdentifierHash.h"
-#include "LArElecCalib/ILArOFC.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArSimEvent/LArHitFloat.h"
-#include "LArSimEvent/LArHitFloatContainer.h"
 #include "LArSimEvent/LArHit.h"
-#include "LArSimEvent/LArHitContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloIdentifier/CaloIdManager.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 
 #include "AthenaKernel/RNGWrapper.h"
@@ -37,8 +36,7 @@ using CLHEP::RandFlat;
 using CLHEP::RandGaussZiggurat;
 
 LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  PileUpToolBase(type, name, parent)
-{
+  PileUpToolBase(type, name, parent) {
 
   declareInterface<ILArPileUpTool>(this);
 
@@ -69,11 +67,6 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
 
 LArPileUpTool::~LArPileUpTool()
 {
-  if (!m_recordMap && m_hitmap) delete m_hitmap;
-  if(m_doDigiTruth){
-    if (!m_recordMap && m_hitmap_DigiHSTruth) delete m_hitmap_DigiHSTruth;
-  }
-
   return;
 }
 
@@ -98,8 +91,10 @@ StatusCode LArPileUpTool::initialize()
      ATH_MSG_INFO(" No overlay of random events");
   }
 
-  ATH_CHECK(m_mergeSvc.retrieve());
-  ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+    ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
+  }
 
   //
   // ......... print the noise flag
@@ -136,100 +131,34 @@ StatusCode LArPileUpTool::initialize()
     ATH_MSG_INFO(" no Cross-Talk simulated");
   }
 
-  //
-  // ......... make the Sub-detector flag vector
-  //
-  for (int i=0; i < LArHitEMap::NUMDET ; i++)
-  {
-   m_SubDetFlag.push_back(false);
+  if (m_onlyUseContainerName) {
+    if (m_useLArHitFloat) {
+      for (const auto& RHkey : m_hitFloatContainerKeys.keys()) {
+        m_hitContainerNames.push_back(RHkey->key());
+      }
+    }
+    else {
+      for (const auto& RHkey : m_hitContainerKeys.keys()) {
+        m_hitContainerNames.push_back(RHkey->key());
+      }
+    }
   }
+  ATH_MSG_DEBUG("Input objects in these containers : '" << m_hitContainerNames << "'");
 
-  //
-  // ......... make the digit container name list
-  //
-  if ( m_SubDetectors == "LAr_All" )
-  {
-    m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-    m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-    m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
-    m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_Em" )
-  {
-    m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-    m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_EmBarrel" )
-  {
-    m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_EmEndCap" )
-  {
-    m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_HEC" )
-  {
-    m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_Fcal" )
-  {
-    m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
-  }
-  else if (m_SubDetectors == "LAr_EndCap")
-  {
-    m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-    m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
-    m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
-  }
-  else
-  {
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitContainerKeys.initialize(!m_onlyUseContainerName && !m_hitContainerKeys.empty() ));
+  ATH_CHECK(m_hitFloatContainerKeys.initialize(!m_onlyUseContainerName && !m_hitFloatContainerKeys.empty() ));
+  ATH_CHECK(m_inputDigitContainerKey.initialize(!m_onlyUseContainerName && !m_inputDigitContainerKey.empty() ));
 
-    //
-    //........ Unknown case
-
-    ATH_MSG_ERROR(" Invalid SubDetector propertie : " << m_SubDetectors << "Valid ones are: LAr_All, LAr_Em, LAr_EmBarrel,LAr_EmEndCap, LAr_EndCap, LAr_HEC and LAr_Fcal ");
-    return(StatusCode::FAILURE);
-  }
-
-  if (m_SubDetFlag[LArHitEMap::EMBARREL_INDEX]) {
-     std::vector<std::string>::const_iterator hitVecItr = m_EmBarrelHitContainerName.begin();
-     std::vector<std::string>::const_iterator hitVecEnd = m_EmBarrelHitContainerName.end();
-     for ( ; hitVecItr != hitVecEnd; ++hitVecItr) {
-      std::string hitName = (*hitVecItr);
-      m_HitContainer.push_back(hitName);
-      m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
-     }
-  }
-  if (m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX]) {
-     std::vector<std::string>::const_iterator hitVecItr = m_EmEndCapHitContainerName.begin();
-     std::vector<std::string>::const_iterator hitVecEnd = m_EmEndCapHitContainerName.end();
-     for ( ; hitVecItr != hitVecEnd; ++hitVecItr) {
-      std::string hitName = (*hitVecItr);
-      m_HitContainer.push_back(hitName);
-      m_CaloType.push_back(LArHitEMap::EMENDCAP_INDEX);
-     }
-  }
-  if (m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX]) {
-     std::vector<std::string>::const_iterator hitVecItr = m_HecHitContainerName.begin();
-     std::vector<std::string>::const_iterator hitVecEnd = m_HecHitContainerName.end();
-     for ( ; hitVecItr != hitVecEnd; ++hitVecItr) {
-      std::string hitName = (*hitVecItr);
-      m_HitContainer.push_back(hitName);
-      m_CaloType.push_back(LArHitEMap::HADENDCAP_INDEX);
-     }
-  }
-  if (m_SubDetFlag[LArHitEMap::FORWARD_INDEX]) {
-     std::vector<std::string>::const_iterator hitVecItr = m_ForWardHitContainerName.begin();
-     std::vector<std::string>::const_iterator hitVecEnd = m_ForWardHitContainerName.end();
-     for ( ; hitVecItr != hitVecEnd; ++hitVecItr) {
-      std::string hitName = (*hitVecItr);
-      m_HitContainer.push_back(hitName);
-      m_CaloType.push_back(LArHitEMap::FORWARD_INDEX);
-     }
+  if (m_Windows) {
+    ATH_CHECK(  detStore()->retrieve(m_caloDDMgr, "CaloMgr") );
   }
 
   //retrieve ID helpers
-  const DataHandle<CaloIdManager> caloIdMgr;
+  ATH_CHECK(detStore()->retrieve(m_calocell_id,"CaloCell_ID"));
+
+
+  const CaloIdManager* caloIdMgr = nullptr;
   StatusCode sc = detStore()->retrieve(caloIdMgr);
   if (sc.isFailure()) {
     ATH_MSG_ERROR(" Unable to retrieve CaloIdManager from DetectoreStore");
@@ -248,9 +177,8 @@ StatusCode LArPileUpTool::initialize()
   ATH_CHECK(m_adc2mevKey.initialize());
 
   // retrieve tool to compute sqrt of time correlation matrix
-  if ( !m_RndmEvtOverlay  &&  m_NoiseOnOff) {
-    ATH_CHECK(m_autoCorrNoiseKey.initialize());
-  }
+  ATH_CHECK(m_autoCorrNoiseKey.initialize(!m_RndmEvtOverlay && m_NoiseOnOff));
+
   if (m_maskingTool.retrieve().isFailure()) {
        ATH_MSG_INFO(" No tool for bad channel masking");
       m_useBad=false;
@@ -284,17 +212,20 @@ StatusCode LArPileUpTool::initialize()
 
 // register data handle for conditions data
 
-  if ( !m_RndmEvtOverlay && !m_pedestalNoise && m_NoiseOnOff ) {
-    ATH_CHECK(m_noiseKey.initialize());
-  }
+  ATH_CHECK(m_noiseKey.initialize(!m_RndmEvtOverlay && !m_pedestalNoise && m_NoiseOnOff));
+
   ATH_CHECK(m_shapeKey.initialize());
   ATH_CHECK(m_fSamplKey.initialize());
   ATH_CHECK(m_pedestalKey.initialize());
 
-  m_hitmap = new LArHitEMap();
-  if(m_doDigiTruth) {
-		m_hitmap_DigiHSTruth = new LArHitEMap();
-	}
+  ATH_CHECK(m_cablingKey.initialize());
+
+  ATH_CHECK(m_hitMapKey.initialize());
+  ATH_CHECK(m_hitMapKey_DigiHSTruth.initialize());
+
+  ATH_CHECK(m_DigitContainerName.initialize());
+  ATH_CHECK(m_DigitContainerName_DigiHSTruth.initialize());
+  
 
 
   // decide sample to use for gain selection
@@ -316,36 +247,26 @@ StatusCode LArPileUpTool::initialize()
 StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 {
 
-//
-// ......... book the LArCellTable vector if not initialized.
-//
-  if( !m_hitmap->initialized())
-  {
-    ATH_MSG_DEBUG(" Start LArHitEMap.Initialize");
-    if ( ! m_hitmap->Initialize(m_SubDetFlag,m_Windows,m_RndmEvtOverlay) )
-    {
-        ATH_MSG_ERROR(" Making of the noise cell table failed");
-        return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
-
-    if (m_recordMap) {
-       ATH_CHECK(detStore()->record(m_hitmap,"LArHitEMap"));
-    }
-
-    if (!m_useMBTime) m_energySum.resize(m_hitmap->GetNbCells(),0.);
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  m_cabling=*cablingHdl;
+  if(!m_cabling) {
+     ATH_MSG_ERROR("Failed to retrieve LAr Cabling map with key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
   }
-  if( m_doDigiTruth && !m_hitmap_DigiHSTruth->initialized()){
-    ATH_MSG_DEBUG(" Start LArHitEMap_DigiHSTruth.Initialize");
-    if ( ! m_hitmap_DigiHSTruth->Initialize(m_SubDetFlag,m_Windows, false) ){
-      ATH_MSG_ERROR(" Making of the DigiHSTruth noise cell table failed");
-      return StatusCode::FAILURE;
-    }
 
-    if (m_recordMap) {
-      ATH_CHECK(detStore()->record(m_hitmap_DigiHSTruth,"LArHitEMap_DigiHSTruth"));
-    }
-    if (!m_useMBTime) m_energySum_DigiHSTruth.resize(m_hitmap_DigiHSTruth->GetNbCells(),0.);
+  m_hitmap=SG::makeHandle(m_hitMapKey);
+  auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,m_caloDDMgr,m_RndmEvtOverlay);
+  ATH_CHECK(m_hitmap.record(std::move(hitMapPtr)));
+  ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
+
+  if (!m_useMBTime) m_energySum.assign(m_hitmap->GetNbCells(),0.);
+
+  
+  if (m_doDigiTruth) {
+    m_hitmap_DigiHSTruth=SG::makeHandle(m_hitMapKey_DigiHSTruth);
+    auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,m_caloDDMgr,m_RndmEvtOverlay);
+    ATH_CHECK(m_hitmap_DigiHSTruth.record(std::move(hitMapPtr)));
+    if (!m_useMBTime) m_energySum_DigiHSTruth.assign(m_hitmap_DigiHSTruth->GetNbCells(),0.);
   }
 
   // get the trigger time if requested
@@ -364,16 +285,6 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
     m_trigtime = m_trigtime - (m_phaseMin + (m_phaseMax-m_phaseMin)*RandFlat::shoot(*rngWrapper)  );
   }
 
-  //
-  // ........ reset the Cell Pointer Energy arrays
-  //
-  m_hitmap->EnergyReset();
-  if(m_doDigiTruth) {
-    m_hitmap_DigiHSTruth->EnergyReset();
-  }
-
-  ATH_MSG_DEBUG(" LArPileUpTool::execute: Energy reset done");
-
   if (m_Windows) {
     ATH_MSG_DEBUG(" redefine windows list ");
     m_hitmap->BuildWindows(m_WindowsEtaSize,m_WindowsPhiSize,
@@ -387,44 +298,20 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
   //
   // ....... create the LAr Digit Container
   //
-  m_DigitContainer = new LArDigitContainer();
-  if ( m_DigitContainer == 0 )
-  {
-    ATH_MSG_ERROR("Could not allocate a new LArDigitContainer");
-    return StatusCode::FAILURE;
+  
+  m_DigitContainer = SG::makeHandle(m_DigitContainerName);//new LArDigitContainer();
+  ATH_CHECK(m_DigitContainer.record(std::make_unique<LArDigitContainer>()));
+
+  if (m_doDigiTruth) {
+    m_DigitContainer_DigiHSTruth = SG::makeHandle(m_DigitContainerName_DigiHSTruth);//new LArDigitContainer();
+    ATH_CHECK(m_DigitContainer_DigiHSTruth.record(std::make_unique<LArDigitContainer>()));
   }
 
-  //
-  // ...... register the digit container into the TDS and check if succeeded
-  //
-  ATH_CHECK(evtStore()->record(m_DigitContainer ,  m_DigitContainerName) );
-
-  if(m_doDigiTruth){
-    m_DigitContainer_DigiHSTruth = new LArDigitContainer();
-    if ( m_DigitContainer_DigiHSTruth == 0 ){
-      ATH_MSG_ERROR("Could not allocate a new LArDigitContainer");
-      return StatusCode::FAILURE;
-    }
-    ATH_CHECK(evtStore()->record(m_DigitContainer_DigiHSTruth ,  m_DigitContainerName_DigiHSTruth) );
-  }
   //
   // ..... get OFC pointer for overlay case
-
-  m_larOFC=NULL;
-  if(m_RndmEvtOverlay  && !m_isMcOverlay) {
-    StatusCode sc=detStore()->retrieve(m_larOFC);
-    if (sc.isFailure())
-    {
-      ATH_MSG_ERROR("Can't retrieve LArOFC from Conditions Store");
-      return StatusCode::FAILURE;
-    }
-  }
-
+  ATH_CHECK(m_OFCKey.initialize(m_RndmEvtOverlay  && !m_isMcOverlay));
 
   m_nhit_tot = 0;
-
-  m_n_cells = m_hitmap->GetNbCells();
-
   return StatusCode::SUCCESS;
 
 }
@@ -457,7 +344,7 @@ StatusCode LArPileUpTool::processBunchXing(int bunchXing,
     // store digits from randoms for overlay
     if (m_RndmEvtOverlay) {
       const LArDigitContainer* rndm_digit_container;
-      if (m_mergeSvc->retrieveSingleSubEvtData(m_RandomDigitContainer, rndm_digit_container, bunchXing, iEvt).isSuccess()) {
+      if (m_mergeSvc->retrieveSingleSubEvtData(m_inputDigitContainerKey.key(), rndm_digit_container, bunchXing, iEvt).isSuccess()) {
 	int ndigit=0;
 	for (const LArDigit* digit : *rndm_digit_container) {
 	  if (m_hitmap->AddDigit(digit)) ndigit++;
@@ -492,6 +379,39 @@ StatusCode LArPileUpTool::processAllSubEvents()
      return StatusCode::FAILURE;
   }
 
+  if(!m_onlyUseContainerName && m_RndmEvtOverlay) {
+    auto hitVectorHandles = m_hitContainerKeys.makeHandles();
+    for (auto & inputHits : hitVectorHandles) {
+      if (!inputHits.isValid()) {
+        ATH_MSG_ERROR("BAD HANDLE"); //FIXME improve error here
+        return StatusCode::FAILURE;
+      }
+      bool isSignal(true);
+      double SubEvtTimOffset(0.0);
+      double timeCurrBunch=-9999999.;
+      for (const LArHit* hit : *inputHits) {
+        m_nhit_tot++;
+        float energy = (float) (hit->energy());
+        float time;
+        if (m_ignoreTime && isSignal) time=0.;
+        else time = (float) (SubEvtTimOffset+ hit->time() -m_trigtime);
+        Identifier cellId = hit->cellID();
+        if (!m_useMBTime) {
+          if (std::fabs(SubEvtTimOffset-timeCurrBunch)>1.) {
+            if (timeCurrBunch>-9999.) {
+              if (!this->fillMapfromSum(timeCurrBunch)) {
+                ATH_MSG_ERROR(" error in FillMapFromSum ");
+                return(StatusCode::FAILURE);
+              }
+            }
+            timeCurrBunch = SubEvtTimOffset;
+          }
+        }
+        if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
+      } // End of loop over LArHitContainer
+    } // End of loop over SG::ReadHandles
+  }
+
   if (!m_PileUp) {
     float time=0.;
     StoreGateSvc* myEvtStore = &(*evtStore());
@@ -503,33 +423,9 @@ StatusCode LArPileUpTool::processAllSubEvents()
 
   else {
 
-    for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-    {
-      ATH_MSG_DEBUG(" pileUpOld asking for: " << m_HitContainer[iHitContainer]);
+    for (const std::string& containerName : m_hitContainerNames) {
 
-      unsigned int offset;
-      int ical=0;
-      if (m_CaloType[iHitContainer] == LArHitEMap::EMBARREL_INDEX ||
-          m_CaloType[iHitContainer] == LArHitEMap::EMENDCAP_INDEX)
-      {
-        offset=0;
-        ical=1;
-      }
-      else if (m_CaloType[iHitContainer] == LArHitEMap::HADENDCAP_INDEX)
-      {
-        offset=m_hitmap->get_ncellem();
-        ical=2;
-      }
-      else if (m_CaloType[iHitContainer] == LArHitEMap::FORWARD_INDEX)
-      {
-        offset=m_hitmap->get_ncellem()+m_hitmap->get_ncellhec();
-        ical=3;
-      }
-      else
-      {
-       ATH_MSG_ERROR(" unknown calo type ! ");
-       return StatusCode::FAILURE;
-      }
+      ATH_MSG_DEBUG(" pileUpOld asking for: " << containerName);
 
       double timeCurrBunch=-9999999.;
 
@@ -539,7 +435,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
         //
         // retrieve list of pairs (time,container) from PileUp service
 
-        if (!(m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
+        if (!(m_mergeSvc->retrieveSubEvtsData(containerName
             ,hitContList).isSuccess()) && hitContList.size()==0) {
          ATH_MSG_ERROR("Could not fill TimedHitContList");
          return StatusCode::FAILURE;
@@ -563,17 +459,13 @@ StatusCode LArPileUpTool::processAllSubEvents()
           // get LArHitContainer for this subevent
           const LArHitContainer& firstCont = *(iFirstCont->second);
           // Loop over cells in this LArHitContainer
-          LArHitContainer::const_iterator f_cell=firstCont.begin();
-          LArHitContainer::const_iterator l_cell=firstCont.end();
-          while (f_cell != l_cell) {
+          for (const LArHit* hit : firstCont) {
             m_nhit_tot++;
-            const LArHit* hit = (*f_cell);
             float energy = (float) (hit->energy());
             float time;
             if (m_ignoreTime && isSignal) time=0.;
             else time = (float) (SubEvtTimOffset+ hit->time() -m_trigtime);
             Identifier cellId = hit->cellID();
-            ++f_cell;
 
             if (!m_useMBTime) {
               if (std::fabs(SubEvtTimOffset-timeCurrBunch)>1.) {
@@ -586,7 +478,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
                   timeCurrBunch = SubEvtTimOffset;
               }
             }
-            if (this->AddHit(cellId,energy,time,isSignal,offset,ical).isFailure()) return StatusCode::FAILURE;
+            if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
           }              //  loop over  hits
           ++iFirstCont;
         }                 // loop over subevent list
@@ -599,7 +491,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
         //
         // retrieve list of pairs (time,container) from PileUp service
 
-        if (!(m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
+        if (!(m_mergeSvc->retrieveSubEvtsData(containerName
               ,hitContList).isSuccess()) && hitContList.size()==0) {
          ATH_MSG_ERROR("Could not fill TimedHitContList");
          return StatusCode::FAILURE;
@@ -623,16 +515,13 @@ StatusCode LArPileUpTool::processAllSubEvents()
           // get LArHitContainer for this subevent
           const LArHitFloatContainer& firstCont = *(iFirstCont->second);
           // Loop over cells in this LArHitContainer
-          LArHitFloatContainer::const_iterator f_cell=firstCont.begin();
-          LArHitFloatContainer::const_iterator l_cell=firstCont.end();
-          while (f_cell != l_cell) {
+          for (const LArHitFloat& hit : firstCont) {
             m_nhit_tot++;
-            float energy = (float)( (*f_cell).energy());
+            float energy = (float)( hit.energy());
             float time;
             if (m_ignoreTime && isSignal) time=0.;
-            else time = (float) (SubEvtTimOffset+ (*f_cell).time() - m_trigtime);
-            Identifier cellId = (*f_cell).cellID();
-            ++f_cell;
+            else time = (float) (SubEvtTimOffset+ hit.time() - m_trigtime);
+            Identifier cellId = hit.cellID();
 
             if (!m_useMBTime) {
               if (std::fabs(SubEvtTimOffset-timeCurrBunch)>1.) {
@@ -645,7 +534,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
                   timeCurrBunch = SubEvtTimOffset;
               }
             }
-            if (this->AddHit(cellId,energy,time,isSignal,offset,ical).isFailure()) return StatusCode::FAILURE;
+            if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
           }              //  loop over  hits
           ++iFirstCont;
         }                 // loop over subevent list
@@ -664,37 +553,51 @@ StatusCode LArPileUpTool::processAllSubEvents()
     // get digits for random overlay
     if(m_RndmEvtOverlay)
     {
-
-      typedef PileUpMergeSvc::TimedList<LArDigitContainer>::type TimedDigitContList ;
-      LArDigitContainer::const_iterator rndm_digititer_begin ;
-      LArDigitContainer::const_iterator rndm_digititer_end ;
-      LArDigitContainer::const_iterator rndm_digititer ;
-
-      m_hitmap->DigitReset();
-      if(m_doDigiTruth) {
-        m_hitmap_DigiHSTruth->DigitReset();
-      }
-
-
-      TimedDigitContList digitContList;
-      if (!(m_mergeSvc->retrieveSubEvtsData(m_RandomDigitContainer,
-           digitContList).isSuccess()) || digitContList.size()==0)
+      if (!m_onlyUseContainerName)
       {
-         ATH_MSG_ERROR("Cannot retrieve LArDigitContainer for random event overlay or empty Container");
-         return StatusCode::FAILURE ;
+        SG::ReadHandle<LArDigitContainer> digitCollection(m_inputDigitContainerKey);
+        if (!digitCollection.isValid()) {
+          ATH_MSG_ERROR("Could not get LArDigitContainer container " << digitCollection.name() << " from store " << digitCollection.store());
+          return StatusCode::FAILURE;
+        }
+
+        ATH_MSG_DEBUG("LArDigitContainer found with " << digitCollection->size() << " digits");
+
+        size_t ndigit{};
+        for (const LArDigit* digit : *digitCollection) {
+          if (m_hitmap->AddDigit(digit)) ndigit++;
+        }
+        ATH_MSG_DEBUG(" Number of digits stored for RndmEvt Overlay " << ndigit);
       }
-      TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin()) ;
-      double SubEvtTimOffset;
-      // get time for this subevent
-      const PileUpTimeEventIndex* time_evt = &(iTzeroDigitCont->first);
-      SubEvtTimOffset = time_evt->time();
-      ATH_MSG_DEBUG(" Subevt time : " << SubEvtTimOffset);
-      const LArDigitContainer& rndm_digit_container =  *(iTzeroDigitCont->second);
-      int ndigit=0;
-      for (const LArDigit* digit : rndm_digit_container) {
-       if (m_hitmap->AddDigit(digit)) ndigit++;
+      else
+      {
+        typedef PileUpMergeSvc::TimedList<LArDigitContainer>::type TimedDigitContList ;
+        LArDigitContainer::const_iterator rndm_digititer_begin ;
+        LArDigitContainer::const_iterator rndm_digititer_end ;
+        LArDigitContainer::const_iterator rndm_digititer ;
+
+
+        TimedDigitContList digitContList;
+        if (!(m_mergeSvc->retrieveSubEvtsData(m_inputDigitContainerKey.key(),
+            digitContList).isSuccess()) || digitContList.size()==0)
+        {
+          ATH_MSG_ERROR("Cannot retrieve LArDigitContainer for random event overlay or empty Container");
+          ATH_MSG_ERROR("Random Digit Key= " << m_inputDigitContainerKey.key() << ",size=" << digitContList.size());
+          return StatusCode::FAILURE ;
+        }
+        TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin()) ;
+        double SubEvtTimOffset;
+        // get time for this subevent
+        const PileUpTimeEventIndex* time_evt = &(iTzeroDigitCont->first);
+        SubEvtTimOffset = time_evt->time();
+        ATH_MSG_DEBUG(" Subevt time : " << SubEvtTimOffset);
+        const LArDigitContainer& rndm_digit_container =  *(iTzeroDigitCont->second);
+        int ndigit=0;
+        for (const LArDigit* digit : rndm_digit_container) {
+        if (m_hitmap->AddDigit(digit)) ndigit++;
+        }
+        ATH_MSG_INFO(" Number of digits stored for RndmEvt Overlay " << ndigit);
       }
-      ATH_MSG_INFO(" Number of digits stored for RndmEvt Overlay " << ndigit);
     }
 
   }  // if pileup
@@ -719,8 +622,6 @@ StatusCode LArPileUpTool::mergeEvent()
    int it,it_end;
    it =  0;
    it_end = m_hitmap->GetNbCells();
-   LArHitList * hitlist = nullptr;
-   LArHitList * hitlist_DigiHSTruth = nullptr;
 
    Identifier cellID;
    const std::vector<std::pair<float,float> >* TimeE;
@@ -731,44 +632,33 @@ StatusCode LArPileUpTool::mergeEvent()
 
    for( ; it!=it_end;++it) // now loop on cells
    {
-      hitlist = m_hitmap->GetCell(it);
-      if(m_doDigiTruth) {
-        hitlist_DigiHSTruth = m_hitmap_DigiHSTruth->GetCell(it);
-      }
+      const LArHitList& hitlist = m_hitmap->GetCell(it);
+      
+      if (!m_Windows || hitlist.inWindows()) {
+	TimeE = &(hitlist.getData());
+	if(m_doDigiTruth) {
+	  auto& hitlist_DigiHSTruth=m_hitmap_DigiHSTruth->GetCell(it);
+	  TimeE_DigiHSTruth = &(hitlist_DigiHSTruth.getData());
+	}
 
-      if (hitlist != 0 ) {
-        if (!m_Windows || hitlist->inWindows()) {
-          TimeE = hitlist->getData();
-          if(m_doDigiTruth) {
-            TimeE_DigiHSTruth = hitlist_DigiHSTruth->getData();
-          }
-
-          if (TimeE->size() > 0 || m_NoiseOnOff || m_RndmEvtOverlay) {
-            cellID = hitlist->getIdentifier();
-            HWIdentifier ch_id = hitlist->getOnlineIdentifier();
-	    HWIdentifier febId = m_laronline_id->feb_Id(ch_id);
-            bool missing=!(badFebs->status(febId).good());
-            if (!missing) {
-               const LArDigit * digit = 0 ;
-               if(m_RndmEvtOverlay) digit = m_hitmap->GetDigit(it);
-               // MakeDigit called if in no overlay mode or
-               // if in overlay mode and random digit exists
-               if( (!m_RndmEvtOverlay) || (m_RndmEvtOverlay && digit) ) {
-		 if ( this->MakeDigit(cellID, ch_id,TimeE, digit, engine, TimeE_DigiHSTruth)
-                      == StatusCode::FAILURE ) return StatusCode::FAILURE;
-               }
-            }
-          }
-        }     // check window
-      }      // check hitlist >0
+	if (TimeE->size() > 0 || m_NoiseOnOff || m_RndmEvtOverlay) {
+	  const Identifier cellID=m_calocell_id->cell_id(IdentifierHash(it));
+	  HWIdentifier ch_id = m_cabling->createSignalChannelIDFromHash(IdentifierHash(it));
+	  HWIdentifier febId = m_laronline_id->feb_Id(ch_id);
+	  bool missing=!(badFebs->status(febId).good());
+	  if (!missing) {
+	    const LArDigit * digit = 0 ;
+	    if(m_RndmEvtOverlay) digit = m_hitmap->GetDigit(it);
+	    // MakeDigit called if in no overlay mode or
+	    // if in overlay mode and random digit exists
+	    if( (!m_RndmEvtOverlay) || (m_RndmEvtOverlay && digit) ) {
+	      if ( this->MakeDigit(cellID, ch_id,TimeE, digit, engine, TimeE_DigiHSTruth)
+		   == StatusCode::FAILURE ) return StatusCode::FAILURE;
+	    }
+	  }
+	}
+      }     // check window
    }        // end of loop over the cells
-
-
-  // lock Digit container in StoreGate
-  ATH_CHECK(evtStore()->setConst(m_DigitContainer));
-  if(m_doDigiTruth){
-    ATH_CHECK(evtStore()->setConst(m_DigitContainer_DigiHSTruth));
-  }
 
 
   ATH_MSG_DEBUG(" total number of hits found= " << m_nhit_tot);
@@ -782,42 +672,17 @@ StatusCode LArPileUpTool::mergeEvent()
 
 StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime, bool isSignal)
 {
-  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-  {
+  for (const std::string& containerName : m_hitContainerNames) {
 
   //
   // ..... Get the pointer to the Hit Container from StoreGate
   //
-    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << m_HitContainer[iHitContainer]);
-
-    unsigned int offset;
-    int ical=0;
-    if (m_CaloType[iHitContainer] == LArHitEMap::EMBARREL_INDEX ||
-        m_CaloType[iHitContainer] == LArHitEMap::EMENDCAP_INDEX)
-    {
-      offset=0;
-      ical=1;
-    }
-    else if (m_CaloType[iHitContainer] == LArHitEMap::HADENDCAP_INDEX)
-    {
-      offset=m_hitmap->get_ncellem();
-      ical=2;
-    }
-    else if (m_CaloType[iHitContainer] == LArHitEMap::FORWARD_INDEX)
-    {
-      offset=m_hitmap->get_ncellem()+m_hitmap->get_ncellhec();
-      ical=3;
-    }
-    else
-    {
-     ATH_MSG_ERROR("unknown calo type ! ");
-     return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << containerName);
 
     if (m_useLArHitFloat) {
-     const DataHandle<LArHitFloatContainer> hit_container ;
-     if (myStore->contains<LArHitFloatContainer>(m_HitContainer[iHitContainer])) {
-       StatusCode sc = myStore->retrieve( hit_container,m_HitContainer[iHitContainer] ) ;
+     const LArHitFloatContainer* hit_container = nullptr;
+     if (myStore->contains<LArHitFloatContainer>(containerName)) {
+       StatusCode sc = myStore->retrieve( hit_container,containerName ) ;
        if (sc.isFailure() || !hit_container) {
           return StatusCode::FAILURE;
        }
@@ -833,20 +698,20 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
          else time   = (float) ((*hititer).time() - m_trigtime);
          time = time + bunchTime;
 
-         if (this->AddHit(cellId,energy,time,isSignal,offset,ical).isFailure()) return StatusCode::FAILURE;
+         if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
        }
      }
      else {
       if (isSignal)  {
-         ATH_MSG_WARNING(" LAr HitFloat container not found for signal event key " << m_HitContainer[iHitContainer]);
+         ATH_MSG_WARNING(" LAr HitFloat container not found for signal event key " << containerName);
       }
      }
 
     }
     else {
-     const DataHandle<LArHitContainer> hit_container ;
-     if (myStore->contains<LArHitContainer>(m_HitContainer[iHitContainer])) {
-       StatusCode sc = myStore->retrieve( hit_container,m_HitContainer[iHitContainer] ) ;
+     const LArHitContainer* hit_container = nullptr;
+     if (myStore->contains<LArHitContainer>(containerName)) {
+       StatusCode sc = myStore->retrieve( hit_container,containerName ) ;
        if (sc.isFailure() || !hit_container) {
           return StatusCode::FAILURE;
        }
@@ -862,12 +727,12 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
          else time   = (float) ((*hititer)->time() - m_trigtime);
          time = time + bunchTime;
 
-         if (this->AddHit(cellId,energy,time,isSignal,offset,ical).isFailure()) return StatusCode::FAILURE;
+         if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
        }
      }
      else {
       if (isSignal)  {
-         ATH_MSG_WARNING(" LAr Hit container not found for signal event key " << m_HitContainer[iHitContainer]);
+         ATH_MSG_WARNING(" LAr Hit container not found for signal event key " << containerName);
       }
      }
     }
@@ -879,46 +744,21 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
 // ============================================================================================
 StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal)
 {
-  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-  {
+  for (const std::string& containerName : m_hitContainerNames) {
 
   //
   // ..... Get the pointer to the Hit Container from StoreGate through the merge service
   //
 
-    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << m_HitContainer[iHitContainer]);
-
-    unsigned int offset;
-    int ical=0;
-    if (m_CaloType[iHitContainer] == LArHitEMap::EMBARREL_INDEX ||
-        m_CaloType[iHitContainer] == LArHitEMap::EMENDCAP_INDEX)
-    {
-      offset=0;
-      ical=1;
-    }
-    else if (m_CaloType[iHitContainer] == LArHitEMap::HADENDCAP_INDEX)
-    {
-      offset=m_hitmap->get_ncellem();
-      ical=2;
-    }
-    else if (m_CaloType[iHitContainer] == LArHitEMap::FORWARD_INDEX)
-    {
-      offset=m_hitmap->get_ncellem()+m_hitmap->get_ncellhec();
-      ical=3;
-    }
-    else
-    {
-     ATH_MSG_ERROR("unknown calo type ! ");
-     return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << containerName);
 
     if (m_useLArHitFloat) {
 
       const LArHitFloatContainer * hit_container;
 
-      if (!(m_mergeSvc->retrieveSingleSubEvtData(m_HitContainer[iHitContainer], hit_container, bunchTime,
+      if (!(m_mergeSvc->retrieveSingleSubEvtData(containerName, hit_container, bunchTime,
 						 iEvt).isSuccess())){
-	ATH_MSG_ERROR(" LAr Hit container not found for event key " << m_HitContainer[iHitContainer]);
+	ATH_MSG_ERROR(" LAr Hit container not found for event key " << containerName);
 	return StatusCode::FAILURE;
       }
 
@@ -934,16 +774,16 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 	  else time   = (float) ((*hititer).time() - m_trigtime);
 	  time = time + bunchTime;
 
-         if (this->AddHit(cellId,energy,time,isSignal,offset,ical).isFailure()) return StatusCode::FAILURE;
+         if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
 	}
     }
     else {
 
       const LArHitContainer * hit_container;
 
-      if (!(m_mergeSvc->retrieveSingleSubEvtData(m_HitContainer[iHitContainer], hit_container, bunchTime,
-					      iEvt).isSuccess())){
-	ATH_MSG_ERROR(" LAr Hit container not found for event key " << m_HitContainer[iHitContainer]);
+      if (!(m_mergeSvc->retrieveSingleSubEvtData(containerName, hit_container, bunchTime,
+                                             iEvt).isSuccess())){
+	ATH_MSG_ERROR(" LAr Hit container not found for event key " << containerName);
 	return StatusCode::FAILURE;
       }
 
@@ -959,7 +799,7 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 	  else time   = (float) ((*hititer)->time() - m_trigtime);
 	  time = time + bunchTime;
 
-         if (this->AddHit(cellId,energy,time,isSignal,offset,ical).isFailure()) return StatusCode::FAILURE;
+         if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
 	}
     }
   }   // end loop over containers
@@ -969,10 +809,10 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-StatusCode LArPileUpTool::AddHit(const Identifier& cellId, float energy, float time, bool isSignal, unsigned int offset, unsigned int ical)
+StatusCode LArPileUpTool::AddHit(const Identifier cellId, const float energy, const float time, const bool isSignal)
 {
 
-// remove pathological energies...
+  // remove pathological energies...
   if (std::fabs(energy)>1e+9) {
       ATH_MSG_WARNING(" Pathological energy ignored Id= "<< m_larem_id->show_to_string(cellId) << "  energy= " << energy );
       return StatusCode::SUCCESS;
@@ -982,26 +822,24 @@ StatusCode LArPileUpTool::AddHit(const Identifier& cellId, float energy, float t
   ATH_MSG_DEBUG(" Found hit  Id= "<< m_larem_id->show_to_string(cellId)<< "  energy= " << energy << "(MeV)  time= " << time << "(ns)");
 #endif
 
-  IdentifierHash idHash;
-  if (ical==1) idHash=m_larem_id->channel_hash(cellId);
-  else if(ical==2) idHash=m_larhec_id->channel_hash(cellId);
-  else if(ical==3) idHash=m_larfcal_id->channel_hash(cellId);
+  IdentifierHash idHash=m_calocell_id->calo_cell_hash(cellId);
 
 // simulation of cross talk if requested (EM barrel + EndCap)
-  if (m_CrossTalk && isSignal &&
-      m_larem_id->is_lar_em(cellId))
+  if (m_CrossTalk && isSignal && m_calocell_id->is_em(cellId)) 
   {
        std::vector<IdentifierHash> neighbourList;
        std::vector<float> energyList;
        //bool dump=false;
        //if (energy>200. || m_larem_id->sampling(cellId)==3) dump=true;
        //if(dump) std::cout << " Input cell energy " << m_larem_id->show_to_string(cellId) << " " << energy  << std::endl;
-       this->cross_talk(idHash,cellId,energy,
+       this->cross_talk(idHash,cellId,energy,  //FIXME -> Needs to work with full hash! 
                         neighbourList,energyList);
        //if(dump) std::cout <<" After cross-talk " ;
        for (unsigned int icell=0;icell<neighbourList.size();icell++)
        {
-         unsigned int index=neighbourList[icell]+offset;
+         //unsigned int index=neighbourList[icell];
+	 //Turn sub-calo hash in neighbour list into gloabl calo-cell hash:
+	 const IdentifierHash index=m_calocell_id->calo_cell_hash(m_calocell_id->sub_calo(cellId),neighbourList[icell]);
          float e = energyList[icell];
          //Identifier id2=m_larem_id->channel_id(neighbourList[icell]);
          //if(dump) std::cout << "Cell/E " <<  m_larem_id->show_to_string(id2) << " " << e << " ";
@@ -1021,16 +859,15 @@ StatusCode LArPileUpTool::AddHit(const Identifier& cellId, float energy, float t
   }
   else    // no cross-talk simulated
   {
-      unsigned int index=idHash+offset;
       if (isSignal || m_useMBTime)
       {
-        if ( !m_hitmap->AddEnergy(index,energy,time) )
+        if ( !m_hitmap->AddEnergy(idHash,energy,time) )
         {
           ATH_MSG_ERROR("  Cell " << m_larem_id->show_to_string(cellId) << " could not add the energy= " << energy  << " (GeV)");
           return(StatusCode::FAILURE);
          }
          if ( m_doDigiTruth){ 
-          if(!m_hitmap_DigiHSTruth->AddEnergy(index,energy,time) ) {
+          if(!m_hitmap_DigiHSTruth->AddEnergy(idHash,energy,time) ) {
              ATH_MSG_ERROR("  Cell " << m_larem_id->show_to_string(cellId) << " could not add the energy= " << energy  << " (GeV)");
              return(StatusCode::FAILURE);
           }
@@ -1038,12 +875,10 @@ StatusCode LArPileUpTool::AddHit(const Identifier& cellId, float energy, float t
       }
       else
       {
-        if (index<m_n_cells) m_energySum[index] += energy;
+        if (idHash<m_energySum.size()) m_energySum[idHash] += energy;
       }
   }     // end if cross-talk
-
   return StatusCode::SUCCESS;
-
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------------
@@ -1052,7 +887,7 @@ float  LArPileUpTool::get_strip_xtalk(int eta)
 // eta = in strip cell units for Barrel EM
 // definition:signal observed in strip ieta when strip ieta-1 is pulsed
 {
- static float fstrip[448] = {
+ static const float fstrip[448] = {
 0.000000,0.000000,4.941840,4.995340,5.068500,4.899490,5.202390,4.878160,
 4.420290,4.725940,4.654810,4.844920,4.839140,4.675500,4.964490,4.815590,
 3.468430,4.831320,4.820070,4.988120,4.978390,4.893490,5.071190,4.750850,
@@ -1129,7 +964,7 @@ float LArPileUpTool::get_strip_xtalk_ec(int region,int eta)
 // region,eta=region,eta for strips in End Cap outer wheel:
 // region=0 to 5 with (1,3,96,48,64,4) strips => total = 216 strips
 {
- static float fstripec[216]={
+ static const float fstripec[216]={
 0,0.647012,0.169466,-0.362632,0.731123,4.89171,5.28338,5.07526,
 5.21291,5.025,5.34636,5.2136,3.8526,4.7453,4.86375,4.83032,
 4.9479,4.8181,5.09672,4.84965,3.64455,4.64494,4.72441,4.70608,
@@ -1183,7 +1018,7 @@ float  LArPileUpTool::get_middleback_xtalk(int eta)
 // eta=in middle cell units
 // signal observed in back cell a ieta when one corresponding middle cell is pulsed
 {
- static float fback[56] = {
+ static const float fback[56] = {
 0.00581541, 0.00373308, 0.00473475, 0.00375685, 0.00468253, 0.00314712,
 0.00346465, 0.00471375, 0.00491536, 0.00322414, 0.00341004, 0.00463626,
 0.00460005, 0.00304867, 0.0032422, 0.00438614, 0.00526148, 0.00332974,
@@ -1211,7 +1046,7 @@ float  LArPileUpTool::get_middleback_xtalk(int eta)
 float LArPileUpTool::get_middleback_xtalk_ecow(int eta)
 // eta=in middle cell units (from 0 to 42 for eta between 1.425 and 2.5), for the first 3 cells (1.425-1.5) there is no back layer
 {
- static float fbackecow[43] = {
+ static const float fbackecow[43] = {
 0., 0., 0., 0.00652081, 0.0046481, 0.0052409,
 0.00399028, 0.00424165, 0.00312753, 0.00342063, 0.00391649, 0.00397975,
 0.00332866, 0.00350436, 0.00408691, 0.00410245, 0.00328291, 0.00360715,
@@ -1238,7 +1073,7 @@ float LArPileUpTool::get_middleback_xtalk_eciw(int eta)
 // eta=in back cell units (from 0 to 6 for eta between 2.5 and 3.2)
 //  (same size for the two samplings in depth)
 {
- static float fbackeciw[7] = {
+ static const float fbackeciw[7] = {
  0.400584,0.332231,0.348472,0.222996,0.402843,0.362233,0.448652
  };
  float result;
@@ -1258,7 +1093,7 @@ float LArPileUpTool::get_stripmiddle_xtalk(int eta)
 // eta = ieta of strip in barrel
 // signal observed in strip ieta when corresponding middle cell is puilsed
 {
- static float fstripmiddle[448]= {
+ static const float fstripmiddle[448]= {
 0.000000,0.057593,0.066206,0.065568,0.074090,0.071852,0.067529,0.056533,
 0.063181,0.070852,0.069660,0.068299,0.073207,0.070664,0.068899,0.058289,
 0.062070,0.069117,0.067532,0.065357,0.072678,0.069367,0.066721,0.056106,
@@ -1332,7 +1167,7 @@ float LArPileUpTool::get_stripmiddle_xtalk(int eta)
 float LArPileUpTool::get_stripmiddle_xtalk_ec(int region,int eta)
 // eta = ieta of strip in endcap (outer wheel)
 {
-  static float fstripmiddleow[216]= {
+  static const float fstripmiddleow[216]= {
 -2.50602,-0.476067,-0.139486,-0.128851,0.0390557,0.0493432,0.0527529,0.0531567,
 0.0578755,0.0578588,0.0590179,0.0476273,0.0504438,0.0556113,0.0567476,0.0569607,
 0.0581592,0.055223,0.0550925,0.045735,0.0505001,0.0567269,0.0572249,0.0562184,
@@ -1408,7 +1243,7 @@ float LArPileUpTool::get_2strip_xtalk_ec(int region, int eta) {
 // middle to middle cross-talk in barrel
 
 float LArPileUpTool::get_middle_xtalk1(int ieta) {
- static float middle_barrel_xtalk1[56]={
+ static const float middle_barrel_xtalk1[56]={
  0.000000,0.005352,0.006647,0.004541,0.005774,0.004467,
  0.005626,0.004118,0.005527,0.004558,0.005754,0.004386,
  0.005496,0.004072,0.005483,0.003973,0.006305,0.005371,
@@ -1425,7 +1260,7 @@ float LArPileUpTool::get_middle_xtalk1(int ieta) {
 }
 
 float LArPileUpTool::get_middle_xtalk2(int ieta) {
- static float middle_barrel_xtalk2[56]={
+ static const float middle_barrel_xtalk2[56]={
  0.004981,0.006938,0.004264,0.005237,0.004481,0.005738,
  0.004026,0.005395,0.004610,0.005865,0.004134,0.004966,
  0.004182,0.005500,0.004925,0.006109,0.004272,0.006086,
@@ -1446,7 +1281,7 @@ float LArPileUpTool::get_middle_xtalk2(int ieta) {
 // middle to middle cross-talk in end-cap
 
 float LArPileUpTool::get_middle_xtalk1_ec(int ieta) {
-  static float middle_endcap_xtalk1[43]={
+  static const float middle_endcap_xtalk1[43]={
   0.000000,-0.002289,0.000726,0.007255,0.002213,0.004363,
   0.002208,0.005293,0.002690,0.002920,0.002130,0.003346,
   0.000657,0.002562,0.000152,0.002327,0.002135,0.002988,
@@ -1461,7 +1296,7 @@ float LArPileUpTool::get_middle_xtalk1_ec(int ieta) {
 }
 
 float LArPileUpTool::get_middle_xtalk2_ec(int ieta) {
-  static float middle_endcap_xtalk2[43]={
+  static const float middle_endcap_xtalk2[43]={
   -0.001290,0.001778,0.001121,0.002102,0.004127,0.002443,
   0.003744,0.001327,0.003492,0.001388,0.002851,0.001007,
   0.002180,0.001223,0.004599,0.001143,0.003484,0.001263,
@@ -1855,9 +1690,9 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
   if (m_useBad) isDead = m_maskingTool->cellShouldBeMasked(ch_id);
 
   if (!isDead) {
-    if( this->ConvertHits2Samples(cellId,ch_id,initialGain,TimeE, m_Samples) == StatusCode::FAILURE ) return StatusCode::SUCCESS;
+    if( this->ConvertHits2Samples(cellId,ch_id,initialGain,TimeE, m_Samples).isFailure() ) return StatusCode::SUCCESS;
     if(m_doDigiTruth){
-      if( this->ConvertHits2Samples(cellId,ch_id,initialGain,TimeE_DigiHSTruth, m_Samples_DigiHSTruth) == StatusCode::FAILURE ) return StatusCode::SUCCESS;
+      if( this->ConvertHits2Samples(cellId,ch_id,initialGain,TimeE_DigiHSTruth, m_Samples_DigiHSTruth).isFailure() ) return StatusCode::SUCCESS;
     }
   }
 
@@ -1869,9 +1704,9 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
  if(m_RndmEvtOverlay && rndmEvtDigit ) // no overlay if missing random digit
  {
   rndmGain= rndmEvtDigit->gain();
-  const std::vector<float>* polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,rndmEvtDigit->gain()) );
-  if (polynom_adc2mev->size() > 1) {
-     float adc2energy = SF * ((*polynom_adc2mev)[1]);
+  auto polynom_adc2mev =adc2MeVs->ADC2MEV(cellId,rndmEvtDigit->gain());
+  if (polynom_adc2mev.size() > 1) {
+     float adc2energy = SF * polynom_adc2mev[1];
      const std::vector<short> & rndm_digit_samples = rndmEvtDigit->samples() ;
      float Pedestal = pedestal->pedestal(ch_id,rndmEvtDigit->gain());
      if (Pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
@@ -1883,13 +1718,16 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 // in case Medium or low gain, take into account ramp intercept in ADC->"energy" computation
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
      float adc0=0.;
-     if (!m_isMcOverlay  && m_larOFC && rndmEvtDigit->gain()>0) {
-        ILArOFC::OFCRef_t ofc_a = m_larOFC->OFC_a(ch_id,rndmEvtDigit->gain(),0);
-        float sumOfc=0.;
-        if (ofc_a.size()>0) {
-          for (unsigned int j=0;j<ofc_a.size();j++) sumOfc += ofc_a.at(j);
+     if (!m_isMcOverlay && rndmEvtDigit->gain()>0) {
+        SG::ReadCondHandle<ILArOFC> larOFC(m_OFCKey);
+        if (larOFC.cptr() != nullptr) {
+          ILArOFC::OFCRef_t ofc_a = larOFC->OFC_a(ch_id,rndmEvtDigit->gain(),0);
+          float sumOfc=0.;
+          if (ofc_a.size()>0) {
+            for (unsigned int j=0;j<ofc_a.size();j++) sumOfc += ofc_a.at(j);
+          }
+          if (sumOfc>0) adc0 =  polynom_adc2mev[0] * SF /sumOfc;
         }
-        if (sumOfc>0) adc0 =  (*polynom_adc2mev)[0] * SF /sumOfc;
      }
 
      int nmax=m_NSamples;
@@ -1938,12 +1776,12 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
    ATH_MSG_DEBUG(" Pedestal not found for medium gain ,cellID " << cellId <<  " assume 1000 ");
    Pedestal=1000.;
   }
-  const std::vector<float>* polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,CaloGain::LARMEDIUMGAIN));
-  if ( polynom_adc2mev->size() < 2) {
+  auto polynom_adc2mev = adc2MeVs->ADC2MEV(cellId,CaloGain::LARMEDIUMGAIN);
+  if ( polynom_adc2mev.size() < 2) {
     ATH_MSG_WARNING(" No medium gain ramp found for cell " << m_larem_id->show_to_string(cellId) << " no digit produced...");
     return StatusCode::SUCCESS;
   }
-  pseudoADC3 = m_Samples[m_sampleGainChoice-ihecshift]/((*polynom_adc2mev)[1])/SF + Pedestal ;
+  pseudoADC3 = m_Samples[m_sampleGainChoice-ihecshift]/(polynom_adc2mev[1])/SF + Pedestal ;
 
   //
   // ......... try a gain
@@ -2027,25 +1865,28 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
      ATH_MSG_WARNING(" pedestal not found for cellId " << cellId << " assume 1000" );
      Pedestal=1000.;
   }
-  polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,igain));
-  if (polynom_adc2mev->size() < 2) {
+  polynom_adc2mev = adc2MeVs->ADC2MEV(cellId,igain);
+  if (polynom_adc2mev.size() < 2) {
     ATH_MSG_WARNING(" No ramp found for requested gain " << igain << " for cell " << m_larem_id->show_to_string(cellId) << " no digit made...");
     return StatusCode::SUCCESS;
   }
 
-  energy2adc=1./((*polynom_adc2mev)[1])/SF;
+  energy2adc=1./(polynom_adc2mev[1])/SF;
 
 // in case Medium or low gain, take into account ramp intercept in energy->ADC computation
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
-  if(!m_isMcOverlay && m_RndmEvtOverlay  && igain>0 && m_larOFC)
+  if(!m_isMcOverlay && m_RndmEvtOverlay  && igain>0)
   {
-    float sumOfc=0.;
-    ILArOFC::OFCRef_t ofc_a = m_larOFC->OFC_a(ch_id,igain,0);
-    if (ofc_a.size()>0) {
-      for (unsigned int j=0;j<ofc_a.size();j++) sumOfc+= ofc_a.at(j);
+    SG::ReadCondHandle<ILArOFC> larOFC(m_OFCKey);
+    if (larOFC.cptr() != nullptr) {
+      float sumOfc=0.;
+      ILArOFC::OFCRef_t ofc_a = larOFC->OFC_a(ch_id,igain,0);
+      if (ofc_a.size()>0) {
+        for (unsigned int j=0;j<ofc_a.size();j++) sumOfc+= ofc_a.at(j);
+      }
+      if ((polynom_adc2mev[1])>0 && sumOfc>0) Pedestal = Pedestal - (polynom_adc2mev[0])/(polynom_adc2mev[1])/sumOfc;
+      ATH_MSG_DEBUG("  Params for final LAr Digitization  gain: " << igain << "    pedestal: " << Pedestal <<  "   energy2adc: " << energy2adc);
     }
-    if (((*polynom_adc2mev)[1])>0 && sumOfc>0) Pedestal = Pedestal - ((*polynom_adc2mev)[0])/((*polynom_adc2mev)[1])/sumOfc;
-    ATH_MSG_DEBUG("  Params for final LAr Digitization  gain: " << igain << "    pedestal: " << Pedestal <<  "   energy2adc: " << energy2adc);
   }
   for(i=0;i<m_NSamples;i++)
   {

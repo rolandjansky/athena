@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes
@@ -11,14 +11,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 
-
 #include "MuonErrorOptimisationTool.h"
-
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecToolInterfaces/IMuonRefitTool.h"
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 
 namespace Muon {
@@ -26,31 +19,18 @@ namespace Muon {
   MuonErrorOptimisationTool::MuonErrorOptimisationTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
     AthAlgTool(ty,na,pa),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"), 
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
-    m_refitTool("Muon::MuonRefitTool/MuonRefitTool"),
-    m_lowPtThreshold(5000.),
-    m_nrefitAll(0),
-    m_nrefitAllLowPt(0),
-    m_nrefitOk(0),
-    m_nrefit(0),
-    m_nrefitLowPt(0),
-    m_nrefitPrecise(0),
-    m_nrefitPreciseLowPt(0),
-    m_nbetterPreciseFit(0),
-    m_nbetterFit(0)
+    m_refitTool("Muon::MuonRefitTool/MuonRefitTool")
   {
     declareProperty("Printer", m_printer );
-    declareProperty("Helper", m_helper );
     declareProperty("IdHelper", m_idHelper );
-    declareProperty("TrackSummeryTool", m_trackSummaryTool );
+    declareProperty("TrackSummaryTool", m_trackSummaryTool );
     declareProperty("RefitTool",m_refitTool ); 
-    declareProperty("Chi2NDofCutRefit",m_chi2NdofCutRefit = 5. ); 
 
-    declareProperty("PrepareForFit",		 m_refitSettings.prepareForFit = true );
+    declareProperty("PrepareForFit",		         m_refitSettings.prepareForFit = true );
     declareProperty("RecreateStartingParameters",m_refitSettings.recreateStartingParameters = true );
-    declareProperty("UpdateErrors",		 m_refitSettings.updateErrors = true );
+    declareProperty("UpdateErrors",		           m_refitSettings.updateErrors = true );
     declareProperty("RemoveOutliers",            m_refitSettings.removeOutliers = false );
     declareProperty("RemoveOtherSectors",        m_refitSettings.removeOtherSectors = false);
     declareProperty("RemoveBarrelEndcapOverlap", m_refitSettings.removeBarrelEndcapOverlap = false);
@@ -60,10 +40,6 @@ namespace Muon {
    declareInterface<IMuonErrorOptimisationTool>(this);
   }
 
-  MuonErrorOptimisationTool::~MuonErrorOptimisationTool()
-  {
-
-  }
 
   StatusCode MuonErrorOptimisationTool::initialize()
   {
@@ -71,7 +47,7 @@ namespace Muon {
     ATH_MSG_INFO( "Initializing MuonErrorOptimisationTool" );
     
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
     ATH_CHECK( m_trackSummaryTool.retrieve() );
     if( !m_refitTool.empty() ) ATH_CHECK( m_refitTool.retrieve() );
@@ -114,35 +90,36 @@ namespace Muon {
     const Trk::Track* result2 = 0;
     
     // first refit with precise errors
-    m_refitSettings.broad = false;
-    refittedTrack = m_refitTool->refit(track,&m_refitSettings);    
+    IMuonRefitTool::Settings settings = m_refitSettings;
+    settings.broad = false;
+    refittedTrack = m_refitTool->refit(track,&settings);    
     if( refittedTrack ){
     
       // check whether it is ok
-      if( !m_helper->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
-	ATH_MSG_VERBOSE("Precise fit bad " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
+      if( !m_edmHelperSvc->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
+        ATH_MSG_VERBOSE("Precise fit bad " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
 	
-	// if not delete track
-	result1 = refittedTrack != &track ? refittedTrack : 0;
-	refittedTrack = 0;
+        // if not delete track
+        result1 = refittedTrack != &track ? refittedTrack : 0;
+        refittedTrack = 0;
       }else{
-	ATH_MSG_VERBOSE("Precise fit ok " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
-	if( isLowPt ) ++m_nrefitPreciseLowPt;
-	else          ++m_nrefitPrecise;
+        ATH_MSG_VERBOSE("Precise fit ok " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
+        if( isLowPt ) ++m_nrefitPreciseLowPt;
+        else          ++m_nrefitPrecise;
       }
-      }else{
+    }else{
       ATH_MSG_VERBOSE("Precise fit failed");
     }
     
     // only do second fit if first is not ok
     if( !refittedTrack ){
       // second refit track
-      m_refitSettings.broad = true;
-      refittedTrack = m_refitTool->refit(track,&m_refitSettings);    
+      settings.broad = true;
+      refittedTrack = m_refitTool->refit(track,&settings);    
       if( refittedTrack ) {
       
         // check whether it is ok
-        if( !m_helper->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
+        if( !m_edmHelperSvc->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
           ATH_MSG_VERBOSE("Loose fit bad " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
           // if not delete track
           result2 = refittedTrack != &track ? refittedTrack : 0;
@@ -185,13 +162,14 @@ namespace Muon {
         const Trk::TrackSummary* summary0 = track.trackSummary();
         const Trk::MuonTrackSummary* muonSummary0 = 0;
         if( summary0 ){
-          if( summary0->muonTrackSummary() ) muonSummary0 = summary0->muonTrackSummary();
-          else{
-            Trk::TrackSummary* tmpSum = const_cast<Trk::TrackSummary*>(summary0);
-            if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(track,*tmpSum);
-            if( tmpSum->muonTrackSummary() ) muonSummary0 = tmpSum->muonTrackSummary();
+          if( summary0->muonTrackSummary() ) {
+            muonSummary0 = summary0->muonTrackSummary();
+            if( muonSummary0 ) nhits0 = muonSummary0->netaHits()+ muonSummary0->nphiHits();
+          }else{            
+            Trk::TrackSummary tmpSum(*summary0);
+            m_trackSummaryTool->addDetailedTrackSummary(track,tmpSum);
+            if( tmpSum.muonTrackSummary() ) nhits0 = muonSummary0->netaHits()+ muonSummary0->nphiHits();
           }
-          if( muonSummary0 ) nhits0 = muonSummary0->netaHits()+ muonSummary0->nphiHits();
         }else{
           Trk::TrackSummary tmpSummary;
           m_trackSummaryTool->addDetailedTrackSummary(track,tmpSummary);

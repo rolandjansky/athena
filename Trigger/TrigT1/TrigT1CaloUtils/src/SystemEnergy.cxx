@@ -23,7 +23,7 @@ using namespace TrigConf;
 namespace LVL1
 {
 
-SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, ServiceHandle<TrigConf::ITrigConfigSvc> config) : m_configSvc(config),
+SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, ServiceHandle<TrigConf::ILVL1ConfigSvc> config) : m_configSvc(config),
                                                                                                                     m_systemEx(0),
                                                                                                                     m_systemEy(0),
                                                                                                                     m_systemEt(0),
@@ -102,7 +102,7 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, ServiceHandle<
 SystemEnergy::SystemEnergy(unsigned int et, unsigned int exTC, unsigned int eyTC,
                            unsigned int overflowT, unsigned int overflowX,
                            unsigned int overflowY, unsigned int restricted,
-                           ServiceHandle<TrigConf::ITrigConfigSvc> config) : m_configSvc(config),
+                           ServiceHandle<TrigConf::ILVL1ConfigSvc> config) : m_configSvc(config),
                                                                              m_systemEx(0),
                                                                              m_systemEy(0),
                                                                              m_systemEt(et),

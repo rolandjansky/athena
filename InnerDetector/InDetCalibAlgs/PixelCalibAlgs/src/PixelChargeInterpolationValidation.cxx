@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationValidation_C
@@ -27,7 +27,7 @@ static const int NCLUSSIZES = 10;
 namespace PixelCalib{
 
 
-PixelChargeInterpolationValidation::PixelChargeInterpolationValidation(std::string tag,
+PixelChargeInterpolationValidation::PixelChargeInterpolationValidation(const std::string& tag,
 					const PixelChargeInterpolationParameters &model):
 	m_eta(0), 
 	m_phi(0), 
@@ -535,7 +535,7 @@ int PixelChargeInterpolationValidation::Write(TDirectory *writedir){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelChargeInterpolationValidation::WriteErrorsFile(std::string name){
+void PixelChargeInterpolationValidation::WriteErrorsFile(const std::string& name){
 
 	// Let's write resolutions into text file (see:
 	// void PixelClusterOnTrackErrorData::Print(std::string file) const

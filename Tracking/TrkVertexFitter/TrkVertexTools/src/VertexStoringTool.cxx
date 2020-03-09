@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexTools/VertexStoringTool.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-#include "CxxUtils/make_unique.h"
 
 namespace Trk{
  
@@ -74,8 +73,8 @@ namespace Trk{
   StatusCode VertexStoringTool::registerContainer()
   {
     if (m_container.isValid() && m_aux.isValid()) return StatusCode::SUCCESS;
-    m_container = CxxUtils::make_unique<xAOD::VertexContainer>();
-    m_aux = CxxUtils::make_unique<xAOD::VertexAuxContainer>();
+    m_container = std::make_unique<xAOD::VertexContainer>();
+    m_aux = std::make_unique<xAOD::VertexAuxContainer>();
     if (!(m_container.isValid() && m_aux.isValid()))
     {
       ATH_MSG_ERROR("Unable to initialize " << m_container.key() << " and " << m_aux.key());

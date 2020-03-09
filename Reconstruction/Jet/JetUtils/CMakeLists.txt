@@ -28,6 +28,7 @@ else()
       Calorimeter/CaloGeoHelpers
       Control/AthLinks
       Control/SGTools
+      Control/AthenaKernel
       Event/xAOD/xAODPFlow
       TileCalorimeter/TileEvent )
 endif()
@@ -55,13 +56,13 @@ if( NOT XAOD_STANDALONE )
    atlas_add_test( JetUtils_CaloQual_test
       SOURCES test/JetUtils_CaloQual_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent JetUtils AthLinks SGTools
-      EXTRA_PATTERNS "no dictionary for class" )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent JetUtils AthLinks SGTools AthenaKernel
+      LOG_IGNORE_PATTERN "no dictionary for class" )
 elseif( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_test( JetUtils_CaloQual_test
       SOURCES test/JetUtils_CaloQual_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCaloEvent JetUtils AthLinks 
-      EXTRA_PATTERNS "no dictionary for class|xAOD::Init" )
+      LOG_IGNORE_PATTERN "no dictionary for class|xAOD::Init" )
 endif()
 

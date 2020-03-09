@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -198,13 +198,6 @@ listAllKnownD3PD.append (prodFlags.WriteTrigMuonD3PD)
 #
 #######################################################
 
-
-# Higgs D3PDs
-_importFlagsFromModule ('HSG2DPDUtils.HSG2D3PDProdFlags')
-#_importFlagsFromModule ('HSG5DPDUtils.HSG5D3PDProdFlags')
-
-# L1Calo D3PDs
-#_importFlagsFromModule ('L1CaloD3PDMaker.L1CaloD3PDProdFlags')
 
 # Top D3PDs
 _importFlagsFromModule ('TopInputsD3PDMaker.TopInputsD3PDProdFlags', True)

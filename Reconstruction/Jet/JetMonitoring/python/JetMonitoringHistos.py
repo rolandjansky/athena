@@ -27,12 +27,6 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         # Draw a set of histo for a particular jet selection :
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
         selectionAndHistos( "subleadingjet" , [ "basickinematics"] ),
-        selectionAndHistos( "20000<pt<500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]", "FracSamplingMax"], "highpt_20_500" ),
-        selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_500_1000" ),
-        selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_1000_2000" ),
-        selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_2000_8000" ),
-        selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
-        selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
 
         jhm.Width,
 
@@ -94,6 +88,14 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
             jhm.TileGap1,
             jhm.TileGap2,
             jhm.TileGap3,
+
+
+            selectionAndHistos( "20000<pt<500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]", "FracSamplingMax"], "highpt_20_500" ),
+            selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_500_1000" ),
+            selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_1000_2000" ),
+            selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_2000_8000" ),
+            selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
+            selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
             
             ]
         if jetFlags.useTracks:
@@ -113,7 +115,8 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
             # efficiency
             filler.HistoTools += [jhm.effresponse,]                                                          
             filler.HistoTools['effresponse'].RefContainer = refcontainer
-
+    elif "PFlow" in container:
+        pass
     #filler.OutputLevel =2 
     return filler
 
@@ -136,6 +139,7 @@ def commonMonitoringTool_LB(container, refcontainer="", pathSuffix=''):
 athenaMonTool = JetMonitoringTool(HistoTools = [  commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,                                                  
                                                   commonMonitoringTool( "AntiKt4EMTopoJets" ),
                                                   commonMonitoringTool( "AntiKt10LCTopoJets" ),       
+                                                  commonMonitoringTool( "AntiKt4EMPFlowJets" ),
                                                   ],
                                   IntervalType = 6,) # 6 is 'Interval_t::run' interval
 if monitorTracks :

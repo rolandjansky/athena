@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_GLOBALSEQUENTIALCORRECTION_H
@@ -14,12 +14,10 @@
 #include <TAxis.h>
 #include <TH2F.h>
 
-#include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
 class GlobalSequentialCorrection 
-  : virtual public ::IJetCalibrationTool,
-    virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationToolBase
 {
 
   ASG_TOOL_CLASS( GlobalSequentialCorrection, IJetCalibrationTool )
@@ -33,7 +31,7 @@ class GlobalSequentialCorrection
 
   GlobalSequentialCorrection();
   GlobalSequentialCorrection(const std::string& name);
-  GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev); //Apply the full GS calibration by default
+  GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, std::string depth, TString calibAreaTag, bool dev); //Apply the full GS calibration by default
   virtual ~GlobalSequentialCorrection();
 
   virtual StatusCode initializeTool(const std::string& name);

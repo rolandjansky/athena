@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LumiBlockComps_DummyDumperAlg_H
@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 class ILumiBlockMetaDataTool;
-class StoreGateSvc;
 class TTree;
 class ITHistSvc;
 
@@ -37,7 +36,6 @@ class DummyDumperAlg : public AthAlgorithm
   std::vector<std::string> m_grlname;
   std::vector<TObjString> m_grlobj;
 
-  StoreGateSvc* m_storeGate;
   TTree* m_tree;
 
   int m_eventCounter;

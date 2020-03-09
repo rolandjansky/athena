@@ -215,7 +215,7 @@ Trk::ExtrapolationCode Trk::StepEngine::extrapolate(ExCellNeutral& ecNeutral,
   
     ////// STEP ACROSS FRAME BOUNDARY  ///////////////  TO DO:TEMPLATE //////////////////////////
     if ( ts[ii].sfType == Trk::SurfNavigType::BoundaryFrame ) {  
-      const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > bounds = ecNeutral.leadVolume->boundarySurfaces();
+      const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > &bounds = ecNeutral.leadVolume->boundarySurfaces();
       const Trk::TrackingVolume* nextVolume = bounds[ts[ii].index].get()->attachedVolume(ts[ii].intersection, 
 											    ecNeutral.leadParameters->momentum(), 
 											    ecNeutral.propDirection);  

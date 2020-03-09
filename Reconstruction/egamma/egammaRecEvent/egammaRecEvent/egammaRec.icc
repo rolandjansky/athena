@@ -1,0 +1,111 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+inline size_t
+egammaRec::getNumberOfClusters() const
+{
+  return m_caloClusters.size();
+}
+inline void
+egammaRec::setCaloClusters(const std::vector<ElementLink<xAOD::CaloClusterContainer>>& links)
+{
+  m_caloClusters = links;
+}
+
+inline size_t
+egammaRec::getNumberOfTrackParticles() const
+{
+  return m_trackParticles.size();
+}
+inline void
+egammaRec::setTrackParticles(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& links)
+{
+  m_trackParticles = links;
+}
+
+inline size_t
+egammaRec::getNumberOfVertices() const
+{
+  return m_vertices.size();
+}
+
+inline void
+egammaRec::setVertices(const std::vector<ElementLink<xAOD::VertexContainer>>& links)
+{
+  m_vertices = links;
+}
+
+inline std::array<double, 4>
+egammaRec::deltaEta() const
+{
+  return m_deltaEta;
+}
+
+inline std::array<double, 4>
+egammaRec::deltaPhi() const
+{
+  return m_deltaPhi;
+}
+
+inline std::array<double, 4>
+egammaRec::deltaPhiRescaled() const
+{
+  return m_deltaPhiRescaled;
+}
+
+inline double
+egammaRec::deltaPhiLast() const
+{
+  return m_deltaPhiLast;
+}
+
+inline void
+egammaRec::setDeltaEta(const std::array<double, 4>& value)
+{
+  m_deltaEta = value;
+}
+
+inline void
+egammaRec::setDeltaPhi(const std::array<double, 4>& value)
+{
+  m_deltaPhi = value;
+}
+
+inline void
+egammaRec::setDeltaPhiRescaled(std::array<double, 4>& value)
+{
+  m_deltaPhiRescaled = value;
+}
+
+inline void
+egammaRec::setDeltaPhiLast(double value)
+{
+  m_deltaPhiLast = value;
+}
+
+inline float
+egammaRec::deltaEtaVtx() const
+{
+  return m_deltaEtaVtx;
+}
+
+inline float
+egammaRec::deltaPhiVtx() const
+{
+  return m_deltaPhiVtx;
+}
+
+inline void
+egammaRec::setDeltaEtaVtx(float value)
+{
+  m_deltaEtaVtx = value;
+}
+
+inline void
+egammaRec::setDeltaPhiVtx(float value)
+{
+  m_deltaPhiVtx = value;
+}
+

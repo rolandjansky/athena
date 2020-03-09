@@ -1,4 +1,6 @@
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg, HLTTest__TestHypoAlg
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigUpgradeTest.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
@@ -6,11 +8,13 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 import sys
 
+HLTTest__TestRecoAlg, HLTTest__TestHypoAlg=CompFactory.getComps("HLTTest__TestRecoAlg","HLTTest__TestHypoAlg",)
+
 UseThisLinkName="initialRoI"
 #UseThisLinkName="feature"
 
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+HLTTest__TestInputMaker=CompFactory.HLTTest__TestInputMaker
 def InputMakerForInitialRoIAlg(name):
     return HLTTest__TestInputMaker(name, RoIsLink="initialRoI", LinkName="initialRoI")
 
@@ -21,7 +25,7 @@ def InputMakerForFeatureAlg(name):
 #generalize
 
 def makeSequence(ConfigFlags, name,step, signature):
-    IM= InputMakerForFeatureAlg(name=signature+"InputMaker"+name+"Step"+step)
+    IM= InputMakerForFeatureAlg(name="IM"+signature+name+"Step"+step)
     IM.Output=name+signature+"IM"+step+"_out"
     if "el" in signature:
         Alg = CaloClustering(name="CaloClustering"+name+"Step"+step, FileName="emclusters.dat")

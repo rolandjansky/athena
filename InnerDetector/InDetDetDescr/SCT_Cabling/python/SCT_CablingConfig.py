@@ -3,6 +3,7 @@
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConfiguredFactory
 
 from AthenaCommon import CfgMgr
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def setSCT_CablingDataBase():
     from IOVDbSvc.CondDB import conddb
@@ -18,20 +19,24 @@ def setSCT_CablingDataBase():
     try:
         if InDetFlags.ForceCoraCool():
             SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-    except:
+    except Exception:
         pass
 
     try:
         if InDetFlags.ForceCoolVectorPayload():
             SCTConfigurationFolderPath='/SCT/DAQ/Config/'
-    except:
+    except Exception:
         pass
 
     try:
         if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
-            print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
+            # Setup logger
+            from AthenaCommon.Logging import logging
+            msg = logging.getLogger("SCT_CablingConfig")
+            msg.setLevel(logging.INFO)
+            msg.warning("*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****")
             SCTConfigurationFolderPath=''
-    except:
+    except Exception:
         pass
         
     SCTRodConfigPath=SCTConfigurationFolderPath+'ROD'
@@ -51,7 +56,6 @@ def setSCT_CablingDataBase():
     return SCTConfigurationFolderPath
 
 def getSCT_CablingTool(name="SCT_CablingTool", **kwargs):
-    from SCT_Cabling.SCT_CablingConf import SCT_CablingTool
     return CfgMgr.SCT_CablingTool(name, **kwargs)
 
 def getSCT_CablingCondAlgFromCoraCool(name="SCT_CablingCondAlgFromCoraCool", **kwargs):
@@ -60,15 +64,12 @@ def getSCT_CablingCondAlgFromCoraCool(name="SCT_CablingCondAlgFromCoraCool", **k
     kwargs.setdefault("ReadKeyRodMur", folderPath+"RODMUR")
     kwargs.setdefault("ReadKeyMur", folderPath+"MUR")
     kwargs.setdefault("ReadKeyGeo", folderPath+"Geog")
-    from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromCoraCool
     return CfgMgr.SCT_CablingCondAlgFromCoraCool(name, **kwargs)
 
 def getSCT_CablingToolInc(name="SCT_CablingToolInc", **kwargs):
-    from SCT_Cabling.SCT_CablingConf import SCT_CablingToolInc
     return CfgMgr.SCT_CablingToolInc(name, **kwargs)
 
 def getSCT_FillCablingFromCoraCool(name="SCT_FillCablingFromCoraCool", **kwargs):
-    from SCT_Cabling.SCT_CablingConf import SCT_FillCablingFromCoraCool
     return CfgMgr.SCT_FillCablingFromCoraCool(name, **kwargs)
 
 
@@ -84,7 +85,7 @@ def SCT_CablingFoldersCfg(configFlags):
     instance="SCT"
     if configFlags.Input.isMC:
         instance="SCT_OFL"
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     cfg.merge(addFolders(configFlags, [path+"ROD", path+"RODMUR", path+"MUR", path+"Geog"], instance, className="CondAttrListVec"))
     return cfg, path
 
@@ -92,7 +93,7 @@ def SCT_CablingCondAlgCfg(configFlags):
     cfg=ComponentAccumulator()
     foldersCfg,path=SCT_CablingFoldersCfg(configFlags)
     cfg.merge(foldersCfg)
-    from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromCoraCool
+    SCT_CablingCondAlgFromCoraCool=CompFactory.SCT_CablingCondAlgFromCoraCool
     cfg.addCondAlgo(SCT_CablingCondAlgFromCoraCool(ReadKeyRod=path+"ROD",
                                                    ReadKeyRodMur=path+"RODMUR",
                                                    ReadKeyMur=path+"MUR",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -28,23 +28,21 @@
 class MsgStream;
 
 
-class TrigTauClusterCnv_p1 : public T_AthenaPoolTPCnvBase<TrigTauCluster, TrigTauCluster_p1>
+class TrigTauClusterCnv_p1 : public T_AthenaPoolTPCnvConstBase<TrigTauCluster, TrigTauCluster_p1>
 {
  public:
-  
-  TrigTauClusterCnv_p1() : m_trigCaloClusterCnv(0) {}
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
+  TrigTauClusterCnv_p1() {}
   
   virtual void persToTrans( const TrigTauCluster_p1 *persObj,
 			    TrigTauCluster    *transObj,
-			    MsgStream            &log );
+			    MsgStream            &log ) const override;
   virtual void transToPers( const TrigTauCluster    *transObj,
 			    TrigTauCluster_p1 *persObj,
-			    MsgStream            &log );
-
- protected:
-
-  ITPConverterFor<TrigCaloCluster>*    m_trigCaloClusterCnv;
-
+			    MsgStream            &log ) const override;
 };
 
 

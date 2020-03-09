@@ -5,7 +5,7 @@
 #include "JRoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 
 JRoIsUnpackingTool::JRoIsUnpackingTool( const std::string& type, 
@@ -25,12 +25,14 @@ StatusCode JRoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding) {
-  using namespace TrigConf;  
+StatusCode JRoIsUnpackingTool::start() {
+  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("J") == 0 or name.find("JF") == 0 or name.find("JB") == 0;  } ) );
+  return StatusCode::SUCCESS;
+}
 
-  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::JET; }, 
-			    m_configSvc->ctpConfig()->menu().itemVector(),
-			    seeding ) );
+
+StatusCode JRoIsUnpackingTool::updateConfiguration() {
+  using namespace TrigConf;  
 
   m_jetThresholds.clear();  
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JET ), m_jetThresholds ) );
@@ -62,7 +64,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   auto decisionOutput = handle3.ptr();
 
 
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );  
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" );   // This "L1" denotes an initial node with no parents
   decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
   auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
   CHECK( roiEL.isValid() );

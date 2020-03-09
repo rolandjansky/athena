@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #No input file -> use MC event selector
 if 'DBInstance' not in dir():
     DBInstance="CONDBR2"
@@ -27,7 +29,6 @@ if "IOVEndLB" not in dir():
 if "sqlite" not in dir():
     sqlite="MissingFEBs.db"
     
-from string import *
 import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.GlobalFlags import  globalflags
@@ -35,7 +36,7 @@ globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -65,17 +66,22 @@ svcMgr.EventSelector.RunNumber         =  IOVBeginRun
 svcMgr.EventSelector.FirstEvent        = 1
 #svcMgr.EventSelector.InitialTimeStamp  = 0
 #svcMgr.EventSelector.TimeStampInterval = 5
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2016-04"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2017-04"
 
 
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 theApp.EvtMax=1
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadFebCondAlg(ReadKey="", InputFileName=InputFile, OutputLevel=DEBUG)
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq+=theLArBadChannelCondAlg
 
 #Thats the registration algo
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelDBAlg
@@ -84,19 +90,8 @@ theLArDBAlg.WritingMode = 1
 theLArDBAlg.FEBFolder=Folder
 topSequence += theLArDBAlg
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=True
-theLArBadChannelTool.CoolFolder=""
-
-theLArBadChannelTool.CoolMissingFEBsFolder = ""#FEBFolder
-theLArBadChannelTool.FEBfile = InputFile
-#theLArBadChannelTool.WriteEmptyFolders = False
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
-
 OutputList=[ "AthenaAttributeList#"+Folder ]
-FEBTag=join(split(Folder, '/'),'') + TagPostfix
+FEBTag = ''.join(Folder.split ('/')) + TagPostfix
 OutputTagList=[FEBTag]
 
 WriteIOV=True
@@ -120,6 +115,7 @@ svcMgr.IOVRegistrationSvc.RecreateFolders = False
 svcMgr.DetectorStore.Dump=True
 
 
+from AthenaCommon                       import CfgMgr
 svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 
 

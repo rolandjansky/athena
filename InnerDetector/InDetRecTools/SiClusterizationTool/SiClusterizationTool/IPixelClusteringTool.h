@@ -22,11 +22,6 @@
 
 class PixelID;
 
-namespace InDetDD
-{
-  class SiDetectorManager;
-}
-
 namespace InDet
 {
 
@@ -41,7 +36,6 @@ namespace InDet
     // Clusterize a collection of pixel raw data objects
     virtual PixelClusterCollection* clusterize
     (const InDetRawDataCollection<PixelRDORawData> &RDOs,
-     const InDetDD::SiDetectorManager& manager,
      const PixelID& idHelper) const = 0;
 
   };

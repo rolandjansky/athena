@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # athena.py is born as shell script to preload some optional libraries
 #
@@ -80,7 +80,7 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 __doc__     = 'For details about athena.py, run "less `which athena.py`"'
 
 import sys, os
-import getopt, string
+import getopt
 
 ldpreload = os.getenv( 'LD_PRELOAD' ) or ''
 
@@ -93,14 +93,14 @@ _help_and_exit = aop._help_and_exit
 if ldpreload:
    if 'TCMALLOCDIR' in os.environ:
        tcmlib = os.getenv( 'TCMALLOCDIR' ) +  "/libtcmalloc.so"
-       ldpreload = string.replace( ldpreload, tcmlib, '' )
+       ldpreload = ldpreload.replace(tcmlib, '' )
        tcmlib = os.getenv( 'TCMALLOCDIR' ) +  "/libtcmalloc_minimal.so"
-       ldpreload = string.replace( ldpreload, tcmlib, '' )
+       ldpreload = ldpreload.replace(tcmlib, '' )
        del tcmlib
    if os.getenv( 'ATHENA_ADD_PRELOAD' ):
-      ldpreload = string.replace( ldpreload, os.getenv( 'ATHENA_ADD_PRELOAD' ), '' )
+      ldpreload = ldpreload.replace(os.getenv( 'ATHENA_ADD_PRELOAD' ), '' )
       os.unsetenv( 'ATHENA_ADD_PRELOAD' )
-   ldpreload = string.replace( ldpreload, '::', ':')
+   ldpreload = ldpreload.replace( '::', ':')
    ldpreload = ldpreload.strip(':')
 
    if not ldpreload:
@@ -149,7 +149,7 @@ fhistory = os.path.expanduser( '~/.athena.history' )
 ## interface setup as appropriate
 if opts.run_batch and not opts.dbg_stage:
  # in batch there is no need for stdin
-   if os.isatty( sys.stdin.fileno() ):
+   if sys.stdin and os.isatty( sys.stdin.fileno() ):
       os.close( sys.stdin.fileno() )
 else:
    # Make sure ROOT gets initialized early, so that it shuts down last.

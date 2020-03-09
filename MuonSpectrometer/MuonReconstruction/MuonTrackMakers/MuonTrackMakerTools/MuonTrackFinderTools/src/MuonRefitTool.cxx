@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes
@@ -7,7 +7,6 @@
 #include <iostream>
 
 // FrameWork includes
-//#include "CLHEP/Units/SystemOfUnits.h"
 #include "AthenaKernel/errorcheck.h"
 
 //Collections 
@@ -28,11 +27,8 @@
 
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -50,19 +46,17 @@
 #include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
 
+
 namespace Muon {
 
   MuonRefitTool::MuonRefitTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
     AthAlgTool(ty,na,pa),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"), 
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_alignErrorTool("MuonAlign::AlignmentErrorTool"),
     m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+    m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
     m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
-    m_triggerRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
     m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
     m_t0Fitter(""),
     m_muonEntryTrackExtrapolator("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
@@ -110,14 +104,11 @@ namespace Muon {
     declareProperty("UsedFixedError",m_fixedError = 1. );
     declareProperty("FlagT0FitRange",m_flagT0FitRange = 0.00005 );
     declareProperty("Printer", m_printer );
-    declareProperty("Helper", m_helper );
-    declareProperty("IdHelper", m_idHelper );
     declareProperty("AlignmentErrorTool", m_alignErrorTool);
     declareProperty("Extrapolator", m_extrapolator );
+    declareProperty("MuonExtrapolator", m_muonExtrapolator );
     declareProperty("MuonEntryExtrapolationTool", m_muonEntryTrackExtrapolator );
     declareProperty("MdtRotCreator",m_mdtRotCreator);
-    declareProperty("CscRotCreator",m_cscRotCreator);
-    declareProperty("TriggerRotCreator",m_triggerRotCreator);
     declareProperty("DeweightBEE", m_deweightBEE = false );
     declareProperty("DeweightEE",  m_deweightEE = false );
     declareProperty("DeweightBIS78", m_deweightBIS78 = true );
@@ -148,18 +139,17 @@ namespace Muon {
     ATH_MSG_INFO( "Initializing MuonRefitTool" );
 
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     if( !m_alignErrorTool.empty() ) ATH_CHECK(m_alignErrorTool.retrieve());
     ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_muonExtrapolator.retrieve() );
     ATH_CHECK( m_trackFitter.retrieve() );
 
     ATH_MSG_INFO("Retrieved " << m_trackFitter );
 
     ATH_CHECK( m_mdtRotCreator.retrieve() );
-    if( ! m_cscRotCreator.empty() ) ATH_CHECK( m_cscRotCreator.retrieve() );
-    if( ! m_triggerRotCreator.empty() ) ATH_CHECK( m_triggerRotCreator.retrieve() );
-    if( !m_compClusterCreator.empty() ) ATH_CHECK( m_compClusterCreator.retrieve() );
+    if(!m_compClusterCreator.empty()) ATH_CHECK( m_compClusterCreator.retrieve() );
 
     if( !m_t0Fitter.empty() ){
       ATH_CHECK( m_t0Fitter.retrieve() );
@@ -411,18 +401,18 @@ namespace Muon {
            // bool to decide if deviation should be skipped (if it's for more than 1 station)
            for(auto riowithdev : vec_riowithdev){
               Identifier id_riowithdev = riowithdev->identify();
-              if(m_idHelper->isEndcap(id_riowithdev)) {
+              if(m_idHelperSvc->isEndcap(id_riowithdev)) {
                  isEndcap = true;
               } else {
                  isBarrel = true;
               }
-              if(m_idHelper->isSmallChamber(id_riowithdev)) {
+              if(m_idHelperSvc->isSmallChamber(id_riowithdev)) {
                 isSmallChamber = true;
               } else {
                 isLargeChamber = true;
               }
               hitids.push_back(id_riowithdev);
-              if( hitids.size()>1 &&  m_idHelper->chamberId(id_riowithdev) !=  m_idHelper->chamberId(hitids[0]) ) {
+              if( hitids.size()>1 &&  m_idHelperSvc->chamberId(id_riowithdev) !=  m_idHelperSvc->chamberId(hitids[0]) ) {
                 differentChambers = true;
                 jdifferent = hitids.size()-1; 
               } 
@@ -442,18 +432,6 @@ namespace Muon {
                  } else {
                    ATH_MSG_ERROR("One of the alignment deviations has an invalid hash created from the hits.");
                  }
-                 /* std::vector<Identifier> hitidsRot;
-                 itRot->getListOfHits(vec_riowithdev);
-                 for(auto riowithdev : vec_riowithdev){
-                   Identifier id_riowithdev = riowithdev->identify();
-                   hitidsRot.push_back(id_riowithdev);
-                   if(id_riowithdev==hitids[0]) {
-                     angleError = sqrt(itRot->getCovariance(0,0));
-                     matchFound = true;
-                     break;
-                   }
-                 }
-                 if(matchFound) usedRotations.push_back(iRot); */
                }
                if(matchFound) break; 
              }
@@ -464,13 +442,13 @@ namespace Muon {
            iok++;  
            alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
 
-           if(matchFound) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelper->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
-           if(!matchFound) ATH_MSG_DEBUG(" AlignmentMap entry No angleError" <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelper->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+           if(matchFound) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+           if(!matchFound) ATH_MSG_DEBUG(" AlignmentMap entry No angleError" <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
            if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap Chamber "); 
            if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel Chamber "); 
            if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
            if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
-           if(differentChambers) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " for different Chamber " <<  m_idHelper->toString(hitids[jdifferent]) );
+           if(differentChambers) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " for different Chamber " <<  m_idHelperSvc->toString(hitids[jdifferent]) );
         }
       }
 
@@ -497,12 +475,12 @@ namespace Muon {
            // bool to decide if deviation should be skipped (if it's for more than 1 station)
            for(auto riowithdev : vec_riowithdev){
               Identifier id_riowithdev = riowithdev->identify();
-              if(m_idHelper->isEndcap(id_riowithdev)) {
+              if(m_idHelperSvc->isEndcap(id_riowithdev)) {
                  isEndcap = true;
               } else {
                  isBarrel = true;
               }
-              if(m_idHelper->isSmallChamber(id_riowithdev)) {
+              if(m_idHelperSvc->isSmallChamber(id_riowithdev)) {
                 isSmallChamber = true;
               } else {
                 isLargeChamber = true;
@@ -515,7 +493,7 @@ namespace Muon {
 
            iok++;  
            alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
-           ATH_MSG_DEBUG(" AlignmentMap entry No Translation Error " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelper->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+           ATH_MSG_DEBUG(" AlignmentMap entry No Translation Error " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelperSvc->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
           if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap Chamber"); 
           if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel Chamber"); 
           if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
@@ -558,10 +536,9 @@ namespace Muon {
         if( !meas ) {
           continue;
         }
-//        if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
-        Identifier id = m_helper->getIdentifier(*meas);
+        Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 
-        if( m_idHelper->isMdt(id) ) stationIds.insert( m_idHelper->chamberIndex(id) );
+        if( m_idHelperSvc->isMdt(id) ) stationIds.insert( m_idHelperSvc->chamberIndex(id) );
 
 // make Alignment Effect using the surface of the TSOS 
 
@@ -678,22 +655,21 @@ namespace Muon {
          ATH_MSG_WARNING(" AlignmentEffectOnTrack is already on track skip it");   
         continue;
       } 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
-      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
-      MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
+      MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
 // skip phi measurements  
-      if( (m_idHelper->isTrigger(id)&&m_idHelper->measuresPhi(id)) || (m_idHelper->isCsc(id)&&m_idHelper->measuresPhi(id) ) ) continue;
+      if( (m_idHelperSvc->isTrigger(id)&&m_idHelperSvc->measuresPhi(id)) || (m_idHelperSvc->isCsc(id)&&m_idHelperSvc->measuresPhi(id) ) ) continue;
       if(m_addAll) {
 // skip RPC and TGC eta (to avoid code crashes) 
-        if( m_idHelper->isTrigger(id)) continue;
-//        if( m_idHelper->isTrigger(id) && (stIndex == MuonStationIndex::BM || stIndex == MuonStationIndex::BO) ) continue;
+        if( m_idHelperSvc->isTrigger(id)) continue;
         if(indexFirst==-1) indexFirst = index;
         indicesOfAffectedTSOS.push_back(*tsit);  
         indicesOfAffectedIds.push_back(id);  
       } else {
 // skip trigger hits and CSC phi measurements  and select precision hits
-        if( m_idHelper->isTrigger(id)) continue;
+        if( m_idHelperSvc->isTrigger(id)) continue;
         if( stIndex == MuonStationIndex::BM || stIndex == MuonStationIndex::EM) {
           if(indexFirst==-1) indexFirst = index;
           indicesOfAffectedTSOS.push_back(*tsit);  
@@ -834,12 +810,12 @@ namespace Muon {
       // skip outliers
       if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
       
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
-      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
-      if( m_idHelper->isTrigger(id) || (m_idHelper->isCsc(id)&&m_idHelper->measuresPhi(id) ) ) continue;
-      MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
-      int sector = m_idHelper->sector(id);
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
+      if( m_idHelperSvc->isTrigger(id) || (m_idHelperSvc->isCsc(id)&&m_idHelperSvc->measuresPhi(id) ) ) continue;
+      MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
+      int sector = m_idHelperSvc->sector(id);
       stationsPerSector[sector].insert(stIndex);
     }
   
@@ -945,8 +921,8 @@ namespace Muon {
       if( settings.prepareForFit && !settings.recreateStartingParameters && (*tsit)->type(Trk::TrackStateOnSurface::Perigee) ) {
 	if( pars == startPars ){
 	  ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars)); 
-	  const Trk::Perigee* perigee = m_helper->createPerigee(*pars);
-	  newStates.push_back( std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee) ) );
+	  std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars);
+	  newStates.push_back( std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee.release()) ) );
 	  addedPerigee = true;
 	  continue;
 	}else{
@@ -979,10 +955,10 @@ namespace Muon {
 	ATH_MSG_DEBUG("Adding perigee in front of first measurement");
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
-      if( !id.is_valid() || !m_idHelper->isMuon(id) ){
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ){
 	newStates.push_back( std::make_pair(false,*tsit) );	
 	continue;
       }
@@ -991,9 +967,9 @@ namespace Muon {
 	newStates.push_back( std::make_pair(false,*tsit) );	
       }else{
 
-	Identifier chId = m_idHelper->chamberId(id);
-	MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
-	if( m_idHelper->isMdt(id)  ) {
+	Identifier chId = m_idHelperSvc->chamberId(id);
+	MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
+	if( m_idHelperSvc->isMdt(id)  ) {
 
 	  const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
 	  if( !mdt ){
@@ -1010,16 +986,16 @@ namespace Muon {
 	  }
       
 	  const Trk::RIO_OnTrack* rot = 0;
-	  int sector = m_idHelper->sector(id);
+	  int sector = m_idHelperSvc->sector(id);
 	  Trk::TrackStateOnSurface::TrackStateOnSurfaceType type = (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? 
 	    Trk::TrackStateOnSurface::Outlier : Trk::TrackStateOnSurface::Measurement;
 	  
-	  stIndex = m_idHelper->stationIndex(id);
+	  stIndex = m_idHelperSvc->stationIndex(id);
 
 	  // error update for three stations with barrel-endcap and shared sectors
 	  if( !m_deweightTwoStationTracks || nmaxStations > 2 ){
-	    if( m_deweightEEL1C05 && stIndex == MuonStationIndex::EE && m_idHelper->chamberIndex(id) == MuonStationIndex::EEL &&
-		m_idHelper->stationEta(id) < 0 && m_idHelper->stationPhi(id) == 3){
+	    if( m_deweightEEL1C05 && stIndex == MuonStationIndex::EE && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::EEL &&
+		m_idHelperSvc->stationEta(id) < 0 && m_idHelperSvc->stationPhi(id) == 3){
 	      //for this chamber the errors are enormous (for a period of time)
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyEEL1C05 ); 
 
@@ -1048,32 +1024,27 @@ namespace Muon {
 	      //std::cout << " MUONREFIT deweightEE " << std::endl;
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyEE );
 
-	    }else if( m_deweightBIS78 && stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
-		      abs(m_idHelper->stationEta(id)) > 6 ){
+	    }else if( m_deweightBIS78 && stIndex == MuonStationIndex::BI && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BIS &&
+		      abs(m_idHelperSvc->stationEta(id)) > 6 ){
 
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBIS78 ); 
 
-	    }else if( m_deweightBME && stIndex == MuonStationIndex::BM && m_idHelper->stationPhi(id) == 7 && 
-		      (m_idHelper->mdtIdHelper()).stationName(id) == 53 ){
+	    }else if( m_deweightBME && stIndex == MuonStationIndex::BM && m_idHelperSvc->stationPhi(id) == 7 && 
+		      (m_idHelperSvc->mdtIdHelper()).stationName(id) == 53 ){
 
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBXE ); 
 
-	    }else if( m_deweightBOE && stIndex == MuonStationIndex::BO && m_idHelper->chamberIndex(id) == MuonStationIndex::BOL &&
-		      abs(m_idHelper->stationEta(id)) == 7 && m_idHelper->stationPhi(id) == 7){
+	    }else if( m_deweightBOE && stIndex == MuonStationIndex::BO && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BOL &&
+		      abs(m_idHelperSvc->stationEta(id)) == 7 && m_idHelperSvc->stationPhi(id) == 7){
 
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBXE ); 
 
 	    }else{
 	      /** default strategy */
-	      //std::cout << " MUONREFIT updateError " << std::endl;
-//	      if( !m_alignErrorTool.empty() && !alignerrmap.empty() ) {
-//	        rot = m_mdtRotCreator->updateErrorExternal( *mdt, pars, &alignerrmap);
-//	      } else {
 	        MuonDriftCircleErrorStrategy strat(m_errorStrategy);
 	        if( hasT0Fit )       strat.setParameter(MuonDriftCircleErrorStrategy::T0Refit,true);
 	        if( settings.broad ) strat.setParameter(MuonDriftCircleErrorStrategy::BroadError,true);
 	        rot =  m_mdtRotCreator->updateError( *mdt, pars, &strat );
-//	      }
 	    }
 	  }else{
 	    rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyTwoStations );
@@ -1096,7 +1067,7 @@ namespace Muon {
 	    
 
 	  if( msgLvl(MSG::DEBUG) ){
-	    msg() << m_idHelper->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
+	    msg() << m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
 		  << " new err " << Amg::error(newMdt->localCovariance(),Trk::locR) 
 		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR);
 	    if( hasT0Fit ) msg() << " HasT0";
@@ -1108,7 +1079,7 @@ namespace Muon {
 
 	  Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit, newMdt, pars->clone(), type );
 	  newStates.push_back( std::make_pair(true,tsos) );	
-	}else if( m_idHelper->isCsc(id) ) {
+	}else if( m_idHelperSvc->isCsc(id) ) {
 	  
 	  if( settings.chambersToBeremoved.count(chId) || settings.precisionLayersToBeremoved.count(stIndex) ){
 
@@ -1120,11 +1091,11 @@ namespace Muon {
 	    newStates.push_back( std::make_pair(false,*tsit) );	
 
 	  }
-	}else if(  m_idHelper->isTrigger(id) ){
+	}else if(  m_idHelperSvc->isTrigger(id) ){
 
-	  if( m_idHelper->measuresPhi(id) ){
+	  if( m_idHelperSvc->measuresPhi(id) ){
 
-	    MuonStationIndex::PhiIndex phiIndex = m_idHelper->phiIndex(id);
+	    MuonStationIndex::PhiIndex phiIndex = m_idHelperSvc->phiIndex(id);
 
 	    if( settings.chambersToBeremoved.count(chId) || settings.phiLayersToBeremoved.count(phiIndex) ){
 
@@ -1149,11 +1120,11 @@ namespace Muon {
 	      
 	    }
 	  }
-	}else if( m_idHelper->isMM(id) || m_idHelper->issTgc(id) ){
+	}else if( m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id) ){
 	  newStates.push_back( std::make_pair(false,*tsit) );	
 
 	}else{
-	  ATH_MSG_WARNING(" unknown Identifier " << m_idHelper->mdtIdHelper().print_to_string(id) ); 
+	  ATH_MSG_WARNING(" unknown Identifier " << m_idHelperSvc->mdtIdHelper().print_to_string(id) ); 
 	}
       }
     }
@@ -1229,10 +1200,10 @@ namespace Muon {
       // skip outliers
       if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
       
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
-      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
-      if( m_idHelper->isTrigger(id) || (m_idHelper->isCsc(id)&&m_idHelper->measuresPhi(id) ) ) continue;
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
+      if( m_idHelperSvc->isTrigger(id) || (m_idHelperSvc->isCsc(id)&&m_idHelperSvc->measuresPhi(id) ) ) continue;
     }
   
     if( !startPars ){
@@ -1269,8 +1240,8 @@ namespace Muon {
       if( settings.prepareForFit && !settings.recreateStartingParameters && (*tsit)->type(Trk::TrackStateOnSurface::Perigee) ) {
 	if( pars == startPars ){
 	  ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars)); 
-	  const Trk::Perigee* perigee = m_helper->createPerigee(*pars);
-	  newStates.push_back( std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee) ) );
+	  std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars);
+	  newStates.push_back( std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee.release()) ) );
 	  addedPerigee = true;
 	  continue;
 	}else{
@@ -1303,10 +1274,10 @@ namespace Muon {
 	ATH_MSG_DEBUG("Adding perigee in front of first measurement");
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
-      if( !id.is_valid() || !m_idHelper->isMuon(id) ){
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ){
 	newStates.push_back( std::make_pair(false,*tsit) );	
 	continue;
       }
@@ -1315,9 +1286,9 @@ namespace Muon {
 	newStates.push_back( std::make_pair(false,*tsit) );	
       }else{
 
-	Identifier chId = m_idHelper->chamberId(id);
-	MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
-	if( m_idHelper->isMdt(id)  ) {
+	Identifier chId = m_idHelperSvc->chamberId(id);
+	MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
+	if( m_idHelperSvc->isMdt(id)  ) {
 
 	  const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
 	  if( !mdt ){
@@ -1334,11 +1305,10 @@ namespace Muon {
 	  }
       
 	  const Trk::RIO_OnTrack* rot = 0;
-//	  int sector = m_idHelper->sector(id);
 	  Trk::TrackStateOnSurface::TrackStateOnSurfaceType type = (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? 
 	    Trk::TrackStateOnSurface::Outlier : Trk::TrackStateOnSurface::Measurement;
 	  
-	  stIndex = m_idHelper->stationIndex(id);
+	  stIndex = m_idHelperSvc->stationIndex(id);
 
 // use the muonErrorStrategy
 	  MuonDriftCircleErrorStrategy strat(m_muonErrorStrategy);
@@ -1351,19 +1321,13 @@ namespace Muon {
 	    newMdt = mdt->clone();
 	    type = Trk::TrackStateOnSurface::Outlier;
 	  }
-	  if( settings.removeOtherSectors ) {
-//	    if( sector != selectedSector ){
-//	      ++removedSectorHits;
-//	      type = Trk::TrackStateOnSurface::Outlier;
-//	    }
-	  }
 	  if( settings.chambersToBeremoved.count(chId) || settings.precisionLayersToBeremoved.count(stIndex) ){
 	    type = Trk::TrackStateOnSurface::Outlier;
 	  }
 	    
 
 	  if( msgLvl(MSG::DEBUG) ){
-	    msg() << " updateMdtErrors " << m_idHelper->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
+	    msg() << " updateMdtErrors " << m_idHelperSvc->toString(newMdt->identify()) << " radius " << newMdt->driftRadius() 
 		  << " new err " << Amg::error(newMdt->localCovariance(),Trk::locR) 
 		  << " old err " << Amg::error(mdt->localCovariance(),Trk::locR);
 	    if( hasT0Fit ) msg() << " HasT0";
@@ -1375,7 +1339,7 @@ namespace Muon {
 
 	  Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit, newMdt, pars->clone(), type );
 	  newStates.push_back( std::make_pair(true,tsos) );	
-	}else if( m_idHelper->isCsc(id) ) {
+	}else if( m_idHelperSvc->isCsc(id) ) {
 	  
 	  if( settings.chambersToBeremoved.count(chId) || settings.precisionLayersToBeremoved.count(stIndex) ){
 
@@ -1387,11 +1351,11 @@ namespace Muon {
 	    newStates.push_back( std::make_pair(false,*tsit) );	
 
 	  }
-	}else if(  m_idHelper->isTrigger(id) ){
+	}else if(  m_idHelperSvc->isTrigger(id) ){
 
-	  if( m_idHelper->measuresPhi(id) ){
+	  if( m_idHelperSvc->measuresPhi(id) ){
 
-	    MuonStationIndex::PhiIndex phiIndex = m_idHelper->phiIndex(id);
+	    MuonStationIndex::PhiIndex phiIndex = m_idHelperSvc->phiIndex(id);
 
 	    if( settings.chambersToBeremoved.count(chId) || settings.phiLayersToBeremoved.count(phiIndex) ){
 
@@ -1416,11 +1380,11 @@ namespace Muon {
 	      
 	    }
 	  }
-	}else if( m_idHelper->isMM(id) || m_idHelper->issTgc(id) ){
+	}else if( m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id) ){
 	  newStates.push_back( std::make_pair(false,*tsit) );	
 
 	}else{
-	  ATH_MSG_WARNING(" unknown Identifier " << m_idHelper->mdtIdHelper().print_to_string(id) ); 
+	  ATH_MSG_WARNING(" unknown Identifier " << m_idHelperSvc->mdtIdHelper().print_to_string(id) ); 
 	}
       }
     }
@@ -1480,14 +1444,14 @@ namespace Muon {
 	continue;
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() ){
 	continue;
       }
 
-      if( m_idHelper->isMdt(id) ) {
+      if( m_idHelperSvc->isMdt(id) ) {
       
 	const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
 	if( !mdt ){
@@ -1495,7 +1459,7 @@ namespace Muon {
 	  continue;
 	}
 	// get ch ID
-	Identifier chId = m_idHelper->chamberId(id);
+	Identifier chId = m_idHelperSvc->chamberId(id);
 
 	// if we have a new chambers
 	if( chId != currentMdtChId ){
@@ -1503,7 +1467,7 @@ namespace Muon {
 	  // check that there are pars (not the case for the first mdt), if so we collected all hits for this chamber so call cleaning
 	  if( chamberPars ){
 	    if( !removeMdtOutliers(*chamberPars,mdts,removedIdentifiers,settings) ){
-	      if( mdts.size() > 4 ) ATH_MSG_WARNING("Problem removing outliers in chamber " << m_idHelper->toStringChamber(currentMdtChId) << " hits " << mdts.size());
+	      if( mdts.size() > 4 ) ATH_MSG_WARNING("Problem removing outliers in chamber " << m_idHelperSvc->toStringChamber(currentMdtChId) << " hits " << mdts.size());
 	      if( settings.discardNotCleanedTracks ) return 0;
 	    }
 	  }
@@ -1520,7 +1484,7 @@ namespace Muon {
     // clean the last chamber on the track
     if( chamberPars ){
       if( !removeMdtOutliers(*chamberPars,mdts,removedIdentifiers,settings) ){
-	if( mdts.size() > 4 ) ATH_MSG_WARNING("Problem removing outliers in chamber " << m_idHelper->toStringChamber(currentMdtChId) << " hits " << mdts.size());
+	if( mdts.size() > 4 ) ATH_MSG_WARNING("Problem removing outliers in chamber " << m_idHelperSvc->toStringChamber(currentMdtChId) << " hits " << mdts.size());
 	if( settings.discardNotCleanedTracks ) return 0;
       }
     }
@@ -1546,7 +1510,7 @@ namespace Muon {
       const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
       if( meas ) {
 
-	Identifier id = m_helper->getIdentifier(*meas);
+	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
 	if( removedIdentifiers.count(id) ){
 	
@@ -1599,7 +1563,6 @@ namespace Muon {
 	continue;
       }
       Identifier id = mdt->identify();
-      //Identifier elId = m_idHelper->mdtIdHelper().elementID( id );
 
       if( !detEl ){
 	detEl = mdt->prepRawData()->detectorElement();
@@ -1615,12 +1578,12 @@ namespace Muon {
 
       double r  = fabs(mdt->localParameters()[Trk::locR]);
       double dr = Amg::error(mdt->localCovariance(),Trk::locR);
-      ATH_MSG_VERBOSE("New MDT " << m_idHelper->toString(id) << "  r " << mdt->localParameters()[Trk::locR] 
+      ATH_MSG_VERBOSE("New MDT " << m_idHelperSvc->toString(id) << "  r " << mdt->localParameters()[Trk::locR] 
 		      << " dr  " << dr << "  (original) " << Amg::error(mdt->localCovariance(),Trk::locR) );
 
       // create identifier
-      TrkDriftCircleMath::MdtId mdtid( m_idHelper->mdtIdHelper().isBarrel(id),m_idHelper->mdtIdHelper().multilayer(id)-1, 
-				       m_idHelper->mdtIdHelper().tubeLayer(id)-1, m_idHelper->mdtIdHelper().tube(id)-1 );
+      TrkDriftCircleMath::MdtId mdtid( m_idHelperSvc->mdtIdHelper().isBarrel(id),m_idHelperSvc->mdtIdHelper().multilayer(id)-1, 
+				       m_idHelperSvc->mdtIdHelper().tubeLayer(id)-1, m_idHelperSvc->mdtIdHelper().tube(id)-1 );
 
       // create new DriftCircle
       TrkDriftCircleMath::DriftCircle dc( lpos, r, 1., dr, TrkDriftCircleMath::DriftCircle::InTime, mdtid, index, mdt );
@@ -1669,8 +1632,8 @@ namespace Muon {
     m_finder.setPhiRoad(track_angleYZ,chamber_angleYZ,0.14);
 
     if( msgLvl(MSG::VERBOSE) ){
-      if(m_fitter.fit(segPars,dcsOnTrack)){
-	TrkDriftCircleMath::Segment segment = m_fitter.result();
+      TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+      if(m_fitter.fit(segment, segPars, dcsOnTrack)){
 	segment.hitsOnTrack(dcsOnTrack.size());
 	ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
 		      << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );
@@ -1779,11 +1742,28 @@ namespace Muon {
     std::vector< std::pair<Identifier,bool> >::iterator iit_end = indexIdMap.end();
     for( ;iit!=iit_end;++iit ){
       if(iit->second){
-	ATH_MSG_VERBOSE(" removing hit " << m_idHelper->toString( iit->first ) );
+	ATH_MSG_VERBOSE(" removing hit " << m_idHelperSvc->toString( iit->first ) );
 	removedIdentifiers.insert( iit->first );
       }
     }
     return true;
+  }
+
+  std::unique_ptr<const Trk::Perigee> MuonRefitTool::createPerigee( const Trk::TrackParameters& pars ) const {
+    std::unique_ptr<const Trk::Perigee> perigee;
+    if( m_muonExtrapolator.empty() ) { 
+      return perigee;
+    }
+    Trk::PerigeeSurface persurf(pars.position());
+    const Trk::TrackParameters* exPars = m_muonExtrapolator->extrapolateDirectly(pars,persurf);
+    const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars);
+    if( !pp ) {
+      ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");
+      delete exPars;
+      return perigee;
+    }
+    perigee.reset(pp);
+    return perigee;
   }
 
 }

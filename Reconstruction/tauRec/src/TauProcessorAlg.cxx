@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ListItem.h"
@@ -32,14 +32,11 @@ AthAlgorithm(name, pSvcLocator),
 m_tools(this), //make tools private
 m_maxEta(2.5),
 m_minPt(10000),
-m_doCreateTauContainers(false),
-m_data(),
 m_cellMakerTool("",this)
 {
   declareProperty("Tools", m_tools);
   declareProperty("MaxEta", m_maxEta);
   declareProperty("MinPt", m_minPt);
-  declareProperty("doCreateTauContainers", m_doCreateTauContainers);
   declareProperty("CellMakerTool", m_cellMakerTool);
 }
 
@@ -53,13 +50,15 @@ TauProcessorAlg::~TauProcessorAlg() {
 // Initializer
 //-----------------------------------------------------------------------------
 StatusCode TauProcessorAlg::initialize() {
-
+  ATH_CHECK( detStore()->retrieve(m_cellID) );
+    
     ATH_CHECK( m_jetInputContainer.initialize() );
     ATH_CHECK( m_tauOutputContainer.initialize() );
     ATH_CHECK( m_tauTrackOutputContainer.initialize() );
     ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
     ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
     ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
+    ATH_CHECK( m_pixelDetEleCollKey.initialize() ); 
     ATH_CHECK( m_SCTDetEleCollKey.initialize() ); 
 
     ATH_CHECK( m_cellMakerTool.retrieve() );
@@ -86,7 +85,6 @@ StatusCode TauProcessorAlg::initialize() {
     for (; itT != itTE; ++itT) {
       ++tool_count;
       ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
-      (*itT)->setTauEventData(&m_data);
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");
@@ -95,8 +93,6 @@ StatusCode TauProcessorAlg::initialize() {
         ATH_MSG_ERROR("could not allocate any tool!");
         return StatusCode::FAILURE;
     }
-
-    ///////////////////////////////////////////////////////////////////////////
 
     return StatusCode::SUCCESS;
 }
@@ -121,114 +117,60 @@ StatusCode TauProcessorAlg::finalize() {
   }
 
   if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE("The tau candidate container has been modified");
-  } else if (!sc.isSuccess()) {
-  } else  {
-  }
-
+    ATH_MSG_VERBOSE("All the invoded tools are finilized successfully.");
+  } 
 
   return StatusCode::SUCCESS;
-
 }
 
 //-----------------------------------------------------------------------------
 // Execution
 //-----------------------------------------------------------------------------
 StatusCode TauProcessorAlg::execute() {
-
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  StatusCode sc;
 
+  /// record output containers
+  SG::WriteHandle<xAOD::TauJetContainer> tauHandle( m_tauOutputContainer, ctx );
+  ATH_CHECK(tauHandle.record(std::make_unique<xAOD::TauJetContainer>(), std::make_unique<xAOD::TauJetAuxContainer>()));
+  xAOD::TauJetContainer* pContainer = tauHandle.ptr();
+
+  SG::WriteHandle<xAOD::TauTrackContainer> tauTrackHandle( m_tauTrackOutputContainer, ctx );
+  ATH_CHECK(tauTrackHandle.record(std::make_unique<xAOD::TauTrackContainer>(), std::make_unique<xAOD::TauTrackAuxContainer>()));
+  xAOD::TauTrackContainer* pTauTrackCont = tauTrackHandle.ptr();
+
+  SG::WriteHandle<xAOD::CaloClusterContainer> tauShotClusHandle( m_tauShotClusOutputContainer, ctx );
+  ATH_CHECK(tauShotClusHandle.record(std::make_unique<xAOD::CaloClusterContainer>(), std::make_unique<xAOD::CaloClusterAuxContainer>()));
+  xAOD::CaloClusterContainer* tauShotClusContainer = tauShotClusHandle.ptr();
+
+  SG::WriteHandle<xAOD::PFOContainer> tauShotPFOHandle( m_tauShotPFOOutputContainer, ctx );
+  ATH_CHECK(tauShotPFOHandle.record(std::make_unique<xAOD::PFOContainer>(), std::make_unique<xAOD::PFOAuxContainer>()));
+  xAOD::PFOContainer* tauShotPFOContainer = tauShotPFOHandle.ptr();
+
+  SG::WriteHandle<CaloCellContainer> tauPi0CellHandle( m_tauPi0CellOutputContainer, ctx );
+  ATH_CHECK(tauPi0CellHandle.record(std::make_unique<CaloCellContainer>()));
+  CaloCellContainer* Pi0CellContainer = tauPi0CellHandle.ptr();
+
+  /// retrieve the input jet seed container
+  SG::ReadHandle<xAOD::JetContainer> jetHandle( m_jetInputContainer, ctx );
+  if (!jetHandle.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << jetHandle.key());
+    return StatusCode::FAILURE;
+  }
+  const xAOD::JetContainer *pSeedContainer = jetHandle.cptr();
   
-    // Declare containers  
-    xAOD::TauJetContainer * pContainer = 0;
-    xAOD::TauJetAuxContainer* pAuxContainer = 0;
-    xAOD::TauTrackContainer* pTauTrackCont = 0;
-    xAOD::TauTrackAuxContainer* pTauTrackAuxCont = 0;
-
-    // Declare write handles
-    SG::WriteHandle<xAOD::TauJetContainer> tauHandle( m_tauOutputContainer, ctx );
-    SG::WriteHandle<xAOD::TauTrackContainer> tauTrackHandle( m_tauTrackOutputContainer, ctx );
-
-    if (m_doCreateTauContainers) {
-      //-------------------------------------------------------------------------                         
-      // Create and Record containers
-      //-------------------------------------------------------------------------                 
-      pContainer = new xAOD::TauJetContainer();
-      pAuxContainer = new xAOD::TauJetAuxContainer();
-      pContainer->setStore( pAuxContainer );
-
-      pTauTrackCont = new xAOD::TauTrackContainer();
-      pTauTrackAuxCont = new xAOD::TauTrackAuxContainer();
-      pTauTrackCont->setStore( pTauTrackAuxCont );
-
-    } else {
-      //-------------------------------------------------------------------------                                             
-      // retrieve Tau Containers from StoreGate                                                                                     
-      //-------------------------------------------------------------------------                                    
-      // replace with read handles
-      sc = evtStore()->retrieve(pContainer, "TauJets");
-      if (sc.isFailure()) {
-	ATH_MSG_FATAL("Failed to retrieve " << "TauJets");
-	return StatusCode::FAILURE;
-      }
-    }
-
-    //-------------------------------------------------------------------------                        
-    // Initialize tools for this event
-    //-------------------------------------------------------------------------                                                      
-    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
-    for (; itT != itTE; ++itT) {
-      sc = (*itT)->eventInitialize();
-      if (sc != StatusCode::SUCCESS)
-	return StatusCode::FAILURE;
-    }
-
-    //---------------------------------------------------------------------                                                    
-    // Retrieve seed Container from TDS, return `failure if no                                        
-    // existing                                                                                                                        
-    //---------------------------------------------------------------------                                                       
-    SG::ReadHandle<xAOD::JetContainer> jetHandle( m_jetInputContainer, ctx );
-    if (!jetHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << jetHandle.key());
-      return StatusCode::FAILURE;
-    }
-    const xAOD::JetContainer *pSeedContainer = 0;
-    pSeedContainer = jetHandle.cptr();
-
-    // The calo cluster containter must be registered to storegate here, in order to set links in shot finder tool
-    // Will still allow changes to the container within this algorithm
-    SG::WriteHandle<xAOD::CaloClusterContainer> tauShotClusHandle( m_tauShotClusOutputContainer, ctx );
-    xAOD::CaloClusterContainer* tauShotClusContainer = new xAOD::CaloClusterContainer();
-    xAOD::CaloClusterAuxContainer* tauShotClusAuxStore = new xAOD::CaloClusterAuxContainer();
-    tauShotClusContainer->setStore(tauShotClusAuxStore);
-    ATH_MSG_DEBUG("  write: " << tauShotClusHandle.key() << " = " << "..." );
-    ATH_CHECK(tauShotClusHandle.record(std::unique_ptr<xAOD::CaloClusterContainer>{tauShotClusContainer}, std::unique_ptr<xAOD::CaloClusterAuxContainer>{tauShotClusAuxStore}));
-
-    SG::WriteHandle<xAOD::PFOContainer> tauShotPFOHandle( m_tauShotPFOOutputContainer, ctx );
-    xAOD::PFOContainer* tauShotPFOContainer = new xAOD::PFOContainer();
-    xAOD::PFOAuxContainer* tauShotPFOAuxStore = new xAOD::PFOAuxContainer();
-    tauShotPFOContainer->setStore(tauShotPFOAuxStore);
-    ATH_MSG_DEBUG("  write: " << tauShotPFOHandle.key() << " = " << "..." );
-    ATH_CHECK(tauShotPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{tauShotPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{tauShotPFOAuxStore}));
-
-    SG::WriteHandle<CaloCellContainer> tauPi0CellHandle( m_tauPi0CellOutputContainer, ctx );
-    CaloCellContainer* Pi0CellContainer = new CaloCellContainer();
-    ATH_MSG_DEBUG("  write: " << tauPi0CellHandle.key() << " = " << "..." );
-    ATH_CHECK(tauPi0CellHandle.record(std::unique_ptr<CaloCellContainer>(Pi0CellContainer)));
-
-    //---------------------------------------------------------------------                                                        
-    // Loop over seeds
-    //---------------------------------------------------------------------                                                 
-    xAOD::JetContainer::const_iterator itS = pSeedContainer->begin();
-    xAOD::JetContainer::const_iterator itSE = pSeedContainer->end();
-
-    ATH_MSG_VERBOSE("Number of seeds in the container: " << pSeedContainer->size());
-    for (; itS != itSE; ++itS) {
-
-      const xAOD::Jet *pSeed = (*itS);
-      ATH_MSG_VERBOSE("Seeds eta:" << pSeed->eta() << ", pt:" << pSeed->pt());
+  /// Initialize the cell map per event, used to avoid dumplicate cell  in TauPi0CreateROI
+  IdentifierHash hashMax = m_cellID->calo_cell_hash_max(); 
+  ATH_MSG_DEBUG("CaloCell Hash Max: " << hashMax);
+  std::vector<CaloCell*> addedCellsMap;
+  addedCellsMap.resize(hashMax,NULL);
+  
+  //---------------------------------------------------------------------                                                        
+  // Loop over seeds
+  //---------------------------------------------------------------------                                                 
+  ATH_MSG_VERBOSE("Number of seeds in the container: " << pSeedContainer->size());
+    
+  for (const xAOD::Jet* pSeed : *pSeedContainer) {
+    ATH_MSG_VERBOSE("Seeds eta:" << pSeed->eta() << ", pt:" << pSeed->pt());
 
       if (fabs(pSeed->eta()) > m_maxEta) {
 	ATH_MSG_VERBOSE("--> Seed rejected, eta out of range!");
@@ -253,17 +195,23 @@ StatusCode TauProcessorAlg::execute() {
       //-----------------------------------------------------------------
       // Loop stops when Failure indicated by one of the tools
       //-----------------------------------------------------------------
+      StatusCode sc;
       ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
 	ATH_MSG_DEBUG("ProcessorAlg Invoking tool " << (*itT)->name());
-	
-	if ( (*itT)->name().find("ShotFinder") != std::string::npos){
+
+        if ((*itT)->type() == "TauVertexFinder" ) { 
+          sc = (*itT)->executeVertexFinder(*pTau);
+        }
+        else if ( (*itT)->type() == "TauTrackFinder") { 
+          sc = (*itT)->executeTrackFinder(*pTau);
+        }
+        else if ( (*itT)->name().find("ShotFinder") != std::string::npos){
 	  sc = (*itT)->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
 	}
-	else if ( (*itT)->name().find("Pi0CreateROI") != std::string::npos){
-	  ATH_MSG_INFO("EXEC PI0CREATEROI");
-	  sc = (*itT)->executePi0CreateROI(*pTau, *Pi0CellContainer);
+	else if ( (*itT)->name().find("Pi0ClusterFinder") != std::string::npos){
+	  sc = (*itT)->executePi0CreateROI(*pTau, *Pi0CellContainer, addedCellsMap);
 	}
 	else {
 	  sc = (*itT)->execute(*pTau);
@@ -273,66 +221,32 @@ StatusCode TauProcessorAlg::execute() {
       }
 
       if (sc.isSuccess()) {
-	
 	ATH_MSG_VERBOSE("The tau candidate has been registered");
-     
-      } else if (!sc.isSuccess()) {
+      } 
+      else {
 	//remove orphaned tracks before tau is deleted via pop_back
 	xAOD::TauJet* bad_tau = pContainer->back();
 	ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
 	pTauTrackCont->erase(pTauTrackCont->end()-bad_tau->nAllTracks(), pTauTrackCont->end());
 
-	//m_data.xAODTauContainer->pop_back();
 	pContainer->pop_back();
-      } else{
-
-	//remove orphaned tracks before tau is deleted via pop_back
-	xAOD::TauJet* bad_tau = pContainer->back();
-	ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
-	pTauTrackCont->erase(pTauTrackCont->end()-bad_tau->nAllTracks(), pTauTrackCont->end());
-
-	//m_data.xAODTauContainer->pop_back();
-	pContainer->pop_back();
-      }
-
-
+      } 
     }// loop through seeds
-
-    itT = m_tools.begin();
-    itTE = m_tools.end();
-    for (; itT != itTE; ++itT) {
-      sc = (*itT)->eventFinalize();
-      if (sc != StatusCode::SUCCESS)
-	return StatusCode::FAILURE;
-    }
 
     // Check this is needed for the cell container?
     // symlink as INavigable4MomentumCollection (as in CaloRec/CaloCellMaker)
     ATH_CHECK(evtStore()->symLink(Pi0CellContainer, static_cast<INavigable4MomentumCollection*> (0)));
-    //---------------------------------------------------------------------
-    // use the m_cellMakerTool to finalize the custom CaloCellContainer
-    //---------------------------------------------------------------------
-    CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer), ctx) );
-
-
-  if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE("The tau candidate container has been modified");
-  } else if (!sc.isSuccess()) {
-  } else  {
-  }
   
-  // Write the completed tau and track containers
-  ATH_MSG_DEBUG("  write: " << tauHandle.key() << " = " << "..." );
-  ATH_CHECK(tauHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{pAuxContainer}));
-  ATH_MSG_DEBUG("  write: " << tauTrackHandle.key() << " = " << "..." );  
-  ATH_CHECK(tauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTauTrackCont}, std::unique_ptr<xAOD::TauTrackAuxContainer>{pTauTrackAuxCont}));
+    // sort the cell container by hash
+    ATH_CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer), ctx) );
 
+  ATH_MSG_VERBOSE("The tau candidate container has been modified");
+  
   return StatusCode::SUCCESS;
 }
 
-
 void TauProcessorAlg::setEmptyTauTrack(xAOD::TauJet* &pTau, 
-				       xAOD::TauTrackContainer* &tauTrackContainer)
+				       xAOD::TauTrackContainer* tauTrackContainer)
 {  
   // Make a new tau track, add to container
   xAOD::TauTrack* pTrack = new xAOD::TauTrack();
@@ -343,4 +257,3 @@ void TauProcessorAlg::setEmptyTauTrack(xAOD::TauJet* &pTau,
   linkToTauTrack.toContainedElement(*tauTrackContainer, pTrack);
   pTau->addTauTrackLink(linkToTauTrack);
 }
-

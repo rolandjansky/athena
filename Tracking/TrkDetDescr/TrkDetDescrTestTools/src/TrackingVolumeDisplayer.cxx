@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,6 @@ Trk::TrackingVolumeDisplayer::TrackingVolumeDisplayer(const std::string& t, cons
   m_fileVolumeOutputMode(true),
   m_fileLayerOutputName("TrackingGeometryLayerDisplay.C"),
   m_fileLayerOutputMode(true),
-  m_fileLayerSenstiveVolume(false),
   m_fileSurfaceOutputName("TrackingGeometrySurfaceDisplay.C"),
   m_fileSurfaceOutputMode(true),
   m_fileSurfaceOutputSplit(false)

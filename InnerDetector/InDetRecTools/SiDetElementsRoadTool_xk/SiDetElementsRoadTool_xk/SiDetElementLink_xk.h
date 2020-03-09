@@ -16,6 +16,7 @@
 #define SiDetElementLink_xk_H
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include <utility>
 
 namespace InDet{
 
@@ -25,9 +26,29 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+
+       class UsedFlag {
+       public:
+          UsedFlag() : m_used(false) {}
+
+          bool used() const { return m_used; }
+
+          void setUsed() { m_used=true; }
+       private:
+          bool m_used;
+       };
+
+       class ElementWay : public std::pair<const InDet::SiDetElementLink_xk*, float> {
+       public:
+          ElementWay(const InDet::SiDetElementLink_xk*link, float way)
+             : std::pair<const InDet::SiDetElementLink_xk*, float>(link,way) {}
+
+          const InDet::SiDetElementLink_xk* link() const { return this->first; }
+          float way()                              const { return this->second; }
+       };
+
       SiDetElementLink_xk();
       SiDetElementLink_xk(const InDetDD::SiDetectorElement*,const double*);
       SiDetElementLink_xk(const SiDetElementLink_xk&);
@@ -42,10 +63,6 @@ namespace InDet{
       const InDetDD::SiDetectorElement* detElement() const {return m_detelement;}
       float phi () const {return m_phi;}
       void intersect(const float*,const float*,float*) const;
-      const float&  way () const {return m_way;}
-      const bool&   used() const {return m_used;}
-      void clearUsed();  
-      void setUsed (float);
 
     protected:
       
@@ -58,8 +75,6 @@ namespace InDet{
       float                               m_geo     [6];
       float                               m_center  [2];
       float                               m_bound[4][3];
-      float                               m_way        ;
-      bool                                m_used       ;
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -75,8 +90,6 @@ namespace InDet{
     {
       m_detelement = 0    ;
       m_phi        = 0.   ;
-      m_way        = 0.   ;
-      m_used       = false;
     }
 
   inline SiDetElementLink_xk::SiDetElementLink_xk(const SiDetElementLink_xk& L): m_detelement(L.m_detelement)
@@ -96,26 +109,15 @@ namespace InDet{
 	for(int i=0; i!=4; ++i) {
 	  for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
 	}
-	m_way        = L.m_way ;
-	m_used       = L.m_used;
       }
       return(*this);
     }
  
-  inline void InDet::SiDetElementLink_xk::clearUsed()
-    {
-      m_used = false;
-    }
-
-  inline void InDet::SiDetElementLink_xk::setUsed(float way)
-    {
-      m_used = true; m_way = way;
-    }
 
   inline InDet::SiDetElementLink_xk::SiDetElementLink_xk
     (const InDetDD::SiDetectorElement* el,const double* P)
     {
-      m_detelement = el; set(P); m_used = false; m_way = 0.;
+      m_detelement = el; set(P);
     } 
 
   inline SiDetElementLink_xk::~SiDetElementLink_xk() {}

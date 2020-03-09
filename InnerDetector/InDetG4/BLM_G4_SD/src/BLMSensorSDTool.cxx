@@ -19,7 +19,7 @@ BLMSensorSDTool::BLMSensorSDTool(const std::string& type, const std::string& nam
 {
 }
 
-G4VSensitiveDetector* BLMSensorSDTool::makeSD()
+G4VSensitiveDetector* BLMSensorSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
 

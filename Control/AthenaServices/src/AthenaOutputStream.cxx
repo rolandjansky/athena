@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaOutputStream.h"
@@ -14,7 +14,7 @@
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/FileIncident.h"
+#include "GaudiKernel/AlgTool.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
@@ -30,6 +30,7 @@
 
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
+#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "OutputStreamSequencerSvc.h"
 #include "MetaDataSvc.h"
 
@@ -38,6 +39,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <sstream>
 
 using std::string;
 using std::vector;
@@ -139,22 +141,25 @@ namespace {
 
 // Standard Constructor
 AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLocator)
-        : FilteredAlgorithm(name, pSvcLocator),
+      : FilteredAlgorithm(name, pSvcLocator),
         m_dataStore("StoreGateSvc", name),
         m_metadataStore("MetaDataStore", name),
         m_currentStore(&m_dataStore),
         m_itemSvc("ItemListSvc", name),
+	m_metaDataSvc("MetaDataSvc", name),
 	m_outputAttributes(),
         m_pCLIDSvc("ClassIDSvc", name),
         m_outSeqSvc("OutputStreamSequencerSvc", name),
         m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
         m_decoder(string("SG::Folder/") + name + string("_excluded"), this),
+        m_compressionDecoderHigh(string("SG::Folder/") + name + string("_compressed_high"), this),
+        m_compressionDecoderLow(string("SG::Folder/") + name + string("_compressed_low"), this),
         m_transient(string("SG::Folder/") + name + string("_transient"), this),
         m_events(0),
         m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
-   m_helperTools(this) {
+        m_helperTools(this)
+{
    assert(pSvcLocator);
-   declareProperty("ItemList",               m_itemList);
    declareProperty("MetadataItemList",       m_metadataItemList);
    declareProperty("TransientItems",         m_transientItems);
    declareProperty("OutputFile",             m_outputName="DidNotNameOutput.root");
@@ -162,7 +167,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("WritingTool",            m_streamer);
    declareProperty("Store",                  m_dataStore);
    declareProperty("MetadataStore",          m_metadataStore);
-   declareProperty("ForceRead",              m_forceRead=false);
+   declareProperty("ForceRead",              m_forceRead=true);
    declareProperty("ExtendProvenanceRecord", m_extendProvenanceRecord=true);
    declareProperty("WriteOnExecute",         m_writeOnExecute=true);
    declareProperty("WriteOnFinalize",        m_writeOnFinalize=false);
@@ -170,15 +175,22 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("CheckNumberOfWrites",    m_checkNumberOfWrites=true);
    declareProperty("ExcludeList",            m_excludeList);
    declareProperty("HelperTools",            m_helperTools);
-
+   declareProperty("CompressionListHigh",    m_compressionListHigh);
+   declareProperty("CompressionListLow",     m_compressionListLow);
+   declareProperty("CompressionBitsHigh",    m_compressionBitsHigh = 7);
+   declareProperty("CompressionBitsLow",     m_compressionBitsLow = 15);
+   
    // Associate action handlers with the AcceptAlgs,
    // RequireAlgs & VetoAlgs properties
    m_itemList.declareUpdateHandler(&AthenaOutputStream::itemListHandler, this);
    m_excludeList.declareUpdateHandler(&AthenaOutputStream::excludeListHandler, this);
+   m_compressionListHigh.declareUpdateHandler(&AthenaOutputStream::compressionListHandlerHigh, this);
+   m_compressionListLow.declareUpdateHandler(&AthenaOutputStream::compressionListHandlerLow, this);
 }
 
 // Standard Destructor
 AthenaOutputStream::~AthenaOutputStream() {
+   m_streamerMap.clear();
 }
 
 // initialize data writer
@@ -310,6 +322,37 @@ StatusCode AthenaOutputStream::initialize() {
      }
    }
 
+   // listen to event range incidents if incident name is configured
+   if( !m_outSeqSvc->incidentName().empty() ) {
+      ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
+      if (!incsvc.retrieve().isSuccess()) {
+         ATH_MSG_FATAL("Cannot get IncidentSvc.");
+         return(StatusCode::FAILURE);
+      }
+      incsvc->addListener(this, IncidentType::BeginProcessing, 100);
+      incsvc->addListener(this, IncidentType::EndProcessing, 100);
+   }
+
+   // Check compression settings and print some information about the configuration
+   if(m_compressionBitsHigh < 5) {
+     ATH_MSG_INFO("Float compression mantissa bits for high compression " <<
+                  "(" << m_compressionBitsHigh << ") is too low, setting it to 5.");
+     m_compressionBitsHigh = 5;
+   }
+   if(m_compressionBitsLow < m_compressionBitsHigh) {
+     ATH_MSG_INFO("Float compression mantissa bits for low compression " <<
+                  "(" << m_compressionBitsLow << ") is lower than high compression " <<
+                  "(" << m_compressionBitsHigh << ")! Setting it to the high compression value.");
+     m_compressionBitsLow = m_compressionBitsHigh;
+   }
+   if(m_compressionListHigh.value().empty() && m_compressionListLow.value().empty()) {
+     ATH_MSG_VERBOSE("Both high and low float compression lists are empty. Float compression will NOT be applied.");
+   } else {
+     ATH_MSG_INFO("Either high or low (or both) float compression lists are defined. Float compression will be applied.");
+     ATH_MSG_INFO("High compression will use " << m_compressionBitsHigh << " mantissa bits, and " <<
+                  "low compression will use " << m_compressionBitsLow << " mantissa bits.");
+   }
+
    ATH_MSG_DEBUG("End initialize");
    if (baseStatus == StatusCode::FAILURE) return StatusCode::FAILURE;
    return(status);
@@ -321,9 +364,24 @@ StatusCode AthenaOutputStream::stop()
    return StatusCode::SUCCESS;
 }
 
-void AthenaOutputStream::handle(const Incident& inc) {
-   ATH_MSG_DEBUG("handle() incident type: " << inc.type());
-   if (inc.type() == "MetaDataStop") {
+
+void AthenaOutputStream::handle(const Incident& inc)
+{
+   EventContext::ContextID_t slot = inc.context().slot();
+   ATH_MSG_DEBUG("slot " << slot << "  handle() incident type: " << inc.type());
+   std::unique_lock<mutex_t>  lock(m_mutex);
+
+   if( inc.type() == "MetaDataStop" )  {
+      const std::string outputFN = m_slotRangeMap[ slot ];
+      IAthenaOutputStreamTool* streamer = &*m_streamer;
+      if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() ) {
+         if( slot == EventContext::INVALID_CONTEXT_ID ) {
+            // slot is invalid during application stop, but all ranges are closed by that time
+            ATH_MSG_DEBUG("Ignoring MetaDataStop incident with invalid slot");
+            return;
+         }
+         streamer = m_streamerMap[outputFN].get();
+      }
       // Moved preFinalize of helper tools to stop - want to optimize the
       // output file in finalize RDS 12/2009
       for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
@@ -332,15 +390,8 @@ void AthenaOutputStream::handle(const Incident& inc) {
             ATH_MSG_ERROR("Cannot finalize helper tool");
          }
       }
-      // Make sure the metadata tools finalize their output
-      ServiceHandle<MetaDataSvc> mdsvc("MetaDataSvc", name());
-      if (mdsvc.retrieve().isFailure()) {
-         ATH_MSG_ERROR("Could not retrieve MetaDataSvc for stop actions");
-      }
-      else {
-         if (mdsvc->prepareOutput().isFailure()) {
-            ATH_MSG_ERROR("Failed on MetaDataSvc prepareOutput");
-         }
+      if( m_metaDataSvc->prepareOutput().isFailure() ) {
+         ATH_MSG_ERROR("Failed on MetaDataSvc prepareOutput");
       }
       // Always force a final commit in stop - mainly applies to AthenaPool
       if (m_writeOnFinalize) {
@@ -349,15 +400,14 @@ void AthenaOutputStream::handle(const Incident& inc) {
          }
          ATH_MSG_INFO("Records written: " << m_events);
       }
-
       if (!m_metadataItemList.value().empty()) {
          m_currentStore = &m_metadataStore;
-         StatusCode status = m_streamer->connectServices(m_metadataStore.type(), m_persName, false);
+         StatusCode status = streamer->connectServices(m_metadataStore.type(), m_persName, false);
          if (status.isFailure()) {
             throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
          }
          m_checkNumberOfWrites = false;
-         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
+         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=]";
          m_p2BWritten->clear();
          IProperty *pAsIProp(nullptr);
          if ((m_p2BWritten.retrieve()).isFailure() ||
@@ -370,7 +420,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
          }
          m_outputAttributes.clear();
          m_currentStore = &m_dataStore;
-         status = m_streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
+         status = streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
          if (status.isFailure()) {
             throw GaudiException("Unable to re-connect services", name(), StatusCode::FAILURE);
          }
@@ -380,29 +430,45 @@ void AthenaOutputStream::handle(const Incident& inc) {
          }
          ATH_MSG_INFO("Records written: " << m_events);
       }
-   } else if (inc.type() == "UpdateOutputFile") {
-     const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-     if(fileInc!=nullptr) {
-       if(m_outputName != fileInc->fileName()) {
-	 m_outputName = fileInc->fileName();
-	 ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
-	 if(iomgr.retrieve().isFailure()) {
-	   ATH_MSG_FATAL("Cannot retrieve IoComponentMgr from within the incident handler");
-	   return;
-	 }
-	 if(iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName).isFailure()) {
-	   ATH_MSG_FATAL("Cannot register new output name with IoComponentMgr");
-	   return;
-	 }
-       } else {
-	 ATH_MSG_DEBUG("New output file name received through the UpdateOutputFile incident is the same as the already defined output name. Nothing to do");
-       }
-     } else {
-       ATH_MSG_FATAL("Cannot dyn-cast the UpdateOutputFile incident to FileIncident");
-       return;
-     }
    }
-   ATH_MSG_DEBUG("Leaving handle");
+
+   // Handle Event Ranges
+   if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() )
+   {
+      if( inc.type() == IncidentType::BeginProcessing ) {
+         // remember in which output filename this event should be stored
+         m_slotRangeMap[ slot ] = m_outSeqSvc->buildSequenceFileName(m_outputName);
+         ATH_MSG_DEBUG("slot " << slot << " assigned filename: " << m_slotRangeMap[ slot ] );
+         return;
+      }
+      if( inc.type() == IncidentType::EndProcessing ) {
+         std::string rangeFN = m_slotRangeMap[ slot ];
+         if( !rangeFN.empty() ) {
+            int n = 0;
+            for( auto& elem : m_slotRangeMap ) {
+               if( elem.second == rangeFN ) n++;
+            }
+            if( n == 1 ) {
+               // this was the last event in this range, finalize it
+               ATH_MSG_DEBUG("slot " << slot << " starting transition MetaData for " << rangeFN);
+               if( !m_metaDataSvc->transitionMetaDataFile( m_outSeqSvc->ignoringInputBoundary() ).isSuccess() ) {
+                  ATH_MSG_FATAL("Cannot transition MetaDataSvc");
+               }
+               ATH_MSG_INFO("Finished writing event sequence to " << rangeFN );
+               auto strm_iter = m_streamerMap.find( rangeFN );
+               strm_iter->second->finalizeOutput().ignore();
+               strm_iter->second->finalize().ignore();
+               m_streamerMap.erase(strm_iter);
+	       m_outSeqSvc->publishRangeReport(rangeFN);            
+            }
+            m_slotRangeMap[ slot ].clear();
+         } else {
+            ATH_MSG_ERROR("Failed to handle EndProcessing incident");
+         }
+      }
+   }
+   
+   ATH_MSG_DEBUG("Leaving incident handler for " << inc.type());
 }
 
 // terminate data writer
@@ -459,69 +525,99 @@ StatusCode AthenaOutputStream::execute() {
 // Work entry point
 StatusCode AthenaOutputStream::write() {
    bool failed = false;
-   // Clear any previously existing item list
-   clearSelection();
-   // Connect the output file to the service
-   // FIXME: this double looping sucks... got to query the
-   // data store for object of a given type/key.
-   std::lock_guard<std::mutex> lock(m_itemSvc->streamMutex());
-   if (m_streamer->connectOutput(m_outSeqSvc->buildSequenceFileName(m_outputName) + m_outputAttributes).isSuccess()) {
-      // First check if there are any new items in the list
-      collectAllObjects();
-      // print out info about objects collected
-      if (m_checkNumberOfWrites) {
-         bool checkCountError = false;
-         ATH_MSG_DEBUG(" Collected objects:");
-         bool first = true;
-         unsigned int lastCount = 0;
-         for (CounterMapType::iterator cit = m_objectWriteCounter.begin(),
-                 clast = m_objectWriteCounter.end(); cit != clast; ++cit) {
-            bool isError = false;
-            if (first) {
-               lastCount = (*cit).second;
-               first = false;
-            } else if (lastCount != (*cit).second) {
-               isError = true;
-               //Complain, but don't abort
-               checkCountError = true;
-            }
-            if (isError) {
-               ATH_MSG_ERROR(" INCORRECT Object/count: "
-                       << (*cit).first << ", " << (*cit).second << " should be: " << lastCount);
-            } else {
-               ATH_MSG_DEBUG(" Object/count: " << (*cit).first << ", " << (*cit).second);
-            }
-         }
-         if (checkCountError) {
-            ATH_MSG_FATAL("Check number of writes failed. See messages above "
-                    "to identify which container is not always written");
-            return(StatusCode::FAILURE);
-         }
-      }
+   EventContext::ContextID_t slot = Gaudi::Hive::currentContext().slot();
+   IAthenaOutputStreamTool* streamer = &*m_streamer;
+   std::string outputFN = m_outSeqSvc->buildSequenceFileName(m_outputName);
 
-      StatusCode currentStatus = m_streamer->streamObjects(m_objects);
-      // Do final check of streaming
-      if (!currentStatus.isSuccess()) {
-         if (!currentStatus.isRecoverable()) {
-            ATH_MSG_FATAL("streamObjects failed.");
-            failed = true;
-         } else {
-            ATH_MSG_DEBUG("streamObjects failed.");
+   std::unique_lock<mutex_t>  lock(m_mutex);
+
+   // Handle Event Ranges
+   if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() ) {
+      outputFN = m_slotRangeMap[ slot ];
+      ATH_MSG_DEBUG( "Writing event sequence to " << outputFN );
+      
+      streamer = m_streamerMap[ outputFN ].get();
+      if( !streamer ) {
+         // new range, needs a new streamer tool
+         IAlgTool* st = AlgTool::Factory::create( m_streamer->type(), m_streamer->type(), m_streamer->name(), this ).release();
+         st->addRef();
+         streamer = dynamic_cast<IAthenaOutputStreamTool*>( st );
+         if( streamer->initialize().isFailure()
+             || streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord).isFailure() ) {
+            ATH_MSG_FATAL("Unable to initialize OutputStreamTool for " << outputFN );
+            return StatusCode::FAILURE;
          }
-      }
-      currentStatus = m_streamer->commitOutput();
-      if (!currentStatus.isSuccess()) {
-         ATH_MSG_FATAL("commitOutput failed.");
-         failed = true;
-      }
-      clearSelection();
-      if (!failed) {
-         m_events++;
+         m_streamerMap[ outputFN ].reset( streamer );
       }
    }
-   if (failed) {
+
+   // Clear any previously existing item list
+   clearSelection();
+   collectAllObjects();
+
+   // keep a local copy of the object lists so they are not overwritten when we release the lock
+   IDataSelector objects = std::move( m_objects );
+   IDataSelector altObjects = std::move( m_altObjects );
+   std::vector<std::unique_ptr<DataObject> > ownedObjects = std::move( m_ownedObjects );
+   
+   // print out info about objects collected
+   if (m_checkNumberOfWrites) {
+      bool checkCountError = false;
+      ATH_MSG_DEBUG(" Collected objects:");
+      bool first = true;
+      unsigned int lastCount = 0;
+      for (CounterMapType::iterator cit = m_objectWriteCounter.begin(),
+              clast = m_objectWriteCounter.end(); cit != clast; ++cit) {
+         bool isError = false;
+         if (first) {
+            lastCount = (*cit).second;
+            first = false;
+         } else if (lastCount != (*cit).second) {
+            isError = true;
+            //Complain, but don't abort
+            checkCountError = true;
+         }
+         if (isError) {
+            ATH_MSG_ERROR(" INCORRECT Object/count: "
+                          << (*cit).first << ", " << (*cit).second << " should be: " << lastCount);
+         } else {
+            ATH_MSG_DEBUG(" Object/count: " << (*cit).first << ", " << (*cit).second);
+         }
+      }
+      if (checkCountError) {
+         ATH_MSG_FATAL("Check number of writes failed. See messages above "
+                       "to identify which container is not always written");
+         return(StatusCode::FAILURE);
+      }
+   }
+   // prepare before releasing lock because m_outputAttributes change in metadataStop
+   const std::string connectStr = outputFN + m_outputAttributes;
+
+   // MN: would be nice to release the Stream lock here
+   // lock.unlock();
+
+   // Connect the output file to the service
+   if (!streamer->connectOutput(outputFN).isSuccess()) {
       ATH_MSG_ERROR("Could not connectOutput");
-      return(StatusCode::FAILURE);
+      return StatusCode::FAILURE;
+   }
+   ATH_MSG_DEBUG("connectOutput done for " + outputFN);
+   StatusCode currentStatus = streamer->streamObjects(objects, connectStr);
+   // Do final check of streaming
+   if (!currentStatus.isSuccess()) {
+      if (!currentStatus.isRecoverable()) {
+         ATH_MSG_FATAL("streamObjects failed.");
+         failed = true;
+      } else {
+         ATH_MSG_DEBUG("streamObjects failed.");
+      }
+   }
+   if (!streamer->commitOutput().isSuccess()) {
+      ATH_MSG_FATAL("commitOutput failed.");
+      failed = true;
+   }
+   if (!failed) {
+      m_events++;
    }
    return(StatusCode::SUCCESS);
 }
@@ -561,7 +657,14 @@ void AthenaOutputStream::collectAllObjects() {
    }
    m_objects.clear();  // clear previous list
    for (auto it = prunedList.begin(); it != prunedList.end(); ++it) {
-      m_objects.push_back(*it);  // copy new into previous
+      if ((*it)->name().length() > 4 && (*it)->name().substr((*it)->name().length() - 4) == "Aux.") {
+         m_objects.push_back(*it);  // first copy aux store new into previous
+      }
+   }
+   for (auto it = prunedList.begin(); it != prunedList.end(); ++it) {
+      if ((*it)->name().length() <= 4 || (*it)->name().substr((*it)->name().length() - 4) != "Aux.") {
+         m_objects.push_back(*it);  // then copy others new into previous
+      }
    }
 }
 
@@ -589,6 +692,82 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
       if (iter->id() == item.id()) {
          clidKeys.insert(iter->key());
       }
+   }
+
+   // Here we build the list of attributes for the float compression
+   // CompressionList follows the same logic as the ItemList
+   // We find the matching keys, read the string after "Aux.",
+   // tokenize by "." and build an std::set of these to be
+   // communicated to IAuxStoreCompression down below
+   std::vector<unsigned int> comp_bits{ m_compressionBitsHigh, m_compressionBitsLow };
+   std::vector<std::set<std::string>> comp_attr;
+   comp_attr.resize(2);
+   if(item_key.find("Aux.") != string::npos) {
+     // First the high compression list
+     for (SG::IFolder::const_iterator iter = m_compressionDecoderHigh->begin(), iterEnd = m_compressionDecoderHigh->end();
+            iter != iterEnd; iter++) {
+       // First match the IDs for early rejection.
+       if (iter->id() != item.id()) {
+         continue;
+       }
+       // Then find the compression item key and the compression list string
+       size_t seppos = iter->key().find(".");
+       string comp_item_key{""}, comp_str{""};
+       if(seppos != string::npos) {
+         comp_item_key = iter->key().substr(0, seppos+1);
+         comp_str = iter->key().substr(seppos+1);
+       } else {
+         comp_item_key = iter->key();
+       }
+       // Proceed only if the keys match and the
+       // compression list string is not empty
+       if (!comp_str.empty() && comp_item_key == item_key) {
+         std::stringstream ss(comp_str);
+         std::string attr;
+         while( std::getline(ss, attr, '.') ) {
+            comp_attr[0].insert(attr);
+         }
+       }
+     }
+     // Then the low compression list
+     // Code duplication is not nice but not worth making modular
+     for (SG::IFolder::const_iterator iter = m_compressionDecoderLow->begin(), iterEnd = m_compressionDecoderLow->end();
+            iter != iterEnd; iter++) {
+       // First match the IDs for early rejection.
+       if (iter->id() != item.id()) {
+         continue;
+       }
+       // Then find the compression item key and the compression list string
+       size_t seppos = iter->key().find(".");
+       string comp_item_key{""}, comp_str{""};
+       if(seppos != string::npos) {
+         comp_item_key = iter->key().substr(0, seppos+1);
+         comp_str = iter->key().substr(seppos+1);
+       } else {
+         comp_item_key = iter->key();
+       }
+       // Proceed only if the keys match and the
+       // compression list string is not empty
+       if (!comp_str.empty() && comp_item_key == item_key) {
+         std::stringstream ss(comp_str);
+         std::string attr;
+         while( std::getline(ss, attr, '.') ) {
+            comp_attr[1].insert(attr);
+         }
+       }
+     }
+   }
+   ATH_MSG_DEBUG("     Comp Attr High: " << comp_attr[0].size() << " with " << comp_bits[0] << " mantissa bits.");
+   if ( comp_attr[0].size() > 0 ) {
+     for(auto attr : comp_attr[0]) {
+        ATH_MSG_DEBUG("       >> " << attr);
+     }
+   }
+   ATH_MSG_DEBUG("     Comp Attr Low: " << comp_attr[1].size() << " with " << comp_bits[1] << " mantissa bits.");
+   if ( comp_attr[1].size() > 0 ) {
+     for(auto attr : comp_attr[1]) {
+        ATH_MSG_DEBUG("       >> " << attr);
+     }
    }
 
    SG::ConstProxyIterator iter, end;
@@ -724,6 +903,20 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                            auxio->selectAux(attributes);
                      }
                   }
+                  // Here comes the compression logic using SG::IAuxStoreCompression
+                  // similar to that of SG::IAuxStoreIO above
+                  SG::IAuxStoreCompression* auxcomp( nullptr );
+                  try {
+                    SG::fromStorable( itemProxy->object(), auxcomp, true );
+                  } catch( const std::exception& ) {
+                    ATH_MSG_DEBUG( "Error in casting object with CLID "
+                                   << itemProxy->clID() << " to SG::IAuxStoreCompression*" );
+                    auxcomp = nullptr;
+                  }
+                  if ( auxcomp ) {
+                    auxcomp->setCompressedAuxIDs( comp_attr );
+                    auxcomp->setCompressionBits( comp_bits );
+                  }
                }
 
                added = true;
@@ -777,6 +970,23 @@ void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
    }
 }
 
+void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
+   IProperty *pAsIProp(nullptr);
+   if ((m_compressionDecoderHigh.retrieve()).isFailure() ||
+           nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderHigh)) ||
+           (pAsIProp->setProperty("ItemList", m_compressionListHigh.toString())).isFailure()) {
+      throw GaudiException("Folder property [ItemList] not found", name(), StatusCode::FAILURE);
+   }
+}
+
+void AthenaOutputStream::compressionListHandlerLow(Property& /* theProp */) {
+   IProperty *pAsIProp(nullptr);
+   if ((m_compressionDecoderLow.retrieve()).isFailure() ||
+           nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderLow)) ||
+           (pAsIProp->setProperty("ItemList", m_compressionListLow.toString())).isFailure()) {
+      throw GaudiException("Folder property [ItemList] not found", name(), StatusCode::FAILURE);
+   }
+}
 
 void AthenaOutputStream::tokenizeAtSep( std::vector<std::string>& subStrings,
                                         const std::string& portia,
@@ -846,7 +1056,7 @@ bool AthenaOutputStream::matchKey(const std::vector<std::string>& key,
 
 StatusCode AthenaOutputStream::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
-   // For 'write on finalize', we set up listener for 'LastInputFile'
+   // For 'write on finalize', we set up listener for 'MetaDataStop'
    // and perform write at this point. This happens at 'stop' of the
    // event selector. RDS 04/2010
    // Set to be listener for end of event
@@ -856,7 +1066,6 @@ StatusCode AthenaOutputStream::io_reinit() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "MetaDataStop", 50);
-   incSvc->addListener(this, "UpdateOutputFile", 50);
    for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
        iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {

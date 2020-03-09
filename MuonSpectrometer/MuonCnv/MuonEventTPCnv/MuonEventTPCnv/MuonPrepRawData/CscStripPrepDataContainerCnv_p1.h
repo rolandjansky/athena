@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCSTRIPPREPDATACONTAINERCNV_P1_H
@@ -15,9 +15,6 @@
 
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p1.h"
-class PixelID;
-
-namespace MuonGM{ class PixelDetectorManager;}
 
 class MsgStream;
 class StoreGateSvc;

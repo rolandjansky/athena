@@ -17,6 +17,8 @@
 #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+
 class MdtCalibrationRegionSvc;
 class MdtIdHelper;
 class Identifier;
@@ -27,15 +29,11 @@ namespace MuonCalib{
   struct MdtFullCalibData;
 }
 
-#include "StoreGate/ReadCondHandleKey.h"
-
 /** handles the retreival of constants from the DB: it uses a Tool 
  * derived from MuonCalib::IMdtCalibDBTool to access different types of DB
  * (currently implemented ASCII files and COOL CLOBS)*/
 
-//TODO: Use public extends<AthAlgTool, IInterface> here. Then you can construct the base class using base_class.
-
-class MdtCalibrationDbTool : public AthAlgTool, virtual public IInterface {
+class MdtCalibrationDbTool : public extends<AthAlgTool, IInterface> {
 public:
   /** constructor */
   MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent);
@@ -90,9 +88,6 @@ private:
 			       const MuonCalib::MdtRtRelation *rt);
   void initializeSagCorrection(MuonCalib::MdtCorFuncSet *funcSet);
     
-  /** Tool handling the DB access */
-  ServiceHandle<StoreGateSvc> m_detStore;
-
   /** Properties: */
   bool m_create_b_field_function; //<! flag to switch on loading of B field correction
   bool m_createWireSagFunction;   //<! flag to switch on loading of wire sag correction

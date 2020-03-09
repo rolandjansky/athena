@@ -37,6 +37,7 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/random.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -741,6 +742,38 @@ void compare_containers (const CaloCellContainer* cont,
 }
 
 
+void compare_thinned_containers (const CaloCellContainer* cont,
+                                 const CaloCellContainer* cont2,
+                                 const SG::ThinningDecisionBase* dec,
+                                 int version)
+{
+  size_t i2 = 0;
+  for (size_t i1 = 0; i1 < cont->size(); ++i1) {
+    if (dec->thinned (i1)) continue;
+    assert (i2 < cont2->size());
+    const CaloCell* cell1 = (*cont)[i1];
+    const CaloCell* cell2 = (*cont2)[i2];
+    ++i2;
+
+    assert (cell1->caloDDE() == cell2->caloDDE());
+    if (dynamic_cast<const LArCell*> (cell2) != 0) {
+      assert (dynamic_cast<const TileCell*> (cell1) == 0);
+      compare_lar (cell1, cell2, version);
+    }
+    else if (const TileCell* tcell2 =
+             dynamic_cast<const TileCell*> (cell2)) {
+      const TileCell* tcell1 = dynamic_cast<const TileCell*> (cell1);
+      assert (tcell1 != 0);
+      compare_tile (tcell1, tcell2, version);
+    }
+    else
+      std::abort();
+  }
+
+  assert (i2 == cont2->size());
+}
+
+
 void test_one (int n,
                int version,
                const std::vector<CaloCell*>& cells,
@@ -748,7 +781,8 @@ void test_one (int n,
                URNG& rng,
                bool clustery = false,
                bool dump = false,
-               bool ordered = true)
+               bool ordered = true,
+               const SG::ThinningDecisionBase* dec = nullptr)
 {
   printf ("*** test %d %d %d %d\n", version, n, clustery, ordered);
   CaloCellContainer* cont = fill_cells (n, cells, clustery, ordered, rng);
@@ -757,7 +791,7 @@ void test_one (int n,
     dump_cells (*cont);
 
   CaloCompactCellContainer ccc;
-  tool.getPersistent (*cont, &ccc, version);
+  tool.getPersistent (*cont, &ccc, dec, version);
 
   if (dump)
     dump_packed (ccc);
@@ -769,7 +803,10 @@ void test_one (int n,
   if (dump)
     dump_cells (*cont2);
 
-  compare_containers (cont, cont2, ordered, version);
+  if (dec)
+    compare_thinned_containers (cont, cont2, dec, version);
+  else
+    compare_containers (cont, cont2, ordered, version);
 
   delete cont;
   delete cont2;
@@ -787,7 +824,7 @@ void test_supercells (int version,
   //dump_cells (*cont);
 
   CaloCompactCellContainer ccc;
-  tool.getPersistent (*cont, &ccc, version);
+  tool.getPersistent (*cont, &ccc, nullptr, version);
 
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
   SG::Arena::Push push (*arena);
@@ -1048,7 +1085,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
   printf ("*** test_errs\n");
   CaloCellContainer* cont = fill_cells (10000, cells, true, true, rng);
   CaloCompactCellContainer ccc;
-  tool.getPersistent (*cont, &ccc, CaloCompactCellTool::VERSION_501);
+  tool.getPersistent (*cont, &ccc, nullptr, CaloCompactCellTool::VERSION_501);
 
   typedef CaloCellPacker_400_500_test T;
 
@@ -1069,7 +1106,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
   rng.seed = 101;
   CaloCellContainer* cont2 = fill_cells (10000, cells, true, false, rng);
   CaloCompactCellContainer ccc2;
-  tool.getPersistent (*cont2, &ccc2, CaloCompactCellTool::VERSION_500);
+  tool.getPersistent (*cont2, &ccc2, nullptr, CaloCompactCellTool::VERSION_500);
   T::test_fin (ccc2, tool);
 
   delete cont;
@@ -1208,6 +1245,16 @@ void runtests (IdDictParser* parser)
 
   rng.seed = 30;
   test_errs (cells, tool, rng);
+
+  // Test thinning.
+  rng.seed = 100;
+  SG::ThinningDecisionBase dec (cells.size());
+  dec.keepAll();
+  for (size_t i = 0; i < cells.size(); i++) {
+    if ((i%3) == 0) dec.thin (i);
+  }
+  test_one (cells.size(), CaloCompactCellTool::VERSION_501, cells, tool, rng,
+            false, false, true, &dec);
 }
 
 
@@ -1229,7 +1276,7 @@ void timetests (IdDictParser* parser, int nrep)
   CaloCompactCellContainer ccc;
   getrusage (RUSAGE_SELF, &ru0);
   for (int i=0; i < nrep; i++)
-    tool.getPersistent (*cont, &ccc);
+    tool.getPersistent (*cont, &ccc, nullptr);
   getrusage (RUSAGE_SELF, &ru1);
 
   SG::Arena::Push push (*arena);

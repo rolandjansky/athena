@@ -36,6 +36,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "CaloConditions/CaloNoise.h"
 
 
 class MsgStream;
@@ -44,7 +45,6 @@ class ILArPedestal;
 class CaloDetDescrManager;
 class ILArBadChannelMasker;
 class ILArADC2MeVTool;
-class ICaloNoiseTool;
 class ILArShape;
 class ILArAutoCorr;
 class HWIdentifier;
@@ -69,9 +69,9 @@ class LArShapeDumper : public AthAlgorithm
 
   //standart algorithm methods
   virtual StatusCode initialize();
-  virtual StatusCode beginRun();
+  virtual StatusCode start();
   virtual StatusCode execute();
-  virtual StatusCode endRun();
+  virtual StatusCode stop();
   virtual StatusCode finalize();
 
   int makeEvent(LArSamples::EventData*& eventData, int run, int event, int lumiBlock, int bunchXing) const;
@@ -98,7 +98,6 @@ class LArShapeDumper : public AthAlgorithm
   std::vector<std::string> m_triggerNames;
 
   ToolHandle<ILArShapeDumperTool> m_dumperTool;
-  ToolHandle <ICaloNoiseTool> m_caloNoiseTool;
   ToolHandle<ILArBadChannelMasker> m_badChannelMasker;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool; 
   //  ToolHandle<LArOFPeakRecoTool> m_peakReco;
@@ -106,6 +105,7 @@ class LArShapeDumper : public AthAlgorithm
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
+  SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
 
   ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;  // for tests...
 

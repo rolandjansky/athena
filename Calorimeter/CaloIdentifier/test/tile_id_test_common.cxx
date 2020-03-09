@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -173,7 +173,7 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
   HASH_TEST(adc);
 
   CellCounter counts;
-  TEST_LOOP(Identifier id, idhelper.cell_range()) {
+  for (Identifier id : idhelper.cell_range()) {
     IdContext context = idhelper.cell_context();
     IdentifierHash hashId;
     assert (idhelper.get_hash (id, hashId, &context) == 0);
@@ -213,7 +213,7 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
   counts.report();
 
 
-  TEST_LOOP(Identifier id, idhelper.module_range()) {
+  for (Identifier id : idhelper.module_range()) {
     int sect = idhelper.section(id);
     int side = idhelper.side(id);
     int mod  = idhelper.module(id);
@@ -235,7 +235,7 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     assert (idhelper.module_id (exp_id) == id);
   }
 
-  TEST_LOOP(Identifier id, idhelper.tower_range()) {
+  for (Identifier id : idhelper.tower_range()) {
     int sect = idhelper.section(id);
     int side = idhelper.side(id);
     int mod  = idhelper.module(id);
@@ -260,7 +260,7 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     assert (idhelper.tower_id (exp_id) == id);
   }
 
-  TEST_LOOP(Identifier id, idhelper.pmt_range()) {
+  for (Identifier id : idhelper.pmt_range()) {
     Identifier cell_id = idhelper.cell_id (id);
     int pmt = idhelper.pmt (id);
 
@@ -281,7 +281,7 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     assert (idhelper.pmt_id (exp_id) == id);
   }
 
-  TEST_LOOP(Identifier id, idhelper.adc_range()) {
+  for (Identifier id : idhelper.adc_range()) {
     int sect = idhelper.section(id);
     int side = idhelper.side(id);
     int mod  = idhelper.module(id);
@@ -341,7 +341,7 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     assert (idhelper.adc_id (exp_id) == id);
   }
 
-  TEST_LOOP(Identifier id, idhelper.region_range()) {
+  for (Identifier id : idhelper.region_range()) {
     IdContext context = idhelper.region_context();
     IdentifierHash hashId;
     assert (idhelper.get_hash (id, hashId, &context) == 0);

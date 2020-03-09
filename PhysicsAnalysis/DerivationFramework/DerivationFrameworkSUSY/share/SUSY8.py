@@ -62,29 +62,21 @@ ToolSvc += SUSY8SkimmingTool
 #====================================================================\
 
 thinning_expression = "(InDetTrackParticles.pt > 10.0*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (abs(DFCommonInDetTrackZ0AtPV) < 10.0)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-SUSY8MetTPThinningTool = DerivationFramework__TrackParticleThinning( name               = "SUSY8MetTPThinningTool",
-                                                                ThinningService         = SUSY8ThinningHelper.ThinningSvc(),
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += SUSY8MetTPThinningTool
-thinningTools.append(SUSY8MetTPThinningTool)
 
 # TrackParticles associated with jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 SUSY8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          	= "SUSY8JetTPThinningTool",
-                                                                ThinningService         = SUSY8ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4EMTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
+                                                                TrackSelectionString    = thinning_expression)
 ToolSvc += SUSY8JetTPThinningTool
 thinningTools.append(SUSY8JetTPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY8MuonTPThinningTool",
-                                                                         ThinningService         = SUSY8ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY8MuonTPThinningTool
@@ -93,7 +85,7 @@ thinningTools.append(SUSY8MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                      = "SUSY8ElectronTPThinningTool",
-                                                                                 ThinningService         = SUSY8ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey                   = "Electrons",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY8ElectronTPThinningTool
@@ -102,7 +94,7 @@ thinningTools.append(SUSY8ElectronTPThinningTool)
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY8PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                        = "SUSY8PhotonTPThinningTool",
-                                                                                 ThinningService         = SUSY8ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey                   = "Photons",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY8PhotonTPThinningTool
@@ -111,7 +103,7 @@ thinningTools.append(SUSY8PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 SUSY8TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            	= "SUSY8TauTPThinningTool",
-                                                                        ThinningService 	= SUSY8ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey          	= "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY8TauTPThinningTool
@@ -123,7 +115,7 @@ thinningTools.append(SUSY8TauTPThinningTool)
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY8TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY8TruthThinningTool",
-                                                       ThinningService              = SUSY8ThinningHelper.ThinningSvc(),
+                                                       StreamName                   = streamName,
                                                        WritePartons                 = False,
                                                        WriteHadrons                 = False,
                                                        WriteBHadrons                = True,
@@ -159,7 +151,7 @@ SUSY8_TrackParticleCaloCellDecorator = DerivationFramework__TrackParticleCaloCel
 
 ToolSvc += SUSY8_TrackParticleCaloCellDecorator
 AugmentationTools.append(SUSY8_TrackParticleCaloCellDecorator)
-print SUSY8_TrackParticleCaloCellDecorator
+printfunc (SUSY8_TrackParticleCaloCellDecorator)
 
 
 #====================================================================

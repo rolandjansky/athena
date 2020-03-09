@@ -32,7 +32,6 @@
 //#include "TrigParticle/TrigL2Bphys.h"
 //#include "TrigParticle/TrigL2BphysContainer.h"
 //
-//#include "TrigBphysHypo/Constants.h"
 
 class TrigBphysHelperUtilsTool;
 

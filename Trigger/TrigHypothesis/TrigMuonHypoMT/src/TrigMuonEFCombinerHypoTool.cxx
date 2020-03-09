@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/Combinators.h"
 #include "TrigMuonEFCombinerHypoTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 class ISvcLocator;
 TrigMuonEFCombinerHypoTool::TrigMuonEFCombinerHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
   AthAlgTool(type, name, parent),
@@ -15,8 +13,16 @@ TrigMuonEFCombinerHypoTool::TrigMuonEFCombinerHypoTool(const std::string & type,
 TrigMuonEFCombinerHypoTool::~TrigMuonEFCombinerHypoTool(){
 }
 StatusCode TrigMuonEFCombinerHypoTool::initialize(){
+
+  if(m_muonqualityCut) {
+    if(m_muonSelTool.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Unable to retrieve " << m_muonSelTool);
+      return StatusCode::FAILURE;
+    }
+  } else m_muonSelTool.disable();
+
   if(m_acceptAll) {
-    ATH_MSG_INFO("Accepting all the events with not cut!");
+    ATH_MSG_INFO("Accepting all the events!");
   } else {
     if(m_ptBins.size()<=0){ 
       ATH_MSG_ERROR("Trying to configure hypo with no pT bins. This is probably a configuration mistake.");
@@ -38,7 +44,7 @@ StatusCode TrigMuonEFCombinerHypoTool::initialize(){
     ATH_CHECK( m_monTool.retrieve() );
     ATH_MSG_DEBUG("MonTool name: " << m_monTool);
   }
-  ATH_MSG_INFO("Initialization completed successfully");
+
   return StatusCode::SUCCESS;
 }
 bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool::MuonEFInfo& input, size_t cutIndex) const{
@@ -87,6 +93,8 @@ bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool
         selEta.push_back(tr->eta());
         selPhi.push_back(tr->phi());
         result = true;
+        // If trigger path name includes "muonqual", check whether the muon passes those criteria   
+        if(m_muonqualityCut == true) result = passedQualityCuts(muon);
       }
       ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
       	      << " with Charge " << tr->charge()
@@ -95,6 +103,28 @@ bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool
     }
   }
   return result;	
+}
+
+bool TrigMuonEFCombinerHypoTool::passedQualityCuts(const xAOD::Muon* muon) const {
+    bool passCut = false;
+    const xAOD::TrackParticle* idtrack = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
+    const xAOD::TrackParticle* metrack = muon->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
+    float mePt = -999999., idPt = -999999.;
+
+    float reducedChi2 = -10, qOverPsignif = -10;
+
+    if(idtrack && metrack) {
+        mePt = metrack->pt();
+        idPt = idtrack->pt();
+        float meP  = 1.0 / ( sin(metrack->theta()) / mePt); 
+        float idP  = 1.0 / ( sin(idtrack->theta()) / idPt); 
+        qOverPsignif  = std::abs( (metrack->charge() / meP) - (idtrack->charge() / idP) ) / sqrt( idtrack->definingParametersCovMatrix()(4,4) + metrack->definingParametersCovMatrix()(4,4) ); 
+        reducedChi2 = muon->primaryTrackParticle()->chiSquared()/muon->primaryTrackParticle()->numberDoF(); 
+        // Selection criteria based on the requirements that are part of the muon quality working points (offline)
+        if(std::abs(reducedChi2) < 8.0 && !m_muonSelTool->isBadMuon(*muon) && qOverPsignif<7.0 && muon->author()==xAOD::Muon::MuidCo) passCut = true;
+   }
+        
+   return passCut;
 }
   
 StatusCode TrigMuonEFCombinerHypoTool::decide(std::vector<MuonEFInfo>& toolInput) const {
@@ -105,11 +135,8 @@ StatusCode TrigMuonEFCombinerHypoTool::decide(std::vector<MuonEFInfo>& toolInput
     return inclusiveSelection(toolInput);
   }
   else{
-    if(numMuon <=1) ATH_MSG_DEBUG("Not applying selection "<<m_decisionId<< " because the number of muons is "<<numMuon);
-    else{
-      ATH_MSG_DEBUG("Applying selection of multiplicity "<< m_decisionId);
+    ATH_MSG_DEBUG("Applying selection of multiplicity "<< m_decisionId<<" with nMuons"<<numMuon);
       return multiplicitySelection(toolInput);
-    }
   }
   return StatusCode::SUCCESS;
 }
@@ -126,7 +153,7 @@ StatusCode TrigMuonEFCombinerHypoTool::inclusiveSelection(std::vector<MuonEFInfo
   return StatusCode::SUCCESS;
 }
 StatusCode TrigMuonEFCombinerHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& toolInput) const{
-  HLT::Index2DVec passingSelection(toolInput.size());
+  HLT::Index2DVec passingSelection(m_ptBins.size());
   for(size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex) {
     size_t elementIndex{0};
     for(auto& i : toolInput){

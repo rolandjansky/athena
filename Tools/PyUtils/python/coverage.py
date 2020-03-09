@@ -57,7 +57,7 @@
 # pertaining to distribution of the software without specific, written
 # prior permission.
 #
-
+from __future__ import print_function
 import sys
 import string
 
@@ -67,7 +67,6 @@ import string
 
 import re
 import os
-import __builtin__
 import dis
 import sys
 
@@ -113,7 +112,7 @@ def _find_LINENO_from_code_23 (code):
     return linenos
 
 # Choose the appropriate version.
-if dis.__dict__.has_key ('SET_LINENO'):
+if 'SET_LINENO' in dis.__dict__:
     _find_LINENO_from_code = _find_LINENO_from_code_22
 else:
     _find_LINENO_from_code = _find_LINENO_from_code_23
@@ -144,7 +143,7 @@ def find_executable_linenos(filename):
 
     prog = open(filename).read()
     ast = parser.suite(prog)
-    code = parser.compileast(ast, filename)
+    code = parser.compilest(ast, filename)
 
     # The only way I know to find line numbers is to look for the
     # SET_LINENO instructions.  Isn't there some way to get it from
@@ -160,7 +159,7 @@ class Coverage:
         self.toplev_name = toplev_name
         self.counts = {}   # keys are linenumber
         self.mutex = None
-        if not os.environ.has_key ('NOCOVER'):
+        if 'NOCOVER' not in os.environ:
             #self.save_import = __builtin__.__import__
             #__builtin__.__import__ = self.import_hook
             sys.settrace (self.trace)
@@ -240,11 +239,11 @@ class Coverage:
         # Get the original lines from the .py file
         try:
             lines = open(orig_filename, 'r').readlines()
-        except IOError, err:
+        except IOError as err:
             sys.stderr.write(
                 "%s: Could not open %s for reading because: %s - skipping\n" %
 \
-                ("trace", `filename`, err.strerror))
+                ("trace", repr(filename), err.strerror))
             return
 
         # there are many places where this is insufficient, like a blank
@@ -261,7 +260,7 @@ class Coverage:
 
             # do the blank/comment match to try to mark more lines
             # (help the reader find stuff that hasn't been covered)
-            if lines_hit.has_key(i+1):
+            if (i+1) in lines_hit:
                 # count precedes the lines that we captured
                 prefix = '%5d: ' % lines_hit[i+1]
             elif blank.match(line):
@@ -272,16 +271,16 @@ class Coverage:
                 # Highlight them if so indicated, unless the line contains
                 # '#pragma: NO COVER' (it is possible to embed this into
                 # the text as a non-comment; no easy fix)
-                if executable_linenos.has_key(i+1) and \
-                   string.find(lines[i], '#pragma: NO COVER') == -1:
+                if (i+1) in executable_linenos and \
+                   lines[i].find('#pragma: NO COVER') == -1:
                     prefix = '>>>>>> '
                     uncovered = uncovered + 1
                 else:
                     prefix = ' '*7
-            outlines.append (prefix + string.expandtabs(line, 8))
+            outlines.append (prefix + line.expandtabs(8))
 
         if uncovered:
-            print "*** There were %d uncovered lines." % uncovered
+            print("*** There were %d uncovered lines." % uncovered)
         else:
             return
 
@@ -290,10 +289,10 @@ class Coverage:
         listfilename = self.modname + ".cover"
         try:
             outfile = open(listfilename, 'w')
-        except IOError, err:
+        except IOError as err:
             sys.stderr.write(
                 '%s: Could not open %s for writing because: %s - skipping\n' %
-                ("trace", `listfilename`, err.strerror))
+                ("trace", repr(listfilename), err.strerror))
             return
 
         for l in outlines:

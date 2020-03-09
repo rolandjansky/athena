@@ -1,20 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/HelperFunctions.h"
 
-#include "TFile.h"
-#include "TTree.h"
-
 #include <vector>
 
 //_____________________________________________________________________________
 MvaTESEvaluator::MvaTESEvaluator(const std::string& name)
   : TauRecToolBase(name)
-  , m_reader(0)
+  , m_reader(nullptr)
   , m_mu(0)
   , m_nVtxPU(0)    
   , m_center_lambda(0)
@@ -53,7 +50,7 @@ MvaTESEvaluator::~MvaTESEvaluator()
 StatusCode MvaTESEvaluator::initialize(){
   
   // Declare input variables to the reader
-  if(!inTrigger()) {
+  if(!m_in_trigger) {
     m_availableVars.insert( std::make_pair("TauJetsAuxDyn.mu", &m_mu) );
     m_availableVars.insert( std::make_pair("TauJetsAuxDyn.nVtxPU", &m_nVtxPU) );
     
@@ -98,7 +95,7 @@ StatusCode MvaTESEvaluator::initialize(){
   std::string weightFile = find_file(m_sWeightFileName);
 
   m_reader = tauRecTools::configureMVABDT( m_availableVars, weightFile.c_str() );
-  if(m_reader==0) {
+  if(m_reader==nullptr) {
     ATH_MSG_FATAL("Couldn't configure MVA");
     return StatusCode::FAILURE;
   }
@@ -107,19 +104,11 @@ StatusCode MvaTESEvaluator::initialize(){
 }
 
 //_____________________________________________________________________________
-StatusCode MvaTESEvaluator::eventInitialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-//_____________________________________________________________________________
 StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
 
-  // Retrieve input variables
-  
   // Retrieve event info
-  static SG::AuxElement::ConstAccessor<float> acc_mu("mu");
-  static SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
+  const SG::AuxElement::ConstAccessor<float> acc_mu("mu");
+  const SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
   m_mu = acc_mu(xTau);
   m_nVtxPU = acc_nVtxPU(xTau);
 
@@ -130,13 +119,13 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
   xTau.detail(xAOD::TauJetParameters::ClustersMeanSecondLambda, m_second_lambda);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, m_presampler_frac);
 
-  if(!inTrigger()) {
+  if(!m_in_trigger) {
 
     // Retrieve pantau and LC-precalib TES
     m_etaConstituent = xTau.etaPanTauCellBased();
     float ptLC = xTau.ptDetectorAxis();
     float ptConstituent = xTau.ptPanTauCellBased();
-    static SG::AuxElement::ConstAccessor<float> acc_pt_combined("pt_combined");
+    const SG::AuxElement::ConstAccessor<float> acc_pt_combined("pt_combined");
     m_ptCombined = acc_pt_combined(xTau);
 
     if(m_ptCombined>0.) {
@@ -145,13 +134,15 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     }
     else {
       xTau.setP4(xAOD::TauJetParameters::FinalCalib, 1., m_etaConstituent, xTau.phiPanTauCellBased(), 0);
+      // apply MVA calibration as default
+      xTau.setP4(1., m_etaConstituent, xTau.phiPanTauCellBased(), 0);
       return StatusCode::SUCCESS;
     }
 
     // Retrieve substructure info
-    static SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p0n_vs_1p1n("PanTau_BDTValue_1p0n_vs_1p1n");
-    static SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p1n_vs_1pXn("PanTau_BDTValue_1p1n_vs_1pXn");
-    static SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_3p0n_vs_3pXn("PanTau_BDTValue_3p0n_vs_3pXn");
+    const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p0n_vs_1p1n("PanTau_BDTValue_1p0n_vs_1p1n");
+    const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p1n_vs_1pXn("PanTau_BDTValue_1p1n_vs_1pXn");
+    const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_3p0n_vs_3pXn("PanTau_BDTValue_3p0n_vs_3pXn");
     m_PanTauBDT_1p0n_vs_1p1n = acc_PanTauBDT_1p0n_vs_1p1n(xTau);
     m_PanTauBDT_1p1n_vs_1pXn = acc_PanTauBDT_1p1n_vs_1pXn(xTau);
     m_PanTauBDT_3p0n_vs_3pXn = acc_PanTauBDT_3p0n_vs_3pXn(xTau);
@@ -161,14 +152,17 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     float ptMVA = float( m_ptCombined * m_reader->GetResponse() );
     if(ptMVA<1) ptMVA=1;
     xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, m_etaConstituent, xTau.phiPanTauCellBased(), 0);
+
+    // apply MVA calibration as default
+    xTau.setP4(ptMVA, m_etaConstituent, xTau.phiPanTauCellBased(), 0);
   }
   else {
 
     m_ptDetectorAxis = xTau.ptDetectorAxis();
     m_etaDetectorAxis = xTau.etaDetectorAxis();
 
-    static SG::AuxElement::ConstAccessor<float> acc_UpsilonCluster("UpsilonCluster");
-    static SG::AuxElement::ConstAccessor<float> acc_LeadClusterFrac("LeadClusterFrac");
+    const SG::AuxElement::ConstAccessor<float> acc_UpsilonCluster("UpsilonCluster");
+    const SG::AuxElement::ConstAccessor<float> acc_LeadClusterFrac("LeadClusterFrac");
     m_upsilon_cluster = acc_UpsilonCluster(xTau);
     m_lead_cluster_frac = acc_LeadClusterFrac(xTau);
 
@@ -182,6 +176,8 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     // apply MVA calibration
     xTau.setP4(ptMVA, m_etaDetectorAxis, xTau.phiDetectorAxis(), 0);
   }
+  
+  ATH_MSG_DEBUG("final calib:" << xTau.pt() << " " << xTau.eta() << " " << xTau.phi() << " " << xTau.e());
 
   return StatusCode::SUCCESS;
 }

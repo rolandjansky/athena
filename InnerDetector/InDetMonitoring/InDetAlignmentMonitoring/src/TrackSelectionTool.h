@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKSELECTIONTOOL_H
@@ -13,6 +13,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
+#include "CommissionEvent/ComTime.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkTrack/TrackCollection.h"
+#include "VxVertex/VxContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
@@ -49,16 +53,12 @@ namespace InDetAlignMon{
 
     //if this method is used the decision on which trackcollection
     //is made by the calling method
-    DataVector<Trk::Track>* selectTracksNew(const std::string&);
-    const DataVector<Trk::Track>* selectTracks(const std::string &);
-    DataVector<xAOD::TrackParticle>* selectTracksParticle(const std::string &);
+    const DataVector<Trk::Track>* selectTracks(SG::ReadHandle<TrackCollection>& inputTracks);
 
-    //if this method the decision on which trackcollection
-    //is made from the configuration of the TrackSlectionTool (in jobOptions)
     const DataVector<Trk::Track>* selectTracks();
 
     std::string getTrackColName(){
-      return m_trackColName;
+      return m_trackColName.key();
     }
     
     //Do we cut on the event phase
@@ -66,7 +66,7 @@ namespace InDetAlignMon{
     bool m_useIDTrackSelectionTool;
     float m_maxEventPhase;
     float m_minEventPhase;
-    std::string m_commTimeName;
+    SG::ReadHandleKey<ComTime> m_commTimeName{this, "CommTimeName", "TRT_Phase"};
 
   private:
     
@@ -77,8 +77,8 @@ namespace InDetAlignMon{
     bool m_passAllTracks;//switch that enables track selection to be bypassed completely
 
     //these member variables only play a role if use selectTracks() zero argument method above
-    std::string m_trackColName;
-    std::string m_VtxContainerName;
+    SG::ReadHandleKey<TrackCollection> m_trackColName{this, "TrackColName", ""};
+    SG::ReadHandleKey<VxContainer> m_VtxContainerName{this, "PrimVtxContainerName", "VxPrimaryCandidate"};
     unsigned int m_minTracksPerVtx;
     bool m_usePrimVtx;
     

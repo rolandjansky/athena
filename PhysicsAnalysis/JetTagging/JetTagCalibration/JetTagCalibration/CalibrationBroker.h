@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGCALIBRATION_CALIBRATIONBROKER_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Property.h"
 #include "TFile.h"
 #include <map>

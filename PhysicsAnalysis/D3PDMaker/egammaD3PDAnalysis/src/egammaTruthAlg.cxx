@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,7 +18,6 @@
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
 #include "EventKernel/PdtPdg.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 
@@ -138,8 +137,8 @@ StatusCode egammaTruthAlg::execute()
   const xAOD::TruthParticleContainer* pin = 0;
   CHECK( evtStore()->retrieve (pin, m_inputKey) );
 
-  auto pout = CxxUtils::make_unique<xAOD::TruthParticleContainer>();
-  auto pout_aux = CxxUtils::make_unique<xAOD::TruthParticleAuxContainer>();
+  auto pout = std::make_unique<xAOD::TruthParticleContainer>();
+  auto pout_aux = std::make_unique<xAOD::TruthParticleAuxContainer>();
   pout->setStore (pout_aux.get());
 
 #define DECOR(TYPE,N) xAOD::TruthParticle::Decorator<TYPE> N (m_auxPrefix + #N)
@@ -151,7 +150,7 @@ StatusCode egammaTruthAlg::execute()
   for (const xAOD::TruthParticle* tp : *pin) {
     float iso = -999;
     if (isAccepted (*tp, *pin, iso)) {
-      pout->push_back (CxxUtils::make_unique<xAOD::TruthParticle>());
+      pout->push_back (std::make_unique<xAOD::TruthParticle>());
       *pout->back() = *tp;
 
       CHECK( findImpact (*tp, etaCalo(*pout->back()), phiCalo(*pout->back())) );

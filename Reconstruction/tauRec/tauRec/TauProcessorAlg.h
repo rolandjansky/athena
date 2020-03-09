@@ -7,10 +7,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "tauRecTools/ITauToolExecBase.h"
 #include "tauRecTools/ITauToolBase.h"
-
-#include "tauRecTools/TauEventData.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -29,6 +26,7 @@
  */
 
 class ICaloCellMakerTool;
+class CaloCell_ID;
 
 class TauProcessorAlg: public AthAlgorithm
 {
@@ -49,18 +47,14 @@ class TauProcessorAlg: public AthAlgorithm
     private:
        
 	void setEmptyTauTrack( xAOD::TauJet* &tauJet,
-			       xAOD::TauTrackContainer* &tauTrackCont);				 
+			       xAOD::TauTrackContainer* tauTrackCont);				 
 
 	ToolHandleArray<ITauToolBase>  m_tools {this, "TauProcessorTools", {}, "Tools processing taus"};
 
 	double m_maxEta; //!< only build taus with eta_seed < m_maxeta
 	double m_minPt;  //!< only build taus with pt_seed > m_minpt
 
-	bool m_doCreateTauContainers;
-
-        //ToolHandleArray<ITauToolExecBase>  m_tools;
-	TauEventData m_data;
-
+        const CaloCell_ID* m_cellID;
 	/** @brief tool handles */
 	ToolHandle<ICaloCellMakerTool> m_cellMakerTool;
 
@@ -70,6 +64,8 @@ class TauProcessorAlg: public AthAlgorithm
 	SG::WriteHandleKey<xAOD::CaloClusterContainer> m_tauShotClusOutputContainer{this,"Key_tauShotClusOutputContainer", "TauShotClusters", "tau shot clusters out key"};
 	SG::WriteHandleKey<xAOD::PFOContainer> m_tauShotPFOOutputContainer{this,"Key_tauShotPFOOutputContainer", "TauShotParticleFlowObjects", "tau pfo out key"};
 	SG::WriteHandleKey<CaloCellContainer> m_tauPi0CellOutputContainer{this,"Key_tauPi0CellOutputContainer","TauCommonPi0Cells","output calo cell key"};
+        /** ReadCondHandleKey for Pixel detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
+        SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
         /** ReadCondHandleKey for SCT detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
         SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 	

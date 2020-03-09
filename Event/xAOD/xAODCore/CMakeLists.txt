@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 793737 2017-01-24 20:11:10Z ssnyder $
 ################################################################################
 # Package: xAODCore
 ################################################################################
@@ -22,6 +21,7 @@ atlas_depends_on_subdirs(
    Control/AthContainersInterfaces
    Control/AthLinks
    Control/CxxUtils
+   Control/RootUtils
    AtlasTest/TestTools
    ${extra_deps} )
 
@@ -40,7 +40,7 @@ atlas_add_library( xAODCore
    ${xAODCoreDictSource}
    PUBLIC_HEADERS xAODCore
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils RootUtils
    ${extra_libs} )
 
 atlas_add_dictionary( xAODCoreRflxDict
@@ -85,8 +85,12 @@ atlas_add_test( ut_xaodcore_shallowcopy_test
    SOURCES test/ut_xaodcore_shallowcopy.cxx
    LINK_LIBRARIES AthContainers AthLinks xAODCore )
 
+atlas_add_test( auxbase_threading_test
+   SOURCES test/auxbase_threading_test.cxx
+   LINK_LIBRARIES xAODCore )
+
 # Declare the "include tests":
-foreach( header AddDVProxy AuxContainerBase AuxSelection BaseInfo CLASS_DEF
+foreach( header AddDVProxy AuxContainerBase AuxSelection AuxCompression BaseInfo CLASS_DEF
       ClassID_traits ShallowAuxContainer ShallowAuxInfo ShallowCopy
       tools_AuxPersInfo tools_AuxPersVector tools_IOStats tools_PerfStats
       tools_PrintHelpers tools_ReadStats tools_SafeDeepCopy

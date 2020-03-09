@@ -270,17 +270,16 @@ CablingRPC::ReadConf(std::string file)
             m_SectorType.resize(m_MaxType);
  
             for(int i=1;i<=m_MaxType;++i)
-	    { 
-                m_SectorType[i-1] =
-                    SectorLogicSetup(i,s_DataName,layout,s_cosmic_configuration);
-	        SectorLogicSetup* sec = &(m_SectorType[i-1]);
-                for(int j=0;j<64;++j) 
-                    if(m_SectorMap[j] == i)
-		    { 
-                        *sec << j;
-		        m_SectorLogic.insert(SLmap::value_type(j,sec));
-		    }
-	     }
+            { 
+              m_SectorType[i-1] = RPC_CondCabling::SectorLogicSetup(i,s_DataName,layout,s_cosmic_configuration);
+              RPC_CondCabling::SectorLogicSetup* sec = &(m_SectorType[i-1]);
+              for(int j=0;j<64;++j) 
+                if(m_SectorMap[j] == i)
+                { 
+                  *sec << j;
+                  m_SectorLogic.insert(SLmap::value_type(j,sec));
+                }
+            }
         }        
 	
         // Loop on GEOMETRY TYPES
@@ -289,25 +288,25 @@ CablingRPC::ReadConf(std::string file)
             // Read the RPC geometry
             if(data("RPC GEOM  # :",i))
             {
-	        RPCchamberdata RPCdata(data,i);
+	        RPC_CondCabling::RPCchamberdata RPCdata(data,i);
                 if(!(m_SectorType[i-1] += RPCdata)) return false;
             }
             // Read the Wired OR geometry
             if(data("WIRED OR  # :",i))
             {
-	        WiredORdata WORdata(data,i);
+	        RPC_CondCabling::WiredORdata WORdata(data,i);
                 if(!(m_SectorType[i-1] += WORdata)) return false;
 	    }
             // Read the CMAs segmentation
             if(data("CMAs  # : pivot segmentation",i))
 	    {
-                CMApivotdata CMAdata(data,i,layout);
+                RPC_CondCabling::CMApivotdata CMAdata(data,i,layout);
                 if(!(m_SectorType[i-1] += CMAdata)) return false;
 	    }
             // Read the CMAs cabling
             if(data("CMAs  # : eta cabling",i))
 	    {
-                CMAcablingdata CMAdata(data,i);
+                RPC_CondCabling::CMAcablingdata CMAdata(data,i);
                 if(!(m_SectorType[i-1] += CMAdata)) return false;
 	    }
         }
@@ -364,28 +363,27 @@ CablingRPC::ReadConf(const std::string* map)
         // Set the m_MaxType variable and the type of SectorMap objects
         if(stop == 63 || stop == 8)
         {   
-            for(int i=0;i<64;++i)
-                if(m_SectorMap[i] > m_MaxType) m_MaxType = m_SectorMap[i];
+          for(int i=0;i<64;++i)
+            if(m_SectorMap[i] > m_MaxType) m_MaxType = m_SectorMap[i];
 
-            m_SectorType.resize(m_MaxType);
-	    DISP<<"CablingRPC--- ReadConf: # of types is "<<m_MaxType; DISP_DEBUG;
-	    
- 
-	    DISP<<"CablingRPC--- ReadConf: Loop over sector-types"; DISP_DEBUG;
-            for(int i=1;i<=m_MaxType;++i)
-	    { 
-                m_SectorType[i-1] =
-                    SectorLogicSetup(i,s_DataName,layout,s_cosmic_configuration);
-	        SectorLogicSetup* sec = &(m_SectorType[i-1]);
-                m_SectorType[i-1].SetPtoTrigRoads(s_trigroads);
-                for(int j=0;j<64;++j) 
-                    if(m_SectorMap[j] == i)
-		    { 
-                        *sec << j;
-		        m_SectorLogic.insert(SLmap::value_type(j,sec));
-			DISP<<" filling sectorLogicSetup Map for type "<<i<<" sector "<<j; DISP_DEBUG;
-		    }
-	     }
+          m_SectorType.resize(m_MaxType);
+          DISP<<"CablingRPC--- ReadConf: # of types is "<<m_MaxType; DISP_DEBUG;
+
+
+          DISP<<"CablingRPC--- ReadConf: Loop over sector-types"; DISP_DEBUG;
+          for(int i=1;i<=m_MaxType;++i)
+          { 
+            m_SectorType[i-1] = RPC_CondCabling::SectorLogicSetup(i,s_DataName,layout,s_cosmic_configuration);
+            RPC_CondCabling::SectorLogicSetup* sec = &(m_SectorType[i-1]);
+            m_SectorType[i-1].SetPtoTrigRoads(s_trigroads);
+            for(int j=0;j<64;++j) 
+              if(m_SectorMap[j] == i)
+              { 
+                *sec << j;
+                m_SectorLogic.insert(SLmap::value_type(j,sec));
+                DISP<<" filling sectorLogicSetup Map for type "<<i<<" sector "<<j; DISP_DEBUG;
+              }
+          }
         }        
 	
         // Loop on GEOMETRY TYPES
@@ -395,25 +393,25 @@ CablingRPC::ReadConf(const std::string* map)
             // Read the RPC geometry
             if(data("RPC GEOM  # :",i))
             {
-	        RPCchamberdata RPCdata(data,i);
+	        RPC_CondCabling::RPCchamberdata RPCdata(data,i);
                 if(!(m_SectorType[i-1] += RPCdata)) return false;
             }
             // Read the Wired OR geometry
             if(data("WIRED OR  # :",i))
             {
-	        WiredORdata WORdata(data,i);
+	        RPC_CondCabling::WiredORdata WORdata(data,i);
                 if(!(m_SectorType[i-1] += WORdata)) return false;
 	    }
             // Read the CMAs segmentation
             if(data("CMAs  # : pivot segmentation",i))
 	    {
-                CMApivotdata CMAdata(data,i,layout);
+                RPC_CondCabling::CMApivotdata CMAdata(data,i,layout);
                 if(!(m_SectorType[i-1] += CMAdata)) return false;
 	    }
             // Read the CMAs cabling
             if(data("CMAs  # : eta cabling",i))
 	    {
-                CMAcablingdata CMAdata(data,i);
+                RPC_CondCabling::CMAcablingdata CMAdata(data,i);
                 if(!(m_SectorType[i-1] += CMAdata)) return false;
 	    }
         }
@@ -812,11 +810,11 @@ CablingRPC::buildRDOmap()
         {
         
             // get the Sector Logic Setup
-            SectorLogicSetup Sector = m_SectorType[m_SectorMap[sector] - 1];
+            RPC_CondCabling::SectorLogicSetup Sector = m_SectorType[m_SectorMap[sector] - 1];
         
             // get the Eta CMA map from the Sector Logic Setup
-            const SectorLogicSetup::EtaCMAmap CMAs = Sector.giveEtaCMA();
-            SectorLogicSetup::EtaCMAmap::const_iterator it = CMAs.begin();
+            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap CMAs = Sector.giveEtaCMA();
+            RPC_CondCabling::SectorLogicSetup::EtaCMAmap::const_iterator it = CMAs.begin();
         
             bool isFirst = false;
 
@@ -838,7 +836,7 @@ CablingRPC::buildRDOmap()
                     unsigned int RPC_station = (*it).second.whichCMAstation(Pivot);
                     unsigned int lvl1_sector = sector;
 
-                    RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
+                    RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
                     std::string name = rpc->stationName();
                     int sEta = (side)? rpc->stationEta() : -rpc->stationEta();
                     int sPhi = (logic_sector==31)? 1 : (logic_sector+1)/4 +1;
@@ -895,7 +893,7 @@ CablingRPC::buildRDOmap()
                     else         RPC_station = (*it).second.whichCMAstation(HighPt);
                     unsigned int lvl1_sector = sector;
 
-                    RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
+                    RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
                     std::string name = rpc->stationName();
                     int sEta = (side)? rpc->stationEta() : -rpc->stationEta();
                     int sPhi = (logic_sector==31)? 1 : (logic_sector+1)/4 +1;
@@ -963,7 +961,7 @@ CablingRPC::give_global_strip_address(unsigned int code, int& address) const
 	ViewType side    = decode.view();
         HalfType half    = decode.half_barrel();
 
-        const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector]-1];
+        const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector]-1];
         return s.global_strip_add(side,half,station,z_index,strip,address);
     }
     return false;
@@ -983,7 +981,7 @@ int& low_eta_strips, int& hi_eta_strips) const
 	ViewType side    = decode.view();
         HalfType half    = decode.half_barrel();
 
-        const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector]-1];
+        const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector]-1];
 
         return s.global_conn_add(side,half,station,z_index,strip,address,
                                   low_eta_strips,hi_eta_strips);
@@ -1037,7 +1035,7 @@ int station, int global_address,int& rpc_index, int& strip_number) const
     if(logic_sector < 32 && global_address > 0) return false;
     if(logic_sector >= 32 && global_address < 0) return false; 
 
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
     return
       s.local_strip_add(side,station,global_address,rpc_index,strip_number);
 }
@@ -1053,7 +1051,7 @@ int& strip_number) const
     if(logic_sector < 32 && global_address > 0) return false;
     if(logic_sector >= 32 && global_address < 0) return false; 
 
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
     return s.local_conn_add(side,station,global_address,local_address,
                              rpc_index,strip_number);
 }
@@ -1063,7 +1061,7 @@ const CMAparameters::CMAlist
 CablingRPC::give_CMAs(const int logic_sector,const ViewType side,
                      const int station,const int cabling_code) const
 {
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
     CMAparameters::CMAlist 
         result = s.give_CMAs(logic_sector,side,station,cabling_code);
     return result;
@@ -1088,7 +1086,7 @@ CablingRPC::give_RoI_borders  (unsigned short int SubsystemId,
     
     CMAcoverage PhiCov = (logic_sector%2)? OddSectors : EvenSectors;
     
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
 
     CMAidentity ETA(Eta,AllSectors,PadId,EtaIxx);
     CMAidentity PHI(Phi,PhiCov,PadId,PhiIxx);
@@ -1142,7 +1140,7 @@ CablingRPC::give_LowPt_borders  (unsigned short int SubsystemId,
     
     CMAcoverage PhiCov = (logic_sector%2)? OddSectors : EvenSectors;
     
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
 
     CMAidentity ETA(Eta,AllSectors,PadId,EtaIxx);
     CMAidentity PHI(Phi,PhiCov,PadId,PhiIxx);
@@ -1193,7 +1191,7 @@ CablingRPC::give_HighPt_borders  (unsigned short int SubsystemId,
         
     CMAcoverage PhiCov = (logic_sector%2)? OddSectors : EvenSectors;
     
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
 
     CMAidentity ETA(Eta,AllSectors,PadId,EtaIxx);
     CMAidentity PHI(Phi,PhiCov,PadId,PhiIxx);
@@ -1230,8 +1228,8 @@ CablingRPC::give_HighPt_borders  (unsigned short int SubsystemId,
 int CablingRPC::give_doubletZ(unsigned short int SubsystemId,unsigned short int SectorId, int RPCStation, int RPCChamber) const
 {
 		int logic_sector = SectorId + SubsystemId*32;
-		const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
-		const RPCchamber* rpc = s.find_chamber(RPCStation, RPCChamber);
+		const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+		const RPC_CondCabling::RPCchamber* rpc = s.find_chamber(RPCStation, RPCChamber);
 		int i_doubletZ = rpc->doubletZ();
 		return i_doubletZ;
 }
@@ -1264,7 +1262,7 @@ CablingRPC::give_cma_layout (ViewType side,
 			  unsigned short int& stop_confirm_ch,
 			                 int& stop_confirm_st) const
 {    
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
         
     CMAidentity ID(Eta,AllSectors,0);
     
@@ -1443,7 +1441,7 @@ CablingRPC::give_CMA(unsigned short int SubsystemId,
     ep = (ep==1)? 0 : 1;
 
     // retrieve the Sector Logic setup
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];  
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];  
 
     //retrieve the CMAparameters associated to the identifiers
     if(ep)
@@ -1483,7 +1481,7 @@ CablingRPC::correct (unsigned short int SubsystemId,
 #endif
 
     // retrieve the Sector Logic setup
-    SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];  
+    RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];  
 
     //retrieve the CMAparameters associated to the identifiers
     if(ep)
@@ -1522,7 +1520,7 @@ CablingRPC::give_strip_code (unsigned short int SubsystemId,
 
 
     // retrieve the Sector Logic setup
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];  
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];  
 
     //retrieve the CMAparameters associated to the identifiers
     if(ep)
@@ -1570,7 +1568,7 @@ CablingRPC::give_strip_id   (unsigned short int SubsystemId,
     ep = (ep==1)? 0 : 1;
 
     // retrieve the Sector Logic setup
-    const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];  
+    const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];  
 
     //retrieve the CMAparameters associated to the identifiers
     if(ep)
@@ -1604,7 +1602,7 @@ CablingRPC::give_strip_id   (unsigned short int SubsystemId,
             int RPC_station  = decode.lvl1_station();
             int sector       = (decode.logic_sector())%32;
 
-            const RPCchamber* rpc = s.find_chamber(RPC_station, RPC_chamber);
+            const RPC_CondCabling::RPCchamber* rpc = s.find_chamber(RPC_station, RPC_chamber);
 	    
             rpcId.stationName = rpc->stationName();
 	    rpcId.stationEta  = (decode.half_barrel() == Positive)?  rpc->stationEta() : 
@@ -1662,14 +1660,14 @@ CablingRPC::PrintType(std::ostream& stream,int type,int station,std::string elem
     {
         for(int i = 1; i <= m_MaxType; ++i)
 	{
-            const SectorLogicSetup& sec = m_SectorType[i - 1];
+            const RPC_CondCabling::SectorLogicSetup& sec = m_SectorType[i - 1];
             sec.PrintElement(stream,station,element,obj,detail);
             stream << std::endl;
         }
     }
     else
     {
-        const SectorLogicSetup& sec = m_SectorType[type - 1];
+        const RPC_CondCabling::SectorLogicSetup& sec = m_SectorType[type - 1];
         sec.PrintElement(stream,station,element,obj,detail);
         stream << std::endl;
     }
@@ -1687,7 +1685,7 @@ CablingRPC::PrintSector(std::ostream& stream,int sector,int station,
     else
     {
         int type = m_SectorMap[sector];
-        const SectorLogicSetup& sec = m_SectorType[type - 1];
+        const RPC_CondCabling::SectorLogicSetup& sec = m_SectorType[type - 1];
         sec.PrintElement(stream,station,element,obj,detail);
         stream << std::endl;
     }
@@ -1746,9 +1744,9 @@ RPCofflineId CablingRPC::strip_id_fromCode(unsigned long int strip_code)
   int sector       = (decode.logic_sector())%32;
   
   // retrieve the Sector Logic setup
-  const SectorLogicSetup& s = m_SectorType[m_SectorMap[RPC_logic_sector] - 1];  
+  const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[RPC_logic_sector] - 1];  
   // retrieve chamber
-  const RPCchamber* rpc = s.find_chamber(RPC_station, RPC_chamber);
+  const RPC_CondCabling::RPCchamber* rpc = s.find_chamber(RPC_station, RPC_chamber);
   
   rpcId.stationName = rpc->stationName();
   rpcId.stationEta  = (decode.half_barrel() == Positive)?  rpc->stationEta() : 
@@ -1872,17 +1870,17 @@ unsigned int CablingRPC::computeZIndexInCablingStation(std::string stationName, 
       DISP_ERROR;
       return 99999;
     }
-  const SectorLogicSetup& sec = m_SectorType[sectType - 1];
+  const RPC_CondCabling::SectorLogicSetup& sec = m_SectorType[sectType - 1];
 
   for (unsigned int jStat=1; jStat<4; ++jStat)
     {
       if (cablingStation != -1) break;
       for (unsigned int jCham=0; jCham<20; ++jCham)
 	{
-	  const RPCchamber* rpcC = sec.find_chamber(jStat,jCham);
+	  const RPC_CondCabling::RPCchamber* rpcC = sec.find_chamber(jStat,jCham);
 	  //std::cout<<" jStat, jCham = "<<jStat<<" "<<jCham<<std::endl;
 	  if (rpcC==NULL) continue;
-	  //std::cout<<" RPCchamber found with name, eta, dbR, dbZ "<<rpcC->chamber_name()<<" "<<rpcC->stationEta()<<" "<<rpcC->doubletR()<<" "<<rpcC->doubletZ()<<std::endl;
+	  //std::cout<<" RPC_CondCabling::RPCchamber found with name, eta, dbR, dbZ "<<rpcC->chamber_name()<<" "<<rpcC->stationEta()<<" "<<rpcC->doubletR()<<" "<<rpcC->doubletZ()<<std::endl;
 	  
 	  if ((rpcC->chamber_name()).substr(0,3)!=stationName ) {
 	    //	    std::cout<<" rpcC->chamber_name()!=stationName "<<rpcC->chamber_name()<<" "<<stationName<<std::endl;

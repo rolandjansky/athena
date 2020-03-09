@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H
@@ -25,7 +25,7 @@ class MsgStream;
  *
  * This will do the conversion on demand, triggered by the ByteStreamAddressProviderSvc. 
  * Since it is not possible to configure a Converter with Python Configurables, 
- * we use a service (SCTRawContByteStreamService) which in turn uses the lightweight 
+ * we use a tool (SCTRawContByteStreamTool) which in turn uses the lightweight 
  * SCT_RodEncoder class, to do the actual converting. 
  */
 class SCTRawContByteStreamCnv : public Converter 
@@ -40,10 +40,12 @@ class SCTRawContByteStreamCnv : public Converter
   
   /** Initialize */
   virtual StatusCode initialize() override;
-  
-  /** Storage type and class ID */
+
+  /** Retrieve the class type of the data store the converter uses. */
   virtual long repSvcType() const override { return i_repSvcType(); }
+  /** Storage type */
   static long storageType() { return ByteStreamAddress::storageType(); }
+  /** Class ID */
   static const CLID& classID() { return ClassID_traits<SCT_RDO_Container>::ID(); }
   
   /** createObj method (not used!) */

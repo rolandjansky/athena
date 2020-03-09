@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from DataQualityUtils.DQWebDisplayConfig import DQWebDisplayConfig
 import os
@@ -6,11 +8,11 @@ from ._resolve_data_path import resolve_data_path
 
 hcfg_dir = resolve_data_path('DataQualityConfigurations')
 if hcfg_dir:
-    print "Found DataQualityConfigurations data directory %s, using it" % hcfg_dir
+    print ("Found DataQualityConfigurations data directory %s, using it" % hcfg_dir)
 else:
     hcfg_dir = os.getcwd()
-    print "DataQualityConfigurations data directory not found, attempting to use $PWD instead."
-print "Looking for collisions_*.hcfg files in %s" % (hcfg_dir)
+    print ("DataQualityConfigurations data directory not found, attempting to use $PWD instead.")
+print ("Looking for collisions_*.hcfg files in %s" % (hcfg_dir))
 
 isprod = os.environ.get('DQPRODUCTION') == '1'
 

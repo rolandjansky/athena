@@ -95,5 +95,4 @@ svcMgr.IOVRegistrationSvc.RecreateFolders = True
 svcMgr.DetectorStore.Dump=True
 
 
-ToolSvc.LArBadChanTool.OutputLevel=DEBUG
 svcMgr.IOVDbSvc.OutputLevel=DEBUG

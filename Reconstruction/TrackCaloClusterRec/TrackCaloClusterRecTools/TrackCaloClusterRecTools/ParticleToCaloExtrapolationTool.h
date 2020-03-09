@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
 ParticleToCaloExtrapolationTool.h  -  Description
@@ -13,9 +13,9 @@ authors : Noemi Calace
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#define private public
+//#define private public
 #include "xAODTracking/TrackParticle.h"
-#define public private
+//#define public private
 #include "TrackCaloClusterRecInterfaces/IParticleExtrapolationTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h" 
 #include "xAODTracking/NeutralParticle.h"

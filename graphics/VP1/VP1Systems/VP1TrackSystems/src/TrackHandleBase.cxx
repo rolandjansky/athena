@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -678,8 +678,6 @@ void TrackHandleBase::Imp::rebuild3DObjects()
   SoVertexProperty * vertices = new SoVertexProperty();
 
   int iver(0), numlines(0);
-
-  std::vector<Amg::Vector3D >::const_iterator  pointsIt, pointsItEnd;
 
   //Add various parts to these vertices as appropriate:
   if (theclass->collHandle()->parts() & TrackCommonFlags::ActualPath)

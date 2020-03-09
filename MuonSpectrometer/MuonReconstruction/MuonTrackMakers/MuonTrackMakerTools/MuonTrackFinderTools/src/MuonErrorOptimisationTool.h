@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONERROROPTIMISATIONTOOL_H
@@ -9,19 +9,15 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonRefitTool.h"
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
-
-namespace Muon {
-  class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
-  class MuonIdHelperTool;
-}
-
-namespace Trk {
-  class Track;
-  class ITrackSummaryHelperTool;
-}
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonRecToolInterfaces/IMuonRefitTool.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 namespace Muon {
 
@@ -32,7 +28,7 @@ namespace Muon {
     MuonErrorOptimisationTool( const std::string& ty,const std::string& na,const IInterface* pa);
 
     /** Destructor: */
-    virtual ~MuonErrorOptimisationTool(); 
+    virtual ~MuonErrorOptimisationTool() = default; 
 
     virtual StatusCode  initialize();
     virtual StatusCode  finalize();
@@ -44,24 +40,26 @@ namespace Muon {
 
 
     ToolHandle<MuonEDMPrinterTool>  m_printer; //<! helper to nicely print out tracks
-    ToolHandle<MuonEDMHelperTool>   m_helper; //<! muon EDM helper
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" }; //<! muon EDM helper
     ToolHandle<MuonIdHelperTool>    m_idHelper; //<! muon id helper
     ToolHandle<Trk::ITrackSummaryHelperTool>    m_trackSummaryTool; //<! muon id helper
     ToolHandle<IMuonRefitTool>      m_refitTool;
 
-    double                                       m_chi2NdofCutRefit;
-    double                                       m_lowPtThreshold;
-    mutable unsigned int                         m_nrefitAll;
-    mutable unsigned int                         m_nrefitAllLowPt;
-    mutable unsigned int                         m_nrefitOk;
-    mutable unsigned int                         m_nrefit;
-    mutable unsigned int                         m_nrefitLowPt;
-    mutable unsigned int                         m_nrefitPrecise;
-    mutable unsigned int                         m_nrefitPreciseLowPt;
-    mutable unsigned int                         m_nbetterPreciseFit;
-    mutable unsigned int                         m_nbetterFit;
+    Gaudi::Property<double>                      m_chi2NdofCutRefit {this, "Chi2NDofCutRefit", 5.};
+    Gaudi::Property<double>                      m_lowPtThreshold   {this, "LowPtThreshold", 5000.};
+    mutable std::atomic_uint                     m_nrefitAll{0};
+    mutable std::atomic_uint                     m_nrefitAllLowPt{0};
+    mutable std::atomic_uint                     m_nrefitOk{0};
+    mutable std::atomic_uint                     m_nrefit{0};
+    mutable std::atomic_uint                     m_nrefitLowPt{0};
+    mutable std::atomic_uint                     m_nrefitPrecise{0};
+    mutable std::atomic_uint                     m_nrefitPreciseLowPt{0};
+    mutable std::atomic_uint                     m_nbetterPreciseFit{0};
+    mutable std::atomic_uint                     m_nbetterFit{0};
 
-    mutable IMuonRefitTool::Settings m_refitSettings;
+    IMuonRefitTool::Settings m_refitSettings;
   }; 
 }
 

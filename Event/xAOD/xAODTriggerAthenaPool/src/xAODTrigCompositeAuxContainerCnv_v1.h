@@ -22,21 +22,24 @@
 /// v1 used ByteStreamAuxContainer_v1 base, v2 uses the standard AuxContainerBase
 ///
 class xAODTrigCompositeAuxContainerCnv_v1 :
-   public T_AthenaPoolTPCnvBase< xAOD::TrigCompositeAuxContainer,
-                                 xAOD::TrigCompositeAuxContainer_v1 > {
+   public T_AthenaPoolTPCnvConstBase< xAOD::TrigCompositeAuxContainer,
+                                      xAOD::TrigCompositeAuxContainer_v1 > {
 
 public:
+   using base_class::transToPers;
+   using base_class::persToTrans;
+
    /// Default constructor
    xAODTrigCompositeAuxContainerCnv_v1();
 
    /// Function converting from the old type to the current one
    virtual void persToTrans( const xAOD::TrigCompositeAuxContainer_v1* oldObj,
                              xAOD::TrigCompositeAuxContainer* newObj,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
    /// Dummy function inherited from the base class
    virtual void transToPers( const xAOD::TrigCompositeAuxContainer*,
                              xAOD::TrigCompositeAuxContainer_v1*,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
 
 }; // class TrigCompositeAuxContainer_v1
 

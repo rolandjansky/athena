@@ -3,7 +3,6 @@
 */
 
 #include "MCTruthSteppingActionTool.h"
-#include "CxxUtils/make_unique.h"
 
 
 namespace G4UA

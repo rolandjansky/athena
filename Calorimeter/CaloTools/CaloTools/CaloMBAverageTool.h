@@ -12,7 +12,6 @@
 #define CALOTOOLS_CaloMBAverageTool_H
 
 class Identifier; 
-class StoreGateSvc; 
 class CaloIdManager;
 class CaloCell_ID;
 class CaloDetDescrElement;
@@ -30,10 +29,12 @@ class CaloDetDescrElement;
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class LArCablingLegacyService;
 
-class CaloMBAverageTool
-  : public extends<AthAlgTool, ICaloMBAverageTool>
+class ATLAS_NOT_THREAD_SAFE /*It registers callbacks*/ CaloMBAverageTool: 
+  public extends<AthAlgTool, ICaloMBAverageTool>
 {
 private: 
 //Database  
@@ -43,7 +44,7 @@ private:
   const DataHandle<ILArMinBiasAverage> m_dd_minbiasAverage; 
   ToolHandle<ILArOFCTool> m_OFCTool;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
+  const CaloIdManager*     m_caloIdMgr = nullptr;
   const CaloCell_ID*       m_calo_id;
 
 

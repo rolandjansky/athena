@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -16,7 +16,6 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
-#include "StoreGate/DataHandle.h"
 
 // Geant4 headers
 #include "G4Box.hh"
@@ -72,7 +71,7 @@ void MuonWallTool::BuildGeometry() {
   G4Box *wall = new G4Box("MuonWall", dxmuonwall, dymuonwall, dzmuonwall);
 
   // Get the materials
-  const DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) {
     ATH_MSG_ERROR( "Could not find Material Manager MATERIALS" );
     return;

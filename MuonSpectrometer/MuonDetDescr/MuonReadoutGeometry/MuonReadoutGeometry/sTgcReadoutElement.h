@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  sTgc Readout Element properties
  -----------------------------------------
 ***************************************************************************/
-
-//<doc><file>	$Id: sTgcReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_STGCREADOUTELEMENT_H
 # define MUONGEOMODEL_STGCREADOUTELEMENT_H
@@ -20,6 +17,7 @@
 
 #include "MuonIdHelpers/sTgcIdHelper.h"
 
+class BLinePar;
 
 namespace Trk{
   class PlaneSurface;
@@ -143,6 +141,17 @@ namespace MuonGM {
 
     //double getSectorOpeningAngle(bool isLargeSector);
 
+    inline double getALine_rots() const;
+    inline double getALine_rotz() const;
+    inline double getALine_rott() const;
+    inline bool has_ALines() const;
+    inline bool has_BLines() const;
+    void setDelta(double, double, double, double, double, double);
+    void setBLinePar(BLinePar* bLine) const;
+    inline void clearBLinePar() const;
+    void clearBLineCache() const;
+    void fillBLineCache() const;
+
   private:
 
     std::vector<MuonChannelDesign> m_phiDesign;
@@ -158,6 +167,15 @@ namespace MuonGM {
 
     int m_sTGC_type;
 
+    double m_rots;
+    double m_rotz;
+    double m_rott;
+
+    bool m_hasALines;
+    bool m_hasBLines;
+
+    HepGeom::Transform3D* m_delta;
+
     //const double m_largeSectorOpeningAngle = 28.0;
     //const double m_smallSectorOpeningAngle = 17.0;
 
@@ -170,9 +188,29 @@ namespace MuonGM {
     std::vector<double> m_PadminHalfY;
     std::vector<double> m_PadmaxHalfY;
 
+    mutable BLinePar* m_BLinePar;
+
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
   };
+
+  void sTgcReadoutElement::clearBLinePar() const
+  { m_BLinePar = 0;}
+
+  double sTgcReadoutElement::getALine_rots() const
+  { return m_rots;}
+
+  double sTgcReadoutElement::getALine_rotz() const
+  { return m_rotz;}
+
+  double sTgcReadoutElement::getALine_rott() const
+  { return m_rott;}
+
+  bool sTgcReadoutElement::has_ALines() const 
+  { return m_hasALines;}
+
+  bool sTgcReadoutElement::has_BLines() const
+  { return m_hasBLines;}
 
   inline int sTgcReadoutElement::surfaceHash( const Identifier& id ) const {
     return surfaceHash(manager()->stgcIdHelper()->gasGap(id),manager()->stgcIdHelper()->channelType(id));
@@ -238,60 +276,6 @@ namespace MuonGM {
     if( !design ) return -1;
     return design->channelNumber(pos);
 
-  }
-
-  inline double sTgcReadoutElement::channelPitch( const Identifier& id ) const {
-
-    if (manager()->stgcIdHelper()->channelType(id)==0){
-    const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) {
-      *m_MsgStream << MSG::WARNING << "no pad Design" << endmsg;
-      return -1;
-    }
-      return design->channelWidth( Amg::Vector2D (0,0),0);
-    }
-
-    const MuonChannelDesign* design = getDesign(id);
-    if( !design ) return -1;
-
-    if (manager()->stgcIdHelper()->channelType(id)==1) //sTGC strips
-      return design->inputPitch;
-    else if (manager()->stgcIdHelper()->channelType(id)==2) //sTGC wires
-      return design->inputPitch * design->groupWidth; // wire Pitch * number of wires in a group
-    else return -1;
-
-  }
-
-  inline int sTgcReadoutElement::padNumber( const Amg::Vector2D& pos, const Identifier& id) const {
-
-    const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) {
-      *m_MsgStream << MSG::WARNING << "no pad Design" << endmsg;
-      return -1;
-    }
-    std::pair<int,int> pad(design->channelNumber(pos));
-    *m_MsgStream << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endmsg;
-
-    if (pad.first>0 && pad.second>0) {
-
-      Identifier padID=manager()->stgcIdHelper()->padID( manager()->stgcIdHelper()->stationName(id),
-							 manager()->stgcIdHelper()->stationEta(id),
-							 manager()->stgcIdHelper()->stationPhi(id),
-							 manager()->stgcIdHelper()->multilayer(id),
-							 manager()->stgcIdHelper()->gasGap(id),
-							 0, pad.first, pad.second, true );     
-      int channel = manager()->stgcIdHelper()->channel(padID);
-      int padEta = manager()->stgcIdHelper()->padEta(padID);
-      int padPhi = manager()->stgcIdHelper()->padPhi(padID);
-      if( padEta != pad.first || padPhi != pad.second ){
-	*m_MsgStream << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endmsg;
-	return -1;
-      }
-      return channel;
-    } 
-    *m_MsgStream << MSG::WARNING << "bad channelNumber" << endmsg;
-
-    return -1; 
   }
 
   inline bool sTgcReadoutElement::stripPosition( const Identifier& id, Amg::Vector2D& pos ) const {

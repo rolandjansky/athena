@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script building all the externals necessary for the nightly build.
 #
 
@@ -8,11 +10,13 @@ set -e
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-x]"
     echo " -f: Force rebuild of externals, otherwise if script"
     echo "     finds an external build present it will simply exit"
     echo " -c: Build the externals for the continuous integration (CI) system,"
     echo "     skipping the build of the externals RPMs."
+    echo " -x: Extra cmake argument(s) to provide for the build(configuration)"
+    echo "     of all externals needed by Athena."
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -22,6 +26,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
+EXTRACMAKE=()
 while getopts ":t:b:fch" opt; do
     case $opt in
         t)
@@ -35,6 +40,9 @@ while getopts ":t:b:fch" opt; do
             ;;
         c)
             CI="1"
+            ;;
+        x)
+            EXTRACMAKE+=($OPTARG)
             ;;
         h)
             usage
@@ -77,10 +85,8 @@ fi
 # Create some directories:
 mkdir -p ${BUILDDIR}/install
 
-# Set some environment variables that the builds use internally:
-export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
-export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
+# Get the version of VP1Light for the build.
+version=`cat ${thisdir}/version.txt`
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
@@ -105,6 +111,7 @@ export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/VP1LightExternals
 ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/VP1LightExternals \
     -b ${BUILDDIR}/build/VP1LightExternals \
-    -i ${BUILDDIR}/install/VP1LightExternals/${NICOS_PROJECT_VERSION} \
+    -i ${BUILDDIR}/install \
     -p VP1LightExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION}
+    -v ${version} \
+    ${EXTRACMAKE[@]/#/-x }

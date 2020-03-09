@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATH_DCSLHITSELECTOR_H
@@ -16,21 +16,20 @@ namespace TrkDriftCircleMath {
     typedef DCSLFitter::HitSelection HitSelection;
 
   public:
-    DCSLHitSelector() { m_selection.reserve(100); }
+    DCSLHitSelector() {}
 
-    const HitSelection& selectHitsOnTrack( const DCOnTrackVec& dcs ) const; 
+    const HitSelection selectHitsOnTrack( const DCOnTrackVec& dcs ) const; 
 
-    mutable HitSelection m_selection;
   };
 
-  inline const DCSLHitSelector::HitSelection& DCSLHitSelector::selectHitsOnTrack( const DCOnTrackVec& dcs ) const
+  inline const DCSLHitSelector::HitSelection DCSLHitSelector::selectHitsOnTrack( const DCOnTrackVec& dcs ) const
   {
-    m_selection.clear();
-    m_selection.resize(dcs.size(),1);
+    HitSelection selection;
+    selection.resize(dcs.size(),1);
     for( unsigned int i=0;i<dcs.size();++i) {
-      if( dcs[i].state() == DCOnTrack::OnTrack ) m_selection[i] = 0;
+      if( dcs[i].state() == DCOnTrack::OnTrack ) selection[i] = 0;
     }
-    return m_selection; 
+    return selection; 
   }
   
 

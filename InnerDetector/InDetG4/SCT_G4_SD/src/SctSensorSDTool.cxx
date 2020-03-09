@@ -25,7 +25,7 @@ SctSensorSDTool::SctSensorSDTool(const std::string& type, const std::string& nam
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* SctSensorSDTool::makeSD()
+G4VSensitiveDetector* SctSensorSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   if(m_isGmxSensor)

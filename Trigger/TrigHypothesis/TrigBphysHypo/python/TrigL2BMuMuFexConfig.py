@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigL2BMuMuFex
 from TrigVertexFitter.TrigVertexFitterConf import TrigL2VertexFitter
@@ -368,34 +368,6 @@ class L2BMuMuFex_DiMu_DY14_noOS (TrigL2BMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
-class L2BMuMuFex_DiMu_DY14_noOS (TrigL2BMuMuFex):
-    __slots__ = []
-    def __init__(self, name = "L2BMuMuFex_DiMu_DY14_noOS"):
-        super( TrigL2BMuMuFex, self ).__init__( name )
-
-        # AcceptAll flag: if true take events regardless of cuts
-        self.AcceptAll = False
-
-        # L2 Bmumu cuts
-        # self.TrackPTthr       = 1.4
-        # self.TrackAlgoId      = 2
-        # self.pTsumTrackPair   = 0.
-        self.OppositeSign       = False
-        self.LowerMassCut       = 14000.
-        self.UpperMassCut       = 140000.
-        self.ApplyUpperMassCut  = True
-        self.doVertexFit        = True
-        self.TrigL2VertexFitter = L2VFitTool
-        self.TrigVertexingTool  = VertexTool
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
-        validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation, online, time ]
 
 class L2BMuMuFex_DiMu_7invm9_noOS (TrigL2BMuMuFex):
     __slots__ = []

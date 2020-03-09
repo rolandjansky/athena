@@ -58,3 +58,9 @@ atlas_add_test( DetDescrCondIdentifier_old_cnv_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools AthenaPoolCnvSvcLib RootConversions DetDescrConditions Identifier GaudiKernel DetDescrCondTPCnv )
 
+atlas_add_test( DetCondKeyTransCnv_p1_test
+                SOURCES
+                test/DetCondKeyTransCnv_p1_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools AthenaPoolCnvSvcLib RootConversions DetDescrConditions Identifier GaudiKernel DetDescrCondTPCnv )
+

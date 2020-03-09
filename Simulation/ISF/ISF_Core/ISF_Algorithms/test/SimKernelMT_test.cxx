@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,6 +16,7 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Interfaces/BaseSimulationSvc.h"
+#include "ISF_Interfaces/IEntryLayerTool.h"
 
 // Amg classes
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -89,6 +90,31 @@ namespace ISFTesting {
   DECLARE_COMPONENT( MockGeoIDSvc ) // MockGeoIDSvc class
 
 
+  // Athena Service to mock a TruthSvc
+  //
+  const std::string mockTruthSvcName = "ISFTesting::MockTruthSvc/MyMockTruthSvc";
+
+  class MockTruthSvc : public extends<AthService, ISF::ITruthSvc> {
+
+  public:
+    MockTruthSvc(const std::string& name, ISvcLocator* svc)
+      : base_class(name,svc)
+    {  };
+    MOCK_METHOD0(finalize, StatusCode());
+
+    // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
+    virtual StatusCode initialize() {
+      ATH_MSG_INFO ("initializing MockTruthSvc: " << name());
+      return StatusCode::SUCCESS;
+    };
+    void registerTruthIncident(ISF::ITruthIncident&) const { };
+    StatusCode initializeTruthCollection() { return StatusCode::SUCCESS; };
+    StatusCode releaseEvent() { return StatusCode::SUCCESS; };
+  };
+
+  DECLARE_COMPONENT( MockTruthSvc ) // MockTruthSvc class
+
+
 // Athena Tool to mock a SimulationSelector
 //
 const std::string mockSimulationSelectorName = "ISFTesting::MockSimulationSelector/MyTestSimulationSelector";
@@ -112,12 +138,12 @@ public:
   ServiceHandle<ISF::ISimulationSvc>* simulator() { return nullptr; };
   bool isDynamic() { return false; };
   ISF::SimSvcID simSvcID() { return 0; };
-  virtual ISF::SimulationFlavor simFlavor() { return ISF::Fatras; }
+  virtual ISF::SimulationFlavor simFlavor() const { return ISF::Fatras; }
   void initializeSelector() { };
   void beginEvent() { };
   void endEvent() { };
   void update(const ISF::ISFParticle& ) { };
-  bool selfSelect(const ISF::ISFParticle& particle) { return passSelectorCuts(particle); };
+  bool selfSelect(const ISF::ISFParticle& particle) const { return passSelectorCuts(particle); };
 
 }; // MockSimulationSelector class
 
@@ -139,23 +165,53 @@ public:
 
   MOCK_METHOD0(finalize, StatusCode());
   MOCK_METHOD0(setupEvent, StatusCode());
-  MOCK_METHOD3(simulate, StatusCode(const ISF::ISFParticle&, ISF::ISFParticleContainer&, McEventCollection*));
-  MOCK_METHOD3(simulateVector, StatusCode(const ISF::ConstISFParticleVector&, ISF::ISFParticleContainer&, McEventCollection*));
+  MOCK_CONST_METHOD3(simulate, StatusCode(const ISF::ISFParticle&, ISF::ISFParticleContainer&, McEventCollection*));
+  MOCK_CONST_METHOD3(simulateVector, StatusCode(const ISF::ConstISFParticleVector&, ISF::ISFParticleContainer&, McEventCollection*));
   MOCK_METHOD0(releaseEvent, StatusCode());
   MOCK_CONST_METHOD1(bid, int(const ISF::ISFParticle&));
 
   // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
-  virtual StatusCode initialize() override {
+  virtual StatusCode initialize() {
     ATH_MSG_INFO ("initializing MockSimulatorTool: " << name());
     return StatusCode::SUCCESS;
   };
-  virtual StatusCode setupEventST() override { return StatusCode::FAILURE; };
-  virtual StatusCode releaseEventST() override { return StatusCode::FAILURE; };
-  virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Fatras; };
+  virtual StatusCode setupEventST() { return StatusCode::FAILURE; };
+  virtual StatusCode releaseEventST() { return StatusCode::FAILURE; };
+  virtual ISF::SimulationFlavor simFlavor() const { return ISF::Fatras; };
 
 }; // MockSimulatorTool
 
 DECLARE_COMPONENT( MockSimulatorTool )
+
+
+// Athena Tool to mock a SimulatorTool
+// //
+const std::string mockEntryLayerToolName = "ISFTesting::MockEntryLayerTool/MyTestEntryLayerTool";
+
+class MockEntryLayerTool : public extends<AthAlgTool, ISF::IEntryLayerTool> {
+
+public:
+  MockEntryLayerTool(const std::string& type, const std::string& name, const IInterface* svclocator)
+    : base_class(type, name, svclocator)
+  {
+  };
+  virtual ~MockEntryLayerTool() { };
+
+  MOCK_METHOD0(finalize, StatusCode());
+
+  // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
+  virtual StatusCode initialize() {
+    ATH_MSG_INFO ("initializing MockEntryLayerTool: " << name());
+    return StatusCode::SUCCESS;
+  };
+  virtual bool passesFilters( const ISF::ISFParticle& ) { return true; };
+  virtual ISF::EntryLayer identifyEntryLayer( const ISF::ISFParticle& ) { return ISF::fUnsetEntryLayer; };
+  virtual ISF::EntryLayer registerParticle( const ISF::ISFParticle&, ISF::EntryLayer layer=ISF::fUnsetEntryLayer ) { return layer; };
+  virtual StatusCode registerTrackRecordCollection(TrackRecordCollection*, ISF::EntryLayer) { return StatusCode::SUCCESS; };
+
+}; // MockEntryLayerTool
+
+DECLARE_COMPONENT( MockEntryLayerTool )
 
 
 // Gaudi Test fixture that provides a clean Gaudi environment for
@@ -223,14 +279,19 @@ protected:
     virtual void SetUp() override {
       // the tested AthAlgorithm
       m_alg = new ISF::SimKernelMT{"SimKernelMT", m_svcLoc};
+      m_alg->addRef();
       EXPECT_TRUE( m_alg->setProperty("ParticleKillerTool", particleKillerSimulatorToolName).isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("GeoIDSvc", mockGeoIDSvcName).isSuccess() );
+      EXPECT_TRUE( m_alg->setProperty("TruthRecordService", mockTruthSvcName).isSuccess() );
+      EXPECT_TRUE( m_alg->setProperty("EntryLayerTool", mockEntryLayerToolName).isSuccess() );
 
       // retrieve mocked Athena components
       m_mockGeoIDSvc = retrieveService<MockGeoIDSvc>(mockGeoIDSvcName);
+      m_mockTruthSvc = retrieveService<MockTruthSvc>(mockTruthSvcName);
       m_mockInputConverter = retrieveService<MockInputConverter>(mockInputConverterName);
       m_mockSimulatorTool = retrieveTool<MockSimulatorTool>(mockSimulatorToolName);
       m_mockSimulationSelector = retrieveTool<MockSimulationSelector>(mockSimulationSelectorName);
+      m_mockEntryLayerTool = retrieveTool<MockEntryLayerTool>(mockEntryLayerToolName);
     }
 
     virtual void TearDown() override {
@@ -241,6 +302,7 @@ protected:
       delete m_alg;
       // release various service instances
       delete m_mockGeoIDSvc;
+      delete m_mockTruthSvc;
       delete m_mockInputConverter;
     }
 
@@ -290,7 +352,7 @@ protected:
     void setEmptyInputOutputCollections() {
       auto inputEvgen = std::make_unique<McEventCollection>();
       SG::WriteHandle<McEventCollection> inputEvgenHandle{"emptyTestInputEvgenCollection"};
-      inputEvgenHandle.record( std::move(inputEvgen) );
+      EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
       EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "emptyTestInputEvgenCollection").isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
@@ -302,8 +364,13 @@ protected:
     //     CollectionMerger class
     //
     template<typename ...Args>
-    ISF::ISimulatorTool& identifySimulator(Args&... args) {
+    const ISF::ISimulatorTool& identifySimulator(Args&... args) const {
       return m_alg->identifySimulator(std::forward<Args>(args)...);
+    }
+
+    ToolHandleArray<ISF::ISimulatorTool>& getSimulatorTools() const
+    {
+      return m_alg->m_simulationTools;
     }
 
     // the tested AthAlgorithm
@@ -311,9 +378,11 @@ protected:
 
     // mocked Athena components
     ISFTesting::MockGeoIDSvc* m_mockGeoIDSvc = nullptr;
+    ISFTesting::MockTruthSvc* m_mockTruthSvc = nullptr;
     ISFTesting::MockInputConverter* m_mockInputConverter = nullptr;
     ISFTesting::MockSimulatorTool* m_mockSimulatorTool = nullptr;
     ISFTesting::MockSimulationSelector* m_mockSimulationSelector = nullptr;
+    ISFTesting::MockEntryLayerTool* m_mockEntryLayerTool = nullptr;
 
   };  // SimKernelMT_test fixture
 
@@ -417,7 +486,7 @@ protected:
 
     auto inputEvgen = std::make_unique<McEventCollection>();
     SG::WriteHandle<McEventCollection> testInputEvgenHandle{"testInputEvgenCollection"};
-    testInputEvgenHandle.record( std::move(inputEvgen) );
+    EXPECT_TRUE( testInputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     ASSERT_TRUE( m_alg->execute().isSuccess() );
@@ -432,7 +501,7 @@ protected:
 
     inputEvgen->push_back(genEvent);
     SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    inputEvgenHandle.record( std::move(inputEvgen) );
+    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
@@ -459,7 +528,7 @@ protected:
     auto inputEvgen = std::make_unique<McEventCollection>();
     inputEvgen->push_back(genEvent);
     SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    inputEvgenHandle.record( std::move(inputEvgen) );
+    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
@@ -555,7 +624,10 @@ protected:
 
     const auto* actualSimulatorToolPtr = &this->identifySimulator(particle);
 
-    const auto* expectedSimulatorToolPtr = m_mockSimulatorTool;
+    ToolHandleArray<ISF::ISimulatorTool>& simulatorTools = this->getSimulatorTools();
+    const unsigned int expectedSize(1);
+    ASSERT_EQ (simulatorTools.size(), expectedSize);
+    ISFTesting::MockSimulatorTool* expectedSimulatorToolPtr = dynamic_cast<ISFTesting::MockSimulatorTool*>(&*(simulatorTools[0]));
     ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
   }
 
@@ -646,7 +718,11 @@ protected:
       .WillOnce(::testing::Return(true));
 
     const auto* actualSimulatorToolPtr = &this->identifySimulator(particle);
-    const auto* expectedSimulatorToolPtr = m_mockSimulatorTool;
+    ToolHandleArray<ISF::ISimulatorTool>& simulatorTools = this->getSimulatorTools();
+    const unsigned int expectedSize(1);
+    ASSERT_EQ (simulatorTools.size(), expectedSize);
+    ISFTesting::MockSimulatorTool* expectedSimulatorToolPtr = dynamic_cast<ISFTesting::MockSimulatorTool*>(&*(simulatorTools[0]));
+    ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
 
     ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
   }
@@ -667,7 +743,7 @@ protected:
     auto inputEvgen = std::make_unique<McEventCollection>();
     inputEvgen->push_back(genEvent);
     SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    inputEvgenHandle.record( std::move(inputEvgen) );
+    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );

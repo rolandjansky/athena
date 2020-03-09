@@ -65,7 +65,6 @@ Stream1.ItemList += ["TileTTL1Container#*"]
 Stream1.ItemList += ["ComTime#*"]
 # Stream1.ItemList += ["LArDigitContainer#*"] 
 # Stream1.ItemList += ["TileDigitsContainer#*"] 
-Stream1.ForceRead = True 
 
 theApp.EvtMax = 2000
 IOVDbSvc.ManageConnections = TRUE

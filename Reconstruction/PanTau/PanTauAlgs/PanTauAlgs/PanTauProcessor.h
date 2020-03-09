@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,8 +28,6 @@
 
 //#include "PanTauAlgs/PanTauSeedContainer.h"
 
-//class StoreGateSvc;
-
 
 
 namespace PanTau 
@@ -57,24 +55,13 @@ namespace PanTau
 
        virtual StatusCode initialize();
        virtual StatusCode finalize();
-       virtual StatusCode execute(xAOD::TauJet&) { return StatusCode::SUCCESS; };
-       virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-       virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-       virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-       virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-       virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-       virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
        virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container);
-
-       virtual StatusCode eventInitialize();
-       virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
        
        virtual void print() const { }
 
     private:
         
        //mutable MsgStream                                   m_log;
-       //StoreGateSvc*                                       m_sgSvc;
         
         std::string                                         m_Name_InputAlg;
         

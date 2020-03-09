@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 def rod_version_setup(trigger_release):
@@ -10,7 +10,7 @@ def rod_version_setup(trigger_release):
     rodconfig = get_rod_config(trigger_release)
 
     # LAr setup
-    # taken from https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TriggerRelease/trunk/share/Trigger_topOptions_writeBS.py
+    # taken from TriggerJobOpts/share/Trigger_topOptions_writeBS.py
     lar_rodconfig = rodconfig["LAR"]
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc.LArRawDataContByteStreamTool.DSPRunMode      = lar_rodconfig["DSPRunMode"]
@@ -24,7 +24,7 @@ def rod_version_setup(trigger_release):
 
 def main():
     from TrigSimTransforms.rodconfig import get_rod_config
-    print get_rod_config("17.1.3.4")
+    print(get_rod_config("17.1.3.4"))
     return 0
 
 

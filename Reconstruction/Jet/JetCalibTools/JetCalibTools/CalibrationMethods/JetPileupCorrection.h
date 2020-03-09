@@ -14,13 +14,11 @@
 
 #include <TEnv.h>
 
-#include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 #include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
 
 class JetPileupCorrection 
-  : virtual public ::IJetCalibrationTool,
-    virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationToolBase
 {
 
   ASG_TOOL_CLASS( JetPileupCorrection, IJetCalibrationTool )

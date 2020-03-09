@@ -10,9 +10,7 @@
 
 namespace LVL1TGCTrigger {
 
-extern bool g_STRICTST;
-
-TGCInnerSB::TGCInnerSB():TGCSlaveBoard()
+TGCInnerSB::TGCInnerSB(TGCArguments* tgcargs):TGCSlaveBoard(tgcargs)
 {}
 
 void TGCInnerSB::createSlaveBoardOut()
@@ -121,35 +119,27 @@ void TGCInnerSB::doCoincidence()
        +b &  d & !c
 */
 
-      if(g_STRICTST){
-	for(int i=base+1; i<base+length; i++){
-	  m_coincidenceOut->setChannel(i,( b[i-1] & b[i] ));
-	}
-      } else {
+      i=base;
+      m_coincidenceOut->setChannel(i,( b[i] & !b[i+1] ));
 
-	i=base;
-	m_coincidenceOut->setChannel(i,( b[i] & !b[i+1] ));
-	
-	i=base+1;
-	m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+      i=base+1;
+      m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 				      ( b[i-1] & !b[i] )|
 				      ( b[i]   & !b[i-1] & !b[i+1] )|
 				      ( b[i-1] &  b[i+1] & !b[i] )));
 	
-	for( i=base+2; i<base+length-1; i+=1){
-	  m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+      for( i=base+2; i<base+length-1; i+=1){
+	m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 					( b[i-1] & !b[i-2] & !b[i] )|
 					( b[i-2] &  b[i]   & !b[i-1] )|
 					( b[i]   & !b[i-1] & !b[i+1] )|
 					( b[i-1] &  b[i+1] & !b[i] )));
-	}
-	i=base+length-1;
-	m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+      }
+      i=base+length-1;
+      m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 				      ( b[i-1] & !b[i-2] & !b[i] )|
 				      ( b[i-2] &  b[i]   & !b[i-1] )|
 				      ( b[i]   & !b[i-1] )));
-	
-      }
 
 #ifdef TGCCOUT
       std::cout << "InnerCoincidence OUT ";

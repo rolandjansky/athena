@@ -1,19 +1,19 @@
 /*
-Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAVALIDATION_BASICHISTOGRAMS_H
 #define EGAMMAVALIDATION_BASICHISTOGRAMS_H
 
 
-#include "GaudiKernel/ITHistSvc.h"
-#include "TH1D.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthVertex.h"
-#include "xAODTruth/xAODTruthHelpers.h"
+#include "xAODBase/IParticle.h"
 
-#include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
+#include <map>
+#include <string>
+#include <utility>
+class ITHistSvc;
+class StatusCode;
+class TH1D;
 
 namespace egammaMonitoring {
 
@@ -27,16 +27,15 @@ namespace egammaMonitoring {
                    std::string folder,
                    ITHistSvc * &rootHistSvc
     ) :
-      m_name(name),
-      m_title(title),
-      m_folder(folder),
+      m_name(std::move(std::move(name))),
+      m_title(std::move(std::move(title))),
+      m_folder(std::move(std::move(folder))),
       m_rootHistSvc(rootHistSvc) {}
 
     virtual StatusCode initializePlots() = 0;
 
     virtual void fill(const xAOD::IParticle&) = 0;
-    virtual void fill(const xAOD::Electron&) = 0;
-    virtual void fill(const xAOD::Photon&) = 0;
+    virtual ~IHistograms(){};
 
     std::map<std::string, TH1D* > histoMap;
 

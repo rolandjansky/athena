@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
 #include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 #include "RIO_OnTrackErrorScalingCondAlg.h"
 #include "RIO_OnTrackErrorScalingKit.h"
-
+#include "CxxUtils/checker_macros.h"
 #include <limits>
 
 RIO_OnTrackErrorScalingCondAlg::RIO_OnTrackErrorScalingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -15,7 +15,7 @@ RIO_OnTrackErrorScalingCondAlg::RIO_OnTrackErrorScalingCondAlg(const std::string
 {
 }
 
-StatusCode RIO_OnTrackErrorScalingCondAlg::initialize() {
+StatusCode RIO_OnTrackErrorScalingCondAlg::initialize ATLAS_NOT_THREAD_SAFE() {
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_readKey.initialize());
 
@@ -45,7 +45,7 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::initialize() {
 }
 
 
-void RIO_OnTrackErrorScalingCondAlg::registerAttribute(std::string name, unsigned int type_idx, unsigned int param_idx) {
+void RIO_OnTrackErrorScalingCondAlg::registerAttribute(const std::string& name, unsigned int type_idx, unsigned int param_idx) {
   if (!m_attributeMap.insert( std::make_pair(name, std::make_pair(type_idx,param_idx)) ).second) {
     std::stringstream message;
     message << "Failed to add RIO_OnTrackErrorScaling paramter : " << name << ".";
@@ -53,7 +53,7 @@ void RIO_OnTrackErrorScalingCondAlg::registerAttribute(std::string name, unsigne
   }
 }
 
-StatusCode RIO_OnTrackErrorScalingCondAlg::addErrorScaling(const std::string &type_name) {
+StatusCode RIO_OnTrackErrorScalingCondAlg::addErrorScaling (const std::string &type_name) {
   const RIO_OnTrackErrorScalingKit *the_kit(nullptr);
   try {
     the_kit = &(RIO_OnTrackErrorScalingKitManager::instance().kit( type_name ));
@@ -87,7 +87,7 @@ public:
   }
 
   template <typename T_Obj>
-  std::string dumpKeys() const {
+  std::string dumpKeys ATLAS_NOT_THREAD_SAFE () const {
     std::stringstream out;
     std::vector<std::string> keys_out;
     const_cast<StoreGateSvc *>(this->getCS())->keys<T_Obj>(keys_out,true,false);
@@ -126,7 +126,7 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::execute() {
 
   try {
     // now populate output conditions data objects from attribut lists.
-    for (const std::pair<unsigned int, coral::AttributeList>& channel : **readHandle ) {
+    for (const std::pair<const unsigned int, coral::AttributeList>& channel : **readHandle ) {
       const coral::AttributeList &alist = channel.second;
       unsigned int att_i=0;
       const std::string& attr_name=alist[att_i++].data<std::string>();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESTGROUP_H
@@ -39,7 +39,11 @@ class RatesGroup : public RatesHistoBase {
    */
   RatesGroup(const std::string& name, const MsgStream& log, const bool doHistograms = true, const bool doExtrapolation = true);
 
-  ~RatesGroup();
+  virtual ~RatesGroup();
+
+  RatesGroup(const RatesGroup&) = delete;
+
+  RatesGroup& operator=(const RatesGroup&) = delete;
 
   /**
    * @brief Add a trigger to this group. It will be stored in a set mapped to its L1 seed. 
@@ -75,13 +79,13 @@ class RatesGroup : public RatesHistoBase {
    */
   void execute(const WeightingValuesSummary_t& weights); 
 
-  void setExpressGroup(const bool i) { m_isExpressGroup = i; } //!< Flag this group as the express group (modifies group trigger's prescales)
-  void setDoCachedWeights(const bool i) { m_doCachedWeights = i; } //!< Flag group to cache weights. Called only on the Master group
-  void setUseCachedWeights(const bool i) { m_useCachedWeights = i; } //!< Set to use cached weights from the Master group (need ptr to m_masterGroup)
-  void duplicateChildren(const RatesGroup* toDuplicate) { m_children = toDuplicate->getChildren(); m_masterGroup = toDuplicate; } //!< Copy in triggers from another group. Sets my master
-  double getCachedWeight(const size_t l1Hash) const { return m_cachedWeights.at(l1Hash); } //!< Get cached weight from triggers seeding from a given L1 item.
-  void setUniqueTrigger(RatesTrigger* trigger) { m_uniqueTrigger = trigger; } //!< Set trigger I am doing unique rates for
-  RatesTrigger* getUniqueTrigger() { return m_uniqueTrigger; } //!< Get the trigger I am doing unique rates for
+  void setExpressGroup(const bool i); //!< Flag this group as the express group (modifies group trigger's prescales)
+  void setDoCachedWeights(const bool i); //!< Flag group to cache weights. Called only on the Master group
+  void setUseCachedWeights(const bool i); //!< Set to use cached weights from the Master group (need ptr to m_masterGroup)
+  void duplicateChildren(const RatesGroup* toDuplicate); //!< Copy in triggers from another group. Sets my master
+  double getCachedWeight(const size_t l1Hash) const; //!< Get cached weight from triggers seeding from a given L1 item.
+  void setUniqueTrigger(RatesTrigger* trigger); //!< Set trigger I am doing unique rates for
+  RatesTrigger* getUniqueTrigger(); //!< Get the trigger I am doing unique rates for
 
   /**
    * @brief Get the unique rate of a unique-rate group
@@ -91,7 +95,7 @@ class RatesGroup : public RatesHistoBase {
    */
   double getUniqueWeight(const double ratesDenominator) const;
 
-  const std::unordered_map<size_t, std::set<const RatesTrigger*>>& getChildren() const { return m_children; } //<! Return all triggers in the group, ordered by common L1
+  const std::unordered_map<size_t, std::set<const RatesTrigger*>>& getChildren() const; //<! Return all triggers in the group, ordered by common L1
 
   const std::string printConfig() const; //!< Prints the RatesGroup's configuration
 
@@ -114,7 +118,7 @@ class RatesGroup : public RatesHistoBase {
   bool m_doCachedWeights; //!< Used in the global rates group. Cache extra information for the benefit of the unique rate groups
   std::unordered_map<size_t, double> m_cachedWeights; //!< Cached weight of the OR of all triggers *except* for the L1 seed-hash of the key here.
   bool m_useCachedWeights; //!< Efficiency. Required m_masterGroup to have been set.
-  const bool m_doLumiExtrapolation; //!< If we are using lumi extrapolation or not 
+  const ExtrapStrat_t m_extrapolationStrategy; //!< How this group is to scale with luminosity. Currently supported are linear and none.
   const RatesGroup* m_masterGroup; //!< If not nullptr, then use the cached weights info in this master group object
   RatesTrigger* m_uniqueTrigger; //!< If not nullptr, then a trigger this group is calculating the unique rate for. Needs non-const as fills a histo
 

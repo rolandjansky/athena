@@ -16,7 +16,6 @@
 #include "TileCalibAlgs/ITileCalibTool.h"
 
 
-class StoreGateSvc;
 class TileID;
 
 class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool 

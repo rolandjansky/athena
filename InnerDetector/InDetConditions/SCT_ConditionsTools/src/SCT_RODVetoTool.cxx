@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,7 +11,6 @@
 #include "SCT_RODVetoTool.h"
 
 //Athena includes
-#include "CxxUtils/make_unique.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/DataHandle.h"
@@ -47,7 +46,9 @@ SCT_RODVetoTool::finalize() {
 
 bool 
 SCT_RODVetoTool::canReportAbout(InDetConditions::Hierarchy h) const {
-  return ((h==InDetConditions::DEFAULT) or (h==InDetConditions::SCT_SIDE));
+  return ((h==InDetConditions::DEFAULT) or
+          (h==InDetConditions::SCT_SIDE) or
+          (h==InDetConditions::SCT_MODULE));
 }
 
 bool 
@@ -58,7 +59,9 @@ SCT_RODVetoTool::isGood(const Identifier& elementId, const EventContext& ctx, In
     ATH_MSG_ERROR("IdentifierSet cannot be retrieved in isGood. true is returned.");
     return true;
   }
-  bool result{badIds->find(elementId) == badIds->end()};
+  const Identifier waferId{m_pHelper->wafer_id(elementId)};
+  const Identifier moduleId{m_pHelper->module_id(waferId)};
+  bool result{badIds->find(moduleId) == badIds->end()};
   return result;
 }
 
@@ -73,7 +76,7 @@ bool
 SCT_RODVetoTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
   Identifier moduleId{m_pHelper->module_id(elementId)};
-  return isGood(moduleId, ctx);
+  return isGood(moduleId, ctx, InDetConditions::SCT_MODULE);
 }
 
 bool 

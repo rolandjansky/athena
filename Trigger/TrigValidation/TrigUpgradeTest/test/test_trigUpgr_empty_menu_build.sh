@@ -2,16 +2,14 @@
 # art-description: athenaMT trigger test on data running no HLT menu
 # art-type: build
 # art-include: master/Athena
-# art-output: *.log
-# art-output: *.new
-# art-output: *.txt
-# art-output: *.root
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
-export EVENTS=10
-export THREADS=1
-export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
-export EXTRA="doEmptyMenu=True"
+export EVENTS=20
+export THREADS=2
+export SLOTS=2
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
+export EXTRA="isOnline=True;doEmptyMenu=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
 export REGTESTEXP="leaving with code"

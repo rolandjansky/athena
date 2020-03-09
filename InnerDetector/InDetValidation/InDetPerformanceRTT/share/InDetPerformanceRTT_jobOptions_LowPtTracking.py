@@ -111,9 +111,14 @@ rec.doJetMissingETTag.set_Value_and_Lock (False)
 
 # --- turn of calo stuff we don't need anyway
 from CaloRec.CaloRecFlags import jobproperties
-jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock  (False)
 jobproperties.CaloRecFlags.doCaloEMTopoCluster.set_Value_and_Lock(False)
 jobproperties.CaloRecFlags.doCaloTopoTower.set_Value_and_Lock    (False)
+# required for ROISelector when doing CaloSeededBrem
+if not doCaloSeededBrem:
+  jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock  (False)
+else:
+  jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock  (True)
+
 
 # --- turn of jets (Hack!!!)
 from JetRec.JetRecFlags import jetFlags
@@ -224,6 +229,10 @@ jtm.addJetFinder("Run2AntiKt4TruthJets", "AntiKt", 0.4, "truth", ghostArea=0.0)
 #--------------------------------------------------------------
 # load master joboptions file
 #--------------------------------------------------------------
+
+#ensure BeamSpotCondAlg should be executed earlier than EventInfoCnvAlg
+DetFlags.simulate.all_setOff()
+include ("InDetBeamSpotService/BeamCondSvc.py")
 
 include ("RecExCommon/RecExCommon_topOptions.py")
 

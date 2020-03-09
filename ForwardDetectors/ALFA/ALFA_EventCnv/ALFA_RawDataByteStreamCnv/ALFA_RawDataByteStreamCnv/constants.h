@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -7,6 +7,8 @@
  * Constants for the ALFA analysis programs
  *
  */
+
+#include <cmath>
 
 const unsigned int NUMPMTMD = 20;  //     Main Detector number of PMFs == PMTs
 const unsigned int NUMCHAMD = 64;  //     Main Detector number of channels
@@ -82,10 +84,8 @@ const char* CONFILE_LAL = "./mapping/conn_lal.dat";
 //Variable for the reconstruction program
 //---------------------------------------
 
-const double PrivPI = 3.14159265359;
-
-const double t_low    = PrivPI/4;
-const double t_high   =  3*PrivPI/4;
+const double t_low    = M_PI/4;
+const double t_high   =  3*M_PI/4;
 const double r_low    = 0.0;
 const double r_high   = 64.0;
 const int t_bins      = 100;              // # Theta Bins

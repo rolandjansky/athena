@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,8 +11,8 @@
 #include "InDetTrackingGeometry/SCT_OverlapDescriptor.h"
 #include "InDetTrackingGeometry/DiscOverlapDescriptor.h"
 //InDet include
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetIdentifier/SCT_ID.h" 
@@ -41,8 +41,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/SmartDataPtr.h"
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 // STL
 #include <map>
 

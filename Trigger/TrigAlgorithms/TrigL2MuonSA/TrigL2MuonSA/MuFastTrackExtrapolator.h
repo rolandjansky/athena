@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTTRACKEXTRAPOLATOR_H
@@ -12,8 +12,6 @@
 #include "TrigL2MuonSA/TrackData.h"
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
-
-class StoreGateSvc;
 
 namespace TrigL2MuonSA {
   
@@ -44,9 +42,6 @@ namespace TrigL2MuonSA {
     //int whichECRegion(const double eta, const double phi);
 
   private:
-    // Reference to StoreGateSvc
-    ServiceHandle<StoreGateSvc>    m_storeGateSvc;
-
     ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
 
     std::vector<double> m_muFastRes_barrel;

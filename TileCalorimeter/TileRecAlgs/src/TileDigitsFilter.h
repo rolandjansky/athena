@@ -35,6 +35,7 @@
 // Tile includes
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -85,6 +86,12 @@ class TileDigitsFilter: public AthReentrantAlgorithm {
         "HighGainThereshold", 10, "High gain threshold to keep digits"}; // keep signals above ~128(106) MeV in A,BC(D) samplings
 
     const TileHWID* m_tileHWID;
+
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     int m_threshold[2];  //!< Threshold value for low and high gain
 };

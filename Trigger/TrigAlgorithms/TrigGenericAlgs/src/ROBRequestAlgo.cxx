@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,6 @@
 #include <sstream>
 #include <algorithm>
 
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -85,11 +84,11 @@ void ROBRequestAlgo::parseROBRequest()
 {
   m_requestList.clear();
 
-  BOOST_FOREACH( string s, m_robRequest.value() ) {
+  for( const string& s : m_robRequest.value() ) {
     boost::tokenizer<boost::char_separator<char> > w(s, boost::char_separator<char>(","));
     
     vector<ROBRequest> req;
-    BOOST_FOREACH( string spec, w ) { // e.g. 0x11#2
+    for( string spec : w ) { // e.g. 0x11#2
       boost::trim(spec);
       
       string robspec;
@@ -124,14 +123,14 @@ void ROBRequestAlgo::parseROBRequest()
 
   // Print
   int i(1);
-  BOOST_FOREACH( vector<ROBRequest> v, m_requestList ) {
+  for( const vector<ROBRequest>& v : m_requestList ) {
     ostringstream os;
     os << "ROB request #" << i++ << ": ";
-    BOOST_FOREACH( ROBRequest r, v ) {
+    for( const ROBRequest& r : v ) {
       if (r.N<0) os << "all of [";
       else os << r.N << " of [";
       os << hex;
-      BOOST_FOREACH(uint32_t rob, r.robs) {
+      for(uint32_t rob : r.robs) {
         os << " 0x" << rob;
       }
       os << dec;
@@ -173,7 +172,7 @@ bool ROBRequestAlgo::getROBs(const std::string& robSpec, ROBRequest& req)
   else if (bits==N_ROBID_BITS)     // full ROB ID given
     req.robs.push_back(rob_mask);  
   else {                           // ROB mask given
-    BOOST_FOREACH(uint32_t rob, m_enabledROBs.value()) {
+    for(uint32_t rob : m_enabledROBs.value()) {
       if ((rob>>(N_ROBID_BITS-bits))==rob_mask) req.robs.push_back(rob);
     }
   }
@@ -186,11 +185,11 @@ HLT::ErrorCode ROBRequestAlgo::hltExecute(std::vector<HLT::TEVec>&, unsigned int
 
   beforeExecMonitors().ignore();
   
-  BOOST_FOREACH( vector<ROBRequest> v, m_requestList ) {
+  for( const vector<ROBRequest>& v : m_requestList ) {
 
     // Prepare ROB list
     ROBList roblist;
-    BOOST_FOREACH( ROBRequest r, v ) r.select(roblist);
+    for( ROBRequest r : v ) r.select(roblist);
 
     // Retrieve ROBs
     std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
@@ -200,7 +199,7 @@ HLT::ErrorCode ROBRequestAlgo::hltExecute(std::vector<HLT::TEVec>&, unsigned int
     if (msgLvl(MSG::DEBUG)) {
       ostringstream os;
       os << hex;
-      BOOST_FOREACH(uint32_t rob, roblist) os << " 0x" << rob;
+      for(uint32_t rob : roblist) os << " 0x" << rob;
       ATH_MSG_DEBUG(roblist.size() << "/" << robFragments.size()
                     << " ROBs requested/retrieved:" << os.str());
     }

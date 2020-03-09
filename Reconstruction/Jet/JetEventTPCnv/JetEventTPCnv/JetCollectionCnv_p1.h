@@ -29,53 +29,36 @@
 class JetCollection;
 class JetCollection_p1;
 
-class JetCollectionCnv_p1 : public T_AthenaPoolTPCnvBase<
+class JetCollectionCnv_p1 : public T_AthenaPoolTPCnvConstBase<
                                        JetCollection, 
                                        JetCollection_p1
                                    >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
   JetCollectionCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c JetCollection
    *  from its persistent representation @c JetCollection_p1
    */
   virtual void persToTrans( const JetCollection_p1* pers, 
                             JetCollection* trans, 
-                            MsgStream& msg ) ;
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c JetCollection_p1
    *  from its transient representation @c JetCollection
    */
   virtual void transToPers( const JetCollection* trans, 
                             JetCollection_p1* pers, 
-                            MsgStream& msg ) ;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
+                            MsgStream& msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline JetCollectionCnv_p1::JetCollectionCnv_p1()
 {}

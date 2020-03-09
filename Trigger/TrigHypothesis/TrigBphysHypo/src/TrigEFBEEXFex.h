@@ -43,7 +43,7 @@
 //#include "TrigTimeAlgs/TrigTimerSvc.h"
 //#include "TrigTimeAlgs/TrigTimer.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 #include "BtrigUtils.h"
 #include "TrigBphysHelperUtilsTool.h"
 

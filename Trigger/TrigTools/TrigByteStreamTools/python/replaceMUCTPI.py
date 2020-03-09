@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 Module for creating the MUCTPi fragment normally send through the RoIB
 using the information readout from the ROS.
@@ -97,7 +97,7 @@ def ReplaceMUCTPI(input_file,output_file):
 
 if __name__ == "__main__":
   if len(sys.argv)!=3:
-    print 'usage:',sys.argv[0],'<infile> <outfile>'
+    print('usage: %s <infile> <outfile>' % sys.argv[0])
     sys.exit(1)
   input_file = sys.argv[1]
   output_file = sys.argv[2]

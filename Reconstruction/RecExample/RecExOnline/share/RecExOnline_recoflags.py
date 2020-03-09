@@ -43,6 +43,12 @@ if (not 'doCommissioning' in dir()):
 if ( not 'abortonuncheckedstatuscode' in dir()):
   abortonuncheckedstatuscode = False
 
+if (not 'doHIRec' in dir()):
+  doHIRec = False
+
+if (not 'doHIPRec' in dir()):
+  doHIPRec = False
+
 ## ------------------------------------------------------------------- Reco flags
 
 rec.doInDet.set_Value_and_Lock(doInDet)
@@ -56,7 +62,19 @@ rec.doForwardDet.set_Value_and_Lock(doLucid or doZdc or doAlfa)
 rec.doTrigger.set_Value_and_Lock(doTrigger)
 
 from RecExConfig.RecAlgsFlags import recAlgs
-recAlgs.doTrigger.set_Value_and_Lock(doTrigger)                                
+#recAlgs.doTrigger.set_Value_and_Lock(doTrigger)                                
+
+rec.doHeavyIon.set_Value_and_Lock(doHIRec)
+rec.doHIP.set_Value_and_Lock(doHIPRec)
+
+## --------------------- Added by S. Sun to disable Muon Girl algorithm -----------------------------##
+
+recAlgs.doMuGirl.set_Value_and_Lock(False)
+
+from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+muonCombinedRecFlags.doMuGirl.set_Value_and_Lock(False)
+
+## --------------------------------------------------------------------------------------------------##
 
 rec.doHist.set_Value_and_Lock(doHist)
 rec.doJiveXML.set_Value_and_Lock(doJiveXML)                               

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
@@ -29,14 +29,13 @@ def generateChains( flags,  chainDict ):
 
     l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
                                  CaloClusters = recordable('HLT_L2CaloEMClusters'))
-    l2CaloHypo.HypoTools=[ TrigL2CaloHypoToolFromDict( chainDict ) ]
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
-    fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
+    fastCaloSequence = CAMenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
-                                     HypoToolGen = None, 
+                                     HypoToolGen = TrigL2CaloHypoToolFromDict, 
                                      CA = accCalo)
 
     accCalo.printConfig()
@@ -51,8 +50,8 @@ def generateChains( flags,  chainDict ):
     accTrk.addSequence(stepView)
 
     # # # fast ID
-    from TrigUpgradeTest.InDetConfig import indetInViewRecoCfg
-    fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet')
+    from TrigInDetConfig.InDetConfig import indetInViewRecoCfg
+    fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet', signature='Electron')
     accTrk.merge( fastInDetReco, sequenceName=stepReco.getName() )
     # TODO once tracking fully works remove fake hypos
 
@@ -65,17 +64,19 @@ def generateChains( flags,  chainDict ):
     def makeFakeHypoTool(name, cfg):
         return HLTTest__TestHypoTool(name)
 
-    fakeHypoAlg.HypoTools = [ makeFakeHypoTool(chainDict['chainName'], None) ]
-
     accTrk.addEventAlgo(fakeHypoAlg, sequenceName=stepView.getName())
 
-    fastInDetSequence = MenuSequence( Sequence    = fastInDetReco.sequence(),
+    fastInDetSequence = CAMenuSequence( Sequence    = fastInDetReco.sequence(),
                                       Maker       = fastInDetReco.inputMaker(),
                                       Hypo        = fakeHypoAlg,
-                                      HypoToolGen = None,
+                                      HypoToolGen = makeFakeHypoTool,
                                       CA = accTrk)
 
     fastInDetStep = ChainStep( secondStepName, [fastInDetSequence] )
+
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
     
     # # # EF calo
 
@@ -83,5 +84,6 @@ def generateChains( flags,  chainDict ):
     
     # # # offline egamma
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], [fastCaloStep, fastInDetStep] )
+    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep] )
+    
     return chain

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackParticleAssocsCnv_p1.h 
@@ -33,26 +33,21 @@
 // Forward declaration
 class MsgStream;
 
-class TrackParticleAssocsCnv_p1 : public T_AthenaPoolTPCnvBase<
+class TrackParticleAssocsCnv_p1 : public T_AthenaPoolTPCnvConstBase<
                                               TrackParticleAssocs, 
                                               TrackParticleAssocs_p1
                                             >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public typedefs: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /// converter for @c ElementLink to @c TrackParticlecollection
   typedef ElementLinkCnv_p3< ElementLink< Rec::TrackParticleContainer> >
           TrackParticleCnv_t;
   typedef DataLinkCnv_p2<DataLink<TrackParticleAssocs> > IAssocStoresCnv_t;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
 
   /** Default constructor: 
    */
@@ -62,33 +57,22 @@ class TrackParticleAssocsCnv_p1 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~TrackParticleAssocsCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c INav4MomAssocs
    *  from its persistent representation @c INav4MomAssocs_p3
    */
   virtual void persToTrans( const TrackParticleAssocs_p1* pers, 
                             TrackParticleAssocs* trans, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c INav4MomAssocs_p3
    *  from its transient representation @c INav4MomAssocs
    */
   virtual void transToPers( const TrackParticleAssocs* trans, 
                             TrackParticleAssocs_p1* pers, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
+protected: 
 
   /// converter for @c ElementLink to @c TrackParticleCollection
   TrackParticleCnv_t m_TrackParticleLinkCnv;
@@ -97,9 +81,6 @@ class TrackParticleAssocsCnv_p1 : public T_AthenaPoolTPCnvBase<
   IAssocStoresCnv_t m_assocStoresCnv;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline TrackParticleAssocsCnv_p1::TrackParticleAssocsCnv_p1()
 {}

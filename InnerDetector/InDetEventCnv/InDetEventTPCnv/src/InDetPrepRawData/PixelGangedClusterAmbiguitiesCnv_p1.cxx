@@ -15,7 +15,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"

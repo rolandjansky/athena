@@ -10,22 +10,6 @@ import traceback
 from AthenaCommon.Logging import logging
 logRecExCommon_topOptions = logging.getLogger( 'RecExCommon_topOptions' )
 
-## try to load a catalogue of AthFiles from a cache (to speed-up tests)
-try:
-    import PyUtils.AthFile as af
-    # this is the cache for the most current test files (saving 15 second initialisation, worth it for atn test)
-    # it should be updated as follow. In a clean directory run RecExCommon_links.sh, then
-    # run dump-athfile.py LFN:top_GEO-10-00-00_RDO_extract.pool (or whatever file now used in PoolFileCatalog.xml)
-    # run dump-athfile.py on input file for GetCommand.py AMI=q121
-    # run dump-athfile.py for any other frequently used test file
-    # then cp athfile-cache.ascii.gz RecExCommon/data/recexcommon-afserver-cache.ascii.gz
-    af.server.load_cache('recexcommon-afserver-cache.ascii.gz')
-    # reenable caching (this was preventing cache for non standard test file e.g. user file to be saved)
-    # af.server.disable_pers_cache()
-except Exception:
-    logRecExCommon_topOptions.warning("Could not load or disable athfile cache")
-
-
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AppMgr import ToolSvc,theApp,ServiceMgr
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -161,13 +145,12 @@ if rec.doFileMetaData():
 
 #Output file TagInfo and metadata
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamType()]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(jobproperties.Beam.energy())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["triggerStreamOfFile", str(rec.triggerStream())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["project_name", str(rec.projectName())]
-#if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
-
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.beamType(),
+                                            "beam_energy": str(jobproperties.Beam.energy()),
+                                            "triggerStreamOfFile": str(rec.triggerStream()),
+                                            "project_name": str(rec.projectName()),
+                                            "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
+                                            })
 # Build amitag list
 amitag = ""
 from PyUtils.MetaReaderPeeker import metadata
@@ -178,9 +161,9 @@ except:
 
 # append new if previous exists otherwise take the new alone 
 if amitag != "":
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", metadata['AMITag'] + "_" + rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : metadata['AMITag'] + "_" + rec.AMITag()})
 else:
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
 
 
 
@@ -188,14 +171,14 @@ AODFix_addMetaData()
 RecoFix_addMetaData()
 
 if rec.oldFlagCompatibility:
-    print "RecExCommon_flags.py flags values:"
+    printfunc ("RecExCommon_flags.py flags values:")
     try:
         for o in RecExCommonFlags.keys():
-            exec 'print "%s =",%s ' % (o,o)
+            printfunc ("%s =" % o, globals()[o])
     except Exception:
-        print "WARNING RecExCommonFlags not available, cannot delete"
+        printfunc ("WARNING RecExCommonFlags not available, cannot delete")
 else:
-    print "Old flags have been deleted"
+    printfunc ("Old flags have been deleted")
 
 # end flag settings section
 ##########################################################################
@@ -272,8 +255,6 @@ from RecExConfig.RecAlgsFlags import recAlgs
 
 ########################################################################
 
-# Number of events to be processed
-theApp.EvtMax = athenaCommonFlags.EvtMax()
 # possibly skip events
 
 if rec.doCBNT():
@@ -412,8 +393,8 @@ elif rec.readAOD():
 
 
 if rec.OutputLevel() <= DEBUG:
-    print " Initial content of objKeyStore "
-    print objKeyStore
+    printfunc (" Initial content of objKeyStore ")
+    printfunc (objKeyStore)
 
 # typical objKeyStore usage
 # objKeyStore.addStreamESD("Type1","Key1"] )
@@ -468,11 +449,11 @@ topSequence+=EventCounter(Frequency=100)
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
+if( not globalflags.InputFormat.is_bytestream() and \
+        ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
         ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    condSeq+=xAODMaker__EventInfoCnvAlg()
-    pass
+    from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+    xAODEventInfoCnvAlgDefault (sequence = condSeq)
 
 # bytestream reading need to shedule some algorithm
 
@@ -556,12 +537,6 @@ if globalflags.InputFormat.is_bytestream():
     protectedInclude("RecExCommon/BSRead_config.py")
 
 
-try:
-    svcMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
-except Exception:
-    treatException("Could not set EventSelector.SkipEvents")
-
-
 if rec.doEdmMonitor() and DetFlags.detdescr.ID_on():
     try:
         from AthenaCommon.ConfigurableDb import getConfigurable
@@ -610,6 +585,10 @@ if recAlgs.doAtlfast():
     protectedInclude ("AtlfastAlgs/Atlfast_RecExCommon_Fragment.py")
 AODFix_postAtlfast()
 
+# functionality : FTK  truth-based FastSim
+if rec.doTruth() and DetFlags.detdescr.FTK_on():
+    protectedInclude("TrigFTKFastSimTruth/TrigFTKFastSimTruth_jobOptions.py")
+
 
 pdr.flag_domain('trig')
 # no trigger, if readESD _and_ doESD ! (from Simon George, #87654)
@@ -621,9 +600,9 @@ if rec.readESD() and rec.doESD():
 if rec.doTrigger:
     if globalflags.DataSource() == 'data'and globalflags.InputFormat == 'bytestream':
         try:
-            include("TriggerRelease/BStoESD_Tier0_HLTConfig_jobOptions.py")
+            include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
         except Exception:
-            treatException("Could not import TriggerRelease/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
+            treatException("Could not import TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
             recAlgs.doTrigger=False
     else:
         try:
@@ -701,7 +680,7 @@ if rec.doWriteBS() and not recAlgs.doTrigger():
 
 pdr.flag_domain('tagraw')
 ## add in RawInfoSummaryForTagWriter
-if rec.doESD() and not rec.readESD() and rec.doTagRawSummary():
+if rec.doESD() and not rec.readESD() and (rec.doBeamBackgroundFiller() or rec.doTagRawSummary()):
     try:
         include("EventTagRawAlgs/RawInfoSummaryForTagWriter_jobOptions.py")
     except:
@@ -711,7 +690,7 @@ if rec.doESD() and not rec.readESD() and rec.doTagRawSummary():
     pass
 # write the background word into EventInfo (Jamie Boyd)
 # need to go here for ordering reasons...
-if rec.doESD() and not rec.readESD():
+if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
     try:
         protectedInclude ("RecBackgroundAlgs/RecBackground_jobOptions.py")
     except Exception:
@@ -749,12 +728,12 @@ if globalflags.InputFormat.is_bytestream() and disableRPC:
    newList=[]
    for i in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
       if i.startswith("Rpc"):
-         print "removing from ByteStreamAddressProviderSvc ",i
+         printfunc ("removing from ByteStreamAddressProviderSvc ",i)
       else:
          newList+=[i]
 
    svcMgr.ByteStreamAddressProviderSvc.TypeNames=newList
-   print svcMgr.ByteStreamAddressProviderSvc.TypeNames
+   printfunc (svcMgr.ByteStreamAddressProviderSvc.TypeNames)
 
 # do it now, because monitoring is actually adding stuff to ByteStreamAddressProvider
 if globalflags.InputFormat.is_bytestream():
@@ -926,7 +905,7 @@ if rec.doWriteTAG():
         rec.doWriteTAG=False
         treatException("Could not include EventTagAlgs/EventTag_jobOptions.py. Disable TAG writing")
 else: # minimal TAG to be written into AOD
-    print "Using EventInfoAttList"
+    printfunc ("Using EventInfoAttList")
 
 if rec.doWriteRDO():
     #Create output StreamRDO
@@ -1033,7 +1012,7 @@ if rec.doFileMetaData():
     # Only the configurables that are not already present will be created
     from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
     logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
-    CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True ) 
+    CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
     if rec.readAOD() or rec.readESD():
         #force CutFlowSvc execution (necessary for file merging)
         theApp.CreateSvc+=['CutFlowSvc']
@@ -1055,13 +1034,14 @@ if rec.doFileMetaData():
 ###=== Only run reco on events that pass selected triggers
 ##--------------------------------------------------------
 if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
+    logRecExCommon_topOptions.info('Setting up trigger filtering')
     try:
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
         seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
         seq+=topSequence.TrigConfDataIOVChanger
-        seq+=topSequence.RoIBResultToAOD
+        seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
 
@@ -1069,9 +1049,9 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
         seq += TriggerSelectorAlg('TriggerAlg1')
         seq.TriggerAlg1.TriggerSelection = rec.triggerFilterList()
         pass
-    except:
+    except Exception as e:
+        logRecExCommon_topOptions.error('Trigger filtering not set up, reason: %s' % e)
         pass
-    pass
 ##--------------------------------------------------------
 
 
@@ -1189,7 +1169,7 @@ if rec.doWriteESD():
 
     # consistency check : make sure oks streamESD==CILMergeESD and included in transient
     #FIXME many problem. #* to remove, datavector to be removed plus basic thing missing
-    print "DRDR now consistency checks with three list"
+    printfunc ("DRDR now consistency checks with three list")
     streamesd=objKeyStore['streamESD']()
     transient=objKeyStore['transient']()
     mergeesd=CILMergeESD()
@@ -1306,7 +1286,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
 
         #Exception for DPD pass-through mode
         if rec.doDPD.passThroughMode:
-            svcMgr.CutFlowSvc.SkimmingCycle=0
             svcMgr.CutFlowSvc.InputStream="Virtual"
             pass
 
@@ -1315,7 +1294,7 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             # Only the configurables that are not already present will be created
             from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
             logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
-            CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True )
+            CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
 
             from PyUtils.MetaReaderPeeker import convert_metadata_items
             #Explicitely add file metadata from input and from transient store
@@ -1345,14 +1324,22 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
     if DetFlags.detdescr.Calo_on() and rec.doAODCaloCells():
         try:
             from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
-            if  rec.readESD() or jobproperties.CaloRecFlags.doEmCluster() :
-                addClusterToCaloCellAOD("LArClusterEM7_11Nocorr")
 
             from egammaRec.egammaRecFlags import jobproperties
             if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
-
+                if "itemList" in metadata:
+                    if ('xAOD::CaloClusterContainer', egammaKeys.EgammaLargeClustersKey()) in metadata["itemList"]:
+                        # check first for priority if both keys are in metadata
+                        addClusterToCaloCellAOD(egammaKeys.EgammaLargeClustersKey())
+                    elif ('xAOD::CaloClusterContainer', 'LArClusterEM7_11Nocorr') in metadata["itemList"]:
+                        addClusterToCaloCellAOD('LArClusterEM7_11Nocorr')
+                    else:
+                        addClusterToCaloCellAOD(egammaKeys.EgammaLargeClustersKey())
+                else:
+                    addClusterToCaloCellAOD(egammaKeys.EgammaLargeClustersKey())
+                
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
             if ( rec.readESD() or muonCombinedRecFlags.doMuonClusters() ) and rec.doMuon:
                 addClusterToCaloCellAOD("MuonClusterCollection")
@@ -1387,9 +1374,6 @@ if rec.doWriteAOD():
                 from egammaRec.egammaTrackSlimmer import egammaTrackSlimmer
                 egammaTrackSlimmer()
 
-        if AODFlags.TauTrackSlimmer:
-            protectedInclude("tauRec/tauMerged_trackslim_jobOptions.py")
-
         if rec.doTruth() and AODFlags.ThinGeantTruth:
             from ThinningUtils.ThinGeantTruth import ThinGeantTruth
             ThinGeantTruth()
@@ -1400,7 +1384,9 @@ if rec.doWriteAOD():
         if AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
-        if AODFlags.ThinInDetForwardTrackParticles():
+        if (AODFlags.ThinInDetForwardTrackParticles() and
+            not (rec.readESD() and not objKeyStore.isInInput('xAOD::TrackParticleContainer',
+                                                             'InDetForwardTrackParticles'))):
             from ThinningUtils.ThinInDetForwardTrackParticles import ThinInDetForwardTrackParticles
             ThinInDetForwardTrackParticles()
 
@@ -1615,7 +1601,7 @@ if not rec.oldFlagCompatibility:
             if i in varInit:
                 logRecExCommon_topOptions.warning("Variable %s has been re-declared, forbidden !" % i)
     except Exception:
-        print "WARNING RecExCommonFlags not available, cannot check"
+        printfunc ("WARNING RecExCommonFlags not available, cannot check")
 
 
 
@@ -1677,7 +1663,7 @@ try:
         # Define the output file name
         StreamTAG.OutputCollection = athenaCommonFlags.PoolTAGOutput()
         logRecExCommon_topOptions.info("StreamTAG Itemlist dump:")
-        print StreamTAG.ItemList
+        printfunc (StreamTAG.ItemList)
 
 except Exception:
     treatException ("problem setting up TAG output")

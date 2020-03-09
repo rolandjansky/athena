@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_ITILERAWCHANNELBUILDER_H
@@ -28,11 +28,12 @@
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsCollection.h"
+#include "TileEvent/TileDQstatus.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondIdTransforms.h"
-#include "TileEvent/TileDQstatus.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -89,27 +90,32 @@ class TileRawChannelBuilder: public AthAlgTool {
     void endLog();
 
     // process one digit and store result in internal container
-    void build(const TileDigits* digits) {
-      m_rawChannelCnt->push_back(std::unique_ptr<TileRawChannel>(rawChannel(digits)));
+    StatusCode build (const TileDigits* digits) {
+      ATH_CHECK( m_rawChannelCnt->push_back(std::unique_ptr<TileRawChannel>(rawChannel(digits))) );
+      return StatusCode::SUCCESS;
     }
 
     // process all digits from one collection and store results in internal container
-    void build(const TileDigitsCollection* collection);
+    StatusCode build (const TileDigitsCollection* collection);
 
     // process digits from a given vector and store results in internal container
     template<class ITERATOR>
-    void build(const ITERATOR & begin, const ITERATOR & end) {
-      for (ITERATOR rawItr = begin; rawItr != end; ++rawItr)
-        m_rawChannelCnt->push_back(rawChannel((*rawItr)));
+    StatusCode build (const ITERATOR & begin, const ITERATOR & end) {
+      for (ITERATOR rawItr = begin; rawItr != end; ++rawItr) {
+        ATH_CHECK( m_rawChannelCnt->push_back(rawChannel((*rawItr))) );
+      }
+      return StatusCode::SUCCESS;
     }
 
     // process digits from a given vector and store results in collection
     template<class ITERATOR, class COLLECTION>
-    void build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
+    StatusCode build (const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
       initLog();
-      for (ITERATOR rawItr = begin; rawItr != end; ++rawItr)
-        coll->push_back(rawChannel((*rawItr)));
+      for (ITERATOR rawItr = begin; rawItr != end; ++rawItr) {
+        ATH_CHECK( coll->push_back(rawChannel((*rawItr))) );
+      }
       endLog();
+      return StatusCode::SUCCESS;
     }
 
     /**
@@ -122,7 +128,7 @@ class TileRawChannelBuilder: public AthAlgTool {
     static double correctTime( double phase, bool of2 = true); //!< Time correction factor
 
     static int CorruptedData(int ros, int drawer, int channel, int gain,
-        const std::vector<float> & digits, float &dmin, float &dmax);
+			     const std::vector<float> & digits, float &dmin, float &dmax, float ADCmaxMinusEps, float ADCmaskValueMinusEps);
 
     static const char* BadPatternName(float ped);
 
@@ -156,7 +162,8 @@ class TileRawChannelBuilder: public AthAlgTool {
     TileFragHash::TYPE m_rChType;
     TileRawChannelUnit::UNIT m_rChUnit;
     unsigned int m_bsflags;
-
+    // parameter to determine which sample to start with the analysis
+    int m_firstSample;
     // Should energy be calibrated
     bool m_calibrateEnergy;
 
@@ -178,7 +185,6 @@ class TileRawChannelBuilder: public AthAlgTool {
     // Tile objects
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
-    const TileInfo* m_tileInfo;
 
     ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
         "NoiseFilterTools", {}, "Tile noise filter tools"};
@@ -193,6 +199,11 @@ class TileRawChannelBuilder: public AthAlgTool {
         "TileCondIdTransforms", "TileCondIdTransforms",
         "Tile tool to tranlate hardware identifier to the drawerIdx, channel, and adc"};
 
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     int m_trigType;
     bool m_idophys;   // Phys fitting
@@ -221,6 +232,16 @@ class TileRawChannelBuilder: public AthAlgTool {
     static bool s_badDrawer;
     
     bool m_notUpgradeCabling;
+
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    int m_i_ADCmax;
+    float m_f_ADCmax;
+    int m_i_ADCmaxPlus1;
+    float m_f_ADCmaxPlus1;
+    float m_ADCmaxMinusEps;
+    float m_ADCmaskValueMinusEps; //!< indicates channels which were masked in background dataset
 
 private:
     // find all bad patterns in a drawer and fill internal static arrays

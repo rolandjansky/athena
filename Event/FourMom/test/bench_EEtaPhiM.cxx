@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -10,38 +10,42 @@
 #include <cstdlib>
 
 // Boost includes
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 #include "FourMom/P4EEtaPhiM.h"
 #include "FourMom/P4Impl.h"
 #include "FourMom/Lib/P4ImplEEtaPhiM.h"
 
-const double milliseconds = 1e3;
+double to_ms (const boost::timer::cpu_times& t)
+{
+  // cpu_times in ns.
+  return double(t.user + t.system) / 1e6;
+}
 
 template<class I4Mom_t>
 double testEmptyLoop( const unsigned int iMax )
 {
-  boost::timer chrono;
+  boost::timer::cpu_timer chrono;
   for ( unsigned int i = 0; i != iMax; ++i ) {
     // do nothing
   }
-  return chrono.elapsed() * milliseconds;
+  return to_ms (chrono.elapsed());
 }
 
 template<class I4Mom_t>
 double testConstructor( const unsigned int iMax )
 {
-  boost::timer chrono;
+  boost::timer::cpu_timer chrono;
   for ( unsigned int i = 0; i != iMax; ++i ) {
     I4Mom_t p( 10.*CLHEP::GeV, 1., M_PI, 10.*CLHEP::GeV );
   }
-  return chrono.elapsed() * milliseconds;
+  return to_ms (chrono.elapsed());
 }
 
 template<class I4Mom_t>
 double testNativeGetter( const unsigned int iMax )
 {
-  boost::timer chrono;
+  boost::timer::cpu_timer chrono;
   for ( unsigned int i = 0; i != iMax; ++i ) {
     I4Mom_t p( 10.*CLHEP::GeV, 1., M_PI, 10.*CLHEP::GeV );
     p.e ();
@@ -49,13 +53,13 @@ double testNativeGetter( const unsigned int iMax )
     p.phi();
     p.m();
   }
-  return chrono.elapsed() * milliseconds;
+  return to_ms (chrono.elapsed());
 }
 
 template<class I4Mom_t>
 double testGetter( const unsigned int iMax )
 {
-  boost::timer chrono;
+  boost::timer::cpu_timer chrono;
   for ( unsigned int i = 0; i != iMax; ++i ) {
     I4Mom_t p( 10.*CLHEP::GeV, 1., M_PI, 10.*CLHEP::GeV );
     p.px();
@@ -63,29 +67,29 @@ double testGetter( const unsigned int iMax )
     p.pz();
     p.et();
   }
-  return chrono.elapsed() * milliseconds;
+  return to_ms (chrono.elapsed());
 }
 
 template<class I4Mom_t>
 double testHlv( const unsigned int iMax )
 {
-  boost::timer chrono;
+  boost::timer::cpu_timer chrono;
   for ( unsigned int i = 0; i != iMax; ++i ) {
     I4Mom_t p( 10.*CLHEP::GeV, 1., M_PI, 10.*CLHEP::GeV );
     p.hlv();
   }
-  return chrono.elapsed() * milliseconds;
+  return to_ms (chrono.elapsed());
 }
 
 template<class I4Mom_t>
 double testHlvOp( const unsigned int iMax )
 {
-  boost::timer chrono;
+  boost::timer::cpu_timer chrono;
   for ( unsigned int i = 0; i != iMax; ++i ) {
     I4Mom_t p( 10.*CLHEP::GeV, 1., M_PI, 10.*CLHEP::GeV );
     I4Mom_t p4( p.hlv() + p.hlv() );
   }
-  return chrono.elapsed() * milliseconds;
+  return to_ms (chrono.elapsed());
 }
 
 template<class I4Mom_t>

@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigMuonRoITools
                           PRIVATE
                           Control/AthenaKernel
+                          Control/AthenaMonitoring
                           DetectorDescription/IRegionSelector
                           Event/ByteStreamCnvSvcBase
                           GaudiKernel
@@ -41,7 +42,7 @@ atlas_add_component( TrigGenericAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} xAODTrigL1Calo xAODTrigMuon xAODTrigger TrigL2MuonSALib TrigCaloEvent TrigMuonEvent TrigInterfacesLib TrigT1Interfaces AthenaKernel IRegionSelector ByteStreamCnvSvcBaseLib GaudiKernel TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigT1Result L1TopoConfig L1TopoRDO TrigMonitorBase TrigSteering )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} xAODTrigL1Calo xAODTrigMuon xAODTrigger TrigL2MuonSALib TrigCaloEvent TrigMuonEvent TrigInterfacesLib TrigT1Interfaces AthenaKernel IRegionSelector ByteStreamCnvSvcBaseLib GaudiKernel TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigT1Result L1TopoConfig L1TopoRDO TrigMonitorBaseLib TrigSteeringLib )
 
 # Install files from the package:
 atlas_install_headers( TrigGenericAlgs )

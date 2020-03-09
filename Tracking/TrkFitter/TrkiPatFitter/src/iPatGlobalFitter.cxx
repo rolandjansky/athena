@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 //////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ namespace Trk
 
     if (row != rows) { ATH_MSG_WARNING("iPatGlobalFitter: inconsistent #rows in deriv matrix "); }
 
-    return std::move(derivativeMatrix);
+    return derivativeMatrix;
   }
 
   std::unique_ptr<Amg::MatrixX>

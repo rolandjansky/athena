@@ -18,6 +18,9 @@
 
 #include "./ConditionsDefsMT.h"
 
+ConditionsMT conditionsFactoryAcceptAllMT(std::size_t capacity,
+					  unsigned int conditionID=0);
+
 ConditionsMT conditionsFactoryEtaEtMT(const std::vector<double>& etasMin,
                                       const std::vector<double>& etasMax,
                                       const std::vector<double>& thresholds,
@@ -39,7 +42,11 @@ ConditionsMT conditionsFactoryTLAMT(const std::vector<double>& etasMin,
                                     const std::vector<double>& massesMin,
                                     const std::vector<double>& massesMax);
 
-ConditionsMT conditionsFactoryHTMT(double htMin);
+ConditionsMT conditionsFactoryHTMT(double htMin,
+				   double etmin,
+				   double absetamin,
+				   double absetamax
+				   );
 
 
 

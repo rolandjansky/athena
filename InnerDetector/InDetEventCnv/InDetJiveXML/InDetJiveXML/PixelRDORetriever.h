@@ -9,7 +9,8 @@
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetJiveXML/IInDetGeoModelTool.h"
-
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace JiveXML {
   
@@ -56,6 +57,8 @@ namespace JiveXML {
 
       /// The StoreGate key for the PixelRDO container
       std::string m_PixelRDOContainerName;
+
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
   };
 }

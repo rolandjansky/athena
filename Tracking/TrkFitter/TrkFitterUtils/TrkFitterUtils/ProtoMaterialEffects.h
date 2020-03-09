@@ -6,7 +6,7 @@
 #define TRKPROTOMATERIALEFFECTS_H
 
 #include <vector>
-
+#include "CxxUtils/checker_macros.h"
 namespace Trk{
 
   class MaterialEffectsOnTrack;
@@ -58,7 +58,7 @@ namespace Trk{
      bool isMeasuredEloss() const;
      const Surface *surface() const;
      void setSurface(const Surface*);
-     MaterialEffectsBase *makeMEOT() const;
+     MaterialEffectsBase *makeMEOT ATLAS_NOT_THREAD_SAFE() const;
      const MaterialProperties *materialProperties() const;
      void setMaterialProperties(const MaterialProperties *);
      //std::vector<double> &momentumJacobians();    
@@ -79,7 +79,7 @@ namespace Trk{
      const MaterialProperties *m_matprop;
      bool m_iskink;
      bool m_ismeasuredeloss;
-     mutable bool m_owneloss;
+     bool m_owneloss; //This the main MT issue in this package
      double m_measscatphi; // fudge to stabilize fit in muon system
      double m_sintheta;
      //std::vector<double> m_pjac;

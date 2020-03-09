@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/FakeTBPhase.h"
-#include "CxxUtils/make_unique.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 using CLHEP::ns;
@@ -31,7 +30,7 @@ StatusCode FakeTBPhase::execute()
 {
   ATH_MSG_DEBUG ( "Phase = " << m_phase );
   
-  ATH_CHECK( evtStore()->record( CxxUtils::make_unique<TBPhase>
+  ATH_CHECK( evtStore()->record( std::make_unique<TBPhase>
                                    (m_phase,m_phaseInd,0.),
                                  m_keyTBPhase) );
   return StatusCode::SUCCESS;

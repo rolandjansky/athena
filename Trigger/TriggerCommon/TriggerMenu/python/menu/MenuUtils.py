@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from collections import Counter
 from copy import deepcopy
@@ -204,7 +204,7 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
 
         #print "BETTA Total count: jet-", jet_count, " HT-", ht_count, " xe-", met_count, "other:-", other_count, " in: ",ChainDicts[0]['chainName']          
         
-    except:
+    except Exception:
         pass
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_COLLECTIONFRAGMENT_H
@@ -72,7 +72,7 @@ namespace pool {
       m_usesForeignKey = rhs.m_usesForeignKey;
       m_foreignKeyName = rhs.m_foreignKeyName;
       m_childFragmentName = rhs.m_childFragmentName;
-      m_tokenColumns = m_tokenColumns;
+      m_tokenColumns = rhs.m_tokenColumns;
       m_attributeColumns = rhs.m_attributeColumns;
       m_id = rhs.m_id;
    

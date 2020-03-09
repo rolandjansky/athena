@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##############################
 # L2 Electron  Hypothesis Algorithm Configuration:
@@ -11,7 +11,7 @@
 #      - removing dEt  cut from every Loose chain and loosen ( 0.2 ) for Medium ones(consistency with OFFLINE selection) 
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypo
-from AthenaCommon.SystemOfUnits import GeV, mm
+from AthenaCommon.SystemOfUnits import GeV
 
 # ---------------------------------------------------------------
 # class for common setups (like monitoring)

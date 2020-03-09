@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 #import the selectors
+from __future__ import print_function
 from selector.AtlRunQuerySelectorDQ      import DQSelector
 from selector.AtlRunQuerySelectorTrigger import TrigKeySelector, BGSKeySelector, L1TrigKeySelector, HLTTrigKeySelector, RatesSelector, TriggerSelector
 from selector.AtlRunQuerySelectorMisc    import BPMSelector, LArcondSelector, DatasetsSelector, DetectorSelector, FilenameSelector, PartitionSelector, ReadyForPhysicsSelector, DurationSelector, BFieldCondition, BFieldSelector
@@ -132,7 +133,7 @@ class SelectorWorker:
         selcls = SelectorWorker.__creationRules[selname]
         exec('thecls=%s' % selcls)
         newsel = thecls(name=selname, *args, **kwargs)
-        print "CREATING SELECTOR %s %s('%s')" % (("SHOW" if doesShow else "RETRIEVE"), selcls, selname)
+        print ("CREATING SELECTOR %s %s('%s')" % (("SHOW" if doesShow else "RETRIEVE"), selcls, selname))
         s = cls.SelDescr(selector=newsel, priority=0, doesSelect=False, doesShow=True, executed=False)
         return s
 

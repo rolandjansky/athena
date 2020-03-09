@@ -22,7 +22,3 @@ atlas_add_poolcnv_library( AFP_EventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES AFP_SimEv/AFP_TDSimHitCollection.h AFP_SimEv/AFP_SIDSimHitCollection.h AFP_DigiEv/AFP_TDDigiCollection.h AFP_DigiEv/AFP_SiDigiCollection.h AFP_LocRecoEv/AFP_TDLocRecoEvCollection.h AFP_LocRecoEv/AFP_SIDLocRecoEvCollection.h
                            LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib AtlasSealCLHEP AFP_DigiEv AFP_EventTPCnv AFP_LocRecoEv AFP_SimEv GaudiKernel )
-
-# Install files from the package:
-atlas_install_headers( AFP_EventAthenaPool )
-

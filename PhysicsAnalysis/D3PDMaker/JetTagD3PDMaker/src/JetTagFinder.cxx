@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file JetTagFinder.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,7 +13,6 @@
 #include "JetEvent/Jet.h"
 #include "GaudiKernel/AlgTool.h"
 #include "boost/tokenizer.hpp"
-#include "boost/foreach.hpp"
 
 
 namespace D3PD { 
@@ -60,7 +57,7 @@ const JetTagInfoBase* JetTagFinder::getTagInfoBase (const Jet& j) const
     m_keys.assign (tokens.begin(), tokens.end());
   }
 
-  BOOST_FOREACH (const std::string& key, m_keys) {
+  for (const std::string& key : m_keys) {
     const JetTagInfoBase* ti = j.tagInfo (key);
     if (ti) return ti;
   }

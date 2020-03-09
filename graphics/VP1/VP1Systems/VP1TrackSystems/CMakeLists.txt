@@ -29,6 +29,9 @@ atlas_depends_on_subdirs(
    ForwardDetectors/ForwardSimulation/ForwardRegion_SimEv
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
    InnerDetector/InDetSimEvent
@@ -64,7 +67,7 @@ find_package( CLHEP )
 find_package( Coin3D )
 find_package( HepMC )
 find_package( Qt5 COMPONENTS Core Gui Widgets  )
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Generate UI files automatically:
 # Note: add the "Widgets" component to "find_package( Qt5 ...)" if you have UI files, otherwise UIC, even if CMAKE_AUTOUIC is set to ON, is not run
@@ -77,13 +80,13 @@ atlas_add_library( VP1TrackSystems VP1TrackSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1TrackSystems
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${HEPMC_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoPrimitives Identifier xAODTracking
+   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoPrimitives Identifier xAODTracking
    GaudiKernel GeneratorObjects TrkDetDescrInterfaces TrkSurfaces
    TrkEventPrimitives TrkParameters VP1Base VP1Utils StoreGateLib SGtests
    MuonIdHelpersLib MuonRecHelperToolsLib Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES}
    ${HEPMC_LIBRARIES} AthContainers AtlasDetDescr EventPrimitives
-   ForwardRegion_SimEv InDetIdentifier InDetReadoutGeometry InDetPrepRawData
+   ForwardRegion_SimEv InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData
    InDetRIO_OnTrack InDetSimEvent MuonReadoutGeometry MuonChamberT0s
    MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonSimEvent Particle
    TrkDetDescrUtils TrkDetElementBase TrkVolumes TrkCompetingRIOsOnTrack

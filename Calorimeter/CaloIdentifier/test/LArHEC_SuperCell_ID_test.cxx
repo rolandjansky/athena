@@ -14,7 +14,6 @@
 #undef NDEBUG
 
 #include "CaloIdentifier/LArHEC_SuperCell_ID.h"
-#include "CxxUtils/make_unique.h"
 #include <iostream>
 
 

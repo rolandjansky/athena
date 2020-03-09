@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,6 @@
 
 #include "CaloIdentifier/CaloIDHelper.h"
 #include "IdDictParser/IdDictParser.h"
-#include "boost/foreach.hpp"
 #include <cassert>
 #include <iostream>
 
@@ -99,11 +98,11 @@ void test_hashgroup()
   assert (hg.ids() == vids);
 
   unsigned int tot = 0;
-  BOOST_FOREACH (Identifier id, ids)
+  for (Identifier id : ids)
     tot += id.get_compact();
 
   unsigned int tot2 = 0;
-  BOOST_FOREACH (Identifier id, hg.range())
+  for (Identifier id : hg.range())
     tot2 += id.get_compact();
   assert (tot == tot2);
 
@@ -219,7 +218,7 @@ void test_helper()
 
   assert (helper.fill_vec_of_dict_regions ("lar_em") == 0);
 
-  BOOST_FOREACH (Identifier id, chelper.regions().range()) {
+  for (Identifier id : chelper.regions().range()) {
     IdentifierHash hashid = helper.region_hash (id);
     std::cout << id.get_identifier32().get_compact() << " "
               << helper.eta0(hashid) << " "

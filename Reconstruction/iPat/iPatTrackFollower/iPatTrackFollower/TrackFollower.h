@@ -45,8 +45,8 @@ public:
 			 const IInterface* parent);
     virtual ~TrackFollower	(void);
 
-    virtual StatusCode		initialize();
-    virtual StatusCode		finalize();
+    virtual StatusCode		initialize() override;
+    virtual StatusCode		finalize() override;
 
     virtual Track*		associate_trt (const Track&) override;
     virtual Track*		extrapolate_inwards (const Track&) override;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -12,6 +12,7 @@ from AthenaCommon import Logging
 jetmomentlog = Logging.logging.getLogger('JetMomentToolsConfig')
 
 from JetRecTools import JetRecToolsConfig
+from JetRecTools.JetRecToolsConfig import trackcollectionmap
 from JetMomentTools import JetMomentToolsConf
 
 def getCaloQualityTool():
@@ -66,41 +67,51 @@ def getConstitFourMomTool(jetdef):
     return cfourmom
 
 # Jet vertex fraction with selection.
-def getJVFTool():
-    jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+def getJVFTool(modspec=""):
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
 
     jvf = JetMomentToolsConf.JetVertexFractionTool(
         "jvf",
-        VertexContainer = "PrimaryVertices",
-        AssociatedTracks = "GhostTrack",
-        TrackVertexAssociation = "JetTrackVtxAssoc",
-        TrackParticleContainer  = "JetSelectedTracks",
+        VertexContainer = trackcollectionmap[modspec]["Vertices"],
+        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
+        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
+        TrackParticleContainer  = trackcollectionmap[modspec]["Tracks"],
         TrackSelector = jettrackselloose,
     )
     return jvf
 
 
-def getTrackMomentsTool():
-    jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+# Jet vertex fraction with selection.
+def getJVTTool(modspec=""):
+    jvt = JetMomentToolsConf.JetVertexTaggerTool(
+        "jvt",
+        VertexContainer = trackcollectionmap[modspec]["Vertices"],
+    )
+    return jvt
+
+
+def getTrackMomentsTool(modspec=""):
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
 
     trackmoments = JetMomentToolsConf.JetTrackMomentsTool(
         "trkmoms",
-        VertexContainer = "PrimaryVertices",
-        AssociatedTracks = "GhostTrack",
-        TrackVertexAssociation = "JetTrackVtxAssoc",
+        VertexContainer = trackcollectionmap[modspec]["Vertices"],
+        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
+        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
         TrackMinPtCuts = [500, 1000],
         TrackSelector = jettrackselloose
     )
     return trackmoments
 
-def getTrackSumMomentsTool():
-    jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+def getTrackSumMomentsTool(modspec=""):
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
+    print (jettrackselloose)
 
     tracksummoments = JetMomentToolsConf.JetTrackSumMomentsTool(
         "trksummoms",
-        VertexContainer = "PrimaryVertices",
-        AssociatedTracks = "GhostTrack",
-        TrackVertexAssociation = "JetTrackVtxAssoc",
+        VertexContainer = trackcollectionmap[modspec]["Vertices"],
+        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
+        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
         RequireTrackPV = True,
         TrackSelector = jettrackselloose
     )
@@ -108,10 +119,10 @@ def getTrackSumMomentsTool():
 
 # This tool sets a decoration saying which the nominal HS PV was.
 # Historically it did the origin correction, but now we do this to constituents
-def getOriginCorrVxTool():
+def getOriginCorrVxTool(modspec=""):
     origin_setpv = JetMomentToolsConf.JetOriginCorrectionTool(
       "jetorigin_setpv",
-      VertexContainer = "PrimaryVertices",
+      VertexContainer = trackcollectionmap[modspec]["Vertices"],
       OriginCorrectedName = "",
       OnlyAssignPV = True,
     )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: Configurables.py
 # @purpose: customized Configurable classes for AthenaServices
@@ -14,6 +14,8 @@ from AthenaServices.AthenaServicesConf import EvtIdModifierSvc as _EvtIdModifier
 ## import configurables module facade
 from AthenaCommon import CfgMgr
 
+import six
+
 class ThinningSvc( _ThinningSvc ):
 
     __slots__ = ( )      # enforce no new properties
@@ -26,7 +28,7 @@ class ThinningSvc( _ThinningSvc ):
 
         # initialize the 'Streams' property with the default value
         # to prevent people messing up with the 'Streams' array
-        if not 'Streams' in kwargs:
+        if 'Streams' not in kwargs:
             self.Streams = self.getDefaultProperty('Streams')[:]
             
         return
@@ -38,8 +40,6 @@ class ThinningSvc( _ThinningSvc ):
             return
 
         from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
-        ## get a handle on the ToolSvc
-        from AthenaCommon.AppMgr import ToolSvc as toolSvc
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
         from AthenaCommon.Logging import logging
@@ -91,8 +91,7 @@ class ThinningSvc( _ThinningSvc ):
             """
             from collections import defaultdict
             proxies = defaultdict(list)
-            props = outStream.properties()
-            
+
             from_input = outStream.properties()['TakeItemsFromInput']
             if from_input == outStream.propertyNoValue:
                 from_input = outStream.getDefaultProperty('TakeItemsFromInput')
@@ -120,7 +119,7 @@ class ThinningSvc( _ThinningSvc ):
                     proxies[clid].append(sg_key)
             d = proxies
             proxies = []
-            for clid,sg_keys in d.iteritems():
+            for clid,sg_keys in six.iteritems (d):
                 sg_keys = list(set(sg_keys))
                 proxies.extend([[str(clid),sg_key] for sg_key in sg_keys])
             return proxies
@@ -150,7 +149,7 @@ class ThinningSvc( _ThinningSvc ):
                 outstreams.append (o)
                 pass
         ## then loop over OutStream sequence
-        if AlgSequence.configurables.has_key('Streams'):
+        if 'Streams' in AlgSequence.configurables:
             for o in AlgSequence("Streams"):
                 if (isinstance(o, AthenaOutputStream) and
                     hasattr(o, 'HelperTools') and
@@ -212,7 +211,7 @@ def createThinningSvc(svcName = "ThinningSvc", outStreams = []):
     for i,o in enumerate(outStreams):
         if not isinstance(o, AthenaOutputStream):
             msg.error("output stream #%i (n='%s') is not an instance of type "
-                      "AthenaOutputStream [type: %r]" % (i,o.name(),type(o)))
+                      "AthenaOutputStream [type: %r]", i, o.name(), type(o))
             msg.error("check your configuration !")
             allGood = False
     if not allGood:
@@ -237,7 +236,7 @@ class CoreDumpSvc( _CoreDumpSvc ):
       # make sure the application manager explicitly creates the service
       from AthenaCommon.AppMgr import theApp
       handleName = self.getFullJobOptName()
-      if not handleName in theApp.CreateSvc:
+      if handleName not in theApp.CreateSvc:
          theApp.CreateSvc += [ handleName ]
          
       return

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileCosmicMuonCnv_p1.cxx 
@@ -14,7 +14,7 @@
 #include "TileTPCnv/TileCosmicMuonCnv_p1.h"
 
 
-void TileCosmicMuonCnv_p1::transToPers(const TileCosmicMuon* transObj, TileCosmicMuon_p1* persObj, MsgStream &/*log*/) {
+void TileCosmicMuonCnv_p1::transToPers(const TileCosmicMuon* transObj, TileCosmicMuon_p1* persObj, MsgStream &/*log*/) const {
 
   persObj->m_time = transObj->GetTime();
   persObj->m_positionX = transObj->GetPositionX();
@@ -45,7 +45,7 @@ void TileCosmicMuonCnv_p1::transToPers(const TileCosmicMuon* transObj, TileCosmi
 }
 
 
-void TileCosmicMuonCnv_p1::persToTrans(const TileCosmicMuon_p1* persObj, TileCosmicMuon* transObj, MsgStream &/*log*/) {
+void TileCosmicMuonCnv_p1::persToTrans(const TileCosmicMuon_p1* persObj, TileCosmicMuon* transObj, MsgStream &/*log*/) const {
 
   transObj->SetTime (persObj->m_time);
   transObj->SetPositionX (persObj->m_positionX);

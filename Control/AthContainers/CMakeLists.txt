@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 777300 2016-10-08 21:20:26Z ssnyder $
 ################################################################################
 # Package: AthContainers
 ################################################################################
@@ -8,20 +7,9 @@ atlas_subdir( AthContainers )
 
 # Extra dependencies, based on the environment we are in:
 if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/AthenaKernel Control/SGTools GaudiKernel )
    set( extra_libs AthenaKernel SGTools GaudiKernel )
    set( extra_sources src/*.cxx )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainersInterfaces
-   Control/AthLinks
-   Control/CxxUtils
-   ${extra_deps}
-   PRIVATE
-   AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS thread )
@@ -36,7 +24,7 @@ atlas_add_library( AthContainers
    PUBLIC_HEADERS AthContainers
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES}
-                  AthLinks CxxUtils ${extra_libs} )
+                  AthContainersInterfaces AthLinks CxxUtils ${extra_libs} )
 
 atlas_add_dictionary( AthContainersDict
    AthContainers/AthContainersDict.h
@@ -47,9 +35,9 @@ atlas_add_dictionary( AthContainersDict
 
 # Helper function setting up the test(s) in the package:
 function( _add_test name )
-   cmake_parse_arguments( ARG "" "EXTRA_PATTERNS" "" ${ARGN} )
-   if( ARG_EXTRA_PATTERNS )
-      set( extra_arg EXTRA_PATTERNS ${ARG_EXTRA_PATTERNS} )
+   cmake_parse_arguments( ARG "" "LOG_IGNORE_PATTERN" "" ${ARGN} )
+   if( ARG_LOG_IGNORE_PATTERN )
+      set( extra_arg LOG_IGNORE_PATTERN ${ARG_LOG_IGNORE_PATTERN} )
    endif()
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
@@ -76,8 +64,8 @@ _add_test( DVLIterator_test )
 _add_test( DVL_iter_swap_test )
 _add_test( AuxTypeVector_test )
 _add_test( AuxTypeVectorFactory_test )
-_add_test( AuxTypeRegistry_test EXTRA_PATTERNS "will use std::" )
-_add_test( AuxVectorBase_test EXTRA_PATTERNS "will use std::" )
+_add_test( AuxTypeRegistry_test LOG_IGNORE_PATTERN "will use std::" )
+_add_test( AuxVectorBase_test LOG_IGNORE_PATTERN "will use std::" )
 _add_test( AuxStoreInternal_test )
 _add_test( AuxStoreStandalone_test )
 _add_test( AuxElement_test )
@@ -96,11 +84,14 @@ _add_test( PackedContainer_test )
 _add_test( debug_test )
 _add_test( AtomicDecorator_test )
 _add_test( AtomicConstAccessor_test )
+_add_test( supportsThinning_test )
+
 
 if( NOT XAOD_STANDALONE )
    _add_test( dataVectorAsELV_test )
    _add_test( ViewVector_test )
    _add_test( ViewVectorBase_test )
-   _add_test( AuxVectorData_test EXTRA_PATTERNS "will use std::" )
+   _add_test( AuxVectorData_test LOG_IGNORE_PATTERN "will use std::" )
    _add_test( DVLDataBucket_test )
+   _add_test( ThinningDecision_test )
 endif()

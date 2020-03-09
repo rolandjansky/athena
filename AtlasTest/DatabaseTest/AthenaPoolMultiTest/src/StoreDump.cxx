@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,7 +15,6 @@ StoreDump::StoreDump(const std::string& name,
 			ISvcLocator* pSvcLocator) :
               AthAlgorithm(name, pSvcLocator)
 {
-   declareProperty("StoreName", m_storename="DetectorStore");
    declareProperty("Key", m_key="*");
 }
 
@@ -26,12 +25,10 @@ StatusCode StoreDump::initialize() { return StatusCode::SUCCESS; }
 
 StatusCode StoreDump::execute() 
 {
-   StoreGateSvc* detStore = 0;
-   ATH_CHECK( service(m_storename,detStore) );
-   ATH_MSG_INFO( detStore->dump()  );
+    ATH_MSG_INFO( detStore()->dump()  );
 
    AthenaAttributeList* test = 0;
-   ATH_CHECK( detStore->retrieve(test,m_key) );
+   ATH_CHECK( detStore()->retrieve(test,m_key) );
    ATH_MSG_INFO( "AttributeList has size " << test->size()  );
 
    return StatusCode::SUCCESS; 

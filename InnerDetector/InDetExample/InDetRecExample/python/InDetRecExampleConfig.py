@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,CfgGetter
+import AthenaCommon.SystemOfUnits as Units
+from InDetRecExample.TrackingCommon import setDefaults
 
 def setTool(prop,tool_name,kwargs) :
-    if tool_name == None :
+    if tool_name is None :
         kwargs.setdefault(prop, tool_name )
         return
 
@@ -101,24 +103,50 @@ def InDetKOL(name='InDetKOL',**kwargs) :
 
 def InDetMeasRecalibST(name='InDetMeasRecalibST',**kwargs) :
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__MeasRecalibSteeringTool
-    from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault('BroadPixelClusterOnTrackTool',ToolSvc.InDetBroadPixelClusterOnTrackTool)
-    kwargs.setdefault('BroadSCT_ClusterOnTrackTool', ToolSvc.InDetBroadSCT_ClusterOnTrackTool)
-    kwargs.setdefault('CommonRotCreator',            ToolSvc.InDetRefitRotCreator)
+
+    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
+
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    if 'BroadPixelClusterOnTrackTool' not in kwargs :
+        kwargs = setDefaults(kwargs,
+                             BroadPixelClusterOnTrackTool = TrackingCommon.getInDetBroadPixelClusterOnTrackTool(nameSuffix               = split_cluster_map_extension,
+                                                                                                 SplitClusterMapExtension = split_cluster_map_extension))
+    if 'BroadSCT_ClusterOnTrackTool' not in kwargs :
+        kwargs = setDefaults(kwargs,
+                             BroadSCT_ClusterOnTrackTool  = TrackingCommon.getInDetBroadSCT_ClusterOnTrackTool())
+
+    if 'CommonRotCreator' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           CommonRotCreator = TrackingCommon.getInDetRefitRotCreator(
+                                              SplitClusterMapExtension = split_cluster_map_extension))
+
     return Trk__MeasRecalibSteeringTool(name,**kwargs)
 
 def InDetKalmanTrackFitterBase(name='InDetKalmanTrackFitterBase',**kwargs) :
+    from InDetRecExample import TrackingCommon as TrackingCommon
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter
     from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault('ExtrapolatorHandle', ToolSvc.InDetExtrapolator)
-    kwargs.setdefault('RIO_OnTrackCreatorHandle', ToolSvc.InDetRefitRotCreator)
+    split_cluster_map_extension = kwargs.get('SplitClusterMapExtension','')
+
+    kwargs.setdefault('ExtrapolatorHandle', TrackingCommon.getInDetExtrapolator())
+    if 'RIO_OnTrackCreatorHandle' not in kwargs :
+        from InDetRecExample import TrackingCommon as TrackingCommon
+        kwargs=setDefaults(kwargs,
+                           RIO_OnTrackCreatorHandle = TrackingCommon.getInDetRefitRotCreator(
+                               SplitClusterMapExtension = split_cluster_map_extension))
+
     kwargs.setdefault('MeasurementUpdatorHandle', ToolSvc.InDetUpdator)
     setTool('KalmanSmootherHandle', 'InDetBKS', kwargs )
     setTool('KalmanOutlierLogicHandle', 'InDetKOL',kwargs )
     kwargs.setdefault('DynamicNoiseAdjustorHandle', None)
     kwargs.setdefault('BrempointAnalyserHandle', None)
     kwargs.setdefault('AlignableSurfaceProviderHandle',None)
-    setTool('RecalibratorHandle', 'InDetMeasRecalibST', kwargs )
+    if len(split_cluster_map_extension)>0 :
+        if 'RecalibratorHandle' not in kwargs :
+            the_tool_name = 'InDetMeasRecalibST'
+            kwargs.setdefault('RecalibratorHandle', CfgGetter.getPublicToolClone(the_tool_name+split_cluster_map_extension,the_tool_name, SplitClusterMapExtension = split_cluster_map_extension) )
+    else :
+        setTool('RecalibratorHandle', 'InDetMeasRecalibST', kwargs )
     # setTool('InternalDAFHandle','KalmanInternalDAF',kwargs )
     # from InDetRecExample.InDetJobProperties import InDetFlags
     # kwargs.setdefault('DoDNAForElectronsOnly', True if InDetFlags.doBremRecovery() and InDetFlags.trackFitterType() is 'KalmanFitter' else False)
@@ -154,6 +182,234 @@ def ReferenceKalmanFitter(name='ReferenceKalmanFitter',**kwargs) :
 def KalmanDNAFitter(name='KalmanDNAFitter',**kwargs) :
     setTool('ForwardKalmanFitterHandle','InDetFKF', kwargs )
     setTool('DynamicNoiseAdjustorHandle', 'InDetDNAdjustor',kwargs )
-    setTool('BrempointAnalyserHandle', 'InDetDNASeparator', kwargs)
+    setTool('BrempointAnalyserHandle', 'InDetDNASeparator', kwargs )
     setTool('InternalDAFHandle','KalmanInternalDAF',kwargs )
     return InDetKalmanTrackFitterBase(name,**kwargs)
+
+def DistributedKalmanFilter(name="DistributedKalmanFilter", **kwargs) :
+    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
+
+    from InDetRecExample.TrackingCommon          import setDefaults
+    if 'ExtrapolatorTool' not in kwargs :
+        kwargs = setDefaults(kwargs, ExtrapolatorTool = TrackingCommon.getInDetExtrapolator())
+
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    if 'ROTcreator' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           ROTcreator = TrackingCommon.getInDetRotCreator(
+                               nameSuffix               = split_cluster_map_extension,
+                               SplitClusterMapExtension = split_cluster_map_extension))
+
+    # @TODO set sortingReferencePoint = ???
+    from TrkDistributedKalmanFilter.TrkDistributedKalmanFilterConf import Trk__DistributedKalmanFilter
+    return Trk__DistributedKalmanFilter(name = name, **kwargs)
+
+
+def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs) :
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    from InDetRecExample.TrackingCommon          import setDefaults
+    from AthenaCommon.AppMgr                     import ToolSvc
+    from InDetRecExample.InDetJobProperties      import InDetFlags
+    import InDetRecExample.TrackingCommon as TrackingCommon
+
+    kwargs=setDefaults(kwargs,
+                       ExtrapolationTool      = TrackingCommon.getInDetExtrapolator(),
+                       NavigatorTool          = TrackingCommon.getInDetNavigator(),
+                       PropagatorTool         = TrackingCommon.getInDetPropagator(),
+                       MultipleScatteringTool = TrackingCommon.getInDetMultipleScatteringUpdator(),
+                       MeasurementUpdateTool  = ToolSvc.InDetUpdator,
+                       TrackingGeometrySvc    = AtlasTrackingGeometrySvc,
+                       MaterialUpdateTool     = TrackingCommon.getInDetMaterialEffectsUpdator(),
+                       StraightLine           = not InDetFlags.solenoidOn(),
+                       OutlierCut             = 4,
+                       SignedDriftRadius      = True,
+                       ReintegrateOutliers    = True,
+                       RecalibrateSilicon     = True,
+                       RecalibrateTRT         = True,
+                       TRTTubeHitCut          = TrackingCommon.default_ScaleHitUncertainty,
+                       MaxIterations          = 40,
+                       Acceleration           = True,
+                       RecalculateDerivatives = InDetFlags.doMinBias() or InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
+                       TRTExtensionCuts       = True,
+                       TrackChi2PerNDFCut     = 7)
+    from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
+    return Trk__GlobalChi2Fitter(name, **kwargs)
+
+def InDetGlobalChi2Fitter(name='InDetGlobalChi2Fitter', **kwargs) :
+    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
+
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    if 'RotCreatorTool' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           RotCreatorTool        = TrackingCommon.getInDetRotCreator(
+                               nameSuffix               = split_cluster_map_extension,
+                               SplitClusterMapExtension = split_cluster_map_extension))
+
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    use_broad_cluster_any = InDetFlags.useBroadClusterErrors() and (not InDetFlags.doDBMstandalone())
+    if 'BroadRotCreatorTool' not in kwargs and  not InDetFlags.doRefit():
+        kwargs=setDefaults(kwargs,
+                           BroadRotCreatorTool   = TrackingCommon.getInDetBroadRotCreator(
+                               nameSuffix               = split_cluster_map_extension,
+                               SplitClusterMapExtension = split_cluster_map_extension))
+
+    if InDetFlags.doDBMstandalone():
+        kwargs=setDefaults(kwargs,
+                           StraightLine        = True,
+                           OutlierCut          = 5,
+                           RecalibrateTRT      = False,
+                           TRTExtensionCuts    = False,
+                           TrackChi2PerNDFCut  = 20)
+
+    if InDetFlags.doRefit() or use_broad_cluster_any is True:
+        kwargs=setDefaults(kwargs,
+                           RecalibrateSilicon  = False)
+    if InDetFlags.doRefit():
+        kwargs=setDefaults(kwargs,
+                           BroadRotCreatorTool = None,
+                           ReintegrateOutliers = False,
+                           RecalibrateTRT      = False)
+    if InDetFlags.doRobustReco():
+        kwargs=setDefaults(kwargs,
+                           # BroadRotCreatorTool = None
+                           OutlierCut          = 10.0,
+                           TrackChi2PerNDFCut  = 20)
+
+    if InDetFlags.doRobustReco() or InDetFlags.doCosmics():
+        kwargs=setDefaults(kwargs,
+                           MaxOutliers         = 99)
+    if InDetFlags.doCosmics() or InDetFlags.doBeamHalo():
+        kwargs=setDefaults(kwargs,
+                           Acceleration        = False)
+
+    if InDetFlags.materialInteractions() and not InDetFlags.solenoidOn():
+        kwargs=setDefaults(kwargs,
+                           Momentum            = 1000.*Units.MeV)
+    return InDetGlobalChi2FitterBase(name, **kwargs)
+
+def InDetGlobalChi2FitterLowPt(name='InDetGlobalChi2FitterLowPt', **kwargs) :
+    # @TODO TrackingGeometrySvc was not set but is set now
+    #       RotCreatorTool and BroadRotCreatorTool not set
+    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
+
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    if 'RotCreatorTool' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           RotCreatorTool        = TrackingCommon.getInDetRotCreator(
+                               nameSuffix               = split_cluster_map_extension,
+                               SplitClusterMapExtension = split_cluster_map_extension))
+
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    use_broad_cluster_any = InDetFlags.useBroadClusterErrors() and (not InDetFlags.doDBMstandalone())
+    if 'BroadRotCreatorTool' not in kwargs and  not InDetFlags.doRefit():
+        kwargs=setDefaults(kwargs,
+                           BroadRotCreatorTool   = TrackingCommon.getInDetBroadRotCreator(
+                               nameSuffix               = split_cluster_map_extension,
+                               SplitClusterMapExtension = split_cluster_map_extension))
+
+    return  InDetGlobalChi2FitterBase(name, **setDefaults(kwargs,
+                                                          OutlierCut             = 5.0,
+                                                          Acceleration           = False, # default
+                                                          RecalculateDerivatives = True,
+                                                          TrackChi2PerNDFCut     = 10))
+
+
+def InDetGlobalChi2FitterTRT(name='InDetGlobalChi2FitterTRT', **kwargs) :
+    '''
+    Global Chi2 Fitter for TRT segments with different settings
+    '''
+    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
+
+    if 'RotCreatorTool' not in kwargs :
+        from InDetRecExample import TrackingCommon as TrackingCommon
+        kwargs=setDefaults(kwargs,
+                           RotCreatorTool = TrackingCommon.getInDetRefitRotCreator(
+                                nameSuffix               = split_cluster_map_extension,
+                                SplitClusterMapExtension = split_cluster_map_extension))
+
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    return  InDetGlobalChi2FitterBase(name, **setDefaults(
+        kwargs,
+        MaterialUpdateTool     = '',       # default
+        TrackingGeometrySvc    = '',       # default
+        SignedDriftRadius      = True,     # default,
+        RecalibrateSilicon     = False,    # default,
+        RecalibrateTRT         = False,    # default,
+        TRTTubeHitCut          = 2.5,      # default,
+        MaxIterations          = 10,
+        Acceleration           = False,    # default,
+        RecalculateDerivatives = False,
+        TRTExtensionCuts       = True,     # default,
+        TrackChi2PerNDFCut     = 999999,
+        Momentum               = 1000.*Units.MeV   if InDetFlags.materialInteractions() and not InDetFlags.solenoidOn() else  0,     # default,
+        OutlierCut             = 5,        # default
+        MaxOutliers            = 99                if InDetFlags.doRobustReco() or InDetFlags.doCosmics()               else  10,    # default,
+        ReintegrateOutliers    = False             if InDetFlags.doRefit()                                              else  False  # default
+       ))
+
+def InDetGlobalChi2FitterDBM(name='InDetGlobalChi2FitterDBM', **kwargs) :
+    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
+    if 'RotCreatorTool' not in kwargs :
+        from InDetRecExample import TrackingCommon as TrackingCommon
+        kwargs=setDefaults(kwargs, RotCreatorTool = TrackingCommon.getInDetRotCreatorDBM(SplitClusterMapExtension = split_cluster_map_extension))
+
+    return  InDetGlobalChi2FitterBase(name, **setDefaults(kwargs,
+                                                          BroadRotCreatorTool   = None,
+                                                          StraightLine          = True,
+                                                          OutlierCut            = 5,
+                                                          RecalibrateTRT        = False,
+                                                          RecalculateDerivatives= False,
+                                                          TRTExtensionCuts      = False,
+                                                          TrackChi2PerNDFCut    = 20,
+                                                          Momentum              = 1000.*Units.MeV))
+
+def GaussianSumFitter(name='GaussianSumFitter', **kwargs) :
+    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
+
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    if 'ToolForROTCreation' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           ToolForROTCreation           = TrackingCommon.getInDetRotCreator(
+                               nameSuffix               = split_cluster_map_extension,
+                               SplitClusterMapExtension = split_cluster_map_extension))
+
+    if 'ToolForExtrapolation' not in kwargs :
+        kwargs=setDefaults(kwargs, ToolForExtrapolation = TrackingCommon.getInDetGsfExtrapolator())
+
+    if 'MeasurementUpdatorType' not in kwargs :
+        kwargs=setDefaults(kwargs, MeasurementUpdatorType = TrackingCommon.getInDetGsfMeasurementUpdator())
+
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
+    return Trk__GaussianSumFitter(name = name, **setDefaults(kwargs,
+                                                                 ReintegrateOutliers     = False,
+                                                                 MakePerigee             = True,
+                                                                 RefitOnMeasurementBase  = True,
+                                                                 DoHitSorting            = True))
+
+def InDetTrackFitter(name='InDetTrackFitter', **kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    return {
+        'KalmanFitter'            : KalmanFitter,
+        'KalmanDNAFitter'         : KalmanDNAFitter,
+        'ReferenceKalmanFitter'   : ReferenceKalmanFitter,
+        'DistributedKalmanFilter' : DistributedKalmanFilter,
+        'GlobalChi2Fitter'        : InDetGlobalChi2Fitter,
+        'GaussianSumFilter'       : GaussianSumFitter
+    }[InDetFlags.trackFitterType()](name,**kwargs)
+
+def InDetTrackFitterLowPt(name='InDetTrackFitter', **kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.trackFitterType() != 'GlobalChi2Fitter' :
+        return InDetTrackFitter(name,**kwargs)
+    else :
+        return InDetGlobalChi2FitterLowPt(name,**kwargs)
+
+def InDetTrackFitterTRT(name='InDetTrackFitterTRT', **kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.trackFitterType() != 'GlobalChi2Fitter' :
+        return InDetTrackFitter(name,**kwargs)
+    else :
+        return InDetGlobalChi2FitterTRT(name,**kwargs)
+
+def InDetTrackFitterDBM(name='InDetTrackFitterDBM', **kwargs) :
+    return InDetGlobalChi2FitterDBM(name,**kwargs)

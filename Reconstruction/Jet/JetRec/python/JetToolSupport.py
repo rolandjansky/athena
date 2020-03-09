@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JetToolSupport.py
 #
@@ -32,6 +32,8 @@
 # The member "ghostArea" specifies the area to use for the ghosts
 # generated for jet finding.
 
+from __future__ import print_function
+
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
@@ -48,7 +50,6 @@ from GaudiKernel.Constants import (VERBOSE,
 class JetToolManager:
   prefix = "JetToolManager: "
   debug = 0
-  usePublic = True
   m_jetBuilder = None
   jetBuilderWithArea = None
   jetBuilderWithoutArea = None
@@ -83,7 +84,7 @@ class JetToolManager:
     myname = mytool.name()
     self.msg(1, "Adding tool " + myname)
     if myname in self.tools:
-      print "Tool " + myname + " is already registered"
+      print ("Tool " + myname + " is already registered")
       self.msg(0, "Tool " + myname + " is already registered")
       raise LookupError
     else:
@@ -92,10 +93,14 @@ class JetToolManager:
       from AthenaCommon.AppMgr import ToolSvc
 
       # Hardcoded Public tools to support Public ToolHandles in other packages
-      if self.usePublic:
-        ToolSvc += mytool
-        mytool.lock()
-
+      publictools =( [
+        "triggerEnergyDensity",
+        "triggerPseudoJetGet",
+        #"TriggerJetGroomer",
+])
+      if any(t.lower() in  myname.lower() for t in publictools):
+          ToolSvc += mytool
+          mytool.lock()
       setattr(self, myname, mytool)
       return mytool
 
@@ -134,8 +139,17 @@ class JetToolManager:
       self.msg(0, "Error adding jet builder without area.")
       raise LookupError
 
+  # Configures any tools in the given modifier list with the property
+  # "JetContainer" to set that property to the given string containerName.
+  def configureContainerName(self, modifiers, containerName):
+    for mod in modifiers:
+      if "JetContainer" in mod.properties():
+        print ("configuring " + mod.name() + " to have container name " + containerName)
+        mod.JetContainer = containerName
+
   # Return the list of modifiers associated with a name.
-  # If the argument is a list, it is returned directly.
+  # If the argument is a list, a copy is returned directly.
+  # Also configures any necessary container names in the copy.
   def getModifiers(self, modifiersin, altname =None):
     if modifiersin == None:
       if altname in ["lctopo","emtopo"]:
@@ -285,7 +299,6 @@ class JetToolManager:
         jetlog.info( self.prefix + "Calibration option (" + calibOpt + ") provided with multiple calibration modifiers." )
         raise Exception
 
-        
     return outmods
 
   # Create a jet finder without a JetRecToosl.
@@ -406,6 +419,7 @@ class JetToolManager:
     ptminSave = self.ptminFilter
     if ptminFilter > 0.0: self.ptminFilter = ptminFilter
     jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt)
+    self.configureContainerName(jetrec.JetModifiers, output)
     if consumers != None:
       jetrec.JetConsumers = consumers
     self.ptminFilter = ptminSave
@@ -453,6 +467,7 @@ class JetToolManager:
     jetrec.InputContainer = input
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
@@ -487,6 +502,7 @@ class JetToolManager:
     jetrec.InputContainer = input
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     if pseudojetRetriever in self.tools:
@@ -534,6 +550,7 @@ class JetToolManager:
     jetrec.InputContainer = input
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
@@ -592,6 +609,7 @@ class JetToolManager:
     jetrec.OutputContainer = output
     jetrec.JetGroomer = groomer
     jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(jetrec.JetModifiers, output)
     if consumers != None:
       jetrec.JetConsumers = consumers
     jetrec.Trigger = isTrigger or useTriggerStore
@@ -623,6 +641,7 @@ class JetToolManager:
       Label = inp
     getters = [get]
     jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt)
+    self.configureContainerName(jetrec.JetModifiers, output)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
@@ -774,6 +793,11 @@ class JetToolManager:
     for m in modifiers:
       self.setOutputLevel(m, OutputLevel)
 
+    # Temporary hard-coded solution until this config is deprecated.
+    triggerPrefix = "HLT_xAOD__JetContainer_"
+
+    self.configureContainerName(modifiers, triggerPrefix + name.split('_')[1])
+
     self.ptminFilter = ptminSave
     
 
@@ -782,8 +806,8 @@ class JetToolManager:
 
     builder = TriggerJetBuildTool(name)
     
-    # print 'setting builder name to ', name
-    print 'adding new trigger jet finder ', name
+    # print ('setting builder name to ', name)
+    print ('adding new trigger jet finder ', name)
 
     # self.setOutputLevel(hifinder, OutputLevel)
     # builder.JetFinder = hifinder
@@ -797,8 +821,8 @@ class JetToolManager:
     self += builder
     return builder
 
-
   def addTriggerJetTrimmer(self,
+                           output,
                            name,
                            rclus,
                            ptfrac,
@@ -852,19 +876,21 @@ class JetToolManager:
     triggerGroomerTool = TriggerJetGroomerTool(name)
     triggerGroomerTool.JetGroomer = trimmerTool
     triggerGroomerTool.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(triggerGroomerTool.JetModifiers, name.split('_')[1])
     triggerGroomerTool.OutputLevel = OutputLevel
 
     # TriggerJetGroomerTool obtains a TriggerJetGroomerTool, will pass it
     # to its JetGroomer (!: historical)
     try:
       triggerGroomerTool.JetPseudojetRetriever = self.tools['jpjretriever']
-    except KeyError, e:
+    except KeyError as e:
       jetlog.info( "Requested jet pseudojet retriever is not a registered tool")
+      import traceback
+      traceback.print_exc()
       raise e
 
     self += triggerGroomerTool
 
     self.trigjetrecs += [triggerGroomerTool]
     return triggerGroomerTool
-
 

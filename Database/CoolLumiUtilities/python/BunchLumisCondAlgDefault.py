@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # File: CoolLumiUtilities/python/BunchLumisCondAlgDefault.py
 # Created: May 2019, sss
@@ -7,11 +7,9 @@
 
 
 from AthenaCommon.AlgSequence import AthSequencer
-from AthenaCommon.Logging import logging
 
 
 def BunchLumisCondAlgDefault():
-    log = logging.getLogger ('BunchLumisCondAlgDefault')
     name = 'BunchLumisCondAlg'
     condSeq = AthSequencer ('AthCondSeq')
 
@@ -26,17 +24,16 @@ def BunchLumisCondAlgDefault():
 
     folder = '/TDAQ/OLC/BUNCHLUMIS'
 
-    if not conddb.folderRequested( folder ):
-        from AthenaCommon.GlobalFlags import globalflags
-        if globalflags.isOverlay():
-            # Load reduced channel list for overlay jobs to try to reduce COOL access
-            # Need Lucid AND, OR, HitOR, BcmH OR, BcmV OR
-            conddb.addFolder('TDAQ', '<channelSelection>101,102,103,201,211</channelSelection> /TDAQ/OLC/BUNCHLUMIS',
-                             className = 'CondAttrListCollection')
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
+        # Load reduced channel list for overlay jobs to try to reduce COOL access
+        # Need Lucid AND, OR, HitOR, BcmH OR, BcmV OR
+        conddb.addFolder('TDAQ', '<channelSelection>101,102,103,201,211</channelSelection> /TDAQ/OLC/BUNCHLUMIS',
+                         className = 'CondAttrListCollection')
 
-        else:
-            conddb.addFolder('TDAQ', folder,
-                             className = 'CondAttrListCollection')
+    else:
+        conddb.addFolder('TDAQ', folder,
+                         className = 'CondAttrListCollection')
 
     from CoolLumiUtilities.CoolLumiUtilitiesConf import \
          BunchLumisCondAlg

@@ -1,4 +1,4 @@
-/// Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+/// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #if 0
 
@@ -27,7 +27,6 @@
 
 #include "egammaInterfaces/IegammaShowerShape.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 //#include "AthenaKernel/DefaultKey.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -59,7 +58,6 @@
   float d0, z0, nPixHits, nSctHits, nTrtHits, etaR, phiR;
   };*/
 
-class StoreGateSvc;
 class TH1I;
 class TH1F;
 class StatusCode;
@@ -163,8 +161,6 @@ class HLTIDZeeTagProbe : public IHLTMonTool
   double dPhiHelper(double phi1, double phi2);
 
  private:
-
-  StoreGateSvc* m_storeGate;
 
   //+++ Trigger decision tool related
   ToolHandle<Trig::TrigDecisionTool> TrigDec;

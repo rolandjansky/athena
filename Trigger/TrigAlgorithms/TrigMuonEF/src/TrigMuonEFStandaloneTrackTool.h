@@ -34,8 +34,10 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include <fstream>
 
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
@@ -81,15 +83,8 @@ namespace Trk {
 class ICscClusterBuilder;  
 class TrigMuonEFInfoContainer;
 class TrigTimer;
-class StoreGateSvc;
 class ActiveStoreSvc;
 class IRegSelSvc;
-class IIncidentSvc;
-
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 
 class IRoiDescriptor;
 
@@ -271,10 +266,8 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   ActiveStoreSvc* p_ActiveStore;
 
   // Muon Id Helpers
-  const CscIdHelper* m_cscIdHelper;
-  const MdtIdHelper* m_mdtIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   //Cache Rob Lists
   std::vector<uint32_t> m_MdtRobList;
@@ -388,7 +381,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
 
   bool m_ignoreCSC;
-
+  ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;
 
 };
 

@@ -8,7 +8,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
-from MuonCnvUtils import setJobPropertyDefault
+from MuonCnvExample.MuonCnvUtils import setJobPropertyDefault
 logMuon = logging.getLogger(__name__)
 
 def setDefault(prop,value):

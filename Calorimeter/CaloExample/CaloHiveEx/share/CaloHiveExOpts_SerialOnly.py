@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -40,8 +40,8 @@ import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
-from RecExConfig.InputFilePeeker import inputFileSummary
-objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+from PyUtils.MetaReaderPeeker import convert_itemList
+objKeyStore.addManyTypesInputFile(convert_itemList(layout = '#join'))
 
 #---------------------------------------------------------------------------------#
 # Detector Description
@@ -96,7 +96,7 @@ include( "CaloRec/CaloTopoCluster_jobOptions.py" )
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")

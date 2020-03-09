@@ -13,7 +13,6 @@
 #include "AthenaPoolTestData/TrigPath.h"
 
 #include <string>
-#include "CxxUtils/make_unique.h"
     
 AddTrigMap::AddTrigMap(const std::string& name, 
 			ISvcLocator* pSvcLocator) :

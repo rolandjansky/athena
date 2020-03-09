@@ -31,4 +31,5 @@ atlas_add_component( MissingETMonitoring
 # Install files from the package:
 atlas_install_headers( MissingETMonitoring )
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
 

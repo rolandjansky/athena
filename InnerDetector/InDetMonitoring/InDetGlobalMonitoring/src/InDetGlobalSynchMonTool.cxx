@@ -563,10 +563,8 @@ unsigned int InDetGlobalSynchMonTool::fillTimingHistos( const InDetTimeCollectio
     InDetTimeCollection::const_iterator it_time,it_time_E(collection->end());
     for ( it_time = collection->begin(); it_time != it_time_E; ++it_time ) {
 	
-	if (!(*it_time)) continue;
-	
-	const unsigned int curr = (*procFunc)( (*it_time)->second );
-	const int robid = getDetectorId ( (*it_time)->first  ); //remember only first 2 digits of ROBID
+	const unsigned int curr = (*procFunc)( (*it_time).second );
+	const int robid = getDetectorId ( (*it_time).first  ); //remember only first 2 digits of ROBID
 	
 	std::multimap<short, short>::const_iterator curr_rob = m_robMapping.find(robid);
 	

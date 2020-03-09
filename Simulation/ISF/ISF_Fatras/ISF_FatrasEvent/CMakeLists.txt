@@ -9,6 +9,7 @@ atlas_subdir( ISF_FatrasEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthLinks
                           Control/AthenaKernel
+                          Control/CxxUtils
                           DetectorDescription/Identifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrModel
@@ -25,6 +26,6 @@ atlas_add_library( ISF_FatrasEvent
                    src/*.cxx
                    PUBLIC_HEADERS ISF_FatrasEvent
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthenaKernel Identifier InDetPrepRawData ISF_FatrasDetDescrModel TrkPrepRawData TrkRIO_OnTrack EventContainers
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthenaKernel CxxUtils Identifier InDetPrepRawData ISF_FatrasDetDescrModel TrkPrepRawData TrkRIO_OnTrack EventContainers
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

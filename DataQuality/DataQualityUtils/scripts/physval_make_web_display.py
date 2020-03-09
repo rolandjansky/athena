@@ -28,8 +28,10 @@ algorithmparameters = [DQAlgorithmParameter('AuxAlgName--Chi2Test_Chi2_per_NDF',
 # Edit this to change thresholds
 thresh = make_thresholds('Chi2_per_NDF', 1.0, 1.50, 'Chi2Thresholds')
 
-def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', displaystring2D='Draw=COLZ', regex=None, startpath=None, hists=None):
+def recurse(rdir, dqregion, ignorepath, modelrefs=[], displaystring='Draw=PE', displaystring2D='Draw=COLZ', regex=None, startpath=None, hists=None, manglefunc=None):
     import re
+    if manglefunc is None:
+        manglefunc = lambda a, b: a
     for key in rdir.GetListOfKeys():
         cl = key.GetClassName(); rcl = ROOT.TClass.GetClass(cl)
         if ' ' in key.GetName():
@@ -60,8 +62,13 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
                         #'thresholds': chi2thresh,
                         'thresholds': thresh,
                         }
-            if refs:
-                dqpargs['references'] = refs
+            if modelrefs:
+                lnewrefs = []
+                for mref in modelrefs:
+                    newref = DQReference(manglefunc(mref.getReference().replace('same_name', (startpath + '/' if startpath else '') + name), mref.id))
+                    newref.addAnnotation('info', mref.id)
+                    lnewrefs.append(newref)
+                dqpargs['references'] = lnewrefs
             dqpar = dqregion.newDQParameter( **dqpargs)
             drawstrs = []
             if not options.normalize: drawstrs.append('NoNorm')
@@ -82,7 +89,7 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
             
         elif rcl.InheritsFrom('TDirectory'):
             newregion = dqregion.newDQRegion( key.GetName(), algorithm=worst )
-            recurse(key.ReadObj(), newregion, ignorepath, refs, displaystring, displaystring2D, regex, startpath, hists)
+            recurse(key.ReadObj(), newregion, ignorepath, modelrefs, displaystring, displaystring2D, regex, startpath, hists, manglefunc)
 
 def prune(dqregion):
     """
@@ -135,6 +142,7 @@ def process(infname, confname, options, refs=None):
         refdict = dict(_.split(':') for _ in refpairs)
     except Exception, e:
         print e
+    # "Model" references
     dqrs = [DQReference(reference='%s:same_name' % v, id=k)
             for k, v in refdict.items()]
     displaystring = options.drawopt
@@ -158,8 +166,15 @@ def process(infname, confname, options, refs=None):
     if options.histlistfile:
         hists = [re.compile(line.rstrip('\n')) for line in open(options.histlistfile)]
         if options.pathregex: print "histlistfile given, pathregex is ignored"
+    if options.refmangle:
+        import sys
+        sys.path.append(os.getcwd())
+        import importlib
+        manglefunc = importlib.import_module(options.refmangle).mangle
+    else:
+        manglefunc = None
     recurse(topindir, top_level, topindirname, dqrs, displaystring, displaystring2D,
-            re.compile(options.pathregex), startpath, hists)
+            re.compile(options.pathregex), startpath, hists, manglefunc=manglefunc)
     print 'Pruning dead branches...'
     prune(top_level)
     pc = paramcount(top_level)
@@ -300,6 +315,8 @@ if __name__=="__main__":
                       help="make interactive jsRoot displays")
     parser.add_option('--ratiorange', default=None, type=float,
                       help='set range for ratio plots (as delta to 1.0)')
+    parser.add_option('--refmangle', default=None, type=str,
+                      help='provide a Python module to translate histogram names between test and reference files. Module should provide\na function mangle(testhistoname, reflabel)')
 
     options, args = parser.parse_args()
     

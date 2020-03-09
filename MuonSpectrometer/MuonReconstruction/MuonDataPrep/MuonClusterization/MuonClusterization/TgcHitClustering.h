@@ -12,7 +12,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "Identifier/Identifier.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 namespace Muon {
 
@@ -114,8 +114,8 @@ namespace Muon {
     };
     typedef std::vector< Triplet > HitClustering;
 
-    TgcHitClusteringObj( const TgcIdHelper& tgcIdHelper ) : 
-      m_tgcIdHelper(&tgcIdHelper),bunchIdBestEta(-99),bunchIdBestPhi(-99),
+    TgcHitClusteringObj( const Muon::MuonIdHelperTool* muonIdHelperTool ) : 
+      m_muonIdHelperTool(muonIdHelperTool),bunchIdBestEta(-99),bunchIdBestPhi(-99),
       ngasgaps(-99),debug(false),combinedGasGaps(true)
     {}
 
@@ -138,7 +138,7 @@ namespace Muon {
  
     void findBest();
 
-    const TgcIdHelper*        m_tgcIdHelper;
+    const Muon::MuonIdHelperTool*        m_muonIdHelperTool;
     std::vector<Triplet>      channelsEta;
     std::vector<Triplet>      channelsPhi;
     std::vector<TgcClusterObj>   clustersEta;

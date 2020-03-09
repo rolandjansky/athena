@@ -16,7 +16,6 @@ __author__ = "Sebastien Binet"
 import getopt
 import sys
 import os
-import string
 
 from .Debugging import DbgStage
 
@@ -36,7 +35,7 @@ _userlongopts = [
     "debugWorker",
     "pycintex_minvmem=", "cppyy_minvmem",
     "minimal",                     # private, undocumented
-    "threads=", "concurrent-events=",
+    "threads=", "concurrent-events=", "mtes", "mtes-channel=",
     "evtMax=",    #will set theApp.EvtMax just before theApp.run() in runbatch.py
     "skipEvents=",#will set svcMgr.EventSelector.SkipEvents just before theApp.run() in runbatch.py 
     "filesInput=" #will set the AthenaCommonFlags.FilesInput job option and lock it
@@ -101,6 +100,9 @@ Accepted command line options:
      --threads=n                      ...  number of threads for AthenaMT
                                            With AthenaMP, number of threads per worker
      --concurrent-events              ...  number of concurrent events for AthenaMT
+     --mtes                           ...  activate multithreaded event service
+     --mtes-channel                   ...  the name of the yampl channel between pilot and AthenaMT
+                                           when running in the event service mode
      --debugWorker                    ...  pause AthenaMP workers at bootstrap until SIGUSR1 signal received
  [<file1>.py [<file2>.py [...]]]      ...  scripts to run
  """
@@ -155,6 +157,8 @@ def parse(chk_tcmalloc=True):
     opts.nprocs = 0              # enable AthenaMP if >= 1 or == -1
     opts.threads = 0             # enable AthenaMT if >= 1
     opts.concurrent_events = 0   # enable AthenaMT if >= 1
+    opts.mtes = False            # activate multithreaded event service
+    opts.mtes_channel="EventService_EventRanges"    # yampl channel between pilot and athenaMT
     opts.debug_worker = False    # pause AthenaMP worker after bootstrap until SIGUSR1 received
     opts.cppyy_minvmem = None    # artificial vmem bump around cppyy's import
     opts.minimal = False         # private, undocumented
@@ -249,14 +253,14 @@ def parse(chk_tcmalloc=True):
             opts.dbg_stage = arg
 
         elif opt in ("-c", "--command"):
-            opts.command = string.strip(arg)
+            opts.command = arg.strip()
 
         elif opt in ("-h", "--help"):
-            from AthenaCommon.ExitCodes import ALL_OK
-            _help_and_exit(ALL_OK)
+            print (_error_msg)
+            sys.exit()
 
         elif opt in ("-l", "--loglevel"):
-            opts.msg_lvl = string.upper(arg)
+            opts.msg_lvl = arg.upper()
             
         elif opt in ("-s", "--showincludes"):
             opts.showincludes = 1
@@ -395,6 +399,14 @@ def parse(chk_tcmalloc=True):
                 _help_and_exit()
             opts.concurrent_events = arg
 
+        elif opt in ("--mtes-channel",):
+            if not arg:
+                arg = "EventService_EventRanges"
+            opts.mtes_channel = arg
+
+        elif opt in ("--mtes",):
+            opts.mtes = True
+
         elif opt in ("--debugWorker",):
             opts.debug_worker = True
 
@@ -433,15 +445,6 @@ def parse(chk_tcmalloc=True):
     # This behavior can be controlled by a flag, if needed
     os.environ['LIBC_FATAL_STDERR_']='1'
 
-    # overwrite nprovs if ATHENA_PROC_NUMBER is set
-    envNProcs = os.getenv('ATHENA_PROC_NUMBER')
-    if envNProcs :
-        envNProcs = int(envNProcs)
-        print ("ATHENA_PROC_NUMBER set to ", envNProcs, " will run by default with --nprocs=", envNProcs)
-        opts.nprocs = envNProcs      # enable AthenaMP if >= 1 or == -1
-        from AthenaCommon.ConcurrencyFlags import jobproperties as jps
-        jps.ConcurrencyFlags.NumProcs = envNProcs
-    
     # for the benefit of PyROOT
     if not opts.display and '-b' not in sys.argv:
         sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]

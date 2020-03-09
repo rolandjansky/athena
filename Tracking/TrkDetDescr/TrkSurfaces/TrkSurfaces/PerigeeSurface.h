@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -71,54 +71,52 @@ public:
   virtual bool operator==(const Surface& sf) const override;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
-  virtual const ParametersT<5, Charged, PerigeeSurface>* createTrackParameters(double l1,
-                                                                               double l2,
-                                                                               double phi,
-                                                                               double theta,
-                                                                               double qop,
-                                                                               AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, PerigeeSurface>* createTrackParameters(double l1,
+                                                                         double l2,
+                                                                         double phi,
+                                                                         double theta,
+                                                                         double qop,
+                                                                         AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, PerigeeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
-  virtual const ParametersT<5, Charged, PerigeeSurface>* createTrackParameters(const Amg::Vector3D& position,
-                                                                               const Amg::Vector3D& momentum,
-                                                                               double charge,
-                                                                               AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, PerigeeSurface>* createTrackParameters(const Amg::Vector3D& position,
+                                                                         const Amg::Vector3D& momentum,
+                                                                         double charge,
+                                                                         AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, PerigeeSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
-  virtual const ParametersT<5, Neutral, PerigeeSurface>* createNeutralParameters(
-    double l1,
-    double l2,
-    double phi,
-    double theta,
-    double qop,
-    AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Neutral, PerigeeSurface>* createNeutralParameters(double l1,
+                                                                           double l2,
+                                                                           double phi,
+                                                                           double theta,
+                                                                           double qop,
+                                                                           AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, PerigeeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
-  virtual const ParametersT<5, Neutral, PerigeeSurface>* createNeutralParameters(
-    const Amg::Vector3D& position,
-    const Amg::Vector3D& momentum,
-    double charge,
-    AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Neutral, PerigeeSurface>* createNeutralParameters(const Amg::Vector3D& position,
+                                                                           const Amg::Vector3D& momentum,
+                                                                           double charge,
+                                                                           AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, PerigeeSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, PerigeeSurface>* createParameters(double l1,
-                                                              double l2,
-                                                              double phi,
-                                                              double theta,
-                                                              double qop,
+  ParametersT<DIM, T, PerigeeSurface>* createParameters(double l1,
+                                                        double l2,
+                                                        double phi,
+                                                        double theta,
+                                                        double qop,
                                                               AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, PerigeeSurface>(l1, l2, phi, theta, qop, *this, cov);
@@ -126,10 +124,10 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, PerigeeSurface>* createParameters(const Amg::Vector3D& position,
-                                                              const Amg::Vector3D& momentum,
-                                                              double charge,
-                                                              AmgSymMatrix(DIM) * cov = 0) const
+  ParametersT<DIM, T, PerigeeSurface>* createParameters(const Amg::Vector3D& position,
+                                                        const Amg::Vector3D& momentum,
+                                                        double charge,
+                                                        AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, PerigeeSurface>(position, momentum, charge, *this, cov);
   }
@@ -151,7 +149,7 @@ public:
 
   /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
       - the default implementation is the the RotationMatrix3D of the transform */
-  virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
+  virtual Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
                                                        const Amg::Vector3D& glomom) const override;
 
   /** Local to global method:
@@ -317,7 +315,7 @@ PerigeeSurface::straightLineIntersection(const Amg::Vector3D& pos,
 {
   // following nominclature found in header file and doxygen documentation
   // line one is the straight track
-  const Amg::Vector3D ma = pos;
+  const Amg::Vector3D& ma = pos;
   const Amg::Vector3D& ea = dir;
   // line two is the line surface
   const Amg::Vector3D& mb = center();

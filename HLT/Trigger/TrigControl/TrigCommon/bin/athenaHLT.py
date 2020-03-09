@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python -*-
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This is a script that is born as shell to setup the preloading and then
 # resurrected as python script for the actual athenaHLT.py application.
@@ -41,6 +41,7 @@ import argparse
 import ast
 import collections
 from datetime import datetime as dt
+import six
 
 from TrigCommon import AthHLT
 from AthenaCommon.Logging import logging
@@ -58,6 +59,8 @@ def arg_sor_time(s):
 
 def arg_detector_mask(s):
    """Convert detector mask to format expected by eformat"""
+   if s=='all':
+      return 'f'*32
    dmask = hex(int(s,16))                                    # Normalize input to hex-string
    dmask = dmask.lower().replace('0x', '').replace('l', '')  # remove markers
    return '0' * (32 - len(dmask)) + dmask                    # (pad with 0s)
@@ -91,6 +94,13 @@ def arg_eval(s):
    """Argument handler for python types (list, dict, ...)"""
    return ast.literal_eval(s)
 
+def check_args(parser, args):
+   """Consistency check of command line arguments"""
+
+   # Due to missing per-worker dirs this is not supported (ATR-19462)
+   if args.perfmon and args.oh_monitoring and args.nprocs>1:
+      parser.error("--perfmon cannot be used with --oh-monitoring and --nprocs > 1")
+
 def update_pcommands(args, cdict):
    """Apply modifications to pre/postcommands"""
 
@@ -114,31 +124,49 @@ def update_run_params(args):
       from eformat import EventStorage
       args.run_number = EventStorage.pickDataReader(args.file[0]).runNumber()
 
+   sor_params = None
+   if args.sor_time is None or args.detector_mask is None:
+      sor_params = AthHLT.get_sor_params(args.run_number)
+      log.debug('SOR parameters: %s', sor_params)
+      if sor_params is None:
+         log.error("Run %d does not exist. If you want to use this run-number specify "
+                   "remaining run parameters, e.g.: --sor-time=now --detector-mask=all", args.run_number)
+         sys.exit(1)
+
    if args.sor_time is None:
-      args.sort_time = arg_sor_time(str(AthHLT.get_sor_params(args.run_number)['SORTime']))
+      args.sor_time = arg_sor_time(str(sor_params['SORTime']))
 
    if args.detector_mask is None:
-      dmask = AthHLT.get_sor_params(args.run_number)['DetectorMask']
+      dmask = sor_params['DetectorMask']
       if args.run_number < AthHLT.CondDB._run2:
          dmask = hex(dmask)
       args.detector_mask = arg_detector_mask(dmask)
 
+def update_trigconf_keys(args):
+   """Update trigger configuration keys"""
+
+   if args.smk is None or args.l1psk is None or args.hltpsk is None:
+      try:
+         log.info("Reading trigger configuration keys from COOL for run %s", args.run_number)
+         trigconf = AthHLT.get_trigconf_keys(args.run_number)
+         if args.smk is None:
+            args.smk = trigconf['SMK']
+         if args.l1psk is None:
+            args.l1psk = trigconf['LVL1PSK']
+         if args.hltpsk is None:
+            args.hltpsk = trigconf['HLTPSK']
+      except KeyError:
+         log.error("Cannot read trigger configuration keys from COOL for run %d", args.run_number)
+         sys.exit(1)
+
 def update_nested_dict(d, u):
    """Update nested dictionary (https://stackoverflow.com/q/3232943)"""
-   for k, v in u.iteritems():
+   for k, v in six.iteritems(u):
       if isinstance(v, collections.Mapping):
          d[k] = update_nested_dict(d.get(k, {}), v)
       else:
          d[k] = v
    return d
-
-def set_athena_flags(args):
-   """Set athena flags based on command line args"""
-
-   from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-   jp.ConcurrencyFlags.NumThreads = args.threads
-   jp.ConcurrencyFlags.NumConcurrentEvents = args.concurrent_events
-   jp.ConcurrencyFlags.NumProcs = args.nprocs
 
 def HLTMPPy_cfgdict(args):
    """Create the configuration dictionary as expected by HLTMPPy as defined in
@@ -157,8 +185,11 @@ def HLTMPPy_cfgdict(args):
       'num_slots' : args.concurrent_events,
       'partition_name' : args.partition,
       'hard_timeout' : args.timeout,
-      'soft_timeout_fraction' : 0.95
+      'soft_timeout_fraction' : 0.95,
+      'hltresultSizeMb': args.hltresult_size
    }
+   if args.debug:
+      cdict['HLTMPPU']['debug'] = args.debug
 
    cdict['datasource'] = {
       'module': 'dffileds',
@@ -210,7 +241,7 @@ def HLTMPPy_cfgdict(args):
    if not args.use_database:      # job options
       cdict['trigger'].update({
          'module': 'joboptions',
-         'pythonSetupFile' : args.python_setup,
+         'pythonSetupFile' : 'TrigPSC/TrigPSCPythonSetup.py',
          'joFile': args.jobOptions,
          'SMK': None,
          'l1PSK': None,
@@ -220,30 +251,25 @@ def HLTMPPy_cfgdict(args):
          'postcommand' : args.postcommand,
          'logLevels' : args.log_level
       })
+      # Special case for running from a json file
+      if os.path.splitext(args.jobOptions)[1].lower()=='.json':
+         cdict['trigger']['pythonSetupFile'] = 'TrigPSC/TrigPSCPythonDbSetup.py'
    else:
       cdict['trigger'].update({
          'module': 'DBPython',
-         'pythonSetupFile' : args.python_setup,
+         'pythonSetupFile' : 'TrigPSC/TrigPSCPythonDbSetup.py',
          'db_alias': args.db_server,
+         'coral_server': args.db_server,
+         'use_coral': True,
          'SMK': args.smk,
-         'l1PSK': args.l1pks,
-         'HLTPSK': args.hltpks,
+         'l1PSK': args.l1psk,
+         'HLTPSK': args.hltpsk,
          'l1BG': 0,
          'l1MenuConfig': 'DB',
          'precommand' : args.precommand,
          'postcommand' : args.postcommand,
          'logLevels' : args.log_level
       })
-      if args.db_type == "Coral":           # DBPython (with CORAL)
-         cdict['trigger'].update({
-            'use_coral': True,
-            'coral_server': args.db_server
-         })
-      else:                                 # DBPython (without CORAL)
-         cdict['trigger'].update({
-            'use_coral': False,
-            'db_alias': args.db_server
-         })
 
    return cdict
 
@@ -272,11 +298,11 @@ def main():
 
    ## Global options
    g = parser.add_argument_group('Options')
-   g.add_argument('jobOptions', help='job options file')
-   g.add_argument('--file', '-f', action='append', required=True, help='input RAW file')
+   g.add_argument('jobOptions', help='job options (or JSON) file')
+   g.add_argument('--file', '--filesInput', '-f', action='append', required=True, help='input RAW file')
    g.add_argument('--save-output', '-o', metavar='FILE', help='output file name')
-   g.add_argument('--number-of-events', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')
-   g.add_argument('--skip-events', '-k', metavar='N', default=0, help='skip N first events')
+   g.add_argument('--number-of-events', '--evtMax', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')
+   g.add_argument('--skip-events', '--skipEvents', '-k', metavar='N', default=0, help='skip N first events')
    g.add_argument('--threads', metavar='N', type=int, default=1, help='number of threads')
    g.add_argument('--nprocs', metavar='N', type=int, default=1, help='number of children to fork')
    g.add_argument('--concurrent-events', metavar='N', type=int, help='number of concurrent events if different from --threads')
@@ -285,6 +311,8 @@ def main():
                   help='Python commands executed before job options or database configuration')
    g.add_argument('--postcommand', '-C', metavar='CMD', action='append', default=[],
                   help='Python commands executed after job options or database configuration')
+   g.add_argument('--debug', '-d', nargs='?', const='child', choices=['parent','child'],
+                  help='attach debugger (to child by default)')
    g.add_argument('--interactive', '-i', action='store_true', help='interactive mode')
    g.add_argument('--help', '-h', nargs='?', choices=['all'], action=MyHelp, help='show help')
 
@@ -299,16 +327,18 @@ def main():
    g.add_argument('--stdcmath', action='store_true', help='use stdcmath library')
    g.add_argument('--imf', action='store_true', default=True, help='use Intel math library')
    g.add_argument('--show-includes', '-s', action='store_true', help='show printout of included files')
-   g.add_argument('--timeout', metavar='MSEC', default=60*1000, help='timeout in milliseconds')
+   g.add_argument('--timeout', metavar='MSEC', default=60*60*1000, help='timeout in milliseconds')
 
    ## Database
    g = parser.add_argument_group('Database')
-   g.add_argument('--use-database', '-b', action='store_true', help='configure from trigger database')
-   g.add_argument('--db-type', default='Coral', choices=['MySQL','Oracle','SQLite','Coral'], help='database type')
+   g.add_argument('--use-database', '-b', action='store_true',
+                  help='configure from trigger database, reading keys from COOL if not specified')
    g.add_argument('--db-server', metavar='DB', default='TRIGGERDB', help='DB server name')
-   g.add_argument('--smk', type=int, default=0, help='Super Master Key')
-   g.add_argument('--l1psk', type=int, default=0, help='L1 prescale key')
-   g.add_argument('--hltpsk', type=int, default=0, help='HLT prescale key')
+   g.add_argument('--smk', type=int, default=None, help='Super Master Key')
+   g.add_argument('--l1psk', type=int, default=None, help='L1 prescale key')
+   g.add_argument('--hltpsk', type=int, default=None, help='HLT prescale key')
+   g.add_argument('--dump-config', action='store_true', help='Dump joboptions JSON file')
+   g.add_argument('--dump-config-exit', action='store_true', help='Dump joboptions JSON file and exit')
 
    ## Online histogramming
    g = parser.add_argument_group('Online Histogramming')
@@ -327,19 +357,19 @@ def main():
                   '2) the number of nanoseconds since epoch (e.g. 1386355338658000000 or int(time.time() * 1e9)); '
                   '3) human-readable "20/11/18 17:40:42.3043". If not specified the sor-time is read from COOL')
    g.add_argument('--detector-mask', metavar='MASK', type=arg_detector_mask,
-                  help='detector mask (if None, read from COOL)')
+                  help='detector mask (if None, read from COOL), use string "all" to enable all detectors')
 
    ## Expert options
    g = parser.add_argument_group('Expert')
    parser.expert_groups.append(g)
-   g.add_argument('--joboptionsvc-type', metavar='TYPE', default='JobOptionsSvc', help='JobOptionsSvc type')
+   g.add_argument('--joboptionsvc-type', metavar='TYPE', default='TrigConf::JobOptionsSvc', help='JobOptionsSvc type')
    g.add_argument('--msgsvc-type', metavar='TYPE', default='TrigMessageSvc', help='MessageSvc type')
-   g.add_argument('--python-setup', default='TrigPSC/TrigPSCPythonSetup.py', help='Python bootstrap/setup file')
    g.add_argument('--partition', '-p', metavar='NAME', default='athenaHLT', help='partition name')
    g.add_argument('--no-ers-signal-handlers', action='store_true', help='disable ERS signal handlers')
    g.add_argument('--preloadlib', metavar='LIB', help='preload an arbitrary library')
    g.add_argument('--unique-log-files', '-ul', action='store_true', help='add pid/timestamp to worker log files')
    g.add_argument('--debug-fork', action='store_true', help='Dump open files/threads during forking')
+   g.add_argument('--hltresult-size', metavar='MB', type=int, default=10, help='Maximum HLT result size in MB')
    g.add_argument('--extra-l1r-robs', metavar='ROBS', type=arg_eval, default=[],
                   help='List of additional ROB IDs that are considered part of the L1 result and passed to the HLT')
    g.add_argument('--ros2rob', metavar='DICT', type=arg_ros2rob, default={},
@@ -351,6 +381,7 @@ def main():
                   '--cfgdict \'{"global": {"log_root" : "/tmp"}}\'')
 
    args = parser.parse_args()
+   check_args(parser, args)
 
    # set default OutputLevels and file inclusion
    import AthenaCommon.Logging
@@ -364,7 +395,8 @@ def main():
 
    # Update args and set athena flags
    update_run_params(args)
-   set_athena_flags(args)
+   if args.use_database:
+      update_trigconf_keys(args)
 
    # get HLTMPPY config dictionary
    cdict = HLTMPPy_cfgdict(args)
@@ -375,9 +407,11 @@ def main():
    # Modify pre/postcommands if necessary
    update_pcommands(args, cdict)
 
-   # Tell the PSC if we are in interactive mode (relevant for state machine)
-   import TrigPSC.PscConfig
-   TrigPSC.PscConfig.interactive = args.interactive
+   # Extra Psc configuration
+   from TrigPSC import PscConfig
+   PscConfig.interactive = args.interactive
+   PscConfig.dumpJobProperties = args.dump_config or args.dump_config_exit
+   PscConfig.exitAfterDump = args.dump_config_exit
 
    # Select the correct THistSvc
    from TrigServices.TriggerUnixStandardSetup import _Conf

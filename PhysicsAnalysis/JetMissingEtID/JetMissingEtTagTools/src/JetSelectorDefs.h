@@ -1,11 +1,10 @@
 // this file is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSelectorTools/JetCleaningTool.h"
-#include "CxxUtils/make_unique.h"
 #include <memory>
 
 namespace  {
@@ -18,7 +17,7 @@ namespace  {
                               JetCleaningTool::CleaningLevel level, 
 			      bool doUgly=false)
   {
-    ptr = CxxUtils::make_unique<JetCleaningTool> (level,doUgly);
+    ptr = std::make_unique<JetCleaningTool> (level,doUgly);
     return ptr->initialize();
   }
 

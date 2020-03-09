@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # +---------------------------------------------+
@@ -9,26 +9,26 @@
 # user & password information should be handled by each individual program
 
 def getReadServer():
-	return "ATLAS_COOLPROD"
+    return "ATLAS_COOLPROD"
 
 def getWriteServer():
-	#return "ATLAS_COOLWRITE"
-  return ""
+    #return "ATLAS_COOLWRITE"
+    return ""
 
 def getFolder():
-	#return "/GLOBAL/DQM/HIST"
-  return "/GLOBAL/DETSTATUS/DQMFOFL" #/GLOBAL/DETSTATUS/DQMFOFLH"
+    #return "/GLOBAL/DQM/HIST"
+    return "/GLOBAL/DETSTATUS/DQMFOFL" #/GLOBAL/DETSTATUS/DQMFOFLH"
 
 def getDbName():
-	return "CONDBR2"
-#	return "STRMP200"
+    return "CONDBR2"
+    #	return "STRMP200"
 
 def getSchema():
-	#return "ATLAS_COOLOFL_GLOBAL"
-  return "MyCOOL.db"
+    #return "ATLAS_COOLOFL_GLOBAL"
+    return "MyCOOL.db"
 
 def getChannelDict():
-	import DBInfo_Histo
-	#########################################
+    import DBInfo_Histo
+    #########################################
 
-	return DBInfo_Histo.getChannelDict()
+    return DBInfo_Histo.getChannelDict()

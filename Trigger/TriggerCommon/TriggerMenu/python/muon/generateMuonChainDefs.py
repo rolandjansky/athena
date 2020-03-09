@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ###########################################################################
 # SliceDef file for Muon chains
@@ -15,7 +17,7 @@ import traceback
 
 try:
     from TriggerMenu.muon.MuonDefIdTest import L2EFChain_mu as L2EFChain_mu_IdTest
-except:
+except Exception:
     log.error('generateMuonChainDefs: Problems when importing MuonDefIdTest.')
     log.info(traceback.print_exc())
 
@@ -91,9 +93,9 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
         theChainDef = listOfChainDefs[0]
 
     # needed for nscan to replace the placeholder TE with the L2TE of the other chain
-    if (modifyNscanInputTE == True):
+    if modifyNscanInputTE:
         theChainDef = _modifyTEinChainDef(theChainDef,chainDict)
-    if (modifyCalotagInputTE == True):
+    if modifyCalotagInputTE:
         theChainDef = _modifyTEinChainDef(theChainDef, chainDict)
         
     #if chainDict["topo"]:
@@ -103,8 +105,8 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
         nomucomb_asymmetric = True
         for ii in range(len(listOfChainDicts)):
             if listOfChainDicts[ii]['chainParts']['reccalibInfo']!='nomucomb':nomucomb_asymmetric=False
-        if nomucomb_asymmetric == True:
-            theChainDef = _AsymmChainConfig(theChainDef,chainDict);
+        if nomucomb_asymmetric:
+            theChainDef = _AsymmChainConfig(theChainDef,chainDict)
 
     return theChainDef
 
@@ -162,7 +164,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 def _AsymmChainConfig(theChainDef,chainDict):
     maxL2SignatureIndex = -1
     for signatureIndex,signature in enumerate(theChainDef.signatureList):
-        print "DEBUG1 : check0 : ", signature;
+        print ("DEBUG1 : check0 : ", signature)
         if signature['listOfTriggerElements'][0][0:2] == "L2":
             maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
     
@@ -192,7 +194,7 @@ def _AsymmChainConfig(theChainDef,chainDict):
         if ii == 0: idmultiArr2 += [ "%ipt%i" % (totalmulti_lowest,int(thre)) ]
         if ii == 1: idmultiArr2 += [ "%ipt%i" % (totalmulti_2ndlow,int(thre)) ]
         if ii == 2: idmultiArr2 += [ "%ipt%i" % (int(multi),int(thre)) ]
-        if ii > 2: print "ERROR : not supported"
+        if ii > 2: print ("ERROR : not supported")
 
     idmulti = "_".join(idmultiArr2)
 
@@ -206,7 +208,7 @@ def _AsymmChainConfig(theChainDef,chainDict):
     theChainDef.addSignatureL2([L2TEname])
 
     EFTEname = "EF_mutrkmulti_" + idmulti + "_nomucomb_" + chainDict['L1item']
-    theChainDef.addSequence([theTrigMuonIDTrackMultiHypoConfig_Muon],inputTEsEF, EFTEname);
+    theChainDef.addSequence([theTrigMuonIDTrackMultiHypoConfig_Muon],inputTEsEF, EFTEname)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
 
 

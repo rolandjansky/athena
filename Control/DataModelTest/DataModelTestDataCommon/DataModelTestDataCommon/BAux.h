@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -29,6 +29,9 @@ struct BAux
 {
   BAux (int b = 0) : m_x (b) {}
   int m_x;
+
+  /// Flag that we should _not_ use the xAOD pool converter for this type.
+  static constexpr bool supportsThinning = false;
 };
 
 

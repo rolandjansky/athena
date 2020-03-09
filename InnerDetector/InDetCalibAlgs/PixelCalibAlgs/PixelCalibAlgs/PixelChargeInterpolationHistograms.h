@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationHistograms_h
@@ -20,7 +20,7 @@ class PixelChargeInterpolationParameters;
 class PixelChargeInterpolationHistograms{
 
 public :
-	PixelChargeInterpolationHistograms(std::string tag,
+	PixelChargeInterpolationHistograms(const std::string& tag,
 					const PixelChargeInterpolationParameters &model);
 	
 	virtual ~PixelChargeInterpolationHistograms();

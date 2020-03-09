@@ -10,6 +10,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/DataHandle.h"
@@ -42,9 +43,26 @@ namespace SG {
     bool isValid();
     bool isValid(const EventIDBase& t) const;
 
+    template <typename R>
+    void addDependency(SG::ReadCondHandle<R>& rch);
+
+    template <typename R, typename... Args>
+    void addDependency(ReadCondHandle<R>& rch, Args... args);
+    
+    /**
+     * @brief record handle, with explicit range   DEPRECATED
+     * @param range IOVRange of handle
+     * @param t unique_ptr to handle
+     */
     StatusCode record(const EventIDRange& range, T* t);
     StatusCode record(const EventIDRange& range, std::unique_ptr<T> t);
-
+    
+    /**
+     * @brief record handle, range must have been set by addDependency(...)
+     * @param t unique_ptr to handle
+     */
+    StatusCode record(std::unique_ptr<T> t);
+    StatusCode record(T* t);
 
     /**
      * @brief Extend the range of the last IOV.
@@ -60,6 +78,8 @@ namespace SG {
                                const EventContext& ctx = Gaudi::Hive::currentContext());
     
     const std::string& dbKey() const { return m_hkey.dbKey(); }
+
+    const EventIDRange& getRange() const { return m_range; }
     
   private:
 
@@ -67,10 +87,12 @@ namespace SG {
     CondCont<T>* m_cc {nullptr};
 
     const SG::WriteCondHandleKey<T>& m_hkey;
+
+    EventIDRange m_range{};
+    bool m_rangeSet {false};
     
   };
   
-
   //---------------------------------------------------------------------------
 
   template <typename T>
@@ -111,34 +133,22 @@ namespace SG {
   StatusCode
   WriteCondHandle<T>::record(const EventIDRange& r, std::unique_ptr<T> t)
   {
-    MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
-    msg << MSG::DEBUG
-        << "WriteCondHandle::record() : obj at: " << t.get() << "  range: " << r 
-        << endmsg;
+    
+    if (m_rangeSet) {
+      MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+      msg << MSG::ERROR
+          << "WriteCondHandle::record(EventIDRange, T*): for key "
+          << this->fullKey()
+          << " cannot use this method if range has already been set via dependencies"
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
 
-    StatusCode sc = m_cc->insert(r, std::move(t));
-    // Preserve sc for return, since it may be DUPLICATE.
-    if (sc.isFailure()) {
-      msg << MSG::ERROR 
-          << "WriteCondHandle::record() : unable to insert obj in CondCont<T>"
-          << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else if (CondContBase::Category::isOverlap (sc)) {
-#if 0
-      // Temporarily disable this check until caching issues with IOVDbSvc
-      // are sorted out.
-      msg << MSG::ERROR 
-          << "WriteCondHandle::record() : IOV ranges overlap."
-          << endmsg;
-      return StatusCode::FAILURE;
-#endif
-      sc = StatusCode::SUCCESS;
-    }
- 
-    return sc;
+    m_range = r;
+    m_rangeSet = true;
+
+    return record( std::move(t) );
   }
-
   
   template <typename T>
   StatusCode
@@ -147,6 +157,57 @@ namespace SG {
     return record (r, std::unique_ptr<T> (t));
   }
 
+  template <typename T>
+  StatusCode
+  WriteCondHandle<T>::record(T* t) {
+    return record (std::unique_ptr<T> (t));    
+  }
+
+  template <typename T>
+  StatusCode
+  WriteCondHandle<T>::record(std::unique_ptr<T> t) {
+    if (! m_rangeSet) {
+      MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+      msg << MSG::ERROR 
+          << "WriteCondHandle::record() : no range defined for key "
+          << this->fullKey()
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+
+    #ifndef NDEBUG
+    MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+    if (msg.level() <= MSG::DEBUG) {
+      msg << MSG::DEBUG
+          << "WriteCondHandle::record() : obj at: " << t.get() << "  range: "
+          << m_range << endmsg;
+    }
+    #endif
+
+    StatusCode sc = m_cc->insert(m_range, std::move(t));
+    // Preserve sc for return, since it may be DUPLICATE.
+    if (sc.isFailure()) {
+      MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+      msg << MSG::ERROR 
+          << "WriteCondHandle::record() : unable to insert obj in CondCont<T>"
+          << endmsg;
+      return StatusCode::FAILURE;
+    } else if (CondContBase::Category::isOverlap (sc)) {
+#if 0
+      // Temporarily disable this check until caching issues with IOVDbSvc
+      // are sorted out.
+      MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+      msg << MSG::ERROR 
+          << "WriteCondHandle::record() : IOV ranges overlap."
+          << endmsg;
+      return StatusCode::FAILURE;
+#endif
+      sc = StatusCode::SUCCESS;
+    }
+
+    return sc;
+  }
+             
   //---------------------------------------------------------------------------
 
 
@@ -187,6 +248,30 @@ namespace SG {
     return (m_cc->valid(m_ctx.eventID()));
   }
 
+  //---------------------------------------------------------------------------
+
+  // Can't take a const RCH, as RCH.range() can load the ptr.
+  template <typename T>
+  template< typename R>
+  void
+  WriteCondHandle<T>::addDependency(SG::ReadCondHandle<R>& rch) {
+    if ( !m_rangeSet ) {
+      m_range = rch.getRange();
+    } else {
+      m_range = EventIDRange::intersect(m_range, rch.getRange());
+    }
+    m_rangeSet = true;
+  }
+
+  template< typename T>
+  template <typename R, typename... Args>
+  void
+  WriteCondHandle<T>::addDependency(ReadCondHandle<R>& rch, Args... args) {
+     addDependency( rch );
+     return addDependency( args... );
+  }
+             
+             
 }
 
 #endif

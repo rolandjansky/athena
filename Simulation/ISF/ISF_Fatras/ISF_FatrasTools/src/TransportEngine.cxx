@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ StatusCode iFatras::TransportEngine::finalize()
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*)
+ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*) const
 {
   // copy the current particle onto the particle clipboard
   ISF::ParticleClipboard::getInstance().setParticle(isp);
@@ -407,7 +407,7 @@ ISF::ISFParticle* iFatras::TransportEngine::handleExtrapolationResult(const ISF:
                                                                       const Amg::Vector3D& position,
                                                                       const Amg::Vector3D& momentum,
 								      double stime,
-								      Trk::GeometrySignature nextGeoID)
+								      Trk::GeometrySignature nextGeoID) const
 {
 
     // the return particle

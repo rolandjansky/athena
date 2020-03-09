@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -29,7 +29,6 @@ public:
   
 private:
   
-  StoreGateSvc* m_storeGate;
   std::string m_inputContainerName; 
   std::string m_outputContainerName;
   std::string m_trackContainerName;

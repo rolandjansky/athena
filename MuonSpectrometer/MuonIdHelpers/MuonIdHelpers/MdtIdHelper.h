@@ -198,7 +198,6 @@ class MdtIdHelper : public MuonIdHelper
       TubeMin             =  1,
       TubeMax             = 78
     };
-  inline virtual void create_mlog() const;
 };
 
 // For backwards compatibility

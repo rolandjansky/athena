@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -24,7 +24,6 @@
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthAllocators/DataPool.h"
-#include "CxxUtils/make_unique.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "TestTools/leakcheck.h"
@@ -150,7 +149,7 @@ CaloCluster* make_cluster (int iclus)
 
 std::unique_ptr<const CaloClusterContainer> make_clusters()
 {
-  auto ccc = CxxUtils::make_unique<CaloClusterContainer>();
+  auto ccc = std::make_unique<CaloClusterContainer>();
   ccc->setROIAuthor ("theauthor");
   ccc->setTowerSeg (CaloTowerSeg (20, 10, -4, 4, -3, 3));
   for (int i=0; i < 5; i++)

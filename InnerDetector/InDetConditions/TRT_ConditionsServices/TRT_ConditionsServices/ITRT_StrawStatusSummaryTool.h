@@ -9,11 +9,12 @@
  * @author Peter Hansen <phansen@nbi.dk>
  */
 
-#include <string>
+
 #include "GaudiKernel/IAlgTool.h"
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 #include "TRT_ConditionsData/TRTStrawStatusData.h"
 #include "TRT_ConditionsData/StrawStatusContainer.h"
+#include "GaudiKernel/EventContext.h"
 
 class Identifier;
 namespace TRTCOND {
@@ -31,15 +32,18 @@ class ITRT_StrawStatusSummaryTool: virtual public IAlgTool
 
   DeclareInterfaceID(ITRT_StrawStatusSummaryTool, 1, 0);
 
-  virtual int getStatus(Identifier ) const =0;
-  virtual int getStatusPermanent(Identifier) const =0;
-  virtual int getStatusHT(Identifier) const =0;
-  virtual bool get_status(Identifier) const =0;
-  virtual bool get_statusHT(Identifier) const =0;
+  virtual int getStatus(const Identifier ) const =0;
+  virtual int getStatusPermanent(const Identifier) const =0;
+  virtual int getStatusHT(const Identifier) const =0;
+  virtual bool get_status(const Identifier) const =0;
+  virtual bool get_statusHT(const Identifier) const =0;
 
-  virtual const StrawStatusContainer* getStrawStatusContainer() const =0;
-  virtual const StrawStatusContainer* getStrawStatusPermanentContainer() const =0;
-  virtual const StrawStatusContainer* getStrawStatusHTContainer() const =0;
+
+  virtual int getStatus(const Identifier, const EventContext&  ) const =0;
+  virtual int getStatusPermanent(const Identifier, const EventContext& ) const =0;
+  virtual int getStatusHT(const Identifier, const EventContext& ) const =0;
+  virtual bool get_status(const Identifier, const EventContext& ) const =0;
+  virtual bool get_statusHT(const Identifier, const EventContext& ) const =0;
 
 };
 

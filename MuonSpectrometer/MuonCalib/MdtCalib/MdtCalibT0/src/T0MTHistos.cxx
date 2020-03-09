@@ -1,23 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibT0/T0MTHistos.h"
 #include "MdtCalibT0/MTT0PatternRecognition.h"
 #include "MdtCalibT0/MTTmaxPatternRecognition.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-//root
 #include "TLine.h"
-//root
 #include "TH1.h"
 #include "TF1.h"
-#include "TMath.h"
 #include "TDirectory.h"
 #include "TRandom.h"
 #include "list"
 #include <cmath>
-
-using namespace std;
 
 namespace MuonCalib {
 
@@ -30,7 +27,7 @@ namespace MuonCalib {
       &back(par[T0MTHistos::T0_PAR_NR_BACK]),
       &A(par[T0MTHistos::T0_PAR_NR_A]);
     //the formula
-    return (back + A/(1+exp(-(t-t_0)/T)));
+    return (back + A/(1+std::exp(-(t-t_0)/T)));
   }
 
 /** The fermi function to be fitted at the trailing slope of the spectrum */
@@ -44,7 +41,7 @@ namespace MuonCalib {
       &b(par[T0MTHistos::TMAX_PAR_NR_B]),
       &t_0(par[T0MTHistos::TMAX_PAR_NR_T0]);
     //the formula
-    return (back + (exp(a+b*(t-t_0)))/(1+exp((t-t_max)/T)));
+    return (back + (std::exp(a+b*(t-t_0)))/(1+std::exp((t-t_max)/T)));
   }
 
 //////////////////
@@ -59,27 +56,30 @@ namespace MuonCalib {
 //////////////////////////////////////////////////////////
   void T0MTHistos::Initialize(int id, const T0MTSettings * settings, const char * hname) {
     m_settings=settings;
-//	if(m_settings->VerboseLevel()>1) {
-    cout<<"T0MTHistos::Initialize: called"<<endl;
-//		}
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "T0MTHistos::Initialize: called" << endmsg;
+#endif
     char buf[100];
-    if(hname==NULL)
+    if(hname==nullptr)
       snprintf(buf, 100, "t_spec_%d", id);
     else
       snprintf(buf, 100, "t_spec_%s", hname);
-    std::cout<<gDirectory->GetName()<<std::endl;
+#ifndef NDEBUG
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "directory=" << gDirectory->GetName() << endmsg;
+#endif
     m_time=new TH1F(buf, "", settings->NBinsTime(), settings->TimeMin(), settings->TimeMax());
     m_id=id;
     if(settings->DrawDebugGraphs()) {
-      if(m_settings->VerboseLevel()>1) {
-	cout<<"T0MTHistos::Initialize: debug directory created"<<endl;
-      }		
+#ifndef NDEBUG
+        if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "T0MTHistos::Initialize: debug directory created" << endmsg;
+#endif
       TDirectory *cwd=gDirectory;
       snprintf(buf, 100, "t0_tmax_dir_%d", id);
       m_dir=gDirectory->mkdir(buf, buf);
       cwd->cd();
     } else {
-      m_dir=NULL;
+      m_dir=nullptr;
     }
     m_t0_ok=false;
     m_tmax_ok=false;
@@ -126,7 +126,10 @@ namespace MuonCalib {
     if(m_settings->T0Settings()->SlicingThreshold() >0 && m_chi2>m_settings->T0Settings()->SlicingThreshold()) {
       TopSlicing();
     }
-    std::cout<<m_time->GetName()<<" "<<m_chi2<<std::endl;
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << m_time->GetName()<<" "<<m_chi2 << endmsg;
+#endif
     m_status_code=0;	
     return true;
   }  //end T0MTHistos::FitT0
@@ -136,16 +139,18 @@ namespace MuonCalib {
 //////////////////
   bool T0MTHistos::FitTmax() {
     TDirectory *cwd=gDirectory;
-    if(m_dir!=NULL) m_dir->cd();
-    if(m_time==NULL) {
-      cerr<<"T0MTHistos::FitTmax: Class is not initialized!"<<endl;
+    if(m_dir!=nullptr) m_dir->cd();
+    if(m_time==nullptr) {
+      MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+      log << MSG::WARNING << "T0MTHistos::FitTmax: Class is not initialized!" << endmsg;
       m_tmax_ok=false;
       cwd->cd();
       return false;
     }
 //check if t0-fit was successfull t0 is needed for tmax-pattern recognition
-    if(!m_t0_ok || m_t0_fermi==NULL) {
-      cerr<<"T0MTHistos::FitTmax for tube "<<m_id<<": No valid t0-value!"<<endl;		
+    if(!m_t0_ok || m_t0_fermi==nullptr) {
+      MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+      log << MSG::WARNING << "T0MTHistos::FitTmax for tube "<<m_id<<": No valid t0-value!" << endmsg;
       m_tmax_ok=false;
       cwd->cd();
       return false;
@@ -154,13 +159,13 @@ namespace MuonCalib {
     MTTmaxPatternRecognition rec;
 //perform pattern recognition
     if(!rec.Initialize(m_time, m_t0_fermi->GetParameter(T0_PAR_NR_T0), m_settings)) {
-      cerr<<"T0MTHistos::FitTmax for tube "<<m_id<<": Pattern recognition failed!"<<endl;
+      MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+      log << MSG::WARNING << "T0MTHistos::FitTmax for tube "<<m_id<<": Pattern recognition failed!" << endmsg;
       m_tmax_ok=false;
       cwd->cd();
       return false;
     }
 //create function object
-//	sprintf(buffer,"mt_tmax_fermi_%d", m_id);
     char buffer[100]; 
     snprintf(buffer,100, "mt_tmax_fermi");
     if(!m_tmax_fermi) {
@@ -172,25 +177,21 @@ namespace MuonCalib {
       m_tmax_fermi->SetParName(TMAX_PAR_NR_A, "a");
       m_tmax_fermi->SetParName(TMAX_PAR_NR_B, "b");
 //set fixed values
-//	cout<<"fixing r_b="<<rec.GetBackground()<<endl;
       m_tmax_fermi->FixParameter(TMAX_PAR_NR_BACK, rec.GetBackground());
-//	cout<<"fixing a="<<rec.GetA()<<endl;
       m_tmax_fermi->FixParameter(TMAX_PAR_NR_A, rec.GetA());
-//	cout<<"fixing b="<<rec.GetB()<<endl;
       m_tmax_fermi->FixParameter(TMAX_PAR_NR_B, rec.GetB());
       m_tmax_fermi->FixParameter(TMAX_PAR_NR_T0, m_t0_fermi->GetParameter(T0_PAR_NR_T0));
 //set start values
-//	cout<<"start value for t_max="<<rec.GetEstimatedTMax()<<endl;
       m_tmax_fermi->SetParameter(TMAX_PAR_NR_TMAX, rec.GetEstimatedTMax());
       m_tmax_fermi->SetParameter(TMAX_PAR_NR_T, 3.0);
     }
 //perform fit
-    if(m_dir!=NULL) {
+    if(m_dir!=nullptr) {
       m_tmax_fermi->SetLineColor(3);
       m_tmax_fermi->Write();
     }
     m_tmax_fermi->SetLineColor(4);
-    string fitopt("LR");
+    std::string fitopt("LR");
     if(m_settings->VerboseLevel()==0)
       fitopt+="Q";		
     if(m_settings->AddFitfun()) {
@@ -208,14 +209,18 @@ namespace MuonCalib {
 // FitT0()	//
 //////////////////
   bool T0MTHistos::NormalFit() {
-    if(m_settings->VerboseLevel()>1) {
-      cout<<"T0MTHistos::FitT0(): called"<<endl;
-    }		
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "T0MTHistos::FitT0(): called" << endmsg;
+#endif
     TDirectory *cwd=gDirectory;
-    if(m_dir!=NULL) m_dir->cd();
+    if(m_dir!=nullptr) m_dir->cd();
 //check if class is initialized
-    if(m_time==NULL) {
-      cerr<<"T0MTHistos::FitT0: Class is not initialized!"<<endl;
+    if(m_time==nullptr) {
+#ifdef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+#endif
+      log << MSG::WARNING << "T0MTHistos::FitT0: Class is not initialized!" << endmsg;
       m_t0_ok=false;
       cwd->cd();
       m_status_code=3;
@@ -226,7 +231,10 @@ namespace MuonCalib {
 //perform pattern recognition
     if(!rec.Initialize(m_time, m_settings)) {
       m_t0_ok=false;
-      cerr<<"T0MTHistos::FitT0 for tube "<<m_id<<": Pattern recognition failed!"<<endl;
+#ifdef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+#endif
+      log << MSG::WARNING << "T0MTHistos::FitT0 for tube "<<m_id<<": Pattern recognition failed!" << endmsg;
       cwd->cd();
       m_status_code=3;
       return false;
@@ -250,7 +258,7 @@ namespace MuonCalib {
 //set resonable start value for T
     m_t0_fermi->SetParameter(T0_PAR_NR_T, 3.0);
 //perform fit - NOTE: The return value of the Fit function is not documented!
-    if(m_dir!=NULL) {
+    if(m_dir!=nullptr) {
       TLine *ln = new TLine( rec.GetFitRangeMin(), 0, rec.GetFitRangeMin(), m_time->GetMaximum());
       ln->Write("t0_range_min");
       ln = new TLine( rec.GetFitRangeMax(), 0, rec.GetFitRangeMax(), m_time->GetMaximum());
@@ -259,7 +267,7 @@ namespace MuonCalib {
       m_t0_fermi->Write();
     }
     m_t0_fermi->SetLineColor(2);
-    string fitopt("BLR");
+    std::string fitopt("BLR");
     if(m_settings->VerboseLevel()==0)
       fitopt+="Q";		
     if(m_settings->AddFitfun())	{
@@ -282,8 +290,11 @@ namespace MuonCalib {
 // T0Scramble()	//
 //////////////////
   bool T0MTHistos::T0Scramble() {
-    std::cout<<"Scrambling for "<<m_time->GetName()<<std::endl;
-    string fitopt("BLR");
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "Scrambling for "<<m_time->GetName() << endmsg;
+#endif
+    std::string fitopt("BLR");
     if(m_settings->VerboseLevel()==0)
       fitopt+="Q";		
     if(m_settings->AddFitfun()) {
@@ -301,11 +312,14 @@ namespace MuonCalib {
       if (scramhist->GetBinContent(binnr)<0) scramhist->SetBinContent(binnr, 0);
     }
     TDirectory *cwd=gDirectory;
-    if(m_dir!=NULL) m_dir->cd();
+    if(m_dir!=nullptr) m_dir->cd();
     MTT0PatternRecognition scramrec;
 //perform pattern recognition
     if(!scramrec.Initialize(scramhist, m_settings)) {
-      cerr<<"T0MTHistos::FitT0 for tube "<<m_id<<": Scrambed pattern recognition failed!"<<endl;
+#ifdef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+#endif
+      log << MSG::WARNING << "T0MTHistos::FitT0 for tube "<<m_id<<": Scrambed pattern recognition failed!" << endmsg;
       cwd->cd();
       return false;
     }
@@ -372,7 +386,10 @@ namespace MuonCalib {
   }  //end T0MTHistos::TopChi2
 	
   void T0MTHistos::TopSlicing() {
-    std::cout<<"Slicing for "<<m_time->GetName()<<std::endl;
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"T0MTHistos");
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "Slicing for "<<m_time->GetName() << endmsg;
+#endif
 //vector with slice chi2
     std::list<Slice> slice_chi2;	
     Slice current;
@@ -382,10 +399,14 @@ namespace MuonCalib {
     current.min_bin=m_time->FindBin(t0_fermi->GetParameter(T0_PAR_NR_T0) + 2 *  t0_fermi->GetParameter(T0_PAR_NR_T));
     Double_t min, max;
     t0_fermi->GetRange(min, max);
-    std::cout<<current.min_bin<<" "<<max<<std::endl;
+#ifndef NDEBUG
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << current.min_bin<<" "<<max << endmsg;
+#endif
     for(int bin=m_time->FindBin(t0_fermi->GetParameter(T0_PAR_NR_T0) + 2 *  t0_fermi->GetParameter(T0_PAR_NR_T)); bin<m_time->FindBin(max) - 1; bin++) {
       if(current.n_bins==10) {
-	std::cout<<current.chi_2/current.n_bins<<std::endl;			
+#ifndef NDEBUG
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << current.chi_2/current.n_bins << endmsg;
+#endif
 	current.max_bin=bin;
 	slice_chi2.push_back(current);
 	current.chi_2=0.0;
@@ -401,19 +422,23 @@ namespace MuonCalib {
 	current.chi_2 += std::pow(measval - funcval, 2.0)/std::pow(errval, 2);
       current.n_bins++;
     }
-    std::cout<<"number of slices: "<<slice_chi2.size()<<std::endl;
+#ifndef NDEBUG
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "number of slices: "<<slice_chi2.size() << endmsg;
+#endif
     std::list<Slice>::iterator it=slice_chi2.end();
     do {
       it--;
       if(it==slice_chi2.begin()) {
-	std::cout<<"No gain in slicing!"<<std::endl;
+#ifndef NDEBUG
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "No gain in slicing!" << endmsg;
+#endif
 	return;
       }
     }
     while(it->chi_2/static_cast<double>(it->n_bins) > 3);
     max=m_time->GetBinCenter(it->min_bin);
     m_time->GetListOfFunctions()->Clear();
-    string fitopt("BLR");
+    std::string fitopt("BLR");
     if(m_settings->VerboseLevel()==0)
       fitopt+="Q";		
     if(m_settings->AddFitfun())	{

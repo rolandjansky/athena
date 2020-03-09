@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -20,12 +20,8 @@ PURPOSE:  Transient/Persisten converter for MissingEtTruth class
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // MissingETEvent includes
-#define private public
-#define protected public
 #include "MissingETEvent/MissingET.h"
 #include "MissingETEvent/MissingEtTruth.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "RecTPCnv/MissingEtTruthCnv_p1.h"
@@ -34,19 +30,16 @@ PURPOSE:  Transient/Persisten converter for MissingEtTruth class
 // MissingET converter
 static MissingETCnv_p1 metCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// methods: 
-///////////////////////////////////////////////////////////////////
 
 void MissingEtTruthCnv_p1::persToTrans( const MissingEtTruth_p1* pers,
 				        MissingEtTruth* trans, 
-				        MsgStream& msg ) 
+				        MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading MissingEtTruth from persistent state..."  << endmsg;
 
-  trans->m_exTruth      = pers->m_exTruth;
-  trans->m_eyTruth      = pers->m_eyTruth;
-  trans->m_etSumTruth   = pers->m_etSumTruth;
+  trans->setExTruthVec      (std::vector<double> (pers->m_exTruth));
+  trans->setEyTruthVec      (std::vector<double> (pers->m_eyTruth));
+  trans->setEtSumTruthVec   (std::vector<double> (pers->m_etSumTruth));
   
   // use the MissingET converter to convert from pers to trans 
   metCnv.persToTrans(&pers->m_met, trans, msg);
@@ -59,16 +52,16 @@ void MissingEtTruthCnv_p1::persToTrans( const MissingEtTruth_p1* pers,
 
 void MissingEtTruthCnv_p1::transToPers( const MissingEtTruth* trans, 
 				        MissingEtTruth_p1* pers, 
-				        MsgStream& msg ) 
+				        MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of MissingEtTruth..."    << endmsg;
 
-  pers->m_exTruth     = trans->m_exTruth;
-  pers->m_eyTruth     = trans->m_eyTruth;
-  pers->m_etSumTruth  = trans->m_etSumTruth;
+  pers->m_exTruth     = trans->exTruthVec();
+  pers->m_eyTruth     = trans->eyTruthVec();
+  pers->m_etSumTruth  = trans->etSumTruthVec();
   
   
-  if( trans->m_source >= 0 && trans->m_source < 1000 )  
+  if( trans->getSource() >= 0 && trans->getSource() < 1000 )  
   {
     // use the MissingET converter to convert from trans to pers
     MissingET_p1 theMet;

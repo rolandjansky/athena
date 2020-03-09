@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -606,8 +606,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
      }
      m_savedTrkFittedPerigees.clear();
      m_fittedTrkCov.clear();
-     Trk::TrkVKalVrtFitter* vkalPnt = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitSvc));
-     if(vkalPnt)vkalPnt->clearMemory();
      return std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> (vrtCont,vrtAuxCont);
    }
  

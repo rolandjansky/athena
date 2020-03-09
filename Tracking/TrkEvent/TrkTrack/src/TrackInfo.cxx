@@ -82,7 +82,7 @@ Trk::TrackInfo::operator= (const TrackInfo& rhs)
 }
 
 Trk::TrackInfo::~TrackInfo()
-{}
+= default;
 
 std::string Trk::TrackInfo::dumpInfo() const
 {

@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 793768 2017-01-25 03:44:30Z ssnyder $
 ################################################################################
 # Package: CaloRec
 ################################################################################
@@ -36,8 +35,7 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArElecCalib
    LArCalorimeter/LArRawConditions
    LumiBlock/LumiBlockComps
-   Trigger/TrigAnalysis/TrigAnalysisInterfaces	
-   TestPolicy )
+   Control/AthenaMonitoringKernel )
 
 # External dependencies:
 find_package( AIDA )
@@ -57,7 +55,7 @@ atlas_add_library( CaloRecLib
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloEvent CaloGeoHelpers
    CaloIdentifier AthenaBaseComps AthenaKernel CxxUtils AthenaPoolUtilities
    Identifier xAODCaloEvent GaudiKernel CaloDetDescrLib CaloUtilsLib
-   StoreGateLib LArToolsLib LumiBlockCompsLib
+   StoreGateLib LArToolsLib LumiBlockCompsLib AthenaMonitoringKernelLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
    ${EIGEN_LIBRARIES} AthAllocators IdDictParser EventKernel
    FourMom NavFourMom )
@@ -75,7 +73,7 @@ atlas_add_test( CaloCellFastCopyTool_test
    SOURCES test/CaloCellFastCopyTool_test.cxx
    LINK_LIBRARIES CaloRecLib CaloEvent CaloDetDescrLib CaloIdentifier
    IdDictParser AthenaBaseComps StoreGateLib CxxUtils GaudiKernel
-   EXTRA_PATTERNS "Retrieved const pointer|Retrieved const handle|Service base class initialized|DEBUG Property update for OutputLevel|object not modifiable" )
+   LOG_IGNORE_PATTERN "Retrieved const pointer|Retrieved const handle|object not modifiable" )
 
 atlas_add_test( CaloCellContainerFromClusterTool_test
    SOURCES test/CaloCellContainerFromClusterTool_test.cxx
@@ -85,3 +83,47 @@ atlas_add_test( CaloCellContainerFromClusterTool_test
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
+
+atlas_add_test( CaloBCIDAvgAlgConfig_test
+                SCRIPT python -m CaloRec.CaloBCIDAvgAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+
+atlas_add_test( CaloTopoClusterConfig_test
+                SCRIPT python -m CaloRec.CaloTopoClusterConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+
+atlas_add_test( CaloCellContainerAliasAlg_test
+                SCRIPT python -m CaloRec.CaloCellContainerAliasAlg_test
+                PROPERTIES TIMEOUT 300
+                LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloThinCellsBySamplingAlg_test
+                SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlg_test
+                PROPERTIES TIMEOUT 300
+                LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloThinCellsByClusterAlg_test
+                SCRIPT python -m CaloRec.CaloThinCellsByClusterAlg_test
+                PROPERTIES TIMEOUT 300
+                LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloCellContainerAliasAlgConfig_test
+                SCRIPT python -m CaloRec.CaloCellContainerAliasAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator" )
+
+
+atlas_add_test( CaloThinCellsByClusterAlgConfig_test
+                SCRIPT python -m CaloRec.CaloThinCellsByClusterAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator" )
+
+
+atlas_add_test( CaloThinCellsBySamplingAlgConfig_test
+                SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator" )

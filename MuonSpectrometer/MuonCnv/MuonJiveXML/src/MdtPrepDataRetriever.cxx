@@ -32,12 +32,7 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
 
-    StatusCode sc=detStore()->retrieve(m_mdtIdHelper);
-    if (sc.isFailure())
-      {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve MdtIdHelper!" << endmsg;
-        return StatusCode::FAILURE;
-      }
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -108,7 +103,7 @@ namespace JiveXML {
           z.push_back(DataType(globalPos.z()/CLHEP::cm));
           driftRVec.push_back(DataType(localPos[Trk::driftRadius]/CLHEP::cm));
           lengthVec.push_back(DataType(tubeLength/CLHEP::cm));
-          identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_mdtIdHelper)));
+          identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_muonIdHelperTool->mdtIdHelper())));
           idVec.push_back(DataType( id.get_compact() ));
           barcode.push_back(DataType(0));
         }

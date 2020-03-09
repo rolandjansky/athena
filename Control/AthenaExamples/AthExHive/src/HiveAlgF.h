@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/**
+ * @file  HiveAlgF.h
+ * @brief Simple Algorithm that reads 6 HiveDataObjs created by HiveAlgA, 
+ * HiveAlgB, HiveAlgC, HiveAlgD, and HiveAlgE
+ */
 
 #ifndef ATHEXHIVE_ALGF_H
 #define ATHEXHIVE_ALGF_H 1
@@ -8,7 +14,6 @@
 #include "HiveAlgBase.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
-#include "rGen.h"
 
 #include <string>
 

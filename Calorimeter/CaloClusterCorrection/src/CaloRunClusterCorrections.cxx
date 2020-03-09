@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRunClusterCorrections.cxx,v 1.7 2009-05-20 20:48:52 ssnyder Exp $
@@ -57,8 +57,6 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
                                                       const std::string& name,
                                                       const IInterface* parent)
   : CaloClusterProcessor (type, name, parent),
-    //m_storeGate ("StoreGateSvc",  name),
-    //m_detStore  ("DetectorStore", name),
     m_jos       ("JobOptionsSvc", name),
     m_toolsvc   ("ToolSvc",       name),
     m_coolInlineTool("Blob2ToolConstants",this)
@@ -68,8 +66,6 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
   declareProperty ("PreserveOrder", m_preserveOrder = false);
   declareProperty ("NoClearProps",  m_noClearProps = false);
 
-  //declareProperty ("EventStore",    m_storeGate);
-  //declareProperty ("DetectorStore", m_detStore);
   declareProperty ("JobOptionsSvc", m_jos);
   declareProperty ("ToolSvc",       m_toolsvc);
   declareProperty ("COOLFolder",    m_folderName);
@@ -79,11 +75,9 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
 /**
  * @brief Standard initialize method.
  */
-StatusCode CaloRunClusterCorrections::initialize()
+StatusCode CaloRunClusterCorrections::initialize ATLAS_NOT_THREAD_SAFE /*Can Register callbacks but no need to be thread safe*/ ()
 {
   // Fetch services used.
-  //CHECK( m_storeGate.retrieve() );
-  //CHECK( m_detStore.retrieve() );
   CHECK( m_jos.retrieve() );
   CHECK( m_toolsvc.retrieve() );
 
@@ -173,19 +167,6 @@ CaloRunClusterCorrections::execute (const EventContext& ctx,
       xAOD::CaloClusterContainer* interimCont=CaloClusterStoreHelper::makeContainer(&(*evtStore()),tool.save_container,msg());
       CaloClusterStoreHelper::copyContainer(collection,interimCont);
       CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),interimCont, tool.save_container, msg()));
-
-      /*
-      xAOD::CaloClusterContainer* savecoll = copyContainer (collection);
-      
-      CHECK( CaloClusterStoreHelper::recordClusters(&*m_storeGate, 
-                                                    savecoll,
-                                                    tool.save_container,
-                                                    *m_log) );
-      CHECK( CaloClusterStoreHelper::finalizeClusters(&*m_storeGate, 
-						      savecoll,
-                                                      tool.save_container,
-						      *m_log) );
-      */
     }
     
     CHECK( tool.collproc->execute (ctx, collection) );
@@ -382,7 +363,7 @@ StatusCode CaloRunClusterCorrections::parseKeeplist()
  * @brief Create all tools that we can during initialization.
  *        Set up to create remaining tools during a callback.
  */
-StatusCode CaloRunClusterCorrections::createTools ()
+StatusCode CaloRunClusterCorrections::createTools ATLAS_NOT_THREAD_SAFE /*Binds to callback*/()
 {
   // Set to true if creation of any tools is deferred to a callback.
   bool any_cb = false;
@@ -454,7 +435,7 @@ StatusCode CaloRunClusterCorrections::createTools ()
  * has been registered (see comment in @c createTools).
  */
 void
-CaloRunClusterCorrections::registerCallbacks()
+CaloRunClusterCorrections::registerCallbacks ATLAS_NOT_THREAD_SAFE /*Registers callback*/ ()
 {
   if (m_folderName.size()) { //COOL inline storage
 
@@ -545,7 +526,7 @@ StatusCode CaloRunClusterCorrections::makeTool (Tool& tool)
  * (or after the DB is accessed for the first time).
  */
 StatusCode
-CaloRunClusterCorrections::updateTools (IOVSVC_CALLBACK_ARGS_P( i, keys))
+CaloRunClusterCorrections::updateTools ATLAS_NOT_THREAD_SAFE /*callbacks*/ (IOVSVC_CALLBACK_ARGS_P( i, keys))
 {
   REPORT_MESSAGE(MSG::DEBUG) << "In IOV Callback method updateTools";
 
@@ -621,7 +602,7 @@ CaloRunClusterCorrections::updateTools (IOVSVC_CALLBACK_ARGS_P( i, keys))
  * setting of the @c region property.
  */
 StatusCode 
-CaloRunClusterCorrections::clsnameFromDBConstants (Tool& tool)
+CaloRunClusterCorrections::clsnameFromDBConstants ATLAS_NOT_THREAD_SAFE (Tool& tool)
 {
   const Tool& ctool = tool;
   const CaloRec::ToolConstants& tc = *ctool.dbconstants;
@@ -685,7 +666,7 @@ CaloRunClusterCorrections::clsnameFromDBConstants (Tool& tool)
  * exist in the @c ToolConstants structure, use instead the longest
  * matching prefix.
  */
-StatusCode CaloRunClusterCorrections::fixPrefix (Tool& tool)
+StatusCode CaloRunClusterCorrections::fixPrefix ATLAS_NOT_THREAD_SAFE (Tool& tool)
 {
   const Tool& ctool = tool;
   typedef CaloRec::ToolConstants::Maptype Maptype;
@@ -770,7 +751,7 @@ StatusCode CaloRunClusterCorrections::fixPrefix (Tool& tool)
  * @brief Fill in @c m_toolorder to run corrections in the proper order.
  */
 StatusCode
-CaloRunClusterCorrections::orderCorrections (bool allowMissing)
+CaloRunClusterCorrections::orderCorrections ATLAS_NOT_THREAD_SAFE (bool allowMissing)
 {
   // Clear out any previous setting.
   m_toolorder.clear();
@@ -881,9 +862,9 @@ bool CaloRunClusterCorrections::ToolorderSort::operator() (int a, int b) const
  * @param out[out] The retrieved parameter.
  */
 StatusCode
-CaloRunClusterCorrections::getConstant (const Tool& tool,
-                                        const std::string& pname,
-                                        int& out)
+CaloRunClusterCorrections::getConstant ATLAS_NOT_THREAD_SAFE (const Tool& tool,
+                                                              const std::string& pname,
+                                                              int& out)
 {
   if (!tool.dbconstants.isValid()) {
     REPORT_ERROR(StatusCode::FAILURE)

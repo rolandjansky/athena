@@ -46,7 +46,7 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()
   m_iOwnParametersDifference ( true ),
   m_parametersCovariance(0),
   m_iOwnParametersCovariance(true),
-  m_measurementDifferenceVector(0)
+  m_measurementDifferenceVector(nullptr)
 {
   m_identifier.clear();
 }
@@ -82,7 +82,7 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_parametersCovariance ( rhs.m_iOwnParametersCovariance?
     ( rhs.m_parametersCovariance? new AmgSymMatrix(5) ( *rhs.m_parametersCovariance ) : 0 ) : rhs.m_parametersCovariance),
   m_iOwnParametersCovariance ( rhs.m_iOwnParametersCovariance ),
-  m_measurementDifferenceVector(0)
+  m_measurementDifferenceVector(nullptr)
 {
 }
 
@@ -120,7 +120,7 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_iOwnParametersDifference(true),
   m_parametersCovariance(0),
   m_iOwnParametersCovariance(true),
-  m_measurementDifferenceVector(0)
+  m_measurementDifferenceVector(nullptr)
 {
   m_identifier.clear();
 }
@@ -149,7 +149,6 @@ Trk::ProtoTrackStateOnSurface::~ProtoTrackStateOnSurface()
   if (m_iOwnParametersCovariance) {
       delete m_parametersCovariance;
   }
-  delete m_measurementDifferenceVector;
 }
 
 Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Trk::ProtoTrackStateOnSurface& rhs)
@@ -201,7 +200,7 @@ Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Tr
                                 ? new AmgSymMatrix(5)(*rhs.m_parametersCovariance) : 0 )
                             : rhs.m_parametersCovariance;
     m_iOwnParametersCovariance= rhs.m_iOwnParametersCovariance;
-    m_measurementDifferenceVector = 0;
+    m_measurementDifferenceVector.store(nullptr);
   }
   return *this;
 }
@@ -246,7 +245,7 @@ void Trk::ProtoTrackStateOnSurface::checkinMeasurement(const Trk::MeasurementBas
   m_measurement     = meas;
   m_iOwnMeasurement = classShallOwnMbase;
   m_mType           = Trk::TrackState::unidentified;
-  delete m_measurementDifferenceVector; m_measurementDifferenceVector = 0;
+  m_measurementDifferenceVector.store(nullptr);
 }
 
 void Trk::ProtoTrackStateOnSurface::replaceMeasurement(const Trk::MeasurementBase* meas,
@@ -257,7 +256,7 @@ void Trk::ProtoTrackStateOnSurface::replaceMeasurement(const Trk::MeasurementBas
     m_measurement = meas;
     m_iOwnMeasurement = true;
     m_calib           = ct;
-    delete m_measurementDifferenceVector; m_measurementDifferenceVector = 0;
+    m_measurementDifferenceVector.store(nullptr);
     // assume that replacements are done with the same detector type (recalibration)
   }
 }
@@ -269,8 +268,8 @@ const Trk::MeasurementBase* Trk::ProtoTrackStateOnSurface::checkoutMeasurement()
     return 0;
   }
   const Trk::MeasurementBase* helper = m_measurement;
-  m_measurement = NULL;
-  delete m_measurementDifferenceVector; m_measurementDifferenceVector = 0;
+  m_measurement = nullptr;
+  m_measurementDifferenceVector.store(nullptr);
   if (!m_iOwnMeasurement) {
     return helper->clone();
   } else {
@@ -314,7 +313,7 @@ void Trk::ProtoTrackStateOnSurface::checkinReferenceParameters ( const Trk::Trac
   }
   m_referenceParameters = referenceParameters;
   m_iOwnRefPars         = classShallOwnRefPars;
-  delete m_measurementDifferenceVector; m_measurementDifferenceVector = 0;
+  m_measurementDifferenceVector.store(nullptr);
 }
 
 const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutReferenceParameters() 
@@ -323,7 +322,7 @@ const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutReferencePara
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutReferenceParameters!" << std::endl;
     return 0;
   }
-  delete m_measurementDifferenceVector; m_measurementDifferenceVector = 0;
+  m_measurementDifferenceVector.store(nullptr);
   const Trk::TrackParameters* helper = m_referenceParameters;
   m_referenceParameters = 0;
   if ( !m_iOwnRefPars ) return helper->clone();
@@ -546,7 +545,7 @@ const Trk::TrackStateOnSurface* Trk::ProtoTrackStateOnSurface::createState(bool 
   else if (!m_measurement && m_protoMaterialEffects) typePattern.set(TrackStateOnSurface::Scatterer);
   else return 0;
 
-  const Trk::MaterialEffectsBase* mefot = 0;
+  const Trk::MaterialEffectsBase* mefot = nullptr;
   if (m_dnaMaterialEffects) {
     mefot = m_dnaMaterialEffects->makeMEFOT();
     typePattern.set(TrackStateOnSurface::BremPoint);
@@ -580,23 +579,17 @@ const Trk::Surface *Trk::ProtoTrackStateOnSurface::surface() const {
 
 const Amg::VectorX* Trk::ProtoTrackStateOnSurface::measurementDifference() const {
     if (!m_measurement || !m_referenceParameters) {
-        return 0;
+        return nullptr;
     }
     if (m_measurementDifferenceVector) {
-        return m_measurementDifferenceVector;
+        return m_measurementDifferenceVector.get();
     }
+
     const LocalParameters& locPar = m_measurement->localParameters();
-
-    m_measurementDifferenceVector = new Amg::VectorX();
-    // TODO. check, how to simplify projection by using block
-//     if ( paramKey == 3 || paramKey == 7 || paramKey == 15 ) {
-//         projTrkPar = trkPar.block<DIM,1>(0,0);
-//     }
-//     else projTrkPar = H*trkPar;
-
-    *m_measurementDifferenceVector = 
-      locPar - locPar.expansionMatrix()*m_referenceParameters->parameters();
-    return m_measurementDifferenceVector;
+    std::unique_ptr<Amg::VectorX> tmp_measurementDifferenceVector=std::make_unique<Amg::VectorX>();
+    (*tmp_measurementDifferenceVector)=locPar - locPar.expansionMatrix()*m_referenceParameters->parameters();
+    m_measurementDifferenceVector.set(std::move(tmp_measurementDifferenceVector));
+    return m_measurementDifferenceVector.get();
 }
 
 /// general swap function for ProtoTrackStateOnSurface (to speed up sort, etc)

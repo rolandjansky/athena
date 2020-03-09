@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawChannelMonTools.h"
@@ -7,13 +7,9 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
 
-#include <boost/foreach.hpp>
-
 #include <stdexcept>
 #include <cmath>
 #include <cfloat>
-
-#define foreach BOOST_FOREACH
 
 using namespace LArMonTools;
 using namespace std;
@@ -245,7 +241,7 @@ vector<double> LArMonTools::sparse_bins_vector( Container const &bins,
 	
   vector<double> result( n_elements, min );
 	
-  foreach( typename Container::value_type x, bins )
+  for( typename Container::value_type x : bins )
     result.at( x - min ) = ( static_cast<double>( x ) - 0.5 ) * bin_size;
 	
   if ( result.front() == min ) result.front() = min - 0.5 * bin_size;
@@ -256,7 +252,7 @@ vector<double> LArMonTools::sparse_bins_vector( Container const &bins,
   bool is_first_entry = true;
   double last = static_cast<double>( min );
 	
-  foreach ( double &d, result ){
+  for ( double &d : result ){
 		
     if ( is_first_entry ) {
 			
@@ -355,18 +351,18 @@ void lar_axis_maker::generate()
   m_bins.clear();
 
   // for each detector
-  foreach( const det_region_map_t::value_type &det_regions, m_regions ) {
+  for( const det_region_map_t::value_type &det_regions : m_regions ) {
 
     const Detector &det = det_regions.first;
 
     // for each sampling
-    foreach( const sam_region_map_t::value_type &sam_regions, det_regions.second ) {
+    for( const sam_region_map_t::value_type &sam_regions : det_regions.second ) {
 
       const Sampling &samp = sam_regions.first;
       m_bins[det][samp] = vector<double>();
 
       // for each region
-      foreach( const Region &region, sam_regions.second ) {
+      for( const Region &region : sam_regions.second ) {
 
 	double        lo   = region.lower;
 	const double &up   = region.upper;

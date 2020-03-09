@@ -59,5 +59,5 @@ def ExampleStreamConfig2(streamname,tag):
 #   streamname.ItemList += exampleItemList
    streamname.TakeItemsFromInput = True
    streamname.ProcessingTag = tag
-   print "Setting tag ", streamname.ProcessingTag
+   printfunc ("Setting tag ", streamname.ProcessingTag)
    return

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 slimHLTBSFile.py
 
@@ -57,9 +57,12 @@ def modify(event):
   new_event.copy_header(event)
   for rob in event:
     newrob=eformat.write.ROBFragment(rob)
-    if rob.source_id().human_detector()=='TDAQ_CALO_PREPROC': continue
-    if rob.source_id().human_detector()=='TDAQ_LVL2': continue
-    if rob.source_id().human_detector()=='TDAQ_EVENT_FILTER': continue
+    if rob.source_id().human_detector()=='TDAQ_CALO_PREPROC':
+      continue
+    if rob.source_id().human_detector()=='TDAQ_LVL2':
+      continue
+    if rob.source_id().human_detector()=='TDAQ_EVENT_FILTER':
+      continue
     if rob.source_id().human_group()=="TILECAL":
       data = rob.rod_data()
       newdata=reducedTILE(data)
@@ -79,7 +82,7 @@ def modify(event):
 
 if __name__ == "__main__":
   if len(sys.argv)!=3:
-    print 'usage:',sys.argv[0],'<infile> <outfile>'
+    print('usage: %s <infile> <outfile>' % sys.argv[0])
     sys.exit(1)
   input_file = sys.argv[1]
   output_file = sys.argv[2]

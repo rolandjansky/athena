@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: WriteHandle.h 797637 2017-02-17 02:32:11Z ssnyder $
@@ -312,6 +312,26 @@ public:
    * return success.  In either case, @c data is destroyed.
    */
   const_pointer_type put (std::unique_ptr<const ConstDataVector<T> > data,
+                          bool returnExisting = false) const;
+
+
+  /**
+   * @brief Record an object to the store.
+   * @param ctx The event context to use.
+   * @param data The object to record.
+   * @param returnExisting Allow an existing object?
+   *
+   * Unlike record(), this does not change the handle object.
+   * That means that one will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   * If there was already an object in the store with the given key,
+   * then return null, unless @c returnExisting is true, in which case
+   * return success.  In either case, @c data is destroyed.
+   */
+  const_pointer_type put (const EventContext& ctx,
+                          std::unique_ptr<const ConstDataVector<T> > data,
                           bool returnExisting = false) const;
 
 

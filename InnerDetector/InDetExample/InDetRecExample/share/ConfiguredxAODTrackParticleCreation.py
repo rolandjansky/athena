@@ -41,7 +41,7 @@ class ConfiguredxAODTrackParticleCreation:
 
          ToolSvc += InDetxAODParticleCreatorTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetxAODParticleCreatorTool
+            printfunc (InDetxAODParticleCreatorTool)
 
          from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
          xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetxAODParticleCreatorAlg"+InputTrackCollection,
@@ -61,10 +61,10 @@ class ConfiguredxAODTrackParticleCreation:
              xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
 
          elif (InDetFlags.doTruth() and InputTrackTruthCollection == ''):
-             print "WARNING: ConfiguredxAODTrackParticleCreation - doTruth = True, but no input Truth collection specified!"
+             printfunc ("WARNING: ConfiguredxAODTrackParticleCreation - doTruth = True, but no input Truth collection specified!")
          else:
             xAODTrackParticleCnvAlg.AddTruthLink = False
 
          topSequence += xAODTrackParticleCnvAlg
          if (InDetFlags.doPrintConfigurables()):
-            print xAODTrackParticleCnvAlg
+            printfunc (xAODTrackParticleCnvAlg)

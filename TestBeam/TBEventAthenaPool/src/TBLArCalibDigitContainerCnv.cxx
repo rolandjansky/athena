@@ -25,7 +25,7 @@ TBLArCalibDigitContainerCnv::~TBLArCalibDigitContainerCnv()
 StatusCode TBLArCalibDigitContainerCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBLArCalibDigitContainerCnv");
@@ -35,14 +35,16 @@ StatusCode TBLArCalibDigitContainerCnv::initialize()
 }
 
 
-StatusCode TBLArCalibDigitContainerCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
+StatusCode TBLArCalibDigitContainerCnv::PoolToDataObject(DataObject*& pObj,
+                                                         const Token* token,
+                                                         const std::string& key)
 {
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
   MsgStream log(msgSvc(), "TBLArCalibDigitContainerCnv::PoolToDataObject" );
    
-  StatusCode sc = TBLArCalibDigitContainerCnvBase::PoolToDataObject(pObj, token);
+  StatusCode sc = TBLArCalibDigitContainerCnvBase::PoolToDataObject(pObj, token, key);
   if (sc.isFailure()) {
     log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;
@@ -59,11 +61,4 @@ StatusCode TBLArCalibDigitContainerCnv::PoolToDataObject(DataObject*& pObj, cons
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBLArCalibDigitContainerCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBLArCalibDigitContainerCnv::DataObjectToPool" );
-  
-  return TBLArCalibDigitContainerCnvBase::DataObjectToPool( pObj, tname) ;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBUTILS_L1CALOTRIGGERTOWERSELECTOR_H
@@ -32,9 +32,6 @@ public:
 
 private:
 	bool isSelected(double eta, double phi);
-
-    // StoreGate service
-    StoreGateSvc* m_storeGate;
 
     // Trigger tower container StoreGate key
     std::string m_inputTriggerTowerLocation;

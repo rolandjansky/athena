@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -31,14 +31,17 @@
 
 class MsgStream;
 
-class TrigEMClusterCnv_p3 : public T_AthenaPoolTPCnvBase<TrigEMCluster, TrigEMCluster_p3>  {
+class TrigEMClusterCnv_p3 : public T_AthenaPoolTPCnvConstBase<TrigEMCluster, TrigEMCluster_p3>  {
     
   public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
+
 
     TrigEMClusterCnv_p3() { }
 
-    virtual void persToTrans(const TrigEMCluster_p3* persObj,  TrigEMCluster* transObj,   MsgStream& log);
-    virtual void transToPers(const TrigEMCluster* transObj, TrigEMCluster_p3* persObj, MsgStream& log);
+    virtual void persToTrans(const TrigEMCluster_p3* persObj,  TrigEMCluster* transObj,   MsgStream& log) const override;
+    virtual void transToPers(const TrigEMCluster* transObj, TrigEMCluster_p3* persObj, MsgStream& log) const override;
 
  protected:
     

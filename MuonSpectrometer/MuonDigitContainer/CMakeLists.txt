@@ -11,9 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           DetectorDescription/Identifier
                           Event/EventContainers
-                          MuonSpectrometer/MuonIdHelpers
-                          PRIVATE
-                          TestPolicy )
+                          MuonSpectrometer/MuonIdHelpers )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

@@ -73,12 +73,11 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(
 
 InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack::operator=(const InDet::CompetingTRT_DriftCirclesOnTrack& compROT) {
   if (this!=&compROT) {
-    // assingment operator of base class
+    // assignment operator of base class
     Trk::CompetingRIOsOnTrack::operator=(compROT);
     // clear rots
     clearChildRotVector();
     delete m_containedChildRots;
-    if (m_globalPosition) delete m_globalPosition.release().get();
     // delete surface if not owned by detElement
     if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
       delete m_associatedSurface;
@@ -90,10 +89,33 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
       m_associatedSurface = 0;
     }
     if (compROT.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+    else if (m_globalPosition) m_globalPosition.release().reset();
     m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface.load();
     std::vector<const InDet::TRT_DriftCircleOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
     for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
       m_containedChildRots->push_back((*rotIter)->clone());
+  }
+  return (*this);
+}
+
+InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack::operator=(InDet::CompetingTRT_DriftCirclesOnTrack&& compROT) {
+  if (this!=&compROT) {
+    // rots
+    clearChildRotVector();
+    *m_containedChildRots = std::move (*compROT.m_containedChildRots);
+
+    m_globalPosition = std::move (compROT.m_globalPosition);
+    
+    // delete surface if not owned by detElement
+    if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
+      delete m_associatedSurface;
+    m_associatedSurface = compROT.m_associatedSurface;
+    compROT.m_associatedSurface = nullptr;
+
+    m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface.load();
+
+    // base class move
+    Trk::CompetingRIOsOnTrack::operator=(std::move(compROT));
   }
   return (*this);
 }

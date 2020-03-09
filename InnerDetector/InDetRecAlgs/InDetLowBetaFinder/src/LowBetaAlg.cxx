@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -9,7 +9,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/AlgTool.h"
 
 #include "TrkTrack/Track.h"
@@ -24,7 +23,7 @@
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +45,7 @@ namespace InDet
     m_trtconddbsvc("TRT_CalDbSvc",name),
     m_fieldServiceHandle("AtlasFieldSvc",name),
     m_TrtTool(0),
-    m_TRTdEdxTool("TRT_ToT_dEdx"),
+    m_TRTdEdxTool(),
     m_TrtToolsSuccess{},
     m_TrtToolInitSuccess{}
   {
@@ -123,7 +122,6 @@ namespace InDet
                       float TRTLikelihoodBeta    = CSMP_indicators[7];
                       float TRTLikelihoodError   = CSMP_indicators[8];
                       float TRTHighTbits         = CSMP_indicators[9];
-
                       CSMP_Candidate = 
                           std::make_unique<InDet::InDetLowBetaCandidate>(TRTToTdEdx,
                                                                          TRTTrailingEdge,
@@ -254,13 +252,12 @@ namespace InDet
     double theta  = parameterVector[Trk::theta];
     double trk_eta  = -log(tan(theta/2.0));
     double trk_z0   = parameterVector[Trk::z0];
-    
     if (tan(theta/2.0) < 0.0001) {
       ATH_MSG_DEBUG( "  Track has negative theta or is VERY close to beampipe! (tan(theta/2) < 0.0001) " );
       return Discriminators; // to allow RVO
     }
 
-    if (qOverP == 0.0) {
+    if (qOverP <1e-5) {
       ATH_MSG_DEBUG( " Track momentum infinite! (i.e. q/p = 0) " );
       return Discriminators; // to allow RVO
     }
@@ -506,7 +503,7 @@ namespace InDet
 		//if (bec == 1 || bec == -1) length = projlength/sinth; // track path length in a straw
 		//if (bec == 2 || bec == -2) length = fabs( projlength/costh); // track path length in a straw
 		
-		if (projlength > 0)totoverl = tot*3.125/projlength;
+		if (projlength > 0) totoverl = tot*3.125/projlength;
 		if (totoverl>35.)  {
 		  hbad +=1;
 		  }
@@ -621,7 +618,6 @@ namespace InDet
 
 	RCorrTotalBitsOverThreshold = RCorrTotalBitsOverThreshold - highestToT;
 	RCorrectedAverageBitsOverThreshold = double(RCorrTotalBitsOverThreshold)/double(goodTRThits-1)+1.0;
-	
 	TrailingEdge = (te_product_sum/sq_dist_sum)*300 + 1.0;
 	if ((te_quotient_sum*te_quotient_sum*300*300)/goodTRThits - TrailingEdge*TrailingEdge > 0){
 	  //TrailingEdgeSigma = sqrt((te_quotient_sum*te_quotient_sum*300*300)/goodTRThits - TrailingEdge*TrailingEdge);

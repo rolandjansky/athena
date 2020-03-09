@@ -102,9 +102,6 @@ topSequence.AnalysisSkeleton.IsAtlFastData = IsAtlfast
 topSequence.AnalysisSkeleton.SusyJetMinEt      = 50*GeV
 topSequence.AnalysisSkeleton.DoTruth = False
 
-if 'IS_SIMULATION' in inputFileSummary['evt_type']:
-   topSequence.AnalysisSkeleton.DoTruth                = True
-
 print AnalysisSkeleton
 
 # Change the selections if necesary

@@ -29,6 +29,5 @@ atlas_add_component( MuonEventCnvTools
                      LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests Identifier EventPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack TrkDetElementBase TrkPrepRawData TrkRIO_OnTrack )
 
 # Install files from the package:
-atlas_install_headers( MuonEventCnvTools )
 atlas_install_joboptions( share/*.py )
 

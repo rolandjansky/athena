@@ -14,36 +14,36 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
+//for Run3
+#include "TrigT1TGC/TGCTrackSelectorOut.h"
+
 #include <iostream>
 
 namespace LVL1TGCTrigger {
   
-  extern bool g_USE_INNER;
-  extern bool g_INNER_VETO;
-  extern bool g_TILE_MU;
-  extern bool g_USE_CONDDB;
-
-TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
+  TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, TGCRegionType regionIn, int idIn):
     m_bid(0),
     m_id(idIn),
     m_sectorId(0), m_moduleId(0),
     m_sideId(0),   m_octantId(0),
     m_region(regionIn),
     m_NumberOfWireHighPtBoard(0), 
-    m_SSCController(this), 
-    m_matrix(this),
+    m_SSCController(tgcargs,this), 
+    m_matrix(tgcargs,this),
     m_mapInner(0),
     m_mapTileMu(0),
     m_pTMDB(0),
-    m_preSelector(this), 
-    m_selector(this), 
-    m_selectorOut(0),
+    m_preSelector(this), // for Run2 
+    m_selector(this),//for Run2  
+    m_selectorOut(0), //for Run2
+    m_trackSelector(this),// for Run3
     m_wordTileMuon(0),
     m_wordInnerStation(0),
     m_stripHighPtBoard(0),
     m_stripHighPtChipOut(0),
     m_useInner(false),
-    m_useTileMu(false)
+    m_useTileMu(false),
+    m_tgcArgs(tgcargs)
 {
   m_sideId = (idIn/NumberOfModule)/NumberOfOctant;
   m_octantId = (idIn/NumberOfModule)%NumberOfOctant;
@@ -67,8 +67,11 @@ TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
 
   m_SSCController.setRegion(regionIn);
 
-  m_useInner  = g_USE_INNER && (m_region==ENDCAP); 
-  m_useTileMu = g_TILE_MU && (m_region==ENDCAP); 
+  m_useInner  = tgcArgs()->USE_INNER() && (m_region==ENDCAP); 
+  m_useTileMu = tgcArgs()->TILE_MU() && (m_region==ENDCAP); 
+  
+  m_trackSelectorOut.reset(new TGCTrackSelectorOut());//for Run3
+
 }
 
 TGCSectorLogic::~TGCSectorLogic()
@@ -112,6 +115,11 @@ void TGCSectorLogic::setStripHighPtBoard(TGCHighPtBoard* highPtBoard)
 TGCSLSelectorOut* TGCSectorLogic::getSelectorOutput() const
 {
   return m_selectorOut;
+}
+
+  void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
+{
+  trackSelectorOut=m_trackSelectorOut;
 }
 
 void TGCSectorLogic::eraseSelectorOut()
@@ -182,38 +190,47 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
     // do coincidence with Inner Tracklet and/or TileMu
     if (m_useInner) doInnerCoincidence(readCondKey, SSCid, coincidenceOut);
 
-    if(coincidenceOut) m_preSelector.input(coincidenceOut);
+    if(coincidenceOut){
+      if(tgcArgs()->useRun3Config()){m_trackSelector.input(coincidenceOut);}// TrackSelector for Run3
+      else{m_preSelector.input(coincidenceOut);}// TrackSelector for Run2
       // coincidenceOut will be deleted 
       //  in m_preSelector.input() if coincidenceOut has no hit
       //  in m_preSelector.select() if if coincidenceOut has hit
+    }
   }
   if(SSCCOut!=0) delete SSCCOut;
   SSCCOut=0;
 
+  if(tgcArgs()->useRun3Config()){
+    //Track selector in Run3. max 4 tracks ,which are send to MUCTPI, are selected. 
+    m_trackSelector.select(m_trackSelectorOut);
+  }
+  else{
 #ifdef TGCDEBUG
-  m_preSelector.dumpInput();
+    m_preSelector.dumpInput();
 #endif
   
-  // get SLPreSelectorOut
-  TGCSLPreSelectorOut* preSelectorOut = m_preSelector.select();
-   // preSelectorOut will be deleted after m_selector.select() 
+    // get SLPreSelectorOut
+    TGCSLPreSelectorOut* preSelectorOut = m_preSelector.select();
+    // preSelectorOut will be deleted after m_selector.select() 
 
 #ifdef TGCDEBUG
-  preSelectorOut->print();
+    preSelectorOut->print();
 #endif
 
-  // delete SLSelectorOut if exists
-  if(m_selectorOut!=0) delete m_selectorOut;
-  // create new  SLSelectorOut
-  m_selectorOut = new TGCSLSelectorOut;
+    // delete SLSelectorOut if exists
+    if(m_selectorOut!=0) delete m_selectorOut;
+    // create new  SLSelectorOut
+    m_selectorOut = new TGCSLSelectorOut;
 
-  if(preSelectorOut!=0){
-    // select final canidates
-    m_selector.select(preSelectorOut,m_selectorOut);
+    if(preSelectorOut!=0){
+      // select final canidates
+      m_selector.select(preSelectorOut,m_selectorOut);
     
-    // delete SLPreSelectorOut
-    delete preSelectorOut;
-    preSelectorOut=0;
+      // delete SLPreSelectorOut
+      delete preSelectorOut;
+      preSelectorOut=0;
+    }
   }
 
 #ifdef TGCDEBUG
@@ -291,8 +308,8 @@ TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right):
      m_sideId(right.m_sideId), m_octantId(right.m_octantId),
      m_region(right.m_region),
      m_NumberOfWireHighPtBoard(right.m_NumberOfWireHighPtBoard),
-     m_SSCController(this), 
-     m_matrix(this),
+     m_SSCController(right.tgcArgs(),this), 
+     m_matrix(right.tgcArgs(),this),
      m_mapInner(right.m_mapInner),
      m_mapTileMu(right.m_mapTileMu), m_pTMDB(right.m_pTMDB),
      m_preSelector(this), m_selector(this),
@@ -300,7 +317,7 @@ TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right):
      m_wordTileMuon(0), m_wordInnerStation(0),
      m_stripHighPtBoard(right.m_stripHighPtBoard), 
      m_stripHighPtChipOut(0),
-     m_useInner(right.m_useInner), m_useTileMu(right.m_useTileMu)
+     m_useInner(right.m_useInner), m_useTileMu(right.m_useTileMu), m_tgcArgs(right.m_tgcArgs)
 {
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
       m_wireHighPtBoard[i] = 0;
@@ -383,7 +400,7 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
   SG::ReadCondHandle<TGCTriggerData> readHandle{readCondKey};
   const TGCTriggerData* readCdo{*readHandle};
 
-  if (g_USE_CONDDB) {
+  if (tgcArgs()->USE_CONDDB()) {
     bool isActiveTile = readCdo->isActive(TGCTriggerData::CW_TILE);
     m_useTileMu = isActiveTile && (m_region==ENDCAP);
   }
@@ -495,8 +512,8 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
 
   // decrease pt level to the highest pt without InnerrCoin
   
-  bool innerVeto = g_INNER_VETO;
-  if (g_USE_CONDDB) {
+  bool innerVeto = tgcArgs()->INNER_VETO();
+  if (tgcArgs()->USE_CONDDB()) {
     bool isActiveEifi = readCdo->isActive(TGCTriggerData::CW_EIFI);  
     innerVeto  = isActiveEifi && (m_region==ENDCAP);
   }

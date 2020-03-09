@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #No input file -> use MC event selector
 
 if 'DBInstance' not in dir():
@@ -27,16 +29,16 @@ if "IOVEndLB" not in dir():
 if "sqlite" not in dir():
     sqlite="BadChannels.db"
 
-from string import *
 import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.GlobalFlags import  globalflags
 globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
-globalflags.DatabaseInstance=DBInstance
+if "OFLP" not in DBInstance:
+   globalflags.DatabaseInstance=DBInstance
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -74,8 +76,7 @@ svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 theApp.EvtMax=1
 
@@ -87,30 +88,14 @@ theLArDBAlg.DBFolder=Folder
 theLArDBAlg.OutputLevel=DEBUG
 topSequence += theLArDBAlg
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=True
-
-theLArBadChannelTool.EMECAfile = InputFile 
-theLArBadChannelTool.HECAfile = InputFile
-theLArBadChannelTool.FCALAfile = InputFile
-
-theLArBadChannelTool.EMECCfile = InputFile
-theLArBadChannelTool.HECCfile = InputFile
-theLArBadChannelTool.FCALCfile =InputFile
-
-theLArBadChannelTool.EMBAfile =InputFile
-theLArBadChannelTool.EMBCfile =InputFile
-
-
-theLArBadChannelTool.CoolFolder=""
-theLArBadChannelTool.CoolMissingFEBsFolder = ""
-
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey="", InputFileName=InputFile, OutputLevel=DEBUG)
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq+=theLArBadChannelCondAlg
 
 OutputList=[ "CondAttrListCollection#"+Folder ]
-Tag=join(split(Folder, '/'),'') + TagPostfix
+Tag=''.join(Folder.split ('/')) + TagPostfix
 OutputTagList=[Tag] 
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
@@ -132,6 +117,7 @@ svcMgr.IOVRegistrationSvc.RecreateFolders = False #Allow add in a second tag
 svcMgr.DetectorStore.Dump=True
 
 
+from AthenaCommon                       import CfgMgr
 svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 
 

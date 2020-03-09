@@ -28,6 +28,9 @@ typedef std::vector<const CaloCell*> CellVector;
 typedef CaloConstCellContainer CellContainer;
 #define CONST_CONTAINER
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 
 #include "CaloCellContainerTestCommon.icc"
 

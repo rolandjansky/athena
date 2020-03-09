@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMPrepDataContainerCnv.h"
@@ -7,7 +7,6 @@
 // Gaudi
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
@@ -15,9 +14,6 @@
 // Id includes
 // #include "MuonIdHelpers/MMIdHelper.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
-
-// #include "MuonReadoutGeometry/MuonDetectorManager.h"
-// #include "MuonReadoutGeometry/MMReadoutElement.h"
 
 MMPrepDataContainerCnv::MMPrepDataContainerCnv(ISvcLocator* svcloc) :
 MMPrepDataContainerCnvBase(svcloc)

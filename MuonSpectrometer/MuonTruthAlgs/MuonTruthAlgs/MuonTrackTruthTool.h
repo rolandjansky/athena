@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKTRUTHTOOL_H
@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 
 #include "Identifier/Identifier.h"
@@ -21,7 +22,6 @@
 #include <utility>
 
 class MsgStream;
-class StoreGateSvc;
 class TruthTrajectory;
 
 namespace MuonGM {
@@ -29,7 +29,6 @@ namespace MuonGM {
 }
 
 namespace Muon {
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
   class MuonSegment;

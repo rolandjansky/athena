@@ -16,6 +16,7 @@
 
 //Athena
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
@@ -51,11 +52,11 @@ class FastCaloTool : public BaseSimulatorTool  {
 public:
   FastCaloTool( const std::string& type, const std::string& name,  const IInterface* parent);
 
-  ~FastCaloTool();
+  virtual ~FastCaloTool();
 
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
-  virtual StatusCode simulate( const ISFParticle& isp, ISFParticleContainer&, McEventCollection* );
+  virtual StatusCode simulate( const ISFParticle& isp, ISFParticleContainer&, McEventCollection* ) const override;
 
   virtual StatusCode setupEventST() override;
 
@@ -73,7 +74,7 @@ private:
     StatusCode commonSetup();
 
     /** process the given particle */
-    StatusCode processOneParticle( const ISF::ISFParticle &isfp);
+    StatusCode processOneParticle( const ISF::ISFParticle &isfp) const;
 
     /** extrapolation through Calo */
     std::vector<Trk::HitInfo>* caloHits(const ISF::ISFParticle &isfp) const;
@@ -107,7 +108,9 @@ private:
 
   SG::WriteHandleKey< CaloCellContainer > m_caloCellKey{ this, "CaloCells", "DefaultCaloCellContainer", "The name of the output CaloCellContainer" };
 
-  TRandom3 m_rndm;
+  // Would be better to pass this explicitly through setupEvent / simulate,
+  // but the interfaces would need to be reworked to do that.
+  mutable SG::SlotSpecificObj<TRandom3> m_rndm;
 };
 
 }

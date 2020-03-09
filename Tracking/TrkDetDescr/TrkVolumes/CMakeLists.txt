@@ -14,7 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkGeometrySurfaces
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters )
+                          Tracking/TrkEvent/TrkParameters 
+			  Control/CxxUtils)
 
 # External dependencies:
 find_package( Eigen )
@@ -24,5 +25,5 @@ atlas_add_library( TrkVolumes
                    src/*.cxx
                    PUBLIC_HEADERS TrkVolumes
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel TrkDetDescrUtils TrkGeometrySurfaces TrkSurfaces TrkEventPrimitives TrkParameters )
+		   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel TrkDetDescrUtils TrkGeometrySurfaces TrkSurfaces TrkEventPrimitives TrkParameters CxxUtils)
 

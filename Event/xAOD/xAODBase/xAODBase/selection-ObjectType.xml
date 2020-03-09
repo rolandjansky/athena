@@ -3,5 +3,5 @@
 
   <!-- An attempt to make the ObjectType enumeration visible in Python...  -->
   <enum name="xAODType::ObjectType" />
-
+  <struct name="xAODType::ROOT6_NamespaceAutoloadHook"/>
 </lcgdict>

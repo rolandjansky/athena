@@ -1,19 +1,20 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.JetFitterNtupleWriterNNConfig import JetFitterNtupleWriterNNCfg
 from JetTagTools.JetFitterNNToolConfig import JetFitterNNToolCfg
 
 # import the JetFitterTag configurable
-from JetTagTools.JetTagToolsConf import Analysis__JetFitterTag
+Analysis__JetFitterTag=CompFactory.Analysis__JetFitterTag
 
-def JetFitterTagCfg(name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, useBTagFlagsDefaults = True, **options):
+def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterTagNN tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     jetCollectionList                   default: BTaggingFlags.Jets
     SecVxFinderName                     default: "JetFitter"
     useForcedCalibration                default: False
@@ -36,7 +37,7 @@ def JetFitterTagCfg(name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, 
             if not CombinedIPNN:
                 jetFitterNtupleWriterNN = acc.popToolsAndMerge(JetFitterNtupleWriterNNCfg('JetFitterNtupleWriterNN'))
                 jetfitterClassifier = acc.popToolsAndMerge(JetFitterNNToolCfg('JetFitterNNTool'))
-                defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+                defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'SecVxFinderName'                  : 'JetFitter',
                      'useForcedCalibration'             : False,
@@ -45,7 +46,7 @@ def JetFitterTagCfg(name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, 
                      'jetfitterClassifier'              : jetfitterClassifier,
                      }
             else:
-                defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+                defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'SecVxFinderName'                  : 'JetFitter',
                      'useForcedCalibration'             : False,
@@ -54,7 +55,7 @@ def JetFitterTagCfg(name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, 
     elif (scheme == "Flip"): #Prepare Flip mode tagger, JetFitterFlip not defined yet
             # JetFitterFlip should be a flip version of JetFitter created in setupSecVtxTool
         if useBTagFlagsDefaults:
-            defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+            defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'SecVxFinderName'                  : 'JetFitterFlip',
                      'useForcedCalibration'             : False,

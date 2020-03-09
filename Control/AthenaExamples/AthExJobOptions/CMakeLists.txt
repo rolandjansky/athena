@@ -23,28 +23,14 @@ atlas_add_component( AthExJobOptions
 
 # Install files from the package:
 atlas_install_headers( AthExJobOptions )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
-
-function (athexjoboptions_run_test testName)
-  cmake_parse_arguments( ARG "" "DEPENDS" "" ${ARGN} )
-
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/athexjoboptions_test.sh.in
-                  ${CMAKE_CURRENT_BINARY_DIR}/athexjoboptions_${testName}.sh
-                  @ONLY )
-  atlas_add_test( ${testName}
-                  SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/athexjoboptions_${testName}.sh
-                  EXTRA_PATTERNS "AutoRetrieveTools"
-                  PROPERTIES TIMEOUT 600
-                   )
-  if( ARG_DEPENDS )
-    set_tests_properties( AthExJobOptions_${testName}_ctest
-                          PROPERTIES DEPENDS AthExJobOptions_${ARG_DEPENDS}_ctest )
-  endif()
-endfunction (athexjoboptions_run_test)
-
-
-athexjoboptions_run_test (BasicJobOptions)
-athexjoboptions_run_test (CustomToolJobOptions)
-athexjoboptions_run_test (CustomTopAlgorithmJobOptions)
+# Tests in this package:
+foreach( test BasicJobOptions;CustomToolJobOptions;CustomTopAlgorithmJobOptions )
+   atlas_add_test( ${test}
+      SCRIPT athena.py AthExJobOptions/AthExJobOptions_${test}.py
+      LOG_IGNORE_PATTERN "AutoRetrieveTools"
+      PROPERTIES TIMEOUT 600 )
+endforeach()
