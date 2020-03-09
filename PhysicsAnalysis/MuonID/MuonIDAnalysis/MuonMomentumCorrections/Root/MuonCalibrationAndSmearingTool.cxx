@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -523,12 +523,12 @@ namespace CP {
       else muonInfo.ptcb = 0.;
       if( m_useStatComb && muonInfo.ptcb > m_StatCombPtThreshold && isBadMuon(mu, muonInfo)) {
         if(m_doNotUseAMGMATRIXDECOR){
-          muonInfo.ptcb = sin(muonInfo.cbParsA[3])/std::abs(muonInfo.cbParsA[4]) * MeVtoGeV;
+          muonInfo.ptcb = std::sin(muonInfo.cbParsA[3])/std::abs(muonInfo.cbParsA[4]) * MeVtoGeV;
         }
         else {
           if(!mu.isAvailable < AmgVector(5) >( "StatCombCBPars" )) return CorrectionCode::Error;
           AmgVector(5) parsCB = mu.auxdata < AmgVector(5) >( "StatCombCBPars" );
-          muonInfo.ptcb = sin(parsCB[3])/std::abs(parsCB[4]) * MeVtoGeV;
+          muonInfo.ptcb = std::sin(parsCB[3])/std::abs(parsCB[4]) * MeVtoGeV;
         }
       }
 
@@ -757,9 +757,8 @@ namespace CP {
 
       if(parsCB[2]>M_PI)       parsCB[2] -= 2.*M_PI;
       else if(parsCB[2]<-M_PI) parsCB[2] += 2.*M_PI;
-      double statCombPtNom = sin(parsCBNom[3])/std::abs(parsCBNom[4]) * MeVtoGeV;
-      double statCombPt    = sin(parsCB[3])/std::abs(parsCB[4]) * MeVtoGeV;
-      //muonInfo.ptcb= statCombPt; 
+      double statCombPtNom = std::sin(parsCBNom[3])/std::abs(parsCBNom[4]) * MeVtoGeV;
+      double statCombPt    = std::sin(parsCB[3])/std::abs(parsCB[4]) * MeVtoGeV;
       muonInfo.ptcb =  muonInfo.ptcb * (1  +  (statCombPt-statCombPtNom)/statCombPtNom ) ;
       ATH_MSG_VERBOSE(" Poor man's combination "<<simpleCombPt<<" Stat comb "<<statCombPt<<" Stat comb nom "<<" statCombPtNom "<<statCombPtNom ); 
 
@@ -1012,12 +1011,12 @@ namespace CP {
       CorrectionCode cbCode=applyStatCombination(mu, muonInfo);
       if( cbCode==CorrectionCode::Ok){
         if(m_doNotUseAMGMATRIXDECOR){
-          muonInfo.ptcb = sin(muonInfo.cbParsA[3])/std::abs(muonInfo.cbParsA[4]) * MeVtoGeV;
+          muonInfo.ptcb = std::sin(muonInfo.cbParsA[3])/std::abs(muonInfo.cbParsA[4]) * MeVtoGeV;
         }
         else {
           if(!mu.isAvailable < AmgVector(5) >( "StatCombCBPars" )) return CorrectionCode::Error;
           AmgVector(5) parsCB = mu.auxdata < AmgVector(5) >( "StatCombCBPars" );
-          muonInfo.ptcb = sin(parsCB[3])/std::abs(parsCB[4]) * MeVtoGeV;
+          muonInfo.ptcb = std::sin(parsCB[3])/std::abs(parsCB[4]) * MeVtoGeV;
         }
       }
     }
@@ -1052,8 +1051,6 @@ namespace CP {
         CorrectionCode sgCode = applySagittaBiasCorrectionAuto(MCAST::DetectorType::CB, mu, false, MCAST::SagittaSysType::NOMINAL, muonInfo);
         if(sgCode!=CorrectionCode::Ok) return sgCode;
         mu.setP4( muonInfo.ptcb * GeVtoMeV, muonInfo.eta, muonInfo.phi );
-        //mu.auxdata< float >( "InnerDetectorPt" ) = muonInfo.ptid * GeVtoMeV;
-        //mu.auxdata< float >( "MuonSpectrometerPt" ) = muonInfo.ptms * GeVtoMeV;
       }
 
       mu.auxdata< float >( "InnerDetectorPt" ) = muonInfo.ptid * GeVtoMeV;
@@ -1245,7 +1242,7 @@ namespace CP {
         return CorrectionCode::Error;
       }
 
-      inTrk.setDefiningParameters(inTrk.d0(), inTrk.z0(), inTrk.phi0(), inTrk.theta(), inTrk.charge()/(res_pt*cosh(inTrk.eta())));
+      inTrk.setDefiningParameters(inTrk.d0(), inTrk.z0(), inTrk.phi0(), inTrk.theta(), inTrk.charge()/(res_pt*std::cosh(inTrk.eta())));
 
     } //+++++++ DO HERE THE SAGITTA BIAS CASE!
 
@@ -1685,7 +1682,6 @@ namespace CP {
     else {
       m_Trel = MCAST::Release::Recs2020_03_03;
       ATH_MSG_DEBUG( "Unrecognized value for SetRelease, using Recs2020_03_03" );
-      //return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
 
@@ -2930,7 +2926,7 @@ namespace CP {
 
       bool useTan2 = true;
       if( useTan2 && m_p2_ID_TAN[ muonInfo.detRegion ] != 0 ) {
-        newSmear = ( p1_ID_var * muonInfo.g3 + p2_ID_TAN_var * muonInfo.g4 * muonInfo.ptid * sinh( muonInfo.eta ) * sinh( muonInfo.eta ) );
+        newSmear = ( p1_ID_var * muonInfo.g3 + p2_ID_TAN_var * muonInfo.g4 * muonInfo.ptid * std::sinh( muonInfo.eta ) * std::sinh( muonInfo.eta ) );
       } else {
         newSmear = ( p1_ID_var * muonInfo.g3 + p2_ID_var * muonInfo.g4 * muonInfo.ptid );
       }
@@ -3026,7 +3022,6 @@ namespace CP {
     parsID[4] = std::abs(parsID[4]);
 
     AmgVector(5) parsMS = (*extrTrackParticle)->definingParameters();;
-    //int chargeMS = parsMS[4]/std::abs(parsMS[4]);
     parsMS[4] = std::abs(parsMS[4]);
 
     AmgSymMatrix(5) covID = (*inDetTrackParticle)->definingParametersCovMatrix();

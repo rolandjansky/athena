@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCAST_MUONCALIBRATIONANDMEARINGTOOL_H
@@ -8,6 +8,8 @@
 // Framework include(s):
 #include "AsgTools/AnaToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 // ROOT include(s)
 #include "TRandom3.h"
@@ -23,10 +25,6 @@
 #include <string>
 #include <vector>
 #include <map>
-
-// Local include(s):
-#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
-#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 #define EPSILON 1.0E-6
 #define DEFAULT_INIT_VAL -999
