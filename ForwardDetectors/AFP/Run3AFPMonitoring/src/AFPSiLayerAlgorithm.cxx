@@ -36,12 +36,14 @@ AFPSiLayerAlgorithm::~AFPSiLayerAlgorithm() {}
 StatusCode AFPSiLayerAlgorithm::initialize() {
     using namespace Monitored;
  
-    std::vector<std::string> layers = { "P0","P1", "P2", "P3"};
-    std::vector<std::string> stations = { "FarStation","NearStation"};
-    std::vector<std::string> sides = { "Aside","Cside"};
+    std::vector<std::string> layers = { "P0", "P1", "P2", "P3"};
+    std::vector<int> combined = { 0, 1, 2, 3};
+    //std::vector<std::string> stations = { "FarStation" , "NearStation" };
+    //std::vector<std::string> sides = { "Aside" , "Cside" };
 
 
-    m_HitmapGroups = buildToolMap<std::map<std::string,std::map<std::string,int>>>(m_tools,"AFPSiLayerTool",sides,stations,layers);
+    //m_HitmapGroups = buildToolMap<std::map<std::string,std::map<std::string,int>>>(m_tools,"AFPSiLayerTool",sides,stations,layers);
+      m_HitmapGroups = buildToolMap<std::map<int,int>>(m_tools,"AFPSiLayerTool",combined,layers);
 
 //  std::map<std::string,std::map<std::string,int>> <std::map<std::string,int>> 
      // We must declare to the framework in initialize what SG objects we are going to use
@@ -147,31 +149,62 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	return StatusCode::FAILURE;
     }
 
+    /**
+     *
+     *	const int xAOD::AFPStationID::farA = 0;
+     *	const int xAOD::AFPStationID::nearA = 1;
+     *	const int xAOD::AFPStationID::nearC = 2;
+     *	const int xAOD::AFPStationID::farC = 3;
+     *
+     */
 
     ATH_CHECK( afpHitContainer.initialize() );
- //for (const auto& muonItr : *muons) {
+
     nhits = afpHitContainer->size();
+    fill("AFPSiLayerTool", lb, nhits);
+
     for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
-       std::cout << hitsItr->stationID() << std::endl;
+       //std::cout << hitsItr->stationID() << std::endl;
 
+	for ( auto& layer : std::vector<std::string>({"P0","P1", "P2", "P3"}) ) 
+	{
 	switch(hitsItr->stationID())
 	{
+	    case 0:
+		std::cout << "Case 0; Test" << std::endl;
+		fill(m_tools[m_HitmapGroups.at(layer).at(hitsItr)]);
+		break;
+	    case 1:
+		std::cout << "Case 1; Test" << std::endl;
+		fill(m_tools[m_HitmapGroups.at(layer).at(hitsItr)]);
+		break;
 	    case 2:
-	        std::cout << hitsItr->pixelColIDChip() << std::endl;
 		std::cout << "Case 2; Test" << std::endl;
-		//fill(*hitsItr);
-		fill("AFPSiLayerTool", lb, nhits);
+		fill(m_tools[m_HitmapGroups.at(layer).at(hitsItr)]);
 		break;
 	    case 3:
-		std::cout << "Case 3; Test" << std::endl;		
+		std::cout << "Case 3; Test" << std::endl;
+		fill(m_tools[m_HitmapGroups.at(layer).at(hitsItr)]);		
 		//m_cFarStation.fillHistograms(*hitsItr);
 		break;
 	    default:
 		ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 	}
-
+	}
     }
+/*
+    // Filling using a pre-defined map of groups.
+    for ( auto& layer : std::vector<std::string>({"layer1","layer2"}) ) {
+        fill(m_tools[m_cGroups1.at(layer)],c);
+        for ( auto& cluster : std::vector<std::string>({"clusterX","clusterB"}) ) {
+            // Same efficient method for 2D map
+            fill(m_tools[m_cGroups2.at(layer).at(cluster)],c);
+        }
+    }
+
+
+*/
 
 	//m_cNearStation.eventEnd();
 	//m_cFarStation.eventEnd();
