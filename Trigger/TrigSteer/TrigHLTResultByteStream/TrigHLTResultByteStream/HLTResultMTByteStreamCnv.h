@@ -5,13 +5,10 @@
 #ifndef TRIGHLTRESULTBYTESTREAM_HLTResultMTByteStreamCnv_H
 #define TRIGHLTRESULTBYTESTREAM_HLTResultMTByteStreamCnv_H
 
-// Trigger includes
-#include "TrigHLTResultByteStream/HLTSrcIdMap.h"
-
 // Athena includes
 #include "AthenaBaseComps/AthMessaging.h"
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
-#include "ByteStreamCnvSvcBase/FullEventAssembler.h"
+#include "ByteStreamData/RawEvent.h"
 
 // Gaudi includes
 #include "GaudiKernel/Converter.h"
@@ -45,14 +42,23 @@ namespace HLT {
     long repSvcType() const override { return i_repSvcType(); } //!< return repSvcType
 
   private:
+    /// Helper function
+
     /// Helper to obtain the RawEvent pointer
     ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
 
-    /// Helper for filling ROBFragments
-    FullEventAssembler<HLTSrcIdMap> m_fullEventAssembler;
-
-    /// Buffer for serialised StreamTag data
-    std::unique_ptr<uint32_t[]> m_streamTagData;
+    /// Cache tracking memory allocation for serialised stream tag data and ROBFragment objects.
+    /// All other serialised data is owned by HLTResultMT owned by the event store.
+    struct Cache {
+      std::unique_ptr<uint32_t[]> streamTagData;
+      std::vector<std::unique_ptr<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment>> robFragments;
+      ~Cache() {clear();}
+      void clear() {
+        streamTagData.reset();
+        for (auto& ptr : robFragments) ptr.reset();
+        robFragments.clear();
+      }
+    } m_cache;
   };
 } // namespace HLT
 
