@@ -223,7 +223,6 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , False )
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
-    kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
     kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
@@ -247,6 +246,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("Fitter"                        , getPublicToolClone("TrigiPatFitter_"+suffix, "iPatFitter", TrackSummaryTool=trackSummary) )
         kwargs.setdefault("SLFitter"                      , getPublicToolClone("TrigiPatSLFitter_"+suffix, "iPatSLFitter", TrackSummaryTool=trackSummary) )
         kwargs.setdefault("CscRotCreator"                 , "" )
+        kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix,"MuidTrackCleaner", Fitter=kwargs["Fitter"]) )
 
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary
@@ -256,7 +256,8 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
         kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
         kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
-    
+        kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
+
 
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("MdtRotCreator" ,  "" )
@@ -292,7 +293,6 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , True ) #
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
-    kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
     kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
@@ -317,6 +317,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("SLFitter"                      , getPublicToolClone("TrigiPatSLFitter_"+suffix, "iPatSLFitter", TrackSummaryTool=trackSummary) )
         kwargs.setdefault("MuonErrorOptimizer", "")
         kwargs.setdefault("CscRotCreator"                 , "" )
+        kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix, "MuidTrackCleaner", Fitter=kwargs["Fitter"]) )
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary
         kwargs.setdefault("MuonHoleRecovery"              , getPublicTool("MuidSegmentRegionRecoveryTool") )
@@ -326,6 +327,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
         kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
         kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
+        kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
 
 
     if beamFlags.beamType() == 'cosmics':
