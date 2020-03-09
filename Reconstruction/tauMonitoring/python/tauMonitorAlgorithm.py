@@ -134,7 +134,7 @@ def tauMonitoringConfig(inputFlags):
 
         (igroup, postfix) = itup
 
-        PHIMIN = pi
+        PHIMIN = -pi
         PHIMAX = pi
 
         folder = ""
