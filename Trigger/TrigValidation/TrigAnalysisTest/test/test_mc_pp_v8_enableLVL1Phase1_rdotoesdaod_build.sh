@@ -11,6 +11,7 @@ export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
 export MENU="MC_pp_v8"
 export EVENTS="3"
+export INPUT="run3_l1calo"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoESDAOD.py"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags as tf;tf.doLVL1PhaseI.set_Value_and_Lock(True);"
 
