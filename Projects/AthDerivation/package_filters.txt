@@ -50,6 +50,7 @@
 
 # Database package(s):
 + Database/APR/.*
+- Database/AthenaPOOL/AthenaPoolExample/.*
 + Database/AthenaPOOL/.*
 + Database/AtlasSealCLHEP
 + Database/ConnectionManagement/.*
@@ -204,6 +205,7 @@
 + MuonSpectrometer/MuonSimData
 
 # Physics analysis package(s):
+- PhysicsAnalysis/Algorithms/StandaloneAnalysisAlgorithms
 + PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AODSelect
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
@@ -224,7 +226,6 @@
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/D3PDTools/AnaAlgorithm
 + PhysicsAnalysis/DerivationFramework/.*
-- PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/EventTag/TagEvent

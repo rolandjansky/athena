@@ -369,7 +369,7 @@ namespace top {
                       "False");
     registerParameter("NominalWeightNames",
                       "List of nominal weight names to attempt to retrieve. Attempts are made in the order as specified. If none of the names can be found, we will crash with error message. Use index instead in such case.",
-                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \"");
+                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \",\" mur=1 muf=1 \"");
     registerParameter("NominalWeightFallbackIndex",
                       "Index of nominal weight in MC weights vector. This option is only used in case the MC sample has broken metadata. (Default: -1 means no fallback index specified, rely on metadata and crash if metadata cannot be read)",
                       "-1");
@@ -593,7 +593,29 @@ namespace top {
     while (std::getline(input, line)) {
       std::string newstring(line);
 
-      if (newstring.find("#") != std::string::npos) newstring = newstring.substr(0, newstring.find("#"));
+      // search for '#' character to discard commented-out part of line
+      // however ignore '\#' -- used to be able to type # in our config
+      // and not be recognized as commenting character
+      size_t commentpos = size_t(-1);
+      while (true) {
+        // find next occurence of '#' -- after the already scanned chars
+        commentpos = newstring.find("#", commentpos+1);
+        if (commentpos == std::string::npos)
+          break;
+        if (commentpos == 0) { // the whole line is a comment, to be ignored
+          newstring = "";
+          break;
+        }
+        // if it's '\#', then do not erase this part, but remove the '\'
+        if (newstring.compare(commentpos-1, 1, "\\") == 0) {
+            newstring.erase(commentpos-1, 1);
+            --commentpos; // the position of the '#' shifted after removing '\'
+            continue;
+        } else {
+          newstring = newstring.substr(0, commentpos);
+          break;
+        }
+      }
 
       // remove (multiple) spaces hanging around relevant information
       boost::algorithm::trim_all(newstring);

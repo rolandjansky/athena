@@ -13,6 +13,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from BTagging.BTaggingFlags import BTaggingFlags
+from DerivationFrameworkSUSY.SUSYCommonFlags import SUSYFlags
 
 #BTaggingFlags.Do2019Retraining = False 
 
@@ -41,10 +42,17 @@ DerivationFrameworkJob += SeqSUSY1
 # Trigger navigation thinning
 #====================================================================
 from DerivationFrameworkSUSY.SUSY1TriggerList import SUSY1ThinTriggers
-SUSY1ThinningHelper.TriggerChains = '|'.join(SUSY1ThinTriggers)
-SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 
+
+if SUSYFlags.TurnOffThinning == True and not DerivationFrameworkIsMonteCarlo:
+  SUSY1ThinningHelper.TriggerChains = ""
+else:
+  SUSY1ThinningHelper.TriggerChains = '|'.join(SUSY1ThinTriggers)
+
+SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 SUSY1ThinningHelper.Actions = ['DropFeatures', 'Reload', 'SyncThinning', 'Save', 'Restore']
+
+
 
 
 #====================================================================

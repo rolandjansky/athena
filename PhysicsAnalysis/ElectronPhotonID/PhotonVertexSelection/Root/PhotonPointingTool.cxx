@@ -52,7 +52,7 @@ namespace CP {
   //____________________________________________________________________________
   StatusCode PhotonPointingTool::initialize()
   {
-    ATH_MSG_INFO("Initializing PhotonPointingTool...");
+    ATH_MSG_INFO("Initializing PhotonPointingTool..." << name());
 
     // Shower depth tool
     m_showerTool = new CP::ShowerDepthTool();
@@ -79,6 +79,8 @@ namespace CP {
     std::string filepath = PathResolverFindCalibFile(m_isMC ? m_zOscFileMC :
                                                               m_zOscFileData);
     TFile *file = TFile::Open(filepath.c_str(), "READ");
+
+    ATH_MSG_INFO("isMC " << m_isMC << " input correction file " << filepath);
 
     if (file == nullptr) {
       ATH_MSG_WARNING("Couldn't find file for z-correction: " << filepath.c_str());

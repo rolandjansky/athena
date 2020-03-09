@@ -188,6 +188,32 @@ double TauAnalysisTools::tauLeadTrackEta(const xAOD::TauJet& xTau)
 }
 
 //______________________________________________________________________________
+double TauAnalysisTools::truthTauPt(const xAOD::TauJet& xTau)
+{
+  // return truth tau Pt in GeV
+  const xAOD::TruthParticle* xTruthTau = getTruth(xTau);
+
+  // if there is a truth tau return pT, otherwise return 0 (getTruth will print an error)
+  if (xTruthTau!=nullptr && xTruthTau->auxdata<char>("IsHadronicTau"))
+    return xTruthTau->pt()/GeV;
+  else
+    return 0.;
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::truthTauAbsEta(const xAOD::TauJet& xTau)
+{
+  // return truth tau absolute eta
+  const xAOD::TruthParticle* xTruthTau = getTruth(xTau);
+
+  // if there is a truth tau return absolute eta, otherwise return -5 (getTruth will print an error)
+  if (xTruthTau!=nullptr && xTruthTau->auxdata<char>("IsHadronicTau"))
+    return xTruthTau->eta();
+  else
+    return -5.;
+}
+
+//______________________________________________________________________________
 double TauAnalysisTools::truthDecayMode(const xAOD::TauJet& xTau)
 {
   // return truth tau decay mode.
