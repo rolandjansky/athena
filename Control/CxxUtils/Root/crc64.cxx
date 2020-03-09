@@ -186,7 +186,7 @@
  * are more modest, four and 1.5 times, respectively.
  *
  * We currently support compiling this only with gcc.
- * clang doesn't implement function multiversioning, and some of the
+ * clang implements function multiversioning, but  some of the
  * intrinsics are missing/renamed.  We haven't tried it on icc, but it's
  * unlikely to work without adjustment.
  */
