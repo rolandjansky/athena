@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -130,11 +130,12 @@ namespace CxxUtils {
    * @param x Number to check
    * @return Number of bits set in x.
    */
-#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
+#if defined(__x86_64__) && HAVE_GCC_INTRINSICS
   // We want to use the popcnt instruction for this if it's available.
   // However, we're still compiling for a Model-T x86_64 by default.
   // Use the target attribute and function multiversioning to use
   // this instruction if it is in fact available.
+  // clang has intrinsics for popcount but not target_clones. 
   __attribute__ ((target_clones ("popcnt,default")))
 #endif
   inline unsigned count_ones(unsigned x) {
@@ -145,7 +146,7 @@ namespace CxxUtils {
 #endif
   }
 
-#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
+#if defined(__x86_64__) && HAVE_GCC_INTRINSICS
   __attribute__ ((target_clones ("popcnt,default")))
 #endif
   inline unsigned count_ones(unsigned long x) {
@@ -157,7 +158,7 @@ namespace CxxUtils {
   }
 
 
-#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
+#if defined(__x86_64__) && HAVE_GCC_INTRINSICS
   __attribute__ ((target_clones ("popcnt,default")))
 #endif
   inline unsigned count_ones(unsigned long long x) {
