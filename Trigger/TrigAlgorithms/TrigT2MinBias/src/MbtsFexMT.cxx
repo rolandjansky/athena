@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "MbtsFexMT.h"
 
@@ -84,7 +84,7 @@ StatusCode MbtsFexMT::execute(const EventContext& context) const
   auto mon_triggerEta = Monitored::Collection("eta",mbtsContainer,[](auto &cellptr){return cellptr->eta();});
   auto mon_triggerPhi = Monitored::Collection("phi",mbtsContainer,[](auto &cellptr){return cellptr->phi();});
   auto mon_triggerTimes = Monitored::Collection("triggerTime ",triggerTimes);
-  Monitored::Group(m_monTool,mon_triggerEnergies,mon_triggerEta,mon_triggerPhi);
+  Monitored::Group(m_monTool,mon_triggerEnergies,mon_triggerEta,mon_triggerPhi,mon_triggerTimes);
 
   SG::WriteHandle<xAOD::TrigT2MbtsBitsContainer> mbtsHandle (m_t2MbtsBitsKey, context);
 
