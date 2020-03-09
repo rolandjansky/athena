@@ -57,6 +57,8 @@ GlobalSequentialCorrection::~GlobalSequentialCorrection() {
 
 StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
 
+  ATH_MSG_INFO("Initializing the Global Sequential Calibration tool");
+
   // Set m_PFlow
   if( m_jetAlgo == "AntiKt4EMPFlow" ) m_PFlow = true;
   else{m_PFlow=false;}
@@ -112,9 +114,9 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     return StatusCode::FAILURE;
   }
 
-  // Protection against requesting nTrk or trackWIDTH corrections for HLT trigger jets when m_caloBased is true
-  if ( m_caloBased && (depthString.Contains("nTrk")||depthString.Contains("trackWIDTH"))  ){
-    ATH_MSG_FATAL("depthString flag not properly set, please check your config file. nTrk or trackWIDTH corrections not available for trigger jets");
+  // Protection against requesting nTrk/trackWIDTH/ChargedFraction/PunchThrough corrections for HLT trigger jets when m_caloBased is true
+  if ( m_caloBased && (depthString.Contains("nTrk")||depthString.Contains("trackWIDTH")||depthString.Contains("ChargedFraction")||depthString.Contains("PunchThrough"))){
+    ATH_MSG_FATAL("depthString flag not properly set, please check your config file. nTrk, trackWIDTH, PunchThrough and ChargedFraction corrections not available for trigger jets");
     return StatusCode::FAILURE;
   }
 
@@ -135,8 +137,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     else { ATH_MSG_FATAL("depthString flag not properly set, please check your config file."); return StatusCode::FAILURE; }
   } 
   else if (m_caloBased){
-    if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) m_depth = ApplyTile0 | ApplyEM3 | ApplyN90Constituents | ApplyTileGap3 | ApplycaloWIDTH;
-    else if ( depthString.Contains("caloWIDTH") ) m_depth = ApplyTile0 | ApplyEM3 | ApplyN90Constituents | ApplyTileGap3 | ApplycaloWIDTH;
+    if ( depthString.Contains("caloWIDTH") || depthString.Contains("Full") ) m_depth = ApplyTile0 | ApplyEM3 | ApplyN90Constituents | ApplyTileGap3 | ApplycaloWIDTH;
     else if ( depthString.Contains("TileGap3") ) m_depth = ApplyTile0 | ApplyEM3 | ApplyN90Constituents | ApplyTileGap3;
     else if ( depthString.Contains("N90Constituents") ) m_depth = ApplyTile0 | ApplyEM3 | ApplyN90Constituents;
     else if ( depthString.Contains("EM3") ) m_depth = ApplyTile0 | ApplyEM3;
