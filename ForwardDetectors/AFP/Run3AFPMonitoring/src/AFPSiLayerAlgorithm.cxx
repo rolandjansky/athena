@@ -55,7 +55,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto testweight = Monitored::Scalar<float>("testweight",1.0);
 */
     auto lb = Monitored::Scalar<int>("lb", 0); // Nikola
-    auto nhits = Monitored::Scalar<float>("nhits", 1.0);
+    auto nhits = Monitored::Scalar<int>("nhits", 1);
     
 
 /*    // Two variables (value and passed) needed for TEfficiency
@@ -149,18 +149,20 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); // Nikola
     auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); // Nikola
-
+    auto h_hitMap = Monitored::Scalar<int>("h_hitMap", 0); // Nikola
     for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
       pixelRowIDChip=hitsItr->pixelRowIDChip();
       pixelColIDChip = hitsItr->pixelColIDChip();
-      std::cout << hitsItr->stationID() << std::endl;
-      std::cout << hitsItr->pixelLayerID() << std::endl;
+      std::cout << "Hits iteration -> stationID = " << hitsItr->stationID() << std::endl;
+      std::cout << "Hits iteration -> pixelLayerID = " << hitsItr->pixelLayerID() << std::endl;
 	
       if (hitsItr->stationID()<4 && hitsItr->stationID()>=0 
 	&& hitsItr->pixelLayerID()<4 && hitsItr->pixelLayerID()>=0) 
       {
-         fill(m_tools[m_HitmapGroups.at( m_stationnames.at(hitsItr->stationID())).at( m_pixlayers.at(hitsItr->pixelLayerID()))] , pixelRowIDChip , pixelColIDChip);
+	std::cout << "I AM RIGHT BEFORE FILL METHOD\n" << std::endl;
+        //fill(m_tools[m_HitmapGroups.at( m_stationnames.at(hitsItr->stationID())).at( m_pixlayers.at(hitsItr->pixelLayerID()))] , pixelRowIDChip , pixelColIDChip);
+        fill(m_tools[m_HitmapGroups.at( m_stationnames.at(hitsItr->stationID())).at( m_pixlayers.at(hitsItr->pixelLayerID()))] , h_hitMap);
 	}
 else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 
