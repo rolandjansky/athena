@@ -88,9 +88,10 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
        #array = helper.addArray([sideList,stationList,layerList],alg,'AFPSiLayerTool')
        array2D = helper.addArray([combinedList,layerList],alg,'AFPSiLayerTool', topPath = 'Hits')
-       array2D.defineHistogram(  'h_hitMap', title='Map of hits', type='TH2F', path='AFPSiLayer', xbins=80,xmin=0.5,xmax=80.5, ybins=336,ymin=0.5,ymax=336.5)
+       array2D.defineHistogram(  'pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='AFPSiLayer', xbins=80,xmin=0.5,xmax=80.5, ybins=336,ymin=0.5,ymax=336.5)
        #array.defineHistogram('h_hitMap', title='hitmap for {0} {1} Layer {2}', path='Keys/{0}', xmax=3. )
-       array2D.defineHistogram('h_hitMap', title='hitmap for {0} Layer {1}', path='Keys/{0}', xmax=3. )
+
+      #array2D.defineHistogram('h_hitMap', title='hitmap for {0} Layer {1}', path='Keys/{0}', xmax=3. )
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator

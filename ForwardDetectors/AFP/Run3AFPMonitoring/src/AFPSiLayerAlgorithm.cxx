@@ -162,7 +162,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
       {
 	std::cout << "I AM RIGHT BEFORE FILL METHOD\n" << std::endl;
         //fill(m_tools[m_HitmapGroups.at( m_stationnames.at(hitsItr->stationID())).at( m_pixlayers.at(hitsItr->pixelLayerID()))] , pixelRowIDChip , pixelColIDChip);
-        fill(m_tools[m_HitmapGroups.at( m_stationnames.at(hitsItr->stationID())).at( m_pixlayers.at(hitsItr->pixelLayerID()))] , h_hitMap);
+        fill(m_tools[m_HitmapGroups.at( m_stationnames.at(hitsItr->stationID())).at( m_pixlayers.at(hitsItr->pixelLayerID()))] , pixelRowIDChip, pixelColIDChip);
 	}
 else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 
