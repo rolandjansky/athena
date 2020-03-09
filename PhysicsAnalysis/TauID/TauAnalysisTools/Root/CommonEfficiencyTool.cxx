@@ -521,6 +521,11 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
         m_fX = &truthDecayMode;
         ATH_MSG_DEBUG("using truth decay mode for x-axis");
       }
+      if (sTitle == "truth pt")
+      {
+        m_fX = &truthTauPt;
+        ATH_MSG_DEBUG("using truth pT for x-axis");
+      }
 
       continue;
     }
@@ -538,6 +543,11 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
       {
         m_fY = &finalTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
+      }
+      else if (sTitle == "truth |eta|")
+      {
+        m_fY = &truthTauAbsEta;
+        ATH_MSG_DEBUG("using absolute truth tau eta for y-axis");
       }
       continue;
     }

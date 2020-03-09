@@ -18,7 +18,6 @@
 */
 
 // Framework include(s):
-#include "AsgTools/AsgTool.h"
 #include "AsgTools/AnaToolHandle.h"
 
 // Local include(s):
@@ -44,7 +43,7 @@ public:
 
   /// Function initialising the tool
   virtual StatusCode initialize();
-
+  
   /// Apply the correction on a modifyable object
   virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau );
   /// Create a corrected copy from a constant tau
@@ -61,7 +60,7 @@ public:
   virtual CP::SystematicSet recommendedSystematics() const;
 
   virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
-
+  
 private:
   asg::AnaToolHandle<ITauSmearingTool> m_tCommonSmearingTool;
   std::string m_sInputFilePath;

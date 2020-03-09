@@ -54,6 +54,8 @@ double finalTauEta(const xAOD::TauJet& xTau);
 double finalTauAbsEta(const xAOD::TauJet& xTau);
 double finalTauP(const xAOD::TauJet& xTau);
 double tauLeadTrackEta(const xAOD::TauJet& xTau);
+double truthTauPt(const xAOD::TauJet& xTau);
+double truthTauAbsEta(const xAOD::TauJet& xTau);
 double truthDecayMode(const xAOD::TauJet& xTau);
 const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau);
 xAOD::TauJetParameters::DecayMode getTruthDecayMode(const xAOD::TruthParticle& xTruthTau);
