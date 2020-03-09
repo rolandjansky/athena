@@ -968,7 +968,7 @@ StatusCode SCT_RodDecoder::addSingleError(const IdentifierHash& hashID,
 {
   if ( not hashID.is_valid() ) {
     ATH_MSG_INFO("addSingleError hashID " << hashID << " is invalid.");
-    return StatusCode::RECOVERABLE;
+    return StatusCode::SUCCESS;
   }
   errs.setOrDrop(hashID, bsErrorType);
   return StatusCode::SUCCESS;

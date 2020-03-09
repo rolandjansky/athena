@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTDIGITIZATIONTOOL_H
@@ -108,7 +108,7 @@ private:
   StatusCode ConditionsDependingInitialization();
 
   StatusCode lateInitialize();
-  StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
+  StatusCode processStraws(const TimedHitCollection<TRTUncompressedHit>& thpctrt, std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
                            CLHEP::HepRandomEngine *elecProcRndmEngine,

@@ -12,6 +12,7 @@ import os
 import json
 
 from TrigValTools.TrigValSteering.Common import get_logger
+from PyUtils.Decorators import memoize
 
 
 input_json = 'TrigValTools/TrigValInputs.json'
@@ -71,6 +72,7 @@ class TrigValInput(object):
         return True
 
 
+@memoize
 def load_input_json():
     '''Reads the json file with input definitions and returns the data as dictionary'''
 

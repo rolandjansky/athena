@@ -108,7 +108,7 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
       nextLayer = nextExpectedLayer(currPar,tSoS);
       if (!nextLayer) expMeas = false;
     }
-    if (!expMeas && m_stopSearch==2) break;
+    if (!expMeas && m_stopSearch==2u) break;
  
     std::pair<const Trk::TrackParameters*,const Trk::Layer*> next = m_extrapolator->extrapolateToNextActiveLayer(*currPar,
                Trk::alongMomentum,true,particle) ;
@@ -120,7 +120,7 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
       delete nextPar;
       nextPar = 0;
     } else if (nextPar) {
-      if (!expMeas && m_stopSearch==1 && enclosingStation 
+      if (!expMeas && m_stopSearch==1u && enclosingStation 
 	    && !enclosingStation->trackingVolume()->inside(nextPar->position(),0.001)) {delete nextPar; break; } 
       enclosingStation = layer->enclosingDetachedTrackingVolume();
     }

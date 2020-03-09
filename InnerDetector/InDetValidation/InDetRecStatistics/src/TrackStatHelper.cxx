@@ -91,7 +91,9 @@ const char * const InDet::TrackStatHelper::s_summaryTypeName[kNSummaryTypes] = {
 std::string InDet::TrackStatHelper::getSummaryTypeHeader() {
    std::stringstream out;
    for (unsigned int stype_i=0; stype_i < kNSummaryTypes; ++stype_i ) {
-      out << std::setw(std::max(6,static_cast<int>(strlen(s_summaryTypeName[stype_i])+1))) << s_summaryTypeName[stype_i];
+      if (0 != strcmp("DBM",s_summaryTypeName[stype_i])){
+         out << std::setw(std::max(6,static_cast<int>(strlen(s_summaryTypeName[stype_i])+1))) << s_summaryTypeName[stype_i];
+      }
    }
    return out.str();
 }
@@ -637,7 +639,7 @@ void InDet::TrackStatHelper::print(MsgStream &out) const {
 	out << " in barrel "; printRegion1(out,ETA_BARREL);
 	out << " in trans. "; printRegion1(out,ETA_TRANSITION);
 	out << " in endcap "; printRegion1(out,ETA_ENDCAP);
-	out << " in DBM    "; printRegion1(out,ETA_DBM);
+	out << " in forwa."; printRegion1(out,ETA_DBM);
 
 	      }
     else // no truth
@@ -651,16 +653,16 @@ void InDet::TrackStatHelper::print(MsgStream &out) const {
 	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_TRANSITION]/(float) m_events << std::endl << std::setprecision(-1);
 	out << "\t\t" << "in endcap" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
 	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_ENDCAP]/(float) m_events << std::endl << std::setprecision(-1);
-	out << "\t\t" << "in DBM" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
+	out << "\t\t" << "in forwa." << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
           std::setw(7) << std::setprecision(2) << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_DBM]/(float) m_events << std::endl << std::setprecision(-1);
       }
     out << " \t\t\t ....................................hits/track............................" << std::endl;
-    out << " \t\t\t\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws\tDBM\tDBM1\tDBM2\tDBM3" << std::endl;
+    out << " \t\t\t\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws" << std::endl;
     out << " total     "; printRegion2(out,ETA_ALL, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_ALL]);
     out << " in barrel "; printRegion2(out,ETA_BARREL, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_BARREL]);
     out << " in trans. "; printRegion2(out,ETA_TRANSITION, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_TRANSITION] );
     out << " in endcap "; printRegion2(out,ETA_ENDCAP, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_ENDCAP] );
-    out << " in DBM    "; printRegion2(out,ETA_DBM, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_DBM] );
+    out << " in forwa. "; printRegion2(out,ETA_DBM, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_DBM] );
 
   }
   else
@@ -723,11 +725,6 @@ void InDet::TrackStatHelper::printRegion2(MsgStream &out, enum eta_region region
 	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_SCT4   ][region]/denominator)
 	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_SCT5TO9][region]/denominator)
 	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_TRT_ALL][region]/denominator)
-              << "\t" << float(m_hits.m_counter[kHits_rec][HIT_DBM_ALL][region]/denominator)
-              << "\t" << float(m_hits.m_counter[kHits_rec][HIT_DBM1][region]/denominator)
-              << "\t" << float(m_hits.m_counter[kHits_rec][HIT_DBM2][region]/denominator)
-              << "\t" << float(m_hits.m_counter[kHits_rec][HIT_DBM3][region]/denominator)
-
 	      << std::endl << std::setprecision(-1);
   }
   else {
@@ -752,8 +749,10 @@ bool InDet::TrackStatHelper::printTrackSummaryRegion(MsgStream &out,
       else
 	out << std::setw(6) << "n/a";
       for (unsigned int stype_i=0; stype_i< kNSummaryTypes; ++stype_i) {
-         out << std::setw(std::max(6,static_cast<int>(strlen(s_summaryTypeName[stype_i])+1)))
-             << std::setprecision(2); printTrackSummaryAverage(out, track_type , eta_region, stype_i );
+         if (0 != strcmp("DBM",s_summaryTypeName[stype_i])){
+            out << std::setw(std::max(6,static_cast<int>(strlen(s_summaryTypeName[stype_i])+1)))
+                << std::setprecision(2); printTrackSummaryAverage(out, track_type , eta_region, stype_i );
+         }
       }
       out << std::endl << std::setprecision(-1);
       return true; // yes, printed output
@@ -809,7 +808,7 @@ void InDet::TrackStatHelper::printSecondary(MsgStream &out) const {
     if (!m_truthMissing)
       {
 	out << " \t\t\t\t      ......................truth mached tracks statistics....................." << std::endl;
-	out << " \t\t\t\tn/event\teff.\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws\tDBMall\tDBM1\tDBM2\tDBM3" << std::endl;
+	out << " \t\t\t\tn/event\teff.\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws" << std::endl;
 	
 	
 	out << " total secondaries    ";
@@ -820,7 +819,7 @@ void InDet::TrackStatHelper::printSecondary(MsgStream &out) const {
 	printRegionSecondary(out, ETA_TRANSITION, (float) (m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_TRANSITION]+m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_TRANSITION]) );
 	out << " secondaries in endcap ";
 	printRegionSecondary(out, ETA_ENDCAP,     (float) (m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_ENDCAP]    +m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_ENDCAP]) );
-	out << " secondaries in DBM ";
+	out << " secondaries in forwa. ";
         printRegionSecondary(out, ETA_DBM,     (float) (m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_DBM]    +m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_DBM]) );
       }
   }
@@ -851,10 +850,6 @@ void InDet::TrackStatHelper::printRegionSecondary(MsgStream &out,
 	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_SCT4   ][region]/denominator)
 	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_SCT5TO9][region]/denominator)
 	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_TRT_ALL][region]/denominator)
-	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_DBM_ALL][region]/denominator)
-	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_DBM1   ][region]/denominator)
-	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_DBM2   ][region]/denominator)
-	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_DBM3   ][region]/denominator)
 	      << std::endl << std::setprecision(-1);
   }
   else {
