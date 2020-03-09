@@ -112,7 +112,7 @@ StatusCode CscCalibMonToolSlope::initialize()
 
 StatusCode CscCalibMonToolSlope::bookHistograms()
 {
-  CscCalibMonToolBase::bookHistograms();
+  ATH_CHECK( CscCalibMonToolBase::bookHistograms() );
   ATH_MSG_DEBUG( "CscCalibMonToolSlope : in bookHistograms()"  );
 
   if (newRunFlag())
@@ -486,9 +486,9 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
   {
     ATH_MSG_INFO( "Generating peaking time histograms"  );
 
-    copyDataToHists(m_peaktNewColl);
-    copyDataToHists(m_peaktOldColl);
-    copyDataToHists(m_peaktDiffColl);
+    ATH_CHECK( copyDataToHists(m_peaktNewColl) &
+               copyDataToHists(m_peaktOldColl) &
+               copyDataToHists(m_peaktDiffColl) );
   }
   if(parName == "pslope") 
   {
@@ -497,20 +497,18 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
     
     if(m_doNeighborRatios){
       genNeighborRatios(m_slopeNewColl->data, m_slopeRatioColl->data);
-      copyDataToHists(m_slopeRatioColl);
+      ATH_CHECK( copyDataToHists(m_slopeRatioColl) );
     }
 
-
-
-    copyDataToHists(m_slopeNewColl);
-    copyDataToHists(m_slopeOldColl);
-    copyDataToHists(m_slopeDiffColl);
-    copyDataToHists(m_chi2Coll);
+    ATH_CHECK( copyDataToHists(m_slopeNewColl) &
+               copyDataToHists(m_slopeOldColl) &
+               copyDataToHists(m_slopeDiffColl) &
+               copyDataToHists(m_chi2Coll) );
   }
   if(parName == "pinter")
   {
     ATH_MSG_INFO( "Generating intercept histograms"  );
-    copyDataToHists(m_interceptColl);
+    ATH_CHECK( copyDataToHists(m_interceptColl) );
   }
   return StatusCode::SUCCESS;
 }
@@ -595,14 +593,14 @@ StatusCode CscCalibMonToolSlope::postProc()
         ampColl->data[stripHash] =  profItr->second->GetBinContent(stripHash +1);
       }
 
-      copyDataToHists(ampColl);
+      ATH_CHECK( copyDataToHists(ampColl) );
     }
   }
 
 
   const std::vector<float> * fitResVec = slopeReport->getFitResults();
   m_fitResColl->data = *fitResVec; 
-  copyDataToHists(m_fitResColl);
+  ATH_CHECK( copyDataToHists(m_fitResColl) );
 
   //Generate fractional deviation histograms
   ATH_MSG_DEBUG( "About to generate fractional deviation graphs" );
@@ -685,7 +683,7 @@ StatusCode CscCalibMonToolSlope::postProc()
           sourceGraph->SetName(name.str().c_str());
           ATH_MSG_DEBUG( "CalGraph axis title: " << sourceGraph->GetXaxis()->GetTitle()  );
 
-          regGraph(sourceGraph, calGraphPath, run, ATTRIB_MANAGED);
+          ATH_CHECK( regGraph(sourceGraph, calGraphPath, run, ATTRIB_MANAGED) );
         }
 
         //record fracDev graph
@@ -708,7 +706,7 @@ StatusCode CscCalibMonToolSlope::postProc()
 
           sourceProf->SetName(fracName.str().c_str());
 
-          regHist(sourceProf, fracPath, run, ATTRIB_MANAGED);
+          ATH_CHECK( regHist(sourceProf, fracPath, run, ATTRIB_MANAGED) );
         }
 
         //Bit map histograms
@@ -736,8 +734,8 @@ StatusCode CscCalibMonToolSlope::postProc()
             bitHist->SetName(name2.str().c_str());
             bitHist->SetFillColor((m_detailedHashIds[idItr] ? m_histColAlert : m_histCol));
 
-            //regHist(newHist2, chanPath, run, ATTRIB_MANAGED);
-            regHist(bitHist, bitHistPath, run, ATTRIB_MANAGED);
+            //ATH_CHECK( regHist(newHist2, chanPath, run, ATTRIB_MANAGED) );
+            ATH_CHECK( regHist(bitHist, bitHistPath, run, ATTRIB_MANAGED) );
           }
         }//end if bithists*/
 
@@ -1009,9 +1007,9 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
 
     //***Generate histograms
     ATH_MSG_INFO( "Generating dead histograms"  );
-    copyDataToHists(m_deadNewColl);
+    ATH_CHECK( copyDataToHists(m_deadNewColl) );
 
-    //copyDataToHists(m_deadDiffColl); 
+    //ATH_CHECK( copyDataToHists(m_deadDiffColl) );
     ATH_MSG_INFO( "Finished generating dead histograms"  );
 
     //***Fill COOL input file if there are new dead channels******
