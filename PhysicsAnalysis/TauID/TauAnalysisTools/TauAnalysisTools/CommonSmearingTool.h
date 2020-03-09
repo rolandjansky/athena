@@ -85,7 +85,6 @@ public:
   /// ignored (unless they
   virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
-
 protected:
 
   std::string ConvertProngToString(const int& iProngness);

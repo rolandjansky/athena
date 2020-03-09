@@ -110,7 +110,7 @@ The tool can be used to retrieve scale factors for a specific
      - ``"2019-summer"``
      - ``"2018-summer"``, ``"2017-moriond"``, ``"2016-fall"``, ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
 
-For the default ``RecommendationTag`` "mc16-prerec" the following properties
+For the default ``RecommendationTag`` "2019-summer" the following properties
 are available for tool steering:
 
 .. list-table::
@@ -135,7 +135,7 @@ are available for tool steering:
    * - ``IDLevel``
      - ``int``
      - ``JETIDBDTTIGHT``
-     - ``JETIDBDTLOOSE``, ``JETIDBDTMEDIUM``
+     - ``JETIDBDTLOOSE``, ``JETIDBDTMEDIUM``, ``JETIDRNNLOOSE``, ``JETIDRNNMEDIUM``, ``JETIDRNNTIGHT``
 
    * - ``OLRLevel``
      - ``int``
@@ -269,9 +269,18 @@ Jet ID scale factors are provided for a couple of working points:
    * - ``JETIDBDTTIGHT``
      - the TauWG jet ID tight working point
 
+   * - ``JETIDRNNLOOSE``
+     - the TauWG jet ID loose working point using a RNN
+
+   * - ``JETIDRNNMEDIUM``
+     - the TauWG jet ID medium working point using a RNN
+
+   * - ``JETIDRNNTIGHT``
+     - the TauWG jet ID tight working point using a RNN
+
 These can be accessed, for example via::
 
-  TauEffTool.setProperty("IDLevel", (int)JETIDBDTLOOSE);
+  TauEffTool.setProperty("IDLevel", (int)JETIDRNNLOOSE);
 
 SFEleOLRElectron
 ----------------
@@ -371,7 +380,7 @@ FAQ
      TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffTool( "TauEfficiencyCorrectionsTool" );
 
      // set the IDLevel property to the loose working point
-     TauEffTool.setProperty("IDLevel",(int)JETIDBDTLOOSE)
+     TauEffTool.setProperty("IDLevel",(int)JETIDRNNLOOSE)
 
      // initialize the tool
      TauEffTool.initialize();
