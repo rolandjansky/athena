@@ -544,6 +544,11 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
         m_fY = &finalTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
+      else if (sTitle == "mu")
+      {
+	m_fY = &average_mu;
+	ATH_MSG_DEBUG("using average mu for y-axis");
+      }
       else if (sTitle == "truth |eta|")
       {
         m_fY = &truthTauAbsEta;
