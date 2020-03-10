@@ -133,7 +133,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
             " mkdir -p "+ CleanDirName    +" ;" + 
             " cd "      + CleanDirName    +" ;" + 
             " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
-            + trfcmd + " > "+q+".log 2>&1" )
+            trfcmd + " > "+q+".log 2>&1" )
     subprocess.call(cmd,shell=True)
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
