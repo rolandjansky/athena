@@ -233,6 +233,11 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
   theFTF.RoIs = rois
   theFTF.TracksName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator
+  
+  #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
+  if whichSignature=="Electron":
+     theFTF.doCloneRemoval = True
+
   viewAlgs.append(theFTF)
 
 
