@@ -13,12 +13,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **
   # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
   kwargs.setdefault("HoleSearch", result.getPrimary())
 
-  import pdb; pdb.set_trace()
-  acc = TRT_StrawStatusSummaryToolCfg(flags)
-  kwargs.setdefault("TRTStrawSummarySvc", acc.getPrimary()) 
-  result.merge(acc)
-
-  acc.addPublicTool(CompFactory.InDet__InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
+  result.addPublicTool(CompFactory.InDet__InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
   return result
 
 def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
@@ -291,7 +286,7 @@ def getSCTDAQConfigFolder(flags) :
                                           and not flags.InDetFlags.ForceCoraCool)) else '/SCT/DAQ/Configuration/'
 
 
-def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ReadCalibDataTool", **kwargs):
+def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs):
   acc = ComponentAccumulator()
   config_folder_prefix = getSCTDAQConfigFolder(flags)
   kwargs.setdefault("ReadKeyChannel", config_folder_prefix+"Chip")
