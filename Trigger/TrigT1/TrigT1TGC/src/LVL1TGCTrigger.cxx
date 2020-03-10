@@ -24,11 +24,9 @@
 #include "TrigT1TGC/TGCTMDBOut.h"
 
 // Athena/Gaudi
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
 
 // Other stuff
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
@@ -87,7 +85,7 @@ namespace LVL1TGCTrigger {
   ////////////////////////////////////////////////////////////
   StatusCode LVL1TGCTrigger::initialize()
   {
-    ATH_MSG_DEBUG("LVL1TGCTrigger::initialize() called");
+    ATH_MSG_DEBUG("LVL1TGCTrigger::initialize()");
 
     m_debuglevel = (msgLevel() <= MSG::DEBUG); // save if threshold for debug
 
@@ -98,34 +96,24 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_USE_CONDDB( true );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
 
-    if(!m_configSvc.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not connect to " << m_configSvc.typeAndName());
-    } else {
-      ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName());
-    }
-
-    // clear Masked channel
-    m_MaskedChannel.clear();
-
-    if (m_CurrentBunchTag>0) ATH_MSG_DEBUG("---> Take hits with CURRENT banch tag = " << m_CurrentBunchTag);
-    ATH_MSG_DEBUG("OutputRdo " << m_OutputTgcRDO.value());
-    
+    // initialize to read condition DB key of TGCTriggerData
     ATH_CHECK( m_readCondKey.initialize() );
     
     // initialize TGCDataBase
-    m_db = new TGCDatabaseManager(&m_tgcArgs,m_readCondKey,m_VerCW);
+    m_db = new TGCDatabaseManager(&m_tgcArgs, m_readCondKey, m_VerCW);
     
-    // try to initialize the TGCcabling
-    StatusCode sc = getCabling();
-    if(sc.isFailure()) {
-      ATH_MSG_DEBUG("TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event.");
-    }
+    // initialize the TGCcabling
+    ATH_CHECK(getCabling());
 
+    // read and write handle key
     ATH_CHECK(m_keyTgcDigit.initialize());
     ATH_CHECK(m_keyTileMu.initialize());
     ATH_CHECK(m_muctpiPhase1Key.initialize(tgcArgs()->useRun3Config()));
     ATH_CHECK(m_muctpiKey.initialize(!tgcArgs()->useRun3Config()));
-    
+
+    // clear mask channel map
+    m_MaskedChannel.clear();
+
     return StatusCode::SUCCESS;
   }
 
@@ -1209,10 +1197,10 @@ namespace LVL1TGCTrigger {
   }
   
   ///////////////////////////////////////////////////////////
-  
   StatusCode LVL1TGCTrigger::getCabling()
   {
-    ATH_MSG_DEBUG("start getCabling()");
+    ATH_MSG_DEBUG("LVL1TGCTrigger::getCabling()");
+
     // TGCcablingSvc
     // get Cabling Server Service
     const ITGCcablingServerSvc* TgcCabGet = 0;
