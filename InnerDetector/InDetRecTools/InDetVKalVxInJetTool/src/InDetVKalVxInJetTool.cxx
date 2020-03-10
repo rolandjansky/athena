@@ -29,7 +29,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_CutSctHits(-5),
+    m_CutSctHits(4),
     m_CutPixelHits(1),
     m_CutSiHits(7),
     m_CutBLayHits(0),
@@ -70,8 +70,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_Rlayer1   (0.),
     m_Rlayer2   (0.),
     m_SVResolutionR(0.),
-    m_useMaterialRejection(false),
-    m_useVertexCleaning(false),
+    m_useMaterialRejection(true),
+    m_useVertexCleaning(true),
     m_MassType (1),
     m_MultiVertex(false),
     m_MultiWithPrimary(false),
@@ -240,6 +240,14 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //     }
 
 //------------------------------------------
+// Phase2
+
+     if(m_IsPhase2 == true){
+       m_CutSctHits = 0;
+       m_useMaterialRejection = false;
+       m_useVertexCleaning = false;
+     }
+
 // Chose whether IBL is installed
      if(m_existIBL){ // 4-layer pixel detector
        if( m_Rbeampipe==0.)  m_Rbeampipe=24.0;    
