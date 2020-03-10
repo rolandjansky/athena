@@ -7,7 +7,7 @@ try:
       TheP8I_path=os.environ['THEP8I_PATH']
 except:
       TheP8I_path='/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/thep8i/2.0.0/x86_64-slc6-gcc62-opt'
-os.environ["LD_LIBRARY_PATH"]=TheP8I_path+"/lib64/TheP8I"+":"+TheP8I_path+"/lib/TheP8I"+":"+os.environ["LD_LIBRARY_PATH"]
+os.environ["LD_LIBRARY_PATH"]=TheP8I_path+"/lib64/ThePEG"+":"+TheP8I_path+"/lib/ThePEG"+":"+os.environ["LD_LIBRARY_PATH"]
 
 try:
       TheP8I_PYTHIA8DATA=os.environ['PYTHIA8DATA']
