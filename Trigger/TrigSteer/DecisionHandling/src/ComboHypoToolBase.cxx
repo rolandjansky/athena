@@ -12,7 +12,7 @@ ComboHypoToolBase::ComboHypoToolBase(const std::string& type, const std::string&
 {}
 
 
-StatusCode ComboHypoToolBase::decide(LegDecisionsMap & passingLegs, const EventContext& context ) const
+StatusCode ComboHypoToolBase::decide(LegDecisionsMap & passingLegs, const EventContext& /* context */ ) const
 {
   // if no combinations passed, then exit 
   if (passingLegs.size()==0)  return StatusCode::SUCCESS;
