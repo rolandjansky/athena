@@ -3,7 +3,12 @@
 */
 
 #include "PixelConditionsData/PixelITkClusterErrorData.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+#include "Identifier/IdentifierHash.h"
 
 #include <fstream>
 #include <string>
@@ -12,11 +17,20 @@
 
 namespace PixelCalib{
 
-// Load defaults - real values to be loaded from database
+PixelITkClusterErrorData::PixelITkClusterErrorData():
+  m_detStore(nullptr),
+  m_pixelid(nullptr)
+{
+  initialize();
+}
 
-void PixelITkClusterErrorData::initialize(){
+StatusCode PixelITkClusterErrorData::initialize(){
 
-  return;
+  ISvcLocator* svcLoc = Gaudi::svcLocator();
+  ATH_CHECK(svcLoc->service("DetectorStore", m_detStore));
+  ATH_CHECK(m_detStore->retrieve(m_pixelid, "PixelID")) ;
+
+  return StatusCode::SUCCESS;
 }
 
 
@@ -59,7 +73,7 @@ void PixelITkClusterErrorData::print(std::string file) const {
   for(auto& x : m_constmap){
 
     std::tuple<double,double,double,double> value = x.second;
-    *outfile << x.first << " " << std::get<0>(value) << " " << std::get<1>(value) << " " << std::get<2>(value) << " " << std::get<3>(value) << std::endl;
+    *outfile << m_pixelid->wafer_hash(x.first) << " " << std::get<0>(value) << " " << std::get<1>(value) << " " << std::get<2>(value) << " " << std::get<3>(value) << std::endl;
 
   }
 
@@ -78,10 +92,10 @@ void PixelITkClusterErrorData::load(std::string file){
        
     //
     // Data in the file is stored in the following columns:
-    // pixelID : delta_x : delta_error_x : delta_y : delta_error_y
+    // waferID_hash : delta_x : delta_error_x : delta_y : delta_error_y
     //
 
-    std::string pixelId_str;
+    int waferID_hash_int;
     double delta_x;
     double delta_error_x;
     double delta_y;
@@ -89,10 +103,10 @@ void PixelITkClusterErrorData::load(std::string file){
 
     while(!infile.eof()){
 
-      infile >> pixelId_str >> delta_x >> delta_error_x >> delta_y >> delta_error_y;
+      infile >> waferID_hash_int >> delta_x >> delta_error_x >> delta_y >> delta_error_y;
         
-      Identifier pixelId;
-      pixelId.set(pixelId_str+"0000000000"); // Truncated pixel ID is stored in the file
+      IdentifierHash waferID_hash(waferID_hash_int);
+      Identifier pixelId = m_pixelid->wafer_id(waferID_hash);
       setDeltaError(&pixelId,delta_x,delta_error_x,delta_y,delta_error_y);
 
     }

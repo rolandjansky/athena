@@ -4,6 +4,7 @@
 
 #include "PixelITkOfflineCalibCondAlg.h"
 #include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "PathResolver/PathResolver.h"
 #include <memory>
@@ -13,8 +14,8 @@
 PixelITkOfflineCalibCondAlg::PixelITkOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc("CondSvc", name),
-  // For 21.9 only, to be removed in master
-  m_detStore(nullptr)
+  m_detStore(nullptr),
+  m_pixelid(nullptr)
 {
   declareProperty("InputSource",m_inputSource=2,"Source of data: 0 (none), 1 (text file), 2 (database)");
   declareProperty("PixelClusterErrorDataFile", m_textFileName="PixelITkClusterErrorData.txt","Read constants from this file");  
@@ -28,8 +29,8 @@ StatusCode PixelITkOfflineCalibCondAlg::initialize() {
 
   ATH_CHECK(m_condSvc.retrieve());
 
-  // For 21.9 only, to be removed in master
   ATH_CHECK(service("DetectorStore", m_detStore));
+  ATH_CHECK(m_detStore->retrieve(m_pixelid, "PixelID")) ;
 
   if (m_inputSource==2){
     if(m_readKey.key().empty()) {
@@ -170,11 +171,11 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
       (*attrList).second.toOutputStream(attrStr);
       ATH_MSG_DEBUG( "ChanNum " << (*attrList).first << " Attribute list " << attrStr.str() );
 
-      // Truncated pixel ID is stored in the database
-      long long pixelID_trunc = (*attrList).second["pixelID"].data<int>();
-      long long pixelID = pixelID_trunc<<40;
+      // Wafer ID hash is stored in the database
+      IdentifierHash waferID_hash((*attrList).second["waferID"].data<int>());
+      Identifier pixelID = m_pixelid->wafer_id(waferID_hash);
+      constants.emplace_back( pixelID.get_compact() );
 
-      constants.emplace_back( pixelID );
       constants.emplace_back( (*attrList).second["delta_x"].data<float>() );
       constants.emplace_back( (*attrList).second["delta_error_x"].data<float>() );
       constants.emplace_back( (*attrList).second["delta_y"].data<float>() );

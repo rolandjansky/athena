@@ -17,8 +17,8 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
-//For 21.9 only, to be removed in master
 #include "StoreGate/StoreGateSvc.h"
+#include "InDetIdentifier/PixelID.h"
 
 class PixelITkOfflineCalibCondAlg : public AthReentrantAlgorithm {
   public:
@@ -39,8 +39,8 @@ class PixelITkOfflineCalibCondAlg : public AthReentrantAlgorithm {
 
     ServiceHandle<ICondSvc> m_condSvc;
 
-    //For 21.9 only, to be removed in master
     StoreGateSvc* m_detStore;
+    const PixelID* m_pixelid;
 
 };
 
