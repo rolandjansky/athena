@@ -122,7 +122,7 @@ def toolIP2DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
 #                     'TrackSummaryTool'       : None,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-		     'useRun2TrackGrading'    : (btagrun1 == False and btagItk),
+		     'useRun2TrackGrading'    : (btagrun1 == False and not(btagItk)),
                      'useITkTrackGrading'     : (btagItk == True),
                      'ITkTrkGradeVersion'     :  btagItk_version,
                      'useInnerLayers0HitInfo' : (btagrun1 == False),
