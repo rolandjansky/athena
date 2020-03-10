@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArRampCorr.h"
@@ -89,7 +89,7 @@ StatusCode LArRampCorr::stop()
    LArRampComplete::LArCondObj ramp;
    
    ramp.m_vRamp = coeffs;
-   larRampCorr->insertCorrection(chid,ramp,iGain);
+   ATH_CHECK ( larRampCorr->insertCorrection(chid,ramp,iGain) );
  }
 
  ATH_CHECK( detStore()->record(std::move(larRampCorr),m_keyoutput) );
