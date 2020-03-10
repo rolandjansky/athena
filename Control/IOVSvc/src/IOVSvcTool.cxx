@@ -664,7 +664,6 @@ IOVSvcTool::replaceProxy( SG::DataProxy *pOld,
       removeFromSet (ent->second, m_stopSet_RE);
 
       setRange_impl (pNew, *(const_cast<IOVRange*>(ent->second->range())));
-      //setRange_impl (pNew, *ent->second->range());
       delete ent->second;
       m_entries.erase (ent);
     }
