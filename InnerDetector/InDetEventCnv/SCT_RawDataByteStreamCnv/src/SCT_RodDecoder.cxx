@@ -214,7 +214,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
 
   std::vector<int> errorHit;
 
-  StatusCode sc{StatusCode::SUCCESS};
+  StatusCode sc{StatusCode::SUCCESS, true};
 
   // Look at ROB status word
   if (robFrag.nstatus()!=0) {
@@ -756,9 +756,9 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
         chip = ((data16[n]>>3)&0xF);
         abcError = data16[n]&0x7;
         // No data should appear for that chip but how do we want to transmit this information?
-        IdentifierHash flagIDHash{0};
+        IdentifierHash flagIDHash;
         if (onlineID == 0) {
-          ATH_CHECK(addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs));
+          ATH_MSG_VERBOSE("There is ByteStreamParseError but we don't know which wafer has it.");
           continue;
         } 
         else {
