@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */  
   
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFillerProfile_h
@@ -65,7 +65,7 @@ namespace Monitored {
         return 0;
       }
 
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
+      std::scoped_lock<std::mutex> lock(*m_mutex);
 
       if (m_histDef->opt.find("kAddBinsDynamically") != std::string::npos) {
 	const auto xmax = std::max_element(begin(valuesVector1), end(valuesVector1));

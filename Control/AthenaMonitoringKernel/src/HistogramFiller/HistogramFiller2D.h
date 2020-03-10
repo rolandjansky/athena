@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFiller2D_h
@@ -113,7 +113,7 @@ namespace Monitored {
     template<typename F1, typename F2, typename F3, typename F4>
     void fill( size_t n, F1 f1, F2 f2, F3 f3, F4 f4 ) {
 
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
+      std::scoped_lock lock(*m_mutex);
       auto histogram = this->histogram<TH2>();
       for ( size_t i = 0; i < n; ++i ) {
         if (f4(i)) {

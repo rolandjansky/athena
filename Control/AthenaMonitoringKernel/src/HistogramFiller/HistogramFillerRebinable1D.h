@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFillerRebinable1D_h
@@ -32,7 +32,7 @@ namespace Monitored {
       if (m_monVariables.size() != 1) { return 0; }
       {
         const auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-        std::lock_guard<std::mutex> lock(*(this->m_mutex));
+        std::scoped_lock lock(*m_mutex);
 
         if (m_rebinMode == RebinMode::AddBins) {
           const auto max = std::max_element(begin(valuesVector), end(valuesVector));
