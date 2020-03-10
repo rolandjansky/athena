@@ -3,6 +3,7 @@
 #
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
++ Calorimeter/CaloCondBlobObjs
 + Calorimeter/CaloGeoHelpers
 + Calorimeter/CaloDetDescr
 + Calorimeter/CaloEvent
