@@ -160,12 +160,8 @@ EGAM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # RequireAlgs = logical AND of filters
 EGAM3Stream.AcceptAlgs(["EGAM3Kernel"])
 
-#Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EGAM3ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================
