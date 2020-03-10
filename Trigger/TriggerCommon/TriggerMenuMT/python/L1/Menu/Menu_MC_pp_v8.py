@@ -214,6 +214,7 @@ def defineMenu():
         # VDM
 
         # TRT
+        'L1_TRT_FILLED', 'L1_TRT_EMPTY',
 
         # TGC
         'L1_TGC_BURST',
@@ -758,6 +759,10 @@ def defineMenu():
         'L1_LUCID_UNPAIRED_ISO' : 214,
         'L1_LUCID_BGRP9' : 471,
         'L1_LUCID_BGRP11' : 472,
+
+        # TRT
+        'L1_TRT_FILLED' : 218,
+        'L1_TRT_EMPTY' : 219,
 
         # new items
         'L1_gXERHO20' : 239,
