@@ -4,7 +4,7 @@
 # Common file used for TOPQ thinning
 # Call with:
 #   import DerivationFrameworkTop.TOPQCommonThinning
-#   thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQX',ThinningSvc, ToolSvc)
+#   thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQX', ToolSvc)
 #   TOPQXThinningHelper.TriggerChains =  DerivationFrameworkTop.TOPQCommonThinning.TOPQTriggerChains()
 # Tools used:
 #   * TriggerNavigationThinning
@@ -45,7 +45,7 @@ def TOPQTriggerChains(TriggerFilter='allTriggers'):
 #============================
 # MAIN SETUP FUNCTION
 #============================
-def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
+def setup(TOPQname, streamName, ToolSvc):
   thinningTools=[]
 
   #========================
@@ -244,7 +244,7 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
 #      pTvariableToCutOn = ".pt"
 #    TOPQLargeRJetThinning = DerivationFramework__GenericObjectThinning(
 #      name = TOPQname + largeRjetColl + "Thinning_LargeR",
-#      ThinningService         = TOPQThinningSvc,
+#      StreamName              = streamName,
 #      ContainerName    = largeRjetColl,
 #      SelectionString  = largeRjetColl + pTvariableToCutOn + " > 150.0*GeV")
 #    ToolSvc += TOPQLargeRJetThinning
@@ -261,7 +261,7 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   photonColl = "Photons"
   TOPQPhotonThinning = DerivationFramework__GenericObjectThinning(
     name = TOPQname + photonColl + "Thinning_lowpTphotons",
-    ThinningService         = TOPQThinningSvc,
+    StreamName              = streamName,
     ContainerName    = photonColl,
     SelectionString  = photonColl + ".pt > 9.0*GeV")
   ToolSvc += TOPQPhotonThinning
@@ -342,4 +342,4 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
     #print TOPQname+".py", TOPQname+"GluonThinning: ", TOPQGluonThinning
   
   return thinningTools
-# end setup(TOPQname, TOPQThinningSvc, ToolSvc)
+# end setup(TOPQname, streamName, ToolSvc)

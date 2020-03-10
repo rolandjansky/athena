@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetMonitoringAlg.h"
@@ -49,7 +49,7 @@ StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
   // call each histograming tool on the container
   for(const auto& t: m_jetFillerTools){
     ATH_MSG_DEBUG( " now run "<< t->name() );
-    t->processJetContainer(*this, *jets, ctx);      
+    ATH_CHECK( t->processJetContainer(*this, *jets, ctx) );
   }
   
   return StatusCode::SUCCESS;

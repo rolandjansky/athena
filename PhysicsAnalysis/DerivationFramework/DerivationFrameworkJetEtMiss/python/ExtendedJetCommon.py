@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # ExtendedJetCommon.py
@@ -229,7 +229,7 @@ def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence
 
     btagWPs = []
     btagtools = []
-    for WP,tool in sorted(btagtooldict.iteritems()):
+    for WP,tool in sorted(btagtooldict.items()):
         btagWPs.append(WP)
         btagtools.append(tool)
     jetaugtool.JetBtagTools = btagtools

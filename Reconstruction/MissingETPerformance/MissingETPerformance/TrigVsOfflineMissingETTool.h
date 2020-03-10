@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGVSOFFLINEMISSINGET_TOOL_H
@@ -61,8 +61,8 @@ class TrigVsOfflineMissingETTool: public AthAlgTool {
     std::string& getDir();
     TH1* hist(const std::string&);
     TH2* hist2(const std::string&);
-    StatusCode addHistogram(TH1 *);
-    StatusCode addHistogram(TH2 *);
+    void addHistogram(TH1 *);
+    void addHistogram(TH2 *);
 
     /** methods to make booking easier */
     void addBasicL1Histograms();

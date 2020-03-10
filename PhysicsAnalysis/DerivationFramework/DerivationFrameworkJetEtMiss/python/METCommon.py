@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # METCommon.py
 # Schedules default DF MET content building tools and writes the
 # results into SG. These may then be accessed along the train  
 #********************************************************************
+from __future__ import print_function
+
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 ##########################################################################################
@@ -34,7 +36,7 @@ def addMETOutputs(slimhelper, contentlist=[], slimlist=[]):
             suffixlist.append(content)
     for suffix in sorted(set(suffixlist)):
         if suffix in maplist:
-            print "DFMissingET -- Add containers for METAssoc_"+suffix+" to output"
+            print ("DFMissingET -- Add containers for METAssoc_"+suffix+" to output")
             if suffix in slimlist:
                 slimhelper.SmartCollections.append("MET_Reference_"+suffix)
             elif suffix in xaodmaps:
@@ -47,19 +49,19 @@ def addMETOutputs(slimhelper, contentlist=[], slimlist=[]):
                 slimhelper.StaticContent.append("xAOD::MissingETContainer#MET_Core_"+suffix)
                 slimhelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_Core_"+suffix+"Aux.")
         elif suffix in truthmaplist:
-            print "DFMissingET -- Add containers for METAssoc_"+suffix+" to output"
+            print ("DFMissingET -- Add containers for METAssoc_"+suffix+" to output")
             slimhelper.StaticContent.append("xAOD::MissingETAssociationMap#METAssoc_"+suffix)
             slimhelper.StaticContent.append("xAOD::MissingETAuxAssociationMap#METAssoc_"+suffix+"Aux.")
             slimhelper.StaticContent.append("xAOD::MissingETContainer#MET_Core_"+suffix)
             slimhelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_Core_"+suffix+"Aux.")
         elif suffix in xaodlist:
-            print "DFMissingET -- Add containers for MET_"+suffix+" to output"
+            print ("DFMissingET -- Add containers for MET_"+suffix+" to output")
             if suffix in slimlist:
                 slimhelper.SmartCollections.append("MET_"+suffix)
             else:
                 slimhelper.AllVariables.append("MET_"+suffix)
         else:
-            print "DFMissingET -- Add containers for MET_"+suffix+" to output"
+            print ("DFMissingET -- Add containers for MET_"+suffix+" to output")
             slimhelper.StaticContent.append("xAOD::MissingETContainer#MET_"+suffix)
             slimhelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_"+suffix+"Aux.")
 
@@ -83,13 +85,13 @@ def scheduleMETAssocAlg(sequence=DerivationFrameworkJob,configlist="CustomMET"):
     algname = 'METAssociation_'+configlist
     assocAlg = None
     if algname in metalgs.keys():
-        print "Get preexisting alg:", algname, metalgs[algname]
+        print ("Get preexisting alg:", algname, metalgs[algname])
         assocAlg = metalgs[algname]
     else:
         from METReconstruction.METAssocConfig import getMETAssocAlg
         assocAlg = getMETAssocAlg(algname,customMETConfigs[configlist])
         metalgs[algname] = assocAlg
-        print "Generate MET alg:", algname, assocAlg
+        print ("Generate MET alg:", algname, assocAlg)
     if not hasattr(sequence,algname):
         sequence += assocAlg
 
