@@ -34,6 +34,9 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPSiLayerAlgorithm
     afpSiLayerAlgorithm = helper.addAlgorithm(AFPSiLayerAlgorithm,'AFPSiLayerAlg')
 
+    from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPToFAlgorithm
+    afpToFAlgorithm = helper.addAlgorithm(AFPToFAlgorithm,'AFPToFAlg')
+
     # You can actually make multiple instances of the same algorithm and give 
     # them different configuration
     #anotherExampleMonAlg = helper.addAlgorithm(AFPSiLayerAlgorithm,'AnotherExampleMonAlg')
@@ -63,6 +66,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
     AFPGroup = helper.addGroup( afpSiLayerAlgorithm,         'AFPSiLayerTool',         'AFP/'     ) 
+    AFPToFGroup = helper.addGroup( afpToFAlgorithm,         'AFPToFTool',         'AFP/'     )
 
     #    station0_1 = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayer','Station0/')
 
