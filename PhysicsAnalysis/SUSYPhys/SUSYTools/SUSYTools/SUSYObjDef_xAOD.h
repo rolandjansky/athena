@@ -79,6 +79,7 @@ namespace CP {
   class IEgammaCalibrationAndSmearingTool;
   class IEfficiencyScaleFactorTool;
   class IIsolationSelectionTool;
+  class IIsolationLowPtPLVTool;
   class IIsolationCloseByCorrectionTool;
   class IIsolationCorrectionTool;
   class IPileupReweightingTool;
@@ -571,6 +572,7 @@ namespace ST {
     double      m_eleIsoHighPtThresh;
     std::string m_eleChID_WP;
     bool        m_eleChIso; // use Charge ID SF with/without Iso applied
+    bool        m_eleChID_signal; // allows to run ECID but remove it from signal definition
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonBaselineIso_WP;
     std::string m_photonIso_WP;
@@ -829,6 +831,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationLowPtPLVTool> m_isoToolLowPtPLV;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoBaselineTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;

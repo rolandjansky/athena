@@ -51,6 +51,7 @@
 #include "tauRecTools/ITauToolBase.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
@@ -164,6 +165,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eleIsoHighPtThresh(-99.),
     m_eleChID_WP(""),
     m_eleChIso(true),
+    m_eleChID_signal(false),
     m_runECIS(false),
     m_photonBaselineIso_WP(""),
     m_photonIso_WP(""),
@@ -377,6 +379,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_isoCorrTool(""),
     m_isoTool(""),
+    m_isoToolLowPtPLV(""),
     m_isoBaselineTool(""),
     m_isoHighPtTool(""),
     //
@@ -497,6 +500,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleIsoHighPtThresh", m_eleIsoHighPtThresh);
   declareProperty( "EleCFT", m_eleChID_WP);
   declareProperty( "EleCFTIso", m_eleChIso);
+  declareProperty( "EleCFTSignal", m_eleChID_signal);
   declareProperty( "EleD0sig", m_eled0sig);
   declareProperty( "EleZ0", m_elez0);
   declareProperty( "EleBaselineD0sig", m_elebaselined0sig);
@@ -668,6 +672,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //
   m_isoCorrTool.declarePropertyFor( this, "IsolationCorrectionTool", "The IsolationCorrectionTool" );
   m_isoTool.declarePropertyFor( this, "IsolationSelectionTool", "The IsolationSelectionTool");
+  m_isoToolLowPtPLV.declarePropertyFor( this, "IsolationLowPtPLVTool", "The IsolationLowPtPLVTool");
   m_isoBaselineTool.declarePropertyFor( this, "IsolationSelectionTool_Baseline", "The IsolationSelectionTool for baseline objects");
   m_isoHighPtTool.declarePropertyFor( this, "IsolationSelectionTool_HighPt", "The IsolationSelectionTool for High Pt");
   m_isoCloseByTool.declarePropertyFor( this, "IsolationCloseByCorrectionTool", "The IsolationCloseByCorrectionTool");
@@ -721,14 +726,16 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     { "FCHighPtCaloOnly" , "FCHighPtCaloOnly" },
     { "Gradient"         , "Gradient"         },
     { "FCLoose"          , "FCLoose"          },
-    { "FCTight"          , "FCTight"          }
+    { "FCTight"          , "FCTight"          },
+    { "PLVTight"         , "FCTight"          }
   };
 
   // Construct muon fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
   m_mu_iso_fallback = {
     { "FCTightTrackOnly" , "FCTightTrackOnly" },
     { "FCLoose"          , "FCLoose"          },
-    { "FCTight"          , "FCTight"          }
+    { "FCTight"          , "FCTight"          },
+    { "PLVTight"         , "FCTight"          }
   };
 
   // load tau trigger support
@@ -1234,6 +1241,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
   configFromFile(m_eleChIso, "Ele.CFTIso", rEnv, true); // use charge ID SFs without iso applied
+  configFromFile(m_eleChID_signal, "Ele.CFTSignal", rEnv, !m_eleChID_WP.empty()); // Require ECID as part of the signal lepton definition
   configFromFile(m_doModifiedEleId, "Ele.DoModifiedId", rEnv, false);
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eleConfig, "Ele.Config", rEnv, "None");
