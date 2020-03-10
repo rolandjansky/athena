@@ -16,7 +16,7 @@ def LArDigitMonConfig(inputFlags):
     # The following class will make a sequence, configure algorithms, and link                                                                   
     # them to GenericMonitoringTools                                                                                                                                 
     
-    from AthenaMonitoring import AthMonitorCfgHelper
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArDigitMonCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory

@@ -7,7 +7,7 @@ def LArCollisionTimeMonConfigOld(inputFlags):
     from LArMonitoring.LArMonitoringConf import LArCollisionTimeMonAlg
     #from AthenaCommon.GlobalFlags import globalflags                                                                                                                               
 
-    helper = AthMonitorCfgHelperOld(inputFlags, 'LArCollisionTimeMonAlgCfg')
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArCollisionTimeMonCfg')
     LArCollisionTimeMonConfigCore(helper, LArCollisionTimeMonAlg,inputFlags)
     return helper.result()
 
