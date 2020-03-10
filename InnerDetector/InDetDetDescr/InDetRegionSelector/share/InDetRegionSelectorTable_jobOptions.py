@@ -27,6 +27,9 @@ ToolSvc = Service( "ToolSvc" )
 # PrintHashId:	     true: print hash ids, false: print expanded id.
 # PrintTable:       Output table to a text file.
 
+
+# Pixel table
+
 if DetFlags.detdescr.pixel_on():
     from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
     PixelRegionSelectorTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
@@ -38,6 +41,9 @@ if DetFlags.detdescr.pixel_on():
     print      PixelRegionSelectorTable
 else :
     PixelRegionSelectorTable = None
+
+
+# SCT table
 
 if DetFlags.detdescr.SCT_on():
     from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
@@ -51,6 +57,9 @@ if DetFlags.detdescr.SCT_on():
 else :
     SCT_RegionSelectorTable = None
 
+
+# TRT table 
+
 if DetFlags.detdescr.TRT_on():
     from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
     TRT_RegionSelectorTable = TRT_RegionSelectorTable(name        = "TRT_RegionSelectorTable",
@@ -62,16 +71,3 @@ if DetFlags.detdescr.TRT_on():
     print      TRT_RegionSelectorTable
 else :
     TRT_RegionSelectorTable = None
-#
-# --- now load algorithm
-#
-# from InDetRegionSelector.InDetRegionSelectorConf import InDetDD__InDetRegionSelectorLUT
-# InDetRegionSelectorLUT = InDetDD__InDetRegionSelectorLUT(name                       = "InDetRegionSelectorLut",
-#                                                          PixelRegionLUT_CreatorTool = PixelRegionSelectorTable,
-#                                                          SCT_RegionLUT_CreatorTool  = SCT_RegionSelectorTable,
-#                                                          TRT_RegionLUT_CreatorTool  = TRT_RegionSelectorTable,
-#                                                          DoTests                    = False)
-# topSequence += InDetRegionSelectorLUT
-# print          InDetRegionSelectorLUT
-
-###############################################################

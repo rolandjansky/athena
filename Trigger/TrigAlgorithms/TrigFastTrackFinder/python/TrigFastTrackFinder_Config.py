@@ -207,6 +207,13 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
         spTool.UseBeamTilt = False
         spTool.layerNumberTool = numberingTool
+
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+      
+        spTool.RegSel_Pixel = makeRegSelTool_Pixel()
+        spTool.RegSel_SCT   = makeRegSelTool_SCT()
+
         ToolSvc += spTool
         self.SpacePointProviderTool=spTool
         self.MinHits = 5 #Only process RoI with more than 5 spacepoints
@@ -232,7 +239,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
-
 
         ## SCT and Pixel detector elements road builder
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
