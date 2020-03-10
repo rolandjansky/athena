@@ -7,8 +7,8 @@ from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeo
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 from IOVDbSvc.CondDB import conddb
 btagrun1=False
-btagItk=True
-btagItk_version=7
+btagItk=False
+btagItk_version=5
 
 if conddb.dbdata == 'COMP200':
     btagrun1=True
@@ -129,9 +129,9 @@ def toolIP3DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-		     'useRun2TrackGrading'    : (btagrun1 == False and not(btagItk)),
+		     'useRun2TrackGrading'    : (btagrun1 == False and btagItk),
                      'useITkTrackGrading'     : (btagItk == True),
-                     'ITkTrkGradeVersion'     : btagItk_version,
+                     'ITkTrkGradeVersion'     :  btagItk_version,
                      'useInnerLayers0HitInfo' : (btagrun1 == False),
                      'useDetailSplitHitInfo'  : (btagrun1 == False),
                      'hitBLayerGrade'         : True }
