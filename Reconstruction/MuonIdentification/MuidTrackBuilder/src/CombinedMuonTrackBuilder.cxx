@@ -761,7 +761,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 
     if(m_refineELossCombinedTrackFit) {
       ATH_MSG_VERBOSE( "Refining Calorimeter TSOS in Muon Combined Fit ..." );
-      m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>( *combinedTrack ));
+      m_materialUpdator->updateCaloTSOS(*combinedTrack);
     }
 
 //    countAEOTs(combinedTrack, " combinedTrack before addIDMSerrors ");
@@ -3564,8 +3564,7 @@ CombinedMuonTrackBuilder::createIndetTrack(
     // set end iterator to be the first TSOS after the indet
     unsigned size = 1;
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = begin;
-    const Trk::TrackStateOnSurface* perigeeTSOS =
-	const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
+    const Trk::TrackStateOnSurface* perigeeTSOS =(**s).clone();
     ++s;	// keep start perigee where-ever!
     for (; s != end; ++s)
     {
@@ -3675,8 +3674,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
       && (**s).trackParameters()
       && m_calorimeterVolume->inside((**s).trackParameters()->position()))
     {
-      const Trk::TrackStateOnSurface* TSOS =
-	const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
+      const Trk::TrackStateOnSurface* TSOS =(**s).clone();
       trackStateOnSurfaces->push_back(TSOS);
       ++s;
       
@@ -3731,8 +3729,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
           
 	  if (! (**s).type(Trk::TrackStateOnSurface::Perigee))
 	    {
-	      const Trk::TrackStateOnSurface* TSOS =
-		const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
+	      const Trk::TrackStateOnSurface* TSOS =(**s).clone();
 	      trackStateOnSurfaces->push_back(TSOS);
 //              std::cout << " again caloTSOS " <<  " r " << TSOS->trackParameters()->position().perp() << " z " << TSOS->trackParameters()->position().z() << std::endl; 
 	    }
@@ -3952,7 +3949,7 @@ CombinedMuonTrackBuilder::createSpectrometerTSOS(const Trk::Track& spectrometerT
 	}
 
 	// trapezoid precedes rotatedTrapezoid
-	const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
+	const Trk::TrackStateOnSurface* TSOS = (**s).clone();
 	if (previousTSOS)
 	{
 	    if (trapezoid && deltaZ < 1.*Gaudi::Units::mm)
