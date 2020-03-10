@@ -31,7 +31,6 @@
 #include "StoreGate/WriteHandleKey.h"
 
 #include "MuonDigitContainer/TgcDigit.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigT1TGC/TGCArguments.hh"
 #include "MuonDigitContainer/TgcDigitContainer.h"
@@ -168,7 +167,6 @@ namespace LVL1TGCTrigger {
     
     TGCArguments m_tgcArgs;
     TGCArguments* tgcArgs();
-
 
     SG::ReadHandleKey<TgcDigitContainer> m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS","Location of TgcDigitContainer"};
     SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};

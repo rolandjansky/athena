@@ -1261,6 +1261,8 @@ namespace LVL1TGCTrigger {
     m_TimingManager->setBunchCounter(0);
     m_nEventInSector = 0;
 
+    ATH_MSG_DEBUG("finished LVL1TGCTrigger::getCabling()");
+
     return sc;
   }
 

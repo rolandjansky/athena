@@ -3,7 +3,6 @@ Description of CW
   VersionCW flag is used to specify CW
 
   "00_06_0016" is default (for MC15c).
-  LVL1ConfigSvc is not used to choose CW
 
   For BW-CW,
    RPhiCoincidenceMap.modXX.vYYYY._12.db
@@ -18,7 +17,6 @@ Description of CW
 
 *** FOR OLD CWs (OBSOLETE!!) ***
   "setK" is defaut ("setD" is chosen for old MC with 8-fold cabling ) 	
-  LVL1ConfigSvc is not used to chose CW
 
  RPhiCoincidenceMap.modXX.YYY._12.db : for 12-fold cabling (default)
  RPhiCoincidenceMap.modXX.YYY.db :     for 8-fold cabling (old MC)
@@ -121,9 +119,4 @@ Desrciption of Properties
 - MaskFileName12
    - file name of Mask settings for final (12-fold) cabling
    - default: TrigT1TGCMaskedChannel._12.db (defined in JobOption)
-
-- LVL1ConfigSvc
-   - name of configuration service 
-     NOTE:   LVL1ConfigSvc is not used to chose CW
-   - default : "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
 
