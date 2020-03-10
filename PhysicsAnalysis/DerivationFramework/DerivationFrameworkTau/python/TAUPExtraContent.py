@@ -81,6 +81,25 @@ ExtraContentTaus                 = [   "TauJets.jetLink."
                                        + "mPanTauCellBased."
                                        + "mPanTauCellBasedProto."
                                        + "clusterLinks."
+                                       + "hadronicPFOLinks."
+                                       + "shotPFOLinks."
+                                       + "chargedPFOLinks."
+                                       + "neutralPFOLinks."
+                                       + "pi0PFOLinks."
+                                       + "protoChargedPFOLinks."
+                                       + "protoNeutralPFOLinks."
+                                       + "protoPi0PFOLinks."
+                                       + "eflowRec_Charged_PFOLinks."
+                                       + "eflowRec_Neutral_PFOLinks."
+                                       + "eflowRec_Pi0_PFOLinks."
+                                       + "shot_PFOLinks."
+                                       + "charged_PFOLinks."
+                                       + "neutral_PFOLinks."
+                                       + "pi0_PFOLinks."
+                                       + "pi0Links."
+                                       + "cellBased_Charged_PFOLinks."
+                                       + "cellBased_Neutral_PFOLinks."
+                                       + "cellBased_Pi0_PFOLinks."
                                        + "PanTau_isPanTauCandidate.PanTau_DecayModeProto.PanTau_BDTValue_1p0n_vs_1p1n.PanTau_BDTValue_1p1n_vs_1pXn.PanTau_BDTValue_3p0n_vs_3pXn.PanTau_BDTVar_Basic_NNeutralConsts.PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt.PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts.PanTau_BDTVar_Neutral_HLV_SumM.PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1.PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2.PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts.PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts.PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed.PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged.PanTau_DecayModeExtended",
                                        "TauChargedParticleFlowObjects",
                                        "TauNeutralParticleFlowObjects",
@@ -172,11 +191,14 @@ ExtraContainersTrigger           = ["LVL1EmTauRoIs",
                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_TauCore_FTF",
                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_TauIso_FTF"]
 
+ExtraContainersPions             = ["finalTauPi0s"]
+
 # ==========================================================================================================================
 
 ExtraContainersTAUP1            =   ExtraContainersElectrons    \
                                   + ExtraContainersJets         \
-                                  + ExtraContainersTrigger 
+                                  + ExtraContainersTrigger      \
+                                  + ExtraContainersPions
 
 ExtraContainersTAUP2            =   ExtraContainersTrigger      \
                                   + ["HLT_xAOD__TauJetContainer_TrigTauRecMerged",
@@ -193,6 +215,7 @@ ExtraContainersTAUP2            =   ExtraContainersTrigger      \
 ExtraContainersTAUP3            =   ExtraContainersElectrons   \
                                   + ExtraContainersJets        \
                                   + ExtraContainersTrigger    \
+                                  + ExtraContainersPions       \
                                   + ["HLT_xAOD__TauJetContainer_TrigTauRecMerged",
                                      "HLT_xAOD__MuonRoIContainer_L1TopoMuon",
                                      "HLT_xAOD__JetRoIContainer_L1TopoJet",

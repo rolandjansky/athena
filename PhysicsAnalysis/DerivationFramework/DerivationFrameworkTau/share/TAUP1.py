@@ -198,6 +198,8 @@ TAUP1SlimmingHelper.IncludeEGammaTriggerContent  = True
 TAUP1SlimmingHelper.IncludeEtMissTriggerContent  = False
 TAUP1SlimmingHelper.IncludeJetTriggerContent     = False
 TAUP1SlimmingHelper.IncludeBJetTriggerContent    = False
+# Fix for tau pi0 container
+TAUP1SlimmingHelper.AppendToDictionary = {'finalTauPi0sAux':'xAOD::ParticleAuxContainer'}
 
 TAUP1SlimmingHelper.ExtraVariables               = ExtraContentTAUP1
 TAUP1SlimmingHelper.AllVariables                 = ExtraContainersTAUP1
