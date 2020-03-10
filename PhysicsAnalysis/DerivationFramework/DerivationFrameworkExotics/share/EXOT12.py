@@ -179,12 +179,12 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EXOT12SkimmingTool_lep = DerivationFramework__xAODStringSkimmingTool( name = "EXOT12SkimmingTool_lep", 
                                                                       expression = expression_lep)
 ToolSvc += EXOT12SkimmingTool_lep
-print EXOT12SkimmingTool_lep
+printfunc (EXOT12SkimmingTool_lep)
 
 #EXOT12SkimmingTool_jet = DerivationFramework__xAODStringSkimmingTool( name = "EXOT12SkimmingTool_jet", 
 #                                                                      expression = expression_jet)
 #ToolSvc += EXOT12SkimmingTool_jet
-#print EXOT12SkimmingTool_jet
+#printfunc (EXOT12SkimmingTool_jet)
 
 #=======================================
 # THE DERIVATION KERNEL ALGORITHM   

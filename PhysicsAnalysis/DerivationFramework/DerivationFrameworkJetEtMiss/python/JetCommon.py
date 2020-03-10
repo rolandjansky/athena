@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # JetCommon.py
 # Schedules all tools needed for jet/MET analyses and writes the
 # results into SG. These may then be accessed along the train  
 #********************************************************************
+
+from __future__ import print_function
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from AthenaCommon.GlobalFlags  import globalflags
@@ -300,7 +302,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         finderArgs['ghostArea'] = ghostArea
         finderArgs['modifiersin'] = mods
         finderArgs['calibOpt'] = calibOpt
-        print "mods in:", finderArgs['modifiersin']
+        print ("mods in:", finderArgs['modifiersin'])
         #finderArgs.pop('modifiersin') # leave the default modifiers.
     
         # map the input to the jtm code for PseudoJetGetter
@@ -358,7 +360,7 @@ def addJetOutputs(slimhelper,contentlist,smartlist=[],vetolist=[]):
             outputlist.append(content)
 
     for item in outputlist:
-        if not slimhelper.AppendToDictionary.has_key(item):
+        if item not in slimhelper.AppendToDictionary:
             slimhelper.AppendToDictionary[item]='xAOD::JetContainer'
             slimhelper.AppendToDictionary[item+"Aux"]='xAOD::JetAuxContainer'
         if item in smartlist:

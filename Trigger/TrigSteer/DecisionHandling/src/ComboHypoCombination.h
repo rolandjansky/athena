@@ -7,7 +7,8 @@
 // STL includes
 #include <map>
 #include <utility> // std::pair  
-#include <vector>  
+#include <vector>
+#include <cstdint>
 
 /**
 * @brief Utility class to assist with the bookkeeping when counting Decision objects which pass 

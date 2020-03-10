@@ -35,7 +35,7 @@ def is_leaf(node):
 
 
 def is_inner(node):
-    return node.scenario in ('root', 'and', 'combgen', 'partgen')
+    return node.scenario in ('root', 'and', 'combgen', 'partgen' , 'inserted')
 
 
 class ConditionsToolSetterFastReduction(object):
@@ -348,10 +348,17 @@ class ConditionsToolSetterFastReduction(object):
         shared = []
         slist = self._find_shared(root, shared)
 
-        # remove top stub node
-        assert len(root.children) == 1
-        root = root.children[0]
+        # remove top stub node if possible
+        def is_prunable(node):
+            assert root.scenario == 'root'
+            return len(root.children) == 1 and is_inner(root.children[0])
+
+        if is_prunable(root):
+            root = root.children[0]
+            root.scenario
+        
         root.set_ids(node_id=0, parent_id = 0)
+        
 
         # would like to pass a list of lists to the C++ tools
         # but this cannot be done using Gaudi::Properties.
@@ -368,6 +375,9 @@ class ConditionsToolSetterFastReduction(object):
             
         tree_map = {}
         self._fill_tree_map(root, tree_map)
+        for k, v in tree_map.items():
+            print ("Tree map debug %s %s", str(k), str(v))
+            
         self.treeVec = self._map_2_vec(tree_map)
 
         conditionsMap = {}

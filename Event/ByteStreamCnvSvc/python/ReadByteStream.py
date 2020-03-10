@@ -52,9 +52,9 @@ svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ]
 # Add in MetaData Stores
 from StoreGate.StoreGateConf import StoreGateSvc
 if not hasattr (svcMgr, 'InputMetaDataStore'):
-    svcMgr += StoreGateSvc( "MetaDataStore" )
-if not hasattr (svcMgr, 'MetaDataStore'):
     svcMgr += StoreGateSvc( "InputMetaDataStore" )
+if not hasattr (svcMgr, 'MetaDataStore'):
+    svcMgr += StoreGateSvc( "MetaDataStore" )
 
 # enable IOVDbSvc to read metadata
 svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"

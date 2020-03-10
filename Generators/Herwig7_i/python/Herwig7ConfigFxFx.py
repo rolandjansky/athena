@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 
-##  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
 ## \file Herwig7ConfigFxFx.py
 ## \brief Configuration class for showering FxFx-merged LHE files from MG5_aMC@NLO
 ## \author Krishna Kulkarni (krishna.kulkarni@cern.ch)

@@ -96,7 +96,6 @@ class ConfiguredTRTSegmentFinding:
       #
       from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMaker_ATLxk
       InDetTRT_TrackSegmentsMaker = InDet__TRT_TrackSegmentsMaker_ATLxk(name                    = 'InDetTRT_SeedsMaker'+extension,
-                                                                        TrtManagerLocation      = InDetKeys.TRT_Manager(),
                                                                         TRT_ClustersContainer   = InDetKeys.TRT_DriftCircles(),
                                                                         PropagatorTool          = InDetPatternPropagator,
                                                                         TrackExtensionTool      = InDetTRTExtensionTool,
@@ -110,6 +109,17 @@ class ConfiguredTRTSegmentFinding:
       ToolSvc += InDetTRT_TrackSegmentsMaker
       if (InDetFlags.doPrintConfigurables()):
         printfunc (InDetTRT_TrackSegmentsMaker)
+
+      # Condition algorithm for InDet__TRT_TrackSegmentsMaker_ATLxk
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not hasattr(condSeq, "InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk"):
+        from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk
+        InDetTRT_TrackSegmentsMakerCondAlg = InDet__TRT_TrackSegmentsMakerCondAlg_ATLxk(name                    = 'InDetTRT_SeedsMakerCondAlg'+extension,
+                                                                                        PropagatorTool          = InDetPatternPropagator,
+                                                                                        NumberMomentumChannel   = NewTrackingCuts.TRTSegFinderPtBins(),
+                                                                                        pTmin                   = pTmin)
+        condSeq += InDetTRT_TrackSegmentsMakerCondAlg
 
     #
     # --- TRT track reconstruction

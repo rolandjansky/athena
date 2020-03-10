@@ -14,6 +14,7 @@
 # art-output: *.root
 # art-output: *.pmon.gz
 # art-output: *perfmon*
+# art-output: prmon*
 # art-output: *.check*
 # art-output: HLTconfig*.xml
 # art-output: L1Topoconfig*.xml

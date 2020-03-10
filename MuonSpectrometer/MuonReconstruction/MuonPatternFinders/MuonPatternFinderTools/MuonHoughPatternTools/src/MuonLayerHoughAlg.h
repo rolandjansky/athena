@@ -6,7 +6,9 @@
 #define MUONLAYERHOUGHALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 class MuonLayerHoughAlg : public AthAlgorithm
 {
@@ -19,13 +21,10 @@ class MuonLayerHoughAlg : public AthAlgorithm
   virtual StatusCode execute() override;
   virtual StatusCode finalize() override;
 
-
  private:
   template<class T> 
   const T* GetObject(SG::ReadHandleKey<T> &key);
 
-
-  /** storegate location of the MuonPrepDataContainer for all four technologies */
   SG::ReadHandleKey<Muon::TgcPrepDataContainer>   m_keyTgc{this,"TgcPrepDataContainer","TGC_Measurements"};
   SG::ReadHandleKey<Muon::RpcPrepDataContainer>   m_keyRpc{this,"RpcPrepDataContainer","RPC_Measurements"};
   SG::ReadHandleKey<Muon::CscPrepDataContainer>   m_keyCsc{this,"CscPrepDataContainer","CSC_Clusters"};

@@ -20,7 +20,8 @@ from MuonConfig.TgcOverlayConfig import TgcOverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
-from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg
+from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileOverlayTriggerDigitizationCfg
+from TrigT1CaloSim.OverlayTTL1Config import OverlayTTL1Cfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 
@@ -70,6 +71,9 @@ def OverlayMainCfg(configFlags):
         acc.merge(LArOverlayCfg(configFlags))
     if configFlags.Detector.OverlayTile:
         acc.merge(TileDigitizationCfg(configFlags))
+    if configFlags.Detector.OverlayL1Calo:
+        acc.merge(OverlayTTL1Cfg(configFlags))
+        acc.merge(TileOverlayTriggerDigitizationCfg(configFlags))
 
     # Muon system
     if configFlags.Detector.OverlayCSC:

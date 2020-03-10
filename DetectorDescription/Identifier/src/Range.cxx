@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  
@@ -1722,8 +1722,8 @@ Range::const_identifier_factory Range::factory_begin () const
 //----------------------------------------------- 
 Range::identifier_factory Range::factory_end () 
 { 
-  static Range r; 
-  static identifier_factory factory (r); 
+  static const Range r; 
+  static const identifier_factory factory (r); 
  
   return (factory); 
 } 
@@ -1731,7 +1731,7 @@ Range::identifier_factory Range::factory_end ()
 //----------------------------------------------- 
 Range::const_identifier_factory Range::factory_end () const 
 { 
-  static const_identifier_factory factory; 
+  static const const_identifier_factory factory; 
  
   return (factory); 
 } 
@@ -2536,7 +2536,7 @@ MultiRange::const_identifier_factory MultiRange::factory_begin () const
 //----------------------------------------------- 
 MultiRange::identifier_factory MultiRange::factory_end () 
 { 
-  static identifier_factory factory;
+  static const identifier_factory factory;
  
   return (factory); 
 } 
@@ -2544,7 +2544,7 @@ MultiRange::identifier_factory MultiRange::factory_end ()
 //----------------------------------------------- 
 MultiRange::const_identifier_factory MultiRange::factory_end () const 
 { 
-  static const_identifier_factory factory; 
+  static const const_identifier_factory factory; 
  
   return (factory); 
 } 

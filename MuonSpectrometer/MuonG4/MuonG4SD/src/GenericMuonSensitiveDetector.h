@@ -8,9 +8,11 @@
 #include "G4VSensitiveDetector.hh"
 #include "StoreGate/WriteHandle.h"
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include <gtest/gtest_prod.h>
 
 class GenericMuonSensitiveDetector : public G4VSensitiveDetector {
-    
+ FRIEND_TEST( GenericMuonSensitiveDetectortest, Initialize );
+ FRIEND_TEST( GenericMuonSensitiveDetectortest, ProcessHits );
 public:
     /** construction/destruction */
     GenericMuonSensitiveDetector(const std::string& name, const std::string& hitCollectionName);

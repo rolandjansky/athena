@@ -1,8 +1,7 @@
-// -*- C++ -*-
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+// -*- C++ -*-
 
 /*! \file Herwig7.h
  *  \brief Athena interface for the %Herwig7 generator
@@ -78,7 +77,11 @@ public:
   virtual unsigned int jobSize() const { return(m_jobsize); } /// The number of subprocesses to integrate per integratoin job
   virtual unsigned int maxJobs() const { return(m_maxjobs); } /// The maximum number of integration jobs
 
+  /// Bail out and print usage information
   virtual void quitWithHelp() const {
+    std::cerr << "=================================\n";
+    std::cerr << "HERE I CAN PUT SOME ERROR MESSAGE\n";
+    std::cerr << "=================================\n";
     ThePEG::Repository::cleanup();
     exit( EXIT_FAILURE );
   }

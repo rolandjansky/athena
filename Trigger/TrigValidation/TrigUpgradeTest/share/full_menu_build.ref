@@ -97,7 +97,7 @@ TrigSignatureMoniMT                                 INFO HLT_g5_medium_L1EM3 dec
 TrigSignatureMoniMT                                 INFO HLT_g5_tight_L1EM3            20        20        9         9         9         1         0         1         
 TrigSignatureMoniMT                                 INFO HLT_g5_tight_L1EM3 decisions                      13        13        30        1         0         
 TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        2         0         0         0         0         2         
-TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    5         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    34        0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J10020        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J100 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j260_320eta490_L1J20      20        20        0         0         0         0         0         0         

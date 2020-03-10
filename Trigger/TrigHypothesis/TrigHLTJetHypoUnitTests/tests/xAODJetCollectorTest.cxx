@@ -67,7 +67,11 @@ TEST_F(xAODJetCollectorTest, nonXAODJets){
 
   xAODJetCollector collector;
   collector.addJets(jets.begin(), jets.end());
- 
-  EXPECT_TRUE(collector.empty()); //Not xAODJets
+
+  // These hypoJets are not xAOD jets.
+  EXPECT_FALSE(collector.empty());
+  EXPECT_TRUE(collector.size() == njets);
+  EXPECT_TRUE((collector.hypoJets()).size() == njets);
+  EXPECT_TRUE((collector.xAODJets()).size() == 0);
 }
 

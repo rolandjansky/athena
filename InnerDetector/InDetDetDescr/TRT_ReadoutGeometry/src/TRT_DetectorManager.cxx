@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
@@ -375,7 +375,9 @@ namespace InDetDD {
             << endmsg;
 
         const DataHandle<AlignableTransform> transformCollection;  
-        m_detStore->regFcn(&TRT_DetectorManager::alignmentCallback, this, transformCollection, key);
+        if (m_detStore->regFcn(&TRT_DetectorManager::alignmentCallback, this, transformCollection, key).isFailure()) {
+          ATH_MSG_ERROR("Cannot register callback with DetectorStore");
+        }
         addKey(key, level, InDetDD::other);
     }
 

@@ -155,13 +155,6 @@ protected:
   float m_Z0Max;                        
   bool m_checkSeedRedundancy;
 
-  // Names of IDCs with input data 
-  //
-  //
-  // Vertex (from beamspot)
-  Amg::Vector3D m_vertex;
-
- 
   // Reconstructed tracks 
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
@@ -179,78 +172,9 @@ protected:
   double m_roiPhiWidth, m_roiEtaWidth, m_roiZ_Width;  
   double m_timePattReco;
 
-  int m_nZvertices; 
-  std::vector<float> m_zVertices; 
-  std::vector<float> m_nTrk_zVtx; 
-
-  std::vector<float> m_trk_pt;
-  std::vector<float> m_trk_a0;
-  std::vector<float> m_trk_z0;
-  std::vector<float> m_trk_phi0;
-  std::vector<float> m_trk_eta;
-  std::vector<float> m_trk_chi2dof;
-  std::vector<float> m_trk_nSiHits;
-  std::vector<float> m_trk_nPIXHits;
-  std::vector<float> m_trk_nSCTHits;
-  std::vector<float> m_trk_a0beam;
-  std::vector<float> m_trk_dPhi0;
-  std::vector<float> m_trk_dEta;
-  //std::vector<double> m_sp_x, m_sp_y, m_sp_z, m_sp_r;//Spacepoint coordinates
-  //
-  std::vector<float> m_IBL_layer;
-  std::vector<float> m_PixB_layer;
-  std::vector<float> m_PixE_layer;
-  std::vector<float> m_SCTB_layer;
-  std::vector<float> m_SCTE_layer;
-
-  std::vector<double> m_iblResPhi;
-  std::vector<double> m_iblResEta;
-  std::vector<double> m_iblPullPhi;
-  std::vector<double> m_iblPullEta;
-  std::vector<double> m_pixResPhiBarrel;
-  std::vector<double> m_pixResEtaBarrel;
-  std::vector<double> m_pixPullPhiBarrel;
-  std::vector<double> m_pixPullEtaBarrel;
-  std::vector<double> m_sctResBarrel;
-  std::vector<double> m_sctPullBarrel;
-  std::vector<double> m_pixResPhiEC;
-  std::vector<double> m_pixResEtaEC;
-  std::vector<double> m_pixPullPhiEC;
-  std::vector<double> m_pixPullEtaEC;
-  std::vector<double> m_sctResEC;
-  std::vector<double> m_sctPullEC;
-
-  std::vector<double> m_pixResPhiBarrelL1;
-  std::vector<double> m_pixResEtaBarrelL1;
-  std::vector<double> m_pixResPhiBarrelL2;
-  std::vector<double> m_pixResEtaBarrelL2;
-  std::vector<double> m_pixResPhiBarrelL3;
-  std::vector<double> m_pixResEtaBarrelL3;
-
-  std::vector<double> m_pixResPhiECL1;
-  std::vector<double> m_pixResEtaECL1;
-  std::vector<double> m_pixResPhiECL2;
-  std::vector<double> m_pixResEtaECL2;
-  std::vector<double> m_pixResPhiECL3;
-  std::vector<double> m_pixResEtaECL3;
-
-  std::vector<double> m_sctResPhiBarrelL1;
-  std::vector<double> m_sctResPhiBarrelL2;
-  std::vector<double> m_sctResPhiBarrelL3;
-  std::vector<double> m_sctResPhiBarrelL4; 
-
-  std::vector<double> m_sctResPhiEndcapL1;
-  std::vector<double> m_sctResPhiEndcapL2;
-  std::vector<double> m_sctResPhiEndcapL3;
-  std::vector<double> m_sctResPhiEndcapL4;
-  std::vector<double> m_sctResPhiEndcapL5;
-  std::vector<double> m_sctResPhiEndcapL6;
-  std::vector<double> m_sctResPhiEndcapL7; 
-  std::vector<double> m_sctResPhiEndcapL8;
-  std::vector<double> m_sctResPhiEndcapL9;
   // Monitoring member functions 
 
-  void fillMon(const TrackCollection& tracks, const TrigRoiDescriptor& roi);
+  void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi);
   void runResidualMonitoring(const Trk::Track& track);
 
   void calculateRecoEfficiency(const std::vector<TrigSiSpacePointBase>&,
@@ -259,8 +183,7 @@ protected:
 
 
   //Setup functions
-  void clearMembers();
-  void getBeamSpot();
+  void getBeamSpot(float&, float&);
   HLT::ErrorCode getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi);
 
   // Timers 
@@ -295,8 +218,6 @@ protected:
 
 
   Trk::ParticleHypothesis m_particleHypothesis;//particle hypothesis to attach to each track - usually pion, can be set to other values
-
-  std::map<Identifier, std::vector<long int> > m_siClusterMap;
 
   bool m_useNewLayerNumberScheme;
 

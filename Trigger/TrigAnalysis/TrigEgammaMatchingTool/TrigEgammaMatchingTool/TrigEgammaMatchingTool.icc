@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
-using namespace TrigCompositeUtils;
 
 namespace Trig{
 
@@ -83,7 +81,7 @@ inline std::vector< TrigEgammaMatchingUtils::Feature<const OBJECT*>> TrigEgammaM
     }
   }else{
     auto vec =  tdt()->features<DataVector<OBJECT>>(trigger,TrigDefs::includeFailedDecisions ,key);      
-    for( LinkInfo<DataVector<OBJECT>> &featLinkInfo : vec ){                                             
+    for( TrigCompositeUtils::LinkInfo<DataVector<OBJECT>> &featLinkInfo : vec ){                                             
       const auto *feat = *(featLinkInfo.link);                                                  
       TrigEgammaMatchingUtils::Element obj( trigger, featLinkInfo.source );
       vec_features.push_back( TrigEgammaMatchingUtils::Feature<const OBJECT*>(feat, obj)  );
@@ -120,7 +118,7 @@ inline bool TrigEgammaMatchingTool::closestObject( const xAOD::Egamma *eg, TrigE
     }
   }else{
     auto vec =  tdt()->features<DataVector<OBJECT>>(trigger,TrigDefs::includeFailedDecisions ,key);      
-    for( LinkInfo<DataVector<OBJECT>> &featLinkInfo : vec ){                                             
+    for( TrigCompositeUtils::LinkInfo<DataVector<OBJECT>> &featLinkInfo : vec ){                                             
       const auto *feat = *(featLinkInfo.link);                                                  
       deltaR = dR(eg->eta(),eg->phi(), feat->eta(),feat->phi());                                
       if(deltaR < m_dR){            
@@ -153,7 +151,7 @@ inline TrigEgammaMatchingUtils::Container<const OBJECT*> TrigEgammaMatchingTool:
     auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( obj.data(), "initialRoI");
     if( !initRoi.link.isValid() ) return vec;                                   
     auto features =  tdt()->features< DataVector<OBJECT> >( obj.name(), TrigDefs::includeFailedDecisions , key);
-    for( LinkInfo< DataVector<OBJECT> > &featLinkInfo : features ){                                                       
+    for( TrigCompositeUtils::LinkInfo< DataVector<OBJECT> > &featLinkInfo : features ){                                                       
       auto current_roi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(featLinkInfo.source, "initialRoI");
       if( ! current_roi.isValid()) continue;                                                              
       if( (*current_roi.link)->roiWord() == (*initRoi.link)->roiWord()) vec.push_back( *(featLinkInfo.link)  );                                                           
