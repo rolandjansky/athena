@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -61,8 +61,11 @@ namespace Analysis {
 
     if (m_trees.count(jetauthor) == 0) {
       m_trees[jetauthor] = new TTree(jetauthor.c_str(), "who cares");
-      m_hist_svc->regTree("/" + m_stream + "/" + jetauthor,
-                          m_trees.at(jetauthor));
+      if (m_hist_svc->regTree("/" + m_stream + "/" + jetauthor,
+                              m_trees.at(jetauthor)).isFailure()) {
+        ATH_MSG_ERROR("Cannot register tree " + m_stream + "/" + jetauthor);
+        return;
+      }
     }
     for (const auto& in: inputs) {
       const auto idx = std::make_pair(in.first, jetauthor);
