@@ -146,7 +146,6 @@ namespace LVL1TGCTrigger {
     BooleanProperty   m_OutputTgcRDO{this,"OutputTgcRDO",true};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     
     // expert usage
-    BooleanProperty   m_OUTCOINCIDENCE{this,"OUTCOINCIDENCE",false}; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     BooleanProperty   m_SHPTORED{this,"SHPTORED",true}; // flag for E1/E2 chamber ORED in Strip HPT
     BooleanProperty   m_USEINNER{this,"USEINNER",true}; // flag for using Inner Station for SL
     BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL
@@ -171,7 +170,6 @@ namespace LVL1TGCTrigger {
     StatusCode getCabling();
     
     // log
-    mutable MsgStream   m_log;
     bool                m_debuglevel;
     
     TGCArguments m_tgcArgs;

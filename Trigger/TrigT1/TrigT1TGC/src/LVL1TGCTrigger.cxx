@@ -21,7 +21,6 @@
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
 #include "TrigT1TGC/TGCNumbering.hh"
-#include "TrigT1TGC/TGCCoincidence.hh"
 #include "TrigT1TGC/TGCTMDBOut.h"
 
 // Athena/Gaudi
@@ -52,9 +51,9 @@
 
 namespace LVL1TGCTrigger {
 
-  ///////////////////////////////////////////////////////////////////////////
-  LVL1TGCTrigger::LVL1TGCTrigger::LVL1TGCTrigger(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name,pSvcLocator),
+  /////////////////////////////////////////////////////////////////////////////////
+  LVL1TGCTrigger::LVL1TGCTrigger(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name,pSvcLocator),
     m_cabling(0),
     m_bctagInProcess(0),
     m_db(0),
@@ -62,13 +61,10 @@ namespace LVL1TGCTrigger {
     m_system(0),
     m_nEventInSector(0),
     m_innerTrackletSlotHolder( tgcArgs() ),
-    m_log( msgSvc(), name ),
     m_debuglevel(false)
   {
-    
   }
-  
-  
+
   ////////////////////////////////////////////////////////////
   LVL1TGCTrigger::~LVL1TGCTrigger()
   {
@@ -86,20 +82,15 @@ namespace LVL1TGCTrigger {
       delete m_db;
       m_db =0;
     }
-    
   }
-  
-  
+
   ////////////////////////////////////////////////////////////
   StatusCode LVL1TGCTrigger::initialize()
   {
-    // init message stram
-    
-    m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug
-    
     ATH_MSG_DEBUG("LVL1TGCTrigger::initialize() called");
-    
-    m_tgcArgs.set_OUTCOINCIDENCE( m_OUTCOINCIDENCE.value() );
+
+    m_debuglevel = (msgLevel() <= MSG::DEBUG); // save if threshold for debug
+
     m_tgcArgs.set_SHPT_ORED( m_SHPTORED.value() );
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() && m_tgcArgs.USE_INNER() );
@@ -107,19 +98,14 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_USE_CONDDB( true );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
 
-    // TrigConfigSvc
-    StatusCode sc = m_configSvc.retrieve();
-    if (sc.isFailure()) {
+    if(!m_configSvc.retrieve().isFailure()) {
       ATH_MSG_ERROR("Could not connect to " << m_configSvc.typeAndName());
-    }
-    else {
+    } else {
       ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName());
     }
-    
+
     // clear Masked channel
     m_MaskedChannel.clear();
-    
-    if (m_tgcArgs.OUTCOINCIDENCE()) m_tgcArgs.set_TGCCOIN( new TGCCoincidences() );
 
     if (m_CurrentBunchTag>0) ATH_MSG_DEBUG("---> Take hits with CURRENT banch tag = " << m_CurrentBunchTag);
     ATH_MSG_DEBUG("OutputRdo " << m_OutputTgcRDO.value());
@@ -130,7 +116,7 @@ namespace LVL1TGCTrigger {
     m_db = new TGCDatabaseManager(&m_tgcArgs,m_readCondKey,m_VerCW);
     
     // try to initialize the TGCcabling
-    sc = getCabling();
+    StatusCode sc = getCabling();
     if(sc.isFailure()) {
       ATH_MSG_DEBUG("TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event.");
     }
@@ -142,21 +128,11 @@ namespace LVL1TGCTrigger {
     
     return StatusCode::SUCCESS;
   }
-  
+
   ////////////////////////////////////////////////
   StatusCode LVL1TGCTrigger::finalize()
   {
     ATH_MSG_DEBUG("LVL1TGCTrigger::finalize() called" << " m_nEventInSector = " << m_nEventInSector);
-    
-    // clear and delete TGCCOIN
-    if (m_tgcArgs.OUTCOINCIDENCE()) {
-      if (m_tgcArgs.TGCCOIN()->size()) {
-        for(std::vector<TGCCoincidence*>::iterator iss=m_tgcArgs.TGCCOIN()->begin(); iss!=m_tgcArgs.TGCCOIN()->end(); iss++)
-          delete (*iss);
-      }
-      m_tgcArgs.TGCCOIN()->clear();
-    }
-    m_tgcArgs.clear();
     
     if (m_db) delete m_db;
     m_db = 0 ;
@@ -167,8 +143,7 @@ namespace LVL1TGCTrigger {
     
     return StatusCode::SUCCESS;
   }
-  
-  
+
   ////////////////////////////////////////////
   StatusCode LVL1TGCTrigger::execute()
   {
@@ -261,7 +236,7 @@ namespace LVL1TGCTrigger {
     
     return sc;
   }
-  
+
   StatusCode LVL1TGCTrigger::processOneBunch(const TgcDigitContainer* tgc_container,
                                              LVL1MUONIF::Lvl1MuCTPIInput* muctpiinput,
                                              LVL1MUONIF::Lvl1MuCTPIInputPhase1* muctpiinputPhase1)
@@ -282,12 +257,6 @@ namespace LVL1TGCTrigger {
     // process trigger electronics emulation...
     m_TimingManager->increaseBunchCounter();
     m_system->distributeSignal(&event);
-    
-    // clear TGCCOIN
-    if (m_tgcArgs.OUTCOINCIDENCE() && (m_tgcArgs.TGCCOIN()->size() >0 )) {
-      for(std::vector<TGCCoincidence*>::iterator iss=m_tgcArgs.TGCCOIN()->begin(); iss!=m_tgcArgs.TGCCOIN()->end(); iss++) delete (*iss);
-      m_tgcArgs.TGCCOIN()->clear();
-    }
     
     // EIFI trigger bits for SL are cleared.
     m_innerTrackletSlotHolder.clearTriggerBits();
