@@ -330,6 +330,7 @@ namespace top {
       m_truthMatchingTool = asg::ToolStore::get<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName);
     } else {
       TauAnalysisTools::TauTruthMatchingTool* tauMatchingTool = new TauAnalysisTools::TauTruthMatchingTool(tauTruthMatchingName);
+      top::check(tauMatchingTool->setProperty("TruthJetContainerName", "AntiKt4TruthDressedWZJets"), "Failed to set truth collection for tau truth matching tool");
       top::check(tauMatchingTool->initialize(), "Failed to initialize");
       m_truthMatchingTool = tauMatchingTool;
     }
