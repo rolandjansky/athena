@@ -353,7 +353,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
     TString TA_weight_hist_name = settings.GetValue("CombMassWeightTAHist","");
     if (TA_weight_hist_name == "")
     {
-        ATH_MSG_ERROR("Cannot find the hitogram name that contains the TA weights in the config file");
+        ATH_MSG_ERROR("Cannot find the histogram name that contains the TA weights in the config file");
         return StatusCode::FAILURE;
     }
 
