@@ -70,6 +70,8 @@ void truthHadrons(const xAOD::TauJet* xTau, std::vector<const xAOD::TruthParticl
 
 e_TruthMatchedParticleType getTruthParticleType(const xAOD::TauJet& xTau);
 e_TruthMatchedParticleType getTruthParticleType(const xAOD::DiTauJet& xDiTau);
+double average_mu(const xAOD::TauJet& xTau);
+void set_mu(unsigned int mu);
 }
 
 #endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H

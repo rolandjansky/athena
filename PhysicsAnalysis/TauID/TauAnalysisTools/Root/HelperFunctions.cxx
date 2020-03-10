@@ -659,3 +659,20 @@ e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::Di
 
   return eTruthMatchedParticleType;
 }
+
+// This double is needed to save the average/actual mu for the y-axis in CommonEfficiencyTool.
+// The new trigger systematics (from tag 00-03-14 onwards) use mu dependent values.
+// The functions average_mu() and set_mu() are also needed to support this.
+double m_Mu;
+
+//______________________________________________________________________________
+double TauAnalysisTools::average_mu(const xAOD::TauJet& /*xTau*/)
+{
+  return m_Mu;
+}
+
+//______________________________________________________________________________
+void TauAnalysisTools::set_mu(unsigned int mu)
+{
+  m_Mu=mu;
+}
