@@ -90,7 +90,7 @@ StatusCode TrigL2LayerNumberTool::finalize()
   return sc;
 }
 
-void TrigL2LayerNumberTool::report() {
+void TrigL2LayerNumberTool::report() const {
 
   ATH_MSG_INFO("TrigL2 Layer numbering scheme:");
   ATH_MSG_INFO("Total number of layers = "<<maxSiliconLayerNum());
