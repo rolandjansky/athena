@@ -2784,8 +2784,7 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
     // Updates the calo TSOS with the ones from TG+corrections
     if(m_updateWithCaloTG && !m_useCaloTG && particleHypothesis==Trk::muon) {
       ATH_MSG_VERBOSE( "Updating Calorimeter TSOS in Muon Combined Fit ..." );
-      m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>(indetTrack), 
-					const_cast<Trk::Track&>(extrapolatedTrack));
+      m_materialUpdator->updateCaloTSOS(indetTrack, const_cast<Trk::Track&>(extrapolatedTrack));
     }
 
     // FIT
@@ -3025,7 +3024,7 @@ Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
                ATH_MSG_DEBUG(" addIDMSerrors alignmentEffectsOnTrack()  found on track ");
 //           continue;
         }
-        const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+        const Trk::TrackStateOnSurface* TSOS = (**t).clone();
         trackStateOnSurfaces->push_back(TSOS);
       }
     }   
@@ -3106,8 +3105,7 @@ CombinedMuonTrackBuilder::appendSelectedTSOS(
 	    measurementSurfaces.push_back(surface);
 	    previousSurface	= surface;
         }
-	const Trk::TrackStateOnSurface* TSOS =
-	    const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
+	const Trk::TrackStateOnSurface* TSOS =(**s).clone();
 	trackStateOnSurfaces.push_back(TSOS);
     }
 }
