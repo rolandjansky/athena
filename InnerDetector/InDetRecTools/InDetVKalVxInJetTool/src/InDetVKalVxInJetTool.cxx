@@ -123,7 +123,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     declareProperty("FillHist",   m_FillHist, "Fill technical histograms"  );
     declareProperty("ExistIBL",   m_existIBL, "Inform whether 3-layer or 4-layer detector is used "  );
-    declareProperty("m_IsPhase2", m_IsPhase2, "Configuration for Itk phase2"  );
+    declareProperty("IsPhase2", m_IsPhase2, "Configuration for Itk phase2"  );
 
     declareProperty("RobustFit",  m_RobustFit, "Use vertex fit with RobustFit functional(VKalVrt) for common secondary vertex fit" );
 
