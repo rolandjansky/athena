@@ -98,7 +98,7 @@ namespace MuonCalib{
         return max - min;
       }
   
-      StatusCode onlineToOfflineHashId(const unsigned int & onlineId, unsigned int &hashId) const;
+      void onlineToOfflineHashId(const unsigned int & onlineId, unsigned int &hashId) const;
 
       /*********Private member variables*/
       /**Services and tools*/
