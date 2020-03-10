@@ -1156,6 +1156,12 @@ else:
                                                                    InDetKeys.SiSPSeedSegments()+'DetailedTruth',
                                                                    InDetKeys.SiSPSeedSegments()+'TruthCollection')
 
+            if InDetFlags.doStoreTrackSeeds() and InDetFlags.doLowPtRoI():
+              include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+              InDetTracksTruthSegemntsLowPtRoI = ConfiguredInDetTrackTruth(InDetKeys.SiSPLowPtRoISeedSegments(),
+                                                                   InDetKeys.SiSPLowPtRoISeedSegments()+'DetailedTruth',
+                                                                   InDetKeys.SiSPLowPtRoISeedSegments()+'TruthCollection')
+
           #
           # add final output for statistics
           #

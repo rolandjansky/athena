@@ -316,10 +316,12 @@ class  ConfiguredNewTrackingSiPattern:
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
 					  
-         if InDetFlags. doStoreTrackSeeds():
+         if InDetFlags. doStoreTrackSeeds() and not InDetFlags.doLowPtRoI():
               InDetSiTrackMaker.SeedSegmentsWrite=True
               InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversion
-         #InDetSiTrackMaker.OutputLevel = VERBOSE				  
+         if InDetFlags. doStoreTrackSeeds() and InDetFlags.doLowPtRoI():
+              InDetSiTrackMaker.SeedSegmentsWrite=True
+              InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversionLowPtRoI         #InDetSiTrackMaker.OutputLevel = VERBOSE				  
          ToolSvc += InDetSiTrackMaker
          if (InDetFlags.doPrintConfigurables()):
             print InDetSiTrackMaker
