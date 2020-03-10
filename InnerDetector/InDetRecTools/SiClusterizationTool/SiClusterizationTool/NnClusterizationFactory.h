@@ -121,6 +121,8 @@ namespace InDet {
                                                       
     /** Callback for nnSetup */
     StatusCode nnSetup( IOVSVC_CALLBACK_ARGS );
+
+    StatusCode setUpNN_lwtnn(IOVSVC_CALLBACK_ARGS);
     
    private:
     void clearCache(std::vector<TTrainedNetwork*>& ttnn);
@@ -128,13 +130,6 @@ namespace InDet {
     // NN implementations
     std::unique_ptr<lwt::LightweightGraph> m_lwnn_number;  
     std::map<int, std::unique_ptr<lwt::LightweightGraph> > m_lwnn_position;  
-    std::map<int, std::unique_ptr<lwt::LightweightGraph> > m_lwnn_position_errors;
-
-    // NN weights and configurations
-    std::string m_weightsFile_number;
-    std::string m_weightsFile_position_1;
-    std::string m_weightsFile_position_2;
-    std::string m_weightsFile_position_3;
 
     // Flags for determining which NNs to use
     bool m_uselwtnn_number;
@@ -179,6 +174,7 @@ namespace InDet {
 
     TTrainedNetwork* retrieveNetwork(const std::string& folder, const std::string& subfolder);
 
+  StatusCode configure_lwtnn(std::unique_ptr<lwt::LightweightGraph> & this_nn, std::string this_json);
 
     std::vector<double> assembleInput(NNinput& input,
                                       int sizeX,
@@ -194,8 +190,6 @@ namespace InDet {
   std::vector<double> assembleInputRunII(NNinput& input,
                                       int sizeX,
                                       int sizeY);
-
-
 
     std::vector<Amg::Vector2D> getPositionsFromOutput(std::vector<double> & output,
 						      NNinput & input,
@@ -226,7 +220,10 @@ namespace InDet {
      std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY;
      std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY_NoTrack;
 
-     std::string m_coolFolder;
+     // Two different cool folders store the differents kinds of configuration formats
+     // One is stored in root files, the other in json format as strings
+     std::string m_coolFolder_root;
+     std::string m_coolFolder_json;     
      std::string m_layerInfoHistogram;
      std::string m_layerPrefix;
      std::string m_weightIndicator;
@@ -234,9 +231,6 @@ namespace InDet {
 
     ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool;
     ServiceHandle<IPixelCalibSvc> m_calibSvc;
-
-    // Function for configuring the NN
-    StatusCode setUpNN_lwtnn(std::unique_ptr<lwt::LightweightGraph> & this_nn, std::string weights_file);
 
     InputMap flattenInput(NNinput & input);    
 

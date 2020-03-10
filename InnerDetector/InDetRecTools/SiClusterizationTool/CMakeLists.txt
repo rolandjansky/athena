@@ -39,24 +39,26 @@ atlas_depends_on_subdirs(
 find_package( lwtnn )
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core MathCore Hist )
+find_package( COOL COMPONENTS CoolKernel CoolApplication )
 
 # Component(s) in the package:
 atlas_add_library( SiClusterizationToolLib
    SiClusterizationTool/*.h src/*.cxx
    PUBLIC_HEADERS SiClusterizationTool
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives
    Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier
    InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
    TrkParameters TrkNeuralNetworkUtilsLib
-   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities AtlasDetDescr
+   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${COOL_LIBRARIES} AthenaPoolUtilities AtlasDetDescr
    TrkSurfaces TrkEventPrimitives VxVertex PixelGeoModelLib PathResolver stdc++fs)
 
 atlas_add_component( SiClusterizationTool
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel SiClusterizationToolLib )
+   INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${COOL_LIBRARIES} GaudiKernel SiClusterizationToolLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

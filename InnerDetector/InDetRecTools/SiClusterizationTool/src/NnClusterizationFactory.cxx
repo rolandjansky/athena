@@ -53,6 +53,8 @@
 #include "PathResolver/PathResolver.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "CoolKernel/IObject.h"
 
 // JSON parsers
 #include <boost/property_tree/ptree.hpp>
@@ -70,18 +72,14 @@ namespace InDet {
                                                    const std::string& n, const IInterface* p):
           AthAlgTool(name, n,p),
           m_lwnn_position(),
-          m_lwnn_position_errors(),
-          m_weightsFile_number(""),
-          m_weightsFile_position_1(""),
-          m_weightsFile_position_2(""),
-          m_weightsFile_position_3(""),
           m_uselwtnn_number(false),
           m_uselwtnn_position(false),
           m_loadNoTrackNetworks(true),
           m_loadWithTrackNetworks(false),
           m_NetworkEstimateNumberParticles(0),
           m_NetworkEstimateNumberParticles_NoTrack(0),
-          m_coolFolder("/PIXEL/PixelClustering/PixelClusNNCalib"),
+          m_coolFolder_root("/PIXEL/PixelClustering/PixelClusNNCalib"),
+          m_coolFolder_json("/PIXEL/PixelClustering/PixelNNCalib_JSON"),
           m_layerInfoHistogram("LayersInfo"),
           m_layerPrefix("Layer"), 
           m_weightIndicator("_weights"),
@@ -97,7 +95,8 @@ namespace InDet {
           m_correctLorShiftBarrelWithTracks(0.)
   {
     // histogram loading from COOL
-    declareProperty("CoolFolder",                   m_coolFolder);
+    declareProperty("CoolFolder",                   m_coolFolder_root);
+    declareProperty("CoolFolder_JSON",             m_coolFolder_json);
     declareProperty("LayerInfoHistogram",           m_layerInfoHistogram);
     declareProperty("LayerPrefix",                  m_layerPrefix);
     declareProperty("LayerWeightIndicator",         m_weightIndicator);
@@ -114,12 +113,6 @@ namespace InDet {
     declareProperty("useRecenteringNNWithTracks",m_useRecenteringNNWithTracks);
     declareProperty("correctLorShiftBarrelWithoutTracks",m_correctLorShiftBarrelWithoutTracks);
     declareProperty("correctLorShiftBarrelWithTracks",m_correctLorShiftBarrelWithTracks);
-        
-    // Things for NN
-    declareProperty( "weightsFileNumber",   m_weightsFile_number);
-    declareProperty( "weightsFilePosition_1",   m_weightsFile_position_1);
-    declareProperty( "weightsFilePosition_2",   m_weightsFile_position_2);
-    declareProperty( "weightsFilePosition_3",   m_weightsFile_position_3);
 
     declareInterface<NnClusterizationFactory>(this);   
   } 
@@ -186,72 +179,118 @@ namespace InDet {
       ATH_MSG_ERROR("Could not load: " << m_networkToHistoTool);
       return StatusCode::FAILURE;
     }
-     // register IOV callback function for the COOL folder
-     const DataHandle<CondAttrListCollection> aptr;
-     if ( (detStore()->regFcn(&NnClusterizationFactory::nnSetup,this,aptr,m_coolFolder)).isFailure() ){
-         ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder << "failed.");
-         return StatusCode::FAILURE;
-     } else 
-        ATH_MSG_INFO("Registered IOV callback for " << m_coolFolder);
+
+    // register IOV callback function for the COOL folders
+    const DataHandle<CondAttrListCollection> aptr;
+    if ( (detStore()->regFcn(&NnClusterizationFactory::nnSetup,this,aptr,m_coolFolder_root)).isFailure() ){
+       ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder_root << "failed.");
+       return StatusCode::FAILURE;
+    } else 
+      ATH_MSG_INFO("Registered IOV callback for " << m_coolFolder_root);
+
+    const DataHandle<CondAttrListCollection> lwtnn_datahandle;
+    if ( (detStore()->regFcn(&NnClusterizationFactory::setUpNN_lwtnn,this,lwtnn_datahandle,m_coolFolder_json)).isFailure() ){
+        ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder_json << "failed.");
+        return StatusCode::FAILURE;
+    } else 
+       ATH_MSG_INFO("Registered IOV callback for " << m_coolFolder_json);        
     
     if (m_calibSvc.retrieve().isFailure()){
         ATH_MSG_ERROR("Could not retrieve " << m_calibSvc);
         return StatusCode::FAILURE;
     }
-    
-    if (!m_weightsFile_number.empty())
-      m_uselwtnn_number = true;
-
-    if ((!m_weightsFile_position_1.empty()) && 
-         (!m_weightsFile_position_2.empty()) &&
-         (!m_weightsFile_position_3.empty())) {
-      m_uselwtnn_position = true;
-    }
-
-    // We may need to set up several networks: one number network and some number of position networks.
-    // All configurations and inputs should be fully defined at this point, 
-    // so we can set them all up here.
-    if (m_uselwtnn_number) {
-      if ((setUpNN_lwtnn(m_lwnn_number, m_weightsFile_number)).isFailure())
-        return StatusCode::FAILURE;
-    }
-    if (m_uselwtnn_position) {
-      for (int i=1; i<4; i++) {
-        std::string weights_file;
-        switch(i) {
-          case 1 : weights_file = m_weightsFile_position_1;
-          case 2 : weights_file = m_weightsFile_position_2;
-          case 3 : weights_file = m_weightsFile_position_3;
-        }
-        if ((setUpNN_lwtnn(m_lwnn_position[i], weights_file)).isFailure())
-          return StatusCode::FAILURE;
-      }
-    }
 
     return StatusCode::SUCCESS;
   }
   
-StatusCode NnClusterizationFactory::setUpNN_lwtnn(std::unique_ptr<lwt::LightweightGraph> & this_nn, 
-                                      std::string weights_file) {
 
-  // Read DNN weights from input json file
-  // Can be on cvmfs (where we would want to put published ones)
-  // or overridden with a local path for testing purposes.
-  ATH_MSG_INFO("Using NN weights file: "+ weights_file);
-  std::string nn_path = "";
+  // Callback for new NN setup
+  StatusCode NnClusterizationFactory::setUpNN_lwtnn(IOVSVC_CALLBACK_ARGS_P(I,keys) ){
 
-  // First, try the raw filename (local)
-  // This allows users to test trained NNs easily using a full path.
-  if (std::experimental::filesystem::exists(weights_file)) nn_path = weights_file;
+    // Avoid unused parameter warnings (ugly)
+    (void) I; (void) keys;
 
-  // Next, try PathResolver to check the CalibArea    
-  else nn_path = PathResolverFindCalibFile(weights_file);
-  ATH_MSG_INFO("NN file resolved to: " + nn_path);
+    // Retrieve attribute list for table
+    const CondAttrListCollection* attrListColl;
+    CHECK(detStore()->retrieve(attrListColl, m_coolFolder_json));
 
-  // Now convert the file to a lwtnn config.
+    // Retrieve channel 0 (only channel there is)
+    const coral::AttributeList& attrList=attrListColl->attributeList(0);
+
+    // Check that it is filled as expected
+    if ((attrList["NNConfigurations"]).isNull()) {
+      ATH_MSG_ERROR( "NNConfigurations is NULL in " << m_coolFolder_json << "!" );
+      return StatusCode::FAILURE;
+    }
+
+    // Retrieve the string
+    // This is for a single LOB when it is all a giant block
+    const std::string megajson = attrList["NNConfigurations"].data<cool::String16M>();
+
+    // Parse the large json to extract the individual configurations for the NNs
+    std::istringstream initializerStream(megajson);
+
+    namespace pt = boost::property_tree;    
+    pt::ptree parent_tree;
+    pt::read_json(initializerStream, parent_tree);
+    std::ostringstream config_stream;
+
+    // First, extract configuration for the number network.
+    pt::ptree subtree_numbernetwork = parent_tree.get_child("NumberNetwork");
+    // If this json is empty, we aren't using
+    // lwtnn for the number network.
+    if(subtree_numbernetwork.empty()) {
+      ATH_MSG_INFO("Not using lwtnn for number network.");
+      m_uselwtnn_number = false;
+    }
+    // Otherwise, set up lwtnn.
+    else {      
+      ATH_MSG_INFO("Setting up lwtnn for number network...");
+      pt::write_json(config_stream, subtree_numbernetwork);
+      std::string numbernetwork_config = config_stream.str();      
+      if ((configure_lwtnn(m_lwnn_number, numbernetwork_config)).isFailure())
+        return StatusCode::FAILURE;      
+    }
+
+    // Now extract configuration for each position network.
+    // For simplicity, we'll require all three configurations
+    // in order to use lwtnn for positions.
+    m_uselwtnn_position = true;
+    for (int i=1; i<4; i++) {
+      std::string key;
+      if (i==1)      key = "PositionNetwork_N1";
+      else if (i==2) key = "PositionNetwork_N2";
+      else           key = "PositionNetwork_N3";
+      config_stream.str("");
+      pt::ptree subtree_posnetwork = parent_tree.get_child(key);
+      pt::write_json(config_stream, subtree_posnetwork);
+      std::string posnetwork_config = config_stream.str();
+      
+      // Now do empty check: if any one of these is empty we won't use lwtnn
+      if(subtree_posnetwork.empty()) {
+        ATH_MSG_INFO("Not using lwtnn for position networks.");
+        m_uselwtnn_position = false;
+      } else {
+        // Don't bother configuring if we aren't using this
+        if (!m_uselwtnn_position) continue;
+        // Otherwise, set up lwtnn
+        ATH_MSG_INFO("Setting up lwtnn for n = " << i << " position network...");
+        if ((configure_lwtnn(m_lwnn_position[i], posnetwork_config)).isFailure())
+          return StatusCode::FAILURE;
+      }
+
+    }
+
+    return StatusCode::SUCCESS;        
+  }
+
+StatusCode NnClusterizationFactory::configure_lwtnn(std::unique_ptr<lwt::LightweightGraph> & this_nn, 
+                                      std::string this_json) {
+
+  // Read DNN weights from input json config
   lwt::GraphConfig config;
   try {
-    std::ifstream input_cfg( nn_path );
+    std::istringstream input_cfg( this_json );
     config = lwt::parse_json_graph(input_cfg);
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("NN file unreadable!");
@@ -868,6 +907,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     
     int sizeOutputX=outputX.size()/nParticles;
     int sizeOutputY=outputY.size()/nParticles;
+
+    ATH_MSG_VERBOSE( outputX);
     
     double minimumX=-errorHalfIntervalX(nParticles);
     double maximumX=errorHalfIntervalX(nParticles);
@@ -967,7 +1008,6 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     return;
   
   }//getErrorMatrixFromOutput
-  
     
   std::vector<Amg::Vector2D> NnClusterizationFactory::getPositionsFromOutput(std::vector<double> & output,
                                                                                   NNinput & input,
@@ -1545,7 +1585,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
         
         for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end();++itr) {
             ATH_MSG_INFO(" -- " << *itr);
-           if ( (*itr)==m_coolFolder ){
+           if ( (*itr)==m_coolFolder_root ){
               // is a memory leak for now : NNs need to be deleted
               clearCache(m_NetworkEstimateImpactPoints_NoTrack);
               clearCache(m_NetworkEstimateImpactPointErrorsX_NoTrack);
@@ -1558,32 +1598,32 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
               if (m_loadNoTrackNetworks)
               {
                 ATH_MSG_VERBOSE("Loading 10 networks for number estimate, position estimate and error PDF estimate (without track info)");
-                m_NetworkEstimateNumberParticles_NoTrack=retrieveNetwork(m_coolFolder,"NumberParticles_NoTrack/");
-                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints1P_NoTrack/"));
-                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints2P_NoTrack/"));
-                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints3P_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX1_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX2_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX3_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY1_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY2_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY3_NoTrack/"));
+                m_NetworkEstimateNumberParticles_NoTrack=retrieveNetwork(m_coolFolder_root,"NumberParticles_NoTrack/");
+                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPoints1P_NoTrack/"));
+                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPoints2P_NoTrack/"));
+                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPoints3P_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsX1_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsX2_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsX3_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsY1_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsY2_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsY3_NoTrack/"));
               }
               
               //now read all Histograms
               if (m_loadWithTrackNetworks)
               {
                 ATH_MSG_VERBOSE("Loading 10 networks for number estimate, position estimate and error PDF estimate (with track info)");
-                m_NetworkEstimateNumberParticles=retrieveNetwork(m_coolFolder,"NumberParticles/");
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints1P/"));
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints2P/"));
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints3P/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX1/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX2/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX3/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY1/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY2/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY3/"));
+                m_NetworkEstimateNumberParticles=retrieveNetwork(m_coolFolder_root,"NumberParticles/");
+                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPoints1P/"));
+                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPoints2P/"));
+                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPoints3P/"));
+                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsX1/"));
+                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsX2/"));
+                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsX3/"));
+                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsY1/"));
+                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsY2/"));
+                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder_root,"ImpactPointErrorsY3/"));
               }        
           }
        }
