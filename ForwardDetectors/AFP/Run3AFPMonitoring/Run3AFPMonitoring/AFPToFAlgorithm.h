@@ -21,13 +21,13 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 private:
-    Gaudi::Property<bool> m_doRandom {this,"RandomHist",false};
-    std::vector<int> m_abGroups1;
-    std::vector<std::vector<int>> m_abGroups2;
-    std::map<std::string,int> m_cGroups1;
+    //Gaudi::Property<bool> m_doRandom {this,"RandomHist",false};
+    //std::vector<int> m_abGroups1;
+    //std::vector<std::vector<int>> m_abGroups2;
+    //std::map<std::string,int> m_cGroups1;
     //std::map<std::string,std::map<std::string,std::map<std::string,int>>> m_HitmapGroups;
-    std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
-    SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
+    //std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
+    SG::ReadHandleKey<xAOD::AFPToFHitContainer> m_afpToFHitContainerKey;
     
 //      m_HitmapGroups = buildToolMap<std::string,std::map<std::string,int>>
 protected:

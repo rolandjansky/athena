@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
         GaudiKernel
 	Event/xAOD/xAODForward
 	xAODForward/AFPSiHit
+	xAODForward/AFPToFHit	#Nikola
         LumiBlock/LumiBlockComps
         LumiBlock/LumiBlockData
         Trigger/TrigEvent/TrigDecisionInterface

@@ -14,13 +14,10 @@
 
 AFPToFAlgorithm::AFPToFAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-//, m_histsDirectoryName ("AFP/")
-//, m_cNearStation (s_cNearStationIndex)
-//, m_cFarStation (s_cFarStationIndex)
-, m_afpToFContainerKey("AFPToFContainer")
+, m_afpToFHitContainerKey("AFPToFHitContainer")
 
 {
-    declareProperty( "AFPToFContainer", m_afpToFContainerKey );
+    declareProperty( "AFPToFHitContainer", m_afpToFHitContainerKey );
 }
 
 
@@ -30,12 +27,12 @@ AFPToFAlgorithm::~AFPToFAlgorithm() {}
 StatusCode AFPToFAlgorithm::initialize() {
     using namespace Monitored;
  
-    m_HitmapGroups = buildToolMap<std::map<std::string,int>>(m_tools,"AFPToFTool",m_stationnames,m_pixlayers);
+    //m_HitmapGroups = buildToolMap<std::map<std::string,int>>(m_tools,"AFPToFTool",m_stationnames,m_pixlayers);
 
     // std::map<std::string,std::map<std::string,int>> <std::map<std::string,int>> 
     // We must declare to the framework in initialize what SG objects we are going to use
-    SG::ReadHandleKey<xAOD::AFPToFContainer> afpToFContainerKey("AFPToFHits");
-        ATH_CHECK(m_afpToFContainerKey.initialize());
+    SG::ReadHandleKey<xAOD::AFPToFHitContainer> afpToFHitContainerKey("AFPToFHits");
+        ATH_CHECK(m_afpToFHitContainerKey.initialize());
     // ...
     return AthMonitorAlgorithm::initialize();
 }
@@ -57,10 +54,10 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     lb = GetEventInfo(ctx)->lumiBlock();	// Nikola
 
  
-    SG::ReadHandle<xAOD::AFPToFContainer> afpToFContainer(m_afpToFContainerKey, ctx);
-    if(! afpToFContainer.isValid())
+    SG::ReadHandle<xAOD::AFPToFHitContainer> afpToFHitContainer(m_afpToFHitContainerKey, ctx);
+    if(! afpToFHitContainer.isValid())
     {
-	ATH_MSG_ERROR("evtStore() does not contain hits collection with name " << m_afpToFContainerKey);
+	ATH_MSG_ERROR("evtStore() does not contain hits collection with name " << m_afpToFHitContainerKey);
 	return StatusCode::FAILURE;
     }
 
@@ -73,11 +70,11 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
      *
      ******************************************/
 
-    ATH_CHECK( afpToFContainer.initialize() );
+    ATH_CHECK( afpToFHitContainer.initialize() );
 
-    nhits = afpToFContainer->size();
+    nhits = afpToFHitContainer->size();
     fill("AFPSiLayerTool", lb, nhits);
-
+/*
     auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); // Nikola
     auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); // Nikola
     auto h_hitMap = Monitored::Scalar<int>("h_hitMap", 0); // Nikola
@@ -98,7 +95,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 
      }
-
+*/
 
     return StatusCode::SUCCESS;
 }

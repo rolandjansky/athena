@@ -6,4 +6,4 @@
 #include "Run3AFPMonitoring/AFPToFAlgorithm.h"
 
 DECLARE_COMPONENT( AFPSiLayerAlgorithm )
-//DECLARE_COMPONENT( AFPToFAlgorithm )
+DECLARE_COMPONENT( AFPToFAlgorithm )
