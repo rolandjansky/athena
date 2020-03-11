@@ -18,8 +18,7 @@ const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauRecToolBase(name),
-  m_nVtx(1),
-  m_mu(0.)
+  m_nVtx(1)
 {
 }
 
@@ -32,9 +31,6 @@ StatusCode TauIDVarCalculator::initialize()
 
 StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
 {
-  SG::ReadHandle<xAOD::EventInfo> xEventInfo(m_eventInfoKey);
-  m_mu = xEventInfo->averageInteractionsPerCrossing();
-
   if(!m_in_trigger){
 
     m_nVtx = int(LOW_NUMBER);    
@@ -60,25 +56,11 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     }
   }
  
-  //define accessors:
-  SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
-  acc_numTrack(tau) = tau.nTracks();
-
-  SG::AuxElement::Accessor<float> acc_mu("MU");
-  acc_mu(tau) = m_mu;
-
   if(!m_in_trigger){
     SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
     acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0;
   }
   
-  if(m_in_trigger){
-    //for old trigger BDT:
-    SG::AuxElement::Accessor<int> acc_numWideTrk("NUMWIDETRACK");
-    //the ID should train on nIsolatedTracks which is static!
-    acc_numWideTrk(tau) = tau.nTracks(xAOD::TauJetParameters::classifiedIsolation);
-  }
-
   SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
   float ipSigLeadTrk=0.;
   if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
@@ -103,9 +85,6 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   const SG::AuxElement::ConstAccessor<float> acc_centFrac("centFrac");
   const SG::AuxElement::ConstAccessor<float> acc_etOverPtLeadTrk("etOverPtLeadTrk");
   SG::AuxElement::Accessor<float> acc_corrftrk("CORRFTRK");
-  const SG::AuxElement::ConstAccessor<float> acc_hadLeakEt("hadLeakEt");
-  SG::AuxElement::Accessor<float> acc_newhadLeakEt("HADLEAKET");
-  SG::AuxElement::Accessor<float> acc_trtNhtOverNlt("TAU_TRT_NHT_OVER_NLT");
   SG::AuxElement::Accessor<float> acc_centFracCorrected("CORRCENTFRAC");
 
   // Will: Fixed variables for R21
@@ -183,18 +162,6 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     acc_EMFractionAtEMScaleMOVEE3(tau) = tau_seedCalo_etEMAtEMScale_yesE3 / (tau_seedCalo_etEMAtEMScale_yesE3 + tau_seedCalo_etHadAtEMScale_noE3);
     //TAU_SEEDTRK_SECMAXSTRIPETOVERPT:
     acc_seedTrkSecMaxStripEtOverPt(tau) = (track->pt() != 0) ? acc_secMaxStripEt(tau) / track->pt() : LOW_NUMBER;
-    //TRT_NHT_OVER_NLT:
-    uint8_t numberOfTRTHighThresholdHits;
-    track->summaryValue(numberOfTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits);
-    uint8_t numberOfTRTHits;
-    track->summaryValue(numberOfTRTHits, xAOD::numberOfTRTHits);
-    uint8_t numberOfTRTHighThresholdOutliers;
-    track->summaryValue(numberOfTRTHighThresholdOutliers, xAOD::numberOfTRTHighThresholdOutliers);
-    uint8_t numberOfTRTOutliers;
-    track->summaryValue(numberOfTRTOutliers, xAOD::numberOfTRTOutliers);
-    acc_trtNhtOverNlt(tau) = (numberOfTRTHits + numberOfTRTOutliers) > 0 ?
-      float( numberOfTRTHighThresholdHits + numberOfTRTHighThresholdOutliers) / float(numberOfTRTHits + numberOfTRTOutliers) : LOW_NUMBER;
-    acc_newhadLeakEt(tau) = acc_hadLeakEt(tau);
 
     float fTracksEProbabilityHT;
     track->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT);
@@ -245,10 +212,8 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     acc_absEtaLead(tau) = LOW_NUMBER;
     acc_absDeltaEta(tau) = LOW_NUMBER;
     acc_absDeltaPhi(tau) = LOW_NUMBER;
-    acc_newhadLeakEt(tau) = LOW_NUMBER;
     acc_EMFractionAtEMScaleMOVEE3(tau) = LOW_NUMBER;
     acc_seedTrkSecMaxStripEtOverPt(tau) = LOW_NUMBER;
-    acc_trtNhtOverNlt(tau) = LOW_NUMBER;
     acc_hadLeakFracFixed(tau) = LOW_NUMBER;
     acc_etHotShotDR1(tau) = LOW_NUMBER; 
     acc_etHotShotWin(tau) = LOW_NUMBER;

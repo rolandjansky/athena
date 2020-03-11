@@ -36,7 +36,6 @@ class TauIDVarCalculator: public TauRecToolBase
  private:
 
   int m_nVtx;
-  float m_mu;
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"Key_eventInfo","EventInfo","SG key of xAOD::EventInfo object"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
