@@ -16,6 +16,7 @@ endif()
 atlas_depends_on_subdirs(
   PUBLIC
   Control/AthLinks
+  Control/AthContainers
   Control/AthToolSupport/AsgTools
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODJet
@@ -44,7 +45,7 @@ atlas_add_library( JetRecLib
   PUBLIC_HEADERS JetRec
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
   PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AsgTools
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AthContainers AsgTools
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
   JetInterface
   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} CxxUtils xAODBase xAODCore
