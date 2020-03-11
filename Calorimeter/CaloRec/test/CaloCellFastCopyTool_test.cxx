@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -110,9 +110,7 @@ public:
   CaloCellFastCopyToolTest (CaloHelper& helper)
     : m_evtStore("StoreGateSvc","")
     , m_detStore("DetectorStore","")
-    , m_alg(0)
     , m_caloHelper(helper)
-    , m_caloID(0)
   {
   }
 
@@ -126,14 +124,14 @@ public:
   void setUp()
   {
     ISvcLocator* svcloc = Gaudi::svcLocator();
-    m_evtStore.retrieve();
-    m_detStore.retrieve();
+    assert(m_evtStore.retrieve());
+    assert(m_detStore.retrieve());
     m_alg = new DummyAlgorithm("DummyAlgorithm", svcloc);
     m_alg->addRef();
     m_caloID = m_caloHelper.GetCaloID();
 
     if (!m_detStore->contains<CaloCell_ID>("CaloCell_ID"))
-      m_detStore->record(m_caloID, "CaloCell_ID");
+      assert(m_detStore->record(m_caloID, "CaloCell_ID"));
 
     m_tileGap3Hashes.push_back(186886); // TileGap3
     m_tileGap3Hashes.push_back(186887); // TileGap3
@@ -143,11 +141,25 @@ public:
     if (!m_evtStore->contains<CaloCellContainer>("AllCalo")) {
       CaloCellContainer* cellCont;
       cellCont = new CaloCellContainer(SG::OwnershipPolicy::OWN_ELEMENTS);
-      m_evtStore->record(cellCont, "AllCalo", false);
+      assert(m_evtStore->record(cellCont, "AllCalo", false));
 
       std::vector<IdentifierHash>::const_iterator it = m_allHashes.begin();
       for (; it != m_allHashes.end(); ++it) {
         cellCont->push_back(m_caloHelper.GetCell(*it));
+      }
+    }
+
+    if (!m_evtStore->contains<CaloCellContainer>("AllCaloFull")) {
+      // Initialize full source container
+      CaloCellContainer* srcCont;
+      srcCont = new CaloCellContainer(SG::OwnershipPolicy::VIEW_ELEMENTS);
+      assert(m_evtStore->record(srcCont, "AllCaloFull", false));
+
+      IdentifierHash maxCellHash = m_caloID->calo_cell_hash_max();
+      for (IdentifierHash cellHash = 0; cellHash < maxCellHash; cellHash += 1) {
+        srcCont->push_back(m_caloHelper.GetCell(cellHash));
+        if (m_caloID->calo_sample(cellHash) == CaloCell_ID::TileGap1) ++m_nTileGap1;
+        if (m_caloID->calo_sample(cellHash) == CaloCell_ID::TileGap3) ++m_nTileGap3;
       }
     }
   }
@@ -176,8 +188,8 @@ public:
   void testViewNotAvoidingDuplicatesIsFindCellFast(std::string toolName,
                                                    bool isFindCellFast)
   {
-    const CaloCellContainer* srcCont(0);
-    m_evtStore->retrieve(srcCont, "AllCalo");
+    const CaloCellContainer* srcCont(nullptr);
+    assert(m_evtStore->retrieve(srcCont, "AllCalo"));
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -240,8 +252,8 @@ public:
   void testViewAvoidingDuplicatesIsFindCellFast(std::string toolName,
                                                 bool isFindCellFast)
   {
-    const CaloCellContainer* srcCont(0);
-    m_evtStore->retrieve(srcCont, "AllCalo");
+    const CaloCellContainer* srcCont(nullptr);
+    assert( m_evtStore->retrieve(srcCont, "AllCalo") );
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -308,8 +320,8 @@ public:
   void testViewNotAvoidingDuplicatesIsFindCellFastConst(std::string toolName,
                                                         bool isFindCellFast)
   {
-    const CaloCellContainer* srcCont(0);
-    m_evtStore->retrieve(srcCont, "AllCalo");
+    const CaloCellContainer* srcCont(nullptr);
+    assert(m_evtStore->retrieve(srcCont, "AllCalo"));
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -343,8 +355,8 @@ public:
   void testViewAvoidingDuplicatesIsFindCellFastConst(std::string toolName,
                                                      bool isFindCellFast)
   {
-    const CaloCellContainer* srcCont(0);
-    m_evtStore->retrieve(srcCont, "AllCalo");
+    const CaloCellContainer* srcCont(nullptr);
+    assert(m_evtStore->retrieve(srcCont, "AllCalo"));
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -378,8 +390,8 @@ public:
   void testCloneNotAvoidingDuplicatesIsFindCellFast(std::string toolName,
                                                     bool isFindCellFast)
   {
-    const CaloCellContainer* srcCont(0);
-    m_evtStore->retrieve(srcCont, "AllCalo");
+    const CaloCellContainer* srcCont(nullptr);
+    assert(m_evtStore->retrieve(srcCont, "AllCalo"));
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -448,8 +460,8 @@ public:
   void testCloneAvoidingDuplicatesIsFindCellFast(std::string toolName,
                                                  bool isFindCellFast)
   {
-    const CaloCellContainer* srcCont(0);
-    m_evtStore->retrieve(srcCont, "AllCalo");
+    const CaloCellContainer* srcCont(nullptr);
+    assert(m_evtStore->retrieve(srcCont, "AllCalo"));
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -523,8 +535,8 @@ public:
   void testCloneNotAvoidingDuplicatesIsFindCellFastConst(std::string toolName,
                                                          bool isFindCellFast)
   {
-    const CaloCellContainer* srcCont(0);
-    m_evtStore->retrieve(srcCont, "AllCalo");
+    const CaloCellContainer* srcCont(nullptr);
+    assert(m_evtStore->retrieve(srcCont, "AllCalo"));
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -593,8 +605,8 @@ public:
   void testCloneAvoidingDuplicatesIsFindCellFastConst(std::string toolName,
                                                       bool isFindCellFast)
   {
-    const CaloCellContainer* srcCont(0);
-    m_evtStore->retrieve(srcCont, "AllCalo");
+    const CaloCellContainer* srcCont(nullptr);
+    assert(m_evtStore->retrieve(srcCont, "AllCalo"));
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -668,21 +680,6 @@ public:
   void testOverFullContainerIsFindCellFast(std::string toolName,
                                            bool isFindCellFast)
   {
-    // Initialize full source container
-    CaloCellContainer* srcCont;
-    srcCont = new CaloCellContainer(SG::OwnershipPolicy::VIEW_ELEMENTS);
-    IdentifierHash maxCellHash = m_caloID->calo_cell_hash_max();
-    unsigned int nTileGap1(0);
-    unsigned int nTileGap3(0);
-    for (IdentifierHash cellHash = 0; cellHash < maxCellHash; cellHash += 1) {
-      srcCont->push_back(m_caloHelper.GetCell(cellHash));
-      if (m_caloID->calo_sample(cellHash) == CaloCell_ID::TileGap1) ++nTileGap1;
-      if (m_caloID->calo_sample(cellHash) == CaloCell_ID::TileGap3) ++nTileGap3;
-    }
-
-    std::string caloCellName("AllCalloFull");
-    m_evtStore->record(srcCont, caloCellName, false);
-
     // Initialize destination container
     std::unique_ptr<CaloConstCellContainer> destCont =
       std::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
@@ -695,20 +692,20 @@ public:
                           includeSamplings,
                           avoidDuplicates,
                           isFindCellFast,
-                          caloCellName));
+                          "AllCaloFull"));
 
     // Test tool
     assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
-    assert( destCont->size() == nTileGap3 );
+    assert( destCont->size() == m_nTileGap3 );
 
     // Test next event (imitated)
     assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has been doubled
     // because of not avoiding duplicates
-    assert( destCont->size() == (2 * nTileGap3) );
+    assert( destCont->size() == (2 * m_nTileGap3) );
 
     // Test with avoiding duplicates
     // -----------------------------
@@ -725,13 +722,13 @@ public:
                           includeSamplings,
                           avoidDuplicates,
                           isFindCellFast,
-                          caloCellName));
+                          "AllCaloFull"));
 
     // Test tool
     assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap1 + TileGap3 cells has been copied to destination container.
-    unsigned int nTileGap1AndTileGap3((nTileGap1 + nTileGap3));
+    unsigned int nTileGap1AndTileGap3((m_nTileGap1 + m_nTileGap3));
     assert( destCont->size() == nTileGap1AndTileGap3 );
 
     // Test next event (imitated)
@@ -766,13 +763,15 @@ private:
 
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<StoreGateSvc> m_detStore;
-  DummyAlgorithm* m_alg;
+  DummyAlgorithm* m_alg{nullptr};
   CaloHelper& m_caloHelper;
-  const CaloCell_ID* m_caloID;
+  const CaloCell_ID* m_caloID{nullptr};
 
   std::vector<IdentifierHash> m_tileGap3Hashes;
   std::vector<IdentifierHash> m_tileGap1Hashes;
   std::vector<IdentifierHash> m_allHashes;
+  unsigned int m_nTileGap3{0};
+  unsigned int m_nTileGap1{0};
 };
 
 
