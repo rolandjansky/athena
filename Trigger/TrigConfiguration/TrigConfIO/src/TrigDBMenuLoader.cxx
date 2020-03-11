@@ -154,7 +154,7 @@ TrigConf::TrigDBMenuLoader::loadL1Menu( unsigned int smk, DataStructure & l1menu
    if(!success)
       return false;
    if( ! ptl1.empty() )
-      l1menu.setData(ptl1);
+      l1menu.setData(std::move(ptl1));
    return true;
 }
 
@@ -166,6 +166,6 @@ TrigConf::TrigDBMenuLoader::loadHLTMenu( unsigned int smk, DataStructure & hltme
    if(!success)
       return false;
    if( ! pthlt.empty() )
-      hltmenu.setData(pthlt);
+      hltmenu.setData(std::move(pthlt));
    return true;
 }
