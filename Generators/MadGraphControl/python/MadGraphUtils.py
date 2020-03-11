@@ -17,7 +17,7 @@ MADGRAPH_GRIDPACK_LOCATION='madevent'
 MADGRAPH_RUN_NAME='run_01'
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
-from MadGraphUtilsHelpers import *
+from MadGraphUtilsHelpers import checkSettingExists,checkSetting,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
 
 def setup_path_protection():
     # Addition for models directory
