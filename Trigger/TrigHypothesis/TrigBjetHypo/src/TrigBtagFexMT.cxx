@@ -39,11 +39,13 @@
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
 // ----------------------------------------------------------------------------------------------------------------- 
 
 
 TrigBtagFexMT::TrigBtagFexMT(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator) {}
+  AthAlgorithm(name, pSvcLocator) {
+}
 
 
 // ----------------------------------------------------------------------------------------------------------------- 
@@ -80,6 +82,8 @@ StatusCode TrigBtagFexMT::initialize() {
   //  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
   //  ATH_CHECK( m_outputVertexContainerKey.initialize() );
 
+  if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -98,10 +102,15 @@ StatusCode TrigBtagFexMT::execute() {
   const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
   ATH_MSG_DEBUG( "Retrieved " << jetContainer->size() << " jets" );
 
-  for ( const xAOD::Jet *jet : *jetContainer )
-    ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->p4().Et() * 1e-3 <<
-		   " eta=" << jet->eta() <<
-		   " phi=" << jet->phi() );
+  auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", *jetContainer, []( const xAOD::Jet *jet ) { return jet->pt(); } );
+
+  std::cout << "COGOUT NEW EVENT" << std::endl;
+  for ( const xAOD::Jet* jet : *jetContainer ) {
+    std::cout << "COGOUT: cxx JET PT: " << jet->pt() << std::endl;
+    ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->p4().Et() * 1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi() );
+  }
+
+  auto monitor_group_for_jets = Monitored::Group( m_monTool, monitor_for_jet_pt );
 
 
 
@@ -113,9 +122,7 @@ StatusCode TrigBtagFexMT::execute() {
   ATH_MSG_DEBUG("Retrieved " << trkContainerHandle->size() << " Tracks");
 
   for ( const xAOD::TrackParticle *trk : *trkContainer ) 
-    ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 <<
-		   " eta=" << trk->eta() <<
-		   " phi=" << trk->phi() );
+    ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 << " eta=" << trk->eta() << " phi=" << trk->phi() );
 
 
   // Test retrieval of VertexContainer

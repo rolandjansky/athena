@@ -8,6 +8,9 @@ from AthenaCommon.AppMgr import ToolSvc
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.BTaggingConfiguration import getConfiguration
 
+#from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+
 BTagConfig = getConfiguration("Trig")
 BTagConfig.PrefixxAODBaseName(False)
 BTagConfig.PrefixVertexFinderxAODBaseName(False)
@@ -21,6 +24,15 @@ def getBtagFexInstance( instance, version, algo ):
 def getBtagFexSplitInstance( instance, version, algo):
     return BtagFexSplit( instance=instance, version=version, algo=algo, name=instance+"BtagFexSplit_"+algo )
 
+
+class TrigBtagFexMT_OnlineMonitoring(GenericMonitoringTool):
+    def __init__ (self, name="TrigBtagFexMT_OnlineMonitoring"):
+        super(TrigBtagFexMT_OnlineMonitoring, self).__init__(name)
+        print('COGOUT: config.py file 01')
+        self.name = "TrigBtagFexMT_OnlineMonitoring"
+        self.HistPath = self.name
+        #self.defineTarget("Online")
+        self.defineHistogram('jet_pt', path='EXPERT', type='TH1F', title="BtagFexMT Jet PT", xbins = 20, xmin=0, xmax=500000) 
 
 
 
@@ -45,6 +57,7 @@ class BtagFex (TrigBtagFexMT):
         
         self.JetKey = "GSCJets"
         self.PriVtxKey = "EFHistoPrmVtx"
+
 #        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_EFID"
 
 #        # IMPORT OFFLINE TOOLS
