@@ -54,25 +54,27 @@ keepOutput = False
 # fixing LHE files after madspin?  do that here.
 fixEventWeightsForBridgeMode=False
 
-if 'py1up' in runArgs.jobConfig[0]:
+from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
+phys_short = get_physics_short()
+if 'py1up' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var1Up_EvtGen_Common.py")
-elif 'py1dw' in runArgs.jobConfig[0]:
+elif 'py1dw' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var1Down_EvtGen_Common.py")
-elif 'py2up' in runArgs.jobConfig[0]:
+elif 'py2up' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var2Up_EvtGen_Common.py")
-elif 'py2dw' in runArgs.jobConfig[0]:
+elif 'py2dw' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var2Down_EvtGen_Common.py")
-elif 'py3aup' in runArgs.jobConfig[0]:
+elif 'py3aup' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var3aUp_EvtGen_Common.py")
-elif 'py3adw' in runArgs.jobConfig[0]:
+elif 'py3adw' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var3aDown_EvtGen_Common.py")
-elif 'py3bup' in runArgs.jobConfig[0]:
+elif 'py3bup' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var3bUp_EvtGen_Common.py")
-elif 'py3bdw' in runArgs.jobConfig[0]:
+elif 'py3bdw' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var3bDown_EvtGen_Common.py")
-elif 'py3cup' in runArgs.jobConfig[0]:
+elif 'py3cup' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var3cUp_EvtGen_Common.py")
-elif 'py3cdw' in runArgs.jobConfig[0]:
+elif 'py3cdw' in phys_short:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var3cDown_EvtGen_Common.py")
 else:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")

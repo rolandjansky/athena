@@ -1277,6 +1277,12 @@ def SUSY_Generation(runArgs = None, process=None,\
     # Set up the run card
     modify_run_card(process_dir=process_dir,runArgs=runArgs,settings=settings)
 
+    # Set up madspin if needed
+    if madspin_card is not None:
+        if not os.access(madspin_card,os.R_OK):
+            raise RuntimeError('Could not locate madspin card at '+str(madspin_card))
+        shutil.copy(madspin_card,process_dir+'/Cards/madspin_card.dat')
+
     # Generate events!
     if is_gen_from_gridpack():
         generate_from_gridpack(runArgs=runArgs)

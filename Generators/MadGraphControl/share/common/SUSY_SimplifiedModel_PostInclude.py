@@ -17,17 +17,19 @@ if ktdurham is not None:
     run_settings.update({'ktdurham':ktdurham})
 
 # systematic variation
-if 'scup' in runArgs.jobConfig[0]:
+from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
+phys_short = get_physics_short()
+if 'scup' in phys_short:
     syst_mod=dict_index_syst[0]
-elif 'scdw' in runArgs.jobConfig[0]:
+elif 'scdw' in phys_short:
     syst_mod=dict_index_syst[1]
-elif 'alup' in runArgs.jobConfig[0]:
+elif 'alup' in phys_short:
     syst_mod=dict_index_syst[2]
-elif 'aldw' in runArgs.jobConfig[0]:
+elif 'aldw' in phys_short:
     syst_mod=dict_index_syst[3]
-elif 'qcup' in runArgs.jobConfig[0]:
+elif 'qcup' in phys_short:
     syst_mod=dict_index_syst[6]
-elif 'qcdw' in runArgs.jobConfig[0]:
+elif 'qcdw' in phys_short:
     syst_mod=dict_index_syst[7]
 
 # Pass arguments as a dictionary: the "decays" argument is not accepted in older versions of MadGraphControl
