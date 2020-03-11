@@ -362,10 +362,13 @@ def getGhostPrereqs(ghostdef):
 def getConstitPJGAlg(basedef):
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(basedef.label,basedef.inputname))
     # 
-    getter = JetRecConf.PseudoJetGetter("pjg_"+basedef.label,
+    full_label = basedef.label
+    if basedef.basetype == xAODType.Jet:
+        full_label += "_"+basedef.inputname
+    getter = JetRecConf.PseudoJetGetter("pjg_"+full_label,
         InputContainer = basedef.inputname,
-        OutputContainer = "PseudoJet"+basedef.label,
-        Label = basedef.label,
+        OutputContainer = "PseudoJet"+full_label,
+        Label = full_label,
         SkipNegativeEnergy=True,
         GhostScale=0.
         )
