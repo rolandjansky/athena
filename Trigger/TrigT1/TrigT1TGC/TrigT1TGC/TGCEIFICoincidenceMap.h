@@ -1,33 +1,32 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCInnerCoincidenceMap_hh
-#define TGCInnerCoincidenceMap_hh
+#ifndef TrigT1TGC_TGCEIFICoincidenceMap_hh
+#define TrigT1TGC_TGCEIFICoincidenceMap_hh
+
+#include "TrigT1TGC/TGCInnerTrackletSlot.hh"
+#include "TrigT1TGC/TGCArguments.hh"
 
 #include <vector>
 #include <string>
-#include "TrigT1TGC/TGCInnerTrackletSlot.hh"
-
-#include "GaudiKernel/ToolHandle.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
-#include "TrigT1TGC/TGCArguments.hh"
-
 namespace LVL1TGCTrigger {
  
-class TGCInnerCoincidenceMap {
-public:
+class TGCEIFICoincidenceMap
+{
+ public:
 
-  TGCInnerCoincidenceMap(TGCArguments*, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey);
-  TGCInnerCoincidenceMap(TGCArguments*, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
-                         const std::string& version,int   sideId=0);
-  virtual ~TGCInnerCoincidenceMap();
+  TGCEIFICoincidenceMap(TGCArguments*, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey);
+  TGCEIFICoincidenceMap(TGCArguments*, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                         const std::string& version, int sideId=0);
+  virtual ~TGCEIFICoincidenceMap();
 
-  TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& right);
-  TGCInnerCoincidenceMap& operator=(const TGCInnerCoincidenceMap& right);
+  TGCEIFICoincidenceMap(const TGCEIFICoincidenceMap& right);
+  TGCEIFICoincidenceMap& operator = (const TGCEIFICoincidenceMap& right);
 
   const TGCInnerTrackletSlot* getInnerTrackletMask(const int input, 
 						   const int ssc, 
@@ -84,38 +83,35 @@ private:
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 
-inline TGCArguments* TGCInnerCoincidenceMap::tgcArgs() const {
+inline TGCArguments* TGCEIFICoincidenceMap::tgcArgs() const
+{
   return m_tgcArgs;
 }
 
-inline  
- const std::string& TGCInnerCoincidenceMap::getVersion() const
+inline const std::string& TGCEIFICoincidenceMap::getVersion() const
 {
   return m_verName;
 }
 
-inline   
- int TGCInnerCoincidenceMap::getSideId() const
+inline int TGCEIFICoincidenceMap::getSideId() const
 {
   return m_side;
 }
 
-inline   
- bool TGCInnerCoincidenceMap::isFullCW() const
+inline bool TGCEIFICoincidenceMap::isFullCW() const
 {
   return m_fullCW;
 }
 
-inline   
- void TGCInnerCoincidenceMap::setFullCW( bool val )
+inline void TGCEIFICoincidenceMap::setFullCW(bool val)
 {
   m_fullCW = val;
 }
 
 inline
- const TGCInnerTrackletSlot* TGCInnerCoincidenceMap::getInnerTrackletMask(const int input, 
-									  const int ssc, 
-									  const int sec) const
+ const TGCInnerTrackletSlot* TGCEIFICoincidenceMap::getInnerTrackletMask(const int input, 
+									 const int ssc, 
+									 const int sec) const
 {
   if ((input<0)||(input>=N_Input_InnerSector)) return 0;
   if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
@@ -127,6 +123,6 @@ inline
 
 } //end of namespace bracket
 
-#endif // TGCInnerCoincidenceMap_hh
+#endif
 
 

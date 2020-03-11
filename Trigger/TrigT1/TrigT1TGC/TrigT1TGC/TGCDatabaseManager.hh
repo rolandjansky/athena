@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDatabaseManager_hh
@@ -24,7 +24,7 @@ class TGCConnectionInPP;
 class TGCPatchPanel;
 class TGCConnectionPPToSL;
 class TGCRPhiCoincidenceMap;
-class TGCInnerCoincidenceMap;
+class TGCEIFICoincidenceMap;
 class TGCTileMuCoincidenceMap;
 
 class TGCDatabaseManager {
@@ -35,7 +35,7 @@ public:
   TGCConnectionPPToSL* getConnectionPPToSL(TGCRegionType type) const;
   TGCConnectionASDToPP* getConnectionASDToPP(TGCRegionType region, int type, TGCForwardBackwardType forwardBackward) const;
   TGCRPhiCoincidenceMap* getRPhiCoincidenceMap(int sideId, int octantId) const;
-  TGCInnerCoincidenceMap* getInnerCoincidenceMap(int sideId) const;
+  TGCEIFICoincidenceMap* getEIFICoincidenceMap(int sideId) const;
   TGCTileMuCoincidenceMap* getTileMuCoincidenceMap() const;
 
   TGCConnectionInPP* getConnectionInPP(TGCPatchPanel* patchPanel) const;
@@ -58,7 +58,7 @@ public:
 
 private:
   TGCRPhiCoincidenceMap* m_mapRphi[NumberOfSide][NumberOfOctant];
-  TGCInnerCoincidenceMap* m_mapInner[NumberOfSide];
+  TGCEIFICoincidenceMap* m_mapEIFI[NumberOfSide];
   TGCTileMuCoincidenceMap* m_mapTileMu;
   TGCConnectionPPToSL* m_PPToSL[NumberOfRegionType];
   TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
@@ -81,9 +81,9 @@ TGCRPhiCoincidenceMap* TGCDatabaseManager::getRPhiCoincidenceMap(int sideId, int
 }
 
 inline 
-TGCInnerCoincidenceMap* TGCDatabaseManager::getInnerCoincidenceMap(int sideId) const
+TGCEIFICoincidenceMap* TGCDatabaseManager::getEIFICoincidenceMap(int sideId) const
 {
-  return m_mapInner[sideId];
+  return m_mapEIFI[sideId];
 }
 
 inline 

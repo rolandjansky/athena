@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 
 #include <iostream>
 #include <fstream>
@@ -8,7 +10,6 @@
 #include <string>
 #include <iomanip>
 
-#include "TrigT1TGC/TGCInnerCoincidenceMap.hh"
 #include "TrigT1TGC/TGCDatabaseManager.hh"
 #include "PathResolver/PathResolver.h"
 
@@ -20,7 +21,8 @@
 
 namespace LVL1TGCTrigger {
 
-TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
+TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
+                                             const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
   :m_verName("NA"),
    m_side(0),
    m_fullCW(false),
@@ -47,11 +49,11 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs, const SG::
   return;
 }
    
-  TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs,
-						 const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
-                                                 const std::string& version,
-						 int   sideID)
-  :m_verName(version),
+TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
+					     const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                                             const std::string& version,
+					     int   sideID)
+ : m_verName(version),
    m_side(sideID),
    m_fullCW(false),
    m_tgcArgs(tgcargs),
@@ -84,7 +86,7 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs, const SG::
   if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
     return;
   }
-  MsgStream log(msgSvc, "TGCInnerCoincidenceMap::TGCInnerCoincidenceMap");
+  MsgStream log(msgSvc, "TGCEIFICoincidenceMap::TGCEIFICoincidenceMap");
 
   // use full CW (i.e. different maps for each side)
   m_fullCW = (m_verName == "v07");
@@ -92,7 +94,7 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs, const SG::
   // read Inner Coincidence Map 
   if (this->readMap()) {
     log << MSG::INFO 
-      << " TGC Inner CW version of " << m_verName << " is selected " << endmsg;
+      << " TGC EIFI CW version of " << m_verName << " is selected " << endmsg;
   } else {
     log << MSG::INFO  
 	<< " NOT use inner station " << endmsg;
@@ -114,12 +116,12 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs, const SG::
 }
 
 
-TGCInnerCoincidenceMap::~TGCInnerCoincidenceMap()
+TGCEIFICoincidenceMap::~TGCEIFICoincidenceMap()
 {
 }
 
-TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& right)
-  : m_readCondKey(right.m_readCondKey)
+TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(const TGCEIFICoincidenceMap& right)
+ : m_readCondKey(right.m_readCondKey)
 {
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
@@ -142,7 +144,7 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& rig
   m_fullCW=right.m_fullCW;
 }
 
-TGCInnerCoincidenceMap& TGCInnerCoincidenceMap::operator=(const TGCInnerCoincidenceMap& right)
+TGCEIFICoincidenceMap& TGCEIFICoincidenceMap::operator=(const TGCEIFICoincidenceMap& right)
 {
   if (this != &right) {
     for (size_t sec=0; sec< N_EndcapSector; sec++){
@@ -169,7 +171,7 @@ TGCInnerCoincidenceMap& TGCInnerCoincidenceMap::operator=(const TGCInnerCoincide
 }
 
 
-bool TGCInnerCoincidenceMap::readMap() 
+bool TGCEIFICoincidenceMap::readMap() 
 {
   const std::string SideName[NumberOfSide] = {"A","C"};
 
@@ -178,7 +180,7 @@ bool TGCInnerCoincidenceMap::readMap()
   if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
     return false;
   }
-  MsgStream log(msgSvc, "TGCInnerCoincidenceMap::TGCInnerCoincidenceMap");
+  MsgStream log(msgSvc, "TGCEIFICoincidenceMap::TGCEIFICoincidenceMap");
 
   // select right database according to a set of thresholds
   std::string dbname="";
@@ -252,7 +254,7 @@ bool TGCInnerCoincidenceMap::readMap()
 }
 
 // Debug purpose only
-void TGCInnerCoincidenceMap::dumpMap() const
+void TGCEIFICoincidenceMap::dumpMap() const
 {
   // select right database according to a set of thresholds
   std::string fullName="InnerCoincidenceMap."+m_verName+"._12.out";
@@ -275,9 +277,9 @@ void TGCInnerCoincidenceMap::dumpMap() const
   file.close();	  
 }
 
-int TGCInnerCoincidenceMap::getFlagPT(const int pt,
-                                      const int ssc,
-                                      const int sec)  const
+int TGCEIFICoincidenceMap::getFlagPT(const int pt,
+                                     const int ssc,
+                                     const int sec)  const
 {
   if ((pt<=0)||(pt>N_PT_THRESH)) return -1;
   if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
@@ -292,9 +294,9 @@ int TGCInnerCoincidenceMap::getFlagPT(const int pt,
   }
 }
 
-int  TGCInnerCoincidenceMap::getFlagROI(const int roi,
-                                        const int ssc,
-                                        const int sec)  const
+int  TGCEIFICoincidenceMap::getFlagROI(const int roi,
+                                       const int ssc,
+                                       const int sec)  const
 {
   if ((roi<0)||(roi>=N_ROI_IN_SSC)) return -1;
   if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
@@ -309,12 +311,12 @@ int  TGCInnerCoincidenceMap::getFlagROI(const int roi,
   }
 }
 
-int TGCInnerCoincidenceMap::getTriggerBit(const int slot,
-                  const int ssc,
-                  const int sec,
-                  const int reg,
-                  const int read,
-                  const int bit) const
+int TGCEIFICoincidenceMap::getTriggerBit(const int slot,
+                                         const int ssc,
+                                         const int sec,
+                                         const int reg,
+                                         const int read,
+                                         const int bit) const
 {
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};

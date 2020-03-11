@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCDatabaseManager.hh"
 #include "TrigT1TGC/TGCConnectionPPToSL.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
-#include "TrigT1TGC/TGCInnerCoincidenceMap.hh"
+#include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 #include "TrigT1TGC/TGCTileMuCoincidenceMap.hh"
 #include "TrigT1TGC/TGCConnectionASDToPP.hh"
 #include "TrigT1TGC/TGCConnectionInPP.hh"
@@ -90,7 +90,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
     m_PPToSL[i] = 0;
   }
   for (int side=0; side<NumberOfSide; side +=1) {
-    m_mapInner[side] = 0;
+    m_mapEIFI[side] = 0;
     for (int oct=0; oct<NumberOfOctant; oct++) {
       m_mapRphi[side][oct] = 0;
     }
@@ -152,9 +152,9 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
     }
   }
 
-  // Inner Coincidence Map
+  // EIFI Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
-    m_mapInner[side] = new TGCInnerCoincidenceMap(tgcArgs(), readCondKey, ver_EIFI, side);
+    m_mapEIFI[side] = new TGCEIFICoincidenceMap(tgcArgs(), readCondKey, ver_EIFI, side);
   }
 
   // Tile-Mu coincidence Map
@@ -192,7 +192,7 @@ TGCDatabaseManager::~TGCDatabaseManager()
   }
 
   for(int side=0; side<NumberOfSide; side +=1) {
-    delete m_mapInner[side];
+    delete m_mapEIFI[side];
   }
 
   delete m_mapTileMu;
@@ -210,7 +210,7 @@ TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
   }
   for( int i=0; i<NumberOfRegionType; i+=1) m_PPToSL[i] = 0;
   for (int side=0; side<NumberOfSide; side +=1) {
-    m_mapInner[side] =0;
+    m_mapEIFI[side] =0;
     
     for (int oct=0; oct<NumberOfOctant; oct++) {
       m_mapRphi[side][oct] = 0;
@@ -240,8 +240,8 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
     }
     
     for (int side=0; side<NumberOfSide; side +=1) {
-      if (m_mapInner[side]!=0) delete m_mapInner[side];
-      m_mapInner[side] = new TGCInnerCoincidenceMap(*(right.m_mapInner[side]));
+      if (m_mapEIFI[side]!=0) delete m_mapEIFI[side];
+      m_mapEIFI[side] = new TGCEIFICoincidenceMap(*(right.m_mapEIFI[side]));
       
       for (int oct=0; oct<NumberOfOctant; oct++) {
 	if(m_mapRphi[side][oct]!=0) delete m_mapRphi[side][oct];
