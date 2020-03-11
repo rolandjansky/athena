@@ -120,8 +120,6 @@ protected:
   SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
      {this,"PRDtoTrackMap",""};
  
-  double m_shift_x, m_shift_y;
-
   // Control flags
 
   bool m_doCloneRemoval;
@@ -161,16 +159,10 @@ protected:
 
   // Data members for monitoring
 
-  int m_nTracks;
   int m_nPixSPsInRoI;  // Total number of (filtered) pixel SPs in the RoI
   int m_nSCTSPsInRoI;  // Total number of (filtered) SCT SPs in the RoI
-  int m_currentStage;  // The last stage reached during the processing of a given RoI
 
   int m_roi_nSPs;
-
-  double m_roiPhi, m_roiEta, m_roiZ;
-  double m_roiPhiWidth, m_roiEtaWidth, m_roiZ_Width;  
-  double m_timePattReco;
 
   // Monitoring member functions 
 
@@ -185,15 +177,6 @@ protected:
   //Setup functions
   void getBeamSpot(float&, float&);
   HLT::ErrorCode getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi);
-
-  // Timers 
-
-  TrigTimer* m_SpacePointConversionTimer;
-  TrigTimer* m_ZFinderTimer;
-  TrigTimer* m_PatternRecoTimer; 
-  TrigTimer* m_TripletMakingTimer; 
-  TrigTimer* m_CombTrackingTimer; 
-  TrigTimer* m_TrackFitterTimer; 
 
   // Internal bookkeeping
 
