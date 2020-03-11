@@ -49,7 +49,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     // End
 
     auto lb = Monitored::Scalar<int>("lb", 0); // Nikola
-    auto nhits = Monitored::Scalar<int>("nhits", 1);
+    auto ntofhits = Monitored::Scalar<int>("ntofhits", 1);
     
     lb = GetEventInfo(ctx)->lumiBlock();	// Nikola
 
@@ -72,8 +72,24 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 
     ATH_CHECK( afpToFHitContainer.initialize() );
 
-    nhits = afpToFHitContainer->size();
-    fill("AFPToFTool", lb, nhits);
+    ntofhits = afpToFHitContainer->size();
+    fill("AFPToFTool", lb, ntofhits);
+/*									TO BE researched: difference between trainID and barInTrainID
+    auto numberOfHit_S0 = Monitored::Scalar<int>("numberOfHit_S0", 0); 
+    auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0); 
+
+    for(const xAOD::AFPTofHit *hitsIts: *afpToFHitContainer)
+    {
+	if(hitsIts->isSideA())
+	{
+	    fill("AFPToFTool", numberOfHit_S0);
+	}
+	else if(hitsIts->isSideC())
+	{
+	    fill("AFPToFTool", numberOfHit_S3);
+	}
+    }
+*/
 /*
     auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); // Nikola
     auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); // Nikola

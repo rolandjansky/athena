@@ -60,7 +60,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto testweight = Monitored::Scalar<float>("testweight",1.0);
 */
     auto lb = Monitored::Scalar<int>("lb", 0); // Nikola
-    auto nhits = Monitored::Scalar<int>("nhits", 1);
+    auto nsihits = Monitored::Scalar<int>("nsihits", 1);
     
 
 /*    // Two variables (value and passed) needed for TEfficiency
@@ -149,8 +149,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     ATH_CHECK( afpHitContainer.initialize() );
 
-    nhits = afpHitContainer->size();
-    fill("AFPSiLayerTool", lb, nhits);
+    nsihits = afpHitContainer->size();
+    fill("AFPSiLayerTool", lb, nsihits);
 
     auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); // Nikola
     auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); // Nikola
