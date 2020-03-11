@@ -73,7 +73,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     ATH_CHECK( afpToFHitContainer.initialize() );
 
     nhits = afpToFHitContainer->size();
-    fill("AFPSiLayerTool", lb, nhits);
+    fill("AFPToFTool", lb, nhits);
 /*
     auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); // Nikola
     auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); // Nikola

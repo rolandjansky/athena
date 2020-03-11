@@ -36,9 +36,9 @@ protected:
 
 
 
-  static const int s_cNearStationIndex;
-  static const int s_cFarStationIndex;
-  const std::string m_histsDirectoryName;
+  //static const int s_cNearStationIndex;
+  //static const int s_cFarStationIndex;
+  //const std::string m_histsDirectoryName;
 
 };
 #endif
