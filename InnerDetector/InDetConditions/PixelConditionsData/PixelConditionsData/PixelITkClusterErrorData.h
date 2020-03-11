@@ -34,7 +34,7 @@ class PixelITkClusterErrorData {
     void load(std::string file);
 
   private: 
-     StatusCode initialize();
+     void initialize();
 
      // map to store all ITk Analogue Clustering constants and errors
      std::map< const Identifier, std::tuple<double,double,double,double> > m_constmap;

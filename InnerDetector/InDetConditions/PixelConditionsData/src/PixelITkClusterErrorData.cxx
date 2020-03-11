@@ -5,7 +5,6 @@
 #include "PixelConditionsData/PixelITkClusterErrorData.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "AthenaBaseComps/AthCheckMacros.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -24,13 +23,19 @@ PixelITkClusterErrorData::PixelITkClusterErrorData():
   initialize();
 }
 
-StatusCode PixelITkClusterErrorData::initialize(){
+void PixelITkClusterErrorData::initialize(){
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-  ATH_CHECK(svcLoc->service("DetectorStore", m_detStore));
-  ATH_CHECK(m_detStore->retrieve(m_pixelid, "PixelID")) ;
+  StatusCode sc = svcLoc->service("DetectorStore", m_detStore);
+  if(sc.isFailure()){
+    throw std::runtime_error("Could not retrieve DetectorStore");
+  }
+  sc = m_detStore->retrieve(m_pixelid, "PixelID");
+  if(sc.isFailure()){
+    throw std::runtime_error("Could not retrieve PixelID");
+  }
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 
