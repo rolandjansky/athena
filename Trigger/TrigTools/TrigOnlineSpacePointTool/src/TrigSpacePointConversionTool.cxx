@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -103,7 +103,7 @@ StatusCode TrigSpacePointConversionTool::finalize() {
 
 
 StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& internalRoI, 
-							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) {
+							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) const {
 
   output.clear();
   
@@ -154,7 +154,7 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
 }
 
 
-void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePointBase>& output) {
+void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePointBase>& output) const {
 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };  
   const Amg::Vector3D &vertex = beamSpotHandle->beamPos();
@@ -166,7 +166,7 @@ void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePoint
 }
 
 
-void TrigSpacePointConversionTool::transformSpacePoints(std::vector<TrigSiSpacePointBase>& output) {
+void TrigSpacePointConversionTool::transformSpacePoints(std::vector<TrigSiSpacePointBase>& output) const {
 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   const Amg::Vector3D &origin = beamSpotHandle->beamPos();
