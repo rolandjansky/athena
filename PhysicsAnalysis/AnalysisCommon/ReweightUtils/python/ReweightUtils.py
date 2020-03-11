@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # sanitize shell output
 try:
@@ -16,7 +16,6 @@ warnings.filterwarnings( action='ignore', category=RuntimeWarning, message='crea
 
 # import basics
 from os import getenv
-from imp import load_source
 from distutils.version import StrictVersion
 from platform import python_version
 
@@ -33,11 +32,11 @@ try:
   RootCoreDir = getenv ("ROOTCOREDIR")
   try:
     t = ROOT.McEventWeight()
-  except:
+  except Exception:
       if RootCoreDir:
         ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
       else:
-        print "Nothing foreseen in this case, complain to Olivier..."
+        print ("Nothing foreseen in this case, complain to Olivier...")
 
 except ImportError as err:
   print(err)
