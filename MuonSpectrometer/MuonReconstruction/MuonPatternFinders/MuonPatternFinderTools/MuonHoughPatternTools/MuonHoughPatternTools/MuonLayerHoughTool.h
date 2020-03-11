@@ -145,7 +145,7 @@ namespace Muon {
     MuonLayerHoughTool(const std::string& type, const std::string& name, const IInterface* parent);
 
     /** Destructor */
-    virtual ~MuonLayerHoughTool();
+    virtual ~MuonLayerHoughTool()=default;
     
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonLayerHoughTool; }
@@ -279,6 +279,7 @@ namespace Muon {
     bool m_addSectors; // default true
 
     unsigned int m_ntechnologies;
+    std::map<unsigned int,unsigned int> m_techToTruthNameIdx; // mapping the muon technology to the index of the m_truthNames vector
     CollectionsPerSectorVec m_collectionsPerSector;
     std::vector<TgcHitClusteringObj*> m_tgcClusteringObjs;
 
