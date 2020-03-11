@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaNavTPAnalysisTool_H
@@ -15,13 +15,22 @@ class TrigEgammaNavTPAnalysisTool
 public:
 
   TrigEgammaNavTPAnalysisTool( const std::string& myname );
-  virtual ~TrigEgammaNavTPAnalysisTool() {};
+  ~TrigEgammaNavTPAnalysisTool() {};
 
-  virtual StatusCode childInitialize () override;
-  virtual StatusCode childExecute(const EventContext& ctx) const override;
-  virtual StatusCode childFinalize() override;
+  StatusCode childInitialize ();
+  StatusCode childBook();
+  StatusCode childExecute();
+  StatusCode childFinalize();
+
+private:
 
   
+  /*! Method to book histograms for each trigger */
+  void bookPerSignature(const std::string);
+  
+  unsigned int m_eventCounter;
+  std::vector<std::string> m_probelabels;
+  std::vector<std::string> m_taglabels;
 };
 
 #endif
