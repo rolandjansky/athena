@@ -188,7 +188,7 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
        delete [] input_data;
        delete [] simdata;
        
-       return FCSRetry;
+       return (FCSReturnCode)FCSRetryPCA;
      } 
    }
 
