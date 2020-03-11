@@ -11,7 +11,7 @@ using namespace TopEventSelectionTools;
 namespace top {
   NJetBtagSelector::NJetBtagSelector(const std::string& params, std::shared_ptr<top::TopConfig> config,
                                      bool doTrackJets) :
-    SignValueSelector((doTrackJets ? "TJET_N_BTAG" : "JET_N_BTAG"), params, true, true, ":", "_", "MV2c10"),
+    SignValueSelector((doTrackJets ? "TJET_N_BTAG" : "JET_N_BTAG"), params, true, true, ":", "_", "DL1r"),
     m_doTrackJets(doTrackJets) {
     checkMultiplicityIsInteger();
     // check if the provided btag WP is really available - need to replace : with _ to match the naming of variables
@@ -28,7 +28,7 @@ namespace top {
           << "B-tagging working point " << valueString() << " doesn't seem to be supported.\n"
           << "Please note that you should provide the argument as ==> bTagAlgorithm:bTagWP now. \n "
           << "Please provide a real one! Did you specified it in the \"BTaggingWP\" field of your cutfile?\n");
-      throw std::runtime_error("NJetBtagSelector: Invalid btagging WP specified");
+      throw std::runtime_error("NJetBtagSelector: Invalid btagging selector WP: " + name());
     }
   }
 

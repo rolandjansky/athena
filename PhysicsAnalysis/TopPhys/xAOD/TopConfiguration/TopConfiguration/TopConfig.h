@@ -515,6 +515,7 @@ namespace top {
     inline virtual const std::string& sgKeyJetsType()   const {return m_sgKeyJetsType;}
     inline virtual const std::string& sgKeyLargeRJets() const {return m_sgKeyLargeRJets;}
     inline virtual const std::string& sgKeyTrackJets()  const {return m_sgKeyTrackJets;}
+    inline virtual const std::string& sgKeyTrackJetsType()  const {return m_sgKeyTrackJetsType;}
     inline virtual const std::string& sgKeyMissingEt()  const {return m_sgKeyMissingEt;}
     inline virtual const std::string& sgKeyMissingEtLoose()  const {return m_sgKeyMissingEtLoose;}
     inline const std::string& sgKeyInDetTrackParticles() const {return m_sgKeyInDetTrackParticles;}
@@ -1897,6 +1898,7 @@ namespace top {
     std::string m_sgKeyJetsType;
     std::string m_sgKeyLargeRJets;
     std::string m_sgKeyTrackJets;
+    std::string m_sgKeyTrackJetsType;
     std::string m_sgKeyMissingEt;
     std::string m_sgKeyMissingEtLoose;
     std::string m_sgKeyInDetTrackParticles;

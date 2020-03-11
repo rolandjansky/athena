@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/TopObjectSelection.h"
@@ -498,7 +498,7 @@ namespace top {
         jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
       }
 
-      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
+      if (m_config->sgKeyTrackJetsType() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
         float pt_baseline = 5e3;
         float radius1 = std::max(0.02, std::min(0.4, 30000. / jetPtr->pt()));
 
@@ -528,10 +528,10 @@ namespace top {
         } else {
           int tagWeightBin = -2; // AT default
           if (std::fabs(jetPtr->eta()) < 2.5) {
-            ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
+            ToolHandle<IBTaggingSelectionTool>& btagsel = m_trkjet_btagSelTools[WP];
             tagWeightBin = btagsel->getQuantile(*jetPtr);
           }
-          jetPtr->auxdecor<int>("tagWeightBin") = tagWeightBin;
+          jetPtr->auxdecor<int>("tagWeightBin_" + WP) = tagWeightBin;
         }
       }
     }
