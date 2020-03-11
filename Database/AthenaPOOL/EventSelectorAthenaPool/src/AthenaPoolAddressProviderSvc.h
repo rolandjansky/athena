@@ -67,10 +67,6 @@ private: // properties
    /// DataHeaderKey, StoreGate key of event entry object (type DataHeader).
    StringProperty m_dataHeaderKey;
 
-   /// DataHeaderIterator, switch to turn on iteration on Token, rather than DataHeader reading.
-   /// Assumes nice/homogeneous input files and may not work for all use cases: default = false.
-   BooleanProperty m_dataHeaderIterator;
-
    /// Attribute list key of a secondary input file. If non-zero,
    /// creates a new IOpaqueAddress for that file and records it.
    Gaudi::Property<std::string> m_attrListKey;
