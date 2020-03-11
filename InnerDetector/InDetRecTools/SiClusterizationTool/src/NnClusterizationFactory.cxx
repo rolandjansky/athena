@@ -183,17 +183,32 @@ namespace InDet {
     // register IOV callback function for the COOL folders
     const DataHandle<CondAttrListCollection> aptr;
     if ( (detStore()->regFcn(&NnClusterizationFactory::nnSetup,this,aptr,m_coolFolder_root)).isFailure() ){
-       ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder_root << "failed.");
+       ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder_root << " failed.");
        return StatusCode::FAILURE;
     } else 
       ATH_MSG_INFO("Registered IOV callback for " << m_coolFolder_root);
 
-    const DataHandle<CondAttrListCollection> lwtnn_datahandle;
-    if ( (detStore()->regFcn(&NnClusterizationFactory::setUpNN_lwtnn,this,lwtnn_datahandle,m_coolFolder_json)).isFailure() ){
-        ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder_json << "failed.");
-        return StatusCode::FAILURE;
-    } else 
-       ATH_MSG_INFO("Registered IOV callback for " << m_coolFolder_json);        
+    // Check if json folder is available (will not be during initial transition)
+    bool has_folder_json = detStore()->contains<CondAttrListCollection>(m_coolFolder_json);
+
+    // If not, don't continue with setup.
+    if (!has_folder_json) {
+      ATH_MSG_INFO("No folder " << m_coolFolder_json << " available. Will access NN configuration using TTrainedNetwork."); 
+      m_uselwtnn_number = false;
+      m_uselwtnn_position = false;
+    }
+    
+    // If yes, set up callback for json folder.
+    else {
+
+      const DataHandle<CondAttrListCollection> lwtnn_datahandle;
+      if ( (detStore()->regFcn(&NnClusterizationFactory::setUpNN_lwtnn,this,lwtnn_datahandle,m_coolFolder_json)).isFailure() ){
+          ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder_json << " failed.");
+          return StatusCode::FAILURE;
+      } else 
+         ATH_MSG_INFO("Registered IOV callback for " << m_coolFolder_json); 
+
+    }
     
     if (m_calibSvc.retrieve().isFailure()){
         ATH_MSG_ERROR("Could not retrieve " << m_calibSvc);
