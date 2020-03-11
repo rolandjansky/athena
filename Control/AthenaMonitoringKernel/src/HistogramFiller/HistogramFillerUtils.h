@@ -5,6 +5,11 @@
 #ifndef AthenaMonitoringKernel_HistogramFillerUtils_h
 #define AthenaMonitoringKernel_HistogramFillerUtils_h
 
+#include "AthenaMonitoringKernel/OHLockedHist.h"
+
+#include "TH1.h"
+#include "THashList.h"
+
 namespace Monitored {
   namespace detail {
     /**
@@ -40,6 +45,42 @@ namespace Monitored {
         hist->LabelsInflate();
       } while (shouldRebinHistogram(hist, value));
     }
+
+    /**
+     * Check if Fill would result in rebinning.
+     *
+     * Determine if Fill(value) would result in a rebinning of the histogram.
+     */
+    template<typename T>
+    bool fillWillRebinHistogram(const TAxis* axis, T value) {
+      if (not axis) return false;
+      const int bin = axis->FindFixBin(value);
+      // if under/overflow
+      if ( bin==0 or bin==axis->GetNbins()+1 ) {
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Check if Fill would result in rebinning for alphanumeric axis.
+     */
+    template<>
+    bool fillWillRebinHistogram(const TAxis* axis, const char* value) {
+      // valid bin found
+      if ( not axis or axis->FindFixBin(value)>0 ) return false;
+
+      // If there are no labels yet at least one unlabeled bin is available
+      const THashList* labels = axis->GetLabels();
+      if ( not labels ) return false;
+
+      // check if unlabeled bins exist
+      if ( axis->GetNbins() > labels->GetEntries() ) {
+        return false;
+      }
+      return true;
+    }
+
   }
 }
 
