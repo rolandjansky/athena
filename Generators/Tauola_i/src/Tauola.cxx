@@ -551,11 +551,11 @@ StatusCode Tauola::callGenerator() {
       //      else if ( m_SuperIndex == Sherpa || m_SuperIndex == -999 )
       else if ( m_SuperIndex == Sherpa || m_sherpa_blob )
         {
-          sherpa_BLOB(evt);
+          ATH_CHECK( sherpa_BLOB(evt) );
           m_genEvt=(*evt); //copy to preserve
         }
       else {
-        restore_Atlas_HEPEVT();
+        ATH_CHECK( restore_Atlas_HEPEVT() );
       }
     }
 

@@ -155,16 +155,20 @@ class ExecStep(Step):
             self.args = ''
         athenaopts = ''
 
+        # Disable prmon for Reco_tf because it is already started inside the transform
+        if self.type == 'Reco_tf':
+            self.prmon = False
+
+        # Disable perfmon for multi-fork jobs as it cannot deal well with them
+        if self.forks > 1:
+            self.perfmon = False
+
         # Append imf/perfmon
         if self.type != 'other':
             if self.imf:
                 athenaopts += ' --imf'
             if self.perfmon:
                 athenaopts += ' --perfmon'
-
-        # Disable prmon for Reco_tf because it is already started inside the transform
-        if self.type == 'Reco_tf':
-            self.prmon = False
 
         # Default threads/concurrent_events/forks
         if test.package_name == 'TrigUpgradeTest':

@@ -26,7 +26,7 @@ from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should may
 
 #Local
 from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L173
@@ -551,6 +551,12 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     acc.addPublicTool(cleaner)
     result.merge(acc)
     kwargs.setdefault("TrackCleaner", cleaner)
+
+    acc = MuonTrackSummaryToolCfg(flags)
+    track_summary = acc.getPrimary( )
+    acc.addPublicTool(track_summary)
+    result.merge(acc)
+    kwargs.setdefault('TrackSummaryTool', track_summary)
     
     # FIXME - remaining tools
     acc.setPrivateTools(Muon__MuonClusterSegmentFinderTool(**kwargs))

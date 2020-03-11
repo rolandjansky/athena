@@ -2,7 +2,8 @@
 ///
 ///   @class RegSelTool RegSelTool.h
 /// 
-///     This is a Region Selector tool
+///          This is the Region Selector tool for the ID And muon spectrometer 
+///          tables
 ///     
 ///   @author Mark Sutton
 ///
@@ -25,8 +26,9 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
+#include "IRegionSelector/RegSelLUTCondData.h"
 
 class RegSelModule;
 class RegSelSiLUT;
@@ -52,11 +54,6 @@ class RegSelTool : public extends<AthAlgTool, IRegSelTool> {
   //! @method finalize, deletes lookup table from memory
   virtual StatusCode finalize() override;
   
-
-  //! @method handle, handles the actual lookup table
-  bool handle(); 
-
-
   /// IRegSlTool interface ...
 
   // Interface inherited from IRegSelTool service
@@ -82,7 +79,6 @@ protected:
   // full scan for a specific layer
   void HashIDList( long layer, std::vector<IdentifierHash>& idlist ) const;
      
-
   // Methods to obtain the rob id list
 
   // full scan
@@ -91,22 +87,27 @@ protected:
   // full scan by layer
   void ROBIDList( long layer, std::vector<uint32_t>& roblist ) const;
 
-
-  // get list of modules
-  
+  // get list of modules  
   void getRoIData( const IRoiDescriptor& roi, std::vector<const RegSelModule*>& modulelist ) const;
+
+  //! @method handle, handles the actual lookup table
+  bool handle(); 
+
+  //! @method lookup, actually retrieve the lookup table as conditions data - might combine with handle()
+  const RegSelSiLUT* lookup() const;
 
 private:
 
   //! Flag to determine whether it has yet been initialised
   bool              m_initialised; 
 
+  std::string       m_tableName;
+
   //! Flag to dump loaded table in data file.
   BooleanProperty  m_dumpTable;
 
-  //! Actual lookup table
-  RegSelSiLUT*      m_lookuptable;
-
+  SG::ReadCondHandleKey<RegSelLUTCondData> m_tableKey{ this, "RegSelLUT", "RegSelLUTCondData", "Region Selector lookup table" };
+  
 };
 
 #endif // REGIONSELECTOR_REGSELTOOL_H
