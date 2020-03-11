@@ -75,7 +75,7 @@ StatusCode ComboHypo::finalize() {
 }
 
 
-StatusCode ComboHypo::copyDecisions(  LegDecisionsMap & passingLegs, const EventContext& context ) const {
+StatusCode ComboHypo::copyDecisions(  const LegDecisionsMap & passingLegs, const EventContext& context ) const {
  DecisionIDContainer passing;
   for (auto const& element : passingLegs) {
     passing.insert(element.first);
@@ -89,7 +89,7 @@ StatusCode ComboHypo::copyDecisions(  LegDecisionsMap & passingLegs, const Event
     auto outDecisions = outputHandle.ptr();    
     auto inputHandle = SG::makeHandle( m_inputs.at(input_counter), context );
     if ( inputHandle.isValid() ) {
-      int index=0;
+
       for (const Decision* inputDecision : *inputHandle) {
 	auto thisEL = TrigCompositeUtils::decisionToElementLink(inputDecision, context);
         DecisionIDContainer inputDecisionIDs;
@@ -106,7 +106,7 @@ StatusCode ComboHypo::copyDecisions(  LegDecisionsMap & passingLegs, const Event
         for (const DecisionID c : common){
           const HLT::Identifier cID = HLT::Identifier(c);
 	  // add teh decID only if this candidate passed the combination selection
-	  auto Comb=passingLegs[c];
+	  const ElementLinkVector<DecisionContainer>& Comb=passingLegs.at(c);
 	  if(std::find(Comb.begin(), Comb.end(), thisEL) == Comb.end()) continue;
 
 	  ATH_MSG_DEBUG("  Adding "<< cID <<" because EL is found in the passingLegs map");
@@ -124,7 +124,7 @@ StatusCode ComboHypo::copyDecisions(  LegDecisionsMap & passingLegs, const Event
 		      << (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDec, initialRoIString())).isValid()
 		      << " valid initialRoI, "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions and "<<finalIds.size()<<" decision IDs") ;   
         insertDecisionIDs( finalIds, newDec );
-	index++;
+
       }
     }
 

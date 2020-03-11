@@ -51,7 +51,7 @@ private:
   * the decisions that are mentioned in the passing set
   **/
   
-  StatusCode copyDecisions( LegDecisionsMap & passingComb, const EventContext& context ) const;
+  StatusCode copyDecisions( const LegDecisionsMap & passingLegs, const EventContext& context ) const;
 
 
   /**
