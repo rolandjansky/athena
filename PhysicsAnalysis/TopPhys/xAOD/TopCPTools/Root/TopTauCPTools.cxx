@@ -4,9 +4,6 @@
 
 #include "TopCPTools/TopTauCPTools.h"
 
-#include <map>
-#include <string>
-
 // Top includes
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -20,6 +17,11 @@
 #include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/TauTruthMatchingTool.h"
 #include "TauAnalysisTools/Enums.h"
+
+// c++ includes
+#include <map>
+#include <memory>
+#include <string>
 
 namespace top {
   TauCPTools::TauCPTools(const std::string& name) :
@@ -188,7 +190,7 @@ namespace top {
     if (asg::ToolStore::contains<ITauSelTool>(tauSelName)) {
       m_tauSelectionTool = asg::ToolStore::get<ITauSelTool>(tauSelName);
     } else {
-      ITauSelTool* tauSelectionTool = new TauAnalysisTools::TauSelectionTool(tauSelName);
+      std::unique_ptr<ITauSelTool> tauSelectionTool = std::make_unique<TauAnalysisTools::TauSelectionTool>(tauSelName);
       if (!tauJetConfigFile.empty()) {
         top::check(asg::setProperty(tauSelectionTool, "ConfigPath", tauJetConfigFile),
                    "Failed to set tau selection tool configuration path");
@@ -219,14 +221,14 @@ namespace top {
                    "Failed to set tau-electron overlap removal in tau selection tool");
       }
       top::check(tauSelectionTool->initialize(), "Failed to initialize tauSelectionTool");
-      m_tauSelectionTool = tauSelectionTool;
+      m_tauSelectionTool = tauSelectionTool.release();
 
       ///-- Setup the EfficiencyCorrectionsTool while seting up the selection tool --///
       if (asg::ToolStore::contains<ITauEffCorrTool>(tauEffCorrName)) {
         m_tauEffCorrTool = asg::ToolStore::get<ITauEffCorrTool>(tauEffCorrName);
       } else {
-        ITauEffCorrTool* tauEffCorrTool
-          = new TauAnalysisTools::TauEfficiencyCorrectionsTool(tauEffCorrName);
+        std::unique_ptr<ITauEffCorrTool> tauEffCorrTool
+          = std::make_unique<TauAnalysisTools::TauEfficiencyCorrectionsTool>(tauEffCorrName);
         if (m_config->isMC()) {
           top::check(m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool");
           top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
@@ -241,7 +243,7 @@ namespace top {
         top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionTool),
                    "Failed to set TauSelectionTool for " + tauEffCorrName);
         top::check(tauEffCorrTool->initialize(), "Failed to initialize");
-        m_tauEffCorrTool = tauEffCorrTool;
+        m_tauEffCorrTool = tauEffCorrTool.release();
       }
     }
 
@@ -257,7 +259,7 @@ namespace top {
     if (asg::ToolStore::contains<ITauSelTool>(tauSelNameLoose)) {
       m_tauSelectionToolLoose = asg::ToolStore::get<ITauSelTool>(tauSelNameLoose);
     } else {
-      ITauSelTool* tauSelectionTool = new TauAnalysisTools::TauSelectionTool(tauSelNameLoose);
+      std::unique_ptr<ITauSelTool> tauSelectionTool = std::make_unique<TauAnalysisTools::TauSelectionTool>(tauSelNameLoose);
       if (!tauJetConfigFileLoose.empty()) {
         top::check(asg::setProperty(tauSelectionTool, "ConfigPath", tauJetConfigFileLoose),
                    "Failed to set tau selection tool configuration path");
@@ -288,14 +290,14 @@ namespace top {
                    "Failed to set tau-electron overlap removal in loose tau selection tool");
       }
       top::check(tauSelectionTool->initialize(), "Failed to initialize tauSelectionTool");
-      m_tauSelectionToolLoose = tauSelectionTool;
+      m_tauSelectionToolLoose = tauSelectionTool.release();
 
       ///-- Setup the EfficiencyCorrectionsTool while seting up the selection tool --///
       if (asg::ToolStore::contains<ITauEffCorrTool>(tauEffCorrNameLoose)) {
         m_tauEffCorrTool = asg::ToolStore::get<ITauEffCorrTool>(tauEffCorrNameLoose);
       } else {
-        ITauEffCorrTool* tauEffCorrTool
-          = new TauAnalysisTools::TauEfficiencyCorrectionsTool(tauEffCorrNameLoose);
+        std::unique_ptr<ITauEffCorrTool> tauEffCorrTool
+          = std::make_unique<TauAnalysisTools::TauEfficiencyCorrectionsTool>(tauEffCorrNameLoose);
         if (m_config->isMC()) {
           top::check(m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool");
           top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
@@ -310,18 +312,18 @@ namespace top {
                    "Failed to set TauSelectionTool for " + tauEffCorrNameLoose);
 
         top::check(tauEffCorrTool->initialize(), "Failed to initialize");
-        m_tauEffCorrToolLoose = tauEffCorrTool;
+        m_tauEffCorrToolLoose = tauEffCorrTool.release();
       }
     }
 
     ///-- Calibration and smearing --///
-    std::string tauSmearName = "TauAnalysisTools::TauSmearingTool";
+    static const std::string tauSmearName = "TauAnalysisTools::TauSmearingTool";
     if (asg::ToolStore::contains<TauAnalysisTools::ITauSmearingTool>(tauSmearName)) {
       m_tauSmearingTool = asg::ToolStore::get<TauAnalysisTools::ITauSmearingTool>(tauSmearName);
     } else {
-      TauAnalysisTools::TauSmearingTool* tauSmearingTool = new TauAnalysisTools::TauSmearingTool(tauSmearName);
+      std::unique_ptr<TauAnalysisTools::TauSmearingTool> tauSmearingTool = std::make_unique<TauAnalysisTools::TauSmearingTool>(tauSmearName);
       top::check(tauSmearingTool->initialize(), "Failed to initialize");
-      m_tauSmearingTool = tauSmearingTool;
+      m_tauSmearingTool = tauSmearingTool.release();
     }
     
     ///-- Truth matching --///
@@ -329,10 +331,10 @@ namespace top {
     if (asg::ToolStore::contains<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName)) {
       m_truthMatchingTool = asg::ToolStore::get<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName);
     } else {
-      TauAnalysisTools::TauTruthMatchingTool* tauMatchingTool = new TauAnalysisTools::TauTruthMatchingTool(tauTruthMatchingName);
+      std::unique_ptr<TauAnalysisTools::TauTruthMatchingTool> tauMatchingTool = std::make_unique<TauAnalysisTools::TauTruthMatchingTool>(tauTruthMatchingName);
       top::check(tauMatchingTool->setProperty("TruthJetContainerName", "AntiKt4TruthDressedWZJets"), "Failed to set truth collection for tau truth matching tool");
       top::check(tauMatchingTool->initialize(), "Failed to initialize");
-      m_truthMatchingTool = tauMatchingTool;
+      m_truthMatchingTool = tauMatchingTool.release();
     }
 
 
