@@ -148,8 +148,10 @@ namespace top {
     m_sgKeySoftMuons("SetMe"),
     m_sgKeyTaus("SetMe"),
     m_sgKeyJets("SetMe"),
+    m_sgKeyJetsType("SetMe"),
     m_sgKeyLargeRJets("SetMe"),
     m_sgKeyTrackJets("SetMe"),
+    m_sgKeyTrackJetsType("SetMe"),
     m_sgKeyMissingEt("MET"),
     m_sgKeyMissingEtLoose("LooseMET"),
     m_sgKeyInDetTrackParticles("InDetTrackParticles"),
@@ -665,14 +667,15 @@ namespace top {
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
 
-    // check that small-R jets use tagged collectio name for new derivations
-    // this is due to b-tagging since AthDerivation-21.2.72.0
+    // check that jets use tagged collectio name for new derivations
+    // this is due to b-tagging breaking changes in derivations
     if (m_aodMetaData->valid()) {
       try {
         std::string deriv_rel_name = m_aodMetaData->get("/TagInfo", "AtlasRelease_AODtoDAOD");
         size_t pos = deriv_rel_name.find('-');
         if (pos != std::string::npos) {
           deriv_rel_name = deriv_rel_name.substr(pos + 1);
+          // check for derivation version due to format breakage with calo jet b-tagging
           if (deriv_rel_name >= "21.2.72.0") { // release where we need tagged jet collection
             if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
               throw std::runtime_error(
@@ -685,13 +688,28 @@ namespace top {
                       "\" instead.");
             }
           }
+          // check for derivation version due to format breakage with track jet b-tagging
+          if (this->useTrackJets()) {
+            if (deriv_rel_name >= "21.2.87.0") { // release where we need tagged track jet collection
+              if (this->sgKeyTrackJets() == this->sgKeyTrackJetsType()) { // jet collection is NOT tagged
+                throw std::runtime_error(
+                        "TopConfig: You are using derivation with release 21.2.87.0 or newer and did not specify tagged track jet collection, e.g. \"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903\". This is necessary for b-tagging to work!");
+              }
+            } else { // release does NOT have tagged jet collection
+              if (this->sgKeyTrackJets() != this->sgKeyTrackJetsType()) { // jet collection is NOT tagged
+                throw std::runtime_error(
+                        "TopConfig: You are using derivation with release older than 21.2.87.0 so you cannot use tagged track jet containers as you specified: \"" + this->sgKeyTrackJets() + "\". Use \"" + this->sgKeyTrackJetsType() +
+                        "\" instead.");
+              }
+            }
+          }
         } else {
-          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own.");
+          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging. You are on your own.");
         }
         // try to parse the derivation release, we need the release number
       } catch (std::logic_error& e) {
         ATH_MSG_WARNING(e.what());
-        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own.");
+        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging. You are on your own.");
       }
     }
 
@@ -1742,6 +1760,12 @@ namespace top {
     if (!m_configFixed) {
       m_useTrackJets = false;
       if (s != "None") m_useTrackJets = true;
+
+      size_t delim_pos = s.find('_');
+      // for time-stamped track jet collections due to b-tagging
+      // AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903
+      // we want to have quick access  to base collection name
+      m_sgKeyTrackJetsType = s.substr(0, delim_pos);
 
       m_sgKeyTrackJets = s;
     }
