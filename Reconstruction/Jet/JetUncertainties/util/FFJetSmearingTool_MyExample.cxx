@@ -555,7 +555,7 @@ else{
 
 		hist_jet_mass_scale_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, (jet_reco->m()/1000.)/*/(aux_original_jet_mass)*/);
 
-                hist_jet_mass_resolution_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, ((jet_reco->m()/1000.) - (aux_original_jet_mass))/ aux_original_jet_mass);
+                hist_jet_mass_resolution_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, TMath::Abs((jet_reco->m()/1000.) - (aux_original_jet_mass))/ aux_original_jet_mass);
  //Info(APP_NAME,"diference = %g", (jet_reco->m()/1000.) - (aux_original_jet_mass) );
 	}
 

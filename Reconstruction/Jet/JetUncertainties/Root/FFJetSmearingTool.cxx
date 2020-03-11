@@ -618,6 +618,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
    double jet_mass_TA = 0;
    double calo_mass_weight=1; // m_comb = Weight*m_Calo + (1-Weight)*m_TA
 
+   bool use_jetcalibtoolsweight = true;
+
     if(m_MassDef=="Comb"){
 
 	double aux1;
@@ -673,11 +675,13 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
         if(TMath::Abs(jetcalibtools_calo_mass_weight-jetuncertaintiesmap_calo_mass_weight) > 0.001){
                 ATH_MSG_VERBOSE("Calo weights from JetCalibTools do not match with the Calo weights of JetUncertainties" );
-                return CP::CorrectionCode::Ok;
+                ATH_MSG_VERBOSE("Using the JetCalibTools weights for the smearing..." );
         }
-
+	else{
+        use_jetcalibtoolsweight = false; //This means that the weights will be calculated after the smearing using the JetUncertaintiesTool.
+                                                //We can do this because the weights of JetCalibTools and JetUncertainties match.
+	}
         calo_mass_weight = jetcalibtools_calo_mass_weight;// The two weights match
-
 
 
     }
@@ -762,7 +766,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
 
 
-    if(m_MassDef=="Comb"){
+    if(m_MassDef=="Comb" && use_jetcalibtoolsweight == false){
 
         double aux1;
         double aux2;
@@ -790,8 +794,10 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
 	calo_mass_weight = (1/(aux1*aux1)) /((1/(aux1*aux1))+(1/(aux2*aux2)));
 
-	ATH_MSG_VERBOSE("(Modified) Map Calo weight = " << (1/(aux1*aux1)) /((1/(aux1*aux1))+(1/(aux2*aux2)))  );
-	ATH_MSG_VERBOSE("(Modified) Map TA weight = " << (1/(aux2*aux2)) /((1/(aux1*aux1))+(1/(aux2*aux2)))  );
+
+
+	ATH_MSG_VERBOSE("(Modified) Map Calo weight = " << calo_mass_weight  );
+	ATH_MSG_VERBOSE("(Modified) Map TA weight = " << 1 - calo_mass_weight  );
     }
 
 
