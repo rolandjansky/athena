@@ -725,13 +725,43 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
 
 
     elif(InDetFlags.vertexSeedFinder() == 'SlidingWindowMultiSeedFinder'):
+      from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+      sliding_window_track_selector = InDet__InDetDetailedTrackSelectorTool(name                                = "InDetDetailedTrackSelectorTool",
+                                                                   pTMin                               = InDetPrimaryVertexingCuts.minPT(),
+                                                                   IPd0Max                             = InDetPrimaryVertexingCuts.IPd0Max(),
+                                                                   IPz0Max                             = InDetPrimaryVertexingCuts.IPz0Max(),
+                                                                   z0Max                               = InDetPrimaryVertexingCuts.z0Max(),
+                                                                   sigIPd0Max                          = InDetPrimaryVertexingCuts.sigIPd0Max(),
+                                                                   sigIPz0Max                          = InDetPrimaryVertexingCuts.sigIPz0Max(),
+                                                                   d0significanceMax                   = InDetPrimaryVertexingCuts.d0significanceMax(),
+                                                                   z0significanceMax                   = InDetPrimaryVertexingCuts.z0significanceMax(),
+                                                                   etaMax                              = InDetPrimaryVertexingCuts.etaMax(),
+                                                                   useTrackSummaryInfo                 = InDetPrimaryVertexingCuts.useTrackSummaryInfo(),
+                                                                   # nHitBLayer                          = InDetPrimaryVertexingCuts.nHitBLayer(),
+                                                                   nHitPix                             = InDetPrimaryVertexingCuts.nHitPix(),
+                                                                   nHolesPixel                         = InDetPrimaryVertexingCuts.nHolesPix(),
+                                                                   # nHitBLayerPlusPix                   = InDetPrimaryVertexingCuts.nHitBLayerPlusPix(),
+                                                                   nHitSct                             = InDetPrimaryVertexingCuts.nHitSct(),
+                                                                   nHitSi                              = InDetPrimaryVertexingCuts.nHitSi(),
+                                                                   nHitTrt                             = InDetPrimaryVertexingCuts.nHitTrt(),
+                                                                   nHitTrtHighEFractionMax             = InDetPrimaryVertexingCuts.nHitTrtHighEFractionMax(),
+                                                                   nHitTrtHighEFractionWithOutliersMax = InDetPrimaryVertexingCuts.nHitTrtHighEFractionWithOutliersMax(),
+                                                                   useSharedHitInfo                    = InDetPrimaryVertexingCuts.useSharedHitInfo(),
+                                                                   useTrackQualityInfo                 = InDetPrimaryVertexingCuts.useTrackQualityInfo(),
+                                                                   fitChi2OnNdfMax                     = InDetPrimaryVertexingCuts.fitChi2OnNdfMax(),
+                                                                   TrtMaxEtaAcceptance                 = InDetPrimaryVertexingCuts.TrtMaxEtaAcceptance(),
+                                                                   # InDetTestBLayerTool                 = InDetRecTestBLayerTool,
+                                                                   TrackSummaryTool                    = TrackingCommon.getInDetTrackSummaryTool(),
+                                                                   Extrapolator                        = TrackingCommon.getInDetExtrapolator())
+      ToolSvc += sliding_window_track_selector
+
       # now setup new stuff
       if (not InDetFlags.useBeamConstraint()):
         from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__SlidingWindowMultiSeedFinder
         InDetMultiSeedFinder = InDet__SlidingWindowMultiSeedFinder(name             = "InDetSlidingWindowMultiSeedFinder",
                                                                    clusterLength    = 8.*mm,
-                                                                   TrackSelector    = InDetTrackSelectorTool,
-                                                                   Extrapolator     = InDetExtrapolator,
+                                                                   TrackSelector    = sliding_window_track_selector,
+                                                                   Extrapolator     = TrackingCommon.getInDetExtrapolator(),
                                                                    SortingTool      = InDetTrackZ0SortingTool,
                                                                    IgnoreBeamSpot   = True,
                                                                    VertexSeedFinder = InDet2DVtxSeedFinder
@@ -743,8 +773,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
         from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__SlidingWindowMultiSeedFinder
         InDetMultiSeedFinder = InDet__SlidingWindowMultiSeedFinder(name          = "InDetSlidingWindowMultiSeedFinder",
                                                                    clusterLength = 5.*mm,
-                                                                   TrackSelector = InDetTrackSelectorTool,
-                                                                   Extrapolator  = InDetExtrapolator,
+                                                                   TrackSelector = sliding_window_track_selector,
+                                                                   Extrapolator  = TrackingCommon.getInDetExtrapolator(),
                                                                    SortingTool   = InDetTrackZ0SortingTool,
                                                                    # UseMaxInCluster = True
                                                                    )
