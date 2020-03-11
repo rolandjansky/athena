@@ -10,13 +10,8 @@
 #include "TrigT1TGC/TGCConnectionASDToPP.hh"
 #include "TrigT1TGC/TGCConnectionInPP.hh"
 #include "TrigT1TGC/TGCPatchPanel.hh"
-#include <fstream>
-#include <iostream>
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace LVL1TGCTrigger {
 
@@ -74,10 +69,13 @@ void TGCDatabaseManager::addConnectionInPP(const TGCPatchPanel* patchPanel,
 }
 
 TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
-  : m_mapTileMu(0),
-    m_tgcArgs(tgcargs)
+ : m_mapTileMu(0),
+   m_tgcArgs(tgcargs)
 {
-  // default constructor 
+  // set message label
+  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCDatabaseManager");
+  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+
   int i,j,k;
   for( j=0; j<NumberOfRegionType; j+=1){
     for( i=0; i<NumberOfPatchPanelType; i+=1){
@@ -98,13 +96,18 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
 
 }
 
-  TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
-					 const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
-					 const std::string& ver, bool )
-    : m_tgcArgs(tgcargs)
+TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
+				       const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+				       const std::string& ver, bool )
+ : m_tgcArgs(tgcargs)
 {
+  // set message label
+  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCDatabaseManager");
+  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+
   bool status = true;
 
+  ATH_MSG_DEBUG("Read database for connection from ASD to PP.");
   int i,j,k;
   for( j=0; j<NumberOfRegionType; j+=1) {
     for( i=0; i<NumberOfPatchPanelType; i+=1){
@@ -118,19 +121,6 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
   for( i=0; i<NumberOfRegionType; i+=1){
     m_PPToSL[i] = new TGCConnectionPPToSL;
     status = status && m_PPToSL[i]->readData((TGCRegionType)(i+1));
-  }
-
-  if (tgcArgs()->DEBUGLEVEL()) {
-    IMessageSvc* msgSvc = 0;
-    ISvcLocator* svcLocator = Gaudi::svcLocator();
-    if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
-      // do nothing
-    } else {
-      MsgStream log(msgSvc, "TGCDatabaseManager::TGCDatabaseManager");
-      log << MSG::DEBUG 
-	  << " Fail to read data from database" 
-	  << endmsg;
-    }
   }
 
   // CW for SL

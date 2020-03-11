@@ -89,6 +89,7 @@ namespace LVL1TGCTrigger {
 
     m_debuglevel = (msgLevel() <= MSG::DEBUG); // save if threshold for debug
 
+    m_tgcArgs.set_MSGLEVEL(msgLevel());
     m_tgcArgs.set_SHPT_ORED( m_SHPTORED.value() );
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() && m_tgcArgs.USE_INNER() );
@@ -101,7 +102,7 @@ namespace LVL1TGCTrigger {
     
     // initialize TGCDataBase
     m_db = new TGCDatabaseManager(&m_tgcArgs, m_readCondKey, m_VerCW);
-    
+
     // initialize the TGCcabling
     ATH_CHECK(getCabling());
 

@@ -35,7 +35,7 @@ int TGCSector::distributeSignal(const TGCASDOut* ASDOut)
     notFound = m_ASDToPP[PPType]->getConnection(m_sideId,layer,rNumber,ch,&idPP,&conPP,&chPP);
   }
 
-  if (tgcArgs()->DEBUGLEVEL()) {
+  if (tgcArgs()->MSGLEVEL() <= MSG::DEBUG) {
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
