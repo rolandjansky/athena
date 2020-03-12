@@ -749,7 +749,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
        smeared_TA_mass = jet_mass_TA * scale + (jet_mass_TA - avg_response_TA*jet_truth_matched.m())*(resolution-scale);//FF formula
    }
 
-
+   if(smeared_CALO_mas==0 && smeared_TA_mas == 0){use_jetcalibtoolsweight == true; }//To use only JetUncertainties weights if a smearing has to be performed 
 
 
 //Recalculate the weights after the smearing
