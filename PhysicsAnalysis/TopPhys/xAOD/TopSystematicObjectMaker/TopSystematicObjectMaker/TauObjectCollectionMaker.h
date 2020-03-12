@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: TauObjectCollectionMaker.h  $
@@ -67,6 +67,7 @@ namespace top {
     std::list<CP::SystematicSet> m_recommendedSystematics;
 
     ToolHandle<TauAnalysisTools::ITauSmearingTool> m_calibrationTool;
+    ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_truthMatchingTool;
   };
 } // namespace
 #endif
