@@ -12,6 +12,7 @@
 #include <AnaAlgorithm/Global.h>
 
 #include <AsgMessaging/AsgMessagingForward.h>
+#include <funtional>
 
 class StatusCode;
 
