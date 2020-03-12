@@ -28,7 +28,6 @@ def getBtagFexSplitInstance( instance, version, algo):
 class TrigBtagFexMT_OnlineMonitoring(GenericMonitoringTool):
     def __init__ (self, name="TrigBtagFexMT_OnlineMonitoring"):
         super(TrigBtagFexMT_OnlineMonitoring, self).__init__(name)
-        print('COGOUT: config.py file 01')
         self.name = "TrigBtagFexMT_OnlineMonitoring"
         self.HistPath = self.name
         #self.defineTarget("Online")

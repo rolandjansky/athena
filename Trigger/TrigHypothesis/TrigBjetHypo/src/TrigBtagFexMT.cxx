@@ -104,9 +104,7 @@ StatusCode TrigBtagFexMT::execute() {
 
   auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", *jetContainer, []( const xAOD::Jet *jet ) { return jet->pt(); } );
 
-  std::cout << "COGOUT NEW EVENT" << std::endl;
   for ( const xAOD::Jet* jet : *jetContainer ) {
-    std::cout << "COGOUT: cxx JET PT: " << jet->pt() << std::endl;
     ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->p4().Et() * 1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi() );
   }
 
