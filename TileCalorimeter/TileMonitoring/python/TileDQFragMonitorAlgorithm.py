@@ -128,8 +128,8 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
     from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
 
     # 5) Configure histogram with mismatched L1 trigger type of Tile module
-    partitionLabels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)]
-    moduleLabels = [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)]
+    moduleLabels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)]
+    partitionLabels = [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)]
 
     mismatchedLVL1Group = helper.addGroup(tileDQFragMonAlg, 'TileMismatchedL1TiggerType', 'Tile/')
     mismatchedLVL1Group.defineHistogram('module,ROS;TileMismatchedL1TiggerType', path = 'DMUErrors',
