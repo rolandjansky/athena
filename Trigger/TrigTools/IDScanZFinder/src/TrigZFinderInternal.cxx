@@ -53,13 +53,6 @@ TrigZFinderInternal::TrigZFinderInternal( const std::string& type, const std::st
   m_IdScan_MaxNumLayers     = 20; // dphiEC depends on this value !!! 19 without IBL, 20 with IBL!!
   m_IdScan_LastBrlLayer     = 7;  // dphiBrl depends on this value
 
-  //  std::cout << "m_nFirstLayers  " << m_nFirstLayers  << std::endl;
-
-  /// why is this called from the constructor ???? it is called again during initialise?
-  /// do not call that here
-  ///  initializeInternal( m_IdScan_MaxNumLayers, m_IdScan_LastBrlLayer );
-
-  //  m_status = 0;
 }
 
 
