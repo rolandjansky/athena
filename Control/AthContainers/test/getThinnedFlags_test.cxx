@@ -12,8 +12,6 @@
 
 #undef NDEBUG
 
-#ifndef XAOD_STANDALONE
-
 #include "AthContainers/tools/getThinnedFlags.h"
 #include <vector>
 #include <iostream>
@@ -75,11 +73,3 @@ int main()
   test1();
   return 0;
 }
-
-#else
-
-int main() {
-   return 0;
-}
-
-#endif // XAOD_STANDALONE

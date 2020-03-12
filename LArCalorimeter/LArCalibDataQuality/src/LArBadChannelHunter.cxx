@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibDataQuality/LArBadChannelHunter.h"
@@ -127,7 +127,7 @@ StatusCode LArBadChannelHunter::stop() {
   if (m_undoCorr) {
     LArCaliWaveContainer* caliwavecomplete= const_cast<LArCaliWaveContainer*>(caliwave);
     ATH_MSG_INFO ( "Undo caliwave corrections now." ) ;
-    caliwavecomplete->undoCorrections();
+    ATH_CHECK( caliwavecomplete->undoCorrections() );
   }
 
   SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};

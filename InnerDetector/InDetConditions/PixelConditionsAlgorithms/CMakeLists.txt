@@ -28,7 +28,7 @@ atlas_depends_on_subdirs(
    DetectorDescription/DetDescrCond/DetDescrConditions
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDecr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
    Tools/PathResolver
    Tracking/TrkDetDescr/TrkGeometry )

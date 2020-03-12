@@ -191,24 +191,24 @@ BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
     IdentifierHash module_0_3_3_m1Hash(4938);
     //int get_prev_in_phi(const IdentifierHash& id, IdentifierHash& prev) const;
     Identifier prevPhiId = sctId.module_id(0,3,2,-1);
-    auto prevHash = sctId.wafer_hash(prevPhiId);
+    auto prevPhiHash = sctId.wafer_hash(prevPhiId);
     BOOST_TEST(sctId.get_prev_in_phi(module_0_3_3_m1Hash, returnedHash) == 0);
-    BOOST_TEST(returnedHash == prevHash);
+    BOOST_TEST(returnedHash == prevPhiHash);
     //int get_next_in_phi(const IdentifierHash& id, IdentifierHash& next) const;
     Identifier nextPhiId = sctId.module_id(0,3,4,-1);
-    auto nextHash = sctId.wafer_hash(nextPhiId);
+    auto nextPhiHash = sctId.wafer_hash(nextPhiId);
     BOOST_TEST(sctId.get_next_in_phi(module_0_3_3_m1Hash, returnedHash) == 0);
-    BOOST_TEST(returnedHash == nextHash);
+    BOOST_TEST(returnedHash == nextPhiHash);
     //int get_prev_in_eta(const IdentifierHash& id, IdentifierHash& prev) const;
     Identifier prevEtaId = sctId.module_id(0,3,3,-2);
-    prevHash = sctId.wafer_hash(prevEtaId);
+    auto prevEtaHash = sctId.wafer_hash(prevEtaId);
     BOOST_TEST(sctId.get_prev_in_eta(module_0_3_3_m1Hash, returnedHash) == 0);
-    BOOST_TEST(returnedHash == prevHash);
+    BOOST_TEST(returnedHash == prevEtaHash);
     //int get_next_in_eta(const IdentifierHash& id, IdentifierHash& next) const;
     Identifier nextEtaId = sctId.module_id(0,3,3,1);//barrel eta skips zero
-    nextHash = sctId.wafer_hash(nextEtaId);
+    auto nextEtaHash = sctId.wafer_hash(nextEtaId);
     BOOST_TEST(sctId.get_next_in_eta(module_0_3_3_m1Hash, returnedHash) == 0);
-    BOOST_TEST(returnedHash == nextHash);
+    BOOST_TEST(returnedHash == nextEtaHash);
     //int get_other_side(const IdentifierHash& id, IdentifierHash& other) const;
     Identifier oppositeId = sctId.wafer_id(0,3,3,-1,1);//use wafer_id
     IdentifierHash oppositeHash = sctId.wafer_hash(oppositeId);
@@ -219,7 +219,21 @@ BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
     auto endHash = sctId.wafer_hash(endModuleId);
     returnedHash = 100;
     BOOST_TEST(sctId.get_next_in_eta(endHash, returnedHash) == 1);
-    BOOST_TEST(returnedHash == 100);//hash is unchanged
+    BOOST_TEST(returnedHash == 100);//hash is unchanged]
+    //new methods introduced March 2020
+    //IdentifierHash get_prev_in_phi(const IdentifierHash& id) const;
+    BOOST_TEST(sctId.get_prev_in_phi(module_0_3_3_m1Hash) == prevPhiHash);
+    //IdentifierHash get_next_in_phi(const IdentifierHash& id) const;
+    BOOST_TEST(sctId.get_next_in_phi(module_0_3_3_m1Hash) == nextPhiHash);
+    //IdentifierHash get_prev_in_eta(const IdentifierHash& id) const;
+    BOOST_TEST(sctId.get_prev_in_eta(module_0_3_3_m1Hash) == prevEtaHash);
+    //IdentifierHash get_next_in_eta(const IdentifierHash& id) const;
+    BOOST_TEST(sctId.get_next_in_eta(module_0_3_3_m1Hash) == nextEtaHash);
+    //IdentifierHash get_other_side(const IdentifierHash& id) const;
+    BOOST_TEST(sctId.get_other_side(module_0_3_3_m1Hash) == oppositeHash);
+    //no module in that direction?
+    BOOST_TEST(sctId.get_next_in_eta(endHash).is_valid() == false);
+    
     //bool is_phi_module_max(const Identifier& id) const;
     BOOST_TEST(sctId.is_phi_module_max(barrelIdentifier) == false);
     Identifier maxPhiId = sctId.module_id(0,3,55,-1);

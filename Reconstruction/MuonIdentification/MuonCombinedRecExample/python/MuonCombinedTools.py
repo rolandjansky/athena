@@ -84,9 +84,9 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
         getPublicTool("MuonMomentumBalanceSignificanceTool")
         getPublicTool("MuonScatteringAngleSignificanceTool")
         getPublicTool("MuonCaloParticleCreator")
-        import MuonCombinedRecExample.CombinedMuonTrackSummary
-        from AthenaCommon.AppMgr import ToolSvc
-        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    from AthenaCommon.AppMgr import ToolSvc
+    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )

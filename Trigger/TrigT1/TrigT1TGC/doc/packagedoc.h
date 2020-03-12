@@ -25,8 +25,6 @@
   The package contains the following algorithms:
 
   - LVL1TGCTrigger::LVL1TGCTrigger: Main Algorithm
-  - LVL1TGCTrigger::CBNTAA_TGCMakeCoincidenceOut: Algorithm to create AANT (digits/coincidence)
-  - LVL1TGCTrigger::MakeCoincidenceOut: Algorithm to create CWN (almost equivalent to the above)
 
 
   The algorithms of the TrigT1TGC package can be configured using configurables.  See TrigT1TGC_jobOptions.py and TrigT1TGCConfig.py:
@@ -34,7 +32,6 @@
 
   The properties of LVl1TGCTrigger can be changed by users:
   - @link LVL1TGCTrigger::LVL1TGCTrigger::LVL1TGCTrigger @endlink
-  - @link LVL1TGCTrigger::CBNTAA_TGCMakeCoincidenceOut::CBNTAA_TGCMakeCoincidenceOut @endlink
 
 @section TrigT1TGC_TrigT1TGC Special configuration for a slow charged particle.
   User can use all hits(i.e. associated to next bunch) by LVL1TGCTrigger::CurrentBunchTag=0   

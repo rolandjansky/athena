@@ -186,10 +186,6 @@ StatusCode JetRecTool::initialize() {
       ATH_MSG_INFO(prefix << "Extracting input type from primary label.");
       ATH_MSG_INFO(prefix << "Input label: " << label);
       m_inputtype = xAOD::JetInput::inputType(label);
-      if ( m_inputtype == xAOD::JetInput::Uncategorized ) {
-        ATH_MSG_ERROR("Invalid label for first pseudojet getter: " << label);
-        rstat = StatusCode::FAILURE;
-      }
     } else {
       m_ghostlabs.push_back(label);
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONROADFINDERTOOL_H
@@ -12,22 +12,16 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include <utility>
 #include <vector>
-
-class StoreGate;
-class MsgStream;
-class Identifier;
 
 namespace Muon {
 
@@ -48,17 +42,18 @@ namespace Muon {
     virtual StatusCode finalize(void) override;
 
   private:
-    ToolHandle<Trk::ITrackFitter>                 m_slTrackFitter;  //<! fitter, always use straightline
+    ToolHandle<Trk::ITrackFitter> m_slTrackFitter;  //<! fitter, always use straightline
     mutable ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool; //!< Tool for ambiguity solving
-    ToolHandle<IMuonTrackToSegmentTool>           m_trackToSegmentTool; //<! track to segment converter
-    ToolHandle<MuonIdHelperTool>                  m_idHelperTool;   //<! Id helper tool
-    ToolHandle<MuonEDMPrinterTool>                m_printer;   //<! Id helper tool
-    ServiceHandle<IMuonEDMHelperSvc>              m_edmHelperSvc {this, "edmHelper", 
+    ToolHandle<IMuonTrackToSegmentTool> m_trackToSegmentTool; //<! track to segment converter
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ToolHandle<MuonEDMPrinterTool> m_printer;
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };  //<! Id helper tool
-    ToolHandle<IMuonTrackCleaner>                 m_trackCleaner;
-    bool                                          m_ipConstraint; // use a ip perigee(0,0) constraint in the segment fit
-    double                                        m_maxClustDist;
+    ToolHandle<IMuonTrackCleaner> m_trackCleaner;
+    ToolHandle<Trk::ITrackSummaryTool> m_trackSummary;
+    bool m_ipConstraint; // use a ip perigee(0,0) constraint in the segment fit
+    double m_maxClustDist;
 
   public:
     //find segments given a list of MuonCluster

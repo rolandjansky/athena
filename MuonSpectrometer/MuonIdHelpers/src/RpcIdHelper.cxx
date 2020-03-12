@@ -1,18 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/**
- * ==============================================================================
- * ATLAS Muon Identifier Helpers Package
- * -----------------------------------------
- * ==============================================================================
-*/
-
-//<doc><file> $Id: RpcIdHelper.cxx,v 1.39 2009-01-20 22:44:13 kblack Exp $
-//<version>   $Name: not supported by cvs2svn $
-
-// Includes
 
 #include "MuonIdHelpers/RpcIdHelper.h"
 
@@ -21,22 +9,16 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-
-// Constructor
-
-RpcIdHelper::RpcIdHelper() : MuonIdHelper("RpcIdHelper"), m_DOUBLETR_INDEX(0), 
-  m_DOUBLETZ_INDEX(0), m_DOUBLETPHI_INDEX(0), m_GASGAP_INDEX(0),
-  m_MEASURESPHI_INDEX(0) {}
-
-// Destructor
-
-RpcIdHelper::~RpcIdHelper()
-{
-  // m_Log deleted in base class.
-}
+RpcIdHelper::RpcIdHelper():
+  MuonIdHelper("RpcIdHelper"),
+  m_DOUBLETR_INDEX(0),
+  m_DOUBLETZ_INDEX(0),
+  m_DOUBLETPHI_INDEX(0),
+  m_GASGAP_INDEX(0),
+  m_MEASURESPHI_INDEX(0),
+  m_gasGapMax(UINT_MAX) {}
 
 // Initialize dictionary
-
 int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
   int status = 0;
@@ -300,6 +282,30 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   (*m_Log) << MSG::INFO << "Initializing RPC hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
 
+  // retrieve the maximum number of gas gaps
+  ExpandedIdentifier expId;
+  IdContext gasGap_context(expId, 0, m_GASGAP_INDEX);
+  for (const auto &id : m_detectorElement_vec) { // channel Identifiers not filled for RPCs, thus using detector element ones
+  if(!get_expanded_id(id, expId, &gasGap_context)) {
+    for (unsigned int i = 0; i < m_full_channel_range.size(); ++i) {
+      const Range& range = m_full_channel_range[i];
+        if (range.match(expId)) {
+          const Range::field& gap_field = range[m_GASGAP_INDEX];
+          if (gap_field.has_maximum()) {
+            unsigned int max = (gap_field.get_maximum());
+            if (m_gasGapMax == UINT_MAX) m_gasGapMax = max;
+            else if (max > m_gasGapMax) m_gasGapMax = max;
+          }
+        }
+      }
+    }
+  }
+  if (m_gasGapMax == UINT_MAX) {
+    (*m_Log) << MSG::ERROR << "No maximum number of RPC gas gaps was retrieved" << endmsg;
+    status = 1;
+  } else {
+    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << " Maximum number of RPC gas gaps is " << m_gasGapMax << endmsg;
+  }
   m_init = true;
   return (status);
 }

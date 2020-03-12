@@ -374,7 +374,7 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
   // [1] is the opposite element
   // [2]-[3] are the elements tested for eta overlaps
   // [4]-[5] are the elements tested for phi overlaps
-  // For each element you save the correspoding cluster collections and the 
+  // For each element you save the corresponding cluster collections and the 
   // space point compatibility range as described below.
   // 
   // For the opposite element and the ones tested for eta overlaps, you have to check 
@@ -402,7 +402,7 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
   //   - overlapExtents[6], overlapExtents[7], overlapExtents[10], overlapExtents[11]
   //     overlapExtents[8], overlapExtents[9], overlapExtents[12], overlapExtents[13] are filled for the phi overlapping elements
   
-  enum NeighbourIndices{ThisOne, Opposite, PhiPlus, PhiMinus, EtaPlus, EtaMinus, nNeighbours};
+  enum NeighbourIndices{ThisOne, Opposite, PhiMinus, PhiPlus, EtaMinus, EtaPlus, nNeighbours};
   
   std::array<const SCT_ClusterCollection*, nNeighbours> neighbourClusters{};
   std::array<const InDetDD::SiDetectorElement*, nNeighbours> neighbourElements{};
@@ -442,7 +442,7 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
   // the overlapping in phi and then the overlapping in eta
   // For this reason you need to re-order the indices, since the SiSpacePointMakerTool will process 
   // first the eta overlaps and then the phi ones
-  const std::array<size_t, nNeighbours> neigbourIndices{ThisOne, Opposite, EtaPlus, EtaMinus, PhiPlus, PhiMinus};
+  const std::array<size_t, nNeighbours> neigbourIndices{ThisOne, Opposite, EtaMinus, EtaPlus, PhiMinus, PhiPlus};
   
   for (const auto& otherHash : *others) {
 
@@ -457,27 +457,27 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
     search      = true ;
     
     switch (n) {
-      case 1: {
+      case Opposite: {
         overlapExtents[ 0] = -m_overlapLimitOpposite;
         overlapExtents[ 1] =  m_overlapLimitOpposite;
         break;
       }
-      case 2: {
+      case PhiMinus: {
         overlapExtents[ 6] =-hwidth;
         overlapExtents[ 7] =-hwidth+m_overlapLimitPhi;
         overlapExtents[ 8] = hwidth-m_overlapLimitPhi;
         overlapExtents[ 9] = hwidth;
         break;
       }
-      case 3: {
+      case PhiPlus: {
         overlapExtents[10] = hwidth-m_overlapLimitPhi;
         overlapExtents[11] = hwidth;
         overlapExtents[12] =-hwidth;
         overlapExtents[13] =-hwidth+m_overlapLimitPhi;
         break;
       } 
-      case 4: {
-        if (m_idHelper->layer_disk(thisID)%2 == 0) {
+      case EtaMinus: {
+        if ((m_idHelper->layer_disk(thisID) & 1) == 0) {
           overlapExtents[ 2] = m_overlapLimitEtaMin;
           overlapExtents[ 3] = m_overlapLimitEtaMax;
         } else {
@@ -487,7 +487,7 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
         break;
       }
       default: {
-        if (m_idHelper->layer_disk(thisID)%2 == 0) {
+        if ((m_idHelper->layer_disk(thisID) & 1) == 0) {
           overlapExtents[ 4] = -m_overlapLimitEtaMax;
           overlapExtents[ 5] = -m_overlapLimitEtaMin;
         } else {

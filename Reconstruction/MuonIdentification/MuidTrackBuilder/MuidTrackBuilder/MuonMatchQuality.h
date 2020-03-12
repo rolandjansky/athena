@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,7 +15,9 @@
 #include "MuidInterfaces/IMuonMatchQuality.h"
 #include "MuonCombinedToolInterfaces/IMuonTrackTagTool.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
+#include "AthenaKernel/Units.h"
 
+namespace Units = Athena::Units;
 
 namespace Rec
 {
@@ -26,7 +28,7 @@ namespace Rec
 	MuonMatchQuality (const std::string&	type, 
 			  const std::string&	name,
 			  const IInterface*	parent);
-	~MuonMatchQuality (void); // destructor
+	virtual ~MuonMatchQuality (void) = default; // destructor
   
 	StatusCode	initialize();
 	StatusCode	finalize();
@@ -43,6 +45,11 @@ namespace Rec
 	/**IMuonMatchQuality interface:
 	   match probability for chi2 match at IP */
 	double		innerMatchProbability (const Trk::Track& track1, const Trk::Track& track2) const;
+
+	/**IMuonMatchQuality interface:
+	   degrees of freedom, chi2, probability  for chi2 match at IP */
+	std::pair<int, std::pair<double,double> >
+	  innerMatchAll (const Trk::Track& track1, const Trk::Track& track2) const;
 
 	/**IMuonMatchQuality interface:
 	   match chiSquared between two tracks expressed at first muon spectrometer hit,
@@ -66,26 +73,24 @@ namespace Rec
 	double		simpleChi2 (const Trk::Track& track1, const Trk::Track& track2) const;
 	
     private:
-	void		setCache (const Trk::Track& track1, const Trk::Track& track2) const;
+	// cache
+	struct CacheAll{
+	  double		innerMatchChi2;
+	  int			innerMatchDOF;
+	  double		innerMatchProbability;
+	  double		simpleChi2;
+	};
+
+	CacheAll setCache (const Trk::Track& track1, const Trk::Track& track2) const;
 
 	// helpers, managers, tools
 	ToolHandle<MuonCombined::IMuonTrackTagTool>	m_tagTool {this, "TagTool", "", "Track tag tool"};
 	ToolHandle<IMuonTrackQuery>	m_trackQuery {this, "TrackQuery", "Rec::MuonTrackQuery/MuonTrackQuery", "Track query tool"};
 
 	// estimate of ID/MS alignment uncertainties
-	AmgSymMatrix(5)*				m_alignmentUncertainty;
-	double						m_directionUncertainty;
-	double						m_positionUncertainty;
-	
-	// cache
-	mutable double					m_innerMatchChi2;
-	mutable	int					m_innerMatchDOF;
-	mutable double					m_innerMatchProbability;
-	mutable double					m_outerMatchChi2;
-	mutable double					m_outerMatchProbability;
-	mutable double					m_simpleChi2;
-	mutable const Trk::Track* 			m_track1;
-	mutable const Trk::Track* 			m_track2;
+	AmgSymMatrix(5)*			m_alignmentUncertainty;
+	Gaudi::Property<double>		m_directionUncertainty{this,"ID_MS_DirectionUncertainty",0.000001};  // not used anymore angle ID and MS: done by m_addIDMSerrors
+	Gaudi::Property<double>		m_positionUncertainty{this,"ID_MS_PositionUncertainty",0.01*Units::mm}; // not used anymore shift ID and MS: done by m_addIDMSerrors
 	
     };
  

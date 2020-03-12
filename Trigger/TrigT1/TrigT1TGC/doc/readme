@@ -122,10 +122,6 @@ Desrciption of Properties
    - file name of Mask settings for final (12-fold) cabling
    - default: TrigT1TGCMaskedChannel._12.db (defined in JobOption)
 
-- OUTCOINCIDENCE   
-   - flag for making Ntuples of TGCCoincidence
-   - default : false
-
 - LVL1ConfigSvc
    - name of configuration service 
      NOTE:   LVL1ConfigSvc is not used to chose CW

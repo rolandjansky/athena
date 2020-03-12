@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #include <iomanip>
 #include "GaudiKernel/SystemOfUnits.h"
 #include "MuidCaloIsolationTools/MuidTrackIsolation.h"
-#include "TrkExInterfaces/IIntersector.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderSurface.h"
@@ -34,21 +33,10 @@ MuidTrackIsolation::MuidTrackIsolation (const std::string&type,
 					const std::string&name, 
 					const IInterface*parent)
     :	AthAlgTool		(type, name, parent),
-	m_etaSafetyFactor	(0.1),
-	m_intersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
-	m_minPt			(1.0*Gaudi::Units::GeV),
-	m_trackCone		(0.2),
-	m_trackExtrapolation	(false)
+	m_etaSafetyFactor	(0.1)
 {
     declareInterface<IMuidTrackIsolation>(this);
-    declareProperty("MinPt",			m_minPt);
-    declareProperty("RungeKuttaIntersector",	m_intersector);
-    declareProperty("TrackCone",		m_trackCone);
-    declareProperty("TrackExtrapolation",	m_trackExtrapolation);
 }
-
-MuidTrackIsolation::~MuidTrackIsolation (void) 
-{}
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
@@ -155,16 +143,12 @@ MuidTrackIsolation::trackIsolation(double eta, double phi) const
     }
 
     // debug result
-    if (msgLvl(MSG::DEBUG))
-    {
-	msg() << std::endl << " Found "<< isolation.first
-	      << std::setiosflags(std::ios::fixed)
-	      << " InDet tracks with total momentum "
-	      << std::setw(8) << std::setprecision(1) << isolation.second/Gaudi::Units::GeV <<" Gaudi::Units::GeV "
-	      << "and maximum momentum "
-	      << std::setw(8) << std::setprecision(1) << m_maxP/Gaudi::Units::GeV
-	      << endmsg;
-    }
+    ATH_MSG_DEBUG(std::endl << " Found "<< isolation.first
+		  << std::setiosflags(std::ios::fixed)
+		  << " InDet tracks with total momentum "
+		  << std::setw(8) << std::setprecision(1) << isolation.second/Gaudi::Units::GeV <<" Gaudi::Units::GeV "
+		  << "and maximum momentum "
+		  << std::setw(8) << std::setprecision(1) << m_maxP/Gaudi::Units::GeV);
     
     return isolation;
 }
