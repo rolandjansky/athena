@@ -48,12 +48,13 @@ class TrigZFinderInternal
     //  void initializeInternal(long maxLayers=20, long lastBarrel=7); 
     void initializeInternal(long maxLayers, long lastBarrel); 
 
-    std::vector<vertex>* findZInternal( const std::vector< TrigSiSpacePointBase >& spVec, const IRoiDescriptor& roi);
+    std::vector<vertex>* findZInternal( const std::vector< TrigSiSpacePointBase >& spVec, 
+					const IRoiDescriptor& roi ) const;
 
-    const std::vector< std::vector<long> >*   GetnHisto() { return m_nHisto; }
-    const std::vector< std::vector<double> >* GetzHisto() { return m_zHisto; }
+  //    const std::vector< std::vector<long> >*   GetnHisto() { return m_nHisto; }
+  //    const std::vector< std::vector<double> >* GetzHisto() { return m_zHisto; }
 
-    long  GetNMax() { return m_NMax; } 
+    //    long  GetNMax() { return m_NMax; } 
 
     //  void setLayers(long maxLayers=20, long lastBarrelLayer=7) {
     void setLayers(long maxLayers, long lastBarrelLayer) {
@@ -63,23 +64,30 @@ class TrigZFinderInternal
 
   protected:  // member functions
 
-    // fills phi, rho, z, layer of spacepoints to simple vectors
-
-    long fillVectors( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi,
-        std::vector<double>& phi, std::vector<double>& rho, std::vector<double>& zed, 
-        std::vector<long>&   lyr, std::vector<long>&   filledLayers);
-
     std::string getType() const { return m_type; }
     std::string getName() const { return m_name; }
 
-    int GetInternalStatus() const { return m_Status; }
-    int SetInternalStatus(int s)  { m_Status = s; return m_Status; }
+
+    // fills phi, rho, z, layer of spacepoints to simple vectors
+
+    long fillVectors( const std::vector<TrigSiSpacePointBase>& spVec, 
+		      const IRoiDescriptor& roi,
+		      std::vector<double>& phi, 
+		      std::vector<double>& rho, 
+		      std::vector<double>& zed, 
+		      std::vector<long>&   lyr, 
+		      std::vector<long>&   filledLayers,
+		      long& numPhiSlices ) const;
+
+
+  //    int GetInternalStatus() const { return m_Status; }
+  //    int SetInternalStatus(int s)  { m_Status = s; return m_Status; }
 
     double computeZV(double r1, double z1, double r2, double z2) const;
     double computeZV(double r1, double p1, double z1, double r2, double p2, double z2) const;
 
-    void   SetReturnValue(double d) { m_returnval=d; }
-    double GetReturnValue() const   { return m_returnval; }
+  //    void   SetReturnValue(double d) { m_returnval=d; }
+  //    double GetReturnValue() const   { return m_returnval; }
 
 
   protected:  // data members
@@ -108,7 +116,7 @@ class TrigZFinderInternal
     std::string m_type;  // type information for internal book keeping
     std::string m_name;  // name information for the same
 
-    int    m_Status;   // return status of the algorithm: 0=ok, -1=error
+  //    int    m_status;   // return status of the algorithm: 0=ok, -1=error
 
     bool m_chargeAware ;  // maintain separate sets of z histos for + & - tracks
     bool m_zHistoPerPhi;  // maintain one set of z histos per each phi slice
@@ -153,7 +161,7 @@ class TrigZFinderInternal
 
     double  m_weightThreshold;
 
-  std::vector<int> m_new2old; //transform table for new layer numbering scheme
+    std::vector<int> m_new2old; //transform table for new layer numbering scheme
 
 };
 

@@ -21,7 +21,7 @@ class ITrigZFinder: virtual public IAlgTool
   static const InterfaceID& interfaceID() {
     return IID_ITrigZFinder;
   }
-    virtual TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& RoI) = 0;
+    virtual TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& RoI) const = 0;
 };
 
 #endif
