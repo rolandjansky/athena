@@ -8,7 +8,7 @@ def AssembleIO(stream="TRIGGERSFTESTER"):
     # Reduce the event loop spam a bit
     #--------------------------------------------------------------
     if os.path.exists("%s/athfile-cache.ascii.gz" % (os.getcwd())):
-        print "INFO: Old athfile-cache found. Will delete it otherwise athena just freaks out. This little boy"
+        print ("INFO: Old athfile-cache found. Will delete it otherwise athena just freaks out. This little boy")
         os.system("rm %s/athfile-cache.ascii.gz" % (os.getcwd()))
     from GaudiSvc.GaudiSvcConf import THistSvc
     from AthenaCommon.JobProperties import jobproperties
@@ -25,12 +25,12 @@ def AssembleIO(stream="TRIGGERSFTESTER"):
     ROOTFiles = []
     
     if "inputFile" in globals():
-        print "Use the following %s as input" % (inputFile)
+        print ("Use the following %s as input" % (inputFile))
         ROOTFiles = []
         ResolvedInFile = PathResolver.FindCalibFile(inputFile)
         ReolvedInDir = PathResolver.FindCalibDirectory(inputFile)
         if os.path.isfile(ResolvedInFile): 
-            print "INFO: Found file %s"%(inputFile)
+            print ("INFO: Found file %s"%(inputFile))
             ROOTFiles.append(ResolvedInFile)
                                              
         elif os.path.isdir(ReolvedInDir):
@@ -44,10 +44,10 @@ def AssembleIO(stream="TRIGGERSFTESTER"):
         acf.FilesInput = ROOTFiles
        
     if "nevents" in globals():
-        print "Only run on %i events" % (int(nevents))
+        print ("Only run on %i events" % (int(nevents)))
         theApp.EvtMax = int (nevents)
     if "nskip" in globals():
-        print "Skip the first %i events" % (int(nskip))
+        print ("Skip the first %i events" % (int(nskip)))
         ServiceMgr.EventSelector.SkipEvents = int(nksip)
 
     
