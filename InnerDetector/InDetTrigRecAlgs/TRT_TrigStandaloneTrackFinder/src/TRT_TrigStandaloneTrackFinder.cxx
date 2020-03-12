@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -163,9 +163,11 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 	///Transform the original TRT segment into a track
 	Trk::Track* trtSeg = 0;trtSeg = m_segToTrackTool->segToTrack(*trackTRT);
 	if(!trtSeg){
-	  if(outputLevel <= MSG::DEBUG)
-	    msg() << MSG::DEBUG << "Failed to make a track out of the TRT segment!" << endreq;continue;}
-
+	  if(outputLevel <= MSG::DEBUG){
+	    msg() << MSG::DEBUG << "Failed to make a track out of the TRT segment!" << endreq;
+    }
+    continue;
+  }
 	// get all TSOS 
 	const DataVector<const Trk::MeasurementBase>* ttsos = trtSeg->measurementsOnTrack(); 
 	
@@ -243,7 +245,8 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltFinalize()
 MsgStream&  InDet::TRT_TrigStandaloneTrackFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out); 
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
