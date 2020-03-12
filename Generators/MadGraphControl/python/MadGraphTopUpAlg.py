@@ -35,7 +35,8 @@ class MadGraphTopUpAlg(EvgenAlg):
 
     def execute():
         # If we did not manage to get the top up service, just get out of here
-        if self.topUpSvc is None: return StatusCode.Success
+        if self.topUpSvc is None:
+            return StatusCode.Success
 
         # See if it's time to make more events
         if float(self.topUpSvc.getNPerFile()-self.topUpSvc.getNUsedSoFar())*self.topUpSvc.getEfficiency()>self.threshold:
@@ -73,7 +74,6 @@ class MadGraphTopUpAlg(EvgenAlg):
                 newcard.write('   %i      = iseed   ! rnd seed (0=assigned automatically=default)) \n'%(old_seed+2000000))
             else:
                 newcard.write(line)
-        oldcard.close()
         newcard.close()
         return run_card_new
 
@@ -97,7 +97,8 @@ class MadGraphTopUpAlg(EvgenAlg):
             a_new_file_name = sorted( glob.glob( currdir+'/*events' ) )[-1]+'.1'
 
         # Make sure we have trimmed off any directory names
-        if '/' in a_new_file_name: a_new_file_name = a_new_file_name.split('/')[-1]
+        if '/' in a_new_file_name:
+            a_new_file_name = a_new_file_name.split('/')[-1]
 
         # Unzip the files and move them in place
         unzip = subprocess.Popen(['gunzip','Events/OTFTopUp/unweighted_events.lhe.gz'])

@@ -7,7 +7,7 @@
 #    updates for aMC@NLO by Josh McFayden <mcfayden@cern.ch>
 #  Attempts to remove path-dependence of MadGraph
 
-import os,sys,time,subprocess,shutil,glob,re,difflib,stat
+import os,time,subprocess,shutil,glob,re,stat
 from AthenaCommon import Logging
 mglog = Logging.logging.getLogger('MadGraphUtils')
 
@@ -17,12 +17,12 @@ MADGRAPH_GRIDPACK_LOCATION='madevent'
 MADGRAPH_RUN_NAME='run_01'
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
-from MadGraphUtilsHelpers import *
+from MadGraphUtilsHelpers import checkSettingExists,checkSetting,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
 
 def setup_path_protection():
     # Addition for models directory
     if 'PYTHONPATH' in os.environ:
-        if not 'Generators/madgraph/models' in os.environ['PYTHONPATH']:
+        if 'Generators/madgraph/models' not in os.environ['PYTHONPATH']:
             os.environ['PYTHONPATH'] += ':/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest'
     # Make sure that gfortran doesn't write to somewhere it shouldn't
     if 'GFORTRAN_TMPDIR' in os.environ:
@@ -51,7 +51,8 @@ def new_process(process='generate p p > t t~',keepJpegs=False):
     Pass a process string.
     Return the name of the process directory.
     """
-    if config_only_check(): return
+    if config_only_check():
+        return
 
     # Don't run if generating events from gridpack
     if is_gen_from_gridpack():
@@ -62,10 +63,14 @@ def new_process(process='generate p p > t t~',keepJpegs=False):
     mglog.info('Writing process card to '+card_loc)
     a_card = open( card_loc , 'w' )
     for l in process.split('\n'):
-        if not 'output' in l: a_card.write(l+'\n')
-        elif '-nojpeg' in l or keepJpegs: a_card.write(l+'\n')
-        elif '#' in l: a_card.write(l.split('#')[0]+' -nojpeg #'+l.split('#')[1]+'\n')
-        else: a_card.write(l+' -nojpeg\n')
+        if 'output' not in l:
+            a_card.write(l+'\n')
+        elif '-nojpeg' in l or keepJpegs:
+            a_card.write(l+'\n')
+        elif '#' in l:
+            a_card.write(l.split('#')[0]+' -nojpeg #'+l.split('#')[1]+'\n')
+        else:
+            a_card.write(l+' -nojpeg\n')
     a_card.close()
 
     madpath=os.environ['MADPATH']
@@ -76,13 +81,16 @@ def new_process(process='generate p p > t t~',keepJpegs=False):
     process_dir = ''
     for l in process.split('\n'):
         # Look for an output line
-        if 'output' not in l.split('#')[0].split(): continue
+        if 'output' not in l.split('#')[0].split():
+            continue
         # Check how many things before the options start
         tmplist = l.split('#')[0].split(' -')[0]
         # if two things, second is the directory
-        if len(tmplist.split())==2: process_dir = tmplist.split()[1]
+        if len(tmplist.split())==2:
+            process_dir = tmplist.split()[1]
         # if three things, third is the directory (second is the format)
-        elif len(tmplist.split())==3: process_dir = tmplist.split()[2]
+        elif len(tmplist.split())==3:
+            process_dir = tmplist.split()[2]
         # See if we got a directory
         if ''!=process_dir:
             mglog.info('Saw that you asked for a special output directory: '+str(process_dir))
@@ -134,7 +142,8 @@ def new_process(process='generate p p > t t~',keepJpegs=False):
 
     in_config.close()
     for o in needed_options:
-        if not o in option_paths: mglog.warning('Path for option '+o+' not found in original config')
+        if o not in option_paths:
+            mglog.warning('Path for option '+o+' not found in original config')
 
     mglog.info('Modifying config paths to avoid use of afs:')
     mglog.info(option_paths)
@@ -179,7 +188,8 @@ def get_default_runcard(process_dir=MADGRAPH_GRIDPACK_LOCATION):
 
 
 def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,extlhapath=None,required_accuracy=0.01,runArgs=None,bias_module=None):
-    if config_only_check(): return
+    if config_only_check():
+        return
 
     # Just in case
     setup_path_protection()
@@ -253,8 +263,8 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     ls_dir(process_dir+'/lib')
 
     setupFastjet(process_dir=process_dir)
-    if bias_module!=None:
-        setup_bias_module(bias_module,run_card,process_dir)
+    if bias_module is not None:
+        setup_bias_module(bias_module,process_dir)
 
     mglog.info('Now I will hack the make files a bit.  Apologies, but there seems to be no good way around this.')
     shutil.copyfile(process_dir+'/Source/make_opts',process_dir+'/Source/make_opts_old')
@@ -540,14 +550,14 @@ def get_LHAPDF_PATHS():
     LHADATAPATH=None
     LHAPATH=None
     for p in os.environ['LHAPATH'].split(':')+os.environ['LHAPDF_DATA_PATH'].split(':'):
-        if os.path.exists(p+"/../../lib/") and LHAPATH==None:
+        if os.path.exists(p+"/../../lib/") and LHAPATH is None:
             LHAPATH=p
     for p in os.environ['LHAPDF_DATA_PATH'].split(':')+os.environ['LHAPATH'].split(':'):
-        if os.path.exists(p) and LHADATAPATH==None and p!=LHAPATH:
+        if os.path.exists(p) and LHADATAPATH is None and p!=LHAPATH:
             LHADATAPATH=p
-    if LHADATAPATH==None:
+    if LHADATAPATH is None:
         LHADATAPATH=LHAPATH
-    if LHAPATH==None:
+    if LHAPATH is None:
         mglog.error('Could not find path to LHAPDF installation')
     return LHAPATH,LHADATAPATH
 
@@ -684,18 +694,15 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
     mglog.info('Path to LHAPDF install dir:%s'%LHAPATH)
     mglog.info('Path to LHAPDF data dir: %s'%LHADATAPATH)
     if not os.path.isdir(LHADATAPATH):
-        mglog.error('LHAPDF data dir: %s is not accesible'%LHADATAPATH)
-        return 1
+        raise RuntimeError('LHAPDF data dir: %s is not accesible'%LHADATAPATH)
     if not os.path.isdir(LHAPATH):
-        mglog.error('LHAPDF path dir: %s is not accesible'%LHAPATH)
-        return 1
+        raise RuntimeError('LHAPDF path dir: %s is not accesible'%LHAPATH)
 
     # Dealing with LHAPDF
     if extlhapath:
         lhapdfconfig=extlhapath
         if not os.access(lhapdfconfig,os.X_OK):
-            mglog.error('Failed to find valid external lhapdf-config at %s'%lhapdfconfig)
-            return 1
+            raise RuntimeError('Failed to find valid external lhapdf-config at %s'%lhapdfconfig)
         LHADATAPATH=subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()
         mglog.info('Changing LHAPDF_DATA_PATH to %s'%LHADATAPATH)
         os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
@@ -726,7 +733,7 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
     else:
         shutil.copytree(LHADATAPATH,process_dir+'/lib/PDFsets')
     mglog.info('Available PDFs are:')
-    mglog.info( sorted( [ x for x in os.listdir(process_dir+'/lib/PDFsets') if not ".tar.gz" in x ] ) )
+    mglog.info( sorted( [ x for x in os.listdir(process_dir+'/lib/PDFsets') if ".tar.gz" not in x ] ) )
 
     return (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH)
 
@@ -762,7 +769,8 @@ def add_lifetimes(process_dir,threshold=None):
     """ Add lifetimes to the generated LHE file.  Should be
     called after generate_events is called.
     """
-    if config_only_check(): return
+    if config_only_check():
+        return
 
     me_exec=get_mg5_executable()
 
@@ -791,6 +799,7 @@ add_time_of_flight '''+run+((' --threshold='+str(threshold)) if threshold is not
         mglog.info('LHE file needs to be zipped')
         lhe = glob.glob(process_dir+'/Events/*/*lhe.gz')[0]
         rezip = subprocess.Popen(['gzip',lhe])
+        rezip.wait()
         mglog.info('Zipped')
     else:
         mglog.info('LHE file zipped by MadGraph automatically. Nothing to do')
@@ -804,7 +813,8 @@ def add_madspin(madspin_card=None,process_dir=MADGRAPH_GRIDPACK_LOCATION):
     Only requires a simplified process with the same model that you are
     interested in (needed to set up a process directory for MG5_aMC)
     """
-    if config_only_check(): return
+    if config_only_check():
+        return
 
     me_exec=get_mg5_executable()
 
@@ -836,13 +846,15 @@ decay_events '''+run)
         mglog.info('LHE file needs to be zipped')
         lhe = glob.glob(process_dir+'/Events/*/*lhe.gz')[0]
         rezip = subprocess.Popen(['gzip',lhe])
+        rezip.wait()
         mglog.info('Zipped')
     else:
         mglog.info('LHE file zipped by MadGraph automatically. Nothing to do')
 
 
 def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveProcDir=False,runArgs=None,fixEventWeightsForBridgeMode=False):
-    if config_only_check(): return
+    if config_only_check():
+        return
 
     # NLO is not *really* the question here, we need to know if we should look for weighted or
     #  unweighted events in the output directory.  MadSpin (above) only seems to give weighted
@@ -852,7 +864,8 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
 
     hasRunMadSpin=False
     madspinDirs=sorted(glob.glob(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'_decayed_*/'))
-    if len(madspinDirs): hasRunMadSpin=True
+    if len(madspinDirs):
+        hasRunMadSpin=True
     if hasRunMadSpin and not hasUnweighted:
         # check again:
         hasUnweighted = os.access(madspinDirs[-1]+'/unweighted_events.lhe.gz',os.R_OK)
@@ -984,7 +997,8 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
                 rezip.wait()
 
     # Clean up in case a link or file was already there
-    if os.path.exists(os.getcwd()+'/events.lhe'): os.remove(os.getcwd()+'/events.lhe')
+    if os.path.exists(os.getcwd()+'/events.lhe'):
+        os.remove(os.getcwd()+'/events.lhe')
 
     mglog.info('Unzipping generated events.')
     if hasUnweighted:
@@ -1063,18 +1077,17 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
     return outputDS
 
 
-def setup_bias_module(bias_module,run_card,process_dir):
+def setup_bias_module(bias_module,process_dir):
+    run_card = process_dir+'/Cards/run_card.dat'
     if isinstance(bias_module,tuple):
         mglog.info('Using bias module '+bias_module[0])
         the_run_card = open(run_card,'r')
         for line in the_run_card:
             if 'bias_module' in line and not bias_module[0] in line:
-                mglog.error('You need to add the bias module '+bias_module[0]+' to the run card to actually run it')
-                return 1
+                raise RuntimeError('You need to add the bias module '+bias_module[0]+' to the run card to actually run it')
         the_run_card.close()
         if len(bias_module)!=3:
-            mglog.error('Please give a 3-tuple of strings containing bias module name, bias module, and makefile. Alternatively, give path to bias module tarball.')
-            return 1
+            raise RuntimeError('Please give a 3-tuple of strings containing bias module name, bias module, and makefile. Alternatively, give path to bias module tarball.')
         bias_module_newpath=process_dir+'/Source/BIAS/'+bias_module[0]
         os.makedirs(bias_module_newpath)
         bias_module_file=open(bias_module_newpath+'/'+bias_module[0]+'.f','w')
@@ -1089,9 +1102,8 @@ def setup_bias_module(bias_module,run_card,process_dir):
         bias_module_name=bias_module_name.replace('.tar','')
         the_run_card = open(run_card,'r')
         for line in the_run_card:
-            if 'bias_module' in line and not bias_module_name in line:
-                mglog.error('You need to add the bias module '+bias_module_name+' to the run card to actually run it')
-                return 1
+            if 'bias_module' in line and bias_module_name not in line:
+                raise RuntimeError('You need to add the bias module '+bias_module_name+' to the run card to actually run it')
         the_run_card.close()
 
         if os.path.exists(bias_module+'.tar.gz'):
@@ -1138,14 +1150,14 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
             # if only one of the two is defined, set the other to the same value
             elif '--rwgt_info' in line:
                 m=re.match('launch\s*--rwgt_info\s*=\s*([\s\S]+)',line.strip())
-                if m==None or len(m.groups())!=1:
+                if m is None or len(m.groups())!=1:
                     raise RuntimeError('Unexpected format of reweight card')
                 else:
                     newcard.write(line.strip()+' --rwgt_name='+m.group(1).strip()+'\n')
                     changed=True
             elif '--rwgt_name' in line:
                 m=re.match('launch\s*--rwgt_name\s*=\s*([\s\S]+)',line.strip())
-                if m==None or len(m.groups())!=1:
+                if m is None or len(m.groups())!=1:
                     raise RuntimeError('Unexpected format of reweight card')
                 else:
                     newcard.write(line.strip()+' --rwgt_info='+m.group(1).strip()+'\n')
@@ -1207,8 +1219,10 @@ def get_SUSY_variations( masses , syst_mod , ktdurham = None ):
 
         # Now set the matching scale accordingly
         ktdurham = min(my_mass*0.25,500)
-        if syst_mod is not None and 'qup' in syst_mod.lower(): ktdurham = ktdurham*2.
-        elif syst_mod is not None and 'qdown' in syst_mod.lower(): ktdurham = ktdurham*0.5
+        if syst_mod is not None and 'qup' in syst_mod.lower():
+            ktdurham = ktdurham*2.
+        elif syst_mod is not None and 'qdown' in syst_mod.lower():
+            ktdurham = ktdurham*0.5
     mglog.info('For matching, will use ktdurham of '+str(ktdurham))
 
     alpsfact = 1.0
@@ -1218,8 +1232,10 @@ def get_SUSY_variations( masses , syst_mod , ktdurham = None ):
     elif syst_mod is not None and 'alpsfactdown' in syst_mod.lower():
         alpsfact = 0.5
 
-    if syst_mod is not None and 'scalefactup' in syst_mod.lower(): scalefact = 2.0
-    elif syst_mod is not None and 'scalefactdown' in syst_mod.lower(): scalefact = 0.5
+    if syst_mod is not None and 'scalefactup' in syst_mod.lower():
+        scalefact = 2.0
+    elif syst_mod is not None and 'scalefactdown' in syst_mod.lower():
+        scalefact = 0.5
 
     return abs(ktdurham) , alpsfact , scalefact
 
@@ -1322,7 +1338,8 @@ def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={}
 
     with open(lhe_file_old,'r') as fileobject:
         for line in fileobject:
-            if decayEdit and not '</slha>' in line: continue
+            if decayEdit and '</slha>' not in line:
+                continue
             if decayEdit and '</slha>' in line:
                 decayEdit = False
             if line.strip().upper().startswith('BLOCK') or line.strip().upper().startswith('DECAY')\
@@ -1337,7 +1354,7 @@ def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={}
                 akey = line.strip().split()[1]
 
             # Replace the masses with those in the dictionary
-            if akey != None and blockName == 'MASS'  and akey in masses:
+            if akey is not None and blockName == 'MASS'  and akey in masses:
                 newlhe.write('   %s    %s  # \n'%(akey,str(masses[akey])))
                 mglog.info('   %s    %s  #'%(akey,str(masses[akey])))
                 decayEdit = False
@@ -1364,11 +1381,13 @@ def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={}
                 continue
 
             # Keep a record of the particles that are in the events
-            if not eventRead and '<event>' in line: eventRead = True
+            if not eventRead and '<event>' in line:
+                eventRead = True
             if eventRead:
                 if len(line.split())==11:
                     aparticle = line.split()[0]
-                    if not aparticle in particles_in_events: particles_in_events += [aparticle]
+                    if aparticle not in particles_in_events:
+                        particles_in_events += [aparticle]
 
             # Otherwise write the line again
             newlhe.write(line)
@@ -1421,7 +1440,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
         param_card_old = param_card_backup
     else:
         param_card_old = param_card_input+'.old_to_be_deleted'
-    if os.path.isfile(param_card_old): os.unlink(param_card_old) # delete old backup
+    if os.path.isfile(param_card_old):
+        os.unlink(param_card_old) # delete old backup
     os.rename(param_card_input, param_card_old) # change name of original card
 
     oldcard = open(param_card_old,'r')
@@ -1433,22 +1453,24 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
         line=linewithcomment.split('#')[0]
         if line.strip().upper().startswith('BLOCK') or line.strip().upper().startswith('DECAY')\
                     and len(line.strip().split()) > 1:
-            if decayEdit and blockName == 'DECAY': decayEdit = False # Start a new DECAY block
+            if decayEdit and blockName == 'DECAY':
+                decayEdit = False # Start a new DECAY block
             pos = 0 if line.strip().startswith('DECAY') else 1
             blockName = line.strip().upper().split()[pos]
-        if decayEdit: continue #skipping these lines because we are in an edit of the DECAY BR
+        if decayEdit:
+            continue #skipping these lines because we are in an edit of the DECAY BR
 
         akey = None
         if blockName != 'DECAY' and len(line.strip().split()) > 0:
             akey = line.strip().split()[0]
         elif blockName == 'DECAY' and len(line.strip().split()) > 1:
             akey = line.strip().split()[1]
-        if akey==None:
+        if akey is None:
            newcard.write(linewithcomment)
            continue
 
         #check if we have params for this block
-        if not params.has_key(blockName):
+        if blockName not in params:
            newcard.write(linewithcomment)
            continue
         blockParams = params[blockName]
@@ -1457,19 +1479,23 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
         stringkey = None
         if '#' in linewithcomment: #ignores comment lines
            stringkey = linewithcomment[linewithcomment.find('#')+1:].strip()
-           if len(stringkey.split()) > 0: stringkey = stringkey.split()[0].upper()
+           if len(stringkey.split()) > 0:
+               stringkey = stringkey.split()[0].upper()
 
-        if not akey in blockParams and not (stringkey != None and stringkey in blockParams):
+        if akey not in blockParams and not (stringkey is not None and stringkey in blockParams):
            newcard.write(linewithcomment)
            continue
 
-        if akey in blockParams and (stringkey != None and stringkey in blockParams):
+        if akey in blockParams and (stringkey is not None and stringkey in blockParams):
            raise RuntimeError('Conflicting use of numeric and string keys %s and %s' % (akey,stringkey))
 
         theParam = blockParams.get(akey,blockParams[stringkey] if stringkey in blockParams else None)
-        if not blockName in doneParams: doneParams[blockName] = {}
-        if akey in blockParams: doneParams[blockName][akey]=True
-        elif stringkey != None and stringkey in blockParams: doneParams[blockName][stringkey]=True
+        if blockName not in doneParams:
+            doneParams[blockName] = {}
+        if akey in blockParams:
+            doneParams[blockName][akey]=True
+        elif stringkey is not None and stringkey in blockParams:
+            doneParams[blockName][stringkey]=True
 
         #do special case of DECAY block
         if blockName=="DECAY":
@@ -1496,10 +1522,10 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
 
     #check that all specified parameters have been updated (helps to catch typos)
     for blockName in params:
-       if not blockName in doneParams:
+       if blockName not in doneParams:
           raise RuntimeError('Did not find any of the parameters for block %s in param_card' % blockName)
        for paramName in params[blockName]:
-          if not paramName in doneParams[blockName]:
+          if paramName not in doneParams[blockName]:
             raise RuntimeError('Was not able to replace parameter %s in param_card' % paramName)
 
     # Close up and return
@@ -1529,14 +1555,18 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     # Get some info out of the runArgs
     if runArgs is not None:
         beamEnergy,rand_seed = get_runArgs_info(runArgs)
-        if not 'iseed' in settings: settings['iseed']=rand_seed
-        if not isNLO and not 'python_seed' in settings: settings['python_seed']=rand_seed
+        if 'iseed' not in settings:
+            settings['iseed']=rand_seed
+        if not isNLO and 'python_seed' not in settings:
+            settings['python_seed']=rand_seed
         if 'beamEnergy' in settings:
             mglog.warning('Do not set beamEnergy in MG settings. The variables are ebeam1 and ebeam2. Will use your setting of '+str(settings['beamEnergy']))
             beamEnergy=settings['beamEnergy']
             settings.pop('beamEnergy')
-        if not 'ebeam1' in settings: settings['ebeam1']=beamEnergy
-        if not 'ebeam2' in settings: settings['ebeam2']=beamEnergy
+        if 'ebeam1' not in settings:
+            settings['ebeam1']=beamEnergy
+        if 'ebeam2' not in settings:
+            settings['ebeam2']=beamEnergy
 
     mglog.info('Modifying run card located at '+run_card_input)
     if run_card_backup is not None:
@@ -1545,7 +1575,8 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     else:
         run_card_old = run_card_input+'.old_to_be_deleted'
     mglog.debug('Modifying runcard settings: '+str(settings))
-    if os.path.isfile(run_card_old): os.unlink(run_card_old) # delete old backup
+    if os.path.isfile(run_card_old):
+        os.unlink(run_card_old) # delete old backup
     os.rename(run_card_input, run_card_old) # change name of original card
 
     oldCard = open(run_card_old, 'r')
@@ -1561,28 +1592,32 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
                 oldValue = '='.join(command.split('=')[:-1])
                 if stripped_setting in settings:
                     # if setting set to 'None' it will be removed from run_card
-                    if settings[stripped_setting]==None:
+                    if settings[stripped_setting] is None:
                         line=''
                         mglog.info('Removing '+stripped_setting+'.')
                         used_settings += [ stripped_setting ]
                     else:
                         line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting]))+'='+setting
-                        if comment != '': line += '  !' + comment
+                        if comment != '':
+                            line += '  !' + comment
                         mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting])+'.')
                         used_settings += [ stripped_setting ]
         newCard.write(line)
 
     # Clean up unused options
     for asetting in settings:
-        if asetting in used_settings: continue
-        if settings[asetting]==None: continue
+        if asetting in used_settings:
+            continue
+        if settings[asetting] is None:
+            continue
         mglog.warning('Option '+asetting+' was not in the default run_card.  Adding by hand a setting to '+str(settings[asetting]) )
         newCard.write( ' '+str(settings[asetting])+'   = '+str(asetting)+'\n')
     # close files
     oldCard.close()
     newCard.close()
     mglog.info('Finished modification of run card.')
-    if run_card_backup is None: os.unlink(run_card_old)
+    if run_card_backup is None:
+        os.unlink(run_card_old)
 
 
 def modify_config_card(config_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={},set_commented=True):
@@ -1601,7 +1636,8 @@ def modify_config_card(config_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOC
     else:
         config_card_old = config_card+'.old_to_be_deleted'
     mglog.debug('Modifying config card settings: '+str(settings))
-    if os.path.isfile(config_card_old): os.unlink(config_card_old) # delete old backup
+    if os.path.isfile(config_card_old):
+        os.unlink(config_card_old) # delete old backup
     os.rename(config_card, config_card_old) # change name of original card
 
     oldCard = open(config_card_old, 'r')
@@ -1612,27 +1648,32 @@ def modify_config_card(config_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOC
         if '=' in lmod:
             modified = False
             for setting in settings:
-                if not setting in lmod: continue
+                if setting not in lmod:
+                    continue
                 # Assume we hit
                 mglog.info('Setting '+setting.strip()+' to '+str(settings[setting]))
                 newCard.write(' '+str(setting.strip())+' = '+str(settings[setting])+'\n')
                 used_settings += [ setting.strip() ]
                 modified = True
                 break
-            if modified: continue
+            if modified:
+                continue
         newCard.write(line)
 
     # Clean up unused options
     for asetting in settings:
-        if asetting in used_settings: continue
-        if settings[asetting]==None: continue
+        if asetting in used_settings:
+            continue
+        if settings[asetting] is None:
+            continue
         mglog.warning('Option '+asetting+' was not in the default config card.  Adding by hand a setting to '+str(settings[asetting]) )
         newCard.write(' '+str(asetting)+' = '+str(settings[asetting])+'\n')
     # close files
     oldCard.close()
     newCard.close()
     mglog.info('Finished modification of config card.')
-    if config_card_backup is None: os.unlink(config_card_old)
+    if config_card_backup is None:
+        os.unlink(config_card_old)
 
 
 def print_cards_from_dir(process_dir=MADGRAPH_GRIDPACK_LOCATION):
@@ -1716,7 +1757,8 @@ def get_default_config_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
 def get_cluster_type(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     card_in = open(get_default_config_card(process_dir=process_dir),'r')
     for l in card_in.readlines():
-        if not 'cluster_type' in l.split('#')[0]: continue
+        if 'cluster_type' not in l.split('#')[0]:
+            continue
         cluster_type = l.split('#')[0].split('=')[1]
         mglog.info('Returning cluster type: '+cluster_type)
         return cluster_type
@@ -1749,7 +1791,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
             raise RuntimeError(log)
 
         # Check if user is trying to use deprecated syscalc arguments with the other systematics script
-        if not 'systematics_program' in mydict or mydict['systematics_program']=='systematics':
+        if 'systematics_program' not in mydict or mydict['systematics_program']=='systematics':
             syscalc_settings=['sys_pdf', 'sys_scalefact', 'sys_alpsfact', 'sys_matchscale']
             found_syscalc_setting=False
             for s in syscalc_settings:
@@ -1776,13 +1818,13 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
     mydict_new=getDictFromCard(cardpath)
     if 'systematics_arguments' in mydict_new:
         systematics_arguments=MadGraphSystematicsUtils.parse_systematics_arguments(mydict_new['systematics_arguments'])
-        if not 'weight_info' in systematics_arguments:
+        if 'weight_info' not in systematics_arguments:
             mglog.info('Enforcing systematic weight name convention')
             systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO
             modify_run_card(process_dir=process_dir,settings={'systematics_arguments':MadGraphSystematicsUtils.write_systematics_arguments(systematics_arguments)})
 
     if not isNLO:
-        if not 'python_seed' in mydict:
+        if 'python_seed' not in mydict:
             mglog.warning('No python seed set in run_card -- adding one with same value as iseed')
             modify_run_card(process_dir=process_dir,settings={'python_seed':mydict['iseed']})
 
@@ -1792,7 +1834,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
 def hack_gridpack_script():
     reweight_card = get_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
-    need_to_add_rwgt=reweight_card!=None
+    need_to_add_rwgt=reweight_card is not None
 
     run_card_dict=getDictFromCard(get_default_runcard(process_dir=MADGRAPH_GRIDPACK_LOCATION),lowercase=True)
 
@@ -1806,7 +1848,7 @@ def hack_gridpack_script():
                 systematics_program='syscalc'
             if checkSetting('systematics_program','none',run_card_dict):
                 systematics_program=None
-    need_to_add_syst=systematics_program!=None
+    need_to_add_syst=systematics_program is not None
 
     systematics_arguments=''
     if checkSettingExists('systematics_arguments',run_card_dict):
@@ -1865,7 +1907,6 @@ def hack_gridpack_script():
 def check_reset_proc_number(opts):
     if 'ATHENA_PROC_NUMBER' in os.environ:
         mglog.info('Noticed that you have run with an athena MP-like whole-node setup.  Will re-configure now to make sure that the remainder of the job runs serially.')
-        njobs = os.environ.pop('ATHENA_PROC_NUMBER')
         # Try to modify the opts underfoot
         if not hasattr(opts,'nprocs'):
             mglog.warning('Did not see option!')

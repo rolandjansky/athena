@@ -8,7 +8,6 @@ def getDictFromCard(card_loc,lowercase=False):
     for line in iter(card):
         if not line.strip().startswith('#'): # line commented out
             command = line.split('!', 1)[0]
-            comment = line.split('!', 1)[1] if '!' in line else ''
             if '=' in command:
                 setting = command.split('=')[-1].strip()
                 value = '='.join(command.split('=')[:-1]).strip()
@@ -58,7 +57,6 @@ def checkSettingExists(key_,mydict_):
 def is_version_or_newer(args):
     # also need to find out the version (copied from generate)
     import os
-    madpath=os.environ['MADPATH']
     version=None
     version_file = open(os.environ['MADPATH']+'/VERSION','r')
 
