@@ -21,7 +21,7 @@
 
 
 // Constructor
-FFJetSmearingTool::FFJetSmearingTool(const std::string name/*, std::string truth_jetColl, std::string variation*/)
+FFJetSmearingTool::FFJetSmearingTool(const std::string name)
     : asg::AsgTool(name) // I do not use the name variable for nothing. Should I delete it?
     , m_isInit(false)
     , m_name(name)
@@ -44,7 +44,7 @@ FFJetSmearingTool::~FFJetSmearingTool()
 
 
 // Initialize
-StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
+StatusCode FFJetSmearingTool::initialize()
 {
 
     // Ensure it hasn't been initialized already
@@ -622,9 +622,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     if(m_MassDef=="Comb"){
 
-	double aux1;
-	double aux2;
-
     	xAOD::JetFourMom_t jet_reco_CALO;
     	xAOD::JetFourMom_t jet_reco_TA;
     	xAOD::JetFourMom_t jet_reco_Comb;
@@ -640,12 +637,13 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	jet_mass_CALO = jet_reco_CALO.mass();
         jet_mass_TA = jet_reco_TA.mass();
 
+        calo_mass_weight = (jet_reco_Comb.mass() - jet_reco_TA.mass())/(jet_reco_CALO.mass()-jet_reco_TA.mass());
 
 	if(jet_reco_Comb.mass()<=0 || jet_reco_CALO.mass() < 0 || jet_reco_TA.mass() < 0){
 		ATH_MSG_VERBOSE("The Comb, Calo or TA mass component of your jet has a negative value");
 		return CP::CorrectionCode::Ok;
 	}
-	if(jetcalibtools_calo_mass_weight<0 || jetcalibtools_calo_mass_weight>1){
+	if(calo_mass_weight<0 || calo_mass_weight>1){
                 ATH_MSG_VERBOSE("Combined mass jet missconstructed. Calo mass weight outside 0-1 range");
                 return CP::CorrectionCode::Ok;
 
@@ -725,16 +723,25 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	double smeared_CALO_mass =0;
 	double smeared_TA_mass =0;
 
+	bool is_CALO_mass_smeared = false;
+	bool is_TA_mass_smeared = false;
+
     if(m_MassDef=="Comb" || m_MassDef=="Calo"){
 	getJMSJMR( jet_reco, jet_mass_CALO, "Calo",jetTopology, JMS, JMS_err, JMR, JMR_err);	
 
 	scale = JMS + JMS_err;
         resolution = JMR + JMR_err;
 
-	ATH_MSG_VERBOSE("Forward Folding CALO procedure will use scale=" << scale << ", resolution=" << resolution << " and average respose=" << avg_response_CALO);
+	if(scale != 1 || resolution != 1){
 
-      //FF procedure
-       smeared_CALO_mass = jet_mass_CALO * scale + (jet_mass_CALO - avg_response_CALO*jet_truth_matched.m())*(resolution-scale);//FF formula
+		is_CALO_mass_smeared = true;
+
+		ATH_MSG_VERBOSE("Forward Folding CALO procedure will use scale=" << scale << ", resolution=" << resolution << " and average respose=" << avg_response_CALO);
+
+      		//FF procedure
+       		smeared_CALO_mass = jet_mass_CALO * scale + (jet_mass_CALO - avg_response_CALO*jet_truth_matched.m())*(resolution-scale);//FF formula
+	}
+
    }
 
     if(m_MassDef=="Comb" || m_MassDef=="TA"){
@@ -743,13 +750,24 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         scale = JMS + JMS_err;
         resolution = JMR + JMR_err;
 
-        ATH_MSG_VERBOSE("Forward Folding TA procedure will use scale=" << scale << ", resolution=" << resolution << " and average respose=" << avg_response_TA);
+        if(scale != 1 || resolution != 1){
 
-      //FF procedure
-       smeared_TA_mass = jet_mass_TA * scale + (jet_mass_TA - avg_response_TA*jet_truth_matched.m())*(resolution-scale);//FF formula
+                is_TA_mass_smeared = true;
+
+        	ATH_MSG_VERBOSE("Forward Folding TA procedure will use scale=" << scale << ", resolution=" << resolution << " and average respose=" << avg_response_TA);
+
+      		//FF procedure
+       		smeared_TA_mass = jet_mass_TA * scale + (jet_mass_TA - avg_response_TA*jet_truth_matched.m())*(resolution-scale);//FF formula
+	}
    }
 
-   if(smeared_CALO_mas==0 && smeared_TA_mas == 0){use_jetcalibtoolsweight == true; }//To use only JetUncertainties weights if a smearing has to be performed 
+   if(is_CALO_mass_smeared==false && is_TA_mass_smeared == false){//We only smear the jet if we have to. If not, avoid doing extra calculations
+
+        ATH_MSG_VERBOSE("This jet is not affected by the systematic. The jet won't be modified");
+        ATH_MSG_VERBOSE("//---------------------------------------------------------------//");
+
+	return CP::CorrectionCode::Ok;
+    }
 
 
 //Recalculate the weights after the smearing
