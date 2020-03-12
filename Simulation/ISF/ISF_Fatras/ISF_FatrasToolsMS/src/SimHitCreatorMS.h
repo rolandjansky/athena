@@ -1,16 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// SimHitCreatorMS.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_FATRASTOOLSMS_SIMHITCREATORMS_H
 #define ISF_FATRASTOOLSMS_SIMHITCREATORMS_H
 
 // Athena & Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -28,10 +25,9 @@
 #include "MuonSimEvent/sTGCSimHitCollection.h"
 //Muon ReadoutGeometry includes
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonTGRecTools/IMuonTGMeasTool.h"
 
-// Identifier
-#include "Identifier/Identifier.h"
 // Muon
 class MdtHitIdHelper;
 class RpcHitIdHelper;
@@ -40,11 +36,6 @@ class TgcHitIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
-}
-
-namespace Muon {
-  class IMuonTGMeasTool;
-  class MuonIdHelperTool;
 }
 
 namespace Trk {
@@ -76,12 +67,9 @@ namespace iFatras
       SimHitCreatorMS(const std::string&,const std::string&,const IInterface*);
 
        /** default destructor */
-      virtual ~SimHitCreatorMS ();
+      virtual ~SimHitCreatorMS ()=default;
       
-       /** standard Athena-Algorithm method */
       virtual StatusCode initialize();
-       /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
 
       /** handle for incident service */
       void handle(const Incident& inc);    
@@ -130,12 +118,9 @@ namespace iFatras
       RpcHitIdHelper*                      m_rpcHitIdHelper;
       CscHitIdHelper*                      m_cscHitIdHelper;
       TgcHitIdHelper*                      m_tgcHitIdHelper;
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       MM_SimIdToOfflineId*                 m_mmOffToSimId;
       sTgcSimIdToOfflineId*                m_stgcOffToSimId;
-
-      ToolHandle<Muon::MuonIdHelperTool>   m_idHelperTool; //!< Muon ID helper tool
  
       const MuonGM::MuonDetectorManager*   m_muonMgr;
       
