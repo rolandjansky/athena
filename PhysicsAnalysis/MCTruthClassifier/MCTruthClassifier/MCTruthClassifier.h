@@ -183,7 +183,7 @@ private:
 
   void findAllJetMothers(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
   void findParticleDaughters(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
-  MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>) const;
+  MCTruthPartClassifier::ParticleOrigin defJetOrig(const std::set<const xAOD::TruthParticle*>&) const;
   //
   /** Return true if genParticle and truthParticle have the same pdgId, barcode and status **/
   static const xAOD::TruthParticle* barcode_to_particle(const xAOD::TruthParticleContainer*, int);
