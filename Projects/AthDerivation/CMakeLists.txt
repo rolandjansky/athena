@@ -36,6 +36,11 @@ endforeach()
 unset( _external )
 unset( _externals )
 
+# Do not pick up UUID from the LCG release, even if it provides it. Since the
+# TDAQ libraries pick up that library from the system at all times.
+unset( UUID_LCGROOT CACHE )
+unset( UUID_LCGVERSION CACHE )
+
 # Set up CTest:
 atlas_ctest_setup()
 
