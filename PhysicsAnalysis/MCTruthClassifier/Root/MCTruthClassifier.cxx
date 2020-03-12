@@ -110,53 +110,6 @@ MCTruthClassifier::finalize()
 
   return StatusCode::SUCCESS;
 }
-// Now that we use TLorentzVector for the momentum base class, this is straightforward
-double
-MCTruthClassifier::deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet& v2)
-{
-  // Should this use delta y though?
-  return v1.p4().DeltaR(v2.p4());
-}
-void
-MCTruthClassifier::findJetConstituents(const xAOD::Jet* jet,
-                                       std::set<const xAOD::TruthParticle*>& constituents,
-                                       bool DR) const
-{
-
-  if (DR) {
-    // use a DR matching scheme (default)
-    // retrieve collection and get a pointer
-
-    SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
-
-    if (!truthParticleContainerReadHandle.isValid()) {
-      ATH_MSG_WARNING(
-        " Invalid ReadHandle for xAOD::TruthParticleContainer with key: " << truthParticleContainerReadHandle.key());
-      return;
-    }
-
-    ATH_MSG_DEBUG("xAODTruthParticleContainer with key  " << truthParticleContainerReadHandle.key()
-                                                          << " has valid ReadHandle ");
-
-    // find the matching truth particles
-    for (const auto thePart : *truthParticleContainerReadHandle) {
-      // match truth particles to the jet
-      if (thePart->status() == 1 && deltaR((*thePart), (*jet)) < m_jetPartDRMatch) {
-        constituents.insert(thePart);
-      }
-    }
-  } // end if DR
-  else {
-    xAOD::JetConstituentVector vec = jet->getConstituents();
-    for (auto particle0 : vec) {
-      const xAOD::TruthParticle* thePart = dynamic_cast<const xAOD::TruthParticle*>(particle0->rawConstituent());
-      if (thePart->status() == 1) {
-        constituents.insert(thePart);
-      }
-    }
-  } // end if !DR
-  }
-
 void
 MCTruthClassifier::findParticleDaughters(const xAOD::TruthParticle* thePart,
                                          std::set<const xAOD::TruthParticle*>& daughters) const
@@ -177,48 +130,5 @@ MCTruthClassifier::findParticleDaughters(const xAOD::TruthParticle* thePart,
     }
   }
   }
-
-double
-MCTruthClassifier::fracParticleInJet(const xAOD::TruthParticle* thePart,
-                                     const xAOD::Jet* jet,
-                                     bool DR,
-                                     bool nparts) const
-{
-
-  // Get jet constituents
-  std::set<const xAOD::TruthParticle*> constituents;
-  constituents.clear();
-  findJetConstituents(jet, constituents, DR);
-
-  // Get all particle daughters
-  std::set<const xAOD::TruthParticle*> daughters;
-  daughters.clear();
-  findParticleDaughters(thePart, daughters);
-  if (daughters.empty())
-    daughters.insert(thePart);
-
-  // Get the intersection of constituents and daughters
-  std::set<const xAOD::TruthParticle*> intersect;
-  std::set_intersection(constituents.begin(),
-                        constituents.end(),
-                        daughters.begin(),
-                        daughters.end(),
-                        std::inserter(intersect, intersect.begin()));
-
-  double frac = 0;
-  if (nparts) {
-    frac = 1.0 * intersect.size() / daughters.size();
-  } else {
-    double tot = 0;
-    for (auto daughter : daughters) {
-      tot += 1.0 * daughter->pt();
-    }
-    for (auto particle : intersect) {
-      frac += 1.0 * particle->pt() / tot;
-    }
-  }
-
-  return frac;
-}
 
 
