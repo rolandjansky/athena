@@ -1659,9 +1659,22 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       convertToGraphics(cnvsType,myC.get(),namePNG,nameJSON);
 
     } else if( h != 0 && hist2!=0){
+      // Petronel
+      double scale = 1.0;
+	    if (display.find("ScaleRef")!=std::string::npos) {
+	      scale = getScaleVal(display);
+	    } else if ( h->Integral("width") > 0.0 && hist2->Integral("width") > 0.0 && (AlgoName.find("BinContentComp")==std::string::npos) && (display.find("NoNorm")==std::string::npos) ) {
+	      scale = h->Integral("width")/hist2->Integral("width");
+	    }            
+      hist2->Scale( scale );
+	    double ymin = ( hist2->GetMinimum() < h->GetMinimum() )? hist2->GetMinimum(): h->GetMinimum(); 
+	    double ymax = ( hist2->GetMaximum() > h->GetMaximum() )? hist2->GetMaximum(): h->GetMaximum();
+      double yMargin=(ymax-ymin)*0.05;
+      h->SetAxisRange(ymin-yMargin,ymax+yMargin,"Y");
+       
       h->SetMarkerColor(1);
       h->SetFillStyle(0);
-      h->SetLineWidth(2);
+      h->SetLineWidth(2);      
       hist2->SetMarkerColor(4);
       hist2->SetLineColor(4);
       hist2->SetFillStyle(0);
@@ -1679,8 +1692,12 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       legend->SetMargin(0.15);
       legend->SetFillStyle(0);
       legend->SetBorderSize(0);
-      legend->AddEntry(h,"Data1");
-      legend->AddEntry(hist2,"Data2");
+
+    std::size_t foundN1 = run_min_LB.find_first_of("-");
+    std::size_t foundN2 = run_min_LB.find_first_of(",");
+
+      legend->AddEntry(h,("Run "+run_min_LB.substr(5,foundN1-5)).c_str());
+      legend->AddEntry(hist2,("Run "+run_min_LB.substr(foundN1+1,foundN2-foundN1-1)).c_str());
       if(hRef){
 	legend->AddEntry(hRef,"Reference");
       }
