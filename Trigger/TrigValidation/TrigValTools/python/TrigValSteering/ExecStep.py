@@ -160,7 +160,7 @@ class ExecStep(Step):
             self.prmon = False
 
         # Disable perfmon for multi-fork jobs as it cannot deal well with them
-        if self.forks > 1:
+        if self.forks and self.forks > 1:
             self.perfmon = False
 
         # Append imf/perfmon
