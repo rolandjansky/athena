@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
@@ -94,6 +94,10 @@ namespace top {
                  "Failed to retrieve JetCalibrationToolLargeR");
       top::check(m_jetUncertaintiesToolLargeR.retrieve(),
                  "Failed to retrieve JetUncertaintiesToolLargeR");
+    }
+
+    if (m_config->getDerivationStream() == "PHYS") {
+      m_truthJetCollForHS = "AntiKt4TruthDressedWZJets";
     }
 
     ///-- JER uncertainties model --///
