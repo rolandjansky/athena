@@ -17,6 +17,146 @@
 #include "TrigT1CaloFexSim/Pufit.h"
 std::map<TString, std::shared_ptr<METAlg::MET>> METAlg::m_METMap;
 
+std::vector <int> METAlg::check_in_bin (const float &eta, const float &phi, const std::vector < std::pair < float, float> > &eta_bins, const  std::vector < std::pair < float, float> > &phi_bins, const float &phi_offset) {
+    int calculation_bin=-1;
+    std::vector < int > result;
+    for (const auto &eta_bin : eta_bins) {
+        for (const auto &phi_bin : phi_bins) {
+            calculation_bin++;
+            if (eta< eta_bin.first || eta > eta_bin.second) continue;;
+            float phi_t=(phi/TMath::Pi())+1;
+            if (phi_t<phi_bin.first) phi_t=phi_t+2;
+            if (phi_t< phi_bin.first+phi_offset || phi_t> phi_bin.second+phi_offset) continue;
+            result.push_back(calculation_bin);
+        }
+    }
+    return result;
+}
+
+StatusCode METAlg::build_jFEX_bins( std::vector < std::vector < int > > &bins, std::vector < std::vector < int > > &bins_core, const xAOD::JGTowerContainer* towers ) {
+    std::vector <int> *HAD1towers = new std::vector <int>;
+    std::vector <int> *HAD2towers = new std::vector <int>;
+    std::vector <int> *HAD3towers = new std::vector <int>;
+    std::vector <int> *HADtowers  = new std::vector <int>;
+    std::vector <int> *EMtowers   = new std::vector <int>;
+    std::vector <int> *FCAL1      = new std::vector <int>;
+    std::vector <int> *FCAL2      = new std::vector <int>;
+    std::vector <int> *FCAL3      = new std::vector <int>;
+    std::vector <int> *fullFCAL = new std::vector <int>;
+    std::vector < std::pair < float , float > > eta_bins = {  
+        {-1.6 , 0.8}  , 
+        {-0.8 , 1.6}  , 
+        {-2.4 , 0.0}  , 
+        {0.0  , 2.4}  , 
+        {-4.9 , -0.8} , 
+        {0.8  , 4.9}
+    };
+    std::vector < std::pair < float , float > > eta_bins_core = {
+        {-0.8 , 0.0}    , 
+        {0.0  , 0.8}  , 
+        {-1.6 , -0.8} , 
+        {0.8  , 1.6}  , 
+        {-4.9 , -1.6} , 
+        {1.6  , 4.9}
+    };
+
+    // mutiple of pi                , only positive
+    std::vector < std::pair < float , float > > phi_bins = { {0.0       , 1.0}  , {1.0  , 2.0} };
+    float phi_offset = +0.25;
+    for (unsigned int i=0; i <7744; i++){
+        if ( i> 0    && i< 1696 ) EMtowers->push_back(i);
+        if ( i>=3392 && i< 5088 ) EMtowers->push_back(i);
+        if ( i>=6784 && i< 6816 ) EMtowers->push_back(i);
+        if ( i>=6848 && i< 6880 ) EMtowers->push_back(i);
+        if ( i>=6912 && i< 6976 ) EMtowers->push_back(i);
+        if ( i>=1696 && i< 3392 ) HADtowers->push_back(i);
+        if ( i>=5088 && i< 6784 ) HADtowers->push_back(i);
+        if ( i>=6816 && i< 6848 ) HADtowers->push_back(i);
+        if ( i>=6880 && i< 6912 ) HADtowers->push_back(i);
+        if ( i>=6976 && i< 7168 ) FCAL1->push_back(i);
+        if ( i>=7168 && i< 7296 ) FCAL2->push_back(i);
+        if ( i>=7296 && i< 7360 ) FCAL3->push_back(i);
+        if ( i>=7360 && i< 7552 ) FCAL1->push_back(i);
+        if ( i>=7552 && i< 7680 ) FCAL2->push_back(i);
+        if ( i>=7680 && i< 7744 ) FCAL3->push_back(i);
+    }
+    HAD1towers->clear();
+    HAD2towers->clear();
+    HAD3towers->clear();
+    for (const auto &i : *HADtowers) {
+        const xAOD::JGTower* tower = towers->at(i);
+        float aeta = std::abs(tower->eta());
+        if (aeta< 1.5) HAD1towers->push_back(i);
+        else if (aeta< 1.6) HAD2towers->push_back(i);
+        else HAD3towers->push_back(i);
+    }
+
+    fullFCAL->reserve(fullFCAL->size() + distance(FCAL1->begin(), FCAL1->end()));
+    fullFCAL->insert(fullFCAL->end(), FCAL1->begin(), FCAL1->end());
+    fullFCAL->reserve(fullFCAL->size() + distance(FCAL2->begin(), FCAL2->end()));
+    fullFCAL->insert(fullFCAL->end(), FCAL2->begin(), FCAL2->end());
+    fullFCAL->reserve(fullFCAL->size() + distance(FCAL3->begin(), FCAL3->end()));
+    fullFCAL->insert(fullFCAL->end(), FCAL3->begin(), FCAL3->end());
+
+    std::vector < float > rho               ( bins.size ()  , 0.0 ) ;
+    std::vector < std::vector <int> * > regions;
+    regions = { HAD1towers, HAD2towers, HAD3towers, EMtowers, fullFCAL };
+    
+    int totalnum=0;
+    for (const auto &region: regions) {
+        totalnum+=region->size();
+    }
+
+    int offset_steps=eta_bins.size()*phi_bins.size();
+    int offset_core_steps=eta_bins_core.size()*phi_bins.size();
+
+    bins.clear();
+    bins_core.clear();
+    int offset=0;
+    int offset_core=0;
+    for (const auto &region: regions) {
+        bins.resize(offset_steps+bins.size());
+        bins_core.resize(offset_core_steps+bins_core.size());
+        for(const auto &i : *region){
+            const xAOD::JGTower* tower = towers->at(i);
+            float eta = tower->eta();
+            float phi = tower->phi();
+            std::vector<int> bin= check_in_bin(eta,phi,eta_bins,phi_bins, phi_offset);
+            std::vector<int> bin_core= check_in_bin(eta,phi,eta_bins_core,phi_bins, phi_offset);
+            for (const auto j: bin) bins.at(offset+j).push_back(i);
+            for (const auto j: bin_core) bins_core.at(offset+j).push_back(i);
+        }
+        offset+=offset_steps;
+        offset_core+=offset_core_steps;
+    }
+
+    int num_bins_core=0;
+    int total_bins_core=0;
+    for (const auto &bin: bins_core) {
+        if (bin.size() !=0 ) num_bins_core++;
+        total_bins_core+=bin.size();
+    }
+
+    int num_bins=0;
+    int total_bins=0;
+    for (const auto &bin: bins) {
+        if (bin.size() !=0 ) num_bins++;
+        total_bins+=bin.size();
+    }
+
+    for (size_t bin=0; bin< bins_core.size(); bin++) {
+        if (bins_core.at(bin).size() == 0) bins.at(bin).clear();
+    }
+
+    int num_bins_c=0;
+    int total_bins_c=0;
+    for (const auto &bin: bins) {
+        if (bin.size() !=0 ) num_bins_c++;
+        total_bins_c+=bin.size();
+    }
+  return StatusCode::SUCCESS;
+}
+
 //------------------------------------------------------------------------------------------------
 StatusCode METAlg::Baseline_MET(const xAOD::JGTowerContainer*towers, TString metName, std::vector<float> noise, bool useNegTowers){
   
@@ -47,6 +187,92 @@ StatusCode METAlg::Baseline_MET(const xAOD::JGTowerContainer*towers, TString met
   return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------------------------
+StatusCode METAlg::jXERHO(const xAOD::JGTowerContainer* towers, TString metName, const std::vector<float> jTowerArea, const std::vector < std::vector < int > > jFEX_bins, const std::vector < std::vector < int > > jFEX_bins_core, float fixed_noise_cut, float rho_up_threshold, float min_noise_cut, xAOD::JGTowerContainer* towers_PUsub ){
+    std::vector < int   > count  ( jFEX_bins.size ( ) , -1  ) ;
+    std::vector < float > jT_Sum ( jFEX_bins.size ( ) , 0.0 ) ;
+    std::vector < float > rho    ( jFEX_bins.size ( ) , 0.0 ) ;
+
+    // rho calculation
+    for (unsigned int calculation_bin=0; calculation_bin<jFEX_bins.size(); calculation_bin++) {
+        for(const auto &i: jFEX_bins.at(calculation_bin)){
+            const xAOD::JGTower* tower = towers->at(i);
+            float Et = tower->et();
+            float Et_area = Et / jTowerArea[i];
+
+            if (count.at(calculation_bin) == -1) count[calculation_bin]=0;
+
+            if ((fixed_noise_cut<Et_area) && (Et_area<=rho_up_threshold)) {
+                jT_Sum[calculation_bin] +=Et_area;
+                count[calculation_bin]++;
+            }
+        }
+        if (count.at(calculation_bin) !=0) rho[calculation_bin]=jT_Sum.at(calculation_bin)/count.at(calculation_bin);
+    }
+
+    //Missing Et calculation for met and met_sub
+    float MET_sub_x=0.0;
+    float MET_sub_y=0.0;
+    
+    std::vector < float > rho_tower_et;
+    rho_tower_et.resize(7744,0.0);
+    for (unsigned int calculation_bin=0; calculation_bin<jFEX_bins_core.size(); calculation_bin++) {
+        for(const auto &i: jFEX_bins_core.at(calculation_bin)){
+            const xAOD::JGTower* tower = towers->at(i);
+            float phi=tower->phi();
+            float Et = tower->et();
+            float Et_sub=0.;
+            float Et_diff=Et;
+            Et_diff=(Et-rho.at(calculation_bin)*jTowerArea[i]);
+            if (Et_diff/jTowerArea[i]>min_noise_cut) {
+                Et_sub=Et_diff;
+            }
+            MET_sub_x -= Et_sub*cos(phi);
+            MET_sub_y -= Et_sub*sin(phi);
+            rho_tower_et[i]=Et_sub;
+        }
+    }
+    
+    towers_PUsub->clear();
+    
+    for ( size_t i =0 ; i< 7744; i++) {
+        xAOD::JGTower* new_tower = new xAOD::JGTower(*(towers->at(i)));
+        towers_PUsub->push_back(new_tower);
+        const xAOD::JGTower* tower = towers->at(i);
+        float eta=tower->eta();
+        float phi=tower->phi();
+        float deta=tower->deta();
+        float dphi=tower->dphi();
+        const int t_ = i;
+        const int sampling = tower->sampling(); 
+        new_tower->initialize(t_, eta, phi);
+        new_tower->setdEta(deta);                                                                     
+        new_tower->setdPhi(dphi);                                                                     
+        new_tower->setEt(rho_tower_et[i]);                                                                
+        const std::vector<int> SCindex= tower->SCIndex();
+        const std::vector<int> TileIndex= tower->TileIndex();
+        new_tower->setSCIndex(SCindex);                                                                    
+        new_tower->setTileIndex(TileIndex);
+        new_tower->setSampling(sampling);
+    }
+
+    float et_MET_sub = sqrt(MET_sub_x * MET_sub_x + MET_sub_y * MET_sub_y);
+    float phi_MET_sub=TMath::ACos(MET_sub_x/et_MET_sub);
+    if (MET_sub_y<0) {
+        phi_MET_sub = -phi_MET_sub;
+    }
+
+    std::shared_ptr<MET> met  = std::make_shared<MET>();
+    met->ex=MET_sub_x; 
+    met->ey=MET_sub_y; 
+    met->phi = phi_MET_sub;
+    met->et = et_MET_sub;;
+
+
+    if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
+
+    return StatusCode::SUCCESS;
+}
+
 StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metName, bool useEtaBins, bool useRMS, bool useMedian, bool useNegTowers){
   
   float EtMiss = 0;
