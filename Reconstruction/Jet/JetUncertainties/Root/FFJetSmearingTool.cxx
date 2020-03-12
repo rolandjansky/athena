@@ -640,9 +640,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	jet_mass_CALO = jet_reco_CALO.mass();
         jet_mass_TA = jet_reco_TA.mass();
 
-	double jetcalibtools_calo_mass_weight = (jet_reco_Comb.mass() - jet_reco_TA.mass())/(jet_reco_CALO.mass()-jet_reco_TA.mass());
-        ATH_MSG_VERBOSE("Calo mass weight from JeetCalibrationTools = " << jetcalibtools_calo_mass_weight );
-
 
 	if(jet_reco_Comb.mass()<=0 || jet_reco_CALO.mass() < 0 || jet_reco_TA.mass() < 0){
 		ATH_MSG_VERBOSE("The Comb, Calo or TA mass component of your jet has a negative value");
@@ -655,33 +652,26 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	}
 
 
-	aux1=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight,jet_reco_CALO.e()/1000.,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),TMath::Abs(jet_reco_CALO.eta())/*1*/);
-	aux2=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight,jet_reco_TA.e()/1000.,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),TMath::Abs(jet_reco_TA.eta()));
+	if(jet_reco_CALO.mass() < 1){ //Sometimes JetCalibTools set a mass of 0 or close to 0 (<1GeV) to some Calo or TA jets. 
+					//Then the weight of this tool do not match with the one in JetUncertainties so we have to check that we are not in that case
+					//bacause, later, we will rejoin the jets using new weights calculated with JetUncertainties (or with the original weghts of 
+					//JetCalib tools)
 
-//The histograms with the weights that we are reading was deffined with the code "e_LOGmOe_eta" what means that each axis correspond to:
-//-X: Jet Energy
-//-Y: Log(Jet_Energy/Jet_mass)
-//-Z:Eta
-//Domain is [200-6000],[-6,0],[0,2] but, the ReadHistogram function put the value of the extream of the histogram to the values outside the domain.
-//We have to use a custom "My_Interpolate" because the Z axis has just one bin (and this makes the Root Interpolate function fail) 
+		 use_jetcalibtoolsweight = true;		
+	} 
 
-	double jetuncertaintiesmap_calo_mass_weight = (1/(aux1*aux1)) /((1/(aux1*aux1))+(1/(aux2*aux2)));
+	else if(jet_reco_TA.mass() < 1){
 
-//Map Calo weight gives the same result as JetUncertainties (m_jetuncertaintiestool->getNormalizedCaloMassWeight(*jet_reco);). We have read the same map and apply the same procedure so we end up erasing the dependence in JetUncertainties
-
-
-        ATH_MSG_VERBOSE("Calo mass weight from the JetUncertainties map = " << jetuncertaintiesmap_calo_mass_weight );//It matches my calculation exept in the weird cases (some mass =0)
-
-
-        if(TMath::Abs(jetcalibtools_calo_mass_weight-jetuncertaintiesmap_calo_mass_weight) > 0.001){
-                ATH_MSG_VERBOSE("Calo weights from JetCalibTools do not match with the Calo weights of JetUncertainties" );
-                ATH_MSG_VERBOSE("Using the JetCalibTools weights for the smearing..." );
-        }
-	else{
-        use_jetcalibtoolsweight = false; //This means that the weights will be calculated after the smearing using the JetUncertaintiesTool.
-                                                //We can do this because the weights of JetCalibTools and JetUncertainties match.
+		use_jetcalibtoolsweight = true;
 	}
-        calo_mass_weight = jetcalibtools_calo_mass_weight;// The two weights match
+
+	else{
+		use_jetcalibtoolsweight = false;
+	}
+
+
+        calo_mass_weight = (jet_reco_Comb.mass() - jet_reco_TA.mass())/(jet_reco_CALO.mass()-jet_reco_TA.mass());
+        ATH_MSG_VERBOSE("Calo mass weight from JeetCalibrationTools = " << calo_mass_weight );
 
 
     }
@@ -791,6 +781,14 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	aux1=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight,jet_reco_CALO.e()/1000.,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),TMath::Abs(jet_reco_CALO.eta())/*1*/);
 
 	aux2=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight,jet_reco_TA.e()/1000.,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),TMath::Abs(jet_reco_TA.eta()));
+
+//The histograms with the weights that we are reading was deffined with the code "e_LOGmOe_eta" what means that each axis correspond to:
+////-X: Jet Energy
+////-Y: Log(Jet_Energy/Jet_mass)
+////-Z:Eta
+////Domain is [200-6000],[-6,0],[0,2] but, the ReadHistogram function put the value of the extream of the histogram to the values outside the domain.
+////We have to use a custom "My_Interpolate" because the Z axis has just one bin (and this makes the Root Interpolate function fail) 
+
 
 	calo_mass_weight = (1/(aux1*aux1)) /((1/(aux1*aux1))+(1/(aux2*aux2)));
 
