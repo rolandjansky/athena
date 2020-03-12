@@ -486,8 +486,7 @@ if(want_to_debug==true){
         	jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",jet_reco_CALO_FourMom);
         	jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA_FourMom);
 
-if(want_to_debug==true){   
-                Info(APP_NAME,"Calorimeter jets can not be divided in its Comb,Calo and TA parts " );
+if(want_to_debug==true && kindofmass == "Comb"){   
         	Info(APP_NAME,"Comb jet mass = %g", jet_reco_Comb_FourMom.mass() );
         	Info(APP_NAME,"CALO jet mass = %g", jet_reco_CALO_FourMom.mass() );
         	Info(APP_NAME, "TA jet mass = %g", jet_reco_TA_FourMom.mass() );
