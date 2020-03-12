@@ -8,7 +8,7 @@ from TrigValTools.TrigValSteering import Input, Test, Step, ExecStep
 from TrigP1Test import TrigP1TestSteps
 
 # Input file
-f = Input.get_input('data').paths[0].encode('ascii', 'ignore')
+f = str(Input.get_input('data').paths[0])
 
 # Delete any previous bytestream file
 ex_rm = ExecStep.ExecStep('cleanup')
