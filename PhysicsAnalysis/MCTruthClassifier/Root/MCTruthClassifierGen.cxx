@@ -310,7 +310,7 @@ MCTruthClassifier::findAllJetMothers(const xAOD::TruthParticle* thePart,
       findAllJetMothers(theMoth, allJetMothers);
     }
   }
-  }
+}
 //-------------------------------------------------------------------------------
 ParticleType
 MCTruthClassifier::defTypeOfElectron(ParticleOrigin EleOrig, bool isPrompt) const
@@ -669,7 +669,8 @@ MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleContainer* mcTruth
   if (numOfParents == 1 && numOfDaug > 4 && (abs(motherPDG) < 7 || motherPDG == 21)) {
 
     const xAOD::TruthParticle* thePartToCheck = thePriPart;
-    const xAOD::TruthParticle* theMother = thePriPart->hasProdVtx() ? thePriPart->prodVtx()->incomingParticle(0) : nullptr;
+    const xAOD::TruthParticle* theMother =
+      thePriPart->hasProdVtx() ? thePriPart->prodVtx()->incomingParticle(0) : nullptr;
     if (theMother != nullptr && abs(theMother->pdgId()) == 11 && theMother->status() == 2)
       thePartToCheck = theMother;
 
@@ -1835,8 +1836,8 @@ MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleContainer* mcTruthTE
       mothOriVert->nIncomingParticles() != 0) {
     const xAOD::TruthParticle* itrP = mothOriVert->incomingParticle(0);
     const xAOD::TruthVertex* Vrtx = itrP->hasProdVtx() ? itrP->prodVtx() : nullptr;
-    if (mothOriVert->nIncomingParticles() == 1 && abs(itrP->pdgId()) == 11 && Vrtx != nullptr && abs(Vrtx->barcode()) == 5 &&
-        itrP->status() == 3)
+    if (mothOriVert->nIncomingParticles() == 1 && abs(itrP->pdgId()) == 11 && Vrtx != nullptr &&
+        abs(Vrtx->barcode()) == 5 && itrP->status() == 3)
       return FSRPhot;
   }
 
@@ -2067,7 +2068,8 @@ MCTruthClassifier::defOrigOfNeutrino(const xAOD::TruthParticleContainer* mcTruth
   if (mothOriVert && mothOriVert->barcode() == partOriVert->barcode())
     samePart = true;
   //
-  if ((abs(motherPDG) == nuFlav || abs(motherPDG) == 15 || abs(motherPDG) == 24) && mothOriVert != nullptr && !samePart) {
+  if ((abs(motherPDG) == nuFlav || abs(motherPDG) == 15 || abs(motherPDG) == 24) && mothOriVert != nullptr &&
+      !samePart) {
     long pPDG(0);
     const xAOD::TruthParticle* MotherParent(nullptr);
     do {
@@ -2236,7 +2238,8 @@ MCTruthClassifier::defOrigOfNeutrino(const xAOD::TruthParticleContainer* mcTruth
   if (numOfParents == 1 && numOfDaug > 4 && (abs(motherPDG) < 7 || motherPDG == 21)) {
 
     const xAOD::TruthParticle* thePartToCheck = thePriPart;
-    const xAOD::TruthParticle* theMother = thePriPart->hasProdVtx() ? thePriPart->prodVtx()->incomingParticle(0) : nullptr;
+    const xAOD::TruthParticle* theMother =
+      thePriPart->hasProdVtx() ? thePriPart->prodVtx()->incomingParticle(0) : nullptr;
 
     if (abs(theMother->pdgId()) == 11 && theMother->status() == 2)
       thePartToCheck = theMother;
@@ -2616,7 +2619,8 @@ MCTruthClassifier::getMother(const xAOD::TruthParticle* thePart) const
       ATH_MSG_WARNING("getMother:: infinite while");
       break;
     }
-  } while (MothOriVert != nullptr && MotherPDG == partPDG && partBarcode < m_barcodeG4Shift && MothOriVert != partOriVert);
+  } while (MothOriVert != nullptr && MotherPDG == partPDG && partBarcode < m_barcodeG4Shift &&
+           MothOriVert != partOriVert);
 
   ATH_MSG_DEBUG("succeded getMother");
   return theMoth;
@@ -2778,7 +2782,7 @@ MCTruthClassifier::defOutComeOfTau(const xAOD::TruthParticle* thePart, Info* inf
   NumOfTauDaug = EndVert->nOutgoingParticles();
   std::vector<const xAOD::TruthParticle*> tauFinalStatePart = findFinalStatePart(EndVert);
 
-  for (auto & i : tauFinalStatePart) {
+  for (auto& i : tauFinalStatePart) {
     long pdg = i->pdgId();
     if (MC::PID::isElectron(pdg))
       NumOfElec++;
@@ -3035,5 +3039,25 @@ MCTruthClassifier::isHadronFromB(const xAOD::TruthParticle* p) const
     return nullptr;
   // Otherwise grab the mother and recurse - no need to deal with 2->1 vertices here
   return isHadronFromB(p->prodVtx()->incomingParticle(0));
+}
+void
+MCTruthClassifier::findParticleDaughters(const xAOD::TruthParticle* thePart,
+                                         std::set<const xAOD::TruthParticle*>& daughters) const
+{
+
+  // Get descendants
+  const xAOD::TruthVertex* endVtx = thePart->decayVtx();
+  if (endVtx != nullptr) {
+    for (unsigned int i = 0; i < endVtx->nOutgoingParticles(); i++) {
+      const xAOD::TruthParticle* theDaughter = endVtx->outgoingParticle(i);
+      if (theDaughter == nullptr)
+        continue;
+      if (theDaughter->status() == 1 && theDaughter->barcode() < 200000) {
+        // Add descendants with status code 1
+        daughters.insert(theDaughter);
+      }
+      findParticleDaughters(theDaughter, daughters);
+    }
+  }
 }
 

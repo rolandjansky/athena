@@ -110,25 +110,4 @@ MCTruthClassifier::finalize()
 
   return StatusCode::SUCCESS;
 }
-void
-MCTruthClassifier::findParticleDaughters(const xAOD::TruthParticle* thePart,
-                                         std::set<const xAOD::TruthParticle*>& daughters) const
-{
-
-  // Get descendants
-  const xAOD::TruthVertex* endVtx = thePart->decayVtx();
-  if (endVtx != nullptr) {
-    for (unsigned int i = 0; i < endVtx->nOutgoingParticles(); i++) {
-      const xAOD::TruthParticle* theDaughter = endVtx->outgoingParticle(i);
-      if (theDaughter == nullptr)
-        continue;
-      if (theDaughter->status() == 1 && theDaughter->barcode() < 200000) {
-        // Add descendants with status code 1
-        daughters.insert(theDaughter);
-      }
-      findParticleDaughters(theDaughter, daughters);
-    }
-  }
-  }
-
 
