@@ -109,9 +109,9 @@ StatusCode TrigConf::JobOptionsSvc::readOptionsDB(const std::string& db_server, 
   jodbloader.loadJobOptions( smk, jo );
   if (jo) {
     unsigned int nClients(0), nProps(0);
-    for( const auto client : jo.getObject("properties").data()) {
+    for( const auto & client : jo.getObject("properties").data()) {
       nClients++;
-      for( const auto property : client.second ) {
+      for( const auto & property : client.second ) {
         nProps++;
         ATH_CHECK(addPropertyToCatalogue(client.first, Gaudi::Property<std::string>(property.first, property.second.data())));
       }
