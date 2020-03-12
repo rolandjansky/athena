@@ -143,14 +143,14 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   }
 
   // EIFI Coincidence Map
+  ATH_MSG_DEBUG("start to create EIFI coincidence map.");
   for (int side=0; side<NumberOfSide; side +=1) {
     m_mapEIFI[side] = new TGCEIFICoincidenceMap(tgcArgs(), readCondKey, ver_EIFI, side);
   }
 
   // Tile-Mu coincidence Map
   m_mapTileMu = new TGCTileMuCoincidenceMap(tgcArgs(), readCondKey, ver_TILE);
-   
- 
+
 }
 
 void TGCDatabaseManager::deleteConnectionPPToSL()

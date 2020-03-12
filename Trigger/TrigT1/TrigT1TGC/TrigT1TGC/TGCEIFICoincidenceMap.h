@@ -14,6 +14,8 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
+#include "AthenaKernel/MsgStreamMember.h"
+
 namespace LVL1TGCTrigger {
  
 class TGCEIFICoincidenceMap
@@ -56,9 +58,17 @@ class TGCEIFICoincidenceMap
   void                        dumpMap() const;
 
   TGCArguments* tgcArgs() const;
-  
-protected:
- 
+
+  /** Declaring the standard message stream
+   *  Returns a reference to the default message stream
+   */
+  MsgStream& msg(const MSG::Level lvl) const;
+  /** Test method to evaluate the verbosity level */
+  bool msgLvl(const MSG::Level lvl) const;
+  /** set message level to propagate from the parent class */
+  void setMessageLevel(const MSG::Level lvl) const;
+
+ protected:
   enum {N_EndcapSector=48};
   enum {N_Input_InnerSector=4};
   enum {N_Endcap_SSC=19};
@@ -81,6 +91,9 @@ private:
   TGCArguments* m_tgcArgs;
 
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
+
+  //Declaring private message stream member.
+  mutable Athena::MsgStreamMember m_msg;
 };
 
 inline TGCArguments* TGCEIFICoincidenceMap::tgcArgs() const
@@ -120,6 +133,14 @@ inline
   return  &(m_map[input][ssc][sec]);    
 }
 
+inline MsgStream& TGCEIFICoincidenceMap::msg(const MSG::Level lvl) const { return m_msg << lvl; }
+
+inline bool TGCEIFICoincidenceMap::msgLvl(const MSG::Level lvl) const
+{
+  return (m_msg.get().level() <= lvl) ? true : false;
+}
+
+inline void TGCEIFICoincidenceMap::setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); }
 
 } //end of namespace bracket
 

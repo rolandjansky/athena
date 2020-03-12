@@ -13,11 +13,7 @@
 #include "TrigT1TGC/TGCDatabaseManager.hh"
 #include "PathResolver/PathResolver.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-
 
 namespace LVL1TGCTrigger {
 
@@ -29,7 +25,11 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
    m_tgcArgs(tgcargs),
    m_readCondKey(readCondKey)
 {
+  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCEIFICoincidenceMap");
+  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+
   // intialize map
+  ATH_MSG_DEBUG("initialising the map");
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
       for (size_t input=0; input< N_Input_InnerSector; input++){
@@ -46,6 +46,8 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
       }
     }
   }
+  ATH_MSG_DEBUG("end of initialisation");
+
   return;
 }
    
@@ -59,7 +61,11 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
    m_tgcArgs(tgcargs),
    m_readCondKey(readCondKey)
 {
+  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCEIFICoincidenceMap");
+  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+
   // initialize map
+  ATH_MSG_DEBUG("initialising the map");
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
       for (size_t input=0; input< N_Input_InnerSector; input++){
@@ -76,28 +82,22 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
       }
     }
   }
+  ATH_MSG_INFO("USE_INNER = " << tgcArgs()->USE_INNER());
 
   if (!tgcArgs()->USE_INNER()) return;
+
+  ATH_MSG_INFO("USE_CONDDB = " << tgcArgs()->USE_CONDDB());
+
   if (tgcArgs()->USE_CONDDB()) return;
- 
-  //////////////////////////////
-  IMessageSvc* msgSvc = 0;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
-    return;
-  }
-  MsgStream log(msgSvc, "TGCEIFICoincidenceMap::TGCEIFICoincidenceMap");
 
   // use full CW (i.e. different maps for each side)
   m_fullCW = (m_verName == "v07");
 
   // read Inner Coincidence Map 
   if (this->readMap()) {
-    log << MSG::INFO 
-      << " TGC EIFI CW version of " << m_verName << " is selected " << endmsg;
+    ATH_MSG_INFO(" TGC EIFI CW version of " << m_verName << " is selected.");
   } else {
-    log << MSG::INFO  
-	<< " NOT use inner station " << endmsg;
+    ATH_MSG_INFO(" NOT use inner station ");
     tgcArgs()->set_USE_INNER( false );
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
@@ -123,6 +123,8 @@ TGCEIFICoincidenceMap::~TGCEIFICoincidenceMap()
 TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(const TGCEIFICoincidenceMap& right)
  : m_readCondKey(right.m_readCondKey)
 {
+  ATH_MSG_DEBUG("copy constructor");
+
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
       for (size_t input=0; input< N_Input_InnerSector; input++){
@@ -146,6 +148,8 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(const TGCEIFICoincidenceMap& right)
 
 TGCEIFICoincidenceMap& TGCEIFICoincidenceMap::operator=(const TGCEIFICoincidenceMap& right)
 {
+  ATH_MSG_INFO("operator = ");
+
   if (this != &right) {
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
@@ -173,14 +177,8 @@ TGCEIFICoincidenceMap& TGCEIFICoincidenceMap::operator=(const TGCEIFICoincidence
 
 bool TGCEIFICoincidenceMap::readMap() 
 {
+  ATH_MSG_DEBUG("readMap");
   const std::string SideName[NumberOfSide] = {"A","C"};
-
-  IMessageSvc* msgSvc = 0;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
-    return false;
-  }
-  MsgStream log(msgSvc, "TGCEIFICoincidenceMap::TGCEIFICoincidenceMap");
 
   // select right database according to a set of thresholds
   std::string dbname="";
@@ -197,8 +195,7 @@ bool TGCEIFICoincidenceMap::readMap()
   fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
   bool isFound =( fullName.length() > 0 );
   if( !isFound) {
-    log << MSG::WARNING 
-	<< " Could not found " << dbname << endmsg;
+    ATH_MSG_WARNING(" Could not found " << dbname);
     return false ;  
   } 
 
@@ -225,10 +222,8 @@ bool TGCEIFICoincidenceMap::readMap()
     // check Id
     if( sectorId<0 || sectorId>=N_EndcapSector ||
 	sscId<0    || sscId>=N_Endcap_SSC ) {
-      log << MSG::WARNING 
-	  << " illegal parameter in database header : " << header.str()
-	  << " in file " << dbname
-	  << endmsg;
+      ATH_MSG_WARNING(" illegal parameter in database header : " << header.str()
+	  << " in file " << dbname);
       file.close();
       return false;
     }
@@ -326,4 +321,5 @@ int TGCEIFICoincidenceMap::getTriggerBit(const int slot,
     return m_map[slot][ssc][sec].getTriggerBit(reg,read,bit);
   }
 }
-} //end of namespace bracket
+
+}   // end of namespace
