@@ -123,7 +123,6 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
    }
 
    Guid thisFile = Guid::null();
-   long int oid2 = 0L;
    const DataHeader* dataHeader = nullptr;
    if (dataHeader == nullptr) { // New file (or reading DataHeader)
       SG::ReadHandle<DataHeader> eventDataHeader(m_dataHeaderKey.value(), eventStore()->name());
