@@ -18,6 +18,8 @@ CREATED:  Sep 2007
 // EDM includes
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
+// For making PID selections easier
+#include "TruthUtils/PIDHelpers.h"
 
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
@@ -47,7 +49,7 @@ CREATED:  Sep 2007
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
- #include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
+#include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
 #include "AthenaKernel/Units.h"
 #endif
 
