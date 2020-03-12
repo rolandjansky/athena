@@ -28,4 +28,4 @@ Reco_tf.py --inputHITSFile $inputHitsFile/*root.? \
            --outputAODFile $outputAODFile \
            --outputNTUP_PHYSVALFile $outputNTUP_PHYSVALFile \
            --jobNumber=2 \
-           --maxEvents=2000 \
+           --maxEvents=2000
