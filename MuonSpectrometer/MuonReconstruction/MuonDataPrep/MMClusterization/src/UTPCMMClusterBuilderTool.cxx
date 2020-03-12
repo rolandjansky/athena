@@ -81,7 +81,8 @@ StatusCode Muon::UTPCMMClusterBuilderTool::initialize(){
 }
 
 
-StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVect){
+StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds,
+                                             std::vector<Muon::MMPrepData*>& clustersVect)const {
     std::vector<std::vector<Muon::MMPrepData>> MMprdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
     for (const auto& MMprd:MMprds){
         Identifier id = MMprd.identify();
@@ -216,7 +217,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
     return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& idx_selected){
+StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& idx_selected)const{
     ATH_MSG_DEBUG("beginning of runHoughTrafo() with: " << xpos.size() <<" hits" );
     double maxX =  *std::max_element(xpos.begin(),xpos.end());
     double minX =  *std::min_element(xpos.begin(),xpos.end());    
@@ -239,7 +240,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<int>& flag,
     if(sc.isFailure()) return sc;
     return StatusCode::SUCCESS;   
 }
-StatusCode Muon::UTPCMMClusterBuilderTool::houghInitCummulator(std::unique_ptr<TH2D>& h_hough,double xmax,double xmin){
+StatusCode Muon::UTPCMMClusterBuilderTool::houghInitCummulator(std::unique_ptr<TH2D>& h_hough,double xmax,double xmin)const{
    ATH_MSG_VERBOSE("xmax: "<< xmax <<" xmin: "<< xmin <<" m_dResolution "<< m_dResolution <<" m_alphaMin "<< m_alphaMin <<" m_alphaMax: "<< m_alphaMax <<" toRad: "<< toRad <<" m_alphaResolution: "<<m_alphaResolution);
     double dmax=std::max(std::fabs(xmin),std::fabs(xmax));
     dmax=std::sqrt(std::pow(dmax,2)+std::pow(m_driftRange,2)); // rspace =sqrt(xmax*xmax+driftrange*driftrange) where driftrange is assumed to be 6mm
@@ -253,7 +254,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::houghInitCummulator(std::unique_ptr<T
     return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::UTPCMMClusterBuilderTool::fillHoughTrafo(std::unique_ptr<TH2D>& h_hough,std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time){
+StatusCode Muon::UTPCMMClusterBuilderTool::fillHoughTrafo(std::unique_ptr<TH2D>& h_hough,std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time)const{
    for(size_t i_hit=0; i_hit<xpos.size(); i_hit++){
     if(flag.at(i_hit)!=0) continue; //skip hits which have been already used or been rejected as cross talk
     double x=xpos.at(i_hit);
@@ -268,7 +269,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::fillHoughTrafo(std::unique_ptr<TH2D>&
    return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::UTPCMMClusterBuilderTool::findAlphaMax(std::unique_ptr<TH2D>& h_hough, std::vector<std::tuple<double,double>> &maxPos){
+StatusCode Muon::UTPCMMClusterBuilderTool::findAlphaMax(std::unique_ptr<TH2D>& h_hough, std::vector<std::tuple<double,double>> &maxPos)const{
     int cmax =  h_hough->GetMaximum();
     if (cmax<m_houghMinCounts){
         ATH_MSG_DEBUG("cmax "<< cmax<< "smaller then m_houghMinCounts "<<m_houghMinCounts);
@@ -287,7 +288,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::findAlphaMax(std::unique_ptr<TH2D>& h
 }
 
 StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(std::vector<std::tuple<double,double>> &tracks,std::vector<double>& xpos, std::vector<double>& time,
-                                std::vector<int>& flag, std::vector<int> &idxGoodStrips){
+                                std::vector<int>& flag, std::vector<int> &idxGoodStrips)const{
     std::vector<double> chi2;
     std::vector<std::vector<int>> allGoodStrips;
     std::vector<int> ngoodStrips;
@@ -343,7 +344,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(std::vector<std::tuple<do
 
 
 StatusCode Muon::UTPCMMClusterBuilderTool::transformParameters(double alpha, double d, double dRMS, double& slope,
-    double& intercept, double& interceptRMS){
+    double& intercept, double& interceptRMS)const{
         slope=1./std::tan(alpha);
         intercept=-d/std::sin(alpha);
         interceptRMS=std::fabs(dRMS);
@@ -351,7 +352,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::transformParameters(double alpha, dou
         return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::UTPCMMClusterBuilderTool::applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag, int &nStripsCut){
+StatusCode Muon::UTPCMMClusterBuilderTool::applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag, int &nStripsCut)const{
    int N=idxSelected.size();
    bool removedStrip=false;
    if (N<3 || nStripsCut>=m_maxStripsCut ) return StatusCode::FAILURE;
@@ -375,7 +376,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::applyCrossTalkCut(std::vector<int> &i
 }
 
 
-StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<double>& time, std::vector<int>& idxSelected, double& x0, double &sigmaX0 ,double &fitAngle, double &chiSqProb){
+StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<double>& time, std::vector<int>& idxSelected, double& x0, double &sigmaX0 ,double &fitAngle, double &chiSqProb)const{
     std::unique_ptr<TGraphErrors> fitGraph=std::unique_ptr<TGraphErrors>(new TGraphErrors());
     std::unique_ptr<TF1> ffit=std::unique_ptr<TF1>(new TF1("ffit","pol1"));
     

@@ -457,7 +457,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
 	std::pair<double,double> delta = m_offlineITkCalibData->getPixelITkClusterErrorData()->getDelta(&element_id);
 
 	double delta_phi = nrows != 1 ? delta.first : 0.;
-	double delta_eta = nrows != 1 ? delta.second : 0.;
+	double delta_eta = ncol != 1 ? delta.second : 0.;
 	localphi += delta_phi*(omegaphi-0.5);
 	localeta += delta_eta*(omegaeta-0.5);
 
@@ -597,7 +597,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
 	std::pair<double,double> delta_err = m_offlineITkCalibData->getPixelITkClusterErrorData()->getDeltaError(&element_id);
 
 	errphi = nrows != 1 ? delta_err.first : (width.phiR()/nrows)*TOPHAT_SIGMA;
-	erreta = nrows != 1 ? delta_err.second : (width.z()/ncol)*TOPHAT_SIGMA;
+	erreta = ncol != 1 ? delta_err.second : (width.z()/ncol)*TOPHAT_SIGMA;
       }
 
       else{ // Phase 1 clustering

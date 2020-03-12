@@ -29,7 +29,7 @@ namespace Muon{
 
 
             StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<Muon::MMPrepData*>& clustersVec);
+			   std::vector<Muon::MMPrepData*>& clustersVec) const;
 
             
         private:
