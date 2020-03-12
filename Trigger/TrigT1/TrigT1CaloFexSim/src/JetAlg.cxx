@@ -18,7 +18,7 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
 
   std::vector<float> seed_candi_eta;
   unsigned t_size = towers->size();
-
+  
   //find t_maxi=(max eta of all towers)
   float t_maxi=-999;
   for(unsigned i=0; i<t_size;i++){
@@ -36,7 +36,7 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
      for(unsigned i=0;i<t_size;i++){
         const xAOD::JGTower*tower = towers->at(i);
         std::vector<int> SC_indices = tower->SCIndex();
-	bool isTile = (fabs(tower->eta())<1.5 && tower->sampling()==1); 
+        bool isTile = (fabs(tower->eta())<1.5 && tower->sampling()==1); 
         if(SC_indices.size()==0 && !isTile)  continue;
 
         // only want EM towers as centres of barrel seeds (overlap in position with hadronic ones). 0 = barrel EM. 1 = barrel had

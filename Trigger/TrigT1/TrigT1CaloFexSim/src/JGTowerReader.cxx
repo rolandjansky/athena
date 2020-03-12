@@ -50,6 +50,7 @@ histSvc("THistSvc",name){
   declareProperty("dumpTowerInfo", m_dumpTowerInfo=false);
   declareProperty("dumpSeedsEtaPhi", m_dumpSeedsEtaPhi=false);
   declareProperty("noise_file", m_noise_file="Run3L1CaloSimulation/Noise/noise_r10684.root");
+  declareProperty("makeRoundJetsPUsub", m_makeRoundJetsPUsub=false);
 
   declareProperty("makeSquareJets", m_makeSquareJets = true);
   declareProperty("jJet_seed_size", m_jJet_seed_size=0.3);
@@ -108,6 +109,11 @@ histSvc("THistSvc",name){
   declareProperty("useMedian", m_useMedian=false);
   declareProperty("useNegTowers", m_useNegTowers=false);
   declareProperty("pTcone_cut", m_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
+  
+  declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200302.r11364.root");  //correction file for jXERHO
+  declareProperty("jXERHO_fixed_noise_cut"  , m_jXERHO_fixed_noise_cut=0.0);  
+  declareProperty("jXERHO_rho_up_threshold" , m_jXERHO_rho_up_threshold=1000.0);
+  declareProperty("jXERHO_min_noise_cut"    , m_jXERHO_min_noise_cut=100.0);  
 }
 
 
@@ -157,6 +163,31 @@ StatusCode JGTowerReader::initialize() {
        gT_noise.push_back( gh_noise->GetBinContent(i+1) );
     } 
   }
+  
+  std::string fullPathTo_jXERHO_correction_file = PathResolverFindCalibFile(m_jXERHO_correction_file);
+  std::ifstream jXERHO_correction_exist(fullPathTo_jXERHO_correction_file.c_str());
+  jTowerArea.clear();
+  jTowerArea.resize(7712,1.0);
+  if(jXERHO_correction_exist){
+      ATH_MSG_INFO ("jXERHO_correction_file is set with root file:" << fullPathTo_jXERHO_correction_file << "...");
+      TFile *correctionfile = new TFile(fullPathTo_jXERHO_correction_file.c_str());
+      TH1F *jTowerArea_final_hist = (TH1F*)correctionfile->Get("jTowerArea_final_hist");
+      for (size_t i=0; i < 7712; i++) {
+          jTowerArea[i]=jTowerArea_final_hist->GetBinContent(i+1);
+          if (jTowerArea[i] == 0) {
+                ATH_MSG_DEBUG ("jTowerArea should never be zero, this concerns tower "<<i);
+          }
+      }
+
+      float renormfactor=1.0/jTowerArea[0];
+
+      for (unsigned int i=0; i<jTowerArea.size(); i ++) {
+          jTowerArea[i]= jTowerArea[i]*renormfactor;
+      }
+  } else {
+      ATH_MSG_WARNING ("jXERHO_correction_file is NOT set to "<< m_jXERHO_correction_file << " full path: "<< fullPathTo_jXERHO_correction_file << "...");
+  }
+  
   // read in the tower map
   if(m_makeJetsFromMap) {
     CHECK( ReadTowerMap() );
@@ -396,7 +427,37 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
   ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
   
+  ATH_MSG_DEBUG("JFexAlg: BuildMET");
+  CHECK(METAlg::Baseline_MET(jTs, "jNOISECUT", jT_noise, m_useNegTowers));
+  if (!buildbins) {
+      CHECK(METAlg::build_jFEX_bins(jFEX_bins, jFEX_bins_core, jTs ));
+      buildbins=true;
+  }
 
+  xAOD::JGTowerContainer* jTs_PUsub = new xAOD::JGTowerContainer();
+  xAOD::JGTowerAuxContainer* jTs_PUsubAux = new xAOD::JGTowerAuxContainer();
+  jTs_PUsub->setStore(jTs_PUsubAux);
+  CHECK(METAlg::jXERHO(jTs , "jXERHO" , jTowerArea , jFEX_bins , jFEX_bins_core , m_jXERHO_fixed_noise_cut , m_jXERHO_rho_up_threshold , m_jXERHO_min_noise_cut , jTs_PUsub));
+  ATH_MSG_DEBUG("JFexAlg: Done");
+
+  if (m_makeRoundJetsPUsub) {
+      ATH_MSG_DEBUG("JFexAlg: JetsPUsub");
+      if(m_makeRoundJets) {
+          ATH_MSG_DEBUG("JFexAlg: JetsPUsub, makeRoundJets");
+          if( JetAlg::m_SeedMap.find("jRoundSeedsPUsub") == JetAlg::m_SeedMap.end() )
+              CHECK( JetAlg::SeedGrid(jTs_PUsub, "jRoundSeedsPUsub", m_dumpSeedsEtaPhi) );
+
+          ATH_MSG_DEBUG("JFexAlg using JetsPUsub: SeedFinding with jJetSeeds; m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
+          CHECK( JetAlg::SeedFinding( jTs_PUsub, "jRoundSeedsPUsub", m_jJetRound_seed_size, m_jJetRound_max_r, jT_noise, 
+                      m_jJetRound_seed_tower_noise_multiplier, m_jJetRound_seed_total_noise_multiplier,
+                      m_jJetRound_seed_min_ET_MeV) );
+
+          ATH_MSG_DEBUG("JFexAlg usinf JetsPUsub: BuildRoundJet");
+          CHECK( JetAlg::BuildRoundJet(jTs_PUsub, "jRoundSeedsPUsub", "jRoundJetsPUsub", m_jJetRound_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_total_noise_multiplier, m_jJetRound_jet_min_ET_MeV, m_saveSeeds) );
+      }
+      delete jTs_PUsub;
+      delete jTs_PUsubAux;
+  }
 
   if(m_makeSquareJets) {
     // find all seeds
@@ -445,9 +506,6 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     CHECK( BuildJetsFromMap(jTs) );
   }
   
-  ATH_MSG_DEBUG("JFexAlg: BuildMET");
-  CHECK(METAlg::Baseline_MET(jTs, "jNOISECUT", jT_noise, m_useNegTowers));
-  ATH_MSG_DEBUG("JFexAlg: Done");
 
   return StatusCode::SUCCESS;
 }
@@ -756,6 +814,7 @@ StatusCode JGTowerReader::ProcessObjects(){
     (*acc_mst)(*METCont) = met->mst;
     CHECK(evtStore()->record(METCont,Form("%s_MET",it->first.Data())));
     CHECK(evtStore()->record(METContAux,Form("%s_METAux.",it->first.Data())));
+    ATH_MSG_DEBUG("Recording EnergySumRoI with name " << it->first.Data() << "_MET");
     ATH_MSG_DEBUG("Recording EnergySumRoI with name " << it->first.Data() << "_MET");
 
   }
