@@ -1,5 +1,4 @@
 #include "../PrimaryDPDPrescaler.h"
-#include "PrimaryDPDMaker/ThinContainers.h"
 #include "PrimaryDPDMaker/MBTSTimeFilterTool.h"
 #include "PrimaryDPDMaker/CaloTimeFilterTool.h"
 #include "PrimaryDPDMaker/BCIDFilterTool.h"
@@ -11,7 +10,6 @@
 using namespace DerivationFramework;
 
 DECLARE_COMPONENT( PrimaryDPDPrescaler )
-DECLARE_COMPONENT( ThinContainers )
 DECLARE_COMPONENT( CollisionFilterAlg )
 DECLARE_COMPONENT( muonTrkTrackThinTool )
 DECLARE_COMPONENT( MBTSTimeFilterTool )
