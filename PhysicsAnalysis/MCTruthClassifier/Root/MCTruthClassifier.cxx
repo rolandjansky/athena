@@ -31,7 +31,7 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
   : asg::AsgTool(type)
 {
 
-#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) // Add properties used/available only in Athena
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Add properties used/available only in Athena*/
   declareProperty("FwdElectronTruthExtrEtaCut",
                   m_FwdElectronTruthExtrEtaCut = 2.4,
                   "Cut on the eta of the truth Particles to be extrapolated for Fwd electrons");
@@ -48,7 +48,7 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
   declareProperty("fwrdEledRtoTrCut", m_fwrdEledRtoTrCut = 0.15);
   declareProperty("ROICone", m_ROICone = false);
 #endif
-#ifndef GENERATIONBASE // Add propertied not available in Generation only release
+#ifndef GENERATIONBASE /*Add propertied not available in Generation only release*/
   declareProperty("deltaRMatchCut", m_deltaRMatchCut = 0.2);
   declareProperty("deltaPhiMatchCut", m_deltaPhiMatchCut = 0.2);
   declareProperty("NumOfSiHitsCut", m_NumOfSiHitsCut = 3);
@@ -91,7 +91,7 @@ MCTruthClassifier::initialize()
   ATH_CHECK(m_truthParticleContainerKey.initialize());
 #endif
 
-#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) // Tools making sense only for the Athena only environment
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Tools making sense only for the Athena only environment*/
   if (!m_caloExtensionTool.empty() && m_caloExtensionTool.retrieve().isFailure()) {
     ATH_MSG_WARNING("Cannot retrieve extrapolateToCaloTool " << m_caloExtensionTool
                                                              << " - will not perform extrapolation.");

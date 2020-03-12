@@ -94,7 +94,7 @@ public:
     std::vector<MCTruthPartClassifier::ParticleOrigin> cnvPhotPartOrig;
 #endif
 
-#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) // Can only be used in Athena
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Can only be used in Athena*/
     Cache* extrapolationCache = nullptr;
 #endif
   };
@@ -112,13 +112,13 @@ public:
 
   virtual const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle*) const = 0;
 
-#ifndef XAOD_ANALYSIS // This can not run in Analysis Base
+#ifndef XAOD_ANALYSIS /*This can not run in Analysis Base*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
     const HepMC::GenParticle*,
     Info* info = nullptr) const = 0;
 #endif
   //
-#ifndef GENERATIONBASE // These can not run in Generation only release
+#ifndef GENERATIONBASE /*These can not run in Generation only release*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
     const xAOD::TrackParticle*,
     Info* info = nullptr) const = 0;
