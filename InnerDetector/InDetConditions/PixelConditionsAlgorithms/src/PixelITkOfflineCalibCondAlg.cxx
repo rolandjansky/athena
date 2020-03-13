@@ -172,7 +172,7 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
       ATH_MSG_DEBUG( "ChanNum " << (*attrList).first << " Attribute list " << attrStr.str() );
 
       // Wafer ID hash is stored in the database
-      IdentifierHash waferID_hash((*attrList).second["waferID"].data<int>());
+      IdentifierHash waferID_hash((*attrList).second["waferHash"].data<int>());
       Identifier pixelID = m_pixelid->wafer_id(waferID_hash);
       constants.emplace_back( pixelID.get_compact() );
 
