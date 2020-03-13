@@ -32,11 +32,10 @@ elseif( XAOD_ANALYSIS )
 elseif(GENERATIONBASE)
 	set(extra_deps 
 		GaudiKernel
-		PRIVATE
 		Generators/GeneratorObjects
+		PRIVATE
 		Control/AthenaKernel)
-	set( extra_libs
-		PRIVATE_LINK_LIBRARIES GeneratorObjects)
+	set( extra_libs GeneratorObjects)
 
 else()
 	set( extra_deps 
@@ -48,16 +47,15 @@ else()
 		Event/xAOD/xAODTracking  
 		Reconstruction/RecoTools/ParticlesInConeTools
 		Reconstruction/RecoTools/RecoToolInterfaces
-		PRIVATE
 		Generators/GeneratorObjects
+		PRIVATE
 		Tracking/TrkEvent/TrkEventPrimitives
 		Tracking/TrkEvent/TrkParametersIdentificationHelpers
 		Control/AthenaKernel )
 	set( extra_libs
 		xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTracking 
-		RecoToolInterfaces
-		PRIVATE_LINK_LIBRARIES GeneratorObjects 
-		TrkEventPrimitives TrkParametersIdentificationHelpers )
+		RecoToolInterfaces GeneratorObjects
+		PRIVATE_LINK_LIBRARIES TrkEventPrimitives TrkParametersIdentificationHelpers )
 
 endif()
 
