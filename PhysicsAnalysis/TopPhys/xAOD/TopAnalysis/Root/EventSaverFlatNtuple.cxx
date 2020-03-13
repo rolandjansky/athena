@@ -2322,8 +2322,7 @@ namespace top {
           
           if(m_config->softmuonAdditionalTruthInfo())
           {
-            //we do this only here, so we avoid losing time for soft muons we don't want to store in the output ntuple
-            top::truth::getRecoMuonHistory(muPtr,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+            //these truth info are written in SoftMuonObjectCollectionMaker.cxx
             
             m_softmu_parton_origin_flag[i]=0;
             if(m_config->softmuonAdditionalTruthInfoCheckPartonOrigin())
