@@ -86,9 +86,9 @@
         double fjvt = acc_fjvt_der(*jetF);
         (*Dec_outTiming)(*jetF) = fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
         (*Dec_out)(*jetF) = fjvt<=m_fjvtThresh && fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
-        (*Dec_outFjvt)(*jetF) = fjvt;
+        (*Dec_outFjvt)(*jetF) = (fjvt<=m_fjvtThresh);
       }
-      return StatusCode::SUCCESS;
+      return 0;
     }
     // Did not have it in advance, now do the extra work
     getPV();
