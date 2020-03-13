@@ -312,23 +312,11 @@ namespace Trk {
     bool                            m_useMuonMatApprox;              //!<  use approximative MS inert material
     bool                            m_checkForCompundLayers;         //!<  use the multi-layer tests for compound layers
     mutable bool                    m_dense;                         //!<  internal switch for resolved configuration 
-    
-    // ------------ Re-initialize (depending on volumes)  ----------------------- //    
-    mutable const Surface*          m_destinationSurface;                    
 
-    // ------------ Recall / Boundary Information ----------------------- //    
-    mutable const Volume*           m_boundaryVolume;                 //!< the boundary volume check
+    // ------------ Recall / Boundary Information ----------------------- //
 
-    mutable bool                    m_recall;                         //!< Flag the recall solution
-    mutable const Surface*          m_recallSurface;                  //!< Destination Surface for recall
-    mutable const Layer*            m_recallLayer;                    //!< Destination Layer for recall
-    mutable const TrackingVolume*   m_recallTrackingVolume;           //!< Destination TrackingVolume for recall
-    
     mutable ParamsNextVolume    m_parametersAtBoundary;           //!< return helper for parameters and boundary  
-    mutable ParamsNextVolume    m_parametersAtDetachedBoundary;   //!< return helper for parameters and boundary 
     mutable std::vector<Trk::HitInfo>*    m_hitVector;                //!< return helper for hit info
-
-    mutable const Trk::TrackParameters* m_lastValidParameters;            //!< parameters to be used for final propagation in case of fallback
 
     mutable std::map<const Trk::TrackParameters*, bool> m_garbageBin; //!< garbage collection during extrapolation
 
@@ -347,15 +335,12 @@ namespace Trk {
     mutable std::vector<DestSurf>                                     m_denseBoundaries;
     mutable std::vector<DestSurf>                                     m_navigBoundaries;
     mutable std::vector<DestSurf>                                     m_layers;
-    bool                                                              m_returnPassiveLayers;
     mutable bool                                                      m_robustSampling;
-    mutable PathLimit                                                 m_path;    
-    mutable double                                                    m_time;    
-    mutable size_t                 m_currentLayerBin;
+    mutable PathLimit                                                 m_path;
+    mutable double                                                    m_time;
 
     //------------------------- NAVIGATION -------- ----------------------------------------------//
     mutable int                     m_methodSequence;
-    mutable int                     m_maxMethodSequence;
 
     //-------------------------- SCREEN output steering -------------------------------------------//
     bool                            m_printHelpOutputAtInitialize;
@@ -363,41 +348,15 @@ namespace Trk {
 
     //------------------------- VALIDATION MODE SECTION ------------------------------------------//
 
-    mutable int                     m_extrapolateCalls;              //!< number of calls: extrapolate() method
-    mutable int                     m_extrapolateBlindlyCalls;       //!< number of calls: extrapolateBlindly() method 
-    mutable int                     m_extrapolateDirectlyCalls;      //!< number of calls: extrapolateDirectly() method
-    mutable int                     m_extrapolateStepwiseCalls;      //!< number of calls: extrapolateStepwise() method
 
-    mutable int                     m_startThroughAssociation;        //!< navigation intialization
-    mutable int                     m_startThroughRecall;             //!< navigation intialization
-    mutable int                     m_startThroughGlobalSearch;       //!< navigation intialization
-    mutable int                     m_destinationThroughAssociation;  //!< navigation intialization
-    mutable int                     m_destinationThroughRecall;       //!< navigation intialization
-    mutable int                     m_destinationThroughGlobalSearch; //!< navigation intialization
     
-    mutable int                     m_layerSwitched;                 //!< number of layers that have been switched 
 
     // ----------------------------- navigation validation section -----------------------------------------------------------
 
     bool                            m_navigationStatistics;           //!< steer the output for the navigaiton statistics
     bool                            m_navigationBreakDetails;         //!< steer the output for the navigation break details
-    mutable int                     m_navigationBreakLoop;            //!< number of navigation breaks due to loop
-    mutable std::map<const Trk::TrackingVolume*,int> m_loopVolumes;   //!< record name of the volumes where oscillation happened
-    mutable int                     m_navigationBreakOscillation;     //!< number of navigation breaks due to oscillation
-    mutable std::map<const Trk::TrackingVolume*,int> m_oscillationVolumes;    //!< record name of the volumes where oscillation happened
-    mutable int                     m_navigationBreakNoVolume;       //!< number of navigation breaks due no Volume found
-    mutable std::map<const Trk::TrackingVolume*,int> m_noNextVolumes;         //!< record names of the volumes where no next one is found
-    mutable int                     m_navigationBreakDistIncrease;   //!< number of navigation breaks due to distance increase
-    mutable std::map<const Trk::TrackingVolume*,int> m_distIncreaseVolumes;   //!< record name of  the voluems where the distance increases
-    mutable int                     m_navigationBreakVolumeSignature;   //!< number of navigation breaks due to distance increase
-    mutable std::map<const Trk::TrackingVolume*,int> m_volSignatureVolumes;   //!< record name of  the voluems where the distance increases
-    mutable int                     m_overlapSurfaceHit;             //!< number of OverlapSurfaces found
 
     bool                            m_materialEffectsOnTrackValidation; //!< mat effects on track validation
-    mutable int                     m_meotSearchCallsFw;                //!< how often the meot search is called: forward
-    mutable int                     m_meotSearchCallsBw;                //!< how often the meot search is called: backward
-    mutable int                     m_meotSearchSuccessfulFw;           //!< how often the meot search was successful: forward
-    mutable int                     m_meotSearchSuccessfulBw;           //!< how often the meot search was successful: backward
 
     // ------------------------------- cache --------------------------------------------------------------------
 
@@ -412,11 +371,8 @@ namespace Trk {
     unsigned int m_maxNavigSurf;
     unsigned int m_maxNavigVol;
     mutable std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >  m_navigSurfs;
-    mutable std::vector<const Trk::DetachedTrackingVolume*>                  m_navigVols;
-    mutable std::vector<std::pair<const Trk::TrackingVolume*,unsigned int> > m_navigVolsInt;
     mutable std::vector<std::pair<const Trk::Surface*,double> >              m_trSurfs;
     mutable std::vector< Trk::DestBound >                                    m_trStaticBounds;  // need to cache the boundary index, too
-    mutable std::vector<std::pair<const Trk::Surface*,double>  >             m_trDetachBounds;
     mutable std::vector<std::pair<const Trk::Surface*,double>  >             m_trDenseBounds;
     mutable std::vector<std::pair<const Trk::Surface*,double> >              m_trLays;
 

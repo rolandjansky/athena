@@ -87,53 +87,22 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::strin
   m_useMuonMatApprox(false),
   m_checkForCompundLayers(false),
   m_dense{},
-  m_destinationSurface(nullptr),
-  m_boundaryVolume(nullptr),
-  m_recall(false),
-  m_recallSurface(nullptr),
-  m_recallLayer(nullptr),
-  m_recallTrackingVolume(nullptr),
   m_hitVector(nullptr),
-  m_lastValidParameters(nullptr),
   m_currentStatic(nullptr),
   m_currentDense(nullptr),
   m_highestVolume(nullptr),
   m_resolveActive(false),
   m_resolveMultilayers(true),
   m_layerResolved{},
-  m_returnPassiveLayers(false),
   m_robustSampling(true),
   m_path(PathLimit(0., 0)),
   m_time{},
-  m_currentLayerBin{},
   m_methodSequence(0),
-  m_maxMethodSequence(2000),
   m_printHelpOutputAtInitialize(false),
   m_printRzOutput(true),
-  m_extrapolateCalls(0),
-  m_extrapolateBlindlyCalls(0),
-  m_extrapolateDirectlyCalls(0),
-  m_extrapolateStepwiseCalls(0),
-  m_startThroughAssociation(0),
-  m_startThroughRecall(0),
-  m_startThroughGlobalSearch(0),
-  m_destinationThroughAssociation(0),
-  m_destinationThroughRecall(0),
-  m_destinationThroughGlobalSearch(0),
-  m_layerSwitched(0),
   m_navigationStatistics(false),
   m_navigationBreakDetails(false),
-  m_navigationBreakLoop(0),
-  m_navigationBreakOscillation(0),
-  m_navigationBreakNoVolume(0),
-  m_navigationBreakDistIncrease(0),
-  m_navigationBreakVolumeSignature(0),
-  m_overlapSurfaceHit(0),
   m_materialEffectsOnTrackValidation(false),
-  m_meotSearchCallsFw(0),
-  m_meotSearchCallsBw(0),
-  m_meotSearchSuccessfulFw(0),
-  m_meotSearchSuccessfulBw(0),
   m_lastMaterialLayer(nullptr),
   m_cacheLastMatLayer(false),
   m_maxNavigSurf{},
@@ -146,7 +115,6 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::strin
   declareProperty("StopWithNavigationBreak", m_stopWithNavigationBreak);
   declareProperty("StopWithUpdateKill", m_stopWithUpdateZero);
   declareProperty("SkipInitialPostUpdate", m_skipInitialLayerUpdate);
-  declareProperty("MaximalMethodSequence", m_maxMethodSequence);
   // propagation steering
   declareProperty("Propagators", m_propagators);
   declareProperty("SubPropagators", m_propNames);
@@ -309,8 +277,6 @@ Trk::TimedExtrapolator::initialize() {
   m_maxNavigSurf = 1000;
   m_navigSurfs.reserve(m_maxNavigSurf);
   m_maxNavigVol = 50;
-  m_navigVols.reserve(m_maxNavigVol);
-  m_navigVolsInt.reserve(m_maxNavigVol);
 
 
   ATH_MSG_INFO("initialize() successful");
@@ -1162,12 +1128,12 @@ Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
                                       ParticleHypothesis particle,
                                       bool startingLayer) const {
   // indicate destination layer
-  bool isDestinationLayer = (&parsOnLayer.associatedSurface() == m_destinationSurface);
+  bool isDestinationLayer = false;
   // start and end surface for on-layer navigation
   //  -> take the start surface if ther parameter surface is owned by detector element
   const Trk::Surface *startSurface = ((parm.associatedSurface()).associatedDetectorElement() && startingLayer) ?
                                      &parm.associatedSurface() : nullptr;
-  const Trk::Surface *endSurface = isDestinationLayer ? m_destinationSurface : nullptr;
+  const Trk::Surface *endSurface = nullptr;
   // - the best detSurface to start from is the one associated to the detector element
   const Trk::Surface *detSurface = (parsOnLayer.associatedSurface()).associatedDetectorElement() ?
                                    &parsOnLayer.associatedSurface() : nullptr;
@@ -1235,8 +1201,7 @@ Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
     //                        of the gathered vector (no pre/post schema)
     // don't record a hit on the destination surface
     if (surfaceHit &&
-        detSurface != startSurface &&
-        detSurface != m_destinationSurface) {
+        detSurface != startSurface) {
       ATH_MSG_VERBOSE("  [H] Hit with detector surface recorded ! ");
       // push into the temporary vector
       detParametersOnLayer.push_back(detParameters);
@@ -1280,8 +1245,6 @@ Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
                         < 0) : surfaceHit;
           if (surfaceHit && csf.object!=detSurface) { //skipping the initial surface on which a hit has already been created
             ATH_MSG_VERBOSE("  [H] Hit with detector surface recorded !");
-            // count the overlap Surfaces hit
-            ++m_overlapSurfaceHit;
             // distinguish whether sorting is needed or not
             reorderDetParametersOnLayer = true;
             // push back into the temporary vector
@@ -1345,26 +1308,19 @@ Trk::TimedExtrapolator::emptyGarbageBin(const Trk::TrackParameters *trPar) const
   std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = m_garbageBin.end();
 
   bool throwCurrent = false;
-  bool throwLast = false;
 
   for (; garbageIter != garbageEnd; ++garbageIter) {
-    if (garbageIter->first && garbageIter->first != trPar && garbageIter->first != m_lastValidParameters) {
+    if (garbageIter->first && garbageIter->first != trPar) {
       delete (garbageIter->first);
     }
     if (garbageIter->first && garbageIter->first == trPar) {
       throwCurrent = true;
-    }
-    if (garbageIter->first && garbageIter->first == m_lastValidParameters) {
-      throwLast = true;
     }
   }
 
   m_garbageBin.clear();
   if (throwCurrent) {
     throwIntoGarbageBin(trPar);
-  }
-  if (throwLast) {
-    throwIntoGarbageBin(m_lastValidParameters);
   }
 }
 
@@ -1634,7 +1590,6 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
   }
 
   m_detachedVols.clear();
-  m_trDetachBounds.clear();
   m_denseVols.clear();
   m_trDenseBounds.clear();
   m_trLays.clear();
@@ -1830,9 +1785,6 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
   }
   if (!m_trDenseBounds.empty()) {
     m_trSurfs.insert(m_trSurfs.end(), m_trDenseBounds.begin(), m_trDenseBounds.end());
-  }
-  if (!m_trDetachBounds.empty()) {
-    m_trSurfs.insert(m_trSurfs.end(), m_trDetachBounds.begin(), m_trDetachBounds.end());
   }
 
   // current dense
@@ -2198,7 +2150,6 @@ Trk::TimedExtrapolator::transportInAlignableTV(const Trk::TrackParameters &parm,
     Amg::Vector3D pot = currPar->position();
     Amg::Vector3D umo = currPar->momentum().normalized();
 
-    m_currentLayerBin = binMat->layerBin(pos);
     binIDMat = binMat->material(pos);
 
     if (m_hitVector && binIDMat) {
