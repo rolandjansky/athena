@@ -1296,3 +1296,7 @@ def bind_port(host, port):
         ret=1
     s.close()
     return ret
+
+def calcMemExcess(memStat):
+    maxVmem = memStat['Max']['maxVMEM']
+    return Vmem

@@ -44,6 +44,9 @@ class trfFileReportUnitTests(unittest.TestCase):
         self.myMultiFile = trfArgClasses.argFile(['file1', 'file2', 'file3'], name = 'inputTEST_MULTIFile', io = 'input', guid = {'file1': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'file2': '1368D295-27C6-4A92-8187-704C2A6A5864', 'file3': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9'})
         self.myMultiFileReport = trfFileReport(self.myMultiFile)
 
+        self.mytrfReport = trfReport() # trfArgClasses.argFile(['file1'], name = 'inputTEST_SINGLEFile', io = 'input', guid = {'file1': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B'}) ##??? should be contain of all keys???
+        self.myJobReport = trfJobReport(self.mytrfReport)
+        
     def tearDown(self):
         for f in 'file1', 'file2', 'file3':
             try:
@@ -66,6 +69,8 @@ class trfFileReportUnitTests(unittest.TestCase):
         self.assertEqual(self.myMultiFileReport.python(type = 'full'), {'argName': 'inputTEST_MULTIFile', 'subFiles': [{'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1', 'file_size': 20}, {'file_guid': '1368D295-27C6-4A92-8187-704C2A6A5864', 'name': 'file2', 'file_size': 13}, {'file_guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'name': 'file3', 'file_size': 174}], 'type': None, 'dataset': None})
         self.assertEqual(self.myMultiFileReport.python(type = 'name'), {'subFiles': [{'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1'}, {'file_guid': '1368D295-27C6-4A92-8187-704C2A6A5864', 'name': 'file2'}, {'file_guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'name': 'file3'}], 'nentries': 'UNDEFINED', 'dataset': None})
 
+    def test_JobReportPython(self):
+        self.assertEqual(self.myJobReport.python(),{} )
 
 class machineReportUnitTests(unittest.TestCase):
     # Following tests don't test content, just that the generation of the objects happens correctly

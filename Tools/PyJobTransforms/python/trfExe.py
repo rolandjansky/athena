@@ -382,6 +382,13 @@ class transformExecutor(object):
         return self._memStats
 
     @property
+    def memEval(self):
+        if self._memStats:
+            return calcMemExcess(self._memStats)
+        else:
+            return None
+
+    @property
     def postExeCpuTime(self):
         if self._exeStop and self._valStart:
             return calcCpuTime(self._exeStop, self._valStart)
