@@ -86,7 +86,7 @@ def splitInterSignatureChainDict(chainDict):
 
     return listOfSplitChainDicts
 
-
+# maybe obsolete?
 def splitChainDict(chainDict):
     listOfChainDicts = []
     for chainPart in chainDict['chainParts']:

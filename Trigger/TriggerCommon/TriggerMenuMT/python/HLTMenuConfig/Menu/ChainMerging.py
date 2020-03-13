@@ -84,6 +84,7 @@ def makeChainSteps(steps):
     stepNumber = ''
     log.verbose(" steps %s ", steps)
     stepName = "merged"
+    comboHypoTools = []
     for step in steps:
         if step is None:
             continue
@@ -108,9 +109,11 @@ def makeChainSteps(steps):
             stepSeq.append(seq)
         # set the multiplicity of all the legs 
         stepMult.append(sum(step.multiplicity))
+        comboHypoTools.extend(step.comboToolConfs)
         
 
-    theChainStep = ChainStep(stepName, stepSeq, stepMult) 
+    comboHypoTools = list(set(comboHypoTools))
+    theChainStep = ChainStep(stepName, Sequences=stepSeq, multiplicity=stepMult, comboToolConfs=comboHypoTools) 
     log.debug("Merged step: \n %s", theChainStep)
   
     
