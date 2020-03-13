@@ -13,7 +13,7 @@
 
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/StatusCode.h>
-
+#include <cassert>
 //
 // method implementations
 //
