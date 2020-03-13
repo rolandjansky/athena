@@ -3,15 +3,15 @@
 */
 
 /*********************************************************************************
-  AllignedDynArray.h  -  description
+  AlignedDynArray.h  -  description
   -------------------------------------------------
  begin                : 26th November 2019
  author               : amorley, Christos
  decription           : Dynamic array fullfilling alignment requirements
  *********************************************************************************/
 
-#ifndef GSFUtils_AllignedDynArray_H
-#define GSFUtils_AllignedDynArray_H
+#ifndef GSFUtils_AlignedDynArray_H
+#define GSFUtils_AlignedDynArray_H
 
 #include <stdlib.h>
 namespace GSFUtils {
@@ -23,11 +23,6 @@ template<typename T, int Alignment>
  * that should be divisible with Alignment
  *
  * This is usefull for arrays of simple types like int,float,double
- *
- * Notes :
- * For fixed size buffers i.e when the size is known at runtime prefer :
- * std::aligned_storage/std::align
- *
  */
 
 class AlignedDynArray
@@ -63,6 +58,6 @@ private:
 } // namespace GSFUtils
 
 // impl .icc
-#include "TrkGaussianSumFilter/AllignedDynArray.icc"
+#include "TrkGaussianSumFilter/AlignedDynArray.icc"
 
 #endif

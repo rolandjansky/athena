@@ -14,7 +14,7 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "GaudiKernel/Chrono.h"
-#include "TrkGaussianSumFilter/AllignedDynArray.h"
+#include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkParameters/TrackParameters.h"
