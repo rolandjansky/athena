@@ -47,16 +47,17 @@ else()
 		Event/xAOD/xAODMuon
 		Event/xAOD/xAODTracking  
 		Reconstruction/RecoTools/ParticlesInConeTools
+		Reconstruction/RecoTools/RecoToolInterfaces
 		PRIVATE
 		Generators/GeneratorObjects
-		Reconstruction/RecoTools/RecoToolInterfaces
 		Tracking/TrkEvent/TrkEventPrimitives
 		Tracking/TrkEvent/TrkParametersIdentificationHelpers
 		Control/AthenaKernel )
 	set( extra_libs
 		xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTracking 
+		RecoToolInterfaces
 		PRIVATE_LINK_LIBRARIES GeneratorObjects 
-		RecoToolInterfaces TrkEventPrimitives TrkParametersIdentificationHelpers )
+		TrkEventPrimitives TrkParametersIdentificationHelpers )
 
 endif()
 
