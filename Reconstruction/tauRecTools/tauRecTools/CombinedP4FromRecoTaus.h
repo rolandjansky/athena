@@ -49,34 +49,34 @@ private:
   };
 
   // Get correlation coefficient for the given decay mode
-  double GetCorrelationCoefficient(int etaIndex, const xAOD::TauJetParameters::DecayMode decayMode) const;
+  double getCorrelationCoefficient(int etaIndex, const xAOD::TauJetParameters::DecayMode decayMode) const;
 
   //Calculates the tau 4-vector
   //TLorentzVector getConstituentsP4(const xAOD::TauJet* tau);
     
-  double GetWeightedEt(double et_tauRec, 
+  double getWeightedEt(double et_tauRec, 
 		       double et_cb2PT,
 		       int etaIndex,
 		       const xAOD::TauJetParameters::DecayMode& mode,
                        Variables& variables) const;
 
-  double GetResolution_taurec( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode) const;
+  double getResolutionTaurec( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode) const;
 
-  double GetResolution_CellBased2PanTau( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode) const;
+  double getResolutionCellBased2PanTau( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode) const;
 
-  double GetMean_TauRec( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode) const;
+  double getMeanTauRec( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode) const;
 
-  double GetMean_CellBased2PanTau( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode) const;
+  double getMeanCellBased2PanTau( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode) const;
 
-  double GetCombinedResolution(double et_tauRec,
+  double getCombinedResolution(double et_tauRec,
                                double et_cb2PT,
                                int etaIndex,
                                xAOD::TauJetParameters::DecayMode mode,
                                Variables& variables) const;
 
-  double GetTauRecEt( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode, double& et_postcalib) const;
+  double getTauRecEt( double et, int etaIndex, xAOD::TauJetParameters::DecayMode mode, double& et_postcalib) const;
 
-  double GetCellbased2PantauEt(double et_cb2PT,
+  double getCellbased2PantauEt(double et_cb2PT,
                                int etaIndex,
                                xAOD::TauJetParameters::DecayMode mode,
                                double& et_cb2PT_postcalib) const;
@@ -94,14 +94,14 @@ private:
                                Variables& variables) const;
 
   // Get the enum-value for eta corresponding to the eta value
-  int GetIndex_Eta(float eta) const;
+  int getIndexEta(float eta) const;
 
-  float GetNsigma_Compatibility(float et_TauRec) const;
+  float getNsigmaCompatibility(float et_TauRec) const;
 
   //high pt flag
-  double GetCaloResolution(const xAOD::TauJet* tau) const;
+  double getCaloResolution(const xAOD::TauJet* tau) const;
 
-  bool GetUseCaloPtFlag(const xAOD::TauJet* tau) const;
+  bool getUseCaloPtFlag(const xAOD::TauJet* tau) const;
 
   const std::vector<TString> m_modeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"};
   const std::vector<TString> m_etaBinNames = {"0", "1", "2", "3", "4"};//("<0.3"), ("<0.8"), ("<1.3"), ("<1.6"), ("<2.5")
