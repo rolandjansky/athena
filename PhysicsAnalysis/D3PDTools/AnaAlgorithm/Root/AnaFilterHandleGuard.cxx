@@ -13,6 +13,7 @@
 
 #include <AnaAlgorithm/AnaFilterHandle.h>
 #include <AsgMessaging/MessageCheck.h>
+#include <cassert>
 
 //
 // method implementations
