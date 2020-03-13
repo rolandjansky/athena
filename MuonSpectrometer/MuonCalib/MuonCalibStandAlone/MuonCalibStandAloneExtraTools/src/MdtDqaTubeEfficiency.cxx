@@ -478,7 +478,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 	  MTStraightLine tube = MTStraightLine( tube_position, tube_direction,
 						Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0) );
 
-	  double distance = TMath::Abs(track1.signDistFrom(tube));
+	  double distance = std::abs(track1.signDistFrom(tube));
 	  
 	  if ( distance < (MdtRoEl->innerTubeRadius()) ){
 	    int traversedTube = k+1;
@@ -531,15 +531,15 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 		    MTStraightLine tube = MTStraightLine( tube_position, tube_direction,
 							  Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0) );
                 
-		    double distance = TMath::Abs(track1.signDistFrom(tube));
-		    double hitRadius = TMath::Abs(hit->driftRadius());
+		    double distance = std::abs(track1.signDistFrom(tube));
+		    double hitRadius = std::abs(hit->driftRadius());
 		    double resol = hit->driftRadiusError();
 		    double resid = distance-hitRadius;
 		    if(heffiVsRadius) heffiVsRadius->Fill(distance, resid);
 		    float averageExtrapolError = 0.090; // ..an educated guess!
 		    float sig = sqrt(resol*resol + averageExtrapolError*averageExtrapolError);
 		    
-		    if ( m_nsigma>0. && TMath::Abs(resid) < m_nsigma*sig ) hit_tube.push_back( tubeHit );
+		    if ( m_nsigma>0. && std::abs(resid) < m_nsigma*sig ) hit_tube.push_back( tubeHit );
 		  } // END NEW HIT FOUND
 		} // close IF the Hit is found
 	      } // close IF the hit is in the same chamber, same layer

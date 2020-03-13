@@ -1,14 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// sTgcDigitizationTool
-// ------------
-// Authors:  Nectarios Benekos  <nectarios.benekos@cern.ch>
-//           Jiaming Yu  <jiaming.yu@cern.ch>  
-////////////////////////////////////////////////////////////////////////////////
 
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
@@ -202,10 +194,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   // initialize class to execute digitization 
   m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
   m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
-  if(!m_rndmSvc.retrieve().isSuccess()) {
-    ATH_MSG_FATAL(" Could not initialize Random Number Service");
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK(m_rndmSvc.retrieve());
     
   // getting our random numbers stream
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
@@ -215,40 +204,20 @@ StatusCode sTgcDigitizationTool::initialize() {
     return StatusCode::FAILURE;
   }
 		
-  status = m_digitizer->initialize(m_rndmEngine, m_doChannelTypes);
-  if(status.isFailure()) {
-    ATH_MSG_FATAL("Fail to initialize sTgcDigitMaker");
-    return status;
-  }
+  ATH_CHECK(m_digitizer->initialize(m_rndmEngine, m_doChannelTypes));
 
   readDeadtimeConfig();
 
   // initialize digit parameters
-  //m_noiseFactor = 0.09;
   m_readoutThreshold = 0.05; 
   m_neighborOnThreshold = 0.01;
   m_saturation = 1.75; // = 3500. / 2000.;
   m_hitTimeMergeThreshold = 30; //30ns = resolution of peak finding descriminator
-  //m_ADC = 0.00171; // = m_saturation / (TMath::Power(2, 10));
-  //m_ADC = 0.02734; // = m_saturation / (TMath::Power(2, 6));
-  //m_deadtimeStrip = 50.; // 50ns deadtime of electronics after peak found (for strip readout) 
-  //m_deadtimePad = 5.; // 50ns deadtime of electronics after peak found (for strip readout) 
   m_timeWindowOffsetPad    = 0.;
   m_timeWindowOffsetStrip   = 25.;
-  //m_timeWindowPad          = 30.; // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
-  //m_timeWindowStrip         = 30.; // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
   m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
   m_timeJitterElectronicsPad = 2.; //ns
   m_timeJitterElectronicsStrip= 2.; //ns
-
-  //m_file = new TFile("sTGC_Digit_plot.root", "RECREATE");
-  //m_SimHitOrg = new TH2F("SimHitOrg", "OrgSimHit;HitX;HitY", 1000, -5000., 5000., 1000, -5000., 5000.);
-  //m_SimHitMerged = new TH2F("SimHitMerged", "SimHitMerged;HitX;HitY", 1000, -5000., 5000., 1000, -5000., 5000.);
-  //m_SimHitDigitized = new TH2F("SimHitDigitized", "SimHitDigitized;HitX;HitY", 1000, -5000., 5000., 1000, -5000., 5000.);
-  //m_SimHitDigitizedwPad = new TH2F("SimHitDigitizedwPad", "SimHitDigitizedwPad;HitX;HitY", 1000, -5000., 5000., 1000, -5000., 5000.);
-  //m_SimHitDigitizedwoPad = new TH2F("SimHitDigitizedwoPad", "SimHitDigitizedwoPad;HitX;HitY", 1000, -5000., 5000., 1000, -5000., 5000.);
-  //m_kineticEnergy = new TH1F("kineticEnergy", "kineticEnergy;kineticEnergy (GeV);", 1000, 0., 200.);
-  //m_EnergyDeposit = new TH1F("EnergyDeposit", "EnergyDeposit;EnergyDeposit (MeV);", 1000, 0., 0.01);
 
   return status;
 }
@@ -318,9 +287,6 @@ StatusCode sTgcDigitizationTool::getNextEvent() {
       return StatusCode::FAILURE;
     }
   }
-
-  // initialize pointer
-  //m_thpcsTGC = 0;
  
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type TimedHitCollList;
@@ -339,10 +305,7 @@ StatusCode sTgcDigitizationTool::getNextEvent() {
   else {
     ATH_MSG_DEBUG ( hitCollList.size() << " sTGC SimHitCollections with key " << m_inputHitCollectionName << " found" );
   }
-	 
-  // create a new hits collection
-  //m_thpcsTGC = new TimedHitCollection<sTGCSimHit>() ;
-  
+
   //Perform null check on m_thpcsTGC. If pointer is not null throw error
   if(!m_thpcsTGC) { 
         m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
@@ -373,13 +336,11 @@ StatusCode sTgcDigitizationTool::mergeEvent() {
   status = doDigitization();
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
-    //return StatusCode::FAILURE;
   }
 
   // reset the pointer (delete null pointer should be safe)
   delete m_thpcsTGC; 
   m_thpcsTGC = 0;
-
 	
   std::list<sTGCSimHitCollection*>::iterator STGCHitColl = m_STGCHitCollList.begin();
   std::list<sTGCSimHitCollection*>::iterator STGCHitCollEnd = m_STGCHitCollList.end();
@@ -398,9 +359,7 @@ StatusCode sTgcDigitizationTool::digitize() {
 } 
 /*******************************************************************************/
 StatusCode sTgcDigitizationTool::processAllSubEvents() {
-  // 
   StatusCode status = StatusCode::SUCCESS;
-  //m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
   ATH_MSG_DEBUG (" sTgcDigitizationTool::processAllSubEvents()" );
 
   //merging of the hit collection in getNextEvent method    	
@@ -428,16 +387,6 @@ StatusCode sTgcDigitizationTool::finalize() {
   delete m_digitizer; 
   m_digitizer = 0;
 
-  //m_SimHitOrg->Write();
-  //m_SimHitMerged->Write();
-  //m_SimHitDigitized->Write();
-  //m_SimHitDigitizedwPad->Write();
-  //m_SimHitDigitizedwoPad->Write();
-  //m_kineticEnergy->Write();
-  //m_EnergyDeposit->Write();
-
-  //m_file->Close();
-
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
@@ -458,15 +407,11 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   TimedHitCollection<sTGCSimHit>::const_iterator i, e; 
 
   // Collections of digits by digit type associated with a detector element
-  //std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedPadDigits;
-  //std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedStripDigits;
-  //std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedWireDigits;
   std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedPadDigits;
   std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedStripDigits;
   std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedWireDigits;
   
   std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > outputDigits;
-  //std::map< IdentifierHash, std::map< Identifier, std:vector<sTgcSimDigitData> > > outputDigits;
 
   sTgcDigitCollection* digitCollection = 0;  //output digits
 
@@ -692,16 +637,11 @@ StatusCode sTgcDigitizationTool::doDigitization() {
        /*******************
        * Merge Pad Digits *
        *******************/       
-   
-       //std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
-       //std::vector<sTgcDigit>::iterator e = it_REID->second.end();
        std::vector<sTgcSimDigitData>::iterator i = it_REID->second.begin();
        std::vector<sTgcSimDigitData>::iterator e = it_REID->second.end();
        e--;  //decrement e to be the last element and not the beyond the last element iterator
        
        while( i!=e ) { 
-           //sTgcDigit digit1 = (*i);
-           //sTgcDigit digit2 = (*(i+1));
            sTgcDigit digit1 = i->getSTGCDigit();
            sTgcDigit digit2 = (i+1)->getSTGCDigit();
            if(digit2.time() - digit1.time() < m_hitTimeMergeThreshold ) { //two consecutive hits are close enough for merging
@@ -711,7 +651,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
                // Update the digit info
                bool mergedIsPileup = (digit1.isPileup() && digit2.isPileup());
-               //i->set_isPileup(mergedIsPileup);
                digit1.set_charge( digit1.charge()+digit2.charge() );
                digit1.set_isPileup(mergedIsPileup);
                i->setSTGCDigit(digit1);
