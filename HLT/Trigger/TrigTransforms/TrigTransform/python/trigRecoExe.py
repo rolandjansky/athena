@@ -376,7 +376,7 @@ class trigRecoExecutor(athenaExecutor):
                 else:
                     msg.info('Stream "All" requested, so not splitting BS file')
                     self._renamefile(matchedOutputFileNames[0], argInDict.value[0])
-	    else:
+            else:
                 msg.error('no BS files created with expected name: %s' % expectedOutputFileName )
         else:
             msg.info('BS output filetype not defined so skip BS filename check')
