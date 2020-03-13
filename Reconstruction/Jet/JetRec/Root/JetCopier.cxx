@@ -10,9 +10,6 @@
 
 using xAOD::JetContainer;
 
-JetCopier::JetCopier(std::string name) : AsgTool(name) {
-}
-
 StatusCode JetCopier::initialize() {
 
   ATH_MSG_DEBUG("Initializing...");
@@ -30,27 +27,27 @@ StatusCode JetCopier::initialize() {
 }
 
 
-xAOD::JetContainer* JetCopier::getJets() const {
+std::pair<std::unique_ptr<xAOD::JetContainer>,std::unique_ptr<SG::IAuxStore> > JetCopier::getJets() const {
 
   // retrieve input
   SG::ReadHandle<JetContainer> inputJetsHandle(m_inputJets);
 
-
   if(inputJetsHandle.isValid()) {
     ATH_MSG_DEBUG("Retrieval of JetContainer was OK");
-  }
-  else{
+  } else {
     ATH_MSG_ERROR("Retrieval of JetContainer failed");
-    return nullptr;
+    return std::make_pair(std::unique_ptr<xAOD::JetContainer>(nullptr),std::unique_ptr<SG::IAuxStore>(nullptr));
   }
-
-  const JetContainer* injets = inputJetsHandle.cptr();
 
   ATH_MSG_DEBUG("Shallow-copying jets");
 
-  xAOD::JetContainer& outjets = *(xAOD::shallowCopyContainer(*injets).first);
+  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*inputJetsHandle);
+  // Make sure that memory is managed safely
+  std::unique_ptr<xAOD::JetContainer> outjets(shallowcopy.first);
+  std::unique_ptr<xAOD::ShallowAuxContainer> shallowaux(shallowcopy.second);
 
-  xAOD::setOriginalObjectLink(*injets, outjets);
+  // Connect the copied jets to their originals
+  xAOD::setOriginalObjectLink(*inputJetsHandle, *outjets);
 
-  return &outjets;
+  return std::make_pair(std::move(outjets),std::move(shallowaux));
 }
