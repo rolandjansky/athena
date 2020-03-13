@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCSimHitVariables.h"
@@ -14,7 +14,7 @@
 
 StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) 
 {
-  ATH_MSG_INFO("do fillNSWsTGCHitVariables()");
+  ATH_MSG_DEBUG("do fillNSWsTGCHitVariables()");
 
   CHECK( this->clearVariables() );
 
@@ -245,7 +245,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
     }
  }
 
-  ATH_MSG_INFO("processed " << m_NSWsTGC_nSimHits << " sTGC sim hits");
+  ATH_MSG_DEBUG("processed " << m_NSWsTGC_nSimHits << " sTGC sim hits");
   return StatusCode::SUCCESS;
 }
 
