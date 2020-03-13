@@ -4,7 +4,7 @@
 */
 
 #ifndef JETREC_JETCOPIER_H
-#define JETREC_JETCOPIERW_H
+#define JETREC_JETCOPIER_H
 
 ///
 /// \class JetCopier
