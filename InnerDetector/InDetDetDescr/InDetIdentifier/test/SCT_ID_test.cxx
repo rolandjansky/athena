@@ -233,7 +233,6 @@ BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
     BOOST_TEST(sctId.get_other_side(module_0_3_3_m1Hash) == oppositeHash);
     //no module in that direction?
     BOOST_TEST(sctId.get_next_in_eta(endHash).is_valid() == false);
-    
     //bool is_phi_module_max(const Identifier& id) const;
     BOOST_TEST(sctId.is_phi_module_max(barrelIdentifier) == false);
     Identifier maxPhiId = sctId.module_id(0,3,55,-1);
@@ -244,7 +243,19 @@ BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
     //bool is_eta_module_max(const Identifier& id) const;
     Identifier maxEtaId = sctId.module_id(0,3,3,-1);
     BOOST_TEST(sctId.is_eta_module_max(maxEtaId));
-    
+    //test new methods for neighbours
+    //expected return values
+    const std::array<IdentifierHash, 5> neighboursByEta{oppositeHash, prevEtaHash, nextEtaHash, prevPhiHash, nextPhiHash};
+    const std::array<IdentifierHash, 5> neighboursByPhi{oppositeHash, prevPhiHash, nextPhiHash, prevEtaHash, nextEtaHash};
+    //
+    BOOST_TEST(sctId.neighbours_by_eta(module_0_3_3_m1Hash) == neighboursByEta, boost::test_tools::per_element());
+    BOOST_TEST(sctId.neighbours_by_phi(module_0_3_3_m1Hash) == neighboursByPhi, boost::test_tools::per_element());
+    //
+    const std::array<std::function< IdentifierHash(const IdentifierHash & )>, 5> & neighbourCalls = sctId.neighbour_calls_by_eta();
+    std::array<IdentifierHash, 5> returnedNeighbours;
+    std::transform(neighbourCalls.begin(), neighbourCalls.end(), returnedNeighbours.begin(),[module_0_3_3_m1Hash](auto fn){return fn(module_0_3_3_m1Hash);});
+    BOOST_TEST_MESSAGE("Test using neighbour_calls_by_eta");
+    BOOST_TEST(neighboursByEta == returnedNeighbours, boost::test_tools::per_element());
   }
 
   
