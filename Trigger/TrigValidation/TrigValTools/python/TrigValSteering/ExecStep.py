@@ -145,7 +145,7 @@ class ExecStep(Step):
         if check_job_options(self.job_options):
             self.log.debug('Job options file exists: %s', self.job_options)
         else:
-            self.log.error('Failed to find job options file %s', self.name)
+            self.log.error('Failed to find job options file %s for step %s', self.job_options, self.name)
             self.report_result(1, 'TestConfig')
             sys.exit(1)
 
