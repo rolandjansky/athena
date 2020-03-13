@@ -9,6 +9,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "TMath.h" // for TMath::Prob()
 
 #define MAXPLANES 100
 
