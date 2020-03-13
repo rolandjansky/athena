@@ -103,7 +103,6 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_inputSlimming			(false),
 	m_calorimeterVolume		(0),
 	m_indetVolume			(0),
-//	m_spectrometerEntrance		(0),
 	m_beamAxis                      (0),
 	m_perigeeSurface                (0),
 	m_sigmaPhiSector                (0),
@@ -636,7 +635,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
     // if significant momentum change: re-evaluate calo energy and refit
     double pRatio = muonEnergyParameters->momentum().mag() /
       combinedEnergyParameters->momentum().mag();
-    if (fabs(pRatio-1.) > m_largeMomentumChange || m_iterateCombinedTrackFit)
+    if (std::abs(pRatio-1.) > m_largeMomentumChange || m_iterateCombinedTrackFit)
       {
 	if(!m_iterateCombinedTrackFit)
 	  ATH_MSG_DEBUG( " iterate combined fit to recollect calorimeter material as significant momentum change after fit " << pRatio
@@ -693,7 +692,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 	    sqrt((*indetPerigee->covariance())(Trk::qOverP,Trk::qOverP));
 	}
 
-	double indetMaxE	= 1./(fabs(indetPerigee->parameters()[Trk::qOverP]) - tolerance);
+	double indetMaxE	= 1./(std::abs(indetPerigee->parameters()[Trk::qOverP]) - tolerance);
 	double energyBalance	=
 	    combinedEnergyParameters->momentum().mag() + caloEnergy->deltaE() - indetMaxE;
 
@@ -1223,7 +1222,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 //
 // update -if needed vertex and beam axis positions
 //
-      if(fabs(bs_x-mvertex->position().x())>0.001||fabs(bs_y-mvertex->position().y())>0.001||fabs(bs_z-mvertex->position().z())>0.001) {
+      if(std::abs(bs_x-mvertex->position().x())>0.001||std::abs(bs_y-mvertex->position().y())>0.001||std::abs(bs_z-mvertex->position().z())>0.001) {
 
 // recreate beamAxis and vertexRegion for constrained (projective) track fits
 
@@ -1290,7 +1289,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	double errorPhi		= sqrt(
 	    (*measuredPerigee->covariance())(Trk::phi0,Trk::phi0));
 	bool inCSCregion	= false;
-	if (fabs(measuredPerigee->momentum().eta()) > 2.0) inCSCregion = true;
+	if (std::abs(measuredPerigee->momentum().eta()) > 2.0) inCSCregion = true;
 	
 	//FIXME: missing prefit case for excessive spectrometer eloss WARNING
 	//       spot from line starting approx from vertex??
@@ -1320,7 +1319,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 				   << " momentum "  << std::setprecision(1)
 				   << measuredPerigee->momentum().mag()/Units::GeV
 				   << " (GeV),  zFirst "  << std::setprecision(1)
-				   << fabs(parameters->position().z())
+				   << std::abs(parameters->position().z())
 				   << ",  phiError "   << std::setprecision(2) << errorPhi
 				   << ",  momentumError "  << std::setprecision(2) << errorP
 				   << ",  numberPseudo " << numberPseudo );
@@ -1332,7 +1331,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 				   << " momentum "	  << std::setprecision(1)
 				   << measuredPerigee->momentum().mag()/Units::GeV
 				   << " (GeV),  zFirst "  << std::setprecision(1)
-				   << fabs(parameters->position().z())
+				   << std::abs(parameters->position().z())
 				   << ",  phiError "	  << std::setprecision(2) << errorPhi
 				   << ",  momentumError " << std::setprecision(2) << errorP
 				   << ",  numberPseudo "  << numberPseudo );
@@ -1617,7 +1616,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
     
     // in case of a significant momentum change: iterate (re-associate calo and refit)
     Trk::Track* track = extrapolated;
-    if (allowRefit && fabs(pRatio-1.) > m_largeMomentumChange)
+    if (allowRefit && std::abs(pRatio-1.) > m_largeMomentumChange)
     {
 	if (msgLvl(MSG::VERBOSE))
 	{
@@ -2559,7 +2558,7 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
     // select straightLine fitter when magnets downstream of leading measurement are off
     ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
     if (! m_magFieldSvc->toroidOn()
-	|| fabs(perigeeStartValue.position().z()) > m_zECToroid)
+	|| std::abs(perigeeStartValue.position().z()) > m_zECToroid)
     {
 	fitter = m_fitterSL;
 	ATH_MSG_VERBOSE( " fit (track refit method): select SL fitter " );
@@ -3193,7 +3192,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
                   if (energyLoss) {
                     if(m->trackParameters()) ATH_MSG_DEBUG("Eloss found r " << (m->trackParameters())->position().perp() << " z " << (m->trackParameters())->position().z() << " deltaE " << energyLoss->deltaE());
                     if(m->type(Trk::TrackStateOnSurface::CaloDeposit)) {
-                      double caloEloss = fabs(energyLoss->deltaE()); 
+                      double caloEloss = std::abs(energyLoss->deltaE()); 
                       if(m->trackParameters()) deltaP =  m->trackParameters()->momentum().mag() - pcalo;
 //                      const Trk::Surface& surface = m->surface();
 //                      ATH_MSG_DEBUG(" Calorimeter surface " << surface );
@@ -3824,7 +3823,7 @@ CombinedMuonTrackBuilder::createSpectrometerTSOS(const Trk::Track& spectrometerT
 		// careful with trapezoid ordering (put trapezoid before rotatedTrapezoid)
 		const Trk::Surface* surface = &(**s).measurementOnTrack()->associatedSurface();
 		if (previousSurface) deltaZ =
-		    fabs(previousSurface->center().z() - surface->center().z());
+		    std::abs(previousSurface->center().z() - surface->center().z());
 		if (dynamic_cast<const Trk::PlaneSurface*>(surface))
 		{
 		    if (dynamic_cast<const Trk::TrapezoidBounds*>(&surface->bounds()))
@@ -3980,7 +3979,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
     // corrected parameters ensure the track fitting starts with a projective approximation
     const Trk::TrackParameters* correctedParameters	= 0;
     Amg::VectorX parameterVector			= parameters->parameters();
-    double trackEnergy					= 1./fabs(parameterVector[Trk::qOverP]);
+    double trackEnergy					= 1./std::abs(parameterVector[Trk::qOverP]);
 
     // careful: need to reset parameters to have a sensible energy if starting from a lineFit
     if (m_trackQuery->isLineFit(spectrometerTrack))
@@ -4004,7 +4003,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 	curvatureOK	= true;
 	propagator	= m_propagatorSL;
     }
-    else if (fabs(parameters->position().z()) 	< m_zECToroid
+    else if (std::abs(parameters->position().z()) 	< m_zECToroid
 	     && (! m_trackQuery->isLineFit(spectrometerTrack)
 		 && errorP			< m_largeMomentumError))
     {
@@ -4046,7 +4045,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 		dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**s).materialEffectsOnTrack());
 	    if (meot && meot->energyLoss()) spectrometerEnergyLoss	+= meot->energyLoss()->deltaE();
 	}
-	if (fabs(spectrometerEnergyLoss) > 1.5*fabs(caloEnergy->deltaE()))
+	if (std::abs(spectrometerEnergyLoss) > 1.5*std::abs(caloEnergy->deltaE()))
 	{
 	    curvatureOK		= false;
 	    if( correctedParameters == parameters ) {
@@ -4057,8 +4056,8 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 	    delete correctedParameters;
 	    correctedParameters = 0;
 	    ATH_MSG_DEBUG( "standaloneFit: excessive energy loss in spectrometer "
-			   << fabs(spectrometerEnergyLoss/Units::GeV) << " GeV"
-			   << "  in calo " << fabs(caloEnergy->deltaE()/Units::GeV) << " GeV" );
+			   << std::abs(spectrometerEnergyLoss/Units::GeV) << " GeV"
+			   << "  in calo " << std::abs(caloEnergy->deltaE()/Units::GeV) << " GeV" );
 	}
 	delete caloEnergy;
 	caloEnergy = 0;
@@ -4084,7 +4083,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 	}
 
 	// large impact: set phi to be projective (note iteration)
-	if (fabs(perigee->parameters()[Trk::d0]) < m_largeImpact
+	if (std::abs(perigee->parameters()[Trk::d0]) < m_largeImpact
 	    || ! m_magFieldSvc->toroidOn())
 	{
 	    if( correctedParameters == parameters ) {
@@ -4099,7 +4098,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 	    Amg::Vector3D position=  correctedParameters->position();
 	    double deltaPhi		=  0.;
 	    double deltaR		=  (position - perigee->position()).perp();
-	    if (fabs(deltaR*M_PI) > fabs(perigee->parameters()[Trk::d0]))
+	    if (std::abs(deltaR*M_PI) > std::abs(perigee->parameters()[Trk::d0]))
 	    {
 		deltaPhi		=  perigee->parameters()[Trk::d0]/deltaR;
 	    }
@@ -4130,7 +4129,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
            {
                deltaPhi                        =  0.;
                deltaR                          =  (position - perigee->position()).perp();
-               if (fabs(deltaR*M_PI) > fabs(perigee->parameters()[Trk::d0]))
+               if (std::abs(deltaR*M_PI) > std::abs(perigee->parameters()[Trk::d0]))
                {
                    deltaPhi                    =  perigee->parameters()[Trk::d0]/deltaR;
                }
@@ -4332,12 +4331,12 @@ CombinedMuonTrackBuilder::momentumUpdate(const Trk::TrackParameters*&	parameters
     {
 	double cosDeltaPhi		= 0.;
 	double sinDeltaPhi		= sin(deltaPhi);
-	if (fabs(sinDeltaPhi) < 1.)   cosDeltaPhi	= sqrt(1. - sinDeltaPhi*sinDeltaPhi);
+	if (std::abs(sinDeltaPhi) < 1.)   cosDeltaPhi	= sqrt(1. - sinDeltaPhi*sinDeltaPhi);
 	double cosDeltaTheta		= 0.;
 	double sinDeltaTheta		= sin(deltaTheta);
-	if (fabs(sinDeltaTheta) < 1.) cosDeltaTheta	= sqrt(1. - sinDeltaTheta*sinDeltaTheta);
+	if (std::abs(sinDeltaTheta) < 1.) cosDeltaTheta	= sqrt(1. - sinDeltaTheta*sinDeltaTheta);
 	double cosTheta			= direction.z()*cosDeltaTheta - direction.perp()*sinDeltaTheta;
-	if (fabs(cosTheta) < 1.)
+	if (std::abs(cosTheta) < 1.)
 	{
 	    direction	= Amg::Vector3D(direction.x()*cosDeltaPhi - direction.y()*sinDeltaPhi,
 					       direction.y()*cosDeltaPhi + direction.x()*sinDeltaPhi,
@@ -4489,7 +4488,7 @@ CombinedMuonTrackBuilder::removeSpectrometerMaterial(Trk::Track*& track) const
 	      qOverP		=
 		(**r).trackParameters()->parameters()[Trk::qOverP] + measuredPerigee->charge()*
 		sqrt((*measuredPerigee->covariance())(Trk::qOverP,Trk::qOverP));
-	      ATH_MSG_DEBUG( " limit momentum to " << 1./fabs(qOverP*Gaudi::Units::GeV)
+	      ATH_MSG_DEBUG( " limit momentum to " << 1./std::abs(qOverP*Gaudi::Units::GeV)
 			     << "  from original value " << momentum/Units::GeV );
 	    }
 	}
@@ -4769,14 +4768,14 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
             if(m->trackParameters()) ATH_MSG_DEBUG("Eloss found r " << (m->trackParameters())->position().perp() << " z " << (m->trackParameters())->position().z() << " value " << energyLoss->deltaE() << " Eloss " << Eloss);
             if(m->type(Trk::TrackStateOnSurface::CaloDeposit)) {
               idEloss   = Eloss;
-              caloEloss = fabs(energyLoss->deltaE()); 
+              caloEloss = std::abs(energyLoss->deltaE()); 
               Eloss = 0.;
               if(m->trackParameters()) deltaP =  m->trackParameters()->momentum().mag() - pcalo;
               const Trk::Surface& surface = m->surface();
               ATH_MSG_DEBUG(" Calorimeter surface " << surface );
               ATH_MSG_DEBUG( txt << " Calorimeter delta p " << deltaP << " deltaE " << caloEloss << " delta pID = pcaloEntry-pstart " << pcalo-pstart);
             } else {
-              Eloss += fabs(energyLoss->deltaE());
+              Eloss += std::abs(energyLoss->deltaE());
             }
           }
         }
