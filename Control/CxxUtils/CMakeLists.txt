@@ -64,9 +64,11 @@ atlas_add_test( BitPackerUnpacker_test
    SOURCES test/BitPackerUnpacker_test.cxx
    LINK_LIBRARIES TestTools CxxUtils )
 
-atlas_add_test( stacktrace_test
-   SOURCES test/stacktrace_test.cxx
-   LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS} )
+if( NOT XAOD_STANDALONE )
+   atlas_add_test( stacktrace_test
+      SOURCES test/stacktrace_test.cxx
+      LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS} )
+endif()
 
 atlas_add_test( MD5_test
    SOURCES test/MD5_test.cxx
