@@ -116,12 +116,10 @@ class CombinedP4FromRecoTaus
   /// size of m_modeNames
   std::vector<std::unique_ptr<TH1F>> m_correlationHists;
 
-  std::string m_calibFilePath;
-
-  bool m_addCalibrationResultVariables;
-  bool m_addUseCaloPtFlag;
+  Gaudi::Property<bool> m_addCalibrationResultVariables{this, "Add calibration result variables", false};
+  Gaudi::Property<bool> m_addUseCaloPtFlag{this, "Add use calo pt flag", false};
     
-  std::string m_sWeightFileName;
+  Gaudi::Property<std::string> m_sWeightFileName{this, "sWeight file name", ""};
   std::unique_ptr<TF1> m_Nsigma_compatibility;
 };
 
