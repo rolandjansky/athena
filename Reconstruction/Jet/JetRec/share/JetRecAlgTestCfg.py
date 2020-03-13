@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 ##########################################################################
 # Example job running basic jet reconstruction with JetRecAlg/IJetProvider
 # Author: TJ Khoo
@@ -100,7 +102,7 @@ def JetInputCfg(ConfigFlags):
     return inputcfg
 
 # Return a ComponentAccumulator holding the jet building sequence
-def JetBuildAlgCfg(ConfigFlags):
+def JetBuildAlgCfg(ConfigFlags,buildjetsname):
     buildcfg = ComponentAccumulator()
 
     # Create a sequence that holds a set of algorithms
@@ -130,25 +132,59 @@ def JetBuildAlgCfg(ConfigFlags):
     # (equivalent to setting properties with "=")
     jra = CompFactory.JetRecAlg(
         "JRA_build",
-        Builder = jclust,       # Single ToolHandle
+        Provider = jclust,       # Single ToolHandle
         Modifiers = [jclsmoms], # ToolHandleArray
-        OutputContainer = "MyAntKt4EMTopoJets")
+        OutputContainer = buildjetsname)
 
     # Add the alg to the ComponentAccumulator in the named sequence
     buildcfg.addEventAlgo( jra, sequencename )
     return buildcfg
 
+# Return a ComponentAccumulator holding the jet copy sequence
+def JetCopyAlgCfg(ConfigFlags,buildjetsname,copyjetsname):
+    copycfg = ComponentAccumulator()
+
+    # Create a sequence that holds a set of algorithms
+    # -- mainly for understanding how chunks of the job
+    #    relate to each other
+    from AthenaCommon.AlgSequence import AthSequencer
+    sequencename = "JetCopySeq"
+    copycfg.addSequence( AthSequencer(sequencename) )
+
+    # Create the JetClusterer, set some standard options
+    jcopy = CompFactory.JetCopier("copier")
+    jcopy.InputJets = buildjetsname
+
+    # Add a simple jet modifier to the JetRecAlg
+    jclsmoms = CompFactory.JetClusterMomentsTool("clsmoms")
+
+    # Create the JetRecAlg, configure it to use the copier
+    # using constructor syntax instead
+    # (equivalent to setting properties with "=")
+    jra = CompFactory.JetRecAlg(
+        "JRA_copy",
+        Provider = jcopy,       # Single ToolHandle
+        Modifiers = [jclsmoms], # ToolHandleArray
+        OutputContainer = copyjetsname)
+
+    # Add the alg to the ComponentAccumulator in the named sequence
+    copycfg.addEventAlgo( jra, sequencename )
+    return copycfg
+
 # Add the build config to the job
 # One could add options to make it more customisable
-cfg.merge( JetBuildAlgCfg(ConfigFlags) )
+buildjetsname = "MyAntiKt4EMTopoJets"
+copyjetsname = "CopyAntiKt4EMTopoJets"
+cfg.merge( JetBuildAlgCfg(ConfigFlags, buildjetsname) )
+cfg.merge( JetCopyAlgCfg(ConfigFlags, buildjetsname, copyjetsname) )
 
 # Write what we produced to AOD
 # First define the output list
 outputlist = ["EventInfo#*"]
-jetlist = ["AntiKt4EMTopoJets","MyAntiKt4EMTopoJets"]
+jetlist = ["AntiKt4EMTopoJets",buildjetsname,copyjetsname]
 for jetcoll in jetlist:
     outputlist += ["xAOD::JetContainer#"+jetcoll,
-                   "xAOD::JetAuxContainer#"+jetcoll+"Aux."]
+                   "xAOD::JetAuxContainer#"+jetcoll+"Aux.-PseudoJet"]
 
 # Now get the output stream components
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
@@ -156,8 +192,9 @@ cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
 from pprint import pprint
 pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
 
+# For local tests, not in the CI
 # Print the contents of the store every event
-cfg.getService("StoreGateSvc").Dump = True
+# cfg.getService("StoreGateSvc").Dump = True
 
 # Run the job
 cfg.run(maxEvents=1)

@@ -20,14 +20,19 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "JetInterface/IJetProvider.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODCore/ShallowAuxContainer.h"
 
-class JetCopier : public asg::AsgTool, virtual public IJetProvider{
+class JetCopier
+  : public asg::AsgTool,
+    virtual public JetProvider<xAOD::ShallowAuxContainer>
+{
   ASG_TOOL_CLASS(JetCopier, IJetProvider)
 
   public:
-    JetCopier(std::string name);
+    using asg::AsgTool::AsgTool;
+
     virtual StatusCode initialize() override;
-    virtual xAOD::JetContainer* getJets() const override;
+    virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > getJets() const override;
 
   private:
     // Handle Input JetContainer
