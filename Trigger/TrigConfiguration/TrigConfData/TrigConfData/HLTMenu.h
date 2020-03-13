@@ -35,6 +35,10 @@ namespace TrigConf {
       /** Accessor to the number of HLT chains */
       std::size_t size() const;
 
+      /** setter and getter for the supermasterkey */
+      unsigned int smk() const;
+      void setSMK(unsigned int psk);
+
       /** Iterator over the HLT chains */
       using const_iterator = ConstIter<ptree, Chain>;
 
@@ -55,6 +59,9 @@ namespace TrigConf {
 
    private:
       void update() override;
+
+      /** the supermasterkey */
+      unsigned int m_smk {0};
    };
 }
 

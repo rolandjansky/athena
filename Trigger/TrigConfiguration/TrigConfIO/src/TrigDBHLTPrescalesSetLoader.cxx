@@ -80,6 +80,7 @@ TrigConf::TrigDBHLTPrescalesSetLoader::loadHLTPrescales ( unsigned int hltpsk,
    boost::property_tree::ptree hltpss_pt;
    boost::property_tree::read_json(stream, hltpss_pt);
    hltpss.setData(std::move(hltpss_pt));
+   hltpss.setPSK(hltpsk);
 
    session->transaction().commit();
 
