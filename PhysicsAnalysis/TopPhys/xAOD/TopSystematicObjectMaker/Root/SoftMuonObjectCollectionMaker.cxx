@@ -136,6 +136,11 @@ namespace top {
             }
           }
         }
+        //add soft muon truth history info
+        if(m_config->softmuonAdditionalTruthInfo())
+        {
+          top::truth::getRecoMuonHistory(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+        }
       }//end of loop on muons
 
       ///-- set links to original objects ///
