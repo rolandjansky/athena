@@ -137,7 +137,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 
 
 //_____________________________________________________________________________
-StatusCode CombinedP4FromRecoTaus::execute_const(xAOD::TauJet& xTau) const {
+StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) const {
   Variables variables;
   xAOD::TauJet* Tau = &xTau;
 

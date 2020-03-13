@@ -20,6 +20,22 @@
 class CombinedP4FromRecoTaus
 : public TauRecToolBase
 {
+public:
+  ASG_TOOL_CLASS2( CombinedP4FromRecoTaus, TauRecToolBase, ITauToolBase )
+
+  //standard constructor
+  CombinedP4FromRecoTaus(const std::string& name="CombinedP4FromRecoTaus");  
+    
+  //function where variables are computed and decorated
+  StatusCode initialize() override;
+        
+  StatusCode execute(xAOD::TauJet& xTau) override
+  {
+    return static_cast<const CombinedP4FromRecoTaus*>(this)->execute(xTau);
+  } 
+  StatusCode execute(xAOD::TauJet& xTau) const;
+
+private:
   struct Variables
   {
     double weight{-1111.0};
@@ -32,15 +48,6 @@ class CombinedP4FromRecoTaus
     double et_postcalib{0.0};
   };
 
- public:
-  ASG_TOOL_CLASS2( CombinedP4FromRecoTaus, TauRecToolBase, ITauToolBase )
-
-    //standard constructor
-    CombinedP4FromRecoTaus(const std::string& name="CombinedP4FromRecoTaus");  
-    
-  //function where variables are computed and decorated
-  StatusCode initialize() override;
-        
   // Get correlation coefficient for the given decay mode
   double GetCorrelationCoefficient(int etaIndex, const xAOD::TauJetParameters::DecayMode decayMode) const;
 
@@ -96,13 +103,6 @@ class CombinedP4FromRecoTaus
 
   bool GetUseCaloPtFlag(const xAOD::TauJet* tau) const;
 
-  StatusCode execute(xAOD::TauJet& xTau) override
-  {
-    return execute_const(xTau);
-  } 
-  StatusCode execute_const(xAOD::TauJet& xTau) const;
-
- private:
   const std::vector<TString> m_modeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"};
   const std::vector<TString> m_etaBinNames = {"0", "1", "2", "3", "4"};//("<0.3"), ("<0.8"), ("<1.3"), ("<1.6"), ("<2.5")
   
