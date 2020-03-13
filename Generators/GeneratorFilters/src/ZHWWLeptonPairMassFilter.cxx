@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 // Filter according to the following steps:
 // Require four leptons, total charge zero, at least one SFOS pair
 // Determine SFOS pair with mass closest to Z mass peak
