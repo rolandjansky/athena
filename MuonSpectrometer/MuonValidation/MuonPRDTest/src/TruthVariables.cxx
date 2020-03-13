@@ -16,7 +16,7 @@
 StatusCode TruthVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
 
-  ATH_MSG_INFO("do fillNSWTruthVariables()");
+  ATH_MSG_DEBUG("do fillNSWTruthVariables()");
   ATH_MSG_VERBOSE("MuonDetectorManager from Conditions Store accessed" << MuonDetMgr);
 
   CHECK( this->clearVariables() );
