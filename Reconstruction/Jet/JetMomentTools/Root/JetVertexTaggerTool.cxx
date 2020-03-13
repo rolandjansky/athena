@@ -47,7 +47,7 @@ StatusCode JetVertexTaggerTool::initialize() {
 
   ATH_MSG_VERBOSE("\n Reading JVT likelihood histogram from:\n    " << m_fn << "\n\n");
 
-  m_jvthisto = (TH2F*)m_jvtfile->Get(m_jvtlikelihoodHistName.c_str() );
+  m_jvthisto = (TH2F*)m_jvtfile->Get(std::string(m_jvtlikelihoodHistName).c_str() );
   if(!m_jvthisto){
     ATH_MSG_FATAL( "\n  Found JVT file, but JVT histogram missing. Aborting..." );
     return StatusCode::FAILURE;
@@ -98,7 +98,7 @@ StatusCode JetVertexTaggerTool::decorate(const xAOD::JetContainer& jetCont) cons
     // Calculate RpT and JVFCorr
     // Default JVFcorr to -1 when no tracks are associated.
     float jvfcorr = jvfCorrHandle(*jet);
-    std::vector<float> sumpttrk = sumPtTrkHandle(m_sumPtTrkKey);
+    std::vector<float> sumpttrk = sumPtTrkHandle(*jet);
     const float rpt = sumpttrk[HSvertex->index() - (*vertices)[0]->index()]/jet->pt();
     float jvt = evaluateJvt(rpt, jvfcorr);
 

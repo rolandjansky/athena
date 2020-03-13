@@ -67,7 +67,7 @@ public:  // methods
   // Inherited method to decorate a jet
   // Computes JVF for all jets from track sum information
   // Also adds JVF corrected to be insensitive to NPV
-  virtual StatusCode decorate(const xAOD::JetContainer& jetCont) const;
+  virtual StatusCode decorate(const xAOD::JetContainer& jetCont) const override;
 
   // Local method to calculate the JVF for a given vertex
   float getCorrJetVertexFraction(const xAOD::Vertex*,
