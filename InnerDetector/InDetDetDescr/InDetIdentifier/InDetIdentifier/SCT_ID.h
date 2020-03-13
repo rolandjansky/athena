@@ -29,6 +29,7 @@
 #include <cassert>
 #include <algorithm>
 #include <array>
+#include <functional>
 
 
 class IdDictDictionary;
@@ -236,6 +237,20 @@ public:
   bool is_eta_module_min(const Identifier& id) const;
   /// For the barrel
   bool is_eta_module_max(const Identifier& id) const;
+  
+  //all neighbours: opposite and then eta direction first
+  std::array<IdentifierHash, 5>
+  neighbours_by_eta(const IdentifierHash & idh) const;
+  
+  //all neighbours: opposite and then phi direction first
+  std::array<IdentifierHash, 5>
+  neighbours_by_phi(const IdentifierHash & idh) const;
+  
+  /// return functions to give neighbours in order: opposite, eta minus, eta plus,
+  /// phi minus, phi plus : in case you dont want to create temporary array of IdentifierHashes
+  /// (to be investigated in context of SP formation)
+  std::array<std::function< IdentifierHash(const IdentifierHash &)>, 5 >
+  neighbour_calls_by_eta() const;
   //@}
 
   /// @name contexts to distinguish wafer id from pixel id
@@ -289,6 +304,7 @@ private:
   typedef std::vector<IdentifierHash> hash_vec;
   typedef hash_vec::const_iterator hash_vec_it;
   enum ExpandedIdIndices {INDET, SCT, BARREL_EC, LAYER_DISK, PHI, ETA, SIDE, STRIP,ROW, NUM_INDICES};
+  std::array<std::function< IdentifierHash(const IdentifierHash & )>, 5> m_neighboursByEta;
   
   //this is a bit clumsy, but it reproduces the original messaging behaviour with/without Gaudi
   //it *SHOULD NOT* be used for messaging in event loop code, as it is expensive!
