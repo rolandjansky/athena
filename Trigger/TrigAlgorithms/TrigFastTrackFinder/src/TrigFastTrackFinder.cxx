@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -88,15 +88,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_doZFinderOnly(false),
   m_storeZFinderVertices(false),
   m_nfreeCut(5), 
-  m_nTracks(0),
   m_nPixSPsInRoI(0),
   m_nSCTSPsInRoI(0),
-  m_SpacePointConversionTimer(nullptr),
-  m_ZFinderTimer(nullptr),
-  m_PatternRecoTimer(nullptr), 
-  m_TripletMakingTimer(nullptr), 
-  m_CombTrackingTimer(nullptr), 
-  m_TrackFitterTimer(nullptr), 
   m_attachedFeatureName(""),
   m_outputCollectionSuffix(""),
   m_countTotalRoI(0),
