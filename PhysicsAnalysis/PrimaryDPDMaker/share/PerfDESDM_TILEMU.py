@@ -143,10 +143,8 @@ if primDESDMTileMu.ApplySkimming():
     TileMuStream.AcceptAlgs(["TileMuKernel"])
     pass
 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream(streamName)
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc(svcName="TileMuThinningToolSvc", outStreams=[evtStream])
 
 #-----------------------------------------------------------------------
 # Add the containers to the output stream
