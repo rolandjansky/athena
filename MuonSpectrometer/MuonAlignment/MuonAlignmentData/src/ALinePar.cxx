@@ -26,7 +26,7 @@ void ALinePar::setParameters(float s, float z, float t,
 }
 
 void ALinePar::getParameters(float& s, float& z, float& t, 
-			     float& rotS, float& rotZ, float& rotT)
+			     float& rotS, float& rotZ, float& rotT) const
 {
   s    = m_S;
   z    = m_Z;
@@ -36,7 +36,7 @@ void ALinePar::getParameters(float& s, float& z, float& t,
   rotT = m_rotT;
 }
 
-HepGeom::Transform3D ALinePar::deltaTransform()
+HepGeom::Transform3D ALinePar::deltaTransform() const
 {// does NOT account for AMDB origin being different from volume centre;
   // for that you would need access to full station Position info...
   // see MuonGeoModel/Station::getDeltaTransform() for details.
