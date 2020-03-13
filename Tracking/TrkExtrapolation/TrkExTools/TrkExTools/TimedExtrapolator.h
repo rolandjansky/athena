@@ -97,12 +97,12 @@ namespace Trk {
       - bool that indicated the deletion of the TrackParameters
    */
   
-  struct ATLAS_NOT_THREAD_SAFE  ParamsNextVolume {
+  struct ParamsNextVolume {
     //!< the members
-    mutable const TrackingVolume*    nextVolume;
-    mutable const TrackParameters*   nextParameters;
-    mutable const TrackParameters*   navParameters;
-    mutable BoundarySurfaceFace      exitFace;
+    const TrackingVolume*    nextVolume;
+    const TrackParameters*   nextParameters;
+    const TrackParameters*   navParameters;
+    BoundarySurfaceFace      exitFace;
     
     ParamsNextVolume(){
       nextVolume              = nullptr;
@@ -117,14 +117,14 @@ namespace Trk {
 			     const TrackParameters* nextPars,
 			     const TrackParameters* navPars,
 			     BoundarySurfaceFace    face=undefinedFace
-                             ) const 
+                             )
     {
       nextVolume       = tvol;
       nextParameters   = nextPars;
       navParameters    = navPars;
       exitFace         = face;
     }
-    
+
     //!< reset the boundary information by invalidating it
     void resetBoundaryInformation(){
       nextVolume        = nullptr;
@@ -148,7 +148,7 @@ namespace Trk {
     @author sarka.todorova@cern.ch
    */
           
-  class  ATLAS_NOT_THREAD_SAFE  TimedExtrapolator : public AthAlgTool,
+  class  TimedExtrapolator : public AthAlgTool,
                        virtual public ITimedExtrapolator {
      public:
        /**Constructor */
@@ -198,7 +198,9 @@ namespace Trk {
       virtual void validationAction() const;
                                            
   private:
+     struct Cache;
      const Trk::TrackParameters*  extrapolateToVolumeWithPathLimit(
+                                                                   Trk::TimedExtrapolator::Cache &cache,
 								   const Trk::TrackParameters& parm,
 								   Trk::TimeLimit& time,
 								   Trk::PropDirection dir,
@@ -207,6 +209,7 @@ namespace Trk {
 								   const Trk::TrackingVolume* destVol) const;
      
      BoundaryTrackParameters  extrapolateInAlignableTV(
+                                                     Trk::TimedExtrapolator::Cache &cache,
 						     const Trk::TrackParameters& parm,
 						     Trk::TimeLimit& time,
 						     Trk::PropDirection dir,                                    
@@ -215,7 +218,7 @@ namespace Trk {
 						     const Trk::AlignableTrackingVolume* aliTV) const;
      
 
-     const Trk::TrackParameters*  transportToVolumeWithPathLimit(
+     const Trk::TrackParameters*  transportToVolumeWithPathLimit(Trk::TimedExtrapolator::Cache &cache,
 								 const Trk::TrackParameters& parm,
 								 Trk::TimeLimit& time,
 								 Trk::PropDirection dir,                                    
@@ -224,7 +227,8 @@ namespace Trk {
 								 const Trk::TrackingVolume* boundaryVol) const;
 
      BoundaryTrackParameters  transportInAlignableTV(
-						     const Trk::TrackParameters& parm,
+						     Trk::TimedExtrapolator::Cache &cache,
+                                                     const Trk::TrackParameters& parm,
 						     Trk::TimeLimit& time,
 						     Trk::PropDirection dir,                                    
 						     Trk::ParticleHypothesis particle,
@@ -238,14 +242,16 @@ namespace Trk {
     const ITimedMatEffUpdator* subMaterialEffectsUpdator(const TrackingVolume& tvol) const;
 
     /** Private method for throwing into the GarbageBin */
-    void throwIntoGarbageBin(const Trk::TrackParameters* garbage) const;
+    void throwIntoGarbageBin(Trk::TimedExtrapolator::Cache &cache,
+                             const Trk::TrackParameters* garbage) const;
 
     /** Private method for emptying the GarbageBin */
-    void emptyGarbageBin() const;
-    void emptyGarbageBin(const Trk::TrackParameters*) const;
-    
+    void emptyGarbageBin(Trk::TimedExtrapolator::Cache &cache,
+                         const Trk::TrackParameters*) const;
+
     /** Private to search for overlap surfaces */
-    void overlapSearch(const IPropagator& prop,
+    void overlapSearch(Trk::TimedExtrapolator::Cache &cache,
+                       const IPropagator& prop,
                        const TrackParameters& parm,
                        const TrackParameters& parsOnLayer,
                        const Layer& lay,
@@ -312,7 +318,8 @@ namespace Trk {
     bool                            m_useDenseVolumeDescription;     //!<  use dense volume description when available in ID/Calo
     bool                            m_useMuonMatApprox;              //!<  use approximative MS inert material
     bool                            m_checkForCompundLayers;         //!<  use the multi-layer tests for compound layers
-    mutable bool                                                      m_resolveActive;
+    bool                            m_resolveActive;
+    bool                            m_resolveMultilayers;
 
     //-------------------------- SCREEN output steering -------------------------------------------//
     bool                            m_printHelpOutputAtInitialize;
@@ -323,6 +330,7 @@ namespace Trk {
     bool                            m_navigationBreakDetails;         //!< steer the output for the navigation break details
 
     bool                            m_materialEffectsOnTrackValidation; //!< mat effects on track validation
+    //   bool                                                       m_cacheLastMatLayer {};   // steering of the material layer cache 
     unsigned int m_maxNavigSurf;
     unsigned int m_maxNavigVol;
 
@@ -330,58 +338,52 @@ namespace Trk {
        Cache(unsigned int max_navig_surf=1000.) : m_path(0.,0) {
           m_navigSurfs.reserve(max_navig_surf);
        }
-       mutable bool                    m_dense {};                         //!<  internal switch for resolved configuration
+       bool                    m_dense {};                         //!<  internal switch for resolved configuration
 
     // ------------ Recall / Boundary Information ----------------------- //
-       mutable ParamsNextVolume    m_parametersAtBoundary;           //!< return helper for parameters and boundary
-       mutable std::vector<Trk::HitInfo>*    m_hitVector {};                //!< return helper for hit info
+       ParamsNextVolume    m_parametersAtBoundary;           //!< return helper for parameters and boundary
+       std::vector<Trk::HitInfo>*    m_hitVector {};                //!< return helper for hit info
 
-       mutable std::map<const Trk::TrackParameters*, bool> m_garbageBin; //!< garbage collection during extrapolation
+       std::map<const Trk::TrackParameters*, bool> m_garbageBin; //!< garbage collection during extrapolation
 
-       mutable const Trk::TrackingVolume*                                m_currentStatic {};
-       mutable const Trk::TrackingVolume*                                m_currentDense {};
-       mutable const Trk::TrackingVolume*                                m_highestVolume {};
-       mutable bool                                                      m_resolveMultilayers = true;
-       mutable std::pair<unsigned int, unsigned int>                     m_denseResolved {};
-       mutable unsigned int                                              m_layerResolved {};
-       mutable std::vector<std::pair<const Trk::DetachedTrackingVolume*,unsigned int> >    m_detachedVols;
-       mutable std::vector<std::pair<const Trk::TrackingVolume*,unsigned int> >            m_denseVols;
-       mutable std::vector<std::pair<const Trk::TrackingVolume*,const Trk::Layer*> >       m_navigLays;
-       mutable std::vector<DestSurf>                                     m_staticBoundaries;
-       mutable std::vector<DestSurf>                                     m_detachedBoundaries;
-       mutable std::vector<DestSurf>                                     m_denseBoundaries;
-       mutable std::vector<DestSurf>                                     m_navigBoundaries;
-       mutable std::vector<DestSurf>                                     m_layers;
-       mutable PathLimit                                                 m_path;
-       mutable double                                                    m_time {};
+       const Trk::TrackingVolume*                                m_currentStatic {};
+       const Trk::TrackingVolume*                                m_currentDense {};
+       const Trk::TrackingVolume*                                m_highestVolume {};
+       std::pair<unsigned int, unsigned int>                     m_denseResolved {};
+       unsigned int                                              m_layerResolved {};
+       std::vector<std::pair<const Trk::DetachedTrackingVolume*,unsigned int> >    m_detachedVols;
+       std::vector<std::pair<const Trk::TrackingVolume*,unsigned int> >            m_denseVols;
+       std::vector<std::pair<const Trk::TrackingVolume*,const Trk::Layer*> >       m_navigLays;
+       std::vector<DestSurf>                                     m_staticBoundaries;
+       std::vector<DestSurf>                                     m_detachedBoundaries;
+       std::vector<DestSurf>                                     m_denseBoundaries;
+       std::vector<DestSurf>                                     m_navigBoundaries;
+       std::vector<DestSurf>                                     m_layers;
+       PathLimit                                                 m_path;
+       double                                                    m_time {};
 
     //------------------------- NAVIGATION -------- ----------------------------------------------//
-       mutable int                     m_methodSequence {};
+       int                     m_methodSequence {};
 
     // ------------------------------- cache --------------------------------------------------------------------
 
-       mutable const Layer*                                       m_lastMaterialLayer {}; //!< cache layer with last material update
-       bool                                                       m_cacheLastMatLayer {};   // steering of the material layer cache 
+       const Layer*                                       m_lastMaterialLayer {}; //!< cache layer with last material update
 
-       mutable std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >  m_navigSurfs;
-       mutable std::vector<std::pair<const Trk::Surface*,double> >              m_trSurfs;
-       mutable std::vector< Trk::DestBound >                                    m_trStaticBounds;  // need to cache the boundary index, too
-       mutable std::vector<std::pair<const Trk::Surface*,double>  >             m_trDenseBounds;
-       mutable std::vector<std::pair<const Trk::Surface*,double> >              m_trLays;
+       std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >  m_navigSurfs;
+       std::vector<std::pair<const Trk::Surface*,double> >              m_trSurfs;
+       std::vector< Trk::DestBound >                                    m_trStaticBounds;  // need to cache the boundary index, too
+       std::vector<std::pair<const Trk::Surface*,double>  >             m_trDenseBounds;
+       std::vector<std::pair<const Trk::Surface*,double> >              m_trLays;
 
-       mutable double                         m_particleMass {};
+       double                         m_particleMass {};
     };
-    mutable Cache cache{};
 
     //------------ Magnetic field properties
     bool m_fastField;
     Trk::MagneticFieldProperties m_fieldProperties;
 
-    // ------------------------------- static members --------------------------------------------------------------------
-    static double                   s_distIncreaseTolerance;         //!< distance increatse tolerance to account for straight line approx.
-    static double                   s_distEntryLayerMax;	     //!< maximal allowed distance to the entry layer
-    static PlaneSurface             s_referenceSurface;              //!< the reference Surface
-    static ParticleMasses           s_particleMasses; 
+   // ------------------------------- static members --------------------------------------------------------------------
+   static const ParticleMasses           s_particleMasses;
   };
 
 inline const TrackingGeometry* TimedExtrapolator::trackingGeometry() const 
@@ -408,7 +410,8 @@ inline const ITimedMatEffUpdator* TimedExtrapolator::subMaterialEffectsUpdator(c
 }
 
 
-inline void TimedExtrapolator::throwIntoGarbageBin(const Trk::TrackParameters* pars) const
+inline void TimedExtrapolator::throwIntoGarbageBin(Trk::TimedExtrapolator::Cache &cache,
+                                                   const Trk::TrackParameters* pars) const
 { if (pars) cache.m_garbageBin[pars] = true; }
 
 /*

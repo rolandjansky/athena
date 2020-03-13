@@ -51,7 +51,7 @@
 // Trk
 #include "TrkSurfaces/PlaneSurface.h"
 
-Trk::ParticleMasses Trk::TimedExtrapolator::s_particleMasses;
+const Trk::ParticleMasses Trk::TimedExtrapolator::s_particleMasses;
 
 // constructor
 Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::string &n, const IInterface *p) :
@@ -87,6 +87,8 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::strin
   m_useDenseVolumeDescription(true),
   m_useMuonMatApprox(false),
   m_checkForCompundLayers(false),
+  m_resolveActive(false),
+  m_resolveMultilayers(true),
   m_printHelpOutputAtInitialize(false),
   m_printRzOutput(true),
   m_navigationStatistics(false),
@@ -122,7 +124,7 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::strin
   declareProperty("UseMuonMatApproximation", m_useMuonMatApprox);
   declareProperty("CheckForCompoundLayers", m_checkForCompundLayers);
   declareProperty("ResolveMuonStation", m_resolveActive);
-  declareProperty("ResolveMultilayers", cache.m_resolveMultilayers);
+  declareProperty("ResolveMultilayers", m_resolveMultilayers);
   declareProperty("ConsiderMuonStationOverlaps", m_activeOverlap);
   // declareProperty("DynamicLayerCreator",          m_dynamicLayerCreator);
   declareProperty("RobustSampling", m_robustSampling );
@@ -290,6 +292,7 @@ Trk::TimedExtrapolator::extrapolateWithPathLimit(
 //                   2/ returns parameters at destination volume boundary
 //                   3/ returns 0 ( particle stopped ) but keeps vector of hits
 
+  Trk::TimedExtrapolator::Cache cache(m_maxNavigSurf);
   ATH_MSG_DEBUG(
     "M-[" << ++cache.m_methodSequence << "] extrapolateWithPathLimit(...) " << pathLim.x0Max << ", from " << parm.position());
   ATH_MSG_DEBUG(
@@ -320,7 +323,7 @@ Trk::TimedExtrapolator::extrapolateWithPathLimit(
   }
 
   // extrapolate to destination volume boundary with path limit
-  const Trk::TrackParameters *returnParms = extrapolateToVolumeWithPathLimit(parm, timeLim, dir, particle, nextGeoID,
+  const Trk::TrackParameters *returnParms = extrapolateToVolumeWithPathLimit(cache,parm, timeLim, dir, particle, nextGeoID,
                                                                              boundaryVol);
 
   // save actual path on output
@@ -342,6 +345,7 @@ Trk::TimedExtrapolator::extrapolateWithPathLimit(
 
 const Trk::TrackParameters *
 Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
+  Trk::TimedExtrapolator::Cache &cache,
   const Trk::TrackParameters &parm,
   Trk::TimeLimit &timeLim,
   Trk::PropDirection dir,
@@ -373,7 +377,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     cache.m_highestVolume = m_navigator->highestVolume();
   }
 
-  emptyGarbageBin(&parm);
+  emptyGarbageBin(cache,&parm);
   // navigation surfaces
   if (cache.m_navigSurfs.capacity() > m_maxNavigSurf) {
     cache.m_navigSurfs.reserve(m_maxNavigSurf);
@@ -420,15 +424,15 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   if (cache.m_hitVector && nextGeoID == Trk::Calo) {
     const Trk::AlignableTrackingVolume *alignTV = dynamic_cast<const Trk::AlignableTrackingVolume *> (cache.m_currentStatic);
     if (alignTV) {
-      Trk::BoundaryTrackParameters boundPar = extrapolateInAlignableTV(*currPar, timeLim, dir, particle, nextGeoID,
+      Trk::BoundaryTrackParameters boundPar = extrapolateInAlignableTV(cache,*currPar, timeLim, dir, particle, nextGeoID,
                                                                        alignTV);
       const Trk::TrackParameters *aPar = boundPar.trPar;
       if (!aPar) {
         return returnParameters;
       }
-      throwIntoGarbageBin(aPar);
+      throwIntoGarbageBin(cache,aPar);
       // cache.m_currentStatic = boundPar.exitVol;
-      return extrapolateToVolumeWithPathLimit(*aPar, timeLim, dir, particle, nextGeoID, destVol);
+      return extrapolateToVolumeWithPathLimit(cache,*aPar, timeLim, dir, particle, nextGeoID, destVol);
     }
   }
 
@@ -763,7 +767,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
         if (cache.m_navigLays[i].second->surfaceArray()) {
           // perform the overlap Search on this layer
           ATH_MSG_VERBOSE("  [o] Calling overlapSearch() on input layer.");
-          overlapSearch(*m_subPropagators[0], *currPar, *currPar, *cache.m_navigLays[i].second, timeLim.time, dir, true,
+          overlapSearch(cache,*m_subPropagators[0], *currPar, *currPar, *cache.m_navigLays[i].second, timeLim.time, dir, true,
                         particle);
         } else {
           ATH_MSG_VERBOSE("  [o] Collecting intersection with active input layer.");
@@ -813,7 +817,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
       return returnParameters;
     }
 
-    throwIntoGarbageBin(nextPar);
+    throwIntoGarbageBin(cache,nextPar);
 
     // material update has been done already by the propagator
     if (cache.m_path.x0Max > 0. &&
@@ -832,8 +836,8 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           return returnParameters;
         }
 
-        throwIntoGarbageBin(iPar);
-        return extrapolateToVolumeWithPathLimit(*iPar, timeLim, dir, particle, nextGeoID, destVol);
+        throwIntoGarbageBin(cache,iPar);
+        return extrapolateToVolumeWithPathLimit(cache,*iPar, timeLim, dir, particle, nextGeoID, destVol);
       } else {    // kill the particle without trace ( some validation info can be included here eventually )
         return returnParameters;
       }
@@ -848,8 +852,8 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
         if (!iPar) {
           return returnParameters;
         }
-        throwIntoGarbageBin(iPar);
-        return extrapolateToVolumeWithPathLimit(*iPar, timeLim, dir, particle, nextGeoID, destVol);
+        throwIntoGarbageBin(cache,iPar);
+        return extrapolateToVolumeWithPathLimit(cache,*iPar, timeLim, dir, particle, nextGeoID, destVol);
       } else {    // kill the particle without trace ( some validation info can be included here eventually )
         return returnParameters;
       }
@@ -883,7 +887,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
               cache.m_parametersAtBoundary.resetBoundaryInformation();
               return returnParameters;
             }
-            throwIntoGarbageBin(nextPar);
+            throwIntoGarbageBin(cache,nextPar);
           } else {    // material layer without material ?
             ATH_MSG_VERBOSE(" boundary layer without material:" << mb->layerIndex());
           }
@@ -932,7 +936,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
               return nextPar->clone();
             }
           }
-          return extrapolateToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+          return extrapolateToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
         }
       } else if (solutions[iSol] < iDest + cache.m_staticBoundaries.size() + cache.m_layers.size()) {
         // next layer; don't return passive material layers unless required
@@ -964,7 +968,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
             ATH_MSG_VERBOSE(
               " Layer energy loss:" << nextPar->momentum().mag() - pIn << "at position:" << nextPar->position() << ", current momentum:" <<
               nextPar->momentum());
-            throwIntoGarbageBin(nextPar);
+            throwIntoGarbageBin(cache,nextPar);
           }
         }
         // active surface intersections ( Fatras hits ...)
@@ -972,7 +976,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           if (nextLayer->surfaceArray()) {
             // perform the overlap Search on this layer
             ATH_MSG_VERBOSE("  [o] Calling overlapSearch() on  layer.");
-            overlapSearch(*m_subPropagators[0], *currPar, *nextPar, *nextLayer, timeLim.time, dir, true, particle);
+            overlapSearch(cache,*m_subPropagators[0], *currPar, *nextPar, *nextLayer, timeLim.time, dir, true, particle);
           } else if (nextLayer->layerType() > 0 && nextLayer->isOnLayer(nextPar->position())) {
             ATH_MSG_VERBOSE("  [o] Collecting intersection with active layer.");
             cache.m_hitVector->push_back(Trk::HitInfo(nextPar->clone(), timeLim.time, nextLayer->layerType(), 0.));
@@ -1002,7 +1006,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
                   cache.m_navigSurfs[solutions[iSol] + replace - index].first = &(newLayer->surfaceRepresentation());
                 } else {
                   // can't insert a surface in middle
-                  return extrapolateToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+                  return extrapolateToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
                 }
               }
             }
@@ -1064,7 +1068,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           // return only if detached volume boundaries not collected
           // if ( nextVol || !detachedBoundariesIncluded )
           if (nextVol) {
-            return extrapolateToVolumeWithPathLimit(*currPar, timeLim, dir, particle, nextGeoID, destVol);
+            return extrapolateToVolumeWithPathLimit(cache,*currPar, timeLim, dir, particle, nextGeoID, destVol);
           }
         }
       } else if (solutions[iSol] < iDest + cache.m_staticBoundaries.size() + cache.m_layers.size() + cache.m_denseBoundaries.size()
@@ -1090,7 +1094,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           currPar = nextPar;
           // if ( nextVol || !detachedBoundariesIncluded)
           if (nextVol) {
-            return extrapolateToVolumeWithPathLimit(*currPar, timeLim, dir, particle, nextGeoID, destVol);
+             return extrapolateToVolumeWithPathLimit(cache, *currPar, timeLim, dir, particle, nextGeoID, destVol);
           }
         }
       }
@@ -1103,7 +1107,8 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
 }
 
 void
-Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
+Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
+                                      const IPropagator &prop,
                                       const TrackParameters &parm,
                                       const TrackParameters &parsOnLayer,
                                       const Layer &lay,
@@ -1194,7 +1199,7 @@ Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
     } else if (detParameters) {
       // no hit -> fill into the garbage bin
       ATH_MSG_VERBOSE("  [-] Detector surface hit cancelled through bounds check or start/end surface check.");
-      throwIntoGarbageBin(detParameters);
+      throwIntoGarbageBin(cache,detParameters);
     }
   }
 
@@ -1238,7 +1243,7 @@ Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
           } else { // the parameters have been cancelled by start/end surface
             // no hit -> fill into the garbage bin
             ATH_MSG_VERBOSE("  [-] Detector surface hit cancelled through start/end surface check.");
-            throwIntoGarbageBin(overlapParameters);
+            throwIntoGarbageBin(cache,overlapParameters);
           }
         }
       } // loop over test surfaces done
@@ -1288,7 +1293,8 @@ Trk::TimedExtrapolator::momentumOutput(const Amg::Vector3D &mom) const {
 }
 
 void
-Trk::TimedExtrapolator::emptyGarbageBin(const Trk::TrackParameters *trPar) const {
+Trk::TimedExtrapolator::emptyGarbageBin(Trk::TimedExtrapolator::Cache &cache,
+                                        const Trk::TrackParameters *trPar) const {
   // empty the garbage
   std::map<const Trk::TrackParameters *, bool>::iterator garbageIter = cache.m_garbageBin.begin();
   std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
@@ -1306,7 +1312,7 @@ Trk::TimedExtrapolator::emptyGarbageBin(const Trk::TrackParameters *trPar) const
 
   cache.m_garbageBin.clear();
   if (throwCurrent) {
-    throwIntoGarbageBin(trPar);
+     throwIntoGarbageBin(cache,trPar);
   }
 }
 
@@ -1329,6 +1335,7 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
                                                        std::vector<Trk::HitInfo> * &hitInfo,
                                                        Trk::GeometrySignature &nextGeoID,
                                                        const Trk::TrackingVolume *boundaryVol) const {
+   Trk::TimedExtrapolator::Cache cache(m_maxNavigSurf);
 // extrapolation method intended for simulation of particle decay; collects the material up to pre-defined limit and
 // triggers
 // material interaction
@@ -1361,7 +1368,7 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
   cache.m_particleMass = s_particleMasses.mass[particle];
 
   // extrapolate to destination volume boundary with path limit
-  const Trk::TrackParameters *returnParms = transportToVolumeWithPathLimit(parm, timeLim, dir, particle, nextGeoID,
+  const Trk::TrackParameters *returnParms = transportToVolumeWithPathLimit(cache,parm, timeLim, dir, particle, nextGeoID,
                                                                            boundaryVol);
 
   // save actual path on output
@@ -1376,7 +1383,8 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
 }
 
 const Trk::TrackParameters *
-Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameters &parm,
+Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::Cache &cache,
+                                                       const Trk::TrackParameters &parm,
                                                        Trk::TimeLimit &timeLim,
                                                        Trk::PropDirection dir,
                                                        Trk::ParticleHypothesis particle,
@@ -1395,9 +1403,6 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
   // int                        nEntryLays = 0;
   unsigned int iDest = 0;
 
-  // std::cout << "transportNeutralsWithPathLimit(...) " << m_pathLim << ", from " << parm.position()<<" current time,
-  // path:"<< cache.m_time<<","<<cache.m_path<<std::endl;
-
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
     return &parm;
@@ -1408,7 +1413,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
     cache.m_highestVolume = m_navigator->highestVolume();
   }
 
-  emptyGarbageBin(&parm);
+  emptyGarbageBin(cache,&parm);
   // transport surfaces:  collect only those with valid intersection (easy to calculate for neutrals)
   if (cache.m_trSurfs.capacity() > m_maxNavigSurf) {
     cache.m_trSurfs.reserve(m_maxNavigSurf);
@@ -1475,12 +1480,12 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
   if (cache.m_hitVector && nextGeoID == Trk::Calo) {
     const Trk::AlignableTrackingVolume *alignTV = dynamic_cast<const Trk::AlignableTrackingVolume *> (cache.m_currentStatic);
     if (alignTV) {
-      const Trk::TrackParameters *aPar = transportInAlignableTV(parm, timeLim, dir, particle, nextGeoID, alignTV).trPar;
+      const Trk::TrackParameters *aPar = transportInAlignableTV(cache,parm, timeLim, dir, particle, nextGeoID, alignTV).trPar;
       if (!aPar) {
         return returnParameters;
       }
-      throwIntoGarbageBin(aPar);
-      return transportToVolumeWithPathLimit(*aPar, timeLim, dir, particle, nextGeoID, destVol);
+      throwIntoGarbageBin(cache,aPar);
+      return transportToVolumeWithPathLimit(cache,*aPar, timeLim, dir, particle, nextGeoID, destVol);
     }
   }
 
@@ -1565,7 +1570,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
     cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
 
     if (cache.m_currentStatic) {
-      return transportToVolumeWithPathLimit(parm, timeLim, dir, particle, nextGeoID, destVol);
+       return transportToVolumeWithPathLimit(cache,parm, timeLim, dir, particle, nextGeoID, destVol);
     } else {
       ATH_MSG_DEBUG("  [+] World boundary reached        - at " << positionOutput(
                       currPar->position()) << ", timed at " << cache.m_time);
@@ -1591,7 +1596,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
       bool active = layR && layR->layerType();
 
       if (active) {
-        if (!cache.m_resolveMultilayers || !(*iTer)->multilayerRepresentation()) {
+        if (!m_resolveMultilayers || !(*iTer)->multilayerRepresentation()) {
           const Trk::Surface &surf = layR->surfaceRepresentation();
           Trk::DistanceSolution distSol = surf.straightLineDistanceEstimate(currPar->position(),
                                                                             dir * currPar->momentum().normalized());
@@ -1916,8 +1921,8 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
           return returnParameters;
         }
 
-        throwIntoGarbageBin(nextPar);
-        // return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+        throwIntoGarbageBin(cache,nextPar);
+        // return transportToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
       } else {  // kill particle without trace
         return returnParameters;
       }
@@ -1931,7 +1936,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
     cache.m_time += tDelta;
 
     nextPar = new Trk::CurvilinearParameters(nextPos, currPar->momentum(), 1.);  // fake charge
-    throwIntoGarbageBin(nextPar);
+    throwIntoGarbageBin(cache,nextPar);
 
     if (sols[is] < iDest) {      // destination volume (most often, subdetector boundary)
       return nextPar->clone();
@@ -1950,7 +1955,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
             cache.m_parametersAtBoundary.resetBoundaryInformation();
             return returnParameters;
           } else {
-            throwIntoGarbageBin(nextPar);
+            throwIntoGarbageBin(cache,nextPar);
           }
         } else {    // material layer without material ?
           ATH_MSG_VERBOSE(" boundary layer without material:" << mb->layerIndex());
@@ -1998,10 +2003,10 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
           }
         }
         cache.m_parametersAtBoundary.boundaryInformation(nextVol, nextPar, nextPar);
-        return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+        return transportToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
       }
       if (dist > 0.) {
-        return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+        return transportToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
       }
     } else if (sols[is] < iDest + cache.m_trStaticBounds.size() + cache.m_trLays.size()) {     // layer
       // material thickness - simple approach
@@ -2033,7 +2038,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
           cache.m_parametersAtBoundary.resetBoundaryInformation();
           return returnParameters;
         } else {
-          throwIntoGarbageBin(nextPar);
+          throwIntoGarbageBin(cache,nextPar);
         }
       }
     } else if (sols[is] < iDest + cache.m_trStaticBounds.size() + cache.m_trLays.size() + cache.m_trDenseBounds.size()) {
@@ -2074,7 +2079,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
     } else {   // detached volume bounds - not relevant ?
     }
 
-    throwIntoGarbageBin(nextPar);
+    throwIntoGarbageBin(cache,nextPar);
   }
 
   ATH_MSG_DEBUG(
@@ -2089,7 +2094,8 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
 }
 
 Trk::BoundaryTrackParameters
-Trk::TimedExtrapolator::transportInAlignableTV(const Trk::TrackParameters &parm,
+Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &cache,
+                                               const Trk::TrackParameters &parm,
                                                Trk::TimeLimit &timeLim,
                                                Trk::PropDirection dir,
                                                Trk::ParticleHypothesis particle,
@@ -2106,7 +2112,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(const Trk::TrackParameters &parm,
   const Trk::TrackingVolume *nextVol = nullptr;
   std::vector<Trk::IdentifiedIntersection> iis;
 
-  emptyGarbageBin(&parm);
+  emptyGarbageBin(cache,&parm);
 
   if (!aliTV) {
     return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
@@ -2319,7 +2325,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(const Trk::TrackParameters &parm,
       if (m_caloMsSecondary) {
         const Trk::TrackParameters *nextPar = m_updators[0]->interact(cache.m_time, nextPos,
                                                                       currPar->momentum(), particle, process, currMat);
-        throwIntoGarbageBin(nextPar);
+        throwIntoGarbageBin(cache,nextPar);
 
         if (nextPar) {
           ATH_MSG_DEBUG(" [!] WARNING: particle survives the interaction " << process);
@@ -2370,7 +2376,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(const Trk::TrackParameters &parm,
     }
   }
 
-  throwIntoGarbageBin(nextPar);
+  throwIntoGarbageBin(cache,nextPar);
 
   // static volume boundary; return to the main loop : TODO move from misaligned to static
   // unsigned int index = cache.m_trStaticBounds[0].bIndex;
@@ -2404,7 +2410,8 @@ Trk::TimedExtrapolator::transportInAlignableTV(const Trk::TrackParameters &parm,
 }
 
 Trk::BoundaryTrackParameters
-Trk::TimedExtrapolator::extrapolateInAlignableTV(const Trk::TrackParameters &parm,
+Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &cache,
+                                                 const Trk::TrackParameters &parm,
                                                  Trk::TimeLimit &timeLim,
                                                  Trk::PropDirection dir,
                                                  Trk::ParticleHypothesis particle,
@@ -2431,7 +2438,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(const Trk::TrackParameters &par
     cache.m_highestVolume = m_navigator->highestVolume();
   }
 
-  emptyGarbageBin(&parm);
+  emptyGarbageBin(cache,&parm);
 
   // verify current position
   Amg::Vector3D gp = parm.position();
@@ -2517,7 +2524,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(const Trk::TrackParameters &par
       ATH_MSG_DEBUG("  [+] Number of intersection solutions: " << solutions.size());
     }
     if (nextPar) {
-      throwIntoGarbageBin(nextPar);
+      throwIntoGarbageBin(cache,nextPar);
     }
 
     // material update has been done already by the propagator
@@ -2539,7 +2546,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(const Trk::TrackParameters &par
           return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
         }
 
-        throwIntoGarbageBin(iPar);
+        throwIntoGarbageBin(cache,iPar);
 
         if (iPar && cache.m_path.process == 121) {
           ATH_MSG_DEBUG(" [!] WARNING: failed hadronic interaction, killing the input particle anyway");
@@ -2563,7 +2570,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(const Trk::TrackParameters &par
           return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
         }
 
-        throwIntoGarbageBin(iPar);
+        throwIntoGarbageBin(cache,iPar);
         ATH_MSG_WARNING("particle decay survival?" << particle << "," << timeLim.process);
         return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
       } else {    // kill the particle without trace ( some validation info can be included here eventually )
