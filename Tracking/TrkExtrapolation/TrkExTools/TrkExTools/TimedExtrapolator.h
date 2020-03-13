@@ -308,79 +308,80 @@ namespace Trk {
     // ------------------------------------------------------- //      
    
     bool                            m_activeOverlap;                 //!<  consider overlaps between active muon volumes  
+    bool                            m_robustSampling;
     bool                            m_useDenseVolumeDescription;     //!<  use dense volume description when available in ID/Calo
     bool                            m_useMuonMatApprox;              //!<  use approximative MS inert material
     bool                            m_checkForCompundLayers;         //!<  use the multi-layer tests for compound layers
-    mutable bool                    m_dense;                         //!<  internal switch for resolved configuration 
-
-    // ------------ Recall / Boundary Information ----------------------- //
-
-    mutable ParamsNextVolume    m_parametersAtBoundary;           //!< return helper for parameters and boundary  
-    mutable std::vector<Trk::HitInfo>*    m_hitVector;                //!< return helper for hit info
-
-    mutable std::map<const Trk::TrackParameters*, bool> m_garbageBin; //!< garbage collection during extrapolation
-
-    mutable const Trk::TrackingVolume*                                m_currentStatic;
-    mutable const Trk::TrackingVolume*                                m_currentDense;
-    mutable const Trk::TrackingVolume*                                m_highestVolume;
     mutable bool                                                      m_resolveActive;
-    mutable bool                                                      m_resolveMultilayers;
-    mutable std::pair<unsigned int, unsigned int>                     m_denseResolved;
-    mutable unsigned int                                              m_layerResolved;  
-    mutable std::vector<std::pair<const Trk::DetachedTrackingVolume*,unsigned int> >    m_detachedVols;
-    mutable std::vector<std::pair<const Trk::TrackingVolume*,unsigned int> >            m_denseVols;
-    mutable std::vector<std::pair<const Trk::TrackingVolume*,const Trk::Layer*> >       m_navigLays;
-    mutable std::vector<DestSurf>                                     m_staticBoundaries;
-    mutable std::vector<DestSurf>                                     m_detachedBoundaries;
-    mutable std::vector<DestSurf>                                     m_denseBoundaries;
-    mutable std::vector<DestSurf>                                     m_navigBoundaries;
-    mutable std::vector<DestSurf>                                     m_layers;
-    mutable bool                                                      m_robustSampling;
-    mutable PathLimit                                                 m_path;
-    mutable double                                                    m_time;
-
-    //------------------------- NAVIGATION -------- ----------------------------------------------//
-    mutable int                     m_methodSequence;
 
     //-------------------------- SCREEN output steering -------------------------------------------//
     bool                            m_printHelpOutputAtInitialize;
     bool                            m_printRzOutput;
-
-    //------------------------- VALIDATION MODE SECTION ------------------------------------------//
-
-
-    
-
     // ----------------------------- navigation validation section -----------------------------------------------------------
 
     bool                            m_navigationStatistics;           //!< steer the output for the navigaiton statistics
     bool                            m_navigationBreakDetails;         //!< steer the output for the navigation break details
 
     bool                            m_materialEffectsOnTrackValidation; //!< mat effects on track validation
+    unsigned int m_maxNavigSurf;
+    unsigned int m_maxNavigVol;
+
+    struct Cache {
+       Cache(unsigned int max_navig_surf=1000.) : m_path(0.,0) {
+          m_navigSurfs.reserve(max_navig_surf);
+       }
+       mutable bool                    m_dense {};                         //!<  internal switch for resolved configuration
+
+    // ------------ Recall / Boundary Information ----------------------- //
+       mutable ParamsNextVolume    m_parametersAtBoundary;           //!< return helper for parameters and boundary
+       mutable std::vector<Trk::HitInfo>*    m_hitVector {};                //!< return helper for hit info
+
+       mutable std::map<const Trk::TrackParameters*, bool> m_garbageBin; //!< garbage collection during extrapolation
+
+       mutable const Trk::TrackingVolume*                                m_currentStatic {};
+       mutable const Trk::TrackingVolume*                                m_currentDense {};
+       mutable const Trk::TrackingVolume*                                m_highestVolume {};
+       mutable bool                                                      m_resolveMultilayers = true;
+       mutable std::pair<unsigned int, unsigned int>                     m_denseResolved {};
+       mutable unsigned int                                              m_layerResolved {};
+       mutable std::vector<std::pair<const Trk::DetachedTrackingVolume*,unsigned int> >    m_detachedVols;
+       mutable std::vector<std::pair<const Trk::TrackingVolume*,unsigned int> >            m_denseVols;
+       mutable std::vector<std::pair<const Trk::TrackingVolume*,const Trk::Layer*> >       m_navigLays;
+       mutable std::vector<DestSurf>                                     m_staticBoundaries;
+       mutable std::vector<DestSurf>                                     m_detachedBoundaries;
+       mutable std::vector<DestSurf>                                     m_denseBoundaries;
+       mutable std::vector<DestSurf>                                     m_navigBoundaries;
+       mutable std::vector<DestSurf>                                     m_layers;
+       mutable PathLimit                                                 m_path;
+       mutable double                                                    m_time {};
+
+    //------------------------- NAVIGATION -------- ----------------------------------------------//
+       mutable int                     m_methodSequence {};
 
     // ------------------------------- cache --------------------------------------------------------------------
 
-    mutable const Layer*                                       m_lastMaterialLayer; //!< cache layer with last material update
-    bool                                                       m_cacheLastMatLayer;   // steering of the material layer cache 
+       mutable const Layer*                                       m_lastMaterialLayer {}; //!< cache layer with last material update
+       bool                                                       m_cacheLastMatLayer {};   // steering of the material layer cache 
+
+       mutable std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >  m_navigSurfs;
+       mutable std::vector<std::pair<const Trk::Surface*,double> >              m_trSurfs;
+       mutable std::vector< Trk::DestBound >                                    m_trStaticBounds;  // need to cache the boundary index, too
+       mutable std::vector<std::pair<const Trk::Surface*,double>  >             m_trDenseBounds;
+       mutable std::vector<std::pair<const Trk::Surface*,double> >              m_trLays;
+
+       mutable double                         m_particleMass {};
+    };
+    mutable Cache cache{};
+
+    //------------ Magnetic field properties
+    bool m_fastField;
+    Trk::MagneticFieldProperties m_fieldProperties;
 
     // ------------------------------- static members --------------------------------------------------------------------
     static double                   s_distIncreaseTolerance;         //!< distance increatse tolerance to account for straight line approx.
-	static double                   s_distEntryLayerMax;			//!< maximal allowed distance to the entry layer	 
+    static double                   s_distEntryLayerMax;	     //!< maximal allowed distance to the entry layer
     static PlaneSurface             s_referenceSurface;              //!< the reference Surface
-
-    unsigned int m_maxNavigSurf;
-    unsigned int m_maxNavigVol;
-    mutable std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >  m_navigSurfs;
-    mutable std::vector<std::pair<const Trk::Surface*,double> >              m_trSurfs;
-    mutable std::vector< Trk::DestBound >                                    m_trStaticBounds;  // need to cache the boundary index, too
-    mutable std::vector<std::pair<const Trk::Surface*,double>  >             m_trDenseBounds;
-    mutable std::vector<std::pair<const Trk::Surface*,double> >              m_trLays;
-
-    static  ParticleMasses                 s_particleMasses; 
-    mutable double                         m_particleMass;
-   //------------ Magnetic field properties
-   bool m_fastField;
-   Trk::MagneticFieldProperties m_fieldProperties;
+    static ParticleMasses           s_particleMasses; 
   };
 
 inline const TrackingGeometry* TimedExtrapolator::trackingGeometry() const 
@@ -408,7 +409,7 @@ inline const ITimedMatEffUpdator* TimedExtrapolator::subMaterialEffectsUpdator(c
 
 
 inline void TimedExtrapolator::throwIntoGarbageBin(const Trk::TrackParameters* pars) const
-{ if (pars) m_garbageBin[pars] = true; }
+{ if (pars) cache.m_garbageBin[pars] = true; }
 
 /*
 inline unsigned int TimedExtrapolator::geoIDToDetOrder(Trk::GeometrySignature geoid) const
