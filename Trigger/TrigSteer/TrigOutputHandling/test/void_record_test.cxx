@@ -59,11 +59,11 @@ int main() {
 
   SG::BaseInfo<xAOD::TrigCompositeContainer>::baseinfo(); // this is problematic because client code does not know about templates, will have to see in athena if the problem persists
 
-  RootType containerRT = RootType::ByName( "xAOD::TrigCompositeContainer_v1" );  
+  RootType containerRT = RootType::ByName1( "xAOD::TrigCompositeContainer_v1" );  
   log << MSG::INFO << containerRT.Name() << endmsg;
   BareDataBucket containerDataBucket( rawContainerPtr, ClassID_traits<xAOD::TrigCompositeContainer>::ID(), containerRT ); 
   
-  RootType storeRT = RootType::ByName( "xAOD::TrigCompositeAuxContainer_v2" );
+  RootType storeRT = RootType::ByName1( "xAOD::TrigCompositeAuxContainer_v2" );
   log << MSG::INFO << storeRT.Name() << endmsg;
   BareDataBucket storeDataBucket( rawStorePtr, ClassID_traits<xAOD::TrigCompositeAuxContainer>::ID(), storeRT ); 
   log << MSG::INFO << "recordObject done" << endmsg;
