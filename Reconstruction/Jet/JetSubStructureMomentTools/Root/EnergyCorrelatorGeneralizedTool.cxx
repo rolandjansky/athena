@@ -17,6 +17,7 @@ EnergyCorrelatorGeneralizedTool::EnergyCorrelatorGeneralizedTool(std::string nam
 }
 
 StatusCode EnergyCorrelatorGeneralizedTool::initialize() {
+
   // Add beta = 1.0 by default
   m_betaVals.push_back(1.0);
 
