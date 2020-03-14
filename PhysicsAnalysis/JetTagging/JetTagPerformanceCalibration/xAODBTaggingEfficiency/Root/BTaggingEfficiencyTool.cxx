@@ -120,6 +120,8 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   declareProperty("TaggerName",                          m_taggerName="",               "tagging algorithm name as specified in CDI file");
   declareProperty("OperatingPoint",                      m_OP="",                       "operating point as specified in CDI file");
   declareProperty("JetAuthor",                           m_jetAuthor="",                "jet collection & JVF/JVT specification in CDI file");
+  declareProperty("JetAuthor",                           m_jetAuthor="",                "jet collection & JVF/JVT specification in CDI file");
+  declareProperty("MinPt",                               m_minPt=-1,                    "minimum jet pT cut");
   declareProperty("ScaleFactorFileName",                 m_SFFile = "",                 "name of the official scale factor calibration CDI file (uses PathResolver)");
   declareProperty("UseDevelopmentFile",                  m_useDevFile = false,          "specify whether or not to use the (PathResolver) area for temporary scale factor calibration CDI files");
   declareProperty("EfficiencyFileName",                  m_EffFile = "",                "name of optional user-provided MC efficiency CDI file");
@@ -485,6 +487,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     ATH_CHECK( m_selectionTool.setProperty("TaggerName",                   m_taggerName) );
     ATH_CHECK( m_selectionTool.setProperty("OperatingPoint",               m_OP) );
     ATH_CHECK( m_selectionTool.setProperty("JetAuthor",                    m_jetAuthor) );
+    ATH_CHECK( m_selectionTool.setProperty("MinPt",                        m_minPt) );
     ATH_CHECK( m_selectionTool.retrieve() );
   }
 

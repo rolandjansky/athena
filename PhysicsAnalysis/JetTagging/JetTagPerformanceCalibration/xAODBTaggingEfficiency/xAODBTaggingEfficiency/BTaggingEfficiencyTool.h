@@ -297,6 +297,8 @@ private:
   std::string m_OP;
   ///  jet collection name
   std::string m_jetAuthor;
+  ///  minimum jet pT
+  float m_minPt;
   /// systematics model to be used (current choices are "SFEigen", "SFEigenRefined", and "Envelope")
   std::string m_systStrategy;
   /// if true, attempt to retrieve the data/MC efficiency scale factor calibration files from the @PathResolver development area

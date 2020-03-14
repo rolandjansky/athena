@@ -16,6 +16,7 @@
 #include "TObjString.h"
 
 #include <algorithm>
+#include <string>
 
 using std::string;
 
@@ -42,7 +43,7 @@ BTaggingSelectionTool::BTaggingSelectionTool( const std::string & name)
 {
   m_initialised = false;
   declareProperty( "MaxEta", m_maxEta = 2.5 );
-  declareProperty( "MinPt", m_minPt = 20000 /*MeV*/);
+  declareProperty( "MinPt", m_minPt = -1 /*MeV*/);
   declareProperty( "MaxRangePt", m_maxRangePt = 3000000 /*MeV*/);
   declareProperty( "FlvTagCutDefinitionsFileName", m_CutFileName = "", "name of the files containing official cut definitions (uses PathResolver)");
   declareProperty( "TaggerName",                    m_taggerName="",    "tagging algorithm name");
@@ -99,10 +100,9 @@ StatusCode BTaggingSelectionTool::initialize() {
 
 
   // Change the minPt cut if the user didn't touch it
-  if (20000==m_minPt){// is it still the default value
-    if ("AntiKt2PV0TrackJets"== m_jetAuthor){ m_minPt=10000; }
-    if ("AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor){ m_minPt= 7000; }
-    if ("AntiKt4PV0TrackJets"== m_jetAuthor){ m_minPt= 7000; }
+  if (m_minPt < 0) {
+    ATH_MSG_ERROR( "Tagger: "+m_taggerName+" and Jet Collection : "+m_jetAuthor+" do not have a minimum jet pT cut set.");
+    return StatusCode::FAILURE;
   }
 
   // Operating point reading
@@ -358,10 +358,10 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     return m_accept;
   }
 
-  if ("AntiKt2PV0TrackJets"== m_jetAuthor ||
-      "AntiKt4PV0TrackJets"== m_jetAuthor ||
-      "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor
-      ){
+  if  ( "AntiKt2PV0TrackJets"== m_jetAuthor ||
+        "AntiKt4PV0TrackJets"== m_jetAuthor ||
+        m_jetAuthor.find("AntiKtVR30Rmax4Rmin02TrackJets") != string::npos
+      ) {
     // We want at least 2 tracks in a track jet
     m_accept.setCutResult( "NConstituents", jet.numConstituents() >= 2 );
   }
