@@ -220,6 +220,9 @@ namespace top {
                      "Failed to set b-tagging OperatingPoint");
           top::check(btageff->setProperty("JetAuthor", caloJets_collection),
                      "Failed to set b-tagging JetAuthor");
+	  top::check(btageff->setProperty("MinPt",
+                                      static_cast<double>(m_config->jetPtcut())),
+		     "Failed to set b-tagging selection tool MinPt");
           top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                      "Failed to set path to b-tagging CDI file");
           top::check(btageff->setProperty("ScaleFactorFileName", calib_file_path),
@@ -311,6 +314,9 @@ namespace top {
                        "Failed to set b-tagging OperatingPoint");
             top::check(btageff->setProperty("JetAuthor", trackJets_collection),
                        "Failed to set b-tagging JetAuthor");
+            top::check(btageff->setProperty("MinPt",
+                                        static_cast<double>(m_config->trackJetPtcut())),
+		       "Failed to set b-tagging selection tool MinPt");
             top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                        "Failed to set path to b-tagging CDI file");
             top::check(btageff->setProperty("ScaleFactorFileName", calib_file_path),
