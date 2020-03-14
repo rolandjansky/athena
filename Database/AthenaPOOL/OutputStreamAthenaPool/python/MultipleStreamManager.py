@@ -482,8 +482,8 @@ class MultipleStreamManager:
         theStream.Stream.WritingTool.SubLevelBranchName = "<key>"
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; COMPRESSION_LEVEL = '5'" ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '-20000000'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=CollectionTree'; CONTAINER_SPLITLEVEL = '1'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=Aux.'; CONTAINER_SPLITLEVEL = '1'"]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=CollectionTree'; CONTAINER_SPLITLEVEL = '0'" ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=Aux.'; CONTAINER_SPLITLEVEL = '0'"]
         return theStream
 
 
