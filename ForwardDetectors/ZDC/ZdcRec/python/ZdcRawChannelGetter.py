@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies egamma"standard"
 from AthenaCommon.Logging import logging
@@ -56,8 +56,9 @@ class ZdcRawChannelGetter ( Configured ) :
             from ZdcRec.ZdcRecConf import ZdcRec
             self._zdcRecHandle = ZdcRec()
         except Exception:
+            import traceback
             mlog.error("could not get handle to ZdcRec")
-            print traceback.format_exc()
+            mlog.error(traceback.format_exc())
             return False
 
 
