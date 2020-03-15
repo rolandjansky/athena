@@ -4,36 +4,23 @@
 
 #include "DigiDemoSetupAlg.h"
 #include "AthViews/ViewHelper.h"
-
-// FrameWork includes
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 namespace AthViews {
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-DigiDemoSetupAlg::DigiDemoSetupAlg( const std::string& name, 
-                      ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator )
+DigiDemoSetupAlg::DigiDemoSetupAlg( const std::string& name, ISvcLocator* pSvcLocator ) :
+  AthAlgorithm( name, pSvcLocator )
 {
 }
 
-// Destructor
-///////////////
 DigiDemoSetupAlg::~DigiDemoSetupAlg()
 {
 }
 
-// Athena Algorithm's Hooks
-////////////////////////////
 StatusCode DigiDemoSetupAlg::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
   CHECK( m_w_ints.initialize() );
   CHECK( m_w_views.initialize() );
@@ -45,13 +32,13 @@ StatusCode DigiDemoSetupAlg::initialize()
 
 StatusCode DigiDemoSetupAlg::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_MSG_DEBUG ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode DigiDemoSetupAlg::execute()
-{  
+{
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
   const EventContext& ctx = getContext();
@@ -90,7 +77,7 @@ StatusCode DigiDemoSetupAlg::execute()
       delete digiView;
     }
   }
-  
+
   //Make a vector of views for "pileup events" to use in this event
   auto viewVector = std::make_unique< ViewContainer >(); //( m_viewNumber, nullptr );
   for ( int viewIndex = 0; viewIndex < m_viewNumber; ++viewIndex )
@@ -101,10 +88,10 @@ StatusCode DigiDemoSetupAlg::execute()
   }
 
   //Schedule the algorithms in views
-  CHECK( ViewHelper::ScheduleViews( viewVector.get(), //View vector
-        m_viewNodeName,                         //Name of node to attach views to
-        ctx,                                    //Context to attach the views to
-        m_scheduler.get() ) );                  //ServiceHandle for the scheduler
+  CHECK( ViewHelper::scheduleViews( viewVector.get(),      //View vector
+                                    m_viewNodeName,        //Name of node to attach views to
+                                    ctx,                   //Context to attach the views to
+                                    m_scheduler.get() ) ); //ServiceHandle for the scheduler
 
   //Store the collection of views
   SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );

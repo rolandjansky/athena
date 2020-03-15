@@ -166,7 +166,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
   }// loop over output keys
 
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
+  ATH_CHECK( ViewHelper::scheduleViews( viewVector,           // Vector containing views
                                         m_viewNodeName,       // CF node to attach views to
                                         context,              // Source context
                                         getScheduler(),
