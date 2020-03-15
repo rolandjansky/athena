@@ -6,6 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkInDet.InDetCommon import *
 
 # Include TRUTH3 containers
 if DerivationFrameworkIsMonteCarlo:
@@ -83,6 +84,50 @@ JETM1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
 ToolSvc += JETM1ElectronTPThinningTool
 thinningTools.append(JETM1ElectronTPThinningTool)
 
+# TrackParticles associated with small-R jets
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+JETM1Akt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM1Akt4JetTPThinningTool",
+                                                                            ThinningService         = JETM1ThinningHelper.ThinningSvc(),
+                                                                            JetKey                  = "AntiKt4EMTopoJets",
+                                                                            SelectionString         = "AntiKt4EMTopoJets.pt > 18*GeV",
+                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                            ApplyAnd                = False)
+ToolSvc += JETM1Akt4JetTPThinningTool
+thinningTools.append(JETM1Akt4JetTPThinningTool)
+
+JETM1Akt4PFlowJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM1Akt4PFlowJetTPThinningTool",
+                                                                                 ThinningService         = JETM1ThinningHelper.ThinningSvc(),
+                                                                                 JetKey                  = "AntiKt4EMPFlowJets",
+                                                                                 SelectionString         = "AntiKt4EMPFlowJets.pt > 18*GeV",
+                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                 ApplyAnd                = False)
+ToolSvc += JETM1Akt4PFlowJetTPThinningTool
+thinningTools.append(JETM1Akt4PFlowJetTPThinningTool)
+
+thinning_expression = "InDetTrackParticles.JETM1DFLoose && ( abs(InDetTrackParticles.d0) < 3.0 ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 4.0 )"
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+JETM1TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "JETM1TPThinningTool",
+                                                                  ThinningService         = JETM1ThinningHelper.ThinningSvc(),
+                                                                  SelectionString         = thinning_expression,
+                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                  ApplyAnd        = True)
+ToolSvc += JETM1TPThinningTool
+thinningTools.append(JETM1TPThinningTool)
+
+#=======================================
+# Augmentation tools
+#=======================================
+
+augmentationTools = []
+
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__InDetTrackSelectionToolWrapper
+JETM1TrackSelectionTool = DerivationFramework__InDetTrackSelectionToolWrapper(name = "JETM1TrackSelectionTool",
+                                                                              ContainerName = "InDetTrackParticles",
+                                                                              DecorationName = "JETM1DFLoose" )
+
+JETM1TrackSelectionTool.TrackSelectionTool.CutLevel = "Loose"
+ToolSvc += JETM1TrackSelectionTool
+augmentationTools.append(JETM1TrackSelectionTool)
 
 
 #=======================================
@@ -91,6 +136,7 @@ thinningTools.append(JETM1ElectronTPThinningTool)
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
+                                                         AugmentationTools = augmentationTools,
                                                          SkimmingTools = [JETM1ORTool],
                                                          ThinningTools = thinningTools)
 
