@@ -35,6 +35,8 @@ public:
   } 
   StatusCode execute(xAOD::TauJet& xTau) const;
 
+  bool getUseCaloPtFlag(const xAOD::TauJet* tau) const;
+
 private:
   struct Variables
   {
@@ -100,8 +102,6 @@ private:
 
   //high pt flag
   double getCaloResolution(const xAOD::TauJet* tau) const;
-
-  bool getUseCaloPtFlag(const xAOD::TauJet* tau) const;
 
   const std::vector<TString> m_modeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"};
   const std::vector<TString> m_etaBinNames = {"0", "1", "2", "3", "4"};//("<0.3"), ("<0.8"), ("<1.3"), ("<1.6"), ("<2.5")
