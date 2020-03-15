@@ -44,10 +44,10 @@ StatusCode MinimalViewAlg::execute()
 
   // Schedule the algorithms in the view
   const EventContext& ctx = getContext();
-  return ViewHelper::ScheduleSingleView( theView,
+  return ViewHelper::scheduleSingleView( theView,
                                          m_viewNodeName,         //Name of node to attach views to
                                          ctx,                    //Context to attach the views to
-                                         Atlas::getExtendedEventContext( ctx ),
+                                         Atlas::getExtendedEventContext( ctx ).conditionsRun(),
                                          m_scheduler.get() );    //ServiceHandle for the scheduler
 }
 
