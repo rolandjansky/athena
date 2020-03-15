@@ -39,7 +39,9 @@ private:
 
     HGTD_DetectorManager* m_detectorManager;
     InDetDD::AthenaComps* m_athenaComps;
-}
 
-}
+};
+
+} // End HGTDGeo namespace
+
 #endif // HGTD_GEOMODEL_HGTD_DETECTORFACTORY_H
