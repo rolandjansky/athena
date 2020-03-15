@@ -130,7 +130,7 @@ public:
 public:
    static TScopeAdapter ByName ATLAS_NOT_THREAD_SAFE (
       const std::string& name, Bool_t load = kTRUE, Bool_t quiet = kTRUE );
-   static TScopeAdapter ByName1(
+   static TScopeAdapter ByNameNoQuiet(
       const std::string& name, Bool_t load = kTRUE );
 
    static TScopeAdapter TypeAt( size_t nth );

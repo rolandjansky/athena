@@ -137,7 +137,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
 
     start = toNextFragment( start ); // point the start to the next chunk, irrespectively of what happens in deserialisation below
         
-    RootType classDesc = RootType::ByName1( persistentTypeName );
+    RootType classDesc = RootType::ByNameNoQuiet( persistentTypeName );
     ATH_CHECK( classDesc.IsComplete() );
     size_t usedBytes{ bsize };
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
@@ -162,7 +162,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       classDesc.Destruct( obj );
 
       // from now on in case of T/P class we deal with a new class, the transient one
-      classDesc = RootType::ByName1( transientTypeName );
+      classDesc = RootType::ByNameNoQuiet( transientTypeName );
       ATH_CHECK( classDesc.IsComplete() );
       obj = converted;
     }

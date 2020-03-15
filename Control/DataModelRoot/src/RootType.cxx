@@ -557,7 +557,7 @@ TScopeAdapter TScopeAdapter::ByName ATLAS_NOT_THREAD_SAFE (
 }
 
 //____________________________________________________________________________
-TScopeAdapter TScopeAdapter::ByName1 (
+TScopeAdapter TScopeAdapter::ByNameNoQuiet (
       const std::string& name, Bool_t load )
 {
    return TScopeAdapter (name, load);
