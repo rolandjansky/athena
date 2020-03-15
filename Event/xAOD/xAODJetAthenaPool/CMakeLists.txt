@@ -21,7 +21,7 @@ atlas_install_joboptions( share/*.py )
 set( poolcnv_files )
 set( poolcnv_types )
 
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( poolcnv_files xAODJet/JetContainer.h xAODJet/JetAuxContainer.h xAODJet/JetTrigAuxContainer.h)
    set( poolcnv_types xAOD::JetContainer xAOD::JetAuxContainer xAOD::JetTrigAuxContainer)
 else()
@@ -42,7 +42,7 @@ atlas_add_poolcnv_library( xAODJetAthenaPoolPoolCnv
 # Set up (a) test(s) for the converter(s):
 # Don't run tests in AthSimulation, since we don't generate
 # converters for JetTrigAuxContainer.
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
   if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
      set( AthenaPoolUtilitiesTest_DIR
         ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
