@@ -21,9 +21,9 @@ class TrigMultiTrkHypoConfig(object):
 
         try:
             value = trigLevelDict[trigLevel]
-            log.debug('TrigMultiTrkHypo.trigLevelString = %s ', value)
+            log.debug('TrigMultiTrkHypo.trigLevel = %s ', value)
         except KeyError:
-            log.error('TrigMultiTrkHypo.trigLevelString should be L2 or EF, but %s provided.', trigLevel)
+            log.error('TrigMultiTrkHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
         VertexFitter = Trk__TrkVKalVrtFitter(
@@ -42,23 +42,15 @@ class TrigMultiTrkHypoConfig(object):
 
         tool = TrigMultiTrkHypo(
             name = trigSequenceName+'HypoAlg'+trigLevel,
-            trigLevelString = trigLevel,
-            trackCollectionKey = trackCollection,
+            trigLevel = trigLevel,
+            nTracks = 2,
+            massRanges = [ (100., 20000.) ],
+            TrackCollectionKey = trackCollection,
             MuonCollectionKey = muonCollection,
-            nTrk = 2,
-            nTrackMassMin = [100.],
-            nTrackMassMax = [20000.],
+            TrigBphysCollectionKey = ('TrigBphys' if trigLevel == 'L2' else 'TrigBphysEF') + trigSequenceName,
             VertexFitter = VertexFitter,
             VertexPointEstimator = VertexPointEstimator,
             MonTool = TrigMultiTrkHypoMonitoring('TrigMultiTrkHypoMonitoring_'+trigSequenceName+trigLevel))
-
-        if trigLevel == 'L2':
-            tool.particleType = 0
-            tool.bphysCollectionKey = "TrigBphys"+trigSequenceName
-
-        elif trigLevel == 'EF':
-            tool.particleType = 1
-            tool.bphysCollectionKey = "TrigBphysEF"+trigSequenceName
 
         return tool
 
