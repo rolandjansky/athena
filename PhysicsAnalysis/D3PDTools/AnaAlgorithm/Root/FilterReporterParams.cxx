@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <AnaAlgorithm/AnaFilterHandle.h>
+#include <AnaAlgorithm/FilterReporterParams.h>
 
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/StatusCode.h>
@@ -21,7 +21,7 @@
 
 namespace EL
 {
-  StatusCode AnaFilterHandle ::
+  StatusCode FilterReporterParams ::
   initialize ()
   {
     assert (!m_isInitialized);

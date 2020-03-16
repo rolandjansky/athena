@@ -9,9 +9,9 @@
 // includes
 //
 
-#include <AnaAlgorithm/AnaFilterHandleGuard.h>
+#include <AnaAlgorithm/FilterReporter.h>
 
-#include <AnaAlgorithm/AnaFilterHandle.h>
+#include <AnaAlgorithm/FilterReporterParams.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <cassert>
 
@@ -21,9 +21,9 @@
 
 namespace EL
 {
-  AnaFilterHandleGuard ::
-  AnaFilterHandleGuard (AnaFilterHandle& val_handle,
-                        bool val_passedDefault)
+  FilterReporter ::
+  FilterReporter (FilterReporterParams& val_handle,
+                  bool val_passedDefault)
     : AsgMessagingForward (&val_handle)
     , m_handle (val_handle)
     , m_passed (val_passedDefault)
@@ -33,10 +33,10 @@ namespace EL
 
 
 
-  AnaFilterHandleGuard ::
-  AnaFilterHandleGuard (const AnaFilterHandle& val_handle,
-                        const EventContext& /*val_eventContext*/,
-                        bool val_passedDefault)
+  FilterReporter ::
+  FilterReporter (const FilterReporterParams& val_handle,
+                  const EventContext& /*val_eventContext*/,
+                  bool val_passedDefault)
     : AsgMessagingForward (&val_handle)
     , m_handle (val_handle)
     , m_passed (val_passedDefault)
@@ -46,8 +46,8 @@ namespace EL
 
 
 
-  AnaFilterHandleGuard ::
-  ~AnaFilterHandleGuard () noexcept
+  FilterReporter ::
+  ~FilterReporter () noexcept
   {
     ANA_MSG_DEBUG ("setting algorithm-filter-passed flag to " << m_passed);
     m_handle.m_setFilterPassed (m_passed);
@@ -55,7 +55,7 @@ namespace EL
 
 
 
-  void AnaFilterHandleGuard ::
+  void FilterReporter ::
   setPassed (bool val_passed) noexcept
   {
     ANA_MSG_DEBUG ("change algorithm-filter-passed flag from " << m_passed << " to " << val_passed);
