@@ -549,9 +549,9 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // (Argon) Initial tuning by Artem July 2014. See log file. Requires fine tuning.
   // HT middle-bit fraction tune - wider shaping function; 01-00-24
   // HT middle-bit fraction tune - 2015 data; 01-01-16
-  // Argon LT tune to 2015 data; 01-02-06
-  m_lowThresholdBarArgon        = 0.150*CLHEP::keV;
-  m_lowThresholdECArgon         = 0.150*CLHEP::keV;
+  // Argon LT tune to 2015 data; r22
+  m_lowThresholdBarArgon        = 0.100*CLHEP::keV;
+  m_lowThresholdECArgon         = 0.100*CLHEP::keV;
   m_highThresholdBarShortArgon  = 2.607*CLHEP::keV;
   m_highThresholdBarLongArgon   = 2.540*CLHEP::keV;
   m_highThresholdECAwheelsArgon = 2.414*CLHEP::keV;
