@@ -16,6 +16,9 @@
  * 
  **********************************************************************************/
 
+// Tools
+#include "PathResolver/PathResolver.h"
+
 // Local
 #include "IRNNTool.h"
 #include "VarHolder.h"
@@ -58,6 +61,8 @@ namespace Prompt
   private:    
 
     std::string                              m_configPathRNN;
+    std::string                              m_configRNNVersion;
+    std::string                              m_configRNNJsonFile;
     bool                                     m_debug;
     
     std::string                              m_inputSequenceName;

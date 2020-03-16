@@ -459,6 +459,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG8D1K
 # JetTagNonPromptLepton decorations
 #====================================================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 # Build AntiKt4PV0TrackJets and run b-tagging
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(HIGG8D1Seq, 'HIGG8D1')
@@ -466,6 +467,7 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(HIGG8D1Seq, 'HIGG8D1')
 # Add BDT decoration algs
 HIGG8D1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 HIGG8D1Seq += JetTagConfig.GetDecoratePromptTauAlgs()
+HIGG8D1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs() 
 
 DerivationFrameworkJob += HIGG8D1Seq
 
@@ -521,6 +523,7 @@ if StoreAdditionalAmbiguityContent:
 
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+HIGG8D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD() 
 
 ExtraContentTaus=[
         "TauJets."

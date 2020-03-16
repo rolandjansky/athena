@@ -18,23 +18,39 @@ Prompt::RNNTool::RNNTool(const std::string &name, const std::string &type, const
 {
   declareInterface<Prompt::IRNNTool>(this);
 
-  declareProperty("configPathRNN",     m_configPathRNN);  
-  declareProperty("debug",             m_debug);
+  declareProperty("configPathRNN",     m_configPathRNN,                    "Path of the local RNN json file you want o study/test, it will override the PathResolverFindCalibFile file");  
+  declareProperty("configRNNVersion",  m_configRNNVersion,                 "RNN version in cvmfs");  
+  declareProperty("configRNNJsonFile", m_configRNNJsonFile,                "Name of the RNN json file in cvmfs");  
+  declareProperty("debug",             m_debug,                            "Help to debug the RNNTool");
 
-  declareProperty("inputSequenceName", m_inputSequenceName = "Trk_inputs");
-  declareProperty("inputSequenceSize", m_inputSequenceSize = 5); 
+  declareProperty("inputSequenceName", m_inputSequenceName = "Trk_inputs", "Prefix of the variables used in the RNN json file");
+  declareProperty("inputSequenceSize", m_inputSequenceSize = 5,            "Number of tracks used in the RNN"); 
 }
 
 //=============================================================================
 StatusCode Prompt::RNNTool::initialize()
 {
-  ATH_MSG_INFO( "RNNTool::initialize..." << std::endl
-	     << "ConfigPathRNN: \"" << m_configPathRNN);
+  //
+  // Get path to xml training file
+  //
+  std::string fullPathToFile;
+
+  if(!m_configPathRNN.empty()) {
+    ATH_MSG_INFO("Override PathResolver to this path: " << m_configPathRNN);
+    fullPathToFile = m_configPathRNN;
+  }
+  else {
+    fullPathToFile = PathResolverFindCalibFile("JetTagNonPromptLepton/"
+                                               + m_configRNNVersion + "/"
+                                               + m_configRNNJsonFile);
+  }
+
+  ATH_MSG_INFO("initialize RNNTool - ConfigPathRNN: \"" << fullPathToFile);
 
   //
   // Configure RNN
   //
-  std::ifstream input_stream(m_configPathRNN);
+  std::ifstream input_stream(fullPathToFile);
   
   lwt::GraphConfig graph_config = lwt::parse_json_graph(input_stream);  
 
