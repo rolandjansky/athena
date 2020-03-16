@@ -214,7 +214,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         const uint32_t featureHash = (featureKey + featureIndex); 
         if (featureHash == 0) {
           ATH_MSG_WARNING("Disregarding feature hash of zero");
-          continue;
+	  // continue;
         }
         uniqueDecisionFeatures.insert( featureHash );
         // TODO - do something with the ROI
@@ -276,8 +276,7 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
   uint32_t featureClid = 0; // Note: Unused. We don't care what the type of the feature is here
   const bool result = (*dEL)->typelessGetObjectLink(featureString(), featureKey, featureClid, featureIndex);
   if (!result) {
-    // WARNING?
-    ATH_MSG_ERROR("Did not find the feature for " << dEL.dataID() << " index " << dEL.index());
+    ATH_MSG_WARNING("Did not find the feature for " << dEL.dataID() << " index " << dEL.index());
   }
   // Try and get seeding ROI data too. Don't need to be type-less here
   if (m_requireUniqueROI) {
