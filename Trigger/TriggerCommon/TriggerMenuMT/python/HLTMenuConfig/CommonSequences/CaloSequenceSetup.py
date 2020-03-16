@@ -21,7 +21,7 @@ def fastCaloSequence(ConfigFlags):
 
     # reco sequence
     from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
-    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs)
+    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs, doRinger=True)
 
      # connect EVC and reco
     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
