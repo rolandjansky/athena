@@ -20,7 +20,7 @@ class METChainConfiguration(ChainConfigurationBase):
         # Only some subset of keys in the METChainParts dictionary describe
         # reconstruction details - only these keys are passed down into the menu
         # sequence (the actual hypo tool is created later)
-        self.recoDict = extractMETRecoDict(self.dict["chainParts"])
+        self.recoDict = extractMETRecoDict(self.chainPart)
         
     # ----------------------
     # Assemble the chain depending on information from chainName
@@ -39,4 +39,4 @@ class METChainConfiguration(ChainConfigurationBase):
         stepName = "Step1_met_{}".format(metRecoDictToString(self.recoDict) )
         conf = AlgConfig.fromRecoDict(**self.recoDict)
         seq = conf.menuSequence
-        return ChainStep(stepName, [seq], multiplicity=[1])
+        return ChainStep(stepName, [seq], multiplicity=[1], chainDicts=[self.dict])
