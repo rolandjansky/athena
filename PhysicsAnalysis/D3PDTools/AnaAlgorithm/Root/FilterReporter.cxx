@@ -35,8 +35,8 @@ namespace EL
 
   FilterReporter ::
   FilterReporter (const FilterReporterParams& val_handle,
-                  const EventContext& /*val_eventContext*/,
-                  bool val_passedDefault)
+                  bool val_passedDefault,
+                  const EventContext& /*val_eventContext*/)
     : AsgMessagingForward (&val_handle)
     , m_handle (val_handle)
     , m_passed (val_passedDefault)

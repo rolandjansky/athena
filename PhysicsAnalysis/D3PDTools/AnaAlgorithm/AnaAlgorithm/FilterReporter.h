@@ -60,8 +60,8 @@ namespace EL
     ///   out of memory I
   public:
     FilterReporter (const FilterReporterParams& val_handle,
-                    const EventContext& val_eventContext,
-                    bool val_passedDefault);
+                    bool val_passedDefault,
+                    const EventContext& val_eventContext);
 
 
     /// \brief standard destructor
