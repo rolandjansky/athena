@@ -50,6 +50,8 @@ namespace {
     ElementLink< xAOD::TrackCaloClusterContainer_v1 >                               l15;
     std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > >                l16;
     std::vector< std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > > > l17;
+
+    std::vector<std::vector<std::pair<ElementLink<DataVector<xAOD::CaloCluster_v1> >,double> > > l18;
     
    };
 }
