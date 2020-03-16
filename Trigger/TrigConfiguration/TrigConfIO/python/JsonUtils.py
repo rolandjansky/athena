@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # Module to collect JSON specific trigger configuration helpers
@@ -44,3 +45,22 @@ def modifyConfigForP1(properties):
    mod( properties, "HLTConfigSvc", "InputType", lambda x : "db" )
    mod( properties, "HLTPrescaleCondAlg", "Source", lambda x : "COOL" ) # prescales will be read from COOL online
    mod( properties, "HLTPrescaleCondAlg", "TriggerDB", lambda x : "JOSVC" ) # configuration will be taken from the JOSvc at P1
+
+
+if __name__ == "__main__":
+   # this is to test the modification of the JO
+   import sys
+   if len(sys.argv)<2:
+      print("Please run\n%s <HLTJobOptions.json>" % sys.argv[0].split("/")[-1])
+      sys.exit(1)
+   with open(sys.argv[1]) as fh:
+      hlt_json = json.load( fh )
+      properties = hlt_json["properties"]
+
+   modifyConfigForP1(properties)
+
+   outfn = sys.argv[1].replace(".json",".test.json")
+   with open(outfn,'w') as f:
+      hlt_json['properties'] = properties
+      json.dump(hlt_json, f, sort_keys=True, indent=4)
+      print("Wrote %s" % outfn)
