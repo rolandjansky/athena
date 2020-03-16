@@ -130,17 +130,15 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
     return StatusCode::FAILURE;
   }   
 
-
   
-  //-----------------------------------------------------
-  unsigned int maxHash = idHelper->straw_layer_hash_max();
-  // 
   // Try and iterate over all elements.  
   // There is no iterator but we can get the elements via the idHash. 
-  // 
-  // MS create the new TRT look up table
 
-  RegSelSiLUT *rd = new RegSelSiLUT(RegSelSiLUT::TRT);
+  unsigned int maxHash = idHelper->straw_layer_hash_max();
+
+  // create the new TRT look up table
+
+  std::unique_ptr<RegSelSiLUT> rd = std::make_unique<RegSelSiLUT>(RegSelSiLUT::TRT);
 
   constexpr double twoPi=2.*M_PI;
   constexpr double InnerRadiusOfStraw = 2.; //hardcoded. No method? (it will NEVER change anyway)
@@ -229,9 +227,9 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
   rd->initialise();
 
   // write out new new LUT to a file if need be
-  if ( m_printTable ) rd->write("RegSelLUT_TRT");
+  if ( m_printTable ) rd->write( name()+".map" );
 
-  RegSelLUTCondData* rcd = new RegSelLUTCondData( *rd );
+  RegSelLUTCondData* rcd = new RegSelLUTCondData( std::move(rd) );
   
   try { 
     SG::WriteCondHandle<RegSelLUTCondData> lutCondData( m_tableKey, ctx );
