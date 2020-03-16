@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of Muon Spectrometer Standalone muon reconstruction"""
 
@@ -89,7 +89,11 @@ class MuonStandalone(ConfiguredMuonRec):
         # do the following in case of a NSW
         if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
             getPublicTool("MuonLayerHoughTool")
-            self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", PrintSummary = muonStandaloneFlags.printSummary()  ) )
+            self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", 
+                PrintSummary = muonStandaloneFlags.printSummary(),
+                CscPrepDataContainer = ("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""),
+                sTgcPrepDataContainer = ("STGC_Measurements" if MuonGeometryFlags.hasSTGC() else ""),
+                MMPrepDataContainer = ("MM_Measurements" if MuonGeometryFlags.hasMM() else "")  ) )
             if not muonStandaloneFlags.patternsOnly():
                 SegmentFinder = getPublicTool("MuonClusterSegmentFinderTool")
                 Cleaner = getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
