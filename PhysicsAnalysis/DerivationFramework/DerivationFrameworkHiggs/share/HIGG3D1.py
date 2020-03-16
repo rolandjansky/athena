@@ -267,7 +267,9 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d1Seq,algname="QGTaggerToo
 #====================================================================
 # import the JetTagNonPromptLepton config and add to the private sequence
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+higg3d1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #====================================================================
 # Truth decoration tool
@@ -309,6 +311,7 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
 HIGG3D1SlimmingHelper.ExtraVariables = list(HIGG3D1ExtraVariables)
 HIGG3D1SlimmingHelper.AllVariables = list(HIGG3D1ExtraContainers)
 HIGG3D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+HIGG3D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD() 
 
 # needed to calculate electron LH downstream
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import ElectronsCPDetailedContent, GSFTracksCPDetailedContent
