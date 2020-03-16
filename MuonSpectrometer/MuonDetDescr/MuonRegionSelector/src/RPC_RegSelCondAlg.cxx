@@ -1,126 +1,109 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    RPC_RegionSelectorTable.cxx         
-//   
-//
-//                   
-// 
-//
-//   $Id: RPC_RegionSelectorTable.cxx, v0.0   Tue  4 Aug 2009 16:38:38 BST sutt $
+/**
+ **   @file   RPC_RegSelCondAlg.cxx         
+ **            
+ **           conditions algorithm to create the Si detector 
+ **           lookup tables    
+ **            
+ **   @author sutt
+ **   @date   Sun 22 Sep 2019 10:21:50 BST
+ **
+ **
+ **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#include "MuonRegionSelector/RPC_RegionSelectorTable.h"
-#include "MuonRegionSelector/RPC_RegSelLUT.h"
+#include "GaudiKernel/EventIDRange.h"
+#include "StoreGate/WriteCondHandle.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-
 #include "Identifier/IdentifierHash.h"
 
-#include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
-#include "RegSelLUT/RegSelModule.h" 
-#include "RegSelLUT/RegSelSiLUT.h" 
+#include <iostream>
+#include <fstream>
+#include <string>
 
-#include "GeoPrimitives/GeoPrimitives.h"
+
+#include "MuonCablingData/MuonMDT_CablingMap.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h" 
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
+#include "MuonReadoutGeometry/MuonStation.h"
+
+#include "RPC_RegSelCondAlg.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "RPCcablingInterface/IRPCcablingSvc.h"
 
-#include <vector>
 
 
-
-RPC_RegionSelectorTable::RPC_RegionSelectorTable(const std::string& type, 
-						 const std::string& name,
-						 const IInterface*  parent)
-  :  AthAlgTool(type,name,parent), m_regionLUT(NULL), m_rpcCabling(NULL)
-{
-  declareInterface<IRegionIDLUT_Creator>(this);
-  ATH_MSG_INFO("RPC_RegionSelectorTable::RPC_RegionSelectorTable()");
+RPC_RegSelCondAlg::RPC_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
+  MuonRegSelCondAlg( name, pSvcLocator )
+{ 
+  ATH_MSG_DEBUG( "RPC_RegSelCondAlg::RPC_RegSelCondAlg() " << name );
 }
 
 
-RPC_RegionSelectorTable::~RPC_RegionSelectorTable() { 
-  if ( m_regionLUT ) delete m_regionLUT;
-}
 
+std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_CablingMap* /* mdtCabling */ ) const { 
 
-StatusCode RPC_RegionSelectorTable::initialize() { 
-  ATH_MSG_INFO("initialize() RPC_RegionSelectorTable");
+  /// now get the RPC cabling service ...
+
+  const IRPCcablingServerSvc* cabling_server = nullptr;
   
-  //get RPC CablingSvc Server from 
-  const IRPCcablingServerSvc* RpcCabGet = 0;
-  CHECK( service("RPCcablingServerSvc", RpcCabGet) );
-  ATH_MSG_VERBOSE("RPCcablingServerSvc retrieved");
-  
-  //get RPC CablingSvc from the server
-  CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
-  if (msgLvl(MSG::VERBOSE)) {
-    const Service* castedRpcCabling = dynamic_cast<const Service*>(m_rpcCabling);
-    if (castedRpcCabling) 
-      ATH_MSG_VERBOSE("RPC CablingSvc obtained: " << castedRpcCabling->name());
-    else {
-      ATH_MSG_ERROR("Failed dynamic casting of m_rpcCabling to (const Service*)");
-      return StatusCode::FAILURE;
-    }
+  if ( service( "RPCcablingServerSvc", cabling_server ).isFailure() ) { 
+    ATH_MSG_ERROR( "Could not retieve RPC cabling server");
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
   }
 
-  return createTable();
-}
-
-
-StatusCode RPC_RegionSelectorTable::finalize() { 
-  ATH_MSG_INFO("finalize()");
-  return StatusCode::SUCCESS;
-}
-
-
-RegSelSiLUT* RPC_RegionSelectorTable::getLUT() const {
-  return m_regionLUT;
-} 
-
-
-StatusCode RPC_RegionSelectorTable::createTable() { 
-
-  const MuonGM::MuonDetectorManager*	p_MuonMgr = nullptr;
+  const IRPCcablingSvc*  cabling = nullptr;
   
-  CHECK( detStore()->retrieve( p_MuonMgr ) );
-	
-  const RpcIdHelper*  p_IdHelper = p_MuonMgr->rpcIdHelper();
+  if ( cabling_server->giveCabling( cabling ).isFailure() ) {
+    ATH_MSG_ERROR( "Could not retieve RPC cabling service");
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
+  }
+
+  const MuonGM::MuonDetectorManager* manager = nullptr;
+
+  if ( detStore()->retrieve( manager ).isFailure() ) { 
+    ATH_MSG_ERROR( "Could not retrieve RPC Manager for " << name() );
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
+  }
+
+  const RpcIdHelper*  helper = manager->rpcIdHelper();
   
-  std::vector<Identifier>::const_iterator  idfirst = p_IdHelper->module_begin();
-  std::vector<Identifier>::const_iterator  idlast =  p_IdHelper->module_end();
+  std::vector<Identifier>::const_iterator  idfirst = helper->module_begin();
+  std::vector<Identifier>::const_iterator  idlast =  helper->module_end();
  
-  IdContext ModuleContext = p_IdHelper->module_context();
+  IdContext ModuleContext = helper->module_context();
 
-  ATH_MSG_INFO("createTable()");
+  ATH_MSG_DEBUG("createTable()");
   
-  RegSelSiLUT* rpclut = new RPC_RegSelLUT();
-  
+  std::unique_ptr<RegSelSiLUT> lut = std::make_unique<RegSelSiLUT>();
+ 
+ 
   //loop over modules (PrepRawData collections)
-  for (std::vector<Identifier>::const_iterator i = idfirst; i != idlast; i++)  {
+  for ( std::vector<Identifier>::const_iterator itr=idfirst  ;  itr!=idlast  ;  itr++  )  {
 
-    Identifier prdId = *i;
+    Identifier prdId = *itr;
     IdentifierHash prdHashId;
-    int gethash_code = p_IdHelper->get_hash(prdId, prdHashId, &ModuleContext);
+    int gethash_code = helper->get_hash(prdId, prdHashId, &ModuleContext);
     if (gethash_code != 0 ) {
       ATH_MSG_DEBUG("Failed retrieving IdentifierHash for PRD Identifier = " << prdId.getString() << ". Skipping to the next PRD.");
       continue;
     }
     
     std::vector<uint32_t> robIds;
-    StatusCode sc = m_rpcCabling->giveROB_fromPRD(prdHashId, robIds);
-    if ( !sc.isSuccess() ) {
-      REPORT_ERROR(sc);
-      delete rpclut;
-      return sc;
-    };
+    StatusCode sc = cabling->giveROB_fromPRD(prdHashId, robIds);
+    if ( (cabling->giveROB_fromPRD(prdHashId, robIds)).isFailure() ) { 
+      ATH_MSG_ERROR( "RegSelCondAlg_RPC could not get ROBid" );
+      return std::unique_ptr<RegSelSiLUT>(nullptr);
+    }
+
     
     if (robIds.size() < 1) {
       ATH_MSG_DEBUG("There is no ROB associated with the PRD HashId = " << (unsigned int)prdHashId << ". Skipping to the next PRD.");
@@ -132,16 +115,16 @@ StatusCode RPC_RegionSelectorTable::createTable() {
     }
     
     ExpandedIdentifier exp_id;
-    if (p_IdHelper->get_expanded_id( prdId, exp_id, &ModuleContext)) {
+    if ( helper->get_expanded_id( prdId, exp_id, &ModuleContext) ) {
       ATH_MSG_DEBUG("Failed retrieving ExpandedIdentifier for PRD Identifier = " << prdId.getString() << ". Skipping to the next PRD.");
       continue;
     }
-       	
+    
     int detid   = ( exp_id[2]<0 ? -1 : 1 );
     int layerid = exp_id[1];
     if ( layerid==0 ) layerid = 11;  // this line should never be executed 
-	
-    MuonGM::RpcReadoutSet Set(p_MuonMgr, prdId);
+    
+    MuonGM::RpcReadoutSet Set( manager, prdId );
     //int nmod = Set.NreadoutElements();
     int ndbz = Set.NdoubletZ();
 
@@ -164,18 +147,18 @@ StatusCode RPC_RegionSelectorTable::createTable() {
         
       const MuonGM::RpcReadoutElement* rpcold = NULL;
       int ndbp = Set.NPhimodules(dbz);
-	  
+        
       for (int dbp=1; dbp<=ndbp; dbp++) {
 
         const MuonGM::RpcReadoutElement* rpc = Set.readoutElement(dbz, dbp);
-		
+	
         if ( rpc != rpcold ) {
           
           // here a new module
           nmodules ++;
           rpcold = rpc;
 
-          Amg::Vector3D rpcPos = rpc->center();
+	  Amg::Vector3D rpcPos = rpc->center();
           double zminMod = rpcPos.z()-0.5*rpc->getZsize();
           double zmaxMod = rpcPos.z()+0.5*rpc->getZsize();
 
@@ -185,7 +168,8 @@ StatusCode RPC_RegionSelectorTable::createTable() {
           double rminMod = rcen-0.5*rpc->getRsize();
           double rmaxMod = rcen+0.5*rpc->getRsize();
 
-          double dphi = atan2(rpc->getSsize()/2.,rpcPos.perp());
+	  //          double dphi = std::atan2(rpc->getSsize()/2.,rpcPos.perp());
+          double dphi = std::atan2(rpc->getSsize()/2,rpcPos.perp());
           double pminMod = rpcPos.phi() - dphi;
           double pmaxMod = rpcPos.phi() + dphi;
           
@@ -229,7 +213,7 @@ StatusCode RPC_RegionSelectorTable::createTable() {
       IdentifierHash lowerHashId(  (1<<16) | (unsigned int)prdHashId );
       
       RegSelModule m1( zmin, zmax, rmin, rmax, phiMinFirst, phiMaxSecond, layerid, detid, robIds[0], lowerHashId );
-      rpclut->addModule( m1 );
+      lut->addModule( m1 );
     }
     //the code below exploits the fact that ROB Ids are sorted!!! They go in order: SIDE A, ROBs 0..15, then SIDE C ROBs 0..15
     //it is also assumed that if there are 4 ROBs, then zmin<0 and zmax>0
@@ -246,11 +230,11 @@ StatusCode RPC_RegionSelectorTable::createTable() {
       }
       IdentifierHash lowerHashId(  (1<<16) | (unsigned int)prdHashId );
       IdentifierHash higherHashId( (2<<16) | (unsigned int)prdHashId );
-      
+
       RegSelModule m1( zmin, zmax, rmin, rmax, phiMinFirst,  phiMaxFirst,  layerid, detid, lowerRobId,  lowerHashId  );
       RegSelModule m2( zmin, zmax, rmin, rmax, phiMinSecond, phiMaxSecond, layerid, detid, higherRobId, higherHashId );
-      rpclut->addModule( m1 );
-      rpclut->addModule( m2 );
+      lut->addModule( m1 );
+      lut->addModule( m2 );
     }
     else if (robIds.size()==4) { //this is the case only for two BOG chambers at z=0 read by ROBs 10-11 and 12-13, each on both sides A and C
       uint32_t sideA_lowerRobId  = robIds[0];
@@ -266,17 +250,22 @@ StatusCode RPC_RegionSelectorTable::createTable() {
       RegSelModule m2( 0, zmax, rmin, rmax, phiMinSecond, phiMaxSecond, layerid, detid, sideA_higherRobId, sideA_higherHashId );
       RegSelModule m3( zmin, 0, rmin, rmax, phiMinFirst,  phiMaxFirst,  layerid, detid, sideC_lowerRobId,  sideC_lowerHashId  );
       RegSelModule m4( zmin, 0, rmin, rmax, phiMinSecond, phiMaxSecond, layerid, detid, sideC_higherRobId, sideC_higherHashId );
-      rpclut->addModule( m1 );
-      rpclut->addModule( m2 );
-      rpclut->addModule( m3 );
-      rpclut->addModule( m4 );
+      lut->addModule( m1 );
+      lut->addModule( m2 );
+      lut->addModule( m3 );
+      lut->addModule( m4 );
     }
   } //end of loop over modules (PrepRawData collections)
   
-  rpclut->initialise();
-  //rpclut->write("rpc.map");
+  lut->initialise();
 
-  m_regionLUT = rpclut;
+  return lut;
 
-  return StatusCode::SUCCESS;
 }
+
+
+
+
+
+
+

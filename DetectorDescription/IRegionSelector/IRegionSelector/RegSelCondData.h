@@ -18,6 +18,7 @@
 #define  REGSELCONDDATA_H
 
 #include <iostream>
+#include <memory>
 
 
 template<typename T>
@@ -25,15 +26,15 @@ class RegSelCondData {
 
 public:
 
-  RegSelCondData( const T& t ) : m_payload(t) { } 
-
+  RegSelCondData( std::unique_ptr<T> t ) : m_payload(std::move(t)) { } 
+						
   virtual ~RegSelCondData() { } 
-
-  const T* payload() const { return &m_payload; } /// could return the actual payload reference, but have everything using pointers 
+  
+  const T* payload() const { return m_payload.get(); } /// could return the actual payload reference, but have everything using pointers 
  
 protected:
 
-  T m_payload;
+  std::unique_ptr<T>  m_payload;
 
 };
 
