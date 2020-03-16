@@ -6,8 +6,11 @@
 #include "EndcapRingRef/PixelRingSupportXMLHelper.h"
 
 #include "PixelInterfaces/IPixelServicesTool.h"
+#include "PixelInterfaces/IGeoBCMPrimeTool.h"
 #include "InDetTrackingGeometryXML/XMLReaderSvc.h"
 #include "InDetTrackingGeometryXML/XMLGeoTemplates.h"
+#include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
+#include "BCMPrime/BCMPrimeXMLHelper.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTubs.h"
@@ -34,10 +37,13 @@
 GeoPixelLayerECRingRefTool::GeoPixelLayerECRingRefTool(const std::string& type, const std::string& name, const IInterface*  parent )
   : AthAlgTool(type, name, parent),
     m_layer(-1),
+    m_bcmTool("GeoBCMPrimeTool"),
     m_IDserviceTool("InDetservicesTool/PixelServicesTool"),
     m_xmlReader("InDet::XMLReaderSvc/InDetXMLReaderSvc","XMLReaderSvc")
 {
   declareInterface<IGeoPixelEndcapLayerTool>(this);
+
+  declareProperty("GeoBCMPrimeTool",m_bcmTool);
 }
 
 GeoPixelLayerECRingRefTool::~GeoPixelLayerECRingRefTool()
@@ -308,6 +314,9 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   
   double zMiddle = (m_layerZMin+m_layerZMax)*.5;
 
+  // Read pixel general parameters (needed by BCM')
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
+
   // Read ring supports (defined in xml file)
   PixelRingSupportXMLHelper ringHelper(basics);
 
@@ -493,6 +502,56 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	    ecPhys->add(supPhysAwayBS);
 	  }
 	}
+
+        // Place BCM'
+
+        bool bcmPresent   = genDBHelper.isBCMPrimePresent();
+
+        if (bcmPresent) {
+
+          BCMPrimeXMLHelper BCMPrimeDBHelper(0, basics);
+          int bcmRing = BCMPrimeDBHelper.getECRingNumber();
+          int bcmRingB = 2*bcmRing;
+
+          if (i==bcmRingB && m_layer==0) {
+
+            int nModules = BCMPrimeDBHelper.getNumberOfModules();
+            int uniqueGeoIdentifier = 11950; // Unique geo identifier, same as in Run2 sim
+                                              // Do we still need to assign GeoIdentifier 
+                                              // tags in the upgrade simulation?
+
+            for (int module = 0; module < nModules; module++) {
+
+              GeoPhysVol* bcmModPhys = m_bcmTool->buildModule( module, basics);
+              if (bcmModPhys) {
+
+                double safety = 0.001;
+                double ringOffset = m_bcmTool->getRingOffset();
+                double bcmZPos = m_ringPos[i]-zMiddle-ringOffset-safety;
+
+                ATH_MSG_DEBUG("Placing BCM' module " << module << ", side " << m_endcapSide);
+
+                CLHEP::Hep3Vector pos(m_bcmTool->getTransX(), m_bcmTool->getTransY(), bcmZPos);
+                CLHEP::HepRotation rm;
+                rm.rotateY(90*CLHEP::deg);
+                rm.rotateX(-m_bcmTool->getTilt()*CLHEP::deg);
+                rm.rotateX(m_bcmTool->getRotX()*CLHEP::deg);
+                rm.rotateY(m_bcmTool->getRotY()*CLHEP::deg);
+                rm.rotateZ((m_bcmTool->getRotZ()+m_bcmTool->getRingRot())*CLHEP::deg);
+
+                int k = 2*module + uniqueGeoIdentifier;
+                GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos.rotateZ(m_bcmTool->getRingRot()*CLHEP::deg)));
+                GeoNameTag *tag = new GeoNameTag("BCM Module");
+                ecPhys->add(tag);
+                ecPhys->add(new GeoIdentifierTag(k));
+                ecPhys->add(xform);
+                ecPhys->add(bcmModPhys);
+
+              }
+            }
+          }
+        }  // BCM' placement finished
+
       }
     }
     

@@ -108,7 +108,7 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     diamondNo = (BEcopyNo - minCopyNumBCM) % 2;
     moduleNo = (BEcopyNo - minCopyNumBCM - diamondNo) / 2;
   } else {
-    diamondNo = (BEcopyNo - minCopyNumBCM) % 2;
+    diamondNo = BEcopyNo - minCopyNumBCM;
     moduleNo = myTouch->GetVolume(1)->GetCopyNo() - 951;
   }
 
