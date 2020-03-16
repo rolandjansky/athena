@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -118,7 +118,7 @@ inline GeoRPCHit::GeoRPCHit (const RPCSimHit & h) {
 inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
 
     HitID hitid = _hit->RPCid();
-    RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper();
+    RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper(_rpcID->gasGapMax());
     std::string stname = rpchhelper->GetStationName(hitid);
     int         steta  = rpchhelper->GetZSector(hitid);
     int         stphi  = rpchhelper->GetPhiSector(hitid);
@@ -128,8 +128,6 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
     int         gg     = rpchhelper->GetGasGapLayer(hitid);
     int         mfi    = rpchhelper->GetMeasuresPhi(hitid);
     int         strip  = 1;
-    //    std::cerr<<" Building Offline Id with "<<stname<<" eta/phi "<<steta<<"/"<<stphi
-    //             <<" dbRZP "<<dbr<<" "<<dbz<<" "<<dbp<<" "<<gg<<" "<<mfi<<" "<<strip<<std::endl;
     Identifier offid = _rpcID->channelID(stname,
                                          steta,
                                          stphi,
@@ -137,8 +135,6 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
     if ( offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
 
-
-    //    std::cerr<<" Offline Id "<<_rpcID->show_to_string(offid)<<std::endl;
     const MuonGM::RpcReadoutElement* rpcdet = _man->getRpcReadoutElement(offid);
     if (rpcdet != NULL)
     {
@@ -179,8 +175,6 @@ inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
     int         gg     = tgchhelper->GetGasGap(hitid);
     int         isstrip= 0;
     int         channel= 1;
-    //    std::cerr<<" Building Offline Id with "<<stname<<" eta/phi "<<steta<<"/"<<stphi
-    //             <<" gasGap "<<gg<<" isstrip "<<isstrip<<" channel "<<channel<<std::endl;
     Identifier offid = _tgcID->channelID(stname,
                                          steta,
                                          stphi,
@@ -188,8 +182,6 @@ inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
     if ( offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
 
-
-    //    std::cerr<<" Offline Id "<<_tgcID->show_to_string(offid)<<std::endl;
     const MuonGM::TgcReadoutElement* tgcdet = _man->getTgcReadoutElement(offid);
     if (tgcdet != NULL)
     {
@@ -230,8 +222,6 @@ inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
     int         wl     = cschhelper->GetWireLayer(hitid);
     int        measphi = 0;
     int        channel = 1;
-    //    std::cerr<<hitid << " name, eta, phi, ml, wl, mphi, ch "<<stname<<" "<<steta<<" "<<stphi<<" "
-    //             <<ml<<" "<<wl<<" "<<measphi<<" "<<channel<<std::endl;
     
     Identifier offid = _cscID->channelID(stname,
                                          steta,
