@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKEXTRAPOLATIONTOOL_H
@@ -10,26 +10,18 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkTrack/Track.h"
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
-
-class MsgStream;
-
-
-namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-}
+#include "TrkParameters/TrackParameters.h"
 
 namespace Trk {
-  class ITrackingGeometrySvc;
-  class IExtrapolator;
-  class IMagneticFieldTool;
-  class TrackingGeometry;
-  class TrackingVolume;
   class Track;
 }
 
@@ -45,13 +37,10 @@ namespace Muon {
     MuonTrackExtrapolationTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonTrackExtrapolationTool ();
+    virtual ~MuonTrackExtrapolationTool()=default;
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
     
     /** extrapolates track parameters to muon entry record, will return a zero pointer if the extrapolation fails. The caller gets ownership of the new parameters */
     const Trk::TrackParameters* extrapolateToMuonEntryRecord( const Trk::TrackParameters& pars, Trk::ParticleHypothesis particleHypo=Trk::muon ) const;
@@ -96,7 +85,7 @@ namespace Muon {
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     bool m_cosmics;
     bool m_keepOldPerigee;
