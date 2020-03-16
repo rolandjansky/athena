@@ -65,7 +65,7 @@ class TrigMultiTrkHypoConfig(object):
             tool.AcceptAll = True
 
         if 'noos' in topoAlgs:
-            tool.OppositeSign = True
+            tool.TotChargeCut = -100 #Negative number to indicate no charge cut
 
         tool.ApplyUpperMassCut = True
         tool.ApplyChi2Cut = True
