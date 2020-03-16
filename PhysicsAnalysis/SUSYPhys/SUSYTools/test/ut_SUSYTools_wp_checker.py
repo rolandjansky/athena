@@ -102,6 +102,10 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
+Btag.MinPt: 20000.
+#
+BtagTrkJet.TimeStamp: 
+BtagTrkJet.MinPt: 10000.
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
