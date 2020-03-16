@@ -156,7 +156,7 @@ Leptrig_expression = '(' + ' || '.join(Lepton_triggers) + ')'
 JetEleExpression4j15 = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt>15*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8)>=4)'
 JetEleExpression2j25 = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8)>=2)'
 JetEleHighExpression = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt>200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8)>=1)'
-LepTrigexpression = '('+'('+Leptrig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression4j15+')'+'||'+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression2j25+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelection+'&&'+JetEleHighExpression+')'+' )'
+LepTrigexpression = '('+'('+Leptrig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression4j15+')'+'||'+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression2j25+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression2j25+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelection+'&&'+JetEleHighExpression+')'+' )'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY5SkimmingTool",
