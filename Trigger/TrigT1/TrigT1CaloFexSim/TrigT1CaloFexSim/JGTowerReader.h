@@ -53,6 +53,7 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_debugJetAlg;
   bool m_dumpTowerInfo;
   bool m_dumpSeedsEtaPhi;
+  bool m_makeRoundJetsPUsub;
 
   bool  m_makeSquareJets;
   bool  m_buildgBlockJets;
@@ -108,6 +109,11 @@ class JGTowerReader: public ::AthAlgorithm {
   float m_gJet_jet_min_ET_MeV;
 
   std::string m_noise_file;
+  
+  std::string m_jXERHO_correction_file;
+  float  m_jXERHO_fixed_noise_cut;  
+  float  m_jXERHO_rho_up_threshold;
+  float  m_jXERHO_min_noise_cut;
  
   //job options for gFEX MET algorithms
   bool m_useRMS;
@@ -131,6 +137,10 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode BuildJetsFromMap(const xAOD::JGTowerContainer*jTs);
 
   std::vector<float> jT_noise;
+  std::vector<float> jTowerArea;
+  std::vector < std::vector < int > > jFEX_bins;
+  std::vector < std::vector < int > > jFEX_bins_core;
+  bool buildbins=false;
   std::vector<float> jJet_thr;
   std::vector<float> jJet_jet_thr;
   std::vector<float> gT_noise;
