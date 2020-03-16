@@ -103,7 +103,7 @@ atlas_add_test( exctrace2_test
    LOG_IGNORE_PATTERN "no version information available" )
 
 # Set up the "simple" tests:
-foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
+foreach( test sincos_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
       fpcompare_test StrFormat_test phihelper_test
       prefetch_test ClassName_test ones_test
