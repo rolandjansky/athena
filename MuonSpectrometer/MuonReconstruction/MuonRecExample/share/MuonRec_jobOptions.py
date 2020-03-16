@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 ## @file MuonRec_jobOptions.py
 #
 # @brief Main jobOptions to setup muon reconstruction. Main muon entry point for RecExCommon.
@@ -24,7 +26,6 @@ from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
-from MuonRecExample.MuonRecTools import MuonIdHelperTool
 
 muonRecFlags.setDefaults()
 
@@ -34,11 +35,11 @@ if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs
 if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
 if muonRecFlags.doMicromegas() and not MuonGeometryFlags.hasMM(): muonRecFlags.doMicromegas = False
 
-
 # ESDtoAOD and AODtoTAG need a configured MuonIdHelperTool (e.g. for the RPC_ResidualPullCalculator)
 # Since it is not automatically created by the job configuration (as for RDOtoESD),
 # do it here manually (hope this will be fixed with the movement to the new configuration for release 22)
 if rec.readESD() or rec.readAOD():
+    from MuonRecExample.MuonRecTools import MuonIdHelperTool
     MuonIdHelperTool()
 
 if muonRecFlags.doDigitization():

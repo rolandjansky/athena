@@ -17,6 +17,7 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
   declareProperty("MagFieldSvc",   m_magFieldSvc, "Magnetic Field Service");
   declareProperty("DriftVelocity", m_vDrift = 47., "Drift Velocity");
   declareProperty("TimeResolution", m_timeRes = 25., "Time Resolution");
+  declareProperty("MuonIdHelperTool", m_idHelperTool);
 
 }
 
