@@ -25,12 +25,12 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
-#include "SCT_GeoModelXml/SCT_Options.h"
-#include "GeoModelXml/Gmx2Geo.h"
-#include "SCT_GeoModelXml/SCT_GmxInterface.h"
-#include "GeoModelXml/GmxInterface.h"
+// // #include "SCT_GeoModelXml/SCT_Options.h"
+// // #include "GeoModelXml/Gmx2Geo.h"
+// // #include "SCT_GeoModelXml/SCT_GmxInterface.h"
+// // #include "GeoModelXml/GmxInterface.h"
 
-#include "PathResolver/PathResolver.h"
+// // #include "PathResolver/PathResolver.h"
 
 using namespace std;
 

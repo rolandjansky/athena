@@ -38,7 +38,7 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
     // // m_commonItems(0),
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
-    m_geometryDBSvc("InDetGeometryDBSvc", name),
+    m_geometryDBSvc("InDetGeometryDBSvc", name)
     // // m_lorentzAngleSvc("SCTLorentzAngleSvc", name)
 {
 //

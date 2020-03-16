@@ -8,6 +8,7 @@ atlas_subdir( HGTD_ReadoutGeometry )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
+                          Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr

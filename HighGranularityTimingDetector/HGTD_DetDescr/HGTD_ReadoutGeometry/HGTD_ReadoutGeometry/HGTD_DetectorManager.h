@@ -36,4 +36,9 @@ private:
 
 };
 
+#ifndef GAUDI_NEUTRAL
+#include "CLIDSvc/CLASS_DEF.h"
+CLASS_DEF(HGTD_DetectorManager, 73488296, 1)
+#endif
+
 #endif // HGTD_READOUTGEOMETRY_HGTD_DETECTORMANAGER_H

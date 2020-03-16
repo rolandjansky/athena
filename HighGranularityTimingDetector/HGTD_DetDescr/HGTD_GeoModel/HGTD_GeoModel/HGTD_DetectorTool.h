@@ -36,6 +36,7 @@ public:
     HGTD_DetectorTool(const std::string &type, const std::string &name, const IInterface *parent);
     virtual ~HGTD_DetectorTool();
     virtual StatusCode create(StoreGateSvc* detStore);
+    virtual StatusCode clear(StoreGateSvc* detStore);
     virtual StatusCode registerCallback(StoreGateSvc* detStore);
     virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys));
 
