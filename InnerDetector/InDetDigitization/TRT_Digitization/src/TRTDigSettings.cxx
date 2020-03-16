@@ -494,16 +494,16 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // LT timimg shift in steps of 0.78125 ns.
   m_ltT0shiftBarShortXe=0;
   m_ltT0shiftBarShortKr=0;
-  m_ltT0shiftBarShortAr=0;
+  m_ltT0shiftBarShortAr=4;
   m_ltT0shiftBarLongXe=0;
   m_ltT0shiftBarLongKr=0;
-  m_ltT0shiftBarLongAr=0;
+  m_ltT0shiftBarLongAr=4;
   m_ltT0shiftECAwheelsXe=0;
   m_ltT0shiftECAwheelsKr=0;
-  m_ltT0shiftECAwheelsAr=0;
+  m_ltT0shiftECAwheelsAr=4;
   m_ltT0shiftECBwheelsXe=0;
   m_ltT0shiftECBwheelsKr=0;
-  m_ltT0shiftECBwheelsAr=0;
+  m_ltT0shiftECBwheelsAr=4;
 
   // length
   m_innerRadiusOfStraw =    2.0*CLHEP::mm;
