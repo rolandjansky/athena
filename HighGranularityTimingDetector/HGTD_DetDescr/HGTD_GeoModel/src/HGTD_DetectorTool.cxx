@@ -91,6 +91,11 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc *detStore) {
     m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
+
+//
+//   Get the version and configure things accordingly here
+//
+
 //
 // Create the HGTD_DetectorFactory
 //
@@ -137,15 +142,30 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc *detStore) {
 
 StatusCode HGTD_DetectorTool::clear(StoreGateSvc* detStore) {
 
+    // Release manager from the detector store
+    SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<HGTD_DetectorManager>::ID(),m_manager->getName());
+    if(_proxy) {
+      _proxy->reset();
+      m_manager = 0;
+    }
+
     return StatusCode::SUCCESS;
 }
 
 StatusCode HGTD_DetectorTool::registerCallback(StoreGateSvc* detStore) {
+//
+//    Register call-back for software alignment
+//
+    msg(MSG::WARNING) << "No callback registration has yet been implemented for HGTD, nothing to do!" << endmsg;
 
     return StatusCode::SUCCESS;
 }
 
 StatusCode HGTD_DetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
+//
+//    The call-back routine, which just calls the real call-back routine from the manager.
+//
+    msg(MSG::WARNING) << "No alignment method in HGTD_DetectorManager implemented yet, nothing to do!" << endmsg;
 
     return StatusCode::SUCCESS;
 }
