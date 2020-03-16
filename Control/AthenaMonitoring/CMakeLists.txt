@@ -78,3 +78,8 @@ atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/Run3DQTestingDriver.py share/hist_file_dump.py share/hist_diff.sh )
+
+# Example monitor algorithm test
+atlas_add_test( ExampleMonitorAlgorithm_test
+    SCRIPT python -m AthenaMonitoring.ExampleMonitorAlgorithm
+)
