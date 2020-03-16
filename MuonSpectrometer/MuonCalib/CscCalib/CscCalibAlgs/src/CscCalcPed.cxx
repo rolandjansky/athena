@@ -690,7 +690,7 @@ namespace MuonCalib {
       //***Take conditions data held in summary histograms and  print to the calibration file***//
       mLog << MSG::INFO << "Parameters calculated, preparing to output to file: " << m_outputFileName << " Types 1 and " << m_calOutputVersion << endmsg;
 
-      calOutput1();
+      ATH_CHECK( calOutput1() );
 
       if(m_calOutputVersion == "00-00"){
         return calOutput0();
@@ -816,7 +816,7 @@ namespace MuonCalib {
         string onlineHexId;
 
         //Online ids are same as "string ids" used internally in COOL db.
-        readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", onlineHexId);
+        readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", onlineHexId).ignore();
 
         if(m_debug) mLog << MSG::DEBUG << "we're on hash " << hashId << " with pedestal " << ped 
           << "and noise " << noise << endmsg;//<< " and threshold " << thold << endmsg;
@@ -903,7 +903,7 @@ namespace MuonCalib {
         double value = (*resItr)->value();
         std::string idString;
 
-        readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", idString);
+        readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", idString).ignore();
 
         out << idString << " " << value << "\n";
       }
@@ -1070,7 +1070,7 @@ namespace MuonCalib {
     }//end makeBitCorrelations
 
 
-    StatusCode CscCalcPed::onlineToOfflineHashId(const unsigned int & onlineId, unsigned int &hashId) const
+    void CscCalcPed::onlineToOfflineHashId(const unsigned int & onlineId, unsigned int &hashId) const
     {
       int stationName =       ((onlineId >> 16)&0x1) + 50;
       int phi =               ((onlineId >> 13)&0x7)+1;
@@ -1095,7 +1095,6 @@ namespace MuonCalib {
 
       hashId = (unsigned int)chanHash;
 
-      return StatusCode::SUCCESS;
     }
 
   }//end namespace MuonCalib

@@ -16,7 +16,7 @@
 #ifndef JetRecAlg_H
 #define JetRecAlg_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -26,28 +26,21 @@
 
 class IJetExecuteTool;
 
-class JetRecAlg : public AthAlgorithm { 
+class JetRecAlg : public AthReentrantAlgorithm { 
 
 public: 
 
-  JetRecAlg(const std::string& name, ISvcLocator* pSvcLocator);
-
-  ~JetRecAlg(); 
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   /// Athena algorithm's Hooks
-  StatusCode  initialize();
-  StatusCode  execute();
-  StatusCode  finalize();
-
-private: 
-
-  /// Default constructor: 
-  JetRecAlg();
+  StatusCode  initialize() override;
+  StatusCode  execute(const EventContext& ctx) const override;
+  StatusCode  finalize() override;
 
 private:
 
   /// Athena configured tools
-  ToolHandle<IJetProvider> m_jetprovider ={this , "Builder" , {} , "Tool building the jets (fastjet, copy, grooming...)"};
+  ToolHandle<IJetProvider> m_jetprovider ={this , "Provider" , {} , "Tool providing the jets (fastjet, copy, grooming...)"};
   ToolHandleArray<IJetModifier> m_modifiers = {this , "Modifiers", {}, "moment calculators" };
   SG::WriteHandleKey<xAOD::JetContainer> m_output= {this, "OutputContainer", "AntiKt4LCtopoJets", "The output jet container name"};
   

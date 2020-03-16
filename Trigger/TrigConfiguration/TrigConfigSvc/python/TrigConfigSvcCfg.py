@@ -229,7 +229,8 @@ def setupHLTPrescaleCondAlg( flags = None ):
     else:
         raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
 
-    if tc["source"] == "COOL":
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if tc["source"] == "COOL" or athenaCommonFlags.isOnline():
         if flags is None: # old style config
             from IOVDbSvc.CondDB import conddb
             conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )

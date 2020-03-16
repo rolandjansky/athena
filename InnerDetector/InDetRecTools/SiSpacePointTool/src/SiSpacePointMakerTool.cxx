@@ -17,6 +17,7 @@
 // Space points
 #include "SiSpacePoint/SCT_SpacePoint.h"
 #include "SiSpacePoint/PixelSpacePoint.h"
+#include <cmath>
 
 namespace InDet {
 
@@ -38,7 +39,7 @@ namespace InDet {
   StatusCode SiSpacePointMakerTool::initialize()  {
     // Get the SCT Helper
     ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
-    m_SCTgapParameter = fabs(m_SCTgapParameter);
+    m_SCTgapParameter = std::fabs(m_SCTgapParameter);
     if (m_SCTgapParameter > 0.002) m_SCTgapParameter = 0.002;
     return StatusCode::SUCCESS;
   }
@@ -90,12 +91,12 @@ namespace InDet {
     std::pair<Amg::Vector3D, Amg::Vector3D>
       ends2(element2->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.))); 
   
-    Amg::Vector3D a(ends1.first);   // Top end, first cluster
-    Amg::Vector3D b(ends1.second);  // Bottom end, first cluster
-    Amg::Vector3D c(ends2.first);   // Top end, second cluster
-    Amg::Vector3D d(ends2.second);  // Bottom end, second cluster
-    Amg::Vector3D q(a-b);           // vector joining ends of line
-    Amg::Vector3D r(c-d);           // vector joining ends of line
+    const Amg::Vector3D & endStrip1(ends1.first);   // Top end, first cluster
+    const Amg::Vector3D & startStrip1(ends1.second);  // Bottom end, first cluster
+    const Amg::Vector3D & endStrip2(ends2.first);   // Top end, second cluster
+    const Amg::Vector3D & startStrip2(ends2.second);  // Bottom end, second cluster
+    const Amg::Vector3D & strip1Direction(endStrip1-startStrip1);           // vector joining ends of line
+    const Amg::Vector3D & strip2Direction(endStrip2-startStrip2);           // vector joining ends of line
 
     Amg::Vector3D point;
 
@@ -106,25 +107,25 @@ namespace InDet {
          to determine the position of the SpacePoint on element 1. 
          This option is especially aimed at the use with cosmics data.
       */
-      Amg::Vector3D mab(c - a);
-      double eaTeb = q.dot(r);
-      double denom = 1. - eaTeb*eaTeb;
-      if (fabs(denom)>10e-7){
-        double lambda0 = (mab.dot(q) - mab.dot(r)*eaTeb)/denom;
-        point = a+lambda0*q;    
-        ATH_MSG_VERBOSE( "Endpoints 1 : ( " <<  a.x() << " , " << a.y() << " , " << a.z() << " )   to   (" << b.x() << " , " << b.y() << " , " << b.z() << " ) " );
-        ATH_MSG_VERBOSE( "Endpoints 2 : ( " <<  c.x() << " , " << c.y() << " , " << c.z() << " )   to   (" << d.x() << " , " << d.y() << " , " << d.z() << " )  " );
+      Amg::Vector3D mab(endStrip2 - endStrip1);
+      const double eaTeb = strip1Direction.dot(strip2Direction);
+      const double denom = 1. - eaTeb*eaTeb;
+      if (std::fabs(denom)>10e-7){
+        const double lambda0 = (mab.dot(strip1Direction) - mab.dot(strip2Direction)*eaTeb)/denom;
+        point = endStrip1+lambda0 * strip1Direction;    
+        ATH_MSG_VERBOSE( "Endpoints 1 : ( " <<  endStrip1.x() << " , " << endStrip1.y() << " , " << endStrip1.z() << " )   to   (" << startStrip1.x() << " , " << startStrip1.y() << " , " << startStrip1.z() << " ) " );
+        ATH_MSG_VERBOSE( "Endpoints 2 : ( " <<  endStrip2.x() << " , " << endStrip2.y() << " , " << endStrip2.z() << " )   to   (" << startStrip2.x() << " , " << startStrip2.y() << " , " << startStrip2.z() << " )  " );
         ATH_MSG_VERBOSE( "Intersection: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );
       } else {
         ATH_MSG_WARNING("Intersection failed");
         ok = false;
       }
     } else {   
-      Amg::Vector3D s(a+b-2.*vertexVec);  // twice the vector from vertex to midpoint
-      Amg::Vector3D t(c+d-2.*vertexVec);  // twice the vector from vertex to midpoint
-      Amg::Vector3D qs(q.cross(s));  
-      Amg::Vector3D rt(r.cross(t));  
-      double m(-s.dot(rt)/q.dot(rt));    // ratio for first  line
+      Amg::Vector3D midpoint1x2(endStrip1+startStrip1-2.*vertexVec);  // twice the vector from vertex to midpoint
+      Amg::Vector3D midpoint2x2(endStrip2+startStrip2-2.*vertexVec);  // twice the vector from vertex to midpoint
+      Amg::Vector3D qs(strip1Direction.cross(midpoint1x2));  
+      Amg::Vector3D rt(strip2Direction.cross(midpoint2x2));  
+      double m(-midpoint1x2.dot(rt)/strip1Direction.dot(rt));    // ratio for first  line
       double n(0.);                      // ratio for second line
 
       // We increase the length of the strip by 1%. This a fudge which allows
@@ -133,20 +134,20 @@ namespace InDet {
 
       double limit = 1. + m_stripLengthTolerance;
 
-      if      (fabs(            m             ) > limit) ok = false;
-      else if (fabs((n=-(t.dot(qs)/r.dot(qs)))) > limit) ok = false;
+      if      (std::fabs(            m             ) > limit) ok = false;
+      else if (std::fabs((n=-(midpoint2x2.dot(qs)/strip2Direction.dot(qs)))) > limit) ok = false;
  
       if ((not ok) and (stripLengthGapTolerance != 0.)) {
 
-        double qm     = q.mag()                             ;
-        double limitn = limit+(stripLengthGapTolerance/qm);
+        const double qm     = strip1Direction.mag()                             ;
+        const double limitn = limit+(stripLengthGapTolerance/qm);
 
-        if (fabs(m) <= limitn)  {
+        if (std::fabs(m) <= limitn)  {
    
-          if (n==0.) n = -(t.dot(qs)/r.dot(qs));
+          if (n==0.) n = -(midpoint2x2.dot(qs)/strip2Direction.dot(qs));
 
-          if (fabs(n) <= limitn) {
-            double mn  = q.dot(r)/(qm*qm);
+          if (std::fabs(n) <= limitn) {
+            double mn  = strip1Direction.dot(strip2Direction)/(qm*qm);
             if ((m >  1.) or (n >  1.)) {
               double dm = (m-1.)   ;
               double dn = (n-1.)*mn;
@@ -162,11 +163,11 @@ namespace InDet {
               m += sm;
               n += (sm*mn);
             }
-            if (fabs(m) < limit and fabs(n) < limit) ok = true;
+            if (std::fabs(m) < limit and std::fabs(n) < limit) ok = true;
           }
         }
       }
-      if (ok) point = 0.5*(a + b + m*q);
+      if (ok) point = 0.5*(endStrip1 + startStrip1 + m * strip1Direction);
     }
     if (ok) {
       ATH_MSG_VERBOSE( "SpacePoint generated at: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );       
@@ -341,7 +342,7 @@ namespace InDet {
       for (; clusters2Next!=clusters2Finish; ++clusters2Next){
         Amg::Vector2D locpos = (*clusters2Next)->localPosition();
         Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
-        double diff = InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.).xPhi() - xPhi1;
+        const double diff = InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.).xPhi() - xPhi1;
         if (((min <= diff) and (diff <= max)) or allClusters){
           Trk::SpacePoint* sp =
             makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance);
@@ -435,13 +436,13 @@ namespace InDet {
     const Amg::Transform3D& T2 = element2->transform();
 
     double x12 = T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0)+T1(2,0)*T2(2,0)                              ;
-    double r   = sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3))                                        ;
+    double r   = std::sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3))                                        ;
     double s   = (T1(0,3)-T2(0,3))*T1(0,2)+(T1(1,3)-T2(1,3))*T1(1,2)+(T1(2,3)-T2(2,3))*T1(2,2);
 
-    double dm  = (m_SCTgapParameter*r)*fabs(s*x12);
-    double d   = dm/sqrt((1.-x12)*(1.+x12));
+    double dm  = (m_SCTgapParameter*r)*std::fabs(s*x12);
+    double d   = dm/std::sqrt((1.-x12)*(1.+x12));
     
-    if (fabs(T1(2,2)) > 0.7) d*=(r/fabs(T1(2,3))); // endcap d = d*R/Z
+    if (std::fabs(T1(2,2)) > 0.7) d*=(r/std::fabs(T1(2,3))); // endcap d = d*R/Z
 
     stripLengthGapTolerance = d; 
     
@@ -498,7 +499,7 @@ namespace InDet {
   
     constexpr int otherSideIndex{1};
     constexpr int maxEtaIndex{3};
-    std::array<int, nNeighbours-1> elementIndex{0};
+    std::array<int, nNeighbours-1> elementIndex{};
     int nElements = 0;
 
     // For the nNeighbours sides, fill elementIndex with the indices of the existing elements.
@@ -701,13 +702,13 @@ namespace InDet {
     double b  = In0.strip_direction().dot(In1.normal());
     double l0 = In0.oneOverStrip()*slimit+limit ;
 
-    if(fabs(a) > (fabs(b)*l0)) return nullptr;
+    if(std::fabs(a) > (std::fabs(b)*l0)) return nullptr;
 
     double c  =-In1.traj_direction().dot(In0.normal());
     double d  = In1.strip_direction().dot(In0.normal()); 
     double l1 = In1.oneOverStrip()*slimit+limit ;
 
-    if(fabs(c) > (fabs(d)*l1)) return nullptr;
+    if(std::fabs(c) > (std::fabs(d)*l1)) return nullptr;
 
     double m = a/b;
 
@@ -722,7 +723,7 @@ namespace InDet {
         double dmn = (n-1.)*cs; 
         if(dmn > dm) dm = dmn;
         m-=dm; n-=(dm/cs);
-        if(fabs(m) > limit || fabs(n) > limit) return nullptr;
+        if(std::fabs(m) > limit || std::fabs(n) > limit) return nullptr;
       } else if(m < -limit || n < -limit) {
         
         double cs  = In0.strip_direction().dot(In1.strip_direction())*(In0.oneOverStrip()*In0.oneOverStrip());
@@ -730,7 +731,7 @@ namespace InDet {
         double dmn = -(1.+n)*cs; 
         if(dmn > dm) dm = dmn;
         m+=dm; n+=(dm/cs);
-        if(fabs(m) > limit || fabs(n) > limit) return nullptr;
+        if(std::fabs(m) > limit || std::fabs(n) > limit) return nullptr;
       }
     }
     Amg::Vector3D point(In0.position(m));

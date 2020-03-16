@@ -55,7 +55,7 @@ double EMBHVElectrode::current(int iGap) const {
   return payload->current[iGap];
 }
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int EMBHVElectrode::hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const {
   return hvIdMapping
     ? m_c->module->getManager().hvLineNo(*this, iGap, hvIdMapping)

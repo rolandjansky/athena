@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */  
   
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFillerEfficiency_h
@@ -36,7 +36,7 @@ namespace Monitored {
       auto cutMaskAccessor = cutMaskValuePair.second;
 
       auto efficiency = this->histogram<TEfficiency>();
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
+      std::scoped_lock lock(*m_mutex);
 
       int nMonVar = m_monVariables.size();
       if ( nMonVar==2 ) { // Single observable (1D TEfficiency)

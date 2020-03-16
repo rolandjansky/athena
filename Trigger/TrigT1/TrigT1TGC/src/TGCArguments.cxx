@@ -7,8 +7,6 @@
 namespace LVL1TGCTrigger {
   
   TGCArguments::TGCArguments():
-    m_OUTCOINCIDENCE(false),
-    m_TGCCOIN(nullptr),
     m_DEBUGLEVEL(false),
     m_SHPT_ORED(false),
     m_USE_INNER(false),
@@ -22,12 +20,6 @@ namespace LVL1TGCTrigger {
   TGCArguments::~TGCArguments(){
   }
 
-  void TGCArguments::clear(){
-    if(m_TGCCOIN!=nullptr)delete m_TGCCOIN;
-  }
-  
-  void TGCArguments::set_OUTCOINCIDENCE(bool v){ m_OUTCOINCIDENCE = v;}
-  void TGCArguments::set_TGCCOIN(TGCCoincidences* v){ m_TGCCOIN = v;}
   void TGCArguments::set_DEBUGLEVEL(bool v){ m_DEBUGLEVEL = v;}
   void TGCArguments::set_SHPT_ORED(bool v){ m_SHPT_ORED = v;}
   void TGCArguments::set_USE_INNER(bool v){ m_USE_INNER = v;}
@@ -36,8 +28,6 @@ namespace LVL1TGCTrigger {
   void TGCArguments::set_USE_CONDDB(bool v){ m_USE_CONDDB = v;}
   void TGCArguments::set_useRun3Config(bool v){ m_useRun3Config = v;}
   
-  bool TGCArguments::OUTCOINCIDENCE() const {return m_OUTCOINCIDENCE;}
-  TGCCoincidences* TGCArguments::TGCCOIN() const {return m_TGCCOIN;}
   bool TGCArguments::DEBUGLEVEL() const {return m_DEBUGLEVEL;}
   bool TGCArguments::SHPT_ORED() const {return m_SHPT_ORED;}
   bool TGCArguments::USE_INNER() const {return m_USE_INNER;}

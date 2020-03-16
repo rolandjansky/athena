@@ -133,7 +133,9 @@ else:
     # ----------- special case for Calo seeded brem recovery
     #
     # ------------------------------------------------------------
-    if InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn():
+    if DetFlags.detdescr.Calo_allOn() and (
+         (InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem())
+      or (InDetNewTrackingCuts.RoISeededBackTracking() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTSeededTrackFinder())) :
       include ("InDetRecExample/InDetRecCaloSeededROISelection.py")
 
     # ------------------------------------------------------------

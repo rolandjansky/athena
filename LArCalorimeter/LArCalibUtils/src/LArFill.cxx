@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArFill.h"
@@ -41,9 +41,10 @@ StatusCode LArFill::execute()
   m_adc2dac = new LArRampComplete();
   m_dac2ua  = new LArDAC2uAComplete();
   m_ua2mev  = new LAruA2MeVComplete();
-  m_adc2dac->initialize(); 
-  m_dac2ua->initialize();
-  m_ua2mev->initialize();
+
+  ATH_CHECK ( m_adc2dac->initialize() );
+  ATH_CHECK ( m_dac2ua->initialize() );
+  ATH_CHECK ( m_ua2mev->initialize() );
 
   std::vector<float> ramp;
   for (unsigned int i=0;i<3;i++){

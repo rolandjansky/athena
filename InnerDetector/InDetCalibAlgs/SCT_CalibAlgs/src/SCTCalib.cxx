@@ -360,7 +360,7 @@ StatusCode SCTCalib::execute() {
 ///////////////////////////////////////////////////////////////////////////////////
 /// stop - process results accumulated in execute()
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::stop() {
+StatusCode SCTCalib::stop ATLAS_NOT_THREAD_SAFE () {
    ATH_MSG_INFO("----- in stop() ----- ");
    //--- Number of events processed
    m_numberOfEvents = (m_readHIST or (!m_doHitMaps and m_readHitMaps)) ? m_numberOfEventsHist : m_calibEvtInfoTool->counter();
@@ -519,7 +519,7 @@ void SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const std::
 /// getNoisyStrip()
 /// Find noisy strips from hitmaps and write out into xml/db formats
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getNoisyStrip() {
+StatusCode SCTCalib::getNoisyStrip ATLAS_NOT_THREAD_SAFE () {
    enum Categories {ALL, NEW, REF, N_CATEGORIES};
    //--- Check statistics
    //ATH_MSG_INFO(m_calibEvtInfoTool->counter() << "   " << m_calibHitmapTool->size());
@@ -632,7 +632,7 @@ StatusCode SCTCalib::getNoisyStrip() {
 //====================================================================================================
 //                           SCTCalib :: getDeadStrip
 //====================================================================================================
-StatusCode SCTCalib::getDeadStrip() {
+StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () {
    //Function to identify and print out the dead strips.
    ATH_MSG_INFO("getDeadStrip() called");
 
@@ -1150,7 +1150,7 @@ StatusCode SCTCalib::getDeadStrip() {
 /// getNoiseOccupancy()
 /// Read NoiseOccupancy from HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getNoiseOccupancy()
+StatusCode SCTCalib::getNoiseOccupancy ATLAS_NOT_THREAD_SAFE ()
 {
    ATH_MSG_INFO("----- in getNoiseOccupancy() -----");
 
@@ -1366,7 +1366,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
 /// getRawOccupancy()
 /// Read RawOccupancy from Monitoring HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getRawOccupancy()
+StatusCode SCTCalib::getRawOccupancy ATLAS_NOT_THREAD_SAFE ()
 {
    ATH_MSG_INFO("----- in getRawOccupancy() -----");
 
@@ -1517,7 +1517,7 @@ StatusCode SCTCalib::getRawOccupancy()
 /// getEfficiency()
 /// Read Efficiency from Monitoring HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getEfficiency() {
+StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () {
    ATH_MSG_INFO("----- in getEfficiency() -----");
 
    //--- Initialization
@@ -1723,7 +1723,7 @@ StatusCode SCTCalib::getEfficiency() {
 /// getBSErrors()
 /// Read BSErrors from Monitoring HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getBSErrors() {
+StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () {
    ATH_MSG_INFO("----- in getBSErrors() -----");
 
    //--- Initialization
@@ -2085,7 +2085,7 @@ StatusCode SCTCalib::getBSErrors() {
 /// getLorentzAngle()
 /// Read LorentzAngle from HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getLorentzAngle() {
+StatusCode SCTCalib::getLorentzAngle ATLAS_NOT_THREAD_SAFE () {
    ATH_MSG_INFO("----- in getLorentzAngle() -----");
 
    //--- Initialization
@@ -2683,7 +2683,8 @@ SCTCalib::addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList
 
 
 StatusCode
-SCTCalib::writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>& moduleListAll,
+SCTCalib::writeModuleListToCool ATLAS_NOT_THREAD_SAFE
+                               (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
                                 const std::map<Identifier, std::set<Identifier>>& moduleListNew,
                                 const std::map<Identifier, std::set<Identifier>>& moduleListRef) {
    //--- Write out strips

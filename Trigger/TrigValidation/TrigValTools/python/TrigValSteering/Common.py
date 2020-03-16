@@ -9,8 +9,8 @@ Common variables and functions used in Trigger ART test steering
 import logging
 import sys
 import os
-import subprocess
 from PyUtils.Decorators import memoize
+from AthenaCommon.Utils.unixtools import FindFile
 
 
 # Logging level used across the package
@@ -57,14 +57,13 @@ def clear_art_summary():
 
 @memoize
 def check_job_options(jo_path):
-    '''Check if the job options file exists locally or in PATH'''
-    # Check if job options existi locally
+    '''
+    Check if the job options file exists locally or in JOBOPTSEARCHPATH.
+    Returns True if the file is found and False otherwise.
+    '''
+    # Check if job options exists locally
     if os.path.isfile(jo_path):
         return True
-    # Try to find the file in PATH
-    get_files_output = subprocess.check_output(
-        'get_files -jo -list {}'.format(jo_path), shell=True)
-    if 'nothing found' in get_files_output.decode():
-        return False
-    else:
-        return True
+    # Try to find the file in JOBOPTSEARCHPATH
+    found = FindFile(jo_path, os.environ['JOBOPTSEARCHPATH'].split(os.pathsep), os.R_OK)
+    return found is not None

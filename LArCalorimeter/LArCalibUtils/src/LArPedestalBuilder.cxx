@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -69,11 +69,8 @@ StatusCode LArPedestalBuilder::initialize()
  //m_pedestal.setGroupingType(LArConditionsContainerBase::SingleGroup);
 
  m_accu.setGroupingType(LArConditionsContainerBase::SingleGroup);
- m_accu.initialize(); 
- if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Failed initialize LArConditionsContainer 'm_accu'" );
-    return sc;
-  }
+ ATH_CHECK ( m_accu.initialize() );
+
  return StatusCode::SUCCESS;
 }
 

@@ -722,6 +722,13 @@ StoreGateSvc::setAlias(const T* /*dummy*/,
   _SGXCALL(setAlias, (ClassID_traits<T>::ID(), key, aKey), StatusCode::FAILURE);
 }
 
+inline
+StatusCode
+StoreGateSvc::setAlias(SG::DataProxy* proxy, const std::string& aliasKey)
+{
+  _SGXCALL(setAlias, (proxy, aliasKey), StatusCode::FAILURE);
+}
+
 //////////////////////////////////////////////////////////////////
 // Make a soft link to the object with key: return non_const link
 //////////////////////////////////////////////////////////////////

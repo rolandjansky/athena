@@ -3,6 +3,7 @@
 #
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
++ Calorimeter/CaloCondBlobObjs
 + Calorimeter/CaloGeoHelpers
 + Calorimeter/CaloDetDescr
 + Calorimeter/CaloEvent
@@ -84,6 +85,7 @@
 + Database/PersistentDataModel
 + Database/PersistentDataModelAthenaPool
 + Database/PersistentDataModelTPCnv
++ Database/RDBAccessSvc
 #+ Database/RegistrationServices
 + Database/TPTools
 #+ DataQuality/GoodRunsLists

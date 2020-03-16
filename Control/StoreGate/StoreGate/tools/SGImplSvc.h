@@ -156,6 +156,9 @@ public:
   /// make an alias to a DataObject (provide only valid pointer)
   StatusCode setAlias(const void* p2BAliased, const std::string& aliasKey);
 
+  /// make an alias to a DataObject (provide valid proxy)
+  StatusCode setAlias(SG::DataProxy* proxy, const std::string& aliasKey);
+
   /// prevent downstream clients from modifying the pointed-at dobj
   StatusCode setConst(const void* pointer);
 

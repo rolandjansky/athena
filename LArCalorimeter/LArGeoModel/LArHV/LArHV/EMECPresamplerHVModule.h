@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_EMECPRESAMPLERHVMODULE_H
@@ -14,7 +14,7 @@
 
 class EMECPresamplerHVManager;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
@@ -46,7 +46,7 @@ class EMECPresamplerHVModule
   // Current and voltage at the same time:
   void voltage_current(int iGap, double& v, double& i) const;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
 #else
   int hvLineNo(int iGap) const;

@@ -39,13 +39,13 @@ class ChainConfigurationBase(object):
         mySequence = RecoFragmentsPool.retrieve(mySequenceCfg, None) # the None will be used for flags in future
         return mySequence
 
-    def getStep(self, stepID, stepPartName, sequenceCfgArray):
+    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboTools=[]):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
         log.debug("Configuring step " + stepName)
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
             seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
-        return ChainStep(stepName, seqArray, [self.mult])
+        return ChainStep(stepName, seqArray, [self.mult], comboToolConfs=comboTools)
 
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,

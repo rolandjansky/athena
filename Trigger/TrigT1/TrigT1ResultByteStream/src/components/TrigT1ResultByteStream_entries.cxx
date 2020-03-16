@@ -1,4 +1,4 @@
-
+#include "TrigT1ResultByteStream/L1TriggerResultByteStreamCnv.h"
 #include "TrigT1ResultByteStream/RoIBResultByteStreamCnv.h"
 #include "TrigT1ResultByteStream/RecRoIBResultByteStreamCnv.h"
 
@@ -26,6 +26,7 @@ typedef RoIBResultByteStreamCnv<ROBF> RoIBResultByteStreamCnvT ;
 typedef RecRoIBResultByteStreamCnv<ROBF> RecRoIBResultByteStreamCnvT ;
 
 // declare 
+DECLARE_CONVERTER( L1TriggerResultByteStreamCnv )
 DECLARE_CONVERTER( RoIBResultByteStreamCnvT )
 DECLARE_CONVERTER( RecRoIBResultByteStreamCnvT )
 DECLARE_CONVERTER( MuCTPIByteStreamCnv )

@@ -663,7 +663,7 @@ IOVSvcTool::replaceProxy( SG::DataProxy *pOld,
       removeFromSet (ent->second, m_stopSet_Clock);
       removeFromSet (ent->second, m_stopSet_RE);
 
-      setRange_impl (pNew, *ent->second->range());
+      setRange_impl (pNew, *(const_cast<IOVRange*>(ent->second->range())));
       delete ent->second;
       m_entries.erase (ent);
     }
@@ -791,7 +791,7 @@ void IOVSvcTool::setRange_impl (SG::DataProxy* proxy, IOVRange& iovr)
   if ( itr != m_entries.end() ) {
 
     IOVEntry *ent = itr->second;
-    IOVRange *irn = ent->range();
+    const IOVRange *irn = ent->range();
     string objname = m_names[proxy];
 
     if (*irn == iovr) {

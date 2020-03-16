@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 test_strings = [
     'simple([(38et, 0eta320)])',
     'simple([(38et, 0eta320)(40et, 0eta320)])',
@@ -132,6 +134,6 @@ test_strings = [
 
 if __name__ == '__main__':
     for i, tc in enumerate(test_strings):
-        print i, tc
+        print (i, tc)
 
     print('There are %d test cases' % len(test_strings))

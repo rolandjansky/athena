@@ -58,6 +58,7 @@ def get_parser():
                             'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance',
                             'TrigSteer_HLT/ChainAcceptance',
                             'TrigSteer_HLT/NumberOfActiveTEs',
+                            'HLTFramework/TrigSignatureMoniMT/DecisionCount',
                             'CTPSimulation/L1ItemsAV',
                             'L1/CTPSimulation/output/tavByName'],
                         help='Histograms to use for counts dump. All existing '
@@ -77,6 +78,7 @@ def get_parser():
                             'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance:HLTChain',
                             'TrigSteer_HLT/ChainAcceptance:HLTChain',
                             'TrigSteer_HLT/NumberOfActiveTEs:HLTTE',
+                            'HLTFramework/TrigSignatureMoniMT/DecisionCount:HLTDecision',
                             'CTPSimulation/L1ItemsAV:L1AV',
                             'L1/CTPSimulation/output/tavByName:L1AV'],
                         help='Dictionary defining names of output text files for each '
@@ -118,10 +120,32 @@ def get_counts(hist):
         if not label:
             logging.debug('Bin %d in histogram %s has no label, skipping', b, hist.GetName())
             continue
+
         value = hist.GetBinContent(b) if hist.GetDimension() == 1 else hist.GetBinContent(b, nbinsy)
         counts[label] = int(value)
+
     return counts
 
+def get_2D_counts(hist):
+    '''
+    Extract {xlabel_ylabel, value} dictionary from a histogram. Values are stored as integers.
+    '''
+    nbinsx = hist.GetNbinsX()
+    nbinsy = hist.GetNbinsY()
+    counts = {}
+    for x in range(1, nbinsx+1):
+        label = hist.GetXaxis().GetBinLabel(x)
+        if not label:
+            logging.debug('Bin %d in histogram %s has no label, skipping', x, hist.GetName())
+            continue
+
+        for y in range(3, nbinsy): #get only steps
+            name = label + '_' + hist.GetYaxis().GetBinLabel(y)
+            name = name.replace(' ', '')
+            value = hist.GetBinContent(x, y)
+            counts[name] = int(value)
+
+    return counts
 
 def make_counts_json_dict(in_counts, ref_counts):
     counts = OrderedDict()
@@ -344,18 +368,20 @@ def main():
     json_dict[total_events_key]['ref_count'] = int(ref_total) if ref_total else 'n/a'
 
     for hist_name, hist in in_hists.items():
-        counts = get_counts(hist)
-        ref_counts = {}
-        if ref_hists:
-            ref_hist = ref_hists[hist_name]
-            ref_counts = get_counts(ref_hist)
-        d = make_counts_json_dict(counts, ref_counts)
         text_name = get_text_name(hist_name, name_dict)
         if text_name in json_dict.keys():
             logging.error(
                 'Name "%s" assigned to more than one histogram, ', text_name,
                 'results would be overwritten. Use --countHists and ',
                 '--histDict options to avoid duplicates. Exiting.')
+
+        counts = get_2D_counts(hist) if text_name == 'HLTDecision' else get_counts(hist)
+        ref_counts = {}
+        if ref_hists:
+            ref_hist = ref_hists[hist_name]
+            ref_counts = get_2D_counts(ref_hist) if text_name == 'HLTDecision' else get_counts(ref_hist)
+        d = make_counts_json_dict(counts, ref_counts)
+
         json_dict[text_name] = OrderedDict()
         json_dict[text_name]['hist_name'] = hist_name
         json_dict[text_name]['counts'] = d

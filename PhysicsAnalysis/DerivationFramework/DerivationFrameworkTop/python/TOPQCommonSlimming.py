@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ slimming
@@ -6,6 +6,8 @@
 #     import DerivationFrameworkTop.TOPQCommonSlimming
 #     DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQX', TOPQStream)
 #====================================================================
+
+from __future__ import print_function
 
 #================================
 # IMPORTS
@@ -34,7 +36,7 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.SmartCollections =  []
   TOPQSlimmingHelper.SmartCollections += TOPQSmartSlimmingCollections
 
-  print "TOPQSlimmingHelper.SmartCollections: " , TOPQSlimmingHelper.SmartCollections
+  print ("TOPQSlimmingHelper.SmartCollections: " , TOPQSlimmingHelper.SmartCollections)
 
   #=================================================================
   # EXTRA VARIABLES FROM DerivationFrameworkTop.TOPQCommonExtraContent
@@ -62,7 +64,7 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsJet_EF_Container
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsJet_Split_Container
 
-  print "TOPQSlimmingHelper.ExtraVariables: " , TOPQSlimmingHelper.ExtraVariables
+  print ("TOPQSlimmingHelper.ExtraVariables: " , TOPQSlimmingHelper.ExtraVariables)
 
   #================================
   # EXTRA COLLECTIONS - user added
@@ -74,7 +76,7 @@ def setup(TOPQname, stream):
   if DFisMC:
     TOPQSlimmingHelper.AllVariables += TOPQExtraContainersTruth
 
-  print "TOPQSlimmingHelper.AllVariables: " , TOPQSlimmingHelper.AllVariables
+  print ("TOPQSlimmingHelper.AllVariables: " , TOPQSlimmingHelper.AllVariables)
 
   #================================
   # CREATED ON-THE-FLY COLLECTIONS
@@ -85,7 +87,7 @@ def setup(TOPQname, stream):
   if DFisMC:
     TOPQSlimmingHelper.StaticContent += TOPQStaticContentTruth
 
-  print "TOPQSlimmingHelper.StaticContent: " , TOPQSlimmingHelper.StaticContent
+  print ("TOPQSlimmingHelper.StaticContent: " , TOPQSlimmingHelper.StaticContent)
 
   #================================
   # TRIGGER CONTENT
