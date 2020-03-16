@@ -8,14 +8,56 @@
 //    Main routine to build the GeoModel geometry, and handle the GeometryManager and
 //    DetectorManager.
 //
+#include "GeoModelKernel/GeoFullPhysVol.h"
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 namespace InDetDD {
     class AthenaComps;
+    class PixelModuleDesign;
 }
 class GeoPhysVol;
 
 namespace HGTDGeo {
+
+struct HgtdGeoParams {
+    double rMid;
+    double rOuter;
+    double diskRotation;
+    double rowSpaceSide;
+    double rowBacksideInnerShift;
+    double rowBacksideOuterShift;
+    double moduleSpaceInner;
+    double moduleSpaceOuter;
+    double flexSheetSpacing;
+};
+
+struct ModulePosition {
+    double x;
+    double y;
+    double phiRotation;
+    bool flipped;
+    int row;
+    int el_in_row;
+};
+
+struct GeoCylVolParams {
+    std::string name;
+    double rMin;
+    double rMax;
+    double zHalf;
+    double zOffsetLocal;
+    std::string material;
+};
+
+struct GeoBoxVolParams {
+    std::string name;
+    double xHalf;
+    double yHalf;
+    double zHalf;
+    double zOffsetLocal;
+    std::string material;
+};
+
 
 class HGTD_DetectorFactory : public InDetDD::DetectorFactoryBase {
 public:
@@ -37,8 +79,19 @@ private:
     HGTD_DetectorFactory(HGTD_DetectorFactory &right);
     HGTD_DetectorFactory & operator=(HGTD_DetectorFactory &right);
 
+    GeoFullPhysVol* createEnvelope(bool bPos);
+
     HGTD_DetectorManager* m_detectorManager;
     InDetDD::AthenaComps* m_athenaComps;
+
+    std::map<std::string,GeoCylVolParams> m_cylVolPars;
+    std::map<std::string,GeoBoxVolParams> m_boxVolPars;
+    HgtdGeoParams m_hgtdPars;
+
+    std::vector<ModulePosition> calculateHgtdModulePositionsInQuadrant(int layer);
+    std::vector<ModulePosition> calculateHgtdModulePositionsInRow(int row, bool back = false);
+
+    InDetDD::PixelModuleDesign* createPixelDesign(double thickness, bool isBaseline = true, bool isflipped = false);
 
 };
 

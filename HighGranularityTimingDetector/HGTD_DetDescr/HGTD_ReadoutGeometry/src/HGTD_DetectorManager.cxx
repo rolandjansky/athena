@@ -10,15 +10,15 @@ HGTD_DetectorManager::~HGTD_DetectorManager(){}
 
 unsigned int HGTD_DetectorManager::getNumTreeTops() const
 {
-	return m_volume.size();
+    return m_volume.size();
 }
 
 PVConstLink HGTD_DetectorManager::getTreeTop(unsigned int i) const
 {
-	return m_volume[i];
+    return m_volume[i];
 }
 
 void HGTD_DetectorManager::addTreeTop(PVLink vol){
-	vol->ref();
-	m_volume.push_back(vol);
+    vol->ref();
+    m_volume.push_back(vol);
 }
