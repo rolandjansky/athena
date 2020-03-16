@@ -22,9 +22,9 @@ class ALinePar : public MuonAlignmentPar {
 		     float rotS, float rotZ, float rotT);
 
   void getParameters(float& s, float& z, float& t, 
-		     float& rotS, float& rotZ, float& rotT);
+		     float& rotS, float& rotZ, float& rotT) const;
   
-  HepGeom::Transform3D deltaTransform();
+  HepGeom::Transform3D deltaTransform() const;
   
  private:
 
