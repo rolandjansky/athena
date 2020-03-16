@@ -9,7 +9,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #include "PixelInterfaces/IGeoPixelBarrelTool.h"
 #include "PixelInterfaces/IGeoPixelEndcapTool.h"
-#include "PixelInterfaces/IGeoBCMPrimeTool.h"
 #include "PixelInterfaces/IPixelServicesTool.h"
 
 #include "GeoModelKernel/GeoTube.h"
@@ -38,7 +37,6 @@ GeoPixelEnvelopeInclRefTool::GeoPixelEnvelopeInclRefTool(const std::string& type
   : AthAlgTool(type, name, parent),
     m_barrelTool("GeoPixelBarrelTool"),
     m_endcapTool("GeoPixelEndcapTool"),
-    m_bcmTool("GeoBCMPrimeTool"),
     m_IDserviceTool(),
     m_tgBuilder("GeoPixelTrackingVolumeBuilder"),
     m_buildTrackingVolume(false)
@@ -49,7 +47,6 @@ GeoPixelEnvelopeInclRefTool::GeoPixelEnvelopeInclRefTool(const std::string& type
   //default settings
   declareProperty("GeoPixelBarrelTool",m_barrelTool);
   declareProperty("GeoPixelEndcapTool",m_endcapTool);
-  declareProperty("GeoBCMPrimeTool",m_bcmTool);
   declareProperty("PixelServicesTool", m_IDserviceTool);
   declareProperty("GeoPixelTrackingVolumeBuilder", m_tgBuilder);
   declareProperty("BuildPixelTrackingVolume", m_buildTrackingVolume);
@@ -151,7 +148,6 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
   bool barrelPresent   = genDBHelper.isBarrelPresent();
   bool endcapAPresent  = genDBHelper.isEndcapPresentA();
   bool endcapCPresent  = genDBHelper.isEndcapPresentC();
-  bool bcmPresent   = genDBHelper.isBCMPrimePresent();
 
   // Service regions
   if(m_IDserviceTool){
@@ -268,36 +264,6 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
 	envelopePhys->add(new GeoIdentifierTag(-2));
 	envelopePhys->add(xform);
 	envelopePhys->add(envPhysC);
-      }
-    }
-  }
-
-  if (bcmPresent) {
-    
-    //
-    // Add the BCM
-    //
-
-    int nModules = 8;
-
-    for (int i = 0; i < nModules; i++) {
-      GeoPhysVol* bcmModPhys = m_bcmTool->buildModule(i, basics);
-      if (bcmModPhys) {
-        CLHEP::Hep3Vector pos(m_bcmTool->getTransX(), m_bcmTool->getTransY(), m_bcmTool->getTransZ());
-        CLHEP::HepRotation rm;
-        rm.rotateY(90*CLHEP::deg);
-        rm.rotateX(-m_bcmTool->getTilt()*CLHEP::deg);
-        rm.rotateX(m_bcmTool->getRotX()*CLHEP::deg);
-        rm.rotateY(m_bcmTool->getRotY()*CLHEP::deg);
-        rm.rotateZ((m_bcmTool->getRotZ()+m_bcmTool->getRingOffset())*CLHEP::deg);
-
-        int k = 2*i + 11950;
-        GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos.rotateZ(m_bcmTool->getRingOffset()*CLHEP::deg)));
-        GeoNameTag *tag = new GeoNameTag("BCM Module");
-        envelopePhys->add(tag);
-        envelopePhys->add(new GeoIdentifierTag(k));
-        envelopePhys->add(xform);
-        envelopePhys->add(bcmModPhys);
       }
     }
   }

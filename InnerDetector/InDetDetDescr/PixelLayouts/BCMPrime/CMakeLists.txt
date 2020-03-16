@@ -24,23 +24,31 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          Tools/PathResolver )
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( XercesC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
-# Component(s) in the package:
-atlas_add_component( BCMPrime
-                     src/*.cxx
-                     src/components/*.cxx
+atlas_add_library( BCMPrimeLib
+                     src/BCMPrimeModule.cxx
+                     src/BCMPrimeXMLHelper.cxx
+                     PUBLIC_HEADERS BCMPrime/BCMPrimeModule.h BCMPrime/BCMPrimeXMLHelper.h
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} 
-		     AthenaBaseComps AthenaKernel GeoModelKernel GaudiKernel
-		     PixelGeoModelModule PixelLayoutUtils 
-		     PRIVATE_LINK_LIBRARIES Identifier InDetGeoModelUtils InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry PathResolver InDetTrackingGeometryXMLLib)
+		             AthenaBaseComps AthenaKernel GeoModelKernel GaudiKernel
+		             PixelGeoModelModule PixelLayoutUtils 
+		             PRIVATE_LINK_LIBRARIES Identifier InDetGeoModelUtils InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry InDetTrackingGeometryXMLLib)
+
+# Component(s) in the package:
+atlas_add_component( BCMPrime
+                     src/GeoBCMPrimeTool.cxx
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES}
+		             AthenaBaseComps AthenaKernel GeoModelKernel GaudiKernel
+		             PRIVATE_LINK_LIBRARIES BCMPrimeLib)
 
 # Install files from the package:
 atlas_install_headers( BCMPrime )

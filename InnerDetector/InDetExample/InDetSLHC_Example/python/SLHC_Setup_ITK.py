@@ -100,9 +100,21 @@ class SLHC_Setup :
         toolSvc+=geoBarrelTool
         
         print "******************************************************************************************"
+        print "PixelGeoModel - import GeoBCMPrimeTool"
+
+        from BCMPrime.BCMPrimeConf import GeoBCMPrimeTool
+        geoBCMPrimeTool = GeoBCMPrimeTool(name="GeoBCMPrimeTool")
+        if DetFlags.BCM_on():
+            geoBCMPrimeTool.ModulesOn = 15
+        else:
+            geoBCMPrimeTool.ModulesOn = 0
+        toolSvc += geoBCMPrimeTool
+        
+        print "******************************************************************************************"
         print "PixelGeoModel - import GeoPixelLayerECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelLayerECRingRefTool
         geoECLayerTool=GeoPixelLayerECRingRefTool(name="GeoPixelLayerECRingRefTool")
+        geoECLayerTool.GeoBCMPrimeTool = geoBCMPrimeTool
         toolSvc+=geoECLayerTool
  
         print "PixelGeoModel - import GeoPixelEndcapECRingRefTool"
@@ -111,13 +123,6 @@ class SLHC_Setup :
         geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool
         geoEndcapTool.PixelServicesTool = serviceTool
         toolSvc+=geoEndcapTool
-
-        print "******************************************************************************************"
-        print "PixelGeoModel - import GeoBCMPrimeTool"
-
-        from BCMPrime.BCMPrimeConf import GeoBCMPrimeTool
-        geoBCMPrimeTool = GeoBCMPrimeTool(name="GeoBCMPrimeTool")
-        toolSvc += geoBCMPrimeTool
 
         print "******************************************************************************************"
         print "PixelGeoModel - import GeoPixelEnvelopeInclRefTool"

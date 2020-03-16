@@ -52,6 +52,18 @@ BCMPrimeXMLHelper::~BCMPrimeXMLHelper()
     TerminateXML();
 }
 
+int BCMPrimeXMLHelper::getECRingNumber() const
+{
+    std::string ecring_number = getString("BCMPrimeGeo", m_moduleIndices, "ECRingNumber");
+    return atoi(ecring_number.c_str());
+}
+
+int BCMPrimeXMLHelper::getNumberOfModules() const
+{
+    std::string number_of_modules = getString("BCMPrimeGeo", m_moduleIndices, "NumberOfModules");
+    return atoi(number_of_modules.c_str());
+}
+
 double BCMPrimeXMLHelper::getTransX() const
 {
     return getDouble("BCMPrimeGeo", m_moduleIndices, "TransX");
@@ -60,11 +72,6 @@ double BCMPrimeXMLHelper::getTransX() const
 double BCMPrimeXMLHelper::getTransY() const
 {
     return getDouble("BCMPrimeGeo", m_moduleIndices, "TransY");
-}
-
-double BCMPrimeXMLHelper::getTransZ() const
-{
-    return getDouble("BCMPrimeGeo", m_moduleIndices, "TransZ");
 }
 
 double BCMPrimeXMLHelper::getRotX() const
@@ -112,7 +119,27 @@ double BCMPrimeXMLHelper::getDiamSeparZ() const
     return getDouble("BCMPrimeGeo", m_moduleIndices, "DiamSeparZ");
 }
 
+double BCMPrimeXMLHelper::getRingRot() const
+{
+    return getDouble("BCMPrimeGeo", m_moduleIndices, "RingRot");
+}
+
 double BCMPrimeXMLHelper::getRingOffset() const
 {
     return getDouble("BCMPrimeGeo", m_moduleIndices, "RingOffset");
+}
+
+double BCMPrimeXMLHelper::getCuThickness() const
+{
+    return getDouble("BCMPrimeGeo", m_moduleIndices, "CuThickness");
+}
+
+double BCMPrimeXMLHelper::getG10Thickness() const
+{
+    return getDouble("BCMPrimeGeo", m_moduleIndices, "G10Thickness");
+}
+
+double BCMPrimeXMLHelper::getDiamThickness() const
+{
+    return getDouble("BCMPrimeGeo", m_moduleIndices, "DiamThickness");
 }

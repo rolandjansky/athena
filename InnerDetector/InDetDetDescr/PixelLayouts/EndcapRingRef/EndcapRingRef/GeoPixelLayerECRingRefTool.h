@@ -22,6 +22,7 @@ namespace InDet{
 
 class GeoPixelServices;
 class PixelGeoBuilderBasics;
+class IGeoBCMPrimeTool;
 class IPixelServicesTool;
 
 class GeoPixelLayerECRingRefTool : virtual public IGeoPixelEndcapLayerTool, public AthAlgTool {
@@ -71,6 +72,7 @@ class GeoPixelLayerECRingRefTool : virtual public IGeoPixelEndcapLayerTool, publ
   double m_rmin;
   double m_rmax;
 
+  ToolHandle<IGeoBCMPrimeTool> m_bcmTool;
   ToolHandle<IPixelServicesTool> m_IDserviceTool;
   ServiceHandle<InDet::XMLReaderSvc> m_xmlReader;
 };
