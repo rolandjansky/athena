@@ -52,6 +52,8 @@ private:
     ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;
     // // ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
 
+    std::string m_geometryConfig; // FULL, SIMU, RECO
+
 };
 
 #endif // HGTD_GEOMODEL_HGTD_DETECTORTOOL_H

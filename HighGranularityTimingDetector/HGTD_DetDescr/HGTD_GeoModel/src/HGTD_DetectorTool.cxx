@@ -38,8 +38,9 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
     // // m_commonItems(0),
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
-    m_geometryDBSvc("InDetGeometryDBSvc", name)
+    m_geometryDBSvc("InDetGeometryDBSvc", name),
     // // m_lorentzAngleSvc("SCTLorentzAngleSvc", name)
+    m_geometryConfig("FULL")
 {
 //
 // Get parameter values from jobOptions file
@@ -51,6 +52,7 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
     declareProperty("GeometryDBSvc", m_geometryDBSvc);
     // // declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
+    declareProperty("GeometryConfig", m_geometryConfig);
 }
 
 HGTD_DetectorTool::~HGTD_DetectorTool() {
@@ -104,7 +106,7 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc *detStore) {
     GeoPhysVol *world = &*theExpt->getPhysVol();
     // // InDetDDSLHC::SCT_DetectorFactory theSCT(m_athenaComps, m_commonItems, options);
     // // theSCT.create(world);
-    HGTDGeo::HGTD_DetectorFactory theHGTD(m_athenaComps);
+    HGTDGeo::HGTD_DetectorFactory theHGTD(m_athenaComps, m_geometryConfig=="FULL");
     theHGTD.create(world);
 //
 // Get the manager from the factory and store it in the detector store.

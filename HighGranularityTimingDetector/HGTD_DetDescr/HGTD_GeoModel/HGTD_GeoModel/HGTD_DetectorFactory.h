@@ -8,7 +8,9 @@
 //    Main routine to build the GeoModel geometry, and handle the GeometryManager and
 //    DetectorManager.
 //
+#include "StoreGate/DataHandle.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 namespace InDetDD {
@@ -61,7 +63,7 @@ struct GeoBoxVolParams {
 
 class HGTD_DetectorFactory : public InDetDD::DetectorFactoryBase {
 public:
-    HGTD_DetectorFactory(InDetDD::AthenaComps *athenaComps);
+    HGTD_DetectorFactory(InDetDD::AthenaComps *athenaComps, bool fullGeo);
     virtual ~HGTD_DetectorFactory();
     // Creation of geometry:
     virtual void create(GeoPhysVol *world);
@@ -84,10 +86,13 @@ private:
     HGTD_DetectorManager* m_detectorManager;
     InDetDD::AthenaComps* m_athenaComps;
 
+    bool m_fullGeo;  // true->FULL, false->RECO
+
     std::map<std::string,GeoCylVolParams> m_cylVolPars;
     std::map<std::string,GeoBoxVolParams> m_boxVolPars;
     HgtdGeoParams m_hgtdPars;
 
+    void buildHgtdGeoTDR(const DataHandle<StoredMaterialManager>& matmanager, GeoFullPhysVol* parent, bool bPos);
     std::vector<ModulePosition> calculateHgtdModulePositionsInQuadrant(int layer);
     std::vector<ModulePosition> calculateHgtdModulePositionsInRow(int row, bool back = false);
 
