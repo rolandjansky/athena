@@ -1601,13 +1601,13 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
                     if settings[stripped_setting.lower()] is None:
                         line=''
                         mglog.info('Removing '+stripped_setting+'.')
-                        used_settings += [ stripped_setting ]
+                        used_settings += [ stripped_setting.lower() ]
                     else:
                         line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting.lower()]))+'='+setting
                         if comment != '':
                             line += '  !' + comment
                         mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting.lower()])+'.')
-                        used_settings += [ stripped_setting ]
+                        used_settings += [ stripped_setting.lower() ]
         newCard.write(line.strip()+'\n')
 
     # Clean up unused options
