@@ -40,6 +40,10 @@ namespace TrigConf {
       /** number of HLT prescales */
       std::size_t size() const;
 
+      /** setter and getter for the HLT prescale key */
+      unsigned int psk() const;
+      void setPSK(unsigned int psk );
+
       /** HLT prescales by chain names */
       const HLTPrescale & prescale(const std::string & chainName) const;
 
@@ -52,6 +56,9 @@ namespace TrigConf {
 
       /** Update the internal prescale map after modification of the data object */
       virtual void update();
+
+      /** the prescale key */
+      unsigned int m_psk {0};
 
       // maps HLT chain names to prescales 
       std::unordered_map<std::string, HLTPrescale> m_prescales {1024};

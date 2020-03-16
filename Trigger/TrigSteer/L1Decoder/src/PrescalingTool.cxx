@@ -56,6 +56,9 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
       return StatusCode::FAILURE;
    }
 
+   // access to psk
+   ATH_MSG_DEBUG("Using HLT PSK " << hltPrescaleSet->psk());
+
    // prepare the result
    remainActive.reserve( initiallyActive.size() );
 
