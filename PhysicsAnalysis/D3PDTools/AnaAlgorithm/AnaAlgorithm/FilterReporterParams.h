@@ -6,8 +6,8 @@
 
 
 
-#ifndef ANA_ALGORITHM__ANA_FILTER_HANDLE_H
-#define ANA_ALGORITHM__ANA_FILTER_HANDLE_H
+#ifndef ANA_ALGORITHM__FILTER_REPORTER_PARAMS_H
+#define ANA_ALGORITHM__FILTER_REPORTER_PARAMS_H
 
 #include <AnaAlgorithm/Global.h>
 
@@ -48,7 +48,7 @@ namespace EL
   /// AthenaMT, we will add a second set of member functions that is
   /// marked `const` and will take an event context as an argument.
 
-  class AnaFilterHandle final : public asg::AsgMessagingForward
+  class FilterReporterParams final : public asg::AsgMessagingForward
   {
     //
     // public interface
@@ -61,7 +61,7 @@ namespace EL
     ///   out of memory I
   public:
     template<typename T>
-    explicit AnaFilterHandle (T *owner);
+    explicit FilterReporterParams (T *owner);
 
 
     /// \brief do anything we need to do in initialize
@@ -80,7 +80,7 @@ namespace EL
 
     // this class does most of the actual work, and needs our
     // internals for that.
-    friend class AnaFilterHandleGuard;
+    friend class FilterReporter;
 
     /// \brief the function to call setFilterPassed() on the algorithm
     ///
@@ -100,8 +100,8 @@ namespace EL
   // inline/template methods
   //
 
-  template<typename T> AnaFilterHandle ::
-  AnaFilterHandle (T *owner)
+  template<typename T> FilterReporterParams ::
+  FilterReporterParams (T *owner)
     : AsgMessagingForward (owner)
     , m_setFilterPassed ([owner] (bool val_setFilterPassed) {owner->setFilterPassed (val_setFilterPassed);})
   {}

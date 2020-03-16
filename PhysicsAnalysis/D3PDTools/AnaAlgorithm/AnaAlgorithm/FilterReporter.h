@@ -6,8 +6,8 @@
 
 
 
-#ifndef ANA_ALGORITHM__ANA_FILTER_HANDLE_GUARD_H
-#define ANA_ALGORITHM__ANA_FILTER_HANDLE_GUARD_H
+#ifndef ANA_ALGORITHM__FILTER_REPORTER_H
+#define ANA_ALGORITHM__FILTER_REPORTER_H
 
 #include <AnaAlgorithm/Global.h>
 
@@ -17,7 +17,10 @@ class EventContext;
 
 namespace EL
 {
-  /// \brief a guard class for use with ref AnaFilterHandle
+  class FilterReporterParams;
+
+
+  /// \brief a guard class for use with ref FilterReporterParams
   ///
   /// In order to ensure that the filter decision will always be set
   /// as part of `execute()`, this guard class should be used like
@@ -28,14 +31,14 @@ namespace EL
   /// {
   ///   ...
   ///   static constexpr bool DEFAULT_DECISION = false;
-  ///   EL::AnaFilterHandleGuard filterGuard (m_filterHandle, DEFAULT_DECISION);
+  ///   EL::FilterReporter filterGuard (m_filterHandle, DEFAULT_DECISION);
   ///   ...
   ///   filterGuard.setPassed ();
   ///   return StatusCode::SUCCESS;
   /// }
   /// ```
 
-  class AnaFilterHandleGuard final : public asg::AsgMessagingForward
+  class FilterReporter final : public asg::AsgMessagingForward
   {
     //
     // public interface
@@ -47,8 +50,8 @@ namespace EL
     /// \par Failures
     ///   out of memory I
   public:
-    AnaFilterHandleGuard (AnaFilterHandle& val_handle,
-                          bool val_passedDefault);
+    FilterReporter (FilterReporterParams& val_handle,
+                    bool val_passedDefault);
 
     /// \brief standard re-entrant constructor
     /// \par Guarantee
@@ -56,16 +59,16 @@ namespace EL
     /// \par Failures
     ///   out of memory I
   public:
-    AnaFilterHandleGuard (const AnaFilterHandle& val_handle,
-                          const EventContext& val_eventContext,
-                          bool val_passedDefault);
+    FilterReporter (const FilterReporterParams& val_handle,
+                    const EventContext& val_eventContext,
+                    bool val_passedDefault);
 
 
     /// \brief standard destructor
     /// \par Guarantee
     ///   no-fail
   public:
-    ~AnaFilterHandleGuard () noexcept;
+    ~FilterReporter () noexcept;
 
 
     /// \brief report the filter decision
@@ -80,9 +83,9 @@ namespace EL
     // private interface
     //
 
-    /// \brief the \ref AnaFilterHandle object
+    /// \brief the \ref FilterReporterParams object
   private:
-    const AnaFilterHandle& m_handle;
+    const FilterReporterParams& m_handle;
 
     /// \brief the value of passed we will set
   private:
