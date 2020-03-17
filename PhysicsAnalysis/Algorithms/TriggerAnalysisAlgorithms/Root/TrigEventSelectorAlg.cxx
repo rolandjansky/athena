@@ -4,6 +4,7 @@
 
 /// @author Tadej Novak
 
+#include <AnaAlgorithm/FilterReporter.h>
 #include <RootCoreUtils/StringUtil.h>
 #include <TriggerAnalysisAlgorithms/TrigEventSelectionAlg.h>
 #include <xAODEventInfo/EventInfo.h>
@@ -38,14 +39,12 @@ StatusCode CP::TrigEventSelectionAlg::initialize()
 
 StatusCode CP::TrigEventSelectionAlg::execute()
 {
-  m_total++;
+  EL::FilterReporter filter (m_filterParams, false);
 
   if (m_trigList.empty()) {
-    setFilterPassed(true);
+    filter.setPassed(true);
     return StatusCode::SUCCESS;
   }
-
-  setFilterPassed(false);
 
   const xAOD::EventInfo *evtInfo = 0;
   ANA_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
@@ -61,7 +60,7 @@ StatusCode CP::TrigEventSelectionAlg::execute()
 
   if (passed) {
     m_passed++;
-    setFilterPassed(true);
+    filter.setPassed(true);
   }
 
   return StatusCode::SUCCESS;
