@@ -66,10 +66,23 @@ def GetDecoratePromptTauAlgs():
     return algs
 
 #------------------------------------------------------------------------------
-def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False):
+def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False, onlyBDT=True):
 
     prompt_lep_vars = []
 
+    #
+    # Decorate lepton only with the BDT outputs when the onlyBDT flag is true.
+    #
+    if onlyBDT:
+        if name == "" or name == "Electrons":
+            prompt_lep_vars += ["Electrons.PromptLeptonVeto.PromptLeptonIso."]
+
+        if name == "" or name == "Muons":
+            prompt_lep_vars += ["Muons.PromptLeptonVeto.PromptLeptonIso."]
+
+        return prompt_lep_vars
+ 
+ 
     prompt_vars  = "PromptLeptonVeto.PromptLeptonIso."
     prompt_vars += "PromptLeptonInput_TrackJetNTrack.PromptLeptonInput_sv1_jf_ntrkv."
     prompt_vars += "PromptLeptonInput_ip2.PromptLeptonInput_ip3."
@@ -104,9 +117,22 @@ def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False):
 
 
 #------------------------------------------------------------------------------
-def GetExtraImprovedPromptVariablesForDxAOD(name=''):
+def GetExtraImprovedPromptVariablesForDxAOD(name='', onlyBDT=False):
 
     prompt_lep_vars = []
+
+    #
+    # Decorate lepton only with the BDT outputs when the onlyBDT flag is true.
+    #
+    if onlyBDT:
+        if name == "" or name == "Electrons":
+            prompt_lep_vars += ["Electrons.PromptLeptonImprovedVetoBARR.PromptLeptonImprovedVetoECAP."]
+
+        if name == "" or name == "Muons":
+            prompt_lep_vars += ["Muons.PromptLeptonImprovedVeto."]
+
+        return prompt_lep_vars
+ 
 
     prompt_vars  = "PromptLeptonImprovedInput_MVAXBin."
     prompt_vars += "PromptLeptonImprovedInput_PtFrac.PromptLeptonImprovedInput_DRlj."
