@@ -33,21 +33,16 @@ class TrigL2ResidualCalculator: public AthAlgTool, virtual public ITrigL2Residua
  public:
 
   TrigL2ResidualCalculator( const std::string&, const std::string&, const IInterface* );
-  virtual ~TrigL2ResidualCalculator(){};
   virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
 
-  StatusCode getResiduals(const TrigInDetTrack*, std::vector<TrigL2HitResidual>&);
-  StatusCode getUnbiassedResiduals(const TrigInDetTrack*, std::vector<TrigL2HitResidual>&);
-  StatusCode getUnbiassedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&);
+  StatusCode getUnbiasedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&) const;
 
 private:
 
   Trk::TrkTrackState* extrapolate(Trk::TrkTrackState*, 
                                   Trk::TrkPlanarSurface*,
-                                  Trk::TrkPlanarSurface*);
-  void matrixInversion5x5(double a[5][5]);
-  void getMagneticField(double[3],double*);
+                                  Trk::TrkPlanarSurface*) const;
+  void getMagneticField(double[3],double*) const;
 
   double m_DChi2;
   bool m_doMultScatt;

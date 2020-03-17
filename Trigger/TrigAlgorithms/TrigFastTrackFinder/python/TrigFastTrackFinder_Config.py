@@ -169,10 +169,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         remapped_type = remap[type]
         assert(remapped_type is not None)
 
-        self.retrieveBarCodes = False#Look at truth information for spacepoints from barcodes
-        #self.SignalBarCodes = [10001] #single particles
-        self.SignalBarCodes = [11 ,12] #z->mumu
-        
         self.useNewLayerNumberScheme = True
         
         self.OutputCollectionSuffix = type
