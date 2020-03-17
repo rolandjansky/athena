@@ -14,7 +14,10 @@
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
+#include "GeoModelKernel/GeoTorus.h"
 #include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
@@ -41,6 +44,9 @@
 
 // // #include "PathResolver/PathResolver.h"
 
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+
 using namespace std;
 
 namespace HGTDGeo {
@@ -49,7 +55,8 @@ HGTD_DetectorFactory::HGTD_DetectorFactory(InDetDD::AthenaComps* athenaComps, bo
     InDetDD::DetectorFactoryBase(athenaComps),
     m_detectorManager(),
     m_athenaComps(athenaComps),
-    m_fullGeo(fullGeo)
+    m_fullGeo(fullGeo),
+    m_HGTD_isbaseline(true)
 {
 //
 //    Create the detector manager
@@ -514,7 +521,375 @@ GeoFullPhysVol* HGTD_DetectorFactory::createEnvelope(bool bPos) {
 void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManager>& matmanager,
                                            GeoFullPhysVol* HGTDparent, bool isPos) {
 
+    msg(MSG::INFO) << "**************************************************" << endmsg;
+    msg(MSG::INFO) << "                 Building HGTD                    " << endmsg;
+    msg(MSG::INFO) << "**************************************************" << endmsg;
 
+    // to be calculated from parameters in db using map
+    double motherHalfZ = ((GeoTube*) HGTDparent->getLogVol()->getShape())->getZHalfLength();
+    double modulePackageHalfZtot = 3.5/2+4./2; // including flex - can we not get this from the db numbers? /CO
+
+    double modulePackageHalfZ = 2*m_boxVolPars["HGTD::GlueSensor"].zHalf + m_boxVolPars["HGTDSiSensor0"].zHalf
+                                + m_boxVolPars["HGTD::LGADInactive"].zHalf + m_boxVolPars["HGTD::ASIC"].zHalf
+                                + m_boxVolPars["HGTD::Hybrid"].zHalf + m_boxVolPars["HGTD::ModuleSpace"].zHalf;
+
+    // add volumes by key name to ordered vector, outside in (from larger z to smaller)
+    std::vector<std::string> hgtdVolumes;
+    hgtdVolumes.push_back("HGTD::ModeratorOut"); // Out as in outside the vessel
+    hgtdVolumes.push_back("HGTD::BackCover");
+    hgtdVolumes.push_back("HGTD::ToleranceBack");
+    hgtdVolumes.push_back("HGTD::ModeratorIn"); // In as in inside the vessel
+    hgtdVolumes.push_back("HGTD::ModuleLayer3");
+    hgtdVolumes.push_back("HGTD::SupportPlate");
+    hgtdVolumes.push_back("HGTD::CoolingPlate");
+    hgtdVolumes.push_back("HGTD::SupportPlate");
+    hgtdVolumes.push_back("HGTD::ModuleLayer2");
+    hgtdVolumes.push_back("HGTD::ToleranceMid");
+    hgtdVolumes.push_back("HGTD::ModuleLayer1");
+    hgtdVolumes.push_back("HGTD::SupportPlate");
+    hgtdVolumes.push_back("HGTD::CoolingPlate");
+    hgtdVolumes.push_back("HGTD::SupportPlate");
+    hgtdVolumes.push_back("HGTD::ModuleLayer0");
+    hgtdVolumes.push_back("HGTD::ToleranceFront");
+    hgtdVolumes.push_back("HGTD::FrontCover");
+    // Important - these must come last since they will otherwise shift positions of the previous volumes!
+    hgtdVolumes.push_back("HGTD::InnerRCover"); // don't reorder!
+    hgtdVolumes.push_back("HGTD::OuterRCover"); // don't reorder!
+
+    // Now build up the solid, logical and physical volumes as appropriate (starting from the outermost volume)
+    // We first start with the volumes we'll reuse several times
+
+    //////////////////////////
+    // FLEX PACKAGE VOLUMES //
+    //////////////////////////
+
+    // Flex package volume modeled as 8 concentric flex sheets with progressively larger inner radius
+    // Order of sheets depend on whether package is for front or back of a cooling plate
+    // First calculate the inner radii for the flex sheets
+    GeoCylVolParams packagePars = m_cylVolPars["HGTD::FlexPackage"];
+    GeoCylVolParams flexPars = m_cylVolPars["HGTD::FlexTube"];
+    std::vector<double> flexSheetInnerR;
+    double currentInnerR = 144.; // adding flex sheets from the second sensor (all have the hybrid already)
+    for (int flexSheet = 0; flexSheet < 8; flexSheet++) {
+        flexSheetInnerR.push_back(currentInnerR);
+        // set the inner radius for the next flex sheet, increased by two module heights and two radius-dependent spaces per sheet
+        currentInnerR += m_boxVolPars["HGTDModule0"].xHalf*2 * (2 + 2 * (flexSheet < 4 ? 0.2 : 0.8) );
+    }
+
+    // build up the two flex volumes for front (0) and back (1) sides
+    GeoPhysVol* flexPackagePhysical[2] = {};
+    for (int flexVolume = 0; flexVolume < 2; flexVolume++) {
+
+        std::vector<double> rInner = flexSheetInnerR;
+        if (flexVolume) reverse(rInner.begin(), rInner.end()); // reverse order for backside flex package
+
+        GeoTube*    flexPackageSolid = new GeoTube(packagePars.rMin, packagePars.rMax, packagePars.zHalf);
+        GeoLogVol*  flexPackageLogical = new GeoLogVol(packagePars.name, flexPackageSolid, matmanager->getMaterial(packagePars.material));
+        flexPackagePhysical[flexVolume] = new GeoPhysVol(flexPackageLogical);
+        // build up a volume of flex cables, starting in z at half a flex layer from the edge of the flex package volume
+        double flexZoffset = packagePars.zHalf - flexPars.zHalf;
+        for (int flexSheet = 0; flexSheet < 8; flexSheet++) {
+            GeoTube*    hgtdFlexSolid    = new GeoTube(rInner[flexSheet], flexPars.rMax, flexPars.zHalf);
+            GeoLogVol*  hgtdFlexLogical  = new GeoLogVol("HGTD::FlexTube"+std::to_string(flexSheet),
+                                                         hgtdFlexSolid, matmanager->getMaterial(flexPars.material));
+            GeoPhysVol* hgtdFlexPhysical = new GeoPhysVol(hgtdFlexLogical);
+            flexPackagePhysical[flexVolume]->add(new GeoTransform(HepGeom::TranslateZ3D(flexZoffset)));
+            flexPackagePhysical[flexVolume]->add(hgtdFlexPhysical);
+            // print out a line for each flex layer
+            msg(MSG::INFO) << "Flex layer (" << (flexSheet ? "front" : "back") << ")" << flexSheet << ", Rmin = " << std::setw(5) << rInner[flexSheet]
+                           << " mm, flexZoffset = " << flexZoffset << " mm" << endmsg;
+            flexZoffset = flexZoffset - m_hgtdPars.flexSheetSpacing;
+        }
+
+    }
+
+    ///////////////////
+    // COOLING TUBES //
+    ///////////////////
+
+    // make list of radii of cooling tubes
+    std::vector<double> coolingTubeRadii;
+    double coolingTubeRadius = 130.;
+    coolingTubeRadii.push_back(coolingTubeRadius);
+    for (int i = 0; i < 18; i++) {
+        coolingTubeRadius += (418-130.)/18;
+        coolingTubeRadii.push_back(coolingTubeRadius);
+    }
+    for (int i = 0; i < 12; i++) {
+        coolingTubeRadius += (658-418.)/14;
+        coolingTubeRadii.push_back(coolingTubeRadius);
+    }
+    coolingTubeRadius = 710.;
+    coolingTubeRadii.push_back(coolingTubeRadius);
+    for (int i = 0; i < 7; i++) {
+        coolingTubeRadius += (890-710.)/6;
+        coolingTubeRadii.push_back(coolingTubeRadius);
+    }
+    std::string tmp = "Cooling tubes will be created at the following radii (in mm):";
+    for (size_t i = 0; i << coolingTubeRadii.size(); i++) {
+        tmp += (std::string(" ") + std::to_string(coolingTubeRadii[i]));
+    }
+    msg(MSG::INFO) << tmp << endmsg;
+
+    ///////////////////////////////////
+    // PERIPHERAL ELECTRONICS VOLUME //
+    ///////////////////////////////////
+
+    //build peripheral electronics
+    GeoCylVolParams periphElPars = m_cylVolPars["HGTD::PeriphElec"];
+    GeoTube*    periphElec_solid  = new GeoTube(periphElPars.rMin, periphElPars.rMax, periphElPars.zHalf);
+    GeoLogVol*  periphElec_log    = new GeoLogVol(periphElPars.name, periphElec_solid, matmanager->getMaterial(periphElPars.material));
+    GeoPhysVol* periphElec_phys   = new GeoPhysVol(periphElec_log);
+
+    GeoPhysVol* moduleLayerPhysical[4] = {}; // array of pointers to the physical volumes for the module layers which need special care
+
+    ///////////////////////////////////////////
+    // BUILD UP ALL MAIN VOLUMES IN SEQUENCE //
+    ///////////////////////////////////////////
+
+    // now build up the volumes in the order specified in the vector
+    double zModuleLayerF = 0.;
+    double zModuleLayerB = 0.;
+    for (size_t vol = 0; vol < hgtdVolumes.size(); vol++) {
+
+        std::string v = hgtdVolumes[vol];
+        // calculate local z offsets for each main volume sequentially
+        if (vol == 0) // special treatment for the first one
+            m_cylVolPars[v].zOffsetLocal = motherHalfZ - m_cylVolPars[v].zHalf;
+        // All but the InnerRCover and OuterRCover are placed relative to other components,
+        // but the zOffsetLocal parameter of these two volumes is left as read from the db
+        else if (v.substr(9,16) != "erRCover") {
+            std::string vPrev = hgtdVolumes[vol-1];
+            m_cylVolPars[v].zOffsetLocal = m_cylVolPars[vPrev].zOffsetLocal - m_cylVolPars[vPrev].zHalf - m_cylVolPars[v].zHalf;
+        }
+        GeoTube*    hgtdSubVolumeSolid    = new GeoTube(m_cylVolPars[v].rMin, m_cylVolPars[v].rMax, m_cylVolPars[v].zHalf);
+        GeoLogVol*  hgtdSubVolumeLogical  = new GeoLogVol(m_cylVolPars[v].name, hgtdSubVolumeSolid,
+                                                          matmanager->getMaterial(m_cylVolPars[v].material));
+        GeoPhysVol* hgtdSubVolumePhysical = new GeoPhysVol(hgtdSubVolumeLogical);
+
+        // if building the cooling plate, also add peripheral electronics since position of those are relative to that of cooling plate
+        if (v == "HGTD::CoolingPlate") {
+            double zOffsetPeriphElec = m_cylVolPars[v].zHalf + periphElPars.zOffsetLocal + periphElPars.zHalf;
+            for (int side = 0; side < 2; side++) { // place two, one on each side of cooling plate
+                HGTDparent->add(new GeoTransform(HepGeom::TranslateZ3D(m_cylVolPars[v].zOffsetLocal + pow(-1, side)*zOffsetPeriphElec)));
+                HGTDparent->add(periphElec_phys);
+            }
+
+            // and the CO2 cooling tubes inside the cooling plate
+            for (size_t i = 0; i < coolingTubeRadii.size(); i++) {
+                // msg(MSG::INFO) << "  Will now place cooling tube with R = " << coolingTubeRadii[i] << " mm" << endmsg;
+                // the tube itself
+                GeoTorus* coolingTubeSolid = new GeoTorus(m_cylVolPars["HGTD::CoolingTubeFluid"].zHalf, m_cylVolPars["HGTD::CoolingTube"].zHalf,
+                                                          coolingTubeRadii[i], 0, 2*M_PI);
+                GeoLogVol* coolingTubeLogical = new GeoLogVol("HGTD::CoolingTube", coolingTubeSolid,
+                                                              matmanager->getMaterial(m_cylVolPars["HGTD::CoolingTube"].material));
+                GeoPhysVol* coolingTubePhysical = new GeoPhysVol(coolingTubeLogical);
+                hgtdSubVolumePhysical->add(coolingTubePhysical); // no transformations needed, concentric with cooling plate and centered in z
+                // and the contents, i.e. the cooling fluid
+                GeoTorus* coolingFluidSolid = new GeoTorus(0, m_cylVolPars["HGTD::CoolingTubeFluid"].zHalf,
+                                                           coolingTubeRadii[i], 0, 2*M_PI);
+                GeoLogVol* coolingFluidLogical = new GeoLogVol("HGTD::CoolingFluid", coolingFluidSolid,
+                                                               matmanager->getMaterial(m_cylVolPars["HGTD::CoolingTubeFluid"].material));
+                GeoPhysVol* coolingFluidPhysical = new GeoPhysVol(coolingFluidLogical);
+                hgtdSubVolumePhysical->add(coolingFluidPhysical); // no transformations needed, concentric with cooling plate and centered in z
+            }
+        }
+
+        // module layer
+        if (v.substr(0,17) == "HGTD::ModuleLayer") {
+
+            int layer = atoi(v.substr(17,1).c_str());
+
+            // front and back side layers are treated differently: z position of flex and module layers, and rotation
+            double zFlex = 0.;
+            bool Lside = layer % 2;
+            if (Lside == 0) { // layers 0 and 2
+                zFlex = -modulePackageHalfZtot + m_cylVolPars["HGTD::FlexPackage"].zHalf;
+                zModuleLayerF = modulePackageHalfZtot - modulePackageHalfZ;
+            }
+            else { // layers 1 and 3
+                zFlex = modulePackageHalfZtot - m_cylVolPars["HGTD::FlexPackage"].zHalf;
+                zModuleLayerB = -modulePackageHalfZtot + modulePackageHalfZ;
+            }
+
+            // place flex within module packages, at different positions depending on front or back or cooling plate
+            hgtdSubVolumePhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zFlex)));
+            hgtdSubVolumePhysical->add(flexPackagePhysical[(Lside ? 0 : 1)]);
+
+            // place module layer volumes
+            int rotationSign = (layer <= 1 ? 1 : -1);
+            HGTDparent->add(new GeoTransform(HepGeom::TranslateZ3D(m_cylVolPars[v].zOffsetLocal)*HepGeom::RotateZ3D(rotationSign*m_hgtdPars.diskRotation*CLHEP::deg)));
+            HGTDparent->add(hgtdSubVolumePhysical);
+            moduleLayerPhysical[layer] = hgtdSubVolumePhysical;
+
+        } // end of module package
+
+        else {
+            HGTDparent->add(new GeoTransform(HepGeom::TranslateZ3D(m_cylVolPars[v].zOffsetLocal)));
+            HGTDparent->add(hgtdSubVolumePhysical);
+        }
+
+        // print out info about each main volume in the module layer
+        msg(MSG::INFO) << std::setw(20) << m_cylVolPars[v].name << " ( " << std::setw(20) << m_cylVolPars[v].material
+                       << " ), local z = " << std::setw(6) << m_cylVolPars[v].zOffsetLocal << " mm" << ", Rmin = " <<  std::setw(4) << m_cylVolPars[v].rMin
+                       << " mm, Rmax = " << std::setw(4) << m_cylVolPars[v].rMax << " mm, DZ = " << std::setw(5) << m_cylVolPars[v].zHalf << " mm" << endmsg;
+
+    } // end loop over hgtdVolumes
+
+    ////////////////////
+    // MODULE VOLUMES //
+    ////////////////////
+
+    // create the module --> each for cell and with different names
+    // calculate the positions where modules should be placed in one quadrant
+    std::vector<std::vector<HGTDGeo::ModulePosition> > positions;
+    positions.push_back(calculateHgtdModulePositionsInQuadrant(0)); // front-side module positions
+    positions.push_back(calculateHgtdModulePositionsInQuadrant(1)); // back-side module positions
+
+    // components for the module
+    std::vector<std::string> moduleVolumes;
+    moduleVolumes.push_back("HGTD::GlueAsic");
+    moduleVolumes.push_back("HGTD::ASIC");
+    moduleVolumes.push_back("HGTD::LGADInactive");
+    moduleVolumes.push_back("SensorPlaceHolder"); // replaced below to get the numbered name right
+    moduleVolumes.push_back("HGTD::GlueSensor");
+    moduleVolumes.push_back("HGTD::Hybrid");
+    if (m_boxVolPars["HGTD::ModuleSpace"].zHalf) moduleVolumes.push_back("HGTD::ModuleSpace");
+
+    int endcap_side   = isPos ? +2 : -2;
+    int layer_offset  = 5;
+
+    InDetDD::PixelModuleDesign* design = createPixelDesign(2.*m_boxVolPars["HGTDSiSensor0"].zHalf, m_HGTD_isbaseline); // assumes thickness same for 0-3
+    //   InDetDD::PixelModuleDesign * design_flipped = createPixelDesign(2.*m_boxVolPars["SensorPlaceHolder"].zHalf, m_HGTD_isbaseline, true);
+
+    // loop over layers
+    for (int layer = 0; layer < 4; layer++) {
+        // select if you need the front or the back positions
+        int front_back = layer % 2;
+        bool isFront   = (front_back == 0) ? true : false;
+
+        std::vector<std::string> volumes = moduleVolumes;
+        if (not isFront) reverse(volumes.begin(), volumes.end()); // reverse order of components for backside modules
+
+        std::string sensorName = std::string("HGTDSiSensor")+std::to_string(layer);
+        std::string moduleName = std::string("HGTDModule")+std::to_string(layer);
+
+        double moduleHalfWidth  = m_boxVolPars[moduleName].yHalf;
+        double moduleHalfHeight = m_boxVolPars[moduleName].xHalf;
+
+        // select if you need the front or the back positions
+        unsigned int nModules = positions[front_back].size();
+        int   max_rows        = 18;
+
+        // loop over quadrants in the current layer
+        for (int q = 0; q < 4; q++) {
+            // loop over modules in this quadrant
+            for (unsigned int element = 0; element < nModules; element++) {
+                double x   = positions[front_back].at(element).x;
+                double y   = positions[front_back].at(element).y;
+                double rot = positions[front_back].at(element).flipped ? 90. : 0.;
+                double row = positions[front_back].at(element).row;
+
+                double myphi  = atan(y/x);
+                double radius = sqrt(x*x+y*y);
+
+                // module position
+                double myx = radius*cos(q*M_PI*0.5+myphi);
+                double myy = radius*sin(q*M_PI*0.5+myphi);
+
+                // mirror everything if layer 2 or 3
+                double moduleRotation = 0;
+                if (layer > 1) {
+                    myx = -myx;
+                    // need to rotate 180 degrees some modules in q0 and q2
+                    if (q%2 == 0 && row <= 15) moduleRotation = 180;
+                    else if (q%2 == 1 && row > 15) moduleRotation = 180;
+                }
+
+                // these aren't really eta and phi coordinates, misusing names due to borrowing pixel framework
+                int eta = (q*max_rows) + positions[front_back].at(element).row;
+                int phi = positions[front_back].at(element).el_in_row;
+
+                std::string module_string = "_layer_"+std::to_string(layer_offset+layer)+"_"+std::to_string(phi)+"_"+std::to_string(eta);
+
+                double myModuleHalfHeight = moduleHalfHeight;
+                double myModuleHalfWidth  = moduleHalfWidth;
+
+                GeoBox      *moduleSolid    = new GeoBox(myModuleHalfHeight, myModuleHalfWidth, modulePackageHalfZ);
+                GeoLogVol   *moduleLogical  = new GeoLogVol(moduleName+module_string, moduleSolid, matmanager->getMaterial("std::Air"));
+                GeoFullPhysVol* modulePhysical = new GeoFullPhysVol(moduleLogical);
+
+                // print out one module per layer
+                if (element == 0 && q == 0)
+                    msg(MSG::INFO) << "Will now build up an individual HGTD module of layer " << layer << " and quarter " << q << endmsg;
+
+                // loop over components in module
+                for (size_t comp = 0; comp < volumes.size(); comp++) {
+                    if (volumes[comp] == "SensorPlaceHolder") volumes[comp] = sensorName; // replace placeholder
+                    std::string c = volumes[comp];
+                    // calculate local z offsets for each sensor component sequentially, and x offsets for those components that are smaller
+                    if (comp == 0) // special treatment for the first one
+                        m_boxVolPars[c].zOffsetLocal = modulePackageHalfZ - m_boxVolPars[c].zHalf;
+                    else {
+                        std::string cPrev = volumes[comp-1];
+                        m_boxVolPars[c].zOffsetLocal = m_boxVolPars[cPrev].zOffsetLocal - m_boxVolPars[cPrev].zHalf - m_boxVolPars[c].zHalf;
+                    }
+
+                    double comp_halfx = m_boxVolPars[c].xHalf;
+                    double comp_halfy = m_boxVolPars[c].yHalf;
+
+                    double xOffsetLocal = myModuleHalfHeight - comp_halfx; // to make room for wire bond of flex to ASIC which is larger than the sensor
+
+                    GeoBox*     sensorCompSolidVol    = new GeoBox(comp_halfx, comp_halfy, m_boxVolPars[c].zHalf);
+                    std::string attach = (volumes[comp] == sensorName) ? "" : module_string;
+
+                    GeoLogVol*  sensorCompLogicalVol  = new GeoLogVol(m_boxVolPars[c].name+attach, sensorCompSolidVol, matmanager->getMaterial(m_boxVolPars[c].material));
+                    GeoFullPhysVol* sensorCompPhysicalVol = new GeoFullPhysVol(sensorCompLogicalVol);
+
+                    // each SiSensor then has a detector element
+                    if (volumes[comp] == sensorName) {
+                        Identifier idwafer = m_pixelBasics->getIdHelper()->wafer_id(endcap_side, layer_offset+layer, phi, eta);
+                        InDetDD::SiDetectorElement* detElement = new InDetDD::SiDetectorElement( idwafer, design, sensorCompPhysicalVol, m_pixelBasics->getCommonItems());
+                        m_pixelBasics->getDetectorManager()->addDetectorElement(detElement);
+                        HepGeom::Transform3D sensorTransform = HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*
+                                                               HepGeom::TranslateX3D(xOffsetLocal);
+                        GeoAlignableTransform* xform = new GeoAlignableTransform(sensorTransform);
+                        modulePhysical->add(xform);
+                        modulePhysical->add(sensorCompPhysicalVol);
+                        m_pixelBasics->getDetectorManager()->addAlignableTransform(0,idwafer,xform,sensorCompPhysicalVol);
+                    } else {
+                        modulePhysical->add(new GeoTransform(HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*HepGeom::TranslateX3D(xOffsetLocal)));
+                        modulePhysical->add(sensorCompPhysicalVol);
+                    }
+
+                    // print out each module component
+                    if (element == 0 && q == 0)
+                        msg(MSG::INFO) << std::setw(20) << m_boxVolPars[c].name << " ( " << std::setw(15) << m_boxVolPars[c].material
+                                       << " ), in-sensor-layer local z = " << std::setw(7) << m_boxVolPars[c].zOffsetLocal << " mm"
+                                       << ", DX = " << std::setw(5) << m_boxVolPars[c].xHalf << " mm"
+                                       << ", DY = " << std::setw(5) << m_boxVolPars[c].yHalf << " mm"
+                                       << ", DZ = " << std::setw(5) << m_boxVolPars[c].zHalf << " mm" << endmsg;
+                } // end of components loop
+
+                double zModule = isFront ? zModuleLayerF : zModuleLayerB;
+                GeoTransform * moduleTransform = new GeoTransform(HepGeom::TranslateZ3D(zModule)*
+                                                                  HepGeom::TranslateX3D(myx)*
+                                                                  HepGeom::TranslateY3D(myy)*
+                                                                  HepGeom::RotateZ3D((rot+q*90+moduleRotation)*CLHEP::deg));
+                moduleLayerPhysical[layer]->add(moduleTransform);
+                moduleLayerPhysical[layer]->add(modulePhysical);
+
+            } //end of modules loop
+            msg(MSG::INFO) << "Done placing modules for quadrant " << q << endmsg;
+
+        } // end of quadrants loop
+        msg(MSG::INFO) << "Done placing modules for layer " << layer << endmsg;
+
+    } // end of layers loop
+
+    msg(MSG::INFO) << "**************************************************" << endmsg;
+    msg(MSG::INFO) << "               Done building HGTD                 " << endmsg;
+    msg(MSG::INFO) << "**************************************************" << endmsg;
 
 }
 

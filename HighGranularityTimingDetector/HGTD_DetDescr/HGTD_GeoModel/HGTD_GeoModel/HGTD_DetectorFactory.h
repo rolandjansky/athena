@@ -13,6 +13,7 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
+#include "PixelGeoModel/PixelGeoBuilder.h"
 namespace InDetDD {
     class AthenaComps;
     class PixelModuleDesign;
@@ -76,6 +77,9 @@ public:
     // // // Determine which alignment folders are loaded to decide if we register old or new folders
     // // virtual InDetDD::AlignFolderType getAlignFolderType() const;
 
+    void setPixelBasics( const PixelGeoBuilderBasics * pixelbasics) { m_pixelBasics = pixelbasics; }
+    void setHGTDBaseline(bool flag) {m_HGTD_isbaseline = flag;}
+
 private:
     // Copy and assignments operations illegal and so are made private
     HGTD_DetectorFactory(HGTD_DetectorFactory &right);
@@ -87,6 +91,11 @@ private:
     InDetDD::AthenaComps* m_athenaComps;
 
     bool m_fullGeo;  // true->FULL, false->RECO
+
+    const PixelGeoBuilderBasics* m_pixelBasics;
+
+    // this is for the HGTD readout definition
+    bool m_HGTD_isbaseline;
 
     std::map<std::string,GeoCylVolParams> m_cylVolPars;
     std::map<std::string,GeoBoxVolParams> m_boxVolPars;

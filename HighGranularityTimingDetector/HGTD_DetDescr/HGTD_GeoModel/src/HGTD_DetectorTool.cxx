@@ -40,7 +40,9 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
     m_rdbAccessSvc("RDBAccessSvc", name),
     m_geometryDBSvc("InDetGeometryDBSvc", name),
     // // m_lorentzAngleSvc("SCTLorentzAngleSvc", name)
-    m_geometryConfig("FULL")
+    m_geometryConfig("FULL"),
+    m_innerPixelTool(""),
+    m_HGTD_isbaseline(true)
 {
 //
 // Get parameter values from jobOptions file
@@ -53,6 +55,8 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
     declareProperty("GeometryDBSvc", m_geometryDBSvc);
     // // declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
     declareProperty("GeometryConfig", m_geometryConfig);
+    declareProperty("PixelPlanarTool", m_innerPixelTool);
+    declareProperty("HGTD_BaselineReadout", m_HGTD_isbaseline);
 }
 
 HGTD_DetectorTool::~HGTD_DetectorTool() {
@@ -106,12 +110,22 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc *detStore) {
     GeoPhysVol *world = &*theExpt->getPhysVol();
     // // InDetDDSLHC::SCT_DetectorFactory theSCT(m_athenaComps, m_commonItems, options);
     // // theSCT.create(world);
-    HGTDGeo::HGTD_DetectorFactory theHGTD(m_athenaComps, m_geometryConfig=="FULL");
-    theHGTD.create(world);
+    HGTDGeo::HGTD_DetectorFactory theHGTDFactory(m_athenaComps, m_geometryConfig=="FULL");
+    if (!m_innerPixelTool.empty()) {
+        StatusCode sc = m_innerPixelTool.retrieve();
+        if (!sc.isFailure()) {
+            msg(MSG::INFO) << "Inner Pixel Tool retrieved: " << m_innerPixelTool << endreq;
+            theHGTDFactory.setPixelBasics(m_innerPixelTool->getPixelGeoBuilderBasics());
+            theHGTDFactory.setHGTDBaseline(m_HGTD_isbaseline);
+        } else {
+            msg(MSG::INFO) << "Inner Pixel Tool could not retrieve " << m_innerPixelTool << endreq;
+        }
+    } else msg(MSG::INFO) << "Inner Pixel Tool empty???" << endreq;
+    theHGTDFactory.create(world);
 //
 // Get the manager from the factory and store it in the detector store.
 //
-    m_manager = theHGTD.getDetectorManager();
+    m_manager = theHGTDFactory.getDetectorManager();
 
     if (!m_manager) {
         msg(MSG::ERROR) << "HGTD_DetectorManager not found; not created in HGTD_DetectorFactory?" << endmsg;
