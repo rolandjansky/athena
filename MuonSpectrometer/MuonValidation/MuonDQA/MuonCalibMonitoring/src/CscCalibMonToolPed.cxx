@@ -479,31 +479,31 @@ StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* p
 
   if(parName == "ped") 
   {
-    copyDataToHists(m_pedNewColl);
-    copyDataToHists(m_pedOldColl);
-    copyDataToHists(m_pedDiffColl);
-    copyDataToHists(m_chi2Coll);
+    ATH_CHECK( copyDataToHists(m_pedNewColl) &
+               copyDataToHists(m_pedOldColl) &
+               copyDataToHists(m_pedDiffColl) &
+               copyDataToHists(m_chi2Coll) );
   }
   if(parName == "noise")
   {
-    copyDataToHists(m_noiseNewColl);
-    copyDataToHists(m_noiseOldColl);
-    copyDataToHists(m_noiseDiffColl);
+    ATH_CHECK( copyDataToHists(m_noiseNewColl) &
+               copyDataToHists(m_noiseOldColl) &
+               copyDataToHists(m_noiseDiffColl) );
   }       
   if(parName == "rms")
   {
-    copyDataToHists(m_rmsNewColl);
-    copyDataToHists(m_rmsOldColl);
-    copyDataToHists(m_rmsDiffColl);
+    ATH_CHECK( copyDataToHists(m_rmsNewColl) &
+               copyDataToHists(m_rmsOldColl) &
+               copyDataToHists(m_rmsDiffColl) );
   }       
   if(parName == "f001")
   {
-    copyDataToHists(m_f001NewColl);
-    copyDataToHists(m_f001OldColl);
-    copyDataToHists(m_f001DiffColl);
+    ATH_CHECK( copyDataToHists(m_f001NewColl) &
+               copyDataToHists(m_f001OldColl) &
+               copyDataToHists(m_f001DiffColl) );
   }       
   if(parName == "OnlTHoldBreaches"){
-    copyDataToHists(m_onlTHoldBreachColl);
+    ATH_CHECK( copyDataToHists(m_onlTHoldBreachColl) );
   }
   return StatusCode::SUCCESS;
 }
@@ -523,7 +523,7 @@ StatusCode CscCalibMonToolPed::postProc()
 
   genThreshold(m_pedDiffColl, m_noiseDiffColl, m_tholdDiffColl, 3.5);
 
-  copyDataToHists(m_tholdDiffColl);
+  ATH_CHECK( copyDataToHists(m_tholdDiffColl) );
 
   if(m_doRmsVNoise) {
     std::string geoPath = getGeoPath();
@@ -532,12 +532,12 @@ StatusCode CscCalibMonToolPed::postProc()
     m_h2_rmsVnoiseEta = new TH2I("rmsVsigma_eta", "RMS versus sigma for #eta strips", 100, 0, 30, 100, 0,30) ;
     m_h2_rmsVnoiseEta->GetXaxis()->SetTitle("Sigma");
     m_h2_rmsVnoiseEta->GetYaxis()->SetTitle("RMS");
-    regHist(m_h2_rmsVnoiseEta,path, run, ATTRIB_MANAGED);
+    ATH_CHECK( regHist(m_h2_rmsVnoiseEta,path, run, ATTRIB_MANAGED) );
 
     m_h2_rmsVnoisePhi = new TH2I("rmsVsigma_phi", "RMS versus sigma for #phi strips", 100, 0, 30, 100, 0,30) ;
     m_h2_rmsVnoisePhi->GetXaxis()->SetTitle("Sigma");
     m_h2_rmsVnoisePhi->GetYaxis()->SetTitle("RMS");
-    regHist(m_h2_rmsVnoisePhi,path, run, ATTRIB_MANAGED);
+    ATH_CHECK( regHist(m_h2_rmsVnoisePhi,path, run, ATTRIB_MANAGED) );
 
     std::vector<float> & rmsVec = m_rmsNewColl->data;
     std::vector<float> & noiseVec = m_noiseNewColl->data;
@@ -686,7 +686,7 @@ StatusCode CscCalibMonToolPed::postProc()
 
             sourceHist->SetName(name.str().c_str());
             sourceHist->SetFillColor((m_detailedHashIds[idItr] ? m_histColAlert : m_histCol));
-            regHist(sourceHist, pedAmpPath, run, ATTRIB_MANAGED);
+            ATH_CHECK( regHist(sourceHist, pedAmpPath, run, ATTRIB_MANAGED) );
           }
         }
 
@@ -709,7 +709,7 @@ StatusCode CscCalibMonToolPed::postProc()
               << hCnt;
             sourceHist->SetName(name.str().c_str());
             sourceHist->SetFillColor(m_histCol); 
-            regHist(sourceHist,sampPath,run, ATTRIB_MANAGED);
+            ATH_CHECK( regHist(sourceHist,sampPath,run, ATTRIB_MANAGED) );
           }
         }
 
@@ -737,13 +737,13 @@ StatusCode CscCalibMonToolPed::postProc()
           sourceHist->SetName(name2.str().c_str());
           sourceHist->SetFillColor((m_detailedHashIds[idItr] ? m_histColAlert : m_histCol));
 
-          regHist(sourceHist, bitHistPath, run, ATTRIB_MANAGED);
+          ATH_CHECK( regHist(sourceHist, bitHistPath, run, ATTRIB_MANAGED) );
         }//end if bithists*/
 
         if(bitCorrelations)
         {
           TH2F* hist = const_cast<TH2F*>((*bitCorrelations)[idItr]);
-          regHist(hist,bitCorrelationPath,run, ATTRIB_MANAGED);
+          ATH_CHECK( regHist(hist,bitCorrelationPath,run, ATTRIB_MANAGED) );
 
           float maxVal = -2;
           //Now find the maximum correlation
@@ -770,11 +770,11 @@ StatusCode CscCalibMonToolPed::postProc()
     ATH_MSG_DEBUG( "No channels flagged for debug info retrieval" );
 
   //Copy data from the num entries vector to all relevant histograms
-  copyDataToHists(m_nEntriesColl);
+  ATH_CHECK( copyDataToHists(m_nEntriesColl) );
   //Copy data from the bit correlation vector to all relevant histograms
-  if(m_doBitCorrelations)
-    copyDataToHists(m_maxBitCorrColl);
-
+  if(m_doBitCorrelations) {
+    ATH_CHECK( copyDataToHists(m_maxBitCorrColl) );
+  }
   makeErrorReport(); 
 
   return StatusCode::SUCCESS;    

@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <map>
+#include <mutex>
 
 // Forward declarations
 class IAthenaIPCTool;

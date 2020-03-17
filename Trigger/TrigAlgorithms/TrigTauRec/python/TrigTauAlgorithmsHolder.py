@@ -360,8 +360,8 @@ def getTauSubstructure():
                                                           # parameters for CaloIsoCorrected variable
                                                           maxPileUpCorrection = 4000., #MeV
                                                           pileUpAlpha = 1.0,
-                                                          VertexCorrection = doVertexCorrection,
-                                                          inAODmode = bAODmode)
+                                                          VertexCorrection = doVertexCorrection
+                                                        )
     
     cached_instances[_name] = TauSubstructureVariables
     return TauSubstructureVariables
@@ -694,24 +694,6 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
 
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
-
-########################################################################
-# TauTrackFilter
-def getTauTrackFilter():
-    _name = sPrefix + 'TauTrackFilter'
-    from tauRecTools.tauRecToolsConf import TauTrackFilter
-    TauTrackFilter = TauTrackFilter(name = _name, TrackContainerName=_DefaultTrigTauTrackContainer)  #???)
-    cached_instances[_name] = TauTrackFilter
-    return TauTrackFilter
-
-########################################################################
-# TauGenericPi0Cone
-def getTauGenericPi0Cone():
-    _name = sPrefix + 'TauGenericPi0Cone'
-    from tauRecTools.tauRecToolsConf import TauGenericPi0Cone
-    TauGenericPi0Cone = TauGenericPi0Cone(name = _name)
-    cached_instances[_name] = TauGenericPi0Cone
-    return TauGenericPi0Cone
 
 ########################################################################
 # TauTrackClassifier

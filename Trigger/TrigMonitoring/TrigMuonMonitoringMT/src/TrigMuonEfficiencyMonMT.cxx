@@ -63,21 +63,21 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuon(const EventCon
   bool SApass = false;
   bool CBpass = false;
   bool EFpass = false;
-  m_matchTool->matchL1(mu, rois, m_measured_trigger_L1, L1pass);
+  ATH_CHECK( m_matchTool->matchL1(mu, rois, m_measured_trigger_L1, L1pass) );
   muPt_L1passed = L1pass;
   if(L1pass){
-    m_matchTool->matchSA(mu, m_measured_trigger, SApass);
+    ATH_CHECK( m_matchTool->matchSA(mu, m_measured_trigger, SApass) );
     muPt_SApassed = SApass;
   }
   if(SApass){
-    m_matchTool->matchCB(mu, m_measured_trigger, CBpass);
+    ATH_CHECK( m_matchTool->matchCB(mu, m_measured_trigger, CBpass) );
     muPt_CBpassed = CBpass;
   }
   if(CBpass){
-    m_matchTool->matchEF(mu, m_measured_trigger, EFpass);
+    ATH_CHECK( m_matchTool->matchEF(mu, m_measured_trigger, EFpass) );
     muPt_EFpassed = EFpass;
   }
-    ATH_MSG_DEBUG("L1pass:" << L1pass << " SAPass:" << SApass << " CBpass:" << CBpass << " EFpass:" << EFpass);
+  ATH_MSG_DEBUG("L1pass:" << L1pass << " SAPass:" << SApass << " CBpass:" << CBpass << " EFpass:" << EFpass);
 
 
   fill(m_group, muPt, muPt_L1passed, muPt_SApassed, muPt_CBpassed, muPt_EFpassed);

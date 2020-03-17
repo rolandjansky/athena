@@ -24,7 +24,7 @@ add_analysis_steps(test, input_file='RDO_TRIG.pool.root')
 
 # Overwrite default RegTest settings
 regtest = test.get_step('RegTest')
-regtest.regex = 'TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*'
+regtest.regex = 'TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
 regtest.reference = 'TrigAnalysisTest/RDOtoRDOTrig_mt1_build.ref'
 regtest.required = True # Final exit code depends on this step
 

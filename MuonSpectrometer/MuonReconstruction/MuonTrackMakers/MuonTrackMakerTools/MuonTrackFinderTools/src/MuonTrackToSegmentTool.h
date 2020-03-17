@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,32 +7,30 @@
 #define MUON_MUONTRACKTOSEGMENTTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
-#include "TrkParameters/TrackParameters.h"
-#include "MuonCondData/MdtCondDbData.h"
-#include "Identifier/Identifier.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "GaudiKernel/ToolHandle.h"
 
+#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
+
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonCondData/MdtCondDbData.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
+
+#include "TrkParameters/TrackParameters.h"
 
 #include <vector>
 
-class MdtCondDbData;
-class MuonStationIntersectSvc;
-class MsgStream;
-
 namespace Trk {
-  class IPropagator;
   class Track;
   class MeasurementBase;
 }
 
 namespace Muon {
   class MuonSegment;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
 }
 
 namespace Muon {
@@ -56,13 +54,10 @@ namespace Muon {
     MuonTrackToSegmentTool(const std::string&, const std::string&, const IInterface*);
     
     /** destructor */
-    ~MuonTrackToSegmentTool();
+    ~MuonTrackToSegmentTool()=default;
     
     /** initialize method, method taken from bass-class AlgTool */
     StatusCode initialize();
-
-    /** finialize method, method taken from bass-class AlgTool */
-    StatusCode finalize();
     
     /** @brief convert track to segment */
     MuonSegment* convert( const Trk::Track& track ) const;
@@ -77,7 +72,7 @@ namespace Muon {
 
     ServiceHandle<MuonStationIntersectSvc> m_intersectSvc;  //<! pointer to hole search service
     ToolHandle<Trk::IPropagator>        m_propagator;       //<! propagator
-    ToolHandle<MuonIdHelperTool>        m_idHelperTool;     //<! tool to assist with Identifiers
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>    m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //<! multipurpose helper tool

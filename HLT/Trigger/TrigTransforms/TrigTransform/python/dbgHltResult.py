@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #### This is the dbgHLTResult class for the Debug Stream event analysis
 
 from __future__ import print_function
@@ -182,15 +182,16 @@ def print_HLTResult(result):
 def collect_feature_sizes(dest, result):
   for f in result.nav_payload:
     key = f[0]+'#'+f[1]
-    if not dest.has_key(key):
+    if key not in dest:
       dest[key] = 0
     dest[key] += f[2]
 
     # keyed by type
     key = f[0]
-    if not dest.has_key(key):
+    if key not in dest:
       dest[key] = 0
     dest[key] += f[2]
 
-  if not dest.has_key('Total'): dest['Total'] = 0
+  if 'Total' not in dest:
+    dest['Total'] = 0
   dest['Total'] += 4*result.as_int_v.size()

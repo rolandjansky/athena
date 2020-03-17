@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
 
+#include "JetFactory.h"
+
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
-
-#include "xAODJet/test_utils/JetFactory.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
@@ -299,33 +299,33 @@ void standaloneInit(){
 ////////////////////////////////////////////////////////////////
 int main ATLAS_NOT_THREAD_SAFE () {
   TEST_MSG("start");
-  xAOD::JetContainer * jetCont = xAOD::JetTests::createEmptyJetContainer("TestJetCont");
+  xAOD::JetContainer& jetCont = xAOD::JetTests::createEmptyJetContainer("TestJetCont");
 
   assert( testJetCreation() == 0);
   assert( testKinematicChange() == 0 );
   
 
-  xAOD::JetTests::fillStandardTestJets( *jetCont );
-  std::cout << " OK filled jets "<< jetCont->size() << std::endl;
+  xAOD::JetTests::fillStandardTestJets( jetCont );
+  std::cout << " OK filled jets "<< jetCont.size() << std::endl;
 
-  assert( testLink(*jetCont) == 0) ;
+  assert( testLink(jetCont) == 0) ;
 
-  assert( testJetCopy(*jetCont) == 0);
-  assert( testConstituents(*jetCont) == 0);
-  assert( testAttributes(*jetCont) == 0) ;
+  assert( testJetCopy(jetCont) == 0);
+  assert( testConstituents(jetCont) == 0);
+  assert( testAttributes(jetCont) == 0) ;
   
-  xAOD::JetContainer * jetCont2 = xAOD::JetTests::createEmptyJetContainer("TestJetCont2");
-  xAOD::JetTests::fillStandardTestJets( *jetCont2 );
-  std::cout << " OK filled jets2 "<< jetCont2->size() << std::endl;
+  xAOD::JetContainer& jetCont2 = xAOD::JetTests::createEmptyJetContainer("TestJetCont2");
+  xAOD::JetTests::fillStandardTestJets( jetCont2 );
+  std::cout << " OK filled jets2 "<< jetCont2.size() << std::endl;
 
 
-  xAOD::CaloClusterContainer * clustCont =  xAOD::JetTests::createEmptyCaloClusterContainer("TestClustForJets");
-  xAOD::JetTests::fillStandardTestClusters(*clustCont);
+  xAOD::CaloClusterContainer& clustCont = xAOD::JetTests::createEmptyCaloClusterContainer("TestClustForJets");
+  xAOD::JetTests::fillStandardTestClusters(clustCont);
 
-  assert( testClusterConstituents(*jetCont, *clustCont)== 0 );
+  assert( testClusterConstituents(jetCont, clustCont)== 0 );
 
-  assert( testShallowCopy(*jetCont)== 0 );
-    
+  assert( testShallowCopy(jetCont)== 0 );
+
+  xAOD::JetTests::shutDown();
   return 0;
 }
-

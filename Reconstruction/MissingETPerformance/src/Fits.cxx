@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MissingETPerformance/Fits.h"
@@ -32,24 +32,24 @@ void Fits::Initialise(ITHistSvc *thistsvc,string Name_in,
     dumb->SetTitle(dummy);
     //FitHists->push_back((TH1D *)(FitHists_tot->Clone()));
     m_FitHists->push_back(dumb);
-    thistsvc->regHist((std::string)(dirname+dummy), m_FitHists->at(i));
+    thistsvc->regHist((std::string)(dirname+dummy), m_FitHists->at(i)).ignore();
   }
 
   m_Mean=new TH1D("Mean", "Mean", m_NBins, m_lower, m_upper); 
-  thistsvc->regHist(dirname+"/Mean", m_Mean);
+  thistsvc->regHist(dirname+"/Mean", m_Mean).ignore();
 
   m_Sigma=new TH1D("Sigma", "Sigma", m_NBins, m_lower, m_upper); 
-  thistsvc->regHist(dirname+"/Sigma", m_Sigma);
+  thistsvc->regHist(dirname+"/Sigma", m_Sigma).ignore();
 
   m_Chisq=new TH1D("Chisq", "Chisq", m_NBins, m_lower, m_upper); 
-  thistsvc->regHist(dirname+"/Chisq", m_Chisq);
+  thistsvc->regHist(dirname+"/Chisq", m_Chisq).ignore();
 
   m_RawVariable=new TH1D("RawVariable", "RawVariable", m_NBins, m_lower, m_upper);
-  thistsvc->regHist(dirname+"/RawVariable", m_RawVariable);
+  thistsvc->regHist(dirname+"/RawVariable", m_RawVariable).ignore();
 
   m_FitHists_tot->SetName("TotalResolution");
   m_FitHists_tot->SetTitle("TotalResolution");
-  thistsvc->regHist(dirname + "/TotalResolution", m_FitHists_tot);
+  thistsvc->regHist(dirname + "/TotalResolution", m_FitHists_tot).ignore();
 }
 
 void Fits::FillHists(double Resolution, double xval) {

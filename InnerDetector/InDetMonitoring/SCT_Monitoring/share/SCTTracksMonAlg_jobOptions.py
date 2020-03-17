@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file SCTTracksMonAlg_jobOptions.py
@@ -14,10 +14,21 @@ helper = AthMonitorCfgHelperOld(DQMonFlags, "SCTTracksMonitor")
 from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonAlg
 myMonAlg = helper.addAlgorithm(SCTTracksMonAlg, "SCTTracksMonAlg")
 
+if jobproperties.Beam.beamType()=='collisions':
+  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+  myMonAlg.FilterTools += [GetFilledBunchFilterTool()]
+
 myMonAlg.TriggerChain = ''
 
 # Set InDetTrackSummaryTool to TrackSummaryTool of SCTTracksMonAlg
 myMonAlg.TrackSummaryTool = InDetTrackSummaryTool
+
+doTriggger = False
+if globalflags.DataSource == "data":
+  from RecExConfig.RecFlags import rec
+  if rec.doTrigger():
+    doTriggger = True
+myMonAlg.doTrigger = doTriggger
 
 # Add a generic monitoring tool (a "group" in old language). The returned 
 # object here is the standard GenericMonitoringTool.
@@ -38,7 +49,7 @@ FIRST_HIT_BIN =  0
 LAST_HIT_BIN  = N_HIT_BINS-FIRST_HIT_BIN-1 # This is already defined in SCT_MonitoringNumbers.h
 myMonGroup.defineHistogram(varname="trk_N", # ; means alias
                                            type="TH1F",
-                                           title="Number of tracks"+";Number of Tracks",
+                                           title="Number of tracks"+";Number of tracks",
                                            path="tracks", # path cannot be "".
                                            xbins=400, xmin=0., xmax=4000.)
 myMonGroup.defineHistogram(varname="trk_chi2", # ; means alias

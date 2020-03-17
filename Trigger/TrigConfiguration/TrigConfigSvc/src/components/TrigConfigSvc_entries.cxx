@@ -4,11 +4,9 @@
 #include "../HLTConfigSvc.h"
 #include "../TrigConfJobOptionsSvc.h"
 #include "../TrigConfigSvc.h"
-#include "../TrigConfDataIOVChanger.h"
 
 #include "../HLTPrescaleCondAlg.h"
 
-DECLARE_COMPONENT( TrigConf::TrigConfDataIOVChanger )
 DECLARE_COMPONENT( TrigConf::L1TopoConfigSvc )
 DECLARE_COMPONENT( TrigConf::LVL1ConfigSvc )
 DECLARE_COMPONENT( TrigConf::HLTConfigSvc )

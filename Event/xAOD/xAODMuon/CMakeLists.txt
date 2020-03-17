@@ -7,7 +7,7 @@
 atlas_subdir( xAODMuon )
 
 # Extra dependencies, based on the build environment:
-if( NOT XAOD_ANALYSIS )
+if( NOT XAOD_ANALYSIS AND NOT GENERATIONBASE )
    set( extra_deps Tracking/TrkEvent/TrkSegment )
    set( extra_libs TrkSegment )
 endif()

@@ -113,6 +113,16 @@ TrigConf::L1Menu::size() const
    return data().get_child("items").size();
 }
 
+unsigned int
+TrigConf::L1Menu::smk() const {
+   return m_smk;
+}
+
+void
+TrigConf::L1Menu::setSMK(unsigned int smk) {
+   m_smk = smk;
+}
+
 TrigConf::L1Item
 TrigConf::L1Menu::item(const std::string & itemName) const
 {

@@ -284,7 +284,7 @@ for t in MUON1AugmentTools:
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
   name                       = "MUON1Thin_vtxTrk",
-  ThinningService            = MUON1ThinningHelper.ThinningSvc(),
+  StreamName                 = streamName,
   TrackParticleContainerName = "InDetTrackParticles",
   VertexContainerNames       = ["MUON1JpsiCandidates"],
   PassFlags                  = ["passed_Jpsi"] )

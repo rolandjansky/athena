@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from OutputStreamAthenaPool.MultipleStreamManager import *
 from AthenaCommon.AppMgr import theApp
@@ -57,21 +59,21 @@ class AugmentedNTUPStream( AugmentedStreamBase ):
 
     #########################################
     def Print(self):
-        print "**** AugmentedPoolStream",self.Name,"****"
-        print "Output file:"
-        print self.Stream.OutputFile
-        print "AcceptAlgs:"
-        print self.Stream.AcceptAlgs
-        print "RequireAlgs:"
-        print self.Stream.RequireAlgs
-        print "VetoAlgs:"
-        print self.Stream.VetoAlgs
-        print "OtherAlgs to bookkeep (but not directly used by the Stream):"
-        print self.OtherAlgs
-        print "Master prescale:"
-        print self.GetPrescale()
-        print "ItemList:"
-        print self.Stream.ItemList
+        print ("**** AugmentedPoolStream",self.Name,"****")
+        print ("Output file:")
+        print (self.Stream.OutputFile)
+        print ("AcceptAlgs:")
+        print (self.Stream.AcceptAlgs)
+        print ("RequireAlgs:")
+        print (self.Stream.RequireAlgs)
+        print ("VetoAlgs:")
+        print (self.Stream.VetoAlgs)
+        print ("OtherAlgs to bookkeep (but not directly used by the Stream):")
+        print (self.OtherAlgs)
+        print ("Master prescale:")
+        print (self.GetPrescale())
+        print ("ItemList:")
+        print (self.Stream.ItemList)
         return
 #############################################################
 class MultipleNTUPStreamManager:
@@ -137,11 +139,11 @@ class MultipleNTUPStreamManager:
         return True
     
     def Print(self):
-        print "**** MultipleNTUPStreamManager INFOS ****" 
-        print "Number of streams:", self.nStream
+        print ("**** MultipleNTUPStreamManager INFOS ****" )
+        print ("Number of streams:", self.nStream)
         i=0
         for Stream in self.StreamList:
-            print "----------------------- Stream #",i," -----------------------"
+            print ("----------------------- Stream #",i," -----------------------")
             Stream.Print()
             i+=1
         return
@@ -235,7 +237,7 @@ class MultipleNTUPStreamManager:
 ############################################################################
 # Create one instance of MultipleNTUPStreamManager (MNSMgr) if not already done.
 # Otherwise, do dothing (avoid overwriting MSMgr!).
-if vars().has_key('MNSMgr'):
+if 'MNSMgr' in vars():
     raise RuntimeError("MNSMgr already exists?!? This will almost certainly create erroneous results.")
 MNSMgr=MultipleNTUPStreamManager()
 

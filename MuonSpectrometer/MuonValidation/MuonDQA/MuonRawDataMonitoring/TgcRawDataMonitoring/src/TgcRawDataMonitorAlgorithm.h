@@ -19,7 +19,7 @@
 class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
   TgcRawDataMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~TgcRawDataMonitorAlgorithm();
+  virtual ~TgcRawDataMonitorAlgorithm()=default;
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   

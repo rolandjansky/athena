@@ -108,7 +108,7 @@ def _MultTool(name):
 def TrigL2CaloHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
-    
+
     def __mult(cpart):
         return int( cpart['multiplicity'] )
 

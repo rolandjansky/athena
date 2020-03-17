@@ -28,6 +28,8 @@
 #include <string>
 #include <cassert>
 #include <algorithm>
+#include <array>
+#include <functional>
 
 
 class IdDictDictionary;
@@ -85,6 +87,7 @@ public:
                        int layer_disk,
                        int phi_module,
                        int eta_module) const;
+                       
   Identifier module_id(int barrel_ec,
                        int layer_disk,
                        int phi_module,
@@ -94,12 +97,13 @@ public:
   /// For a module from a wafer id
   Identifier module_id(const Identifier& wafer_id) const;
 
-  /// For a single crystal
+  /// For a single side of module
   Identifier wafer_id(int barrel_ec,
                       int layer_disk,
                       int phi_module,
                       int eta_module,
                       int side) const;
+                      
   Identifier wafer_id(int barrel_ec,
                       int layer_disk,
                       int phi_module,
@@ -107,8 +111,11 @@ public:
                       int side,
                       bool checks) const;
 
-  /// For a single crystal from a strip id
+  /// For a single side of module from a strip id
   Identifier wafer_id(const Identifier& strip_id) const;
+  
+  /// For a side of module from ExpandedId
+  Identifier wafer_id(const ExpandedIdentifier & expId) const;
 
   /// From hash - optimized
   Identifier wafer_id(const IdentifierHash& wafer_hash) const;
@@ -211,6 +218,18 @@ public:
   int get_next_in_eta(const IdentifierHash& id, IdentifierHash& next) const;
   /// Wafer hash on other side
   int get_other_side(const IdentifierHash& id, IdentifierHash& other) const;
+  
+  ///The same, but without reference argument for returning value_type;
+  ///failure is indicated by returning an invalid identifierHash
+  IdentifierHash get_prev_in_phi(const IdentifierHash& id) const;
+  /// Next wafer hash in phi (return == 0 for neighbor found)
+  IdentifierHash get_next_in_phi(const IdentifierHash& id) const;
+  /// Previous wafer hash in eta (return == 0 for neighbor found)
+  IdentifierHash get_prev_in_eta(const IdentifierHash& id) const;
+  /// Next wafer hash in eta (return == 0 for neighbor found)
+  IdentifierHash get_next_in_eta(const IdentifierHash& id) const;
+  /// Wafer hash on other side
+  IdentifierHash get_other_side(const IdentifierHash& id) const;
 
   // To check for when phi wrap around may be needed, use
   bool is_phi_module_max(const Identifier& id) const;
@@ -218,6 +237,20 @@ public:
   bool is_eta_module_min(const Identifier& id) const;
   /// For the barrel
   bool is_eta_module_max(const Identifier& id) const;
+  
+  //all neighbours: opposite and then eta direction first
+  std::array<IdentifierHash, 5>
+  neighbours_by_eta(const IdentifierHash & idh) const;
+  
+  //all neighbours: opposite and then phi direction first
+  std::array<IdentifierHash, 5>
+  neighbours_by_phi(const IdentifierHash & idh) const;
+  
+  /// return functions to give neighbours in order: opposite, eta minus, eta plus,
+  /// phi minus, phi plus : in case you dont want to create temporary array of IdentifierHashes
+  /// (to be investigated in context of SP formation)
+  std::array<std::function< IdentifierHash(const IdentifierHash &)>, 5 >
+  neighbour_calls_by_eta() const;
   //@}
 
   /// @name contexts to distinguish wafer id from pixel id
@@ -266,12 +299,13 @@ public:
 
   //@}
 private:
-  static const IdentifierHash m_invalidHash;
   typedef std::vector<Identifier>     id_vec;
   typedef id_vec::const_iterator id_vec_it;
   typedef std::vector<IdentifierHash> hash_vec;
   typedef hash_vec::const_iterator hash_vec_it;
-    
+  enum ExpandedIdIndices {INDET, SCT, BARREL_EC, LAYER_DISK, PHI, ETA, SIDE, STRIP,ROW, NUM_INDICES};
+  std::array<std::function< IdentifierHash(const IdentifierHash & )>, 5> m_neighboursByEta;
+  
   //this is a bit clumsy, but it reproduces the original messaging behaviour with/without Gaudi
   //it *SHOULD NOT* be used for messaging in event loop code, as it is expensive!
   void 
@@ -297,7 +331,10 @@ private:
                        int side,
                        int row,
                        int strip) const;
-
+                       
+  int getMaxField(const Identifier & id, const ExpandedIdIndices &fieldIndx) const;
+                       
+  void strip_id_checks(const ExpandedIdentifier & expId) const;
 
 
   int initLevelsFromDict(void);
@@ -313,18 +350,9 @@ private:
   // check - MR is missing the InnerDetector level
   Identifier idForCheck(const Identifier& id) const;
 
-  size_type m_sct_region_index;
-  size_type m_INDET_INDEX;
-  size_type m_SCT_INDEX;
-  size_type m_BARREL_EC_INDEX;
-  size_type m_LAYER_DISK_INDEX;
-  size_type m_PHI_MODULE_INDEX;
-  size_type m_ETA_MODULE_INDEX;
-  size_type m_SIDE_INDEX;
-  size_type m_STRIP_INDEX;
-
-  size_type m_ROW_INDEX;
-
+  size_type m_sct_region_index{0};
+ 
+  std::array<size_t, NUM_INDICES> m_indices{0,1,2,3,4,5,6,7,999};
   const IdDictDictionary* m_dict;
   MultiRange m_full_wafer_range;
   MultiRange m_full_strip_range;
@@ -567,34 +595,19 @@ SCT_ID::strip_id(const ExpandedIdentifier& id) const {
   // Pack fields independently
   m_indet_impl.pack(indet_field_value(), result);
   m_sct_impl.pack(sct_field_value(), result);
-  m_bec_impl.pack(id[m_BARREL_EC_INDEX], result);
-  m_lay_disk_impl.pack(id[m_LAYER_DISK_INDEX], result);
-  m_phi_mod_impl.pack(id[m_PHI_MODULE_INDEX], result);
-  m_eta_mod_impl.pack(id[m_ETA_MODULE_INDEX], result);
-  m_side_impl.pack(id[m_SIDE_INDEX], result);
+  m_bec_impl.pack(id[m_indices[BARREL_EC]], result);
+  m_lay_disk_impl.pack(id[m_indices[LAYER_DISK]], result);
+  m_phi_mod_impl.pack(id[m_indices[PHI]], result);
+  m_eta_mod_impl.pack(id[m_indices[ETA]], result);
+  m_side_impl.pack(id[m_indices[SIDE]], result);
   if (m_hasRows) {
-    m_row_impl.pack(id[m_ROW_INDEX], result);
+    m_row_impl.pack(id[m_indices[ROW]], result);
   }
-  m_strip_impl.pack(id[m_STRIP_INDEX], result);
+  m_strip_impl.pack(id[m_indices[STRIP]], result);
 
   // Do checks
   if (m_do_checks) {
-    if (m_hasRows) {
-      strip_id_checks(id[m_BARREL_EC_INDEX],
-                      id[m_LAYER_DISK_INDEX],
-                      id[m_PHI_MODULE_INDEX],
-                      id[m_ETA_MODULE_INDEX],
-                      id[m_SIDE_INDEX],
-                      id[m_ROW_INDEX],
-                      id[m_STRIP_INDEX]);
-    } else {
-      strip_id_checks(id[m_BARREL_EC_INDEX],
-                      id[m_LAYER_DISK_INDEX],
-                      id[m_PHI_MODULE_INDEX],
-                      id[m_ETA_MODULE_INDEX],
-                      id[m_SIDE_INDEX],
-                      id[m_STRIP_INDEX]);
-    }
+    strip_id_checks(id);
   }
   return result;
 }
@@ -686,7 +699,7 @@ inline IdContext
 SCT_ID::wafer_context(void) const {
   ExpandedIdentifier id;
 
-  return(IdContext(id, 0, m_SIDE_INDEX));
+  return(IdContext(id, 0, m_indices[SIDE]));
 }
 
 //----------------------------------------------------------------------------
@@ -694,7 +707,7 @@ inline IdContext
 SCT_ID::strip_context(void) const {
   ExpandedIdentifier id;
 
-  return(IdContext(id, 0, m_STRIP_INDEX));
+  return(IdContext(id, 0, m_indices[STRIP]));
 }
 
 //----------------------------------------------------------------------------
@@ -752,7 +765,7 @@ SCT_ID::nextInSequence(const IdentifierHash& id, const hash_vec& vectorOfHashes)
   if (index < vectorOfHashes.size()) {
     return vectorOfHashes[index];
   }
-  return m_invalidHash;
+  return IdentifierHash{};
 }
 
 #endif // INDETIDENTIFIER_SCT_ID_H

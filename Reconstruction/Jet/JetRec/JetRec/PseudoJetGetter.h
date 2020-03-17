@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetGetter.h
@@ -122,9 +122,9 @@ private:
   
   std::vector<fastjet::PseudoJet> 
   EMToposToPJs(const xAOD::IParticleContainer*) const;
-    
-  std::vector<fastjet::PseudoJet> 
+#ifndef GENERATIONBASE
+  std::vector<fastjet::PseudoJet>
   PFlowsToPJs(const xAOD::IParticleContainer*) const;
-
+#endif
 };
 #endif

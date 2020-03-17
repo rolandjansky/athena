@@ -13,7 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           PRIVATE
-                          DetectorDescription/Identifier
+                          DetectorDescription/Identifier                          
+			  DetectorDescription/IRegionSelector
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
 			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry

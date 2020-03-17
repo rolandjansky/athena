@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -49,6 +49,11 @@ public:
        match probability for chi2 match at IP */
     virtual double	innerMatchProbability (const Trk::Track& track1, const Trk::Track& track2) const = 0;
 
+    /**IMuonMatchQuality interface:
+       degrees of freedom, chi2, probability  for chi2 match at IP */
+    virtual std::pair<int, std::pair<double,double> >
+      innerMatchAll (const Trk::Track& track1, const Trk::Track& track2) const = 0;
+      
     /**IMuonMatchQuality interface:
        match chiSquared between two tracks expressed at first muon spectrometer hit,
        extrapolates indet to first hit of spectrometer track */

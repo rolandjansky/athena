@@ -36,6 +36,15 @@ TrigConf::HLTMenu::size() const
    return data().get_child("chains").size();
 }
 
+unsigned int
+TrigConf::HLTMenu::smk() const {
+   return m_smk;
+}
+
+void
+TrigConf::HLTMenu::setSMK(unsigned int smk) {
+   m_smk = smk;
+}
 
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::begin() const

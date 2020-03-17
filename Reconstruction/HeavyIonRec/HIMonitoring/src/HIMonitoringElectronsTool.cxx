@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -82,26 +82,31 @@ HIMonitoringElectronsTool::
   m_low_eprobabilityht = -0.1;
   m_high_eprobabilityht = 1.1;
 
+  StatusCode sc;
   //LH-based selection tools
   m_electronLooseLHTool = new AsgElectronLikelihoodTool("ElectronLooseLHTool");
-  m_electronLooseLHTool->setProperty("ConfigFile",
-                                     "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf");
+  sc &= m_electronLooseLHTool->setProperty("ConfigFile",
+                                           "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf");
   if (!m_electronLooseLHTool->initialize().isSuccess()) {
     Fatal("MyFunction", "Failed to initialize ElectronLooseLHTool ");
   }
 
   m_electronMediumLHTool = new AsgElectronLikelihoodTool("ElectronMediumLHTool");
-  m_electronMediumLHTool->setProperty("ConfigFile",
-                                      "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf");
+  sc &= m_electronMediumLHTool->setProperty("ConfigFile",
+                                            "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf");
   if (!m_electronMediumLHTool->initialize().isSuccess()) {
     Fatal("MyFunction", "Failed to initialize ElectronMediumLHTool ");
   }
 
   m_electronTightLHTool = new AsgElectronLikelihoodTool("ElectronTightLHTool");
-  m_electronTightLHTool->setProperty("ConfigFile",
-                                     "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf");
+  sc &= m_electronTightLHTool->setProperty("ConfigFile",
+                                           "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf");
   if (!m_electronTightLHTool->initialize().isSuccess()) {
     Fatal("MyFunction", "Failed to initialize ElectronTightLHTool ");
+  }
+
+  if (sc.isFailure()) {
+    Warning("MyFunction", "Failed to set some properties");
   }
 }
 

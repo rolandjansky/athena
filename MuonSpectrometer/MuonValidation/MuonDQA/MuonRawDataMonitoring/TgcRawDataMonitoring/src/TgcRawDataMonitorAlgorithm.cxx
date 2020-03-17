@@ -6,15 +6,10 @@
 #include "TObjArray.h"
 #include <memory>
 
-
 TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
 {
 }
-
-
-TgcRawDataMonitorAlgorithm::~TgcRawDataMonitorAlgorithm() {}
-
 
 StatusCode TgcRawDataMonitorAlgorithm::initialize() {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArPhysWaveFromTuple.h"
@@ -92,8 +92,8 @@ StatusCode LArPhysWaveFromTuple::stop()
 
   // Create new LArPhysWaveContainer
   LArPhysWaveContainer* larPhysWaveContainerNew = new LArPhysWaveContainer();
-  larPhysWaveContainerNew->setGroupingType(m_groupingType, msg());
-  larPhysWaveContainerNew->initialize();
+  ATH_CHECK ( larPhysWaveContainerNew->setGroupingType(m_groupingType, msg()) );
+  ATH_CHECK ( larPhysWaveContainerNew->initialize() );
 
   // loop over entries in the Tuple, one entry = one channel
   Long64_t nentries = outfit->GetEntries();

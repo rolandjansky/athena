@@ -17,29 +17,25 @@
 #include <algorithm>
 #include <iostream>
 
-const IdentifierHash SCT_ID::m_invalidHash=IdentifierHash{};
-
+namespace{
+  const IdentifierHash invalidHash;
+  const std::array<IdentifierHash, 5> invalidHashes{invalidHash, invalidHash, invalidHash,
+  invalidHash, invalidHash};
+  std::function< IdentifierHash(const IdentifierHash &)>
+  invalidHashFunc = ([](const IdentifierHash &){return IdentifierHash{};});
+}
 
 
 
 SCT_ID::SCT_ID(void)
   :
-  m_sct_region_index(0),
-  m_INDET_INDEX(0),
-  m_SCT_INDEX(1),
-  m_BARREL_EC_INDEX(2),
-  m_LAYER_DISK_INDEX(3),
-  m_PHI_MODULE_INDEX(4),
-  m_ETA_MODULE_INDEX(5),
-  m_SIDE_INDEX(6),
-  m_STRIP_INDEX(7),
-  m_ROW_INDEX(999),
-
+  m_neighboursByEta{invalidHashFunc, invalidHashFunc, invalidHashFunc , invalidHashFunc, invalidHashFunc},
   m_dict(0),
   m_wafer_hash_max(0),
   m_strip_hash_max(0),
   m_barrel_field(0),
   m_hasRows(false) {
+  
 }
 
 void
@@ -84,6 +80,26 @@ SCT_ID::strip_id_checks(int barrel_ec,
 }
 
 void
+SCT_ID::strip_id_checks( const ExpandedIdentifier & expId) const {
+  if (not m_hasRows){
+    strip_id_checks(expId[m_indices[BARREL_EC]],
+                      expId[m_indices[LAYER_DISK]],
+                      expId[m_indices[PHI]],
+                      expId[m_indices[ETA]],
+                      expId[m_indices[SIDE]],
+                      expId[m_indices[STRIP]]);
+  } else {
+    strip_id_checks(expId[m_indices[BARREL_EC]],
+                      expId[m_indices[LAYER_DISK]],
+                      expId[m_indices[PHI]],
+                      expId[m_indices[ETA]],
+                      expId[m_indices[SIDE]],
+                      expId[m_indices[ROW]],
+                      expId[m_indices[STRIP]]);
+  }
+}
+
+void
 SCT_ID::strip_id_checks(int barrel_ec,
                         int layer_disk,
                         int phi_module,
@@ -107,22 +123,33 @@ SCT_ID::strip_id_checks(int barrel_ec,
 }
 
 int
-SCT_ID::layer_disk_max(const Identifier& id) const {
+SCT_ID::getMaxField(const Identifier & id, const ExpandedIdIndices &fieldIndx) const{
   // get max from dictionary
   ExpandedIdentifier expId;
-  IdContext wafer_context1 = wafer_context();
-
-  get_expanded_id(id, expId, &wafer_context1);
-  for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
-    const Range& range = m_full_wafer_range[i];
+  int result(-999);
+  const IdContext context = (fieldIndx == LAYER_DISK) ? wafer_context():IdContext(expId, 0, m_indices[LAYER_DISK]) ;
+  get_expanded_id(id, expId, &context);
+  const auto & useRange = (fieldIndx == STRIP)? m_full_strip_range : m_full_wafer_range;
+  for (unsigned int i = 0; i != useRange.size(); ++i) {
+    const Range& range = useRange[i];
     if (range.match(expId)) {
-      const Range::field& layer_disk_field = range[m_LAYER_DISK_INDEX];
-      if (layer_disk_field.has_maximum()) {
-        return(layer_disk_field.get_maximum());
+      const Range::field& thisField = range[m_indices[fieldIndx]];
+      if (thisField.has_maximum()) {
+        auto thisMax= thisField.get_maximum();
+        if (fieldIndx == ETA or fieldIndx == STRIP){
+          result = std::max(result, thisMax);
+        } else {
+          return thisMax;
+        }
       }
     }
   }
-  return(-999);  // default
+  return result;  // default
+}
+
+int
+SCT_ID::layer_disk_max(const Identifier& id) const {
+  return getMaxField(id, LAYER_DISK);
 }
 
 int
@@ -130,14 +157,13 @@ SCT_ID::eta_module_min(const Identifier& id) const {
   // get min from dictionary - note that eta modules skip 0 for
   // sct, so we must search for absolute min
   ExpandedIdentifier expId;
-  IdContext layer_context(expId, 0, m_LAYER_DISK_INDEX);
-
+  IdContext layer_context(expId, 0, m_indices[LAYER_DISK]);
   get_expanded_id(id, expId, &layer_context);
   int result = -999;
   for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
     const Range& range = m_full_wafer_range[i];
     if (range.match(expId)) {
-      const Range::field& eta_field = range[m_ETA_MODULE_INDEX];
+      const Range::field& eta_field = range[m_indices[ETA]];
       if (eta_field.has_minimum()) {
         int etamin = eta_field.get_minimum();
         if (-999 == result) {
@@ -153,46 +179,12 @@ SCT_ID::eta_module_min(const Identifier& id) const {
 
 int
 SCT_ID::eta_module_max(const Identifier& id) const {
-  // get max from dictionary - note that eta modules skip 0 for
-  // sct, so we must search for absolute max
-  ExpandedIdentifier expId;
-  IdContext layer_context(expId, 0, m_LAYER_DISK_INDEX);
-
-  get_expanded_id(id, expId, &layer_context);
-  int result = -999;
-  for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
-    const Range& range = m_full_wafer_range[i];
-    if (range.match(expId)) {
-      const Range::field& eta_field = range[m_ETA_MODULE_INDEX];
-      if (eta_field.has_maximum()) {
-        int etamax = eta_field.get_maximum();
-        if (result < etamax) result = etamax;
-      }
-    }
-  }
-  return(result);
+  return getMaxField(id, ETA);
 }
 
 int
 SCT_ID::strip_max(const Identifier& id) const {
-  // get max from dictionary - note that eta modules skip 0 for
-  // sct, so we must search for absolute max
-  ExpandedIdentifier expId;
-  IdContext layer_context(expId, 0, m_LAYER_DISK_INDEX);
-
-  get_expanded_id(id, expId, &layer_context);
-  int result = -999;
-  for (unsigned int i = 0; i < m_full_strip_range.size(); ++i) {
-    const Range& range = m_full_strip_range[i];
-    if (range.match(expId)) {
-      const Range::field& strip_field = range[m_STRIP_INDEX];
-      if (strip_field.has_maximum()) {
-        int strip = strip_field.get_maximum();
-        if (result < strip) result = strip;
-      }
-    }
-  }
-  return(result);
+ return getMaxField(id, STRIP);
 }
 
 bool
@@ -209,21 +201,7 @@ SCT_ID::is_eta_module_max(const Identifier& id)  const {
 
 int
 SCT_ID::phi_module_max(const Identifier& id) const {
-  // get max from dictionary
-  ExpandedIdentifier expId;
-  IdContext wafer_context1 = wafer_context();
-
-  get_expanded_id(id, expId, &wafer_context1);
-  for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
-    const Range& range = m_full_wafer_range[i];
-    if (range.match(expId)) {
-      const Range::field& phi_field = range[m_PHI_MODULE_INDEX];
-      if (phi_field.has_maximum()) {
-        return(phi_field.get_maximum());
-      }
-    }
-  }
-  return -1;
+  return getMaxField(id, PHI);
 }
 
 bool
@@ -315,6 +293,14 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   dbgMsg = "Wafer range -> " + std::string( m_full_wafer_range) + "\n";
   dbgMsg += "Strip range -> " + std::string(m_full_strip_range);
   localMessage(dbgMsg, __func__, MSG::DEBUG);
+  ///insert now valid calls to the m_neighboursByEta
+  m_neighboursByEta = {
+    [this](const IdentifierHash & id){return this->get_other_side(id);},
+    [this](const IdentifierHash & id){return this->get_prev_in_eta(id);},
+    [this](const IdentifierHash & id){return this->get_next_in_eta(id);},
+    [this](const IdentifierHash & id){return this->get_prev_in_phi(id);},
+    [this](const IdentifierHash & id){return this->get_next_in_phi(id);}
+  };
   return 0;
 }
 
@@ -337,11 +323,7 @@ SCT_ID::init_hashes(void) {
     Range::const_identifier_factory last = range.factory_end();
     for (; first != last; ++first) {
       const ExpandedIdentifier& exp_id = (*first);
-      Identifier id = wafer_id(exp_id[m_BARREL_EC_INDEX],
-                               exp_id[m_LAYER_DISK_INDEX],
-                               exp_id[m_PHI_MODULE_INDEX],
-                               exp_id[m_ETA_MODULE_INDEX],
-                               exp_id[m_SIDE_INDEX]);
+      Identifier id = wafer_id(exp_id);
       if (!(ids.insert(id)).second) {
         const std::string errMsg = "Error: duplicated id for wafer id. nid " + std::to_string(nids) + " compact id " + id.getString() + " id " + std::string(exp_id);
         localMessage(errMsg, __func__, MSG::ERROR);
@@ -370,11 +352,49 @@ SCT_ID::init_hashes(void) {
   return(0);
 }
 
+IdentifierHash 
+SCT_ID::get_prev_in_phi(const IdentifierHash& id) const{
+  return nextInSequence(id, m_prev_phi_wafer_vec);
+}
+/// Next wafer hash in phi 
+IdentifierHash 
+SCT_ID::get_next_in_phi(const IdentifierHash& id) const{
+  return nextInSequence(id, m_next_phi_wafer_vec);
+}
+/// Previous wafer hash in eta 
+IdentifierHash 
+SCT_ID::get_prev_in_eta(const IdentifierHash& id) const{
+  return nextInSequence(id, m_prev_eta_wafer_vec);
+}
+/// Next wafer hash in eta 
+IdentifierHash 
+SCT_ID::get_next_in_eta(const IdentifierHash& id) const{
+  return nextInSequence(id, m_next_eta_wafer_vec);
+}
+/// Wafer hash on other side
+IdentifierHash 
+SCT_ID::get_other_side(const IdentifierHash& hashId) const{
+  if (m_dict) {
+    // get max from dictionary
+    Identifier id;
+    const IdContext & wafer_context1 = wafer_context();
+    if (!get_id(hashId, id, &wafer_context1)) {
+      return( side(id) ? hashId - 1 : hashId + 1);
+    }
+  }
+  return IdentifierHash{};
+}
+//
+std::array<std::function< IdentifierHash(const IdentifierHash &)>, 5 >
+SCT_ID::neighbour_calls_by_eta() const{
+  return m_neighboursByEta;
+}
+
+
 int
 SCT_ID::get_prev_in_phi(const IdentifierHash& id, IdentifierHash& prev) const {
   const auto result = nextInSequence(id, m_prev_phi_wafer_vec);
-
-  if (result != m_invalidHash) {
+  if (result.is_valid()) {
     prev = result;
     return 0;
   }
@@ -384,8 +404,7 @@ SCT_ID::get_prev_in_phi(const IdentifierHash& id, IdentifierHash& prev) const {
 int
 SCT_ID::get_next_in_phi(const IdentifierHash& id, IdentifierHash& next) const {
   const auto result = nextInSequence(id, m_next_phi_wafer_vec);
-
-  if (result != m_invalidHash) {
+  if (result.is_valid()) {
     next = result;
     return 0;
   }
@@ -395,8 +414,7 @@ SCT_ID::get_next_in_phi(const IdentifierHash& id, IdentifierHash& next) const {
 int
 SCT_ID::get_prev_in_eta(const IdentifierHash& id, IdentifierHash& prev) const {
   const auto result = nextInSequence(id, m_prev_eta_wafer_vec);
-
-  if (result != m_invalidHash) {
+  if (result.is_valid()) {
     prev = result;
     return 0;
   }
@@ -406,7 +424,7 @@ SCT_ID::get_prev_in_eta(const IdentifierHash& id, IdentifierHash& prev) const {
 int
 SCT_ID::get_next_in_eta(const IdentifierHash& id, IdentifierHash& next) const {
   const auto result = nextInSequence(id, m_next_eta_wafer_vec);
-  if (result != m_invalidHash) {
+  if (result.is_valid()) {
     next = result;
     return 0;
   }
@@ -427,6 +445,15 @@ SCT_ID::get_other_side(const IdentifierHash& hashId, IdentifierHash& other) cons
   return(1);
 }
 
+ Identifier 
+ SCT_ID::wafer_id(const ExpandedIdentifier & expId) const{
+   return wafer_id(expId[m_indices[BARREL_EC]],
+                   expId[m_indices[LAYER_DISK]],
+                   expId[m_indices[PHI]],
+                   expId[m_indices[ETA]],
+                   expId[m_indices[SIDE]]);
+ }
+
 int
 SCT_ID::init_neighbors(void) {
   //
@@ -435,16 +462,16 @@ SCT_ID::init_neighbors(void) {
   //
 
   localMessage("", __func__, MSG::DEBUG);
-
-  m_prev_phi_wafer_vec.resize(m_wafer_hash_max, m_invalidHash);
-  m_next_phi_wafer_vec.resize(m_wafer_hash_max, m_invalidHash);
-  m_prev_eta_wafer_vec.resize(m_wafer_hash_max, m_invalidHash);
-  m_next_eta_wafer_vec.resize(m_wafer_hash_max, m_invalidHash);
+  const IdentifierHash invalidHash;
+  m_prev_phi_wafer_vec.resize(m_wafer_hash_max, invalidHash);
+  m_next_phi_wafer_vec.resize(m_wafer_hash_max, invalidHash);
+  m_prev_eta_wafer_vec.resize(m_wafer_hash_max, invalidHash);
+  m_next_eta_wafer_vec.resize(m_wafer_hash_max, invalidHash);
 
   for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
     const Range& range = m_full_wafer_range[i];
-    const Range::field& phi_field = range[m_PHI_MODULE_INDEX];
-    const Range::field& eta_field = range[m_ETA_MODULE_INDEX];
+    const Range::field& phi_field = range[m_indices[PHI]];
+    const Range::field& eta_field = range[m_indices[ETA]];
     Range::const_identifier_factory first = range.factory_begin();
     Range::const_identifier_factory last = range.factory_end();
     for (; first != last; ++first) {
@@ -453,20 +480,16 @@ SCT_ID::init_neighbors(void) {
       ExpandedIdentifier::element_type next_phi;
       ExpandedIdentifier::element_type previous_eta;
       ExpandedIdentifier::element_type next_eta;
-      bool pphi = phi_field.get_previous(exp_id[m_PHI_MODULE_INDEX], previous_phi);
-      bool nphi = phi_field.get_next(exp_id[m_PHI_MODULE_INDEX], next_phi);
-      bool peta = eta_field.get_previous(exp_id[m_ETA_MODULE_INDEX], previous_eta);
-      bool neta = eta_field.get_next(exp_id[m_ETA_MODULE_INDEX], next_eta);
+      bool pphi = phi_field.get_previous(exp_id[m_indices[PHI]], previous_phi);
+      bool nphi = phi_field.get_next(exp_id[m_indices[PHI]], next_phi);
+      bool peta = eta_field.get_previous(exp_id[m_indices[ETA]], previous_eta);
+      bool neta = eta_field.get_next(exp_id[m_indices[ETA]], next_eta);
 
       IdContext wcontext = wafer_context();
 
       // First get primary hash id
       IdentifierHash hash_id;
-      Identifier id = wafer_id(exp_id[m_BARREL_EC_INDEX],
-                               exp_id[m_LAYER_DISK_INDEX],
-                               exp_id[m_PHI_MODULE_INDEX],
-                               exp_id[m_ETA_MODULE_INDEX],
-                               exp_id[m_SIDE_INDEX]);
+      Identifier id = wafer_id(exp_id);
       if (get_hash(id, hash_id, &wcontext)) {
         const std::string errMsg = "- unable to get hash, exp/compact " + show_to_string(id, &wcontext) + std::string(m_full_wafer_range);
         localMessage(errMsg, __func__, MSG::ERROR);
@@ -483,12 +506,8 @@ SCT_ID::init_neighbors(void) {
       if (pphi) {
         // Get previous phi hash id
         ExpandedIdentifier expId = exp_id;
-        expId[m_PHI_MODULE_INDEX] = previous_phi;
-        Identifier id = wafer_id(expId[m_BARREL_EC_INDEX],
-                                 expId[m_LAYER_DISK_INDEX],
-                                 expId[m_PHI_MODULE_INDEX],
-                                 expId[m_ETA_MODULE_INDEX],
-                                 expId[m_SIDE_INDEX]);
+        expId[m_indices[PHI]] = previous_phi;
+        Identifier id = wafer_id(expId);
         if (get_hash(id, hash_id, &wcontext)) {        
           const std::string errMsg = "- unable to get previous phi hash, exp/compact " + id.getString();
           localMessage(errMsg, __func__, MSG::ERROR);
@@ -500,12 +519,8 @@ SCT_ID::init_neighbors(void) {
       if (nphi) {
         // Get next phi hash id
         ExpandedIdentifier expId = exp_id;
-        expId[m_PHI_MODULE_INDEX] = next_phi;
-        Identifier id = wafer_id(expId[m_BARREL_EC_INDEX],
-                                 expId[m_LAYER_DISK_INDEX],
-                                 expId[m_PHI_MODULE_INDEX],
-                                 expId[m_ETA_MODULE_INDEX],
-                                 expId[m_SIDE_INDEX]);
+        expId[m_indices[PHI]] = next_phi;
+        Identifier id = wafer_id(expId);
         if (get_hash(id, hash_id, &wcontext)) {
           const std::string errMsg = "- unable to get next phi hash, exp/compact " + id.getString();
           localMessage(errMsg, __func__, MSG::ERROR);
@@ -517,12 +532,8 @@ SCT_ID::init_neighbors(void) {
       if (peta) {
         // Get previous eta hash id
         ExpandedIdentifier expId = exp_id;
-        expId[m_ETA_MODULE_INDEX] = previous_eta;
-        Identifier id = wafer_id(expId[m_BARREL_EC_INDEX],
-                                 expId[m_LAYER_DISK_INDEX],
-                                 expId[m_PHI_MODULE_INDEX],
-                                 expId[m_ETA_MODULE_INDEX],
-                                 expId[m_SIDE_INDEX]);
+        expId[m_indices[ETA]] = previous_eta;
+        Identifier id = wafer_id(expId);
         if (get_hash(id, hash_id, &wcontext)) {
           const std::string errMsg = "- unable to get previous eta hash, exp/compact " + id.getString();
           localMessage(errMsg, __func__, MSG::ERROR);
@@ -534,12 +545,8 @@ SCT_ID::init_neighbors(void) {
       if (neta) {
         // Get next eta hash id
         ExpandedIdentifier expId = exp_id;
-        expId[m_ETA_MODULE_INDEX] = next_eta;
-        Identifier id = wafer_id(expId[m_BARREL_EC_INDEX],
-                                 expId[m_LAYER_DISK_INDEX],
-                                 expId[m_PHI_MODULE_INDEX],
-                                 expId[m_ETA_MODULE_INDEX],
-                                 expId[m_SIDE_INDEX]);
+        expId[m_indices[ETA]] = next_eta;
+        Identifier id = wafer_id(expId);
         if (get_hash(id, hash_id, &wcontext)) {
           const std::string errMsg = "- unable to get next eta hash, exp/compact " + id.getString();
           localMessage(errMsg, __func__, MSG::ERROR);
@@ -554,118 +561,62 @@ SCT_ID::init_neighbors(void) {
 
 int
 SCT_ID::initLevelsFromDict() {
-
   if (!m_dict) {
     localMessage("- dictionary NOT initialized", __func__, MSG::ERROR);
     return(1);
   }
-
   // Find out which identifier field corresponds to each level. Use
   // names to find each field/leve.
-
-  m_INDET_INDEX = 999;
-  m_SCT_INDEX = 999;
-  m_BARREL_EC_INDEX = 999;
-  m_LAYER_DISK_INDEX = 999;
-  m_PHI_MODULE_INDEX = 999;
-  m_ETA_MODULE_INDEX = 999;
-  m_SIDE_INDEX = 999;
-  m_ROW_INDEX = 999;
-  m_STRIP_INDEX = 999;
+  m_indices.fill(999);
   m_hasRows = false;
-
-
   // Save index to a SCT region for unpacking
   ExpandedIdentifier id;
   id << indet_field_value() << sct_field_value();
+  
+ 
   if (m_dict->find_region(id, m_sct_region_index)) {
     const std::string errMsg  = "- unable to find sct region index: id, reg " + std::string(id) + " " + std::to_string(m_sct_region_index);
     localMessage(errMsg, __func__, MSG::ERROR);
     return(1);
   }
-
-  // Find a SCT region
-  IdDictField* field = m_dict->find_field("subdet");
-  if (field) {
-    m_INDET_INDEX = field->m_index;
-  } else {
-    localMessage("- unable to find 'subdet' field ", __func__, MSG::ERROR);
-    return(1);
-  }
-  field = m_dict->find_field("part");
-  if (field) {
-    m_SCT_INDEX = field->m_index;
-  } else {
-    localMessage("- unable to find 'part' field ", __func__, MSG::ERROR);
-    return(1);
-  }
-  field = m_dict->find_field("barrel_endcap");
-  if (field) {
-    m_BARREL_EC_INDEX = field->m_index;
-  } else {
-    localMessage("- unable to find 'barrel_endcap' field ", __func__, MSG::ERROR);
-    return(1);
-  }
-  field = m_dict->find_field("layer");
-  if (field) {
-    m_LAYER_DISK_INDEX = field->m_index;
-  } else {
-    localMessage("- unable to find 'layer' field ", __func__, MSG::ERROR);
-    return(1);
-  }
-  field = m_dict->find_field("phi_module");
-  if (field) {
-    m_PHI_MODULE_INDEX = field->m_index;
-  } else {
-    localMessage("- unable to find 'phi_module' field ", __func__, MSG::ERROR);
-    return(1);
-  }
-  field = m_dict->find_field("eta_module");
-  if (field) {
-    m_ETA_MODULE_INDEX = field->m_index;
-  } else {
-    localMessage("- unable to find 'eta_module' field ", __func__, MSG::ERROR);
-    return(1);
-  }
-  field = m_dict->find_field("side");
-  if (field) {
-    m_SIDE_INDEX = field->m_index;
-  } else {
-    localMessage("- unable to find 'side' field ", __func__, MSG::ERROR);
-    return(1);
-  }
-
-
-  field = m_dict->find_field("row");
-  if (field) {
-    m_ROW_INDEX = field->m_index;
-    m_hasRows = true;
-  }
-
-
-  field = m_dict->find_field("strip");
-  if (field) {
-    m_STRIP_INDEX = field->m_index;
-  } else {
-    localMessage("- unable to find 'strip' field ", __func__, MSG::ERROR);
-    return(1);
-  }
+  
+  auto findField = [this](const std::string &name, const size_t indx){
+    IdDictField* pField = m_dict->find_field(name);
+    if (pField) {
+      m_indices[indx] = pField->m_index;
+      return true;
+    } 
+    const auto lvl = (indx == ROW) ? MSG::DEBUG : MSG::ERROR;
+    localMessage("- unable to find '" + name +"' field ", __func__, lvl);
+    return false;
+  };
+  
+  // Find an SCT region
+  if (not findField("subdet", INDET)) return 1;
+  if (not findField("part", SCT)) return 1;
+  if (not findField("barrel_endcap", BARREL_EC)) return 1;
+  if (not findField("layer", LAYER_DISK)) return 1;
+  if (not findField("phi_module", PHI)) return 1;
+  if (not findField("eta_module", ETA)) return 1;
+  if (not findField("side", SIDE)) return 1;
+  m_hasRows = (findField("row", ROW));
+  if (not findField("strip", STRIP)) return 1;
 
   // Set the field implementations: for bec, lay/disk, eta/phi mod
 
   const IdDictRegion& region = *m_dict->m_regions[m_sct_region_index];
 
-  m_indet_impl = region.m_implementation[m_INDET_INDEX];
-  m_sct_impl = region.m_implementation[m_SCT_INDEX];
-  m_bec_impl = region.m_implementation[m_BARREL_EC_INDEX];
-  m_lay_disk_impl = region.m_implementation[m_LAYER_DISK_INDEX];
-  m_phi_mod_impl = region.m_implementation[m_PHI_MODULE_INDEX];
-  m_eta_mod_impl = region.m_implementation[m_ETA_MODULE_INDEX];
-  m_side_impl = region.m_implementation[m_SIDE_INDEX];
+  m_indet_impl = region.m_implementation[m_indices[INDET]];
+  m_sct_impl = region.m_implementation[m_indices[SCT]];
+  m_bec_impl = region.m_implementation[m_indices[BARREL_EC]];
+  m_lay_disk_impl = region.m_implementation[m_indices[LAYER_DISK]];
+  m_phi_mod_impl = region.m_implementation[m_indices[PHI]];
+  m_eta_mod_impl = region.m_implementation[m_indices[ETA]];
+  m_side_impl = region.m_implementation[m_indices[SIDE]];
   if (m_hasRows) {
-    m_row_impl = region.m_implementation[m_ROW_INDEX];
+    m_row_impl = region.m_implementation[m_indices[ROW]];
   }
-  m_strip_impl = region.m_implementation[m_STRIP_INDEX];
+  m_strip_impl = region.m_implementation[m_indices[STRIP]];
   localMessage("decode index and bit fields for each level: ", __func__, MSG::DEBUG);
   localMessage("indet    " + m_indet_impl.show_to_string(), __func__, MSG::DEBUG);
   localMessage("sct      " + m_sct_impl.show_to_string(), __func__, MSG::DEBUG);
@@ -716,20 +667,18 @@ SCT_ID::get_id(const IdentifierHash& hash_id,
                Identifier& id,
                const IdContext* context) const {
   int result = 1;
-
   id.clear();
-
   size_t begin = (context) ? context->begin_index() : 0;
   // cannot get hash if end is 0:
   size_t end = (context) ? context->end_index()  : 0;
   if (0 == begin) {
     // No hashes yet for ids with prefixes
-    if (m_SIDE_INDEX == end) {
-      if (hash_id < (unsigned int) (m_wafer_vec.end() - m_wafer_vec.begin())) {
+    if (m_indices[SIDE] == end) {
+      if (hash_id < m_wafer_vec.size()) {
         id = m_wafer_vec[hash_id];
         result = 0;
       }
-    } else if (m_STRIP_INDEX == end) {
+    } else if (m_indices[STRIP] == end) {
       // Do not know how to calculate strip id from hash yet!!
       localMessage( "Do not know how to calculate strip id from hash yet!!", __func__, MSG::ERROR );
     }
@@ -749,7 +698,7 @@ SCT_ID::get_expanded_id(const Identifier& id,
          << phi_module(id)
          << eta_module(id)
          << side(id);
-  if (!context || context->end_index() == m_STRIP_INDEX) {
+  if (!context || context->end_index() == m_indices[STRIP]) {
     if (m_hasRows) {
       exp_id << row(id) << strip(id);
     } else {
@@ -774,10 +723,10 @@ SCT_ID::get_hash(const Identifier& id,
   size_t end = (context) ? context->end_index()  : 0;
   if (0 == begin) {
     // No hashes yet for ids with prefixes
-    if (m_SIDE_INDEX == end) {
+    if (m_indices[SIDE] == end) {
       hash_id = wafer_hash(id);
       if (hash_id.is_valid()) result = 0;
-    } else if (context && context->end_index() == m_STRIP_INDEX) {
+    } else if (context && context->end_index() == m_indices[STRIP]) {
       // Must calculate for strip hash
       ExpandedIdentifier new_id;
       get_expanded_id(id, new_id);
@@ -801,4 +750,26 @@ SCT_ID::localMessage(const std::string & msgTxt, const std::string &func, const 
     #endif
   }
   
+}
+
+//all neighbours: opposite and then eta direction first
+std::array<IdentifierHash, 5>
+SCT_ID::neighbours_by_eta(const IdentifierHash & idh) const{
+  if (size_type index = idh; index<m_wafer_hash_max) return std::array<IdentifierHash, 5>{ 
+    get_other_side(idh), 
+    m_prev_eta_wafer_vec[index], m_next_eta_wafer_vec[index],
+    m_prev_phi_wafer_vec[index], m_next_phi_wafer_vec[index]
+  };
+  else return  invalidHashes;
+}
+  
+//all neighbours: opposite and then phi direction first
+std::array<IdentifierHash, 5>
+SCT_ID::neighbours_by_phi(const IdentifierHash & idh) const{
+  if (size_type index = idh; index<m_wafer_hash_max) return std::array<IdentifierHash, 5>{ 
+    get_other_side(idh), 
+    m_prev_phi_wafer_vec[index], m_next_phi_wafer_vec[index],
+    m_prev_eta_wafer_vec[index], m_next_eta_wafer_vec[index]
+  };
+  else return  invalidHashes;
 }

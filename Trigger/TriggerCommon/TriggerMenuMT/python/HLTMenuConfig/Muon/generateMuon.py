@@ -6,12 +6,15 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastRecoCfg, l2MuFastHypoCfg
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
 
 def generateChains( flags, chainDict ):
+    chainDict = splitChainDict(chainDict)[0]
+    
     stepName = getChainStepName('Muon', 1)
     stepReco, stepView = createStepView(stepName)
 
@@ -84,6 +87,7 @@ def generateChains( flags, chainDict ):
     l1Thresholds=[]
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
+    
     import pprint
     pprint.pprint(chainDict)
     chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )

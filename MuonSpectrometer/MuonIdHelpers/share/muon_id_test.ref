@@ -631,6 +631,7 @@ RpcIdHelper          INFO The element hash max is 600
 RpcIdHelper          INFO The detector element hash max is 1122
 RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
 RpcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
+RpcIdHelper         DEBUG  Maximum number of RPC gas gaps is 2
 TgcIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
@@ -1398,6 +1399,7 @@ RpcIdHelper          INFO The element hash max is 600
 RpcIdHelper          INFO The detector element hash max is 1122
 RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
 RpcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
+RpcIdHelper         DEBUG  Maximum number of RPC gas gaps is 2
 TgcIdHelper         DEBUG (Re)initialize
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
@@ -2268,6 +2270,7 @@ RpcIdHelper          INFO The element hash max is 600
 RpcIdHelper          INFO The detector element hash max is 1122
 RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
 RpcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
+RpcIdHelper         DEBUG  Maximum number of RPC gas gaps is 2
 TgcIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find csc region index: group, region size 0 0
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter

@@ -76,7 +76,7 @@ class TrigMultiTrkHypoTool: public ::AthAlgTool  {
 
     // Mass window cuts
     Gaudi::Property<int> m_nTrk { this, "nTrk",2,"Number of tracks in the vertex"};
-    Gaudi::Property< bool > m_oppositeCharge{this, "OppositeSign", false, "Require OS tracks" };
+    Gaudi::Property< int > m_TotChargeCut{this, "TotChargeCut", 0, "The Magnitude of the total charge to accept, negative is none" };
     Gaudi::Property< float > m_lowerMassCut{this, "LowerMassCut", -99. , "Lower mass cut for vertex " };
     Gaudi::Property< float > m_upperMassCut{this, "UpperMassCut", -99. , "Upper mass cut for vertex" };
     Gaudi::Property< bool >m_applyUpperMassCut{this, "ApplyUpperMassCut", false, "Apply the upper mass cut" };

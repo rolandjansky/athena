@@ -358,8 +358,6 @@ if TriggerFlags.doMuon():
     TriggerFlags.MuonSlice.doTrigMuonConfig=True
     import MuonCnvExample.MuonCablingConfig  # noqa: F401
     import MuonRecExample.MuonReadCalib      # noqa: F401
-    if globalflags.InputFormat.is_pool():
-        include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 

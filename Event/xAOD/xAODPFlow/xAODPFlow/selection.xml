@@ -40,7 +40,9 @@
   <class name="ElementLink<xAOD::TrackCaloClusterContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::TrackCaloClusterContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::TrackCaloClusterContainer_v1> > >" />
-      
+
+  <!-- Extra types needed -->
+  <class name="std::vector<std::vector<std::pair<ElementLink<DataVector<xAOD::CaloCluster_v1> >,double> > >" />
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
   <exclusion>

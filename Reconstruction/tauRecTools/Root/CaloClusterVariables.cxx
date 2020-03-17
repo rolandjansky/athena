@@ -21,7 +21,6 @@ m_totMass(DEFAULT),
 m_effMass(DEFAULT),
 m_totEnergy(DEFAULT),
 m_effEnergy(DEFAULT),
-m_numCells(0),
 m_doVertexCorrection(false) {
 }
 
@@ -29,7 +28,7 @@ m_doVertexCorrection(false) {
 // update/fill the cluster based variables
 //*******************************************
 
-bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
+bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
 
     const xAOD::Jet* pSeed = *pTau.jetLink();
     if(!pSeed) return false;
@@ -38,19 +37,10 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
     xAOD::JetConstituentVector::const_iterator nav_itE = pSeed->getConstituents().end();
     const xAOD::CaloCluster* pCluster;
    
-    unsigned int sumCells = 0;
-
     std::vector<CaloVertexedClusterType> constituents;
     for (; nav_it != nav_itE; ++nav_it) {
       pCluster = dynamic_cast<const xAOD::CaloCluster*> ( (*nav_it)->rawConstituent() );
       if (!pCluster) continue;
-
-      // XXX moved the calculation of num cells up because later on we don't have access to the actual clusters anymore
-      if(!inAODmode) {
-#ifndef XAOD_ANALYSIS
-	sumCells += pCluster->size();
-#endif
-      }
 
       // correct cluster
       if (pTau.vertexLink() && m_doVertexCorrection)
@@ -112,9 +102,6 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
     // Calculate the average radius of the constituents wrt the tau centroid
     this->m_aveRadius = this->m_numConstit > 0 ? sum_radii / this->m_numConstit : DEFAULT;
 
-    // sum of cells for the tau candidate
-    this->m_numCells = sumCells;
-    
     // Effective number of constituents
     this->m_effNumConstit = sum_of_E2 > 0 ? (sum_e * sum_e) / (sum_of_E2) : DEFAULT;
 

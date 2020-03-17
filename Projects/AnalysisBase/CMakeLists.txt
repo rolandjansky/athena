@@ -11,12 +11,6 @@ string( STRIP ${_version} _version )
 project( AnalysisBase VERSION ${_version} LANGUAGES C CXX )
 unset( _version )
 
-# Since this project may be built on platforms that provide Python 3
-# out of the box, let's explicitly stick to Python 2 (coming from the
-# externals project) for now.
-set( ATLAS_FORCE_PYTHON2 TRUE CACHE BOOL
-   "Force the usage of Python 2 in the AnalysisBase project" )
-
 # This project is built on top of AnalysisBaseExternals:
 find_package( AnalysisBaseExternals REQUIRED )
 
