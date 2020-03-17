@@ -45,13 +45,8 @@ private:
   Gaudi::Property<std::string> m_MonGroupName  {this, "NoisyROGroupName", "LArNoisyROMonGroup"};
   Gaudi::Property<std::vector<std::string> > m_SubDetNames{this, "SubDetNames", {} };
   Gaudi::Property<std::vector<std::string> > m_partitions {this, "PartitionNames", {} };
-  Gaudi::Property<bool> m_IsOnline {this, "IsOnline", false};
-  Gaudi::Property<bool> m_doTrigger {this, "doTrigger", true};
+  Gaudi::Property<bool> m_doTrigger {this, "doTrigger", false};
   Gaudi::Property<bool> m_storeLooseMNBFEBs {this, "storeLooseMNBFEBs", false};
-  Gaudi::Property<std::string> m_MNBTightFEBDefStr {this, "MNBTightFEBDefStr", "(unknown)"};
-  Gaudi::Property<std::string> m_MNBTight_PsVetoFEBDefStr {this, "MNBTight_PsVetoFEBDefStr", "(unknown)"};
-  Gaudi::Property<std::string> m_MNBLooseFEBDefStr {this, "MNBLooseFEBDefStr", "(unknown)"};
-  Gaudi::Property<unsigned int> m_BadFEBCut {this, "BadFEBCut", 999999};
 
   Gaudi::Property<std::vector<std::string> > m_EF_NoiseBurst_Triggers {this, "EFNoiseBurstTriggers", {} };
   Gaudi::Property<std::vector<std::string> > m_L1_NoiseBurst_Triggers {this, "L1NoiseBurstTriggers", {} };
@@ -77,67 +72,9 @@ private:
   
   /* Histogram grouping (part) */
   std::vector<std::map<std::string,int> > m_histoGroups;
-
-  /*
-  struct partitionHistos
-  {      
-    TH2F_LW* h_NoisyFEBFracPerEvt=nullptr;
-    TH2F_LW* h_MNBTightFEBFracPerEvt=nullptr;
-    TH2F_LW* h_MNBTight_PsVetoFEBFracPerEvt=nullptr;
-    TH2F_LW* h_MNBLooseFEBFracPerEvt=nullptr;
-    TH2F_LW* h_CandidateMNBTightFEBFracPerEvt=nullptr;
-    TH2F_LW* h_CandidateMNBTight_PsVetoFEBFracPerEvt=nullptr;
-    TH2F_LW* h_CandidateMNBLooseFEBFracPerEvt=nullptr;
-    TH1F_LW* h_NoisyEventFrac=nullptr;
-    TH1F_LW* h_SaturatedNoisyEventFrac=nullptr;
-    TH1F_LW* h_MNBTightEventFrac=nullptr;
-    TH1F_LW* h_MNBTight_PsVetoEventFrac=nullptr;
-    TH1F_LW* h_MNBLooseEventFrac=nullptr;
-    //    TH1F_LW* h_NoisyWEventFrac=nullptr;
-    TH1F_LW* h_NoisyEventTimeVetoFrac=nullptr;
-    TH1F_LW* h_SaturatedNoisyEventTimeVetoFrac=nullptr;
-    TH1F_LW* h_MNBTightEventTimeVetoFrac=nullptr;
-    TH1F_LW* h_MNBTight_PsVetoEventTimeVetoFrac=nullptr;
-    TH1F_LW* h_MNBLooseEventTimeVetoFrac=nullptr;
-    //    TH1F_LW* h_NoisyWEventTimeVetoFrac=nullptr;
-    TH2I_LW* h_MNBKnownFEB=nullptr;
-    TH1I_LW* h_NoisyEventTrigger=nullptr;
-    TH1I_LW* h_NoisyEventTriggerL1=nullptr;
-    
-    // this are temporary histogram that never gets normalised
-    // in 'online' mode they are used to produce regularly the 'Frac'
-    // histograms
-    TH2F_LW* h_NoisyFEBPerEvt=nullptr;
-    TH2F_LW* h_MNBTightFEBPerEvt=nullptr;
-    TH2F_LW* h_MNBTight_PsVetoFEBPerEvt=nullptr;
-    TH2F_LW* h_MNBLooseFEBPerEvt=nullptr;
-    TH2F_LW* h_CandidateMNBTightFEBPerEvt=nullptr;
-    TH2F_LW* h_CandidateMNBLooseFEBPerEvt=nullptr;
-    TH1I_LW* h_NoisyEvent=nullptr;
-    TH1I_LW* h_SaturatedNoisyEvent=nullptr;
-    TH1I_LW* h_MNBTightEvent=nullptr;
-    TH1I_LW* h_MNBTight_PsVetoEvent=nullptr;
-    TH2F_LW* h_CandidateMNBTight_PsVetoFEBPerEvt=nullptr;
-    TH1I_LW* h_MNBLooseEvent=nullptr;
-    //    TH1I_LW* h_NoisyWEvent=nullptr;
-    TH1I_LW* h_NoisyEventTimeVeto=nullptr;
-    TH1I_LW* h_SaturatedNoisyEventTimeVeto=nullptr;
-    TH1I_LW* h_MNBTightEventTimeVeto=nullptr;
-    TH1I_LW* h_MNBTight_PsVetoEventTimeVeto=nullptr;
-    TH1I_LW* h_MNBLooseEventTimeVeto=nullptr;
-    //TH1I_LW* h_NoisyWEventTimeVeto=nullptr;
-  };
-
-  */
   
   // fill histogram of triggers
-  //void fillTriggerHisto(partitionHistos& partition, uint8_t triggerbits, uint8_t L1triggerbits);
-
-  //  partitionHistos m_BarrelA, m_BarrelC, m_EMECA, m_EMECC;
-  //std::vector<partitionHistos> m_partHistos;
-
-
-  //ToolHandle<Trig::TrigDecisionTool> m_trigDec;
+  void fillTriggerHisto(size_t partition, unsigned long triggerbits, unsigned long L1triggerbits) const;
 
   mutable bool m_knownFilled ATLAS_THREAD_SAFE;
   mutable std::mutex m_lock ATLAS_THREAD_SAFE;
