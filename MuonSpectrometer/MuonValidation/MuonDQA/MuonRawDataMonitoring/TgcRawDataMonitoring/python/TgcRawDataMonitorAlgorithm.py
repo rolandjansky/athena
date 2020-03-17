@@ -106,7 +106,7 @@ if __name__=='__main__':
     Configurable.configurableRun3Behavior = 1
 
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO
+    from AthenaCommon.Constants import INFO,DEBUG
     log.setLevel(INFO)
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
