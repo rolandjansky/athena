@@ -35,7 +35,6 @@ def MuonPrdCacheCfg():
                                        RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
                                        )
 
-    cacheCreator.OutputLevel = DEBUG
     acc.addEventAlgo( cacheCreator, primary=True )
     return acc
 

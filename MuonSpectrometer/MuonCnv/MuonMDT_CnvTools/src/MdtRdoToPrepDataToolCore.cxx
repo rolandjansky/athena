@@ -586,6 +586,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
       ATH_MSG_WARNING("Found issue MDT RDO decoder for subdetId/mrodId/csmId "
                       <<subdetId<<"/"<<mrodId<<"/"<<csmId<<" amtHit channelId/tdcId ="
                       <<amtHit->channelId()<<"/"<<amtHit->tdcId());
+      itD++;
       continue;
     }
 
@@ -598,6 +599,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
           ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_muonIdHelperTool->mdtIdHelper().show_to_string(channelId) );
           delete newDigit;
+	  itD++;
           continue;
         }
       }
@@ -669,6 +671,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
       ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
                       <<m_idHelper->toString(channelId)<<">  =>>ignore this hit");
       delete newDigit;
+      itD++;
       continue;
     }
     if (!descriptor->containsId(channelId)) {
@@ -676,6 +679,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
                       <<" does not contains candidate prd Identifier <"
                       <<m_idHelper->toString(channelId)<<">  =>>ignore this hit");
       delete newDigit;
+      itD++;
       continue;
     }
       
