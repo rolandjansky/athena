@@ -54,7 +54,11 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
     if not flags.DQ.DataType == 'heavyioncollision':
 
-        tileJetMonAlg.JVT = CfgMgr.JetVertexTaggerTool()
+        jvtTool = CfgMgr.JetVertexTaggerTool()
+        jvtTool.JetContainer = tileJetMonAlg.JetContainer
+        if jvtTool.JetContainer == "":
+            jvtTool.JetContainer = "AntiKt4EMTopoJets"
+        tileJetMonAlg.JVT = jvtTool
 
         jetCleaningTool = CfgMgr.JetCleaningTool()
         jetCleaningTool.CutLevel = "LooseBad"
