@@ -14,7 +14,7 @@ if conddb.dbdata == 'COMP200':
     btagrun1=True
 elif conddb.isMC:
     btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
-   # btagItk=(geoFlags.Run()=="RUN4") # Uncomment when btagItk=True
+   # btagItk=(commonGeoFlags.Run()=="RUN4") # Uncomment when btagItk=True
 
 metaIP3DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP3D',
