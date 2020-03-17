@@ -34,7 +34,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( BCMPrimeLib
                      src/BCMPrimeModule.cxx
                      src/BCMPrimeXMLHelper.cxx
-                     PUBLIC_HEADERS BCMPrime/BCMPrimeModule.h BCMPrime/BCMPrimeXMLHelper.h
+                     PUBLIC_HEADERS BCMPrime
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} 
 		             AthenaBaseComps AthenaKernel GeoModelKernel GaudiKernel
