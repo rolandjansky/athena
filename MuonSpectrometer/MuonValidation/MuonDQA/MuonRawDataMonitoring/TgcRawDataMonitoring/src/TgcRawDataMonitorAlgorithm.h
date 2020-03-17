@@ -43,8 +43,6 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   
-  
-  
   struct TagDef{
     TString eventTrig;
     TString tagTrig;
@@ -105,15 +103,13 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int bunch;
     int inner;
   };
+
   
  private:
 
 
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey{this,"MuonContainerName","Muons","Offline muon track container"};
-  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonEFContainerKey{this,"MuonEFContainerName","HLT_MuonsCB_RoI","HLT RoI-based muon track container"};
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey{this,"MuonRoIContainerName","LVL1MuonRoIs","L1 muon RoI container"};
-  /* ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"}; */
-  
   
   SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_TgcPrepDataContainerKey{this,"TgcPrepDataContainerName","TGC_MeasurementsAllBCs","current BC TGC PRD"};
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TgcCoinDataContainerCurrBCKey{this,"TgcCoinDataContainerCurrBCName","TrigT1CoinDataCollection","TGC Coin Data Container CurrBC"};
@@ -121,14 +117,17 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TgcCoinDataContainerPrevBCKey{this,"TgcCoinDataContainerPrevBCName","TrigT1CoinDataCollectionPriorBC","TGC Coin Data Container PrevBC"};
   
   ToolHandle<Muon::MuonIdHelperTool> m_MuonIdHelperTool{this, "MuonIdHelperTool", "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  /* SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey",  */
-  /*     "MuonDetectorManager",  */
-  /*     "Key of input MuonDetectorManager condition data"};     */
-  
-  StatusCode triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
   
   StringProperty m_trigTagList{this,"TagTrigList","HLT_mu26_ivarmedium_L1MU20","list of triggers to be used for trigger matching"};
-  BooleanProperty  m_TagAndProbe{this,"TagAndProbe",false,"switch to perform tag-and-probe method"};
+  BooleanProperty m_TagAndProbe{this,"TagAndProbe",false,"switch to perform tag-and-probe method"};
+
+  BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD"};
+  BooleanProperty m_anaTgcCoin{this,"AnaTgcCoin",false,"switch to perform analysis on TGC Coin"};
+  BooleanProperty m_anaOfflMuon{this,"AnaOfflMuon",true,"switch to perform analysis on xAOD::Muon"};
+  BooleanProperty m_anaMuonRoI{this,"AnaMuonRoI",true,"switch to perform analysis on xAOD::LVL1MuonRoI"};
+
+  StringProperty m_MuonEFContainerName{this,"MuonEFContainerName","HLT_MuonsCB_RoI","HLT RoI-based muon track container"};
+
   DoubleProperty m_trigMatchWindow{this,"TrigMatchingWindow",0.005,"Window size in R for trigger matching"};
   DoubleProperty m_l1trigMatchWindow1{this,"L1TrigMatchingWindow1",0.15,"Window size in R for L1 trigger matching: param 1"};
   DoubleProperty m_l1trigMatchWindow2{this,"L1TrigMatchingWindow2",0.3,"Window size in R for L1 trigger matching: param 2"};
@@ -152,10 +151,10 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   DoubleProperty m_endcapPivotPlaneMaximumRadius{this,"endcapPivotPlaneMaximumRadius", 11977.,"maximum radius of pivot plane in endcap region"};
   DoubleProperty m_barrelPivotPlaneHalfLength{this,"barrelPivotPlaneHalfLength", 9500.,"half length of pivot plane in barrel region"};
   
-
   std::vector<TagDef> m_trigTagDefs;
   std::vector<double> m_extZposition;
-    
+  
+  StatusCode triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
 
   /* track extrapolator tool */
   enum TargetDetector { UNDEF, TGC, RPC };
