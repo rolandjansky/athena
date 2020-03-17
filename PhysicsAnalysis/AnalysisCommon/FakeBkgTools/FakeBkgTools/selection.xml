@@ -4,4 +4,10 @@
    <class name="CP::AsymptMatrixTool" />
    <class name="CP::LhoodMM_tools" />
    <class name="CP::LhoodMMFitInfo" />
+   <class name="FakeBkgTools::Efficiency" />
+   <class name="FakeBkgTools::Uncertainty" />
+   <class name="boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty>" />
+   <class name="boost::container::dtl::flat_tree<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty>,boost::container::dtl::select1st<unsigned short>,less<unsigned short>,boost::container::new_allocator<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty> > >" >
+     <field name="m_data" transient="true" />
+   </class>
 </lcgdict>
