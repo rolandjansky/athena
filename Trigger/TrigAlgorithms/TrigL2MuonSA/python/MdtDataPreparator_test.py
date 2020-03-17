@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TrigL2MuonSA/share/MdtDataPreparator_test.py
 # Author: scott snyder
@@ -45,7 +45,7 @@ def testCfg (configFlags):
     result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
 
     TrigL2MuonSA__MdtDataPreparator=CompFactory.TrigL2MuonSA__MdtDataPreparator
-    result.addPublicTool (TrigL2MuonSA__MdtDataPreparator ('TrigL2MuonSA::MdtDataPreparator', OutputLevel = 1))
+    result.addPublicTool (TrigL2MuonSA__MdtDataPreparator ('TrigL2MuonSA::MdtDataPreparator', OutputLevel = 1)) # noqa: ATL900
     
     result.addEventAlgo (TestAlg ('TestAlg'))
     return result
