@@ -7,6 +7,7 @@
 
 // Framework include(s):
 #include "AnaAlgorithm/AnaAlgorithm.h"
+#include "AnaAlgorithm/FilterReporterParams.h"
 
 // System include(s):
 #include <string>
@@ -48,6 +49,8 @@ namespace CP {
       unsigned m_minVertices;
       /// Number of track particles required per vertex
       unsigned m_minTracks;
+
+     EL::FilterReporterParams m_filterParams {this};
 
       /// @}
 

@@ -8,6 +8,8 @@
 // EDM include(s):
 #include "xAODTracking/VertexContainer.h"
 
+#include "AnaAlgorithm/FilterReporter.h"
+
 namespace CP {
 
    VertexSelectionAlg::VertexSelectionAlg( const std::string& name,
@@ -37,6 +39,8 @@ namespace CP {
 
    StatusCode VertexSelectionAlg::execute() {
 
+      EL::FilterReporter filter (m_filterParams, false);
+
       // Retrieve the vertex container:
       const xAOD::VertexContainer* vertices = nullptr;
       ATH_CHECK( evtStore()->retrieve( vertices, m_vertexKey ) );
@@ -60,7 +64,7 @@ namespace CP {
       }
 
       // Decide about the event:
-      setFilterPassed( goodVertices >= m_minVertices );
+      filter.setPassed( goodVertices >= m_minVertices );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
