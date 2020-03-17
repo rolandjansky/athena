@@ -42,7 +42,6 @@ class TauSubstructureVariables : public TauRecToolBase
          * eta and phi of the cells are corrected wrt to the origin of the tau vertex
          */
         bool m_doVertexCorrection;
-        bool m_inAODmode; //!< don't update everything if running on AODs
 };
 
 #endif
