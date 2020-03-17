@@ -52,6 +52,8 @@ namespace top {
     StatusCode initialize();
     StatusCode execute();
   private:
+    StatusCode decorateJets(const xAOD::JetContainer* jets, bool isNominal);
+    
     std::shared_ptr<top::TopConfig> m_config;
 
     CP::SystematicSet m_systNominal;
