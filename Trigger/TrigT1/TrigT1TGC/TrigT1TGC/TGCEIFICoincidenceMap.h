@@ -8,13 +8,13 @@
 #include "TrigT1TGC/TGCInnerTrackletSlot.hh"
 #include "TrigT1TGC/TGCArguments.hh"
 
-#include <vector>
-#include <string>
-
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
+
+#include <string>
+#include <bitset>
 
 namespace LVL1TGCTrigger {
  
@@ -75,9 +75,11 @@ class TGCEIFICoincidenceMap
   enum {N_PT_THRESH=6};
   enum {N_ROI_IN_SSC=8};
 
-private:
-  int m_flagPT[N_PT_THRESH][N_Endcap_SSC][N_EndcapSector]; 
-  // 1 use; 0: not use; -1: not used for Trigger
+ private:
+  // The flagPT is a flag whether each pT is applied the coincidence or not.
+  // In each bit (of N_PT_THRESH bits), 1 applies the coincidence, and 0 is not.
+  // The LSB is the lowest pT threshold, and MSB is the highest pT threshold.
+  std::bitset<N_PT_THRESH> m_flagPT[N_Endcap_SSC][N_EndcapSector];
 
   int m_flagROI[N_ROI_IN_SSC][N_Endcap_SSC][N_EndcapSector]; 
   // 1 use; 0: not use; -1: not used for Trigger

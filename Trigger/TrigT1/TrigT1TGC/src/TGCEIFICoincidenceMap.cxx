@@ -35,12 +35,8 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
       for (size_t input=0; input< N_Input_InnerSector; input++){
 	m_map[input][ssc][sec].setTriggerBits(true);
       }
-      m_flagPT[0][ssc][sec] =0; //pt1     
-      m_flagPT[1][ssc][sec] =0; //pt2     
-      m_flagPT[2][ssc][sec] =0; //pt3     
-      m_flagPT[3][ssc][sec] =0; //pt4     
-      m_flagPT[4][ssc][sec] =1; //pt5     
-      m_flagPT[5][ssc][sec] =1; //pt6     
+      m_flagPT[ssc][sec] = std::bitset<N_PT_THRESH>(0x30);  // 6b'110000
+
       for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
 	m_flagROI[pos][ssc][sec] = 1;
       }
@@ -71,12 +67,8 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
       for (size_t input=0; input< N_Input_InnerSector; input++){
 	m_map[input][ssc][sec].setTriggerBits(true);
       }
-      m_flagPT[0][ssc][sec] =0; //pt1     
-      m_flagPT[1][ssc][sec] =0; //pt2     
-      m_flagPT[2][ssc][sec] =0; //pt3     
-      m_flagPT[3][ssc][sec] =0; //pt4     
-      m_flagPT[4][ssc][sec] =1; //pt5     
-      m_flagPT[5][ssc][sec] =1; //pt6     
+      m_flagPT[ssc][sec] = std::bitset<N_PT_THRESH>(0x30);  // 6b'110000
+
       for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
 	m_flagROI[pos][ssc][sec] = 1;
       }
@@ -101,12 +93,7 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
     tgcArgs()->set_USE_INNER( false );
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
-	m_flagPT[0][ssc][sec] =0; //pt1     
-	m_flagPT[1][ssc][sec] =0; //pt2     
-	m_flagPT[2][ssc][sec] =0; //pt3     
-	m_flagPT[3][ssc][sec] =0; //pt4     
-	m_flagPT[4][ssc][sec] =0; //pt5     
-	m_flagPT[5][ssc][sec] =0; //pt6     
+        m_flagPT[ssc][sec] = std::bitset<N_PT_THRESH>(0x00);  // 6b'000000
       }
     }    
   }
@@ -130,12 +117,8 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(const TGCEIFICoincidenceMap& right)
       for (size_t input=0; input< N_Input_InnerSector; input++){
 	m_map[input][ssc][sec] = right.m_map[input][ssc][sec];
       }
-      m_flagPT[0][ssc][sec] = right.m_flagPT[0][ssc][sec];
-      m_flagPT[1][ssc][sec] = right.m_flagPT[1][ssc][sec];
-      m_flagPT[2][ssc][sec] = right.m_flagPT[2][ssc][sec];
-      m_flagPT[3][ssc][sec] = right.m_flagPT[3][ssc][sec];
-      m_flagPT[4][ssc][sec] = right.m_flagPT[4][ssc][sec];
-      m_flagPT[5][ssc][sec] = right.m_flagPT[5][ssc][sec];
+      m_flagPT[ssc][sec] = right.m_flagPT[ssc][sec];
+
       for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
 	m_flagROI[pos][ssc][sec] = right.m_flagROI[pos][ssc][sec];
       }
@@ -156,12 +139,8 @@ TGCEIFICoincidenceMap& TGCEIFICoincidenceMap::operator=(const TGCEIFICoincidence
 	for (size_t input=0; input< N_Input_InnerSector; input++){
 	  m_map[input][ssc][sec] = right.m_map[input][ssc][sec];
 	}
-	m_flagPT[0][ssc][sec] = right.m_flagPT[0][ssc][sec];
-	m_flagPT[1][ssc][sec] = right.m_flagPT[1][ssc][sec];
-	m_flagPT[2][ssc][sec] = right.m_flagPT[2][ssc][sec];
-	m_flagPT[3][ssc][sec] = right.m_flagPT[3][ssc][sec];
-	m_flagPT[4][ssc][sec] = right.m_flagPT[4][ssc][sec];
-	m_flagPT[5][ssc][sec] = right.m_flagPT[5][ssc][sec];
+        m_flagPT[ssc][sec] = right.m_flagPT[ssc][sec];
+
 	for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
 	  m_flagROI[pos][ssc][sec] = right.m_flagROI[pos][ssc][sec];
 	}
@@ -228,7 +207,7 @@ bool TGCEIFICoincidenceMap::readMap()
       return false;
     }
     for (size_t pt=0; pt<N_PT_THRESH; pt++){
-      m_flagPT[pt][sscId][sectorId] = use[pt];
+      m_flagPT[sscId][sectorId][pt] = use[pt];
     }
     for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
       m_flagROI[pos][sscId][sectorId] = roi[pos];
@@ -259,7 +238,7 @@ void TGCEIFICoincidenceMap::dumpMap() const
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
       file << "# " << sec << " " << ssc << " ";
-      for(int i=0; i<6; i++) file << m_flagPT[i][ssc][sec] << " ";
+      for(int i=0; i<6; i++) file << m_flagPT[ssc][sec].test(i) << " ";
       for(int i=0; i<8; i++) file << m_flagROI[i][ssc][sec] << " ";
       file << std::endl;
       file << m_map[0][ssc][sec].getTriggerWord() << " "
@@ -285,7 +264,7 @@ int TGCEIFICoincidenceMap::getFlagPT(const int pt,
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getFlagPtEifi(m_side,pt-1,ssc,sec);
   } else {
-    return  m_flagPT[pt-1][ssc][sec];
+    return  m_flagPT[ssc][sec].test(pt-1);
   }
 }
 
