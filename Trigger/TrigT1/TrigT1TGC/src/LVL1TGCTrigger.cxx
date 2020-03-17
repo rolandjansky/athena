@@ -94,7 +94,7 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() && m_tgcArgs.USE_INNER() );
     m_tgcArgs.set_TILE_MU( m_TILEMU.value() && m_tgcArgs.USE_INNER() );
-    m_tgcArgs.set_USE_CONDDB( true );
+    m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
 
     // initialize to read condition DB key of TGCTriggerData
