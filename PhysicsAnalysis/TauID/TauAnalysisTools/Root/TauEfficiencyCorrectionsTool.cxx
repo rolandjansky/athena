@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -728,7 +728,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
 	  // Every other trigger having "tau160" is only part of 2017/2018.
 	  // Lastly check for other possible triggers, if this is not fulfilled the passed trigger is not supported.
           if (m_sTriggerName.find("mediumRNN_tracktwoMVA") != std::string::npos)
-            m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/"+id+"/Trigger_TrueHadTau_2019-summer_data2018aftTS1_"+GetTriggerSFMeasrementString()+m_sTriggerName+".root";
+            m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/"+id+"/Trigger_TrueHadTau_2019-summer_data2018aftTS1"+GetTriggerSFMeasrementString()+m_sTriggerName+".root";
           else if (m_sTriggerName.find("tracktwoEF") != std::string::npos)
           {
             m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/"+id+"/Trigger_TrueHadTau_2019-summer_data2018"+GetTriggerSFMeasrementString()+m_sTriggerName+".root";
