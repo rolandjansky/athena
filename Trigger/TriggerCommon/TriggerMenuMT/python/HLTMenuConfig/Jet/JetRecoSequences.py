@@ -59,7 +59,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         recoSeq += JetViewAlg("jetview_"+filteredJetsName,
                               InputContainer=basicJetsName,
                               OutputContainer=filteredJetsName,
-                              PtMin=rcJetPtMin, OutputLevel=1)
+                              PtMin=rcJetPtMin)
     
         rcJetDef = JetRecoConfiguration.defineReclusteredJets(jetRecoDict)
         rcJetDef.inputdef.inputname = filteredJetsName
