@@ -8,6 +8,7 @@
 #define ASG_ANALYSIS_ALGORITHMS__EVENT_FLAG_SELECTION_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AnaAlgorithm/FilterReporterParams.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 
 namespace CP
@@ -32,6 +33,9 @@ namespace CP
     
     /// \brief a vector of accessors to read the flags
     std::vector<std::unique_ptr<ISelectionAccessor>> m_accessors;
+
+    /// \brief the filter reporter parameters
+    EL::FilterReporterParams m_filterParams {this};
 
     /// \brief counter for passed events
     long long m_passed = 0;
