@@ -70,7 +70,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
 
         log.debug('electron chain part = ' + str(self.chainPart))
-        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo']
+        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['L2IDAlg'] + self.chainPart['isoInfo']
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
             
