@@ -1,20 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthViews/SimpleView.h"
 #include "AthViews/View.h"
+
 using namespace SG;
 
 View::View(const std::string& name, const int index, const bool AllowFallThrough, std::string const& storeName) {
+
+  std::string fullName = name;
   if ( index == -1 ) {
     m_index = 0;
-    m_implementation = new SimpleView(name, AllowFallThrough, storeName);
   }
   else {
     m_index = index;
-    m_implementation = new SimpleView(name+"_"+std::to_string(index), AllowFallThrough, storeName);
+    fullName += "_" + std::to_string( index );
   }
+
+#ifdef ATHVIEWS_DEBUG
+  m_implementation = new DebugView( fullName, AllowFallThrough, storeName );
+#else
+  m_implementation = new SimpleView( fullName, AllowFallThrough, storeName );
+#endif
 }
 
 View::~View () {
