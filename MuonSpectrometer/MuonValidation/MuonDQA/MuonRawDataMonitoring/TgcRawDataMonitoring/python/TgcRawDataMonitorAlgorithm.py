@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -16,6 +16,10 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
+
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    result.merge(AtlasGeometryCfg(inputFlags))
+
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     trackGeomCfg = TrackingGeometrySvcCfg(inputFlags)
     geom_svc = trackGeomCfg.getPrimary() 
@@ -26,8 +30,6 @@ def TgcRawDataMonitoringConfig(inputFlags):
     helper = AthMonitorCfgHelper(inputFlags,'TgcRawDataMonitorCfg')
 
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
-
-    tgcRawDataMonAlg.TagAndProbe = True
 
     tgcRawDataMonAlg.TagTrigList = 'HLT_mu26_ivarmedium'
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu26_ivarmedium'
@@ -40,8 +42,6 @@ def TgcRawDataMonitoringConfig(inputFlags):
         tgcRawDataMonAlg.MuonEFContainerName='HLT_xAOD__MuonContainer_MuonEFInfo'
     if 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
-    if 'TrigT1CoinDataCollection' in inputFlags.Input.Collections:
-        tgcRawDataMonAlg.AnaTgcCoin=True
     
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'
     import math
@@ -49,9 +49,6 @@ def TgcRawDataMonitoringConfig(inputFlags):
     trigPath = 'Trig/'
 
     myGroup = helper.addGroup(tgcRawDataMonAlg,'TgcRawDataMonitor',mainDir)
-
-    myGroup.defineHistogram('random', title='LB;x;Events',
-                            path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
 
     myGroup.defineHistogram('roi_thr;MuonRoI_Thresholds_RPC',title='MuonRoI Thresholds RPC;MuonRoI Threshold number;Number of events',
                             cutmask='roi_rpc',path=trigPath,xbins=20,xmin=-0.5,xmax=19.5)
@@ -97,6 +94,18 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                 type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
         
 
+    hitPath = 'Hit/'
+    myGroup.defineHistogram('hit_n;TgcPrd_nHits',title='TgcPrd_nHits;Number of hits;Number of events',
+                            path=hitPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('hit_bunch;TgcPrd_Timing',title='TgcPrd_Timing;Timing;Number of events',
+                            path=hitPath,xbins=4,xmin=-1.5,xmax=1.5,xlabels=['Previous','Current','Next'])
+
+    coinPath = 'Coin/'
+    myGroup.defineHistogram('coin_n;TgcCoin_nCoins',title='TgcPrd_nCoins;Number of coincidences;Number of events',
+                            path=coinPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('coin_bunch;TgcCoin_Timing',title='TgcCoin_Timing;Timing;Number of events',
+                            path=coinPath,xbins=4,xmin=-1.5,xmax=1.5,xlabels=['Previous','Current','Next'])
+    
     acc = helper.result()
     result.merge(acc)
     return result
@@ -111,24 +120,16 @@ if __name__=='__main__':
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     import glob
-    inputs = glob.glob('/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2020-03-01T2140/TrigP1Test_test_trigP1_v1PhysP1_T0Mon_build/AOD.pool.root')
 
     inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/run_mc_zmumu_normal/*/tmp.ESD')
     # inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/run_mc_zmumu_normal/*/AOD*')
     # inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/mc_scan_normal/*/tmp.ESD')
 
-
     ConfigFlags.Input.Files = inputs
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
 
-
-    #ConfigFlags.IOVDb.GlobalTag = "'CONDBR2-BLKPA-2017-08"
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"
-
-    # from AthenaCommon.Include import Include, IncludeError, include
-    # include("RecExCommon/RecExCommon_topOptions.py")
-
 
     ConfigFlags.lock()
     ConfigFlags.dump()
@@ -141,16 +142,10 @@ if __name__=='__main__':
     cfg = MainServicesSerialCfg()
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    # Configuration of the ATLAS Geo Model
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    geoCfg = AtlasGeometryCfg(ConfigFlags)
-    cfg.merge(geoCfg)
-    
     tgcRawDataMonitorAcc = TgcRawDataMonitoringConfig(ConfigFlags)
     tgcRawDataMonitorAcc.OutputLevel = DEBUG
     cfg.merge(tgcRawDataMonitorAcc)
 
-    # cfg.printConfig(withDetails=False)
     cfg.printConfig(withDetails=True, summariseProps = True)
 
     cfg.run()

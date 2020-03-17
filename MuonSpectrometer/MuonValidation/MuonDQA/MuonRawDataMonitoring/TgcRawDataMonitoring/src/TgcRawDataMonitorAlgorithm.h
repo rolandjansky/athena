@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCRAWDATAMONITORING_TGCRAWDATAMONITORALGORITHM_H
@@ -13,28 +13,8 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-/* #include "MuonReadoutGeometry/MuonDetectorManager.h" */
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-
-/* for track extrapolator */
-/* #include "GaudiKernel/ToolHandle.h" */
-/* #include "GaudiKernel/ServiceHandle.h" */
-/* #include "GaudiKernel/IAlgTool.h" */
-/* #include <string> */
-/* #include "xAODMuon/MuonContainer.h" */
-/* #include "AthenaKernel/errorcheck.h" */
-/* #include "TrkTrack/TrackStateOnSurface.h" */
-
 #include "TrkExInterfaces/IExtrapolator.h"
-/* #include "CLHEP/Vector/ThreeVector.h" */
-
-/* namespace Rec { class TrackParticle; } */
-/* namespace Trk { class IExtrapolator; } */
-/* namespace Trk { class TrackStateOnSurface; } */
-/* namespace CLHEP { class Hep2Vector; } */
-/* namespace CLHEP { class Hep3Vector; } */
-
-
 
 class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
@@ -118,16 +98,13 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   
   ToolHandle<Muon::MuonIdHelperTool> m_MuonIdHelperTool{this, "MuonIdHelperTool", "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
+  StringProperty m_packageName{this,"PackageName","TgcRawDataMonitor","group name for histograming"};
   StringProperty m_trigTagList{this,"TagTrigList","HLT_mu26_ivarmedium_L1MU20","list of triggers to be used for trigger matching"};
-  BooleanProperty m_TagAndProbe{this,"TagAndProbe",false,"switch to perform tag-and-probe method"};
-
-  BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD"};
-  BooleanProperty m_anaTgcCoin{this,"AnaTgcCoin",false,"switch to perform analysis on TGC Coin"};
+  BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
+  BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD/Coin"};
   BooleanProperty m_anaOfflMuon{this,"AnaOfflMuon",true,"switch to perform analysis on xAOD::Muon"};
   BooleanProperty m_anaMuonRoI{this,"AnaMuonRoI",true,"switch to perform analysis on xAOD::LVL1MuonRoI"};
-
   StringProperty m_MuonEFContainerName{this,"MuonEFContainerName","HLT_MuonsCB_RoI","HLT RoI-based muon track container"};
-
   DoubleProperty m_trigMatchWindow{this,"TrigMatchingWindow",0.005,"Window size in R for trigger matching"};
   DoubleProperty m_l1trigMatchWindow1{this,"L1TrigMatchingWindow1",0.15,"Window size in R for L1 trigger matching: param 1"};
   DoubleProperty m_l1trigMatchWindow2{this,"L1TrigMatchingWindow2",0.3,"Window size in R for L1 trigger matching: param 2"};
@@ -135,18 +112,14 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   DoubleProperty m_l1trigMatchWindow4{this,"L1TrigMatchingWindow4",0.36,"Window size in R for L1 trigger matching: param 4"};
   DoubleProperty m_l1trigMatchWindow5{this,"L1TrigMatchingWindow5",-0.0016,"Window size in R for L1 trigger matching: param 5"};
   DoubleProperty m_isolationWindow{this,"IsolationWindow",0.1,"Window size in R for isolation with other muons"};
-  StringProperty m_packageName{this,"PackageName","TgcRawDataMonitor","group name for histograming"};
-  
   DoubleProperty m_M1_Z{this,"M1_Z",13605.0,"z-position of TGC M1-station in mm for track extrapolate"};
   DoubleProperty m_M2_Z{this,"M2_Z",14860.0,"z-position of TGC M2-station in mm for track extrapolate"};
   DoubleProperty m_M3_Z{this,"M3_Z",15280.0,"z-position of TGC M3-station in mm for track extrapolate"};
   DoubleProperty m_EI_Z{this,"EI_Z",7425.0,"z-position of TGC EI-station in mm for track extrapolate"};
   DoubleProperty m_FI_Z{this,"FI_Z",7030.0,"z-position of TGC FI-station in mm for track extrapolate"};
-
   DoubleProperty m_muonMass{this,"MuonMass",105.6583755,"muon invariant mass in MeV"};
   DoubleProperty m_zMass{this,"ZMass",91187.6,"muon invariant mass in MeV"};
   DoubleProperty m_zMassWindow{this,"ZMassWindow",10000,"muon invariant mass half-window in MeV"};
-
   DoubleProperty m_endcapPivotPlaneMinimumRadius{this,"endcapPivotPlaneMinimumRadius",0.,"minimum radius of pivot plane in endcap region"};
   DoubleProperty m_endcapPivotPlaneMaximumRadius{this,"endcapPivotPlaneMaximumRadius", 11977.,"maximum radius of pivot plane in endcap region"};
   DoubleProperty m_barrelPivotPlaneHalfLength{this,"barrelPivotPlaneHalfLength", 9500.,"half length of pivot plane in barrel region"};

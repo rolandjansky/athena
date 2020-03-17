@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRawDataMonitorAlgorithm.h"
@@ -54,7 +54,6 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
     m_trigTagDefs.push_back(def);
   }
   
-
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -71,6 +70,12 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   variables.push_back(lb);
   variables.push_back(run);
 
+
+  if( !m_anaMuonRoI.value()){
+    fill(m_packageName,variables);
+    variables.clear();
+    return StatusCode::SUCCESS;
+  }
   /* raw LVL1MuonRoIs distributions */
   SG::ReadHandle<xAOD::MuonRoIContainer> rois(m_MuonRoIContainerKey, ctx);
   if(!rois.isValid()){
@@ -78,7 +83,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     return StatusCode::FAILURE;
   }
   
-
   auto roi_eta = Monitored::Collection("roi_eta",*rois, []( const xAOD::MuonRoI* m ){return m->eta();});  variables.push_back( roi_eta );
   auto roi_phi = Monitored::Collection("roi_phi",*rois, []( const xAOD::MuonRoI* m ){return m->phi();});  variables.push_back( roi_phi );
   auto roi_phi_rpc = Monitored::Collection("roi_phi_rpc",*rois, []( const xAOD::MuonRoI* m ){return (m->getSource()==xAOD::MuonRoI::Barrel)?m->phi():-10;});  variables.push_back( roi_phi_rpc );
@@ -114,12 +118,18 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   auto thrmask14 = Monitored::Collection("thrmask14",*rois,[](const xAOD::MuonRoI* m){return m->getThrNumber()==14;});variables.push_back(thrmask14);
   auto thrmask15 = Monitored::Collection("thrmask15",*rois,[](const xAOD::MuonRoI* m){return m->getThrNumber()==15;});variables.push_back(thrmask15);
 
+  if( !m_anaOfflMuon.value() ){
+    fill(m_packageName,variables);
+    variables.clear();
+    return StatusCode::SUCCESS;
+  }
+
   SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
   if(!muons.isValid()){
     ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
     return StatusCode::FAILURE; 
- }
-  
+  }
+
   std::vector<MyMuon> mymuons;
   for(const auto& muon : *muons){
     if(muon->muonType()!=xAOD::Muon::Combined)continue;
@@ -190,7 +200,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     }
   }
   
-  
   auto muon_eta = Monitored::Collection("muon_eta",mymuons,[](const MyMuon& m){return (m.muon->pt()/1000>30)?m.muon->eta():-10;});variables.push_back(muon_eta);
   auto muon_phi = Monitored::Collection("muon_phi",mymuons,[](const MyMuon& m){return (m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi);
   auto muon_phi_rpc = Monitored::Collection("muon_phi_rpc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())<1.05&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_rpc);
@@ -213,138 +222,142 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   auto muon_l1passThr14 = Monitored::Collection("muon_l1passThr14",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(14)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr14);
   auto muon_l1passThr15 = Monitored::Collection("muon_l1passThr15",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(15)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr15);
 
-
-  if(m_anaTgcPrd.value()){
-    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrd(m_TgcPrepDataContainerKey, ctx);
-    if(!tgcPrd.isValid()){
-      ATH_MSG_ERROR("evtStore() does not contain TgcPrepDataContainer with name "<< m_TgcPrepDataContainerKey);
-      return StatusCode::FAILURE;
-    }
-    const TgcIdHelper& tgcIdHelper = m_MuonIdHelperTool->tgcIdHelper();
-    std::vector<TgcHit> tgcHits;
-    for(auto tgccnt : *tgcPrd){
-      for(auto data : *tgccnt){
-	TgcHit tgcHit;
-	int bunch = -10;
-	if ((data->getBcBitMap()&Muon::TgcPrepData::BCBIT_PREVIOUS)==Muon::TgcPrepData::BCBIT_PREVIOUS) bunch = -1;
-	if ((data->getBcBitMap()&Muon::TgcPrepData::BCBIT_CURRENT)==Muon::TgcPrepData::BCBIT_CURRENT) bunch = 0;
-	if ((data->getBcBitMap()&Muon::TgcPrepData::BCBIT_NEXT)==Muon::TgcPrepData::BCBIT_NEXT) bunch = +1;
-	const MuonGM::TgcReadoutElement* element = data->detectorElement();
-	const Identifier id = data->identify();
-	const int gasGap = tgcIdHelper.gasGap(id);
-	const int channel = tgcIdHelper.channel(id);
-	const bool isStrip = tgcIdHelper.isStrip(id);
-	const Amg::Vector3D& pos = isStrip ? element->stripPos(gasGap, channel) : element->gangPos(gasGap, channel);
-	tgcHit.x = pos[0];
-	tgcHit.y = pos[1];
-	tgcHit.z = pos[2];
-	if (isStrip) {
-	  tgcHit.shortWidth = element->stripShortWidth(gasGap, channel);
-	  tgcHit.longWidth = element->stripLongWidth(gasGap, channel);
-	  tgcHit.length = element->stripLength(gasGap, channel);
-	} else {
-	  tgcHit.shortWidth = element->gangShortWidth(gasGap, channel);
-	  tgcHit.longWidth = element->gangLongWidth(gasGap, channel);
-	  tgcHit.length = element->gangLength(gasGap, channel);
-	}
-	tgcHit.isStrip = tgcIdHelper.isStrip(id);
-	tgcHit.gasGap = tgcIdHelper.gasGap(id);
-	tgcHit.channel = tgcIdHelper.channel(id);
-	tgcHit.eta = tgcIdHelper.stationEta(id);
-	tgcHit.phi = tgcIdHelper.stationPhi(id);
-	tgcHit.station = tgcIdHelper.stationName(id);
-	tgcHit.bunch = bunch;
-	tgcHits.push_back(tgcHit);
-      }
-    }
-    auto hit_n = Monitored::Scalar<int>("hit_n",tgcHits.size());variables.push_back(hit_n);
-    auto hit_bunch = Monitored::Collection("hit_bunch",tgcHits,[](const TgcHit& m){return m.bunch;});variables.push_back(hit_bunch);
-    auto hit_sideA = Monitored::Collection("hit_sideA",tgcHits,[](const TgcHit& m){return m.z>0;});variables.push_back(hit_sideA);
-    auto hit_sideC = Monitored::Collection("hit_sideC",tgcHits,[](const TgcHit& m){return m.z<0;});variables.push_back(hit_sideC);
-  }
   
-  if(m_anaTgcCoin.value()){
-    SG::ReadHandle<Muon::TgcCoinDataContainer> tgcCoinCurr(m_TgcCoinDataContainerCurrBCKey, ctx);
-    if(!tgcCoinCurr.isValid()){
-      ATH_MSG_ERROR("evtStore() does not contain TgcCoinDataContainer with name "<< m_TgcCoinDataContainerCurrBCKey);
-      return StatusCode::FAILURE;
-    }
-    SG::ReadHandle<Muon::TgcCoinDataContainer> tgcCoinNext(m_TgcCoinDataContainerNextBCKey, ctx);
-    if(!tgcCoinNext.isValid()){
-      ATH_MSG_ERROR("evtStore() does not contain TgcCoinDataContainer with name "<< m_TgcCoinDataContainerNextBCKey);
-      return StatusCode::FAILURE;
-    }
-    SG::ReadHandle<Muon::TgcCoinDataContainer> tgcCoinPrev(m_TgcCoinDataContainerPrevBCKey, ctx);
-    if(!tgcCoinPrev.isValid()){
-      ATH_MSG_ERROR("evtStore() does not contain TgcCoinDataContainer with name "<< m_TgcCoinDataContainerPrevBCKey);
-      return StatusCode::FAILURE;
-    }
-    std::map<int, SG::ReadHandle<Muon::TgcCoinDataContainer> > tgcCoin;
-    tgcCoin[0] =  tgcCoinCurr;
-    tgcCoin[+1] = tgcCoinNext;
-    tgcCoin[-1] = tgcCoinPrev;
-    std::vector<TgcTrig> tgcTrigs;
-    for(auto thisCoin : tgcCoin){
-      int bunch = thisCoin.first;
-      for(auto tgccnt : *(thisCoin.second)){
-	for(auto data : *tgccnt){
-	  TgcTrig tgcTrig;
-	  const int type = data->type();
-	  const Amg::Vector3D& posIn = data->globalposIn();
-	  tgcTrig.x_In = posIn[0];
-	  tgcTrig.y_In = posIn[1];
-	  tgcTrig.z_In = posIn[2];
-	  const Amg::Vector3D& posOut = data->globalposOut();
-	  tgcTrig.x_Out = posOut[0];
-	  tgcTrig.y_Out = posOut[1];
-	  tgcTrig.z_Out = posOut[2];
-	  tgcTrig.width_In = data->widthIn();
-	  tgcTrig.width_Out = data->widthOut();
-	  if (type == Muon::TgcCoinData::TYPE_SL) {
-	    const Amg::MatrixX& matrix = data->errMat();
-	    tgcTrig.width_R = matrix(0,0);
-	    tgcTrig.width_Phi = matrix(1,1);
-	  } else {
-	    tgcTrig.width_R = 0.;
-	    tgcTrig.width_Phi = 0.;
-	  }
-	  tgcTrig.isAside = data->isAside();
-	  tgcTrig.isForward = data->isForward();
-	  tgcTrig.isStrip = data->isStrip();
-	  tgcTrig.isInner = data->isInner();
-	  tgcTrig.isPositiveDeltaR = data->isPositiveDeltaR();
-	  tgcTrig.type = type;
-	  tgcTrig.trackletId = data->trackletId();
-	  tgcTrig.trackletIdStrip = data->trackletIdStrip();
-	  tgcTrig.phi = data->phi();
-	  tgcTrig.roi = data->roi();
-	  tgcTrig.pt = data->pt();
-	  tgcTrig.delta = data->delta();
-	  tgcTrig.sub = data->sub();
-	  tgcTrig.veto = data->veto();
-	  tgcTrig.bunch = bunch;
-	  tgcTrig.inner = data->inner();
-	  tgcTrigs.push_back( tgcTrig );
-	}
-      }
-    }
-  }
-    
-    
-    
+  if(!m_anaTgcPrd.value()){
     fill(m_packageName,variables);
-  variables.clear();
-
-  // if( !m_TagAndProbe.value() ) return StatusCode::SUCCESS;
+    variables.clear();
+    return StatusCode::SUCCESS;
+  }
 
   
+  SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrd(m_TgcPrepDataContainerKey, ctx);
+  if(!tgcPrd.isValid()){
+    ATH_MSG_ERROR("evtStore() does not contain TgcPrepDataContainer with name "<< m_TgcPrepDataContainerKey);
+    return StatusCode::FAILURE;
+  }
+  const TgcIdHelper& tgcIdHelper = m_MuonIdHelperTool->tgcIdHelper();
+  std::vector<TgcHit> tgcHits;
+  for(auto tgccnt : *tgcPrd){
+    for(auto data : *tgccnt){
+      TgcHit tgcHit;
+      int bunch = -10;
+      if ((data->getBcBitMap()&Muon::TgcPrepData::BCBIT_PREVIOUS)==Muon::TgcPrepData::BCBIT_PREVIOUS) bunch = -1;
+      if ((data->getBcBitMap()&Muon::TgcPrepData::BCBIT_CURRENT)==Muon::TgcPrepData::BCBIT_CURRENT) bunch = 0;
+      if ((data->getBcBitMap()&Muon::TgcPrepData::BCBIT_NEXT)==Muon::TgcPrepData::BCBIT_NEXT) bunch = +1;
+      const MuonGM::TgcReadoutElement* element = data->detectorElement();
+      const Identifier id = data->identify();
+      const int gasGap = tgcIdHelper.gasGap(id);
+      const int channel = tgcIdHelper.channel(id);
+      const bool isStrip = tgcIdHelper.isStrip(id);
+      const Amg::Vector3D& pos = isStrip ? element->stripPos(gasGap, channel) : element->gangPos(gasGap, channel);
+      tgcHit.x = pos[0];
+      tgcHit.y = pos[1];
+      tgcHit.z = pos[2];
+      if (isStrip) {
+	tgcHit.shortWidth = element->stripShortWidth(gasGap, channel);
+	tgcHit.longWidth = element->stripLongWidth(gasGap, channel);
+	tgcHit.length = element->stripLength(gasGap, channel);
+      } else {
+	tgcHit.shortWidth = element->gangShortWidth(gasGap, channel);
+	tgcHit.longWidth = element->gangLongWidth(gasGap, channel);
+	tgcHit.length = element->gangLength(gasGap, channel);
+      }
+      tgcHit.isStrip = tgcIdHelper.isStrip(id);
+      tgcHit.gasGap = tgcIdHelper.gasGap(id);
+      tgcHit.channel = tgcIdHelper.channel(id);
+      tgcHit.eta = tgcIdHelper.stationEta(id);
+      tgcHit.phi = tgcIdHelper.stationPhi(id);
+      tgcHit.station = tgcIdHelper.stationName(id);
+      tgcHit.bunch = bunch;
+      tgcHits.push_back(tgcHit);
+    }
+  }
 
+  auto hit_n = Monitored::Scalar<int>("hit_n",tgcHits.size());variables.push_back(hit_n);
+  auto hit_bunch = Monitored::Collection("hit_bunch",tgcHits,[](const TgcHit& m){return m.bunch;});variables.push_back(hit_bunch);
+  auto hit_sideA = Monitored::Collection("hit_sideA",tgcHits,[](const TgcHit& m){return m.z>0;});variables.push_back(hit_sideA);
+  auto hit_sideC = Monitored::Collection("hit_sideC",tgcHits,[](const TgcHit& m){return m.z<0;});variables.push_back(hit_sideC);
+  
+  SG::ReadHandle<Muon::TgcCoinDataContainer> tgcCoinCurr(m_TgcCoinDataContainerCurrBCKey, ctx);
+  if(!tgcCoinCurr.isValid()){
+    ATH_MSG_ERROR("evtStore() does not contain TgcCoinDataContainer with name "<< m_TgcCoinDataContainerCurrBCKey);
+    return StatusCode::FAILURE;
+  }
+  SG::ReadHandle<Muon::TgcCoinDataContainer> tgcCoinNext(m_TgcCoinDataContainerNextBCKey, ctx);
+  if(!tgcCoinNext.isValid()){
+    ATH_MSG_ERROR("evtStore() does not contain TgcCoinDataContainer with name "<< m_TgcCoinDataContainerNextBCKey);
+    return StatusCode::FAILURE;
+  }
+  SG::ReadHandle<Muon::TgcCoinDataContainer> tgcCoinPrev(m_TgcCoinDataContainerPrevBCKey, ctx);
+  if(!tgcCoinPrev.isValid()){
+    ATH_MSG_ERROR("evtStore() does not contain TgcCoinDataContainer with name "<< m_TgcCoinDataContainerPrevBCKey);
+    return StatusCode::FAILURE;
+  }
+  std::map<int, SG::ReadHandle<Muon::TgcCoinDataContainer> > tgcCoin;
+  tgcCoin[0] =  tgcCoinCurr;
+  tgcCoin[+1] = tgcCoinNext;
+  tgcCoin[-1] = tgcCoinPrev;
+  std::vector<TgcTrig> tgcTrigs;
+  for(auto thisCoin : tgcCoin){
+    int bunch = thisCoin.first;
+    for(auto tgccnt : *(thisCoin.second)){
+      for(auto data : *tgccnt){
+	TgcTrig tgcTrig;
+	const int type = data->type();
+	const Amg::Vector3D& posIn = data->globalposIn();
+	tgcTrig.x_In = posIn[0];
+	tgcTrig.y_In = posIn[1];
+	tgcTrig.z_In = posIn[2];
+	const Amg::Vector3D& posOut = data->globalposOut();
+	tgcTrig.x_Out = posOut[0];
+	tgcTrig.y_Out = posOut[1];
+	tgcTrig.z_Out = posOut[2];
+	tgcTrig.width_In = data->widthIn();
+	tgcTrig.width_Out = data->widthOut();
+	if (type == Muon::TgcCoinData::TYPE_SL) {
+	  const Amg::MatrixX& matrix = data->errMat();
+	  tgcTrig.width_R = matrix(0,0);
+	  tgcTrig.width_Phi = matrix(1,1);
+	} else {
+	  tgcTrig.width_R = 0.;
+	  tgcTrig.width_Phi = 0.;
+	}
+	tgcTrig.isAside = data->isAside();
+	tgcTrig.isForward = data->isForward();
+	tgcTrig.isStrip = data->isStrip();
+	tgcTrig.isInner = data->isInner();
+	tgcTrig.isPositiveDeltaR = data->isPositiveDeltaR();
+	tgcTrig.type = type;
+	tgcTrig.trackletId = data->trackletId();
+	tgcTrig.trackletIdStrip = data->trackletIdStrip();
+	tgcTrig.phi = data->phi();
+	tgcTrig.roi = data->roi();
+	tgcTrig.pt = data->pt();
+	tgcTrig.delta = data->delta();
+	tgcTrig.sub = data->sub();
+	tgcTrig.veto = data->veto();
+	tgcTrig.bunch = bunch;
+	tgcTrig.inner = data->inner();
+	tgcTrigs.push_back( tgcTrig );
+      }
+    }
+  }
+
+  auto coin_n = Monitored::Scalar<int>("coin_n",tgcTrigs.size());variables.push_back(coin_n);
+  auto coin_bunch = Monitored::Collection("coin_bunch",tgcTrigs,[](const TgcTrig& m){return m.bunch;});variables.push_back(coin_bunch);
+  auto coin_sideA = Monitored::Collection("coin_sideA",tgcTrigs,[](const TgcTrig& m){return m.isAside==1;});variables.push_back(coin_sideA);
+  auto coin_sideC = Monitored::Collection("coin_sideC",tgcTrigs,[](const TgcTrig& m){return m.isAside!=1;});variables.push_back(coin_sideC);
+
+  
+  fill(m_packageName,variables);
+  variables.clear();
   return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////
 StatusCode TgcRawDataMonitorAlgorithm::triggerMatching(const xAOD::Muon* offline_muon, const std::vector<TagDef>& list_of_triggers ) const
 {
+  if( !m_TagAndProbe.value() )return StatusCode::SUCCESS;
   TVector3 muonvec; muonvec.SetPtEtaPhi(offline_muon->pt(),offline_muon->eta(),offline_muon->phi());
   for(auto tagTrig : list_of_triggers ){
     if( !getTrigDecisionTool()->isPassed( tagTrig.eventTrig.Data() ) ) return StatusCode::FAILURE;
@@ -354,10 +367,10 @@ StatusCode TgcRawDataMonitorAlgorithm::triggerMatching(const xAOD::Muon* offline
       auto trigmuon_link = aaa.link;
       auto trigmuon = *trigmuon_link;
       TVector3 trigvec; trigvec.SetPtEtaPhi(trigmuon->pt(),trigmuon->eta(),trigmuon->phi());
-      if( trigvec.DeltaR( muonvec ) < 0.005 ) return StatusCode::SUCCESS;
+      if( trigvec.DeltaR( muonvec ) < m_trigMatchWindow.value() ) return StatusCode::SUCCESS;
     }
   }
-  return StatusCode::SUCCESS;
+  return StatusCode::FAILURE;
 }
 ///////////////////////////////////////////////////////////////
 void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon* muon, MyMuon& mymuon) const
