@@ -40,6 +40,7 @@ StatusCode CP::TrigEventSelectionAlg::initialize()
 StatusCode CP::TrigEventSelectionAlg::execute()
 {
   EL::FilterReporter filter (m_filterParams, false);
+  m_total++;
 
   if (m_trigList.empty()) {
     filter.setPassed(true);
