@@ -15,7 +15,7 @@ export JOB_LOG="athena.log"
 export AODTOCHECK="RDO_TRIG.pool.root" # to run checkFile and checkxAOD on this
 
 # Use specific RegTest pattern and reference file installed with the release
-export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*"
 export REGTESTREF=`find_data.py TrigAnalysisTest/q221_RDOtoRDOTrig_mt1_build.ref`
 
 echo "Running RDO->RDO_TRIG with Reco_tf command:"

@@ -10,7 +10,7 @@ export THREADS=1
 export SLOTS=1
 export INPUT="ttbar"
 export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
-export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
+export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*"
 export EXTRA="doL1Sim=True;doEmptyMenu=True;doMETSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # Find the regtest reference installed with the release
