@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkInDet/PixelNtupleMaker.h"
@@ -84,8 +84,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       tp->makePrivateStore(**trk);
       tp->setDefiningParametersCovMatrixVec(tmpCov);
 
-      std::vector<int> holeIndex;
-      std::vector<int> outlierIndex;
+      std::vector<uint64_t> holeIndex;
+      std::vector<uint64_t> outlierIndex;
       std::vector<int> clusterLayer;
       std::vector<int> clusterBEC;
       std::vector<int> clusterModulePhi;
@@ -144,10 +144,10 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
 
         if (msos->detType()==1) { // its a pixel 
           if (msos->type()==6) { 
-            holeIndex.push_back(msos->detElementId());
+            holeIndex.push_back((uint64_t)msos->detElementId());
           }
           if (msos->type()==5) { 
-            outlierIndex.push_back(msos->detElementId());
+            outlierIndex.push_back((uint64_t)msos->detElementId());
           }
 
           if (msos->trackMeasurementValidationLink().isValid() && *(msos->trackMeasurementValidationLink())) {
@@ -384,8 +384,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<float> d0err("d0err");
       static SG::AuxElement::Decorator<float> z0err("z0err");
       static SG::AuxElement::Decorator<float> qOverPerr("qOverPerr");
-      static SG::AuxElement::Decorator<std::vector<int>>   HoleIndex("HoleIndex");
-      static SG::AuxElement::Decorator<std::vector<int>>   OutlierIndex("OutlierIndex");
+      static SG::AuxElement::Decorator<std::vector<uint64_t>>   HoleIndex("HoleIndex");
+      static SG::AuxElement::Decorator<std::vector<uint64_t>>   OutlierIndex("OutlierIndex");
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterLayer("ClusterLayer");
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterBEC("ClusterBEC");
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterModulePhi("ClusterModulePhi");
