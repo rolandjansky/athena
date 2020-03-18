@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // Filter according to the following steps:
 // Require four leptons, total charge zero, at least one same-flavour opposite-sign (SFOS) pair
 // Determine SFOS pair with mass closest to Z mass peak
