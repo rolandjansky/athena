@@ -32,8 +32,7 @@
 SiRegSelCondAlg::SiRegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm( name, pSvcLocator ),
   m_managerName(""),
-  m_printTable(false),
-  m_sctCablingTool("SCT_CablingTool")
+  m_printTable(false)
 { 
   ATH_MSG_DEBUG( "SiRegSelCondAlg::SiRegSelCondAlg() " << name );
   declareProperty( "PrintTable",  m_printTable=false );  
@@ -91,12 +90,6 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
       ATH_MSG_ERROR("Failed to retrieve validity range for " << sctCabling->key());
       return StatusCode::FAILURE;
     }   
-
-    /// keep explicit failure check for enhanced error reporting
-    if (m_sctCablingTool.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT_CablingTool" << endmsg;
-      return StatusCode::FAILURE;
-    }
   }
   else { // PIXEL 
     pixCabling = std::make_unique<SG::ReadCondHandle<PixelCablingCondData> >( m_pixCablingKey, ctx );
@@ -158,7 +151,9 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
 	if ( sctId!=0 ) {      
 	  barrelEC  = sctId->barrel_ec(element->identify());
 	  layerDisk = sctId->layer_disk(element->identify());
-	  robId=m_sctCablingTool->getRobIdFromOfflineId(element->identify());
+	  // Avoid use of SCT_CablingTool. Instead of
+	  // robId=m_sctCablingTool->getRobIdFromOfflineId(element->identify());
+	  robId = ((*sctCabling)->getOnlineIdFromHash(element->identifyHash())).rod();
 	}
 	else { 
 	  ATH_MSG_ERROR("Could not get SCT_ID for " << element->getIdHelper() );

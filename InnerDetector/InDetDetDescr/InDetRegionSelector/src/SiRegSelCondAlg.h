@@ -15,7 +15,6 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -50,8 +49,6 @@ public:
   /// Sadly the PIxel and SCT cabling are different classes so need both, 
   /// even if only one is to be used
  
-  ToolHandle<ISCT_CablingTool>  m_sctCablingTool; // This class accesses SCT cabling during table creation
-
   SG::ReadCondHandleKey<SCT_CablingData> m_sctCablingKey
     {this, "SCT_CablingData", "SCT_CablingData", "SCT cabling key"};
 
