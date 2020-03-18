@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Same as full_menu test from TrigUpgradeTest, but with athenaHLT. Test with detector ROBs removed. 
+# art-description: athenaHLT test of the Dev_pp_run3_v1 menu
 # art-type: build                                                                  
 # art-include: master/Athena                                                       
 
@@ -8,9 +8,9 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
-ex.args = '--ros2rob="{\'ROS-TDQ-CTP-00\': [0x770000]}"'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
+ex.args = '-c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 
 test = Test.Test()
 test.art_type = 'build'

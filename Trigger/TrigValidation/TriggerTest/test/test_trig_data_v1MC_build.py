@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
-# art-description: Same as full_menu test from TrigUpgradeTest, but with athenaHLT, MP
+# art-description: Trigger BS->RDO_TRIG athena test of the MC_pp_run3_v1 menu
 # art-type: build
 # art-include: master/Athena
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
-ex.type = 'athenaHLT'
+ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.forks = 8
 ex.threads = 1
-ex.concurrent_events = 1
+ex.args = '-c "setMenu=\'MC_pp_run3_v1\';doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'build'
