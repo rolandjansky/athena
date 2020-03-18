@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -338,11 +338,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauSmearingTool(""),
     m_tauTruthMatch(""),
     m_tauEffTool(""),
-    m_tauTrigEffTool0(""),
-    m_tauTrigEffTool1(""),
-    m_tauTrigEffTool2(""),
-    m_tauTrigEffTool3(""),
-    m_tauTrigEffTool4(""),
     m_tauElORdecorator(""),
     //
     m_btagEffTool(""),
@@ -649,11 +644,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_tauSmearingTool.declarePropertyFor( this, "TauSmearingTool", "The TauSmearingTool" );
   m_tauTruthMatch.declarePropertyFor( this, "TauTruthMatch", "The TTMT" );
   m_tauEffTool.declarePropertyFor( this, "TauEfficiencyCorrectionsTool", "The TauEfficiencyCorrectionsTool" );
-  m_tauTrigEffTool0.declarePropertyFor( this, "TauTrigEfficiencyCorrectionsTool0", "The TauEfficiencyCorrectionsTool for trigger 0" );
-  m_tauTrigEffTool1.declarePropertyFor( this, "TauTrigEfficiencyCorrectionsTool1", "The TauEfficiencyCorrectionsTool for trigger 1" );
-  m_tauTrigEffTool2.declarePropertyFor( this, "TauTrigEfficiencyCorrectionsTool2", "The TauEfficiencyCorrectionsTool for trigger 2" );
-  m_tauTrigEffTool3.declarePropertyFor( this, "TauTrigEfficiencyCorrectionsTool3", "The TauEfficiencyCorrectionsTool for trigger 3" );
-  m_tauTrigEffTool4.declarePropertyFor( this, "TauTrigEfficiencyCorrectionsTool4", "The TauEfficiencyCorrectionsTool for trigger 4" );
   m_tauElORdecorator.declarePropertyFor( this, "TauOverlappingElectronLLHDecorator", "The TauOverlappingElectronLLHDecorator tool" );
   //
   m_btagEffTool.declarePropertyFor( this, "BTaggingEfficiencyTool", "The BTaggingEfficiencyTool" );
@@ -740,14 +730,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     { "FCTight"          , "FCTight"          },
     { "PLVTight"         , "FCTight"          }
   };
-
-  // load tau trigger support
-  // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool_Trigger.rst#supported-tau-trigger
-  m_tau_trig_support.push_back("HLT_tau25_medium1_tracktwo");
-  m_tau_trig_support.push_back("HLT_tau35_medium1_tracktwo");
-  m_tau_trig_support.push_back("HLT_tau50L1TAU12_medium1_tracktwo");
-  m_tau_trig_support.push_back("HLT_tau80L1TAU60_medium1_tracktwo");
-  m_tau_trig_support.push_back("HLT_tau125_medium1_tracktwo");
 
 }
 
@@ -2124,48 +2106,13 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_tauTrigEffTool0.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool0->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() );
+  for(auto &tool : m_tauTrigEffTool) {
+    CP::SystematicCode ret = tool->applySystematicVariation(systConfig);
+    if (ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure " << tool->name() << " for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("Configured TauEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() );
-    }
-  }  if (!m_tauTrigEffTool1.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool1->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("Configured TauEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_tauTrigEffTool2.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool2->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("Configured TauEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_tauTrigEffTool3.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool3->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("Configured TauEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_tauTrigEffTool4.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool4->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("Configured TauEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("Configured " << tool->name() << " for systematic var. " << systConfig.name() );
     }
   }
   if (!m_metSystTool.empty()) {
@@ -2450,39 +2397,12 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Tau::Reconstruction);
     }
   }
-  if (!m_tauTrigEffTool0.empty()) {
-    if ( m_tauTrigEffTool0->isAffectedBySystematic(sys) ) {
+  for(auto &tool : m_tauTrigEffTool) {
+    if(tool->isAffectedBySystematic(sys)) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Tau;
       sysInfo.affectedWeights.insert(ST::Weights::Tau::Trigger);
-    }
-  }
-  if (!m_tauTrigEffTool1.empty()) {
-    if ( m_tauTrigEffTool1->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Tau;
-      sysInfo.affectedWeights.insert(ST::Weights::Tau::Trigger);
-    }
-  }
-  if (!m_tauTrigEffTool2.empty()) {
-    if ( m_tauTrigEffTool2->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Tau;
-      sysInfo.affectedWeights.insert(ST::Weights::Tau::Trigger);
-    }
-  }
-  if (!m_tauTrigEffTool3.empty()) {
-    if ( m_tauTrigEffTool3->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Tau;
-      sysInfo.affectedWeights.insert(ST::Weights::Tau::Trigger);
-    }
-  }
-  if (!m_tauTrigEffTool4.empty()) {
-    if ( m_tauTrigEffTool4->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Tau;
-      sysInfo.affectedWeights.insert(ST::Weights::Tau::Trigger);
+      break;
     }
   }
   if (!m_metSystTool.empty()) {

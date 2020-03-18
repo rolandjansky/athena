@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -94,19 +94,6 @@ using namespace ST;
     ATH_CHECK( TOOLHANDLE.setProperty("OutputLevel", this->msg().level()) ); \
     ATH_CHECK( TOOLHANDLE.initialize() );                                \
   } else if (!isData()) ATH_CHECK(TOOLHANDLE.retrieve());
-
-#define CONFIG_TAU_TRIGEFF_TOOL(TOOLHANDLE, INDEX, TRIGGER, TAUID )         \
-  if (!TOOLHANDLE.isUserConfigured() && m_tau_trig_support.size() > INDEX && !isData()) { \
-    toolName = "TauTrigEffTool_" + std::to_string(TAUID) + "_" + TRIGGER; \
-    TOOLHANDLE.setTypeAndName("TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName); \
-    ATH_CHECK(TOOLHANDLE.setProperty("EfficiencyCorrectionTypes", std::vector<int>({TauAnalysisTools::SFTriggerHadTau}) )); \
-    ATH_CHECK(TOOLHANDLE.setProperty("TriggerName", TRIGGER));                \
-    ATH_CHECK(TOOLHANDLE.setProperty("IDLevel", TAUID ));                \
-    ATH_CHECK(TOOLHANDLE.setProperty("PileupReweightingTool", m_prwTool.getHandle() )); \
-    ATH_CHECK(TOOLHANDLE.setProperty("OutputLevel", this->msg().level())); \
-    ATH_CHECK(TOOLHANDLE.setProperty("isAFII", isAtlfast()) ); \
-    ATH_CHECK(TOOLHANDLE.retrieve());                                        \
-  } else if (TOOLHANDLE.isUserConfigured()) ATH_CHECK( TOOLHANDLE.retrieve());
 
 StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 {
@@ -1230,23 +1217,58 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise tau trigger efficiency tool(s)
 
-  int iTauID = (int) TauAnalysisTools::JETIDNONEUNCONFIGURED;
-  if (m_tauId == "VeryLoose")   iTauID = (int) TauAnalysisTools::JETIDBDTVERYLOOSE;
-  else if (m_tauId == "Loose")  iTauID = (int) TauAnalysisTools::JETIDBDTLOOSE;
-  else if (m_tauId == "Medium") iTauID = (int) TauAnalysisTools::JETIDBDTMEDIUM;
-  else if (m_tauId == "Tight")  iTauID = (int) TauAnalysisTools::JETIDBDTTIGHT;
-  else {
-    ATH_MSG_ERROR("Invalid tau ID selected: " << m_tauId); // we shouldn't get here but ok...
-    return StatusCode::FAILURE;
+  if (!isData()) {
+    int iTauID = (int) TauAnalysisTools::JETIDNONEUNCONFIGURED;
+    if (m_tauId == "VeryLoose")   iTauID = (int) TauAnalysisTools::JETIDRNNVERYLOOSE;
+    else if (m_tauId == "Loose")  iTauID = (int) TauAnalysisTools::JETIDRNNLOOSE;
+    else if (m_tauId == "Medium") iTauID = (int) TauAnalysisTools::JETIDRNNMEDIUM;
+    else if (m_tauId == "Tight")  iTauID = (int) TauAnalysisTools::JETIDRNNTIGHT;
+    else {
+      ATH_MSG_ERROR("Invalid tau ID selected: " << m_tauId);
+      return StatusCode::FAILURE;
+    }
+    
+    // map format: SF file name, corresponding single-tau leg (comma-separated in case of OR)
+    m_tau_trig_support = {
+      {"HLT_tau25_medium1_tracktwo", "HLT_tau25_medium1_tracktwo"},
+      {"HLT_tau35_medium1_tracktwo", "HLT_tau35_medium1_tracktwo"},
+      {"HLT_tau50L1TAU12_medium1_tracktwo", "HLT_tau50_medium1_tracktwo_L1TAU12"},
+      {"HLT_tau60_medium1_tracktwo", "HLT_tau60_medium1_tracktwo"},
+      {"HLT_tau80L1TAU60_medium1_tracktwo", "HLT_tau80_medium1_tracktwo_L1TAU60"},
+      {"HLT_tau125_medium1_tracktwo", "HLT_tau125_medium1_tracktwo"},
+      {"HLT_tau160_medium1_tracktwo", "HLT_tau160_medium1_tracktwo"},
+      {"HLT_tau160L1TAU100_medium1_tracktwo", "HLT_tau160_medium1_tracktwo_L1TAU100"},
+      // whole 2018 data taking period
+      {"HLT_tau25_medium1_tracktwoEF", "HLT_tau25_medium1_tracktwoEF"},
+      {"HLT_tau35L1TAU12IM_medium1_tracktwoEF", "HLT_tau35_medium1_tracktwoEF_L1TAU12IM"},
+      {"HLT_tau35_medium1_tracktwoEF", "HLT_tau35_medium1_tracktwoEF"},
+      {"HLT_tau60_medium1_tracktwoEF", "HLT_tau60_medium1_tracktwoEF"},
+      {"HLT_tau80L1TAU60_medium1_tracktwoEF", "HLT_tau80_medium1_tracktwoEF_L1TAU60"},
+      {"HLT_tau160L1TAU100_medium1_tracktwoEF", "HLT_tau160_medium1_tracktwoEF_L1TAU100"},
+      // 2018 data after TS1, run >= 355261
+      {"HLT_tau25_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau25_medium1_tracktwoEF,HLT_tau25_mediumRNN_tracktwoMVA"},
+      {"HLT_tau35L1TAU12IM_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau35_medium1_tracktwoEF_L1TAU12IM,HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM"},
+      {"HLT_tau35_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau35_medium1_tracktwoEF,HLT_tau35_mediumRNN_tracktwoMVA"},
+      {"HLT_tau60_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau60_medium1_tracktwoEF,HLT_tau60_mediumRNN_tracktwoMVA"},
+      {"HLT_tau80L1TAU60_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau80_medium1_tracktwoEF_L1TAU60,HLT_tau80_mediumRNN_tracktwoMVA_L1TAU60"},
+      {"HLT_tau160L1TAU100_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau160_medium1_tracktwoEF_L1TAU100,HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100"}
+    };
+    
+    for(auto const& trigger : m_tau_trig_support) {
+      toolName = "TauTrigEffTool_" + m_tauId + "_" + trigger.first;
+      auto tau_trigSF = m_tauTrigEffTool.emplace(m_tauTrigEffTool.end(), "TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName);
+      ATH_CHECK( tau_trigSF->setProperty("EfficiencyCorrectionTypes", std::vector<int>({TauAnalysisTools::SFTriggerHadTau})) );
+      ATH_CHECK( tau_trigSF->setProperty("TriggerName", trigger.first) );
+      ATH_CHECK( tau_trigSF->setProperty("IDLevel", iTauID) );
+      ATH_CHECK( tau_trigSF->setProperty("PileupReweightingTool", m_prwTool.getHandle()) );
+      ATH_CHECK( tau_trigSF->setProperty("OutputLevel", this->msg().level()) );
+      ATH_CHECK( tau_trigSF->setProperty("isAFII", isAtlfast()) );
+      ATH_CHECK( tau_trigSF->initialize() );
+    }
   }
 
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool0, 0, m_tau_trig_support[0], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool1, 1, m_tau_trig_support[1], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool2, 2, m_tau_trig_support[2], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool3, 3, m_tau_trig_support[3], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool4, 4, m_tau_trig_support[4], iTauID);
 
-  ///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise tau smearing tool
 
   if (!m_tauSmearingTool.isUserConfigured()) {
