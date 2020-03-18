@@ -46,8 +46,6 @@ StatusCode CP::EventFlagSelectionAlg::execute()
 {
   EL::FilterReporter filter (m_filterParams, false);
 
-  m_total++;
-
   const xAOD::EventInfo *evtInfo = 0;
   ANA_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
 
@@ -63,7 +61,6 @@ StatusCode CP::EventFlagSelectionAlg::execute()
     }
   }
 
-  m_passed++;
   ATH_MSG_VERBOSE("Event passed all flags.");
   filter.setPassed(true);
 
@@ -72,7 +69,7 @@ StatusCode CP::EventFlagSelectionAlg::execute()
 
 StatusCode CP::EventFlagSelectionAlg::finalize()
 {
-  ATH_MSG_INFO("Events passing selection: " << m_passed << " / " << m_total);
+  ANA_CHECK (m_filterParams.finalize());
 
   return StatusCode::SUCCESS;
 }
