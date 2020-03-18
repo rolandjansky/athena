@@ -8,14 +8,6 @@ TauJetBDTEvaluator::TauJetBDTEvaluator(const std::string& name)
   : TauRecToolBase(name)
   , m_myBdt(nullptr)
 {
-  declareProperty("weightsFile", m_weightsFile="");
-  declareProperty("minNTracks", m_minNTracks=0);
-  declareProperty("maxNTracks", m_maxNTracks=999);
-  declareProperty("minAbsTrackEta", m_minAbsTrackEta=-1);
-  declareProperty("maxAbsTrackEta", m_maxAbsTrackEta=-1);
-  declareProperty("outputVarName", m_outputVarName="BDTJetScore");
-  declareProperty("GradiantBoost", m_isGrad=true, "Gradiant if true, else AdaBoost Classification");
-  declareProperty("defaultValue", m_dummyValue=-1111, "if no weightsFile, then set all taus to this value nTrack/eta ignored");
 }
 
 //________________________________________
@@ -40,7 +32,7 @@ StatusCode TauJetBDTEvaluator::initialize(){
 const SG::AuxElement::ConstAccessor<float> acc_absTrackEta("ABS_ETA_LEAD_TRACK");
 
 //________________________________________
-StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
+StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau) const {
   //init output variable accessor
   SG::AuxElement::Accessor<float> outputVar(m_outputVarName);
 
