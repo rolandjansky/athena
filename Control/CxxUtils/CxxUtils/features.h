@@ -48,4 +48,13 @@
 #endif
 
 
+// Do we have the vector_size attribute for writing explicitly
+// vectorized code?
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__)
+# define HAVE_VECTOR_SIZE_ATTRIBUTE 1
+#else
+# define HAVE_VECTOR_SIZE_ATTRIBUTE 0
+#endif
+
+
 #endif // not CXXUTILS_FEATURES_H

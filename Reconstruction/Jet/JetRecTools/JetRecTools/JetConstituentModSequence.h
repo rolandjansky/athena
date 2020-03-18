@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //JetConstituentModSequence.h
@@ -23,7 +23,6 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/TrackCaloClusterContainer.h"
-#include "xAODTruth/TruthParticleContainer.h" 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 

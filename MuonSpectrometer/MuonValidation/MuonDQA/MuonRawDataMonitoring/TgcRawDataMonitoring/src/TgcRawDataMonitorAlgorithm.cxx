@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRawDataMonitorAlgorithm.h"
 #include "TObjArray.h"
-
 
 TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator),
@@ -22,10 +21,6 @@ TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm( const std::string& name,
   declareProperty("TagTrigList",m_trigTagList);
   declareProperty("TagAndProbe",m_TagAndProbe);
 }
-
-
-TgcRawDataMonitorAlgorithm::~TgcRawDataMonitorAlgorithm() {}
-
 
 StatusCode TgcRawDataMonitorAlgorithm::initialize() {
   
@@ -291,7 +286,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
 	fill(m_tools[m_Groups_muEta2Phi[i]],muEta2,muPhi2);
 	fill(m_tools[m_Groups_muEta[i]],muEta);
       }
-      if(TMath::Abs(mymuon.muon->eta())<1.05){
+      if(std::abs(mymuon.muon->eta())<1.05){
 	muPt_barrel = muPt;
 	fill(m_tools[m_Groups_muPt_barrel[i]],muPt_barrel);
 	if(mymuon.muon->eta()>0){
@@ -301,7 +296,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
 	  muPhi_barrel_C = mymuon.muon->phi();
 	  fill(m_tools[m_Groups_muPhi_barrel_C[i]],muPhi_barrel_C);
 	}
-      }else if(TMath::Abs(mymuon.muon->eta())<2.0){
+      }else if(std::abs(mymuon.muon->eta())<2.0){
 	muPt_endcap = muPt;
 	fill(m_tools[m_Groups_muPt_endcap[i]],muPt_endcap);
 	if(mymuon.muon->eta()>0){
@@ -311,7 +306,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
 	  muPhi_endcap_C = mymuon.muon->phi();
 	  fill(m_tools[m_Groups_muPhi_endcap_C[i]],muPhi_endcap_C);
 	}
-      }else if(TMath::Abs(mymuon.muon->eta())<2.4){
+      }else if(std::abs(mymuon.muon->eta())<2.4){
 	muPt_forward = muPt;
 	fill(m_tools[m_Groups_muPt_forward[i]],muPt_forward);
 	if(mymuon.muon->eta()>0){

@@ -63,7 +63,8 @@ public:
   virtual TTree * getLumiTree() override { return m_LumiTree; }
 
   /// register trigger
-  bool registerLBCollection(const TString& tname, const TString& regexpr, const std::list<TString>& trigpar);
+  virtual
+  bool registerLBCollection(const TString& tname, const TString& regexpr, const std::list<TString>& trigpar) override;
 
 private:
   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;

@@ -9,7 +9,7 @@ export EVENTS=20
 export THREADS=1
 export SLOTS=1
 export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
-export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
+export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*"
 export EXTRA="doEmptyMenu=True;doBjetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # Find the regtest reference installed with the release

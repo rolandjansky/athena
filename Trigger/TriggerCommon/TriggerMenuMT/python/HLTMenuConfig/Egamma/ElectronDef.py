@@ -97,24 +97,24 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         stepName = "Step1_FastCalo_electron"
         log.debug("Configuring step " + stepName)
         fastCalo = RecoFragmentsPool.retrieve( electronFastCaloCfg, None ) # the None will be used for flags in future
-        return ChainStep(stepName, [fastCalo], [self.mult])
+        return ChainStep(stepName, [fastCalo], [self.mult], [self.dict])
 
     def getFastElectron(self):
         stepName = "Step2_fast_electron"
         log.debug("Configuring step " + stepName)
         electronReco = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
-        return ChainStep(stepName, [electronReco], [self.mult])
+        return ChainStep(stepName, [electronReco], [self.mult], [self.dict])
 
 
     def getPrecisionCaloElectron(self):
         stepName = "Step3_precisionCalo_electron"
         log.debug("Configuring step " + stepName)
         precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
-        return ChainStep(stepName, [precisionReco], [self.mult]) 
+        return ChainStep(stepName, [precisionReco], [self.mult], [self.dict]) 
 
 
     def getPrecisionElectron(self):
         stepName = "Step4_precision_electron"
         log.debug("Configuring step " + stepName)
         precisionElectron = RecoFragmentsPool.retrieve( precisionElectronSequenceCfg, None )
-        return ChainStep(stepName, [precisionElectron], [self.mult])
+        return ChainStep(stepName, [precisionElectron], [self.mult], [self.dict])

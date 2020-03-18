@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 this small script dumps the ratio raw-Ex / raw-E where x=0,1,2,3 for converted,
@@ -11,6 +11,8 @@ The output of this tool is needed to generate single particle from scratch and
 then to compute the decomposition of the covariance matrix.
 """
 
+from __future__ import print_function
+
 import ROOT
 from glob import glob
 from array import array
@@ -21,7 +23,7 @@ def main(path, particle):
     chain = ROOT.TChain("egamma")
     for f in files:
         chain.Add(f)
-    print "entries:", chain.GetEntries()
+    print ("entries:", chain.GetEntries())
 
     selection = {"unconv": "(ph_Rconv >= 800 || ph_Rconv <= 0)",
                  "conv": "(ph_Rconv < 800 && ph_Rconv > 0)",
@@ -60,14 +62,14 @@ def main(path, particle):
         vars_to_plot.append("ph_zconv")
         title.append("ph_zconv")
 
-    print "plotting counting"
+    print ("plotting counting")
     histo_name = "histo_count_%s" % particle
     histo_count = ROOT.TH2F(histo_name, "count %s" % particle, len(pt_binning) - 1, pt_binning, len(aeta_binning) - 1, aeta_binning)
     chain.Draw(aetaCalo + ":" + truth_pt + ">>" + histo_name, selection)
 
     result = []
     for t, v in zip(title, vars_to_plot):
-        print "plotting", v
+        print ("plotting", v)
         histo_name = "histo_%s_%s" % (particle, t)
         if "zconv" in v:
             sel = selection + " && abs(ph_zconv) < 5000"

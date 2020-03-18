@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFiller2D_h
@@ -8,6 +8,7 @@
 #include "TH2.h"
 
 #include "AthenaMonitoringKernel/HistogramFiller.h"
+#include "HistogramFillerUtils.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -92,20 +93,18 @@ namespace Monitored {
       prepareExtractor( value2, 1 );
 
 
-
-
       // rather unpleaseant code but I did not want complicate it further
       // we need to handle now 4 cases,
-      // double-double, string-double, double-string and string-string in calling the fill, we always pass the weigh
+      // double-double, string-double, double-string and string-string in calling the fill, we always pass the weight
       const size_t maxsize = std::max( value1.size(), value2.size() );
       if ( value1.doublesAccessor and value2.doublesAccessor )
-	fill( maxsize, value1.doublesAccessor, value2.doublesAccessor, weightAccessor, cutMaskAccessor );
+        fill( maxsize, value1.doublesAccessor, value2.doublesAccessor, weightAccessor, cutMaskAccessor );
       else if ( value1.stringsAccessor and value2.doublesAccessor )
-	fill( maxsize, value1.stringsAccessor, value2.doublesAccessor, weightAccessor, cutMaskAccessor );
+        fill( maxsize, value1.stringsAccessor, value2.doublesAccessor, weightAccessor, cutMaskAccessor );
       else if ( value1.doublesAccessor and value2.stringsAccessor )
-	fill( maxsize, value1.doublesAccessor, value2.stringsAccessor, weightAccessor, cutMaskAccessor );
+        fill( maxsize, value1.doublesAccessor, value2.stringsAccessor, weightAccessor, cutMaskAccessor );
       else
-	fill( maxsize, value1.stringsAccessor, value2.stringsAccessor, weightAccessor, cutMaskAccessor );
+        fill( maxsize, value1.stringsAccessor, value2.stringsAccessor, weightAccessor, cutMaskAccessor );
       return maxsize;
     }
 
@@ -113,11 +112,21 @@ namespace Monitored {
     template<typename F1, typename F2, typename F3, typename F4>
     void fill( size_t n, F1 f1, F2 f2, F3 f3, F4 f4 ) {
 
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
-      auto histogram = this->histogram<TH2>();
+      std::scoped_lock lock(*m_mutex);
+      TH2* histogram = this->histogram<TH2>();
       for ( size_t i = 0; i < n; ++i ) {
         if (f4(i)) {
-        	histogram->Fill( f1(i), f2(i), f3(i) );
+          const auto& x = f1(i);
+          const auto& y = f2(i);
+          // In case re-binning occurs need to take the OH lock for online (no-op offline)
+          if ( ATH_UNLIKELY((histogram->GetXaxis()->CanExtend() and
+                             detail::fillWillRebinHistogram(histogram->GetXaxis(), x)) or
+                            (histogram->GetYaxis()->CanExtend() and
+                             detail::fillWillRebinHistogram(histogram->GetYaxis(), y))) ) {
+            oh_scoped_lock_histogram lock;
+            histogram->Fill( x, y, f3(i) );
+          }
+          else histogram->Fill( x, y, f3(i) );
         }
       }
     }

@@ -10,58 +10,55 @@
 /////////////////////////////////////////////////////////////////// 
 
 #include "ViewTestAlg.h"
-
-// STL includes
-
-// FrameWork includes
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthViews/View.h"
 
 namespace AthViews {
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-ViewTestAlg::ViewTestAlg( const std::string& name, 
-                      ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator )
+ViewTestAlg::ViewTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
 }
 
-// Destructor
-///////////////
 ViewTestAlg::~ViewTestAlg()
-{}
+{
+}
 
-// Athena Algorithm's Hooks
-////////////////////////////
 StatusCode ViewTestAlg::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_DEBUG( "Initializing " << name() << "..." );
+
+  if ( m_output.key() == "" )
+  {
+    renounce( m_output );
+  }
+  else
+  {
+    CHECK( m_output.initialize() );
+  }
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode ViewTestAlg::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_MSG_DEBUG( "Finalizing " << name() << "..." );
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode ViewTestAlg::execute()
 {  
-  ATH_MSG_DEBUG ("Executing " << name() << "...");
+  ATH_MSG_DEBUG( "Executing " << name() << "..." );
 
-  auto theStore = Atlas::getExtendedEventContext(getContext()).proxy();
+  auto theStore = Atlas::getExtendedEventContext( getContext() ).proxy();
   ATH_MSG_INFO( name() << " running with store " << theStore->name() );
+
+  // Make (optional) output
+  if ( m_output.key() != "" )
+  {
+    auto output = SG::makeHandle( m_output, getContext() );
+    output = std::make_unique<int>( 1 );
+  }
 
   // Identify if this is a view
   SG::View* theView = dynamic_cast< SG::View* >( theStore );
@@ -76,25 +73,5 @@ StatusCode ViewTestAlg::execute()
 
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthViews

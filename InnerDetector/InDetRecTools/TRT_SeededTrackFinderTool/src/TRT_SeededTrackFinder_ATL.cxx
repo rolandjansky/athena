@@ -223,7 +223,7 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   if(msgLvl(MSG::DEBUG)){ dumpconditions(msg(MSG::DEBUG));  msg(MSG::DEBUG) << endmsg;}
 
   //initlialize readhandlekey
-  ATH_CHECK(m_inputClusterContainerName.initialize());
+  ATH_CHECK(m_inputClusterContainerName.initialize(m_searchInCaloROI));
 
 
   return sc;

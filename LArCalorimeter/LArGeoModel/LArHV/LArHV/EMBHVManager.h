@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_EMBHVMANAGER_H
@@ -8,7 +8,7 @@
 #include "LArHV/EMBHVModule.h"
 #include "LArHV/EMBHVDescriptor.h"
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
@@ -65,7 +65,7 @@ class EMBHVManager
   // Get the database payload
   EMBHVPayload *getPayload(const EMBHVElectrode &) const;
   
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   // Get hvLine for an electrode
   int hvLineNo(const EMBHVElectrode& electrode
 	       , int gap

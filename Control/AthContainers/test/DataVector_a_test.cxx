@@ -13,9 +13,6 @@
  * in order to reduce the memory required for compilation.
  */
 
-// Disable this test in standalone mode:
-#ifndef XAOD_STANDALONE
-
 #undef NDEBUG
 
 
@@ -34,11 +31,3 @@ int main()
   test2_a();
   return 0;
 }
-
-#else
-
-int main() {
-   return 0;
-}
-
-#endif // XAOD_STANDALONE

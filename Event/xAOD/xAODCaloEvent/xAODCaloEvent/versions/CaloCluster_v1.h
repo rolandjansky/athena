@@ -24,21 +24,19 @@ extern "C" {
 #include "AthLinks/ElementLink.h"
 
 
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "CaloEvent/CaloRecoStatus.h"
-#endif // not SIMULATIONBASE
-#endif // not XAOD_ANALYSIS
+#endif // not (defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 
 // ROOT include(s):
 #include "Math/Vector4D.h"
 
 // Declare a dummy CaloClusterCellLink definition for standalone compilation:
-#if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#if defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 class CaloClusterCellLink {};
 typedef unsigned CaloRecoStatus;
-#endif // defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif // defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
 class CaloClusterChangeSignalState;
 
@@ -536,9 +534,9 @@ namespace xAOD {
      flt_t calM() const;
      /// Set mass for singal state CALIBRATED
      void  setCalM(flt_t);
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
    private:
-#endif //not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif //not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
      /// Switch signal state 
      bool setSignalState(const State s) ;
    public:
@@ -606,7 +604,7 @@ namespace xAOD {
      bool setSamplVarFromAcc(const Accessor<std::vector<float> >& acc, 
 			     const CaloSample sampling, const float value);
    public:
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 
      /// @name Athena-only methods, used during building stage
      /// @{
@@ -730,7 +728,7 @@ namespace xAOD {
      const CaloRecoStatus& recoStatus() const {return m_recoStatus;}
      ///  @}
 
-#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif // not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
       /// Function preparing the object to be persistified
       void toPersistent();

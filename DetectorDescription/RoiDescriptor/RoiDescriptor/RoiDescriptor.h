@@ -41,11 +41,17 @@ class RoiDescriptor : public IRoiDescriptor {
 
 public:
 
+  /// convenient
+  static const bool FULLSCAN = true;
+  static const bool ROI = false;
+
+public:
+
   /**
    * @brief default constructor
    * @param fullscan      if fullscan is true, this RoI will span the entire detector
    */
-  RoiDescriptor(bool fullscan=false);
+  RoiDescriptor(bool fullscan=ROI);
 
   /**
    * @brief constructor

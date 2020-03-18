@@ -85,8 +85,6 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauCalibrateLC.h
   tauRecTools/TauSubstructureVariables.h
   tauRecTools/TauCommonCalcVars.h
-  tauRecTools/TauGenericPi0Cone.h
-  tauRecTools/TauTrackFilter.h
   tauRecTools/MvaTESVariableDecorator.h
   tauRecTools/MvaTESEvaluator.h
   tauRecTools/CombinedP4FromRecoTaus.h

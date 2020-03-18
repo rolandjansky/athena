@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,45 +13,45 @@
     Interface for the PhysicsAnalysis/MCTruthClassifier/MCTruthclassifier
     @author Frederic Derue derue@lpnhe.in2p3.fr
     CREATED : 01/09/2008
-    MODIFIED : 
+    MODIFIED :
 */
 
 #include "AsgTools/IAsgTool.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
-#include <vector>
-
-// EDM Fwd includes
-
-#include "xAODEgamma/ElectronFwd.h"
-#include "xAODEgamma/PhotonFwd.h"
-#include "xAODTracking/TrackParticleFwd.h"
-#include "xAODCaloEvent/CaloClusterFwd.h"
-
 #include "xAODTruth/TruthParticle.h"
-#include "xAODMuon/Muon.h"
-#include "xAODJet/Jet.h"
 
 #include <memory>
 #include <unordered_map>
-
+#include <vector>
 
 #define MCTRUTHCLASSIFIER_CONST
 
+#ifndef GENERATIONBASE // Can not be used in Generation release
+#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODEgamma/ElectronFwd.h"
+#include "xAODEgamma/PhotonFwd.h"
+#include "xAODJet/Jet.h"
+#include "xAODMuon/Muon.h"
+#include "xAODTracking/TrackParticleFwd.h"
+#endif
 
-#ifndef XAOD_ANALYSIS
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#ifndef XAOD_ANALYSIS // Can not be used in AnalysisBase
 namespace HepMC {
-  class GenParticle;
+class GenParticle;
 }
 #endif
 
-        
-class IMCTruthClassifier : virtual public asg::IAsgTool {
-     
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) // Can only be used in Athena
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#endif
+
+class IMCTruthClassifier : virtual public asg::IAsgTool
+{
+
   ASG_TOOL_INTERFACE(IMCTruthClassifier)
-    public:
-#ifndef XAOD_ANALYSIS
-    typedef  Trk::IParticleCaloExtensionTool::Cache Cache;
+public:
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) // Can only be used in Athena
+  typedef Trk::IParticleCaloExtensionTool::Cache Cache;
 #endif
   // Additional information that can be returned by the classifier.
   // Originally, these were all held in member variables in the classifier,
@@ -61,7 +61,6 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
   class Info
   {
   public:
-
     const xAOD::TruthParticle* genPart = nullptr;
 
     MCTruthPartClassifier::ParticleOutCome particleOutCome = MCTruthPartClassifier::UnknownOutCome;
@@ -70,58 +69,76 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
     long motherBarcode = 0;
     int motherPDG = 0;
 
-
-    float deltaRMatch = -999;
-    float deltaPhi = -999;
-    float probTrkToTruth = 0;
-    uint8_t numOfSiHits = 0;
-
     int photonMotherBarcode = 0;
     long photonMotherStatus = 0;
     int photonMotherPDG = 0;
     const xAOD::TruthParticle* photonMother = nullptr;
 
     const xAOD::TruthParticle* bkgElecMother = nullptr;
-#ifndef XAOD_ANALYSIS
-    Cache *extrapolationCache = nullptr;
-#endif
+
+    std::vector<const xAOD::TruthParticle*> tauFinalStatePart;
+
+#ifndef GENERATIONBASE /*Disable when no recostruction packages are expected*/
+    float deltaRMatch = -999;
+    float deltaPhi = -999;
+    float probTrkToTruth = 0;
+    uint8_t numOfSiHits = 0;
+
     std::vector<const xAOD::TruthParticle*> egPartPtr;
     std::vector<float> egPartdR;
-    std::vector<std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin> > egPartClas;
+    std::vector<std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>> egPartClas;
 
     std::vector<const xAOD::TrackParticle*> cnvPhotTrkPtr;
     std::vector<const xAOD::TruthParticle*> cnvPhotTrkToTruthPart;
-    std::vector<MCTruthPartClassifier::ParticleType>  cnvPhotPartType;
+    std::vector<MCTruthPartClassifier::ParticleType> cnvPhotPartType;
     std::vector<MCTruthPartClassifier::ParticleOrigin> cnvPhotPartOrig;
+#endif
 
-    std::vector<const xAOD::TruthParticle*> tauFinalStatePart;
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Can only be used in Athena*/
+    Cache* extrapolationCache = nullptr;
+#endif
   };
 
-
   /** Virtual destructor */
-  virtual ~IMCTruthClassifier(){};  
+  virtual ~IMCTruthClassifier(){};
 
-  //interface to  GenParticle, leave it only for Athena
-#ifndef XAOD_ANALYSIS
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const HepMC::GenParticle *, Info* info = nullptr) const = 0; 
+  /* All get to see these*/
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
+    const xAOD::TruthParticle*,
+    Info* info = nullptr) const = 0;
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> checkOrigOfBkgElec(
+    const xAOD::TruthParticle*,
+    Info* info = nullptr) const = 0;
+
+  virtual const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle*) const = 0;
+
+#ifndef XAOD_ANALYSIS /*This can not run in Analysis Base*/
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
+    const HepMC::GenParticle*,
+    Info* info = nullptr) const = 0;
 #endif
   //
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::TruthParticle *, Info* info = nullptr) const = 0; 
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::TrackParticle *, Info* info = nullptr) const = 0; 
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::Electron*, Info* info = nullptr) const  = 0; 
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::Photon*, Info* info = nullptr)const = 0; 
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::Muon*, Info* info = nullptr) const = 0; 
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::CaloCluster*, Info* info = nullptr)const =0;
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const xAOD::Jet*, bool DR, Info* info = nullptr) const= 0;
+#ifndef GENERATIONBASE /*These can not run in Generation only release*/
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
+    const xAOD::TrackParticle*,
+    Info* info = nullptr) const = 0;
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
+    const xAOD::Electron*,
+    Info* info = nullptr) const = 0;
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
+    const xAOD::Photon*,
+    Info* info = nullptr) const = 0;
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
+    const xAOD::Muon*,
+    Info* info = nullptr) const = 0;
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
+    const xAOD::CaloCluster*,
+    Info* info = nullptr) const = 0;
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>
+  particleTruthClassifier(const xAOD::Jet*, bool DR, Info* info = nullptr) const = 0;
 
-  virtual const xAOD::TruthParticle* getGenPart(const xAOD::TrackParticle *,
-                                                Info* info = nullptr) const = 0;
-
-  virtual  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>
-    checkOrigOfBkgElec(const xAOD::TruthParticle*, Info* info = nullptr) const = 0;
-
-  virtual
-  const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle *) const = 0;
+  virtual const xAOD::TruthParticle* getGenPart(const xAOD::TrackParticle*, Info* info = nullptr) const = 0;
+#endif
 };
 
-#endif // MCTRUTHCLASSIFIER_IMCTRUTHCLASSIFIER_H 
+#endif // MCTRUTHCLASSIFIER_IMCTRUTHCLASSIFIER_H

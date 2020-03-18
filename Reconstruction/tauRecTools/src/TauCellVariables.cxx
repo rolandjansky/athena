@@ -109,7 +109,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     xAOD::JetConstituentVector::const_iterator cItr = pJetSeed->getConstituents().begin();
     xAOD::JetConstituentVector::const_iterator cItrE = pJetSeed->getConstituents().end();
 
-    unsigned int num_cells = 0;
+    int numCells = 0;
     std::bitset<200000> cellSeen;
 
     // loop over all cells of the tau 
@@ -126,11 +126,12 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     
       //loop over cells and calculate the variables
       for (; firstcell != lastcell; ++firstcell) {
+        ++numCells;
+        
         cell = *firstcell;
         if (cellSeen.test(cell->caloDDE()->calo_hash())) continue;
         else cellSeen.set(cell->caloDDE()->calo_hash());
 
-        ++num_cells;
         //use tau vertex to correct cell position
         if (m_doVertexCorrection && pTau.vertexLink()) {
           CaloVertexedCell vxCell (*cell, (*pTau.vertexLink())->position());
@@ -204,7 +205,8 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     
     }// end of loop over seed jet constituents
 
-    ATH_MSG_DEBUG(num_cells << " cells in seed");
+    ATH_MSG_DEBUG(numCells << " cells in seed");
+    pTau.setDetail(xAOD::TauJetParameters::numCells ,  static_cast<int>  (numCells));
 
     pTau.setDetail(xAOD::TauJetParameters::nStrip , numStripCell );
 

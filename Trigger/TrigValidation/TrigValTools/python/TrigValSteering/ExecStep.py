@@ -145,7 +145,7 @@ class ExecStep(Step):
         if check_job_options(self.job_options):
             self.log.debug('Job options file exists: %s', self.job_options)
         else:
-            self.log.error('Failed to find job options file %s', self.name)
+            self.log.error('Failed to find job options file %s for step %s', self.job_options, self.name)
             self.report_result(1, 'TestConfig')
             sys.exit(1)
 
@@ -155,16 +155,20 @@ class ExecStep(Step):
             self.args = ''
         athenaopts = ''
 
+        # Disable prmon for Reco_tf because it is already started inside the transform
+        if self.type == 'Reco_tf':
+            self.prmon = False
+
+        # Disable perfmon for multi-fork jobs as it cannot deal well with them
+        if self.forks and self.forks > 1:
+            self.perfmon = False
+
         # Append imf/perfmon
         if self.type != 'other':
             if self.imf:
                 athenaopts += ' --imf'
             if self.perfmon:
                 athenaopts += ' --perfmon'
-
-        # Disable prmon for Reco_tf because it is already started inside the transform
-        if self.type == 'Reco_tf':
-            self.prmon = False
 
         # Default threads/concurrent_events/forks
         if test.package_name == 'TrigUpgradeTest':

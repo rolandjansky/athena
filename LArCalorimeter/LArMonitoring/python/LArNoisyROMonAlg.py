@@ -2,7 +2,9 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-def LArNoisyROMonConfig(inputFlags, inKey="", NoisyFEBDefStr="(>30 chan with Q>4000)"):
+def LArNoisyROMonConfig(inputFlags, inKey="", 
+                              NoisyFEBDefStr="(>30 chan with Q>4000)", 
+                              MNBTightFEBDefStr=""):
 
     # first configure known bad FEBs
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -26,21 +28,65 @@ def LArNoisyROMonConfig(inputFlags, inKey="", NoisyFEBDefStr="(>30 chan with Q>4
     larNoisyROMonAlg.SubDetNames=lArDQGlobals.SubDet[0:2]
     larNoisyROMonAlg.PartitionNames=lArDQGlobals.Partitions[0:4]
 
+    NoisyFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.BadChanPerFEB)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
+    MNBTightFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTightCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
+    MNBTight_PsVetoFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[0])+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+") + PS veto (<"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[1])+" channels)"
+    MNBLooseFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBLooseCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
+
     #FIXME: only for testing
     larNoisyROMonAlg.storeLooseMNBFEBs=True
     if inKey != "":
        larNoisyROMonAlg.inputKey=inKey 
 
+    # variable for testing on ESD
+    try:
+      LArNoisyROMonForceTrigger
+    except NameError:
+      LArNoisyROMonForceTrigger = False
+
+    EFNoiseBurstTriggersList=[
+         "EF_j165_u0uchad_LArNoiseBurst",
+         "EF_j30_u0uchad_empty_LArNoiseBurst",
+         "EF_j55_u0uchad_firstempty_LArNoiseBurst",
+         "EF_j55_u0uchad_empty_LArNoiseBurst",
+         "EF_xe45_LArNoiseBurst",
+         "EF_xe55_LArNoiseBurst",
+         "EF_xe60_LArNoiseBurst",
+         "EF_j55_u0uchad_firstempty_LArNoiseBurstT",
+         "EF_j100_u0uchad_LArNoiseBurstT",
+         "EF_j165_u0uchad_LArNoiseBurstT",
+         "EF_j130_u0uchad_LArNoiseBurstT",
+         "EF_j35_u0uchad_empty_LArNoiseBurst",
+         "EF_j35_u0uchad_firstempty_LArNoiseBurst",
+         "EF_j80_u0uchad_LArNoiseBurstT"
+    ]
+    L1NoiseBurstTriggersList = [
+         "L1_J75",
+         "L1_J10_EMPTY",
+         "L1_J30_FIRSTEMPTY",
+         "L1_J30_EMPTY",
+         "L1_XE40",
+         "L1_XE50",
+         "L1_XE50_BGRP7",
+         "L1_XE70"
+    ]
+    if inputFlags.Trigger.doHLT or LArNoisyROMonForceTrigger:
+       larNoisyROMonAlg.doTrigger = True  
+       larNoisyROMonAlg.EFNoiseBurstTriggers = EFNoiseBurstTriggersList
+       larNoisyROMonAlg.L1NoiseBurstTriggers = L1NoiseBurstTriggersList
+    else:   
+       larNoisyROMonAlg.doTrigger = False  
+       larNoisyROMonAlg.EFNoiseBurstTriggers = []
+       larNoisyROMonAlg.L1NoiseBurstTriggers = []
 
     noisyROGroup = helper.addGroup(
         larNoisyROMonAlg,
         NoisyROMonGroupName,
-        '/LAr/',
-        'run'
+        '/LAr/NoisyRONewAlg/'
     )
 
 
-    larNoisyRO_hist_path='NoisyRONewAlg/'
+    larNoisyRO_hist_path='Summary/'
 
     # first trees
     noisyROGroup.defineTree('time,time_ns,algo;LArNoise',path=larNoisyRO_hist_path,
@@ -60,24 +106,119 @@ def LArNoisyROMonConfig(inputFlags, inKey="", NoisyFEBDefStr="(>30 chan with Q>4
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
     for subdet in range(0,2): 
-       hist_path='/LAr/'+larNoisyRO_hist_path+lArDQGlobals.SubDet[subdet]+'/'
+       hist_path='/LAr/NoisyRONewAlg/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        slot_n = int(slot_up - slot_low)
        ft_low = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        ft_n = int(ft_up - ft_low)
+       print hist_path,slot_n,slot_low,slot_up,ft_n,ft_low,ft_up
 
-       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larNoisyROMonAlg,lArDQGlobals.SubDet[subdet])
-       darray.defineHistogram('slotBad:FTBad;KnownBadFEB', title='Known Bad FEBs:Slot:FT', 
-                              type='TH2I', path=hist_path,
+       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larNoisyROMonAlg,lArDQGlobals.SubDet[subdet],topPath=hist_path)
+       # Known bad FEBS
+       darray.defineHistogram('slotBad,FTBad;KnownBadFEB', title='Known Bad FEBs {0} ; Slot ; FT', 
+                              type='TH2I', 
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotMNB:FTMNB;KnownMNBFEB', title='Known MNB FEBs:Slot:FT', 
-                              type='TH2I', path=hist_path,
+       darray.defineHistogram('slotMNB,FTMNB;KnownMNBFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
+                              type='TH2I', 
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       # 2D plots of noisy FEBs with various cuts
+       darray.defineHistogram('slotNoisy,FTNoisy;NoisyFEBPerEvt', title='Yield of events with {0} FEB noisy -'+NoisyFEBDefStr+' (only vetoed events) ; Slot ; FT', 
+                              type='TH2I', 
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       darray.defineHistogram('slotTight,FTTight;MNBTightFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBTightFEBDefStr+' (only vetoed events) ; Slot ; FT', 
+                              type='TH2I', 
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       darray.defineHistogram('slotTightCan,FTTightCan;CandidateMNBTightFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBTightFEBDefStr+' (only vetoed events) ; Slot ; FT', 
+                              type='TH2I', 
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       darray.defineHistogram('slot_PsVetoTight,FT_PsVetoTight;MNBTight_PsVetoFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBTight_PsVetoFEBDefStr+' (only vetoed events) ; Slot ; FT', 
+                              type='TH2I', 
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       darray.defineHistogram('slot_PsVetoTightCan,FT_PsVetoTightCan;CandidateMNBTight_PsVetoFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBTight_PsVetoFEBDefStr+' (only vetoed events) ; Slot ; FT', 
+                              type='TH2I', 
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       darray.defineHistogram('slotLoose,FTLoose;MNBLooseFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBLooseFEBDefStr+' (only vetoed events) ; Slot ; FT', 
+                              type='TH2I', 
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       darray.defineHistogram('slotLooseCan,FTLooseCan;CandidateMNBLooseFEBPerEvt', title='Yield of events with {0} FEB noisy -'+MNBLooseFEBDefStr+' (only vetoed events) ; Slot ; FT', 
+                              type='TH2I', 
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       # 1D plots of noisy events of various type
+       darray.defineHistogram('LBStd;NoisyEvent',type='TH1I',
+                                 title='Yield of events flagged as RNB-Standard - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       darray.defineHistogram('LBSat;SaturatedNoisyEvent',type='TH1I',
+                                 title='Yield of events flagged as RNB-Saturated - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       darray.defineHistogram('LBMNBTight;MNBTightEvent',type='TH1I',
+                                 title='Yield of events flagged as MNB-Tight - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       darray.defineHistogram('LBMNBTight_PsVet;MNBTight_PsVetoEvent',type='TH1I',
+                                 title='Yield of events flagged as MNB-Tight_PsVeto - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       darray.defineHistogram('LBMNBLoose;MNBLooseEvent',type='TH1I',
+                                 title='Yield of events flagged as MNB-Loose - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       # 1D plots of events still noisy after EventVeto
+       darray.defineHistogram('LBStd_Veto;NoisyEvent_TimeVeto',type='TH1I',
+                                 title='Yield of events flagged as RNB-Standard not vetoed by time window - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       darray.defineHistogram('LBSat_Veto;SaturatedNoisyEvent_TimeVeto',type='TH1I',
+                                 title='Yield of events flagged as RNB-Saturated not vetoed by time window - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       darray.defineHistogram('LBMNBTight_Veto;MNBTightEvent_TimeVeto',type='TH1I',
+                                 title='Yield of events flagged as MNB-Tight not vetoed by time window - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       darray.defineHistogram('LBMNBTight_PsVeto_Veto;MNBTight_PsVetoEvent_TimeVeto',type='TH1I',
+                                 title='Yield of events flagged as MNB-Tight_PsVeto not vetoed by time window - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       darray.defineHistogram('LBMNBLoose_Veto;MNBLooseEvent_TimeVeto',type='TH1I',
+                                 title='Yield of events flagged as MNB-Loose not vetoed by time window - {0} ; Luminosity Block', 
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
+
+       # Trigger histos
+       if larNoisyROMonAlg.doTrigger:
+          siz=len(larNoisyROMonAlg.EFNoiseBurstTriggers)
+          darray.defineHistogram('Triggers;NoisyEventTrigger',type='TH1I',
+                                 title='Trigger fired for RNB flagged events - {0} ; Special trigger fired', 
+                                 xbins=siz+1,xmin=0.5,xmax=siz+1.5,
+                                 xlabels=larNoisyROMonAlg.EFNoiseBurstTriggers+["NONE"])
+
+          l1siz=len(larNoisyROMonAlg.L1NoiseBurstTriggers)
+          darray.defineHistogram('L1Triggers;NoisyEventL1Term',type='TH1I',
+                                 title='L1 term fired for RNB flagged events - {0} ; Special trigger fired', 
+                                 xbins=l1siz+1,xmin=0.5,xmax=l1siz+1.5,
+                                 xlabels=larNoisyROMonAlg.L1NoiseBurstTriggers+["NONE"])
+
     pass
 
     cfg.merge(helper.result())
@@ -105,6 +246,7 @@ if __name__=='__main__':
     file = 'myESD.pool.root'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
+    ConfigFlags.DQ.useTrigger = True
     
     ConfigFlags.Output.HISTFileName = 'LArNoisyROMonitoringOutput.root'
     ConfigFlags.lock()
@@ -137,5 +279,5 @@ if __name__=='__main__':
     cfg.store(f)
     f.close()
    
-    #cfg.run(20,OutputLevel=DEBUG) #use cfg.run() to run on all events
-    cfg.run(20) #use cfg.run() to run on all events
+    cfg.run(20,OutputLevel=DEBUG) #use cfg.run() to run on all events
+    #cfg.run() #use cfg.run() to run on all events

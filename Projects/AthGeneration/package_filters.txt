@@ -3,6 +3,7 @@
 #
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
++ Calorimeter/CaloCondBlobObjs
 + Calorimeter/CaloGeoHelpers
 + Calorimeter/CaloDetDescr
 + Calorimeter/CaloEvent
@@ -17,6 +18,7 @@
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
 + Control/AthenaCommon
++ Control/AthenaConfiguration
 + Control/AthenaInterprocess
 + Control/AthenaKernel
 + Control/AthenaMP
@@ -84,10 +86,12 @@
 + Database/PersistentDataModel
 + Database/PersistentDataModelAthenaPool
 + Database/PersistentDataModelTPCnv
++ Database/RDBAccessSvc
 #+ Database/RegistrationServices
 + Database/TPTools
 #+ DataQuality/GoodRunsLists
 + DetectorDescription/AtlasDetDescr
++ DetectorDescription/GeoModel/AtlasGeoModel
 + DetectorDescription/GeoModel/GeoModelInterfaces
 + DetectorDescription/GeoModel/GeoModelUtilities
 + DetectorDescription/GeoPrimitives

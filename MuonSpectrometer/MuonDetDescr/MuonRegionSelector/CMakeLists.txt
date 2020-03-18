@@ -13,8 +13,9 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           DetectorDescription/Identifier
+                          DetectorDescription/IRegionSelector
+			  MuonSpectrometer/MuonCablings/MuonCablingData
                           MuonSpectrometer/MuonCablings/CSCcabling
-                          MuonSpectrometer/MuonCablings/MuonMDT_Cabling
                           MuonSpectrometer/MuonCablings/MuonTGC_Cabling
                           MuonSpectrometer/MuonCablings/RPCcablingInterface
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -31,8 +32,10 @@ atlas_add_component( MuonRegionSelector
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives 
 		     RegSelLUT GaudiKernel Identifier CSCcablingLib 
+		     MuonCablingData
 		     MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib 
 		     MuonReadoutGeometry
+
 	             MuonAGDDDescription )
 
 # Install files from the package:

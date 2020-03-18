@@ -147,25 +147,29 @@ TrigConf::TrigDBMenuLoader::loadHLTMenu ( unsigned int smk,
 
 
 bool
-TrigConf::TrigDBMenuLoader::loadL1Menu( unsigned int smk, DataStructure & l1menu ) const
+TrigConf::TrigDBMenuLoader::loadL1Menu( unsigned int smk, L1Menu & l1menu ) const
 {
    boost::property_tree::ptree ptl1;
    bool success = loadL1Menu( smk, ptl1 );
    if(!success)
       return false;
-   if( ! ptl1.empty() )
-      l1menu.setData(ptl1);
+   if( ! ptl1.empty() ) {
+      l1menu.setData(std::move(ptl1));
+      l1menu.setSMK(smk);
+   }
    return true;
 }
 
 bool
-TrigConf::TrigDBMenuLoader::loadHLTMenu( unsigned int smk, DataStructure & hltmenu ) const
+TrigConf::TrigDBMenuLoader::loadHLTMenu( unsigned int smk, HLTMenu & hltmenu ) const
 {
    boost::property_tree::ptree pthlt;
    bool success = loadHLTMenu( smk, pthlt );
    if(!success)
       return false;
-   if( ! pthlt.empty() )
-      hltmenu.setData(pthlt);
+   if( ! pthlt.empty() ) {
+      hltmenu.setData(std::move(pthlt));
+      hltmenu.setSMK(smk);
+   }
    return true;
 }

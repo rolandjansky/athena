@@ -45,7 +45,7 @@ TrigConf::TrigDBLoader::createDBSession() const {
 
    auto proxy = std::unique_ptr<coral::ISessionProxy>( connSvc.connect(m_connection, coral::AccessMode::ReadOnly) );
 
-   TRG_MSG_INFO("Opened session " << m_connection << " with " 
+   TRG_MSG_INFO("Opened session " << m_connection << " with  retrialPeriod/retrialTimeout/connectionTimeout: " 
                 << m_retrialPeriod << "/" << m_retrialTimeout << "/" << m_connectionTimeout);
 
    return proxy;

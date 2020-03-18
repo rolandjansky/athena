@@ -109,11 +109,11 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
   }// loop over output keys
 
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
-             m_viewNodeName,             // CF node to attach views to
-             context,                    // Source context
-             getScheduler(),
-             m_reverseViews ) );
+  ATH_CHECK( ViewHelper::scheduleViews( viewVector,           // Vector containing views
+                                        m_viewNodeName,       // CF node to attach views to
+                                        context,              // Source context
+                                        getScheduler(),
+                                        m_reverseViews ) );
   
   // store views
   // auto viewsHandle = SG::makeHandle( m_viewsKey );

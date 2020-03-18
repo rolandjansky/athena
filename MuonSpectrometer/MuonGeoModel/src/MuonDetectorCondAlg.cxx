@@ -99,7 +99,12 @@ StatusCode MuonDetectorCondAlg::execute()
 
     writeHandle.addDependency( readILinesHandle );
 
-    if (MuonMgrData->updateCSCInternalAlignmentMap(readILinesCdo).isFailure()) ATH_MSG_ERROR("Unable to update CSC/ILINES" );
+    CscInternalAlignmentMapContainer tempCont;
+    for (const auto& p : *readILinesCdo) {
+      tempCont.emplace (p.first, new CscInternalAlignmentPar (*p.second));
+    }
+
+    if (MuonMgrData->updateCSCInternalAlignmentMap(&tempCont).isFailure()) ATH_MSG_ERROR("Unable to update CSC/ILINES" );
     else ATH_MSG_DEBUG("update CSC/ILINES DONE" );
   }
 
@@ -116,7 +121,12 @@ StatusCode MuonDetectorCondAlg::execute()
 
     writeHandle.addDependency( readAsBuiltHandle );
 
-    if (MuonMgrData->updateAsBuiltParams(readAsBuiltCdo).isFailure()) ATH_MSG_ERROR("Unable to update MDT AsBuilt parameters" );
+    MdtAsBuiltMapContainer tempCont;
+    for (const auto& p : *readAsBuiltCdo) {
+      tempCont.emplace (p.first, new MdtAsBuiltPar (*p.second));
+    }
+
+    if (MuonMgrData->updateAsBuiltParams(&tempCont).isFailure()) ATH_MSG_ERROR("Unable to update MDT AsBuilt parameters" );
     else ATH_MSG_DEBUG("update MDT AsBuilt parameters DONE" );
   }
 
