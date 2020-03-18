@@ -61,8 +61,11 @@ StatusCode PixelChargeCalibCondAlg::execute() {
 
   EventIDRange rangeW{start, stop};
   if (configData->getUseCalibConditions()) {
+    std::cout << "STSTST PixelChargeCalibCondAlg::execute() OK1" << std::endl;
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey);
+    std::cout << "STSTST PixelChargeCalibCondAlg::execute() OK2" << std::endl;
     const CondAttrListCollection* readCdo = *readHandle; 
+    std::cout << "STSTST PixelChargeCalibCondAlg::execute() OK3" << std::endl;
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
