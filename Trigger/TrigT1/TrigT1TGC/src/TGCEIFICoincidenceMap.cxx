@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 
 #include <iostream>
 #include <fstream>
@@ -8,103 +10,90 @@
 #include <string>
 #include <iomanip>
 
-#include "TrigT1TGC/TGCInnerCoincidenceMap.hh"
 #include "TrigT1TGC/TGCDatabaseManager.hh"
 #include "PathResolver/PathResolver.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-
 
 namespace LVL1TGCTrigger {
 
-TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
+TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
+                                             const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
   :m_verName("NA"),
    m_side(0),
    m_fullCW(false),
    m_tgcArgs(tgcargs),
    m_readCondKey(readCondKey)
 {
+  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCEIFICoincidenceMap");
+  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+
   // intialize map
+  ATH_MSG_DEBUG("initialising the map");
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
       for (size_t input=0; input< N_Input_InnerSector; input++){
 	m_map[input][ssc][sec].setTriggerBits(true);
       }
-      m_flagPT[0][ssc][sec] =0; //pt1     
-      m_flagPT[1][ssc][sec] =0; //pt2     
-      m_flagPT[2][ssc][sec] =0; //pt3     
-      m_flagPT[3][ssc][sec] =0; //pt4     
-      m_flagPT[4][ssc][sec] =1; //pt5     
-      m_flagPT[5][ssc][sec] =1; //pt6     
+      m_flagPT[ssc][sec] = std::bitset<N_PT_THRESH>(0x30);  // 6b'110000
+
       for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
 	m_flagROI[pos][ssc][sec] = 1;
       }
     }
   }
+  ATH_MSG_DEBUG("end of initialisation");
+
   return;
 }
    
-  TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs,
-						 const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
-                                                 const std::string& version,
-						 int   sideID)
-  :m_verName(version),
+TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
+					     const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                                             const std::string& version,
+					     int   sideID)
+ : m_verName(version),
    m_side(sideID),
    m_fullCW(false),
    m_tgcArgs(tgcargs),
    m_readCondKey(readCondKey)
 {
+  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCEIFICoincidenceMap");
+  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+
   // initialize map
+  ATH_MSG_DEBUG("initialising the map");
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
       for (size_t input=0; input< N_Input_InnerSector; input++){
 	m_map[input][ssc][sec].setTriggerBits(true);
       }
-      m_flagPT[0][ssc][sec] =0; //pt1     
-      m_flagPT[1][ssc][sec] =0; //pt2     
-      m_flagPT[2][ssc][sec] =0; //pt3     
-      m_flagPT[3][ssc][sec] =0; //pt4     
-      m_flagPT[4][ssc][sec] =1; //pt5     
-      m_flagPT[5][ssc][sec] =1; //pt6     
+      m_flagPT[ssc][sec] = std::bitset<N_PT_THRESH>(0x30);  // 6b'110000
+
       for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
 	m_flagROI[pos][ssc][sec] = 1;
       }
     }
   }
+  ATH_MSG_INFO("USE_INNER = " << tgcArgs()->USE_INNER());
 
   if (!tgcArgs()->USE_INNER()) return;
+
+  ATH_MSG_INFO("USE_CONDDB = " << tgcArgs()->USE_CONDDB());
+
   if (tgcArgs()->USE_CONDDB()) return;
- 
-  //////////////////////////////
-  IMessageSvc* msgSvc = 0;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
-    return;
-  }
-  MsgStream log(msgSvc, "TGCInnerCoincidenceMap::TGCInnerCoincidenceMap");
 
   // use full CW (i.e. different maps for each side)
   m_fullCW = (m_verName == "v07");
 
   // read Inner Coincidence Map 
   if (this->readMap()) {
-    log << MSG::INFO 
-      << " TGC Inner CW version of " << m_verName << " is selected " << endmsg;
+    ATH_MSG_INFO(" TGC EIFI CW version of " << m_verName << " is selected.");
   } else {
-    log << MSG::INFO  
-	<< " NOT use inner station " << endmsg;
+    ATH_MSG_INFO(" NOT use inner station ");
     tgcArgs()->set_USE_INNER( false );
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
-	m_flagPT[0][ssc][sec] =0; //pt1     
-	m_flagPT[1][ssc][sec] =0; //pt2     
-	m_flagPT[2][ssc][sec] =0; //pt3     
-	m_flagPT[3][ssc][sec] =0; //pt4     
-	m_flagPT[4][ssc][sec] =0; //pt5     
-	m_flagPT[5][ssc][sec] =0; //pt6     
+        m_flagPT[ssc][sec] = std::bitset<N_PT_THRESH>(0x00);  // 6b'000000
       }
     }    
   }
@@ -114,24 +103,22 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs, const SG::
 }
 
 
-TGCInnerCoincidenceMap::~TGCInnerCoincidenceMap()
+TGCEIFICoincidenceMap::~TGCEIFICoincidenceMap()
 {
 }
 
-TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& right)
-  : m_readCondKey(right.m_readCondKey)
+TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(const TGCEIFICoincidenceMap& right)
+ : m_readCondKey(right.m_readCondKey)
 {
+  ATH_MSG_DEBUG("copy constructor");
+
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
       for (size_t input=0; input< N_Input_InnerSector; input++){
 	m_map[input][ssc][sec] = right.m_map[input][ssc][sec];
       }
-      m_flagPT[0][ssc][sec] = right.m_flagPT[0][ssc][sec];
-      m_flagPT[1][ssc][sec] = right.m_flagPT[1][ssc][sec];
-      m_flagPT[2][ssc][sec] = right.m_flagPT[2][ssc][sec];
-      m_flagPT[3][ssc][sec] = right.m_flagPT[3][ssc][sec];
-      m_flagPT[4][ssc][sec] = right.m_flagPT[4][ssc][sec];
-      m_flagPT[5][ssc][sec] = right.m_flagPT[5][ssc][sec];
+      m_flagPT[ssc][sec] = right.m_flagPT[ssc][sec];
+
       for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
 	m_flagROI[pos][ssc][sec] = right.m_flagROI[pos][ssc][sec];
       }
@@ -142,20 +129,18 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& rig
   m_fullCW=right.m_fullCW;
 }
 
-TGCInnerCoincidenceMap& TGCInnerCoincidenceMap::operator=(const TGCInnerCoincidenceMap& right)
+TGCEIFICoincidenceMap& TGCEIFICoincidenceMap::operator=(const TGCEIFICoincidenceMap& right)
 {
+  ATH_MSG_INFO("operator = ");
+
   if (this != &right) {
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
 	for (size_t input=0; input< N_Input_InnerSector; input++){
 	  m_map[input][ssc][sec] = right.m_map[input][ssc][sec];
 	}
-	m_flagPT[0][ssc][sec] = right.m_flagPT[0][ssc][sec];
-	m_flagPT[1][ssc][sec] = right.m_flagPT[1][ssc][sec];
-	m_flagPT[2][ssc][sec] = right.m_flagPT[2][ssc][sec];
-	m_flagPT[3][ssc][sec] = right.m_flagPT[3][ssc][sec];
-	m_flagPT[4][ssc][sec] = right.m_flagPT[4][ssc][sec];
-	m_flagPT[5][ssc][sec] = right.m_flagPT[5][ssc][sec];
+        m_flagPT[ssc][sec] = right.m_flagPT[ssc][sec];
+
 	for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
 	  m_flagROI[pos][ssc][sec] = right.m_flagROI[pos][ssc][sec];
 	}
@@ -169,16 +154,10 @@ TGCInnerCoincidenceMap& TGCInnerCoincidenceMap::operator=(const TGCInnerCoincide
 }
 
 
-bool TGCInnerCoincidenceMap::readMap() 
+bool TGCEIFICoincidenceMap::readMap() 
 {
+  ATH_MSG_DEBUG("readMap");
   const std::string SideName[NumberOfSide] = {"A","C"};
-
-  IMessageSvc* msgSvc = 0;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
-    return false;
-  }
-  MsgStream log(msgSvc, "TGCInnerCoincidenceMap::TGCInnerCoincidenceMap");
 
   // select right database according to a set of thresholds
   std::string dbname="";
@@ -195,8 +174,7 @@ bool TGCInnerCoincidenceMap::readMap()
   fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
   bool isFound =( fullName.length() > 0 );
   if( !isFound) {
-    log << MSG::WARNING 
-	<< " Could not found " << dbname << endmsg;
+    ATH_MSG_WARNING(" Could not found " << dbname);
     return false ;  
   } 
 
@@ -223,15 +201,13 @@ bool TGCInnerCoincidenceMap::readMap()
     // check Id
     if( sectorId<0 || sectorId>=N_EndcapSector ||
 	sscId<0    || sscId>=N_Endcap_SSC ) {
-      log << MSG::WARNING 
-	  << " illegal parameter in database header : " << header.str()
-	  << " in file " << dbname
-	  << endmsg;
+      ATH_MSG_WARNING(" illegal parameter in database header : " << header.str()
+	  << " in file " << dbname);
       file.close();
       return false;
     }
     for (size_t pt=0; pt<N_PT_THRESH; pt++){
-      m_flagPT[pt][sscId][sectorId] = use[pt];
+      m_flagPT[sscId][sectorId][pt] = use[pt];
     }
     for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
       m_flagROI[pos][sscId][sectorId] = roi[pos];
@@ -252,7 +228,7 @@ bool TGCInnerCoincidenceMap::readMap()
 }
 
 // Debug purpose only
-void TGCInnerCoincidenceMap::dumpMap() const
+void TGCEIFICoincidenceMap::dumpMap() const
 {
   // select right database according to a set of thresholds
   std::string fullName="InnerCoincidenceMap."+m_verName+"._12.out";
@@ -262,7 +238,7 @@ void TGCInnerCoincidenceMap::dumpMap() const
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
       file << "# " << sec << " " << ssc << " ";
-      for(int i=0; i<6; i++) file << m_flagPT[i][ssc][sec] << " ";
+      for(int i=0; i<6; i++) file << m_flagPT[ssc][sec].test(i) << " ";
       for(int i=0; i<8; i++) file << m_flagROI[i][ssc][sec] << " ";
       file << std::endl;
       file << m_map[0][ssc][sec].getTriggerWord() << " "
@@ -275,9 +251,9 @@ void TGCInnerCoincidenceMap::dumpMap() const
   file.close();	  
 }
 
-int TGCInnerCoincidenceMap::getFlagPT(const int pt,
-                                      const int ssc,
-                                      const int sec)  const
+int TGCEIFICoincidenceMap::getFlagPT(const int pt,
+                                     const int ssc,
+                                     const int sec)  const
 {
   if ((pt<=0)||(pt>N_PT_THRESH)) return -1;
   if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
@@ -288,13 +264,13 @@ int TGCInnerCoincidenceMap::getFlagPT(const int pt,
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getFlagPtEifi(m_side,pt-1,ssc,sec);
   } else {
-    return  m_flagPT[pt-1][ssc][sec];
+    return  m_flagPT[ssc][sec].test(pt-1);
   }
 }
 
-int  TGCInnerCoincidenceMap::getFlagROI(const int roi,
-                                        const int ssc,
-                                        const int sec)  const
+int  TGCEIFICoincidenceMap::getFlagROI(const int roi,
+                                       const int ssc,
+                                       const int sec)  const
 {
   if ((roi<0)||(roi>=N_ROI_IN_SSC)) return -1;
   if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
@@ -309,12 +285,12 @@ int  TGCInnerCoincidenceMap::getFlagROI(const int roi,
   }
 }
 
-int TGCInnerCoincidenceMap::getTriggerBit(const int slot,
-                  const int ssc,
-                  const int sec,
-                  const int reg,
-                  const int read,
-                  const int bit) const
+int TGCEIFICoincidenceMap::getTriggerBit(const int slot,
+                                         const int ssc,
+                                         const int sec,
+                                         const int reg,
+                                         const int read,
+                                         const int bit) const
 {
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
@@ -324,4 +300,5 @@ int TGCInnerCoincidenceMap::getTriggerBit(const int slot,
     return m_map[slot][ssc][sec].getTriggerBit(reg,read,bit);
   }
 }
-} //end of namespace bracket
+
+}   // end of namespace
