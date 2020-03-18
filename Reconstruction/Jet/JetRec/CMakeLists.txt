@@ -82,11 +82,13 @@ atlas_add_test(PseudoJetContainerOffline
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
+if ( NOT GENERATIONBASE )
 atlas_add_test(PseudoJetContainerTrigger
   SOURCES
   test/PseudoJetContainerTriggerTest.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+endif()
 
 atlas_add_test(ExtractorUnitTests
   SOURCES
@@ -100,8 +102,10 @@ atlas_add_test(JetClustererTest
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
-atlas_add_test(JetRecAlg_Test SCRIPT share/JetRecAlgTestCfg.py )
-  
+if ( NOT GENERATIONBASE )
+   atlas_add_test(JetRecAlg_Test SCRIPT share/JetRecAlgTestCfg.py )
+endif()
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

@@ -2,6 +2,8 @@
 #file RunDepProfileGenerator.py
 #Mu profile generator. Given mu histogram in ROOT file from Data-Preparation, scale to desired number of events, and create configLumi job option.
 
+from __future__ import print_function
+
 import sys,argparse,os,time
 import ROOT
 import math
@@ -121,7 +123,7 @@ def main():
             else:
                 continue
         if not hist and not args.ex_dict:
-            print "No histogram found in {} and no dictionary provided. Exiting!".format(args.in_file)
+            print ("No histogram found in {} and no dictionary provided. Exiting!".format(args.in_file))
             exit(1)
         scaled_dict = extractDict(hist,args.total_events)    #This function collects data from histogram and scales to the input
     elif (args.in_hist and inFile):
@@ -163,10 +165,12 @@ def main():
         log.info('There are {} lumiblocks in this task.'.format(l))
         if l > 10:
             log.info('Displaying first and last 5 lumiblocks:')
-            for j in JobMaker[:5]+JobMaker[-5:]: print " ",j
+            for j in JobMaker[:5]+JobMaker[-5:]:
+                print (" ",j)
         else:
             log.info('Displaying all lumiblocks')
-            for j in JobMaker: print " ",j
+            for j in JobMaker:
+                print (" ",j)
         allLB = iter(JobMaker)
         skeletonName = "RunDependentSimData/OverrideRunLBLumiDigitConfig.py"
         dressSkeleton(skeletonName,outFName,allLB)

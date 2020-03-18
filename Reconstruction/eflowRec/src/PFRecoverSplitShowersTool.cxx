@@ -224,29 +224,43 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
     /* Do subtraction */
     std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
     clusterSubtractionList.reserve(matchedClusters.size());
-    for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
-    
+    std::map<xAOD::CaloCluster*, double> clusterEnergyMap;
+    for (auto thisEFlowRecCluster : matchedClusters) {
+      xAOD::CaloCluster* thisCluster = thisEFlowRecCluster->getCluster();
+      clusterSubtractionList.push_back(std::pair(thisCluster,false));
+      clusterEnergyMap[thisCluster] = thisCluster->e();
+    }
+
     if (getSumEnergy(clusterSubtractionList) - thisEfRecTrack->getEExpect() < m_subtractionSigmaCut
         * sqrt(thisEfRecTrack->getVarEExpect())) {
       /* Check if we can annihilate right away */
       Subtractor::annihilateClusters(clusterSubtractionList);
       //Now we should mark all of these clusters as being subtracted
       //Now need to mark which clusters were modified in the subtraction procedure
-      pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
-
+      pfSubtractionStatusSetter.markAnnihStatus(*thisEflowCaloObject);
     } else {
       /* Subtract the track from all matched clusters */
       Subtractor::subtractTracksFromClusters(thisEfRecTrack, clusterSubtractionList);
-      //Now need to mark which clusters were modified in the subtraction procedure
-      pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
-      
+          
       /* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
       if (getSumEnergy(clusterSubtractionList) < m_subtractionSigmaCut
           * sqrt(thisEfRecTrack->getVarEExpect())) {
         Subtractor::annihilateClusters(clusterSubtractionList);
-	//Now we should mark all of these clusters as being subtracted
-	pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
+	      //Now we should mark all of these clusters as being subtracted
+	      pfSubtractionStatusSetter.markAnnihStatus(*thisEflowCaloObject);
       }
+      else{
+        //Else now to mark which clusters were modified in the subtraction procedure
+        std::vector<float> clusterSubtractedEnergyRatios;
+        for (auto thisCluster: clusterSubtractionList) {
+          if (fabs(thisCluster.first->e() - clusterEnergyMap[thisCluster.first]) > 0.0001) clusterSubtractedEnergyRatios.push_back(thisCluster.first->e()/clusterEnergyMap[thisCluster.first]);
+          else clusterSubtractedEnergyRatios.push_back(NAN);
+        }
+
+	      pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject);
+	
+        } 
+
     }
     /* Flag tracks as subtracted */
     thisEfRecTrack->setSubtracted();

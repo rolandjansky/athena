@@ -15,12 +15,12 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
 
 #include "PixelConditionsData/PixelCablingCondData.h"
+#include "SCT_Cabling/SCT_CablingData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
@@ -49,10 +49,13 @@ public:
   /// Sadly the PIxel and SCT cabling are different classes so need both, 
   /// even if only one is to be used
  
-  ToolHandle<ISCT_CablingTool>  m_sctCablingToolInc; // This class accesses SCT cabling during initialization.
+  SG::ReadCondHandleKey<SCT_CablingData> m_sctCablingKey
+    {this, "SCT_CablingData", "SCT_CablingData", "SCT cabling key"};
 
-  SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
+  SG::ReadCondHandleKey<PixelCablingCondData> m_pixCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
+
+
 
   /// Output conditions object
   SG::WriteCondHandleKey<RegSelLUTCondData> m_tableKey  

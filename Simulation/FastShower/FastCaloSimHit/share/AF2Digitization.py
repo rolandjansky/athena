@@ -1,8 +1,9 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #--------------------------------------------------------------
 #  Run the fast sim 
 #--------------------------------------------------------------
 
-print " Now do the FastSim ....."
+printfunc (" Now do the FastSim .....")
 
 #--------------------------------------------------------------
 # FastHitConv
@@ -30,8 +31,6 @@ job.theFastHitConv.OutputLevel = ALL
 job.OutputLevel = INFO
 
 
-from AthenaCommon.DetFlags import DetFlags
-
 if DetFlags.pileup.LAr_on() or DetFlags.pileup.Tile_on():
     job.theFastHitConv.doPileup = True
 else:
@@ -47,7 +46,7 @@ jobproperties.CaloCellFlags.doLArCellEmMisCalib = False
 from FastCaloSimHit.FastCaloCellGetter import CaloCellGetter
 theCaloCellGetter=CaloCellGetter()                          # CaloCellGetter then goes in front of FastHitConv
 
-print "Set the TileHitVectors and LArHitContainers"
+printfunc ("Set the TileHitVectors and LArHitContainers")
 
 topSequence.TileHitVecToCnt.TileHitVectors += ["TileHitVec_Fast"]
 
@@ -58,5 +57,5 @@ topSequence.digitmaker1.LArPileUpTool.ForWardHitContainerName += ["LArHitFCAL_Fa
 
 
 # Print out job sequence
-#print " The jobsequence is now:"
-#print job
+#printfunc (" The jobsequence is now:")
+#printfunc (job)

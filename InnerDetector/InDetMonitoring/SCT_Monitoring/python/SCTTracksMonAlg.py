@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 '''@file SCTTracksMonAlg.py
 @author Ken Kreul
@@ -29,6 +29,17 @@ def SCTTracksMonAlgConfig(inputFlags):
     # is the algorithm.
     from AthenaConfiguration.ComponentFactory import CompFactory
     myMonAlg = helper.addAlgorithm(CompFactory.SCTTracksMonAlg, 'SCTTracksMonAlg')
+
+    if inputFlags.Beam.Type=='collisions':
+        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+        myMonAlg.FilterTools += [GetFilledBunchFilterTool()]
+
+    doTrigger = False
+    if not inputFlags.isMC:
+        if inputFlags.Trigger.doHLT:
+            doTrigger = True
+    myMonAlg.doTrigger = doTrigger
+
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
     # # properties and add the algorithm to the monitoring sequence.

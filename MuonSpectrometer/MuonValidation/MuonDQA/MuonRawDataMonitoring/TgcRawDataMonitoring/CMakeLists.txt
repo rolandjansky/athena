@@ -24,7 +24,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Reconstruction/MuonIdentification/muonEvent
                           Trigger/TrigEvent/TrigSteeringEvent
-			  Trigger/TrigAnalysis/TrigDecisionTool )
+			  Trigger/TrigAnalysis/TrigDecisionTool
+			  Tracking/TrkExtrapolation/TrkExInterfaces)
 
 
 # External dependencies:
@@ -33,8 +34,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 atlas_add_component( TgcRawDataMonitoring
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaMonitoringLib
-                     StoreGateLib SGtests MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonTrigCoinData MuonDQAUtilsLib Identifier xAODEventInfo xAODMuon xAODTrigger MuonRDO AnalysisTriggerEvent muonEvent TrigSteeringEvent TrigDecisionToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaMonitoringLib AthenaMonitoringKernelLib
+                     StoreGateLib SGtests MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonTrigCoinData MuonDQAUtilsLib Identifier xAODEventInfo xAODMuon xAODTrigger MuonRDO AnalysisTriggerEvent muonEvent TrigSteeringEvent TrigDecisionToolLib TrkExInterfaces )
 
 
 # Install files from the package:

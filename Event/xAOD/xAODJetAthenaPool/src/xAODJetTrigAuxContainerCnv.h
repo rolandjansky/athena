@@ -1,13 +1,13 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_H
 #define XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_H
 
-#ifndef SIMULATIONBASE
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE))
 
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
@@ -47,5 +47,5 @@ public:
                            const std::string& key );
 
 }; // class xAODJetTrigAuxContainerCnv
-#endif // SIMULATIONBASE
+#endif // NOT SIMULATIONBASE OR GENERATIONBASE
 #endif // XAODJETATHENAPOOL_XAODJETAUXCONTAINERCNV_H

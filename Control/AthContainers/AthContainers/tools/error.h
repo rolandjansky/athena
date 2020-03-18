@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainers/tools/error.h
  * @author scott snyder <snyder@bnl.gov>
@@ -25,16 +24,18 @@
 
 #ifdef XAOD_STANDALONE
 
-#include <iostream>
 #include <string>
 #include <typeinfo>
 
 #define ATHCONTAINERS_ERROR(ctx, msg) \
-  std::cout << ctx << "ERROR " << __FILE__ << ":" << __LINE__ << " " \
-  << __func__ << ": ERROR: " << msg << "\n"
+  AthContainers_detail::reportErrorStandalone(ctx, __FILE__, __LINE__, msg)
 
 
 namespace AthContainers_detail {
+
+void reportErrorStandalone (const std::string& context,
+                            const std::string& file, int line,
+                            const std::string& msg);
 
 std::string typeinfoName (const std::type_info& ti);
 
@@ -47,7 +48,7 @@ std::string typeinfoName (const std::type_info& ti);
 #include "GaudiKernel/System.h"
 
 #define ATHCONTAINERS_ERROR(ctx, msg) \
-  errorcheck::ReportMessage(MSG::ERROR, ERRORCHECK_ARGS, ctx).msgstream() << msg
+  errorcheck::ReportMessage(MSG::ERROR, __LINE__, __FILE__, "", PACKAGE_VERSION, ctx).msgstream() << msg
 
 namespace AthContainers_detail {
 
