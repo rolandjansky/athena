@@ -198,6 +198,7 @@ TextFileDBReader::find(const std::string & key, std::string & result) const
 {
   std::map<std::string,Data>::const_iterator iter = m_table.find(key);
   if (iter != m_table.end()) {
+    lock_t lock (m_mutex);
     result = iter->second.value;
     m_logger[key]++;
     return true;
@@ -245,6 +246,7 @@ TextFileDBReader::printNotUsed(const std::string & section) const
   for (std::map<std::string,Data>::const_iterator iter = m_table.begin();
        iter != m_table.end();
        ++iter) {
+    lock_t lock (m_mutex);
     if ((section.empty() || iter->second.section == sectionNum) && m_logger.find(iter->first) == m_logger.end()) {
       std::cout << std::setw(35) << iter->first << " " << iter->second.value << std::endl;
       allused = false;

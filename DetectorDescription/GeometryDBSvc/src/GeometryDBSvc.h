@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <string>
+#include <mutex>
 
 class TextFileDBReader;
 class IRDBRecordset;
@@ -72,10 +73,14 @@ private:
   bool m_printNotUsed;
   std::vector<std::string> m_sections;
 
+  //protect the m_lastLookupKey, m_lastLookupValue and m_lastLookupResult
+  mutable std::mutex m_mutex;
+  typedef std::lock_guard<std::mutex> lock_t; 
+
   // Cache of last lookup.
-  mutable std::string m_lastLookupKey;
-  mutable std::string m_lastLookupValue;
-  mutable bool m_lastLookupResult;
+  mutable std::string m_lastLookupKey ATLAS_THREAD_SAFE;
+  mutable std::string m_lastLookupValue ATLAS_THREAD_SAFE;
+  mutable bool m_lastLookupResult ATLAS_THREAD_SAFE;
 
 };
 

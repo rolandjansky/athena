@@ -118,6 +118,7 @@ GeometryDBSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 void 
 GeometryDBSvc::setParameterFileName(const std::string & filename)
 {
+  lock_t lock(m_mutex);
   if (!filename.empty()) {
     msg(MSG::INFO) << "Parameters overriden from text file: " << filename << endmsg; 
     msg(MSG::WARNING) << "Overriding from a text file is NOT recommended for production use." << endmsg; 
@@ -259,6 +260,7 @@ GeometryDBSvc::getValue(const std::string & recordSetName, const std::string & n
     var = m_lastLookupValue;
     return m_lastLookupResult;
   } else {  
+    lock_t lock(m_mutex);
     m_lastLookupKey = lookupKey;
     bool result = m_textParameters->find(parameterKey(recordSetName,name,index),var);
     if (!result && !recordSetName.empty()) {
