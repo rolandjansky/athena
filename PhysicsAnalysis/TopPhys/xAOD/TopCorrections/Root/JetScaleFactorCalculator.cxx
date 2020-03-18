@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: JetScaleFactorCalculator.cxx 794672 2017-01-31 00:41:04Z tpelzer $
@@ -35,15 +35,29 @@ namespace top {
 
   StatusCode JetScaleFactorCalculator::execute() {
     ///-- Loop over all jet collections --///
-    ///-- Lets assume that we're not doing ElectronInJet subtraction --///
+  
     for (auto currentSystematic : *m_config->systSgKeyMapJets(false)) {
       const xAOD::JetContainer* jets(nullptr);
-      top::check(evtStore()->retrieve(jets, currentSystematic.second), "failed to retrieve jets");
-
-      ///-- Tell the SF tools to use the nominal systematic --///
-
-      /// -- Loop over all jets in each collection --///
-      for (auto jetPtr : *jets) {
+      top::check(evtStore()->retrieve(jets, currentSystematic.second), "failed to retrieve jets in JetScaleFactorCalculator::execute()");
+      top::check(this->decorateJets(jets,currentSystematic.first == m_config->nominalHashValue()),"failed to decorate jets in JetScaleFactorCalculator::execute()");
+    }
+    
+    if(m_config->doLooseEvents() && m_config->applyElectronInJetSubtraction())
+    {
+      for (auto currentSystematic : *m_config->systSgKeyMapJets(true)) {
+        const xAOD::JetContainer* jets(nullptr);
+        top::check(evtStore()->retrieve(jets, currentSystematic.second), "failed to retrieve loose jets in JetScaleFactorCalculator::execute()");
+        top::check(this->decorateJets(jets,currentSystematic.first == m_config->nominalHashValue()),"failed to decorate loose jets in JetScaleFactorCalculator::execute()");
+      }
+    }
+    
+    return StatusCode::SUCCESS;
+  }
+  
+  StatusCode JetScaleFactorCalculator::decorateJets(const xAOD::JetContainer* jets, bool isNominal){
+    
+    /// -- Loop over all jets in each collection --///
+      for (const xAOD::Jet *jetPtr : *jets) {
         /// -- Does the jet pass object selection? --///
         // WARNING: this doesn't include the JVT cut anymore
         bool passSelection(false);
@@ -83,7 +97,7 @@ namespace top {
           jetPtr->auxdecor<float>("JET_SF_jvt") = jvtSF;
 
           ///-- For nominal calibration, vary the SF systematics --///
-          if (currentSystematic.first == m_config->nominalHashValue()) {
+          if (isNominal) {
             float jvtSF_up(1.), jvtSF_down(1.);  // made up values
 
             if (passes_jvt) {
@@ -112,9 +126,6 @@ namespace top {
           } // Calibration systematic is nominal, so calculate SF systematics
         }
       }
-    }
-
-
     return StatusCode::SUCCESS;
   }
 }  // namespace top
