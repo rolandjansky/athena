@@ -22,26 +22,26 @@
 namespace EL
 {
   FilterReporter ::
-  FilterReporter (FilterReporterParams& val_handle,
+  FilterReporter (FilterReporterParams& val_params,
                   bool val_passedDefault)
-    : AsgMessagingForward (&val_handle)
-    , m_handle (val_handle)
+    : AsgMessagingForward (&val_params)
+    , m_params (val_params)
     , m_passed (val_passedDefault)
   {
-    assert (m_handle.m_isInitialized);
+    assert (m_params.m_isInitialized);
   }
 
 
 
   FilterReporter ::
-  FilterReporter (const FilterReporterParams& val_handle,
+  FilterReporter (const FilterReporterParams& val_params,
                   bool val_passedDefault,
                   const EventContext& /*val_eventContext*/)
-    : AsgMessagingForward (&val_handle)
-    , m_handle (val_handle)
+    : AsgMessagingForward (&val_params)
+    , m_params (val_params)
     , m_passed (val_passedDefault)
   {
-    assert (m_handle.m_isInitialized);
+    assert (m_params.m_isInitialized);
   }
 
 
@@ -50,7 +50,10 @@ namespace EL
   ~FilterReporter () noexcept
   {
     ANA_MSG_DEBUG ("setting algorithm-filter-passed flag to " << m_passed);
-    m_handle.m_setFilterPassed (m_passed);
+    m_params.m_setFilterPassed (m_passed);
+    if (m_passed)
+      m_params.m_passed += 1;
+    m_params.m_total += 1;
   }
 
 
