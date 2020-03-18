@@ -40,7 +40,9 @@ namespace CP
   {
     ANA_MSG_DEBUG ("setting systematics-filter-passed flag to " << m_passed << " for " << m_sys.name());
     if (m_passed)
-      m_combiner.m_passed = true;
+      m_combiner.m_passedOne = true;
+    else
+      m_combiner.m_passedAll = false;
     // decorate event info
     m_combiner.m_params.m_eventDecisionOutputDecoration.set (*m_eventInfo, m_passed, m_sys);
   }

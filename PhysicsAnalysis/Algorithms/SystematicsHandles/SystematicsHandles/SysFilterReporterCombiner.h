@@ -69,9 +69,10 @@ namespace CP
   private:
     bool m_passedDefault {false};
 
-    /// \brief the value of passed we will set
+    /// \brief whether we passed for at least one/all systematics
   private:
-    bool m_passed {false};
+    bool m_passedOne {false};
+    bool m_passedAll {true};
   };
 }
 

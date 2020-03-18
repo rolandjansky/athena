@@ -89,7 +89,8 @@ namespace CP
 
     /// \brief counter for passed events
   private:
-    unsigned m_passed {0};
+    unsigned m_passedOne {0};
+    unsigned m_passedAll {0};
 
     /// \brief counter for total events
   private:

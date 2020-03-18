@@ -39,10 +39,12 @@ namespace CP
   SysFilterReporterCombiner ::
   ~SysFilterReporterCombiner () noexcept
   {
-    ANA_MSG_DEBUG ("setting algorithm-filter-passed flag to " << m_passed);
-    m_params.m_setFilterPassed (m_passed);
+    ANA_MSG_DEBUG ("setting algorithm-filter-passed flag to " << m_passedOne);
+    m_params.m_setFilterPassed (m_passedOne);
     m_params.m_total += 1;
-    if (m_passed)
-      m_params.m_passed += 1;
+    if (m_passedOne)
+      m_params.m_passedOne += 1;
+    if (m_passedAll)
+      m_params.m_passedAll += 1;
   }
 }

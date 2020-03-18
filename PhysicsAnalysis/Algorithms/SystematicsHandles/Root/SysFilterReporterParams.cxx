@@ -27,7 +27,7 @@ namespace CP
     assert (!m_isInitialized);
 
     if (m_eventDecisionOutputDecoration.empty()) {
-        ANA_MSG_ERROR("no scale factor decoration name set");
+        ANA_MSG_ERROR("no event filter decoration name set");
         return StatusCode::FAILURE;
     }
 
@@ -38,7 +38,8 @@ namespace CP
   StatusCode SysFilterReporterParams ::
   finalize ()
   {
-    ATH_MSG_INFO ("Events passing selection: " << m_passed << " / " << m_total);
+    ATH_MSG_INFO ("Events passing selection for at least one systematic: " << m_passedOne << " / " << m_total);
+    ATH_MSG_INFO ("Events passing selection for all systematics: " << m_passedAll << " / " << m_total);
     return StatusCode::SUCCESS;
   }
 }
