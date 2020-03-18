@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // -------------------------------------------------------------
 // File: GeneratorFilters/Boosted2DijetFilter.cxx
 // Description:
@@ -33,9 +29,9 @@ Boosted2DijetFilter::Boosted2DijetFilter(const std::string& name,
 			   ISvcLocator* pSvcLocator): GenFilter(name,pSvcLocator) {
   //--------------------------------------------------------------------------    
   // Local Member Data:-
-  declareProperty("DijetPtMin",m_dijet_ptMin=160/Gaudi::Units::GeV);
-  declareProperty("JetPtMin",m_jetPtMin=20.0/Gaudi::Units::GeV);
-  declareProperty("LargeRJetPtMin",m_akt8PtMin=160.0/Gaudi::Units::GeV);
+  declareProperty("DijetPtMin",m_dijet_ptMin=160*Gaudi::Units::GeV);
+  declareProperty("JetPtMin",m_jetPtMin=20.0*Gaudi::Units::GeV);
+  declareProperty("LargeRJetPtMin",m_akt8PtMin=160.0*Gaudi::Units::GeV);
   declareProperty("JetEtaMax",m_jetEtaMax=2.8);
   declareProperty("DijetDRMax",m_dijet_dRMax=1.5);
   declareProperty("TruthContainerName",m_TruthJetContainerName="AntiKt4TruthJets");
