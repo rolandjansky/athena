@@ -21,9 +21,10 @@ class MadGraphTopUpAlg(EvgenAlg):
         self.njobs = 1
         if 'ATHENA_PROC_NUMBER' in os.environ:
             self.njobs = os.environ['ATHENA_PROC_NUMBER']
+        self.mode = 0 if self.njobs==1 else 2
         self.fileList = []
 
-    def initialize():
+    def initialize(self):
         self.topUpSvc = getattr(svcMgr, self.topUpSvcName, None)
         if self.topUpSvc is not None:
             self.msg.info('Got the top up service')
@@ -33,7 +34,7 @@ class MadGraphTopUpAlg(EvgenAlg):
             self.msg.info('Lucky you - you are running on a full node queue.  Will re-configure for '+str(self.njobs)+' jobs.')
         return StatusCode.Success
 
-    def execute():
+    def execute(self):
         # If we did not manage to get the top up service, just get out of here
         if self.topUpSvc is None:
             return StatusCode.Success
@@ -44,8 +45,6 @@ class MadGraphTopUpAlg(EvgenAlg):
             return StatusCode.Success
 
         # Not enough events!  Top it up!
-        e_to_generate = self.topUpSvc.getNPerFile()
-
         a_dir = None
         # Call another generate - first find out where to go
         if os.access('madevent',os.R_OK):
@@ -75,13 +74,12 @@ class MadGraphTopUpAlg(EvgenAlg):
             else:
                 newcard.write(line)
         newcard.close()
-        return run_card_new
 
         # Do the actual generation - should we use the generate* functions in MGC_Utils directly?
         self.msg.info( 'Started generating at '+str(time.asctime()) )
         if self.njobs>1:
             self.msg.info('Running parallel generation.  Should be nice and fast.')
-            generate = subprocess.Popen(['bin/generate_events',str(mode),str(self.njobs),'OTFTopUp'],stdin=subprocess.PIPE)
+            generate = subprocess.Popen(['bin/generate_events',str(self.mode),str(self.njobs),'OTFTopUp'],stdin=subprocess.PIPE)
         else:
             self.msg.info('Running serial generation.  This will take a bit more time than parallel generation.')
             generate = subprocess.Popen(['bin/generate_events','0','OTFTopUp'],stdin=subprocess.PIPE)
@@ -121,4 +119,3 @@ class MadGraphTopUpAlg(EvgenAlg):
         self.topUpSvc.newFile( a_new_file_name )
 
         return StatusCode.Success
-

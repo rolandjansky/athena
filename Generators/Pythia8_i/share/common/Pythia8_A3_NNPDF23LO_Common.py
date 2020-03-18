@@ -13,9 +13,9 @@ genSeq.Pythia8.Commands += [
     "MultipartonInteractions:ecmPow = 0.21",
     "MultipartonInteractions:coreRadius = 0.55",
     "MultipartonInteractions:coreFraction = 0.9",
-    "Diffraction:PomFlux = 4",
-    "Diffraction:PomFluxEpsilon = 0.07",
-    "Diffraction:PomFluxAlphaPrime = 0.25"]
+    "SigmaDiffractive:PomFlux = 4",
+    "SigmaDiffractive:PomFluxEpsilon = 0.07",
+    "SigmaDiffractive:PomFluxAlphaPrime = 0.25"]
 #    "BeamRemnants:reconnectRange  = 1.8"]
 
 rel = os.popen("echo $AtlasVersion").read()

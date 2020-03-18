@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "GeneratorFilters/ChargedTracksFilter.h"
 #include "TruthUtils/HepMCHelpers.h"
 
@@ -53,11 +49,10 @@ StatusCode ChargedTracksFilter::filterEvent() {
                 " with pT >= " << m_Ptmin <<
                 " |eta| < " << m_EtaRange <<
                 " minNTracks = " << m_NTracks <<
-		" maxNTracks = " << m_NTracksMax);
+                " maxNTracks = " << m_NTracksMax);
 
-  // Record passed status  
-  setFilterPassed( ((m_NTracksMax == -1) or (nChargedTracks <= m_NTracksMax)) && 
-		   ((m_NTracks    == -1) or (nChargedTracks >= m_NTracks   )) );
-
+  // Record passed status
+  setFilterPassed( ((m_NTracksMax == -1) || (nChargedTracks <= m_NTracksMax)) && 
+		   ((m_NTracks == -1) || (nChargedTracks >= m_NTracks)) );
   return StatusCode::SUCCESS;
 }

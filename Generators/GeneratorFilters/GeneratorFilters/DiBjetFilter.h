@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // --------------------------------------------------
 // 
 // File:  GeneratorFilters/DiBjetFilter.h
@@ -41,6 +37,9 @@ private:
 	/* Variables for cutting sample into pt slices */
 	double m_leadJet_ptMin;
 	double m_leadJet_ptMax;
+	double m_diJet_ptMin;
+	double m_diJet_massMin;
+	double m_diJet_massMax;
         std::string m_TruthJetContainerName;
 	/* Variables for light jet suppression */
 	double m_LightJetSuppressionFactor;
