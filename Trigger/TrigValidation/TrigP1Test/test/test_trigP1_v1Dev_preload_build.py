@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# art-description: Full menu athenaHLT test imitating partition with preloaded data at P1
+# art-description: athenaHLT test of the Dev_pp_run3_v1 menu imitating partition with preloaded data at P1
 # art-type: build
 # art-include: master/Athena
 
@@ -38,6 +38,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = ''
 ex.explicit_input = True
 ex.args = '-f ./raw._0001.data'
+ex.args += ' -c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 ex.args += ' -C "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.HltEventLoopMgr.forceRunNumber=%d; ServiceMgr.HltEventLoopMgr.forceStartOfRunTime=%d"' % (run, sor)
 ex.args += ' -R 999999 --sor-time=now --detector-mask=all'
 ex.args += ' -M --dump-config'  # For SMK generation

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Same as full_menu test from TrigUpgradeTest, but with athenaHLT
+# art-description: athenaHLT test of the Dev_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
@@ -23,6 +23,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
+ex.args = '-c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 
 test = Test.Test()
 test.art_type = 'grid'

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Runs the full_menu test writing BS output and then runs BS decoding
+# art-description: Runs athenaHLT writing BS output and then runs BS decoding
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
@@ -57,6 +57,7 @@ writeBS.type = 'athenaHLT'
 writeBS.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 writeBS.input = 'data'
 writeBS.args = '-o output'
+writeBS.args += ' -c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 
 # Extract and decode physics_Main
 filterMain = filterBS("Main")

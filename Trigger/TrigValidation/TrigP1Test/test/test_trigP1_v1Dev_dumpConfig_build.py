@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: FullMenu test only dumping options for SMK generation
+# art-description: athenaHLT test of the Dev_pp_run3_v1 menu only dumping options for SMK generation
 # art-type: build
 # art-include: master/Athena
 
@@ -10,7 +10,8 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.args = '-M --dump-config-exit'
+ex.args = '-c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args += ' -M --dump-config-exit'
 ex.perfmon = False  # Cannot use PerfMon with -M
 
 test = Test.Test()
