@@ -28,7 +28,7 @@ namespace InDetDD {
   {
     public:
 
-      const TRT_BaseElement* getDetectorElement(IdentifierHash& hash) const;
+      const TRT_BaseElement* getDetectorElement(const IdentifierHash& hash) const;
   };
 
 } // namespace InDetDD
