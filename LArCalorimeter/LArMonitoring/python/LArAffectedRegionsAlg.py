@@ -23,7 +23,7 @@ def LArAffectedRegionsConfig(inputFlags):
 
 
     from LArMonitoring.GlobalVariables import lArDQGlobals #to define the ranges
-    larAffReg_hist_path='AffectedRegions/' #histogram path
+    larAffReg_hist_path='AffectedRegionsNewAlg/' #histogram path
     
 
     #EMBPS

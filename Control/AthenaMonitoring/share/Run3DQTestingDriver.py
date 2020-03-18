@@ -32,7 +32,7 @@ if __name__=='__main__':
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import *
-    log.setLevel(INFO)
+    log.setLevel(DEBUG)
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

@@ -5,7 +5,7 @@ def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
     from AthenaMonitoring import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import  LArFEBMonAlg
 
-    helper = AthMonitorCfgHelperOld(inputFlags, 'LArFEBMonCfg')
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArFEBMonAlgOldCfg')
     LArFEBMonConfigCore(helper, LArFEBMonAlg,inputFlags,cellDebug, dspDebug)
 
     return helper.result()
@@ -14,7 +14,7 @@ def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
 def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
 
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArFEBMonCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'LArFEBMonAlgCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArFEBMonConfigCore(helper, CompFactory.LArFEBMonAlg,inputFlags,cellDebug, dspDebug)
@@ -68,7 +68,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
     Group = helper.addGroup(
         larFEBMonAlg,
         GroupName,
-        '/LAr/'+GroupName+'/'
+        '/LAr/'+GroupName+'NewAlg/'
     )
 
 
@@ -192,7 +192,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
     # Now per partition histograms
     for subdet in range(0,lArDQGlobals.N_SubDet):
-       hist_path='/LAr/'+GroupName+'/'+lArDQGlobals.SubDet[subdet]+'/'
+       hist_path='/LAr/'+GroupName+'NewAlg/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        slot_n = int(slot_up - slot_low)

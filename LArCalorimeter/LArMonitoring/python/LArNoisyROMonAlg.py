@@ -40,7 +40,7 @@ def LArNoisyROMonConfig(inputFlags, inKey="", NoisyFEBDefStr="(>30 chan with Q>4
     )
 
 
-    larNoisyRO_hist_path='NoisyRO/'
+    larNoisyRO_hist_path='NoisyRONewAlg/'
 
     # first trees
     noisyROGroup.defineTree('time,time_ns,algo;LArNoise',path=larNoisyRO_hist_path,
