@@ -985,6 +985,8 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
         if (syst_central_equal_nom_central){  //central values are the same in nom and sys
           if (syst_errors_equal_nom_errors ){ // this case is ambiguous. Is it a 100% uncertainty?
             throw(GenericError() << "The central values and uncertainties for this systematic are identical to the nominal+stat uncertainties. This is ambiguous: did you mean to assign a 100% uncertainty? If so, please set all (unused) error bars to zero. ");
+          } else if (syst_errors_equal_zero ) { //assume here that it was intended as 100% uncertainty
+            err = hist->GetBinContent(x, y, z);
           } else {
             err = hist->GetBinError(x, y, z);
           }
