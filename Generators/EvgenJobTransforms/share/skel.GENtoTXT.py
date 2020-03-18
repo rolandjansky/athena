@@ -444,6 +444,9 @@ if evgenConfig.categories:
         evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
 
 ## Set the run numbers
+dsid = os.path.basename(runArgs.jobConfig[0])
+if not dsid.isdigit():
+    dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
 #runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
