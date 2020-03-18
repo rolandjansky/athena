@@ -161,14 +161,13 @@ MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')'
 Prestrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers + PrescaledHighPtTriggers) + ')'
 PresLowPttrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers) + ')'
 
-JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-JetEleLooseExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>10*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
+JetEleExpression = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt>20*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8)>=2)'
 
 if DerivationFrameworkIsMonteCarlo:
   LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+')'
 else:
   # prescaled triggers originally from SUSY5
-  LepTrigexpression = '(' + '('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+'||'+ '('+PresLowPttrig_expression +'&&'+ JetEleLooseExpression +'&&'+ objectSelectionSL+')'+ ')'
+  LepTrigexpression = '(' + '('+Prestrig_expression +'&&'+ objectSelection+')'+'||'+ '('+PresLowPttrig_expression +'&&'+ objectSelectionSL+')'+ ')'
 
 
 expression = LepTrigexpression
@@ -178,6 +177,9 @@ SUSY17SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY17
                                                                 expression = expression)
 
 ToolSvc += SUSY17SkimmingTool
+
+# Apply JetCalibration
+applyJetCalibration_xAODColl("AntiKt4EMPFlow", SeqSUSY17)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
@@ -266,26 +268,19 @@ SUSY17SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
                                         "TauJets",
-                                        "AntiKt4EMTopoJets",
-                                         "AntiKt4EMPFlowJets",
-                                         #K.Onogi removed 15/11/16              "AntiKt4LCTopoJets",
-                                         "MET_Reference_AntiKt4EMTopo",
-                                         "MET_Reference_AntiKt4EMPFlow",
-                                         #"BTagging_AntiKt4EMTopo",
-                                         #"BTagging_AntiKt4EMPFlow",
-                                         "AntiKt4EMPFlowJets_BTagging201810",
-                                         "AntiKt4EMPFlowJets_BTagging201903",
-                                         "BTagging_AntiKt4EMPFlow_201810",
-                                         "BTagging_AntiKt4EMPFlow_201903",
-                                         "AntiKt4EMTopoJets_BTagging201810",
-                                         "BTagging_AntiKt4EMTopo_201810",
-                                         "InDetTrackParticles",
-                                         "PrimaryVertices"]
+                                        "AntiKt4EMPFlowJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "InDetTrackParticles",
+                                        "PrimaryVertices"]
 SUSY17SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
-SUSY17SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
+SUSY17SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMPFlow_201810.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                       "Photons.author.Loose.Tight",
-                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
+                                      "AntiKt4EMPFlowJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix","CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink"
@@ -327,4 +322,3 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 SUSY17SlimmingHelper.AppendContentToStream(SUSY17Stream)
-
