@@ -12,6 +12,7 @@
 #include <AnaAlgorithm/Global.h>
 
 #include <AsgMessaging/AsgMessagingForward.h>
+#include <atomic>
 #include <functional>
 
 class StatusCode;
@@ -73,6 +74,15 @@ namespace EL
     StatusCode initialize ();
 
 
+    /// \brief do anything we need to do in finalize
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   reporting errors
+  public:
+    StatusCode finalize ();
+
+
 
     //
     // private interface
@@ -92,6 +102,13 @@ namespace EL
     /// \brief whether the handle was initialized
   private:
     bool m_isInitialized {false};
+
+    /// \brief the count of passed and total events
+    ///
+    /// While we currently don't run in multi-threaded mode, this is
+    /// atomic in case we ever use it with reentrant algorithms.
+  private:
+    mutable std::atomic<unsigned> m_passed {0}, m_total {0};
   };
 
 
