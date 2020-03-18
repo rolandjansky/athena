@@ -40,13 +40,6 @@ namespace CP
 
     /// \brief the filter reporter parameters
     EL::FilterReporterParams m_filterParams {this};
-
-    /// \brief counter for passed events
-    long long m_passed = 0;
-
-    /// \brief counter for total events
-    long long m_total = 0;
-
   };
 }
 
