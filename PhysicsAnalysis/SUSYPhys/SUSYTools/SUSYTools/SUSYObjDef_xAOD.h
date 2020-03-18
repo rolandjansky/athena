@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
@@ -553,7 +553,7 @@ namespace ST {
     // strings needed for dealing with 2015+2016 electron trigger SFs
     std::string m_electronTriggerSFStringSingle;
 
-    std::vector<std::string> m_tau_trig_support;
+    std::map<std::string, std::string> m_tau_trig_support;
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
@@ -789,13 +789,8 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_tauTruthMatch;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffTool;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool0;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool1;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool2;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool3;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool4;
+    std::vector<asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool>> m_tauTrigEffTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tauElORdecorator;
-    asg::AnaToolHandle<ITauToolBase> m_tauWPdecorator;
     //
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;
