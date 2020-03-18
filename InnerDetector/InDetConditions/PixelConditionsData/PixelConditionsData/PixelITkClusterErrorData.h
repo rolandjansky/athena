@@ -40,7 +40,7 @@ class PixelITkClusterErrorData {
      std::map< const Identifier, std::tuple<double,double,double,double> > m_constmap;
 
      StoreGateSvc* m_detStore;
-     const PixelID* m_pixelid;
+     const PixelID* m_pixelID;
 
 }; 
 

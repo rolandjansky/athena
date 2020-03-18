@@ -18,7 +18,7 @@ namespace PixelCalib{
 
 PixelITkClusterErrorData::PixelITkClusterErrorData():
   m_detStore(nullptr),
-  m_pixelid(nullptr)
+  m_pixelID(nullptr)
 {
   initialize();
 }
@@ -30,7 +30,7 @@ void PixelITkClusterErrorData::initialize(){
   if(sc.isFailure()){
     throw std::runtime_error("Could not retrieve DetectorStore");
   }
-  sc = m_detStore->retrieve(m_pixelid, "PixelID");
+  sc = m_detStore->retrieve(m_pixelID, "PixelID");
   if(sc.isFailure()){
     throw std::runtime_error("Could not retrieve PixelID");
   }
@@ -78,7 +78,7 @@ void PixelITkClusterErrorData::print(std::string file) const {
   for(auto& x : m_constmap){
 
     std::tuple<double,double,double,double> value = x.second;
-    *outfile << m_pixelid->wafer_hash(x.first) << " " << std::get<0>(value) << " " << std::get<1>(value) << " " << std::get<2>(value) << " " << std::get<3>(value) << std::endl;
+    *outfile << m_pixelID->wafer_hash(x.first) << " " << std::get<0>(value) << " " << std::get<1>(value) << " " << std::get<2>(value) << " " << std::get<3>(value) << std::endl;
 
   }
 
@@ -111,7 +111,7 @@ void PixelITkClusterErrorData::load(std::string file){
       infile >> waferID_hash_int >> delta_x >> delta_error_x >> delta_y >> delta_error_y;
         
       IdentifierHash waferID_hash(waferID_hash_int);
-      Identifier pixelId = m_pixelid->wafer_id(waferID_hash);
+      Identifier pixelId = m_pixelID->wafer_id(waferID_hash);
       setDeltaError(&pixelId,delta_x,delta_error_x,delta_y,delta_error_y);
 
     }
