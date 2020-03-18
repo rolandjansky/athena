@@ -46,7 +46,7 @@ def config_only_check():
     return False
 
 
-def new_process(process='generate p p > t t~',keepJpegs=False):
+def new_process(process='generate p p > t t~\noutput -f',keepJpegs=False):
     """ Generate a new process in madgraph.
     Pass a process string.
     Return the name of the process directory.
@@ -1544,6 +1544,12 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     This function can get a fresh runcard from DATAPATH or start from the process directory.
     Settings is a dictionary of keys (no spaces needed) and values to replace.
     """
+    # Operate on lower case settings, and choose the capitalization MG5 has as the default (or all lower case)
+    for s in settings:
+        if s.lower() not in settings:
+            settings[s.lower()] = settings[s]
+            del settings[s]
+
     # Check for the default run card location
     if run_card_input is None:
         run_card_input=get_default_runcard(process_dir)
@@ -1565,10 +1571,10 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
             settings['iseed']=rand_seed
         if not isNLO and 'python_seed' not in settings:
             settings['python_seed']=rand_seed
-        if 'beamEnergy' in settings:
-            mglog.warning('Do not set beamEnergy in MG settings. The variables are ebeam1 and ebeam2. Will use your setting of '+str(settings['beamEnergy']))
-            beamEnergy=settings['beamEnergy']
-            settings.pop('beamEnergy')
+        if 'beamenergy' in settings:
+            mglog.warning('Do not set beam energy in MG settings. The variables are ebeam1 and ebeam2. Will use your setting of '+str(settings['beamenergy']))
+            beamEnergy=settings['beamenergy']
+            settings.pop('beamenergy')
         if 'ebeam1' not in settings:
             settings['ebeam1']=beamEnergy
         if 'ebeam2' not in settings:
@@ -1596,19 +1602,19 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
                 setting = command.split('=')[-1] #.strip()
                 stripped_setting = setting.strip()
                 oldValue = '='.join(command.split('=')[:-1])
-                if stripped_setting in settings:
+                if stripped_setting.lower() in settings:
                     # if setting set to 'None' it will be removed from run_card
-                    if settings[stripped_setting] is None:
+                    if settings[stripped_setting.lower()] is None:
                         line=''
                         mglog.info('Removing '+stripped_setting+'.')
-                        used_settings += [ stripped_setting ]
+                        used_settings += [ stripped_setting.lower() ]
                     else:
-                        line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting]))+'='+setting
+                        line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting.lower()]))+'='+setting
                         if comment != '':
                             line += '  !' + comment
-                        mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting])+'.')
-                        used_settings += [ stripped_setting ]
-        newCard.write(line)
+                        mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting.lower()])+'.')
+                        used_settings += [ stripped_setting.lower() ]
+        newCard.write(line.strip()+'\n')
 
     # Clean up unused options
     for asetting in settings:
