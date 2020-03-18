@@ -37,6 +37,13 @@ namespace CP {
       return StatusCode::SUCCESS;
    }
 
+   StatusCode VertexSelectionAlg::finalize() {
+      ANA_CHECK (m_filterParams.finalize());
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
    StatusCode VertexSelectionAlg::execute() {
 
       EL::FilterReporter filter (m_filterParams, false);

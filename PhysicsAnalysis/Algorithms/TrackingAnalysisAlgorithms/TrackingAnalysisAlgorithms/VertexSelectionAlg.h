@@ -37,6 +37,9 @@ namespace CP {
       /// Function executing the algorithm
       virtual StatusCode execute() override;
 
+      /// Function finalize the algorithm
+      virtual StatusCode finalize() override;
+
       /// @}
 
    private:
