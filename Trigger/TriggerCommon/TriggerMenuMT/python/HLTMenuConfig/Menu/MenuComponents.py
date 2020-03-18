@@ -792,10 +792,8 @@ class ChainStep(object):
         if self.isCombo:
             self.makeCombo()
 
-
-    def addCombHypoTools(self,  tools):
+    def addComboHypoTools(self,  tools):
         self.comboToolConfs=tools
-        self.combo.addComboHypoToolConfs(self.comboToolConfs)
 
     def makeCombo(self):
         if len(self.sequences)==0:

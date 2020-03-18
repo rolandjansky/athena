@@ -127,7 +127,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "invM":[[],['getmuInvM']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
-            "Dr": [['getmuFastDr', 'getmuCombDr']]
+            "Dr": [['getmuFastDr', 'getmuCombDr'],[]]
         }
 
         return stepDictionary
@@ -238,10 +238,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     def getmuCombDr(self):     
         step=self.getStep(2, 'muComb', sequenceCfgArray=[muCombSequenceCfg])
-        step.addCombHypoTools([dimuDrComboHypoToolFromDict] )
+        step.addComboHypoTools([dimuDrComboHypoToolFromDict] )
         return step
 
     def getmuFastDr(self):     
         step=self.getStep(1,"mufast", [muFastSequenceCfg] )
-        step.addCombHypoTools([dimuDrComboHypoToolFromDict] )
+        step.addComboHypoTools([dimuDrComboHypoToolFromDict] )
         return step
