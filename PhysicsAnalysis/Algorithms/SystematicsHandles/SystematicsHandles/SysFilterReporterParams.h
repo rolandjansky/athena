@@ -83,7 +83,7 @@ namespace CP
   private:
     SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle;
 
-    /// \brief the decoration for writing the scale factor
+    /// \brief the decoration for writing the event decision
   private:
     SysDecorationHandle<char> m_eventDecisionOutputDecoration;
 
