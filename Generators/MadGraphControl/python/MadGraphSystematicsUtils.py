@@ -122,6 +122,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
         else:
             runcard_systematics_arguments['muf']=','.join([str(s) for s in basefragment_settings['scale_variations']])
             runcard_systematics_arguments['mur']=','.join([str(s) for s in basefragment_settings['scale_variations']])
+            runcard_systematics_arguments['dyn']='-1'
         runcard_settings['systematics_arguments']=write_systematics_arguments(runcard_systematics_arguments)
     return runcard_settings
 
