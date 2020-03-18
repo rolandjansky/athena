@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file CxxUtils/checker_macros.h
  * @author scott snyder <snyder@bnl.gov>
@@ -88,7 +87,7 @@
  *   class ATLAS_CHECK_THREAD_SAFETY C  { ... }
  @endcode
  */
-#define ATLAS_CHECK_THREAD_SAFETY [[gnu::check_thread_safety]]
+#define ATLAS_CHECK_THREAD_SAFETY [[ATLAS::check_thread_safety]]
 
 
 /**
@@ -113,7 +112,7 @@
  *   int* yy ATLAS_THREAD_SAFE = const_cast<int*> (y);
  @endcode
  */
-#define ATLAS_THREAD_SAFE [[gnu::thread_safe]]
+#define ATLAS_THREAD_SAFE [[ATLAS::thread_safe]]
 
 
 /**
@@ -129,7 +128,25 @@
  * A function calling an ATLAS_NOT_THREAD_SAFE function must also be marked
  * ATLAS_NOT_THREAD_SAFE.
  */
-#define ATLAS_NOT_THREAD_SAFE [[gnu::not_thread_safe]]
+#define ATLAS_NOT_THREAD_SAFE [[ATLAS::not_thread_safe]]
+
+
+
+/**
+ * @brief Mark that a constructor or destructor is not thread-safe.
+ *
+ * Usage:
+ *
+ * Add after the declaration of a constructor or destructor to mark
+ * it as not-thread-safe.
+ *
+ * A function calling a function marked as not thread-safe must also be marked
+ * as not thread-safe.
+ */
+// This should in principle be the same as ATLAS_NOT_THREAD_SAFE;
+// however, in gcc versions prior to 10, we can't use a c++11-style attribute
+// with a constructor or destructor.  So we work around in this way.
+#define ATLAS_CTORDTOR_NOT_THREAD_SAFE __attribute__ ((ATLAS_not_thread_safe))
 
 
 /**
@@ -145,7 +162,7 @@
  * A function passing a const static object to a function declared
  * ATLAS_ARGUMENT_NOT_CONST_THREAD_SAFE should be declared ATLAS_NOT_REENTRANT.
  */
-#define ATLAS_NOT_REENTRANT [[gnu::not_reentrant]]
+#define ATLAS_NOT_REENTRANT [[ATLAS::not_reentrant]]
 
 
 /**
@@ -163,7 +180,7 @@
  * A const member function calling an ATLAS_NOT_CONST_THREAD_SAFE member
  * function on the same object must also be marked ATLAS_NOT_CONST_THREAD_SAFE.
  */
-#define ATLAS_NOT_CONST_THREAD_SAFE [[gnu::not_const_thread_safe]]
+#define ATLAS_NOT_CONST_THREAD_SAFE [[ATLAS::not_const_thread_safe]]
 
 
 /**
@@ -185,7 +202,7 @@
  * ATLAS_ARGUMENT_NOT_CONST_THREAD_SAFE function must also be marked
  * ATLAS_ARGUMENT_NOT_CONST_THREAD_SAFE.
  */
-#define ATLAS_ARGUMENT_NOT_CONST_THREAD_SAFE [[gnu::argument_not_const_thread_safe]]
+#define ATLAS_ARGUMENT_NOT_CONST_THREAD_SAFE [[ATLAS::argument_not_const_thread_safe]]
 
 
 #else // not ATLAS_GCC_CHECKERS
@@ -196,6 +213,7 @@
 #define ATLAS_CHECK_THREAD_SAFETY
 #define ATLAS_THREAD_SAFE
 #define ATLAS_NOT_THREAD_SAFE
+#define ATLAS_CTORDTOR_NOT_THREAD_SAFE
 #define ATLAS_NOT_REENTRANT
 #define ATLAS_NOT_CONST_THREAD_SAFE
 #define ATLAS_ARGUMENT_NOT_CONST_THREAD_SAFE

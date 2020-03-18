@@ -64,9 +64,11 @@ atlas_add_test( BitPackerUnpacker_test
    SOURCES test/BitPackerUnpacker_test.cxx
    LINK_LIBRARIES TestTools CxxUtils )
 
-atlas_add_test( stacktrace_test
-   SOURCES test/stacktrace_test.cxx
-   LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS} )
+if( NOT XAOD_STANDALONE )
+   atlas_add_test( stacktrace_test
+      SOURCES test/stacktrace_test.cxx
+      LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS} )
+endif()
 
 atlas_add_test( MD5_test
    SOURCES test/MD5_test.cxx
@@ -103,7 +105,7 @@ atlas_add_test( exctrace2_test
    LOG_IGNORE_PATTERN "no version information available" )
 
 # Set up the "simple" tests:
-foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
+foreach( test sincos_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
       fpcompare_test StrFormat_test phihelper_test
       prefetch_test ClassName_test ones_test

@@ -11,6 +11,7 @@ log = logging.getLogger('TrigL2ElectronHypoTool')
 def TrigL2ElectronHypoToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Electron']
+    
     thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
 
     name = chainDict['chainName']

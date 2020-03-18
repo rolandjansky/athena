@@ -152,9 +152,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_TauCore_FTF",
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_TauIso_FTF",
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_Tau_FTF"
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_FTF"
       ]
     else:
       chainnames = [
@@ -174,9 +174,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_TauCore_FTF",
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_TauIso_FTF",
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_Tau_FTF"
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_FTF"
       ]
     else:
       chainnames = [

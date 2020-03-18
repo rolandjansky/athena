@@ -27,19 +27,6 @@ InDetSCTHitsTool = SCTHitsNoiseMonTool ( name = "InDetSCTHitsNoiseMonTool",
 if (InDetFlags.doPrintConfigurables()):
   printfunc (InDetSCTHitsTool)
 
-from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonTool
-InDetSCTTracksMonTool = SCTTracksMonTool ( name             = "InDetSCTTracksMonTool",
-                                           OutputLevel      = 4,
-                                           doTrigger        = doTriggger,
-                                           tracksName       = tracksName )
-
-if jobproperties.Beam.beamType()=='collisions':
-  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
-  InDetSCTTracksMonTool.FilterTools += [GetFilledBunchFilterTool()]
-
-if (InDetFlags.doPrintConfigurables()):
-  printfunc (InDetSCTTracksMonTool)
-
 from SCT_Monitoring.SCT_MonitoringConf import SCTErrMonTool
 InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
                                      OutputLevel      = 4,
@@ -91,6 +78,19 @@ if (InDetFlags.doPrintConfigurables()):
   printfunc (InDetSCTHitEffMonTool)
 
 if not useNewAlgs:
+  from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonTool
+  InDetSCTTracksMonTool = SCTTracksMonTool ( name             = "InDetSCTTracksMonTool",
+                                             OutputLevel      = 4,
+                                             doTrigger        = doTriggger,
+                                             tracksName       = tracksName )
+
+  if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetSCTTracksMonTool.FilterTools += [GetFilledBunchFilterTool()]
+
+    if (InDetFlags.doPrintConfigurables()):
+      printfunc (InDetSCTTracksMonTool)
+
   from SCT_Monitoring.SCT_MonitoringConf import SCTLorentzMonTool
   from BTagging.BTaggingConfiguration_CommonTools import toolAtlasExtrapolator
   atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')

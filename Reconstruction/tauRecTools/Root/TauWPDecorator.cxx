@@ -145,15 +145,17 @@ StatusCode TauWPDecorator::initialize() {
 /********************************************************************/
 StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) 
 { 
+
+  float mu = 0;
   SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
   if (!eventinfoInHandle.isValid()) {
-    ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
-    m_mu = 0.;
+    ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", mu is set to be .0");
   }
   else {
     const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
-    m_mu = eventInfo->averageInteractionsPerCrossing();
-  } 
+    mu = eventInfo->averageInteractionsPerCrossing();
+  }
+
   const SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
   SG::AuxElement::Accessor<float> acc_newScore(m_newScoreName);
 
@@ -180,7 +182,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
      const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
      y_var = std::fabs(acc_absEta(pTau));
   } else {
-     y_var = m_mu;
+     y_var = mu;
   }
 
   ATH_MSG_VERBOSE("pT before " << pt);

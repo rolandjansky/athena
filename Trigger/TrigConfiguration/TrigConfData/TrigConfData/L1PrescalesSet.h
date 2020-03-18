@@ -43,12 +43,19 @@ namespace TrigConf {
       /** number of L1 prescales */
       std::size_t size() const;
 
+      /** setter and getter for the L1 prescale key */
+      unsigned int psk() const;
+      void setPSK(unsigned int psk);
+
       const L1Prescale & prescale(const std::string & itemName) const;
 
    private:
 
       /** Update the internal prescale map after modification of the data object */
       virtual void update();
+
+      /** the prescale key */
+      unsigned int m_psk {0};
 
       // maps L1 item names to prescales 
       std::map<std::string, L1Prescale> m_prescales;

@@ -24,7 +24,11 @@ class ChainConfigurationBase(object):
         self.chainName = self.dict['chainName']
         self.chainL1Item = self.dict['L1item']
 
-        self.chainPart = self.dict['chainParts']
+        # check dictionary contains only one chain part
+        if len( self.dict['chainParts'] ) != 1:
+            raise RuntimeError( "Passed chain dictionary with %i chainParts to ChainConfigurationBase, but this constructor only supports chains with a single part" % len( self.dict['chainParts'] ) )
+
+        self.chainPart = self.dict['chainParts'][0]
         self.L1Threshold = self.chainPart['L1threshold'] # now threshold is always there
         self.mult = int(self.chainPart['multiplicity'])
         self.chainPartName = self.chainPart['chainPartName']
@@ -45,7 +49,7 @@ class ChainConfigurationBase(object):
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
             seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
-        return ChainStep(stepName, seqArray, [self.mult], comboToolConfs=comboTools)
+        return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboToolConfs=comboTools)
 
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,
