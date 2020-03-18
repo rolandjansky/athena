@@ -1,11 +1,10 @@
-// for editors : this file is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOPOCLUSTERTOPTAGGER_H_
 #define TOPOCLUSTERTOPTAGGER_H_
+
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "BoostedJetTaggers/TopoclusterTransform.h"
 #include "AsgTools/AsgTool.h"
@@ -13,15 +12,9 @@
 #include "lwtnn/LightweightNeuralNetwork.hh"
 #include "lwtnn/parse_json.hh"
 
-#include <TSystem.h>
-#include <TFile.h>
 #include <TF1.h>
 
-#include <map>
-#include <iostream>
 #include <fstream>
-#include <vector>
-#include <algorithm>
 
 class TopoclusterTopTagger :  public JSSTaggerBase {
 
@@ -85,19 +78,6 @@ class TopoclusterTopTagger :  public JSSTaggerBase {
     std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
     std::map<std::string, double> m_DNN_inputValues;   // variables for DNN
 
-    // the kinematic bounds for the jet - these are in MeV (not GeV!)
-    float m_jetPtMin;
-    float m_jetPtMax;
-    float m_jetEtaMax;
-
-    // inclusive config file
-    std::string m_configFile;
-    std::string m_tagType;
-    std::string m_kerasConfigFileName;
-    std::string m_kerasConfigFilePath;
-    std::string m_kerasConfigOutputName;
-    std::string m_calibarea_keras;
-
     // bool to check whether variables are corrupt
     mutable bool m_undefInput;
 
@@ -111,15 +91,11 @@ class TopoclusterTopTagger :  public JSSTaggerBase {
     TF1* m_funcMassCutHigh;
     TF1* m_funcScoreCut;
 
-    // string for decorating jets with DNN output
-    std::string m_decorationName;
-
-
     // decorators to be used throughout
-    SG::AuxElement::Decorator<float>    m_dec_mcutL;
-    SG::AuxElement::Decorator<float>    m_dec_mcutH;
-    SG::AuxElement::Decorator<float>    m_dec_scoreCut;
-    SG::AuxElement::Decorator<float>    m_dec_scoreValue;
-
+    SG::AuxElement::Decorator<float> m_dec_mcutL;
+    SG::AuxElement::Decorator<float> m_dec_mcutH;
+    SG::AuxElement::Decorator<float> m_dec_scoreCut;
+    SG::AuxElement::Decorator<float> m_dec_scoreValue;
 };
+
 #endif

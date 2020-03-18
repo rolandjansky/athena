@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/JetUncertaintiesTool.h"
@@ -28,11 +28,9 @@
 #include "TColor.h"
 #include "TBox.h"
 #include "math.h"
-#include <vector>
 
 #include "OptionHelper.h"
 
-#include <iostream>
 #include <sstream>
 
 #define TESTLINE printf("Reached line %d\n",__LINE__);
@@ -975,11 +973,11 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
             std::cout << "Fixed PartonTruthLabelID to " << optHelper.FixedTruthLabel() << std::endl;
         }
 
-        // Fix the fatjet truth label if relevant
-        if (optHelper.FixedFatjetTruthLabel() != FatjetTruthLabel::UNKNOWN)
+        // Fix the large-R jet truth label if relevant
+        if (optHelper.FixedLargeRJetTruthLabel() != LargeRJetTruthLabel::UNKNOWN)
         {
-            jet->setAttribute("FatjetTruthLabel",FatjetTruthLabel::enumToInt(optHelper.FixedFatjetTruthLabel()));
-            std::cout << "Fixed FatjetTruthLabel" << std::endl;
+            jet->setAttribute("LargeRJetTruthLabel",LargeRJetTruthLabel::enumToInt(optHelper.FixedLargeRJetTruthLabel()));
+            std::cout << "Fixed LargeRJetTruthLabel" << std::endl;
         }
         
         // One totalHist per provider

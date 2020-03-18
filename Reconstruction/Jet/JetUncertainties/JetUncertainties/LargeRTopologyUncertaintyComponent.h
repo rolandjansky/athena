@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARGERTOPOLOGYUNCERTAINTYCOMPONENT_H
 #define LARGERTOPOLOGYUNCERTAINTYCOMPONENT_H
 
 #include "JetUncertainties/UncertaintyComponent.h"
-#include "BoostedJetTaggers/FatjetLabelEnum.h"
-#include <vector>
+#include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 namespace jet
 {
@@ -30,7 +29,8 @@ class LargeRTopologyUncertaintyComponent : public UncertaintyComponent
     private:
         LargeRTopologyUncertaintyComponent(const std::string& name = "");
         const bool m_absEta;
-        std::vector<FatjetTruthLabel::TypeEnum> m_truthLabels;
+        std::string m_truthLabelName;
+        std::vector<LargeRJetTruthLabel::TypeEnum> m_truthLabels;
 }; 
 
 } // end jet namespace

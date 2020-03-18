@@ -1,7 +1,5 @@
-// for editors : this file is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BOOSTEDJETSTAGGERS_SMOOTHEDTOPTAGGER_H_
@@ -68,16 +66,11 @@ class SmoothedTopTagger : public JSSTaggerBase {
   std::string m_modeName;
   Mode m_mode;
 
-  // string for decorating jets with DNN output
-  std::string m_decorationName;
-
   // decorators
   SG::AuxElement::Decorator<float>    m_dec_mcut;
   SG::AuxElement::Decorator<float>    m_dec_tau32cut;
   SG::AuxElement::Decorator<float>    m_dec_split23cut;
   SG::AuxElement::Decorator<float>    m_dec_qwcut;
-
-
 };
 
 #endif

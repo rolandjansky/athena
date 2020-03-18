@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/BoostedXbbTagger.h"
@@ -27,11 +27,6 @@ BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
   m_dec_muonsInFatJetLink( "muonsInFatJetLink" ),
   m_dec_trackJetsInFatJet( "trackJetsInFatJet" )
   {
-
-      // load parameter from configuration file
-      declareProperty( "WorkingPoint",          m_wkpt = "" );       // allows to specify more WP inside one configuration file
-      declareProperty( "ConfigFile",            m_configFile = "");
-      declareProperty( "DecorateJet",           m_decorate = "");
 
       // set sensible defaults
       // b-tagging (double)

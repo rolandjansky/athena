@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/FlavourUncertaintyComponent.h"
@@ -27,7 +27,8 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const std::string& name
     , m_defAnaFileName("")
     , m_absEta(false)
     , m_secondUncName("")
-    , m_fatjetTruthLabels()
+    , m_largeRJetTruthLabelName("")
+    , m_largeRJetTruthLabels()
     , m_secondUncHist(NULL)
     , m_respType(FlavourResp_UNKNOWN)
     , m_secondRespType(FlavourResp_UNKNOWN)
@@ -57,7 +58,8 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(   const ComponentHelpe
     , m_calibArea(calibArea)
     , m_absEta(CompParametrization::isAbsEta(component.parametrization))
     , m_secondUncName(component.uncNames.size()>1 ? component.uncNames.at(1) : "")
-    , m_fatjetTruthLabels(component.FatjetTruthLabels)
+    , m_largeRJetTruthLabelName(component.LargeRJetTruthLabelName)
+    , m_largeRJetTruthLabels(component.LargeRJetTruthLabels)
     , m_secondUncHist(NULL)
     , m_respType(FlavourResp_UNKNOWN)
     , m_secondRespType(FlavourResp_UNKNOWN)
@@ -84,7 +86,8 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const FlavourUncertaint
     , m_calibArea(toCopy.m_calibArea)
     , m_absEta(toCopy.m_absEta)
     , m_secondUncName(toCopy.m_secondUncName)
-    , m_fatjetTruthLabels(toCopy.m_fatjetTruthLabels)
+    , m_largeRJetTruthLabelName(toCopy.m_largeRJetTruthLabelName)
+    , m_largeRJetTruthLabels(toCopy.m_largeRJetTruthLabels)
     , m_secondUncHist(NULL)
     , m_respType(toCopy.m_respType)
     , m_secondRespType(toCopy.m_secondRespType)
@@ -358,29 +361,29 @@ double FlavourUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, con
 {
     // First, check if we even want to apply the uncertainty (large-R specific break-out)
     // Check if we are supposed to only use given truth labels
-    static const SG::AuxElement::ConstAccessor<int> accFatjetTruthLabel("FatjetTruthLabel");
-    if (m_fatjetTruthLabels.size() != 0)
+    static const SG::AuxElement::ConstAccessor<int> accLargeRJetTruthLabel(m_largeRJetTruthLabelName);
+    if (m_largeRJetTruthLabels.size() != 0)
     {
         // If we are asking to check truth labels, then retrieve the truth jet label from the jet
-        if (!accFatjetTruthLabel.isAvailable(jet))
+        if (!accLargeRJetTruthLabel.isAvailable(jet))
         {
             // Unable to retrieve truth label, but we were told to look for it, error
-            ATH_MSG_ERROR("Unable to retrieve FatjetTruthLabel from the jet.  Please call the BoostedJetTaggers tag() function before calling this function.");
+            ATH_MSG_ERROR("Unable to retrieve LargeRJetTruthLabel: " + m_largeRJetTruthLabelName + " from the jet.  Please use JetTruthLabeling before calling this function.");
             return JESUNC_ERROR_CODE;
         }
         // Ok, the label exists, now check what it is
-        const FatjetTruthLabel::TypeEnum fatjetTruthLabel = FatjetTruthLabel::intToEnum(accFatjetTruthLabel(jet));
-        if (fatjetTruthLabel == FatjetTruthLabel::UNKNOWN)
+        const LargeRJetTruthLabel::TypeEnum largeRJetTruthLabel = LargeRJetTruthLabel::intToEnum(accLargeRJetTruthLabel(jet));
+        if (largeRJetTruthLabel == LargeRJetTruthLabel::UNKNOWN)
         {
             // This is an error - the label exists but it is unrecognized
-            ATH_MSG_ERROR("UNKNOWN FatjetTruthLabel on the jet.  Please call the BoostedJetTaggers tag() function before calling this function or check the jet for irregularities.");
+            ATH_MSG_ERROR("UNKNOWN LargeRJetTruthLabel on the jet.  Please use JetTruthLabeling before calling this function or check the jet for irregularities.");
             return JESUNC_ERROR_CODE;
         }
         // Not unknown, now check if it is one of the labels we want to apply this uncertainty for
         bool relevantLabel = false;
-        for (const FatjetTruthLabel::TypeEnum aLabel : m_fatjetTruthLabels)
+        for (const LargeRJetTruthLabel::TypeEnum aLabel : m_largeRJetTruthLabels)
         {
-            if (aLabel == fatjetTruthLabel)
+            if (aLabel == largeRJetTruthLabel)
                 relevantLabel = true;
         }
         

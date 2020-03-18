@@ -1,7 +1,5 @@
-// this file is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETQGTAGGER_H
@@ -16,7 +14,6 @@
 #include "AsgTools/AnaToolHandle.h"
 
 #include "PATCore/TAccept.h"
-
 
 #include <TH2D.h>
 
@@ -101,7 +98,6 @@ namespace CP {
       StatusCode loadHist(TH2D *&hist,std::string filename,std::string histname);
 
       std::string m_taggername;
-      std::string m_calibarea;
       std::string m_topofile;
       std::string m_expfile;
       std::string m_mefile;
@@ -111,7 +107,6 @@ namespace CP {
       std::string m_weight_decoration_name;
       std::string m_tagger_decoration_name;
 
-      std::string m_configFile;
       int m_NTrackCut;
       double m_slope;
       double m_intercept;

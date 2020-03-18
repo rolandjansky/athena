@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+*/
 
 // $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
 #include "TopSystematicObjectMaker/JetObjectCollectionMaker.h"
@@ -243,23 +243,16 @@ namespace top {
     if (m_config->jetSubstructureName() == "SubjetMaker") m_jetSubstructure.reset(new top::SubjetMaker);
 
     ///-- Large R jet truth labeling --///
-    m_TaggerForJES = nullptr;
+    m_jetTruthLabelingTool = nullptr;
     if (m_config->isMC() && m_config->useLargeRJets()) {
-      m_TaggerForJES = std::unique_ptr<SmoothedWZTagger>(new SmoothedWZTagger("TaggerTruthLabelling"));
-      top::check(m_TaggerForJES->setProperty("CalibArea",
-                                             "SmoothedWZTaggers/Rel21"), "Failed to set CalibArea for m_TaggerForJES");
-      top::check(m_TaggerForJES->setProperty("ConfigFile",
-                                             "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat"),
-                 "Failed to set ConfigFile for m_TaggerForJES");
-      top::check(m_TaggerForJES->setProperty("DSID", m_config->getDSID()), "Failed to set DSID for m_TaggerForJet");
+      m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
       // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
       if (m_config->getDerivationStream() == "PHYS") {
-        top::check(m_TaggerForJES->setProperty("TruthWBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
-        top::check(m_TaggerForJES->setProperty("TruthZBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
-        top::check(m_TaggerForJES->setProperty("TruthHBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
-        top::check(m_TaggerForJES->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_TaggerForJet");
+        top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
+        top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
+        top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
       }
-      top::check(m_TaggerForJES->initialize(), "Failed to initialize m_TaggerForJES");
+      top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
     }
 
     // set the systematics list
@@ -426,7 +419,7 @@ namespace top {
         const std::string calibChoice = m_config->largeRJESJMSConfig();
         if (m_config->isMC()) {
           ///-- Truth labeling required by the large-R jet uncertainties --///
-          top::check(m_TaggerForJES->decorateTruthLabel(*jet), "Failed to do truth labeling for large-R jet");
+          top::check(m_jetTruthLabelingTool->modifyJet(*jet), "Failed to do truth labeling for large-R jet");
           if (calibChoice == "TAMass") {
             xAOD::JetFourMom_t jet_calib_p4;
             jet->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jet_calib_p4);

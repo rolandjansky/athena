@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // General package includes
@@ -1139,13 +1139,13 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
         {
             if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
             {
-                if (component.FatjetTruthLabels.size() > 0)
+                if (component.LargeRJetTruthLabels.size() > 0)
                 {
                     return new LargeRTopologyUncertaintyComponent(component);
                 }
                 else
                 {
-                    ATH_MSG_ERROR(Form("No FatjetTruthLabels specified for Large-R jet topology component %s",component.name.Data()));
+                    ATH_MSG_ERROR(Form("No LargeRJetTruthLabels specified for Large-R jet topology component %s",component.name.Data()));
                     return NULL;
                 }
             }

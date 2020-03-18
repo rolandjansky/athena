@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_OPTIONHELPER_H
 #define JETUNCERTAINTIES_OPTIONHELPER_H
 
 #include "AsgTools/AsgMessaging.h"
-#include <vector>
 #include <utility>
 #include <stdexcept>
 #include "TString.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
-#include "BoostedJetTaggers/FatjetLabelEnum.h"
+#include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 namespace jet
 {
@@ -70,7 +69,7 @@ class OptionHelper : public asg::AsgMessaging
         TString GetCompositionName()   const;
         int  GetNjetFlavour()       const { checkInit(); return m_nJetFlavour;       }
         int  FixedTruthLabel()      const { checkInit(); return m_truthLabel;        }
-        FatjetTruthLabel::TypeEnum FixedFatjetTruthLabel() const {checkInit(); return m_fatjetTruthLabel; }
+        LargeRJetTruthLabel::TypeEnum FixedLargeRJetTruthLabel() const {checkInit(); return m_largeRJetTruthLabel; }
 
         // Comparison helpers
         bool                 CompareOnly()    const { checkInit(); return m_onlyCompare; }
@@ -126,7 +125,7 @@ class OptionHelper : public asg::AsgMessaging
         TString m_composition;
         int     m_nJetFlavour;
         int     m_truthLabel;
-        FatjetTruthLabel::TypeEnum m_fatjetTruthLabel;
+        LargeRJetTruthLabel::TypeEnum m_largeRJetTruthLabel;
         bool    m_isDijet; // legacy support
 
         bool    m_onlyCompare;
@@ -192,7 +191,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_composition("")
     , m_nJetFlavour(-1)
     , m_truthLabel(0)
-    , m_fatjetTruthLabel(FatjetTruthLabel::UNKNOWN)
+    , m_largeRJetTruthLabel(LargeRJetTruthLabel::UNKNOWN)
     , m_isDijet(false)
 
     , m_onlyCompare(false)
@@ -269,13 +268,13 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_composition    = getOptionValueWithDefault(options,"Composition",m_composition);
     m_nJetFlavour    = getOptionValueWithDefault(options,"NjetFlavour",m_nJetFlavour);
     m_truthLabel     = getOptionValueWithDefault(options,"TruthLabel",m_truthLabel);
-    TString fatjetTruthLabelStr = getOptionValue(options,"FatjetTruthLabel");
-    if (fatjetTruthLabelStr != "")
+    TString largeRJetTruthLabelStr = getOptionValue(options,"FatjetTruthLabel");
+    if (largeRJetTruthLabelStr != "")
     {
-        m_fatjetTruthLabel = FatjetTruthLabel::stringToEnum(fatjetTruthLabelStr);
-        if (m_fatjetTruthLabel == FatjetTruthLabel::UNKNOWN)
+        m_largeRJetTruthLabel = LargeRJetTruthLabel::stringToEnum(largeRJetTruthLabelStr);
+        if (m_largeRJetTruthLabel == LargeRJetTruthLabel::UNKNOWN)
         {
-            ATH_MSG_WARNING("FatjetTruthLabel is UNKNOWN value, skipping usage: " << fatjetTruthLabelStr.Data());
+            ATH_MSG_WARNING("LargeRJetTruthLabel is UNKNOWN value, skipping usage: " << largeRJetTruthLabelStr.Data());
         }
     }
     m_isDijet        = getOptionValueWithDefault(options,"isDijet",m_isDijet);
