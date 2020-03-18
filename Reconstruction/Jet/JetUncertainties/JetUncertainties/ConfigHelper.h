@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_CONFIGHELPER_H
 #define JETUNCERTAINTIES_CONFIGHELPER_H
 
 #include "JetUncertainties/UncertaintyEnum.h"
-#include "BoostedJetTaggers/FatjetLabelEnum.h"
+#include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 #include "AsgTools/AsgMessaging.h"
 
@@ -46,8 +46,9 @@ class ComponentHelper
         TString caloMassDef;
         TString TAMassDef;
         TString truthLabelStr;
-        TString FatjetTruthLabelStr;
-        TString FatjetTruthLabelsForSFstr;
+        TString LargeRJetTruthLabelName;
+        TString LargeRJetTruthLabelStr;
+        TString LargeRJetTruthLabelsForSFstr;
         TString RegionForSFstr;
 	TString ResultName;
 
@@ -64,10 +65,10 @@ class ComponentHelper
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
         std::vector<int> truthLabels;
-        std::vector<TString> FatjetTruthLabelStrs;
-        std::vector<FatjetTruthLabel::TypeEnum> FatjetTruthLabels;
-        std::vector<TString> FatjetTruthLabelsForSFstrs;
-	std::vector<CompFlavorLabelVar::TypeEnum> FatjetTruthLabelsForSF;
+        std::vector<TString> LargeRJetTruthLabelStrs;
+        std::vector<LargeRJetTruthLabel::TypeEnum> LargeRJetTruthLabels;
+        std::vector<TString> LargeRJetTruthLabelsForSFstrs;
+	std::vector<CompFlavorLabelVar::TypeEnum> LargeRJetTruthLabelsForSF;
 	CompTaggerRegionVar::TypeEnum RegionForSF;
 };
 

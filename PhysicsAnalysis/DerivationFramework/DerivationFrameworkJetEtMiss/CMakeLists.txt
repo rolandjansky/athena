@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
                           PhysicsAnalysis/AnalysisCommon/AssociationUtils
+                          PhysicsAnalysis/AnalysisCommon/ParticleJetTools # JetTruthLabelingTool ###
                           Reconstruction/Jet/JetInterface
                           PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
                           PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
@@ -42,12 +43,13 @@ atlas_add_library( DerivationFrameworkJetEtMissLib
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface FTagAnalysisInterfacesLib JetJvtEfficiency JetAnalysisInterfacesLib PathResolver PFlowUtils AssociationUtilsLib JetMomentToolsLib
 InDetTrackSelectionToolLib # QGTaggerTool for nTracks ### 
+ParticleJetToolsLib # JetTruthLabelingTool ###
 			   )
 
 atlas_add_component( DerivationFrameworkJetEtMiss
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger JetInterface FTagAnalysisInterfacesLib JetJvtEfficiency JetAnalysisInterfacesLib PathResolver PFlowUtils DerivationFrameworkJetEtMissLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface FTagAnalysisInterfacesLib JetJvtEfficiency JetAnalysisInterfacesLib PathResolver PFlowUtils DerivationFrameworkJetEtMissLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

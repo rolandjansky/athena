@@ -321,14 +321,22 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm6Seq)
 # VR track-jets (b-tagging)
 #====================================================================
 
-largeRJetCollections = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-    "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
-    "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
+largeRJetAlgs = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCHSTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCSSKSoftDropBeta100Zcut10",
+    "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5",
+    "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf",
     ]
+
+largeRJetCollections = []
+for alg in largeRJetAlgs:
+  largeRJetCollections.append(alg+"Jets")
+
+if DerivationFrameworkIsMonteCarlo:
+  for alg in largeRJetAlgs:
+    addJetTruthLabel(jetalg=alg,sequence=jetm6Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 addVRJets(jetm6Seq, largeRColls = largeRJetCollections)
 addVRJets(jetm6Seq, largeRColls = largeRJetCollections, training='201903')

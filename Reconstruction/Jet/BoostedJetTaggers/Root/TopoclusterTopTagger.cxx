@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/TopoclusterTopTagger.h"
@@ -20,29 +20,15 @@ TopoclusterTopTagger::TopoclusterTopTagger( const std::string& name ) :
   m_name(name),
   m_APP_NAME(APP_NAME),
   m_lwnn(nullptr),
-  m_jetPtMin(200000.),
-  m_jetPtMax(300000.),
-  m_jetEtaMax(2.0),
   m_dec_mcutL("mcutL"),
   m_dec_mcutH("mcutH"),
   m_dec_scoreCut("scoreCut"),
   m_dec_scoreValue("scoreValue")
-  {
-
-    declareProperty( "ConfigFile",   m_configFile="");
-    declareProperty( "Decoration",   m_decorationName="XX");
-    declareProperty( "DecorateJet",           m_decorate = true);
+{
 
     declareProperty( "JetPtMin",              m_jetPtMin = 200000.0);
     declareProperty( "JetPtMax",              m_jetPtMax = 3000000.0);
     declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
-
-    declareProperty( "TaggerType",    m_tagType="XXX");
-
-    declareProperty( "CalibArea",       m_calibarea = "");
-    declareProperty( "CalibAreaKeras",  m_calibarea_keras = "BoostedJetTaggers/TopoclusterTopTagger/Boost2017/");
-    declareProperty( "KerasConfigFile", m_kerasConfigFileName="XXX");
-    declareProperty( "KerasOutput",     m_kerasConfigOutputName="XXX");
 
 }
 
@@ -59,7 +45,7 @@ StatusCode TopoclusterTopTagger::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
 
-    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibArea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -84,7 +70,7 @@ StatusCode TopoclusterTopTagger::initialize(){
 
     // get the CVMFS calib area where stuff is stored
     // if this is set to "Local" then it will look for the config file in the share space
-    m_calibarea_keras = configReader.GetValue("CalibAreaKeras" ,"");
+    m_kerasCalibArea = configReader.GetValue("CalibAreaKeras" ,"");
 
     // get the name/path of the JSON config
     m_kerasConfigFileName = configReader.GetValue("KerasConfigFile" ,"");
@@ -103,7 +89,7 @@ StatusCode TopoclusterTopTagger::initialize(){
     // print out the configuration parameters for viewing
     ATH_MSG_INFO( "Configurations Loaded  :");
     ATH_MSG_INFO( "tagType                : "<<m_tagType );
-    ATH_MSG_INFO( "calibarea_keras        : "<<m_calibarea_keras );
+    ATH_MSG_INFO( "kerasCalibArea        : "<<m_kerasCalibArea );
     ATH_MSG_INFO( "kerasConfigFileName    : "<<m_kerasConfigFileName );
     ATH_MSG_INFO( "kerasConfigOutputName  : "<<m_kerasConfigOutputName );
     ATH_MSG_INFO( "strMassCutLow          : "<<m_strMassCutLow  );
@@ -156,11 +142,11 @@ StatusCode TopoclusterTopTagger::initialize(){
   ATH_MSG_INFO( "  Score cut low    : "<< m_strScoreCut );
 
   // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-  if( m_calibarea_keras.empty() ){
+  if( m_kerasCalibArea.empty() ){
     ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
     return StatusCode::FAILURE;
   }
-  else if(m_calibarea_keras.compare("Local")==0){
+  else if(m_kerasCalibArea.compare("Local")==0){
     std::string localCalibArea = "BoostedJetTaggers/TopoclusterTopTagger/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
@@ -170,7 +156,7 @@ StatusCode TopoclusterTopTagger::initialize(){
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
     // get the config file from CVMFS
     // necessary because xml files are too large to house on the data space
-    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea_keras+m_kerasConfigFileName).c_str() );
+    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_kerasCalibArea+m_kerasConfigFileName).c_str() );
   }
 
   // read json file for DNN weights

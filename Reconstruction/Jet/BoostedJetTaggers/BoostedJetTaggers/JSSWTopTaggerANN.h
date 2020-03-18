@@ -1,6 +1,5 @@
-// for editors : this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JSSWTOPTAGGERANN_H_
@@ -9,6 +8,7 @@
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "AsgTools/AsgTool.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/parse_json.hh"
@@ -16,19 +16,14 @@
 #include "lwtnn/lightweight_nn_streamers.hh"
 #include "lwtnn/NanReplacer.hh"
 
-
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-#include <TSystem.h>
 #include <TFile.h>
 #include <TF1.h>
 #include <TH2.h>
 
-#include <map>
-#include <iostream>
 #include <fstream>
-#include <vector>
 
 class JSSWTopTaggerANN:  public JSSTaggerBase {
   ASG_TOOL_CLASS0(JSSWTopTaggerANN)
@@ -70,14 +65,6 @@ private:
     std::unique_ptr<lwt::LightweightGraph> m_lwnn;
     std::map<std::string, std::map<std::string,double>> m_ANN_inputValues;   // variables for ANN
 
-    // inclusive config file
-    std::string m_configFile;
-    std::string m_tagType;
-    std::string m_kerasConfigFileName;
-    std::string m_kerasConfigFilePath;
-    std::string m_kerasConfigOutputName;
-    std::string m_calibarea_keras;
-
     std::string m_weightConfigPath;
   
     // for internal usage
@@ -103,8 +90,8 @@ private:
     // internal stuff to keep track of the output node for the NN
     std::vector<std::string> m_out_names;
        
-    // string for decorating jets with ANN output
-    std::string m_decorationName;
+    // truth labeling tool
+    asg::AnaToolHandle<JetTruthLabelingTool> m_JetTruthLabelingTool; //!
 
     // string for scale factors
     std::string m_weightdecorationName;
@@ -118,8 +105,6 @@ private:
     SG::AuxElement::Decorator<float> m_dec_scoreCut;
     SG::AuxElement::Decorator<float> m_dec_scoreValue;
     SG::AuxElement::Decorator<float> m_dec_weight;
-
-    // accessor to truth label
-    SG::AuxElement::ConstAccessor<int> m_acc_truthLabel;
 };
+
 #endif

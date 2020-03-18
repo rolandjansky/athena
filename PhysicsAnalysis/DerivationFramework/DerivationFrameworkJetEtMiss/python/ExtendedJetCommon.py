@@ -432,6 +432,42 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     extjetlog.info('ExtendedJetCommon: Adding JetPtAssociationTool for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
+def addJetTruthLabel(jetalg,algname,labelname,sequence):
+    supportedLabelNames = ['R10TruthLabel_R21Consolidated']
+    supportedTruthJets = ['AntiKt10TruthTrimmedPtFrac5SmallR20']
+    supportedRecoJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKSoftDropBeta100Zcut10','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf','AntiKt10UFOCHSTrimmedPtFrac5SmallR20']
+    supportedJets = supportedRecoJets + supportedTruthJets
+    if not jetalg in supportedJets:
+        extjetlog.warning('*** JetTruthLabeling augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        return
+    elif not labelname in supportedLabelNames:
+        extjetlog.warning('*** JetTruthLabeling augmentation requested for unsupported label definition {}! ***'.format(labelname))
+        return
+    else:
+        isTruthJet = False
+        if jetalg in supportedTruthJets:
+            isTruthJet = True
+
+        jetaugtool = getJetAugmentationTool(jetalg)
+
+        if(jetaugtool==None):
+            extjetlog.warning('*** addJetTruthLabel called but corresponding augmentation tool does not exist! ***')
+            return
+
+        jettruthlabeltoolname = 'DFJetTruthLabel_'+jetalg+'_'+labelname
+        
+        from AthenaCommon.AppMgr import ToolSvc
+
+        if hasattr(ToolSvc,jettruthlabeltoolname):
+            jetaugtool.JetTruthLabelingTool = getattr(ToolSvc,jettruthlabeltoolname)
+        else:
+            jettruthlabeltool = CfgMgr.JetTruthLabelingTool(jettruthlabeltoolname,IsTruthJetCollection=isTruthJet,TruthLabelName=labelname)
+            ToolSvc += jettruthlabeltool
+            jetaugtool.JetTruthLabelingTool = jettruthlabeltool
+ 
+        extjetlog.info('ExtendedJetCommon: Applying JetTruthLabel augmentation to jet collection: ' + jetalg + 'Jets' + ' using ' + labelname +' definition')
+        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
 def applyMVfJvtAugmentation(jetalg,sequence,algname):
     supportedJets = ['AntiKt4EMTopo']
     if not jetalg in supportedJets:

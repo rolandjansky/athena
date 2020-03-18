@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_PTLOGPTMASSFORTAGSFUNCERTAINTYCOMPONENT_H
 #define JETUNCERTAINTIES_PTLOGPTMASSFORTAGSFUNCERTAINTYCOMPONENT_H
 
 #include "JetUncertainties/UncertaintyComponent.h"
-#include "BoostedJetTaggers/FatjetLabelEnum.h"
+#include "BoostedJetTaggers/TagResultEnum.h"
+#include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 namespace jet
 {
@@ -29,9 +30,10 @@ class PtLogPtMassForTagSFUncertaintyComponent : public UncertaintyComponent
     private:
         PtLogPtMassForTagSFUncertaintyComponent(const std::string& name = "");
         const CompMassDef::TypeEnum m_massDef;
-	std::vector<CompFlavorLabelVar::TypeEnum> m_labels;
-	const CompTaggerRegionVar::TypeEnum m_region;
-	const TString m_result_name;
+        std::vector<CompFlavorLabelVar::TypeEnum> m_labels;
+        std::string m_largeRJetTruthLabelName;
+        const CompTaggerRegionVar::TypeEnum m_region;
+        const TString m_result_name;
 };
 
 } // end jet namespace

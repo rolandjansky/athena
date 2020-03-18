@@ -196,18 +196,24 @@ addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm8Seq, o
 addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
 addBottomUpSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, mods="tcc_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
 
-largeRJetCollections = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-    "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
-    "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
+largeRJetAlgs = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCSSKSoftDropBeta100Zcut10",
+    "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5",
+    "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf",
     ]
 
+largeRJetCollections = []
+for alg in largeRJetAlgs:
+  largeRJetCollections.append(alg+"Jets")
+
+if DerivationFrameworkIsMonteCarlo:
+  for alg in largeRJetAlgs:
+    addJetTruthLabel(jetalg=alg,sequence=jetm8Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 # Add VR track jets for b-tagging
-
 addVRJets(jetm8Seq, largeRJetCollections)
 addVRJets(jetm8Seq, largeRJetCollections, do_ghost=True)
 addVRJets(jetm8Seq, largeRJetCollections, training='201903')

@@ -2761,7 +2761,7 @@ namespace top {
         }
 
         if (m_config->isMC()) {
-          m_ljet_truthLabel[i] = jetPtr->auxdata<int>("FatjetTruthLabel");
+          m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
           for (const std::pair<std::string, std::string>& tagSF : m_config->boostedTaggerSFnames()) {
             m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
           }
