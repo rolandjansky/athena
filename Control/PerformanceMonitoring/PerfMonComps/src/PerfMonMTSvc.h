@@ -159,9 +159,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     BooleanProperty m_printDetailedTables;
 
     Gaudi::Property<int> m_nThreads {this, "nThreads", 0, "Number of threads which is given as argument"};
-
     Gaudi::Property< std::string > m_checkPointType { this, "checkPointType", "Arithmetic", "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)" };
     Gaudi::Property<int> m_checkPointFactor {this, "checkPointFactor", 10, "Common difference if check point sequence is arithmetic, Common ratio if it is Geometric"};
+    Gaudi::Property<double> m_wallTimeOffset {this, "wallTimeOffset", 0, "Wall time offset in miliseconds"};
 
 
     // An array to store snapshot measurements: Init - EvtLoop - Fin
