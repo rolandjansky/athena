@@ -11,9 +11,14 @@ def LArCoverageConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArCoverageAlg
     #from AthenaCommon.GlobalFlags import globalflags
+    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
+    theLArRCBMasker=LArBadChannelMasker("BadLArRawChannelMask")
+    theLArRCBMasker.DoMasking=True
+    theLArRCBMasker.ProblemsToMask=["deadReadout","deadPhys","highNoiseHG","highNoiseMG","highNoiseLG"]
 
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArCoverageAlgCfg')
-    LArCoverageConfigCore(helper, LArCoverageAlg,inputFlags)
+    LArCoverageConfigCore(helper,LArCoverageAlg,inputFlags)
+    helper.monSeq.LArCoverageAlg.LArBadChannelMask=theLArRCBMasker
 
     return helper.result()
 
@@ -57,9 +62,6 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
     larCoverageAlg.NphiBinsHEC=[lArDQGlobals.Cell_Variables["phiNbin"]["HEC"]["A"]["0"],lArDQGlobals.Cell_Variables["phiNbin"]["HEC"]["A"]["1"],lArDQGlobals.Cell_Variables["phiNbin"]["HEC"]["A"]["2"],lArDQGlobals.Cell_Variables["phiNbin"]["HEC"]["A"]["3"]]
 
 
-    # adding BadChan masker private tool
-
-    
     #Configure the CaloNoise
     from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
     CaloNoiseCondAlg(noisetype="electronicNoise")
@@ -78,8 +80,8 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     #-- badChannels groups --
 
-    #badChannelToolArrayBarrel = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName,'/LAr/','lb')
-    #badChannelToolArrayEndcap = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName,'/LAr/','lb')
+    badChannelToolArrayBarrel = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName,'/LAr/','lb')
+    badChannelToolArrayEndcap = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName,'/LAr/','lb')
 
     #-- CoverageHW groups -- 
     coverageHWToolArrayBarrel = helper.addArray([partitionsBarrel],larCoverageAlg,coverageHWGroupName,'/LAr/','run') 
@@ -122,7 +124,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     # -- caloNoiseTool histograms --
 
-    caloNoiseTool_path='Coverage/CaloNoiseTool/'
+    caloNoiseTool_path='CoverageNewAlg/CaloNoiseTool/'
     #LB histogram: need to know which LB the CaloNoiseTool histogram is about. Only add to caloNoiseToolGroup to avoid duplicates 
     caloNoiseToolGroup.defineHistogram('lb1_x;FirstLBnumber',
                                        type='TH1D',
@@ -150,35 +152,35 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
 
     # -- badChannels histograms --
-    # badChannels_path='Coverage/BadChannels/'
-    # badChannelToolArrayBarrel.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsBarrel',
-    #                                           type='TH2I',
-    #                                           path=badChannels_path,
-    #                                           title='Known Bad Channels - Barrel;Feedthrough(+Slot increasing);Channel',
-    #                                           weight='flag',
-    #                                           xbins=lArDQGlobals.Feedthrough_Slot_Nbins["EMB"+side],
-    #                                           xmin=lArDQGlobals.Feedthrough_Slot_range["EMB"+side][0],
-    #                                           xmax=lArDQGlobals.Feedthrough_Slot_range["EMB"+side][1],
-    #                                           ybins=lArDQGlobals.FEB_N_channels,
-    #                                           ymin=-0.5,
-    #                                           ymax=lArDQGlobals.FEB_N_channels-0.5,
-    #                                           labels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
-    # badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsEndcap',
-    #                                           type='TH2I',
-    #                                           path=badChannels_path,
-    #                                           title='Known Bad Channels - Endcap '+side+';Feedthrough(+Slot increasing);Channel',
-    #                                           weight='flag',
-    #                                           xbins=lArDQGlobals.Feedthrough_Slot_Nbins["EMEC"+side],
-    #                                           xmin=lArDQGlobals.Feedthrough_Slot_range["EMEC"+side][0],
-    #                                           xmax=lArDQGlobals.Feedthrough_Slot_range["EMEC"+side][1],
-    #                                           ybins=lArDQGlobals.FEB_N_channels,
-    #                                           ymin=-0.5,
-    #                                           ymax=lArDQGlobals.FEB_N_channels-0.5,
-    #                                           labels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
+    badChannels_path='Coverage/BadChannels/'
+    badChannelToolArrayBarrel.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsBarrel',
+                                              type='TH2I',
+                                              path=badChannels_path,
+                                              title='Known Bad Channels - Barrel;Feedthrough(+Slot increasing);Channel',
+                                              weight='flag',
+                                              xbins=lArDQGlobals.Feedthrough_Slot_Nbins["EMB"+side],
+                                              xmin=lArDQGlobals.Feedthrough_Slot_range["EMB"+side][0],
+                                              xmax=lArDQGlobals.Feedthrough_Slot_range["EMB"+side][1],
+                                              ybins=lArDQGlobals.FEB_N_channels,
+                                              ymin=-0.5,
+                                              ymax=lArDQGlobals.FEB_N_channels-0.5,
+                                              labels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
+    badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsEndcap',
+                                              type='TH2I',
+                                              path=badChannels_path,
+                                              title='Known Bad Channels - Endcap '+side+';Feedthrough(+Slot increasing);Channel',
+                                              weight='flag',
+                                              xbins=lArDQGlobals.Feedthrough_Slot_Nbins["EMEC"+side],
+                                              xmin=lArDQGlobals.Feedthrough_Slot_range["EMEC"+side][0],
+                                              xmax=lArDQGlobals.Feedthrough_Slot_range["EMEC"+side][1],
+                                              ybins=lArDQGlobals.FEB_N_channels,
+                                              ymin=-0.5,
+                                              ymax=lArDQGlobals.FEB_N_channels-0.5,
+                                              labels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
 
     #--coverageHW histograms
-    coverage_path='Coverage/perPartition/'
+    coverage_path='CoverageNewAlg/perPartition/'
     coverageHWToolArrayBarrel.defineHistogram('mon_FtSlot,mon_Channels;CoverageHW',
                                               type='TH2I',
                                               path=coverage_path,

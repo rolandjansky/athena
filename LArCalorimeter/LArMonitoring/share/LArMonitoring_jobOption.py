@@ -9,6 +9,10 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
 topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
 
+if DQMonFlags.monManEnvironment() == 'tier0Raw':
+    from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld
+    topSequence += LArNoisyROMonConfigOld(DQMonFlags)
+
 from AthenaCommon.GlobalFlags import globalflags
 if DQMonFlags.monManEnvironment() == 'tier0Raw' and globalflags.DataSource == 'data':
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfigOld
@@ -17,11 +21,11 @@ if DQMonFlags.monManEnvironment() == 'tier0Raw' and globalflags.DataSource == 'd
     from LArMonitoring.LArRODMonAlg import LArRODMonConfigOld
     topSequence +=LArRODMonConfigOld(DQMonFlags)
 
-from LArMonitoring.LArFEBMonAlg import LArFEBMonConfigOld
-topSequence +=LArFEBMonConfigOld(DQMonFlags)
+    from LArMonitoring.LArFEBMonAlg import LArFEBMonConfigOld
+    topSequence +=LArFEBMonConfigOld(DQMonFlags)
 
-#from LArMonitoring.LArCoverageAlg import LArCoverageConfigOld
-#topSequence +=LArCoverageConfigOld(DQMonFlags)
+    from LArMonitoring.LArCoverageAlg import LArCoverageConfigOld
+    topSequence +=LArCoverageConfigOld(DQMonFlags)
 
 #print topSequence
 

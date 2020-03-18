@@ -37,12 +37,30 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
     larFEBMonAlg.SubDetNames=lArDQGlobals.SubDet
     larFEBMonAlg.Streams=lArDQGlobals.defaultStreamNames
 
-    if "COMP200" not in inputFlags.IOVDb.DatabaseInstance:
-       iovDbSvc=helper.resobj.getService("IOVDbSvc")
-       condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+    isCOMP200=False
+    from AthenaCommon.Configurable import Configurable
+    if Configurable.configurableRun3Behavior:
+      if "COMP200" in inputFlags.IOVDb.DatabaseInstance:
+         isCOMP200=True
+    else:      
+      from AthenaCommon.GlobalFlags import  globalflags
+      if "COMP200"  == globalflags.DatabaseInstance:
+         isCOMP200=True
+
+    if not isCOMP200:
        dbString="<db>COOLONL_LAR/CONDBR2</db>"
        persClass="AthenaAttributeList"
        fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
+       if Configurable.configurableRun3Behavior:
+          iovDbSvc=helper.resobj.getService("IOVDbSvc")
+          condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+       else:   
+          from AthenaCommon import CfgGetter
+          iovDbSvc=CfgGetter.getService("IOVDbSvc")
+          from AthenaCommon.AlgSequence import AthSequencer
+          condSeq = AthSequencer("AthCondSeq")
+          condLoader=condSeq.CondInputLoader
+
        iovDbSvc.Folders.append(fld+dbString)
        condLoader.Load.append((persClass,fld))
        larFEBMonAlg.keyDSPThresholds=fld
@@ -175,7 +193,16 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.Samples_Bins, xmin=lArDQGlobals.Samples_Min, xmax=lArDQGlobals.Samples_Max)
 
-    if inputFlags.DQ.Environment == 'online':
+    isOnline=False
+    if Configurable.configurableRun3Behavior :
+      if inputFlags.DQ.Environment == 'online':
+         isOnline=True
+    else:
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      if athenaCommonFlags.isOnline:
+         isOnline=True
+
+    if isOnline:     
        Group.defineHistogram('LBf,EvtRejYield;EventsRejectedLB',
                                 titile='% of events rejected in current LB (online only)',
                                 type='TProfile',
@@ -356,7 +383,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               path=hist_path,
                               xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
 
-       if inputFlags.DQ.Environment == 'online':
+       if isOnline:
           darray.defineHistogram('LBf,erronl;EventsRejectedLB',
                                 titile='% of events rejected in current LB (online only)',
                                 type='TProfile',

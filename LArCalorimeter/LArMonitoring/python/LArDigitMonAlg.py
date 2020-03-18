@@ -59,6 +59,7 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     if Configurable.configurableRun3Behavior :
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         cfg=ComponentAccumulator()
+
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
         acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
         larDigitMonAlg.LArBadChannelMask=acc.popPrivateTools()
@@ -233,8 +234,11 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     
 
 
-    cfg.merge(helper.result())
-    return cfg
+    if Configurable.configurableRun3Behavior :
+        cfg.merge(helper.result())
+        return cfg
+    else:    
+        return helper.result()
     
 
 if __name__=='__main__':

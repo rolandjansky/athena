@@ -34,7 +34,7 @@ def LArHVCorrMonConfig(inputFlags):
 
 
     from LArMonitoring.GlobalVariables import lArDQGlobals #to define the ranges
-    larHVCorr_hist_path='HVCorrection/' #histogram path
+    larHVCorr_hist_path='HVCorrectionNewAlg/' #histogram path
     
 
     hvCorrGroup = helper.addGroup( larHVCorrAlg,

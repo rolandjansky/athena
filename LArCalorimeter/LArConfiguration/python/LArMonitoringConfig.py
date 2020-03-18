@@ -11,6 +11,7 @@ def LArMonitoringConfig(inputFlags):
     from LArMonitoring.LArRODMonAlg import LArRODMonConfig
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfig
     from LArMonitoring.LArFEBMonAlg import LArFEBMonConfig
+    from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfig
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -22,13 +23,14 @@ def LArMonitoringConfig(inputFlags):
     # algos which can run in ESD but not AOD:
     if inputFlags.DQ.Environment != 'AOD':
         acc.merge(LArCollisionTimeMonConfig(inputFlags))
+        acc.merge(LArFEBMonConfig(inputFlags))
 
     # and others on RAW data only
     if inputFlags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
        if not inputFlags.Input.isMC:
           acc.merge(LArDigitMonConfig(inputFlags))
           acc.merge(LArRODMonConfig(inputFlags))
-          acc.merge(LArFEBMonConfig(inputFlags))
+          acc.merge(LArHVCorrMonConfig(inputFlags))
 
     return acc
 
