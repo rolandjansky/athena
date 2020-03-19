@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONIDHELPERS_MUONSTATIONINDEX_H
-#define MUONIDHELPERS_MUONSTATIONINDEX_H
+#ifndef MUONSTATIONINDEX_MUONSTATIONINDEX_H
+#define MUONSTATIONINDEX_MUONSTATIONINDEX_H
 
 #include <string>
 #include <vector>
