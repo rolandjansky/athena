@@ -76,6 +76,7 @@ StatusCode HLTEDMCreator::initialize()
     
   INIT_XAOD( TrigEMClusterContainer );
   INIT_XAOD( TrigCaloClusterContainer );
+  INIT_XAOD( TrigRingerRingsContainer );
   INIT_XAOD( TrigElectronContainer ); 
   INIT_XAOD( ElectronContainer ); 
   INIT_XAOD( PhotonContainer ); 
@@ -306,15 +307,16 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
     CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  ); \
   }
   
-  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer )
-  CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer )
-  CREATE_XAOD( ElectronContainer, ElectronAuxContainer )
-  CREATE_XAOD( PhotonContainer, PhotonAuxContainer )
-  CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer )
-  CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
-  CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )
-  CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer )
-  CREATE_XAOD( TrigMissingETContainer, TrigMissingETAuxContainer )
+  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
+  CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
+  CREATE_XAOD( ElectronContainer, ElectronAuxContainer );
+  CREATE_XAOD( PhotonContainer, PhotonAuxContainer );
+  CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer );
+  CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer );
+  CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer );
+  CREATE_XAOD( TrigRingerRingsContainer, TrigRingerRingsAuxContainer );
+  CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer );
+  CREATE_XAOD( TrigMissingETContainer, TrigMissingETAuxContainer );
 
   CREATE_XAOD( L2StandAloneMuonContainer, L2StandAloneMuonAuxContainer );
   CREATE_XAOD( L2CombinedMuonContainer, L2CombinedMuonAuxContainer );

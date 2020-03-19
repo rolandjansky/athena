@@ -32,6 +32,10 @@
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterAuxContainer.h"
+// Ringer
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTrigRinger/TrigRingerRingsAuxContainer.h"
+
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
@@ -116,6 +120,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigCompositeContainer );
   DEF_XAOD_KEY( TrigEMClusterContainer );
   DEF_XAOD_KEY( TrigCaloClusterContainer );
+  DEF_XAOD_KEY( TrigRingerRingsContainer );
   DEF_XAOD_KEY( TrigElectronContainer );
   DEF_XAOD_KEY( ElectronContainer );
   DEF_XAOD_KEY( PhotonContainer );

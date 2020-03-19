@@ -11,13 +11,13 @@
 
 
 #include "InDetAlignGenAlgs/InDetAlignCog.h"
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaBaseComps/AthCheckMacros.h"

@@ -65,7 +65,7 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 	const xAOD::Jet* pJetSeed = nullptr;
 	if (pTau.jetLink().isValid()) pJetSeed = * pTau.jetLink();
     else { 
-		ATH_MSG_DEBUG("seed is not a jet -> tau will not be reconstructed");
+		ATH_MSG_ERROR("seed is not a jet -> tau will not be reconstructed");
 		return StatusCode::FAILURE;
 	}
 

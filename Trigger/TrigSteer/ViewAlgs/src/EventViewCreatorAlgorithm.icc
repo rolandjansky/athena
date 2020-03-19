@@ -1,0 +1,25 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+inline SmartIF<IScheduler> EventViewCreatorAlgorithm::getScheduler() const {
+  return svcLoc()->service<IScheduler>(m_schedulerName, false);
+}
+
+// NOTE: This is TODO
+
+// template<class OBJECT>
+// StatusCode EventViewCreatorAlgorithm::placeFeatureInView( const OBJECT* theObject, SG::View* view, const EventContext& context ) const {
+//   ATH_MSG_ALWAYS( "Adding Feature of type " << ClassID_traits<OBJECT>::typeName() << " To View : " << m_inViewFeatureKey.key() );
+//   auto oneObjectCollection = std::make_unique< ConstDataVector< OBJECT > >();
+//   oneObjectCollection->clear( SG::VIEW_ELEMENTS );
+//   oneObjectCollection->push_back( theObject );
+
+//   //store in the view
+//   auto handle = SG::makeHandle( m_inViewFeatureKey,context );
+//   ATH_CHECK( handle.setProxyDict( view ) );
+//   ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) );
+//   return StatusCode::SUCCESS;
+// }
+
+
