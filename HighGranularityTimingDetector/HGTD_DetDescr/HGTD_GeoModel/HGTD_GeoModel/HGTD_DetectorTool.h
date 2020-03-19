@@ -10,7 +10,7 @@
 //    This is the entry to the HGTD_GeoModel package.
 //
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "PixelInterfaces/IGeoPixelLayerTool.h"
+// #include "PixelInterfaces/IGeoPixelLayerTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -55,7 +55,8 @@ private:
 
     std::string m_geometryConfig; // FULL, SIMU, RECO
 
-    ToolHandle< IGeoPixelLayerTool > m_innerPixelTool;
+    // Used as a temporary hack in 20.20 for retrieving a PixelGeoBuilderBasics object
+    // ToolHandle< IGeoPixelLayerTool > m_innerPixelTool;
 
     // this is for the HGTD readout definition
     bool m_HGTD_isbaseline;

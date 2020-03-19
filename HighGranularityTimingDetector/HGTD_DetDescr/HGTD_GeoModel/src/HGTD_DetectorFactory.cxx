@@ -44,8 +44,8 @@
 
 // // #include "PathResolver/PathResolver.h"
 
-#include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
+// #include "PixelReadoutGeometry/PixelDetectorManager.h"
+// #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 using namespace std;
 
@@ -847,16 +847,17 @@ void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManage
                     GeoFullPhysVol* sensorCompPhysicalVol = new GeoFullPhysVol(sensorCompLogicalVol);
 
                     // each SiSensor then has a detector element
+                    // TODO: not adding detector elements yet until a proper solution (not involving pixelBasics) can be implemented
                     if (volumes[comp] == sensorName) {
-                        Identifier idwafer = m_pixelBasics->getIdHelper()->wafer_id(endcap_side, layer_offset+layer, phi, eta);
-                        InDetDD::SiDetectorElement* detElement = new InDetDD::SiDetectorElement( idwafer, design, sensorCompPhysicalVol, m_pixelBasics->getCommonItems());
-                        m_pixelBasics->getDetectorManager()->addDetectorElement(detElement);
+                        // Identifier idwafer = m_pixelBasics->getIdHelper()->wafer_id(endcap_side, layer_offset+layer, phi, eta);
+                        // InDetDD::SiDetectorElement* detElement = new InDetDD::SiDetectorElement( idwafer, design, sensorCompPhysicalVol, m_pixelBasics->getCommonItems());
+                        // m_pixelBasics->getDetectorManager()->addDetectorElement(detElement);
                         HepGeom::Transform3D sensorTransform = HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*
                                                                HepGeom::TranslateX3D(xOffsetLocal);
                         GeoAlignableTransform* xform = new GeoAlignableTransform(sensorTransform);
                         modulePhysical->add(xform);
                         modulePhysical->add(sensorCompPhysicalVol);
-                        m_pixelBasics->getDetectorManager()->addAlignableTransform(0,idwafer,xform,sensorCompPhysicalVol);
+                        // m_pixelBasics->getDetectorManager()->addAlignableTransform(0,idwafer,xform,sensorCompPhysicalVol);
                     } else {
                         modulePhysical->add(new GeoTransform(HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*HepGeom::TranslateX3D(xOffsetLocal)));
                         modulePhysical->add(sensorCompPhysicalVol);
