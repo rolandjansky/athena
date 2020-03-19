@@ -7,7 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSeque
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-from libpyeformat_helper import SubDetector
+from libpyeformat_helper import SubDetector,SubDetectorGroup
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger('EventBuildingSequenceSetup')
@@ -66,6 +66,9 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'RPCPEBSecondaryReadout' in eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs([0x610080, 0x620080])
+    elif 'SCTPEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetectorGroup.SCT])
     elif eventBuildType in EventBuildingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)
