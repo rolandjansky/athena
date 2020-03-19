@@ -4,12 +4,12 @@
 
 
 // Dear emacs, this is -*-c++-*-
-#ifndef __ASGELECTRONPHOTONCORRECTIONCONFIGHELPER__
-#define __ASGELECTRONPHOTONCORRECTIONCONFIGHELPER__
+#ifndef __ASGELECTRONPHOTONISEMSELECTORCONFIGHELPER__
+#define __ASGELECTRONPHOTONISEMSELECTORCONFIGHELPER__
 
 /**
-   @brief Tool to simplify the configuration of the ElectronPhotonVariableCorrectionTool based on TEnv input
-   @author Nils Gillwald (DESY) nils.gillwald@desy.de
+   @brief Tool to simplify the configuration of the cut based IsEM and the ElectronPhotonVariableCorrectionTool based on TEnv input
+   @author Christos Anastopoulos (2017) Nils Gillwald (DESY, 2020) nils.gillwald@desy.de
    @date February 2020
 */
 #include <string>
@@ -27,4 +27,4 @@ namespace AsgConfigHelper{
 }
 
 
-#endif //__ASGELECTRONPHOTONCORRECTIONCONFIGHELPER__
+#endif //__ASGELECTRONPHOTONISEMSELECTORCONFIGHELPER__
