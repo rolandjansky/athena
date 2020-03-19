@@ -1139,9 +1139,9 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     oldcard = open(reweight_card+'.old','r')
     newcard = open(reweight_card,'w')
     changed = False
-    info_expression='launch.*--rwgt_info\s*=\s*(\S+).*'
+    info_expression=r'launch.*--rwgt_info\s*=\s*(\S+).*'
     name_expression=info_expression.replace('info','name')
-    goodname_expression='^[A-Za-z0-9_\-.]+$'
+    goodname_expression=r'^[A-Za-z0-9_\-.]+$'
     for line in oldcard:
         # we are only interested in the 'launch' line
         if not line.strip().startswith('launch') :
