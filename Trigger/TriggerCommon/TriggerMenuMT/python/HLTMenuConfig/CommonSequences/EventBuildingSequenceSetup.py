@@ -84,7 +84,7 @@ def pebInfoWriterTool(name, eventBuildType):
 
 
 def pebInputMaker(eventBuildType):
-    maker = InputMakerForRoI("IMpeb_"+eventBuildType, mergeOutputs=False)
+    maker = InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
     return maker
 

@@ -76,6 +76,9 @@ def checkVDV( inputNodes, ancestorNames, allEVCAs ):
                     raise RuntimeError( "Found duplicate view node name " + node.ViewNodeName + " configured for EVCAs " + node.name() + " and " + allEVCAs[ node.ViewNodeName ].name() )
             allEVCAs[ node.ViewNodeName ] = node
 
+            if not hasattr(node, "RoITool"):
+                raise RuntimeError( "Node name " + node.name() + " was not supplied with a RoITool" )
+
         # Explore nested CF
         if isSequence( node ):
 

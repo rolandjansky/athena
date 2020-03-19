@@ -413,4 +413,279 @@ int FEI3SimTool::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_
   return BCID;
 }
 
+int FEI3SimTool::relativeBunch2018(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const {
+
+  /**
+   * 2020.01.20  Minori.Fujimoto@cern.ch
+   *
+   * The time walk effect is directly tuned with timing scan data (collision) in 2017/18.
+   * https://indico.cern.ch/event/880804/
+   */
+
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+	double prob = 0.0;
+	if (barrel_ec==0 && layer_disk==1) {
+		if (abs(moduleID)==0) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.035; } //ToT=4  
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5  
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6  
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7  
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8  
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9  
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10 
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11 
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12 
+		}
+		if (abs(moduleID)==1) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.035; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==2) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.075; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==3) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.075; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==4) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.060; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==5) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.060; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==6) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.050; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.008; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+	}
+	if (barrel_ec==0 && layer_disk==2) {
+		if (abs(moduleID)==0) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.1012; } //ToT = 6 
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0350; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0250; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==1) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.0978; } //ToT = 6 
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0405; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0250; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==2) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.1012; } //ToT = 6
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0392; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0250; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==3) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.1015; } //ToT = 6
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0390; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0250; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==4) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.0977; }
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; }
+			else if (totalCharge.charge()<5800.0) { prob = 0.0150; } //0.0284
+			else if (totalCharge.charge()<6500.0) { prob = 0.0150; } //0.0307
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==5) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.0966; } //ToT = 6
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0369; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0256; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==6) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.1053; } //ToT = 6
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0379; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0252; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+	}
+	if (barrel_ec==0 && layer_disk==3) {
+		if (abs(moduleID)==0) {
+			if (totalCharge.charge()<5055.0)      { prob = 0.1451; } //ToT = 6
+			else if (totalCharge.charge()<5070.0) { prob = 0.0915; } //ToT = 7
+			else if (totalCharge.charge()<5700.0) { prob = 0.0681; } //ToT = 8
+			else if (totalCharge.charge()<6550.0) { prob = 0.0518; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==1) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1418; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0800; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0600; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0497; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==2) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1481; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0891; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0627; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0488; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==3) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1590; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0930; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0635; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0485; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==4) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1590; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.1214; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0776; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0387; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==5) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1518; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0874; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0603; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0460; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==6) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1461; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0825; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0571; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0441; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+  }
+  if (abs(barrel_ec)==2 && layer_disk==0) {
+    if      (totalCharge.charge()<5550.0)  { prob = 0.124;} //ToT = 6
+    else if (totalCharge.charge()<6000.0)  { prob = 0.067;} //ToT = 7
+    else if (totalCharge.charge()<6400.0)  { prob = 0.0005;} //ToT = 8
+    else if (totalCharge.charge()<6500.0)  { prob = 0.002;} //ToT = 9
+    else if (totalCharge.charge()<6800.0)  { prob = 0.040;} //ToT = 10
+    else if (totalCharge.charge()<7300.0)  { prob = 0.031;} //ToT = 11
+    else if (totalCharge.charge()<7400.0)  { prob = 0.040;}  //ToT = 12
+    else if (totalCharge.charge()<7500.0)  { prob = 0.001; } //ToT = 13
+  }
+  if (abs(barrel_ec)==2 && layer_disk==1) {
+    if      (totalCharge.charge()<5550.0)  { prob = 0.124;} //ToT = 6
+    else if (totalCharge.charge()<6000.0)  { prob = 0.067;} //ToT = 7
+    else if (totalCharge.charge()<6400.0)  { prob = 0.0005;} //ToT = 8
+    else if (totalCharge.charge()<6500.0)  { prob = 0.002;} //ToT = 9
+    else if (totalCharge.charge()<6800.0)  { prob = 0.040;} //ToT = 10
+    else if (totalCharge.charge()<7300.0)  { prob = 0.031;} //ToT = 11
+    else if (totalCharge.charge()<7400.0)  { prob = 0.040;}  //ToT = 12
+    else if (totalCharge.charge()<7500.0)  { prob = 0.001; } //ToT = 13
+  }
+  if (abs(barrel_ec)==2 && layer_disk==2) {
+    if      (totalCharge.charge()<5400.0)  { prob = 0.180;} //ToT=6
+    else if (totalCharge.charge()<5700.0)  { prob = 0.067;} //ToT=7
+    else if (totalCharge.charge()<5701.0)  { prob = 0.0005;} //ToT=8
+    else if (totalCharge.charge()<5702.0)  { prob = 0.0005;} //ToT=9
+    else if (totalCharge.charge()<5800.0)  { prob = 0.036;} //ToT=10
+    else if (totalCharge.charge()<6000.0)  { prob = 0.031;} //ToT=11
+    else if (totalCharge.charge()<6500.0)  { prob = 0.034;} //ToT=12
+    else if (totalCharge.charge()<7000.0)  { prob = 0.001; } //ToT = 13
+  }
+
+  double G4Time = getG4Time(totalCharge);
+  double rnd    = CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0);    	
+
+  double timeWalk = 0.0;
+  if (rnd<prob) { timeWalk = 25.0; }
+
+  int BCID = static_cast<int>(floor((G4Time+moduleData->getTimeOffset(barrel_ec,layer_disk)+timeWalk)/moduleData->getBunchSpace()));
+
+  return BCID;
+}
 

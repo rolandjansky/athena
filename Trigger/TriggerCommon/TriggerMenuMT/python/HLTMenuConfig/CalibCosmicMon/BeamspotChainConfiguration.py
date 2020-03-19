@@ -9,7 +9,7 @@ from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerato
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 
 
 #----------------------------------------------------------------
@@ -25,8 +25,9 @@ def allTE_trkfast_Cfg( flags ):
 def allTE_trkfast():
         inputMakerAlg = EventViewCreatorAlgorithm("IM_beamspot")
         inputMakerAlg.ViewFallThrough = True
-        inputMakerAlg.RoIsLink = "initialRoI" # -||-
-        inputMakerAlg.InViewRoIs = "beamspotInputRoIs" # contract with the consumer
+        inputMakerAlg.RoIsLink = "initialRoI"
+        inputMakerAlg.RoITool = ViewCreatorInitialROITool()
+        inputMakerAlg.InViewRoIs = "beamspotInputRoIs"
         inputMakerAlg.Views = "beamspotViewRoIs"
 
         from TrigInDetConfig.InDetSetup import makeInDetAlgs
