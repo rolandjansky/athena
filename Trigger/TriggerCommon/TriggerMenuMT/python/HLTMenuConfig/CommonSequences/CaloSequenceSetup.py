@@ -3,7 +3,6 @@
 #
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
 class CaloMenuDefs(object):
