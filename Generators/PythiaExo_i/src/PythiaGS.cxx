@@ -23,7 +23,6 @@
 #include "StoreGate/StoreGateSvc.h"
  
 #include "HepMC/IO_HEPEVT.h"
-//#include "HepMC/IO_Ascii.h"
 #include "HepMC/HEPEVT_Wrapper.h"
 
 #include "GeneratorUtils/StringParse.h"
