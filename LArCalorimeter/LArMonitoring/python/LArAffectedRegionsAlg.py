@@ -2,16 +2,31 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
+def LArAffectedRegionsConfigOld(inputFlags):
+    
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
+    from LArMonitoring.LArMonitoringConf import LArAffectedRegionsAlg
+
+    helper = AthMonitorCfgHelperOld(inputFlags,'LArAffectedRegionsAlgOldCfg')
+    LArAffectedRegionsConfigCore(helper, LArAffectedRegionsAlg, inputFlags)
+
+    return helper.result() 
 
 def LArAffectedRegionsConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArAffectedRegionsCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'LArAffectedRegionsAlgCfg')
+
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    LArAffectedRegionsConfigCore(helper, CompFactory.LArAffectedRegionsAlg, inputFlags)
+
+    return helper.result()
 
 
-    from LArMonitoring.LArMonitoringConf import LArAffectedRegionsAlg
-    larAffectedRegAlg = helper.addAlgorithm(LArAffectedRegionsAlg,'larAffectedRegAlg')
+def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
+
+    larAffectedRegAlg = helper.addAlgorithm(algoinstance,'larAffectedRegAlg')
 
     #define the group names here, as you'll use them multiple times
     affectedRegGroupName="LArAffectedRegionsMonGroup"
@@ -349,10 +364,6 @@ def LArAffectedRegionsConfig(inputFlags):
                                           merge='weightedAverage'
     )
 
-    return helper.result()
-
-
-    
 
 if __name__=='__main__':
 

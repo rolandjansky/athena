@@ -227,8 +227,6 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
 
         pass #end of if isOnline
 
-    return helper.result()
-    
 
 if __name__=='__main__':
 
@@ -266,7 +264,7 @@ if __name__=='__main__':
     collmon=LArCollisionTimeMonConfig(ConfigFlags)
     collmon.getEventAlgo("larCollTimeMonAlg").timeDiffCut=5.0*Units.nanosecond
     collmon.getEventAlgo("larCollTimeMonAlg").nCells=1
-    collmon.getEventAlgo("larCollTimeMonAlg").TrainFrontDistance=30*Units.nanosecond
+    collmon.getEventAlgo("larCollTimeMonAlg").TrainFrontDistance=int(30*Units.nanosecond)
     cfg.merge(collmon) 
 
     ConfigFlags.dump()

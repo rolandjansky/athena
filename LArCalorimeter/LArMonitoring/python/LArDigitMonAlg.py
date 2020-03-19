@@ -19,7 +19,7 @@ def LArDigitMonConfigOld(inputFlags, topSequence):
     #   #in case the LArRawDataReadingAlg was not set up by someone:
     #   topSequence+=LArRawDataReadingAlg(LArRawChannelKey="FREE", LArDigitKey="FREE")
 
-    helper = AthMonitorCfgHelperOld(inputFlags, 'LArDigitMonCfg')
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArDigitMonAlgCfg')
     LArDigitMonConfigCore(helper, LArDigitMonAlg,inputFlags)
     return helper.result()
 
@@ -30,12 +30,10 @@ def LArDigitMonConfig(inputFlags):
     # them to GenericMonitoringTools                                                                                                                                 
     
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArDigitMonCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'LArDigitMonAlgCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    LArDigitMonConfigCore(helper, CompFactory.LArDigitMonAlg,inputFlags)
-
-    return helper.result()
+    return LArDigitMonConfigCore(helper, CompFactory.LArDigitMonAlg,inputFlags)
 
 def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
 

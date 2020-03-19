@@ -6,7 +6,7 @@ def LArRODMonConfigOld(inputFlags,cellDebug=False, dspDebug=False):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import  LArRODMonAlg
 
-    helper = AthMonitorCfgHelperOld(inputFlags, 'LArRODMonCfg')
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArRODMonALgOldCfg')
     LArRODMonConfigCore(helper, LArRODMonAlg,inputFlags,cellDebug, dspDebug)
 
     return helper.result()
@@ -14,7 +14,7 @@ def LArRODMonConfigOld(inputFlags,cellDebug=False, dspDebug=False):
 def LArRODMonConfig(inputFlags,cellDebug=False, dspDebug=False):
 
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArRODMonCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'LArRODMonAlgCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     
@@ -227,8 +227,6 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
     darray.defineHistogram('Sweetc;Sweet_cells', title='Number of sweet Cells in LAr:Sweet cells per feb',
                            type='TH1F', path=part_hist_path,
                            xbins=lArDQGlobals.FEB_N_channels, xmin=lArDQGlobals.FEB_channels_Min, xmax=lArDQGlobals.FEB_channels_Max)
-
-    return helper.result()
 
     
 

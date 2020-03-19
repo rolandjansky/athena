@@ -399,7 +399,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                 )
        pass
 
-    return helper.result()
+    #return helper.result()
 
     
 
@@ -421,7 +421,7 @@ if __name__=='__main__':
 
    ConfigFlags.Output.HISTFileName = 'LArFEBMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = True
-   ConfigFlags.DQ.useTrigger = True
+   ConfigFlags.DQ.useTrigger = False
    ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 

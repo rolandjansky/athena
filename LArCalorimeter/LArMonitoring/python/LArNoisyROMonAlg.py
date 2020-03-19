@@ -18,9 +18,8 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
     MNBTight_PsVetoFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[0])+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+") + PS veto (<"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[1])+" channels)"
     MNBLooseFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBLooseCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
 
-    LArNoisyROMonConfigCore(helper,CompFactory.LArNoisyROMonAlg, inputFlags, inKey, NoisyFEBDefStr, MNBTightFEBDefStr, MNBTight_PsVetoFEBDefStr, MNBLooseFEBDefStr)
+    return LArNoisyROMonConfigCore(helper,CompFactory.LArNoisyROMonAlg, inputFlags, inKey, NoisyFEBDefStr, MNBTightFEBDefStr, MNBTight_PsVetoFEBDefStr, MNBLooseFEBDefStr)
 
-    return helper.result()
 
 def LArNoisyROMonConfigOld(inputFlags, inKey="", 
                               NoisyFEBDefStr="", 
@@ -268,8 +267,6 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
     if Configurable.configurableRun3Behavior:
        cfg.merge(helper.result())
        return cfg
-    else:   
-       return helper.result()
     
 
 if __name__=='__main__':

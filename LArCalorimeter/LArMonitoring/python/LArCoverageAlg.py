@@ -16,7 +16,7 @@ def LArCoverageConfigOld(inputFlags):
     theLArRCBMasker.DoMasking=True
     theLArRCBMasker.ProblemsToMask=["deadReadout","deadPhys","highNoiseHG","highNoiseMG","highNoiseLG"]
 
-    helper = AthMonitorCfgHelperOld(inputFlags, 'LArCoverageAlgCfg')
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArCoverageAlgOldCfg')
     LArCoverageConfigCore(helper,LArCoverageAlg,inputFlags)
     helper.monSeq.LArCoverageAlg.LArBadChannelMask=theLArRCBMasker
 
@@ -28,12 +28,21 @@ def LArCoverageConfig(inputFlags):
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArCoverageCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'LArCoverageCfgAlg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArCoverageConfigCore(helper, CompFactory.LArCoverageAlg,inputFlags)
 
-    return helper.result()
+    # adding BadChan masker private tool
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    cfg=ComponentAccumulator()
+    from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg#,LArBadChannelCfg
+    acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
+    helper.monSeq.LArCoverageAlg.LArBadChannelMask=acc.popPrivateTools()
+    cfg.merge(acc)
+
+    cfg.merge(helper.result())
+    return cfg
 
 def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
@@ -76,7 +85,6 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
         '/LAr/',
         'run'
     )
-
 
     #-- badChannels groups --
 
@@ -452,10 +460,6 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
 
 
-    #return helper.result()
-    
-
-
 
 if __name__=='__main__':
 
@@ -475,6 +479,7 @@ if __name__=='__main__':
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.DQ.useTrigger = False
 
     ConfigFlags.Output.HISTFileName = 'LArCoverageOutput.root'
     ConfigFlags.lock()

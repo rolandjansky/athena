@@ -14,6 +14,10 @@ if DQMonFlags.monManEnvironment() == 'tier0Raw':
     topSequence += LArNoisyROMonConfigOld(DQMonFlags)
 
 from AthenaCommon.GlobalFlags import globalflags
+if globalflags.DataSource == 'data':
+    from LArMonitoring.LArHVCorrectionMonAlg import LArHVCorrMonConfigOld
+    topSequence += LArHVCorrMonConfigOld(DQMonFlags)
+
 if DQMonFlags.monManEnvironment() == 'tier0Raw' and globalflags.DataSource == 'data':
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfigOld
     topSequence +=LArDigitMonConfigOld(DQMonFlags, topSequence)
