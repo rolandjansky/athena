@@ -134,9 +134,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenI
 
 StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {
   
-  
-  //typedef CscRawDataContainer::const_iterator collection_iterator;
-  
+    
   IdContext cscContext = m_muonIdHelperTool->cscIdHelper().module_context();
   
   // if CSC decoding is switched off stop here
@@ -180,8 +178,8 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
     ATH_MSG_WARNING ( " CSC sampling time from Collection is NOT consistant to calibTool parameter!!!!!!! " );
   }
   
-  /** for each Rdo, loop over RawData, converter RawData to PrepRawData
-      retrieve/create PrepRawData collection, and insert PrepRawData into collection */
+  // For each Rdo, loop over RawData, converter RawData to PrepRawData
+  // Retrieve/create PrepRawData collection, and insert PrepRawData into collection
   CscRawDataCollection::const_iterator itD   =  rawCollection->begin(); 
   CscRawDataCollection::const_iterator itD_e =  rawCollection->end();
 
@@ -251,7 +249,6 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
         continue;
       }   
       
-      //      uint32_t stripHash = hashOffset+j;
       IdentifierHash stripHash;
       if (m_muonIdHelperTool->cscIdHelper().get_channel_hash(channelId, stripHash)) {
         ATH_MSG_WARNING ( "Unable to get CSC strip hash id");
@@ -349,8 +346,8 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
       if ( int(samplingTime) != int(m_cscCalibTool->getSamplingTime())) {
         ATH_MSG_WARNING ( " CSC sampling time from Collection is NOT consistant to calibTool parameter!!!!!!! " );
       }
-      /** for each Rdo, loop over RawData, converter RawData to PrepRawData
-          retrieve/create PrepRawData collection, and insert PrepRawData into collection */
+      // For each Rdo, loop over RawData, converter RawData to PrepRawData
+      // Retrieve/create PrepRawData collection, and insert PrepRawData into collection
       CscRawDataCollection::const_iterator itD   =  cscCollection->begin(); 
       CscRawDataCollection::const_iterator itD_e =  cscCollection->end();
 
@@ -421,8 +418,6 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
             continue;
           }  
           
-
-          //      uint32_t stripHash = hashOffset+j;
           IdentifierHash stripHash;
           if (m_muonIdHelperTool->cscIdHelper().get_channel_hash(channelId, stripHash)) {
             ATH_MSG_WARNING ( "Unable to get CSC strip hash id");
