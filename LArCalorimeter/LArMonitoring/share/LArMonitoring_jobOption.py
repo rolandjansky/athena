@@ -15,7 +15,7 @@ if DQMonFlags.monManEnvironment() == 'tier0Raw':
 
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource == 'data':
-    from LArMonitoring.LArHVCorrectionMonAlg import LArHVCorrMonConfigOld
+    from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfigOld
     topSequence += LArHVCorrMonConfigOld(DQMonFlags)
 
 if DQMonFlags.monManEnvironment() == 'tier0Raw' and globalflags.DataSource == 'data':

@@ -156,7 +156,6 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
        ft_low = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        ft_n = int(ft_up - ft_low)
-       print hist_path,slot_n,slot_low,slot_up,ft_n,ft_low,ft_up
 
        darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larNoisyROMonAlg,lArDQGlobals.SubDet[subdet],topPath=hist_path)
        # Known bad FEBS

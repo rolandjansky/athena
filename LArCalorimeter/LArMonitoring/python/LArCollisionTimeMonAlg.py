@@ -16,7 +16,6 @@ def LArCollisionTimeMonConfig(inputFlags):
 
     # The following class will make a sequence, configure algorithms, and link                                                                                                      
     # them to GenericMonitoringTools                                                                                                                                                
-    print 'LArCollisionTimeMonConfig called'
 
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCollisionTimeMonAlgCfg')
