@@ -9,7 +9,6 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
                               MNBLooseFEBDefStr=""):
 
     from AthenaMonitoring import AthMonitorCfgHelper
-    from LArMonitoring.LArMonitoringConf import LArNoisyROMonAlg
     helper = AthMonitorCfgHelper(inputFlags,'LArNoisyROMonAlgCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory

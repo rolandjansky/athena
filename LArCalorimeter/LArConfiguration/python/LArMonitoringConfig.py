@@ -16,8 +16,6 @@ def LArMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     
-    print 'LArMonitoringConfig ', inputFlags.DQ.Environment
-
     if not inputFlags.Input.isMC:
          acc.merge(LArAffectedRegionsConfig(inputFlags))
          acc.merge(LArNoisyROMonConfig(inputFlags))
