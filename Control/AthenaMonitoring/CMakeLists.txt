@@ -57,6 +57,7 @@ atlas_add_library(
         AthenaPoolUtilities
         EventInfo
         LWHists
+        MuonAlignmentData
 )
 
 atlas_add_component(
@@ -71,6 +72,7 @@ atlas_add_component(
         LWHists
         SGAudCore
         TrigDecisionToolLib
+        MuonAlignmentData
 )
 
 # Install files from the package:
