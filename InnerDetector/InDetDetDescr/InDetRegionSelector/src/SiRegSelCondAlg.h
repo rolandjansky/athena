@@ -14,13 +14,10 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
-#include "GaudiKernel/ToolHandle.h"
-
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "SCT_Cabling/SCT_CablingData.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
@@ -55,7 +52,8 @@ public:
   SG::ReadCondHandleKey<PixelCablingCondData> m_pixCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 
-
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey
+    {this, "DetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel/SCT"};
 
   /// Output conditions object
   SG::WriteCondHandleKey<RegSelLUTCondData> m_tableKey  

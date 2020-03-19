@@ -37,6 +37,11 @@ def _makeRegSelTool( detector, enable, CondAlgConstructor ) :
                                           PrintTable  = False,
                                           RegSelLUT = ("RegSelLUTCondData_"+detector) )
 
+            if detector == "Pixel":
+                CondAlg.DetEleCollKey = "PixelDetectorElementCollection"
+            elif detector == "SCT":
+                CondAlg.DetEleCollKey = "SCT_DetectorElementCollection"
+
             condseq += CondAlg
 
     else:
