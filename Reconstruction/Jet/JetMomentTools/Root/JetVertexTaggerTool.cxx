@@ -132,14 +132,18 @@ float JetVertexTaggerTool::evaluateJvt(float rpt, float jvfcorr) const {
 float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet, std::string scale) const {
 
   SG::ReadDecorHandle<xAOD::JetContainer, float> jvfCorrHandle(m_jvfCorrKey);
-  // This is a Write handle (since this tool writes this in decorate()), but here we only use it to read.
-  SG::WriteDecorHandle<xAOD::JetContainer, float> rptHandle(m_rptKey);
+  // Chop off the leading jet container name and dot since we're using a ConstAccessor rather than a DecorHandle
+  std::string rptDecName = m_rptKey.key();
+  size_t dotPos = rptDecName.find(".");
+  rptDecName = rptDecName.substr(dotPos+1, std::string::npos);
+  // Access Rpt directly, the scheduler doesn't need to care about this one.
+  SG::AuxElement::ConstAccessor<float> rptAcc(rptDecName);
 
   JetFourMom_t p4old = jet.jetP4(scale);
   float ptold = p4old.pt();
   float ptnew = jet.pt();
   float jvfcorr = jvfCorrHandle(jet);
-  float rptold = rptHandle(jet);
+  float rptold = rptAcc(jet);
   float rptnew = rptold*ptold/ptnew;
   return evaluateJvt(rptnew, jvfcorr);
 }
