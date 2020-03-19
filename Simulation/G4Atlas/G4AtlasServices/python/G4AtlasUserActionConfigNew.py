@@ -5,7 +5,8 @@ from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
 
 from G4AtlasServices.G4AtlasServicesConf import G4UA__UserActionSvc
 
-from G4UserActions.G4UserActionsConfigNew import AthenaStackingActionToolCfg#, AthenaTrackingActionToolCfg
+from G4UserActions.G4UserActionsConfigNew import AthenaStackingActionToolCfg, AthenaTrackingActionToolCfg, LooperKillerToolCfg, G4SimTimerToolCfg, G4TrackCounterToolCfg
+
 
 
 # New function for all user action types
@@ -15,18 +16,17 @@ def getDefaultActions(ConfigFlags):
     actions = []
 
     # System stacking action
-    #actions += ['G4UA::AthenaStackingActionTool']
     actions += [result.popToolsAndMerge( AthenaStackingActionToolCfg(ConfigFlags)  )]
 
     # Some truth handling actions (and timing)
     if not ConfigFlags.Sim.ISFRun:
         actions += [
-                    #result.popToolsAndMerge( AthenaTrackingActionToolCfg(ConfigFlags) ),
-                    result.popToolsAndMerge( MCTruthSteppingActionToolCfg(ConfigFlags) )
-                    #'G4UA::G4SimTimerTool']
+                    result.popToolsAndMerge( AthenaTrackingActionToolCfg(ConfigFlags) ),
+                    result.popToolsAndMerge( MCTruthSteppingActionToolCfg(ConfigFlags) ),
+                    result.popToolsAndMerge( G4SimTimerToolCfg(ConfigFlags))
                     ]
     # Track counter
-    #actions += ['G4UA::G4TrackCounterTool']
+    actions += [result.popToolsAndMerge( G4TrackCounterToolCfg(ConfigFlags) ) ]
 
     # Cosmic Perigee action
     if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.CavernBG:
@@ -47,6 +47,7 @@ def getDefaultActions(ConfigFlags):
     if ConfigFlags.Sim.CalibrationRun == 'LAr+Tile':
         actions+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
 
+    actions += [ result.popToolsAndMerge( LooperKillerToolCfg(ConfigFlags) ) ]
     return actions
 
 def UserActionSvcCfg(ConfigFlags, name="G4UA::UserActionSvc", **kwargs):
@@ -56,12 +57,9 @@ def UserActionSvcCfg(ConfigFlags, name="G4UA::UserActionSvc", **kwargs):
     """
     result = ComponentAccumulator()
 
-    #how to convert this flag?
-    from G4AtlasApps.SimFlags import simFlags
-    optActions = simFlags.OptionalUserActionList.get_Value()
     # new user action tools
     kwargs.setdefault('UserActionTools',
-                      getDefaultActions(ConfigFlags) + optActions['General'])
+                      getDefaultActions(ConfigFlags))
 
     # placeholder for more advanced config, if needed
     result.addService ( G4UA__UserActionSvc(name, **kwargs) )

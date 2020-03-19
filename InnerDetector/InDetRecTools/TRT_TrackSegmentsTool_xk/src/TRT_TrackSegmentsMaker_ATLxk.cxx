@@ -124,14 +124,6 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
   m_A           = float(m_nPhi)/(2.*M_PI)             ;
   m_Ai          = 1./m_A                              ;
   m_histsize    = (m_nPhi*m_nMom*26/4)                ;
-
-  if (sc.isFailure()) {
-    msg(MSG::FATAL)<< "Failed to register the callback " << name() << endmsg;
-  }
-  else {
-    msg(MSG::INFO) << "Register the callback" << name() << endmsg;
-  }
-
   
   // Get output print level
   //

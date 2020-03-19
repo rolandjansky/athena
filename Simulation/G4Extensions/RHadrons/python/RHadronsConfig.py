@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,Logging
-from G4AtlasServices import G4AtlasServicesConfig
+from G4AtlasApps.SimFlags import simFlags
 
 def getSG_StepNtupleTool(name="G4UA::SG_StepNtupleTool", **kwargs):
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps

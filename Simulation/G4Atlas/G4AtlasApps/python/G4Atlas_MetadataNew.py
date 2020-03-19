@@ -12,12 +12,13 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
     #todo - only add certain ones?
     #in future this should be a ConfigFlags method...?
     for flag in sorted(ConfigFlags._flagdict): #only sim
-        key = flag.split(".")[-1] #use final part of flag as the key
-
-        if not isinstance(flag, str):
-            flag = str(flag)
-        dbFiller.addSimParam(key, flag)
-        simMDlog.info('SimulationMetaData: setting "%s" to be %s', key, flag)
+        if "Sim" in flag:
+            key = flag.split(".")[-1] #use final part of flag as the key
+            value = eval("ConfigFlags."+flag)
+            if not isinstance(value, str):
+                value = str(value)
+            dbFiller.addSimParam(key, value)
+            simMDlog.info('SimulationMetaData: setting "%s" to be %s', key, value)
 
     dbFiller.addSimParam('G4Version', ConfigFlags.Sim.G4Version)
     dbFiller.addSimParam('RunType', 'atlas')
@@ -53,12 +54,12 @@ def getRunNumberRangeForOutputMetadata(ConfigFlags):
     myRunNumber = ConfigFlags.Input.RunNumber[0]
     myEndRunNumber = 2147483647 # the max run number
 
-    if myRunNumber > 0 :
-        simMDlog.info('Found Run Number %s in hits file metadata.', str(myRunNumber) )
-        myEndRunNumber = myRunNumber+1 # got a reasonable run number so set end run to be the next run after this one.
-    else :
-        simMDlog.info('Found unexpected Run Number %s in hits file metadata. Not overriding RunNumber to match hits file for this job.', str(myRunNumber) )
-        myRunNumber = 0
+    #if myRunNumber > 0 :
+    #    simMDlog.info('Found Run Number %s in hits file metadata.', str(myRunNumber) )
+    #    myEndRunNumber = myRunNumber+1 # got a reasonable run number so set end run to be the next run after this one.
+    #else :
+    #    simMDlog.info('Found unexpected Run Number %s in hits file metadata. Not overriding RunNumber to match hits file for this job.', str(myRunNumber) )
+    #    myRunNumber = 0
     return myRunNumber, myEndRunNumber
 
 def writeSimulationParametersMetadata(ConfigFlags):

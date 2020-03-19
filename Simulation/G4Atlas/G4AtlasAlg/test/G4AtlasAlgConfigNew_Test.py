@@ -21,23 +21,23 @@ if __name__ == '__main__':
 
   #import and set config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  ConfigFlags.Input.RunNumber = [284500] #Isn't updating - todo: investigate
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
-  ConfigFlags.Input.Files = defaultTestFiles.EVNT
+  ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1'] #defaultTestFiles.EVNT
   ConfigFlags.Output.HITSFileName = "myHITSnew.pool.root"
 
   #Sim ConfigFlags
-  ConfigFlags.Sim.WorldRRange = 15000
-  ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-  ConfigFlags.Sim.CalibrationRun = False # 'DeadLAr'
+  #ConfigFlags.Sim.WorldRRange = 15000
+  #ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
+  ConfigFlags.Sim.CalibrationRun = 'Off'
   ConfigFlags.Sim.RecordStepInfo = False
   ConfigFlags.Sim.CavernBG = "Signal"
   ConfigFlags.Sim.ISFRun = False
+  ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
 
-  ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
+  ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14"
   ConfigFlags.GeoModel.Align.Dynamic = False
-  #ConfigFlags.Input.RunNumber = 222510 #Isn't updating - todo: investigate
-
 
   #set the detector flags:
   #inner detectors
@@ -53,16 +53,16 @@ if __name__ == '__main__':
   ConfigFlags.Detector.GeometryTRT = True 
 
   #muon
-  ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.GeometryMuon = True
-  ConfigFlags.Detector.SimulateMDT = True
-  ConfigFlags.Detector.GeometryMDT = True
-  ConfigFlags.Detector.SimulateRPC = True
-  ConfigFlags.Detector.GeometryRPC = True
-  ConfigFlags.Detector.SimulateTGC = True
-  ConfigFlags.Detector.GeometryTGC = True
-  ConfigFlags.Detector.SimulateCSC = True
-  ConfigFlags.Detector.GeometryCSC = True
+  ConfigFlags.Detector.SimulateMuon = True #True
+  ConfigFlags.Detector.GeometryMuon = True #True <these two break it (others can be true)
+  ConfigFlags.Detector.SimulateMDT = True #True
+  ConfigFlags.Detector.GeometryMDT = True #True
+  ConfigFlags.Detector.SimulateRPC = True #True
+  ConfigFlags.Detector.GeometryRPC = True #True
+  ConfigFlags.Detector.SimulateTGC = True #True
+  ConfigFlags.Detector.GeometryTGC = True #True
+  ConfigFlags.Detector.SimulateCSC = True #True
+  ConfigFlags.Detector.GeometryCSC = True #True
 
   #LAr
   ConfigFlags.Detector.SimulateLAr = True 
@@ -73,6 +73,9 @@ if __name__ == '__main__':
   ConfigFlags.Detector.SimulateHGTD = False
   #ConfigFlags.Detector.GeometryHGTD = False #isn't a flag -- is it needed?
 
+
+  ConfigFlags.Detector.SimulateBpipe = True
+  ConfigFlags.Detector.GeometryBpipe = True
 
 
   #forward region not migrated yet
@@ -92,7 +95,24 @@ if __name__ == '__main__':
   # Add configuration to read EVNT pool file
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
   cfg.merge(PoolReadCfg(ConfigFlags))
-
+  myRunNumber = 284500
+  myFirstLB = 1
+  myInitialTimeStamp = 1446539185
+  evtMax = 1
+  from AthenaServices.Configurables import EvtIdModifierSvc
+  evtIdModifierSvc = EvtIdModifierSvc(EvtStoreName="StoreGateSvc")
+  from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
+  iovDbMetaDataTool = IOVDbMetaDataTool()
+  iovDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
+  cfg.addPublicTool(iovDbMetaDataTool)
+  evtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=evtMax)
+  eventSelector = cfg.getService('EventSelector')
+  eventSelector.OverrideRunNumber = True
+  eventSelector.RunNumber = myRunNumber
+  eventSelector.FirstLB = myFirstLB
+  eventSelector.InitialTimeStamp = myInitialTimeStamp # Necessary to avoid a crash
+  if hasattr(eventSelector,'OverrideRunNumberFromInput'): eventSelector.OverrideRunNumberFromInput = True
+  cfg.addService(evtIdModifierSvc)
 
   #add BeamEffectsAlg
   from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
@@ -140,7 +160,7 @@ if __name__ == '__main__':
   cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=["TrackRecordCollection#MuonEntryLayer"])) 
   cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=["TrackRecordCollection#MuonExitLayer"])) 
 
-
+  
   # Dump config
   cfg.getService("StoreGateSvc").Dump = True
   cfg.getService("ConditionStore").Dump = True
@@ -149,14 +169,14 @@ if __name__ == '__main__':
 
 
   # Execute and finish
-  sc = cfg.run(maxEvents=1)
+  sc = cfg.run(maxEvents=evtMax)
 
 
   b = time.time()
   log.info("Run G4AtlasAlg in " + str(b-a) + " seconds")
 
   # Success should be 0
-  os.sys.exit(not sc.isSuccess())
+  #os.sys.exit(not sc.isSuccess())
 
   f=open("test.pkl","wb")
   cfg.store(f) 

@@ -65,6 +65,10 @@ TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t,
   declareProperty( "OfflineClusters", m_offlineClusters = true);
   declareProperty( "correctClusterPos", m_correctClusterPos = false);
   declareProperty( "ROTcreator", m_ROTcreator, "ROTcreatorTool" );
+  m_nTracksTotal = 0;
+  m_fitErrorsUnresolved=0;
+  m_fitErrorsDivergence=0;
+  m_fitErrorsLowPt=0;
 }
 
 StatusCode TrigInDetTrackFitter::initialize()
