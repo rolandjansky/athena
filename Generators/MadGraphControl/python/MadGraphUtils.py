@@ -1139,7 +1139,6 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     oldcard = open(reweight_card+'.old','r')
     newcard = open(reweight_card,'w')
     changed = False
-    nrwgt = 1
     info_expression='launch.*--rwgt_info\s*=\s*(\S+).*'
     name_expression=info_expression.replace('info','name')
     goodname_expression='^[A-Za-z0-9_\-.]+$'
@@ -1151,11 +1150,7 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
             rwgt_name_match=re.match(name_expression,line.strip())
             rwgt_info_match=re.match(info_expression,line.strip())
             if rwgt_name_match==None and rwgt_info_match==None:
-                mglog.warning('Every reweighting should have a --rwgt_info (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Added a dummy name for now.')
-                newcard.write(line.strip()+' --rwgt_name=dummy_rwgt_name_{0}  --rwgt_info=dummy_rwgt_info_{0}\n'.format(nrwgt))
-                changed=True
-                nrwgt+=1
-                continue
+                raise RuntimeError('Every reweighting should have a --rwgt_info (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Line to fix: '+line)
             for match in [rwgt_info_match,rwgt_name_match]:
                 if match==None:
                     continue

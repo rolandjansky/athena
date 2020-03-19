@@ -109,7 +109,8 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
         if basefragment_settings['alternative_pdfs'] is not None:
             for a in basefragment_settings['alternative_pdfs']:
                 sys_pdfs.append(get_lhapdf_id_and_name(a)[1]+'@0')
-        runcard_systematics_arguments['pdf']=','.join(sys_pdfs)
+        if len(sys_pdfs)>0:
+            runcard_systematics_arguments['pdf']=','.join(sys_pdfs)
 
     ### Set scale variations to be included as weights
     if isNLO and basefragment_settings['scale_variations'] is None:
@@ -123,7 +124,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
             runcard_systematics_arguments['muf']=','.join([str(s) for s in basefragment_settings['scale_variations']])
             runcard_systematics_arguments['mur']=','.join([str(s) for s in basefragment_settings['scale_variations']])
             runcard_systematics_arguments['dyn']='-1'
-        runcard_settings['systematics_arguments']=write_systematics_arguments(runcard_systematics_arguments)
+            runcard_settings['systematics_arguments']=write_systematics_arguments(runcard_systematics_arguments)
     return runcard_settings
 
 #==================================================================================
