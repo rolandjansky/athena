@@ -554,7 +554,7 @@ doManagerStep (Detail::ManagerData& data) const
 ::StatusCode EL::PrunDriver::doRetrieve (Detail::ManagerData& data) const 
 {
   RCU_READ_INVARIANT(this);
-  RCU_REQUIRE(not location.empty());  
+  RCU_REQUIRE(not data.submitDir.empty());  
 
   TmpCd tmpDir(data.submitDir);
 
