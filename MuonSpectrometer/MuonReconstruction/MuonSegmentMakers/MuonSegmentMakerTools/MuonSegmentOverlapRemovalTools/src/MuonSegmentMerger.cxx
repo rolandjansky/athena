@@ -1,13 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentMerger.h"
- 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
@@ -25,52 +20,22 @@ namespace Muon {
 
   MuonSegmentMerger::MuonSegmentMerger(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_triggerHitsAssociator("Muon::DCMathSegmentMaker/DCMathSegmentMaker")
   {
     declareInterface<IMuonSegmentMerger>(this);
 
-    declareProperty("MuonIdHelperTool",m_idHelperTool );
     declareProperty("MuonEDMPrinterTool",m_printer);
     declareProperty("TriggerHitAssociator",m_triggerHitsAssociator);
   }
 
-
-  MuonSegmentMerger::~MuonSegmentMerger(){}
-
-
   StatusCode MuonSegmentMerger::initialize()
   {
-    if ( AthAlgTool::initialize().isFailure() ) {
-      return StatusCode::FAILURE;
-    }
-
-    if (m_edmHelperSvc.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_printer.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_printer); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_triggerHitsAssociator.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_triggerHitsAssociator); 
-      return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonSegmentMerger::finalize()
-  {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
+    ATH_CHECK(AthAlgTool::initialize());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_triggerHitsAssociator.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -96,7 +61,7 @@ namespace Muon {
       // create segment key object
       MuonSegmentKey sk(**sit);
       Identifier chId = m_edmHelperSvc->chamberId(**sit);
-      if(!m_idHelperTool->isMdt(chId)) {
+      if(!m_idHelperSvc->isMdt(chId)) {
 	outputSegments.push_back(new MuonSegment(**sit));
 	continue;
       }
@@ -236,12 +201,11 @@ namespace Muon {
     if( !rpcsPerCollection.empty() ){
       std::map<IdentifierHash,std::vector<const RpcPrepData*> >::const_iterator rcit = rpcsPerCollection.begin();
       std::map<IdentifierHash,std::vector<const RpcPrepData*> >::const_iterator rcit_end = rpcsPerCollection.end();
-      RpcHitClusteringObj rpcClustering(m_idHelperTool.get());
+      RpcHitClusteringObj rpcClustering(&m_idHelperSvc->rpcIdHelper());
       int offset = 0;
       for( ;rcit!=rcit_end;++rcit ){
         ATH_MSG_DEBUG(" rpc Prd size " << rcit->second.size() );
 	if( !rpcClustering.cluster( rcit->second ) ) {
-	  //ATH_MSG_DEBUG("RpcHitClusteringObj failed, dropping chamber " << m_idHelperTool->toStringChamber(rcit->second.identify()) );
 	  continue;
 	}
         ATH_MSG_DEBUG("RpcHitClusteringObj size " << rpcClustering.clustersPhi.size() );
@@ -268,11 +232,10 @@ namespace Muon {
     if( !tgcsPerCollection.empty() ){
       std::map<IdentifierHash,std::vector<const TgcPrepData*> >::const_iterator rcit = tgcsPerCollection.begin();
       std::map<IdentifierHash,std::vector<const TgcPrepData*> >::const_iterator rcit_end = tgcsPerCollection.end();
-      TgcHitClusteringObj tgcClustering(m_idHelperTool.get());
+      TgcHitClusteringObj tgcClustering(&m_idHelperSvc->tgcIdHelper());
       int offset = 0;
       for( ;rcit!=rcit_end;++rcit ){
 	if( !tgcClustering.cluster( rcit->second ) ) {
-	  //ATH_MSG_DEBUG("TgcHitClusteringObj failed, dropping chamber " << m_idHelperTool->toStringChamber(rcit->second.identify()) );
 	  continue;
 	}
 	for( unsigned int i=0;i<tgcClustering.clustersPhi.size();++i){
@@ -354,7 +317,7 @@ namespace Muon {
       ATH_MSG_DEBUG(" " << m_printer->print(**sit));
 
       Identifier chid = m_edmHelperSvc->chamberId(**sit);
-      bool isEndcap = m_idHelperTool->isEndcap(chid);
+      bool isEndcap = m_idHelperSvc->isEndcap(chid);
 
       if( !aSegment ) aSegment = *sit;
       
@@ -365,7 +328,7 @@ namespace Muon {
 	if( clot ) {
 	  ATH_MSG_DEBUG("   " << m_printer->print(*clot));
 
-	  if( m_idHelperTool->isEndcap(clot->identify()) != isEndcap ){
+	  if( m_idHelperSvc->isEndcap(clot->identify()) != isEndcap ){
 
 	    if( segments.size() == 1 ) {
 	      ATH_MSG_DEBUG("Inconsistent phi hit topology, keeping original");
@@ -389,7 +352,7 @@ namespace Muon {
 	    if( clot ) {
 	      ATH_MSG_DEBUG("   " << m_printer->print(*clot));
 
-	      if( m_idHelperTool->isEndcap(clot->identify()) != isEndcap ){
+	      if( m_idHelperSvc->isEndcap(clot->identify()) != isEndcap ){
 
 		if( segments.size() == 1 ) {
 		  ATH_MSG_DEBUG("Inconsistent phi hit topology, keeping original");

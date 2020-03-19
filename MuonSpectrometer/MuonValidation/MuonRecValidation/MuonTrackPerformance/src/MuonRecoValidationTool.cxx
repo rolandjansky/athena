@@ -1,19 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRecoValidationTool.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
-#include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
-#include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 #include "MuonClusterization/TgcHitClustering.h"
 
 #include "MuonSegment/MuonSegment.h"
@@ -43,7 +36,6 @@ namespace Muon {
 
   MuonRecoValidationTool::MuonRecoValidationTool(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_segmentHitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
       m_hitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
       m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
@@ -54,7 +46,6 @@ namespace Muon {
       m_candidateCounter(0)
   {
     declareInterface<IMuonRecoValidationTool>(this);
-    declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonSegmentHitSummaryTool",m_segmentHitSummaryTool );    
     declareProperty("MuonHitSummaryTool",m_hitSummaryTool );    
     declareProperty("MuonTruthSummaryTool",m_truthSummaryTool );    
@@ -64,14 +55,10 @@ namespace Muon {
     declareProperty("IncidentSvc",m_incidentSvc );
     declareProperty("isMC",m_isMC=false);
   }
-    
-  MuonRecoValidationTool::~MuonRecoValidationTool() {
-    
-  }
-    
+
   StatusCode MuonRecoValidationTool::initialize() {
 
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_segmentHitSummaryTool.retrieve());
     ATH_CHECK(m_hitSummaryTool.retrieve());
@@ -113,11 +100,6 @@ namespace Muon {
       m_tree->Fill();
       clear();
     }  
-  }
-
-  StatusCode MuonRecoValidationTool::finalize() {
-
-    return StatusCode::SUCCESS;
   }
 
   bool MuonRecoValidationTool::addTrackParticle(  const xAOD::TrackParticle& indetTrackParticle,
@@ -203,17 +185,17 @@ namespace Muon {
 
     for( const auto& stauHit : stauHits ){
       Identifier id = stauHit.id;
-      int type = m_idHelper->technologyIndex(id) + 10;
+      int type = m_idHelperSvc->technologyIndex(id) + 10;
       double r = sqrt(stauHit.x*stauHit.x + stauHit.y*stauHit.y);
       double tof = muonBetaCalculationUtils.calculateTof(1,sqrt(r*r+stauHit.z*stauHit.z));
       // track index 
       m_ntuple.timeBlock.track.fill(index);
     
       // identifier info
-      m_ntuple.timeBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
+      m_ntuple.timeBlock.id.fill(m_idHelperSvc->sector(id),m_idHelperSvc->chamberIndex(id));
 
       // position + time information
-      m_ntuple.timeBlock.fill(type,m_idHelper->gasGapId(id).get_identifier32().get_compact(),r,stauHit.z,stauHit.mToF-tof,stauHit.error,
+      m_ntuple.timeBlock.fill(type,m_idHelperSvc->gasGapId(id).get_identifier32().get_compact(),r,stauHit.z,stauHit.mToF-tof,stauHit.error,
                               stauHit.propagationTime, stauHit.e, tof, 0., stauHit.shift, 1000 * m_candidateCounter);
       
       // barcode + pdg
@@ -235,10 +217,10 @@ namespace Muon {
     m_ntuple.timeBlock.track.fill(getIndex(intersection));
     
     // identifier info
-    m_ntuple.timeBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
+    m_ntuple.timeBlock.id.fill(m_idHelperSvc->sector(id),m_idHelperSvc->chamberIndex(id));
 
     // position information
-    m_ntuple.timeBlock.fill(2,m_idHelper->gasGapId(id).get_identifier32().get_compact(),gpos.perp(),gpos.z(),time,errorTime);
+    m_ntuple.timeBlock.fill(2,m_idHelperSvc->gasGapId(id).get_identifier32().get_compact(),gpos.perp(),gpos.z(),time,errorTime);
 
     // barcode + pdg
     int barcode=-1,pdg=0;
@@ -262,10 +244,10 @@ namespace Muon {
       m_ntuple.timeBlock.track.fill(getIndex(intersection));
     
       Identifier id = m_edmHelperSvc->chamberId(*seg);
-      m_ntuple.timeBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
+      m_ntuple.timeBlock.id.fill(m_idHelperSvc->sector(id),m_idHelperSvc->chamberIndex(id));
 
       // position information
-      m_ntuple.timeBlock.fill(1,m_idHelper->chamberId(id).get_identifier32().get_compact(),seg->globalPosition().perp(),seg->globalPosition().z(),
+      m_ntuple.timeBlock.fill(1,m_idHelperSvc->chamberId(id).get_identifier32().get_compact(),seg->globalPosition().perp(),seg->globalPosition().z(),
                               seg->time()-segmentTimeCorrection,seg->errorTime() );
 
       // barcode + pdg
@@ -286,7 +268,7 @@ namespace Muon {
       m_ntuple.timeBlock.track.fill(getIndex(intersection));
 
       Identifier id = rpc->identify();
-      m_ntuple.timeBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
+      m_ntuple.timeBlock.id.fill(m_idHelperSvc->sector(id),m_idHelperSvc->chamberIndex(id));
 
 
       // barcode + pdg
@@ -297,7 +279,7 @@ namespace Muon {
       }
       m_ntuple.timeBlock.truth.fill(pdg,barcode);
       
-      bool measphi = m_idHelper->measuresPhi(id);
+      bool measphi = m_idHelperSvc->measuresPhi(id);
       const Amg::Vector3D& GP = rpc->globalPosition();
       const Muon::RpcPrepData* MClus = rpc->prepRawData();
       const MuonGM::RpcReadoutElement* rpc_readout_element = MClus->detectorElement(); 
@@ -321,7 +303,7 @@ namespace Muon {
       double correct_time_tot = real_TOF_onRPCgap-nominal_TOF_onRPCgap+correct_time_along_strip-av_correct_time_along_strip;
 
       // time and position information
-      m_ntuple.timeBlock.fill(0,m_idHelper->gasGapId(id).get_identifier32().get_compact(),rpc->globalPosition().perp(),rpc->globalPosition().z(),rpc->time(),2.,
+      m_ntuple.timeBlock.fill(0,m_idHelperSvc->gasGapId(id).get_identifier32().get_compact(),rpc->globalPosition().perp(),rpc->globalPosition().z(),rpc->time(),2.,
                               correct_time_along_strip,av_correct_time_along_strip,real_TOF_onRPCgap,nominal_TOF_onRPCgap,correct_time_tot );
 
       return true;
@@ -337,7 +319,7 @@ namespace Muon {
     m_ntuple.segmentBlock.stage->push_back(stage);
 
     Identifier id = m_edmHelperSvc->chamberId(segment);
-    m_ntuple.segmentBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
+    m_ntuple.segmentBlock.id.fill(m_idHelperSvc->sector(id),m_idHelperSvc->chamberIndex(id));
     
     // position information
     m_ntuple.segmentBlock.r->push_back(segment.globalPosition().perp());
@@ -458,7 +440,7 @@ namespace Muon {
                                     float expos, float expos_err )  {
 
     Identifier id = prd.identify();
-    m_ntuple.hitBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
+    m_ntuple.hitBlock.id.fill(m_idHelperSvc->sector(id),m_idHelperSvc->chamberIndex(id));
     m_ntuple.hitBlock.track.fill(getIndex(intersection));
     
     int barcode=-1,pdg=0;
@@ -486,7 +468,7 @@ namespace Muon {
       Identifier id = m_edmHelperSvc->getIdentifier(**mit);
       if( !id.is_valid() ) continue;
       ids.insert(id);
-      if( !m_idHelper->isTrigger(id) ) continue;
+      if( !m_idHelperSvc->isTrigger(id) ) continue;
        
       // cast to  MuonClusterOnTrack
       const MuonClusterOnTrack* clus = dynamic_cast<const MuonClusterOnTrack*>(*mit);

@@ -10,7 +10,7 @@
 // Core include(s):
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 
 // xAOD include(s):
 

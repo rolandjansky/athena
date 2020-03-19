@@ -2,8 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Local include(s):
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 #include <array>
 
 namespace Muon {

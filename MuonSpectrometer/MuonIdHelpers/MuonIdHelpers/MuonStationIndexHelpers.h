@@ -6,7 +6,7 @@
 #define MUONIDHELPERS_MUONSTATIONINDEXHELPERS_H
 
 #include <vector>
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 
 namespace Muon {
   class MuonStationIndexHelpers {
