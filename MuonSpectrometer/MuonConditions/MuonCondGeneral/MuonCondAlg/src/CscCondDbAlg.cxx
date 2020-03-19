@@ -36,7 +36,7 @@ CscCondDbAlg::initialize(){
         }
     }
 
-    ATH_CHECK(m_readKey_folder_da_hv     .initialize());
+    ATH_CHECK(m_readKey_folder_da_hv     .initialize(!m_readKey_folder_da_hv.empty() && m_isData));
     ATH_CHECK(m_readKey_folder_da_f001   .initialize());
     ATH_CHECK(m_readKey_folder_da_noise  .initialize());
     ATH_CHECK(m_readKey_folder_da_ped    .initialize());
@@ -351,7 +351,7 @@ CscCondDbAlg::cache(std::string data, CscCondDbData* writeCdo, const std::string
 			continue;
 		}
 		if(!started) continue;
-		ATH_MSG_DEBUG("current element " << valueStr);
+		ATH_MSG_VERBOSE("cache() - current element " << valueStr);
         std::istringstream iss(valueStr);
 
 
@@ -391,7 +391,7 @@ CscCondDbAlg::cacheASM(std::string data, CscCondDbData* writeCdo, const std::str
 			continue;
 		}
 		if(!started) continue;
-		ATH_MSG_DEBUG("current element " << valueStr);
+		ATH_MSG_VERBOSE("cacheASM() - current element " << valueStr);
         std::istringstream iss(valueStr);
 
 

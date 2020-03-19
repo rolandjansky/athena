@@ -7,7 +7,9 @@ atlas_subdir( DataModelRoot )
 
 atlas_depends_on_subdirs (
   PUBLIC
-  Control/CxxUtils )
+  Control/CxxUtils
+  PRIVATE
+  Control/RootUtils )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -17,7 +19,7 @@ atlas_add_library( DataModelRoot
                    src/*.cxx
                    PUBLIC_HEADERS DataModelRoot
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES RootUtils ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( DataModelRootDict
                       DataModelRoot/DataModelRootDict.h

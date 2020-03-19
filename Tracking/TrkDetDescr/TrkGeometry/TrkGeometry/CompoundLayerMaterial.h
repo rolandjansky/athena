@@ -74,7 +74,7 @@ namespace Trk {
         CompoundLayerMaterial(const CompoundLayerMaterial& mprop);
         
         /**Destructor*/
-        virtual ~CompoundLayerMaterial();
+        virtual ~CompoundLayerMaterial() override;
         
         /**Pseudo-Constructor clone()*/ 
         virtual CompoundLayerMaterial* clone() const override;
@@ -86,7 +86,7 @@ namespace Trk {
         virtual CompoundLayerMaterial& operator*=(double scale) override;
     
         /** Return the BinUtility */
-        const BinUtility* binUtility() const override;
+        virtual const BinUtility* binUtility() const override;
         
         /** Update the BinUtility if necessary - passing ownership of the utility class*/
         virtual void updateBinning(BinUtility* bu) override;
@@ -95,7 +95,7 @@ namespace Trk {
         virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
         
         /** Access the single bin */
-        const MaterialProperties* material(size_t bin0, size_t bin1) const override;
+        virtual const MaterialProperties* material(size_t bin0, size_t bin1) const override;
         
         /** Update the ElementTable */
         void updateElementTable(const SharedObject<const ElementTable>& set);
@@ -104,10 +104,10 @@ namespace Trk {
         const ElementTable* elementTable() const;
               
         /** Output Method for MsgStream, to be overloaded by child classes */
-        MsgStream& dump(MsgStream& sl) const override;
+        virtual MsgStream& dump(MsgStream& sl) const override;
         
         /** Output Method for std::ostream, to be overloaded by child classes */
-        std::ostream& dump(std::ostream& sl) const override;      
+        virtual std::ostream& dump(std::ostream& sl) const override;      
     
       private:
         friend class ::CompoundLayerMaterialCnv_p1;

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceOut.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
 #include "TrigT1TGC/TGCSectorLogic.hh"
-#include "TrigT1TGC/TGCCoincidence.hh"
 #include <iostream>
 #include <cstdlib>
 
@@ -106,15 +105,6 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       } // loop pt
     }
 
-
-    if (tgcArgs()->OUTCOINCIDENCE()) {
-      TGCCoincidence * coin
-	= new TGCCoincidence(m_sectorLogic->getBid(), m_sectorLogic->getId(), m_sectorLogic->getModuleID(), 
-			     m_sectorLogic->getRegion(), m_SSCId, m_r, m_phi[j], subsector, 
-			     m_ptR, m_dR, m_ptPhi[j], m_dPhi[j], ptOut);
-      tgcArgs()->TGCCOIN()->push_back(coin);
-    }
-
     // Trigger Out
     if( ptOut >= ptMax ){
       ptMax = ptOut;
@@ -133,7 +123,7 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     }
   }
 
-  if (tgcArgs()->DEBUGLEVEL()){
+  if (tgcArgs()->MSGLEVEL() <= MSG::DEBUG){
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) != StatusCode::FAILURE) {

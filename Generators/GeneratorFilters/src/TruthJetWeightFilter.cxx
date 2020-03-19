@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/PhysicalConstants.h"
@@ -82,11 +82,11 @@ StatusCode TruthJetWeightFilter::filterEvent() {
   ATH_MSG_DEBUG("prob rnd weight sel " << prob << " " << rnd << " " << weight << " " << (rnd < prob));
   if (rnd < prob) {
     ATH_MSG_INFO("Pass filter weight "  << weight);
-    saveWeight(weight);
+    ATH_CHECK(saveWeight(weight));
     return sc;
   } else {
     setFilterPassed(m_deactivateFilter || false);
-    saveWeight(0.);
+    ATH_CHECK(saveWeight(0.));
     ATH_MSG_INFO("Fail filter weight "  << weight);
     return sc;
   }

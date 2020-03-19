@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -102,7 +102,7 @@ class InputConverter_test: public ::testing::Test {
   }
 
   virtual void TearDown() override {
-    m_svcMgr->removeService(m_svc);
+    ASSERT_TRUE( m_svcMgr->removeService(m_svc).isSuccess() );
     ASSERT_TRUE( m_svc->finalize().isSuccess() );
     ASSERT_TRUE( m_svc->terminate().isSuccess() );
     delete m_svc;
@@ -170,7 +170,7 @@ TEST_F(InputConverter_test, convertParticle_without_production_vertex) {
 
 
 TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
-  m_svc->setProperty("UseGeneratedParticleMass", "True");
+  ASSERT_TRUE( m_svc->setProperty("UseGeneratedParticleMass", "True").isSuccess() );
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
   const int particleBarcode(546);
@@ -225,7 +225,7 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
 
 
 TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
-  m_svc->setProperty("UseGeneratedParticleMass", "False");
+  ASSERT_TRUE( m_svc->setProperty("UseGeneratedParticleMass", "False").isSuccess() );
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
   const int particleBarcode(546);
@@ -279,7 +279,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
 
 
 TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
-  m_svc->setProperty("UseGeneratedParticleMass", "False");
+  ASSERT_TRUE( m_svc->setProperty("UseGeneratedParticleMass", "False").isSuccess() );
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
   const int particleBarcode(546);
@@ -361,7 +361,7 @@ TEST_F(InputConverter_test, passesFilters_empty_filters) {
 
 TEST_F(InputConverter_test, passesFilters_one_pass_filter) {
   // retrieve mockable GenParticleFilter tool and point InputConverter to the same instance
-  m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
+  ASSERT_TRUE( m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']").isSuccess() );
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
   const unsigned int expectedSize(1);
@@ -385,7 +385,7 @@ TEST_F(InputConverter_test, passesFilters_one_pass_filter) {
 
 TEST_F(InputConverter_test, passesFilters_one_nonpass_filter) {
   // retrieve mockable GenParticleFilter tool and point InputConverter to the same instance
-  m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
+  ASSERT_TRUE( m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']").isSuccess() );
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
   ASSERT_EQ (genParticleFilters.size(), 1U);
@@ -409,7 +409,7 @@ TEST_F(InputConverter_test, passesFilters_one_nonpass_filter) {
 
 TEST_F(InputConverter_test, passesFilters_two_filters) {
   // retrieve mockable GenParticleFilter tool and point InputConverter to the same instance
-  m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilterZ', 'ISFTesting::MockFilterTool/DummyFilterY']");
+  ASSERT_TRUE( m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilterZ', 'ISFTesting::MockFilterTool/DummyFilterY']").isSuccess() );
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
   ASSERT_EQ (genParticleFilters.size(), 2U);

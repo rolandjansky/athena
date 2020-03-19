@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCaloEvent
    Event/xAOD/xAODJet
    Event/xAOD/xAODTrigMissingET
+   Event/xAOD/xAODPFlow
    Event/FourMomUtils
    GaudiKernel
    LArCalorimeter/LArIdentifier
@@ -82,6 +83,7 @@ atlas_add_component( TrigEFMissingET
   src/CellFex.cxx
   src/MHTFex.cxx
   src/TCFex.cxx
+  src/PFSumFex.cxx
   src/TCPufitFex.cxx
   src/components/TrigEFMissingET_entries.cxx
   src/components/TrigEFMissingET_load.cxx
@@ -90,7 +92,7 @@ atlas_add_component( TrigEFMissingET
   TrigEFMissingETLib
   AthenaBaseComps CaloDetDescrLib CaloEvent CaloGeoHelpers
   CaloIdentifier CxxUtils EventKernel GaudiKernel Identifier
-  JetEvent LArIdentifier PathResolver JetEDM
+  JetEvent LArIdentifier PathResolver JetEDM xAODPFlow
   TrigCaloEvent TrigInterfacesLib TrigMissingEtEvent TrigMuonEvent
   TrigParticle TrigSteeringEvent TrigT1Interfaces TrigT2CaloCommonLib
   TrigTimeAlgsLib xAODCaloEvent xAODEventInfo xAODJet xAODTrigMissingET

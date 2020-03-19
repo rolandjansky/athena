@@ -17,7 +17,7 @@
 #include "SCT_GeoModel/SCT_Spider.h"
 #include "SCT_GeoModel/SCT_PixelAttachment.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 

@@ -59,7 +59,7 @@ except:
         AtlasG4Eng.G4Eng._ctrl.G4Command("/geometry/test/recursive_test")
         ## Turn off processes other than transport
         # TODO! Do this using the UI commands
-        print "WARNING: the fast physics list is dead! We need to tell this JO to run particle transport only"
+        printfunc ("WARNING: the fast physics list is dead! We need to tell this JO to run particle transport only")
     simFlags.InitFunctions.add_function("preInitG4", setup_g4geo)
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")

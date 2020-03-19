@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 ##
 #@file DiTauRecAOD_config.py
@@ -9,8 +10,8 @@
 #
 ################################################################################
 from RecExConfig.RecFlags import rec 
-from DiTauRec.DiTauRecFlags import jobproperties
-from JetRec.JetRecFlags import jobproperties
+import DiTauRec.DiTauRecFlags
+import JetRec.JetRecFlags
 from AthenaCommon.BeamFlags import jobproperties
 import traceback
 
@@ -22,7 +23,7 @@ if rec.readAOD() :
         include( "DiTauRec/DiTauRec_jobOptions.py" )
         _DiTauFail=False
     except Exception:
-        print traceback.format_exc()
+        traceback.print_exc()
         treatException("Could not set up merged DiTauRec. Switched off !")
 
 else:

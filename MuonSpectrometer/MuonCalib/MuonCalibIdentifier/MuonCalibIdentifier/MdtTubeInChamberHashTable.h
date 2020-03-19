@@ -26,13 +26,6 @@
 
 class MdtTubeInChamberHashTable {
 public:
-   /** 'less' helper class for binary search on global offset */
-   struct lessGlobalOffset :
-      public std::binary_function<MdtTubeInChamberHashTable,unsigned int, bool> {
-      bool operator()( const MdtTubeInChamberHashTable& table, unsigned int offset ) {
-	 return table.m_globalHashOffset < offset;
-      }
-   };
    /** constructor */
    MdtTubeInChamberHashTable( const MdtTubeInChamberHashTableType* type,
 			      const MdtChamberId& chamberId );

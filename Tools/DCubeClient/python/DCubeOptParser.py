@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file DCubeClient/python/DCubeOptParser.py
 # @author Krzysztof Danile Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
@@ -35,7 +35,7 @@ class DCubeOptParser( object ):
         try:
             from datetime import date
             today = date.today().isoformat()
-        except: 
+        except Exception:
             pass
 
         usage = "dcube.py [options] [args] [MONITORED.root]"
@@ -192,7 +192,7 @@ class DCubeOptParser( object ):
     # @param self "Me, myself and Irene"
     def help( self ):
         self.__par.print_help()
-        print self.valid
+        print(self.valid)
 
     ## prints out usage
     # @param self "Me, myself and Irene"
@@ -232,7 +232,7 @@ class DCubeOptParser( object ):
     # @param parser OptParser instance
     def check_generation_callback( self, option , opt_str, value, parser ):
 
-        print parser.values.reference
+        print(parser.values.reference)
         if ( not parser.values.reference ):
             pass
 
@@ -291,23 +291,23 @@ class DCubeOptParser( object ):
 
         try:
             year = int(year)
-        except ValueError, value:
+        except ValueError as  value:
             raise optparse.OptionValueError("%s option value (=%s) error, year isn't an integer!" % info )
             
         try:
             month = int(month)
-        except ValueError, value:
+        except ValueError as value:
             raise optparse.OptionValueError("%s option value (=%s) error, month isn't an integer!" % info )
     
         try:
             day = int(day)
-        except ValueError, value:
+        except ValueError as value:
             raise optparse.OptionValueError("%s option value (=%s) error, day isn't an integer!" % info )
         
         try:
             from datetime import datetime
             datetime( year, month, day, 0, 0, 0  )
-        except ValueError, val:
+        except ValueError as val:
             raise optparse.OptionValueError("%s option value (=%s) error, %s" % ( opt_str, value, val ) )
             
         setattr( parser.values, option.dest, value )
@@ -349,11 +349,11 @@ class DCubeOptParser( object ):
     def branch_callback(  self, option, opt_str, value, parser ):
         if ( "*" not in value ):
             found = False
-            for k, v in self.valid.branches().iteritems():
+            for k, v in self.valid.branches().items():
                 if ( v.match( value ) ): 
                     found = True
             if ( not found ):
-                print self.valid.listBranches()
+                print(self.valid.listBranches())
                 raise optparse.OptionValueError("invalid %s option value '%s'" % (option, value ) ) 
         setattr( parser.values, option.dest, value )
         
@@ -367,7 +367,7 @@ class DCubeOptParser( object ):
     def install_callback(  self, option, opt_str, value, parser ):    
         if ( "*" not in value ):
             if ( value not in self.valid.installs() ):
-                print self.valid.listInstalls()
+                print(self.valid.listInstalls())
                 raise optparse.OptionValueError("invalid %s option value '%s'" % (option, value) ) 
         setattr( parser.values, option.dest, value )
         
@@ -381,7 +381,7 @@ class DCubeOptParser( object ):
     def cmtconfig_callback(  self, option, opt_str, value, parser ):    
         if ( "*" not in value ):
             if ( value not in self.valid.cmtconfigs() ):
-                print self.valid.listCmtconfigs()
+                print(self.valid.listCmtconfigs())
                 raise optparse.OptionValueError("invalid %s option value '%s'" % (option, value) ) 
         setattr( parser.values, option.dest, value )
         
@@ -394,7 +394,7 @@ class DCubeOptParser( object ):
     def project_callback(  self, option, opt_str, value, parser ):    
         if ( "*" not in value ):
             if ( value not in self.valid.projects() ):
-                print self.valid.listProjects()
+                print(self.valid.listProjects())
                 raise optparse.OptionValueError("invalid %s option value '%s'" % (option, value)  ) 
         setattr( parser.values, option.dest, value )
    
@@ -427,7 +427,7 @@ class test_DCubeOptParser( unittest.TestCase ):
     def test_01_constructor( self ):
         try:
             self.opt = DCubeOptParser() 
-        except:
+        except Exception:
             pass
 
         self.assertEqual( isinstance( self.opt, DCubeOptParser), True )
@@ -451,7 +451,7 @@ class test_DCubeOptParser( unittest.TestCase ):
      
         sysExitHolder = sys.exit
         def sysExit( value ):
-            print "sys.exit called with value = %s" % str(value)
+            print("sys.exit called with value = %s" % str(value))
         sys.exit = sysExit
         
         args = [ __file__, "-h"]

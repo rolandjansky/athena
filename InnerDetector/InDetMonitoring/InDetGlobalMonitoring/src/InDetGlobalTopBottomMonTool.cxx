@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalTopBottomMonTool.cxx
@@ -12,7 +12,6 @@
 * Thomas Burgess <Thomas.Burgess@cern.ch> @n
 * Alex Kastanas <Alex.Kastanas@cern.ch>       
 *
-* $Id: InDetGlobalTopBottomMonTool.cxx,v 1.27 2008-12-17 17:31:15 sandaker Exp $
 *
 *****************************************************************************/
 
@@ -127,137 +126,140 @@ StatusCode InDetGlobalTopBottomMonTool::bookHistogramsRecurrent()
 {  
     MonGroup monGr_shift ( this, "InDetGlobal/TopBottom",  run);
     MonGroup monGr_exp   ( this, "InDetGlobal/TopBottom", run);
-  
+
+    bool status = true;
+
     if (newRunFlag()) {
 	// Number of tracks
 
-	registerHist(
+	status &= registerHist(
 	    monGr_shift,m_nBottomTrks=
 	    new TH1F("m_nBottomTrks","number of bottom segments",5,0,5));
-	registerHist(
+	status &= registerHist(
 	    monGr_shift,m_nTopTrks=
 	    new TH1F("m_nTopTrks","number of top segments",5,0,5));
  
 	// Track parameters at perigee
     
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_phi=
 	    new TH1F("m_top_phi","phi of top segment",100,-M_PI,M_PI));
-	registerHist(monGr_exp,m_top_eta=
+	status &= registerHist(monGr_exp,m_top_eta=
 		     new TH1F("m_top_eta","eta of top segment",100,-1.,1.));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_d0=
 	    new TH1F("m_top_d0","transverse impact parameter of top segment",
 		     200,-500,500));
-	registerHist(monGr_exp,m_top_z0=
+	status &= registerHist(monGr_exp,m_top_z0=
 		     new TH1F("m_top_z0","z0 of top segment",200,-1000,1000));
-	registerHist(monGr_exp,m_top_chi2=
+	status &= registerHist(monGr_exp,m_top_chi2=
 		     new TH1F("m_top_chi2","chi2 of top segment",100,0,100));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_phi=new TH1F(
 		"m_bottom_phi","phi of bottom segment",100,-M_PI,M_PI));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_eta=
 	    new TH1F("m_bottom_eta","eta of bottom segment",100,-1.,1.));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_d0=new TH1F(
 		"m_bottom_d0","transverse impact parameter of bottom segment",
 		200,-500,500));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_z0=
 	    new TH1F("m_bottom_z0","z0 of bottom segment",200,-1000,1000));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_chi2=
 	    new TH1F("m_bottom_chi2","chi2 of bottom segment",100,0,100));
   
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_phi_1trk=new TH1F(
 		"m_top_phi_1trk",
 		"phi of top segment-only 1 segment per event",
 		100,-M_PI,M_PI));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_eta_1trk=new TH1F(
 		"m_top_eta_1trk",
 		"eta of top segment-only 1 segment per event",
 		100,-1.,1.));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_d0_1trk=new TH1F(
 		"m_top_d0_1trk","transverse impact parameter of top segment"
 		"-only 1 segment per event",200,-500,500));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_z0_1trk=
 	    new TH1F("m_top_z0_1trk",
 		     "z0 of top segment-only 1 segment per event",
 		     200,-1000,1000));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_chi2_1trk=new TH1F(
 		"m_top_chi2_1trk",
 		"chi2 of top segment-only 1 segment per event"
 		,100,0,100));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_phi_1trk=new TH1F(
 		"m_bottom_phi_1trk","phi of bottom segment-"
 		"only 1 segment per event",100,-M_PI,M_PI));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_eta_1trk=new TH1F(
 		"m_bottom_eta_1trk",
 		"eta of bottom segment-only 1 segment per event",
 		100,-1.,1.));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_d0_1trk=new TH1F(
 		"m_bottom_d0_1trk",
 		"transverse impact parameter of bottom segment "
 		"- only 1 segment per event",200,-500,500));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_z0_1trk=new TH1F(
 		"m_bottom_z0_1trk",
 		"z0 of bottom segment-only 1 segment per event"
 		,200,-1000,1000));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_bottom_chi2_1trk=new TH1F(
 		"m_bottom_chi2_1trk",
 		"chi2 of bottom segment-only 1 segment per event",
 		100,0,100));   
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_bottom_dphi=new TH1F(
 		"m_top_bottom_dphi",
 		"Delta(phi) between top and bottom segments",
 		100,-0.05,0.05));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_bottom_deta=new TH1F(
 		"m_top_bottom_deta",
 		"Delta(eta) between top and bottom segments",
 		100,-0.2,0.2));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_bottom_dd0=new TH1F(
 		"m_top_bottom_dd0","Delta(d0) between top and bottom segments",
 		400,-10,10));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_bottom_dz0=new TH1F(
 		"m_top_bottom_dz0","Delta(z0) between top and bottom segments",
 		200,-100,100));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_bottom_phi_pull=new TH1F(
 		"m_top_bottom_phi_pull",
 		"Delta(phi) pull between top and bottom segments",
 		200,-100,100));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_bottom_eta_pull=new TH1F(
 		"m_top_bottom_eta_pull",
 		"Delta(eta) pull between top and bottom segments",
 		200,-0.1,0.1));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_bottom_d0_pull=new TH1F(
 		"m_top_bottom_d0_pull",
 		"Delta(d0) pull between top and bottom segments",100,-50,50));
-	registerHist(
+	status &= registerHist(
 	    monGr_exp,m_top_bottom_z0_pull=new TH1F(
 		"m_top_bottom_z0_pull",
 		"Delta(z0) pull between top and bottom segments",
 		200,-30,30));   
     }
 
-    return StatusCode::SUCCESS;
+    if (status) return StatusCode::SUCCESS;
+    else return StatusCode::FAILURE;
 }
 
 

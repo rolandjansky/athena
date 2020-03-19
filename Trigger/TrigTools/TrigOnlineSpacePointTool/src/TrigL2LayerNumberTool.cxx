@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "TrigL2LayerNumberTool.h"
 #include "InDetReadoutGeometry/SiNumerology.h"
@@ -90,7 +90,7 @@ StatusCode TrigL2LayerNumberTool::finalize()
   return sc;
 }
 
-void TrigL2LayerNumberTool::report() {
+void TrigL2LayerNumberTool::report() const {
 
   ATH_MSG_INFO("TrigL2 Layer numbering scheme:");
   ATH_MSG_INFO("Total number of layers = "<<maxSiliconLayerNum());

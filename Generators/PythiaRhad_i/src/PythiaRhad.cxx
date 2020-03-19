@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // File: GeneratorModules/PythiaRhad.cxx
@@ -752,7 +752,7 @@ StatusCode PythiaRhad::genuserInitialize() {
   //Set myself off to prevent generation, if we are in the sim step!
   if (!m_enable_after_initialize){
     ATH_MSG_INFO("Setting Enable to False, at the end of initialization...");
-    setProperty("Enable", "False" );
+    ATH_CHECK(setProperty("Enable", "False" ));
   }
 
   return StatusCode::SUCCESS;

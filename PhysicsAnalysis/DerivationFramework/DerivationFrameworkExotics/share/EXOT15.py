@@ -14,13 +14,24 @@ exot15Seq = CfgMgr.AthSequencer("EXOT15Sequence")
 
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT15Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT15Stream )
+EXOT15Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT15Stream.AcceptAlgs(["EXOT15Kernel"])
+
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # THINNING TOOLS
 #====================================================================
 
 thinning_expression = "(InDetTrackParticles.pt > 1.0*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 3)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EXOT15TPThinningTool = DerivationFramework__TrackParticleThinning( name              = "EXOT15TPThinningTool",
-                                                                ThinningService         = "EXOT15ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression,
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                 ApplyAnd                = False)
@@ -35,10 +46,10 @@ skimmingTools = []
 SkipTriggerRequirement=(globalflags.DataSource()=='geant4') #apply triggers only to data; include events with 1 jet only in MC
 if SkipTriggerRequirement:
     topology_selection = "( (count (abs(AntiKt4EMTopoJets.eta) < 2.8 && AntiKt4EMTopoJets.pt > 20) > 0) || (count (abs(MSDisplacedVertex.z) >= 0) > 0) )"
-    print "vtx+jet topo selection: ", topology_selection
+    printfunc ("vtx+jet topo selection: ", topology_selection)
 else: 
     topology_selection = "((count (abs(MSDisplacedVertex.z) >= 0) > 0) )"
-    print "vtx topo selection:",  topology_selection
+    printfunc ("vtx topo selection:",  topology_selection)
 
 beamEnergy = jobproperties.Beam.energy()
 expression = ''
@@ -58,9 +69,9 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 if (beamEnergy > 6.0e+06):
     #SkipTriggerRequirement=(globalflags.DataSource()=='geant4') #apply triggers only to data, not to MC
     if  SkipTriggerRequirement:
-        print "trigger disabled"
+        printfunc ("trigger disabled")
     else:
-        print "trigger enabled"
+        printfunc ("trigger enabled")
         EXOT15TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT15TriggerSkimmingTool",
                                                                              TriggerListAND = [],
                                                                              TriggerListOR  = ["HLT_j30_jes_PS_llp_L1TAU30",
@@ -98,19 +109,6 @@ if SkipTriggerRequirement:
 else:
     exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", SkimmingTools = [EXOT15ORSkimmingTool])
 #exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", ThinningTools = [EXOT15TPThinningTool])
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT15Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT15Stream )
-EXOT15Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT15Stream.AcceptAlgs(["EXOT15Kernel"])
-
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT15ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

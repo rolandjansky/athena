@@ -29,7 +29,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 
 """Configuring EMTrackMatchBuilder Tool """
 TrigEMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
-                      TrackParticlesName = "InDetTrigPTTrackParticles_electron",
+                      TrackParticlesName = "HLT_IDTrack_Electron_IDTrig",
                       ExtrapolationTool  = EMExtrapolationTools,
                       broadDeltaEta      = 0.1, #candidate match is done in 2 times this  so +- 0.2
                       broadDeltaPhi      = 0.15,  #candidate match is done in 2 times this  so +- 0.3
@@ -72,7 +72,7 @@ TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
 
 def TrigEgammaDecorationTools():
     #Return a list with the tools that decorate both electrons and photons. 
-    return [ EMFourMomBuilder(), TrigEMShowerBuilder() ] 
+    return [ EMFourMomBuilder() ] 
 
 def TrigPhotonDecorationTools():
     #Return a list with the tools that decorate only photons

@@ -1,5 +1,7 @@
 
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -36,7 +38,7 @@ if not 'ReadAutoCorrFromCOOL' in dir():
    ReadAutoCorrFromCOOL = True 
 
 if not 'InputAutoCorrPoolDir' in dir():
-   InputAutoCorrPoolDir = commands.getoutput("pwd")
+   InputAutoCorrPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputAutoCorrPoolFileName' in dir():
    InputAutoCorrPoolFileName = "LArAutoCorr.pool.root"
@@ -47,7 +49,7 @@ if not 'ReadCaliWaveFromCOOL' in dir():
    ReadCaliWaveFromCOOL = True
 
 if not 'InputCaliWavePoolDir' in dir():
-   InputCaliWavePoolDir = commands.getoutput("pwd")
+   InputCaliWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliWavePoolFileName' in dir():
    InputCaliWavePoolFileName = "LArCaliWave.pool.root"
@@ -134,13 +136,13 @@ if not 'DBConnectionCOOL' in dir():
    DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
    
 if not 'OutputOFCRootFileDir' in dir():
-   OutputOFCRootFileDir = commands.getoutput("pwd")
+   OutputOFCRootFileDir = subprocess.getoutput("pwd")
    
 if not 'OutputOFCPoolFileDir' in dir():
-   OutputOFCPoolFileDir = commands.getoutput("pwd")
+   OutputOFCPoolFileDir = subprocess.getoutput("pwd")
 
 if not 'OutputShapePoolFileDir' in dir():
-   OutputShapePoolFileDir = commands.getoutput("pwd")
+   OutputShapePoolFileDir = subprocess.getoutput("pwd")
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 

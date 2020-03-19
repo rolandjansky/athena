@@ -7,6 +7,9 @@ from ..Menu.MenuComponents import RecoFragmentsPool
 from ..Menu.SignatureDicts import METChainParts
 import GaudiKernel.SystemOfUnits as Units
 
+from AthenaCommon.Logging import logging
+log = logging.getLogger(__name__)
+
 def test_configs():
     """ Make sure that all algorithms defined in the METChainParts have
     configurations
@@ -117,7 +120,7 @@ class TrkMHTConfig(AlgConfig):
 
         # These are the names set by the upstream algorithms. Unfortunately
         # these aren't passed to us - we just have to 'know' them
-        tracks = "HLT_xAODTracks_FS"
+        tracks = "HLT_IDTrack_FS_FTF"
         vertices = "HLT_EFHistoPrmVtx"
         tva = "JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict)
         track_links = "GhostTrack_{trkopt}".format(**jetRecoDict)
@@ -134,3 +137,36 @@ class TrkMHTConfig(AlgConfig):
         self.fexAlg.TrackSelTool.maxZ0SinTheta    = 1.5
         self.fexAlg.TrackSelTool.maxD0overSigmaD0 = 3
         self.fexAlg.TrackSelTool.minPt            = 1 * Units.GeV
+
+class PFSumConfig(AlgConfig):
+    @classmethod
+    def algType(cls):
+        return "pfsum"
+
+    def __init__(self, **recoDict):
+        super(PFSumConfig, self).__init__(**recoDict)
+
+        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
+        from eflowRec.PFHLTSequence import PFHLTSequence
+        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__PFSumFex
+        jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
+        jetRecoDict["calib"] = "em"
+        jetRecoDict["dataType"] = "pf"
+
+        RoIs = self.inputMaker.RoIs
+        tcSeq, clusterName = RecoFragmentsPool.retrieve(
+                HLTFSTopoRecoSequence, RoIs)
+        pfseq, pfoPrefix = RecoFragmentsPool.retrieve(
+                PFHLTSequence, None, clustersin = clusterName, tracktype="ftf")
+        constit = defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix)
+        from JetRecConfig.ConstModHelpers import getConstitModAlg
+        constit_mod_seq = getConstitModAlg(
+                constit, "HLT",
+                tvaKey="JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict),
+                vtxKey="HLT_EFHistoPrmVtx")
+        self.inputs = [tcSeq, pfseq, constit_mod_seq]
+        self.fexAlg = self._make_fex_alg(
+                HLT__MET__PFSumFex,
+                NeutralPFOName = pfoPrefix+"CHSNeutralParticleFlowObjects",
+                ChargedPFOName = pfoPrefix+"CHSChargedParticleFlowObjects")

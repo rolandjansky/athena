@@ -104,10 +104,8 @@ def MainServicesThreadedCfg(cfgFlags):
         StatusCodeSvc, AuditorSvc=CompFactory.getComps("StatusCodeSvc","AuditorSvc",)
 
         msgsvc = MessageSvc()
-        msgsvc.defaultLimit = 0 
-        #msgFmt = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
-        msgFmt = "% F%18W%S%7W%R%T %0W%M"
-        msgsvc.Format = msgFmt
+        msgsvc.defaultLimit = 0
+        msgsvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
         cfg.addService(msgsvc)
 
         scsvc = StatusCodeSvc()

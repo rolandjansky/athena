@@ -153,6 +153,11 @@ def _createCfgFlags():
         return createTriggerFlags()
     _addFlagsCategory(acf, "Trigger", __trigger, 'TriggerJobOpts' )
 
+    def __indet():
+        from InDetConfig.InDetConfigFlags import createInDetConfigFlags
+        return createInDetConfigFlags()
+    _addFlagsCategory(acf, "InDet", __indet, 'InDetConfig' )    
+
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         return createMuonConfigFlags()

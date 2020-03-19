@@ -23,6 +23,18 @@ if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
     ToolSvc += DecoTool
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_MUON3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_MUON3Stream )
+MUON3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+MUON3Stream.AcceptAlgs(["MUON3Kernel"])
+# Special lines for thinning
+# Thinning service name must match the one passed to the thinning tools
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
 # enum    MuonType {
@@ -73,7 +85,7 @@ myAugTools.append(MUON3AugmentTool1)
 skimmingORs.append(brPrefix1+'DIMU_pass>0')
 thinningORs.append(brPrefix1+'DIMU_trkStatus>0')
 # thinningORs.append('('+brPrefix1+'DIMU_pass>0&&'+brPrefix1+'DIMU_trkStatus>0)')
-print MUON3AugmentTool1
+printfunc (MUON3AugmentTool1)
 
 ### Upsilon tagging
 brPrefix2 = 'MUON3b'
@@ -85,7 +97,7 @@ andTriggers2_run1 = addL2StarB(andTriggers2a_run1)
 andTriggers2a_run2 = [] # No trigger in 8TeV data
 
 andTriggers2 = andTriggers2a_run2
-print andTriggers2
+printfunc (andTriggers2)
 
 MUON3AugmentTool2 = DerivationFramework__dimuonTaggingTool(name = "MUON3AugmentTool2",
                                                            OrTrigs = orTriggers2,
@@ -114,7 +126,7 @@ myAugTools.append(MUON3AugmentTool2)
 skimmingORs.append(brPrefix2+'DIMU_pass>0')
 thinningORs.append(brPrefix2+'DIMU_trkStatus>0')
 # thinningORs.append('('+brPrefix2+'DIMU_pass>0&&'+brPrefix2+'DIMU_trkStatus>0)')
-print MUON3AugmentTool2
+printfunc (MUON3AugmentTool2)
 
 #====================================================================
 # SKIMMING
@@ -134,21 +146,19 @@ ToolSvc += MUON3SkimmingTool1
 thinning_expression1 = '||'.join(thinningORs)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON3ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON3ThinningTool1",
-                                                                ThinningService         = "MUON3ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression1,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON3ThinningTool1
 
 # keep tracks around muons
 thinning_expression2 = ""
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON3ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON3ThinningTool2",
-                                                                    ThinningService         = "MUON3ThinningSvc",
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.5,
-                                                                    ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON3ThinningTool2
 #====================================================================
@@ -160,19 +170,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON3Ker
                                                                        SkimmingTools = [MUON3SkimmingTool1],
                                                                        ThinningTools = [MUON3ThinningTool1, MUON3ThinningTool2]
                                                                        )
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_MUON3Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_MUON3Stream )
-MUON3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-MUON3Stream.AcceptAlgs(["MUON3Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="MUON3ThinningSvc", outStreams=[evtStream] )
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

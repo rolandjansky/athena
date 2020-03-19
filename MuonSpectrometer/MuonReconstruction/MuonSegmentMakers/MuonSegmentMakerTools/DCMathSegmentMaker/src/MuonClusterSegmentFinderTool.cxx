@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterSegmentFinderTool.h"
@@ -15,7 +15,6 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "GaudiKernel/MsgStream.h"
 
 namespace Muon {
 
@@ -26,17 +25,17 @@ namespace Muon {
     m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter", this),
     m_ambiTool("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool", this),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this) {
+    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this),
+    m_trackSummary("Trk::TrackSummaryTool/MuidTrackSummaryTool", this) {
 
     declareInterface<IMuonClusterSegmentFinderTool>(this);
 
     declareProperty("SLFitter",            m_slTrackFitter);
     declareProperty("SegmentAmbiguityTool",m_ambiTool);
     declareProperty("TrackToSegmentTool",  m_trackToSegmentTool);
-    declareProperty("IdHelper",            m_idHelperTool);
     declareProperty("TrackCleaner",        m_trackCleaner);
+    declareProperty("TrackSummaryTool",    m_trackSummary);
     //
     declareProperty("IPConstraint", m_ipConstraint = true);
     declareProperty("ClusterDistance", m_maxClustDist=5);
@@ -48,8 +47,9 @@ namespace Muon {
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_ambiTool.retrieve() );
     ATH_CHECK( m_trackToSegmentTool.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_trackCleaner.retrieve() );
+    ATH_CHECK( m_trackSummary.retrieve() );
     ATH_MSG_DEBUG(" Max cut " << m_maxClustDist );
     return StatusCode::SUCCESS;
   }
@@ -117,7 +117,7 @@ namespace Muon {
       int nMM = 0;
       for(unsigned int k=0; k<rioVec.size(); ++k) {
         rioVecPrevious.push_back(rioVec[k]);
-        if(m_idHelperTool->isMM(rioVec[k]->identify())) nMM++;
+        if(m_idHelperSvc->isMM(rioVec[k]->identify())) nMM++;
       }
 
       //fit the segment!!
@@ -151,8 +151,8 @@ namespace Muon {
       vec2.push_back(pseudoSegPhi2);      
       ATH_MSG_VERBOSE("fitting 2D segment track with " << vec2.size() << " hits" );
       for(unsigned int k=0; k<rioVec.size(); ++k) {
-	ATH_MSG_VERBOSE( m_idHelperTool->toString(rioVec[k]->identify()) << " " << rioVec[k]->globalPosition().perp() << ", " << rioVec[k]->globalPosition().z() 
-		      << "  " << m_idHelperTool->measuresPhi(rioVec[k]->identify())  );
+	ATH_MSG_VERBOSE( m_idHelperSvc->toString(rioVec[k]->identify()) << " " << rioVec[k]->globalPosition().perp() << ", " << rioVec[k]->globalPosition().z() 
+		      << "  " << m_idHelperSvc->measuresPhi(rioVec[k]->identify())  );
       }
 
       Trk::TrackParameters* startpar = 0;
@@ -187,6 +187,7 @@ namespace Muon {
       Trk::Track* segtrack = fit(vec2,*startpar);
       delete startpar;
       if(segtrack) {
+        m_trackSummary->updateTrack(*segtrack);
         segTrkColl->push_back( segtrack );
 
         // Peter NEW calculate distance of segment to all muon clusters
@@ -205,7 +206,7 @@ namespace Muon {
                double error = Amg::error(muonClusters[k]->localCovariance(),Trk::locX);
                double pull = residual / error;
                ATH_MSG_VERBOSE(" lay " << k << " residual " << residual  << " error  " << error
-                               << " pull " << pull << "  " << m_idHelperTool->toString(muonClusters[k]->identify()) );
+                               << " pull " << pull << "  " << m_idHelperSvc->toString(muonClusters[k]->identify()) );
              }
           }
         }
@@ -327,7 +328,7 @@ namespace Muon {
 	  double phi = seeds[i].second.phi();
 	  double theta = (*sit)->globalDirection().theta();
 	  double qoverp=0;
-	  Trk::PerigeeSurface persurf((*sit)->containedROTs().front()->globalPosition());
+	  Trk::PerigeeSurface persurf((*sit)->rioOnTrack(0)->globalPosition());
 	  startpar = new Trk::Perigee(0,0,phi,theta,qoverp,persurf);
 	  seed3D = seeds[i];
 	}
@@ -358,13 +359,18 @@ namespace Muon {
 
 	//interleave the phi hits
 	std::vector<const Trk::MeasurementBase*> vec2;
-	const std::vector<const Trk::RIO_OnTrack*> etaHits = (*sit)->containedROTs();
+	std::vector<const Trk::RIO_OnTrack*> etaHits;
+	for(unsigned int irot=0;irot<(*sit)->numberOfContainedROTs();irot++){
+	  const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>((*sit)->rioOnTrack(irot));
+	  if( rot ) etaHits.push_back(rot);
+	}
+        unsigned int netas = etaHits.size();
+	ATH_MSG_DEBUG("got "<<netas<<" eta hits and "<<etaHitsRedone.size()<<" redone eta hits");
         bool useEtaHitsRedone = false;
-        if(etaHitsRedone.size()>etaHits.size()) {
-          ATH_MSG_VERBOSE(" Found additional eta hits " << etaHitsRedone.size() - etaHits.size());  
+        if(etaHitsRedone.size()>netas) {
+          ATH_MSG_VERBOSE(" Found additional eta hits " << etaHitsRedone.size() - netas);
           useEtaHitsRedone = true;
         }
-        unsigned int netas = etaHits.size();
         if(useEtaHitsRedone) netas = etaHitsRedone.size();
 	if(m_ipConstraint) vec2.reserve(phiHits.size()+netas+1);
 	else vec2.reserve(phiHits.size()+netas);
@@ -372,6 +378,7 @@ namespace Muon {
 	// pseudo measurement for vtx
 	Trk::PseudoMeasurementOnTrack* pseudoVtx = nullptr;
 	if(m_ipConstraint) {
+	  ATH_MSG_DEBUG("add pseudo vertex");
 	  double errVtx = 100.;
 	  Amg::MatrixX covVtx(1,1);
 	  covVtx(0,0) = errVtx*errVtx;
@@ -380,13 +387,12 @@ namespace Muon {
 	  pseudoVtx = new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters( Trk::DefinedParameter(0,Trk::locX) ), covVtx,perVtx);
 	  vec2.push_back(pseudoVtx);
 	}
-
 	unsigned int iEta(0),iPhi(0);
-	ATH_MSG_VERBOSE( "There are " << etaHits.size() << " & " << phiHits.size() << " eta and phi hits" );
+	ATH_MSG_VERBOSE( "There are " << (*sit)->numberOfContainedROTs() << " & " << phiHits.size() << " eta and phi hits" );
 	while(true) {
 	  float phiZ(999999.),etaZ(999999.);
-	  if(iPhi < phiHits.size()) phiZ = fabs(phiHits[iPhi]->globalPosition().z());
-	  if(iEta < etaHits.size()) etaZ = fabs(etaHits[iEta]->globalPosition().z());
+	  if(iPhi < phiHits.size()) phiZ = std::abs(phiHits[iPhi]->globalPosition().z());
+	  if(iEta < etaHits.size()) etaZ = std::abs(etaHits[iEta]->globalPosition().z());
 	  if( phiZ < etaZ ) {
 	    vec2.push_back(phiHits[iPhi]);
 	    iPhi++;
@@ -406,11 +412,12 @@ namespace Muon {
 	ATH_MSG_DEBUG( "Fitting a 3D segment with " << phiHits.size() << " phi hits and " << vec2.size() << " total hits" );
 	for(unsigned int k=0; k<vec2.size(); ++k) {
 	  Identifier id = m_edmHelperSvc->getIdentifier(*vec2[k]);
-	  ATH_MSG_VERBOSE( m_idHelperTool->toString(id) << " " << vec2[k]->globalPosition().perp() << ", " << vec2[k]->globalPosition().z() );
+	  ATH_MSG_VERBOSE( m_idHelperSvc->toString(id) << " " << vec2[k]->globalPosition().perp() << ", " << vec2[k]->globalPosition().z() );
 	}
 	Trk::Track* segtrack = fit(vec2,*startpar);
 	delete startpar;
 	if(segtrack) {
+    m_trackSummary->updateTrack(*segtrack);
 	  //store the track segment in track collection
 	  segTrkColl->push_back( segtrack );
 	  is3Dseg = true;
@@ -431,7 +438,7 @@ namespace Muon {
                  double error = Amg::error(muonClusters[k]->localCovariance(),Trk::locX);
                  double pull = residual / error;
                  ATH_MSG_VERBOSE(" lay " << k << " residual " << residual  << " error  " << error
-                                 << " pull " << pull << "  " << m_idHelperTool->toString(muonClusters[k]->identify()) );
+                                 << " pull " << pull << "  " << m_idHelperSvc->toString(muonClusters[k]->identify()) );
                }
             }
           }
@@ -477,7 +484,7 @@ namespace Muon {
     //remove the phi hits
     for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=muonClusters.begin(); cit!=muonClusters.end(); ++cit) {
       if(!(*cit)) continue;
-      bool measPhi = m_idHelperTool->measuresPhi( (*cit)->identify());
+      bool measPhi = m_idHelperSvc->measuresPhi( (*cit)->identify());
       if( measPhi != selectPhiHits ) continue;      
       clusters.push_back(*cit);
     }
@@ -492,21 +499,21 @@ namespace Muon {
     while(nOrdered < clusters.size()) {
       std::vector< const Muon::MuonClusterOnTrack* > tmpclusters;
       for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit = clusters.begin(); cit!=clusters.end(); ++cit) {
-	if( useWires && m_idHelperTool->issTgc((*cit)->identify()) && m_idHelperTool->stgcIdHelper().channelType( (*cit)->identify() ) == 0 ) {
+	if( useWires && m_idHelperSvc->issTgc((*cit)->identify()) && m_idHelperSvc->stgcIdHelper().channelType( (*cit)->identify() ) == 0 ) {
 	  if(minz < 1) nOrdered++;
 	  continue;
 	}
-	else if( !useWires && m_idHelperTool->issTgc((*cit)->identify()) && m_idHelperTool->stgcIdHelper().channelType( (*cit)->identify() ) == 2 ) {
+	else if( !useWires && m_idHelperSvc->issTgc((*cit)->identify()) && m_idHelperSvc->stgcIdHelper().channelType( (*cit)->identify() ) == 2 ) {
 	  if(minz < 1) nOrdered++;
 	  continue;
 	}
-	if(fabs((*cit)->prepRawData()->globalPosition().z()) <= minz) continue;
-	if(fabs((*cit)->prepRawData()->globalPosition().z()) < maxz) {
-	  maxz = fabs((*cit)->prepRawData()->globalPosition().z());
+	if(std::abs((*cit)->prepRawData()->globalPosition().z()) <= minz) continue;
+	if(std::abs((*cit)->prepRawData()->globalPosition().z()) < maxz) {
+	  maxz = std::abs((*cit)->prepRawData()->globalPosition().z());
 	  tmpclusters.clear();
 	  tmpclusters.push_back(*cit);
 	}
-	else if ( fabs(fabs((*cit)->prepRawData()->globalPosition().z()) - maxz) < 0.1) {
+	else if ( std::abs(std::abs((*cit)->prepRawData()->globalPosition().z()) - maxz) < 0.1) {
 	  tmpclusters.push_back(*cit); 
 	}
       } 
@@ -532,8 +539,7 @@ namespace Muon {
       bool usedLayer1 = false;
       for(std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit=orderedClusters[i].begin(); cit!=orderedClusters[i].end(); ++cit) {
 	
-	if( usePhi != m_idHelperTool->measuresPhi((*cit)->identify() ) ) continue;
-	//if( !usePhi && !m_idHelperTool->isMM((*cit)->identify() ) )      continue;
+	if( usePhi != m_idHelperSvc->measuresPhi((*cit)->identify() ) ) continue;
 	usedLayer1 = true;
 	const Amg::Vector3D& gp1 = (*cit)->prepRawData()->globalPosition();
 
@@ -543,15 +549,14 @@ namespace Muon {
 	  bool usedLayer2 = false;
 	  for(std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit2=orderedClusters[k].begin(); cit2!=orderedClusters[k].end(); ++cit2) {
 
-	    if( usePhi != m_idHelperTool->measuresPhi((*cit2)->identify() ) ) continue;
-	    //if( !usePhi && !m_idHelperTool->isMM((*cit2)->identify() ) )      continue;
+	    if( usePhi != m_idHelperSvc->measuresPhi((*cit2)->identify() ) ) continue;
 
 	    usedLayer2 = true;
 	    const Amg::Vector3D& gp2 = (*cit2)->prepRawData()->globalPosition();
             double dx = (gp2.x()-gp1.x());
             double dy = (gp2.y()-gp1.y());
             double dz = (gp2.z()-gp1.z());
-            if(fabs(dz) < 200.) {
+            if(std::abs(dz) < 200.) {
                dx = (gp2.x()+gp1.x())/2.;
                dy = (gp2.y()+gp1.y())/2.;
                dz = (gp2.z()+gp1.z())/2.;
@@ -570,13 +575,13 @@ namespace Muon {
     //use the innermost and outermost MM hits to form the seeds
     unsigned int innerMM(999),outerMM(999);
     for( unsigned int i = 0; i<orderedClusters.size(); ++i ) {
-      if(m_idHelperTool->isMM(orderedClusters[i].front()->identify())) {
+      if(m_idHelperSvc->isMM(orderedClusters[i].front()->identify())) {
 	innerMM = i;
 	break;
       }
     }
     for( unsigned int i=orderedClusters.size()-1; i > innerMM; --i ) {
-      if(m_idHelperTool->isMM(orderedClusters[i].front()->identify())) {
+      if(m_idHelperSvc->isMM(orderedClusters[i].front()->identify())) {
 	outerMM = i;
 	break;
       }
@@ -590,7 +595,7 @@ namespace Muon {
         double dx = (gp2.x()-gp1.x());
         double dy = (gp2.y()-gp1.y());
         double dz = (gp2.z()-gp1.z());
-        if(fabs(dz) < 200.) {
+        if(std::abs(dz) < 200.) {
            dx = (gp2.x()+gp1.x())/2.;
            dy = (gp2.y()+gp1.y())/2.;
            dz = (gp2.z()+gp1.z())/2.;
@@ -611,61 +616,30 @@ namespace Muon {
     for(std::vector<std::vector<const Muon::MuonClusterOnTrack*> >::const_iterator cvecIt=clusters.begin(); cvecIt!=clusters.end(); ++cvecIt) {
       const Muon::MuonClusterOnTrack* rio = 0;      
       double bestDist(9999.);      
-      double bestTimeDist(9999.);
-      if (m_idHelperTool->isMM((*((*cvecIt).begin()))->identify())) {  // MM specific algorithm
-        for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
-	  double tdrift = (dynamic_cast<const MMPrepData *>((*cit)->prepRawData()))->time();
-	  double dist = clusterDistanceToSeed( *cit, seed);
-	  double timedist = std::abs(clusterDistanceToSeed( *cit, seed)) + std::abs(tdrift*0.015); // std::abs(tdrift*0.015) is an ad hoc penalty factor, to be optimised when time resolution is known
-	  double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	  if (!tight) error += 15.;
-	  ATH_MSG_VERBOSE(" lay " << layer << " tdrift " << tdrift << " dist " << dist  << " timedist " << timedist << " pull " << dist/error
-			<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
-	  if( std::abs(dist/error) < m_maxClustDist) {
-	    if(std::abs(timedist) < bestTimeDist) {
-	      bestTimeDist = std::abs(timedist);
-	      bestDist = dist;
-	    }
-	  }	 
-        }
-        if(bestDist<9999.) {  // check if at least one cluster present close to seed 
-	  ATH_MSG_VERBOSE(" Best distance " << bestDist);
-	  ATH_MSG_VERBOSE(" Looking for RIOs from mTPC around the best distance");
-          for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
-	    double dist = clusterDistanceToSeed( *cit, seed);
-	    double window = std::abs(2.*5.*0.047 * ((*cit)->globalPosition().perp() / (*cit)->globalPosition().z()));  // all hits in the range [bestDist-window;bestDist-window] will be accepted; 2-safety factor; 5-time resolution; 0.047-drift velocity; (hardcoded values to be removed once time resolution model is known) 
-	    double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	    if (!tight) error += 15.;
-	    ATH_MSG_VERBOSE(" Current RIO : distance " << dist << " window " << window << " to be attached " << ( (std::abs(std::abs(dist)-bestDist) < window) && (std::abs(dist/error) < m_maxClustDist) ) );
-	    if( (std::abs(dist-bestDist) < window) && (std::abs(dist/error) < m_maxClustDist) ) {
-	      rios.push_back( (*cit) );
-	      ATH_MSG_VERBOSE(" adding  " << dist << "  " << m_idHelperTool->toString((*cit)->identify()) );
-	    }	 
-          }
-        }
-      } else {  // algorithm for all the technoligies but MM
-        for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
-	  double dist = clusterDistanceToSeed( *cit, seed);
-	  double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	  ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist/error
-			<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
-	  if( std::abs(dist/error) < m_maxClustDist) {
-	    if(std::abs(dist) < bestDist) {
-	      bestDist = std::abs(dist);
-	      rio = (*cit);
-	    }
-	  }	 
-        }
-        if(rio) {
-	  ATH_MSG_VERBOSE(" adding  " << bestDist << "  " << m_idHelperTool->toString(rio->identify()) );
-	  rios.push_back( rio );
-        }
+      
+      for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
+	      double dist = clusterDistanceToSeed( *cit, seed);
+	      double error = Amg::error((*cit)->localCovariance(),Trk::locX);
+        if (!tight && m_idHelperSvc->isMM((*cit)->identify())) error += 15.;
+
+	      ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist/error
+		                    	<< " cut " << m_maxClustDist << "  " << m_idHelperSvc->toString((*cit)->identify()) );
+	      if( std::abs(dist/error) < m_maxClustDist) {
+	       if(std::abs(dist) < bestDist) {
+	         bestDist = std::abs(dist);
+	         rio = (*cit);
+	        }
+	      }	 
+      }
+      if(rio) {
+	      ATH_MSG_VERBOSE(" adding  " << bestDist << "  " << m_idHelperSvc->toString(rio->identify()) );
+	      rios.push_back( rio );
       }
       ++layer;
-    }    
-    ATH_MSG_VERBOSE(" getClustersOnSegment: returning hits " << rios.size() );
-    return rios;
-  }
+  }    
+  ATH_MSG_VERBOSE(" getClustersOnSegment: returning hits " << rios.size() );
+  return rios;
+ }
 
 
   Amg::Vector3D MuonClusterSegmentFinderTool::intersectPlane( const Trk::PlaneSurface& surf, const Amg::Vector3D& pos,
@@ -689,7 +663,7 @@ namespace Muon {
     Amg::Vector2D lpos;
     surf->globalToLocal(piOnPlane,piOnPlane,lpos);
     //check if the MuonCluster is pad hit
-    if(m_idHelperTool->issTgc( clus->identify() ) && m_idHelperTool->stgcIdHelper().channelType( clus->identify() ) == 0 ) {
+    if(m_idHelperSvc->issTgc( clus->identify() ) && m_idHelperSvc->stgcIdHelper().channelType( clus->identify() ) == 0 ) {
       const sTgcPrepData* prd = dynamic_cast<const sTgcPrepData*>(clus->prepRawData());
       if (!prd) {
          ATH_MSG_DEBUG(" clusterDistanceToSeed: no sTgcPrepData found ");
@@ -697,14 +671,14 @@ namespace Muon {
       }
       const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( clus->identify() );
       if(!design) {	
-	ATH_MSG_WARNING( "MuonPadDesign not found for " << m_idHelperTool->toString( clus->identify() ) );
+	ATH_MSG_WARNING( "MuonPadDesign not found for " << m_idHelperSvc->toString( clus->identify() ) );
 	return dist;
       }	
       //check the alignment in locX 
       double chWidth1 = 0.5*design->channelWidth(prd->localPosition(),false);
       double chWidth2 = 0.5*design->channelWidth(prd->localPosition(),true);
-      chWidth1 = fabs(chWidth1);
-      chWidth2 = fabs(chWidth2);
+      chWidth1 = std::abs(chWidth1);
+      chWidth2 = std::abs(chWidth2);
       Amg::Vector2D lp1(prd->localPosition().x()-chWidth2,prd->localPosition().y()-chWidth1);
       Amg::Vector2D lp2(prd->localPosition().x()+chWidth2,prd->localPosition().y()+chWidth1);
       ATH_MSG_DEBUG(" chWidth2 locX " << chWidth2 << " chWidth1 locY" << chWidth1 << " design->sPadWidth " << design->sPadWidth << " design->lPadWidth " << design->lPadWidth );
@@ -737,6 +711,8 @@ namespace Muon {
 	}
 	delete segtrack;
 	segtrack = 0;
+      } else {
+        m_trackSummary->updateTrack(*segtrack);
       }
     }
     return segtrack;
@@ -757,7 +733,7 @@ namespace Muon {
       if(iml==2) istart = orderedClusters.size()-1;
       if(iml==2) idir = -1;
       for(unsigned int i=istart; i<orderedClusters.size(); i = i+idir) {
-        if(m_idHelperTool->stgcIdHelper().multilayer(orderedClusters[i].front()->identify()) != iml) continue;
+        if(m_idHelperSvc->stgcIdHelper().multilayer(orderedClusters[i].front()->identify()) != iml) continue;
         std::vector<const Muon::MuonClusterOnTrack*> hits;
         double distance = 1000.;
         for(std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit=orderedClusters[i].begin(); cit!=orderedClusters[i].end(); ++cit) {
@@ -779,15 +755,15 @@ namespace Muon {
 	  Amg::Vector2D lp2(prd->localPosition().x(),prd->localPosition().y()+chWidth1);	
           double etaDistance = prd->localPosition().y()-lpos[1];
           ATH_MSG_DEBUG(" etaDistance " << etaDistance);
-          if(fabs(etaDistance)<distance+0.001) {
+          if(std::abs(etaDistance)<distance+0.001) {
             double lastDistance = distance; 
-            distance = fabs(etaDistance);
+            distance = std::abs(etaDistance);
             if(distance<100.) {
   	      if(lp1.y() < lpos.y() && lp2.y() > lpos.y()) {
                 if(hits.size() == 0) {
                    ATH_MSG_DEBUG(" start best etaDistance " << etaDistance );
 	           hits.push_back( *cit );
-                } else if(fabs(lastDistance-distance)<0.001) {
+                } else if(std::abs(lastDistance-distance)<0.001) {
 	           hits.push_back( *cit );
                    ATH_MSG_DEBUG(" added etaDistance " << etaDistance << " size " << hits.size());
                 } else {
@@ -800,7 +776,7 @@ namespace Muon {
           }
         }
         if(hits.size() == 0) continue;
-        if(m_idHelperTool->stgcIdHelper().multilayer(hits.front()->identify()) == 1) sTgc1.push_back(hits);
+        if(m_idHelperSvc->stgcIdHelper().multilayer(hits.front()->identify()) == 1) sTgc1.push_back(hits);
         else sTgc2.push_back( hits );
       }
     }
@@ -890,12 +866,12 @@ namespace Muon {
 	Identifier id = (*cit)->identify();
 	const sTgcPrepData* prd = dynamic_cast<const sTgcPrepData*>((*cit)->prepRawData()); 
 	if (!prd) {
-          ATH_MSG_WARNING("No prd found for " << m_idHelperTool->toString( id ) );
+          ATH_MSG_WARNING("No prd found for " << m_idHelperSvc->toString( id ) );
           continue;
         } 
         const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( id ); 
 	if( !design ) { 
-	  ATH_MSG_WARNING("No design found for " << m_idHelperTool->toString( id ) ); 
+	  ATH_MSG_WARNING("No design found for " << m_idHelperSvc->toString( id ) ); 
 	  continue; 
 	} 
 	double chWidth = 0.5*design->channelWidth(prd->localPosition(),true); 	
@@ -915,10 +891,10 @@ namespace Muon {
     	  padLayerMax.push_back(lp1.x());
 	  padLayerMin.push_back(lp2.x());
           padMean.push_back((lp1.x()+lp2.x())/2.);
-          ATH_MSG_DEBUG(" keep pad id " << m_idHelperTool->toString( id ) << " lp1.x() " << lp1.x() << " lp1.y() " <<  lp1.y() << " index " << npadsMean << " padMean " << padMean[npadsMean]);
+          ATH_MSG_DEBUG(" keep pad id " << m_idHelperSvc->toString( id ) << " lp1.x() " << lp1.x() << " lp1.y() " <<  lp1.y() << " index " << npadsMean << " padMean " << padMean[npadsMean]);
           npadsMean++;
         } else {
-          ATH_MSG_DEBUG(" reject pad id " << m_idHelperTool->toString( id ) << " lp1.x() " << lp1.x() << " lp1.y() " <<  lp1.y() << " matched index " << jmean << " padMean " << padMean[jmean]);
+          ATH_MSG_DEBUG(" reject pad id " << m_idHelperSvc->toString( id ) << " lp1.x() " << lp1.x() << " lp1.y() " <<  lp1.y() << " matched index " << jmean << " padMean " << padMean[jmean]);
         }
       }
       padMax.push_back(padLayerMax);

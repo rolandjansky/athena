@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>  // for find
@@ -141,7 +141,8 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_tgcKeyNextBC("TGC_MeasurementsNextBC"),
     m_cscKey("CSC_Clusters"),
     m_mdtKey("MDT_DriftCircles"),
-    m_ignoreCSC(true)
+    m_ignoreCSC(true),
+    m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool")
 {
   m_hashlist.reserve(4);
 
@@ -195,6 +196,8 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("MdtPrepDataContainer", m_mdtKey);
   declareProperty("CscPrepDataContainer", m_cscKey);
   declareProperty("IgnoreMisalginedCSCs", m_ignoreCSC);
+
+  declareProperty("SegmentOverlapRemovalTool", m_segmentOverlapRemovalTool, "tool to removal overlaps in segment combinations" );
 
   clearRoiCache();
  
@@ -491,6 +494,9 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     ATH_MSG_ERROR("Couldn't initalize CSC ReadHandleKey");
     return StatusCode::FAILURE;
   }
+
+  //segment overlap removal
+  ATH_CHECK( m_segmentOverlapRemovalTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -1601,6 +1607,9 @@ if (m_useMdtData>0) {
       ATH_MSG_DEBUG("Segment finder return nothing: stop here to process the RoI");
       return HLT::MISSING_FEATURE;
     }
+
+    //remove overlapping segments
+    m_segmentOverlapRemovalTool->removeDuplicates(segColl.get());
     
     /// SegmentCache object takes pointers to be given to m_patternCombiColl and segments
     ATH_MSG_DEBUG("SegmentCache object taking pointers");
@@ -2540,7 +2549,7 @@ int TrigMuonEFStandaloneTrackTool::segmentMonitoring(const std::vector< const Mu
     }//if FitQuality() valid
     int nMdt = 0; int nCsc = 0; int nRpc = 0; int nTgc = 0;
     for(unsigned int irio=0; irio < (*segment)->numberOfContainedROTs(); ++irio) {
-      
+
       Trk::RIO_OnTrack* rio = const_cast<Trk::RIO_OnTrack*> ((*segment)->rioOnTrack(irio));
       if(!rio) continue;
       Identifier rioId = rio->identify();

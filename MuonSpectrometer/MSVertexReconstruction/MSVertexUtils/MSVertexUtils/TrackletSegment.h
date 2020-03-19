@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MSVERTEX_TRACKLETSEGMENT_H
@@ -7,7 +7,6 @@
 
 #include <vector>
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TMath.h"
 
 namespace Muon{
   class MdtPrepData;

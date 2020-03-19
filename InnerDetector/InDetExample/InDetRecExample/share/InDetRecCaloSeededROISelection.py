@@ -14,10 +14,11 @@ from egammaCaloTools import egammaCaloToolsConf
 egammaCaloClusterROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
                                             name = 'caloClusterROISelector',
                                             egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
-                                            EMEtRanges = [2300.],
-                                            EMFCuts = [0.7],
-                                            RetaCut = [0.65],
-                                            HadLeakCut = [0.14]
+                                            EMEtCut = 2250.,
+                                            EMEtSplittingFraction = 0.7,
+                                            EMFCut = 0.7,
+                                            RetaCut = 0.65,
+                                            HadLeakCut = 0.15
                                             ) 
 #
 # --- get the builder tool

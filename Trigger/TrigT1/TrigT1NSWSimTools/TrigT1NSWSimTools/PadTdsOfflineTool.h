@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// -*-c++-*-
 #ifndef PADTDSOFFLINETOOL_H
 #define PADTDSOFFLINETOOL_H
 
@@ -14,11 +13,10 @@
 
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
 #include "PadTdsValidationTree.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class IIncidentSvc;
 class IAtRndmGenSvc;
-class sTgcIdHelper;
 class sTgcDigit;
 class TTree;
 class MuonSimDataCollection;
@@ -137,9 +135,9 @@ namespace NSWL1 {
         // needed Servives, Tools and Helpers
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
         ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-        const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
         // hidden variables
         std::vector< std::vector<std::shared_ptr<PadData>> > m_pad_cache;       //!< cache for the PAD hit data in the event (one per sector)

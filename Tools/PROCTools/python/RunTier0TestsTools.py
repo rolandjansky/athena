@@ -25,10 +25,10 @@ ciRefFileMap = {
                 's3505-21.0'           : 'v1',
                 's3505-21.3'           : 'v1',
                 's3505-21.9'           : 'v1',
-                's3505-22.0'           : 'v1',
+                's3505-22.0'           : 'v2',
                 # OverlayTier0Test_required-test
                 'overlay-d1498-21.0'   : 'v2',
-                'overlay-d1498-22.0'   : 'v26',
+                'overlay-d1498-22.0'   : 'v29',
                 'overlay-bkg-21.0'     : 'v1',
                 'overlay-bkg-22.0'     : 'v4',
                }

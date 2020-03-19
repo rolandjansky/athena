@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -51,8 +51,8 @@ INav4MomAssocs& INav4MomAssocs::operator=(const INav4MomAssocs& rhs)
 ///////////////////////////////////////////////////////////////////
 
 bool 
-INav4MomAssocs::assocs ATLAS_NOT_CONST_THREAD_SAFE ( const INavigable4Momentum* object,
-			INavigable4MomentumCollection& associatedElems ) const
+INav4MomAssocs::assocs  ( const INavigable4Momentum* object,
+                          ConstDataVector<INavigable4MomentumCollection>& associatedElems ) const
 {
   if ( 0 == object ) {
     return false;

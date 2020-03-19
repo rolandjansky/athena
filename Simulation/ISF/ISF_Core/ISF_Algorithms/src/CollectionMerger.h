@@ -8,8 +8,10 @@
 // STL includes
 #include <string>
 
+// base class header
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+
 // Framework includes
-#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -43,7 +45,7 @@ namespace ISF {
       @author Elmar.Ritsch -at- cern.ch
 
      */
-  class CollectionMerger final : public AthAlgorithm {
+  class CollectionMerger final : public AthReentrantAlgorithm {
 
   /** Allow the test class access to all methods */
   friend class ISFTesting::CollectionMerger_test;
@@ -57,13 +59,14 @@ namespace ISF {
 
     /** Athena algorithm's interface methods */
     virtual StatusCode  initialize() override final;
-    virtual StatusCode  execute()    override final;
+    virtual StatusCode  execute(const EventContext& ctx) const override final;
 
   private:
     /** Merge all hits of inputReadHandleKeys's collections into outputWriteHandleKey */
     template <typename T>
     StatusCode mergeCollections( const SG::ReadHandleKeyArray<T>& inputReadHandleKeys,
-                                 SG::WriteHandleKey<T>& outputWriteHandleKey ) const;
+                                 const SG::WriteHandleKey<T>& outputWriteHandleKey,
+                                 const EventContext& ctx ) const;
 
     /** Copy the given hit into the given output collection, container or DataHandle */
     template <typename HitType_t, typename OutputType_t>
@@ -123,18 +126,19 @@ namespace ISF {
 /** Merge all hits of inputReadHandleKeys's collections into outputWriteHandleKey */
 template <typename T>
 inline StatusCode ISF::CollectionMerger::mergeCollections( const SG::ReadHandleKeyArray<T>& inputReadHandleKeys,
-                                              SG::WriteHandleKey<T>& outputWriteHandleKey ) const {
+                                                           const SG::WriteHandleKey<T>& outputWriteHandleKey,
+                                                           const EventContext& ctx ) const {
   // skip if not input collection
   if ( inputReadHandleKeys.empty() ) {
     return StatusCode::SUCCESS;
   }
   // TODO: is there a way to conveniently get the total number of hits in all inputReadHandleKeys
   //       and reserve the corresponding size in the outputHandle
-  SG::WriteHandle<T> outputHandle{outputWriteHandleKey};
+  SG::WriteHandle<T> outputHandle{outputWriteHandleKey, ctx};
   ATH_CHECK( outputHandle.record(std::make_unique<T>()) );
 
   for ( const auto& collKey: inputReadHandleKeys ) {
-    SG::ReadHandle<T> inputHandle{collKey};
+    SG::ReadHandle<T> inputHandle{collKey, ctx};
 
     for ( const auto& hit: *inputHandle ) {
       this->insertCopy(hit, outputHandle);

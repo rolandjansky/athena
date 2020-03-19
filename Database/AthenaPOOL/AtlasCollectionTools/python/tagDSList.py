@@ -1,16 +1,22 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @author Marcin Nowak
 # @date 09.2012
 # @brief utility to list datasets for a given Run that are in the TAG DB
 #
 
-import commands, time, tempfile, os, sys, re
+from __future__ import print_function
+
+import time, tempfile, os, sys, re
 from optparse import OptionParser
 from xml.dom import minidom
-from eventLookupClient import eventLookupClient
+from .eventLookupClient import eventLookupClient
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 parser = OptionParser()
@@ -36,13 +42,13 @@ formatparams = dict( server = options.server,
                      )
 cmd = EL.getCurlCmd() + " 'https://{server}/{url}?runnr={run}&tagtype={type}&amitag={amitag}' ".format( **formatparams )
 
-(rc,out) = commands.getstatusoutput(cmd)
+(rc,out) = subprocess.getstatusoutput(cmd)
 if rc != 0:
-    print "ERROR!" 
+    print ("ERROR!" )
     code = EL.checkError(out)
     if code:
         sys.exit(code)
-    print out
+    print (out)
     sys.exit(-1)
 
 try:
@@ -53,8 +59,8 @@ try:
         row = table.childNodes[x]
         coll = row.childNodes[1].firstChild.data.encode().replace('_READ','')
         db   = row.childNodes[0].firstChild.data.encode().split('/')[2]
-        print coll, '  ', db
-except Exception, e:
+        print (coll, '  ', db)
+except Exception as e:
     raise RuntimeError( 'The result of the TAG catalog query could not be parsed: '
                         +str(e) + "\n" + out )
 

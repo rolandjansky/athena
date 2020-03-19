@@ -278,7 +278,7 @@ namespace Crest {
       return findAllIovsFs(tagname);
     }
 
-    std::string current_path = s_PATH + s_IOV_PATH + "?tagname=" + tagname;
+    std::string current_path = s_PATH + s_IOV_PATH + "?by=tagname:" + tagname;
 
     std::string retv;
 
@@ -752,17 +752,8 @@ namespace Crest {
 // METHODS to store the PAYLOADS in BATCH mode
 
   void CrestClient::storeBatchPayloads(const std::string& tag_name, uint64_t endtime, const std::string& iovsetupload) {
-    std::string method_name = "CrestClient::storeBatchPayloads";
-    if (m_mode == FILESYSTEM_MODE) {
-      storeBatchPayloadsFs(tag_name, endtime, iovsetupload);
-      return;
-    }
-
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + s_STOREBATCH_PATH;
-
-    std::string retv;
-
-    retv = storeBatchPayloadRequest(tag_name, endtime, iovsetupload);
+    nlohmann::json js = getJson(iovsetupload);
+    storeBatchPayloads(tag_name, endtime, js);
   }
 
   void CrestClient::storeBatchPayloads(const std::string& tag_name, uint64_t endtime, nlohmann::json& js) {
@@ -771,9 +762,18 @@ namespace Crest {
       storeBatchPayloadsFs(tag_name, endtime, js);
       return;
     }
+    if (!js.is_array()) {
+      method_name.append(" JSON has wrong type (must be array)");
+      throw std::runtime_error(method_name.c_str());
+    }
 
-    std::string str = js.dump();
-    storeBatchPayloads(tag_name, endtime, str);
+    nlohmann::json jsObj = {};
+    jsObj["datatype"] = "iovs";
+    jsObj["format"] = "JSON";
+    jsObj["size"] = js.size();
+    jsObj["resources"] = js;
+    std::string str = jsObj.dump();
+    std::string retv = storeBatchPayloadRequest(tag_name, endtime, str);
   }
 
 //=========================================
@@ -869,6 +869,8 @@ namespace Crest {
     return respond;
   }
 
+// REQUEST METHODS
+
   void CrestClient::storePayload(const std::string& tag, uint64_t since, const std::string& js) {
     if (m_mode == FILESYSTEM_MODE) {
       storePayloadDump(tag, since, js);
@@ -876,11 +878,6 @@ namespace Crest {
     }
     storePayloadRequest(tag, since, js);
   }
-
-// REQUEST METHODS
-
-
-
 
   struct data {
     char trace_ascii; /* 1 or 0 */
@@ -959,6 +956,10 @@ namespace Crest {
 
       /* always cleanup */
       curl_easy_cleanup(curl);
+      curl_formfree(formpost);
+      curl_slist_free_all(headers);
+
+      curl_global_cleanup();
 
       return s;
     }
@@ -1027,6 +1028,10 @@ namespace Crest {
 
       /* always cleanup */
       curl_easy_cleanup(curl);
+      curl_slist_free_all(headers);
+
+      curl_global_cleanup();
+
       return s;
     }
 
@@ -1240,6 +1245,11 @@ namespace Crest {
 
       // always cleanup
       curl_easy_cleanup(curl);
+      curl_formfree(formpost);
+      curl_slist_free_all(headers);
+
+      curl_global_cleanup();
+
       return s;
     }
     std::string mes = "CrestClient::storeBatchPayload";
@@ -1443,4 +1453,194 @@ namespace Crest {
     std::string respond = getEnvA(varName) + "/data/crestapi";
     return respond;
   }
+
+
+  int CrestClient::checkErrors(nlohmann::json& js) {
+    std::cout << std:: endl << "checkErrors: js = " << std::endl
+              << js.dump(4) << std::endl;
+    int result = 0;
+    auto res = js.find("type");
+    if (res != js.end()) {
+      std::cout << std:: endl << "Error Parsing: error " << std::endl;
+      std::string type = js.value("type", "oops");
+      std::cout << std:: endl << "Error Parsing, type = " << type << std::endl;
+      std::string message = js.value("message", "oops");
+      std::cout << std:: endl << "Error Parsing, message = " << message << std::endl;
+      result = 1;
+      throw std::logic_error("Error: MvG");
+    } else {
+      std::cout << std:: endl << "Error Parsing: no error " << std::endl;
+      result = 0;
+    }
+    return result;
+  }
+
+  nlohmann::json CrestClient::getResources(nlohmann::json& js) {
+    nlohmann::json js2 = getJson("[]");
+    nlohmann::json result = js.value("resources", js2);
+    return result;
+  }
+
+  nlohmann::json CrestClient::getResFirst(nlohmann::json& js) {
+    nlohmann::json jNull = getJson("[]");
+    nlohmann::json res = js.value("resources", jNull);
+    nlohmann::json result;
+    try {
+      result = res.at(0);
+    }
+    catch (...) {
+      nlohmann::json result0 = nullptr;
+      return result0;
+    }
+    return result;
+  }
+
+  std::string CrestClient::getTagMetaInfoElement(const std::string& name, nlohmann::json& js) {
+    std::string result = "";
+    int array_length = js.size();
+    for (int i = 0; i < array_length; i++) {
+      nlohmann::json elem = js[i];
+      if (elem.find(name) != elem.end()) {
+        return elem[name];
+      }
+    }
+    return result;
+  }
+
+  nlohmann::json CrestClient::convertTagMetaInfo2IOVDbSvc(nlohmann::json& js) {
+    std::string jsName = "tagInfo";
+    return getJson(getTagMetaInfoElement(jsName, js));
+  }
+
+  nlohmann::json CrestClient::convertTagMetaInfo2CREST(nlohmann::json& js) {
+    nlohmann::json channel_list = getJson("[]");
+    nlohmann::json channel_names = getJson("[]");
+    nlohmann::json payload_specification;
+
+    int colsize = 0;
+    std::string tagInfo = js.dump();
+    std::string description = "";
+
+
+    nlohmann::json result;
+    result["tagInfo"] = tagInfo;
+
+
+    int array_length = js.size();
+    for (int i = 0; i < array_length; i++) {
+      nlohmann::json elem = js[i];
+
+      if (elem.find("node_description") != elem.end()) {
+        description = elem["node_description"];
+        result["description"] = description;
+      } else if (elem.find("channel_list") != elem.end()) {
+        channel_list = elem["channel_list"];
+        int chansize = channel_list.size();
+        result["chansize"] = chansize;
+      } else if (elem.find("channel_names") != elem.end()) {
+        channel_names = elem["channel_names"];
+      } else if (elem.find("payload_specification") != elem.end()) {
+        payload_specification = elem["payload_specification"];
+        try{
+          colsize = split(payload_specification, ",").size();
+        }
+        catch (...) {
+          colsize = 0;
+        }
+        result["colsize"] = colsize;
+      }
+    }
+
+    return result;
+  }
+
+  std::vector<std::string> CrestClient::split(const std::string& str, const std::string& delim) {
+    std::vector<std::string> tokens;
+    std::size_t prev = 0, pos = 0;
+    do {
+      pos = str.find(delim, prev);
+      if (pos == std::string::npos) pos = str.length();
+      std::string token = str.substr(prev, pos - prev);
+      if (!token.empty()) tokens.push_back(token);
+      prev = pos + delim.length();
+    } while (pos < str.length() && prev < str.length());
+    return tokens;
+  }
+
+// Tag Meta Info Methods
+
+  void CrestClient::createTagMetaInfo(const std::string& tagname, nlohmann::json& js) {
+    std::string method_name = "CrestClient::createTagMetaInfo";
+    if (m_mode == FILESYSTEM_MODE) {
+      method_name.append(" This methods is unsupported for FILESYSTEM mode");
+      throw std::runtime_error(method_name.c_str());
+    }
+
+    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname + s_META_PATH;
+
+    std::string retv;
+
+    retv = performRequest(current_path, POST, js, method_name);
+  }
+
+  nlohmann::json CrestClient::getTagMetaInfo(const std::string& tagname) {
+    std::string method_name = "CrestClient::createTagMetaInfo";
+    if (m_mode == FILESYSTEM_MODE) {
+      method_name.append(" This methods is unsupported for FILESYSTEM mode");
+      throw std::runtime_error(method_name.c_str());
+    }
+
+    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname + s_META_PATH;
+    std::string getTxt = "GET";
+
+    std::string retv;
+
+    nlohmann::json js = nullptr;
+    retv = performRequest(current_path, GET, js, method_name);
+
+    nlohmann::json respond = getJson(retv);
+
+    return respond;
+  }
+
+  void CrestClient::updateTagMetaInfo(const std::string& tagname, nlohmann::json& js) {
+    std::string method_name = "CrestClient::updateTagMetaInfo";
+    if (m_mode == FILESYSTEM_MODE) {
+      method_name.append(" This methods is unsupported for FILESYSTEM mode");
+      throw std::runtime_error(method_name.c_str());
+    }
+
+    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname + s_META_PATH;
+
+    std::string retv;
+
+    retv = performRequest(current_path, PUT, js, method_name);
+  }
+
+// Tag Meta Info Methods (IOVDbSvc format)
+
+  nlohmann::json CrestClient::getTagMetaInfoIOVDbSvc(const std::string& tagname) {
+    std::string method_name = "CrestClient::updateTagMetaInfo";
+    if (m_mode == FILESYSTEM_MODE) {
+      method_name.append(" This methods is unsupported for FILESYSTEM mode");
+      throw std::runtime_error(method_name.c_str());
+    }
+    nlohmann::json js = getTagMetaInfo(tagname);
+    nlohmann::json resource = getResFirst(js);
+    nlohmann::json result = convertTagMetaInfo2IOVDbSvc(resource);
+    return result;
+  }
+
+  void CrestClient::createTagMetaInfoIOVDbSvc(const std::string& tagname, nlohmann::json& js) {
+    std::string method_name = "CrestClient::createTagMetaInfoIOVDbSvc";
+    if (m_mode == FILESYSTEM_MODE) {
+      method_name.append(" This methods is unsupported for FILESYSTEM mode");
+      throw std::runtime_error(method_name.c_str());
+    }
+    nlohmann::json arg = convertTagMetaInfo2CREST(js);
+    arg["tagName"] = tagname;
+    createTagMetaInfo(tagname, arg);
+    return;
+  }
+
 } // namespace

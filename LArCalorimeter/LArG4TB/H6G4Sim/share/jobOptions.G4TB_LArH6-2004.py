@@ -1,22 +1,23 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ## jO to run H6 TB 2004 simulation
 ##--------------------------------
 
-if not 'PoolHitsOutput' in dir():
+if 'PoolHitsOutput' not in dir():
    PoolHitsOutput="H6LAr_MyOutputFile.root"
 
-if not 'EvtMax' in dir():
+if 'EvtMax' not in dir():
    EvtMax=10
 
-if not 'CryoXPos' in dir():
+if 'CryoXPos' not in dir():
    CryoXPos=0.
 
-if not 'TableYPos' in dir():
+if 'TableYPos' not in dir():
    TableYPos=0.
 
-if not 'ParticlePDG' in dir():
+if 'ParticlePDG' not in dir():
    ParticlePDG='211'
 
-if not 'Energy' in dir():
+if 'Energy' not in dir():
    Energy=200000
 
 ##--------------------------------

@@ -455,7 +455,7 @@ typedef class TrigTrackSeedGenerator {
 
   void loadSpacePoints(const std::vector<TrigSiSpacePointBase>&);
   void createSeeds(const IRoiDescriptor*);
-  void createSeedsZv(const IRoiDescriptor*);
+  void createSeeds(const IRoiDescriptor*, const std::vector<float>& vZv);
   void getSeeds(std::vector<TrigInDetTriplet*>&);
 
 private:

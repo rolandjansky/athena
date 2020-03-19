@@ -18,7 +18,7 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 //#include <string>
 #include <sstream>
 //using std::string;

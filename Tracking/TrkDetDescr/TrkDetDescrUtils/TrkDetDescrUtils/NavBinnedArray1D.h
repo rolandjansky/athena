@@ -41,7 +41,7 @@ public:
     , m_array(0)
     , m_arrayObjects(nullptr)
     , m_binUtility()
-    , m_transf(0)
+    , m_transf(nullptr)
   {}
 
   /**Constructor with std::vector and a  BinUtility - reference counted, will delete objects at the end,
@@ -74,10 +74,10 @@ public:
   /**Copy Constructor - copies only pointers !*/
   NavBinnedArray1DT(const NavBinnedArray1DT& barr)
     : BinnedArrayT<T>()
-    , m_array(0)
+    , m_array(nullptr)
     , m_arrayObjects(nullptr)
     , m_binUtility(barr.m_binUtility)
-    , m_transf(0)
+    , m_transf(nullptr)
   {
     if (m_binUtility.get()) {
       m_array = new std::vector<SharedObject<T>>(m_binUtility.get()->bins(0));
@@ -85,7 +85,7 @@ public:
         (*m_array)[ient] = (*barr.m_array)[ient];
       }
     }
-    m_transf = (barr.m_transf) ? new Amg::Transform3D(*(barr.m_transf)) : 0;
+    m_transf = (barr.m_transf) ? new Amg::Transform3D(*(barr.m_transf)) : nullptr;
   }
 
   /**Assignment operator*/
@@ -105,7 +105,7 @@ public:
           (*m_array)[ient] = (*barr.m_array)[ient];
         }
       }
-      m_transf = (barr.m_transf) ? new Amg::Transform3D(*barr.m_transf) : 0;
+      m_transf = (barr.m_transf) ? new Amg::Transform3D(*barr.m_transf) : nullptr;
     }
     return *this;
   }
@@ -127,7 +127,7 @@ public:
   {
     if (m_binUtility.get()->inside(lp))
       return ((*m_array)[m_binUtility.get()->bin(lp)]).get();
-    return 0;
+    return nullptr;
   }
 
   /** Returns the pointer to the templated class object from the BinnedArray
@@ -139,7 +139,7 @@ public:
     const Amg::Vector3D navGP((m_transf->inverse()) * gp);
     if (m_binUtility.get()->inside(navGP))
       return ((*m_array)[m_binUtility.get()->bin(navGP)]).get();
-    return 0;
+    return nullptr;
   }
 
   /** Returns the pointer to the templated class object from the BinnedArray - entry point*/
@@ -159,7 +159,7 @@ public:
       if (firstBin <= m_binUtility.get()->max(0))
         return ((*m_array)[firstBin]).get();
       else
-        return 0;
+        return nullptr;
     }
     // the associated result was 0 -> set to boundary
     firstBin = (firstBin < m_binUtility.get()->bins(0)) ? firstBin : m_binUtility.get()->max(0);

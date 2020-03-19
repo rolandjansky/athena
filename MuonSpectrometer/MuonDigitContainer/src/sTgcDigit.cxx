@@ -1,21 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// sTgcDigit.cxx
 
 #include "MuonDigitContainer/sTgcDigit.h"
 
-//**********************************************************************
-// Member functions.
-//**********************************************************************
-
-// Default constructor.
-
-//sTgcDigit::sTgcDigit() : MuonDigit(), m_bcTag (BC_UNDEFINED) /*, m_tdc(), m_adc(), m_isMasked(false)*/ { }
-
 sTgcDigit::sTgcDigit() : m_bcTag (BC_UNDEFINED), m_charge(-1), m_time(0) { }
-
  
 //**********************************************************************
 // Full constructor from Identifier.
@@ -67,14 +56,12 @@ float sTgcDigit::charge() const {
 }
 
 int sTgcDigit::charge_6bit() const { 
- //float saturation = 1.75;
- float ADC = 0.02734; // = saturation / (TMath::Power(2, 6);
+ float ADC = 0.02734; // = saturation / (2^6);
  return ((int)(m_charge/ADC));
 }
 
 int sTgcDigit::charge_10bit() const { 
- //float saturation = 1.75;
- float ADC = 0.00171; // = saturation / (TMath::Power(2, 10));
+ float ADC = 0.00171; // = saturation / (2^10);
  return ((int)(m_charge/ADC));
 }
 

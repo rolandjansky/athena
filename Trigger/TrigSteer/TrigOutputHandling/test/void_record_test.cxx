@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include "TestTools/expect.h"
@@ -59,11 +59,11 @@ int main() {
 
   SG::BaseInfo<xAOD::TrigCompositeContainer>::baseinfo(); // this is problematic because client code does not know about templates, will have to see in athena if the problem persists
 
-  RootType containerRT = RootType::ByName( "xAOD::TrigCompositeContainer_v1" );  
+  RootType containerRT = RootType::ByNameNoQuiet( "xAOD::TrigCompositeContainer_v1" );  
   log << MSG::INFO << containerRT.Name() << endmsg;
   BareDataBucket containerDataBucket( rawContainerPtr, ClassID_traits<xAOD::TrigCompositeContainer>::ID(), containerRT ); 
   
-  RootType storeRT = RootType::ByName( "xAOD::TrigCompositeAuxContainer_v2" );
+  RootType storeRT = RootType::ByNameNoQuiet( "xAOD::TrigCompositeAuxContainer_v2" );
   log << MSG::INFO << storeRT.Name() << endmsg;
   BareDataBucket storeDataBucket( rawStorePtr, ClassID_traits<xAOD::TrigCompositeAuxContainer>::ID(), storeRT ); 
   log << MSG::INFO << "recordObject done" << endmsg;
@@ -79,7 +79,7 @@ int main() {
   log << MSG::INFO << "objects in store, trying to read them back via retrieve" << endmsg;
 
   const xAOD::TrigCompositeContainer* containerBack = 0;
-  pStore->retrieve( containerBack, "test" );
+  VALUE( pStore->retrieve( containerBack, "test" ).isSuccess() ) EXPECTED ( true );
   
   log << MSG::INFO << "Check retrieve" << endmsg;
   VALUE ( containerBack ) NOT_EXPECTED ( nullptr );

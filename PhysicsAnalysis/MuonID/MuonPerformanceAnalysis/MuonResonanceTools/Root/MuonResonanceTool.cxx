@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// MuonResonanceTool.cxx
 #include "MuonResonanceTools/MuonResonanceTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonancePairingTool.h"
@@ -155,18 +154,10 @@ int MuonResonanceTool::AuthorBin(const xAOD::Muon& mu1st, const xAOD::Muon& mu2n
 // returns eta region of muons
 int MuonResonanceTool::EtaBin(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd) const{
 
-//  float eta1 = TMath::Abs(mu1st.eta());
-//  float eta2 = TMath::Abs(mu2nd.eta());
-
   float eta1 = mu1st.eta();
   float eta2 = mu2nd.eta();
 
   ATH_MSG_DEBUG("Eta of muons    : " << eta1 << " | " << eta2 );
-
-//  if(eta1<1. && eta2<1.) return 1;
-//  else if((eta1>=1. && eta2>=1.) && (eta1<=2. && eta2<=2.)) return 2;
-//  else if(eta1>2. && eta2>2.) return 3; 
-//  else return -1;
 
   if(eta1<-2. && eta2<-2.) return 1;
   else if((eta1>=-2. && eta2>=-2.) && (eta1<-1. && eta2<-1.)) return 2;

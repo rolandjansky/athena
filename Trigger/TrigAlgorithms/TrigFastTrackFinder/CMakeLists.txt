@@ -34,7 +34,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkEvent/TrkEventUtils
                           Trigger/TrigEvent/TrigInDetPattRecoEvent
-                          Trigger/TrigFTK/FTK_DataProviderInterfaces
                           Trigger/TrigTools/TrigInDetToolInterfaces
                           Trigger/TrigTools/TrigTimeAlgs )
 
@@ -46,7 +45,7 @@ atlas_add_component( TrigFastTrackFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} GaudiKernel TrkEventPrimitives TrigInDetEvent TrigSteeringEvent TrigInterfacesLib TrigInDetPattRecoTools AthenaBaseComps IRegionSelector InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSpacePointsSeed SiSPSeededTrackFinderData InDetRecToolInterfaces TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetPattRecoEvent FTK_DataProviderInterfaces TrigTimeAlgsLib TrkEventUtils AthenaMonitoringKernelLib)
+                     LINK_LIBRARIES ${TBB_LIBRARIES} GaudiKernel TrkEventPrimitives TrigInDetEvent TrigSteeringEvent TrigInterfacesLib TrigInDetPattRecoTools AthenaBaseComps IRegionSelector InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSpacePointsSeed SiSPSeededTrackFinderData InDetRecToolInterfaces TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetPattRecoEvent TrigTimeAlgsLib TrkEventUtils AthenaMonitoringKernelLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies egamma"standard"
 from AthenaCommon.Logging import logging
@@ -51,7 +51,7 @@ class ZdcModuleGetter ( Configured ) :
             mlog.info("not DetFlags.makeRIO.Zdc_on : Quit.")
             return False
 
-        from AthenaCommon.AppMgr import ToolSvc
+        #from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon import CfgMgr
         #mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled");
         #ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")   

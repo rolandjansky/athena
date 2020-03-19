@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This is a test cxx file for IdentifiableContainerMT. 
@@ -590,7 +590,9 @@ int ID_ContainerTest::execute(){
        }
        auto acollection = new MyCollection(MyID(55));
        for(int f=0;f<20;f++) acollection->add(new MyDigit(f));
-       containerOnline->addCollection(acollection, IdentifierHash(55));
+       if (containerOnline->addCollection(acollection, IdentifierHash(55)).isFailure()) {
+         std::cout << "Error in addCollection cache link" << std::endl; std::abort();
+       }
        SELECTOR select(containerOnline);
 
        digit_const_iterator it1 = select.begin(); 

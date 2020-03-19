@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # LumiGRLParser.py
 #
 # Utility to parse GRL XML file and provide access to useful information in python
 #
+from __future__ import print_function
 import xml.etree.cElementTree as ET
 
 class LumiGRLParser:
@@ -28,7 +29,7 @@ class LumiGRLParser:
         # Dictionary keyed by runnum containing a list of IOV ranges
         self.iovDict = dict()
         
-        if grlfile != None:
+        if grlfile is not None:
             self.parseFile(grlfile)
 
 
@@ -42,14 +43,14 @@ class LumiGRLParser:
         
         # Return list of runs in GRL
         if not self.selectRange():
-            print 'LumiGRLParser.parseFile(%s) - Error selecting valid range!' % filename
+            print('LumiGRLParser.parseFile(%s) - Error selecting valid range!' % filename)
             return
 
         # Now, go through this range and find run numbers
         for lbc in self.lumiRange.findall('LumiBlockCollection'):
             runnum = int(lbc.findtext('Run', '-1'))
             if runnum < 0:
-                print "LumiGRLParser.parseFile(%s) - Couldn't find Run in valid LumiBlockCollection!" % filename
+                print("LumiGRLParser.parseFile(%s) - Couldn't find Run in valid LumiBlockCollection!" % filename)
                 continue
 
             self.runList.append(runnum)
@@ -60,7 +61,7 @@ class LumiGRLParser:
                 lbend = int(lbr.get('End', '-1'))
 
                 if lbstart < 0 or lbend < 0:
-                    print "LumiGRLParser.parseFile(%s) - Couldn't find LBRange attributes for run %d!" % (filename, runnum)
+                    print("LumiGRLParser.parseFile(%s) - Couldn't find LBRange attributes for run %d!" % (filename, runnum))
                     continue
 
                 # Must add one to make IOVRange exclusive at end
@@ -79,18 +80,18 @@ class LumiGRLParser:
 
         self.lumiRange = None
         
-        if self.tree == None:
-            print 'LumiGRLParser.selectRange() - no tree found!'
+        if self.tree is None:
+            print('LumiGRLParser.selectRange() - no tree found!')
             return False
 
         lumiRangeList = self.tree.findall('NamedLumiRange')
         if len(lumiRangeList) == 1:
 
-            if self.lumiRangeName != None:
+            if self.lumiRangeName is not None:
                 name = lumiRangeList[0].findtext('Name', '')
 
                 if name != self.lumiRangeName:
-                    print "LumiGRLParser.selectRange() - Can't find %s in GRL, only %s!" % (self.lumiRangeName, name)
+                    print("LumiGRLParser.selectRange() - Can't find %s in GRL, only %s!" % (self.lumiRangeName, name))
                     return False
                 
             self.lumiRange = lumiRangeList[0]
@@ -98,12 +99,12 @@ class LumiGRLParser:
 
         elif len(lumiRangeList) == 0:
 
-            print 'LumiGRLParser.selectRange() - No NamedLumiRange object found!'
+            print('LumiGRLParser.selectRange() - No NamedLumiRange object found!')
             return False
 
         # More than one range found
-        if self.lumiRangeName == None:
-            print 'LumiGRLParser.selectRange() - %d NamedLumiRange objects found, but no lumiRangeName specified!' % len(lumiRangeList)
+        if self.lumiRangeName is None:
+            print('LumiGRLParser.selectRange() - %d NamedLumiRange objects found, but no lumiRangeName specified!' % len(lumiRangeList))
             return False
         
             
@@ -118,7 +119,7 @@ class LumiGRLParser:
                 break
 
         if not found:
-            print "LumiGRLParser.selectRange() - Couldn't find %s in available NamedLumiRange objects!" % self.lumiRangeName
+            print("LumiGRLParser.selectRange() - Couldn't find %s in available NamedLumiRange objects!" % self.lumiRangeName)
             return False
 
         return True

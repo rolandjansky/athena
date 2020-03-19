@@ -183,7 +183,6 @@ namespace CP
 
   /// SystematicSet hash function for general use
   struct SystematicSetHash
-    : public std::unary_function<SystematicSet, std::size_t>
   {
     std::size_t operator()(const SystematicSet&);
   };

@@ -9,7 +9,7 @@ class MockSvcLocator : public ISvcLocator {
     unsigned long release() override { return 0; }
     StatusCode queryInterface(const InterfaceID&, void**) override { return StatusCode::SUCCESS; }
     const std::list<IService*>& getServices() const override { return m_services; }
-    bool existsService(const std::string&) const override { return true; }
+    bool existsService(std::string_view) const override { return true; }
     SmartIF<IService>& service( const Gaudi::Utils::TypeNameString&, const bool) override { return m_service; }
     private:
     std::list<IService*> m_services;

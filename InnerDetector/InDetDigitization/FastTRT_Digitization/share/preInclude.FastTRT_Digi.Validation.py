@@ -21,10 +21,17 @@ InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy( name = "InDet_TRT_LocalOccu
                                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool )
 ToolSvc += InDetTRT_LocalOccupancy
 
+from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
+InDetTRT_ToT_dEdx = TRT_ToT_dEdx( name = "InDet_TRT_ToT_dEdx",
+                                  TRTStrawSummaryTool = InDetTRTStrawStatusSummaryTool,
+                                  TRT_LocalOccupancyTool = InDetTRT_LocalOccupancy )                                      
+ToolSvc += InDetTRT_ToT_dEdx
+
 from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
 InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2( name = "InDetTRT_ElectronPidTool",
                                                            TRT_LocalOccupancyTool = InDetTRT_LocalOccupancy,
                                                            TRTStrawSummaryTool       = InDetTRTStrawStatusSummaryTool,
+                                                           TRT_ToT_dEdx_Tool = InDetTrigTRT_ToT_dEdx,
                                                            isData = (globalflags.DataSource == 'data') )
 ToolSvc += InDetTRT_ElectronPidTool
 

@@ -20,8 +20,13 @@ def LArGMCfg(configFlags):
             #Monte Carlo case:
             result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL"))
         else:
-            #Regular offline data processing
-            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL"))
+            if configFlags.Overlay.DataOverlay:
+                #Data overlay
+                result.merge(addFolders(configFlags, ["/LAR/Align"], "LAR_ONL"))
+                result.merge(addFolders(configFlags, ["/LAR/LArCellPositionShift"], "LAR_OFL", tag="LArCellPositionShift-ideal", db="OFLP200"))
+            else:
+                #Regular offline data processing
+                result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL"))
 
             
     return result

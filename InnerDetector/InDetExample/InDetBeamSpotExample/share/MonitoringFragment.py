@@ -60,7 +60,7 @@ if not jobConfig['doMonitoringGlobal']:
         InDetGlobalBeamSpotMonTool.FilterTools += [monFilledBunchFilterTool]
 
 
-    print ToolSvc.InDetGlobalBeamSpotMonTool
+    print InDetGlobalBeamSpotMonTool
     
 
     # Monitoring manager and output file

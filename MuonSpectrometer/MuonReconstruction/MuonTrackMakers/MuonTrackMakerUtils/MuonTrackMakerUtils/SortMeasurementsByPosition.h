@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SORTMEASUREMENTSBYPOSITION_H
@@ -10,7 +10,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include <functional>
 #include <iostream>
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "CxxUtils/fpcompare.h"
 
@@ -74,13 +74,13 @@ namespace Muon {
       }
       //first, address rare problems with funky track directions leading to strange orderings by checking for comparisons of calo deposits and MS hits
       const Trk::MeasurementBase* meas1 = tsos1->measurementOnTrack();
-      Identifier id1 = meas1 ? m_helperTool->getIdentifier(*meas1) : Identifier();
+      Identifier id1 = meas1 ? m_helperSvc->getIdentifier(*meas1) : Identifier();
 
       const Trk::MeasurementBase* meas2 = tsos2->measurementOnTrack();
-      Identifier id2 = meas2 ? m_helperTool->getIdentifier(*meas2) : Identifier();	  
+      Identifier id2 = meas2 ? m_helperSvc->getIdentifier(*meas2) : Identifier();	  
 
-      bool okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
-      bool okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;      
+      bool okId1 = id1.is_valid() && m_idHelperSvc->isMuon(id1) ? true : false;
+      bool okId2 = id2.is_valid() && m_idHelperSvc->isMuon(id2) ? true : false;      
 
       if(tsos1->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) || tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit)){
 	if(  okId1 && tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) ) return false;
@@ -101,8 +101,8 @@ namespace Muon {
 	// both invalid or non-muon: consider them equal
 	if ( !okId1 && !okId2 ) return false;
 	// now we have 2 valid muon Ids
-	bool measPhi1 = m_idHelperTool->measuresPhi(id1);
-	bool measPhi2 = m_idHelperTool->measuresPhi(id2);
+	bool measPhi1 = m_idHelperSvc->measuresPhi(id1);
+	bool measPhi2 = m_idHelperSvc->measuresPhi(id2);
 	// put phi measurement in front of eta measurements
 	if(  measPhi1 && !measPhi2 ) return true;
 	if( !measPhi1 &&  measPhi2 ) return false;
@@ -121,15 +121,15 @@ namespace Muon {
       return dist > 0.;
     }
 
-    SortTSOSs( const IMuonEDMHelperSvc* h, const MuonIdHelperTool*  idh ) : m_helperTool(h),m_idHelperTool(idh) {}
+    SortTSOSs( const IMuonEDMHelperSvc* h, const IMuonIdHelperSvc*  idh ) : m_helperSvc(h),m_idHelperSvc(idh) {}
   
-    const IMuonEDMHelperSvc* m_helperTool;
-    const MuonIdHelperTool*  m_idHelperTool;
+    const IMuonEDMHelperSvc* m_helperSvc;
+    const IMuonIdHelperSvc*  m_idHelperSvc;
   };
 
 
 
-  class SortMeasurementsByPosition : public std::binary_function<const Trk::MeasurementBase*,const Trk::MeasurementBase*,bool> {
+  class SortMeasurementsByPosition {
   public:
     
     SortMeasurementsByPosition(bool hasEndcap=true) : 
@@ -143,12 +143,6 @@ namespace Muon {
       double d1 = m_isEndcap ? fabs(m1->globalPosition().z()) : fabs(m1->globalPosition().perp());
       double d2 = m_isEndcap ? fabs(m2->globalPosition().z()) : fabs(m2->globalPosition().perp());
       bool result = d1 < d2;
-/*       bool result2 = fabs(m1->globalPosition().perp()) < fabs(m2->globalPosition().perp());  */
-/*       if( m_isEndcap ) result2 = fabs(m1->globalPosition().z()) < fabs(m2->globalPosition().z());  */
-
-/*       std::cout << " meas 1 " << meas1 << " d " << d1 << "   meas2 " << meas2 << " d " << d2  */
-/* 		<< "   result " << result << " result2 " << result2 << std::endl; */
-/*       if( result != result2 ) std::cout << " ERROR these number should be the same!!! " << std::endl; */
       return result;
     }
   private:

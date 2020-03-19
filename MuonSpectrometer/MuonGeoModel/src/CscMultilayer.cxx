@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,7 +28,7 @@ CscMultiLayer::CscMultiLayer(std::string n): DetectorElement(n),
   width(0.), longWidth(0.), upWidth(0.), excent(0.),
   length(0.), physicalLength(0.), maxwLength(0.)
 {
-  MYSQL* amdb = MYSQL::GetPointer();	
+  MYSQL* amdb = MYSQL::GetPointer();
   CSC* md =(CSC*)amdb->GetTechnology(name);
   nrOfLayers = md->numOfLayers;
   cscthickness = md->totalThickness;
@@ -42,30 +42,21 @@ GeoVPhysVol* CscMultiLayer::build()
   return build(cutoutson, vcutdef);
 }
 
-GeoVPhysVol*
-CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
+GeoVPhysVol* CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
 {
-  MYSQL* amdb = MYSQL::GetPointer();	
+  MYSQL* amdb = MYSQL::GetPointer();
   CSC* md = (CSC*)amdb->GetTechnology(name);
-  
-//   std::cout<<" Building a CSCMultilayer ... Name, Thickness, NwLayers, total techn. thickness = "
-//            <<name<<" "
-//            <<thickness<<" "
-//            <<nrOfLayers<<" "
-//            <<md->totalThickness<<std::endl;
-//   std::cout<<" all standard dimensions:  width "<<width<<" "<<longWidth<<" "<<upWidth<<std::endl;
-//   std::cout<<" all standard dimensions: length "<<length<<" "<<maxwLength<<" "<<physicalLength<<" "<<excent<<std::endl;
-  
+
   // define the chamber volumes --- for CSS and CSL
 
-  //-------------internal CSC layer structure-------------4 layers ------	
-  
+  //-------------internal CSC layer structure-------------4 layers ------
+
   // The dimensions of the panel
   double hon_thick=md->honeycombthick;
   double gasThickness=2.0*md->anocathodist;
-  double newpos=cscthickness/2.;	
+  double newpos=cscthickness/2.;
   double g10thi = (2.*md->g10thick+md->honeycombthick);
-  
+
   // define the volumes
   // g10, honeycomb, and the gas
   // gas mixture: 80% Ar + 20% CO2:
@@ -75,7 +66,7 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
   // density of mixture = 0.8 d1 + 0.2 d2 = 1.740 gcm-3
 
   // Create CSC layer envelope made of air
-  const GeoShape* sml = new GeoTrd(thickness/2., thickness/2., width/2., 
+  const GeoShape* sml = new GeoTrd(thickness/2., thickness/2., width/2.,
                                    longWidth/2., maxwLength/2.);
   if (excent != length) {
     const GeoShape* smlt = new GeoTrd(thickness/2., thickness/2., longWidth/2.,
@@ -83,34 +74,34 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
     sml = & ( (sml->add( (*smlt) << GeoTrf::TranslateZ3D(physicalLength/2.) ) )
               << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
   }
-//  const GeoMaterial* mair = matManager->getMaterial("std::Air");
-  const GeoMaterial* mhon = matManager->getMaterial("muo::Honeycomb");
+
+  const GeoMaterial* mhon = getMaterialManager()->getMaterial("muo::Honeycomb");
   const GeoLogVol* lml = new GeoLogVol("CscMultilayer",sml,mhon);
   GeoPhysVol* pml = new GeoPhysVol(lml);
 
   // Create G10 and honeycomb volumes
-  const GeoShape* shon = new GeoTrd(hon_thick/2., hon_thick/2., width/2., 
+  const GeoShape* shon = new GeoTrd(hon_thick/2., hon_thick/2., width/2.,
                                     longWidth/2., maxwLength/2.);
-  const GeoShape* sg10hon = new GeoTrd(g10thi/2., g10thi/2., width/2., 
+  const GeoShape* sg10hon = new GeoTrd(g10thi/2., g10thi/2., width/2.,
                                        longWidth/2., maxwLength/2.);
   if (excent != length) {
-    const GeoShape* shont = new GeoTrd(hon_thick/2., hon_thick/2., longWidth/2., 
+    const GeoShape* shont = new GeoTrd(hon_thick/2., hon_thick/2., longWidth/2.,
                                        upWidth/2., (physicalLength-maxwLength)/2.);
     shon = &( (shon->add( (*shont) << GeoTrf::TranslateZ3D(physicalLength/2.) ) )
              << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
-    const GeoShape* sg10hont = new GeoTrd(g10thi/2., g10thi/2., longWidth/2., 
+    const GeoShape* sg10hont = new GeoTrd(g10thi/2., g10thi/2., longWidth/2.,
                                           upWidth/2., (physicalLength-maxwLength)/2.);
     sg10hon = &( (sg10hon->add( (*sg10hont) << GeoTrf::TranslateZ3D(physicalLength/2.) ) )
-             << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
+                << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
   }
-//  const GeoMaterial* mhon = matManager->getMaterial("muo::Honeycomb");
+
   const GeoLogVol* lhon = new GeoLogVol("Honeycomb",shon,mhon);
   GeoPhysVol* phon = new GeoPhysVol(lhon);
 
-  const GeoMaterial* mg10 = matManager->getMaterial("std::G10");
+  const GeoMaterial* mg10 = getMaterialManager()->getMaterial("std::G10");
   const GeoLogVol* lg10hon = new GeoLogVol("G10",sg10hon,mg10);
   GeoPhysVol* pg10hon = new GeoPhysVol(lg10hon);
-  // Put honeycomb inside G10 
+  // Put honeycomb inside G10
   pg10hon->add(phon);
 
   // Create gas volume
@@ -138,13 +129,12 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
     sgas = &( (sgas->add( (*sgast) << GeoTrf::TranslateZ3D(gLength/2.) ) )
                << GeoTrf::TranslateZ3D((gmaxwLength - gLength)/2.) );
   }
-  const GeoMaterial* mgas = matManager->getMaterial("muo::CscArCO2");
-  const GeoLogVol* lgas = NULL;
+  const GeoMaterial* mgas = getMaterialManager()->getMaterial("muo::CscArCO2");
+  const GeoLogVol* lgas = nullptr;
 
   // Place G10/honeycomb and gas volumes in CSC envelop, starting at top
   //   G10 - gas - G10 - gas - G10 - gas - G10 - gas - G10
   for (int i = 0; i < nrOfLayers+1; i++) {
-
     GeoNameTag* np = new GeoNameTag("panel");
     GeoTransform* xp = new GeoTransform(GeoTrf::TranslateX3D(newpos-g10thi/2.));
     pml->add(new GeoIdentifierTag(i));
@@ -152,11 +142,11 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
     pml->add(xp);
     pml->add(pg10hon);
     newpos -= g10thi;
-      
+
     if (i < nrOfLayers) {
       lgas = new GeoLogVol("CscArCO2", sgas, mgas);
       GeoPhysVol* pgas = new GeoPhysVol(lgas);
-      // the gas Gap 
+      // the gas Gap
       // correct the position within the chamber
       GeoNameTag* ng = new GeoNameTag("CscArCO2");
       GeoTransform* xg = new GeoTransform(GeoTrf::TranslateX3D(newpos-gasThickness/2.));
@@ -167,13 +157,14 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
       newpos -= gasThickness;
     }
   }
-  
-  return pml;	
+
+  return pml;
 }
 
 void CscMultiLayer::print()
 {
-  std::cout << "CscMulti Layer:: CscMulti Layer " << name << " :" << std::endl;
+  MsgStream log(Athena::getMessageSvc(), "MuonGM::CscMultiLayer");
+  log << MSG::INFO << "CscMulti Layer:: CscMulti Layer " << name << " :" << endmsg;
 }
 
 } // namespace MuonGM

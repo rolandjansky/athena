@@ -6,9 +6,11 @@
 #define TAUREC_TAUCALIBRATELC_H
 
 #include "tauRecTools/TauRecToolBase.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class TH1;
 class TF1;
+class ILumiBlockMuTool;
 
 /**
  * @brief Implementation of tau energy scale (TES) with eta and pile-up correction.
@@ -38,10 +40,12 @@ private:
 
     static const int s_nProngBins = 2;
 
-    const TF1 * m_calibFunc[s_nProngBins][10]; //maximum 10 eta bins; might not be used on the whole 
-    const TH1 * m_slopeNPVHist[s_nProngBins]={0};
-    const TH1 * m_etaBinHist=0;
-    const TH1 * m_etaCorrectionHist=0;
+    std::vector<std::vector<std::unique_ptr<TF1>>> m_calibFunc;
+    std::vector<std::unique_ptr<TH1>> m_slopeNPVHist; 
+    std::unique_ptr<TH1> m_etaBinHist=nullptr; 
+    std::unique_ptr<TH1> m_etaCorrectionHist=nullptr; 
+
+    ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
     unsigned int m_minNTrackAtVertex=0;
     int    m_nEtaBins=0;
@@ -55,7 +59,6 @@ private:
     bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
-
 };
 
 #endif

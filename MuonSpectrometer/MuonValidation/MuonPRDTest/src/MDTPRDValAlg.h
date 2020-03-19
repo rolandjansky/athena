@@ -176,7 +176,7 @@ class MDTPRDValAlg: public AthAlgorithm {
   double m_Validation_MDT_ExY;
   double m_Validation_MDT_ExZ;
   double m_Validation_MDT_ExR;
-  char m_Validation_MDT_StationName[3]; // string in as char array
+  char m_Validation_MDT_StationName[4]; // string in as char array
   int m_Validation_MDT_StationEta;
   int m_Validation_MDT_StationPhi;
   int m_Validation_MDT_IDTube;

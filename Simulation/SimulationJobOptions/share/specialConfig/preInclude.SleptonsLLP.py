@@ -33,7 +33,7 @@ def get_and_fix_PDGTABLE(replace):
     update.write(''.join(lines))
     update.close()
 
-    print 'modfied PDGTABLE\n%s\n' % ''.join(lines)
+    printfunc ('modfied PDGTABLE\n%s\n' % ''.join(lines))
     sys.stdout.flush()
 
 def load_files_for_sleptonLLP_scenario(simdict):

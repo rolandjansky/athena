@@ -111,4 +111,4 @@ AthenaEventLoopMgr = Service ( "AthenaEventLoopMgr")
 try:
     AthenaEventLoopMgr.EventPrintoutInterval = 100
 except Exception:
-    print 'EventPrintoutInterval exception, defaults to 1'
+    printfunc ('EventPrintoutInterval exception, defaults to 1')

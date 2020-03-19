@@ -6,7 +6,7 @@
 
 /** Constructor */
 ISF::CollectionMerger::CollectionMerger( const std::string& name, ISvcLocator* pSvcLocator ) :
-  ::AthAlgorithm( name, pSvcLocator )
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {
 }
 
@@ -58,26 +58,26 @@ StatusCode ISF::CollectionMerger::initialize()
 
 
 /** Athena Algorithm execute */
-StatusCode ISF::CollectionMerger::execute()
+StatusCode ISF::CollectionMerger::execute(const EventContext& ctx) const
 {
-  ATH_CHECK(mergeCollections( m_inputBCMHits,             m_outputBCMHits             ));
-  ATH_CHECK(mergeCollections( m_inputBLMHits,             m_outputBLMHits             ));
-  ATH_CHECK(mergeCollections( m_inputPixelHits,           m_outputPixelHits           ));
-  ATH_CHECK(mergeCollections( m_inputSCTHits,             m_outputSCTHits             ));
-  ATH_CHECK(mergeCollections( m_inputTRTUncompressedHits, m_outputTRTUncompressedHits ));
+  ATH_CHECK(mergeCollections( m_inputBCMHits,             m_outputBCMHits,             ctx ));
+  ATH_CHECK(mergeCollections( m_inputBLMHits,             m_outputBLMHits,             ctx ));
+  ATH_CHECK(mergeCollections( m_inputPixelHits,           m_outputPixelHits,           ctx ));
+  ATH_CHECK(mergeCollections( m_inputSCTHits,             m_outputSCTHits,             ctx ));
+  ATH_CHECK(mergeCollections( m_inputTRTUncompressedHits, m_outputTRTUncompressedHits, ctx ));
 
-  ATH_CHECK(mergeCollections( m_inputLArEMBHits,          m_outputLArEMBHits          ));
-  ATH_CHECK(mergeCollections( m_inputLArEMECHits,         m_outputLArEMECHits         ));
-  ATH_CHECK(mergeCollections( m_inputLArFCALHits,         m_outputLArFCALHits         ));
-  ATH_CHECK(mergeCollections( m_inputLArHECHits,          m_outputLArHECHits          ));
+  ATH_CHECK(mergeCollections( m_inputLArEMBHits,          m_outputLArEMBHits,          ctx ));
+  ATH_CHECK(mergeCollections( m_inputLArEMECHits,         m_outputLArEMECHits,         ctx ));
+  ATH_CHECK(mergeCollections( m_inputLArFCALHits,         m_outputLArFCALHits,         ctx ));
+  ATH_CHECK(mergeCollections( m_inputLArHECHits,          m_outputLArHECHits,          ctx ));
 
-  ATH_CHECK(mergeCollections( m_inputTileHits,            m_outputTileHits            ));
-  ATH_CHECK(mergeCollections( m_inputMBTSHits,            m_outputMBTSHits            ));
+  ATH_CHECK(mergeCollections( m_inputTileHits,            m_outputTileHits,            ctx ));
+  ATH_CHECK(mergeCollections( m_inputMBTSHits,            m_outputMBTSHits,            ctx ));
 
-  ATH_CHECK(mergeCollections( m_inputCSCHits,             m_outputCSCHits             ));
-  ATH_CHECK(mergeCollections( m_inputMDTHits,             m_outputMDTHits             ));
-  ATH_CHECK(mergeCollections( m_inputRPCHits,             m_outputRPCHits             ));
-  ATH_CHECK(mergeCollections( m_inputTGCHits,             m_outputTGCHits             ));
+  ATH_CHECK(mergeCollections( m_inputCSCHits,             m_outputCSCHits,             ctx ));
+  ATH_CHECK(mergeCollections( m_inputMDTHits,             m_outputMDTHits,             ctx ));
+  ATH_CHECK(mergeCollections( m_inputRPCHits,             m_outputRPCHits,             ctx ));
+  ATH_CHECK(mergeCollections( m_inputTGCHits,             m_outputTGCHits,             ctx ));
 
   return StatusCode::SUCCESS;
 }

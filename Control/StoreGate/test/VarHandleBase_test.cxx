@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -149,7 +149,7 @@ void test2()
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.store() == "TestStore");
 
-  h1.setState (proxy);
+  assert (h1.setState (proxy).isSuccess());
 
   assert (proxy->refCount() == 1);
   assert (objptr == h1.typeless_dataPointer());
@@ -255,7 +255,7 @@ void test2()
                                              false, false);
   proxy5->setStore (&testStore);
   proxy->addRef();
-  h1.setState (proxy5);
+  assert (h1.setState (proxy5).isSuccess());
   assert (proxy->refCount() == 1);
   assert (proxy5->refCount() == 1);
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));

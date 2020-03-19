@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
@@ -268,7 +268,7 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
 
   ATH_MSG_DEBUG ("Produce summary for: "<<track.info().dumpInfo());
 
-  if (track.trackStateOnSurfaces()!=0)
+  if (track.trackStateOnSurfaces()!=nullptr)
   {
     information[Trk::numberOfOutliersOnTrack] = 0;
     processTrackStates(track,prd_to_track_map, track.trackStateOnSurfaces(), information, hitPattern,
@@ -343,7 +343,6 @@ void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::
 {
   // first check if track has no summary - then it is recreated
   m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
-  return;
 }
 
 void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map, TrackSummary &summary, bool initialise_to_zero) const
@@ -388,7 +387,6 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::
   m_idTool->updateExpectedHitInfo(track, summary);
 
   if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,summary);
-  return;
 }
 
 void Trk::TrackSummaryTool::processTrackStates(const Track& track,
@@ -401,9 +399,12 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
 {
   ATH_MSG_DEBUG ("Starting to process " << tsos->size() << " track states");
 
-  int measCounter = 0, cntAddChi2 = 0;
-  float chi2Sum = 0, chi2Sum2 = 0;
-  DataVector<const TrackStateOnSurface>::const_iterator it = tsos->begin(), itEnd = tsos->end();
+  int measCounter = 0;
+  int cntAddChi2 = 0;
+  float chi2Sum = 0;
+  float chi2Sum2 = 0;
+  DataVector<const TrackStateOnSurface>::const_iterator it = tsos->begin();
+  DataVector<const TrackStateOnSurface>::const_iterator itEnd = tsos->end();
   for ( ; it!=itEnd; ++it){
     if ((*it)->type(Trk::TrackStateOnSurface::Measurement) || (*it)->type(Trk::TrackStateOnSurface::Outlier)){
       ++measCounter;
@@ -437,7 +438,7 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
 
     if ( (*it)->type(Trk::TrackStateOnSurface::Hole) && (*it)->trackParameters() ){
       if (!doHolesInDet || !doHolesMuon ){ // no dedicated hole search via extrapolation, but take what might be on the track already.
-        if ( (*it)->trackParameters()->associatedSurface().associatedDetectorElement()!=0 ) {
+        if ( (*it)->trackParameters()->associatedSurface().associatedDetectorElement()!=nullptr ) {
           const Identifier& id = (*it)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
           if ( !doHolesInDet && m_detID->is_pixel( id ) ) ++information[Trk::numberOfPixelHoles];
           if ( !doHolesInDet && m_detID->is_sct( id ) )    ++information[Trk::numberOfSCTHoles];
@@ -450,8 +451,6 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
   float varChi2 = 0;
   if (cntAddChi2>0) varChi2=chi2Sum2/cntAddChi2 - (chi2Sum/cntAddChi2) *(chi2Sum/cntAddChi2) ;
   if (varChi2>0 && varChi2<1.e13) information[Trk::standardDeviationOfChi2OS] = int(sqrt(varChi2)*100);
-
-  return;
 }
 
 void Trk::TrackSummaryTool::processMeasurement(const Track& track,
@@ -466,7 +465,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
   if ( rot ){
     // have RIO_OnTrack
     const Trk::IExtendedTrackSummaryHelperTool* tool = getTool(rot->identify());
-    if (tool==0){
+    if (tool==nullptr){
       ATH_MSG_WARNING("Cannot find tool to match ROT. Skipping.");
     } else {
 
@@ -480,7 +479,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
       // if this works we have a CompetingRIOsOnTrack.
       rot = &compROT->rioOnTrack(0); // get 1st rot
       const Trk::IExtendedTrackSummaryHelperTool* tool = getTool(rot->identify()); // Use 'main' ROT to get detector type
-      if (tool==0){
+      if (tool==nullptr){
         ATH_MSG_WARNING("Cannot find tool to match cROT. Skipping.");
       } else {
         tool->analyse(track,prd_to_track_map, compROT,tsos,information, hitPattern);
@@ -507,7 +506,7 @@ Trk::TrackSummaryTool::getTool(const Identifier& id)
   } else {
     ATH_MSG_WARNING("getTool: Identifier is of unknown type! id: "<<id.getString());
   }
-  return 0;
+  return nullptr;
 }
 
 const Trk::IExtendedTrackSummaryHelperTool*
@@ -528,7 +527,7 @@ Trk::TrackSummaryTool::getTool(const Identifier& id) const
   } else {
     ATH_MSG_WARNING("getTool: Identifier is of unknown type! id: "<<id.getString());
   }
-  return 0;
+  return nullptr;
 }
 
 void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
@@ -539,7 +538,7 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
 
   ATH_MSG_VERBOSE ("Entering Trk::TrackSummaryTool::searchHolesStepWise");
 // -------- obtain hits in Pixel and SCT only
-  if (track.trackStateOnSurfaces()==0) 
+  if (track.trackStateOnSurfaces()==nullptr) 
   {
     ATH_MSG_DEBUG ("No trackStatesOnSurface!!!!");
     information [numberOfPixelHoles]           = -1;
@@ -596,6 +595,5 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
       m_muonTool->searchForHoles(track,information,Trk::muon) ;
     }
   }
-  return;
-}
+  }
 

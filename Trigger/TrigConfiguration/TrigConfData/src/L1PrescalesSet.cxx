@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1PrescalesSet.h"
@@ -19,6 +19,7 @@ TrigConf::L1PrescalesSet::~L1PrescalesSet()
 void
 TrigConf::L1PrescalesSet::update()
 {
+   m_name = getAttribute("name");
    const auto & cuts = data().get_child("cutValues");
    for( auto & c : cuts ) {
       L1Prescale ps;
@@ -36,6 +37,16 @@ std::size_t
 TrigConf::L1PrescalesSet::size() const
 {
    return m_prescales.size();
+}
+
+unsigned int
+TrigConf::L1PrescalesSet::psk() const {
+   return m_psk;
+}
+
+void
+TrigConf::L1PrescalesSet::setPSK(unsigned int psk ) {
+   m_psk = psk;
 }
 
 const TrigConf::L1PrescalesSet::L1Prescale & 

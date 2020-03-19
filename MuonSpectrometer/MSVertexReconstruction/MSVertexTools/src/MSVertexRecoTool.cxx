@@ -9,6 +9,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "TMath.h" // for TMath::Prob()
 
 #define MAXPLANES 100
 
@@ -400,10 +401,12 @@ namespace Muon {
       }//end icl loop
 
       //find the best cluster
-      TrkCluster BestCluster = trkClu[0];
+      
+      TrkCluster* BestClusterptr = &trkClu[0];
       for(int icl=1; icl<ncluster; ++icl) {
-          if(trkClu[icl].ntrks > BestCluster.ntrks) BestCluster = trkClu[icl];
+          if(trkClu[icl].ntrks > BestClusterptr->ntrks) BestClusterptr = &trkClu[icl];
       }
+      TrkCluster BestCluster = *BestClusterptr;
       //store the tracks inside the cluster
       std::vector<Tracklet> unusedTracks;
       for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
@@ -417,7 +420,7 @@ namespace Muon {
           else unusedTracks.push_back( (*trkItr) );
       }
       //return the best cluster and the unused tracklets
-      tracks = unusedTracks;
+      tracks = std::move(unusedTracks);
       return BestCluster;
   }
 
@@ -425,7 +428,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  std::vector<Muon::MSVertexRecoTool::TrkCluster> MSVertexRecoTool::findTrackClusters(std::vector<Tracklet>& tracks) const {
+  std::vector<Muon::MSVertexRecoTool::TrkCluster> MSVertexRecoTool::findTrackClusters(const std::vector<Tracklet>& tracks) const {
     std::vector<Tracklet> trks = tracks;
     std::vector<TrkCluster> clusters;
     //keep making clusters until there are no more possible
@@ -964,7 +967,7 @@ namespace Muon {
       MyVx = VxMinQuad(tracks);
       std::vector<Tracklet> Tracks = RemoveBadTrk(tracks,MyVx);
       if(tracks.size() == Tracks.size()) break;
-      tracks = Tracks;
+      tracks = std::move(Tracks);
     }
     if(tracks.size() >= 3 && MyVx.x() > 0) {
       float vxtheta = atan2(MyVx.x(),MyVx.z());

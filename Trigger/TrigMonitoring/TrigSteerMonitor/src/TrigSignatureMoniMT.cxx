@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
+#include <regex>
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaInterprocess/Incidents.h"
@@ -32,7 +33,7 @@ StatusCode TrigSignatureMoniMT::start() {
   ATH_CHECK( hltMenuHandle.isValid() );
 
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
-  ATH_CHECK( l1MenuHandle.isValid() );
+  bool gotL1Menu =  l1MenuHandle.isValid();
 
   //retrieve chain information from menus
   std::vector<std::string> bcidChainNames;
@@ -50,14 +51,16 @@ StatusCode TrigSignatureMoniMT::start() {
       m_streamToChainMap[stream.getAttribute("name")].insert( HLT::Identifier(chain.name()) );
     }
 
-    auto item = std::find_if(l1MenuHandle->begin(), l1MenuHandle->end(),
-      [&](const TrigConf::L1Item& item){ return item.name()==chain.l1item();});
-
-    if ( item != l1MenuHandle->end() ){
-      for ( auto group : (*item).getList("bunchgroups", true) ){
-        if ( group.getValue() != "BGRP0" ){
-          m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group.getValue());
-        }
+    if( gotL1Menu && !chain.l1item().empty() ) {
+      try {
+	TrigConf::L1Item item = l1MenuHandle->item(chain.l1item());
+	for ( const std::string & group : item.bunchgroups() ) {
+	  if ( group != "BGRP0" ) {
+	    m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
+	  }
+	}
+      } catch(...) {
+	ATH_MSG_WARNING("The item " << chain.l1item() << " is not part of the L1 menu" );
       }
     }
   }
@@ -74,7 +77,7 @@ StatusCode TrigSignatureMoniMT::start() {
   const int xc = sequencesSet.size();
   const int y = nBinsY();
   const int yr = nRateBinsY();
-  const int yb = nBunchBinsY(l1MenuHandle);
+  const int yb = gotL1Menu ? nBunchBinsY(l1MenuHandle) : 16;
   const int ybc = bcidChainNames.size();
   const int yc = 1; //Rate
 
@@ -98,21 +101,21 @@ StatusCode TrigSignatureMoniMT::start() {
 
   if ( x > 0 ){
     m_rateHistogram.init(outputRateName, "Rate of positive decisions;chain;step",
-      x, yr, m_bookingPath + "/" + name() + '/' + outputRateName.c_str(), m_histSvc);
+                         x, yr, m_bookingPath + "/" + name() + '/' + outputRateName.c_str(), m_histSvc).ignore();
     ATH_CHECK( initHist( m_rateHistogram.getHistogram(), hltMenuHandle, false ) );
     ATH_CHECK( initHist( m_rateHistogram.getBuffer(), hltMenuHandle, false ) );
   }
 
   if (xc > 0){
     m_sequenceHistogram.init(outputSequenceName, "Rate of sequences execution;sequence;rate",
-      xc, yc, m_bookingPath + "/" + name() + '/' + outputSequenceName.c_str(), m_histSvc);
+                             xc, yc, m_bookingPath + "/" + name() + '/' + outputSequenceName.c_str(), m_histSvc).ignore();
     ATH_CHECK( initSeqHist( m_sequenceHistogram.getHistogram(), sequencesSet ) );
     ATH_CHECK( initSeqHist( m_sequenceHistogram.getBuffer(), sequencesSet ) );
   }
 
   if ( ybc > 0 ){
     m_bcidHistogram.init(outputBCIDName, "Number of positive decisions per BCID per chain;BCID;chain",
-      xbc, ybc, m_bookingPath + "/" + name() + '/' + outputBCIDName.c_str(), m_histSvc);
+                         xbc, ybc, m_bookingPath + "/" + name() + '/' + outputBCIDName.c_str(), m_histSvc).ignore();
     ATH_CHECK( initBCIDhist( m_bcidHistogram.getHistogram(), bcidChainNames ) );
     ATH_CHECK( initBCIDhist( m_bcidHistogram.getBuffer(), bcidChainNames ) );
   }
@@ -133,33 +136,55 @@ StatusCode TrigSignatureMoniMT::stop() {
     return StatusCode::SUCCESS;
   }
   
+  auto fixedWidth = [](const std::string& s, size_t sz) {
+    std::ostringstream ss;
+    ss << std::setw(sz) << std::left << s;
+    return ss.str();
+  };
+
+  SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+  ATH_CHECK( hltMenuHandle.isValid() );
+
+  // retrieve information whether chain was active in Step
+  std::map<std::string, std::set<std::string>> chainToSteps;
+  for ( const TrigConf::Chain& chain: *hltMenuHandle ){
+    for ( const auto& seq : chain.getList("sequencers", true) ){
+      // example sequencer name is "Step1_FastCalo_electron", we need only information about Step + number
+      const std::string seqName = seq.getValue();
+      std::smatch stepName;
+      std::regex_search(seqName.begin(), seqName.end(), stepName, std::regex("^Step[0-9]+"));
+      chainToSteps[chain.name()].insert( stepName[0] );
+    }
+  }
+
   auto collToString = [&]( int xbin, const LockedHandle<TH2>& hist, int startOfset=0, int endOffset=0){ 
     std::string v;
+    const int stepsSize = hist->GetYaxis()->GetNbins()-3; //L1, AfterPS, Output
     for ( int ybin = 1; ybin <= hist->GetYaxis()->GetNbins()-endOffset; ++ybin ) {
       if ( ybin > startOfset ) {
-        v += std::to_string( int(hist->GetBinContent( xbin, ybin )) );
-        v += std::string( 10*ybin - v.size(),  ' ' ); // fill with spaces
+        // skip steps where chain wasn't active
+        // ybins are for all axis labes, steps are in bins from 3 to stepsSize + 2
+        const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(xbin);
+        ybin < 3 || ybin > stepsSize + 2 || chainToSteps[chainName].find("Step" + std::to_string(ybin - 2)) != chainToSteps[chainName].end() ?
+          v += fixedWidth( std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11 )
+          : v += fixedWidth( "-", 11 );
       } else {
-        v += std::string( 10, ' ');
+        v += fixedWidth( " ", 11 );
       }
     }
-    
     return v;
   };
   
-  auto fixedWidth = [](const std::string& s, size_t sz) {
-    return s.size() < sz ?
-    s+ std::string(sz - s.size(), ' ') : s; };
-
   std::string v;
+  v += fixedWidth( "L1", 11 );
+  v += fixedWidth( "AfterPS", 11 );
   for ( int bin = 1; bin <= m_passHistogram->GetYaxis()->GetNbins()-3; ++bin ) {
-    v += "step";
-    v += std::to_string(bin);
-    v += std::string( 10*bin - v.size(),  ' ' );
+    v += fixedWidth( "Step" + std::to_string(bin), 11 );
   }
+  v += fixedWidth( "Output", 11 );
   
   ATH_MSG_INFO( "Chains passing step (1st row events & 2nd row decision counts):" );  
-  ATH_MSG_INFO( "Chain name                   L1,      AfterPS,  "<<v<<"Output"  );
+  ATH_MSG_INFO( fixedWidth("ChainName", 30) << v );
 
   /*
     comment for future dev:
@@ -168,9 +193,11 @@ StatusCode TrigSignatureMoniMT::stop() {
   
   for ( int bin = 1; bin <= (*m_passHistogram)->GetXaxis()->GetNbins(); ++bin ) {
     const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(bin);
+    const std::string chainID = std::to_string( HLT::Identifier(chainName) );
     if ( chainName.find("HLT") == 0 ) { // print only for chains
-      ATH_MSG_INFO( fixedWidth(chainName, 30)  << collToString( bin, m_passHistogram) );
-      ATH_MSG_INFO(fixedWidth(chainName +" decisions", 30) << collToString( bin, m_countHistogram , 2, 1 ) );
+      ATH_MSG_INFO( chainName + " #" + chainID);
+      ATH_MSG_INFO( fixedWidth("-- #" + chainID + " Events", 30)  << collToString( bin, m_passHistogram) );
+      ATH_MSG_INFO( fixedWidth("-- #" + chainID + " Features", 30) << collToString( bin, m_countHistogram , 2, 1 ) );
     }
     if ( chainName.find("All") == 0 ){
       ATH_MSG_INFO( fixedWidth(chainName, 30)  << collToString( bin, m_passHistogram) );
@@ -473,6 +500,9 @@ StatusCode TrigSignatureMoniMT::initBCIDhist(LockedHandle<TH2>& hist, const std:
 }
 
 StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) {
+
+  bool gotL1Menu = l1MenuHandle.isValid() && l1MenuHandle->isInitialized();
+
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");
   int bin = 2;
@@ -488,14 +518,22 @@ StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadH
     ++bin;
   }
 
-  TAxis* y = hist->GetYaxis();
-  std::vector<std::string> sortedBunchGroups = l1MenuHandle->getObject("bunchGroups").getKeys();
-  std::sort( sortedBunchGroups.begin(), sortedBunchGroups.end() );
-  sortedBunchGroups.erase(std::remove(sortedBunchGroups.begin(), sortedBunchGroups.end(), "BGRP0"), sortedBunchGroups.end());
+  std::vector<std::string> sortedBunchGroups;
+  if( gotL1Menu ) {
+    sortedBunchGroups = l1MenuHandle->getObject("bunchGroups").getKeys();
+    std::sort( sortedBunchGroups.begin(), sortedBunchGroups.end() );
+    sortedBunchGroups.erase(std::remove(sortedBunchGroups.begin(), sortedBunchGroups.end(), "BGRP0"), sortedBunchGroups.end());
+  } else {
+    for(size_t i = 1; i<=16; ++i) {
+      sortedBunchGroups.emplace_back("BGRP" + std::to_string(i));
+    }
+  }
 
   bin = 1;
+  TAxis* y = hist->GetYaxis();
   for ( const std::string& group : sortedBunchGroups ){
-    y->SetBinLabel( bin, l1MenuHandle->getAttribute( "bunchGroups." + group + ".name", true).c_str() );
+    std::string bgname = gotL1Menu ? l1MenuHandle->getAttribute( "bunchGroups." + group + ".name", true) : group;
+    y->SetBinLabel( bin, bgname.c_str() );
     m_nameToBinMap[group] = bin;
     ++bin;
   }
@@ -543,13 +581,13 @@ void TrigSignatureMoniMT::RateHistogram::startTimer(unsigned int duration, unsig
 
 void TrigSignatureMoniMT::RateHistogram::stopTimer() {
   if (m_timer) {
-    m_timer->stop();
+    m_timer.reset();
     time_t t = time(0);
     unsigned int interval;
     unsigned int duration = m_timeDivider->forcePassed(t, interval);
     updatePublished(duration); //divide by time that really passed not by interval duration
   }
-  m_timer.reset();
+
 }
 
 void TrigSignatureMoniMT::RateHistogram::updatePublished(unsigned int duration) const {
@@ -570,5 +608,5 @@ void TrigSignatureMoniMT::RateHistogram::callback() const {
   }
 
   //schedule itself in another 1/20 of the integration period in milliseconds
-  m_timer->start(m_duration*50);
+  if ( m_timer ) m_timer->start(m_duration*50);
 }

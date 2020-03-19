@@ -66,18 +66,6 @@ ElectronD3PDObject.defineBlock (
 
 defineBlockAndAlg \
         (ElectronD3PDObject,
-        999, 'TimeCorr',
-        D3PDMakerCoreComps.AuxDataFillerTool,
-        'egammaTimeCorrConfig',
-        AuxPrefix = auxprefix,
-        Vars = ['corr_cl_time #Corrected cluster time',
-                'corr_cl_time_err #Corrected cluster time error', 
-                'corr_cl_time_flags #Time correction flags',
-                'raw_cl_time #Raw cluster time',
-        ])
-               
-defineBlockAndAlg \
-        (ElectronD3PDObject,
         999, 'MaxEcell',
         D3PDMakerCoreComps.AuxDataFillerTool,
         'egammaMaxECellAlgConfig',

@@ -3,9 +3,9 @@
 */
 
 #include "InDetSimEvent/TRTUncompressedHit.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_BarrelElement.h"
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 

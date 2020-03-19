@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -131,7 +131,7 @@ StatusCode MdtCoolStrSvc::putFileT0(const std::string& folder,
     int size_fin = sdata_t0.size();
     std::cout << "size of fin " << size_fin << std::endl;
     
-    putData(folder,filename,chan,tech,sdata_t0 ); 
+    ATH_CHECK(putData(folder,filename,chan,tech,sdata_t0 ));
   } else {
     log << MSG::INFO << "Cannot open file " << filename << endmsg;
     return StatusCode::FAILURE;
@@ -241,7 +241,7 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
   int size_fin2 = sdata_rt.size();
   std::cout << "size of fin " << size_fin2 << std::endl;
   
-  putData(folder,filename,chan,tech,sdata_rt );
+  ATH_CHECK(putData(folder,filename,chan,tech,sdata_rt ));
   //} else {
   //log << MSG::INFO << "Cannot open file " << filename << endmsg;
   //return StatusCode::FAILURE;
@@ -330,7 +330,7 @@ StatusCode MdtCoolStrSvc::putFileAlignCorr(const std::string& folder,
 
    f.close();
    //return StatusCode::SUCCESS;
-   putData(folder,filename,chan,tech,sdata );
+   ATH_CHECK(putData(folder,filename,chan,tech,sdata ));
   } else {
     log << MSG::INFO << "Cannot open file " << filename << endmsg;
     return StatusCode::FAILURE;
@@ -392,7 +392,7 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
     std::cout<< sdata<< std::endl;
     fclose (f);
     
-    putData(folder,filename,chan,tech,sdata );
+    ATH_CHECK(putData(folder,filename,chan,tech,sdata ));
   } else {
     fclose (f);
     log << MSG::INFO << "Cannot open file or empty" << filename << endmsg;
@@ -486,7 +486,7 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
       
     sdata += " end";
     fclose (f);
-    putData(folder,filename,chan,tech,sdata );
+    ATH_CHECK(putData(folder,filename,chan,tech,sdata ));
   } else {
     fclose (f);
     log << MSG::INFO << "Cannot open file or emtpy" << filename << endmsg;

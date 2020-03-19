@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_CPP
@@ -230,57 +230,41 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     m_histoPersSvc = IConversionSvc_t( "HistogramPersistencySvc", 
 				       this->name() );
 
-    if( !sc.isSuccess() )  {
-      warning() << "Histograms cannot not be saved - though required." 
-                << endmsg;
+    IService *is = 0;
+    if (histPersName == "ROOT") {
+      sc = serviceLocator()->service("RootHistSvc", is);
+    } else if ( histPersName == "HBOOK" ) {
+      sc = serviceLocator()->service("HbookHistSvc", is);
+    }
+
+    if (sc.isFailure()) {
+      error() << "could not locate actual Histogram persistency service"
+	      << endmsg;
     } else {
-
-      IService *is = 0;
-      if (histPersName == "ROOT") {
-	sc = serviceLocator()->service("RootHistSvc", is);
-      } else if ( histPersName == "HBOOK" ) {
-	sc = serviceLocator()->service("HbookHistSvc", is);
-      }
-
-      if (sc.isFailure()) {
-        error() << "could not locate actual Histogram persistency service"
-                << endmsg;
+      Service *s = dynamic_cast<Service*>(is);
+      if (s == 0) {
+	error() << "Could not dcast HistPersSvc to a Service"
+		<< endmsg;
       } else {
-	Service *s = dynamic_cast<Service*>(is);
-	if (s == 0) {
-	  error() << "Could not dcast HistPersSvc to a Service"
-                  << endmsg;
-	} else {
-	  const Property &prop = s->getProperty("OutputFile");
-	  std::string val;
-	  try {
-	    const StringProperty &sprop = dynamic_cast<const StringProperty&>( prop );
+	const Property &prop = s->getProperty("OutputFile");
+	std::string val;
+	try {
+	  const StringProperty &sprop = dynamic_cast<const StringProperty&>( prop );
+	  val = sprop.value();
+	} catch (...) {
+	  verbose() << "could not dcast OutputFile property to a StringProperty."
+		    << " Need to fix Gaudi."
+		    << endmsg;
+	  val = prop.toString();
+	}
 
-	    val = sprop.value();
-
-	  } catch (...) {
-	    verbose() << "could not dcast OutputFile property to a StringProperty."
-                      << " Need to fix Gaudi."
-                      << endmsg;
-
-	    val = prop.toString();
-
-	    //	    val.erase(0,val.find(":")+1);
-	    //	    val.erase(0,val.find("\"")+1);
-	    //	    val.erase(val.find("\""),val.length());
-	  }
-
-	  if (val != "" && 
-	      val != "UndefinedROOTOutputFileName" && 
-	      val != "UndefinedHbookOutputFileName" ) {
-	    m_writeHists = true;
-	  }
-
+	if (val != "" &&
+	    val != "UndefinedROOTOutputFileName" &&
+	    val != "UndefinedHbookOutputFileName" ) {
+	  m_writeHists = true;
 	}
       }
     }
-    
-
   }  else { if (msgLevel(MSG::DEBUG)) {
       debug() << "Histograms saving not required." 
               << endmsg; }
@@ -768,7 +752,7 @@ StatusCode AthenaHiveEventLoopMgr::stop()
   // So make sure that all stores have been cleared at this point.
   size_t nslot = m_whiteboard->getNumberOfStores();
   for (size_t islot = 0; islot < nslot; islot++) {
-    clearWBSlot (islot);
+    sc &= clearWBSlot (islot);
   }
 
   Gaudi::Hive::setCurrentContext( EventContext() );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -22,17 +22,13 @@
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
  
-#include "TH1.h"
-#include "TH2.h"
-#include "TProfile.h"
+#include "TH1F.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAMonitoring/MuonDQAEvent.h"
  
-class TFile;
 template <class ConcreteAlgorithm> class AlgFactory;
 
 namespace MuonDQA {
@@ -47,7 +43,7 @@ namespace MuonDQA {
  
       MuonEventInfoMonTool( const std::string & type, const std::string & name, const IInterface* parent ); 
  
-      virtual ~MuonEventInfoMonTool();
+      virtual ~MuonEventInfoMonTool()=default;
       StatusCode initialize();
       virtual StatusCode bookHistograms();
       virtual StatusCode fillHistograms();

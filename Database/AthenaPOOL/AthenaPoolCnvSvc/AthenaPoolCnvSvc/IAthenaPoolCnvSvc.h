@@ -100,7 +100,7 @@ public:
    virtual StatusCode registerCleanUp(IAthenaPoolCleanUp* cnv) = 0;
 
    /// Implement cleanUp to call all registered IAthenaPoolCleanUp cleanUp() function.
-   virtual StatusCode cleanUp() = 0;
+   virtual StatusCode cleanUp(const std::string& connection) = 0;
 
    /// Set the input file attributes, if any are requested from jobOpts
    /// @param fileName [IN] name of the input file

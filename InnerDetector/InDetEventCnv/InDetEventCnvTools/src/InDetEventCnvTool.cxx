@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventCnvTools/InDetEventCnvTool.h"
@@ -9,11 +9,11 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/TRT_ID.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPrepRawData/PrepRawData.h"
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
@@ -33,16 +33,14 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(const std::string& t,
                                             const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_trtMgrLocation("TRT"),
-  m_trtMgr(0),
   m_setPrepRawDataLink(false),
   m_IDHelper(nullptr),
   m_pixelHelper(nullptr),
   m_SCTHelper(nullptr),
+  m_TRTHelper(nullptr),
   m_idDictMgr(nullptr)
 {
   declareInterface<ITrkEventCnvTool>(this);
-  declareProperty("TRT_MgrLocation", m_trtMgrLocation);
   declareProperty("RecreatePRDLinks", m_setPrepRawDataLink);
   
 }
@@ -64,24 +62,13 @@ StatusCode InDet::InDetEventCnvTool::initialize() {
     std::cout << " Cannot access InnerDetector dictionary "<< std::endl;
     return StatusCode::FAILURE;
   }
+
   bool isSLHC = false;
   // Find value for the field TRT - if not found is SLHC geo
   //int trtField   = -1;
   //if (dict->get_label_value("part", "TRT", trtField)) isSLHC=true;
   // Find string SLHC in dictionary file name - if found is SLHC geo
   if (dict->file_name().find("SLHC")!=std::string::npos) isSLHC=true;
-
-  if (!isSLHC && detStore()->contains<InDetDD::TRT_DetectorManager>(m_trtMgrLocation)) {
-    // Get TRT Detector Description Manager
-    sc = detStore()->retrieve(m_trtMgr, m_trtMgrLocation);
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Could not get TRT_DetectorDescription");
-      return sc;
-    }
-  } else {
-    ATH_MSG_INFO("No TRT? Could not get TRT_DetectorDescription");
-  }
-
 
   //retrieving the various ID helpers
   
@@ -92,6 +79,7 @@ StatusCode InDet::InDetEventCnvTool::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_pixelHelper, "PixelID") );
   ATH_CHECK( detStore()->retrieve(m_SCTHelper, "SCT_ID") );
+  ATH_CHECK( detStore()->retrieve(m_TRTHelper, "TRT_ID") );
 
   ATH_CHECK( m_pixClusContName.initialize() );
   ATH_CHECK( m_sctClusContName.initialize() );
@@ -99,6 +87,7 @@ StatusCode InDet::InDetEventCnvTool::initialize() {
 
   ATH_CHECK( m_pixelDetEleCollKey.initialize() );
   ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+  ATH_CHECK(!isSLHC && m_trtDetEleContKey.initialize(!m_trtDetEleContKey.key().empty()));
 
   return sc;
      
@@ -140,7 +129,7 @@ InDet::InDetEventCnvTool::getLinks( Trk::RIO_OnTrack& rioOnTrack ) const
   } else if (m_IDHelper->is_trt(id)) {
     ATH_MSG_DEBUG("Set TRT detector element" );
     // use IdentifierHash for speed
-    detEl = m_trtMgr->getElement( rioOnTrack.idDE() ) ;
+    detEl = getTRTDetectorElement( rioOnTrack.idDE() ) ;
     if (m_setPrepRawDataLink) prd = trtDriftCircleLink( id, rioOnTrack.idDE() );
   } else {
     ATH_MSG_WARNING("Unknown type of ID detector from identifier :"
@@ -196,7 +185,7 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const Identif
 
     ATH_MSG_DEBUG("Set TRT detector element" );
     // use IdentifierHash for speed
-    detEl = m_trtMgr->getElement( idHash ) ;
+    detEl = getTRTDetectorElement( idHash ) ;
   } else {
     ATH_MSG_WARNING("Unknown type of ID detector from identifier :"
                     << id<<", in string form:"
@@ -226,7 +215,9 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id) const {
   } else if (m_IDHelper->is_trt(id)) {
     ATH_MSG_DEBUG("Set TRT detector element");
     // use IdentifierHash for speed
-    detEl = m_trtMgr->getElement( id ) ;
+    const Identifier strawLayerId = m_TRTHelper->layer_id(id);
+    const IdentifierHash hashId = m_TRTHelper->straw_layer_hash(strawLayerId);
+    detEl = getTRTDetectorElement( hashId ) ;
   } else {
     ATH_MSG_WARNING("Unknown type of ID detector from identifier :"<< id<<", in string form:"
                     << m_IDHelper->show_to_string(id) );
@@ -337,4 +328,14 @@ const InDetDD::SiDetectorElement* InDet::InDetEventCnvTool::getSCTDetectorElemen
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle{m_SCTDetEleCollKey};
   if (not sctDetEle.isValid()) return nullptr;
   return sctDetEle->getDetectorElement(waferHash);
+}
+
+const InDetDD::TRT_BaseElement* InDet::InDetEventCnvTool::getTRTDetectorElement(const IdentifierHash& HashId) const {
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
+  if (not trtDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
+    return nullptr;
+  }
+  return elements->getDetectorElement(HashId);
 }

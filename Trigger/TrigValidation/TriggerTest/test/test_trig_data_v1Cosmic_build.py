@@ -13,7 +13,7 @@ ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data_cos'
 ex.threads = 1
-ex.args = '-c "setMenu=\'Cosmic_pp_run3_v1\';doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'Cosmic_pp_run3_v1\';doCosmics=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'build'

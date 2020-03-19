@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 ##==============================================================================
 ## Name:        LogicalExpressionFilter.py
 ##
@@ -23,7 +22,7 @@ from GaudiKernel.GaudiHandles import *
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Logging import logging
 
-import tokenize
+import tokenize, random
 from cStringIO import StringIO
 
 class LogicalExpressionFilter( PyAthena.Alg ):
@@ -34,8 +33,12 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         super(LogicalExpressionFilter, self).__init__(**kw)
         self.nEventsProcessed=0
         self.nEventsPassed=0
+        self.nEventsProcessedPosWeighted=0
+        self.nEventsProcessedNegWeighted=0
         self.nEventsProcessedWeighted=0
         self.nEventsPassedWeighted=0
+        self.nEventsPassedPosWeighted=0
+        self.nEventsPassedNegWeighted=0
         self.Expression = kw.get('Expression', '')
         self.UseEventWeight = kw.get('UseEventWeight',True)
         self.McEventKey = kw.get('McEventKey','GEN_EVENT')
@@ -47,6 +50,9 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         # Create the filters list
         self.filters = []
         
+        # Optional sampling - needs random numbers
+        self.Sampling = -1.
+
         #where the transformed cmd goes
         self.cmd = ""
 
@@ -77,8 +83,8 @@ class LogicalExpressionFilter( PyAthena.Alg ):
                   error = 'could not retrieve IAlgManager/ApplicationMgr'
                   self.msg.error (error)
                   raise RuntimeError (error)
-              import cppyy
-              _alg = cppyy.libPyROOT.MakeNullPointer("IAlgorithm")
+              import PyCintex
+              _alg = PyCintex.libPyROOT.MakeNullPointer("IAlgorithm")
               if algmgr.createAlgorithm(filterType,filterName,_alg).isFailure() or not _alg:
                   self.msg.error ('could not create alg: ' + filterTypeAndName)
                   raise RuntimeError ('could not create alg: ' + filterTypeAndName)
@@ -154,11 +160,16 @@ class LogicalExpressionFilter( PyAthena.Alg ):
             self.msg.fatal("%s is not a valid Python expression string. Exception: %s" % (self.Expression,e))
             return StatusCode.Failure
 
+            # If needed, set up a random number generator
+            if self.Sampling>=0:
+                random.seed(1234)
+
         return StatusCode.Success
 
     def evalFilter(self, filterName):
       if not self.algdict[filterName].isExecuted():
-         self.algdict[filterName].sysExecute(self.getContext())
+#         self.algdict[filterName].sysExecute( self.getContext() ) # only rel. 21+
+         self.algdict[filterName].sysExecute()
          self.algdict[filterName].setExecuted(True)
       decision = self.algdict[filterName].filterPassed()
       self.msg.verbose(filterName + " decision=" + str(decision))
@@ -183,12 +194,31 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         else:
             event_weight = weights[0]
 
+        response = bool(eval(self.cmd)) if self.cmd else True
+
+        if self.Sampling>0 and self.Sampling<=1 and not response:
+            for a in xrange(len(mc[0].weights())): mc[0].weights()[a] /= self.Sampling
+            mc[0].weights().push_back( int(response) )
+            event_weight /= self.Sampling
+            response = random.random()<self.Sampling
+
+        if self.Sampling==0:
+            mc[0].weights().push_back( int(response) )
+
         self.nEventsProcessed+=1
         self.nEventsProcessedWeighted+=event_weight
-        response = bool(eval(self.cmd)) if self.cmd else True
+        if event_weight > 0 :
+            self.nEventsProcessedPosWeighted+=event_weight
+        else :
+            self.nEventsProcessedNegWeighted+=abs(event_weight)
+
         if response:
             self.nEventsPassed+=1
             self.nEventsPassedWeighted+=event_weight
+            if event_weight > 0 :
+                self.nEventsPassedPosWeighted+=event_weight
+            else :
+                self.nEventsPassedNegWeighted+=abs(event_weight)
         self.msg.debug("My decision is: %s" % response)
         self.setFilterPassed(response)
         return StatusCode.Success
@@ -205,6 +235,11 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         self.msg.info("Filter Efficiency = %f [%s / %s]" % (efficiency,self.nEventsPassed,self.nEventsProcessed))
         self.msg.info("Weighted Filter Efficiency = %f [%f / %f]" % (efficiencyWeighted,self.nEventsPassedWeighted,self.nEventsProcessedWeighted))
         print("MetaData: GenFiltEff = %e" % (efficiencyWeighted if self.UseEventWeight else efficiency))
+
+        print("MetaData: sumOfPosWeights = %e" % (self.nEventsPassedPosWeighted if self.UseEventWeight else self.nEventsPassed))
+        print("MetaData: sumOfNegWeights = %e" % (self.nEventsPassedNegWeighted if self.UseEventWeight else self.nEventsPassed))
+        print("MetaData: sumOfPosWeightsNoFilter = %e" % (self.nEventsProcessedPosWeighted if self.UseEventWeight else self.nEventsProcessed))
+        print("MetaData: sumOfNegWeightsNoFilter = %e" % (self.nEventsProcessedNegWeighted if self.UseEventWeight else self.nEventsProcessed))
         return StatusCode.Success
 
 

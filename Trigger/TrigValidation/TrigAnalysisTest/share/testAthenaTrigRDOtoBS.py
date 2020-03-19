@@ -87,8 +87,8 @@ Service ("StoreGateSvc" ).ActivateHistory=False
 
 preExec='rec.doFloatingPointException=True'
 
-print AlgSequence()
-print ServiceMgr
+printfunc (AlgSequence())
+printfunc (ServiceMgr)
 
 #-------------------------------------------------------------
 # Disable overly verbose and problematic ChronoStatSvc print-out

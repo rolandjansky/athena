@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaPython import PyAthena
 import ROOT, math, random
@@ -119,7 +119,7 @@ class DisjointUniformSampler(ContinuousSampler):
             runningwidth += float(r[1] - r[0])
             self._divisions.append(runningwidth)
         self._totalwidth = runningwidth
-        for i in xrange(len(self._divisions)):
+        for i in range(len(self._divisions)):
             self._divisions[i] = float(self._divisions[i]) / float(self._totalwidth)
 
     ranges = property(_getRanges, _setRanges)
@@ -128,7 +128,7 @@ class DisjointUniformSampler(ContinuousSampler):
         assert(x >= 0 and x <= 1)
         idx = None
         rem = None
-        for i in xrange(len(self._divisions) - 1):
+        for i in range(len(self._divisions) - 1):
             if x >= self._divisions[i] and x < self._divisions[i+1]:
                 idx = i
                 rem = x - self._divisions[i]
@@ -892,12 +892,12 @@ class ParticleSampler(Sampler):
         "Return a vector of sampled particles"
         numparticles = self.n()
         rtn = []
-        for i in xrange(numparticles):
+        for i in range(numparticles):
             ## Sample the particle ID and create a particle
             pid = self.pid()
             p = SampledParticle(pid)
             ## Pass mass info to the v4 sampler and set same generated mass
-            if self.mass_override and self.massdict.has_key(abs(pid)):
+            if self.mass_override and abs(pid) in self.massdict:
                 m = self.massdict[abs(pid)]
                 self.mom.mass = m
                 p.mass = m

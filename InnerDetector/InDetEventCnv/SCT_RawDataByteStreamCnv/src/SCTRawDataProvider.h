@@ -115,16 +115,11 @@ class SCTRawDataProvider : public AthReentrantAlgorithm
                                                               "SCT_BCID",
                                                               "SCT BCID key"};
 
-  /** Write handle for Inner Detector ByteStream error container. */
-  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey{this,
-                                                              "ByteStreamErrContainer",
-                                                              "SCT_ByteStreamErrs",
-                                                              "SCT BS error key"};
-
+  /** Write handle for Inner Detector ByteStream error container. */  
   SG::WriteHandleKey<IDCInDetBSErrContainer> m_bsIDCErrContainerKey{this,
-                                                                 "IDCByteStreamErrContainer",
-                                                                 "SCT_ByteStreamErrs",
-                                                                 "SCT BS error key for IDC variant"};
+                                                                    "IDCByteStreamErrContainer",
+                                                                    "SCT_ByteStreamErrs",
+                                                                    "SCT BS error key for IDC variant"};
 
 
   /** Update handle for SCT RDO and Erorrs Cache. */

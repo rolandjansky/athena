@@ -113,9 +113,9 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 
   // launch view execution
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
-					m_viewNodeName,             // CF node to attach views to
-					context,                    // Source context
+  ATH_CHECK( ViewHelper::scheduleViews( viewVector,           // Vector containing views
+					m_viewNodeName,       // CF node to attach views to
+					context,              // Source context
 					getScheduler(),
 					m_reverseViews ) );
   
@@ -198,10 +198,10 @@ StatusCode EventViewCreatorAlgorithm::executeMerged( const EventContext& context
 
   // launch view execution
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
-					m_viewNodeName,             // CF node to attach views to
-					context,                    // Source context
-					getScheduler(), 
+  ATH_CHECK( ViewHelper::scheduleViews( viewVector,           // Vector containing views
+					m_viewNodeName,       // CF node to attach views to
+					context,              // Source context
+					getScheduler(),
 					m_reverseViews ) );
   
   if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignmentData/CscInternalAlignmentPar.h"
@@ -14,10 +14,6 @@ CscInternalAlignmentPar::CscInternalAlignmentPar():
   m_rotZ(0.0),
   m_rotT(0.0)
 { }
-
-CscInternalAlignmentPar::~CscInternalAlignmentPar()
-{ }
-
 
 void CscInternalAlignmentPar::setParameters(float s, float z, float t, 
 			     float rotS, float rotZ, float rotT)

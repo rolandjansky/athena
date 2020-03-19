@@ -6,7 +6,8 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigValTools.TrigValSteering import Test, ExecStep
+from TrigP1Test import TrigP1TestSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
@@ -15,13 +16,13 @@ ex.input = 'data'
 ex.args = '-i -M -ul'
 ex.perfmon = False # perfmon currently not fully supported with athenaHLT -M
 
-# Trick to pass the transitions file into athenaHLT -i
-ex.job_options += ' < `find_data.py run-stop-run-saveHist.trans`'
+# Pass the transitions file into athenaHLT -i
+ex.cmd_suffix = ' < `find_data.py run-stop-run-saveHist.trans`'
 
 test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex]
-test.check_steps = CheckSteps.default_check_steps(test)
+test.check_steps = TrigP1TestSteps.default_check_steps_OHMon(test, 'run_2.root')
 
 # Extra merging pattern for logs produced with -ul option
 logmerge = test.get_step("LogMerge")

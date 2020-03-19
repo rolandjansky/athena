@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured private Tile hit vector to container tool"""
 
@@ -10,9 +10,11 @@ def getTileFirstXing():
     """Return the earliest bunch crossing time for which interactions will be sent to the TileHitVecToCntTool"""
     return -200
 
+
 def getTileLastXing():
     """Return the latest bunch crossing time for which interactions will be sent to the TileHitVecToCntTool"""
     return 150
+
 
 def getTileRange(name = 'TileRange', **kwargs):
     """Return a PileUpXingFolder tool for Tile"""
@@ -33,6 +35,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
 
     kwargs.setdefault('name', 'TileHitVecToCntTool')
     kwargs.setdefault('RndmEvtOverlay', flags.Detector.OverlayTile)
+    kwargs.setdefault('OnlyUseContainerName', not flags.Detector.OverlayTile)
 
     acc = ComponentAccumulator()
 
@@ -61,7 +64,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     else:
         kwargs.setdefault('PileUp', flags.Digitization.Pileup)
 
-    if kwargs['RndmEvtOverlay'] or kwargs['PileUp']:
+    if kwargs['PileUp']:
         PileUpMergeSvc=CompFactory.PileUpMergeSvc
         acc.addService( PileUpMergeSvc() )
 
@@ -81,7 +84,6 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     return acc
 
 
-
 def TileHitVecToCntCfg(flags, **kwargs):
     """Return component accumulator with configured Tile hit vector to container algorithm
 
@@ -96,8 +98,15 @@ def TileHitVecToCntCfg(flags, **kwargs):
         tool = acc.popToolsAndMerge( TileHitVecToCntToolCfg(flags) )
         kwargs.setdefault('DigitizationTool', tool)
 
-    TileHitVecToCnt=CompFactory.TileHitVecToCnt
-    acc.addEventAlgo(TileHitVecToCnt(**kwargs))
+    # choose which alg to attach to, following PileUpToolsCfg
+    if flags.Digitization.DoXingByXingPileUp or flags.Detector.OverlayTile:
+        Alg = CompFactory.TileHitVecToCnt
+    else:
+        Alg = CompFactory.DigitizationAlg
+        kwargs["name"] = "StandardPileUpToolsAlg"
+        kwargs["PileUpTools"] = [kwargs.pop("DigitizationTool")]
+
+    acc.addEventAlgo(Alg(**kwargs))
 
     return acc
 
@@ -109,7 +118,10 @@ def TileHitOutputCfg(flags, **kwargs):
         flags  -- Athena configuration flags (ConfigFlags)
     """
 
-    acc = OutputStreamCfg(flags, 'RDO', ['TileHitContainer#*'])
+    if flags.Output.doWriteRDO:
+        acc = OutputStreamCfg(flags, 'RDO', ['TileHitContainer#*'])
+    else:
+        acc = ComponentAccumulator()
 
     return acc
 

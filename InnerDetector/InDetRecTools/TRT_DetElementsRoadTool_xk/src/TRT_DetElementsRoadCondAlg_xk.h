@@ -11,13 +11,11 @@
 #define TRT_DetElementsRoadCondAlg_xk_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsRoadData_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkSurfaces/CylinderBounds.h"
+
 
 #include "GaudiKernel/ICondSvc.h"
 

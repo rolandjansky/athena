@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //c - c++
@@ -30,14 +30,10 @@
 //root
 #include "TFile.h"
 #include "TH1.h"
-#include "TH2.h"
 #include "TMinuit.h"
 #include "TString.h"
 #include "TF1.h"
-#include "TMath.h"
-
-
-using namespace std;
+#include "TMath.h" // for TMath::Prob()
 
 namespace MuonCalib {
 
@@ -48,25 +44,15 @@ namespace MuonCalib {
     if(static_NtupleChisqResolutionTool_pointer==NULL) {
       exit(-1);
     }
-    std::cout<<"entro in fcn_wrapper, npar="<<npar<<std::endl;
     static_NtupleChisqResolutionTool_pointer->fcn(npar, gin, f, par, iflag);
   }
   
   //****************************************************************************  
-
- 
- 
  
   NtupleChisqResolutionTool::NtupleChisqResolutionTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p), m_calib_input_svc("MdtCalibInputSvc", n), m_final_resolution(NULL) 
   {
     declareInterface< NtupleCalibrationTool >(this) ;	
     declareProperty("MdtCalibInputSvc", m_calib_input_svc);
-  }
-  
-  //******************************************************************************
-  
-  NtupleChisqResolutionTool::~NtupleChisqResolutionTool()
-  {
   }
 	
   //******************************************************************************
@@ -97,7 +83,6 @@ namespace MuonCalib {
     //root stuff
     m_resolfile = TFile::Open("resolfile.root","RECREATE");	
     m_prob_dist = new TH1F("egment_probability_distribution" ,"segment probability distribution",50,0.,1.);
-    //    m_prob_debg = new TH2F(id.regionId().c_str() ,"segment prob vs hits mdt",20,0.,20.,50,0.,1.);
   }
 
   //******************************************************************************
@@ -159,7 +144,7 @@ namespace MuonCalib {
     }
 
     // perform sigma-t fit //
-    vector<SamplePoint> point(31);
+    std::vector<SamplePoint> point(31);
     double r_min(p_rt_rel->radius(t_min));
     double r_max(p_rt_rel->radius(t_max));
     double bin_width((r_max-r_min)/static_cast<double>(point.size()-1));
@@ -182,7 +167,6 @@ namespace MuonCalib {
   {
     ATH_MSG_INFO( "entering fcn"<<" iflag ="<<iflag );
     m_prob_dist->Reset("ICE");
-    //    m_prob_debg->Reset("ICE");
     f = recalculate(par);
     m_prob_dist->Print("all");
     m_prob_dist->Fit("pol0","L","L",0.02,1.);
@@ -193,30 +177,20 @@ namespace MuonCalib {
     */
     Double_t first_bin = m_prob_dist->GetBinContent(1);
     Double_t total_sum = m_prob_dist->Integral();
-    //    Double_t total_sum = m_prob_dist->GetEntries();
     double expected_first_bin = total_sum/50.;
-    //    std::cout<<" first_bin "<<first_bin<<" total_sum "<<total_sum<<" expt first bin "<<expected_first_bin<<std::endl;
     double ratio = (first_bin / expected_first_bin)*5.;
-    //    double first_bin_chi2 = ratio;
-    //std::cout<<" par "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" ratio,chi2="<<ratio<<" "<<chidue<<std::endl;
     f=chidue+ratio*100.;
   }
   double NtupleChisqResolutionTool::recalculate(double *par)
   {
-    //    ToString toString;
     double r;
-//    double dr;
-//    double t;
-     
     for (unsigned int k=0; k<m_seg->size(); k++) {
 
       for(std::vector<MdtCalibHitBase*>::iterator it =(m_seg->at(k))->mdtHOTBegin() ;   
 	  it!=(m_seg->at(k))->mdtHOTEnd();++it)   
 	{
-//	  t=(*it)->driftTime(); 
 	  r=(*it)->driftRadius();
 	  double newResol = par[0]*exp(-par[1]*r)+par[2];
-//	  dr=(*it)->sigmaDriftRadius();
 	  (*it)->setDriftRadius(r,newResol);
 	}  
 

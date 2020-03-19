@@ -3,9 +3,6 @@
 */
 
 
-// Disable this test in standalone mode:
-#ifndef XAOD_STANDALONE
-
 #undef NDEBUG
 #include <cassert>
 #include <stdexcept>
@@ -910,14 +907,6 @@ int main()
   test_constctor();
   return 0;
 }
-
-#else
-
-int main() {
-   return 0;
-}
-
-#endif // not XAOD_STANDALONE
 
 // xxx
 // per-object flagging of aux data presence?

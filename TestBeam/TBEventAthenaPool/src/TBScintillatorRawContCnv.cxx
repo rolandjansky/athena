@@ -25,7 +25,7 @@ TBScintillatorRawContCnv::~TBScintillatorRawContCnv()
 StatusCode TBScintillatorRawContCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBScintillatorRawContCnv");

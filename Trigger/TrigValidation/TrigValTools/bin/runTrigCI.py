@@ -10,6 +10,9 @@ import sys
 import logging
 import argparse
 import subprocess
+import errno
+from six import iteritems
+from collections import OrderedDict
 from TrigValTools.TrigARTUtils import find_scripts, remember_cwd
 
 
@@ -65,13 +68,24 @@ def analyse_steps(log_file, steps):
     return ret_code
 
 
+def try_mkdir(dirname):
+    try:
+        os.mkdir(dirname)
+    except OSError as e:
+        if e.errno == errno.EEXIST:
+            logging.info("SUB-DIRECTORY %s ALREADY EXISTS AND WILL BE REUSED", dirname)
+        else:
+            logging.error("FAILED TO CREATE SUB-DIRECTORY %s", dirname)
+            raise e
+
+
 def main():
     args = get_parser().parse_args()
     logging.basicConfig(stream=sys.stdout,
                         format='========== %(levelname)-8s %(message)s',
                         level=logging.DEBUG if args.verbose else logging.INFO)
 
-    results = {}
+    results = OrderedDict()
     max_name_len = 0
     for script in args.scripts:
         logging.debug('PROCESSING SCRIPT %s', script)
@@ -83,6 +97,8 @@ def main():
             max_name_len = len(script)
         with remember_cwd():
             dirname = os.path.splitext(script)[0]
+            try_mkdir(dirname)
+            os.chdir(dirname)
             logging.info('='*50)
             logging.info('STARTING %s IN SUB-DIRECTORY %s', script, dirname)
             logging.info('='*50)
@@ -101,7 +117,7 @@ def main():
     logging.info('RESULTS SUMMARY:')
     logging.info('='*(max_name_len+11))
     final_code = 0
-    for script, result in results.iteritems():
+    for script, result in iteritems(results):
         logging.info('| %s : %4d |', '{:{width}s}'.format(script, width=max_name_len), result)
         if abs(result) > final_code:
             final_code = abs(result)

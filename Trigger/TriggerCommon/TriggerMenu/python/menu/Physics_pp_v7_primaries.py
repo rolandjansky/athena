@@ -206,6 +206,12 @@ def setupMenu():
 
         #low pT
         ['xe35',                                   'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_cell_L1XE10',                       'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_mht_L1XE10',                        'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_pufit_L1XE10',                        'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_trkmht_L1XE10',                        'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_pufit_xe30_L1XE10', 'L1_XE10', ['L1_XE10','L1_XE10'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe30_pufit','xe30_L1XE10'] ]],
+
 			 ]
 
     if TriggerFlags.doFTK():

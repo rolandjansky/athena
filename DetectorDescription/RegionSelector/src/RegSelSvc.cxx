@@ -80,9 +80,6 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_lutCreatorToolCSC  ("CSC_RegionSelectorTable", this),
     m_lutCreatorToolMM   ("MM_RegionSelectorTable", this),
     m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable", this),
-    m_initFTK(false),
-    m_lutCreatorToolFTK  ("FTK_RegionSelectorTable", this),
-    m_ftklut(nullptr),
     m_duplicateRemoval( true )
 {
   //! Declare properties
@@ -100,13 +97,11 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "enableCSC",   m_initCSC,      "enable CSC map" );
   declareProperty( "enableMM",    m_initMM,       "enable MM map" );
   declareProperty( "enablesTGC",  m_initsTGC,     "enable sTGC map" );
-  declareProperty( "enableFTK",   m_initFTK,      "enable FTK map" );
   declareProperty( "WriteTables", m_dumpTable,    "write out maps to files for debugging" );
   declareProperty( "OutputFile",  m_roiFileName,  "base filename used to write maps to" );
   declareProperty( "PixelRegionLUT_CreatorTool", m_lutCreatorToolPixel);
   declareProperty( "SCT_RegionLUT_CreatorTool",  m_lutCreatorToolSCT);
   declareProperty( "TRT_RegionLUT_CreatorTool",  m_lutCreatorToolTRT);
-  declareProperty( "FTKRegionSelectorTable",     m_lutCreatorToolFTK);
   declareProperty( "LArRegionSelectorTable",     m_lutCreatorToolLAR);
   declareProperty( "TileRegionSelectorTable",    m_lutCreatorToolTile);
   declareProperty( "RPCRegionSelectorTable",     m_lutCreatorToolRPC);
@@ -194,10 +189,6 @@ StatusCode RegSelSvc::initialize() {
     if ( !m_initTRT.value() )   trtflag   = "disabled"; 
   }
    
-  std::string ftkflag("enabled");  
-  if ( !m_initFTK.value() )  ftkflag = "disabled"; 
-  
-
   std::string rpcflag("enabled");
   std::string mdtflag("enabled");
   std::string tgcflag("enabled");
@@ -219,7 +210,7 @@ StatusCode RegSelSvc::initialize() {
   msg(MSG::INFO) << "detector switches:" 
                  << " indet=" << (m_initOnlyID.value() ? "enabled":"disabled");
   if( m_initOnlyID.value() )
-    msg() << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " ftk=" << ftkflag << " )"; 
+    msg() << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " )"; 
 
   msg() << " calo="  << (m_initOnlyCalo.value() ? "enabled":"disabled") 
         << " muon="  << (m_initOnlyMuon.value() ? "enabled":"disabled");
@@ -455,32 +446,6 @@ bool RegSelSvc::handleID() {
   // structures in the SiRegionSelectorTable so we don't need to 
   // do any more than just extract the tables.
   
-
-  if ( m_initFTK.value() ) { 
-
-    ATH_MSG_INFO( "setting up the FTK tables " );
-
-    StatusCode sc = readFromSG(m_lutCreatorToolFTK, m_ftklut);
-
-    if (sc.isFailure()){
-      ATH_MSG_WARNING( "Failed to initialize ftk lut" );
-      errorFlag = true;
-    } 
-    else { 
-      if ( m_ftklut ) {
-        ATH_MSG_INFO( "retrieved ftk RegSelSiLUT" );
-      }
-      else { 
-        ATH_MSG_ERROR( "retrieved ftk RegSelSiLUT is NULL" );
-        errorFlag = true;
-      }
-    }
-    
-  }
-  else { 
-    ATH_MSG_INFO( "not setting up the FTK tables " );
-  }
-
 
   //! Read PIXEL data from Detector Store
   if ( m_initPixel.value() ) { 
@@ -991,11 +956,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
     if ( m_newstgc ) m_newstgc->getHashList(selroi, IDList); 
     break;
   }
-  case FTK: { // FTK    
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getHashList(roi2, IDList); 
-    break;
-  }
   case LAR: {  // Liquid Argon Calorimeter
     m_larData.regionSelector(etaMin, etaMax, phiMin, phiMax, IDList);
     break;
@@ -1107,11 +1067,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
     if ( m_newstgc ) m_newstgc->getHashList(selroi, layer, IDList); 
     break;
   }
-  case FTK: { // FTK    
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getHashList(roi2, layer, IDList); 
-    break;
-  }
   case LAR: { // Liquid Argon Calorimeter
     m_larData.regionSelector(sampling, etaMin, etaMax, phiMin, phiMax, IDList);
     break;
@@ -1194,10 +1149,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   }
   case STGC: {
     if ( m_newstgc ) m_newstgc->getHashList(IDList); 
-    break;
-  }
-  case FTK: { // FTK    
-    if ( m_ftklut ) m_ftklut->getHashList(IDList); 
     break;
   }
   case LAR: {  // Liquid Argon Calorimeter
@@ -1288,10 +1239,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   }
   case STGC: {
     if ( m_newstgc ) m_newstgc->getHashList( layer, IDList); 
-    break;
-  }
-  case FTK: { // FTK    
-    if ( m_ftklut ) m_ftklut->getHashList( layer, IDList); 
     break;
   }
   case LAR: { // Liquid Argon Calorimeter
@@ -1411,11 +1358,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
     if ( m_newstgc ) m_newstgc->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
-  case FTK: { 
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getRobList(roi2, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
   case LAR: {  // Liquid Argon Calorimeter
     m_larData.regionSelectorRobIdUint( etaMin, etaMax, phiMin, phiMax, outputROBIDList);
     break;
@@ -1528,11 +1470,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
     if ( m_newstgc ) m_newstgc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
-  case FTK: { 
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getRobList(roi2, layer, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
   case LAR: { // Liquid Argon Calorimeter
     m_larData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
     break;
@@ -1599,10 +1536,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   }
   case CSC: { 
     if ( m_newcsc ) m_newcsc->getRobList(outputROBIDList);
-    break;
-  }
-  case FTK: { 
-    if ( m_ftklut ) m_ftklut->getRobList(outputROBIDList);
     break;
   }
   case LAR: {  // Liquid Argon Calorimeter
@@ -1680,10 +1613,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   }
   case CSC: { 
     if ( m_newcsc ) m_newcsc->getRobList( layer, outputROBIDList );
-    break;
-  }
-  case FTK: { 
-    if ( m_ftklut ) m_ftklut->getRobList( layer, outputROBIDList );
     break;
   }
   case LAR: { // Liquid Argon Calorimeter
@@ -1989,7 +1918,6 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
   case CSC: strcpy(strtmp,"CSC"); break;
   case MM: strcpy(strtmp,"MM"); break;
   case STGC: strcpy(strtmp,"sTGC"); break;
-  case FTK: strcpy(strtmp,"FTK"); break;
   default: break;
   }
 
@@ -2028,7 +1956,6 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
   case CSC: strcpy(strtmp,"CSC"); break;
   case MM:  strcpy(strtmp,"MM"); break;
   case STGC: strcpy(strtmp,"sTGC"); break;
-  case FTK: strcpy(strtmp,"FTK"); break;
   default: break;
   }
 
@@ -2143,7 +2070,6 @@ void RegSelSvc::getDetname(const std::string& detTypeStr, std::vector<std::strin
     detName.push_back("PIXEL");
     detName.push_back("SCT");
     detName.push_back("TRT");
-    detName.push_back("FTK");
   }
   else if(detTypeStr == "Calorimeter"){
     detName.push_back("LAR");

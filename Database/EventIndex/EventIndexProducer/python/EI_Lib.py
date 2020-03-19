@@ -1,7 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+import six
 
 
 """ EI classes"""
+
+def cmp(x, y):
+    return (x > y) - (x < y)
 
 class IOV(object):
 
@@ -59,20 +65,20 @@ class IOV(object):
             raise TypeError("interval must be a tuple or list")
 
         try:
-            # convert inverval into longs to prevent lexicographic comparison
+            # convert interval into ints to prevent lexicographic comparison
             interval2=[]
             for number in interval:
-                interval2.append(long(number))
+                interval2.append(int(number))
         except:
             raise TypeError("interval ranges must be a integers or longs")
         
         self._iovs[key].append((interval2,value))
 
     def dump(self):
-        for k,v in self._iovs.iteritems():
-            print k
+        for k,v in six.iteritems(self._iovs):
+            print (k)
             for e in v:
-                print " ", e
+                print (" ", e)
 
     def get(self,key,point):
         if key not in self._iovs:

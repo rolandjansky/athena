@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # External dependencies
 import ROOT
@@ -27,12 +29,12 @@ if IsDebug:
   fileNameCOMMON="/afs/cern.ch/user/d/delsart/public/COMMON/NTUP_COMMON_new.root"
 else: 
   if len(sys.argv) < 3:
-    print "Too few arguments.  Expected the following:"
-    print "1. JETMET file (required)"
-    print "2. COMMON file (required)"
-    print "3. JETMET tree name (optional, default=\"qcd\")"
-    print "4. COMMON tree name (optional, default=\"physics\")"
-    print "5. Whether or not to write branch information to files (optional, default=False)"
+    print ("Too few arguments.  Expected the following:")
+    print ("1. JETMET file (required)")
+    print ("2. COMMON file (required)")
+    print ("3. JETMET tree name (optional, default=\"qcd\")")
+    print ("4. COMMON tree name (optional, default=\"physics\")")
+    print ("5. Whether or not to write branch information to files (optional, default=False)")
     exit(1)
   
   fileNameJETMET=sys.argv[1]
@@ -47,7 +49,7 @@ else:
     elif "False" in sys.argv[5] or "false" in sys.argv[5]:
       writeBranchInformation = False
     else:
-      print "Could not interpret the branch information control argument: ",sys.argv[5]
+      print ("Could not interpret the branch information control argument: ",sys.argv[5])
       exit(2)
 
 
@@ -71,16 +73,16 @@ fileCOMMON = ROOT.TFile(fileNameCOMMON,"READ")
 
 treeJETMET = fileJETMET.Get(treeNameJETMET)
 if not isinstance(treeJETMET,ROOT.TTree) :
-  print "JETMET file does not contain the specified tree.  Is the tree name correct?"
-  print "File: ",fileNameJETMET
-  print "Tree: ",treeNameJETMET
+  print ("JETMET file does not contain the specified tree.  Is the tree name correct?")
+  print ("File: ",fileNameJETMET)
+  print ("Tree: ",treeNameJETMET)
   exit(3)
 
 treeCOMMON = fileCOMMON.Get(treeNameCOMMON)
 if not isinstance(treeJETMET,ROOT.TTree):
-  print "COMMON file does not contain the specified tree.  Is the tree name correct?"
-  print "File: ",fileNameCOMMON
-  print "Tree: ",treeNameCOMMON
+  print ("COMMON file does not contain the specified tree.  Is the tree name correct?")
+  print ("File: ",fileNameCOMMON)
+  print ("Tree: ",treeNameCOMMON)
   exit(4)
 
 
@@ -198,9 +200,9 @@ for aBranch in multiBuilder.getBranchIntersection() :
     if "jet_AntiKt4" in aBranch and ("LC" in aBranch or "EM" in aBranch) :
         multiBuilder.addHistosWithLeadingJetSelectors(JetType(aBranch), aBranch)
 
-print "\nRunning event loop..."
+print ("\nRunning event loop...")
 multiBuilder.eventLoop()
-print "Done event loop!"
+print ("Done event loop!")
 
 #multiBuilder.draw(0)
 #multiBuilder.canvas.Print("test.pdf")

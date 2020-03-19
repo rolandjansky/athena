@@ -4,6 +4,7 @@ TreePlotter.py
 Created by Andreas Salzburger on 2009-04-16.
 
 """
+from __future__ import print_function
 
 import sys
 import os
@@ -17,13 +18,13 @@ class TTreeSelector(object):
         try :
             self.file = TFile.Open(args[0])
         except IndexError :
-            print '[!] You need to specify a file name in the argument list'
+            print ('[!] You need to specify a file name in the argument list')
         # get the hashlist and entries
         self.hashlist = self.file.GetListOfKeys()
         self.entries  = self.hashlist.GetEntries()
-        print '[>] File [',args[0],'] sucessfully loaded'
-        
-    def loadTrees(self, arg):                
+        print ('[>] File [',args[0],'] sucessfully loaded')
+
+    def loadTrees(self, arg):
         """load Trees method: loads trees that match one of the arguments in name"""
         treedict = {}
         for itree in range(0,self.entries):
@@ -31,8 +32,5 @@ class TTreeSelector(object):
             if treename.find(arg) >= 0 :
                 tree = self.file.Get(treename)
                 treedict[treename] = tree
-        print '[>] ',len(treedict),'Trees loaded matching the selection:', arg
+        print ('[>] ',len(treedict),'Trees loaded matching the selection:', arg)
         return treedict
-            
-        
-        

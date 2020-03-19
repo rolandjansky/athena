@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 from optparse import OptionParser    
 
 
@@ -26,7 +29,7 @@ def getResults(infile, test_dict):
                         test_dict[test][ftype].append(line.split('\n')[0])
                 ## Print line with line number for debug
                 if debugmode and doRead:
-                    print "DEBUG: %s: %s" %(linenr,line.split('\n')[0])
+                    print ("DEBUG: %s: %s" %(linenr,line.split('\n')[0]))
 
     return  test_dict
 
@@ -54,8 +57,8 @@ def getTests(infile, selected_test):
 def reportOverview(test_dict): 
     list_sorted = sorted(test_dict.keys())
     for test in list_sorted:
-        #print "%20s %s" %(test, test_dict[test]['status'])
-        print '{0:50}  {1:10}'.format(test, test_dict[test]['status'])
+        #print ("%20s %s" %(test, test_dict[test]['status']))
+        print ('{0:50}  {1:10}'.format(test, test_dict[test]['status']))
 
 
 """
@@ -66,27 +69,27 @@ def reportDiffs(test_dict):
     for test in list_sorted:
         if test_dict[test]['status'] == 'IDENTICAL':
             continue      
-        print test, test_dict[test]['status']
+        print (test, test_dict[test]['status'])
         for item in ['ESD','AOD']:
-            print item
+            print (item)
             for line in test_dict[test][item]:
-                print line
-            print
-        print
+                print (line)
+            print()
+        print()
 
 
 """
   print all
 """
 def printDict(test_dict):
-    print "Overview:"
-    print "=========="
+    print ("Overview:")
+    print ("==========")
     reportOverview(test_dict)
-    print
-    print
-    print
-    print "Details"
-    print "========"
+    print()
+    print()
+    print()
+    print ("Details")
+    print ("========")
     reportDiffs(test_dict)
 
 

@@ -580,15 +580,12 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
   std::map< const Trk::TrkDetElementBase*, std::pair< std::list<const Trk::PrepRawData*>,std::list<const Trk::PrepRawData*> > > clustersPerDetEl;
 
   // Loop over containedROTs in segment
-  const std::vector<const Trk::RIO_OnTrack*>& cROTv = segment.containedROTs();
-  for(unsigned int i_cROTv = 0; i_cROTv < cROTv.size(); i_cROTv++) {
-    if(cROTv.size() == 0) {
-      ATH_MSG_WARNING("Error, cROTv size is zero");
-      continue;
-    }
+  for(unsigned int i_cROTv = 0; i_cROTv < segment.numberOfContainedROTs(); i_cROTv++) {
+
+    const Trk::RIO_OnTrack* rot=segment.rioOnTrack(i_cROTv);
 
     // get the PrepRawData from the ROT
-    const Trk::PrepRawData* prd = cROTv.at(i_cROTv)->prepRawData();
+    const Trk::PrepRawData* prd = rot->prepRawData();
 
     Identifier id = prd->identify();
 
@@ -1092,12 +1089,11 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
   std::set<Muon::MuonStationIndex::ChIndex> chIndices;
 
   // Loop over containedROTs in segment
-  const std::vector<const Trk::RIO_OnTrack*>& cROTv = segment.containedROTs();
-  for(unsigned int i_cROTv = 0; i_cROTv < cROTv.size(); i_cROTv++) {
-    if(cROTv.size() == 0) continue;
+  for(unsigned int i_cROTv = 0; i_cROTv < segment.numberOfContainedROTs(); i_cROTv++) {
+    const Trk::RIO_OnTrack* rot=segment.rioOnTrack(i_cROTv);
 
     // get the PrepRawData from the ROT
-    const Trk::PrepRawData* prd = cROTv.at(i_cROTv)->prepRawData();
+    const Trk::PrepRawData* prd = rot->prepRawData();
 
     Identifier id = prd->identify();
     chIndices.insert(m_idHelperSvc->chamberIndex(id));

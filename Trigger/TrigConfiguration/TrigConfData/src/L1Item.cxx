@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1Item.h"
@@ -16,18 +16,21 @@ TrigConf::L1Item::L1Item(const boost::property_tree::ptree & data)
 TrigConf::L1Item::~L1Item()
 {}
 
+std::string
+TrigConf::L1Item::className() const {
+   return "L1Item";
+}
+
 void
 TrigConf::L1Item::update()
 {
+   if(! isInitialized() || empty() ) {
+      return;
+   }
+   m_name = getAttribute("name");
    for(auto & bg : getList("bunchgroups") ) {
       m_bunchgroups.push_back(bg.getValue<std::string>());
    }
-}
-
-const std::string &
-TrigConf::L1Item::name() const
-{
-   return getAttribute("name");
 }
 
 unsigned int

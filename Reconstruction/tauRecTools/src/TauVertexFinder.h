@@ -40,13 +40,16 @@ public:
   //! Algorithm functions
   //-------------------------------------------------------------
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(xAOD::TauJet& pTau) override;
+  virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
+                                         const xAOD::VertexContainer* vertexContainer = nullptr, 
+                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
   virtual StatusCode finalize() override;
 
 private:
   ElementLink<xAOD::VertexContainer>
   getPV_TJVA(const xAOD::TauJet& tauJet,
              const xAOD::VertexContainer& vertices,
+             const xAOD::TrackParticleContainer* trackContainer,
              float& maxJVF);
 
   float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const;

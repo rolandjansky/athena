@@ -25,12 +25,16 @@
 
 """
 
+from builtins import zip
+from builtins import str
+from builtins import map
+from builtins import range
+from collections import OrderedDict
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-#from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 
 from AthenaCommon.Logging import logging
@@ -42,7 +46,7 @@ def makeSummary(name, flatDecisions):
     from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg    
     summary = TriggerSummaryAlg( CFNaming.stepSummaryName(name) )
     summary.InputDecision = "L1DecoderSummary"
-    summary.FinalDecisions = list(set(flatDecisions))
+    summary.FinalDecisions = list(OrderedDict.fromkeys(flatDecisions))
     return summary
 
 
@@ -67,10 +71,11 @@ def createStepFilterNode(name, seq_list, dump=False):
     for seq in seq_list:
         filterAlg = seq.filter.Alg
         log.info("createStepFilterNode: Add  %s to filter node %s", filterAlg.name(), name)
-        filter_list.append(filterAlg)
+        if filterAlg not in filter_list:
+            filter_list.append(filterAlg)
 
 
-    stepCF = parOR(name + CFNaming.FILTER_POSTFIX, subs=set(filter_list))
+    stepCF = parOR(name + CFNaming.FILTER_POSTFIX, subs=filter_list)
 
     if dump:
         dumpSequence (stepCF, indent=0)
@@ -94,25 +99,15 @@ def createCFTree(CFseq):
 
     already_connected = []
     for menuseq in CFseq.step.sequences:
-        ath_sequence = menuseq.sequence.Alg
-        name = ath_sequence.name()
-        if name in already_connected:
-            log.debug("AthSequencer %s already in the Tree, not added again",name)
-            continue
-        else:
-            already_connected.append(name)
-            stepReco += ath_sequence
-        if type(menuseq.hypo) is list:
-           for hp in menuseq.hypo:
-              seqAndView += hp.Alg
-        else:
-           seqAndView += menuseq.hypo.Alg
+        stepReco, seqAndView, already_connected = menuseq.addToSequencer(
+            stepReco,
+            seqAndView,
+            already_connected)
 
     if CFseq.step.isCombo:
         seqAndView += CFseq.step.combo.Alg
 
     return seqAndWithFilter
-
 
 
 #######################################
@@ -213,7 +208,7 @@ def matrixDisplayOld( allCFSeq ):
                 else:
                     return s.step.sequences[0].hypo.tools
             else:
-                return s.step.combo.getChains().keys()
+                return list(s.step.combo.getChains().keys())
         return []
    
 
@@ -221,7 +216,7 @@ def matrixDisplayOld( allCFSeq ):
 
     def __nextSteps( index, stepName ):
         nextStepName = "Step%s_"%index + "_".join(stepName.split("_")[1:])
-        for sname, seq in mx[index].iteritems():
+        for sname, seq in mx[index].items():
             if sname == nextStepName:
                 return sname.ljust( longestName ) + __nextSteps( index + 1, nextStepName )
         return ""
@@ -229,7 +224,7 @@ def matrixDisplayOld( allCFSeq ):
     log.debug("" )
     log.debug("chains^ vs steps ->")
     log.debug( "="*90 )
-    for sname, seq in mx[1].iteritems():
+    for sname, seq in mx[1].items():
         guessChainName = '_'.join( sname.split( "_" )[1:] )
         log.debug( " Reco chain: %s: %s", guessChainName.rjust(longestName),  __nextSteps( 1, sname ) )
         log.debug( " %s", " ".join( __getHyposOfStep( seq ) ) )
@@ -241,18 +236,14 @@ def matrixDisplayOld( allCFSeq ):
 
     
 def matrixDisplay( allCFSeq ):
- 
+
     def __getHyposOfStep( step ):
         if len(step.sequences):
             if len(step.sequences)==1:
-                if type(step.sequences[0].hypo) is list:
-                    return step.sequences[0].hypo[0].tools
-                else:
-                    return step.sequences[0].hypo.tools
+                return step.sequences[0].getTools()
             else:
-                return step.combo.getChains().keys()
+                return list(step.combo.getChains().keys())
         return []
- 
    
     # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
     from collections import defaultdict
@@ -267,13 +258,13 @@ def matrixDisplay( allCFSeq ):
 
     # sort dictionary by fist key=step
     from collections import  OrderedDict
-    sorted_mx = OrderedDict(sorted( mx.items(), key= lambda k: k[0]))
+    sorted_mx = OrderedDict(sorted( list(mx.items()), key= lambda k: k[0]))
 
     log.info( "" )
     log.info( "="*90 )
     log.info( "Cumulative Summary of steps")
     log.info( "="*90 )
-    for (step, seq), chains in sorted_mx.items():
+    for (step, seq), chains in list(sorted_mx.items()):
         log.info( "(step, sequence)  ==> (%d, %s) is in chains: ",  step, seq)
         for chain in chains:
             log.info( "              %s",chain)
@@ -304,7 +295,7 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
 
     # decode and attach HypoTools:
     for chain in chains:
-        chain.decodeHypoToolConfs()
+        chain.createHypoTools()
 
     log.debug("finalDecisions: %s", finalDecisions)
     if create_dot():
@@ -421,7 +412,7 @@ def createControlFlow(HLTNode, CFseqList):
         for CFseq in CFseqList[nstep]:
             stepDecisions.extend(CFseq.decisions)
 
-        summary=makeSummary( stepSequenceName, stepSequenceName )
+        summary=makeSummary( stepSequenceName, stepDecisions )
 
         HLTNode += summary
 
@@ -452,7 +443,7 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
 
     ## Fill chain steps matrix
     for chain in chains:
-        chain.decodeHypoToolConfs()#allChainDicts)
+        chain.createHypoTools()#allChainDicts)
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)

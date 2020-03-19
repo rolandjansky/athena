@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -13,9 +13,7 @@
 #define LArDAC2uACompleteCnv_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCoolMultChanCnv.h"
-#define private public
 #include "LArRawConditions/LArDAC2uAComplete.h"
-#undef private
 #include "LArRawConditions/LArDAC2uAP.h"
 #include "LArSingleFloatConverter.h"
  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,12 +13,13 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/TRT_DriftCircleContainerCnv_p2.h"
 #include "TestTools/leakcheck.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+//#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -67,10 +68,12 @@ void compare (const InDet::TRT_DriftCircleContainer& p1,
 }
 
 
-void testit (const InDet::TRT_DriftCircleContainer& trans1)
+void testit (const InDet::TRT_DriftCircleContainer& trans1, const TRT_ID& trt_id)
 {
   MsgStream log (0, "test");
   TRT_DriftCircleContainerCnv_p2 cnv;
+  cnv.setIdHelper(&trt_id);
+  cnv.setUseDetectorElement(false);
   InDet::TRT_DriftCircleContainer_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<InDet::TRT_DriftCircleContainer> trans2
@@ -112,7 +115,7 @@ makeclusts (const TRT_ID& trt_id)
          54321);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash);
+    assert( cont->addCollection (coll.release(), hash).isSuccess() );
   }
 
   // gcc4.9 doesn't allow returning cont directly here; fixed in 5.2.
@@ -128,13 +131,13 @@ void test1 (const TRT_ID& trt_id)
   {
     // Do it once without leak checking to get services initialized.
     std::unique_ptr<const InDet::TRT_DriftCircleContainer> cont = makeclusts(trt_id);
-    testit (*cont);
+    testit (*cont,trt_id);
   }
 
   // And again with leak checking.
   Athena_test::Leakcheck check;
   std::unique_ptr<const InDet::TRT_DriftCircleContainer> cont = makeclusts(trt_id);
-  testit (*cont);
+  testit (*cont,trt_id);
 }
 
 
@@ -153,8 +156,8 @@ const TRT_ID& make_dd()
   assert ( svcLoc->service("DetectorStore", detStore).isSuccess() );
   assert ( detStore->record (std::move (trt_id), "TRT_ID") );
 
-  auto sct_dd = std::make_unique<InDetDD::TRT_DetectorManager>(detStore);
-  assert ( detStore->record (std::move (sct_dd), "TRT_DetectorDescription") );
+  //auto sct_dd = std::make_unique<InDetDD::TRT_DetectorManager>(detStore);
+  //assert ( detStore->record (std::move (sct_dd), "TRT_DetectorDescription") );
   return ret;
 }
 

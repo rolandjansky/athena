@@ -105,7 +105,7 @@ StatusCode egammaOQFlagsBuilder::finalize()
 
 // ===============================================================
 bool egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster,
-                                           Identifier cellCentrId) const {
+                                           Identifier& cellCentrId) const {
 
   bool thereIsACentrCell = false;
 

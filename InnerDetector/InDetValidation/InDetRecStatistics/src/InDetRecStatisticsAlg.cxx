@@ -741,7 +741,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
 	  << "\t" << "Secondary (non-primary) end   \t"
 	  << " R > "    << m_minREndSecondary   << "mm or"
 	  << " |z| > "  << m_minREndSecondary   << "mm" << "\n"
-          << "\t" << "DBM                \t"
+          << "\t" << "Forward                \t"
           << "|eta| > " << m_minEtaDBM     << "\n"
 	  << "\t" << "Low prob tracks #1    \t" << "< "               
 	  << m_fakeTrackCut  << " of hits from single Truth Track " 
@@ -761,8 +761,10 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
-    out << "\n" << s_linestr2 << "\n";
-    (*collection)->print(out);
+     if ((*collection)->key()=="CombinedInDetTracks"){
+         out << "\n" << s_linestr2 << "\n";
+         (*collection)->print(out);
+     }
   }
 
   if (m_UseTrackSummary) {
@@ -793,7 +795,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
 
     out << "\n"
         << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n"
-        << "  in DBM                   tracks/event  " << track_stummary_type_header << "\n"
+        << "  in FORWARD region        tracks/event  " << track_stummary_type_header << "\n"
         << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n";
     printTrackSummary (out, ETA_DBM);
   }
@@ -814,8 +816,10 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
     for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	   m_SignalCounters.begin();
 	 collection !=  m_SignalCounters.end(); collection++) {
-      out << "\n" << s_linestr2 << "\n";
-      (*collection)->printSecondary(out);
+     if ((*collection)->key()=="CombinedInDetTracks"){
+         out << "\n" << s_linestr2 << "\n";
+         (*collection)->printSecondary(out);
+     }
     }
   }
   }
@@ -833,7 +837,9 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
   for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
-     printed = (*collection)->printTrackSummaryRegion(out, TRACK_ALL, eta_reg) || printed;
+     if ((*collection)->key()=="CombinedInDetTracks"){
+         printed = (*collection)->printTrackSummaryRegion(out, TRACK_ALL, eta_reg) || printed;
+     }
   }
   if (printed) {
      out <<  "\n"
@@ -843,7 +849,9 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
   for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
-     printed = (*collection)->printTrackSummaryRegion(out, TRACK_LOWTRUTHPROB, eta_reg) || printed;
+     if ((*collection)->key()=="CombinedInDetTracks"){
+         printed = (*collection)->printTrackSummaryRegion(out, TRACK_LOWTRUTHPROB, eta_reg) || printed;
+     }
   }
   if (printed) {
      out << "\n"
@@ -852,7 +860,9 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
   for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
-     (*collection)->printTrackSummaryRegion(out, TRACK_LOWTRUTHPROB2, eta_reg);
+     if ((*collection)->key()=="CombinedInDetTracks"){
+         (*collection)->printTrackSummaryRegion(out, TRACK_LOWTRUTHPROB2, eta_reg);
+     }
   }
 }
 

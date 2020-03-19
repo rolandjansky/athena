@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.CFElements import parOR
+from AthenaCommon.CFElements import parOR, seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool
@@ -15,19 +15,35 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     if trkopt=="ftf":
         from TrigInDetConfig.InDetSetup import makeInDetAlgs
         # Guess FS rather than making it jet-specific?
-        viewAlgs = makeInDetAlgs( "FS", rois=RoIs )
+        viewAlgs = makeInDetAlgs( "JetFS", "_FS", rois=RoIs )
 
-        for alg in viewAlgs:
-            if "RoIs" in alg.properties():
-                alg.RoIs = RoIs
-            if "roiCollectionName" in alg.properties():
-                alg.roiCollectionName = RoIs
-            jetTrkSeq += alg
-        tracksname = recordable("HLT_xAODTracks_FS")
+        # Encapsulate the tracking algs in a view to avoid interference
+        jetTrkViewSeq = seqAND( "JetTrackingViewSeq_"+trkopt, [] )
+        jetTrkViewNode = parOR( "JetTrackingViewNode_"+trkopt, viewAlgs )
+
+        # Alg to create the view
+        import AthenaCommon.CfgMgr as CfgMgr
+        jetTrkEVCA = CfgMgr.AthViews__MinimalViewAlg( "JetTrackingEVCA_"+trkopt )
+        jetTrkEVCA.ViewNodeName = jetTrkViewNode.name()
+        jetTrkViewSeq += jetTrkEVCA
+
+        # View algs
+        jetTrkViewSeq += jetTrkViewNode
+
+        # Alg to retrieve the result
+        jetTrkOutput = CfgMgr.AthViews__AliasOutOfView( "JetTrackingOutput_"+trkopt)
+        jetTrkOutput.DataObjects = [ ('xAOD::TrackParticleContainer' , 'HLT_IDTrack_FS_FTF') ]
+        jetTrkOutput.ViewName = jetTrkViewNode.name()
+        jetTrkViewSeq += jetTrkOutput
+
+        # Attach to main sequence
+        jetTrkSeq += jetTrkViewSeq
+
+        tracksname = recordable("HLT_IDTrack_FS_FTF")
         verticesname = recordable("HLT_EFHistoPrmVtx")
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    vtxAlgs = makeVertices( "jet", "HLT_xAODTracks_FS", verticesname )
+    vtxAlgs = makeVertices( "jet", "HLT_IDTrack_FS_FTF", verticesname )
     prmVtx = vtxAlgs[-1]
     jetTrkSeq += prmVtx
 

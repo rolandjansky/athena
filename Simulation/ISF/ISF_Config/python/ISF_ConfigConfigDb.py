@@ -39,6 +39,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII",           "ISF_Ker
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIMT",         "ISF_Kernel_ATLFASTIIMT")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII_QS",        "ISF_Kernel_ATLFASTII_QS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF",          "ISF_Kernel_ATLFASTIIF")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_G4MS",     "ISF_Kernel_ATLFASTIIF_G4MS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIFMT",        "ISF_Kernel_ATLFASTIIFMT")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_PileUp",   "ISF_Kernel_ATLFASTIIF_PileUp")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII_PileUp",   "ISF_Kernel_ATLFASTII_PileUp")

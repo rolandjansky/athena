@@ -37,8 +37,8 @@ static const InterfaceID IID_ITrigDkfTrackMakerTool("ITrigDkfTrackMakerTool",1,0
     static const InterfaceID& interfaceID ()   //!< the Tool's interface
       {  return IID_ITrigDkfTrackMakerTool; }  	
 
-    virtual bool createDkfTrack(std::vector<const TrigSiSpacePoint*>&, std::vector<Trk::TrkBaseNode*>&, double) = 0;
-    virtual bool createDkfTrack(const Trk::Track&, std::vector<Trk::TrkBaseNode*>&, double) = 0;
+    virtual bool createDkfTrack(std::vector<const TrigSiSpacePoint*>&, std::vector<Trk::TrkBaseNode*>&, double) const = 0;
+    virtual bool createDkfTrack(const Trk::Track&, std::vector<Trk::TrkBaseNode*>&, double) const = 0;
   };
 
 #endif

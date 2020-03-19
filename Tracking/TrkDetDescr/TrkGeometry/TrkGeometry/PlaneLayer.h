@@ -172,20 +172,20 @@ class LayerMaterialProperties;
         PlaneLayer& operator=(const PlaneLayer&);
                
         /**Destructor*/
-        virtual ~PlaneLayer(){}   
+        virtual ~PlaneLayer() override{}   
     
         /** Transforms the layer into a Surface representation for extrapolation */
         virtual const PlaneSurface& surfaceRepresentation() const override;
 
         /** getting the MaterialProperties back - for pre-update*/ 
-        virtual
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+        
+        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                               Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
-        virtual
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
+        
+        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                                 Trk::PropDirection dir) const override;
 
        /** move the Layer */
         virtual void moveLayer( Amg::Transform3D& shift ) override;
@@ -200,22 +200,22 @@ class LayerMaterialProperties;
        virtual void resizeLayer(const VolumeBounds&, double) override{}      
        /** Resize the layer to the tracking volume - not implemented */
        virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                            double) const override
+                                                      double) const override
        {}
 
        /** Resize the layer to the tracking volume - not implemented */ 
        virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) override {}
        /** Resize the layer to the tracking volume - not implemented */
        virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                                         const Amg::Vector3D&,
-                                                                         double) const override
+                                                                   const Amg::Vector3D&,
+                                                                   double) const override
        {}
   };
 
   /** @class PlaneLayerSorterX
      Functor for PlaneLayer X-Sorting */
      
-  class PlaneLayerSorterX : public std::binary_function<const PlaneLayer*, const PlaneLayer*, bool> {
+  class PlaneLayerSorterX {
     public:       
        /** Default Constructor */
        PlaneLayerSorterX()
@@ -229,7 +229,7 @@ class LayerMaterialProperties;
   /** @class PlaneLayerSorterY
      Functor for PlaneLayer Y-Sorting */
      
-  class PlaneLayerSorterY : public std::binary_function<const PlaneLayer*, const PlaneLayer*, bool> {
+  class PlaneLayerSorterY {
     public:       
        /** Default Constructor */
        PlaneLayerSorterY()
@@ -243,7 +243,7 @@ class LayerMaterialProperties;
   /** @class PlaneLayerSorterZ
      Functor for PlaneLayer Z-Sorting */
      
-  class PlaneLayerSorterZ : public std::binary_function<const PlaneLayer*, const PlaneLayer*, bool> {
+  class PlaneLayerSorterZ {
     public:       
        /** Default Constructor */
        PlaneLayerSorterZ()

@@ -21,7 +21,7 @@
 #include "xAODCore/AuxContainerBase.h"
 
 // local includes
-#include "xAODForward/AFPSiHit.h"
+#include "xAODForward/versions/AFPSiHit_v1.h"
 
 
 namespace xAOD {
@@ -44,7 +44,7 @@ namespace xAOD {
     std::vector< int > pixelLayerID;
     std::vector< int > pixelRowIDChip;
     std::vector< int > pixelColIDChip;
-    std::vector< std::vector<AFPSiHit::AFPTrackLink_t> > tracksLinks;
+    std::vector< std::vector<AFPSiHit_v1::AFPTrackLink_t> > tracksLinks;
   }; // class AFPSiHitAuxContainer_v1
 
   

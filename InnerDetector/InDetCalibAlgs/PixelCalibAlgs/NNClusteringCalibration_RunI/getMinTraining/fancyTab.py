@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 import types
 import math
 
@@ -10,8 +12,8 @@ def print_table_row(row, top_border=False, bottom_border=False):
     """Prints columns of a single table row with ascii cell seperator and
     an optional top and/or bottom border line.
     """
-    if not type(row) == types.ListType:
-        print "ERROR: A line has to be of the type ListType."
+    if isinstane(row,(list,tuple)):
+        print ("ERROR: A line has to be of the type ListType.")
         return 1
     cc = "+"
     """corner char"""
@@ -33,10 +35,10 @@ def print_table_row(row, top_border=False, bottom_border=False):
         c += 1
     # now print table row
     if top_border:
-        print sep
-    print out
+        print (sep)
+    print (out)
     if bottom_border:
-        print sep
+        print (sep)
     return 0
 
 def print_table(rows):
@@ -44,8 +46,8 @@ def print_table(rows):
     The first row is assumed to be the heading line. The heading line
     and the last line of the table are printed with seperator lines.
     """
-    if not type(rows) == types.ListType:
-        print "ERROR: Table rows have to be of the type ListType."
+    if isinstane(rows,(list,tuple)):
+        print ("ERROR: Table rows have to be of the type ListType.")
         return 1
     r = 0
     """row counter"""
@@ -105,7 +107,8 @@ def align_cell_content(cell, max_cell_length=0, alignment=0, truncate=True):
         return cell
     cur_cell_length=len(cell)
     padding=max_cell_length-cur_cell_length
-    if padding == 0: return cell
+    if padding == 0:
+        return cell
     if padding < 0:
         if truncate:
             return cell[:max_cell_length]

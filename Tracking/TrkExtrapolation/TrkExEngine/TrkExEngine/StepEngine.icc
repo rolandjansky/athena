@@ -35,7 +35,7 @@ template<class T> Trk::ExtrapolationCode Trk::StepEngine::targetSurfacesT(Trk::E
     }
 
     // static frame boundaries
-    const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > bounds = eCell.leadVolume->boundarySurfaces();
+    const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > &bounds = eCell.leadVolume->boundarySurfaces();
     // count number of non-trivial solutions
     unsigned int iInt=0;
     for (unsigned int ib=0; ib< bounds.size(); ib++ ){
@@ -77,7 +77,7 @@ template<class T> Trk::ExtrapolationCode Trk::StepEngine::targetSurfacesT(Trk::E
 template<class T> Trk::ExtrapolationCode Trk::StepEngine::resolveFrameBoundaryT(Trk::ExtrapolationCell<T>& eCell, Amg::Vector3D gp,
                                                                                 unsigned int bIndex ) const
 {                                                                                                                    
-   const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > bounds = eCell.leadVolume->boundarySurfaces();
+   const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > &bounds = eCell.leadVolume->boundarySurfaces();
 
    EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "","current lead volume:"<<eCell.leadVolume->volumeName());
    

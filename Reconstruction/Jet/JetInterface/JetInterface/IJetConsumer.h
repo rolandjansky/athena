@@ -24,7 +24,7 @@ ASG_TOOL_INTERFACE(IJetConsumer)
 public:
 
   /// Destructor.
-  virtual ~IJetConsumer();
+  virtual ~IJetConsumer() {};
 
   /// Copy the pseudojets from srcjets to dstjets.
   /// Return 0 for success.

@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies a specific SimpleRawObjMaker instance
 
 from AthenaCommon.Logging import logging
-from RecExConfig.Configured import *
+from RecExConfig.Configured import Configured
 
 
 class SimpleRawObjGetter ( Configured )  :
@@ -22,7 +22,7 @@ class SimpleRawObjGetter ( Configured )  :
 
         try:
             from RecExAlgs.RecExAlgsConf import SimpleRawObjMaker
-        except ImportError,err:
+        except ImportError as err:
             mlog.error("could not import SimpleRawObjMaker:")
             mlog.error(err)
             return False

@@ -47,8 +47,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "PathResolver/PathResolver.h"
 
-// Pile up
-#include "PileUpTools/PileUpMergeSvc.h"
 // trigger time
 #include "AthenaKernel/ITriggerTime.h"
 
@@ -82,7 +80,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 // ........ default values of private data
 //
   m_chronSvc              = 0;
-  m_mergeSvc              = 0;
   m_useTriggerTime        = false;
   //m_triggerTimeToolName   = "CosmicTriggerTimeTool";
   //p_triggerTimeTool       = 0;
@@ -200,7 +197,7 @@ StatusCode LArTTL1Maker::initialize()
 //
   if (m_PileUp)
   {
-    ATH_MSG_INFO ( "take events from PileUp service" );
+    ATH_MSG_INFO ( "processing pile-up events" );
   }
   else
   {
@@ -244,14 +241,6 @@ StatusCode LArTTL1Maker::initialize()
     ATH_MSG_DEBUG ( "standard calibration mode chosen for HEC towers " );
   }
 
-//
-// locate the PileUpMergeSvc and initialize our local ptr
-//
-  if (m_PileUp) {
-    ATH_CHECK( service("PileUpMergeSvc", m_mergeSvc) );
-    ATH_MSG_DEBUG ( "PileUpMergeSvc successfully initialized" );
-  }     
-  
 //
 // .........retrieve tool computing trigger time if requested
 //

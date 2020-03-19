@@ -1,6 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_TRIGT1STOREGATEKEYS_H
 #define TRIGT1INTERFACES_TRIGT1STOREGATEKEYS_H
@@ -10,9 +9,6 @@
 
 /**
  * @short Namespace of the LVL1 MuCTPI simulation
- *
- * $Revision: 621285 $
- * $Date: 2014-10-11 16:51:48 +0200 (Sat, 11 Oct 2014) $
  */
 namespace LVL1MUCTPI {
 
@@ -47,8 +43,15 @@ namespace LVL1 {
   //static const std::string DEFAULT_FrontPanelCTPLocation = "FrontPanelCTPLocation";
   //! default StoreGate location for Front Panel CTP inputs
   static const std::string DEFAULT_L1TopoCTPLocation = "L1TopoToCTPLocation";
+
+  //! default StoreGate location for Front Panel legacy L1Topo to CTP inputs
+  static const std::string DEFAULT_L1TopoLegacyCTPLocation = "L1TopoLegacyToCTPLocation";
+
   //! default StoreGate location for Front Panel CTP inputs of l1topo overflow bits
   static const std::string DEFAULT_L1TopoOverflowCTPLocation = "L1TopoOverflowToCTPLocation";
+
+  //! default StoreGate location for CTP inputs of legacy l1topo overflow bits
+  static const std::string DEFAULT_L1TopoLegacyOverflowCTPLocation = "L1TopoLegacyOverflowToCTPLocation";
 
 } // namespace LVL1
 

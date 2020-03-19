@@ -193,7 +193,7 @@ namespace Trk {
       TrackingVolume(const TrackingVolume& trVol, Amg::Transform3D& transform);
       
       /** Destructor */
-      ~TrackingVolume();
+      ~TrackingVolume() override;
       
       /** Return the associated Layer */
       const Layer*   associatedLayer(const Amg::Vector3D& gp) const;
@@ -349,7 +349,7 @@ namespace Trk {
       void addMaterial( const Material& mat, float fact=1. );
       void addMaterial ATLAS_NOT_THREAD_SAFE (const Material& mat, float fact=1.) const ;
 
-
+      virtual bool isAlignable () const;
       /** remove content */
       void clear();
 
@@ -641,6 +641,7 @@ namespace Trk {
     const_cast<TrackingVolume *>(this)->propagateMaterialProperties(mprop);
   }
 
+ inline bool TrackingVolume::isAlignable () const{return false;}
 } // end of namespace
 
 #endif // TRKGEOMETRY_TRACKINGVOLUME_H

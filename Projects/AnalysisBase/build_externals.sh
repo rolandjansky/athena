@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script building all the externals necessary for the nightly build.
 #
 
@@ -83,10 +85,8 @@ fi
 # Create some directories:
 mkdir -p ${BUILDDIR}/{src,install}
 
-# Set some environment variables that the builds use internally:
-export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
-export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
+# Get the version of AnalysisBase for the build.
+version=`cat ${thisdir}/version.txt`
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
@@ -114,6 +114,6 @@ export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AnalysisBaseExternals
 ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/AnalysisBaseExternals \
     -b ${BUILDDIR}/build/AnalysisBaseExternals \
-    -i ${BUILDDIR}/install/AnalysisBaseExternals/${NICOS_PROJECT_VERSION} \
+    -i ${BUILDDIR}/install \
     -p AnalysisBaseExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION} ${EXTRACMAKE[@]/#/-x }
+    -v ${version} ${EXTRACMAKE[@]/#/-x }

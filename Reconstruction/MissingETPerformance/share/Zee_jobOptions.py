@@ -24,4 +24,4 @@ ZeeTool = ConfiguredZeeTool(
     )
 
 ToolSvc += ZeeTool
-print      ZeeTool
+printfunc (     ZeeTool)

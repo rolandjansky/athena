@@ -1,10 +1,13 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+import sys
 
 #  'conditionsTag', 'geometryVersion',
 #  'maxEvents', 'skipEvents', 'RunNumber', 
 
 #if not 'CafJobInputs' in dir():
 #    CafJobInputs=[["data11_7TeV.00189288.calibration_LArCells.daq.RAW._lb0000._SFO-10._0001.data"]]
-#    print "No input file given, use ",CafJobInputs[0]
+#    printfunc ("No input file given, use ",CafJobInputs[0])
 
 
 #if not 'CafJobOutputs' in dir():
@@ -35,14 +38,14 @@ rec.doWriteESD=False
 rec.doWriteAOD=False
 
 ConfigureTriggerStream()
-#print rec.triggerStream()
+#printfunc (rec.triggerStream())
 
 from AthenaCommon.JobProperties import jobproperties
 if hasattr(runArgs,'geometryVersion'):
     jobproperties.Global.DetDescrVersion = runArgs.geometryVersion
 else:
     defaultGeoVersion="ATLAS-R2-2015-02-00-00"
-    print "No geometryVersion given, use default value of",defaultGeoVersion
+    printfunc ("No geometryVersion given, use default value of",defaultGeoVersion)
     jobproperties.Global.DetDescrVersion = defaultGeoVersion
     
 
@@ -91,12 +94,12 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 
 if not hasattr(runArgs,"conditionsTag") or runArgs.conditionsTag=="CURRENT":
-    print "Resolving 'CURRENT' express conditions tag ..."
+    printfunc ("Resolving 'CURRENT' express conditions tag ...")
     sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
     from AtlCoolBKLib import resolveAlias
     resolver=resolveAlias()
     currentGlobalES=resolver.getCurrentES().replace("*","ST")
-    print "Found ",currentGlobalES
+    printfunc ("Found ",currentGlobalES)
     svcMgr.IOVDbSvc.GlobalTag=currentGlobalES
 else:
     svcMgr.IOVDbSvc.GlobalTag=runArgs.conditionsTag
@@ -240,7 +243,7 @@ if hasattr(runArgs,"outputNTUP_SAMPLESMONFile"):
     topSequence.LArShapeDumper.BunchCrossingTool=BunchCrossingTool()
 
     if ("Empty" in rec.triggerStream()):
-       print "LArCellsEmpty: Process only empty bunch crossings"
+       printfunc ("LArCellsEmpty: Process only empty bunch crossings")
        topSequence.LArShapeDumper.onlyEmptyBC=True 
 
     svcMgr.THistSvc.Output += ["AANT DATAFILE='"+runArgs.outputNTUP_SAMPLESMONFile+"' OPT='RECREATE'"]
@@ -291,9 +294,9 @@ if hasattr(runArgs,"postInclude"):
  
 ## Post-exec
 if hasattr(runArgs,"postExec"):
-    print "transform post-exec"
+    printfunc ("transform post-exec")
     for cmd in runArgs.postExec:
-        print cmd
+        printfunc (cmd)
         exec(cmd)
     
 

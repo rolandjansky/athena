@@ -48,7 +48,7 @@ SUSY10ThinningHelper.AppendToStream( SUSY10Stream )
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 SUSY10TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY10TPThinningTool",
-								 ThinningService	 = SUSY10ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = streamName,
 								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
 								 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY10TPThinningTool
@@ -57,7 +57,7 @@ thinningTools.append(SUSY10TPThinningTool)
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY10MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name			 = "SUSY10MuonTPThinningTool",
-									 ThinningService	 = SUSY10ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
 									 MuonKey		 = "Muons",
 									 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY10MuonTPThinningTool
@@ -66,7 +66,7 @@ thinningTools.append(SUSY10MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY10ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY10ElectronTPThinningTool",
-										 ThinningService	 = SUSY10ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
 										 SGKey			 = "Electrons",
 										 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY10ElectronTPThinningTool
@@ -75,7 +75,7 @@ thinningTools.append(SUSY10ElectronTPThinningTool)
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY10PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY10PhotonTPThinningTool",
-										 ThinningService	 = SUSY10ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
 										 SGKey			 = "Photons",
 										 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY10PhotonTPThinningTool
@@ -84,7 +84,7 @@ thinningTools.append(SUSY10PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 SUSY10TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name		= "SUSY10TauTPThinningTool",
-									ThinningService = SUSY10ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
 									TauKey  	= "TauJets",
 									InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY10TauTPThinningTool
@@ -110,7 +110,7 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY10TruthThinningTool = DerivationFramework__MenuTruthThinning(
     name              = "SUSY10TruthThinningTool",
-    ThinningService              = SUSY10ThinningHelper.ThinningSvc(),
+    StreamName                   = streamName,
     WritePartons                 = False,
     WriteHadrons                 = False,
     WriteBHadrons                = False,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMSimHitVariables.h"
@@ -18,7 +18,7 @@
 StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) 
 {
 
-  ATH_MSG_INFO("do fillNSWMMHitVariables()");
+  ATH_MSG_DEBUG("do fillNSWMMHitVariables()");
 
   CHECK( this->clearVariables() );
 
@@ -120,7 +120,7 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
     MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(off_stationEta), off_stationPhi, off_multiplet, side);
     MMReadoutParameters roParam = mm->GetReadoutParameters();
 
-    ATH_MSG_INFO(     "MicroMegas Offline id:  Station Name [" << stName << " ]"
+    ATH_MSG_DEBUG(     "MicroMegas Offline id:  Station Name [" << stName << " ]"
                     << " Station Eta ["  << off_stationEta      << "]"
                     << " Station Phi ["  << off_stationPhi      << "]"
                     << " Multiplet  ["   << off_multiplet       << "]"
@@ -239,7 +239,7 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
     m_NSWMM_nSimHits++;
   }
 
-  ATH_MSG_INFO("processed " << m_NSWMM_nSimHits << " MicroMegas hits");
+  ATH_MSG_DEBUG("processed " << m_NSWMM_nSimHits << " MicroMegas hits");
   return StatusCode::SUCCESS;
 }
 

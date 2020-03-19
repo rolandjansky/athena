@@ -28,7 +28,10 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_CHECK(m_condDCSStatusKey.initialize());
 
 #ifndef SIMULATIONBASE
-  if (m_useByteStream) { ATH_CHECK(m_BSErrContReadKey.initialize()); }
+  if (!m_useByteStream) {
+    ATH_CHECK(m_BSErrContReadKey.assign(""));
+  }
+  ATH_CHECK(m_BSErrContReadKey.initialize(!m_BSErrContReadKey.empty()));
 #endif
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));

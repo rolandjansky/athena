@@ -19,7 +19,6 @@
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CaloIdentifier/LArNeighbours.h"
 #include "Identifier/IdentifierHash.h"
-#include "LArElecCalib/ILArOFC.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArSimEvent/LArHitFloat.h"
@@ -92,8 +91,10 @@ StatusCode LArPileUpTool::initialize()
      ATH_MSG_INFO(" No overlay of random events");
   }
 
-  ATH_CHECK(m_mergeSvc.retrieve());
-  ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+    ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
+  }
 
   //
   // ......... print the noise flag
@@ -147,6 +148,7 @@ StatusCode LArPileUpTool::initialize()
   // Initialize ReadHandleKey
   ATH_CHECK(m_hitContainerKeys.initialize(!m_onlyUseContainerName && !m_hitContainerKeys.empty() ));
   ATH_CHECK(m_hitFloatContainerKeys.initialize(!m_onlyUseContainerName && !m_hitFloatContainerKeys.empty() ));
+  ATH_CHECK(m_inputDigitContainerKey.initialize(!m_onlyUseContainerName && !m_inputDigitContainerKey.empty() ));
 
   if (m_Windows) {
     ATH_CHECK(  detStore()->retrieve(m_caloDDMgr, "CaloMgr") );
@@ -175,9 +177,8 @@ StatusCode LArPileUpTool::initialize()
   ATH_CHECK(m_adc2mevKey.initialize());
 
   // retrieve tool to compute sqrt of time correlation matrix
-  if ( !m_RndmEvtOverlay  &&  m_NoiseOnOff) {
-    ATH_CHECK(m_autoCorrNoiseKey.initialize());
-  }
+  ATH_CHECK(m_autoCorrNoiseKey.initialize(!m_RndmEvtOverlay && m_NoiseOnOff));
+
   if (m_maskingTool.retrieve().isFailure()) {
        ATH_MSG_INFO(" No tool for bad channel masking");
       m_useBad=false;
@@ -211,9 +212,8 @@ StatusCode LArPileUpTool::initialize()
 
 // register data handle for conditions data
 
-  if ( !m_RndmEvtOverlay && !m_pedestalNoise && m_NoiseOnOff ) {
-    ATH_CHECK(m_noiseKey.initialize());
-  }
+  ATH_CHECK(m_noiseKey.initialize(!m_RndmEvtOverlay && !m_pedestalNoise && m_NoiseOnOff));
+
   ATH_CHECK(m_shapeKey.initialize());
   ATH_CHECK(m_fSamplKey.initialize());
   ATH_CHECK(m_pedestalKey.initialize());
@@ -309,17 +309,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 
   //
   // ..... get OFC pointer for overlay case
-
-  m_larOFC=NULL;
-  if(m_RndmEvtOverlay  && !m_isMcOverlay) {
-    StatusCode sc=detStore()->retrieve(m_larOFC);
-    if (sc.isFailure())
-    {
-      ATH_MSG_ERROR("Can't retrieve LArOFC from Conditions Store");
-      return StatusCode::FAILURE;
-    }
-  }
-
+  ATH_CHECK(m_OFCKey.initialize(m_RndmEvtOverlay  && !m_isMcOverlay));
 
   m_nhit_tot = 0;
   return StatusCode::SUCCESS;
@@ -354,7 +344,7 @@ StatusCode LArPileUpTool::processBunchXing(int bunchXing,
     // store digits from randoms for overlay
     if (m_RndmEvtOverlay) {
       const LArDigitContainer* rndm_digit_container;
-      if (m_mergeSvc->retrieveSingleSubEvtData(m_RandomDigitContainer, rndm_digit_container, bunchXing, iEvt).isSuccess()) {
+      if (m_mergeSvc->retrieveSingleSubEvtData(m_inputDigitContainerKey.key(), rndm_digit_container, bunchXing, iEvt).isSuccess()) {
 	int ndigit=0;
 	for (const LArDigit* digit : *rndm_digit_container) {
 	  if (m_hitmap->AddDigit(digit)) ndigit++;
@@ -563,33 +553,51 @@ StatusCode LArPileUpTool::processAllSubEvents()
     // get digits for random overlay
     if(m_RndmEvtOverlay)
     {
-
-      typedef PileUpMergeSvc::TimedList<LArDigitContainer>::type TimedDigitContList ;
-      LArDigitContainer::const_iterator rndm_digititer_begin ;
-      LArDigitContainer::const_iterator rndm_digititer_end ;
-      LArDigitContainer::const_iterator rndm_digititer ;
-
-
-      TimedDigitContList digitContList;
-      if (!(m_mergeSvc->retrieveSubEvtsData(m_RandomDigitContainer,
-           digitContList).isSuccess()) || digitContList.size()==0)
+      if (!m_onlyUseContainerName)
       {
-         ATH_MSG_ERROR("Cannot retrieve LArDigitContainer for random event overlay or empty Container");
-	 ATH_MSG_ERROR("Random Digit Key= " << m_RandomDigitContainer << ",size=" << digitContList.size());
-         return StatusCode::FAILURE ;
+        SG::ReadHandle<LArDigitContainer> digitCollection(m_inputDigitContainerKey);
+        if (!digitCollection.isValid()) {
+          ATH_MSG_ERROR("Could not get LArDigitContainer container " << digitCollection.name() << " from store " << digitCollection.store());
+          return StatusCode::FAILURE;
+        }
+
+        ATH_MSG_DEBUG("LArDigitContainer found with " << digitCollection->size() << " digits");
+
+        size_t ndigit{};
+        for (const LArDigit* digit : *digitCollection) {
+          if (m_hitmap->AddDigit(digit)) ndigit++;
+        }
+        ATH_MSG_DEBUG(" Number of digits stored for RndmEvt Overlay " << ndigit);
       }
-      TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin()) ;
-      double SubEvtTimOffset;
-      // get time for this subevent
-      const PileUpTimeEventIndex* time_evt = &(iTzeroDigitCont->first);
-      SubEvtTimOffset = time_evt->time();
-      ATH_MSG_DEBUG(" Subevt time : " << SubEvtTimOffset);
-      const LArDigitContainer& rndm_digit_container =  *(iTzeroDigitCont->second);
-      int ndigit=0;
-      for (const LArDigit* digit : rndm_digit_container) {
-       if (m_hitmap->AddDigit(digit)) ndigit++;
+      else
+      {
+        typedef PileUpMergeSvc::TimedList<LArDigitContainer>::type TimedDigitContList ;
+        LArDigitContainer::const_iterator rndm_digititer_begin ;
+        LArDigitContainer::const_iterator rndm_digititer_end ;
+        LArDigitContainer::const_iterator rndm_digititer ;
+
+
+        TimedDigitContList digitContList;
+        if (!(m_mergeSvc->retrieveSubEvtsData(m_inputDigitContainerKey.key(),
+            digitContList).isSuccess()) || digitContList.size()==0)
+        {
+          ATH_MSG_ERROR("Cannot retrieve LArDigitContainer for random event overlay or empty Container");
+          ATH_MSG_ERROR("Random Digit Key= " << m_inputDigitContainerKey.key() << ",size=" << digitContList.size());
+          return StatusCode::FAILURE ;
+        }
+        TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin()) ;
+        double SubEvtTimOffset;
+        // get time for this subevent
+        const PileUpTimeEventIndex* time_evt = &(iTzeroDigitCont->first);
+        SubEvtTimOffset = time_evt->time();
+        ATH_MSG_DEBUG(" Subevt time : " << SubEvtTimOffset);
+        const LArDigitContainer& rndm_digit_container =  *(iTzeroDigitCont->second);
+        int ndigit=0;
+        for (const LArDigit* digit : rndm_digit_container) {
+        if (m_hitmap->AddDigit(digit)) ndigit++;
+        }
+        ATH_MSG_INFO(" Number of digits stored for RndmEvt Overlay " << ndigit);
       }
-      ATH_MSG_INFO(" Number of digits stored for RndmEvt Overlay " << ndigit);
     }
 
   }  // if pileup
@@ -1710,13 +1718,16 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 // in case Medium or low gain, take into account ramp intercept in ADC->"energy" computation
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
      float adc0=0.;
-     if (!m_isMcOverlay  && m_larOFC && rndmEvtDigit->gain()>0) {
-        ILArOFC::OFCRef_t ofc_a = m_larOFC->OFC_a(ch_id,rndmEvtDigit->gain(),0);
-        float sumOfc=0.;
-        if (ofc_a.size()>0) {
-          for (unsigned int j=0;j<ofc_a.size();j++) sumOfc += ofc_a.at(j);
+     if (!m_isMcOverlay && rndmEvtDigit->gain()>0) {
+        SG::ReadCondHandle<ILArOFC> larOFC(m_OFCKey);
+        if (larOFC.cptr() != nullptr) {
+          ILArOFC::OFCRef_t ofc_a = larOFC->OFC_a(ch_id,rndmEvtDigit->gain(),0);
+          float sumOfc=0.;
+          if (ofc_a.size()>0) {
+            for (unsigned int j=0;j<ofc_a.size();j++) sumOfc += ofc_a.at(j);
+          }
+          if (sumOfc>0) adc0 =  polynom_adc2mev[0] * SF /sumOfc;
         }
-        if (sumOfc>0) adc0 =  polynom_adc2mev[0] * SF /sumOfc;
      }
 
      int nmax=m_NSamples;
@@ -1864,15 +1875,18 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 
 // in case Medium or low gain, take into account ramp intercept in energy->ADC computation
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
-  if(!m_isMcOverlay && m_RndmEvtOverlay  && igain>0 && m_larOFC)
+  if(!m_isMcOverlay && m_RndmEvtOverlay  && igain>0)
   {
-    float sumOfc=0.;
-    ILArOFC::OFCRef_t ofc_a = m_larOFC->OFC_a(ch_id,igain,0);
-    if (ofc_a.size()>0) {
-      for (unsigned int j=0;j<ofc_a.size();j++) sumOfc+= ofc_a.at(j);
+    SG::ReadCondHandle<ILArOFC> larOFC(m_OFCKey);
+    if (larOFC.cptr() != nullptr) {
+      float sumOfc=0.;
+      ILArOFC::OFCRef_t ofc_a = larOFC->OFC_a(ch_id,igain,0);
+      if (ofc_a.size()>0) {
+        for (unsigned int j=0;j<ofc_a.size();j++) sumOfc+= ofc_a.at(j);
+      }
+      if ((polynom_adc2mev[1])>0 && sumOfc>0) Pedestal = Pedestal - (polynom_adc2mev[0])/(polynom_adc2mev[1])/sumOfc;
+      ATH_MSG_DEBUG("  Params for final LAr Digitization  gain: " << igain << "    pedestal: " << Pedestal <<  "   energy2adc: " << energy2adc);
     }
-    if ((polynom_adc2mev[1])>0 && sumOfc>0) Pedestal = Pedestal - (polynom_adc2mev[0])/(polynom_adc2mev[1])/sumOfc;
-    ATH_MSG_DEBUG("  Params for final LAr Digitization  gain: " << igain << "    pedestal: " << Pedestal <<  "   energy2adc: " << energy2adc);
   }
   for(i=0;i<m_NSamples;i++)
   {

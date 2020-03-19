@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 log.info("Importing %s",__name__)
@@ -93,6 +93,7 @@ JetChainParts = {
     'threshold'    : '',
     'multiplicity' : '',
     'etaRange'     : ['0eta320', '320eta490', '0eta240'],
+    'jvt'          : ['011jvt', '015jvt', '059jvt'],
     # May need to reinstate in the event that preselection is
     # needed before running tracking
     #'gscThreshold' : ['gsc'],
@@ -102,7 +103,7 @@ JetChainParts = {
     'recoAlg'      : ['a4', 'a10', 'a10r', 'a10t'],
     'dataType'     : ['tc','sktc','pf'],
     'calib'        : ['em', 'lcw'],
-    'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'nojcalib'],
+    'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
     'scan'         : ['FS',],
     'addInfo'      : ['perf'],    
 
@@ -132,6 +133,7 @@ JetChainParts_Default = {
     'threshold'    : '',
     'multiplicity' : '',
     'etaRange'     : '0eta320',
+    'jvt'          : '',
     'trigType'     :'j',
     'extra'        : '',
     'cleaning'     : 'noCleaning',
@@ -182,11 +184,11 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'Comb', 'fast', 'msonly','lateMu'],
+    'extra'          : ['noL1', 'Comb', 'fast', 'msonly','lateMu', "Dr"],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','3layersEC','cosmic'],
+    'addInfo'        : ['1step','idperf','3layersEC','cosmic',"muonqual"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     }
@@ -233,7 +235,7 @@ TauChainParts = {
     'L1threshold'  : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['track', 'tracktwo', 'tracktwoMVA', 'tracktwoEFmvaTES', 'ptonly', ],
+    'preselection' : ['track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'tracktwoEFmvaTES', 'ptonly', ],
     'selection'    : ['medium1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
@@ -277,7 +279,7 @@ METChainParts = {
     'extra'        : ['noL1'],
     'calib'        : ['lcw',],    
     'L2recoAlg'    : [],
-    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht', 'trkmht'],
+    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht', 'trkmht', 'pfsum'],
     'L2muonCorr'   : [],
     'EFmuonCorr'   : [],
     'addInfo'      : ['FStracks'],
@@ -343,7 +345,7 @@ ElectronChainParts = {
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : [],
-    'addInfo'        : ['etcut', 'etcut1step',"v2","v3"],
+    'addInfo'        : ['noringer', 'etcut', 'etcut1step',"v2","v3"],
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {

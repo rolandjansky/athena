@@ -14,11 +14,8 @@
 
 #include <string>
 
-#include "tauRecTools/TauEventData.h"
 #include "tauRecTools/ITauToolBase.h"
 #include "AsgTools/AsgTool.h"
-
-extern TauEventData defaultTauEventData;
 
 class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
  public:
@@ -26,7 +23,7 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   ASG_TOOL_INTERFACE(TauRecToolBase)
   ASG_TOOL_CLASS1( TauRecToolBase, ITauToolBase )
 
-    TauRecToolBase(const std::string& name);
+  TauRecToolBase(const std::string& name);
   virtual ~TauRecToolBase() {}
 
   //-----------------------------------------------------------------
@@ -43,6 +40,10 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   //! Execute - called for each tau candidate
   //-----------------------------------------------------------------
   virtual StatusCode execute(xAOD::TauJet& pTau) override;
+  virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
+                                         const xAOD::VertexContainer* vertexContainer = nullptr, 
+                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
+  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer = nullptr) override;  
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) override;
   virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) override;
   virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
@@ -67,14 +68,7 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   std::string find_file(const std::string& fname) const;
   virtual StatusCode readConfig() override;
 
-  void setTauEventData(TauEventData* data) override;
-  TauEventData* tauEventData();
-  const TauEventData* tauEventData() const;
-
-
-
  protected:
-  TauEventData* m_data = 0;
   bool m_in_trigger = false;
   std::string m_tauRecToolsTag;
 
@@ -83,13 +77,5 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
 };
 
 inline bool TauRecToolBase::inTrigger() const { return m_in_trigger; }
-
-inline TauEventData* TauRecToolBase::tauEventData() { 
-  return m_data;
-}
-
-inline const TauEventData* TauRecToolBase::tauEventData() const { 
-  return m_data;
-}
 
 #endif //TAURECTOOLBASE_H

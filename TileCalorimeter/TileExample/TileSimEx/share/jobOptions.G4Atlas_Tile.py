@@ -111,9 +111,9 @@ simFlags.EventFilter.set_On()
 
 ## Register callback functions at various init stages
 #def test_preInit():
-#    print "CALLBACK AT PREINIT"
+#    printfunc ("CALLBACK AT PREINIT")
 #def test_postInit():
-#    print "CALLBACK AT POSTINIT"
+#    printfunc ("CALLBACK AT POSTINIT")
 #simFlags.InitFunctions.add_function("preInit", test_preInit)
 #simFlags.InitFunctions.add_function("postInit", test_postInit)
 
@@ -171,7 +171,7 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 ## Add the G4 sim to the alg sequence after the generator
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
-print topSeq
+printfunc (topSeq)
 
 ## Set non-standard range cut
 if 'RangeCut' in dir():
@@ -190,7 +190,7 @@ if 'DoBirk' in dir():
     SD.DoBirk = DoBirk
 if 'TileUshape' in dir():
     SD.Ushape=TileUshape
-print SD
+printfunc (SD)
 
 ## VP1 algorithm for visualization
 if 'VP1' in dir():

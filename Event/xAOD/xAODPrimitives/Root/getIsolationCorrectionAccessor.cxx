@@ -19,7 +19,7 @@ const SG::AuxElement::Accessor< float >
   getIsolationCorrectionAccessor( Iso::IsolationFlavour type, Iso::IsolationCaloCorrection corr, 
                                   Iso::IsolationCorrectionParameter param  ){
     std::string name(Iso::toCString(type));                                                                       
-    if (corr == Iso::coreCone || corr == Iso::coreConeSC){
+    if (corr == Iso::coreCone || corr == Iso::coreConeSC || corr == Iso::coreMuon){
       name+=toCString(corr); 
     }else{
         name = toCString(corr);

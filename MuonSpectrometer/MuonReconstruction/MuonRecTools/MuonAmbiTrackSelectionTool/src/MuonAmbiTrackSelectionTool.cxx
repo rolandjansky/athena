@@ -8,7 +8,6 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include "TrkEventUtils/PRDtoTrackMap.h"
 

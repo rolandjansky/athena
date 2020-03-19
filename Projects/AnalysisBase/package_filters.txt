@@ -10,6 +10,7 @@
 + Control/AthToolSupport/.*
 + Control/CxxUtils
 + Control/xAODRootAccess.*
++ Control/RootUtils
 + DetectorDescription/GeoPrimitives
 + DetectorDescription/IRegionSelector
 + DetectorDescription/RoiDescriptor
@@ -24,5 +25,7 @@
 + Trigger/TrigConfiguration/TrigConfBase
 + Trigger/TrigConfiguration/TrigConfL1Data
 + Trigger/TrigConfiguration/TrigConfHLTData
++ Trigger/TrigConfiguration/TrigConfHLTUtils
 + Trigger/TrigEvent/TrigNavStructure
++ Trigger/TrigSteer/TrigCompositeUtils
 - .*

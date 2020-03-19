@@ -501,7 +501,7 @@ namespace Muon {
       for (;ipsg!=ipsg_end;++ipsg){
 
 	MuonSegment* seg=(*ipsg).get();
-	if( seg->containedROTs().size() > 3 ) {
+	if( seg->numberOfContainedROTs() > 3 ) {
 	  summary.stationsGood.insert(stIndex);
 	}
 	

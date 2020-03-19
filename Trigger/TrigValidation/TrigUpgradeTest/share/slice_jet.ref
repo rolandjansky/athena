@@ -1,50 +1,93 @@
-TrigSignatureMoniMT                                 INFO HLT_2j330_a10t_lcw_jes_35smcINF_L1J10020        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_2j330_a10t_lcw_jes_35smcINF_L1J100 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_3j200_L1J100              20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_3j200_L1J100 decisions                        0         
-TrigSignatureMoniMT                                 INFO HLT_3j200_L1J20               20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_3j200_L1J20 decisions                         0         
-TrigSignatureMoniMT                                 INFO HLT_5j70_0eta240_L14J20       20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_5j70_0eta240_L14J20 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        1         1         
-TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    2         
-TrigSignatureMoniMT                                 INFO HLT_j260_320eta490_L1J20      20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j260_320eta490_L1J20 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j260_320eta490_L1J75_31ETA4920        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j260_320eta490_L1J75_31ETA49 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j420_L1J100               20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j420_L1J100 decisions                         0         
-TrigSignatureMoniMT                                 INFO HLT_j420_L1J20                20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j420_L1J20 decisions                          0         
-TrigSignatureMoniMT                                 INFO HLT_j420_ftf_subjesgscIS_L1J2020        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j420_ftf_subjesgscIS_L1J20 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j45_L1J15                 20        20        5         5         
-TrigSignatureMoniMT                                 INFO HLT_j45_L1J15 decisions                           5         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_L1J15             20        20        5         5         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_L1J15 decisions                       5         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_pf_L1J20          20        20        4         4         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_pf_L1J20 decisions                    4         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 20        20        5         5         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 decisions                    5         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J10020        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J100 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J20 20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J20 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10r_L1J100          20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10r_L1J100 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10r_L1J20           20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10r_L1J20 decisions                     0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10t_lcw_jes_30smcINF_L1J10020        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10t_lcw_jes_30smcINF_L1J100 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10t_lcw_jes_L1J100  20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j460_a10t_lcw_jes_L1J100 decisions                    0         
-TrigSignatureMoniMT                                 INFO HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J2020        20        1         1         
-TrigSignatureMoniMT                                 INFO HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20 decisions                    1         
-TrigSignatureMoniMT                                 INFO HLT_j80_j60_L1J15             20        20        1         1         
-TrigSignatureMoniMT                                 INFO HLT_j80_j60_L1J15 decisions                       1         
-TrigSignatureMoniMT                                 INFO HLT_j85_L1J20                 20        20        1         1         
-TrigSignatureMoniMT                                 INFO HLT_j85_L1J20 decisions                           1         
-TrigSignatureMoniMT                                 INFO HLT_j85_ftf_L1J20             20        20        1         1         
-TrigSignatureMoniMT                                 INFO HLT_j85_ftf_L1J20 decisions                       1         
-TrigSignatureMoniMT                                 INFO HLT_j85_ftf_pf_L1J20          20        20        0         0         
-TrigSignatureMoniMT                                 INFO HLT_j85_ftf_pf_L1J20 decisions                    0         
+TrigSignatureMoniMT                                 INFO HLT_2j330_a10t_lcw_jes_35smcINF_L1J100 #1295975955
+TrigSignatureMoniMT                                 INFO -- #1295975955 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #1295975955 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_3j200_L1J100 #2199422919
+TrigSignatureMoniMT                                 INFO -- #2199422919 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #2199422919 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_3j200_L1J20 #493765146
+TrigSignatureMoniMT                                 INFO -- #493765146 Events          20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #493765146 Features                              0          
+TrigSignatureMoniMT                                 INFO HLT_5j70_0eta240_L14J20 #1175391812
+TrigSignatureMoniMT                                 INFO -- #1175391812 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #1175391812 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 #4034799151
+TrigSignatureMoniMT                                 INFO -- #4034799151 Events         20         20         2          2          
+TrigSignatureMoniMT                                 INFO -- #4034799151 Features                             34         
+TrigSignatureMoniMT                                 INFO HLT_j260_320eta490_L1J20 #3084792704
+TrigSignatureMoniMT                                 INFO -- #3084792704 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #3084792704 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j260_320eta490_L1J75_31ETA49 #3769257182
+TrigSignatureMoniMT                                 INFO -- #3769257182 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #3769257182 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j420_L1J100 #2659902019
+TrigSignatureMoniMT                                 INFO -- #2659902019 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #2659902019 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j420_L1J20 #2205518067
+TrigSignatureMoniMT                                 INFO -- #2205518067 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #2205518067 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j420_ftf_subjesgscIS_L1J20 #4179085188
+TrigSignatureMoniMT                                 INFO -- #4179085188 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #4179085188 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j45_L1J15 #1364976160
+TrigSignatureMoniMT                                 INFO -- #1364976160 Events         20         20         6          6          
+TrigSignatureMoniMT                                 INFO -- #1364976160 Features                             6          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_L1J15 #868405538
+TrigSignatureMoniMT                                 INFO -- #868405538 Events          20         20         6          6          
+TrigSignatureMoniMT                                 INFO -- #868405538 Features                              6          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_pf_L1J20 #1335156103
+TrigSignatureMoniMT                                 INFO -- #1335156103 Events         20         20         4          4          
+TrigSignatureMoniMT                                 INFO -- #1335156103 Features                             4          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_011jvt_L1J15 #2857031468
+TrigSignatureMoniMT                                 INFO -- #2857031468 Events         20         20         6          6          
+TrigSignatureMoniMT                                 INFO -- #2857031468 Features                             6          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_015jvt_L1J15 #2938374624
+TrigSignatureMoniMT                                 INFO -- #2938374624 Events         20         20         6          6          
+TrigSignatureMoniMT                                 INFO -- #2938374624 Features                             6          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_059jvt_L1J15 #1593009344
+TrigSignatureMoniMT                                 INFO -- #1593009344 Events         20         20         5          5          
+TrigSignatureMoniMT                                 INFO -- #1593009344 Features                             5          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 #3341539267
+TrigSignatureMoniMT                                 INFO -- #3341539267 Events         20         20         7          7          
+TrigSignatureMoniMT                                 INFO -- #3341539267 Features                             7          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_pf_L1J20 #761060030
+TrigSignatureMoniMT                                 INFO -- #761060030 Events          20         20         4          4          
+TrigSignatureMoniMT                                 INFO -- #761060030 Features                              4          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subresjesgscIS_L1J15 #1509925407
+TrigSignatureMoniMT                                 INFO -- #1509925407 Events         20         20         7          7          
+TrigSignatureMoniMT                                 INFO -- #1509925407 Features                             7          
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subresjesgscIS_pf_L1J20 #4012311417
+TrigSignatureMoniMT                                 INFO -- #4012311417 Events         20         20         4          4          
+TrigSignatureMoniMT                                 INFO -- #4012311417 Features                             4          
+TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J100 #3327656707
+TrigSignatureMoniMT                                 INFO -- #3327656707 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #3327656707 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J20 #215408633
+TrigSignatureMoniMT                                 INFO -- #215408633 Events          20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #215408633 Features                              0          
+TrigSignatureMoniMT                                 INFO HLT_j460_a10r_L1J100 #1151767619
+TrigSignatureMoniMT                                 INFO -- #1151767619 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #1151767619 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j460_a10r_L1J20 #3875082669
+TrigSignatureMoniMT                                 INFO -- #3875082669 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #3875082669 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j460_a10t_lcw_jes_30smcINF_L1J100 #2296827117
+TrigSignatureMoniMT                                 INFO -- #2296827117 Events         20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #2296827117 Features                             0          
+TrigSignatureMoniMT                                 INFO HLT_j460_a10t_lcw_jes_L1J100 #436385969
+TrigSignatureMoniMT                                 INFO -- #436385969 Events          20         20         0          0          
+TrigSignatureMoniMT                                 INFO -- #436385969 Features                              0          
+TrigSignatureMoniMT                                 INFO HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20 #3634067472
+TrigSignatureMoniMT                                 INFO -- #3634067472 Events         20         20         -          0          
+TrigSignatureMoniMT                                 INFO -- #3634067472 Features                             -          
+TrigSignatureMoniMT                                 INFO HLT_j80_j60_L1J15 #582699527
+TrigSignatureMoniMT                                 INFO -- #582699527 Events          20         20         -          0          
+TrigSignatureMoniMT                                 INFO -- #582699527 Features                              -          
+TrigSignatureMoniMT                                 INFO HLT_j85_L1J20 #510475538
+TrigSignatureMoniMT                                 INFO -- #510475538 Events          20         20         3          3          
+TrigSignatureMoniMT                                 INFO -- #510475538 Features                              3          
+TrigSignatureMoniMT                                 INFO HLT_j85_ftf_L1J20 #877042532
+TrigSignatureMoniMT                                 INFO -- #877042532 Events          20         20         3          3          
+TrigSignatureMoniMT                                 INFO -- #877042532 Features                              3          
+TrigSignatureMoniMT                                 INFO HLT_j85_ftf_pf_L1J20 #1538535401
+TrigSignatureMoniMT                                 INFO -- #1538535401 Events         20         20         2          2          
+TrigSignatureMoniMT                                 INFO -- #1538535401 Features                             2          

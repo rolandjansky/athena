@@ -243,9 +243,9 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::Egamma& egamma) c
   
   //Overlap found. define the electron and the photon
   const xAOD::Electron *electron = 
-    dynamic_cast<const xAOD::Electron*>(egamma.type() == xAOD::Type::Electron ? &egamma : egamma.ambiguousObject());
+    static_cast<const xAOD::Electron*>(egamma.type() == xAOD::Type::Electron ? &egamma : egamma.ambiguousObject());
   const xAOD::Photon *photon = 
-    dynamic_cast<const xAOD::Photon*>(egamma.type() == xAOD::Type::Photon ? &egamma : egamma.ambiguousObject());
+    static_cast<const xAOD::Photon*>(egamma.type() == xAOD::Type::Photon ? &egamma : egamma.ambiguousObject());
   
   //Error if cannot define any of them
   if (!electron || !photon){

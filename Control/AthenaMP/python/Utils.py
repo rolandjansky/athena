@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaMP.Utils
 # @purpose: a set of tools to handle various aspects of AthenaMP
@@ -10,6 +10,10 @@ __version__ = "$Revision: 1.1 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 import os
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 #-----Helper tools for AthenaMP--#
 
@@ -38,6 +42,7 @@ def hack_copy(srcDir, destDir):
     if srcDir == '': 
         srcDir = os.curdir
     if srcDir == destDir:
+        from AthenaCommon.Logging import log as msg
         msg.warning("hack_copy called with srcDir = destDir = "+srcDir)
         return
 
@@ -63,7 +68,7 @@ def slice_it(iterable, cols=2):
     chunksz,extra = divmod (len(iterable), cols)
     if extra:
         chunksz += 1
-    for i in xrange(cols):
+    for i in range(cols):
         yield islice (iterable, start, start+chunksz)
         start += chunksz
 
@@ -112,9 +117,9 @@ def _get_mem_stats(pid='self'):
             pss_adjust=0.5 #add 0.5KiB as this average error due to trunctation
             Pss=sum([float(line.split()[1])+pss_adjust for line in pss_lines])
             shared = Pss - private
-    elif (2,6,1) <= kv <= (2,6,9):
-        shared=0 #lots of overestimation, but what can we do?
-        private = rss
+    #elif (2,6,1) <= kv <= (2,6,9):
+    #    shared=0 #lots of overestimation, but what can we do?
+    #    private = rss
     else:
         shared=int(open(statm_name).readline().split()[2])
         shared*=PAGESIZE
@@ -125,11 +130,10 @@ def _get_mem_stats(pid='self'):
 #---- CPU-Proc affinty setting tools---#
 if 'linux' in sys.platform:
     def get_cpu(pid):
-        import commands
         """get core nbr where the proc-pid resides at that moment"""
         cmd = "ps --pid %i -o psr" % pid
         #print ">%s" % cmd
-        out = commands.getoutput(cmd)
+        out = subprocess.getoutput(cmd)
         cpu = int(out.splitlines()[1].split()[0])
         #print "pid: [%i] has cpu: [%i]" % (pid, cpu)
         return cpu
@@ -140,10 +144,9 @@ else:
     
 def set_proc_affinity(pid, cpu):
     """set pid to cpu affinity for process"""
-    import commands
     cmd = "taskset -pc %i %i" % (cpu, pid)
     #print "> taskset -pc %i %i" % (cpu, pid)                                                                                                       
-    st,out = commands.getstatusoutput(cmd)
+    st,out = subprocess.getstatusoutput(cmd)
     return st
 
 

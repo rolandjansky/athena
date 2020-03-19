@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ namespace Trk {
     Trk::TrackState::MeasurementType defineType(const MeasurementBase*) const;
 
   private:
-    MeasurementTypeID() : m_idHelper(0) {}
+    MeasurementTypeID() : m_idHelper(nullptr) {}
     const AtlasDetectorID* m_idHelper;
 
  };

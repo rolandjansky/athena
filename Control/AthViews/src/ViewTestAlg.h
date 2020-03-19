@@ -1,76 +1,45 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ViewTestAlg.h 
 // Header file for class ViewTestAlg
 // Author: B. Wynne <bwynne@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+
 #ifndef ATHVIEWS_VIEWTESTALG_H
 #define ATHVIEWS_VIEWTESTALG_H 1
 
-// STL includes
 #include <string>
-
-// FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/WriteHandleKey.h"
 
 namespace AthViews {
 
-class ViewTestAlg
-  : public ::AthAlgorithm
-{ 
+class ViewTestAlg : public AthAlgorithm
+{
+  public:
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
+    // Constructor with parameters
+    ViewTestAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
-  // Copy constructor: 
+    // Destructor
+    virtual ~ViewTestAlg(); 
 
-  /// Constructor with parameters: 
-  ViewTestAlg( const std::string& name, ISvcLocator* pSvcLocator );
+    // Athena algorithm hooks
+    virtual StatusCode initialize();
+    virtual StatusCode execute();
+    virtual StatusCode finalize();
 
-  /// Destructor: 
-  virtual ~ViewTestAlg(); 
+  private:
 
-  // Assignment operator: 
-  //ViewTestAlg &operator=(const ViewTestAlg &alg); 
+    // Default constructor
+    ViewTestAlg();
 
-  // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
-
-  /// Default constructor: 
-  ViewTestAlg();
-
-  /// Containers
-  
-  // vars
-}; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
+    SG::WriteHandleKey< int > m_output{ this, "Output", "", "Optional output object" };
+};
 
 } //> end namespace AthViews
+
 #endif //> !ATHVIEWS_VIEWTESTALG_H

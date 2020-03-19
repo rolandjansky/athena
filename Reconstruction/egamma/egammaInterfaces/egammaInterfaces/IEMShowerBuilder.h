@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAINTERFACES_IEMSHOWERBUILDER_H
@@ -24,10 +24,11 @@ MODIFIED :
 
 // Forward declarations
 class CaloCellContainer;
+class CaloDetDescrManager;
 
 static const InterfaceID IID_IEMShowerBuilder("IEMShowerBuilder", 1, 0);
 
-class IEMShowerBuilder : virtual public IegammaBaseTool
+class IEMShowerBuilder : virtual public IAlgTool
 {
  public:
 
@@ -39,10 +40,14 @@ class IEMShowerBuilder : virtual public IegammaBaseTool
 
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
-  /** @brief execute method*/
-  virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma*) const = 0;
-  /** @brief execute method*/
-  virtual  StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) const = 0;
+  /** @brief execute method with event context to retrieve the cells collection*/
+  virtual StatusCode execute(const EventContext& ctx,
+                             const CaloDetDescrManager& cmgr,
+                             xAOD::Egamma*) const = 0;
+  /** @Execute passing the cells explicitly*/
+  virtual StatusCode executeWithCells(const CaloCellContainer* cellcoll,
+                                      const CaloDetDescrManager& cmgr,
+                                      xAOD::Egamma*) const = 0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
 

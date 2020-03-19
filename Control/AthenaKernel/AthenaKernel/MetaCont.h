@@ -63,6 +63,7 @@ class MetaCont: public MetaContBase {
   // Non-virtual functions
   bool insert(const SourceID& sid, T* t);
   bool find(const SourceID& sid, T*& t) const;
+  const T* get(const SourceID& sid) const;
 
  private:
 
@@ -138,6 +139,21 @@ bool MetaCont<T>::find(const SourceID& sid, T*& t) const {
   }
 
   return false;
+}
+
+    
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+template <typename T>
+const T* MetaCont<T>::get(const SourceID& sid) const {
+  std::lock_guard<std::mutex> lock(m_mut);
+
+  typename MetaContSet::const_iterator itr = m_metaSet.find(sid);
+  if (itr != m_metaSet.end()) {
+    return itr->second;
+  }
+
+  return nullptr;
 }
 
     

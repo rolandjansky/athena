@@ -649,8 +649,8 @@ globalflags.Luminosity.set_Off()
 
 # --- set SimLayout (synchronised to globalflags)
 if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
-    print "ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!"
-    print "Please correct your job options."
+    printfunc ("ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!")
+    printfunc ("Please correct your job options.")
     # TODO: theApp.exit(1)?
     import sys
     sys.exit(1)
@@ -809,8 +809,8 @@ elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
 # non of the above
 
 elif not athenaCommonFlags.PoolEvgenInput.statusOn:
-    print "ISF Input Configuration: PoolEvgenInput off, likely running with a particle gun preInclude"
-# non of the above -> input via ISF_Flags
+    printfunc ("ISF Input Configuration: PoolEvgenInput off, likely running with a particle gun preInclude")
+# none of the above -> input via ISF_Flags
 else :
     if ISF_Flags.OverrideInputFiles():
         athenaCommonFlags.PoolEvgenInput = ISF_Flags.OverrideInputFiles()
@@ -881,7 +881,7 @@ if ISF_Flags.RunValgrind() :
     ServiceMgr += valgrindSvc
 
 # useful for debugging:
-print topSequence
+printfunc (topSequence)
 
 
 #########Back to MyCustomSkeleton.py##############
@@ -970,7 +970,7 @@ if hasattr(runArgs,"preDigiInclude"):
 #--------------------------------------------------------------
 # Go for it
 #--------------------------------------------------------------
-print "lvl1: -14... " + str(DetFlags.digitize.LVL1_on())
+printfunc ("lvl1: -14... " + str(DetFlags.digitize.LVL1_on()))
 
 
 
@@ -1114,9 +1114,9 @@ if jobproperties.Beam.beamType == "cosmics" :
 
 topSequence += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
 if 'doFastPixelDigi' in digitizationFlags.experimentalDigi() or 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() or 'doFastTRT_Digi' in digitizationFlags.experimentalDigi():
-    print "WARNING  Setting doFastPixelDigi ,doFastSCT_Digi or doFastTRT_Digi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf."
+    printfunc ("WARNING  Setting doFastPixelDigi ,doFastSCT_Digi or doFastTRT_Digi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf.")
 elif 'doSplitDigi' in digitizationFlags.experimentalDigi():
-    print "WARNING  Setting doSplitDigi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf. Use --digiSteeringConf 'Split' on the command-line instead."
+    printfunc ("WARNING  Setting doSplitDigi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf. Use --digiSteeringConf 'Split' on the command-line instead.")
 
 
 # MC Truth info

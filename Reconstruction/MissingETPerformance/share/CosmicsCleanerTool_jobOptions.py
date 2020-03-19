@@ -5,4 +5,4 @@ CosmicsCleanerTool = ConfiguredCosmicsCleanerTool(
     )
 
 ToolSvc += CosmicsCleanerTool
-print      CosmicsCleanerTool
+printfunc (     CosmicsCleanerTool)

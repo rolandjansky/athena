@@ -135,6 +135,8 @@ namespace iGeant4
     Gaudi::Property<bool> m_activateParallelGeometries{this, "ActivateParallelWorlds", false, "Toggle on/off the G4 parallel geometry system"};
     // Random number service
     ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomNumberService", "AthRNGSvc", ""};
+    /// Random Stream Name
+    Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "Geant4", ""};
     ///
     ServiceHandle<IUserLimitsSvc> m_userLimitsSvc{this, "UserLimitsSvc", "UserLimitsSvc", ""};
     /// user action service

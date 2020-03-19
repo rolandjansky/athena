@@ -1,10 +1,12 @@
 """Combined Tile Digitization functions
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
 
 def TileTriggerDigitizationCfg(flags):
-    """Return ComponentAccumulator with standard Tile Digitization configuration"""
+    """Return ComponentAccumulator with standard Tile Trigger Digitization configuration"""
 
     from TileSimAlgs.TileHitToTTL1Config import TileHitToTTL1OutputCfg
     acc = TileHitToTTL1OutputCfg(flags)
@@ -21,13 +23,30 @@ def TileTriggerDigitizationCfg(flags):
 
     return acc
 
+
+def TileOverlayTriggerDigitizationCfg(flags):
+    """Return ComponentAccumulator with Overlay Tile Trigger Digitization configuration"""
+    acc = ComponentAccumulator()
+
+    from TileSimAlgs.TileMuonReceiverConfig import TilePulseForTileMuonReceiverOutputCfg
+    acc.merge( TilePulseForTileMuonReceiverOutputCfg(flags) )
+
+    from TileSimAlgs.TileMuonReceiverDecisionConfig import TileMuonReceiverDecisionOutputCfg
+    acc.merge( TileMuonReceiverDecisionOutputCfg(flags) )
+
+    from TileL2Algs.TileL2Config import TileRawChannelToL2OutputCfg
+    acc.merge( TileRawChannelToL2OutputCfg(flags, streamName = 'RDO') )
+
+    return acc
+
+
 def TileDigitizationCfg(flags):
     """Return ComponentAccumulator with standard Tile Digitization configuration"""
 
     from TileSimAlgs.TileDigitsMakerConfig import TileDigitsMakerOutputCfg
     acc = TileDigitsMakerOutputCfg(flags)
 
-    if not flags.Digitization.PileUpPremixing:
+    if not flags.Digitization.PileUpPremixing and flags.Output.doWriteRDO:
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerOutputCfg
         acc.merge( TileRawChannelMakerOutputCfg(flags, streamName = 'RDO') )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,11 +22,7 @@
 
 #include <TList.h>
 #include <TBox.h>
-#include <TMath.h>
 #include <inttypes.h> 
-
-using namespace std;
-
 
 void
 MdtVsTgcRawDataValAlg::roi2etaphi(const Muon::TgcCoinData& cd, int& eta, int& phi){

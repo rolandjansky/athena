@@ -42,3 +42,9 @@ atlas_add_test( TestLogicParser SOURCES test/testLogicParser.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TestFileRW SOURCES test/testfilerw.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData
+                ENVIRONMENT "TESTFILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/test/"
+                POST_EXEC_SCRIPT nopost.sh )

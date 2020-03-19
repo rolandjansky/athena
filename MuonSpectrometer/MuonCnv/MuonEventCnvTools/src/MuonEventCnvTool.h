@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTCNVTOOL_H
@@ -71,9 +71,7 @@ namespace Muon {
 
     private:
 
-	SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
-	    "MuonDetectorManager", 
-	    "Key of input MuonDetectorManager condition data"};    
+        const MuonGM::MuonDetectorManager* m_muonMgr; // use the MuonDetectorManager from the DetectorStore (holding the nominal geometry without misalignments)
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

@@ -95,9 +95,22 @@ def createMuonRoIUnpackers():
     return [muUnpacker],[muRerunUnpacker]
 
 
+from L1Decoder.L1DecoderConf import L1TriggerResultMaker
+class L1TriggerResultMaker(L1TriggerResultMaker):
+    def __init__(self, name='L1TriggerResultMaker', *args, **kwargs):
+        super(L1TriggerResultMaker, self).__init__(name, *args, **kwargs)
+
+        # Muon RoIs
+        self.MuRoIKey = "LVL1MuonRoIs"
+        self.MuRoILinkName = "mu_roi"
+
+        # Placeholder for other L1 xAOD outputs:
+        # - CTP result
+        # - L1Topo result
+        # - L1Calo (Run3) RoIs
+
 
 from L1Decoder.L1DecoderConf import L1Decoder
-
 class L1Decoder(L1Decoder) :
     def __init__(self, name='L1Decoder', *args, **kwargs):
         super(L1Decoder, self).__init__(name, *args, **kwargs)
@@ -163,14 +176,16 @@ def L1DecoderCfg(flags):
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
-    from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
+    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
+    acc.merge( HLTPrescaleCondAlgCfg( flags ) )
 
-    # Add the algorithm producing the input RoIBResult
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg, L1TriggerResultMakerCfg
+    # Add the algorithms producing the input RoIBResult (legacy L1) / L1TriggerResult (Run-3 L1)
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg, L1TriggerByteStreamDecoderCfg
     # TODO: implement flags to allow disabling either RoIBResult or L1TriggerResult
     acc.merge( RoIBResultDecoderCfg(flags) )
-    acc.merge( L1TriggerResultMakerCfg(flags) )
+    acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
+    acc.addEventAlgo( L1TriggerResultMaker() )
 
     return acc,decoderAlg
 

@@ -32,7 +32,8 @@ public:
   {
     copyNo = CopyNo;
   }
-  
+  void SetVolumeType(EVolume volumetype){ fTypeOfVolume = volumetype ;} 
+ 
   G4bool IsMany() const final { return true; }
 
   G4bool IsReplicated() const final { return true; }
@@ -54,7 +55,13 @@ public:
 
   G4int  GetRegularStructureId() const final { return 0; }
 
+  EVolume VolumeType()const{ return fTypeOfVolume; }
+
   G4int copyNo;
+
+private:
+
+  EVolume fTypeOfVolume;
 
 };
 #endif

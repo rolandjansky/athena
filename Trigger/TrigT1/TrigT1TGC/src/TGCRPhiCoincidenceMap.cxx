@@ -106,7 +106,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
   fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
   bool isFound =( fullName.length() > 0 );
   if (!isFound) {
-    if (tgcArgs()->DEBUGLEVEL()) {
+    if (tgcArgs()->MSGLEVEL() <= MSG::DEBUG) {
       log << MSG::DEBUG 
 	  << " Could not found " << dbname.c_str() 
 	  << " Default set is chosen !!" << endmsg;
@@ -270,7 +270,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	}
 	// Warning : no window 
 	if (aWindow.size()==0) {
-	  if (tgcArgs()->DEBUGLEVEL()) {
+	  if (tgcArgs()->MSGLEVEL() <= MSG::DEBUG) {
 	    log << MSG::DEBUG
 		<< " No window is opened for (ptLevel,ssId,mod) = (" 
 		<< ptLevel << ", " << ssId << ", " << mod << ")" 
@@ -279,7 +279,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	}
 	int addr = SUBSECTORADD(ssId,mod,phimod2,type);
 	if (m_mapDB[ptLevel-1].find(addr)!=m_mapDB[ptLevel-1].end()) {
-	  if (tgcArgs()->DEBUGLEVEL()) {
+	  if (tgcArgs()->MSGLEVEL() <= MSG::DEBUG) {
 	    log << MSG::DEBUG
 		<< "This subsector was already reserved." 
 		<< endmsg;

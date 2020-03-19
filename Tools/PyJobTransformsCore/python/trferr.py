@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -11,7 +11,7 @@ __all__ = [ 'TransformError', 'TransformDefinitionError', 'TransformArgumentErro
             'JobOptionsNotFoundError', 'TransformErrorHandler', 'AthenaLogChecker',
             'TransformThreadTimeout', 'TransformThreadError' ]
 
-import sys,commands,re,os,copy
+import sys,re,os,copy
 from PyJobTransformsCore import fileutil, trfconsts, AtlasErrorCodes, VTimer
 from PyJobTransformsCore.xmlutil import XMLNode
 from PyJobTransformsCore.envutil import *
@@ -19,6 +19,9 @@ from PyJobTransformsCore.TransformLogger import TransformLogger
 #from AthenaCommon.Logging import logging
 from AthenaCommon.Include import IncludeError
 from PyJobTransformsCore.JobReport import *
+
+from future import standard_library
+standard_library.install_aliases()
 
 # some constants for shared library loading problems
 systemLibs = [ 'libc.so', 'libg2c.so', 'libstdc++.so', 'libshift.so',
@@ -570,7 +573,7 @@ class TransformErrorHandler(TransformLogger):
                 diag += '%s not found.' % (lib)
             else:
                 self.logger().debug( "Found %s. Checking dependencies..." % full_lib )
-                lddOut = commands.getoutput( 'ldd %s' % (full_lib) )
+                lddOut = subprocess.getoutput( 'ldd %s' % (full_lib) )
                 missLibs = [ ]
                 subRE = "%s%s%s" % (r"^\s*",dllNameRE,r"\s+.*not found\s*.*$")
                 for line in lddOut:

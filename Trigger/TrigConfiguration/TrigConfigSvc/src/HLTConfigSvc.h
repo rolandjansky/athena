@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_HLTConfigSvc
@@ -81,25 +81,25 @@ namespace TrigConf {
     
       enum ConfigSource { XML, ORACLE, MYSQL, SQLITE, DBLOOKUP };
 
-      StoreGateSvc* m_eventStore;
+      ServiceHandle<StoreGateSvc> m_eventStore;
 
       // The configuration:
       HLTFrame    m_HLTFrame; // what for is this varaible - seems unused ???
 
-      uint        m_currentLumiblock;
-      uint        m_currentPSS;
+      uint        m_currentLumiblock { 0 };
+      uint        m_currentPSS { 0 };
 
       // Properties:
-      bool            m_setMergedHLT; 
-      bool            m_doMon;
-      std::string     m_partition;
+      bool            m_setMergedHLT { true }; 
+      bool            m_doMon { false };
+      std::string     m_partition { "" };
       Histo1DProperty m_histProp_timePrescaleUpdate;
 
       // Histograms:
-      TH1F* m_hist_timePrescaleUpdate;
-      TH2I* m_hist_prescaleLB;
+      TH1F* m_hist_timePrescaleUpdate { nullptr };
+      TH2I* m_hist_prescaleLB { nullptr };
 
-      StringProperty  m_PartitionName; // non-empty job-property overwrite value from DataFlowConfig
+      StringProperty  m_PartitionName { "" }; // non-empty job-property overwrite value from DataFlowConfig
 
    };
 }

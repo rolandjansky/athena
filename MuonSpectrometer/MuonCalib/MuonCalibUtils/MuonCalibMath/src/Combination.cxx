@@ -1,35 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 27.10.2007, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS Combination ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <iostream>
 
-// CERNLIB //
-//extern "C" {
-// int kbinom_(int *, int*);
-//}
-#include "TMath.h"
+#include "TMath.h" // for TMath::Binomial()
+#include <TString.h> // for Form
 
 #include "MuonCalibMath/Combination.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -69,10 +48,7 @@ void Combination::init(const unsigned int & n, const unsigned int & k) {
 ///////////////////
 
 	if (k>n) {
-		cerr << endl << "Class Combination, method init: "
-			<< "error, class number greater than number of "
-			<< "elements!" << endl;
-		exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nCombination::init() - error, class number greater than number of elements!", __FILE__, __LINE__));
 	}
 
 /////////////////////
@@ -81,8 +57,8 @@ void Combination::init(const unsigned int & n, const unsigned int & k) {
 
 	m_k = k;
 	m_n = n;
-	m_index = vector<unsigned int>(m_k);
-	m_flag = vector<unsigned int>(m_k);
+	m_index = std::vector<unsigned int>(m_k);
+	m_flag = std::vector<unsigned int>(m_k);
 
 ///////////////////////////////
 // SETUP START CONFIGURATION //
@@ -130,10 +106,7 @@ unsigned int Combination::numberOfCombinations(void) const {
 // VARIABLES //
 ///////////////
 
-//	int n1(m_n);
-//	int k1(m_k);
-//	int ncomb = kbinom_(&n1, &k1);
-	int ncomb = TMath :: Binomial(m_n, m_k);
+	int ncomb = TMath::Binomial(m_n, m_k);
 
 ///////////////////////////////////////
 // RETURN THE NUMBER OF COMBINATIONS //
@@ -153,7 +126,7 @@ void Combination::currentCombination(
 			std::vector<unsigned int> & index_array) const {
 
 	if (index_array.size()<m_k) {
-		index_array = vector<unsigned int>(m_k);
+		index_array = std::vector<unsigned int>(m_k);
 	}
 	for (unsigned int j=0; j<m_k; j++) {
 		index_array[j] = m_index[j];
@@ -182,7 +155,7 @@ void Combination::nextCombination(std::vector<unsigned int> & index_array) {
 //////////////////////////////
 
 	if (index_array.size()<m_k) {
-		index_array = vector<unsigned int>(m_k);
+		index_array = std::vector<unsigned int>(m_k);
 	}
 
 /////////////////

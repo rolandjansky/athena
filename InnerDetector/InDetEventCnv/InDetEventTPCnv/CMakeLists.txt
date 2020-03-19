@@ -32,6 +32,7 @@ atlas_depends_on_subdirs(
    DetectorDescription/IdDictParser
    Event/EventPrimitives
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    Tracking/TrkDetDescr/TrkSurfaces
    Tracking/TrkEvent/TrkEventPrimitives
    Tracking/TrkEvent/TrkMeasurementBase
@@ -51,7 +52,7 @@ atlas_add_tpcnv_library( InDetEventTPCnv
    InDetIdentifier InDetCompetingRIOsOnTrack InDetLowBetaInfo
    InDetPrepRawData InDetRIO_OnTrack TrkEventTPCnv
    PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel
-   EventPrimitives InDetReadoutGeometry TrkSurfaces TrkEventPrimitives
+   EventPrimitives InDetReadoutGeometry TRT_ReadoutGeometry TrkSurfaces TrkEventPrimitives
    TrkMeasurementBase TrkRIO_OnTrack )
 
 atlas_add_dictionary( InDetEventTPCnvDict
@@ -78,6 +79,7 @@ foreach( name SiWidthCnv_p1_test SiWidthCnv_p2_test PixelClusterCnv_p1_test
       SOURCES test/${name}.cxx
       LINK_LIBRARIES InDetEventTPCnv GaudiKernel IdDictParser
       SGTools InDetReadoutGeometry TestTools InDetIdentifier
+      LOG_IGNORE_PATTERN "^ *DEBUG |Strip range"
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 endforeach()

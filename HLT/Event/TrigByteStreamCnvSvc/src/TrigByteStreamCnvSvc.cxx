@@ -1,15 +1,16 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
 #include "TrigByteStreamCnvSvc.h"
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "TrigKernel/HltPscErrorCode.h"
 
 // Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
@@ -215,10 +216,12 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
 
   // Monitor error code
   if (rawEvent.nstatus() > 1) {
-    hltonl::PSCErrorCode errorCode = static_cast<hltonl::PSCErrorCode>(rawEvent.status()[1]);
+    HLT::OnlineErrorCode errorCode = static_cast<HLT::OnlineErrorCode>(rawEvent.status()[1]);
     std::ostringstream ss;
     ss << errorCode;
-    m_histPscErrorCode->Fill(ss.str().data(), 1.0);
+    oh_scoped_lock_histogram lock;
+    m_histOnlineErrorCode->Fill(ss.str().data(), 1.0);
+    m_histOnlineErrorCode->LabelsDeflate("X");
   }
 
   // Decode stream tags
@@ -265,7 +268,11 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
   std::unordered_map<std::string, uint32_t> resultSizesByStream;
   for (const eformat::helper::StreamTag& st : streamTags) {
     std::string typeName = st.type + "_" + st.name;
-    m_histStreamTags->Fill(typeName.data(), 1.0);
+    {
+      oh_scoped_lock_histogram lock;
+      m_histStreamTags->Fill(typeName.data(), 1.0);
+      m_histStreamTags->LabelsDeflate("X");
+    }
     m_histStreamTagsType->Fill(st.type.data(), 1.0);
     if (st.robs.size() > 0 || st.dets.size() >0) { // PEB stream tag
       m_histPebRobsNum->Fill(st.robs.size());
@@ -298,18 +305,29 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
     }
     resultSizesByStream[typeName] = size;
     for (const std::string& sdName : sdFromRobList) {
+      oh_scoped_lock_histogram lock;
       m_histPebSubDetsFromRobList->Fill(sdName.data(), 1.0);
+      m_histPebSubDetsFromRobList->LabelsDeflate("X");
     }
     for (const std::string& sdName : sdFromSubDetList) {
+      oh_scoped_lock_histogram lock;
       m_histPebSubDetsFromSubDetList->Fill(sdName.data(), 1.0);
+      m_histPebSubDetsFromSubDetList->LabelsDeflate("X");
     }
   }
 
   // Fill result size and stream tag correlation histograms
   for (const auto& [typeName, size] : resultSizesByStream) {
-    m_histResultSizeByStream->Fill(typeName.data(), size*wordsToKiloBytes, 1.0);
+    {
+      oh_scoped_lock_histogram lock;
+      m_histResultSizeByStream->Fill(typeName.data(), size*wordsToKiloBytes, 1.0);
+      m_histResultSizeByStream->LabelsDeflate("X");
+    }
     for (const auto& [typeName2, size2] : resultSizesByStream) {
+      oh_scoped_lock_histogram lock;
       m_histStreamTagsCorr->Fill(typeName.data(), typeName2.data(), 1.0);
+      m_histStreamTagsCorr->LabelsDeflate("X");
+      m_histStreamTagsCorr->LabelsDeflate("Y");
     }
   }
   for (const auto& [moduleId, size] : resultSizes) {
@@ -395,10 +413,10 @@ void TrigByteStreamCnvSvc::bookHistograms() {
       ATH_MSG_WARNING("Cannot register monitoring histogram " << hist->GetName());
   };
 
-  m_histPscErrorCode = new TH1I(
-    "PscErrorCode", "PSC error codes;;Events", 1, 0, 1);
-  m_histPscErrorCode->SetCanExtend(TH1::kXaxis);
-  regHist(m_histPscErrorCode);
+  m_histOnlineErrorCode = new TH1I(
+    "OnlineErrorCode", "Online error codes;;Events", 1, 0, 1);
+  m_histOnlineErrorCode->SetCanExtend(TH1::kXaxis);
+  regHist(m_histOnlineErrorCode);
 
   m_histStreamTags = new TH1F(
     "StreamTags", "Stream Tags produced by HLT;;Events", 1, 0, 1);
@@ -458,7 +476,6 @@ void TrigByteStreamCnvSvc::bookHistograms() {
 
   m_histResultSizeFullEvFrag = new TH1F(
     "ResultSizeFullEvFrag", "HLT output FullEventFragment size;Size [kB];Events", 100, 0, 1000);
-  m_histResultSizeFullEvFrag->SetCanExtend(TH1::kXaxis);
   regHist(m_histResultSizeFullEvFrag);
 
   m_histEventDoneTime = new TH1F(

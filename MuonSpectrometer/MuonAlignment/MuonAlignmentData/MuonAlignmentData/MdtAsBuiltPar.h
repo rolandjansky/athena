@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNMENTDATA_MDTASBUILTPAR_H
@@ -20,7 +20,7 @@ class MdtAsBuiltPar : public MuonAlignmentPar {
     MdtAsBuiltPar();
 
     // destructor
-    ~MdtAsBuiltPar();
+    virtual ~MdtAsBuiltPar() override = default;
 
     /**
      * MDT multi-layer index

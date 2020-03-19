@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ElectronContainerCnv.cxx 
@@ -55,7 +55,7 @@ ElectronContainer* ElectronContainerCnv::createTransient()
 {
   MsgStream msg( msgSvc(), "ElectronContainerCnv" );
 
-  ElectronContainer *transObj = 0;
+  ElectronContainer *transObj = nullptr;
 
   static pool::Guid tr_guid("417E86E5-CA20-4F50-A7A2-C91BF44C9125");
   static pool::Guid p1_guid("48355DA8-3BCE-43E0-B29B-51525BCEEDDD");

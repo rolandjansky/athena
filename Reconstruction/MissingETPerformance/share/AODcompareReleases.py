@@ -114,8 +114,8 @@ topSequence.METRefAlg.METRefJet.MissingETOutKey             += newrelease
 #topSequence.METRefAlg.METRefTau.MissingETOutKey            += newrelease
 topSequence.METRefAlg.METRefCluster.MissingETOutKey         += newrelease
 
-print 'printing again topSequence.METRefAlg'
-print topSequence.METRefAlg
+printfunc ('printing again topSequence.METRefAlg')
+printfunc (topSequence.METRefAlg)
 
 #here is where we specify the keys that are going to be written out by adding them to the list
 #needs doWriteAOD=True
@@ -182,4 +182,4 @@ AthenaEventLoopMgr = Service ( "AthenaEventLoopMgr")
 try:
     AthenaEventLoopMgr.EventPrintoutInterval = 1
 except Exception:
-    print 'EventPrintoutInterval exception, defaults to 1'
+    printfunc ('EventPrintoutInterval exception, defaults to 1')

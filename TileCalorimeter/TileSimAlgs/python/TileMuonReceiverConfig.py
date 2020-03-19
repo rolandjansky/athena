@@ -115,8 +115,9 @@ def TilePulseForTileMuonReceiverOutputCfg(flags, **kwargs):
         muRcvRawChCnt = muRcvRawChCnt.split('+').pop()
         outputItemList += ['TileRawChannelContainer#' + muRcvRawChCnt]
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge( OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge( OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
 
     return acc
 

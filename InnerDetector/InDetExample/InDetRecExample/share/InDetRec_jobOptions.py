@@ -34,7 +34,7 @@ else:
       printfunc ("* Major FAILURE : InDet reconstruction in seeded brem mode, *")
       printfunc ("*                 but LAr is off                            *")
       printfunc ("*************************************************************")
-      # raise RuntimeError,"Conflict in InDetRec setup: seeded Brem recovery, but Calo is off"
+      # raise RuntimeError ("Conflict in InDetRec setup: seeded Brem recovery, but Calo is off")
       if InDetFlags.doBremRecovery.is_locked():
         InDetFlags.doBremRecovery.unlock()
       printfunc (" ------------> WARNING: turning off brem recovery")
@@ -133,7 +133,9 @@ else:
     # ----------- special case for Calo seeded brem recovery
     #
     # ------------------------------------------------------------
-    if InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn():
+    if DetFlags.detdescr.Calo_allOn() and (
+         (InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem())
+      or (InDetNewTrackingCuts.RoISeededBackTracking() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTSeededTrackFinder())) :
       include ("InDetRecExample/InDetRecCaloSeededROISelection.py")
 
     # ------------------------------------------------------------

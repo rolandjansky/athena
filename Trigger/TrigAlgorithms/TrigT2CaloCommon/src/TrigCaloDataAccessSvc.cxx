@@ -561,7 +561,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
     m_robDataProvider->getROBData( context, requestROBs, robFrags );
   }
   if ( robFrags.empty() && (!requestROBs.empty()) ) {
-    return 0x1; // dummy code
+    return 0x0; // dummy code
   }
 
   auto lockTime = Monitored::Timer ( "TIME_locking_LAr_RoI" );

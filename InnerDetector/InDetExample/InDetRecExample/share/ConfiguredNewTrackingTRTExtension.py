@@ -102,48 +102,10 @@ class  ConfiguredNewTrackingTRTExtension:
          # --- load scoring for extension
          #
          if InDetFlags.doCosmics():
-            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetCosmicScoringTool
-            InDetExtenScoringTool = InDet__InDetCosmicScoringTool(name                 = 'InDetCosmicExtenScoringTool',
-                                                                  nWeightedClustersMin = 0,
-                                                                  minTRTHits           = NewTrackingCuts.minTRTonTrk(),
-                                                                  SummaryTool          = InDetTrackSummaryTool)
-            
+            InDetExtenScoringTool = TrackingCommon.getInDetCosmicExtenScoringTool(NewTrackingCuts)
          else:
-            have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
-            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-            InDetExtenScoringTool = InDet__InDetAmbiScoringTool(name                    = 'InDetExtenScoringTool'+NewTrackingCuts.extension(),
-                                                                Extrapolator            = InDetExtrapolator,
-                                                                SummaryTool             = InDetTrackSummaryTool,
-                                                                DriftCircleCutTool      = InDetTRTDriftCircleCut,
-                                                                useAmbigFcn             = True,  # this is NewTracking  
-                                                                useTRT_AmbigFcn         = False,
-                                                                minPt                   = NewTrackingCuts.minPT(),
-                                                                maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact(),
-                                                                maxZImp                 = NewTrackingCuts.maxZImpact(),
-                                                                maxEta                  = NewTrackingCuts.maxEta(),
-                                                                minSiClusters           = NewTrackingCuts.minClusters(),
-                                                                minPixel                = NewTrackingCuts.minPixel(),
-                                                                maxSiHoles              = NewTrackingCuts.maxHoles(),
-                                                                maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
-                                                                maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
-                                                                maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles(),
-                                                                usePixel                = NewTrackingCuts.usePixel(),
-                                                                useSCT                  = NewTrackingCuts.useSCT(),
-                                                                minTRTonTrk             = NewTrackingCuts.minTRTonTrk(),
-                                                                minTRTPrecisionFraction = NewTrackingCuts.minTRTPrecFrac(),
-                                                                doEmCaloSeed            = have_calo_rois)
-            if not InDetExtenScoringTool.doEmCaloSeed:
-               InDetExtenScoringTool.InputEmClusterContainerName = ''
-            
-            
-            if InDetFlags.trackFitterType() in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
-               InDetExtenScoringTool.minTRTPrecisionFraction = 0.2
+            InDetExtenScoringTool = TrackingCommon.getInDetExtenScoringTool(NewTrackingCuts)
 
-         #InDetExtenScoringTool.OutputLevel = VERBOSE 
-         ToolSvc += InDetExtenScoringTool
-         if (InDetFlags.doPrintConfigurables()):
-            printfunc (InDetExtenScoringTool     )
-         
          #
          # --- output track collection
          #

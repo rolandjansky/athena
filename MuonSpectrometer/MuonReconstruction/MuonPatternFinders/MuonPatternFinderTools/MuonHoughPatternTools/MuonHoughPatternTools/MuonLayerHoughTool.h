@@ -28,7 +28,6 @@
 #include "MuonLayerHough/MuonLayerHoughSelector.h"
 #include "MuonHoughPatternTools/HoughDataPerSec.h"
 
-#include "TMath.h"
 #include <set>
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
@@ -256,6 +255,7 @@ namespace Muon {
     Gaudi::Property<bool> m_addSectors{this,"AddSectors",false}; // default false
 
     unsigned int m_ntechnologies;
+    std::map<unsigned int,unsigned int> m_techToTruthNameIdx; // mapping the muon technology to the index of the m_truthNames vector
     CollectionsPerSectorVec m_collectionsPerSector;
 
     MuonSectorMapping              m_sectorMapping;

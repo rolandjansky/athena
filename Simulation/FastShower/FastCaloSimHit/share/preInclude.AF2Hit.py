@@ -1,8 +1,9 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #--------------------------------------------------------------
 #  Run the fast sim 
 #--------------------------------------------------------------
 
-print " Now do the FastSim ....."
+printfunc (" Now do the FastSim .....")
 
 #--------------------------------------------------------------
 # FastHitConv
@@ -27,8 +28,6 @@ topSequence += theFastHitConv
 job.theFastHitConv.OutputLevel = ALL
 job.OutputLevel = INFO
 
-
-from AthenaCommon.DetFlags import DetFlags
 
 if DetFlags.pileup.LAr_on() or DetFlags.pileup.Tile_on():
     job.theFastHitConv.doPileup = True

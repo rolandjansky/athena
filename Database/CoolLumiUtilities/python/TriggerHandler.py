@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TriggerHandler
 #
@@ -11,6 +11,7 @@
 # TriggerHandler - utility tool to find trigger-based information from COOL
 #
 
+from __future__ import print_function
 import sys
 import time
 import calendar
@@ -84,7 +85,7 @@ class TriggerHandler:
         # Runlist holds specific runs in this time range
         self.runlist = []
         
-        if self.verbose: print 'Searching for trigger information for max IOVRange', timeString(startIOV), timeString(endIOV)
+        if self.verbose: print('Searching for trigger information for max IOVRange', timeString(startIOV), timeString(endIOV))
         
         # Load the run based information as we fundamentally need to do this by run number
         
@@ -96,7 +97,7 @@ class TriggerHandler:
 
             runnum = int(obj.payload()['Run'])
 
-            if not runnum in self.runlist:
+            if runnum not in self.runlist:
                 self.runlist.append(runnum)
                 
         # Loop over each run, getting the trigger counts/Lumi
@@ -110,7 +111,7 @@ class TriggerHandler:
     def loadDataByRun(self, runnum, clear=True):
 
         if self.verbose:
-            print 'TriggerHandler.loadDataByRun(%d) called' % runnum
+            print('TriggerHandler.loadDataByRun(%d) called' % runnum)
             
         if clear:
             self.clear()
@@ -128,7 +129,7 @@ class TriggerHandler:
     def loadLBLBData(self, runnum):
 
         if self.verbose:
-            print 'TriggerHandler.loadLBLBData(%d) called' % runnum
+            print('TriggerHandler.loadLBLBData(%d) called' % runnum)
 
         self.lblbDict.clear()
         self.lblbReader.setIOVRangeFromRun(runnum)
@@ -142,7 +143,7 @@ class TriggerHandler:
     def loadTrigChannels(self, runnum):    
 
         if self.verbose:
-            print 'TriggerHandler.loadTrigChannels(%d) called' % runnum
+            print('TriggerHandler.loadTrigChannels(%d) called' % runnum)
 
         # Trigger channels keyed by name            
         self.trigChan = dict()
@@ -158,7 +159,7 @@ class TriggerHandler:
 
         for obj in self.menuReader.data:
             
-            if self.verbose or True: print int(obj.channelId()), obj.payload()['ItemName']
+            if self.verbose or True: print(int(obj.channelId()), obj.payload()['ItemName'])
 
             trigName = obj.payload()['ItemName']
             trigChan = int(obj.channelId())
@@ -169,18 +170,18 @@ class TriggerHandler:
                 
         for trig in self.trigList:
             if self.trigChan[trig] == -1:
-                print "Couldn't find", trig, "in run", str(runnum)
+                print("Couldn't find", trig, "in run", str(runnum))
 
         if self.verbose:
             for (trig, chan) in self.trigChan.iteritems():         
-                print 'Found', trig, 'in channel', chan
+                print('Found', trig, 'in channel', chan)
 
     # Load all trigger counts for the given run
     # Fills counts for all triggers with channels found in self.trigChan
     def loadTrigCounts(self, runnum):
 
         if self.verbose:
-            print 'TriggerHandler.loadTrigCounts(%d) called' % runnum
+            print('TriggerHandler.loadTrigCounts(%d) called' % runnum)
 
         self.countsReader.setIOVRangeFromRun(runnum)
 
@@ -191,7 +192,6 @@ class TriggerHandler:
         nMaxChan   = 50
         nChanBlock = 0
         chanBlock  = []
-        nChannels  = 0
 
         # Skip any trigger we didn't find
         tmpList = []
@@ -201,7 +201,7 @@ class TriggerHandler:
         chanList = tmpList
 
         if self.verbose:
-            print 'breaking up', len(chanList), 'into', nMaxChan, 'for run', runnum 
+            print('breaking up', len(chanList), 'into', nMaxChan, 'for run', runnum) 
 
         # There is a 50 item limit somehow hardcoded into browseObjects.
         # Use this code from Elliot to get around the limitation.
@@ -211,13 +211,13 @@ class TriggerHandler:
             top = min([x+nMaxChan, len(chanList)])
 
             if self.verbose:
-                print 'Initializing block [%d] from %d to %d' % (nChanBlock, x, top)
+                print('Initializing block [%d] from %d to %d' % (nChanBlock, x, top))
                 
             chanBlock.append( chanList[x:top] )
             nChanBlock += 1
 
         for x in range(nChanBlock):
-            if self.verbose: print 'Channel Selector', chanBlock[x]
+            if self.verbose: print('Channel Selector', chanBlock[x])
             self.countsReader.setChannel(chanBlock[x])
             self.countsReader.readData()
 
@@ -226,14 +226,14 @@ class TriggerHandler:
                 since = obj.since()
                 until = obj.until()
                 if self.verbose:
-                    print runLBString(since), runLBString(until), obj.channelId(), obj.payload()['BeforePrescale'], obj.payload()['AfterPrescale'], obj.payload()['L1Accept']
+                    print(runLBString(since), runLBString(until), obj.channelId(), obj.payload()['BeforePrescale'], obj.payload()['AfterPrescale'], obj.payload()['L1Accept'])
 
                 # use the string as the dictionary key
                 ss = since
                 chan = int(obj.channelId())
                 trig = self.chanTrig.get(chan, "")
                 if len(trig) == 0:
-                    print 'TriggerHandler.loadTrigCounts(%d) - found unknown channel %d in %s!' % (runnum, chan, runLBString(ss))
+                    print('TriggerHandler.loadTrigCounts(%d) - found unknown channel %d in %s!' % (runnum, chan, runLBString(ss)))
                     continue
                 
                 if ss not in self.trigL1Dict:
@@ -255,16 +255,16 @@ def timeVal(val):
     except ValueError:
         try:
             ts=time.strptime(val,'%Y-%m-%d:%H:%M:%S/%Z')
-            return int(calendar.timegm(ts))*1000000000L
+            return int(calendar.timegm(ts))*1000000000
         
         # Try again with UTC attached
         except ValueError:
             try:
                 ts=time.strptime(val+'/UTC', '%Y-%m-%d:%H:%M:%S/%Z')
-                return int(calendar.timegm(ts))*1000000000L
+                return int(calendar.timegm(ts))*1000000000
             
-            except ValueError,e:
-                print "ERROR in time specification:",val,"- use e.g. 2007-05-25:14:01:00/UTC"
+            except ValueError:
+                print("ERROR in time specification:",val,"- use e.g. 2007-05-25:14:01:00/UTC")
                 sys.exit(-1)
                 
 def timeString(iovkey):
@@ -275,7 +275,7 @@ def timeString(iovkey):
         return "ValidityKeyMax"
     else:
         # Round to avoid bias if microseconds exist
-        stime=int(round(iovkey/1000000000L))
+        stime=int(round(iovkey/1000000000))
         return time.strftime('%Y-%m-%d:%H:%M:%S/UTC', time.gmtime(stime))
     
 def runLBString(iovkey):

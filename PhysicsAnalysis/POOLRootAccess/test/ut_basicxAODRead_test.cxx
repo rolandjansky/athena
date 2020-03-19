@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //example of reading xAOD in fast xAOD mode with POOL::TEvent
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
    */
    POOL::TEvent evt(accessMode);
 
-   evt.readFrom(whatToRead.c_str());
+   evt.readFrom(whatToRead.c_str()).ignore();
 
    int maxEvt2 = evt2.getEntries();
    int maxEvt = evt.getEntries();
@@ -99,9 +99,9 @@ int main(int argc, char* argv[]) {
    st.Start();
    for(int i=0; i< maxEvt; i++) {
       evt.getEntry(i);
-      evt.retrieve( evtInfo , "EventInfo" );
+      evt.retrieve( evtInfo , "EventInfo" ).ignore();
       val[0] += evtInfo->eventNumber();
-      evt.retrieve( els, "Electrons" ).ignore();
+      evt.retrieve( els, "Electrons" ).ignore().ignore();
       val[1] += els->size();
       evt.retrieve( mus, "Muons" ).ignore();
       val[2] += mus->size();

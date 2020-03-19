@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ public:
   /**Default Constructor - needed for inherited classes */
   CompactBinnedArray1DT()
     : CompactBinnedArrayT<T>()
-    , m_binUtility(0)
+    , m_binUtility(nullptr)
   {}
 
   /**Constructor with std::vector and a BinUtility */
@@ -65,7 +65,7 @@ public:
   /**Copy Constructor - copies only pointers !*/
   CompactBinnedArray1DT(const CompactBinnedArray1DT& barr)
     : CompactBinnedArrayT<T>()
-    , m_binUtility(0)
+    , m_binUtility(nullptr)
   {
     m_binUtility = (barr.m_binUtility) ? barr.m_binUtility->clone() : 0;
 
@@ -104,7 +104,7 @@ public:
   {
     if (m_binUtility->inside(lp))
       return m_arrayObjects[m_array[m_binUtility->bin(lp, 0)]];
-    return 0;
+    return nullptr;
   }
 
   /** Returns the pointer to the templated class object from the BinnedArray
@@ -114,7 +114,7 @@ public:
   {
     if (m_binUtility)
       return m_arrayObjects[m_array[m_binUtility->bin(gp, 0)]];
-    return 0;
+    return nullptr;
   }
 
   /** Returns the pointer to the templated class object from the BinnedArray - entry point*/
@@ -122,7 +122,7 @@ public:
   {
     if (m_binUtility)
       return (m_arrayObjects[m_array[m_binUtility->entry(gp, 0)]]);
-    return 0;
+    return nullptr;
   }
 
   /** Returns the pointer to the templated class object from the BinnedArray
@@ -130,7 +130,7 @@ public:
   T* nextObject(const Amg::Vector3D& gp, const Amg::Vector3D& mom, bool associatedResult = true) const
   {
     if (!m_binUtility)
-      return 0;
+      return nullptr;
     // the bins
     size_t bin = associatedResult ? m_binUtility->bin(gp, 0) : m_binUtility->next(gp, mom, 0);
     return m_arrayObjects[m_array[bin]];

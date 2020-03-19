@@ -36,9 +36,9 @@ else:
   streamName = 'CosmicCalo:CosmicCaloEM:L1Calo:L1CaloEM:MinBias:MuonswBeam:RNDM'
 #  streamName = 'MinBias'
 
-print publishName
-print 'Hi. the streamName = '
-print streamName
+printfunc (publishName)
+printfunc ('Hi. the streamName = ')
+printfunc (streamName)
 
 ## ------------------------------------------- flags set in: RecExOnline_globalconfig.py  (from RecExOnline_jobOptions.py)
 #read the pickle file if you want to use the AMI tag info

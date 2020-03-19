@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/ReadHandleKey.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +16,7 @@
 
 
 #include "StoreGate/VarHandleKey.h"
+#include "StoreGate/exceptions.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
 
@@ -117,6 +116,33 @@ protected:
                  const std::string& name,
                  const K& key,
                  const std::string& doc);
+};
+
+
+/**
+ * @brief @c ReadHandleKey that initializes during construction.
+ *
+ * This is a variant of @c ReadHandleKey that calls @c initialize
+ * during construction.  Do _not_ use this for handle keys
+ * that are used as properties.  This is intended for keys
+ * embedded in code and declared const.
+ */
+template <class T>
+class InitializedReadHandleKey
+  : public ReadHandleKey<T>
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param key The StoreGate key for the object.
+   * @param storeName Name to use for the store, if it's not encoded in sgkey.
+   *
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store named by @c storeName is used.
+   */
+  InitializedReadHandleKey (const std::string& key = "",
+                            const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 };
 
 

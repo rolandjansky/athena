@@ -99,7 +99,7 @@ MissingETData_cone7.UseBadChannelMasker         = False
 MissingETData_cone7.UseBadChannelTool           = False
 
 ToolSvc += MissingETData_cone7
-print      MissingETData_cone7
+printfunc (     MissingETData_cone7)
 
 
 #############################################################
@@ -153,7 +153,7 @@ MissingETData_cone7_inversion.UseBadChannelMasker         = False
 MissingETData_cone7_inversion.UseBadChannelTool           = False
 
 ToolSvc += MissingETData_cone7_inversion
-print      MissingETData_cone7_inversion
+printfunc (     MissingETData_cone7_inversion)
 
 #############################################################
 ##### cone4_inversion ######
@@ -206,7 +206,7 @@ MissingETData_cone4_inversion.UseBadChannelMasker         = False
 MissingETData_cone4_inversion.UseBadChannelTool           = False
 
 ToolSvc += MissingETData_cone4_inversion
-print      MissingETData_cone4_inversion
+printfunc (     MissingETData_cone4_inversion)
 
 #############################################################
 ##### antikt ######
@@ -259,7 +259,7 @@ MissingETData_antikt.UseBadChannelMasker         = False
 MissingETData_antikt.UseBadChannelTool           = False
 
 ToolSvc += MissingETData_antikt
-print      MissingETData_antikt
+printfunc (     MissingETData_antikt)
 
 
 #############################################################
@@ -313,7 +313,7 @@ MissingETData_antikt_inversion.UseBadChannelMasker         = False
 MissingETData_antikt_inversion.UseBadChannelTool           = False
 
 ToolSvc += MissingETData_antikt_inversion
-print      MissingETData_antikt_inversion
+printfunc (     MissingETData_antikt_inversion)
 
 #############################################################
 ##### antikt6 ######
@@ -366,7 +366,7 @@ MissingETData_antikt6.UseBadChannelMasker         = False
 MissingETData_antikt6.UseBadChannelTool           = False
 
 ToolSvc += MissingETData_antikt6
-print      MissingETData_antikt6
+printfunc (     MissingETData_antikt6)
 
 
 #############################################################
@@ -420,7 +420,7 @@ MissingETData_antikt6_inversion.UseBadChannelMasker         = False
 MissingETData_antikt6_inversion.UseBadChannelTool           = False
 
 ToolSvc += MissingETData_antikt6_inversion
-print      MissingETData_antikt6_inversion
+printfunc (     MissingETData_antikt6_inversion)
 
 ContainerComparatorTool.MissingETData_array += [ MissingETData.getFullName() ]
 ContainerComparatorTool.MissingETData_array += [ MissingETData_antikt.getFullName() ]
@@ -460,7 +460,7 @@ BasicPlotsTool.bineta           = 5.0
 BasicPlotsTool.FolderName       = '/'
 
 ToolSvc += BasicPlotsTool
-print      BasicPlotsTool
+printfunc (     BasicPlotsTool)
 
 #############################################################
 #create a basic plots tool
@@ -485,7 +485,7 @@ BasicPlotsTool_cone4_inversion.bineta           = 5.0
 BasicPlotsTool_cone4_inversion.FolderName       = 'cone4_inversion/'
 
 ToolSvc += BasicPlotsTool_cone4_inversion
-print      BasicPlotsTool_cone4_inversion
+printfunc (     BasicPlotsTool_cone4_inversion)
 
 #############################################################
 #create a basic plots tool
@@ -510,7 +510,7 @@ BasicPlotsTool_cone7_inversion.bineta           = 5.0
 BasicPlotsTool_cone7_inversion.FolderName       = 'cone7_inversion/'
 
 ToolSvc += BasicPlotsTool_cone7_inversion
-print      BasicPlotsTool_cone7_inversion
+printfunc (     BasicPlotsTool_cone7_inversion)
 
 #############################################################
 #create a basic plots tool
@@ -535,7 +535,7 @@ BasicPlotsTool_cone7.bineta           = 5.0
 BasicPlotsTool_cone7.FolderName       = 'cone7/'
 
 ToolSvc += BasicPlotsTool_cone7
-print      BasicPlotsTool_cone7
+printfunc (     BasicPlotsTool_cone7)
 
 #############################################################
 #create a basic plots tool
@@ -560,7 +560,7 @@ BasicPlotsTool_antikt.bineta           = 5.0
 BasicPlotsTool_antikt.FolderName       = 'antikt/'
 
 ToolSvc += BasicPlotsTool_antikt
-print      BasicPlotsTool_antikt
+printfunc (     BasicPlotsTool_antikt)
 
 #############################################################
 #create a basic plots tool
@@ -585,7 +585,7 @@ BasicPlotsTool_antikt_inversion.bineta           = 5.0
 BasicPlotsTool_antikt_inversion.FolderName       = 'antikt_inversion/'
 
 ToolSvc += BasicPlotsTool_antikt_inversion
-print      BasicPlotsTool_antikt_inversion
+printfunc (     BasicPlotsTool_antikt_inversion)
 
 #############################################################
 #create a basic plots tool
@@ -610,7 +610,7 @@ BasicPlotsTool_antikt6.bineta           = 5.0
 BasicPlotsTool_antikt6.FolderName       = 'antikt6/'
 
 ToolSvc += BasicPlotsTool_antikt6
-print      BasicPlotsTool_antikt6
+printfunc (     BasicPlotsTool_antikt6)
 
 #############################################################
 #create a basic plots tool
@@ -635,7 +635,7 @@ BasicPlotsTool_antikt6_inversion.bineta           = 5.0
 BasicPlotsTool_antikt6_inversion.FolderName       = 'antikt6_inversion/'
 
 ToolSvc += BasicPlotsTool_antikt6_inversion
-print      BasicPlotsTool_antikt6_inversion
+printfunc (     BasicPlotsTool_antikt6_inversion)
 
 ContainerComparatorTool.BasicPlotsTools += [ BasicPlotsTool.getFullName() ]
 ContainerComparatorTool.BasicPlotsTools += [ BasicPlotsTool_antikt.getFullName() ]
@@ -697,7 +697,7 @@ ResolutionTool.usesumet           =   5
 ResolutionTool.FolderName       = '/'
 
 ToolSvc += ResolutionTool
-print      ResolutionTool
+printfunc (     ResolutionTool)
 
 #############################################################
 #create a resolution tool
@@ -732,7 +732,7 @@ ResolutionTool_cone7.usesumet           =   5
 ResolutionTool_cone7.FolderName       = 'cone7/'
 
 ToolSvc += ResolutionTool_cone7
-print      ResolutionTool_cone7
+printfunc (     ResolutionTool_cone7)
 
 #############################################################
 #create a resolution tool
@@ -767,7 +767,7 @@ ResolutionTool_cone7_inversion.usesumet           =   5
 ResolutionTool_cone7_inversion.FolderName       = 'cone7_inversion/'
 
 ToolSvc += ResolutionTool_cone7_inversion
-print      ResolutionTool_cone7_inversion
+printfunc (     ResolutionTool_cone7_inversion)
 
 #############################################################
 #create a resolution tool
@@ -802,7 +802,7 @@ ResolutionTool_cone4_inversion.usesumet           =   5
 ResolutionTool_cone4_inversion.FolderName       = 'cone4_inversion/'
 
 ToolSvc += ResolutionTool_cone4_inversion
-print      ResolutionTool_cone4_inversion
+printfunc (     ResolutionTool_cone4_inversion)
 
 #############################################################
 #create a resolution tool
@@ -837,7 +837,7 @@ ResolutionTool_antikt.usesumet           =   5
 ResolutionTool_antikt.FolderName       = 'antikt/'
 
 ToolSvc += ResolutionTool_antikt
-print      ResolutionTool_antikt
+printfunc (     ResolutionTool_antikt)
 
 #############################################################
 #create a resolution tool
@@ -872,7 +872,7 @@ ResolutionTool_antikt_inversion.usesumet           =   5
 ResolutionTool_antikt_inversion.FolderName       = 'antikt_inversion/'
 
 ToolSvc += ResolutionTool_antikt_inversion
-print      ResolutionTool_antikt_inversion
+printfunc (     ResolutionTool_antikt_inversion)
 
 #############################################################
 #create a resolution tool
@@ -907,7 +907,7 @@ ResolutionTool_antikt6.usesumet           =   5
 ResolutionTool_antikt6.FolderName       = 'antikt6/'
 
 ToolSvc += ResolutionTool_antikt6
-print      ResolutionTool_antikt6
+printfunc (     ResolutionTool_antikt6)
 
 #############################################################
 #create a resolution tool
@@ -942,7 +942,7 @@ ResolutionTool_antikt6_inversion.usesumet           =   5
 ResolutionTool_antikt6_inversion.FolderName       = 'antikt6_inversion/'
 
 ToolSvc += ResolutionTool_antikt6_inversion
-print      ResolutionTool_antikt6_inversion
+printfunc (     ResolutionTool_antikt6_inversion)
 
 ContainerComparatorTool.ResolutionTools += [ ResolutionTool.getFullName() ]
 ContainerComparatorTool.ResolutionTools += [ ResolutionTool_antikt.getFullName() ]
@@ -990,7 +990,7 @@ LinearityTool.etmi_threshold=50.
 LinearityTool.FolderName       = '/'
 
 ToolSvc += LinearityTool
-print      LinearityTool
+printfunc (     LinearityTool)
 
 #############################################################
 #create a linearity tool
@@ -1017,7 +1017,7 @@ LinearityTool_cone7.etmi_threshold=50.
 LinearityTool_cone7.FolderName       = 'cone7/'
 
 ToolSvc += LinearityTool_cone7
-print      LinearityTool_cone7
+printfunc (     LinearityTool_cone7)
 
 #############################################################
 #create a linearity tool
@@ -1044,7 +1044,7 @@ LinearityTool_cone7_inversion.etmi_threshold=50.
 LinearityTool_cone7_inversion.FolderName       = 'cone7_inversion/'
 
 ToolSvc += LinearityTool_cone7_inversion
-print      LinearityTool_cone7_inversion
+printfunc (     LinearityTool_cone7_inversion)
 
 #############################################################
 #create a linearity tool
@@ -1071,7 +1071,7 @@ LinearityTool_cone4_inversion.etmi_threshold=50.
 LinearityTool_cone4_inversion.FolderName       = 'cone4_inversion/'
 
 ToolSvc += LinearityTool_cone4_inversion
-print      LinearityTool_cone4_inversion
+printfunc (     LinearityTool_cone4_inversion)
 
 #############################################################
 #create a linearity tool
@@ -1098,7 +1098,7 @@ LinearityTool_antikt.etmi_threshold=50.
 LinearityTool_antikt.FolderName       = 'antikt/'
 
 ToolSvc += LinearityTool_antikt
-print      LinearityTool_antikt
+printfunc (     LinearityTool_antikt)
 
 #############################################################
 #create a linearity tool
@@ -1125,7 +1125,7 @@ LinearityTool_antikt_inversion.etmi_threshold=50.
 LinearityTool_antikt_inversion.FolderName       = 'antikt_inversion/'
 
 ToolSvc += LinearityTool_antikt_inversion
-print      LinearityTool_antikt_inversion
+printfunc (     LinearityTool_antikt_inversion)
 
 #############################################################
 #create a linearity tool
@@ -1152,7 +1152,7 @@ LinearityTool_antikt6.etmi_threshold=50.
 LinearityTool_antikt6.FolderName       = 'antikt6/'
 
 ToolSvc += LinearityTool_antikt6
-print      LinearityTool_antikt6
+printfunc (     LinearityTool_antikt6)
 
 #############################################################
 #create a linearity tool
@@ -1179,7 +1179,7 @@ LinearityTool_antikt6_inversion.etmi_threshold=50.
 LinearityTool_antikt6_inversion.FolderName       = 'antikt6_inversion/'
 
 ToolSvc += LinearityTool_antikt6_inversion
-print      LinearityTool_antikt6_inversion
+printfunc (     LinearityTool_antikt6_inversion)
 
 ContainerComparatorTool.LinearityTools += [ LinearityTool.getFullName() ]
 ContainerComparatorTool.LinearityTools += [ LinearityTool_antikt.getFullName() ]
@@ -1202,4 +1202,4 @@ ContainerComparatorTool.Data_Linearity_pairs = [
 ]
 
 ToolSvc += ContainerComparatorTool
-print      ContainerComparatorTool
+printfunc (     ContainerComparatorTool)

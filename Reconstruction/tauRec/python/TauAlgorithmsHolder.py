@@ -290,11 +290,7 @@ def getTauVertexVariables():
     TauVertexVariables = TauVertexVariables(  name = _name,
                                               TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
-                                              #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
-                                              Key_vertexInputContainer = _DefaultVertexContainer,
-                                              Key_trackPartInputContainer = _DefaultTrackContainer # ATM only needed in case old API is used
-                                              #OutputLevel = 2                                            
                                               )
     
     cached_instances[_name] = TauVertexVariables    
@@ -314,8 +310,8 @@ def getTauSubstructure():
                                                           # parameters for CaloIsoCorrected variable
                                                           maxPileUpCorrection = 4000., #MeV
                                                           pileUpAlpha = 1.0,
-                                                          VertexCorrection = True,
-                                                          inAODmode = bAODmode)
+                                                          VertexCorrection = True
+                                                       )
     
     cached_instances[_name] = TauSubstructureVariables
     return TauSubstructureVariables
@@ -450,9 +446,6 @@ def getPi0Selector():
     cached_instances[_name] = TauPi0Selector
     return TauPi0Selector
 
-
-
-
 #########################################################################
 # Photon Shot Finder algo
 def getTauShotFinder():    
@@ -465,29 +458,16 @@ def getTauShotFinder():
     shotPtCut_1Photon = jobproperties.tauRecFlags.shotPtCut_1Photon()
     shotPtCut_2Photons = jobproperties.tauRecFlags.shotPtCut_2Photons()
 
-    #from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    #TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name=sPrefix+'tauShotCellContainerFinalizer')
-    #from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += TauCellContainerFinalizer
-    
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
                                   CaloWeightTool = getCellWeightTool(),
-                                  #BDTWeightFile_barrel =  "TauShotsBDTWeights.xml",
-                                  #BDTWeightFile_endcap1 = "TauShotsBDTWeights.xml",
-                                  #BDTWeightFile_endcap2 = "TauShotsBDTWeights.xml",
                                   NCellsInEta           = 5,
                                   MinPtCut              = shotPtCut_1Photon,
                                   AutoDoubleShotCut     = shotPtCut_2Photons,
-                                  MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
                                   Key_caloCellInputContainer="AllCalo"
                                   )
     cached_instances[_name] = TauShotFinder
     return TauShotFinder
-
-
-
-
 
 
 #########################################################################
@@ -688,26 +668,6 @@ def getTauTrackFinder(removeDuplicateTracks=True):
     
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
-
-########################################################################
-# TauTrackFilter
-def getTauTrackFilter():
-    _name = sPrefix + 'TauTrackFilter'
-    from tauRecTools.tauRecToolsConf import TauTrackFilter
-    TauTrackFilter = TauTrackFilter(name = _name, Key_trackParticleInputContainer = _DefaultTrackContainer)
-    cached_instances[_name] = TauTrackFilter
-    return TauTrackFilter
-
-########################################################################
-# TauGenericPi0Cone
-def getTauGenericPi0Cone():
-    _name = sPrefix + 'TauGenericPi0Cone'
-    from tauRecTools.tauRecToolsConf import TauGenericPi0Cone
-    TauGenericPi0Cone = TauGenericPi0Cone(name = _name)
-    cached_instances[_name] = TauGenericPi0Cone
-    return TauGenericPi0Cone
-
-#end
 
 ########################################################################
 # MvaTESVariableDecorator
