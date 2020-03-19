@@ -190,17 +190,19 @@ TextFileDBReader::add(const std::string & key, const std::string & value)
   if (m_table.find(key) != m_table.end()) {
     std::cout << "WARNING! Overwriting exist entry with key: " << key << std::endl;
   } 
-  m_table[key] = Data(value,m_currentSection);
+
+   m_table.emplace(std::piecewise_construct, 
+                   std::forward_as_tuple(key), std::forward_as_tuple(new Data(value,m_currentSection)));
 }
 
 bool 
 TextFileDBReader::find(const std::string & key, std::string & result) const
 {
-  std::map<std::string,Data>::const_iterator iter = m_table.find(key);
+  std::map<std::string,Data*>::const_iterator iter = m_table.find(key);
+  if((const_cast<Data*>((iter->second)))->flag.test_and_set())
+    return true;
   if (iter != m_table.end()) {
-    lock_t lock (m_mutex);
-    result = iter->second.value;
-    m_logger[key]++;
+    result = iter->second->value;
     return true;
   } else {
     result = "";
@@ -219,11 +221,11 @@ TextFileDBReader::printParameters(const std::string & section) const
     if (iterSect != m_sections.end()) sectionNum = iterSect->second;
     // If not found then prints those in unnamed section.(ie sectionNum = 0)
   } 
-  for (std::map<std::string,Data>::const_iterator iter = m_table.begin();
+  for (std::map<std::string,Data*>::const_iterator iter = m_table.begin();
        iter != m_table.end();
        ++iter) {
-    if (section.empty() || iter->second.section == sectionNum) {
-      std::cout << std::setw(35) << iter->first << " " << iter->second.value << std::endl;
+    if (section.empty() || iter->second->section == sectionNum) {
+      std::cout << std::setw(35) << iter->first << " " << iter->second->value << std::endl;
     }
   }
   // reset flags to original state
@@ -243,12 +245,11 @@ TextFileDBReader::printNotUsed(const std::string & section) const
     if (iterSect != m_sections.end()) sectionNum = iterSect->second;
     // If not found then considers those in unnamed section (ie sectionNum = 0)
   }
-  for (std::map<std::string,Data>::const_iterator iter = m_table.begin();
+  for (std::map<std::string,Data*>::const_iterator iter = m_table.begin();
        iter != m_table.end();
        ++iter) {
-    lock_t lock (m_mutex);
-    if ((section.empty() || iter->second.section == sectionNum) && m_logger.find(iter->first) == m_logger.end()) {
-      std::cout << std::setw(35) << iter->first << " " << iter->second.value << std::endl;
+    if ((section.empty() || iter->second->section == sectionNum) && (!((const_cast<Data*>((iter->second)))->flag.test_and_set()))) {
+      std::cout << std::setw(35) << iter->first << " " << iter->second->value << std::endl;
       allused = false;
     }
   }
