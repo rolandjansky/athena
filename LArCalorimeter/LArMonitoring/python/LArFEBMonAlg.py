@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
     from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -105,7 +105,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  #? how to put labels to Y axis only ?
+                                  ylabels=lArDQGlobals.Partitions
                                   )
     Group.defineHistogram('febError,part;NbOfLArFEBMonAlgErrors_dE', 
                                   title='# of data corruption errors',
@@ -113,7 +113,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.N_FEBErrors, xmin=0.5, xmax=lArDQGlobals.N_FEBErrors+0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  labels=lArDQGlobals.FEBErrors+lArDQGlobals.Partitions)
+                                  xlabels=lArDQGlobals.FEBErrors, ylabels=lArDQGlobals.Partitions)
     Group.defineHistogram('dspThrADC;dspThresholdsADC', 
                                   title='DSP thresholds to readout samples:Number of cells:Cell threshold in ADC counts',
                                   type='TH1I',
@@ -129,7 +129,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.Evt_Bins, xmin=lArDQGlobals.Evt_Min, xmax=lArDQGlobals.Evt_Max,
-                                  labels=lArDQGlobals.Evt_labels)
+                                  xlabels=lArDQGlobals.Evt_labels)
     Group.defineHistogram('LVL1Trig;TriggerWord', 
                                   title='Number of Events per L1 trigger word (8 bits):L1 trigger word',
                                   type='TH1I',
@@ -145,13 +145,13 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
-                                  labels=lArDQGlobals.EvtRej_labels)
+                                  xlabels=lArDQGlobals.EvtRej_labels)
     Group.defineHistogram('EvtRej,EvtRejYield;EventsRejectedYield', 
                                   title='Data corruption yield:Corruption type:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins-1, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max-1,
-                                  labels=lArDQGlobals.EvtRejYield_labels)
+                                  xlabels=lArDQGlobals.EvtRejYield_labels)
     Group.defineHistogram('LB,EvtRejYield;YieldOfRejectedEventsVsLB', 
                                   title='Yield of corrupted events (DATACORRUPTED):Luminosity Block:Yield(%)',
                                   type='TProfile',
@@ -207,14 +207,14 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                 titile='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=summary_hist_path,
-                                xbins=1, xmin=0, xmax=1, labels=['% of events'])
+                                xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
        Group.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
                                 titile='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=summary_hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                #labels=[''] needs only labels on Yaxis
+                                ylabels=larFEBMonAlg.Streams 
                                 )
 
     # Now per partition histograms
@@ -388,14 +388,14 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                 titile='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=hist_path,
-                                xbins=1, xmin=0, xmax=1, labels=['% of events'])
+                                xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
           darray.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
                                 titile='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                #labels=[''] needs only labels on Y-axis
+                                ylabels=larFEBMonAlg.Streams
                                 )
        pass
 

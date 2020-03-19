@@ -94,7 +94,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                                   weight='weight_e',
                                   xbins=lArDQGlobals.N_Partitions, xmin=-0.5, xmax=lArDQGlobals.N_Partitions-0.5,
                                   ybins=lArDQGlobals.N_Gains,ymin=-0.5,ymax=lArDQGlobals.N_Gains-0.5,
-                                  labels=lArDQGlobals.Partitions+lArDQGlobals.Gains)
+                                  xlabels=lArDQGlobals.Partitions,ylabels=lArDQGlobals.Gains)
 
     Group.defineHistogram('partition,gain;Summary_Q', 
                                   title='Summary of errors on Quality per partition and per gain',
@@ -103,7 +103,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                                   weight='weight_q',
                                   xbins=lArDQGlobals.N_Partitions, xmin=-0.5, xmax=lArDQGlobals.N_Partitions-0.5,
                                   ybins=lArDQGlobals.N_Gains,ymin=-0.5,ymax=lArDQGlobals.N_Gains-0.5,
-                                  labels=lArDQGlobals.Partitions+lArDQGlobals.Gains)
+                                  xlabels=lArDQGlobals.Partitions,ylabels=lArDQGlobals.Gains)
 
     Group.defineHistogram('partition,gain;Summary_T', 
                                   title='Summary of errors on Time per partition and per gain',
@@ -112,27 +112,27 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                                   weight='weight_t',
                                   xbins=lArDQGlobals.N_Partitions, xmin=-0.5, xmax=lArDQGlobals.N_Partitions-0.5,
                                   ybins=lArDQGlobals.N_Gains,ymin=-0.5,ymax=lArDQGlobals.N_Gains-0.5,
-                                  labels=lArDQGlobals.Partitions+lArDQGlobals.Gains)
+                                  xlabels=lArDQGlobals.Partitions,ylabels=lArDQGlobals.Gains)
 
     Group.defineHistogram('Ediff;E_all', 
-                                  title='E_{offline} - E_{online} for all partitions;E_{offline} - E_{online} (MeV)',
+                                  title='E_offline - E_online for all partitions;E_offline - E_online (MeV)',
                                   type='TH1F',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.DSPEnergy_Bins, xmin=lArDQGlobals.DSPEnergy_Min, xmax=lArDQGlobals.DSPEnergy_Max)
     Group.defineHistogram('Tdiff;T_all', 
-                                  title='T_{offline} - T_{online} for all partitions;T_{offline} - T_{online} (ps)',
+                                  title='T_offline - T_online for all partitions;T_offline - T_online (ps)',
                                   type='TH1F',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.DSPTime_Bins, xmin=lArDQGlobals.DSPTime_Min, xmax=lArDQGlobals.DSPTime_Max)
     Group.defineHistogram('Qdiff;Q_all', 
-                                  title='Q_{offline} - Q_{online} / #sqrt{Q_{offline}} for all partitions;Q_{offline} - Q_{online}  / sqrt{Q_{offline}} (ps)',
+                                  title='Q_offline - Q_online / #sqrt{Q_offline} for all partitions;Q_offline - Q_online  / sqrt{Q_offline} (ps)',
                                   type='TH1F',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.DSPQuality_Bins, xmin=lArDQGlobals.DSPQuality_Min, xmax=lArDQGlobals.DSPQuality_Max)
 
     #Infos histos (vs. LB)
     info_hist_path='Infos/'
-    cut = "#delta ADC>"+str(larRODMonAlg.ADCthreshold)+" and |t_{offline}| < "+str(larRODMonAlg.peakTimeCut)+" ns"
+    cut = "#delta ADC>"+str(larRODMonAlg.ADCthreshold)+" and |t_offline| < "+str(larRODMonAlg.peakTimeCut)+" ns"
     Group.defineHistogram('LBN,partition:EErrorsPerLB',
                                   title='Nb of errors in E per LB - ' +cut+':Luminosity Block:Partition',
                                   type='TH2I',
@@ -140,7 +140,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                                   path=info_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  # and labels for Y ?
+                                  ylabels = lArDQGlobals.Partitions
           )
     Group.defineHistogram('LBN,partition:TErrorsPerLB',
                                   title='Nb of errors in T per LB - ' +cut+':Luminosity Block:Partition',
@@ -149,7 +149,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                                   path=info_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  # and labels for Y ?
+                                  ylabels = lArDQGlobals.Partitions
           )
     Group.defineHistogram('LBN,partition:QErrorsPerLB',
                                   title='Nb of errors in Q per LB - ' +cut+':Luminosity Block:Partition',
@@ -158,17 +158,17 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                                   path=info_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  # and labels for Y ?
+                                  ylabels = lArDQGlobals.Partitions
           )
 
     #DQMD histos
     dqmd_hist_path='/LAr/DSPMonitoringNewAlg/DQMD/'
     darray = helper.addArray([lArDQGlobals.Partitions+['all']],larRODMonAlg,"RODMon")
-    darray.defineHistogram('Ediff,Erange;DE_ranges', title='EOnline - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',#'E_{online} - E_{offline} for all ranges : E_{offline} - E_{online} (MeV) : Energy range',
+    darray.defineHistogram('Ediff,Erange;DE_ranges', title='EOnline - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',#'E_online - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',
                            type='TH2F', path=dqmd_hist_path,
                            xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
                            ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
-                           #labels=?+lArDQGlobals.DSPRanges # how to put labels only on Y-axis ?
+                           ylabels=lArDQGlobals.DSPRanges 
           )
     dqmd_hist_path='/LAr/DSPMonitoringNewAlg/DQMD/'
     darray = helper.addArray([lArDQGlobals.Partitions+['all']],larRODMonAlg,"RODMon")
@@ -176,7 +176,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                            type='TH2F', path=dqmd_hist_path,
                            xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
                            ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
-                           #labels=?+lArDQGlobals.DSPRanges # how to put labels only on Y-axis ?
+                           ylabels=lArDQGlobals.DSPRanges
           )
 
     #per partition, currently in one dir only

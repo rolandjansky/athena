@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file LArCoverageAlg
@@ -172,7 +172,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ybins=lArDQGlobals.FEB_N_channels,
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
-                                              labels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
+                                              xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
     badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsEndcap',
                                               type='TH2I',
                                               path=badChannels_path,
@@ -184,7 +184,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ybins=lArDQGlobals.FEB_N_channels,
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
-                                              labels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
+                                              xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
 
     #--coverageHW histograms
@@ -200,7 +200,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ybins=lArDQGlobals.FEB_N_channels,
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
-                                              labels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
+                                              xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
 
     coverageHWToolArrayEndcap.defineHistogram('mon_FtSlot,mon_Channels;CoverageHW',
                                               type='TH2I',
@@ -213,7 +213,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ybins=lArDQGlobals.FEB_N_channels,
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
-                                              labels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
+                                              xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
 
     coverageGroupEMBA0.defineHistogram('mon_Eta,mon_Phi;CoverSampling0EMBA',
