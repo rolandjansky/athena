@@ -1,1 +1,0 @@
-For now this dir holds empty folders representing the future HGTD packages in 21.9
