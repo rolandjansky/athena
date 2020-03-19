@@ -10,6 +10,8 @@ from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
 from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
+from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
+from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
     result=ComponentAccumulator()
@@ -77,6 +79,11 @@ def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
 
       author = flags.BTagging.OutputFiles.Prefix + JetCollection + suffix
       ItemList.append(OutputFilesBaseName + author)
+      # jetLink
+      jetLink = '.jetLink'
+      ItemList.append(OutputFilesBaseName+author+jetLink)
+      ItemList.append(OutputFilesBaseAuxName+author+jetLink)
+
       ItemList.append(OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB')
       # SecVert
       ItemList.append(OutputFilesBaseNameSecVtx + author + OutputFilesSVname)
@@ -165,10 +172,10 @@ def BTagCfg(inputFlags,**kwargs):
 
     #Should be parameters
     JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlow']
-    JetCollection = ['AntiKt4EMTopo']
+    JetCollection = ['AntiKt4EMPFlow']
+    #JetCollection = ['AntiKt4EMTopo']
     taggerList = inputFlags.BTagging.run2TaggersList
     taggerList += ['MultiSVbb1','MultiSVbb2']
-
 
     for jet in JetCollection:
         if timestamp:
@@ -195,8 +202,23 @@ def BTagCfg(inputFlags,**kwargs):
             result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
 
         if splitAlg:
-            #Track Augmenter
-            result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
+            postTagDL2JetToTrainingMap={
+                'AntiKt4EMPFlow': [
+                #'BTagging/201903/smt/antikt4empflow/network.json',
+                'BTagging/201903/rnnip/antikt4empflow/network.json',
+                'BTagging/201903/dl1r/antikt4empflow/network.json',
+                'BTagging/201903/dl1/antikt4empflow/network.json',
+                #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+                ]
+            }
+
+            if jet in postTagDL2JetToTrainingMap:
+                #Track Augmenter
+                result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
+
+                #Remove DL1 and RNNIP from taggers list, those taggers are run with PostBTagDecoratorAlg
+                #taggerList.remove('RNNIP')
+                #taggerList.remove('DL1')
 
             #Track Association
             TrackToJetAssociators = ['BTagTrackToJetAssociator', 'BTagTrackToJetAssociatorBB']
@@ -222,6 +244,13 @@ def BTagCfg(inputFlags,**kwargs):
 
             #BTagging
             result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SVandAssoc = SecVertexingAndAssociators, **kwargs))
+
+            if jet in postTagDL2JetToTrainingMap:
+                #result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, BTagCollection = 'BTagging_'+jet, Associator = 'BTagTrackToJetAssociator', doFlipTagger=True, **kwargs))
+                result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, BTagCollection = 'BTagging_'+jet, Associator = 'BTagTrackToJetAssociator', **kwargs))
+                for dl2 in postTagDL2JetToTrainingMap[jet]:
+                    result.merge(HighLevelBTagAlgCfg(inputFlags, jet, dl2))
+
         else:
             result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
 

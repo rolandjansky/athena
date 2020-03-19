@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/DL2HighLevelTools.h"
@@ -37,9 +37,32 @@ namespace FlavorTagDiscriminants {
       input.type = match_first(type_regexes, var, "type matching");
       input.default_flag = match_first(default_flag_regexes, var,
                                        "default matching");
+
       inputs.push_back(input);
     }
     return inputs;
+  }
+  // do some input variable magic in case someone asked
+  void remap_inputs(std::vector<lwt::Input>& nn,
+                    std::vector<DL2InputConfig>& dl2,
+                    std::map<std::string, std::string>& replaced_vars) {
+    if (nn.size() != dl2.size()) {
+      throw std::logic_error("DL2 input size != lwtnn input size");
+    }
+    for (size_t iii = 0; iii < nn.size(); iii++) {
+      std::string nn_name = nn.at(iii).name;
+      std::string dl_name = dl2.at(iii).name;
+      if (nn_name != dl_name) {
+        throw std::logic_error(
+          "DL2 input mismatch (" + nn_name + " != " + dl_name + ")");
+      }
+      auto replacement_itr = replaced_vars.find(nn_name);
+      if (replacement_itr != replaced_vars.end()) {
+        nn.at(iii).name = replacement_itr->second;
+        dl2.at(iii).name = replacement_itr->second;
+        replaced_vars.erase(replacement_itr);
+      }
+    }
   }
   std::vector<DL2TrackSequenceConfig> get_track_input_config(
     const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
