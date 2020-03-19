@@ -519,7 +519,7 @@ GeoFullPhysVol* HGTD_DetectorFactory::createEnvelope(bool bPos) {
 }
 
 void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManager>& matmanager,
-                                           GeoFullPhysVol* HGTDparent, bool isPos) {
+                                           GeoFullPhysVol* HGTDparent, bool /*isPos*/) {
 
     msg(MSG::INFO) << "**************************************************" << endmsg;
     msg(MSG::INFO) << "                 Building HGTD                    " << endmsg;
@@ -756,11 +756,9 @@ void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManage
     moduleVolumes.push_back("HGTD::Hybrid");
     if (m_boxVolPars["HGTD::ModuleSpace"].zHalf) moduleVolumes.push_back("HGTD::ModuleSpace");
 
-    int endcap_side   = isPos ? +2 : -2;
     int layer_offset  = 5;
 
-    InDetDD::PixelModuleDesign* design = createPixelDesign(2.*m_boxVolPars["HGTDSiSensor0"].zHalf, m_HGTD_isbaseline); // assumes thickness same for 0-3
-    //   InDetDD::PixelModuleDesign * design_flipped = createPixelDesign(2.*m_boxVolPars["SensorPlaceHolder"].zHalf, m_HGTD_isbaseline, true);
+    // TODO: here used to be the creation of a PixelModuleDesign object, so likely corresponding HGTD object should be made here
 
     // loop over layers
     for (int layer = 0; layer < 4; layer++) {
@@ -849,15 +847,14 @@ void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManage
                     // each SiSensor then has a detector element
                     // TODO: not adding detector elements yet until a proper solution (not involving pixelBasics) can be implemented
                     if (volumes[comp] == sensorName) {
-                        // Identifier idwafer = m_pixelBasics->getIdHelper()->wafer_id(endcap_side, layer_offset+layer, phi, eta);
-                        // InDetDD::SiDetectorElement* detElement = new InDetDD::SiDetectorElement( idwafer, design, sensorCompPhysicalVol, m_pixelBasics->getCommonItems());
-                        // m_pixelBasics->getDetectorManager()->addDetectorElement(detElement);
+		        // TODO: create identifier, previously done based on endcap_side, layer_offset+layer, "phi", "eta"
+		        // TODO: create detector element and feed it the identifier, design, physical volume of active sensor part, etc
+                        // TODO: add detector element through the detector manager
                         HepGeom::Transform3D sensorTransform = HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*
                                                                HepGeom::TranslateX3D(xOffsetLocal);
                         GeoAlignableTransform* xform = new GeoAlignableTransform(sensorTransform);
                         modulePhysical->add(xform);
                         modulePhysical->add(sensorCompPhysicalVol);
-                        // m_pixelBasics->getDetectorManager()->addAlignableTransform(0,idwafer,xform,sensorCompPhysicalVol);
                     } else {
                         modulePhysical->add(new GeoTransform(HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*HepGeom::TranslateX3D(xOffsetLocal)));
                         modulePhysical->add(sensorCompPhysicalVol);

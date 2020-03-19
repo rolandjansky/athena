@@ -18,14 +18,12 @@
 
 namespace InDetDD {
     class AthenaComps;
-    // // class SiCommonItems;
 }
 
 class HGTD_DetectorManager;
 class IGeoModelSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
-// // class ISiLorentzAngleSvc;
 
 /** @class HGTD_DetectorTool
     @brief HGTD_DetectorTool is a standard GeoModel tool, which calls HGTD_DetectorFactory::create(),
@@ -44,19 +42,13 @@ public:
 private:
     std::string m_detectorName;
     bool m_alignable;
-    // // std::string m_gmxFilename;
     const HGTD_DetectorManager *m_manager;
     InDetDD::AthenaComps *m_athenaComps;
-    // // InDetDD::SiCommonItems *m_commonItems;
     ServiceHandle<IGeoModelSvc> m_geoModelSvc;
     ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
     ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;
-    // // ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
 
     std::string m_geometryConfig; // FULL, SIMU, RECO
-
-    // Used as a temporary hack in 20.20 for retrieving a PixelGeoBuilderBasics object
-    // ToolHandle< IGeoPixelLayerTool > m_innerPixelTool;
 
     // this is for the HGTD readout definition
     bool m_HGTD_isbaseline;
