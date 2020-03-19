@@ -68,7 +68,11 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.addROBs([0x610080, 0x620080])
     elif 'SCTPEB' in eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
-        tool.addSubDets([SubDetectorGroup.SCT])
+        tool.addSubDets([SubDetector.SCT_BARREL_A_SIDE,
+                         SubDetector.SCT_BARREL_C_SIDE,
+                         SubDetector.SCT_ENDCAP_A_SIDE,
+                         SubDetector.SCT_ENDCAP_C_SIDE
+        ])
     elif eventBuildType in EventBuildingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)
