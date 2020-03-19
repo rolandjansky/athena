@@ -34,6 +34,8 @@ parser.add_argument('--no_onfile', action='store_true',
                     help="Don't show on file size")
 parser.add_argument('--no_inmem', action='store_true',
                     help="Don't show in memory size")
+parser.add_argument('--tree_entries', action='store_true',
+                    help="Use more robust hash of TTree branches + entries")
 args=parser.parse_args()
 
 ordering = args.rankorder
@@ -45,7 +47,16 @@ ROOT.gInterpreter.LoadText("void* getbuffer(TKey* key) { key->SetBuffer(); key->
 ROOT.gInterpreter.LoadText("UInt_t bufferhash2(TKey* key) { TObject* obj = key->ReadObj(); TMessage msg(kMESS_OBJECT); msg.WriteObject(obj); UInt_t rv = TString::Hash(msg.Buffer(), msg.Length()); delete obj; return rv; }")
 ROOT.gInterpreter.LoadText("UInt_t bufferhash3(TKey* key) { TObject* obj = key->ReadObj(); UInt_t rv = obj->Hash(); delete obj; return rv; }")
 ROOT.gInterpreter.LoadText("TString getjson(TKey* key) { TObject* obj = key->ReadObj(); auto rv = TBufferJSON::ConvertToJSON(obj); delete obj; return rv; }")
+
 ROOT.gSystem.Load('libDataQualityUtils')
+
+def fuzzytreehash(tkey):
+    t = tkey.ReadObj()
+    rv = zlib.adler32((' '.join(_.GetName() for _ in t.GetListOfBranches()))
+                        + (' '.join(_.GetName() + _.GetTypeName() for _ in t.GetListOfLeaves()))
+                        + ' ' + str(t.GetEntries()))
+    del t
+    return rv
 
 def dumpdir(d):
     thispath = d.GetPath()
@@ -59,7 +70,9 @@ def dumpdir(d):
         if k.GetClassName().startswith('TDirectory'):
             subdirs.append(k)
         else:
-            if args.hash:
+            if args.tree_entries and k.GetClassName() == 'TTree':
+                lhash = fuzzytreehash(k)
+            elif args.hash:
                 lhash = zlib.adler32(jsonfixup(ROOT.getjson(k)))
             else:
                 lhash = 0

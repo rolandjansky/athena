@@ -23,7 +23,9 @@ class MinimalViewAlg : public AthAlgorithm
     virtual ~MinimalViewAlg();
 
     // Athena algorithm hooks
-    virtual StatusCode execute();
+    virtual StatusCode  initialize();
+    virtual StatusCode  execute();
+    virtual StatusCode  finalize();
 
   private:
 
@@ -31,10 +33,8 @@ class MinimalViewAlg : public AthAlgorithm
     MinimalViewAlg();
 
     // Configurables
-    Gaudi::Property< std::string > m_schedulerName{ this, "SchedulerName", "AvalancheSchedulerSvc", "Name of the scheduler" };
+    ServiceHandle< IScheduler > m_scheduler{ this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
     Gaudi::Property< std::string > m_viewNodeName{ this, "ViewNodeName", "", "Name of CF node to attach views to" };
-
-    inline SmartIF<IScheduler> getScheduler() const { return svcLoc()->service< IScheduler >( m_schedulerName, false ); }
 };
 
 } //> end namespace AthViews

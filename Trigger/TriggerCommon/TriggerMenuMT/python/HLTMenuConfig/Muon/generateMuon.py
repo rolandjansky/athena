@@ -37,6 +37,8 @@ def generateChains( flags, chainDict ):
                                      HypoToolGen = TrigMufastHypoToolFromDict,
                                      CA = acc )
 
+    l2muFastSequence.createHypoTools(chainDict)
+
     l2muFastStep = ChainStep( stepName, [l2muFastSequence] )
 
     ### Set muon step2 ###
@@ -71,8 +73,8 @@ def generateChains( flags, chainDict ):
     # TODO remove once full step is in place
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
     fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
-    def makeFakeHypoTool(name, cfg):
-        return HLTTest__TestHypoTool(name)
+    def makeFakeHypoTool(chainDict, cfg=None):
+        return HLTTest__TestHypoTool(chainDict['chainName'])
 
     accMS.addEventAlgo(fakeHypoAlg, sequenceName=stepEFMSView.getName())
 
@@ -81,6 +83,8 @@ def generateChains( flags, chainDict ):
                                      Hypo = fakeHypoAlg, 
                                      HypoToolGen = makeFakeHypoTool,
                                      CA = accMS )
+
+    efmuMSSequence.createHypoTools(chainDict)
 
     efmuMSStep = ChainStep( stepEFMSName, [efmuMSSequence] )
 
