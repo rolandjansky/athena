@@ -36,7 +36,7 @@ function( _add_gtest cxx_name )
    atlas_add_test (${test_name}
       SOURCES test/${test_name}.cxx
       INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GMOCK_LIBRARIES} RootCoreUtils AsgTools AsgTesting
+      LINK_LIBRARIES ${GMOCK_LIBRARIES} RootCoreUtils AsgTools AsgTestingLib
       SampleHandler EventLoopTestLib xAODRootAccess ${EXTRA_ARGS})
    set_tests_properties (EventLoopTest_${test_name}_ctest PROPERTIES LABELS "EventLoopTest;EventLoop;SampleHandler;AnaAlgorithm" )
 endfunction( _add_gtest )
