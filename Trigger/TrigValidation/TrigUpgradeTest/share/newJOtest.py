@@ -68,7 +68,7 @@ from TrigInDetConfig.InDetConfig import TrigInDetCondConfig
 acc.merge( TrigInDetCondConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
-print acc.getEventAlgo( "TrigSignatureMoniMT" )
+
 
 
 from AthenaCommon.Logging import logging
@@ -85,7 +85,7 @@ acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING #
 acc.printConfig()
 
 fname = "newJOtest.pkl"
-print "Storing config in the config", fname
+print( "Storing config in the file {}".format( fname ) )
 with open(fname, "wb") as p:
     acc.store( p, nEvents=20, useBootStrapFile=False, threaded=True )
     p.close()

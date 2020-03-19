@@ -31,6 +31,7 @@ class ExecStep(Step):
         self.forks = None
         self.max_events = None
         self.skip_events = None
+        self.use_pickle = False
         self.imf = True
         self.perfmon = True
         self.prmon = True
@@ -127,6 +128,9 @@ class ExecStep(Step):
         self.log.debug('Configuring job options for step %s', self.name)
         if self.type == 'other':
             self.log.debug('Skipping job options check for step.type=other')
+            return
+        if self.use_pickle:
+            self.log.debug('Skipping job options check for step running from a pickle file')
             return
 
         if self.type.endswith('_tf'):

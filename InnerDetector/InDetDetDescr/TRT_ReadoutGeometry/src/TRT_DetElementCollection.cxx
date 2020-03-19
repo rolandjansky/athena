@@ -8,7 +8,7 @@
 #include "Identifier/IdentifierHash.h"
 
 const InDetDD::TRT_BaseElement*
-InDetDD::TRT_DetElementCollection::getDetectorElement(IdentifierHash& hash) const {
+InDetDD::TRT_DetElementCollection::getDetectorElement(const IdentifierHash& hash) const {
   unsigned int value{hash.value()};
   if (this->size()<=value) return nullptr;
   return (*this)[value];  
