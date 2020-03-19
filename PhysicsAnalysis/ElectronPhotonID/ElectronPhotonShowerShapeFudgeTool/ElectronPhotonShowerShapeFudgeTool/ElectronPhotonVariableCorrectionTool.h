@@ -15,7 +15,7 @@
 
 //ATLAS includes
 #include "AsgTools/AsgTool.h"
-#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "PATInterfaces/CorrectionCode.h"
 
 //EDM includes
 #include "xAODEgamma/Electron.h"
@@ -32,22 +32,19 @@ class TEnv;
 // Class ElectronPhotonVariableCorrectionTool
 // ===========================================================================
 
-class ElectronPhotonVariableCorrectionTool : public asg::AsgTool, virtual public IElectronPhotonShowerShapeFudgeTool
+class ElectronPhotonVariableCorrectionTool : public asg::AsgTool
 {
-    /// Declare the interface that the class provides
-    ASG_TOOL_CLASS(ElectronPhotonVariableCorrectionTool, IElectronPhotonShowerShapeFudgeTool)
 
 public:
     ElectronPhotonVariableCorrectionTool(const std::string& myname);
     ~ElectronPhotonVariableCorrectionTool() {};
 
-    /** Gaudi Service Interface method implementations */
-    virtual StatusCode initialize() override;
+    StatusCode initialize();
 
-    virtual const CP::CorrectionCode applyCorrection( xAOD::Photon& photon ) const override;
-    virtual const CP::CorrectionCode applyCorrection( xAOD::Electron& electron ) const override;
-    virtual const CP::CorrectionCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) const override;
-    virtual const CP::CorrectionCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) const override;
+    const CP::CorrectionCode applyCorrection( xAOD::Photon& photon ) const;
+    const CP::CorrectionCode applyCorrection( xAOD::Electron& electron ) const;
+    const CP::CorrectionCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) const;
+    const CP::CorrectionCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) const;
     const std::string getCorrectionVariable() { return m_correctionVariable; };
     // Define the categories of EGamma objects tool can be applied to
     enum class EGammaObjects{

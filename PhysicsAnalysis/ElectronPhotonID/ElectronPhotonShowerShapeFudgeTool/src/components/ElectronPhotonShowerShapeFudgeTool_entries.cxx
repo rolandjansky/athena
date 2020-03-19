@@ -1,16 +1,16 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
+#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionToolWrapper.h"
 
 DECLARE_TOOL_FACTORY( ElectronPhotonShowerShapeFudgeTool )
-DECLARE_TOOL_FACTORY( ElectronPhotonVariableCorrectionTool )
+DECLARE_TOOL_FACTORY( ElectronPhotonVariableCorrectionToolWrapper )
 
 
 DECLARE_FACTORY_ENTRIES( ElectronPhotonShowerShapeFudgeTool ) 
 {
   DECLARE_ALGTOOL( ElectronPhotonShowerShapeFudgeTool )
-  DECLARE_ALGTOOL( ElectronPhotonVariableCorrectionTool )
+  DECLARE_ALGTOOL( ElectronPhotonVariableCorrectionToolWrapper )
 }
 
 
