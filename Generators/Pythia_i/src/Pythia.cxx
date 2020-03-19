@@ -966,7 +966,7 @@ StatusCode Pythia::fillEvt(HepMC::GenEvent* evt) {
     evt->beam_particles().second->set_status(4);
   }
 
-  // PDF weights, using HepMC::PdfInfo object: pdf_id, x_1, x_1, Q2, f_1, f_2
+  // PDF weights, using Pdf Info object: pdf_id, x_1, x_1, Q2, f_1, f_2
   const int id1=this->pypars().msti(15);
   const int id2=this->pypars().msti(16);
   const double x1=this->pypars().pari(33);

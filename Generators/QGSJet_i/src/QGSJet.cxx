@@ -21,12 +21,10 @@
 
 #include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/IO_HEPEVT.h"
-//#include "HepMC/IO_GenEvent.h"
+
 
 #include "QGSJet_i/QGSJet.h"
-//#include "Epos_i/EposFort.h"
 
-// #include "boost/format.hpp"
 
 
 namespace{
@@ -149,10 +147,6 @@ extern "C"
   } c2evt_; //qgsjet.inc
 }
 
-
-
-
-using HepMC::IO_HEPEVT;
 
 // ----------------------------------------------------------------------
 QGSJet::QGSJet( const std::string &name, ISvcLocator *pSvcLocator ): 

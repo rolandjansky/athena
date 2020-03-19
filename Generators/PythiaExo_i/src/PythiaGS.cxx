@@ -86,11 +86,6 @@ extern "C" {
   //void init_datapath_(const char*,const int&);	
 }
 
-//-----------------------------------
-//using HepMC::Vertex;
-//using HepMC::Particle;  
-using HepMC::IO_HEPEVT;
-//using HepMC::IO_Ascii;
 
 // File scope declarations:-
 
@@ -771,7 +766,7 @@ StatusCode PythiaGS::fillEvt(HepMC::GenEvent* evt) {
   evt->weights().push_back(this->pypars().pari(10));
   evt->weights().push_back(gravev);	
 
-  //PDF WEIGHTS - using HepMC::PdfInfo object.. 
+  //PDF WEIGHTS - using Pdf Info object.. 
   //pdf_id x_1, x_1, Q2, f_1, f_2 
   int id1=this->pypars().msti(15);
   int id2=this->pypars().msti(16);
