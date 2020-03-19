@@ -185,6 +185,7 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4',     groups=BphysicsGroup),
         #ATR-20839
         ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),    
+
     ]
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
    ]
@@ -194,7 +195,10 @@ def setupMenu():
     ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
     ]
     TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + []
-    TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + []
+    TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + [
+        ChainProp(name='HLT_sct_noise_SCTPEB_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['SCTNoise'], groups=['RATE:SCTCalibration','BW:Detector']),
+    ]
+
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
         ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
