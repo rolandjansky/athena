@@ -68,12 +68,20 @@ triggers = jetTriggers + electronTriggers + muonTriggers
 
 photonTrigger = "HLT_g140_loose"
 
+# We have to turn off the trigger navigation thinning for 2018 data.
+# First, figure out whether we're in 2018 data. Thanks to Eirik for this code
+isData18 = False
+from RecExConfig.InputFilePeeker import inputFileSummary
+if inputFileSummary is not None:
+    if (inputFileSummary['tag_info']['project_name']=='data18_13TeV'): 
+        isData18 = True
+
 #
 #  Trigger Nav thinning
 #
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT8ThinningHelper = ThinningHelper( "EXOT8ThinningHelper" )
-if globalflags.DataSource() is not "geant4":
+if (globalflags.DataSource() is not "geant4") and (not isData18):
     EXOT8ThinningHelper.TriggerChains = ''
 
     EXOT8ThinningHelper.TriggerChains += "|".join(electronTriggers)
