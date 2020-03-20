@@ -33,9 +33,14 @@ elif 'qcdw' in phys_short:
     syst_mod=dict_index_syst[7]
 
 # Pass arguments as a dictionary: the "decays" argument is not accepted in older versions of MadGraphControl
+if 'mass' in [x.lower() for x in param_blocks]:
+    raise RuntimeError('Do not provide masses in param_blocks; use the masses variable instead')
+param_blocks['Mass']=masses
+# Add decays in if needed
+if len(decays)>0: param_blocks['DECAY']=decays
 argdict = {'runArgs'        : runArgs,
            'process'        : process,
-           'params'         : {'MASS':masses},
+           'params'         : param_blocks,
            'fixEventWeightsForBridgeMode': fixEventWeightsForBridgeMode,
            'madspin_card'   : madspin_card,
            'keepOutput'     : keepOutput, # Should only ever be true for testing!
@@ -44,8 +49,6 @@ argdict = {'runArgs'        : runArgs,
            'syst_mod'       : syst_mod,
            'param_card'     : param_card # Only set if you *can't* modify the default param card to get your settings
            }
-# Add decays in if needed
-if len(decays)>0: argdict['params']['DECAY']=decays
 
 # First the standard case: No input LHE file
 if not hasattr(runArgs,'inputGeneratorFile') or runArgs.inputGeneratorFile is None:

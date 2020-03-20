@@ -2,6 +2,7 @@
 #  Gets us ready for on-the-fly SUSY SM generation
 
 # Simple variable setups
+param_blocks = {} # For general params
 decoupled_mass = '4.5E9'
 masses = {}
 for p in ['1000001','1000002','1000003','1000004','1000005','1000006','2000001','2000002','2000003','2000004','2000005','2000006','1000021',\
