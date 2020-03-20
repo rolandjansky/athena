@@ -8,6 +8,7 @@
  * Author: Lorenz Hauswald
  */
 
+#include "tauRecTools/HelperFunctions.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
 #include "CaloGeoHelpers/CaloSampling.h"
@@ -123,15 +124,20 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   float eEMAtEMScaleFixed = 0;
   float eHadAtEMScaleFixed = 0;
   float eHad1AtEMScaleFixed = 0;
-  for( auto it : jetSeed->getConstituents() ){
-    auto *cl = dynamic_cast<const xAOD::CaloCluster *>((*it)->rawConstituent());
-    if (!cl){
-      ATH_MSG_WARNING("Found invalid cluster link from seed jet");
-      continue;
-    }
+
+  xAOD::JetConstituentVector vec = jetSeed->getConstituents();
+  xAOD::JetConstituentVector::iterator it = vec.begin();
+  xAOD::JetConstituentVector::iterator itE = vec.end();
+  for( ; it!=itE; ++it){
+
+    const xAOD::CaloCluster* cl = nullptr;
+    ATH_CHECK(tauRecTools::GetJetConstCluster(it, cl));
+    // Skip if charged PFO
+    if (!cl){ continue; }
+    
     // Only take clusters with dR<0.2 w.r.t IntermediateAxis
     if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;
-
+    
     for( auto samp : EMSamps )
       eEMAtEMScaleFixed += cl->eSample(samp);
     for( auto samp : HadSamps )
