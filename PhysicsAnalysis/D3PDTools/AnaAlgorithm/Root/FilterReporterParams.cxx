@@ -33,4 +33,16 @@ namespace EL
     m_isInitialized = true;
     return StatusCode::SUCCESS;
   }
+
+
+
+  StatusCode FilterReporterParams ::
+  finalize ()
+  {
+    assert (m_isInitialized);
+
+    ANA_MSG_INFO ("accepted " << m_passed << " out of " << m_total << " events");
+
+    return StatusCode::SUCCESS;
+  }
 }

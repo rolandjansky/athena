@@ -22,8 +22,6 @@ GRLSelectorAlg::~GRLSelectorAlg() {}
 
 StatusCode GRLSelectorAlg::initialize() {
   //ATH_MSG_INFO ("Initializing " << name() << "...");
-  m_total=0;
-  m_passed=0;
   ANA_CHECK( m_grlTool.retrieve() );
   ANA_CHECK( m_filterParams.initialize() );
   return StatusCode::SUCCESS;
@@ -32,7 +30,7 @@ StatusCode GRLSelectorAlg::initialize() {
 StatusCode GRLSelectorAlg::finalize() {
   //  ATH_MSG_INFO ("Finalizing " << name() << "...");
 
-  ATH_MSG_INFO("Events passing GRL " << m_grlTool.name() << " : " << m_passed << " / " << m_total);
+  ANA_CHECK (m_filterParams.finalize());
 
   return StatusCode::SUCCESS;
 }
@@ -40,12 +38,10 @@ StatusCode GRLSelectorAlg::finalize() {
 StatusCode GRLSelectorAlg::execute() {  
   EL::FilterReporter filter (m_filterParams, false);
 
-  m_total++;
   const xAOD::EventInfo* evtInfo = 0;
   ANA_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   if(!m_grlTool->passRunLB(*evtInfo)) return StatusCode::SUCCESS;
 
-  m_passed++;
   filter.setPassed (true);
 
   return StatusCode::SUCCESS;

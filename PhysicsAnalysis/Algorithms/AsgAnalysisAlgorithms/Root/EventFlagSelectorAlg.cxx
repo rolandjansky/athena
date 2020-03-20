@@ -4,6 +4,7 @@
 
 /// @author Tadej Novak
 
+#include "AnaAlgorithm/FilterReporter.h"
 #include <AsgAnalysisAlgorithms/EventFlagSelectionAlg.h>
 #include <xAODEventInfo/EventInfo.h>
 
@@ -43,36 +44,32 @@ StatusCode CP::EventFlagSelectionAlg::initialize()
 
 StatusCode CP::EventFlagSelectionAlg::execute()
 {
-  m_total++;
+  EL::FilterReporter filter (m_filterParams, false);
 
   const xAOD::EventInfo *evtInfo = 0;
   ANA_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
-
-  bool passed = true;
 
   for (size_t index = 0; index < m_selFlags.size(); ++index) {
     // Test against the opposite of the invert value
     bool testval = !m_invertFlags[index];
     ATH_MSG_VERBOSE("Now testing flag \"" << m_selFlags[index] << "\" requiring value " << testval);
 
-    passed = passed && m_accessors[index]->getBool(*evtInfo) == testval;
-    if (!passed) {
+    if (m_accessors[index]->getBool(*evtInfo) != testval) {
       ATH_MSG_VERBOSE("Event failed.");
-      setFilterPassed(false);
+      filter.setPassed(false);
       return StatusCode::SUCCESS;
     }
   }
 
-  m_passed++;
   ATH_MSG_VERBOSE("Event passed all flags.");
-  setFilterPassed(true);
+  filter.setPassed(true);
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode CP::EventFlagSelectionAlg::finalize()
 {
-  ATH_MSG_INFO("Events passing selection: " << m_passed << " / " << m_total);
+  ANA_CHECK (m_filterParams.finalize());
 
   return StatusCode::SUCCESS;
 }
