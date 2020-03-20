@@ -80,8 +80,6 @@ bool verbose = false;
 
 int main(int argc, char* argv[])
 {
-    
-    std::cout << " TEST" << std::endl;
     for(int i=1;i<argc;++i)
     {
         std::string option = argv[i];
@@ -113,21 +111,21 @@ bool allTests()
     
     Result result0, result1, result2, result3, result4;
     
-    if(verbose) std::cout <<"\nLCLCWill do minimal test with CP::ApplyFakeFactor\n";
+    if(verbose) std::cout <<"\nWill do minimal test with CP::ApplyFakeFactor\n";
     FBT_CHECK( readFromROOT() );
     FBT_CHECK( minimalTest("CP::ApplyFakeFactor", result0) );
     
-    if(verbose) std::cout <<"\nLCLCWill do minimal test with CP::AsymptMatrixTool\n";
+    if(verbose) std::cout <<"\nWill do minimal test with CP::AsymptMatrixTool\n";
     FBT_CHECK( minimalTest("CP::AsymptMatrixTool", result1) );
     
-    if(verbose) std::cout <<"\nLCLCWill do minimal test with CP::LhoodMM_tools\n";
+    if(verbose) std::cout <<"\nWill do minimal test with CP::LhoodMM_tools\n";
     FBT_CHECK( minimalTest("CP::LhoodMM_tools", result0) );
     
     if(verbose) std::cout <<"\nWill test loading efficiencies from XML\n";
     FBT_CHECK( readFromXML() );
     FBT_CHECK( minimalTest("CP::AsymptMatrixTool", result2) );
     FBT_CHECK( readFromROOT() );
-    //FBT_CHECK( result1 == result2 );
+    FBT_CHECK( result1 == result2 );
     
     if(verbose) std::cout <<"\nWill test getEventWeight()\n";
     {
@@ -316,7 +314,6 @@ void Result::Print() const
 bool readFromROOT()
 {
     config.clear();
-    std::cout << " TEST READ FROM ROOT" << std::endl;
     config.emplace_back("/tmp/fbt_efficiencies.root");
     TH1D hElFake("FakeEfficiency_el_pt","FakeEfficiency", 1, 10., 100.);
     hElFake.SetBinContent(1, 0.05);
@@ -330,9 +327,6 @@ bool readFromROOT()
     TH1D hMuReal("RealEfficiency_mu_pt","RealEfficiency", 1, 10., 100.);
     hMuReal.SetBinContent(1, 0.95);
     hMuReal.SetBinError(1, 0.01);
-    TH1D hMuReal_syst("RealEfficiency_mu_pt__mySyst1","RealEfficiency_syst1", 1, 10., 100.);
-    hMuReal_syst.SetBinContent(1, 0.92);
-    hMuReal_syst.SetBinError(1, 0.00);
     std::unique_ptr<TFile> f(TFile::Open(config.back().c_str(), "RECREATE"));
     FBT_CHECK( !!f );
     f->cd();
@@ -340,7 +334,6 @@ bool readFromROOT()
     hElReal.Write();
     hMuFake.Write();
     hMuReal.Write();
-    hMuReal_syst.Write();
     f->Close();
     return true;
 }
@@ -348,7 +341,6 @@ bool readFromROOT()
 bool readFromXML()
 {
     config.clear();
-    std::cout << " TEST READ FROM XML" << std::endl;
     config.emplace_back("/tmp/fbt_efficiencies.xml");
     std::ofstream out(config.back().c_str(), std::ios_base::out);
     FBT_CHECK( out.is_open() );
