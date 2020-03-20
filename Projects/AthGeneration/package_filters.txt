@@ -169,7 +169,7 @@
 + LArCalorimeter/LArGeoModel/LArHV
 + LArCalorimeter/LArGeoModel/LArReadoutGeometry
 + LArCalorimeter/LArIdentifier
-+ MuonSpectrometer/MuonIdHelpers
++ MuonSpectrometer/MuonStationIndex
 #+ PhysicsAnalysis/AnalysisCommon/PATCore
 #+ PhysicsAnalysis/AnalysisCommon/PATInterfaces
 + PhysicsAnalysis/AnalysisCommon/ParticleEvent
