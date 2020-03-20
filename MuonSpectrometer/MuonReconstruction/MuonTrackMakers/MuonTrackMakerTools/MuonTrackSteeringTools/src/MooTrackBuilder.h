@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MOOTRACKBUILDER_H
 #define MUON_MOOTRACKBUILDER_H
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // Tools & interfaces
 #include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
@@ -20,7 +20,7 @@
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "TrkExInterfaces/IPropagator.h"
@@ -44,7 +44,6 @@
 
 // Misc
 #include <vector>
-#include "Identifier/Identifier.h"
 
 class MsgStream;
 
@@ -269,7 +268,7 @@ namespace Muon {
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<MuonEDMPrinterTool>                    m_printer             {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};//!< tool to print out EDM objects;
-    ToolHandle<MuonIdHelperTool>                      m_idHelper            {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<IMuonSeededSegmentFinder>              m_seededSegmentFinder {this, "SeededSegmentFinder", "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};
     ToolHandle<IMdtDriftCircleOnTrackCreator>         m_mdtRotCreator       {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};
     ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compRotCreator      {this, "CompetingClustersCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"};

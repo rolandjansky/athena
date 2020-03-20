@@ -259,6 +259,7 @@ SCTTracksMonAlg::calculatePull(const float residual, const float trkErr, const f
 
 StatusCode
 SCTTracksMonAlg::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadHandle<xAOD::EventInfo> evtInfo = GetEventInfo (ctx);
   if (evtInfo.isValid()) {
