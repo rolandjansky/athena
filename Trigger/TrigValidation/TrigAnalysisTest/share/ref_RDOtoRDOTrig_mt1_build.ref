@@ -117,7 +117,7 @@ TrigSignatureMoniMT                                INFO -- #471243435 Events    
 TrigSignatureMoniMT                                INFO -- #471243435 Features                              138        138        191        -          -
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM3 #3486231698
 TrigSignatureMoniMT                                INFO -- #3486231698 Events         20         20         20         20         20         20         -          20
-TrigSignatureMoniMT                                INFO -- #3486231698 Features                             137        137        190        118        -
+TrigSignatureMoniMT                                INFO -- #3486231698 Features                             138        138        191        119        -
 TrigSignatureMoniMT                                INFO HLT_g5_loose_L1EM3 #3230088967
 TrigSignatureMoniMT                                INFO -- #3230088967 Events         20         20         17         17         17         9          -          9
 TrigSignatureMoniMT                                INFO -- #3230088967 Features                             57         57         118        12         -
