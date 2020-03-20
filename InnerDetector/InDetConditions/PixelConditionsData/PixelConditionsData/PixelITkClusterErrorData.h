@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -6,18 +7,19 @@
 #define PIXELITKCLUSTERERRORDATA_H
 
 #include "Identifier/Identifier.h"
+#include "InDetIdentifier/PixelID.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "CLIDSvc/CLASS_DEF.h"
 #include <string>
 #include <vector>
-
 
 namespace PixelCalib {
 
 class PixelITkClusterErrorData { 
 
   public: 
-    PixelITkClusterErrorData(){ initialize(); }
+    PixelITkClusterErrorData();
     ~PixelITkClusterErrorData(){};
 
     /** Methods to access the calibration data */ 
@@ -36,6 +38,9 @@ class PixelITkClusterErrorData {
 
      // map to store all ITk Analogue Clustering constants and errors
      std::map< const Identifier, std::tuple<double,double,double,double> > m_constmap;
+
+     StoreGateSvc* m_detStore;
+     const PixelID* m_pixelID;
 
 }; 
 

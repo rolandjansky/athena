@@ -42,11 +42,11 @@ class GeoBCMPrimeTool : virtual public IGeoBCMPrimeTool, public AthAlgTool {
   
   virtual double getTransX() override;
   virtual double getTransY() override;
-  virtual double getTransZ() override;
   virtual double getRotX() override;
   virtual double getRotY() override;
   virtual double getRotZ() override;
   virtual double getTilt() override;
+  virtual double getRingRot() override;
   virtual double getRingOffset() override;
 
 private:

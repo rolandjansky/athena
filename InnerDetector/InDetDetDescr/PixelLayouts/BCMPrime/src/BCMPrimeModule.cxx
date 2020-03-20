@@ -20,24 +20,24 @@ GeoPhysVol* BCMPrimeModule::Build(int iModule, const PixelGeoBuilderBasics *basi
 
     m_transX = BCMPrimeDBHelper.getTransX();
     m_transY = BCMPrimeDBHelper.getTransY();
-    m_transZ = BCMPrimeDBHelper.getTransZ();
 
     m_rotX = BCMPrimeDBHelper.getRotX();
     m_rotY = BCMPrimeDBHelper.getRotY();
     m_rotZ = BCMPrimeDBHelper.getRotZ();
 
     m_tilt = BCMPrimeDBHelper.getModuleTilt();
+    m_ringRot = BCMPrimeDBHelper.getRingRot();
     m_ringOffset = BCMPrimeDBHelper.getRingOffset();
 
     double modLength = BCMPrimeDBHelper.getModuleLength();
     double modWidth = BCMPrimeDBHelper.getModuleWidth();
     double modTilt = BCMPrimeDBHelper.getModuleTilt();
 
-    double mainWallCuThick = 0.035;
-    double mainWallG10Thick = 1.4;
+    double mainWallCuThick = BCMPrimeDBHelper.getCuThickness();
+    double mainWallG10Thick = BCMPrimeDBHelper.getG10Thickness();
     double mainWallThick = mainWallCuThick + mainWallG10Thick;
 
-    double diamondThick = 0.5;
+    double diamondThick = BCMPrimeDBHelper.getDiamThickness();
     double diamondSize = BCMPrimeDBHelper.getDiamSize();
     double safety = 0.001;
 

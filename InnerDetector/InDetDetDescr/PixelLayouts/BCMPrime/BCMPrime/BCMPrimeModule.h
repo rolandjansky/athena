@@ -19,13 +19,13 @@ class BCMPrimeModule
 
     double getTransX() {return m_transX;}
     double getTransY() {return m_transY;}
-    double getTransZ() {return m_transZ;}
 
     double getRotX() {return m_rotX;}
     double getRotY() {return m_rotY;}
     double getRotZ() {return m_rotZ;}
 
     double getTilt() {return m_tilt;}
+    double getRingRot() {return m_ringRot;}
     double getRingOffset() {return m_ringOffset;}
 
  private:
@@ -34,13 +34,14 @@ class BCMPrimeModule
     
     double m_transX{};
     double m_transY{};
-    double m_transZ{};
 
     double m_rotX{};
     double m_rotY{};
     double m_rotZ{};
 
     double m_tilt{};
+
+    double m_ringRot{};
     double m_ringOffset{};
 
 };

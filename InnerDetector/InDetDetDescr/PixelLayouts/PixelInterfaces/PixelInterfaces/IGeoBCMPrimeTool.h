@@ -23,11 +23,11 @@ class IGeoBCMPrimeTool : public virtual IAlgTool {
 
    virtual double getTransX() = 0;
    virtual double getTransY() = 0;
-   virtual double getTransZ() = 0;
    virtual double getRotX() = 0;
    virtual double getRotY() = 0;
    virtual double getRotZ() = 0;
    virtual double getTilt() = 0;
+   virtual double getRingRot() = 0;
    virtual double getRingOffset() = 0;
 
 };

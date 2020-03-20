@@ -11,7 +11,7 @@ GeoBCMPrimeTool::GeoBCMPrimeTool(const std::string &type, const std::string &nam
 {
   declareInterface<IGeoBCMPrimeTool>(this);
 
-  declareProperty("ModulesOn", m_moduleon = 255);
+  declareProperty("ModulesOn", m_moduleon = 15);
 }
 
 
@@ -49,8 +49,6 @@ GeoPhysVol *GeoBCMPrimeTool::buildModule(int iModule, const PixelGeoBuilderBasic
 
   ATH_MSG_DEBUG(" --> Number succesfully read from XML file");
 
-  ATH_MSG_INFO("GeoBCMPrimeTool buliding BCMPrime module " << iModule);
-
   GeoPhysVol* bcmModPhys = m_module.Build(iModule, basics);
   
   return bcmModPhys;
@@ -64,11 +62,6 @@ double GeoBCMPrimeTool::getTransX()
 double GeoBCMPrimeTool::getTransY()
 {
   return m_module.getTransY();
-}
-
-double GeoBCMPrimeTool::getTransZ()
-{
-  return m_module.getTransZ();
 }
 
 double GeoBCMPrimeTool::getRotX()
@@ -89,6 +82,11 @@ double GeoBCMPrimeTool::getRotZ()
 double GeoBCMPrimeTool::getTilt()
 {
   return m_module.getTilt();
+}
+
+double GeoBCMPrimeTool::getRingRot()
+{
+  return m_module.getRingRot();
 }
 
 double GeoBCMPrimeTool::getRingOffset()

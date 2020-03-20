@@ -16,9 +16,10 @@ class BCMPrimeXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   BCMPrimeXMLHelper(int module, const PixelGeoBuilderBasics* basics);
   ~BCMPrimeXMLHelper();
 
+  int getECRingNumber() const;
+  int getNumberOfModules() const;
   double getTransX() const;
   double getTransY() const;
-  double getTransZ() const;
   double getRotX() const;
   double getRotY() const;
   double getRotZ() const;
@@ -29,7 +30,11 @@ class BCMPrimeXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   double getDiamOffsetY() const;
   double getDiamSeparZ() const;
   double getTilt() const;
+  double getRingRot() const;
   double getRingOffset() const;
+  double getCuThickness() const;
+  double getG10Thickness() const;
+  double getDiamThickness() const;
 
  private:
   int m_module;
