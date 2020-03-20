@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #********************************************************************
 # PHYSLITE.py 
 # reductionConf flag PHYSLITE in Reco_tf.py   
@@ -251,9 +252,9 @@ if DerivationFrameworkIsMonteCarlo:
 
 #in your c++ code, create a ToolHandle<IPileupReweightingTool>
 #the ToolHandle constructor should be given "CP::PileupReweightingTool/myTool" as its string argument
-from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles,getMCMuFiles
+from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles
 ToolSvc += CfgMgr.CP__PileupReweightingTool("PHYSLITE_PRWTool",
-                                            ConfigFiles=getMCMuFiles(),
+                                            ConfigFiles=[],
                                             UnrepresentedDataAction=2,
                                             LumiCalcFiles=getLumiCalcFiles())
 SeqPHYSLITE += CfgMgr.CP__PileupReweightingProvider(Tool=ToolSvc.PHYSLITE_PRWTool,RunSystematics=False)
