@@ -34,6 +34,10 @@ if DetFlags.overlay.Truth_on():
       outStream.ItemList += [ "MuonSimDataCollection#RPC_SDO" ]
    if DetFlags.overlay.TGC_on():
       outStream.ItemList += [ "MuonSimDataCollection#TGC_SDO" ]
+   if DetFlags.overlay.sTGC_on():
+      outStream.ItemList += [ "MuonSimDataCollection#sTGC_SDO" ]
+   if DetFlags.overlay.Micromegas_on():
+      outStream.ItemList += [ "MuonSimDataCollection#MM_SDO" ]
    if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
       outStream.ItemList += [ "CaloCalibrationHitContainer#*" ]
    if DetFlags.overlay.pixel_on():
@@ -82,6 +86,12 @@ if DetFlags.overlay.RPC_on():
 if DetFlags.overlay.TGC_on():
    outStream.ItemList += [ "TgcRdoContainer#*" ]
 #   outStream.ItemList += [ "TgcDigitContainer#*" ]
+if DetFlags.overlay.sTGC_on():
+   outStream.ItemList += [ "Muon::STGC_RawDataContainer#*" ]
+   outStream.ItemList += [ "sTgcDigitContainer#*" ]
+if DetFlags.overlay.Micromegas_on():
+   outStream.ItemList += [ "Muon::MM_RawDataContainer#*" ]
+   outStream.ItemList += [ "MmDigitContainer#*" ]
 
 if DetFlags.overlay.BCM_on():
    outStream.ItemList+=["BCM_RDO_Container#*"]
@@ -111,3 +121,40 @@ if DetFlags.overlay.LVL1_on():
                            "DataVector<LVL1::JEMRoI>#*",
                            "DataVector<LVL1::JEMEtSums>#*",
                            "LVL1::CMMRoI#*"]
+      outStream.ItemList+=[
+                            "xAOD::TriggerTowerContainer#xAODTriggerTowers",
+                            "xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.",
+                            "xAOD::TriggerTowerContainer#xAODTriggerTowersMuon",
+                            "xAOD::TriggerTowerAuxContainer#xAODTriggerTowersMuonAux.",
+                            "xAOD::CPMTowerContainer#CPMTowers",
+                            "xAOD::CPMTowerAuxContainer#CPMTowersAux.",
+                            "xAOD::CPMTowerContainer#CPMTowersOverlap",
+                            "xAOD::CPMTowerAuxContainer#CPMTowersOverlapAux.",
+                            "xAOD::CMXCPTobContainer#CMXCPTobs",
+                            "xAOD::CMXCPTobAuxContainer#CMXCPTobsAux.",
+                            "xAOD::CMXCPHitsContainer#CMXCPHits",
+                            "xAOD::CMXCPHitsAuxContainer#CMXCPHitsAux.",
+                            "xAOD::CMXJetTobContainer#CMXJetTobs",
+                            "xAOD::CMXJetTobAuxContainer#CMXJetTobsAux.",
+                            "xAOD::CMXJetHitsContainer#CMXJetHits",
+                            "xAOD::CMXJetHitsAuxContainer#CMXJetHitsAux.",
+                            "xAOD::CMXEtSumsContainer#CMXEtSums",
+                            "xAOD::CMXEtSumsAuxContainer#CMXEtSumsAux.",
+                            "xAOD::JEMEtSumsContainer#JEMEtSums",
+                            "xAOD::JEMEtSumsAuxContainer#JEMEtSumsAux.",
+                            "xAOD::CPMTobRoIContainer#CPMTobRoIs",
+                            "xAOD::CPMTobRoIAuxContainer#CPMTobRoIsAux.",
+                            "xAOD::CPMTobRoIContainer#CPMTobRoIsRoIB",
+                            "xAOD::CPMTobRoIAuxContainer#CPMTobRoIsRoIBAux.",
+                            "xAOD::JEMTobRoIContainer#JEMTobRoIs",
+                            "xAOD::JEMTobRoIAuxContainer#JEMTobRoIsAux.",
+                            "xAOD::JEMTobRoIContainer#JEMTobRoIsRoIB",
+                            "xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIBAux.",
+                            "xAOD::JetElementContainer#JetElements",
+                            "xAOD::JetElementAuxContainer#JetElementsAux.",
+                            "xAOD::JetElementContainer#JetElementsOverlap",
+                            "xAOD::JetElementAuxContainer#JetElementsOverlapAux.",
+                            "xAOD::RODHeaderContainer#RODHeaders",
+                            "xAOD::RODHeaderAuxContainer#RODHeadersAux.",
+                            "xAOD::CMXRoIContainer#CMXRoIs",
+                            "xAOD::CMXRoIAuxContainer#CMXRoIsAux."]

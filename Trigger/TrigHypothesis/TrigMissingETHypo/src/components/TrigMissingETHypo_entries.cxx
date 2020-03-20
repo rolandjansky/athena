@@ -1,12 +1,15 @@
-//#include "TrigMissingETHypo/TrigL2MissingETHypo.h"
-#include "TrigMissingETHypo/TrigEFMissingETHypo.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
+#include "../METHypo.h"
+#include "../TEHypo.h"
+#include "../XSHypo.h"
 
-DECLARE_ALGORITHM_FACTORY( TrigEFMissingETHypo )
-  //DECLARE_ALGORITHM_FACTORY( TrigL2MissingETHypo )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::METHypo )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::TEHypo )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::XSHypo )
 
 DECLARE_FACTORY_ENTRIES( TrigMissingETHypo ) {
-  DECLARE_ALGORITHM( TrigEFMissingETHypo )
-    //  DECLARE_ALGORITHM( TrigL2MissingETHypo )
+  DECLARE_ALGORITHM( HLT::MET::METHypo )
+  DECLARE_ALGORITHM( HLT::MET::TEHypo )
+  DECLARE_ALGORITHM( HLT::MET::XSHypo )
 }
 

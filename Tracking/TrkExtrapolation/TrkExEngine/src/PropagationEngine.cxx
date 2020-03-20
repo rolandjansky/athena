@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 #include "TrkExEngine/PropagationEngine.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkSurfaces/Surface.h"
+#include "TrkEventPrimitives/PropDirection.h"
 
 // constructor
 Trk::PropagationEngine::PropagationEngine(const std::string& t, const std::string& n, const IInterface* p)
@@ -37,7 +38,6 @@ Trk::PropagationEngine::~PropagationEngine()
 // the interface method initialize
 StatusCode Trk::PropagationEngine::initialize()
 {
-    
     if (m_propagator.retrieve().isFailure()){
         EX_MSG_FATAL( "", "initialize", "", "failed to retrieve propagator '"<< m_propagator << "'. Aborting." );
         return StatusCode::FAILURE;
@@ -85,8 +85,14 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellCharged& eCe
                                                                       propLength,
                                                                       eCell.pHypothesis,
                                                                       returnCurvilinear);
+    // jacobian collection
+    if ( tjac ) {
+      if (eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectJacobians) && pParameters) {
+        if (pParameters) eCell.stepTransport(pParameters->associatedSurface(),propLength,tjac);
+      } else delete tjac;     // ST fix memory leak
+    }
    // set the return type according to how the propagation went
-   if (pParameters){
+   if (pParameters){ 
        // cache the last lead parameters, useful in case a navigation error occured
        eCell.lastLeadParameters = eCell.leadParameters;
        // assign the lead and end parameters
@@ -130,7 +136,7 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellNeutral& eCe
     // it is the final propagation if it is the endSurface
     bool finalPropagation = (eCell.endSurface == (&sf));
     // intersect the surface
-    Trk::Intersection sfIntersection = pDir ? sf.straightLineIntersection(eCell.leadParameters->position(),
+    Trk::Intersection sfIntersection = (pDir!=Trk::anyDirection) ? sf.straightLineIntersection(eCell.leadParameters->position(),
                                                                           pDir*eCell.leadParameters->momentum().unit(),
                                                                           true, bcheck) :
                                               sf.straightLineIntersection(eCell.leadParameters->position(),
@@ -138,8 +144,8 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellNeutral& eCe
                                               false, bcheck); 
     // we have a valid intersection                                 
     if (sfIntersection.valid){
-        // fill the transport information - only if the propation direction is not 0
-        if (pDir){
+        // fill the transport information - only if the propation direction is not 0 ('anyDirection')
+        if (pDir!=Trk::anyDirection){
            double pLength = (sfIntersection.position-eCell.leadParameters->position()).mag(); 
            EX_MSG_VERBOSE(eCell.navigationStep,"propagate", "neut", "path length of " << pLength << " added to the extrapolation cell (limit = " << eCell.pathLimit << ")" );    
            eCell.stepTransport(sf,pLength);

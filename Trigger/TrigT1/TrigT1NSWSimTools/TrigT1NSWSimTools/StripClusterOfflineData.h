@@ -35,7 +35,8 @@ namespace NSWL1 {
 
   private:
     int m_bandId;
-    int m_bcid;
+    int m_bcId;
+    int m_sideId;
     int m_phiId;
     int m_isSmall;
     int m_moduleId;
@@ -51,18 +52,19 @@ namespace NSWL1 {
   public:
 
     StripClusterOfflineData(int bandId,
-                int bcid,
+                int bcId,
+                int sideId,
                 int phiId,
-			    int isSmall,
-			    int moduleId,
-			    int sectorId,
-			    int wedge,
-			    int layer,
-			    int size,
-			    float charge,
-			    float globX,
-			    float globY,
-			    float globZ);
+			          int isSmall,
+			          int moduleId,
+			          int sectorId,
+			          int wedge,
+			          int layer,
+			          int size,
+			          float charge,
+			          float globX,
+			          float globY,
+			          float globZ);
     ~StripClusterOfflineData();
                                     
     int set_bandId(int bandId);
@@ -81,12 +83,11 @@ namespace NSWL1 {
     
 
 
-    //! methods for retrieving the bare data //S.I yes see my comment above
-    int bandId()  const {return m_bandId;} //!< get the band id // wow so explanatory
-    int BCID()    const {return m_bcid;}
+    int bandId()  const {return m_bandId;}
+    int BCID()    const {return m_bcId;}
     int phiId() const {return m_phiId;}
-    //! helper  methods decoding the hit fragment position within the NSW detector
     int isSmall() const {return m_isSmall;};
+    int sideId() const { return m_sideId;}
     int moduleId() const {return m_moduleId;};
     int sectorId() const {return m_sectorId;};
     int wedge() const {return m_wedge;};

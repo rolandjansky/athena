@@ -13,26 +13,41 @@
 class TrigSiSpacePointBase;
 class TrigInDetTriplet;
 
+typedef struct IndexedSP {
+public :
+IndexedSP() : m_pSP(0), m_idx(-1) {};
+IndexedSP(const TrigSiSpacePointBase* p, int idx) : m_pSP(p), m_idx(idx) {};
+IndexedSP(const IndexedSP& isp) : m_pSP(isp.m_pSP), m_idx(isp.m_idx) {};
+
+  void set(const TrigSiSpacePointBase* p, int idx) {
+    m_pSP = p;
+    m_idx = idx;
+  }
+
+  const TrigSiSpacePointBase* m_pSP;
+  int m_idx;
+
+} INDEXED_SP;
 
 typedef struct PhiSector {
 
 public:
   
   struct compareZ {
-    bool operator()(const TrigSiSpacePointBase* p1, const TrigSiSpacePointBase* p2) {
-      return p1->z()<p2->z();
+    bool operator()(const INDEXED_SP* p1, const INDEXED_SP* p2) {
+      return p1->m_pSP->z()<p2->m_pSP->z();
     }
   };
 
   struct greaterThanZ {
-    bool operator()(float z, const TrigSiSpacePointBase* const& p) const {
-      return z < p->z();
+    bool operator()(float z, const INDEXED_SP* const& p) const {
+      return z < p->m_pSP->z();
     }
   };
 
   struct smallerThanZ {
-    bool operator()(const TrigSiSpacePointBase* const& p, float z) const {
-      return p->z() < z;
+    bool operator()(const INDEXED_SP* const& p, float z) const {
+      return p->m_pSP->z() < z;
     }
   };
 
@@ -49,18 +64,18 @@ PhiSector(const PhiSector& ps) : m_nSP(ps.m_nSP), m_radBins(ps.m_radBins) {};
   }
 
   void reset() {
-    for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator it=m_radBins.begin();it!=m_radBins.end();++it) {
+    for(std::vector<std::vector<const INDEXED_SP*> >::iterator it=m_radBins.begin();it!=m_radBins.end();++it) {
       (*it).clear();
     }
   }
 
-  void addSpacePoint(int rIdx, const TrigSiSpacePointBase* p) {
+  void addSpacePoint(int rIdx, const INDEXED_SP* p) {
     m_nSP++;
     m_radBins[rIdx].push_back(p);
   }
 
   void sortSpacePoints() {
-    for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator it=m_radBins.begin();it!=m_radBins.end();++it) {
+    for(std::vector<std::vector<const INDEXED_SP*> >::iterator it=m_radBins.begin();it!=m_radBins.end();++it) {
       if((*it).empty()) continue;
       std::sort(it->begin(), it->end(), compareZ());
     }
@@ -70,7 +85,7 @@ PhiSector(const PhiSector& ps) : m_nSP(ps.m_nSP), m_radBins(ps.m_radBins) {};
   int size() const { return m_nSP; }
   
   int m_nSP;
-  std::vector<std::vector<const TrigSiSpacePointBase*> > m_radBins;
+  std::vector<std::vector<const INDEXED_SP*> > m_radBins;
 
 } PHI_SECTOR;
 
@@ -84,7 +99,7 @@ public:
     for(int i = 0;i<nPhiSectors;i++) m_phiSectors.push_back(PHI_SECTOR(nRBins));
   }
 
-  void addSpacePoint(int phiIdx, int rIdx, const TrigSiSpacePointBase* p) {
+  void addSpacePoint(int phiIdx, int rIdx, const INDEXED_SP* p) {
     m_phiSectors[phiIdx].addSpacePoint(rIdx, p);
   }
 
@@ -111,62 +126,62 @@ typedef struct LPhiSector {
 public:
   
   struct compareZ {
-    bool operator()(const TrigSiSpacePointBase* p1, const TrigSiSpacePointBase* p2) {
-      return p1->z()<p2->z();
+    bool operator()(const INDEXED_SP* p1, const INDEXED_SP* p2) {
+      return p1->m_pSP->z()<p2->m_pSP->z();
     }
   };
 
   struct compareR {
-    bool operator()(const TrigSiSpacePointBase* p1, const TrigSiSpacePointBase* p2) {
-      return p1->r()<p2->r();
+    bool operator()(const INDEXED_SP* p1, const INDEXED_SP* p2) {
+      return p1->m_pSP->r()<p2->m_pSP->r();
     }
   };
 
   struct compareRless {
-    bool operator()(const TrigSiSpacePointBase* p1, const TrigSiSpacePointBase* p2) {
-      return p1->r()>p2->r();
+    bool operator()(const INDEXED_SP* p1, const INDEXED_SP* p2) {
+      return p1->m_pSP->r()>p2->m_pSP->r();
     }
   };
 
   struct greaterThanZ {
-    bool operator()(float z, const TrigSiSpacePointBase* const& p) const {
-      return z < p->z();
+    bool operator()(float z, const INDEXED_SP* const& p) const {
+      return z < p->m_pSP->z();
     }
   };
 
   struct smallerThanZ {
-    bool operator()(const TrigSiSpacePointBase* const& p, float z) const {
-      return p->z() < z;
+    bool operator()(const INDEXED_SP* const& p, float z) const {
+      return p->m_pSP->z() < z;
     }
   };
 
   struct greaterThanR {
-    bool operator()(float r, const TrigSiSpacePointBase* const& p) const {
-      return r < p->r();
+    bool operator()(float r, const INDEXED_SP* const& p) const {
+      return r < p->m_pSP->r();
     }
   };
 
   struct greaterThanR_i {
-    bool operator()(const TrigSiSpacePointBase* const& p, float r) const {
-      return r < p->r();
+    bool operator()(const INDEXED_SP* const& p, float r) const {
+      return r < p->m_pSP->r();
     }
   };
 
   struct smallerThanR {
-    bool operator()(const TrigSiSpacePointBase* const& p, float r) const {
-      return p->r() < r;
+    bool operator()(const INDEXED_SP* const& p, float r) const {
+      return p->m_pSP->r() < r;
     }
   };
 
   struct smallerThanR_i {
-    bool operator()(float r, const TrigSiSpacePointBase* const& p) const {
-      return p->r() < r;
+    bool operator()(float r, const INDEXED_SP* const& p) const {
+      return p->m_pSP->r() < r;
     }
   };
 
   //LPhiSector() : m_nSP(0) {m_phiSlices.clear();}
 LPhiSector(int nPhiSlices) : m_nSP(0) {
-  std::vector<const TrigSiSpacePointBase*> d;
+  std::vector<const INDEXED_SP*> d;
   m_phiSlices.resize(nPhiSlices, d);
   m_phiThreeSlices.resize(nPhiSlices, d);
   if(nPhiSlices == 1) {//special case
@@ -214,16 +229,16 @@ LPhiSector(const LPhiSector& ps) : m_nSP(ps.m_nSP), m_phiSlices(ps.m_phiSlices),
   }
 
   void reset() {
-    for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator it = m_phiSlices.begin();it!=m_phiSlices.end();++it) {
+    for(std::vector<std::vector<const INDEXED_SP*> >::iterator it = m_phiSlices.begin();it!=m_phiSlices.end();++it) {
       (*it).clear();
     }
-    for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator it = m_phiThreeSlices.begin();it!=m_phiThreeSlices.end();++it) {
+    for(std::vector<std::vector<const INDEXED_SP*> >::iterator it = m_phiThreeSlices.begin();it!=m_phiThreeSlices.end();++it) {
       (*it).clear();
     }
     m_nSP = 0;
   }
 
-  void addSpacePoint(int phiIndex, const TrigSiSpacePointBase* p) {
+  void addSpacePoint(int phiIndex, const INDEXED_SP* p) {
     m_nSP++;
     m_phiSlices[phiIndex].push_back(p);
     for(int i=0;i<3;i++) {
@@ -233,12 +248,12 @@ LPhiSector(const LPhiSector& ps) : m_nSP(ps.m_nSP), m_phiSlices(ps.m_phiSlices),
   }
 
   void sortSpacePoints(bool isBarrel) {
-    for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator it=m_phiSlices.begin();it!=m_phiSlices.end();++it) {
+    for(std::vector<std::vector<const INDEXED_SP*> >::iterator it=m_phiSlices.begin();it!=m_phiSlices.end();++it) {
       if((*it).empty()) continue;
       if(isBarrel) std::sort(it->begin(), it->end(), compareZ());
       else std::sort(it->begin(), it->end(), compareR());
     }
-    for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator it=m_phiThreeSlices.begin();it!=m_phiThreeSlices.end();++it) {
+    for(std::vector<std::vector<const INDEXED_SP*> >::iterator it=m_phiThreeSlices.begin();it!=m_phiThreeSlices.end();++it) {
       if((*it).empty()) continue;
       if(isBarrel) std::sort(it->begin(), it->end(), compareZ());
       else std::sort(it->begin(), it->end(), compareR());
@@ -246,7 +261,7 @@ LPhiSector(const LPhiSector& ps) : m_nSP(ps.m_nSP), m_phiSlices(ps.m_phiSlices),
   }
 
   void sortSpacePoints(bool isBarrel, bool isPositive) {
-    for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator it=m_phiSlices.begin();it!=m_phiSlices.end();++it) {
+    for(std::vector<std::vector<const INDEXED_SP*> >::iterator it=m_phiSlices.begin();it!=m_phiSlices.end();++it) {
       if((*it).empty()) continue;
       if(isBarrel) std::sort(it->begin(), it->end(), compareZ());
       else {
@@ -254,7 +269,7 @@ LPhiSector(const LPhiSector& ps) : m_nSP(ps.m_nSP), m_phiSlices(ps.m_phiSlices),
 	else std::sort(it->begin(), it->end(), compareR());
       }
     }
-    for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator it=m_phiThreeSlices.begin();it!=m_phiThreeSlices.end();++it) {
+    for(std::vector<std::vector<const INDEXED_SP*> >::iterator it=m_phiThreeSlices.begin();it!=m_phiThreeSlices.end();++it) {
       if((*it).empty()) continue;
       if(isBarrel) std::sort(it->begin(), it->end(), compareZ());
       else {
@@ -267,8 +282,8 @@ LPhiSector(const LPhiSector& ps) : m_nSP(ps.m_nSP), m_phiSlices(ps.m_phiSlices),
   int size() const { return m_nSP; }
   
   int m_nSP;
-  std::vector<std::vector<const TrigSiSpacePointBase*> > m_phiSlices;
-  std::vector<std::vector<const TrigSiSpacePointBase*> > m_phiThreeSlices;
+  std::vector<std::vector<const INDEXED_SP*> > m_phiSlices;
+  std::vector<std::vector<const INDEXED_SP*> > m_phiThreeSlices;
   std::vector<int> m_threeIndices[3];
 
 private:
@@ -297,7 +312,7 @@ public:
     */
   }
 
-  void addSpacePoint(int phiIdx, int layerId, const TrigSiSpacePointBase* p) {
+  void addSpacePoint(int phiIdx, int layerId, const INDEXED_SP* p) {
     m_layers[layerId].addSpacePoint(phiIdx, p);
   }
 
@@ -444,7 +459,7 @@ InternalSoA() : m_spi(0), m_spo(0), m_r(0), m_u(0), m_v(0), m_t(0), m_ti(0), m_t
 
 typedef std::vector<std::pair<float, TrigInDetTriplet*> > INTERNAL_TRIPLET_BUFFER;
 
-typedef std::pair<std::vector<const TrigSiSpacePointBase*>::const_iterator, std::vector<const TrigSiSpacePointBase*>::const_iterator> SP_RANGE;
+typedef std::pair<std::vector<const INDEXED_SP*>::const_iterator, std::vector<const INDEXED_SP*>::const_iterator> SP_RANGE;
 
 typedef class TrigTrackSeedGenerator {
 
@@ -459,12 +474,16 @@ typedef class TrigTrackSeedGenerator {
   void getSeeds(std::vector<TrigInDetTriplet*>&);
 
 private:
-  //bool validateLayerPair(int, int, float, float); 
-  //bool validateLayerPair(int, int, float, float, float); 
+
+  std::vector<INDEXED_SP> m_spStorage;
+
+  std::vector<float> m_minTau;
+  std::vector<float> m_maxTau;
+
   bool validateLayerPairNew(int, int, float, float); 
-  bool getSpacepointRange(int, const std::vector<const TrigSiSpacePointBase*>&, SP_RANGE&);
-  int processSpacepointRange(int, float, float, bool, const SP_RANGE&);
-  int processSpacepointRangeZv(float, float, bool, const SP_RANGE&);
+  bool getSpacepointRange(int, const std::vector<const INDEXED_SP*>&, SP_RANGE&);
+  int processSpacepointRange(int, const INDEXED_SP*, bool, const SP_RANGE&);
+  int processSpacepointRangeZv(const INDEXED_SP*, bool, const SP_RANGE&, bool, const float&, const float&);
   void createTriplets(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&);
   void createTripletsNew(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&);
   void storeTriplets(INTERNAL_TRIPLET_BUFFER&);

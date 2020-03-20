@@ -56,6 +56,8 @@ def createJGTowerReader( SuperCellType = "SCell", **kwargs ) :
                                  jJetRound_jet_total_noise_multiplier = 0.0,
                                  jJetRound_jet_min_ET_MeV = 5000,
                                  
+                                 makeRoundJetsPUsub=True,
+                                 
                                  makeRoundLargeRJets = True,
                                  jJetRound_LargeR_seed_size = 0.31, # seed square of side this. 0.3 for 3x3 towers
                                  jJetRound_LargeR_max_r = 0.26,     # distance (in eta and phi, not a radius) within 

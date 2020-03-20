@@ -7,6 +7,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 # the global detflags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
+DetFlags.BCM_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 
@@ -35,7 +36,8 @@ elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19'):
 elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17'):
    SLHC_Flags.LayoutOption="InclinedAlternative"
 
-elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22'):
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-00') or \
+     globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-01'):
    SLHC_Flags.LayoutOption="InclinedAlternative"
 
 SLHC_Flags.doGMX.set_Value_and_Lock(True)
@@ -43,7 +45,16 @@ SLHC_Flags.doGMX.set_Value_and_Lock(True)
 
 include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
-include("InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py")
+
+if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-20') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-00') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-01'):
+    include("InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py")
+else:
+    include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
+
 include("InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py")
 
 # Full job is a list of algorithms
@@ -145,4 +156,11 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='"+ValidationOutputNameString+DetD
 #
 ###############################################################
 
-include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")
+if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-20') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-00') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-01'):
+    include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")
+else:
+    include("InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py")

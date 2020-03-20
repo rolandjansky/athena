@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -70,15 +70,17 @@ namespace InDet{
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
       const bool&                         electron   () const {return m_electron   ;}
       const bool&                         heavyion   () const {return m_heavyion   ;}
-      const bool&                        cleanSCTClus() const {return m_cleanSCTClus;}
+      const bool&                         cleanSCTClus() const {return m_cleanSCTClus;}
+      const bool&                         useFastTracking() const {return m_doFastTracking;}
+      const bool&                         isITkGeometry() const {return m_ITkGeometry;}
 
       void setTools
-	(Trk::IPatternParametersPropagator* ,
-	 Trk::IPatternParametersUpdator*    , 
-	 Trk::IRIO_OnTrackCreator*          , 
-	 Trk::IPRD_AssociationTool*         ,
-	 MagField::IMagFieldSvc* 
-	 );  
+      (Trk::IPatternParametersPropagator* ,
+       Trk::IPatternParametersUpdator*    , 
+       Trk::IRIO_OnTrackCreator*          , 
+       Trk::IPRD_AssociationTool*         ,
+       MagField::IMagFieldSvc* 
+      );  
       
       void setTools
 	(const Trk::MagneticFieldProperties&);
@@ -94,6 +96,8 @@ namespace InDet{
       void setBremNoise  (bool,bool);
       void setCleanSCTClus(const int&);
       void setHeavyIon   (bool);
+      void setFastTracking (bool);
+      void setITkGeometry(bool);
 
     protected:
       
@@ -127,6 +131,8 @@ namespace InDet{
       bool                            m_electron   ;  // Do electron mode
       bool                            m_heavyion   ;  // Is it heavy ion event
       bool                            m_cleanSCTClus; // Clean spurious SCT clusters in forward extension
+      bool                            m_doFastTracking; // Do Fast Tracking setup
+      bool                            m_ITkGeometry; // Is ITk geometry 
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -163,7 +169,9 @@ namespace InDet{
       m_electron    = false;
       m_heavyion    = false;
       m_cleanSCTClus = false;
-      m_fieldService= 0    ;
+      m_fieldService = 0    ;
+      m_doFastTracking = false;
+      m_ITkGeometry = false;
     }
 
   inline SiTools_xk::SiTools_xk(const SiTools_xk& T)
@@ -175,30 +183,32 @@ namespace InDet{
     (const SiTools_xk& T) 
     {
       if(&T!=this) {
-	m_assoTool    = T.m_assoTool   ;
-	m_fieldtool   = T.m_fieldtool  ;
-	m_fieldService= T.m_fieldService;
-	m_proptool    = T.m_proptool   ;
-	m_updatortool = T.m_updatortool;
-	m_riotool     = T.m_riotool    ;
-	m_pixcond     = T.m_pixcond    ;
-	m_sctcond     = T.m_sctcond    ;
+        m_assoTool    = T.m_assoTool   ;
+        m_fieldtool   = T.m_fieldtool  ;
+        m_fieldService= T.m_fieldService;
+        m_proptool    = T.m_proptool   ;
+        m_updatortool = T.m_updatortool;
+        m_riotool     = T.m_riotool    ;
+        m_pixcond     = T.m_pixcond    ;
+        m_sctcond     = T.m_sctcond    ;
         m_pixIdHelper = T.m_pixIdHelper;
         m_sctIdHelper = T.m_sctIdHelper;
-	m_xi2max      = T.m_xi2max     ;
-	m_xi2maxBrem  = T.m_xi2maxBrem ;
-	m_xi2maxlink  = T.m_xi2maxlink ;
-	m_xi2multi    = T.m_xi2multi   ;
-	m_pTmin       = T.m_pTmin      ;
-	m_nholesmax   = T.m_nholesmax  ;
-	m_dholesmax   = T.m_dholesmax  ;
-	m_nclusmin    = T.m_nclusmin   ; 
-	m_useassoTool = T.m_useassoTool;
-	m_multitrack  = T.m_multitrack ; 
-	m_bremnoise   = T.m_bremnoise  ;
-	m_electron    = T.m_electron   ; 
+        m_xi2max      = T.m_xi2max     ;
+        m_xi2maxBrem  = T.m_xi2maxBrem ;
+        m_xi2maxlink  = T.m_xi2maxlink ;
+        m_xi2multi    = T.m_xi2multi   ;
+        m_pTmin       = T.m_pTmin      ;
+        m_nholesmax   = T.m_nholesmax  ;
+        m_dholesmax   = T.m_dholesmax  ;
+        m_nclusmin    = T.m_nclusmin   ; 
+        m_useassoTool = T.m_useassoTool;
+        m_multitrack  = T.m_multitrack ; 
+        m_bremnoise   = T.m_bremnoise  ;
+        m_electron    = T.m_electron   ; 
         m_cleanSCTClus = T.m_cleanSCTClus;
-	m_heavyion    = T.m_heavyion   ;
+        m_heavyion    = T.m_heavyion   ;
+        m_doFastTracking = T.m_doFastTracking;
+        m_ITkGeometry = T.m_ITkGeometry;
       }
       return(*this);
     }
@@ -280,6 +290,16 @@ namespace InDet{
   inline void SiTools_xk::setHeavyIon(bool HI)
   {
     m_heavyion = HI;
+  }
+  
+  inline void SiTools_xk::setFastTracking (bool FT) 
+  {
+    m_doFastTracking = FT;
+  }
+
+  inline void SiTools_xk::setITkGeometry(bool isITk)
+  {
+    m_ITkGeometry = isITk;
   }
 
 } // end of name space

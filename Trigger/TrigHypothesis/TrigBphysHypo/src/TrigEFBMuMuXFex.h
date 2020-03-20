@@ -25,15 +25,6 @@
 #ifndef TRIG_TrigEFBMuMuXFex_H 
 #define TRIG_TrigEFBMuMuXFex_H
 
-// standard stuff
-#include <string>
-#include <map>
-#include <cmath> 
-// general athena stuff
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 // trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -41,9 +32,7 @@
 #include "TrigParticle/TrigEFBphys.h"
 #include "TrigParticle/TrigEFBphysContainer.h"
 //#include "TrigMuonEvent/TrigMuonEF.h"
-//Ntuples
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/NTuple.h"
+
 
 //#include "TrigTimeAlgs/TrigTimerSvc.h"
 //#include "TrigTimeAlgs/TrigTimer.h"

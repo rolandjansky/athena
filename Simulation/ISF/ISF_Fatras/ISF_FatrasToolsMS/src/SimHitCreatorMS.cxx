@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// SimHitCreatorMS.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header
 #include "SimHitCreatorMS.h"
@@ -16,6 +12,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 // MuonSpectrometer includes
+#include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
@@ -33,8 +30,6 @@
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
 
-#include "MuonTGRecTools/IMuonTGMeasTool.h"
-
 #include "CLHEP/Random/RandLandau.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -43,7 +38,7 @@
 iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     const std::string& n,
     const IInterface*  p ) : 
- base_class(t,n,p),
+    base_class(t,n,p),
     m_incidentSvc("IncidentSvc", n),
     m_extrapolator(""),
     m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
@@ -66,12 +61,15 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     m_rpcHitIdHelper(nullptr),
     m_cscHitIdHelper(nullptr),
     m_tgcHitIdHelper(nullptr),
+    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_mmOffToSimId(nullptr),
     m_stgcOffToSimId(nullptr),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_muonMgr(nullptr),
     m_mdtSigmaDriftRadius(0.08),
-    m_createAllMdtHits(true)
+    m_BMGid(-1),
+    m_createAllMdtHits(true),
+    m_BMGpresent(true),
+    m_DeadChannels()
 {
   //  template for property decalration
     declareProperty("MeasurementTool",              m_measTool);
@@ -90,57 +88,31 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     declareProperty("CreateAllMdtHits",             m_createAllMdtHits);
 }
 
-//================ Destructor =================================================
-
-iFatras::SimHitCreatorMS::~SimHitCreatorMS()
-{}
-
-
 //================ Initialisation =================================================
 
 StatusCode iFatras::SimHitCreatorMS::initialize()
 {
 
   // Get Extrapolator from ToolService
-  if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_FATAL(  "[ --- ] Could not retrieve " << m_extrapolator );
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_extrapolator.retrieve());
   // Get IdHelper from ToolService
-  if (m_idHelperTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL(  "[ --- ] Could not retrieve " << m_idHelperTool );
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_idHelperTool.retrieve());
   // the MS helpers for the different technologies
-  m_mdtHitIdHelper = MdtHitIdHelper::GetHelper(); 
-  m_rpcHitIdHelper = RpcHitIdHelper::GetHelper(); 
-  m_tgcHitIdHelper = TgcHitIdHelper::GetHelper(); 
-  m_cscHitIdHelper = CscHitIdHelper::GetHelper(); 
-  // m_sTgcHitIdHelper = sTgcHitIdHelper::GetHelper(); 
-  // m_mmHitIdHelper = MicromegasHitIdHelper::GetHelper(); 
+  m_mdtHitIdHelper = MdtHitIdHelper::GetHelper();
+  m_rpcHitIdHelper = RpcHitIdHelper::GetHelper(m_idHelperTool->rpcIdHelper().gasGapMax());
+  m_tgcHitIdHelper = TgcHitIdHelper::GetHelper();
+  m_cscHitIdHelper = CscHitIdHelper::GetHelper();
 
-
-  if (detStore()->retrieve(m_muonMgr).isFailure()) {
-      ATH_MSG_FATAL( "[ --- ] Cannot retrieve MuonDetectorManager..." );
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_muonMgr));
 
   m_mmOffToSimId = new MM_SimIdToOfflineId(*(m_muonMgr->mmIdHelper())); 
   m_stgcOffToSimId = new sTgcSimIdToOfflineId(*(m_muonMgr->stgcIdHelper())); 
   
- // get measurement tool
-  if (m_measTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "[ --- ] Could not find TG measurement tool " );
-      return StatusCode::FAILURE;
-  } else {
-      ATH_MSG_INFO( "[ muhit ] TG measurement tool booked ");
-  }
+  // get measurement tool
+  ATH_CHECK(m_measTool.retrieve());
 
   // Random number service
-  if ( m_randomSvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR( "[ --- ] Could not retrieve " << m_randomSvc );
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_randomSvc.retrieve());
   //Get own engine with own seeds:
   m_randomEngine = m_randomSvc->GetEngine(m_randomEngineName);
   if (!m_randomEngine) {
@@ -150,23 +122,31 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
 
 
   // Athena/Gaudi framework
-  if (m_incidentSvc.retrieve().isFailure()){
-      ATH_MSG_WARNING("[ sihit ] Could not retrieve " << m_incidentSvc << ". Exiting.");
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_incidentSvc.retrieve());
   // register to the incident service: BeginEvent for TrackCollection
   m_incidentSvc->addListener( this, IncidentType::BeginEvent);
 
   ATH_MSG_INFO( "[ mutrack ] initialize() successful." );
+
+     m_BMGpresent = m_idHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1;
+      if(m_BMGpresent){
+        ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+        m_BMGid = m_idHelperTool->mdtIdHelper().stationNameIndex("BMG");
+        for(int phi=6; phi<8; phi++) { // phi sectors
+          for(int eta=1; eta<4; eta++) { // eta sectors
+            for(int side=-1; side<2; side+=2) { // side
+              if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+              for(int roe=1; roe<= ((m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements()); roe++) { // iterate on readout elemets
+                const MuonGM::MdtReadoutElement* mdtRE =
+                      dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+                if(mdtRE) initDeadChannels(mdtRE);
+              }
+            }
+          }
+        }
+      }
+
   return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode iFatras::SimHitCreatorMS::finalize()
-{
-    StatusCode sc = AlgTool::finalize();
-    return sc;
 }
 
 //================ Event Initialization =========================================
@@ -296,48 +276,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       else  m_stgcSimHitCollection->Insert(nswsTGCHit); 
 
       ATH_MSG_VERBOSE("[ muhit ] NSW hit created.");           
-         
-      /*
-	
-      // validation/fast digit 
-      if ( m_muonMgr->mmIdHelper()->is_mm(id) ) {
-        const MuonGM::MMReadoutElement* mm=m_muonMgr->getMMReadoutElement(id);
-        if (mm) {
-          Trk::GlobalPosition g2re = mm->transform(id).inverse()*(*plIter)->position();
-	  std::cout <<currLay->surfaceRepresentation().center()<< ","<<mm->center(id)<< std::endl;
-	  Trk::LocalPosition lp(g2re.x(),g2re.y());         
-	  int nCh = mm->stripNumber(lp,id);
-	  std::cout <<"MM layer, strip number,length:"<<  m_muonMgr->mmIdHelper()->gasGap(id) <<","
-	  <<nCh<<","<<mm->getDesign(id)->channelLength(nCh)<<":"<<  mm->getDesign(id)->gasGapThickness() << std::endl;
-	  std::cout<<"distance to nearest channel, readout:"<<mm->getDesign(id)->distanceToChannel(lp) <<","<< mm->distanceToReadout(lp,id)<<std::endl;     
-        }
-      } else if ( m_muonMgr->stgcIdHelper()->is_stgc(id) ) {
-        const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcReadoutElement(id);
-	if (stgc) {
-	  Trk::GlobalPosition g2re = stgc->transform(id).inverse()*(*plIter)->position();
-	  Trk::LocalPosition lp(g2re.x(),g2re.y());         
-	  std::cout <<currLay->surfaceRepresentation().center()<< ","<<stgc->center(id)<<"," <<m_muonMgr->stgcIdHelper()->channelType(id)<<  std::endl;
-	  int nCh = stgc->stripNumber(lp,id);
-	  std::cout << "channel number:"<< nCh << std::endl; 
-	  std::cout <<"sTGC layer, strip number,length:"<<  m_muonMgr->stgcIdHelper()->gasGap(id) <<","
-	  <<nCh<<","<<stgc->getDesign(id)->channelLength(nCh)<<"," << stgc->getDesign(id)->gasGapThickness() << std::endl;
-	  std::cout <<"distance to nearest channel, readout:"<<stgc->getDesign(id)->distanceToChannel(lp) <<","<< stgc->distanceToReadout(lp,id)<<std::endl;
-	  
-	  // test wire gangs
-	  Identifier wid=m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
-	  m_muonMgr->stgcIdHelper()->stationEta(id),
-	  m_muonMgr->stgcIdHelper()->stationPhi(id),
-	  m_muonMgr->stgcIdHelper()->multiplet(id),
-	  m_muonMgr->stgcIdHelper()->gasGap(id),2,1);
-	  int nW = stgc->stripNumber(lp,wid);
-	  std::cout << "wire gang number:"<< nW << std::endl; 
-	  std::cout <<"sTGC layer, wire number,length:"<<  m_muonMgr->stgcIdHelper()->gasGap(wid) <<","
-	  <<nW<<","<<stgc->getDesign(wid)->channelLength(nW)<<":"<< stgc->getDesign(wid)->gasGapThickness() <<  std::endl;
-	  std::cout<<"distance to nearest channel, readout:"<<stgc->getDesign(wid)->distanceToChannel(lp) <<","<< stgc->distanceToReadout(lp,wid)<<std::endl;
-	  
-	}
-      }
-      */   // end NSW validation
     }  else if (m_idHelperTool->mdtIdHelper().is_mdt(id)) {    // (A) special treatment for MDTs to find closest channel and nearby hits
       double pitch = 0.;
       // get the identifier 
@@ -415,6 +353,15 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 
 
      const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);
+     if(m_BMGpresent && m_idHelperTool->mdtIdHelper().stationName(id) == m_BMGid ) {
+       auto myIt = m_DeadChannels.find(mdtROE->identify());
+       if( myIt != m_DeadChannels.end() ){
+         if( std::find( (myIt->second).begin(), (myIt->second).end(), id) != (myIt->second).end() ) {
+           ATH_MSG_DEBUG("Skipping tube with identifier " << m_idHelperTool->mdtIdHelper().show_to_string(id) );
+           return false;
+         }
+       }
+     }
      // local position from the mdts
      const Amg::Vector3D  localPos = mdtROE->globalToLocalCoords(parm->position(),id);
      const double innerTubeRadius = mdtROE->innerTubeRadius(); //was 15.075;
@@ -562,5 +509,43 @@ int iFatras::SimHitCreatorMS::offIdToSimId(Identifier id) const{
 
 
   return 0; 
+}
+void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl) {
+  PVConstLink cv = mydetEl->getMaterialGeom(); // it is "Multilayer"
+  int nGrandchildren = cv->getNChildVols();
+  if(nGrandchildren <= 0) return;
+
+  Identifier detElId = mydetEl->identify();
+
+  int name = m_idHelperTool->mdtIdHelper().stationName(detElId);
+  int eta = m_idHelperTool->mdtIdHelper().stationEta(detElId);
+  int phi = m_idHelperTool->mdtIdHelper().stationPhi(detElId);
+  int ml = m_idHelperTool->mdtIdHelper().multilayer(detElId);
+  std::vector<Identifier> deadTubes;
+  
+    for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
+    for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
+      bool tubefound = false;
+      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+        int tubegeo = cv->getIdOfChildVol(kk) % 100;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        if( tubegeo == tube && layergeo == layer ) {
+          tubefound=true;
+          break;
+        }
+        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      }
+      if(!tubefound) {
+        Identifier deadTubeId = m_idHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
+        deadTubes.push_back( deadTubeId );
+        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      }
+    }
+  }
+  std::sort(deadTubes.begin(), deadTubes.end());
+  m_DeadChannels[detElId] = deadTubes;
+  return;
 }
 

@@ -33,8 +33,6 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-
-// namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
   /**
@@ -73,7 +71,7 @@ namespace NSWL1 {
 
     virtual ~StripTdsOfflineTool();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     virtual void handle (const Incident& inc);
 
@@ -126,14 +124,14 @@ namespace NSWL1 {
     std::vector<float > *m_strip_local_X=0;                           //!< local X position
     std::vector<float > *m_strip_local_Y=0;                           //!< local Y position
     std::vector<float > *m_strip_layer=0;                           //!< layer
-    std::vector<float > *m_strip_isSmall=0;                           //!< sector number
+    std::vector<float > *m_strip_isSmall=0;                           //!< sector number // This is not the sector number ! Please avoid obvoius  and misleading stuff
     std::vector<float > *m_strip_eta=0;                           //!< sector eta
     std::vector<float > *m_strip_phi=0;                           //!< sector phi
-    std::vector<float > *m_strip_readStrip=0;                           //!< sector phi
+    std::vector<float > *m_strip_readStrip=0;                           //!< sector phi // this is not sector phi
     std::vector<int > *m_strip_channel=0;                           //!< channel
     std::vector<int > *m_strip_BCID=0;                           //!< BCID
     std::vector<int > *m_strip_wedge=0;                           //!< multipletId
-    std::vector<float > *m_strip_time=0;                           //!< multipletId
+    std::vector<float > *m_strip_time=0;                           //!< multipletId // And this is not the multiplet id 
 
 
   };  // end of StripTdsOfflineTool class

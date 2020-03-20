@@ -409,7 +409,7 @@ class Svc(object):
         headerFile = outFiles[0]
         
         _msg = self.msg
-        db_infos = lshosts_infos()
+        db_infos = ('err',) # lshosts_infos()
         if db_infos[0] != 'ok':
             host_infos = { 'si2k' : 0.,
                            'cpuf' : 0. }

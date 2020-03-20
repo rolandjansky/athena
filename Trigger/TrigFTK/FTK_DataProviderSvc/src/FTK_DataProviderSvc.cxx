@@ -1955,8 +1955,6 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const Identifie
   ATH_MSG_VERBOSE("FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos"<<  phiPos << ", " << etaPos);
   ATH_MSG_VERBOSE(" FTK cluster phiwidth " << phiWidth << " etawidth " <<  etaWidth << " siWidth.phiR() " << siWidth.phiR() << " siWidth.z() " << siWidth.z());
 
-  // bool blayer = pixelDetectorElement->isBlayer();
-
   std::vector<Identifier> rdoList;
   rdoList.push_back(pixel_id);
 

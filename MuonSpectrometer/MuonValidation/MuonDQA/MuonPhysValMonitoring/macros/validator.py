@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """This script compares two given root files and saves plots where they differ
 as pdfs.
@@ -164,8 +164,6 @@ class Validator(object):
         n = h.Integral()
         if n>0:
           h.Scale(1./n)
-          for i in range (1,h.GetXaxis().GetNbins()+1):
-            h.SetBinError(i,h.GetBinError(i)/n);
                 
     refHist = SetBounds(hists)
     

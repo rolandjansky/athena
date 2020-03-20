@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JGTOWERMAKER_H
@@ -56,6 +56,7 @@ class JGTowerMaker: public ::AthAlgorithm {
   bool  m_useSCQuality;
   bool  m_useAllCalo;
   bool  m_useAllRun2TT;
+  bool  m_EmulateSC; 
   bool  m_TileMapped;
   std::string m_scType;
   uint16_t m_scQuality;

@@ -29,6 +29,7 @@
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/TauTrackClassifier.h"
+#include "tauRecTools/TauTrackRNNClassifier.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 #include "tauRecTools/TauPi0ClusterScaler.h"
 #include "tauRecTools/TauPi0ScoreCalculator.h"
@@ -51,7 +52,7 @@ DECLARE_TOOL_FACTORY( TauCalibrateEM             )
 DECLARE_TOOL_FACTORY( TauCellVariables           )
 DECLARE_TOOL_FACTORY( TauTrackFinder             )
 DECLARE_TOOL_FACTORY( TauVertexFinder            )
-DECLARE_TOOL_FACTORY( TauElectronVetoVariables             )
+DECLARE_TOOL_FACTORY( TauElectronVetoVariables   )
 DECLARE_TOOL_FACTORY( TauShotFinder              )
 DECLARE_TOOL_FACTORY( TauPi0ClusterCreator   )
 DECLARE_TOOL_FACTORY( TauPi0CreateROI        )
@@ -72,6 +73,8 @@ DECLARE_TOOL_FACTORY( MvaTESVariableDecorator )
 DECLARE_TOOL_FACTORY( MvaTESEvaluator )
 DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, TauTrackClassifier  )
 DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, TrackMVABDT         )
+DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, TauTrackRNNClassifier )
+DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, TrackRNN )
 DECLARE_TOOL_FACTORY( CombinedP4FromRecoTaus )
 DECLARE_TOOL_FACTORY( TauTrackFilter )
 DECLARE_TOOL_FACTORY( TauGenericPi0Cone )

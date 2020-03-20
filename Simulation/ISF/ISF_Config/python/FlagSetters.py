@@ -210,9 +210,12 @@ def configureFlagsFastOnly():
 ## methods for simulators which combine Geant4,  Fatras and FastCaloSim
 
 def configureFlagsATLFASTIIF_G4MS():
-    configureFlagsATLFASTII()
+    configureFlagsATLFASTIIF()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF_G4MS"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
     return
 
 def configureFlagsMultiSimTest():

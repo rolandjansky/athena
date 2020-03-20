@@ -15,8 +15,6 @@
 
 #include <string>
 
-#include "GaudiKernel/ToolHandle.h"
-
 #include "TrigInterfaces/FexAlgo.h"
 
 #include "TrigInDetEvent/TrigVertexCollection.h"

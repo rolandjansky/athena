@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def generateFastSimulationList():
     FastSimulationList=[]
@@ -76,6 +77,8 @@ def generateInDetSensitiveDetectorList():
     from AthenaCommon.DetFlags import DetFlags
     if (isRUN1 or isRUN2) and DetFlags.simulate.BCM_on():
         SensitiveDetectorList += [ 'BCMSensorSD' ]
+    elif isUpgrade and DetFlags.simulate.BCM_on():
+        SensitiveDetectorList += [ 'SLHC_BCMSensorSD' ]
     #if isRUN2 and DetFlags.simulation.DBM_on():
     #    SensitiveDetectorList += [ 'DBMSensorSD' ]
     if DetFlags.simulate.pixel_on():
@@ -137,16 +140,14 @@ def generateMuonSensitiveDetectorList():
             if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetectorCosmics' ]
             if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetectorCosmics' ]
             if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetectorCosmics' ]
-            if DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetectorCosmics' ]
+            if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetectorCosmics' ]
         else:
             if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetector' ]
             if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetector' ]
             if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetector' ]
-            if DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetector' ]
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if CommonGeometryFlags.Run()=="RUN3" :
-            if DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
-            if DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
+            if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetector' ]
+        if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
+        if MuonGeometryFlags.hasMM() and DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
     return SensitiveDetectorList
 
 def generateEnvelopeSensitiveDetectorList():

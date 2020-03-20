@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 """ TrigTauRec """
@@ -416,7 +416,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
 class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
 
-        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackBDT=False, doRNN=False):
+        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackRNN=False, doRNN=False):
         
             super( TrigTauRecMerged_TauPrecisionMVA , self ).__init__( name )
 
@@ -458,9 +458,9 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                 # tightened to 0.75 mm for tracktwoMVA (until the track BDT can be used)
                 tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTightDZ_'))            
 
-            if doTrackBDT:                
-                # BDT track classification
-                tools.append(taualgs.getTauTrackClassifier())
+            if doTrackRNN:                
+                # RNN track classification
+                tools.append(taualgs.getTauTrackRNNClassifier())
 
             # Calibrate to calo TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))

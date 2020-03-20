@@ -141,8 +141,9 @@ public:
   virtual EBC_EVCOLL getMcEventCollectionHMPLEnumFromTimedHitPtr(const TimedHitPtr<SiHit> phit) {
       unsigned short newPileupType=phit.pileupType();
       if (m_lastPileupType!=newPileupType) {
-	m_lastPileupType = newPileupType;
-	m_lastMcEventCollectionHMPLEnum = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(m_lastPileupType);
+          m_lastPileupType = newPileupType;
+          MsgStream* amsg = &(msg());
+          m_lastMcEventCollectionHMPLEnum = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(m_lastPileupType, amsg);
       }
       return m_lastMcEventCollectionHMPLEnum;
   };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -230,7 +230,7 @@ void InDet::RoISeedTool::getTrkMeasSeeds(std::vector<Amg::Vector3D>& trkseeds)
 // Get all RoI measurements from a list of vertices
 /////////////////////////////////////////////////////////////////////
 
-void InDet::RoISeedTool::getVtxSeeds(std::vector<Amg::Vector3D>& vtxseeds)
+void InDet::RoISeedTool::getVtxSeeds(std::vector<Amg::Vector3D>& /*vtxseeds*/)
 {
 
   // Undeveloped

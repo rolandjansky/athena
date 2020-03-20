@@ -348,7 +348,8 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
       HepMcParticleLink trklink(phit->particleLink());
       if (m_needsMcEventCollHelper) {
         if(phit.pileupType()!=lastPileupType)        {
-          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
+          MsgStream* amsg = &(msg());
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
           lastPileupType=phit.pileupType();
         }
         trklink.setEventCollection(currentMcEventCollection);

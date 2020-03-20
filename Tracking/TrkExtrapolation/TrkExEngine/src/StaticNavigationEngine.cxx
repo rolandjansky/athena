@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -68,6 +68,14 @@ Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolveBoundary(Trk::ExCellC
 /** charged situation */
 Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolveBoundary(Trk::ExCellNeutral& ecNeutral, PropDirection dir) const
 { return resolveBoundaryT<Trk::NeutralParameters>(ecNeutral,dir); }
+
+/** charged  */
+Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePosition(Trk::ExCellCharged& ecCharged, PropDirection dir, bool noLoop) const
+{ return resolvePositionT<Trk::TrackParameters>(ecCharged,dir, noLoop); }
+
+/** neutral */
+Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePosition(Trk::ExCellNeutral& ecNeutral, PropDirection dir, bool noLoop) const
+{ return resolvePositionT<Trk::NeutralParameters>(ecNeutral,dir, noLoop); }
 
 StatusCode Trk::StaticNavigationEngine::updateTrackingGeometry() const {
     // retrieve the TrackingGeometry from the detector store 

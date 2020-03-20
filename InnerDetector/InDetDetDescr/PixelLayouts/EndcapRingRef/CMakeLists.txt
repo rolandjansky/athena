@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/PixelGeoModel
                           InnerDetector/InDetDetDescr/PixelLayouts/PixelInterfaces
                           InnerDetector/InDetDetDescr/PixelLayouts/PixelLayoutUtils
+                          InnerDetector/InDetDetDescr/PixelLayouts/BCMPrime
                           PRIVATE
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
@@ -35,7 +36,7 @@ atlas_add_component( EndcapRingRef
                      LINK_LIBRARIES ${XERCESC_LIBRARIES} 
 		     AthenaBaseComps AthenaKernel GeoModelKernel GaudiKernel
 		     PixelGeoModelModule PixelLayoutUtils
-		     PRIVATE_LINK_LIBRARIES Identifier InDetGeoModelUtils InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry PathResolver InDetTrackingGeometryXMLLib)
+		     PRIVATE_LINK_LIBRARIES Identifier InDetGeoModelUtils InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry PathResolver InDetTrackingGeometryXMLLib BCMPrimeLib)
 
 # Install files from the package:
 atlas_install_headers( EndcapRingRef )

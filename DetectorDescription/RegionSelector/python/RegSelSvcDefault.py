@@ -8,7 +8,6 @@ from AthenaCommon.SystemOfUnits import *  # loads MeV etc...
 # import the base class
 from RegionSelector.RegionSelectorConf import RegSelSvc
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 class RegSelSvcDefault ( RegSelSvc )  :
@@ -123,6 +122,7 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 ToolSvc += tgcTable
                 mlog.debug(tgcTable)
 
+            # could avoid first check in case DetFlags.detdescr.CSC_on() would take into account MuonGeometryFlags already
             if MuonGeometryFlags.hasCSC() and DetFlags.detdescr.CSC_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
                 cscTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
@@ -130,14 +130,16 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 ToolSvc += cscTable
                 mlog.debug(cscTable)
 
-            if (CommonGeometryFlags.Run()=="RUN3") and DetFlags.detdescr.Micromegas_on():
+            # could avoid first check in case DetFlags.detdescr.Micromegas_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasMM() and DetFlags.detdescr.Micromegas_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import MM_RegionSelectorTable
                 mmTable = MM_RegionSelectorTable(name = "MM_RegionSelectorTable")
 
                 ToolSvc += mmTable
                 mlog.debug(mmTable)
 
-            if (CommonGeometryFlags.Run()=="RUN3") and DetFlags.detdescr.sTGC_on():
+            # could avoid first check in case DetFlags.detdescr.sTGC_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasSTGC() and DetFlags.detdescr.sTGC_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegionSelectorTable
                 stgcTable = sTGC_RegionSelectorTable(name = "sTGC_RegionSelectorTable")
 
@@ -217,15 +219,18 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 self.enableTGC = True
             else:
                 self.enableTGC = False
+            # could avoid first check in case DetFlags.detdescr.CSC_on() would take into account MuonGeometryFlags already
             if MuonGeometryFlags.hasCSC() and DetFlags.detdescr.CSC_on():
                 self.enableCSC = True
             else:
                 self.enableCSC = False
-            if (CommonGeometryFlags.Run()=="RUN3") and DetFlags.detdescr.sTGC_on():
+            # could avoid first check in case DetFlags.detdescr.sTGC_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasSTGC() and DetFlags.detdescr.sTGC_on():
                 self.enablesTGC = True
             else:
                 self.enablesTGC = False
-            if (CommonGeometryFlags.Run()=="RUN3") and DetFlags.detdescr.Micromegas_on():
+            # could avoid first check in case DetFlags.detdescr.Micromegas_on() would take into account MuonGeometryFlags already
+            if MuonGeometryFlags.hasMM() and DetFlags.detdescr.Micromegas_on():
                 self.enableMM = True
             else:
                 self.enableMM = False

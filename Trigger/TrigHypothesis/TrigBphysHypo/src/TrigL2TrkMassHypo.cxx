@@ -22,7 +22,6 @@
 #include <math.h>
 
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
 
 // additions of xAOD objects
 #include "TrigBphysHelperUtilsTool.h"

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
 # jobOptions Fragment for ID software
@@ -666,6 +668,28 @@ else:
 
       InputCombinedInDetTracks += [ InDetKeys.ResolvedSLHCConversionFindingTracks() ]
 
+
+    if InDetFlags.doROIConv() and InDetFlags.doSLHC():
+      #
+      # --- configure cuts for ROI Conversion tracking
+      #
+      if (not 'InDetNewTrackingCutsROIConv' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsROIConv not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsROIConv = ConfiguredNewTrackingCuts("ROIConv")
+      InDetNewTrackingCutsROIConv.printInfo()
+      #
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetROIConvSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                             InDetKeys.ResolvedROIConvTracks(),
+                                                             InDetKeys.SiSpSeededROIConvTracks(),
+                                                             InDetNewTrackingCutsROIConv,
+                                                             TrackCollectionKeys,
+                                                             TrackCollectionTruthKeys)
+
+      InputCombinedInDetTracks += [ InDetKeys.ResolvedROIConvTracks() ]
+
     
     # ------------------------------------------------------------
     #
@@ -734,7 +758,7 @@ else:
 
     # ------------------------------------------------------------
     #
-    # --- Pixel Stublets (3 layer tracks) on all PRDs
+    # --- Pixel Stublets (3 layer tracks) on unassociated PRDs
     #
     # ------------------------------------------------------------
     
@@ -1432,6 +1456,8 @@ else:
         cuts = InDetNewTrackingCutsLowPt
       elif InDetFlags.doSLHCConversionFinding():
         cuts = InDetNewTrackingCutsSLHCConversionFinding
+      elif InDetFlags.doROIConv():
+        cuts = InDetNewTrackingCutsROIConv
       else:
         cuts = InDetNewTrackingCuts
       include("InDetRecExample/ConfiguredInDetValidation.py")

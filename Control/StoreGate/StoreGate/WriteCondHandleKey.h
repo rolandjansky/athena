@@ -26,6 +26,41 @@ namespace SG {
       CondHandleKey<T>(key, dbKey, Gaudi::DataHandle::Writer)
     {}
 
+    /**
+     * @brief Constructor for WriteCondHandle that takes just a SG key
+     * @key   StoreGate key
+     *
+     * the value of the dbKey is the same as the StoreGate key
+     */
+    WriteCondHandleKey(const std::string& key) :
+      CondHandleKey<T>(key, key, Gaudi::DataHandle::Writer)
+    {}
+
+
+  /**
+   * @brief auto-declaring Property Constructor.
+   * @param name name of the Property
+   * @param key  default StoreGate key for the object.
+   * @param doc documentation string
+   *
+   * will associate the named Property with this RHK via declareProperty
+   *
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store named by @c storeName is used.
+   */
+    template <class OWNER, class K,
+              typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
+    inline WriteCondHandleKey( OWNER* owner,
+                               std::string name,
+                               const K& key={},
+                               std::string doc="") :
+      WriteCondHandleKey<T>(key) {
+      auto p = owner->declareProperty(std::move(name), *this, std::move(doc));
+      //p->template setOwnerType<OWNER>(); //Not available in Gaudi for 21.9
+    }
+
+
   };
 
 } // namespace SG

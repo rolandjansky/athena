@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -13,7 +13,6 @@
 // ........ includes
 //
 #include "LArL1Sim/LArSCSimpleMaker.h"
-//#include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -23,6 +22,9 @@
 #include "boost/foreach.hpp"
 #include <cmath>
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "xAODEventInfo/EventInfo.h"
+#include <random>
+
 
 #include <iostream>
 
@@ -34,7 +36,9 @@ LArSCSimpleMaker::LArSCSimpleMaker(const std::string& name,
   : AthAlgorithm(name, pSvcLocator),
     m_scidtool ("CaloSuperCellIDTool"),
     m_sem_mgr(0),
-    m_calo_id_manager(0)
+    m_calo_id_manager(0),
+    m_noisetool("CaloNoiseToolDefault"),
+    m_caloLumiBCIDTool(""), m_first(true)
 {
   declareProperty ("SCIDTool", m_scidtool,
                    "Offline / supercell mapping tool.");
@@ -42,6 +46,11 @@ LArSCSimpleMaker::LArSCSimpleMaker(const std::string& name,
                    "SG key for the input calorimeter cell container.");
   declareProperty ("SCellContainer", m_sCellContainer = "SCellContainer",
                    "SG key for the output supercell LAr channel container.");
+  declareProperty("CaloNoiseTool", m_noisetool, "Tool Handle for noise tool");
+  declareProperty("LumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction");
+  declareProperty("CompensateForNoise", m_compNoise=true,"Compensate for the noise with low noise");
+  declareProperty("addBCID", m_addBCID=true,"Compensate for the BCID");
+
 }
 
 
@@ -51,6 +60,8 @@ LArSCSimpleMaker::LArSCSimpleMaker(const std::string& name,
 StatusCode LArSCSimpleMaker::initialize()
 {
 
+  if ( m_compNoise ) ATH_CHECK( m_noisetool.retrieve() );
+  if ( m_addBCID ) ATH_CHECK( m_caloLumiBCIDTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -64,6 +75,11 @@ StatusCode LArSCSimpleMaker::execute()
   CHECK( m_scidtool.retrieve() );
   CHECK( detStore()->retrieve (m_sem_mgr, "CaloSuperCellMgr") );
   CHECK( detStore()->retrieve (m_calo_id_manager, "CaloIdManager") );
+
+  const xAOD::EventInfo* evt = nullptr;
+  CHECK( evtStore()->retrieve(evt,"EventInfo") );
+  long bunch_crossing(-1);
+  bunch_crossing = evt->bcid();
 
   const CaloCell_SuperCell_ID * calo_sc_id   =  m_calo_id_manager->getCaloCell_SuperCell_ID(); 
   const CaloCell_ID * calo_cell_id =  m_calo_id_manager->getCaloCell_ID(); 
@@ -81,11 +97,31 @@ StatusCode LArSCSimpleMaker::execute()
   
   int hash_max = calo_sc_id->calo_cell_hash_max(); 
   std::vector<float> energies (hash_max,0);
-  std::vector<uint16_t> provenances  (hash_max,0);
+  std::vector<float> enTime (hash_max,0);
+  std::vector<float> enForTime (hash_max,0);
+  std::vector<bool> timeDef (hash_max,false);
   std::vector<uint16_t> gains (hash_max,0);
   std::vector<uint16_t> qualities (hash_max,0);
+  std::vector<float> sigma_noise_per_scell(hash_max,0);
+  int idx = 0;
 
+  if ( m_first ) {
+    m_noise_per_cell.reserve(cells->size());
+    m_noise_per_cell.assign(cells->size(),0.0);
+    if ( m_compNoise ) {
+    BOOST_FOREACH (const CaloCell* cell, *cells) {
+      const CaloDetDescrElement* cdde = cell->caloDDE();
+      if ( cdde->is_tile () ) {idx++; continue;}
+      std::vector<float> nn = m_noisetool->elecNoiseRMS3gains(cdde);
+      float sigma_diff = nn[1]*nn[1] - nn[0]*nn[0] ;
+      if ( sigma_diff < 0.0 ) { m_noise_per_cell[idx++]=0; continue;}
+      m_noise_per_cell[idx++] = sqrt( sigma_diff );
+    } // end of BOOST_FOREACH
+    } // end of if m_compNoise
+    m_first = false;
+  } // end of if first
 
+  idx=0;
   BOOST_FOREACH (const CaloCell* cell, *cells) {
     Identifier cell_id = cell->ID(); 
     Identifier sCellID  = m_scidtool->offlineToSuperCellID (cell_id);
@@ -98,8 +134,19 @@ StatusCode LArSCSimpleMaker::execute()
     IdentifierHash hash;
     hash = calo_sc_id->calo_cell_hash (sCellID);
     assert (hash < energies.size() );
-    energies[hash] += cell->energy(); 
-    provenances[hash] |= cell->provenance(); 
+    float pedestalshift = 0.0;
+    if ( m_addBCID ) pedestalshift = m_caloLumiBCIDTool->average(cell,bunch_crossing);
+    energies[hash] += cell->energy() + pedestalshift; 
+    if ( cell->gain() == CaloGain::LARHIGHGAIN )
+	sigma_noise_per_scell[hash]+=m_noise_per_cell[idx];
+    idx++;
+    uint16_t prov = cell->provenance();
+    if ( ((prov & 0x2000) == 0x2000) && (cell->et()>50) ) {
+	// time defined for one of the cells
+	timeDef[hash] = timeDef[hash] || true;
+        enForTime[hash] += cell->energy();
+        enTime[hash] += cell->energy()*cell->time();
+    }
     gains[hash] = std::max(gains[hash],(uint16_t)cell->gain());
     if ( qualities[hash] + (int) cell->quality() > 65535 ){
       qualities[hash] = 65535 ;
@@ -141,8 +188,8 @@ StatusCode LArSCSimpleMaker::execute()
       int hash1 = calo_sc_id->calo_cell_hash (sc_id1);
       int hash2 = calo_sc_id->calo_cell_hash (sc_id2);
 
-      energies[hash1] += cell->energy()/2.; 
-      energies[hash2] += cell->energy()/2.; 
+      energies[hash1] += cell->energy()*0.5; 
+      energies[hash2] += cell->energy()*0.5; 
       //ignore the rest for now
 
       /*
@@ -175,6 +222,7 @@ StatusCode LArSCSimpleMaker::execute()
     return StatusCode::FAILURE;
   }
 
+  std::default_random_engine generator;
   for (unsigned int i=0; i < energies.size(); i++) {
 
     const CaloDetDescrElement* dde = m_sem_mgr->get_element (i);
@@ -183,10 +231,28 @@ StatusCode LArSCSimpleMaker::execute()
       continue;
     }
 
+    // More noise
+    float add_noise = 0.0;
+    IdentifierHash hash = dde->identifyHash();
+    if ( (!dde->is_tile()) && (sigma_noise_per_scell[hash] > 0.0) ){
+	std::normal_distribution<double> distribution(0.0,sigma_noise_per_scell[hash] );
+	add_noise = distribution(generator);
+    }
+    energies[i]+=add_noise;
+      
+
     CaloCell* ss = dataPool.nextElementPtr();
     ss->setCaloDDE( m_sem_mgr->get_element (i));
     ss->setEnergy( energies[i] );
-    ss->setTime(  0.  );
+    uint16_t prov (0);
+    if ( timeDef[i]  ){
+        float time = enTime[i] / enForTime[i]; // if timeDef is true, enForTime is > 10
+        float et = ss->et();
+	ss->setTime( time ); 
+        prov = 0x2000;
+        if(et>10e3 && time>-8 && time<16) prov |= 0x200;
+        if(et<=10e3 && fabs(time)<8) prov |= 0x200; 
+    } else ss->setTime(  999.0  ); // makes sure it will fail some BCID
 
     ss->setQuality( qualities[i] );
     if (calo_sc_id->is_tile(ss->ID()))
@@ -196,8 +262,8 @@ StatusCode LArSCSimpleMaker::execute()
       }
     else
       {
-	ss->setProvenance( provenances[i] );
-	ss->setGain( (CaloGain::CaloGain)  gains[i] );
+	ss->setProvenance( prov );
+	ss->setGain( CaloGain::LARHIGHGAIN );
       }
     superCellContainer->push_back(ss);
 

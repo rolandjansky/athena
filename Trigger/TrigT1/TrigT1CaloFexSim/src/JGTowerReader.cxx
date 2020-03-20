@@ -50,6 +50,7 @@ histSvc("THistSvc",name){
   declareProperty("dumpTowerInfo", m_dumpTowerInfo=false);
   declareProperty("dumpSeedsEtaPhi", m_dumpSeedsEtaPhi=false);
   declareProperty("noise_file", m_noise_file="Run3L1CaloSimulation/Noise/noise_r10684.root");
+  declareProperty("makeRoundJetsPUsub", m_makeRoundJetsPUsub=false);
 
   declareProperty("makeSquareJets", m_makeSquareJets = true);
   declareProperty("jJet_seed_size", m_jJet_seed_size=0.3);
@@ -92,7 +93,7 @@ histSvc("THistSvc",name){
   declareProperty("plotSeeds", m_plotSeeds = false);
   declareProperty("saveSeeds", m_saveSeeds = false);
 
-  declareProperty("buildgBlockJets", m_buildgBlockJets=false);
+  declareProperty("buildgBlockJets", m_buildgBlockJets=true);
   declareProperty("gJet_seed_size", m_gJet_seed_size=0.2);
   declareProperty("gJet_max_r", m_gJet_max_r=1.0);  //gFEX constructs large radius jets
   declareProperty("gJet_r", m_gJet_r=1.0);
@@ -108,6 +109,11 @@ histSvc("THistSvc",name){
   declareProperty("useMedian", m_useMedian=false);
   declareProperty("useNegTowers", m_useNegTowers=false);
   declareProperty("pTcone_cut", m_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
+  
+  declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200302.r11364.root");  //correction file for jXERHO
+  declareProperty("jXERHO_fixed_noise_cut"  , m_jXERHO_fixed_noise_cut=0.0);  
+  declareProperty("jXERHO_rho_up_threshold" , m_jXERHO_rho_up_threshold=1000.0);
+  declareProperty("jXERHO_min_noise_cut"    , m_jXERHO_min_noise_cut=100.0);  
 }
 
 
@@ -115,7 +121,14 @@ JGTowerReader::~JGTowerReader() {
   delete jSeeds;
   delete jJetSeeds;
   delete gSeeds;
-  delete acc_rho;
+  delete acc_rhoA; 
+  delete acc_rhoB;
+  delete acc_rhoC;
+  delete acc_rho_barrel; 
+  delete acc_threshA;
+  delete acc_threshB;
+  delete acc_threshC;
+  
   delete acc_mht;
   delete acc_mst;
 
@@ -150,12 +163,45 @@ StatusCode JGTowerReader::initialize() {
        gT_noise.push_back( gh_noise->GetBinContent(i+1) );
     } 
   }
+  
+  std::string fullPathTo_jXERHO_correction_file = PathResolverFindCalibFile(m_jXERHO_correction_file);
+  std::ifstream jXERHO_correction_exist(fullPathTo_jXERHO_correction_file.c_str());
+  jTowerArea.clear();
+  jTowerArea.resize(7712,1.0);
+  if(jXERHO_correction_exist){
+      ATH_MSG_INFO ("jXERHO_correction_file is set with root file:" << fullPathTo_jXERHO_correction_file << "...");
+      TFile *correctionfile = new TFile(fullPathTo_jXERHO_correction_file.c_str());
+      TH1F *jTowerArea_final_hist = (TH1F*)correctionfile->Get("jTowerArea_final_hist");
+      for (size_t i=0; i < 7712; i++) {
+          jTowerArea[i]=jTowerArea_final_hist->GetBinContent(i+1);
+          if (jTowerArea[i] == 0) {
+                ATH_MSG_DEBUG ("jTowerArea should never be zero, this concerns tower "<<i);
+          }
+      }
+
+      float renormfactor=1.0/jTowerArea[0];
+
+      for (unsigned int i=0; i<jTowerArea.size(); i ++) {
+          jTowerArea[i]= jTowerArea[i]*renormfactor;
+      }
+  } else {
+      ATH_MSG_WARNING ("jXERHO_correction_file is NOT set to "<< m_jXERHO_correction_file << " full path: "<< fullPathTo_jXERHO_correction_file << "...");
+  }
+  
   // read in the tower map
   if(m_makeJetsFromMap) {
     CHECK( ReadTowerMap() );
   }
 
-  acc_rho = new SG::AuxElement::Accessor<float>("Rho");
+  acc_rhoA = new SG::AuxElement::Accessor<float>("RhoA");
+  acc_rhoB = new SG::AuxElement::Accessor<float>("RhoB");
+  acc_rhoC = new SG::AuxElement::Accessor<float>("RhoC");
+  acc_rho_barrel = new SG::AuxElement::Accessor<float>("Rho_barrel");
+  
+  acc_threshA = new SG::AuxElement::Accessor<float>("ThreshA");
+  acc_threshB = new SG::AuxElement::Accessor<float>("ThreshB");
+  acc_threshC = new SG::AuxElement::Accessor<float>("ThreshC");
+
   acc_mht = new SG::AuxElement::Accessor<float>("MHT");
   acc_mst = new SG::AuxElement::Accessor<float>("MST");
 
@@ -381,7 +427,37 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
   ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
   
+  ATH_MSG_DEBUG("JFexAlg: BuildMET");
+  CHECK(METAlg::Baseline_MET(jTs, "jNOISECUT", jT_noise, m_useNegTowers));
+  if (!buildbins) {
+      CHECK(METAlg::build_jFEX_bins(jFEX_bins, jFEX_bins_core, jTs ));
+      buildbins=true;
+  }
 
+  xAOD::JGTowerContainer* jTs_PUsub = new xAOD::JGTowerContainer();
+  xAOD::JGTowerAuxContainer* jTs_PUsubAux = new xAOD::JGTowerAuxContainer();
+  jTs_PUsub->setStore(jTs_PUsubAux);
+  CHECK(METAlg::jXERHO(jTs , "jXERHO" , jTowerArea , jFEX_bins , jFEX_bins_core , m_jXERHO_fixed_noise_cut , m_jXERHO_rho_up_threshold , m_jXERHO_min_noise_cut , jTs_PUsub));
+  ATH_MSG_DEBUG("JFexAlg: Done");
+
+  if (m_makeRoundJetsPUsub) {
+      ATH_MSG_DEBUG("JFexAlg: JetsPUsub");
+      if(m_makeRoundJets) {
+          ATH_MSG_DEBUG("JFexAlg: JetsPUsub, makeRoundJets");
+          if( JetAlg::m_SeedMap.find("jRoundSeedsPUsub") == JetAlg::m_SeedMap.end() )
+              CHECK( JetAlg::SeedGrid(jTs_PUsub, "jRoundSeedsPUsub", m_dumpSeedsEtaPhi) );
+
+          ATH_MSG_DEBUG("JFexAlg using JetsPUsub: SeedFinding with jJetSeeds; m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
+          CHECK( JetAlg::SeedFinding( jTs_PUsub, "jRoundSeedsPUsub", m_jJetRound_seed_size, m_jJetRound_max_r, jT_noise, 
+                      m_jJetRound_seed_tower_noise_multiplier, m_jJetRound_seed_total_noise_multiplier,
+                      m_jJetRound_seed_min_ET_MeV) );
+
+          ATH_MSG_DEBUG("JFexAlg usinf JetsPUsub: BuildRoundJet");
+          CHECK( JetAlg::BuildRoundJet(jTs_PUsub, "jRoundSeedsPUsub", "jRoundJetsPUsub", m_jJetRound_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_total_noise_multiplier, m_jJetRound_jet_min_ET_MeV, m_saveSeeds) );
+      }
+      delete jTs_PUsub;
+      delete jTs_PUsubAux;
+  }
 
   if(m_makeSquareJets) {
     // find all seeds
@@ -430,9 +506,6 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     CHECK( BuildJetsFromMap(jTs) );
   }
   
-  ATH_MSG_DEBUG("JFexAlg: BuildMET");
-  CHECK(METAlg::Baseline_MET(jTs, "jNOISECUT", jT_noise, m_useNegTowers));
-  ATH_MSG_DEBUG("JFexAlg: Done");
 
   return StatusCode::SUCCESS;
 }
@@ -454,6 +527,11 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   xAOD::JGTowerContainer* gCaloTowers = new xAOD::JGTowerContainer();
   gCaloTowers->setStore(gCaloTowersAux);
 
+  //add container for rhoA,B,C using Run2 EnergySumRoIAux container 
+  xAOD::EnergySumRoIAuxInfo* RhoContAux = new xAOD::EnergySumRoIAuxInfo();
+  xAOD::EnergySumRoI* RhoCont = new xAOD::EnergySumRoI();
+  RhoCont->setStore(RhoContAux);
+
   for(unsigned int t = 0; t < gTs->size(); t++){
     const xAOD::JGTower* gt_em = gTs->at(t);
     const float eta = gt_em->eta();
@@ -467,6 +545,11 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
       totalEt = gt_em->et() + gt_had->et();
     }
     //if(t > 544) totalEt = 0;
+    if(fabs(eta)>=3.15){
+      //For the case where eta > 3.15, the sampling is always 2. Not sure that is quite what we want, but that is how the 
+      //identifiers are configured for now... 
+      totalEt=gTs->at(t)->et(); 
+    }
     const float tEt = totalEt; 
 
     const std::vector<int> index(2, 0);
@@ -489,9 +572,9 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   ConstDataVector<xAOD::JGTowerContainer> temp_b(SG::VIEW_ELEMENTS);
   ConstDataVector<xAOD::JGTowerContainer> temp_c(SG::VIEW_ELEMENTS);
 
-  TH1F* h_fpga_a = new TH1F();
-  TH1F* h_fpga_b = new TH1F();
-  TH1F* h_fpga_c = new TH1F();
+  TH1F* h_fpga_a = new TH1F("h_fpga_a", "", 50, 0, 5000);
+  TH1F* h_fpga_b = new TH1F("h_fpga_b", "", 50, 0, 5000);
+  TH1F* h_fpga_c = new TH1F("h_fpga_c", "", 50, 0, 5000);
 
   for(unsigned int t = 0; t < gCaloTowers->size(); t++){
     const xAOD::JGTower* tower = gCaloTowers->at(t);
@@ -528,6 +611,15 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   float rhoC = METAlg::Rho_avg_etaRings(fpga_c, 3, false);
   
   float rho_barrel = METAlg::Rho_avg(gCaloTowers, false);
+
+  (*acc_rhoA)(*RhoCont) = rhoA; 
+  (*acc_rhoB)(*RhoCont) = rhoB;
+  (*acc_rhoC)(*RhoCont) = rhoC;
+  (*acc_rho_barrel)(*RhoCont) = rho_barrel;
+  
+  (*acc_threshA)(*RhoCont) = thresh_a;
+  (*acc_threshB)(*RhoCont) = thresh_b;
+  (*acc_threshC)(*RhoCont) = thresh_c;
 
   for(unsigned int t = 0; t < gCaloTowers->size(); t++){
     const xAOD::JGTower* tower = gCaloTowers->at(t);
@@ -642,7 +734,7 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     CHECK(METAlg::Baseline_MET(pu_sub, "gXERHO", noNoise, m_useNegTowers));
     CHECK(METAlg::Baseline_MET(gCaloTowers,"gXENOISECUT",gT_noise, m_useNegTowers));
     CHECK(METAlg::JwoJ_MET(pu_sub, puSub_gBlocks,"gXEJWOJRHO",m_pTcone_cut,false, false, m_useNegTowers));
-    CHECK(METAlg::JwoJ_MET(gTs, gBlocks, "gXEJWOJ",m_pTcone_cut,false, true, m_useNegTowers));
+    CHECK(METAlg::JwoJ_MET(gTs, gBlocks, "gXEJWOJ",m_pTcone_cut,false, true, /*m_useNegTowers*/ true));//by default, m_useNegTowers=false, but setting it = true here for consistency 
     CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_useNegTowers) ); 
 
 
@@ -655,6 +747,9 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(evtStore()->record(pu_subAux, "pu_subTowersAux."));
   CHECK(evtStore()->record(gBs, "gBlocks"));
   CHECK(evtStore()->record(gBAux, "gBlocksAux."));
+
+  CHECK(evtStore()->record(RhoCont,"EventVariables"));
+  CHECK(evtStore()->record(RhoContAux,"EventVariablesAux."));
 
   delete h_fpga_a;
   delete h_fpga_b;
@@ -712,15 +807,14 @@ StatusCode JGTowerReader::ProcessObjects(){
     
     std::shared_ptr<METAlg::MET> met = it->second;
     CHECK(HistBookFill(Form("MET_%s_et",it->first.Data()), 50, 0, 500, met->et*1e-3, 1.));
-    CHECK(HistBookFill(Form("MET_%s_phi",it->first.Data()), 31, -3.1416, 3.1416, met->phi, 1.));
-    METCont->setEnergyX(met->et*cos(met->phi));
-    METCont->setEnergyY(met->et*sin(met->phi));
+    METCont->setEnergyX(met->ex); 
+    METCont->setEnergyY(met->ey); 
     METCont->setEnergyT(met->et);
-    (*acc_rho)(*METCont) = met->rho;
     (*acc_mht)(*METCont) = met->mht;
     (*acc_mst)(*METCont) = met->mst;
     CHECK(evtStore()->record(METCont,Form("%s_MET",it->first.Data())));
     CHECK(evtStore()->record(METContAux,Form("%s_METAux.",it->first.Data())));
+    ATH_MSG_DEBUG("Recording EnergySumRoI with name " << it->first.Data() << "_MET");
     ATH_MSG_DEBUG("Recording EnergySumRoI with name " << it->first.Data() << "_MET");
 
   }

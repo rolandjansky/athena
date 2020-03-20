@@ -10,10 +10,16 @@
 //==============================================================================
 #include "CLHEP/Vector/LorentzVector.h"
 #include "InDetPerformanceMonitoring/MuonSelector.h"
+#include "InDetPerformanceMonitoring/ElectronSelector.h"
 
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
 
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonContainer.h"
+
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/ElectronContainer.h"
 //==============================================================================
 // Forward class declarations...
 //==============================================================================
@@ -65,6 +71,7 @@ class FourMuonEvent : public EventAnalysis
   inline const float&                get4MuInvMass (ZTYPE eType)          { return m_fInvariantMass[eType];  } 
   inline int                         getAcceptedEvents ()                 { return m_acceptedEventCount; }      
   inline const xAOD::Muon*           getCombMuon ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : nullptr;  }
+  inline const xAOD::TrackParticle*  getELTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxELTrack[uPart] : nullptr;  }
   inline const xAOD::TrackParticle*  getIDTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : nullptr;  }
   inline double                      GetInvMass() { return m_FourMuonInvMass; }
   inline const xAOD::TrackParticle*  getMSTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : nullptr;  }
@@ -76,10 +83,15 @@ class FourMuonEvent : public EventAnalysis
   float                              getPtImbalance( ZTYPE eType );
   const std::string                  getRegion() const ;
   unsigned int                       getPosMuon( int eType );
-  inline int                         GetVertexMuNeg1 () { return m_muonneg1_vtx; }
-  inline int                         GetVertexMuNeg2 () { return m_muonneg2_vtx; }
-  inline int                         GetVertexMuPos1 () { return m_muonpos1_vtx; }
-  inline int                         GetVertexMuPos2 () { return m_muonpos2_vtx; }
+  inline int                         GetVertexElec ( unsigned int uPart ) { return (uPart < NUM_MUONS) ? m_elec_vtx[uPart] : 0;}
+  inline int                         GetVertexElNeg1 () { return m_elec_vtx[0];}
+  inline int                         GetVertexElNeg2 () { return m_elec_vtx[1];}
+  inline int                         GetVertexElPos1 () { return m_elec_vtx[2];}
+  inline int                         GetVertexElPos2 () { return m_elec_vtx[3];}
+  inline int                         GetVertexMuNeg1 () { return m_muon_vtx[0];} //{ return m_muonneg1_vtx; }
+  inline int                         GetVertexMuNeg2 () { return m_muon_vtx[1];} //{ return m_muonneg2_vtx; }
+  inline int                         GetVertexMuPos1 () { return m_muon_vtx[2];} //{ return m_muonpos1_vtx; }
+  inline int                         GetVertexMuPos2 () { return m_muon_vtx[3];} //{ return m_muonpos2_vtx; }
   int                                getZCharge( ZTYPE eType );
   inline const float&                getZEta   ( ZTYPE eType ) { return m_fZEtaDir[eType];      }
   inline const float&                getZMass  ( ZTYPE eType ) { return m_fInvariantMass[eType];}
@@ -104,13 +116,18 @@ class FourMuonEvent : public EventAnalysis
   typedef EventAnalysis PARENT;
 
   // Private methods
-  void  Clear();
-  bool  EventSelection (ZTYPE eType);
-  bool  ReconstructKinematics();
-  void  RecordMuon( const xAOD::Muon* pxMuon );
+  bool     CheckMuonVertices ();
+  void     Clear ();
+  bool     EventSelection (ZTYPE eType);
+  bool     EventSelectionNew (ZTYPE eType);
+  bool     ReconstructKinematicsNew();
+  bool     ReconstructKinematics();
+  bool     ReconstructKinematics4Elec();
+  void     RecordMuon( const xAOD::Muon* pxMuon );
 
   // Active mu-cuts for the analysis
   MuonSelector            m_xMuonID;
+  ElectronSelector        m_xElecID;
   PerfMonServices::CONTAINERS m_container;
 
   // Tag Setup variables
@@ -125,6 +142,7 @@ class FourMuonEvent : public EventAnalysis
   double m_MassWindowLow;
   double m_MassWindowHigh;
   double m_OpeningAngleCut;
+  double m_deltaXYcut;
   double m_Z0GapCut;
 
   bool m_doDebug;
@@ -133,6 +151,7 @@ class FourMuonEvent : public EventAnalysis
   bool m_workAsFourLeptons;
   // Member variables : Mostly to store relevant muon data for quick access.
   unsigned int     m_numberOfFullPassMuons;
+  unsigned int     m_numberOfFullPassElectrons;
   bool             m_passedSelectionCuts;
   bool             m_passedFourMuonSelection;
   bool             m_passedFourElectronSelection;
@@ -142,6 +161,9 @@ class FourMuonEvent : public EventAnalysis
   const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS];  // Pointer to muon spectro ( corr. )
   const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS];      // Pointer to muon spectro
   const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS];       // Pointer to ID track
+
+  const            xAOD::TrackParticle*  m_pxELTrack[NUM_MUONS];  // pointer to Track particle of the electrons
+  const            xAOD::TrackParticle*  m_pxMUTrack[NUM_MUONS];  // pointer to Track particle of the muons
 
   // Keep kinematic information on the Z
   float m_fZPt[NUM_TYPES];
@@ -181,6 +203,9 @@ class FourMuonEvent : public EventAnalysis
   int m_muonneg2_vtx; // tell us wich of the vertex
   int m_muonpos1_vtx; // tell us wich of the vertex
   int m_muonpos2_vtx; // tell us wich of the vertex
+
+  int m_muon_vtx[NUM_MUONS];
+  int m_elec_vtx[NUM_MUONS];
 
 };
 //==============================================================================

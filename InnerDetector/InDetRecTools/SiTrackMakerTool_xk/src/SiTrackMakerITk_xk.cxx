@@ -666,16 +666,14 @@ void InDet::SiTrackMakerITk_xk::newEvent(bool PIX,bool SCT)
 
   // Setup for truth infirmation
   //
-
   if(m_usetruth) {
     m_truthPIX = 0;
-    StatusCode  s = evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel");    
-    if (s.isFailure() || !m_truthPIX) m_usetruth = false;
-  }
-  if(m_usetruth) {
+    if (evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel").isFailure() || !m_truthPIX) 
+      m_usetruth = false;
+
     m_truthSCT = 0;
-    StatusCode  s = evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT");    
-    if (s.isFailure() || !m_truthSCT) m_usetruth = false;
+    if (evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT").isFailure() || !m_truthSCT) 
+      m_usetruth = false;
   }
 
   // Retrieve 
@@ -701,23 +699,52 @@ void InDet::SiTrackMakerITk_xk::newEvent(bool PIX,bool SCT)
 ///////////////////////////////////////////////////////////////////
 // Initiate track finding tool for new event
 ///////////////////////////////////////////////////////////////////
-
 void InDet::SiTrackMakerITk_xk::newTrigEvent(bool PIX,bool SCT)
 {
   m_pix          = PIX && m_usePix;
   m_sct          = SCT && m_useSct;
   m_simpleTrack  = true;
-
+  
   setTrackQualityCuts();
-
+      
   // New event for track finder tool
   //
   m_tracksfinder->newEvent(m_trackinfo,m_trackquality);
-
+  
   // Erase cluster to track association
   //
-  m_clusterTrack.clear(); 
+  m_clusterTrack.clear();
+  
+  // Setup for truth infirmation
+  //
+  if(m_usetruth) {
+    m_truthPIX = 0;
+    if (evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel").isFailure() || !m_truthPIX) 
+      m_usetruth = false;
 
+    m_truthSCT = 0;
+    if (evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT").isFailure() || !m_truthSCT) 
+      m_usetruth = false;
+  }
+  
+  // Retrieve
+  //
+  if(m_useBremModel && m_useCaloSeeds) {
+  
+    m_caloFRZ.clear();
+  
+    if(m_caloCluster.isValid()) {
+  
+      CaloClusterROI_Collection::const_iterator c = m_caloCluster->begin(), ce = m_caloCluster->end();
+  
+      for(; c!=ce; ++c) {
+        m_caloFRZ.push_back((*c)->globalPosition().phi ());
+        m_caloFRZ.push_back((*c)->globalPosition().perp());
+        m_caloFRZ.push_back((*c)->globalPosition().z   ());
+  
+     }
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////

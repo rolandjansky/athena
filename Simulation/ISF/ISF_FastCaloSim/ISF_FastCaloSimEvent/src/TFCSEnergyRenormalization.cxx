@@ -19,7 +19,7 @@ TFCSEnergyRenormalization::~TFCSEnergyRenormalization()
 {
 }
 
-FCSReturnCode TFCSEnergyRenormalization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSEnergyRenormalization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   std::vector< float > energies(CaloCell_ID_FCS::MaxSample,0);
 

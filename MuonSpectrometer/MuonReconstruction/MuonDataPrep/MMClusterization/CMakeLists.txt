@@ -16,7 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonIdHelpers
                           TestPolicy )
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Matrix Minuit Minuit2)
 
 # Component(s) in the package:
 atlas_add_library( MMClusterizationLib

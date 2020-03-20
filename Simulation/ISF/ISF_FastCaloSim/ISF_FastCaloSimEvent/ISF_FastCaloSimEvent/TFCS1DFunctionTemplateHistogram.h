@@ -138,20 +138,4 @@ class TFCS1DFunctionInt16Int32Histogram: public TFCS1DFunctionTemplateHistogram<
   ClassDef(TFCS1DFunctionInt16Int32Histogram,1)  //TFCS1DFunctionInt16Int32Histogram
 };
 
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint8_t,float>+;
-#pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>+;
-#pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint32_t,float>+;
-#pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges,uint16_t,float>+;
-#pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges,uint32_t,float>+;
-
-#pragma link C++ class TFCS1DFunctionInt8Int8Histogram+;
-#pragma link C++ class TFCS1DFunctionInt8Int16Histogram+;
-#pragma link C++ class TFCS1DFunctionInt8Int32Histogram+;
-#pragma link C++ class TFCS1DFunctionInt16Int16Histogram+;
-#pragma link C++ class TFCS1DFunctionInt16Int32Histogram+;
-
-#endif
-
 #endif

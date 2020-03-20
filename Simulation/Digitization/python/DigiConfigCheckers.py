@@ -20,7 +20,7 @@ def checkTRT_DigitizationConfiguration():
 
 
 def checkDetFlagConfiguration():
-    from AthenaCommon.Logging import logging
+    from AthenaCommon.Logging import logging,AthError
     logDigiConfigChecker = logging.getLogger( 'DigiConfigChecker' )
 
     from AthenaCommon.DetFlags import DetFlags

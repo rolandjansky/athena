@@ -17,7 +17,10 @@ ToolSvc.InDetPixelClusterOnTrackToolDigital.ErrorStrategy=1
 ToolSvc.InDetSCT_ClusterOnTrackTool.CorrectionStrategy=0
 ToolSvc.InDetSCT_ClusterOnTrackTool.ErrorStrategy=0
 
-ServiceMgr.PixelOfflineCalibSvc.ITkAnalogueClustering = True
-# This following line must be set, but it should be set via the command line, such that it is not hard-coded into a release here
-#ServiceMgr.PixelOfflineCalibSvc.ITkAnalogueClusteringConstantsFile = "/afs/cern.ch/user/b/bsmart/public/ForITk/finalConfig.txt"
-
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthAlgSeq") #should be changed to AthCondSeq in master
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelITkOfflineCalibCondAlg
+    condSeq += PixelITkOfflineCalibCondAlg(name="PixelITkOfflineCalibCondAlg", ReadKey="/PIXEL/PixelITkClusterErrorData")
+    PixelITkOfflineCalibCondAlg.InputSource = 2

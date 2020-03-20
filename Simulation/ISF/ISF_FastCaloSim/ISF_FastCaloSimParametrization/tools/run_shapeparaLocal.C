@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -62,7 +62,8 @@ void run_shapeparaLocal(string action)
 
    // * set what you want to run
 
-   bool doThinning, doStudy, doBinning, doRegression, doPlotting;
+   bool doThinning = false;
+   bool doStudy, doBinning, doRegression, doPlotting;
 
    if (action.compare("thin") == 0)
    {

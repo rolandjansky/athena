@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauCalibrateLC.h"
@@ -12,6 +12,7 @@
 #include "tauRecTools/ITauToolBase.h"
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/MvaTESEvaluator.h"
+#include "tauRecTools/TauTrackRNNClassifier.h"
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 #include "tauRecTools/TauChargedPFOCreator.h"
@@ -43,7 +44,9 @@
 #pragma link C++ class ITauToolBase+;
 #pragma link C++ class MvaTESVariableDecorator+;
 #pragma link C++ class MvaTESEvaluator+;
+#pragma link C++ class tauRecTools::TauTrackRNNClassifier+;
 #pragma link C++ class tauRecTools::TauTrackClassifier+;
+#pragma link C++ class tauRecTools::TrackRNN+;
 #pragma link C++ class tauRecTools::TrackMVABDT+;
 #pragma link C++ class CombinedP4FromRecoTaus+;
 #pragma link C++ class TauChargedPFOCreator+;

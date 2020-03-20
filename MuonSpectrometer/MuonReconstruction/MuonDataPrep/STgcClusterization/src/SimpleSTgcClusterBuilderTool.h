@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <set>
+#include <numeric>
 
 class sTgcIdHelper;
 namespace MuonGM
@@ -42,26 +43,24 @@ namespace Muon
     /** standard finalize method */
     virtual StatusCode finalize();
 
-    StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
-			   std::vector<Muon::sTgcPrepData*>& clustersVect);
+    virtual StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
+			   std::vector<Muon::sTgcPrepData*>& clustersVect)const;
 
   private: 
 
     double m_chargeCut;
-    bool m_allowHoles;
+    unsigned int m_maxHoleSize;
 
     /// Muon detector manager and helper
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const sTgcIdHelper* m_stgcIdHelper;
 
-    std::vector<std::set<unsigned int>> m_clustersStripNum[3][5];
-    std::vector<std::vector<Muon::sTgcPrepData>> m_clusters[3][5];
-
     /// private functions
     void dumpStrips( std::vector<Muon::sTgcPrepData>& stripsVect,
-		     std::vector<Muon::sTgcPrepData*>& clustersVect );
+		     std::vector<Muon::sTgcPrepData*>& clustersVect )const;
   
-    bool addStrip(Muon::sTgcPrepData& strip);
+    bool addStrip(const Muon::sTgcPrepData& strip,std::vector<std::set<unsigned int>> clustersStripNum[2][4], 
+                  std::vector<std::vector<Muon::sTgcPrepData>> clusters[2][4])const;
 
 
   };
