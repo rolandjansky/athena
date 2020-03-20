@@ -118,12 +118,14 @@
 + Event/xAOD/xAODBase
 #+ Event/xAOD/xAODBTagging
 + Event/xAOD/xAODCaloEvent
++ Event/xAOD/xAODCnvInterfaces
 + Event/xAOD/xAODCore
 + Event/xAOD/xAODCoreAthenaPool
 + Event/xAOD/xAODCoreCnv
 + Event/xAOD/xAODCutFlow
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODEventShape
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
