@@ -59,6 +59,8 @@ namespace CP
     // private interface
     //
 
+    // this class does most of the actual work and acts as accessor to
+    // our private data members, and needs our internals for that.
     friend class SysFilterReporter;
 
     /// \brief the \ref SysFilterReporterParams object

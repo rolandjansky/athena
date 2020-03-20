@@ -13,7 +13,7 @@
 
 #include <SystematicsHandles/SysFilterReporterParams.h>
 #include <AsgMessaging/MessageCheck.h>
-#include <cassert>
+#include <exception>
 
 //
 // method implementations
@@ -29,7 +29,11 @@ namespace CP
     , m_params (val_params)
     , m_passedDefault (val_passedDefault)
   {
-    assert (m_params.m_isInitialized);
+    if (!m_params.m_isInitialized)
+    {
+      ANA_MSG_FATAL ("using uninitialized SysFilterReporterParams, throwing exception");
+      throw std::logic_error ("using uninitialized SysFilterReporterParams");
+    }
 
     ANA_CHECK_THROW (m_params.m_eventDecisionOutputDecoration.preExecute(systematicsList));
   }

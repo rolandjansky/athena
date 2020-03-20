@@ -14,7 +14,6 @@
 #include <SystematicsHandles/SysFilterReporterCombiner.h>
 #include <SystematicsHandles/SysFilterReporterParams.h>
 #include <AsgMessaging/MessageCheck.h>
-#include <cassert>
 
 //
 // method implementations
