@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONLAYERHOUGH_H
 #define MUONLAYERHOUGH_H
 
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 #include "MuonLayerHough/Hit.h"
 #include "MuonLayerHough/MuonLayerHoughSelector.h"
 #include <vector>

@@ -870,13 +870,14 @@ class InViewReco( ComponentAccumulator ):
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
 
-        from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+        from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
         if viewMaker:
             self.viewMakerAlg = viewMaker
         else:
             self.viewMakerAlg = EventViewCreatorAlgorithm("IM"+name,
                                                           ViewFallThrough = True,
-                                                          RoIsLink        = 'initialRoI', # -||-
+                                                          RoIsLink        = 'initialRoI',
+                                                          RoITool         = ViewCreatorInitialROITool(),
                                                           InViewRoIs      = name+'RoIs',
                                                           Views           = name+'Views',
                                                           ViewNodeName    = name+"InView")
@@ -892,7 +893,7 @@ class InViewReco( ComponentAccumulator ):
     def addInput(self, inKey, outKey ):
         """Adds input (DecisionsContainer) from which the views should be created """
         self.viewMakerAlg.InputMakerInputDecisions += [ inKey ]
-        self.viewMakerAlg.InputMakerOutputDecisions += [ outKey ]
+        self.viewMakerAlg.InputMakerOutputDecisions = outKey
 
     def mergeReco( self, ca ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """

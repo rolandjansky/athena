@@ -127,7 +127,8 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "invM":[[],['getmuInvM']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
-            "Dr": [['getmuFastDr', 'getmuCombDr'],[]]
+            "Dr": [['getmuFastDr', 'getmuCombDr']],
+            "muoncalib":[['getmuFast']]
         }
 
         return stepDictionary

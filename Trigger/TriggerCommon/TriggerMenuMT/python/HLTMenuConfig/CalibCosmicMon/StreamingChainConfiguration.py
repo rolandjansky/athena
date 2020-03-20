@@ -22,7 +22,7 @@ def StreamingSequenceCfg( flags ):
 
 def StreamingMenuSequence():
 
-    inputMakerAlg = InputMakerForRoI("IM_streamerInputMaker", mergeOutputs=False)
+    inputMakerAlg = InputMakerForRoI("IM_streamerInputMaker")
     inputMakerAlg.RoIs="streamerInputRoIs"
     streamingSequence = seqAND("streamerSequence", [inputMakerAlg])
 

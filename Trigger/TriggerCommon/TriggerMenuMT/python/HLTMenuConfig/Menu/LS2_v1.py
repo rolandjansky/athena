@@ -14,7 +14,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsTo
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup,MinBiasGroup,BphysicsGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup,MinBiasGroup
+#BphysicsGroup (re-add to the preceding line when putting bphys back in)
 
 
 def setupMenu():
@@ -66,6 +67,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_muonqual_L12MU4',  groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_muonqual_L12MU6',  groups=MultiMuonGroup),
 
+       # ATR-20650
+        ChainProp(name='HLT_mu0_muoncalib_L1MU4_EMPTY', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu0_muoncalib_L1MU20',      groups=SingleMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -180,12 +184,13 @@ def setupMenu():
         ChainProp(name="HLT_tau160_perf_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
 
     ]
+    # TimM temporary disable due to !31039
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
-        #ATR 20603
-        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4',     groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4',     groups=BphysicsGroup),
-        #ATR-20839
-        ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),    
+        # #ATR 20603
+        # ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4',     groups=BphysicsGroup),
+        # ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4',     groups=BphysicsGroup),
+        # #ATR-20839
+        # ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),    
     ]
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
    ]

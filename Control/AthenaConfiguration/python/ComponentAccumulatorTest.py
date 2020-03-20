@@ -445,7 +445,7 @@ class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
         seq2 = seqAND("seq2")
         innerSeq2 = seqAND("innerSeq2")
 
-        firstAlg = MergeableAlgorithm("alg1", InputMakerInputDecisions=["input1"], InputMakerOutputDecisions=["output1"])
+        firstAlg = MergeableAlgorithm("alg1", InputMakerInputDecisions=["input1"])
 
         ca.addSequence(seq1)
         ca.addSequence(innerSeq1, parentName=seq1.name())
@@ -458,7 +458,7 @@ class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
         innerSeqCopy = seqAND("innerSeq2")
         level2SeqCopy = seqAND("level2Seq2")
 
-        secondAlg = MergeableAlgorithm("alg1", InputMakerInputDecisions=["input2"], InputMakerOutputDecisions=["output2"])
+        secondAlg = MergeableAlgorithm("alg1", InputMakerInputDecisions=["input2"])
 
         secondCa = ComponentAccumulator()
         secondCa.addSequence(innerSeqCopy)
@@ -472,9 +472,7 @@ class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
         self.assertEqual(len(foundAlgs), 2)
 
         self.assertEqual(set(foundAlgs[0].InputMakerInputDecisions), {"input1", "input2"})
-        self.assertEqual(set(foundAlgs[0].InputMakerOutputDecisions), {"output1", "output2"})
         self.assertEqual(set(foundAlgs[1].InputMakerInputDecisions), {"input1", "input2"})
-        self.assertEqual(set(foundAlgs[1].InputMakerOutputDecisions), {"output1", "output2"})
 
         ca.printConfig()
         ca.wasMerged()
