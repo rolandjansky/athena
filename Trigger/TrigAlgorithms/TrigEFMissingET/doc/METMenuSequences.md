@@ -24,7 +24,7 @@ from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
 InputMakerAlg = InputMakerForRoI("MetCellInputMaker", RoIsLink="initialRoI")
 InputMakerAlg.RoIs='METCellRoI'
 InputMakerAlg.InputMakerInputDecisions=[mapThresholdToL1DecisionCollection("XE")]
-InputMakerAlg.InputMakerOutputDecisions=["InputMaker_from_L1MET"]
+InputMakerAlg.InputMakerOutputDecisions="InputMaker_from_L1MET"
 topSequence += InputMakerAlg
 
 from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metCellRecoSequence

@@ -3,7 +3,7 @@
 #
 
 from AthenaCommon.CFElements import parOR, seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool, ViewCreatorPreviousROITool
 from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
@@ -130,6 +130,7 @@ def tauCaloSequence(ConfigFlags):
     tauCaloViewsMaker                    = EventViewCreatorAlgorithm( "IMtauCalo")
     tauCaloViewsMaker.ViewFallThrough    = True
     tauCaloViewsMaker.RoIsLink           = "initialRoI"
+    tauCaloViewsMaker.RoITool            = ViewCreatorInitialROITool()
     tauCaloViewsMaker.InViewRoIs         = InViewRoIs
     tauCaloViewsMaker.Views              = "TAUCaloViews"
     tauCaloViewsMaker.ViewNodeName       = RecoSequenceName
@@ -147,6 +148,7 @@ def tauCaloMVASequence(ConfigFlags):
     tauCaloMVAViewsMaker                    = EventViewCreatorAlgorithm( "IMtauCaloMVA")
     tauCaloMVAViewsMaker.ViewFallThrough    = True
     tauCaloMVAViewsMaker.RoIsLink           = "initialRoI"
+    tauCaloMVAViewsMaker.RoITool            = ViewCreatorInitialROITool()
     tauCaloMVAViewsMaker.InViewRoIs         = InViewRoIs
     tauCaloMVAViewsMaker.Views              = "TAUCaloMVAViews"
     tauCaloMVAViewsMaker.ViewNodeName       = RecoSequenceName
@@ -291,7 +293,8 @@ def tauFTFTrackTwoSequence(ConfigFlags):
     RecoSequenceName = "tauFTFTrackTwoInViewSequence"
 
     ftfTrackTwoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrackTwo")
-    ftfTrackTwoViewsMaker.RoIsLink          = "roi" # -||-
+    ftfTrackTwoViewsMaker.RoIsLink          = "roi"
+    ftfTrackTwoViewsMaker.RoITool           = ViewCreatorPreviousROITool()
     ftfTrackTwoViewsMaker.InViewRoIs        = "TIsoViewRoIs" # contract with the fast track core
     ftfTrackTwoViewsMaker.Views             = "TAUFTFTrackTwoViews"
     ftfTrackTwoViewsMaker.ViewFallThrough   = True
@@ -308,7 +311,8 @@ def tauFTFTrackSequence(ConfigFlags):
     RecoSequenceName = "tauFTFTrackInViewSequence"
 
     ftfTrackViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrack")
-    ftfTrackViewsMaker.RoIsLink          = "roi" # -||-                                                                          
+    ftfTrackViewsMaker.RoIsLink          = "roi"
+    ftfTrackViewsMaker.RoITool           = ViewCreatorPreviousROITool()
     ftfTrackViewsMaker.InViewRoIs        = "TIdViewRoIs" # contract with the fast track core                                     
     ftfTrackViewsMaker.Views             = "TAUFTFTrackViews"
     ftfTrackViewsMaker.ViewFallThrough   = True
@@ -325,7 +329,8 @@ def tauFTFIdSequence(ConfigFlags):
     RecoSequenceName = "tauFTFIdInViewSequence"
 
     ftfIdViewsMaker                   = EventViewCreatorAlgorithm("IMFTFId")
-    ftfIdViewsMaker.RoIsLink          = "roi" # -||-                                                                                          
+    ftfIdViewsMaker.RoIsLink          = "roi"
+    ftfIdViewsMaker.RoITool           = ViewCreatorPreviousROITool()
     ftfIdViewsMaker.InViewRoIs        = "TIdViewRoIs" # contract with the fast track core                                                    
     ftfIdViewsMaker.Views             = "TAUFTFIdViews"
     ftfIdViewsMaker.ViewFallThrough   = True
@@ -342,8 +347,9 @@ def tauFTFCoreSequence(ConfigFlags):
     RecoSequenceName = "tauFTFCoreInViewSequence"
 
     ftfCoreViewsMaker                   = EventViewCreatorAlgorithm("IMFTFCore")
-    ftfCoreViewsMaker.RoIsLink          = "roi" # -||-
+    ftfCoreViewsMaker.RoIsLink          = "roi"
     ftfCoreViewsMaker.InViewRoIs        = "TCoreViewRoIs" # contract with the fastCalo
+    ftfCoreViewsMaker.RoITool           = ViewCreatorPreviousROITool()
     ftfCoreViewsMaker.Views             = "TAUFTFCoreViews"
     ftfCoreViewsMaker.ViewFallThrough   = True
     ftfCoreViewsMaker.RequireParentView = True
@@ -359,7 +365,8 @@ def tauFTFIsoSequence(ConfigFlags):
     RecoSequenceName = "tauFTFIsoInViewSequence"
 
     ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIso")
-    ftfIsoViewsMaker.RoIsLink          = "roi" # -||-                                                                            
+    ftfIsoViewsMaker.RoIsLink          = "roi"
+    ftfIsoViewsMaker.RoITool           = ViewCreatorPreviousROITool()
     ftfIsoViewsMaker.InViewRoIs        = "TIsoViewRoIs" # contract with the fast track core
     ftfIsoViewsMaker.Views             = "TAUFTFIsoViews"
     ftfIsoViewsMaker.ViewFallThrough   = True
@@ -376,7 +383,8 @@ def tauEFSequence(ConfigFlags):
     RecoSequenceName = "tauEFInViewSequence"
 
     efViewsMaker                   = EventViewCreatorAlgorithm("IMTauEF")
-    efViewsMaker.RoIsLink          = "roi" # -||-                                                                                                         
+    efViewsMaker.RoIsLink          = "roi"  
+    efViewsMaker.RoITool           = ViewCreatorPreviousROITool()
     efViewsMaker.InViewRoIs        = "TIsoViewRoIs" # contract with the fast track core                                                                   
     efViewsMaker.Views             = "TAUEFViews"
     efViewsMaker.ViewFallThrough   = True

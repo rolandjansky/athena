@@ -4,11 +4,6 @@
 
 #include "MuonLayerAmbiguitySolverTool.h"
 
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
-#include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "MuonSegment/MuonSegment.h"
@@ -42,12 +37,6 @@ namespace Muon {
     declareProperty("MuonSegmentMatchingTool",    m_segmentMatchingTool );
     declareProperty("MuonSegmentTrackBuilder",    m_muonTrackBuilder );
     declareProperty("MuonEDMPrinterTool",m_printer );    
-  }
-
-  MuonLayerAmbiguitySolverTool::~MuonLayerAmbiguitySolverTool() { }
-
-  StatusCode MuonLayerAmbiguitySolverTool::finalize() {
-    return StatusCode::SUCCESS;
   }
 
   StatusCode MuonLayerAmbiguitySolverTool::initialize() {
