@@ -197,14 +197,12 @@ def OutputTXTFile():
     return outputTXTFile
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
-from AthenaCommon.Logging import logging
-msg = logging.getLogger( "skel.GENtoEVGEN" )
 if len(runArgs.jobConfig) != 1:
-    msg.info("runArgs.jobConfig '%s'" % runArgs.jobConfig)
+    evgenLog.info("runArgs.jobConfig '%s'" % runArgs.jobConfig)
     evgenLog.error("You must supply one and only one jobConfig file argument")
     sys.exit(1)
 
-msg.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+evgenLog.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
 
 jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
