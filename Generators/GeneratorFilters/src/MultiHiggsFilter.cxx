@@ -22,9 +22,6 @@
 // Other classes used by this class:-
 #include <math.h>
 
-using HepMC::GenVertex;
-using HepMC::GenParticle;
-
 //--------------------------------------------------------------------------
 MultiHiggsFilter::MultiHiggsFilter(const std::string& name, 
 			 ISvcLocator* pSvcLocator): GenFilter(name,pSvcLocator) {

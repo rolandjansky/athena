@@ -37,8 +37,6 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-//#include "HepMC/ParticleDataTable.h"
-//#include "HepMC/ParticleData.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/HEPEVT_Wrapper.h"
 

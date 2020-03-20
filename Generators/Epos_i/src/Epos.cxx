@@ -21,12 +21,11 @@
 
 #include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/IO_HEPEVT.h"
-//#include "HepMC/IO_GenEvent.h"
+
 
 #include "Epos_i/Epos.h"
 #include "Epos_i/EposFort.h"
 
-// #include "boost/format.hpp"
 
 
 namespace{
@@ -153,8 +152,6 @@ extern "C"
 
 */
 
-
-using HepMC::IO_HEPEVT;
 
 // ----------------------------------------------------------------------
 Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ): 
