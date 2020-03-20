@@ -15,14 +15,15 @@ class CosmicChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChain(self):       
+                         
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "sct_noise":[self.getNoalgStep()],
+            "sct_noise":[]
         }
 
         key = self.chainPart['chainPartName']
@@ -32,11 +33,5 @@ class CosmicChainConfiguration(ChainConfigurationBase):
             
         myChain = self.buildChain(chainSteps)
         return myChain
-   
-    # --------------------
-    # Configuration of costmonitor
-    # --------------------
-    def getNoalgStep(self):
-        from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.StreamingChainConfiguration import StreamingSequenceCfg
-        return self.getStep(1,"noalg", [StreamingSequenceCfg] )
+
 
