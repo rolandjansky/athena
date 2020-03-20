@@ -5,6 +5,7 @@ atlas_subdir( Rivet_i )
 
 # External dependencies:
 find_package( FastJet )
+find_package( FastJetContrib )
 find_package( HepMC )
 find_package( ROOT COMPONENTS Core Hist )
 find_package( Rivet )
