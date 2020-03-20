@@ -7,7 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSeque
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-from libpyeformat_helper import SubDetector,SubDetectorGroup
+from libpyeformat_helper import SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger('EventBuildingSequenceSetup')

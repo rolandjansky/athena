@@ -5,11 +5,6 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.BeamspotChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
-from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-from AthenaCommon.CFElements import seqAND
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
 
 #----------------------------------------------------------------
 class CosmicChainConfiguration(ChainConfigurationBase):
