@@ -797,11 +797,11 @@ namespace CP {
 
 
     if(DetType == MCAST::DetectorType::ID){  // Correct the ID momentum
-      return applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, isMC, itersID, false, muonInfo);
+      return applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, itersID, false, isMC, muonInfo);
     }
 
     else if(DetType == MCAST::DetectorType::MS){  // Correct the ME momentum
-      return applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo);
+      return applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, itersME, false, isMC, muonInfo);
     }
     else if(DetType == MCAST::DetectorType::CB){  // Correct the CB momentum;
       if( muonInfo.ptcb == 0) {
@@ -854,12 +854,12 @@ namespace CP {
         ATH_MSG_VERBOSE("Applying sagitta correction for Standalone");
         rho=0;
         if(muonInfo.ptid == 0  && muonInfo.ptms != 0 )  {
-          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo)!=CorrectionCode::Ok){
-            return CP::CorrectionCode::Error;
-          }
-        }
-        else if(muonInfo.ptid != 0  && muonInfo.ptms == 0 )  {
-          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, isMC, itersID, false, muonInfo)!=CorrectionCode::Ok){
+          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, itersME, false, isMC, muonInfo)!=CorrectionCode::Ok){
+            return CP::CorrectionCode::Error;                                                
+          }                                                                                  
+        }                                                                                    
+        else if(muonInfo.ptid != 0  && muonInfo.ptms == 0 )  {                               
+          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, itersID, false, isMC, muonInfo)!=CorrectionCode::Ok){
             return CP::CorrectionCode::Error;
           }
         }
@@ -878,7 +878,7 @@ namespace CP {
 
       ATH_MSG_VERBOSE("Applying CB sagitta correction");
 
-      if(applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, isMC, itersCB, false, muonInfo)!=CP::CorrectionCode::Ok){
+      if(applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, itersCB, false, isMC, muonInfo)!=CP::CorrectionCode::Ok){
         return CP::CorrectionCode::Error;
       }
 
@@ -889,7 +889,7 @@ namespace CP {
 
       ATH_MSG_VERBOSE("Applying Weighted sagitta correction");
 
-      if(applySagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, isMC, itersCB, false, muonInfo)!=CP::CorrectionCode::Ok){
+      if(applySagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, itersCB, false, isMC, muonInfo)!=CP::CorrectionCode::Ok){
         return CP::CorrectionCode::Error;
       }
       else {
