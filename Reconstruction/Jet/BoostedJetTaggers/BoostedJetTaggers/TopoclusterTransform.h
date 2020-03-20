@@ -5,8 +5,9 @@
 #ifndef BOOSTEDJETSTAGGERS_TOPOCLUSTERTRANSFORM_H_
 #define BOOSTEDJETSTAGGERS_TOPOCLUSTERTRANSFORM_H_
 
-#include <math.h>
+// System include(s).
 #include <map>
+#include <string>
 
 class TopoclusterTransform {
   public:
