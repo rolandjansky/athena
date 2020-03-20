@@ -51,7 +51,7 @@ LArShapeCompleteCnv::createTransient ()
 
   MsgStream log(msgSvc(), "LArShapeCompleteCnv" ); 
   if( compareClassGuid(p2_guid) ) {  
-    std::auto_ptr< LArShapeSubset_p2 > col_vect( poolReadObject< LArShapeSubset_p2 >() );  
+    std::unique_ptr< LArShapeSubset_p2 > col_vect( poolReadObject< LArShapeSubset_p2 >() );  
     log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
     return TPconverter2.createTransient( col_vect.get(), log );
   } 

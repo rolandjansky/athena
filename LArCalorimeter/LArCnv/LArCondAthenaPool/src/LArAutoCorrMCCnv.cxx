@@ -31,7 +31,7 @@ LArAutoCorrMCCnv::createTransient ()
     static pool::Guid   p0_guid("4E7E36E9-2121-4327-88C5-8A516D6D6D2A");
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< LArAutoCorrSubset_p1 > col_vect( poolReadObject< LArAutoCorrSubset_p1 >() );
+        std::unique_ptr< LArAutoCorrSubset_p1 > col_vect( poolReadObject< LArAutoCorrSubset_p1 >() );
         MsgStream log(msgSvc(), "LArAutoCorrMCCnv" ); 
         //log << MSG::INFO << "Reading LArAutoCorrSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
@@ -42,7 +42,7 @@ LArAutoCorrMCCnv::createTransient ()
         MsgStream log(msgSvc(), "LArAutoCorrMCCnv" ); 
         log << MSG::INFO << "Reading LArAutoCorrSubset (original)" << endmsg; 
 
-        std::auto_ptr< LArConditionsSubset<LArAutoCorrP> > subset ( poolReadObject< LArConditionsSubset<LArAutoCorrP> >() );
+        std::unique_ptr< LArConditionsSubset<LArAutoCorrP> > subset ( poolReadObject< LArConditionsSubset<LArAutoCorrP> >() );
         // Here we must convert from LArAutoCorrP to LArAutoCorrP1
         
         log << MSG::INFO << "subset ptr " << subset.get() << endmsg; 
