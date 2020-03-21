@@ -24,29 +24,7 @@
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
 
-# Some generators that are no longer needed in the release
-- Generators/AcerMC_i
-- Generators/AlpGen_i
-- Generators/CompHep_i
-- Generators/EmbeddedTrackGenerator
-- Generators/ExoGraviton_i
-- Generators/GravADD_i
-- Generators/Herwig_i
-- Generators/Horace_i
-- Generators/HvGen_i
-- Generators/MadCUP_i 
-- Generators/MadGraph_i 
-- Generators/Matchig_i
-- Generators/McAtNlo_i
-- Generators/Protos_i
-- Generators/Pyquench_i 
-- Generators/Pythia_i
-- Generators/PythiaB
-- Generators/PythiaChL_i
-- Generators/PythiaExo_i
-- Generators/PythiaRhad_i
-- Generators/Reldis_i
-- Generators/VBFNLOControl
+
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
