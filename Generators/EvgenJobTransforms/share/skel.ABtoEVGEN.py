@@ -184,7 +184,7 @@ def OutputTXTFile():
 if len(runArgs.jobConfig) != 1:
     evgenLog.error("You must supply one and only one jobConfig file argument")
     sys.exit(1)
-msg.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+evgenLog.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
 
 jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
@@ -499,32 +499,32 @@ if _checkattr("description", required=True):
     msg = evgenConfig.description
     if _checkattr("notes"):
         msg += " " + evgenConfig.notes
-    printfunc "MetaData: %s = %s" % ("physicsComment", msg)
+    printfunc ("MetaData: %s = %s" % ("physicsComment", msg))
 if _checkattr("generators", required=True):
-    printfunc "MetaData: %s = %s" % ("generatorName", "+".join(gennames))
+    printfunc ("MetaData: %s = %s" % ("generatorName", "+".join(gennames)))
 if _checkattr("process"):
-    printfunc "MetaData: %s = %s" % ("physicsProcess", evgenConfig.process)
+    printfunc ("MetaData: %s = %s" % ("physicsProcess", evgenConfig.process))
 if _checkattr("tune"):
-    printfunc "MetaData: %s = %s" % ("generatorTune", evgenConfig.tune)
+    printfunc ("MetaData: %s = %s" % ("generatorTune", evgenConfig.tune))
 if _checkattr("hardPDF"):
-    printfunc "MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF)
+    printfunc ("MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF))
 if _checkattr("softPDF"):
-    printfunc "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
+    printfunc ("MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF))
 if _checkattr("nEventsPerJob"):
-    printfunc "MetaData: %s = %s" % ("nEventsPerJob", evgenConfig.nEventsPerJob)
+    printfunc ("MetaData: %s = %s" % ("nEventsPerJob", evgenConfig.nEventsPerJob))
 if _checkattr("keywords"):
-    printfunc "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())
+    printfunc ("MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower()))
 if _checkattr("specialConfig"):
-   printfunc "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
+    printfunc ("MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig))
 # TODO: Require that a contact / JO author is always set
 if _checkattr("contact"):
-    printfunc "MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact))
+    printfunc ("MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact)))
 
 # Output list of generator filters used
 filterNames = [alg.getType() for alg in acas.iter_algseq(filtSeq)]
 excludedNames = ['AthSequencer', 'PyAthena::Alg', 'TestHepMC']
 filterNames = list(set(filterNames) - set(excludedNames))
-printfunc "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
+printfunc ("MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames)))
 
 
 ##==============================================================

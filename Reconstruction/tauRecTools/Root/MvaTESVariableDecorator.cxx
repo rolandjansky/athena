@@ -4,6 +4,7 @@
 
 // local include(s)
 #include "tauRecTools/MvaTESVariableDecorator.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
 
@@ -95,10 +96,13 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
     TLorentzVector cluster_P4;
     cluster_P4.SetPtEtaPhiM(1,(*it)->Eta(),(*it)->Phi(),0);
     if(LC_P4.DeltaR(cluster_P4)>0.2) continue;
-    
+
     // ----retrieve CaloCluster moments
-    const xAOD::CaloCluster* cl = dynamic_cast<const xAOD::CaloCluster *>( (*it)->rawConstituent() );        
-    
+    const xAOD::CaloCluster *cl = nullptr;
+    ATH_CHECK(tauRecTools::GetJetConstCluster(it, cl));
+    // Skip if charged PFO
+    if (!cl){continue;}
+
     clE = cl->calE();
     Etot += clE;
 

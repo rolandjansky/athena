@@ -18,6 +18,7 @@
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
 + Control/AthenaCommon
++ Control/AthenaConfiguration
 + Control/AthenaInterprocess
 + Control/AthenaKernel
 + Control/AthenaMP
@@ -90,6 +91,7 @@
 + Database/TPTools
 #+ DataQuality/GoodRunsLists
 + DetectorDescription/AtlasDetDescr
++ DetectorDescription/GeoModel/AtlasGeoModel
 + DetectorDescription/GeoModel/GeoModelInterfaces
 + DetectorDescription/GeoModel/GeoModelUtilities
 + DetectorDescription/GeoPrimitives
@@ -116,12 +118,14 @@
 + Event/xAOD/xAODBase
 #+ Event/xAOD/xAODBTagging
 + Event/xAOD/xAODCaloEvent
++ Event/xAOD/xAODCnvInterfaces
 + Event/xAOD/xAODCore
 + Event/xAOD/xAODCoreAthenaPool
 + Event/xAOD/xAODCoreCnv
 + Event/xAOD/xAODCutFlow
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODEventShape
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
@@ -165,7 +169,7 @@
 + LArCalorimeter/LArGeoModel/LArHV
 + LArCalorimeter/LArGeoModel/LArReadoutGeometry
 + LArCalorimeter/LArIdentifier
-+ MuonSpectrometer/MuonIdHelpers
++ MuonSpectrometer/MuonStationIndex
 #+ PhysicsAnalysis/AnalysisCommon/PATCore
 #+ PhysicsAnalysis/AnalysisCommon/PATInterfaces
 + PhysicsAnalysis/AnalysisCommon/ParticleEvent

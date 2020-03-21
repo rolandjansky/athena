@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -90,8 +90,8 @@ namespace xAOD {
     acc3( *this ) = nTrigEtaLayers;
   }
 
-  #ifndef XAOD_ANALYSIS    
+  #if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
     AUXSTORE_OBJECT_SETTER_AND_GETTER( MuonSegment_v1, ElementLink< ::Trk::SegmentCollection > , muonSegment, setMuonSegment )
-  #endif // not XAOD_ANALYSIS
+  #endif // not XAOD_ANALYSIS or GENERATIONBASE
 
 } // namespace xAOD

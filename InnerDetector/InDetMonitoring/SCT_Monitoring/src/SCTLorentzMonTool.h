@@ -58,7 +58,7 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
 
  private:
   enum SiliconSurface { surface100, surface111, nSurfaces };
-  enum Sides { side0, side1, nSidesInclBoth };
+  enum Sides { side0, side1, nSides };
 
   // Data member, which is not changed after initialization
   std::string m_path{""};
@@ -67,7 +67,7 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   //@{
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips
-  TProfile* m_phiVsNstrips[SCT_Monitoring::N_BARRELS][nSidesInclBoth][nSurfaces]{};
+  TProfile* m_phiVsNstrips[SCT_Monitoring::N_BARRELS][nSides][nSurfaces]{};
 
   //@}
   /// Name of the Track collection to use

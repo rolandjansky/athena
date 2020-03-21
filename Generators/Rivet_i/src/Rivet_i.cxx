@@ -4,8 +4,8 @@
 
 // Implementation file for Athena-Rivet interface
 
-#include "Rivet_i/Rivet_i.h"
-#include "Rivet_i/LogLevels.h"
+#include "Rivet_i.h"
+#include "LogLevels.h"
 
 #include "HepMC/GenEvent.h"
 

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Simple include for setting up SG Step Ntuple Tool
 
 from G4AtlasApps.SimFlags import simFlags

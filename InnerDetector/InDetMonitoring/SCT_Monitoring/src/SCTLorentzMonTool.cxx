@@ -272,7 +272,7 @@ SCTLorentzMonTool::bookLorentzHistos() {
   static const string histTitles[nSurfaces]{"100 - ", "111 - "};
   for (int l{0}; l < N_BARRELS; ++l) {
     // granularity set to one profile/layer for now
-    for (int side{0}; side < nSidesInclBoth; ++side) {
+    for (int side{0}; side < nSides; ++side) {
       for (unsigned int iSurface{0}; iSurface<nSurfaces; iSurface++) {
         string histName;
         histName = "h_phiVsNstrips" + histNames2[iSurface] + hNum[l] + "Side" + hNumS[side];

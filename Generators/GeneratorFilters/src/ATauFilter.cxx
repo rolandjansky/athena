@@ -5,11 +5,7 @@
 #include "GeneratorFilters/ATauFilter.h"
 #include <cmath>
 
-//#include "HepMC/ParticleDataTable.h"
-//#include "HepMC/ParticleData.h"
 #include "CLHEP/Vector/LorentzVector.h"
-using HepMC::GenVertex;
-using HepMC::GenParticle;
 
 
 ATauFilter::ATauFilter(const std::string& name, ISvcLocator* pSvcLocator )
@@ -54,12 +50,12 @@ StatusCode ATauFilter::filterFinalize() {
 
 
 StatusCode ATauFilter::filterEvent() {
-  GenParticle *tau;
-  GenParticle *atau;
-  GenParticle *nutau;
-  GenParticle *anutau;
-  GenParticle *taulep;
-  GenParticle *ataulep;
+  HepMC::GenParticle *tau;
+  HepMC::GenParticle *atau;
+  HepMC::GenParticle *nutau;
+  HepMC::GenParticle *anutau;
+  HepMC::GenParticle *taulep;
+  HepMC::GenParticle *ataulep;
 
   CLHEP::HepLorentzVector mom_tauprod;   // will contain the momentum of the products of the tau decay
   CLHEP::HepLorentzVector mom_atauprod;  //   calculated with mom_tauprod = mom_tau - mom_nutau

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import math
 from G4AtlasApps.atlas_utilhisto import HistoAtHistoSvc
@@ -610,14 +612,14 @@ class Photon_Energy_spectrum(object):
         
     def build_spectrum(self,theApp):
         nbins=(self.histoRange[1]-self.histoRange[0])*0.01
-        print theApp,nbins,self.histoRange[0],self.histoRange[1]
+        print (theApp,nbins,self.histoRange[0],self.histoRange[1])
         p_espectrum=HistoAtHistoSvc(repr(self.run_number))
         p_espectrum.book_histo(theApp,int(nbins),self.histoRange[0],self.histoRange[1])
         p_espectrumaxis=p_espectrum.HistoSvcEntry.axis()
         for i in range(p_espectrumaxis.bins()):
             x=(p_espectrumaxis.binUpperEdge(i)+p_espectrumaxis.binLowerEdge(i))/2.
             y = self.function(0.1*i)
-            print x,y
+            print (x,y)
             p_espectrum.HistoSvcEntry.fill(x,y)
         return p_espectrum
 

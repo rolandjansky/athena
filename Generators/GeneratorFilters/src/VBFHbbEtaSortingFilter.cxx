@@ -13,6 +13,7 @@
 // Header for this module:-
 
 #include "GeneratorFilters/VBFHbbEtaSortingFilter.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // Other classes used by this class:-
 #include <math.h>

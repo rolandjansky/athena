@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGH_HIT_H
@@ -8,7 +8,8 @@
 #include <functional>
 #include <map>
 #include "CxxUtils/fpcompare.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
+
 namespace Trk {
   class PrepRawData;
 }

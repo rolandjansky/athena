@@ -1,6 +1,6 @@
 from AthenaCommon.Constants import ERROR
 from AthenaCommon.CFElements import seqAND, parOR
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 
 def setMinimalCaloSetup() :
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -76,6 +76,7 @@ def fastCaloEVCreator():
     fastCaloViewsMaker = EventViewCreatorAlgorithm( "IMfastCalo" )
     fastCaloViewsMaker.ViewFallThrough = True
     fastCaloViewsMaker.RoIsLink = "initialRoI"
+    fastCaloViewsMaker.RoITool = ViewCreatorInitialROITool()
     fastCaloViewsMaker.InViewRoIs = InViewRoIs
     fastCaloViewsMaker.Views = "EMCaloViews"
     fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence"
@@ -87,7 +88,7 @@ def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_L2C
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
     # connect to RoIs
     fastCaloViewsMaker.InputMakerInputDecisions =  [ EMRoIDecisions ]         
-    fastCaloViewsMaker.InputMakerOutputDecisions = [ EMRoIDecisions + "IMOUTPUT"]
+    fastCaloViewsMaker.InputMakerOutputDecisions = EMRoIDecisions + "IMOUTPUT"
 
     (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
      

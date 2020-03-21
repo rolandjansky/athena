@@ -4,14 +4,17 @@
 #ifndef TRIGT1TGC_TGCARGUMENTS_HH
 #define TRIGT1TGC_TGCARGUMENTS_HH
 
+#include "GaudiKernel/MsgStream.h"
+
 namespace LVL1TGCTrigger {
 
-  class TGCArguments{
+class TGCArguments
+{
   public:
     TGCArguments();
     ~TGCArguments();
 
-    void set_DEBUGLEVEL(bool v);
+    void set_MSGLEVEL(const MSG::Level v);
     void set_SHPT_ORED(bool v);
     void set_USE_INNER(bool v);
     void set_INNER_VETO(bool v);
@@ -19,7 +22,7 @@ namespace LVL1TGCTrigger {
     void set_USE_CONDDB(bool v);
     void set_useRun3Config(bool v);
 
-    bool DEBUGLEVEL() const;
+    MSG::Level MSGLEVEL() const;
     bool SHPT_ORED() const;
     bool USE_INNER() const;
     bool INNER_VETO() const;
@@ -28,14 +31,14 @@ namespace LVL1TGCTrigger {
     bool useRun3Config() const;
 
   private:
-    bool m_DEBUGLEVEL;
+    MSG::Level m_MSGLEVEL;
     bool m_SHPT_ORED;
     bool m_USE_INNER;
     bool m_INNER_VETO;
     bool m_TILE_MU;
     bool m_USE_CONDDB;
     bool m_useRun3Config;
-  };
+};
   
 } // namespace LVL1TGCTrigger
 

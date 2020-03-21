@@ -51,7 +51,6 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "HepMC/IO_HEPEVT.h"
-//#include "HepMC/IO_Ascii.h"
 #include "HepMC/HEPEVT_Wrapper.h"
 
 #include "TruthUtils/GeneratorName.h"
@@ -460,7 +459,7 @@ StatusCode PythiaB::fillEvt(HepMC::GenEvent* evt) {
 	evt->weights().push_back(this->pypars().pari(7));
 	evt->weights().push_back(this->pypars().pari(9));
 	evt->weights().push_back(this->pypars().pari(10));
-	//PDF WEIGHTS - using HepMC::PdfInfo object.. 
+	//PDF WEIGHTS - using Pdf Info object.. 
 	//pdf_id x_1, x_1, Q2, f_1, f_2 
 	int id1=this->pypars().msti(15);
 	int id2=this->pypars().msti(16);

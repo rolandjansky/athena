@@ -360,8 +360,8 @@ def getTauSubstructure():
                                                           # parameters for CaloIsoCorrected variable
                                                           maxPileUpCorrection = 4000., #MeV
                                                           pileUpAlpha = 1.0,
-                                                          VertexCorrection = doVertexCorrection,
-                                                          inAODmode = bAODmode)
+                                                          VertexCorrection = doVertexCorrection
+                                                        )
     
     cached_instances[_name] = TauSubstructureVariables
     return TauSubstructureVariables

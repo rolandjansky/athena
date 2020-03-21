@@ -204,11 +204,11 @@ namespace Muon {
         continue;
       }
 
+      // create shared pointer and add to garbage collection
+      std::shared_ptr<const Trk::TrackParameters> sharedPtr(exPars);
 //    reject intersections with very big uncertainties (parallel to surface)
       if(Amg::error(*exPars->covariance(),Trk::locX) > 10000. || Amg::error(*exPars->covariance(),Trk::locY) > 10000.) continue;
 
-      // create shared pointer and add to garbage collection
-      std::shared_ptr<const Trk::TrackParameters> sharedPtr(exPars);
       trackParametersVec.push_back(sharedPtr);
 
       if( it->regionIndex != MuonStationIndex::Barrel ){

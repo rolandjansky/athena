@@ -17,3 +17,14 @@ def SpCountMonitoring():
     monTool.defineHistogram('SctSpEndcapA', path='EXPERT', type='TH1I', title='SctSpEndcapA', xbins = 200, xmin=-0.5, xmax=1999.5)
     monTool.defineHistogram('totNumPixSP, totNumSctSP', path='EXPERT', type='TH2I', title='SP ; pix SP after ToT cut; sct SP', xbins = 50, xmin=-0.5, xmax=49.5, ybins = 50, ymin=-0.5, ymax=49.5)
     return monTool
+
+
+def MbtsFexMTMonitoring():
+
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+    monTool = GenericMonitoringTool('MonTool')
+    monTool.defineHistogram('triggerEnergies', path='EXPERT', type='TH1D', title='triggerEnergies',xbins=100, xmin=-0, xmax=2000)
+    monTool.defineHistogram('triggerEta', path='EXPERT', type='TH1D', title='triggerEta', xbins = 250, xmin=-5, xmax=5)
+    monTool.defineHistogram('triggerPhi', path='EXPERT', type='TH1I', title='triggerPhi',xbins=100, xmin=-3.2, xmax=3.2)
+    monTool.defineHistogram('triggerTimes', path='EXPERT', type='TH1I', title='triggerTimes',xbins=100, xmin=-0, xmax=2000)
+    return monTool

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 '''@file SCTTracksMonAlg.py
 @author Ken Kreul
@@ -29,6 +29,17 @@ def SCTTracksMonAlgConfig(inputFlags):
     # is the algorithm.
     from AthenaConfiguration.ComponentFactory import CompFactory
     myMonAlg = helper.addAlgorithm(CompFactory.SCTTracksMonAlg, 'SCTTracksMonAlg')
+
+    if inputFlags.Beam.Type=='collisions':
+        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+        myMonAlg.FilterTools += [GetFilledBunchFilterTool()]
+
+    doTrigger = False
+    if not inputFlags.isMC:
+        if inputFlags.Trigger.doHLT:
+            doTrigger = True
+    myMonAlg.doTrigger = doTrigger
+
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
     # # properties and add the algorithm to the monitoring sequence.
@@ -173,8 +184,7 @@ if __name__ == "__main__":
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    #ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
-    ConfigFlags.Input.Files = [" /afs/cern.ch/work/k/kkreul/Qual/data18_13TeV.00364485.express_express.merge.RAW/data18_13TeV.00364485.express_express.merge.RAW._lb0706._SFO-3._0001.1 "]
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'SCTTracksMonOutput.root'
     ConfigFlags.GeoModel.Align.Dynamic = False

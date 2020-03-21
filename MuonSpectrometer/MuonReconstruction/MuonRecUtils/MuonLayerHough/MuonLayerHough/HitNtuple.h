@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGH_HITNTUPLE_H
 #define MUONHOUGH_HITNTUPLE_H
 
 #include "MuonLayerHough/Hit.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 
 #include <vector>
 #include <map>

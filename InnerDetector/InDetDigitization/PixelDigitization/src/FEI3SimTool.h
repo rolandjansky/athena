@@ -29,6 +29,7 @@ class FEI3SimTool:public FrontEndSimTool {
 
     int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, CLHEP::HepRandomEngine *rndmEngine) const;
     int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const;
+    int relativeBunch2018(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const;
 
 };
 

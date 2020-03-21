@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Package filtering rules for the Athena project build.
 #
@@ -44,8 +45,7 @@
 - Generators/PythiaChL_i
 - Generators/PythiaExo_i
 - Generators/PythiaRhad_i
-- Generators/PythiaSgluon_i
-- Generators/Reldis_i     
+- Generators/Reldis_i
 - Generators/VBFNLOControl
 
 # Some analysis packages that are not part of Athena
