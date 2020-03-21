@@ -3,15 +3,15 @@
  * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
- * @file CaloConditions/CaloBCIDCoeffs.h
+ * @file CaloLumiConditions/CaloBCIDCoeffs.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Feb, 2020
  * @brief Luminosity-dependent pileup offset correction conditions object.
  */
 
 
-#ifndef CALOCONDITIONS_CALOBCIDCOEFFS_H
-#define CALOCONDITIONS_CALOBCIDCOEFFS_H
+#ifndef CALOLUMICONDITIONS_CALOBCIDCOEFFS_H
+#define CALOLUMICONDITIONS_CALOBCIDCOEFFS_H
 
 
 #include "CxxUtils/aligned_vector.h"
@@ -228,4 +228,4 @@ size_t CaloBCIDCoeffs::nsamples_coeff() const
 }
 
 
-#endif // not CALOCONDITIONS_CALOBCIDCOEFFS_H
+#endif // not CALOLUMICONDITIONS_CALOBCIDCOEFFS_H

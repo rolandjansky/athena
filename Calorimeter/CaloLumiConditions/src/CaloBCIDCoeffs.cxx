@@ -2,14 +2,14 @@
  * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
- * @file CaloConditions/src/CaloBCIDCoeffs.cxx
+ * @file CaloLumiConditions/src/CaloBCIDCoeffs.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Feb, 2020
  * @brief Luminosity-dependent pileup offset correction conditions object.
  */
 
 
-#include "CaloConditions/CaloBCIDCoeffs.h"
+#include "CaloLumiConditions/CaloBCIDCoeffs.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArMinBiasAverage.h"

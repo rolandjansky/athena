@@ -2,23 +2,25 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
- * @file CaloConditions/CaloBCIDCoeffs_test.cxx
+ * @file CaloLumiConditions/CaloBCIDLumi_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Mar, 2020
- * @brief Tests for CaloBCIDCoeffs.
+ * @brief Tests for CaloBCIDLumi.
  */
 
 #undef NDEBUG
-#include "CaloConditions/CaloBCIDCoeffs.h"
+#include "CaloLumiConditions/CaloBCIDLumi.h"
+#include "CaloLumiConditions/CaloBCIDCoeffs.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArMinBiasAverage.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
+#include "LumiBlockData/LuminosityCondData.h"
 #include "IdDictParser/IdDictParser.h"
 #include "Identifier/HWIdentifier.h"
 #include "TestTools/random.h"
 #include "TestTools/FLOATassert.h"
-#include "boost/timer/timer.hpp"
 #include <vector>
 #include <unordered_map>
 #include <cassert>
@@ -228,12 +230,41 @@ std::vector<HWIdentifier> get_hwids (const LArOnlineID& online_id)
 }
 
 
+//************************************************************************
+
+
+class BunchCrossingCondAlg
+{
+public:
+  static void fill (BunchCrossingCondData& bccd);
+};
+
+
+void BunchCrossingCondAlg::fill (BunchCrossingCondData& bccd)
+{
+  static constexpr int MAX_BCID = BunchCrossingCondData::m_MAX_BCID;
+  uint32_t seed = 12734;
+  for (size_t i = 0; i < MAX_BCID; i++) {
+    bccd.m_luminous[i] = Athena_test::rng_seed (seed) & 0x10000;
+  }
+}
+
+
+BunchCrossingCondData get_bccd()
+{
+  BunchCrossingCondData bccd;
+  BunchCrossingCondAlg::fill (bccd);
+  return bccd;
+}
+
+
 std::vector<float> get_lumivec()
 {
+  static constexpr int MAX_BCID = BunchCrossingCondData::m_MAX_BCID;
   uint32_t seed = 42345;
   std::vector<float> lumivec;
   lumivec.reserve (200);
-  for (size_t i = 0; i < 200; i++) {
+  for (size_t i = 0; i < MAX_BCID; i++) {
     lumivec.push_back (Athena_test::randf_seed (seed, 10));
   }
   return lumivec;
@@ -248,8 +279,10 @@ std::vector<float> calc_old (const std::vector<HWIdentifier>& hwids,
                              const ILArOFC& ofcs,
                              const ILArShape& shapes,
                              const ILArMinBiasAverage& minbias,
-                             const float* lumiVec)
+                             const std::vector<float>& lumiVec,
+                             const size_t bcid)
 {
+  static constexpr int MAX_BCID = BunchCrossingCondData::m_MAX_BCID;
   std::vector<float> out;
   out.reserve (hwids.size());
   for (HWIdentifier hwid : hwids) {
@@ -268,15 +301,16 @@ std::vector<float> calc_old (const std::vector<HWIdentifier>& hwids,
         ifirst=1/*m_firstSampleHEC*/;
       }
     }
-    
-    unsigned int ishift = ifirst ; // correct for first sample
+    unsigned int ishift = ifirst + bcid; // correct for first sample
     for (unsigned int i=0;i<nsamples;i++) {
       float sumShape=0.;
       /*unsigned*/ int k = ishift;
+      if (k >= MAX_BCID) k-= MAX_BCID;
       for (unsigned int j=0;j<nshapes;j++) {
         const float& lumi = lumiVec[k];
         sumShape += samp[j]*lumi;
         k--;
+        if (k < 0) k += MAX_BCID;
       } 
       eOFC += sumShape*(ofc[i]);
       ishift++;
@@ -291,6 +325,37 @@ std::vector<float> calc_old (const std::vector<HWIdentifier>& hwids,
 }
 
 
+std::vector<float> calc_old (const std::vector<HWIdentifier>& hwids,
+                             const LArOnlineID& online_id,
+                             const ILArOFC& ofcs,
+                             const ILArShape& shapes,
+                             const ILArMinBiasAverage& minbias,
+                             const BunchCrossingCondData& bcData,
+                             const float averageInteractionsPerCrossing,
+                             const size_t bcid)
+{
+  static constexpr int MAX_BCID = BunchCrossingCondData::m_MAX_BCID;
+  std::vector<float> lumiVec;
+  lumiVec.assign(MAX_BCID,0.0);
+  const float xlumiMC = averageInteractionsPerCrossing*0.158478605;
+  int ii = bcid-38;
+  if (ii < 0) ii += MAX_BCID;
+  for (int i=bcid-38; i<(int)bcid+38; ++i) {
+    lumiVec[ii]=bcData.isFilled(ii)*xlumiMC;
+    ++ii;
+    if (ii >= MAX_BCID) ii -= MAX_BCID;
+  }
+
+  return calc_old (hwids,
+                   online_id,
+                   ofcs,
+                   shapes,
+                   minbias,
+                   lumiVec,
+                   bcid);
+}
+
+
 void test1 (const size_t nofc, const LArOnlineID& online_id)
 {
   std::cout << "test1 " << nofc << "\n";
@@ -302,70 +367,59 @@ void test1 (const size_t nofc, const LArOnlineID& online_id)
 
   CaloBCIDCoeffs coeffs (hwids, online_id, ofcs, shapes, minbias);
 
-  std::vector<float> lumivec = get_lumivec();
-  const float* lumi = lumivec.data() + 100;
+  {
+    BunchCrossingCondData bccd = get_bccd();
+    CaloBCIDLumi bcidlumi (coeffs, bccd);
+    CxxUtils::vec_aligned_vector<float> out;
+    for (size_t bcid = 0; bcid < BunchCrossingCondData::m_MAX_BCID; ++bcid) {
+      bcidlumi.calc (bcid, 2, out);
 
-  CxxUtils::vec_aligned_vector<float> out;
-  coeffs.calc (lumi, out);
+      std::vector<float> out_old = calc_old (hwids,
+                                             online_id,
+                                             ofcs,
+                                             shapes,
+                                             minbias,
+                                             bccd,
+                                             2,
+                                             bcid);
+      assert (out.size() == out_old.size());
+      for (size_t i = 0; i < out.size(); i++) {
+        assert (Athena_test::isEqual (out[i], out_old[i]));
+      }
+    }
+  }
 
-  std::vector<float> out_old = calc_old (hwids,
-                                         online_id,
-                                         ofcs,
-                                         shapes,
-                                         minbias,
-                                         lumi);
-  assert (out.size() == out_old.size());
-  for (size_t i = 0; i < out.size(); i++) {
-    assert (Athena_test::isEqual (out[i], out_old[i]));
+  {
+    LuminosityCondData lcd;
+    lcd.setLbLuminosityPerBCIDVector (get_lumivec());
+    CaloBCIDLumi bcidlumi (coeffs, lcd);
+    CxxUtils::vec_aligned_vector<float> out;
+    for (size_t bcid = 0; bcid < BunchCrossingCondData::m_MAX_BCID; ++bcid) {
+      bcidlumi.calc (bcid, 1, out);
+
+      std::vector<float> out_old = calc_old (hwids,
+                                             online_id,
+                                             ofcs,
+                                             shapes,
+                                             minbias,
+                                             lcd.lbLuminosityPerBCIDVector(),
+                                             bcid);
+
+      assert (out.size() == out_old.size());
+      for (size_t i = 0; i < out.size(); i++) {
+        assert (Athena_test::isEqual (out[i], out_old[i]));
+      }
+    }
   }
 }
 
 
-template <typename FUNC>
-void dotime (const int n, const char* what, FUNC f)
+int main()
 {
-  boost::timer::cpu_timer timer;
-  for (int i=0; i < n; i++) {
-    f();
-  }
-  boost::timer::cpu_times elapsed = timer.elapsed();
-  float t = (float)(elapsed.system + elapsed.user) / 1e9;
-  std::cout << what << " " << t/n*1e3 << " ms; " << timer.format(3);
-}
-
-
-void test_perf (const int n, const LArOnlineID& online_id)
-{
-  const int nofc = 5;
-  std::vector<HWIdentifier> hwids = get_hwids (online_id);
-  TestOFC ofcs (nofc, hwids);
-  TestShape shapes (hwids);
-  TestMinBiasAverage minbias (hwids);
-
-  CaloBCIDCoeffs coeffs (hwids, online_id, ofcs, shapes, minbias);
-
-  std::vector<float> lumivec = get_lumivec();
-  const float* lumi = lumivec.data() + 100;
-
-  CxxUtils::vec_aligned_vector<float> out;
-  out.reserve (NCELL + 7);
-
-  dotime (n, "new", [&]() { coeffs.calc (lumi, out); });
-
-  dotime (n, "old", [&]() { calc_old (hwids, online_id, ofcs, shapes, minbias, lumi); });
-}
-
-
-int main (int argc, char** argv)
-{
-  std::cout << "CaloConditions/CaloBCIDCoeffs_test\n";
+  std::cout << "CaloLumiConditions/CaloBCIDLumi_test\n";
   LArOnlineIDTest larhelpers;
   test1 (5, larhelpers.onlineID());
   test1 (4, larhelpers.onlineID());
-
-  if (argc >= 2 && std::string(argv[1]) == "--perf") {
-    test_perf (10000, larhelpers.onlineID());
-  }
 
   return 0;
 }

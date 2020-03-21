@@ -3,15 +3,15 @@
  * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
- * @file CaloConditions/CaloBCIDLumi.h
+ * @file CaloLumiConditions/CaloBCIDLumi.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Mar, 2020
  * @brief Luminosity-dependent pileup offset correction conditions object.
  */
 
 
-#ifndef CALOCONDITIONS_CALOBCIDLUMI_H
-#define CALOCONDITIONS_CALOBCIDLUMI_H
+#ifndef CALOLUMICONDITIONS_CALOBCIDLUMI_H
+#define CALOLUMICONDITIONS_CALOBCIDLUMI_H
 
 
 #include "CxxUtils/aligned_vector.h"
@@ -102,4 +102,4 @@ CLASS_DEF( CaloBCIDLumi , 184361154 , 1 )
 CONDCONT_MIXED_DEF(CaloBCIDLumi, 5332886);
 
 
-#endif // not CALOCONDITIONS_CALOBCIDLUMI_H
+#endif // not CALOLUMICONDITIONS_CALOBCIDLUMI_H

@@ -14,11 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Calorimeter/CaloIdentifier
                           GaudiKernel
                           PRIVATE
-                          DetectorDescription/IdDictParser
-                          AtlasTest/TestTools
-                          LumiBlock/LumiBlockData
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArIdentifier )
+                          AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system timer )
@@ -30,7 +26,7 @@ atlas_add_library( CaloConditions
                    PUBLIC_HEADERS CaloConditions
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES CxxUtils Identifier CaloIdentifier CaloCondBlobObjs AthenaKernel GaudiKernel 
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TestTools LArIdentifier LumiBlockData )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TestTools )
 
 atlas_add_dictionary( CaloConditionsDict
                       CaloConditions/CaloConditionsDict.h
@@ -43,19 +39,6 @@ atlas_add_test( ToolConstants_test
                 test/ToolConstants_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CxxUtils Identifier GaudiKernel TestTools CaloConditions )
-
-atlas_add_test( CaloBCIDCoeffs_test
-                SOURCES
-                test/CaloBCIDCoeffs_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CxxUtils Identifier GaudiKernel TestTools CaloConditions IdDictParser )
-
-atlas_add_test( CaloBCIDLumi_test
-                SOURCES
-                test/CaloBCIDLumi_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CxxUtils Identifier GaudiKernel TestTools CaloConditions IdDictParser LumiBlockData
-                PROPERTIES TIMEOUT 300 )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
