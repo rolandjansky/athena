@@ -71,7 +71,7 @@ int main (int argc, char* argv[])
 
     //initialise the tool
     ElectronPhotonVariableCorrectionBase fudgeTool("fudgeTool");
-    ANA_CHECK(fudgeTool.setProperty("ConfigFile","ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleIsoCorrectionConf.conf"));
+    ANA_CHECK(fudgeTool.setProperty("ConfigFile","ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase_ExampleIsoCorrectionConf.conf"));
     ANA_CHECK(fudgeTool.initialize());
 
     //crosscheck with isolationcorrectiontool

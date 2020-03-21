@@ -3,8 +3,8 @@
 */
 
 /**
-   @class ElectronPhotonVariableCorrectionToolWrapper
-   @brief Wrapper tool to correct electron and photon MC variables using the ElectronPhotonVariableCorrectionToolWrapper.
+   @class ElectronPhotonVariableCorrectionTool
+   @brief Tool to correct electron and photon MC variables using the ElectronPhotonVariableCorrectionBase class.
 
    @author Nils Gillwald (DESY) nils.gillwald@desy.de
    @date   February 2020
@@ -20,18 +20,18 @@
 #include "xAODEgamma/Photon.h"
 
 // ===========================================================================
-// Class ElectronPhotonVariableCorrectionToolWrapper
+// Class ElectronPhotonVariableCorrectionTool
 // ===========================================================================
 
-class ElectronPhotonVariableCorrectionToolWrapper : public asg::AsgTool, virtual public IElectronPhotonShowerShapeFudgeTool
+class ElectronPhotonVariableCorrectionTool : public asg::AsgTool, virtual public IElectronPhotonShowerShapeFudgeTool
 {
 
 /// Declare the interface that the class provides
-ASG_TOOL_CLASS(ElectronPhotonVariableCorrectionToolWrapper, IElectronPhotonShowerShapeFudgeTool)
+ASG_TOOL_CLASS(ElectronPhotonVariableCorrectionTool, IElectronPhotonShowerShapeFudgeTool)
 
 public:
-    ElectronPhotonVariableCorrectionToolWrapper( const std::string& myname);
-    ~ElectronPhotonVariableCorrectionToolWrapper() {};
+    ElectronPhotonVariableCorrectionTool( const std::string& myname);
+    ~ElectronPhotonVariableCorrectionTool() {};
 
     virtual StatusCode initialize() override;
 
@@ -54,4 +54,4 @@ private:
     const StatusCode findAllConfigFiles( std::vector<std::string>& confFiles );
     const StatusCode applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder, ElectronPhotonVariableCorrectionBase::EGammaObjects toolHolderType );
 
-}; //end class ElectronPhotonVariableCorrectionToolWrapper
+}; //end class ElectronPhotonVariableCorrectionTool

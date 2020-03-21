@@ -2,7 +2,7 @@
     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionToolWrapper.h"
+#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
 #include "AsgElectronPhotonCorrectionConfigHelper.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
@@ -10,14 +10,14 @@
 // ===========================================================================
 // Standard Constructor
 // ===========================================================================
-ElectronPhotonVariableCorrectionToolWrapper::ElectronPhotonVariableCorrectionToolWrapper(const std::string& myname) :
+ElectronPhotonVariableCorrectionTool::ElectronPhotonVariableCorrectionTool(const std::string& myname) :
     AsgTool(myname)
 {
     //declare the needed properties
     declareProperty("ConfigFile",m_configFile="", "The configuration file to use");
 }
 
-StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
+StatusCode ElectronPhotonVariableCorrectionTool::initialize()
 {
     // Locate configuration file, abort if not found
     std::string configFile;
@@ -59,7 +59,7 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
     // check if any conf files were received
     if (m_electronConfFiles.size() + m_convertedPhotonConfFiles.size() + m_unconvertedPhotonConfFiles.size() < 1)
     {
-        ANA_MSG_ERROR("You did not provide any config files for the ElectronPhotonVariableCorrectionBase to the ElectronPhotonVariableCorrectionToolWrapper.");
+        ANA_MSG_ERROR("You did not provide any config files for the ElectronPhotonVariableCorrectionBase to the ElectronPhotonVariableCorrectionTool.");
         return StatusCode::FAILURE;
     }
 
@@ -71,7 +71,7 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeCorrectionTools()
+const StatusCode ElectronPhotonVariableCorrectionTool::initializeCorrectionTools()
 {
     //find all the config files using path resolver
     ANA_CHECK(findAllConfigFiles(m_convertedPhotonConfFiles));
@@ -90,7 +90,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeCorrecti
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::findAllConfigFiles( std::vector<std::string>& confFiles )
+const StatusCode ElectronPhotonVariableCorrectionTool::findAllConfigFiles( std::vector<std::string>& confFiles )
 {
     //loop over conf file vector, find conf file using path resolver
     for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
@@ -107,7 +107,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::findAllConfigFiles
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder )
+const StatusCode ElectronPhotonVariableCorrectionTool::initializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder )
 {
     // adapt size of toolHolder
     toolHolder.resize(confFiles.size());
@@ -127,7 +127,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeTools( c
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder, ElectronPhotonVariableCorrectionBase::EGammaObjects toolHolderType )
+const StatusCode ElectronPhotonVariableCorrectionTool::applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder, ElectronPhotonVariableCorrectionBase::EGammaObjects toolHolderType )
 {
     // loop over conf file holder
     for (unsigned int tool_itr = 0; tool_itr < toolHolder.size(); tool_itr++)
@@ -141,7 +141,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyToFlagMatches
         if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::unconvertedPhotons && toolHolder.at(tool_itr)->applyToUnconvertedPhotons()) continue;
         if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::allElectrons && toolHolder.at(tool_itr)->applyToElectrons()) continue;
         // if this point is reached, something is wrong, so
-        ATH_MSG_ERROR("In conf " << confFiles.at(tool_itr) << ": The ApplyTo flag does not match with the wrapper conf file container type.");
+        ATH_MSG_ERROR("In conf " << confFiles.at(tool_itr) << ": The ApplyTo flag does not match with the container type from the conf file.");
         return StatusCode::FAILURE;
     }
     //everything worked out, so
@@ -152,7 +152,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyToFlagMatches
  * Apply correction
  * ======================================== */
 
-const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::applyCorrection( xAOD::Photon& photon ) const
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection( xAOD::Photon& photon ) const
 {
     bool isConvertedPhoton = xAOD::EgammaHelpers::isConvertedPhoton(&photon);
 
@@ -185,7 +185,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::applyCorre
     // everything worked out, so
     return CP::CorrectionCode::Ok;
 }
-const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::applyCorrection( xAOD::Electron& electron ) const
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection( xAOD::Electron& electron ) const
 {
     // correct variables on the electron
     for (unsigned int electronTool_itr = 0; electronTool_itr < m_electronTools.size(); electronTool_itr++)
@@ -204,13 +204,13 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::applyCorre
  * Corrected Copy
  * ======================================== */
 
-const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) const
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) const
 {
     out_photon = new xAOD::Photon(in_photon);
     return applyCorrection(*out_photon);
 }
 
-const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) const
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) const
 {
     out_electron = new xAOD::Electron(in_electron);
     return applyCorrection(*out_electron);
@@ -220,7 +220,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::correctedC
  * Helper functions
  * ======================================== */
 
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::getCorrectionVariableName( std::string &variableName, const std::string& confFile ) const
+const StatusCode ElectronPhotonVariableCorrectionTool::getCorrectionVariableName( std::string &variableName, const std::string& confFile ) const
 {
     // Retreive properties from configuration file, using TEnv class
     TEnv env(confFile.c_str());

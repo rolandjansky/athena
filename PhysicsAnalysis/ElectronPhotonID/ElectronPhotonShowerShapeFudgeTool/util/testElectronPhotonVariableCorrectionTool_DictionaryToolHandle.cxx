@@ -21,17 +21,17 @@
 
 int main(/*int argc, char* argv[]*/) //unused variable warnings!!
 {
-    Info(MSGSOURCE, "Configuring the ElectronPhotonVariableCorrectionToolWrapper");
-    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionToolWrapper/myWrapper");
-    myTool.setProperty("ConfigFile", "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionToolWrapper_ExampleConf.conf").ignore();
+    Info(MSGSOURCE, "Configuring the ElectronPhotonVariableCorrectionTool");
+    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/myTool");
+    myTool.setProperty("ConfigFile", "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleConf.conf").ignore();
     if(myTool.initialize() != StatusCode::SUCCESS)
     {
-        Error(MSGSOURCE, "Unable to initialize the ElectronPhotonVariableCorrectionToolWrapper!");
+        Error(MSGSOURCE, "Unable to initialize the ElectronPhotonVariableCorrectionTool!");
         return 1;
     }
     else
     {
-        Info(MSGSOURCE, "Initialized the ElectronPhotonVariableCorrectionToolWrapper!");
+        Info(MSGSOURCE, "Initialized the ElectronPhotonVariableCorrectionTool!");
     }
     
 

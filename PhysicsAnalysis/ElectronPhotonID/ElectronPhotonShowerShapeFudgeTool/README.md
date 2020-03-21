@@ -1,12 +1,12 @@
 # Readme
 
-This is a tool for the application of MC corrections to photon and electron auxiliary variables in the derivation of DxAODs: `ElectronPhotonVariableCorrectionToolWrapper` allowing to correct multiple variables of one photon or electron simultaneously using the `ElectronPhotonVariableCorrectionBase` class.
+This is a tool for the application of MC corrections to photon and electron auxiliary variables in the derivation of DxAODs: `ElectronPhotonVariableCorrectionTool` allowing to correct multiple variables of one photon or electron simultaneously using the `ElectronPhotonVariableCorrectionBase` class.
 
 It lives in `/head/athena/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool/`.
 
-This README first explains [how to use the `ElectronPhotonVariableCorrectionToolWrapper`](#how-to-use-the-tool-single-and-multiple-variable-correction-user-manual). In this section, everything you need in order to setup the tool for corrections and how to integrate it in your code is explained - i.e., everything needed from a user perspective.
+This README first explains [how to use the `ElectronPhotonVariableCorrectionTool`](#how-to-use-the-tool-single-and-multiple-variable-correction-user-manual). In this section, everything you need in order to setup the tool for corrections and how to integrate it in your code is explained - i.e., everything needed from a user perspective.
 
-Second, the deeper mechanics of the both the `ElectronPhotonVariableCorrectionToolWrapper` and the `ElectronPhotonVariableCorrectionBase` class are explained ([in this section](#how-to-change-and-adapt-the-tool-developer-manual)). This section is meant for developers / maintainers of the code, i.e. you only need to read it if you want to change the tool itself.
+Second, the deeper mechanics of the both the `ElectronPhotonVariableCorrectionTool` and the `ElectronPhotonVariableCorrectionBase` class are explained ([in this section](#how-to-change-and-adapt-the-tool-developer-manual)). This section is meant for developers / maintainers of the code, i.e. you only need to read it if you want to change the tool itself.
 
 If you have any questions or requests, please contact [Nils Gillwald](mailto:nils.gillwald@desy.de).
 
@@ -14,7 +14,7 @@ If you have any questions or requests, please contact [Nils Gillwald](mailto:nil
 
 This section is meant for **users** of the tool. If you want to read about the deeper mechanics of the tool or want to adapt the inner tool mechanics to your needs, read [this section](#how-to-change-and-adapt-the-tool-developer-manual).
 
-The `ElectronPhotonVariableCorrectionToolWrapper` (from now on referred to as tool) is designed to be used embedded in a code which provides it with the objects which should be corrected. It is not able to open root files or retrieve trees or apply object selection itself, but only focuses on the correction of objects passed to it.
+The `ElectronPhotonVariableCorrectionTool` (from now on referred to as tool) is designed to be used embedded in a code which provides it with the objects which should be corrected. It is not able to open root files or retrieve trees or apply object selection itself, but only focuses on the correction of objects passed to it.
 
 You can use one instance of the tool to correct electrons, converted photons and unconverted photons at the same time.
 
@@ -25,19 +25,19 @@ The tool must be integrated in code which provides it with the objects which sho
 To declare the tool via the tool handler, you need to do something like this:
 
 ```C++
-asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> MyTool("ElectronPhotonVariableCorrectionToolWrapper/myToolName");
+asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> MyTool("ElectronPhotonVariableCorrectionTool/myToolName");
 ```
 
 The syntax of this command depends on your tool handler. Note that the part of the string provided to the constructor before the forward slash defines which tool from the interface is constructed by the tool handler, and the part after the slash defines the name of the tool!
 
 ### Instantiate the tool without using a Tool Handler (not recommended)
 
-As before, the tool must be integrated in code which provides it with the objects which should be corrected. To include the tool, you need to `#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionToolWrapper.h"`. All the other includes needed depend on the wrapping code which provides the objects to the tool.
+As before, the tool must be integrated in code which provides it with the objects which should be corrected. To include the tool, you need to `#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"`. All the other includes needed depend on the wrapping code which provides the objects to the tool.
 
 In order to declare the tool, it needs to be named in the constructor, so it can be distinguished. This could look like this:
 
 ```C++
-ElectronPhotonVariableCorrectionToolWrapper  MyTool("myToolName");
+ElectronPhotonVariableCorrectionTool  MyTool("myToolName");
 ```
 
 ### Initialization of the tool
@@ -78,7 +78,7 @@ float variable_corrected = CorrectedVariable(*photon);
 
 There is no finalize function which needs to be run. Example code using the tool for correcting photons and electrons can be found in `./util`:
 
-- `testElectronPhotonVariableCorrectionToolWrapper.cxx`
+- `testElectronPhotonVariableCorrectionTool.cxx`
 
 ### Constructing a configuration file
 
@@ -159,13 +159,13 @@ In order to check whether the passed object in e.g. `applyCorrection` is intende
 
 The tool will then check if the passed object is compatible with the `ApplyTo` flag provided, and will fail with a `CP::CorrectionCode::Error` if the object type is not as expected.
 
-An **example configuration file** containing examples for all possible flags can be found in `./data/ElectronPhotonVariableCorrectionTool_ExampleConf.conf`. The complete list of example configuration files is (all in `./data/`):
+An **example configuration file** containing examples for all possible flags can be found in `./data/ElectronPhotonVariableCorrectionBase_ExampleConf.conf`. The complete list of example configuration files is (all in `./data/`):
 
-- `ElectronPhotonVariableCorrectionTool_ExampleConvertedPhotonConf.conf` for converted photons,
-- `ElectronPhotonVariableCorrectionTool_ExampleUnconvertedPhotonConf.conf` for unconverted photons,
-- `ElectronPhotonVariableCorrectionTool_ExampleElectronConf.conf` for electrons,
-- `ElectronPhotonVariableCorrectionTool_ExampleIsoCorrectionConf.conf` for the isolation correction,
-- `ElectronPhotonVariableCorrectionTool_ExampleConf.conf` general example showing what the tool can do and how all different possible parameters can be handled.
+- `ElectronPhotonVariableCorrectionBase_ExampleConvertedPhotonConf.conf` for converted photons,
+- `ElectronPhotonVariableCorrectionBase_ExampleUnconvertedPhotonConf.conf` for unconverted photons,
+- `ElectronPhotonVariableCorrectionBase_ExampleElectronConf.conf` for electrons,
+- `ElectronPhotonVariableCorrectionBase_ExampleIsoCorrectionConf.conf` for the isolation correction,
+- `ElectronPhotonVariableCorrectionBase_ExampleConf.conf` general example showing what the tool can do and how all different possible parameters can be handled.
 
 The .root file currently used for testing is `/pnfs/desy.de/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/da/80/DAOD_HIGG1D2.18400890._000001.pool.root.1`.
 
