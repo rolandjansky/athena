@@ -59,7 +59,7 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
     // check if any conf files were received
     if (m_electronConfFiles.size() + m_convertedPhotonConfFiles.size() + m_unconvertedPhotonConfFiles.size() < 1)
     {
-        ANA_MSG_ERROR("You did not provide any config files for the ElectronPhotonVariableCorrectionTool to the ElectronPhotonVariableCorrectionToolWrapper.");
+        ANA_MSG_ERROR("You did not provide any config files for the ElectronPhotonVariableCorrectionBase to the ElectronPhotonVariableCorrectionToolWrapper.");
         return StatusCode::FAILURE;
     }
 
@@ -82,9 +82,9 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeCorrecti
     ANA_CHECK(initializeTools("convertedPhotons", m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools));
     ANA_CHECK(initializeTools("electrons", m_electronConfFiles, m_electronTools));
     // check if ApplyTo Flag matches with the tool holder
-    ANA_CHECK(applyToFlagMatchesToolHolder(m_convertedPhotonConfFiles, m_convertedPhotonTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons));
-    ANA_CHECK(applyToFlagMatchesToolHolder(m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons));
-    ANA_CHECK(applyToFlagMatchesToolHolder(m_electronConfFiles, m_electronTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons));
+    ANA_CHECK(applyToFlagMatchesToolHolder(m_convertedPhotonConfFiles, m_convertedPhotonTools, ElectronPhotonVariableCorrectionBase::EGammaObjects::convertedPhotons));
+    ANA_CHECK(applyToFlagMatchesToolHolder(m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools, ElectronPhotonVariableCorrectionBase::EGammaObjects::unconvertedPhotons));
+    ANA_CHECK(applyToFlagMatchesToolHolder(m_electronConfFiles, m_electronTools, ElectronPhotonVariableCorrectionBase::EGammaObjects::allElectrons));
 
     //everything worked out, so
     return StatusCode::SUCCESS;
@@ -107,7 +107,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::findAllConfigFiles
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder )
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder )
 {
     // adapt size of toolHolder
     toolHolder.resize(confFiles.size());
@@ -119,7 +119,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeTools( c
         ANA_CHECK(getCorrectionVariableName(variable, confFiles.at(confFile_itr)));
         TString toolname = TString::Format("%s_%s_%s", this->name().c_str(), name.c_str(), variable.c_str());
         ANA_MSG_DEBUG("Subtool name: " << toolname.Data());
-        toolHolder.at(confFile_itr) = std::make_unique<ElectronPhotonVariableCorrectionTool>(toolname.Data());
+        toolHolder.at(confFile_itr) = std::make_unique<ElectronPhotonVariableCorrectionBase>(toolname.Data());
         ANA_CHECK(toolHolder.at(confFile_itr)->setProperty("ConfigFile", confFiles.at(confFile_itr)));
         ANA_CHECK(toolHolder.at(confFile_itr)->initialize());
     }
@@ -127,19 +127,19 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::initializeTools( c
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder, ElectronPhotonVariableCorrectionTool::EGammaObjects toolHolderType )
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder, ElectronPhotonVariableCorrectionBase::EGammaObjects toolHolderType )
 {
     // loop over conf file holder
     for (unsigned int tool_itr = 0; tool_itr < toolHolder.size(); tool_itr++)
     {
         // get ApplyTo flag
-        ElectronPhotonVariableCorrectionTool::EGammaObjects confFileType = toolHolder.at(tool_itr)->isAppliedTo();
+        ElectronPhotonVariableCorrectionBase::EGammaObjects confFileType = toolHolder.at(tool_itr)->isAppliedTo();
         // skip all further tests if should be applied to all objects
-        if ((confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects)) continue;
+        if ((confFileType == ElectronPhotonVariableCorrectionBase::EGammaObjects::allEGammaObjects)) continue;
         // continue if ApplyTo flag matches toolholder
-        if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons && toolHolder.at(tool_itr)->applyToConvertedPhotons()) continue;
-        if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons && toolHolder.at(tool_itr)->applyToUnconvertedPhotons()) continue;
-        if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons && toolHolder.at(tool_itr)->applyToElectrons()) continue;
+        if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::convertedPhotons && toolHolder.at(tool_itr)->applyToConvertedPhotons()) continue;
+        if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::unconvertedPhotons && toolHolder.at(tool_itr)->applyToUnconvertedPhotons()) continue;
+        if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::allElectrons && toolHolder.at(tool_itr)->applyToElectrons()) continue;
         // if this point is reached, something is wrong, so
         ATH_MSG_ERROR("In conf " << confFiles.at(tool_itr) << ": The ApplyTo flag does not match with the wrapper conf file container type.");
         return StatusCode::FAILURE;

@@ -1,12 +1,12 @@
 # Readme
 
-This is a tool for the application of MC corrections to photon and electron auxiliary variables in the derivation of DxAODs: `ElectronPhotonVariableCorrectionToolWrapper` allowing to correct multiple variables of one photon or electron simultaneously using the `ElectronPhotonVariableCorrectionTool`.
+This is a tool for the application of MC corrections to photon and electron auxiliary variables in the derivation of DxAODs: `ElectronPhotonVariableCorrectionToolWrapper` allowing to correct multiple variables of one photon or electron simultaneously using the `ElectronPhotonVariableCorrectionBase` class.
 
 It lives in `/head/athena/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool/`.
 
 This README first explains [how to use the `ElectronPhotonVariableCorrectionToolWrapper`](#how-to-use-the-tool-single-and-multiple-variable-correction-user-manual). In this section, everything you need in order to setup the tool for corrections and how to integrate it in your code is explained - i.e., everything needed from a user perspective.
 
-Second, the deeper mechanics of the both the `ElectronPhotonVariableCorrectionToolWrapper` and the `ElectronPhotonVariableCorrectionTool` are explained ([in this section](#how-to-change-and-adapt-the-tool-developer-manual)). This section is meant for developers / maintainers of the code, i.e. you only need to read it if you want to change the tool itself.
+Second, the deeper mechanics of the both the `ElectronPhotonVariableCorrectionToolWrapper` and the `ElectronPhotonVariableCorrectionBase` class are explained ([in this section](#how-to-change-and-adapt-the-tool-developer-manual)). This section is meant for developers / maintainers of the code, i.e. you only need to read it if you want to change the tool itself.
 
 If you have any questions or requests, please contact [Nils Gillwald](mailto:nils.gillwald@desy.de).
 
@@ -171,7 +171,7 @@ The .root file currently used for testing is `/pnfs/desy.de/atlas/dq2/atlaslocal
 
 #### The tool configuration file
 
-In order to be able to correct multiple variables at once, the tool needs to be provided with a list of configuration files for the `ElectronPhotonVariableCorrectionTool`. These configuration files each need to be constructed as described [here](#the-basic-configuration-file).
+In order to be able to correct multiple variables at once, the tool needs to be provided with a list of configuration files for the `ElectronPhotonVariableCorrectionBase` class. These configuration files each need to be constructed as described [here](#the-basic-configuration-file).
 
 The tool distinguishes the following types of objects:
 
@@ -257,12 +257,12 @@ The base class is designed to be used embedded in a code which provides it with 
 
 #### Instantiate the base class
 
-The base class must be integrated in code which provides it with the objects which should be corrected. To include the base class, you need to `#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"`. All the other includes needed depend on the wrapping code which provides the objects to the base class.
+The base class must be integrated in code which provides it with the objects which should be corrected. To include the base class, you need to `#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase.h"`. All the other includes needed depend on the wrapping code which provides the objects to the base class.
 
 In order to declare the base class, it needs to be named in the constructor, so it can be distinguished. This could look like this:
 
 ```C++
-ElectronPhotonVariableCorrectionTool  MyTool("MyTool");
+ElectronPhotonVariableCorrectionBase  MyTool("MyTool");
 ```
 
 #### Initialization of the base class
@@ -303,7 +303,7 @@ float variable_corrected = CorrectedVariable(*photon);
 
 There is no finalize function which needs to be run. Example code using the base class for correcting photons and electrons can be found in `./util`:
 
-- `testElectronPhotonVariableCorrectionTool.cxx`
+- `testElectronPhotonVariableCorrectionBase.cxx`
 - `testIsoCorrection.cxx`
 
 ### Add a new parameter type for the correction function
@@ -314,11 +314,11 @@ If possible, use the provided parameter types which are already implemented and 
 2. Add a (private!) getter function for your parameter type. This getter function should be doing all the "dirty" pull work and only return the final correction parameter (possibly as a function of eta and/or pT). If you want an example, have a look at the already implemented functions. Make sure your getter function follows the form `const StatusCode GetNewParameter(float& return_parameter, const& list of needed inputs)`.
 3. Add the code to be executed if the correction parameter is of your new parameter type to the following functions:
 
-    - `ElectronPhotonVariableCorrectionTool::GetParameterInformationFromConf`
-    - `ElectronPhotonVariableCorrectionTool::GetCorrectionParameters`
-    - `ElectronPhotonVariableCorrectionTool::StringToParameterType`
+    - `ElectronPhotonVariableCorrectionBase::GetParameterInformationFromConf`
+    - `ElectronPhotonVariableCorrectionBase::GetCorrectionParameters`
+    - `ElectronPhotonVariableCorrectionBase::StringToParameterType`
 
-If there is a style which all the other types use to implement their functionalities, follow it. This holds especially for `ElectronPhotonVariableCorrectionTool::GetCorrectionParameters`.
+If there is a style which all the other types use to implement their functionalities, follow it. This holds especially for `ElectronPhotonVariableCorrectionBase::GetCorrectionParameters`.
 4. Test the functionality of your new parameter type.
 5. Add an example of how to use your new parameter type to the example conf file in `./util/`.
 6. Submit a merge request to officially add your new parameter type to the base class.

@@ -6,7 +6,7 @@
 #define ElectronPhotonVariableCorrectionTool_H
 
 /**
-   @class ElectronPhotonVariableCorrectionTool
+   @class ElectronPhotonVariableCorrectionBase
    @brief Tool to correct electron and photon MC variables.
 
    @author Nils Gillwald (DESY) nils.gillwald@desy.de
@@ -29,15 +29,15 @@ class TGraph;
 class TEnv;
 
 // ===========================================================================
-// Class ElectronPhotonVariableCorrectionTool
+// Class ElectronPhotonVariableCorrectionBase
 // ===========================================================================
 
-class ElectronPhotonVariableCorrectionTool : public asg::AsgTool
+class ElectronPhotonVariableCorrectionBase : public asg::AsgTool
 {
 
 public:
-    ElectronPhotonVariableCorrectionTool(const std::string& myname);
-    ~ElectronPhotonVariableCorrectionTool() {};
+    ElectronPhotonVariableCorrectionBase(const std::string& myname);
+    ~ElectronPhotonVariableCorrectionBase() {};
 
     StatusCode initialize();
 
@@ -55,7 +55,7 @@ public:
         allElectrons,
         allEGammaObjects
     }; //end enum EGammaObjects
-    ElectronPhotonVariableCorrectionTool::EGammaObjects isAppliedTo() { return m_applyToObjects; };
+    ElectronPhotonVariableCorrectionBase::EGammaObjects isAppliedTo() { return m_applyToObjects; };
     bool applyToConvertedPhotons() const; //check if passed flag is compatible with converted photon
     bool applyToUnconvertedPhotons() const; //check if passed flag is compatible with unconverted photon
     bool applyToElectrons() const; //check if passed flag is compatible with electron
@@ -81,15 +81,15 @@ private:
     std::vector<std::vector<float>> m_binValues; //if needed, store a list of eta/pt dependent values
     std::vector<float> m_etaBins; //if needed, store a list of bin boundaries in eta
     std::vector<float> m_ptBins; //if needed, store a list of bin boundaries in pt
-    ElectronPhotonVariableCorrectionTool::EGammaObjects m_applyToObjects; //store to which objects the specific conf file settings are allowed to be applied to
+    ElectronPhotonVariableCorrectionBase::EGammaObjects m_applyToObjects; //store to which objects the specific conf file settings are allowed to be applied to
     bool m_retrievedEtaBinning = false; //check if already retrieved eta binning
     bool m_retrievedPtBinning = false; //check if already retrieved pt binning
     std::unique_ptr<SG::AuxElement::Accessor<float>> m_variableToCorrect; // accessor for the variable to be corrected
     std::unique_ptr<SG::AuxElement::Accessor<float>> m_originalVariable; // accessor to store the original value of the corrected variable
-    ElectronPhotonVariableCorrectionTool::parameterType stringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
-    ElectronPhotonVariableCorrectionTool::EGammaObjects stringToEGammaObject( const std::string& input ) const; //convert input string to egamma object type
+    ElectronPhotonVariableCorrectionBase::parameterType stringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
+    ElectronPhotonVariableCorrectionBase::EGammaObjects stringToEGammaObject( const std::string& input ) const; //convert input string to egamma object type
     bool passedCorrectPhotonType(const xAOD::Photon& photon) const; //check if the correct type of photon was passed to the tool, if only (un)converted photons requested
-    const StatusCode getParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::parameterType& type); //depending on parameter type, get the relevant information from conf file
+    const StatusCode getParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionBase::parameterType& type); //depending on parameter type, get the relevant information from conf file
     const StatusCode getCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const; //get the actual parameters entering the correction TF1
     const StatusCode get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const; //get the parameter if saved binned (eta or pt) in conf
     const StatusCode get2DBinnedParameter(float& return_parameter_value, const float& etaEvalPoint, const float& ptEvalPoint, const int& parameter_number) const; //get the parameter if saved binned (eta and pt) in conf
@@ -97,6 +97,6 @@ private:
     const StatusCode getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const; //get photon kinematic properties which change on single event basis
     const StatusCode correct(float& return_corrected_variable, const float &original_variable, std::vector<float>& properties) const; //actual function applying the correction to the variable
 
-}; //end class ElectronPhotonVariableCorrectionTool
+}; //end class ElectronPhotonVariableCorrectionBase
 
 #endif

@@ -13,7 +13,7 @@
 //ATLAS includes
 #include "AsgTools/AsgTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
+#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase.h"
 
 //EDM includes
 #include "xAODEgamma/Electron.h"
@@ -45,13 +45,13 @@ private:
     std::vector<std::string> m_convertedPhotonConfFiles;
     std::vector<std::string> m_unconvertedPhotonConfFiles;
     std::vector<std::string> m_electronConfFiles;
-    std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>> m_convertedPhotonTools;
-    std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>> m_unconvertedPhotonTools;
-    std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>> m_electronTools;
+    std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>> m_convertedPhotonTools;
+    std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>> m_unconvertedPhotonTools;
+    std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>> m_electronTools;
     const StatusCode initializeCorrectionTools();
-    const StatusCode initializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder );
+    const StatusCode initializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder );
     const StatusCode getCorrectionVariableName( std::string &variableName, const std::string& confFile ) const;
     const StatusCode findAllConfigFiles( std::vector<std::string>& confFiles );
-    const StatusCode applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder, ElectronPhotonVariableCorrectionTool::EGammaObjects toolHolderType );
+    const StatusCode applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder, ElectronPhotonVariableCorrectionBase::EGammaObjects toolHolderType );
 
 }; //end class ElectronPhotonVariableCorrectionToolWrapper

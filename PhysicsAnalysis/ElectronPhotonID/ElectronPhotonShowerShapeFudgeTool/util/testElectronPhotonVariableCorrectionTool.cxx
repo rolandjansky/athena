@@ -3,7 +3,7 @@
 */
 
 /**
- * @brief Test if ElectronPhotonVariableCorrectionTool runs fine on electrons and (un-)converted photons
+ * @brief Test if ElectronPhotonVariableCorrectionBase runs fine on electrons and (un-)converted photons
  * @author Nils Gillwald (DESY) nils.gillwald@desy.de
  * @date February 2020
  **/
@@ -19,7 +19,7 @@
 #include "xAODEgamma/Electron.h" 
 #include "xAODEgamma/Photon.h"
 
-#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
+#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase.h"
 //
 #include "AsgTools/MessageCheck.h"
 #include "AsgTools/MsgStream.h"
@@ -106,12 +106,12 @@ int main (int argc, char* argv[])
         //initialise the tool
         //converted photons
         std::string configFilePathConverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleConvertedPhotonConf_Eratio.conf";
-        ElectronPhotonVariableCorrectionTool CorrectConvertedPhotonTool("CorrectConvertedPhotonTool");
+        ElectronPhotonVariableCorrectionBase CorrectConvertedPhotonTool("CorrectConvertedPhotonTool");
         ANA_CHECK(CorrectConvertedPhotonTool.setProperty("ConfigFile",configFilePathConverted));
         ANA_CHECK(CorrectConvertedPhotonTool.initialize());
         //unconverted photons
         std::string configFilePathUnconverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleUnconvertedPhotonConf_Eratio.conf";
-        ElectronPhotonVariableCorrectionTool CorrectUnconvertedPhotonTool("CorrectUnconvertedPhotonTool");
+        ElectronPhotonVariableCorrectionBase CorrectUnconvertedPhotonTool("CorrectUnconvertedPhotonTool");
         ANA_CHECK(CorrectUnconvertedPhotonTool.setProperty("ConfigFile",configFilePathUnconverted));
         ANA_CHECK(CorrectUnconvertedPhotonTool.initialize());
 
@@ -182,7 +182,7 @@ int main (int argc, char* argv[])
     if (isElectron)
     {
         std::string configFilePath = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleElectronConf_Eratio.conf";
-        ElectronPhotonVariableCorrectionTool CorrectElectronTool("CorrectElectronTool");
+        ElectronPhotonVariableCorrectionBase CorrectElectronTool("CorrectElectronTool");
         ANA_CHECK(CorrectElectronTool.setProperty("ConfigFile",configFilePath));
         ANA_CHECK(CorrectElectronTool.initialize());
 
