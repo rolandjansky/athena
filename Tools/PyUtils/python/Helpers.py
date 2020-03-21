@@ -28,7 +28,8 @@ def ROOT6Setup():
    def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
        if six.PY3 and level < 0: level = 0
        m = oldimporthook(name, globals, locals, fromlist, level)
-       if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT'):
+       if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT') \
+             and (name!='ROOT' or fromlist!=None): # prevent triggering on just 'import ROOT'; see ATEAM-597
           log.debug('Python import module=%s  fromlist=%s'%(name, str(fromlist)))
           if fromlist:
              #MN: in this case 'm' is the final nested module already, don't walk the full 'name'

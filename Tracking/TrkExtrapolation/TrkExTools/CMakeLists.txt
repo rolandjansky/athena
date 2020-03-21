@@ -50,3 +50,5 @@ atlas_add_component( TrkExTools
 atlas_install_headers( TrkExTools )
 atlas_install_python_modules( python/*.py )
 
+atlas_add_test( ObjContainer_test
+	SOURCES test/ObjContainer_test.cxx)

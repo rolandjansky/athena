@@ -20,7 +20,7 @@
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 + Generators/TruthUtils
-+ MuonSpectrometer/MuonIdHelpers
++ MuonSpectrometer/MuonStationIndex
 + Tools/PathResolver
 + Trigger/TrigConfiguration/TrigConfBase
 + Trigger/TrigConfiguration/TrigConfL1Data

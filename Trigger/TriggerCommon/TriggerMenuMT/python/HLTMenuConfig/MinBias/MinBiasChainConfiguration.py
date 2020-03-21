@@ -17,7 +17,7 @@ def MinBiasSequenceCfg( flags ):
 
 def MinBiasMenuSequence():
 
-    inputMakerAlg = InputMakerForRoI("IM_minbiasInputMaker", mergeOutputs=False)
+    inputMakerAlg = InputMakerForRoI("IM_minbiasInputMaker")
     inputMakerAlg.RoIs="minbiasInputRoIs"
 
 class MinBiasChainConfig(ChainConfigurationBase):

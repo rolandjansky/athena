@@ -373,7 +373,7 @@ class RingerReFexConfig( RingerReFex ):
     self.NLayersRings         = [2, 2, 2, 2, 4, 5, 4]
     self.NMaxCells            = [320, 512, 272, 128, 128, 128, 128]
     self.UseHad               = True
-    from RingerConstants import Layer
+    from TrigT2CaloEgamma.RingerConstants import Layer
     self.LayersRings          = [
                                  Layer.PreSamplerB,Layer.PreSamplerE,
                                  Layer.EMB1,       Layer.EME1,

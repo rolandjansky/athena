@@ -25,7 +25,7 @@ def dimuL2Sequence(name = 'Dimu'):
 def dimuEFSequence(name = 'Dimu'):
     from AthenaCommon import CfgMgr
     from AthenaCommon.CFElements import parOR, seqAND
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
 
     muNames = muonNames().getNames('RoI')
@@ -34,8 +34,9 @@ def dimuEFSequence(name = 'Dimu'):
 
     dimuefViewsMaker = EventViewCreatorAlgorithm('IMdimuef')
     dimuefViewsMaker.ViewFallThrough = True
-    dimuefViewsMaker.RoIsLink = 'initialRoI' # -||-
-    dimuefViewsMaker.InViewRoIs = 'DimuEFRoIs' # contract with the consumer
+    dimuefViewsMaker.RoIsLink = 'initialRoI'
+    dimuefViewsMaker.RoITool = ViewCreatorInitialROITool()
+    dimuefViewsMaker.InViewRoIs = 'DimuEFRoIs'
     dimuefViewsMaker.Views = 'DimuEFViewRoIs'
     dimuefViewsMaker.ViewNodeName = dimuefRecoSequence.name()
     dimuefViewsMaker.RequireParentView = True

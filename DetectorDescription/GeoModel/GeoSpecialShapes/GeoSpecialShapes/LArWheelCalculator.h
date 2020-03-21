@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
@@ -134,22 +134,22 @@ class LArWheelCalculator
     double m_sin_parametrization[7]; // up to pol6
     double m_cos_parametrization[7];
     std::vector<std::vector<double> > m_sagging_parameter; // !
-    double m_WheelThickness;
-    double m_HalfWheelThickness;
+
     double m_ActiveLength;
     double m_StraightStartSection;
     double m_dWRPtoFrontFace;
-
-
-    double m_zWheelFrontFace, m_zWheelBackFace;
     double m_HalfGapBetweenWheels;
     double m_zWheelRefPoint;
     double m_dMechFocaltoWRP;
     double m_dElecFocaltoWRP;
     double m_rOuterCutoff;
     double m_eta_hi, m_eta_mid, m_eta_low;
-
     double m_zShift;
+
+    double m_WheelThickness;
+    double m_HalfWheelThickness;
+    double m_zWheelFrontFace, m_zWheelBackFace;
+
     double m_QuarterWaveLength;
     double m_HalfWaveLength;
     double m_FanFoldRadius;

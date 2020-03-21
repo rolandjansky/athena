@@ -8,6 +8,7 @@
  * Author: Lorenz Hauswald
  */
 
+#include "tauRecTools/HelperFunctions.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
 #include "CaloGeoHelpers/CaloSampling.h"
@@ -113,36 +114,39 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
         CaloSampling::HEC0, CaloSampling::TileBar0, CaloSampling::TileGap1, CaloSampling::TileExt0};
 
   // Get Clusters via Jet Seed 
-  auto p4IntAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
   const xAOD::Jet *jetSeed = (*tau.jetLink());
+  if (!jetSeed) {
+    ATH_MSG_ERROR("Tau jet link is invalid.");
+    return StatusCode::FAILURE;
+  } 
+
+  auto p4IntAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
   float eEMAtEMScaleFixed = 0;
   float eHadAtEMScaleFixed = 0;
   float eHad1AtEMScaleFixed = 0;
-  if (jetSeed) {
-    for( auto it : jetSeed->getConstituents() ){
-      auto *cl = dynamic_cast<const xAOD::CaloCluster *>((*it)->rawConstituent());
-      if (!cl){
-        ATH_MSG_WARNING("Found invalid cluster link from seed jet");
-        continue;
-      }
-      // Only take clusters with dR<0.2 w.r.t IntermediateAxis
-      if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;
 
-      for( auto samp : EMSamps )
-        eEMAtEMScaleFixed += cl->eSample(samp);
-      for( auto samp : HadSamps )
-        eHadAtEMScaleFixed += cl->eSample(samp);
-      for( auto samp : Had1Samps )
-        eHad1AtEMScaleFixed += cl->eSample(samp);  
-    }
-    acc_EMFracFixed(tau) = ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) != 0 ? 
-        eEMAtEMScaleFixed / ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) : LOW_NUMBER;
-  } 
-  else{
-    ATH_MSG_WARNING("Tau got invalid xAOD::Jet link");
-    acc_EMFracFixed(tau) = LOW_NUMBER;
+  xAOD::JetConstituentVector vec = jetSeed->getConstituents();
+  xAOD::JetConstituentVector::iterator it = vec.begin();
+  xAOD::JetConstituentVector::iterator itE = vec.end();
+  for( ; it!=itE; ++it){
+
+    const xAOD::CaloCluster* cl = nullptr;
+    ATH_CHECK(tauRecTools::GetJetConstCluster(it, cl));
+    // Skip if charged PFO
+    if (!cl){ continue; }
+    
+    // Only take clusters with dR<0.2 w.r.t IntermediateAxis
+    if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;
+    
+    for( auto samp : EMSamps )
+      eEMAtEMScaleFixed += cl->eSample(samp);
+    for( auto samp : HadSamps )
+      eHadAtEMScaleFixed += cl->eSample(samp);
+    for( auto samp : Had1Samps )
+      eHad1AtEMScaleFixed += cl->eSample(samp);  
   }
-
+  acc_EMFracFixed(tau) = ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) != 0 ? 
+      eEMAtEMScaleFixed / ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) : LOW_NUMBER;
  
   if(tau.nTracks() > 0){
     const xAOD::TrackParticle* track = 0;
