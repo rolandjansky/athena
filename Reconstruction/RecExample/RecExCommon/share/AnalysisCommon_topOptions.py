@@ -459,13 +459,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             pass
 
         if rec.DPDMakerScripts()!=[] and not rec.doDPD.passThroughMode :
-            # #Create a separate EventBookkeeper list to persistify skimming cycle info
-            # from EventBookkeeperTools.BookkeepingInfoWriter import CutCycleWriter
-            # topSequence += CutCycleWriter("CutCycleWriter",
-            #                               OutputName   = "ProcessingCycle",
-            #                               CurrentCycle = currentCycle)
-
-
             #Explicitely add file metadata from input and from transient store
 
             MSMgr.AddMetaDataItemToAllStreams( "LumiBlockCollection#*" )
