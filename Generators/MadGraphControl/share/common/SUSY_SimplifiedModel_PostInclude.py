@@ -49,17 +49,8 @@ if len(decays)>0: argdict['params']['DECAY']=decays
 
 # First the standard case: No input LHE file
 if not hasattr(runArgs,'inputGeneratorFile') or runArgs.inputGeneratorFile is None:
-    # Try-except block to handle grid pack generation
-    try:
-        ktdurham = SUSY_Generation(**argdict)
-    except RuntimeError as rte:
-        for an_arg in rte.args:
-            if 'Gridpack sucessfully created' in an_arg:
-                print 'Handling exception and exiting'
-                theApp.finalize()
-                theApp.exit()
-        print 'Unhandled exception - re-raising'
-        raise rte
+    # Note that for gridpack generation, the job will exit after this command
+    ktdurham = SUSY_Generation(**argdict)
 
 else:
     # These manipulations require a dummy SUSY process
