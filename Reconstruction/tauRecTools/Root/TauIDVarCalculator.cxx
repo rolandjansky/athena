@@ -56,11 +56,6 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     }
   }
  
-  if(!m_in_trigger){
-    SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
-    acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0;
-  }
-  
   SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
   float ipSigLeadTrk=0.;
   if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
