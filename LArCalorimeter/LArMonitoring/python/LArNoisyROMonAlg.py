@@ -29,7 +29,6 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
     larNoisyROMonAlg.PartitionNames=lArDQGlobals.Partitions[0:4]
 
     NoisyFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.BadChanPerFEB)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
-
     MNBTightFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTightCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
     MNBTight_PsVetoFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[0])+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+") + PS veto (<"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[1])+" channels)"
     MNBLooseFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBLooseCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
