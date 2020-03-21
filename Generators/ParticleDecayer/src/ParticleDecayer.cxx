@@ -128,7 +128,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticle* genpart, HepMC
    }
    if ( doScalarDecay ) // scalar decay is prompt. decay vtx == scalar production vertex
       {
-         HepMC::GenVertex* end_vtx = new GenVertex();
+         HepMC::GenVertex* end_vtx = new HepMC::GenVertex();
          end_vtx->set_position(vtxp->position());
          end_vtx->add_particle_in(genpart);
          event->add_vertex(end_vtx);
@@ -216,7 +216,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticle* genpart, HepMC
    //set the decay vertex position of the particle
    //Create a HepMC vertex at the decay position of the particle 
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- set the decay vertex");
-   HepMC::GenVertex* end_vtx = new GenVertex();
+   HepMC::GenVertex* end_vtx = new HepMC::GenVertex();
    end_vtx->set_position(posLV);
    end_vtx->add_particle_in(genpart);
    event->add_vertex(end_vtx);
