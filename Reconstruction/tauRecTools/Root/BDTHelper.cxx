@@ -94,16 +94,56 @@ std::vector<float> BDTHelper::getInputVariables(const std::map<TString, float> &
 }
 
 
-StatusCode BDTHelper::getGradBoostMVA(const std::map<TString, float> &availableVariables, float& score) const {
+
+std::vector<float> BDTHelper::getInputVariables(const xAOD::TauJet& tau) const {
+  std::vector<float> values;
+
+  // obtain the values of input variables by the name
+  // all the variables should be decorated to tau already
+  for (TString name : m_inputVariableNames) {
+    // remove prefix (::TauJets.centFrac -> cenFrac) 
+    if(name.Index(".")>=0){
+      name = name(name.Last('.')+1, name.Length()-name.Last('.')-1);
+    }
+  
+    SG::AuxElement::ConstAccessor<float> accessor(name.Data());
+    float value = accessor(tau);
+    values.push_back(value);
+  }
+
+  return values;
+}
+
+
+
+float BDTHelper::getGradBoostMVA(const std::map<TString, float> &availableVariables) const {
   std::vector<float> values = getInputVariables(availableVariables);
 
+  float score = -999;
   if (values.size() < m_inputVariableNames.size()) {
-    ATH_MSG_ERROR("There are missing variables.");
-    return StatusCode::FAILURE;
+    ATH_MSG_ERROR("There are missing variables when calculating the BDT score, will return -999");
   }
-  
-  score = m_BDT->GetGradBoostMVA(values);
-  return StatusCode::SUCCESS;
+  else {  
+    score = m_BDT->GetGradBoostMVA(values);
+  }
+
+  return score;
+}
+
+
+
+float BDTHelper::getGradBoostMVA(const xAOD::TauJet& tau) const {
+  std::vector<float> values = getInputVariables(tau);
+
+  float score = -999;
+  if (values.size() < m_inputVariableNames.size()) {
+    ATH_MSG_ERROR("There are missing variables when calculating the BDT score, will return -999");
+  }
+  else {
+    score = m_BDT->GetGradBoostMVA(values);
+  }
+
+  return score;
 }
 
 } // end of namespace tauRecTools
