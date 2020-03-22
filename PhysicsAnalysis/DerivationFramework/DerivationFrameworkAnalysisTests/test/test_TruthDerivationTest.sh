@@ -6,9 +6,12 @@
 # art-include: 21.2/AnalysisBase
 # art-include: 21.2/AthAnalysis
 # art-output: test_histograms.root
+# art-output: dcube
+# art-html: dcube
 
 art.py download --nightly-release 21.2 --project AthDerivation --platform x86_64-slc6-gcc62-opt DerivationFrameworkMCTruthART test_mc15TRUTH3.sh
 inputFile=./ref-*/DAOD_TRUTH3.art.pool.root
+echo "art-result: $? Inputs"
 
 TruthDerivationTester --input ${inputFile} --output test_histograms.root --nevents -1
 echo "art-result: $? Analysis"
