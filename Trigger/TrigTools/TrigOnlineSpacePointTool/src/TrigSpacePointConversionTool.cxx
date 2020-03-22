@@ -27,22 +27,13 @@ TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_layerNumberTool("TrigL2LayerNumberTool"),
   m_regsel_pix( "RegSelTool/RegSelTool_Pixel", this),
-  m_regsel_sct( "RegSelTool/RegSel_SCT", this),
-  m_regsel_ttem( "RegSelTool/RegSel_TTEM", this),
-  m_regsel_tthec( "RegSelTool/RegSel_TTHEC", this),
-  m_regsel_fcalem( "RegSelTool/RegSel_FCALEM", this),
-  m_regsel_fcalhad( "RegSelTool/RegSel_FCALHAD", this)
+  m_regsel_sct( "RegSelTool/RegSel_SCT", this)
 {
   declareInterface< ITrigSpacePointConversionTool >( this );
 
-  declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
+  //  declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
   declareProperty( "RegSel_Pixel",           m_regsel_pix);
   declareProperty( "RegSel_SCT",             m_regsel_sct);
-
-  declareProperty( "RegSel_TTEM",             m_regsel_ttem);
-  declareProperty( "RegSel_TTHEC",            m_regsel_tthec);
-  declareProperty( "RegSel_FCALEM",           m_regsel_fcalem);
-  declareProperty( "RegSel_FCALHAD",          m_regsel_fcalhad);
 
   declareProperty( "DoPhiFiltering",         m_filter_phi = true );
   declareProperty( "UseBeamTilt",            m_useBeamTilt = true );
@@ -58,19 +49,14 @@ StatusCode TrigSpacePointConversionTool::initialize() {
 
   ATH_MSG_INFO("In initialize...");
 
-  sc = serviceLocator()->service( m_regionSelectorName, m_regionSelector);
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("Unable to retrieve RegionSelector Service  " << m_regionSelectorName);
-    return sc;
-  }
+  //  sc = serviceLocator()->service( m_regionSelectorName, m_regionSelector);
+  //  if ( sc.isFailure() ) {
+  //    ATH_MSG_FATAL("Unable to retrieve RegionSelector Service  " << m_regionSelectorName);
+  //    return sc;
+  //  }
 
   ATH_CHECK(m_regsel_pix.retrieve());
   ATH_CHECK(m_regsel_sct.retrieve());
-
-  ATH_CHECK(m_regsel_ttem.retrieve());
-  ATH_CHECK(m_regsel_tthec.retrieve());
-  ATH_CHECK(m_regsel_fcalem.retrieve());
-  ATH_CHECK(m_regsel_fcalhad.retrieve());
 
   sc=m_layerNumberTool.retrieve();
   if(sc.isFailure()) {
@@ -116,8 +102,6 @@ StatusCode TrigSpacePointConversionTool::finalize() {
 }
 
 
-#include "simpletimer.h"
-
 StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& internalRoI, 
 							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) const {
 
@@ -131,81 +115,14 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
 
   std::vector<IdentifierHash> listOfPixIds;
   std::vector<IdentifierHash> listOfSctIds;
-  
+        
+  //  m_regionSelector->DetHashIDList(PIXEL, internalRoI, listOfPixIds); 
+  //  m_regionSelector->DetHashIDList(SCT, internalRoI, listOfSctIds); 
+
   m_regsel_pix->HashIDList( internalRoI, listOfPixIds );
   m_regsel_sct->HashIDList( internalRoI, listOfSctIds );
 
-
-
-  {   
-    double otimes[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    double ntimes[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    
-    DETID  detector[12] = { SCT, TTEM, TTHEC, FCALEM, FCALHAD, PIXEL, MDT, RPC, TGC, CSC, MM, STGC };
-  
-    std::string label[12] = { "SCT", "TTEM", "TTHEC", "FCALEM", "FCALHAD", "PIX", "MDT", "RPC", "TGC", "CSC", "MM", "sTGC" };
-    
-    std::cout << "SUTT:getSpacePoints() RegSelTools" << std::endl; 
-    
-    std::cout << "SUTT:RoiDescriptor " << internalRoI << std::endl;
-    
-    const IRegSelTool* rs[6] = { 
-      &(*m_regsel_sct), 
-      &(*m_regsel_ttem), 
-      &(*m_regsel_tthec), 
-      &(*m_regsel_fcalem), 
-      &(*m_regsel_fcalhad), 
-      &(*m_regsel_pix) 
-    }; 
-    
-    static int iroi = 0;
-    
-    for ( int i=0 ; i<6 ; i++ ) { 
-      
-      std::cout << "SUTT::\ttool " << detector[i] << " " << label[i] << std::endl; 
-      
-      std::vector<IdentifierHash> hashidn;
-      hashidn.clear();
-      struct timeval ntimer = simpletimer_start();
-      rs[i]->HashIDList( internalRoI, hashidn ); 
-      ntimes[i] = simpletimer_stop( ntimer ); 
-      
-      
-      std::vector<IdentifierHash> hashid;
-      hashid.clear();
-      struct timeval otimer = simpletimer_start();
-      m_regionSelector->DetHashIDList( detector[i], internalRoI, hashid ); 
-      otimes[i] = simpletimer_stop( otimer ); 
-      
-      
-      std::cout << "SUTT::detector " << label[i] << "\t" 
-		<< hashid.size() << "\t" 
-		<< hashidn.size() 
-		<< "\t\t ::\t\t time: " 
-		<< otimes[i] << " ms \t" 
-		<< ntimes[i] << " ms" << std::endl;
-      
-      std::cout << "SUTT::PLOT   " << iroi << "\t" << i << "\t" 
-		<< hashid.size() << "\t" 
-		<< hashidn.size() << "\t" 
-		<< "\t\t" 
-		<< otimes[i] << "\t" 
-		<< ntimes[i] << std::endl;
-      
-      if ( hashidn.size() != hashid.size() ) { 
-	std::cout << "difference in output : " <<  label[i] << std::endl;
-	
-	std::sort( hashid.begin(),  hashid.end() );
-	std::sort( hashidn.begin(), hashidn.end() );
-	
-	for ( size_t j=0 ; j<hashid.size()  ; j++ ) std::cout << "\thashid  " << j << " " << hashid[j]  << std::endl;
-	for ( size_t j=0 ; j<hashidn.size() ; j++ ) std::cout << "\thashidn " << j << " " << hashidn[j] << std::endl;
-      }
-      
-    }
-
-  }
-   
+ 
   int offsets[3];
 
   offsets[0] = m_layerNumberTool->offsetEndcapPixels();
