@@ -19,8 +19,8 @@
 #include "xAODEgamma/Electron.h" 
 #include "xAODEgamma/Photon.h"
 
-#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 
 #include "AsgTools/MessageCheck.h"
 #include "AsgTools/MsgStream.h"
@@ -83,8 +83,6 @@ int main(int argc, char* argv[])
     {
         //get entry
         pers.getEntry(entry);
-        // ANA_MSG_INFO("============================");
-        // ANA_MSG_INFO("Event: " << entry);
 
         // ====================================
         // Photons
@@ -112,17 +110,7 @@ int main(int argc, char* argv[])
         //loop over deep copy of photon container
         for (unsigned int photon_itr = 0; photon_itr < photons_copy->size(); photon_itr++)
         {
-            // ANA_MSG_INFO("---------------------------");
-            // ANA_MSG_INFO("Photon: " << photon_itr);
             xAOD::Photon* photon = photons_copy->at(photon_itr);
-            // if (xAOD::EgammaHelpers::isConvertedPhoton(photon))
-            // {
-            //     ANA_MSG_INFO("Converted Photon.");
-            // }
-            // else
-            // {
-            //     ANA_MSG_INFO("Unconverted Photon.");
-            // }
 
             //apply correction
             ANA_CHECK(myTool.applyCorrection(*photon));
@@ -155,20 +143,10 @@ int main(int argc, char* argv[])
         //loop over deep copy of electron container
         for (unsigned int electron_itr = 0; electron_itr < electrons_copy->size(); electron_itr++)
         {
-            // ANA_MSG_INFO("---------------------------");
-            // ANA_MSG_INFO("Electron: " << electron_itr);
             xAOD::Electron* electron = electrons_copy->at(electron_itr);
 
             //apply correction
             ANA_CHECK(myTool.applyCorrection(*electron));
-            
-            // //get original and corrected value
-            // SG::AuxElement::Accessor<float> VariableToCorrect(correctionVariable + "_original");
-            // SG::AuxElement::Accessor<float> CorrectedVariable(correctionVariable);
-
-            // //print results
-            // ANA_MSG_INFO("Original value:  " << VariableToCorrect(*electron));
-            // ANA_MSG_INFO("Corrected value: " << CorrectedVariable(*electron));
 
         } // loop over deep copy of electrone container
 
