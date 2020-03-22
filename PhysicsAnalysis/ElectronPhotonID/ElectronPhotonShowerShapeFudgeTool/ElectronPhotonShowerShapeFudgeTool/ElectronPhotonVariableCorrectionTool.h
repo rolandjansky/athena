@@ -2,6 +2,9 @@
     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef ElectronPhotonVariableCorrectionTool_H
+#define ElectronPhotonVariableCorrectionTool_H
+
 /**
    @class ElectronPhotonVariableCorrectionTool
    @brief Tool to correct electron and photon MC variables using the ElectronPhotonVariableCorrectionBase class.
@@ -55,3 +58,5 @@ private:
     const StatusCode applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder, ElectronPhotonVariableCorrectionBase::EGammaObjects toolHolderType );
 
 }; //end class ElectronPhotonVariableCorrectionTool
+
+#endif

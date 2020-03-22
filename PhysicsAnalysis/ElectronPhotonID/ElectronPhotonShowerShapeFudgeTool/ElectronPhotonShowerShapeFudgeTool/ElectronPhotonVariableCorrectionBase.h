@@ -2,8 +2,8 @@
     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ElectronPhotonVariableCorrectionTool_H
-#define ElectronPhotonVariableCorrectionTool_H
+#ifndef ElectronPhotonVariableCorrectionBase_H
+#define ElectronPhotonVariableCorrectionBase_H
 
 /**
    @class ElectronPhotonVariableCorrectionBase
