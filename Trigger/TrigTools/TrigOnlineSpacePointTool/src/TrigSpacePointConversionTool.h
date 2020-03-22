@@ -49,8 +49,8 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   const SCT_ID*  m_sctId;
   const PixelID* m_pixelId;
 
-  //  std::string    m_regionSelectorName;
-  //  IRegSelSvc*    m_regionSelector;
+  std::string    m_regionSelectorName;
+  IRegSelSvc*    m_regionSelector;
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
@@ -68,6 +68,10 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   /// new region selector tools
   ToolHandle<IRegSelTool> m_regsel_pix;
   ToolHandle<IRegSelTool> m_regsel_sct;
+  ToolHandle<IRegSelTool> m_regsel_ttem;
+  ToolHandle<IRegSelTool> m_regsel_tthec;
+  ToolHandle<IRegSelTool> m_regsel_fcalem;
+  ToolHandle<IRegSelTool> m_regsel_fcalhad;
 
 };
 #endif

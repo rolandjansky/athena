@@ -13,9 +13,6 @@
 
 def _makeRegSelTool( detector, enable, CondAlgConstructor, doCalo=False ) :
                 
-#    from RegionSelector.RegionSelectorConf import RegSelTool
-#    tool = RegSelTool(name="RegSelTool_"+detector)
-
     if doCalo == True:
         from RegionSelector.RegionSelectorConf import RegSelCaloTool
         maketool = RegSelCaloTool

@@ -11,7 +11,6 @@
  **/
 
 
-// #include "RegSelLUT/RegionSelectorLUT.h"
 
 #include "RegSelCaloTool.h"
 #include "RegSelLUT/RegSelSiLUT.h"
