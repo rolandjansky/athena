@@ -235,6 +235,12 @@ TrigSignatureMoniMT                                 INFO -- #1538535401 Features
 TrigSignatureMoniMT                                 INFO HLT_mb_sptrk_L1RD0_FILLED #4097312640
 TrigSignatureMoniMT                                 INFO -- #4097312640 Events         20         20         -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #4097312640 Features                             -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu0_muoncalib_L1MU20 #997163309
+TrigSignatureMoniMT                                 INFO -- #997163309 Events          20         20         0          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #997163309 Features                              0          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu0_muoncalib_L1MU4_EMPTY #782182242
+TrigSignatureMoniMT                                 INFO -- #782182242 Events          20         20         0          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #782182242 Features                              0          -          -          -          -    
 TrigSignatureMoniMT                                 INFO HLT_mu10_lateMu_L1MU10 #48780310
 TrigSignatureMoniMT                                 INFO -- #48780310 Events           20         20         0          0          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #48780310 Features                               0          0          -          -          -          

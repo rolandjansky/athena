@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigmuComb.TrigmuCombConf import *
 from TrigmuComb.TrigmuCombMonitoring import *
@@ -7,14 +7,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-#from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from AthenaCommon.AppMgr import ToolSvc
-#from CombinedMuonRefit.CombinedMuonRefitConf import ExtrapolateMuonToIPTool
-
-#ToolSvc += MuonBackExtrapolatorForAlignedDet()
-#ToolSvc += MuonBackExtrapolatorForMisalignedDet()
-#ToolSvc += MuonBackExtrapolatorForData()
-#ToolSvc += ExtrapolateMuonToIPTool()
 
 class TrigmuCombConfig (muComb):
 

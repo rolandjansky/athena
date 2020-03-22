@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import os, os.path
 import shutil
@@ -8,7 +10,7 @@ import shutil
 if __name__ == "__main__":
 
   if len(sys.argv)<3:
-    print "usage: ", sys.argv[0], "<grl1> <grl2> [<MatchGRLInfo?False/True>]"
+    print ("usage: ", sys.argv[0], "<grl1> <grl2> [<MatchGRLInfo?False/True>]")
     sys.exit(1)
 
   ## directory or list with xml files to be merged
@@ -19,13 +21,13 @@ if __name__ == "__main__":
   if len(sys.argv)>=4: matchGRLInfo=('True'==sys.argv[3])
 
   if not os.access(grl1,os.F_OK):
-    print "ERROR: input grl <%s> not found. Exit." % grl1
+    print ("ERROR: input grl <%s> not found. Exit." % grl1)
     sys.exit(1)
   if not os.access(grl2,os.F_OK):
-    print "ERROR: input grl <%s> not found. Exit." % grl2
+    print ("ERROR: input grl <%s> not found. Exit." % grl2)
     sys.exit(1)
 
-  print ">> Now taking diff ..."
+  print (">> Now taking diff ...")
 
   ## Needed to correct ROOT behavior; see below
   CWD = os.getcwd()
@@ -66,7 +68,7 @@ if __name__ == "__main__":
   #fileName1 = 'diff_only_in_'+str(grl1.GetName())+'_'+str(onlyInGrl1.GetSuggestedName())+'.xml'
   fileName1 = 'diff_'+str(onlyInGrl1.GetSuggestedName())+'_only_in_'+str(grl1.GetName())+'.xml'
   if onlyInGrl1.IsEmpty():
-    print "There are no LBs in", str(grl1.GetName()), "that are not in", str(grl2.GetName())
+    print ("There are no LBs in", str(grl1.GetName()), "that are not in", str(grl2.GetName()))
   else:
     writer1 = Root.TGoodRunsListWriter()
     writer1.SetGoodRunsList( onlyInGrl1 )
@@ -79,7 +81,7 @@ if __name__ == "__main__":
   onlyInGrl2.AddMetaData('Description',description2)
   fileName2 = 'diff_'+str(onlyInGrl2.GetSuggestedName())+'_only_in_'+str(grl2.GetName())+'.xml'
   if onlyInGrl2.IsEmpty():
-    print "There are no LBs in", str(grl2.GetName()), "that are not in", str(grl1.GetName())
+    print ("There are no LBs in", str(grl2.GetName()), "that are not in", str(grl1.GetName()))
   else:
     writer2 = Root.TGoodRunsListWriter()
     writer2.SetGoodRunsList( onlyInGrl2 )
