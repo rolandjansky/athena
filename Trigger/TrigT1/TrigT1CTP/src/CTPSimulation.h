@@ -48,8 +48,10 @@
 #include "./ResultBuilder.h"
 
 #include "GaudiKernel/LockedHandle.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "TH1.h"
+#include "TH2.h"
 
 #include <map>
 #include <string>
@@ -91,11 +93,15 @@ namespace LVL1CTP {
 
       // histogramming related 
       StatusCode bookHists() const;
-      StatusCode createMultiplicityHist(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt, unsigned int maxMult = 10 ) const;
+      StatusCode setHistLabels() const;
+      StatusCode createMultiplicityHist(const std::string & type, unsigned int maxMult = 10 ) const;
+      StatusCode setMultiplicityHistLabels(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt ) const;
       StatusCode hbook(const std::string & path, std::unique_ptr<TH1> hist) const;
       StatusCode hbook(const std::string & path, std::unique_ptr<TH2> hist) const;
+      StatusCode storeMetadata() const;
       LockedHandle<TH1> & get1DHist(const std::string & histName) const;
       LockedHandle<TH2> & get2DHist(const std::string & histName) const;      
+      std::string getBaseHistPath() const;
 
       // execution related
       StatusCode fillInputHistograms(const EventContext& context) const;
@@ -127,9 +133,11 @@ namespace LVL1CTP {
       // Needed services and tools
       ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc { this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger configuration service" };
-      ServiceHandle<IAtRndmGenSvc> m_rndmSvc{ this, "RndmSvc", "AtRndmGenSvc", "Random Number Service used in CTP simulation" };
       ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
       ToolHandle<LVL1CTP::ResultBuilder> m_resultBuilder { this, "ResultBuilder", "LVL1CTP__ResultBuilder/ResultBuilder", "Builds the CTP result" };
+
+      // random engine for calculating prescales
+      ATHRNG::RNGWrapper m_RNGEngines;
 
       // thread safe histogram handlers
       mutable std::map<std::string, LockedHandle<TH1>> m_hist1D  ATLAS_THREAD_SAFE;
@@ -166,8 +174,7 @@ namespace LVL1CTP {
 
       // properties
       Gaudi::Property<bool> m_isData { this, "IsData", false, "emulate CTP as part of MC or rerun on data" };
-      Gaudi::Property<std::string>  m_histPath { this, "HistPath",  "/EXPERT/L1/", "Booking path for the histogram" };
-      Gaudi::Property<std::string>  m_rndmEngineName { this, "RndmEngine",  "CTPSimulation", "Name of the random engine" };
+      Gaudi::Property<std::string>  m_histPath { this, "HistPath",  "/EXPERT/L1", "Booking path for the histogram" };
       Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
       Gaudi::Property<bool> m_forceBunchGroupPattern { this, "ForceBunchGroupPattern", true, "When true, ignore the bunchgroups and use the provided BunchGroupPattern" };
       Gaudi::Property<unsigned int> m_bunchGroupPattern { this, "BunchGroupPattern", 0x0003, "Bunchgroup pattern applied at every event, useful for simulation. Bit x corresponds to bunchgroup x" };
