@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -250,7 +250,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
     alineDataTemp->insert(std::make_pair(elem.first,(ALinePar*)newALine));
   }
 
-  if (m_muonDetMgrDS->updateAlignment(alineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
+  // FIXME: const_cast
+  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAlignment(alineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
   else ATH_MSG_DEBUG("updateAlignment DONE" );
   // if (m_muonDetMgrDS->updateAlignment(writeALineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
   // else ATH_MSG_DEBUG("updateAlignment DONE" );
@@ -282,7 +283,9 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
     newBLine->isNew(elem.second->isNew());
     blineDataTemp->insert(std::make_pair(elem.first,(BLinePar*)newBLine));
   }
-  if (m_muonDetMgrDS->updateDeformations(blineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
+
+  // FIXME: const_cast
+  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateDeformations(blineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
   else ATH_MSG_DEBUG("updateDeformations DONE" );
   // if (m_muonDetMgrDS->updateDeformations(writeBLineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
   // else ATH_MSG_DEBUG("updateDeformations DONE" );
@@ -947,7 +950,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
     ilineDataTemp->insert(std::make_pair(elem.first,(CscInternalAlignmentPar*)newILine));
   }
 
-  if (m_muonDetMgrDS->updateCSCInternalAlignmentMap(ilineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
+  // FIXME: const_cast
+  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateCSCInternalAlignmentMap(ilineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
   else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
   // if (m_muonDetMgrDS->updateCSCInternalAlignmentMap(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
   // else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
@@ -1092,7 +1096,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
     AsBuiltDataTemp->insert(std::make_pair(elem.first,new MdtAsBuiltPar(*(elem.second))));
   }
 
-  if (m_muonDetMgrDS->updateAsBuiltParams(AsBuiltDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
+  // FIXME: const_cast
+  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAsBuiltParams(AsBuiltDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
   else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
   // if (m_muonDetMgrDS->updateAsBuiltParams(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
   // else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );

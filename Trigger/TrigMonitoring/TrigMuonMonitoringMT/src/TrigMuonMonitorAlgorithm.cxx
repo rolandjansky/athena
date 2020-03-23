@@ -39,7 +39,7 @@ StatusCode TrigMuonMonitorAlgorithm :: fillHistograms(const EventContext& ctx) c
     selectMuons(muons, probes);
 
     for(const xAOD::Muon* mu : probes){
-      fillVariablesPerOfflineMuon(ctx, mu);
+      ATH_CHECK( fillVariablesPerOfflineMuon(ctx, mu) );
     }
 
   }

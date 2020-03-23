@@ -3,7 +3,7 @@
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 import AthenaCommon.CfgMgr as CfgMgr
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
@@ -29,6 +29,7 @@ def fastPhotonMenuSequence():
     l2PhotonViewsMaker.RoIsLink = "initialRoI"
     l2PhotonViewsMaker.InViewRoIs = "EMIDRoIs" 
     #l2PhotonViewsMaker.InViewRoIs = "EMCaloRoIs"
+    l2PhotonViewsMaker.RoITool = ViewCreatorInitialROITool()
     l2PhotonViewsMaker.Views = "EMPhotonViews"
     l2PhotonViewsMaker.ViewFallThrough = True
     l2PhotonViewsMaker.RequireParentView = True
@@ -67,7 +68,8 @@ def precisionPhotonSequence(ConfigFlags):
     precisionPhotonViewsMaker = EventViewCreatorAlgorithm( "IMprecisionPhoton") 
     precisionPhotonViewsMaker.ViewFallThrough = True                          
     precisionPhotonViewsMaker.RequireParentView = True
-    precisionPhotonViewsMaker.RoIsLink = "initialRoI"            # 
+    precisionPhotonViewsMaker.RoIsLink = "initialRoI"            # ROI link used to merge inputs
+    precisionPhotonViewsMaker.RoITool = ViewCreatorInitialROITool() # Tool used to supply ROIs for EventViews
     precisionPhotonViewsMaker.InViewRoIs = InViewRoIs            # names to use for the collection of which the RoIs are picked up
     precisionPhotonViewsMaker.Views = "precisionPhotonViews"     # Output container which has the view objects
 

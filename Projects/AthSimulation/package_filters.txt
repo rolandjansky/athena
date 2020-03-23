@@ -252,6 +252,7 @@
 + MuonSpectrometer/MuonGeoModel
 + MuonSpectrometer/MuonIdHelpers
 + MuonSpectrometer/MuonSimEvent
++ MuonSpectrometer/MuonStationIndex
 + Reconstruction/RecAlgs
 + Reconstruction/RecEvent
 + Reconstruction/RecEventAthenaPool

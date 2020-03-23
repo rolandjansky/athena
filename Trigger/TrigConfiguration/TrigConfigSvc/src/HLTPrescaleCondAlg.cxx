@@ -76,17 +76,17 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
          if( joSvc->hltPrescaleKey()>0 ) {
             m_psk = joSvc->hltPrescaleKey();
             m_dbConnection = joSvc->server();
-            ATH_MSG_DEBUG("Set psk to " << m_psk <<  " and db connection to " << m_dbConnection );
+            ATH_MSG_INFO("Set psk to " << m_psk <<  " and db connection to " << m_dbConnection );
          }
       } else {
          ATH_MSG_DEBUG("Did not locate TrigConf::IJobOptionsSvc");
       }
    }
 
-   ATH_MSG_DEBUG(m_configSource);
-   ATH_MSG_DEBUG(m_dbConnection);
-   ATH_MSG_DEBUG(m_psk);
-   ATH_MSG_DEBUG(m_filename);
+   ATH_MSG_INFO(m_configSource);
+   ATH_MSG_INFO(m_dbConnection);
+   ATH_MSG_INFO(m_psk);
+   ATH_MSG_INFO(m_filename);
 
    if( m_configSource == "FILE" ) {
 
@@ -130,7 +130,7 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
       }
       // get the prescale key from the cool folder 
       hltPsk = (*pskAL)["HltPrescaleKey"].data<cool::UInt32>();
-      ATH_MSG_DEBUG( "Extracted the HLT PSK " << hltPsk << " for run " << ctx.eventID().run_number()
+      ATH_MSG_INFO( "Extracted the HLT PSK " << hltPsk << " for run " << ctx.eventID().run_number()
                      << " and lb " << ctx.eventID().lumi_block() );
    } else {
 

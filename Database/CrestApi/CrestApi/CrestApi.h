@@ -20,7 +20,6 @@
 #include "nlohmann/json.hpp"
 
 namespace Crest {
-
 // AUXILIARY CLASS to store URL request parameters
   class urlParameters
   {
@@ -84,15 +83,13 @@ namespace Crest {
     enum Action {
       GET = 0, POST = 1, PUT = 2, DELETE = 3
     };
-
   public:
-
 // ===================================
 // CONSTRUCTORS
 
 /**
  * CrestClient constructor for file storage mode. If CrestClient is created with this method the data will be written on
- *the hard disk.
+ * the hard disk.
  * @param rewriteIfExist - this parameter sets if the data can be rewritten.
  * @param root_folder - the folder where the data have to be stored.
  */
@@ -102,7 +99,7 @@ namespace Crest {
 
 /**
  * CrestClient constructor for Internet mode. If CrestClient is created with this method the data will be sent to the
- *CREST Server.
+ * CREST Server.
  * @param _host - host name of the CREST Server.
  * @param _port - port of the CREST Server.
  */
@@ -110,7 +107,7 @@ namespace Crest {
 
 /**
  * CrestClient constructor for Internet mode. If CrestClient is created with this method the data will be sent to the
- *CREST Server.
+ * CREST Server.
  * @param url - URL address of the CREST Server (with port).
  * <br> <br>
  * Example:
@@ -130,12 +127,12 @@ namespace Crest {
 
 /**
  * General auxiliary method to make request to the CREST Server. This method is used by other methods realizing the
- *requests with the concrete kinds of data (iovs|payloads|tags…).
+ * requests with the concrete kinds of data (iovs|payloads|tags…).
  *
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)
  * @param js - a JSON object which has to be send or changed with this request. If this argument has to be void it has
- *to be set as nullptr.
+ * to be set as nullptr.
  *
  */
     std::string performRequest(const std::string& current_path, Action action, nlohmann::json& js);
@@ -147,7 +144,7 @@ namespace Crest {
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)
  * @param js - a JSON object which has to be send or changed with this request. If this argument has to be void it has
- *to be set as nullptr.
+ * to be set as nullptr.
  * @param out - stream to get the result
  *
  */
@@ -156,12 +153,12 @@ namespace Crest {
 
 /**
  * General auxillary method to make request to the CREST Server. This method is used by other methods realizing the
- *requests with the concrete kinds of data (iovs|payloads|tags…).
+ * requests with the concrete kinds of data (iovs|payloads|tags…).
  *
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)
  * @param js - a JSON object which has to be send or changed with this request. If this argument has to be void it has
- *to be set as nullptr.
+ * to be set as nullptr.
  * @param method_name - the name of method which called this method. This parameter is used in the error messages.
  *
  */
@@ -370,7 +367,7 @@ namespace Crest {
 
 /**
  * Finds a global tag by name. This method will search for a global tag with the given name. Only one global tag should
- *be returned.
+ * be returned.
  * (This method is an analogue of the find_global_tag_as_string method  in Python)
  * This method returns the global tag as a string.
  * @param name - global tag name
@@ -379,7 +376,7 @@ namespace Crest {
 
 /**
  * Finds a global tag by name. This method will search for a global tag with the given name. Only one global tag should
- *be returned.
+ * be returned.
  * (This method is an analogue of the find_global_tag method in Python)
  * This method returns the global tag as a JSON object.
  * @param name - global tag name
@@ -410,7 +407,7 @@ namespace Crest {
 
 /**
  * This method creates an iov for a given tag in the CREST DB for the created payload. The tag name is used in the iov
- *creation. This tag has to be defined in the CREST DB before creating iov
+ * creation. This tag has to be defined in the CREST DB before creating iov
  * (This method is an analogue of the create_iov method in Python)
  * @param iov - an iov in the JSON format (JSON object). Example: <br>
  * <pre>
@@ -444,7 +441,7 @@ namespace Crest {
 
 /**
  * This method gets the number of iovs for tags matching pattern. This method allows to select the count of iovs in a
- *tag.
+ * tag.
  * (This method is an analogue of the get_size_by_tag method in Python)
  * The result is a JSON object.
  * @param tagname - tag name.
@@ -462,7 +459,7 @@ namespace Crest {
 
 /**
  * Select groups for a given tagname. This method allows to select a list of groups. The result is a JSON object. The
- *result is a JSON object.
+ * result is a JSON object.
  * (This method is an analogue of the select_groups method in Python)
  * @param tagname - tag name.
  * @param snapshot - snapshot.
@@ -472,7 +469,7 @@ namespace Crest {
 
 /**
  * Select iovs for a given tagname. This method allows to select a list of iovs in a tag for a given snapshot time. The
- *result is a JSON object.
+ * result is a JSON object.
  * (This method is an analogue of the select_iovs method in Python)
  * @param tagname - tag name.
  * @param snapshot - snapshot.
@@ -482,7 +479,7 @@ namespace Crest {
 
 /**
  * Select iovs for a given tagname. This method allows to select a list of iovs in a tag for a given snapshot time. The
- *result is a JSON object.
+ * result is a JSON object.
  * (This method is an analogue of the select_iovs method in Python)
  * @param tagname - tag name.
  * @param snapshot - snapshot.
@@ -587,7 +584,7 @@ namespace Crest {
 
 /**
  *  This method finds a payload resource associated to the hash. This method retrieves metadata of the payload resource.
- *The result is a JSON object.
+ * The result is a JSON object.
  * (This method is an analogue of the get_payload_meta_info method in Python)
  * @param hash - hash.
  */
@@ -595,7 +592,7 @@ namespace Crest {
 
 /**
  *  This method finds a payload resource associated to the hash. This method retrieves metadata of the payload resource.
- *The result is a string.
+ * The result is a string.
  * (This method is an analogue of the get_payload_meta_info method in Python)
  * @param hash - hash.
  */
@@ -605,7 +602,7 @@ namespace Crest {
 
 /**
  * Create a payload in the database, associated to a given iov since and tag name. This method allows to insert a
- *payload and an IOV.
+ * payload and an IOV.
  * (This method is an analogue of the store_payload method in Python)
  * @param tag - tag name.
  * @param since - since. A parameter to create an iov together with payload.
@@ -623,13 +620,15 @@ namespace Crest {
  * @param iovsetupload - iov data as a string.
  * <br> Example how to use these parameters: <br>
  * <pre>
- *    std::string name39 = "test_M";
- *    uint64_t endtime = 200;
- *    std::string js39 =  "{\"niovs\": 2,\"format\":
- *\"PYLD_JSON\",\"iovsList\":[{\"since\":800,\"payload\":\"vvv\"},{\"since\":900,\"payload\":\"www\"}]}";
+ *    std::string name58 = "test_MvG3b";
+ *    uint64_t endtime58 = 92233;
+ *    std::string str58 =
+ *"[{\"payloadHash\":\"aaa\",\"since\":0},{\"payloadHash\":\"bbb\",\"since\":9223372036854775806}]";
+ *    myCrestClientM.storeBatchPayloads(name58, endtime58, str58);
  * </pre>
  */
     void storeBatchPayloads(const std::string& tag_name, uint64_t endtime, const std::string& iovsetupload);
+
 
 /**
  * This method stores several payloads in batch mode.
@@ -639,15 +638,14 @@ namespace Crest {
  * @param iovsetupload - iov data as a JSON object.
  * <br> Example how to use these parameters: <br>
  * <pre>
- *    std::string name39 = "test_M";
- *    uint64_t endtime = 200;
- *    std::string js39 =  "{\"niovs\": 2,\"format\":
- *\"PYLD_JSON\",\"iovsList\":[{\"since\":800,\"payload\":\"vvv\"},{\"since\":900,\"payload\":\"www\"}]}";
- *    json js40 = myCrestClientF.getJson(str39);
+ *    std::string name58 = "test_MvG3a";
+ *    uint64_t endtime58 = 92233;
+ *    nlohmann::json js59 =
+ *nlohmann::json::array({{{"payloadHash","aaa"},{"since",0}},{{"payloadHash","bbb"},{"since",9223372036854775806}}});
+ *    myCrestClientM.storeBatchPayloads(name58, endtime58, js59)
  * </pre>
  */
     void storeBatchPayloads(const std::string& tag_name, uint64_t endtime, nlohmann::json& js);
-
 
 
 //=======================================================
@@ -769,7 +767,7 @@ namespace Crest {
  * (This method is an analogue of the update_tag method in Python)
  * @param tagname - tg name.
  * @param body - new parameters in the JSON format. This JSON object contain the parameters which have to be changed
- *only. Example: <br>
+ * only. Example: <br>
  * <pre>
  *    json body =
  *    {
@@ -805,14 +803,14 @@ namespace Crest {
 
 /**
  * Auxillary method to write all the data at the end of a session. The path to stored data defined by a CrestClient
- *constructor (in m_root_folder and m_data_folder variables).
+ * constructor (in m_root_folder and m_data_folder variables).
  *
  */
     void flush();
 
 /**
  * Method to store a payload in the local file system. This is an auxillary method. It is used by storePayload method if
- *CrestClient is innitialized in the file storage mode.
+ * CrestClient is innitialized in the file storage mode.
  * (The old name of this method is store_payload_dump)
  * @param tag - tag name.
  * @param since - since.
@@ -826,7 +824,7 @@ namespace Crest {
 
 /**
  * This method returns a tag list stored in the file storage. This is the auxilary method. The result is the tag names
- *only (as a string list).
+ * only (as a string list).
  * (The old name of this method is short_list_tags_fs)
  *
  */
@@ -834,7 +832,7 @@ namespace Crest {
 
 /**
  * This method finds a tag by the tag name in the file storage. This is the auxilary method. It is called by findTag
- *method when CrestClient is initialized in the file storage mode.
+ * method when CrestClient is initialized in the file storage mode.
  * (This method is an analogue of the find_tag method in Python)
  * @param name - tag name.
  */
@@ -842,7 +840,7 @@ namespace Crest {
 
 /**
  * This method finds all iovs by the tag name in the file storage. This is the auxilary method. It is called by
- *find_all_iovs method when CrestClient is initialized in the file storage mode.
+ * find_all_iovs method when CrestClient is initialized in the file storage mode.
    (This method is an analogue of the find_all_iovs method in Python)
  * @param tagname - tag name.
  */
@@ -858,8 +856,8 @@ namespace Crest {
 
 /**
  * This method finds payload data by hash in the file storage; the payload object contains the real BLOB. The result
- *returns as a string. This is an auxillary method called by getBlob method when CrestClient innitialized in the file
- *storage mode.
+ * returns as a string. This is an auxillary method called by getBlob method when CrestClient innitialized in the file
+ * storage mode.
  * (This method is an analogue of the get_blob method in Python)
  * @param hash - hash
  */
@@ -868,7 +866,7 @@ namespace Crest {
 /**
  * This method finds payload data by hash; the payload object contains the real BLOB. The result returns in the stream
  *"out" (BE CARREFULL!). This is an auxillary method called by getBlobInStream method when CrestClient innitialized in
- *the file storage mode.
+ * the file storage mode.
  * (This method is an analogue of the get_blob method in Python)
  * @param hash - hash
  * @param[out] out - output stream to get the result.
@@ -928,5 +926,137 @@ namespace Crest {
  *
  */
     std::string getDataPath();
+
+
+/**
+ * Auxillary method to get a resources parameter from new CREST server response.
+ *
+ * @param js - CREST server response.
+ */
+    nlohmann::json getResources(nlohmann::json& js);
+
+
+/**
+ * Auxillary method to get the first element from resources of the new CREST server response.
+ *
+ * @param js - CREST server response.
+ */
+    nlohmann::json getResFirst(nlohmann::json& js);
+
+
+    /**
+     *  Auxillary method to check if the JSON object contain an error message.
+     * @param js - a JSON object to be checked.
+     */
+    int checkErrors(nlohmann::json& js);
+
+// Tag Meta Info Methods
+
+/**
+ * This method creates a tag meta info in the CREST database.
+ * @param tagname - tag name
+ * @param js - tag meta info in the JSON format. Example: <br>
+ * <pre>
+ *    nlohmann::json js =
+ *    {
+ *      {"tagName", "test_MvG4"},
+ *      {"description", "desc-01"},
+ *      {"tagInfo", "taginf-01"},
+ *      {"chansize", 0},
+ *      {"colsize", 0},
+ *      {"insertionTime", "2019-03-14T13:29:25.286Z"}
+ *    };
+ * </pre>
+ */
+    void createTagMetaInfo(const std::string& tagname, nlohmann::json& js);
+
+/**
+ * This method gets a tag meta info from the CREST database.
+ * @param tagname - tag name
+ */
+    nlohmann::json getTagMetaInfo(const std::string& tagname);
+
+/**
+ * This method updates a tag meta info in the CREST database.
+ * @param tagname - tag name
+ * @param js - a JSON object with new parameters (These parameters will be changed in the CREST DB). Example: <br>
+ * <pre>
+ *    nlohmann::json js =
+ *    {
+ *      {"tagName", "test_MvG4"},
+ *      {"description", "desc-01"},
+ *      {"tagInfo", "taginf-01"},
+ *      {"chansize", 0},
+ *      {"colsize", 0},
+ *      {"insertionTime", "2019-03-14T13:29:25.286Z"}
+ *    };
+ * </pre>
+ */
+    void updateTagMetaInfo(const std::string& tagname, nlohmann::json& js);
+
+
+/**
+ * Auxillary method to get an element by name from the Tag Meta Info.
+ *
+ * @param name - an element name.
+ * @param js - the Tag Meta Info in JSON format. Example: <br>
+ * <pre>
+ *   [{"node_description": " string of the folder description "},
+ *    {"channel_list" : [0, 10, 20] },
+ *    {"channel_names: ["first", "second", "third"]},
+ *    {"payload_specification":"stave: Int32, eta: Int32, mag: Float, base: Float, free: Float"}]
+ * </pre>
+ */
+    std::string getTagMetaInfoElement(const std::string& name, nlohmann::json& js);
+
+
+/**
+ * Auxillary method to convert a Tag Meta Info from the JSON
+ * CREST Server format in to IOVDbSvc format.
+ *
+ * @param js - the Tag Meta Info in CREST Server JSON format.
+ */
+    nlohmann::json convertTagMetaInfo2IOVDbSvc(nlohmann::json& js);
+
+
+/**
+ * Auxillary method to convert a Tag Meta Info from the JSON IOVDbSvc format
+ * in CREST Server format.
+ *
+ * @param js - the Tag Meta Info in CREST Server JSON format.
+ */
+    nlohmann::json convertTagMetaInfo2CREST(nlohmann::json& js);
+
+
+/**
+ * Auxillary method to split a string
+ *
+ * @param str - a string to split.
+ * @param delim - a deliminator.
+ */
+    std::vector<std::string> split(const std::string& str, const std::string& delim);
+
+/**
+ * This method gets a tag meta info from the CREST database in IOVDbSvc format.
+ * @param tagname - tag name
+ */
+    nlohmann::json getTagMetaInfoIOVDbSvc(const std::string& tagname);
+
+
+/**
+ * This method creates a tag meta info in the CREST database.
+ * @param tagname - tag name
+ * @param js - tag meta info in the JSON IOVDbSvc format. Example: <br>
+ * <pre>
+ * [
+ *   { "node_description ": " string of the folder description  "},
+ *   { "channel_list ":[0,10,20]},
+ *   { "channel_names ": [ "first ", "second ", "third "]},
+ *   { "payload_specification ": "stave: Int32, eta: Int32, mag: Float, base: Float, free: Float "}
+ * ]
+ * </pre>
+ */
+    void createTagMetaInfoIOVDbSvc(const std::string& tagname, nlohmann::json& js);
+
   };
 } // namespace

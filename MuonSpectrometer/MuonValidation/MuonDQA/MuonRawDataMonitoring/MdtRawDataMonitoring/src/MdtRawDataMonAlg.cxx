@@ -528,7 +528,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
           nColl_ADCCut++;
       } //loop in MdtPrepDataContainer
       fillMDTOverviewHistograms(overviewPlots);
-      fillMDTSummaryHistograms(summaryPlots, lumiblock);
+      ATH_CHECK( fillMDTSummaryHistograms(summaryPlots, lumiblock) );
       
       
       int nHighOccChambers = 0;

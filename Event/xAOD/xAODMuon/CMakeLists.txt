@@ -7,7 +7,7 @@
 atlas_subdir( xAODMuon )
 
 # Extra dependencies, based on the build environment:
-if( NOT XAOD_ANALYSIS )
+if( NOT XAOD_ANALYSIS AND NOT GENERATIONBASE )
    set( extra_deps Tracking/TrkEvent/TrkSegment )
    set( extra_libs TrkSegment )
 endif()
@@ -28,7 +28,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCore
    Event/xAOD/xAODPrimitives
    Event/xAOD/xAODTracking
-   MuonSpectrometer/MuonIdHelpers
+   MuonSpectrometer/MuonStationIndex
    ${extra_deps} )
 
 find_package( ROOT COMPONENTS Core GenVector )
@@ -38,7 +38,7 @@ atlas_add_library( xAODMuon
    xAODMuon/*.h xAODMuon/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODMuon
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCaloEvent xAODCore
-   xAODPrimitives xAODTracking MuonIdHelpersLib ${extra_libs} )
+   xAODPrimitives xAODTracking MuonStationIndexLib ${extra_libs} )
 
 atlas_add_dictionary( xAODMuonDict
    xAODMuon/xAODMuonDict.h

@@ -19,3 +19,7 @@ set( XAOD_ANALYSIS TRUE CACHE BOOL
 # Set up how Python should be found.
 set( ATLAS_FORCE_PYTHON2 @ATLAS_FORCE_PYTHON2@ CACHE BOOL
    "Force the usage of Python 2 in the AnalysisBase project" )
+
+# Do not use Boost's CMake code when building code against AnalysisBase.
+set( Boost_NO_BOOST_CMAKE TRUE CACHE BOOL
+   "Disable the usage of Boost's CMake code" )

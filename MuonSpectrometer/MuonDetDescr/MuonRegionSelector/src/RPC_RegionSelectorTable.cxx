@@ -231,7 +231,6 @@ StatusCode RPC_RegionSelectorTable::createTable() {
       RegSelModule m1( zmin, zmax, rmin, rmax, phiMinFirst, phiMaxSecond, layerid, detid, robIds[0], lowerHashId );
       rpclut->addModule( m1 );
     }
-    
     //the code below exploits the fact that ROB Ids are sorted!!! They go in order: SIDE A, ROBs 0..15, then SIDE C ROBs 0..15
     //it is also assumed that if there are 4 ROBs, then zmin<0 and zmax>0
     else if (robIds.size()==2) {
@@ -253,7 +252,6 @@ StatusCode RPC_RegionSelectorTable::createTable() {
       rpclut->addModule( m1 );
       rpclut->addModule( m2 );
     }
-    
     else if (robIds.size()==4) { //this is the case only for two BOG chambers at z=0 read by ROBs 10-11 and 12-13, each on both sides A and C
       uint32_t sideA_lowerRobId  = robIds[0];
       uint32_t sideA_higherRobId = robIds[1];

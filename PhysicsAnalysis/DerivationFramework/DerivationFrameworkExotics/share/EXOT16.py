@@ -175,7 +175,7 @@ EXOT16StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "E
                                                                          expression = expression)
 
 ToolSvc += EXOT16StringSkimmingTool
-print EXOT16StringSkimmingTool
+printfunc (EXOT16StringSkimmingTool)
 
 
 # Tracks thinning 

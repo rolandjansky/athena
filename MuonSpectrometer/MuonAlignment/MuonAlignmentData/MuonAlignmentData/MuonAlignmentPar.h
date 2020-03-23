@@ -18,13 +18,13 @@ class MuonAlignmentPar {
   MuonAlignmentPar();
   virtual ~MuonAlignmentPar()=default;
 
-  Identifier  identify()      {return m_stationId;}
-  std::string key()           {return m_stationKey;}
+  Identifier  identify() const {return m_stationId;}
+  std::string key()      const {return m_stationKey;}
 
   void setAmdbId(std::string type, int jff, int jzz, int job);
-  void getAmdbId(std::string& type, int& jff, int& jzz, int& job);
+  void getAmdbId(std::string& type, int& jff, int& jzz, int& job) const;
 
-  bool isNew()              {return m_isNew;}
+  bool isNew() const        {return m_isNew;}
   void isNew(bool newPar)   {m_isNew = newPar;}
 
  protected:

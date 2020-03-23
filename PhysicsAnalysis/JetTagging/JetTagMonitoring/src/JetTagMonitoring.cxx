@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include "ITrackToVertex/ITrackToVertex.h"
@@ -132,7 +132,7 @@ JetTagMonitoring::~JetTagMonitoring() {}
 //** --------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
+void JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
 
   // msg(MSG::VERBOSE) << "in JetTagMonitoring::registerHist " << h1->GetName() << endmsg;
   ATH_MSG_VERBOSE("in JetTagMonitoring::registerHist " << h1->GetName());
@@ -140,22 +140,18 @@ StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
   StatusCode sc = theGroup.regHist(h1);
   if (! sc.isSuccess())
     ATH_MSG_WARNING("Could not register histogram ");
-
-  return sc;
 }
 
 //** --------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, LWHist* h1) {
+void JetTagMonitoring::registerHist(MonGroup& theGroup, LWHist* h1) {
 
   ATH_MSG_VERBOSE("in JetTagMonitoring::registerHist " << h1->GetName());
 
   StatusCode sc = theGroup.regHist(h1);
   if (!sc.isSuccess())
     ATH_MSG_WARNING("Could not register histogram ");
-
-  return sc;
 }
 
 

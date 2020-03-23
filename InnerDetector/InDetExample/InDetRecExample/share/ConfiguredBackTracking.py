@@ -139,6 +139,8 @@ class ConfiguredBackTracking:
                                                                       nHolesGapMax             = NewTrackingCuts.SecondarynHolesGapMax(),
                                                                       Xi2max                   = NewTrackingCuts.SecondaryXi2max(),
                                                                       Xi2maxNoAdd              = NewTrackingCuts.SecondaryXi2maxNoAdd(),
+                                                                      SearchInCaloROI          = False,
+                                                                      InputClusterContainerName= InDetKeys.CaloClusterROIContainer(),
                                                                       ConsistentSeeds          = True,
                                                                       # BremCorrection           = True,
                                                                       BremCorrection           = False)

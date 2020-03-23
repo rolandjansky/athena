@@ -8,11 +8,14 @@
 #include "G4VSensitiveDetector.hh"
 #include "StoreGate/WriteHandle.h"
 #include "MuonSimEvent/sTGCSimHitCollection.h"
+#include <gtest/gtest_prod.h>
 
 class sTgcHitIdHelper;
 
 class sTGCSensitiveDetector : public G4VSensitiveDetector {
-    
+FRIEND_TEST( sTGCSensitiveDetectortest, Initialize );
+FRIEND_TEST( sTGCSensitiveDetectortest, ProcessHits );    
+
 public:
     /** construction/destruction */
     sTGCSensitiveDetector(const std::string& name, const std::string& hitCollectionName);

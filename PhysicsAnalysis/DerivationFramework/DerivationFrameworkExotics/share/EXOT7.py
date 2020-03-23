@@ -138,7 +138,7 @@ EXOT7StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EX
                                                                          expression = expression)
 
 ToolSvc += EXOT7StringSkimmingTool
-print EXOT7StringSkimmingTool
+printfunc (EXOT7StringSkimmingTool)
 
 # define thinning tool 
 thinningTools=[]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -147,7 +147,7 @@ void test1 (const IDHelpers& helpers)
 
       coll->push_back (std::move (clus));
     }
-    trans1.addCollection (coll.release(), wafer_hash);
+    trans1.addCollection (coll.release(), wafer_hash).ignore();
   }
 
 #if 0  

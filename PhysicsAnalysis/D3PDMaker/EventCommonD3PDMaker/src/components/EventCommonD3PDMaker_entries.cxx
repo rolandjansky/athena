@@ -12,7 +12,6 @@
 #include "../INav4MomLinkContainerGetterTool.h"
 #include "../IN4MLinkContainerFlagFillerTool.h"
 #include "../LBMetadataTool.h"
-#include "../SimMetadataTool.h"
 #include "../IParticleLinksCollectionGetterTool.h"
 #include "../SkimDecisionFillerTool.h"
 #include "../SkimDecisionVectorFillerTool.h"
@@ -35,7 +34,6 @@ DECLARE_COMPONENT( D3PD::IN4MCollectionGetterTool )
 DECLARE_COMPONENT( D3PD::INav4MomLinkContainerGetterTool )
 DECLARE_COMPONENT( D3PD::IN4MLinkContainerFlagFillerTool )
 DECLARE_COMPONENT( D3PD::LBMetadataTool )
-DECLARE_COMPONENT( D3PD::SimMetadataTool )
 DECLARE_COMPONENT( D3PD::IParticleLinksCollectionGetterTool )
 DECLARE_COMPONENT( D3PD::SkimDecisionFillerTool )
 DECLARE_COMPONENT( D3PD::SkimDecisionVectorFillerTool )

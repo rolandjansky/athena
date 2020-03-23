@@ -31,6 +31,7 @@ class Step(object):
         self.type = None
         self.executable = None
         self.args = ''
+        self.cmd_suffix = None
         self.output_stream = self.OutputStream.FILE_ONLY
         self.log_file_name = None
         self.result = None
@@ -148,6 +149,8 @@ class Step(object):
 
     def run(self, dry_run=False):
         cmd = '{} {}'.format(self.executable, self.args)
+        if self.cmd_suffix:
+            cmd += self.cmd_suffix
         if self.output_stream == self.OutputStream.NO_PRINT:
             cmd += ' >/dev/null 2>&1'
         elif self.output_stream == self.OutputStream.FILE_ONLY:

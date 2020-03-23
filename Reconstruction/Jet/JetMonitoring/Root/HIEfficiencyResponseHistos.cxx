@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/HIEfficiencyResponseHistos.h"
@@ -100,7 +100,7 @@ int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer
   m_n=2;
   m_harmonic=m_n-1;
   m_eventShape=nullptr;
-  evtStore()->retrieve(m_eventShape,m_container_key);
+  CHECK( evtStore()->retrieve(m_eventShape,m_container_key), 1 );
   m_FCalET=0;
   m_psiN_FCal=0;
   //  m_vN_fcal=0;

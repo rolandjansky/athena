@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # This file configures the Muon segment finding. It is based on a few files in the old configuration system:
@@ -26,7 +25,7 @@ from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should may
 
 #Local
 from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L173
@@ -551,6 +550,11 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     acc.addPublicTool(cleaner)
     result.merge(acc)
     kwargs.setdefault("TrackCleaner", cleaner)
+
+    acc = MuonTrackSummaryToolCfg(flags)
+    track_summary = acc.getPrimary( )
+    result.setPrivateTools(track_summary)
+    kwargs.setdefault('TrackSummaryTool', track_summary)
     
     # FIXME - remaining tools
     acc.setPrivateTools(Muon__MuonClusterSegmentFinderTool(**kwargs))

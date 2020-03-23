@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -119,7 +119,7 @@ class SCT_RODVetoTool_test: public ::testing::Test, public GaudiFixture {
 protected:
   virtual void SetUp() override {
     IAlgTool* tool{nullptr};
-    m_toolSvc->retrieveTool("SCT_RODVetoTool/SCT_RODVetoTool", tool);
+    ASSERT_TRUE( m_toolSvc->retrieveTool("SCT_RODVetoTool/SCT_RODVetoTool", tool) );
     m_tool = dynamic_cast<SCT_RODVetoTool*>(tool);
   }
 
@@ -169,7 +169,7 @@ TEST_F(SCT_RODVetoTool_test, isGood_Hash) {
 */
 
 TEST_F(SCT_RODVetoTool_test, isGood_Id) {
-  m_tool->initialize(); 
+  ASSERT_TRUE( m_tool->initialize() );
   const Identifier elementId{0};
   EventContext ctx{0, 0};
   ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );

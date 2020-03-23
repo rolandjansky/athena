@@ -36,7 +36,7 @@ namespace TrigConf {
       /** Destructor */
       ~L1TopoAlgorithm();
 
-      virtual std::string className() const;
+      virtual std::string className() const override;
 
       /** Accessor to algorithm index */
       unsigned int algId() const;

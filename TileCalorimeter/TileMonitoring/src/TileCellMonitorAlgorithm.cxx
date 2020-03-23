@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCellMonitorAlgorithm.h"
@@ -859,7 +859,7 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 }
 
 
-StatusCode TileCellMonitorAlgorithm::fillMaskedInDB(const TileBadChannels* badChannels) const {
+void TileCellMonitorAlgorithm::fillMaskedInDB(const TileBadChannels* badChannels) const {
 
   using Tile = TileCalibUtils;
 
@@ -896,14 +896,11 @@ StatusCode TileCellMonitorAlgorithm::fillMaskedInDB(const TileBadChannels* badCh
       }
     }
   }
-
-
-  return StatusCode::SUCCESS;
 }
 
 
-StatusCode TileCellMonitorAlgorithm::fillSynchronization(const std::vector<const CaloCell*>& cells,
-                                                         const std::vector<int>& l1TriggersIndices) const {
+void TileCellMonitorAlgorithm::fillSynchronization(const std::vector<const CaloCell*>& cells,
+                                                   const std::vector<int>& l1TriggersIndices) const {
 
   std::vector<float> timeDifference;
 
@@ -935,8 +932,6 @@ StatusCode TileCellMonitorAlgorithm::fillSynchronization(const std::vector<const
       fill(m_tools[m_cellSynchGroups[l1TriggerIdx]], monTimeDifference);
     }
   }
-
-  return StatusCode::SUCCESS;
 }
 
 int TileCellMonitorAlgorithm::getDigitizer(int channel) const {

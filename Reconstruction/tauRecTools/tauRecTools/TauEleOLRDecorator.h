@@ -34,20 +34,12 @@ class TauEleOLRDecorator: virtual public TauRecToolBase
   virtual StatusCode finalize() override;
 
  private:
-  std::unique_ptr<AsgElectronLikelihoodTool> m_tEMLHTool;
-  const xAOD::ElectronContainer* m_xElectronContainer;
-  bool m_bElectonsAvailable;
-  std::string m_sEleOLRFilePath;
-  std::unique_ptr<TH2F> m_hCutValues;
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  bool m_bEleOLRMatchAvailable=false;
-  bool m_bEleOLRMatchAvailableChecked=false;
-#endif
-  
- private:
   float getCutVal(float fEta, float fPt);
   
   SG::ReadHandleKey<xAOD::ElectronContainer> m_electronInputContainer{this,"Key_electronInputContainer", "Electrons", "input electron container key"};
+  std::unique_ptr<AsgElectronLikelihoodTool> m_tEMLHTool;
+  std::string m_sEleOLRFilePath;
+  std::unique_ptr<TH2F> m_hCutValues;
 };
 
 #endif

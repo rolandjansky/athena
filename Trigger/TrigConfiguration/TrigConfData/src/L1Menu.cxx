@@ -46,7 +46,7 @@ TrigConf::L1Menu::update()
          } else {
             for( auto & thr : data().get_child( path + "." + thrType + ".thresholds") ) {
                const std::string thrName = thr.first;
-               v.push_back( std::move(L1Threshold::createThreshold( thrName, thrType, extraInfo, thr.second )) );
+               v.push_back( L1Threshold::createThreshold( thrName, thrType, extraInfo, thr.second ) );
             }
          }
          for( auto & thr : v ) {
@@ -111,6 +111,16 @@ std::size_t
 TrigConf::L1Menu::size() const
 {
    return data().get_child("items").size();
+}
+
+unsigned int
+TrigConf::L1Menu::smk() const {
+   return m_smk;
+}
+
+void
+TrigConf::L1Menu::setSMK(unsigned int smk) {
+   m_smk = smk;
 }
 
 TrigConf::L1Item

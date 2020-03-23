@@ -18,7 +18,7 @@ void MuonAlignmentPar::setAmdbId(std::string type, int jff, int jzz, int job)
   return;
 }
 
-void MuonAlignmentPar::getAmdbId(std::string& type, int& jff, int& jzz, int& job) 
+void MuonAlignmentPar::getAmdbId(std::string& type, int& jff, int& jzz, int& job) const
 {
   type = m_Type;
   jff  = m_Jff;

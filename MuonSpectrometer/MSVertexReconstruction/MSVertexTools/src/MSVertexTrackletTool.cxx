@@ -12,6 +12,7 @@
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
+#include "TMath.h" // for TMath::Prob()
 
 /*
   Tracklet reconstruction tool

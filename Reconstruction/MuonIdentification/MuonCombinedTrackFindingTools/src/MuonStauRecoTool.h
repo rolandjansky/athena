@@ -1,11 +1,30 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSTAURECOTOOL_H
 #define MUON_MUONSTAURECOTOOL_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
+#include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
+#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
+#include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
+#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
+#include "TrkToolInterfaces/IUpdator.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
+
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h" 
 #include "MuonLayerHough/MuonLayerHough.h"
@@ -17,39 +36,14 @@
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "TrkTrack/Track.h"
 #include "MuonCombinedEvent/MuGirlLowBetaTag.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <vector>
 #include <iostream>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/PhysicalConstants.h"
-
 namespace Muon {
-
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class IMuonSegmentMaker;
-  class IMuonLayerSegmentMatchingTool;
-  class IMuonLayerAmbiguitySolverTool;
-  class IMuonCandidateTrackBuilderTool;
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonRecoValidationTool;
-  class ITrackAmbiguityProcessorTool;
-  class IMuonHitTimingTool;
-  class IMuonPRDSelectionTool;
   class RpcClusterOnTrack;
-}
-class MdtCalibrationDbTool;
-
-namespace Rec {
-  class ICombinedMuonTrackBuilder;
-}
-
-namespace Trk {
-  class ITrackAmbiguityProcessorTool;
-  class IUpdator;
 }
 
 namespace MuonCombined { 
@@ -146,9 +140,8 @@ namespace MuonCombined {
 
     /** Default AlgTool functions */
     MuonStauRecoTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonStauRecoTool();
+    virtual ~MuonStauRecoTool()=default;
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */   
     virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
@@ -237,8 +230,7 @@ namespace MuonCombined {
     SG::ReadHandleKey<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
         "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
 
-    /** tool handles */
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelper; 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer; 
     ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 

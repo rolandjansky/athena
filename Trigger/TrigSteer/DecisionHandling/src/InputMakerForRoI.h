@@ -26,9 +26,7 @@
     virtual StatusCode  execute(const EventContext&) const override;
 
   private: 
-    SG::WriteHandleKey<TrigRoiDescriptorCollection> m_RoIs {this,"RoIs", "Unspecified", "Nam eof the RoIs extracted from the decisions"};
-    // want to try also const?
-    //SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_RoIs{ this, "RoIs", "Unspecified", "Name of the RoIs extracted from the decisions" };
+    SG::WriteHandleKey<TrigRoiDescriptorCollection> m_RoIs {this,"RoIs", "Unspecified", "Name of the RoIs extracted from the decisions"};
 
   }; 
 
