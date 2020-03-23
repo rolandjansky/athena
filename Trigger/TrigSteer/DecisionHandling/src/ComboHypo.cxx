@@ -208,14 +208,15 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       for (const ElementLink<DecisionContainer>& dEL : it->second){
         uint32_t featureKey = 0, roiKey = 0;
         uint16_t featureIndex = 0, roiIndex = 0;
+        // NOTE: roiKey, roiIndex are only currently used in the discrimination for L1 Decision objects (which don't have a 'feature' link)
+        // NOTE: We should make it configurable to choose either the feature or the ROI here, as done in the InputMaker base class when merging.
         ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex) );
-	const uint32_t uniquenessHash = (featureKey != 0 ? (featureKey + featureIndex) : (roiKey + roiIndex)); 
-	if (uniquenessHash == 0) {
-	  ATH_MSG_ERROR("Object has no feature, and no initialRoI. Cannot get obtain unique element to avoid double-counting.");
-	  return StatusCode::FAILURE;
-	}      
+        const uint32_t uniquenessHash = (featureKey != 0 ? (featureKey + featureIndex) : (roiKey + roiIndex)); 
+        if (uniquenessHash == 0) {
+          ATH_MSG_ERROR("Object has no feature, and no initialRoI. Cannot get obtain unique element to avoid double-counting.");
+          return StatusCode::FAILURE;
+        }
         uniqueDecisionFeatures.insert( uniquenessHash );
-        // TODO - do something with the ROI
       }
 
       // save combinations of all legs for the tools
