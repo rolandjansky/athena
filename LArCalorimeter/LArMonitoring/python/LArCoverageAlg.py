@@ -10,7 +10,7 @@
 def LArCoverageConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArCoverageAlg
-    #from AthenaCommon.GlobalFlags import globalflags
+
     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
     theLArRCBMasker=LArBadChannelMasker("BadLArRawChannelMask")
     theLArRCBMasker.DoMasking=True
@@ -496,5 +496,3 @@ if __name__=='__main__':
     cfg.store(f)
     f.close()
 
-#    Nevents=10
-#    cfg.run(Nevents) #use cfg.run() to run on all events

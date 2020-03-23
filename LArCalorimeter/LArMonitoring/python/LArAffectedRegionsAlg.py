@@ -403,6 +403,3 @@ if __name__=='__main__':
     cfg.store(f)
     f.close()
 
-
-#    Nevents=10
-#    cfg.run(Nevents) #use cfg.run() to run on all events

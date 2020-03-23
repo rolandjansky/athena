@@ -1,11 +1,11 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCollisionTimeMonConfigOld(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArCollisionTimeMonAlg
-    #from AthenaCommon.GlobalFlags import globalflags                                                                                                                               
+    
 
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArCollisionTimeMonAlgOldCfg')
     LArCollisionTimeMonConfigCore(helper, LArCollisionTimeMonAlg,inputFlags)
@@ -14,8 +14,7 @@ def LArCollisionTimeMonConfigOld(inputFlags):
 def LArCollisionTimeMonConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
-    # The following class will make a sequence, configure algorithms, and link                                                                                                      
-    # them to GenericMonitoringTools                                                                                                                                                
+    # The following class will make a sequence, configure algorithms, and link them to GenericMonitoringTools                                                                                                                                                
 
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCollisionTimeMonAlgCfg')
@@ -28,7 +27,6 @@ def LArCollisionTimeMonConfig(inputFlags):
 def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
 
 
-    #from LArMonitoring.LArMonitoringConf import LArCollisionTimeMonAlg
     larCollTimeMonAlg = helper.addAlgorithm(algoinstance,'larCollTimeMonAlg')
 
 
@@ -271,4 +269,4 @@ if __name__=='__main__':
     cfg.store(f)
     f.close()
    
-    #cfg.run(10,OutputLevel=DEBUG) #use cfg.run() to run on all events
+    
