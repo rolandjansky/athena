@@ -71,9 +71,6 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
        larFEBMonAlg.keyDSPThresholds="LArDSPThresholds"
 
-    #from AthenaCommon.Constants import VERBOSE
-    #larFEBMonAlg.OutputLevel=VERBOSE
-
     # adding LArFebErrorSummary algo
     from AthenaCommon.Configurable import Configurable
     if Configurable.configurableRun3Behavior :
@@ -399,7 +396,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                 )
        pass
 
-    #return helper.result()
+
 
     
 
@@ -442,4 +439,4 @@ if __name__=='__main__':
    cfg.store(f)
    f.close()
 
-   #cfg.run(100,OutputLevel=WARNING)
+

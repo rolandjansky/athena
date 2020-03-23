@@ -1,23 +1,10 @@
 
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 def LArDigitMonConfigOld(inputFlags, topSequence):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArDigitMonAlg
-
-    #from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-    #from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-    #from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    #CAtoGlobalWrapper(ByteStreamReadCfg,ConfigFlags)
-    #from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
-
-    #try:
-    #   topSequence.LArRawDataReadingAlg.LArRawChannelKey="FREE" 
-    #   topSequence.LArRawDataReadingAlg.LArDigitKey="FREE"
-    #except AttributeError:
-    #   #in case the LArRawDataReadingAlg was not set up by someone:
-    #   topSequence+=LArRawDataReadingAlg(LArRawChannelKey="FREE", LArDigitKey="FREE")
 
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArDigitMonAlgCfg')
     LArDigitMonConfigCore(helper, LArDigitMonAlg,inputFlags)

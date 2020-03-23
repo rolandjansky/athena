@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -27,7 +27,6 @@ class LArDQGlobals(object):
                    'defaultStreamNames',
                    'TotalNcell',
                    'noisyFEB_Bins','noisyFEB_Max','noisyFEB_Min',
-#'Sample_N_Min','Sample_N_Max',
                    'Cell_Time_Min','Cell_Time_Max','Emin','Emax','DEmin','DEmax','Qmin','Qmax','DQmin','DQmax',
                    'Tmin','Tmax','DTmin','DTmax','OnlineOffline','TTriggerTypeMax','MaxCellThresholdADC',
                    'CorruptionSource','Streams',
@@ -239,10 +238,6 @@ lArDQGlobals.noisyFEB_Bins=51
 lArDQGlobals.noisyFEB_Min=-0.5
 lArDQGlobals.noisyFEB_Max=50.5
 
-#Collision time range
-#check if anyone needs this lArDQGlobals.CollTimeRange=[-50,50]
-
-
 
 #Gains
 lArDQGlobals.Gains=["Low Gain","Medium Gain","High Gain"]
@@ -328,7 +323,7 @@ for sdet in lArDQGlobals.SubDet:
             if not len(Ranges)-len(Sizes)==1 :
                   print("Bad list of ranges and size please check")
                   continue
-                  #exit(1)
+                  
             etamin=lArDQGlobals.Cell_Variables["etaMin"][sdet]["A"][Lay]
             currange=[etamin]
             for k in xrange(len(Ranges)-1) :
@@ -341,11 +336,3 @@ for sdet in lArDQGlobals.SubDet:
                   else: #all other partitions
                         lArDQGlobals.Cell_Variables["etaRange"][sdet]["C"][Lay] =map(lambda x: x*-1,lArDQGlobals.Cell_Variables["etaRange"][sdet]["A"][Lay])[::-1]
                               
-
-      
-#if __name__=='__main__':
- #     for subdet in range(0,lArDQGlobals.N_SubDet):
-  #          ft_low = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
-   #         ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
-    #        ft_n = int(ft_up - ft_low)
-     #       print(ft_low, " ", ft_up, " ", ft_n)
