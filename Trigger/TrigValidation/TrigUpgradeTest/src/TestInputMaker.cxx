@@ -38,7 +38,7 @@ namespace HLTTest {
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
 
     // call base class helper method to read input decisions, loop over them create outputs and connect them, returns with outputHandles filled
-    SG::WriteHandle<DecisionContainer> outputHandle = createAndStore( decisionOutputs(), context );
+    SG::WriteHandle<DecisionContainer> outputHandle = TrigCompositeUtils::createAndStore( decisionOutputs(), context );
     CHECK (decisionInputToOutput(context, outputHandle));
 
     // output collection, as a view container so it can be given const features

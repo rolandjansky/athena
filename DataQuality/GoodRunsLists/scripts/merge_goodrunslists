@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import os, os.path
 import shutil
@@ -17,14 +19,14 @@ def getfilelist(location):
 
   ## Search for input root and xml files in directory
   if os.path.exists( directory ):
-    print "INFO: Opening input directory: %s" % directory
+    print ("INFO: Opening input directory: %s" % directory)
     for file in os.listdir(directory):
       file = directory + file
       if file.endswith('.xml'): xmlfiles.append(file)
       if file.endswith('.root'): rootfiles.append(file)
   ## Get files from input textfile
   elif os.access(sampleFile,os.F_OK):
-    print "INFO: Opening input file : %s" % sampleFile 
+    print ("INFO: Opening input file : %s" % sampleFile )
     FileList=open(sampleFile).readlines()
     for file in FileList:
       file = file.strip()
@@ -47,7 +49,7 @@ def getfilelist(location):
 if __name__ == "__main__":
 
   if len(sys.argv)<2:
-    print "usage: ", sys.argv[0], "[-t <dirOrTreeNameInRootFile>] <directoryorlistwithrootorxmlfiles> [<singlemergedxmlfile>] [<MergeIntoOne?True/False>] [<MatchGRLInfo?False/True>]"
+    print ("usage: ", sys.argv[0], "[-t <dirOrTreeNameInRootFile>] <directoryorlistwithrootorxmlfiles> [<singlemergedxmlfile>] [<MergeIntoOne?True/False>] [<MatchGRLInfo?False/True>]")
     sys.exit(1)
 
   ## interpret cmd-line arguments
@@ -56,7 +58,7 @@ if __name__ == "__main__":
   idx = 0
   if (sys.argv[1] == "-t"):
     if (len(sys.argv)<4):
-      print "usage: ", sys.argv[0], "[-t <dirOrTreeInRootFile>] <directoryorlistwithrootorxmlfiles> [<singlemergedxmlfile>] [<MergeIntoOne?True/False>] [<MatchGRLInfo?False/True>]"
+      print ("usage: ", sys.argv[0], "[-t <dirOrTreeInRootFile>] <directoryorlistwithrootorxmlfiles> [<singlemergedxmlfile>] [<MergeIntoOne?True/False>] [<MatchGRLInfo?False/True>]")
       sys.exit(1)
     else:
       treeName = sys.argv[2]
@@ -76,9 +78,11 @@ if __name__ == "__main__":
   ## Search for input root and xml files
   xmlfiles,rootfiles = getfilelist( directory )
 
-  if (len(xmlfiles)>0): print ">> Found %d input xml files." % (len(xmlfiles))
-  if (len(rootfiles)>0): print ">> Found %d input root files." % (len(rootfiles))
-  print ">> Now merging ... (this takes some time)"
+  if (len(xmlfiles)>0):
+    print (">> Found %d input xml files." % (len(xmlfiles)))
+  if (len(rootfiles)>0):
+    print (">> Found %d input root files." % (len(rootfiles)))
+  print (">> Now merging ... (this takes some time)")
 
   ## Needed to correct ROOT behavior; see below
   CWD = os.getcwd()
@@ -139,7 +143,7 @@ if __name__ == "__main__":
   reader.Interpret()
   grlcollection = reader.GetMergedGRLCollection()
 
-  print ">> Found %d independent good-runs lists. Now writing merged xml files." % len(grlcollection)
+  print (">> Found %d independent good-runs lists. Now writing merged xml files." % len(grlcollection))
 
   ## Now write out xml again ... 
   grlcollection.SetVersion('20') # signature of the merge scripts ;-)

@@ -23,8 +23,6 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
-using HepMC::GenVertex;
-using HepMC::GenParticle;
 //
 //--------------------------------------------------------------------------
 JetFilterWithTruthPhoton::JetFilterWithTruthPhoton(const std::string& name, 
