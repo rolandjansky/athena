@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,6 +29,8 @@
 #include <cstring>
 #include <cstdio>
 #include <vector>
+#include <thread>
+#include <mutex>
 
 #include "cxxabi.h"
 
@@ -193,16 +195,15 @@ TypeH DbTypeInfo::clazz( bool noIdScan )  const  {
     return m_class;
   }
   else if ( !m_class && m_columns.size() > 0 )  {
-    static bool convert = false;
-    if ( !convert )  {
-      try   {
-        DbTypeInfo* thisPtr = (DbTypeInfo*)this;
-        convert = true;
-        thisPtr->m_class = DbReflex::forGuid(m_id);
-      }
-      catch(...)  {
-      }
-    }
+    static std::once_flag convert;
+    std::call_once (convert,
+                    [&] {
+                      DbTypeInfo* thisPtr = const_cast<DbTypeInfo*>(this);
+                      try {
+                        thisPtr->m_class = DbReflex::forGuid(m_id);
+                      }
+                      catch(...) {}
+                    });
     return m_class;
   }
   return m_class;
@@ -240,7 +241,7 @@ const std::string DbTypeInfo::toString() const   {
   return rep;
 }
 
-static const char* itm[][2] = { 
+static const char* const itm[][2] = { 
   {"{ID=", "}"}, 
   {"{CL=", "}"}, 
   {"{NCOL=", "}"},
@@ -256,42 +257,39 @@ DbStatus DbTypeInfo::i_fromString( const std::string& string_rep)  {
   for(i = 0; i < m_columns.size(); ++i)
     delete m_columns[i];
   m_columns.clear();
-  char* p1 = (char*)tmp.c_str();
+  const char* p1 = tmp.c_str();
   DbColumn* col = 0;
   setShapeID(Guid::null());
   for(i = 0; i < sizeof(itm)/sizeof(itm[0]); ++i)   {
 Again:
     p1 = ::strstr(p1, itm[i][0]);
     if ( p1 )    {
-      char* pp1 = p1+strlen(itm[i][0]);
-      char* p2 = ::strstr(pp1, itm[i][1]);
+      const char* pp1 = p1+strlen(itm[i][0]);
+      const char* p2 = ::strstr(pp1, itm[i][1]);
       if ( p2 )   {
         p2 += ::strlen(itm[i][1])-1;
-        *p1 = 0;
-        *p2 = 0;
+        std::string s (pp1, p2-pp1);
         switch(i) {
         case 0:
-          setShapeID(std::string(pp1));
+          setShapeID(s);
           // this->clazz();
           break;
         case 1:
-          m_class = DbReflex::forTypeName(pp1);
+          m_class = DbReflex::forTypeName(s);
           if ( m_class && shapeID() == Guid::null() )  {
             setShapeID(DbReflex::guid(m_class));
           }
           break;
         case 2:
-          ::sscanf(pp1, "%99d", &ncol);
+          ::sscanf(s.c_str(), "%99d", &ncol);
           break;
         case 3:
           m_columns.push_back(col=new DbColumn());
-          col->fromString(pp1);
+          col->fromString(s);
           break;
         default:
           break;
         }
-        *p1 = '{';
-        *p2 = '}';
         if ( i > 2 && int(m_columns.size()) < ncol )  {
           p1++;
           goto Again;

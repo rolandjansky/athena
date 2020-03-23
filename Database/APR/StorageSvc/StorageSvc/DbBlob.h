@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /cvs/PF/pool/StorageSvc/StorageSvc/DbBlob.h,v 1.14 2010/08/19 14:02:41 trentad Exp $
@@ -295,7 +295,8 @@ namespace pool    {
 
   /// Swap bytes from a source buffer to the stream buffer with arbitray size
   inline void DbBlob::swapToBuffer(const void* source, int siz)   {
-    char buff[8], *tar, *src = (char*)source;
+    char buff[8], *tar;
+    const char* src = reinterpret_cast<const char*> (source);
     extend (m_pointer+siz);
     tar = (char*)m_buffer+m_pointer;
     switch ( swapBuffer(siz) )   {
