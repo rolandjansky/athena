@@ -17,7 +17,7 @@ atlas_install_joboptions( share/*.py )
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
 
-if( ATHENAPOOLUTILITIESTEST_FOUND )
+if( ATHENAPOOLUTILITIESTEST_FOUND AND NOT GENERATIONBASE )
   set( EVENTATHENAPOOL_REFERENCE_TAG
        EventAthenaPoolReference-01-00-00 )
   run_tpcnv_legacy_test( EventTPCnv_15.0.0   AOD-15.0.0-full
@@ -28,7 +28,7 @@ if( ATHENAPOOLUTILITIESTEST_FOUND )
                   REFERENCE_TAG ${EVENTATHENAPOOL_REFERENCE_TAG} )
   run_tpcnv_legacy_test( EventTPCnv_20.1.7.2 ESD-20.1.7.2
                   REFERENCE_TAG ${EVENTATHENAPOOL_REFERENCE_TAG} )
-else()
+elseif( NOT ATHENAPOOLUTILITIESTEST_FOUND )
    message( WARNING
       "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
-endif()   
+endif()
