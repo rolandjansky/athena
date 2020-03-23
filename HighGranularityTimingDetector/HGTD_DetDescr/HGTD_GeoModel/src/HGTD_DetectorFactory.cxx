@@ -97,12 +97,12 @@ void HGTD_DetectorFactory::create(GeoPhysVol* world) {
 GeoFullPhysVol* HGTD_DetectorFactory::createEnvelope(bool bPos) {
 
     // the envelope to be returned
-    GeoFullPhysVol *world_physical_hgtd = NULL;
+    GeoFullPhysVol *world_physical_hgtd = nullptr;
 
     // Get the materials from the material manager:-----------------------------------------------------//
     //                                                                                                  //
     DataHandle<StoredMaterialManager> materialManager;
-    if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
+    if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) return nullptr;
 
     std::string AtlasVersion = m_athenaComps->geoModelSvc()->atlasVersion();
     std::string LArVersion = m_athenaComps->geoModelSvc()->LAr_VersionOverride();
