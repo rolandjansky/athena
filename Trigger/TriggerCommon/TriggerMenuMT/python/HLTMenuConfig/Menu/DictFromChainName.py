@@ -237,17 +237,17 @@ def analyseChainName(chainName, L1thresholds, L1item):
             buildDict( 'Streaming', 'streamer')
             break # stop loop here so mb doesn't get picked up from min bias slice as it's streaming info
         else:
-            for chainCatrgory in [(['mb'], 'MinBias', 'mb'),
+            for chainCategory in [(['mb'], 'MinBias', 'mb'),
                                   (['hi'], 'HeavyIon', 'mb'),
                                   (AllowedCosmicChainIdentifiers, 'Cosmic', 'cosmic'),
                                   (AllowedCalibChainIdentifiers, 'Calibration', 'calib'),
                                   (AllowedMonitorChainIdentifiers, 'Monitor', 'calib'),
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
                                   (['eb'], 'EnhancedBias', 'eb') ]:
-                if cpart in chainCatrgory[0]:
-                    log.debug('Doing chain type {}'.format(chainCatrgory[1]))
+                if cpart in chainCategory[0]:
+                    log.debug('Doing chain type {}'.format(chainCategory[1]))
                     multichainindex.append(hltChainNameShort.index(cpart))
-                    buildDict(chainCatrgory[1], chainCatrgory[2])
+                    buildDict(chainCategory[1], chainCategory[2])
 
 
     # If multiple parts exist, split the string and analyse each
