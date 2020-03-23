@@ -74,6 +74,8 @@ class DQTGlobalWZFinderTool: public DataQualityFatherMonTool
 
 private:
   void setDQTGlobalWZFinderBranches();
+  void setBCIDBranches(TTree *tree, std::string variable_name);
+
 
   void doMuonTriggerTP(const xAOD::Muon* , const xAOD::Muon*);
   void doMuonTruthEff(std::vector<const xAOD::Muon*>&);
@@ -88,11 +90,7 @@ private:
   bool antiGoodElectrons(const xAOD::EventInfo* thisEventInfo, const xAOD::Electron* electron_itr, const xAOD::Vertex* pVtx, bool isBad);
   bool kinematicCuts(const xAOD::Electron*);
   void fillEleEffHistos(bool tag_good, bool probe_good, bool probe_anti_good, bool os, double mass);
-  void fillBCIDHistos(TH2F_LW* h_48b, TH2F_LW* h_2t47b, TH2F_LW* h_indiv);
-  void fillBCIDHistos(double mass, TH3F* h_48b, TH3F* h_2t47b, TH3F* h_indiv);
-  void fillBCIDHistos(int matched, TH3F* h_48b, TH3F* h_2t47b, TH3F* h_indiv);
-
-
+  
   bool checkTruthElectron(const xAOD::Electron* electron);
   bool checkTruthTrack(const xAOD::TrackParticle* trk);
   bool checkTruthMuon(const xAOD::Muon* muon);
@@ -140,68 +138,23 @@ private:
   TH1F_LW *m_eltrigtp_matches_ss;
   
   // BCID info
-  double m_pileup_per_lb;
+  bool  m_do_BCID;
+  float m_pileup_per_lb;
   float m_distance_from_front;
-  bool m_is_in_train;
-  int m_train_length;
-  TH2F_LW *m_BCID_pileup_zee;
-  TH2F_LW *m_BCID_pileup_zmm;
-  TH2F_LW *m_BCID_2t47_pileup_zee;
-  TH2F_LW *m_BCID_2t47_pileup_zmm;
-  TH2F_LW *m_BCID_indiv_pileup_zee;
-  TH2F_LW *m_BCID_indiv_pileup_zmm;
-  // muon channel
-  TH3F *m_mutrigtp_matches_BCID_pileup; 
-  TH3F *m_mutrigtp_matches_BCID_2t47_pileup; 
-  TH3F *m_mutrigtp_matches_BCID_indiv_pileup; 
+  float m_mass;
+  bool  m_is_in_train;
+  bool  m_isOS;
+  int   m_train_length;
+  int   m_nTrig_matches;
 
-  TH3F *m_muloosetp_match_os_BCID_pileup;
-  TH3F *m_muloosetp_match_os_BCID_2t47_pileup;
-  TH3F *m_muloosetp_match_os_BCID_indiv_pileup;
-
-  TH3F *m_muloosetp_match_ss_BCID_pileup;
-  TH3F *m_muloosetp_match_ss_BCID_2t47_pileup;
-  TH3F *m_muloosetp_match_ss_BCID_indiv_pileup;
-
-  TH3F *m_muloosetp_nomatch_os_BCID_pileup;
-  TH3F *m_muloosetp_nomatch_os_BCID_2t47_pileup;
-  TH3F *m_muloosetp_nomatch_os_BCID_indiv_pileup;
-
-  TH3F *m_muloosetp_nomatch_ss_BCID_pileup;
-  TH3F *m_muloosetp_nomatch_ss_BCID_2t47_pileup;
-  TH3F *m_muloosetp_nomatch_ss_BCID_indiv_pileup;
-  // electron channel
-  TH3F *m_ele_tight_bad_os_BCID_pileup;
-  TH3F *m_ele_tight_bad_os_BCID_2t47_pileup;
-  TH3F *m_ele_tight_bad_os_BCID_indiv_pileup;
-
-  TH3F *m_ele_tight_bad_ss_BCID_pileup;
-  TH3F *m_ele_tight_bad_ss_BCID_2t47_pileup;
-  TH3F *m_ele_tight_bad_ss_BCID_indiv_pileup;
-
-  TH3F *m_ele_tight_good_os_BCID_pileup;
-  TH3F *m_ele_tight_good_os_BCID_2t47_pileup;
-  TH3F *m_ele_tight_good_os_BCID_indiv_pileup;
-
-  TH3F *m_ele_tight_good_ss_BCID_pileup;
-  TH3F *m_ele_tight_good_ss_BCID_2t47_pileup;
-  TH3F *m_ele_tight_good_ss_BCID_indiv_pileup;
-
-  TH3F *m_ele_template_os_BCID_pileup;
-  TH3F *m_ele_template_os_BCID_2t47_pileup;
-  TH3F *m_ele_template_os_BCID_indiv_pileup;
-
-  TH3F *m_ele_template_ss_BCID_pileup;
-  TH3F *m_ele_template_ss_BCID_2t47_pileup;
-  TH3F *m_ele_template_ss_BCID_indiv_pileup;
-
-  TH3F *m_eltrigtp_matches_os_BCID_pileup;
-  TH3F *m_eltrigtp_matches_os_BCID_2t47_pileup;
-  TH3F *m_eltrigtp_matches_os_BCID_indiv_pileup;
-
-  TH3F *m_eltrigtp_matches_ss_BCID_pileup;
-  TH3F *m_eltrigtp_matches_ss_BCID_2t47_pileup;
-  TH3F *m_eltrigtp_matches_ss_BCID_indiv_pileup;
+  TTree *m_bcid_ele_tight_good;
+  TTree *m_bcid_ele_tight_bad;
+  TTree *m_bcid_ele_template;
+  TTree *m_bcid_ele_trigtp;
+  
+  TTree *m_bcid_mu_tight_good;
+  TTree *m_bcid_mu_tight_bad;
+  TTree *m_bcid_mu_trigtp;
 
   // Electron channel TP histos
   TH1F_LW *m_ele_tight_bad_os;
