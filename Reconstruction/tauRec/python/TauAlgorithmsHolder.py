@@ -892,7 +892,7 @@ def getTauJetRNNEvaluator(_n, NetworkFile0P="", NetworkFile1P="", NetworkFile3P=
     return myTauJetRNNEvaluator
 
 
-def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", GradiantBoost=True, minAbsTrackEta=-1, maxAbsTrackEta=-1):
+def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", minAbsTrackEta=-1, maxAbsTrackEta=-1):
     _name = sPrefix + _n
     from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
     myTauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
@@ -901,8 +901,7 @@ def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, ou
                                               maxNTracks=maxNTracks,
                                               minAbsTrackEta=minAbsTrackEta,
                                               maxAbsTrackEta=maxAbsTrackEta,
-                                              outputVarName=outputVarName,
-                                              GradiantBoost=GradiantBoost)
+                                              outputVarName=outputVarName)
     cached_instances[_name] = myTauJetBDTEvaluator
     return myTauJetBDTEvaluator
 
