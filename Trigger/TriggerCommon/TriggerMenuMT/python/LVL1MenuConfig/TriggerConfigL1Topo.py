@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from .L1Topo.L1TopoMenu import L1TopoMenu
 from .L1Topo.L1TopoFlags import L1TopoFlags
