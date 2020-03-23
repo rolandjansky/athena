@@ -13,8 +13,7 @@
 
 GeometryDBSvc::GeometryDBSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  m_textParameters(0),
-  m_lastLookupResult(false)
+  m_textParameters(0)
 {
   declareProperty("TextFileName",m_textFileName, "Text file name for overriding database.");
   declareProperty("PrintParameters",m_printParameters = true, "Print parameters read in from text file.");
@@ -118,14 +117,10 @@ GeometryDBSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 void 
 GeometryDBSvc::setParameterFileName(const std::string & filename)
 {
-  lock_t lock(m_mutex);
   if (!filename.empty()) {
     msg(MSG::INFO) << "Parameters overriden from text file: " << filename << endmsg; 
     msg(MSG::WARNING) << "Overriding from a text file is NOT recommended for production use." << endmsg; 
     if (!m_textParameters)  m_textParameters = new TextFileDBReader;
-    m_lastLookupKey = "";
-    m_lastLookupValue = "";
-    m_lastLookupResult = false;
     bool status = m_textParameters->readFile(filename);
     if (!status) {
       msg(MSG::ERROR) << "Problem reading text file: " << filename << endmsg; 
@@ -254,25 +249,14 @@ GeometryDBSvc::getValue(const std::string & recordSetName, const std::string & n
   var = "";
   if (!m_textParameters) return false;
   std::string lookupKey = parameterKey(recordSetName,name,index);
-  if (lookupKey == m_lastLookupKey){
-    // Use cached value.
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Same as previous lookup. Using cache." << endmsg; 
-    var = m_lastLookupValue;
-    return m_lastLookupResult;
-  } else {  
-    lock_t lock(m_mutex);
-    m_lastLookupKey = lookupKey;
-    bool result = m_textParameters->find(parameterKey(recordSetName,name,index),var);
-    if (!result && !recordSetName.empty()) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Not found. Looking for default entry with #ALL" << endmsg; 
-      std::ostringstream keyalt;
-      keyalt << recordSetName << "#ALL:" << name;
-      result = m_textParameters->find(keyalt.str(),var);
-    }
-    m_lastLookupResult = result;
-    m_lastLookupValue = var;
-    return result;
+  bool result = m_textParameters->find(parameterKey(recordSetName,name,index),var);
+  if (!result && !recordSetName.empty()) {
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Not found. Looking for default entry with #ALL" << endmsg; 
+    std::ostringstream keyalt;
+    keyalt << recordSetName << "#ALL:" << name;
+    result = m_textParameters->find(keyalt.str(),var);
   }
+  return result;
 }
 
 

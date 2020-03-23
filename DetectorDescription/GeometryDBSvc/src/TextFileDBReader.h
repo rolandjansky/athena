@@ -12,6 +12,7 @@
 #include "CxxUtils/checker_macros.h"
 //use thread-safe atomic_flag to replace m_logger
 #include <atomic> 
+#include <unordered_map>
 
 class TextFileDBReader
 {							
@@ -36,7 +37,7 @@ private:
     std::string value;
     int section;
     //add a atomic_flag to replace the m_logger
-    std::atomic_flag flag=ATOMIC_FLAG_INIT;
+    mutable std::atomic_flag flag ATLAS_THREAD_SAFE=ATOMIC_FLAG_INIT ;
   };
 
 
@@ -44,8 +45,8 @@ private:
   bool getRowNumber(std::string & key, std::string & rowNumber) const;
   void add(const std::string & key, const std::string & value);
   void add(const std::string & key, int);
-  std::map<std::string, Data*> m_table;
-  std::map<std::string, int> m_sections;
+  std::unordered_map<std::string, Data> m_table;
+  std::unordered_map<std::string, int> m_sections;
   int m_numSections;
   int m_currentSection;
   std::string m_name;

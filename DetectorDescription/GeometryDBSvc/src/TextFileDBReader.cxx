@@ -191,18 +191,17 @@ TextFileDBReader::add(const std::string & key, const std::string & value)
     std::cout << "WARNING! Overwriting exist entry with key: " << key << std::endl;
   } 
 
-   m_table.emplace(std::piecewise_construct, 
-                   std::forward_as_tuple(key), std::forward_as_tuple(new Data(value,m_currentSection)));
+  m_table.try_emplace (key, value, m_currentSection);
+//   m_table.emplace(std::piecewise_construct, 
+ //                  std::forward_as_tuple(key), std::forward_as_tuple(new Data(value,m_currentSection)));
 }
 
 bool 
 TextFileDBReader::find(const std::string & key, std::string & result) const
 {
-  std::map<std::string,Data*>::const_iterator iter = m_table.find(key);
-  if((const_cast<Data*>((iter->second)))->flag.test_and_set())
-    return true;
-  if (iter != m_table.end()) {
-    result = iter->second->value;
+  std::unordered_map<std::string,Data>::const_iterator iter = m_table.find(key);
+  if (iter != m_table.end() || (iter->second).flag.test_and_set()) {
+    result = iter->second.value;
     return true;
   } else {
     result = "";
@@ -217,15 +216,15 @@ TextFileDBReader::printParameters(const std::string & section) const
   std::cout << std::left;
   int sectionNum = 0;
   if (!section.empty()) {
-    std::map<std::string,int>::const_iterator iterSect = m_sections.find(section);
+    std::unordered_map<std::string,int>::const_iterator iterSect = m_sections.find(section);
     if (iterSect != m_sections.end()) sectionNum = iterSect->second;
     // If not found then prints those in unnamed section.(ie sectionNum = 0)
   } 
-  for (std::map<std::string,Data*>::const_iterator iter = m_table.begin();
+  for (std::unordered_map<std::string,Data>::const_iterator iter = m_table.begin();
        iter != m_table.end();
        ++iter) {
-    if (section.empty() || iter->second->section == sectionNum) {
-      std::cout << std::setw(35) << iter->first << " " << iter->second->value << std::endl;
+    if (section.empty() || iter->second.section == sectionNum) {
+      std::cout << std::setw(35) << iter->first << " " << iter->second.value << std::endl;
     }
   }
   // reset flags to original state
@@ -241,15 +240,15 @@ TextFileDBReader::printNotUsed(const std::string & section) const
   bool allused = true;
   int sectionNum = 0;
   if (!section.empty()) {
-    std::map<std::string,int>::const_iterator iterSect = m_sections.find(section);
+    std::unordered_map<std::string,int>::const_iterator iterSect = m_sections.find(section);
     if (iterSect != m_sections.end()) sectionNum = iterSect->second;
     // If not found then considers those in unnamed section (ie sectionNum = 0)
   }
-  for (std::map<std::string,Data*>::const_iterator iter = m_table.begin();
+  for (std::unordered_map<std::string,Data>::const_iterator iter = m_table.begin();
        iter != m_table.end();
        ++iter) {
-    if ((section.empty() || iter->second->section == sectionNum) && (!((const_cast<Data*>((iter->second)))->flag.test_and_set()))) {
-      std::cout << std::setw(35) << iter->first << " " << iter->second->value << std::endl;
+    if ((section.empty() || iter->second.section == sectionNum) && (!(iter->second.flag.test_and_set()))) {
+      std::cout << std::setw(35) << iter->first << " " << iter->second.value << std::endl;
       allused = false;
     }
   }
