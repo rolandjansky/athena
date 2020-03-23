@@ -233,7 +233,7 @@ siAlignmentTag = "InDetAlign_R2_Nominal"
 numberOfEvents = 10
 import glob
 inputFiles = glob.glob('/afs/cern.ch/work/m/mrudolph/public/singleMuon_minus_DBM_digits.pool.root')
-print inputFiles
+printfunc (inputFiles)
 
 # Run collision reconstruction
 # ==========================

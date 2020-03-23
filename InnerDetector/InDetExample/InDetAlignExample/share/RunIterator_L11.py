@@ -1,9 +1,11 @@
-
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4/slc4_ia32_gcc34/bin/python
+#!/usr/bin/env python
 # =====================================================================
 # Main script to run the NewInDetIterator
 # run with ./RunIterator.py
 # =====================================================================
+
+from __future__ import print_function
+
 import os
 import sys
 
@@ -116,7 +118,7 @@ userPtMin = userPtMin.split()
 
 # check that inputList and eventype have the same number of elements
 if (len(inputList) != len(eventType)):
-    print " <RunIterator> ERROR no input list. Please provide a set of files with data to be processed"
+    print (" <RunIterator> ERROR no input list. Please provide a set of files with data to be processed")
     exit()
 
 #prefix for the job's name
@@ -138,20 +140,26 @@ if (len(userNIter)>0):
 #               Print input parameters                   #
 ##########################################################
 
-print " \n <RunIterator> ----- User input in command line --- "
-if (len(folderSuffix)>0): print " <RunIterator> folder suffix = ", folderSuffix
-print " <RunIterator> inputList = ",inputList
-print " <RunIterator> nCpus = ",nCpus
-print " <RunIterator> nEventsMax = ",nEventsMax
-if (len(ConstantsFile)>0): print " <RunIterator> ConstantsFile = ",ConstantsFile
-if (len(BowingDb)>0): print " <RunIterator> BowingDb = ", BowingDb
-if (len(inputErrorScalingTag)>0): print " <RunIterator> inputErrorScalingTag = ",inputErrorScalingTag
-if (len(userPtMin)>0): print " <RunIterator> userPtMin = ",userPtMin, " MeV"
-print " <RunIterator> eventType = ",eventType
-print " <RunIterator> iterating on ",len(eventType),"samples "
-if (len(userNIter)>0): print " <RunIterator> #Iterations = ",Iterations
+print (" \n <RunIterator> ----- User input in command line --- ")
+if (len(folderSuffix)>0):
+    print (" <RunIterator> folder suffix = ", folderSuffix)
+print (" <RunIterator> inputList = ",inputList)
+print (" <RunIterator> nCpus = ",nCpus)
+print (" <RunIterator> nEventsMax = ",nEventsMax)
+if (len(ConstantsFile)>0):
+    print (" <RunIterator> ConstantsFile = ",ConstantsFile)
+if (len(BowingDb)>0):
+    print (" <RunIterator> BowingDb = ", BowingDb)
+if (len(inputErrorScalingTag)>0):
+    print (" <RunIterator> inputErrorScalingTag = ",inputErrorScalingTag)
+if (len(userPtMin)>0):
+    print (" <RunIterator> userPtMin = ",userPtMin, " MeV")
+print (" <RunIterator> eventType = ",eventType)
+print (" <RunIterator> iterating on ",len(eventType),"samples ")
+if (len(userNIter)>0):
+    print (" <RunIterator> #Iterations = ",Iterations)
 if userLBselection:
-    print " <RunIterator> LB range = ",userLBrangeFirst, " --> ", userLBrangeLast
+    print (" <RunIterator> LB range = ",userLBrangeFirst, " --> ", userLBrangeLast)
 
 ##########################################################
 #       Datasets to use
@@ -161,8 +169,8 @@ from InDetAlignExample.NewInDet_SetupData import setupData
 DataToRun = []
 
 for i_sample in range(len(inputList)):
-    print " "
-    print " ==== configuring sample #",i_sample
+    print (" ")
+    print (" ==== configuring sample #",i_sample)
     Data1 = setupData(eventType[i_sample])
     #Need To be changed this one
     myDataType = "Data_15" + eventType[i_sample]
@@ -201,31 +209,31 @@ for i_sample in range(len(inputList)):
     if (eventType[i_sample] == "collisions"):
         # default
         myTag = "ATLAS-R2-2015-03-01-00"
-        print " ==> default tag   myTag=",myTag            
+        print (" ==> default tag   myTag=",myTag            )
         Data1.setGlobalTag("OFLCOND-RUN12-SDR-28")
         Data1.setDetDescrVersion(myTag)
         if isData:
-            print " ==> In collisions and isData True :)   myTag=",myTag
+            print (" ==> In collisions and isData True :)   myTag=",myTag)
             myTag = "ATLAS-R2-2015-03-01-00"
             Data1.setGlobalTag("CONDBR2-BLKPA-2015-14")
             Data1.setDetDescrVersion(myTag)
             if HeavyIons:
                 myTag = "ATLAS-R2-2015-03-01-00"
-                print " ==> In collisions and HeavyIons :)   myTag=",myTag
+                print (" ==> In collisions and HeavyIons :)   myTag=",myTag)
                 Data1.setGlobalTag("COMCOND-BLKPA-RUN1-06")
                 Data1.setDetDescrVersion(myTag)
             if preIBLgeometry and HeavyIons:
-                print " ==> In preIBLgeometry and HeavyIons :) "
+                print (" ==> In preIBLgeometry and HeavyIons :) ")
                 Data1.setDetDescrVersion("ATLAS-R1-2011-02-00-00")
 
     
     if (eventType[i_sample] == "cosmics"):
         if isData:
-            print " ==> In cosmics and isData True :) "
+            print (" ==> In cosmics and isData True :) ")
             Data1.setGlobalTag("CONDBR2-BLKPA-2015-14")
             Data1.setDetDescrVersion("ATLAS-R2-2015-03-01-00")
         else:
-            print " ==> In cosmics and else :) "
+            print (" ==> In cosmics and else :) ")
             Data1.setGlobalTag("OFLCOND-RUN12-SDR-14")
             Data1.setDetDescrVersion("ATLAS-R2-2015-03-01-00")
 
@@ -243,7 +251,7 @@ for i_sample in range(len(inputList)):
         
 
     DataToRun.append(Data1) # always add this line to process the defined data
-    print " == configuration sample ",i_sample," completed"
+    print (" == configuration sample ",i_sample," completed")
 # end of loop on data types
 
 ### Duplicate the previous lines to have as many datasets that you want
@@ -474,7 +482,5 @@ errorScalingTag = inputErrorScalingTag
 MonitoringScript = ""
 
 os.system("get_files -jo InDetAlignExample/NewInDetIterator_Rel19.py >/dev/null")
-print os.system("get_files -jo InDetAlignExample/NewInDetIterator_Rel19.py")
-execfile("NewInDetIterator_Rel19.py")
-
-
+print (os.system("get_files -jo InDetAlignExample/NewInDetIterator_Rel19.py"))
+exec(compile(open('NewInDetIterator_Rel19.py').read()))
