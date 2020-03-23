@@ -25,10 +25,7 @@
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelUtilities/StoredAlignX.h"
 
-// // #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
-// // #include "InDetReadoutGeometry/Version.h"
-// // #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
@@ -36,16 +33,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
-
-// // #include "SCT_GeoModelXml/SCT_Options.h"
-// // #include "GeoModelXml/Gmx2Geo.h"
-// // #include "SCT_GeoModelXml/SCT_GmxInterface.h"
-// // #include "GeoModelXml/GmxInterface.h"
-
-// // #include "PathResolver/PathResolver.h"
-
-// #include "PixelReadoutGeometry/PixelDetectorManager.h"
-// #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 using namespace std;
 
@@ -82,10 +69,8 @@ void HGTD_DetectorFactory::create(GeoPhysVol* world) {
     // TODO: deal with recording "StoredPhysVol" and "StoredAlignX" (xfHGTDPos + xfHGTDNeg)
 
     world->add( new GeoNameTag("HGTD_Pos"));
-    // world->add(xfHGTDPos); // StoredAlignX
     world->add(HGTD_EnvelopePos);
     world->add( new GeoNameTag("HGTD_Neg"));
-    // world->add(xfHGTDNeg); // StoredAlignX
     world->add( new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
     world->add(HGTD_EnvelopeNeg);
 
@@ -158,10 +143,8 @@ GeoFullPhysVol* HGTD_DetectorFactory::createEnvelope(bool bPos) {
         m_cylVolPars["HGTD::PeriphElec"].zHalf = 1.;
         m_cylVolPars["HGTD::PeriphElec"].zOffsetLocal = 2.;//space wrt cooling layer
         m_cylVolPars["HGTD_mother"].rMin= 100;
-        m_cylVolPars["HGTD::ToleranceBack"].rMax= 900; // It's a little awkward to have an outer R for a tolerance. Do we need to change this? /CO
-        //DZ_rmin = (125-20)/2; zpos = 62.5-20-DZ/2=-10
+        m_cylVolPars["HGTD::ToleranceBack"].rMax= 900;
         m_cylVolPars["HGTD::InnerRCover"]  = {"HGTD::InnerRCover", 115., 120., 105./2, -10., "sct::CFiberSupport"}; // not yet in db!
-        //Dz_rmax = (125-20-8-15)/2; zpos = 62.6-20-8-dz/2
         m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 995., 1000., 82./2, -6.5, "sct::CFiberSupport"}; // not yet in db!
         m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::SSteel"};
         m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "pix::CO2_Liquid"};
