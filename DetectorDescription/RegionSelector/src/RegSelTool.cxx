@@ -44,8 +44,7 @@ RegSelTool::~RegSelTool() { }
 const RegSelSiLUT* RegSelTool::lookup() const {
   if ( !m_initialised ) return nullptr; 
   SG::ReadCondHandle< RegSelCondData<RegSelSiLUT> > table_handle( m_tableKey ); 
-  const RegSelSiLUT* lookup_table = (*table_handle)->payload();
-  return lookup_table;    
+  return (*table_handle)->payload();
 }
 
 

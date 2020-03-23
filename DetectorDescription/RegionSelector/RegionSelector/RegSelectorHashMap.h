@@ -148,12 +148,13 @@ class RegSelectorHashMap{
 
   //LRSIdentHash
   void findIdentifier(std::vector<IdentifierHash> &auxsetIH,
-     const int& iXBeg, const int& iXEnd, const int iYBeg, const int iYEnd,
-     const int iPage) const;
+		      const int iXBeg, const int iXEnd, 
+		      const int iYBeg, const int iYEnd,
+		      const int iPage) const;
 
   //LRSUint
   void findIdentifierROB(std::vector<uint32_t> &auxset, 
-			 const int& iXBeg, const int& iXEnd, 
+			 const int  iXBeg, const int  iXEnd, 
 			 const int  iYBeg, const int  iYEnd, 
 			 const int iPage) const;
 

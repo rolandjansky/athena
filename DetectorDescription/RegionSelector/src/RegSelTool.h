@@ -57,27 +57,27 @@ public:
 
   // Interface inherited from IRegSelTool service
 
-  virtual
+
   void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
 
-  virtual
+
   void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist) const override;
 
-  virtual
+
   void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
 
-  virtual
+
   void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
 
    
 protected:
 
   // full scan
-  virtual 
+
   void HashIDList( std::vector<IdentifierHash>& idlist ) const;  
 
   // full scan for a specific layer
-  virtual 
+
   void HashIDList( long layer, std::vector<IdentifierHash>& idlist ) const;
      
   // Methods to obtain the rob id list
@@ -102,8 +102,6 @@ private:
 
   //! Flag to determine whether it has yet been initialised
   bool              m_initialised; 
-
-  std::string       m_tableName;
 
   //! Flag to dump loaded table in data file.
   BooleanProperty  m_dumpTable;

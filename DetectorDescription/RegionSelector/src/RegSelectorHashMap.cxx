@@ -555,8 +555,6 @@ StatusCode RegSelectorHashMap::read(const char *filename){
 void RegSelectorHashMap::addLut(const RegionSelectorLUT *detLut){
   // unsigned int j;
 
-  std::cout << "SUTT::RegSelectorHashMap::addLut() maxHash " << detLut->maxHash() << std::endl; 
-
   initvar();
   std::vector<uint32_t> robId_cpy;
 
@@ -615,8 +613,6 @@ void RegSelectorHashMap::addLut(const RegionSelectorLUT *detLut){
   // Shall not forget to save last one
   // Assuming last line is NOT a 2 ROB/TT case
   writeLine(layer,hash,robId_cpy,etamin,etamax,phimin,phimax,samp);
-
-  std::cout << "SUTT::addLut() : m_hashId.size() " << m_hashId.size() << std::endl; 
 
 }
 
@@ -917,7 +913,8 @@ void RegSelectorHashMap::verifyOutput(int sampling,double etaminIn, double etama
 }
 
 void RegSelectorHashMap::findIdentifier(std::vector<IdentifierHash> &auxsetIH,
-					const int& iXBeg, const int& iXEnd, const int iYBeg, const int iYEnd,
+					const int iXBeg, const int iXEnd, 
+					const int iYBeg, const int iYEnd,
 					const int iPage) const  {
  int xEta, yPhi, iPosition;
 
@@ -938,7 +935,7 @@ void RegSelectorHashMap::findIdentifier(std::vector<IdentifierHash> &auxsetIH,
 }
 
 void RegSelectorHashMap::findIdentifierROB( std::vector<uint32_t> &auxset, 
-					    const int& iXBeg, const int& iXEnd, 
+					    const int  iXBeg, const int  iXEnd, 
 					    const int  iYBeg, const int  iYEnd, 
 					    const int iPage ) const {
   int xEta, yPhi, iPosition;
