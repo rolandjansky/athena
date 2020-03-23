@@ -3,6 +3,8 @@ Tools configurations for ISF
 KG Tan, 17/06/2012
 """
 
+from __future__ import print_function
+
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
         getService,getServiceClone,getAlgorithm,getAlgorithmClone
 
@@ -27,7 +29,7 @@ def getIGeant4(**kwargs):
         # if FullGeant4 specified, make sure returning cached version with FullGeant4 already in use
         if FullGeant4:
             if (i.FullGeant4 == False) :
-                print "asking for FullGeant4 but already configured Geant4 without specifying Full Geant4! Must specify FullGeant4 everywhere (or nowhere)!!!"
+                print ("asking for FullGeant4 but already configured Geant4 without specifying Full Geant4! Must specify FullGeant4 everywhere (or nowhere)!!!")
                 sys.exit()
     else:
         from ISF_Config.ISF_jobProperties import ISF_Flags

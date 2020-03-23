@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_SegmentAnalysisCXX
@@ -10,14 +10,10 @@
 #include "TMath.h" // for TMath::Prob()
 #include <cmath>
 
-//
-// MuonCalib Fitter
 #include "MdtCalibFitters/DCSLFitter.h"
 #include "MuonCalibStandAloneExtraTools/PhiEtaUtils.h"
 #include "MuonCalibStandAloneExtraTools/StringUtil.h"
 #include "MuonCalibStandAloneExtraTools/MDTName.h"
-
-using namespace std;
 
 namespace MuonCalib{
 
@@ -28,7 +24,7 @@ SegmentAnalysis::SegmentAnalysis(RegionSelectionSvc *punt, HistogramManager *his
   m_doHitResids=dohitresids;
 
   PhiEtaNameConverter phiEtaConverter;
-  string testName="BIL1A01" ;
+  std::string testName="BIL1A01" ;
   MDTName NameConverter(testName) ;
   m_SectorMin = 20 ;
   m_SectorMax = 0 ;
@@ -57,7 +53,7 @@ void SegmentAnalysis::handleEvent(const MuonCalibEvent &event, int /*evnt_nr*/, 
     return;
   }
 
-  string histoType="seg";
+  std::string histoType="seg";
   TH1F *h1seg = (TH1F*) m_histoManager->GetHisto("GLOBAL",histoType);
   float NumOfSeg = (float) segments.size() - position ;
   if (h1seg) h1seg->Fill( NumOfSeg );
@@ -114,12 +110,12 @@ void SegmentAnalysis::handleEvent(const MuonCalibEvent &event, int /*evnt_nr*/, 
     //== build chamber name
 
     MuonFixedId  id;
-    string segstn = id.stationNumberToFixedStationString(segStation);
+    std::string segstn = id.stationNumberToFixedStationString(segStation);
     MDTName chambseg(segstn,segPhi,segEta);    
 
-    string chamberName = chambseg.getOnlineName();  
-    string side=chambseg.getSide();
-    string region=chambseg.getRegion();
+    std::string chamberName = chambseg.getOnlineName();  
+    std::string side=chambseg.getSide();
+    std::string region=chambseg.getRegion();
 
     // Fill HitsOnSegments and Prob(chi2,ndeg) 
     //
@@ -225,13 +221,13 @@ void SegmentAnalysis::handleEvent(const MuonCalibEvent &event, int /*evnt_nr*/, 
 	double y = (*rpc_hit_it)->localPosition().y();
 	double z = (*rpc_hit_it)->localPosition().z();
 	MuonFixedId ID = (*rpc_hit_it)->identify();
-	string cname = ID.stationNumberToFixedStationString( ID.stationName() ) ;
+	std::string cname = ID.stationNumberToFixedStationString( ID.stationName() ) ;
 	if(segment->chi2() > CHI2CUT ) continue;
 	int eta=ID.eta();
 	int phi2=phiEtaConverter.phi_8to16(segStation,segPhi);
-	string side="A";
+	std::string side="A";
 	if(eta<0) side="C";
-	string phisec=ts(phi2);
+	std::string phisec=ts(phi2);
 	if(phi2<10) phisec="0"+phisec;
 	
 	bool doSector=false;
@@ -265,7 +261,6 @@ void SegmentAnalysis::handleEvent(const MuonCalibEvent &event, int /*evnt_nr*/, 
 
       } // end RPC hit loop
     } // end if region == Barrel
-    //    if(m_verbose) std::cout<<"RPC loop end "<<std::endl;
 
     //====================================================================================
     //====================================================================================
@@ -286,15 +281,15 @@ void SegmentAnalysis::handleEvent(const MuonCalibEvent &event, int /*evnt_nr*/, 
 	double z = (*tgc_hit_it)->localPosition().z();
 	
 	MuonFixedId ID = (*tgc_hit_it)->identify();
-	string cname = ID.stationNumberToFixedStationString( ID.stationName() ) ;
+	std::string cname = ID.stationNumberToFixedStationString( ID.stationName() ) ;
 
 	if(segment->chi2() > CHI2CUT ) continue;
 
 	int eta=ID.eta();
 	int phi2=phiEtaConverter.phi_8to16(segStation,segPhi);
-	string side="A";
+	std::string side="A";
 	if(eta<0) side="C";
-	string phisec=ts(phi2);
+	std::string phisec=ts(phi2);
 	if(phi2<10) phisec="0"+phisec;
 
 	bool doSector=false;

@@ -22,13 +22,11 @@ if not 'InDetTrigFlags' in dir():
 from TrigInDetConfig.InDetConfig import InDetCacheNames
 
 def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs' ):
-
   #If signature specified add suffix to the algorithms
   signature =  "_" + whichSignature if whichSignature else ''
   if signature != "" and separateTrackParticleCreator == "":
     separateTrackParticleCreator = signature
-    
-    
+
   viewAlgs = []
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from InDetRecExample.InDetKeys import InDetKeys
@@ -168,12 +166,18 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
 
   #
-  # --- SCT_ClusteringTool (public)
+  # --- SCT_ClusteringTool
   #
   from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
   InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool" + signature,
                                                       globalPosAlg      = InDetClusterMakerTool,
                                                       conditionsTool    = InDetSCT_ConditionsSummaryToolWithoutFlagged)
+  if InDetTrigFlags.doSCTIntimeHits():
+     if InDetTrigFlags.InDet25nsec():
+        InDetSCT_ClusteringTool.timeBins = "01X"
+     else:
+        InDetSCT_ClusteringTool.timeBins = "X1X"
+
   #
   # --- SCT_Clusterization algorithm
   #
@@ -199,7 +203,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
   InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool" + signature)
-  ToolSvc += InDetSiSpacePointMakerTool
 
   from AthenaCommon.DetFlags import DetFlags
   from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
@@ -233,6 +236,11 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
   theFTF.RoIs = rois
   theFTF.TracksName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator
+  
+  #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
+  if whichSignature=="Electron":
+     theFTF.doCloneRemoval = True
+
   viewAlgs.append(theFTF)
 
 

@@ -605,7 +605,7 @@ xAODEventSelector::seek (Context& refCtxt, int evtnum) const
     if (!rctx) {
       return StatusCode::FAILURE;
     }
-    rctx->setFile("");
+    ATH_CHECK(rctx->setFile(""));
   }
 
   m_collIdx = coll_idx;

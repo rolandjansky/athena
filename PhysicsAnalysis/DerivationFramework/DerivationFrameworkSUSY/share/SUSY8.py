@@ -151,7 +151,7 @@ SUSY8_TrackParticleCaloCellDecorator = DerivationFramework__TrackParticleCaloCel
 
 ToolSvc += SUSY8_TrackParticleCaloCellDecorator
 AugmentationTools.append(SUSY8_TrackParticleCaloCellDecorator)
-print SUSY8_TrackParticleCaloCellDecorator
+printfunc (SUSY8_TrackParticleCaloCellDecorator)
 
 
 #====================================================================

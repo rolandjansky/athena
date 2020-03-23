@@ -367,7 +367,7 @@ def getFolderTag(db, folderPath, globalTag):
         globalTag=globalTag.replace('*','')
         if 'UPD1' in globalTag or 'UPD4' in globalTag or 'COND' not in globalTag:
             tag = TileCalibUtils.getFullTag(folderPath, globalTag)
-            log.info("Resolved localTag \'%s\' to folderTag \'%s\'", (globalTag,tag))
+            log.info("Resolved localTag \'%s\' to folderTag \'%s\'", globalTag,tag)
         else:
             if not isinstance(db, six.string_types):
                 try:
@@ -1059,7 +1059,7 @@ class TileASCIIParser(TileCalibLogger):
                 raise Exception("%s is not calibId=%s" % (type,calibId))
 
             #=== decode fragment
-            if not (frag.startswith('0x') or frag.startswith('-0x') or frag.startswith('h_')): #akamensh
+            if not (frag.startswith('0x') or frag.startswith('-0x') or frag.startswith('h_')):
                 raise Exception("Misformated fragment %s" % frag)
             if frag.startswith('0x') or frag.startswith('-0x'):
                 frg = int(frag,16)

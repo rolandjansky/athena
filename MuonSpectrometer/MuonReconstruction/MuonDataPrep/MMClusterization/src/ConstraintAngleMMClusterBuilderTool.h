@@ -27,8 +27,9 @@ namespace Muon{
             virtual StatusCode initialize() override;
 
 
+            virtual
             StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<Muon::MMPrepData*>& clustersVec);
+			   std::vector<Muon::MMPrepData*>& clustersVec) const override;
 
             
         private:

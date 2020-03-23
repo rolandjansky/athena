@@ -80,7 +80,7 @@ class TileBchMgr(TileCalibLogger):
             ros=0
             module=TileCalibUtils.definitions_draweridx()
             self.log().info("Updating dictionary from \'%s\'", db.databaseName())
-            self.log().info("... using tag \'%s\', run-lumi=%s", (tag,runLumi))
+            self.log().info("... using tag \'%s\', run-lumi=%s", tag,runLumi)
             self.__multiVersion = reader.folderIsMultiVersion()
             self.__comment = reader.getComment(runLumi)
             self.log().info("... comment: %s", self.__comment)

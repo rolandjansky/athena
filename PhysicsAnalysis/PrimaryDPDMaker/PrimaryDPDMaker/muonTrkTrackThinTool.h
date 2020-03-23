@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,9 +17,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ThinningHandleKey.h"
+#include "TrkTrack/TrackCollection.h"
 
-// Forward declarations
-class IThinningSvc;
 
 class muonTrkTrackThinTool : public AthAlgorithm {
   
@@ -28,25 +28,23 @@ class muonTrkTrackThinTool : public AthAlgorithm {
   muonTrkTrackThinTool( const std::string& name, ISvcLocator* pSvcLocator );
   
   /** Destructor */
-  ~muonTrkTrackThinTool();
+  virtual ~muonTrkTrackThinTool();
   
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
     
- protected:
+private:
   int m_All;
   int m_pass;
   int m_trackAll;
   int m_trackpass;
-  int m_EventCounter;
   
-  //  private:
-  /// Containers
-  std::string m_trackCollKey;
-  IThinningSvc* m_thinningSvc;
-    
+  StringProperty m_streamName
+    { this, "StreamName", "", "Name of the stream being thinned" };
+  SG::ThinningHandleKey<TrackCollection> m_trackCollKey
+    { this, "TrackCollectionKey", "MuonSpectrometerTracks", "" };
 }; 
 
 #endif

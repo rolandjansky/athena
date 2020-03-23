@@ -74,20 +74,9 @@ StatusCode TrigDkfTrackMakerTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigDkfTrackMakerTool::finalize()
-{
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-TrigDkfTrackMakerTool::~TrigDkfTrackMakerTool()
-{
-
-}
-
 bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>& siSpacePoints, 
 					   std::vector<Trk::TrkBaseNode*>& vpTrkNodes,
-					   double DChi2)
+					   double DChi2) const
 {
   const double radLength=0.022;
 
@@ -262,7 +251,7 @@ bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>&
 
 bool TrigDkfTrackMakerTool::createDkfTrack(const Trk::Track& track, 
 		std::vector<Trk::TrkBaseNode*>& vpTrkNodes,
-		double DChi2) {
+		double DChi2) const {
 
 	if(track.measurementsOnTrack()->size()==0) 
 	{

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileRecUtils/share/TileRawChannelBuilder_test.py
 # Author: sss
@@ -335,7 +335,8 @@ class TestAlg (Alg):
             return StatusCode.Failure
 
         for coll in digits:
-            tool.build (coll)
+            if not tool.build (coll):
+                return StatusCode.Failure
 
         if not tool.commitContainer():
             return StatusCode.Failure

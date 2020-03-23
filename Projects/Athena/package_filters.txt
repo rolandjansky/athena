@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Package filtering rules for the Athena project build.
 #
@@ -22,6 +23,8 @@
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
+
+
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA

@@ -2,10 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 // standard C++ //
 #include <iostream>
 #include <fstream>
@@ -340,7 +336,6 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
     //----------//
     
     if(segment.mdtHitsOnTrack()<m_nb_hits){
-        //if(segment.mdtHitsOnTrack()!=m_nb_hits){
         return StatusCode::SUCCESS;
     }
 
@@ -466,7 +461,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 						      Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0)
 						      );
 
-		double distance = TMath::Abs(track.signDistFrom(tube));
+		double distance = std::abs(track.signDistFrom(tube));
 	
                 if ( distance < (MdtRoEl->innerTubeRadius()) ){
 		    traversed_tube.push_back(k+1);
@@ -615,7 +610,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 		double error      = 0.; 
 	
 		if(entries!=0){
-		    error  = ( 1/sqrt(entries) ) * sqrt( efficiency*(1-efficiency) );
+		    error  = ( 1/std::sqrt(entries) ) * std::sqrt( efficiency*(1-efficiency) );
 		}
 		
                 double fakerate = m_h_fakerate[k][l][m]->GetMean() / (double)m_nb_trigger;
@@ -623,7 +618,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 		double ferror   = 0; 
 		
                 if(fentries!=0){
-		    ferror  = ( 1/sqrt(fentries) ) * sqrt( fakerate*(1-fakerate) );
+		    ferror  = ( 1/std::sqrt(fentries) ) * std::sqrt( fakerate*(1-fakerate) );
 		}
            
      
@@ -669,35 +664,31 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
                 
                 m_h_tube_entries_efficiency[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
                 m_h_tube_entries_fakerate[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
-                
 
                 //summarized efficiencies
-                
                 if(error>0){
 
                     layer_ntubes[k][l]++; 
-                    layer_efficiency[k][l] += 1./pow(error,2)*efficiency;
-                    layer_error[k][l]      += 1./pow(error,2);
+                    layer_efficiency[k][l] += 1./std::pow(error,2)*efficiency;
+                    layer_error[k][l]      += 1./std::pow(error,2);
                     layer_entries[k][l]    += entries;
                     
                     multilayer_ntubes[k]++; 
-                    multilayer_efficiency[k] += 1./pow(error,2)*efficiency;
-                    multilayer_error[k]      += 1./pow(error,2);
+                    multilayer_efficiency[k] += 1./std::pow(error,2)*efficiency;
+                    multilayer_error[k]      += 1./std::pow(error,2);
                     multilayer_entries[k]    += entries;
                     
                     chamber_ntubes++; 
-                    chamber_efficiency += 1./pow(error,2)*efficiency;
-                    chamber_error      += 1./pow(error,2);
+                    chamber_efficiency += 1./std::pow(error,2)*efficiency;
+                    chamber_error      += 1./std::pow(error,2);
                     chamber_entries    += entries;
                     
                 }
             }
 	}
     }
-
     
     //fill summary histos
-    
     TString layer_title = "Layer Efficiency ";
     layer_title += TString(m_reg_sel_svc->GetRegionSelection());
         
@@ -722,7 +713,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
             
             if(layer_error[k][l]>0){
                 layer_eff = layer_efficiency[k][l]/layer_error[k][l];
-                layer_err = sqrt(1./layer_error[k][l]);
+                layer_err = std::sqrt(1./layer_error[k][l]);
             }
             
             m_h_layer_efficiency->SetBinContent(layer_bin, layer_eff);
@@ -736,7 +727,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 
         if(multilayer_error[k]>0){
             ml_eff = multilayer_efficiency[k]/multilayer_error[k];
-            ml_err = sqrt(1./multilayer_error[k]);
+            ml_err = std::sqrt(1./multilayer_error[k]);
         }
 
         m_h_chamber_efficiency->SetBinContent(chamber_bin, ml_eff);
@@ -751,7 +742,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 
     if(chamber_error>0){
         ch_eff = chamber_efficiency/chamber_error;
-        ch_err = sqrt(1./chamber_error);
+        ch_err = std::sqrt(1./chamber_error);
     }
     
     m_h_chamber_efficiency->SetBinContent(1, ch_eff);

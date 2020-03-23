@@ -261,7 +261,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
         cMatch = dict( zip (whats, [False for i in range(5)] ) )
        
 
-        for k,v in cPairs.iteritems():
+        for k,v in cPairs.items():
             cliValue, xmlValue = v
             msg = "what=%-10s fromCLI=%-23s fromXML=%-23s" % ( k , cliValue, xmlValue )
             if ( cliValue.strip() == xmlValue.strip() ): 
@@ -310,7 +310,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
                                                                                                os.path.abspath( self.opts.config) ) )
 
        
-        configs = self.__config.keys()
+        configs = list(self.__config.keys())
         configs.sort( reverse=True )
         for config in configs:
             if  self.__match( runConfig, config, strict ):

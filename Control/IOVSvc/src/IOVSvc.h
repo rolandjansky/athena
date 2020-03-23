@@ -50,7 +50,7 @@ namespace SG {
   class DataProxy;
 }
 
-class IOVSvc: public extends<AthService, IIOVSvc>
+class ATLAS_CHECK_THREAD_SAFETY IOVSvc: public extends<AthService, IIOVSvc>
 {
 public:
 

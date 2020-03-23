@@ -26,35 +26,35 @@ class JetBuilding:
             DiscTool_1p0n = getDiscriminantTool(ItsName, JetAlgName, PJB_Flags.MVA_ModeName1p0n(), ListOfDecayModes, PJB_Flags.MVA_UsedFeatures1p0n())
             DiscTool_1p0n.OutputLevel = INFO
             ToolSvc += DiscTool_1p0n
-            print DiscTool_1p0n
+            printfunc (DiscTool_1p0n)
             
             ### ====== Tool for 1p1n
             ItsName = "PanTauDiscrTool_" + JetAlgName + "_" + PJB_Flags.MVA_ModeName1p1n()
             DiscTool_1p1n = getDiscriminantTool(ItsName, JetAlgName, PJB_Flags.MVA_ModeName1p1n(), ListOfDecayModes, PJB_Flags.MVA_UsedFeatures1p1n())
             DiscTool_1p1n.OutputLevel = INFO
             ToolSvc += DiscTool_1p1n
-            print DiscTool_1p1n
+            printfunc (DiscTool_1p1n)
             
             ### ====== Tool for 1pXn
             ItsName = "PanTauDiscrTool_" + JetAlgName + "_" + PJB_Flags.MVA_ModeName1pXn()
             DiscTool_1pXn = getDiscriminantTool(ItsName, JetAlgName, PJB_Flags.MVA_ModeName1pXn(), ListOfDecayModes, PJB_Flags.MVA_UsedFeatures1pXn())
             DiscTool_1pXn.OutputLevel = INFO
             ToolSvc += DiscTool_1pXn
-            print DiscTool_1pXn
+            printfunc (DiscTool_1pXn)
             
             ### ====== Tool for 3p0n
             ItsName = "PanTauDiscrTool_" + JetAlgName + "_" + PJB_Flags.MVA_ModeName3p0n()
             DiscTool_3p0n = getDiscriminantTool(ItsName, JetAlgName, PJB_Flags.MVA_ModeName3p0n(), ListOfDecayModes, PJB_Flags.MVA_UsedFeatures3p0n())
             DiscTool_3p0n.OutputLevel = INFO
             ToolSvc += DiscTool_3p0n
-            print DiscTool_3p0n
+            printfunc (DiscTool_3p0n)
             
             ### ====== Tool for 3pXn
             ItsName = "PanTauDiscrTool_" + JetAlgName + "_" + PJB_Flags.MVA_ModeName3pXn()
             DiscTool_3pXn = getDiscriminantTool(ItsName, JetAlgName, PJB_Flags.MVA_ModeName3pXn(), ListOfDecayModes, PJB_Flags.MVA_UsedFeatures3pXn())
             DiscTool_3pXn.OutputLevel = INFO
             ToolSvc += DiscTool_3pXn
-            print DiscTool_3pXn
+            printfunc (DiscTool_3pXn)
             
             
             
@@ -86,7 +86,7 @@ class JetBuilding:
                                                          )
             jetBuilderAlg.OutputLevel = INFO
             topSequence += jetBuilderAlg
-            print jetBuilderAlg
+            printfunc (jetBuilderAlg)
             
             #from RecExConfig.RecFlags import rec
             
@@ -110,10 +110,10 @@ def getDiscriminantTool(name, JetAlgName, WeightFilePrefixClass, ListOfAllModes,
     featureTypes=[]
     for v in TauFeatureNames:
         if (not (v in featureDefaultValue)) :
-            print "ERROR: could not get default value for ", v
+            printfunc ("ERROR: could not get default value for ", v)
             break
         if (not (v in featureType)) :
-            print "ERROR: could not get type for ", v
+            printfunc ("ERROR: could not get type for ", v)
             break
         featureDefaultValues.append(featureDefaultValue[v])
         featureTypes.append(featureType[v])

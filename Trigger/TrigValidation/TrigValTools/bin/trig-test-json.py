@@ -142,21 +142,22 @@ def mem_func(x_arr, x_trans, init_slope, exec_slope):
 def find_dmem_prmon(xdata, ydata, label, filename):
     popt, pcov = curve_fit(mem_func, xdata, ydata, bounds=(0, [0.9*max(xdata), np.inf, np.inf]))
     logging.debug("Fit result: %s", str(popt))
-    plot_prmon_fit(xdata, ydata, popt, label, filename)
+    plot_prmon(xdata, ydata, label, filename, popt)
     x_trans = popt[0]
     x_last = xdata.iloc[-1]
     dmem_v = mem_func([x_last, x_trans], popt[0], popt[1], popt[2])
     return dmem_v[0] - dmem_v[1]
 
 
-def plot_prmon_fit(xdata, ydata, params, name, filename):
+def plot_prmon(xdata, ydata, name, filename, params=[]):
     plt.plot(xdata, ydata, 'b-', label=name)
-    plt.plot(xdata, mem_func(xdata, *params), 'r-', label='{:s} fit, exec slope={:.2f} kB/s'.format(name, params[2]))
+    if len(params)>0:
+        plt.plot(xdata, mem_func(xdata, *params), 'r-', label='{:s} fit, exec slope={:.2f} kB/s'.format(name, params[2]))
     plt.xlabel('wtime [s]')
     plt.ylabel(name+' [kB]')
     plt.legend()
     plt.title('{:s} from {:s}'.format(name, filename))
-    plt.savefig('prmon_memfit_{:s}.pdf'.format(name), bbox_inches='tight')
+    plt.savefig('prmon_{:s}.pdf'.format(name), bbox_inches='tight')
     plt.clf()
 
 
@@ -174,8 +175,12 @@ def analyse_prmon(filename):
     data['vmem'] = "{0:.3f}".format(convert_to_megabytes(max(vmem_v), 'kB'))
     data['rss'] = "{0:.3f}".format(convert_to_megabytes(max(rss_v), 'kB'))
     data['pss'] = "{0:.3f}".format(convert_to_megabytes(max(pss_v), 'kB'))
-    if len(time_v) < 10:
+    if len(time_v) < 80:
         logging.info('Not enough prmon data points, skipping memory slope fitting')
+        # Save plots without fitting and return
+        plot_prmon(time_v, pss_v, 'pss', filename)
+        plot_prmon(time_v, rss_v, 'rss', filename)
+        plot_prmon(time_v, vmem_v, 'vmem', filename)
         return data
     d_pss = find_dmem_prmon(time_v, pss_v, 'pss', filename)
     d_rss = find_dmem_prmon(time_v, rss_v, 'rss', filename)

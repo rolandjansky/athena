@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ViewContainerThinning.cxx 
@@ -15,7 +15,9 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/IToolSvc.h"
+#include "StoreGate/ThinningHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -25,27 +27,27 @@
 
 namespace DerivationFramework {
 
-  // Constructors
-  ////////////////
-  ViewContainerThinning::ViewContainerThinning( const std::string& type, 
-                                                const std::string& name, 
-                                                const IInterface* parent ) : 
-    ::AthAlgTool  ( type, name, parent   )
-    , m_thinningSvc("ThinningSvc",name)
+  template <class T>
+  StatusCode
+  ViewContainerThinning::doThinningT (const SG::ThinningHandleKey<T>& key,
+                                      const SG::ReadHandleKey<T>& viewKey) const
   {
-    declareInterface< IThinningTool >(this);
-    declareProperty("ThinningService", m_thinningSvc);
-    declareProperty( "SourceContainer", m_sourceContName );
-    declareProperty( "ViewContainer", m_viewContName );
-    declareProperty( "ParticleType", m_particleType );
-    declareProperty( "ApplyAnd", m_and = false );
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
+    SG::ThinningHandle<T> sourceCont (key, ctx);
+    SG::ReadHandle<T>     viewCont   (viewKey, ctx);
+    
+    std::vector<bool> masks;
+    masks.assign( sourceCont->size(), false);
+    
+    for( const auto* part: *viewCont){ 
+      masks[ part->index() ] = true;
+    }
+
+    sourceCont.keep (masks);
+    return StatusCode::SUCCESS;
   }
 
-  // Destructor
-  ///////////////
-  ViewContainerThinning::~ViewContainerThinning()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -53,31 +55,36 @@ namespace DerivationFramework {
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
+    ATH_CHECK( m_trackParticleKey.initialize (m_streamName, SG::AllowEmpty) );
+    ATH_CHECK( m_caloClusterKey.initialize   (m_streamName, SG::AllowEmpty) );
+    ATH_CHECK( m_truthParticleKey.initialize (m_streamName, SG::AllowEmpty) );
+
+    ATH_CHECK( m_trackParticleViewKey.initialize (SG::AllowEmpty) );
+    ATH_CHECK( m_caloClusterViewKey.initialize   (SG::AllowEmpty) );
+    ATH_CHECK( m_truthParticleViewKey.initialize (SG::AllowEmpty) );
+
     return StatusCode::SUCCESS;
   }
 
   StatusCode ViewContainerThinning::finalize()
   {
-
     return StatusCode::SUCCESS;
   }
 
 
 
-  StatusCode ViewContainerThinning::doThinning() const {
-
-    switch ( (xAOD::Type::ObjectType) m_particleType) {
-    case xAOD::Type::TrackParticle : return doThinningT<xAOD::TrackParticleContainer>() ;
-    case xAOD::Type::CaloCluster : return doThinningT<xAOD::CaloClusterContainer>() ;
-    case xAOD::Type::TruthParticle : return doThinningT<xAOD::TruthParticleContainer>() ;
-    default:{
-      ATH_MSG_ERROR(" Unkown particle type for containers "<< m_sourceContName << " and "<< m_viewContName <<"... type was"<< m_particleType);
-      return StatusCode::SUCCESS;
+  StatusCode ViewContainerThinning::doThinning() const
+  {
+    if (!m_trackParticleKey.empty()) {
+      ATH_CHECK( doThinningT (m_trackParticleKey, m_trackParticleViewKey) );
     }
-
+    if (!m_caloClusterKey.empty()) {
+      ATH_CHECK( doThinningT (m_caloClusterKey, m_caloClusterViewKey) );
+    }
+    if (!m_truthParticleKey.empty()) {
+      ATH_CHECK( doThinningT (m_truthParticleKey, m_truthParticleViewKey) );
     }
     return StatusCode::SUCCESS;
-
   }
 
 }

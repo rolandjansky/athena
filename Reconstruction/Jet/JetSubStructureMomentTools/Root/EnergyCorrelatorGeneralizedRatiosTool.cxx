@@ -15,6 +15,7 @@ EnergyCorrelatorGeneralizedRatiosTool::EnergyCorrelatorGeneralizedRatiosTool(std
 }
 
 StatusCode EnergyCorrelatorGeneralizedRatiosTool::initialize() {
+
   // Add beta = 1.0 by default
   m_betaVals.push_back(1.0);
 
@@ -106,7 +107,6 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
     }
 
     // N2
-
     if(ecfg_2_1 > 1e-8) { // Prevent div-0
       jet.setAttribute(m_prefix+"N2"+suffix, ecfg_3_2 / (pow(ecfg_2_1, 2.0)));
 
@@ -121,7 +121,7 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
     }
 
     // N3
-    if(ecfg_3_1 > 1e-8) // Prevent div-0
+    if(m_doN3 && ecfg_3_1 > 1e-8) // Prevent div-0
       jet.setAttribute(m_prefix+"N3"+suffix, ecfg_4_2 / (pow(ecfg_3_1, 2.0)));
     else
       jet.setAttribute(m_prefix+"N3"+suffix, -999.0);

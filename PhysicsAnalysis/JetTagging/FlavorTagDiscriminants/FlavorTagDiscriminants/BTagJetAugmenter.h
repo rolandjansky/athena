@@ -20,15 +20,16 @@ public:
   BTagJetAugmenter(BTagJetAugmenter&&);
   void augmentJfDr(const xAOD::BTagging &btag);
   void augmentIpRatios(const xAOD::BTagging &btag);
+  void augmentBtagJes(const xAOD::Jet &target, const xAOD::Jet &uncalib);
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag);
   typedef SG::AuxElement AE;
 
-  AE::Decorator<double> m_pt_uncalib;
-  AE::Decorator<double> m_eta_uncalib;
-  AE::Decorator<double> m_abs_eta_uncalib;
+  AE::Decorator<float> m_pt_uncalib;
+  AE::Decorator<float> m_eta_uncalib;
+  AE::Decorator<float> m_abs_eta_uncalib;
 
   AE::ConstAccessor<std::vector<float> > m_ip2d_weightBOfTracks;
   AE::Decorator<int> m_ip2d_nTrks;

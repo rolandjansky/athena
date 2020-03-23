@@ -10,10 +10,12 @@ EnergyCorrelatorRatiosTool::EnergyCorrelatorRatiosTool(std::string name) :
 {
   declareProperty("BetaList", m_rawBetaVals = {});
   declareProperty("DoC3",  m_doC3 = false);
+  declareProperty("DoC4",  m_doC4 = false);
   declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorRatiosTool::initialize() {
+
   // Add beta = 1.0 by default
   m_betaVals.push_back(1.0);
 
@@ -37,6 +39,10 @@ StatusCode EnergyCorrelatorRatiosTool::initialize() {
   for(float beta : m_betaVals) {
     ATH_MSG_DEBUG("Including beta = " << beta);
   }
+
+  // If DoC4 is set to true, set DoC3 to true by default since it won't
+  // add any additional computational overhead
+  if(m_doC4) m_doC3 = true;
 
   ATH_CHECK(JetSubStructureMomentToolsBase::initialize());
 
@@ -68,6 +74,11 @@ int EnergyCorrelatorRatiosTool::modifyJet(xAOD::Jet &jet) const {
       return 1;
     }
 
+    if (m_doC4 && !jet.isAvailable<float>(m_prefix+"ECF5"+suffix)) {
+      ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECF5" << suffix << " is not available. Exiting..");
+      return 1;
+    }
+
     if(m_doDichroic) {
       if (!jet.isAvailable<float>(m_prefix+"ECF1_ungroomed"+suffix)) {
         ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECF1_ungroomed" << suffix << " is not available. Exiting..");
@@ -92,6 +103,11 @@ int EnergyCorrelatorRatiosTool::modifyJet(xAOD::Jet &jet) const {
     float ecf4 = -999.0;
     if(m_doC3) {
       ecf4 = jet.getAttribute<float>(m_prefix+"ECF4"+suffix);
+    }
+
+    float ecf5 = -999.0;
+    if(m_doC4) {
+      ecf5 = jet.getAttribute<float>(m_prefix+"ECF5"+suffix);
     }
 
     float ecf1_ungroomed = -999.0;
@@ -132,10 +148,16 @@ int EnergyCorrelatorRatiosTool::modifyJet(xAOD::Jet &jet) const {
       jet.setAttribute(m_prefix+"C2"+suffix, -999.0);
 
     // C3
-    if(ecf3 > 1e-8) // Prevent div-0
+    if(m_doC3 && ecf3 > 1e-8) // Prevent div-0
       jet.setAttribute(m_prefix+"C3"+suffix, ecf4 * ecf2 / pow(ecf3, 2.0));
     else
       jet.setAttribute(m_prefix+"C3"+suffix, -999.0);
+
+    // C4
+    if(m_doC4 && ecf4 > 1e-8) // Prevent div-0
+      jet.setAttribute(m_prefix+"C4"+suffix, ecf5 * ecf3 / pow(ecf4, 2.0));
+    else
+      jet.setAttribute(m_prefix+"C4"+suffix, -999.0);
   }
 
   return 0;

@@ -1040,7 +1040,6 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
         seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
-        seq+=topSequence.TrigConfDataIOVChanger
         seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker

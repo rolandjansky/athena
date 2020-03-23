@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -217,7 +217,7 @@ int main (int /*argc*/, char** argv)
   Athena_test::setupStoreGate (argv[0],
                                "CaloCellContainerFromClusterTool_test.txt");
   CaloTester calotest;
-  calotest.record_mgr();
+  assert( calotest.record_mgr() );
   //calotest.make_cells();
 
   ServiceHandle<StoreGateSvc> sg ("StoreGateSvc", "test");

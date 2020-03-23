@@ -9,4 +9,4 @@ TopoClusterVariablesTool = ConfiguredTopoClusterVariablesTool(
     )
 
 ToolSvc += TopoClusterVariablesTool
-print      TopoClusterVariablesTool
+printfunc (     TopoClusterVariablesTool)

@@ -102,7 +102,7 @@ Regions::Regions(string inRegionFile, int doMacroRegionsFlag){
 	    //Collects all the Large and Small, Up and Down sectors if they belong to the same eta bin
 	    collectMacroRegionsSL_UpDn(); break;
 	case 4: 
-	    if(verb) cout<<"using fabs(eta)"<<endl;
+	    if(verb) cout<<"using std::abs(eta)"<<endl;
 	    m_useAbsEta = true; 
 	    m_doMacroRegions =false; //not really using macroRegions
 	    break;
@@ -119,7 +119,7 @@ Regions::Regions(string inRegionFile, int doMacroRegionsFlag){
     
 int Regions::GetRegion(double eta, const double phi) const{
     int ret_k =-1;
-    if(m_useAbsEta) eta = fabs(eta);
+    if(m_useAbsEta) eta = std::abs(eta);
     for(int k=0; k < m_nb_regions; ++k){    
 	if( eta >= m_eta_min[k] && eta < m_eta_max[k] ){
 	    if( m_phi_min[k] <= m_phi_max[k] ){//Standard case
@@ -149,7 +149,7 @@ float Regions::GetRegionDeltaEta(const int r_i) const{ //Return Eta range of the
 	if(r_i>=0 && r_i < (int)m_macroRegionName.size()) return m_macroRegionDeltaEta[r_i];
     } else {
 	if(r_i >= 0 && r_i < m_nb_regions)
-	    return fabs(m_eta_max[r_i] - m_eta_min[r_i]);	
+	    return std::abs(m_eta_max[r_i] - m_eta_min[r_i]);	
     }
     cerr<<__FILE__<<" "<<__LINE__<<" WARNING: Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!"<<endl;
     return -999.;
@@ -196,7 +196,7 @@ void Regions::collectMacroRegionsSL(){
 	if( etaMin != m_eta_min[k] || etaMax !=m_eta_max[k] ){
 	    //Build a new macroRegion
 	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
-	    deltaEta = fabs(m_eta_max[k] - m_eta_min[k]);
+	    deltaEta = std::abs(m_eta_max[k] - m_eta_min[k]);
 	    //One of the following is true
 	    string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BL"));
@@ -232,7 +232,7 @@ void Regions::collectMacroRegionsSL_UpDn(){
 	if( etaMin != m_eta_min[k] || etaMax !=m_eta_max[k] ){
 	    //Build a new macroRegion
 	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
-	    deltaEta = fabs(m_eta_max[k] - m_eta_min[k]);
+	    deltaEta = std::abs(m_eta_max[k] - m_eta_min[k]);
 	    //One of the following is true
 	    string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BL"));
@@ -280,7 +280,7 @@ void Regions::useSectors(){
 	if( etaMin != m_eta_min[k] || etaMax !=m_eta_max[k] ){
 	    //Build a new macroRegion
 	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
-	    deltaEta = fabs(m_eta_max[k] - m_eta_min[k]);
+	    deltaEta = std::abs(m_eta_max[k] - m_eta_min[k]);
 	    //One of the following is true
 	    string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BL"));
@@ -329,7 +329,7 @@ void Regions::collectMacroRegionsSL_SplitBAR(){
     for(int k=0; k < m_nb_regions; ++k){
 	if( etaMin != m_eta_min[k] || etaMax !=m_eta_max[k] ){ //Build a new macroRegion
 	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
-	    deltaEta = fabs(m_eta_max[k] - m_eta_min[k]);
+	    deltaEta = std::abs(m_eta_max[k] - m_eta_min[k]);
 	    string macroRegName ="";
 	    if(m_names[k].find("EL")!= string::npos || m_names[k].find("ES") != string::npos){		
 		//We are in the End-Cap sectors so we split only Large and Small sectors

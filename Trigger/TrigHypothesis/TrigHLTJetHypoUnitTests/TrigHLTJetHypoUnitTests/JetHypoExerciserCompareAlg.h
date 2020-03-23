@@ -48,6 +48,8 @@ private:
   std::size_t m_agree_true{0};
   std::size_t m_agree_false{0};
   std::size_t m_differ{0};
+  std::size_t m_agree_jets{0};
+  std::size_t m_differ_jets{0};
   
   StatusCode initialize_(const ToolHandle<ITrigJetHypoToolHelperMT>&,
 			 const std::string&);
@@ -55,6 +57,7 @@ private:
   StatusCode execute_(ToolHandle<ITrigJetHypoToolHelperMT>&,
 		      HypoJetVector&,
 		      const std::string& collectorName,
+		      xAODJetCollector& jetCollector,
 		      const std::string& logname,
 		      bool& pass);
 };

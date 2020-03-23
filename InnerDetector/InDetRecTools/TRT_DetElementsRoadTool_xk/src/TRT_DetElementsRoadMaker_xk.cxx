@@ -18,7 +18,6 @@
 
 #include "GeoModelInterfaces/IGeoModelTool.h"
 
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "TRT_ReadoutGeometry/TRT_Numerology.h"

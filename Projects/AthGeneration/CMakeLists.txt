@@ -28,11 +28,14 @@ find_package( Davix )
 find_package( PNG )
 find_package( BLAS )
 find_package( AIDA )
+find_package( VDT )
 
-# Set up the compilation option(s) for AthGeneration.
-add_definitions( -DGENERATIONBASE )
+# Set the project into "GENERATIONBASE mode".
 set( GENERATIONBASE TRUE CACHE BOOL
-   "Flag specifying that this is a simulation release build" )
+   "Flag specifying that this is a generation release build" )
+if( GENERATIONBASE )
+   add_definitions( -DGENERATIONBASE )
+endif()
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )

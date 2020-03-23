@@ -1,6 +1,8 @@
 #!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+
 import ROOT
 import math
 from functools import partial
@@ -36,7 +38,7 @@ def xAOD_particle_generator(tree, collection_getter, newevent_function=None, end
     elif type(event_numbers) is int:
         event_numbers = [event_numbers]
 
-    for ievent in xrange(tree.GetEntries()):
+    for ievent in range(tree.GetEntries()):
         tree.GetEntry(ievent)
         ei = tree.EventInfo
         event_number = ei.eventNumber()
@@ -49,7 +51,7 @@ def xAOD_particle_generator(tree, collection_getter, newevent_function=None, end
 
         collection = collection_getter(tree)
 
-        for i in xrange(collection.size()):
+        for i in range(collection.size()):
             p = collection.at(i)
             if min_pt is not None and p.pt() < min_pt:
                 continue
@@ -152,7 +154,7 @@ def main(filename, **args):
         tree_out.Fill(ei.eventNumber(), cluster.eta(), cluster.phi(),
                       true_e, pdgId, calibrated_energy, xAOD_energy, raw_e, raw_ps)
         if math.isnan(calibrated_energy) or math.isnan(calibrated_energy) or calibrated_energy < 1:
-            print "==>", particle.author(), particle.eta(), particle.phi(), xAOD_energy, calibrated_energy
+            print ("==>", particle.author(), particle.eta(), particle.phi(), xAOD_energy, calibrated_energy)
 
     logging.info("%d events written", tree_out.GetEntries())
 

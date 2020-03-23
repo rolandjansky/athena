@@ -227,7 +227,7 @@ const StatusCode RadDamageUtil::generateEfieldMap( TH1F*& eFieldMap, InDetDD::Pi
         }
     }
 
-    m_EfieldInterpolator->loadTCADlist(TCAD_list);
+    CHECK( m_EfieldInterpolator->loadTCADlist(TCAD_list) );
     eFieldMap = (TH1F*) m_EfieldInterpolator->getEfield(fluence , biasVoltage);		
   return StatusCode::SUCCESS;
 }

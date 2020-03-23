@@ -76,7 +76,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
     labelsPartitions = [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)]
     badCellGroup = helper.addGroup(tileCellMonAlg, 'TileBadCell', 'Tile/')
     badCellGroup.defineHistogram('Partition,nBadCells;TileBadCell', path = 'Cell', type='TProfile',
-                                 labels = labelsPartitions, title = ('Run %s: Average number of Bad Tile Cells' % run),
+                                 xlabels = labelsPartitions, title = ('Run %s: Average number of Bad Tile Cells' % run),
                                  xbins = Tile.MAX_ROS - 1, xmin = -0.5, xmax = Tile.MAX_ROS - 1.5)
 
 

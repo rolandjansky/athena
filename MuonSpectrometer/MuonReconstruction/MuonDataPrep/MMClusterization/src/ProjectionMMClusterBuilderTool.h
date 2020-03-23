@@ -40,8 +40,8 @@ namespace Muon
     virtual StatusCode initialize() override;
     
     /**Interface fuction to IMMClusterBuilderTool; calling function manages the pointers inside clustersVec  */
-    virtual
-    StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVec) override;
+
+    virtual StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVec) const override;
 
   private: 
 
@@ -55,13 +55,13 @@ namespace Muon
     uint m_minClusterSize;
 
 
-    StatusCode calculateCorrection(const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor);
-    StatusCode doFineScan(std::vector<int>& flag,const std::vector<double>& v_posxc, const std::vector<double>& v_cor, std::vector<int>& idx_selected);   
-    StatusCode doPositionCalculation(std::vector<double>& v_posxc, const std::vector<double>& v_cor, const std::vector<int> idx_selected,double& xmean, double& xmeanErr, double &  qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer);
+    StatusCode calculateCorrection(const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor) const ;
+    StatusCode doFineScan(std::vector<int>& flag,const std::vector<double>& v_posxc, const std::vector<double>& v_cor, std::vector<int>& idx_selected) const ;   
+    StatusCode doPositionCalculation(std::vector<double>& v_posxc, const std::vector<double>& v_cor, const std::vector<int> idx_selected,double& xmean, double& xmeanErr, double &  qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer) const;
     
-    StatusCode writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer);
+    StatusCode writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer) const ;
     
-    double getSigma(double correction);
+    double getSigma(double correction)const;
 
 };
 

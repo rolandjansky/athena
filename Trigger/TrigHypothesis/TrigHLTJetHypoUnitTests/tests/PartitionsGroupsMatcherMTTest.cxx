@@ -102,6 +102,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, tooFewSelectedJets){
    if(m_debug){
      visitor.reset(new DebugInfoCollector("toofewselectedjets"));
    }
+
    PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
  
    xAODJetCollector jetCollector;
@@ -116,6 +117,9 @@ TEST_F(PartitionsGroupsMatcherMTTest, tooFewSelectedJets){
      EXPECT_TRUE(pass.has_value());
      EXPECT_FALSE(*pass);
      EXPECT_TRUE(jetCollector.empty());
+
+     if(visitor){visitor->write();}
+
    }
  }
  
@@ -156,14 +160,16 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
   
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
+
   if(m_debug){
     visitor.reset(new DebugInfoCollector("PassingJetsTest"));
   }
+
   PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
-  xAODJetCollector jetCollector;
-  
+
   for (const auto& groups : groupsVec){
-    EXPECT_EQ(groups.size(), 3u);
+    EXPECT_EQ(groups.size(), 3);
+    xAODJetCollector jetCollector;
 
     auto pass = matcher.match(groups.begin(),
 			      groups.end(),
@@ -171,8 +177,9 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
 			      visitor);
     EXPECT_TRUE(pass.has_value());
     EXPECT_TRUE(*pass);
-    EXPECT_TRUE(jetCollector.empty());  // test jets not xAOD::Jets
+    EXPECT_EQ(jetCollector.size(), 9);  // non-xAOD HypoJets now collected
   }
+
   if(visitor){visitor->write();}
 
 }

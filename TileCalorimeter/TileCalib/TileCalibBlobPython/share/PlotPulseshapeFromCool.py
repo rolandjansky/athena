@@ -51,7 +51,8 @@ while x<200.:
     dyLG = cd.getDY(0,0,x)
     yHG  = cd.getY( 0,1,x)
     dyHG = cd.getDY(0,1,x)
-    #if y<-100.: continue 
+    #if y<-100.:
+    #  continue
     print("x=%5.1f  \tyLG=%5.4f\tdyLG=%5.4f  \tyHG=%5.4f\tdyHG=%5.4f" % (x,yLG,dyLG,yHG,dyHG) )
     xarr.append(x)
     yarrLG.append(yLG)

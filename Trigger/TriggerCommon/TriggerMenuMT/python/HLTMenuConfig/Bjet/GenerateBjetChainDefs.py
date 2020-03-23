@@ -18,11 +18,10 @@ def generateChainConfigs( chainDict ):
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 
+    jet = JetChainConfiguration(chainDict).assembleChain()
+
     for subChainDict in listOfChainDicts:
 
-        subChainDict['chainParts']['signature'] = 'Jet'
-
-        jet = JetChainConfiguration(subChainDict).assembleChain()
         Bjet = BjetChainConfiguration(subChainDict).assembleChain() 
         jet.steps = jet.steps + Bjet.steps
 

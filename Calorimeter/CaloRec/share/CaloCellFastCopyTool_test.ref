@@ -145,7 +145,7 @@ CopyToolTest[12]    DEBUG Accepted calo samplings: 17;
 CopyToolTest[12]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[12]    DEBUG CaloCell hash max: 187652
 CopyToolTest[12]    DEBUG Number of accepted hashes: 512
-StoreGateSvc_Impl   DEBUG Recorded object @0x1ecc0c0 with key AllCalloFull of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Recorded object @0x1ecc0c0 with key AllCaloFull of type CaloCellContainer(CLID 2802)
  in DataObject @0x45cb870
  object not modifiable when retrieved
 CopyToolTest[9]      INFO In initialize 
@@ -158,10 +158,6 @@ CopyToolTest[9]     DEBUG Accepted calo samplings: 17; 15;
 CopyToolTest[9]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[9]     DEBUG CaloCell hash max: 187652
 CopyToolTest[9]     DEBUG Number of accepted hashes: 0
-StoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key AllCalloFull and clid 2802
- Pre-existing valid DataProxy @0x45cb940 found in Store for key AllCalloFull with clid 2802
-StoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x45cbad0
- recorded with key AllCalloFull of type CaloCellContainer (CLID 2802) in DataObject @0x6b05390
 CopyToolTest[10]     INFO In initialize 
 CopyToolTest[10]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[10]    DEBUG Accepted sub calos: 3; 

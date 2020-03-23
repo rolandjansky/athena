@@ -16,7 +16,7 @@ MUON4_aug_tools = []
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
 MUON4IPETool = Trk__TrackToVertexIPEstimator(name = "MUON4IPETool")
 ToolSvc += MUON4IPETool
-print MUON4IPETool
+printfunc (MUON4IPETool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackToVertexWrapper
 ## ID tracks
@@ -24,7 +24,7 @@ MUON4TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "MUO
                                                                      TrackToVertexIPEstimator = MUON4IPETool,
                                                                      DecorationPrefix = "MUON4",
                                                                      ContainerName = "InDetTrackParticles")
-print MUON4TrackToVertexWrapper
+printfunc (MUON4TrackToVertexWrapper)
 ToolSvc += MUON4TrackToVertexWrapper
 MUON4_aug_tools.append(MUON4TrackToVertexWrapper)
 #====================================================================
@@ -34,7 +34,7 @@ MUON4_skimming_tools = []
 
 expression1 = 'count(Muons.pt>0)>0'
 if DerivationFrameworkIsMonteCarlo: expression1 += '||count(MuonTruthParticles.pt>0)>0'
-print expression1
+printfunc (expression1)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 MUON4SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "MUON4SkimmingTool1",
                                                                  expression = expression1)

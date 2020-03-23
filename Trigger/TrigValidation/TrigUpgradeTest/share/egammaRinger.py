@@ -4,7 +4,7 @@
 
 from AthenaCommon.Constants import ERROR, DEBUG
 from AthenaCommon.CFElements import seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 
 
 doWriteRDOTrigger = False
@@ -56,10 +56,11 @@ fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker", OutputLeve
 fastCaloViewsMaker.ViewFallThrough = True
 fastCaloViewsMaker.InputMakerInputDecisions =  [ "FilteredEMRoIDecisions" ]
 fastCaloViewsMaker.RoIsLink = "initialRoI"
+fastCaloViewsMaker.RoITool = ViewCreatorInitialROITool()
 fastCaloViewsMaker.InViewRoIs = InViewRoIs
 fastCaloViewsMaker.Views = "EMCaloViews"
 fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence"
-fastCaloViewsMaker.InputMakerOutputDecisions = [ "L2CaloLinks"]
+fastCaloViewsMaker.InputMakerOutputDecisions = "L2CaloLinks"
 clusterMaker.OutputLevel=FATAL
 
 if doRinger:
@@ -80,7 +81,7 @@ for t in fastCaloHypo.HypoTools:
 
 fastCaloHypo.HypoOutputDecisions = "EgammaCaloDecisions"
 fastCaloHypo.OutputLevel= DEBUG
-fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions[0] #   __l1RoIDecisions
+fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions #   __l1RoIDecisions
 
 
 fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence, fastCaloHypo ])
