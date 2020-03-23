@@ -204,19 +204,17 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         break;
       }
   
-      //keep track of the number of unique features
+      //keep track of the number of unique features/rois
       for (const ElementLink<DecisionContainer>& dEL : it->second){
         uint32_t featureKey = 0, roiKey = 0;
         uint16_t featureIndex = 0, roiIndex = 0;
-        // NOTE: roiKey, roiIndex not currently used in this discrimination
         ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex) );
-	// TODO: move this to InitialRoI for serial merging
-        const uint32_t featureHash = (featureKey + featureIndex); 
-        if (featureHash == 0) {
-          ATH_MSG_WARNING("Disregarding feature hash of zero");
-	  // continue;
-        }
-        uniqueDecisionFeatures.insert( featureHash );
+	const uint32_t uniquenessHash = (featureKey != 0 ? (featureKey + featureIndex) : (roiKey + roiIndex)); 
+	if (uniquenessHash == 0) {
+	  ATH_MSG_ERROR("Object has no feature, and no initialRoI. Cannot get obtain unique element to avoid double-counting.");
+	  return StatusCode::FAILURE;
+	}      
+        uniqueDecisionFeatures.insert( uniquenessHash );
         // TODO - do something with the ROI
       }
 
