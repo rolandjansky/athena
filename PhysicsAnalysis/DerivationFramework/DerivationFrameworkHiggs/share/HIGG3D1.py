@@ -265,10 +265,9 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d1Seq,algname="QGTaggerToo
 #====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
-# import the JetTagNonPromptLepton config and add to the private sequence
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+# import the LeptonTaggers config and add to the private sequence
 import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
-higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+higg3d1Seq += LepTagConfig.GetDecoratePromptLeptonAlgs()
 higg3d1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #====================================================================
@@ -310,7 +309,7 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
 
 HIGG3D1SlimmingHelper.ExtraVariables = list(HIGG3D1ExtraVariables)
 HIGG3D1SlimmingHelper.AllVariables = list(HIGG3D1ExtraContainers)
-HIGG3D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+HIGG3D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
 HIGG3D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD() 
 
 # needed to calculate electron LH downstream

@@ -58,11 +58,10 @@ MUON5Seq = CfgMgr.AthSequencer("MUON5Sequence")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 
 # Replace missing collections
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 if not hasattr(MUON5Seq,"Muons_decoratePromptLepton"):
-    JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUON5Seq,"MUON1")
-    MUON5Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+    LepTagConfig.ConfigureAntiKt4PV0TrackJets(MUON5Seq,"MUON1")
+    MUON5Seq += LepTagConfig.GetDecoratePromptLeptonAlgs()
     MUON5Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #======================================================================
@@ -283,7 +282,7 @@ MUON5SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extra
                                       "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m"]
-MUON5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+MUON5SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
 MUON5SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
 MUON5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
