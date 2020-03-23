@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGEGAMMAMATCHINGTOOL_H_
-#define TRIGEGAMMAMATCHINGTOOL_H_
+#ifndef TrigEgammaMatchingTool_H
+#define TrigEgammaMatchingTool_H
 
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ITrigEgammaMatchingTool_H
-#define ITrigEgammaMatchingTool_H
+#ifndef ITrigEgammaMatchingToolMT_H
+#define ITrigEgammaMatchingToolMT_H
 
 #include "AsgTools/IAsgTool.h"
 #include "TrigConfHLTData/HLTFrame.h"
@@ -20,26 +20,21 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
+
 namespace Trig{
-    class ITrigEgammaMatchingTool : public virtual asg::IAsgTool {
-        ASG_TOOL_INTERFACE( Trig::ITrigEgammaMatchingTool )
+
+    class ITrigEgammaMatchingToolMT : public virtual asg::IAsgTool {
+
+        ASG_TOOL_INTERFACE( Trig::ITrigEgammaMatchingToolMT )
 
         public:
-            virtual StatusCode initialize(void) = 0;
-            virtual StatusCode execute()=0;
-            virtual StatusCode finalize()=0;
-            virtual bool match(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&)=0;
-            virtual bool match(const xAOD::Egamma *,const std::string)=0;
-            virtual bool matchHLT(const xAOD::Egamma *,const std::string)=0;
-            virtual const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string)=0;
-        protected:
-
-        private:
+            virtual StatusCode initialize()=0;
     };
 }
 #endif

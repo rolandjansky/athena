@@ -1,4 +1,25 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+
+
+
+################################
+###### Run-3 develpments #######
+################################
+
+monitoring_electron_Run3 = ['HLT_e5_lhloose_L1EM3','HLT_e3_etcut_L1EM3','HLT_e5_etcut_L1EM3','HLT_e7_etcut_L1EM3','HLT_e300_etcut_L1EM24VHI']
+monitoring_photon_Run3 = ['HLT_g5_etcut_L1EM3','HLT_g5_loose_L1EM3','HLT_g5_medium_L1EM3','HLT_g5_tight_L1EM3','HLT_g140_loose_L1EM24VH']
+monitoring_tags_Run3 = ['HLT_e26_lhtight_L1EM24VHI']
+monitoringTP_electron_Run3 = ['HLT_e26_lhtight_L1EM24VHI','HLT_e60_lhmedium_L1EM24VHI','HLT_e140_lhloose_L1EM24VHI']
+monitoringTP_Jpsiee_Run3 = []
+
+
+
+
+
+################################
+######  Run-2  official  #######
+################################
 
 #Categories currently used by offline Egamma TO monitoring tool
 #Important to keep lists updated

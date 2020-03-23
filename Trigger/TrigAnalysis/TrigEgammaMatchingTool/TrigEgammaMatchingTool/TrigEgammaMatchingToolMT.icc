@@ -1,0 +1,109 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+using namespace TrigCompositeUtils;
+
+namespace Trig{
+
+
+/*
+ * Get the passed information for a given feature from TrigEgammaMatchingUtils::Element 
+ */
+template<class CONTAINER>
+inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::Decision *dec) const
+{
+  if(!dec) return false;
+  const TrigCompositeUtils::LinkInfo<CONTAINER> linkInfo = TrigCompositeUtils::findLink<CONTAINER>(dec, "feature");
+  if( ! linkInfo.isValid())  return false;
+  if( linkInfo.state == ActiveState::ACTIVE)  return true;
+  return false;
+}
+
+
+/*
+ * Internal usage in the trigger e/g matching algorithm
+ */
+template<class OBJECT>
+inline bool TrigEgammaMatchingToolMT::closestObject( const xAOD::Egamma *eg, const TrigCompositeUtils::Decision *&dec, std::string trigger, std::string key ) const
+{
+  double deltaR=0.;        
+  auto vec =  tdt()->features<DataVector<OBJECT>>(trigger,TrigDefs::includeFailedDecisions ,key);      
+  for( LinkInfo<DataVector<OBJECT>> &featLinkInfo : vec ){                                             
+    if(! featLinkInfo.isValid() ) continue;
+    const auto *feat = *(featLinkInfo.link);                   
+    if(!feat) continue;
+    deltaR = dR(eg->eta(),eg->phi(), feat->eta(),feat->phi());                                
+    if(deltaR < m_dR){            
+      dec = featLinkInfo.source;                                                
+      return true;                                                                            
+    }                                                                                         
+  }
+  return false;
+}
+
+
+
+// For trigger levels where the eventView produce one single object and not a collection
+// L2Calo and  EFCalo
+template<class OBJECT>
+inline const OBJECT* TrigEgammaMatchingToolMT::getFeature( const TrigCompositeUtils::Decision *dec ) const
+{
+  if( !dec ) return nullptr;
+  auto linkInfo = TrigCompositeUtils::findLink<DataVector<OBJECT>>(dec, "feature");
+  if( ! linkInfo.isValid())  return nullptr;
+  if( !linkInfo.link.isValid() ) return nullptr;
+  return *linkInfo.link;
+}
+
+
+
+
+/*
+ * Get the EmTauRoI object from TrigEgammaMatchingUtils::Element
+ */
+template<>
+inline const xAOD::EmTauRoI*  TrigEgammaMatchingToolMT::getFeature<xAOD::EmTauRoI>( const TrigCompositeUtils::Decision *dec ) const
+{
+  if( !dec )  return nullptr;
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
+  if( !initRoi.link.isValid() ) return nullptr;
+
+
+  const DataVector<xAOD::EmTauRoI> *container = nullptr;
+  if ( !evtStore()->retrieve( container, "LVL1EmTauRoIs").isSuccess() ){
+    ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
+    return nullptr;
+  }
+
+  for( const auto *l1 : *container ){
+    if ( l1->roiType() == xAOD::EmTauRoI::RoIType::EMRoIWord) continue;
+    if((*initRoi.link)->roiWord()==l1->roiWord()){
+      return l1;
+    }
+  }
+  return nullptr;
+}
+
+
+
+template<class OBJECT>
+inline std::vector<const OBJECT*>  TrigEgammaMatchingToolMT::getFeatures( const TrigCompositeUtils::Decision *dec, std::string &key ) const
+{
+  std::vector< const OBJECT*> vec;
+  if( !dec )  return vec;
+  SG::ReadHandle<DataVector<OBJECT>> containerReadHandle(key, Gaudi::Hive::currentContext());
+  if( !containerReadHandle.isValid() ) return vec;
+  auto linkInfo = TrigCompositeUtils::findLink<DataVector<OBJECT>>(dec, "feature");
+  if( !linkInfo.isValid() ) return nullptr;
+
+  const auto itPair = tdt()->associateToEventView<DataVector<OBJECT>>(containerReadHandle, linkInfo);
+  const auto begin = itPair.first;
+  const auto end  = itPair.second;
+  for ( auto it = begin; it != end; ++it) vec.push_back(*it);
+  return vec;
+}
+
+
+}// namespace
