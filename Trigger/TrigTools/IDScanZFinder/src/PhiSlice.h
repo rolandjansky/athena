@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PHI_SLICE_H
@@ -36,11 +36,11 @@ public:
   //Add points to the z-axis histograms (not thread safe if acting on global histograms)
   void GetHistogram( std::vector<long>* HitHistogram, std::vector<double>* WeightHistogram,
 		     std::vector<long>* OtherChargeHitHistogram, std::vector<double>* OtherChargeWeightHistogram,
-		     std::vector< std::vector<long> > & ExtraSlices, 
-		     long PhiToSubtract, 
+		     const std::vector< std::vector<long> > & ExtraSlices, 
+		     const long PhiToSubtract, 
 		     int InnerLayerLimit,
-		     int TripletMode, 
-		     bool ChargeAware,
+		     const int TripletMode, 
+		     const bool ChargeAware,
 		     std::vector< std::vector<long> >* AllHits = 0, 
 		     std::vector< std::vector<double> >* AllWeights = 0 );
 
@@ -59,14 +59,16 @@ private:
   //Look for a third spacepoint
   int FindTriplet( int OuterFilledLayer, int OuterPointIndex,
 		   double CurrentZValue, double CurrentKValue, double CurrentPValue,
-		   std::vector< std::vector<long> >& ExtraSlices, 
-		   long PhiToSubtract, 
+		   const std::vector< std::vector<long> >& ExtraSlices, 
+		   const long PhiToSubtract, 
 		   bool FastTriplet, 
 		   int OuterSliceIndex );
 
   //Fill neighbouring slices for histogram-per-slice mode
   void FillNeighbours( int InnerLayerIndex, int OuterSliceIndex, int TripletsFound, int AxisZIndex, double AxisZ,
-		       std::vector< std::vector<long> >& ExtraSlices, long PhiToSubtract, bool ChargeAware,
+		       const std::vector< std::vector<long> >& ExtraSlices, 
+		       const long PhiToSubtract, 
+		       const bool ChargeAware,
 		       std::vector< std::vector<long> >* AllHits, 
 		       std::vector< std::vector<double> >* AllWeights );
 

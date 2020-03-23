@@ -363,6 +363,9 @@ if InDetFlags.doPattern():
     #
     if not InDetFlags.doDBMstandalone():
         InDetTRTDetElementsRoadMaker =  TrackingCommon.getInDetTRT_RoadMaker()
+        from InDetRecExample.TrackingCommon import getTRT_DetElementsRoadCondAlg
+        createAndAddCondAlg(getTRT_DetElementsRoadCondAlg,'TRT_DetElementsRoadCondAlg_xk')
+
         if (InDetFlags.doPrintConfigurables()):
             printfunc (     InDetTRTDetElementsRoadMaker)
 
@@ -630,8 +633,12 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     # --- load Configured Annealing Maker
     #
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__DetAnnealingMaker
-    InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
-                                                 SetOfTemperatures = [64.,16.,4.,2.,1.5,1.]) # not default
+    if(InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
+      InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
+                                                   SetOfTemperatures = [8.,4.,2.,1.4142136,1.2247449,1.]) # 'standard' annealing temps raised to 0.5
+    else:
+      InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
+                                                   SetOfTemperatures = [64.,16.,4.,2.,1.5,1.]) # not default
     ToolSvc += InDetAnnealingMaker
     if (InDetFlags.doPrintConfigurables()):
       printfunc (InDetAnnealingMaker)
@@ -679,72 +686,106 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
       if (InDetFlags.doPrintConfigurables()):
         printfunc (InDet2DVtxSeedFinder)
 
+    def getDeprecatedInDetDetailedTrackSelectorTool() :
+         from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+         sliding_window_track_selector = InDet__InDetDetailedTrackSelectorTool(name                                = "InDetDetailedTrackSelectorTool",
+                                                                      pTMin                               = InDetPrimaryVertexingCuts.minPT(),
+                                                                      IPd0Max                             = InDetPrimaryVertexingCuts.IPd0Max(),
+                                                                      IPz0Max                             = InDetPrimaryVertexingCuts.IPz0Max(),
+                                                                      z0Max                               = InDetPrimaryVertexingCuts.z0Max(),
+                                                                      sigIPd0Max                          = InDetPrimaryVertexingCuts.sigIPd0Max(),
+                                                                      sigIPz0Max                          = InDetPrimaryVertexingCuts.sigIPz0Max(),
+                                                                      d0significanceMax                   = InDetPrimaryVertexingCuts.d0significanceMax(),
+                                                                      z0significanceMax                   = InDetPrimaryVertexingCuts.z0significanceMax(),
+                                                                      etaMax                              = InDetPrimaryVertexingCuts.etaMax(),
+                                                                      useTrackSummaryInfo                 = InDetPrimaryVertexingCuts.useTrackSummaryInfo(),
+                                                                      # nHitBLayer                          = InDetPrimaryVertexingCuts.nHitBLayer(),
+                                                                      nHitPix                             = InDetPrimaryVertexingCuts.nHitPix(),
+                                                                      nHolesPixel                         = InDetPrimaryVertexingCuts.nHolesPix(),
+                                                                      # nHitBLayerPlusPix                   = InDetPrimaryVertexingCuts.nHitBLayerPlusPix(),
+                                                                      nHitSct                             = InDetPrimaryVertexingCuts.nHitSct(),
+                                                                      nHitSi                              = InDetPrimaryVertexingCuts.nHitSi(),
+                                                                      nHitTrt                             = InDetPrimaryVertexingCuts.nHitTrt(),
+                                                                      nHitTrtHighEFractionMax             = InDetPrimaryVertexingCuts.nHitTrtHighEFractionMax(),
+                                                                      nHitTrtHighEFractionWithOutliersMax = InDetPrimaryVertexingCuts.nHitTrtHighEFractionWithOutliersMax(),
+                                                                      useSharedHitInfo                    = InDetPrimaryVertexingCuts.useSharedHitInfo(),
+                                                                      useTrackQualityInfo                 = InDetPrimaryVertexingCuts.useTrackQualityInfo(),
+                                                                      fitChi2OnNdfMax                     = InDetPrimaryVertexingCuts.fitChi2OnNdfMax(),
+                                                                      TrtMaxEtaAcceptance                 = InDetPrimaryVertexingCuts.TrtMaxEtaAcceptance(),
+                                                                      # InDetTestBLayerTool                 = InDetRecTestBLayerTool,
+                                                                      TrackSummaryTool                    = TrackingCommon.getInDetTrackSummaryTool(),
+                                                                      Extrapolator                        = TrackingCommon.getInDetExtrapolator())
+         ToolSvc += sliding_window_track_selector
+         return sliding_window_track_selector
 
-    if(InDetFlags.vertexSeedFinder() == 'DivisiveMultiSeedFinder'):
-      if (not InDetFlags.useBeamConstraint()):
-        from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__DivisiveMultiSeedFinder
-        InDetMultiSeedFinder = InDet__DivisiveMultiSeedFinder(name               = "InDetDivisiveMultiSeedFinder",
-                                                              TrackSelector      = InDetTrackSelectorTool,
-                                                              SortingTool        = InDetTrackZ0SortingTool,
-                                                              IgnoreBeamSpot     = True,
-                                                              VertexSeedFinder   = InDet2DVtxSeedFinder,
-                                                              Extrapolator       = InDetExtrapolator,
-                                                              separationDistance = 5.)
+    def getInDetMultiSeedFinder() :
+       if(InDetFlags.vertexSeedFinder() == 'DivisiveMultiSeedFinder'):
+         if (not InDetFlags.useBeamConstraint()):
+           from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__DivisiveMultiSeedFinder
+           InDetMultiSeedFinder = InDet__DivisiveMultiSeedFinder(name               = "InDetDivisiveMultiSeedFinder",
+                                                                 TrackSelector      = InDetTrackSelectorTool,
+                                                                 SortingTool        = InDetTrackZ0SortingTool,
+                                                                 IgnoreBeamSpot     = True,
+                                                                 VertexSeedFinder   = InDet2DVtxSeedFinder,
+                                                                 Extrapolator       = InDetExtrapolator,
+                                                                 separationDistance = 5.)
 
-      else:
-        from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__DivisiveMultiSeedFinder
-        InDetMultiSeedFinder = InDet__DivisiveMultiSeedFinder(name               = "InDetDivisiveMultiSeedFinder",
-                                                              TrackSelector      = InDetTrackSelectorTool,
-                                                              SortingTool        = InDetTrackZ0SortingTool,
-                                                              Extrapolator       = InDetExtrapolator,
-                                                              separationDistance = 5.)
-
-
-
-
-    elif(InDetFlags.vertexSeedFinder() == 'HistogrammingMultiSeedFinder'):
-      if (not InDetFlags.useBeamConstraint()):
-        from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__HistogrammingMultiSeedFinder
-        InDetMultiSeedFinder = InDet__HistogrammingMultiSeedFinder(name             = "InDetHistogrammingMultiSeedFinder",
-                                                                   TrackSelector    = InDetTrackSelectorTool,
-                                                                   IgnoreBeamSpot   = True,
-                                                                   VertexSeedFinder = InDet2DVtxSeedFinder,
-                                                                   Extrapolator     = InDetExtrapolator)
-      else:
-        from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__HistogrammingMultiSeedFinder
-        InDetMultiSeedFinder = InDet__HistogrammingMultiSeedFinder(name          = "InDetHistogrammingMultiSeedFinder",
-                                                                   TrackSelector = InDetTrackSelectorTool,
-                                                                   Extrapolator  = InDetExtrapolator)
+         else:
+           from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__DivisiveMultiSeedFinder
+           InDetMultiSeedFinder = InDet__DivisiveMultiSeedFinder(name               = "InDetDivisiveMultiSeedFinder",
+                                                                 TrackSelector      = InDetTrackSelectorTool,
+                                                                 SortingTool        = InDetTrackZ0SortingTool,
+                                                                 Extrapolator       = InDetExtrapolator,
+                                                                 separationDistance = 5.)
 
 
-    elif(InDetFlags.vertexSeedFinder() == 'SlidingWindowMultiSeedFinder'):
-      # now setup new stuff
-      if (not InDetFlags.useBeamConstraint()):
-        from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__SlidingWindowMultiSeedFinder
-        InDetMultiSeedFinder = InDet__SlidingWindowMultiSeedFinder(name             = "InDetSlidingWindowMultiSeedFinder",
-                                                                   clusterLength    = 8.*mm,
-                                                                   TrackSelector    = InDetTrackSelectorTool,
-                                                                   Extrapolator     = InDetExtrapolator,
-                                                                   SortingTool      = InDetTrackZ0SortingTool,
-                                                                   IgnoreBeamSpot   = True,
-                                                                   VertexSeedFinder = InDet2DVtxSeedFinder
-                                                                   # UseMaxInCluster = True
-                                                                   )
 
-      else:
 
-        from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__SlidingWindowMultiSeedFinder
-        InDetMultiSeedFinder = InDet__SlidingWindowMultiSeedFinder(name          = "InDetSlidingWindowMultiSeedFinder",
-                                                                   clusterLength = 5.*mm,
-                                                                   TrackSelector = InDetTrackSelectorTool,
-                                                                   Extrapolator  = InDetExtrapolator,
-                                                                   SortingTool   = InDetTrackZ0SortingTool,
-                                                                   # UseMaxInCluster = True
-                                                                   )
+       elif(InDetFlags.vertexSeedFinder() == 'HistogrammingMultiSeedFinder'):
+         if (not InDetFlags.useBeamConstraint()):
+           from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__HistogrammingMultiSeedFinder
+           InDetMultiSeedFinder = InDet__HistogrammingMultiSeedFinder(name             = "InDetHistogrammingMultiSeedFinder",
+                                                                      TrackSelector    = InDetTrackSelectorTool,
+                                                                      IgnoreBeamSpot   = True,
+                                                                      VertexSeedFinder = InDet2DVtxSeedFinder,
+                                                                      Extrapolator     = InDetExtrapolator)
+         else:
+           from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__HistogrammingMultiSeedFinder
+           InDetMultiSeedFinder = InDet__HistogrammingMultiSeedFinder(name          = "InDetHistogrammingMultiSeedFinder",
+                                                                      TrackSelector = InDetTrackSelectorTool,
+                                                                      Extrapolator  = InDetExtrapolator)
 
-    ToolSvc += InDetMultiSeedFinder
-    if (InDetFlags.doPrintConfigurables()):
-      printfunc (InDetMultiSeedFinder)
+
+       elif(InDetFlags.vertexSeedFinder() == 'SlidingWindowMultiSeedFinder'):
+
+         # now setup new stuff
+         if (not InDetFlags.useBeamConstraint()):
+           from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__SlidingWindowMultiSeedFinder
+           InDetMultiSeedFinder = InDet__SlidingWindowMultiSeedFinder(name             = "InDetSlidingWindowMultiSeedFinder",
+                                                                      clusterLength    = 8.*mm,
+                                                                      TrackSelector    = getDeprecatedInDetDetailedTrackSelectorTool(),
+                                                                      Extrapolator     = TrackingCommon.getInDetExtrapolator(),
+                                                                      SortingTool      = InDetTrackZ0SortingTool,
+                                                                      IgnoreBeamSpot   = True,
+                                                                      VertexSeedFinder = InDet2DVtxSeedFinder
+                                                                      # UseMaxInCluster = True
+                                                                      )
+
+         else:
+
+           from InDetMultipleVertexSeedFinder.InDetMultipleVertexSeedFinderConf import InDet__SlidingWindowMultiSeedFinder
+           InDetMultiSeedFinder = InDet__SlidingWindowMultiSeedFinder(name          = "InDetSlidingWindowMultiSeedFinder",
+                                                                      clusterLength = 5.*mm,
+                                                                      TrackSelector = getDeprecatedInDetDetailedTrackSelectorTool(),
+                                                                      Extrapolator  = TrackingCommon.getInDetExtrapolator(),
+                                                                      SortingTool   = InDetTrackZ0SortingTool,
+                                                                      # UseMaxInCluster = True
+                                                                      )
+
+       ToolSvc += InDetMultiSeedFinder
+       if (InDetFlags.doPrintConfigurables()):
+         printfunc (InDetMultiSeedFinder)
+       return InDetMultiSeedFinder
 
   # -----------------------------------------
   #
@@ -867,14 +908,15 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     # --- load primary vertex finder tool
     #
+    do_multi_vtx = InDetPrimaryVertexingCuts.enableMultipleVertices()
     from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetPriVxFinderTool
     InDetPriVxFinderTool = InDet__InDetPriVxFinderTool(name              = "InDetPriVxFinderTool",
-                                                       PriVxSeedFinder   = InDetMultiSeedFinder,
+                                                       PriVxSeedFinder   = getInDetMultiSeedFinder() if do_multi_vtx else None,
                                                        TrackSelector     = InDetTrackSelectorTool,
                                                        VertexFitterTool  = InDetVxFitterTool,
                                                        maxChi2PerTrack   = InDetPrimaryVertexingCuts.MaxChi2PerTrack(),
                                                        chi2CutMethod     = InDetPrimaryVertexingCuts.chi2CutMethod(),
-                                                       enableMultipleVertices = InDetPrimaryVertexingCuts.enableMultipleVertices(),
+                                                       enableMultipleVertices = do_multi_vtx,
                                                        useBeamConstraint = InDetFlags.useBeamConstraint())
 
   elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding') :
@@ -923,6 +965,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                     TrackSelector     = InDetTrackSelectorTool,
                                                                     useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                     selectiontype     = 0,
+								    TracksMaxZinterval = 3,#mm 
                                                                     do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':

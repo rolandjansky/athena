@@ -1204,7 +1204,6 @@ StatusCode PanTau::Tool_FeatureExtractor::addImpactParameterFeatures(PanTau::Pan
     std::vector<double> impactParameterSignf(0);
     
     // get jet direction:
-//     CLHEP::Hep3Vector       vec_Tau         = const_cast<Analysis::TauJet*>(inSeed->getTauJet())->getHLV(TauJetParameters::IntermediateAxis).vect();
     TLorentzVector tlv_Tau;
     tlv_Tau.SetPtEtaPhiM(tauJet->ptIntermediateAxis(), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis());
     TVector3                vec_Tau         = tlv_Tau.Vect();

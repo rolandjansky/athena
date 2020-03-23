@@ -577,15 +577,6 @@ class L2EFChain_MB(L2EFChainDef):
             chainSuffixEF = "hmt"
             theL2Fex1  = L2MbSpFex_noPix
             theL2Hypo1 = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_"+l2th1, float(l2th1))
-            if "pusup" in self.chainPart['pileupInfo']:
-                doPusup=True
-                chainSuffixL2=l2hypo2+'_'+chainSuffixL2
-                #L2 pileup suppression
-                from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
-
-                theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
-                theL2Fex2  = theL2PileupSup
-                theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_"+l2th2, int(l2th2))
         ########## EF algos ##################
             if "sumet" in self.chainPart['hypoEFsumEtInfo']:
                 doSumEt=True
@@ -676,36 +667,6 @@ class L2EFChain_MB(L2EFChainDef):
     def setup_mb_hmtperf(self):
         l2hypo1 = self.chainPart['hypoL2Info']
         l2th1=l2hypo1.lstrip('sp')
-
-        #print 'igb - l2th1:', l2th1
-        ########## L2 algos ##################
-        if "hmtperf" in self.chainPart['recoAlg']:
-            chainSuffix = "sp"+l2th1+"_hmtperf"
-
-            theL2Fex1  = L2MbSpFex_noPix
-            theL2Hypo1 = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_"+l2th1, float(l2th1))
-            from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
-            theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
-            theL2Fex2  = theL2PileupSup
-            theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_PT")
-            theL2Hypo2.AcceptAll = True
-
-        ########## EF algos ##################
-            #sum Et fex
-            from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_2sidednoiseSupp
-            theEFMETFex = EFMissingET_Fex_2sidednoiseSupp()
-            # sum Et hypo
-            from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTE
-            theEFMETHypo = EFMetHypoTE('EFMetHypo_PT')
-            theEFMETHypo.forceAccept=True
-            
-            #tracking and vertexing fexes
-            theEFFex1 =  efid
-            theEFFex2 =  EFMbTrkFex
-            theEFFex3 =  EFMbVxFex
-
-            theEFHypo =  MbVxHypo("EFMbVxHypoMh_hip_PT")
-            theEFHypo.AcceptAll_EF = True
 
         ########### Sequence List ##############
 

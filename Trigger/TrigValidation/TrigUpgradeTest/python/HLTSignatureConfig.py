@@ -63,7 +63,6 @@ def makeMuSequence(ConfigFlags, name,step):
     return makeSequence(ConfigFlags, name,step, signature="mu")
 
 
-
 ## ##### electron signatures
 ## ##########################
 

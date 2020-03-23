@@ -483,6 +483,8 @@ if rec.doPhysicsValidationAugmentation() :
     log.info('Package InDetPhysValMonitoring.InDetPhysValDecoration is missing.'\
                ' So, will not run the decoration. Module should become available in future'\
                ' versions of InDetPhysValMonitoring')
+    import traceback
+    log.info (traceback.format_exc())
     import sys 
     sys.exit(1)
     pass

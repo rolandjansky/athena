@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( TrigConf2COOLOnline )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   Trigger/TrigConfiguration/TrigConfHLTData
-   Trigger/TrigConfiguration/TrigConfL1Data
-   Trigger/TrigConfiguration/TrigConfStorage )
-
 # External dependencies:
 find_package( Boost COMPONENTS program_options )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )

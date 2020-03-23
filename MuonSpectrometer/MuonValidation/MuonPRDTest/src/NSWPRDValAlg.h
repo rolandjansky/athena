@@ -1,17 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWPRDVALALG_H
 #define NSWPRDVALALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "EDM_object.h"
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "EDM_object.h"
 
 #include <vector>
 
+class MDTSimHitVariables;
+class RPCSimHitVariables;
 class MMDigitVariables;
 class MMSimHitVariables;
 class MMSDOVariables;
@@ -31,9 +34,6 @@ class TruthVariables;
 
 class ITHistSvc;
 class TTree;
-class MmIdHelper;
-class sTgcIdHelper;
-class CscIdHelper;
 
 class NSWPRDValAlg:public AthAlgorithm
 {
@@ -65,6 +65,8 @@ class NSWPRDValAlg:public AthAlgorithm
   MMRDOVariables*         m_MmRdoVar;
   MMPRDVariables*         m_MmPrdVar;
   CSCDigitVariables*      m_CscDigitVar;
+  MDTSimHitVariables*     m_MDTSimHitVar;
+  RPCSimHitVariables*     m_RPCSimHitVar;
 
   ITHistSvc *m_thistSvc;
   TTree *m_tree;
@@ -75,11 +77,9 @@ class NSWPRDValAlg:public AthAlgorithm
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 
-      "Key of input MuonDetectorManager condition data"};    
+      "Key of input MuonDetectorManager condition data"};
 
-  const MmIdHelper*   m_MmIdHelper;
-  const sTgcIdHelper* m_sTgcIdHelper;
-  const CscIdHelper*  m_CscIdHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   BooleanProperty  m_isData;             // if false use MuonDetectorManager from detector store everywhere
   BooleanProperty  m_doTruth;            // switch on the output of the MC truth
@@ -95,6 +95,8 @@ class NSWPRDValAlg:public AthAlgorithm
   BooleanProperty  m_doMMRDO;            // switch on the output of the MicroMegas RDO
   BooleanProperty  m_doMMPRD;            // switch on the output of the MicroMegas prepdata
   BooleanProperty  m_doCSCDigit;         // switch on the output of the MicroMegas digitization
+  BooleanProperty  m_doMDTHit;
+  BooleanProperty  m_doRPCHit;
 
   unsigned int m_runNumber;
   unsigned int m_eventNumber;
@@ -112,11 +114,14 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_NSWMM_RDOContainerName;
   std::string m_NSWMM_PRDContainerName;
   std::string m_CSC_DigitContainerName;
+  std::string m_MDT_SimContainerName;
+  std::string m_RPC_SimContainerName;
 
   // Matching algorithm
   BooleanProperty m_doNSWMatching;
   BooleanProperty m_doNSWMatchingMuon;
   uint m_maxStripDiff;
+  bool  m_noMatchWarning;
 };
 
 #endif // NSWPRDVALALG_H

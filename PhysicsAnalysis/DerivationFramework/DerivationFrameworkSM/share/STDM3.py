@@ -51,18 +51,17 @@ STDM3ThinningHelper.AppendToStream( STDM3Stream )
 # Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 STDM3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM3JetTPThinningTool",
-                                                                        ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         JetKey                  = "AntiKt4EMTopoJets",
 #                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM3JetTPThinningTool
 thinningTools.append(STDM3JetTPThinningTool)
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 STDM3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "STDM3MuonTPThinningTool",
-                                                                         ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM3MuonTPThinningTool
@@ -71,7 +70,7 @@ thinningTools.append(STDM3MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 STDM3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(      name                    = "STDM3ElectronTPThinningTool",
-                                                                                     ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                                     StreamName              = streamName,
                                                                                      SGKey                   = "Electrons",
                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM3ElectronTPThinningTool
@@ -80,7 +79,7 @@ thinningTools.append(STDM3ElectronTPThinningTool)
 # Tracks associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 STDM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                 = "STDM3TauTPThinningTool",
-                                                                        ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey                  = "TauJets",
                                                                         SelectionString         = "TauJets.pt > 15*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -100,21 +99,21 @@ if globalflags.DataSource()=='geant4':
     from DerivationFrameworkSM.STDMCommonTruthTools import *
     
     STDM3TruthLepTool = DerivationFramework__GenericTruthThinning(name                         = "STDM3TruthLepTool",
-                                                                  ThinningService              = STDM3ThinningHelper.ThinningSvc(),
+                                                                  StreamName                   = streamName,
                                                                   ParticleSelectionString      = truth_cond_lepton,
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = False,
                                                                   PreserveAncestors            = True)
     
     STDM3TruthBosTool = DerivationFramework__GenericTruthThinning(name                         = "STDM3TruthBosTool",
-                                                                  ThinningService              = STDM3ThinningHelper.ThinningSvc(),
+                                                                  StreamName                   = streamName,
                                                                   ParticleSelectionString      = truth_cond_boson,
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = True,
                                                                   PreserveAncestors            = False)
     
     STDM3PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "STDM3PhotonThinning",
-                                                                    ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     ParticlesKey            = "TruthPhotons",
                                                                     ParticleSelectionString = photonthinningexpr)
 
@@ -177,13 +176,6 @@ DerivationFrameworkJob += STDM3Sequence
 #fileName   = buildFileName( derivationFlags.WriteDAOD_STDM3Stream )
 #STDM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 #STDM3Stream.AcceptAlgs(["STDM3Kernel"])
-
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-# from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-# augStream = MSMgr.GetStream( streamName )
-# evtStream = augStream.GetEventStream()
-# svcMgr += createThinningSvc( svcName="STDM3ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

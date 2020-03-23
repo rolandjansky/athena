@@ -126,7 +126,9 @@ StatusCode TileHitVecToCntTool::initialize() {
   if (m_pileUp || m_rndmEvtOverlay) {
     ATH_MSG_INFO("take events from PileUp service");
 
-    ATH_CHECK(m_mergeSvc.retrieve());
+    if (m_onlyUseContainerName) {
+      ATH_CHECK(m_mergeSvc.retrieve());
+    }
 
     if (m_useTriggerTime) {
       ATH_MSG_INFO(" In case of pileup, the trigger time subtraction is done in PileUpSvc");

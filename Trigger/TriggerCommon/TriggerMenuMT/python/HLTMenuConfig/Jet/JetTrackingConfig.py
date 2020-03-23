@@ -15,19 +15,13 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     if trkopt=="ftf":
         from TrigInDetConfig.InDetSetup import makeInDetAlgs
         # Guess FS rather than making it jet-specific?
-        viewAlgs = makeInDetAlgs( "FS", rois=RoIs )
-
-        for alg in viewAlgs:
-            if "RoIs" in alg.properties():
-                alg.RoIs = RoIs
-            if "roiCollectionName" in alg.properties():
-                alg.roiCollectionName = RoIs
-            jetTrkSeq += alg
-        tracksname = recordable("HLT_xAODTracks_FS")
+        viewAlgs = makeInDetAlgs( "JetFS", "_FS", rois=RoIs )
+        jetTrkSeq += viewAlgs
+        tracksname = recordable("HLT_IDTrack_FS_FTF")
         verticesname = recordable("HLT_EFHistoPrmVtx")
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    vtxAlgs = makeVertices( "jet", "HLT_xAODTracks_FS", verticesname )
+    vtxAlgs = makeVertices( "jet", "HLT_IDTrack_FS_FTF", verticesname )
     prmVtx = vtxAlgs[-1]
     jetTrkSeq += prmVtx
 

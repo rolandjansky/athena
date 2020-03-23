@@ -37,17 +37,18 @@ struct IndexVecComp{
 
 
 FastReducer::FastReducer(const HypoJetGroupCIter& groups_b,
-			 const HypoJetGroupCIter& groups_e,
-			 const ConditionsMT& conditions,
-			 const Tree& tree,
-			 const std::vector<std::vector<int>>& sharedConditions,
-			 const Collector& collector):
+                         const HypoJetGroupCIter& groups_e,
+                         const ConditionsMT& conditions,
+                         const Tree& tree,
+                         const std::vector<std::vector<int>>& sharedConditions,
+                         xAODJetCollector& jetCollector,
+                         const Collector& collector):
   m_conditions(conditions),
   m_tree(tree),
   m_sharedConditions(std::move(sharedConditions))
 {
 
-  // create an empty list vector of indices of satisfying job groups
+  // create an empty vector of indices of satisfying jet groups
   // for each Condition.
   for(std::size_t i = 0; i < m_tree.size(); ++i){
     m_satisfiedBy.emplace(i, std::vector<std::size_t>{});
@@ -56,64 +57,82 @@ FastReducer::FastReducer(const HypoJetGroupCIter& groups_b,
 
 
   for(const auto& leaves: m_sharedConditions){
-    if(!findInitialJobGroups(leaves,
+    if(!findInitialJetGroups(leaves,
 			     groups_b,
 			     groups_e,
 			     collector)){
       if(collector){
 	collector->collect("FastReducer early return",
-			   "from findInitialJobGroups");
+			   "from findInitialJetGroups");
 	dumpDataStructures(collector);
       }
+      return;  // m_pass retains initial value ie false 
     }
   }
 
   
-  if(!propagateJobGroups(collector)){
+  if(!propagateJetGroups(collector)){
     // error propagating edges. e.g. unsatisfied condition
     if(collector){
       collector->collect("FastReducer early return",
-			 "from propagateJobGroups");
+			 "from propagateJetGroups");
       dumpDataStructures(collector);
     }
     return;  // early return, leave m_pass = false
   }
 
-  // propagagattion to the top of the Conditions tree was successful.
-  setPassingJets();
+  m_pass = true;
   if(collector){
-    collector->collect("FastReducer early return",
-		       "from propagateJobGroups");
+    collector->collect("FastReducer returning",
+		       "from propagateJetGroups");
     dumpDataStructures(collector);
   }
-  m_pass = true;
+
+  collectLeafJets(jetCollector, collector);
 
 }
 
+void FastReducer::collectLeafJets(xAODJetCollector& jetCollector,
+				  const Collector& collector) const {
 
+  // basic passing jet reporting
 
-void FastReducer::setPassingJets(){
-  /*
-   * return one of sets of jets that passes the hypo
-   * This method will be modified once the interaction with the 
-   * steering code is better understood.
-   */
+  // find the indices of the leaf nodes
+  std::set<int> leafCondInds;
+  for (const auto& leaves: m_sharedConditions){
+    leafCondInds.insert(leaves.begin(), leaves.end());
+  }
+
+  // obtain the jet group indices for the jet groups satisfying the leaf conds
+  std::set<std::size_t> satJetGroupInds;
+  for (const auto& ci : leafCondInds) {
+
+    satJetGroupInds.insert(m_satisfiedBy.at(ci).cbegin(),
+                           m_satisfiedBy.at(ci).cend());
+  }
   
+  // obtain the corresponding elemental jet group indices
+  std::set<std::size_t> elSatJetGroupInds;
+  for (const auto& ji : satJetGroupInds) {
+    elSatJetGroupInds.insert(m_jg2elemjgs.at(ji).begin(),
+			     m_jg2elemjgs.at(ji).end());
+  }
 
-  std::size_t passingGroup = m_satisfiedBy[0][0];
-  std::vector<std::size_t> passingElemGroups = m_jg2elemjgs[passingGroup];
-  auto getJet = [indJetGroup = m_indJetGroup](std::size_t i){
-    return indJetGroup.at(i)[0];};
+  if (collector) {
+    std::stringstream ss;
+    ss <<  "elSatJettGroupInds.size() " << elSatJetGroupInds.size();
+    collector->collect("FastReducer", ss.str());
+  }
+  
+  for(const auto& ji : elSatJetGroupInds) {
+    jetCollector.addJets(m_indJetGroup.at(ji).begin(),
+                         m_indJetGroup.at(ji).end());
+  }
 
-
-
-  std::transform(passingElemGroups.begin(),
-		 passingElemGroups.end(),
-		 std::back_inserter(m_passingJets),
-		 getJet);
 }
 
-bool FastReducer::findInitialJobGroups(const std::vector<int>& leaves,
+
+bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
 				       const HypoJetGroupCIter& groups_b,
 				       const HypoJetGroupCIter& groups_e,
 				       const Collector& collector) {
@@ -128,7 +147,7 @@ bool FastReducer::findInitialJobGroups(const std::vector<int>& leaves,
     auto jg = *iter;
     
     if(jg.size() != 1){
-      collector->collect("FastReducer", "No job groups");
+      collector->collect("FastReducer", "No jet groups");
       return false;
     }
 
@@ -138,12 +157,12 @@ bool FastReducer::findInitialJobGroups(const std::vector<int>& leaves,
     auto cur_jg = m_jgIndAllocator(std::vector<std::size_t>{ijg});
     for(const auto& leaf: leaves){
 
+      m_testedBy[leaf].insert(cur_jg);
       if (m_conditions[leaf]->isSatisfied(jg, collector)){
 	  jg_used= true;
 	  if(collector){recordJetGroup(cur_jg, jg, collector);}
 	  // do the following for each satisfied condition ...
 	  m_satisfiedBy[leaf].push_back(cur_jg);
-	  m_testedBy[leaf].insert(cur_jg);
       }
     }
     if(jg_used){
@@ -160,17 +179,16 @@ bool FastReducer::findInitialJobGroups(const std::vector<int>& leaves,
   }
   
   // check all leaf conditions are satisfied
-  return
-    static_cast<std::size_t>(std::count_if(m_satisfiedBy.begin(),
-					   m_satisfiedBy.end(),
-					   [](const auto& p){
-					     return !p.second.empty();}))==
-    leaves.size();
+  for (const auto& i : leaves) {
+    if ((m_satisfiedBy.at(i)).empty()) { return false; }
+  }
+  
+  return true;
 }
 
 
 
-bool FastReducer::propagateJobGroups(const Collector& collector){
+bool FastReducer::propagateJetGroups(const Collector& collector){
   
   
   // construct jet groups according from jet groups that pass child
@@ -245,16 +263,19 @@ bool FastReducer::propagate_(std::size_t child,
 
   // all combinations of the jet groups passing the sibings are
   // constructed. One by one these combinations are tested for
-  // parent satisfaction. Edges are contructed between satisfying job groups and the parent.
+  // parent satisfaction.
+
+
+  // Edges are contructed between satisfying jet groups and the parent.
   // if any such edge is constructed, the calling rroutine is notified so it
   // can scheduling processing the parent as a child.
 
-
   std::size_t par =  m_tree.parent(child);
 
-  // par == true not an error, but not processed
+  // child == 0  do not attempt to process parent of node.
   if(child == 0){return true;}
 
+  // par is parent of the child (and siblings) passed to this method.
   bool par_satisfied{false};  
       
   // calculate the external product of the jet groups
@@ -263,24 +284,35 @@ bool FastReducer::propagate_(std::size_t child,
   // jg11jg21, jg12jg21. Each of these  are flattened.
   
   auto jg_product = JetGroupProduct(siblings, m_satisfiedBy);
-  // Note: while not siblings have been processed, next() will fail due to empty group vectors
+  
+  // obtain the next product of hob groups passing siblings
   auto next = jg_product.next();
 
-  // step through the job groups found by combining ghe child groups
+  // step through the jet groups found by combining ghe child groups
   // check ecach combination to see if it satisfies the parent. If so
-  // add an edge from the contributing children, and from the new job group to the parent.
+  // add an edge from the contributing children, and from the new jet group to the parent.
 
-  while (next.has_value()){
+  while (next.has_value()){  // optional fails if there are no more products
     
     auto jg_indices = *next;
+
     std::vector<std::size_t> elem_jgs;
+
+    // flatten the jet groups participating in the product to a list of
+    // elemental jet groups (ie the incoming jets). The entities being
+    // manipulated are integer indexes.
     
     for(auto i : jg_indices){
       elem_jgs.insert(elem_jgs.end(),
-			m_jg2elemjgs[i].begin(),
+		      m_jg2elemjgs[i].begin(),
 		      m_jg2elemjgs[i].end());
     }
-    
+
+    // if any of the elemetal jet group indices are repeated,
+    // stop processing of the new jet group. (do not allow sharing for
+    // among leaf nodes. Sharing is handled by processing > 1 leaf groups
+    // each of which does not share.
+
     std::set<std::size_t> unique_indices(elem_jgs.begin(),
 					 elem_jgs.end());
     if(unique_indices.size() != elem_jgs.size()){
@@ -290,6 +322,7 @@ bool FastReducer::propagate_(std::size_t child,
 
     HypoJetVector jg;
 
+    // obtain an index for the new jet group.
     auto cur_jg = m_jgIndAllocator(elem_jgs);
     if(m_testedBy[par].find(cur_jg) != m_testedBy[par].end()){
       next = jg_product.next();
@@ -424,10 +457,5 @@ void FastReducer::recordJetGroup(std::size_t ind,
   collector -> collect(ss0.str(), ss1.str());
 }
 
-std::optional<HypoJetVector>
-FastReducer::passingJets() const {
-  if(m_pass){
-    return std::make_optional<HypoJetVector>(m_passingJets);
-  }
-  return std::optional<HypoJetVector>();
-}
+bool FastReducer::pass() const { return m_pass; }
+

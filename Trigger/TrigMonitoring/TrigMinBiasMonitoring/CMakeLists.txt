@@ -20,15 +20,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloGeoHelpers
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigMinBias
-			  Event/xAOD/xAODTrigger
+			   Event/xAOD/xAODTrigger
                           ForwardDetectors/LUCID/LUCID_RawEvent
                           ForwardDetectors/ZDC/ZdcEvent
                           InnerDetector/InDetRawEvent/InDetBCM_RawData
                           TileCalorimeter/TileEvent
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigInDetEvent
-			  Control/AthenaMonitroing
-			  Control/AthenaMOnitoringKernel )
+			  Control/AthenaMonitoringKernel )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
@@ -48,4 +47,3 @@ atlas_add_component( TrigMinBiasMonitoring
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-

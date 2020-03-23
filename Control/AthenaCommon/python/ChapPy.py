@@ -276,7 +276,7 @@ class AthenaApp(object):
     def __init__(self, cmdlineargs=None):
 
         import tempfile
-        self._jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py')
+        self._jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py', mode='w+')
         if cmdlineargs is None:
             cmdlineargs = []
         if isinstance(cmdlineargs, basestring):
@@ -292,7 +292,7 @@ class AthenaApp(object):
     def __lshift__(self, o):
         if isinstance(o, str):
             import textwrap
-            self._jobo.write(textwrap.dedent(o).encode())
+            self._jobo.write(textwrap.dedent(o))
             self._jobo.flush()
             return
         raise TypeError('unexpected type %s'%type(o))

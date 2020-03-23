@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GLOBALCHI2FITTER_H
@@ -261,7 +261,7 @@ namespace Trk {
       Cache &,
       GXFTrajectory &,
       const MeasurementBase *,
-      const TrackParameters * trackpar = 0,
+      const TrackParameters * trackpar = nullptr,
       bool isoutlier = false,
       int index = -1
     ) const;
@@ -270,12 +270,143 @@ namespace Trk {
       Cache &,
       const Trk::TrackingVolume * tvol
     ) const;
+    
+    /**
+     * @brief Find the intersection of a set of track parameters onto a disc
+     * surface.
+     *
+     * Calculates the intersection from a point and momentum in space onto a
+     * disc surface which represents a disc-shaped layer in the detector. The
+     * position of the intersection can be used to find materials in that layer
+     * at that position.
+     *
+     * @param[in] surface The surface to intersect with.
+     * @param[in] param1 The main track parameters to calculate the
+     * intersection from.
+     * @param[in] param2 A secondary set of parameters used for electrons. The
+     * purpose of this is not known to us at this time.
+     * @param[in] mat A particle hypothesis describing the behaviour of the
+     * particle.
+     *
+     * @returns Nothing if the intersection failed (i.e. there was no
+     * intersection), otherwise both an intersection positition as well as the
+     * angle of inflection.
+     *
+     * @note This method can probably be replaced entirely by the straight line
+     * intersection method of the appropriate Surface subclass.
+     */
+    std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionDisc(
+      const DiscSurface & surface,
+      const TrackParameters & param1,
+      const TrackParameters & param2,
+      const ParticleHypothesis mat
+    ) const;
 
+    /**
+     * @brief Find the intersection of a set of track parameters onto a
+     * cylindrical surface.
+     *
+     * See addMaterialFindIntersectionDisc for more information.
+     *
+     * @note This method can probably be replaced entirely by the straight line
+     * intersection method of the appropriate Surface subclass.
+     */
+    std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionCyl(
+      const CylinderSurface & surface,
+      const TrackParameters & param1,
+      const TrackParameters & param2,
+      const ParticleHypothesis mat
+    ) const;
+
+    /**
+     * @brief Given layer information, probe those layers for scatterers and
+     * add them to a track.
+     *
+     * This is the meat of the pudding, if you will. Given the information that
+     * we have about layers, go through them all and find any possible material
+     * hits that we need to add to the track.
+     *
+     * @param[in,out] cache General cache object.
+     * @param[in,out] track The track object as it exists now in IR.
+     * @param[in] offset The first state after any existing materials.
+     * @param[in] layers The list of layers.
+     * @param[in] ref1 The first set of reference parameters.
+     * @param[in] ref2 The second set of reference parameters.
+     * @param[in] mat The particle hypothesis describing the track behaviour.
+     *
+     * @note Attentive readers may wonder why we pass this function a vector
+     * of layers, but not a vector of upstream layers. The reason for this is
+     * that the vector of upstream layers is also a member of the cache object.
+     */
+    void addMaterialUpdateTrajectory(
+      Cache & cache,
+      GXFTrajectory & track,
+      int offset,
+      std::vector<std::pair<const Layer *, const Layer *>> & layers,
+      const TrackParameters * ref1,
+      const TrackParameters * ref2,
+      ParticleHypothesis mat
+    ) const;
+
+    /**
+     * @brief Collect all possible layers that a given track could have passed
+     * through.
+     *
+     * If we are to use layer information to determine possible scatterer hits,
+     * we must first gather those layers. That's what this method does. It
+     * looks for disc and barrel cylinder layers that the given track might
+     * have crossed and collects them into output vectors. One contains layers
+     * between states on the track, and the upstream layers lie before the
+     * first state of the track.
+     *
+     * @param[in,out] cache General cache object.
+     * @param[out] layers Output vector for layers.
+     * @param[out] uplayers Output vector for upstream layers, which lie before
+     * the first hit in the track.
+     * @param[in] states A list of track states on the track.
+     * @param[in] first The first track state.
+     * @param[in] last The last track state.
+     * @param[in] refpar Reference parameters from which to extrapolate.
+     * @param[in] hasmat Are there any existing materials on this track?
+     */
+    void addMaterialGetLayers(
+      Cache & cache,
+      std::vector<std::pair<const Layer *, const Layer *>> & layers,
+      std::vector<std::pair<const Layer *, const Layer *>> & uplayers,
+      std::vector<GXFTrackState *> & states,
+      GXFTrackState & first,
+      GXFTrackState & last,
+      const TrackParameters * refpar,
+      bool hasmat
+    ) const;
+
+    /**
+     * @brief A faster strategy for adding scatter material to tracks, works
+     * only for inner detector tracks.
+     *
+     * For every track, we need to add its scatterers. That is to say, we need
+     * to determine which bits of non-active material the particle in question
+     * may have passed through and add them to the track. This is generally an
+     * expensive operation, but we can cut some corners if the track only
+     * consists of inner detector hits. Specifically, we can exploit the layer
+     * structure of the detector to find possible material hits more quickly
+     * and efficiently than using the standard material adding algorithm, which
+     * is addMaterial.
+     *
+     * @param[in,out] cache General cache object, as used everywhere.
+     * @param[in,out] trajectory The current state of the track, respresented
+     * in the fitter's internal track representation. States may be added to
+     * this.
+     * @param[in] parameters Starting parameters for the material addition
+     * step.
+     * @param[in] part Standard representation of particle type, used to
+     * determine the behaviour of the particle as it traverses materials.
+     */
     void addIDMaterialFast(
-      Cache &,
-      GXFTrajectory &,
-      const TrackParameters *,
-      ParticleHypothesis
+      Cache & cache,
+      GXFTrajectory & track,
+      const TrackParameters * parameters,
+      ParticleHypothesis part
     ) const;
 
     void addMaterial(

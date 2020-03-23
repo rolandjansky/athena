@@ -42,7 +42,7 @@ HIGG4D1ThinningHelper.TriggerChains = DerivationFrameworkHiggs.HIGG4DxThinning.T
 HIGG4D1ThinningHelper.AppendToStream( HIGG4D1Stream )
 
 # thinning tools
-thinningTools = DerivationFrameworkHiggs.HIGG4DxThinning.setup(DAOD_StreamID, HIGG4D1ThinningHelper.ThinningSvc(), ToolSvc)
+thinningTools = DerivationFrameworkHiggs.HIGG4DxThinning.setup(DAOD_StreamID, streamName, ToolSvc)
 
 # skimming tools
 import DerivationFrameworkHiggs.HIGG4DxSkimming

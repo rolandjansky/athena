@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -11,10 +11,9 @@
 //
 
 #include <AsgTools/AnaToolHandle.h>
-#include <AsgTools/MessageCheck.h>
-#include <AsgTools/IMessagePrinter.h>
-#include <AsgTools/MessagePrinterMock.h>
-#include <AsgTools/MessagePrinterOverlay.h>
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/IMessagePrinter.h>
+#include <AsgMessaging/MessagePrinterOverlay.h>
 #include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>

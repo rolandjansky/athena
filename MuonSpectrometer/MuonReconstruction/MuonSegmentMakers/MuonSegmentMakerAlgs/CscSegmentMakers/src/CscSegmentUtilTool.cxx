@@ -30,12 +30,11 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "TMath.h"
+#include "TMath.h" // for TMath::Landau
 #include <cmath>
 
 #include <iostream>
 
-using std::string;
 using MuonGM::MuonDetectorManager;
 using MuonGM::CscReadoutElement;
 using Muon::MuonSegment;
@@ -93,8 +92,7 @@ namespace {
 // Constructor.
 CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent), 
-    m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator")
+  : AthAlgTool(type,name,parent)
 {
   declareInterface<ICscSegmentUtilTool>(this);
   declareProperty("max_chisquare_tight", m_max_chisquare_tight = 16.); // 16 for outlier removal...
@@ -114,7 +112,6 @@ CscSegmentUtilTool::CscSegmentUtilTool
   declareProperty("IPconstraint", m_IPconstraint = true);
   declareProperty("IPerror", m_IPerror = 250.);
   declareProperty("allEtaPhiMatches", m_allEtaPhiMatches = true);  
-  declareProperty("rot_creator", m_rotCreator);
   declareProperty("TightenChi2", m_TightenChi2 = true);
   declareProperty("Remove4Overlap", m_remove4Overlap = true);
   declareProperty("Remove3Overlap", m_remove3Overlap = true);
@@ -1032,7 +1029,8 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
     // Loop over collections in the container.
     ICscSegmentFinder::MbaseList* prios_new = new ICscSegmentFinder::MbaseList;
     ICscSegmentFinder::TrkClusters fitclus;
-    const ICscSegmentFinder::RioList& oldrios = pseg_ref->containedROTs();
+    ICscSegmentFinder::RioList oldrios;
+    for(unsigned int irot=0;irot<pseg_ref->numberOfContainedROTs();irot++) oldrios.push_back(pseg_ref->rioOnTrack(irot));
 
     int cnt =0;
     for ( ICscSegmentFinder::RioList::size_type irio=0; irio<prios->size(); ++irio ) {
@@ -1848,8 +1846,8 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
       const MuonSegment& rsg = **irsg;
       unsigned int nMinRIOs=3;
       if(insegs->use2LayerSegments(1)) nMinRIOs=2;
-      if ( rsg.containedROTs().size()<nMinRIOs){
-	ATH_MSG_DEBUG("only "<<rsg.containedROTs().size()<<", RIO's, insufficient to build the 4d segment from a single eta segment");
+      if ( rsg.numberOfContainedROTs()<nMinRIOs){
+	ATH_MSG_DEBUG("only "<<rsg.numberOfContainedROTs()<<", RIO's, insufficient to build the 4d segment from a single eta segment");
 	continue;
       }
       std::unique_ptr<MuonSegment> pseg(new MuonSegment(rsg));
@@ -1862,8 +1860,8 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
       const MuonSegment& psg = **ipsg;
       unsigned int nMinRIOs=3;
       if(insegs->use2LayerSegments(0)) nMinRIOs=2;
-      if ( psg.containedROTs().size()<nMinRIOs){
-	ATH_MSG_DEBUG("only "<<psg.containedROTs().size()<<", RIO's, insufficient to build the 4d segment from a single phi segment");
+      if ( psg.numberOfContainedROTs()<nMinRIOs){
+	ATH_MSG_DEBUG("only "<<psg.numberOfContainedROTs()<<", RIO's, insufficient to build the 4d segment from a single phi segment");
         continue;
       }
       std::unique_ptr<MuonSegment> pseg(new MuonSegment(psg));
@@ -1920,7 +1918,8 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   
   const Amg::MatrixX& rcov = rsg.localCovariance();
   const Trk::PlaneSurface& etasrf = rsg.associatedSurface();
-  const ICscSegmentFinder::RioList& etarios = rsg.containedROTs();
+  ICscSegmentFinder::RioList etarios;
+  for(unsigned int irot=0;irot<rsg.numberOfContainedROTs();irot++) etarios.push_back(rsg.rioOnTrack(irot));
   const Trk::FitQuality& rfq = *rsg.fitQuality();
   
   const Trk::FitQuality& phifq = *psg.fitQuality();
@@ -1928,7 +1927,8 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   double phidir = psg.localDirection().angleXZ();
   const Amg::MatrixX& phicov = psg.localCovariance();
   const Trk::PlaneSurface& phisrf = psg.associatedSurface();
-  const ICscSegmentFinder::RioList& phirios = psg.containedROTs();
+  ICscSegmentFinder::RioList phirios;
+  for(unsigned int irot=0;irot<psg.numberOfContainedROTs();irot++) phirios.push_back(psg.rioOnTrack(irot));
 
   // Fit quality.
   double chsq = rfq.chiSquared() + phifq.chiSquared();
@@ -2371,8 +2371,10 @@ double CscSegmentUtilTool::
 matchLikelihood(const MuonSegment& rsg, const MuonSegment& psg) const {
 
   // Loop over eta and phi segments.
-  const ICscSegmentFinder::RioList& etarios = rsg.containedROTs();
-  const ICscSegmentFinder::RioList& phirios = psg.containedROTs();
+  ICscSegmentFinder::RioList etarios;
+  for(unsigned int irot=0;irot<rsg.numberOfContainedROTs();irot++) etarios.push_back(rsg.rioOnTrack(irot));
+  ICscSegmentFinder::RioList phirios;
+  for(unsigned int irot=0;irot<psg.numberOfContainedROTs();irot++) etarios.push_back(psg.rioOnTrack(irot));
   int maxeta = etarios.size();
   int maxphi = phirios.size();
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 # The earliest bunch crossing time for which interactions will be sent
@@ -63,12 +63,14 @@ def BCM_OverlayDigitizationTool(name="BCM_OverlayDigitizationTool",**kwargs):
     return BCM_DigitizationTool(name,**kwargs)
 
 def BCM_OverlayDigitization(name="BCM_OverlayDigitization",**kwargs):
-     kwargs.setdefault("DigitizationTool", "BCM_OverlayDigitizationTool")
-     # Multi-threading settinggs
-     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
-     is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
-     if is_hive:
-         kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+    kwargs.setdefault("DigitizationTool", "BCM_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
 
-     from AthenaCommon import CfgMgr
-     return CfgMgr.BCM_Digitization(name,**kwargs)
+    from AthenaCommon import CfgMgr
+    return CfgMgr.BCM_Digitization(name,**kwargs)

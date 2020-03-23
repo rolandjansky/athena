@@ -11,7 +11,7 @@ include.block('SimulationJobOptions/preInclude.Cosmics.py')
 from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     jobproperties.Beam.beamType = "cosmics"
-print "Cosmics-specific configuration of Simulation and Digitization requested"
+printfunc ("Cosmics-specific configuration of Simulation and Digitization requested")
 
 ## Switch off EventFilter
 from G4AtlasApps.SimFlags import simFlags
@@ -19,15 +19,15 @@ simFlags.EventFilter.set_Off()
 
 ## Ensure that at least the first filter volume is switched on.
 if not simFlags.CosmicFilterVolumeName.statusOn:
-    print "CosmicFilterVolumeName not set. Using default = %s" % simFlags.CosmicFilterVolumeName.get_Value()
+    printfunc ("CosmicFilterVolumeName not set. Using default = %s" % simFlags.CosmicFilterVolumeName.get_Value())
     simFlags.CosmicFilterVolumeName.set_On()
 
 
 ## Now setup cosmics truth strategies via callback functions
 
 def cosmics_modify_truth_strategies():
-    print "ERROR cosmics_modify_truth_strategies is obsolete"
-    print "Please request a replacement configuration"
+    printfunc ("ERROR cosmics_modify_truth_strategies is obsolete")
+    printfunc ("Please request a replacement configuration")
     import sys
     sys.exit(1)
     ## ## Modifying truth strategies as requested by e/gamma group

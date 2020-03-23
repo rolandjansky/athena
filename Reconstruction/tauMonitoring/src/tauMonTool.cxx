@@ -501,7 +501,6 @@ StatusCode tauMonTool::fillTrackHistos(s_trkFolder& folder, const xAOD::TauJet* 
 	if (track->summaryValue(dummy, xAOD::numberOfPixelHits)) 				folder.h_numberOfPixelHits               ->Fill( dummy );
 	if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdOutliers)) folder.h_numberOfTRTHighThresholdOutliers->Fill( dummy );
 	if (track->summaryValue(dummy, xAOD::numberOfTRTOutliers)) 				folder.h_numberOfTRTOutliers             ->Fill( dummy );
-
 	folder.h_d0                              ->Fill(perigee.parameters()[Trk::d0]);
 	folder.h_z0                              ->Fill(perigee.parameters()[Trk::z0]);
 	folder.h_phi                             ->Fill(perigee.parameters()[Trk::phi]);

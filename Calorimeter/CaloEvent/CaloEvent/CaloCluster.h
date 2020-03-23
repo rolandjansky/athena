@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -71,7 +71,7 @@ class CaloCluster;
 struct CaloClusterSignalState;
 
 
-class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
+class CaloCluster :  public CaloCompositeKineBase,
                             public CaloCompositeCellBase<CaloClusterNavigable>,
 		                        virtual public INavigable4Momentum,
                             public ISignalState,
@@ -281,6 +281,15 @@ class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
   /*! \brief Retrieve mass independent of signal state */
   virtual double m() const;
 
+  /*! \brief Retrieve energy for a specific signal state */
+  double e(signalstate_t s) const;
+  /*! \brief Retrieve eta for a specific signal state */
+  double eta(signalstate_t s) const;
+  /*! \brief Retrieve phi for a specific signal state */
+  double phi(signalstate_t s) const;
+  /*! \brief Retrieve mass for a specific signal state */
+  double m(signalstate_t s) const;
+
   /*! \brief Set energy */
   virtual void setE(double e);
   /*! \brief Set eta */
@@ -479,6 +488,9 @@ class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
   data_link_type m_dataLink; /*!< link to data */ 
   /*!}*/
 
+  /// Non-const pointer to linked store.
+  CaloShower* m_shower;
+
   /*! \brief Stores basic energy signal */
   double m_basicSignal;
 
@@ -589,17 +601,11 @@ class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
  protected:
 
   /*! \brief Sets signal state */
-  virtual bool setSignalState(signalstate_t s) const;
-  /*! \brief Sets signal state */
   virtual bool setSignalState(signalstate_t s);
 
   /*! \brief reset the signal state */
-  virtual void resetSignalState() const;
-  /*! \brief reset the signal state */
   virtual void resetSignalState();
   
-  /*! \brief Sets default signal state */
-  bool setDefaultSignalState(signalstate_t s) const;
   /*! \brief Sets default signal state */
   bool setDefaultSignalState(signalstate_t s);
 
@@ -663,28 +669,28 @@ class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
   // Just hide them from reflex for now.
 #ifndef __REFLEX__
   /*! \brief Pointer to getter functions */
-  mutable GET_VALUE m_getE;
+  GET_VALUE m_getE;
   /*! \brief Pointer to getter functions */
-  mutable GET_VALUE m_getEta;
+  GET_VALUE m_getEta;
   /*! \brief Pointer to getter functions */
-  mutable GET_VALUE m_getPhi;
+  GET_VALUE m_getPhi;
   /*! \brief Pointer to getter functions */
-  mutable GET_VALUE m_getM;
+  GET_VALUE m_getM;
 
   /*! \brief Pointer to setter functions */
-  mutable SET_VALUE m_setE;
+  SET_VALUE m_setE;
   /*! \brief Pointer to setter functions */
-  mutable SET_VALUE m_setEta;
+  SET_VALUE m_setEta;
   /*! \brief Pointer to setter functions */
-  mutable SET_VALUE m_setPhi;
+  SET_VALUE m_setPhi;
   /*! \brief Pointer to setter functions */
-  mutable SET_VALUE m_setM;
+  SET_VALUE m_setM;
 #endif
 
   /*! \brief Stores actual signal state */
-  mutable signalstate_t m_signalState;
+  signalstate_t m_signalState;
   /*! \brief Stores default signal state */
-  mutable signalstate_t m_defSigState;
+  signalstate_t m_defSigState;
 
   /*! \brief Stores raw signal */
   double m_rawE;
@@ -705,15 +711,12 @@ class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
   double m_altM;
 
   /*! \brief Helper to switch to raw state */
-  bool setStateRaw() const;
   bool setStateRaw();
 
   /*! \brief Helper to switch to calibrated (LC) state */
-  bool setStateCal() const;
   bool setStateCal();
 
   /*! \brief Helper to switch to calibrated (cell weight) state */
-  bool setStateAlt() const;
   bool setStateAlt();
 
 public:
@@ -771,6 +774,70 @@ inline void CaloCluster::setM(double m)
 { (this->*m_setM)(m); }  
 #endif
 
+inline double CaloCluster::e(signalstate_t s)   const 
+{
+  if (!hasSignalState(s)) return m_errorValue;
+  switch (s) {
+  case statename_t::CALIBRATED:
+    return P4EEtaPhiM::e();
+  case statename_t::UNCALIBRATED:
+    return m_rawE;
+  case statename_t::ALTCALIBRATED:
+    return m_altE;
+  default:
+    return m_errorValue;
+  }
+}
+
+
+inline double CaloCluster::eta(signalstate_t s) const
+{
+  if (!hasSignalState(s)) return m_errorValue;
+  switch (s) {
+  case statename_t::CALIBRATED:
+    return P4EEtaPhiM::eta();
+  case statename_t::UNCALIBRATED:
+    return m_rawEta;
+  case statename_t::ALTCALIBRATED:
+    return m_altEta;
+  default:
+    return m_errorValue;
+  }
+}
+
+
+inline double CaloCluster::phi(signalstate_t s) const
+{
+  if (!hasSignalState(s)) return m_errorValue;
+  switch (s) {
+  case statename_t::CALIBRATED:
+    return P4EEtaPhiM::phi();
+  case statename_t::UNCALIBRATED:
+    return m_rawPhi;
+  case statename_t::ALTCALIBRATED:
+    return m_altPhi;
+  default:
+    return m_errorValue;
+  }
+}
+
+
+inline double CaloCluster::m(signalstate_t s)   const
+{
+  if (!hasSignalState(s)) return m_errorValue;
+  switch (s) {
+  case statename_t::CALIBRATED:
+    return P4EEtaPhiM::m();
+  case statename_t::UNCALIBRATED:
+    return m_rawM;
+  case statename_t::ALTCALIBRATED:
+    return m_altM;
+  default:
+    return m_errorValue;
+  }
+}
+
+
 inline void CaloCluster::set4Mom(const I4Momentum* const pMom)
 {
   this->setE(pMom->e());
@@ -794,12 +861,6 @@ inline CaloCluster::signalstate_t CaloCluster::signalState() const
 { return m_signalState; }
 inline CaloCluster::signalstate_t CaloCluster::defaultSignalState() const
 { return m_defSigState; }
-
-inline bool CaloCluster::setDefaultSignalState(signalstate_t s) const
-{ 
-  m_defSigState = s; 
-  return this->setSignalState(s); 
-}
 
 inline bool CaloCluster::setDefaultSignalState(signalstate_t s) 
 {
@@ -850,6 +911,7 @@ CaloCluster::setDataStore(CaloShower* pData,bool ownStores)
   //  m_dataStorePointer = pData;
   m_ownDataStore = ownStores;
   m_dataLink.setElement(pData);
+  m_shower = pData;
   return m_dataLink.isValid(); 
 } 
 
@@ -1201,7 +1263,7 @@ inline bool CaloCluster::setDataLink(CaloShowerContainer* pDataLink)
 {
   if (!pDataLink) 
     return false;
-  CaloShower* pData = const_cast<CaloShower*>(*m_dataLink);
+  CaloShower* pData = m_shower;
   m_ownDataStore = !pDataLink->ownElements();
   return CaloClusterLinkTemplate<CaloShowerContainer>::setLink(pDataLink,
 							       pData,

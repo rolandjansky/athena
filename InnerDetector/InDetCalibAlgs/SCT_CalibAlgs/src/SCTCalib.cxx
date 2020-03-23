@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -360,7 +360,7 @@ StatusCode SCTCalib::execute() {
 ///////////////////////////////////////////////////////////////////////////////////
 /// stop - process results accumulated in execute()
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::stop() {
+StatusCode SCTCalib::stop ATLAS_NOT_THREAD_SAFE () {
    ATH_MSG_INFO("----- in stop() ----- ");
    //--- Number of events processed
    m_numberOfEvents = (m_readHIST or (!m_doHitMaps and m_readHitMaps)) ? m_numberOfEventsHist : m_calibEvtInfoTool->counter();
@@ -483,7 +483,7 @@ StatusCode SCTCalib::finalize() {
 /// doHVPrintXML()
 /// Prints XML file for hv modules
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const std::pair<int, int>& lbRange, Identifier waferId) {
+void SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const std::pair<int, int>& lbRange, Identifier waferId) {
    const IdentifierHash waferHash{m_pSCTHelper->wafer_hash(waferId)};
    const SCT_SerialNumber sn{m_CablingTool->getSerialNumberFromHash(waferHash)};
 
@@ -512,7 +512,6 @@ StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const
       XmlStreamer v{"value", "name", "EndLBN", m_gofile};
       m_gofile << lbRange.second;
    }
-   return StatusCode::SUCCESS;
 }
 
 
@@ -520,7 +519,7 @@ StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const
 /// getNoisyStrip()
 /// Find noisy strips from hitmaps and write out into xml/db formats
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getNoisyStrip() {
+StatusCode SCTCalib::getNoisyStrip ATLAS_NOT_THREAD_SAFE () {
    enum Categories {ALL, NEW, REF, N_CATEGORIES};
    //--- Check statistics
    //ATH_MSG_INFO(m_calibEvtInfoTool->counter() << "   " << m_calibHitmapTool->size());
@@ -633,7 +632,7 @@ StatusCode SCTCalib::getNoisyStrip() {
 //====================================================================================================
 //                           SCTCalib :: getDeadStrip
 //====================================================================================================
-StatusCode SCTCalib::getDeadStrip() {
+StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () {
    //Function to identify and print out the dead strips.
    ATH_MSG_INFO("getDeadStrip() called");
 
@@ -1151,7 +1150,7 @@ StatusCode SCTCalib::getDeadStrip() {
 /// getNoiseOccupancy()
 /// Read NoiseOccupancy from HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getNoiseOccupancy()
+StatusCode SCTCalib::getNoiseOccupancy ATLAS_NOT_THREAD_SAFE ()
 {
    ATH_MSG_INFO("----- in getNoiseOccupancy() -----");
 
@@ -1367,7 +1366,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
 /// getRawOccupancy()
 /// Read RawOccupancy from Monitoring HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getRawOccupancy()
+StatusCode SCTCalib::getRawOccupancy ATLAS_NOT_THREAD_SAFE ()
 {
    ATH_MSG_INFO("----- in getRawOccupancy() -----");
 
@@ -1518,7 +1517,7 @@ StatusCode SCTCalib::getRawOccupancy()
 /// getEfficiency()
 /// Read Efficiency from Monitoring HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getEfficiency() {
+StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () {
    ATH_MSG_INFO("----- in getEfficiency() -----");
 
    //--- Initialization
@@ -1724,7 +1723,7 @@ StatusCode SCTCalib::getEfficiency() {
 /// getBSErrors()
 /// Read BSErrors from Monitoring HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getBSErrors() {
+StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () {
    ATH_MSG_INFO("----- in getBSErrors() -----");
 
    //--- Initialization
@@ -2086,7 +2085,7 @@ StatusCode SCTCalib::getBSErrors() {
 /// getLorentzAngle()
 /// Read LorentzAngle from HIST and write out into local DB
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::getLorentzAngle() {
+StatusCode SCTCalib::getLorentzAngle ATLAS_NOT_THREAD_SAFE () {
    ATH_MSG_INFO("----- in getLorentzAngle() -----");
 
    //--- Initialization
@@ -2684,7 +2683,8 @@ SCTCalib::addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList
 
 
 StatusCode
-SCTCalib::writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>& moduleListAll,
+SCTCalib::writeModuleListToCool ATLAS_NOT_THREAD_SAFE
+                               (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
                                 const std::map<Identifier, std::set<Identifier>>& moduleListNew,
                                 const std::map<Identifier, std::set<Identifier>>& moduleListRef) {
    //--- Write out strips
@@ -2710,10 +2710,17 @@ SCTCalib::writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>
             } else ATH_MSG_DEBUG("Module " << moduleId  << " is identical to the reference output");
          } else {
             if (m_noisyStripAll) { //--- ALL noisy strips
-               if (!defectStripsAll.empty() || m_noisyWriteAllModules)
-                  m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll);
+               if (!defectStripsAll.empty() || m_noisyWriteAllModules) {
+                 if (m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll).isFailure()) {
+                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
+                 }
+              }
             } else { //--- Only NEW noisy strips
-               if (!defectStripsNew.empty()) m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew);
+               if (!defectStripsNew.empty()) {
+                 if (m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew).isFailure()) {
+                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
+                 }
+               }
             }
          }
       }

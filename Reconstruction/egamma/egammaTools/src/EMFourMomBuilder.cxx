@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /********************************************************************
@@ -157,7 +157,8 @@ StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Photon& ph) const {
         return StatusCode::SUCCESS;
     }   
     float E = cluster->e();
-    float eta = cluster->eta(), phi = cluster->phi() ; 
+    float eta = cluster->eta();
+    float phi = cluster->phi() ; 
     Amg::Vector3D momentumAtVertex = xAOD::EgammaHelpers::momentumAtVertex(&ph);
     if (momentumAtVertex.mag() > 1e-5) { // protection against p = 0
         eta = momentumAtVertex.eta();
@@ -178,7 +179,8 @@ StatusCode EMFourMomBuilder::setFromCluster(xAOD::Egamma& eg) const {
         return StatusCode::SUCCESS;
     }
 
-    const float eta  = cluster->eta(), phi = cluster->phi();
+    const float eta  = cluster->eta();
+    const float phi = cluster->phi();
     const float E    = cluster->e();
     if(eg.type()==xAOD::Type::Electron){
         const double pt = E > el_mass ? sqrt(E*E - el_mass*el_mass)/cosh(eta) : 0;

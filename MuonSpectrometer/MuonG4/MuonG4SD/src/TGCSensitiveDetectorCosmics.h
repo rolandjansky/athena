@@ -70,8 +70,11 @@ We describe in the following, how each field of the identifier is retrieved.
 
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
+#include <gtest/gtest_prod.h>
 
 class TGCSensitiveDetectorCosmics: public G4VSensitiveDetector {
+FRIEND_TEST( TGCSensitiveDetectorCosmicstest, Initialize );
+FRIEND_TEST( TGCSensitiveDetectorCosmicstest, ProcessHits );
 
  public:
   /** construction/destruction */

@@ -11,8 +11,7 @@ from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 from AthenaCommon.Logging import logging
 log = logging.getLogger("generateLVL1MenuMT")
 
-def generateL1Menu(menu, useTopoMenu="MATCH"):    
-
+def generateL1Menu(menu):
     # what menu to build
     TF.triggerMenuSetup = menu
 
@@ -145,8 +144,8 @@ def main():
         generateL1Menu(menu="MC_pp_run3_v1" )
         generateL1Menu(menu="Cosmic_pp_run3_v1")
         return 0
+ 
 
-    
     if sys.argv[1].endswith(".xml"):
         readL1MenuFromXML(sys.argv[1])
         return 0
@@ -216,7 +215,7 @@ def main():
         return 0
 
     if sys.argv[1].lower().startswith("dc14"):
-        generateL1Menu(menu="DC14",useTopoMenu="Physics_pp_v6")
+        generateL1Menu(menu="DC14")
         return 0
 
     if sys.argv[1].lower().startswith("hiphy"):

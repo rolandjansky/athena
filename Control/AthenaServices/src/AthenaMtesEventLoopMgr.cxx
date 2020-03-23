@@ -1,20 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#define  ATHENASERVICES_ATHENAMTESEVENTLOOPMGR_CPP
-
-#include <cassert>
-#include <ios>
-#include <iostream>
-#include <fstream> /* ofstream */
-#include <iomanip>
+#include "AthenaMtesEventLoopMgr.h"
+#include "ClearStorePolicy.h"
+#include "OutputStreamSequencerSvc.h"
 
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "AthenaKernel/ITimeKeeper.h"
-#include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
-#include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
 #include "AthenaKernel/errorcheck.h"
@@ -24,7 +18,6 @@
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IDataManagerSvc.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -32,12 +25,11 @@
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/AppReturnCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/FileIncident.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ActiveStoreSvc.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -45,38 +37,39 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
 
-#include "AthenaMtesEventLoopMgr.h"
-
-#include <GaudiKernel/IScheduler.h>
-// External libraries
 #include "tbb/tick_count.h"
-
-#include "ClearStorePolicy.h"
-
-// Temporary includes
-#include "GaudiKernel/FileIncident.h"
-#include <fstream>
-#include <cstdlib>
-#include "OutputStreamSequencerSvc.h"
 #include "yampl/SocketFactory.h"
 
-//=========================================================================
-// Standard Constructor
-//=========================================================================
-AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam, 
-				       ISvcLocator* svcLoc)
-  : MinimalEventLoopMgr(nam, svcLoc), 
-    m_incidentSvc ( "IncidentSvc",  nam ), 
-    m_eventStore( "StoreGateSvc", nam ), 
-    m_evtSelector(0), m_evtContext(0),
-    m_histoDataMgrSvc( "HistogramDataSvc",         nam ), 
-    m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
-    m_activeStoreSvc ( "ActiveStoreSvc",           nam ),
-    m_pITK(0), 
-    m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
-    m_nev(0), m_proc(0), m_useTools(false),m_doEvtHeartbeat(false),
-    m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam ),
-    m_outSeqSvc("OutputStreamSequencerSvc", nam)
+#include <cassert>
+#include <ios>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <cstdlib>
+#include <unistd.h>
+
+AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam
+					       , ISvcLocator* svcLoc)
+  : MinimalEventLoopMgr(nam, svcLoc)
+  , m_incidentSvc ( "IncidentSvc",  nam )
+  , m_eventStore( "StoreGateSvc", nam )
+  , m_evtSelector{nullptr}
+  , m_evtContext{nullptr}
+  , m_histoDataMgrSvc( "HistogramDataSvc",         nam )
+  , m_histoPersSvc   ( "HistogramPersistencySvc",  nam )
+  , m_activeStoreSvc ( "ActiveStoreSvc",           nam )
+  , m_pITK{nullptr}
+  , m_currentRun(0)
+  , m_firstRun(true)
+  , m_tools(this)
+  , m_nevt(0)
+  , m_writeHists(false)
+  , m_nev(0)
+  , m_proc(0)
+  , m_useTools(false)
+  , m_doEvtHeartbeat(false)
+  , m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam )
+  , m_outSeqSvc("OutputStreamSequencerSvc", nam)
 {
   declareProperty("EvtSel", m_evtsel, 
 		  "Name of Event Selector to use. If empty string (default) "
@@ -105,7 +98,7 @@ AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam,
 		  "(default as it is makes things easier for memory management"
 		  ") or at BeginEvent (easier e.g. for interactive use)");
   declareProperty("PreSelectTools",m_tools,"AlgTools for event pre-selection")->
-    declareUpdateHandler( &AthenaMtesEventLoopMgr::setupPreSelectTools, this ); ;
+    declareUpdateHandler( &AthenaMtesEventLoopMgr::setupPreSelectTools, this );
   
   declareProperty("SchedulerSvc", m_schedulerName="ForwardSchedulerSvc",
                   "Name of the scheduler to be used");
@@ -129,205 +122,149 @@ AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam,
 
 }
 
-//=========================================================================
-// Standard Destructor
-//=========================================================================
 AthenaMtesEventLoopMgr::~AthenaMtesEventLoopMgr()   
 {
 }
 
-//=========================================================================
-// implementation of IAppMgrUI::initalize
-//=========================================================================
 StatusCode AthenaMtesEventLoopMgr::initialize()    
 {
-
   info() << "Initializing " << name()
-         << " - package version " << PACKAGE_VERSION << endmsg ;
- 
+         << " - package version " << PACKAGE_VERSION << endmsg;
 
   StatusCode sc = MinimalEventLoopMgr::initialize();
-  if ( !sc.isSuccess() ) 
-  {
-    error() << "Failed to initialize base class MinimalEventLoopMgr"
-            << endmsg;
+  if(!sc.isSuccess()) {
+    error() << "Failed to initialize base class MinimalEventLoopMgr" << endmsg;
     return sc;
-  } 
+  }
 
 //-------------------------------------------------------------------------
 // Setup stuff for hive
 //-------------------------------------------------------------------------
 
   m_whiteboard = serviceLocator()->service(m_whiteboardName);
-  if( !m_whiteboard.isValid() )  {
-    fatal() << "Error retrieving " << m_whiteboardName << " interface IHiveWhiteBoard." 
-	    << endmsg;
+  if(!m_whiteboard.isValid()) {
+    fatal() << "Error retrieving " << m_whiteboardName << " interface IHiveWhiteBoard." << endmsg;
     return StatusCode::FAILURE;
   }
   
   m_schedulerSvc = serviceLocator()->service(m_schedulerName);
-  if ( !m_schedulerSvc.isValid()){
-    fatal() << "Error retrieving SchedulerSvc interface ISchedulerSvc." 
-	    << endmsg;
+  if(!m_schedulerSvc.isValid()) {
+    fatal() << "Error retrieving SchedulerSvc interface ISchedulerSvc." << endmsg;
     return StatusCode::FAILURE;    
   }
-  // Setup algorithm resource pool
+
   m_algResourcePool = serviceLocator()->service("AlgResourcePool");
-  if( !m_algResourcePool.isValid() ) {
+  if(!m_algResourcePool.isValid()) {
     fatal() << "Error retrieving AlgResourcePool" << endmsg;
     return StatusCode::FAILURE;
   }
 
   m_aess = serviceLocator()->service("AlgExecStateSvc");
-  if( !m_aess.isValid() ) {
+  if(!m_aess.isValid()) {
     fatal() << "Error retrieving AlgExecStateSvc" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  sc = m_eventStore.retrieve();
-  if( !sc.isSuccess() )  
-  {
-    fatal() << "Error retrieving pointer to StoreGateSvc"
-            << endmsg;
-    return sc;
-  }
-
-//--------------------------------------------------------------------------
-// Get the references to the services that are needed by the ApplicationMgr 
-// itself
-//--------------------------------------------------------------------------
-  sc = m_incidentSvc.retrieve();
-  if( !sc.isSuccess() )  
-  {
-    fatal() << "Error retrieving IncidentSvc." << endmsg;
-    return sc;
-  }
+  ATH_CHECK(m_eventStore.retrieve());
+  ATH_CHECK(m_incidentSvc.retrieve());
 
 //--------------------------------------------------------------------------
 // Access Property Manager interface:
 //--------------------------------------------------------------------------
   SmartIF<IProperty> prpMgr(serviceLocator());
-  if ( !prpMgr.isValid() ) 
-  {
-    fatal() << "IProperty interface not found in ApplicationMgr." 
-            << endmsg;
+  if(!prpMgr.isValid()) {
+    fatal() << "IProperty interface not found in ApplicationMgr." << endmsg;
     return StatusCode::FAILURE;
   }
 
-
-//--------------------------------------------------------------------------
-// Set up the Histogram Service
-//--------------------------------------------------------------------------
-  sc = m_histoDataMgrSvc.retrieve();
-  if( !sc.isSuccess() )  
-  {
-    fatal() << "Error retrieving HistogramDataSvc" 
-            << endmsg;
-    return sc;
-  }
+  ATH_CHECK(m_histoDataMgrSvc.retrieve());
     
   const std::string& histPersName(m_histPersName.value());
-  if ( histPersName.length() == 0 )    
-  {
+  if(histPersName.empty()) {
     setProperty(prpMgr->getProperty("HistogramPersistency")).ignore();
   }
 
-  if ( histPersName != "NONE" )   {
+  if(histPersName != "NONE") {
 
     m_histoPersSvc = IConversionSvc_t( "HistogramPersistencySvc", 
 				       this->name() );
 
-    if( !sc.isSuccess() )  {
-      warning() << "Histograms cannot not be saved - though required." 
-                << endmsg;
-    } else {
+    IService *is{nullptr};
+    sc = serviceLocator()->service("RootHistSvc", is);
 
-      IService *is = 0;
-      if (histPersName == "ROOT") {
-	sc = serviceLocator()->service("RootHistSvc", is);
-      } else if ( histPersName == "HBOOK" ) {
-	sc = serviceLocator()->service("HbookHistSvc", is);
+    if (sc.isFailure()) {
+      error() << "could not locate actual Histogram persistency service" << endmsg;
+    }
+    else {
+      Service *s = dynamic_cast<Service*>(is);
+      if(!s) {
+	error() << "Could not dcast HistPersSvc to a Service" << endmsg;
       }
+      else {
+	const Property &prop = s->getProperty("OutputFile");
+	std::string val;
+	try {
+	  const StringProperty &sprop = dynamic_cast<const StringProperty&>(prop);
+	  val = sprop.value();
+	}
+	catch (...) {
+	  verbose() << "could not dcast OutputFile property to a StringProperty."
+		    << " Need to fix Gaudi."
+		    << endmsg;
 
-      if (sc.isFailure()) {
-        error() << "could not locate actual Histogram persistency service"
-                << endmsg;
-      } else {
-	Service *s = dynamic_cast<Service*>(is);
-	if (s == 0) {
-	  error() << "Could not dcast HistPersSvc to a Service"
-                  << endmsg;
-	} else {
-	  const Property &prop = s->getProperty("OutputFile");
-	  std::string val;
-	  try {
-	    const StringProperty &sprop = dynamic_cast<const StringProperty&>( prop );
+	  val = prop.toString();
+	}
 
-	    val = sprop.value();
-
-	  } catch (...) {
-	    verbose() << "could not dcast OutputFile property to a StringProperty."
-                      << " Need to fix Gaudi."
-                      << endmsg;
-
-	    val = prop.toString();
-
-	    //	    val.erase(0,val.find(":")+1);
-	    //	    val.erase(0,val.find("\"")+1);
-	    //	    val.erase(val.find("\""),val.length());
-	  }
-
-	  if (val != "" && 
-	      val != "UndefinedROOTOutputFileName" && 
-	      val != "UndefinedHbookOutputFileName" ) {
-	    m_writeHists = true;
-	  }
-
+	if (val != ""
+	    && val != "UndefinedROOTOutputFileName") {
+	  m_writeHists = true;
 	}
       }
     }
-    
-
-  }  else { if (msgLevel(MSG::DEBUG)) {
-      debug() << "Histograms saving not required." 
-              << endmsg; }
   }
+  else {
+    if (msgLevel(MSG::DEBUG)) {
+      debug() << "Histograms saving not required." << endmsg;
+    }
+  }
+
 //-------------------------------------------------------------------------
 // Setup EventSelector service
 //-------------------------------------------------------------------------
   const std::string& selName(m_evtsel.value());
   // the evt sel is usually specified as a property of ApplicationMgr
-  if (selName.empty()) 
+  if (selName.empty()) {
     sc = setProperty(prpMgr->getProperty("EvtSel"));
-  if (sc.isFailure()) warning() << "Unable to set EvtSel property" << endmsg;
+  }
+  if (sc.isFailure()) {
+    warning() << "Unable to set EvtSel property" << endmsg;
+  }
 
   // We do not expect a Event Selector necessarily being declared
   if( !selName.empty() && selName != "NONE") {
-    IEvtSelector* theEvtSel(0);
-    StatusCode sc(serviceLocator()->service( selName, theEvtSel ));
-    if( sc.isSuccess() && ( theEvtSel != m_evtSelector ) ) {
+    IEvtSelector* theEvtSel{nullptr};
+    sc = serviceLocator()->service(selName, theEvtSel);
+    if(sc.isSuccess() && (theEvtSel != m_evtSelector)) {
       // Event Selector changed (or setup for the first time)
       m_evtSelector = theEvtSel;
       
       // reset iterator
       if (m_evtSelector->createContext(m_evtContext).isFailure()) {
-	fatal() << "Can not create the event selector Context." 
-                << endmsg;
+	fatal() << "Can not create the event selector Context." << endmsg;
 	return StatusCode::FAILURE;
       }
       if (msgLevel(MSG::INFO)) {
 	INamedInterface* named (dynamic_cast< INamedInterface* >(theEvtSel));
 	if (0 != named) {
-          info() << "Setup EventSelector service " << named->name( ) 
-                 << endmsg;
+          info() << "Setup EventSelector service " << named->name( ) << endmsg;
 	}
       }
-    } else if (sc.isFailure()) {
-      fatal() << "No valid event selector called " << selName 
-              << endmsg;
+    }
+    else if (sc.isFailure()) {
+      fatal() << "No valid event selector called " << selName << endmsg;
       return StatusCode::FAILURE;
     }
-  }  
+  }
 //-------------------------------------------------------------------------
 // Setup TimeKeeper service
 //-------------------------------------------------------------------------
@@ -347,12 +284,7 @@ StatusCode AthenaMtesEventLoopMgr::initialize()
 // We don't use this, but want to be sure that it gets created
 // during initialization, to avoid heap fragmentation.
 //-------------------------------------------------------------------------
-  sc = m_activeStoreSvc.retrieve();
-  if( !sc.isSuccess() )  
-  {
-    fatal() << "Error retrieving ActiveStoreSvc." << endmsg;
-    return sc;
-  }
+  ATH_CHECK(m_activeStoreSvc.retrieve());
 
   // Listen to the BeforeFork incident
   m_incidentSvc->addListener(this,"BeforeFork",0);
@@ -360,6 +292,10 @@ StatusCode AthenaMtesEventLoopMgr::initialize()
   CHECK( m_conditionsCleaner.retrieve() );
   CHECK( m_outSeqSvc.retrieve() );
 
+  // Print if we override the event number using the one from secondary event
+  if(m_useSecondaryEventNumber) {
+    info() << "Using secondary event number." << endmsg;
+  }
   return sc;
 }
 
@@ -564,22 +500,6 @@ StatusCode AthenaMtesEventLoopMgr::writeHistograms(bool force) {
 }
 
 //=========================================================================
-// Run the algorithms beginRun hook
-//=========================================================================
-StatusCode AthenaMtesEventLoopMgr::beginRunAlgorithms() {
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
-// Run the algorithms endRun hook
-//=========================================================================
-StatusCode AthenaMtesEventLoopMgr::endRunAlgorithms() {
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
 // Call sysInitialize() on all algorithms and output streams
 //=========================================================================
 StatusCode AthenaMtesEventLoopMgr::initializeAlgorithms() {
@@ -636,7 +556,7 @@ StatusCode AthenaMtesEventLoopMgr::executeEvent( EventContext &&ctx )
       conditionsRun = (*attr)["ConditionsRun"].data<unsigned int>();
     }
   }
-  ctx.template getExtension<Atlas::ExtendedEventContext>().setConditionsRun (conditionsRun);
+  Atlas::getExtendedEventContext(ctx).setConditionsRun (conditionsRun);
   Gaudi::Hive::setCurrentContext ( ctx );
 
   // Record EventContext in current whiteboard
@@ -739,21 +659,13 @@ StatusCode AthenaMtesEventLoopMgr::executeEvent( EventContext &&ctx )
 //=========================================================================
 StatusCode AthenaMtesEventLoopMgr::executeRun(int maxevt)
 {
-
-  StatusCode  sc;
-  bool eventfailed = false;
-  
-  // Call now the nextEvent(...)
-  sc = nextEvent(maxevt);
-  if (!sc.isSuccess())
-    eventfailed = true;
-
-  if (eventfailed)
-    return StatusCode::FAILURE;
-
-  m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
-  return StatusCode::SUCCESS;
+  StatusCode sc = nextEvent(maxevt);
+  if (sc.isSuccess()) {
+    m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
+  }
+  return sc;
 }
+
 //-----------------------------------------------------------------------------
 // Implementation of IEventProcessor::stopRun()
 //-----------------------------------------------------------------------------
@@ -787,7 +699,7 @@ StatusCode AthenaMtesEventLoopMgr::stop()
   // So make sure that all stores have been cleared at this point.
   size_t nslot = m_whiteboard->getNumberOfStores();
   for (size_t islot = 0; islot < nslot; islot++) {
-    clearWBSlot (islot);
+    sc &= clearWBSlot (islot);
   }
 
   Gaudi::Hive::setCurrentContext( EventContext() );
@@ -795,17 +707,11 @@ StatusCode AthenaMtesEventLoopMgr::stop()
 }
 
 
-//=========================================================================
-// implementation of IAppMgrUI::nextEvent
-//=========================================================================
-StatusCode AthenaMtesEventLoopMgr::nextEvent(int maxevt)   
+StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
 {
-  // make nextEvent(0) a dummy call
-  if (0 == maxevt) return StatusCode::SUCCESS;
-
   yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
   // Create a socket to communicate with the Pilot
-  yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel("EventService_EventRanges",yampl::LOCAL),yampl::MOVE_DATA);
+  yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
 
   // Reset the application return code.
   Gaudi::setAppReturnCode(m_appMgrProperty, Gaudi::ReturnCode::Success, true).ignore();  
@@ -814,11 +720,6 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int maxevt)
   int createdEvts =0;
   info() << "Starting loop on events" << endmsg;
 
-  // loop over events if the maxevt (received as input) is different from -1.
-  // if evtmax is -1 it means infinite loop (till time limit that is)
-  //  int nevt(0);
-  // CGL: FIXME
-  // bool noTimeLimit(false);
   StatusCode sc(StatusCode::SUCCESS,true);
 
   // Calculate runtime
@@ -827,13 +728,19 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int maxevt)
     return (tbb::tick_count::now()-start_time).seconds();
   };
 
-  std::unique_ptr<RangeStruct_t> range = getNextRange(socket2Pilot);
-  if(range) {
+  std::unique_ptr<RangeStruct> range;
+  while(!range) {
+    range = getNextRange(socket2Pilot);
+    usleep(1000);
+  }
+
+  bool loop_ended = range->eventRangeID.empty();
+  if(!loop_ended) {
     m_currentEvntNum = range->startEvent;
     // Fire NextRange incident
     m_incidentSvc->fireIncident(FileIncident(name(), "NextEventRange",range->eventRangeID));
   }
-  bool loop_ended = !range;
+
   bool no_more_events = false;
 
   while(!loop_ended) {
@@ -863,18 +770,22 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int maxevt)
 	++createdEvts;
 	if(++m_currentEvntNum > range->lastEvent) {
 	  // Fetch next event range
-	  range = getNextRange(socket2Pilot);
-	  if(range) {
+	  range.reset();
+	  while(!range) {
+	    range = getNextRange(socket2Pilot);
+	    usleep(1000);
+	  }
+	  if(range->eventRangeID.empty()) {
+	    no_more_events = true;
+	  }
+	  else {
 	    m_currentEvntNum = range->startEvent;
 	    // Fire NextRange incident
 	    m_incidentSvc->fireIncident(FileIncident(name(), "NextEventRange",range->eventRangeID));
 	  }
-	  else {
-	    no_more_events = true;
-	  }
 	}
       }
-    } 
+    }
     else { 
       // all the events were created but not all finished or the slots were 
       // all busy: the scheduler should finish its job
@@ -1165,25 +1076,32 @@ int AthenaMtesEventLoopMgr::declareEventRootAddress(EventContext& ctx){
     
         // an option to override primary eventNumber with the secondary one in case of DoubleEventSelector
         if ( m_useSecondaryEventNumber ) {
+	  unsigned long long eventNumberSecondary{};
             if ( !(pAttrList->exists("hasSecondaryInput") && (*pAttrList)["hasSecondaryInput"].data<bool>()) ) {
                 fatal() << "Secondary EventNumber requested, but secondary input does not exist!" << endmsg;
                 return -1;
             }
             if ( pAttrList->exists("EventNumber_secondary") ) {
-                eventNumber = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
+	      eventNumberSecondary = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
             }
             else {
                 // try legacy EventInfo if secondary input did not have attribute list
                 // primary input should not have this EventInfo type
                 const EventInfo* pEventSecondary = eventStore()->tryConstRetrieve<EventInfo>();
                 if (pEventSecondary) {
-                    eventNumber = pEventSecondary->event_ID()->event_number();
+		  eventNumberSecondary = pEventSecondary->event_ID()->event_number();
                 }
                 else {
                     fatal() << "Secondary EventNumber requested, but it does not exist!" << endmsg;
                     return -1;
                 }
             }
+	    if (eventNumberSecondary != 0) {
+	      if (m_doEvtHeartbeat) {
+		info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "<<<===" << endmsg;
+	      }
+	      eventNumber = eventNumberSecondary;
+	    }
         }
     
         auto pEventPtr = std::make_unique<EventInfo>
@@ -1267,7 +1185,7 @@ EventContext AthenaMtesEventLoopMgr::createEventContext() {
             << " could not be selected for the WhiteBoard" << endmsg;
     return EventContext{};       // invalid EventContext
   } else {
-    ctx.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
+    Atlas::setExtendedEventContext(ctx, Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
 
     debug() << "created EventContext, num: " << ctx.evt()  << "  in slot: " 
 	    << ctx.slot() << endmsg;
@@ -1420,7 +1338,7 @@ StatusCode AthenaMtesEventLoopMgr::clearWBSlot(int evtSlot)  {
 }
 //---------------------------------------------------------------------------
 
-std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct_t> AthenaMtesEventLoopMgr::getNextRange(yampl::ISocket* socket)
+std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::getNextRange(yampl::ISocket* socket)
 {
   std::string strReady("Ready for events");
   std::string strStopProcessing("No more events");
@@ -1435,7 +1353,7 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct_t> AthenaMtesEventLoopMgr::g
   size_t carRet = range.find('\n');
   if(carRet!=std::string::npos) range = range.substr(0,carRet);
 
-  std::unique_ptr<RangeStruct_t> result;
+  std::unique_ptr<RangeStruct> result = std::make_unique<RangeStruct>();
   if(range.compare(strStopProcessing)==0) return result;
   info() << "Got Event Range from the pilot: " << range << endmsg;
 
@@ -1472,35 +1390,74 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct_t> AthenaMtesEventLoopMgr::g
   trimRangeStrings(strVal);
   eventRangeMap[strKey]=strVal;
 
+  // _____________________ Consistency check for range string _____________________________
+  // Three checks are performed:
+  //   1. The existence of all required fields
+  //   2. The consistency of field values
+  //   3. Protection against having event ranges from different input files
+  //      NB. The last check is hopefully a temporary limitation of MTES
+  std::string errorStr{""};
+
   if(eventRangeMap.find("eventRangeID")==eventRangeMap.end()
      || eventRangeMap.find("startEvent")==eventRangeMap.end()
      || eventRangeMap.find("lastEvent")==eventRangeMap.end()
      || eventRangeMap.find("PFN")==eventRangeMap.end()) {
-    // Handle wrong format
-    error() << "Wrong format of the input Event Range: " << range << endmsg;
-    return result;
+    // Wrong format
+    errorStr = "ERR_ATHENAMP_PARSE \"" + range + "\": Wrong format";
   }
-  else {
+
+  if(errorStr.empty()) {
+    result->startEvent = std::atoi(eventRangeMap["startEvent"].c_str());
+    result->lastEvent = std::atoi(eventRangeMap["lastEvent"].c_str());
+    
+    if(eventRangeMap["eventRangeID"].empty()
+       || eventRangeMap["PFN"].empty()
+       || result->lastEvent < result->startEvent) {
+      // Wrong values of range fields
+      errorStr = "ERR_ATHENAMP_PARSE \"" + range + "\": Wrong values of range fields";
+    }
+    else {
+      // Update m_pfn if necessary
+      if(m_pfn != eventRangeMap["PFN"]) {
+	IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+	if(!propertyServer) {
+	  errorStr = "ERR_ATHENAMP_PARSE \"" + range + "\": Unable to dyn-cast the event selector to IProperty";
+	}
+	else {
+	  std::string strInpuCol("InputCollections");
+	  std::vector<std::string> vectInpCol{eventRangeMap["PFN"],};
+	  StringArrayProperty inputFileList(strInpuCol, vectInpCol);
+	  if(propertyServer->setProperty(inputFileList).isFailure()) {
+	    errorStr = "ERR_ATHENAMP_PARSE \"" + range + "\": Unable to set input file name property to the Event Selector";
+	  }
+	  else {
+	    m_pfn = eventRangeMap["PFN"];
+	  }
+	}
+      }
+    }
+  }
+
+  if(errorStr.empty()) {
+    // Event range parsing was successful
     debug() << "*** Decoded Event Range ***" << endmsg;
     for (const auto& fieldvalue : eventRangeMap) {
       debug() << fieldvalue.first << ":" << fieldvalue.second << endmsg;
     }
+
+    result->eventRangeID = eventRangeMap["eventRangeID"];
+    result->pfn = eventRangeMap["PFN"];
   }
-    
-  result = std::make_unique<RangeStruct_t>();
-  result->eventRangeID = eventRangeMap["eventRangeID"];
-  result->pfn = eventRangeMap["PFN"];
-  result->startEvent = std::atoi(eventRangeMap["startEvent"].c_str());
-  result->lastEvent = std::atoi(eventRangeMap["lastEvent"].c_str());
-  
-  if(result->eventRangeID.empty()
-     || result->pfn.empty()
-     || result->lastEvent < result->startEvent) {
-    // Handle wrong content of the range string
-    error() << "Wrong values of the input Event Range fields: " << range << endmsg;
+  else {
+    // We got here because there was an error
+    // Report the error to the pilot and reset the result, so that the next range can be tried
+    warning() << errorStr << endmsg;
+    info() << "Ignoring this event range" << endmsg;
+    void* errorMessage = malloc(errorStr.size());
+    memcpy(errorMessage,errorStr.data(),errorStr.size());
+    socket->send(errorMessage,errorStr.size());
     result.reset();
   }
-  // _____________________ Decode range string _____________________________
 
   return result;
 }

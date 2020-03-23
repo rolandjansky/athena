@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <map>
+#include <mutex>
 
 // Forward declarations
 class IAthenaIPCTool;
@@ -132,7 +133,7 @@ public:
    StatusCode registerCleanUp(IAthenaPoolCleanUp* cnv);
 
    /// Implement cleanUp to call all registered IAthenaPoolCleanUp cleanUp() function.
-   StatusCode cleanUp();
+   StatusCode cleanUp(const std::string& connection);
 
    /// Set the input file attributes, if any are requested from jobOpts
    /// @param fileName [IN] name of the input file
@@ -176,7 +177,7 @@ private: // member functions
 
 private: // data
    pool::DbType    m_dbType;
-   std::string     m_lastFileName;
+   std::string     m_lastInputFileName;
    ServiceHandle<IPoolSvc>       m_poolSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
    ServiceHandle<IClassIDSvc>    m_clidSvc;
@@ -214,7 +215,7 @@ private: // properties
 
    /// Output FileNames to be associated with Stream Clients
    StringArrayProperty m_streamClientFilesProp;
-   mutable std::vector<std::string>   m_streamClientFiles;
+   std::vector<std::string>   m_streamClientFiles;
 
    /// MaxFileSizes, vector with maximum file sizes for Athena POOL output files
    StringArrayProperty m_maxFileSizes;
@@ -225,7 +226,7 @@ private: // properties
    /// default = false.
    BooleanProperty m_persSvcPerOutput;
    unsigned outputContextId(const std::string& outputConnection);
-   mutable std::mutex  m_mutex;  // mutable so const functions can lock
+   std::mutex  m_mutex;
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
    /// container being committed to disk is not 'tainted' with the POOL overhead

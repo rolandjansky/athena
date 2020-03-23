@@ -23,7 +23,7 @@ from AthenaConfiguration.UnifyProperties import unifySet
 class ConfigurationError(RuntimeError):
     pass
 
-_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc'))
+_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc','VTuneProfilerService'))
 
 def printProperties(msg, c, nestLevel = 0):
     # Iterate in sorted order.
@@ -267,7 +267,7 @@ class ComponentAccumulator(object):
                     raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered %s in a list" % type(t))
         else: 
             if not isinstance(privTool,ConfigurableAlgTool):
-                raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only cCnfigurableAlgTools or lists of ConfigurableAlgTools. Encountered %s " % type(privTool))
+                raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered %s " % type(privTool))
                 
         self._privateTools=privTool
         return

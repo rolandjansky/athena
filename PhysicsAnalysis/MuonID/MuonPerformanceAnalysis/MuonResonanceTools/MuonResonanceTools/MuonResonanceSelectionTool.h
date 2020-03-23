@@ -12,7 +12,6 @@
 #define MuonResonanceSelectionTool_H
  
 #include "AsgTools/AsgTool.h"
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 #ifndef ROOTCORE

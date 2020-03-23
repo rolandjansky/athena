@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -720,18 +720,16 @@ void  InDet::SiSpacePointsSeedMaker_LowMomentum::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::vector<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i<m_r_size;  ++i) {
 
     if (!data.r_map[i]) continue;
-    r = data.r_Sorted[i].begin();
 
-    while (r!=data.r_Sorted[i].end()) {
+    for (InDet::SiSpacePointForSeed* r  : data.r_Sorted[i]) {
       
       // Azimuthal angle sort
       //
-      float F = (*r)->phi();
+      float F = r->phi();
       if (F<0.) F+=pi2;
 
       int   f = static_cast<int>(F*m_sF);
@@ -739,7 +737,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
       else if (f > m_fNmax) f = 0;
 
       int z;
-      float Z = (*r)->z();
+      float Z = r->z();
 
       // Azimuthal angle and Z-coordinate sort
       //
@@ -750,10 +748,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
       }
       int n = f*SizeZ+z;
       ++data.nsaz;
-      data.rfz_Sorted[n].push_back(*r);
+      data.rfz_Sorted[n].push_back(r);
       if (!data.rfz_map[n]++) data.rfz_index[data.nrfz++] = n;
-      data.r_Sorted[i].erase(r++);
     }
+    data.r_Sorted[i].clear();
     data.r_map[i] = 0;
   }
   data.nr    = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /******************************************************************************
@@ -169,72 +169,72 @@ asg::AcceptData Root::TElectronMultiLeptonSelector::accept( const double eta,
   // Do the actual selection
 
   // Coverage
-  bool doPassCoverage = (fabs(eta)>2.47 ) ? false : true ;
+  bool doPassCoverage = fabs(eta) <= 2.47 ;
   if(  !doPassCoverage ){ ATH_MSG_DEBUG("Failed Coverage, et=" << eT << ", eta=" << eta);}
   acceptData.setCutResult( m_cutPosition_Coverage, doPassCoverage );
 
   // RHad
-  bool doPassRHad = ( passRHad(rHad,rHad1,eTBin,etaBin) ) ? true : false ;
+  bool doPassRHad = passRHad(rHad,rHad1,eTBin,etaBin) ;
   if(  !doPassRHad ){ ATH_MSG_DEBUG("Failed RHad, et=" << eT << ", eta=" << eta);}
   acceptData.setCutResult( m_cutPosition_RHad, doPassRHad );
 
   // f3
-  bool doPassF3 = ( eT>=90*GeV || passF3(f3,eTBin,etaBin) ) ? true : false ;
+  bool doPassF3 = eT>=90*GeV || passF3(f3,eTBin,etaBin) ;
   if(  !doPassF3 ){ ATH_MSG_DEBUG("Failed F3, et=" << eT << ", eta=" << eta);}
   acceptData.setCutResult( m_cutPosition_F3, doPassF3 );
 
   // Reta
-  bool doPassReta = ( passReta(Reta,eTBin,etaBin) ) ? true : false ;
+  bool doPassReta = passReta(Reta,eTBin,etaBin) ;
   if(  !doPassReta ){ ATH_MSG_DEBUG("Failed Reta, et=" << eT << ", eta=" << eta);}
   acceptData.setCutResult( m_cutPosition_Reta, doPassReta );
 
   // w2
-  bool doPassW2 = ( passW2(w2,eTBin,etaBin) ) ? true : false ;
+  bool doPassW2 = passW2(w2,eTBin,etaBin) ;
   if(  !doPassW2 ){ ATH_MSG_DEBUG("Failed W2, et=" << eT << ", eta=" << eta);}
   acceptData.setCutResult( m_cutPosition_W2, doPassW2 );
 
   // Check the energy in the strips before cutting on it
-  bool doPassWstot = ( f1 <= 0.005 || passWstot(wstot,eTBin,etaBin) ) ? true : false ;
+  bool doPassWstot = f1 <= 0.005 || passWstot(wstot,eTBin,etaBin) ;
   if(  !doPassWstot ){ ATH_MSG_DEBUG("Failed Wstot, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_Wstot, doPassWstot );
 
   // Eratio
-  bool doPassEratio = ( f1 <= 0.005 || passEratio(DEmaxs1,eTBin,etaBin) ) ? true : false ;
+  bool doPassEratio = f1 <= 0.005 || passEratio(DEmaxs1,eTBin,etaBin) ;
   if(  !doPassEratio ){ ATH_MSG_DEBUG("Failed Eratio, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_Eratio, doPassEratio );
   
   // Delta Eta
-  bool doPassDeltaEta = ( passDeltaEta(deltaEta, eTBin, etaBin) ) ? true : false ;
+  bool doPassDeltaEta = passDeltaEta(deltaEta, eTBin, etaBin) ;
   if(  !doPassDeltaEta ){ ATH_MSG_DEBUG("Failed DeltaEta, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_DeltaEta, doPassDeltaEta );
 
   // Rescale deltaPhi
-  bool doPassDeltaPhiRes = ( passDeltaPhiRes(deltaPhiRes, isBrem, eTBin, etaBin) ) ? true : false ;
+  bool doPassDeltaPhiRes = passDeltaPhiRes(deltaPhiRes, isBrem, eTBin, etaBin) ;
   if(  !doPassDeltaPhiRes ){ ATH_MSG_DEBUG("Failed DeltaPhiRes, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_DeltaPhiRes, doPassDeltaPhiRes );
   
   //Si
-  bool doPassNSilicon = ( (nSi + nSiDeadSensors) < 7 ) ? false : true ;
+  bool doPassNSilicon = (nSi + nSiDeadSensors) >= 7 ;
   if(  !doPassNSilicon ){ ATH_MSG_DEBUG("Failed NSilicon, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_NSilicon, doPassNSilicon );
 
   //Pix
-  bool doPassNPixel = ( (nPix+nPixDeadSensors) < 2 ) ? false : true ;
+  bool doPassNPixel = (nPix+nPixDeadSensors) >= 2 ;
   if(  !doPassNPixel ){ ATH_MSG_DEBUG("Failed NPixel, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_NPixel, doPassNPixel );
  
   //BLayer
-  bool doPassNBLayer = (expectBlayer && nBlayerHits < 1) ? false : true ;
+  bool doPassNBLayer = !(expectBlayer && nBlayerHits < 1) ;
   if(  !doPassNBLayer ){ ATH_MSG_DEBUG("Failed NBLayer, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_NBlayer, doPassNBLayer ); 
   
   //TRT Ratio in crack
-  bool doPassTR = (passTR(TRratio,eta,nTRTTotal) ) ? true : false ;
+  bool doPassTR = passTR(TRratio,eta,nTRTTotal) ;
   if(  !doPassTR ){ ATH_MSG_DEBUG("Failed TR, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_TR, doPassTR );
 
   //TightDeltaPhi cut 
-  bool doPassTightDeltaPhi = ( passTightDeltaPhi(deltaPhiRes,  expectBlayer, nBlayerHits ,eTBin, etaBin) ) ? true : false ;
+  bool doPassTightDeltaPhi = passTightDeltaPhi(deltaPhiRes,  expectBlayer, nBlayerHits ,eTBin, etaBin) ;
   if(  !doPassTightDeltaPhi ){ ATH_MSG_DEBUG("Failed TightDeltaPhi, et=" << eT << ", eta=" << eta );}
   acceptData.setCutResult( m_cutPosition_TightDeltaPhi, doPassTightDeltaPhi );
 
@@ -339,9 +339,7 @@ bool Root::TElectronMultiLeptonSelector::passF3(double f3,unsigned int etbin,uns
                                        ,{ 0.0292 , 0.0292 , 0.0219 , 0.0215 , 0.0241 ,  9999 , 0.0264 , 0.0327 , 0.0315 , 9999 } // 70 - 80 GeV
                                        ,{  9999  ,  9999  ,  9999  ,  9999  ,  9999  ,  9999 ,  9999  ,  9999  ,  9999  , 9999 } }; // 80 - inf GeV
   
-  if(f3 > cutf3[etbin][etabin]) return false;
-  
-  return true;
+  return f3 <= cutf3[etbin][etabin];
 }
 
 //----------------------------------------------------------------------------------------
@@ -359,8 +357,7 @@ bool Root::TElectronMultiLeptonSelector::passReta(double rEta, unsigned int eTBi
                                            , {  0.917 ,  0.917 ,  0.908 ,  0.900 ,  0.888 ,  0.700 ,  0.883 ,  0.898 ,  0.898 ,  0.896 }    // 60 - 70 GeV
                                            , {  0.917 ,  0.917 ,  0.908 ,  0.900 ,  0.888 ,  0.700 ,  0.883 ,  0.898 ,  0.898 ,  0.896 }    // 70 - 80 GeV
                                            , {  0.917 ,  0.917 ,  0.908 ,  0.900 ,  0.888 ,  0.700 ,  0.883 ,  0.898 ,  0.898 ,  0.896 } }; // 80 - inf GeV
-  if(rEta < cutReta37[eTBin][etaBin]) return false;
-  return true;
+  return rEta >= cutReta37[eTBin][etaBin];
 }
 
 //----------------------------------------------------------------------------------------
@@ -381,8 +378,7 @@ bool Root::TElectronMultiLeptonSelector::passW2(double w2, unsigned int eTBin, u
                                            , { 0.0112 , 0.0112 , 0.0118 , 0.0121 , 0.0125 , 0.0247 , 0.0132 , 0.0120 , 0.0130 , 0.0135 } };// 80 - inf GeV
   
 
-  if(w2 > cutWeta2[eTBin][etaBin]) return false;  
-  return  true;
+  return w2 <= cutWeta2[eTBin][etaBin];
 }
 
 //----------------------------------------------------------------------------------------
@@ -401,8 +397,7 @@ bool Root::TElectronMultiLeptonSelector::passWstot(double wstot, unsigned int eT
                                            , { 2.881,   2.881,   2.941,   3.319,   3.506,   9999,   3.380,   2.381,   1.644,   9999 }    // 70 - 80 GeV
                                            , { 2.881,   2.881,   2.941,   3.319,   3.506,   9999,   3.380,   2.381,   1.644,   9999 } }; // 80 - inf GeV
   
-  if(wstot > cutWstot[eTBin][etaBin]) return false;
-  return  true;
+  return wstot <= cutWstot[eTBin][etaBin];
 }
 //----------------------------------------------------------------------------------------
 bool Root::TElectronMultiLeptonSelector::passEratio(double DEmaxs1, unsigned int eTBin, unsigned int etaBin) const {  
@@ -418,8 +413,7 @@ bool Root::TElectronMultiLeptonSelector::passEratio(double DEmaxs1, unsigned int
                                                , {  0.627 ,  0.627 ,  0.617 ,  0.420 ,  0.335 , -9999 ,  0.417 ,  0.505 ,  0.653 , -9999 }    // 60 - 70 GeV
                                                , {  0.627 ,  0.627 ,  0.617 ,  0.420 ,  0.335 , -9999 ,  0.417 ,  0.505 ,  0.653 , -9999 }    // 70 - 80 GeV
                                                , {  0.627 ,  0.627 ,  0.617 ,  0.420 ,  0.335 , -9999 ,  0.417 ,  0.505 ,  0.653 , -9999 } }; // 80 -    GeV
-  if(DEmaxs1 < cutDEmaxs1[eTBin][etaBin]) return false;
-  return  true;
+  return DEmaxs1 >= cutDEmaxs1[eTBin][etaBin];
 }
 
 //----------------------------------------------------------------------------------------
@@ -436,8 +430,7 @@ bool Root::TElectronMultiLeptonSelector::passDeltaEta(double deltaEta, unsigned 
                                               {0.011,   0.008,   0.007,   0.007,   0.009,   0.013,   0.009,   0.007,   0.007,   0.011}, // 60 - 70 GeV 
                                               {0.011,   0.008,   0.007,   0.007,   0.009,   0.013,   0.009,   0.007,   0.007,   0.011}, // 70 - 80 GeV 
                                               {0.011,   0.008,   0.007,   0.007,   0.009,   0.013,   0.009,   0.007,   0.007,   0.011}};// 80 - inf GeV 
-  if (fabs(deltaEta) > cutDeltaEta[eTBin][etaBin]) return false;  
-  return true;
+  return fabs(deltaEta) <= cutDeltaEta[eTBin][etaBin];
 
 }
 

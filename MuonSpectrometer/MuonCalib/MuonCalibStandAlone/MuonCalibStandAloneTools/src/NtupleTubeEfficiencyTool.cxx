@@ -1,18 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 10.04.2007, AUTHOR: STEFFEN KAISER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS NtupleTubeEfficiencyTool ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 // standard C++ //
 #include <iostream>
@@ -25,8 +13,6 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MdtCalibInterfaces/IMdtSegmentFitter.h"
 
@@ -40,11 +26,9 @@
 // NtupleTubeEfficiencyTool //
 #include "MuonCalibStandAloneTools/NtupleTubeEfficiencyTool.h"
 
-
 //this
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
-
 
 //root
 #include "TFile.h"
@@ -53,11 +37,6 @@
 #include "TString.h"
 #include "TDirectory.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 namespace MuonCalib {
 
 //*****************************************************************************
@@ -81,7 +60,7 @@ NtupleTubeEfficiencyTool::NtupleTubeEfficiencyTool( const std::string& t,
     m_debug = false;
     declareProperty("Debug", m_debug);
     
-    m_file_name = string("TubeEfficiencies");
+    m_file_name = std::string("TubeEfficiencies");
     declareProperty("fileName", m_file_name);
 
     m_chi2_cut = 10.0;
@@ -104,7 +83,7 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
     //-- Get the StoreGate Stuff --//
     //-----------------------------//
 
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
 
     //retrieve detector manager from the conditions store
     ATH_CHECK(m_DetectorManagerKey.initialize());
@@ -127,7 +106,6 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
     if(m_debug){
     
-        //m_tfile_debug = new TFile(TString(m_file_name).ReplaceAll(".root","_debug.root"), "RECREATE");
         m_tfile_debug = new TFile(TString(m_file_name)+"_debug.root", "RECREATE");
     
         ATH_MSG_INFO( "NtupleTubeEfficiencyTool: Debug mode is switched on" );
@@ -166,14 +144,14 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
     //efficiency and fakerate histos (per tube)
 
-    m_h_efficiency = vector< vector< vector<TH1F*> > >(2); //up to two multilayers 
+    m_h_efficiency = std::vector< std::vector< std::vector<TH1F*> > >(2); //up to two multilayers 
     
     for (unsigned int k=0; k<m_h_efficiency.size(); k++) {
     
-	m_h_efficiency[k] = vector< vector<TH1F*> >(4); // up to four layers per multilayer
+	m_h_efficiency[k] = std::vector< std::vector<TH1F*> >(4); // up to four layers per multilayer
 	for (unsigned int l=0; l<m_h_efficiency[k].size(); l++) {
         
-	    m_h_efficiency[k][l] = vector<TH1F*>(72); // up to 72 tubes per layer
+	    m_h_efficiency[k][l] = std::vector<TH1F*>(72); // up to 72 tubes per layer
 	    for (unsigned int m=0; m<m_h_efficiency[k][l].size(); m++) {
 	
 		m_h_efficiency[k][l][m] 
@@ -184,14 +162,14 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
     } 
 
    
-    m_h_fakerate = vector< vector< vector<TH1F*> > >(2); //up to two multilayers 
+    m_h_fakerate = std::vector< std::vector< std::vector<TH1F*> > >(2); //up to two multilayers 
     
     for (unsigned int k=0; k<m_h_fakerate.size(); k++) {
     
-	m_h_fakerate[k] = vector< vector<TH1F*> >(4); // up to four layers per multilayer
+	m_h_fakerate[k] = std::vector< std::vector<TH1F*> >(4); // up to four layers per multilayer
 	for (unsigned int l=0; l<m_h_fakerate[k].size(); l++) {
         
-	    m_h_fakerate[k][l] = vector<TH1F*>(72); // up to 72 tubes per layer
+	    m_h_fakerate[k][l] = std::vector<TH1F*>(72); // up to 72 tubes per layer
 	    for (unsigned int m=0; m<m_h_fakerate[k][l].size(); m++) {
 	
 		m_h_fakerate[k][l][m] 
@@ -206,10 +184,10 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
     m_tfile->cd();
 
-    m_h_tube_efficiency  = vector< vector<TH1F*> >(2); //up to two multilayers 
+    m_h_tube_efficiency  = std::vector< std::vector<TH1F*> >(2); //up to two multilayers 
     for (unsigned int k=0; k<m_h_tube_efficiency.size(); k++) {
         
-        m_h_tube_efficiency[k] = vector<TH1F*>(4); // up to four layers per multilayer
+        m_h_tube_efficiency[k] = std::vector<TH1F*>(4); // up to four layers per multilayer
 	for (unsigned int l=0; l<m_h_tube_efficiency[k].size(); l++) {
             
             m_h_tube_efficiency[k][l] 
@@ -222,10 +200,10 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
         }
     }
 
-    m_h_tube_fakerate  = vector< vector<TH1F*> >(2); //up to two multilayers 
+    m_h_tube_fakerate  = std::vector< std::vector<TH1F*> >(2); //up to two multilayers 
     for (unsigned int k=0; k<m_h_tube_fakerate.size(); k++) {
         
-        m_h_tube_fakerate[k] = vector<TH1F*>(4); // up to four layers per multilayer
+        m_h_tube_fakerate[k] = std::vector<TH1F*>(4); // up to four layers per multilayer
 	for (unsigned int l=0; l<m_h_tube_fakerate[k].size(); l++) {
             
             m_h_tube_fakerate[k][l] 
@@ -242,10 +220,10 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
     //entry histos (per layer)
 
-    m_h_tube_entries_efficiency = vector< vector<TH1F*> >(2); //up to two multilayers 
+    m_h_tube_entries_efficiency = std::vector< std::vector<TH1F*> >(2); //up to two multilayers 
     for (unsigned int k=0; k<m_h_tube_entries_efficiency.size(); k++) {
         
-        m_h_tube_entries_efficiency[k] = vector<TH1F*>(4); // up to four layers per multilayer
+        m_h_tube_entries_efficiency[k] = std::vector<TH1F*>(4); // up to four layers per multilayer
 	for (unsigned int l=0; l<m_h_tube_entries_efficiency[k].size(); l++) {
             
             m_h_tube_entries_efficiency[k][l] 
@@ -257,10 +235,10 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
         }
     }
 
-    m_h_tube_entries_fakerate = vector< vector<TH1F*> >(2); //up to two multilayers 
+    m_h_tube_entries_fakerate = std::vector< std::vector<TH1F*> >(2); //up to two multilayers 
     for (unsigned int k=0; k<m_h_tube_entries_fakerate.size(); k++) {
         
-        m_h_tube_entries_fakerate[k] = vector<TH1F*>(4); // up to four layers per multilayer
+        m_h_tube_entries_fakerate[k] = std::vector<TH1F*>(4); // up to four layers per multilayer
 	for (unsigned int l=0; l<m_h_tube_entries_fakerate[k].size(); l++) {
             
             m_h_tube_entries_fakerate[k][l] 
@@ -349,7 +327,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
   
 
     if(m_nb_multilayers<0){  
-	m_nb_multilayers = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
+	m_nb_multilayers = m_idHelperSvc->mdtIdHelper().numberOfMultilayers(station_id);
     }
 
     
@@ -358,7 +336,6 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
     //----------//
     
     if(segment.mdtHitsOnTrack()<m_nb_hits){
-        //if(segment.mdtHitsOnTrack()!=m_nb_hits){
         return StatusCode::SUCCESS;
     }
 
@@ -389,7 +366,6 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 
     m_qfitter->setRoadWidth(m_road_width); //0.65
     m_qfitter->switchOnRefit();
-    //m_qfitter->fit(segment);
 
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
@@ -402,7 +378,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
     for (int multilayer=1; multilayer<m_nb_multilayers+1; multilayer++) {
 
 	const MuonGM::MdtReadoutElement* MdtRoEl = 
-	    MuonDetMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
+	    MuonDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(station_id,multilayer,1,1) );
     
 	if(m_nb_layers<0)  m_nb_layers = MdtRoEl->getNLayers();
 	if(m_nb_tubes<0)   m_nb_tubes  = MdtRoEl->getNtubesperlayer(); 
@@ -435,15 +411,6 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 		}
 	    }
 
-            //cout << "event: " << eventnumber << ", hits: " << nb_hits << ", segment: " << segment.mdtHitsOnTrack() << endl;
-            
-	    //perform the track fit //
-	    //if (nb_hits<m_nb_hits) {
-            //   continue;
-            //}
-            
-            
-
             if(m_exclude_layer){
                 
                 m_h_chi2->Fill(m_qfitter->chi2PerDegreesOfFreedom());
@@ -454,9 +421,6 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
                 if (m_qfitter->numberOfTrackHits()<3) {
                     continue;
                 }
-                //if (m_qfitter->numberOfTrackHits()<(m_nb_hits-1) {
-                //  continue;
-                //}
                 if(m_qfitter->chi2PerDegreesOfFreedom()>m_chi2_cut){ 
                     continue;
                 }
@@ -496,12 +460,8 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 		MTStraightLine tube = MTStraightLine( tube_position, tube_direction,
 						      Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0)
 						      );
-                
-                //debug: check geometry
-                //cout << "AMDpos: " << tube_position 
-                //   << ", mypos: " << wire_position[multilayer-1][layer-1][k] << endl;
-                
-		double distance = TMath::Abs(track.signDistFrom(tube));
+
+		double distance = std::abs(track.signDistFrom(tube));
 	
                 if ( distance < (MdtRoEl->innerTubeRadius()) ){
 		    traversed_tube.push_back(k+1);
@@ -592,8 +552,8 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 
     std::string outfilename = m_file_name +  ".txt";
     
-    ofstream outfile(outfilename.c_str());
-    outfile << "ml \t ly \t tube \t efficiency \t error \t fakerate \t ferror" << endl;
+    std::ofstream outfile(outfilename.c_str());
+    outfile << "ml \t ly \t tube \t efficiency \t error \t fakerate \t ferror" << std::endl;
 
     //initialize summary variables
    
@@ -650,7 +610,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 		double error      = 0.; 
 	
 		if(entries!=0){
-		    error  = ( 1/sqrt(entries) ) * sqrt( efficiency*(1-efficiency) );
+		    error  = ( 1/std::sqrt(entries) ) * std::sqrt( efficiency*(1-efficiency) );
 		}
 		
                 double fakerate = m_h_fakerate[k][l][m]->GetMean() / (double)m_nb_trigger;
@@ -658,7 +618,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 		double ferror   = 0; 
 		
                 if(fentries!=0){
-		    ferror  = ( 1/sqrt(fentries) ) * sqrt( fakerate*(1-fakerate) );
+		    ferror  = ( 1/std::sqrt(fentries) ) * std::sqrt( fakerate*(1-fakerate) );
 		}
            
      
@@ -687,7 +647,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 			<< Form("%1.3f",efficiency) << "\t"
 			<< Form("%1.3f",error) << "\t"
 			<< Form("%1.8f",fakerate) << "\t"
-			<< Form("%1.3f",ferror) << endl;
+			<< Form("%1.3f",ferror) << std::endl;
              
 
                 //entry histos
@@ -704,35 +664,31 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
                 
                 m_h_tube_entries_efficiency[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
                 m_h_tube_entries_fakerate[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
-                
 
                 //summarized efficiencies
-                
                 if(error>0){
 
                     layer_ntubes[k][l]++; 
-                    layer_efficiency[k][l] += 1./pow(error,2)*efficiency;
-                    layer_error[k][l]      += 1./pow(error,2);
+                    layer_efficiency[k][l] += 1./std::pow(error,2)*efficiency;
+                    layer_error[k][l]      += 1./std::pow(error,2);
                     layer_entries[k][l]    += entries;
                     
                     multilayer_ntubes[k]++; 
-                    multilayer_efficiency[k] += 1./pow(error,2)*efficiency;
-                    multilayer_error[k]      += 1./pow(error,2);
+                    multilayer_efficiency[k] += 1./std::pow(error,2)*efficiency;
+                    multilayer_error[k]      += 1./std::pow(error,2);
                     multilayer_entries[k]    += entries;
                     
                     chamber_ntubes++; 
-                    chamber_efficiency += 1./pow(error,2)*efficiency;
-                    chamber_error      += 1./pow(error,2);
+                    chamber_efficiency += 1./std::pow(error,2)*efficiency;
+                    chamber_error      += 1./std::pow(error,2);
                     chamber_entries    += entries;
                     
                 }
             }
 	}
     }
-
     
     //fill summary histos
-    
     TString layer_title = "Layer Efficiency ";
     layer_title += TString(m_reg_sel_svc->GetRegionSelection());
         
@@ -757,7 +713,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
             
             if(layer_error[k][l]>0){
                 layer_eff = layer_efficiency[k][l]/layer_error[k][l];
-                layer_err = sqrt(1./layer_error[k][l]);
+                layer_err = std::sqrt(1./layer_error[k][l]);
             }
             
             m_h_layer_efficiency->SetBinContent(layer_bin, layer_eff);
@@ -771,7 +727,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 
         if(multilayer_error[k]>0){
             ml_eff = multilayer_efficiency[k]/multilayer_error[k];
-            ml_err = sqrt(1./multilayer_error[k]);
+            ml_err = std::sqrt(1./multilayer_error[k]);
         }
 
         m_h_chamber_efficiency->SetBinContent(chamber_bin, ml_eff);
@@ -786,7 +742,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 
     if(chamber_error>0){
         ch_eff = chamber_efficiency/chamber_error;
-        ch_err = sqrt(1./chamber_error);
+        ch_err = std::sqrt(1./chamber_error);
     }
     
     m_h_chamber_efficiency->SetBinContent(1, ch_eff);
@@ -816,66 +772,3 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 }
 
 }
-
-    
-//HepGeom::Point3D<double> tubePos = ml2->tubePos(1,2,1);
-//HepGeom::Point3D<double> tubePos = ml2->localTubePos(2,1,1);
-//cout << "tubePos: " << tubePos.y() << endl;
-   
-//HepGeom::Point3D<double> tubePosLoc = ml2->GlobalToAmdbLRSCoords(tubePos);
-//HepGeom::Point3D<double> tubePosLoc = ml2->AmdbLRSToGlobalCoords(tubePos);
-//HepGeom::Point3D<double> tubePosLoc = ml2->tubeFrame_localROPos(2,1,1);
-
-//     cout << "k \t wirepos(x) \t wirepos(y) \t wirepos(z) \t tubepos(x) \t tubepos(y) \t tubepos(z)" << endl;
-//     for (int k=0; k<n_tubesly; k++) {
-	
-// 	//HepGeom::Point3D<double> LTubePos = ml2->localTubePos(2,1,k+1);
-// 	HepGeom::Point3D<double> LTubePos = ml2->GlobalToAmdbLRSCoords(ml2->tubePos(1,2,k+1));
-
-// 	cout << k << "\t" 
-// 	     << wire[k].positionVector().x() <<  "\t"
-// 	     << wire[k].positionVector().y() <<  "\t" 
-// 	     << wire[k].positionVector().z() <<  "\t || \t" 
-// 	     << LTubePos.x() << "\t"
-// 	     << LTubePos.y() << "\t"
-// 	     << LTubePos.z() << endl;
-//     }
-
-
-   //hardcoded wire positions for BML_3_1
-    //  Amg::Vector3D wire_position[2][3][72];
-    //      for (int k=0; k<72; k++) {
-    //          wire_position[0][0][k]  = Amg::Vector3D(0, 30.035*(k+1)-15.018,    169.516998); 
-    //          wire_position[0][1][k]  = Amg::Vector3D(0, 30.035*(k+1)+0.0000023,  195.528992); 
-    //          wire_position[0][2][k]  = Amg::Vector3D(0, 30.035*(k+1)-15.018001, 221.540009); 
-    //          wire_position[1][0][k]  = Amg::Vector3D(0, 30.035*(k+1)-15.018000, 568.576965); 
-    //          wire_position[1][1][k]  = Amg::Vector3D(0, 30.035*(k+1)+0.000004,  594.588989);
-    //          wire_position[1][2][k]  = Amg::Vector3D(0, 30.035*(k+1)-15.018000, 620.599976);
-    //      }
-
-  //reset histo names
-
-   //  if( !(TString(m_h_tube_efficiency[0][0]->GetName()))
-//         .Contains(TString(m_cal_region->regionId()))){
-               
-//         for (unsigned int k=0; k<m_h_tube_efficiency.size(); k++) {
-                      
-//             for (unsigned int l=0; l<m_h_tube_efficiency[k].size(); l++) {
-                
-//                 m_h_tube_efficiency[k][l]->SetName( TString(m_cal_region->regionId()) + "_" +
-//                                                    TString(m_h_tube_efficiency[k][l]->GetName()) );
-                
-                
-//             }
-//         }
-        
-//         for (unsigned int k=0; k<m_h_tube_fakerate.size(); k++) {
-            
-//             for (unsigned int l=0; l<m_h_tube_fakerate[k].size(); l++) {
-                
-//                 m_h_tube_fakerate[k][l]->SetName( TString(m_cal_region->regionId()) + "_" +
-//                                                  TString(m_h_tube_fakerate[k][l]->GetName()) );
-                
-//             }
-//         }
-//     }

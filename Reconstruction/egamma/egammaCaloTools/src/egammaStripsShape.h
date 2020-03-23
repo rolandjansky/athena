@@ -13,9 +13,6 @@
 /// @author Frederic Derue derue@lpnhe.in2p3.fr
 /// @author Christos Anastopoulos
 ///
-/// $Revision:$
-/// $Date: 2014-02-11 17:40:48 +0100 (Tue, 11 Feb 2014) $
-///
 
 
 class CaloCellContainer;
@@ -46,17 +43,20 @@ public:
     StatusCode finalize() override;
 
     /** @brief AlgTool main method */
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, Info& info) const override final;
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               Info& info) const override final;
 
-private:
+  private:
 
     /** @brief From the original (eta,phi) position, find the location
       (sampling, barrel/end-cap, granularity) */
     /** @brief set an array of energies,eta,phi in ~40 strips around max*/
-    void setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
-            double eta, double phi,  double deta, double dphi,
-            double* enecell, double* etacell, double* gracell,
-            int* ncell) const ;
+    void setArray(const xAOD::CaloCluster& cluster,
+                  const CaloDetDescrManager& cmgr,
+                  CaloSampling::CaloSample sam, double eta, double phi,
+                  double deta, double dphi, double* enecell, double* etacell,
+                  double* gracell, int* ncell) const;
     /** @brief check index of seed in the array*/
     void setIndexSeed(Info& info, double* etacell, double* gracell) const;  
     /** @brief set total width in strips*/
@@ -88,25 +88,8 @@ private:
     /** @brief set F1core*/
     void setF1core(Info& info, const xAOD::CaloCluster& cluster) const;
 
-
-    /** @brief tool to calculate sum of energy in all samples */
-   
-    // Calo variables
-    const CaloDetDescrManager* m_calo_dd;
-
     // calculate quantities based on information in the strips in a region
     // around the cluster. 
-    //
-    // Use 2 strips in phi and cover a region of +-1.1875
-    // 5 cells in eta based on second sampling granularity ~0.025 in eta.
-    //Corresponds to ~19 strips in em barrel)
-    //  
-    Gaudi::Property<double> m_neta {this, "Neta", 5,
-        "Number of eta cell in each sampling in which to calculated shower shapes"};
-
-    Gaudi::Property<double> m_nphi {this, "Nphi", 2.,
-        "Number of phi cell in each sampling in which to calculated shower shapes"};
-
     /** @brief boolean to calculate all variables*/
     Gaudi::Property<bool> m_ExecAllVariables {this, 
         "ExecAllVariables", true, "flag used by trigger"};

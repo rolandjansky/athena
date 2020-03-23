@@ -16,7 +16,7 @@
 #include "TBranch.h"
 #include "TClass.h"
 #include "TClassTable.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TVirtualCollectionProxy.h"
 #include "TROOT.h"
 #include "TDictAttributeMap.h"

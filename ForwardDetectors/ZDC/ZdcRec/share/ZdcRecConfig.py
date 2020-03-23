@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from RecExConfig.RecFlags import rec
 rec.doInDet.set_Value_and_Lock(False)
 rec.doCalo.set_Value_and_Lock(False)

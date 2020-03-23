@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -107,7 +107,7 @@ private:
   ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher{this, "QuasiStablePatcher", "", "Quasi-Stable Particle Simulation Patcher"};
 
   /// Simulation Tools
-  PublicToolHandleArray<ISimulatorTool> m_simulationTools{this, "SimulationTools", {}, ""};
+  ToolHandleArray<ISimulatorTool> m_simulationTools{this, "SimulationTools", {}, ""};
 
   /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
   PublicToolHandle<ISimulatorTool> m_particleKillerTool{this, "ParticleKillerTool", "", ""};

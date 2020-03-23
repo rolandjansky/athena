@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,9 +26,9 @@
 //=============================================================================
 // Standard constructor
 //=============================================================================
-AsgElectronMultiLeptonSelector::AsgElectronMultiLeptonSelector(std::string myname) :
+AsgElectronMultiLeptonSelector::AsgElectronMultiLeptonSelector(const std::string& myname) :
   AsgTool(myname),
-  m_rootTool(0)
+  m_rootTool(nullptr)
 {
  
   // Create an instance of the underlying ROOT tool
@@ -122,7 +122,16 @@ asg::AcceptData AsgElectronMultiLeptonSelector::accept( const xAOD::Electron* eg
   
   bool allFound = true;
 
-  float Reta(0), Rhad1(0), Rhad(0), w2(0), f1(0), f3(0), wstot(0),Eratio(0), deltaEta(0), deltaPhiRescaled(0);
+  float Reta(0);
+  float Rhad1(0);
+  float Rhad(0);
+  float w2(0);
+  float f1(0);
+  float f3(0);
+  float wstot(0);
+  float Eratio(0);
+  float deltaEta(0);
+  float deltaPhiRescaled(0);
 
   // Reta
   allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);

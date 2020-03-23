@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
 			  InnerDetector/InDetDetDescr/InDetIdentifier
 			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           Tracking/TrkValidation/TrkValHistUtils
@@ -54,7 +55,7 @@ atlas_add_library( InDetPhysValMonitoringLib
                    PUBLIC_HEADERS InDetPhysValMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
-                   AthenaBaseComps AthenaMonitoringLib CxxUtils AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier InDetReadoutGeometry
+                   AthenaBaseComps AthenaMonitoringLib CxxUtils AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry
                    InDetTrackSelectionToolLib PATCoreLib TrkValHistUtils
                    PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives 
                    xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack

@@ -46,7 +46,6 @@ StatusCode SCTRawDataProvider::initialize()
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_lvl1CollectionKey.initialize());
   ATH_CHECK(m_bcIDCollectionKey.initialize());
-  ATH_CHECK(m_bsErrContainerKey.initialize());
   ATH_CHECK(m_bsIDCErrContainerKey.initialize());
   ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
   ATH_CHECK(m_bsErrContainerCacheKey.initialize(!m_bsErrContainerCacheKey.key().empty()));
@@ -83,11 +82,8 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     SG::UpdateHandle<IDCInDetBSErrContainer_Cache> cacheHandle( m_bsErrContainerCacheKey, ctx );
     ATH_CHECK( cacheHandle.isValid() );
     ATH_CHECK(bsIDCErrContainer.record( std::make_unique<IDCInDetBSErrContainer>(cacheHandle.ptr())) );
+    ATH_MSG_DEBUG("Created SCT IDCInDetBSErrContainer using external cache");
   }
-
-  SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey, ctx);
-  ATH_CHECK(bsErrContainer.record(std::make_unique<InDetBSErrContainer>()));
-
 
   // Ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs
   std::vector<const ROBFragment*> vecROBFrags;
@@ -152,17 +148,10 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(vecROBFrags,
                              *rdoInterface,
-                             bsErrContainer.ptr()).isFailure()) {
+			     *bsIDCErrContainer).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 
   if (dummyRDO) ATH_CHECK(dummyRDO->MergeToRealContainer(rdoContainer.ptr()));
-
-  // copy decoding errorrs to the IDC container, TODO, move this code to converter
-  for ( const std::pair<IdentifierHash, int>* hashErrorPair : *bsErrContainer ) {
-    bsIDCErrContainer->setOrDrop(  hashErrorPair->first , hashErrorPair->second);
-  }
-
-
   return StatusCode::SUCCESS;
 }

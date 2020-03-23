@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_HECHVSUBGAP_H
@@ -7,7 +7,7 @@
 
 class HECHVModule;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
@@ -27,7 +27,7 @@ class HECHVSubgap
   double voltage() const;
   double current() const;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   int hvLineNo(const LArHVIdMapping* hvIdMapping=nullptr) const;
 #else
   int hvLineNo() const;

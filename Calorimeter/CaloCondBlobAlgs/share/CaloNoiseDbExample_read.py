@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloNoiseDbExample
@@ -6,10 +7,8 @@
 #                                           nils.gollub@cern.ch
 #==============================================================
 import AthenaCommon.AtlasUnixGeneratorJob
-from   AthenaCommon import CfgMgr
 from   AthenaCommon.AppMgr import theApp
 from   AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from   AthenaCommon.AppMgr import ToolSvc
 
 
 # Setup Db stuff
@@ -24,20 +23,10 @@ DetFlags.Tile_setOn()
 #DetFlags.digitize.all_setOff()
 
 # Get a handle to the default top-level algorithm sequence
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 topSequence+=xAODMaker__EventInfoCnvAlg()
-
-# Get a handle to the ServiceManager
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
-# Get a handle to the ApplicationManager
-from AthenaCommon.AppMgr import theApp
-
-# Setup Db stuff
-import AthenaPoolCnvSvc.AthenaPool
 
 from AthenaCommon.GlobalFlags import jobproperties
 # jobproperties.Global.DetDescrVersion=Geometry

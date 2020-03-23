@@ -13,7 +13,7 @@ Offline configurations are available here:
 
 """ Importing all read/write "DataHandles" static classes """
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMTrackMatchBuilder, TrigEgammaDecorationTools
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMTrackMatchBuilder, TrigEMShowerBuilder, TrigEgammaDecorationTools
 
 """ Importing all the tool components """
 from egammaTools.egammaToolsFactories import egammaSwTool, egammaMVASvc, EGammaAmbiguityTool
@@ -52,6 +52,7 @@ TrigTopoEgammaElectron = AlgFactory( egammaAlgsConf.topoEgammaBuilder, name = 'T
         PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
         AmbiguityTool = EGammaAmbiguityTool,
         EMClusterTool = TrigEMClusterTool,
+        EMShowerTool=TrigEMShowerBuilder,
         egammaTools = FcnWrapper(TrigEgammaDecorationTools),
         doAdd = False,
         doPhotons = False,

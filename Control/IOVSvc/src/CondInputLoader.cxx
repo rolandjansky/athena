@@ -72,9 +72,6 @@ CondInputLoader::CondInputLoader( const std::string& name,
         (&CondInputLoader::extraDeps_update_handler, this);
     }
   }
-
-  declareProperty( "Load", m_load); 
-  //->declareUpdateHandler(&CondInputLoader::loader, this);
 }
 
 // Destructor
@@ -164,7 +161,7 @@ CondInputLoader::initialize()
           ost << " " << base << " (" << clid2 << ")";
           SG::VarHandleKey vhk(clid2,e->key(),Gaudi::DataHandle::Writer,
                                StoreID::storeName(StoreID::CONDITION_STORE));
-          m_load.emplace(vhk.fullKey());
+          m_load.value().emplace(vhk.fullKey());
         }
       }
     }

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
+from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg, PhysicsListSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
-from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
+from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg, FastSimulationMasterToolCfg
 from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
 from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
 
@@ -69,6 +69,11 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     result.merge(accSensitiveDetector)
     kwargs.setdefault('SenDetMasterTool', result.getPublicTool("SensitiveDetectorMasterTool")) #NOTE - is still a public tool
 
+    #fast simulation master tool
+    accFastSimulation = FastSimulationMasterToolCfg(ConfigFlags)
+    result.merge(accFastSimulation)
+    kwargs.setdefault('FastSimMasterTool', result.getPublicTool("FastSimulationMasterTool")) # NOTE - is still a public tool
+
     #Write MetaData container
     result.merge(writeSimulationParametersMetadata(ConfigFlags))
 
@@ -76,6 +81,9 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     result.merge( UserActionSvcCfg(ConfigFlags) )
     kwargs.setdefault('UserActionSvc', result.getService( "G4UA::UserActionSvc") )
 
+    #PhysicsListSvc
+    result.merge( PhysicsListSvcCfg(ConfigFlags) )
+    kwargs.setdefault('PhysicsListSvc', result.getService( "PhysicsListSvc") )
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
     ## Set stepper verbose = 1 if the Athena logging level is <= DEBUG

@@ -169,7 +169,7 @@ namespace Trig {
       
       auto cg = m_trigDecTool->getChainGroup(eventTrigger);
       auto fc = cg->features(TrigDefs::alsoDeactivateTEs);
-#if defined(ASGTOOL_STANDALONE) || defined(XAOD_ANALYSIS)
+#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
       auto MuFeatureContainers = fc.containerFeature<xAOD::L2StandAloneMuonContainer>("",TrigDefs::alsoDeactivateTEs);
 #else
       const std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > MuFeatureContainers = fc.get<xAOD::L2StandAloneMuonContainer>("", TrigDefs::alsoDeactivateTEs);
@@ -195,7 +195,7 @@ namespace Trig {
 
     auto cg = m_trigDecTool->getChainGroup(eventTrigger);
     auto fc = cg->features(TrigDefs::alsoDeactivateTEs);
-#if defined(ASGTOOL_STANDALONE) || defined(XAOD_ANALYSIS)
+#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     auto MuFeatureContainers = fc.containerFeature<xAOD::L2CombinedMuonContainer>("",TrigDefs::alsoDeactivateTEs);
 #else
     const std::vector< Trig::Feature<xAOD::L2CombinedMuonContainer> > MuFeatureContainers = fc.get<xAOD::L2CombinedMuonContainer>("", TrigDefs::alsoDeactivateTEs);
@@ -351,7 +351,7 @@ namespace Trig {
     auto cg = m_trigDecTool->getChainGroup(eventTrigger);
     auto fc = cg->features();
 
-#if defined(ASGTOOL_STANDALONE) || defined(XAOD_ANALYSIS)
+#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     auto MuFeatureContainers = fc.containerFeature<xAOD::MuonContainer>();
 #else
     const std::vector< Trig::Feature<xAOD::MuonContainer> > MuFeatureContainers = fc.get<xAOD::MuonContainer>();

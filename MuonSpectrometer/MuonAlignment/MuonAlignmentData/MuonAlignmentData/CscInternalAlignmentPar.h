@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNMENTDATA_CSCLINEPAR_H
@@ -15,9 +15,7 @@ class CscInternalAlignmentPar : public MuonAlignmentPar {
   // Default constructor
   CscInternalAlignmentPar();
   // destructor
-  ~CscInternalAlignmentPar();
-
-  // Full constructor
+  virtual ~CscInternalAlignmentPar() override = default;
 
   void setAmdbId(std::string type, int jff, int jzz, int job, int wireLayer);
   void getAmdbId(std::string& type, int& jff, int& jzz, int& job, int& wireLayer);

@@ -1,31 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSeededSegmentFinder.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
-// interfaces
-#include "TrkExInterfaces/IPropagator.h"
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
-#include <iostream>
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-
-#include "TrkParameters/TrackParameters.h"
 
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -36,44 +20,30 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include <iostream>
+
 namespace Muon {
 
   MuonSeededSegmentFinder::MuonSeededSegmentFinder(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_segMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-      m_segMakerNoHoles("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-      m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_magFieldProperties(Trk::NoField),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+      m_magFieldProperties(Trk::NoField)
   {
     declareInterface<IMuonSeededSegmentFinder>(this);
 
-    declareProperty("IdHelper",m_idHelper);
-    declareProperty("Printer",m_printer);
-    declareProperty("MdtRotCreator",  m_mdtRotCreator );
-    declareProperty("Propagator",  m_propagator );
-    declareProperty("SegmentMaker",   m_segMaker);
-    declareProperty("SegmentMakerNoHoles",   m_segMakerNoHoles);
     declareProperty("AdcCut", m_adcCut = 50 );
     declareProperty("MdtSigmaFromTrack",m_maxSigma = 3);
   }
-
-
-  MuonSeededSegmentFinder::~MuonSeededSegmentFinder() {}
-
 
   StatusCode MuonSeededSegmentFinder::initialize()
   {
 
     ATH_CHECK(m_DetectorManagerKey.initialize());
-    ATH_CHECK( m_segMaker.retrieve() );
-    ATH_CHECK( m_segMakerNoHoles.retrieve() );
-    ATH_CHECK( m_propagator.retrieve() );
-    ATH_CHECK( m_mdtRotCreator.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK(m_segMaker.retrieve());
+    ATH_CHECK(m_segMakerNoHoles.retrieve());
+    ATH_CHECK(m_propagator.retrieve());
+    ATH_CHECK(m_mdtRotCreator.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
 
     ATH_CHECK(m_key_mdt.initialize());
     ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty())); // check for layouts without CSCs
@@ -84,13 +54,6 @@ namespace Muon {
 
     return StatusCode::SUCCESS;
   }
-
-
-  StatusCode MuonSeededSegmentFinder::finalize()
-  {
-    return StatusCode::SUCCESS;
-  }
-
 
   std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find( const Trk::TrackParameters& pars, const std::set<Identifier>& chIds ) const {
 
@@ -187,14 +150,14 @@ namespace Muon {
     std::set<Identifier>::const_iterator chit_end = chIds.end();
     for ( ; chit != chit_end; ++chit ) {
 
-      if ( !m_idHelper->isMdt(*chit) ) {
-	ATH_MSG_WARNING(" Requested chamber is not an MDT:   " << m_idHelper->toStringChamber(*chit));
+      if ( !m_idHelperSvc->isMdt(*chit) ) {
+	ATH_MSG_WARNING(" Requested chamber is not an MDT:   " << m_idHelperSvc->toStringChamber(*chit));
 	continue;
       }
 
       const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(*chit);
       if ( !detEl ) {
-	ATH_MSG_WARNING(" Requested chamber does not exist in geometry:   " << m_idHelper->toStringChamber(*chit));
+	ATH_MSG_WARNING(" Requested chamber does not exist in geometry:   " << m_idHelperSvc->toStringChamber(*chit));
 	continue;
       }
       IdentifierHash hash_id = detEl->collectionHash();
@@ -228,8 +191,6 @@ namespace Muon {
     for( ;chit!=chit_end;++chit ){
       MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(*chit);
       if( colIt == mdtPrdContainer->end() ){
-	//ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " 
-	//	     << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;
       }
       
@@ -263,7 +224,7 @@ namespace Muon {
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   " 
-		    << m_idHelper->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
+		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
 		    << (*colIt)->size());
       
       // reserve space for the new PRDs
@@ -292,12 +253,10 @@ namespace Muon {
     for( ;chit!=chit_end;++chit ){
       RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(*chit);
       if( colIt == rpcPrdContainer->end() || (*colIt)->empty() ){
-	//ATH_MSG_DEBUG(" RpcPrepDataCollection for:   " 
-	//	     << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   " 
-		    << m_idHelper->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
+		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
 		    << (*colIt)->size());
       
       // reserve space for the new PRDs
@@ -326,12 +285,10 @@ namespace Muon {
     for( ;chit!=chit_end;++chit ){
       TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(*chit);
       if( colIt == tgcPrdContainer->end() || (*colIt)->empty() ){
-	//ATH_MSG_DEBUG(" TgcPrepDataCollection for:   " 
-	//	     << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   " 
-		    << m_idHelper->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
+		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
 		    << (*colIt)->size());
 
       // reserve space for the new PRDs
@@ -365,13 +322,11 @@ namespace Muon {
     for( ;chit!=chit_end;++chit ){
       CscPrepDataContainer::const_iterator colIt = cscPrdContainer->indexFind(*chit);
       if( colIt == cscPrdContainer->end() || (*colIt)->empty() ){
-	//ATH_MSG_DEBUG(" CscPrepDataCollection for:   " 
-	//	     << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;
       }
       
       ATH_MSG_DEBUG(" Adding for:   " 
-		    << m_idHelper->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
+		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
 		    << (*colIt)->size());
 
       // reserve space for the new PRDs
@@ -406,13 +361,11 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
       sTgcPrepDataContainer::const_iterator colIt = stgcPrdContainer->indexFind(*chit);
-      if( colIt == stgcPrdContainer->end() || (*colIt)->empty() ){
-        //ATH_MSG_DEBUG(" TgcPrepDataCollection for:   "
-        //           << m_idHelper->toStringChamber(*chit) << "  not found in container ");                                                                                                            
+      if( colIt == stgcPrdContainer->end() || (*colIt)->empty() ){                                                                                                           
         continue;
       }
       ATH_MSG_DEBUG(" Adding for:   "
-                    << m_idHelper->toStringChamber( (*colIt)->front()->identify() ) << "  size "
+                    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size "
                     << (*colIt)->size());
 
       // reserve space for the new PRDs                                                                                                                                                                
@@ -426,7 +379,7 @@ namespace Muon {
       for ( ; colIt != colIt_end; ++colIt ) {
 	if((*colIt)->size()>0) {  
 	  ATH_MSG_DEBUG(" Adding ALL Prds for:   "
-			<< m_idHelper->toStringChamber( (*colIt)->front()->identify() ) << "  size "
+			<< m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size "
 			<< (*colIt)->size());
 	  // reserve space for the new PRDs
 	  target.push_back(*colIt);
@@ -461,12 +414,10 @@ namespace Muon {
     for ( ; chit != chit_end; ++chit ) {
       MMPrepDataContainer::const_iterator colIt = mmPrdContainer->indexFind(*chit);
       if ( colIt == mmPrdContainer->end() || (*colIt)->empty() ) {
-	//ATH_MSG_DEBUG(" TgcPrepDataCollection for:   "
-	//       << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   "
-		    << m_idHelper->toStringChamber( (*colIt)->front()->identify() ) << "  size "
+		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size "
 		    << (*colIt)->size());
       
       target.push_back(*colIt);
@@ -479,7 +430,7 @@ namespace Muon {
       for ( ; colIt != colIt_end; ++colIt ) {
 	if((*colIt)->size()>0) {  
 	  ATH_MSG_DEBUG(" Adding ALL Prds for:   "
-			<< m_idHelper->toStringChamber( (*colIt)->front()->identify() ) << "  size "
+			<< m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size "
 			<< (*colIt)->size());
 	  target.push_back(*colIt);
 	}
@@ -544,8 +495,8 @@ namespace Muon {
     bool isOnSurface = surf.isOnSurface(exPars->position(), true, 5 * errorR, 5 * errorZ);
 
     // get tube length
-    int layer = m_idHelper->mdtIdHelper().tubeLayer(id);
-    int tube  = m_idHelper->mdtIdHelper().tube(id);
+    int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+    int tube  = m_idHelperSvc->mdtIdHelper().tube(id);
     double halfTubeLength = 0.5 * detEl.getActiveTubeLength(layer, tube);
     double tubeRadius     = detEl.innerTubeRadius();
 
@@ -558,7 +509,7 @@ namespace Muon {
 
     if ( msgLvl(MSG::VERBOSE) ) {
       std::string boundCheckStr = isOnSurface ? "  onSurface" : " outOfSurface";
-      msg() << MSG::VERBOSE << "  " << m_idHelper->toString(mdtPrd.identify())
+      msg() << MSG::VERBOSE << "  " << m_idHelperSvc->toString(mdtPrd.identify())
 	    << " r " << distanceToWire << " range " << roadWidthR
 	    << " z " << posAlongWire << " range " << halfTubeLength + roadWidthZ
 	    << boundCheckStr;
@@ -584,7 +535,7 @@ namespace Muon {
 
     // check whether ROT is created
     if ( !mdtROT ) {
-      ATH_MSG_DEBUG(" failed to calibrate MdtPrepData " << m_idHelper->toString(mdtPrd.identify()));
+      ATH_MSG_DEBUG(" failed to calibrate MdtPrepData " << m_idHelperSvc->toString(mdtPrd.identify()));
       return 0;
     }
 

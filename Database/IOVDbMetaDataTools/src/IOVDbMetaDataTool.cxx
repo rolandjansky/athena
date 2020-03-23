@@ -22,6 +22,7 @@
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 
 #include "AthenaKernel/MetaCont.h"
+#include "CxxUtils/checker_macros.h"
 
 IOVDbMetaDataTool::IOVDbMetaDataTool(const std::string& type, 
                                      const std::string& name, 
@@ -265,7 +266,11 @@ StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
   }
 
   // Override run number if requested
-  if (m_overrideRunNumber || m_overrideMinMaxRunNumber) overrideIOV(payload);
+  if (m_overrideRunNumber || m_overrideMinMaxRunNumber) {
+    // Should be ok.
+    StatusCode sc ATLAS_THREAD_SAFE = overrideIOV(payload);
+    ATH_CHECK( sc );
+  }
 
   // Add payload to container
   bool success = cont->merge(payload);
@@ -283,7 +288,7 @@ StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
   }
 
   // Debug printout
-  if(msgLvl(MSG::DEBUG)) {
+  if(payload && msgLvl(MSG::DEBUG)) {
     std::ostringstream stream;
     payload->dump(stream);
     ATH_MSG_DEBUG(stream.str());
@@ -295,8 +300,8 @@ StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
 //--------------------------------------------------------------------------
 
 StatusCode
-IOVDbMetaDataTool::modifyPayload (const std::string& folderName, 
-                                  CondAttrListCollection*& coll) const
+IOVDbMetaDataTool::modifyPayload ATLAS_NOT_THREAD_SAFE  (const std::string& folderName, 
+                                                         CondAttrListCollection*& coll) const
 {
 
     /// Modify a Payload for a particular folder - replaces one of the
@@ -343,7 +348,7 @@ IOVDbMetaDataTool::modifyPayload (const std::string& folderName,
         CondAttrListCollection::ChanNum chan = coll->chanNum(ichan);
         // Now filter out the unwanted attribute
         CondAttrListCollection::AttributeList  newAttrList;
-        CondAttrListCollection::AttributeList  oldAttrList = coll->attributeList(chan);
+        const CondAttrListCollection::AttributeList& oldAttrList = coll->attributeList(chan);
         for (unsigned int iatt = 0; iatt < oldAttrList.size(); ++iatt) {
             // skip the unwanted attribute
             if (attributeName == oldAttrList[iatt].specification().name()) {
@@ -498,19 +503,33 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 	// master container in meta data store 
 	CondAttrListCollection* coll = new CondAttrListCollection(**itColl);
 	// Override run number if requested
-	if (m_overrideRunNumber || m_overrideMinMaxRunNumber) overrideIOV(coll);
+	if (m_overrideRunNumber || m_overrideMinMaxRunNumber) {
+          // Should be ok.
+          StatusCode sc ATLAS_THREAD_SAFE = overrideIOV(coll);
+          ATH_CHECK( sc );
+        }
 
 	// first check if we need to modify the incoming payload
-	if (!modifyPayload (contMaster->folderName(), coll).isSuccess()) {
-	  ATH_MSG_ERROR("Could not modify the payload for folder " << contMaster->folderName());
-	  return StatusCode::FAILURE;
-	}
+        {
+          // Should be ok.
+          StatusCode sc ATLAS_THREAD_SAFE =
+            modifyPayload (contMaster->folderName(), coll);
+          if (!sc.isSuccess()) {
+            ATH_MSG_ERROR("Could not modify the payload for folder " << contMaster->folderName());
+            return StatusCode::FAILURE;
+          }
+        }
 
 	// Do the same with newCont4Sid
-	if (!modifyPayload (newCont4Sid->folderName(), coll).isSuccess()) {
-	  ATH_MSG_ERROR("Could not modify the payload for folder " << newCont4Sid->folderName());
-	  return StatusCode::FAILURE;
-	}
+        {
+          // Should be ok.
+          StatusCode sc ATLAS_THREAD_SAFE =
+            modifyPayload (newCont4Sid->folderName(), coll);
+          if (!sc.isSuccess()) {
+            ATH_MSG_ERROR("Could not modify the payload for folder " << newCont4Sid->folderName());
+            return StatusCode::FAILURE;
+          }
+        }
 
 	// Before starting merging, make a copy for newCont4Sid
 	CondAttrListCollection* collCopy = new CondAttrListCollection(*coll);
@@ -616,8 +635,8 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 
 //--------------------------------------------------------------------------
 
-void
-IOVDbMetaDataTool::overrideIOV(CondAttrListCollection*& coll) const
+StatusCode
+IOVDbMetaDataTool::overrideIOV ATLAS_NOT_THREAD_SAFE (CondAttrListCollection*& coll) const
 {
     ATH_MSG_DEBUG("overrideIOV ");
 
@@ -643,7 +662,7 @@ IOVDbMetaDataTool::overrideIOV(CondAttrListCollection*& coll) const
         if (m_overrideRunNumber && !testIOV.isInRange(oldRun)) { 
             // old run must be in the range
             ATH_MSG_ERROR("overrideIOV: old run number does not match. Old run number " << m_oldRunNumber << " IOVRange: " << testIOV);
-            return;
+            return StatusCode::SUCCESS;
         }
         // Now over ride IOVs
         CondAttrListCollection* coll1 = new CondAttrListCollection(true);
@@ -672,6 +691,8 @@ IOVDbMetaDataTool::overrideIOV(CondAttrListCollection*& coll) const
 	}
     }
     else ATH_MSG_DEBUG("overrideIOV: IOV is not run/event ");
+
+    return StatusCode::SUCCESS;
 }
 
 StatusCode IOVDbMetaDataTool::fillMetaCont(const std::string& sid

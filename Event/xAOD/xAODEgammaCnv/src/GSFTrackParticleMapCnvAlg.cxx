@@ -9,7 +9,7 @@
 #include "Particle/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "ParticleEvent/TrackParticleAssocs.h"
-
+#include "AthContainers/ConstDataVector.h"
 // Local include(s):
 #include "GSFTrackParticleMapCnvAlg.h"
 
@@ -89,7 +89,7 @@ namespace xAODMaker {
     xAOD::TrackParticleContainer::const_iterator xaodEnd = xaodContainerGSF->end();
     
     for ( ; aod != aodEnd && xaod != xaodEnd; ++aod, ++xaod){
-      Rec::TrackParticleContainer associatedElems(SG::VIEW_ELEMENTS);    
+      ConstDataVector<Rec::TrackParticleContainer> associatedElems(SG::VIEW_ELEMENTS);    
 
       if ( !trkassocs->assocs(*aod, associatedElems) ){
         ATH_MSG_WARNING("Missing link from GSF track particle to original TP");

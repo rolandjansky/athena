@@ -30,7 +30,7 @@ from egammaTools.egammaToolsFactories import \
 #The tools used to add properties 
 def egammaDecorationTools():
   "Return a list with the tools that decorate both electrons and photons"
-  return [ EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
+  return [ EMFourMomBuilder(), egammaOQFlagsBuilder()]
 
 def electronDecorationTools():
   "Return a list with the tools that decorate only electrons"
@@ -91,12 +91,13 @@ class topoEgammaGetter ( Configured ) :
         from egammaAlgs.topoEgammaBuilder import topoEgammaBuilder
         try:
             self._topoEgammaBuilder = topoEgammaBuilder(                                   
-			       EMClusterTool=EMClusterTool,                         
+			       EMClusterTool=EMClusterTool,
+                   EMShowerTool=EMShowerBuilder,
 			       # Decoration tools
-                               egammaTools = FcnWrapper(egammaDecorationTools),
-                               ElectronTools = FcnWrapper(electronDecorationTools),
-                               PhotonTools = FcnWrapper(photonDecorationTools)
-                               )
+                   egammaTools = FcnWrapper(egammaDecorationTools),
+                   ElectronTools = FcnWrapper(electronDecorationTools),
+                   PhotonTools = FcnWrapper(photonDecorationTools)
+                   )
         except Exception:
             mlog.error("could not get handle to topoEgammaBuilder")
             import traceback

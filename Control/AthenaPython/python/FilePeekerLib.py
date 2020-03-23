@@ -173,6 +173,8 @@ class FilePeeker(PyAthena.Alg):
         except KeyError:
             msg.warning('could not retrieve [%s]', metadata_name)
             return
+        if str(obj).find('MetaCont') >= 0:
+            obj = obj.get (obj.sources()[0])
         msg.info('processing container [%s]', obj.folderName())
         data = []
         payloads = obj.payloadContainer()

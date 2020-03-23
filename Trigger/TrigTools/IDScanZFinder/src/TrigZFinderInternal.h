@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,9 +31,9 @@
 
 
 
-class TrigZFinderInternal
-{
-  public: 
+class TrigZFinderInternal {
+
+public: 
 
     struct vertex { 
       vertex( double z, double weight ) : _z(z), _weight(weight) { } 
@@ -41,48 +41,44 @@ class TrigZFinderInternal
       double _weight;
     };
 
-  public:
+public:
 
     TrigZFinderInternal( const std::string&, const std::string& );
     virtual ~TrigZFinderInternal(){};
     //  void initializeInternal(long maxLayers=20, long lastBarrel=7); 
     void initializeInternal(long maxLayers, long lastBarrel); 
 
-    std::vector<vertex>* findZInternal( const std::vector< TrigSiSpacePointBase >& spVec, const IRoiDescriptor& roi);
+    std::vector<vertex>* findZInternal( const std::vector< TrigSiSpacePointBase >& spVec, 
+					const IRoiDescriptor& roi ) const;
 
-    const std::vector< std::vector<long> >*   GetnHisto() { return m_nHisto; }
-    const std::vector< std::vector<double> >* GetzHisto() { return m_zHisto; }
-
-    long  GetNMax() { return m_NMax; } 
-
-    //  void setLayers(long maxLayers=20, long lastBarrelLayer=7) {
     void setLayers(long maxLayers, long lastBarrelLayer) {
       m_IdScan_MaxNumLayers = maxLayers;        // dphiEC depends on this value
       m_IdScan_LastBrlLayer = lastBarrelLayer;  // dphiBrl depends on this value
     } 
 
-  protected:  // member functions
-
-    // fills phi, rho, z, layer of spacepoints to simple vectors
-
-    long fillVectors( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi,
-        std::vector<double>& phi, std::vector<double>& rho, std::vector<double>& zed, 
-        std::vector<long>&   lyr, std::vector<long>&   filledLayers);
+protected:  // member functions
 
     std::string getType() const { return m_type; }
     std::string getName() const { return m_name; }
 
-    int GetInternalStatus() const { return m_Status; }
-    int SetInternalStatus(int s)  { m_Status = s; return m_Status; }
+
+    // fills phi, rho, z, layer of spacepoints to simple vectors
+
+    long fillVectors( const std::vector<TrigSiSpacePointBase>& spVec, 
+		      const IRoiDescriptor& roi,
+		      std::vector<double>& phi, 
+		      std::vector<double>& rho, 
+		      std::vector<double>& zed, 
+		      std::vector<long>&   lyr, 
+		      std::vector<long>&   filledLayers,
+		      long& numPhiSlices ) const;
+
 
     double computeZV(double r1, double z1, double r2, double z2) const;
     double computeZV(double r1, double p1, double z1, double r2, double p2, double z2) const;
 
-    void   SetReturnValue(double d) { m_returnval=d; }
-    double GetReturnValue() const   { return m_returnval; }
 
-
-  protected:  // data members
+protected:  // data members
 
     /// maximum number of layers and last barrel layer 
     long   m_IdScan_MaxNumLayers; 
@@ -108,22 +104,15 @@ class TrigZFinderInternal
     std::string m_type;  // type information for internal book keeping
     std::string m_name;  // name information for the same
 
-    int    m_Status;   // return status of the algorithm: 0=ok, -1=error
 
     bool m_chargeAware ;  // maintain separate sets of z histos for + & - tracks
     bool m_zHistoPerPhi;  // maintain one set of z histos per each phi slice
 
     double m_dphideta; // how, as a function of eta, the number of phi neighbours decreases
     double m_neighborMultiplier; // extra factor to manually increase the number of phi neighbors
-    //  long extraPhi[IdScan_MaxNumLayers][IdScan_MaxNumLayers]; // number of phi neighbours to look at
+
     std::vector< std::vector<long> > m_extraPhi; // ( IdScan_MaxNumLayers, std::vector<long>(IdScan_MaxNumLayers) ); // number of phi neighbours to look at
 
-    // access the ZFinder histogram from outside the findZInternal method
-
-    std::vector < std::vector<long>   >  m_nHisto[2]; // the actual z histogram count of pairs
-    std::vector < std::vector<double> >  m_zHisto[2]; // summed z position histograms
-
-    long m_NMax; // maximum number of z histogram entries
 
     int m_nFirstLayers;    // When the pairs of SPs are made, the inner SP comes from up to this "filled layer"
 
@@ -149,11 +138,11 @@ class TrigZFinderInternal
     double m_percentile;
 
 
-    /// to apply a hreshold to the found vertex candidates
+    /// to apply a threshold to the found vertex candidates
 
     double  m_weightThreshold;
 
-  std::vector<int> m_new2old; //transform table for new layer numbering scheme
+    std::vector<int> m_new2old; //transform table for new layer numbering scheme
 
 };
 

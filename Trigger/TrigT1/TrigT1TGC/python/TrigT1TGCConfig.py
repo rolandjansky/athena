@@ -13,10 +13,7 @@ class TrigT1TGCConfig (LVL1TGCTrigger__LVL1TGCTrigger):
         super(TrigT1TGCConfig ,self).__init__(name)
 
         self.InputData_perEvent = "TGC_DIGITS" 
-        self.ASDOutDataLocation = "ASDOutDataLocation"
-        self.MuonTrigConfig     = "/Run/MuonTrigConfig"
         self.MuCTPIInput_TGC    = "L1MuctpiStoreTGC"
-        self.MaskFileName       = "TrigT1TGCMaskedChannel.db"
         self.MaskFileName12     = "TrigT1TGCMaskedChannel._12.db"
         
 job = AlgSequence()

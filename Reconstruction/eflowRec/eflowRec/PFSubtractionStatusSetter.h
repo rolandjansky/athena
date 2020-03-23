@@ -14,7 +14,7 @@ class eflowCaloObject;
 class PFSubtractionStatusSetter {
 
 public:
-  void markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, eflowCaloObject& thisEflowCaloObject);
-    
+  void markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, std::vector<float> clusterSubtractedEnergyRatios,eflowCaloObject& thisEflowCaloObject);
+  void markAnnihStatus(eflowCaloObject& thisEflowCaloObject);  
 };
 #endif

@@ -21,8 +21,6 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
 #
 from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
 InDetTrigTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk(name   = 'InDetTrigTRTRoadMaker',
-                                                                       #DetectorStoreLocation = 'DetectorStore',
-                                                                       TRTManagerLocation    = 'TRT',
                                                                        MagneticFieldMode     = 'MapSolenoid',
                                                                        RoadWidth             = 20.,
                                                                        PropagatorTool        = InDetTrigPatternPropagator)

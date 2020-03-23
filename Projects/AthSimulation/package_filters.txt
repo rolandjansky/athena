@@ -25,7 +25,7 @@
 + Control/AthContainersInterfaces
 + Control/AthContainersRoot
 + Control/AthLinks
-+ Control/AthToolSupport/AsgTools
++ Control/AthToolSupport/.*
 + Control/AthenaBaseComps
 + Control/AthenaConfiguration
 + Control/AthenaCommon
@@ -152,7 +152,6 @@
 + Event/xAOD/xAODTruthAthenaPool
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
-+ External/pyAMI
 + Generators/GenInterfaces
 + Generators/GeneratorObjects
 + Generators/GeneratorObjectsAthenaPool
@@ -180,6 +179,9 @@
 + InnerDetector/InDetDetDescr/InDetIdDictFiles
 + InnerDetector/InDetDetDescr/InDetIdentifier
 + InnerDetector/InDetDetDescr/InDetReadoutGeometry
++ InnerDetector/InDetDetDescr/PixelReadoutGeometry
++ InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
++ InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
 + InnerDetector/InDetDetDescr/InDetServMatGeoModel
 + InnerDetector/InDetDetDescr/PixelGeoModel
 + InnerDetector/InDetDetDescr/SCT_GeoModel
@@ -250,6 +252,7 @@
 + MuonSpectrometer/MuonGeoModel
 + MuonSpectrometer/MuonIdHelpers
 + MuonSpectrometer/MuonSimEvent
++ MuonSpectrometer/MuonStationIndex
 + Reconstruction/RecAlgs
 + Reconstruction/RecEvent
 + Reconstruction/RecEventAthenaPool

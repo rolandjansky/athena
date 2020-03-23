@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /********************************************************************
@@ -18,7 +18,7 @@ PURPOSE:   For each cluster create a new CaloClusterROI object and fills it then
 // INCLUDE HEADER FILES:
 
 #include "InDetCaloClusterROISelector/CaloClusterROI_Selector.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 //Cluster cuts
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include <stdexcept>
@@ -99,14 +99,15 @@ StatusCode InDet::CaloClusterROI_Selector::execute(const EventContext& ctx) cons
     if (!inputClusterContainer.isValid()) {
         return StatusCode::FAILURE;
     }
-
+    const CaloDetDescrManager* calodetdescrmgr = nullptr;
+    ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr"));
     // loop over clusters 
     unsigned int all_clusters{};
     unsigned int selected_clusters{};
     for(const xAOD::CaloCluster* cluster : *inputClusterContainer )
     {
         all_clusters++;
-        if (m_egammaCaloClusterSelector->passSelection(cluster))
+        if (m_egammaCaloClusterSelector->passSelection(cluster,*calodetdescrmgr))
         {
             selected_clusters++;
             ATH_MSG_DEBUG("Pass cluster selection");

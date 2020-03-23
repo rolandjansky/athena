@@ -8,8 +8,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
 from AthenaCommon.CFElements import seqAND
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 
 
 #----------------------------------------------------------------
@@ -23,22 +23,27 @@ def allTE_trkfast_Cfg( flags ):
         return allTE_trkfast()
 
 def allTE_trkfast():
+        inputMakerAlg = EventViewCreatorAlgorithm("IM_beamspot")
+        inputMakerAlg.ViewFallThrough = True
+        inputMakerAlg.RoIsLink = "initialRoI"
+        inputMakerAlg.RoITool = ViewCreatorInitialROITool()
+        inputMakerAlg.InViewRoIs = "beamspotInputRoIs"
+        inputMakerAlg.Views = "beamspotViewRoIs"
 
-        inputMakerAlg = InputMakerForRoI("IM_beamspotInputMaker", mergeOutputs=False)
-        inputMakerAlg.RoIs="beamspotInputRoIs"
         from TrigInDetConfig.InDetSetup import makeInDetAlgs
-        viewAlgs = makeInDetAlgs(whichSignature='FS', rois=inputMakerAlg.RoIs)
+        viewAlgs = makeInDetAlgs(whichSignature='FS', rois=inputMakerAlg.InViewRoIs)
         from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE
         T2VertexBeamSpot_activeAllTE.TrackCollections = ["TrigFastTrackFinder_Tracks_FS"]
-        #beamspotSequence = seqAND("beamspotSequence",viewAlgs+[inputMakerAlg,T2VertexBeamSpot_activeAllTE()])
-        beamspotSequence = seqAND("beamspotSequence",[inputMakerAlg]+viewAlgs+[T2VertexBeamSpot_activeAllTE()])
+        beamspotSequence = seqAND("beamspotSequence",viewAlgs+[T2VertexBeamSpot_activeAllTE()])
+        inputMakerAlg.ViewNodeName = beamspotSequence.name()
 
         #hypo
         beamspotHypoAlg = TrigStreamerHypoAlgMT("BeamspotHypoAlg")
         beamspotHypoAlg.RuntimeValidation = False #Needed to avoid the ERROR ! Decision has no 'feature' ElementLink
         beamspotHypoToolGen= StreamerHypoToolMTgenerator
+        beamspotViewsSequence = seqAND("beamspotViewsSequence", [ inputMakerAlg, beamspotSequence ])
 
-        return  MenuSequence( Sequence    = beamspotSequence,
+        return  MenuSequence( Sequence    = beamspotViewsSequence,
                           Maker       = inputMakerAlg,
                           Hypo        = beamspotHypoAlg,
                           HypoToolGen = beamspotHypoToolGen )

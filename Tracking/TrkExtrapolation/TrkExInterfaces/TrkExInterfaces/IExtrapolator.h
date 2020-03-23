@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ namespace Trk {
        virtual const NeutralParameters* extrapolate(const xAOD::NeutralParticle& xnParticle,
                                                     const Surface& sf,
                                                     PropDirection dir=anyDirection,
-                                                    BoundaryCheck bcheck = true) const = 0;
+                                                    const BoundaryCheck& bcheck = true) const = 0;
 
 
 
@@ -79,7 +79,7 @@ namespace Trk {
         virtual const TrackParameters* extrapolate(const xAOD::TrackParticle& particleBase,
                                                    const Surface& sf,
                                                    PropDirection dir=anyDirection,
-                                                   BoundaryCheck bcheck = true,
+                                                   const BoundaryCheck& bcheck = true,
                                                    ParticleHypothesis particle=pion,
                                                    MaterialUpdateMode matupmode=addNoise) const = 0;
 
@@ -93,7 +93,7 @@ namespace Trk {
        virtual const NeutralParameters* extrapolate(const NeutralParameters& parameters,
                                                     const Surface& sf,
                                                     PropDirection dir=anyDirection,
-                                                    BoundaryCheck bcheck = true) const = 0;
+                                                    const BoundaryCheck& bcheck = true) const = 0;
 
        /** [TrackParameters] --------------------------------------------------------------- */
 
@@ -105,7 +105,7 @@ namespace Trk {
                                                    const TrackParameters& parm,
                                                    const Surface& sf,
                                                    PropDirection dir=anyDirection,
-                                                   BoundaryCheck bcheck = true,
+                                                   const BoundaryCheck& bcheck = true,
                                                    ParticleHypothesis particle=pion,
                                                    MaterialUpdateMode matupmode=addNoise) const = 0;
 
@@ -118,7 +118,7 @@ namespace Trk {
                                                              const TrackParameters& parm,
                                                              const Surface& sf,
                                                              PropDirection dir=anyDirection,
-                                                             BoundaryCheck bcheck = true,
+                                                             const BoundaryCheck& bcheck = true,
                                                              ParticleHypothesis particle=pion) const = 0;
                                                                                                                                          
        /** S 3) <b>Strategy Pattern extrapolation method</b>: 
@@ -129,7 +129,7 @@ namespace Trk {
                                                   const Track& trk,
                                                   const Surface& sf,
                                                   PropDirection dir=anyDirection,
-                                                  BoundaryCheck bcheck = true,
+                                                  const BoundaryCheck& bcheck = true,
                                                   ParticleHypothesis particle=pion,
                                                   MaterialUpdateMode matupmode=addNoise) const = 0;
        
@@ -142,7 +142,7 @@ namespace Trk {
                                                              const TrackParameters& parm,
                                                              const Surface& sf,
                                                              PropDirection dir=anyDirection,
-                                                             BoundaryCheck bcheck = true,
+                                                             const BoundaryCheck& bcheck = true,
                                                              ParticleHypothesis particle=pion) const = 0;
                                                    
         /** S 5) <b>Strategy Pattern extrapolation method</b>:
@@ -152,7 +152,7 @@ namespace Trk {
         virtual const std::vector<const TrackParameters*>* extrapolateBlindly(const IPropagator& prop,
                                                                               const TrackParameters& parm,
                                                                               PropDirection dir=anyDirection,
-                                                                              BoundaryCheck bcheck = true,
+                                                                              const BoundaryCheck& bcheck = true,
                                                                               ParticleHypothesis particle=pion,
                                                                               const Volume* boundaryVol=0) const = 0;
 
@@ -164,7 +164,7 @@ namespace Trk {
                                                                                        const IPropagator& prop,
 											                                           const TrackParameters& parm,
 											                                           PropDirection dir,
-											                                           BoundaryCheck bcheck,
+											                                           const BoundaryCheck& bcheck,
 											                                           ParticleHypothesis particle=pion,
 											                                           MaterialUpdateMode matupmode=addNoise) const=0;
 
@@ -172,7 +172,7 @@ namespace Trk {
                                                                                        const IPropagator& prop,
 											                                           const TrackParameters& parm,
 											                                           PropDirection dir,
-											                                           BoundaryCheck bcheck,
+											                                           const BoundaryCheck& bcheck,
 											                                           std::vector<const Trk::TrackStateOnSurface*>& material,
 											                                           ParticleHypothesis particle=pion,
 											                                           MaterialUpdateMode matupmode=addNoise) const=0;
@@ -198,7 +198,7 @@ namespace Trk {
         virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextStation(const IPropagator& prop,
 											                                            const TrackParameters& parm,
 											                                            PropDirection dir,
-											                                            BoundaryCheck bcheck,
+											                                            const BoundaryCheck& bcheck,
 											                                            ParticleHypothesis particle=pion,
 											                                            MaterialUpdateMode matupmode=addNoise) const=0;
 
@@ -215,7 +215,7 @@ namespace Trk {
         virtual const TrackParameters* extrapolate(const TrackParameters& parm,
                                                    const Surface& sf,
                                                    PropDirection dir=anyDirection,
-                                                   BoundaryCheck bcheck = true,
+                                                   const BoundaryCheck& bcheck = true,
                                                    ParticleHypothesis particle=pion,
                                                    MaterialUpdateMode matupmode=addNoise,
                                                    Trk::ExtrapolationCache* cache = 0 ) const = 0;
@@ -224,14 +224,14 @@ namespace Trk {
         virtual const std::vector<const TrackParameters*>*  extrapolateStepwise(const TrackParameters& parm,
                                                                                 const Surface& sf,
                                                                                 PropDirection dir=anyDirection,
-                                                                                BoundaryCheck bcheck = true,
+                                                                                const BoundaryCheck& bcheck = true,
                                                                                 ParticleHypothesis particle=pion ) const = 0;
                                                    
         /** C 3) <b>Configured AlgTool extrapolation method</b> of S 3):*/
         virtual const TrackParameters* extrapolate(const Track& trk,
                                                    const Surface& sf,
                                                    PropDirection dir=anyDirection,
-                                                   BoundaryCheck bcheck = true,
+                                                   const BoundaryCheck& bcheck = true,
                                                    ParticleHypothesis particle=pion,
                                                    MaterialUpdateMode matupmode=addNoise,
                                                    Trk::ExtrapolationCache* cache = 0 ) const = 0;
@@ -240,13 +240,13 @@ namespace Trk {
         virtual const TrackParameters* extrapolateDirectly(const TrackParameters& parm,
                                                            const Surface& sf,
                                                            PropDirection dir=anyDirection,
-                                                           BoundaryCheck bcheck = true,
+                                                           const BoundaryCheck& bcheck = true,
                                                            ParticleHypothesis particle=pion) const = 0;
                                                            
         /** C 5) <b>Configured AlgTool extrapolation method</b> of S 5):*/                        
         virtual const std::vector<const TrackParameters*>*  extrapolateBlindly(const TrackParameters& parm,
                                                                                PropDirection dir=anyDirection,
-                                                                               BoundaryCheck bcheck = true,
+                                                                               const BoundaryCheck& bcheck = true,
                                                                                ParticleHypothesis particle=pion,
                                                                                const Volume* boundaryVol=0) const = 0;
 
@@ -254,7 +254,7 @@ namespace Trk {
         virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayer(
                                                                  const TrackParameters& parm,
 				                                                      	 PropDirection dir=anyDirection,
-											                                           BoundaryCheck bcheck = true,
+											                                           const BoundaryCheck& bcheck = true,
 											                                           ParticleHypothesis particle=pion,
 											                                           MaterialUpdateMode matupmode=addNoise) const=0;
         
@@ -262,7 +262,7 @@ namespace Trk {
         virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayerM(
                                                                  const TrackParameters& parm,
 											                                           PropDirection dir,
-											                                           BoundaryCheck bcheck,
+											                                           const BoundaryCheck& bcheck,
 											                                           std::vector<const Trk::TrackStateOnSurface*>& material,
 											                                           ParticleHypothesis particle=pion,
 											                                           MaterialUpdateMode matupmode=addNoise) const=0;
@@ -271,7 +271,7 @@ namespace Trk {
         virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextStation(
                                                                  const TrackParameters& parm,
 											                     PropDirection dir=anyDirection,
-											                     BoundaryCheck bcheck = true,
+											                     const BoundaryCheck& bcheck = true,
 											                     ParticleHypothesis particle=pion,
 											                     MaterialUpdateMode matupmode=addNoise) const=0;
 
@@ -287,7 +287,7 @@ namespace Trk {
         virtual std::vector<const TrackStateOnSurface*>* extrapolateM(const TrackParameters& parameters,
                                                                       const Surface& sf,
                                                                       PropDirection dir,
-                                                                      BoundaryCheck bcheck,
+                                                                      const BoundaryCheck& bcheck,
                                                                       ParticleHypothesis particle=pion, 
                                                                       Trk::ExtrapolationCache* cache = 0) const = 0;
 
@@ -297,7 +297,7 @@ namespace Trk {
         virtual std::vector<const TrackParameters*>* extrapolateM(const TrackParameters& parameters,
                                                                   const Surface& sf,
                                                                   PropDirection dir,
-                                                                  BoundaryCheck bcheck,
+                                                                  const BoundaryCheck& bcheck,
                                                                   std::vector<MaterialEffectsOnTrack> &material,
                                                                   std::vector<Trk::TransportJacobian*> &jacs,
                                                                   ParticleHypothesis particle=pion,

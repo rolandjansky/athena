@@ -110,11 +110,11 @@ public:
 
   /** Each Bounds has a method inside, which checks if a LocalPosition is inside the bounds.
             Inside can be called without/with boundary check */
-  void ComputeKDOP(std::vector<Amg::Vector2D> v, std::vector<Amg::Vector2D> KDOPAxes, std::vector<KDOP>& kdop) const;
+  void ComputeKDOP(const std::vector<Amg::Vector2D> &v, const std::vector<Amg::Vector2D> &KDOPAxes, std::vector<KDOP>& kdop) const;
 
   std::vector<Amg::Vector2D> EllipseToPoly(int resolution = 3) const;
 
-  bool TestKDOPKDOP(std::vector<KDOP>& a, std::vector<KDOP>& b) const;
+  bool TestKDOPKDOP(const std::vector<KDOP>& a, const std::vector<KDOP>& b) const;
 
   double FastArcTan(double x) const;
 
@@ -257,8 +257,8 @@ BoundaryCheck::EllipseToPoly(int resolution) const
 
 // calculates KDOP object from given polygon and set of axes
 inline void
-BoundaryCheck::ComputeKDOP(std::vector<Amg::Vector2D> v,
-                           std::vector<Amg::Vector2D> KDOPAxes,
+BoundaryCheck::ComputeKDOP(const std::vector<Amg::Vector2D> &v,
+                           const std::vector<Amg::Vector2D> &KDOPAxes,
                            std::vector<KDOP>& kdop) const
 {
   // initialize KDOP to first point
@@ -282,7 +282,7 @@ BoundaryCheck::ComputeKDOP(std::vector<Amg::Vector2D> v,
 
 // this is the method to actually check if two KDOPs overlap
 inline bool
-BoundaryCheck::TestKDOPKDOP(std::vector<KDOP>& a, std::vector<KDOP>& b) const
+BoundaryCheck::TestKDOPKDOP(const std::vector<KDOP>& a, const std::vector<KDOP>& b) const
 {
   int k = a.size();
   // check if any intervals are non-overlapping, return if so

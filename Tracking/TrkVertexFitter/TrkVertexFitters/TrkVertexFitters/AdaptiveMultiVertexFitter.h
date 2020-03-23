@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,6 +12,7 @@
 
 //xAOD includes
 #include "xAODTracking/Vertex.h"
+#include <vector>
 
 /**
  * @class Trk::AdaptiveMultiVertexFitter
@@ -27,7 +28,7 @@
  * The multi-vertex version of the fit is more complicate than the 
  * single-vertex version and needs the input to be provided in the form 
  * of a vector of already initialized MVFVxCandidate objects. Details of the 
- * the objects to provide in the fit() and addVtxTofit() functions.
+ * the objects to provide in the fit() and addVtxToFit() functions.
  *
  * During the multi-vertex fit all the vertices are fit, using the tracks 
  * which are contained in their respective vertex candidates. Tracks which are 
@@ -139,7 +140,8 @@ namespace Trk
      *
      */
 
-    void fit(std::vector<xAOD::Vertex*> & allvertexes);
+    void 
+    fit(std::vector<xAOD::Vertex*> & allVertices) const;
 
     /**
      * Adds a new MVFVxCandidate to a previous multi-vertex fit and fits everything together.
@@ -166,8 +168,14 @@ namespace Trk
      *
      */
 
-    void addVtxTofit(xAOD::Vertex*); 
-    static const InterfaceID& interfaceID() {
+    void 
+    addVtxToFit(xAOD::Vertex* pVtx) const; 
+    //
+    void 
+    addVtxTofit(xAOD::Vertex* pVtx)  const { return addVtxToFit(pVtx);}
+    
+    static const InterfaceID& 
+    interfaceID() {
       return IID_AdaptiveMultiVertexFitter;
     }
    
@@ -178,7 +186,8 @@ namespace Trk
      * is found.
      */
 
-    bool findAmongVertexes(const xAOD::Vertex* vertex,const std::vector<xAOD::Vertex*> previousvertexes);
+    bool 
+    findAmongVertices(const xAOD::Vertex* vertex,const std::vector<xAOD::Vertex*> & previousVertices) const;
 
     /**
      * Internal function to collect the weights of the tracks partecipating to all the possible vertices (needed 
@@ -187,7 +196,8 @@ namespace Trk
      *
      */
 
-    std::vector<double>* collectWeights(const TrackToVtxLink & tracklink);
+    std::vector<double> 
+    collectWeights(const TrackToVtxLink & tracklink) const;
 
     /**
      * Internal function to prepare the compatibility information of all the tracks of the 
@@ -197,13 +207,15 @@ namespace Trk
      *
      */
 
-    void prepareCompatibility(xAOD::Vertex* newvertex);
+    void 
+    prepareCompatibility(xAOD::Vertex* newvertex) const;
 
     /**
      * Max number of iterations.
      */
 
-    long int m_maxIterations;
+    long int 
+    m_maxIterations;
 
     
     /**
@@ -211,35 +223,40 @@ namespace Trk
      * before needing to relinearize (in mm)
      */
     
-    double m_maxDistToLinPoint;
+    double 
+    m_maxDistToLinPoint;
     
     /**
      * Initial error in form of diagonal elements of the inverse of the covariance matrix
      * (name is misleading: take the error, square it and initialize the variable with its inverse)
      */
 
-    double m_initialError;
+    double 
+    m_initialError;
 
     /**
      * True if smoothing after fit iterations has to be performed: otherwise the Smoother AlgoTool 
      * provided to the fitter will be ignored.
      */
 
-    bool m_doSmoothing;
+    bool 
+    m_doSmoothing;
 
     /**
      * Minimum weight a track as to have in order to be considered in the fit of one of the vertices.
      * This should make the fit slightly faster.
      */
 
-    double m_minweight;
+    double 
+    m_minweight;
 
     /**
      * Maximum shift allowed for last iteration... (in terms of Delta|VecR|/sigma|VecR|)
      *
      */
 
-    double m_maxRelativeShift;
+    double 
+    m_maxRelativeShift;
     
     ToolHandle< Trk::IVertexLinearizedTrackFactory      > m_LinearizedTrackFactory;
     ToolHandle< Trk::IVertexTrackCompatibilityEstimator > m_TrackCompatibilityEstimator;

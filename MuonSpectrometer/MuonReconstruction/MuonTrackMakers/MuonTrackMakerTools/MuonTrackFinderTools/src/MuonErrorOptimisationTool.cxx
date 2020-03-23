@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// STL includes
+#include "MuonErrorOptimisationTool.h"
+
 #include <iostream>
 
 #include "TrkTrack/Track.h"
@@ -11,26 +12,21 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 
-#include "MuonErrorOptimisationTool.h"
-
-
 namespace Muon {
 
   MuonErrorOptimisationTool::MuonErrorOptimisationTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
     AthAlgTool(ty,na,pa),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
     m_refitTool("Muon::MuonRefitTool/MuonRefitTool")
   {
     declareProperty("Printer", m_printer );
-    declareProperty("IdHelper", m_idHelper );
-    declareProperty("TrackSummeryTool", m_trackSummaryTool );
+    declareProperty("TrackSummaryTool", m_trackSummaryTool );
     declareProperty("RefitTool",m_refitTool ); 
 
-    declareProperty("PrepareForFit",		 m_refitSettings.prepareForFit = true );
+    declareProperty("PrepareForFit",		         m_refitSettings.prepareForFit = true );
     declareProperty("RecreateStartingParameters",m_refitSettings.recreateStartingParameters = true );
-    declareProperty("UpdateErrors",		 m_refitSettings.updateErrors = true );
+    declareProperty("UpdateErrors",		           m_refitSettings.updateErrors = true );
     declareProperty("RemoveOutliers",            m_refitSettings.removeOutliers = false );
     declareProperty("RemoveOtherSectors",        m_refitSettings.removeOtherSectors = false);
     declareProperty("RemoveBarrelEndcapOverlap", m_refitSettings.removeBarrelEndcapOverlap = false);
@@ -48,7 +44,6 @@ namespace Muon {
     
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
     ATH_CHECK( m_trackSummaryTool.retrieve() );
     if( !m_refitTool.empty() ) ATH_CHECK( m_refitTool.retrieve() );
 

@@ -323,8 +323,6 @@ namespace lwtDev {
     IRecurrentLayer* m_backward_layer;
 
     std::string m_merge_mode;
-
-    int m_n_outputs;
   };
 
   // ______________________________________________________________________

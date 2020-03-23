@@ -1,4 +1,2 @@
-Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-context             ERROR ../test/error_test.cxx:20 (void test1()): message
-Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-context2            ERROR ../test/error_test.cxx:22 (void test1()): int
+context             ERROR /atlas/krasznaa/analysisbase/athena/Control/AthContainers/test/error_test.cxx:20: message
+context2            ERROR /atlas/krasznaa/analysisbase/athena/Control/AthContainers/test/error_test.cxx:22: int

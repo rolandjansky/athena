@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+
 import numpy as np
 import logging
 import os
@@ -71,7 +73,7 @@ def histo2data(histo):
     ys = []
     exs = []
     eys = []
-    for ibin in xrange(1, histo.GetNbinsX() + 1):
+    for ibin in range(1, histo.GetNbinsX() + 1):
         xs.append(histo.GetBinCenter(ibin))
         ys.append(histo.GetBinContent(ibin))
         eys.append(histo.GetBinError(ibin))
@@ -547,7 +549,7 @@ def plot_all_scales(esmodels, basedir, labels=None, etas=np.arange(-4.5, 4.5, 0.
             value_properties = esmodel[2]
             type_properties = esmodel[3]
             esmodel = esmodel[0]
-        print esmodel, key_properties
+        print (esmodel, key_properties)
 
         tool_with = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_with")
         tool_without = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_without")
@@ -578,7 +580,7 @@ def plot_all_scales(esmodels, basedir, labels=None, etas=np.arange(-4.5, 4.5, 0.
         scales[label] = np.array(energy_without) / np.array(energy_with) - 1
 
     f, ax = plt.subplots()
-    for k, v in scales.iteritems():
+    for k, v in scales.items():
         ax.plot(etas, v * 100, label=k)
     ax.set_xlabel("$\eta$")
     ax.set_ylabel("energy without scale factors / energy with scale factors - 1 [%]")
@@ -623,14 +625,14 @@ def plot_all_cterms(esmodels, basedir, labels=None, etas=np.arange(-4.5, 4.5, 0.
             el = factory.create_electron(eta, 0.1, 40E3)
             en_without = tool_without.getEnergy(el, ei)
             ratios = np.zeros(1000)
-            for repetition in xrange(1000):
+            for repetition in range(1000):
                 en_with = tool_with.getEnergy(el, ei)
                 ratios[repetition] = en_with / en_without
             cterms.append(np.std(ratios))
         cterms_all_models[label] = cterms
 
     f, ax = plt.subplots()
-    for k, v in cterms_all_models.iteritems():
+    for k, v in cterms_all_models.items():
         ax.plot(etas, v, label=k)
     ax.set_xlabel("$\eta$")
     ax.set_ylabel("std (energy with additional cterm / energy without)")
@@ -654,7 +656,7 @@ def compare_two_tools_eta(tool1, tool2, pt, simulation, name, basedir, title, pa
     r2 = eval_sys_eta_pt(tool2, etas, [pt], simulation, particle)
     r = r1 / r2 - 1
     r = r[0]
-    print r
+    print (r)
     f, ax = plt.subplots()
     r = np.nan_to_num(r)
     ax.plot(etas, r * 100)
@@ -895,7 +897,7 @@ def plot_resolution_error_bin(eta_min, eta_max, particle, esmodel, basedir, tool
 
     for side, errors, variations_name in zip(("up", "down"), all_errors, (variations_name_up, variations_name_down)):
         quadrature_sum = np.zeros((len(pt_range), len(eta_range)))
-        for variation_name, variation_id in variations_name.iteritems():
+        for variation_name, variation_id in variations_name.items():
             errors_var_pt_eta = np.zeros((len(pt_range), len(eta_range)))
             for ipt, pt in enumerate(pt_range):
                 for ieta, eta in enumerate(eta_range):
@@ -905,7 +907,7 @@ def plot_resolution_error_bin(eta_min, eta_max, particle, esmodel, basedir, tool
             errors[variation_name] = errors_var_pt_eta.mean(axis=1)  # average over different eta points inside the eta-bin
 
     sorted_keys_up = sorted(variations_name_up.keys(), key=lambda x: np.abs(all_errors[0][x].mean()))
-    totals = [np.sqrt(np.sum(e ** 2 for k, e in errors.iteritems() if "all " not in k)) for errors in all_errors]
+    totals = [np.sqrt(np.sum(e ** 2 for k, e in errors.items() if "all " not in k)) for errors in all_errors]
 
     fig, ax = plt.subplots()
     ax.fill_between(pt_range / 1E3, all_errors[0]['all up'], all_errors[1]['all down'], color='0.8')

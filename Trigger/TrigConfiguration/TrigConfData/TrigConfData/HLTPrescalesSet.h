@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_HLTPRESCALESET_H
@@ -37,11 +37,12 @@ namespace TrigConf {
       /** Destructor */
       ~HLTPrescalesSet();
 
-      /** name of the prescale set */
-      std::string name() const;
-
       /** number of HLT prescales */
       std::size_t size() const;
+
+      /** setter and getter for the HLT prescale key */
+      unsigned int psk() const;
+      void setPSK(unsigned int psk );
 
       /** HLT prescales by chain names */
       const HLTPrescale & prescale(const std::string & chainName) const;
@@ -56,13 +57,14 @@ namespace TrigConf {
       /** Update the internal prescale map after modification of the data object */
       virtual void update();
 
+      /** the prescale key */
+      unsigned int m_psk {0};
+
       // maps HLT chain names to prescales 
       std::unordered_map<std::string, HLTPrescale> m_prescales {1024};
 
       // maps HLT chain hashes to prescales 
       std::unordered_map<uint32_t, HLTPrescale> m_prescalesByHash {1024};
-
-      std::string m_name;
    };
 }
 

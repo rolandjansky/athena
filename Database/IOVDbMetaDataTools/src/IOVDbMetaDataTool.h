@@ -98,12 +98,12 @@ private:
     void        checkOverrideRunNumber();
 
     /// override IOV with new run number
-    void        overrideIOV(CondAttrListCollection*& coll) const;
+    StatusCode  overrideIOV ATLAS_NOT_THREAD_SAFE (CondAttrListCollection*& coll) const;
 
     /// Modify a Payload for a particular folder - replaces one of the
     /// internal attributes
-    StatusCode  modifyPayload (const std::string& folderName, 
-                               CondAttrListCollection*& payload) const;
+    StatusCode  modifyPayload ATLAS_NOT_THREAD_SAFE(const std::string& folderName, 
+                                                    CondAttrListCollection*& payload) const;
 
     /// Add input objects to MetaCont
     StatusCode fillMetaCont(const std::string& sid

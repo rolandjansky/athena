@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypo/TrigHLTJetHypo2.h"
@@ -20,6 +20,7 @@
 #include "../TrigJetHypoToolConfig_partgen.h"
 #include "../TrigJetHypoToolConfig_fastreduction.h"
 #include "../TrigJetHypoToolConfig_leaf.h"
+#include "../TrigJetHypoToolConfig_ht.h"
 //
 #include "../TrigJetConditionConfig_abs_eta.h"
 #include "../TrigJetConditionConfig_signed_eta.h"
@@ -29,6 +30,7 @@
 #include "../TrigJetConditionConfig_dijet_deta.h"
 #include "../TrigJetConditionConfig_qjet_mass.h"
 #include "../TrigJetConditionConfig_smc.h"
+#include "../TrigJetConditionConfig_jvt.h"
 #include "../TrigJetConditionConfig_acceptAll.h"
 #include "../TrigJetConditionConfig_moment.h"
 #include "../TrigJetConditionConfig_compound.h"
@@ -62,6 +64,7 @@ DECLARE_COMPONENT(TrigJetHypoToolConfig_combgen)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_partgen)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_leaf)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_ht)
 DECLARE_COMPONENT(NotHelperTool)
 DECLARE_COMPONENT(AndHelperTool)
  DECLARE_COMPONENT(OrHelperTool)
@@ -78,6 +81,7 @@ DECLARE_COMPONENT(TrigJetConditionConfig_dijet_mass)
 DECLARE_COMPONENT(TrigJetConditionConfig_dijet_deta)
 DECLARE_COMPONENT(TrigJetConditionConfig_dijet_dphi)
 DECLARE_COMPONENT(TrigJetConditionConfig_smc)
+DECLARE_COMPONENT(TrigJetConditionConfig_jvt)
 DECLARE_COMPONENT(TrigJetConditionConfig_acceptAll)
 DECLARE_COMPONENT(TrigJetConditionConfig_moment)
 DECLARE_COMPONENT(TrigJetConditionConfig_compound)

@@ -51,12 +51,12 @@ def peb_writer(argv):
                            'description': 'Name of stream which should be written out'}
 
   option['project-tag'] = {'short': 'p', 'arg': True,
-                           'default': 'data18_13Tev',
+                           'default': None,
                            'group': 'Stream Tag',
                            'description': 'Project tag which should be used for the output file'}
 
   option['lumi-block'] = {'short': 'l', 'arg': True,
-                          'default': 0,
+                          'default': -1,
                           'group': 'Stream Tag',
                           'description': 'Lumiblock number used for the output file. Use 0 if multiple LB in file.'}
 
@@ -83,15 +83,30 @@ def peb_writer(argv):
   # get metadata from inputfile
   dr = eformat.EventStorage.pickDataReader(extra[0])
 
-  # parameters for building the output file name
+  # interpret input file name
+  df = eformat.EventStorage.RawFileName(extra[0])
+
+  # extract some parameters from meta-data 
+  projectTag      = dr.projectTag()
+  lumiBlockNumber = dr.lumiblockNumber()
+  applicationName = 'athenaHLT'
+  streamType      = 'unknown' # the real stream type will be extracted from the matching stream tag
+  if df.hasValidCore() :
+    productionStep  = df.productionStep()
+  else:
+    productionStep  = 'unknown'
+
+  # input parameters for building the output file name
   runNumber       = dr.runNumber() 
   outputDirectory = kwargs['output-dir']
   streamName      = kwargs['stream-name']
-  projectTag      = kwargs['project-tag']
-  lumiBlockNumber = kwargs['lumi-block']  # if output file can have multiple lumi blocks, use 0 
-  applicationName = 'athenaHLT'
-  productionStep  = 'merge' # output file with multiple lumi blocks
-  streamType      = 'unknown' # the real stream type will be extracted from the matching stream tag
+  if kwargs['project-tag'] is not None:
+    projectTag      = kwargs['project-tag']
+  if kwargs['lumi-block'] != -1:
+    lumiBlockNumber = kwargs['lumi-block']  # if output file can have multiple lumi blocks, use 0 
+
+  if (lumiBlockNumber==0):
+    productionStep  = 'merge'
 
   # check the output directory if it exists
   if (not os.path.exists(outputDirectory)) or (not os.path.isdir(outputDirectory)): 
@@ -168,7 +183,7 @@ def peb_writer(argv):
                                     beam_energy=dr.beamEnergy())
         
         # decide what to write out
-        if streamType == 'physics' or streamType == 'express' or (len(tag.robs)==0 and len(tag.dets)==0):
+        if (len(tag.robs)==0 and len(tag.dets)==0):
           # write out the full event fragment
           pbev = eformat.write.FullEventFragment(e)  
           logging.debug(' Write full event fragment ')
@@ -202,6 +217,9 @@ def peb_writer(argv):
   logging.info('Number of events written to output file   = %d ', totalEvents_out)
   if totalEvents_out > 0:
     logging.info('Output file                               = %s ', ostream.last_filename())
+  else:
+    logging.error('No events selected so no output file created')
+    sys.exit(1)
 
   sys.exit(0)
 

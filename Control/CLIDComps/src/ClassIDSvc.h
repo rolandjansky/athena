@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CLIDCOMPS_CLASSIDSVC_H
@@ -10,7 +10,6 @@
  * @brief a service to manage and verify CLID assignments in athena
 
  * @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration
- *$Id: ClassIDSvc.h,v 1.8 2009-01-15 19:08:43 binet Exp $
  */
 
 #include <unordered_map>
@@ -141,10 +140,11 @@ private:
 
   /// @name Properties
   //@{
-  /// "CLIDDBFiles": list of db files with (CLID, class_name) entries. Loaded at init in svc maps
-  std::vector<std::string> m_DBFiles;
-  /// "OutputFileName": path to clid.db file in which write at finalize entries in m_clidMap. Default ("NULL") is not to write output clid.db".
-  std::string m_outputFileName;
+  Gaudi::Property<std::vector<std::string>> m_DBFiles{this, "CLIDDBFiles", {"clid.db"},
+    "List of db files with (CLID, class_name) entries. Loaded at init in svc maps. Files are looked up in DATAPATH"};
+
+  Gaudi::Property<std::string> m_outputFileName{this, "OutputFileName", "NULL",
+    "Path to clid.db file for writing. By default ('NULL') do not create the file."};
   //@}
   CLIDMap m_clidMap;
   NameMap m_nameMap;

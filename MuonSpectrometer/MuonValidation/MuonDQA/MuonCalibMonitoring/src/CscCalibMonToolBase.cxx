@@ -137,8 +137,7 @@ StatusCode CscCalibMonToolBase::finalize()
   delete [] m_detailedHashIds;
   delete m_statDbColl;
 
-  ManagedMonitorToolBase::finalize();    
-  return StatusCode::SUCCESS;
+  return ManagedMonitorToolBase::finalize();
 }//end finalize()
 
 
@@ -733,10 +732,10 @@ StatusCode CscCalibMonToolBase::procHistograms()
 
     CscCalibResultContainer::const_iterator parItr = calibContainer->begin();
     CscCalibResultContainer::const_iterator parEnd = calibContainer->end();
-    for(;parItr != parEnd ; parItr++)
-      handleParameter(*parItr);
-
-    postProc();
+    for(;parItr != parEnd ; parItr++) {
+      ATH_CHECK( handleParameter(*parItr) );
+    }
+    ATH_CHECK( postProc() );
   }
   return StatusCode::SUCCESS;
 }//end procHistograms  

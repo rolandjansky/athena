@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,6 +13,8 @@
  **/
 
 #include "SCT_MonitorConditionsTool.h"
+
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -72,21 +74,23 @@ SCT_MonitorConditionsTool::canReportAbout(InDetConditions::Hierarchy h) const {
 
 bool
 SCT_MonitorConditionsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
-  Identifier waferid{m_pHelper->wafer_id(elementId)};
-  Identifier iimodule{m_pHelper->module_id(waferid)};
-  // defectlist is based on each module
-  std::string defectlist{getList(iimodule, ctx)};
+  const Identifier waferId{m_pHelper->wafer_id(elementId)};
+  const Identifier moduleId{m_pHelper->module_id(waferId)};
+  const IdentifierHash waferHash{m_pHelper->wafer_hash(waferId)};
+  const IdentifierHash moduleHash{m_pHelper->wafer_hash(moduleId)};
+  const int strip{m_pHelper->strip(elementId)};
 
-  if (not defectlist.empty()) {
+  const SCT_MonitorCondData* condData{getCondData(ctx)};
+  if (condData) {
     switch (h) {
     case InDetConditions::SCT_MODULE:
-      return (!moduleIsNoisy(defectlist));
+      return not (condData->nBadStripsForModule(moduleHash)>=m_nhits_noisymodule);
     case InDetConditions::SCT_SIDE:
-      return (!waferIsNoisy(computeIstrip4moncond(elementId), defectlist));
+      return not (condData->nBadStripsForWafer(waferHash)>=m_nhits_noisywafer);
     case InDetConditions::SCT_CHIP:
-      return (!chipIsNoisy(computeIstrip4moncond(elementId), defectlist));
+      return not (condData->nBadStripsForChip(waferHash, strip)>=m_nhits_noisychip);
     case InDetConditions::SCT_STRIP:
-      return (!stripIsNoisy(computeIstrip4moncond(elementId), defectlist));
+      return not condData->isBadStrip(waferHash, strip);
     default:
       return true;
     }//end of switch statement
@@ -109,7 +113,7 @@ SCT_MonitorConditionsTool::isGood(const Identifier& elementId, InDetConditions::
 bool 
 SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId, ctx);
+  return isGood(elementId, ctx, InDetConditions::SCT_SIDE);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -157,10 +161,10 @@ SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identi
   // Convert strip number to Identifier and add to list
   std::set<int>::const_iterator defectItr{defectList.begin()}, defectEnd{defectList.end()};
   for (; defectItr!=defectEnd; ++defectItr) {
-    // Strips in the DB are numbered 0-767 (side 0) and 768-1536 (side 1).  
+    // Strips in the DB are numbered 0-767 (side 0) and 768-1535 (side 1).  
     // This is different from the usual online/offline numbering schemes
-    int side{(*defectItr) > 767 ? 1 : 0};
-    int stripNum{side==1 ? (*defectItr) - 768 : (*defectItr)};
+    int side{(*defectItr) > SCT_ConditionsData::STRIPS_PER_WAFER-1 ? 1 : 0};
+    int stripNum{side==1 ? (*defectItr) - SCT_ConditionsData::STRIPS_PER_WAFER : (*defectItr)};
    
     Identifier stripId{m_pHelper->strip_id(m_pHelper->barrel_ec(moduleId),  m_pHelper->layer_disk(moduleId),
                                            m_pHelper->phi_module(moduleId), m_pHelper->eta_module(moduleId),
@@ -210,140 +214,6 @@ SCT_MonitorConditionsTool::getList(const Identifier& moduleId, const EventContex
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool
-SCT_MonitorConditionsTool::stripIsNoisy(const int strip, const std::string& defectList) const {
-  return inList(strip, defectList);
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-bool
-SCT_MonitorConditionsTool::chipIsNoisy(int strip, const std::string& defectList) const {
-  return nDefect(strip,defectList)>=m_nhits_noisychip;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-bool
-SCT_MonitorConditionsTool::waferIsNoisy(const int strip, const std::string& defectList) const {
-  return nDefect(strip,defectList)>=m_nhits_noisywafer;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-bool SCT_MonitorConditionsTool::moduleIsNoisy(const std::string& defectList) const {
-  return nDefect(defectList)>=m_nhits_noisymodule;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-bool
-SCT_MonitorConditionsTool::inRange(const int theNumber, const std::string& stringRange) const {
-  std::string::size_type p{stringRange.find(s_separator)};
-  if (p != std::string::npos) { //its a range
-    std::string::size_type len1{p++}, len2{stringRange.size()-p};
-    int min{std::stoi(stringRange.substr(0,len1))};
-    int max{std::stoi(stringRange.substr(p,len2))};
-    return inRange(theNumber, min, max);
-  } else { //assume its a single number
-    return std::stoi(stringRange) == theNumber;
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-  
-bool 
-SCT_MonitorConditionsTool::inList(const int theNumber, const std::string& theList) const {
-  if (doesNotHaveNumbers(theList)) return false;
-  
-  std::istringstream is{theList};
-  std::istream_iterator<std::string> readString{is};
-  std::istream_iterator<std::string> endOfString; //relies on default constructor to produce eof
-  bool answer{false};
-  for (;readString != endOfString; ++readString) {
-    answer = inRange(theNumber, *readString);
-    if (answer) break;
-  }
-
-  return answer;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-int 
-SCT_MonitorConditionsTool::nBlock(const int theNumber, const std::string& stringRange) const {
-  const int one{1};
-  int ndefect{0};
-  std::string::size_type p{stringRange.find(s_separator)};
-  if (p!=std::string::npos) { //its a range
-    std::string::size_type len1{p++}, len2{stringRange.size()-p};
-    int min{std::stoi(stringRange.substr(0,len1))};
-    int max{std::stoi(stringRange.substr(p,len2))};
-    if (inRange(theNumber, min, max))
-      ndefect = max-min+one;
-  } else { //assume its a single number
-    if (std::stoi(stringRange) == theNumber) ndefect = 0;
-  }
-  return ndefect;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-int 
-SCT_MonitorConditionsTool::nDefect(const int theNumber, const std::string& theList) const {
-  int sum{0};
-  if (doesNotHaveNumbers(theList)) return 0;
-  std::istringstream is{theList};
-  std::istream_iterator<std::string> readString{is};
-  std::istream_iterator<std::string> endOfString; //relies on default constructor to produce eof
-  for (;readString != endOfString; ++readString) {
-    sum += nBlock(theNumber, *readString);
-  }
-  return sum;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-int 
-SCT_MonitorConditionsTool::nBlock(const std::string& stringRange) const {
-  const int one{1};
-  int ndefect{0};
-  std::string::size_type p{stringRange.find(s_separator)};
-  if (p!=std::string::npos) { //its a range
-    std::string::size_type len1{p++}, len2{stringRange.size()-p};
-    int min{std::stoi(stringRange.substr(0,len1))};
-    int max{std::stoi(stringRange.substr(p,len2))};
-    ndefect = max-min+one;
-  } else { //assume its a single number
-    ndefect = one;
-  }
-  return ndefect;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-int 
-SCT_MonitorConditionsTool::nDefect(const std::string& theList) const {
-  int sum{0};
-  if (doesNotHaveNumbers(theList)) return 0;
-  std::istringstream is{theList};
-  std::istream_iterator<std::string> readString{is};
-  std::istream_iterator<std::string> endOfString; //relies on default constructor to produce eof
-  for (;readString != endOfString; ++readString) {
-    sum += nBlock(*readString);
-  }
-  return sum;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-bool 
-SCT_MonitorConditionsTool::inRange(const int x, const int min, const int max) const {
-  return ((x >= min) and (x <= max));
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
 void
 SCT_MonitorConditionsTool::expandRange(const std::string& rangeStr, std::set<int>& rangeList) const {
   // Expand a given defect range
@@ -378,16 +248,6 @@ SCT_MonitorConditionsTool::expandList(const std::string& defectStr, std::set<int
 
   // Loop over (space-seperated) defects and add to list
   for (; defectItr != defectEnd; ++defectItr) expandRange(*defectItr, defectList);
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-unsigned int
-SCT_MonitorConditionsTool::computeIstrip4moncond(const Identifier& elementId) const {
-  const unsigned int stripsPerSide{768};
-  unsigned int iiside{static_cast<unsigned int>(m_pHelper->side(elementId))};
-  unsigned int iistrip{static_cast<unsigned int>(m_pHelper->strip(elementId))};
-  return stripsPerSide*iiside + iistrip;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

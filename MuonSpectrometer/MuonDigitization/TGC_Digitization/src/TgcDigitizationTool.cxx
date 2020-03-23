@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcDigitizationTool.h"
@@ -43,7 +43,9 @@ StatusCode TgcDigitizationTool::initialize()
   ATH_CHECK(detStore()->retrieve(m_mdManager));
   ATH_MSG_DEBUG("Retrieved MuonDetectorManager from DetectorStore.");
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   //initialize the TgcIdHelper
   m_idHelper = m_mdManager->tgcIdHelper();
@@ -365,7 +367,7 @@ StatusCode TgcDigitizationTool::digitizeCore() const {
 	}
 	
 	if(!duplicate) {
-          static double invalid_pos = -99999.;
+          static const double invalid_pos = -99999.;
           Amg::Vector3D gpos(invalid_pos,invalid_pos,invalid_pos);
           const MuonGM::TgcReadoutElement *tgcChamber = m_mdManager->getTgcReadoutElement(newDigiId);
           if(tgcChamber) {

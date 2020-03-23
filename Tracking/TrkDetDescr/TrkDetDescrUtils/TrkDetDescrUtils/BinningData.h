@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ public:
     , max(bMax)
     , step(bStep != 0. ? bStep : 1.)
     , subStep(bSubStep)
-    , boundaries(bBoundaries)
+    , boundaries(std::move(bBoundaries))
     , refphi(0.)
     , hbounds(std::vector<std::pair<int, float>>())
     , m_mixPtr(nullptr)
@@ -383,7 +383,9 @@ private:
     // underflow
     if (value <= bData.boundaries[0])
       return (bData.option == closed) ? (bData.bins - 1) : 0;
-    size_t nabove, nbelow, middle;
+    size_t nabove;
+    size_t nbelow;
+    size_t middle;
     // overflow
     nabove = bData.boundaries.size() + 1;
     if (value >= bData.max)
@@ -420,7 +422,9 @@ private:
     }
 
     // Binary search in an array of n values to locate value
-    size_t nabove, nbelow, middle;
+    size_t nabove;
+    size_t nbelow;
+    size_t middle;
     nabove = bData.hbounds.size();
     // binary search
     nbelow = 0;

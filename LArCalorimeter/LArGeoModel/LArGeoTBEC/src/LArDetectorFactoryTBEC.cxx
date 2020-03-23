@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArDetectorFactory.cxx
@@ -195,7 +195,7 @@ void LArGeo::LArDetectorFactoryTBEC::create( GeoPhysVol* a_container )
     EMECDetectorRegion *presamplerRegion = new EMECDetectorRegion(PresamplerEnvelope,presamplerDetDescr,EMECDetectorRegion::POS);
     emecDetectorManager->addDetectorRegion(presamplerRegion);
   }                                                                  
-  detStore->record(emecDetectorManager,emecDetectorManager->getName());
+  detStore->record(emecDetectorManager,emecDetectorManager->getName()).ignore();
   m_detectorManager = new LArDetectorManager(0,emecDetectorManager,0,0);
   m_detectorManager->addTreeTop(Envelope);
 

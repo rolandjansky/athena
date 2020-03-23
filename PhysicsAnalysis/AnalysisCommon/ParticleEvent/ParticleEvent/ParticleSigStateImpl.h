@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSigStateImpl.h
@@ -33,12 +33,12 @@
 
 // ParticleEvent includes
 #include "ParticleEvent/Lib/Base.h"
-
+#include "CxxUtils/checker_macros.h"
 
 template< class INavigable_t,
           class I4Momentum_t,
 	  class IParticle_t = ParticleEvent::Base >
-class ParticleSigStateImpl : public IParticle, public ISignalState
+class ATLAS_NOT_THREAD_SAFE ParticleSigStateImpl : public IParticle, public ISignalState
 {
   
   ///////////////////////////////////////////////////////////////////
@@ -322,10 +322,10 @@ public:
  protected:
 
   /** @brief set the current signal state */
-  virtual bool setSignalState(state_t s) const;
+  virtual bool setSignalState(state_t s);
 
   /** @brief reset the signal state */
-  virtual void resetSignalState() const;
+  virtual void resetSignalState();
 
   /** access the vector of momentum */
   std::vector<I4Momentum_t>& momentumVector(){return m_mom;}
@@ -355,7 +355,7 @@ public:
   int m_nStates;
   
   /// Current Signal State
-  mutable state_t m_currentState;
+  state_t m_currentState;
 
 };
 
@@ -1155,7 +1155,7 @@ inline P4SignalState::State ParticleSigStateImpl<INavigable_t,
 template< class INavigable_t, class I4Momentum_t, class IParticle_t>
 inline bool ParticleSigStateImpl<INavigable_t,
                                  I4Momentum_t,
-                                 IParticle_t>::setSignalState(state_t s) const
+                                 IParticle_t>::setSignalState(state_t s)
 {
   if(!hasSignalState(s))
     {
@@ -1189,7 +1189,7 @@ inline bool ParticleSigStateImpl<INavigable_t,
 template< class INavigable_t, class I4Momentum_t, class IParticle_t>
 inline void ParticleSigStateImpl<INavigable_t,
                                  I4Momentum_t,
-                                 IParticle_t>::resetSignalState() const
+                                 IParticle_t>::resetSignalState()
 {
   m_currentState = state_t(0);
 }

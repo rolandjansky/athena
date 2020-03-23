@@ -1,12 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.GlobalFlags import globalflags
 
-# import the base class
-from LArRecUtils.LArRecUtilsConf import LArOFCTool
             
 def LArOFCSCToolDefault (name="LArOFCSCToolDefault", **kw): 
     # call base class constructor
@@ -19,7 +15,7 @@ def LArOFCSCToolDefault (name="LArOFCSCToolDefault", **kw):
 
     # do the configuration
     if globalflags.DataSource()=='data':
-        return false
+        return False
     else:
         tool.MCSym = False
         tool.IsMC  = True

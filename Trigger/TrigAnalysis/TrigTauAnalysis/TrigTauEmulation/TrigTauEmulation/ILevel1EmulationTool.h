@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -52,7 +52,7 @@ namespace TrigTauEmul {
 				     const xAOD::MuonRoIContainer* l1muons,
 				     const xAOD::EnergySumRoI* l1xe) = 0;
 
-      virtual StatusCode PrintCounters() = 0;
+      virtual void PrintCounters() = 0;
       
     };
 }

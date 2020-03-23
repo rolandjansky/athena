@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################################################
 #
@@ -40,7 +40,7 @@ class METGetterTrack ( Configured ):
             theMETAlg=METAlg("METAlg")
         except:                                               
             mlog.error("could not import MissingET.METAlg")   
-            print traceback.format_exc()                       
+            mlog.error(traceback.format_exc())
             return False       
 	        
                 
@@ -75,7 +75,7 @@ class METGetterTrack ( Configured ):
                 
             except:                                                                           
                 mlog.error("could not get handle to METTrackTool Quit")                       
-                print traceback.format_exc()                                                 
+                mlog.error(traceback.format_exc())
                 return False                                                                 
 	       
             # add cellcalibtool                                                               

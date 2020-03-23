@@ -21,7 +21,7 @@
 #include "GaudiKernel/ToolHandle.h" 
 
 //Helper Includes
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
 #include "MdtRawDataMonitoring/MDTNoisyTubes.h"
 #include "MdtRawDataMonitoring/MDTChamber.h"

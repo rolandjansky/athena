@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// KinkTrkSingleJetFilterTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef DERIVATIONFRAMEWORK_KINKTRKSINGLEJETMETFILTERTOOL_H
 #define DERIVATIONFRAMEWORK_KINKTRKSINGLEJETMETFILTERTOOL_H 1
@@ -18,7 +14,7 @@
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace DerivationFramework {
   class KinkTrkSingleJetMetFilterTool : public AthAlgTool, public ISkimmingTool {

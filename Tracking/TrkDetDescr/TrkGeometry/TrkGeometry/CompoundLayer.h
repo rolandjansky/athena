@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,9 +66,9 @@ namespace Trk {
 
     virtual const Layer& layerRepresentation() const = 0;
 
-    const std::vector<const Surface*> constituentSurfaces() const;
+    std::vector<const Surface*> constituentSurfaces() const;
 
-    virtual const std::vector<const Surface*> closestSurfaces(const Amg::Vector3D& gp, const Amg::Vector3D& dir, bool alsoBackward = false) const;
+    virtual std::vector<const Surface*> closestSurfaces(const Amg::Vector3D& gp, const Amg::Vector3D& dir, bool alsoBackward = false) const;
 
     /// Searches through the surfaces with Layer specific tolerance to
     /// see if the gp is on one of the subsurfaces
@@ -82,9 +82,9 @@ namespace Trk {
     std::vector<const Surface*> m_surfaces; //!< The constituent surfaces
   };
 
-  inline const std::vector<const Surface*> CompoundLayer::constituentSurfaces() const
+  inline std::vector<const Surface*> CompoundLayer::constituentSurfaces() const
   {return m_surfaces;}
-  inline const std::vector<const Surface*> CompoundLayer::closestSurfaces(const Amg::Vector3D&, const Amg::Vector3D&, bool) const
+  inline std::vector<const Surface*> CompoundLayer::closestSurfaces(const Amg::Vector3D&, const Amg::Vector3D&, bool) const
   { return m_surfaces;}
   //inline const Surface& CompoundLayer::surfaceRepresentation()
   //{ return layerRepresentation().surfaceRepresentation(); }

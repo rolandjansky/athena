@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ Trk::SlidingDiscSurface::SlidingDiscSurface(const SlidingDiscSurface& dsf)
   : Trk::DiscSurface(dsf)
   , m_depth(new std::vector<float>(*(dsf.m_depth)))
   , m_etaBin(dsf.m_etaBin->clone())
-  , m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : 0)
+  , m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : nullptr)
 {}
 
 // copy constructor with shift
@@ -43,7 +43,7 @@ Trk::SlidingDiscSurface::SlidingDiscSurface(const SlidingDiscSurface& dsf, const
   : Trk::DiscSurface(dsf, transf)
   , m_depth(new std::vector<float>(*(dsf.m_depth)))
   , m_etaBin(dsf.m_etaBin->clone())
-  , m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : 0)
+  , m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : nullptr)
 {}
 
 // constructor
@@ -116,7 +116,7 @@ Trk::SlidingDiscSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::V
   Amg::Vector3D loc3D0 = m_align ? m_align->inverse() * glopos : glopos; // used to retrieve localEta bin
   Amg::Vector3D loc3Dframe(Trk::Surface::transform().inverse() * glopos);
   locpos = Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi());
-  return ((fabs(loc3Dframe.z() - (*m_depth)[m_etaBin->bin(loc3D0)]) > s_onSurfaceTolerance) ? false : true);
+  return (fabs(loc3Dframe.z() - (*m_depth)[m_etaBin->bin(loc3D0)]) <= s_onSurfaceTolerance);
 }
 
 bool

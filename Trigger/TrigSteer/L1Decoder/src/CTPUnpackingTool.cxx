@@ -40,7 +40,7 @@ StatusCode CTPUnpackingTool::start() {
   for ( const TrigConf::TriggerItem* item:   m_lvl1ConfigSvc->ctpConfig()->menu().itemVector() ) {
     toCTPID[item->name()] = item->ctpId();
   }
-
+  m_ctpToChain.clear();
   auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id ) -> StatusCode {
     if ( toCTPID.find( itemName ) != toCTPID.end() ) {
       m_ctpToChain[ toCTPID[itemName] ].push_back( id );

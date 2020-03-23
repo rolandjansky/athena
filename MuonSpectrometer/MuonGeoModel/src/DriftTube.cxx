@@ -26,36 +26,36 @@ DriftTube::DriftTube(std::string n)
   tubeMaterial="std::Aluminium";
   plugMaterial="std::Bakelite";
   wireMaterial="std::Aluminium";
-  MYSQL *amdb=MYSQL::GetPointer();	
+  MYSQL *amdb=MYSQL::GetPointer();
   MDT *md=(MDT *)amdb->GetTechnology(name.substr(0,5));
   gasRadius   = md->innerRadius;
   outerRadius = gasRadius+md->tubeWallThickness;
-  plugLength  = md->tubeEndPlugLength;    
+  plugLength  = md->tubeEndPlugLength;
 }
-  
+
 GeoVPhysVol *DriftTube::build()
 {
   const GeoTube     *stube   = new GeoTube(0.0, outerRadius, length/2.0);
-  const GeoMaterial *mtube   = matManager->getMaterial(tubeMaterial);
+  const GeoMaterial *mtube   = getMaterialManager()->getMaterial(tubeMaterial);
   const GeoLogVol   *ltube   = new GeoLogVol("MDTDriftWall", stube, mtube);
   GeoPhysVol  *ptube   = new GeoPhysVol(ltube);
-  
+
   const GeoTube     *splug   = new GeoTube(0.0, outerRadius, plugLength/2.0);
-  const GeoMaterial *mplug   = matManager->getMaterial(plugMaterial);
+  const GeoMaterial *mplug   = getMaterialManager()->getMaterial(plugMaterial);
   const GeoLogVol   *lplug   = new GeoLogVol("Endplug",splug, mplug);
   GeoPhysVol  *pplug   = new GeoPhysVol(lplug);
-  
+
   const GeoTube     *sgas    = new GeoTube(0, gasRadius, length/2.0-plugLength);
-  const GeoMaterial *mgas    = matManager->getMaterial(gasMaterial);
+  const GeoMaterial *mgas    = getMaterialManager()->getMaterial(gasMaterial);
   const GeoLogVol   *lgas    = new GeoLogVol("SensitiveGas",sgas,mgas);
   GeoPhysVol  *pgas    = new GeoPhysVol(lgas);
-  
+
   GeoSerialDenominator *plugDenominator= new GeoSerialDenominator("Tube Endplug");
   GeoTransform *ec0X = new GeoTransform(GeoTrf::TranslateZ3D(+(length-plugLength)/2));
   GeoTransform *ec1X = new GeoTransform(GeoTrf::TranslateZ3D(-(length-plugLength)/2));
   std::string sGasName = "SensitiveGas";
   GeoNameTag           *gasDenominator = new GeoNameTag(sGasName);
-  
+
   ptube->add(plugDenominator);
   ptube->add(ec0X);
   ptube->add(pplug);
@@ -63,18 +63,23 @@ GeoVPhysVol *DriftTube::build()
   ptube->add(pplug);
   ptube->add(gasDenominator);
   ptube->add(pgas);
-  
+
   return ptube;
 }
 
 void DriftTube::print()
 {
-  std::cout << "Drift tube " << name.c_str() << " :" << std::endl;
-  std::cout << "		Tube material 	: " << tubeMaterial.c_str() << std::endl;
-  std::cout << "		Radius		: " << outerRadius << std::endl;
-  std::cout << "		Length		: " << length;
-  std::cout << "		Thickness	: " << outerRadius-gasRadius << " mm" << std::endl;
-  std::cout << "		Gas material	: " << gasMaterial.c_str() << std::endl;
-  std::cout << "		EP length	: " << plugLength << std::endl;
+  MsgStream log(Athena::getMessageSvc(), "MuonGM::DriftTube");
+
+  log << MSG::INFO
+      << "Drift tube " << name.c_str() << " :" << std::endl
+      << "		Tube material 	: " << tubeMaterial.c_str() << std::endl
+      << "		Radius		: " << outerRadius << std::endl
+      << "		Length		: " << length << std::endl
+      << "		Thickness	: " << outerRadius-gasRadius << " mm" << std::endl
+      << "		Gas material	: " << gasMaterial.c_str() << std::endl
+      << "		EP length	: " << plugLength
+      << endmsg;
 }
+
 } // namespace MuonGM

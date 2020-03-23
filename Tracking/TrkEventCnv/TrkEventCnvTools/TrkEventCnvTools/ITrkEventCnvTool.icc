@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/IdentifierHash.h"
@@ -72,14 +72,14 @@ inline void Trk::ITrkEventCnvTool::setRoT_Values(std::pair<const Trk::TrkDetElem
 
 template <class CONT, class ROT>
 bool Trk::ITrkEventCnvTool::getHashAndIndex(const ROT* rot,
-                                            const std::string contName,
+                                            const SG::ReadHandleKey<CONT>& contName,
                                             typename ElementLink<CONT>::index_type& hashAndIndex) const {
   if (rot==nullptr) return false;
 
   const Trk::PrepRawData* prd{rot->prepRawData()};
   if (prd==nullptr) return false;
 
-  SG::ReadHandle<CONT> cont{contName};
+  SG::ReadHandle<CONT> cont (contName);
   if (not cont.isValid()) return false;
 
   const IdentContIndex& idContIndex{prd->getHashAndIndex()};

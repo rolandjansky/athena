@@ -33,7 +33,7 @@ for arg in dir(runArgs):
         inFile = getattr(runArgs,arg)
         athenaCommonFlags.FilesInput.set_Value_and_Lock(inFile)
         inFileArgs+=1
-        print "Using argument ", arg, " = ",inFile, ", tree name = ", prodFlags.TreeName()
+        printfunc ("Using argument ", arg, " = ",inFile, ", tree name = ", prodFlags.TreeName())
 if inFileArgs!=1:
     raise TransformArgumentError(message='Wrong number of inputNTUPXXXFile arguments: {0:d} instead of 1. Stopping!'.format(inFileArgs))
 
@@ -42,7 +42,7 @@ listOfFlags=[]
 try:
     listOfFlags.append( prodFlags )
 except ImportError:
-    print "WARNING NTUPtoNTUPProdFlags.py is not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    printfunc ("WARNING NTUPtoNTUPProdFlags.py is not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 
 from NTUPtoNTUPCore.NTUPUtils import SetupOutputNTUPs
 from AthenaCommon.JobProperties import jobproperties

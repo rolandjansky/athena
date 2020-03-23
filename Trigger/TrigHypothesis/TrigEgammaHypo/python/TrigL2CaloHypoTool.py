@@ -29,7 +29,7 @@ def _IncTool(name, threshold, sel):
               'eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}','Weta2','Wstot','F3']
 
         monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Calo Hypo Passed Cuts;Cut",
-                                xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=cuts)
+                                xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts)
 
         if 'Validation' in TriggerFlags.enableMonitoring():
             monTool.defineHistogram('Et_had', type='TH1F', path='EXPERT', title="L2Calo Hypo E_{T}^{had} in first layer;E_{T}^{had} [MeV]", xbins=50, xmin=-2000, xmax=100000)
@@ -108,7 +108,7 @@ def _MultTool(name):
 def TrigL2CaloHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
-    
+
     def __mult(cpart):
         return int( cpart['multiplicity'] )
 

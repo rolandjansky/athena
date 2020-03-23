@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TDVCollectionProxy.cxx 660500 2015-04-14 14:04:12Z krasznaa $
@@ -9,7 +9,7 @@
 
 // ROOT include(s):
 #include <TError.h>
-#include <TClassEdit.h>
+#include <RootUtils/TClassEditRootUtils.h>
 #include <TClass.h>
 #include <TBaseClass.h>
 #include <TCollectionProxyInfo.h>

@@ -14,9 +14,6 @@ CREATED:  Nov 27 2007
   Dec 2011: FF: changes for tauRec4
  ********************************************************************/
 
-//#include "EventKernel/SignalStateHelper.h"
-//#include "FourMomUtils/P4Helpers.h"
-
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 
@@ -68,7 +65,7 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 	const xAOD::Jet* pJetSeed = nullptr;
 	if (pTau.jetLink().isValid()) pJetSeed = * pTau.jetLink();
     else { 
-		ATH_MSG_DEBUG("seed is not a jet -> tau will not be reconstructed");
+		ATH_MSG_ERROR("seed is not a jet -> tau will not be reconstructed");
 		return StatusCode::FAILURE;
 	}
 
@@ -90,9 +87,8 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 	// // track seeded tau
 	// pTau.setAuthor(TauJetParameters::tau1P3P);
 	//***********************************************************************
-	// ATTENTION: direction will be overwritten later by TauAxis and TauEnergyCalibration
-	//
-	if (m_in_trigger && pJetSeed->e() < 0) {
+	
+    if (m_in_trigger && pJetSeed->e() < 0) {
 		// SL/SX trigger mode with negative jet_seed - do not set TauJet eta and phi in JetSeedBuilder
 		ATH_MSG_DEBUG("TauJet eta/phi will be set in Level2 Trigger for negative energy jet");
 		pTau.setP4(pJetSeed->pt(),pTau.eta(),pTau.phi(),0.0);

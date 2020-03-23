@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ Trk::NeutralParameters*
 Trk::STEP_Propagator::propagate (const Trk::NeutralParameters&,
                                  const Trk::Surface&,
                                  Trk::PropDirection,
-                                 Trk::BoundaryCheck,
+                                 const Trk::BoundaryCheck&,
                                  bool) const
 {
   ATH_MSG_WARNING( "[STEP_Propagator] STEP_Propagator does not handle neutral track parameters." 
@@ -175,8 +175,8 @@ Trk::STEP_Propagator::propagate (const Trk::NeutralParameters&,
 Trk::TrackParameters*
 Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParameters,
                                  const Trk::Surface&                 targetSurface,
-                                 Trk::PropDirection            propagationDirection,
-                                 Trk::BoundaryCheck            boundaryCheck,
+                                 Trk::PropDirection                  propagationDirection,
+                                 const Trk::BoundaryCheck&           boundaryCheck,
                                  const MagneticFieldProperties&      magneticFieldProperties,
                                  ParticleHypothesis       particle,
                                  bool                     returnCurv,
@@ -190,7 +190,7 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   cache.m_matupd_lastmom = trackParameters.momentum().mag();
   cache.m_matupd_lastpath = 0.;
@@ -230,7 +230,7 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   // no identified intersections needed/ no material dump
   cache.m_identifiedParameters = nullptr;
@@ -291,7 +291,7 @@ Trk::STEP_Propagator::propagateT (const Trk::TrackParameters&         trackParam
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   // no identified intersections needed/ no material dump
   cache.m_identifiedParameters = nullptr;
@@ -376,7 +376,7 @@ Trk::STEP_Propagator::propagateM (const Trk::TrackParameters&         trackParam
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   cache.m_matstates = matstates;
   cache.m_identifiedParameters = intersections;
@@ -419,7 +419,7 @@ Trk::TrackParameters*
 Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParameters,
                                  const Trk::Surface&                 targetSurface,
                                  Trk::PropDirection                  propagationDirection,
-                                 Trk::BoundaryCheck                  boundaryCheck,
+                                 const Trk::BoundaryCheck&           boundaryCheck,
                                  const Trk::MagneticFieldProperties& magneticFieldProperties,
                                  Trk::TransportJacobian*&            jacobian,
                                  double&,
@@ -435,7 +435,7 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   // no identified intersections needed/ no material dump
   cache.m_identifiedParameters = nullptr;
@@ -469,8 +469,8 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
 Trk::TrackParameters*
 Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         trackParameters,
                                            const Trk::Surface&                 targetSurface,
-                                           Trk::PropDirection            propagationDirection,
-                                           Trk::BoundaryCheck            boundaryCheck,
+                                           Trk::PropDirection                  propagationDirection,
+                                           const Trk::BoundaryCheck&           boundaryCheck,
                                            const Trk::MagneticFieldProperties& magneticFieldProperties,
                                            ParticleHypothesis       particle,
                                            bool                     returnCurv,
@@ -485,7 +485,7 @@ Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         t
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   // no identified intersections needed/ no material dump
   cache.m_identifiedParameters = nullptr;
@@ -507,7 +507,7 @@ Trk::TrackParameters*
 Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         trackParameters,
                                            const Trk::Surface&                 targetSurface,
                                            Trk::PropDirection                  propagationDirection,
-                                           Trk::BoundaryCheck                  boundaryCheck,
+                                           const Trk::BoundaryCheck&           boundaryCheck,
                                            const Trk::MagneticFieldProperties& magneticFieldProperties,
                                            Trk::TransportJacobian*&            jacobian,
                                            ParticleHypothesis                  particle,
@@ -523,7 +523,7 @@ Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         t
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   // no identified intersections needed/ no material dump
   cache.m_identifiedParameters = nullptr;
@@ -550,7 +550,7 @@ Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         t
 // Function for finding the intersection point with a surface
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::IntersectionSolution*
+Trk::IntersectionSolution*
 Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParameters,
                                  const Trk::Surface&                 targetSurface,
                                  const Trk::MagneticFieldProperties& mft,
@@ -568,7 +568,7 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   // no identified intersections needed/ no material dump
   cache.m_identifiedParameters = nullptr;
@@ -654,12 +654,12 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
   return intersectionSolution;
 }
 
-const Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(const Trk::Surface&         surface,
-                                                                            const Trk::TrackSurfaceIntersection*    
-                                                                            trackIntersection,
-                                                                            const double               qOverP,
-                                                                            const Trk::MagneticFieldProperties& mft,
-                                                                            ParticleHypothesis       particle) const 
+Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(const Trk::Surface&         surface,
+                                                                      const Trk::TrackSurfaceIntersection*    
+                                                                      trackIntersection,
+                                                                      const double               qOverP,
+                                                                      const Trk::MagneticFieldProperties& mft,
+                                                                      ParticleHypothesis       particle) const 
 {
 
   Amg::Vector3D origin = trackIntersection->position();
@@ -681,7 +681,7 @@ const Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(cons
 
   Trk::IntersectionSolutionIter output_iter = solution->begin();
   if(*output_iter) {
-    const Trk::TrackSurfaceIntersection*  result =   new Trk::TrackSurfaceIntersection(*(*output_iter));
+    Trk::TrackSurfaceIntersection*  result =   new Trk::TrackSurfaceIntersection(*(*output_iter));
     delete solution;   
     return result; 
   } 
@@ -713,7 +713,7 @@ Trk::STEP_Propagator::globalPositions ( std::list<Amg::Vector3D>& positionsList,
   //Check for tracking volume (materialproperties)
   cache.m_trackingVolume = tVol;
   cache.m_material = tVol;
-  cache.m_matPropOK = tVol? true : false;
+  cache.m_matPropOK = tVol != nullptr;
 
   //Check for empty volumes. If x != x then x is not a number.
   if (cache.m_matPropOK && ((cache.m_material->zOverAtimesRho() == 0.) || (cache.m_material->x0() == 0.) ||
@@ -794,8 +794,7 @@ Trk::STEP_Propagator::globalPositions ( std::list<Amg::Vector3D>& positionsList,
       }
     }
   }
-  return;
-}
+  }
 
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1082,7 +1081,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
   double path = 0.;
 
   // activate brem photon emission if required
-  cache.m_brem = ( m_simulation && particle==Trk::electron && m_simMatUpdator && m_randomEngine ) ? true : false;
+  cache.m_brem = m_simulation && particle==Trk::electron && m_simMatUpdator && m_randomEngine;
 
   // loop while valid solutions
   bool validStep = true;
@@ -1160,7 +1159,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
     if (solution) break;
   }
 
-  if (!solutions.size()) {
+  if (solutions.empty()) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return nullptr;
   }
@@ -1359,9 +1358,9 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
 
   // binned material ?
   cache.m_binMat = nullptr;
-  if (cache.m_trackingVolume) {
-    const Trk::AlignableTrackingVolume* aliTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (cache.m_trackingVolume);
-    if (aliTV) cache.m_binMat = aliTV->binnedMaterial();
+  if (cache.m_trackingVolume && cache.m_trackingVolume->isAlignable()){
+    const Trk::AlignableTrackingVolume* aliTV = static_cast<const Trk::AlignableTrackingVolume*> (cache.m_trackingVolume);
+    cache.m_binMat = aliTV->binnedMaterial();
   }
 
   // closest distance estimate
@@ -1904,14 +1903,25 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
   double sol = 0.0299792458;			// Speed of light
   double charge;
   P[6] >= 0. ? charge = 1. : charge = -1.;      // Set charge
-  double     lambda1 = P[6], lambda2 = P[6];	// Store inverse momentum for Jacobian transport
-  double     lambda3 = P[6], lambda4 = P[6];
-  double     dP1=0., dP2=0., dP3=0., dP4=0.;    // dp/ds = -g*E/p for positive g=dE/ds
-  double     dL1=0., dL2=0., dL3=0., dL4=0.;    // factor used for calculating dCM/dCM, P[41], in the Jacobian.
+  double     lambda1 = P[6];
+  double     lambda2 = P[6];	// Store inverse momentum for Jacobian transport
+  double     lambda3 = P[6];
+  double     lambda4 = P[6];
+  double     dP1=0.;
+  double     dP2=0.;
+  double     dP3=0.;
+  double     dP4=0.;    // dp/ds = -g*E/p for positive g=dE/ds
+  double     dL1=0.;
+  double     dL2=0.;
+  double     dL3=0.;
+  double     dL4=0.;    // factor used for calculating dCM/dCM, P[41], in the Jacobian.
   double     initialMomentum = fabs( 1./P[6]);  // Set initial momentum
   Amg::Vector3D initialPos( P[0], P[1], P[2]);	// Set initial values for position
   Amg::Vector3D initialDir( P[3], P[4], P[5]);	// Set initial values for direction.
-  Amg::Vector3D dir1, dir2, dir3, dir4;            // Directions at the different points. Used by the error propagation
+  Amg::Vector3D dir1;
+  Amg::Vector3D dir2;
+  Amg::Vector3D dir3;
+  Amg::Vector3D dir4;            // Directions at the different points. Used by the error propagation
   float      BG23[12] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.}; // Bx, By, Bz, dBx/dx, dBx/dy, dBx/dz, dBy/dx, dBy/dy, dBy/dz, dBz/dx, dBz/dy, dBz/dz
   float      BG4[12] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};  // The gradients are used by the error propagation
   double     g = 0.;                            // Energyloss in Mev/mm.
@@ -2048,7 +2058,10 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
     if (errorPropagation) {
       double     initialjLambda = P[41]; //dLambda/dLambda
       double     jLambda = initialjLambda;
-      double     jdL1=0., jdL2=0., jdL3=0., jdL4=0.;
+      double     jdL1=0.;
+      double     jdL2=0.;
+      double     jdL3=0.;
+      double     jdL4=0.;
 
       for (int i=7; i<42; i+=7) {
 
@@ -2197,7 +2210,8 @@ Trk::STEP_Propagator::getMagneticField( const Amg::Vector3D&  position,
   pos[2] = position.z();
   const double magScale = 10000.;
   double* R=&pos[0];
-  double H[3],dH[9];
+  double H[3];
+  double dH[9];
 
   // m_fieldService is set in initialize and cannot be zero 
   assert( m_fieldService );
@@ -2246,14 +2260,20 @@ Trk::STEP_Propagator::distance (Surface::SurfaceType surfaceType,
                                 bool&       distanceEstimationSuccessful) const
 {
   Trk::RungeKuttaUtils rungeKuttaUtils;
-  if (surfaceType == Trk::Surface::Plane || surfaceType == Trk::Surface::Disc )    return rungeKuttaUtils.stepEstimatorToPlane(
-                                                                                                                               targetSurface, P, distanceEstimationSuccessful);
-  if (surfaceType == Trk::Surface::Cylinder ) return rungeKuttaUtils.stepEstimatorToCylinder(
-                                                                                             targetSurface, P, distanceEstimationSuccessful);
-  if (surfaceType == Trk::Surface::Line || surfaceType == Trk::Surface::Perigee )     return rungeKuttaUtils.stepEstimatorToStraightLine(
-                                                                                                                                         targetSurface, P, distanceEstimationSuccessful);
-  if (surfaceType == Trk::Surface::Cone )     return rungeKuttaUtils.stepEstimatorToCone(
-                                                                                         targetSurface, P, distanceEstimationSuccessful);
+  if (surfaceType == Trk::Surface::Plane || surfaceType == Trk::Surface::Disc)
+    return rungeKuttaUtils.stepEstimatorToPlane(targetSurface, P,
+                                                distanceEstimationSuccessful);
+  if (surfaceType == Trk::Surface::Cylinder)
+    return rungeKuttaUtils.stepEstimatorToCylinder(
+        targetSurface, P, distanceEstimationSuccessful);
+  
+  if (surfaceType == Trk::Surface::Line || surfaceType == Trk::Surface::Perigee)
+    return rungeKuttaUtils.stepEstimatorToStraightLine(
+        targetSurface, P, distanceEstimationSuccessful);
+  
+  if (surfaceType == Trk::Surface::Cone)
+    return rungeKuttaUtils.stepEstimatorToCone(targetSurface, P,
+                                               distanceEstimationSuccessful);
 
   // presumably curvilinear?
   return rungeKuttaUtils.stepEstimatorToPlane(targetSurface, P, distanceEstimationSuccessful);
@@ -2459,7 +2479,7 @@ void Trk::STEP_Propagator::updateMaterialEffects( Cache& cache,
 
   double cumulatedX0 = 0.;
 
-  bool useCache =cache.m_extrapolationCache? true : false;
+  bool useCache =cache.m_extrapolationCache != nullptr;
   if(useCache)  {
     double dX0 =  fabs(cache.m_combinedThickness) - pathAbs/matX0;
     if(dX0<0) dX0 = 0.;
@@ -2614,8 +2634,6 @@ void Trk::STEP_Propagator::sampleBrem(Cache& cache, double mom) const
   cache.m_bremMom = pow(eps,pow(rndx,exp(1.)))*mom;          // adjustment here ? 
   cache.m_bremSampleThreshold = mom - cache.m_bremMom;
   cache.m_bremEmitThreshold = mom - rnde*cache.m_bremMom;      
-
-  return; 
 }
 
 Trk::TrackParameters*
@@ -2644,21 +2662,21 @@ Trk::STEP_Propagator::propagateNeutral(const Trk::TrackParameters&   parm,
     if (distSol.numberOfSolutions()>0 ) {
       unsigned int numSf = sIter-sBeg;
       if (distSol.first()>tol) {
-        if (currentDist.size()>0) {
+        if (!currentDist.empty()) {
           oIter= currentDist.end();
           while (oIter!=currentDist.begin() && distSol.first()<(*(oIter-1)).second ) oIter--;
           oIter = currentDist.insert(oIter,std::pair<unsigned int,double>(numSf,distSol.first()));
         } else {
-          currentDist.push_back(std::pair<unsigned int,double>(numSf,distSol.first()));
+          currentDist.emplace_back(numSf,distSol.first());
         }
       }
       if ( distSol.numberOfSolutions()>1 && distSol.second()>tol) {
-        if (currentDist.size()>0) {
+        if (!currentDist.empty()) {
           oIter= currentDist.end();
           while (oIter!=currentDist.begin() && distSol.second()<(*(oIter-1)).second ) oIter--;
           oIter = currentDist.insert(oIter,std::pair<unsigned int,double>(numSf,distSol.second()));
         } else {
-          currentDist.push_back(std::pair<unsigned int,double>(numSf,distSol.second()));
+          currentDist.emplace_back(numSf,distSol.second());
         }
       }
     }

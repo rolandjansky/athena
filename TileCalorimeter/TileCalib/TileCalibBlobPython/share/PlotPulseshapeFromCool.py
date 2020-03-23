@@ -1,18 +1,20 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # PlotPulseshapeFromCool.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-06-05
 
+from __future__ import print_function
+
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobObjs.Classes import TileCalibUtils
 import ROOT
 
 pointInTime = (999999999,0)
 
 #=== get a logger
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("ps_readDb")
     
 #=== open the database
@@ -26,18 +28,18 @@ folderTag = TileCalibUtils.getFullTag(folder, "RUN2-HLT-UPD1-00")
 
 
 #=== get a blob reader
-print folder
-print folderTag
+print (folder)
+print (folderTag)
 blobReader = TileCalibTools.TileBlobReader(db,folder,folderTag)
 
 #=== write out the comment
 comment = blobReader.getComment(pointInTime)
-log.info("Comment: \"%s\"" % comment)
+log.info("Comment: \"%s\"", comment)
 
 #=== write out all values
 cd = blobReader.getDrawer(0,0,pointInTime)
 
-x = -200.;
+x = -200.
 xarr = []
 yarrLG = []
 darrLG = []
@@ -45,11 +47,12 @@ yarrHG = []
 darrHG = []
 while x<200.:
     x+=0.1
-    yLG  = cd.getY( 0,0,x);
-    dyLG = cd.getDY(0,0,x);
-    yHG  = cd.getY( 0,1,x);
-    dyHG = cd.getDY(0,1,x);
-    #if y<-100.: continue 
+    yLG  = cd.getY( 0,0,x)
+    dyLG = cd.getDY(0,0,x)
+    yHG  = cd.getY( 0,1,x)
+    dyHG = cd.getDY(0,1,x)
+    #if y<-100.:
+    #  continue
     print("x=%5.1f  \tyLG=%5.4f\tdyLG=%5.4f  \tyHG=%5.4f\tdyHG=%5.4f" % (x,yLG,dyLG,yHG,dyHG) )
     xarr.append(x)
     yarrLG.append(yLG)
@@ -65,7 +68,7 @@ psLG = ROOT.TGraph(np)
 dsLG = ROOT.TGraph(np)
 psHG = ROOT.TGraph(np)
 dsHG = ROOT.TGraph(np)
-for i in xrange(np):
+for i in range(np):
     psLG.SetPoint(i,xarr[i],yarrLG[i])
     dsLG.SetPoint(i,xarr[i],darrLG[i])
     psHG.SetPoint(i,xarr[i],yarrHG[i])
@@ -82,10 +85,10 @@ dsLG.SetMinimum(-0.03)
 dsLG.SetMaximum(0.037)
 dsHG.SetMinimum(-0.03)
 dsHG.SetMaximum(0.037)
-psLG.SetTitle("Low gain");
-dsLG.SetTitle("Low gain derivative");
-psHG.SetTitle("High gain");
-dsHG.SetTitle("High gain derivative");
+psLG.SetTitle("Low gain")
+dsLG.SetTitle("Low gain derivative")
+psHG.SetTitle("High gain")
+dsHG.SetTitle("High gain derivative")
 
 can = ROOT.TCanvas("can","Pulse Shapes")
 can.Divide(2,2)
@@ -98,4 +101,5 @@ psHG.Draw("AP")
 can.cd(4)
 dsHG.Draw("AP")
 
-c = raw_input('please enter a character: ')
+from builtins import input
+c = input('please enter a character: ')

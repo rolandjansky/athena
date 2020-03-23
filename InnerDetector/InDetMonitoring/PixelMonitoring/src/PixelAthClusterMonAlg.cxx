@@ -149,14 +149,18 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
       continue;
     }
 
-    const Trk::Perigee* measPerigee = static_cast<const Trk::Perigee *>((*itrack)->perigeeParameters());
-    std::unique_ptr<const Trk::Track> trackWithHoles( m_holeSearchTool->getTrackWithHoles(**itrack) );
-
     int nPixelHits = 0;
+    const Trk::Perigee* measPerigee = static_cast<const Trk::Perigee *>((*itrack)->perigeeParameters());
     bool passJOTrkTightCut = static_cast<bool>( m_trackSelTool->accept(**itrack) );
     bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 1.0));  // misshit ratios
     bool pass1hole5GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 5.0));  // eff vs lumi
 
+    const Trk::Track* trackWithHoles( (*itrack) );
+    std::unique_ptr<const Trk::Track> trackWithHolesUnique = nullptr;
+    if ( (*itrack)->trackSummary()->get(Trk::numberOfPixelHoles) > 0 ) {
+      trackWithHolesUnique.reset( m_holeSearchTool->getTrackWithHoles(**itrack) );
+      trackWithHoles = trackWithHolesUnique.get();
+    }
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = trackWithHoles->trackStateOnSurfaces();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator = trackStates->begin(); trackStateOnSurfaceIterator != trackStates->end(); trackStateOnSurfaceIterator++) {
 

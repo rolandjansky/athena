@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -26,9 +26,6 @@ PURPOSE:  Updates TrigMissingETHelper using info from jets
 #include "xAODJet/Jet.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "xAODJet/JetAccessorMap.h"
-
-#include "EventKernel/ISignalState.h"
-#include "EventKernel/SignalStateHelper.h"
 
 #include <cmath>
 #include <string>

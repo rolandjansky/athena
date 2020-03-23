@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -22,16 +22,18 @@ IAppMgrUI* AthAnalysisHelper::initGaudi(const char* options) {
     //set the joboptions 
     SmartIF<IProperty> propMgr(theApp);
     if(strlen(options)) {
-      propMgr->setProperty("JobOptionsPath",options); 
+      if (propMgr->setProperty("JobOptionsPath",options).isFailure()) return nullptr;
     } else {
-      propMgr->setProperty( "JobOptionsType", "NONE" ); //no joboptions given
+      //no joboptions given
+      if (propMgr->setProperty( "JobOptionsType", "NONE" ).isFailure()) return nullptr;
     }
-    propMgr->setProperty("EventLoop","MinimalEventLoopMgr"); //using this instead of the default EventLoopMgr means some services (e.g. EventSelector) are not created, which is good! :-)
+    //using this instead of the default EventLoopMgr means some services (e.g. EventSelector) are not created, which is good! :-)
+    if (propMgr->setProperty("EventLoop","MinimalEventLoopMgr").isFailure()) return nullptr;
 
     //configure and return
-    theApp->configure(); 
-    propMgr->setProperty("OutputLevel","3"); //INFO
-    theApp->initialize();
+    if (theApp->configure().isFailure()) return nullptr;
+    propMgr->setProperty("OutputLevel","3").ignore(); //INFO
+    if (theApp->initialize().isFailure()) return nullptr;
     return theApp;
 }
 

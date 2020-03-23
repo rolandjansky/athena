@@ -9,6 +9,9 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaKernel/Units.h"
 
+#include "TrkCaloExtension/CaloExtension.h"
+#include "TrkCaloExtension/CaloExtensionHelpers.h"
+
 ///////////for re_obtain//
 //#include "GaudiKernel/ITHistSvc.h" 
 ///////////////
@@ -30,7 +33,6 @@ namespace Units = Athena::Units;
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   AthAlgTool(type,name,parent),
-  m_trkEnergyInCalo("TrackEnergyInCaloTool",this),
   m_fileNames{"CaloMuonLikelihood.PDF.A0.root", "CaloMuonLikelihood.PDF.A1.root", 
   "CaloMuonLikelihood.PDF.A2.root", "CaloMuonLikelihood.PDF.B0.root", "CaloMuonLikelihood.PDF.B1.root",
   "CaloMuonLikelihood.PDF.B2.root", "CaloMuonLikelihood.PDF.C0.root", "CaloMuonLikelihood.PDF.C1.root",
@@ -38,7 +40,6 @@ CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const st
 {
   declareInterface<ICaloMuonLikelihoodTool>(this);  
   declareProperty("RootFileNames", m_fileNames);
-  declareProperty("TrackEnergyInCaloTool",m_trkEnergyInCalo);
 }
 
 
@@ -54,10 +55,7 @@ CaloMuonLikelihoodTool::~CaloMuonLikelihoodTool() {}
 StatusCode CaloMuonLikelihoodTool::initialize() {
   ATH_MSG_INFO("Initializing " << name());
 
-  if (m_trkEnergyInCalo.retrieve().isFailure()) { 
-    ATH_MSG_FATAL("Could not find TrackEnergyInCaloTool");
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK(m_caloExtensionTool.retrieve());
   
   if (m_fileNames.size()!=9) {
     ATH_MSG_FATAL("Number of input ROOT files should be 9!");
@@ -270,42 +268,23 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonLikelihoodTool::getLHR
 ///////////////////////////////////////////////////////////////////////////////
-double CaloMuonLikelihoodTool::getLHR( const Trk::TrackParameters* trkpar, const xAOD::CaloClusterContainer* ClusContainer, const double dR_CUT ) const {  
+double CaloMuonLikelihoodTool::getLHR( const xAOD::TrackParticle* trk, const xAOD::CaloClusterContainer* ClusContainer, const double dR_CUT ) const {  
   ATH_MSG_DEBUG("in CaloMuonLikelihoodTool::getLHR()");
 
-  Trk::ParticleHypothesis particleHypo = Trk::muon;
-  if(trkpar){
-    double eta_trk = trkpar->eta();
+  if(trk && ClusContainer){
+    double eta_trk = trk->eta();
     double p_trk =0;
-    double qOverP = trkpar->parameters()[Trk::qOverP];
+    double qOverP = trk->qOverP();
     if (qOverP)
       p_trk = fabs(1/qOverP);
 
-    double eta_trkAtCalo = 0;
-    double phi_trkAtCalo = 0;
+    std::unique_ptr<Trk::CaloExtension> caloExt=m_caloExtensionTool->caloExtension(*trk);
 
-    double etaEndBarrel = 1.8;
+    if(!caloExt) return 0;
 
-    if( fabs(eta_trk) < etaEndBarrel ){
-      const Trk::TrackParameters* extrapolParam = m_trkEnergyInCalo->paramInSample(trkpar,0,CaloCell_ID::EMB1, false, particleHypo); 
-      if (extrapolParam){
-        eta_trkAtCalo = extrapolParam->eta();	
-        phi_trkAtCalo = extrapolParam->parameters()[Trk::phi];
-        delete extrapolParam;
-      }
-    }
-    else {
-      
-      const Trk::TrackParameters* extrapolParam = m_trkEnergyInCalo->paramInSample(trkpar,0,CaloCell_ID::EME1, false, particleHypo); 
-      if (extrapolParam){
-        eta_trkAtCalo = extrapolParam->eta();	
-        phi_trkAtCalo = extrapolParam->parameters()[Trk::phi];
-        delete extrapolParam;
-      }
-    }
+    double eta_trkAtCalo = caloExt->caloEntryLayerIntersection()->eta();
+    double phi_trkAtCalo = caloExt->caloEntryLayerIntersection()->parameters()[Trk::phi];
 
-    if(!ClusContainer) return 0;
-    
     double LR = getLHR( ClusContainer, eta_trk, p_trk, eta_trkAtCalo, phi_trkAtCalo, dR_CUT);
     return LR;
   }

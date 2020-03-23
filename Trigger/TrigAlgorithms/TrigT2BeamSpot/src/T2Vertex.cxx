@@ -19,8 +19,6 @@
 #include <numeric>
 #include <cmath>
 using Gaudi::Units::GeV;
-using std::unary_function;
-using std::binary_function;
 using std::accumulate;
 
 
@@ -48,13 +46,13 @@ namespace PESA
   }
 
   template <class T>
-  struct TrkSumOf : public binary_function< double, Trk::Track, double >
+  struct TrkSumOf 
   {
     double operator()( double x, const Trk::Track* track ) { return x + T()( track ); }
   };
 
 
-  struct TrkTrackPt : public unary_function< Trk::Track, double >
+  struct TrkTrackPt 
   {
     double operator()( const Trk::Track* track ) {
       const Trk::TrackParameters* params = track->perigeeParameters();
@@ -63,7 +61,7 @@ namespace PESA
   };
 
 
-  struct TrkTrackPt2 : public unary_function< Trk::Track, double >
+  struct TrkTrackPt2 
   {
     double operator()( const Trk::Track* track ) { const double pT = TrkTrackPt()( track ); return pT*pT; }
   };

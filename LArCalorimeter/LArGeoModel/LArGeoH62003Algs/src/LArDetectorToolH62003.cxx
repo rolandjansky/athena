@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorToolH62003.h"
@@ -35,13 +35,13 @@ StatusCode LArDetectorToolH62003::create()
 
   // Get the detector configuration.
   IGeoDbTagSvc *geoDbTag;
-  service ("GeoDbTagSvc",geoDbTag);
+  ATH_CHECK(service ("GeoDbTagSvc",geoDbTag));
 
   std::string AtlasVersion = geoDbTag->atlasVersion();
   std::string LArVersion   = geoDbTag->LAr_VersionOverride();
 
   IRDBAccessSvc *accessSvc;
-  service("RDBAccessSvc",accessSvc);
+  ATH_CHECK(service("RDBAccessSvc",accessSvc));
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";

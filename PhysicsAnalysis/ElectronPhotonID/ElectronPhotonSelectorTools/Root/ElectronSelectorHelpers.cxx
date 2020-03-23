@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
@@ -19,7 +19,8 @@ std::size_t ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(const xAOD:
     return 0;
   }
 
-  uint8_t nPixHits(0), nPixDead(0);
+  uint8_t nPixHits(0);
+  uint8_t nPixDead(0);
 
   bool allFound = true;
   allFound = allFound && tp->summaryValue(nPixHits, xAOD::numberOfPixelHits);
@@ -41,7 +42,8 @@ std::size_t ElectronSelectorHelpers::numberOfSCTHitsAndDeadSensors(const xAOD::T
     return 0;
   }
 
-  uint8_t nSCTHits(0), nSCTDead(0);
+  uint8_t nSCTHits(0);
+  uint8_t nSCTDead(0);
 
   bool allFound = true;
   allFound = allFound && tp->summaryValue(nSCTHits, xAOD::numberOfSCTHits);

@@ -49,6 +49,8 @@ class ITrigCaloDataAccessSvc: virtual public IService {
 	virtual StatusCode loadCollections (const EventContext& context,
 					    const IRoiDescriptor& roi,
 	 				    TileCellCollection&) = 0;
+        virtual StatusCode loadMBTS ( const EventContext& context,
+                                                    TileCellCollection& )=0;
         /* /\** MBTS loading *\/ */
 	/* virtual ExtendedStatusCode loadMBTS(const EventContext& context, */
 	/* 				    TileCellCollection::const_iterator&, */

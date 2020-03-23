@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -14,7 +14,6 @@
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonRecExample.MuonRecFlags import muonRecFlags,muonStandaloneFlags
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
-from AthenaCommon.AppMgr import ToolSvc
 from MuonRecExample.MuonRecUtils import ExtraFlags
 
 from AthenaCommon import CfgMgr
@@ -48,6 +47,11 @@ def iPatFitter( name='iPatFitter', **kwargs):
     kwargs.setdefault("MaterialAllocator",getPublicTool("MuidMaterialAllocator"))
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MaxIterations", 15)
+    else:
+        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        from AthenaCommon.AppMgr import ToolSvc
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+
     return CfgMgr.Trk__iPatFitter(name,**kwargs)
 
 def iPatSLFitter( name='iPatSLFitter', **kwargs): 
@@ -58,6 +62,11 @@ def iPatSLFitter( name='iPatSLFitter', **kwargs):
     kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum() )
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MaxIterations", 15)
+    else:
+        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        from AthenaCommon.AppMgr import ToolSvc
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+
     return CfgMgr.Trk__iPatFitter(name,**kwargs)
 
 
@@ -75,18 +84,6 @@ def MuidTrackCleaner( name='MuidTrackCleaner', **kwargs ):
         kwargs.setdefault("RecoverOutliers", False)
 
     kwargs.setdefault("Fitter"      , getPublicTool("iPatFitter") )
-    kwargs.setdefault("SLFitter"    , getPublicTool("iPatSLFitter") )
-    return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
-
-def OutwardsTrackCleaner( name='OutwardsTrackCleaner', **kwargs ):
-    if beamFlags.beamType() == 'cosmics':
-        kwargs.setdefault("PullCut"     , 5.0)
-        kwargs.setdefault("PullCutPhi"  , 10.0)
-    else:
-        kwargs.setdefault("PullCut"     , 4.0)
-        kwargs.setdefault("PullCutPhi"  , 4.0)
-
-    kwargs.setdefault("Fitter"      , getPublicTool("MuonCombinedTrackFitter") )
     kwargs.setdefault("SLFitter"    , getPublicTool("iPatSLFitter") )
     return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
 
@@ -178,26 +175,23 @@ def MuonCombinedPropagator( name='MuonCombinedPropagator', **kwargs ):
 
 def MuonTrackQuery( name="MuonTrackQuery", **kwargs ):
      kwargs.setdefault("MdtRotCreator",   getPublicTool("MdtDriftCircleOnTrackCreator") )
-     if TriggerFlags.MuonSlice.doTrigMuonConfig:
-         trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
-                                              TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))
-         kwargs.setdefault("Fitter", trigTrackBuilder)
-     else:
-         kwargs.setdefault("Fitter",          getPublicTool("CombinedMuonTrackBuilder") )
-
+     kwargs.setdefault("Fitter", getPublicTool("iPatFitter"))
      return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
 
 def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwargs ):
     kwargs.setdefault("Fitter",  getPublicTool("CombinedMuonTrackBuilderFit") )
+    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    from AthenaCommon.AppMgr import ToolSvc
+    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
 
 
 def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from AthenaCommon.AppMgr import ToolSvc
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__MuonCaloEnergyTool, Rec__ParticleCaloCellAssociationTool
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
+    from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += caloCellAssociationTool
   
     muonCaloEnergyTool = Rec__MuonCaloEnergyTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"),
@@ -210,12 +204,9 @@ def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
     return materialProviderTool
 
 def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
-    from AthenaCommon.AppMgr    import ToolSvc
+    from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
-    kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
-    kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
-    kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
     kwargs.setdefault("MdtRotCreator"                 , getPublicTool("MdtDriftCircleOnTrackCreator") )
     kwargs.setdefault("CleanCombined"                 , True )
@@ -232,6 +223,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , False )
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
+    kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
@@ -244,11 +236,27 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
 
         kwargs.setdefault("Propagator"                    , ToolSvc.AtlasRungeKuttaPropagator)
         kwargs.setdefault("SLPropagator"                  , ToolSvc.AtlasRungeKuttaPropagator)
+
+        #The trigger uses the iPatFitter in different sequences that do and do not include ID tracking
+        #so using the same track summary tool as is used here to get it correct
+        trackSummary = kwargs["TrackSummaryTool"]
+        suffix = "MS"
+        if "Trig" in trackSummary.name():
+            suffix = "CB"
+        kwargs.setdefault("Fitter"                        , getPublicToolClone("TrigiPatFitter_"+suffix, "iPatFitter", TrackSummaryTool=trackSummary) )
+        kwargs.setdefault("SLFitter"                      , getPublicToolClone("TrigiPatSLFitter_"+suffix, "iPatSLFitter", TrackSummaryTool=trackSummary) )
+        kwargs.setdefault("CscRotCreator"                 , "" )
+        kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix,"MuidTrackCleaner", Fitter=kwargs["Fitter"]) )
+
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary
         kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
         kwargs.setdefault("Propagator"                    , getPublicTool("MuonCombinedPropagator") )
         kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
+        kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
+        kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
+        kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
+        kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
 
 
     if beamFlags.beamType() == 'cosmics':
@@ -269,9 +277,6 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
-    kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
-    kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
-    kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
     kwargs.setdefault("MdtRotCreator"                 , getPublicTool("MdtDriftCircleOnTrackCreator") )
     kwargs.setdefault("CleanCombined"                 , True )
@@ -288,6 +293,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , True ) #
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
+    kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
@@ -300,12 +306,29 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
 
         kwargs.setdefault("Propagator"                    , ToolSvc.AtlasRungeKuttaPropagator)
         kwargs.setdefault("SLPropagator"                  , ToolSvc.AtlasRungeKuttaPropagator)
+
+        #The trigger uses the iPatFitter in different sequences that do and do not include ID tracking
+        #so using the same track summary tool as is used here to get it correct
+        trackSummary = kwargs["TrackSummaryTool"]
+        suffix = "MS"
+        if "Trig" in trackSummary.name():
+            suffix = "CB"
+        kwargs.setdefault("Fitter"                        , getPublicToolClone("TrigiPatFitter_"+suffix, "iPatFitter", TrackSummaryTool=trackSummary) )
+        kwargs.setdefault("SLFitter"                      , getPublicToolClone("TrigiPatSLFitter_"+suffix, "iPatSLFitter", TrackSummaryTool=trackSummary) )
+        kwargs.setdefault("MuonErrorOptimizer", "")
+        kwargs.setdefault("CscRotCreator"                 , "" )
+        kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix, "MuidTrackCleaner", Fitter=kwargs["Fitter"]) )
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary
         kwargs.setdefault("MuonHoleRecovery"              , getPublicTool("MuidSegmentRegionRecoveryTool") )
         kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
         kwargs.setdefault("Propagator"                    , getPublicTool("MuonCombinedPropagator") )
         kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
+        kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
+        kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
+        kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
+        kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
+
 
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("MdtRotCreator" ,  "" )
@@ -372,24 +395,3 @@ def CombinedMuonTagTestTool( name='CombinedMuonTagTestTool', **kwargs ):
     kwargs.setdefault("Chi2Cut",50000.)
     return CfgMgr.MuonCombined__MuonTrackTagTestTool(name,**kwargs)
 
-
-def OutwardsSegmentRegionRecoveryTool( name ='OutwardsSegmentRegionRecoveryTool', **kwargs ):
-    kwargs.setdefault("Fitter",  getPublicTool("MuonCombinedTrackFitter") )
-    return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
-
-def OutwardsCombinedMuonTrackBuilder( name = 'OutwardsCombinedMuonTrackBuilder', **kwargs ):
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
-    from AthenaCommon.AppMgr    import ToolSvc
-    kwargs.setdefault("Cleaner", getPublicTool("OutwardsTrackCleaner") )
-    kwargs.setdefault("Fitter",  getPublicTool("MuonCombinedTrackFitter") )
-    kwargs.setdefault("TrackSummaryTool"     , ToolSvc.CombinedMuonTrackSummary )
-    kwargs.setdefault("MuonHoleRecovery"     , getPublicTool("OutwardsSegmentRegionRecoveryTool") )
-    kwargs.setdefault("AllowCleanerVeto"     , False)
-    if muonRecFlags.enableErrorTuning():
-       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("OutwardsErrorOptimisationTool", "MuidErrorOptimisationTool",
-                                                                  PrepareForFit=False,RecreateStartingParameters=False,
-                                                                  RefitTool = getPublicToolClone("OutwardsRefitTool", "MuonRefitTool", AlignmentErrors = False, Fitter = getPublicTool("MuonCombinedTrackFitter"))
-                                                                  ))
-
-    return CfgMgr.Rec__OutwardsCombinedMuonTrackBuilder(name,**kwargs)
-    # tools for ID/MS match quality and recovery of incorrect spectrometer station association	

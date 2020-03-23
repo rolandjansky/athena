@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
@@ -16,7 +16,7 @@ namespace{
     unsigned int u = 1;
     const std::string titleRoot{"/ESD/" + sampleName + suffix};
     for ( auto & thisHisto:h ){
-      PerfMonServices::getHistogramService()->regHist( titleRoot + std::to_string(u), thisHisto.second );
+      PerfMonServices::getHistogramService()->regHist( titleRoot + std::to_string(u), thisHisto.second ).ignore();
       ++u;
     }
   }

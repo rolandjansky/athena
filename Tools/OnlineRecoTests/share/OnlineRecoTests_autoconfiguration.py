@@ -1,4 +1,3 @@
-import os,sys,string,commands
 import pickle
 
 from AthenaCommon.GlobalFlags import globalflags
@@ -12,7 +11,7 @@ onlinegoodies['ConditionsTag'] = globalflags.ConditionsTag()
 onlinegoodies['beamType'] = jobproperties.Beam.beamType()
 onlinegoodies['DetDescrVersion'] = globalflags.DetDescrVersion()
 
-file = open("globalflags.pickle",'w')
+file = open("globalflags.pickle",'wb')
 pickle.dump(onlinegoodies,file)
 file.close()
 

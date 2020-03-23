@@ -10,7 +10,7 @@
 #include "TFile.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -227,7 +227,7 @@ const StatusCode RadDamageUtil::generateEfieldMap( TH1F*& eFieldMap, InDetDD::Pi
         }
     }
 
-    m_EfieldInterpolator->loadTCADlist(TCAD_list);
+    CHECK( m_EfieldInterpolator->loadTCADlist(TCAD_list) );
     eFieldMap = (TH1F*) m_EfieldInterpolator->getEfield(fluence , biasVoltage);		
   return StatusCode::SUCCESS;
 }

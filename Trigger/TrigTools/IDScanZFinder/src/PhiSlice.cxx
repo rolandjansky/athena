@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhiSlice.h"
@@ -8,12 +8,16 @@
 #include <iostream>
 
 //Constructor with input parameters
-PhiSlice::PhiSlice( int SliceIndex, 
-		    double ZBinWidth,  double InversePhiBinWidth,
-		    double ZTolerance, double KTolerance, double PTolerance, 
-		    double ZMinimum, 
-		    double ZMaximum, 
-		    int LayerMaximum, int BarrelMaximum )
+PhiSlice::PhiSlice( const int SliceIndex, 
+		    const double ZBinWidth,  
+		    const double InversePhiBinWidth,
+		    const double ZTolerance, 
+		    const double KTolerance, 
+		    const double PTolerance, 
+		    const double ZMinimum, 
+		    const double ZMaximum, 
+		    const int LayerMaximum, 
+		    const int BarrelMaximum )
 {
 	m_internalHistogramsAreValid = false;
 	m_pTolerance = PTolerance;
@@ -46,8 +50,8 @@ PhiSlice::~PhiSlice()
 }
 
 //Store a space point
-void PhiSlice::AddPoint( double RhoValue, double ZValue, double PhiValue,
-			 long LayerIndex  )
+void PhiSlice::AddPoint( const double RhoValue, const double ZValue, const double PhiValue,
+			 const long LayerIndex  )
 {
   //std::cout << "PhiValue:         " << PhiValue << std::endl;
   //std::cout << "RhoValue:         " << RhoValue << std::endl;
@@ -178,11 +182,11 @@ void PhiSlice::GetHistogram( std::vector<long>*    HitHistogram,
 			     std::vector<double>*  WeightHistogram,
 			     std::vector<long>*    OtherChargeHitHistogram, 
 			     std::vector<double>*  OtherChargeWeightHistogram,
-			     std::vector< std::vector<long> >&  ExtraSlices, 
-			     long PhiToSubtract, 
+			     const std::vector< std::vector<long> >&  ExtraSlices, 
+			     const long PhiToSubtract, 
 			     int InnerLayerLimit, 
-			     int TripletMode, 
-			     bool ChargeAware,
+			     const int TripletMode, 
+			     const bool ChargeAware,
 			     std::vector< std::vector<long> >*   AllHits, 
 			     std::vector< std::vector<double> >* AllWeights )
 {
@@ -350,8 +354,8 @@ int PhiSlice::FindTriplet( int OuterFilledLayer, int OuterPointIndex,
 			   double CurrentZValue,
 			   double CurrentKValue,
 			   double CurrentPValue,
-			   std::vector< std::vector<long> >& ExtraSlices, 
-			   long PhiToSubtract, bool FastTriplet, int OuterSliceIndex )
+			   const std::vector< std::vector<long> >& ExtraSlices, 
+			   const long PhiToSubtract, bool FastTriplet, int OuterSliceIndex )
 {
 	int tripletHits = 0;
 
@@ -456,9 +460,9 @@ void PhiSlice::FillNeighbours( int InnerLayerIndex,
 			       int TripletsFound, 
 			       int AxisZIndex, 
 			       double AxisZ,
-			       std::vector< std::vector<long> >& ExtraSlices, 
-			       long PhiToSubtract, 
-			       bool ChargeAware,
+			       const std::vector< std::vector<long> >& ExtraSlices, 
+			       const long PhiToSubtract, 
+			       const bool ChargeAware,
 			       std::vector< std::vector<long> >* AllHits, 
 			       std::vector< std::vector<double> >* AllWeights )
 {

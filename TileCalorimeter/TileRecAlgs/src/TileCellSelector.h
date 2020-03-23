@@ -131,6 +131,8 @@ class TileCellSelector: public AthAlgorithm {
     int m_ptnEneChan[3];
     int m_ptnTimeCell;
     int m_ptnTimeChan[3];
+    int m_selectGain;
+    bool m_skipGain[2];
 #define ptnlength 5
     bool m_bitEneCell[ptnlength];
     bool m_bitTimeCell[ptnlength];

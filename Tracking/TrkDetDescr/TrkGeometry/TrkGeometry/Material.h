@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ namespace Trk {
       MaterialComposition(const std::vector<unsigned char>& iel, const std::vector<unsigned char>& ifrac)
       {
          reserve(iel.size());
-         for (std::size_t elvc =0; elvc < iel.size() && ifrac.size(); ++elvc )
+         for (std::size_t elvc =0; elvc < iel.size() && !ifrac.empty(); ++elvc )
               push_back( ElementFraction(iel[elvc],ifrac[elvc]) );
      }
 
@@ -136,7 +136,7 @@ namespace Trk {
         rho(0.),
         dEdX(0.),
         zOaTr(0.),
-        composition(0)
+        composition(nullptr)
       {}    
 
       /** Constructor with arguments */
@@ -146,7 +146,7 @@ namespace Trk {
                float iZ,
                float iRho,
                float idEdX = 0., 
-               MaterialComposition* mc = 0) :
+               MaterialComposition* mc = nullptr) :
         X0(iX0),
         L0(iL0),
         A(iA),
@@ -167,7 +167,7 @@ namespace Trk {
         rho(amc.rho),
         dEdX(amc.dEdX),
         zOaTr(amc.zOaTr),
-        composition( amc.composition ? new MaterialComposition(*amc.composition) : 0 )
+        composition( amc.composition ? new MaterialComposition(*amc.composition) : nullptr )
       {}
 
 	/** Move Constructor */
@@ -202,7 +202,7 @@ namespace Trk {
               dEdX        = amc.dEdX;  
               zOaTr       = amc.zOaTr;  
               delete composition;
-              composition =  amc.composition ? new MaterialComposition(*amc.composition) : 0;
+              composition =  amc.composition ? new MaterialComposition(*amc.composition) : nullptr;
           }
           return (*this);
       }

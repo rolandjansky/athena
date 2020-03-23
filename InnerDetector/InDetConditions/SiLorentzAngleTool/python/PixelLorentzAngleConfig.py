@@ -17,6 +17,7 @@ def PixelLorentzAngleToolCfg(flags, name="PixelLorentzAngleTool", **kwargs):
     """Return a SiLorentzAngleTool configured for Pixel"""
     kwargs.setdefault("DetectorName", "Pixel")
     kwargs.setdefault("SiLorentzAngleCondData", "PixelSiLorentzAngleCondData")
+    kwargs.setdefault("DetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("UseMagFieldSvc", True)
     return SiLorentzAngleTool(name, **kwargs)
 

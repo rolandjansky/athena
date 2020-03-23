@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_HECHVMANAGER_H
@@ -8,7 +8,7 @@
 #include "LArHV/HECHVDescriptor.h"
 #include "LArHV/HECHVModule.h"
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
@@ -59,7 +59,7 @@ class HECHVManager
   // Get the database payload
   HECHVPayload *getPayload(const HECHVSubgap &) const;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   // Get hvLine for a subgap
   int hvLineNo(const HECHVSubgap& subgap
                , const LArHVIdMapping* hvIdMapping) const;

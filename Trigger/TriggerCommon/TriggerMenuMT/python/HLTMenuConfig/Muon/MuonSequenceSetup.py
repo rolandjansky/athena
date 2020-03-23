@@ -1,5 +1,5 @@
 # 
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 # 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -22,8 +22,9 @@ muonCombinedRecFlags.printSummary = False
 muonCombinedRecFlags.doSiAssocForwardMuons = False
 muonCombinedRecFlags.doStatisticalCombination = False
 muonCombinedRecFlags.doCombinedFit = True
+muonRecFlags.enableErrorTuning = False
 
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool, ViewCreatorPreviousROITool
 
 #muon container names (for RoI based sequences)
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
@@ -36,8 +37,9 @@ def muFastAlgSequence(ConfigFlags):
     ### set the EVCreator ###
     l2MuViewsMaker = EventViewCreatorAlgorithm("IMl2Mu")
     l2MuViewsMaker.ViewFallThrough = True
-    l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
-    l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+    l2MuViewsMaker.RoIsLink = "initialRoI"
+    l2MuViewsMaker.RoITool = ViewCreatorInitialROITool()
+    l2MuViewsMaker.InViewRoIs = "MURoIs"
     l2MuViewsMaker.Views = "MUViewRoIs"
 
     ### get muFast reco sequence ###    
@@ -101,9 +103,10 @@ def muCombAlgSequence(ConfigFlags):
     ### set the EVCreator ###
     l2muCombViewsMaker = EventViewCreatorAlgorithm("IMl2muComb")
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
-    l2muCombViewsMaker.RoIsLink = "roi" # setting to RoI updated L2MuonSA
-    l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
-    l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
+    l2muCombViewsMaker.RoIsLink = "roi" # setting to RoI updated L2MuonSA. Used in merging to determin identical Decision objects
+    l2muCombViewsMaker.RoITool = ViewCreatorPreviousROITool() # Use the "roi" link from the previous step when spawning new view
+    l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
+    l2muCombViewsMaker.Views = "MUCombViewRoIs" #output of the views maker (key in "storegate")
     l2muCombViewsMaker.RequireParentView = True
 
     ### get ID tracking and muComb reco sequences ###    
@@ -116,7 +119,8 @@ def muCombAlgSequence(ConfigFlags):
     muonChainFilter = MuonChainFilterAlg("FilterBphysChains")
     bphysChains =getBphysChainNames()
     muonChainFilter.ChainsToFilter=bphysChains
-    muonChainFilter.InputDecisions = l2muCombViewsMaker.InputMakerOutputDecisions
+    if hasattr(l2muCombViewsMaker, "InputMakerOutputDecisions"):
+        muonChainFilter.InputDecisions = [ l2muCombViewsMaker.InputMakerOutputDecisions ]
     muonChainFilter.L2MuCombContainer = sequenceOut
 
     muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
@@ -181,8 +185,9 @@ def muEFSAAlgSequence(ConfigFlags):
 
     efsaViewsMaker = EventViewCreatorAlgorithm("IMefsa")
     efsaViewsMaker.ViewFallThrough = True
-    efsaViewsMaker.RoIsLink = "roi" # -||-
-    efsaViewsMaker.InViewRoIs = "MUEFSARoIs" # contract with the consumer
+    efsaViewsMaker.RoIsLink = "initialRoI" # Note: This is for L1-seeded muons, can use the "initialRoI" for input maker merging
+    efsaViewsMaker.RoITool = ViewCreatorPreviousROITool() # Use "roi" link to spawn views
+    efsaViewsMaker.InViewRoIs = "MUEFSARoIs"
     efsaViewsMaker.Views = "MUEFSAViewRoIs"
     efsaViewsMaker.RequireParentView = True
    
@@ -243,8 +248,9 @@ def muEFCBAlgSequence(ConfigFlags):
     
     efcbViewsMaker = EventViewCreatorAlgorithm("IMefcbtotal")
     efcbViewsMaker.ViewFallThrough = True
-    efcbViewsMaker.RoIsLink = "roi" # -||-
-    efcbViewsMaker.InViewRoIs = "MUEFCBRoIs" # contract with the consumer
+    efcbViewsMaker.RoIsLink = "roi"
+    efcbViewsMaker.RoITool = ViewCreatorPreviousROITool() # Use "roi" link to spawn views
+    efcbViewsMaker.InViewRoIs = "MUEFCBRoIs"
     efcbViewsMaker.Views = "MUEFCBViewRoIs"
     efcbViewsMaker.RequireParentView = True
 
@@ -305,8 +311,9 @@ def muEFCBInvMassSequence():
     
     invMViewsMaker = EventViewCreatorAlgorithm("IMmuinvm")
     invMViewsMaker.ViewFallThrough = True
-    invMViewsMaker.RoIsLink = "initialRoI" # -||-
-    invMViewsMaker.InViewRoIs = "muInvMRoIs" # contract with the consumer
+    invMViewsMaker.RoIsLink = "initialRoI"
+    invMViewsMaker.RoITool = ViewCreatorInitialROITool()
+    invMViewsMaker.InViewRoIs = "muInvMRoIs"
     invMViewsMaker.Views = "muInvMViewRoIs"
     invMViewsMaker.ViewNodeName = invMassRecoSequence.name()
     invMViewsMaker.RequireParentView = True
@@ -335,6 +342,7 @@ def muEFSAFSAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
     efsafsInputMaker = EventViewCreatorAlgorithmWithMuons("IMMuonFS", RoIsLink="initialRoI")
     efsafsInputMaker.InViewRoIs = "MUFSRoIs"
+    efsafsInputMaker.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithMuons -> EventViewCreatorAlgorithm
     efsafsInputMaker.Views = "MUFSViewRoI"
     efsafsInputMaker.ViewFallThrough=True
     efsafsInputMaker.CreateFSRoI=True
@@ -375,10 +383,11 @@ def muEFCBFSAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
     efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("IMEFCBFS") 
     efcbfsInputMaker.ViewFallThrough = True
-    efcbfsInputMaker.mergeOutputs = False
+    efcbfsInputMaker.mergeUsingFeature = True
     efcbfsInputMaker.Views = "MUCBFSViews"
     efcbfsInputMaker.InViewRoIs = "MUCBFSRoIs"
     efcbfsInputMaker.RoIsLink = "initialRoI"
+    efcbfsInputMaker.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithMuons -> EventViewCreatorAlgorithm
     efcbfsInputMaker.InViewMuons = "InViewMuons"
     efcbfsInputMaker.MuonsLink = "feature"
     efcbfsInputMaker.RequireParentView = True
@@ -416,8 +425,9 @@ def efLateMuRoIAlgSequence(ConfigFlags):
     
     eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemuroi")
     eflateViewsMaker.ViewFallThrough = True
-    eflateViewsMaker.RoIsLink = "initialRoI" # -||-
-    eflateViewsMaker.InViewRoIs = "MULATERoIs" # contract with the consumer
+    eflateViewsMaker.RoIsLink = "initialRoI"
+    eflateViewsMaker.RoITool = ViewCreatorInitialROITool()
+    eflateViewsMaker.InViewRoIs = "MULATERoIs"
     eflateViewsMaker.Views = "MULATEViewRoIs"
 
 
@@ -453,8 +463,9 @@ def efLateMuAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
     eflateViewsMaker = EventViewCreatorAlgorithmWithMuons("IMeflatemu")
     eflateViewsMaker.ViewFallThrough = True
-    eflateViewsMaker.RoIsLink = "initialRoI" # -||-
-    eflateViewsMaker.InViewRoIs = "MUEFLATERoIs" # contract with the consumer
+    eflateViewsMaker.RoIsLink = "initialRoI"
+    eflateViewsMaker.InViewRoIs = "MUEFLATERoIs"
+    eflateViewsMaker.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithMuons -> EventViewCreatorAlgorithm
     eflateViewsMaker.Views = "MUEFLATEViewRoIs"
     eflateViewsMaker.DoLateMu = True
     eflateViewsMaker.LateRoIsLink = "feature"
@@ -500,8 +511,9 @@ def muIsoAlgSequence(ConfigFlags):
 
     l2muIsoViewsMaker = EventViewCreatorAlgorithm("IMl2muIso")
     l2muIsoViewsMaker.ViewFallThrough = True
-    l2muIsoViewsMaker.RoIsLink = "initialRoI" # -||-
-    l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs" # contract with the consumer
+    l2muIsoViewsMaker.RoIsLink = "initialRoI"
+    l2muIsoViewsMaker.RoITool = ViewCreatorInitialROITool()
+    l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs"
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
     l2muIsoViewsMaker.RequireParentView = True
 
@@ -541,14 +553,15 @@ def muEFIsoAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
     efmuIsoViewsMaker = EventViewCreatorAlgorithmWithMuons("IMefmuIso")
     efmuIsoViewsMaker.ViewFallThrough = True
-    efmuIsoViewsMaker.RoIsLink = "initialRoI" # -||-
-    efmuIsoViewsMaker.InViewRoIs = "MUEFIsoRoIs" # contract with the consumer
+    efmuIsoViewsMaker.RoIsLink = "initialRoI"
+    efmuIsoViewsMaker.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithMuons -> EventViewCreatorAlgorithm
+    efmuIsoViewsMaker.InViewRoIs = "MUEFIsoRoIs"
     efmuIsoViewsMaker.Views = "MUEFIsoViewRoIs"
     efmuIsoViewsMaker.InViewMuons = "IsoViewMuons"
     efmuIsoViewsMaker.MuonsLink = "feature"
     efmuIsoViewsMaker.RoIEtaWidth=0.15
     efmuIsoViewsMaker.RoIPhiWidth=0.15
-    efmuIsoViewsMaker.mergeOutputs = False
+    efmuIsoViewsMaker.mergeUsingFeature = True
     efmuIsoViewsMaker.RoisWriteHandleKey = "IsoMuRoIs"
     efmuIsoViewsMaker.InViewMuonCandidates = "IsoMuonCandidates"
 

@@ -15,8 +15,8 @@
 
 #include "SiDetElementsRoadUtils_xk.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadUtils_xk.h"
 #include "TrkPrepRawData/PrepRawData.h"

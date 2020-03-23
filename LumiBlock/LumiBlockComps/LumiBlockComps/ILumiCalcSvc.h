@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ILumiCalcSvc.h 
@@ -9,8 +7,8 @@
 // Author: R.Hawkings<richard.hawkings@cern.ch>
 //         B.Radics<radbal@cern.ch>
 /////////////////////////////////////////////////////////////////// 
-#ifndef TESTATHENAKERNEL_ILUMIBLOCKSVC_H 
-#define TESTATHENAKERNEL_ILUMIBLOCKSVC_H 1
+#ifndef LUMIBLOCKCOMPS_ILUMIBLOCKSVC_H
+#define LUMIBLOCKCOMPS_ILUMIBLOCKSVC_H
 
 /**
  * @class ILumiCalcSvc
@@ -18,18 +16,13 @@
  * @brief iov information, given a list of lumiblocks
  */
 
-// for size_t
-#include <cstddef>
-
-// STL includes
-#include <vector>
 #include <string>
-#include <map>
+#include <list>
+#include <utility>
+
 #include "TString.h"
 
-// FrameWork includes
 #include "GaudiKernel/INamedInterface.h"
-#include "GaudiKernel/Property.h"
 
 class TTree;
 
@@ -40,22 +33,7 @@ class ILumiCalcSvc
 { 
 
 public:
-
-  virtual ~ILumiCalcSvc();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-private:
-
-
-
-public:
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
+  DeclareInterfaceID(ILumiCalcSvc, 1, 0);
 
   // Default calculation of ILumi based on "LumiBlocks" and
   // "IncompleteLumiBlocks" collections in MetaData store
@@ -69,23 +47,6 @@ public:
   /// register trigger-lbc combination 
   virtual bool registerLBCollection(const TString& tname, const TString& regexpr, const std::list<TString>& trigpar) = 0 ;
 
-  
-  static const InterfaceID& interfaceID();
-  
-}; 
+};
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline 
-const InterfaceID& 
-ILumiCalcSvc::interfaceID() 
-{ 
-  static const InterfaceID IID_ILumiCalcSvc("ILumiCalcSvc", 1, 0);
-  return IID_ILumiCalcSvc; 
-}
-
-
-#endif //> !ATHENAKERNEL_ILUMICALCSVC_H
-
+#endif

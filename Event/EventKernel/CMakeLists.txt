@@ -15,6 +15,7 @@ endif()
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Control/CxxUtils
                           Control/AthLinks
                           Control/Navigation
                           Control/AthenaKernel

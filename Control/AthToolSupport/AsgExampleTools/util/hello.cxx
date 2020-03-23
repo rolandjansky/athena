@@ -9,7 +9,7 @@
 #include <string>
 #include <iostream>
 #include "AsgExampleTools/AsgHelloTool.h"
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 
 using std::string;
 using std::cout;

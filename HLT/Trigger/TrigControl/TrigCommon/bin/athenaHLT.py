@@ -142,6 +142,23 @@ def update_run_params(args):
          dmask = hex(dmask)
       args.detector_mask = arg_detector_mask(dmask)
 
+def update_trigconf_keys(args):
+   """Update trigger configuration keys"""
+
+   if args.smk is None or args.l1psk is None or args.hltpsk is None:
+      try:
+         log.info("Reading trigger configuration keys from COOL for run %s", args.run_number)
+         trigconf = AthHLT.get_trigconf_keys(args.run_number)
+         if args.smk is None:
+            args.smk = trigconf['SMK']
+         if args.l1psk is None:
+            args.l1psk = trigconf['LVL1PSK']
+         if args.hltpsk is None:
+            args.hltpsk = trigconf['HLTPSK']
+      except KeyError:
+         log.error("Cannot read trigger configuration keys from COOL for run %d", args.run_number)
+         sys.exit(1)
+
 def update_nested_dict(d, u):
    """Update nested dictionary (https://stackoverflow.com/q/3232943)"""
    for k, v in six.iteritems(u):
@@ -282,10 +299,10 @@ def main():
    ## Global options
    g = parser.add_argument_group('Options')
    g.add_argument('jobOptions', help='job options (or JSON) file')
-   g.add_argument('--file', '-f', action='append', required=True, help='input RAW file')
+   g.add_argument('--file', '--filesInput', '-f', action='append', required=True, help='input RAW file')
    g.add_argument('--save-output', '-o', metavar='FILE', help='output file name')
-   g.add_argument('--number-of-events', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')
-   g.add_argument('--skip-events', '-k', metavar='N', default=0, help='skip N first events')
+   g.add_argument('--number-of-events', '--evtMax', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')
+   g.add_argument('--skip-events', '--skipEvents', '-k', metavar='N', default=0, help='skip N first events')
    g.add_argument('--threads', metavar='N', type=int, default=1, help='number of threads')
    g.add_argument('--nprocs', metavar='N', type=int, default=1, help='number of children to fork')
    g.add_argument('--concurrent-events', metavar='N', type=int, help='number of concurrent events if different from --threads')
@@ -314,11 +331,12 @@ def main():
 
    ## Database
    g = parser.add_argument_group('Database')
-   g.add_argument('--use-database', '-b', action='store_true', help='configure from trigger database')
+   g.add_argument('--use-database', '-b', action='store_true',
+                  help='configure from trigger database, reading keys from COOL if not specified')
    g.add_argument('--db-server', metavar='DB', default='TRIGGERDB', help='DB server name')
-   g.add_argument('--smk', type=int, default=0, help='Super Master Key')
-   g.add_argument('--l1psk', type=int, default=0, help='L1 prescale key')
-   g.add_argument('--hltpsk', type=int, default=0, help='HLT prescale key')
+   g.add_argument('--smk', type=int, default=None, help='Super Master Key')
+   g.add_argument('--l1psk', type=int, default=None, help='L1 prescale key')
+   g.add_argument('--hltpsk', type=int, default=None, help='HLT prescale key')
    g.add_argument('--dump-config', action='store_true', help='Dump joboptions JSON file')
    g.add_argument('--dump-config-exit', action='store_true', help='Dump joboptions JSON file and exit')
 
@@ -377,6 +395,8 @@ def main():
 
    # Update args and set athena flags
    update_run_params(args)
+   if args.use_database:
+      update_trigconf_keys(args)
 
    # get HLTMPPY config dictionary
    cdict = HLTMPPy_cfgdict(args)

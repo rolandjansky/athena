@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMECHVManager.h"
@@ -24,7 +24,9 @@
 #include "LArCabling/LArHVCablingTool.h"
 
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 #include "LArRecConditions/LArHVIdMapping.h"
+#endif
 #endif
 
 #include "Identifier/HWIdentifier.h"
@@ -318,7 +320,7 @@ EMECHVPayload *EMECHVManager::getPayload(const EMECHVElectrode &electrode) const
   return &m_c->payloadArray[index];
 }
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int EMECHVManager::hvLineNo(const EMECHVElectrode& electrode
 			    , int gap
 			    , const LArHVIdMapping* hvIdMapping) const

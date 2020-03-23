@@ -38,14 +38,15 @@ atlas_add_component( DPDUtils
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities NavFourMom GaudiKernel UserAnalysisUtilsLib TagEvent JetEvent muonEvent Particle egammaEvent TrigDecisionToolLib DBDataModel EventBookkeeperMetaData tauEvent )
 
-atlas_add_dictionary( DPDUtilsDict
-                      DPDUtils/DPDUtilsDict.h
-                      DPDUtils/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities NavFourMom GaudiKernel UserAnalysisUtilsLib TagEvent JetEvent muonEvent Particle egammaEvent TrigDecisionToolLib DBDataModel EventBookkeeperMetaData tauEvent )
-
 # Install files from the package:
 atlas_install_headers( DPDUtils )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( flake8_share
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --ignore=F401,F821,ATL900 ${CMAKE_CURRENT_SOURCE_DIR}/share
+                POST_EXEC_SCRIPT nopost.sh )

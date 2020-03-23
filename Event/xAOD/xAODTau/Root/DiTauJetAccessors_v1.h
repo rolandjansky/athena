@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DiTauJetAccessors_v1.h 631921 2015-09-23 23:30:59Z dkirchme $
@@ -17,7 +17,7 @@ namespace xAOD {
 
     namespace xAODDiTau {
 
-      template <class T> SG::AuxElement::Accessor< T >* detailsAccessorV1( xAOD::DiTauJetParameters::Detail detail );
+      template <class T> const SG::AuxElement::Accessor< T >* detailsAccessorV1( xAOD::DiTauJetParameters::Detail detail );
 
     #include "DiTauJetAccessors_v1.icc"
     }

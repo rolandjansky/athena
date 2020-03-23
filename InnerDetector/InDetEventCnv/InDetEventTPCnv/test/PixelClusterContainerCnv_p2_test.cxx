@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -159,7 +159,7 @@ makeclusts()
       cl->setHashAndIndex (hash, i);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash);
+    assert( cont->addCollection (coll.release(), hash).isSuccess() );
   }
 
   // gcc4.9 doesn't allow returning cont directly here; fixed in 5.2.

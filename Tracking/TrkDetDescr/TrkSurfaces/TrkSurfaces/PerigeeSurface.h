@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -315,7 +315,7 @@ PerigeeSurface::straightLineIntersection(const Amg::Vector3D& pos,
 {
   // following nominclature found in header file and doxygen documentation
   // line one is the straight track
-  const Amg::Vector3D ma = pos;
+  const Amg::Vector3D& ma = pos;
   const Amg::Vector3D& ea = dir;
   // line two is the line surface
   const Amg::Vector3D& mb = center();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ namespace Trk {
       /** Default Constructor needed for POOL */
       BinnedMaterial():
       Material(),
-      m_matBins(0){}
+      m_matBins(nullptr){}
 
       /** Constructor with arguments */
       BinnedMaterial(float iX0, 
@@ -48,7 +48,7 @@ namespace Trk {
 		    float iA,
 		    float iZ,
 		    float iRho,
-		    const CompactBinnedArray<const IdentifiedMaterial>* binMat = 0):
+		    const CompactBinnedArray<const IdentifiedMaterial>* binMat = nullptr):
       Material(iX0,iL0,iA,iZ,iRho),
       m_matBins(binMat)
       {}    
@@ -65,7 +65,7 @@ namespace Trk {
       /** Copy Constructor */
       BinnedMaterial(const BinnedMaterial& amc) :
       Material(amc),
-	m_matBins(amc.m_matBins? amc.m_matBins->clone() : 0 )
+	m_matBins(amc.m_matBins? amc.m_matBins->clone() : nullptr )
       {}
 
       /** Desctructor - delete the composition if there */
@@ -82,7 +82,7 @@ namespace Trk {
               dEdX        = amc.dEdX;  
               zOaTr       = amc.zOaTr;  
               delete m_matBins;
-              m_matBins =  amc.m_matBins ? amc.m_matBins->clone() : 0;
+              m_matBins =  amc.m_matBins ? amc.m_matBins->clone() : nullptr;
           }
           return (*this);
       }
@@ -107,7 +107,7 @@ namespace Trk {
 
 inline const Trk::BinUtility* Trk::BinnedMaterial::layerBinUtility(const Amg::Vector3D& position) const
  {
-      return m_matBins ? m_matBins->layerBinUtility(position) : 0;
+      return m_matBins ? m_matBins->layerBinUtility(position) : nullptr;
  }
 
 inline size_t Trk::BinnedMaterial::layerBin(const Amg::Vector3D& position) const

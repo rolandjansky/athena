@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,7 +7,6 @@
 #include "MuonAGDDDescription/MM_Technology.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "MuonGeoModel/Station.h"
-#include "MuonGeoModel/MYSQL.h"
 #include "MuonGeoModel/MicromegasComponent.h"
 #include "MuonGeoModel/Cutout.h"
 #include "GeoModelKernel/GeoTrd.h"
@@ -37,26 +36,19 @@ Micromegas::Micromegas(Component* ss): DetectorElement(ss->name)
   longWidth = s->dx2;
   length = s->dy;
   name=s->name;
-//  thickness = s->GetThickness();
   index = s->index;
 }
 
-
 GeoFullPhysVol* Micromegas::build(int minimalgeo)
 {
-//  std::cout<<"this is Micromegas::build(int minimalgeo) "<<std::endl;
   std::vector<Cutout*> vcutdef;
   int cutoutson = 0;
   return build(minimalgeo, cutoutson, vcutdef);
 }
 
-
-GeoFullPhysVol* 
-Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
+GeoFullPhysVol* Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
 {
-//  std::cout<<"this is Micromegas::build "<<std::endl;
-  AGDDDetectorStore* ds = AGDDDetectorStore::GetDetectorStore();	
-//  std::cout<<"fetching technology "<<std::endl;
+  AGDDDetectorStore* ds = AGDDDetectorStore::GetDetectorStore();
   MM_Technology* t = (MM_Technology*) ds->GetTechnology(name);
   thickness = t->Thickness();
   double gasTck=t->gasThickness;
@@ -64,24 +56,18 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
   double roTck=t->roThickness;
   double f1=t->f1Thickness;
   double f2=t->f2Thickness;
-  double f3=t->f3Thickness;	
+  double f3=t->f3Thickness;
 
-  
+
   minimalgeo=t->geoLevel;
 
-  // std::cout<<"===================> FRAME in Micromegas.cxx ====> f1= "<<f1<<" f2= "<<f2<<" f3= "<<f3<<std::endl;
-
-  // std::cout<<" dims "<<thickness<<" "<<gasTck<<" "<<pcbTck<<std::endl;
-
   // Build Micromegas mother volume out of G10
-  // std::cout<<"creating chamber "<<thickness<<" "<<width<<" "<<longWidth<<" "<<length<<std::endl;
-  const GeoShape* strd = new GeoTrd(thickness/2, thickness/2, width/2, 
+  const GeoShape* strd = new GeoTrd(thickness/2, thickness/2, width/2,
                                     longWidth/2, length/2);
 
- 
   logVolName=name;
   if (!(m_component->subType).empty()) logVolName+=("-"+m_component->subType);
-  const GeoMaterial* mtrd = matManager->getMaterial("sct::PCB");
+  const GeoMaterial* mtrd = getMaterialManager()->getMaterial("sct::PCB");
   GeoLogVol* ltrd = new GeoLogVol(logVolName, strd, mtrd);
   GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd);
 
@@ -100,7 +86,7 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
     double longWidthActive;
     double lengthActive;
 
-     
+
     // sensitive volume
     igl++;
     ptrd->add(new GeoIdentifierTag(igl));
@@ -114,52 +100,50 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
     if( (i+1) % 2 ) newpos += pcbTck;
     else newpos += roTck;
     double newXPos=newpos;
- 
-    const GeoShape* sGasVolume = new GeoTrd(gasTck/2, gasTck/2, widthActive/2, 
-					    longWidthActive/2, lengthActive/2);
-	
+
+    const GeoShape* sGasVolume = new GeoTrd(gasTck/2, gasTck/2, widthActive/2,
+                                            longWidthActive/2, lengthActive/2);
 
 
-      GeoLogVol* ltrdtmp = new GeoLogVol("MM_Sensitive", sGasVolume,
-                                         matManager->getMaterial("muo::ArCO2"));
-      GeoPhysVol* ptrdtmp = new GeoPhysVol(ltrdtmp);
-      GeoNameTag* ntrdtmp = new GeoNameTag(name+"muo::ArCO2");
-      GeoTransform* ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newXPos));
 
-      // Place gas volume inside G10 mother volume so that
-      // subtractions from gas volume now become G10
-      
-      ptrd->add(ntrdtmp);
-      ptrd->add(ttrdtmp);
-      ptrd->add(ptrdtmp);
-      
-      
-      double lW=longWidth/2.-((longWidth-width)/2.)*f1/length;
-      double W=width/2.+((longWidth-width)/2.)*f2/length;
-      const GeoShape* trd1 = new GeoTrd(gasTck/2,gasTck/2, width/2, 
-					longWidth/2, length/2);
-      const GeoShape* trd2 = new GeoTrd(gasTck,gasTck, W-f3, 
-					lW-f3, length/2-(f1+f2)/2.);
-      GeoTrf::Translate3D c(0,0,(f2-f1)/2.);
-      trd1= &(trd1->subtract( (*trd2) << c ));
-      GeoLogVol* ltrdframe = new GeoLogVol("MM_Frame", trd1,
-					   matManager->getMaterial("std::Aluminium"));
-      GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
-      
-      ptrdtmp->add(ptrdframe);
-      
-      
-      iSenLyr++;
-      
+    GeoLogVol* ltrdtmp = new GeoLogVol("MM_Sensitive", sGasVolume,
+                                       getMaterialManager()->getMaterial("muo::ArCO2"));
+    GeoPhysVol* ptrdtmp = new GeoPhysVol(ltrdtmp);
+    GeoNameTag* ntrdtmp = new GeoNameTag(name+"muo::ArCO2");
+    GeoTransform* ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newXPos));
+
+    // Place gas volume inside G10 mother volume so that
+    // subtractions from gas volume now become G10
+
+    ptrd->add(ntrdtmp);
+    ptrd->add(ttrdtmp);
+    ptrd->add(ptrdtmp);
+
+
+    double lW=longWidth/2.-((longWidth-width)/2.)*f1/length;
+    double W=width/2.+((longWidth-width)/2.)*f2/length;
+    const GeoShape* trd1 = new GeoTrd(gasTck/2,gasTck/2, width/2,
+                                      longWidth/2, length/2);
+    const GeoShape* trd2 = new GeoTrd(gasTck,gasTck, W-f3,
+                                      lW-f3, length/2-(f1+f2)/2.);
+    GeoTrf::Translate3D c(0,0,(f2-f1)/2.);
+    trd1= &(trd1->subtract( (*trd2) << c ));
+    GeoLogVol* ltrdframe = new GeoLogVol("MM_Frame", trd1,
+                                         getMaterialManager()->getMaterial("std::Aluminium"));
+    GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
+
+    ptrdtmp->add(ptrdframe);
+
+    iSenLyr++;
   } // Loop over tgc layers
-  
-  return ptrd;	
-}
 
+  return ptrd;
+}
 
 void Micromegas::print()
 {
-  std::cout << " Micromegas " << name << " :" << std::endl;
+  MsgStream log(Athena::getMessageSvc(), "MuonGM::Micromegas");
+  log << MSG::INFO << " Micromegas " << name << " :" << endmsg;
 }
 
 } // namespace MuonGM

@@ -480,11 +480,15 @@ protected:
       }
     }
     
-
-    if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
-      m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
-      return;
-    }
+    //  Remove this code to skip on truncated HLT results
+    //  Need to leave the code here for the time being however, since we will
+    //  still need in the future a more robust test to achieve this same
+    //  functionality
+    // 
+    //    if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
+    //      m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
+    //      return;
+    //    }
     
     if ( !this->m_keepAllEvents && !analyse ) {
       //     m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endmsg;
@@ -641,7 +645,8 @@ protected:
       const std::string& chainname = m_chainNames[ichain].head();
       const std::string&       key = m_chainNames[ichain].tail();
       const std::string&  vtx_name = m_chainNames[ichain].vtx();
-      //const std::string&  roi_name = m_chainNames[ichain].roi();
+      const std::string&  roi_name = m_chainNames[ichain].roi();
+      const std::string&   te_name = m_chainNames[ichain].element();
 
       m_pTthreshold = 0;  /// why does this need to be a class variable ???
 

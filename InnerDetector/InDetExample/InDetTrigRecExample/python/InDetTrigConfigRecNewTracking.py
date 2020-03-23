@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -12,7 +12,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import \
     EFIDTrackingCuts,EFIDTrackingCutsCosmics,EFIDTrackingCutsBeamGas, \
-    EFIDTrackingCutsHeavyIon, FTKTrackingCuts
+    EFIDTrackingCutsHeavyIon
 InDetTrigCutValues = EFIDTrackingCuts
 
 from AthenaCommon.Logging import logging 
@@ -56,8 +56,8 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
                                                maxdImpact             = EFIDTrackingCutsCosmics.maxPrimaryImpact(),
                                                maxZ                   = EFIDTrackingCutsCosmics.maxZImpact(),
                                                minZ                   = -EFIDTrackingCutsCosmics.maxZImpact(),
-                                               SpacePointsPixelName   = 'SCT_CosmicsTrigSpacePoints',
-                                               SpacePointsSCTName     = 'PixelCosmicsTrigSpacePoints',
+                                               SpacePointsPixelName   = 'PixelCosmicsTrigSpacePoints',
+                                               SpacePointsSCTName     = 'SCT_CosmicsTrigSpacePoints',
                                                #SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                PRDtoTrackMap          = '')
     elif lowPt:
@@ -260,9 +260,6 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       super(InDet__InDetTrigAmbiguitySolver , self ).__init__( name )
 
       slice = type
-      if name.find('FTK')>-1:
-        slice = 'FTK'
-
       from AthenaCommon.AppMgr import ToolSvc
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, \
           InDetTrigTrackFitter, InDetTrigExtrapolator, InDetTrigTrackSummaryTool, \
@@ -312,13 +309,6 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         InDetTrigScoringTool.maxSiHoles     = EFIDTrackingCutsBeamGas.maxHoles()
         InDetTrigScoringTool.useTRT_AmbigFcn= False
         InDetTrigScoringTool.useSigmaChi2   = True
-
-      if slice=='FTK' or slice=='FTKRefit' or slice=='FTKMon':
-        InDetTrigScoringTool.minSiClusters  = FTKTrackingCuts.minClusters()
-        InDetTrigScoringTool.maxSiHoles     = FTKTrackingCuts.maxHoles()
-        InDetTrigScoringTool.maxPixelHoles  = FTKTrackingCuts.maxPixelHoles()
-        InDetTrigScoringTool.maxSCTHoles    = FTKTrackingCuts.maxSCTHoles()
-        InDetTrigScoringTool.maxDoubleHoles = FTKTrackingCuts.maxDoubleHoles()
          
       #
       ToolSvc += InDetTrigScoringTool
@@ -365,12 +355,6 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         InDetTrigAmbiguityProcessor.tryBremFit  = True
         import AthenaCommon.SystemOfUnits as Units
         InDetTrigAmbiguityProcessor.pTminBrem   = 5 * Units.GeV
-      elif slice=='FTK' or slice=='FTKRefit'  or slice=='FTKMon':
-        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigAmbiTrackSelectionToolFTK,InDetTrigTrackFitterFTK
-        InDetTrigAmbiguityProcessor.SelectionTool = InDetTrigAmbiTrackSelectionToolFTK
-        InDetTrigAmbiguityProcessor.Fitter=InDetTrigTrackFitterFTK
-        InDetTrigAmbiguityProcessor.SuppressHoleSearch=True # Hole search makes no sense for FTK tracks as they are limited to 12 hits
-        #InDetTrigAmbiguityProcessor.RefitPrds = 
 
       if InDetTrigFlags.materialInteractions() and InDetTrigFlags.solenoidOn():
          InDetTrigAmbiguityProcessor.MatEffects = 3
@@ -430,14 +414,19 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
       #
       from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
       InDetTrigTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk(name   = 'InDetTrigTRTRoadMaker',
-                                                                             #DetectorStoreLocation = 'DetectorStore',
-                                                                             TRTManagerLocation    = 'TRT',
                                                                              MagneticFieldMode     = 'MapSolenoid',
                                                                              PropagatorTool        = InDetTrigPatternPropagator)
 
       ToolSvc += InDetTrigTRTDetElementsRoadMaker
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigTRTDetElementsRoadMaker)
+
+      # Condition algorithm for InDet__TRT_DetElementsRoadMaker_xk
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not hasattr(condSeq, "TRT_DetElementsRoadCondAlg_xk"):
+        from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
+        condSeq += InDet__TRT_DetElementsRoadCondAlg_xk(name = "TRT_DetElementsRoadCondAlg_xk")
 
       # Track extension to TRT tool
       #

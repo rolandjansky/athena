@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfIO/TrigDBHLTPrescalesSetLoader.h"
@@ -79,7 +79,8 @@ TrigConf::TrigDBHLTPrescalesSetLoader::loadHLTPrescales ( unsigned int hltpsk,
 
    boost::property_tree::ptree hltpss_pt;
    boost::property_tree::read_json(stream, hltpss_pt);
-   hltpss.setData(hltpss_pt);
+   hltpss.setData(std::move(hltpss_pt));
+   hltpss.setPSK(hltpsk);
 
    session->transaction().commit();
 

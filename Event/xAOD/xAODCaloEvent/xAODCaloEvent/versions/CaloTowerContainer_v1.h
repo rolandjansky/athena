@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODCALOEVENT_VERSIONS_CALOTOWERCONTAINER_V1_H
@@ -156,9 +156,10 @@ inline double xAOD::CaloTowerContainer_v1::deltaPhi() const { return m_deltaPhi;
 
 inline const xAOD::CaloTower_v1* xAOD::CaloTowerContainer_v1::tower(double eta, double phi) const {
   int idx=index(eta,phi);
-  if (idx>0 && idx<(int)this->size()) 
+  if (idx>0 && idx<(int)this->size()) {
     return (*this)[idx];
-  else
+  }
+  
     return nullptr;
 }
 

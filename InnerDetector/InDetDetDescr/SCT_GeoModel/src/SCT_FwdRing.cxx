@@ -13,7 +13,7 @@
 #include "SCT_GeoModel/SCT_FwdModule.h"
 #include "SCT_GeoModel/SCT_FwdCoolingBlock.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoBox.h"

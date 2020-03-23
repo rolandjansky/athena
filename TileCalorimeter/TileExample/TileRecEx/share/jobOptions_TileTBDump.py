@@ -300,7 +300,7 @@ tileInfoConfigurator.OutputLevel = OutputLevel
 from AthenaCommon.AppMgr import ToolSvc
 from TileConditions.TileCondToolConf import *
 
-print tileInfoConfigurator
+printfunc (tileInfoConfigurator)
 
 #=============================================================
 #=== ByteStream Input

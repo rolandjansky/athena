@@ -19,7 +19,7 @@
 #include "SCT_GeoModel/SCT_FwdCylinderServices.h"
 #include "SCT_GeoModel/SCT_FwdThermalShieldElement.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 

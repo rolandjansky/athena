@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pylab as pl
 import sys
 import os
@@ -19,13 +20,13 @@ def times(fn):
 if __name__ == '__main__':
     
     if len(sys.argv) < 2:
-        print 'Please supply an input file name on the command line'
+        print('Please supply an input file name on the command line')
         sys.exit(0)
 
 
     fn = sys.argv[1]
     if not os.path.exists(fn):
-        print 'unknown file. giving up: ', fn
+        print('unknown file. giving up: ', fn)
         sys.exit(0)
     x =  times(fn)
     # print x

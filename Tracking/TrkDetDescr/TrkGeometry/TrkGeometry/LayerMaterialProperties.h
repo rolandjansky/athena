@@ -83,10 +83,10 @@ namespace Trk {
       virtual const MaterialProperties* material(size_t ib0, size_t ib1) const = 0;
       
       /** Update the ElementTable */
-      void updateElementTable(const SharedObject<const ElementTable>&) const { return; }
+      void updateElementTable(const SharedObject<const ElementTable>&) const { }
       
       /** Get the ElementTable */
-      const ElementTable* elementTable() const { return 0; }
+      const ElementTable* elementTable() const { return nullptr; }
             
       /** Update pre factor */
       double factor(PropDirection pDir, MaterialUpdateStage mStage) const;

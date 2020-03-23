@@ -1,4 +1,4 @@
-print 'LArExtendedSubDetGrouping'
+printfunc ('LArExtendedSubDetGrouping')
 
 from LArConditionsCommon.LArExtendedSubDetGrouping import LArExtendedSubDetGrouping
 LArExtendedSubDetGrouping = LArExtendedSubDetGrouping()
@@ -27,33 +27,33 @@ if (int(RunNumberFlag)<100000) :
     ## EMB + EMBPS A 64 (32+32)   
     if ( Partition=='EB-EMBA' and ( GainList[0]=="HIGH" or GainList[0]=="MEDIUM" ) ) :
         partition =['EMBAPS','EMBA']
-        print 'EMBA+EMBAPS partition'
+        printfunc ('EMBA+EMBAPS partition')
     elif ( Partition=='EB-EMBC' and ( GainList[0]=="HIGH" or GainList[0]=="MEDIUM" ) ) :
         partition =['EMBCPS','EMBC']
-        print 'EMBC+EMBCPS partition'
+        printfunc ('EMBC+EMBCPS partition')
     elif ( Partition=='EB-EMBA' and GainList[0]=="LOW" ) :
         partition =['EMBA']
-        print 'EMBA partition'
+        printfunc ('EMBA partition')
     elif ( Partition=='EB-EMBC' and GainList[0]=="LOW" ) :
         partition =['EMBC']
-        print 'EMBC partition'
+        printfunc ('EMBC partition')
 
 else :
     ## EMB  A+C    
     if ( Partition=='EB-EMBA' and ( PartitionTypeGeneric!='EMBPS' ) ) :
         partition =['EMBA']
-        print 'EMBA partition'
+        printfunc ('EMBA partition')
     elif ( Partition=='EB-EMBC' and ( PartitionTypeGeneric!='EMBPS' ) ) :
         partition =['EMBC']
-        print 'EMBC partition'
+        printfunc ('EMBC partition')
         
     ## EMBPS  A+C     
     if ( Partition=='EB-EMBA' and ( PartitionTypeGeneric=='EMBPS' ) ) :
         partition =['EMBAPS']
-        print 'EMBAPS partition'
+        printfunc ('EMBAPS partition')
     elif ( Partition=='EB-EMBC' and ( PartitionTypeGeneric=='EMBPS' ) ) :
         partition =['EMBCPS']
-        print 'EMBCPS partition'
+        printfunc ('EMBCPS partition')
         
         
 ## EMEC + PS A  44    
@@ -72,8 +72,8 @@ elif ( PartitionType=='FCAL') :
 
 selection = LArExtendedSubDetGrouping.getChannelSelection(partition,gain)
 ChannelSelection='<channelSelection>'+selection+'</channelSelection>'
-print ChannelSelection
-print "CoolChannel Selection for ", partition, " and ",gain, " gain. "
+printfunc (ChannelSelection)
+printfunc ("CoolChannel Selection for ", partition, " and ",gain, " gain. ")
     
     
 

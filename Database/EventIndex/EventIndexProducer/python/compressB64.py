@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ Encodes a bit string composed mostly by zeroes"""
 
@@ -92,11 +94,11 @@ if __name__ == "__main__":
     x=int(s, 2)
     sx="{:0X}".format(x)
     
-    print ""
-    print "Original:     >>"+s+"<<" 
-    print "Compressed:   >>"+c+"<<" 
-    print "Hex repr:     >>"+sx+"<<" 
-    print "Decompressed: >>"+d+"<<" 
+    print ("")
+    print ("Original:     >>"+s+"<<" )
+    print ("Compressed:   >>"+c+"<<" )
+    print ("Hex repr:     >>"+sx+"<<" )
+    print ("Decompressed: >>"+d+"<<" )
     
     import random
     for i in range(0,100):
@@ -115,17 +117,17 @@ if __name__ == "__main__":
         sx="{:0X}".format(x)
 
         if i == 0:
-            print ""
-            print "Original:     >>"+s+"<<" 
-            print "Compressed:   >>"+c+"<<" 
-            print "Hex repr:     >>"+sx+"<<" 
-            print "Decompressed: >>"+d+"<<" 
+            print ("")
+            print ("Original:     >>"+s+"<<" )
+            print ("Compressed:   >>"+c+"<<" )
+            print ("Hex repr:     >>"+sx+"<<" )
+            print ("Decompressed: >>"+d+"<<" )
         
         if s != d:
-            print ""
-            print "Decompression error"
-            print "Original:     >>"+s+"<<" 
-            print "Compressed:   >>"+c+"<<" 
-            print "Hex repr:     >>"+sx+"<<" 
-            print "Decompressed: >>"+d+"<<" 
+            print ("")
+            print ("Decompression error")
+            print ("Original:     >>"+s+"<<" )
+            print ("Compressed:   >>"+c+"<<" )
+            print ("Hex repr:     >>"+sx+"<<" )
+            print ("Decompressed: >>"+d+"<<" )
 

@@ -1,6 +1,6 @@
-//
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-//
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // System include(s):
 #include <map>
@@ -9,13 +9,14 @@
 // Local include(s):
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolStore.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AsgTools/MessageCheckAsgTools.h"
+#include "AsgMessaging/MsgStreamMacros.h"
 
 // Create a simple version of the MSGSTREAM_REPORT_PREFIX macro for Athena:
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   define MSGSTREAM_REPORT_PREFIX              \
    __FILE__ << ":" << __LINE__ << ": "
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 /// Helper macro for printing nicely formatted error messages
 #define TOOLSTORE_ERROR( FNC, MSG )                                  \
@@ -80,27 +81,32 @@ namespace asg {
                           "Received an empty name" );
       }
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       // Set the tool's name to the specified one:
       ptool->setName( name );
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
       // Register the tool using the other function:
       return put( ptool );
    }
 
    IAsgTool* ToolStore::get( const std::string& name, bool silent ) {
+      using namespace msgToolHandle;
 
-      std::lock_guard<std::mutex> lock (s_toolMutex);
       ToolMap_t::const_iterator itool = s_tools.find( name );
-      if( itool == s_tools.end() ) {
-         if( ! silent ) {
-            std::cout << "asg::ToolStore::get       WARNING Tool with name \""
-                      << name << "\" not found" << std::endl;
-         }
-         return 0;
+      if( itool != s_tools.end() )
+        return itool->second;
+
+      if (name.find ("ToolSvc.") != 0) {
+        itool = s_tools.find( "ToolSvc." + name );
+        if( itool != s_tools.end() )
+          return itool->second;
       }
-      return itool->second;
+
+      if( ! silent ) {
+        ANA_MSG_WARNING ("Tool with name \"" << name << "\" not found");
+      }
+      return nullptr;
    }
 
    StatusCode ToolStore::remove( const IAsgTool* tool ) {

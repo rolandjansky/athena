@@ -20,6 +20,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkSurfaces/StraightLineSurface.h"
+#include "TrkMeasurementBase/MeasurementBase.h"
 
 #include "TrkExUtils/IntersectionSolution.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"

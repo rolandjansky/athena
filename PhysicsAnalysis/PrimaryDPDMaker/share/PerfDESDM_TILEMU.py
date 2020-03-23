@@ -102,15 +102,20 @@ print TileMuEventFilterTool
 ##======================================================================
 ## Define the thinning for the DESDM_TILEMU output stream
 ##======================================================================
-from PrimaryDPDMaker.PrimaryDPDMakerConf import DerivationFramework__CaloCellThinningTool
-TileMuCaloCellThinningTool = DerivationFramework__CaloCellThinningTool(name = "TileMuCaloCellThinningTool",
-                                                               ThinningService = "TileMuThinningToolSvc",
-                                                               CaloCellId = 3) # Tile Cells
-ToolSvc += TileMuCaloCellThinningTool
+from CaloRec.CaloRecConf import CaloThinCellsBySamplingAlg
+TileMuCaloCellThinningAlg = CaloThinCellsBySamplingAlg \
+  ('TileMuCaloCellThinningAlg',
+   StreamName = primDPD.WriteDESDM_TILEMUStream.StreamName,
+   Cells = 'AllCalo',
+   SamplingCellsName = ['TileBar0', 'TileBar1', 'TileBar2',  # Tile cells
+                        'TileGap1', 'TileGap1', 'TileGap3',
+                        'TileExt0', 'TileExt1', 'TileExt2',
+                        ])
+desdTileMuonSequence += TileMuCaloCellThinningAlg
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 TileMuMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name = "TileMuMuonTPThinningTool",
-                                                                          ThinningService = "TileMuThinningToolSvc",
+                                                                          StreamName = primDPD.WriteDESDM_TILEMUStream.StreamName,
                                                                           MuonKey = "Muons",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += TileMuMuonTPThinningTool
@@ -121,7 +126,7 @@ ToolSvc += TileMuMuonTPThinningTool
 ##======================================================================
 desdTileMuonSequence += CfgMgr.DerivationFramework__DerivationKernel("TileMuKernel", 
     SkimmingTools = [TileMuEventFilterTool],
-    ThinningTools = [TileMuCaloCellThinningTool, TileMuMuonTPThinningTool])
+    ThinningTools = [TileMuMuonTPThinningTool])
 
 ##======================================================================
 ## Define this Muon DPD output stream
@@ -143,10 +148,8 @@ if primDESDMTileMu.ApplySkimming():
     TileMuStream.AcceptAlgs(["TileMuKernel"])
     pass
 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream(streamName)
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc(svcName="TileMuThinningToolSvc", outStreams=[evtStream])
 
 #-----------------------------------------------------------------------
 # Add the containers to the output stream

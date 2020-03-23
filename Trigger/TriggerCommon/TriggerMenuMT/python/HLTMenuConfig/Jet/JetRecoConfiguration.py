@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 ##########################################################################################
@@ -8,13 +8,28 @@
 # jet reco code.
 
 from JetRecConfig.JetDefinition import JetConstit, xAODType, JetDefinition
+from AthenaCommon.Logging import logging
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration")
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
     # interpret the reco configuration only
     # eventually should just be a subdict in the chainDict
     recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','cleaning']
-    return { key:chainParts[key] for key in recoKeys }
+    recoDict = {}
+    for p in chainParts:
+        for k in recoKeys:
+            # Look for our key in the chain part
+            if k in p.keys():
+                # found the key, check for consistency with other chain parts of this chain
+                if k in recoDict.keys():
+                    if p[k] != recoDict[k]:
+                        log.error('Inconsistent reco setting for' + k)
+                        exit(1)
+                # copy this entry to the reco dictionary
+                recoDict[k] = p[k]
+
+    return recoDict
 
 # Define the jet constituents to be interpreted by JetRecConfig
 # When actually specifying the reco, clustersKey should be
@@ -104,26 +119,34 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
         if jetRecoDict["trkopt"]=="notrk" and "gsc" in jetRecoDict["jetCalib"]:
             raise ValueError("Track GSC requested but no track source provided!")
 
+        if jetRecoDict["trkopt"]=="notrk" and "subres" in jetRecoDict["jetCalib"]:
+            raise ValueError("Pileup residual calibration requested but no track source provided!")
+
         if jetRecoDict["dataType"]=="tc":
             calibContext,calibSeq = {
                 ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"),        # Calo GSC only
                 ("a4","subjesIS"): ("TrigRun2","JetArea_EtaJES_GSC_Insitu"), # Calo GSC only
                 ("a4","subjesgscIS"): ("TrigRun2GSC","JetArea_EtaJES_GSC_Insitu"), # Calo+Trk GSC
+                ("a4","subresjesgscIS"): ("TrigRun2GSC","JetArea_Residual_EtaJES_GSC_Insitu"), # pu residual + calo+trk GSC
                 ("a10","subjes"):  ("TrigUngroomed","JetArea_EtaJES"),
                 ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
                 }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
+
+            pvname = ""
+            gscDepth = "EM3"
+            if "gsc" in jetRecoDict["jetCalib"]:
+                gscDepth = "trackWIDTH"
+                pvname = "HLT_EFHistoPrmVtx"
+
         elif jetRecoDict["dataType"]=="pf":
-            calibContext,calibSeq = {
-                ("a4","subjes"):   ("TrigLS2","JetArea_EtaJES_GSC"),
-                ("a4","subjesIS"): ("TrigLS2","JetArea_EtaJES_GSC_Insitu"),
-                ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC_Insitu"),
-                }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]            
+            gscDepth = "auto"
+            calibContext = "TrigLS2"
+            calibSeq = "JetArea_Residual_EtaJES_GSC"
+            if jetRecoDict["jetCalib"].endswith("IS"):
+                calibSeq += "_Insitu"
+            pvname = "HLT_EFHistoPrmVtx"
 
-        gscDepth = "auto"
-        if "gsc" in jetRecoDict["jetCalib"]:
-            gscDepth = "trackWIDTH"
-
-        calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, gscDepth] )
+        calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, pvname, gscDepth] )
         from .TriggerJetMods import ConstitFourMom_copy
         if jetalg=="a4":
             calibMods = [(ConstitFourMom_copy,""),

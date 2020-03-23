@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR, seqAND
@@ -53,8 +53,16 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         (basicJetRecoSequence,basicJetsName) = RecoFragmentsPool.retrieve(jetRecoSequence,None,dataSource=dataSource, **basicJetRecoDict)
         recoSeq += basicJetRecoSequence
 
+        rcJetPtMin = 20e3 # 20 GeV minimum pt for jets to be reclustered
+        from JetRec.JetRecConf import JetViewAlg
+        filteredJetsName = basicJetsName+"_pt20"
+        recoSeq += JetViewAlg("jetview_"+filteredJetsName,
+                              InputContainer=basicJetsName,
+                              OutputContainer=filteredJetsName,
+                              PtMin=rcJetPtMin)
+    
         rcJetDef = JetRecoConfiguration.defineReclusteredJets(jetRecoDict)
-        rcJetDef.inputdef.inputname = basicJetsName
+        rcJetDef.inputdef.inputname = filteredJetsName
         rcJetsFullName = jetNamePrefix+rcJetDef.basename+"RCJets_"+jetRecoDict["jetCalib"]
         rcModList = [] # Could set substructure mods
         rcJetDef.modifiers = rcModList
@@ -73,8 +81,6 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
     elif doGrooming:
         # Grooming needs to be set up similarly to reclustering
         # --> build ungroomed jets, then add a grooming alg
-        # Reclustering -- recursively call the basic jet reco and add this to the sequence,
-        # then add another jet algorithm to run the reclustering step
         ungroomedJetRecoDict = dict(jetRecoDict)
         ungroomedJetRecoDict["recoAlg"] = ungroomedJetRecoDict["recoAlg"].rstrip("t") # Drop grooming spec
         ungroomedJetRecoDict["jetCalib"] = "nojcalib" # No need to calibrate
@@ -82,6 +88,8 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         recoSeq += ungroomedJetRecoSequence
 
         ungroomedDef = JetRecoConfiguration.defineJets(ungroomedJetRecoDict)
+        # Cluster large-R jets only down to 50 GeV
+        # Trigger thresholds are in the 100s of GeV
         ungroomedDef.ptmin = 50e3
 
         groomDef = JetRecoConfiguration.defineGroomedJets(jetRecoDict,ungroomedDef,ungroomedJetsName)

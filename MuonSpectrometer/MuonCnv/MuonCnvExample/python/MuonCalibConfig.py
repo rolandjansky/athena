@@ -183,8 +183,10 @@ def setupMdtCondDB():
 
     from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationTool
     MdtCalibrationTool.DoSlewingCorrection = mdtCalibFlags.correctMdtRtForTimeSlewing()
+    # Hack to use DoTemperatureCorrection for applyRtScaling; but applyRtScaling should not be used anyway, since MLRT can be used
     MdtCalibrationTool.DoTemperatureCorrection = mdtCalibFlags.applyRtScaling()
     MdtCalibrationTool.DoWireSagCorrection = mdtCalibFlags.correctMdtRtWireSag()
+    # for collisions cut away hits that are far outside of the MDT time window
     if beamFlags.beamType() == 'collisions':
         MdtCalibrationTool.DoTofCorrection = True
         if globalflags.DataSource() == 'geant4':
@@ -198,57 +200,4 @@ def setupMdtCondDB():
     MdtCalibrationDbTool.CreateBFieldFunctions = mdtCalibFlags.correctMdtRtForBField()
     MdtCalibrationDbTool.CreateWireSagFunctions = mdtCalibFlags.correctMdtRtWireSag()
     MdtCalibrationDbTool.CreateSlewingFunctions = mdtCalibFlags.correctMdtRtForTimeSlewing()
-
-# end of function setupMdtCondDB()
-
-
-def MdtCalibDbTool(name="MdtCalibDbTool",**kwargs):
-    # setup COOL folders
-    global mdt_folder_name_appendix
-    setupMdtCondDB()
-    # set some default properties
-    from IOVDbSvc.CondDB import conddb
-    if conddb.isOnline and not conddb.isMC:
-       kwargs.setdefault("TubeFolder", "/MDT/T0")
-       kwargs.setdefault("RtFolder",  "/MDT/RT")
-    else:
-       kwargs.setdefault("TubeFolder", "/MDT/T0"+ mdt_folder_name_appendix)
-       kwargs.setdefault("RtFolder",  "/MDT/RT"+ mdt_folder_name_appendix)
-    kwargs.setdefault("RT_InputFiles" , ["Muon_RT_default.data"])
-    if globalflags.DataSource == 'data':
-        kwargs.setdefault("defaultT0", 40)
-    elif globalflags.DataSource == 'geant4':
-        kwargs.setdefault("defaultT0", 799)
-    kwargs.setdefault("UseMLRt",  mdtCalibFlags.useMLRt() )
-    kwargs.setdefault("TimeSlewingCorrection", mdtCalibFlags.correctMdtRtForTimeSlewing())
-    kwargs.setdefault("MeanCorrectionVsR", [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ])
-    kwargs.setdefault("PropagationSpeedBeta", mdtCalibFlags.mdtPropagationSpeedBeta())
-    return CfgMgr.MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs)
-
-def MdtCalibrationDbSvc(name="MdtCalibrationDbSvc",**kwargs):
-    kwargs.setdefault( "CreateBFieldFunctions", mdtCalibFlags.correctMdtRtForBField() )
-    kwargs.setdefault( "CreateWireSagFunctions", mdtCalibFlags.correctMdtRtWireSag() )
-    kwargs.setdefault( "CreateSlewingFunctions", mdtCalibFlags.correctMdtRtForTimeSlewing())
-    kwargs.setdefault( "DBTool", "MdtCalibDbTool" )
-    return CfgMgr.MdtCalibrationDbSvc(name,**kwargs)
-
-def MdtCalibrationSvc(name="MdtCalibrationSvc",**kwargs):
-    # call dependent tools. TODO: fix in C++ (move to ServiceHandle + declareProperty)
-    from AthenaCommon.CfgGetter import getService
-    getService("MdtCalibrationDbSvc")
-    kwargs.setdefault( "DoSlewingCorrection",  mdtCalibFlags.correctMdtRtForTimeSlewing() )
-    # Hack to use DoTemperatureCorrection for applyRtScaling; but applyRtScaling should not be used anyway, since MLRT can be used
-    kwargs.setdefault( "DoTemperatureCorrection", mdtCalibFlags.applyRtScaling() )
-    kwargs.setdefault( "DoWireSagCorrection",  mdtCalibFlags.correctMdtRtWireSag() )
-    if beamFlags.beamType() == 'collisions':
-        kwargs.setdefault("DoTofCorrection",True)
-        if globalflags.DataSource() == 'geant4':
-            # for collisions cut away hits that are far outside of the MDT time window
-            kwargs.setdefault( "TimeWindowSetting", mdtCalibWindowNumber('Collision_G4') )
-        elif globalflags.DataSource() == 'data':
-            # for collisions cut away hits that are far outside of the MDT time window
-            kwargs.setdefault( "TimeWindowSetting", mdtCalibWindowNumber('Collision_G4') )
-    else: # cosmics or single beam
-        kwargs.setdefault("DoTofCorrection",False)
-    return CfgMgr.MdtCalibrationSvc(name,**kwargs)
 

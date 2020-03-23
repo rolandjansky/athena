@@ -98,7 +98,7 @@ size_t Layer::getCompatibleSurfaces(std::vector<SurfaceIntersection> &cSurfaces,
             cSurfaces.push_back(tSurface);
         }
       }
-    } else if (testSurfaces.size()) {
+    } else if (!testSurfaces.empty()) {
       for (auto &tSurface : testSurfaces) {
         // exclude the endSurface
         if (tSurface.object == endSurface || tSurface.object == startSurface)
@@ -117,8 +117,7 @@ size_t Layer::getCompatibleSurfaces(std::vector<SurfaceIntersection> &cSurfaces,
           // and the surfaces & direction to push back - take only material
           // surfaces if configured to do so
           if (!materialSurfacesOnly || tSurface.object->materialLayer())
-            cSurfaces.push_back(
-                SurfaceIntersection(tsfInter, tSurface.object, rDir));
+            cSurfaces.emplace_back(tsfInter, tSurface.object, rDir);
         }
       }
     }
@@ -132,7 +131,7 @@ size_t Layer::getCompatibleSurfaces(std::vector<SurfaceIntersection> &cSurfaces,
         pos, dir, fDirection, bcheck);
     // allow only if it is in the maximal path length
     if (lInter.valid && lInter.pathLength < maxPathLength)
-      cSurfaces.push_back(SurfaceIntersection(lInter, layerSurface, pDir));
+      cSurfaces.emplace_back(lInter, layerSurface, pDir);
   }
   // now sort it
   std::sort(cSurfaces.begin(), cSurfaces.end());

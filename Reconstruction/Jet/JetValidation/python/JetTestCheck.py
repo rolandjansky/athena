@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 """
@@ -39,7 +41,7 @@ def rel_diff(v1,v2):
 ##     return "SimpleBr"
 ## ROOT.TBranch.GetTypeName = _gettypename
 def fullDebug_on( self, r , val='' , val2=''):
-    print self.name , self.b1, r, val , val2
+    print (self.name , self.b1, r, val , val2)
 def fullDebug_off( self, r ,val='', v2='' ):
     pass
 fullDebug = fullDebug_off
@@ -181,7 +183,7 @@ class VarPairBase(object):
         if error == 0:
             statusStr = 'ok'
         if error >0 or verbose:
-            print '%40s'%(self.name,), statusStr
+            print ('%40s'%(self.name,), statusStr)
 
                 
         return (error, self.nvalues, self.num_errors)
@@ -220,7 +222,7 @@ class VarPairVector(VarPairBase):
             
     def initBranch(self):
         b1, b2 = self.b1, self.b2
-        #print 'initBranch  ', self, self.name, self.b2
+        #print ('initBranch  ', self, self.name, self.b2)
 
         b1.GetEntry(0)
         b2.GetEntry(0)
@@ -240,7 +242,7 @@ class VarPairVector(VarPairBase):
         tname = b1.GetTypeName()
         nptype = cppToNumpyType.get( tname , None)
         if nptype is None :
-            print "  !!! Unknown type for variable ", b1.GetName(), tname
+            print ("  !!! Unknown type for variable ", b1.GetName(), tname)
             self.validVariable = False
             return
         npa = numpy.ndarray
@@ -264,11 +266,11 @@ class VarPairVector(VarPairBase):
         return 2*abs(a1-a2)/numpy.maximum( abs(a1+a2), 1e-10) # maximum : avoids division by 0
 
     def compare(self, evt1, evt2):
-        #print 'compare ', self.bname1
+        #print ('compare ', self.bname1)
         a1, a2 = self.getEntry(evt1, evt2)
         n = min( len(a1) , len(a2) )
-        #print "comparing ",self.name, n, len(a1) , len(a2), '|| ', self.v1[0], self.v2[0], '|| ', a1[0], a2[0]
-        #print "comparing ",self.name, n, len(a1) , len(a2), '|| ', a1.shape , a2.shape
+        #print ("comparing ",self.name, n, len(a1) , len(a2), '|| ', self.v1[0], self.v2[0], '|| ', a1[0], a2[0])
+        #print ("comparing ",self.name, n, len(a1) , len(a2), '|| ', a1.shape , a2.shape)
         sizematch = True
         if len(a1) != len(a2):
             sizematch = False
@@ -281,7 +283,7 @@ class VarPairVector(VarPairBase):
             return sizematch
         self.nvalues += n
         rd = self.relDiff(a1,a2) 
-        #print evt1, '    ', rd, abs(a1+a2)
+        #print (evt1, '    ', rd, abs(a1+a2))
 
         result = self.checkRes(evt1, rd, a1 )
         if not result:
@@ -318,7 +320,7 @@ class VarPairVectorVector(VarPairVector):
             return sizematch
 
         result = True
-        for i in xrange(nOuter):
+        for i in range(nOuter):
             a1, a2 = getarray(v1[i]),getarray(v2[i])
             if a1.shape != a2.shape :
                 result = False
@@ -339,7 +341,7 @@ class VarPairScalar(VarPairBase):
     def initBranch(self):
         b1, b2 = self.b1, self.b2        
         t = b1.GetListOfLeaves()[0].GetTypeName()
-        #print ' VarPairScalar  init ',b1.GetName(), t
+        #print (' VarPairScalar  init ',b1.GetName(), t)
         if t == 'Int_t':
             t = numpy.int32
         elif t=='Float_t':
@@ -400,7 +402,7 @@ class VarComparator(object):
             if inputf is None :
                 return self.t1
             if not os.path.exists(inputf):
-                print " Can't find ", inputf, '. Exit'
+                print (" Can't find ", inputf, '. Exit')
                 sys.exit(1)
             f = ROOT.TFile( inputf )
             tree = f.Get(tn)
@@ -460,15 +462,15 @@ class VarComparator(object):
             selected_br = selected_br1.intersection(selected_br2)    
 
             for b in sorted(selected_br1 - selected_br2):
-                print " Missing branches in tree 2 : ", b 
+                print (" Missing branches in tree 2 : ", b )
             for b in sorted(selected_br2 - selected_br1):
-                print " Missing branches in tree 1 : ", b
+                print (" Missing branches in tree 1 : ", b)
         else:
-            print base_vars , branch_filter
+            print (base_vars , branch_filter)
             selected_br = branch_list_builder( [b.GetName() for b in t1.GetListOfBranches()] )
 
         selected_br.update( additionalBranches)
-        print ' Selected branches = ', selected_br
+        print (' Selected branches = ', selected_br)
         
         d_branches = self.d_branches
         splitVarName = self.splitVarName
@@ -484,25 +486,25 @@ class VarComparator(object):
             def checkBranch(t,n):
                 b = t.GetBranch(n)
                 if b == None : 
-                    print "!!!!!!!!! ",n,'branch does not exists !'
+                    print ("!!!!!!!!! ",n,'branch does not exist !')
                 return b
             # guess is the value is in MeV
             isMeV = any ( bn.endswith( end ) for end in ('_e','_m','_pt', '.e','.m','.pt','Pt') )
-            #print ' building ', bn, branch_replace(bn)
+            #print (' building ', bn, branch_replace(bn))
             v= VarPairBase.buildPair(vname,  checkBranch(t1,bn) , checkBranch(t2,branch_replace(bn)), self.MAX_REL_DIFF , isMeV = isMeV)
             if v.validVariable:                
                 l.append( v )
                 setattr(self, bn.replace('.','_') , v )
                 comparedBranches +=[bn]
             else:
-                print "Don't know how to compare branch, ignoring : ", bn
+                print ("Don't know how to compare branch, ignoring : ", bn)
         return d_branches
 
 
 
     def compare_event(self,evt1, evt2,stopOnError=False):
         ok = True
-        for jet, l_var in self.d_branches.iteritems():
+        for jet, l_var in self.d_branches.items():
             if stopOnError:
                 for v in l_var:
                     if not v.compare(evt1, evt2):
@@ -515,7 +517,7 @@ class VarComparator(object):
 
     def resetBranches(self,one, evt):
         tree = self.t1 if one else self.t2
-        for jet, l_var in self.d_branches.iteritems():
+        for jet, l_var in self.d_branches.items():
             for v in l_var:
                 v.resetBranchPointer(one, tree, evt)
 
@@ -525,7 +527,7 @@ class VarComparator(object):
         fullDebug = fullDebug_on if debug else fullDebug_off
         t1, t2 = self.t1, self.t2
         nEvt = min(maxEvent,self.t1.GetEntries(), self.t2.GetEntries() )
-        for i in xrange(nEvt):
+        for i in range(nEvt):
             # support for TChain
             evti1 = t1.LoadTree(i)
             evti2 = t2.LoadTree(i)
@@ -534,27 +536,27 @@ class VarComparator(object):
             if i!= evti2: self.resetBranches(False, evti2)
 
             ok = ok & self.compare_event(evti1,evti2, stopOnError)
-            #print 'Event --->',i, ok, stopOnError
+            #print ('Event --->',i, ok, stopOnError)
             if not ok and stopOnError:
                 break
 
         if not stopOnError or ok :
-            print
+            print()
             err, values , wrongvalues = 0,0,0
             nvar = 0
-            for jet, l_var in self.d_branches.iteritems():
+            for jet, l_var in self.d_branches.items():
                 nvar += len(l_var)
-                print 'Summary for ',jet, ' num var =', len(l_var),' **********************'
-                #print 'Variable with errors'.rjust(22)
+                print ('Summary for ',jet, ' num var =', len(l_var),' **********************')
+                #print ('Variable with errors'.rjust(22))
                 for v in l_var:
                     nerr , nvalues, nwrongvalues = v.summary(verbose=detailedSummary)
                     err += bool(nerr)
                     values += nvalues
                     wrongvalues +=nwrongvalues
-                print '*******************************************'
-            print
-            print "Total Number of differing variable =",err, " / ", nvar
-            print "Total Number of differing values   =",wrongvalues , " / " , values 
+                print ('*******************************************')
+            print()
+            print ("Total Number of differing variable =",err, " / ", nvar)
+            print ("Total Number of differing values   =",wrongvalues , " / " , values )
             return err
         
         if not ok:
@@ -640,7 +642,7 @@ if __name__ == '__main__':
 
     # reset testedContainers :
     testedContainers = args.containers
-    print "Will test ", testedContainers
+    print ("Will test ", testedContainers)
 
     # if we have only 1 input file, we compare "XXXJets" against "XXXJetsTest" containers
     if args.inFile2 == '':

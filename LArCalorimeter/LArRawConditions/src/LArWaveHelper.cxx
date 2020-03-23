@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -492,7 +492,7 @@ std::vector<double> LArWaveHelper::polyfit(const LArWave& theWave,unsigned iFirs
 
 std::vector<LArWave>
 LArWaveHelper::linearMasterWave(const std::vector<const LArWave*>& vWaves,
-                                const std::vector<double> vAmpli) const
+                                const std::vector<double>& vAmpli) const
 {
   std::vector<LArWave> MWandDAC0 ;
   unsigned nWaves = vWaves.size() ;
@@ -652,7 +652,7 @@ std::vector<double> LArWaveHelper::polyfit(const std::vector<double>& X,
     }
 }
 
-unsigned LArWaveHelper::get_fit_vectors(const LArWave theWave,unsigned iFirst,unsigned iLast,
+unsigned LArWaveHelper::get_fit_vectors(const LArWave& theWave,unsigned iFirst,unsigned iLast,
 					std::vector<double>& X,std::vector<double>& Y) const
 {
   unsigned length = theWave.getSize() ;

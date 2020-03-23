@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
 # LS2_v1.py menu for the long shutdown development
@@ -9,11 +9,13 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup,MinBiasGroup,BphysicsGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup,MinBiasGroup
+#BphysicsGroup (re-add to the preceding line when putting bphys back in)
 
 
 def setupMenu():
@@ -49,9 +51,24 @@ def setupMenu():
         ChainProp(name='HLT_2mu6_10invm70_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_lateMu_L1MU10', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
 
+        # this is for test only
+        ChainProp(name='HLT_2mu6_Dr_L12MU4',  groups=MultiMuonGroup),
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
 
+        # Additional intermediate thresholds for validation comparisons
+        ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu35_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
+        ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
+
+       # ATR-19452
+        ChainProp(name='HLT_2mu4_muonqual_L12MU4',  groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu6_muonqual_L12MU6',  groups=MultiMuonGroup),
+
+       # ATR-20650
+        ChainProp(name='HLT_mu0_muoncalib_L1MU4_EMPTY', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu0_muoncalib_L1MU20',      groups=SingleMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -84,6 +101,7 @@ def setupMenu():
         # Primary photon chains
         ChainProp(name='HLT_g140_loose_L1EM24VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g20_tight_L12EM20VH', groups=MultiPhotonGroup),
 
 
@@ -96,6 +114,7 @@ def setupMenu():
         ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_trkmht_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_L1XE10', groups=SingleMETGroup),
         # MultiMET Chain
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
     ]
@@ -105,11 +124,17 @@ def setupMenu():
         ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_subjesgscIS_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subresjesgscIS_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_011jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_015jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_059jvt_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
 
         ChainProp(name='HLT_j45_ftf_pf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_pf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subresjesgscIS_pf_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_pf_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j420_ftf_subjesgscIS_L1J20', groups=SingleJetGroup),
@@ -148,6 +173,7 @@ def setupMenu():
         ChainProp(name="HLT_tau25_looseRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_mediumRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_tightRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_medium1_tracktwoEF_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_track_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau0_perf_ptonly_L1TAU100",groups=SingleTauGroup),
@@ -157,10 +183,13 @@ def setupMenu():
         ChainProp(name="HLT_tau160_perf_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
 
     ]
+    # TimM temporary disable due to !31039
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
-        #ATR 20603
-        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4',     groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4',     groups=BphysicsGroup),
+        # #ATR 20603
+        # ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4',     groups=BphysicsGroup),
+        # ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4',     groups=BphysicsGroup),
+        # #ATR-20839
+        # ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),    
     ]
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
    ]
@@ -180,24 +209,7 @@ def setupMenu():
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
-    signatureList=[]
-    for prop in dir(TriggerFlags):
-        if prop[-5:]=='Slice':
-            sliceName=prop
-            slice=getattr(TriggerFlags,sliceName)
-            if slice.signatures():
-                signatureList.extend(slice.signatures())
-            else:
-                log.debug('SKIPPING '+str(sliceName))
-    mySigList=[]
-    for allInfo in signatureList:
-        mySigList.append(allInfo[0])
-    mydict={}
-    for chain in mySigList:
-        mydict[chain]=[-1,0,0]
-    mydict.update(Prescales.HLTPrescales_cosmics)
-    from copy import deepcopy
-    Prescales.HLTPrescales_cosmics = deepcopy(mydict)
+    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
 
 Prescales = mc_menu.Prescales

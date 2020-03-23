@@ -34,7 +34,7 @@ namespace ORUtils
   StatusCode ToolBox::initialize()
   {
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
     // For now, in Athena, things only work with private tools.
     // See ATLASG-957 for more details.
     if(!m_parent) {

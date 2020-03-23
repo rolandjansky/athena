@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import logging
 import os
@@ -15,7 +17,7 @@ def doInteract(**kw):
     "Start the interactive mode, adding the given variables to globals"
     os.environ["PYTHONINSPECT"] = "1"
     globals().update(kw)
-    print "\nEntering interactive mode, MVACalib object is called 'm'\n"
+    print("\nEntering interactive mode, MVACalib object is called 'm'\n")
 
 
 def make_list(x, N=1):
@@ -44,7 +46,7 @@ def create_TChain(inputfiles, treename):
 def create_file_list(list_filename, dataset_name):
     f = ROOT.TFile(list_filename)
     file_collection = f.Get(dataset_name)
-    urls = map(lambda x: x.GetFirstUrl().GetUrl(), file_collection.GetList())
+    urls = [x.GetFirstUrl().GetUrl() for x in file_collection.GetList()]
     return (file_collection.GetDefaultTreeName(), urls)
 
 
@@ -61,7 +63,7 @@ def getTChain(inputfiles, treename, readFromFile=False, dataset=False):
     else:
         if readFromFile:
             # filter is to remove empty strings
-            file_list = filter(bool, (i.strip('\n') for f in inputfiles for i in open(f)))
+            file_list = list(filter(bool, (i.strip('\n') for f in inputfiles for i in open(f))))
         else:
             file_list = inputfiles
         chain = create_TChain(file_list, treename)
@@ -99,7 +101,7 @@ def run_egammaMVACalib(outputfile, inputTree,
     if printBranches:
         m.InitTree(inputTree)
         for i in m.getListOfBranches():
-            print i.GetName()
+            print(i.GetName())
         return
     elif interact:
         doInteract(**locals())
@@ -122,13 +124,13 @@ def run_egammaMVACalibMulti(outputfile, inputTree, inputPath, useTMVA, method,
     logging.info("Running egammaMVACalibMulti")
     # Convert all the inputs to lists and make sure all the lists have the same size
     # (lists that have size 1 are multiplied by N, the maximum size)
-    iter_options = map(make_list, (inputPath, useTMVA, method, calibrationType, shift, defs))
+    iter_options = list(map(make_list, (inputPath, useTMVA, method, calibrationType, shift, defs)))
     N = max(len(i) for i in iter_options)
     if any(len(i) not in (1, N) for i in iter_options):
         raise ValueError("Invalid input: %s" % iter_options)
 
     iter_options = (make_list(i[0], N) if len(i) == 1 else i for i in iter_options)
-    loop = zip(*iter_options)
+    loop = list(zip(*iter_options))
     #  print loop
     if len(loop) != len(branchName):
         raise ValueError("Multiple options passed, branchName must have %s values, got %s" % (len(loop), len(branchName)))

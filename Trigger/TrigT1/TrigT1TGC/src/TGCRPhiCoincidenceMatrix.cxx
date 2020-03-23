@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceOut.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
 #include "TrigT1TGC/TGCSectorLogic.hh"
-#include "TrigT1TGC/TGCCoincidence.hh"
 #include <iostream>
 #include <cstdlib>
 
@@ -87,12 +86,12 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     // calculate pT of muon candidate
     if(tgcArgs()->useRun3Config()){
       //Algorithm for Run3
-      /*int pt=map->test_Run3(sectorLogic->getOctantID(),sectorLogic->getModuleID(),
-	subsector,type,dR,dPhi[j]); // this function will be implemented. 
-	ptOut = std::abs(pt)-1;
-	chargeOut = pt<0 ? 0:1;
-	//isgoodMFOut : will be set.
-      */
+      int pt=m_map->test_Run3(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),
+                            subsector,type,m_dR,m_dPhi[j]); // this function will be implemented. 
+      ptOut = std::abs(pt);
+      chargeOut = pt<0 ? 0:1;
+      //isgoodMFOut : will be set.
+      
       CoincidenceTypeOut=(type==0);
     }
     else{
@@ -106,21 +105,13 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       } // loop pt
     }
 
-
-    if (tgcArgs()->OUTCOINCIDENCE()) {
-      TGCCoincidence * coin
-	= new TGCCoincidence(m_sectorLogic->getBid(), m_sectorLogic->getId(), m_sectorLogic->getModuleID(), 
-			     m_sectorLogic->getRegion(), m_SSCId, m_r, m_phi[j], subsector, 
-			     m_ptR, m_dR, m_ptPhi[j], m_dPhi[j], ptOut);
-      tgcArgs()->TGCCOIN()->push_back(coin);
-    }
-
     // Trigger Out
     if( ptOut >= ptMax ){
       ptMax = ptOut;
       out->clear();    
       out->setIdSSC(m_SSCId);
-      out->setHit(ptMax+1);   
+      if(!tgcArgs()->useRun3Config()){out->setHit(ptMax+1);}// for Run2 Algo
+      else{out->setpT(ptMax);}// for Run3 Algo
       out->setR(m_r);
       out->setPhi(m_phi[j]);
       out->setDR(m_dR);
@@ -133,7 +124,7 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     }
   }
 
-  if (tgcArgs()->DEBUGLEVEL()){
+  if (tgcArgs()->MSGLEVEL() <= MSG::DEBUG){
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) != StatusCode::FAILURE) {

@@ -89,9 +89,9 @@ namespace Trk {
       const Layer* nextLayer(const Amg::Vector3D& gp, const Amg::Vector3D& mom, bool skipNavLayer=false) const;
 
       /** Closest Material Layer - used for the mapping option */
-      template <class T> const LayerIntersection<Amg::Vector3D>  closestMaterialLayer(const T& pars,
+      template <class T> LayerIntersection<Amg::Vector3D>  closestMaterialLayer(const T& pars,
                                                                                       PropDirection pDir = Trk::alongMomentum,
-                                                                                      BoundaryCheck bchk = true) const;
+                                                                                      const BoundaryCheck& bchk = true) const;
       /** check position at volume boundary */
       bool atVolumeBoundary(const Amg::Vector3D& gp, const TrackingVolume* vol, double tol) const;
       
@@ -120,11 +120,11 @@ namespace Trk {
       /** Geometry Builder busineess:
           set all contained surfaces TG owned - this should save memory and avoid surface copying 
           - prints compactification statistics */
-      void compactify ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=0) const;
+      void compactify ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
       
       /**  Geometry Builder busineess:
            synchronize all layers to enclosed volume dimensions */
-      void synchronizeLayers(MsgStream& msgstream, const TrackingVolume* vol=0) const;
+      void synchronizeLayers(MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
            
     
       /** private method the Navigation Level */
@@ -132,7 +132,7 @@ namespace Trk {
       void registerNavigationLevel ATLAS_NOT_THREAD_SAFE (NavigationLevel navlevel) const;
 
       /** private method to register recursively the tracking volumes */
-      void registerTrackingVolumes ATLAS_NOT_THREAD_SAFE (const TrackingVolume& tvol, const TrackingVolume* mvol = 0, int lvl = 0);
+      void registerTrackingVolumes ATLAS_NOT_THREAD_SAFE (const TrackingVolume& tvol, const TrackingVolume* mvol = nullptr, int lvl = 0);
 
       /**  private method to be called from GeometryBuilder: return the world with ownership */
       const TrackingVolume* checkoutHighestTrackingVolume();
@@ -178,7 +178,7 @@ namespace Trk {
       std::map<const std::string, const TrackingVolume*>::const_iterator sVol = m_trackingVolumes.begin();
       sVol = m_trackingVolumes.find(name);
       if (sVol != m_trackingVolumes.end()) return(sVol->second);
-      return 0;
+      return nullptr;
   }
   
   inline const Trk::Layer* TrackingGeometry::associatedLayer(const Amg::Vector3D& gp) const
@@ -199,13 +199,13 @@ namespace Trk {
   { return m_boundaryLayers; }
 
   
-  template <class T> const LayerIntersection<Amg::Vector3D> TrackingGeometry::closestMaterialLayer(const T& pars,
+  template <class T> LayerIntersection<Amg::Vector3D> TrackingGeometry::closestMaterialLayer(const T& pars,
                                                                                                    PropDirection pDir,
-                                                                                                   BoundaryCheck bchk) const
+                                                                                                   const BoundaryCheck& bchk) const
   {
       const TrackingVolume* lowestVol = (lowestTrackingVolume(pars.position()));
       return ( lowestVol ) ? (lowestVol->closestMaterialLayer(pars.position(),pars.momentum().unit(), pDir, bchk)) : 
-            Trk::LayerIntersection<Amg::Vector3D>(Trk::Intersection(pars.position(),10e10,false), 0, 0, 0 );
+            Trk::LayerIntersection<Amg::Vector3D>(Trk::Intersection(pars.position(),10e10,false), nullptr, nullptr, nullptr );
   }  
 
 } // end of namespace

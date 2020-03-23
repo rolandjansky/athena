@@ -53,7 +53,7 @@ echo  "art-result: $rc2 STsim"
 rc3=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root test.MT.HITS.pool.root test.ST.HITS.pool.root --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
+    acmd.py diff-root test.MT.HITS.pool.root test.ST.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc3=$?
 fi
 echo  "art-result: $rc3 comparision"

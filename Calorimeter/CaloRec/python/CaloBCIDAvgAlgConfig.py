@@ -47,13 +47,11 @@ def CaloBCIDAvgAlgCfg (flags):
     else:
         from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
         from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg, LArAutoCorrTotalCondAlgCfg
+        from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
         result.merge (LArADC2MeVCondAlgCfg (flags))
         result.merge (LArOFCCondAlgCfg (flags))
         result.merge (LArAutoCorrTotalCondAlgCfg (flags))
-
-        # FIXME: Convert to new config  It's also a public tool.
-        from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-        theBunchCrossingTool = BunchCrossingTool()
+        result.merge (BunchCrossingCondAlgCfg(flags))
 
         result.merge(addFolderList(flags, (('/LAR/ElecCalibMC/Shape','LAR_OFL','LArShape32MC'), 
                                            ('/LAR/ElecCalibMC/LArPileupAverage', 'LAR_OFL', 'LArMinBiasAverageMC')) ))
@@ -63,7 +61,6 @@ def CaloBCIDAvgAlgCfg (flags):
         result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
 
         alg = CaloBCIDAvgAlg (isMC = True,
-                              BunchCrossingTool = theBunchCrossingTool,
                               ShapeKey = 'LArShapeSym')
 
     result.addEventAlgo (alg)

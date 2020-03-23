@@ -10,6 +10,7 @@ class InDetCacheNames(object):
   SCT_ClusterKey     = "SCT_ClustersCache"
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
+  SCTBSErrCacheKey   = "SctBSErrCache"
   SCTRDOCacheKey     = "SctRDOCache"
   PixRDOCacheKey     = "PixRDOCache"
 
@@ -23,6 +24,7 @@ def InDetIDCCacheCreatorCfg():
                                               SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
                                               SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                               SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
+                                              SCTBSErrCacheKey   = InDetCacheNames.SCTBSErrCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey)
 
   acc.addEventAlgo( InDetCacheCreatorTrig )
@@ -392,7 +394,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   #theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
   #                                                         doIBLresidual = False,
   #                                                         TrackName = "TrigFastTrackFinder_Tracks",
-  #                                                         TrackParticlesName = "xAODTracks",
+  #                                                         TrackParticlesName = "IDTrack",
   #                                                         ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
   #theTrackParticleCreatorAlg.roiCollectionName = roisKey
   #acc.addEventAlgo(theTrackParticleCreatorAlg)

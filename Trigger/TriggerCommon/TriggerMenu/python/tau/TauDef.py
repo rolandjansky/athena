@@ -2,23 +2,20 @@
 
 """ Tau slice signatures """
 
-__authors__  = "P.O. DeViveiros, FTK modifications by P. McNamara"
+__authors__  = "P.O. DeViveiros, P. McNamara"
 __version__ = "" 
-__doc__="Implementation of Tau slice in new TM framework\n now with FTK chains"
+__doc__="Implementation of Tau slice in new TM framework"
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
 from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_tau, TrigCaloClusterMaker_topo
-from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
-from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo_rejectNoTracks
 from TrigTauHypo.TrigTauHypoConf import HLTTauCaloRoiUpdater, HLTTauTrackRoiUpdater
 from TrigTauRec.TrigTauRecConfig import (TrigTauRecMerged_TauCaloOnly,
                                          TrigTauRecMerged_TauCaloOnlyMVA,
-                                         TrigTauRecMerged_TauFTK,
                                          TrigTauRecMerged_TauPrecision,
                                          TrigTauRecMerged_TauPreselection,
                                          TrigTauRecMerged_TauPrecisionMVA)
@@ -160,16 +157,7 @@ class L2EFChain_tau(L2EFChainDef):
     #create the tracking sequence and tracking selection sequence    
     def addTrackingSequence(self,threshold,selection,preselection,idperf,trkprec):        
         # Get the necessary fexes
-        if preselection == 'FTK':
-            # use [:] so the list trkprec is modified by this function
-            [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["PT"]).getSequence()
-        elif preselection == 'FTKRefit':
-            [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit","PT"]).getSequence()
-        elif preselection == 'FTKNoPrec':
-            [trkfast] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=[""]).getSequence()
-            [trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit"]).getSequence()
-        else:
-            [trkfast, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
+        [trkfast, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
         # Use cosmic-specific tracking algorithm
         if selection == 'cosmic':
             [trkfast] = TrigInDetSequence("Cosmics", "cosmics", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
@@ -189,17 +177,6 @@ class L2EFChain_tau(L2EFChainDef):
                                      [theHLTTrackPre],
                                      self.continueChain('L2', 'trackpre')]]
             
-    #create the vertexing selection sequence        
-    def addVertexSequence(self,threshold,selection,preselection,idperf):  
-        #import FEX algorithm  
-        theTrigFTK_VxPrimary_EF = TrigFTK_VxPrimary_EF("TauFTKVertex", "Tau")
-        theTrigFTK_VxPrimary_EF.useRawTracks = False
-        theTrigFTK_VxPrimary_EF.useRefittedTracks = False
-        theTrigFTK_VxPrimary_EF.vertexContainerName= 'PrimVertexFTK'
-        vertexAlgorithms = [theTrigFTK_VxPrimary_EF]
-
-        self.EFsequenceList += [[[ self.currentItem ], vertexAlgorithms, self.continueChain('L2', 'vertex')]]
-        
     #create the TrigTauRec preselection sequence       
     def addTrigTauRecTauPreselectionSequence(self,threshold,selection,preselection,idperf):              
         # Run TrigTauRec to store pre-selected taus
@@ -209,15 +186,6 @@ class L2EFChain_tau(L2EFChainDef):
                                  [recPreselection],
                                  self.continueChain('L2', 'storepre')]]
     
-    #create the TrigTauRec FTK preselection sequence    
-    def addTrigTauRecTauFTKSequence(self,threshold,selection,preselection,idperf):            
-        # Run TrigTauRec to store pre-selected taus
-        recPreselection = TrigTauRecMerged_TauFTK()
-
-        self.EFsequenceList += [[[ self.currentItem ],
-                                 [recPreselection],
-                                 self.continueChain('L2', 'storepre')]]
-        
     #create the two step tracking sequences
     def addTwoStepTrackingSequence(self,threshold,selection,preselection,idperf,trkprec): 
         # Get the necessary fexes
@@ -295,9 +263,9 @@ class L2EFChain_tau(L2EFChainDef):
         # Strategies which need fast-track finding
         needsTrackTwoPre = ['tracktwo', 'tracktwoonly']
         needsTrackTwoNoPre = ['tracktwoEF','tracktwoMVA', 'tracktwoEFmvaTES']
-        needsTrackPre    = ['track', 'FTK', 'FTKRefit', 'FTKNoPrec']
+        needsTrackPre    = ['track']
         # Strategies which need Run-II final hypo
-        needsRun2Hypo = ['calo', 'ptonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwoEFmvaTES']
+        needsRun2Hypo = ['calo', 'ptonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'tracktwoEFmvaTES']
         fastTrackingUsed = needsTrackPre + needsTrackTwoPre + needsTrackTwoNoPre
 
 
@@ -323,41 +291,32 @@ class L2EFChain_tau(L2EFChainDef):
         if idperf:
             selection = 'perf'
 
-        #Create FTK chain or other chains
-        if preselection == 'FTK' or preselection == 'FTKRefit' or preselection == 'FTKNoPrec':           
+        # Calorimeter
+        if preselection in needsCaloPre:
             self.addCaloSequence(threshold, selection, preselection)
-            self.addTrackingSequence(threshold,selection,preselection,idperf,trkprec)
-            self.addVertexSequence(threshold,selection,preselection,idperf)
-            self.addTrigTauRecTauFTKSequence(threshold,selection,preselection,idperf)
-            self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
+            self.addTrigTauRecCaloOnlySequence(threshold,selection,preselection)
             self.addCaloHypoSequence(threshold,selection,preselection)
-        else:
-            # Calorimeter
-            if preselection in needsCaloPre:
-                self.addCaloSequence(threshold, selection, preselection)
-                self.addTrigTauRecCaloOnlySequence(threshold,selection,preselection)
-                self.addCaloHypoSequence(threshold,selection,preselection)
-            elif preselection in needsCaloMVAPre:
-                self.addCaloSequence(threshold, selection, preselection)
-                self.addTrigTauRecCaloOnlyMVASequence(threshold,selection,preselection)
-                self.addCaloHypoSequence(threshold,selection,preselection)
-            # Two step fast-tracking
-            if preselection in needsTrackTwoPre:
-                self.addTwoStepTrackingSequence(threshold,selection,preselection,idperf, trkprec)
-                if preselection == 'tracktwo':
-                    self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
-                    self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
-                else:
-                    self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
-                    self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
-            # Two-step tracking but no tau reco, no selection
-            if preselection in needsTrackTwoNoPre:
-                self.addTwoStepTrackingSequence(threshold,selection,preselection,idperf, trkprec)
-            # One step fast-tracking
-            if preselection in needsTrackPre:
-                self.addTrackingSequence(threshold,selection,preselection,idperf,trkprec)
-                self.addTrackingSelectionSequence(threshold,selection,preselection,idperf,trkprec) 
+        elif preselection in needsCaloMVAPre:
+            self.addCaloSequence(threshold, selection, preselection)
+            self.addTrigTauRecCaloOnlyMVASequence(threshold,selection,preselection)
+            self.addCaloHypoSequence(threshold,selection,preselection)
+        # Two step fast-tracking
+        if preselection in needsTrackTwoPre:
+            self.addTwoStepTrackingSequence(threshold,selection,preselection,idperf, trkprec)
+            if preselection == 'tracktwo':
                 self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
+                self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
+            else:
+                self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
+                self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
+        # Two-step tracking but no tau reco, no selection
+        if preselection in needsTrackTwoNoPre:
+            self.addTwoStepTrackingSequence(threshold,selection,preselection,idperf, trkprec)
+        # One step fast-tracking
+        if preselection in needsTrackPre:
+            self.addTrackingSequence(threshold,selection,preselection,idperf,trkprec)
+            self.addTrackingSelectionSequence(threshold,selection,preselection,idperf,trkprec) 
+            self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
 
         if preselection in needsRun2Hypo:
             # Only run tracking and tau-rec : no need for topoclustering

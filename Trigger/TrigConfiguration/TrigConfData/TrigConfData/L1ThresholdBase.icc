@@ -1,0 +1,55 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace TrigConf {
+
+   template<class T>
+   size_t ValueWithEtaDependence<T>::size() const {
+      return m_rangeValues.size();
+   }
+
+   template<class T>
+   bool ValueWithEtaDependence<T>::empty() const {
+      return m_rangeValues.empty();
+   }
+
+   template<class T>
+   typename ValueWithEtaDependence<T>::const_iterator ValueWithEtaDependence<T>::begin() const noexcept {
+      return m_rangeValues.begin();
+   }
+   template<class T>
+   typename ValueWithEtaDependence<T>::const_iterator ValueWithEtaDependence<T>::end() const noexcept {
+      return m_rangeValues.end();
+   }
+
+   template<class T>
+   void ValueWithEtaDependence<T>::addRangeValue(const T & value, int etaMin, int etaMax, unsigned int priority, bool symmetric) {
+      RangeValue rv = { value, etaMin, etaMax, priority, symmetric };
+      m_rangeValues.emplace_back( std::move(rv) );
+   }
+
+   template<class T>
+   const T & ValueWithEtaDependence<T>::at(int eta) const {
+      int current_priority = -1;
+      const T * retVal { nullptr };
+      for( const auto & rv : m_rangeValues ) {
+         if(eta>rv.etaMax or eta < rv.etaMin) // outside the window
+            continue;
+         if(int(rv.priority) < current_priority)
+            continue;
+         if(int(rv.priority) == current_priority) {
+            throw std::runtime_error(name() + ": found two values with the same priority " + std::to_string(rv.priority) 
+                                     + " for eta = " + std::to_string(eta));
+         }
+         current_priority = (int)rv.priority;
+         retVal = & rv.value;
+      }
+      if( retVal ) {
+         return * retVal;
+      } else {
+         throw std::runtime_error(name() + ": no value found with eta = " + std::to_string(eta));
+      }
+   }
+
+}

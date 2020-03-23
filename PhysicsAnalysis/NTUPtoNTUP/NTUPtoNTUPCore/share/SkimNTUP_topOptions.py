@@ -11,12 +11,12 @@ theApp.EvtMax = 0
 
 ### NTUP->NTUP
 ntupFlags=jobproperties.SkimNTUP_ProdFlags
-print "Content of rec.SkimNTUPScripts = %s", ntupFlags.SkimNTUPScripts
+printfunc ("Content of rec.SkimNTUPScripts = %s", ntupFlags.SkimNTUPScripts)
 if ntupFlags.SkimNTUPScripts()!=[]:
   for ntup in ntupFlags.SkimNTUPScripts():
       NTUPName = str(ntup)
-      print "Including %s...",NTUPName
+      printfunc ("Including %s...",NTUPName)
       include(ntup)
       pass
 else:
-  print "no scripts in SkimNTUPScripts..."
+  printfunc ("no scripts in SkimNTUPScripts...")

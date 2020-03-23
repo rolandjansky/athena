@@ -1,9 +1,11 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: AsgTool.icc 613791 2014-08-28 09:56:34Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_ASGTOOL_ICC
 #define ASGTOOLS_ASGTOOL_ICC
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
 // Local include(s):
 #include "AsgTools/PropertyMgr.h"
@@ -51,9 +53,9 @@ namespace asg {
 
 } // namespace asg
 
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Property.h"
@@ -86,6 +88,6 @@ namespace asg {
 
 } // namespace asg
 
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 #endif // not ASGTOOLS_ASGTOOL_ICC

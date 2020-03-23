@@ -1,4 +1,4 @@
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 
 template<class T> 
 const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* te, std::string label) const {
@@ -41,7 +41,7 @@ const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::
   return  std::vector<Trig::Feature<T> >();
 }
 
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::ChainGroup* group,

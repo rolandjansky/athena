@@ -36,6 +36,8 @@
 #include "TrigTauRecMergedMT.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
+#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+
 #include <iterator>
 #include <algorithm>
 
@@ -60,7 +62,6 @@ StatusCode TrigTauRecMergedMT::initialize()
 {
   ATH_MSG_DEBUG("TrigTauRecMergedMT::initialize()");
 
-  m_tauEventData.setInTrigger(true);
   if ( m_tools.begin() == m_tools.end() ) {
     ATH_MSG_DEBUG(" no tools given for this algorithm.");
     return StatusCode::FAILURE;
@@ -71,6 +72,16 @@ StatusCode TrigTauRecMergedMT::initialize()
   ATH_MSG_DEBUG("List of tools in execution sequence:");
 
   for(; p_itT != p_itTE; ++p_itT ) {
+    // make sure the key of the container in tauRecTool are the same
+    // need to set the property before the initialization of tools
+    if (p_itT->name().find("VertexFinder") != std::string::npos) {
+      ATH_CHECK( AAH::setProperty(*p_itT, "Key_trackPartInputContainer",m_tracksKey.key()) );
+      ATH_CHECK( AAH::setProperty(*p_itT, "Key_vertexInputContainer",m_vertexKey.key()) );
+    }
+    else if (p_itT->name().find("TrackFinder") != std::string::npos) {
+      ATH_CHECK( AAH::setProperty(*p_itT, "Key_trackPartInputContainer",m_tracksKey.key()) );
+    }
+
     StatusCode p_sc = p_itT->retrieve();
     if( p_sc.isFailure() ) {
       ATH_MSG_DEBUG("Cannot find tool named <" << *p_itT << ">");
@@ -78,7 +89,6 @@ StatusCode TrigTauRecMergedMT::initialize()
     }
     else {
       ATH_MSG_DEBUG("Add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name());
-      (*p_itT)->setTauEventData(&m_tauEventData);
     }
   }
 
@@ -93,7 +103,6 @@ StatusCode TrigTauRecMergedMT::initialize()
     }
     else {
       ATH_MSG_DEBUG(" Add time for end tool "<< ( *p_itTe )->type() <<" "<< ( *p_itTe )->name());
-      ( *p_itTe )->setTauEventData(&m_tauEventData);
     }
   }
 
@@ -232,7 +241,6 @@ StatusCode TrigTauRecMergedMT::execute()
   // Copy the first vertex from a const object
   xAOD::Vertex theBeamspot;
   theBeamspot.makePrivateStore();
-  const xAOD::Vertex* ptrBeamspot = nullptr;
 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   if(beamSpotHandle.isValid()){
@@ -247,19 +255,7 @@ StatusCode TrigTauRecMergedMT::execute()
     // Create a AmgSymMatrix to alter the vertex covariance mat.
     const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
     theBeamspot.setCovariancePosition(cov);
-
-    ptrBeamspot = &theBeamspot;
   }
-
-  if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
-  if(beamSpotHandle.isValid()) m_tauEventData.setObject("Beamspot", ptrBeamspot);
-  if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
-
-  //-------------------------------------------------------------------------
-  // setup TauCandidate data
-  //-------------------------------------------------------------------------
-
-  m_tauEventData.clear();
 
   // get TauJetContainer from SG
   const xAOD::TauJetContainer *pTauContainer = nullptr;
@@ -323,10 +319,6 @@ StatusCode TrigTauRecMergedMT::execute()
       return StatusCode::FAILURE;
     }
 
-    m_tauEventData.setObject("TauTrackContainer", pTrackContainer);
-    m_tauEventData.xAODTauContainer = pContainer;
-    m_tauEventData.tauAuxContainer = pAuxContainer;
-
     if(p_tau==nullptr){
       p_tau = new xAOD::TauJet();
       pContainer->push_back(p_tau);
@@ -377,8 +369,6 @@ StatusCode TrigTauRecMergedMT::execute()
     //-------------------------------------------------------------------------
 
     p_tau->setJet(theJetContainer.get(), aJet);
-    m_tauEventData.seedContainer = theJetContainer.get();
-    m_tauEventData.setObject("JetCollection", theJetContainer.get() );
 
     if(aJet->e()<=0) {
       ATH_MSG_DEBUG( "Roi: changing eta due to energy " << aJet->e() );
@@ -406,8 +396,6 @@ StatusCode TrigTauRecMergedMT::execute()
       ATH_MSG_DEBUG(" Size of vector Track container is " << RoITrackParticleContainer->size());
       if(RoITrackParticleContainer != nullptr) nTracks = RoITrackParticleContainer->size();
     }
-
-    m_tauEventData.setObject("TrackContainer", RoITrackParticleContainer);
   }
 
   // get Vertex Container
@@ -424,8 +412,6 @@ StatusCode TrigTauRecMergedMT::execute()
       RoIVxContainer = VertexContainerHandle.get();
       ATH_MSG_DEBUG(" Size of vector Vertex  container " << RoIVxContainer->size());
     }
-
-    m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
   }
 
   // This sets one track and link. Need to have at least 1 track linked to retrieve track container
@@ -458,6 +444,10 @@ StatusCode TrigTauRecMergedMT::execute()
   firstTool = m_tools.begin();
   lastTool  = m_tools.end();
   processStatus    = StatusCode::SUCCESS;
+  
+  // dummy container passed to TauVertexVariables, not used in trigger though
+  xAOD::VertexContainer dummyVxCont;
+  
   ATH_MSG_DEBUG("Starting tool loop with seed jet");
   while ( ! processStatus.isFailure() && firstTool != lastTool ) {
     // loop stops only when Failure indicated by one of the tools
@@ -465,7 +455,19 @@ StatusCode TrigTauRecMergedMT::execute()
     // time in the various tools
     ++toolnum;
 
-    processStatus = (*firstTool)->execute( *p_tau );
+    if ((*firstTool)->type() == "TauVertexFinder" ) {
+      processStatus = (*firstTool)->executeVertexFinder(*p_tau);
+    }
+    else if ( (*firstTool)->type() == "TauTrackFinder") {
+      processStatus = (*firstTool)->executeTrackFinder(*p_tau);
+    }
+    else if ( (*firstTool)->type() == "TauVertexVariables" ) {
+      processStatus = (*firstTool)->executeVertexVariables(*p_tau, dummyVxCont);
+    }
+    else {
+      processStatus = (*firstTool)->execute( *p_tau );
+    }
+    
     if ( !processStatus.isFailure() ) {
       ATH_MSG_DEBUG(" "<< (*firstTool)->name() << " executed successfully ");
       ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()

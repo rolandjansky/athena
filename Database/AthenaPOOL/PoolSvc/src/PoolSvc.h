@@ -186,7 +186,7 @@ private: // data
    coral::Context*                                   m_context{nullptr};
    pool::IFileCatalog*                               m_catalog{nullptr};
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
-   mutable std::vector<CallMutex*>                   m_pers_mut;
+   std::vector<CallMutex*>                           m_pers_mut;
    std::map<std::string, unsigned int>               m_contextLabel;
    std::string                                       m_mainOutputLabel{};
    std::map<unsigned int, unsigned int>              m_contextMaxFile;
@@ -203,7 +203,7 @@ private: // properties
    ///	default = "" (use POOL default).
    StringProperty m_writeCatalog{this,"WriteCatalog","xmlcatalog_file:PoolFileCatalog.xml"};
    /// ReadCatalog, the list of additional POOL input file catalogs to consult: default = empty vector.
-   StringArrayProperty m_readCatalog{this,"ReadCatalog",{},"List of catalog files to read from"};
+   StringArrayProperty m_readCatalog{this,"ReadCatalog",{},"List of catalog files to read from","Set<std::string>"};
    /// Use ROOT Implicit MultiThreading, default = true.
    BooleanProperty m_useROOTIMT{this,"UseROOTImplicitMT",true};
    /// AttemptCatalogPatch, option to create catalog: default = false.

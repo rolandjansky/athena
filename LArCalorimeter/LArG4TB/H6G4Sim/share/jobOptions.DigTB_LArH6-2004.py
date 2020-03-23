@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #==============================================================
 #
 # Job options file for Digitization
@@ -7,19 +8,19 @@
 #==============================================================
 
 # Number of events to be processed (default is 10)
-if (not "EvtMax" in dir()):
+if ("EvtMax" not in dir()):
    EvtMax = 10
 
-if (not "doCaloNoise" in dir()):
-   doCaloNoise = TRUE
+if ("doCaloNoise" not in dir()):
+   doCaloNoise = True
 
-if (not "PoolHitsInput" in dir()):
+if ("PoolHitsInput" not in dir()):
    PoolHitsInput = [ "Test.pool.root" ]
 
-if (not "PoolRDOOutput" in dir()):
+if ("PoolRDOOutput" not in dir()):
    PoolRDOOutput = "TestDigi.pool.root"
 
-if (not "SkipEvents" in dir()):
+if ("SkipEvents" not in dir()):
    SkipEvents = 0
 
 import AthenaCommon.AtlasUnixStandardJob
@@ -85,8 +86,8 @@ if DetFlags.writeRDOPool.any_on():
     # Pool Output
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
     Stream1 = AthenaPoolOutputStream("Stream1")
-    Stream1.ItemList+=["EventInfo#*"];           
-    Stream1.ItemList+=["TBEventInfo#*"];           
+    Stream1.ItemList+=["EventInfo#*"]
+    Stream1.ItemList+=["TBEventInfo#*"]
     Stream1.ItemList+=["McEventCollection#*"]
 
     Stream1.OutputFile = PoolRDOOutput
@@ -138,15 +139,15 @@ if DetFlags.LAr_on():
     ToolSvc += LArTBH6TriggerTimeTool()
     from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
     theLArOFCTool = LArOFCToolDefault()
-    theLArOFCTool.FromDatabase=FALSE
+    theLArOFCTool.FromDatabase=False
     ToolSvc += theLArOFCTool
-    ToolSvc.LArTBH6TriggerTimeTool.isFixed=TRUE
+    ToolSvc.LArTBH6TriggerTimeTool.isFixed=True
     ToolSvc.LArTBH6TriggerTimeTool.FixedTime = 83.  #maybe this one
     ToolSvc.LArTBH6TriggerTimeTool.OutputLevel = 4
 
     include( "H6G4Sim/LArDigitization_H6G4_jobOptions.py" )
 
-    DetDescrCnvSvc.DecodeIdDict = TRUE
+    DetDescrCnvSvc.DecodeIdDict = True
 
     include( "LArROD/LArROD_jobOptions.py" )
     LArRawChannelBuilder.Ecut=0

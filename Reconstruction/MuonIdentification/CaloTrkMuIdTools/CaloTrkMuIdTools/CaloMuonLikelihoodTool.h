@@ -6,7 +6,7 @@
 #define CALOTRKMUIDTOOLS_CALOMUONLIKELIHOODTOOL_H
 
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
-#include "ICaloTrkMuIdTools/ITrackEnergyInCaloTool.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -33,7 +33,7 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
   
-  double getLHR(const Trk::TrackParameters* trkpar, const xAOD::CaloClusterContainer* ClusCollection=nullptr, const double dR_CUT=0.3) const;
+  double getLHR(const xAOD::TrackParticle* trk, const xAOD::CaloClusterContainer* ClusCollection=nullptr, const double dR_CUT=0.3) const;
   double getLHR(const xAOD::CaloClusterContainer* ClusCollection, const double eta_trk, const double p_trk, const double eta_trkAtCalo, const double phi_trkAtCalo, const double dR_CUT=0.3) const;
 
 private:
@@ -45,7 +45,7 @@ private:
   int               m_numKeys[9];
   mutable std::atomic_int m_cnt_warn{0};
 
-  ToolHandle<ITrackEnergyInCaloTool>  m_trkEnergyInCalo;
+  ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
   std::vector<std::string>  m_fileNames;
 };
 

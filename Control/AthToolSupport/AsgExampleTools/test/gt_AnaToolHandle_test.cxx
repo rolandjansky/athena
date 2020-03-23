@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -11,7 +11,7 @@
 //
 
 #include <AsgTools/AnaToolHandle.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <AsgExampleTools/UnitTestTool1.h>
 #include <AsgExampleTools/UnitTestTool2.h>
@@ -106,9 +106,9 @@ namespace asg
       myname = tool->name();
       ASSERT_EQ (2u, tool->refCount());
       EXPECT_EQ (1, UnitTestTool1::instance_counts(myname));
-      tool->release();
+      ASSERT_SUCCESS (tool.release());
       EXPECT_EQ (1, UnitTestTool1::instance_counts(myname));
-      tool.release();
+      ASSERT_SUCCESS (tool.release());
       EXPECT_EQ (0, UnitTestTool1::instance_counts(myname));
     }
     interfaceType_t *tool = nullptr;
@@ -831,7 +831,7 @@ namespace asg
   {
     std::string name = makeUniqueName();
     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("propertyInt", "57"));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("propertyInt", "57")));
 
     AnaToolHandle<IUnitTestTool1> handle ("asg::UnitTestTool1/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -845,7 +845,7 @@ namespace asg
   {
     std::string name = makeUniqueName();
     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("invalid", "57"));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("invalid", "57")));
 
     AnaToolHandle<IUnitTestTool1> handle ("asg::UnitTestTool1/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -856,10 +856,10 @@ namespace asg
   {
     std::string name = makeUniqueName();
     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1A/anaPrivateHandle"));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1A/anaPrivateHandle")));
 
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", ""));
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", ""));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", "")));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", "")));
 
     AnaToolHandle<IUnitTestTool2> handle ("asg::UnitTestTool2/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -872,11 +872,11 @@ namespace asg
   {
     std::string name = makeUniqueName();
     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1/anaPrivateHandle"));
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name + ".anaPrivateHandle", StringProperty("propertyInt", "48"));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1/anaPrivateHandle")));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name + ".anaPrivateHandle", StringProperty("propertyInt", "48")));
 
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", ""));
-    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", ""));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", "")));
+    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", "")));
 
     AnaToolHandle<IUnitTestTool2> handle ("asg::UnitTestTool2/" + name);
     EXPECT_TRUE (handle.isUserConfigured());

@@ -11,12 +11,12 @@ def minbiasSpacePointAthSequence(ConfigFlags):
     minbiasSpacePointAthSequence =  seqAND("minbiasSpacePointAthSequence",[InputMakerAlg, recoSequence ])
     return (minbiasSpacePointAthSequence, InputMakerAlg, sequenceOut)
 
-    def minbiasTrackAthSequence(ConfigFlags):
-        InputMakerAlg= clusterFSInputMaker()
-        (recoSequence, sequenceOut) = MinBiasRecoSequences()
+def minbiasTrackAthSequence(ConfigFlags):
+    InputMakerAlg= clusterFSInputMaker()
+    (recoSequence, sequenceOut) = MinBiasRecoSequences()
 
-        minbiasTrackAthSequence =  seqAND("minbiasTrackAthSequence",[InputMakerAlg, recoSequence ])
-        return (minbiasTrackAthSequence, InputMakerAlg, sequenceOut)
+    minbiasTrackAthSequence =  seqAND("minbiasTrackAthSequence",[InputMakerAlg, recoSequence ])
+    return (minbiasTrackAthSequence, InputMakerAlg, sequenceOut)
 
 
 def MinBiasRecoSequences():

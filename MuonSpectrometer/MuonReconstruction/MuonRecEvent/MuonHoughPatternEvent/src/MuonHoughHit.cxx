@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughHit.h"
@@ -8,6 +8,8 @@
 
 #include "TrkDetElementBase/TrkDetElementBase.h"  
 #include "TrkSurfaces/Surface.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughHit::MuonHoughHit(const Trk::PrepRawData* prd):m_orig_weight(1.)
 {
@@ -68,13 +70,9 @@ MuonHoughHit::MuonHoughHit(double x, double y, double z, bool measures_phi, Muon
   m_magnetic_trackratio = calcMagneticTrackRatio();
 }
 
-MuonHoughHit::~MuonHoughHit()
-{
-  //  std::cout << "Destructor MuonHoughHit" << std::endl;
-}
-
 std::string MuonHoughHit::getWhichDetector()const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughHit::getWhichDetector");
   std::string detector_name;
   switch (m_detector_id)
     {
@@ -90,7 +88,7 @@ std::string MuonHoughHit::getWhichDetector()const
     case MuonHough::TGC:
       detector_name="TGC";
       break;
-    default: std::cout << "MuonHoughHit:: no valid detector_id" << std::endl;
+    default: if(log.level()<=MSG::WARNING) log << MSG::WARNING << "MuonHoughHit:: no valid detector_id" << endmsg;
     }
   return detector_name;
 }

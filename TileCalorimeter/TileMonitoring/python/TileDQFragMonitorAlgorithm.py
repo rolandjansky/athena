@@ -128,21 +128,22 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
     from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
 
     # 5) Configure histogram with mismatched L1 trigger type of Tile module
-    modulePartitionLabels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)]
-    modulePartitionLabels += [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)]
+    moduleLabels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)]
+    partitionLabels = [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)]
 
     mismatchedLVL1Group = helper.addGroup(tileDQFragMonAlg, 'TileMismatchedL1TiggerType', 'Tile/')
     mismatchedLVL1Group.defineHistogram('module,ROS;TileMismatchedL1TiggerType', path = 'DMUErrors',
                                         title = run + ': Tile mismatched L1 Trigger Type;Module;Partition',
-                                        type = 'TH2F', labels = modulePartitionLabels,
+                                        type = 'TH2F', xlabels = moduleLabels, ylabels = partitionLabels,
                                         xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                                         ybins = Tile.MAX_ROS - 1, ymin = 1.0, ymax = Tile.MAX_ROS)
 
 
     # 6) Configure histogram with no all Tile digits in the case of Trigger Type = 0x82
     noAllDigitsGroup = helper.addGroup(tileDQFragMonAlg, 'TileNoAllDigits', 'Tile/')
-    noAllDigitsGroup.defineHistogram('module,ROS;TileNoalldigits', path = 'DMUErrors', type = 'TH2F', labels = modulePartitionLabels,
+    noAllDigitsGroup.defineHistogram('module,ROS;TileNoalldigits', path = 'DMUErrors', type = 'TH2F',
                                      title = run + ': No All Tile digits in event with Trigger Type = 0x82;Module;Partition',
+                                     xlabels = moduleLabels, ylabels = partitionLabels,
                                      xbins = Tile.MAX_DRAWER, xmin = 0.0, xmax = Tile.MAX_DRAWER,
                                      ybins = Tile.MAX_ROS - 1, ymin = 1.0, ymax = Tile.MAX_ROS)
 
@@ -150,9 +151,9 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
 
     # 7) Configure histograms with Tile DMU errors
     maxDMUs = 16
-    dmuErrorLabels = [str(dmu) for dmu in range(0, maxDMUs)]
+    dmuLabels = [str(dmu) for dmu in range(0, maxDMUs)]
 
-    dmuErrorLabels += ['OK', 'HEADER_FORM', 'HEADER_PAR', 'MEMO_PAR', 'FE_CRC', 'ROD_CRC', 'BCID']
+    dmuErrorLabels = ['OK', 'HEADER_FORM', 'HEADER_PAR', 'MEMO_PAR', 'FE_CRC', 'ROD_CRC', 'BCID']
     dmuErrorLabels += ['SAMPLE_FORM', 'SAMPLE_PAR', 'DOUBLE_STB', 'SINGLE_STB', 'GLOBAL_CRC']
     dmuErrorLabels += ['DUMMY_FRAG', 'NO_RECO_FRAG', 'MASKED', 'ALL_M_BAD_DCS', 'ANY_CH_BAD_HV']
 
@@ -160,7 +161,7 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
     dmuErrorLabels += ['Single Dn + ped', 'Single Up + sig', 'Single Dn + sig', 'Ped > 200 LG']
     dmuErrorLabels += ['Single Dn LG_s0', 'Single Dn LG_s6', 'Up LG_s0_s6 or Gap', 'Dn LG_s0_s6 or Gap']
 
-    maxErrors = len(dmuErrorLabels) - maxDMUs
+    maxErrors = len(dmuErrorLabels)
 
     errorsArray = helper.addArray([int(Tile.MAX_ROS - 1), int(Tile.MAX_DRAWER)],
                                   tileDQFragMonAlg, 'TileDigiErrors', topPath = 'Tile/')
@@ -171,8 +172,8 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
         title = 'Run ' + run + ': ' + moduleName + ' DMU Header Errors;DMU'
         name = 'DMU,Error;TileDigiErrors' + moduleName
 
-        tool.defineHistogram(name, title = title, type = 'TH2F',
-                             labels = dmuErrorLabels, path = 'DMUErrors',
+        tool.defineHistogram(name, title = title, type = 'TH2F', path = 'DMUErrors',
+                             xlabels = dmuLabels, ylabels = dmuErrorLabels,
                              xbins = maxDMUs, xmin = 0.0, xmax = maxDMUs,
                              ybins = maxErrors, ymin = 0.0, ymax = maxErrors)
 

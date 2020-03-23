@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryH62002.h"
@@ -473,8 +473,8 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
 
 
-  m_detectorStore->record(hecDetManager,hecDetManager->getName());
-  m_detectorStore->record(emecDetectorManager,emecDetectorManager->getName());
+  m_detectorStore->record(hecDetManager,hecDetManager->getName()).ignore();
+  m_detectorStore->record(emecDetectorManager,emecDetectorManager->getName()).ignore();
   m_detectorManager = new LArDetectorManager(0,emecDetectorManager,hecDetManager,0);
 
   m_detectorManager->addTreeTop(expHallPhys);

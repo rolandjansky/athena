@@ -8,6 +8,20 @@ from RecExConfig.ObjKeyStore import objKeyStore
 from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
 from DerivationFrameworkMCTruth.TruthDerivationTools import *
 
+#==============================================================================
+# Set up stream
+#==============================================================================
+streamName = derivationFlags.WriteDAOD_TRUTH5Stream.StreamName
+fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH5Stream )
+TRUTH5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+# Only events that pass the filters listed are written out
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+TRUTH5Stream.AcceptAlgs(['TRUTH5Kernel'])
+
 #====================================================================
 # GEN_AOD and xAOD truth making
 #====================================================================
@@ -62,7 +76,7 @@ DerivationFrameworkJob += metAlg
 #==============================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 TRUTH5TruthThinning = DerivationFramework__MenuTruthThinning(name                      = "TRUTH5TruthThinning",
-                                                            ThinningService            = "TRUTH5ThinningSvc",
+                                                            StreamName                 = streamName,
                                                             WritePartons               = False,
                                                             WriteHadrons               = False,
                                                             WriteBHadrons              = True,
@@ -89,7 +103,7 @@ ToolSvc += TRUTH5TruthThinning
 #==============================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 TRUTH5PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "TRUTH5PhotonThinning",
-                                                                 ThinningService         = "TRUTH5ThinningSvc",
+                                                                 StreamName              = streamName,
                                                                  ParticlesKey            = "TruthPhotons",  
                                                                  ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
 ToolSvc += TRUTH5PhotonThinning
@@ -106,23 +120,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH5Ke
                                                                           DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
                                                                           DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2],
                                                                         ThinningTools = [TRUTH5TruthThinning,TRUTH5PhotonThinning])
-
-#==============================================================================
-# Set up stream
-#==============================================================================
-streamName = derivationFlags.WriteDAOD_TRUTH5Stream.StreamName
-fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH5Stream )
-TRUTH5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="TRUTH5ThinningSvc", outStreams=[evtStream] )
-
-# Only events that pass the filters listed are written out
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-TRUTH5Stream.AcceptAlgs(['TRUTH5Kernel'])
 
 #==============================================================================
 # Set up slimming content list here

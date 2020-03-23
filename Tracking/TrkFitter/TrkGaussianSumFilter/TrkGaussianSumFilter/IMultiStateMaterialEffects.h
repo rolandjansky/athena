@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -66,7 +66,7 @@ public:
   static const InterfaceID& interfaceID() { return IID_IMultiStateMaterialEffects; };
 
   /** virtual destructor */
-  virtual ~IMultiStateMaterialEffects()= default;
+  virtual ~IMultiStateMaterialEffects() = default;
 
   virtual void compute(IMultiStateMaterialEffects::Cache&,
                        const ComponentParameters&,

@@ -23,7 +23,7 @@
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ namespace InDet
     m_trtconddbsvc("TRT_CalDbSvc",name),
     m_fieldServiceHandle("AtlasFieldSvc",name),
     m_TrtTool(0),
-    m_TRTdEdxTool("TRT_ToT_dEdx"),
+    m_TRTdEdxTool(),
     m_TrtToolsSuccess{},
     m_TrtToolInitSuccess{}
   {
