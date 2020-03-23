@@ -54,28 +54,15 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
 //
 //   Retrieve all services except LorentzAngleSvc, which has to be done later
 //
-    StatusCode sc;
-    sc = m_geoModelSvc.retrieve();
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
-        return (StatusCode::FAILURE);
-    }
-    sc = m_rdbAccessSvc.retrieve();
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
-        return StatusCode::FAILURE;
-    }
-    sc = m_geometryDBSvc.retrieve();
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
-        return (StatusCode::FAILURE);
-    }
+
+    ATH_CHECK(m_geoModelSvc.retrieve());
+    ATH_CHECK(m_rdbAccessSvc.retrieve());
+    ATH_CHECK(m_geometryDBSvc.retrieve());
+    ATH_CHECK(m_geoModelSvc.retrieve());
+
     GeoModelExperiment *theExpt;
-    sc = detStore->retrieve(theExpt, "ATLAS");
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not find GeoModelExperiment ATLAS" << endmsg;
-        return (StatusCode::FAILURE);
-    }
+    ATH_CHECK(detStore->retrieve(theExpt, "ATLAS"));
+
 //
 //    Get their interfaces to pass to the DetectorFactory
 //
@@ -109,11 +96,7 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
         return(StatusCode::FAILURE);
     }
 
-    sc = detStore->record(m_manager, m_manager->getName());
-    if (sc.isFailure() ) {
-        msg(MSG::ERROR) << "Could not register HGTD_DetectorManager" << endmsg;
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore->record(m_manager, m_manager->getName()));
     theExpt->addManager(m_manager);
 
 //
