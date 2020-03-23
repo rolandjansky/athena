@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -150,10 +150,10 @@ StatusCode AlignCondAthTest::finalize() {
 StatusCode AlignCondAthTest::checkALines(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout) 
 {
 
-  ALineMapContainer*  alineDataTemp = manager->ALineContainer();
+  const ALineMapContainer*  alineDataTemp = manager->ALineContainer();
   for (auto aline : *alineDataTemp) {
     Identifier ALineId = aline.first;
-    ALinePar* ALine = aline.second;
+    const ALinePar* ALine = aline.second;
     std::string stationType;
     int jff,jzz,job;
     ALine->getAmdbId(stationType,jff,jzz,job);
@@ -181,7 +181,7 @@ StatusCode AlignCondAthTest::checkALines(const MuonGM::MuonDetectorManager* mana
 StatusCode AlignCondAthTest::checkBLines(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout) 
 {
 
-  BLineMapContainer*  blineDataTemp = manager->BLineContainer();
+  const BLineMapContainer*  blineDataTemp = manager->BLineContainer();
   for (auto bline : *blineDataTemp) {
     Identifier BLineId = bline.first;
     BLinePar* BLine = bline.second;

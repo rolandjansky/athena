@@ -66,6 +66,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_muonqual_L12MU4',  groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_muonqual_L12MU6',  groups=MultiMuonGroup),
 
+       # ATR-20650
+        ChainProp(name='HLT_mu0_muoncalib_L1MU4_EMPTY', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu0_muoncalib_L1MU20',      groups=SingleMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [

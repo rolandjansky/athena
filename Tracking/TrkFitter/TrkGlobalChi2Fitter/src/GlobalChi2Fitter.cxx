@@ -3303,402 +3303,280 @@ namespace Trk {
       return false;
     }
   };
+  
+  std::optional<std::pair<Amg::Vector3D, double>> GlobalChi2Fitter::addMaterialFindIntersectionDisc(
+    const DiscSurface &surf,
+    const TrackParameters &parforextrap,
+    const TrackParameters &refpar2,
+    const ParticleHypothesis matEffects
+  ) const {
+    /*
+     * Please refer to external sources on how to find the intersection between
+     * a line and a disc.
+     */
+    double field[3];
+    double pos[3];
+    double currentqoverp = (matEffects != Trk::electron) ? parforextrap.parameters()[Trk::qOverP] : refpar2.parameters()[Trk::qOverP];
+    pos[0] = parforextrap.position().x();
+    pos[1] = parforextrap.position().y();
+    pos[2] = parforextrap.position().z();
+    m_fieldService->getFieldZR(pos, field);
+    double sinphi = sin(parforextrap.parameters()[Trk::phi0]);
+    double cosphi = cos(parforextrap.parameters()[Trk::phi0]);
+    double sintheta = sin(parforextrap.parameters()[Trk::theta]);
+    double costheta = cos(parforextrap.parameters()[Trk::theta]);
+    double r = (std::abs(currentqoverp) > 1e-10) ? -sintheta / (currentqoverp * 300. * field[2]) : 1e6;
+    double xc = parforextrap.position().x() - r * sinphi;
+    double yc = parforextrap.position().y() + r * cosphi;
+    double phi0 = atan2(parforextrap.position().y() - yc, parforextrap.position().x() - xc);
+    double z0 = parforextrap.position().z();
+    double delta_s = (surf.center().z() - z0) / costheta;
+    double delta_phi = delta_s * sintheta / r;
+    double x = xc + fabs(r) * cos(phi0 + delta_phi);
+    double y = yc + fabs(r) * sin(phi0 + delta_phi);
+    Amg::Vector3D intersect = Amg::Vector3D(x, y, surf.center().z());
+    double perp = intersect.perp();
+    const DiscBounds *discbounds = (const DiscBounds *) (&surf.bounds());
+    
+    if (perp > discbounds->rMax() || perp < discbounds->rMin()) {
+      return {};
+    }
+    
+    double costracksurf = fabs(costheta);
+    
+    return std::make_pair(intersect, costracksurf);
+  }
+  
+  std::optional<std::pair<Amg::Vector3D, double>> GlobalChi2Fitter::addMaterialFindIntersectionCyl(
+    const CylinderSurface &surf,
+    const TrackParameters &parforextrap,
+    const TrackParameters &refpar2,
+    const ParticleHypothesis matEffects
+  ) const {
+    /*
+     * I hope you like trigonometry!
+     *
+     * For more information, please find a source elsewhere on finding
+     * intersections with cylinders.
+     */
+    double field[3];
+    double pos[3];
+    double currentqoverp = (matEffects != Trk::electron) ? parforextrap.parameters()[Trk::qOverP] : refpar2.parameters()[Trk::qOverP];
+    pos[0] = parforextrap.position().x();
+    pos[1] = parforextrap.position().y();
+    pos[2] = parforextrap.position().z();
+    m_fieldService->getFieldZR(pos, field);
+    double sinphi = sin(parforextrap.parameters()[Trk::phi0]);
+    double cosphi = cos(parforextrap.parameters()[Trk::phi0]);
+    double sintheta = sin(parforextrap.parameters()[Trk::theta]);
+    double costheta = cos(parforextrap.parameters()[Trk::theta]);
+    double tantheta = tan(parforextrap.parameters()[Trk::theta]);
+    double r = (std::abs(currentqoverp) > 1e-10) ? -sintheta / (currentqoverp * 300. * field[2]) : 1e6;
+    double xc = parforextrap.position().x() - r * sinphi;
+    double yc = parforextrap.position().y() + r * cosphi;
+    double phi0 = atan2(parforextrap.position().y() - yc, parforextrap.position().x() - xc);
+    double z0 = parforextrap.position().z();
+    double d = xc * xc + yc * yc;
+    double rcyl = surf.bounds().r();
+    double mysqrt = ((r + rcyl) * (r + rcyl) - d) * (d - (r - rcyl) * (r - rcyl));
+    
+    if (mysqrt < 0) {
+      return {};
+    }
+    
+    mysqrt = sqrt(mysqrt);
+    double firstterm = xc / 2 + (xc * (rcyl * rcyl - r * r)) / (2 * d);
+    double secondterm = (mysqrt * yc) / (2 * d);
+    double x1 = firstterm + secondterm;
+    double x2 = firstterm - secondterm;
+    firstterm = yc / 2 + (yc * (rcyl * rcyl - r * r)) / (2 * d);
+    secondterm = (mysqrt * xc) / (2 * d);
+    double y1 = firstterm - secondterm;
+    double y2 = firstterm + secondterm;
+    double x = parforextrap.position().x();
+    double y = parforextrap.position().y();
+    double dist1 = (x - x1) * (x - x1) + (y - y1) * (y - y1);
+    double dist2 = (x - x2) * (x - x2) + (y - y2) * (y - y2);
+    
+    if (dist1 < dist2) {
+      x = x1;
+      y = y1;
+    } else {
+      x = x2;
+      y = y2;
+    }
+    
+    double phi1 = atan2(y - yc, x - xc);
+    double deltaphi = phi1 - phi0;
+    
+    if (std::abs(deltaphi - 2 * M_PI) < std::abs(deltaphi)) {
+      deltaphi -= 2 * M_PI;
+    }
+    if (std::abs(deltaphi + 2 * M_PI) < std::abs(deltaphi)) {
+      deltaphi += 2 * M_PI;
+    }
+    
+    double delta_z = r * deltaphi / tantheta;
+    double z = z0 + delta_z;
 
-  void GlobalChi2Fitter::addIDMaterialFast(
-    Cache & cache,
-    GXFTrajectory & trajectory,
-    const TrackParameters * refpar2,
+    Amg::Vector3D intersect = Amg::Vector3D(x, y, z);
+
+    if (fabs(z - surf.center().z()) > surf.bounds().halflengthZ()) {
+      return {};
+    }
+    
+    Amg::Vector3D normal(x, y, 0);
+    double phidir = parforextrap.parameters()[Trk::phi] + deltaphi;
+    
+    if (std::abs(phidir - 2 * M_PI) < std::abs(phidir)) {
+      phidir -= 2 * M_PI;
+    }
+    if (std::abs(phidir + 2 * M_PI) < std::abs(phidir)) {
+      phidir += 2 * M_PI;
+    }
+    
+    Amg::Vector3D trackdir(cos(phidir) * sintheta, sin(phidir) * sintheta, costheta);
+    
+    double costracksurf = fabs(normal.unit().dot(trackdir));
+    
+    return std::make_pair(intersect, costracksurf);
+  }
+
+  void GlobalChi2Fitter::addMaterialUpdateTrajectory(
+    Cache &cache,
+    GXFTrajectory &trajectory,
+    int indexoffset,
+    std::vector<std::pair<const Layer *, const Layer *>> &layers,
+    const TrackParameters *refpar,
+    const TrackParameters *refpar2,
     ParticleHypothesis matEffects
   ) const {
-    if (cache.m_caloEntrance == nullptr) {
-      const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
-      
-      if (geometry != nullptr) {
-        cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
-      } else {
-        ATH_MSG_ERROR("Tracking Geometry not available");
-      }
-      
-      if (cache.m_caloEntrance == nullptr) {
-        ATH_MSG_ERROR("calo entrance not available");
-        return;
-      }
-    }
-
-    if (
-      cache.m_negdiscs.empty() && 
-      cache.m_posdiscs.empty() && 
-      cache.m_barrelcylinders.empty()
-    ) {
-      bool ok = processTrkVolume(cache, cache.m_caloEntrance);
-      if (!ok) {
-        ATH_MSG_DEBUG("Falling back to slow material collection");
-        cache.m_fastmat = false;
-        addMaterial(cache, trajectory, refpar2, matEffects);
-        return;
-      }
-      
-      std::stable_sort(cache.m_negdiscs.begin(), cache.m_negdiscs.end(), GXFlayersort2());
-      std::stable_sort(cache.m_posdiscs.begin(), cache.m_posdiscs.end(), GXFlayersort2());
-      std::stable_sort(cache.m_barrelcylinders.begin(), cache.m_barrelcylinders.end(), GXFlayersort2());
-    }
-    
-    const TrackParameters *refpar = refpar2;
-    const TrackParameters *firstsipar = nullptr;
-    const TrackParameters *lastsipar = nullptr;
-    bool hasmat = false;
-    int indexoffset = 0;
-    int lastmatindex = 0;
+    /*
+     * WARNING: Pointer aliasing! Watch out if you are a future maintainer of
+     * this code.
+     */
     std::vector < GXFTrackState * >oldstates = trajectory.trackStates();
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
-    GXFTrackState *lastsistate = nullptr;
-   
-    
-    for (int i = 0; i < (int) oldstates.size(); i++) {
-      if (oldstates[i]->materialEffects() != nullptr) {
-        hasmat = true;
-        lastmatindex = i;
-      }
-      
-      if (
-        oldstates[i]->measurementType() == TrackState::Pixel || 
-        oldstates[i]->measurementType() == TrackState::SCT
-      ) {
-        if (firstsipar == nullptr) {
-          if (oldstates[i]->trackParameters() == nullptr) {
-            const TrackParameters *tmppar = m_propagator->propagateParameters(
-              *refpar, 
-              *oldstates[i]->surface(), 
-              alongMomentum, 
-              false, 
-              *trajectory.m_fieldprop, 
-              Trk::nonInteracting
-            );
-            
-            if (tmppar == nullptr) return;
-            
-            oldstates[i]->setTrackParameters(tmppar);
-          }
-          firstsipar = oldstates[i]->trackParameters();
-        }
-        lastsistate = oldstates[i];
-      }
-    }
-    
-    if (lastsistate == nullptr) {
-      throw std::logic_error("No track state");
-    }
-    
-    if (lastsistate->trackParameters() == nullptr) {
-      const TrackParameters *tmppar = m_propagator->propagateParameters(
-        *refpar,
-        *lastsistate->surface(),
-        alongMomentum, false,
-        *trajectory.m_fieldprop,
-        Trk::nonInteracting
-      );
-      
-      if (tmppar == nullptr) return;
-      
-      lastsistate->setTrackParameters(tmppar);
-    }
-    lastsipar = lastsistate->trackParameters();
-
-    if (hasmat) {
-      refpar = lastsipar;
-      indexoffset = lastmatindex;
-    } else {
-      refpar = firstsipar;
-    }
-    
-    double firstz = firstsipar->position().z();
-    double firstr = firstsipar->position().perp();
-    double firstz2 = hasmat ? lastsipar->position().z() : firstsipar->position().z();
-    double firstr2 = hasmat ? lastsipar->position().perp() : firstsipar->position().perp();
-    double lastz;
-    double lastr;
-
-    GXFTrackState *firststate = oldstates.front();
-    GXFTrackState *laststate = oldstates.back();
-    lastz = laststate->position().z();
-    lastr = laststate->position().perp();
-    std::vector < std::pair < const Layer *, const Layer *>>layers;
-    const Layer *startlayer = firststate->surface()->associatedLayer();
-    const Layer *startlayer2 = hasmat ? lastsistate->surface()->associatedLayer() : nullptr;
-    const Layer *endlayer = laststate->surface()->associatedLayer();
-    std::vector<std::pair<const Layer *, const Layer *>> & upstreamlayers = trajectory.upstreamMaterialLayers();
-    layers.reserve(30);
-    upstreamlayers.reserve(5);
-    double tantheta = tan(refpar->parameters()[Trk::theta]);
-    double slope = (tantheta != 0) ? 1 / tantheta : 0;  // (lastz-firstz)/(lastr-firstr);
-    
-    if (slope != 0) {
-      std::vector < const Layer *>::const_iterator it;
-      std::vector < const Layer *>::const_iterator itend;
-      
-      if (lastz > 0) {
-        it = cache.m_posdiscs.begin();
-        itend = cache.m_posdiscs.end();
-      } else {
-        it = cache.m_negdiscs.begin();
-        itend = cache.m_negdiscs.end();
-      }
-      
-      for (; it != itend; it++) {
-        if (fabs((*it)->surfaceRepresentation().center().z()) > fabs(lastz)) {
-          break;
-        }
-        
-        const DiscBounds *discbounds = (const DiscBounds *) (&(*it)->surfaceRepresentation().bounds());
-        
-        if (discbounds->rMax() < firstr || discbounds->rMin() > lastr) {
-          continue;
-        }
-        
-        double rintersect = firstr + ((*it)->surfaceRepresentation().center().z() - firstz) / slope;
-        
-        if (
-          rintersect < discbounds->rMin() - 50 || 
-          rintersect > discbounds->rMax() + 50
-        ) {
-          continue;
-        }
-        
-        if ((*it) == endlayer) {
-          continue;
-        }
-        
-        if (
-          fabs((*it)->surfaceRepresentation().center().z()) < fabs(firstz) || 
-          (*it) == startlayer
-        ) {
-          upstreamlayers.emplace_back((Layer *) nullptr, (*it));
-        }
-        
-        if (
-          (*it) != startlayer &&
-          (fabs((*it)->surfaceRepresentation().center().z()) > fabs(firstz2) || 
-          (*it) == startlayer2)
-        ) {
-          layers.emplace_back((Layer *) nullptr, (*it));
-        }
-      }
-    }
-    
-    for (
-      std::vector<const Layer *>::const_iterator it = cache.m_barrelcylinders.begin(); 
-      it != cache.m_barrelcylinders.end();
-      it++
-    ) {
-      if ((*it)->surfaceRepresentation().bounds().r() > lastr) {
-        break;
-      }
-      
-      double zintersect = firstz + ((*it)->surfaceRepresentation().bounds().r() - firstr) * slope;
-      
-      if (fabs(zintersect - (*it)->surfaceRepresentation().center().z()) > ((const CylinderSurface *) (&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
-        continue;
-      }
-      
-      if ((*it) == endlayer) {
-        continue;
-      }
-      
-      if (
-        (*it)->surfaceRepresentation().bounds().r() < firstr || 
-        (*it) == startlayer
-      ) {
-        upstreamlayers.emplace_back((*it), (Layer *) nullptr);
-      }
-      
-      if (
-        (*it) != startlayer && 
-        ((*it)->surfaceRepresentation().bounds().r() > firstr2 || 
-        (*it) == startlayer2)
-      ) {
-        layers.emplace_back((*it), (Layer *) nullptr);
-      }
-    }
-
-    std::sort(layers.begin(), layers.end(), GXFlayersort());
-    std::sort(upstreamlayers.begin(), upstreamlayers.end(), GXFlayersort());
     std::vector < GXFTrackState * >newstates;
 
     trajectory.setTrackStates(newstates);
     states.reserve(oldstates.size() + layers.size());
     int layerindex = 0;
     
+    /*
+     * First, simply copy any upstream states. We do not need to anything with
+     * them as they are presumably already fit.
+     */
     for (int i = 0; i <= indexoffset; i++) {
       states.push_back(oldstates[i]);
     }
     
     const TrackParameters *parforextrap = refpar;
-    double field[3];
-    double pos[3];
 
+    /*
+     * For non-upstream layers, that is to say layers after the last existing
+     * material, the logic is not so simple.
+     */
     for (int i = indexoffset + 1; i < (int) oldstates.size(); i++) {
       double rmeas = oldstates[i]->position().perp();
       double zmeas = oldstates[i]->position().z();
 
+      /*
+       * Iterate over layers. Note that this is shared between different track
+       * states! This makes sense, because the track states are sorted and so
+       * are the layers. If that sorting is consistent between the two, which
+       * it should be, this works.
+       */
       while (layerindex < (int) layers.size()) {
-        const CylinderSurface *cylsurf = nullptr;
-        if (layers[layerindex].first != nullptr) {
-          cylsurf = (const CylinderSurface *) (&layers[layerindex].first->surfaceRepresentation());
-        }
+        Amg::Vector3D intersect;
+        double costracksurf = 0.0;
+        const Layer *layer;
         
-        const DiscSurface *discsurf = nullptr;
-        if (layers[layerindex].second != nullptr) {
-          discsurf = (const DiscSurface *) (&layers[layerindex].second->surfaceRepresentation());
-        }
-
-        if (oldstates[i]->trackParameters() != nullptr) {
-          if (cylsurf != nullptr) {
+        /*
+         * Remember how we distinguish between disc and cylinder surfaces: if
+         * the first element of the pair is not null, then it points to a
+         * cylinder. If the second element of the pais is not null, then it's a
+         * disc surface. That is the logic being applied here. Separate
+         * handling of cylinders and discs.
+         */
+        if (layers[layerindex].first != nullptr) {
+          /*
+           * First, convert the pointer to a real CylinderSurface pointer.
+           */
+          layer = layers[layerindex].first;
+          const CylinderSurface *cylsurf = (const CylinderSurface *) (&layer->surfaceRepresentation());
+          
+          /*
+           * Check if we have a different set of parameters that make more
+           * sense. If not, reuse the ones we already had.
+           */
+          if (oldstates[i]->trackParameters() != nullptr) {
             double rlayer = cylsurf->bounds().r();
             if (fabs(rmeas - rlayer) < fabs(parforextrap->position().perp() - rlayer)) {
               parforextrap = oldstates[i]->trackParameters();
             }
+          }
+          
+          /*
+           * Check if we have an intersection with this layer. If so, break out
+           * of this loop, we have what we need. Otherwise, go to the next
+           * layer and try again.
+           */
+          if (auto res = addMaterialFindIntersectionCyl(*cylsurf, *parforextrap, *refpar2, matEffects)) {
+            std::tie(intersect, costracksurf) = res.value();
           } else {
-            if (discsurf == nullptr) {
-              throw std::logic_error("Unhandled surface.");
-            }
-            
+            layerindex++;
+            continue;
+          }
+          
+          if (cylsurf->bounds().r() > rmeas) break;
+        } else if (layers[layerindex].second != nullptr) {
+          /*
+           * The logic for disc surfaces is essentially identical to the logic
+           * for cylinder surfaces. You'll find comments for that just a dozen
+           * lines up.
+           */
+          layer = layers[layerindex].second;
+          const DiscSurface *discsurf = (const DiscSurface *) (&layer->surfaceRepresentation());
+          
+          if (oldstates[i]->trackParameters() != nullptr) {
             double zlayer = discsurf->center().z();
             if (fabs(zmeas - zlayer) < fabs(parforextrap->position().z() - zlayer)) {
               parforextrap = oldstates[i]->trackParameters();
             }
           }
-        }
-        
-        Amg::Vector3D intersect;
-        double currentqoverp =
-          (matEffects != Trk::electron) ? 
-          parforextrap->parameters()[Trk::qOverP] : 
-          refpar2->parameters()[Trk::qOverP];
-        double costracksurf;
-        pos[0] = parforextrap->position().x();
-        pos[1] = parforextrap->position().y();
-        pos[2] = parforextrap->position().z();
-        m_fieldService->getFieldZR(pos, field);
-        double sinphi = sin(parforextrap->parameters()[Trk::phi0]);
-        double cosphi = cos(parforextrap->parameters()[Trk::phi0]);
-        double sintheta = sin(parforextrap->parameters()[Trk::theta]);
-        double costheta = cos(parforextrap->parameters()[Trk::theta]);
-        double tantheta = tan(parforextrap->parameters()[Trk::theta]);
-        double r = (std::abs(currentqoverp) > 1e-10) ? -sintheta / (currentqoverp * 300. * field[2]) : 1e6;
-        double xc = parforextrap->position().x() - r * sinphi;
-        double yc = parforextrap->position().y() + r * cosphi;
-        double phi0 = atan2(parforextrap->position().y() - yc, parforextrap->position().x() - xc);
-        double z0 = parforextrap->position().z();
-        
-        if (discsurf != nullptr) {
-          double delta_s = (discsurf->center().z() - z0) / costheta;
-          double delta_phi = delta_s * sintheta / r;
-          double x = xc + fabs(r) * cos(phi0 + delta_phi);
-          double y = yc + fabs(r) * sin(phi0 + delta_phi);
-          intersect = Amg::Vector3D(x, y, discsurf->center().z());
-          double perp = intersect.perp();
-          const DiscBounds *discbounds = (const DiscBounds *) (&discsurf->bounds());
           
-          if (perp > discbounds->rMax() || perp < discbounds->rMin()) {
-            layerindex++;
-            continue;
-          }
-          
-          costracksurf = fabs(costheta);
-        } else {
-          if (cylsurf == nullptr) {
-            throw std::logic_error("Unhandled surface.");
-          }
-          
-          double d = xc * xc + yc * yc;
-          double rcyl = cylsurf->bounds().r();
-          double mysqrt = ((r + rcyl) * (r + rcyl) - d) * (d - (r - rcyl) * (r - rcyl));
-          
-          if (mysqrt < 0) {
-            layerindex++;
-            continue;
-          }
-          
-          mysqrt = sqrt(mysqrt);
-          double firstterm = xc / 2 + (xc * (rcyl * rcyl - r * r)) / (2 * d);
-          double secondterm = (mysqrt * yc) / (2 * d);
-          double x1 = firstterm + secondterm;
-          double x2 = firstterm - secondterm;
-          firstterm = yc / 2 + (yc * (rcyl * rcyl - r * r)) / (2 * d);
-          secondterm = (mysqrt * xc) / (2 * d);
-          double y1 = firstterm - secondterm;
-          double y2 = firstterm + secondterm;
-          double x = parforextrap->position().x();
-          double y = parforextrap->position().y();
-          double dist1 = (x - x1) * (x - x1) + (y - y1) * (y - y1);
-          double dist2 = (x - x2) * (x - x2) + (y - y2) * (y - y2);
-          
-          if (dist1 < dist2) {
-            x = x1;
-            y = y1;
+          if (auto res = addMaterialFindIntersectionDisc(*discsurf, *parforextrap, *refpar2, matEffects)) {
+            std::tie(intersect, costracksurf) = res.value();
           } else {
-            x = x2;
-            y = y2;
-          }
-          
-          double phi1 = atan2(y - yc, x - xc);
-          double deltaphi = phi1 - phi0;
-          
-          if (std::abs(deltaphi - 2 * M_PI) < std::abs(deltaphi)) {
-            deltaphi -= 2 * M_PI;
-          }
-          if (std::abs(deltaphi + 2 * M_PI) < std::abs(deltaphi)) {
-            deltaphi += 2 * M_PI;
-          }
-          
-          double delta_z = r * deltaphi / tantheta;
-          double z = z0 + delta_z;
-
-          intersect = Amg::Vector3D(x, y, z);
-
-          if (fabs(z - cylsurf->center().z()) > cylsurf->bounds().halflengthZ()) {
             layerindex++;
             continue;
           }
           
-          Amg::Vector3D normal(x, y, 0);
-          double phidir = parforextrap->parameters()[Trk::phi] + deltaphi;
-          
-          if (std::abs(phidir - 2 * M_PI) < std::abs(phidir)) {
-            phidir -= 2 * M_PI;
-          }
-          if (std::abs(phidir + 2 * M_PI) < std::abs(phidir)) {
-            phidir += 2 * M_PI;
-          }
-          
-          Amg::Vector3D trackdir(cos(phidir) * sintheta, sin(phidir) * sintheta, costheta);
-          
-          costracksurf = fabs(normal.unit().dot(trackdir));
+          if (fabs(discsurf->center().z()) > fabs(zmeas)) break;
+        } else {
+          throw std::logic_error("Unhandled surface.");
         }
         
-        if ((cylsurf != nullptr) && cylsurf->bounds().r() > rmeas) {
-          break;
-        }
-        
-        if ((discsurf != nullptr) && fabs(discsurf->center().z()) > fabs(zmeas)) {
-          break;
-        }
-        
-        const Layer *layer = layers[layerindex].first;
-        if (layer == nullptr) {
-          layer = layers[layerindex].second;
-        }
-        
+        /*
+         * Grab the material properties from our layer. If there are none, just
+         * go to the next layer.
+         */
         const MaterialProperties *matprop = layer->layerMaterialProperties()->fullMaterial(intersect);
         if (matprop == nullptr) {
           layerindex++;
           continue;
         }
         
+        /*
+         * Convert the material properties into the internal representation of
+         * material effects.
+         */
         double X0 = matprop->thicknessInX0();
-
+        double currentqoverp = (matEffects != Trk::electron) ? parforextrap->parameters()[Trk::qOverP] : refpar2->parameters()[Trk::qOverP];
         double actualx0 = X0 / costracksurf;
         double de = -fabs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)), matEffects));
+        double sintheta = sin(parforextrap->parameters()[Trk::theta]);
         double sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)), 1. / costracksurf, matEffects));
         
         GXFMaterialEffects *meff = new GXFMaterialEffects;
@@ -3707,6 +3585,11 @@ namespace Trk {
         meff->setX0(actualx0);
         meff->setSurface(&layer->surfaceRepresentation());
         meff->setMaterialProperties(matprop);
+
+        /*
+         * If we have an electron, or if so configured, calculate energy loss
+         * as well.
+         */
         EnergyLoss *eloss = nullptr;
         
         if (cache.m_fiteloss || (matEffects == electron && cache.m_asymeloss)) {
@@ -3735,9 +3618,14 @@ namespace Trk {
           }
         }
         
-        
+        if (eloss != nullptr) {
           delete eloss;
-        
+        }
+
+        /*
+         * Create a new track state in the internal representation and load it
+         * with any and all information we might have.
+         */
 
         GXFTrackState *matstate = new GXFTrackState(meff);
         matstate->setPosition(intersect);
@@ -3748,11 +3636,381 @@ namespace Trk {
           " sigmascat " << meff->sigmaDeltaTheta() <<" eloss: " << meff->deltaE() << 
           " sigma eloss: " << meff->sigmaDeltaE()
         );
+
+        /*
+         * We're done on this layer, so the next state will go to the next
+         * layer.
+         */
         layerindex++;
       }
 
+      /*
+       * Add the state to the (aliased) output.
+       */
       states.push_back(oldstates[i]);
     }
+  }
+
+  void GlobalChi2Fitter::addMaterialGetLayers(
+    Cache & cache,
+    std::vector<std::pair<const Layer *, const Layer *>> & layers,
+    std::vector<std::pair<const Layer *, const Layer *>> & upstreamlayers,
+    std::vector<GXFTrackState *> & oldstates,
+    GXFTrackState & firstsistate,
+    GXFTrackState & lastsistate,
+    const TrackParameters *refpar,
+    bool hasmat
+  ) const {
+    /*
+     * Reserve some arbitrary number of layers in the output vectors.
+     */
+    upstreamlayers.reserve(5);
+    layers.reserve(30);
+    
+    /*
+     * Gather a bunch of numbers from the parameters. Someties we need to grab
+     * them from the first silicon state, sometimes from the last.
+     */
+    double firstz = firstsistate.trackParameters()->position().z();
+    double firstr = firstsistate.trackParameters()->position().perp();
+    double firstz2 = hasmat ? lastsistate.trackParameters()->position().z() : firstsistate.trackParameters()->position().z();
+    double firstr2 = hasmat ? lastsistate.trackParameters()->position().perp() : firstsistate.trackParameters()->position().perp();
+    
+    GXFTrackState *firststate = oldstates.front();
+    GXFTrackState *laststate = oldstates.back();
+    
+    /*
+     * This number is particularly interesting, as it determines which side we
+     * need to look at in regards to the disc layers.
+     */
+    double lastz = laststate->position().z();
+    double lastr = laststate->position().perp();
+    
+    const Layer *startlayer = firststate->surface()->associatedLayer();
+    const Layer *startlayer2 = hasmat ? lastsistate.surface()->associatedLayer() : nullptr;
+    const Layer *endlayer = laststate->surface()->associatedLayer();
+    
+    double tantheta = tan(refpar->parameters()[Trk::theta]);
+    double slope = (tantheta != 0) ? 1 / tantheta : 0;  // (lastz-firstz)/(lastr-firstr);
+    
+    /*
+     * First, we will grab our disc layers.
+     */
+    if (slope != 0) {
+      std::vector < const Layer *>::const_iterator it;
+      std::vector < const Layer *>::const_iterator itend;
+      
+      /*
+       * If we're on the positive z-side of the detector, we will iterate over
+       * the positive discs. Otherwise, we will need to iterate over the
+       * negative discs.
+       */
+      if (lastz > 0) {
+        it = cache.m_posdiscs.begin();
+        itend = cache.m_posdiscs.end();
+      } else {
+        it = cache.m_negdiscs.begin();
+        itend = cache.m_negdiscs.end();
+      }
+      
+      /*
+       * Iterate over our disc layers.
+       */
+      for (; it != itend; it++) {
+        /*
+         * If we've overshot the last hit in our track, we don't need to look
+         * at any further layers. We're done!
+         */
+        if (fabs((*it)->surfaceRepresentation().center().z()) > fabs(lastz)) {
+          break;
+        }
+        
+        /*
+         * Grab the bounds from the layer, which is a more useful kind of
+         * object that allows us to do some geometric calculations.
+         */
+        const DiscBounds *discbounds = (const DiscBounds *) (&(*it)->surfaceRepresentation().bounds());
+        
+        /*
+         * Ensure that we've actually hit the layer!
+         */
+        if (discbounds->rMax() < firstr || discbounds->rMin() > lastr) {
+          continue;
+        }
+        
+        double rintersect = firstr + ((*it)->surfaceRepresentation().center().z() - firstz) / slope;
+        
+        if (
+          rintersect < discbounds->rMin() - 50 || 
+          rintersect > discbounds->rMax() + 50
+        ) {
+          continue;
+        }
+        
+        /*
+         * We also do not need to consider the last layer. If all goes well,
+         * the next loop will immediately break because it will be an
+         * overshoot.
+         */
+        if ((*it) == endlayer) {
+          continue;
+        }
+        
+        /*
+         * If this layer lies before the first hit, it's an upstream hit and we
+         * add it to the upstream layer vector.
+         *
+         * Notice how we add this layer on the right side of the pair, that's
+         * the convention. Discs to right, cylinders go left.
+         */
+        if (
+          fabs((*it)->surfaceRepresentation().center().z()) < fabs(firstz) || 
+          (*it) == startlayer
+        ) {
+          upstreamlayers.emplace_back((Layer *) nullptr, (*it));
+        }
+        
+        /*
+         * Otherwise, it's a normal layer. Add it.
+         */
+        if (
+          (*it) != startlayer &&
+          (fabs((*it)->surfaceRepresentation().center().z()) > fabs(firstz2) || 
+          (*it) == startlayer2)
+        ) {
+          layers.emplace_back((Layer *) nullptr, (*it));
+        }
+      }
+    }
+    
+    /*
+     * Now, we add the barrel cylinder layers.
+     */
+    for (
+      std::vector<const Layer *>::const_iterator it = cache.m_barrelcylinders.begin(); 
+      it != cache.m_barrelcylinders.end();
+      it++
+    ) {
+      /*
+       * Check for overshoots and reject them.
+       */
+      if ((*it)->surfaceRepresentation().bounds().r() > lastr) {
+        break;
+      }
+      
+      /*
+       * Confirm intersection with the layer.
+       */
+      double zintersect = firstz + ((*it)->surfaceRepresentation().bounds().r() - firstr) * slope;
+      
+      if (fabs(zintersect - (*it)->surfaceRepresentation().center().z()) > ((const CylinderSurface *) (&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
+        continue;
+      }
+      
+      if ((*it) == endlayer) {
+        continue;
+      }
+      
+      /*
+       * Same as with the discs, add the layers to the output vectors.
+       */
+      if (
+        (*it)->surfaceRepresentation().bounds().r() < firstr || 
+        (*it) == startlayer
+      ) {
+        upstreamlayers.emplace_back((*it), (Layer *) nullptr);
+      }
+      
+      if (
+        (*it) != startlayer && 
+        ((*it)->surfaceRepresentation().bounds().r() > firstr2 || 
+        (*it) == startlayer2)
+      ) {
+        layers.emplace_back((*it), (Layer *) nullptr);
+      }
+    }
+    
+    /*
+     * Sort the layers such that they are in the right order, from close to far
+     * in respect to the experiment center.
+     */
+    std::sort(layers.begin(), layers.end(), GXFlayersort());
+    std::sort(upstreamlayers.begin(), upstreamlayers.end(), GXFlayersort());
+  }
+
+  void GlobalChi2Fitter::addIDMaterialFast(
+    Cache & cache,
+    GXFTrajectory & trajectory,
+    const TrackParameters * refpar2,
+    ParticleHypothesis matEffects
+  ) const {
+    /*
+     * Ensure that the cache contains a valid tracking geometry that we can
+     * use.
+     */
+    if (cache.m_caloEntrance == nullptr) {
+      const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
+      
+      if (geometry != nullptr) {
+        cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
+      } else {
+        ATH_MSG_ERROR("Tracking Geometry not available");
+      }
+      
+      if (cache.m_caloEntrance == nullptr) {
+        ATH_MSG_ERROR("calo entrance not available");
+        return;
+      }
+    }
+
+    /*
+     * If we have not yet set the discs on either side of the detector as well
+     * as the barrel layers, do so now.
+     */
+    if (
+      cache.m_negdiscs.empty() && 
+      cache.m_posdiscs.empty() && 
+      cache.m_barrelcylinders.empty()
+    ) {
+      /*
+       * Attempt to add the layer information to the cache using the previously
+       * selected tracking volume.
+       */
+      bool ok = processTrkVolume(cache, cache.m_caloEntrance);
+
+      /*
+       * If this process somehow fails, we cannot use the fast material adding
+       * algorithm and we must fall back to the slow version. As far as I know
+       * this doesn't really happen.
+       */
+      if (!ok) {
+        ATH_MSG_DEBUG("Falling back to slow material collection");
+        cache.m_fastmat = false;
+        addMaterial(cache, trajectory, refpar2, matEffects);
+        return;
+      }
+      
+      /*
+       * Sort the discs and barrel layers such that they are in the right
+       * order. What the right order is in this case is defined a bit above
+       * this code, in the GXFlayersort2 class. Should be in increasing order
+       * of distance from the detector center.
+       */
+      std::stable_sort(cache.m_negdiscs.begin(), cache.m_negdiscs.end(), GXFlayersort2());
+      std::stable_sort(cache.m_posdiscs.begin(), cache.m_posdiscs.end(), GXFlayersort2());
+      std::stable_sort(cache.m_barrelcylinders.begin(), cache.m_barrelcylinders.end(), GXFlayersort2());
+    }
+    
+    const TrackParameters *refpar = refpar2;
+    bool hasmat = false;
+    int indexoffset = 0, lastmatindex = 0;
+    std::vector < GXFTrackState * >oldstates = trajectory.trackStates();
+    
+    GXFTrackState *firstsistate = nullptr;
+    GXFTrackState *lastsistate = nullptr;
+   
+    /*
+     * This loop serves several purposes in one, because it's very efficient:
+     *
+     * 1. It detects whether there are already any materials on this track, and
+     *    if so where they are.
+     * 2. It determines what the first and last silicon hits are.
+     * 3. It calculates trackparameters for any states that might not have them
+     *    for whatever reason.
+     */
+    for (int i = 0; i < (int) oldstates.size(); i++) {
+      if (oldstates[i]->materialEffects() != nullptr) {
+        hasmat = true;
+        lastmatindex = i;
+      }
+      
+      if (
+        oldstates[i]->measurementType() == TrackState::Pixel || 
+        oldstates[i]->measurementType() == TrackState::SCT
+      ) {
+        if (firstsistate == nullptr) {
+          if (oldstates[i]->trackParameters() == nullptr) {
+            const TrackParameters *tmppar = m_propagator->propagateParameters(
+              *refpar, 
+              *oldstates[i]->surface(), 
+              alongMomentum, 
+              false, 
+              *trajectory.m_fieldprop, 
+              Trk::nonInteracting
+            );
+            
+            if (tmppar == nullptr) return;
+            
+            oldstates[i]->setTrackParameters(tmppar);
+          }
+          firstsistate = oldstates[i];
+        }
+        lastsistate = oldstates[i];
+      }
+    }
+    
+    /*
+     * Only happens when there are no tracks, and that shouldn't happen in the
+     * first place.
+     */
+    if (lastsistate == nullptr) {
+      throw std::logic_error("No track state");
+    }
+
+    /*
+     * Also try to generate a set of track parameters for the last silicon hit
+     * if it doesn't have any. I don't really know when that would happen, but
+     * I suppose it's possible. Anything is possible, if you believe hard
+     * enough.
+     */
+    if (lastsistate->trackParameters() == nullptr) {
+      const TrackParameters *tmppar = m_propagator->propagateParameters(
+        *refpar,
+        *lastsistate->surface(),
+        alongMomentum, false,
+        *trajectory.m_fieldprop,
+        Trk::nonInteracting
+      );
+      
+      if (tmppar == nullptr) return;
+      
+      lastsistate->setTrackParameters(tmppar);
+    }
+
+    /*
+     * If we have found any materials on the track, we've presumably already
+     * done a fit for that part of the track, so the reference parameters are
+     * either the first or last silicon state's parameters.
+     */
+    if (hasmat) {
+      refpar = lastsistate->trackParameters();
+      indexoffset = lastmatindex;
+    } else {
+      refpar = firstsistate->trackParameters();
+    }
+    
+    /*
+     * These vectors will hold the layers. The types here are a little bit
+     * strange, but the idea is that the right member is a disc surface and the
+     * left member is a cylindrical surface. Could be more elegantly done using
+     * polymorphism.
+     *
+     * The upstream layers may already be filled due to previous fits.
+     *
+     * TODO: Use polymorphism to get rid of these strange types.
+     */
+    std::vector<std::pair<const Layer *, const Layer *>> layers;
+    std::vector<std::pair<const Layer *, const Layer *>> & upstreamlayers = trajectory.upstreamMaterialLayers();
+    
+    /*
+     * Fill the aforementioned layer vectors with layers.
+     */
+    addMaterialGetLayers(cache, layers, upstreamlayers, oldstates, *firstsistate, *lastsistate, refpar, hasmat);
+
+    /*
+     * Finally, use that layer information to actually add states to the track.
+     */
+    addMaterialUpdateTrajectory(cache, trajectory, indexoffset, layers, refpar, refpar2, matEffects);
   }
 
   void GlobalChi2Fitter::addMaterial(

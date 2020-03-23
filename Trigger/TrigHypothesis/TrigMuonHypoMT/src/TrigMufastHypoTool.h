@@ -100,6 +100,10 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     Gaudi::Property<bool>  m_decisionPerCluster { 
 	this, "DecisionPerCluster", true, "Is multiplicity requirement refering to muons ( false ) or RoIs/clusters with muons ( false ), relevant only in when multiplicity > 1" };
 
+    Gaudi::Property< bool > m_doCalib {
+        this, "DoCalib", false, "muoncalib chain" };
+
+
     // Other members:   
     std::vector<size_t> m_bins = {0};
 

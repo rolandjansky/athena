@@ -187,7 +187,10 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
     }
     ////////////////////////////////////////////
     // do coincidence with Inner Tracklet of EIFI and/or TileMu
-    if (m_useEIFI) doInnerCoincidence(readCondKey, SSCid, coincidenceOut);
+    if (m_useEIFI){ 
+      if(!tgcArgs()->useRun3Config()){doInnerCoincidence(readCondKey, SSCid, coincidenceOut);}
+      else{/*InnerCoincidence Algorithm for Run3 will be implemented;*/}
+    }
 
     if(coincidenceOut){
       if(tgcArgs()->useRun3Config()){m_trackSelector.input(coincidenceOut);}// TrackSelector for Run3

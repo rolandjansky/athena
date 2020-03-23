@@ -70,7 +70,7 @@ evgenLog = logging.getLogger('Gen_tf_txt')
 ## Announce arg checking
 evgenLog.debug("****************** CHECKING EVENT GENERATION ARGS *****************")
 evgenLog.debug(str(runArgs))
-msg.info ("****************** CHECKING EVENT GENERATION ARGS *****************")
+evgenLog.info ("****************** CHECKING EVENT GENERATION ARGS *****************")
 if hasattr(runArgs, "runNumber"):
    evgenLog.warning("##########################################################################" )         
    evgenLog.warning("runNumber - no longer a valid argument, do not use it ! " )         
@@ -81,7 +81,7 @@ if hasattr(runArgs, "inputGenConfFile"):
 
 ## Announce start of job configuration
 evgenLog.debug("****************** CONFIGURING EVENT GENERATION *****************")
-msg.info("****************** CONFIGURING EVENT GENERATION *****************")
+evgenLog.info("****************** CONFIGURING EVENT GENERATION *****************")
 ## Functions for operating on generator names
 ## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
 from EvgenJobTransforms.EvgenConfig import evgenConfig
@@ -97,7 +97,7 @@ from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, g
 
 ## Announce start of job configuration
 evgenLog.debug("****************** CONFIGURING MATRIX ELEMENT GENERATION *****************")
-msg.info("****************** CONFIGURING MATRIX ELEMENT GENERATION *****************")
+evgenLog.info("****************** CONFIGURING MATRIX ELEMENT GENERATION *****************")
 evgenLog.debug("****************** CONFIGURING EVENT GENERATION *****************")
 
 ## Functions for operating on generator names
@@ -126,7 +126,7 @@ postSeq.CountHepMC.CorrectEventID = True
 
 ## Announce JO loading
 evgenLog.debug("****************** LOADING PRE-INCLUDES AND JOB CONFIG *****************")
-msg.info("****************** LOADING PRE-INCLUDES AND JOB CONFIG *****************")
+evgenLog.info("****************** LOADING PRE-INCLUDES AND JOB CONFIG *****************")
 
 ## Pre-include
 if hasattr(runArgs, "preInclude"):
@@ -155,11 +155,11 @@ def OutputTXTFile():
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
 
 if len(runArgs.jobConfig) != 1:
-    msg.info("runArgs.jobConfig %s ", % runArgs.jobConfig)
+    evgenLog.info("runArgs.jobConfig %s ", % runArgs.jobConfig)
     evgenLog.error("You must supply one and only one jobConfig file argument. It has to start from mc. and end with .py")
     sys.exit(1)
 
-printfunc "Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["JOBOPTSEARCHPATH"])
+printfunc ("Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["JOBOPTSEARCHPATH"]))
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
 
 dsid_param = runArgs.jobConfig[0]
@@ -169,7 +169,7 @@ evgenLog.info("dsid " + dsid)
 jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
-    msg.info("runArgs.jobConfig wrong %s ", % runArgs.jobConfig)
+    evgenLog.info("runArgs.jobConfig wrong %s ", % runArgs.jobConfig)
     evgenLog.error("You must supply one and only one jobOption file in DSID directory. It has to start with mc. and end with .py")
     sys.exit(1)
 jofile = jofiles[0]
@@ -212,7 +212,7 @@ include("EvgenJobTransforms/LHEonly.py")
 
 ## Announce start of JO checking
 evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION *****************")
-msg.info("****************** CHECKING EVGEN CONFIGURATION *****************")
+evgenLog.info("****************** CHECKING EVGEN CONFIGURATION *****************")
 
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
@@ -482,7 +482,7 @@ def find_unique_file(pattern):
 # file, but the number of events is updated to equal the total number of events in all the input files
 def merge_lhe_files(listOfFiles,outputFile):
     if(os.path.exists(outputFile)):
-      printfunc "outputFile ",outputFile," already exists.  Will rename to ",outputFile,".OLD"
+      printfunc ("outputFile ",outputFile," already exists.  Will rename to ",outputFile,".OLD")
       os.rename(outputFile,outputFile+".OLD")
     output = open(outputFile,'w')
     holdHeader = ""
@@ -494,7 +494,7 @@ def merge_lhe_files(listOfFiles,outputFile):
     for file in listOfFiles:
        inHeader = True
        header = ""
-       printfunc "*** Starting file ",file
+       printfunc ("*** Starting file ",file)
        for line in open(file,"r"):
 ##        Reading first event signals that we are done with all the header information
 ##        Using this approach means the script will properly handle any metadata stored
@@ -622,7 +622,7 @@ with open(eventsFile) as f:
     contents = f.read()
     count_ev = contents.count("<event>")
     
-printfunc "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
+printfunc ("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
 
 if _checkattr("description", required=True):
     msg = evgenConfig.description
@@ -637,19 +637,19 @@ if _checkattr("generators", required=True):
            gennamesvers.append(item+"(v."+os.environ[generat]+")")
        else:
            gennamesvers.append(item)
-    printfunc "MetaData: %s = %s" % ("generatorName", "+".join(gennamesvers))    
+    printfunc ("MetaData: %s = %s" % ("generatorName", "+".join(gennamesvers)))    
 if _checkattr("process"):
-    printfunc "MetaData: %s = %s" % ("physicsProcess", evgenConfig.process)
+    printfunc ("MetaData: %s = %s" % ("physicsProcess", evgenConfig.process))
 if _checkattr("tune"):
-    printfunc "MetaData: %s = %s" % ("generatorTune", evgenConfig.tune)
+    printfunc ("MetaData: %s = %s" % ("generatorTune", evgenConfig.tune))
 if _checkattr("hardPDF"):
-    printfunc "MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF)
+    printfunc ("MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF))
 if _checkattr("softPDF"):
-    printfunc "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
+    printfunc ("MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF))
 if _checkattr("nEventsPerJob"):
-    printfunc "MetaData: %s = %s" % ("nEventsPerJob", evgenConfig.nEventsPerJob)
+    printfunc ("MetaData: %s = %s" % ("nEventsPerJob", evgenConfig.nEventsPerJob))
 if _checkattr("keywords"):
-    printfunc "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower() ),
+    printfunc ("MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower() ))
 if _checkattr("categories"):
     printfunc ( ", " + ", ".join(evgenConfig.categories))
 else:
@@ -658,13 +658,13 @@ else:
 #if _checkattr("categories"):  # will be uncommented when categories included into metadata
 #    printfunc "MetaData: %s = %s" % ("categories", ", ".join(evgenConfig.categories))
 if _checkattr("specialConfig"):
-   printfunc "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
+    printfunc ("MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig))
 # TODO: Require that a contact / JO author is always set
 if _checkattr("contact"):
-    printfunc "MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact))
+    printfunc ("MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact)))
 #if _checkattr( "randomSeed") :    # comment out for the time being
-printfunc "MetaData: %s = %s" % ("randomSeed", str(runArgs.randomSeed))
- 
+printfunc ("MetaData: %s = %s" % ("randomSeed", str(runArgs.randomSeed)))
+
     
     
 
@@ -672,7 +672,7 @@ printfunc "MetaData: %s = %s" % ("randomSeed", str(runArgs.randomSeed))
 filterNames = [alg.getType() for alg in acas.iter_algseq(filtSeq)]
 excludedNames = ['AthSequencer', 'PyAthena::Alg', 'TestHepMC']
 filterNames = list(set(filterNames) - set(excludedNames))
-printfunc "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
+printfunc ("MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames)))
 
 
 ##==============================================================
