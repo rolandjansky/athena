@@ -426,17 +426,30 @@ def getInDetBroadTRT_DriftCircleOnTrackTool(name='InDetBroadTRT_DriftCircleOnTra
 def getInDetTRT_DriftCircleOnTrackNoDriftTimeTool(**kwargs) :
     return getInDetBroadTRT_DriftCircleOnTrackTool(**kwargs)
 
+
+def getLumiCondDataKeyForTRTMuScaling(**kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    isHLT=kwargs.pop('isHLT',False)
+    kwargs.pop('namePrefix','')
+    if not InDetFlags.doCosmics() :
+        from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault,LuminosityCondAlgOnlineDefault
+        from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+        lumiAlg = LuminosityCondAlgDefault() if not athenaCommonFlags.isOnline() and not isHLT else LuminosityCondAlgOnlineDefault()
+        if lumiAlg is not None :
+            return lumiAlg.LuminosityOutputKey
+    return ''
+
 # @TODO rename to InDetTRT_DriftCircleOnTrackTool ?
 @makePublicTool
 def getInDetTRT_DriftCircleOnTrackTool(name='TRT_DriftCircleOnTrackTool', **kwargs) :
     the_name = makeName( name, kwargs)
+    hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
+    kwargs.pop('isHLT',None)
     createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
-    # @TODO create LuminosityCondAlg
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackTool
     kwargs = setDefaults(kwargs,
                          TRTErrorScalingKey = '/Indet/TrkErrorScalingTRT',
-                         # LumiDataKey        = 'LuminosityCondData'        # @TODO undo out-commenting to re-enable mu-correction for TRT error scaling
-                         )
+                         LumiDataKey        = getLumiCondDataKeyForTRTMuScaling(**hlt_args))
     return InDet__TRT_DriftCircleOnTrackTool(name = the_name, **kwargs)
 
 
