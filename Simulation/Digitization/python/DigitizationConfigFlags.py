@@ -63,5 +63,7 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.TRTRangeCut", lambda prevFlags : float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 0.05)))
     # Write out truth information?
     flags.addFlag("Digitization.TruthOutput", False)
+    # Integer offset to random seed initialisation
+    flags.addFlag("Digitization.RandomSeedOffset", 0)
     return flags
 

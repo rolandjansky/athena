@@ -32,7 +32,7 @@ def RPC_RangeToolCfg(flags, name="RPC_Range", **kwargs):
     return PileUpXingFolder(name, **kwargs)
 
 
-def RPC_DigitizationToolCommonCfg(flags, name="RPC_DigitizationTool", **kwargs):
+def RPC_DigitizationToolCommonCfg(flags, name="RpcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured RpcDigitizationTool"""
     from MuonConfig.MuonCondAlgConfig import RpcCondDbAlgCfg # MT-safe conditions access
     acc = RpcCondDbAlgCfg(flags)
@@ -82,7 +82,7 @@ def RPC_DigitizationToolCommonCfg(flags, name="RPC_DigitizationTool", **kwargs):
     return acc
 
 
-def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
+def RPC_DigitizationToolCfg(flags, name="RpcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured RpcDigitizationTool"""
     kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
     if flags.Digitization.PileUpPremixing:
