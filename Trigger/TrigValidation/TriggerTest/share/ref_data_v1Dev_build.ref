@@ -240,7 +240,7 @@ TrigSignatureMoniMT                                 INFO -- #997163309 Events   
 TrigSignatureMoniMT                                 INFO -- #997163309 Features                              0          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu0_muoncalib_L1MU4_EMPTY #782182242
 TrigSignatureMoniMT                                 INFO -- #782182242 Events          20         20         0          -          -          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #782182242 Features                              0          -          -          -          -    
+TrigSignatureMoniMT                                 INFO -- #782182242 Features                              0          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu10_lateMu_L1MU10 #48780310
 TrigSignatureMoniMT                                 INFO -- #48780310 Events           20         20         0          0          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #48780310 Features                               0          0          -          -          -          
