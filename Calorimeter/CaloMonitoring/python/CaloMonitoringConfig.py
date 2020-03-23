@@ -24,6 +24,8 @@ def CaloMonitoringCfg(flags):
         from CaloMonitoring.TileCalCellMonAlg import TileCalCellMonAlgConfig
         acc.merge( TileCalCellMonAlgConfig(flags) )
 
+        from CaloMonitoring.LArCellMonAlg import LArCellMonConfig
+        acc.merge( LArCellMonConfig(flags) )
 
     return acc
 
@@ -42,7 +44,7 @@ if __name__=='__main__':
    ConfigFlags.Input.Files = defaultTestFiles.ESD
 
    ConfigFlags.Output.HISTFileName = 'CaloMonitoringOutput.root'
-   ConfigFlags.DQ.enableLumiAccess = False
+   ConfigFlags.DQ.enableLumiAccess = True
    ConfigFlags.DQ.useTrigger = False
    ConfigFlags.DQ.Environment = 'tier0'
 

@@ -17,6 +17,7 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -235,11 +236,18 @@ private:
   Gaudi::Property<unsigned long long> m_forceSOR_ns{
     this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
 
+  Gaudi::Property<bool> m_rewriteLVL1{
+    this, "RewriteLVL1", false,
+    "Encode L1 results to ByteStream and write to the output. Possible only with athenaHLT, not online."};
+
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoRHKey{
     this, "EventInfoRHKey", "EventInfo", "StoreGate key for reading xAOD::EventInfo"};
+
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultRHKey{
+    this, "L1TriggerResultRHKey", "L1TriggerResult", "StoreGate key for reading L1TriggerResult for RewriteLVL1"};
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 

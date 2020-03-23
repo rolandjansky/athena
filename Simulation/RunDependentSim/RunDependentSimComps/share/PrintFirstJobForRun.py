@@ -2,6 +2,8 @@
 #file PrintFirstJobForRun.py
 #Small utility for testing RunDMC: find out which job to look in for a given run.
 
+from __future__ import print_function
+
 from Digitization.RunDependentMCTaskIterator import *
 import argparse
 
@@ -14,9 +16,10 @@ def findJobForRun(run,task,maxEvents,printq=True):
             for j in jobs.donejob:
                 if j['run'] == run:
                     if printq:
-                        print "-="*10
-                        for j in jobs.donejob: print j
-                        print "-="*10
+                        print ("-="*10)
+                        for j in jobs.donejob:
+                            print (j)
+                        print ("-="*10)
                     return i
                 pass
             i += 1
@@ -40,11 +43,14 @@ if __name__=='__main__':
     RUNDMC_TEST_CONFIG = True
     RunDMC_testing_configuration = True #back compat
     execfile(args.config_file)
-    if not JobMaker: print 'No configuration found in file. Make sure JobMaker was not deleted!'
+    if not JobMaker:
+        print ('No configuration found in file. Make sure JobMaker was not deleted!')
     else:
         a = findJobForRun(args.run,JobMaker,args.nev)
-        if (a != -1): print 'Job number = ',a
-        else: print 'Run',args.run,'was not found.'
+        if (a != -1):
+            print ('Job number = ',a)
+        else:
+            print ('Run',args.run,'was not found.')
 
     
 

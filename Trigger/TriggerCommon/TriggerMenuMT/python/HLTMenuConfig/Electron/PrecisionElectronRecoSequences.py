@@ -41,8 +41,7 @@ def precisionElectronRecoSequence(RoIs):
                                  ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData_TRIG')]
     
     if globalflags.InputFormat.is_bytestream():
-       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ,
-                                    ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
 
     # AlgSequence.SGInputLoader.Load.append([ ('InDetBSErrContainer','StoreGateSvc+PixelByteStreamErrs') ])

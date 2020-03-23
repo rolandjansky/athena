@@ -532,7 +532,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
         int eta = etaphi/100;
         int phi = etaphi - eta*100;
         eta = eta*sign;
-	MuonGM::MuonStation* gmStation = m_muonMgr->getMuonStation(vname.substr(0,3),eta,phi);
+	const MuonGM::MuonStation* gmStation = m_muonMgr->getMuonStation(vname.substr(0,3),eta,phi);
         // try to retrieve 
 	if ( !gmStation) {
           gmStation = m_muonMgr->getMuonStation(vname.substr(0,4),eta,phi);
@@ -682,7 +682,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
           int eta = etaphi/100;
           int phi = etaphi - eta*100;
           eta = eta*sign;
-	  MuonGM::MuonStation* gmStation = m_muonMgr->getMuonStation(vname.substr(0,3),eta,phi);
+	  const MuonGM::MuonStation* gmStation = m_muonMgr->getMuonStation(vname.substr(0,3),eta,phi);
 	  if ( !gmStation) {
             gmStation = m_muonMgr->getMuonStation(vname.substr(0,4),eta,phi);
           }

@@ -266,3 +266,4 @@ def ansi_format_warning(text):
 ## Red colouring
 def ansi_format_error(text):
   return (ansi_format(text, "Red"))
+

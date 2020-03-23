@@ -39,6 +39,9 @@ StatusCode DoubleEventSelectorAthenaPool::initialize()
   ATH_CHECK(EventSelectorAthenaPool::initialize());
 
   ATH_CHECK(m_secondarySelector.retrieve());
+  if (dynamic_cast<EventSelectorAthenaPool *>(&*(m_secondarySelector)) == nullptr) {
+    m_secondaryByteStream = true;
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -175,12 +178,22 @@ StatusCode DoubleEventSelectorAthenaPool::recordAttributeList() const
   ATH_MSG_DEBUG("AttributeList size " << attrList.size());
   auto athAttrList = std::make_unique<AthenaAttributeList>(attrList);
 
-  // Fill the new attribute list from the primary file
-  ATH_CHECK(fillAttributeList(athAttrList.get(), "", false));
+  // Decide what to do based on the type of secondary file
+  if (m_secondaryByteStream) {
+    // Always add ByteStream as primary input
+    ATH_CHECK(m_secondarySelector->fillAttributeList(athAttrList.get(), "", false));
 
-  // Fill the new attribute list from the secondary file
-  ATH_MSG_DEBUG("Append secondary attribute list properties to the primary one with a suffix: " << m_secondaryAttrListSuffix.value());
-  ATH_CHECK(m_secondarySelector->fillAttributeList(athAttrList.get(), "_" + m_secondaryAttrListSuffix.value(), true));
+    // Then fill the new attribute list from the primary file
+    ATH_MSG_DEBUG("Append primary attribute list properties to the secondary one with a suffix: " << m_secondaryAttrListSuffix.value());
+    ATH_CHECK(fillAttributeList(athAttrList.get(), "_" + m_secondaryAttrListSuffix.value(), true));
+  } else {
+    // Fill the new attribute list from the primary file
+    ATH_CHECK(fillAttributeList(athAttrList.get(), "", false));
+
+    // Fill the new attribute list from the secondary file
+    ATH_MSG_DEBUG("Append secondary attribute list properties to the primary one with a suffix: " << m_secondaryAttrListSuffix.value());
+    ATH_CHECK(m_secondarySelector->fillAttributeList(athAttrList.get(), "_" + m_secondaryAttrListSuffix.value(), true));
+  }
 
   // Add info about secondary input
   athAttrList->extend("hasSecondaryInput", "bool");
@@ -233,6 +246,11 @@ void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
   if( msgLvl(MSG::DEBUG) ) {
     for( auto& source: m_activeEventsPerSource )
       msg(MSG::DEBUG) << "SourceID: " << source.first << " active events: " << source.second << endmsg;
+  }
+
+  // Nothing to do if secondary event selector is ByteStream
+  if (m_secondaryByteStream) {
+    return;
   }
 
   // Secondary guid

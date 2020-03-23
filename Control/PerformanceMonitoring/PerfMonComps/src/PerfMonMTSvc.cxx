@@ -25,7 +25,7 @@ PerfMonMTSvc::PerfMonMTSvc( const std::string& name,
     m_eventCounter{0} {
 
   m_measurement.capture_snapshot();
-  m_snapshotData[0].addPointStart(m_measurement);
+  m_snapshotData[0].addPointStart_snapshot(m_measurement);
 
   declareProperty( "doEventLoopMonitoring",
                    m_doEventLoopMonitoring = false,
@@ -69,7 +69,7 @@ StatusCode PerfMonMTSvc::initialize() {
   m_snapshotStepNames.push_back("Finalize");
 
   //Set wall time offset
-  m_eventLevelData.set_wall_time_offset();
+  m_eventLevelData.set_wall_time_offset(m_wallTimeOffset);
 
   /// Configure the auditor
   if( !PerfMon::makeAuditor("PerfMonMTAuditor", auditorSvc(), msg()).isSuccess()) {
@@ -85,7 +85,7 @@ StatusCode PerfMonMTSvc::initialize() {
 StatusCode PerfMonMTSvc::finalize(){ 
  
   m_measurement.capture_snapshot();
-  m_snapshotData[2].addPointStop(m_measurement);
+  m_snapshotData[2].addPointStop_snapshot(m_measurement);
 
   report();
   return StatusCode::SUCCESS;
@@ -135,13 +135,13 @@ void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
   // Last thing to be called before the event loop begins
   if( compName == "AthRegSeq" && stepName == "Start") {
     m_measurement.capture_snapshot();
-    m_snapshotData[1].addPointStart(m_measurement);
+    m_snapshotData[1].addPointStart_snapshot(m_measurement);
   }
 
   // Last thing to be called before finalize step begins
   if ( compName == "AthMasterSeq" && stepName == "Finalize"){
     m_measurement.capture_snapshot();
-    m_snapshotData[2].addPointStart(m_measurement);
+    m_snapshotData[2].addPointStart_snapshot(m_measurement);
   }
 
 }
@@ -152,14 +152,14 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
   // First thing to be called after the initialize step ends
   if ( compName == "AthMasterSeq" && stepName == "Initialize"){
     m_measurement.capture_snapshot();
-    m_snapshotData[0].addPointStop(m_measurement);
+    m_snapshotData[0].addPointStop_snapshot(m_measurement);
   }
 
 
   // First thing to be called after the event loop ends
   if( compName == "AthMasterSeq" && stepName == "Stop") {
     m_measurement.capture_snapshot();
-    m_snapshotData[1].addPointStop(m_measurement);
+    m_snapshotData[1].addPointStop_snapshot(m_measurement);
   }
 
 }
@@ -179,7 +179,7 @@ void PerfMonMTSvc::startCompAud_serial( const std::string& stepName,
    *  This space will be freed after results are reported.
    */   
   m_compLevelDataMap[currentState] = new PMonMT::MeasurementData;
-  m_compLevelDataMap[currentState]->addPointStart(m_measurement);
+  m_compLevelDataMap[currentState]->addPointStart_serial(m_measurement);
 
 }
 
@@ -192,7 +192,7 @@ void PerfMonMTSvc::stopCompAud_serial( const std::string& stepName,
   // Current step - component pair. Ex: Initialize-StoreGateSvc
   PMonMT::StepComp currentState = generate_serial_state (stepName, compName);
 
-  m_compLevelDataMap[currentState]->addPointStop(m_measurement);
+  m_compLevelDataMap[currentState]->addPointStop_serial(m_measurement);
 }
 
 void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
@@ -315,13 +315,11 @@ void PerfMonMTSvc::report2Log_Time_Mem_Serial() {
   ATH_MSG_INFO("                                   (Serial Steps)                                      ");
   ATH_MSG_INFO("=======================================================================================");
 
-  ATH_MSG_INFO(format("%1% %|15t|%2% %|31t|%3% %|42t|%4% %|53t|%5% %|64t|%6% %|75t|%7%")     % "Step"
-                                                                                             % "CPU Time [ms]"
-                                                                                             % "Vmem [kB]"
-                                                                                             % "Rss [kB]"
-                                                                                             % "Pss [kB]"
-                                                                                             % "Swap [kB]"
-                                                                                             % "Component");
+  ATH_MSG_INFO(format("%1% %|15t|%2% %|31t|%3% %|44t|%4% %|64t|%5%")     % "Step"
+                                                                         % "CPU Time [ms]"
+                                                                         % "Vmem [kB]"
+                                                                         % "Malloc [kB]"
+                                                                         % "Component");
 
   divideData2Steps_serial(); 
   for(auto vec_itr : m_stdoutVec_serial){
@@ -333,19 +331,17 @@ void PerfMonMTSvc::report2Log_Time_Mem_Serial() {
     // Sort the results by the sum of all time and memory metrics
     sort(pairs.begin(), pairs.end(), [=](std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& a, std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& b)
     {
-      return a.second->getDeltaCPU() + a.second->getMemMonDeltaMap("vmem") + a.second->getMemMonDeltaMap("rss") + a.second->getMemMonDeltaMap("pss") + a.second->getMemMonDeltaMap("swap") > \
-             b.second->getDeltaCPU() + b.second->getMemMonDeltaMap("vmem") + b.second->getMemMonDeltaMap("rss") + b.second->getMemMonDeltaMap("pss") + b.second->getMemMonDeltaMap("swap");
+      return a.second->getDeltaCPU() + a.second->getDeltaVmem() + a.second->getDeltaMalloc()  > \
+             b.second->getDeltaCPU() + b.second->getDeltaVmem() + b.second->getDeltaMalloc();
     }
     ); 
     for(auto it : pairs){
 
-      ATH_MSG_INFO(format("%1% %|15t|%2% %|31t|%3% %|42t|%4% %|53t|%5% %|64t|%6% %|75t|%7%") % it.first.stepName
-                                                                                             % it.second->getDeltaCPU() 
-                                                                                             % it.second->getMemMonDeltaMap("vmem")    
-                                                                                             % it.second->getMemMonDeltaMap("rss")     
-                                                                                             % it.second->getMemMonDeltaMap("pss")     
-                                                                                             % it.second->getMemMonDeltaMap("swap")     
-                                                                                             % it.first.compName);      
+      ATH_MSG_INFO(format("%1% %|15t|%2% %|31t|%3% %|44t|%4% %|64t|%5%") % it.first.stepName
+                                                                         % it.second->getDeltaCPU() 
+                                                                         % it.second->getDeltaVmem()   
+                                                                         % it.second->getDeltaMalloc()        
+                                                                         % it.first.compName);      
 
     }
     ATH_MSG_INFO("=======================================================================================");
@@ -406,9 +402,9 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
   ATH_MSG_INFO("                                  (Parallel Steps)                                     ");
   ATH_MSG_INFO("=======================================================================================");
 
-  ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|48t|%3$.2f  %|75t|%4%") % "Step"
+  ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|42t|%3$.2f  %|65t|%4%") % "Step"
+                                                                    % "Call Count"
                                                                     % "CPU Time [ms]"
-                                                                    % "CPU Time per event [ms]"
                                                                     % "Component");
 
   parallelDataAggregator();
@@ -426,9 +422,9 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
     );
     for(auto it : pairs){
 
-      ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|48t|%3$.2f  %|75t|%4%") % it.first.stepName
-                                                                        % it.second.cpu_time
-                                                                        % (it.second.cpu_time / m_eventCounter)
+      ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|42t|%3$.2f  %|65t|%4%") % it.first.stepName
+                                                                        % it.second.call_count
+                                                                        % it.second.cpu_time 
                                                                         % it.first.compName);
     }
     ATH_MSG_INFO("=======================================================================================");
@@ -666,6 +662,8 @@ void PerfMonMTSvc::parallelDataAggregator(){
     // If the current state exists in the map, then aggregate it. o/w create a instance for it.
     sc_itr = m_aggParallelCompLevelDataMap.find(currentState);
     if(sc_itr != m_aggParallelCompLevelDataMap.end()){
+      m_aggParallelCompLevelDataMap[currentState].call_count++;
+
       m_aggParallelCompLevelDataMap[currentState].cpu_time += sce_itr.second.cpu_time;
       m_aggParallelCompLevelDataMap[currentState].wall_time += sce_itr.second.wall_time;
 
@@ -676,6 +674,7 @@ void PerfMonMTSvc::parallelDataAggregator(){
     }
     else{
       m_aggParallelCompLevelDataMap[currentState] = sce_itr.second;      
+      m_aggParallelCompLevelDataMap[currentState].call_count = 1; // this component in this step is called once so far. 
     }
       
   } 

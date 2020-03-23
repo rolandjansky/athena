@@ -1,11 +1,16 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # TauCommon.py
 # Schedules all tools needed for tau object selection and writes
 # results into SG. These may then be accessed along the train.
 #********************************************************************
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+
+from __future__ import print_function
+
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon import CfgMgr 
 
 #====================================================================
 # MAKE TAU ENUMS AVAILABLE
@@ -30,7 +35,7 @@ DFCommonTausLooseWrapper = DerivationFramework__AsgSelectionToolWrapper( name = 
                                                                          StoreGateEntryName   = "DFCommonTausLoose",
                                                                          ContainerName        = "TauJets")
 ToolSvc += DFCommonTausLooseWrapper
-print DFCommonTausLooseWrapper
+print (DFCommonTausLooseWrapper)
 DFCommonTauWrapperTools.append(DFCommonTausLooseWrapper)
 
 # Medium
@@ -43,7 +48,7 @@ DFCommonTausMediumWrapper = DerivationFramework__AsgSelectionToolWrapper( name =
                                                                          StoreGateEntryName   = "DFCommonTausMedium",
                                                                          ContainerName        = "TauJets")
 ToolSvc += DFCommonTausMediumWrapper
-print DFCommonTausMediumWrapper
+print (DFCommonTausMediumWrapper)
 DFCommonTauWrapperTools.append(DFCommonTausMediumWrapper)
 
 # Tight
@@ -56,13 +61,12 @@ DFCommonTausTightWrapper = DerivationFramework__AsgSelectionToolWrapper( name = 
                                                                          StoreGateEntryName   = "DFCommonTausTight",
                                                                          ContainerName        = "TauJets")
 ToolSvc += DFCommonTausTightWrapper
-print DFCommonTausTightWrapper
+print (DFCommonTausTightWrapper)
 DFCommonTauWrapperTools.append(DFCommonTausTightWrapper)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TauCommonKernel",
                                                                          AugmentationTools = DFCommonTauWrapperTools)

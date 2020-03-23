@@ -28,11 +28,13 @@ public:
   bool getInnerCoincidenceFlag() const {return m_innerCoincidenceFlag;};
 
   bool getHit(int ptIn) const { return m_hit[ptIn];};
+  int  getpT() const {return m_pT;}; // for Run3 Algo
   void setHit(int ptIn){ m_hit[ptIn]=true;};
   void clearHit(int ptIn) { m_hit[ptIn] = false;};
-  int  getPtLevel() const;
+  int  getPtLevel() const; // for Run2 Algo
 
   void setIdSSC(int idSSCIn){ m_idSSC = idSSCIn;};
+  void setpT(int pTIn){ m_pT=pTIn;};
   void setR(int rIn){ m_r=rIn;};
   void setPhi(int phiIn){ m_phi=phiIn;};
   void setDR(int drIn) { m_dR = drIn; };
@@ -56,7 +58,8 @@ public:
 
 private:
   int m_idSSC;
-  bool m_hit[NumberOfPtLevel+1];
+  bool m_hit[NumberOfPtLevel+1]; // for Run2 Algo
+  int m_pT; // for Run3 Algo
   int m_phi;
   int m_r;
   int m_dR;

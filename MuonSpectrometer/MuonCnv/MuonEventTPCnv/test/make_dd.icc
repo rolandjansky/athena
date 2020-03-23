@@ -277,7 +277,7 @@ MuonGM::MuonDetectorManager&  init_cs (GeoFullPhysVol& pvol)
                                    EventIDBase::UNDEFNUM,
                                    EventIDBase::UNDEFNUM,
                                    100000));
-  cc->insert (range, std::move (muo_dd));
+  assert (cc->insert (range, std::move (muo_dd)));
 
   assert (condStore->record (std::move (cc), "MuonDetectorManager"));
 

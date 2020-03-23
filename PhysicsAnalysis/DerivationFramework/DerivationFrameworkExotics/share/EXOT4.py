@@ -63,13 +63,13 @@ EXOT4StringSkimmingTool_lep = DerivationFramework__xAODStringSkimmingTool(name =
                                                                          expression = expression_lep)
 
 ToolSvc += EXOT4StringSkimmingTool_lep
-print EXOT4StringSkimmingTool_lep
+printfunc (EXOT4StringSkimmingTool_lep)
 
 EXOT4StringSkimmingTool_jet = DerivationFramework__xAODStringSkimmingTool(name = "EXOT4StringSkimmingTool_jet",
                                                                          expression = expression_jet)
 
 ToolSvc += EXOT4StringSkimmingTool_jet
-print EXOT4StringSkimmingTool_jet
+printfunc (EXOT4StringSkimmingTool_jet)
 
 
 # Tracks thinning 
@@ -175,7 +175,7 @@ thinningTools.append(EXOT4Ak10CCThinningTool)
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT4MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT4MCThinningTool",
-                                                             ThinningService = "EXOT4ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = True,
 	                                                     WriteBHadrons              = True,
@@ -195,7 +195,7 @@ EXOT4MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT4MCThin
                                                              PreserveDescendants        = False)
 
 EXOT4TMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT4TMCThinningTool",
-                                                             ThinningService = "EXOT4ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = False,
 	                                                     WriteBHadrons              = False,
@@ -215,7 +215,7 @@ EXOT4TMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT4TMCTh
                                                              PreserveDescendants        = True)
 
 EXOT4TAMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT4TAMCThinningTool",
-                                                             ThinningService = "EXOT4ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = False,
 	                                                     WriteBHadrons              = False,
@@ -291,12 +291,8 @@ exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel", Thinning
 
 
 
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT4ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================

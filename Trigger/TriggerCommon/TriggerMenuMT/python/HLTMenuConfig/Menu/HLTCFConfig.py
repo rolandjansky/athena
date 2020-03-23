@@ -297,7 +297,7 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
 
     # decode and attach HypoTools:
     for chain in chains:
-        chain.decodeHypoToolConfs()
+        chain.createHypoTools()
 
     log.debug("finalDecisions: %s", finalDecisions)
     if create_dot():
@@ -445,7 +445,7 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
 
     ## Fill chain steps matrix
     for chain in chains:
-        chain.decodeHypoToolConfs()#allChainDicts)
+        chain.createHypoTools()#allChainDicts)
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)

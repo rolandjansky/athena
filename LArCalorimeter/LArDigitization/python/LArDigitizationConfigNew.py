@@ -1,6 +1,6 @@
 """Define functions for LAr Digitization with ComponentAccumulator
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -216,14 +216,14 @@ def LArOverlayCfg(flags, **kwargs):
 
 def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for LAr Trigger Tower"""
-    acc = LArDigitizationBasicCfg(flags)
+    acc = LArDigitizationCfg(flags)
     acc.merge(LArFebRodMappingCfg(flags))
     acc.merge(LArCalibIdMappingCfg(flags))
     acc.merge(CaloTriggerTowerCfg(flags))
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     if not flags.Digitization.DoXingByXingPileUp:
-        if flags.Digitization.Pileup or flags.Detector.OverlayLAr:
+        if flags.Digitization.Pileup:
             kwargs.setdefault("PileUp", True)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
@@ -237,4 +237,21 @@ def LArTriggerDigitizationCfg(flags, **kwargs):
     """Return ComponentAccumulator for LAr Trigger Tower and Output"""
     acc = LArTriggerDigitizationBasicCfg(flags)
     acc.merge(OutputStreamCfg(flags, "RDO", ["LArTTL1Container#*"]))
+    return acc
+
+
+def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with LAr Overlay Trigger Tower"""
+    acc = LArOverlayDigitizationBasicCfg(flags)
+    acc.merge(LArFebRodMappingCfg(flags))
+    acc.merge(LArCalibIdMappingCfg(flags))
+    acc.merge(CaloTriggerTowerCfg(flags))
+
+    kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
+    kwargs.setdefault("PileUp", True)
+    kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1EM")
+    kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1HAD")
+
+    LArTTL1Maker = CompFactory.LArTTL1Maker
+    acc.addEventAlgo(LArTTL1Maker(**kwargs))
     return acc

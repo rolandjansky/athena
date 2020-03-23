@@ -66,7 +66,12 @@ def setupMenu():
 
     TriggerFlags.METSlice.signatures = [
         ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup + BCIDmonGroup),
+        ChainProp(name='HLT_xe100_mht_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe100_tcpufit_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe100_trkmht_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe100_pfsum_L1XE50', groups=SingleMETGroup),
         # MultiMET Chain
+        ChainProp(name='HLT_xe65_cell_xe110_tcpufit_L1XE50',l1SeedThresholds=['XE50']*2, groups=MultiMETGroup), #must be FS seeded
     ]
 
     TriggerFlags.JetSlice.signatures = [
@@ -97,10 +102,11 @@ def setupMenu():
         #ATR-20049
         ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
     ]
+    # TimM temporary disable due to !31039
     TriggerFlags.BphysicsSlice.signatures = [
         #ATR-20049
-        ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10',     groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10',     groups=BphysicsGroup),
+        # ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10',     groups=BphysicsGroup),
+        # ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10',     groups=BphysicsGroup),
     ]
     TriggerFlags.CombinedSlice.signatures = [
         ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)

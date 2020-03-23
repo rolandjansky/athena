@@ -16,8 +16,8 @@ ex.input = 'data'
 ex.args = '-i -M -ul -c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
 ex.perfmon = False # perfmon currently not fully supported with athenaHLT -M
 
-# Trick to pass the transitions file into athenaHLT -i
-ex.job_options += ' < `find_data.py run-stop-run-saveHist.trans`'
+# Pass the transitions file into athenaHLT -i
+ex.cmd_suffix = ' < `find_data.py run-stop-run-saveHist.trans`'
 
 test = Test.Test()
 test.art_type = 'build'

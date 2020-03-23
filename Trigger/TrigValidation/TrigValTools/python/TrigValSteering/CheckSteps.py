@@ -32,7 +32,7 @@ class RefComparisonStep(Step):
             if os.path.isfile(self.reference):
                 return
             # Try to find the file in DATAPATH
-            full_path = subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).strip()
+            full_path = str(subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).strip())
             if os.path.isfile(full_path):
                 self.log.debug('%s using reference %s', self.name, full_path)
                 self.reference = full_path
@@ -118,6 +118,12 @@ class LogMergeStep(Step):
             self.log_files = []
             for step in test.exec_steps:
                 self.log_files.append(step.name)
+        # Protect against infinite loop
+        if self.merged_name in self.log_files:
+            self.log.error('%s output log name %s is same as one of the input log names.'\
+                           ' This will lead to infinite loop, aborting.', self.name, self.merged_name)
+            self.report_result(1, 'TestConfig')
+            sys.exit(1)
         super(LogMergeStep, self).configure(test)
 
     def process_extra_regex(self):
@@ -262,7 +268,7 @@ class RegTestStep(RefComparisonStep):
     def __init__(self, name='RegTest'):
         super(RegTestStep, self).__init__(name)
         self.regex = 'REGTEST'
-        self.executable = 'regtest.py'
+        self.executable = 'regtest.pl'
         self.input_base_name = 'athena'
         self.args += ' --linematch ".*"'
         self.auto_report_result = True
@@ -281,11 +287,12 @@ class RegTestStep(RefComparisonStep):
             return False
         encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
         with open(log_file, **encargs) as f_in:
-            matches = re.findall('{}.*$'.format(self.regex),
+            matches = re.findall('({}.*).*$'.format(self.regex),
                                  f_in.read(), re.MULTILINE)
             with open(self.input_file, 'w', **encargs) as f_out:
                 for line in matches:
-                    f_out.write(line+'\n')
+                    linestr = str(line[0]) if type(line) is tuple else line
+                    f_out.write(linestr+'\n')
         return True
 
     def rename_ref(self):

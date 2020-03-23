@@ -23,7 +23,7 @@ def TriggerChains(HIGG4DxName):
     else :
         assert False, "HIGG4DxThinning: Unknown derivation stream '{}'".format(HIGG4DxName)
 
-def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
+def setup(HIGG4DxName, streamName, ToolSvc):
     thinningTools=[]
 
     #jets and tracks
@@ -157,7 +157,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
     	#thinning the master truth collection
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
         HIGG4DxTruthTool_MENU = DerivationFramework__MenuTruthThinning(  name 			    = HIGG4DxName+"TruthTool_MENU",
-                                                                         ThinningService 	    = HIGG4DxThinningSvc,
+                                                                         StreamName                 = streamName,
                                                                          WritePartons               = False,
                                                                          WriteHadrons               = False,
                                                                          WriteBHadrons              = False,

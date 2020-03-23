@@ -33,7 +33,6 @@
 #include "AuxDiscoverySvc.h"
 
 #include <algorithm>
-#include <mutex>
 
 //______________________________________________________________________________
 // Initialize the service.

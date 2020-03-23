@@ -57,7 +57,7 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   }
 
   std::string fullPath = find_file(fileName);
-  TFile * myFile = TFile::Open(fullPath.c_str(), "READ");
+  std::unique_ptr<TFile>  myFile(TFile::Open(fullPath.c_str(), "READ"));
 
   if(!myFile || myFile->IsZombie()) {
     ATH_MSG_FATAL("Could not open file " << fullPath.c_str());
@@ -68,20 +68,21 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   
   // Iterate over working points
   for(int i=0; i<100; i++)
-    {
-      // Retrieve histogram
-      TH2* myGraph = (TH2*)myFile->Get(Form("h2_%02d", i));
-      if(!myGraph){
-	ATH_MSG_WARNING("Failed to retrieve Graph " << i << " named " << Form("h2_%02d", i));
-	continue;
-      }
-      
-      // Clone histogram and store locally
-      std::unique_ptr<TH2> myLocalGraph((TH2*)myGraph->Clone());
-      myLocalGraph->SetDirectory(0);       
-      histArray->push_back(m_pair_t(float(i)/100., std::move(myLocalGraph)));
+  {
+    // Retrieve histogram
+    TH2* myGraph = dynamic_cast<TH2*>(myFile->Get(Form("h2_%02d", i)));
+    if(!myGraph){
+      ATH_MSG_WARNING("Failed to retrieve Graph " << i << " named " << Form("h2_%02d", i));
+      continue;
     }
+      
+    std::unique_ptr<TH2> myLocalGraph(myGraph);
+    myLocalGraph->SetDirectory(0);       
+    histArray->push_back(m_pair_t(float(i)/100., std::move(myLocalGraph)));
+  }
   
+  myFile->Close();
+
   return StatusCode::SUCCESS;  
 }
 
@@ -144,15 +145,17 @@ StatusCode TauWPDecorator::initialize() {
 /********************************************************************/
 StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) 
 { 
+
+  float mu = 0;
   SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
   if (!eventinfoInHandle.isValid()) {
-    ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
-    m_mu = 0.;
+    ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", mu is set to be .0");
   }
   else {
     const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
-    m_mu = eventInfo->averageInteractionsPerCrossing();
-  } 
+    mu = eventInfo->averageInteractionsPerCrossing();
+  }
+
   const SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
   SG::AuxElement::Accessor<float> acc_newScore(m_newScoreName);
 
@@ -179,7 +182,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
      const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
      y_var = std::fabs(acc_absEta(pTau));
   } else {
-     y_var = m_mu;
+     y_var = mu;
   }
 
   ATH_MSG_VERBOSE("pT before " << pt);

@@ -124,12 +124,18 @@ def mergeSerial(chainDefList):
 
 
 def makeChainSteps(steps):
+    from copy import deepcopy
+    from TrigCompositeUtils.TrigCompositeUtils import legName
     stepName = ''
     stepSeq = []
     stepMult = []
     stepNumber = ''
     log.verbose(" steps %s ", steps)
     stepName = "merged"
+    stepDicts = []
+    count = 0
+    comboHypoTools = []
+
     for step in steps:
         if step is None:
             continue
@@ -154,9 +160,15 @@ def makeChainSteps(steps):
             stepSeq.append(seq)
         # set the multiplicity of all the legs 
         stepMult.append(sum(step.multiplicity))
+        comboHypoTools.extend(step.comboToolConfs)
+        # update the chain dict list for the combined step with the chain dict from this step
+        stepDicts += deepcopy(step.chainDicts)
+        # for merged steps, we need to update the name to add the leg name
+        stepDicts[-1]['chainName'] = legName(stepDicts[-1]['chainName'], count)
+        count = count + 1
         
-
-    theChainStep = ChainStep(stepName, stepSeq, stepMult) 
+    comboHypoTools = list(set(comboHypoTools))
+    theChainStep = ChainStep(stepName, Sequences=stepSeq, multiplicity=stepMult, chainDicts=stepDicts, comboToolConfs=comboHypoTools) 
     log.debug("Merged step: \n %s", theChainStep)
   
     

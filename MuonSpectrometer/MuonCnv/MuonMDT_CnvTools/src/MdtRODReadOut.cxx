@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtRODReadOut.h"
@@ -34,7 +34,7 @@ void MdtRODReadOut::decodeHeader(const std::vector<uint32_t>& p)
 #ifndef NDEBUG
   IMessageSvc* msgSvc = 0;
   ISvcLocator* svcLocator = Gaudi::svcLocator();
-  svcLocator->service("MessageSvc", msgSvc);
+  svcLocator->service("MessageSvc", msgSvc).ignore();
   MsgStream log(msgSvc, "MdtRODReadOut::decodeHeader");
 #endif
 

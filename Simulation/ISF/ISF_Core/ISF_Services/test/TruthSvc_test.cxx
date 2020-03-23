@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -194,7 +194,7 @@ namespace ISFTesting {
     }
 
     virtual void TearDown() override {
-      m_svcMgr->removeService(m_svc);
+      ASSERT_TRUE( m_svcMgr->removeService(m_svc).isSuccess() );
       ASSERT_TRUE( m_svc->finalize().isSuccess() );
       ASSERT_TRUE( m_svc->terminate().isSuccess() );
       ReleaseSmartIFComponent(m_svc);
@@ -467,7 +467,7 @@ namespace ISFTesting {
   TEST_F(TruthSvc_test, registerTruthIncident_failMockStrat_ForceEndVtx) {
     bool forceEndVtx[AtlasDetDescr::fNumAtlasRegions] = {true, true, true, true, true, true};
     ASSERT_TRUE( m_svc->setProperty( "ForceEndVtxInRegions", forceEndVtx ).isSuccess() );
-    m_svc->setProperty("TruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']");
+    ASSERT_TRUE( m_svc->setProperty("TruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']").isSuccess() );
 
     ASSERT_TRUE( m_svc->initialize().isSuccess() );
     unsigned int nIDTruthStrategies(0);
@@ -535,7 +535,7 @@ namespace ISFTesting {
 
 
   TEST_F(TruthSvc_test, registerTruthIncident_passMockStrat_parentSurvives) {
-    m_svc->setProperty("TruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']");
+    ASSERT_TRUE( m_svc->setProperty("TruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']").isSuccess() );
     ASSERT_TRUE( m_svc->initialize().isSuccess() );
     unsigned int nIDTruthStrategies(0);
     ISF::ITruthStrategy** truthStrategies = getIDTruthStrategies(nIDTruthStrategies);

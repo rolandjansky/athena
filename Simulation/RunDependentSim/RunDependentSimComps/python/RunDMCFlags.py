@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -154,7 +154,7 @@ class RunToTimestampDict(JobProperty):
             raise ValueError( 'timestamp is not the expected type (int) for the key of RunToTimestampDict!' )
         run2tslist = self.get_Value()
         logRunDMCFlags.info("Attempting to add the following pair to RunToTimestampDict: %i:%i.", run, timestamp)
-        if run2tslist.has_key(run):
+        if run in run2tslist:
             logRunDMCFlags.warning("RunToTimestampDict already has an entry for run %i with timestamp %i", run, run2tslist[run])
             if force:
                 logRunDMCFlags.warning("Replacing existing entry in RunToTimestampDict!")

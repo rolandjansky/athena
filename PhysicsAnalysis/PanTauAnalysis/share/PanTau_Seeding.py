@@ -32,11 +32,11 @@ class TauSeeding:
                                                                             ExcludeEMNeutrals = False)
             pionEflowObjectMatchTool.OutputLevel=VERBOSE
             ToolSvc += pionEflowObjectMatchTool
-            print pionEflowObjectMatchTool
+            printfunc (pionEflowObjectMatchTool)
         #### end if(rec.doTruth() )
         
         topSequence+=panTauSeedBuilder
-        print panTauSeedBuilder
+        printfunc (panTauSeedBuilder)
         
         
     #end def __init__            

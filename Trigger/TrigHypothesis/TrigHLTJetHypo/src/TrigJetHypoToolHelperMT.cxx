@@ -36,7 +36,7 @@ TrigJetHypoToolHelperMT::collectData(const std::string& exetime,
                                      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
                                      const std::optional<bool>& pass) const {
   if(!collector){return;}
-  auto helperInfo = nodeIDPrinter(name(),
+  auto helperInfo = nodeIDPrinter("TrigJetHypoToolHelperMT",
                                   m_nodeID,
                                   m_parentNodeID,
                                   pass,
@@ -53,8 +53,10 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
 			      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
 
   if(collector){
-    std::string msg = "No of jets " + std::to_string(jets.size());
-    collector->collect(name(), msg);
+    std::stringstream ss;
+    ss <<  "No of jets " + std::to_string(jets.size()) + '\n';
+    ss << jets; 
+    collector->collect(name(), ss.str());
   }
 
   JetTrigTimer timer;

@@ -19,6 +19,9 @@
 
 namespace tauRecTools
 {
+
+  const StatusCode GetJetConstCluster(xAOD::JetConstituentVector::iterator it, const xAOD::CaloCluster* &cluster);
+  
   xAOD::TauTrack::TrackFlagType isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag);
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);
 
@@ -50,7 +53,7 @@ namespace tauRecTools
     float GetGradBoostMVA();//GradBost
     float GetClassification();//AdaBoost
     float GetResponse();//regression
-    MVAUtils::BDT* bdt=0;
+    std::unique_ptr<MVAUtils::BDT> bdt;
     std::map< float*, DummyAccessor* > m_data;
     TRTBDT( const char* weightFile);
     bool init(const char* weightFile);
@@ -58,7 +61,7 @@ namespace tauRecTools
     bool updateVariables(const xAOD::TauJet& tau);
   };
 
-  MVAUtils::BDT* configureMVABDT( std::map<TString, float*> &availableVars, const TString& weightFile);
+  std::unique_ptr<MVAUtils::BDT> configureMVABDT( std::map<TString, float*> &availableVars, const TString& weightFile);
 
   std::vector<TString> parseString(const TString& str, const TString& delim=",");
   std::vector<TString> parseStringMVAUtilsBDT(const TString& str, const TString& delim=",");

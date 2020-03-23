@@ -32,6 +32,7 @@ def setupOverlayDetectorFlags(configFlags):
     configFlags.Detector.OverlayTRT = True
     configFlags.Detector.OverlayLAr = True
     configFlags.Detector.OverlayTile = True
+    configFlags.Detector.OverlayL1Calo = not configFlags.Overlay.DataOverlay
     configFlags.Detector.OverlayCSC = True
     configFlags.Detector.OverlayMDT = True
     configFlags.Detector.OverlayRPC = True

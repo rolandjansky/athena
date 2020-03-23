@@ -34,8 +34,8 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
 
     // get the Photon container
 
-    SG::ReadHandle<xAOD::PhotonContainer> electrons(m_ParticleContainerKey, ctx);
-    if (! electrons.isValid() ) {
+    SG::ReadHandle<xAOD::PhotonContainer> photons(m_ParticleContainerKey, ctx);
+    if (! photons.isValid() ) {
       ATH_MSG_ERROR("evtStore() does not contain electron Collection with name "<< m_ParticleContainerKey);
       return StatusCode::FAILURE;
     }
@@ -63,7 +63,7 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
  
 
     np = 0;
-    for (const auto& e_iter : *electrons) {
+    for (const auto& e_iter : *photons) {
 
       // Check that the electron meets our requirements
       bool isGood;
@@ -71,8 +71,8 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
       if(isGood) {np++;}
       else continue;
                            
-      // do stuff with electrons
-      pt = e_iter->pt(); // in GeV
+      // do stuff with photons
+      pt = e_iter->pt()/Gaudi::Units::GeV; // in GeV
       fill("MonitorPhoton",pt);
 
     }

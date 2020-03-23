@@ -115,7 +115,7 @@ thinningTools.append(SUSY8TauTPThinningTool)
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY8TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY8TruthThinningTool",
-                                                       ThinningService              = SUSY8ThinningHelper.ThinningSvc(),
+                                                       StreamName                   = streamName,
                                                        WritePartons                 = False,
                                                        WriteHadrons                 = False,
                                                        WriteBHadrons                = True,
@@ -151,7 +151,7 @@ SUSY8_TrackParticleCaloCellDecorator = DerivationFramework__TrackParticleCaloCel
 
 ToolSvc += SUSY8_TrackParticleCaloCellDecorator
 AugmentationTools.append(SUSY8_TrackParticleCaloCellDecorator)
-print SUSY8_TrackParticleCaloCellDecorator
+printfunc (SUSY8_TrackParticleCaloCellDecorator)
 
 
 #====================================================================

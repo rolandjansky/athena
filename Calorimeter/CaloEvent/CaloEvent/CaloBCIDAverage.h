@@ -3,6 +3,7 @@
 */
 #ifndef CALOEVENT_CALOBCIDAVERAGE_H
 #define CALOEVENT_CALOBCIDAVERAGE_H
+#ifndef GENERATIONBASE
 
 #include <unordered_map>
 #include "Identifier/Identifier.h"
@@ -46,5 +47,6 @@ class CaloBCIDAverage {
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(CaloBCIDAverage, 141052237, 1)
 
+#endif // NOT GENERATIONBASE
 
 #endif

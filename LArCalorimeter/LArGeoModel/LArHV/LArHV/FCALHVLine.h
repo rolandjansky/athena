@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_FCALHVLINE_H
@@ -7,7 +7,7 @@
 
 class FCALHVModule;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
@@ -29,7 +29,7 @@ class FCALHVLine
   // Voltage and current at the same time:
   void voltage_current(double& v, double& i) const;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   int hvLineNo(const LArHVIdMapping* hvIdMapping=nullptr) const;
 #else
   int hvLineNo() const;

@@ -25,6 +25,9 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
+from AthenaCommon.BeamFlags import jobproperties
+beamFlags = jobproperties.Beam
+
 #Offline calorimeter isolation tool
 #from TrackInCaloTools import TrackInCaloTools
 #TMEFTrackInCaloTools = TrackInCaloTools.TrackInCaloTools(name='MuonIsoTrackInCaloTools')
@@ -345,6 +348,8 @@ def TMEF_MuonCombinedFitTagTool(name="TMEF_MuonCombinedFitTagTool",**kwargs):
 
 def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
     kwargs.setdefault("TrackBuilder","TMEF_CombinedMuonTrackBuilder")
+    if beamFlags.beamType() == 'cosmics':
+        kwargs.setdefault("TrackExtrapolationTool", CfgGetter.getPublicTool("ExtrapolateMuonToIPTool"))
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 
 def TrigMuonAmbiProcessor(name="TrigMuonAmbiProcessor",**kwargs) :
@@ -382,7 +387,10 @@ def TMEF_MuonClusterSegmentFinder(name="TMEF_MuonClusterSegmentFinder", **kwargs
     kwargs.setdefault('MuonPRDSelectionTool', 'TMEF_MuonPRDSelectionTool')
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
-def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):   
+def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
+    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    from AthenaCommon.AppMgr import ToolSvc
+    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwargs):
@@ -520,7 +528,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigEFRpcRdoToPrepDataTool")
         if not rec.doRDOTrigger and rec.doESD:
             MdtRdoToMdtPrepDataTool.OutputCollection = "TrigMDT_DriftCircles"
-            CscRdoToCscPrepDataTool.OutputCollection = "TrigCSC_Clusters"
+            CscRdoToCscPrepDataTool.OutputCollection = "TrigCSC_Measurements"
             TgcRdoToTgcPrepDataTool.OutputCollection = "TrigTGC_Measurements"
             TgcRdoToTgcPrepDataTool.OutputCoinCollection = "TrigerT1CoinDataCollection"
             RpcRdoToRpcPrepDataTool.TriggerOutputCollection="TrigRPC_Measurements"
@@ -528,7 +536,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
             RpcRdoToRpcPrepDataTool.InputCollection="TrigRPC_triggerHits"
         else:
             MdtRdoToMdtPrepDataTool.OutputCollection = "MDT_DriftCircles"
-            CscRdoToCscPrepDataTool.OutputCollection = "CSC_Clusters"
+            CscRdoToCscPrepDataTool.OutputCollection = "CSC_Measurements"
             TgcRdoToTgcPrepDataTool.OutputCollection = "TGC_Measurements"
             TgcRdoToTgcPrepDataTool.OutputCoinCollection = "TrigT1CoinDataCollection"
             RpcRdoToRpcPrepDataTool.TriggerOutputCollection="RPC_Measurements"
@@ -540,7 +548,8 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         #CSC
         ToolSvc += CscRdoToCscPrepDataTool
         self.CscPrepDataProvider=CscRdoToCscPrepDataTool
-        self.CscPrepDataContainer=CscRdoToCscPrepDataTool.OutputCollection
+        #We use the clusters not the PRD hits directly for CSCs
+        self.CscPrepDataContainer="CSC_Clusters"
         #TGC
         ToolSvc += TgcRdoToTgcPrepDataTool
         self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool
@@ -586,7 +595,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.maxRpcHits      = 0
         self.maxMdtHits      = 0
         self.doCache = True
-        self.IgnoreMisalginedCSCs = True
+        self.IgnoreMisalginedCSCs = False
 
         self.TrackBuilderTool  = "TMEF_TrackBuilderTool"
         self.TrkSummaryTool = "TMEF_TrackSummaryTool"

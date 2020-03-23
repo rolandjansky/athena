@@ -82,7 +82,7 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
          123+offs, 4.5+offs, 6.5+offs, false, false);
       coll->push_back (std::move (dig));
     }
-    trans1.addCollection (coll.release(), hash);
+    assert(trans1.addCollection (coll.release(), hash));
   }
 
   testit (trans1);

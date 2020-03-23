@@ -71,7 +71,7 @@ grep REGTEST athena.log > athena.regtest
 
 if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest"
-  timeout 5m regtest.py --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest 2>&1 | tee regtest.log
+  timeout 5m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest 2>&1 | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference athena.regtest found in ${REF_FOLDER}"

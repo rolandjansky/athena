@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONITORING_TILECELLMONITORALGORITHM_H
@@ -39,8 +39,8 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
   private:
 
     int getDigitizer(int channel) const;
-    StatusCode fillMaskedInDB(const TileBadChannels* badChannels) const;
-    StatusCode fillSynchronization(const std::vector<const CaloCell*>& cells, const std::vector<int>& l1TriggersIndices) const;
+    void fillMaskedInDB(const TileBadChannels* badChannels) const;
+    void fillSynchronization(const std::vector<const CaloCell*>& cells, const std::vector<int>& l1TriggersIndices) const;
 
     Gaudi::Property<float> m_energyThreshold{this,
         "EnergyThreshold", 300.0F, "Energy threshold in MeV"};

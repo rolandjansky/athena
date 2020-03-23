@@ -24,6 +24,7 @@ from MuonConfig.CSC_DigitizationConfig import CSC_DigitizationDigitToRDOCfg
 from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
+from OverlayConfiguration.OverlayTestHelpers import JobOptsDumperCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -43,8 +44,9 @@ ConfigFlags.LAr.ROD.DoOFCPileupOptimization = True
 ConfigFlags.LAr.ROD.FirstSample = 0
 ConfigFlags.LAr.ROD.UseHighestGainAutoCorr = True
 ConfigFlags.Digitization.Pileup = False
-ConfigFlags.Digitization.DoDigiTruth = True
+ConfigFlags.Digitization.DoDigiTruth = False
 ConfigFlags.Digitization.TruthOutput = True
+ConfigFlags.Digitization.RandomSeedOffset = 170
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
 ConfigFlags.Tile.BestPhaseFromCOOL = False
@@ -70,10 +72,10 @@ acc.merge(TileDigitizationCfg(ConfigFlags))
 acc.merge(TileTriggerDigitizationCfg(ConfigFlags))
 
 # Muon Spectrometer
-# acc.merge(MDT_DigitizationDigitToRDOCfg(ConfigFlags))
-# acc.merge(TGC_DigitizationDigitToRDOCfg(ConfigFlags))
-# acc.merge(RPC_DigitizationDigitToRDOCfg(ConfigFlags))
-# acc.merge(CSC_DigitizationDigitToRDOCfg(ConfigFlags))
+acc.merge(MDT_DigitizationDigitToRDOCfg(ConfigFlags))
+acc.merge(TGC_DigitizationDigitToRDOCfg(ConfigFlags))
+acc.merge(RPC_DigitizationDigitToRDOCfg(ConfigFlags))
+acc.merge(CSC_DigitizationDigitToRDOCfg(ConfigFlags))
 
 # Timing
 acc.merge(MergeRecoTimingObjCfg(ConfigFlags))
@@ -82,13 +84,10 @@ acc.merge(MergeRecoTimingObjCfg(ConfigFlags))
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["EventInfo#*"]
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventInfo#EventInfo")
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventAuxInfo#EventInfoAux.")
-# Calorimeter truth output from DigiOutput.py#0082
+# FIXME Calorimeter truth output from DigiOutput.py#0082
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["CaloCalibrationHitContainer#*"]
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["TileHitVector#MBTSHits"]
-# FIXME hack to match in random seed
-acc.getSequence("AthAlgSeq").StandardPileUpToolsAlg.PileUpTools["TRTDigitizationTool"].RandomSeedOffset = 170
 # for Tile
-acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("TileRawChannelContainer#TileRawChannelCnt_DigiHSTruth")
 # new style configures these, but they are left default in old config
 acc.getSequence("AthAlgSeq").TilePulseForTileMuonReceiver.TileRawChannelBuilderMF.TimeMaxForAmpCorrection = 25.
 acc.getSequence("AthAlgSeq").TilePulseForTileMuonReceiver.TileRawChannelBuilderMF.TimeMinForAmpCorrection = -25.
@@ -96,6 +95,7 @@ acc.getSequence("AthAlgSeq").TileRChMaker.TileRawChannelBuilderFitOverflow.TimeM
 acc.getSequence("AthAlgSeq").TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMinForAmpCorrection = -25.
 
 # Dump config
+acc.merge(JobOptsDumperCfg(ConfigFlags))
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True
 acc.printConfig(withDetails=True, summariseProps=True)
@@ -113,6 +113,6 @@ with open("DigitizationConfigCA.pkl", "wb") as f:
     acc.store(f)
 
 # Execute and finish
-sc = acc.run(maxEvents=2)
+sc = acc.run(maxEvents=20)
 # Success should be 0
 sys.exit(not sc.isSuccess())

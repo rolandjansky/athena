@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +131,9 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_CHECK(detStore()->retrieve( m_GMmgr,"Muon" ));
   ATH_MSG_DEBUG ( "Retrieved GeoModel from DetectorStore." );
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   m_idHelper = m_GMmgr->rpcIdHelper();
   if(!m_idHelper) {
@@ -551,7 +553,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
       }
 
       // convert sim id helper to offline id
-      m_muonHelper = RpcHitIdHelper::GetHelper();
+      m_muonHelper = RpcHitIdHelper::GetHelper(m_idHelper->gasGapMax());
       std::string stationName = m_muonHelper->GetStationName(idHit);
       int         stationEta  = m_muonHelper->GetZSector    (idHit);
       int         stationPhi  = m_muonHelper->GetPhiSector  (idHit);

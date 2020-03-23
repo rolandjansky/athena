@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_CONSTITER_H
 #define TRIGCONFDATA_CONSTITER_H
 
 /**
- * @file TrigConfData/ConstIter.h
- * @author J. Stelzer
- * @date Feb 2019
  * @brief Forward iterator to traverse the main components of the trigger configuration
  */
 

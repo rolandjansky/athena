@@ -1,0 +1,123 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/*********************************************************************************
+  AlignedDynArray.icc  -  description
+  -------------------------------------------------
+ begin                : 26th November 2019
+ author               : amorley, Christos
+ decription           : Dynamic array fullfilling alignment requirements
+ *********************************************************************************/
+
+namespace GSFUtils{
+
+template<typename T, int Alignment>
+inline
+AlignedDynArray<T,Alignment>::AlignedDynArray(size_t n): m_buffer(nullptr), 
+                                            m_raw(nullptr),
+                                            m_size(n){
+ 
+  /*
+   * posix_memalign:
+   * "The address of the allocated memory will be a multiple of alignment, which must be a
+   * power of two and a multiple of sizeof(void *)"
+   *
+   * Promote to static assert alongside checking that we actually need/do
+   * over-aligned allocation
+   */
+
+  static_assert(Alignment>alignof(T) ,
+                "Required alignment needs to be greater than the alignment requirements for T");
+  static_assert((Alignment&2)==0 ,
+                "Required alignment needs to be multiple of 2");
+  static_assert((Alignment&sizeof(void *))==0 ,
+                "Required alignment needs to be multiple of sizeof(void *)");  
+ 
+  size_t const size = n * sizeof(T) ;
+  /* 
+   * create buffer of right size,properly aligned
+   * 
+   * In principle in C++17 the call to posix_memalign can be avoided 
+   *in favour of tne over-aligned operator new
+   */
+  posix_memalign(&m_raw, Alignment, size);
+  //placement new of elements to the buffer
+  m_buffer = new (m_raw) T[n];
+}
+
+template<typename T, int Alignment>
+inline  
+AlignedDynArray<T,Alignment>::AlignedDynArray(AlignedDynArray&& other):m_buffer(nullptr), 
+                                                                      m_raw(nullptr),
+                                                                      m_size(0){
+  //copy over other
+  m_buffer = other.m_buffer;
+  m_raw = other.m_raw;
+  m_size = other.m_size;
+  //set other to invalid
+  other.m_buffer=nullptr; 
+  other.m_raw=nullptr;
+  other.m_size=0; 
+}
+
+template<typename T, int Alignment>
+inline  
+AlignedDynArray<T,Alignment>& 
+AlignedDynArray<T,Alignment>::operator=(AlignedDynArray&& other){ 
+      
+  if (this != &other){
+    //cleanup this object
+    cleanup();
+    //copy over other
+    m_buffer = other.m_buffer;
+    m_raw = other.m_raw;
+    m_size = other.m_size;
+    //set other to invalid
+    other.m_buffer=nullptr; 
+    other.m_raw=nullptr;
+    other.m_size=0; 
+  }
+  return *this;
+}
+
+template<typename T, int Alignment>
+inline  
+AlignedDynArray<T,Alignment>::~AlignedDynArray(){
+  cleanup();
+}
+
+template<typename T, int Alignment>
+inline   
+AlignedDynArray<T,Alignment>::operator T*() {return m_buffer;} 
+
+template<typename T, int Alignment>
+inline   
+AlignedDynArray<T,Alignment>::operator const T*() const {return m_buffer;}
+
+template<typename T, int Alignment>
+inline  
+T& AlignedDynArray<T,Alignment>::operator[] (const std::size_t pos) { return m_buffer[pos];}
+
+template<typename T, int Alignment>
+inline  
+const T& AlignedDynArray<T,Alignment>::operator[] (const std::size_t pos) const { return m_buffer[pos];}
+
+template<typename T, int Alignment>
+inline  
+std::size_t AlignedDynArray<T,Alignment>::size() const {return m_size;}
+
+template<typename T, int Alignment>
+inline  
+void AlignedDynArray<T,Alignment>::cleanup() {
+  if(m_buffer){
+    for (std::size_t pos = 0; pos < m_size; ++pos) {
+      m_buffer[pos].~T();
+    }
+    free(m_buffer);
+  }
+}
+
+}//namespace GSFUtils
+
+

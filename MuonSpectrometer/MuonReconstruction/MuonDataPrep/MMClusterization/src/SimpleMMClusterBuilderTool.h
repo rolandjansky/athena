@@ -35,7 +35,7 @@ namespace Muon
     virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::MMPrepData>& stripsVect, 
-			   std::vector<Muon::MMPrepData*>& clustersVect);
+			   std::vector<Muon::MMPrepData*>& clustersVect) const;
 
   private: 
     /// Muon Detector Descriptor

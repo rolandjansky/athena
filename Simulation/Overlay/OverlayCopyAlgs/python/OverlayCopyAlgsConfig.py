@@ -259,7 +259,8 @@ def CopyCaloCalibrationHitContainersCfg(flags, **kwargs):
 
     # Detect the list of calibration hit containers
     for container in allowedContainers:
-        if container in flags.Input.SecondaryCollections:
+        if (flags.Overlay.DataOverlay and container in flags.Input.Collections) \
+            or (not flags.Overlay.DataOverlay and container in flags.Input.SecondaryCollections):
             availableContainers.append(container)
 
     for container in availableContainers:
@@ -316,7 +317,8 @@ def CopyTrackRecordCollectionsCfg(flags, **kwargs):
 
     # Detect the list of track record collections
     for container in allowedContainers:
-        if container in flags.Input.SecondaryCollections:
+        if (flags.Overlay.DataOverlay and container in flags.Input.Collections) \
+            or (not flags.Overlay.DataOverlay and container in flags.Input.SecondaryCollections):
             availableContainers.append(container)
 
     for container in availableContainers:

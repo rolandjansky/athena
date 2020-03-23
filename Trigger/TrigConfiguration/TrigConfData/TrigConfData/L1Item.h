@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1ITEM_H
@@ -29,8 +29,7 @@ namespace TrigConf {
       /** Destrutor */
       ~L1Item();
 
-      /** Accessor to the item name */
-      const std::string & name() const;
+      virtual std::string className() const;
 
       /** Accessor to the CTP ID */
       unsigned int ctpId() const;

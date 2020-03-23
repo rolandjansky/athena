@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -23,7 +23,6 @@
 #include "MuonSimData/CscSimDataCollection.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-//#include "InDetTruthInterfaces/IPRD_MultiTruthBuilder.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -34,7 +33,6 @@ public:
 
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
   
 private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

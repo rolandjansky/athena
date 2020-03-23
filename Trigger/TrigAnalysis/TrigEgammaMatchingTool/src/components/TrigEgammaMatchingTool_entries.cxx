@@ -1,7 +1,3 @@
-
-
-
-
 #include "TrigEgammaMatchingTool/TrigEgammaMatchingTool.h"
 #include "../TrigEgammaMatchingToolTest.h"
 

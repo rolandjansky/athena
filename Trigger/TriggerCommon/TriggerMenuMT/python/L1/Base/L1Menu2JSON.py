@@ -21,7 +21,7 @@ class L1MenuJSONConverter(object):
 
         with open( self.outputFile, mode="wt" ) as fh:
             import json
-            json.dump(confObj, fh, indent = 4 if pretty else None)
+            json.dump(confObj, fh, indent = 4 if pretty else None, separators=(',', ': '))
         log.info("Wrote %s", self.outputFile)
         return self.outputFile
 

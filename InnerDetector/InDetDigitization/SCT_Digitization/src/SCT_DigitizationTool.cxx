@@ -166,7 +166,9 @@ StatusCode SCT_DigitizationTool::initServices() {
   // SiDigitization.
   ATH_CHECK(detStore()->retrieve(m_detID, "SCT_ID"));
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
   ATH_CHECK(m_rndmSvc.retrieve());
 
   return StatusCode::SUCCESS;

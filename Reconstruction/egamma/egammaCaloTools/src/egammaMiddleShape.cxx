@@ -46,13 +46,9 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
   // and search for hottest cell in a 7X7 window
   // in the second sampling
   //
-
   ATH_MSG_DEBUG(" egammaMiddleShape: execute");
-
   // check if cluster is in barrel or in the end-cap
   if (!cluster.inBarrel() && !cluster.inEndcap()) {
-    ATH_MSG_DEBUG(" egammaMiddleShape: Cluster is neither in Barrel nor in "
-                  "Endcap, cannot calculate ShowerShape ");
     return StatusCode::SUCCESS;
   }
 
@@ -103,30 +99,20 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
   // around this position a hot cell is searched for in a window
   // (m_neta*m_deta,m_nphi*m_dphi), by default (m_neta,m_nphi)=(7,7)
   CaloLayerCalculator calc;
-  StatusCode sc =
-      calc.fill(&cell_container, cluster.etaSample(sam), cluster.phiSample(sam),
-                m_neta * deta, m_nphi * dphi, (CaloSampling::CaloSample)sam);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("CaloLayerCalculator failed  fill ");
-  }
+  ATH_CHECK(calc.fill(&cell_container, cluster.etaSample(sam), cluster.phiSample(sam),
+                m_neta * deta, m_nphi * dphi, (CaloSampling::CaloSample)sam));
   double etamax = calc.etarmax();
   double phimax = calc.phirmax();
 
   // estimate the relevant quantities around the hottest cell
   // in the following eta X phi windows
   // 3X3
-  sc = calc.fill(&cell_container, etamax, phimax, 3. * deta, 3. * dphi,
-                 (CaloSampling::CaloSample)sam);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("CaloLayerCalculator failed 3x3 fill ");
-  }
+  ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 3. * deta, 3. * dphi,
+                 (CaloSampling::CaloSample)sam));
   info.e233 = calc.em();
   // 3X5
-  sc = calc.fill(&cell_container, etamax, phimax, 3. * deta, 5. * dphi,
-                 (CaloSampling::CaloSample)sam);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("CaloLayerCalculator failed 3x5 fill ");
-  }
+  ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 3. * deta, 5. * dphi,
+                 (CaloSampling::CaloSample)sam));
   info.e235 = calc.em();
   double etaw = calc.etas();
   info.phiw = calc.phis();
@@ -135,26 +121,17 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
   info.poscs2 = egammaqweta2c::RelPosition(eta, etacell);
   // 5X5
   if (m_ExecOtherVariables) {
-    sc = calc.fill(&cell_container, etamax, phimax, 5. * deta, 5. * dphi,
-                   (CaloSampling::CaloSample)sam);
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("CaloLayerCalculator failed 5x5 fill ");
-    }
+    ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 5. * deta, 5. * dphi,
+                   (CaloSampling::CaloSample)sam));
     info.e255 = calc.em();
   }
   // 3X7
-  sc = calc.fill(&cell_container, etamax, phimax, 3. * deta, 7. * dphi,
-                 (CaloSampling::CaloSample)sam);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("CaloLayerCalculator failed 3x7 fill ");
-  }
+  ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 3. * deta, 7. * dphi,
+                 (CaloSampling::CaloSample)sam));
   info.e237 = calc.em();
   // 7x7
-  sc = calc.fill(&cell_container, etamax, phimax, 7. * deta, 7. * dphi,
-                 (CaloSampling::CaloSample)sam);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("CaloLayerCalculator failed 7x7 fill ");
-  }
+  ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 7. * deta, 7. * dphi,
+                 (CaloSampling::CaloSample)sam));
   info.e277 = calc.em();
 
   return StatusCode::SUCCESS;

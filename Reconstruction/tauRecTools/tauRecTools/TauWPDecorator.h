@@ -73,8 +73,6 @@ private:
     std::string m_scoreName;
     std::string m_newScoreName;
 
-    float m_mu;
-
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
 };
 

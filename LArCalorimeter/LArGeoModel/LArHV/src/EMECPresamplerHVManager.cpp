@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMECPresamplerHVManager.h"
@@ -23,7 +23,7 @@
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArCabling/LArHVCablingTool.h"
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 #include "LArRecConditions/LArHVIdMapping.h"
 #endif
 
@@ -222,7 +222,7 @@ EMECPresamplerHVPayload *EMECPresamplerHVManager::getPayload(const EMECPresample
   return &m_c->payloadArray[index];
 }
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int EMECPresamplerHVManager::hvLineNo(const EMECPresamplerHVModule& module
 				     , const LArHVIdMapping* hvIdMapping) const {
   int sideIndex = module.getSideIndex();

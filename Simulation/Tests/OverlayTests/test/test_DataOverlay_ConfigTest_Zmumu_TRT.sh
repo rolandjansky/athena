@@ -64,15 +64,15 @@ then
     acmd.py diff-root legacyDataOverlayRDO.pool.root dataOverlayRDO.pool.root \
         --error-mode resilient --mode=semi-detailed \
         --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings index_ref \
-            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventIndex \
-            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventTime \
-            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventType \
-            xAOD::EventAuxInfo_v1_EventInfoAux.detectorMask0 \
-            xAOD::EventAuxInfo_v1_EventInfoAux.detectorMask1 \
-            xAOD::EventAuxInfo_v1_EventInfoAux.detectorMask2 \
-            xAOD::EventAuxInfo_v1_EventInfoAux.detectorMask3 \
-            xAOD::EventAuxInfo_v1_EventInfoAux.actualInteractionsPerCrossing \
-            xAOD::EventAuxInfo_v1_EventInfoAux.averageInteractionsPerCrossing
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventIndex \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventTime \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventType \
+            xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask0 \
+            xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask1 \
+            xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask2 \
+            xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask3 \
+            xAOD::EventAuxInfo_v2_EventInfoAux.actualInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v2_EventInfoAux.averageInteractionsPerCrossing
     rc3=$?
 fi
 echo  "art-result: $rc3 comparison"

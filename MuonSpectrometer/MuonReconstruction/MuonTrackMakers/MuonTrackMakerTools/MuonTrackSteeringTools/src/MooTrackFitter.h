@@ -15,7 +15,6 @@
 // Tracking EDM
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackInfo.h"
-#include "TrkMeasurementBase/MeasurementBase.h"
 
 // Tools & tool interfaces
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -40,10 +39,6 @@
 
 #include <set>
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 namespace Trk {
   class PrepRawData;
   class Track;
@@ -52,8 +47,6 @@ namespace Trk {
 }
 
 namespace Muon {
-  class MuonSegment;
-  class MuPatCandidateBase;
   class MuPatTrack;
 }
 

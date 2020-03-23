@@ -31,11 +31,8 @@ fileName     = buildFileName( derivationFlags.WriteDAOD_EXOT11Stream )
 EXOT11Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT11Stream.AcceptAlgs(["EXOT11Kernel"])
 
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr   += createThinningSvc( svcName="EXOT11ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # THINNING TOOLS
@@ -82,7 +79,7 @@ thinningTools.append(EXOT11AKt10JetTPThinningTool)
 #Truth Thinning (!!! NOT WORKING FOR athena 19)
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT11MenuHadThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT11MenuHadThinningTool",
-                                                                 ThinningService = "EXOT11ThinningSvc",
+                                                                 StreamName                 = streamName,
                                                                  WritePartons               = False,#?
                                                                  WriteHadrons               = True,
                                                                  WriteBHadrons              = True,
@@ -102,7 +99,7 @@ EXOT11MenuHadThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT
                                                                  PreserveDescendants        = False)
 
 EXOT11MenuThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT11MenuThinningTool",
-                                                                 ThinningService = "EXOT11ThinningSvc",
+                                                                 StreamName                 = streamName,
                                                                  WritePartons               = False,#?
                                                                  WriteHadrons               = False,
                                                                  WriteBHadrons              = False,
@@ -158,12 +155,12 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EXOT11SkimmingTool_lep = DerivationFramework__xAODStringSkimmingTool( name = "EXOT11SkimmingTool_lep", 
                                                                   expression = expression_lep)
 ToolSvc += EXOT11SkimmingTool_lep
-print EXOT11SkimmingTool_lep
+printfunc (EXOT11SkimmingTool_lep)
 
 EXOT11SkimmingTool_jet = DerivationFramework__xAODStringSkimmingTool( name = "EXOT11SkimmingTool_jet", 
                                                                   expression = expression_jet)
 ToolSvc += EXOT11SkimmingTool_jet
-print EXOT11SkimmingTool_jet
+printfunc (EXOT11SkimmingTool_jet)
 
 #=======================================
 # THE DERIVATION KERNEL ALGORITHM   

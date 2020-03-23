@@ -67,7 +67,7 @@ void EMECHVElectrode::voltage_current(int iGap,double& voltage, double&current) 
  current = payload->current[iGap];
 }
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int EMECHVElectrode::hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const {
   return hvIdMapping
     ? m_c->module->getManager().hvLineNo(*this, iGap, hvIdMapping)

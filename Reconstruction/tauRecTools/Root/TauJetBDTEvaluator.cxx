@@ -6,7 +6,7 @@
 
 TauJetBDTEvaluator::TauJetBDTEvaluator(const std::string& name)
   : TauRecToolBase(name)
-  , m_myBdt(0)
+  , m_mvaBDT(nullptr)
 {
   declareProperty("weightsFile", m_weightsFile="");
   declareProperty("minNTracks", m_minNTracks=0);
@@ -14,7 +14,6 @@ TauJetBDTEvaluator::TauJetBDTEvaluator(const std::string& name)
   declareProperty("minAbsTrackEta", m_minAbsTrackEta=-1);
   declareProperty("maxAbsTrackEta", m_maxAbsTrackEta=-1);
   declareProperty("outputVarName", m_outputVarName="BDTJetScore");
-  declareProperty("GradiantBoost", m_isGrad=true, "Gradiant if true, else AdaBoost Classification");
   declareProperty("defaultValue", m_dummyValue=-1111, "if no weightsFile, then set all taus to this value nTrack/eta ignored");
 }
 
@@ -27,13 +26,11 @@ StatusCode TauJetBDTEvaluator::initialize(){
     return StatusCode::SUCCESS;
   }
 
-  //configure m_myBdt object if weights exists
+  //configure m_mvaBDT object if weights exists
   std::string full_path=find_file(m_weightsFile);
-  m_myBdt = new tauRecTools::TRTBDT(full_path.c_str());
-  if(m_myBdt->bdt==0) {
-    ATH_MSG_FATAL("Couldn't configure BDT");
-    return StatusCode::FAILURE;
-  }
+  m_mvaBDT = std::make_unique<tauRecTools::BDTHelper>();
+  ATH_CHECK(m_mvaBDT->initialize(full_path.c_str()));
+  
   return StatusCode::SUCCESS;
 }
 
@@ -44,7 +41,7 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
   //init output variable accessor
   SG::AuxElement::Accessor<float> outputVar(m_outputVarName);
 
-  if(m_myBdt==0) {
+  if(m_mvaBDT==nullptr) {
     (outputVar)(xTau) = m_dummyValue;
     return StatusCode::SUCCESS;
   }
@@ -62,9 +59,10 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
       return StatusCode::SUCCESS; 
   }
 
-  m_myBdt->updateVariables(xTau);
-  float response = (m_isGrad ? m_myBdt->GetGradBoostMVA() : m_myBdt->GetClassification() );   
-  (outputVar)(xTau) = response;
+  // Calculate BDT score, will be -999 when tau lacks variables
+  float score = m_mvaBDT->getGradBoostMVA(xTau);
+  (outputVar)(xTau) = score;
+  
   return StatusCode::SUCCESS;
 }
 

@@ -72,10 +72,7 @@ if DetFlags.overlay.LVL1_on():
           newTrigT1TGC.EventStore = "BkgEvent_0_SG"
           job += newTrigT1TGC
           job.newTrigT1TGC.InputData_perEvent = "TGC_DIGITS"
-          job.newTrigT1TGC.ASDOutDataLocation = "ASDOutDataLocation"
-          #job.newTrigT1TGC.MuonTrigConfig = "/Run/MuonTrigConfig"
           job.newTrigT1TGC.MuCTPIInput_TGC = "L1MuctpiStoreTGC"
-          job.newTrigT1TGC.MaskFileName = "TrigT1TGCMaskedChannel.db"
           job.newTrigT1TGC.MaskFileName12 = "TrigT1TGCMaskedChannel._12.db"
 
        #--------------------------------------------------------------

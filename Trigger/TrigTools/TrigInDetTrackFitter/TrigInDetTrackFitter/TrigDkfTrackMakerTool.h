@@ -25,14 +25,12 @@ class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthA
       
   // standard AlgTool methods
   TrigDkfTrackMakerTool(const std::string&,const std::string&,const IInterface*);
-  virtual ~TrigDkfTrackMakerTool();
 		
   // standard Athena methods
   StatusCode initialize();
-  StatusCode finalize();
 
-  bool createDkfTrack(std::vector<const TrigSiSpacePoint*>&, std::vector<Trk::TrkBaseNode*>&, double);
-	bool createDkfTrack(const Trk::Track& track, std::vector<Trk::TrkBaseNode*>& vpTrkNodes, double DChi2);
+  bool createDkfTrack(std::vector<const TrigSiSpacePoint*>&, std::vector<Trk::TrkBaseNode*>&, double) const;
+	bool createDkfTrack(const Trk::Track& track, std::vector<Trk::TrkBaseNode*>& vpTrkNodes, double DChi2) const;
 
     
  private:

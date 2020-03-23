@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -128,19 +128,19 @@ class LArReadParamsFromFile : public AthAlgorithm
   // define symLink for all classes
   //--------------------------------
 
-  void do_symLink(const LArCaliPulseParamsComplete* data) { detStore()->symLink(data,(ILArCaliPulseParams*)data) ; } ;
-  void do_symLink(const LArDetCellParamsComplete* data)   { detStore()->symLink(data,(ILArDetCellParams*)data)   ; } ;
-  void do_symLink(const LArPhysCaliTdiffComplete* data)   { detStore()->symLink(data,(ILArPhysCaliTdiff*)data)   ; } ;
-  void do_symLink(const LArTdriftComplete* data)          { detStore()->symLink(data,(ILArTdrift*)data)          ; } ;
-  void do_symLink(const LArMphysOverMcalComplete* data)   { detStore()->symLink(data,(ILArMphysOverMcal*)data)   ; } ;
-  void do_symLink(const LArRinjComplete* data)            { detStore()->symLink(data,(ILArRinj*)data)            ; } ;
-  void do_symLink(const LArTshaperComplete* data)         { detStore()->symLink(data,(ILArTshaper*)data)         ; } ;
-  void do_symLink(const LArEMEC_CphiComplete* data)       { detStore()->symLink(data,(ILArEMEC_Cphi*)data)       ; } ;
-  void do_symLink(const LArEMEC_HValphaComplete* data)    { detStore()->symLink(data,(ILArEMEC_HValpha*)data)    ; } ;
-  void do_symLink(const LArEMEC_HVbetaComplete* data)     { detStore()->symLink(data,(ILArEMEC_HVbeta*)data)     ; } ;
-  void do_symLink(const LArCableLengthComplete* data)     { detStore()->symLink(data,(ILArCableLength*)data)     ; } ;
-  void do_symLink(const LArCableAttenuationComplete* data){ detStore()->symLink(data,(ILArCableAttenuation*)data); } ;
-//  void do_symLink(const LArCaliPulseParamsVsCalib* data)  { detStore()->symLink(data,(ILArCaliPulseParams*)data) ; } ;
+  StatusCode do_symLink(const LArCaliPulseParamsComplete* data) { return detStore()->symLink(data,(ILArCaliPulseParams*)data).ignore() ; } ;
+  StatusCode do_symLink(const LArDetCellParamsComplete* data)   { return detStore()->symLink(data,(ILArDetCellParams*)data).ignore()   ; } ;
+  StatusCode do_symLink(const LArPhysCaliTdiffComplete* data)   { return detStore()->symLink(data,(ILArPhysCaliTdiff*)data).ignore()   ; } ;
+  StatusCode do_symLink(const LArTdriftComplete* data)          { return detStore()->symLink(data,(ILArTdrift*)data).ignore()          ; } ;
+  StatusCode do_symLink(const LArMphysOverMcalComplete* data)   { return detStore()->symLink(data,(ILArMphysOverMcal*)data).ignore()   ; } ;
+  StatusCode do_symLink(const LArRinjComplete* data)            { return detStore()->symLink(data,(ILArRinj*)data).ignore()            ; } ;
+  StatusCode do_symLink(const LArTshaperComplete* data)         { return detStore()->symLink(data,(ILArTshaper*)data).ignore()         ; } ;
+  StatusCode do_symLink(const LArEMEC_CphiComplete* data)       { return detStore()->symLink(data,(ILArEMEC_Cphi*)data).ignore()       ; } ;
+  StatusCode do_symLink(const LArEMEC_HValphaComplete* data)    { return detStore()->symLink(data,(ILArEMEC_HValpha*)data).ignore()    ; } ;
+  StatusCode do_symLink(const LArEMEC_HVbetaComplete* data)     { return detStore()->symLink(data,(ILArEMEC_HVbeta*)data).ignore()     ; } ;
+  StatusCode do_symLink(const LArCableLengthComplete* data)     { return detStore()->symLink(data,(ILArCableLength*)data).ignore()     ; } ;
+  StatusCode do_symLink(const LArCableAttenuationComplete* data){ return detStore()->symLink(data,(ILArCableAttenuation*)data).ignore(); } ;
+//  StatusCode do_symLink(const LArCaliPulseParamsVsCalib* data)  { return detStore()->symLink(data,(ILArCaliPulseParams*)data).ignore() ; };
 
 };
 

@@ -18,49 +18,48 @@ log_trigeg = logging.getLogger( 'TrigEgammaMonitorAlgorithm' )
 def TrigEgammaMonConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
- 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
     #from AthenaConfiguration.ComponentFactory import CompFactory
     
     
-    from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonAlgorithm
+    ##from TrigEgammaAnalysisToolsMT.TrigEgammaAnalysisToolsMTConf import TrigEgammaMonAlgorithm
     helper = AthMonitorCfgHelper(inputFlags,'TrigEgammaAthMonitorCfg')
-    monAlg = helper.addAlgorithm(TrigEgammaMonAlgorithm,'TrigEgammaMonAlg')
+    ##monAlg = helper.addAlgorithm(TrigEgammaMonAlgorithm,'TrigEgammaMonAlg')
     
 
 
     # configure alg and ana tools
-    from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonToolBuilder
+    ##from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import TrigEgammaMonToolBuilder
     # The last arg shold be an config flag for future
     # The helper.resobj is the component accumulator created by the helper and will hold all 
     # algs and tools created by this configuration
-    montoolCfg = TrigEgammaMonToolBuilder( monAlg , "TrigEgammaMonAlg", helper.resobj, '2018') # Using 2018 e/g tunings
+    ##montoolCfg = TrigEgammaMonToolBuilder( monAlg , "TrigEgammaMonAlg", helper.resobj, '2018') # Using 2018 e/g tunings
 
 
 
 
     # configure all histograms
-    from TrigEgammaAnalysisTools.TrigEgammaAnalysisBuilder import TrigEgammaAnalysisBuilder
+    ##from TrigEgammaAnalysisToolsMT.TrigEgammaAnalysisMTBuilder import TrigEgammaAnalysisBuilder
     ## get the histogram builder for all analysis tools for e/g staff. 
     ## link the algotihm and helper with the ana builder.    
     ## All generic monitoring tools will be attached inside of the monAlg and componenet accumulator
-    anatoolCfg = TrigEgammaAnalysisBuilder( helper, monAlg, 'TrigEgammaMonAlg', montoolCfg.basePath ,
-                                            montoolCfg.detailLevel)
+    ##anatoolCfg = TrigEgammaAnalysisBuilder( helper, monAlg, 'TrigEgammaMonAlg', montoolCfg.basePath ,
+    ##                                        montoolCfg.detailLevel)
 
 
 
 
     # Get only unique triggers
-    triggerList = []
-    for anaTool in montoolCfg.anaTools:
-      triggerList.extend(anaTool.TriggerList)
+    #triggerList = []
+    #for anaTool in montoolCfg.anaTools:
+    #  triggerList.extend(anaTool.TriggerList)
 
 
     # Check there is duplicate trigger into the trigger list. If we have, abort
-    if not (len(triggerList) == len(set(triggerList))):
-      raise RuntimeError( "There are duplicate trigger into the e/g monitoring list.")
+    #if not (len(triggerList) == len(set(triggerList))):
+    #  raise RuntimeError( "There are duplicate trigger into the e/g monitoring list.")
 
 
 
@@ -68,13 +67,13 @@ def TrigEgammaMonConfig(inputFlags):
     # Attach the histogram manager my monAlg that pointet to "TrigEgammaMonAlg"
     # All hisograms will be "TrigEgammaMonAlg/HLT/Egamma/trigger/..." where
     # "TrigEgammaMonAlg" is the monname and HLT/Egamma is the basepath
-    for trigger in triggerList:
-      anatoolCfg.bookTriggerHistograms( trigger , doJpsiee = True if 'Jpsi' in anaTool.name() else False )
+    #for trigger in triggerList:
+    #  anatoolCfg.bookTriggerHistograms( trigger , doJpsiee = True if 'Jpsi' in anaTool.name() else False )
 
 
 
-    for anaTool in montoolCfg.anaTools:
-      anatoolCfg.bookEventHistograms( anaTool )
+    #for anaTool in montoolCfg.anaTools:
+    #  anatoolCfg.bookEventHistograms( anaTool )
 
 
 

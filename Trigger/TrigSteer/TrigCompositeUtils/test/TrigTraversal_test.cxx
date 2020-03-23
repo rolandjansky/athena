@@ -60,9 +60,9 @@ int main ATLAS_NOT_THREAD_SAFE () {
   SG::WriteHandleKey<xAOD::ElectronContainer> electronContainerKey("MyElectronContainer");
   SG::WriteHandleKey<xAOD::MuonContainer> muonContainerKey("MyMuonContainer");
 
-  decisionContainerKey.initialize();
-  electronContainerKey.initialize();
-  muonContainerKey.initialize();
+  decisionContainerKey.initialize().ignore();
+  electronContainerKey.initialize().ignore();
+  muonContainerKey.initialize().ignore();
 
   SG::WriteHandle<DecisionContainer> decisionContainer = createAndStore( decisionContainerKey);
   DecisionContainer* decisionContainerPtr = decisionContainer.ptr();

@@ -130,6 +130,11 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> AlgErrorDebugStreamName   = " << m_algErrorDebugStreamName.value());
   ATH_MSG_INFO(" ---> TimeoutDebugStreamName    = " << m_timeoutDebugStreamName.value());
   ATH_MSG_INFO(" ---> TruncationDebugStreamName = " << m_truncationDebugStreamName.value());
+  ATH_MSG_INFO(" ---> SORPath                   = " << m_sorPath.value());
+  ATH_MSG_INFO(" ---> setMagFieldFromPtree      = " << m_setMagFieldFromPtree.value());
+  ATH_MSG_INFO(" ---> forceRunNumber            = " << m_forceRunNumber.value());
+  ATH_MSG_INFO(" ---> forceStartOfRunTime       = " << m_forceSOR_ns.value());
+  ATH_MSG_INFO(" ---> RewriteLVL1               = " << m_rewriteLVL1.value());
   ATH_MSG_INFO(" ---> EventContextWHKey         = " << m_eventContextWHKey.key());
   ATH_MSG_INFO(" ---> EventInfoRHKey            = " << m_eventInfoRHKey.key());
 
@@ -202,6 +207,8 @@ StatusCode HltEventLoopMgr::initialize()
   // HLTResultMT ReadHandle (created dynamically from the result builder property)
   m_hltResultRHKey = m_hltResultMaker->resultName();
   ATH_CHECK(m_hltResultRHKey.initialize());
+  // L1TriggerResult ReadHandle
+  ATH_CHECK(m_l1TriggerResultRHKey.initialize(m_rewriteLVL1.value()));
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -337,9 +344,14 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   ATH_MSG_DEBUG("Trying a stop-start of CoreDumpSvc");
   SmartIF<IService> svc = serviceLocator()->service("CoreDumpSvc", /*createIf=*/ false);
   if (svc.isValid()) {
-    svc->stop();
-    svc->start();
-    ATH_MSG_DEBUG("Done a stop-start of CoreDumpSvc");
+    StatusCode sc = svc->stop();
+    sc &= svc->start();
+    if (sc.isFailure()) {
+      ATH_MSG_WARNING("Could not perform stop/start for CoreDumpSvc");
+    }
+    else {
+      ATH_MSG_DEBUG("Done a stop-start of CoreDumpSvc");
+    }
   }
   else {
     ATH_MSG_WARNING("Could not retrieve CoreDumpSvc");
@@ -1003,7 +1015,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
     hltResultPtr = std::make_unique<HLT::HLTResultMT>(*hltResultRH);
 
   SG::WriteHandleKey<HLT::HLTResultMT> hltResultWHK(m_hltResultRHKey.key()+"_FailedEvent");
-  hltResultWHK.initialize();
+  ATH_CHECK(hltResultWHK.initialize());
   auto hltResultWH = SG::makeHandle(hltResultWHK,eventContext);
   if (hltResultWH.record(std::move(hltResultPtr)).isFailure()) {
     ATH_MSG_ERROR("Failed to record the HLT Result in event store while handling a failed event."
@@ -1019,16 +1031,16 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   hltResultWH->addErrorCode(errorCode);
   switch (errorCode) {
     case HLT::OnlineErrorCode::PROCESSING_FAILURE:
-      hltResultWH->addStreamTag({m_algErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      ATH_CHECK(hltResultWH->addStreamTag({m_algErrorDebugStreamName.value(), eformat::DEBUG_TAG, true}));
       break;
     case HLT::OnlineErrorCode::TIMEOUT:
-      hltResultWH->addStreamTag({m_timeoutDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      ATH_CHECK(hltResultWH->addStreamTag({m_timeoutDebugStreamName.value(), eformat::DEBUG_TAG, true}));
       break;
     case HLT::OnlineErrorCode::RESULT_TRUNCATION:
-      hltResultWH->addStreamTag({m_truncationDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      ATH_CHECK(hltResultWH->addStreamTag({m_truncationDebugStreamName.value(), eformat::DEBUG_TAG, true}));
       break;
     default:
-      hltResultWH->addStreamTag({m_fwkErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      ATH_CHECK(hltResultWH->addStreamTag({m_fwkErrorDebugStreamName.value(), eformat::DEBUG_TAG, true}));
       break;
   }
 
@@ -1275,6 +1287,28 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     HLT_DRAINSCHED_CHECK(sc, "Conversion service failed to convert HLTResult",
                          HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
 
+    // Retrieve and convert the L1 result to the output data format
+    IOpaqueAddress* l1addr = nullptr;
+    if (m_rewriteLVL1) {
+      auto l1TriggerResult = SG::makeHandle(m_l1TriggerResultRHKey, *thisFinishedEvtContext);
+      if (!l1TriggerResult.isValid()) markFailed();
+      HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the L1 Trigger Result for RewriteLVL1",
+                          HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+
+      DataObject* l1TriggerResultDO = m_evtStore->accessData(l1TriggerResult.clid(),l1TriggerResult.key());
+      if (!l1TriggerResultDO) markFailed();
+      HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the L1 Trigger Result DataObject for RewriteLVL1",
+                          HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+
+      sc = m_outputCnvSvc->createRep(l1TriggerResultDO,l1addr);
+      if (sc.isFailure()) {
+        delete l1addr;
+        atLeastOneFailed = true;
+      }
+      HLT_DRAINSCHED_CHECK(sc, "Conversion service failed to convert L1 Trigger Result for RewriteLVL1",
+                          HLT::OnlineErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
+    }
+
     // Save event processing time before sending output
     bool eventAccepted = !hltResult->getStreamTags().empty();
     auto eventTime = std::chrono::steady_clock::now() - m_eventTimerStartPoint[thisFinishedEvtContext->slot()];
@@ -1291,6 +1325,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
 
     // The output has been sent out, the ByteStreamAddress can be deleted
     delete addr;
+    delete l1addr;
 
     //--------------------------------------------------------------------------
     // Flag idle slot to the timeout thread and reset the timer

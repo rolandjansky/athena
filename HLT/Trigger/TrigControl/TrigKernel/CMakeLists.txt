@@ -13,4 +13,4 @@ atlas_add_library( TrigKernel
                    INTERFACE
                    PUBLIC_HEADERS TrigKernel
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES GaudiKernel )
+                   LINK_LIBRARIES GaudiKernel CxxUtils )

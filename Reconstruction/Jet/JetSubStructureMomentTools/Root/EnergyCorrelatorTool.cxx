@@ -11,10 +11,12 @@ EnergyCorrelatorTool::EnergyCorrelatorTool(std::string name) :
   declareProperty("Beta", m_Beta = 1.0);
   declareProperty("BetaList", m_rawBetaVals = {});
   declareProperty("DoC3", m_doC3 = false);
+  declareProperty("DoC4", m_doC4 = false);
   declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorTool::initialize() {
+
   // Add beta = 1.0 by default
   m_betaVals.push_back(1.0);
 
@@ -42,13 +44,17 @@ StatusCode EnergyCorrelatorTool::initialize() {
     ATH_MSG_DEBUG("Including beta = " << beta);
   }
 
+  // If DoC4 is set to true, set DoC3 to true by default since it won't
+  // add any additional computational overhead
+  if(m_doC4) m_doC3 = true;
+
   ATH_CHECK(JetSubStructureMomentToolsBase::initialize());
 
   return StatusCode::SUCCESS;
 }
 
 int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
-  
+
   fastjet::PseudoJet jet;
   fastjet::PseudoJet jet_ungroomed;
 
@@ -81,6 +87,7 @@ int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
     float result_ECF2 = -999;
     float result_ECF3 = -999;
     float result_ECF4 = -999;
+    float result_ECF5 = -999;
 
     float result_ECF1_ungroomed = -999;
     float result_ECF2_ungroomed = -999;
@@ -100,7 +107,12 @@ int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
         JetSubStructureUtils::EnergyCorrelator ECF4(4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
         result_ECF4 = ECF4.result(jet);
       }
-    
+
+      if(m_doC4) {
+        JetSubStructureUtils::EnergyCorrelator ECF5(5, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+        result_ECF5 = ECF5.result(jet);
+      }
+
       if(decorate_ungroomed) {
         result_ECF1_ungroomed = ECF1.result(jet_ungroomed);
         result_ECF2_ungroomed = ECF2.result(jet_ungroomed);
@@ -113,7 +125,8 @@ int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
     injet.setAttribute(m_prefix+"ECF2"+suffix, result_ECF2);
     injet.setAttribute(m_prefix+"ECF3"+suffix, result_ECF3);
     injet.setAttribute(m_prefix+"ECF4"+suffix, result_ECF4);
-    
+    injet.setAttribute(m_prefix+"ECF5"+suffix, result_ECF5);
+
     injet.setAttribute(m_prefix+"ECF1_ungroomed"+suffix, result_ECF1_ungroomed);
     injet.setAttribute(m_prefix+"ECF2_ungroomed"+suffix, result_ECF2_ungroomed);
     injet.setAttribute(m_prefix+"ECF3_ungroomed"+suffix, result_ECF3_ungroomed);

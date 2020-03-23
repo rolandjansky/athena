@@ -48,6 +48,7 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     kwargs.setdefault("PAI_Tool_Kr", TRT_PAI_Process_KrToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Xe", TRT_PAI_Process_XeToolCfg(flags))
     kwargs.setdefault("Override_TrtRangeCutProperty", flags.Digitization.TRTRangeCut)
+    kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("Override_noiseInSimhits", 0)
         kwargs.setdefault("Override_noiseInUnhitStraws", 0)

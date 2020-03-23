@@ -14,9 +14,7 @@
 #include "TH2D.h"
 #include "TSystem.h" // Replace with PathResolver
 #include "TMVA/Reader.h"
-
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-
 
 namespace CP {
 
@@ -78,7 +76,7 @@ namespace CP {
 
       /// set the passes low pT cuts variable of the muon
       //void setPassesLowPtEfficiencyCuts( xAOD::Muon& mu ) const;
-     
+
       /// set the passes quality variable of the muon 
       virtual void setQuality( xAOD::Muon& mu ) const override;
 
@@ -115,7 +113,7 @@ namespace CP {
       bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
 
       /// Returns an integer corresponding to categorization of muons with different resolutions
-      int getResolutionCategory(const xAOD::Muon&) const;
+      virtual int getResolutionCategory(const xAOD::Muon&) const override;
       /// @}
 
 

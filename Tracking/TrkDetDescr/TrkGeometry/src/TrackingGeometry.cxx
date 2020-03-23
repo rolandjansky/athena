@@ -204,7 +204,7 @@ bool Trk::TrackingGeometry::atVolumeBoundary( const Amg::Vector3D& gp, const Trk
 {
     bool isAtBoundary = false;
     if (!vol) return isAtBoundary;
-    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
+    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = vol->boundarySurfaces();
     for (unsigned int ib=0; ib< bounds.size(); ib++) {
         const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
         if ( surf.isOnSurface(gp,true,tol,tol)  ) isAtBoundary = true;
@@ -219,7 +219,7 @@ bool Trk::TrackingGeometry::atVolumeBoundary(const Amg::Vector3D& gp, const Amg:
     bool isAtBoundary = false;
     nextVol = nullptr;
     if (!vol) return isAtBoundary;
-    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
+    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = vol->boundarySurfaces();
     for (unsigned int ib=0; ib< bounds.size(); ib++) {
         const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
         if ( surf.isOnSurface(gp,true,tol,tol) ) {
