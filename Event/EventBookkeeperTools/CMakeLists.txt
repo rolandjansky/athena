@@ -59,7 +59,9 @@ atlas_add_test( CutflowSvcDummyAlg
                 SCRIPT athena EventBookkeeperTools/TestCutFlowSvcDummyAlg.py
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh )
-atlas_add_test( CutflowSvcOutput
-                SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py
-                PROPERTIES TIMEOUT 300
-                POST_EXEC_SCRIPT nopost.sh )
+if ( NOT GENERATIONBASE )
+   atlas_add_test( CutflowSvcOutput
+                   SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py
+                   PROPERTIES TIMEOUT 300
+                   POST_EXEC_SCRIPT nopost.sh )
+endif()
