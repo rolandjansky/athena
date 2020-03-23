@@ -21,16 +21,19 @@ class MuonPrdCacheNames(object):
 # The function returns a ComponentAccumulator which should be loaded first
 # If a configuration wants to use the cache, they need to use the same names as defined here
 def MuonPrdCacheCfg():
+    # Use MuonGeometryFlags to identify which configuration is being used
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
     acc = ComponentAccumulator()
 
     MuonPRDCacheCreator=CompFactory.MuonPRDCacheCreator
-    cacheCreator = MuonPRDCacheCreator(CscStripCacheKey  = MuonPrdCacheNames.CscStripCache,
+    cacheCreator = MuonPRDCacheCreator(CscStripCacheKey  = (MuonPrdCacheNames.CscStripCache if MuonGeometryFlags.hasCSC() else ""),
                                        MdtCacheKey       = MuonPrdCacheNames.MdtCache,
-                                       CscCacheKey       = MuonPrdCacheNames.CscCache,
+                                       CscCacheKey       = (MuonPrdCacheNames.CscCache if MuonGeometryFlags.hasCSC() else ""),
                                        RpcCacheKey       = MuonPrdCacheNames.RpcCache,
                                        TgcCacheKey       = MuonPrdCacheNames.TgcCache,
-                                       sTgcCacheKey      = MuonPrdCacheNames.sTgcCache,
-                                       MmCacheKey        = MuonPrdCacheNames.MmCache,
+                                       sTgcCacheKey      = (MuonPrdCacheNames.sTgcCache if MuonGeometryFlags.hasSTGC() else ""),
+                                       MmCacheKey        = (MuonPrdCacheNames.MmCache if MuonGeometryFlags.hasMM() else ""),
                                        TgcCoinCacheKey   = MuonPrdCacheNames.TgcCoinCache,
                                        RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
                                        )
