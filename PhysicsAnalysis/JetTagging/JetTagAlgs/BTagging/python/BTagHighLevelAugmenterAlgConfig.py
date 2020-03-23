@@ -17,6 +17,7 @@ def BTagHighLevelAugmenterAlgCfg(ConfigFlags, BTagCollection, Associator, doFlip
 
     options = {}
     options['BTaggingCollectionName'] = BTagCollection
+    options['JetLinkName'] = options['BTaggingCollectionName'] + '.jetLink'
     options['BTagTrackToJetAssociatorName'] = Associator
     options['name'] = (BTagCollection + '_Augment').lower()
     if doFlipTagger: options['FlipTagConfig'] = 'FLIP_SIGN'

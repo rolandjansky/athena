@@ -39,6 +39,7 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
       histoskey = "JetTagCalibHistosKey"
       result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
       JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+      JetTagCalib.OutputLevel = 1
   # Maybe needed for trigger use
   #from IOVDbSvc.CondDB import conddb
   #if conddb.dbdata == 'COMP200':
