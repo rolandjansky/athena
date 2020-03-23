@@ -78,11 +78,12 @@ def CSC_OverlayDigitizationToolCfg(flags, name="CscOverlayDigitizationTool", **k
 def CSC_OutputCfg(flags):
     """Return ComponentAccumulator with Output for CSC. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["CscRawDataContainer#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["MuonSimDataCollection#*", "CscSimDataCollection#CSC_SDO"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["CscRawDataContainer#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["MuonSimDataCollection#*", "CscSimDataCollection#CSC_SDO"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 
