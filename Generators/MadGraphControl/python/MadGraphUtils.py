@@ -361,7 +361,10 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
             tar.wait()
             os.rename(MADGRAPH_GRIDPACK_LOCATION,process_dir)
 
-        raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
+        mglog.info('Gridpack sucessfully created, exiting the transform')
+        from AthenaCommon.AppMgr import theApp
+        theApp.finalize()
+        theApp.exit()
 
     resetLHAPDF(origLHAPATH=origLHAPATH,origLHAPDF_DATA_PATH=origLHAPDF_DATA_PATH)
 
