@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+*/
 // This is a general-purpose multi-b-jet filter. It can cut on:
 //    - Multiplicity of b-jets (both min and max can be specified)
 //    - Multiplicity of jets (regardless of flavor)

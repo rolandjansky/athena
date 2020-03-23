@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+*/
 #ifndef GENERATORFILTERS_SPLITPHOTONFILTER_H
 #define GENERATORFILTERS_SPLITPHOTONFILTER_H
 

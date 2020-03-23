@@ -103,14 +103,14 @@ bool XtoVVDecayFilterExtended::RunHistory(HepMC::GenParticle *pitr) {
   // Check if the first mother is ok
   pitr = CheckGrandparent(pitr, result);
   ATH_MSG_DEBUG("Pointer PDG ID: " << pitr->pdg_id());
-  if(fabs(pitr->pdg_id()) != m_PDGGrandParent && fabs(pitr->pdg_id()) != m_PDGParent) return false;
+  if(std::abs(pitr->pdg_id()) != m_PDGGrandParent && std::abs(pitr->pdg_id()) != m_PDGParent) return false;
   if (result == m_PDGGrandParent) return true;
 
   HepMC::GenParticle *pitr_current = (*firstMother);
   while ( result >= 0 ) {
     pitr_current = CheckGrandparent(pitr_current, result);
     ATH_MSG_DEBUG("Pointer PDG ID: " << pitr->pdg_id());
-    if(fabs(pitr_current->pdg_id()) != m_PDGGrandParent && fabs(pitr_current->pdg_id()) != m_PDGParent) return false;
+    if(std::abs(pitr_current->pdg_id()) != m_PDGGrandParent && std::abs(pitr_current->pdg_id()) != m_PDGParent) return false;
     if (result == m_PDGGrandParent) return true;
   }
 	
@@ -141,7 +141,7 @@ HepMC::GenParticle*  XtoVVDecayFilterExtended::CheckGrandparent(HepMC::GenPartic
 
   for (; thisMother != endMother; ++thisMother) {
     ATH_MSG_DEBUG("Now on this mother: " << (*thisMother)->pdg_id() << " " << n_mothers);
-    if ( (*thisMother)->pdg_id() != m_PDGGrandParent && fabs((*thisMother)->pdg_id()) != m_PDGParent)
+    if ( (*thisMother)->pdg_id() != m_PDGGrandParent && std::abs((*thisMother)->pdg_id()) != m_PDGParent)
        break;
     if ( (*thisMother)->pdg_id() == m_PDGGrandParent && n_mothers == 1) { isGrandParentOK = true; }
     n_mothers++;

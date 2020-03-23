@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 // GeneratorFilters/DecaysFinalStateFilter
 //
 // Picks events with a given number of quarks, leptons and neutrinos from

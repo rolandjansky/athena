@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 #include "GeneratorFilters/DiPhotonFilter.h"
 #include <vector>
 #include "TMath.h"
