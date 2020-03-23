@@ -4,7 +4,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: JobSetupFragment.py 714548 2015-12-14 16:30:23Z amorley $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: JobSetupFragment.py 714548 2015-12-14 16:30:23Z amorley $")
 
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -91,7 +91,7 @@ else:
 
 # Alignment
 if jobConfig['alignmentfile']:
-    print 'Loading alignment constants from file',jobConfig['alignmentfile']
+    printfunc ('Loading alignment constants from file',jobConfig['alignmentfile'])
     include ("DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
     conddb.blockFolder("/Indet/Align")
     conddb.blockFolder("/TRT/Align")
@@ -99,7 +99,7 @@ if jobConfig['alignmentfile']:
     ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
     ServiceMgr.CondProxyProvider.InputCollections = [ jobConfig['alignmentfile'] ]
     ServiceMgr.CondProxyProvider.OutputLevel = min(INFO,jobConfig['outputlevel'])
-    print ServiceMgr.CondProxyProvider
+    printfunc (ServiceMgr.CondProxyProvider)
     #from IOVSvc.IOVSvcConf import IOVSvc
     ServiceMgr += CfgMgr.IOVSvc()
     ServiceMgr.IOVSvc.preLoadData = True

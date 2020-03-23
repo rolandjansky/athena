@@ -3,7 +3,7 @@
 #
 # Written by Juerg Beringer in July 2008.
 #
-print "InDetBeamSpotExample INFO Using VertexTemplate.py atlas/athena"
+printfunc ("InDetBeamSpotExample INFO Using VertexTemplate.py atlas/athena")
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -95,7 +95,7 @@ ToolSvc += CfgMgr.InDet__InDetBeamSpotVertex(name            = 'InDetBeamSpotVer
                                              OutputLevel     = min(INFO,jobConfig['outputlevel']))
 
 
-print ToolSvc.InDetBeamSpotVertex
+printfunc (ToolSvc.InDetBeamSpotVertex)
 
 ToolSvc += CfgMgr.InDet__InDetBeamSpotRooFit(name            = 'InDetBeamSpotRooFit',
                                              OutputLevel     = min(INFO,jobConfig['outputlevel']),
@@ -103,7 +103,7 @@ ToolSvc += CfgMgr.InDet__InDetBeamSpotRooFit(name            = 'InDetBeamSpotRoo
                                              ConstantKFactor = jobConfig['ConstantKFactor'],
                                              vtxResCut       = jobConfig['RooFitMaxTransverseErr'])
 
-print ToolSvc.InDetBeamSpotRooFit
+printfunc (ToolSvc.InDetBeamSpotRooFit)
 
 topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBeamSpotFinder',
                                                  #job options
@@ -143,7 +143,7 @@ if jobConfig['UseFilledBCIDsOnly']:
      bunchCrossingTool.OutputLevel=ERROR
      topSequence.InDetBeamSpotFinder.BCTool = bunchCrossingTool
 
-print topSequence.InDetBeamSpotFinder
+printfunc (topSequence.InDetBeamSpotFinder)
 
 #from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += CfgMgr.THistSvc()
