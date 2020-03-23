@@ -69,6 +69,9 @@ if (DerivationFrameworkIsMonteCarlo):
    # Re-point links on reco objects
    addMiniTruthCollectionLinks(SeqPHYS2)
    addPVCollection(SeqPHYS2)
+   # Set appropriate truth jet collection for tau truth matching
+   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
+   # SUSY signal
    from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
    if IsSUSYSignal():
       from DerivationFrameworkSUSY.SUSYWeightMetadata import *
