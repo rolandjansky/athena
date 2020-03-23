@@ -174,7 +174,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
     ATH_MSG_DEBUG("Filling LArNoise tree with algo: " << algo);
     fill(m_MonGroupName,time,time_ns,algo);
   } else { 
-    ATH_MSG_INFO("Not a noisy event");
+    ATH_MSG_DEBUG("Not a noisy event");
   }
 
   // Triggers
@@ -187,7 +187,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
     for ( size_t i = 0; i < m_L1_NoiseBurst_Triggers.size(); i++) {
       if ( m_trigDecTool->isPassed(m_L1_NoiseBurst_Triggers[i]))  L1trigbits |= (0x1 << i);
     }
-    ATH_MSG_INFO("Trigger words: " << std::hex << trigbits << " " << L1trigbits << std::dec);
+    ATH_MSG_DEBUG("Trigger words: " << std::hex << trigbits << " " << L1trigbits << std::dec);
   }
   if(!m_doHisto) return StatusCode::SUCCESS;
 
@@ -199,7 +199,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   unsigned int NbNoisyFEB = 0;
   std::array<unsigned,4> partMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}});
 
-  ATH_MSG_INFO("NoisyFEB vector size " << noisyFEB.size());
+  ATH_MSG_DEBUG("NoisyFEB vector size " << noisyFEB.size());
 
   auto slotN=Monitored::Scalar<unsigned>("slotNoisy",0);
   auto FTN=Monitored::Scalar<unsigned>("FTNoisy",0);
@@ -224,7 +224,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // Loop on all FEBs noisy in MNB-tight definition
   // And fill the 2D maps of fraction of fraction of noisy events
   // Fill two histograms with veto cut and all events
-  ATH_MSG_INFO("MNBTight FEB vector size " << mnbtightFEB.size());
+  ATH_MSG_DEBUG("MNBTight FEB vector size " << mnbtightFEB.size());
   auto slotTightCan=Monitored::Scalar<unsigned>("slotTightCan",0);
   auto FTTightCan=Monitored::Scalar<unsigned>("FTTightCan",0);
   auto slotTight=Monitored::Scalar<unsigned>("slotTight",0);
@@ -255,7 +255,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   auto FT_PsVetoTightCan=Monitored::Scalar<unsigned>("FT_PsVetoTightCan",0);
   auto slot_PsVetoTight=Monitored::Scalar<unsigned>("slot_PsVetoTight",0);
   auto FT_PsVetoTight=Monitored::Scalar<unsigned>("FT_PsVetoTight",0);
-  ATH_MSG_INFO("MNBTight_PsVeto FEB vector size " << mnbtight_PsVetoFEB.size());
+  ATH_MSG_DEBUG("MNBTight_PsVeto FEB vector size " << mnbtight_PsVetoFEB.size());
   for (size_t i = 0; i<mnbtight_PsVetoFEB.size(); i++) {
     const HWIdentifier& febid = mnbtight_PsVetoFEB[i];
     HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
@@ -282,7 +282,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   auto FTLooseCan=Monitored::Scalar<unsigned>("FTLooseCan",0);
   auto slotLoose=Monitored::Scalar<unsigned>("slotLoose",0);
   auto FTLoose=Monitored::Scalar<unsigned>("FTLoose",0);
-  ATH_MSG_INFO("MNBLoose FEB vector size " << mnblooseFEB.size());
+  ATH_MSG_DEBUG("MNBLoose FEB vector size " << mnblooseFEB.size());
   for (size_t i = 0; i<mnblooseFEB.size(); i++) {
     const HWIdentifier& febid = mnblooseFEB[i];
     // Will be used in next iteration:
