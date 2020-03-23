@@ -36,7 +36,7 @@ run_settings = {'event_norm':'sum',
                 'drjj':0.0,
                 'lhe_version':'3.0',
                 'cut_decays':'F',
-                'pdflabel':"'lhapdf'",
+                'pdlabel':"'lhapdf'",
                 'lhaid':247000,
                 'pdgs_for_merging_cut': '1, 2, 3, 4, 21', # Terrible default in MG
                 'ickkw':0,
