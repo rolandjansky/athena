@@ -50,6 +50,8 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
   # Extra classifiers for the Higgs group
   import DerivationFrameworkHiggs.TruthCategories
+  # Set appropriate truth jet collection for tau truth matching
+  ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
   # Add sumOfWeights metadata for LHE3 multiweights =======
   from DerivationFrameworkCore.LHE3WeightMetadata import *
   from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
