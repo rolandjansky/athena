@@ -10,7 +10,7 @@ from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
 from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
-from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
+from BTagging.BTagHghLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
 from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
@@ -248,7 +248,7 @@ def BTagCfg(inputFlags,**kwargs):
 
             if jet in postTagDL2JetToTrainingMap:
                 #result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, BTagCollection = 'BTagging_'+jet, Associator = 'BTagTrackToJetAssociator', doFlipTagger=True, **kwargs))
-                result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, BTagCollection = 'BTagging_'+jet, Associator = 'BTagTrackToJetAssociator', **kwargs))
+                result.merge(BTagHighLevelLAugmenterAlgCfg(inputFlags, BTagCollection = 'BTagging_'+jet, Associator = 'BTagTrackToJetAssociator', **kwargs))
                 for dl2 in postTagDL2JetToTrainingMap[jet]:
                     result.merge(HighLevelBTagAlgCfg(inputFlags, jet, dl2))
 
