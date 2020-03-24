@@ -79,7 +79,7 @@ for monType, enabled in monDict.iteritems():
     monLog.info('Enabling %s %s',monType,enabled)
     HLTMonFlags.set_All_Off()
     if enabled:
-        exec "HLTMonFlags.do%s = True" % (monType)
+        exec("HLTMonFlags.do%s = True" % (monType))
 monLog.info(HLTMonFlags)
 
 if hasattr(runArgs,"preExec"):

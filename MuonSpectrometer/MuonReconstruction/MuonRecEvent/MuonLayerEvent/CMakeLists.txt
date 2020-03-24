@@ -9,7 +9,7 @@ atlas_subdir( MuonLayerEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Event/xAOD/xAODCore
-                          MuonSpectrometer/MuonIdHelpers
+                          MuonSpectrometer/MuonStationIndex
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           Tracking/TrkEvent/TrkParameters
                           PRIVATE
@@ -19,6 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( MuonLayerEvent
                    src/*.cxx
                    PUBLIC_HEADERS MuonLayerEvent
-                   LINK_LIBRARIES AthContainers xAODCore MuonPrepRawData TrkParameters MuonIdHelpersLib
+                   LINK_LIBRARIES AthContainers xAODCore MuonPrepRawData TrkParameters MuonStationIndexLib
                    PRIVATE_LINK_LIBRARIES MuonRIO_OnTrack )
 

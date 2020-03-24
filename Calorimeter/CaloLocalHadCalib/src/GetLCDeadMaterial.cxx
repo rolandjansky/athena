@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -142,7 +142,7 @@ StatusCode GetLCDeadMaterial::initialize()
   }
 
   // pointer to the chain and data in it
-  std::auto_ptr<CaloHadDMCoeffData> dmData (new CaloHadDMCoeffData(pChain));
+  std::unique_ptr<CaloHadDMCoeffData> dmData (new CaloHadDMCoeffData(pChain));
   if(m_ClassificationType == "particleid") {
     ATH_MSG_INFO( "Particle ID em fraction will be used to classify clusters:"  );
     m_isSingleParticle = false;

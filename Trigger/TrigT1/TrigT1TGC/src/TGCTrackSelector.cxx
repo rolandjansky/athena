@@ -26,7 +26,7 @@ namespace LVL1TGCTrigger {
 
   void TGCTrackSelector::input(TGCRPhiCoincidenceOut* rPhiOut){
     if(rPhiOut!=0){
-      if(rPhiOut->hasHit()){
+      if(rPhiOut->getpT()!=0){
         m_coincidenceIn[m_numberOfCandidate_In].reset(rPhiOut);
         m_numberOfCandidate_In++;
       }
@@ -46,7 +46,7 @@ namespace LVL1TGCTrigger {
       for(int track2=track1+1;track2!=m_numberOfCandidate_In;track2++){
         bool compare_result=compare(m_coincidenceIn[track1].get(),m_coincidenceIn[track2].get()); //1>2 true:1 1<2 false:0
 
-	//TrackPriorityRank : Smaller value is high priority.
+       //TrackPriorityRank : Smaller value is high priority.
         m_trackPriorityRank[track1]+=(int)!compare_result;
         m_trackPriorityRank[track2]+=(int)compare_result;
       }
@@ -61,7 +61,7 @@ namespace LVL1TGCTrigger {
         int R= 2*m_coincidenceIn[track]->getIdSSC()+m_coincidenceIn[track]->getR() - (m_sectorLogic->getRegion()==Endcap ? 1 : 0);
         TrackcandidateOut->setR(m_numberOfCandidate_Out,R);
         TrackcandidateOut->setPhi(m_numberOfCandidate_Out,m_coincidenceIn[track]->getPhi());
-        TrackcandidateOut->setPtLevel(m_numberOfCandidate_Out,m_coincidenceIn[track]->getPtLevel());
+        TrackcandidateOut->setPtLevel(m_numberOfCandidate_Out,m_coincidenceIn[track]->getpT());
         TrackcandidateOut->setDR(m_numberOfCandidate_Out,2*m_coincidenceIn[track]->getDR());
         TrackcandidateOut->setDPhi(m_numberOfCandidate_Out,m_coincidenceIn[track]->getDPhi());
         TrackcandidateOut->setInnerVeto(m_numberOfCandidate_Out,m_coincidenceIn[track]->getInnerVeto());
@@ -85,8 +85,8 @@ namespace LVL1TGCTrigger {
 
 
     // The definition of priority is not fixed. This function wiil be updated.
-    if(track1->getPtLevel()>track2->getPtLevel()){return true;}
-    if(track1->getPtLevel()<track2->getPtLevel()){return false;}
+    if(track1->getpT() > track2->getpT()){return true;}
+    if(track1->getpT() < track2->getpT()){return false;}
     else{
       // when the pt level of 2 tracks are same, track with large R is selected.
       if(track1->getIdSSC()<track2->getIdSSC()){return true;}

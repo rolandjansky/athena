@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
+                          MuonSpectrometer/MuonStationIndex
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           MuonSpectrometer/MuonReconstruction/MuonTrackMakers/MuonTrackMakerUtils
                           Simulation/G4Sim/TrackRecord
@@ -54,7 +55,7 @@ atlas_add_component( MuonTGRecTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthLinks AthContainers AthenaKernel StoreGateLib SGtests EventPrimitives GaudiKernel GeneratorObjects MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData TrkGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData TrkSegment TrkTrack TrkExInterfaces TrkFitterUtils TrkToolInterfaces xAODTracking MuonDetDescrUtils MuonDigitContainer MuonCompetingRIOsOnTrack MuonLayerEvent MuonRIO_OnTrack MuonRecToolInterfaces MuonSimData MuonSimEvent RecoToolInterfaces TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkRIO_OnTrack )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthLinks AthContainers AthenaKernel StoreGateLib SGtests EventPrimitives GaudiKernel GeneratorObjects MuonReadoutGeometry MuonIdHelpersLib MuonStationIndexLib MuonPrepRawData TrkGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData TrkSegment TrkTrack TrkExInterfaces TrkFitterUtils TrkToolInterfaces xAODTracking MuonDetDescrUtils MuonDigitContainer MuonCompetingRIOsOnTrack MuonLayerEvent MuonRIO_OnTrack MuonRecToolInterfaces MuonSimData MuonSimEvent RecoToolInterfaces TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_headers( MuonTGRecTools )

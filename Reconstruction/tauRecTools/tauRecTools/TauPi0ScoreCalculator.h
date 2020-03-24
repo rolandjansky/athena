@@ -9,8 +9,7 @@
 #include <map>
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODPFlow/PFO.h"
-
-#include "MVAUtils/BDT.h"
+#include "tauRecTools/BDTHelper.h"
 
 /**
  * @brief Selectes pi0Candidates (Pi0 Finder).
@@ -32,28 +31,11 @@ public:
     virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
 
 private:
-    std::unique_ptr<MVAUtils::BDT> m_mvaBDT;
-
-    std::string m_weightfile;
-
-    float m_Abs_FIRST_ETA;
-    float m_SECOND_R;
-    float m_Abs_DELTA_THETA;
-    float m_CENTER_LAMBDA_helped;
-    float m_LONGITUDINAL;
-    float m_ENG_FRAC_EM;
-    float m_ENG_FRAC_CORE;
-    float m_log_SECOND_ENG_DENS;
-    float m_EcoreOverEEM1;
-    float m_NPosCells_EM1;
-    float m_NPosCells_EM2;
-    float m_firstEtaWRTCluster_EM1;
-    float m_secondEtaWRTCluster_EM2;
-    
-    std::map<TString, float*> m_availableVars;//!< keeps track of available of availble floats
-
     /** @brief function used to calculate BDT score */
     float calculateScore(const xAOD::PFO* neutralPFO);
+    
+    std::string m_weightfile;
+    std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
 };
 
 #endif	/* TAUPI0SCORECALCULATOR_H */

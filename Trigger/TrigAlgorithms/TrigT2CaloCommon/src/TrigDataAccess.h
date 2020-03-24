@@ -61,7 +61,7 @@
 // Roi information
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "TrigT2CaloCommon/phiutils.h"
+#include "CxxUtils/phihelper.h"
 
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
@@ -135,7 +135,7 @@ public:
   /// obsolete method
   void ROBList( const double etamin, const double etamax, const double phimin, const double phimax,
 		std::vector<uint32_t>& vec) { 
-    TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, HLT::phimean(phimin,phimax), phimin, phimax);
+    TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, CxxUtils::phiMean(phimin,phimax), phimin, phimax);
     return ROBList( roi, vec );
   }
 
@@ -151,7 +151,7 @@ protected:
   void RegionSelectorListID (const int sampling, const double etamin,
 			     const double etamax, const double phimin, const double phimax,
 			     const DETID detid=TTEM){ 
-    TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, HLT::phimean(phimin,phimax), phimin, phimax);
+    TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, CxxUtils::phiMean(phimin,phimax), phimin, phimax);
     return RegionSelectorListID( sampling, roi, detid );
   }
 
@@ -164,7 +164,7 @@ protected:
   void RegionSelectorRobID (const int sampling, const double etamin,
 			    const double etamax, const double phimin, const double phimax,
 			    const DETID detid=TTEM, bool fetchROBs = true) { 
-    TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, HLT::phimean(phimin,phimax), phimin, phimax);
+    TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, CxxUtils::phiMean(phimin,phimax), phimin, phimax);
     return RegionSelectorRobID( sampling, roi, detid, fetchROBs );
   }
 
@@ -187,7 +187,7 @@ protected:
   virtual inline void RegionSelector(const int sampling, const double etamin,
 				     const double etamax, const double phimin, const double phimax,
 				     const DETID detid=TTEM){
-    TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, HLT::phimean(phimin,phimax), phimin, phimax);
+    TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, CxxUtils::phiMean(phimin,phimax), phimin, phimax);
     RegionSelector(sampling, roi, detid);
   };
 

@@ -216,7 +216,7 @@ def LArOverlayCfg(flags, **kwargs):
 
 def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for LAr Trigger Tower"""
-    acc = LArDigitizationBasicCfg(flags)
+    acc = LArDigitizationCfg(flags)
     acc.merge(LArFebRodMappingCfg(flags))
     acc.merge(LArCalibIdMappingCfg(flags))
     acc.merge(CaloTriggerTowerCfg(flags))
