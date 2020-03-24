@@ -806,7 +806,7 @@ namespace top {
           }
         }
       }
-      if (deltaR > 0.3) {
+      if (deltaR > m_config->jetResponseMatchingDeltaR()) {
         matchedPt(*jet) = -9999;
         continue;
       }
