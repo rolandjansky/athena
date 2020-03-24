@@ -60,7 +60,7 @@ class LArCollisionTimeMonAlg: public AthMonitorAlgorithm
   Gaudi::Property<bool> m_eWeighted {this,"eWeighted",true};
 
   //containers' handles
-  SG::ReadHandleKey<LArCollisionTime> m_LArCollisionTimeKey;
+  SG::ReadHandleKey<LArCollisionTime> m_LArCollisionTimeKey{this, "Key", "LArCollisionTime", "Key for the LArCollisionTime data"};
 
   //tools handles
   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;

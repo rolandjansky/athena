@@ -57,6 +57,6 @@ if __name__=="__main__":
  
 
     cfg.merge(LArHVDBCfg(ConfigFlags))
-    f=open("LArHVDBConfig.pkl","w")
+    f=open("LArHVDBConfig.pkl","wb")
     cfg.store(f)
     f.close()

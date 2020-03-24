@@ -41,11 +41,8 @@ using namespace std;
 
 /*---------------------------------------------------------*/
 LArCoverageAlg::LArCoverageAlg(const std::string& name, ISvcLocator* pSvcLocator )
-  : AthMonitorAlgorithm(name,pSvcLocator),
-    m_badChannelMask("BadLArRawChannelMask",this)
+  : AthMonitorAlgorithm(name,pSvcLocator)
 {
-  declareProperty("LArBadChannelMask",m_badChannelMask);
-  declareProperty("LArRawChannelKey",m_rawChannelsKey="LArRawChannels");
 
   m_LArOnlineIDHelper	= nullptr;
   m_LArEM_IDHelper	= nullptr;

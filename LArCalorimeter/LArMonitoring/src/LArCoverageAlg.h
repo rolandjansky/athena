@@ -87,9 +87,9 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};
 
   /** Handle to bad-channel tools */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask ;
+  ToolHandle<ILArBadChannelMasker> m_badChannelMask{this, "LArBadChannelMask", "BadLArRawChannelMask"} ;
 
-  SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey;
+  SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey{this, "LArRawChannelKey", "LArRawChannels", "SG Key of raw channels"};
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MFKey", "LArBadFeb", "SG missing FEBs key"};
 

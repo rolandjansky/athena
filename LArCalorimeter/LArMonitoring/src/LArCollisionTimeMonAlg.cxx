@@ -30,11 +30,8 @@ using namespace std;
 /*---------------------------------------------------------*/
 LArCollisionTimeMonAlg::LArCollisionTimeMonAlg( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
-  ,m_LArCollisionTimeKey("LArCollisionTime")
-  ,m_bunchCrossingTool("BunchCrossingTool")
+  , m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
 {
-  declareProperty( "Key"                ,      m_LArCollisionTimeKey);
-  declareProperty( "BunchCrossingTool"  ,      m_bunchCrossingTool); 
 }
 
 /*---------------------------------------------------------*/
