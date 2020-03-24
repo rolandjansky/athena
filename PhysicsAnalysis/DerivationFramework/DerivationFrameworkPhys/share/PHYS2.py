@@ -181,6 +181,10 @@ if (DerivationFrameworkIsMonteCarlo):
 replaceAODReducedJets(reducedJetList,SeqPHYS2,"PHYS2")
 addDefaultTrimmedJets(SeqPHYS2,"PHYS2",dotruth=DerivationFrameworkIsMonteCarlo)
 
+# Add large-R jet truth labeling
+if (DerivationFrameworkIsMonteCarlo):
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYS2,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS2,algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS2,algname="QGTaggerToolPFAlg")
 
