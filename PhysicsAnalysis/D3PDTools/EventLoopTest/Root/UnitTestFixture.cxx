@@ -106,7 +106,7 @@ namespace EL
       if (result.empty())
       {
 	std::unique_ptr<SH::SampleLocal> myresult (new SH::SampleLocal ("multi"));
-	for (unsigned jter = 0; jter != 100; ++ jter)
+	for (unsigned jter = 0; jter != 10; ++ jter)
 	{
 	  std::vector<unsigned> entries;
 	  for (unsigned iter = 0; iter != 10000; ++ iter)
