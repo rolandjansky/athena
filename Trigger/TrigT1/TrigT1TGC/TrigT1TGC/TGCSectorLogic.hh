@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGGSectorLogic_hh
@@ -9,7 +9,7 @@
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-#include "TrigT1TGC/TGCInnerCoincidenceMap.hh"
+#include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 #include "TrigT1TGC/TGCTileMuCoincidenceMap.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.hh"
@@ -70,8 +70,8 @@ public:
   TGCSSCController* getSSCController(){return &m_SSCController;};
 
   void setRPhiMap(const TGCRPhiCoincidenceMap* map, 
-		  const TGCInnerCoincidenceMap* mapI=0);
-  void setInnerMap(const TGCInnerCoincidenceMap* mapI);
+		  const TGCEIFICoincidenceMap* mapI=0);
+  void setEIFIMap(const TGCEIFICoincidenceMap* mapI);
   void setTileMuMap(const TGCTMDB* tmdb,
 		    const TGCTileMuCoincidenceMap* mapTM);
   void showResult(TGCSLSelectorOut* out);
@@ -112,7 +112,7 @@ private:
 
   TGCSSCController m_SSCController;
   TGCRPhiCoincidenceMatrix m_matrix;
-  const TGCInnerCoincidenceMap*  m_mapInner;
+  const TGCEIFICoincidenceMap*  m_mapEIFI;
   const TGCTileMuCoincidenceMap*  m_mapTileMu;
   const TGCTMDB*            m_pTMDB;
 
@@ -136,7 +136,7 @@ private:
 
   // for inner trigger
   const TGCInnerTrackletSlot* m_innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR];
-  bool m_useInner;
+  bool m_useEIFI;
   bool m_useTileMu;
   TGCArguments* m_tgcArgs;
 };

@@ -4,8 +4,8 @@
 
 // Implementation file for Athena-Rivet interface
 
-#include "Rivet_i/Rivet_i.h"
-#include "Rivet_i/LogLevels.h"
+#include "Rivet_i.h"
+#include "LogLevels.h"
 
 #include "HepMC/GenEvent.h"
 
@@ -363,9 +363,7 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   double scalefactor = 1.0;
   //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
   //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
-  #ifdef HEPMC_HAS_UNITS
   modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
-  #endif
   if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
 
   if (scalefactor == 1.0 && modEvent->valid_beam_particles()) {

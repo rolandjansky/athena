@@ -7,7 +7,7 @@
 
 // tauRecTools include(s)
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/HelperFunctions.h"
+#include "tauRecTools/BDTHelper.h"
 
 /**
  * @brief Implementation of a generic BDT for tau ID
@@ -40,7 +40,7 @@ class TauJetBDTEvaluator
   Gaudi::Property<std::string> m_weightsFile{this, "weightsFile", ""};
   Gaudi::Property<std::string> m_outputVarName{this, "outputVarName", "BDTJetScore"};
 
-  std::unique_ptr<tauRecTools::TRTBDT> m_myBdt;
+  std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
   Gaudi::Property<int> m_minNTracks{this, "minNTracks", 0};
   Gaudi::Property<int> m_maxNTracks{this, "maxNTracks", 999};
   Gaudi::Property<float> m_minAbsTrackEta{this, "minAbsTrackEta", -1};

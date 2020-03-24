@@ -18,7 +18,7 @@
 #define TRIGT2CALOEGAMMA_EGAMMAEMENFEX_H
 
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
-#include "TrigT2CaloCommon/phiutils.h"
+#include "CxxUtils/phihelper.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "GaudiKernel/AlgTool.h"
 
@@ -57,7 +57,7 @@ class EgammaEmEnFex: public IAlgToolCalo {
 		       double etamin, double etamax, 
 		       double phimin, double phimax) {
       TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax,
-			     HLT::phimean(phimin,phimax), phimin, phimax);
+			     CxxUtils::phiMean(phimin,phimax), phimin, phimax);
       return execute( rtrigEmCluster, roi, caloDDENull );
     }
 

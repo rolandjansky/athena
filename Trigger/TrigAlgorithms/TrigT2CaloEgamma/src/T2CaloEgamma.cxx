@@ -32,7 +32,7 @@
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 
-#include "TrigT2CaloCommon/phiutils.h"
+#include "CxxUtils/phihelper.h"
 #include "egammaUtils/egammaqweta2c.h"
 
 class ISvcLocator;
@@ -145,8 +145,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
     etamin = std::max( -2.5, roiDescriptor->eta() - m_etaWidth );
     etamax = std::min(  2.5, roiDescriptor->eta() + m_etaWidth );
 
-    phimin = HLT::wrap_phi( roiDescriptor->phi() - m_phiWidth );
-    phimax = HLT::wrap_phi( roiDescriptor->phi() + m_phiWidth );
+    phimin = CxxUtils::wrapToPi( roiDescriptor->phi() - m_phiWidth );
+    phimax = CxxUtils::wrapToPi( roiDescriptor->phi() + m_phiWidth );
 
     etaL1 = roiDescriptor->eta();
     phiL1 = roiDescriptor->phi();
@@ -155,8 +155,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
     etamin = std::max( -2.5, m_l1eta-m_etaWidth );
     etamax = std::min(  2.5, m_l1eta+m_etaWidth );
 
-    phimin = HLT::wrap_phi( m_l1phi-m_phiWidth );
-    phimax = HLT::wrap_phi( m_l1phi+m_phiWidth );
+    phimin = CxxUtils::wrapToPi( m_l1phi-m_phiWidth );
+    phimax = CxxUtils::wrapToPi( m_l1phi+m_phiWidth );
 
     etaL1 =  m_l1eta;
     phiL1 =  m_l1phi;
@@ -366,8 +366,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
       new TrigRoiDescriptor(roiDescriptor->l1Id(), roiDescriptor->roiId(),
 			    ptrigEmCluster->eta(), ptrigEmCluster->eta()-m_etaWidthForID, ptrigEmCluster->eta()+m_etaWidthForID,
 			    ptrigEmCluster->phi(), 
-			    HLT::wrap_phi(ptrigEmCluster->phi()-m_phiWidthForID), 
-			    HLT::wrap_phi(ptrigEmCluster->phi()+m_phiWidthForID), 
+			    CxxUtils::wrapToPi(ptrigEmCluster->phi()-m_phiWidthForID), 
+			    CxxUtils::wrapToPi(ptrigEmCluster->phi()+m_phiWidthForID), 
 			    calZ0 ); // don't specify widths - then we get the default values of  -225, +225 
   }
   else { 
@@ -375,8 +375,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
       new TrigRoiDescriptor(roiDescriptor->l1Id(), roiDescriptor->roiId(),
 			    ptrigEmCluster->eta(), ptrigEmCluster->eta()-m_etaWidthForID, ptrigEmCluster->eta()+m_etaWidthForID,
 			    ptrigEmCluster->phi(),
-			    HLT::wrap_phi(ptrigEmCluster->phi()-m_phiWidthForID), 
-			    HLT::wrap_phi(ptrigEmCluster->phi()+m_phiWidthForID) );  
+			    CxxUtils::wrapToPi(ptrigEmCluster->phi()-m_phiWidthForID), 
+			    CxxUtils::wrapToPi(ptrigEmCluster->phi()+m_phiWidthForID) );  
   }
   
   hltStatus = attachFeature(outputTE,newRoiDescriptor,"TrigT2CaloEgamma");

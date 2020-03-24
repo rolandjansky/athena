@@ -49,6 +49,7 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include "xAODJet/Jet.h"
 #include "tauRecTools/KineUtils.h"
 #include "TauCellVariables.h"
+#include "tauRecTools/HelperFunctions.h"
 
 using Gaudi::Units::GeV;
 
@@ -102,8 +103,8 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
     const xAOD::Jet* pJetSeed = (*pTau.jetLink());
     if (!pJetSeed) {
-      ATH_MSG_WARNING("tau does not have jet seed for cell variable calculation");
-      return StatusCode::SUCCESS;
+      ATH_MSG_ERROR("tau does not have jet seed for cell variable calculation");
+      return StatusCode::FAILURE;
     }
 
     xAOD::JetConstituentVector::const_iterator cItr = pJetSeed->getConstituents().begin();
@@ -116,8 +117,11 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     double cellEta, cellPhi, cellET, cellEnergy;
     for (; cItr != cItrE; ++cItr) {
       
-      const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
-
+      const xAOD::CaloCluster *cluster = nullptr;
+      ATH_CHECK(tauRecTools::GetJetConstCluster(cItr, cluster));
+      // Skip if charged PFO
+      if (!cluster){ continue; }      
+      
       CaloClusterCellLink::const_iterator firstcell = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator lastcell = cluster->getCellLinks()->end();
       

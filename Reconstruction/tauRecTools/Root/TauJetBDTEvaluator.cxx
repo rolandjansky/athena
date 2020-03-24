@@ -6,7 +6,7 @@
 
 TauJetBDTEvaluator::TauJetBDTEvaluator(const std::string& name)
   : TauRecToolBase(name)
-  , m_myBdt(nullptr)
+  , m_mvaBDT(nullptr)
 {
 }
 
@@ -19,13 +19,11 @@ StatusCode TauJetBDTEvaluator::initialize(){
     return StatusCode::SUCCESS;
   }
 
-  //configure m_myBdt object if weights exists
+  //configure m_mvaBDT object if weights exists
   std::string full_path=find_file(m_weightsFile);
-  m_myBdt = std::make_unique<tauRecTools::TRTBDT>(full_path.c_str());
-  if(m_myBdt->bdt==nullptr) {
-    ATH_MSG_FATAL("Couldn't configure BDT");
-    return StatusCode::FAILURE;
-  }
+  m_mvaBDT = std::make_unique<tauRecTools::BDTHelper>();
+  ATH_CHECK(m_mvaBDT->initialize(full_path.c_str()));
+  
   return StatusCode::SUCCESS;
 }
 
@@ -36,7 +34,7 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau) const {
   //init output variable accessor
   SG::AuxElement::Accessor<float> outputVar(m_outputVarName);
 
-  if(m_myBdt==nullptr) {
+  if(m_mvaBDT==nullptr) {
     (outputVar)(xTau) = m_dummyValue;
     return StatusCode::SUCCESS;
   }
@@ -54,9 +52,10 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau) const {
       return StatusCode::SUCCESS; 
   }
 
-  m_myBdt->updateVariables(xTau);
-  float response = (m_isGrad ? m_myBdt->GetGradBoostMVA() : m_myBdt->GetClassification() );   
-  (outputVar)(xTau) = response;
+  // Calculate BDT score, will be -999 when tau lacks variables
+  float score = m_mvaBDT->getGradBoostMVA(xTau);
+  (outputVar)(xTau) = score;
+  
   return StatusCode::SUCCESS;
 }
 

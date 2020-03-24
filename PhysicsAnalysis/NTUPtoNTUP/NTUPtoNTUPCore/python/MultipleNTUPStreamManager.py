@@ -213,26 +213,6 @@ class MultipleNTUPStreamManager:
                     Stream.AddItem("SkimDecisionCollection#"+sdw.SkimDecisionsContainerName)
         return
 
-    def CreateEventBookkeepersWriterForAllFilters(self,doMCTruth=False,cycle_number=0):        
-        from EventBookkeeperTools.BookkeepingInfoWriter import EventBookkeepersWriter
-        ebw=EventBookkeepersWriter()
-        ebw.setDoMC( doMCTruth )
-        ebw.setCycle(cycle_number)
-        
-        #Loop over all streams and add all associated algorithms to ebw
-        for Stream in self.StreamList:
-            for a in Stream.GetRequireAlgs():
-                ebw.addRequireAlg(a,StreamName=Stream.Name)
-            for a in Stream.GetAcceptAlgs():
-                ebw.addAcceptAlg(a,StreamName=Stream.Name)
-            for a in Stream.GetVetoAlgs():
-                ebw.addVetoAlg(a,StreamName=Stream.Name)
-            for a in Stream.GetOtherAlgsToBookkeep():
-                ebw.addOtherAlg(a,StreamName=Stream.Name)
-
-        return ebw
-    
-
 
 ############################################################################
 # Create one instance of MultipleNTUPStreamManager (MNSMgr) if not already done.

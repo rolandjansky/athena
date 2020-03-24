@@ -37,7 +37,7 @@ LArCaliWaveContainerCnv::createTransient ()
 	
     if( compareClassGuid(p2_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< LArCaliWaveSubset_p2 > col_vect( poolReadObject< LArCaliWaveSubset_p2 >() );
+        std::unique_ptr< LArCaliWaveSubset_p2 > col_vect( poolReadObject< LArCaliWaveSubset_p2 >() );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p2" << endmsg; 
 		LArCaliWaveTransType* transObj = TPconverter2.createTransient( col_vect.get(), log );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p2 Success !" << endmsg;
@@ -45,7 +45,7 @@ LArCaliWaveContainerCnv::createTransient ()
     }    
 	else if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< LArCaliWaveSubset_p1 > col_vect( poolReadObject< LArCaliWaveSubset_p1 >() );
+        std::unique_ptr< LArCaliWaveSubset_p1 > col_vect( poolReadObject< LArCaliWaveSubset_p1 >() );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p1" << endmsg; 
 		LArCaliWaveTransType* transObj = TPconverter1.createTransient( col_vect.get(), log );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p1 Success !" << endmsg;
@@ -55,7 +55,7 @@ LArCaliWaveContainerCnv::createTransient ()
         MsgStream log(msgSvc(), "LArCaliWaveContainerCnv" ); 
         log << MSG::DEBUG << " READING LArCaliWaveSubset (before TP split)" << endmsg; 
 
-        std::auto_ptr< LArConditionsSubset<LArCaliWaveVec> > subset ( poolReadObject< LArConditionsSubset<LArCaliWaveVec> >() );
+        std::unique_ptr< LArConditionsSubset<LArCaliWaveVec> > subset ( poolReadObject< LArConditionsSubset<LArCaliWaveVec> >() );
         
         return (createTransient(subset.get()));
     } 
