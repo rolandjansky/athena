@@ -1999,9 +1999,9 @@ namespace top {
     std::string m_muonIsolationSFLoose;
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
-    bool m_do2StationsHighPt; //to turn on/off the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
+    bool m_do2StationsHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
     bool m_doExtraSmearing; //to turn on/off a special correction for the muon with high momenta.
-    bool m_do2StationsHighPtLoose; //to turn on/off the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP (Loose muons)
+    bool m_do2StationsHighPtLoose; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP (Loose muons)
     bool m_doExtraSmearingLoose; //to turn on/off a special correction for the muon with high momenta (Loose muons)
 
     //Soft muon configuration
