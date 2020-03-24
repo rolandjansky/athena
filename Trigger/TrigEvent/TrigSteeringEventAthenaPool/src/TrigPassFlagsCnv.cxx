@@ -33,7 +33,7 @@ TrigPassFlags* TrigPassFlagsCnv::createTransient() {
 
     if( compareClassGuid(p1_guid) ) {
 
-      std::auto_ptr< TrigPassFlags_p1 > col_vect( poolReadObject< TrigPassFlags_p1 >() );
+      std::unique_ptr< TrigPassFlags_p1 > col_vect( poolReadObject< TrigPassFlags_p1 >() );
       TrigPassFlagsCnv_p1 converter;
       return converter.createTransient( col_vect.get(), mlog );
 

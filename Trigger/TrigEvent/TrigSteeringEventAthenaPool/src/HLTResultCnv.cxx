@@ -42,7 +42,7 @@ HLT::HLTResult* HLTResultCnv::createTransient()
   if ( compareClassGuid(p1_guid) ) {
     mlog << MSG::DEBUG << "HLTResult::reading p1 persistent object" << endmsg;
     // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< HLT::HLTResult_p1 > col_vect( poolReadObject< HLT::HLTResult_p1 >() );
+    std::unique_ptr< HLT::HLTResult_p1 > col_vect( poolReadObject< HLT::HLTResult_p1 >() );
     return m_TPConverter->createTransient( col_vect.get(), mlog );
   }
   

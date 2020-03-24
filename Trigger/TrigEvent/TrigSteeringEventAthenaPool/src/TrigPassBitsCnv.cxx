@@ -32,7 +32,7 @@ TrigPassBits* TrigPassBitsCnv::createTransient() {
 
     if( compareClassGuid(p1_guid) ) {
 
-      std::auto_ptr< TrigPassBits_p1 > col_vect( poolReadObject< TrigPassBits_p1 >() );
+      std::unique_ptr< TrigPassBits_p1 > col_vect( poolReadObject< TrigPassBits_p1 >() );
       TrigPassBitsCnv_p1 converter;
       return converter.createTransient( col_vect.get(), mlog );
 
