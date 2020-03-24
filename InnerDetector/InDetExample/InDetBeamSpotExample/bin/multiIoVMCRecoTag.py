@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from InDetBeamSpotExample.COOLUtils import *
 from InDetBeamSpotExample.BeamSpotData import *
@@ -57,12 +59,12 @@ tagdict = {
     }
 
 
-tags   = [tagdict[key] for key in sorted(tagdict.iterkeys())]
-runmin = [rl for (rl,ru) in sorted(tagdict.iterkeys())]
-runmax = [ru for (rl,ru) in sorted(tagdict.iterkeys())]
+tags   = [tagdict[key] for key in sorted(tagdict.keys())]
+runmin = [rl for (rl,ru) in sorted(tagdict.keys())]
+runmax = [ru for (rl,ru) in sorted(tagdict.keys())]
 
-for (rl,ru) in sorted(tagdict.iterkeys(),reverse=True):
-    print "| !%s | [%s,0] - [%s,0) |" % (tagdict[(rl,ru)], rl, ru)
+for (rl,ru) in sorted(tagdict.keys(),reverse=True):
+    print ("| !%s | [%s,0] - [%s,0) |" % (tagdict[(rl,ru)], rl, ru))
 
 assert(len(runmin) == len(runmax) == len(tags))
 nTag = len(tags)
@@ -106,4 +108,4 @@ for i in range(nTag):
            
 
     if totN > 1:
-        print "WARNING: tag had more than one IOV"
+        print ("WARNING: tag had more than one IOV")
