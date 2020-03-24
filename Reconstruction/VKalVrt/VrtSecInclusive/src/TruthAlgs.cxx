@@ -101,7 +101,7 @@ namespace VKalVrtAthena {
       Vpos.setY( vtx->y() );
       Vpos.setZ( vtx->z() );
 
-      double Distr=std::sqrt( std::pow(PrimVrt.x()-Vpos.x(),2)+std::pow(PrimVrt.y()-Vpos.y(),2)+std::pow(PrimVrt.z()-Vpos.z()));
+      double Distr=std::sqrt( std::pow(PrimVrt.x()-Vpos.x(),2)+std::pow(PrimVrt.y()-Vpos.y(),2)+std::pow(PrimVrt.z()-Vpos.z(),2));
       if(Distr<0.01 ) continue; // skip if this vertex is at the PV
       
       // if in the future, I require a cut on the SiHits or BLayerHits

@@ -100,7 +100,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
         continue;
       }
 
-      HepMC::FourVector tv = (*record).GetPosition();
+      CLHEP::Hep3Vector tv = (*record).GetPosition();
       prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
       globalPos = prodVertexVector;
 
@@ -171,7 +171,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
         continue;
       }
 
-      HepMC::FourVector tv = (*record).GetPosition();
+      CLHEP::Hep3Vector  tv = (*record).GetPosition();
       prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
       globalPos = prodVertexVector;
 
