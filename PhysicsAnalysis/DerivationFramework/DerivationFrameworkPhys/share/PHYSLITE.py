@@ -216,6 +216,10 @@ replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
 
+# Add large-R jet truth labeling
+if (DerivationFrameworkIsMonteCarlo):
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+
 # q/g discrimination
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
 
