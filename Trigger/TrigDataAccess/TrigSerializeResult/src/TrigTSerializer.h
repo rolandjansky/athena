@@ -83,7 +83,7 @@ private:
   //static   bool       m_reportError;
   uint32_t  m_IgnoreErrLvl;
   std::map<std::string, uint32_t>   m_errCount;
-  
+  TList *m_streamersList;
 };
 
 #undef REFLEX_NS

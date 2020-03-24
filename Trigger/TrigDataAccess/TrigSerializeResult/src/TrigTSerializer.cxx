@@ -258,7 +258,7 @@ StatusCode TrigTSerializer::finalize(){
   }
   if (!reported)
     ATH_MSG_INFO( name() << " no problems encountered" );
-
+  delete m_streamersList;
   return StatusCode::SUCCESS;
 }
 
@@ -268,8 +268,8 @@ void TrigTSerializer::add_previous_streamerinfos(){
   std::string extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
   ATH_MSG_DEBUG( "Using " << extFile );
   TFile f(extFile.c_str());
-  TList *a = f.GetStreamerInfoList();
-  TIter nextinfo(a);
+  m_streamersList = f.GetStreamerInfoList();
+  TIter nextinfo(m_streamersList);
   while (TObject* obj = nextinfo()) {
     TStreamerInfo *inf = dynamic_cast<TStreamerInfo*> (obj);
     if (!inf) continue;
@@ -287,6 +287,7 @@ void TrigTSerializer::add_previous_streamerinfos(){
       ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
                      << " checksum: " << inf->GetCheckSum()  );
   }
+  f.Close();
 }
 
 
