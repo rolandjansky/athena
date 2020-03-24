@@ -32,6 +32,7 @@ LArCollisionTimeMonAlg::LArCollisionTimeMonAlg( const std::string& name, ISvcLoc
   : AthMonitorAlgorithm(name,pSvcLocator)
   , m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
 {
+   declareProperty("BunchCrossingTool",m_bunchCrossingTool);
 }
 
 /*---------------------------------------------------------*/
