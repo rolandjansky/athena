@@ -24,7 +24,7 @@ namespace top {
       kLeptonType = kParameters.substr(0, kParameters.find(" "));
       kCustomParameters = kParameters.substr(kParameters.find(" ") + 1);
     } else kLeptonType = kParameters;
-    m_name = kLeptonType + "_" + kSelectionName;
+    m_name = "RECO::KLFitterRun_" + kLeptonType;
     m_myFitter = std::unique_ptr<top::KLFitterTool> (new top::KLFitterTool(m_name));
     top::check(m_myFitter->setProperty("config", config), "Failed to setProperty of KLFitterTool");
     top::check(m_myFitter->setProperty("LeptonType", kLeptonType), "Failed to setProperty of KLFitterTool");
