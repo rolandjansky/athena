@@ -18,7 +18,6 @@
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -56,10 +55,6 @@ namespace Muon
 
     protected:
       virtual SetupSTGC_PrepDataContainerStatus setupSTGC_PrepDataContainer() override;
-
-    private:
-      /// This is the key for the cache for the sTGC PRD containers, can be empty
-      SG::UpdateHandleKey<sTgcPrepDataCollection_Cache> m_prdContainerCacheKey ;
    }; 
 } // end of namespace
 

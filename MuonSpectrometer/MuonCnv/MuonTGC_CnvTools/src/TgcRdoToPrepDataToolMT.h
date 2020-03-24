@@ -9,21 +9,10 @@
 #define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLMT_H
 
 #include "TgcRdoToPrepDataToolCore.h"
-#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
-#include "MuonTrigCoinData/MuonTrigCoinData_Cache.h"
 
-#include "StoreGate/HandleKeyArray.h"
-#include "StoreGate/UpdateHandleKey.h"
-#include "StoreGate/UpdateHandle.h"
 
 namespace Muon 
 {
-
-  // Typedef the two update handle arrays that can be used to match handle key functionality used in Core
-  // Requested to not use StoreGate template for UpdateHandleKeyArray
-  typedef SG::HandleKeyArray<SG::UpdateHandle<TgcPrepDataCollection_Cache>, SG::UpdateHandleKey<TgcPrepDataCollection_Cache>, Gaudi::DataHandle::Reader > TgcPrdUpdateHandles;
-  typedef SG::HandleKeyArray<SG::UpdateHandle<TgcCoinDataCollection_Cache>, SG::UpdateHandleKey<TgcCoinDataCollection_Cache>, Gaudi::DataHandle::Reader > TgcCoinUpdateHandles;
-
   /** @class TgcRdoToPrepDataToolMT 
    *  This is the algorithm that convert TGCRdo To TGCPrepdata as a tool.
    * 
@@ -49,16 +38,6 @@ namespace Muon
     
       using TgcRdoToPrepDataToolCore::decode; // To prevent the decode below from hiding the superclass decode methods
       virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
-
-    private:
-      /// This is the key for the cache for the TGC PRD containers, can be empty
-      TgcPrdUpdateHandles m_prdContainerCacheKeys ;
-      TgcCoinUpdateHandles m_coinContainerCacheKeys ;
-      // TgcPrepRawData container key for current BC 
-      std::string m_prdContainerCacheKeyStr;   
-      // TgcCoinData container key for current BC 
-      std::string m_coinContainerCacheKeyStr;
-
    }; 
 } // end of namespace
 
