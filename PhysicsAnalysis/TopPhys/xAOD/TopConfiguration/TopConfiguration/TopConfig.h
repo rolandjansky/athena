@@ -503,6 +503,9 @@ namespace top {
       }
     }
 
+    inline const float& jetResponseMatchingDeltaR() const {return m_jetResponseMatchingDeltaR;}
+    inline void setJetResponseMatchingDeltaR(const float value) {m_jetResponseMatchingDeltaR = value;}
+
     inline const std::string& sgKeyEventInfo()  const {return m_sgKeyEventInfo;}
     inline const std::string& sgKeyPrimaryVertices() const {return m_sgKeyPrimaryVertices;}
     inline virtual const std::string& sgKeyPhotons()    const {return m_sgKeyPhotons;}
@@ -1921,6 +1924,8 @@ namespace top {
     std::string m_decoKeyJetGhostTrack;
     std::vector<std::string> m_jetGhostTrackSystematics;
     std::vector<std::uint32_t> m_jetGhostTrackRunPeriods;
+
+    float m_jetResponseMatchingDeltaR;
 
     // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
     bool m_dumpBtagSystsInSystTrees;

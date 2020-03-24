@@ -237,7 +237,7 @@ namespace top {
     // add the merged set of systematics for large-R jets including the tagging SF systs
     addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, largeR, true);
 
-    ///-- Large R jet substructure --///
+    ///-- Large R sjet substructure --///
     if (m_config->jetSubstructureName() == "Trimmer") m_jetSubstructure.reset(new top::LargeJetTrimmer);
 
     if (m_config->jetSubstructureName() == "SubjetMaker") m_jetSubstructure.reset(new top::SubjetMaker);
@@ -309,6 +309,9 @@ namespace top {
         top::check(
           decorateHSJets(),
           "Failed to decorate jets with truth info of which are HS - this is needed for JVT scale-factors!");
+        if (m_isMC && m_config->jetResponseMatchingDeltaR() > 0) {
+          top::check(decorateMatchedTruth(), "Failed to decorate matched jet");
+        }
       }
 
       // Decorate the DL1 variable
@@ -604,6 +607,7 @@ namespace top {
 
     top::check(decorateDL1(true), "Failed to decorate track jets with DL1 b-tagging discriminant");
 
+
     ///-- Just make a shallow copy to keep these in line with everything else --///
 
     const xAOD::JetContainer* xaod(nullptr);
@@ -765,6 +769,52 @@ namespace top {
         if (tjet->p4().DeltaR(jet->p4()) < 0.3 && tjet->pt() > 10e3) ishs = true;
       }
       isHS(*jet) = ishs;
+    }
+
+    return StatusCode::SUCCESS;
+  }
+  
+  StatusCode JetObjectCollectionMaker::decorateMatchedTruth() {
+    static SG::AuxElement::Decorator<float> matchedPt("AnalysisTop_MatchedTruthJetPt");
+    // retrieve small-R jets collection
+    const xAOD::JetContainer* jets(nullptr);
+
+    top::check(evtStore()->retrieve(jets,
+                                    m_config->sgKeyJets()),
+               "Failed to retrieve small-R jet collection" + m_config->sgKeyJets());
+
+    const xAOD::JetContainer* truthJets = nullptr;
+    top::check(asg::AsgTool::evtStore()->retrieve(truthJets, m_config->sgKeyTruthJets()), "Failed to retrieve the truth jets");
+
+    const xAOD::Jet* matchedTruthJet = nullptr;
+    double deltaR(9999);
+    
+    for (const auto& jet : *jets) {
+      // loop over truth jets
+      for (const auto& iTruthJet : *truthJets) {
+        TLorentzVector truthJetTLV;
+        truthJetTLV.SetPtEtaPhiE(iTruthJet->pt(),iTruthJet->eta(),iTruthJet->phi(),iTruthJet->e());
+
+        // do the matching
+        if(!matchedTruthJet) {
+          matchedTruthJet = iTruthJet;
+        } else {
+          const double newdR = jet->p4().DeltaR(iTruthJet->p4());
+          if(newdR < deltaR) {
+            deltaR = newdR;
+            matchedTruthJet = iTruthJet;
+          }
+        }
+      }
+      if (deltaR > 0.3) {
+        matchedPt(*jet) = -9999;
+        continue;
+      }
+      if (!matchedTruthJet) {
+        matchedPt(*jet) = -9999;
+        continue;
+      }
+      matchedPt(*jet) = matchedTruthJet->pt(); 
     }
 
     return StatusCode::SUCCESS;

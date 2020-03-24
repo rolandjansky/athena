@@ -163,6 +163,7 @@ namespace top {
 
     StatusCode decorateBJets(xAOD::Jet& jet);
     StatusCode decorateHSJets();
+    StatusCode decorateMatchedTruth();
     StatusCode tagLargeRJet(const xAOD::Jet& jet);
     StatusCode tagNominalLargeRJets();
 
