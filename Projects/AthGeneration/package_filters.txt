@@ -154,6 +154,7 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 #+ PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
 + PhysicsAnalysis/PATJobTransforms
++ PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/TruthParticleID/McParticleEvent
 + PhysicsAnalysis/TruthParticleID/McParticleKernel
 #+ Projects/AthGeneration
