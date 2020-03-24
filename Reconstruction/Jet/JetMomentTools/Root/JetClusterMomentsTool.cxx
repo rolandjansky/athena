@@ -17,23 +17,16 @@ StatusCode JetClusterMomentsTool::initialize(){
     return StatusCode::FAILURE;
   }
 
-  // Initialize whichever DecorHandleKeys we're configured for
-  if(!m_clsPtKey.empty()){
-    m_clsPtKey = m_jetContainerName + "." + m_clsPtKey.key();
-    ATH_CHECK(m_clsPtKey.initialize());
-  }
-  if(!m_clsSecondLambdaKey.empty()){
-    m_clsSecondLambdaKey = m_jetContainerName + "." + m_clsSecondLambdaKey.key();
-    ATH_CHECK(m_clsSecondLambdaKey.initialize());
-  }
-  if(!m_clsCenterLambdaKey.empty()){
-    m_clsCenterLambdaKey = m_jetContainerName + "." + m_clsCenterLambdaKey.key();
-    ATH_CHECK(m_clsCenterLambdaKey.initialize());
-  }
-  if(!m_clsSecondRKey.empty()){
-    m_clsSecondRKey = m_jetContainerName + "." + m_clsSecondRKey.key();
-    ATH_CHECK(m_clsSecondRKey.initialize());
-  }
+  if(!m_clsPtKey.empty())           m_clsPtKey           = m_jetContainerName + "." + m_clsPtKey.key();
+  if(!m_clsSecondLambdaKey.empty()) m_clsSecondLambdaKey = m_jetContainerName + "." + m_clsSecondLambdaKey.key();
+  if(!m_clsCenterLambdaKey.empty()) m_clsCenterLambdaKey = m_jetContainerName + "." + m_clsCenterLambdaKey.key();
+  if(!m_clsSecondRKey.empty())      m_clsSecondRKey      = m_jetContainerName + "." + m_clsSecondRKey.key();
+
+  ATH_CHECK(m_clsPtKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_clsSecondLambdaKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_clsCenterLambdaKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_clsSecondRKey.initialize(SG::AllowEmpty));
+  
   return StatusCode::SUCCESS;
 }
 

@@ -113,16 +113,15 @@ StatusCode JetBadChanCorrTool::initialize()
   ATH_CHECK(m_badCellMap_key.initialize());
 
   m_corrCellKey = m_jetContainerName + "." + m_corrCellKey.key();
-  ATH_CHECK(m_corrCellKey.initialize());
+  m_corrDotxKey       = m_jetContainerName + "." + m_corrDotxKey.key();
+  m_corrJetKey        = m_jetContainerName + "." + m_corrJetKey.key();
+  m_corrJetForCellKey = m_jetContainerName + "." + m_corrJetForCellKey.key();
 
-  if (!m_useClusters){
-    m_corrDotxKey       = m_jetContainerName + "." + m_corrDotxKey.key();
-    m_corrJetKey        = m_jetContainerName + "." + m_corrJetKey.key();
-    m_corrJetForCellKey = m_jetContainerName + "." + m_corrJetForCellKey.key();
-    ATH_CHECK(m_corrDotxKey.initialize());
-    ATH_CHECK(m_corrJetKey.initialize());
-    ATH_CHECK(m_corrJetForCellKey.initialize());
-  }
+  ATH_CHECK(m_corrCellKey.initialize());
+  // These 3 aren't used if we're configured to use clusters
+  ATH_CHECK(m_corrDotxKey.initialize(!m_useClusters));
+  ATH_CHECK(m_corrJetKey.initialize(!m_useClusters));
+  ATH_CHECK(m_corrJetForCellKey.initialize(!m_useClusters));
 
   return StatusCode::SUCCESS;
 }

@@ -51,11 +51,9 @@ StatusCode JetTrackMomentsTool::initialize() {
   ATH_CHECK(m_keysNumTrk.initialize());
   ATH_CHECK(m_keysSumPtTrk.initialize());
   ATH_CHECK(m_keysTrkWidth.initialize());
-  if(m_doPFlowMoments){
-    ATH_CHECK(m_keysNumCPFO.initialize());
-    ATH_CHECK(m_keysSumPtCPFO.initialize());
-    ATH_CHECK(m_keysCPFOWidth.initialize());
-  }
+  ATH_CHECK(m_keysNumCPFO.initialize(m_doPFlowMoments));
+  ATH_CHECK(m_keysSumPtCPFO.initialize(m_doPFlowMoments));
+  ATH_CHECK(m_keysCPFOWidth.initialize(m_doPFlowMoments));
 
   return StatusCode::SUCCESS;
 }
