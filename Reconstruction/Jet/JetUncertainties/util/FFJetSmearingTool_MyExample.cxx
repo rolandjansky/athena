@@ -52,8 +52,6 @@
 //My includes
 #include "JetUncertainties/FFJetSmearingTool.h"
 
-
-
 // Error checking macro
 #define CHECK( ARG )                                 \
   do {                                               \
@@ -376,6 +374,7 @@ int numBinsDiff = 100;
   //if(nevents>10000){nevents = 10000; }
 
 
+
   for(Long64_t ievent = 0;  ievent < nevents; ++ievent){
 
      // Load the event:
@@ -509,14 +508,12 @@ if(want_to_debug==true){
                 Info(APP_NAME,"NEW TA jet mass = %g", jet_reco_TA->m() );
 }
 
-// jetCalibrationTool.getNormalizedCaloMassWeight(jet_reco);
 
 		delete jet_reco_Comb;
 		delete jet_reco_CALO;
 //		delete jet_reco_TA;
 
 //------------------------------------------------------------------------------------------------------------------------------------------//
-
 
 
 
