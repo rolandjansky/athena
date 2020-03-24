@@ -87,6 +87,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 
   // Ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs
   std::vector<const ROBFragment*> vecROBFrags;
+  std::vector<IdentifierHash> hashIDs;
   if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
     m_cabling->getAllRods(rodList, ctx);
@@ -104,6 +105,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
       superRoI.push_back(roi);
     }
     m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfROBs);
+    m_regionSelector->DetHashIDList(SCT, superRoI, hashIDs);
     m_robDataProvider->getROBData(listOfROBs, vecROBFrags);
   }
 
@@ -143,6 +145,16 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   }
   else {
     rdoInterface = static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
+  }
+  int missingCount{};
+  for ( IdentifierHash hash: hashIDs ) {
+    const bool added = rdoInterface->tryAddFromCache( hash );
+    if ( added == false )
+      missingCount++;
+  }
+  ATH_MSG_DEBUG("Out of: " << hashIDs.size() << "Hash IDs missing: " << missingCount );
+  if ( missingCount == 0 ) {
+    return StatusCode::SUCCESS;
   }
 
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
