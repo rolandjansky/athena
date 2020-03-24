@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 #################################################################
@@ -6,8 +6,14 @@
 #    Authors: Jike Wang      (jike.wang@cern.ch)
 #################################################################
 
-import os, types 
-import commands
+from __future__ import print_function
+
+import os, types
+import sys
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 class ConfiguredIDAlignDatasets:
@@ -29,7 +35,7 @@ class ConfiguredIDAlignDatasets:
 		if self.__datasetType.find("900GeV") != -1 :
 
 			if len(self.__DatasetsOptions["CollisionRunList"]) != len(self.__DatasetsOptions["CollisionRecoTag"]) : 
-				print "Hi, the RunList and the RecoTagList length are not equal!!!"
+				print ("Hi, the RunList and the RecoTagList length are not equal!!!")
 				sys.exit()
 
 			if "Nominal" == geometrySetting :
@@ -41,7 +47,7 @@ class ConfiguredIDAlignDatasets:
 		if self.__datasetType.find("7TeV") != -1 :
 
 			if len(self.__DatasetsOptions["CollisionRunList"]) != len(self.__DatasetsOptions["CollisionRecoTag"]) :
-				print "Hi, the RunList and the RecoTagList length are not equal!!!"
+				print ("Hi, the RunList and the RecoTagList length are not equal!!!")
 				sys.exit()
 
 			if 'Nominal' == geometrySetting :
@@ -130,7 +136,7 @@ class ConfiguredIDAlignDatasets:
 				datasetName = "data10_7TeV.%08d.physics_MinBias.recon.ESD.%s"   % ( int(self.__DatasetsOptions["CollisionRunList"][0]), self.__DatasetsOptions["CollisionRecoTag"][0] )
 
 		#elif ("CosmicBon" == topology) :
-		status, oneFileName = commands.getstatusoutput(" dq2-ls -f %s | tail -n 6 | head -n 1 |  cut -f2 " % datasetName)
+		status, oneFileName = subprocess.getstatusoutput(" dq2-ls -f %s | tail -n 6 | head -n 1 |  cut -f2 " % datasetName)
 		return oneFileName
 
 
@@ -140,7 +146,7 @@ class ConfiguredIDAlignDatasets:
 		num    = 0
 		nFiles = []
 
-		print self.__datasetType
+		print (self.__datasetType)
 
 		if (self.__datasetType.find("mc09") != -1) or (self.__datasetType.find("MC09") != -1) :
 			datasetName = "mc09_valid.107271.Multimuons_pt9.recon.ESD.e436_s561_r731"
@@ -151,22 +157,22 @@ class ConfiguredIDAlignDatasets:
 			os.system('touch tmp_dataset_NFile.txt')
 
 			for i in range(len(self.__DatasetsOptions["CustomedDatasetsNameList"])) :
-				#print i
+				#print (i)
 				datasetName = self.__DatasetsOptions["CustomedDatasetsNameList"][i]
 				# protection be here? if the dataset name is not exist, should warn ! 
 				os.system('dq2-ls -f %s | grep -i files | grep -i total | cut -c 13- >> tmp_dataset_NFile.txt ' % datasetName )
-				print "datasetName: " , datasetName    
+				print ("datasetName: " , datasetName    )
 
 			inputfiles = open(("tmp_dataset_NFile.txt"), "r")
 
-			#print inputfiles 
+			#print (inputfiles )
 			for line in inputfiles :
-				#print " line: " , line
+				#print (" line: " , line)
 				if int(line) < 0 :
-					print "Hi guys, very weird the files number of this customed dataset is not integer or negetive!!! "
+					print ("Hi guys, very weird the files number of this customed dataset is not integer or negetive!!! ")
 					sys.exit()
 				else :
-					print "Hi guys, the files number of this customed dataset is: " , line
+					print ("Hi guys, the files number of this customed dataset is: " , line)
 					nFiles.append(int(line))
 					num += int(line)
 
@@ -189,16 +195,16 @@ class ConfiguredIDAlignDatasets:
 				if self.stream() == "MinBias" and self.containType("7TeV") :
 					datasetName = "data10_7TeV.%08d.physics_MinBias.recon.ESD.%s"   % (run,tag)
 
-				print "Hi guys, the full name of this run is: ", datasetName
+				print ("Hi guys, the full name of this run is: ", datasetName)
 				os.system('dq2-ls -f %s | grep -i files | grep -i total | cut -c 13- >> tmp_dataset_NFile.txt ' % datasetName)
 
 			inputfiles = open(("tmp_dataset_NFile.txt"), "r")
 			for line in inputfiles :
 				if int(line) < 0 : 
-					print "Hi guys, very weird the files number of this run is not integer or negetive!!! "
+					print ("Hi guys, very weird the files number of this run is not integer or negative!!! ")
 					sys.exit()
 				else:	
-					print "Hi guys, the files number of this run is: " , line
+					print ("Hi guys, the files number of this run is: " , line)
 					num += int(line)
 
 		#elif ("CosmicBon" == topology) :
@@ -278,27 +284,27 @@ class ConfiguredIDAlignDatasets:
 
 		geometry_tag  = ""
 		condition_tag = ""
-		a, line1 = commands.getstatusoutput("dump-athfile.py ami://%s | grep geometry "   % datasetName )
-		print "dumping geometry version of %s from AMI ... "  % datasetName
-		print  line1
+		a, line1 = subprocess.getstatusoutput("dump-athfile.py ami://%s | grep geometry "   % datasetName )
+		print ("dumping geometry version of %s from AMI ... "  % datasetName)
+		print ( line1)
 		item1 = line1.split()
-		#print " item1 : " , item1		
+		#print (" item1 : " , item1		)
 		if "None" != item1[-1] :
 			geometry_tag = item1[-1]
-			print "geometry_tag retrieved from AMI: " ,  geometry_tag
+			print ("geometry_tag retrieved from AMI: " ,  geometry_tag)
 		else :
-			print "Hmn, seems can't retrieve the geometry tag information for dataset  %s "    % datasetName
+			print ("Hmn, seems can't retrieve the geometry tag information for dataset  %s "    % datasetName)
 
-		a, line2 = commands.getstatusoutput("dump-athfile.py ami://%s | grep conditions " % datasetName )
-		print "dumping condition tag version of %s from AMI ... "  % datasetName
-		print  line2
+		a, line2 = subprocess.getstatusoutput("dump-athfile.py ami://%s | grep conditions " % datasetName )
+		print ("dumping condition tag version of %s from AMI ... "  % datasetName)
+		print ( line2)
 		item2 = line2.split()
 		if "None" != item2[-1] :
 			condition_tag = item2[-1]
-			print "condition_tag retrieved from AMI: " , condition_tag
+			print ("condition_tag retrieved from AMI: " , condition_tag)
 
 		else :
-			print "Hmn, seems can't retrieve the conditions tag information for dataset  %s "  % datasetName
+			print ("Hmn, seems can't retrieve the conditions tag information for dataset  %s "  % datasetName)
 		return (geometry_tag,condition_tag)
 
 
@@ -314,20 +320,20 @@ class ConfiguredIDAlignDatasets:
 			for i in range(len(self.__DatasetsOptions["CustomedDatasetsNameList"])):
 
 				(geometry_tag_fromAMI, condition_tag_fromAMI) = self.extraInfoFromAMI(self.__DatasetsOptions["CustomedDatasetsNameList"][i])
-				print "the geometry tag and condition tag from AMI are %s and %s : " %  ( geometry_tag_fromAMI, condition_tag_fromAMI ) 	
+				print ("the geometry tag and condition tag from AMI are %s and %s : " %  ( geometry_tag_fromAMI, condition_tag_fromAMI ) 	)
 
 				if self.__DatasetsOptions["CustomedDatasetsDetDescr"][i]  != "" :    
 					if ( geometry_tag_fromAMI  and geometry_tag_fromAMI  != self.__DatasetsOptions["CustomedDatasetsDetDescr"][i]) :  	
-						print inred("WARNING!!!") + "you are going to change the intrinsic geometry tag of your CustomedDatasets "
+						print (inred("WARNING!!!") + "you are going to change the intrinsic geometry tag of your CustomedDatasets ")
 				else : 
-					print inred("WARNING!!!") + " you have not set the geometry tag for your CustomedDatasets, so set the one from AMI "
+					print (inred("WARNING!!!") + " you have not set the geometry tag for your CustomedDatasets, so set the one from AMI ")
 					self.__DatasetsOptions["CustomedDatasetsDetDescr"][i] = geometry_tag_fromAMI
 
 				if self.__DatasetsOptions["CustomedDatasetsGlobalTag"][i] != "" : 
 					if ( condition_tag_fromAMI and condition_tag_fromAMI != self.__DatasetsOptions["CustomedDatasetsGlobalTag"][i]) :   
-						print inred("WARNING!!!") + "you are going to change the intrinsic condition tag of your CustomedDatasets "
+						print (inred("WARNING!!!") + "you are going to change the intrinsic condition tag of your CustomedDatasets ")
 				else : 																            
-					print inred("WARNING!!!") + " you have not set the condition tag for your CustomedDatasets, so set the one from AMI "
+					print (inred("WARNING!!!") + " you have not set the condition tag for your CustomedDatasets, so set the one from AMI ")
 					self.__DatasetsOptions["CustomedDatasetsGlobalTag"][i] = condition_tag_fromAMI
 
 

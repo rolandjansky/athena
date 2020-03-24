@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONIDHELPERSVC_H
@@ -16,7 +16,7 @@
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 
 #include "Identifier/Identifier.h"
 

@@ -51,14 +51,6 @@ StatusCode MvaTESEvaluator::initReader(std::unique_ptr<MVAUtils::BDT>& reader,
     availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_3p0n_vs_3pXn", &vars.PanTauBDT_3p0n_vs_3pXn) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.nTracks", &vars.nTracks) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.PFOEngRelDiff", &vars.PFOEngRelDiff) );
-    
-    // Spectator variables declared in the training have to be added to the reader, too
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.truthPtVis", &vars.truthPtVis) );
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.pt", &vars.pt) );
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.ptPanTauCellBased", &vars.ptPanTauCellBased) );
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.ptDetectorAxis", &vars.ptDetectorAxis) );
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.truthDecayMode", &vars.truthDecayMode) );
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_DecayMode", &vars.PanTau_DecayMode) );
   }
   else {
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.mu", &vars.mu) );

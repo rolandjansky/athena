@@ -5,10 +5,6 @@
 #include "GeneratorFilters/SusySubprocessFinder.h"
 #include "TruthUtils/PIDHelpers.h"
 
-using HepMC::GenVertex;
-using HepMC::GenParticle;
-
-
 SusySubprocessFinder::SusySubprocessFinder(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name, pSvcLocator)
 {
@@ -146,9 +142,9 @@ void SusySubprocessFinder::findInitialSusy(int ID[], int findmode) {
             int nSusyParents = 0;
             if ( (*pitr)->production_vertex() != NULL ) {
 
-              GenVertex::particle_iterator firstParent =	(*pitr)->production_vertex()->particles_begin(HepMC::parents);
-              GenVertex::particle_iterator endParent = (*pitr)->production_vertex()->particles_end(HepMC::parents);
-              GenVertex::particle_iterator thisParent = firstParent;
+              HepMC::GenVertex::particle_iterator firstParent =	(*pitr)->production_vertex()->particles_begin(HepMC::parents);
+              HepMC::GenVertex::particle_iterator endParent = (*pitr)->production_vertex()->particles_end(HepMC::parents);
+              HepMC::GenVertex::particle_iterator thisParent = firstParent;
 
               for (; thisParent != endParent; ++thisParent){
                 if (isSUSY( (*thisParent)->pdg_id()) ) nSusyParents++;
@@ -552,9 +548,9 @@ void SusySubprocessFinder::verboseMC() {
 
       if ( (*pitr)->end_vertex() != NULL ) {
         particles_out_size = (*pitr)->end_vertex()->particles_out_size();
-        GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-        GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-        GenVertex::particle_iterator thisChild = firstChild;
+        HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
+        HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
+        HepMC::GenVertex::particle_iterator thisChild = firstChild;
         for (; thisChild != endChild; ++thisChild) {
           sprintf(c,"%4i", (*thisChild)->pdg_id());
           childrenT.append(c);
@@ -573,9 +569,9 @@ void SusySubprocessFinder::verboseMC() {
 
         particles_in_size = (*pitr)->production_vertex()->particles_in_size();
 
-        GenVertex::particle_iterator firstParent =	(*pitr)->production_vertex()->particles_begin(HepMC::parents);
-        GenVertex::particle_iterator endParent = (*pitr)->production_vertex()->particles_end(HepMC::parents);
-        GenVertex::particle_iterator thisParent = firstParent;
+        HepMC::GenVertex::particle_iterator firstParent =	(*pitr)->production_vertex()->particles_begin(HepMC::parents);
+        HepMC::GenVertex::particle_iterator endParent = (*pitr)->production_vertex()->particles_end(HepMC::parents);
+        HepMC::GenVertex::particle_iterator thisParent = firstParent;
 
         for (; thisParent != endParent; ++thisParent) {
           sprintf(c,"%4i", (*thisParent)->pdg_id());

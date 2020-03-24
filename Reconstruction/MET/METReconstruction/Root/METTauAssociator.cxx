@@ -109,9 +109,17 @@ namespace met {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     for( ElementLink< xAOD::IParticleContainer > cluster_link : tau->clusterLinks() ){
       const xAOD::IParticle* ipart = *cluster_link;
+      if (ipart->type() == xAOD::Type::ParticleFlow){
+	// If using PFO, get cluster
+        const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(ipart);
+	if (pfo->isCharged()){ continue; }
+	else {
+	  ipart = pfo->cluster(0);
+	}
+      }
       if(ipart->type() != xAOD::Type::CaloCluster) {
     	ATH_MSG_WARNING("Unexpected jet constituent type " << ipart->type() << " received! Skip.");
-    	continue;
+	continue;
       }      
       // Link set in Reconstruction/tauRecTools/src/TauAxisSetter.cxx
       // Internal defaults are m_clusterCone = 0.2, m_doCellCorrection = false, m_doAxisCorrection = True

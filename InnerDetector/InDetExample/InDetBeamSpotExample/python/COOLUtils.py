@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 Miscellaneous utilities related to COOL.
@@ -108,7 +110,7 @@ def writeBeamSpotEntry(folderHandle, tag='nominal',
 #
 def COOLToUnixTime(coolTime):
     if coolTime is not None:
-        return int(coolTime/1000000000L)
+        return int(coolTime/1000000000)
     else:
         return
 
@@ -133,11 +135,11 @@ class COOLQuery:
         self.oracle = useOracle
         self.debug = debug
 
-        print 'open cool db' 
+        print ('open cool db' )
         self.cooldb = AtlCoolLib.indirectOpen(self.tdaqdbname, True, self.oracle, self.debug)
-        print 'open cooltrig db'
+        print ('open cooltrig db')
         self.cooltrigdb = AtlCoolLib.indirectOpen(self.trigdbname, True, self.oracle, self.debug)
-        print 'open cooldcs db'
+        print ('open cooldcs db')
         self.cooldcsdb = AtlCoolLib.indirectOpen(self.dcsdbname, True, self.oracle, self.debug)
          
         self.lbDictCache = {'runnr': None, 'lbDict': None}
@@ -148,7 +150,7 @@ class COOLQuery:
           self.cooltrigdb.closeDatabase()
           self.cooldcsdb.closeDatabase()
         except:
-          print "DB time out -- ignore"
+          print ("DB time out -- ignore")
 
     def getRunStartTime(self,runnr):
         """Get start time of run in Unix time (seconds since epoch)."""
@@ -171,7 +173,7 @@ class COOLQuery:
            /LHC/DCS/FILLSTATE is time-based, so the iov must be specified in
            ns since the epoch, but the argument to getLHCInfo is s since the
            epoch for convenience."""
-        t = timeSinceEpochInSec*1000000000L
+        t = timeSinceEpochInSec*1000000000
         lhcfolder = self.cooldcsdb.getFolder(self.coollhcpath)
         itr = lhcfolder.browseObjects(t,t,cool.ChannelSelection.all())
         try:
@@ -185,7 +187,7 @@ class COOLQuery:
                 try:
                     info[k] = obj.payload()[k]
                 except:
-                    print 'WARNING: Cannot find value for',k
+                    print ('WARNING: Cannot find value for',k)
             return info
         except:
             return None
@@ -231,7 +233,7 @@ class COOLQuery:
            times of individual LBs."""
         runnr = int(runnr)
         if self.lbDictCache['runnr']!=runnr:
-            # print 'Caching lbDict for run',runnr
+            # print ('Caching lbDict for run',runnr)
             self.lbDictCache['lbDict'] = self.getLbTimes(runnr)
             self.lbDictCache['runnr'] = runnr
         return self.lbDictCache['lbDict'].get(lbnr,None)
@@ -297,10 +299,10 @@ def resolveBLKTag(blktag, db = 'COOLOFL_INDET/CONDBR2', folder = '/Indet/Beampos
 # Test code for modules
 if __name__ == '__main__':
     c = COOLQuery()
-    print time.strftime('%c', time.gmtime(c.getRunStartTime(142191)))   # in UTC
-    print time.strftime('%c', time.gmtime(c.getRunStartTime(142193)))   # in UTC
-    print time.strftime('%c', time.gmtime(c.getRunEndTime(142193)))
+    print (time.strftime('%c', time.gmtime(c.getRunStartTime(142191)))) # in UTC
+    print (time.strftime('%c', time.gmtime(c.getRunStartTime(142193)))) # in UTC
+    print (time.strftime('%c', time.gmtime(c.getRunEndTime(142193))))
     lbDict = c.getLbTimes(142193)
     for l in lbDict.keys():
-        print l,time.ctime(lbDict[l][0]),'-',time.ctime(lbDict[l][1])   # in local time zone
+        print (l,time.ctime(lbDict[l][0]),'-',time.ctime(lbDict[l][1]))   # in local time zone
 

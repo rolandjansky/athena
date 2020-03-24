@@ -35,6 +35,11 @@ StatusCode TrigSignatureMoniMT::start() {
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
   bool gotL1Menu =  l1MenuHandle.isValid();
 
+  // reset the state
+  m_groupToChainMap.clear();
+  m_streamToChainMap.clear();
+  m_chainIDToBunchMap.clear();
+
   //retrieve chain information from menus
   std::vector<std::string> bcidChainNames;
   for ( const TrigConf::Chain& chain: *hltMenuHandle ){

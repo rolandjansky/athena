@@ -181,7 +181,8 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
 
 def ExtrapolateMuonToIPToolCfg(flags, name="ExtrapolateMuonToIPTool", **kwargs):
     #FIXME complete this configuration
-    result = ComponentAccumulator()
+    result = MuonCombinedTrackSummaryToolCfg(flags)
+    kwargs.setdefault("TrackSummaryTool", result.popPrivateTools() )
     result.setPrivateTools(CompFactory.ExtrapolateMuonToIPTool(name,**kwargs))
     return result
 
@@ -189,10 +190,11 @@ def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
     result = CombinedMuonTrackBuilderCfg(flags)
     kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
-    acc = ExtrapolateMuonToIPToolCfg(flags)
-    extrapolator = acc.popPrivateTools()
-    result.addPublicTool(extrapolator)
-    kwargs.setdefault("TrackExtrapolationTool", extrapolator )
+    if flags.Beam.Type=="cosmics":
+        acc = ExtrapolateMuonToIPToolCfg(flags)
+        extrapolator = acc.popPrivateTools()
+        result.addPublicTool(extrapolator)
+        kwargs.setdefault("TrackExtrapolationTool", extrapolator )
     result.merge(acc)
 
     acc = MuonAmbiProcessorCfg(flags)

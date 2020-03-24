@@ -137,7 +137,7 @@ if readPool :
     # set this to the file containing AlignableTransform objects
     ServiceMgr.CondProxyProvider.InputCollections += inputCollections
     ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
-    print ServiceMgr.CondProxyProvider
+    printfunc (ServiceMgr.CondProxyProvider)
 
     # this preload causes callbacks for read in objects to be activated,
     # allowing GeoModel to pick up the transforms
@@ -182,8 +182,8 @@ if doSilicon:
 
     topSequence += InDetAlignWrt
 
-    print InDetAlignWrt
-    print InDetDBTool
+    printfunc (InDetAlignWrt)
+    printfunc (InDetDBTool)
 
 if doTRT:
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_AlignDbSvc
@@ -206,7 +206,7 @@ if doTRT:
     if readTextFile :
         TRTStrawAlign.InputFile=textFileInTRT
     topSequence+=TRTStrawAlign
-    print TRTStrawAlign
+    printfunc (TRTStrawAlign)
 
 if writeDB:
     objectList = []

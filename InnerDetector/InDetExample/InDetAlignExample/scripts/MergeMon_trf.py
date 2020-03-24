@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################
 ##
@@ -16,7 +16,13 @@
 ##
 ##########################################################################
 
-import sys, string, commands, os.path, os, pickle, time, pprint, xmlrpclib
+from __future__ import print_function
+
+import sys, string, os.path, os, pickle, time, pprint, xmlrpclib
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 #########################################################################
 
@@ -41,17 +47,17 @@ def runAthena(picklefile) :
 
   t0 = time.time()
   
-  print "\n##################################################################"
-  print   "##             ATLAS Tier-0 Alignment Processing                ##"
-  print   "##################################################################\n"
+  print ("\n##################################################################")
+  print (  "##             ATLAS Tier-0 Alignment Processing                ##")
+  print (  "##################################################################\n")
 
   # extract parameters from pickle file
-  print "Using pickled file ", picklefile, " for input parameters"
-  f = open(picklefile, 'r')
+  print ("Using pickled file ", picklefile, " for input parameters")
+  f = open(picklefile, 'rb')
   parmap = pickle.load(f)
   f.close()
 
-  print "\nFull Tier-0 run options:\n"
+  print ("\nFull Tier-0 run options:\n")
   pprint.pprint(parmap)
 
   inputfilelist = parmap.get('inputMonitoringFiles', [])
@@ -87,7 +93,7 @@ def runAthena(picklefile) :
     
     
     # assemble jobOptions fragment
-    (s,o) = commands.getstatusoutput('rm -f filelist')
+    (s,o) = subprocess.getstatusoutput('rm -f filelist')
     fileList = open('filelist.txt', 'w')
     for name in inflist:
     	fileList.write(name+'\n')
@@ -98,16 +104,16 @@ def runAthena(picklefile) :
     # run athena
     cmd = "DQHistogramMerge.py filelist.txt %s True" % outputmonFile
 	
-    print "\nRun command:"
-    print cmd
-    print "\nLogfile:"
-    print "------------------------------------------------------------------"
+    print ("\nRun command:")
+    print (cmd)
+    print ("\nLogfile:")
+    print ("------------------------------------------------------------------")
     retcode = os.system(cmd)
-    print "------------------------------------------------------------------"
+    print ("------------------------------------------------------------------")
     dt = int(time.time() - t0)
 
-    print "\n## DQHistogramMerge.py finished with retcode = %s" % retcode
-    print   "## ... elapsed time: ", dt, " sec"
+    print ("\n## DQHistogramMerge.py finished with retcode = %s" % retcode)
+    print (  "## ... elapsed time: ", dt, " sec")
 
     # assemble report pickle file
     outfiles = []
@@ -122,7 +128,7 @@ def runAthena(picklefile) :
       fmap = getFileMap(outfile, outdsname, nevts=nevts)
       outfiles = [fmap]
     if retcode != 0 :
-      print "ERROR: DQHistogramMerge execution problem!"
+      print ("ERROR: DQHistogramMerge execution problem!")
       acronym = 'TRF_PYTHON_EXE'
       txt = "DQHistogramMerge.py execution problem"
 
@@ -136,13 +142,13 @@ def runAthena(picklefile) :
              }
   
   # pickle report map
-  f = open('jobReport.gpickle', 'w')
+  f = open('jobReport.gpickle', 'wb')
   pickle.dump(outmap, f)
   f.close()
 
-  print "\n##################################################################"
-  print   "## End of job."
-  print   "##################################################################\n"
+  print ("\n##################################################################")
+  print (  "## End of job.")
+  print (  "##################################################################\n")
 
 
 ########################################
@@ -152,13 +158,13 @@ def runAthena(picklefile) :
 if __name__ == "__main__":
 
   if (len(sys.argv) != 2) and (not sys.argv[1].startswith('--argdict=')) :
-    print "Input format wrong --- use "
-    print "   --argdict=<pickled-dictionary containing input info> "
-    print "   with key/value pairs: "
-    print "     1) 'inputFiles': python list "
-    print "          ['datasetname#filename1','datasetname#filename2',...] (input dataset + file names) "
-    print "     2) 'outputFile': string 'datasetname#filename' "
-    print "        (merged output dataset name + file) "
+    print ("Input format wrong --- use ")
+    print ("   --argdict=<pickled-dictionary containing input info> ")
+    print ("   with key/value pairs: ")
+    print ("     1) 'inputFiles': python list ")
+    print ("          ['datasetname#filename1','datasetname#filename2',...] (input dataset + file names) ")
+    print ("     2) 'outputFile': string 'datasetname#filename' ")
+    print ("        (merged output dataset name + file) ")
     sys.exit(-1)
   
   else :

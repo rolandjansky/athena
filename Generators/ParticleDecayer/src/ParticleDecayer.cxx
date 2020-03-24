@@ -128,7 +128,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticle* genpart, HepMC
    }
    if ( doScalarDecay ) // scalar decay is prompt. decay vtx == scalar production vertex
       {
-         HepMC::GenVertex* end_vtx = new GenVertex();
+         HepMC::GenVertex* end_vtx = new HepMC::GenVertex();
          end_vtx->set_position(vtxp->position());
          end_vtx->add_particle_in(genpart);
          event->add_vertex(end_vtx);
@@ -216,7 +216,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticle* genpart, HepMC
    //set the decay vertex position of the particle
    //Create a HepMC vertex at the decay position of the particle 
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- set the decay vertex");
-   GenVertex* end_vtx = new GenVertex();
+   HepMC::GenVertex* end_vtx = new HepMC::GenVertex();
    end_vtx->set_position(posLV);
    end_vtx->add_particle_in(genpart);
    event->add_vertex(end_vtx);
@@ -441,7 +441,7 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void ParticleDecayer::addParticle(GenVertex* prod_vtx, int pdg, ThreeVector momentum, int statusCode) {
+void ParticleDecayer::addParticle(HepMC::GenVertex* prod_vtx, int pdg, HepMC::ThreeVector momentum, int statusCode) {
 
   double mass = 0.;
   if( pdg == m_particlePDGID)
@@ -451,8 +451,8 @@ void ParticleDecayer::addParticle(GenVertex* prod_vtx, int pdg, ThreeVector mome
      {
         mass = getParticleMass(pdg);
      }
-  GenParticle* aParticle = new GenParticle(FourVector(momentum.x(), momentum.y(), momentum.z(), sqrt(momentum.r()*momentum.r() + mass*mass)), 
-		                           pdg, statusCode, Flow(), Polarization(0, 0));
+  HepMC::GenParticle* aParticle = new HepMC::GenParticle(HepMC::FourVector(momentum.x(), momentum.y(), momentum.z(), sqrt(momentum.r()*momentum.r() + mass*mass)), 
+		                           pdg, statusCode, HepMC::Flow(), HepMC::Polarization(0, 0));
 
   prod_vtx->add_particle_out(aParticle);
 }
@@ -471,7 +471,7 @@ double ParticleDecayer::getParticleMass(int pid) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-StatusCode ParticleDecayer::DFTwoBodyDecay( GenParticle* genpart, int Polarization ) {
+StatusCode ParticleDecayer::DFTwoBodyDecay( HepMC::GenParticle* genpart, int Polarization ) {
 
 
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- allow the two-body decay of the dark photon...");
@@ -518,7 +518,7 @@ StatusCode ParticleDecayer::DFTwoBodyDecay( GenParticle* genpart, int Polarizati
    
    //Add the daughters to the pool file
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- Add the daughters to the pool file");
-   GenVertex* end_vtx = genpart->end_vertex();
+   HepMC::GenVertex* end_vtx = genpart->end_vertex();
    addParticle(end_vtx,  ModeOfDecay, daughterLVs.at(0).vect(),    1);
    addParticle(end_vtx, -ModeOfDecay, daughterLVs.at(1).vect(),    1);
 
