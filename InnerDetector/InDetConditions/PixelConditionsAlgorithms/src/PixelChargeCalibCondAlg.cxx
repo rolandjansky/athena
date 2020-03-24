@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelChargeCalibCondAlg.h"
@@ -11,7 +11,8 @@
 #include <sstream>
 
 PixelChargeCalibCondAlg::PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator)
+  ::AthReentrantAlgorithm(name, pSvcLocator)
+// STSTST  ::AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -19,14 +20,10 @@ StatusCode PixelChargeCalibCondAlg::initialize() {
   ATH_MSG_DEBUG("PixelChargeCalibCondAlg::initialize()");
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
-
   ATH_CHECK(m_condSvc.retrieve());
-
   ATH_CHECK(m_configKey.initialize());
   ATH_CHECK(m_readKey.initialize());
-
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -35,23 +32,24 @@ StatusCode PixelChargeCalibCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelChargeCalibCondAlg::execute() {
+// STSTST StatusCode PixelChargeCalibCondAlg::execute() {
+StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelChargeCalibCondAlg::execute()");
 
-  SG::WriteCondHandle<PixelChargeCalibCondData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelChargeCalibCondData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
     return StatusCode::FAILURE;
   }
 
-  SG::ReadCondHandle<PixelModuleData> configData(m_configKey);
+  SG::ReadCondHandle<PixelModuleData> configData(m_configKey, ctx);
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelChargeCalibCondData> writeCdo(std::make_unique<PixelChargeCalibCondData>());
@@ -62,7 +60,7 @@ StatusCode PixelChargeCalibCondAlg::execute() {
   EventIDRange rangeW{start, stop};
   if (configData->getUseCalibConditions()) {
     std::cout << "STSTST PixelChargeCalibCondAlg::execute() OK1" << std::endl;
-    SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey);
+    SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
     std::cout << "STSTST PixelChargeCalibCondAlg::execute() OK2" << std::endl;
     const CondAttrListCollection* readCdo = *readHandle; 
     std::cout << "STSTST PixelChargeCalibCondAlg::execute() OK3" << std::endl;
