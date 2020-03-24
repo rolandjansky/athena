@@ -32,7 +32,7 @@ def TGC_RangeToolCfg(flags, name="TGC_Range", **kwargs):
     return PileUpXingFolder(name, **kwargs)
 
 
-def TGC_DigitizationToolCfg(flags, name="TGC_DigitizationTool", **kwargs):
+def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured TgcDigitizationTool"""
     acc = ComponentAccumulator()
     if flags.Digitization.DoXingByXingPileUp:

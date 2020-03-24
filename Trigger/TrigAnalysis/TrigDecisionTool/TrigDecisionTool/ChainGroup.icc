@@ -89,6 +89,15 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     ATH_MSG_DEBUG("No navigation paths found for this chain group of " << names().size() << " chains.");
   }
 
+  if (msg().level() <= MSG::VERBOSE) {
+    size_t count = 0;
+    for (const ElementLinkVector<TrigCompositeUtils::DecisionContainer>& path : allLinearNavigationPaths) {
+      ATH_MSG_VERBOSE("Printing path " << ++count << " of " << allLinearNavigationPaths.size() << ", path has " << path.size() << " elements.");
+      for (const ElementLink<TrigCompositeUtils::DecisionContainer>& node : path) {
+        ATH_MSG_VERBOSE("  -- " << node.dataID() << " #" << node.index());
+      }
+    }
+  }
 
   const bool lastFeatureOfTypeFlag = (featureCollectionMode == TrigDefs::lastFeatureOfType);
   std::vector<TrigCompositeUtils::LinkInfo<CONTAINER>> returnVector =
@@ -109,3 +118,5 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
 
   return returnVector;
 }
+
+

@@ -48,4 +48,5 @@ atlas_add_dictionary( xAODJetDict
 # Test(s) in the package:
 atlas_add_test( xAODJet_Jet_test
    SOURCES test/xAODJet_Jet_test.cxx test/JetFactory.h test/JetFactory.cxx
-   LINK_LIBRARIES xAODCore xAODCaloEvent xAODJet CxxUtils ${extra_test_libs} )
+   LINK_LIBRARIES xAODCore xAODCaloEvent xAODJet CxxUtils ${extra_test_libs}
+   LOG_IGNORE_PATTERN "xAOD::Init" )

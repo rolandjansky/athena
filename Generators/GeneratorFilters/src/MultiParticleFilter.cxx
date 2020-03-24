@@ -26,7 +26,6 @@
 // Other classes used by this class:-
 #include <math.h>
 
-using HepMC::GenParticle;
 
 //--------------------------------------------------------------------------
 MultiParticleFilter::MultiParticleFilter(const std::string& name, ISvcLocator* pSvcLocator): GenFilter(name,pSvcLocator)

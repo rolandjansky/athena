@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,6 +26,7 @@
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "CxxUtils/CachedValue.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/DataObject.h"
 
 class CondAttrListVec : public DataObject
@@ -85,7 +86,8 @@ class CondAttrListVec : public DataObject
 
   // adding new data sliced out of a vector of AttributeLists
   // specify IOV range, channel, vector and start/end offsets
-  void addSlice(const IOVRange& range,const unsigned int chan,
+  void addSlice ATLAS_NOT_THREAD_SAFE
+               (const IOVRange& range,const unsigned int chan,
 		const std::vector<coral::AttributeList>& data,
 		const unsigned int datastart,const unsigned int dataend);
 
@@ -265,10 +267,12 @@ inline void CondAttrListVec::add(const IOVRange& range,
   m_iovmap[chan]=range;
 }
 
-inline void CondAttrListVec::addSlice(const IOVRange& range,
+inline void CondAttrListVec::addSlice ATLAS_NOT_THREAD_SAFE
+          (const IOVRange& range,
 	   const unsigned int chan, 
 	   const std::vector<coral::AttributeList>& data,
-	   const unsigned int datastart,const unsigned int dataend) {
+	   const unsigned int datastart,const unsigned int dataend)
+{
   // invalidate index
   m_index.reset();
   // set minimum range correctly

@@ -86,12 +86,12 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     // calculate pT of muon candidate
     if(tgcArgs()->useRun3Config()){
       //Algorithm for Run3
-      /*int pt=map->test_Run3(sectorLogic->getOctantID(),sectorLogic->getModuleID(),
-	subsector,type,dR,dPhi[j]); // this function will be implemented. 
-	ptOut = std::abs(pt)-1;
-	chargeOut = pt<0 ? 0:1;
-	//isgoodMFOut : will be set.
-      */
+      int pt=m_map->test_Run3(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),
+                            subsector,type,m_dR,m_dPhi[j]); // this function will be implemented. 
+      ptOut = std::abs(pt);
+      chargeOut = pt<0 ? 0:1;
+      //isgoodMFOut : will be set.
+      
       CoincidenceTypeOut=(type==0);
     }
     else{
@@ -110,7 +110,8 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       ptMax = ptOut;
       out->clear();    
       out->setIdSSC(m_SSCId);
-      out->setHit(ptMax+1);   
+      if(!tgcArgs()->useRun3Config()){out->setHit(ptMax+1);}// for Run2 Algo
+      else{out->setpT(ptMax);}// for Run3 Algo
       out->setR(m_r);
       out->setPhi(m_phi[j]);
       out->setDR(m_dR);

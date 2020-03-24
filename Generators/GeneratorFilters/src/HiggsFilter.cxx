@@ -27,17 +27,6 @@
 #include "GeneratorFilters/HiggsFilter.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-// Framework Related Headers:-
-//#include "GaudiKernel/MsgStream.h"
-
-// Other classes used by this class:-
-//#include <math.h>
-
-//using HepMC::GenVertex;
-//using HepMC::GenParticle;
-//using HepMC::GenVertex;
-
-
 //--------------------------------------------------------------------------
 HiggsFilter::HiggsFilter(const std::string& name, 
       ISvcLocator* pSvcLocator): GenFilter(name,pSvcLocator) {
