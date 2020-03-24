@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TPyEvent.h 649835 2015-02-26 08:19:01Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TPYEVENT_H
 #define XAODROOTACCESS_TPYEVENT_H
 
@@ -29,9 +26,6 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 649835 $
-   /// $Date: 2015-02-26 09:19:01 +0100 (Thu, 26 Feb 2015) $
-   ///
    class TPyEvent : public TEvent {
 
    public:
@@ -45,7 +39,7 @@ namespace xAOD {
                                   const std::string& type ) const;
 
       /// Add an output object to the event
-      TReturnCode record( int dum, void* obj, const std::string& key,
+      TReturnCode record( int dummy, void* obj, const std::string& key,
                           const std::string& type,
                           ::Int_t basketSize = 32000, ::Int_t splitLevel = 0 );
 

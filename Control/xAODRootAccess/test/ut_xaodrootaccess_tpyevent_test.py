@@ -1,13 +1,9 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: ut_xaodrootaccess_tpyevent_test.py 796448 2017-02-09 18:28:08Z ssnyder $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Unit test for the xAOD::TPyEvent class.
 #
-
-import os
 
 ## C/C++ style main function
 def main():
@@ -26,12 +22,7 @@ def main():
 
     # Set up the environment:
     import ROOT
-    if (os.environ.has_key('ROOTCOREDIR') and
-        ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" )):
-        logger.error( "Couldn't load the RootCore packages" )
-        return 1
-    ROOT.xAOD.TEvent
-    if ROOT.xAOD.Init( APP_NAME ).isFailure():
+    if not ROOT.xAOD.Init( APP_NAME ).isSuccess():
         logger.error( "Failed to call xAOD::Init(...)" )
         return 1
 
@@ -42,19 +33,20 @@ def main():
     store = TPyStore()
 
     # Create a transient tree from a test file:
-    FPATH = os.environ.get ('ATLAS_REFERENCE_DATA',
-                            '/afs/cern.ch/atlas/project/PAT')
-    FNAME = FPATH + "/xAODs/r5591/" \
-            "mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.recon." \
-            "AOD.e1727_s1933_s1911_r5591/AOD.01494881._105458.pool.root.1"
-    ifile = ROOT.TFile.Open( FNAME, "READ" )
+    import os
+    ifile = ROOT.TFile.Open( "$ASG_TEST_FILE_MC", "READ" )
     if not ifile:
-        logger.error( "Couldn't open input file: %s" % FNAME )
+        logger.error( "Couldn't open input file: %s" %
+                      os.environ.get( "ASG_TEST_FILE_MC",
+                                      "!ASG_TEST_FILE_MC!" ) )
         return 1
     tree = ROOT.xAOD.MakeTransientTree( ifile )
     if not tree:
-        logger.error( "Failed to make transient tree from file: %s" % FNAME )
+        logger.error( "Failed to make transient tree from file: %s" %
+                      os.environ.get( "ASG_TEST_FILE_MC",
+                                      "!ASG_TEST_FILE_MC!" ) )
         return 1
+    import xAODRootAccess.GenerateDVIterators
 
     # Connect the TPyEvent object to an output file:
     ofile = ROOT.TFile.Open( "test.root", "RECREATE" )
@@ -76,71 +68,70 @@ def main():
         # Clear the store:
         store.clear()
 
-        # Copy the EventInfo payload:
-        if not event.record( tree.EventInfo,
-                             "EventInfo" ).isSuccess():
-            logger.error( "Failed to record xAOD::EventInfo from the "
+        # Copy the Kt4EMTopoOriginEventShape payload:
+        if not event.record( tree.Kt4EMTopoOriginEventShape,
+                             "Kt4EMTopoOriginEventShape" ).isSuccess():
+            logger.error( "Failed to record xAOD::EventShape from the "
                           "input file" )
             return 1
-        if not event.record( tree.EventInfo.getConstStore(),
-                             "EventInfoAux." ).isSuccess():
-            logger.error( "Failed to record xAOD::EventAuxInfo from the "
+        if not event.record( tree.Kt4EMTopoOriginEventShape.getConstStore(),
+                             "Kt4EMTopoOriginEventShapeAux." ).isSuccess():
+            logger.error( "Faiedl to record xAOD::EventShapeAuxInfo from the "
                           "input file" )
             return 1
 
-        # Check that the electrons can be accessed:
-        logger.info( "  Number of electrons: %i" %
-                     tree.ElectronCollection.size() )
+        # Check that the muons can be accessed:
+        logger.info( "  Number of muons: %i" %
+                     tree.Muons.size() )
 
-        # Copy the electrons into the output:
-        if not event.record( tree.ElectronCollection,
-                             "AllElectrons" ).isSuccess():
-            logger.error( "Failed to record xAOD::ElectronContainer from the "
+        # Copy the muons into the output:
+        if not event.record( tree.Muons,
+                             "AllMuons" ).isSuccess():
+            logger.error( "Failed to record xAOD::MuonContainer from the "
                           "input file" )
             return 1
-        if not event.record( tree.ElectronCollection.getConstStore(),
-                             "AllElectronsAux." ).isSuccess():
-            logger.error( "Failed to record xAOD::ElectronAuxContainer from "
+        if not event.record( tree.Muons.getConstStore(),
+                             "AllMuonsAux." ).isSuccess():
+            logger.error( "Failed to record xAOD::MuonAuxContainer from "
                           "the input file" )
             return 1
 
-        # Create a container of just the central electrons:
-        cElectrons = ROOT.xAOD.ElectronContainer_v1()
+        # Create a container of just the central muons:
+        cMuons = ROOT.xAOD.MuonContainer()
 
         # And record the container into the output right away. (In order to get
         # a proper auxiliary container for it.)
-        cElectrons.setNonConstStore( event.recordAux( "CentralElectronsAux." ) )
-        if not event.record( cElectrons,
-                             "CentralElectrons" ).isSuccess():
-            logger.error( "Failed to record central electrons into the output" )
+        cMuons.setNonConstStore( event.recordAux( "CentralMuonsAux." ) )
+        if not event.record( cMuons,
+                             "CentralMuons" ).isSuccess():
+            logger.error( "Failed to record central muons into the output" )
             return 1
 
-        # Now put all central electrons into this container, with just a few
+        # Now put all central muons into this container, with just a few
         # properties. Since deep copying doesn't work this easily... :-(
-        for i in xrange( tree.ElectronCollection.size() ):
-            el = tree.ElectronCollection.at( i )
-            if abs( el.eta() ) < 1.0:
-                newEl = ROOT.xAOD.Electron_v1()
-                cElectrons.push_back( newEl )
-                newEl.setP4( el.pt(), el.eta(), el.phi(), el.m() )
+        for mu in tree.Muons:
+            if abs( mu.eta() ) < 1.0:
+                newMu = ROOT.xAOD.Muon()
+                cMuons.push_back( newMu )
+                newMu.setP4( mu.pt(), mu.eta(), mu.phi() )
                 pass
             pass
 
-        # Print how many central electrons got selected:
-        logger.info( "  Number of central electrons: %i" %
-                     cElectrons.size() )
+        # Print how many central muons got selected:
+        logger.info( "  Number of central muons: %i" %
+                     cMuons.size() )
 
         # Put an object into the transient store:
-        trElectrons = ROOT.xAOD.ElectronContainer_v1()
-        if not store.record( trElectrons, "TransientElectrons" ).isSuccess():
-            logger.error( "Failed to record transient electrons into the "
+        trMuons = ROOT.xAOD.MuonContainer()
+        if not store.record( trMuons, "TransientMuons" ).isSuccess():
+            logger.error( "Failed to record transient muons into the "
                           "transient store" )
             return 1
 
         # Check that it is now available through TPyEvent:
-        if not event.contains( "TransientElectrons",
-                               ROOT.xAOD.ElectronContainer_v1 ):
-            logger.error( "Transient electrons not visible through TPyEvent" )
+        if not event.contains( "TransientMuons",
+                               ROOT.xAOD.MuonContainer ):
+            logger.error( "Transient muons not visible through TPyEvent" )
             return 1
 
         # Record the event:

@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: THolder.cxx 796983 2017-02-14 05:09:12Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TClass.h>
@@ -19,18 +15,41 @@
 #include "xAODRootAccess/tools/TDestructorRegistry.h"
 #include "THolderCache.h"
 
+namespace {
+
+   /// Function for getting @c xAOD::THolder::TypeKind from a @c TClass
+   xAOD::THolder::TypeKind getTypeKind( TClass* type ) {
+
+      static const TClass* dvClass =
+         TClass::GetClass( typeid( SG::AuxVectorBase ) );
+      static const TClass* aeClass =
+         TClass::GetClass( typeid( SG::AuxElement ) );
+
+      if( type ) {
+         if( type->InheritsFrom( dvClass ) ) {
+            return xAOD::THolder::DATAVECTOR;
+         }
+         if( type->InheritsFrom( aeClass ) ) {
+            return xAOD::THolder::AUXELEMENT;
+         }
+      }
+      return xAOD::THolder::OTHER;
+   }
+
+} // private namespace
+
 namespace xAOD {
 
    THolder::THolder()
-      : m_typeKind (OTHER),
-        m_object( 0 ), m_type( 0 ), m_typeInfo( 0 ), m_owner( kFALSE ) {
+      : m_object( 0 ), m_type( 0 ), m_typeInfo( 0 ), m_owner( kFALSE ),
+        m_typeKind( OTHER ) {
 
    }
 
    THolder::THolder( void* object, ::TClass* type, ::Bool_t owner )
-     :  m_typeKind( setTypeKind(type) ),
-        m_object( object ), m_type( type ),
-        m_typeInfo( type ? m_type->GetTypeInfo() : 0 ), m_owner( owner ) {
+      : m_object( object ), m_type( type ),
+        m_typeInfo( type ? m_type->GetTypeInfo() : 0 ), m_owner( owner ),
+        m_typeKind( getTypeKind( type ) ) {
 
       // Complain if the passed dictionary will be unusable later on:
       if( m_type && ( ! m_type->IsLoaded() ) ) {
@@ -45,8 +64,8 @@ namespace xAOD {
    }
 
    THolder::THolder( void* object, const std::type_info& type, ::Bool_t owner )
-     :  m_typeKind (OTHER),
-        m_object( object ), m_type( 0 ), m_typeInfo( &type ), m_owner( owner ) {
+      : m_object( object ), m_type( 0 ), m_typeInfo( &type ), m_owner( owner ),
+        m_typeKind( OTHER ) {
 
       // Increase the object count:
       if( m_object && m_owner ) {
@@ -61,10 +80,9 @@ namespace xAOD {
    /// @param parent The parent object that should be copied
    ///
    THolder::THolder( const THolder& parent )
-     :  m_typeKind( parent.m_typeKind ),
-        m_object( parent.m_object ), m_type( parent.m_type ),
-        m_typeInfo (parent.m_typeInfo),
-        m_owner( parent.m_owner ) {
+      : m_object( parent.m_object ), m_type( parent.m_type ),
+        m_typeInfo( parent.m_typeInfo ), m_owner( parent.m_owner ),
+        m_typeKind( parent.m_typeKind ) {
 
       // Increase the object count:
       if( m_object && m_owner ) {
@@ -83,10 +101,9 @@ namespace xAOD {
    /// @param parent The parent object that should be moved
    ///
    THolder::THolder( THolder&& parent )
-     :  m_typeKind( parent.m_typeKind ),
-        m_object( parent.m_object ), m_type( parent.m_type ),
-        m_typeInfo (parent.m_typeInfo),
-        m_owner( parent.m_owner ) {
+      : m_object( parent.m_object ), m_type( parent.m_type ),
+        m_typeInfo( parent.m_typeInfo ), m_owner( parent.m_owner ),
+        m_typeKind( parent.m_typeKind ) {
 
       // Tell the parent that it no longer owns the object:
       parent.m_owner = kFALSE;
@@ -120,10 +137,10 @@ namespace xAOD {
 
       // Do the copy:
       m_object   = rhs.m_object;
-      m_typeKind = rhs.m_typeKind;
       m_type     = rhs.m_type;
       m_typeInfo = rhs.m_typeInfo;
       m_owner    = rhs.m_owner;
+      m_typeKind = rhs.m_typeKind;
 
       // Increase the object count:
       if( m_object && m_owner ) {
@@ -156,10 +173,10 @@ namespace xAOD {
 
       // Do the copy:
       m_object   = rhs.m_object;
-      m_typeKind = rhs.m_typeKind;
       m_type     = rhs.m_type;
       m_typeInfo = rhs.m_typeInfo;
       m_owner    = rhs.m_owner;
+      m_typeKind = rhs.m_typeKind;
 
       // Instead of doing anything with the shared count here, just make the
       // parent not own the object anymore. The logic is the same as discussed
@@ -263,15 +280,15 @@ namespace xAOD {
       }
 
       // Check if we already know about this type:
-      ::TClass* userClass = Internal::THolderCache::instance().getClass( tid );
+      auto userClass = Internal::THolderCache::instance().getClass( tid );
       // If not, look for it now:
-      if( ! userClass ) {
-         userClass = ::TClass::GetClass( tid );
-         Internal::THolderCache::instance().addClass( tid, userClass );
+      if( ! userClass.first ) {
+         userClass.second = ::TClass::GetClass( tid );
+         Internal::THolderCache::instance().addClass( tid, userClass.second );
       }
 
       // If we still don't have a dictionary, that's an issue:
-      if( ! userClass ) {
+      if( ! userClass.second ) {
          if( ! silent ) {
             ::Error( "xAOD::THolder::getAs",
                      XAOD_MESSAGE( "Couldn't access the dictionary for user "
@@ -282,7 +299,7 @@ namespace xAOD {
       }
 
       // Check if the user requested a valid base class for the held type:
-      const Int_t offset = m_type->GetBaseClassOffset( userClass );
+      const Int_t offset = m_type->GetBaseClassOffset( userClass.second );
       if( offset < 0 ) {
          if( ! silent ) {
             ::Warning( "xAOD::THolder::getAs",
@@ -379,25 +396,6 @@ namespace xAOD {
       }
 
       return;
-   }
-
-
-   THolder::TypeKind THolder::setTypeKind( const TClass* type )
-   {
-      static const TClass* dvClass =
-         TClass::GetClass( typeid( SG::AuxVectorBase ) );
-      static const TClass* aeClass =
-         TClass::GetClass( typeid( SG::AuxElement ) );
-
-      if (type) {
-        if (type->InheritsFrom( dvClass )) {
-          return DATAVECTOR;
-        }
-        if (type->InheritsFrom( aeClass )) {
-          return AUXELEMENT;
-        }
-      }
-      return OTHER;
    }
 
 } // namespace xAOD

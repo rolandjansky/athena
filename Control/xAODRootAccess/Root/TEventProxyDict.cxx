@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TEventProxyDict.cxx 796514 2017-02-10 04:33:07Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 // File holding the implementation of the xAOD::TEvent functions that implement
 // the IProxyDict interface. Just to make TEvent.cxx a little smaller.
@@ -162,7 +158,7 @@ namespace xAODPrivate {
    };
 
 
-StatusCode TLoader::createObj(IOpaqueAddress* /*addr*/, DataObject*& obj)
+   StatusCode TLoader::createObj(IOpaqueAddress* /*addr*/, DataObject*& obj)
    {
      static const bool SILENT = true;
      static const bool METADATA = false;
@@ -179,7 +175,6 @@ StatusCode TLoader::createObj(IOpaqueAddress* /*addr*/, DataObject*& obj)
 
      return StatusCode::SUCCESS;
    }
-
 
 } // xAODPrivate namespace
 #endif // not XAOD_STANDALONE
@@ -269,33 +264,51 @@ namespace xAOD {
       const xAOD::EventFormatElement* efe = getEventFormatElement( sgkey );
       if( ! efe ) {
          // Apparently this key is not known:
-         return 0;
+         return nullptr;
       }
 
-      // Get the dictionary for the type:
-      const std::string& className = efe->className();
-      bi.m_class = TClass::GetClass( className.c_str() );
-      if( ! bi.m_class ) {
-         ::Warning( "xAOD::TEvent::getBranchInfo",
-                    "Can't find TClass for `%s'",
-                    className.c_str() );
-         return 0;
+      // Helper variable(s).
+      static const bool SILENT = true;
+      static const bool METADATA = false;
+
+      // The name of the requested object.
+      const std::string& name = getName( sgkey );
+      // This is a bit perverse... In order to let the "base class" figure
+      // out the exact type of this object, we ask for it with a TEvent
+      // pointer. I use that type because I need something that has a
+      // dictionary, and which should always be available when this code
+      // runs. In the end it doesn't matter that the object can't be
+      // retrieved as that type (of course...), it only matters that it gets
+      // "set up" following these calls.
+      TEvent* nc_this = const_cast< TEvent* >( this );
+      static const std::type_info& dummy = typeid( TEvent );
+      nc_this->getInputObject( name, dummy, SILENT, METADATA );
+      auto itr = m_outputObjects.find( name );
+      if( itr == m_outputObjects.end() ) {
+         itr = m_inputObjects.find( name );
+         if( itr == m_inputObjects.end() ) {
+            // We didn't find this object in the store...
+            return nullptr;
+         }
       }
-      if( ! bi.m_class->GetTypeInfo() ) {
-         ::Warning( "xAOD::TEvent::getBranchInfo",
-                    "No type_info available for `%s'",
-                    className.c_str() );
-         return 0;
+      const TObjectManager* mgr =
+         dynamic_cast< const TObjectManager* >( itr->second );
+      if( ! mgr ) {
+         ::Error( "xAOD::TEvent::getBranchInfo",
+                  XAOD_MESSAGE( "Internal logic error found" ) );
+         return nullptr;
       }
+      bi.m_class = mgr->holder()->getClass();
+      // There's no need to check whether this is a "proper" dictionary
+      // at this point, since if TEvent is holding on to it, the type
+      // must have a proper compiled dictionary.
 
 #ifndef XAOD_STANDALONE
       // Create a proper proxy for the input branch:
       SG::TransientAddress* taddr =
-         new SG::TransientAddress( CLID_NULL,
-                                   efe->branchName(),
+         new SG::TransientAddress( CLID_NULL, efe->branchName(),
                                    new GenericAddress() );
       taddr->setSGKey( sgkey );
-      TEvent* nc_this = const_cast<TEvent*>(this);
       xAODPrivate::TLoader* loader =
         new xAODPrivate::TLoader (*nc_this,
                                   getName( sgkey ),
@@ -340,7 +353,7 @@ namespace xAOD {
    /// @param proxy The proxy to take posession of. Not used for anything
    ///              useful.
    ///
-   StatusCode TEvent::addToStore( CLID /*clid*/, SG::DataProxy* proxy ) {
+   StatusCode TEvent::addToStore( CLID clid, SG::DataProxy* proxy ) {
 
       // Warn the user that the function got called:
       static bool warningPrinted = false;
@@ -351,14 +364,13 @@ namespace xAOD {
          warningPrinted = true;
       }
 
+      // Hold on to the proxy with some non-existent, hopefully unique key:
+      const ::TString uniqueKey = ::TString::Format( "NonExistentKey_%lu",
+                                                     m_branches.size() );
       BranchInfo bi;
       bi.m_proxy.reset( proxy );
-      m_branches.insert( std::make_pair(
-#ifdef XAOD_STANDALONE
-                                         0,
-#else
-                                         proxy->sgkey(),
-#endif // XAOD_STANDALONE
+      m_branches.insert( std::make_pair( stringToKey( uniqueKey.Data(),
+                                                      clid ),
                                          std::move( bi ) ) );
 
       // Return gracefully:
