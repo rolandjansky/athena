@@ -1,5 +1,5 @@
 #/*
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #*/
 
 #!/bin/bash
@@ -100,6 +100,8 @@ FLAG_FATRAS=0
 FLAG_NOGUI=0
 FLAG_CGAL=0
 FLAG_SLHC=0
+MUONLAYOUT=""
+NSWAGDDFILE=""
 FLAG_CUSTOMGEOMETRY=0
 MULTINP_SRC=""
 MULTINP_CPY=""
@@ -177,6 +179,16 @@ while [ $i -le $# ]; do
         FLAG_SLHC=1
     elif [ "x${arg}" == "x-customgeom" ]; then
         FLAG_CUSTOMGEOMETRY=1
+    elif [ "x${arg:0:12}" == "x-muonLayout=" ]; then
+        MUONLAYOUT=${arg:12:$((${#arg}-12))}
+        if [ "x$MUONLAYOUT" == "x" ]; then
+            ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.00.AsymNSW"
+        fi
+    elif [ "x${arg:0:9}" == "x-nswagdd=" ]; then
+        NSWAGDDFILE=${arg:9:$((${#arg}-9))}
+        if [ "x$NSWAGDDFILE" == "x" ]; then
+            ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.06.xml"
+        fi
     elif [ "x${arg}" == "x-mc" ]; then
 	FLAG_MC=1
     elif [ "x${arg}" == "x-multinp" ]; then
@@ -811,6 +823,14 @@ fi
 if [ "x$FLAG_CUSTOMGEOMETRY" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1CustomGeometry=True"
+fi
+if [ "x$MUONLAYOUT" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1MuonLayout=\"$MUONLAYOUT\""
+fi
+if [ "x$NSWAGDDFILE" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1NSWAGDDFiles=[\"${NSWAGDDFILE}\"]"
 fi
 if [ "x$FLAG_NOGUI" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
