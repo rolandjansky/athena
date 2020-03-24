@@ -420,7 +420,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("JetfJvtMomentName","passFJvt") );
     // Set the decoration to the name we used to use
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","fJVTSF") );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("UseMuSFFormat",true) );
+    //ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("UseMuSFFormat",true) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Nov2019/fJvtSFFile.EMtopo.root"));
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
@@ -1268,20 +1268,36 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise B-tagging tools
+///////////////////////////////////////////////////////////////////////////////////////////
+// Initialise B-tagging tools
 
   // Warnings for invalid timestamps, or timestamped containers with old CDI file & vice versa
   if (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0)) {
-     ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps. Current = " << m_BtagTimeStamp);
-     return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps. Current = " << m_BtagTimeStamp);
+    return StatusCode::FAILURE;
   }
   if (!m_BtagTimeStamp.empty() && m_bTaggingCalibrationFilePath.find("13TeV/2017")!=std::string::npos) {
-     ATH_MSG_ERROR("Shouldn't use timestamped collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
-     return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Shouldn't use timestamped collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
+    return StatusCode::FAILURE;
   }
-  if (m_BtagTimeStamp.empty() && m_bTaggingCalibrationFilePath.find("13TeV/2019")!=std::string::npos) {
-     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with with newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
-     return StatusCode::FAILURE;
+  if (m_BtagTimeStamp.empty() && (m_bTaggingCalibrationFilePath.find("13TeV/2019")!=std::string::npos || m_bTaggingCalibrationFilePath.find("13TeV/2020")!=std::string::npos)) {
+    ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with with newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
+    return StatusCode::FAILURE;
   }
+
+  //// Warnings for invalid timestamps, or timestamped containers with old CDI file & vice versa
+  //if (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0)) {
+  //   ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps. Current = " << m_BtagTimeStamp);
+  //   return StatusCode::FAILURE;
+  //}
+  //if (!m_BtagTimeStamp.empty() && m_bTaggingCalibrationFilePath.find("13TeV/2017")!=std::string::npos) {
+  //   ATH_MSG_ERROR("Shouldn't use timestamped collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
+  //   return StatusCode::FAILURE;
+  //}
+  //if (m_BtagTimeStamp.empty() && m_bTaggingCalibrationFilePath.find("13TeV/2019")!=std::string::npos) {
+  //   ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with with newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
+  //   return StatusCode::FAILURE;
+  //}
 
   // btagSelectionTool
   std::string jetcollBTag = jetcoll;
@@ -1302,6 +1318,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagSelTool.setProperty("TaggerName",     m_BtagTagger ) );
     ATH_CHECK( m_btagSelTool.setProperty("OperatingPoint", m_BtagWP  ) );
     ATH_CHECK( m_btagSelTool.setProperty("JetAuthor",      jetcollBTag   ) );
+    ATH_CHECK( m_btagSelTool.setProperty("MinPt",         25.0e3   ) );
     ATH_CHECK( m_btagSelTool.setProperty("FlvTagCutDefinitionsFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagSelTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_btagSelTool.retrieve() );
@@ -1319,6 +1336,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagSelTool_OR.setProperty("TaggerName",     m_BtagTagger  ) );
     ATH_CHECK( m_btagSelTool_OR.setProperty("OperatingPoint", m_orBtagWP  ) );
     ATH_CHECK( m_btagSelTool_OR.setProperty("JetAuthor",      jetcollBTag   ) );
+    ATH_CHECK( m_btagSelTool_OR.setProperty("MinPt",      25.0e3   ) );
     ATH_CHECK( m_btagSelTool_OR.setProperty("FlvTagCutDefinitionsFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagSelTool_OR.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_btagSelTool_OR.retrieve() );

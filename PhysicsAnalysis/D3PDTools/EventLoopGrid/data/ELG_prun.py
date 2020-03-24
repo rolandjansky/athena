@@ -8,12 +8,12 @@ import shlex
 
 def ELG_prun(sample) :
 
-    try:
-        from pandatools import PandaToolsPkgInfo
-    except:
-        print "prun needs additional setup, try:"
-        print "    lsetup panda"
-        return 99
+    from pandatools import PandaToolsPkgInfo
+    if int(float(PandaToolsPkgInfo.release_version[2])) < 4 :
+        print "Need prun with JEDI support, try:"
+        print "    localSetupPandaClient currentJedi --noAthenaCheck"
+        print 'Skipping. this is obselete'
+        #return 99
 
     cmd = ["prun"]
 
@@ -33,8 +33,6 @@ def ELG_prun(sample) :
             'maxFileSize',
             'maxNFilesPerJob',
             'addNthFieldOfInDSToLFN',
-            'cpuTimePerEvent',
-            'maxWalltime',
             'voms',
             'workingGroup',
             'tmpDir']
@@ -123,7 +121,7 @@ def ELG_prun(sample) :
         print "output was:"
         print e.output
         return 2
-
+    print 'cmd: ',cmd
     jediTaskID = 0
     try:
         line = re.findall(r'TaskID=\d+', out)[0]
@@ -131,5 +129,5 @@ def ELG_prun(sample) :
     except:
         print out
         return 3
-
+    print jediTaskID
     return jediTaskID

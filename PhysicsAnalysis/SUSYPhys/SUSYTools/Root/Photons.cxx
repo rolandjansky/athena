@@ -90,6 +90,7 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
   dec_baseline(input) = false;
   dec_selected(input) = 0;
   dec_isol(input) = false;
+  dec_isEM(input) = 0;
 
   // Author cuts needed according to https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_authors
   if ( !(input.author() & (xAOD::EgammaParameters::AuthorPhoton + xAOD::EgammaParameters::AuthorAmbiguous)) )
@@ -130,6 +131,9 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
   bool passBaseID = false;
   if (m_acc_photonIdBaseline.isAvailable(input)) {
     passBaseID = m_acc_photonIdBaseline(input);
+    m_photonSelIsEM->accept(&input);
+    dec_isEM(input) = m_photonSelIsEM->IsemValue();
+    //std::cout << "AisEM value: " << m_photonSelIsEMBaseline->IsemValue() << " baseline: " << passBaseID  << " signalIsEM: " << m_photonSelIsEM->IsemValue() << std::endl;
   } else {
     ATH_MSG_VERBOSE ("DFCommonPhotonsIsEMxxx variables are not found. Calculating the ID from Photon ID tool..");
     if (!isAtlfast() && !isData()) {
@@ -137,6 +141,9 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
         ATH_MSG_ERROR("FillPhoton - fudge tool: applyCorrection failed");
     }
     passBaseID = m_photonSelIsEMBaseline->accept(&input);
+    m_photonSelIsEM->accept(&input);
+    dec_isEM(input) = m_photonSelIsEM->IsemValue();
+    //std::cout << "isEM value: " << m_photonSelIsEMBaseline->IsemValue() << std::endl;
   }
   if (!passBaseID) return StatusCode::SUCCESS;
 

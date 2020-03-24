@@ -100,9 +100,9 @@ namespace ST {
       jets = copy;
     }
     // Copy btagging links
-    if(jetkey_tmp.compare(jetkey_btag)!=0){
-      ATH_CHECK(BendBTaggingLinks(copy, jetkey_btag));
-    }
+    //if(jetkey_tmp.compare(jetkey_btag)!=0){
+    //  ATH_CHECK(BendBTaggingLinks(copy, jetkey_btag));
+    //}
     // Update the jets
     for (const auto& jet : *copy) {
       // Note that for PHYSLITE jets we don't need the nominal calibration
@@ -459,9 +459,9 @@ namespace ST {
       dec_selected(input) = 0;
     }
 
-    if (m_useBtagging && !m_orBtagWP.empty()) {
-      dec_bjet_loose(input) = this->IsBJetLoose(input);
-    }
+    //if (m_useBtagging && !m_orBtagWP.empty()) {
+    //  dec_bjet_loose(input) = this->IsBJetLoose(input);
+    //}
 
     if (m_debug) {
       ATH_MSG_INFO( "JET pt: " << input.pt() );
@@ -619,10 +619,10 @@ namespace ST {
     bool isbjet = m_btagSelTool->accept(input);
     dec_bjet(input) = isbjet;
 
-    double weight = 0.;
-    if ( m_btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
-      ATH_MSG_ERROR ("btagSelTool:: could not retrieve b-tag weight.");
-    }
+    double weight = 1.;
+    //if ( m_btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
+    //  ATH_MSG_ERROR ("btagSelTool:: could not retrieve b-tag weight.");
+    //}
     dec_btag_weight(input) = weight;
     ATH_MSG_VERBOSE( "b-tag weight?: " << weight );
 
