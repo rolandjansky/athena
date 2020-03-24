@@ -441,7 +441,7 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void ParticleDecayer::addParticle(HepMC::GenVertex* prod_vtx, int pdg, HepMC::ThreeVector momentum, int statusCode) {
+void ParticleDecayer::addParticle(HepMC::GenVertex* prod_vtx, int pdg, HepMC::FourVector momentum, int statusCode) {
 
   double mass = 0.;
   if( pdg == m_particlePDGID)
