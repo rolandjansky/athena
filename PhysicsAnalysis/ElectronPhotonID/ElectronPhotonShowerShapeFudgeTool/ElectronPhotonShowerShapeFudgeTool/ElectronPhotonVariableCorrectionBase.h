@@ -7,7 +7,7 @@
 
 /**
    @class ElectronPhotonVariableCorrectionBase
-   @brief Tool to correct electron and photon MC variables.
+   @brief Class to correct electron and photon MC variables.
 
    @author Nils Gillwald (DESY) nils.gillwald@desy.de
    @date   February 2020

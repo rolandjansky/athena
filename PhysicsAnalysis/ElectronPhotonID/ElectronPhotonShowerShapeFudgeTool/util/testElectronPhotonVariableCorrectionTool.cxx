@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     ANA_MSG_INFO("Running over " << entries << " events.");
 
     // initialize the tool
-    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/TestTool");
+    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/myTestTool");
     std::string configFile = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleConf.conf";
     ANA_CHECK(myTool.setProperty("ConfigFile", configFile));
     ANA_CHECK(myTool.initialize());
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
             xAOD::Photon* photon = photons_copy->at(photon_itr);
 
             //apply correction
-            ANA_CHECK(myTool.applyCorrection(*photon));
+            ANA_CHECK(myTool->applyCorrection(*photon));
 
         } // loop over deep copy of photon container
 
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
             xAOD::Electron* electron = electrons_copy->at(electron_itr);
 
             //apply correction
-            ANA_CHECK(myTool.applyCorrection(*electron));
+            ANA_CHECK(myTool->applyCorrection(*electron));
 
         } // loop over deep copy of electrone container
 
