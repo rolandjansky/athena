@@ -1,21 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_CALOMUONLIKELIHOODTOOL_H
 #define CALOTRKMUIDTOOLS_CALOMUONLIKELIHOODTOOL_H
 
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CaloEvent/CaloClusterContainer.h"
 
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "CaloEvent/CaloClusterContainer.h"
 
 #include <vector>
 
-class TFile;
 class TH1F;
 
 /** @class CaloMuonLikelihoodTool
@@ -28,10 +27,9 @@ class TH1F;
 class CaloMuonLikelihoodTool : public AthAlgTool, virtual public ICaloMuonLikelihoodTool {
 public:
   CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent);
-  virtual ~CaloMuonLikelihoodTool();
+  virtual ~CaloMuonLikelihoodTool()=default;
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
   
   double getLHR(const xAOD::TrackParticle* trk, const xAOD::CaloClusterContainer* ClusCollection=nullptr, const double dR_CUT=0.3) const;
   double getLHR(const xAOD::CaloClusterContainer* ClusCollection, const double eta_trk, const double p_trk, const double eta_trkAtCalo, const double phi_trkAtCalo, const double dR_CUT=0.3) const;
@@ -46,7 +44,7 @@ private:
   mutable std::atomic_int m_cnt_warn{0};
 
   ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
-  std::vector<std::string>  m_fileNames;
+  std::vector<std::string> m_fileNames;
 };
 
 #endif
