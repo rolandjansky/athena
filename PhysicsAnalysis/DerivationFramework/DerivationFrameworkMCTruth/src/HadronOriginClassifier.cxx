@@ -42,6 +42,10 @@ namespace DerivationFramework{
           || (m_DSID>=410557 && m_DSID<=410559) // new Powheg+H7, mc16
           || (m_DSID>=411082 && m_DSID<=411090) //Powheg+H7 HF-filtered
           || (m_DSID>=407354 && m_DSID<=407356) //Powheg+H7 ttbar HT-filtered
+          || m_DSID ==411233 || m_DSID == 411234 //Powheg+H7.1.3 ttbar 
+          || (m_DSID>=411329 && m_DSID<=411334) //Powheg+H7.1.3 ttbar HF-filtered
+          || (m_DSID>=411335 && m_DSID<=411337) //Powheg+H7.1.3 ttbar HT-filtered
+          || m_DSID ==412116 || m_DSID == 412117 //amc@NLO+H7.1.3 ttbar 
           ){
       m_GenUsed=HerwigPP;
       if (m_DSID==410245){
@@ -92,11 +96,14 @@ namespace DerivationFramework{
           || (m_DSID>=364345 && m_DSID<=364348) //Sherpa 2.2.4 (test)
           || (m_DSID>=410424 && m_DSID<=410427) //Sherpa 2.2.4
           || (m_DSID>=410661 && m_DSID<=410664) //Sherpa 2.2.4 ttbb
+          || (m_DSID>=421152 && m_DSID<=421158) //Sherpa2.2.8 ttbar
+          || (m_DSID>=700051 && m_DSID<=700054) //Sherpa2.2.8 ttbb
            ){
       m_GenUsed=Sherpa;
       if( m_DSID==410051
           || (m_DSID>=410323 && m_DSID<=410325) || (m_DSID==410369)
           || (m_DSID>=410661 && m_DSID<=410664)
+          || (m_DSID>=700051 && m_DSID<=700054)
         ){
         m_ttbb=true;
       }

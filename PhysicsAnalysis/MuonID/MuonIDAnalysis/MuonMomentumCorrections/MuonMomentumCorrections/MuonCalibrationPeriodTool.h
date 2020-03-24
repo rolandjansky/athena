@@ -85,23 +85,31 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
         std::string m_sagittaRelease17;
         std::string m_sagittaRelease18;
         std::string m_release;
-        
+        bool m_do2StationsHighPt;
+        bool m_doExtraSmearing;
+
         int m_calib_mode;
         
         bool m_StatComb1516;
         bool m_SagittaCorr1516;
         bool m_SagittaMCDistortion1516;
         bool m_SagittaCorrPhaseSpace1516;
+        bool m_do2StationsHighPt1516;
+        bool m_doExtraSmearing1516;
         
         bool m_StatComb17;
         bool m_SagittaCorr17;
         bool m_SagittaMCDistortion17;
         bool m_SagittaCorrPhaseSpace17;
+        bool m_do2StationsHighPt17;
+        bool m_doExtraSmearing17;
         
         bool m_StatComb18;
         bool m_SagittaCorr18;
         bool m_SagittaMCDistortion18;
         bool m_SagittaCorrPhaseSpace18;
+        bool m_do2StationsHighPt18;
+        bool m_doExtraSmearing18;
         
         
         

@@ -15,6 +15,7 @@
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/JetChargeTool.h"
+#include "JetSubStructureMomentTools/MultiplicitiesTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
 #include "JetSubStructureMomentTools/SoftDropObservablesTool.h"
@@ -41,6 +42,7 @@ DECLARE_TOOL_FACTORY(EnergyCorrelatorTool)
 DECLARE_TOOL_FACTORY(EnergyCorrelatorRatiosTool)
 DECLARE_TOOL_FACTORY(EnergyCorrelatorGeneralizedTool)
 DECLARE_TOOL_FACTORY(EnergyCorrelatorGeneralizedRatiosTool)
+DECLARE_TOOL_FACTORY(MultiplicitiesTool)
 DECLARE_TOOL_FACTORY(JetPullTool)
 DECLARE_TOOL_FACTORY(JetChargeTool)
 DECLARE_TOOL_FACTORY(VolatilityTool)
@@ -68,6 +70,7 @@ DECLARE_FACTORY_ENTRIES(JetSubStructureMomentTools) {
   DECLARE_TOOL(EnergyCorrelatorRatiosTool)
   DECLARE_TOOL(EnergyCorrelatorGeneralizedTool)
   DECLARE_TOOL(EnergyCorrelatorGeneralizedRatiosTool)
+  DECLARE_TOOL(MultiplicitiesTool)
   DECLARE_TOOL(JetPullTool)
   DECLARE_TOOL(JetChargeTool)
   DECLARE_TOOL(VolatilityTool)

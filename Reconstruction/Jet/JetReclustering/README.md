@@ -15,11 +15,14 @@ If you would like to get involved, see the twiki for [the JetMET working group f
 - [Installing](#installing)
 - [Configurations for](#configurations-for)
   - [`JetReclusteringTool` tool](#jetreclusteringtool-tool)
+  - [`JetReclusteringTool` jet substructure moment tools](#jetreclusteringtool-jet-substructure-moment-tools)
   - [`JetReclusteringAlgo` algorithm](#jetreclusteringalgo-algorithm)
   - [`AthJetReclusteringAlgo` Athena algorithm](#athjetreclusteringalgo-athena-algorithm)
 - [Using Jet Reclustering](#using-jet-reclustering)
   - [Input Jet Filtering](#input-jet-filtering)
-  - [Output Reclustered Jet Trimming](#output-reclustered-jet-trimming)
+  - [Output Reclustered Jet Grooming](#output-reclustered-jet-grooming)
+    - [Trimming](#trimming)
+    - [SoftDrop](#softdrop)
   - [Variable-R Jet Finding](#variable-r-jet-finding)
   - [Area Calculations](#area-calculations)
   - [(beta) Ghost Track Association](#beta-ghost-track-association)
@@ -57,21 +60,37 @@ rc compile
 :-------------------------|:-------------------------:|--------------------------:|:-------------------------------------------------------------------------------------
 InputJetContainer         | string                    |                           | name of the input jet container for reclustering
 OutputJetContainer        | string                    |                           | name of the output jet container holding reclustered jets
+OutputUngroomedJetContainer  | string                    |                           | name of the output jet container holding ungroomed reclustered jets - optional
 InputJetPtMin             | float                     | 25.0                      | filter input jets by requiring a minimum pt cut [GeV]
 ReclusterAlgorithm        | string                    | AntiKt                    | name of algorithm for clustering large-R jets {AntiKt, Kt, CamKt}
 ReclusterRadius           | float                     | 1.0                       | radius of large-R reclustered jets or maximum radius of variable-R jet finding
 RCJetPtMin                | float                     | 50.0                      | filter reclustered jets by requiring a minimum pt cut [GeV]
-RCJetPtFrac               | float                     | 0.05                      | trim the reclustered jets with a PtFrac on its constituents (eg: small-R input jets)
-RCJetSubjetRadius         | float                     | 0.0                       | radius parameter for kt-clustering to form subjets (R=0.0 should not do any clustering)
+GroomingAlg               | string                    | trim                      | grooming algorithm to apply (trim, softdrop)
+TrimPtFrac                | float                     | 0.05                      | trim the reclustered jets with a PtFrac on its constituents (eg: small-R input jets)
+TrimSubjetRadius          | float                     | 0.01                      | size parameter for kt-clustering to form subjets (Do not set to 0.0. See notes below for more details)
+SoftDropZCut              | float                     | 0.1                       | softdrop zcut parameter
+SoftDropBeta              | float                     | 0.0                       | softdrop beta parameter
+SoftDropR0                | float                     | 1.0                       | softdrop R0 parameter
 VariableRMinRadius        | float                     | -1.0                      | minimum radius for variable-R jet finding
 VariableRMassScale        | float                     | -1.0                      | mass scale [GeV] for variable-R jet finding
 DoArea                    | bool                      | false                     | turn on ghost area calculations (set ghost area scale to 0.01)
 AreaAttributes            | string                    | ActiveArea ActiveArea4vec | space-delimited list of attributes to transfer over from fastjet
 GhostTracksInputContainer | string                    |                           | if set, create ghost tracks for the reclustered jet of radius R using the specified container
 GhostTracksVertexAssociationName  | string                    |                           | if GhostTracksInputContainer is set, this must also be set
+GhostBTagJetInputContainer  | string                    |                           | if set, create ghost truth b-tag jets using specified container
+GhostBTagJetLabel         | string                    |                           | ghost associated b-tag jet element link label, if not set defaults to "Ghost"+GhostBTagJetInputContainer
 GhostTruthInputBContainer | string                    |                           | if set, create ghost truth B-hadrons using specified container
 GhostTruthInputCContainer | string                    |                           | if set, create ghost truth C-hadrons using specified container
 GhostScale                | float                     | 1e-20                     | GhostScale for the GhostTracksInputContainer
+
+### `JetReclusteringTool` jet substructure moment tools
+
+ Property                 | Moment tool               | Type                 | Default         | Description
+:-------------------------|:--------------------------|:--------------------:|----------------:|:-------------------------------------------------------------------------------------
+ECFBetaList               | EnergyCorrelator\*Tool    | std::vector\<int\>     |                 | list of beta values other than to be used for 1.0 ECFs and ECF ratios
+ECFIncludeECF4            | EnergyCorrelator(Ratios)Tool | bool                 | false           | include 4th order ECFs and ECF ratios
+ECFGDoN3                  | EnergyCorrelatorGeneralizedTool | bool                 | false           | calculate N3 ECFG ratio - if false, default value will be saved
+ECFGDoLSeries             | EnergyCorrelatorGeneralizedTool | bool                 | false           | calculate L series ECFG ratios - if false, default value will be saved
 
 ### `JetReclusteringAlgo` algorithm
 
@@ -85,15 +104,21 @@ m_ptMin_input               | float     | 25.0                      | see above
 m_rc_alg                    | string    | AntiKt                    | see above
 m_radius                    | float     | 1.0                       | see above
 m_ptMin_rc                  | float     | 50.0                      | see above
-m_ptFrac                    | float     | 0.05                      | see above
-m_subjet_radius             | float     | 0.0                       | see above
+m_groomAlg                  | string    | trim                      | see above
+m_trim_ptFrac               | float     | 0.05                      | see above
+m_trim_subjet_radius        | float     | 0.01                      | see above
+m_sd_zcut                   | float     | 0.1                       | see above
+m_sd_beta                   | float     | 0.0                       | see above
+m_sd_R0                     | float     | 1.0                       | see above
 m_varR_minR                 | float     | -1.0                      | see above
 m_varR_mass                 | float     | -1.0                      | see above
 m_doArea                    | bool      | false                     | see above
 m_areaAttributes            | string    | ActiveArea ActiveArea4vec | see above
 m_ghostTracksInputContainer | string    |                           | see above
-m_ghostScale                | float     | 1e-20                     | see above
 m_ghostTracksVertexAssName  | string    |                           | see above
+m_ghostBTagJetInputContainer | string    |                           | see above
+m_ghostBTagJetLabel         | string    |                           | see above
+m_ghostScale                | float     | 1e-20                     | see above
 m_outputXAODName            | string    |                           | if defined, put the reclustered jets in an output xAOD file of the given name
 m_debug                     | bool      | false                     | enable verbose debugging information, such as printing the tool configurations
 
@@ -109,9 +134,15 @@ JetReclusteringTool | ToolHandle                |                           | Th
 
 The input jets can be filtered using the `InputJetPtMin` or `m_ptMin_input` options. If these are set to 0 (or less), this will turn the jet filtering tool off (essentially skipping the step).
 
-### Output Reclustered Jet Trimming
+### Output Reclustered Jet Grooming
 
-The output jets can be trimmed using the `RCJetPtFrac` or `m_ptFrac` options. If these are set to 0 (or less), this will turn the reclustered jet trimming tool off (essentially skipping the step). Note that by default, we will not kt-cluster the subjets as `RCJetSubjetRadius` / `m_subjet_radius` are set to 0.0 by default, however one can set them to a non-zero radius value if you want to form subjets (if you somehow passed in `xAOD::Jet` objects that represent clusters rather than small-R jets).
+#### Trimming
+
+The output jets can be trimmed using the `RCJetPtFrac` / `m_ptFrac` options. If these are set to 0 (or less), this will turn the reclustered jet trimming tool off (essentially skipping the step). Note that by default, we will not kt-cluster the subjets as `RCJetSubjetRadius` / `m_subjet_radius` are set to 0.01 by default, which is much smaller than any ATLAS jets. Setting these to a different value should only be done with good reason. A value of 0.0 will result in jets with no constituents and subsequent issues due to a quirk in the jet trimming algorithm. For anti-kt inputs, a value equal to the input jet size parameter can result in unexpected behavior as some very soft constituent jets may survive trimming. Larger values can be used to cluster constituent jets in a well-defined way. For kt or C/A input jets, the dR deparation between jets is much less well-defined so this parameter would require further study.
+
+#### SoftDrop
+
+The output jets can be groomed using the SoftDrop algorithm (https://arxiv.org/abs/1402.2657). The `SoftDropZCut` /  `m_sd_zcut`, `SoftDropBeta` /  `m_sd_beta`, and `SoftDropR0` /  `m_sd_R0` options set the parameters of the SoftDrop algorithm.
 
 ### Variable-R Jet Finding
 
@@ -366,7 +397,7 @@ If you would like to access any of the Variable-R moments, these will most likel
   for(const auto &jet: *in_jets){
     const ElementLink<xAOD::JetContainer> pparent(jet->getAttribute<ElementLink<xAOD::JetContainer> >("Parent"));
     const xAOD::Jet* parent(*pparent);
-    Info("execute()", "\tVariableRMassScale": %0.2f", parent->getAttribute<float>("VariableRMassScale"));
+    Info("execute()", "\tVariableRMassScale: %0.2f", parent->getAttribute<float>("VariableRMassScale"));
     Info("execute()", "\tEffectiveR: %0.2f", parent->getAttribute<float>("EffectiveR"));
     ...
   }

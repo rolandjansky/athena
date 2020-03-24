@@ -40,10 +40,18 @@ namespace Trig {
       const std::string& chain,
       double, bool)
   {
+    std::string containerName = m_inputPrefix+chain;
+    // We have to replace '.' characters with '_' characters so that these are
+    // valid container names...
+    std::replace(containerName.begin(), containerName.end(), '.', '_');
     const xAOD::TrigCompositeContainer* composites(nullptr);
-    if (evtStore()->retrieve(composites, m_inputPrefix+chain).isFailure() )
+    if (evtStore()->retrieve(composites, containerName).isFailure() ){
+      ATH_MSG_ERROR("Failed to retrieve composite container for chain "+chain);
+      ATH_MSG_ERROR("Please check your derivation to see if the container is there");
+      ATH_MSG_ERROR("This likely means the trigger is not in your file's menu");
       throw std::runtime_error(
           "Failed to retrieve composite corresponding to chain " + chain);
+    }
     for (const xAOD::TrigComposite* composite : *composites) {
       static constAcc_t<vecLink_t<xAOD::IParticleContainer>> accMatched(
           "TrigMatchedObjects");

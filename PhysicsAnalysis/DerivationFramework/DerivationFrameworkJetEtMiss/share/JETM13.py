@@ -80,9 +80,9 @@ from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
 addCHSPFlowObjects()
 pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
 
-from JetRec.JetRecConf import JetAlgorithm
-clustSeqAlg = JetAlgorithm("ClusterModifiers", Tools = [pflowCSSKSeq])
-jetm13Seq += clustSeqAlg
+# add the pflow cssk sequence to the main jetalg if not already there :
+if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
+  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
 
 # Finally we can run the UFO building taking our unified PFlow container as input
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction

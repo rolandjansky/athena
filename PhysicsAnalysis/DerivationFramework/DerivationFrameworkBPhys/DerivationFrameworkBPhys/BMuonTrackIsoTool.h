@@ -95,6 +95,7 @@ namespace DerivationFramework {
       std::string                      m_muonContainerName;
       std::vector<double>              m_isoConeSizes;
       std::vector<double>              m_isoTrkImpLogChi2Max;
+      std::vector<int>                 m_isoDoTrkImpLogChi2Cut;
 
       // containers
       mutable const xAOD::MuonContainer* m_muons;

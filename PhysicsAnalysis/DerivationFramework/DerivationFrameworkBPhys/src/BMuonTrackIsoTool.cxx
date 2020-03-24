@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -20,7 +20,12 @@
 // - IsoTrkImpLogChi2Max        -- List of maximum log(chi2) cuts for
 //                                 association of tracks to the primary
 //                                 vertex picked.
-//                                 (Must contain the same number of elements
+// - IsoDoTrkImpLogChi2Cut      -- apply log(chi2) cuts
+//                                 0 : don't apply log(chi2) cuts
+//                                 1 : apply log(chi2) cuts
+//                                 2 : apply log(chi2) cuts [former version]
+//                                 (The last two job options must
+//                                  contain the same number of elements
 //                                  as the IsolationConeSizes list.)
 //                           
 //============================================================================
@@ -98,19 +103,24 @@ namespace DerivationFramework {
     declareProperty("MuonContainerName"     , m_muonContainerName="");
     declareProperty("IsolationConeSizes"    , m_isoConeSizes);
     declareProperty("IsoTrkImpLogChi2Max"   , m_isoTrkImpLogChi2Max);
+    declareProperty("IsoDoTrkImpLogChi2Cut" , m_isoDoTrkImpLogChi2Cut);
   }
   //--------------------------------------------------------------------------
   StatusCode BMuonTrackIsoTool::initializeHook() {
   
     ATH_MSG_DEBUG("BMuonTrackIsoTool::initializeHook() -- begin");
 
-    // check like-sized arrays
-    if ( m_isoConeSizes.size() != m_isoTrkImpLogChi2Max.size() ) {
+        // check like-sized arrays
+    if ( m_isoConeSizes.size() != m_isoTrkImpLogChi2Max.size() ||
+         m_isoConeSizes.size() != m_isoDoTrkImpLogChi2Cut.size() ) {
       ATH_MSG_ERROR("Size mismatch of IsolationConeSizes ("
-		    << m_isoConeSizes.size()
-		    << ") and IsoTrkImpChi2Max ("
-		    << m_isoTrkImpLogChi2Max.size() << ") lists!");
+                    << m_isoConeSizes.size()
+                    << "), IsoTrkImpChi2Max ("
+                    << m_isoTrkImpLogChi2Max.size()
+                    << ") and IsoDoTrkImpChi2Cut ("
+                    << m_isoDoTrkImpLogChi2Cut.size() << ") lists!");
     }      
+
     // check muon container name
     if ( m_muonContainerName == "" ) {
       ATH_MSG_ERROR("No muon container name provided!");
@@ -223,6 +233,7 @@ namespace DerivationFramework {
 	
 	  const double& coneSize   = m_isoConeSizes[ic];
 	  const double& logChi2Max = m_isoTrkImpLogChi2Max[ic];
+    const int&    doLogChi2  = m_isoDoTrkImpLogChi2Cut[ic];
 
 	  double nTracksInCone = 0;
 	  double ptSumInCone   = 0.; 
@@ -233,25 +244,23 @@ namespace DerivationFramework {
 	  if ( candRefPV != NULL ) {
 
 	    for (TrackBag::const_iterator trkItr = tracks.begin();
-		 trkItr != tracks.end(); ++trkItr) {
-	      // double deltaR = candP.DeltaR((*trkItr)->p4().Vect());
+           trkItr != tracks.end(); ++trkItr) {
 	      double deltaR = candMuTracks[id].DeltaR((*trkItr)->p4().Vect());
 	      if ( deltaR < coneSize ) {
-		double logChi2 =
-		  abs(getTrackCandPVLogChi2(*trkItr, candRefPV->position()));
-		if ( logChi2 < logChi2Max ) {
-		  nTracksInCone++;
-		ptSumInCone += (*trkItr)->pt();
-		}
+          double logChi2 = (doLogChi2 > 0) ?
+            getTrackCandPVLogChi2(*trkItr, candRefPV) : -9999.;
+            // next line needed exactly as is for backward validation 
+          if ( doLogChi2 == 2 ) logChi2 = abs(logChi2); 
+          if ( doLogChi2 == 0 || logChi2 < logChi2Max ) {
+            nTracksInCone++;
+            ptSumInCone += (*trkItr)->pt();
+          }
 	      } // deltaR
 	    }    
 	    // calculate result
-	    // if ( ptSumInCone + candP.Pt() > 0. ) {
-	    // isoValue = candP.Pt() / ( ptSumInCone + candP.Pt() );
-	    // }
 	    if ( ptSumInCone + candMuTracks[id].Pt() > 0. ) {
 	      isoValue = candMuTracks[id].Pt()
-		/ ( ptSumInCone + candMuTracks[id].Pt() );
+          / ( ptSumInCone + candMuTracks[id].Pt() );
 	    }
 
 	  } else {
@@ -424,10 +433,11 @@ namespace DerivationFramework {
     
     double      coneSize   = m_isoConeSizes[ic];
     double      logChi2Max = m_isoTrkImpLogChi2Max[ic];
+    int         doLogChi2  = m_isoDoTrkImpLogChi2Cut[ic];
 
     // format it nicely
-    boost::format f("%02d_LC%02d_%s");
-    f % (int)(coneSize*10.) % (int)(logChi2Max*10.)
+    boost::format f("%02d_LC%02dd%1d_%s");
+    f % (int)(coneSize*10.) % (int)(logChi2Max*10.) % doLogChi2
       % buildBranchBaseName(its, ipv, itt);
     
     ATH_MSG_DEBUG("BMuonTrackIsoTool::buildBranchName: " << f.str());

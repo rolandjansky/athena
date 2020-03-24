@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <iostream>
@@ -71,6 +71,10 @@
 // Path resolver
 #include "PathResolver/PathResolver.h"
 
+#include "TopAnalysis/MsgCategory.h"
+// use ATH_MSG macros defined in the namespace TopAnalysis
+using namespace TopAnalysis;
+
 /**
  * @file The main executable.
  *
@@ -81,16 +85,16 @@
  */
 int main(int argc, char** argv) {
   if (argc != 3) {
-    std::cout << "Code to perform object and event selection and write-out\n";
-    std::cout << "a few histograms and / or a tree in xAOD format.\n";
-    std::cout << "Use like:\n";
-    std::cout << "    " << argv[0] << " cuts.txt input.txt\n";
-    std::cout << "    cuts.txt   - file containing cuts\n";
-    std::cout << "    input.txt  - file containing list of input files\n";
-    std::cout << "\n";
-    std::cout << "For example\n";
-    std::cout << "    " << argv[0] <<
-      " $ROOTCOREBIN/data/TopAnalysis/nocuts.txt $ROOTCOREBIN/data/TopAnalysis/input-13TeV-fondueworld.txt\n";
+    ATH_MSG_INFO("Code to perform object and event selection and write-out\n"
+        << "a few histograms and / or a tree in xAOD format.\n"
+        << "Use like:\n"
+        << "    " << argv[0] << " cuts.txt input.txt\n"
+        << "    cuts.txt   - file containing cuts\n"
+        << "    input.txt  - file containing list of input files\n"
+        << "\n"
+        << "For example\n"
+        << "    " << argv[0]
+        << " $ROOTCOREBIN/data/TopAnalysis/nocuts.txt $ROOTCOREBIN/data/TopAnalysis/input-13TeV-fondueworld.txt\n");
     return 1;
   }
 
@@ -104,16 +108,15 @@ int main(int argc, char** argv) {
 
   xAOD::TStore store;
 
-  std::cout << "Configuration Files:\n";
   std::string settingsFilename = std::string(argv[1]);
-  std::cout << "    " << settingsFilename << "\n";
-  std::cout << "    " << std::string(argv[2]) << "\n\n";
+  ATH_MSG_INFO("Configuration Files:\n"
+      << settingsFilename << "\n"
+      << std::string(argv[2]) << "\n");
 
   //load the settings from the input file
   auto* const settings = top::ConfigurationSettings::get();
   settings->loadFromFile(settingsFilename);
-  std::cout << "Configuration:\n";
-  std::cout << *settings << "\n";
+  ATH_MSG_INFO("Configuration:\n" << *settings << "\n");
 
   const std::string libraryNames = settings->value("LibraryNames");
   top::loadLibraries(libraryNames);
@@ -141,7 +144,7 @@ int main(int argc, char** argv) {
 
   //open the files (to check they exist) and count how many events we have
   std::vector<std::string> filenames = top::fileList(std::string(argv[2]));
-  unsigned int totalYield = top::checkFiles(filenames);
+  size_t totalYield = top::checkFiles(filenames);
 
   //open output file
   std::unique_ptr<TFile> outputFile(TFile::Open((settings->value("OutputFilename") + ".tmp").c_str(), "RECREATE"));
@@ -154,11 +157,12 @@ int main(int argc, char** argv) {
   bool useAodMetaData = false;
   settings->retrieve("UseAodMetaData", useAodMetaData);
   if (useAodMetaData) {
-    std::cout << "Loading meta-data from input files ... " << std::flush;
+    ATH_MSG_INFO("Loading meta-data from input files ... ");
     topConfig->aodMetaData().loadWithFilesFrom(argv[2]);
-    std::cout << "OK." << std::endl;
+    ATH_MSG_INFO("OK.");
   }
 
+  
   //picking the first file was a bad idea because in the derivations it often
   //has no events (no CollectionTree).  Be sure to pick a file with events in
   //it...
@@ -181,18 +185,16 @@ int main(int argc, char** argv) {
 
     // If there are no valid files, let's exit cleanly
     if (!(atLeastOneFileIsValid || useAodMetaData)) {
-      std::cout << "No input file contains a CollectionTree -- exiting.\n"
-                << "Unfortunately, we don't have enough information to prepare an output file for\n"
-                << "you. If you had turned on 'UseAodMetaData' in your configuration, we could\n"
-                << "overcome this limitation.\n" << std::endl;
+      ATH_MSG_ERROR("No input file contains a CollectionTree and no metadata used. Cannot Continue.");
+      ATH_MSG_ERROR("If you had turned on 'UseAodMetaData' in your configuration, "
+          "we could overcome this limitation.");
       return 1;
     }
 
     std::unique_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
-
     if (!top::readMetaData(testFile.get(), topConfig)) {
-      std::cerr << "Unable to access metadata object in this file : " << usethisfile << std::endl;
-      std::cerr << "Please report this message" << std::endl;
+      ATH_MSG_ERROR("Unable to access FileMetaData and/or TruthMetaData in this file : " << usethisfile
+          << "\nPlease report this message.");
     }
 
 
@@ -206,42 +208,58 @@ int main(int argc, char** argv) {
     topConfig->setIsPrimaryxAOD(isPrimaryxAOD);
 
     const std::string derivationStream = top::getDerivationStream(testFile.get());
-    std::cout << "Derivation stream is -> " << derivationStream << std::endl;
+    ATH_MSG_INFO("Derivation stream is -> " << derivationStream);
     topConfig->setDerivationStream(derivationStream);
 
+    // first we need to read some metadata before we read the config
     if (isMC) {
+      // check number of MC generator weights -- we need this before start initializing PMGTruthWeightTool later
+      if (atLeastOneFileIsValid) topConfig->setMCweightsVectorSize(top::MCweightsSize(testFile.get(), topConfig->sgKeyEventInfo()));
       ///-- Are we using a truth derivation (no reco information)? --///
       ///-- Let's find out in the first event, this could be done better --///
       bool isTruthDxAOD = top::isTruthDxAOD(testFile.get());
       topConfig->setIsTruthDxAOD(isTruthDxAOD);
 
-      if (!isTruthDxAOD && atLeastOneFileIsValid) {
-        unsigned int DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
-        topConfig->setDSID(DSID);
-
-        // now need to get and set the parton shower generator from TopDataPrep
-        SampleXsection tdp;
-        // Package/filename - XS file we want to use (can now be configured via cutfile)
-        const std::string tdp_filename = settings->value("TDPPath");
-        // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
-        std::string fullpath = PathResolverFindCalibFile(tdp_filename);
-        if (!tdp.readFromFile(fullpath.c_str())) {
-          std::cout << "ERROR::TopDataPreparation - could not read file \n";
-          std::cout << tdp_filename << "\n";
-          exit(1);
+      unsigned int DSID {0};
+      if (!useAodMetaData) {
+        if (atLeastOneFileIsValid) {
+          DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
+          topConfig->setDSID(DSID);
+        } else {
+          ATH_MSG_ERROR("We could not determine DSID for this sample from either CollectionTree, or FileMetaData, or TruthMetaData. There is something seriously wrong with this sample.");
+          return 1;
         }
-        std::cout << "SampleXsection::Found " << fullpath << std::endl;
-
-
-        int ShowerIndex = tdp.getShoweringIndex(DSID);
-        std::cout << "DSID: " << DSID << "\t" << "ShowerIndex: " << ShowerIndex << std::endl;
-        topConfig->setMapIndex(ShowerIndex);
+      } else {
+        DSID = topConfig->getDSID();
       }
+    }
+
+
+
+    // Pass the settings file to the TopConfig
+    topConfig->setConfigSettings(settings);
+
+    if (isMC && !topConfig->isTruthDxAOD()) {
+      // now need to get and set the parton shower generator from TopDataPrep
+      SampleXsection tdp;
+      // Package/filename - XS file we want to use (can now be configured via cutfile)
+      const std::string tdp_filename = settings->value("TDPPath");
+      // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
+      const std::string fullpath = PathResolverFindCalibFile(tdp_filename);
+      if (!tdp.readFromFile(fullpath.c_str())) {
+        ATH_MSG_ERROR("TopDataPreparation - could not read file\n" << tdp_filename);
+        return 1;
+      }
+      ATH_MSG_INFO("SampleXsection::Found " << fullpath);
+
+      tdp.setTranslator(topConfig->GetMCMCTranslator());
+
+      int ShowerIndex = tdp.getShoweringIndex(topConfig->getDSID());
+      ATH_MSG_INFO("DSID: " << topConfig->getDSID() << "\t" << "ShowerIndex: " << ShowerIndex);
+      topConfig->setMapIndex(ShowerIndex);
     }
   } //close and delete the ptr to testFile
 
-  // Pass the settings file to the TopConfig
-  topConfig->setConfigSettings(settings);
 
   //In rel 19 we had a function to guess Class or Branch Access.
   //In rel20 just use branch (quicker)
@@ -283,7 +301,7 @@ int main(int argc, char** argv) {
   std::unique_ptr<top::TopObjectSelection> objectSelection;
   if (!topConfig->HLLHC()) {
     objectSelection.reset(top::loadObjectSelection(topConfig));
-    objectSelection->print(std::cout);
+    objectSelection->print(msg(MSG::Level::INFO)); // forward to msg stream using INFO level
   }
 
   //setup event-level cuts
@@ -302,7 +320,7 @@ int main(int argc, char** argv) {
 
 
   // OK let's printout the TopConfig
-  std::cout << *topConfig << "\n";
+  ATH_MSG_INFO(*topConfig << "\n");
   if (tracker) tracker->setTopConfig(topConfig);
 
   //Top parton history for MC events
@@ -391,7 +409,7 @@ int main(int argc, char** argv) {
       }
     }
     for (unsigned int mmi = 0; mmi < FakesMMConfigIFF.size(); ++mmi) {
-      topfakesMMWeightsIFF.emplace_back(std::make_unique<CP::AsymptMatrixTool>("AsymptMatrixTool_" + mmi));
+      topfakesMMWeightsIFF.emplace_back(std::make_unique<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (mmi)));
       top::check(topfakesMMWeightsIFF.back()->setProperty("InputFiles",
                                                           std::vector<std::string>{FakesMMConfigIFF[mmi][0]}),
                  "Failed To setProperty InputFiles of AsymptMatrixTool");
@@ -429,12 +447,14 @@ int main(int argc, char** argv) {
   outputFile->cd();
   TTree* sumWeights = new TTree("sumWeights", "");
   float totalEventsWeighted = 0;
+  double totalEventsWeighted_temp = 0; 
   std::vector<float> totalEventsWeighted_LHE3;
   std::vector<double> totalEventsWeighted_LHE3_temp;// having doubles is necessary in case of re-calculation of the sum
                                                     // of weights on the fly
   std::vector<std::string> names_LHE3;
   bool recalc_LHE3 = false;
-  int dsid = 0;
+  bool recalculateNominalWeightSum = false;
+  int dsid = topConfig->getDSID();
   int isAFII = topConfig->isAFII();
   std::string generators = topConfig->getGenerators();
   std::string AMITag = topConfig->getAMITag();
@@ -453,7 +473,7 @@ int main(int argc, char** argv) {
 
   TTree* sumPdfWeights = 0;
   std::unordered_map<std::string, std::vector<float>*> totalEventsPdfWeighted;
-  int dsidPdf = 0;
+  int dsidPdf = topConfig->getDSID();
   bool pdfMetadataExists = false;
   if (topConfig->doLHAPDF()) {
     sumPdfWeights = new TTree("PDFsumWeights", "");
@@ -465,7 +485,7 @@ int main(int argc, char** argv) {
   }
 
   //the analysis loop
-  std::cout << "Starting event loop\n";
+  ATH_MSG_INFO("Starting event loop\n");
 
   // Performance stats
   if (doPerfStats > 0) xAOD::PerfStats::instance().start(); // start Perfstats timer
@@ -480,7 +500,7 @@ int main(int argc, char** argv) {
 
   for (const auto& filename : filenames) {
     if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun()) break;
-    std::cout << "Opening " << filename << std::endl;
+    ATH_MSG_INFO("Opening " << filename);
     std::unique_ptr<TFile> inputFile(TFile::Open(filename.c_str()));
 
     // the derivation framework is making files with an empty collection tree
@@ -490,24 +510,20 @@ int main(int argc, char** argv) {
     const TTree* const collectionTree = dynamic_cast<TTree* > (inputFile->Get("CollectionTree"));
     if (!collectionTree && !topConfig->isMC()) {
       if (top::ConfigurationSettings::get()->feature("SkipInputFilesWithoutCollectionTree")) {
-        std::cout << "No CollectionTree found, skipping file\n";
+        ATH_MSG_INFO("No CollectionTree found, skipping file");
         continue;
       }
     }
 
     top::check(xaodEvent.readFrom(inputFile.get()), "xAOD::TEvent readFrom failed");
 
-    //Get some of event weights before derivation
-    double initialSumOfWeightsInThisFile = 0;
+    // Sum of weights and raw number of entries before skimming in current file
+    double sumW_file = 0;
     ULong64_t initialEvents = 0;
 
-    // vector of LH3 weights and teir names
-    std::vector<float> initialSumOfWeights_mc_generator_weightsInThisFile;
-    std::vector<std::string> initialSumOfWeights_mc_generator_namesInThisFile;
-
-    // vector of PDF weights and their names
-    std::vector<float> initialSumOfWeights_pdf_weightsInThisFile;
-    std::vector<std::string> initialSumOfWeights_pdf_namesInThisFile;
+    // vector of MC generator weights and their names in current file
+    std::vector<float> LHE3_sumW_file;
+    std::vector<std::string> LHE3_names_file;
 
     // See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AnalysisMetadata#Event_Bookkeepers
     const xAOD::CutBookkeeperContainer* cutBookKeepers = 0;
@@ -515,106 +531,96 @@ int main(int argc, char** argv) {
     // <tom.neep@cern.ch> (4/4/16): Not there in DAOD_TRUTH1?
     // If we can't get them and we are running on TRUTH then carry on,
     // but anything else is bad!
-    if (!xaodEvent.retrieveMetaInput(cutBookKeepers, "CutBookkeepers")) {
-      top::check(topConfig->isTruthDxAOD(),
-                 "Failed to retrieve cut book keepers");
+    if(topConfig->isTruthDxAOD())
+    {
+      ATH_MSG_INFO("Bookkeepers are not read for TRUTH derivations");   
+    }
+    else if (!xaodEvent.retrieveMetaInput(cutBookKeepers, "CutBookkeepers")) {
+      ATH_MSG_ERROR("Failed to retrieve cut book keepers");
+      return 1;
     } else {
-      int maxCycle = -1;
-      std::vector<int> maxCycle_LH3;// for LHE3 weights
-      // for the sum of number of events and of mc event weights
-      for (auto cbk : *cutBookKeepers) {
-        // skip RDO and ESD numbers, which are nonsense; and
-        // skip the derivation number, which is the one after skimming
-        // we want the primary xAOD numbers
-        if ((cbk->inputStream() == "StreamAOD" || (topConfig->HLLHC() && cbk->inputStream() == "StreamDAOD_TRUTH1")) &&
-            cbk->name() == "AllExecutedEvents") {
-          double sumOfEventWeights = cbk->sumOfEventWeights();
-          ULong64_t nEvents = cbk->nAcceptedEvents();
-          if (cbk->cycle() > maxCycle) {
-            initialSumOfWeightsInThisFile = sumOfEventWeights;
-            initialEvents = nEvents;
-            maxCycle = cbk->cycle();
+      if (topConfig->isMC()) {
+        // try to retrieve CutBookKeepers for LHE3Weights first
+        top::parseCutBookkeepers(cutBookKeepers, LHE3_names_file, LHE3_sumW_file, topConfig->HLLHC());
+
+        // here we attempt to name the CutBookkeepers based on the MC weight names
+        // but we might end up in a situation where we don't have PMGTruthWeightTool
+        // e.g. if TruthMetaData container is broken in derivation
+        // we continue without names of the MC weights, only indices will be available
+        ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
+        if (m_pmg_weightTool.retrieve()) {
+          const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
+          // if we have MC generator weights, we rename the bookkeepers in sumWeights TTree to match the weight names from MetaData
+          top::renameCutBookkeepers(LHE3_names_file, weight_names);
+        } else {
+          for (std::string &name : LHE3_names_file) {
+            name = "?";
           }
-        } else if ((cbk->inputStream() == "StreamAOD" ||
-                    (topConfig->HLLHC() && cbk->inputStream() == "StreamDAOD_TRUTH1")) &&
-                   cbk->name().find("LHE3Weight_") != std::string::npos
-                   && topConfig->doMCGeneratorWeights()) {
-          double sumOfEventWeights = cbk->sumOfEventWeights();
-          std::string name = cbk->name();
-          name.erase(0, 11); // remove the "LHE3Weight_"
-          // is it a new name? If yes append it to the vector of names
-          // if not no need, but we must check the corresponding entry for the sum of weights exist
-          auto pos_name = std::find(initialSumOfWeights_mc_generator_namesInThisFile.begin(),
-                                    initialSumOfWeights_mc_generator_namesInThisFile.end(), name);
-          if (pos_name == initialSumOfWeights_mc_generator_namesInThisFile.end()) {
-            initialSumOfWeights_mc_generator_namesInThisFile.push_back(name);
-            initialSumOfWeights_mc_generator_weightsInThisFile.push_back(sumOfEventWeights);
-            maxCycle_LH3.push_back(cbk->cycle());
-          } else if (cbk->cycle() >
-                     maxCycle_LH3.at(pos_name - initialSumOfWeights_mc_generator_namesInThisFile.begin())) {
-            initialSumOfWeights_mc_generator_weightsInThisFile.at(
-              pos_name - initialSumOfWeights_mc_generator_namesInThisFile.begin()) = sumOfEventWeights;
-            maxCycle_LH3.at(pos_name - initialSumOfWeights_mc_generator_namesInThisFile.begin()) = cbk->cycle();
-          }
-        } else continue;
+        }
+
+        // raw number of events taken from "AllExecutedEvents" bookkeeper, which corresponds to 0th MC weight
+        // but these are raw entries, so doesn't matter if 0th MC weight is nominal or not
+        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
+
+        // determine the nominal sum of weight -- we already found the nominal weight in ScaleFactorCalculator
+        const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
+        sumW_file = LHE3_sumW_file.at(nominalWeightIndex);
+      } else {
+        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
+        sumW_file = initialEvents; // this is data, it's the same number...
       }
     }
-    totalEventsWeighted += initialSumOfWeightsInThisFile;
+
+    totalEventsWeighted += sumW_file;
     totalEvents += initialEvents;
 
-    // now we must fill two vectors in sync
-    if (topConfig->doMCGeneratorWeights()) {
+    // now we must fill two vectors in sync for MCGeneratorWeights sum of weights
+    if (topConfig->doMCGeneratorWeights() && topConfig->isMC()) {
       if (totalEventsWeighted_LHE3.size() != 0) {
-        if (totalEventsWeighted_LHE3.size() != initialSumOfWeights_mc_generator_weightsInThisFile.size()
-            || names_LHE3.size() != initialSumOfWeights_mc_generator_namesInThisFile.size()
+        if (totalEventsWeighted_LHE3.size() != LHE3_sumW_file.size()
+            || names_LHE3.size() != LHE3_names_file.size()
             || names_LHE3.size() != totalEventsWeighted_LHE3.size()) {
-          std::cout <<
-            "Ouch: strange inconsistency of vector sizes in sum of LHE3 weights calculation. There is an issue somewhere."
-                    << std::endl;
-          std::cout << "Exiting...." << std::endl;
-          std::exit(1);
+          ATH_MSG_ERROR("Strange inconsistency of vector sizes in sum of LHE3 weights calculation.");
+          return 1;
         }
-        for (unsigned int i_genweights = 0; i_genweights < initialSumOfWeights_mc_generator_namesInThisFile.size();
+        for (unsigned int i_genweights = 0; i_genweights < LHE3_names_file.size();
              i_genweights++) {
-          if (names_LHE3.at(i_genweights) != initialSumOfWeights_mc_generator_namesInThisFile.at(i_genweights)) {
-            std::cout <<
-              "Ouch: strange inconsistency in the vector of weight names in sum of LHE3 weights calculation. There is an issue somewhere."
-                      << std::endl;
-            std::cout << "Exiting...." << std::endl;
-            std::exit(1);
+          if (names_LHE3.at(i_genweights) != LHE3_names_file.at(i_genweights)) {
+            ATH_MSG_ERROR("Strange inconsistency in the vector of weight names in sum of LHE3 weights calculation.");
+            return 1;
           } else {
             totalEventsWeighted_LHE3.at(i_genweights)
               = totalEventsWeighted_LHE3.at(i_genweights)
-                + initialSumOfWeights_mc_generator_weightsInThisFile.at(i_genweights);
+                + LHE3_sumW_file.at(i_genweights);
           }
         }
       } else {
-        for (unsigned int i_genweights = 0; i_genweights < initialSumOfWeights_mc_generator_namesInThisFile.size();
+        for (unsigned int i_genweights = 0; i_genweights < LHE3_names_file.size();
              i_genweights++) {
-          names_LHE3.push_back(initialSumOfWeights_mc_generator_namesInThisFile.at(i_genweights));
-          totalEventsWeighted_LHE3.push_back(initialSumOfWeights_mc_generator_weightsInThisFile.at(i_genweights));
+          names_LHE3.push_back(LHE3_names_file.at(i_genweights));
+          totalEventsWeighted_LHE3.push_back(LHE3_sumW_file.at(i_genweights));
         }
       }
       if (!names_LHE3.empty()) {
-        std::cout << "The sum of weights for the following LHE3 weights were retrieved from the input file:" <<
-          std::endl;
-        for (std::string s : names_LHE3) std::cout << s << " ";
-        std::cout << std::endl;
+        ATH_MSG_INFO("The sum of weights for the following LHE3 weights were retrieved from the input file:");
+        for (std::string s : names_LHE3)
+          msg(MSG::Level::INFO) << s << " ";
+        msg(MSG::Level::INFO) << std::endl;
       } else {
-        std::cout << "No sum of LHE3 weights could be found in meta-data. Will try to recompute these sums." <<
-          std::endl;
-        std::cout <<
-          "It will only work on un-skimmed derivations, and it will be impossible to know the name of these weights." <<
-          std::endl;
+        ATH_MSG_INFO("No sum of LHE3 weights could be found in meta-data. Will try to recompute these sums.\n"
+            "This only works on un-skimmed derivations, and the names of these weights may be unknown (but we'll try to read them from the PMG tool");
         recalc_LHE3 = true;
       }
     }
+    
+    if (topConfig->isTruthDxAOD()) recalculateNominalWeightSum=true;
 
     if (topConfig->printCDIpathWarning()) {
-      std::cout << "\n*************************************************************************\n";
-      std::cout << "YOU ARE USING A CUSTOM PATH TO THE CDI FILE WHICH IS NOT THE DEFAULT PATH\n";
-      std::cout << "       YOU MANY NOT BE USING THE LATEST BTAGGING RECOMMENDATIONS         \n";
-      std::cout << "*************************************************************************\n\n";
+      ATH_MSG_WARNING(
+          "\n*************************************************************************\n"
+          << "YOU ARE USING A CUSTOM PATH TO THE CDI FILE WHICH IS NOT THE DEFAULT PATH\n"
+          << "       YOU MANY NOT BE USING THE LATEST BTAGGING RECOMMENDATIONS         \n"
+          << "*************************************************************************\n\n");
     }
 
     const unsigned int entries = xaodEvent.getEntries();
@@ -629,9 +635,9 @@ int main(int argc, char** argv) {
     for (entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {
       if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun()) break;
 
-      if (entry % 100 ==
-          0) std::cout << "    Processing event " << totalYieldSoFar << " / " << totalYield << " (current file: " <<
-          entry << " / " << entries << ")" << std::endl;
+      if (entry % 100 == 0)
+        ATH_MSG_INFO("Processing event " << totalYieldSoFar << " / " << totalYield
+            << " (current file: " << entry << " / " << entries << ")");
 
       // clear the TStore - get rid of the last events objects
       xAOD::TActiveStore::store()->clear();
@@ -645,21 +651,6 @@ int main(int argc, char** argv) {
       if (topConfig->doPileupReweighting() && !topConfig->isTruthDxAOD()) {
         top::check(topScaleFactors->executePileup(), "Failed to execute pileup reweighting");
         pileupWeight = topScaleFactors->pileupWeight();
-      }
-
-
-      // get mc channel number
-      // to save the sum of weights
-      if (totalYieldSoFar == 0 && topConfig->isMC()) {
-        const xAOD::EventInfo* ei(nullptr);
-        top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
-                   "xAOD::TEvent retrieve failed to get EventInfo");
-
-        //mcChannelNumber only available in MC simulation
-        if (ei->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-          dsid = ei->mcChannelNumber();
-          dsidPdf = ei->mcChannelNumber();
-        }
       }
 
       ///-- Truth events --///
@@ -723,33 +714,59 @@ int main(int argc, char** argv) {
       }
       // on the first event, set the size of the vector of sum of LHE3 weights in case it needs to be calculated on the
       // fly
-      if (topConfig->isMC() && topConfig->doMCGeneratorWeights()) {
+
+      if (topConfig->isMC()) {
         const xAOD::EventInfo* ei(nullptr);
         top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
                    "Failed to retrieve LHE3 weights from EventInfo");
-        unsigned int weightsSize = ei->mcEventWeights().size();
-        if (recalc_LHE3) {
-          if (totalYieldSoFar == 0) {
-            totalEventsWeighted_LHE3_temp.resize(weightsSize);
-            for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
-              totalEventsWeighted_LHE3_temp.at(i_LHE3) = ei->mcEventWeights().at(i_LHE3);
+        
+        if(recalculateNominalWeightSum)
+        {
+          if (totalYieldSoFar == 0) ATH_MSG_INFO("Trying to recalculate nominal weights sum for TRUTH derivation");
+          const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
+          totalEventsWeighted_temp += ei->mcEventWeights().at(nominalWeightIndex);
+          totalEvents++;
+        }
+        
+        if(topConfig->doMCGeneratorWeights())
+        {
+          unsigned int weightsSize = ei->mcEventWeights().size();
+          if (recalc_LHE3) {
+            if (totalYieldSoFar == 0) {
+              totalEventsWeighted_LHE3_temp.resize(weightsSize);
+              for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
+                totalEventsWeighted_LHE3_temp.at(i_LHE3) = ei->mcEventWeights().at(i_LHE3);
+              }
+              names_LHE3.resize(weightsSize);
+              
+              ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
+              if (m_pmg_weightTool.retrieve()) {
+                const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
+                if(weight_names.size() != weightsSize)
+                {
+                  ATH_MSG_INFO("In top-xaod, while calculating mc weights sums on the fly, names from PMG tools have different size wrt weight vector, we'll not retrieve weight names");
+                  std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
+                }
+                else{
+                  for(unsigned int i_wgt=0; i_wgt<weight_names.size(); i_wgt++) names_LHE3[i_wgt]=weight_names[i_wgt];
+                }
+              }
+              else{
+                std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
+              }
+            } else {
+              for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
+                totalEventsWeighted_LHE3_temp.at(i_LHE3) = totalEventsWeighted_LHE3_temp.at(i_LHE3) +
+                                                           ei->mcEventWeights().at(i_LHE3);
+              }
             }
-            names_LHE3.resize(weightsSize);
-            std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
-          } else {
-            for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
-              totalEventsWeighted_LHE3_temp.at(i_LHE3) = totalEventsWeighted_LHE3_temp.at(i_LHE3) +
-                                                         ei->mcEventWeights().at(i_LHE3);
-            }
+          } else if (weightsSize != names_LHE3.size()) {// don't recalc sum of weights, but cross-check the size of the
+                                                        // vectors
+            ATH_MSG_ERROR("Strange size inconsistency in the AllExecutedEvents* "
+                "sum of weights  bookkeepers from the meta-data and the vector of "
+                "LHE3 weights in the EventInfo container.");
+            return 1;
           }
-        } else if (weightsSize != names_LHE3.size()) {// don't recalc sum of weights, but cross-check the size of the
-                                                      // vectors
-          std::cout <<
-            "Ouch: strange inconsistency in the sum of LHE3 weights vectors from the meta-data and the vector of LHE3 weights in the EventInfo container."
-                    << std::endl;
-          std::cout << "It should be the same; since it's not, it's pointless to continue.";
-          std::cout << "Exiting...." << std::endl;
-          std::exit(1);
         }
       }
       ///-- End of Truth events -- start of reconstruction level events --///
@@ -833,11 +850,7 @@ int main(int argc, char** argv) {
             if (runNumber >= 300000) {
               if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
                 (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
-                std::cout << "******************************************************************************************************\n";
-                std::cout << "\tWARNING: You are running over mc16d or mc16e samples but you are not using actual mu reweighting!\n";
-                std::cout << "\tYou are strongly advised to use the actual mu reweighting\n";
-                std::cout << "\tCheck: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n";
-                std::cout << "******************************************************************************************************\n";
+                ATH_MSG_WARNING("\n***************************************************************************************\nYou are running over mc16d or mc16e sample but you are not using actual mu reweighting!\nYou are strongly adviced to use it.\nCheck https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n***************************************************************************************\n");
               }
             }
           }
@@ -869,13 +882,11 @@ int main(int argc, char** argv) {
           // check if we are using actual mu for mc16d or mc16e
           if (isFirst && topConfig->isMC()) {
             const int runNumber = topEvent.m_info->runNumber();
-            std::cout << "RunNumber: " << runNumber << std::endl;
+            ATH_MSG_INFO("RunNumber: " << runNumber);
             if (runNumber >= 300000) {
               if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
                 (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
-                std::cout << "WARNING: You are running over mc16d or mc16e samples but you are not using actual mu reweighting!\n";
-                std::cout << "You are strongly advised to use the actual mu reweighting\n";
-                std::cout << "Check: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n";
+                ATH_MSG_WARNING("\n***************************************************************************************\nYou are running over mc16d or mc16e sample but you are not using actual mu reweighting!\nYou are strongly adviced to use it.\nCheck https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n***************************************************************************************\n");
               }
             }
           }
@@ -992,16 +1003,15 @@ int main(int argc, char** argv) {
             }
             if (!foundPdf) { // asked for PDF weighting, the PDF metadata exists, but this particular PDF is missing
               // crash hard
-              std::cout << "The force is not strong with us, young Padawan ..." << std::endl;
-              std::cout << "You want to save weights to do PDF reweighting using '" << pdf_set <<
-              "', which I figure has " << totalEventsPdfWeighted[pdf_set]->size() << " sets on it." << std::endl;
-              std::cout <<
-              "There is metadata information for the sum of MC*PDF weights in PDFSumOfWeights, but none seem to refer to '"
-              << p <<
-              "' therefore I do not know how to estimate the sum of weights before acceptance for this configuration."
-              << std::endl;
-              std::cout << "May the force be with you in your next attempt." << std::endl;
-              std::exit(1);
+              ATH_MSG_ERROR(
+                  "The force is not strong with us, young Padawan ...\n"
+                  "You want to save weights to do PDF reweighting using '" << pdf_set <<
+                  "', which I figure has " << totalEventsPdfWeighted[pdf_set]->size() << " sets on it.\n"
+                  "There is metadata information for the sum of MC*PDF weights in PDFSumOfWeights, "
+                  "but none seem to refer to '" << p << "' therefore I do not know how to estimate "
+                  "the sum of weights before acceptance for this configuration.\n"
+                  "May the force be with you in your next attempt.");
+              return 1;
             }
           }
         }
@@ -1009,9 +1019,6 @@ int main(int argc, char** argv) {
       }
     } //doLHAPDF
   } //loop over files
-
-  //finish
-  std::cout << "\n";
 
   if (doPerfStats > 0) xAOD::PerfStats::instance().stop(); // Stop the PerfStats timer
 
@@ -1025,6 +1032,10 @@ int main(int argc, char** argv) {
   if (recalc_LHE3) {// in case the sum of LHE3 weight has been re-calculated with double (but we need floats in the end)
     for (double d:totalEventsWeighted_LHE3_temp) totalEventsWeighted_LHE3.push_back(d);
   }
+  if(recalculateNominalWeightSum)
+  {
+    totalEventsWeighted=totalEventsWeighted_temp;
+  }
   sumWeights->Fill();
   outputFile->cd();
 
@@ -1032,17 +1043,11 @@ int main(int argc, char** argv) {
     // Save sum of weights of PDF variations
     // Only do this if the metadata is not available
     if (totalEventsInFiles != totalEvents && !pdfMetadataExists) {
-      std::cout << "These are not the droids you are looking for." << std::endl;
-      std::cout << "There are " << totalEventsInFiles <<
-      " events in the input files, but the metadata tells me there were " << totalEvents << "before skimming." <<
-      std::endl;
-      std::cout <<
-      "This means you are running on skimmed derivations. You also want me to do PDF reweighting, but no PDF metadata exists!"
-      << std::endl;
-      std::cout <<
-      "I don't know how to tell you the sum of MC*PDF weights before skimming. I will explode now in 3, 2, 1 ..." <<
-      std::endl;
-      std::exit(1);
+      ATH_MSG_ERROR("These are not the droids you are looking for.\n"
+          "You are running over skimmed derivations. We cannot determine "
+          "the sum of MC*PDF weights before skimming "
+          "because no PDF metadata is available in the file!");
+      return 1;
     }
     // save recomputed sum weights
     if ((!topConfig->baseLHAPDF().empty() || !pdfMetadataExists)) {
@@ -1064,30 +1069,28 @@ int main(int argc, char** argv) {
   }
 
   if (!topConfig->isTruthDxAOD()) {
-    if (topConfig->doTightEvents()) std::cout << "\nEvents saved to output file nominal reconstruction tree: " <<
-      eventSavedReco << "\n";
-    if (topConfig->doLooseEvents()) std::cout << "Events saved to output file nominal Loose reconstruction tree: " <<
-      eventSavedRecoLoose << "\n";
+    if (topConfig->doTightEvents())
+      ATH_MSG_INFO("Events saved to output file nominal reconstruction tree: " << eventSavedReco);
+    if (topConfig->doLooseEvents())
+      ATH_MSG_INFO("Events saved to output file nominal loose reconstruction tree: " << eventSavedRecoLoose);
   }
   if (topConfig->isMC()) {
-    std::cout << "Events saved to output file truth tree : " << eventSavedTruth << "\n";
+    ATH_MSG_INFO("Events saved to output file truth tree : " << eventSavedTruth);
     if (particleLevelLoader.active()) {
-      std::cout << "Events saved to output file particle level tree : " << eventSavedParticle << "\n";
+      ATH_MSG_INFO("Events saved to output file particle level tree : " << eventSavedParticle);
     }
     if (upgradeLoader.active()) {
-      std::cout << "Events saved to output file upgrade tree : " << eventSavedUpgrade << "\n";
+      ATH_MSG_INFO("Events saved to output file upgrade tree : " << eventSavedUpgrade);
     }
   }
-  std::cout << "Total sum-of-weights (for normalization) : "
-            << totalEventsWeighted
-            << std::endl;
+  ATH_MSG_INFO("Total sum-of-weights (for normalization) : " << totalEventsWeighted);
 
   //print some xAOD performance info
   if (doPerfStats == 1) xAOD::IOStats::instance().stats().Print("Summary");
   if (doPerfStats == 2) xAOD::IOStats::instance().stats().Print();
 
   if (!outputFileGood) {
-    std::cout << "ERROR: an I/O error occured while attempting to save the output file." << std::endl;
+    ATH_MSG_ERROR("ERROR: an I/O error occured while attempting to save the output file.");
     return 1;
   }
 

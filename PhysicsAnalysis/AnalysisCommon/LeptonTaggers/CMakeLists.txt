@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  DetectorDescription/GeoPrimitives
 			  PRIVATE
    			  Control/AthenaBaseComps
+                          Event/EventInfo 
 			  Event/xAOD/xAODEgamma
 			  Event/xAOD/xAODMuon
 			  Event/xAOD/xAODJet
@@ -19,11 +20,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODBTagging
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEventShape
+                          Event/xAOD/xAODEventInfo
 			  Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
 			  Tools/PathResolver )
 
 # External dependencies:
-find_package( ROOT COMPONENTS TMVA Core )
+find_package( ROOT COMPONENTS TMVA Core lwtnn )
 
 # Component(s) in the package:
 atlas_add_component( LeptonTaggers
@@ -34,7 +36,9 @@ atlas_add_component( LeptonTaggers
 	   	     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel GeoPrimitives
 		     PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODEgamma 
                      xAODMuon xAODJet xAODTau xAODTracking xAODBTagging xAODCaloEvent xAODEventShape
+                     EventInfo xAODEventInfo
                      InDetTrackSelectionToolLib
+                     ${LWTNN_LIBRARIES}
                      PathResolver )
 
 # Install files from the package:

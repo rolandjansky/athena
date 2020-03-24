@@ -60,7 +60,9 @@ namespace CP
   StatusCode PileupReweightingAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
+    unsigned int nominalRandomRunNumber{};
+
+    ANA_CHECK (m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_pileupReweightingTool->applySystematicVariation (sys));
         xAOD::EventInfo *eventInfo = nullptr;
         ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));
@@ -95,12 +97,23 @@ namespace CP
             = m_pileupReweightingTool->getPRWHash (*eventInfo);
         }
 
-        // Must decorate the actual instance in the event store for
-        // the electron tool to work
-        evtStore()->retrieve<const xAOD::EventInfo>("EventInfo")
-          ->auxdecor<unsigned int>("RandomRunNumber") =
-          eventInfo->auxdecor<unsigned int> ("RandomRunNumber");
+        // In the case of nominal systematics store the RandomRunNumber for
+        // later. Event info can not be decorated at this point as the
+        // decoration will then also be present in subsequent shallow copies.
+        if (sys.empty())
+        {
+          nominalRandomRunNumber = eventInfo->auxdecor<unsigned int> ("RandomRunNumber");
+        }
+
         return StatusCode::SUCCESS;
-      });
+      }));
+
+    // Must decorate the actual instance in the event store for
+    // the electron tool to work. The decoration is done out of the loop
+    // to avoid it being present in all subsequent shallow copies.
+    evtStore()->retrieve<const xAOD::EventInfo>("EventInfo")
+      ->auxdecor<unsigned int>("RandomRunNumber") = nominalRandomRunNumber;
+
+    return StatusCode::SUCCESS;
   }
 }

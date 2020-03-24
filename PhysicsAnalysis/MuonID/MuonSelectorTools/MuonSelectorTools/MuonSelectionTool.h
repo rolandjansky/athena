@@ -1,10 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
 #ifndef MUONSELECTORTOOLS_MUONSELECTIONTOOL_H
 #define MUONSELECTORTOOLS_MUONSELECTIONTOOL_H
 
@@ -15,10 +12,7 @@
 #include "TH2D.h"
 #include "TSystem.h" // Replace with PathResolver
 #include "TMVA/Reader.h"
-
-// Local include(s):
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-
 
 namespace CP {
 
@@ -41,6 +35,7 @@ namespace CP {
                        CP::IMuonSelectionTool )
 
    public:
+
       /// Constructor for standalone usage
       MuonSelectionTool( const std::string& name = "MuonSelection");
 
@@ -50,7 +45,7 @@ namespace CP {
       /// @{
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// @}
 
@@ -58,10 +53,10 @@ namespace CP {
       /// @{
 
       /// Get an object describing the "selection steps" of the tool
-      virtual const Root::TAccept& getTAccept() const;
+      virtual const Root::TAccept& getTAccept() const override;
 
       /// Get the decision using a generic IParticle pointer
-      virtual const Root::TAccept& accept( const xAOD::IParticle* p ) const;
+      virtual const Root::TAccept& accept( const xAOD::IParticle* p ) const override;
 
       /// @}
 
@@ -69,51 +64,54 @@ namespace CP {
       /// @{
 
       /// Get the decision for a specific Muon object
-      virtual const Root::TAccept& accept( const xAOD::Muon& mu ) const;
+      virtual const Root::TAccept& accept( const xAOD::Muon& mu ) const override;
 
       /// set the passes ID cuts variable of the muon 
-      void setPassesIDCuts(xAOD::Muon&) const;
+      void setPassesIDCuts(xAOD::Muon&) const override;
 	  
       /// set the passes high pT cuts variable of the muon 
-      void setPassesHighPtCuts( xAOD::Muon& mu ) const;
+      void setPassesHighPtCuts( xAOD::Muon& mu ) const override;
 
       /// set the passes low pT cuts variable of the muon
       //void setPassesLowPtEfficiencyCuts( xAOD::Muon& mu ) const;
      
       /// set the passes quality variable of the muon 
-      void setQuality( xAOD::Muon& mu ) const;
+      void setQuality( xAOD::Muon& mu ) const override;
 
       /// Returns true if the muon passes the standard MCP ID cuts. To set the value on the muon, instead call setPassesIDCuts(xAOD::Muon&) const
-      bool passedIDCuts(const xAOD::Muon&) const;
+      bool passedIDCuts(const xAOD::Muon&) const override;
  
       /// Returns true if the muon passes a standardized loose preselection.
-      bool passedMuonCuts(const xAOD::Muon&) const;
+      bool passedMuonCuts(const xAOD::Muon&) const override;
 
       /// Returns true if the track particle passes the standard MCP ID cuts.
-      bool passedIDCuts(const xAOD::TrackParticle&) const;
+      bool passedIDCuts(const xAOD::TrackParticle&) const override;
      
       /// Returns true if the muon passes the standard MCP High Pt cuts. To set the value on the muon, instead call setPassesHighPtCuts(xAOD::Muon&) const
-      bool passedHighPtCuts(const xAOD::Muon&) const;
+      bool passedHighPtCuts(const xAOD::Muon&) const override;
 
       /// Returns true if the muon passes the standard MCP low pt cuts. To set the value on the muon, instead call setPassesLowPtEfficiencyCuts(xAOD::Muon&) const
-      bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const;
-      bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const;
+      bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const override;
+      bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const override;
       bool passedLowPtEfficiencyMVACut(const xAOD::Muon&) const;
 
       /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
-      bool passedErrorCutCB(const xAOD::Muon&) const;
+      bool passedErrorCutCB(const xAOD::Muon&) const override;
 
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks
-      bool isBadMuon(const xAOD::Muon&) const;
+      bool isBadMuon(const xAOD::Muon&) const override;
 
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
-      xAOD::Muon::Quality getQuality( const xAOD::Muon& mu ) const;
+      xAOD::Muon::Quality getQuality( const xAOD::Muon& mu ) const override;
 
       /// Returns true if the muon passed additional calo-tag quality cuts
-      bool passedCaloTagQuality (const xAOD::Muon& mu) const;
+      bool passedCaloTagQuality (const xAOD::Muon& mu) const override;
 
       /// Returns true if the muon passed the tight working point cuts    
       bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
+
+      /// Returns an integer corresponding to categorization of muons with different resolutions
+      virtual int getResolutionCategory(const xAOD::Muon&) const override;
       /// @}
 
 
@@ -168,6 +166,11 @@ namespace CP {
      //argument needOnlyCorrectYear=true, in which case the random run number decoration
      //from the pile-up reweighting tool is not needed.
      unsigned int getRunNumber(bool needOnlyCorrectYear = false) const;
+
+     //Check if muon eta/phi falls in BIS7/8, BEE, or BMG chambers
+     bool isBIS78(const float eta, const float phi) const;
+     bool isBEE(const float eta, const float phi) const;
+     bool isBMG(const float eta, const float phi) const;
 
      //TMVA readers for low-pT working point
      TMVA::Reader* readerE_MUID;

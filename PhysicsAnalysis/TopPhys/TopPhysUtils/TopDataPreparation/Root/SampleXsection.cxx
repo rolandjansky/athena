@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <fstream>
@@ -36,21 +36,12 @@ bool SampleXsection::readFromFile(const char* fName) {
       showering shower;
       istr >> dsid >> xSect >> kFact >> s_shower >> s_xSectDw >> s_xSectUp;
       if (!s_shower.empty() && s_shower[0] != '#') {
-        if (s_shower == "pythia") shower = pythia;
-        else if (s_shower == "herwig") shower = herwig;
-        else if (s_shower == "sherpa") shower = sherpa;
-        else if (s_shower == "sherpa21") shower = sherpa21;
-        else if (s_shower == "pythia8") shower = pythia8;
-        else if (s_shower == "herwigpp") shower = herwigpp;
-        else if (s_shower == "amcatnlopythia8") shower = amcatnlopythia8;
-        else {
+        shower = stringToShower(s_shower);
+        if (shower == showering::unknown) {
           cerr <<
           "ERROR!! TopDataPreparation::SampleXsection::readFromFile: unknown showering (which is needed for btagging SF!!!) : "
                << s_shower << " for DSID= " << dsid << endl;
-          shower = unknown;
         }
-        //cout << "INFO SampleXsection::readFromFile: showering : " << s_shower << " -> " << shower << " for DSIS= "
-        // <<dsid <<endl;
 
         if (!s_xSectDw.empty() && s_xSectDw[0] != '#') {
           xSectDw = atof(s_xSectDw.c_str());
@@ -61,7 +52,6 @@ bool SampleXsection::readFromFile(const char* fName) {
             " ), but not xSectUp" << endl;
             xSectUp = -1.;
           }
-          //cout << " xSectDw= " << xSectDw << "\txSectUp= " << xSectUp << endl;
         } else {
           xSectDw = -1.;
           xSectUp = -1.;
@@ -140,7 +130,14 @@ pair<double, double> SampleXsection::getXsectionDownUp(const int dsid) const {
 
 SampleXsection::showering SampleXsection::getShowering(const int dsid) const {
   map<int, showering >::const_iterator it = m_Showering.find(dsid);
-  if (it != m_Showering.end()) return it->second;
+  if (it != m_Showering.end()) {
+
+    showering shower = it->second;
+    // apply the translation of set
+    shower = applyTranslation(shower); 
+
+    return shower;
+  }
 
   return unknown;
 }
@@ -159,6 +156,8 @@ int SampleXsection::getShoweringIndex(const int dsid) const {
   else if (shower == showering::sherpa) return 3;
   else if (shower == showering::sherpa21) return 4;
   else if (shower == showering::amcatnlopythia8) return 5;
+  else if (shower == showering::herwigpp713) return 6;
+  else if (shower == showering::sherpa228) return 7;
   else {
     std::cout <<
     "==========================================================================================================================================="
@@ -170,4 +169,45 @@ int SampleXsection::getShoweringIndex(const int dsid) const {
   }
 
   return 0;
+}
+
+SampleXsection::showering SampleXsection::applyTranslation(const SampleXsection::showering shower) const {
+  const std::string& stringName = showerToString(shower);
+
+  // check the map
+  auto itr = m_translator.find(stringName);
+  if (itr == m_translator.end()) {
+    return shower;
+  } else {
+    // need to apply the translation
+    return stringToShower(itr->second);
+  }
+}
+
+std::string SampleXsection::showerToString(const SampleXsection::showering shower) const {
+  if (shower == showering::pythia) return "pythia";
+  else if (shower == showering::herwig) return "herwig";
+  else if (shower == showering::herwigpp) return "herwig";
+  else if (shower == showering::sherpa) return "sherpa";
+  else if (shower == showering::sherpa21) return "sherpa21";
+  else if (shower == showering::pythia8) return "pythia8";
+  else if (shower == showering::amcatnlopythia8) return "amcatnlopythia8";
+  else if (shower == showering::herwigpp713) return "herwigpp713";
+  else if (shower == showering::sherpa228) return "sherpa228";
+
+  return "";
+}
+
+SampleXsection::showering SampleXsection::stringToShower(const std::string& name) const {
+  if (name == "pythia") return showering::pythia;
+  else if (name == "herwig") return showering::herwig;
+  else if (name == "sherpa") return showering::sherpa;
+  else if (name == "sherpa21") return showering::sherpa21;
+  else if (name == "pythia8") return showering::pythia8;
+  else if (name == "herwigpp") return showering::herwigpp;
+  else if (name == "amcatnlopythia8") return showering::amcatnlopythia8;
+  else if (name == "herwigpp713") return showering::herwigpp713;
+  else if (name == "sherpa228") return showering::sherpa228;
+
+  return showering::unknown;
 }

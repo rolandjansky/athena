@@ -54,9 +54,9 @@ StatusCode HepMCTruthReader::execute() {
             ATH_MSG_INFO( "Printing signal event..." );
             const HepMC::GenVertex* spv = genEvt->signal_process_vertex();
             ATH_MSG_INFO( "Signal process vertex position: ("
-                          << spv->position().x() << ", "
-                          << spv->position().y() << ", "
-                          << spv->position().z() << "). Pointer: " << spv );
+                          << (spv?spv->position().x():0.) << ", "
+                          << (spv?spv->position().y():0.) << ", "
+                          << (spv?spv->position().z():0.) << "). Pointer: " << spv );
          }
          break;
       case 1:

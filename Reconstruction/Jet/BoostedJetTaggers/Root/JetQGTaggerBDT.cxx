@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JetQGTaggerBDT.h"
@@ -24,13 +24,11 @@ namespace CP {
     m_trkSelectionTool(name+"_trackselectiontool", this)
     {
 
-      declareProperty( "ConfigFile",   m_configFile="");
-
       declareProperty( "JetPtMin",              m_jetPtMin = 20000.0);
       declareProperty( "JetPtMax",              m_jetPtMax = 1500000.0);
       declareProperty( "JetEtaMax",             m_jetEtaMax = 2.5);
 
-      declareProperty( "CalibArea",      m_calibarea = "BoostedJetTaggers/JetQGTaggerBDT/Oct18/");
+      m_calibArea = "BoostedJetTaggers/JetQGTaggerBDT/Oct18/"; // Overwrite base class default
       declareProperty( "TMVAConfigFile", m_tmvaConfigFileName="TMVAClassification_BDTQGTagger_Oct18_BDT.weights.xml");
       declareProperty( "UseJetVars",   m_mode = 1); // 0 uses the tracks. 1 uses variables from the jets (default)
 
@@ -72,7 +70,7 @@ namespace CP {
       }
 
       // get the CVMFS calib area where stuff is stored
-      m_calibarea = configReader.GetValue("CalibArea" ,"");
+      m_calibArea = configReader.GetValue("CalibArea" ,"");
 
       // get the name/path of the JSON config
       m_tmvaConfigFileName = configReader.GetValue("TMVAConfigFile" ,"");
@@ -82,22 +80,22 @@ namespace CP {
       ATH_MSG_INFO( "scoreCut: "<<m_strScoreCut );
 
     }
-    // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-    if( m_calibarea.empty() ){
-      ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
+    // if the calibArea is specified to be "Local" then it looks in the same place as the top level configs
+    if( m_calibArea.empty() ){
+      ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibArea is as either being Local or on CVMFS") );
       return StatusCode::FAILURE;
     }
-    else if(m_calibarea.compare("Local")==0){
+    else if(m_calibArea.compare("Local")==0){
       std::string localCalibArea = "BoostedJetTaggers/share/JetQGTaggerBDT/";
-      ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea));
+      ATH_MSG_INFO( (m_APP_NAME+": Using Local calibArea "+localCalibArea));
       // convert the JSON config file name to the full path
       m_tmvaConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_tmvaConfigFileName);
     }
     else{
-      ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
+      ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibArea") );
       // get the config file from CVMFS
       // necessary because xml files are too large to house on the data space
-      m_tmvaConfigFilePath = PathResolverFindCalibFile( (m_calibarea+m_tmvaConfigFileName).c_str() );
+      m_tmvaConfigFilePath = PathResolverFindCalibFile( (m_calibArea+m_tmvaConfigFileName).c_str() );
     }
 
     //transform string to TF1

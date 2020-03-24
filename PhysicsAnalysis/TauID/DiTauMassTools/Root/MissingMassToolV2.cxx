@@ -30,7 +30,7 @@ MissingMassToolV2::MissingMassToolV2(const std::string& name) : asg::AsgTool(nam
   declareProperty("UseDefaults",		m_use_defaults=-1);
   declareProperty("UseEfficiencyRecovery",	m_use_efficiency_recovery=-1);
   declareProperty("UseMETDphiLL",		m_use_met_param_dphiLL = false);
-  declareProperty("ParamFilePath",		m_param_file_path = "MMC_params_v1.root");
+  declareProperty("ParamFilePath",		m_param_file_path = "MMC_params_v1_fixed.root");
 }
 
 // Copy constructor

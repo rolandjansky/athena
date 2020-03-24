@@ -15,7 +15,7 @@ namespace top {
   class TopJetSubstructure {
   public:
     TopJetSubstructure();
-    ~TopJetSubstructure();
+    virtual ~TopJetSubstructure();
 
     virtual void correctJet(xAOD::Jet& /*jet*/) = 0;
 

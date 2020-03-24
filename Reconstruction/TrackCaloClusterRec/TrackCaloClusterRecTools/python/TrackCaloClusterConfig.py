@@ -72,7 +72,10 @@ def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",
     If no TrackClusterAssociationAlg is found in the sequence, setupTrackCaloAssoc() is called to create the needed association.
     """
 
-    
+    sequence = getTCCConstitSeq(sequence) # will insert in a dedicated sequence setup just before the original sequence
+    if hasattr(sequence, "TrackCaloClusterAlg"):
+        return getattr(sequence, "TrackCaloClusterAlg")
+
 
     from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TCCCombinedTool, TCCChargedTool, TCCNeutralTool
 
@@ -133,6 +136,10 @@ def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="Ca
     If no TrackClusterAssociationAlg is found in the sequence, setupTrackCaloAssoc() is called to create the needed association.
     """
 
+    sequence = getTCCConstitSeq(sequence) # will insert in a dedicated sequence setup just before the original sequence
+    if hasattr(sequence, "TrackCaloClusterAlgUFO"+PFOPrefix):
+        return getattr(sequence, "TrackCaloClusterAlgUFO"+PFOPrefix)
+
     if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
         setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=True)
     
@@ -167,3 +174,36 @@ def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="Ca
     sequence += tccAlg
     return tccAlg
 
+def findParentSeq(sequence):
+    from AthenaCommon.AlgSequence import AlgSequence, iter_algseq
+    topSequence = AlgSequence()
+    if topSequence is sequence:
+        return sequence
+
+    for s in iter_algseq(topSequence):
+        if sequence in s:
+            return s
+    
+    # if not found, sequence is not yet part of main sequence
+    return topSequence
+
+def getTCCConstitSeq(sequence):
+    parent = findParentSeq(sequence)
+
+    jetConstSeq = getattr(parent, "JetTCCConstitSeq", None)
+
+    if jetConstSeq != None:
+        return jetConstSeq
+
+    from AthenaCommon.AlgSequence import AlgSequence
+    jetConstSeq = AlgSequence("JetTCCConstitSeq")
+
+    if parent is sequence:
+        sequence += jetConstSeq
+    else:
+        try:
+            i=parent.getSequence().index(sequence.getFullJobOptName())
+            parent.insert(i,jetConstSeq)
+        except ValueError:
+             parent += jetConstSeq
+    return jetConstSeq

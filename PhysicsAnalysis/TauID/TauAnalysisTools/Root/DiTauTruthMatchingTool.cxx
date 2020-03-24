@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s)
@@ -52,7 +52,7 @@ StatusCode DiTauTruthMatchingTool::initialize()
 //______________________________________________________________________________
 void DiTauTruthMatchingTool::getTruth(const xAOD::DiTauJet& xDiTau)
 {
-  if (m_bIsData)
+  if (isData())
     return;
 
   if (retrieveTruthTaus().isFailure())

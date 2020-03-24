@@ -70,7 +70,8 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
 						 bool alignable,
 						 bool doArgon,
 						 bool doKrypton,
-						 bool useDynamicAlignmentFolders)
+						 bool useDynamicAlignmentFolders,
+                         bool isSimulation)
   : InDetDD::DetectorFactoryBase(athenaComps), 
     m_detectorManager(0), 
     m_materialManager(0),
@@ -83,7 +84,8 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
     m_strawsvcavailable(0),
     m_doArgon(doArgon),
     m_doKrypton(doKrypton),
-    m_useDynamicAlignFolders(useDynamicAlignmentFolders)
+    m_useDynamicAlignFolders(useDynamicAlignmentFolders),
+    m_isSimulation(isSimulation)
 { 
   m_sumSvc=m_summarySvc;
 }
@@ -149,10 +151,16 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	m_strawsvcavailable &= (m_sumSvc->getStrawStatusHTContainer() != nullptr);
   }
   msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable << endreq ;
-  if (!m_strawsvcavailable) msg(MSG::WARNING) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endreq;
-  if (!m_doArgon  )	msg(MSG::WARNING) << "Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endreq;
-  if (!m_doKrypton)	msg(MSG::WARNING) << "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endreq;
-  
+
+  if (m_isSimulation){
+    if (!m_strawsvcavailable) msg(MSG::WARNING) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endreq;
+    if (!m_doArgon  )	msg(MSG::WARNING) << "Tool setup will force to NOT to use ARGON. Please cross-check, as it seems you are running SIMULATION" << endreq;
+    if (!m_doKrypton)	msg(MSG::WARNING) << "Tool setup will force to NOT to use KRYPTON. Please cross-check, as it seems you are running SIMULATION" << endreq;
+  } else {
+    if (!m_strawsvcavailable) msg(MSG::INFO) << "The folder of /TRT/Cond/StatusHT is not available, whole TRT running Xenon" << endreq;
+    if (!m_doArgon  )   msg(MSG::INFO) << "Tool setup will force to not to use Argon. This is probably ok, as you are not running simulation" << endreq;
+    if (!m_doKrypton)   msg(MSG::INFO) << "Tool setup will force to not to use Krypton. This is probably ok, as you are not running simulation" << endreq;
+  }
  
   //---------------------- Initialize ID Helper ------------------------------------//
 

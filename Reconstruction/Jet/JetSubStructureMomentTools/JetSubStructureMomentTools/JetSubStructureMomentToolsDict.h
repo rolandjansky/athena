@@ -23,6 +23,7 @@
 #include "JetSubStructureMomentTools/KtDeltaRTool.h"
 #include "JetSubStructureMomentTools/PlanarFlowTool.h"
 #include "JetSubStructureMomentTools/SoftDropObservablesTool.h"
+#include "JetSubStructureMomentTools/MultiplicitiesTool.h"
 #include "JetSubStructureMomentTools/SubjetMakerTool.h"
 #include "JetSubStructureMomentTools/CenterOfMassShapesTool.h"
 #include "JetSubStructureMomentTools/ISubjetRecorderTool.h"

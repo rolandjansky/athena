@@ -5,6 +5,7 @@
 // $Id: MissingETObjectCollectionMaker.cxx 806051 2017-06-07 00:32:41Z tpelzer $
 #include "TopSystematicObjectMaker/MissingETObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 #include "TopEvent/SystematicEvent.h"
 
@@ -230,6 +231,13 @@ namespace top {
         met::addGhostMuonsToJets(*xaod_mu, *xaod_jet);
       }
     }
+    else
+    {
+      ConstDataVector<xAOD::MuonContainer> met_muons(SG::VIEW_ELEMENTS);
+      top::check(m_met_maker->rebuildMET("RefMuon", xAOD::Type::Muon,
+                                         new_met_container, met_muons.asDataVector(),
+                                         xaod_met_map), "Failed to rebuild muon MET term");
+    }
 
 
     // 5. Jets
@@ -312,6 +320,9 @@ namespace top {
       m_met_systematics->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
+      
       ///-- Recommendation is to use soft track terms and not soft calo terms --///
       ///-- Soft calo systematics are irrelevant, let's ignore them --///
       if (s.name().find("SoftCalo") == std::string::npos) {
@@ -329,7 +340,8 @@ namespace top {
             }
             if (specifiedSystematics.size() > 0) {
               for (auto i : specifiedSystematics) {
-                if (i == s.name()) {
+                TreeFilter filter(i);
+		if (!filter.filterTree(s.name())) {
                   m_specifiedSystematics.push_back(s);
                 }
               }

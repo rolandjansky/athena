@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s)
@@ -48,7 +48,7 @@ StatusCode TauTruthMatchingTool::initialize()
 //______________________________________________________________________________
 const xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau)
 {
-  if (m_bIsData)
+  if (isData())
     return nullptr;
 
   if (retrieveTruthTaus().isFailure())

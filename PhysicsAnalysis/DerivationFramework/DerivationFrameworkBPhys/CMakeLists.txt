@@ -33,6 +33,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkCaloExtension
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
+   InnerDetector/InDetRecTools/TrackVertexAssociationTool
    Trigger/TrigAnalysis/TrigDecisionTool
    InnerDetector/InDetRecAlgs/InDetV0Finder
    Tracking/TrkVertexFitter/TrkVertexSeedFinderUtils

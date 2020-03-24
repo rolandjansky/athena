@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_HELPERFUNCTIONS_H
@@ -54,6 +54,8 @@ double finalTauEta(const xAOD::TauJet& xTau);
 double finalTauAbsEta(const xAOD::TauJet& xTau);
 double finalTauP(const xAOD::TauJet& xTau);
 double tauLeadTrackEta(const xAOD::TauJet& xTau);
+double truthTauPt(const xAOD::TauJet& xTau);
+double truthTauAbsEta(const xAOD::TauJet& xTau);
 double truthDecayMode(const xAOD::TauJet& xTau);
 const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau);
 xAOD::TauJetParameters::DecayMode getTruthDecayMode(const xAOD::TruthParticle& xTruthTau);
@@ -68,6 +70,8 @@ void truthHadrons(const xAOD::TauJet* xTau, std::vector<const xAOD::TruthParticl
 
 e_TruthMatchedParticleType getTruthParticleType(const xAOD::TauJet& xTau);
 e_TruthMatchedParticleType getTruthParticleType(const xAOD::DiTauJet& xDiTau);
+double average_mu(const xAOD::TauJet& xTau);
+void set_mu(unsigned int mu);
 }
 
 #endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H

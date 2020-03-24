@@ -23,6 +23,7 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
@@ -207,6 +208,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_baseline(input) = true;
   dec_selected(input) = 2;
 
+  if (!m_muIso_WP.empty() && m_muIso_WP=="PLVTight") ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
   if (!m_muIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
   if (!m_muIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
   dec_passSignalID(input) = m_muonSelectionTool->accept(input);

@@ -9,6 +9,7 @@
 + Control/AthLinksSA
 + Control/AthToolSupport/.*
 + Control/CxxUtils
++ Control/xAODDataSource
 + Control/xAODRootAccess.*
 + DataQuality/GoodRunsLists
 + DetectorDescription/GeoPrimitives

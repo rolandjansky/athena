@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardToolManager.py
 #
@@ -115,35 +115,49 @@ emgetters = [jtm.emget]
 lcgetters = [jtm.lcget]
 
 tccgetters = [jtm.tccget]
+csskufogetters = [jtm.csskufoget]
+chsufogetters = [jtm.chsufoget]
+
 if jetFlags.useTracks():
   emgetters = [jtm.emoriginget]
   lcgetters = [jtm.lcoriginget]
-  emgetters += [jtm.gtrackget]
-  lcgetters += [jtm.gtrackget]
-  empfgetters += [jtm.gtrackget]
-  tccgetters += [jtm.gtrackget]
+  emgetters      += [jtm.gtrackget]
+  lcgetters      += [jtm.gtrackget]
+  empfgetters    += [jtm.gtrackget]
+  tccgetters     += [jtm.gtrackget]
+  csskufogetters += [jtm.gtrackget]
+  chsufogetters  += [jtm.gtrackget]
 
 if jetFlags.useMuonSegments():
-  emgetters += [jtm.gmusegget]
-  lcgetters += [jtm.gmusegget]
-  empfgetters  += [jtm.gmusegget]
-  tccgetters += [jtm.gmusegget]
+  emgetters      += [jtm.gmusegget]
+  lcgetters      += [jtm.gmusegget]
+  empfgetters    += [jtm.gmusegget]
+  tccgetters     += [jtm.gmusegget]
+  csskufogetters += [jtm.gmusegget]
+  chsufogetters  += [jtm.gmusegget]
+
 # Add jet ghosts.
 if 1:
   for gettername in jetFlags.additionalTopoGetters():
     getter = jtm[gettername]
-    emgetters += [getter]
-    lcgetters += [getter]
-    tccgetters += [getter]
+    emgetters      += [getter]
+    lcgetters      += [getter]
+    tccgetters     += [getter]
+    csskufogetters += [getter]
+    chsufogetters  += [getter]
+
 # Add truth getter and truth ghosts.
 if jetFlags.useTruth():
   truthgetters = [jtm.truthget]
   truthwzgetters = [jtm.truthwzget]
-  trackgetters += [jtm.gtruthget]
-  emgetters += [jtm.gtruthget]
-  lcgetters += [jtm.gtruthget]
-  empfgetters += [jtm.gtruthget]
-  tccgetters += [jtm.gtruthget]
+  trackgetters   += [jtm.gtruthget]
+  emgetters      += [jtm.gtruthget]
+  lcgetters      += [jtm.gtruthget]
+  empfgetters    += [jtm.gtruthget]
+  tccgetters     += [jtm.gtruthget]
+  csskufogetters += [jtm.gtruthget]
+  chsufogetters  += [jtm.gtruthget]
+  
   # Add truth cone matching and truth flavor ghosts.
   flavorgetters = []
   for ptype in jetFlags.truthFlavorTags():
@@ -155,16 +169,21 @@ if jetFlags.useTruth():
   trackgetters   += flavorgetters
   empfgetters    += flavorgetters
   tccgetters     += flavorgetters
+  csskufogetters += flavorgetters
+  chsufogetters  += flavorgetters
+
 # Add track jet ghosts.
 if jetFlags.useTracks():
   trackjetgetters = []
   trackjetgetters += [jtm.gakt2trackget]
 #  trackjetgetters += [jtm.gakt3trackget]
   trackjetgetters += [jtm.gakt4trackget]
-  emgetters     += trackjetgetters
-  lcgetters     += trackjetgetters
-  empfgetters   += trackjetgetters
-  tccgetters    += trackjetgetters
+  emgetters       += trackjetgetters
+  lcgetters       += trackjetgetters
+  empfgetters     += trackjetgetters
+  tccgetters      += trackjetgetters
+  csskufogetters  += trackjetgetters
+  chsufogetters   += trackjetgetters
 
 
 # Add getter lists to jtm indexed by input type name.
@@ -174,6 +193,8 @@ jtm.gettersMap["empflow"]   = list(empfgetters)
 jtm.gettersMap["track"]     = list(trackgetters)
 jtm.gettersMap["pv0track"]  = list(trackgetters)
 jtm.gettersMap["tcc"]       = list(tccgetters)
+jtm.gettersMap["csskufo"]   = list(csskufogetters)
+jtm.gettersMap["chsufo"]    = list(chsufogetters)
 if jetFlags.useTruth():
   jtm.gettersMap["truth"]   = list(truthgetters)
   jtm.gettersMap["truthwz"] = list(truthwzgetters)
@@ -181,8 +202,9 @@ if jetFlags.useTruth():
 jtm.gettersMap["emtopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],emgetters)
 jtm.gettersMap["lctopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],lcgetters)
 jtm.gettersMap["tcc_reduced"]     = filterout(["gakt2trackget","gakt4trackget"],tccgetters)
+jtm.gettersMap["csskufo_reduced"] = filterout(["gakt2trackget","gakt4trackget"],csskufogetters)
 jtm.gettersMap["empflow_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters)
-
+jtm.gettersMap["chsufo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],chsufogetters)
 
 #########################################################
 # Modifiers
@@ -226,6 +248,9 @@ if jetFlags.useTracks():
   ungroomed_modifiers += [jtm.charge]
   ungroomed_modifiers += ["trackassoc"]
   ungroomed_modifiers += [jtm.jetorigin_setpv]
+  # putting the multiplicity tool here seems to prevent crashes related to
+  # e.g. PU-suppressed PFO ungroomed jets -- to be followed up on in 2020. -- MLB
+  # ungroomed_modifiers += [jtm.multiplicities] 
 if jetFlags.useTruth():
   ungroomed_modifiers += ["truthassoc"]
   if jtm.haveParticleJetTools:
@@ -279,7 +304,7 @@ if jetFlags.useBTagging():
 # TCC-only modifiers here
 tcc_ungroomed_modifiers = []
 tcc_ungroomed_modifiers += [jtm.constitfourmom_pflow]
-tcc_ungroomed_modifiers += filterout(["ecpsfrac","jetens","larhvcorr","caloqual_cluster"], ungroomed_modifiers)
+tcc_ungroomed_modifiers += filterout(["ecpsfrac","larhvcorr","caloqual_cluster","jvf","jvt"], ungroomed_modifiers)
 
 tcc_groomed_modifiers = []
 tcc_groomed_modifiers += [jtm.constitfourmom_pflow]

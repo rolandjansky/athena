@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopOtherCPTools.h"
@@ -206,14 +206,16 @@ namespace top {
 
     // Tool for access truth weights via names
     const std::string truthWeightToolName = "PMGTruthWeightTool";
-    PMGTools::PMGTruthWeightTool* truthweightTool = nullptr;
-    if (asg::ToolStore::contains<PMGTools::PMGTruthWeightTool>(truthWeightToolName)) {
-      truthweightTool = asg::ToolStore::get<PMGTools::PMGTruthWeightTool>(truthWeightToolName);
+    PMGTools::PMGTruthWeightTool* truthweightTool = new PMGTools::PMGTruthWeightTool(truthWeightToolName);
+    if (truthweightTool->initialize()) {
+      m_pmg_weightTool = truthweightTool;
     } else {
-      truthweightTool = new PMGTools::PMGTruthWeightTool(truthWeightToolName);
-      top::check(truthweightTool->initialize(), "Failed to initialize " + truthWeightToolName);
+      // delete the tool instance, it is half-initialized at best = broken
+      // elsewere we won't be able to retrieve a ToolHandle, which indicates to us
+      // that we cannot rely on it for this MC sample
+      delete truthweightTool;
+      ATH_MSG_WARNING("Failed to initialize " << truthWeightToolName << ". Any features depending on PMGTruthWeightTool will not work!");
     }
-    m_pmg_weightTool = truthweightTool;
 
     return StatusCode::SUCCESS;
   }

@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackAssistHelper.h
@@ -26,8 +26,9 @@
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
 #include "xAODTracking/VertexContainer.h"
-#include "JetInterface/IJetTrackSelector.h"
 #include "JetEDM/TrackVertexAssociation.h"
+
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 #include "xAODBase/IParticleHelpers.h"
 
@@ -51,7 +52,7 @@ class TrackAssistHelper
     std::string m_vertexColl;
     std::string m_trackVtxAssoc;
     bool m_doTrackVtxAssoc;
-    ToolHandle<IJetTrackSelector> m_trackSelTool;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
 
     // Local method to check if track passes selection and vertex association criteria
     bool isGoodTrack( const xAOD::TrackParticle &track, const xAOD::Vertex &pvx, const jet::TrackVertexAssociation &tva ) const;

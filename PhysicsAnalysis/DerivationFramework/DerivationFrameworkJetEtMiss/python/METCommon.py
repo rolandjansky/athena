@@ -96,10 +96,14 @@ def scheduleMETAssocAlg(sequence=DerivationFrameworkJob,configlist="CustomMET"):
 def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
                             configlist="CustomMET",
                             outputlist="CustomMET"):
+    
     from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
     jettype = {'AntiKt4EMTopo':'EMJet',
-           'AntiKt4LCTopo':'LCJet',
-           'AntiKt4EMPFlow':'PFlowJet'}
+               'AntiKt4LCTopo':'LCJet',
+               'AntiKt4EMPFlow':'PFlowJet',
+               'AntiKt4PFlowCustomVtx':'PFlowJet'
+               }
+
     associators = [AssocConfig(jettype[jetcoll]),
                AssocConfig('Muon'),
                AssocConfig('Ele'),
@@ -107,15 +111,20 @@ def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
                AssocConfig('Tau'),
                AssocConfig('Soft')]
 
-    modConstKey="OriginCorr"
-    modClusColls={
-        'LCOriginCorrClusters':'LCOriginTopoClusters',
-        'EMOriginCorrClusters':'EMOriginTopoClusters'
+    modConstKey=""
+    modClusColls=""
+    if 'Topo' in jetcoll:
+        modConstKey="OriginCorr"
+        modClusColls={
+            'LCOriginCorrClusters':'LCOriginTopoClusters',
+            'EMOriginCorrClusters':'EMOriginTopoClusters'
         }
-
+    elif 'PFlowCustomVtx' in jetcoll:
+        modConstKey="CustomVtxParticleFlowObjects"
+        
     cfg = METAssocConfig(jetcoll+vxColl,
                          associators,
-                         jetcoll=='AntiKt4EMPFlow', # doPFlow
+                         doPFlow=('PFlow' in jetcoll),
                          modConstKey=modConstKey,
                          modClusColls=modClusColls
                          )

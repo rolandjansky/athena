@@ -1,10 +1,11 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
- */
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 // $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
 #include "TopSystematicObjectMaker/JetObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 
 #include "xAODJet/JetContainer.h"
@@ -93,6 +94,10 @@ namespace top {
                  "Failed to retrieve JetCalibrationToolLargeR");
       top::check(m_jetUncertaintiesToolLargeR.retrieve(),
                  "Failed to retrieve JetUncertaintiesToolLargeR");
+    }
+
+    if (m_config->getDerivationStream() == "PHYS") {
+      m_truthJetCollForHS = "AntiKt4TruthDressedWZJets";
     }
 
     ///-- JER uncertainties model --///
@@ -238,23 +243,16 @@ namespace top {
     if (m_config->jetSubstructureName() == "SubjetMaker") m_jetSubstructure.reset(new top::SubjetMaker);
 
     ///-- Large R jet truth labeling --///
-    m_TaggerForJES = nullptr;
+    m_jetTruthLabelingTool = nullptr;
     if (m_config->isMC() && m_config->useLargeRJets()) {
-      m_TaggerForJES = std::unique_ptr<SmoothedWZTagger>(new SmoothedWZTagger("TaggerTruthLabelling"));
-      top::check(m_TaggerForJES->setProperty("CalibArea",
-                                             "SmoothedWZTaggers/Rel21"), "Failed to set CalibArea for m_TaggerForJES");
-      top::check(m_TaggerForJES->setProperty("ConfigFile",
-                                             "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat"),
-                 "Failed to set ConfigFile for m_TaggerForJES");
-      top::check(m_TaggerForJES->setProperty("DSID", m_config->getDSID()), "Failed to set DSID for m_TaggerForJet");
+      m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
       // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
       if (m_config->getDerivationStream() == "PHYS") {
-        top::check(m_TaggerForJES->setProperty("TruthWBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
-        top::check(m_TaggerForJES->setProperty("TruthZBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
-        top::check(m_TaggerForJES->setProperty("TruthHBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
-        top::check(m_TaggerForJES->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_TaggerForJet");
+        top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
+        top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
+        top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
       }
-      top::check(m_TaggerForJES->initialize(), "Failed to initialize m_TaggerForJES");
+      top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
     }
 
     // set the systematics list
@@ -277,14 +275,6 @@ namespace top {
       top::check(m_btagSelToolsDL1Decor["DL1r_trkjet"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyTrackJets());
       top::check(m_btagSelToolsDL1Decor["DL1rmu_trkjet"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyTrackJets());
     }
-
-    // Store a lightweight flag to limit error messages if the DL1 weights are not present
-    m_DL1Possible = true;
-    m_DL1rPossible = true;
-    m_DL1rmuPossible = true;
-    m_trkjet_DL1Possible = true;
-    m_trkjet_DL1rPossible = true;
-    m_trkjet_DL1rmuPossible = true;
 
     // initialize boosted jet taggers -- we have to do it here instead pf TopObjectSelectionTools
     // because we have to apply tagger inbetween JES uncertainty tool and the tagging SF tool
@@ -429,7 +419,7 @@ namespace top {
         const std::string calibChoice = m_config->largeRJESJMSConfig();
         if (m_config->isMC()) {
           ///-- Truth labeling required by the large-R jet uncertainties --///
-          top::check(m_TaggerForJES->decorateTruthLabel(*jet), "Failed to do truth labeling for large-R jet");
+          top::check(m_jetTruthLabelingTool->modifyJet(*jet), "Failed to do truth labeling for large-R jet");
           if (calibChoice == "TAMass") {
             xAOD::JetFourMom_t jet_calib_p4;
             jet->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jet_calib_p4);
@@ -673,10 +663,12 @@ namespace top {
                                                 const std::string& modName, bool isLargeR, bool onlyJER) {
     ///-- Get the recommended systematics from the tool, in std::vector format --///
     const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector(recommendedSysts);
+    
 
     for (const CP::SystematicSet& s : systList) {
       if (s.size() == 1) {
         CP::SystematicSet::const_iterator ss = s.begin();
+	if(!m_config->getTreeFilter()->filterTree(modName + ss->name())) continue; // Applying tree filter
 
         if (onlyJER && ss->name().find("JER") == std::string::npos) continue;
 
@@ -690,7 +682,8 @@ namespace top {
             map.insert(std::make_pair(modSet, s));
           } else if (specifiedSystematics.size() > 0) {
             for (std::string i : specifiedSystematics) {
-              if (i == modSet.name()) {
+	      TreeFilter filter(i);
+              if (!filter.filterTree(modSet.name())) {
                 if (!isLargeR) m_specifiedSystematics.push_back(modSet);
                 else m_specifiedSystematicsLargeR.push_back(modSet);
                 map.insert(std::make_pair(modSet, s));
@@ -798,49 +791,61 @@ namespace top {
 
     for (const auto& jet : *jets) {
       // Default value
-      double DL1_weight, DL1r_weight, DL1rmu_weight = -999;
+      double DL1_weight = -999., DL1r_weight = -999., DL1rmu_weight = -999.;
 
-      // Suppress warnings if the DL1 weights do not exist and avoid repeated failed computation
+      // Check if probabilities are stored. If not, assign -100 as error message
       if(!trackJets)
       {
-        if (m_DL1Possible) {
-          if (!m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight)) {
-            DL1_weight = -999;
-            m_DL1Possible = false;
+        double dl1_pb = -10., dl1_pc = -10., dl1_pu = -10.;
+        if( jet->btagging()->pb("DL1", dl1_pb ) && jet->btagging()->pc("DL1", dl1_pc ) && jet->btagging()->pu("DL1", dl1_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)){ //checking requied by CP tools
+            DL1_weight = -999.; //value for errors from retrieving wieghts
           }
+        }else{
+          DL1_weight = -100.; //value for nonexistence of probabilities
         }
-        if (m_DL1rPossible) {
-          if (!m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(*jet, DL1r_weight)) {
-            DL1r_weight = -999;
-            m_DL1rPossible = false;
+        double dl1r_pb = -10., dl1r_pc = -10., dl1r_pu = -10.;
+        if( jet->btagging()->pb("DL1r", dl1r_pb ) && jet->btagging()->pc("DL1r", dl1r_pc ) && jet->btagging()->pu("DL1r", dl1r_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(dl1r_pb, dl1r_pc, dl1r_pu, DL1r_weight)){
+            DL1r_weight = -999.; //value for errors from retrieving wieghts
           }
+        }else{
+          DL1r_weight = -100.; //value for nonexistence of probabilities
         }
-        if (m_DL1rmuPossible) {
-          if (!m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(*jet, DL1rmu_weight)) {
-            DL1rmu_weight = -999;
-            m_DL1rmuPossible = false;
+        double dl1rmu_pb = -10., dl1rmu_pc = -10., dl1rmu_pu = -10.;
+        if( jet->btagging()->pb("DL1rmu", dl1rmu_pb ) && jet->btagging()->pc("DL1rmu", dl1rmu_pc ) && jet->btagging()->pu("DL1rmu", dl1rmu_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(dl1rmu_pb, dl1rmu_pc, dl1rmu_pu, DL1rmu_weight)){
+            DL1rmu_weight = -999.; //value for errors from retrieving wieghts
           }
+        }else{
+          DL1rmu_weight = -100.; //value for nonexistence of probabilities
         }
       }
       else
       {
-        if (m_trkjet_DL1Possible) {
-          if (!m_btagSelToolsDL1Decor["DL1_trkjet"]->getTaggerWeight(*jet, DL1_weight)) {
-            DL1_weight = -999;
-            m_trkjet_DL1Possible = false;
+        double dl1_pb = -10., dl1_pc = -10., dl1_pu = -10.;
+        if( jet->btagging()->pb("DL1", dl1_pb ) && jet->btagging()->pc("DL1", dl1_pc ) && jet->btagging()->pu("DL1", dl1_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1_trkjet"]->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)){
+            DL1_weight = -999.; //value for errors from retrieving wieghts
           }
+        }else{
+          DL1_weight = -100.; //value for nonexistence of probabilities
         }
-        if (m_trkjet_DL1rPossible) {
-          if (!m_btagSelToolsDL1Decor["DL1r_trkjet"]->getTaggerWeight(*jet, DL1r_weight)) {
-            DL1r_weight = -999;
-            m_trkjet_DL1rPossible = false;
+        double dl1r_pb = -10., dl1r_pc = -10., dl1r_pu = -10.;
+        if( jet->btagging()->pb("DL1r", dl1r_pb ) && jet->btagging()->pc("DL1r", dl1r_pc ) && jet->btagging()->pu("DL1r", dl1r_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1r_trkjet"]->getTaggerWeight(dl1r_pb, dl1r_pc, dl1r_pu, DL1r_weight)){
+            DL1r_weight = -999.; //value for errors from retrieving wieghts
           }
+        }else{
+          DL1r_weight = -100.; //value for nonexistence of probabilities
         }
-        if (m_trkjet_DL1rmuPossible) {
-          if (!m_btagSelToolsDL1Decor["DL1rmu_trkjet"]->getTaggerWeight(*jet, DL1rmu_weight)) {
-            DL1rmu_weight = -999;
-            m_trkjet_DL1rmuPossible = false;
+        double dl1rmu_pb = -10., dl1rmu_pc = -10., dl1rmu_pu = -10.;
+        if( jet->btagging()->pb("DL1rmu", dl1rmu_pb ) && jet->btagging()->pc("DL1rmu", dl1rmu_pc ) && jet->btagging()->pu("DL1rmu", dl1rmu_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1rmu_trkjet"]->getTaggerWeight(dl1rmu_pb, dl1rmu_pc, dl1rmu_pu, DL1rmu_weight)){
+            DL1rmu_weight = -999.; //value for errors from retrieving wieghts
           }
+        }else{
+          DL1rmu_weight = -100.; //value for nonexistence of probabilities
         }
       }
       DL1(*jet) = DL1_weight;

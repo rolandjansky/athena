@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
@@ -79,6 +79,7 @@ namespace CP {
   class IEgammaCalibrationAndSmearingTool;
   class IEfficiencyScaleFactorTool;
   class IIsolationSelectionTool;
+  class IIsolationLowPtPLVTool;
   class IIsolationCloseByCorrectionTool;
   class IIsolationCorrectionTool;
   class IPileupReweightingTool;
@@ -243,7 +244,7 @@ namespace ST {
     double GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool bmhptSF = true) override final;
 
     //electrons
-    float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final;
+    float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool ecidsSF = false, const bool cidSF = false) override final;
 
     double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0") const override final;
 
@@ -261,9 +262,9 @@ namespace ST {
 
     double GetTriggerGlobalEfficiencySFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const std::string& trigExpr = "diPhoton") override final;
 
-    float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
+    float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool ecidsSF = false, const bool cidSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
 
-    float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
+    float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool ecidsSF = false, const bool cidSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
 
     //taus
     double GetSignalTauSF(const xAOD::TauJet& tau, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
@@ -464,6 +465,8 @@ namespace ST {
     bool m_force_noMuId;
     bool m_doTTVAsf;
     bool m_doModifiedEleId;
+    bool m_upstreamTriggerMatching; /// Use composite trigger matching tool if matching was done upstream
+    std::string m_trigMatchingPrefix; /// Prefix for trigger matchiing container name
 
     std::string m_jetUncertaintiesConfig;
     std::string m_jetUncertaintiesCalibArea;
@@ -550,7 +553,7 @@ namespace ST {
     // strings needed for dealing with 2015+2016 electron trigger SFs
     std::string m_electronTriggerSFStringSingle;
 
-    std::vector<std::string> m_tau_trig_support;
+    std::map<std::string, std::string> m_tau_trig_support;
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
@@ -568,6 +571,8 @@ namespace ST {
     std::string m_eleIsoHighPt_WP;
     double      m_eleIsoHighPtThresh;
     std::string m_eleChID_WP;
+    bool        m_eleChIso; // use Charge ID SF with/without Iso applied
+    bool        m_eleChID_signal; // allows to run ECID but remove it from signal definition
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonBaselineIso_WP;
     std::string m_photonIso_WP;
@@ -578,13 +583,14 @@ namespace ST {
     double      m_muIsoHighPtThresh;
     std::string m_BtagWP;
     std::string m_BtagTagger;
+    double m_BtagMinPt;
     std::string m_BtagTimeStamp;
     std::string m_BtagKeyOverride;
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
-    std::string m_BtagTimeStamp_trkJet;
     double m_BtagMinPt_trkJet;
+    std::string m_BtagTimeStamp_trkJet;
 
     //configurable cuts here
     double m_eleBaselinePt;
@@ -648,6 +654,8 @@ namespace ST {
     bool   m_orDoTau;
     bool   m_orDoPhoton;
     bool   m_orDoEleJet;
+    bool   m_orDoElEl;
+    bool   m_orDoElMu;
     bool   m_orDoMuonJet;
     bool   m_orDoBjet;
     bool   m_orDoElBjet;
@@ -781,13 +789,8 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_tauTruthMatch;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffTool;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool0;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool1;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool2;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool3;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool4;
+    std::vector<asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool>> m_tauTrigEffTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tauElORdecorator;
-    asg::AnaToolHandle<ITauToolBase> m_tauWPdecorator;
     //
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;
@@ -824,6 +827,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationLowPtPLVTool> m_isoToolLowPtPLV;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoBaselineTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;

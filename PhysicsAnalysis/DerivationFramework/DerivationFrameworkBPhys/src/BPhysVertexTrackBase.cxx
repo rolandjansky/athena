@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -50,7 +50,7 @@
 //                                  and in the same order.)
 // - DoVertexType               -- PV-to-SV association types to be
 //                                 considered (bitwise variable, see
-//                                 xAODBPhys::BPhysHelper.
+//                                 xAODBPhys::BPhysHelper)
 // - UseTrackTypes              -- List of or-ed bit-wise selection of
 //                                 track sets to consider:
 //                                 bit : meaning
@@ -61,29 +61,112 @@
 //                                 2   : tracks associated with PV of type 1
 //                                 3   : tracks associated with PV of type 2
 //                                 4   : tracks associated with PV of type 3
-//                                 5   : all tracks not selected by bits
-//                                       0 to 4.
-//                                 (E.g. 63 means to consider all tracks.)
+//                                 5   : tracks associated with PV with types
+//                                       other than 0 to 4.
+//                                 6   : tracks with missing pointer to
+//                                       PV (NULL pointer)
+//                                 7-22: tracks being closest to assoc. PV
+//                                     useRefittedPVs doDCAin3D chi2DefToUse
+//                                 7   :    yes           no        0
+//                                 8   :    no            no        0
+//                                 9   :    yes           yes       0
+//                                 10  :    no            yes       0
+//                                 11  :    yes           no        1
+//                                 12  :    no            no        1
+//                                 13  :    yes           yes       1
+//                                 14  :    no            yes       1
+//                                 15  :    yes           no        2
+//                                 16  :    no            no        2
+//                                 17  :    yes           yes       2
+//                                 18  :    no            yes       2
+//                                 19  :    yes           --        3
+//                                 20  :    no            --        3
+//                                 21  :    yes           --        4
+//                                 22  :    no            --        4
+//                                 23  :    yes           --        5
+//                                 24  :    no            --        5
+//                                 25  :    yes           yes       6
+//                                 26  :    no            yes       6
+//                                 27  :    yes           yes       7
+//                                 28  :    no            yes       7
+//                                 29  :    yes           yes       8
+//                                 30  :    no            yes       8
+//                                 31  :    yes           yes       9
+//                                 32  :    no            yes       9
+//                                 useRefittedPVs:
+//                                   replace PV associated to decay candidate
+//                                   by the refitted PV
+//                                 doDCAin3D:
+//                                   use d0 and z0 in the determination of
+//                                   of the point of closest approach of
+//                                   a track to a vertex
+//                                 chi2DefToUse:
+//                                   PV uncertainties in the chi2 calculation
+//                                   in addition to track uncertainties
+//                                   0 : use old method
+//                                       (only track uncertainties)
+//                                   1 : from track perigee with
+//                                       uncertainties from track and vertex
+//                                   2 : simple extrapolation from track
+//                                       parameters with uncertainties from
+//                                       track and vertex (extrapolation
+//                                       used for track swimming)
+//                                   3 : CalcLogChi2toPV method from NtupleMaker
+//                                       using xAOD::TrackingHelpers.
+//                                       (only track uncertainties)
+//                                   4 : CalcLogChi2toPV method from NtupleMaker
+//                                       using xAOD::TrackingHelpers.
+//                                       (track and vertex uncertainties)
+//                                   5 : use TrackVertexAssociationTool
+//                                   6 : full 3D chi2 from track perigee
+//                                       with uncertainties from track and
+//                                       vertex (sum of 3x3 covariance matrices)
+//                                   7 : full 3D chi2 from track perigee with
+//                                       uncertainties from track and vertex
+//                                       (sum of 2x2 covariance matrices)
+//                                   8 : simple extrapolation from track
+//                                       parameters with uncertainties
+//                                       from track and vertex
+//                                       (sum of 3x3 covariance matrices)
+//                                   9   simple extrapolation from track
+//                                       parameters with uncertainties
+//                                       from track and vertex
+//                                       (sum of 2x2 covariance matrices)
+//                                 (E.g. 127 means to consider all tracks.)
 // - IncPrecVerticesInDecay     -- Include preceeding vertices in search
 //                                 for ID tracks and muons from decaying
 //                                 particle.  (May be a bit slower but
 //                                 more accurate.  Double-counting of track
 //                                 or muon objects is excluded.
 //                                 Default: True)
+// - MinNTracksInPV             -- Minimum number of tracks in PV for
+//                                 PV to be considered in calculation
+//                                 of closest PV to a track
+// - PVTypesToConsider          -- List of primary vertex types to consider
+//                                 in calculation of closest PV to a track
+// - DebugTrackTypes            -- Count tracks of specific types (bit
+//                                 patterns w.r.t. vertex association)
+//                                 and dump statistics to log file
+//                                 0 : disabled
+//                                 1 : count tracks of certain types
+// - DebugTracksInEvents        -- debug track selections in detail for
+//                                 a list of event numbers.
+//
 //                           
 //============================================================================
 //
 #include "DerivationFrameworkBPhys/BPhysVertexTrackBase.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "xAODBPhys/BPhysHelper.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
+#include "TrackVertexAssociationTool/TrackVertexAssociationTool.h"
 #include "TVector3.h"
 #include "TString.h"
 #include "boost/format.hpp"
 #include <algorithm>
 #include <sstream>
+#include <limits>
 
 namespace DerivationFramework {
 
@@ -125,15 +208,101 @@ namespace DerivationFramework {
       % suffix;
     return f.str();
   }
+
+  std::string BPhysVertexTrackBase::BaseItem::toString() const {
+    boost::format f("nm: %s\nbn: %s");
+    f % name % bname;
+    return f.str();
+  }
+  //-------------------------------------------------------------------------
+  //
+  // helper class (for track types)
+  //
+  BPhysVertexTrackBase::TrackTypeCounter::
+  TrackTypeCounter(BPhysVertexTrackBase& Parent, std::string Name)
+    : name(Name), parent(Parent) {
+  }
+
+  BPhysVertexTrackBase::TrackTypeCounter::~TrackTypeCounter() {
+  }
+
+  void BPhysVertexTrackBase::TrackTypeCounter::addToCounter(uint64_t atype,
+                                                            uint64_t rtype,
+                                                            std::string prefix,
+                                                            std::string suffix,
+                                                            uint64_t counts) {
+    boost::format f("%sT%010d_R%010d%s");
+    f % (prefix.length() > 0 ? prefix+"_" : "")
+      % atype
+      % parent.m_useTrackTypes[rtype]
+      % (suffix.length() > 0 ? "_"+suffix : "");
+
+    addToCounter(f.str(), atype, counts);
+  }
+  
+  void BPhysVertexTrackBase::TrackTypeCounter::addToCounter(std::string name,
+                                                            uint64_t atype,
+                                                            uint64_t counts) {
+
+    NameCountMap_t::const_iterator it = m_cnts.find(name);
+
+    if ( it != m_cnts.end() ) {
+      m_cnts[name].first += counts;
+    } else {
+      m_cnts[name] = std::make_pair(counts, atype);
+    }
+  }
+  
+  std::string BPhysVertexTrackBase::TrackTypeCounter::
+  countsToString(uint indent) const {
+
+    boost::format f("%sCounters for %s:\n");
+    f % boost::io::group(std::setw(indent), " ") % name; 
+    std::string str = f.str();
+    
+    int lmax(0);
+    for (NameCountMap_t::const_iterator it = m_cnts.begin();
+         it != m_cnts.end(); ++it) {
+      lmax = std::max(lmax, (int)(it->first).length());
+    }
+
+    for (NameCountMap_t::const_iterator it = m_cnts.begin();
+         it != m_cnts.end(); ++it) {
+      boost::format f("%s%-s : %10lld %33s");
+      f % boost::io::group(std::setw(indent+4), " ")
+        % boost::io::group(std::setw(lmax), it->first)
+        % (it->second).first
+        % std::bitset<33>((it->second).second).to_string();
+      str += f.str() + "\n";
+    }
+    // clean up last newline
+    str.erase(str.length()-1);
+    
+    return str;
+  }
   //--------------------------------------------------------------------------
   //-------------------------------------------------------------------------
   // static members
-  const int          BPhysVertexTrackBase::n_track_types    = 6;
+  const int          BPhysVertexTrackBase::n_track_types    = 33;
   const std::string  BPhysVertexTrackBase::track_type_str[] =
-    {"ASSOCPV", "PVTYPE0", "PVTYPE1", "PVTYPE2", "PVTYPE3", "NONE"};
-  const unsigned int BPhysVertexTrackBase::track_type_bit[] =
-    {0x1, 0x2, 0x4, 0x8, 0x10, 0x20};
-  unsigned int BPhysVertexTrackBase::track_type_all_cached = 0x0;
+    {"ASSOCPV", "PVTYPE0", "PVTYPE1", "PVTYPE2", "PVTYPE3", "NONE", "NULLVP",
+     "CAPVRFN3U0", "CAPVNRN3U0", "CAPVRF3DU0", "CAPVNR3DU0",
+     "CAPVRFN3U1", "CAPVNRN3U1", "CAPVRF3DU1", "CAPVNR3DU1",
+     "CAPVRFN3U2", "CAPVNRN3U2", "CAPVRF3DU2", "CAPVNR3DU2",
+     "CAPVRFNNU3", "CAPVNRNNU3", "CAPVRFNNU4", "CAPVNRNNU4",
+     "CAPVRFNNU5", "CAPVNRNNU5", "CAPVRFNNU6", "CAPVNRNNU6",
+     "CAPVRFNNU7", "CAPVNRNNU7", "CAPVRFNNU8", "CAPVNRNNU8",
+     "CAPVRFNNU9", "CAPVNRNNU9"};
+  const uint64_t BPhysVertexTrackBase::track_type_bit[] =
+    {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40,
+     0x80, 0x100, 0x200, 0x400,
+     0x800, 0x1000, 0x2000, 0x4000,
+     0x8000, 0x10000, 0x20000, 0x40000,
+     0x80000, 0x100000, 0x200000, 0x400000,
+     0x800000, 0x1000000, 0x2000000, 0x4000000,
+     0x8000000, 0x10000000, 0x20000000, 0x40000000,
+     0x80000000, 0x100000000};
+  uint64_t BPhysVertexTrackBase::track_type_all_cached = 0x0;
   
   // static methods
   const std::string
@@ -141,19 +310,48 @@ namespace DerivationFramework {
     return track_type_str[type];
   }
   
-  unsigned int
-  BPhysVertexTrackBase::ttb(BPhysVertexTrackBase::track_type type) {
+  uint64_t BPhysVertexTrackBase::ttb(BPhysVertexTrackBase::track_type type) {
     return track_type_bit[type];
   }
   
-  unsigned int BPhysVertexTrackBase::ttall() {
+  uint64_t BPhysVertexTrackBase::ttallMin() {
+    // only bits 0 - 6
+    return 127;
+  }
+
+  uint64_t BPhysVertexTrackBase::ttall() {
     if ( track_type_all_cached == 0x0 ) {
       for (unsigned int i=0; i<n_track_types; ++i) {
-	track_type_all_cached |= track_type_bit[i];
+        track_type_all_cached |= track_type_bit[i];
       }
     }
     return track_type_all_cached;
   }
+
+  uint64_t BPhysVertexTrackBase::rttor(std::vector<uint64_t> vtypes) {
+    // or of requested track types
+    uint64_t ttor(0);
+    for (size_t i=0; i<vtypes.size(); ++i) {
+      ttor |= vtypes[i];
+    }
+    return ttor;
+  }
+
+  // track to string
+  std::string
+  BPhysVertexTrackBase::trackToString(const xAOD::TrackParticle* track) {
+    std::string str;
+    if (track != nullptr) {
+      boost::format f("p(%10.4f,%10.4f,%10.4f)\n"
+                      "d:(%10.5f,%10.5f,%10.5f,%10.5f,%10.6f)");
+      f % (track->p4()).Px() % (track->p4()).Py() % (track->p4()).Pz();
+      f % track->d0() % track->z0() % track->phi0() % track->theta();
+      f % track->qOverP();
+      str = f.str();
+    } // if track
+  return str;
+  }
+  
   //--------------------------------------------------------------------------
   // Static utility method to prefix every line by a certain string
   //--------------------------------------------------------------------------
@@ -175,7 +373,11 @@ namespace DerivationFramework {
 					     const std::string& n,
 					     const IInterface*  p)
     : AthAlgTool(t,n,p), m_trackToVertexTool("Reco::TrackToVertex"),
-      m_tracks(NULL), m_tracksAux(NULL), m_nEvtsSeen(0) {
+      m_tvaTool("CP::TrackVertexAssociationTool"),
+      m_tvaToolHasWpLoose(false),
+      m_tracks(NULL), m_tracksAux(NULL), m_nEvtsSeen(0), m_eventInfo(nullptr),
+      m_trackTypesUsed(0), m_runNumber(0), m_evtNumber(0),
+      m_debugTracksInThisEvent(false) {
     
     declareInterface<DerivationFramework::IAugmentationTool>(this);
 
@@ -190,11 +392,16 @@ namespace DerivationFramework {
 		    m_trackParticleContainerName);
     declareProperty("TrackToVertexTool"     , m_trackToVertexTool);
     declareProperty("TrackSelectionTools"   , m_trackSelectionTools);
+    declareProperty("TVATool"               , m_tvaTool);
     declareProperty("PVContainerName", m_pvContainerName = "PrimaryVertices");
     declareProperty("RefPVContainerNames"   , m_refPVContainerNames);
-    declareProperty("DoVertexType"          , m_doVertexType = 63);
+    declareProperty("DoVertexType"          , m_doVertexType = 8);
     declareProperty("UseTrackTypes"         , m_useTrackTypes = {7});
     declareProperty("IncPrecVerticesInDecay", m_incPrecVerticesInDecay = true);
+    declareProperty("MinNTracksInPV"        , m_minNTracksInPV = 0);
+    declareProperty("PVTypesToConsider"     , m_pvTypesToConsider = {1,3});
+    declareProperty("DebugTrackTypes"       , m_debugTrackTypes=0);
+    declareProperty("DebugTracksInEvents"   , m_debugTracksInEvents = {});
   }
   //--------------------------------------------------------------------------
   StatusCode BPhysVertexTrackBase::initialize() {
@@ -218,8 +425,8 @@ namespace DerivationFramework {
 		    << m_vertexContainerNames.size()
 		    << ") and RefPVContainerNames ("
 		    << m_refPVContainerNames.size() << ") lists!");
-    }      
-    
+    }
+
     if ( m_vertexContainerNames.size() != m_branchPrefixes.size() ) {
       ATH_MSG_ERROR("Size mismatch of VertexContainerNames ("
 		    << m_vertexContainerNames.size()
@@ -234,9 +441,25 @@ namespace DerivationFramework {
     for (auto selTool : m_trackSelectionTools ) {
       ATH_CHECK(selTool.retrieve());
     }
+
+    // TrackVertexAssociationTool
+    ATH_CHECK(m_tvaTool.retrieve());
+    // take note of working point
+    // const std::string tvaWp("Loose");
+    const std::string tvaWp =
+      dynamic_cast<CP::TrackVertexAssociationTool*>(m_tvaTool.get())->getProperty("WorkingPoint").toString();
+    m_tvaToolHasWpLoose = (tvaWp == "Loose");
     
     // initialize PV-to-SV association type vector
     initPvAssocTypeVec();
+
+    // initialize track type request pattern
+    m_trackTypesUsed = rttor(m_useTrackTypes);
+
+    // initialize track type counters
+    if ( m_debugTrackTypes > 0 ) {
+      m_mttc = std::make_unique<TrackTypeCounter>(*this, name());    
+    }
 
     ATH_MSG_DEBUG("BPhysVertexTrackBase::initialize() -- end");
 
@@ -247,6 +470,11 @@ namespace DerivationFramework {
 
     ATH_MSG_DEBUG("BPhysVertexTrackBase::finalize()");
 
+    // dump track type counters to log
+    if ( m_debugTrackTypes > 0 ) {
+      ATH_MSG_INFO("Track type counters:\n" << m_mttc->countsToString());
+    }
+    
     // everything all right
     return finalizeHook();
   }
@@ -258,6 +486,17 @@ namespace DerivationFramework {
     // counter
     m_nEvtsSeen++;
 
+    // run and event numbers
+    CHECK(evtStore()->retrieve(m_eventInfo));
+    m_runNumber = m_eventInfo->runNumber();
+    m_evtNumber = m_eventInfo->eventNumber();
+
+    // debug tracks in current event?
+    m_debugTracksInThisEvent = (std::find(m_debugTracksInEvents.begin(),
+                                          m_debugTracksInEvents.end(),
+                                          m_evtNumber)
+                                != m_debugTracksInEvents.end());
+    
     // retrieve primary vertices container
     m_pvtxContainer = NULL;
     CHECK(evtStore()->retrieve(m_pvtxContainer, m_pvContainerName));
@@ -449,10 +688,13 @@ namespace DerivationFramework {
   // track at the position closest to the PV associated with the SV. 
   //--------------------------------------------------------------------------
   double BPhysVertexTrackBase::getTrackCandPVLogChi2(const xAOD::TrackParticle*
-						     track,
-						     const Amg::Vector3D& pos
-						     ) const {
-    return getTrackLogChi2DCA(track, pos, false)[4];
+                                                     track,
+                                                     const xAOD::Vertex* vtx,
+                                                     bool doDCAin3D,
+                                                     int chi2DefToUse
+                                                     ) const {
+
+    return getTrackLogChi2DCA(track, vtx, doDCAin3D, chi2DefToUse)[4];
   }
   //--------------------------------------------------------------------------  
   // getTrackLogChi2DCA()
@@ -460,81 +702,368 @@ namespace DerivationFramework {
   // track at the position closest to a position and
   // the distance of closest approach of a track w.r.t.
   // a position.  Either only in the transverse plane or in 3 dimensions.
+  // Option chi2DefToUse:
+  //   0 : from track perigee with uncertainties from track only
+  //   1 : from track perigee with uncertainties from track and vertex
+  //   2 : simple extrapolation from track parameters
+  //       with uncertainties from track and vertex
+  //   3 : CalcLogChi2toPV method from NtupleMaker using xAOD::TrackingHelpers.
+  //      (only track uncertainties)
+  //   4 : CalcLogChi2toPV method from NtupleMaker using xAOD::TrackingHelpers.
+  //      (track and vertex uncertainties)
+  //   5 : use TrackVertexAssociationTool
+  //   6 : full 3D chi2 from track perigee with uncertainties
+  //       from track and vertex (sum of 3x3 covariance matrices)
+  //   7 : full 3D chi2 from track perigee with uncertainties
+  //       from track and vertex (sum of 2x2 covariance matrices)
+  //   8 : simple extrapolation from track parameters with uncertainties
+  //       from track and vertex (sum of 3x3 covariance matrices)
+  //   9   simple extrapolation from track parameters with uncertainties
+  //       from track and vertex (sum of 2x2 covariance matrices)
+  // Returned vector components:
+  // 0: d0, 1: d0Err, 2: z0, 3: z0Err, 4: logChi2, 5: dca, 6: okFlag
+  // 7: vtxErrPart2, 8: trkErrPart2, 9: phi0Used
   //--------------------------------------------------------------------------
   std::vector<double>
   BPhysVertexTrackBase::getTrackLogChi2DCA(const xAOD::TrackParticle* track,
-					   const Amg::Vector3D& pos,
-					   bool doDCAin3D) const {
+                                           const xAOD::Vertex* vtx,
+                                           bool doDCAin3D,
+                                           int  chi2DefToUse) const {
     // presets
-    std::vector<double> res = {-999., -99., -999., -99., -100., -100., -1.};
+    std::vector<double> res = {-999., -99., -999., -99., -100., -100., -1.,
+                               -99., -99., -999.};
+    
+    const Amg::Vector3D   pos = vtx->position();
+    const AmgSymMatrix(3) poscov = vtx->covariancePosition();
     
     if ( track != NULL ) {
-      const Trk::Perigee* trkPerigee =
-	m_trackToVertexTool->perigeeAtVertex(*track, pos);
-      if ( trkPerigee != NULL  ) {
-	res[0] = trkPerigee->parameters()[Trk::d0];
-	res[2] = trkPerigee->parameters()[Trk::z0];
-	const AmgSymMatrix(5)* locError = trkPerigee->covariance();
-	if ( locError != NULL ) {
-	  res[1] = Amg::error(*locError, Trk::d0);
-	  res[3] = Amg::error(*locError, Trk::z0);
-	  if ( fabs(res[1]) > 0. && fabs(res[3]) > 0.) { 
-	    res[4] = log( pow(res[0]/res[1], 2.) + pow(res[2]/res[3], 2.) );
-	    res[6] = 2.; // ok
-	  } else {
-	    ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
-			    << " d0 = " << res[0] << ", d0Err = " << res[1]
-			    << ", z0 = " << res[2] << ", z0Err = " << res[3]);
-	  }
-	  res[5] = doDCAin3D ? sqrt( pow(res[0], 2.) + pow(res[2], 2.) ) : res[0];
-	  res[6] += 1.; // ok
-	} else {
-	  ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
-			  " locError pointer is NULL!");
-	} // locError != NULL
-	delete trkPerigee;
-	trkPerigee = NULL;
-      } else {
-      ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
-		      " trkPerigee pointer is NULL!");
-      } // if trkPerigee
+      if ( chi2DefToUse < 2 || (chi2DefToUse > 5 && chi2DefToUse < 8) ) {
+        // use track perigee method
+        std::unique_ptr<const Trk::Perigee>
+          trkPerigee(m_trackToVertexTool->perigeeAtVertex(*track, pos));
+        if ( trkPerigee != NULL  ) {
+          res[0] = trkPerigee->parameters()[Trk::d0];
+          res[2] = trkPerigee->parameters()[Trk::z0];
+          const AmgSymMatrix(5)* locError = trkPerigee->covariance();
+          if ( locError != NULL ) {
+            // uncertainties from track
+            res[1] = Amg::error(*locError, Trk::d0);
+            res[3] = Amg::error(*locError, Trk::z0);
+            if ( chi2DefToUse == 1 ) {
+              // add uncertainties from vertex
+              Amg::Vector3D perppt(trkPerigee->momentum().y()/trkPerigee->pT(),
+                                   -trkPerigee->momentum().x()/trkPerigee->pT(),
+                                   0.);
+              double vtxD0Err2 = perppt.transpose()*poscov*perppt;
+              res[1] = sqrt( pow(res[1], 2.) + vtxD0Err2 );
+              res[3] = sqrt( pow(res[3], 2.) + poscov(2,2) );
+            }
+            if ( chi2DefToUse < 2 ) {
+              if ( fabs(res[1]) > 0. && fabs(res[3]) > 0. ) {
+                res[4] = log( pow(res[0]/res[1], 2.)
+                              + pow(res[2]/res[3], 2.) );
+                res[6] = 2.; // ok
+              } else {
+                ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
+                                << " d0 = " << res[0] << ", d0Err = "
+                                << res[1] << ", z0 = " << res[2]
+                                << ", z0Err = " << res[3]);
+              }
+            }
+            // chi2DefToUse 6 or 7
+            if ( chi2DefToUse > 5 && chi2DefToUse < 8 ) {
+              double phi0 = trkPerigee->parameters()[Trk::phi0];
+              double doca = sqrt(pow(res[0],2.) + pow(res[2], 2.));
+              res[9] = phi0;
+              if ( doca > 0. ) {
+                if ( chi2DefToUse == 6 ) {
+                  AmgMatrix(5,3) dmat = AmgMatrix(5,3)::Zero();
+                  dmat(0,0) = -sin(phi0);
+                  dmat(0,1) =  cos(phi0);
+                  dmat(1,2) =  1.;
+                  dmat(2,0) = -res[0]*cos(phi0);
+                  dmat(2,1) = -res[0]*sin(phi0);
+                  AmgSymMatrix(3) mCovTrk3D = dmat.transpose()*(*locError)*dmat;
+                  Amg::Vector3D dvec(-res[0]*sin(phi0), res[0]*cos(phi0),
+                                     res[2]); // (x,y,z)
+                  Amg::Vector3D duvec = dvec.unit();
+                  // log(chi2) = log( docavec^T * V^-1 * docavec )
+                  res[4] = log( dvec.transpose() * (poscov+mCovTrk3D).inverse()
+                                * dvec );
+                  res[7] = duvec.transpose()*poscov*duvec;
+                  res[8] = duvec.transpose()*mCovTrk3D*duvec;
+                  res[6] = 3.; // ok
+                }
+                if ( chi2DefToUse == 7 ) {
+                  AmgMatrix(3,2) dmat = AmgMatrix(3,2)::Zero();
+                  dmat(0,0) = -sin(phi0);
+                  dmat(1,0) =  cos(phi0);
+                  dmat(2,0) =  0.;
+                  dmat(0,1) =  0.;
+                  dmat(1,1) =  0.;
+                  dmat(2,1) =  1.;
+                  AmgSymMatrix(2) mCovVtx2D = dmat.transpose()*poscov*dmat;
+                  AmgSymMatrix(2) mCovTrk2D = AmgSymMatrix(2)::Zero();
+                  mCovTrk2D(0,0) = (*locError)(Trk::d0,Trk::d0);
+                  mCovTrk2D(0,1) = (*locError)(Trk::d0,Trk::z0);
+                  mCovTrk2D(1,0) = (*locError)(Trk::d0,Trk::z0);
+                  mCovTrk2D(1,1) = (*locError)(Trk::z0,Trk::z0);
+                  Amg::Vector2D dvec(res[0], res[2]); // (d0, z0)
+                  Amg::Vector2D duvec = dvec.unit();
+                  // log(chi2) = log( (d0, z0) * V^-1 * (d0, z0)^T )
+                  res[4] = log( dvec.transpose()*(mCovVtx2D+mCovTrk2D).inverse()
+                                * dvec );
+                  res[7] = duvec.transpose()*mCovVtx2D*duvec;
+                  res[8] = duvec.transpose()*mCovTrk2D*duvec;
+                  res[6] = 4.; // ok
+                }
+              } else {
+                ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
+                                << " doca == 0 !");
+              }
+            } // if chi2DefToUse > 5 && chi2DefToUse < 8
+            res[5] = doDCAin3D ?
+              sqrt( pow(res[0], 2.) + pow(res[2], 2.) ) : res[0];
+            res[6] += 1.; // ok
+          } else {
+            ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
+                            " locError pointer is NULL!");
+          } // locError != NULL
+          // delete trkPerigee;
+          // trkPerigee = NULL;
+        } else {
+          ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
+                          " trkPerigee pointer is NULL!");
+        } // if trkPerigee
+
+      } else if ( chi2DefToUse == 2
+                  || (chi2DefToUse > 7 && chi2DefToUse < 10 )) {
+        // simple extrapolation method
+        // (directly taken from NtupleMaker for comparisons)
+
+        // SV position and covariance matrix
+        TVector3 SV_def(vtx->x(), vtx->y(), vtx->z());
+        const AmgSymMatrix(3)& SV_cov = poscov;
+        
+        // chi2 track to SV
+        double px      = ( track->p4() ).Px();
+        double py      = ( track->p4() ).Py();
+        double pt      = ( track->p4() ).Pt();
+        double d0      = track->d0();
+        double d0Err2  = track->definingParametersCovMatrixVec()[0];
+        double z0      = track->z0();
+        double z0Err2  = track->definingParametersCovMatrixVec()[2];
+        double theta   = track->theta();
+        double d0z0Cov = track->definingParametersCovMatrixVec()[1];
+        double phi     = track->phi();
+
+        TVector3 trk_origin(  track->vx(),  track->vy(),  track->vz() );
+        TVector3 SV = SV_def - trk_origin;
+        
+        // calc. error in direction perpendicular to pT (still x-y plane)
+        double upx        = py/pt;
+        double upy        = -px/pt;
+        double d0toSV     = d0 + (SV[0]*upx + SV[1]*upy);
+        double d0toSVErr2 = upx*SV_cov(0, 0)*upx + 2*upx*SV_cov(1, 0)*upy
+          + upy*SV_cov(1, 1)*upy + d0Err2;
+
+        upx = px/pt;
+        upy = py/pt;
+        double cot_theta  = cos(theta)/sin(theta);
+        double z0corr     = (SV[0]*upx + SV[1]*upy)*cot_theta;
+        double z0toSV     = z0 + z0corr - SV[2];
+        double z0toSVErr2 = SV_cov(2, 2) + z0Err2;
+
+        double docaSV     = sqrt( pow(d0toSV, 2) + pow(z0toSV, 2) );
+     
+        double chi2testSV(999.);
+        if ( chi2DefToUse == 2 ) {
+          if (d0toSVErr2 !=0 && z0toSVErr2 != 0)
+            chi2testSV = log(pow( d0toSV, 2)/d0toSVErr2
+                             + pow( z0toSV, 2)/z0toSVErr2);
+          // set results
+          res = {d0toSV, sqrt(d0toSVErr2), z0toSV, sqrt(z0toSVErr2),
+                 chi2testSV, (doDCAin3D ? docaSV : d0toSV), 4,
+                 -99., -99., -999.};
+        }
+        if ( chi2DefToUse > 7 && chi2DefToUse < 10 ) {
+          if ( docaSV > 0. ) {
+            if ( chi2DefToUse == 8 ) {
+              AmgMatrix(5,3) dmat = AmgMatrix(5,3)::Zero();
+              dmat(0,0) = -sin(phi);
+              dmat(0,1) =  cos(phi);
+              dmat(1,2) =  1.;
+              dmat(2,0) = -d0toSV*cos(phi);
+              dmat(2,1) = -d0toSV*sin(phi);
+              const AmgSymMatrix(5) mCovTrk5D =
+                track->definingParametersCovMatrix();
+              AmgSymMatrix(3) mCovTrk3D = dmat.transpose()*mCovTrk5D*dmat;
+              Amg::Vector3D dvec(-d0toSV*sin(phi), d0toSV*cos(phi),
+                                 z0toSV); // (x,y,z)
+              Amg::Vector3D duvec = dvec.unit();
+              // log(chi2) = log( docavec^T * V^-1 * docavec )
+              double chi2testSV = log( dvec.transpose()
+                                       * (poscov+mCovTrk3D).inverse()
+                                       * dvec );
+              double vtx3DErr2 = duvec.transpose()*poscov*duvec;
+              double trk3DErr2 = duvec.transpose()*mCovTrk3D*duvec;
+              // set results
+              res = {d0toSV, sqrt(d0Err2), z0toSV, sqrt(z0Err2),
+                     chi2testSV, (doDCAin3D ? docaSV : d0toSV), 5,
+                     vtx3DErr2, trk3DErr2, phi};
+            }
+            if ( chi2DefToUse == 9 ) {
+              AmgMatrix(3,2) dmat = AmgMatrix(3,2)::Zero();
+              dmat(0,0) = -sin(phi);
+              dmat(1,0) =  cos(phi);
+              dmat(2,0) =  0.;
+              dmat(0,1) =  0.;
+              dmat(1,1) =  0.;
+              dmat(2,1) =  1.;
+              AmgSymMatrix(2) mCovVtx2D = dmat.transpose()*SV_cov*dmat;
+              AmgSymMatrix(2) mCovTrk2D = AmgSymMatrix(2)::Zero();
+              mCovTrk2D(0,0) = d0Err2;
+              mCovTrk2D(0,1) = d0z0Cov;
+              mCovTrk2D(1,0) = d0z0Cov;
+              mCovTrk2D(1,1) = z0Err2;
+              Amg::Vector2D dvec(d0toSV, z0toSV);
+              Amg::Vector2D duvec = dvec.unit();
+              // log(chi2) = log( (d0, z0) * V^-1 * (d0, z0)^T )
+              chi2testSV = log( dvec.transpose()*(mCovVtx2D+mCovTrk2D).inverse()
+                                * dvec );
+              double vtx2DErr2 = duvec.transpose()*mCovVtx2D*duvec;
+              double trk2DErr2 = duvec.transpose()*mCovTrk2D*duvec;
+
+              if ( vtx2DErr2 < 0. || trk2DErr2 < 0. ) {
+                ATH_MSG_WARNING("BPhysVertexTrackBase::"
+                                "getTrackLogChi2DCA(): "
+                                << "vtx2DErr2 = " << vtx2DErr2
+                                << " trk2DErr2 = " << trk2DErr2
+                                << " chi2testSV = " << chi2testSV);
+                ATH_MSG_WARNING("dvec = " << dvec);
+                ATH_MSG_WARNING("mCovVtx2D = " << mCovVtx2D);
+                ATH_MSG_WARNING("mCovTrk2D = " << mCovTrk2D);
+                ATH_MSG_WARNING("dmat = " << dmat);
+                ATH_MSG_WARNING("SV_cov = " << SV_cov);
+                ATH_MSG_WARNING("det(mCovVtx2D) = " << mCovVtx2D.determinant());
+                ATH_MSG_WARNING("det(mCovTrk2D) = " << mCovTrk2D.determinant());
+                ATH_MSG_WARNING("det(SV_cov) = " << SV_cov.determinant());
+                ATH_MSG_WARNING("d0toSV = " << d0toSV
+                                << " z0toSV = " << z0toSV
+                                << " phi = " << phi
+                                << " docaSV = " << docaSV);
+              }
+                 
+              // set results
+              res = {d0toSV, sqrt(d0Err2), z0toSV, sqrt(z0Err2),
+                     chi2testSV, (doDCAin3D ? docaSV : d0toSV), 6,
+                     vtx2DErr2, trk2DErr2, phi};
+            }
+          } else {
+            ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
+                            << " docaSV == 0 !");
+          }
+        } // if chi2DefToUse > 7 && chi2DefToUse < 10
+
+      } else if ( chi2DefToUse > 2 && chi2DefToUse < 5 ) {
+        // CalcLogChi2toPV method using xAOD::TrackingHelpers
+        // (simply taken from NtupleMaker for comparisons)
+        // N.B. z0significance method of the helper doesn't include pv_z0
+        // uncertainty
+        double d0sign(0.);
+        if (chi2DefToUse == 4) {
+          d0sign =
+            xAOD::TrackingHelpers::d0significance(track,
+                                                  m_eventInfo->beamPosSigmaX(),
+                                                  m_eventInfo->beamPosSigmaY(),
+                                                  m_eventInfo->beamPosSigmaXY()
+                                                  );
+        } else {
+          d0sign = xAOD::TrackingHelpers::d0significance( track );
+        }
+        // trk z0 is expressed relative to the beamspot position along z-axis
+        // (trk->vz())
+        // DCA always in 3D
+        double z0toPV = track->z0() + track->vz() - vtx->z();
+        double z0Err2 = track->definingParametersCovMatrixVec()[2];
+        if (chi2DefToUse == 4) z0Err2+= vtx->covariancePosition()(2,2);
+        double z0sign = z0toPV / sqrt( z0Err2 );
+        double chi2 = log( pow(d0sign, 2.) + pow(z0sign, 2.) );
+        // set results
+        res = {-999., -99., z0toPV, sqrt(z0Err2), chi2, -100., 4, -99., -99.,
+               -999.};
+        
+      } // if chi2DefToUse
     } else {
       ATH_MSG_WARNING("BPhysVertexTrackBase::getTrackLogChi2DCA():"
-		      " track pointer is NULL!");
+                      " track pointer is NULL!");
       res[6] = -2.;
-    }
+    } // if track != NULL
     return res;
   }
   //--------------------------------------------------------------------------
   // detTrackTypes(): returns a bit pattern of the applicable
-  // track types from {ASSOCPV, PVTYPE0, PVTYPE1, PVTYPE2, PVTYPE3, NONE}
-  // (or'd).
+  // track types from {ASSOCPV, PVTYPE0, PVTYPE1, PVTYPE2, PVTYPE3, NONE,
+  // NULLVP, CAPVXXXXXXX, ...} (or'd).
   //--------------------------------------------------------------------------
-  int BPhysVertexTrackBase::detTrackTypes(const xAOD::TrackParticle* track,
-					  const xAOD::Vertex* candPV) const {
+  uint64_t BPhysVertexTrackBase::detTrackTypes(const xAOD::TrackParticle* track,
+                                               const xAOD::Vertex* candPV,
+                                               const xAOD::Vertex* candRefPV) const {
     int bits = 0x0;
 
     // PVTYPE0 - PVTYPE3, NONE
     if ( track->vertex() != NULL ) {
       int vtxType = track->vertex()->vertexType();
       if ( vtxType > -1 && vtxType < 4 ) {
-	bits |= track_type_bit[vtxType+1];
+        bits |= track_type_bit[vtxType+1];
       } else {
-	bits |= track_type_bit[NONE];
+        bits |= track_type_bit[NONE];
       }
+    } else {
+        bits |= track_type_bit[NULLVP];
     }
     // ASOCPV
     if ( candPV != NULL ) {
       bool found(false);
       for (size_t i=0; i<candPV->nTrackParticles(); ++i) {
-	if ( track == candPV->trackParticle(i) ) {
-	found = true;
-	break;
-	}
+        if ( track == candPV->trackParticle(i) ) {
+          found = true;
+          break;
+        }
       }
       if ( found ) bits |= track_type_bit[ASSOCPV];
+      //
+      // CLOSEAPV
+      for (unsigned int i=7; i<n_track_types; ++i) {
+        if ( (track_type_bit[i] & m_trackTypesUsed) > 0x0 ) {
+          bool useRefittedPvs = ( i%2 == 1 );
+          bool doDCAin3D      = ( (i-7)%4 > 1 );
+          int  chi2DefToUse   = (i-7)/4;
+          // adjustment above bit 20
+          if ( i > 20 ) {
+            doDCAin3D    = true;
+            chi2DefToUse = (i-13)/2;
+          }
+          const xAOD::Vertex* minChi2PV(nullptr);
+          if ( chi2DefToUse == 5 ) {
+            minChi2PV =
+              findAssocPV(track, candPV, candRefPV, m_pvTypesToConsider,
+                          m_minNTracksInPV, useRefittedPvs);
+          } else {
+            minChi2PV =
+              findMinChi2PV(track, candPV, candRefPV, m_pvTypesToConsider,
+                            m_minNTracksInPV, useRefittedPvs,
+                            doDCAin3D, chi2DefToUse).first;
+          } // if chi2DefToUse
+          if ( candPV == minChi2PV
+               || (candRefPV != nullptr && candRefPV == minChi2PV) ) {
+            bits |= track_type_bit[i];
+          }
+        } // if m_trackTypesUsed
+      } // for i
+
     } // if candPV != NULL
-    
+
     return bits;
   }
   //--------------------------------------------------------------------------
@@ -741,38 +1270,64 @@ namespace DerivationFramework {
 		  << " " << exclTracks
 		  << " for decay candidate " << cand.vtx()
 		  << "; candPV: " << candPV << " candRefPV: " << candRefPV);
+
+    std::string bname(buildBranchBaseName(its, ipv, itt));
     
     // tracks to be considered
     TrackBag tracks;
     for (xAOD::TrackParticleContainer::const_iterator trkItr =
 	   inpTracks->begin(); trkItr != inpTracks->end(); ++trkItr) {
       const xAOD::TrackParticle* track = *trkItr;
+      uint64_t trackTypesForTrack(0x0);
+      // debug track types (before any cuts)
+      if ( m_debugTrackTypes > 0 ) {
+        trackTypesForTrack = detTrackTypes(track, candPV, candRefPV);
+        m_mttc->addToCounter(trackTypesForTrack, itt, bname, "all");
+      }
       // track selection check
       if ( ! m_trackSelectionTools[its]->accept(*track, candRefPV) ) continue;
-      // track type check
+      // debug track types (after track selection cuts)
+      if ( m_debugTrackTypes > 0 ) {
+        m_mttc->addToCounter(trackTypesForTrack, itt, bname, "ats");
+      }
+
+      // calcluation of track type bits not necessary if all bits requested
       if ( ! ((unsigned int)m_useTrackTypes[itt] == ttall() ||
-	      (detTrackTypes(track, candPV) & m_useTrackTypes[itt]) > 0x0) )
-	continue; 
+              (unsigned int)m_useTrackTypes[itt] == ttallMin()) ) {
+        // track type check -- determination if not in debugging mode
+        // delayed for execution speed reasons
+        if ( trackTypesForTrack == 0x0 ) {
+          trackTypesForTrack = detTrackTypes(track, candPV, candRefPV);
+        }
+        if ( (trackTypesForTrack &  m_useTrackTypes[itt]) == 0x0 ) {
+          continue;
+        }
+      }
+      // debug track types (after track type cuts)
+      if ( m_debugTrackTypes > 0 ) {
+        m_mttc->addToCounter(trackTypesForTrack, itt, bname, "att");
+      }
       // track not in list of tracks to exclude
       if ( std::find(exclTracks.begin(), exclTracks.end(), track)
-	   != exclTracks.end() ) continue;
+           != exclTracks.end() ) continue;
+      // debug track types (after all cuts)
+      if ( m_debugTrackTypes > 0 ) {
+        m_mttc->addToCounter(trackTypesForTrack, itt, bname, "fin");
+      }
       // tracks that survived so far
       tracks.push_back(track);
     } // for
 
-    ATH_MSG_DEBUG("selectTracks: Selected " << tracks.size()
-		  << " " << tracks
-		  << " to be considered for candidate " << cand.vtx());
-    
     return tracks;
   }
   //--------------------------------------------------------------------------
-  // buildBranchName: build branch name from track selection, primary vertex
-  // association and track type qualifiers.
+  // buildBranchBaseName: build branch name from track selection, primary
+  // vertex association and track type qualifiers.
   //--------------------------------------------------------------------------
   std::string BPhysVertexTrackBase::buildBranchBaseName(unsigned int its,
-							unsigned int ipv,
-							unsigned int itt)
+                                                        unsigned int ipv,
+                                                        unsigned int itt,
+                                                        std::string preSuffix)
     const {
     
     ATH_MSG_DEBUG("BPhysVertexTrackBase::buildBranchBaseName -- begin");
@@ -785,8 +1340,9 @@ namespace DerivationFramework {
     if ( ipos != std::string::npos ) tsName = tsName.substr(ipos+1);
 
     // format it nicely
-    boost::format f("T%02d_%s_%s%s");
+    boost::format f("T%010d_%s_%s%s%s");
     f % m_useTrackTypes[itt] % tsName % pvAssoc;
+    f % (preSuffix.length() > 0 ? "_"+preSuffix : "");
     f % (m_branchSuffix.length() > 0 ? "_"+m_branchSuffix : "");
     
     ATH_MSG_DEBUG("BPhysVertexBaseTrackBase::buildBranchBaseName: " << f.str());
@@ -806,5 +1362,129 @@ namespace DerivationFramework {
 	m_pvAssocTypes.push_back((xAOD::BPhysHelper::pv_type)i);
     }
   }
+  //--------------------------------------------------------------------------
+  //
+  // Find primary vertex to which a track is closest to in terms of minimum
+  // chi2 to any primary vertex.  Replace primary vertex by refitted primary
+  // vertex (for B candidate associated primary vertices)
+  // if appropriate (and available).
+  // Only consider primary vertices of specified primary vertex types and
+  // with a minimum number of tracks.
+  //
+  //--------------------------------------------------------------------------
+  std::pair<const xAOD::Vertex*, double>
+  BPhysVertexTrackBase::findMinChi2PV(const xAOD::TrackParticle* track,
+                                      const xAOD::Vertex* candPV,
+                                      const xAOD::Vertex* candRefPV,
+                                      const std::vector<uint64_t>& pvtypes,
+                                      const int minNTracksInPV,
+                                      const bool useRefittedPvs,
+                                      const bool doDCAin3D,
+                                      const int chi2DefToUse) const {
+
+    double minChi2 = std::numeric_limits<double>::max();
+    const xAOD::Vertex* minChi2PV(nullptr);
+    
+    for (auto &pvtx: *m_pvtxContainer) {
+      if ( pvtx != nullptr ) {
+        if ( std::find(pvtypes.begin(),pvtypes.end(),pvtx->vertexType())
+             != pvtypes.end() ) {
+          const xAOD::Vertex* cvtx = pvtx;
+          // replace by refitted PV if associated PV matches orignal PV
+          if ( useRefittedPvs && pvtx == candPV ) {
+            if ( candRefPV != nullptr ) {
+              cvtx = candRefPV;
+            } else {
+              ATH_MSG_WARNING(" BPhysVertexTrackBase::findMinChi2PV:"
+                              << " candRefPV == NULL!");
+              continue;
+            }
+          } // if pvtx == candPV
+          if ( (int)cvtx->nTrackParticles() >= minNTracksInPV ) {
+            double chi2 = getTrackLogChi2DCA(track, cvtx, doDCAin3D,
+                                             chi2DefToUse)[4];
+            if ( chi2 < minChi2 ) {
+              minChi2   = chi2;
+              minChi2PV = cvtx;
+            } // if chi2 < minChi2
+          } // if minNTracksInPV
+        } // if pvTypes in pvtypes vector
+      } // if pvtx != nullptr
+    } // for pvtx
+
+    return std::make_pair(minChi2PV, minChi2);
+  }  
+  //--------------------------------------------------------------------------
+  //
+  // Find primary vertex to which a track is closest using the
+  // TrackVertexAssociationTool.  Replace primary vertex by refitted primary
+  // vertex (for B candidate associated primary vertices)
+  // if appropriate (and available).
+  // Only consider primary vertices of specified primary vertex types and
+  // with a minimum number of tracks.
+  //
+  //--------------------------------------------------------------------------
+  const xAOD::Vertex*
+  BPhysVertexTrackBase::findAssocPV(const xAOD::TrackParticle* track,
+                                    const xAOD::Vertex* candPV,
+                                    const xAOD::Vertex* candRefPV,
+                                    const std::vector<uint64_t>& pvtypes,
+                                    const int minNTracksInPV,
+                                    const bool useRefittedPvs) const {
+
+    // select PVs to be considered/replace candPV by candRefPV if requested
+    std::vector<const xAOD::Vertex*> vpvtx;
+    for (auto &pvtx: *m_pvtxContainer) {
+      if ( pvtx != nullptr ) {
+        if ( std::find(pvtypes.begin(),pvtypes.end(),pvtx->vertexType())
+             != pvtypes.end() ) {
+          const xAOD::Vertex* cvtx = pvtx;
+          // replace by refitted PV if associated PV matches orignal PV
+          if ( useRefittedPvs && pvtx == candPV ) {
+            if ( candRefPV != nullptr ) {
+              cvtx = candRefPV;
+            } else {
+              ATH_MSG_WARNING("BPhysVertexTrackBase::findAssocPV:"
+                              << " candRefPV == NULL!");
+              continue;
+            }
+          } // if pvtx == candPV
+          if ( (int)cvtx->nTrackParticles() >= minNTracksInPV ) {
+            vpvtx.push_back(cvtx);
+          } // if minNTracksInPV
+        } // if pvTypes in pvtypes vector
+      } // if pvtx != nullptr
+    } // for pvtx
+
+    const xAOD::Vertex* assocPV(NULL);
+    if ( useRefittedPvs && m_tvaToolHasWpLoose ) {
+      // check whether track is in refitted PV - if so accept
+      // Need to do this here as the TrackVertexAssociationTool
+      // with WP 'Loose' only checks the track->vertex() pointer
+      // which always points to the original PV.
+      for (auto tp : candRefPV->trackParticleLinks()) {
+        if ( *tp == track ) {
+          // track is part of refitted PV -- accept it
+          assocPV = candRefPV;
+          break;
+        }
+      } // for tp
+      // if not matching use the TrackVertexAssociationTool (other PVs etc)
+      if ( assocPV == nullptr ) {
+        assocPV = m_tvaTool->getUniqueMatchVertex(*track, vpvtx);
+      }
+    } else {
+      assocPV = m_tvaTool->getUniqueMatchVertex(*track, vpvtx);
+    } // if useRefittedPvs && m_tvaToolHasWpLoose
+    if ( assocPV == nullptr ) {
+      ATH_MSG_WARNING("BPhysVertexTrackBase::findAssocPV:"
+                      << " assocPV == NULL for track!"
+                      << " len(vpvtx) = " << vpvtx.size()
+                      << " useRefittedPvs = " << useRefittedPvs
+                      << " minNTracksInPV = " << minNTracksInPV);
+    }
+    
+    return assocPV;
+  }  
   //--------------------------------------------------------------------------  
 }

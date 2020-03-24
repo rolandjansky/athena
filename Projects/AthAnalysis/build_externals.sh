@@ -1,10 +1,9 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
 # Script building all the externals necessary for the nightly build.
 #
-
-# Stop on errors:
-set -e
 
 # Function printing the usage information for the script
 usage() {
@@ -53,6 +52,13 @@ while getopts ":t:b:fch" opt; do
             ;;
     esac
 done
+
+# Only stop on errors if we are in the CI. Otherwise just count them.
+if [ "$CI" = "1" ]; then
+    set -e
+    set -o pipefail
+fi
+ERROR_COUNT=0
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -115,7 +121,7 @@ ${scriptsdir}/build_atlasexternals.sh \
     -b ${BUILDDIR}/build/AthAnalysisExternals \
     -i ${BUILDDIR}/install/AthAnalysisExternals/${NICOS_PROJECT_VERSION} \
     -p AthAnalysisExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION}
+    -v ${NICOS_PROJECT_VERSION} || ((ERROR_COUNT++))
 
 # Get the "platform name" from the directory created by the AthAnalysisExternals
 # build:
@@ -137,4 +143,11 @@ ${scriptsdir}/build_Gaudi.sh \
     -b ${BUILDDIR}/build/GAUDI \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthAnalysisExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
-    -p AthAnalysisExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
+    -p AthAnalysisExternals -f ${platform} ${RPMOPTIONS} \
+    -t ${BUILDTYPE} || ((ERROR_COUNT++))
+
+# Exit with the error count taken into account.
+if [ ${ERROR_COUNT} -ne 0 ]; then
+    echo "AthAnalysis externals build encountered ${ERROR_COUNT} error(s)"
+fi
+exit ${ERROR_COUNT}

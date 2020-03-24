@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // Filename: ParticleLevelLoader.cxx
@@ -106,77 +106,78 @@ namespace top {
     m_objectSelector_Tau.reset(new ParticleLevelTauObjectSelector(optTau));
 
 
+    std::ostream &msgInfo = msg(MSG::Level::INFO);
     if (m_active) {
-      std::cout << "Particle level reconstruction is enabled; telling you how I am configured:" << '\n';
-      std::cout << "   " << std::setw(20) << "UseElectrons? " << std::setw(5) << std::boolalpha <<
+      msgInfo << "Particle level reconstruction is enabled; telling you how I am configured:" << '\n';
+      msgInfo << "   " << std::setw(20) << "UseElectrons? " << std::setw(5) << std::boolalpha <<
         m_config->useTruthElectrons();
       if (m_config->useTruthElectrons()) {
-        std::cout << " [" << m_config->sgKeyTruthElectrons() << "]" << '\n'
-                  << "     --- Pt           > " << m_config->truth_electron_PtCut() << '\n'
-                  << "     --- |eta|        < " << m_config->truth_electron_EtaCut() << '\n'
-                  << "     --- notFromHadron? " << std::boolalpha << m_config->truth_electron_NotFromHadron() << '\n'
-                  << "     --- tauIsHadron?   " << std::boolalpha << m_config->truth_electron_TauIsHadron() << '\n';
+        msgInfo << " [" << m_config->sgKeyTruthElectrons() << "]" << '\n'
+                << "     --- Pt           > " << m_config->truth_electron_PtCut() << '\n'
+                << "     --- |eta|        < " << m_config->truth_electron_EtaCut() << '\n'
+                << "     --- notFromHadron? " << std::boolalpha << m_config->truth_electron_NotFromHadron() << '\n'
+                << "     --- tauIsHadron?   " << std::boolalpha << m_config->truth_electron_TauIsHadron() << '\n';
       } else {
-        std::cout << '\n';
+        msgInfo << '\n';
       }
-      std::cout << "   " << std::setw(20) << "UseMuons? " << std::setw(5) << std::boolalpha <<
+      msgInfo << "   " << std::setw(20) << "UseMuons? " << std::setw(5) << std::boolalpha <<
         m_config->useTruthMuons();
       if (m_config->useTruthMuons()) {
-        std::cout << " [" << m_config->sgKeyTruthMuons() << "]" << '\n'
-                  << "     --- Pt           > " << m_config->truth_muon_PtCut() << '\n'
-                  << "     --- |eta|        < " << m_config->truth_muon_EtaCut() << '\n'
-                  << "     --- notFromHadron? " << std::boolalpha << m_config->truth_muon_NotFromHadron() << '\n'
-                  << "     --- tauIsHadron?   " << std::boolalpha << m_config->truth_muon_TauIsHadron() << '\n';
+        msgInfo << " [" << m_config->sgKeyTruthMuons() << "]" << '\n'
+                << "     --- Pt           > " << m_config->truth_muon_PtCut() << '\n'
+                << "     --- |eta|        < " << m_config->truth_muon_EtaCut() << '\n'
+                << "     --- notFromHadron? " << std::boolalpha << m_config->truth_muon_NotFromHadron() << '\n'
+                << "     --- tauIsHadron?   " << std::boolalpha << m_config->truth_muon_TauIsHadron() << '\n';
       } else {
-        std::cout << '\n';
+        msgInfo << '\n';
       }
-      std::cout << "   " << std::setw(20) << "UsePhotons? " << std::setw(5) << std::boolalpha <<
+      msgInfo << "   " << std::setw(20) << "UsePhotons? " << std::setw(5) << std::boolalpha <<
         m_config->useTruthPhotons();
       if (m_config->useTruthPhotons()) {
-        std::cout << " [" << m_config->sgKeyTruthPhotons() << "]" << '\n'
-                  << "     --- Pt           > " << m_config->truth_photon_PtCut() << '\n'
-                  << "     --- |eta|        < " << m_config->truth_photon_EtaCut() << '\n'
-                  << "     --- Origin       = " << m_config->truth_photon_Origin() << '\n'
-                  << "     --- Isolation    = " << m_config->truth_photon_Isolation() << '\n';
+        msgInfo << " [" << m_config->sgKeyTruthPhotons() << "]" << '\n'
+                << "     --- Pt           > " << m_config->truth_photon_PtCut() << '\n'
+                << "     --- |eta|        < " << m_config->truth_photon_EtaCut() << '\n'
+                << "     --- Origin       = " << m_config->truth_photon_Origin() << '\n'
+                << "     --- Isolation    = " << m_config->truth_photon_Isolation() << '\n';
       } else {
-        std::cout << '\n';
+        msgInfo << '\n';
       }
-      std::cout << "   " << std::setw(20) << "UseJets? " << std::setw(5) << std::boolalpha << m_config->useTruthJets();
+      msgInfo << "   " << std::setw(20) << "UseJets? " << std::setw(5) << std::boolalpha << m_config->useTruthJets();
       if (m_config->useTruthJets()) {
-        std::cout << " [" << m_config->sgKeyTruthJets() << "]" << '\n'
-                  << "     --- Pt           > " << m_config->truth_jet_PtCut() << '\n'
-                  << "     --- |eta|        < " << m_config->truth_jet_EtaCut() << '\n';
+        msgInfo << " [" << m_config->sgKeyTruthJets() << "]" << '\n'
+                << "     --- Pt           > " << m_config->truth_jet_PtCut() << '\n'
+                << "     --- |eta|        < " << m_config->truth_jet_EtaCut() << '\n';
       } else {
-        std::cout << '\n';
+        msgInfo << '\n';
       }
-      std::cout << "   " << std::setw(20) << "UseLargeRJets? " << std::setw(5) << std::boolalpha <<
+      msgInfo << "   " << std::setw(20) << "UseLargeRJets? " << std::setw(5) << std::boolalpha <<
         m_config->useTruthLargeRJets();
       if (m_config->useTruthJets()) {
-        std::cout << " [" << m_config->sgKeyTruthLargeRJets() << "]" << '\n'
-                  << "     --- Pt           > " << m_config->truth_jet_largeR_PtCut() << '\n'
-                  << "     --- |eta|        < " << m_config->truth_jet_largeR_EtaCut() << '\n';
+        msgInfo << " [" << m_config->sgKeyTruthLargeRJets() << "]" << '\n'
+                << "     --- Pt           > " << m_config->truth_jet_largeR_PtCut() << '\n'
+                << "     --- |eta|        < " << m_config->truth_jet_largeR_EtaCut() << '\n';
       } else {
-        std::cout << '\n';
+        msgInfo << '\n';
       }
-      std::cout << "   " << std::setw(20) << "UseTaus? " << std::setw(5) << std::boolalpha << m_config->useTruthTaus();
+      msgInfo << "   " << std::setw(20) << "UseTaus? " << std::setw(5) << std::boolalpha << m_config->useTruthTaus();
       if (m_config->useTruthTaus()) {
-        std::cout << " [" << m_config->sgKeyTruthTaus() << "]" << '\n'
-                  << "     --- Pt           > " << m_config->truth_tau_PtCut() << '\n'
-                  << "     --- |eta|        < " << m_config->truth_tau_EtaCut() << '\n';
+        msgInfo << " [" << m_config->sgKeyTruthTaus() << "]" << '\n'
+                << "     --- Pt           > " << m_config->truth_tau_PtCut() << '\n'
+                << "     --- |eta|        < " << m_config->truth_tau_EtaCut() << '\n';
       } else {
-        std::cout << '\n';
+        msgInfo << '\n';
       }
-      std::cout << "   " << std::setw(20) << "UseMET? " << std::setw(5) << std::boolalpha << m_config->useTruthMET();
+      msgInfo << "   " << std::setw(20) << "UseMET? " << std::setw(5) << std::boolalpha << m_config->useTruthMET();
       if (m_config->useTruthMET()) {
-        std::cout << " [" << m_config->sgKeyTruthMET() << "]" << '\n';
+        msgInfo << " [" << m_config->sgKeyTruthMET() << "]" << '\n';
       } else {
-        std::cout << '\n';
+        msgInfo << '\n';
       }
-      std::cout << "   " << std::setw(20) << "DoOverlapRemoval Mu-Jet? " << std::setw(5) << std::boolalpha <<
+      msgInfo << "   " << std::setw(20) << "DoOverlapRemoval Mu-Jet? " << std::setw(5) << std::boolalpha <<
         m_config->doParticleLevelOverlapRemovalMuJet() << '\n';
-      std::cout << "   " << std::setw(20) << "DoOverlapRemoval El-Jet? " << std::setw(5) << std::boolalpha <<
+      msgInfo << "   " << std::setw(20) << "DoOverlapRemoval El-Jet? " << std::setw(5) << std::boolalpha <<
         m_config->doParticleLevelOverlapRemovalElJet() << '\n';
-      std::cout << "   " << std::setw(20) << "DoOverlapRemoval Jet-Photon? " << std::setw(5) << std::boolalpha <<
+      msgInfo << "   " << std::setw(20) << "DoOverlapRemoval Jet-Photon? " << std::setw(5) << std::boolalpha <<
         m_config->doParticleLevelOverlapRemovalJetPhoton() << '\n';
 
 
@@ -211,7 +212,7 @@ namespace top {
         } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
       }
     } else {
-      std::cout << "Particle level reconstruction is disabled." << '\n';
+      msgInfo << "Particle level reconstruction is disabled." << '\n';
     }
   }
 
@@ -458,8 +459,8 @@ namespace top {
       });
 
 #ifdef TOP_PARTICLE_LEVEL_DEBUG_OVERLAP_REMOVAL
-      std::cout << "[top::ParticleLevelLoader] Muon-In-Jet OR: "
-                << nMuonsPreOR << " -> " << idx_muons.size() << std::endl;
+      ATH_MSG_INFO("[top::ParticleLevelLoader] Muon-In-Jet OR: "
+          << nMuonsPreOR << " -> " << idx_muons.size());
 #endif
     }
 
@@ -481,8 +482,8 @@ namespace top {
       });
 
 #ifdef TOP_PARTICLE_LEVEL_DEBUG_OVERLAP_REMOVAL
-      std::cout << "[top::ParticleLevelLoader] Electron-In-Jet OR: "
-                << nElectronsPreOR << " -> " << idx_electrons.size() << std::endl;
+      ATH_MSG_INFO("[top::ParticleLevelLoader] Electron-In-Jet OR: "
+          << nElectronsPreOR << " -> " << idx_electrons.size());
 #endif
     }
 
@@ -504,8 +505,8 @@ namespace top {
       });
 
 #ifdef TOP_PARTICLE_LEVEL_DEBUG_OVERLAP_REMOVAL
-      std::cout << "[top::ParticleLevelLoader] Jet-In-Photon OR: "
-                << nJetsPreOR << " -> " << idx_jets.size() << std::endl;
+      ATH_MSG_INFO("[top::ParticleLevelLoader] Jet-In-Photon OR: "
+          << nJetsPreOR << " -> " << idx_jets.size());
 #endif
     }
 

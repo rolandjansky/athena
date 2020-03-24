@@ -17,7 +17,7 @@ def makeGeneratorAnalysisSequence( dataType,
       cutBookkeepersSystematics -- store CutBookkeepers systematics
     """
 
-    if not dataType in ["mc", "afii"] :
+    if dataType not in ["mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     if saveCutBookkeepers and not runNumber:

@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_FLAVOURUNCERTAINTYCOMPONENT_H
 #define JETUNCERTAINTIES_FLAVOURUNCERTAINTYCOMPONENT_H
 
 #include "JetUncertainties/UncertaintyComponent.h"
-
-#include <vector>
 
 namespace jet
 {
@@ -55,8 +53,10 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         const bool m_absEta;
         const TString m_secondUncName;
 
+        std::string m_largeRJetTruthLabelName;
+        
         // Large-R flags to only apply to specific jet types (as other jet types handled by topology uncertainties)
-        std::vector<FatjetTruthLabel::TypeEnum> m_fatjetTruthLabels;
+        std::vector<LargeRJetTruthLabel::TypeEnum> m_largeRJetTruthLabels;
         
         UncertaintyHistogram* m_secondUncHist;
         FlavourRespType m_respType;

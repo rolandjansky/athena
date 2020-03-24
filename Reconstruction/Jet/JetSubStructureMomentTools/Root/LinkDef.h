@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/AngularityTool.h"
@@ -25,6 +25,7 @@
 #include "JetSubStructureMomentTools/KtMassDropTool.h"
 #include "JetSubStructureMomentTools/QwTool.h"
 #include "JetSubStructureMomentTools/SoftDropObservablesTool.h"
+#include "JetSubStructureMomentTools/MultiplicitiesTool.h"
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
 #include "JetSubStructureMomentTools/HEPTopTaggerMomentsTool.h"
 #include "JetSubStructureMomentTools/IVariableRPseudoJetCalTool.h"
@@ -51,6 +52,7 @@
 #pragma link C++ class KTSplittingScaleTool+;
 #pragma link C++ class KtDeltaRTool+;
 #pragma link C++ class KtMassDropTool+;
+#pragma link C++ class MultiplicitiesTool+;
 #pragma link C++ class NSubjettinessRatiosTool+;
 #pragma link C++ class NSubjettinessTool+;
 #pragma link C++ class PlanarFlowTool+;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardPFlowJvtTool.cxx
@@ -104,12 +104,12 @@
     pileupMomenta=calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
 
     if(pileupMomenta.size()==0) {
-      ATH_MSG_WARNING( "pileupMomenta is empty, fJVT will not be computed." );
+      ATH_MSG_DEBUG( "pileupMomenta is empty, this can happen for events with no PU vertices. fJVT won't be computed for this event and will be set to 0 instead." );
       for(const xAOD::Jet* jetF : jetCont) {
 	(*Dec_outFjvt)(*jetF) = 1;
-	fjvt_dec(*jetF) = -1;
+	fjvt_dec(*jetF) = 0;
       }
-      return 1;
+      return 0;
     }
 
     for(const xAOD::Jet* jetF : jetCont) {
@@ -142,12 +142,12 @@
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_ERROR("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
       return pileupMomenta;
     }
     const xAOD::PFOContainer *pfos = m_pfotool->retrievePFO(CP::EM,CP::all);
     if(pfos == NULL ){
-      ATH_MSG_ERROR("PFO container is empty!");
+      ATH_MSG_WARNING("PFO container is empty!");
       return pileupMomenta;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved PFO objects");
@@ -165,7 +165,7 @@
       if( !evtStore()->contains<xAOD::JetContainer>(jname.Data()) ){
 	// if not, build it
 	if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
-	  ATH_MSG_ERROR(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
+	  ATH_MSG_WARNING(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
 	  return pileupMomenta;
 	}
       } else {
@@ -173,7 +173,7 @@
       }
       
       if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){
-        ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
+        ATH_MSG_WARNING("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
         return pileupMomenta;
       }
 
@@ -214,9 +214,10 @@
     std::vector<fastjet::PseudoJet> input_pfo;
     std::set<int> charged_pfo;
     for(const xAOD::PFO* pfo : pfos){ 
+      if (Dec_OR && !(*Dec_OR)(*pfo)) continue;
       if (pfo->isCharged()) { 
         if (vx.index()==pv_index && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
-        if (vx.index()!=pv_index && &vx!=pfo->track(0)->vertex()) continue;
+        if (vx.index()!=pv_index && (!pfo->track(0)->vertex() || vx.index()!=pfo->track(0)->vertex()->index())) continue;
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
@@ -311,7 +312,7 @@
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_ERROR("Unable to retrieve primary vertex container");
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container");
       // this almost certainly isn't what we should do here, the
       // caller doesn't check this for errors
       return 0;
@@ -321,7 +322,7 @@
         if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
       }
     }
-    ATH_MSG_ERROR("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+    ATH_MSG_WARNING("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
     // this almost certainly isn't what we should do here, the
     // caller doesn't check this for errors
     return 0;

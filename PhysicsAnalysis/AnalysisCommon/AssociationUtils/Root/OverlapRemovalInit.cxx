@@ -9,7 +9,6 @@
 #include "TError.h"
 
 // Framework includes
-#include "CxxUtils/make_unique.h"
 
 // Local includes
 #include "AssociationUtils/OverlapRemovalInit.h"

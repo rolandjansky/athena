@@ -348,6 +348,10 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG1D2Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG1D2Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg)
 
+# Decorate PFlow jets with FJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=HIGG1D2Seq, algname='JetForwardPFlowJvtToolAlg')
+
 DerivationFrameworkJob += HIGG1D2Seq
 
 #====================================================================

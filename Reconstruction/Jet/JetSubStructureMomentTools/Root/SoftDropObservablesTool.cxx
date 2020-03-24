@@ -1,16 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <math.h>
-#include <float.h>
 #include "JetSubStructureMomentTools/SoftDropObservablesTool.h"
-#include "JetEDM/JetConstituentFiller.h"
 #include "JetSubStructureUtils/SoftDropObservables.h"
-#include "fastjet/ClusterSequence.hh"
-
-using fastjet::PseudoJet;
 
 SoftDropObservablesTool::SoftDropObservablesTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
@@ -18,7 +11,7 @@ SoftDropObservablesTool::SoftDropObservablesTool(std::string name) :
 }
 
 int SoftDropObservablesTool::modifyJet(xAOD::Jet &injet) const {
-  PseudoJet jet;
+  fastjet::PseudoJet jet;
 
   bool decorate = SetupDecoration(jet,injet);
 

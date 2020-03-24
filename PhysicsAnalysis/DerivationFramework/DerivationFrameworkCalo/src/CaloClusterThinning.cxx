@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ROOT include(s):
@@ -36,6 +36,10 @@ namespace DerivationFramework {
                        "StoreGate key of the calo cluster container to thin" );
       declareProperty( "TopoClCollectionSGKey", m_TopoClSGKey,
                        "StoreGate key of the topo cluster container to thin" );
+      declareProperty( "AdditionalTopoClCollectionSGKey"  , m_addTopoClSGKey,
+                       "Additional cluster containers to set up the same "
+                       "filtering on. Assuming that they're shallow copies "
+                       "of the main container." );
       declareProperty( "SelectionString", m_selectionString,
                        "Selection string for the e/gamma objects" );
       declareProperty( "ConeSize", m_coneSize,
@@ -62,6 +66,13 @@ namespace DerivationFramework {
          ATH_MSG_FATAL( "No CalCaloTopoCluster or CaloCluster collection "
                         "provided for thinning." );
          return StatusCode::FAILURE;
+      }
+      if( m_addTopoClSGKey.size() ) {
+	if( m_TopoClSGKey.empty() ) {
+	  ATH_MSG_FATAL( "Need to provide TopoClCollectionSGKey when using AdditionalTopoClCollectionSGKey" );
+	  return StatusCode::FAILURE;	 
+	}
+	ATH_MSG_INFO( "Thinning will also be set up for container(s): " << m_addTopoClSGKey );
       }
 
       if( m_sgKey == "" ) {
@@ -119,6 +130,21 @@ namespace DerivationFramework {
                                           m_TopoClSGKey ) );
       }
 
+      // Retrieve additional topocluster container(s)
+      std::vector< const xAOD::CaloClusterContainer* > additionalTopoCaloCluster;
+      for( const std::string& name : m_addTopoClSGKey ) {
+         const xAOD::CaloClusterContainer* tempTopoCaloCluster = nullptr;
+         ATH_CHECK( evtStore()->retrieve( tempTopoCaloCluster, name ) );
+
+	 // Size consistency check
+         if( tempTopoCaloCluster->size() != importedTopoCaloCluster->size() ) {
+	   ATH_MSG_FATAL( "One of the additional cluster containers is not the right size" );
+	   return StatusCode::FAILURE;
+	 }
+	 
+         additionalTopoCaloCluster.push_back(tempTopoCaloCluster);
+      }
+
       // Check the event contains clusters
       const size_t nClusters = ( importedCaloCluster ?
                                  importedCaloCluster->size() : 0 );
@@ -139,61 +165,65 @@ namespace DerivationFramework {
       ATH_CHECK( evtStore()->retrieve( importedParticles, m_sgKey ) );
 
       //No particles in the input
+      //In this case all clusters should be removed
+      bool noParticles(false);
       const size_t nParticles = importedParticles->size();
       if( nParticles == 0 ) {
-         return StatusCode::SUCCESS;
+         noParticles=true;
       }
 
       // Check whether we'll be able to use the container:
-      const xAOD::Type::ObjectType oType = importedParticles->at( 0 )->type();
-      if( ( oType != xAOD::Type::Electron ) &&
-          ( oType != xAOD::Type::Photon ) &&
-          ( oType != xAOD::Type::Muon ) &&
-          ( oType != xAOD::Type::Tau ) && ( m_coneSize < 0.0 ) ) {
-         ATH_MSG_ERROR( "This tool is designed for Egamma, Muons and Taus and "
-                        << m_sgKey << " is not a one of these collections. "
-                        << "For general iParticles dR needs to be specified" );
-         return StatusCode::FAILURE;
-      }
-
-      // Select the particles to use:
-      std::vector< const xAOD::IParticle* > particlesToCheck;
-      if( m_parser ) {
-         const std::vector< int > entries =
-               m_parser->parser().evaluateAsVector();
-         unsigned int nEntries = entries.size();
-         // check the sizes are compatible
-         if( nParticles != nEntries ) {
-            ATH_MSG_ERROR( "Sizes incompatible! Are you sure your selection "
-                           "string used the right container??");
+      if (noParticles==false) {
+         const xAOD::Type::ObjectType oType = importedParticles->at( 0 )->type();
+         if( ( oType != xAOD::Type::Electron ) &&
+             ( oType != xAOD::Type::Photon ) &&
+             ( oType != xAOD::Type::Muon ) &&
+             ( oType != xAOD::Type::Tau ) && ( m_coneSize < 0.0 ) ) {
+            ATH_MSG_ERROR( "This tool is designed for Egamma, Muons and Taus and "
+                           << m_sgKey << " is not a one of these collections. "
+                           << "For general iParticles dR needs to be specified" );
             return StatusCode::FAILURE;
          }
-         // identify which particles to keep for the thinning check
-         for( size_t i = 0; i < nParticles; ++i ) {
-            if( entries.at( i ) == 1 ) {
-               particlesToCheck.push_back( importedParticles->at( i ) );
+
+         // Select the particles to use:
+         std::vector< const xAOD::IParticle* > particlesToCheck;
+         if( m_parser ) {
+            const std::vector< int > entries =
+                  m_parser->parser().evaluateAsVector();
+            unsigned int nEntries = entries.size();
+            // check the sizes are compatible
+            if( nParticles != nEntries ) {
+               ATH_MSG_ERROR( "Sizes incompatible! Are you sure your selection "
+                              "string used the right container??");
+               return StatusCode::FAILURE;
+            }
+            // identify which particles to keep for the thinning check
+            for( size_t i = 0; i < nParticles; ++i ) {
+               if( entries.at( i ) == 1 ) {
+                  particlesToCheck.push_back( importedParticles->at( i ) );
+               }
+            }
+         } else {
+            // If no selection was specified, use all the particles:
+            for( const xAOD::IParticle* p : *importedParticles ) {
+               particlesToCheck.push_back( p );
             }
          }
-      } else {
-         // If no selection was specified, use all the particles:
-         for( const xAOD::IParticle* p : *importedParticles ) {
-            particlesToCheck.push_back( p );
-         }
-      }
 
-      // Process the particles:
-      for( const xAOD::IParticle* particle : particlesToCheck ) {
-         if( importedCaloCluster ) {
-            ATH_CHECK( particleCluster( mask, particle, importedCaloCluster ) );
-            ATH_CHECK( setClustersMask( mask, particle, importedCaloCluster ) );
+         // Process the particles:
+         for( const xAOD::IParticle* particle : particlesToCheck ) {
+            if( importedCaloCluster ) {
+               ATH_CHECK( particleCluster( mask, particle, importedCaloCluster ) );
+               ATH_CHECK( setClustersMask( mask, particle, importedCaloCluster ) );
+            }
+            if( importedTopoCaloCluster ) {
+               ATH_CHECK( particleCluster( topomask, particle,
+                                           importedTopoCaloCluster ) );
+               ATH_CHECK( setClustersMask( topomask, particle,
+                                           importedTopoCaloCluster ) );
+            }
          }
-         if( importedTopoCaloCluster ) {
-            ATH_CHECK( particleCluster( topomask, particle,
-                                        importedTopoCaloCluster ) );
-            ATH_CHECK( setClustersMask( topomask, particle,
-                                        importedTopoCaloCluster ) );
-         }
-      }
+      } // end of if (noParticles==false)
 
       // Count up the mask contents
       for( bool bit : mask ) {
@@ -217,6 +247,9 @@ namespace DerivationFramework {
       if( importedTopoCaloCluster ) {
          ATH_CHECK( m_thinningSvc->filter( *importedTopoCaloCluster, topomask,
                                            opType ) );
+	 for( const xAOD::CaloClusterContainer* ccc : additionalTopoCaloCluster ) {
+	   ATH_CHECK( m_thinningSvc->filter( *ccc, topomask, opType ) );
+	 }
       }
 
       // Return gracefully:
@@ -329,8 +362,8 @@ namespace DerivationFramework {
                   // Get the 4-momentum of the constituent, and check whether
                   // it's "close enough" to the tau or not:
                   TLorentzVector cP4;
-                  cP4.SetPtEtaPhiM( 1.0, jc->Eta(), jc->Phi(), 1.0 );
-                  if( cP4.DeltaR( tauP4 ) > 0.2 ) {
+                  cP4.SetPtEtaPhiM( 1.0, jc->Eta(), jc->Phi(), 0. );
+                  if( cP4.DeltaR( tauP4 ) > (m_coneSize<0.? 0.2 : m_coneSize) ) {
                      continue;
                   }
                   // If it is, then make sure that it's a cluster coming from
@@ -341,6 +374,7 @@ namespace DerivationFramework {
                                     "container" );
                      continue;
                   }
+
                   // If all is well, update the mask:
                   mask.at( rawC->index() ) = true;
                }

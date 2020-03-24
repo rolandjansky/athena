@@ -39,6 +39,7 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
     m_doArgonMixture(0),
     m_doKryptonMixture(0),
     m_useDynamicAlignFolders(false),
+    m_isSimulation(false),
     m_manager(0),
     m_athenaComps(0)
 {
@@ -53,6 +54,7 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
   declareProperty("DoXenonArgonMixture", m_doArgonMixture); // Set to 1 to use argon. DEFAULT VALUE is 0. Overridden by DOARGONMIXTURE switch
   declareProperty("DoKryptonMixture", m_doKryptonMixture); // Set to 1 to use krypton. DEFAULT VALUE is 0. Overridden by DOKRYPTONMIXTURE switch
   declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
+  declareProperty("IsSimulation", m_isSimulation, "From job configuration, are we running simulation or something else");
 
 }
 
@@ -121,14 +123,14 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
     //Should be stored as booleans?
     if (switches->getInt("DC1COMPATIBLE")) {
       msg(MSG::ERROR) << "DC1COMPATIBLE flag set in database,"
-	  << " but DC1 is no longer supported in the code!!" << endreq;
+          << " but DC1 is no longer supported in the code!!" << endreq;
     }
     m_DC2CompatibleBarrelCoordinates = switches->getInt("DC2COMPATIBLE");
-    m_useOldActiveGasMixture         	= ( switches->getInt("GASVERSION") == 0 );
-    m_initialLayout                  	= switches->getInt("INITIALLAYOUT"); 
+    m_useOldActiveGasMixture                 = ( switches->getInt("GASVERSION") == 0 );
+    m_initialLayout                          = switches->getInt("INITIALLAYOUT"); 
 
 
-	// Check if the new switches exists:
+        // Check if the new switches exists:
     //bool result = true;
     if ((m_doArgonMixture == 1) ||( m_doKryptonMixture == 1) ){
      try {
@@ -152,7 +154,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
       }
     }
     if (!switches->isFieldNull("VERSIONNAME")) {
-      versionName                    	= switches->getString("VERSIONNAME");
+      versionName                            = switches->getString("VERSIONNAME");
     }
   };
 
@@ -166,7 +168,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
   }
   msg(MSG::INFO)  << "Creating the TRT" << endreq;
   msg(MSG::INFO)  << "TRT Geometry Options:" << endreq;
-  msg(MSG::INFO)  << "  UseOldActiveGasMixture         = " << (m_useOldActiveGasMixture 	? "true" : "false") <<endreq;
+  msg(MSG::INFO)  << "  UseOldActiveGasMixture         = " << (m_useOldActiveGasMixture         ? "true" : "false") <<endreq;
   msg(MSG::INFO)  << "  Do Argon    = " << (m_doArgonMixture   ? "true" : "false") <<endreq;
   msg(MSG::INFO)  << "  Do Krypton  = " << (m_doKryptonMixture ? "true" : "false") <<endreq;
   msg(MSG::INFO)  << "  DC2CompatibleBarrelCoordinates = " << (m_DC2CompatibleBarrelCoordinates ? "true" : "false") <<endreq;
@@ -189,43 +191,44 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
   m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
     
   
-  // 
-  // Locate the top level experiment node 
-  // 
-  GeoModelExperiment * theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
-    msg(MSG::ERROR) 
-	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endreq; 
-    return (StatusCode::FAILURE); 
-  } 
+  //
+  // Locate the top level experiment node
+  //
+  GeoModelExperiment * theExpt;
+  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) {
+    msg(MSG::ERROR)
+        << "Could not find GeoModelExperiment ATLAS"
+        << endreq;
+    return (StatusCode::FAILURE);
+  }
 
   if ( 0 == m_detector ) {
     GeoPhysVol *world = theExpt->getPhysVol();
 
     msg(MSG::INFO) << " Building TRT geometry from GeoModel factory TRTDetectorFactory_Full" << endreq;
 
-    TRTDetectorFactory_Full theTRTFactory(m_athenaComps, 
-					  m_sumSvc,
-					  m_useOldActiveGasMixture,
-					  m_DC2CompatibleBarrelCoordinates,
-					  m_overridedigversion,
-					  m_alignable,
-					  m_doArgonMixture,
-					  m_doKryptonMixture,
-					  m_useDynamicAlignFolders
+    TRTDetectorFactory_Full theTRTFactory(m_athenaComps,
+                                          m_sumSvc,
+                                          m_useOldActiveGasMixture,
+                                          m_DC2CompatibleBarrelCoordinates,
+                                          m_overridedigversion,
+                                          m_alignable,
+                                          m_doArgonMixture,
+                                          m_doKryptonMixture,
+                                          m_useDynamicAlignFolders,
+                                          m_isSimulation
     );
     theTRTFactory.create(world);
     m_manager=theTRTFactory.getDetectorManager();
-    
+
     // Register the TRTDetectorNode instance with the Transient Detector Store
     if (m_manager) {
       theExpt->addManager(m_manager);
       
       sc = detStore->record(m_manager,m_manager->getName());
       if (sc.isFailure() ) {
-	msg(MSG::ERROR) << "Could not register TRT_DetectorManager" << endreq;
-	return( StatusCode::FAILURE );
+        msg(MSG::ERROR) << "Could not register TRT_DetectorManager" << endreq;
+        return( StatusCode::FAILURE );
       }
       
       return StatusCode::SUCCESS;
@@ -252,55 +255,55 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     {
 
       if (m_useDynamicAlignFolders){ // Regular alignment new shema   
-	std::string folderName = "/TRT/AlignL1/TRT";
-	if (detStore->contains<CondAttrListCollection>(folderName)) {
-	  msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
-	  const DataHandle<CondAttrListCollection> calc;
-	  StatusCode trttmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
-	  // We don't expect this to fail as we have already checked that the detstore contains the object. 
-	  if (trttmp.isFailure()) {
-	    msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
-	  } else {
-	    sc =  StatusCode::SUCCESS;
-	  }
-	} else {
-	  msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
-	  //return StatusCode::FAILURE;
-	}
-	
-	folderName = "/TRT/AlignL2";
-	if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
-	  const DataHandle<AlignableTransformContainer> atc;
-	  StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-	  if(sctmp.isFailure()) {
-	    msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
-	  } else {
-	    sc =  StatusCode::SUCCESS;
-	  }
-	}
-	else {
-	  msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
-			    << folderName <<  endreq;
-	  //return StatusCode::FAILURE;
-	}
+        std::string folderName = "/TRT/AlignL1/TRT";
+        if (detStore->contains<CondAttrListCollection>(folderName)) {
+          msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+          const DataHandle<CondAttrListCollection> calc;
+          StatusCode trttmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+          // We don't expect this to fail as we have already checked that the detstore contains the object. 
+          if (trttmp.isFailure()) {
+            msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+          } else {
+            sc =  StatusCode::SUCCESS;
+          }
+        } else {
+          msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+          //return StatusCode::FAILURE;
+        }
+        
+        folderName = "/TRT/AlignL2";
+        if (detStore->contains<AlignableTransformContainer>(folderName)) {
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+          const DataHandle<AlignableTransformContainer> atc;
+          StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+          if(sctmp.isFailure()) {
+            msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+          } else {
+            sc =  StatusCode::SUCCESS;
+          }
+        }
+        else {
+          msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
+                            << folderName <<  endreq;
+          //return StatusCode::FAILURE;
+        }
       }
       else {  // Regular alignment old schema
-	std::string folderName = "/TRT/Align";
-	if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	  msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
-	  const DataHandle<AlignableTransformContainer> atc;
-	  StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-	  // We don't expect this to fail as we have already checked that the detstore contains the object.
-	  if (sctmp.isFailure()) {
-	    msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
-	  } else {
-	    sc =  StatusCode::SUCCESS;
-	  }
-	} else {
-	  msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
-			    << folderName << ", Alignments disabled! (Only if no Run2 schema is loaded)" << endreq;
-	}
+        std::string folderName = "/TRT/Align";
+        if (detStore->contains<AlignableTransformContainer>(folderName)) {
+          msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+          const DataHandle<AlignableTransformContainer> atc;
+          StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+          // We don't expect this to fail as we have already checked that the detstore contains the object.
+          if (sctmp.isFailure()) {
+            msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+          } else {
+            sc =  StatusCode::SUCCESS;
+          }
+        } else {
+          msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
+                            << folderName << ", Alignments disabled! (Only if no Run2 schema is loaded)" << endreq;
+        }
       }
     }
 
@@ -310,13 +313,13 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
       if (detStore->contains<TRTCond::StrawDxContainer>(folderName)) {
         msg(MSG::DEBUG) << "Registering callback on StrawDxContainer with folder " << folderName << endreq;
         const DataHandle<TRTCond::StrawDxContainer> sdc;
-	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), sdc, folderName);
-	// We don't expect this to fail as we have already checked that the detstore contains the object.
-	if (sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on StrawDxContainer with folder " << folderName <<endreq;
-	} else {
-	  sc =  StatusCode::SUCCESS;
-	}
+        StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), sdc, folderName);
+        // We don't expect this to fail as we have already checked that the detstore contains the object.
+        if (sctmp.isFailure()) {
+          msg(MSG::ERROR) << "Problem when register callback on StrawDxContainer with folder " << folderName <<endreq;
+        } else {
+          sc =  StatusCode::SUCCESS;
+        }
       } else {
         msg(MSG::DEBUG) << "Unable to register callback on StrawDxContainer with folder " << folderName <<endreq;
       }

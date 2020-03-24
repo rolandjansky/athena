@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -23,6 +23,7 @@ namespace DerivationFramework {
     recordPropertyS("projectTag", "__NONE__");
     recordPropertyB("isRelease21" , true);
     recordPropertyS("mcCampaign", "__NONE__");
+    recordPropertyS("triggerStream", "__NONE__");
     
     // MC dataset number lists
     recordPropertyVI("mcBsmumu"         , {});
@@ -50,6 +51,9 @@ namespace DerivationFramework {
     
     // include trigger
     recordPropertyB("doTriggerInfo"  , true);
+
+    // include soft B tagging vertex containers
+    recordPropertyB("doAddSoftBVertices"    , true);
 
     // trigger navigation thinning
     recordPropertyB("doTrigNavThinning", true);
@@ -164,45 +168,56 @@ namespace DerivationFramework {
     recordPropertyVI("TruthDecayParents", {});
 
     // vertex isolation properties
-    recordPropertyVS("IsoTrackCategoryName", {});
-    recordPropertyVS("IsoTrackCutLevel"    , {});
-    recordPropertyVD("IsoTrackPtCut"       , {});
-    recordPropertyVD("IsoTrackEtaCut"      , {});
-    recordPropertyVI("IsoTrackPixelHits"   , {});
-    recordPropertyVI("IsoTrackSCTHits"     , {});
-    recordPropertyVI("IsoTrackbLayerHits"  , {});
-    recordPropertyVI("IsoTrackIBLHits"     , {});
-    recordPropertyVD("IsolationConeSizes"  , {});
-    recordPropertyVD("IsoTrkImpLogChi2Max" , {});
-    recordPropertyVI("useIsoTrackTypes"    , {});
-    recordPropertyB("IsoUseOptimizedAlgo"  ,  true);
+    recordPropertyVS("IsoTrackCategoryName" , {});
+    recordPropertyVS("IsoTrackCutLevel"     , {});
+    recordPropertyVD("IsoTrackPtCut"        , {});
+    recordPropertyVD("IsoTrackEtaCut"       , {});
+    recordPropertyVI("IsoTrackPixelHits"    , {});
+    recordPropertyVI("IsoTrackSCTHits"      , {});
+    recordPropertyVI("IsoTrackbLayerHits"   , {});
+    recordPropertyVI("IsoTrackIBLHits"      , {});
+    recordPropertyVD("IsolationConeSizes"   , {});
+    recordPropertyVD("IsoTrkImpLogChi2Max"  , {});
+    recordPropertyVI("IsoDoTrkImpLogChi2Cut", {});
+    recordPropertyVL("useIsoTrackTypes"     , {});
+    recordPropertyB("IsoUseOptimizedAlgo"   ,  true);
+    recordPropertyS("IsoTvaWorkingPoint"    , "Nominal");
 
+    
     // muon isolation properties (muons of B candidate)
-    recordPropertyVS("MuIsoTrackCategoryName", {});
-    recordPropertyVS("MuIsoTrackCutLevel"    , {});
-    recordPropertyVD("MuIsoTrackPtCut"       , {});
-    recordPropertyVD("MuIsoTrackEtaCut"      , {});
-    recordPropertyVI("MuIsoTrackPixelHits"   , {});
-    recordPropertyVI("MuIsoTrackSCTHits"     , {});
-    recordPropertyVI("MuIsoTrackbLayerHits"  , {});
-    recordPropertyVI("MuIsoTrackIBLHits"     , {});
-    recordPropertyVD("MuIsolationConeSizes"  , {});
-    recordPropertyVD("MuIsoTrkImpLogChi2Max" , {});
-    recordPropertyVI("useMuIsoTrackTypes"    , {});
+    recordPropertyVS("MuIsoTrackCategoryName" , {});
+    recordPropertyVS("MuIsoTrackCutLevel"     , {});
+    recordPropertyVD("MuIsoTrackPtCut"        , {});
+    recordPropertyVD("MuIsoTrackEtaCut"       , {});
+    recordPropertyVI("MuIsoTrackPixelHits"    , {});
+    recordPropertyVI("MuIsoTrackSCTHits"      , {});
+    recordPropertyVI("MuIsoTrackbLayerHits"   , {});
+    recordPropertyVI("MuIsoTrackIBLHits"      , {});
+    recordPropertyVD("MuIsolationConeSizes"   , {});
+    recordPropertyVD("MuIsoTrkImpLogChi2Max"  , {});
+    recordPropertyVI("MuIsoDoTrkImpLogChi2Cut", {});
+    recordPropertyVL("useMuIsoTrackTypes"     , {});
+    recordPropertyS("MuIsoTvaWorkingPoint"    , "Nominal");
 
     // closest track properties
-    recordPropertyVS("CloseTrackCategoryName", {});
-    recordPropertyVS("CloseTrackCutLevel"    , {});
-    recordPropertyVD("CloseTrackPtCut"       , {});
-    recordPropertyVD("CloseTrackEtaCut"      , {});
-    recordPropertyVI("CloseTrackPixelHits"   , {});
-    recordPropertyVI("CloseTrackSCTHits"     , {});
-    recordPropertyVI("CloseTrackbLayerHits"  , {});
-    recordPropertyVI("CloseTrackIBLHits"     , {});
-    recordPropertyVI("useCloseTrackTypes"    , {});
-    recordPropertyB("CloseTrackMinDCAin3D"   , true);
-    recordPropertyD("CloseTrackMaxLogChi2"   , 99999.);
-    recordPropertyD("NCloseTrackMaxLogChi2"  , 99999.);
+    recordPropertyVS("CloseTrackCategoryName"  , {});
+    recordPropertyVS("CloseTrackCutLevel"      , {});
+    recordPropertyVD("CloseTrackPtCut"         , {});
+    recordPropertyVD("CloseTrackEtaCut"        , {});
+    recordPropertyVI("CloseTrackPixelHits"     , {});
+    recordPropertyVI("CloseTrackSCTHits"       , {});
+    recordPropertyVI("CloseTrackbLayerHits"    , {});
+    recordPropertyVI("CloseTrackIBLHits"       , {});
+    recordPropertyVL("useCloseTrackTypes"      , {});
+    recordPropertyVS("CloseTrackChi2SetName"   , {});
+    recordPropertyVI("CloseTrackCorrChi2"      , {});
+    recordPropertyVB("CloseTrackMinDCAin3D"    , {});
+    recordPropertyVD("CloseTrackMaxLogChi2"    , {});
+    recordPropertyVD("NCloseTrackMaxLogChi2"   , {});
+    recordPropertyS("CloseTrackTvaWorkingPoint", "Nominal");
+
+    // debug track types for isolation and closest track tools
+    recordPropertyI("DebugTrackTypes", 0);
 
     // track-to-vertex association check tool
     recordPropertyI("DebugTrkToVtxMaxEvents" , 0);

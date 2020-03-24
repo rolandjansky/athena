@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/IsolationTools.h"
@@ -9,6 +9,9 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODMuon/Muon.h"
+
+#include "TopObjectSelectionTools/MsgCategory.h"
+using namespace TopObjectSelectionTools;
 
 namespace top {
   IsolationBase::IsolationBase() {
@@ -39,11 +42,7 @@ namespace top {
       return exists && iso > m_cutvalue;
     }
 
-    std::cout << "IsolationDC14::Not an electron or muon" << std::endl;
-    exit(1);
-
-    //should never happen (famous last words for a comment, no?)
-    return false;
+    throw std::runtime_error("TopObjectSelectionTools::IsolationTools::AbsoluteIsolationDC14: Not an electron or muon");
   }
 
 ///Implement me!
@@ -63,9 +62,8 @@ namespace top {
     m_fraction(fraction),
     m_fractionLoose(fractionLoose) {
     if (size != 20 && size != 30 && size != 40) {
-      std::cout << "ptvarcone only supports cone sizes of 20, 30, 40" << std::endl;
-      std::cout << "and you asked for " << size << ". why?" << std::endl;
-      exit(1);
+      throw std::runtime_error("TopObjectSelectionTools::IsolationTools::RelativePTVarCone: "
+                               "ptvarcone only supports cone sizes of 20, 30, 40\n and you asked for " + std::to_string (size));
     }
 
     std::stringstream ss;

@@ -80,6 +80,11 @@ namespace CP
     const T& get (const SG::AuxElement& object,
                   const CP::SystematicSet& sys) const;
 
+    /// \brief check if the object decoration is available
+  public:
+    bool isAvailable (const SG::AuxElement& object,
+                      const CP::SystematicSet& sys) const;
+
 
     /// \brief set the object decoration for the given systematic
   public:

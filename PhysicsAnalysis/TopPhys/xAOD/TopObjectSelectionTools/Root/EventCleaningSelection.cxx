@@ -37,7 +37,7 @@ namespace top {
     m_vetoEventsTrigger(false),
     m_vetoEventsGRL(false),
     m_vetoEventsGoodCalo(false),
-    m_vetoEventsPriVtx(false) {
+    m_vetoEventsPriVtx(true) {
     declareProperty("config", m_config);
 
     declareProperty("GRLTool", m_grlTool);
@@ -63,6 +63,8 @@ namespace top {
     if (!m_config->isMC()) {
       top::check(m_grlTool.retrieve(), "Failed to retrieve TrigDecisionTool");
     }
+
+    m_vetoEventsPriVtx = m_config->demandPriVtx();
 
     return StatusCode::SUCCESS;
   }
@@ -138,7 +140,6 @@ namespace top {
     m_vetoEventsTrigger = true;
     m_vetoEventsGRL = true;
     m_vetoEventsGoodCalo = true;
-    m_vetoEventsPriVtx = true;
 
     for (auto sel : selections) {
       std::list<std::string> listAllTriggers_thisSelector_Tight;
@@ -158,7 +159,6 @@ namespace top {
       bool selectionHasTriggerCut_Loose(false);
       bool selectionHasGRLCut(false);
       bool selectionHasGOODCALOCut(false);
-      bool selectionHasPRIVTXCut(false);
       for (std::string cut : sel.m_cutnames) {
         using boost::algorithm::starts_with;
         cut.append(" ");
@@ -171,21 +171,13 @@ namespace top {
           selectionHasGOODCALOCut = true;
         }
 
-        if (starts_with(cut, "PRIVTX ")) {
-          selectionHasPRIVTXCut = true;
-        }
-
         if (starts_with(cut, "GTRIGDEC ")) {
           if (selectionHasTriggerCut || selectionHasTriggerCut_Loose || selectionHasTriggerCut_Tight) {
-            ATH_MSG_ERROR(
-              "A *TRIGDEC* selector has already been used for selection " << sel.m_name << " - you can't have two.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("You have multiple TRIGDEC selectors for selection "
+                + sel.m_name + ". Only one per selection is allowed.");
           }
           if (!m_config->useGlobalTrigger()) {
-            ATH_MSG_ERROR("The GTRIGDEC selector cannot be used without UseGlobalLeptonTriggerSF.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("The GTRIGDEC selector cannot be used without UseGlobalLeptonTriggerSF option.");
           }
           selectionHasTriggerCut = true;
           allTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
@@ -212,17 +204,12 @@ namespace top {
 
         if (starts_with(cut, "TRIGDEC_TIGHT ")) {
           if (selectionHasTriggerCut_Tight) {
-            ATH_MSG_ERROR(
-              "TRIGDEC_TIGHT has already been used for selection " << sel.m_name << " - you can't use it twice.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("You have multiple TRIGDEC_TIGHT selectors for selection "
+                + sel.m_name + ". Only one per selection is allowed.");
           }
           if (selectionHasTriggerCut) {
-            ATH_MSG_ERROR(
-              "TRIGDEC_TIGHT is used but TRIGDEC is also been used for selection" << sel.m_name <<
-                " - you can't use both at the same time.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("Both TRIGDEC and TRIGDEC_TIGHT selectors used for selection "
+                + sel.m_name + ". Only one of the two per selection is allowed.");
           }
           selectionHasTriggerCut_Tight = true;
           ATH_MSG_INFO("Tight Triggers for Selection \t" << sel.m_name << "\tare " << cut);
@@ -265,17 +252,12 @@ namespace top {
         } // Cut requested is TRIGDEC_TIGHT
         else if (starts_with(cut, "TRIGDEC_LOOSE ")) {
           if (selectionHasTriggerCut_Loose) {
-            ATH_MSG_ERROR(
-              "TRIGDEC_LOOSE has already been used for selection " << sel.m_name << " - you can't use it twice.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("You have multiple TRIGDEC_LOOSE selectors for selection "
+                + sel.m_name + ". Only one per selection is allowed.");
           }
           if (selectionHasTriggerCut) {
-            ATH_MSG_ERROR(
-              "TRIGDEC_LOOSE is used but TRIGDEC is also been used for selection" << sel.m_name <<
-                " - you can't use both at the same time.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("Both TRIGDEC and TRIGDEC_LOOSE selectors used for selection "
+                + sel.m_name + ". Only one of the two per selection is allowed.");
           }
           selectionHasTriggerCut_Loose = true;
           ATH_MSG_INFO("Loose Triggers for Selection \t" << sel.m_name << "\tare " << cut);
@@ -318,24 +300,16 @@ namespace top {
         } // Cut requested is TRIGDEC_LOOSE
         else if (starts_with(cut, "TRIGDEC ")) {
           if (selectionHasTriggerCut) {
-            ATH_MSG_ERROR(
-              "TRIGDEC/GTRIGDEC has already been used for selection " << sel.m_name << " - you can't use it twice.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("GTRIGDEC/TRIGDEC already used for selection "
+                + sel.m_name + ". Cannot be used multiple times.");
           }
           if (selectionHasTriggerCut_Tight) {
-            ATH_MSG_ERROR(
-              "TRIGDEC is used but TRIGDEC_TIGHT is also been used for selection" << sel.m_name <<
-                " - you can't use both at the same time.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("Both TRIGDEC and TRIGDEC_TIGHT already used for selection "
+                + sel.m_name + ". Cannot be used simultaneously.");
           }
           if (selectionHasTriggerCut_Loose) {
-            ATH_MSG_ERROR(
-              "TRIGDEC is used but TRIGDEC_LOOSE is also been used for selection" << sel.m_name <<
-                " - you can't use both at the same time.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("Both TRIGDEC and TRIGDEC_LOOSE already used for selection "
+                + sel.m_name + ". Cannot be used simultaneously.");
           }
           selectionHasTriggerCut = true;
           ATH_MSG_INFO("Triggers for Selection \t" << sel.m_name << "\tare " << cut);
@@ -407,10 +381,6 @@ namespace top {
 
       if (!selectionHasGOODCALOCut) {
         m_vetoEventsGoodCalo = false;
-      }
-
-      if (!selectionHasPRIVTXCut) {
-        m_vetoEventsPriVtx = false;
       }
 
       if (!selectionHasTriggerCut) {
@@ -653,7 +623,7 @@ namespace top {
 
     // Take electrons from input file. Decorate these before doing any calibration/shallow copies
     const xAOD::ElectronContainer* electrons(nullptr);
-    top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons()), "Failed to retrieve electrons");
+    if(m_config->useElectrons()) top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons()), "Failed to retrieve electrons");
 
     // Loop over electrons
     std::unordered_set<std::string> triggers;
@@ -682,7 +652,7 @@ namespace top {
 
     // Take muons from input file. Decorate these before doing any calibration/shallow copies
     const xAOD::MuonContainer* muons(nullptr);
-    top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons()), "Failed to retrieve muons");
+    if(m_config->useMuons()) top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons()), "Failed to retrieve muons in EventCleaningSelection::matchMuons() ");
 
     // Loop over muons
     std::unordered_set<std::string> triggers;

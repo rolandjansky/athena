@@ -213,8 +213,8 @@ reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt4TruthJet
 replaceAODReducedJets(reducedJetList, STDM3Sequence, "STDM3Jets")
 
 # FAKE LEPTON TAGGER
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-STDM3Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+STDM3Sequence += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 # ADD SEQUENCE TO JOB
 DerivationFrameworkJob += STDM3Sequence
@@ -250,6 +250,13 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=STDM3Sequence,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=STDM3Sequence,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
 
+#improved fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=STDM3Sequence, algname='JetForwardJvtToolBDTAlg')
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=STDM3Sequence, algname='JetForwardPFlowJvtToolAlg')
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -280,7 +287,7 @@ STDM3SlimmingHelper.IncludeMuonTriggerContent = True
 
 STDM3SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM3SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
-STDM3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+STDM3SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD(onlyBDT=True) 
 
 STDM3SlimmingHelper.AllVariables = ExtraContainersAll
 

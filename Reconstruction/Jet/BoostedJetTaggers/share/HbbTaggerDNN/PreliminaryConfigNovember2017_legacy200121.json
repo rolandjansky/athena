@@ -1,0 +1,31 @@
+{
+    "fatjet": {
+        "node_name": "fat_jet"
+    },
+    "subjet": {
+        "collection": "GhostVR30Rmax4Rmin02TrackJet",
+        "pt_threshold": 0.0,
+        "node_names": ["subjet1", "subjet2", "subjet3", "subjet4"]
+    },
+    "types": {
+        "regexes": [
+            {
+                "regex": "^(IP[23]D_|SV[12]_|rnnip_)p(b|c|u|tau)",
+                "type": "double"
+            },
+            {
+                "regex": "^(JetFitter_|SV1_)[Nn]",
+                "type": "int"
+            },
+            {
+                "regex": "^(JetFitter_|SV1_)",
+                "type": "float"
+            }
+        ]
+    },
+    "outputs": {
+        "decoration_map": {
+            "h_vs_qcd": "HbbScore"
+        }
+    }
+}

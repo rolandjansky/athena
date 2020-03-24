@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/TopConfig.h"
@@ -12,8 +12,12 @@
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include "TopConfiguration/Tokenize.h"
+
+#include "TopConfiguration/MsgCategory.h"
+using namespace TopConfiguration;
 
 namespace top {
   TopConfig::TopConfig() :
@@ -45,6 +49,8 @@ namespace top {
     m_useTruthMET(false),
 
     m_applyTTVACut(true),
+
+    m_demandPriVtx(true),
 
     m_jetSubstructureName("None"),
 
@@ -104,6 +110,10 @@ namespace top {
     // Write MC generator weights
     m_doMCGeneratorWeights(false),
     m_doMCGeneratorWeightsInNominalTrees(false),
+    m_nominalWeightNames(),
+    m_nominalWeightName("SetMe"),
+    m_nominalWeightIndex(-1),
+    m_MCweightsSize(-1),
     // Top Parton History
     m_doTopPartonHistory(false),
     m_isTopPartonHistoryRegisteredInNtuple(false),
@@ -138,8 +148,10 @@ namespace top {
     m_sgKeySoftMuons("SetMe"),
     m_sgKeyTaus("SetMe"),
     m_sgKeyJets("SetMe"),
+    m_sgKeyJetsType("SetMe"),
     m_sgKeyLargeRJets("SetMe"),
     m_sgKeyTrackJets("SetMe"),
+    m_sgKeyTrackJetsType("SetMe"),
     m_sgKeyMissingEt("MET"),
     m_sgKeyMissingEtLoose("LooseMET"),
     m_sgKeyInDetTrackParticles("InDetTrackParticles"),
@@ -182,7 +194,7 @@ namespace top {
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
-    m_useEgammaLeakageCorrection(false),
+    m_useEgammaLeakageCorrection(true),
 
     // Fwd electron configuration
     m_fwdElectronPtcut(25000.),
@@ -208,6 +220,9 @@ namespace top {
     m_softmuonEtacut(2.5),
     m_softmuonQuality("SetMe"),
     m_softmuonDRJetcut(0.4),
+    m_softmuonAdditionalTruthInfo(false),
+    m_softmuonAdditionalTruthInfoCheckPartonOrigin(false),
+    m_softmuonAdditionalTruthInfoDoVerbose(false),
 
     // Jet configuration
     m_jetPtcut(25000.),
@@ -614,6 +629,8 @@ namespace top {
     // Nominal has value
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
+    
+    m_treeFilter = std::make_shared<TreeFilter>();
   }
 
   void TopConfig::setConfigSettings(top::ConfigurationSettings* const& settings) {
@@ -631,6 +648,9 @@ namespace top {
     // Set TDP file name
     this->setTDPPath(settings->value("TDPPath"));
 
+    m_treeFilter->init(settings->value("FilterTrees"));
+
+
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons(settings->value("PhotonCollectionName"));
     this->sgKeyElectrons(settings->value("ElectronCollectionName"));
@@ -647,14 +667,15 @@ namespace top {
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
 
-    // check that small-R jets use tagged collectio name for new derivations
-    // this is due to b-tagging since AthDerivation-21.2.72.0
+    // check that jets use tagged collectio name for new derivations
+    // this is due to b-tagging breaking changes in derivations
     if (m_aodMetaData->valid()) {
       try {
         std::string deriv_rel_name = m_aodMetaData->get("/TagInfo", "AtlasRelease_AODtoDAOD");
         size_t pos = deriv_rel_name.find('-');
         if (pos != std::string::npos) {
           deriv_rel_name = deriv_rel_name.substr(pos + 1);
+          // check for derivation version due to format breakage with calo jet b-tagging
           if (deriv_rel_name >= "21.2.72.0") { // release where we need tagged jet collection
             if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
               throw std::runtime_error(
@@ -667,17 +688,28 @@ namespace top {
                       "\" instead.");
             }
           }
+          // check for derivation version due to format breakage with track jet b-tagging
+          if (this->useTrackJets()) {
+            if (deriv_rel_name >= "21.2.87.0") { // release where we need tagged track jet collection
+              if (this->sgKeyTrackJets() == this->sgKeyTrackJetsType()) { // jet collection is NOT tagged
+                throw std::runtime_error(
+                        "TopConfig: You are using derivation with release 21.2.87.0 or newer and did not specify tagged track jet collection, e.g. \"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903\". This is necessary for b-tagging to work!");
+              }
+            } else { // release does NOT have tagged jet collection
+              if (this->sgKeyTrackJets() != this->sgKeyTrackJetsType()) { // jet collection is NOT tagged
+                throw std::runtime_error(
+                        "TopConfig: You are using derivation with release older than 21.2.87.0 so you cannot use tagged track jet containers as you specified: \"" + this->sgKeyTrackJets() + "\". Use \"" + this->sgKeyTrackJetsType() +
+                        "\" instead.");
+              }
+            }
+          }
         } else {
-          std::cout <<
-            "WARNING: Could not parse derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own."
-                    << std::endl;
+          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging. You are on your own.");
         }
         // try to parse the derivation release, we need the release number
       } catch (std::logic_error& e) {
-        std::cout << e.what() << std::endl;
-        std::cout <<
-          "WARNING: Could not obtain derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own."
-                  << std::endl;
+        ATH_MSG_WARNING(e.what());
+        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging. You are on your own.");
       }
     }
 
@@ -715,6 +747,48 @@ namespace top {
         // Save the Truth PDF information in the reco-level tree instead of the truth-level one
         this->setMCGeneratorWeights();
         this->setMCGeneratorWeightsInNominalTrees();
+      }
+
+      // load the nominal weight names that we should try to get the real nominal weight name
+      const std::string& tmp = settings->value("NominalWeightNames");
+
+      // Remove the whitespaces between the names but keep
+      // the whitespaces within quotation marks
+      std::string trimmedName = "";
+      bool deleteSpaces = true;
+      bool start = false;
+      for(unsigned int i = 0; i < tmp.size(); ++i) {
+        if(tmp[i] == '\"') {
+          start ? start = false : start = true;
+          if(start) {
+            deleteSpaces = false;
+          }
+        }
+        if(!start) {
+          deleteSpaces = true;
+        }
+        if(deleteSpaces) {
+          if(tmp[i] != ' ') {
+            trimmedName += tmp[i];
+          }
+        } else {
+          trimmedName += tmp[i];
+        }
+      }
+      boost::split(m_nominalWeightNames, trimmedName, boost::is_any_of(","));
+      // now remove all occurences of '"'
+      for (std::string& iname : m_nominalWeightNames) {
+        iname.erase(std::remove(iname.begin(), iname.end(), '"'), iname.end());
+        // and check if we have newline characters (some weight have those...)
+        // and parse them properly
+        boost::replace_all(iname, "\\n", "\n");
+      }
+
+      try {
+        m_nominalWeightIndex = std::stoi(settings->value("NominalWeightFallbackIndex"));
+      } catch (std::invalid_argument &e) {
+        std::cout << "Failed to parse NominalWeightFallbackIndex value: " << settings->value("NominalWeightFallbackIndex") << std::endl;
+        throw;
       }
 
       // Save the Top Parton History
@@ -765,21 +839,21 @@ namespace top {
         try{
           auto simulatorName = m_aodMetaData->get("/Simulation/Parameters", "Simulator");
           bool aodMetaDataIsAFII = m_aodMetaData->isAFII();
-          std::cout << "AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " <<
-            aodMetaDataIsAFII << std::endl;
+          ATH_MSG_INFO("AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " <<
+            aodMetaDataIsAFII);
           this->setIsAFII(aodMetaDataIsAFII);
           auto generatorsName = m_aodMetaData->get("/TagInfo", "generators");
-          std::cout << "AodMetaData :: Generators Type " << generatorsName << std::endl;
+          ATH_MSG_INFO("AodMetaData :: Generators Type " << generatorsName);
           this->setGenerators(generatorsName);
           auto AMITagName = m_aodMetaData->get("/TagInfo", "AMITag");
-          std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
+          ATH_MSG_INFO("AodMetaData :: AMITag " << AMITagName);
           this->setAMITag(AMITagName);
         }
         catch (const std::logic_error& aodMetaDataError) {
-          std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
-          std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
+          ATH_MSG_WARNING("An error was encountered handling AodMetaData : " << aodMetaDataError.what());
+          ATH_MSG_WARNING("We will attempt to read the IsAFII flag from your config.");
           this->ReadIsAFII(settings);
-          std::cout << "Unfortunately, we can not read MC generators and AMITag without valid MetaData." << std::endl;
+          ATH_MSG_WARNING("Unfortunately, we can not read MC generators and AMITag without valid MetaData.");
           this->setGenerators("unknown");
           this->setAMITag("unknown");
         }
@@ -794,9 +868,7 @@ namespace top {
       tokenize(settings->value("FilterBranches"), branches, ",");
 
       if (branches.size() == 0) {
-        std::cout <<
-          "WARNING: You provided \"Filterbranches\" option but you did not provide any meaningful values. Ignoring" <<
-          std::endl;
+        ATH_MSG_WARNING("You provided \"Filterbranches\" option but you did not provide any meaningful values. Ignoring");
       }
       this->setFilterBranches(branches);
     }
@@ -901,7 +973,7 @@ namespace top {
     // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
     m_outputFileSetAutoFlushZero = false;
     if (settings->value("OutputFileSetAutoFlushZero") != "False") {
-      std::cout << "OutputFileSetAutoFlushZero is deprecated in favour of more custom memory options" << std::endl;
+      ATH_MSG_WARNING("OutputFileSetAutoFlushZero is deprecated in favour of more custom memory options");
     }
     // Configurable TTree options (ANALYSISTO-463)
     if (settings->value("OutputFileNEventAutoFlush") != "") {
@@ -1039,6 +1111,12 @@ namespace top {
     this->softmuonEtacut(readFloatOption(settings, "SoftMuonEta"));
     this->softmuonQuality(settings->value("SoftMuonQuality"));
     this->softmuonDRJetcut(readFloatOption(settings, "SoftMuonDRJet"));
+    if (settings->value("SoftMuonAdditionalTruthInfo") == "True") this->softmuonAdditionalTruthInfo(true);
+    else this->softmuonAdditionalTruthInfo(false);
+    if (settings->value("SoftMuonAdditionalTruthInfoCheckPartonOrigin") == "True") this->softmuonAdditionalTruthInfoCheckPartonOrigin(true);
+    else this->softmuonAdditionalTruthInfoCheckPartonOrigin(false);
+    if (settings->value("SoftMuonAdditionalTruthInfoDoVerbose") == "True") this->softmuonAdditionalTruthInfoDoVerbose(true);
+    else this->softmuonAdditionalTruthInfoDoVerbose(false);
 
     //tau configuration
     this->tauPtcut(std::stof(settings->value("TauPt")));
@@ -1115,9 +1193,7 @@ namespace top {
     } else if (settings->value("StoreJetTruthLabels") == "True") {
       this->jetStoreTruthLabels(true);
     } else {
-      std::cout <<
-        "WARNING TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True" <<
-        std::endl;
+      ATH_MSG_WARNING("TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True");
       this->jetStoreTruthLabels(true);
     }
 
@@ -1186,9 +1262,8 @@ namespace top {
     if (settings->value("HLLHC") == "True") {
       this->HLLHC(true);
       if (settings->value("TDPPath").compare("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data") == 0) {
-        std::cout << "TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default " <<
-          settings->value("TDPPath") << ". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data" <<
-          std::endl;
+        ATH_MSG_WARNING("TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default " <<
+          settings->value("TDPPath") << ". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
         this->setTDPPath("dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
       }
     }
@@ -1204,9 +1279,8 @@ namespace top {
     const std::string LHAPDFBase = settings->value("LHAPDFBaseSet");
     if (LHAPDFBase.find_first_not_of(' ') != std::string::npos) {
       // should only set one base PDF set
-      if (LHAPDFBase.find(' ') != std::string::npos) std::cout << "LHAPDFBaseSet: " << LHAPDFBase
-                                                               <<
-          " <<<<< only one PDF set allowed for recomputing XF1,XF2 !!!" << std::endl;
+      if (LHAPDFBase.find(' ') != std::string::npos)
+        ATH_MSG_WARNING("LHAPDFBaseSet: " << LHAPDFBase << " -- only one PDF set allowed for recomputing XF1,XF2 !!!");
       m_lhapdf_options.baseLHAPDF = LHAPDFBase;
     }
     // if not already present, add to the list of PDF sets
@@ -1274,21 +1348,19 @@ namespace top {
       } else if (btagAlg_btagWP.size() == 1) {
         tag = btagAlg_btagWP.at(0);
       } else {
-        std::cerr << "Error with btag ALGORITHM_NAME:WP. Incorrect format." << std::endl;
+        ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
         continue;
       }
 
-      std::cout << "TopConfig ==========================================================> " << alg << ", " << tag <<
-        std::endl;
+      ATH_MSG_INFO("BTagging algorithm: " << alg << ", " << tag);
       std::string formatedWP = FormatedWP(tag);
       std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
       // take care that no WP is taken twice
       if (std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), alg_tag) == m_chosen_btaggingWP.end()) {
         m_chosen_btaggingWP.push_back(alg_tag);
-        std::cout << "chosen btag alg, WP  ===============================================> " << alg_tag.first <<
-          ", " << alg_tag.second << std::endl;
+        ATH_MSG_INFO("Chosen btag alg, WP: " << alg_tag.first << ", " << alg_tag.second);
       } else {
-        std::cout << "alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen" << std::endl;
+        ATH_MSG_INFO("alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen");
       }
     }
 
@@ -1296,6 +1368,21 @@ namespace top {
     m_btagging_calibration_C = settings->value("BTaggingCalibrationC");
     m_btagging_calibration_Light = settings->value("BTaggingCalibrationLight");
     m_bTagSystsExcludedFromEV = settings->value("BTaggingSystExcludedFromEV");
+
+    // Set translatio ndictionary for MCMC maps
+    if (settings->value("RedefineMCMCMap") != " ") {
+      std::vector<std::string> tmp;
+      tokenize(settings->value("RedefineMCMCMap"), tmp, ",");
+      for (const std::string& dictionaries : tmp) {
+        std::vector<std::string> dictionary;
+        tokenize(dictionaries, dictionary, ":");
+        if (dictionary.size() != 2) {
+          throw std::invalid_argument{"Wrong input argument for RedefineMCMCMap. Expected format is: \"shower1:shower2,shower3:shower4\""};
+        }
+
+        m_showerMCMCtranslator.insert({dictionary.at(0), dictionary.at(1)});
+      }
+    }
 
     /************************************************************
      *
@@ -1402,9 +1489,9 @@ namespace top {
                 "TopConfig: can't convert provided PRW down Data SF into float"
         };
       }
-      std::cout << "Custom PRW scale-factors - nominal:" << SFs_tokens[0] << "=" << m_pileup_reweighting.custom_SF[0] <<
+      ATH_MSG_INFO("Custom PRW scale-factors - nominal:" << SFs_tokens[0] << "=" << m_pileup_reweighting.custom_SF[0] <<
         " up:" << SFs_tokens[1] << "=" << m_pileup_reweighting.custom_SF[1] << " down:" << SFs_tokens[2] << "=" <<
-        m_pileup_reweighting.custom_SF[2] << std::endl;
+        m_pileup_reweighting.custom_SF[2]);
     }
 
     if (m_pileup_reweighting.apply && settings->value("PRWPeriodAssignments") != " ") {
@@ -1436,6 +1523,9 @@ namespace top {
     ************************************************************/
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
+
+    if (settings->value("DemandPrimaryVertex") == "False")
+      m_demandPriVtx = false;
 
     ///-- KLFitter settings --///
     m_KLFitterTransferFunctionsPath = settings->value("KLFitterTransferFunctionsPath");
@@ -1671,6 +1761,12 @@ namespace top {
       m_useTrackJets = false;
       if (s != "None") m_useTrackJets = true;
 
+      size_t delim_pos = s.find('_');
+      // for time-stamped track jet collections due to b-tagging
+      // AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903
+      // we want to have quick access  to base collection name
+      m_sgKeyTrackJetsType = s.substr(0, delim_pos);
+
       m_sgKeyTrackJets = s;
     }
   }
@@ -1839,7 +1935,7 @@ namespace top {
     if (isSystAll(syststr) || isSystNominal(syststr)) return true;
 
     if (syststr.find(" ") != std::string::npos) {
-      std::cout << "ERROR getSystematicsList: systematic string can't contain white spaces" << std::endl;
+      ATH_MSG_ERROR("getSystematicsList: systematic string can't contain white spaces");
       return false;
     }
 
@@ -1892,7 +1988,7 @@ namespace top {
 
   void TopConfig::systematicsFwdElectrons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (const auto& s : syst) {
+      for (const auto& s : syst) {	
         m_systHashFwdElectrons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapFwdElectrons->insert(std::make_pair(s.hash(), s));
@@ -1905,7 +2001,7 @@ namespace top {
 
   void TopConfig::systematicsMuons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashMuons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapMuons->insert(std::make_pair(s.hash(), s));
@@ -1918,7 +2014,7 @@ namespace top {
 
   void TopConfig::systematicsSoftMuons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (const CP::SystematicSet& s : syst) {
+      for (const CP::SystematicSet& s : syst) {	
         m_systHashSoftMuons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapSoftMuons->insert(std::make_pair(s.hash(), s));
@@ -1931,7 +2027,7 @@ namespace top {
 
   void TopConfig::systematicsTaus(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashTaus->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapTaus->insert(std::make_pair(s.hash(), s));
@@ -1944,7 +2040,7 @@ namespace top {
 
   void TopConfig::systematicsJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_list_systHash_electronInJetSubtraction->push_back(s.hash());
@@ -1960,7 +2056,7 @@ namespace top {
 
   void TopConfig::systematicsLargeRJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashLargeRJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapLargeRJets->insert(std::make_pair(s.hash(), s));
@@ -1974,7 +2070,7 @@ namespace top {
   void TopConfig::systematicsTrackJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
       for (auto s : syst) {
-        m_systHashTrackJets->insert(s.hash());
+	m_systHashTrackJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapTrackJets->insert(std::make_pair(s.hash(), s));
         m_systSgKeyMapTrackJets->insert(std::make_pair(s.hash(), m_sgKeyTrackJets + "_" + s.name()));
@@ -1986,7 +2082,7 @@ namespace top {
 
   void TopConfig::systematicsMET(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashMET->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapMET->insert(std::make_pair(s.hash(), s));
@@ -2004,7 +2100,7 @@ namespace top {
       (*m_systDecoKeyMapJetGhostTrack)[m_nominalHashValue] = m_decoKeyJetGhostTrack + "_";
       m_jetGhostTrackSystematics.push_back("");
 
-      for (auto s : syst) {
+      for (auto s : syst) {	
         (*m_systMapJetGhostTrack)[s.hash()] = s;
         (*m_systDecoKeyMapJetGhostTrack)[s.hash()] = m_decoKeyJetGhostTrack + "_" + s.name();
         m_list_systHashAll->push_back(s.hash());
@@ -2025,11 +2121,7 @@ namespace top {
   }
 
   void TopConfig::fixConfiguration() {
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << "TopConfig::fixConfiguration()" << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
+    ATH_MSG_INFO("TopConfig::fixConfiguration()");
     // Prevent the user from changing anything
     // Yes, this is deliberate
     m_configFixed = true;
@@ -2873,7 +2965,7 @@ namespace top {
       index = (*Itr).second;
     }
     if (index == 99999) {
-      std::cout << "ttreeIndex is crazy, something has gone wrong with the hash value = " << hash << std::endl;
+      ATH_MSG_WARNING("ttreeIndex is crazy, something has gone wrong with the hash value = " << hash);
     }
     return index;
   }
@@ -2886,7 +2978,7 @@ namespace top {
       index = (*Itr).second;
     }
     if (index == 99999) {
-      std::cout << "ttreeIndex is crazy, something has gone wrong with the hash value = " << hash << std::endl;
+      ATH_MSG_WARNING("ttreeIndex is crazy, something has gone wrong with the hash value = " << hash);
     }
     return index;
   }
@@ -3354,81 +3446,81 @@ namespace top {
     m_trigGlobalConfiguration.isConfigured = true;
     return;
   }
-}
 
 
 
-std::ostream& operator << (std::ostream& os, const top::TopConfig& config) {
-  typedef std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > map_t;
-  typedef std::unordered_map<std::size_t, CP::SystematicSet>::const_iterator Itr;
+  std::ostream& operator << (std::ostream& os, const TopConfig& config) {
+    typedef std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > map_t;
+    typedef std::unordered_map<std::size_t, CP::SystematicSet>::const_iterator Itr;
 
-  if (config.useJetGhostTrack()) {
-    for (const auto& item : config.systematicsJetGhostTrack()) {
-      os << " Jet Ghost Track Systematic\t\t :: " << item << " \n";
+    if (config.useJetGhostTrack()) {
+      for (const auto& item : config.systematicsJetGhostTrack()) {
+        os << " Jet Ghost Track Systematic\t\t :: " << item << " \n";
+      }
     }
-  }
 
-  os << "\n";
-  os << "top::TopConfig has identified the following analysis release series : " << config.getReleaseSeries() << "\n";
-  os << "top::TopConfig will evaluate the following systematics (saved as TTrees in your ntuple) \n";
-  os << "A blank systematic means \"Nominal\" in xAOD. All Nominal calibrations go into the Nominal TTree. \n";
-  os << "\n";
-  if (config.usePhotons()) {
-    map_t syst = config.systMapPhotons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Photon systematic\t :: " << (*i).second.name() << " \n";
+    os << "\n";
+    os << "top::TopConfig has identified the following analysis release series : " << config.getReleaseSeries() << "\n";
+    os << "top::TopConfig will evaluate the following systematics (saved as TTrees in your ntuple) \n";
+    os << "A blank systematic means \"Nominal\" in xAOD. All Nominal calibrations go into the Nominal TTree. \n";
+    os << "\n";
+    if (config.usePhotons()) {
+      map_t syst = config.systMapPhotons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Photon systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useElectrons()) {
-    map_t syst = config.systMapElectrons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Electron systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useElectrons()) {
+      map_t syst = config.systMapElectrons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Electron systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useFwdElectrons()) {
-    map_t syst = config.systMapFwdElectrons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Fwd Electron systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useFwdElectrons()) {
+      map_t syst = config.systMapFwdElectrons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Fwd Electron systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useMuons()) {
-    map_t syst = config.systMapMuons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Muon systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useMuons()) {
+      map_t syst = config.systMapMuons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Muon systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useSoftMuons()) {
-    map_t syst = config.systMapSoftMuons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Soft Muon systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useSoftMuons()) {
+      map_t syst = config.systMapSoftMuons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Soft Muon systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useTaus()) {
-    map_t syst = config.systMapTaus();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Tau systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useTaus()) {
+      map_t syst = config.systMapTaus();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Tau systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useJets()) {
-    map_t syst = config.systMapJets();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Jet systematic\t\t :: " << (*i).second.name() << " \n";
+    if (config.useJets()) {
+      map_t syst = config.systMapJets();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Jet systematic\t\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useLargeRJets()) {
-    map_t syst = config.systMapLargeRJets();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Large-R Jet systematic\t\t :: " << (*i).second.name() << " \n";
+    if (config.useLargeRJets()) {
+      map_t syst = config.systMapLargeRJets();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Large-R Jet systematic\t\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  os << "\n";
-  return os;
+    os << "\n";
+    return os;
+  }
 }

@@ -5,12 +5,13 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
 
-def makeTauAnalysisSequence( dataType, workingPoint,
+def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
                              legacyRecommendations = False,
                              deepCopyOutput = False,
                              shallowViewOutput = True,
                              rerunTruthMatching = True,
-                             postfix = '' ):
+                             enableCutflow = False,
+                             enableKinematicHistograms = False ):
     """Create a tau analysis algorithm sequence
 
     Keyword arguments:
@@ -24,9 +25,12 @@ def makeTauAnalysisSequence( dataType, workingPoint,
                  names.  this is mostly used/needed when using this
                  sequence with multiple working points to ensure all
                  names are unique.
+      rerunTruthMatching -- Whether or not to rerun truth matching
+      enableCutflow -- Whether or not to dump the cutflow
+      enableKinematicHistograms -- Whether or not to dump the kinematic histograms
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     if postfix != '' :
@@ -45,7 +49,6 @@ def makeTauAnalysisSequence( dataType, workingPoint,
     if legacyRecommendations:
         nameFormat = 'TauAnalysisAlgorithms/tau_selection_{}_legacy.conf'
 
-    sfWorkingPoint = splitWP[0]
     if splitWP[0] not in ['Tight', 'Medium', 'Loose', 'VeryLoose', 'NoID', 'Baseline'] :
         raise ValueError ("invalid tau quality: \"" + splitWP[0] +
                           "\", allowed values are Tight, Medium, Loose, " +
@@ -120,13 +123,13 @@ def makeTauAnalysisSequence( dataType, workingPoint,
                                            + '|(^TAUS_TRUEHADTAU_EFF_ELEOLR.*)',
                     stageName = 'efficiency' )
 
-    # Set up an algorithm used for debugging the tau selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'TauCutFlowDumperAlg' + postfix )
-    alg.histPattern = 'tau_cflow_%SYS%'
-    alg.selection = selectionDecorNames[ : ]
-    alg.selectionNCuts = selectionDecorCount[ : ]
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm used to create tau selection cutflow:
+    if enableCutflow:
+        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'TauCutFlowDumperAlg' + postfix )
+        alg.histPattern = 'tau_cflow_%SYS%'
+        alg.selection = selectionDecorNames[ : ]
+        alg.selectionNCuts = selectionDecorCount[ : ]
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     # Set up an algorithm used for decorating baseline tau selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
@@ -146,12 +149,12 @@ def makeTauAnalysisSequence( dataType, workingPoint,
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )
 
-    # Set up an algorithm dumping the properties of the taus, for debugging:
-    alg = createAlgorithm( 'CP::KinematicHistAlg', 'TauKinematicDumperAlg' + postfix )
-    alg.preselection = '&&'.join (selectionDecorNames)
-    alg.histPattern = 'tau_%VAR%_%SYS%'
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm dumping the kinematic properties of the taus:
+    if enableKinematicHistograms:
+        alg = createAlgorithm( 'CP::KinematicHistAlg', 'TauKinematicDumperAlg' + postfix )
+        alg.preselection = '&&'.join (selectionDecorNames)
+        alg.histPattern = 'tau_%VAR%_%SYS%'
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:

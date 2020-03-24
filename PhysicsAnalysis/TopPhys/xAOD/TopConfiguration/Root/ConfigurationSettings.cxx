@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -79,7 +79,7 @@ namespace top {
     registerParameter("UseElectronChargeIDSelection",
                       "True/False. Switch on/off electron charge ID selection (Default False).", "False");
     registerParameter("UseEgammaLeakageCorrection",
-                      "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default False).", "False");
+                      "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default True).", "True");
 
     registerParameter("FwdElectronID", "Type of fwd electron. Loose, Medium, Tight (default)", "Tight");
     registerParameter("FwdElectronIDLoose", "Type of fwd loose electrons. Loose, Medium, Tight (default)", "Tight");
@@ -132,6 +132,15 @@ namespace top {
     registerParameter("SoftMuonDRJet",
                       "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4",
                       "0.4");
+    registerParameter("SoftMuonAdditionalTruthInfo",
+                      "Decide if you want to store additional truth information on the particle-level origin for soft muons (see TopParticleLevel/TruthTools.h): True or False (default)",
+                      "False");
+    registerParameter("SoftMuonAdditionalTruthInfoCheckPartonOrigin",
+                      "Decide if you want to store additional truth information on the parton-level origin for soft muons (see TopParticleLevel/TruthTools.h, this makes sense only if also SoftMuonAdditionalTruthInfo is True) : True or False (default)",
+                      "False");
+    registerParameter("SoftMuonAdditionalTruthInfoDoVerbose",
+                      "Debug output for soft muon addition information: True or False (default)",
+                      "False");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
@@ -225,13 +234,13 @@ namespace top {
                       "Default 25 GeV.",
                       "25000");
     registerParameter("TauJetIDWP",
-                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
-                      "Default Medium.",
+                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose, RNNLoose, RNNMedium, RNNTight)."
+                      "Default RNNMedium.",
                       "RNNMedium");
     registerParameter("TauJetIDWPLoose",
                       "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
-                      "Default None.",
-                      "RNNMedium");
+                      "Default RNNLoose.",
+                      "RNNLoose");
     registerParameter("TauEleBDTWP",
                       "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
@@ -318,6 +327,8 @@ namespace top {
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
     registerParameter("FilterBranches",
                       "Comma separated list of names of the branches that will be removed from the output", " ");
+    registerParameter("FilterTrees",
+                      "Comma separated list of names of the trees that will be removed from the output", " ");
 
     registerParameter("FakesMMWeightsIFF",
                       "Calculate matrix-method weights for fake leptons estimate using FakeBkgTools from IFF: True (calculate weights), False (does nothing)",
@@ -343,7 +354,7 @@ namespace top {
 
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, False (default)", "False");
+    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHqtautau, False (default)", "False");
 
     registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
@@ -356,6 +367,13 @@ namespace top {
     registerParameter("MCGeneratorWeights",
                       "Do you want the OTF-computed MC generator weights (if available)? True (in truth tree), Nominal (save to the nominal tree if passes selection) or False (nothing, default)",
                       "False");
+    registerParameter("NominalWeightNames",
+                      "List of nominal weight names to attempt to retrieve. Attempts are made in the order as specified. If none of the names can be found, we will crash with error message. Use index instead in such case.",
+                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \",\" mur=1 muf=1 \"");
+    registerParameter("NominalWeightFallbackIndex",
+                      "Index of nominal weight in MC weights vector. This option is only used in case the MC sample has broken metadata. (Default: -1 means no fallback index specified, rely on metadata and crash if metadata cannot be read)",
+                      "-1");
+
     registerParameter("TruthBlockInfo", "Do you want to dump the full Truth block info? True or False", "False");
 
     registerParameter("TruthElectronPt",
@@ -544,7 +562,10 @@ namespace top {
     registerParameter("MuonTriggers", "Deprecated, use GlobalTriggers instead.", "None");
     registerParameter("MuonTriggersLoose", "Deprecated, use GlobalTriggersLoose instead.", "None");
 
+    registerParameter("DemandPrimaryVertex", "Wether at least one primary vertex in event is required. Default True. For debugging purposes only!", "True");
+
     registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
+    registerParameter("RedefineMCMCMap", "Dictionary for translating the shower names from TopDataPreparation. Format: \"shower1:shower2,shower3:shower4\".", " ");
   }
 
   ConfigurationSettings* ConfigurationSettings::get() {
@@ -557,9 +578,7 @@ namespace top {
     std::ifstream input(filename.c_str());
 
     if (!input) {
-      std::cout << "Configuration file does not exist, " << filename << std::endl;
-      std::cout << "Can't continue" << std::endl;
-      exit(1);
+      throw std::runtime_error("Configuration file does not exist: " + filename);
     }
 
     struct SelectionData {
@@ -573,9 +592,30 @@ namespace top {
     //for the key-value pairs
     while (std::getline(input, line)) {
       std::string newstring(line);
-      //std::cout << newstring << '\n';
 
-      if (newstring.find("#") != std::string::npos) newstring = newstring.substr(0, newstring.find("#"));
+      // search for '#' character to discard commented-out part of line
+      // however ignore '\#' -- used to be able to type # in our config
+      // and not be recognized as commenting character
+      size_t commentpos = size_t(-1);
+      while (true) {
+        // find next occurence of '#' -- after the already scanned chars
+        commentpos = newstring.find("#", commentpos+1);
+        if (commentpos == std::string::npos)
+          break;
+        if (commentpos == 0) { // the whole line is a comment, to be ignored
+          newstring = "";
+          break;
+        }
+        // if it's '\#', then do not erase this part, but remove the '\'
+        if (newstring.compare(commentpos-1, 1, "\\") == 0) {
+            newstring.erase(commentpos-1, 1);
+            --commentpos; // the position of the '#' shifted after removing '\'
+            continue;
+        } else {
+          newstring = newstring.substr(0, commentpos);
+          break;
+        }
+      }
 
       // remove (multiple) spaces hanging around relevant information
       boost::algorithm::trim_all(newstring);
@@ -739,30 +779,30 @@ namespace top {
     return(m_killedFeatures.empty() ||
            std::find(m_killedFeatures.begin(), m_killedFeatures.end(), name) == m_killedFeatures.end());
   }
-}
 
-std::ostream& operator << (std::ostream& os, const top::SelectionConfigurationData& data) {
-  os << " - " << data.m_name << "\n";
-  for (const auto& cutname : data.m_cutnames)
-    os << "    " << cutname << "\n";
+  std::ostream& operator << (std::ostream& os, const SelectionConfigurationData& data) {
+    os << " - " << data.m_name << "\n";
+    for (const auto& cutname : data.m_cutnames)
+      os << "    " << cutname << "\n";
 
-  return os;
-}
-
-std::ostream& operator << (std::ostream& os, const top::ConfigurationSettings& settings) {
-  for (std::map<std::string, top::StringData >::const_iterator its = settings.stringData().begin();
-       its != settings.stringData().end(); ++its) {
-    std::stringstream s;
-    s << "\"" << its->first << "\"";
-
-    std::stringstream s2;
-    s2 << "\"" << its->second.m_data << "\"";
-    os << std::setw(40) << std::left << s.str() << " : " << std::setw(35) << s2.str() << " - " << std::right <<
-      its->second.m_human_explanation << "\n";
+    return os;
   }
 
-  //for (const auto& selection : settings.selections())
-  //    os << selection << "\n";
+  std::ostream& operator << (std::ostream& os, const ConfigurationSettings& settings) {
+    for (std::map<std::string, top::StringData >::const_iterator its = settings.stringData().begin();
+         its != settings.stringData().end(); ++its) {
+      std::stringstream s;
+      s << "\"" << its->first << "\"";
 
-  return os;
+      std::stringstream s2;
+      s2 << "\"" << its->second.m_data << "\"";
+      os << std::setw(40) << std::left << s.str() << " : " << std::setw(35) << s2.str() << " - " << std::right <<
+        its->second.m_human_explanation << "\n";
+    }
+
+    //for (const auto& selection : settings.selections())
+    //    os << selection << "\n";
+
+    return os;
+  }
 }

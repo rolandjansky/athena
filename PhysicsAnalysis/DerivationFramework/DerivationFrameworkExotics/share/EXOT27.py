@@ -46,7 +46,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkCore.FullListOfSmartContainers import (
     FullListOfSmartContainers)
 # Make sure all the normal truth stuff is there
-if DerivationFrameworkIsMonteCarlo: 
+if DerivationFrameworkIsMonteCarlo:
   import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
   MCTruthCommon.addStandardTruthContents()
 
@@ -155,10 +155,10 @@ JetCommon.OutputJets.setdefault("EXOT27Jets", [])
 # do_ghost is ghost *tagging* - future improvement, not yet calibrated
 vrTrackJets, vrTrackJetGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = False, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets+"Jets")
+JetCommon.OutputJets["EXOT27Jets"].append(ExtendedJetCommon.nameJetsFromAlg(vrTrackJets))
 vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
+JetCommon.OutputJets["EXOT27Jets"].append(ExtendedJetCommon.nameJetsFromAlg(vrGhostTagTrackJets))
 
 
 # schedule pflow tagging
@@ -233,16 +233,16 @@ toAssociate = {
   vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower()
 }
 for collection in toBeAssociatedTo:
-  ungroomed, labels = EXOT27Utils.linkPseudoJetGettersToExistingJetCollection(
+  ungroomed, labels = HbbCommon.linkVRJetsToLargeRJets(
       EXOT27Seq, collection, toAssociate)
   EXOT27ExtraVariables[ungroomed].update(labels)
 
 # Alias b-tagging container for VR track jets
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 # Schedule for output
-outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201810")
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201903")
-outputContainer("BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag")
 outputContainer("BTagging_AntiKt4EMPFlow_201810")
 outputContainer("BTagging_AntiKt4EMPFlow_201903")
 
@@ -275,17 +275,15 @@ if DerivationFrameworkIsMonteCarlo:
     #add STXS inputs
     from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__TruthCategoriesDecorator
     DFHTXSdecorator = DerivationFramework__TruthCategoriesDecorator(name = "DFHTXSdecorator")
-    
+
     ToolSvc += DFHTXSdecorator
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     DerivationFrameworkJob += DerivationFramework__CommonAugmentation("TruthCategoriesCommonKernel",
                                                                              AugmentationTools = [DFHTXSdecorator]
                                                                              )
 # Trigger matching augmentation
-matching_helper = TriggerMatchingHelper(
-    "EXOT27TriggerMatchingTool",
-    triggers_for_matching)
-EXOT27AugmentationTools.append(matching_helper.matching_tool)
+matching_helper = TriggerMatchingHelper(trigger_list=triggers_for_matching)
+EXOT27Seq += matching_helper.alg
 
 ################################################################################
 # Setup thinning (remove objects from collections)
@@ -306,6 +304,7 @@ for large_r in OutputLargeR:
         ContainerName = large_r) )
 
 EXOT27Akt2Jet = "(AntiKt2LCTopoJets.pt > 10*GeV) && (abs(AntiKt2LCTopoJets.eta) < 3.1)"
+EXOT27Akt4Jet = "(AntiKt4EMTopoJets.pt > 10*GeV) && (abs(AntiKt4EMTopoJets.eta) < 3.1)"
 
 EXOT27ThinningTools.append(DerivationFramework__GenericObjectThinning(
       "EXOT27AntiKt2LCTopoJetsThinningTool",
@@ -327,20 +326,29 @@ EXOT27BaselineTrack = "(InDetTrackParticles.EXOT27DFLoose) && (InDetTrackParticl
 
 # Set up the track thinning tools
 EXOT27ThinningTools += [
-  DerivationFramework__TrackParticleThinning(
-      "EXOT27TrackParticleThinningTool",
-      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SelectionString = EXOT27BaselineTrack,
-      InDetTrackParticlesKey = "InDetTrackParticles",
-      ApplyAnd        = True,
-      ),
-  DerivationFramework__JetTrackParticleThinning( 
+  DerivationFramework__JetTrackParticleThinning(
       "EXOT27AKt2JetTPThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       JetKey = "AntiKt2LCTopoJets",
       SelectionString = EXOT27Akt2Jet,
       InDetTrackParticlesKey  = "InDetTrackParticles",
       DeltaRMatch     = 0.33,
+      ApplyAnd        = False,
+      ),
+  DerivationFramework__JetTrackParticleThinning(
+      "EXOT27AKt4JetTPThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      JetKey = "AntiKt4EMTopoJets",
+      SelectionString = EXOT27Akt4Jet,
+      InDetTrackParticlesKey  = "InDetTrackParticles",
+      DeltaRMatch     = 0.53,
+      ApplyAnd        = False,
+      ),
+  DerivationFramework__TrackParticleThinning(
+      "EXOT27TrackParticleThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      SelectionString = EXOT27BaselineTrack,
+      InDetTrackParticlesKey = "InDetTrackParticles",
       ApplyAnd        = True,
       ),
   DerivationFramework__EgammaTrackParticleThinning(
@@ -425,9 +433,9 @@ EXOT27ThinningTools.append(
 ToolSvc += EleLinkThinningTool(
     "EXOT27SubjetThinningTool",
     LinkName = "Parent.{glink}({jets}).btaggingLink({btag})".format(
-        glink="GhostVR30Rmax4Rmin02TrackJetGhostTag",
-        jets="AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
-        btag="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"),
+        glink=vrGhostTagTrackJetsGhosts,
+        jets=ExtendedJetCommon.nameJetsFromAlg(vrGhostTagTrackJets),
+        btag="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag"),
     ThinningService = EXOT27ThinningHelper.ThinningSvc() )
 large_r = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 # for now we only apply this above 100 GeV (same as the large-R jet
@@ -462,7 +470,7 @@ if DerivationFrameworkIsMonteCarlo:
         ParticleSelectionString = truth_sel_no_descendants,
         PreserveDescendants     = False),
     ]
-  
+
 for tool in EXOT27ThinningTools:
   ToolSvc += tool
 
@@ -625,5 +633,5 @@ EXOT27SlimmingHelper.AppendContentToStream(EXOT27Stream)
 ################################################################################
 # Finalise
 ################################################################################
-# Any remaining tasks, e.g. adding the kernels to the stream  
+# Any remaining tasks, e.g. adding the kernels to the stream
 EXOT27Stream.AcceptAlgs(["EXOT27SecondaryKernel"])

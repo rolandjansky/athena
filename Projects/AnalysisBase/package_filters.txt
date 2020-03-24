@@ -9,6 +9,7 @@
 + Control/AthLinksSA
 + Control/AthToolSupport/.*
 + Control/CxxUtils
++ Control/xAODDataSource
 + Control/xAODRootAccess.*
 + DataQuality/GoodRunsLists
 + DetectorDescription/GeoPrimitives
@@ -44,11 +45,13 @@
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
++ PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools
@@ -61,7 +64,7 @@
 + PhysicsAnalysis/SUSYPhys/SUSYTools
 + PhysicsAnalysis/TauID/DiTauMassTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
-+ PhysicsAnalysis/TopPhys/QuickAna
+- PhysicsAnalysis/TopPhys/QuickAna
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM

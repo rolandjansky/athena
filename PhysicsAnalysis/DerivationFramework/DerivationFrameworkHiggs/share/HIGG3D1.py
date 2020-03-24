@@ -213,7 +213,7 @@ higg3d1PreSeq = CfgMgr.AthSequencer("HIGG3d1PreSelectionSequence")
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
 OutputJets["HIGG3D1"] = ["AntiKt4EMPFlowJets",
-                         "AntiKtVR30Rmax4Rmin02TrackJets"]
+                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -265,9 +265,10 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d1Seq,algname="QGTaggerToo
 #====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
-# import the JetTagNonPromptLepton config and add to the private sequence
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+# import the LeptonTaggers config and add to the private sequence
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+higg3d1Seq += LepTagConfig.GetDecoratePromptLeptonAlgs()
+higg3d1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #====================================================================
 # Truth decoration tool
@@ -302,13 +303,14 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "BTagging_AntiKt4EMTopo_201810",
                                           "BTagging_AntiKt4EMPFlow_201810",
                                           "BTagging_AntiKt4EMPFlow_201903",
-                                          "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                          "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
 HIGG3D1SlimmingHelper.ExtraVariables = list(HIGG3D1ExtraVariables)
 HIGG3D1SlimmingHelper.AllVariables = list(HIGG3D1ExtraContainers)
-HIGG3D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+HIGG3D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
+HIGG3D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD() 
 
 # needed to calculate electron LH downstream
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import ElectronsCPDetailedContent, GSFTracksCPDetailedContent

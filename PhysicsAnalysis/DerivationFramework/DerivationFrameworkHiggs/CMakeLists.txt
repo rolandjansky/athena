@@ -23,6 +23,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
    Tracking/TrkVertexFitter/TrkVertexAnalysisUtils
    Trigger/TrigAnalysis/TrigDecisionTool
+   Reconstruction/PFlow/PFlowUtils
    PRIVATE
    GaudiKernel
    Tracking/TrkEvent/VxVertex
@@ -50,7 +51,7 @@ atlas_add_component( DerivationFrameworkHiggs
    xAODEgamma xAODJet xAODMuon xAODTracking xAODTruth FourMomUtils TrkVKalVrtFitterLib
    TrkVertexFitterInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib xAODEventInfo
    GaudiKernel VxVertex xAODTrigger PhotonVertexSelection GammaORToolsLib AthContainers
-   TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib)
+   TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib PFlowUtilsLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

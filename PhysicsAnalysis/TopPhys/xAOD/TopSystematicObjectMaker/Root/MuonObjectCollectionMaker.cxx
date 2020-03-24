@@ -5,6 +5,7 @@
 // $Id: MuonObjectCollectionMaker.cxx 810751 2017-09-29 14:41:39Z iconnell $
 #include "TopSystematicObjectMaker/MuonObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 
 #include "AthContainers/AuxElement.h"
@@ -234,6 +235,8 @@ namespace top {
       m_calibrationPeriodTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematics.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematics.push_back(s);
@@ -248,7 +251,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematics.push_back(s);
               }
             }

@@ -1,17 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/PlanarFlowTool.h"
 #include "JetSubStructureUtils/PlanarFlow.h" 
 
-using namespace std;
-using fastjet::PseudoJet;
-
 PlanarFlowTool::PlanarFlowTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing PlanarFlow tool.");
 }
 
 int PlanarFlowTool::modifyJet(xAOD::Jet &injet) const {
@@ -19,8 +15,6 @@ int PlanarFlowTool::modifyJet(xAOD::Jet &injet) const {
   fastjet::PseudoJet jet;
   bool decorate = SetupDecoration(jet,injet);
   double pf_value = -999;
-  
-
   
   if (decorate) {
     JetSubStructureUtils::PlanarFlow pf;

@@ -22,7 +22,6 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 
 # Set up (Py)ROOT.
 import ROOT
-import os
 ROOT.xAOD.Init().ignore()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
@@ -34,7 +33,7 @@ inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
 
-if not dataType in ["data", "mc", "afii"] :
+if dataType not in ["data", "mc", "afii"] :
     raise ValueError ("invalid data type: " + dataType)
 
 # Set up the sample handler object. See comments from the C++ macro
@@ -51,6 +50,7 @@ sh.printContent()
 job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
+job.options().setString( ROOT.EL.Job.optSubmitDirMode, "unique" )
 
 from TriggerAnalysisAlgorithms.TriggerAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)

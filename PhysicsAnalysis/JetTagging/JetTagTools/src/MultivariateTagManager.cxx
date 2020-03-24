@@ -834,7 +834,7 @@ namespace Analysis {
       // some point
       std::string valid_key = raw_key + "IsValid";
       if ( ! BTag->isAvailable<double>(raw_key) ) {
-        ATH_MSG_WARNING("aux data '" + raw_key + "' is missing,"
+        ATH_MSG_DEBUG("aux data '" + raw_key + "' is missing,"
                         " tagger inputs may be incomplete");
       } else if (!BTag->isAvailable<char>(valid_key)) {
         ATH_MSG_DEBUG("no key '" + valid_key + "' found, invalid inputs"

@@ -6,21 +6,22 @@
 # Extra content
 # ==========================================================================================================================
 
-ExtraContentPhotons              = ["Photons.Loose.Medium.Tight.author.OQ"]
-ExtraContentPhotonsTruth         = ["Photons.truthOrigin.truthParticleLink.truthType"]
+ExtraContentTracks               = ["InDetTrackParticles.eProbabilityHT"]
 
-ExtraContentElectrons            = ["Electrons.etcone20.etcone30.etcone40.ptcone20.ptcone30.ptcone40.Loose.Medium.Tight.DFCommonElectronsLHLoose.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsML.author.OQ"]
-ExtraContentElectronsTruth       = ["Electrons.truthOrigin.truthType.truthParticleLink"]
+ExtraContentPhotons              = ["Photons.Loose.Medium.Tight"]
+ExtraContentPhotonsTruth         = [ ]
 
-ExtraContentMuons                = ["Muons.DFCommonGoodMuon.ptcone20.ptcone30.ptcone40.etcone20.etcone30.etcone40"]
-ExtraContentMuonsTruth           = ["MuonTruthParticles.truthOrigin.truthType"]
+ExtraContentElectrons            = ["Electrons.etcone20.etcone30.etcone40.ptcone20.ptcone30.ptcone40.Loose.Medium.Tight"]
+ExtraContentElectronsTruth       = [ ]
 
-ExtraContentTaus                 = [   "TauJets.pt.eta.phi.m.charge.jetLink.isTauFlags.BDTEleScore.BDTJetScore."
+ExtraContentMuons                = ["Muons.etcone20.etcone30.etcone40"]
+ExtraContentMuonsTruth           = [ ]
+
+ExtraContentTaus                 = [   "TauJets.jetLink."
                                        + "caloIso."
                                        + "isolFrac."
                                        + "IsTruthMatched."
                                        + "truthJetLink."
-                                       + "truthParticleLink."
                                        + "ptDetectorAxis."
                                        + "etaDetectorAxis."
                                        + "phiDetectorAxis."
@@ -30,8 +31,6 @@ ExtraContentTaus                 = [   "TauJets.pt.eta.phi.m.charge.jetLink.isTa
                                        + "phiIntermediateAxis."
                                        + "mIntermediateAxis."
                                        + "leadTrkPt."
-                                       + "massTrkSys."
-                                       + "trFlightPathSig."
                                        + "centFrac."
                                        #+ "centFracCorrected."
                                        + "ChPiEMEOverCaloEME."
@@ -44,7 +43,7 @@ ExtraContentTaus                 = [   "TauJets.pt.eta.phi.m.charge.jetLink.isTa
                                        #+ "EMPOverTrkSysPCorrected."
                                        + "innerTrkAvgDist."
                                        #+ "innerTrkAvgDistCorrected."
-                                       + "ipSigLeadTrk.absipSigLeadTrk."
+                                       + "ipSigLeadTrk."
                                        #+ "ipSigLeadTrkCorrected."
                                        + "massTrkSys."
                                        #+ "massTrkSysCorrected."
@@ -62,7 +61,6 @@ ExtraContentTaus                 = [   "TauJets.pt.eta.phi.m.charge.jetLink.isTa
                                        + "sumEMCellEtOverLeadTrkPt."
                                        + "hadLeakEt."
                                        + "secMaxStripEt."
-                                       + "ABS_ETA_LEAD_TRACK.TAU_ABSDELTAETA.TAU_ABSDELTAPHI."
                                        + "EMFracFixed."
                                        + "etHotShotWinOverPtLeadTrk."
                                        + "hadLeakFracFixed."
@@ -82,8 +80,26 @@ ExtraContentTaus                 = [   "TauJets.pt.eta.phi.m.charge.jetLink.isTa
                                        + "phiPanTauCellBasedProto."
                                        + "mPanTauCellBased."
                                        + "mPanTauCellBasedProto."
-                                       + "seedTrackWidthPt500."
-                                       + "seedTrackWidthPt1000."
+                                       + "clusterLinks."
+                                       + "hadronicPFOLinks."
+                                       + "shotPFOLinks."
+                                       + "chargedPFOLinks."
+                                       + "neutralPFOLinks."
+                                       + "pi0PFOLinks."
+                                       + "protoChargedPFOLinks."
+                                       + "protoNeutralPFOLinks."
+                                       + "protoPi0PFOLinks."
+                                       + "eflowRec_Charged_PFOLinks."
+                                       + "eflowRec_Neutral_PFOLinks."
+                                       + "eflowRec_Pi0_PFOLinks."
+                                       + "shot_PFOLinks."
+                                       + "charged_PFOLinks."
+                                       + "neutral_PFOLinks."
+                                       + "pi0_PFOLinks."
+                                       + "pi0Links."
+                                       + "cellBased_Charged_PFOLinks."
+                                       + "cellBased_Neutral_PFOLinks."
+                                       + "cellBased_Pi0_PFOLinks."
                                        + "PanTau_isPanTauCandidate.PanTau_DecayModeProto.PanTau_BDTValue_1p0n_vs_1p1n.PanTau_BDTValue_1p1n_vs_1pXn.PanTau_BDTValue_3p0n_vs_3pXn.PanTau_BDTVar_Basic_NNeutralConsts.PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt.PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts.PanTau_BDTVar_Neutral_HLV_SumM.PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1.PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2.PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts.PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts.PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed.PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged.PanTau_DecayModeExtended",
                                        "TauChargedParticleFlowObjects",
                                        "TauNeutralParticleFlowObjects",
@@ -91,20 +107,23 @@ ExtraContentTaus                 = [   "TauJets.pt.eta.phi.m.charge.jetLink.isTa
                                        "TauShotParticleFlowObjects",
                                        "TauPi0Clusters"   ]
 ExtraContentTausTruth               = [ ]
-ExtraContentJetsTruth               = ["AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID"]
+ExtraContentJetsTruth               = ["AntiKt4TruthJets.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID"]
+
 # ==========================================================================================================================
 
 ExtraContentTAUP1              =   ExtraContentPhotons                  \
                                  + ExtraContentElectrons                \
                                  + ExtraContentMuons                    \
-                                 + ExtraContentTaus
+                                 + ExtraContentTaus                     \
+                                 + ExtraContentTracks
 
 # ExtraContentTAUP2              =   ExtraContentTaus
 
 ExtraContentTAUP3              =   ExtraContentPhotons                  \
                                  + ExtraContentElectrons                \
                                  + ExtraContentMuons                    \
-                                 + ExtraContentTaus
+                                 + ExtraContentTaus                     \
+                                 + ExtraContentTracks
 
 # ExtraContentTAUP4              =   ExtraContentPhotons                  \
 #                                  + ExtraContentElectrons                \
@@ -172,11 +191,14 @@ ExtraContainersTrigger           = ["LVL1EmTauRoIs",
                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_TauCore_FTF",
                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_TauIso_FTF"]
 
+ExtraContainersPions             = ["finalTauPi0s"]
+
 # ==========================================================================================================================
 
 ExtraContainersTAUP1            =   ExtraContainersElectrons    \
                                   + ExtraContainersJets         \
-                                  + ExtraContainersTrigger 
+                                  + ExtraContainersTrigger      \
+                                  + ExtraContainersPions
 
 ExtraContainersTAUP2            =   ExtraContainersTrigger      \
                                   + ["HLT_xAOD__TauJetContainer_TrigTauRecMerged",
@@ -193,18 +215,12 @@ ExtraContainersTAUP2            =   ExtraContainersTrigger      \
 ExtraContainersTAUP3            =   ExtraContainersElectrons   \
                                   + ExtraContainersJets        \
                                   + ExtraContainersTrigger    \
+                                  + ExtraContainersPions       \
                                   + ["HLT_xAOD__TauJetContainer_TrigTauRecMerged",
                                      "HLT_xAOD__MuonRoIContainer_L1TopoMuon",
                                      "HLT_xAOD__JetRoIContainer_L1TopoJet",
                                      "HLT_xAOD__TrigCompositeContainer_L1TopoMET",
-                                     "HLT_xAOD__TrigCompositeContainer_L1TopoComposite",
-                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTK",
-                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
-                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit",
-                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig",
-                                     "HLT_xAOD__VertexContainer_PrimVertexFTK",
-                                     "HLT_xAOD__VertexContainer_PrimVertexFTKRaw",
-                                     "HLT_xAOD__VertexContainer_PrimVertexFTKRefit"]
+                                     "HLT_xAOD__TrigCompositeContainer_L1TopoComposite"]
 
 ExtraContainersTAUP4            =   ExtraContainersTrigger      \
                                   + ["TauJets",
@@ -218,17 +234,14 @@ ExtraContainersTAUP4            =   ExtraContainersTrigger      \
                                      "InDetTrackParticles",
                                      "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
                                      "HLT_xAOD__JetRoIContainer_L1TopoJet",
-                                     "HLT_xAOD__TrigCompositeContainer_L1TopoComposite",
-                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTK",
-                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
-                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit",
-                                     "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig"]
+                                     "HLT_xAOD__TrigCompositeContainer_L1TopoComposite"]
 
 ExtraContainersTAUP5            =   ExtraContainersElectrons   
 
 ExtraContainersTruthTAUP1      = ["TruthEvents",
                                   "TruthParticles",
-                                  "TruthVertices"
+                                  "TruthVertices",
+                                  "TruthTaus"
                                  #"AntiKt4TruthJets",
                                  #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
                                  #"AntiKt4TruthWZJets"
@@ -243,7 +256,8 @@ ExtraContainersTruthTAUP2      = ["TruthEvents",
 
 ExtraContainersTruthTAUP3      = ["TruthEvents",
                                   "TruthParticles",
-                                  "TruthVertices"
+                                  "TruthVertices",
+                                  "TruthTaus"
                                  #"AntiKt4TruthJets",
                                  #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
                                  #"AntiKt4TruthWZJets"

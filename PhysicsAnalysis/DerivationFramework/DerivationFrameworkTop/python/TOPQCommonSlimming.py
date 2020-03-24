@@ -32,10 +32,15 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.AppendToDictionary = {
         "BTagging_AntiKt4EMPFlow"                    : "xAOD::BTaggingContainer",
         "BTagging_AntiKt4EMPFlowAux"                 : "xAOD::BTaggingAuxContainer",
-        "AntiKtVR30Rmax4Rmin02TrackJets"             : "xAOD::JetContainer"        ,
-        "AntiKtVR30Rmax4Rmin02TrackJetsAux"          : "xAOD::JetAuxContainer"     ,
-        "BTagging_AntiKtVR30Rmax4Rmin02Track"        : "xAOD::BTaggingContainer"   ,
-        "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     : "xAOD::BTaggingAuxContainer",
+        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"             : "xAOD::JetContainer"        ,
+        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"          : "xAOD::JetAuxContainer"     ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"        : "xAOD::BTaggingContainer"   ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"     : "xAOD::BTaggingAuxContainer",
+        # Include new retrained b-tagging with tag 201903
+        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"             : "xAOD::JetContainer"        ,
+        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903Aux"          : "xAOD::JetAuxContainer"     ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"        : "xAOD::BTaggingContainer"   ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903Aux"     : "xAOD::BTaggingAuxContainer",
     }
 
     # list of existing containers with a smart list is available here :
@@ -54,7 +59,8 @@ def setup(TOPQname, stream):
         "BTagging_AntiKt4EMPFlow_201810",
         "BTagging_AntiKt4EMPFlow_201903",
         "BTagging_AntiKt4EMTopo_201810",
-        "BTagging_AntiKtVR30Rmax4Rmin02Track",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
         "Electrons",
         "HLT_xAOD__JetContainer_a4tcemsubjesFS",
         "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
@@ -138,6 +144,9 @@ def setup(TOPQname, stream):
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+        # see TOPDERIV-93
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track_201903
         # Xbb tagger extra variables
         from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
         TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
@@ -145,6 +154,9 @@ def setup(TOPQname, stream):
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+        # see TOPDERIV-93
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track_201903
         # add these trigger variables to both data and MC
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTag_HLT
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_EFJet

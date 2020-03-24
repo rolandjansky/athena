@@ -187,7 +187,7 @@ SUSY11SlimmingHelper.SmartCollections = ["Electrons", "Photons", "MET_Reference_
                                          "AntiKt4EMTopoJets_BTagging201810",
                                          "BTagging_AntiKt4EMTopo_201810","PrimaryVertices", "TauJets",
                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-SUSY11SlimmingHelper.AllVariables = [ "MET_Truth", "MET_Track", "AntiKtVR30Rmax4Rmin02TrackJets" ]
+SUSY11SlimmingHelper.AllVariables = [ "MET_Truth", "MET_Track", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810" ]
 SUSY11SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                        "Electrons.truthOrigin.truthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthType.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.TruthLink",
                                        "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.TruthLink",
@@ -198,7 +198,7 @@ SUSY11SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discri
                                        "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                        "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
                                        "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                       "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.DL1_pu.DL1_pc.DL1_pb",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c10_discriminant.DL1_pu.DL1_pc.DL1_pb",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
                                        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
                                        "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink.seedTrackWidthPt500.seedTrackWidthPt1000"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -179,7 +179,7 @@ CP::SystematicSet TauSmearingTool::recommendedSystematics() const
 {
   return m_tCommonSmearingTool->recommendedSystematics();
 }
-
+  
 CP::SystematicCode TauSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   return m_tCommonSmearingTool->applySystematicVariation( sSystematicSet );

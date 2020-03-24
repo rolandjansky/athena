@@ -25,10 +25,10 @@ int main() {
   std::string workingPointName = "FixedCutBEff_70";
 
   asg::AnaToolHandle<IBTaggingEfficiencyTool> tool("BTaggingEfficiencyTool/BTagEffTest");
-  StatusCode code1 = tool.setProperty("ScaleFactorFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root" );
+  StatusCode code1 = tool.setProperty("ScaleFactorFileName","xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root" );
   StatusCode code2 = tool.setProperty("TaggerName",    taggerName  );
   StatusCode code3 = tool.setProperty("OperatingPoint", workingPointName);
-  StatusCode code4 = tool.setProperty("JetAuthor",      "AntiKt4EMTopoJets" );
+  StatusCode code4 = tool.setProperty("JetAuthor",      "AntiKt4EMPFlowJets_BTagging201810" );
   
   //provide a file which tells the tool which efficiency maps to use, and connects sample DSIDs to the right efficiency map.
   //you can find a tool to automatically create this config file here: https://gitlab.cern.ch/mstamenk/automate-hadronisation-information
@@ -56,7 +56,7 @@ int main() {
 
 
   // select your efficiency map based on the DSID of your sample:
-  unsigned int sample_dsid = 410501;
+  unsigned int sample_dsid = 410470;
 
   tool->setMapIndex(sample_dsid);
 

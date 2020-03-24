@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
- */
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 // $Id: JetObjectCollectionMaker.h 809674 2017-08-23 14:10:24Z iconnell $
 #ifndef ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_JETOBJECTCOLLECTIONMAKER_H
@@ -47,7 +47,8 @@
 #include "TopJetSubstructure/TopJetSubstructure.h"
 
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
-#include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 // Forward declaration(s):
 namespace top {
@@ -166,16 +167,10 @@ namespace top {
     StatusCode tagNominalLargeRJets();
 
     ///-- Large R jet truth labeling --///
-    std::unique_ptr<SmoothedWZTagger> m_TaggerForJES;
+    std::unique_ptr<JetTruthLabelingTool> m_jetTruthLabelingTool;
 
     // DL1 decoration
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelToolsDL1Decor;
-    bool m_DL1Possible;
-    bool m_DL1rPossible;
-    bool m_DL1rmuPossible;
-    bool m_trkjet_DL1Possible;
-    bool m_trkjet_DL1rPossible;
-    bool m_trkjet_DL1rmuPossible;
     StatusCode decorateDL1(bool trackJets = false);
   };
 } // namespace

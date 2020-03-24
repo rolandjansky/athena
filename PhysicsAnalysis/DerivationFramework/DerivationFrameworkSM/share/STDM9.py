@@ -182,6 +182,13 @@ addRscanJets("AntiKt",0.6,"LCTopo",stdm9Seq,"STDM9")
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=stdm9Seq, algname="QGTaggerToolAlg")
 
+#improved fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=stdm9Seq, algname='JetForwardJvtToolBDTAlg')
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=stdm9Seq, algname='JetForwardPFlowJvtToolAlg')
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

@@ -1,9 +1,12 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/NFwdElectronTightSelector.h"
 #include <algorithm>
+
+#include "TopEventSelectionTools/MsgCategory.h"
+using namespace TopEventSelectionTools;
 
 namespace top {
   NFwdElectronTightSelector::NFwdElectronTightSelector(const std::string& params) :
@@ -21,9 +24,9 @@ namespace top {
   }
 
   bool NFwdElectronTightSelector::applyParticleLevel(const top::ParticleLevelEvent& /*event*/) const {
-    std::cout <<
-    "NFwdElectronTightSelector::applyParticleLevel : no separate fwdElectrons container currently defined at particleLevel, FWDEL_N_TIGHT always returning true at particle level"
-              << std::endl;
+      ATH_MSG_INFO("NFwdElectronTightSelector::applyParticleLevel: "
+          << "no separate fwdElectrons container currently defined at particleLevel"
+          << "FWDEL_N_TIGHT always returning true at particle level.");
     return true;
   }
 }

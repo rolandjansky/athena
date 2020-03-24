@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H
@@ -84,7 +84,6 @@ public:
   /// requested systematics that are not affecting this tool will be silently
   /// ignored (unless they
   virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
-
 
 protected:
 

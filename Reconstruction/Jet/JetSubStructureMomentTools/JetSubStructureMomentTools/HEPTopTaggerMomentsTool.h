@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_heptoptaggermomentstool_header
@@ -14,8 +14,6 @@
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
-
-#include <string>
 
 class HEPTopTaggerImpl;
 

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// This source file implements all of the functions related to <OBJECT>
+// This source file implements all of the functions related to TauJets
 // in the SUSYObjDef_xAOD class
 
 // Local include(s):
@@ -18,10 +18,8 @@
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
-
-// For mu information
-#include "xAODEventInfo/EventInfo.h"
-
+#include "TriggerMatchingTool/IMatchingTool.h"
+#include <boost/algorithm/string.hpp>
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -163,56 +161,31 @@ double SUSYObjDef_xAOD::GetSignalTauSFsys(const xAOD::TauJet& tau,
                                          const bool triggerSF, 
                                          const std::string& trigExpr)
 {
-
   double sf(1.);
 
   //Set the new systematic variation
   CP::SystematicCode ret = m_tauEffTool->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() ); }
 
-  ret = m_tauTrigEffTool0->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() ); }
-
-  ret = m_tauTrigEffTool1->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() ); }
-
-  ret = m_tauTrigEffTool2->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() ); }
-
-  ret = m_tauTrigEffTool3->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() ); }
-
-  ret = m_tauTrigEffTool4->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() ); }
-
-
+  for(auto& tool : m_tauTrigEffTool) {
+    ret = tool->applySystematicVariation(systConfig);
+    if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure " << tool->name() << " for systematic var. " << systConfig.name()); }
+  }
+  
   sf *= GetSignalTauSF(tau, idSF, triggerSF, trigExpr);  
-
 
   //Roll back to default
   ret = m_tauEffTool->applySystematicVariation(m_currentSyst);
   if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool back to default"); }
 
-  ret = m_tauTrigEffTool0->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 back to default"); }
-
-  ret = m_tauTrigEffTool1->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 back to default"); }
-
-  ret = m_tauTrigEffTool2->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 back to default"); }
-
-  ret = m_tauTrigEffTool3->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 back to default"); }
-
-  ret = m_tauTrigEffTool4->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 back to default"); }
-
-
+  for(auto& tool : m_tauTrigEffTool) {
+    ret = tool->applySystematicVariation(m_currentSyst);
+    if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure " << tool->name() << " back to default"); }
+  }
+  
   dec_effscalefact(tau) = sf;
 
   return sf;
-
 }
 
 
@@ -220,38 +193,32 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
 
   double eff(1.);
 
-  int trigIdx =  0;
-  //check if the trigger is among the supported options
-  auto itpos = std::find(m_tau_trig_support.begin(), m_tau_trig_support.end(), "HLT_"+trigExpr);
-  if (itpos == m_tau_trig_support.end()){
-    ATH_MSG_WARNING("The trigger item requested ("  << trigExpr << ") is not supported! Please check. Setting to 1 for now.");
+  auto map_it = m_tau_trig_support.find(trigExpr); 
+  if(map_it == m_tau_trig_support.end()) {
+    ATH_MSG_WARNING("The trigger item requested ("  << trigExpr << ") is not supported! Please check. Setting SF to 1.");
     return eff;
   }
-  else{
-    trigIdx = std::distance(m_tau_trig_support.begin(), itpos);
-  }
 
-  // Tau Trig SFs doc says: IMPORTANT: Use the tool only for taus matched to the trigger!
-  // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool_Trigger.rst
-  if (!IsTrigMatched({&tau},trigExpr)){
+  // trigger matching (dR=0.2)
+  std::vector<std::string> chains;
+  boost::split(chains, map_it->second, [](char c){return c == ',';});
+  bool match = false;
+  for(const std::string& chain : chains)
+    if(m_trigMatchingTool->match({&tau}, chain, 0.2)) {
+      match = true;
+      break;
+    }
+  if(!match) {
     ATH_MSG_VERBOSE("Tau did not match trigger " << trigExpr);
     return eff;
   }
 
-  CP::CorrectionCode ret = CP::CorrectionCode::Ok;
-  switch(trigIdx){
-  case 0 : ret = m_tauTrigEffTool0->getEfficiencyScaleFactor(tau, eff); break;
-  case 1 : ret = m_tauTrigEffTool1->getEfficiencyScaleFactor(tau, eff); break;
-  case 2 : ret = m_tauTrigEffTool2->getEfficiencyScaleFactor(tau, eff); break;
-  case 3 : ret = m_tauTrigEffTool3->getEfficiencyScaleFactor(tau, eff); break;
-  case 4 : ret = m_tauTrigEffTool4->getEfficiencyScaleFactor(tau, eff); break;
-  default: ATH_MSG_WARNING("The trigger item requested ("  << trigExpr << ") is not supported in SUSYTools! Sorry."); break;
-  }
-
-  if(ret != CP::CorrectionCode::Ok){
+  int trigIdx = std::distance(std::begin(m_tau_trig_support), map_it);
+  if(m_tauTrigEffTool.at(trigIdx)->getEfficiencyScaleFactor(tau, eff) != CP::CorrectionCode::Ok) {
     ATH_MSG_ERROR("Some problem found to retrieve SF for trigger item  requested ("  << trigExpr << ")");
     eff = -99;
   }
+  
   return eff;
 }
 
@@ -279,43 +246,21 @@ double SUSYObjDef_xAOD::GetTotalTauSFsys(const xAOD::TauJetContainer& taus, cons
   CP::SystematicCode ret = m_tauEffTool->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() ); }
 
-  ret = m_tauTrigEffTool0->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() ); }
-
-  ret = m_tauTrigEffTool1->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() ); }
-
-  ret = m_tauTrigEffTool2->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() ); }
-
-  ret = m_tauTrigEffTool3->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() ); }
-
-  ret = m_tauTrigEffTool4->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() ); }
-
+  for(auto& tool : m_tauTrigEffTool) {
+    ret = tool->applySystematicVariation(systConfig);
+    if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure " << tool->name() << " for systematic var. " << systConfig.name()); }
+  }
 
   sf = GetTotalTauSF(taus, idSF, triggerSF, trigExpr);
-
 
   //Roll back to default
   ret = m_tauEffTool->applySystematicVariation(m_currentSyst);
   if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool back to default"); }
 
-  ret = m_tauTrigEffTool0->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 back to default"); }
-
-  ret = m_tauTrigEffTool1->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 back to default"); }
-
-  ret = m_tauTrigEffTool2->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 back to default"); }
-
-  ret = m_tauTrigEffTool3->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 back to default"); }
-
-  ret = m_tauTrigEffTool4->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 back to default"); }
+  for(auto& tool : m_tauTrigEffTool) {
+    ret = tool->applySystematicVariation(m_currentSyst);
+    if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure " << tool->name() << " back to default"); }
+  }
 
   return sf;
 }

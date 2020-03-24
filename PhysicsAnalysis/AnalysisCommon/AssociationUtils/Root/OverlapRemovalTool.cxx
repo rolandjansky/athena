@@ -3,7 +3,6 @@
 */
 
 // Framework includes
-#include "CxxUtils/make_unique.h"
 
 // Local includes
 #include "AssociationUtils/OverlapRemovalTool.h"
@@ -61,7 +60,7 @@ namespace ORUtils
 
     // Initialize the decoration helper
     m_decHelper =
-      CxxUtils::make_unique<OverlapDecorationHelper>
+      std::make_unique<OverlapDecorationHelper>
         (m_inputLabel, m_outputLabel, m_outputPassValue);
 
     // Retrieve the configured tools

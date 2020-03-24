@@ -384,7 +384,7 @@ HIGG5D2SlimmingHelper.SmartCollections =   HIGG5Common.getHIGG5CommonSmartCollec
 HIGG5D2SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D2SlimmingHelper.ExtraVariables = xbbTaggerExtraVariables
 HIGG5D2SlimmingHelper.AllVariables = ExtraContainers
-# HIGG5D2SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets", "BTagging_AntiKtVR30Rmax4Rmin02Track"]
+# HIGG5D2SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810", "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"]
 if DerivationFrameworkIsMonteCarlo :
     HIGG5D2SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D2SlimmingHelper.AllVariables += ExtraContainersTruth

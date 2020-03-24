@@ -5,6 +5,7 @@
 // $Id: EgammaObjectCollectionMaker.cxx 811374 2017-10-24 13:04:52Z iconnell $
 #include "TopSystematicObjectMaker/EgammaObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 
 #include "AthContainers/AuxElement.h"
@@ -554,6 +555,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsPhotons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsPhotons.push_back(s);
@@ -568,7 +571,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematicsPhotons.push_back(s);
               }
             }
@@ -588,6 +592,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsElectrons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsElectrons.push_back(s);
@@ -602,7 +608,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematicsElectrons.push_back(s);
               }
             }
@@ -623,6 +630,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsFwdElectrons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsFwdElectrons.push_back(s);
@@ -637,7 +646,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematicsFwdElectrons.push_back(s);
               }
             }

@@ -1,44 +1,48 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ----------------------------------------------------------------
-// The default behavior of this tool is to use beta = 1.0, but multiple 
-// values of beta can be used simultaneously. The property BetaList 
-// should be passed a list of floats. Values of < 0 or > 10 may result
-// in poblematic output variable names and all values will be rounded
-// to the nearest 0.1. No suffix will be added to the outputs for beta = 1.0 
-// and for other values a suffix of _BetaN will be added where N= 10*beta. 
-// ----------------------------------------------------------------
 
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
 #include "JetSubStructureUtils/EnergyCorrelator.h" 
 
-using fastjet::PseudoJet;
-
 EnergyCorrelatorRatiosTool::EnergyCorrelatorRatiosTool(std::string name) :
   JetSubStructureMomentToolsBase(name)
 {
-  declareProperty("BetaList", m_betaVals = {});
+  declareProperty("BetaList", m_rawBetaVals = {});
   declareProperty("DoC3",  m_doC3 = false);
+  declareProperty("DoC4",  m_doC4 = false);
   declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorRatiosTool::initialize() {
-  ATH_MSG_INFO("Initializing EnergyCorrelatorTool");
 
   // Add beta = 1.0 by default
-  betaVals.push_back(1.0);
+  m_betaVals.push_back(1.0);
 
-  // Clean up input list of beta values, rounding to nearest 0.1 and removing duplicates
-  for(float beta : m_betaVals) {
+  // Clean up input list of beta values
+  for(float beta : m_rawBetaVals) {
+
+    // Round to the nearest 0.1
     float betaFix = round( beta * 10.0 ) / 10.0;
-    if( std::find(betaVals.begin(), betaVals.end(), betaFix) == betaVals.end() ) betaVals.push_back(betaFix);
+    if(std::abs(beta-betaFix) > 1.0e-5) ATH_MSG_DEBUG("beta = " << beta << " has been rounded to " << betaFix);
+
+    // Skip negative values of beta
+    if(betaFix < 0.0) {
+      ATH_MSG_WARNING("beta must be positive. Skipping beta = " << beta);
+      continue;
+    }
+
+    // Only store value if it is not already in the list
+    if( std::find(m_betaVals.begin(), m_betaVals.end(), betaFix) == m_betaVals.end() ) m_betaVals.push_back(betaFix);
   }
 
-  for(float beta : betaVals) {
+  for(float beta : m_betaVals) {
     ATH_MSG_DEBUG("Including beta = " << beta);
   }
+
+  // If DoC4 is set to true, set DoC3 to true by default since it won't
+  // add any additional computational overhead
+  if(m_doC4) m_doC3 = true;
 
   ATH_CHECK(JetSubStructureMomentToolsBase::initialize());
 
@@ -47,7 +51,7 @@ StatusCode EnergyCorrelatorRatiosTool::initialize() {
 
 int EnergyCorrelatorRatiosTool::modifyJet(xAOD::Jet &jet) const {
   
-  for(float beta : betaVals) {
+  for(float beta : m_betaVals) {
     std::string suffix = GetBetaSuffix(beta);
 
     if (!jet.isAvailable<float>(m_prefix+"ECF1"+suffix)) {
@@ -67,6 +71,11 @@ int EnergyCorrelatorRatiosTool::modifyJet(xAOD::Jet &jet) const {
 
     if (m_doC3 && !jet.isAvailable<float>(m_prefix+"ECF4"+suffix)) {
       ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECF4" << suffix << " is not available. Exiting..");
+      return 1;
+    }
+
+    if (m_doC4 && !jet.isAvailable<float>(m_prefix+"ECF5"+suffix)) {
+      ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECF5" << suffix << " is not available. Exiting..");
       return 1;
     }
 
@@ -94,6 +103,11 @@ int EnergyCorrelatorRatiosTool::modifyJet(xAOD::Jet &jet) const {
     float ecf4 = -999.0;
     if(m_doC3) {
       ecf4 = jet.getAttribute<float>(m_prefix+"ECF4"+suffix);
+    }
+
+    float ecf5 = -999.0;
+    if(m_doC4) {
+      ecf5 = jet.getAttribute<float>(m_prefix+"ECF5"+suffix);
     }
 
     float ecf1_ungroomed = -999.0;
@@ -134,10 +148,16 @@ int EnergyCorrelatorRatiosTool::modifyJet(xAOD::Jet &jet) const {
       jet.setAttribute(m_prefix+"C2"+suffix, -999.0);
 
     // C3
-    if(ecf3 > 1e-8) // Prevent div-0
+    if(m_doC3 && ecf3 > 1e-8) // Prevent div-0
       jet.setAttribute(m_prefix+"C3"+suffix, ecf4 * ecf2 / pow(ecf3, 2.0));
     else
       jet.setAttribute(m_prefix+"C3"+suffix, -999.0);
+
+    // C4
+    if(m_doC4 && ecf4 > 1e-8) // Prevent div-0
+      jet.setAttribute(m_prefix+"C4"+suffix, ecf5 * ecf3 / pow(ecf4, 2.0));
+    else
+      jet.setAttribute(m_prefix+"C4"+suffix, -999.0);
   }
 
   return 0;

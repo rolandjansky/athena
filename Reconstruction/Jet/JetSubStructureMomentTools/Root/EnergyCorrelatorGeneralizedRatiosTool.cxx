@@ -1,43 +1,42 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ----------------------------------------------------------------
-// The default behavior of this tool is to use beta = 1.0, but multiple 
-// values of beta can be used simultaneously. The property BetaList 
-// should be passed a list of floats. Values of < 0 or > 10 may result
-// in poblematic output variable names and all values will be rounded
-// to the nearest 0.1. No suffix will be added to the outputs for beta = 1.0 
-// and for other values a suffix of _BetaN will be added where N= 10*beta. 
-// ----------------------------------------------------------------
 
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h" 
 
-using fastjet::PseudoJet;
-
 EnergyCorrelatorGeneralizedRatiosTool::EnergyCorrelatorGeneralizedRatiosTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  declareProperty("BetaList", m_betaVals = {});
+  declareProperty("BetaList", m_rawBetaVals = {});
   declareProperty("DoN3", m_doN3 = false);
   declareProperty("DoLSeries", m_doLSeries = false);
   declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorGeneralizedRatiosTool::initialize() {
-  ATH_MSG_INFO("Initializing EnergyCorrelatorTool");
 
   // Add beta = 1.0 by default
-  betaVals.push_back(1.0);
+  m_betaVals.push_back(1.0);
 
-  // Clean up input list of beta values, rounding to nearest 0.1 and removing duplicates
-  for(float beta : m_betaVals) {
+  // Clean up input list of beta values
+  for(float beta : m_rawBetaVals) {
+
+    // Round to the nearest 0.1
     float betaFix = round( beta * 10.0 ) / 10.0;
-    if( std::find(betaVals.begin(), betaVals.end(), betaFix) == betaVals.end() ) betaVals.push_back(betaFix);
+    if(std::abs(beta-betaFix) > 1.0e-5) ATH_MSG_DEBUG("beta = " << beta << " has been rounded to " << betaFix);
+
+    // Skip negative values of beta
+    if(betaFix < 0.0) {
+      ATH_MSG_WARNING("beta must be positive. Skipping beta = " << beta);
+      continue;
+    }
+
+    // Only store value if it is not already in the list
+    if( std::find(m_betaVals.begin(), m_betaVals.end(), betaFix) == m_betaVals.end() ) m_betaVals.push_back(betaFix);
   }
 
-  for(float beta : betaVals) {
+  for(float beta : m_betaVals) {
     ATH_MSG_DEBUG("Including beta = " << beta);
   }
 
@@ -48,7 +47,7 @@ StatusCode EnergyCorrelatorGeneralizedRatiosTool::initialize() {
 
 int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
 
-  for(float beta : betaVals) {
+  for(float beta : m_betaVals) {
     std::string suffix = GetBetaSuffix(beta);
 
     if (!jet.isAvailable<float>(m_prefix+"ECFG_2_1"+suffix)) {
@@ -108,7 +107,6 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
     }
 
     // N2
-
     if(ecfg_2_1 > 1e-8) { // Prevent div-0
       jet.setAttribute(m_prefix+"N2"+suffix, ecfg_3_2 / (pow(ecfg_2_1, 2.0)));
 
@@ -123,7 +121,7 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
     }
 
     // N3
-    if(ecfg_3_1 > 1e-8) // Prevent div-0
+    if(m_doN3 && ecfg_3_1 > 1e-8) // Prevent div-0
       jet.setAttribute(m_prefix+"N3"+suffix, ecfg_4_2 / (pow(ecfg_3_1, 2.0)));
     else
       jet.setAttribute(m_prefix+"N3"+suffix, -999.0);

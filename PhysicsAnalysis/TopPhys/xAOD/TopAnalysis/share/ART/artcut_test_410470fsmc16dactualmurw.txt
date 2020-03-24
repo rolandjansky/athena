@@ -88,8 +88,8 @@ MuonIsolationLoose None
 TauPt 25000
 TauJetIDWP Medium
 TauJetIDWPLoose Medium
-TauEleBDTWP OldLoose
-TauEleBDTWPLoose OldLoose
+TauEleBDTWP Loose
+TauEleBDTWPLoose Loose
 TauEleOLR False
 TauEleOLRLoose False
 
@@ -106,7 +106,7 @@ UseAodMetaData True
 BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80
 
 ### B-tagging configuration
-BTaggingWP MV2c10:FixedCutBEff_77 MV2c10:Continuous DL1:Continuous
+BTaggingWP MV2c10:FixedCutBEff_77 MV2c10:Continuous DL1:Continuous DL1r:FixedCutBEff_77
 # Example of how to remove systematics from b-tag EV
 #BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
 
@@ -118,10 +118,8 @@ NumberOfBootstrapReplicas 100
 
 ### Global lepton trigger scale factor example
 UseGlobalLeptonTriggerSF True
-ElectronTriggers 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
-MuonTriggers 2015@mu20_iloose_L1MU15_OR_mu50 2016@mu26_ivarmedium_OR_mu50 2017@mu26_ivarmedium_OR_mu50 2018@mu26_ivarmedium_OR_mu50
-ElectronTriggersLoose 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
-MuonTriggersLoose 2015@mu20_iloose_L1MU15_OR_mu50 2016@mu26_ivarmedium_OR_mu50 2017@mu26_ivarmedium_OR_mu50 2018@mu26_ivarmedium_OR_mu50
+GlobalTriggers 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose,mu20_iloose_L1MU15_OR_mu50 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50
+GlobalTriggersLoose 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose,mu20_iloose_L1MU15_OR_mu50 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50
 
 ########################
 ### basic selection with mandatory cuts for reco level
@@ -296,6 +294,30 @@ SELECTION ejets_MV2c10_2018
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
+SELECTION ejets_DL1r_2015
+. EL_2015
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2016
+. EL_2016
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2017
+. EL_2017
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2018
+. EL_2018
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
 ########################################################################
 # For testing whether track jet b-tag selection works
 # ONLY FOR TESTING, DOES NOT MAKE SENSE TO USE THIS FOR PHYSICS ANALYSIS
@@ -396,6 +418,30 @@ SELECTION mujets_MV2c10_2018
 . MU_2018
 . mujets_basic
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2015
+. MU_2015
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2016
+. MU_2016
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2017
+. MU_2017
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2018
+. MU_2018
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
 ########################################################################

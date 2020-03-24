@@ -1,15 +1,12 @@
-// for editors : this file is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BOOSTEDJETSTAGGERS_TOPOCLUSTERTRANSFORM_H_
 #define BOOSTEDJETSTAGGERS_TOPOCLUSTERTRANSFORM_H_
 
-#include <math.h>
+// System include(s).
 #include <map>
-#include <vector>
 #include <string>
 
 class TopoclusterTransform {

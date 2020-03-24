@@ -1,7 +1,5 @@
-// for editors : this file is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETQGTAGGERBDT_H_
@@ -15,17 +13,7 @@
 #include "TMVA/Reader.h"
 #include "TMVA/MethodCuts.h"
 
-#include <TSystem.h>
-#include <TFile.h>
 #include <TF1.h>
-#include <TGraph.h>
-
-#include <unordered_map>
-#include <unordered_set>
-#include <memory>
-#include <set>
-#include <list>
-#include <vector>
 
 namespace InDet {
   class IInDetTrackSelectionTool;
@@ -75,7 +63,6 @@ namespace CP {
       asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
 
       // inclusive config file
-      std::string m_configFile;
       std::string m_tmvaConfigFileName;
       std::string m_tmvaConfigFilePath;
 

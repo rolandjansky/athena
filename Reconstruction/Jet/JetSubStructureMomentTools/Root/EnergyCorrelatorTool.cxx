@@ -1,49 +1,52 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ----------------------------------------------------------------
-// The default behavior of this tool is to use beta = 1.0, but multiple 
-// values of beta can be used simultaneously. The property BetaList 
-// should be passed a list of floats. Values of < 0 or > 10 may result
-// in poblematic output variable names and all values will be rounded
-// to the nearest 0.1. No suffix will be added to the outputs for beta = 1.0 
-// and for other values a suffix of _BetaN will be added where N= 10*beta. 
-// ----------------------------------------------------------------
 
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
 #include "JetSubStructureUtils/EnergyCorrelator.h" 
 
-using fastjet::PseudoJet;
-
 EnergyCorrelatorTool::EnergyCorrelatorTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing EnergyCorrelator tool.");
   declareProperty("Beta", m_Beta = 1.0);
-  declareProperty("BetaList", m_betaVals = {});
+  declareProperty("BetaList", m_rawBetaVals = {});
   declareProperty("DoC3", m_doC3 = false);
+  declareProperty("DoC4", m_doC4 = false);
   declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorTool::initialize() {
-  ATH_MSG_INFO("Initializing EnergyCorrelatorTool");
-  
+
   // Add beta = 1.0 by default
-  betaVals.push_back(1.0);
+  m_betaVals.push_back(1.0);
 
   // Add beta = m_Beta by default to keep backwards compatibility
-  if( fabs(m_Beta-1.0) > 1.0e-5 ) betaVals.push_back(m_Beta);
+  if( std::abs(m_Beta-1.0) > 1.0e-5 ) m_betaVals.push_back(m_Beta);
 
-  // Clean up input list of beta values, rounding to nearest 0.1 and removing duplicates
-  for(float beta : m_betaVals) {
+  // Clean up input list of beta values
+  for(float beta : m_rawBetaVals) {
+
+    // Round to the nearest 0.1
     float betaFix = round( beta * 10.0 ) / 10.0;
-    if( std::find(betaVals.begin(), betaVals.end(), betaFix) == betaVals.end() ) betaVals.push_back(betaFix);
+    if(std::abs(beta-betaFix) > 1.0e-5) ATH_MSG_DEBUG("beta = " << beta << " has been rounded to " << betaFix);
+
+    // Skip negative values of beta
+    if(betaFix < 0.0) {
+      ATH_MSG_WARNING("beta must be positive. Skipping beta = " << beta);
+      continue;
+    }
+
+    // Only store value if it is not already in the list
+    if( std::find(m_betaVals.begin(), m_betaVals.end(), betaFix) == m_betaVals.end() ) m_betaVals.push_back(betaFix);
   }
 
-  for(float beta : betaVals) {
+  for(float beta : m_betaVals) {
     ATH_MSG_DEBUG("Including beta = " << beta);
   }
+
+  // If DoC4 is set to true, set DoC3 to true by default since it won't
+  // add any additional computational overhead
+  if(m_doC4) m_doC3 = true;
 
   ATH_CHECK(JetSubStructureMomentToolsBase::initialize());
 
@@ -51,9 +54,9 @@ StatusCode EnergyCorrelatorTool::initialize() {
 }
 
 int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
-  
-  PseudoJet jet;
-  PseudoJet jet_ungroomed;
+
+  fastjet::PseudoJet jet;
+  fastjet::PseudoJet jet_ungroomed;
 
   bool decorate = SetupDecoration(jet,injet);
   bool decorate_ungroomed = false;
@@ -71,7 +74,7 @@ int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
     decorate_ungroomed = SetupDecoration(jet_ungroomed,*parentJet);
   }
 
-  for(float beta : betaVals) {
+  for(float beta : m_betaVals) {
 
     if(beta < 0.0) {
       ATH_MSG_WARNING("Negative beta values are not supported. Skipping " << beta);
@@ -84,6 +87,7 @@ int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
     float result_ECF2 = -999;
     float result_ECF3 = -999;
     float result_ECF4 = -999;
+    float result_ECF5 = -999;
 
     float result_ECF1_ungroomed = -999;
     float result_ECF2_ungroomed = -999;
@@ -103,7 +107,12 @@ int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
         JetSubStructureUtils::EnergyCorrelator ECF4(4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
         result_ECF4 = ECF4.result(jet);
       }
-    
+
+      if(m_doC4) {
+        JetSubStructureUtils::EnergyCorrelator ECF5(5, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+        result_ECF5 = ECF5.result(jet);
+      }
+
       if(decorate_ungroomed) {
         result_ECF1_ungroomed = ECF1.result(jet_ungroomed);
         result_ECF2_ungroomed = ECF2.result(jet_ungroomed);
@@ -116,7 +125,8 @@ int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
     injet.setAttribute(m_prefix+"ECF2"+suffix, result_ECF2);
     injet.setAttribute(m_prefix+"ECF3"+suffix, result_ECF3);
     injet.setAttribute(m_prefix+"ECF4"+suffix, result_ECF4);
-    
+    injet.setAttribute(m_prefix+"ECF5"+suffix, result_ECF5);
+
     injet.setAttribute(m_prefix+"ECF1_ungroomed"+suffix, result_ECF1_ungroomed);
     injet.setAttribute(m_prefix+"ECF2_ungroomed"+suffix, result_ECF2_ungroomed);
     injet.setAttribute(m_prefix+"ECF3_ungroomed"+suffix, result_ECF3_ungroomed);

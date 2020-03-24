@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef SCALEFACTORCALCULATOR_H_
@@ -51,6 +51,7 @@ namespace top {
     ScaleFactorCalculator& operator = (const ScaleFactorCalculator& rhs) = delete;
 
     StatusCode initialize();
+    StatusCode initialize_nominal_MC_weight(); // determine what MC weight to use as nominal
     StatusCode execute();
 
     StatusCode executePileup();
@@ -70,6 +71,9 @@ namespace top {
     ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool>    m_sherpa_22_reweight_tool;
     std::unique_ptr<top::GlobalLeptonTriggerCalculator> m_globalLeptonTriggerSF;
     ToolHandle<PMGTools::IPMGTruthWeightTool>           m_pmg_truth_weight_tool;
+
+    bool m_sample_multiple_MCweights;
+    std::string m_nominal_weight_name;
   };
 }  // namespace top
 

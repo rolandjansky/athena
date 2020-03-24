@@ -12,9 +12,9 @@ namespace top {
 
   ElectronSelectionBase::~ElectronSelectionBase() {
   }
-}
 
-std::ostream& operator << (std::ostream& os, const top::ElectronSelectionBase& selection) {
-  selection.print(os);
-  return os;
+  std::ostream& operator << (std::ostream& os, const top::ElectronSelectionBase& selection) {
+    selection.print(os);
+    return os;
+  }
 }

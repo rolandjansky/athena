@@ -6,7 +6,7 @@
 #include "AssociationUtils/DeltaROverlapTool.h"
 
 // Framework includes
-#include "CxxUtils/make_unique.h"
+
 
 namespace ORUtils
 {
@@ -32,7 +32,7 @@ namespace ORUtils
     ATH_MSG_DEBUG("Setting up dR matching with cone size " << m_dR);
 
     // Initialize the dR matcher
-    m_dRMatcher = CxxUtils::make_unique<DeltaRMatcher>(m_dR, m_useRapidity);
+    m_dRMatcher = std::make_unique<DeltaRMatcher>(m_dR, m_useRapidity);
     return StatusCode::SUCCESS;
   }
 

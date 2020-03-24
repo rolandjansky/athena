@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TARJetTool.cxx
@@ -10,11 +10,13 @@ TARJetTool::TARJetTool(const std::string& myname)
 : AsgTool(myname),
   TrackAssistHelper(),
   m_inTrackColl(""),
+  m_inSelTrackColl(""),
   m_outTrackColl(""),
   m_assocTracksOutName(""),
   m_dRmatch(0.3)
 {
   declareProperty("InputTrackContainer", m_inTrackColl = "InDetTrackParticles");
+  declareProperty("InputSelectedTrackContainer", m_inSelTrackColl); // Name of a view container to allow a track preselection
   declareProperty("OutputTrackContainer", m_outTrackColl);
   declareProperty("OutputAssociatedTracks", m_assocTracksOutName = "TARTracks");
   declareProperty("MatchDeltaR", m_dRmatch);
@@ -30,6 +32,11 @@ StatusCode TARJetTool::initialize()
 {
 
   ATH_MSG_INFO("Initializing TARJetTool " << name() << ".");
+
+  // If no view container is provided, use the full input track container
+  if( m_inSelTrackColl.empty() ) {
+    m_inSelTrackColl = m_inTrackColl;
+  }
   ATH_CHECK( TrackAssistHelper::initialize() );
   print();
 
@@ -50,6 +57,10 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   const xAOD::TrackParticleContainer *inTracks = nullptr;
   ATH_CHECK( evtStore()->retrieve(inTracks,m_inTrackColl) );
 
+  // Get input selected tracks
+  const xAOD::TrackParticleContainer *inSelTracks = nullptr;
+  ATH_CHECK( evtStore()->retrieve(inSelTracks,m_inSelTrackColl) );
+
   // Get vertex objects
   const xAOD::Vertex *pvx = nullptr;
   const jet::TrackVertexAssociation *tva = nullptr;
@@ -66,11 +77,27 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   std::unique_ptr<xAOD::TrackParticleContainer> outTracks (trackShallowCopy.first);
   std::unique_ptr<xAOD::ShallowAuxContainer> outTracksAux (trackShallowCopy.second);
 
-  // Get list of all tracks
-  for( const xAOD::TrackParticle* track : *inTracks ) {
+  // Map of track indices to position in the input collection
+  // This is needed in case a view container is used
+  std::map<size_t,size_t> m_availableTrackIndices;
+
+  // Counter to keep track of track positions in inSelTracks
+  size_t iTrack = 0;
+
+  // Create map of available selected track indices and make list of all good selected tracks
+  for( const xAOD::TrackParticle* track : *inSelTracks ) {
+    // Fill set of track indices in case inSelTracks is a subset
+    // of the tracks used for ghost-association
+    if( !(m_availableTrackIndices.insert(std::make_pair(track->index(),iTrack)).second) ) {
+      // This shouldn't happen, but this serves as a sanity check
+      ANA_MSG_WARNING("Found more than one track with index " << track->index());
+    }
+    iTrack++;
+
     // Make sure only tracks that pass selection are used
     // NB: isGoodTrack is defined in TrackAssistHelper.cxx
     if( !isGoodTrack(*track,*pvx,*tva) ) continue;
+
     allGoodTrackIndices.push_back( track->index() );
   }
 
@@ -101,6 +128,9 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
         // Skip if link is broken
         if( !track ) continue;
 
+        // Skip if index does not exist in input track collection
+        if( !m_availableTrackIndices.count(track->index()) ) continue;
+
         // Make sure only tracks that pass selection are used
         // NB: isGoodTrack is defined in TrackAssistHelper.cxx
         if( !isGoodTrack(*track,*pvx,*tva) ) continue;
@@ -127,7 +157,7 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   for( int trackIdx : unmatchedTrackIndices ) {
 
     // Get input track
-    const xAOD::TrackParticle* track = inTracks->at(trackIdx);
+    const xAOD::TrackParticle* track = inSelTracks->at(m_availableTrackIndices[trackIdx]);
 
     float dRmin = 9999999;
     int jetIdx = -1;
@@ -157,6 +187,7 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
       // Nominally, each track is associated to a single jet, but this construction
       // allows each track to be associated to multiple jets with a weight for each
       // association that is used in the rescaling
+      // Since outTracks is a shallow copy of inTracks, the track index can be used directly
       outTracks->at(trackIdx)->auxdata< std::vector< std::pair<int, float> > >("JetAssociations").emplace_back(constitJet->index(),1.0);
     }
 
@@ -259,10 +290,11 @@ StatusCode TARJetTool::getPrimaryVertex( const xAOD::Vertex *&pvx ) const {
 
 void TARJetTool::print() const {
   ATH_MSG_INFO("Properties for TARJetTool " << name());
-  ATH_MSG_INFO("     InputTrackContainer: " << m_inTrackColl);
-  ATH_MSG_INFO("    OutputTrackContainer: " << m_outTrackColl);
-  ATH_MSG_INFO("  OutputAssociatedTracks: " << m_assocTracksOutName);
-  ATH_MSG_INFO("             MatchDeltaR: " << m_dRmatch);
+  ATH_MSG_INFO("        InputTrackContainer: " << m_inTrackColl);
+  ATH_MSG_INFO("InputSelectedTrackContainer: " << m_inSelTrackColl);
+  ATH_MSG_INFO("       OutputTrackContainer: " << m_outTrackColl);
+  ATH_MSG_INFO("     OutputAssociatedTracks: " << m_assocTracksOutName);
+  ATH_MSG_INFO("                MatchDeltaR: " << m_dRmatch);
   TrackAssistHelper::print();
   return;
 }

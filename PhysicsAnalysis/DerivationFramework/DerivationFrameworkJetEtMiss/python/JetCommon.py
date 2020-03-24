@@ -70,6 +70,7 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
                     "EMPFlow": jtm.empflowget,
                     "EMPFlowPUSB": jtm.empflowpusbget,
                     "EMPFlowNeut": jtm.empflowneutget,
+                    "PFlowCustomVtx": jtm.pflowcustomvtxget,
                     }[inputtype]
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype, inputgetter, R)
@@ -179,7 +180,7 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
     # map the input to the jtm code for PseudoJetGetter
     getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow',             EMCPFlow = 'emcpflow', 
                       Truth='truth',     TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', TruthCharged='truthcharged', 
-                      PV0Track='pv0track', TrackCaloCluster='tcc', UFO='tcc', UFOCHS='tcc', CSSKUFO='tcc')
+                      PV0Track='pv0track', TrackCaloCluster='tcc', UFOCSSK='csskufo')
 
     getters = getterMap[inputtype]
 
@@ -445,11 +446,13 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                        "LCTopo":"lctopo_ungroomed",
                        "EMPFlow":"pflow_ungroomed",
                        "EMCPFlow":"pflow_ungroomed",
+                       "PFlowCustomVtx":"pflow_ungroomed",
                        "Truth":"truth_ungroomed",
                        "TruthWZ":"truth_ungroomed",
                        "PV0Track":"track_ungroomed",
                        "TrackCaloCluster":"tcc_ungroomed",
-                       "UFO":"tcc_ungroomed",
+                       "UFOCSSK":"tcc_ungroomed",
+                       "UFOCHS":"tcc_ungroomed",
                        }
         if mods=="default":
             mods = defaultmods[inputtype] if inputtype in defaultmods else []
@@ -465,7 +468,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         # map the input to the jtm code for PseudoJetGetter
         getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                           Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged', 
-                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFO = 'tcc' )
+                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFOCSSK = 'csskufo', UFOCHS = 'chsufo' )
 
         # set input pseudojet getter -- allows for custom getters
         if customGetters is None:
@@ -508,6 +511,40 @@ def addBadBatmanFlag(sequence=DerivationFrameworkJob):
             ToolSvc += batmanaugtool
         if not batmanaugtool in batmanaug.AugmentationTools:
             batmanaug.AugmentationTools.append(batmanaugtool)
+
+##################################################################
+# Schedule the adding of BCID info
+##################################################################
+def addDistanceInTrain(sequence=DerivationFrameworkJob):
+    # simple set up -- either the alg exists and contains the tool, in which case we exit
+    if hasattr(sequence,"DistanceInTrainAugmentation"):
+        dfjetlog.warning( "DistanceInTrainAugmentation: DistanceInTrainAugmentation already scheduled on sequence"+sequence.name )
+        return
+    else:
+        isMC = False
+        if globalflags.DataSource() == 'geant4':
+          isMC = True
+
+        distanceintrainaug = CfgMgr.DerivationFramework__CommonAugmentation("DistanceInTrainAugmentation")
+        sequence += distanceintrainaug
+
+        distanceintrainaugtool = None
+        from AthenaCommon.AppMgr import ToolSvc        
+        # create and add the tool to the alg if needed
+        if hasattr(ToolSvc,"DistanceInTrainAugmentationTool"):
+            distanceintrainaugtool = getattr(ToolSvc,"DistanceInTrainAugmentationTool")
+        else:
+            distanceintrainaugtool = CfgMgr.DerivationFramework__DistanceInTrainAugmentationTool("DistanceInTrainAugmentationTool")
+            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+            if isMC:
+                ToolSvc += BunchCrossingTool( "MC" )
+                distanceintrainaugtool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
+            else:
+                ToolSvc += BunchCrossingTool( "LHC" )
+                distanceintrainaugtool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
+            ToolSvc += distanceintrainaugtool
+        if not distanceintrainaugtool in distanceintrainaug.AugmentationTools:
+            distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
 
 ##################################################################
 

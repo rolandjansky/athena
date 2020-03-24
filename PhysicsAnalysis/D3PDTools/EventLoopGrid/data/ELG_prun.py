@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 import os.path
 import subprocess
@@ -8,12 +9,18 @@ import shlex
 
 def ELG_prun(sample) :
 
-    from pandatools import PandaToolsPkgInfo
-    if int(float(PandaToolsPkgInfo.release_version[2])) < 4 :
-        print "Need prun with JEDI support, try:"
-        print "    localSetupPandaClient currentJedi --noAthenaCheck"
-        print 'Skipping. this is obselete'
-        #return 99
+#    from pandatools import PandaToolsPkgInfo
+#    if int(float(PandaToolsPkgInfo.release_version[2])) < 4 :
+#        print "Need prun with JEDI support, try:"
+#        print "    localSetupPandaClient currentJedi --noAthenaCheck"
+#        print 'Skipping. this is obselete'
+#        #return 99
+    try:
+        from pandatools import PandaToolsPkgInfo  # noqa: F401
+    except ImportError:
+        print ("prun needs additional setup, try:")
+        print ("    lsetup panda")
+        return 99
 
     cmd = ["prun"]
 
@@ -90,7 +97,7 @@ def ELG_prun(sample) :
         cmd += shlex.split (sample.getMetaString('nc_EventLoop_SubmitFlags'))
 
     if sample.getMetaDouble('nc_showCmd', 0) != 0 :
-        print cmd
+        print (cmd)
 
     if not os.path.isfile('jobcontents.tgz') : 
         import copy
@@ -102,11 +109,11 @@ def ELG_prun(sample) :
         try:
             out = subprocess.check_output(dummycmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e: 
-            print "Command:"
-            print e.cmd
-            print "failed with return code " , e.returncode
-            print "output was:"
-            print e.output
+            print ("Command:")
+            print (e.cmd)
+            print ("failed with return code " , e.returncode)
+            print ("output was:")
+            print (e.output)
             return 1
 
     cmd += ["--inTarBall=jobcontents.tgz"]
@@ -115,19 +122,19 @@ def ELG_prun(sample) :
     try:
         out = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e: 
-        print "Command:"
-        print e.cmd
-        print "failed with return code ", e.returncode
-        print "output was:"
-        print e.output
+        print ("Command:")
+        print (e.cmd)
+        print ("failed with return code ", e.returncode)
+        print ("output was:")
+        print (e.output)
         return 2
     print 'cmd: ',cmd
     jediTaskID = 0
     try:
         line = re.findall(r'TaskID=\d+', out)[0]
         jediTaskID = int(re.findall(r'\d+', line)[0])
-    except:
-        print out
+    except IndexError:
+        print (out)
         return 3
     print jediTaskID
     return jediTaskID

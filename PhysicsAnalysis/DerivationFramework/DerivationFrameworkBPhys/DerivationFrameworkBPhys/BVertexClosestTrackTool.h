@@ -1,6 +1,5 @@
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -46,7 +45,13 @@ namespace DerivationFramework {
 	       std::string Prefix="",
 	       double Dca=-999., double DcaErr=-99.,
 	       double Zca=-999., double ZcaErr=-99.,
-	       int NTrksChi2=0, xAOD::TrackParticle* CloseTrack=NULL);
+         double VtxNDErr2=-99., double TrkNDErr2=-99.,
+         double Phi0Used=-999.,
+	       int NTrksChi2=0, xAOD::TrackParticle* CloseTrack=NULL,
+         TrackBag Tracks = {},
+         std::vector<std::vector<double> > Vtap = {},
+         std::vector<unsigned short> Selpat = {});
+
 	virtual ~CtItem();
 	
 	virtual void        setup(std::string Name="_none_",
@@ -56,8 +61,13 @@ namespace DerivationFramework {
 				  std::string Prefix,
 				  double Dca, double DcaErr,
 				  double Zca, double ZcaErr,
+          double VtxNDErr2, double TrkNDErr2,
+          double Phi0Used,
 				  int NTrksChi2,
-				  xAOD::TrackParticle* CloseTrack=NULL);
+          xAOD::TrackParticle* CloseTrack=NULL,
+          TrackBag Tracks = {},
+          std::vector<std::vector<double> > Vtap = {},
+          std::vector<unsigned short> Selpat = {});
 	virtual void        resetVals();
 	virtual void        copyVals(const BaseItem& item);
 	virtual void        copyVals(const CtItem& item);
@@ -65,16 +75,27 @@ namespace DerivationFramework {
 	virtual std::string dcaErrName();
 	virtual std::string zcaName();
 	virtual std::string zcaErrName();
+	virtual std::string vtxNDErr2Name();
+	virtual std::string trkNDErr2Name();
+	virtual std::string phi0UsedName();
 	virtual std::string nTrksChi2Name();
 	virtual std::string closeTrackName();
+  virtual std::string toString() const;
 
-      public:
+  public:
 	mutable double             dca;
 	mutable double             dcaErr;
 	mutable double             zca;
 	mutable double             zcaErr;
+  mutable double             vtxNDErr2;
+  mutable double             trkNDErr2;
+  mutable double             phi0Used;
 	mutable int                nTrksChi2;
 	const xAOD::TrackParticle* closeTrack;
+  mutable TrackBag                          tracks;
+  mutable std::vector<std::vector<double> > vtap;
+  mutable std::vector<unsigned short>       selpat;
+
   }; // CtItem
       
   public: 
@@ -100,17 +121,28 @@ namespace DerivationFramework {
       virtual StatusCode  saveClosestTrack(const xAOD::Vertex* vtx) const;
       virtual void        initResults();
       virtual void        setResultsPrefix(std::string prefix) const;
+      virtual StatusCode  logCloseTracksDebugInfo() const;
 
   private:      
       // job options
-      bool   m_minDCAin3D;
-      double m_closeTrackMaxLogChi2;
-      double m_nCloseTrackMaxLogChi2;
+
+      std::vector<std::string> m_closeTrackChi2SetName;
+      std::vector<int>         m_closeTrackCorrChi2;
+      std::vector<bool>        m_minDCAin3D;
+      std::vector<double>      m_closeTrackMaxLogChi2;
+      std::vector<double>      m_nCloseTrackMaxLogChi2;
 
       // results array
-      typedef boost::multi_array<CtItem, 3> CtItem3_t;
-      mutable CtItem3_t m_results;
+      typedef boost::multi_array<CtItem, 4> CtItem4_t;
+      mutable CtItem4_t m_results;
 
+      // last run and event numbers seen
+      mutable unsigned int  m_lastRunNumber;
+      mutable uint64_t      m_lastEvtNumber;
+
+      // last secondary vertex (candidate) index
+      mutable unsigned int  m_svIdx;
+      
   }; // BVertexClosestTrackTool
 } // namespace
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSWTopTaggerBDT.h"
@@ -22,23 +22,11 @@ JSSWTopTaggerBDT::JSSWTopTaggerBDT( const std::string& name ) :
   m_dec_mcutH("mcutH"),
   m_dec_scoreCut("scoreCut"),
   m_dec_scoreValue("scoreValue")
-  {
-
-    declareProperty( "ConfigFile",   m_configFile="");
-
-    declareProperty( "Decoration",   m_decorationName="XX");
-    declareProperty( "DecorateJet",           m_decorate = true);
+{
 
     declareProperty( "JetPtMin",              m_jetPtMin = 200000.0);
     declareProperty( "JetPtMax",              m_jetPtMax = 3000000.0);
     declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
-
-    declareProperty( "TaggerType",    m_tagType="XXX");
-
-    declareProperty( "CalibArea",      m_calibarea = "");
-    declareProperty( "CalibAreaTMVA",  m_calibarea_tmva = "BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/");
-    declareProperty( "TMVAConfigFile", m_tmvaConfigFileName="XXX");
-
 
 }
 
@@ -55,7 +43,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
 
-    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibArea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -78,7 +66,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     m_tagType = configReader.GetValue("TaggerType" ,"");
 
     // get the CVMFS calib area where stuff is stored
-    m_calibarea_tmva = configReader.GetValue("CalibAreaTMVA" ,"");
+    m_tmvaCalibArea = configReader.GetValue("CalibAreaTMVA" ,"");
 
     // get the name/path of the JSON config
     m_tmvaConfigFileName = configReader.GetValue("TMVAConfigFile" ,"");
@@ -96,7 +84,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
 
     ATH_MSG_INFO( "Configurations Loaded  :");
     ATH_MSG_INFO( "tagType                : "<<m_tagType );
-    ATH_MSG_INFO( "calibarea_tmva         : "<<m_calibarea_tmva );
+    ATH_MSG_INFO( "calibarea_tmva         : "<<m_tmvaCalibArea );
     ATH_MSG_INFO( "tmvaConfigFileName     : "<<m_tmvaConfigFileName );
     ATH_MSG_INFO( "strMassCutLow          : "<<m_strMassCutLow  );
     ATH_MSG_INFO( "strMassCutHigh         : "<<m_strMassCutHigh );
@@ -147,11 +135,11 @@ StatusCode JSSWTopTaggerBDT::initialize(){
   ATH_MSG_INFO( "  Score cut low  : "<< m_strScoreCut );
 
   // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-  if( m_calibarea_tmva.empty() ){
+  if( m_tmvaCalibArea.empty() ){
     ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
     return StatusCode::FAILURE;
   }
-  else if(m_calibarea_tmva.compare("Local")==0){
+  else if(m_tmvaCalibArea.compare("Local")==0){
     std::string localCalibArea = "BoostedJetTaggers/JSSWTopTaggerBDT/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea));
     // convert the JSON config file name to the full path
@@ -161,7 +149,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
     // get the config file from CVMFS
     // necessary because xml files are too large to house on the data space
-    m_tmvaConfigFilePath = PathResolverFindCalibFile( (m_calibarea_tmva+m_tmvaConfigFileName).c_str() );
+    m_tmvaConfigFilePath = PathResolverFindCalibFile( (m_tmvaCalibArea+m_tmvaConfigFileName).c_str() );
   }
 
   // read json file for DNN weights

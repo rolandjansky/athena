@@ -1,5 +1,5 @@
 /* 
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,9 +27,10 @@ namespace DerivationFramework {
     declareProperty("TrackContainer", m_TrackContainername);
     declareProperty("VertexContainer", m_PVContainername);
     declareProperty("AddPVCountsByType", m_addPVCountsByType = false);
-    // decorate PVs with track counts
+    // decorate PVs with track counts and/or sqrt(sum(pt^2))
     // (needed if track collection will be thinned)
     declareProperty("AddNTracksToPVs", m_addNTracksToPVs = false);
+    declareProperty("AddSqrtPt2SumToPVs", m_addSqrtPt2SumToPVs = false);
   }
  
   StatusCode AugOriginalCounts::addBranches() const
@@ -97,8 +98,22 @@ namespace DerivationFramework {
         }
         
       } // m_addNTracksToPVs
-    }
       
+      // decorate PVs with sqrt(sum(pt^2)) of tracks
+      // (needed if track collection will be thinned)
+      if ( m_addSqrtPt2SumToPVs ) {
+        static SG::AuxElement::Decorator< float >
+          d_pvSqrtPt2Sum("OrigSqrtPt2Sum");
+        for (auto vtx : *vertices) {
+          float sqrtPt2Sum(0.);
+          for (auto tp : vtx->trackParticleLinks()) {
+            sqrtPt2Sum += sqrt(pow((*tp)->pt(),2));
+          }
+          d_pvSqrtPt2Sum(*vtx) = sqrtPt2Sum;
+        }
+      } // m_addSqrtPt2SumToPVs
+    }
+    
     if(!m_TrackContainername.empty()){
       
       std::string pvstring = "OriginalCount_";

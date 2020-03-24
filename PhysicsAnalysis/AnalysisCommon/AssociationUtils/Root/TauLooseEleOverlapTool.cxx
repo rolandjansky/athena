@@ -6,7 +6,7 @@
 #include <typeinfo>
 
 // Framework includes
-#include "CxxUtils/make_unique.h"
+
 #include "AthContainers/ConstDataVector.h"
 
 // Local includes
@@ -36,10 +36,10 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode TauLooseEleOverlapTool::initializeDerived()
   {
-    using CxxUtils::make_unique;
+
 
     // Initialize the dR matcher
-    m_dRMatcher = make_unique<DeltaRMatcher>(m_maxDR, m_useRapidity);
+    m_dRMatcher = std::make_unique<DeltaRMatcher>(m_maxDR, m_useRapidity);
 
     return StatusCode::SUCCESS;
   }

@@ -23,6 +23,7 @@ find_package( Davix )
 find_package( PNG )
 find_package( BLAS )
 find_package( VDT )
+find_package( requests )
 
 # AIDA dependency, because Gaudi needs it
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries

@@ -1,11 +1,13 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/JetCleaningSelector.h"
 #include "TopEvent/EventTools.h"
 #include "xAODJet/JetContainer.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopEventSelectionTools/MsgCategory.h"
+using namespace TopEventSelectionTools;
 
 namespace top {
   JetCleaningSelector::JetCleaningSelector(const std::string& level, std::shared_ptr<top::TopConfig> config) :
@@ -19,11 +21,9 @@ namespace top {
       m_jetEventCleaningToolTightBad = ToolHandle<ECUtils::IEventCleaningTool>("JetEventCleaningToolTightBad");
 
       if (m_level != "LooseBad" && m_level != "TightBad") {
-        std::cerr << "JetCleaningSelector level not recognised - " << m_level << "\n";
-        std::cerr << "Should be LooseBad or TightBad\n";
-        throw std::runtime_error {
-                "JetCleaningSelector: Cannot continue"
-        };
+        ATH_MSG_ERROR("JetCleaningSelector level not recognised - " << m_level << "\n"
+            << "Should be LooseBad or TightBad");
+        throw std::runtime_error ("JetCleaningSelector: Cannot continue");
       }
 
       if (m_level == "LooseBad") m_useLooseBad = true;

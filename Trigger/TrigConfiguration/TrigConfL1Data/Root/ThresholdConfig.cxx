@@ -73,7 +73,7 @@ TrigConf::ThresholdConfig::insertInPosition(std::vector<TriggerThreshold*>& thrV
 
 
 bool
-TrigConf::ThresholdConfig::addTriggerThreshold(TriggerThreshold* thr) {
+TrigConf::ThresholdConfig::addTriggerThreshold(TriggerThreshold* thr, bool respectRun2Limits) {
 
    // put the threshold into the vector of all thresholds
    m_TriggerThresholdVector.push_back(thr);
@@ -86,9 +86,15 @@ TrigConf::ThresholdConfig::addTriggerThreshold(TriggerThreshold* thr) {
    // check if maximum is exceeded
    unsigned int max_thr = L1DataDef::typeConfig(ttype).max;
    if(thr->mapping()>0 && (unsigned int)thr->mapping() >= max_thr) {
-      cerr << "ThresholdConfig::addTriggerThreshold: threshold mapping " << thr->mapping()
-           << " exceeds maximum for type '" << thr->type() << "' , abort!" << endl;
-      throw runtime_error( "ThresholdConfig::addTriggerThreshold: threshold mapping exceeds limit" );
+      if ( respectRun2Limits ) {
+         cerr << "ThresholdConfig::addTriggerThreshold: threshold mapping " << thr->mapping()
+              << " exceeds maximum for type '" << thr->type() << "' , abort!" << endl;
+         throw runtime_error( "ThresholdConfig::addTriggerThreshold: threshold mapping exceeds limit" );
+      } else {
+         // for studying run3 menu
+         cout << "ThresholdConfig::addTriggerThreshold: threshold mapping " << thr->mapping()
+              << " (" << thr->name() << ") exceeds Run-2 maximum for type '" << thr->type() << "'. This is just for information, Run-2 limits are set to be ignored." << endl;
+      }
    }
       
    thr->setThresholdNumber(thr->mapping());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -56,8 +56,9 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     caloMassDef = settings.GetValue(compPrefix+"CaloMassDef","");
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
     truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
-    FatjetTruthLabelStr = settings.GetValue(compPrefix+"FatjetTruthLabels","");
-    FatjetTruthLabelsForSFstr = settings.GetValue(compPrefix+"FatjetTruthLabelForSF","");
+    LargeRJetTruthLabelName = settings.GetValue(compPrefix+"LargeRJetTruthLabelName","R10TruthLabel_R21Consolidated");
+    LargeRJetTruthLabelStr = settings.GetValue(compPrefix+"FatjetTruthLabels","");
+    LargeRJetTruthLabelsForSFstr = settings.GetValue(compPrefix+"LargeRJetTruthLabelForSF","");
     RegionForSFstr = settings.GetValue(compPrefix+"RegionForSF","");
     ResultName = settings.GetValue(compPrefix+"ResultName","");
 
@@ -75,27 +76,27 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     uncNames        = utils::vectorize<TString>(uncNameList,", ");
     subComps        = utils::vectorize<TString>(subCompList,", ");
     truthLabels     = utils::vectorize<int>(truthLabelStr,", ");
-    FatjetTruthLabelStrs = utils::vectorize<TString>(FatjetTruthLabelStr,",");
-    for (const TString& aVal : FatjetTruthLabelStrs)
+    LargeRJetTruthLabelStrs = utils::vectorize<TString>(LargeRJetTruthLabelStr,",");
+    for (const TString& aVal : LargeRJetTruthLabelStrs)
     {
-        if (FatjetTruthLabel::stringToEnum(aVal) == FatjetTruthLabel::UNKNOWN)
+        if (LargeRJetTruthLabel::stringToEnum(aVal) == LargeRJetTruthLabel::UNKNOWN)
         {
             // Note: throwing an exception here because we can't return StatusCode::FAILURE or similar and this doesn't inherit from a class with such functionality
             // This error message should anyways only occur if the CP group provides a bad config file, so this error will only be printed when we are debugging our inputs and before it gets to users
-            throw std::runtime_error(Form("ERROR: Unable to convert specified FatjetTruthLabel to a recognized enum value, please check the configuration file for mistakes: %s",aVal.Data()));
+            throw std::runtime_error(Form("ERROR: Unable to convert specified LargeRJetTruthLabel to a recognized enum value, please check the configuration file for mistakes: %s",aVal.Data()));
         }
         else
-            FatjetTruthLabels.push_back(FatjetTruthLabel::stringToEnum(aVal));
+            LargeRJetTruthLabels.push_back(LargeRJetTruthLabel::stringToEnum(aVal));
     }
-    FatjetTruthLabelsForSFstrs = utils::vectorize<TString>(FatjetTruthLabelsForSFstr, ",");
-    for (const TString& aVal : FatjetTruthLabelsForSFstrs)
+    LargeRJetTruthLabelsForSFstrs = utils::vectorize<TString>(LargeRJetTruthLabelsForSFstr, ",");
+    for (const TString& aVal : LargeRJetTruthLabelsForSFstrs)
     {
         if (CompFlavorLabelVar::stringToEnum(aVal) == CompFlavorLabelVar::UNKNOWN)
         {
-	    throw std::runtime_error(Form("ERROR: Unable to convert specified FatjetTruthLabelForSF to a recognized enum value, please check the configuration file for mistakes: %s",aVal.Data()));
+	    throw std::runtime_error(Form("ERROR: Unable to convert specified LargeRJetTruthLabelForSF to a recognized enum value, please check the configuration file for mistakes: %s",aVal.Data()));
         }
         else
-	    FatjetTruthLabelsForSF.push_back(CompFlavorLabelVar::stringToEnum(aVal));
+	    LargeRJetTruthLabelsForSF.push_back(CompFlavorLabelVar::stringToEnum(aVal));
     }
     RegionForSF     = CompTaggerRegionVar::stringToEnum(RegionForSFstr);
 }

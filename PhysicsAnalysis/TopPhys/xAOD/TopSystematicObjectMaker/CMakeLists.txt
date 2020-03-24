@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODEgamma
                           xAODMuon
                           xAODJet
+                          xAODTracking
                           ElectronPhotonFourMomentumCorrection
                           ElectronPhotonSelectorTools
                           ElectronPhotonShowerShapeFudgeTool
@@ -28,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TopConfiguration
                           TopEvent
                           TopJetSubstructure
-                          xAODTracking
+                          TopParticleLevel
                           InDetTrackSystematicsTools 
 			  MuonAnalysisInterfaces 
 			  FTagAnalysisInterfaces)
@@ -67,10 +68,11 @@ atlas_add_library( TopSystematicObjectMaker Root/*.cxx Root/*.h Root/*.icc
                                   TopConfiguration
                                   TopEvent
                                   TopJetSubstructure
+                                  TopParticleLevel
                                   xAODTracking
                                   InDetTrackSystematicsToolsLib
-				  MuonAnalysisInterfacesLib
-				  FTagAnalysisInterfacesLib
+                                  MuonAnalysisInterfacesLib
+                                  FTagAnalysisInterfacesLib
                                   BoostedJetTaggersLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )

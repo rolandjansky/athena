@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPTOOLS_H__
@@ -9,6 +9,9 @@
 #include <string>
 
 #include "xAODRootAccess/TEvent.h"
+
+#include "xAODCutFlow/CutBookkeeper.h"
+#include "xAODCutFlow/CutBookkeeperContainer.h"
 
 #include "TopConfiguration/TopConfig.h"
 
@@ -58,6 +61,18 @@ namespace top {
  */
   bool isFileSimulation(TFile* inputFile, const std::string& eventInfoName);
 
+/**
+ * @brief For fallback cases when metadata is broken in dxAOD, we need to know
+ * how many MC generator weights are stored in the MC sample. This is needed
+ * to determine, whether there is an unambiguous choice of nominal weight (e.g.
+ * only one weight in sample), or if we can't conclusively tell which one it is.
+ *
+ * @param inputFile A pointer to the input file
+ * @param eventInfoName Name of the EventInfo container in the xAOD
+ * @return Size of vector of MC generator weights
+ */
+  size_t MCweightsSize(TFile* inputFile, const std::string& eventInfoName);
+
   bool isTruthDxAOD(TFile* inputFile);
 
   unsigned int getDSID(TFile* inputFile, const std::string& eventInfoName);
@@ -82,6 +97,37 @@ namespace top {
 
   std::string getDerivationStream(TFile* inputFile);
 
+/**
+ * @brief Search bookkeepers for ones matching AllExecutedEvents, and which
+ * originate from AOD before skimming.
+ *
+ * @param cutBookKeepers Container with bookkeepers
+ * @param names Vector of names of the selected bookkeepers
+ * @param sumW Vector of sum of weights of the selected bookkeepers
+ * @param isHLLHC Whether this is a HLLHC ugprade sample, it uses different stream for bookkeepers
+ */
+  void parseCutBookkeepers(const xAOD::CutBookkeeperContainer *cutBookKeepers,
+      std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC=false);
+
+/**
+ * @brief Get raw number of events before skimming from "AllExecutedEvents" bookkeeper
+ * 
+ * @param cutBookKeepers Container with CutBookkeepers
+ * @param isHLLHC Whether this is a HLLHC ugprade sample, it uses different stream for bookkeepers
+ *
+ * @return number of raw events before skimming
+ */
+  ULong64_t getRawEventsBookkeeper(const xAOD::CutBookkeeperContainer *cutBookKeepers,
+      const bool isHLLHC=false);
+
+/**
+ * @brief Rename CutBookkeeper names according to MC generator weight names reported by PMGTruthWeightTool
+ *
+ * @param bookkeeper_names Vector of original AllExecutedEvents* bookkeeper names
+ * @param pmg_weight_names Vector with MC generator weight names from PMGTruthWeightTool
+ */
+  void renameCutBookkeepers(std::vector<std::string>& bookkepeer_names,
+      const std::vector<std::string>& pmg_weight_names);
 
 /**
  * @brief xAODs can be accessed in class or branch access mode. Guess 'the best'
@@ -141,7 +187,7 @@ namespace top {
  * @param filenames A vector of filenames to check.
  * @return The total yield for all files.
  */
-  unsigned int checkFiles(const std::vector<std::string>& filenames);
+  size_t checkFiles(const std::vector<std::string>& filenames);
 
 /**
  * @brief So that we can load external libraries with (1) extra event selection

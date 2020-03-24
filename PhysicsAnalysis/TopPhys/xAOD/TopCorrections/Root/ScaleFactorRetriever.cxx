@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCorrections/ScaleFactorRetriever.h"
@@ -83,35 +83,61 @@ namespace top {
   float ScaleFactorRetriever::globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const {
     float sf(1.0);
 
-    std::string prefix = "AnalysisTop_Trigger_SF_";
+    static const std::string prefix = "AnalysisTop_Trigger_SF_";
 
     xAOD::SystematicEvent const* eventInfo = event.m_systematicEvent;
     top::check(eventInfo, "Failed to retrieve SystematicEvent");
+    const bool electronTriggerIsEmpty = event.m_isLoose ? m_electronTriggers_Loose.empty() : m_electronTriggers_Tight.empty();
+    const bool muonTriggerIsEmpty     = event.m_isLoose ? m_muonTriggers_Loose.empty()     : m_muonTriggers_Tight.empty();
 
     // Create a hard-coded map linking top::topSFSyst <-> EventInfo decoration
     switch (SFSyst) {
     case top::topSFSyst::EL_SF_Trigger_UP:
-      sf = eventInfo->auxdataConst<float>(prefix + "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1up");
+      if (electronTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1up");
+      }
       break;
 
     case top::topSFSyst::EL_SF_Trigger_DOWN:
-      sf = eventInfo->auxdataConst<float>(prefix + "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1down");
+      if (electronTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1down");
+      }
       break;
 
     case top::topSFSyst::MU_SF_Trigger_STAT_UP:
-      sf = eventInfo->auxdataConst<float>(prefix + "MUON_EFF_TrigStatUncertainty__1up");
+      if (muonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "MUON_EFF_TrigStatUncertainty__1up");
+      }
       break;
 
     case top::topSFSyst::MU_SF_Trigger_STAT_DOWN:
-      sf = eventInfo->auxdataConst<float>(prefix + "MUON_EFF_TrigStatUncertainty__1down");
+      if (muonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "MUON_EFF_TrigStatUncertainty__1down");
+      }
       break;
 
     case top::topSFSyst::MU_SF_Trigger_SYST_UP:
-      sf = eventInfo->auxdataConst<float>(prefix + "MUON_EFF_TrigSystUncertainty__1up");
+      if (muonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "MUON_EFF_TrigSystUncertainty__1up");
+      }
       break;
 
     case top::topSFSyst::MU_SF_Trigger_SYST_DOWN:
-      sf = eventInfo->auxdataConst<float>(prefix + "MUON_EFF_TrigSystUncertainty__1down");
+      if (muonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "MUON_EFF_TrigSystUncertainty__1down");
+      }
       break;
 
     default:
@@ -1034,7 +1060,7 @@ namespace top {
       // If not nominal tree, we need to know which systematic this event corresponds to,
       // in case the systematic is removed from EV decomposition (will enter as a nominal retrieval)
       systematicName = m_config->systematicName(event.m_hashValue);
-      bTagSystName = top::bTagNamedSystCheck(m_config, systematicName, WP, false);
+      bTagSystName = top::bTagNamedSystCheck(m_config, systematicName, WP, do_trackjets, false);
       if (bTagSystName != "") decoration = "btag_SF_" + WP + "_" + bTagSystName; // Only change decoration if found,
                                                                                  // otherwise we will use the nominal
       break;
@@ -1155,7 +1181,7 @@ namespace top {
   }
 
   /**
-   * @brief Print all the SF values to cout
+   * @brief Print all the SF values to msg stream
    */
   void ScaleFactorRetriever::print(const top::Event& event) {
     ATH_MSG_INFO("ScaleFactors");

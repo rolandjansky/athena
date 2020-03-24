@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MVAUtils_NodeImpl_H
@@ -157,6 +157,48 @@ namespace MVAUtils
   inline index_t NodeLGBM::GetNext(const float value, index_t index) const {
     if (not std::isnan(value)) {
       return (value <= m_cut) ? GetLeft(index) : GetRight(index);
+    }
+    else {
+      return (m_default_left) ? GetLeft(index) : GetRight(index);
+    }
+  }
+
+  /**
+   * Node for XGBoost with nan implementation
+   *
+   * This follow the implementation in XGBoost
+   * next = value != nan ? (value < cut ? left : right) : (default_left ? left : right)
+   * left are assigned to be "YES"
+   * right are assigned to be "NO" in XGBoost
+   * default_left is stored for each node (can be different)
+   * Does not support categorical inputs.
+   **/
+  class NodeXGBoost
+  {
+  public:
+    NodeXGBoost(const int ivar, const float val, const index_t right, const int8_t default_left)
+    : m_cut(val), m_right(right), m_var(ivar), m_default_left(default_left) { }
+    void Print(index_t index) const;
+    index_t GetNext(const float value, index_t index) const;
+    bool GetDefaultLeft() const { return m_default_left; }
+    bool IsLeaf() const { return m_var < 0; } //!< is the current node a leaf node
+
+    var_t GetVar() const { return m_var; }
+    float GetVal() const { return m_cut; }
+    index_t GetLeft(index_t index) const { return index + 1; }
+    index_t GetRight(index_t index) const { return index + m_right; }
+
+  private:
+    float m_cut; // cut value for internal nodes or response for leaf nodes
+    int16_t m_right; // right relative index (to be added to current) (left is always current + 1)
+    var_t m_var; // index of the variable to cut for internal nodes, -1 for leaf nodes
+    int8_t m_default_left;  //default if to go left in case of nan input
+  };
+
+
+  inline index_t NodeXGBoost::GetNext(const float value, index_t index) const {
+    if (not std::isnan(value)) {
+      return (value < m_cut) ? GetLeft(index) : GetRight(index);
     }
     else {
       return (m_default_left) ? GetLeft(index) : GetRight(index);

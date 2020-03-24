@@ -1,17 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/AngularityTool.h"
 #include "JetSubStructureUtils/Angularity.h"
 
-using namespace std;
-using fastjet::PseudoJet;
-
 AngularityTool::AngularityTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing angularity tool.");
 }
 
 int AngularityTool::modifyJet(xAOD::Jet &injet) const {

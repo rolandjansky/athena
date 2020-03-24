@@ -107,7 +107,8 @@ JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
   // Calibrated for all but EMTopo.
   ATH_MSG_VERBOSE("Done add with input");
   if ( (inputtype == xAOD::JetInput::EMTopo ) || 
-       (inputtype == xAOD::JetInput::EMPFlow ) ) {
+       (inputtype == xAOD::JetInput::EMPFlow ) ||
+       (inputtype == xAOD::JetInput::PFlowCustomVtx ) ) {
     ATH_MSG_VERBOSE("Setting constituent state to uncalibrated state");
     pjet->setConstituentsSignalState(xAOD::UncalibratedJetConstituent);
   } else {

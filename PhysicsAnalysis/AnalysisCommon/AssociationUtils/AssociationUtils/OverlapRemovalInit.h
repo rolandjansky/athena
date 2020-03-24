@@ -52,7 +52,7 @@ namespace ORUtils
     /// Enable overlap object ElementLinks.
     bool linkOverlapObjects = false;
     /// Do electron-electron overlap
-    bool doEleEleOR = true;
+    bool doEleEleOR = false;
     /// Do PFlow muon-jet removal
     bool doMuPFJetOR = false;
 

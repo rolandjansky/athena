@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopFlavorTaggingCPTools.h"
@@ -40,7 +40,7 @@ namespace top {
     }
 
     static const std::string cdi_file_default =
-      "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root";
+      "xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root";
 
     m_tagger = ""; // Extract in the loop
     if (m_config->bTaggingCDIPath() != "Default") {
@@ -53,64 +53,52 @@ namespace top {
     }
     // This ordering needs to match the indexing in TDP (for missing cases, we use default which gives a MC/MC of 1 as
     // its the same as the eff used in the calibration
-    // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1)
+    // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1);aMC@NLO+Pythia8;Herwig7.1.3;Sherpa228
     // Default changed from 410501 to 410470 in the CDI release of October 2018
-    m_efficiency_maps = "default;410558;410470;410250;default;410464";
+    m_efficiency_maps = "default;410558;410470;410250;default;410464;411233;421152";
 
     // List of algorithms in R21
     m_tagger_algorithms = {
-      "MV2c10", "MV2r", "MV2rmu",
-      "DL1", "DL1r", "DL1rmu",
-      "MV2cl100_MV2c100"
+      "MV2c10", "DL1", "DL1r", "DL1rmu",
     };
 
     // Configure all tagger/WP/calibration with helper function touching member variables
     // Calibrated and uncalibrated working points for EMTopo jets for all algorithms
     top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", true, "MV2c10",
                                       {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85",
-                                       "HybBEff_60", "HybBEff_70",
-                                       "HybBEff_77", "HybBEff_85", "Continuous"}),
-    "Error setting AntiKt4EMTopoJets WP");
+                                       "Continuous"}),
+                                       "Error setting AntiKt4EMTopoJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", true, "DL1",
                                       {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85",
-      "HybBEff_60", "HybBEff_70",
-     "HybBEff_77", "HybBEff_85", "Continuous"}), "Error setting AntiKt4EMTopoJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "MV2r",
-    {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70",
-      "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt4EMTopoJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "MV2rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt4EMTopoJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt4EMTopoJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85", "CTag_Loose", "CTag_Tight"}), "Error setting AntiKt4EMTopoJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "MV2cl100_MV2c100", {"CTag_Loose", "CTag_Tight"}), "Error setting AntiKt4EMTopoJets WP");
+                                       "Continuous"}), "Error setting AntiKt4EMTopoJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMTopoJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "CTag_Loose", "CTag_Tight", "Continuous"}), "Error setting AntiKt4EMTopoJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "DL1", {"CTag_Loose", "CTag_Tight"}), "Error setting AntiKt4EMTopoJets WP");
 
     // Calibrated and uncalibrated working points for EMPflow jets for all algorithms
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85","Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85","Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "MV2r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt4EMPFlowJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "MV2rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt4EMPFlowJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt4EMPFlowJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt4EMPFlowJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
 
     // Calibrated and uncalibrated working points for R=0.2 track jets for all algorithms
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "MV2r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "MV2rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt2PV0TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
 
     // Calibrated and uncalibrated working points for VR track jets for all algorithms
-    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "MV2r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "MV2rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
 
 
     std::string caloJets_type = m_config->sgKeyJetsType();
     std::string caloJets_collection = m_config->sgKeyJets();
+
+    std::string trackJets_type = m_config->sgKeyTrackJetsType();
+    std::string trackJets_collection = m_config->sgKeyTrackJets();
 
     // BTagging Selectors should be created for DL1 algorithm to get the correct weight (in case charm-fraction is
     // adjusted)
@@ -144,11 +132,11 @@ namespace top {
     }
     if (m_config->useTrackJets()) {
       for (auto alg : DL1_algorithms) {
-        std::string btagsel_tool_name = "BTaggingSelectionTool_forEventSaver_" + alg + "_" + m_config->sgKeyTrackJets();
+        std::string btagsel_tool_name = "BTaggingSelectionTool_forEventSaver_" + alg + "_" + trackJets_collection;
         BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
         top::check(btagsel->setProperty("TaggerName", alg),
                    "Failed to set b-tagging selecton tool TaggerName");
-        top::check(btagsel->setProperty("JetAuthor", m_config->sgKeyTrackJets()),
+        top::check(btagsel->setProperty("JetAuthor", trackJets_collection),
                    "Failed to set b-tagging selection JetAuthor");
         top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
                                         m_cdi_file),
@@ -232,6 +220,9 @@ namespace top {
                      "Failed to set b-tagging OperatingPoint");
           top::check(btageff->setProperty("JetAuthor", caloJets_collection),
                      "Failed to set b-tagging JetAuthor");
+	  top::check(btageff->setProperty("MinPt",
+                                      static_cast<double>(m_config->jetPtcut())),
+		     "Failed to set b-tagging selection tool MinPt");
           top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                      "Failed to set path to b-tagging CDI file");
           top::check(btageff->setProperty("ScaleFactorFileName", calib_file_path),
@@ -266,30 +257,30 @@ namespace top {
       if (m_config->useTrackJets()) {
         std::vector<std::string> track_WPs = {};
         std::vector<std::string> track_WPs_calib = {};
-        if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") {
+        if (trackJets_type == "AntiKtVR30Rmax4Rmin02TrackJets") {
           track_WPs = m_trackAntiKtVR_WPs;
           track_WPs_calib = m_trackAntiKtVR_WPs_calib;
-        } else if (m_config->sgKeyTrackJets() == "AntiKt2PV0TrackJets") {
+        } else if (trackJets_type == "AntiKt2PV0TrackJets") {
           track_WPs = m_trackAntiKt2_WPs;
           track_WPs_calib = m_trackAntiKt2_WPs_calib;
-        } else if (m_config->sgKeyTrackJets() == "AntiKt4PV0TrackJets") {
+        } else if (trackJets_type == "AntiKt4PV0TrackJets") {
           track_WPs = m_trackAntiKt4_WPs;
           track_WPs_calib = m_trackAntiKt4_WPs_calib;
         }
 
         if (std::find(track_WPs.begin(), track_WPs.end(), bTagWPName) == track_WPs.end()) {
           ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize");
-          ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " not supported for jet collection " + m_config->sgKeyTrackJets());
+          ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " not supported for jet collection " + trackJets_collection);
           ATH_MSG_WARNING("     it will therefore be ignored");
         } else {
           //------------------------------------------------------------
           // Setup BTaggingSelectionTool
           //------------------------------------------------------------
-          std::string btagsel_tool_name = "BTaggingSelectionTool_" + bTagWPName + "_" + m_config->sgKeyTrackJets();
+          std::string btagsel_tool_name = "BTaggingSelectionTool_" + bTagWPName + "_" + trackJets_collection;
           BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
           top::check(btagsel->setProperty("TaggerName", m_tagger),
                      "Failed to set b-tagging selecton tool TaggerName");
-          top::check(btagsel->setProperty("JetAuthor", m_config->sgKeyTrackJets()),
+          top::check(btagsel->setProperty("JetAuthor", trackJets_collection),
                      "Failed to set b-tagging selection JetAuthor");
           top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
                                           m_cdi_file),
@@ -309,20 +300,23 @@ namespace top {
           if (std::find(track_WPs_calib.begin(),
                         track_WPs_calib.end(), bTagWPName) == track_WPs_calib.end()) {
             ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize");
-            ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " is not calibrated for jet collection " + m_config->sgKeyTrackJets());
+            ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " is not calibrated for jet collection " + trackJets_collection);
             ATH_MSG_WARNING("     it will therefore be ignored for the scale-factors, although the tagging decisions will be saved");
           } else {
             //------------------------------------------------------------
             // Setup BTaggingEfficiencyTool
             //------------------------------------------------------------
-            std::string btageff_tool_name = "BTaggingEfficiencyTool_" + bTagWPName + "_" + m_config->sgKeyTrackJets();
+            std::string btageff_tool_name = "BTaggingEfficiencyTool_" + bTagWPName + "_" + trackJets_collection;
             BTaggingEfficiencyTool* btageff = new BTaggingEfficiencyTool(btageff_tool_name);
             top::check(btageff->setProperty("TaggerName", m_tagger),
                        "Failed to set b-tagging TaggerName");
             top::check(btageff->setProperty("OperatingPoint", btagWP),
                        "Failed to set b-tagging OperatingPoint");
-            top::check(btageff->setProperty("JetAuthor", m_config->sgKeyTrackJets()),
+            top::check(btageff->setProperty("JetAuthor", trackJets_collection),
                        "Failed to set b-tagging JetAuthor");
+            top::check(btageff->setProperty("MinPt",
+                                        static_cast<double>(m_config->trackJetPtcut())),
+		       "Failed to set b-tagging selection tool MinPt");
             top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                        "Failed to set path to b-tagging CDI file");
             top::check(btageff->setProperty("ScaleFactorFileName", calib_file_path),

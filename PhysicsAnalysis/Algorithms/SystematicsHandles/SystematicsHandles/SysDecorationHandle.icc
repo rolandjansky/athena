@@ -101,6 +101,18 @@ namespace CP
 
 
 
+  template<typename T> bool SysDecorationHandle<T> ::
+  isAvailable (const SG::AuxElement& object,
+       const CP::SystematicSet& sys) const
+  {
+    assert (isPrepared());
+
+    const auto& data = getData (sys);
+    return std::get<1> (data).isAvailable(object);
+  }
+
+
+
   template<typename T> void SysDecorationHandle<T> ::
   set (SG::AuxElement& object, const T& value,
        const CP::SystematicSet& sys) const

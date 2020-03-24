@@ -50,3 +50,6 @@ atlas_add_component( SoftBVrtClusterTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps GoodRunsListsLib xAODBTagging xAODEventInfo xAODEventShape xAODJet xAODMuon xAODTracking xAODTrigger xAODTruth xAODMissingET TrackVertexAssociationToolLib ParticleJetToolsLib JetSubStructureUtils PileupReweightingLib JetInterface ITrackToVertex TrkVertexFitterInterfaces VxSecVertex TrigDecisionToolLib DerivationFrameworkFlavourTagLib SoftBVrtClusterToolLib )
+
+#install 
+atlas_install_python_modules( python/*.py )

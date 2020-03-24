@@ -11,6 +11,7 @@
    <class name="CP::AsgViewSelectionAlg" />
    <class name="CP::AsgxAODNTupleMakerAlg" />
    <class name="CP::EventFlagSelectionAlg" />
+   <class name="CP::EventSelectionByObjectFlagAlg" />
    <class name="CP::IsolationCloseByCorrectionAlg" />
    <class name="CP::KinematicHistAlg" />
    <class name="CP::ObjectCutFlowHistAlg" />

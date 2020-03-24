@@ -23,8 +23,7 @@ from DerivationFrameworkTrigger.TriggerMatchingHelper import (
 
 trig_names = ["HLT_mu26_ivarmedium", "HLT_e140_etcut", "HLT_2e17_lhvloose_nod0", "HLT_e20_lhmedium_nod0_g35_loose", "HLT_e30_mergedtight_ivarloose_g35_medium_icalovloose_Heg", "HLT_tau80_medium1_tracktwo"]
 matching_helper = TriggerMatchingHelper(
-    matching_tool = "TEST11TriggerMatchingTool",
-    trigger_list = trig_names)
+        trigger_list, add_to_df_job=True)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
@@ -33,8 +32,7 @@ matching_helper = TriggerMatchingHelper(
 # The name of the kernel (TEST11Kernel in this case) must be unique to
 # this derivation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
-    "TEST11Kernel",
-    AugmentationTools = [matching_helper.matching_tool])
+    "TEST11Kernel")
 
 #====================================================================
 # SET UP STREAM   

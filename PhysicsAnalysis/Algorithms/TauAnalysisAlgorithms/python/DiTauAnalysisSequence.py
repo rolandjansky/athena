@@ -2,9 +2,7 @@
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
-                                       createPublicTool
-import ROOT
+from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeDiTauAnalysisSequence( dataType, workingPoint,
                              deepCopyOutput = False, postfix = '' ):
@@ -21,7 +19,7 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
                  names are unique.
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     if postfix != '' :
@@ -34,7 +32,6 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
 
     # using enum value from: https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/TauAnalysisTools/Enums.h
     # the dictionary is missing in Athena, so hard-coding values here
-    sfWorkingPoint = splitWP[0]
     if splitWP[0] == 'Tight' :
         IDLevel = 4 # ROOT.TauAnalysisTools.JETIDBDTTIGHT
         pass

@@ -45,12 +45,14 @@ namespace CP
   SystematicSet::SystematicSet(const std::string& systematics)
         : SystematicSet()
   {
-    std::string::size_type split = 0, split2 = 0;
-    while ((split = systematics.find ("-", split2)) != std::string::npos) {
+    if (!systematics.empty()) {
+      std::string::size_type split = 0, split2 = 0;
+      while ((split = systematics.find ("-", split2)) != std::string::npos) {
+        m_sysVariations.insert (systematics.substr (split2, split - split2));
+        split2 = split + 1;
+      }
       m_sysVariations.insert (systematics.substr (split2, split - split2));
-      split2 = split + 1;
     }
-    m_sysVariations.insert (systematics.substr (split2, split - split2));
   }
 
 

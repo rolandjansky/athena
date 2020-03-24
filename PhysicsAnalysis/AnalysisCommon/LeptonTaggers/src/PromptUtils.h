@@ -17,6 +17,9 @@
  *  
  **********************************************************************************/
 
+// Local
+#include "VarHolder.h"
+
 // Athena
 #include "AthContainers/AuxElement.h"
 #include "GaudiKernel/MsgStream.h"
@@ -102,6 +105,38 @@ namespace Prompt
       
     TStopwatch &fTimer;
   };
+
+
+  //======================================================================================================
+  struct SortObjectByVar
+  {
+    explicit SortObjectByVar(const unsigned v, MsgStream &m, bool inverse=false):var(v), inv(inverse), msg(m) {}
+    
+    template<class T> bool operator()(const T &lhs, const T &rhs)
+    {   
+      double val_rhs = 0.0;
+      double val_lhs = 0.0;
+    
+      if(!lhs.GetVar(var, val_lhs) || !rhs.GetVar(var, val_rhs)) {
+        msg << MSG::WARNING << "SortObjectByVar - missing var: " << Def::AsStr(Def::Convert2Var(var)) << endreq;
+      }
+    
+      if(inv) {
+        return val_lhs > val_rhs;
+      }   
+    
+      return val_lhs < val_rhs;
+    }   
+
+  private:
+
+    SortObjectByVar();
+    
+    unsigned   var;
+    bool       inv;
+    MsgStream &msg;
+
+  };  
 }
 
 #endif //PROMPT_PROMPTUTILS_H

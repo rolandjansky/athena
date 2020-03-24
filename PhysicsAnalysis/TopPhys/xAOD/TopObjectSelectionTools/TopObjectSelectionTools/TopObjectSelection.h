@@ -207,7 +207,7 @@ namespace top {
      * @brief Print details of this object selection to wherever the user asks
      * for.  Useful for checking cuts in the log files I hope!
      *
-     * @param os Where you would like the output printing to, presumably std::cout?
+     * @param os Where you would like the output printing to, e.g. msg stream.
      */
     virtual void print(std::ostream& os) const;
 

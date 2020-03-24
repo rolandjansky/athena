@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/TrigDecisionTightSelector.h"
@@ -13,11 +13,6 @@ namespace top {
   TrigDecisionTightSelector::TrigDecisionTightSelector(const std::string& selectorName,
                                                        std::shared_ptr<top::TopConfig> config) {
     m_triggers = config->allTriggers_Tight(selectorName);
-
-    std::cout << "Tight Triggers for selector = " << selectorName << std::endl;
-    for (auto s : m_triggers) {
-      std::cout << "--" << s << "--" << std::endl;
-    }
   }
 
   bool TrigDecisionTightSelector::apply(const top::Event& event) const {

@@ -27,6 +27,7 @@ namespace CP
     : AsgTool (name)
   {
     declareProperty ("minPt", m_minPt, "minimum pt to require (or 0 for no pt cut)");
+    declareProperty ("maxPt", m_maxPt, "maximum pt to require (or 0 for no pt cut)");
     declareProperty ("maxEta", m_maxEta, "maximum abs(eta) to allow (or 0 for no eta cut)");
     declareProperty ("etaGapLow", m_etaGapLow, "low end of the eta gap");
     declareProperty ("etaGapHigh", m_etaGapHigh, "high end of the eta gap (or 0 for no eta gap)");
@@ -43,6 +44,11 @@ namespace CP
     if (m_minPt < 0 || !std::isfinite (m_minPt))
     {
       ATH_MSG_ERROR ("invalid value of minPt: " << m_minPt);
+      return StatusCode::FAILURE;
+    }
+    if (m_maxPt < 0 || !std::isfinite (m_maxPt))
+    {
+      ATH_MSG_ERROR ("invalid value of m_maxPt: " << m_maxPt);
       return StatusCode::FAILURE;
     }
     if (m_maxEta < 0 || !std::isfinite (m_maxEta))
@@ -72,8 +78,12 @@ namespace CP
     }
 
     if (m_minPt > 0) {
-       ATH_MSG_DEBUG( "Performing pt > " << m_minPt << " MeV selection" );
+       ATH_MSG_DEBUG( "Performing pt >= " << m_minPt << " MeV selection" );
        m_minPtCutIndex = m_accept.addCut ("minPt", "minimum pt cut");
+    }
+    if (m_maxPt > 0) {
+       ATH_MSG_DEBUG( "Performing pt < " << m_maxPt << " MeV selection" );
+       m_maxPtCutIndex = m_accept.addCut ("maxPt", "maximum pt cut");
     }
     if (m_useClusterEta) {
        ATH_MSG_DEBUG( "Performing eta cut on the e/gamma cluster" );
@@ -110,9 +120,12 @@ namespace CP
   {
     m_accept.clear();
 
-    // Perform the tranverse momentum cut.
+    // Perform the tranverse momentum cuts.
     if (m_minPtCutIndex >= 0) {
        m_accept.setCutResult (m_minPtCutIndex, particle->pt() >= m_minPt);
+    }
+    if (m_maxPtCutIndex >= 0) {
+       m_accept.setCutResult (m_maxPtCutIndex, particle->pt() < m_maxPt);
     }
 
     // Perform the eta cut(s).

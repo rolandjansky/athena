@@ -21,18 +21,18 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
     pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
     print( pileupSequence ) # For debugging
 
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-    jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-    jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJetsBase' )
+    jetSequence = makeJetAnalysisSequence( dataType, jetContainer, enableCutflow=True, enableKinematicHistograms=True )
+    jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJetsBase_%SYS%' )
     print( jetSequence ) # For debugging
 
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetJvtAnalysisSequence import makeJetJvtAnalysisSequence
-    jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer )
+    jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer, enableCutflow=True )
     jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo_%SYS%',
                                          'jets'      : 'AnalysisJetsBase_%SYS%' },
                            outputName = { 'jets'      : 'AnalysisJets_%SYS%' },

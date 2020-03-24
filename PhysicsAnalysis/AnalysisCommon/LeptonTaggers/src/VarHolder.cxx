@@ -33,7 +33,7 @@ bool Prompt::Def::RegisterVar(Var var, const std::string &name)
 {
   for(const VarMap::value_type &v: gPromptVars) {
     if(name == v.second) {
-      cout << "Def::RegisterVar - WARNING - variable with this name already exists: var=" << var << ", name=" << name << endl;
+      asg::msgUserCode::ANA_MSG_WARNING("Def::RegisterVar - WARNING - variable with this name already exists: var=" << var << ", name=" << name);
       return false;      
     }
   }
@@ -41,15 +41,47 @@ bool Prompt::Def::RegisterVar(Var var, const std::string &name)
   pair<VarMap::iterator, bool> vit = gPromptVars.insert(VarMap::value_type(var, name));
 
   if(!vit.second) {
-    cout << "Def::RegisterVar - WARNING - variable with this key already exists: var=" << var << ", name=" << name << endl;
+    asg::msgUserCode::ANA_MSG_WARNING("Def::RegisterVar - WARNING - variable with this key already exists: var=" << var << ", name=" << name);
     return false;
   }
 
   if(gDebugPromptVars) {
-    cout << "Def::RegisterVar - DEBUG - add variable: " << var << ", name=" << name << endl;
+    asg::msgUserCode::ANA_MSG_INFO("Def::RegisterVar - DEBUG - add variable: " << var << ", name=" << name);
   }
 
   return true;
+}
+
+//======================================================================================================
+Prompt::Def::Var Prompt::Def::RegisterDynamicVar(const std::string &name)
+{
+  unsigned last_key = Def::NONE;
+
+  for(const VarMap::value_type &v: gPromptVars) {
+    if(name == v.second) {
+      if(gDebugPromptVars) {
+	asg::msgUserCode::ANA_MSG_INFO("Def::RegisterDynamicVar - variable with this name already exists: " << name);
+      }
+
+      return v.first;
+    }
+
+    last_key = max<unsigned>(last_key, v.first);
+  }
+
+  const Def::Var new_key = static_cast<Def::Var>(last_key+1);
+ 
+
+  if(!RegisterVar(new_key, name)) {
+    asg::msgUserCode::ANA_MSG_WARNING("Def::RegisterDynamicVar - WARNING - failed to register variable name=" << name);
+    return NONE;
+  }
+
+  if(gDebugPromptVars) {
+    asg::msgUserCode::ANA_MSG_INFO("Def::RegisterDynamicVar - DEBUG - add variable: " << new_key << ", name=" << name);
+  }
+
+  return new_key;
 }
 
 //======================================================================================================
@@ -86,7 +118,7 @@ std::string Prompt::Def::Convert2Str(Var var)
   const VarMap::const_iterator vit = gPromptVars.find(var);
 
   if(vit == gPromptVars.end()) {
-    cout << "Def::Convert2Str - WARNING - unknown variable: " << var << endl;
+    asg::msgUserCode::ANA_MSG_WARNING("Def::Convert2Str - WARNING - unknown variable: " << var);
     return "UNKNOWN";
   }
   
@@ -103,7 +135,7 @@ Prompt::Def::Var Prompt::Def::Convert2Var(const std::string &var)
   }
 
   if(gDebugPromptVars) {
-    cout << "Def::Convert2Var - WARNING - unknown variable: " << var << endl;
+    asg::msgUserCode::ANA_MSG_WARNING("Def::Convert2Var - WARNING - unknown variable: " << var);
   }
 
   return NONE;
@@ -123,7 +155,7 @@ Prompt::Def::Var Prompt::Def::Convert2Var(uint32_t key)
     }
   }
 
-  cout << "Def::Convert2Var - WARNING - unknown key: " << key << endl;
+  asg::msgUserCode::ANA_MSG_WARNING("Def::Convert2Var - WARNING - unknown key: " << key);
 
   return NONE;
 }
@@ -145,7 +177,7 @@ std::vector<Prompt::Def::Var> Prompt::Def::ReadVars(const std::string &config)
       vars.push_back(var);
     }
     else {
-      cout << "Prompt::Def::ReadVars - unknown variable name: " << keys.at(i) << endl;
+      asg::msgUserCode::ANA_MSG_WARNING("Prompt::Def::ReadVars - unknown variable name: " << keys.at(i));
     }
   }
 
@@ -166,7 +198,7 @@ std::vector<Prompt::Def::Var> Prompt::Def::ReadVectorVars(const std::vector<std:
       vars.push_back(var);
     }
     else {
-      cout << "Prompt::Def::ReadVars - unknown variable name: " << keys.at(i) << endl;
+      asg::msgUserCode::ANA_MSG_WARNING("Prompt::Def::ReadVars - unknown variable name: " << keys.at(i));
     }
   }
 
@@ -178,10 +210,10 @@ void Prompt::Def::PrintVarNames()
 {
   const vector<Var> vars = Def::GetAllVarEnums();
   
-  cout << "PrintCutNames - print " << vars.size() << " enum(s)" << endl;
+  asg::msgUserCode::ANA_MSG_INFO("PrintCutNames - print " << vars.size() << " enum(s)");
   
   for(unsigned i = 0; i < vars.size(); ++i) {
-    cout << "   " << setw(10) << vars.at(i) << ": " << Def::AsStr(vars.at(i)) << endl;
+    asg::msgUserCode::ANA_MSG_INFO("   " << setw(10) << vars.at(i) << ": " << Def::AsStr(vars.at(i)));
   }
 }
 
@@ -259,6 +291,7 @@ int Prompt::Def::RegisterAllVars()
   result += RegisterVar( EtTopoCone30Rel, "EtTopoCone30Rel");
   result += RegisterVar( TopoEtCone30Rel, "TopoEtCone30Rel");
   result += RegisterVar( PtVarCone30Rel,  "PtVarCone30Rel");
+  result += RegisterVar( PtVarCone30TightTTVAPt500Rel,  "PtVarCone30TightTTVAPt500Rel");
   result += RegisterVar( DRlj,            "DRlj");
   result += RegisterVar( LepJetPtFrac,    "LepJetPtFrac");
   result += RegisterVar( PtFrac,          "PtFrac");
@@ -266,14 +299,41 @@ int Prompt::Def::RegisterAllVars()
   result += RegisterVar( DL1mu,           "DL1mu");
   result += RegisterVar( rnnip,           "rnnip");
   result += RegisterVar( MV2c10,          "MV2c10");
-  result += RegisterVar( MV2rmu,       "MV2rmu");
+  result += RegisterVar( MV2rmu,          "MV2rmu");
   result += RegisterVar( SV1,             "SV1");
   result += RegisterVar( JetF,            "JetF");
   result += RegisterVar( JetPt,           "JetPt");
   result += RegisterVar( JetEta,          "JetEta");
   result += RegisterVar( JetPhi,          "JetPhi");
   result += RegisterVar( JetM,            "JetM");
-  
+
+  // track VarHolder
+  result += RegisterVar( LepTrackDR,            "LepTrackDR");
+  result += RegisterVar( Pt,                    "Pt");
+  result += RegisterVar( AbsEta,                "AbsEta");
+  result += RegisterVar( NumberOfPIXHits,       "NumberOfPIXHits");
+  result += RegisterVar( NumberOfSCTHits,       "NumberOfSCTHits");
+  result += RegisterVar( NumberOfSiHits,        "NumberOfSiHits");
+  result += RegisterVar( NumberOfSharedSiHits,  "NumberOfSharedSiHits");
+  result += RegisterVar( NumberOfSiHoles,       "NumberOfSiHoles");
+  result += RegisterVar( NumberOfPixelHoles,    "NumberOfPixelHoles");
+  result += RegisterVar( TrackJetDR,            "TrackJetDR");
+  result += RegisterVar( TrackPtOverTrackJetPt, "TrackPtOverTrackJetPt");
+  result += RegisterVar( Z0Sin,                 "Z0Sin");
+  result += RegisterVar( D0Sig,                 "D0Sig");
+      
+  // PromptLeptonImproved
+  result += RegisterVar( MVAXBin,                                                 "MVAXBin");
+  result += RegisterVar( PromptLeptonRNN_prompt,                                  "PromptLeptonRNN_prompt");
+  result += RegisterVar( CaloClusterERel,                                         "CaloClusterERel");
+  result += RegisterVar( topoetcone30rel,                                         "topoetcone30rel");
+  result += RegisterVar( ptvarcone30rel,                                          "ptvarcone30rel");
+  result += RegisterVar( ptvarcone30_TightTTVA_pt500rel,                          "ptvarcone30_TightTTVA_pt500rel");
+  result += RegisterVar( CaloClusterSumEtRel,                                     "CaloClusterSumEtRel");
+  result += RegisterVar( CandVertex_normDistToPriVtxLongitudinalBest,             "CandVertex_normDistToPriVtxLongitudinalBest");
+  result += RegisterVar( CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx, "CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx");
+  result += RegisterVar( CandVertex_NPassVtx,                                     "CandVertex_NPassVtx");
+
   return result;
 }
 

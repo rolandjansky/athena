@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/PtLogPtMassForTagSFUncertaintyComponent.h"
@@ -18,6 +18,7 @@ PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent
     : UncertaintyComponent(ComponentHelper(name))
     , m_massDef(CompMassDef::UNKNOWN)
     , m_labels()
+    , m_largeRJetTruthLabelName("")
     , m_region()
     , m_result_name()
 {
@@ -27,7 +28,8 @@ PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent
 PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent(const ComponentHelper& component)
     : UncertaintyComponent(component)
     , m_massDef(component.massDef)
-    , m_labels(component.FatjetTruthLabelsForSF)
+    , m_labels(component.LargeRJetTruthLabelsForSF)
+    , m_largeRJetTruthLabelName(component.LargeRJetTruthLabelName)
     , m_region(component.RegionForSF)
     , m_result_name(component.ResultName)
 {
@@ -38,6 +40,7 @@ PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent
     : UncertaintyComponent(toCopy)
     , m_massDef(toCopy.m_massDef)
     , m_labels(toCopy.m_labels)
+    , m_largeRJetTruthLabelName(toCopy.m_largeRJetTruthLabelName)
     , m_region(toCopy.m_region)
     , m_result_name(toCopy.m_result_name)
 {
@@ -63,13 +66,13 @@ bool PtLogPtMassForTagSFUncertaintyComponent::getValidityImpl(const xAOD::Jet& j
 
 double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    static const SG::AuxElement::Accessor<int> accLabel("FatjetTruthLabel");
+    static const SG::AuxElement::Accessor<int> accLabel(m_largeRJetTruthLabelName);
     if ( !accLabel.isAvailable(jet) ){
-      ATH_MSG_ERROR("FatjetTruthLabel is not decorrated to the jet. Please call BoostedJetTaggers tag() function before calling this function.");
+      ATH_MSG_ERROR("LargeRJetTruthLabel: " << m_largeRJetTruthLabelName << " is not decorrated to the jet. Please use JetTruthLabelingTool before calling this function.");
       return JESUNC_ERROR_CODE;
     }
     int jetFlavorLabelInt=accLabel(jet);
-    FatjetTruthLabel::TypeEnum jetFlavorLabel=FatjetTruthLabel::intToEnum(jetFlavorLabelInt);
+    LargeRJetTruthLabel::TypeEnum jetFlavorLabel=LargeRJetTruthLabel::intToEnum(jetFlavorLabelInt);
     
     float mOverPt=jet.m()/jet.pt();
     if ( m_result_name!="" ) {
@@ -79,7 +82,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
       if ( !accResult.isAvailable(jet) ){
 	ATH_MSG_ERROR(m_result_name+" is not decorated to the jet.");
       } else {
-	FatjetCutResult::TypeEnum myCutResult=FatjetCutResult::intToEnum(accResult(jet));
+	TagResult::TypeEnum myCutResult=TagResult::intToEnum(accResult(jet));
 	if ( m_region==CompTaggerRegionVar::passMpassD2_2Var ||
 	     m_region==CompTaggerRegionVar::passMfailD2_2Var ||
 	     m_region==CompTaggerRegionVar::failMpassD2_2Var ||
@@ -90,10 +93,10 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	    const double WtoZmassShift = 10803;
 	    mOverPt=(jet.m()-WtoZmassShift)/jet.pt();
 	  }
-	  if ( ! ((myCutResult==FatjetCutResult::passMpassD2_2Var && m_region==CompTaggerRegionVar::passMpassD2_2Var) ||
-		  (myCutResult==FatjetCutResult::passMfailD2_2Var && m_region==CompTaggerRegionVar::passMfailD2_2Var) ||
-		  (myCutResult==FatjetCutResult::failMpassD2_2Var && m_region==CompTaggerRegionVar::failMpassD2_2Var) ||
-		  (myCutResult==FatjetCutResult::failMfailD2_2Var && m_region==CompTaggerRegionVar::failMfailD2_2Var)) ){
+	  if ( ! ((myCutResult==TagResult::passMpassD2_2Var && m_region==CompTaggerRegionVar::passMpassD2_2Var) ||
+		  (myCutResult==TagResult::passMfailD2_2Var && m_region==CompTaggerRegionVar::passMfailD2_2Var) ||
+		  (myCutResult==TagResult::failMpassD2_2Var && m_region==CompTaggerRegionVar::failMpassD2_2Var) ||
+		  (myCutResult==TagResult::failMfailD2_2Var && m_region==CompTaggerRegionVar::failMfailD2_2Var)) ){
 	    return 0.0;
 	  }
 	} else {
@@ -105,13 +108,13 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 
     bool isValidLabel=false;
     for ( CompFlavorLabelVar::TypeEnum m_label : m_labels ) {
-      if ( (m_label==CompFlavorLabelVar::t_qqb && jetFlavorLabel==FatjetTruthLabel::tqqb) ||
-	   (m_label==CompFlavorLabelVar::t && (jetFlavorLabel==FatjetTruthLabel::tqqb || jetFlavorLabel==FatjetTruthLabel::other_From_t)) ||
-	   (m_label==CompFlavorLabelVar::t_other && (jetFlavorLabel==FatjetTruthLabel::Wqq_From_t || jetFlavorLabel==FatjetTruthLabel::other_From_t)) ||
-	   (m_label==CompFlavorLabelVar::V_qq && (jetFlavorLabel==FatjetTruthLabel::Wqq || jetFlavorLabel==FatjetTruthLabel::Zqq || jetFlavorLabel==FatjetTruthLabel::Wqq_From_t)) ||
-	   (m_label==CompFlavorLabelVar::W_qq && (jetFlavorLabel==FatjetTruthLabel::Wqq || jetFlavorLabel==FatjetTruthLabel::Wqq_From_t)) ||
-	   (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel==FatjetTruthLabel::Zqq) ||
-	   (m_label==CompFlavorLabelVar::q && (jetFlavorLabel==FatjetTruthLabel::notruth || jetFlavorLabel==FatjetTruthLabel::qcd || jetFlavorLabel==FatjetTruthLabel::other_From_V)) ) {
+      if ( (m_label==CompFlavorLabelVar::t_qqb && jetFlavorLabel==LargeRJetTruthLabel::tqqb) ||
+	   (m_label==CompFlavorLabelVar::t && (jetFlavorLabel==LargeRJetTruthLabel::tqqb || jetFlavorLabel==LargeRJetTruthLabel::other_From_t)) ||
+	   (m_label==CompFlavorLabelVar::t_other && (jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t || jetFlavorLabel==LargeRJetTruthLabel::other_From_t)) ||
+	   (m_label==CompFlavorLabelVar::V_qq && (jetFlavorLabel==LargeRJetTruthLabel::Wqq || jetFlavorLabel==LargeRJetTruthLabel::Zqq || jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t)) ||
+	   (m_label==CompFlavorLabelVar::W_qq && (jetFlavorLabel==LargeRJetTruthLabel::Wqq || jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t)) ||
+	   (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel==LargeRJetTruthLabel::Zqq) ||
+	   (m_label==CompFlavorLabelVar::q && (jetFlavorLabel==LargeRJetTruthLabel::notruth || jetFlavorLabel==LargeRJetTruthLabel::qcd || jetFlavorLabel==LargeRJetTruthLabel::other_From_V)) ) {
 	isValidLabel=true;
       }
     }

@@ -72,6 +72,7 @@ namespace CP
 
   private:
     float m_minPt {0};
+    float m_maxPt {0};
     float m_maxEta {0};
     float m_etaGapLow {0};
     float m_etaGapHigh {0};
@@ -83,6 +84,8 @@ namespace CP
 
     /// Index for the minimum pT selection
     int m_minPtCutIndex{ -1 };
+    /// Index for the maximum pT selection
+    int m_maxPtCutIndex{ -1 };
     /// Index for the maximum eta selection
     int m_maxEtaCutIndex{ -1 };
     /// Index for the eta gap selection

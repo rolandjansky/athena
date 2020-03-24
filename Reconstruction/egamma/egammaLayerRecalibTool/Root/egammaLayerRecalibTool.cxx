@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -214,6 +214,9 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
   std::string tune = resolve_alias(tuneIn);
 
   if (tune.empty()) { }
+  else if ("es2018_21.0_v0" == tune) {
+    add_scale("run2_alt_with_layer2_r21_v1");
+  }
   else if ("es2017_21.0_v0" == tune) {
     add_scale("run2_alt_with_layer2_r21_v0");
   }
@@ -234,6 +237,10 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
     add_scale(new ScaleE3(InputModifier::SUBTRACT), new GetAmountPileupE3(m_pileup_tool));
   }
   //Run 2
+  else if ("run2_alt_with_layer2_r21_v1"==tune) {
+    add_scale("layer2_alt_run2_r21_v1");
+    add_scale("ps_2016_r21_v0");
+  }
   else if ("run2_alt_with_layer2_r21_v0"==tune) {
     add_scale("layer2_alt_run2_r21_v0");
     add_scale("ps_2016_r21_v0");
@@ -594,6 +601,14 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
     assert(histo);
     add_scale(new ScaleE1(InputModifier::ZEROBASED_ALPHA),
 	      new GetAmountHisto1DErrorDown(*histo));
+  }
+  else if("layer2_alt_run2_r21_v1"==tune) {
+    const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v6/egammaLayerRecalibTunes.root");
+    TFile f(file.c_str());
+    TH1D* histo = static_cast<TH1D*>(f.Get("hE1E2_mu_run2_rel21_v1"));
+    assert(histo);
+    add_scale(new ScaleE2(InputModifier::ONEBASED),
+         new GetAmountHisto1D(*histo));
   }
   else if("layer2_alt_run2_r21_v0"==tune) {
     const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v5/egammaLayerRecalibTunes.root");

@@ -384,7 +384,7 @@ JETM15SlimmingHelper.SmartCollections = [
   "BTagging_AntiKt4EMPFlow_201810",
   "BTagging_AntiKt4EMPFlow_201903",
   "BTagging_AntiKt4EMTopo_201810",                                         
-  "BTagging_AntiKtVR30Rmax4Rmin02Track",
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
   "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 ]

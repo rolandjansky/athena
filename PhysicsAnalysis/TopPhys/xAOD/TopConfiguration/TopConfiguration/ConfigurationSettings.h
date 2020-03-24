@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef CONFIGURATIONSETTINGS_H_
@@ -113,10 +113,10 @@ namespace top {
     ///Here but not implemented, resulting in a happy compile error if you try and use them
     ConfigurationSettings operator = (const ConfigurationSettings&);
   };
-}
 
-std::ostream& operator << (std::ostream& os, const top::ConfigurationSettings& settings);
-std::ostream& operator << (std::ostream& os, const top::SelectionConfigurationData& data);
+  std::ostream& operator << (std::ostream& os, const ConfigurationSettings& settings);
+  std::ostream& operator << (std::ostream& os, const SelectionConfigurationData& data);
+}
 
 
 #endif

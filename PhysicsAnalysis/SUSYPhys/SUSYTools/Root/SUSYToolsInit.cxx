@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -50,6 +50,7 @@ using namespace ST;
 #include "tauRecTools/ITauToolBase.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
@@ -93,18 +94,6 @@ using namespace ST;
     ATH_CHECK( TOOLHANDLE.setProperty("OutputLevel", this->msg().level()) ); \
     ATH_CHECK( TOOLHANDLE.initialize() );                                \
   } else if (!isData()) ATH_CHECK(TOOLHANDLE.retrieve());
-
-#define CONFIG_TAU_TRIGEFF_TOOL(TOOLHANDLE, INDEX, TRIGGER, TAUID )         \
-  if (!TOOLHANDLE.isUserConfigured() && m_tau_trig_support.size() > INDEX && !isData()) { \
-    toolName = "TauTrigEffTool_" + std::to_string(TAUID) + "_" + TRIGGER; \
-    TOOLHANDLE.setTypeAndName("TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName); \
-    ATH_CHECK(TOOLHANDLE.setProperty("EfficiencyCorrectionTypes", std::vector<int>({TauAnalysisTools::SFTriggerHadTau}) )); \
-    ATH_CHECK(TOOLHANDLE.setProperty("TriggerName", TRIGGER));                \
-    ATH_CHECK(TOOLHANDLE.setProperty("IDLevel", TAUID ));                \
-    ATH_CHECK(TOOLHANDLE.setProperty("PileupReweightingTool", m_prwTool.getHandle() )); \
-    ATH_CHECK(TOOLHANDLE.setProperty("OutputLevel", this->msg().level())); \
-    ATH_CHECK(TOOLHANDLE.retrieve());                                        \
-  } else if (TOOLHANDLE.isUserConfigured()) ATH_CHECK( TOOLHANDLE.retrieve());
 
 StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 {
@@ -776,12 +765,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     CONFIG_EG_EFF_TOOL_KEY(m_elecEfficiencySFTool_id, toolName, "IdKey", eleId);
 
     // electron iso
-    toolName = "AsgElectronEfficiencyCorrectionTool_iso_" + m_eleId + m_eleIso_WP;
+    toolName = "AsgElectronEfficiencyCorrectionTool_iso_" + m_eleId + m_el_iso_fallback[m_eleIso_WP];
     // can't do the iso tool via the macro, it needs two properties set
     if ( !m_elecEfficiencySFTool_iso.isUserConfigured() ) {
 
-      if ( !check_isOption(m_eleIso_WP, m_el_iso_support) ) { //check if supported
-	ATH_MSG_WARNING( "Your electron Iso WP: " << m_eleIso_WP
+      if ( !check_isOption(m_el_iso_fallback[m_eleIso_WP], m_el_iso_support) ) { //check if supported
+	ATH_MSG_WARNING( "Your electron Iso WP: " << m_el_iso_fallback[m_eleIso_WP]
 			 << " is no longer supported. This will almost certainly cause a crash now.");
       }
 
@@ -789,7 +778,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_eleIso_WP) );
+      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_el_iso_fallback[m_eleIso_WP]) );
       if (!isData()) {
         ATH_CHECK (m_elecEfficiencySFTool_iso.setProperty("ForceDataType", (int) data_type) );
       }
@@ -800,12 +789,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
    
 
     // electron iso high-pt
-    toolName = "AsgElectronEfficiencyCorrectionTool_isoHigPt_" + m_eleId + m_eleIsoHighPt_WP;
+    toolName = "AsgElectronEfficiencyCorrectionTool_isoHigPt_" + m_eleId + m_el_iso_fallback[m_eleIsoHighPt_WP];
     // can't do the iso tool via the macro, it needs two properties set
     if ( !m_elecEfficiencySFTool_isoHighPt.isUserConfigured() ) {
 
-      if ( !check_isOption(m_eleIsoHighPt_WP, m_el_iso_support) ) { //check if supported
-	ATH_MSG_WARNING( "Your electron high-pt Iso WP: " << m_eleIsoHighPt_WP
+      if ( !check_isOption(m_el_iso_fallback[m_eleIsoHighPt_WP], m_el_iso_support) ) { //check if supported
+	ATH_MSG_WARNING( "Your electron high-pt Iso WP: " << m_el_iso_fallback[m_eleIsoHighPt_WP]
 			 << " is no longer supported. This will almost certainly cause a crash now.");
       }
 
@@ -813,7 +802,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", m_eleIsoHighPt_WP) );
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", m_el_iso_fallback[m_eleIsoHighPt_WP]) );
       if (!isData()) {
         ATH_CHECK (m_elecEfficiencySFTool_isoHighPt.setProperty("ForceDataType", (int) data_type) );
       }
@@ -960,39 +949,48 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
   }
 
-   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ElectronChargeFlipTaggerTool#Calculating_the_ECIDS_decision
-   std::string tmpIsoWP = m_eleIso_WP;
-   std::string tmpIDWP = m_eleId;
-   // Only Medium/TightIDs supported for now. Only Gradient and FCTight supported for now
-   if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH") {
-     ATH_MSG_WARNING("Your Electron ID WP ("+tmpIDWP+") is not supported for ECID SFs, falling back to MediumLLH for SF purposes");
-     tmpIDWP = "MediumLLH";
-   }
-   if (tmpIsoWP != "FCTight" && tmpIsoWP != "Gradient") {
-     ATH_MSG_WARNING("Your Electron Iso WP ("+tmpIsoWP+") is not supported for ECID SFs, falling back to Gradient for SF purposes");
-     tmpIsoWP = "Gradient";
-   }
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ElectronChargeFlipTaggerTool#Calculating_the_ECIDS_decision
+  std::string tmpIsoWP = m_el_iso_fallback[m_eleIso_WP];
+  std::string tmpIDWP = m_eleId;
+  // Only Medium/TightIDs supported for now. Only Gradient and FCTight supported for now
+  if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH") {
+    ATH_MSG_WARNING("Your Electron ID WP ("+tmpIDWP+") is not supported for ECID SFs, falling back to MediumLLH for SF purposes");
+    tmpIDWP = "MediumLLH";
+  }
+  if (tmpIsoWP != "FCTight" && tmpIsoWP != "Gradient") {
+    ATH_MSG_WARNING("Your Electron Iso WP ("+tmpIsoWP+") is not supported for ECID SFs, falling back to Gradient for SF purposes");
+    tmpIsoWP = "Gradient";
+  }
 
-   toolName = "AsgElectronEfficiencyCorrectionTool_chf_" + m_eleId + m_eleIso_WP + m_eleChID_WP;
-   CONFIG_EG_EFF_TOOL(m_elecEfficiencySFTool_chf, toolName, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/additional/efficiencySF.ChargeID."+tmpIDWP+"_d0z0_v13_"+tmpIsoWP+"_ECIDSloose.root");
-   m_runECIS = m_eleChID_WP.empty() ? false : true;
+  toolName = "AsgElectronEfficiencyCorrectionTool_chf_" + m_eleId + m_el_iso_fallback[m_eleIso_WP] + m_eleChID_WP;
+  CONFIG_EG_EFF_TOOL(m_elecEfficiencySFTool_chf, toolName, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/additional/efficiencySF.ChargeID."+tmpIDWP+"_d0z0_v13_"+tmpIsoWP+"_ECIDSloose.root");
+  m_runECIS = m_eleChID_WP.empty() ? false : true;
 
   // Electron charge mis-identification SFs
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LatestRecommendationsElectronIDRun2#Scale_factors_for_electrons_char
-  toolName = "ElectronChargeEfficiencyCorrectionTool_" + m_eleId + m_eleIso_WP;
+  toolName = "ElectronChargeEfficiencyCorrectionTool_" + m_eleId + m_el_iso_fallback[m_eleIso_WP];
   if ( !m_elecChargeEffCorrTool.isUserConfigured() ) {
     m_elecChargeEffCorrTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/"+toolName);
 
     // Reset this variable as more Iso WPs are supported for the below
-   std::string tmpIsoWP = m_eleIso_WP; 
-    if ( !check_isOption(tmpIsoWP, m_el_iso_support) ) { //check if supported
-	ATH_MSG_WARNING( "Your electron Iso WP: " << m_eleIso_WP
-			 << " is no longer supported. This will almost certainly cause a crash now.");
+    std::string tmpIsoWP = m_el_iso_fallback[m_eleIso_WP]; 
+    std::string tmpIDWP = m_eleId;
+    if ( m_eleChIso && !check_isOption(tmpIsoWP, m_el_iso_support) ) { //check if supported
+      	ATH_MSG_WARNING( "Your electron Iso WP: " << m_el_iso_fallback[m_eleIso_WP] << " is no longer supported. This will almost certainly cause a crash now.");
+    }
+    if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH" && !(tmpIDWP=="LooseAndBLayerLLH" && m_eleChIso==false) ) { //check if supported
+         ATH_MSG_WARNING("Your Electron ID WP ("+tmpIDWP+") is not supported for charge ID SFs, falling back to MediumLLH for SF purposes");
+         tmpIDWP = "MediumLLH";
     }
 
     std::string chfFile("ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/charge_misID/chargeEfficiencySF."+tmpIDWP+"_d0z0_v13_"+tmpIsoWP+".root");
+    if (!m_eleChIso) { 
+       chfFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/charge_misID/chargeEfficiencySF."+tmpIDWP+"_d0z0_v13.root"; 
+       ATH_MSG_WARNING( "ElectronChargeEfficiencyCorrectionTool: using charge ID SF without Iso applied!");
+    }
+    ATH_MSG_DEBUG( "ElectronChargeEfficiencyCorrectionTool correctionFileName: " << chfFile );
 
-    ATH_CHECK( m_elecChargeEffCorrTool.setProperty("CorrectionFileName",chfFile) );
+    ATH_CHECK( m_elecChargeEffCorrTool.setProperty("CorrectionFileName", chfFile) );
 
     if (!isData()) {
       ATH_CHECK ( m_elecChargeEffCorrTool.setProperty("ForceDataType", (int) data_type) );
@@ -1209,6 +1207,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_tauEffTool.setProperty("TauSelectionTool", m_tauSelTool.getHandle()) );
     }
     ATH_CHECK( m_tauEffTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_tauEffTool.setProperty("isAFII", isAtlfast()) );
     ATH_CHECK( m_tauEffTool.retrieve() );
   } else ATH_CHECK( m_tauEffTool.retrieve() );
 
@@ -1218,23 +1217,58 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise tau trigger efficiency tool(s)
 
-  int iTauID = (int) TauAnalysisTools::JETIDNONEUNCONFIGURED;
-  if (m_tauId == "VeryLoose")   iTauID = (int) TauAnalysisTools::JETIDBDTVERYLOOSE;
-  else if (m_tauId == "Loose")  iTauID = (int) TauAnalysisTools::JETIDBDTLOOSE;
-  else if (m_tauId == "Medium") iTauID = (int) TauAnalysisTools::JETIDBDTMEDIUM;
-  else if (m_tauId == "Tight")  iTauID = (int) TauAnalysisTools::JETIDBDTTIGHT;
-  else {
-    ATH_MSG_ERROR("Invalid tau ID selected: " << m_tauId); // we shouldn't get here but ok...
-    return StatusCode::FAILURE;
+  if (!isData()) {
+    int iTauID = (int) TauAnalysisTools::JETIDNONEUNCONFIGURED;
+    if (m_tauId == "VeryLoose")   iTauID = (int) TauAnalysisTools::JETIDRNNVERYLOOSE;
+    else if (m_tauId == "Loose")  iTauID = (int) TauAnalysisTools::JETIDRNNLOOSE;
+    else if (m_tauId == "Medium") iTauID = (int) TauAnalysisTools::JETIDRNNMEDIUM;
+    else if (m_tauId == "Tight")  iTauID = (int) TauAnalysisTools::JETIDRNNTIGHT;
+    else {
+      ATH_MSG_ERROR("Invalid tau ID selected: " << m_tauId);
+      return StatusCode::FAILURE;
+    }
+    
+    // map format: SF file name, corresponding single-tau leg (comma-separated in case of OR)
+    m_tau_trig_support = {
+      {"HLT_tau25_medium1_tracktwo", "HLT_tau25_medium1_tracktwo"},
+      {"HLT_tau35_medium1_tracktwo", "HLT_tau35_medium1_tracktwo"},
+      {"HLT_tau50L1TAU12_medium1_tracktwo", "HLT_tau50_medium1_tracktwo_L1TAU12"},
+      {"HLT_tau60_medium1_tracktwo", "HLT_tau60_medium1_tracktwo"},
+      {"HLT_tau80L1TAU60_medium1_tracktwo", "HLT_tau80_medium1_tracktwo_L1TAU60"},
+      {"HLT_tau125_medium1_tracktwo", "HLT_tau125_medium1_tracktwo"},
+      {"HLT_tau160_medium1_tracktwo", "HLT_tau160_medium1_tracktwo"},
+      {"HLT_tau160L1TAU100_medium1_tracktwo", "HLT_tau160_medium1_tracktwo_L1TAU100"},
+      // whole 2018 data taking period
+      {"HLT_tau25_medium1_tracktwoEF", "HLT_tau25_medium1_tracktwoEF"},
+      {"HLT_tau35L1TAU12IM_medium1_tracktwoEF", "HLT_tau35_medium1_tracktwoEF_L1TAU12IM"},
+      {"HLT_tau35_medium1_tracktwoEF", "HLT_tau35_medium1_tracktwoEF"},
+      {"HLT_tau60_medium1_tracktwoEF", "HLT_tau60_medium1_tracktwoEF"},
+      {"HLT_tau80L1TAU60_medium1_tracktwoEF", "HLT_tau80_medium1_tracktwoEF_L1TAU60"},
+      {"HLT_tau160L1TAU100_medium1_tracktwoEF", "HLT_tau160_medium1_tracktwoEF_L1TAU100"},
+      // 2018 data after TS1, run >= 355261
+      {"HLT_tau25_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau25_medium1_tracktwoEF,HLT_tau25_mediumRNN_tracktwoMVA"},
+      {"HLT_tau35L1TAU12IM_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau35_medium1_tracktwoEF_L1TAU12IM,HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM"},
+      {"HLT_tau35_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau35_medium1_tracktwoEF,HLT_tau35_mediumRNN_tracktwoMVA"},
+      {"HLT_tau60_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau60_medium1_tracktwoEF,HLT_tau60_mediumRNN_tracktwoMVA"},
+      {"HLT_tau80L1TAU60_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau80_medium1_tracktwoEF_L1TAU60,HLT_tau80_mediumRNN_tracktwoMVA_L1TAU60"},
+      {"HLT_tau160L1TAU100_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA", "HLT_tau160_medium1_tracktwoEF_L1TAU100,HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100"}
+    };
+    
+    for(auto const& trigger : m_tau_trig_support) {
+      toolName = "TauTrigEffTool_" + m_tauId + "_" + trigger.first;
+      auto tau_trigSF = m_tauTrigEffTool.emplace(m_tauTrigEffTool.end(), "TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName);
+      ATH_CHECK( tau_trigSF->setProperty("EfficiencyCorrectionTypes", std::vector<int>({TauAnalysisTools::SFTriggerHadTau})) );
+      ATH_CHECK( tau_trigSF->setProperty("TriggerName", trigger.first) );
+      ATH_CHECK( tau_trigSF->setProperty("IDLevel", iTauID) );
+      ATH_CHECK( tau_trigSF->setProperty("PileupReweightingTool", m_prwTool.getHandle()) );
+      ATH_CHECK( tau_trigSF->setProperty("OutputLevel", this->msg().level()) );
+      ATH_CHECK( tau_trigSF->setProperty("isAFII", isAtlfast()) );
+      ATH_CHECK( tau_trigSF->initialize() );
+    }
   }
 
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool0, 0, m_tau_trig_support[0], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool1, 1, m_tau_trig_support[1], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool2, 2, m_tau_trig_support[2], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool3, 3, m_tau_trig_support[3], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool4, 4, m_tau_trig_support[4], iTauID);
 
-  ///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise tau smearing tool
 
   if (!m_tauSmearingTool.isUserConfigured()) {
@@ -1281,8 +1315,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     return StatusCode::FAILURE;
   }
   if (m_BtagTimeStamp.empty() && (m_bTaggingCalibrationFilePath.find("13TeV/2019")!=std::string::npos || m_bTaggingCalibrationFilePath.find("13TeV/2020")!=std::string::npos)) {
-    ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with with newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
-    return StatusCode::FAILURE;
+     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with with newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
+     return StatusCode::FAILURE;
   }
 
   //// Warnings for invalid timestamps, or timestamped containers with old CDI file & vice versa
@@ -1318,7 +1352,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagSelTool.setProperty("TaggerName",     m_BtagTagger ) );
     ATH_CHECK( m_btagSelTool.setProperty("OperatingPoint", m_BtagWP  ) );
     ATH_CHECK( m_btagSelTool.setProperty("JetAuthor",      jetcollBTag   ) );
-    ATH_CHECK( m_btagSelTool.setProperty("MinPt",         25.0e3   ) );
+    ATH_CHECK( m_btagSelTool.setProperty("MinPt",          m_BtagMinPt   ) );
     ATH_CHECK( m_btagSelTool.setProperty("FlvTagCutDefinitionsFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagSelTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_btagSelTool.retrieve() );
@@ -1336,7 +1370,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagSelTool_OR.setProperty("TaggerName",     m_BtagTagger  ) );
     ATH_CHECK( m_btagSelTool_OR.setProperty("OperatingPoint", m_orBtagWP  ) );
     ATH_CHECK( m_btagSelTool_OR.setProperty("JetAuthor",      jetcollBTag   ) );
-    ATH_CHECK( m_btagSelTool_OR.setProperty("MinPt",      25.0e3   ) );
+    ATH_CHECK( m_btagSelTool_OR.setProperty("MinPt",          m_BtagMinPt   ) );
     ATH_CHECK( m_btagSelTool_OR.setProperty("FlvTagCutDefinitionsFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagSelTool_OR.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_btagSelTool_OR.retrieve() );
@@ -1348,7 +1382,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_BtagTimeStamp_trkJet.empty()) BTagColl_TrkJet += "_BTagging"+m_BtagTimeStamp_trkJet;
   
   if (!m_btagSelTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
-    if (trkjetcoll != "AntiKt2PV0TrackJets" && trkjetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
+    if (trkjetcoll.find("AntiKt2PV0TrackJets")==std::string::npos && trkjetcoll.find("AntiKtVR30Rmax4Rmin02TrackJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt2PV0TrackJets and AntiKtVR30Rmax4Rmin02TrackJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
     }
@@ -1360,6 +1394,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("OperatingPoint", m_BtagWP_trkJet  ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("MinPt",          m_BtagMinPt_trkJet  ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("JetAuthor",      BTagColl_TrkJet   ) );
+    ATH_CHECK( m_btagSelTool_trkJet.setProperty("MinPt",          m_BtagMinPt_trkJet ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("FlvTagCutDefinitionsFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_btagSelTool_trkJet.retrieve() );
@@ -1392,6 +1427,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagEffTool.setProperty("ScaleFactorFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagEffTool.setProperty("OperatingPoint", m_BtagWP ) );
     ATH_CHECK( m_btagEffTool.setProperty("JetAuthor",      jetcollBTag ) );
+    ATH_CHECK( m_btagEffTool.setProperty("MinPt",          m_BtagMinPt ) );
     ATH_CHECK( m_btagEffTool.setProperty("SystematicsStrategy", m_BtagSystStrategy ) );
     ATH_CHECK( m_btagEffTool.setProperty("EfficiencyBCalibrations",     MCshowerID   ));
     ATH_CHECK( m_btagEffTool.setProperty("EfficiencyCCalibrations",     MCshowerID   ));
@@ -1403,7 +1439,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
 
   if (!m_btagEffTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
-    if (trkjetcoll != "AntiKt2PV0TrackJets" && trkjetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
+    if (trkjetcoll.find("AntiKt2PV0TrackJets")==std::string::npos && trkjetcoll.find("AntiKtVR30Rmax4Rmin02TrackJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt2PV0TrackJets and AntiKtVR30Rmax4Rmin02TrackJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
     }
@@ -1414,6 +1450,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("ScaleFactorFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("OperatingPoint", m_BtagWP_trkJet ) );
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("JetAuthor",      BTagColl_TrkJet ) );
+    ATH_CHECK( m_btagEffTool_trkJet.setProperty("MinPt",          m_BtagMinPt_trkJet ) );
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("SystematicsStrategy", m_BtagSystStrategy ) );
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("EfficiencyBCalibrations",     MCshowerID   ));
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("EfficiencyCCalibrations",     MCshowerID   ));
@@ -1531,10 +1568,17 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
 
   if (!m_trigMatchingTool.isUserConfigured()) {
-    m_trigMatchingTool.setTypeAndName("Trig::MatchingTool/TrigMatchingTool");
-    ATH_CHECK( m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
-    ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
-    ATH_CHECK( m_trigMatchingTool.retrieve() );
+    if (!m_upstreamTriggerMatching){
+      m_trigMatchingTool.setTypeAndName("Trig::MatchingTool/TrigMatchingTool");
+      ATH_CHECK( m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
+      ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
+      ATH_CHECK( m_trigMatchingTool.retrieve() );
+    } else {
+      m_trigMatchingTool.setTypeAndName("Trig::MatchFromCompositeTool/TrigMatchFromCompositeTool");
+      ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
+      ATH_CHECK( m_trigMatchingTool.setProperty("InputPrefix", m_trigMatchingPrefix) );
+      ATH_CHECK( m_trigMatchingTool.retrieve() );
+    }
   } else  ATH_CHECK( m_trigMatchingTool.retrieve() );
   
 
@@ -1649,6 +1693,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoTool.retrieve() );
   } else  ATH_CHECK( m_isoTool.retrieve() );
  
+  if (!m_isoToolLowPtPLV.isUserConfigured()) {
+    m_isoToolLowPtPLV.setTypeAndName("CP::IsolationLowPtPLVTool/IsoToolLowPtPLV");
+    ATH_CHECK( m_isoToolLowPtPLV.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_isoToolLowPtPLV.retrieve() );
+  } else  ATH_CHECK( m_isoToolLowPtPLV.retrieve() );
+ 
 
   if (!m_isoBaselineTool.isUserConfigured()) {
     m_isoBaselineTool.setTypeAndName("CP::IsolationSelectionTool/IsoBaselineTool");
@@ -1718,7 +1768,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     orFlags.outputPassValue = true;
     orFlags.linkOverlapObjects = m_orLinkOverlapObjects;
     if (m_jetInputType == xAOD::JetInput::EMPFlow) orFlags.doMuPFJetOR = true;
-    orFlags.doEleEleOR = false;
+    if (m_orDoElEl) {
+      orFlags.doEleEleOR = true;
+    } else orFlags.doEleEleOR = false;
     orFlags.doElectrons = true;
     orFlags.doMuons = true;
     orFlags.doJets = true;
@@ -1777,7 +1829,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     // propagate the calo muon setting for EleMuORT
     ATH_CHECK(m_orToolbox.eleMuORT.setProperty("RemoveCaloMuons", m_orRemoveCaloMuons) );
-
+    
+    // Use electron-muon DR matching to remove electrons within DR <  0.01 of Muons.
+    if (m_orDoElMu){
+      ATH_CHECK(m_orToolbox.eleMuORT.setProperty("UseDRMatching", m_orDoElMu) );
+    }
+    
     // propagate the fatjets OR settings
     if(m_orDoFatjets){
       if(m_EleFatJetDR>0) ATH_CHECK(m_orToolbox.eleFatJetORT.setProperty("DR", m_EleFatJetDR));
