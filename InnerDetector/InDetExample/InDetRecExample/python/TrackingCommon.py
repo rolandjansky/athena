@@ -762,7 +762,7 @@ def getInDetPixelConditionsSummaryTool() :
     from AthenaCommon.GlobalFlags import globalflags
     from InDetRecExample.InDetJobProperties import InDetFlags
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", 
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
                                                                  UseByteStream=(globalflags.DataSource=='data'))
     if InDetFlags.usePixelDCS():
         pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
@@ -930,7 +930,7 @@ def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
     if not DetFlags.haveRIO.TRT_on() or InDetFlags.doSLHC() or InDetFlags.doHighPileup() \
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
-    
+
     from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, TRT_dEdx_isData = (globalflags.DataSource == 'data'))
 
@@ -957,7 +957,7 @@ def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
 
     if 'TRT_ToT_dEdx_Tool' not in kwargs :
         kwargs = setDefaults( kwargs, TRT_ToT_dEdx_Tool = getInDetTRT_dEdxTool())
-        
+
     from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, isData = (globalflags.DataSource == 'data'))
 
@@ -1128,7 +1128,6 @@ def getInDetTRTDriftCircleCutForPatternReco(name='InDetTRTDriftCircleCutForPatte
 @makePublicTool
 def getInDetTRT_RoadMaker(name='InDetTRT_RoadMaker',**kwargs) :
     the_name = makeName( name, kwargs)
-    from InDetRecExample.InDetKeys import InDetKeys
     kwargs=setDefaults(kwargs,
                        RoadWidth             = 20.,
                        PropagatorTool        = getInDetPatternPropagator())
@@ -1338,4 +1337,4 @@ def getInDetCosmicScoringTool_TRT(NewTrackingCuts, name='InDetCosmicExtenScoring
                                           'InDetCosmicScoringTool_TRT',
                                           **setDefaults(kwargs,
                                                         minTRTHits  = NewTrackingCuts.minSecondaryTRTonTrk(),
-                                                        SummaryTool = TrackingCommon.getInDetTrackSummaryToolNoHoleSearch()))
+                                                        SummaryTool = getInDetTrackSummaryToolNoHoleSearch()))
