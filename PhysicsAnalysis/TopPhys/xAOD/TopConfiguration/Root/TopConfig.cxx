@@ -214,6 +214,10 @@ namespace top {
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
+    m_do2StationsHighPt(false),
+    m_doExtraSmearing(false),
+    m_do2StationsHighPtLoose(false),
+    m_doExtraSmearingLoose(false),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1103,6 +1107,10 @@ namespace top {
       this->muonIsolationLoose(cut_wp);
       this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
+    this->muondo2StationsHighPt( settings->value("MuonQuality") == "HighPt" && settings->value("do2StationsHighPt") == "True" ? true : false );
+    this->muondo2StationsHighPtLoose( settings->value("MuonQualityLoose") == "HighPt" && settings->value("do2StationsHighPtLoose") == "True" ? true : false );
+    this->muondoExtraSmearing( settings->value("doExtraSmearing") == "True" ? true : false );
+    this->muondoExtraSmearingLoose( settings->value("doExtraSmearingLoose") == "True" ? true : false );
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 
