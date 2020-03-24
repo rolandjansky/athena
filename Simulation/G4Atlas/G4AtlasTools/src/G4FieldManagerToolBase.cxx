@@ -37,9 +37,6 @@ using CLHEP::perMillion;
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4MagIntegratorStepper.hh"
 #include "G4VIntegrationDriver.hh"
-#if G4VERSION_NUMBER >= 1060
-#include "G4InterpolationDriver.hh"
-#endif
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : G4FieldManagerToolBase
@@ -197,24 +194,7 @@ G4FieldManagerToolBase::createDriverAndStepper(std::string name, G4MagneticField
     G4TsitourasRK45* stepper = new G4TsitourasRK45(eqRhs);
     driver = new G4IntegrationDriver<G4TsitourasRK45>(
         m_minStep, stepper, stepper->GetNumberOfVariables());
-  }
-#if G4VERSION_NUMBER >= 1060
-// G4InterpolationDriver only works form Geant4 >= 10.6
-  else if (name=="DormandPrince745Int") {
-    G4DormandPrince745* stepper = new G4DormandPrince745(eqRhs);
-    driver = new G4InterpolationDriver<G4DormandPrince745>(
-        m_minStep, stepper, stepper->GetNumberOfVariables());
-  } else if (name=="DormandPrinceRK56Int") {
-    G4DormandPrinceRK56* stepper = new G4DormandPrinceRK56(eqRhs);
-    driver = new G4InterpolationDriver<G4DormandPrinceRK56>(
-        m_minStep, stepper, stepper->GetNumberOfVariables());
-  } else if (name=="DormandPrinceRK78Int") {
-    G4DormandPrinceRK78* stepper = new G4DormandPrinceRK78(eqRhs);
-    driver = new G4InterpolationDriver<G4DormandPrinceRK78>(
-        m_minStep, stepper, stepper->GetNumberOfVariables());
-  }
-#endif
-  else {
+  } else {
     ATH_MSG_ERROR("Stepper " << name << " not available! returning NystromRK4!");
     G4NystromRK4* stepper = new G4NystromRK4(eqRhs);
     driver = new G4IntegrationDriver<G4NystromRK4>(
