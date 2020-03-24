@@ -116,8 +116,8 @@ TrigSignatureMoniMT                                 INFO HLT_g20_etcut_LArPEB_L1
 TrigSignatureMoniMT                                 INFO -- #2706532790 Events         20         20         4          4          3          3          -          3          
 TrigSignatureMoniMT                                 INFO -- #2706532790 Features                             5          5          4          4          -          
 TrigSignatureMoniMT                                 INFO HLT_g35_medium_g25_medium_L12EM20VH #1158879722
-TrigSignatureMoniMT                                 INFO -- #1158879722 Events         20         20         -          -          -          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #1158879722 Features                             -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO -- #1158879722 Events         20         20         0          0          0          0          -          0          
+TrigSignatureMoniMT                                 INFO -- #1158879722 Features                             0          0          0          0          -          
 TrigSignatureMoniMT                                 INFO HLT_g5_etcut_L1EM3 #471243435
 TrigSignatureMoniMT                                 INFO -- #471243435 Events          20         20         13         13         13         -          -          13         
 TrigSignatureMoniMT                                 INFO -- #471243435 Features                              41         41         50         -          -          
@@ -218,11 +218,11 @@ TrigSignatureMoniMT                                 INFO HLT_j460_a10t_lcw_jes_L
 TrigSignatureMoniMT                                 INFO -- #436385969 Events          20         20         0          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #436385969 Features                              0          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20 #3634067472
-TrigSignatureMoniMT                                 INFO -- #3634067472 Events         20         20         -          -          -          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #3634067472 Features                             -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO -- #3634067472 Events         20         20         0          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #3634067472 Features                             0          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j80_j60_L1J15 #582699527
-TrigSignatureMoniMT                                 INFO -- #582699527 Events          20         20         -          -          -          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #582699527 Features                              -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO -- #582699527 Events          20         20         0          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #582699527 Features                              0          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j85_L1J20 #510475538
 TrigSignatureMoniMT                                 INFO -- #510475538 Events          20         20         3          -          -          -          -          3          
 TrigSignatureMoniMT                                 INFO -- #510475538 Features                              3          -          -          -          -          
