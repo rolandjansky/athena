@@ -620,8 +620,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
       //
       // Hit Information And Preparation
       //
-      
-      
       TimedHitPtr<MMSimHit> phit = *i++;
       m_eventTime = phit.eventTime();
       const MMSimHit& hit(*phit);
@@ -740,9 +738,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
       ////////////////////////////////////////////////////////////////////
       //
       // Sanity Checks
-      //
-      
-      
+      //      
       if( !m_idHelper->is_mm(layerID) ){
 	ATH_MSG_WARNING("layerID does not represent a valid MM layer: "
 			<< m_idHelper->stationNameString(m_idHelper->stationName(layerID)) );
@@ -878,9 +874,15 @@ StatusCode MM_DigitizationTool::doDigitization() {
 										-hit.globalDirection().z()
 										);
       
-      
-      
-      double scale = -stripLayerPosition.z()/localDirection.z();
+      /// move the initial track point to the readout plane
+      int gasGap = m_idHelper->gasGap(layerID);
+      double shift = 0.5*detectorReadoutElement->getDesign(layerID)->thickness;
+      double scale = 0.0;
+      if ( gasGap==1 || gasGap == 3) {
+	scale = -(stripLayerPosition.z() + shift)/localDirection.z();
+      } else if ( gasGap==2 || gasGap == 4) {
+	scale = -(stripLayerPosition.z() - shift)/localDirection.z();
+      }
       
       Amg::Vector3D hitOnSurface = stripLayerPosition + scale*localDirection;
       Amg::Vector2D positionOnSurface (hitOnSurface.x(), hitOnSurface.y());
