@@ -644,32 +644,34 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 		return CP::CorrectionCode::Ok;
 	}
 	if(calo_mass_weight<0 || calo_mass_weight>1){
-                ATH_MSG_VERBOSE("Combined mass jet missconstructed. Calo mass weight outside 0-1 range");
+                ATH_MSG_VERBOSE("Combined mass jet missconstructed. Calo mass weight outside 0-1 range");//It is needed for some bugs in jetcalibtools (when eta almost2) )
                 return CP::CorrectionCode::Ok;
 
 	}
 
+	float JetTrackAssistedMassCalibrated_from_JetCalibTools;
+	jet_reco->getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
+	ATH_MSG_VERBOSE("Jet Track Assisted Mass Calibrated " <<  JetTrackAssistedMassCalibrated_from_JetCalibTools);
 
-	if(jet_reco_CALO.mass() < 1){ //Sometimes JetCalibTools set a mass of 0 or close to 0 (<1GeV) to some Calo or TA jets. 
-					//Then the weight of this tool do not match with the one in JetUncertainties so we have to check that we are not in that case
-					//bacause, later, we will rejoin the jets using new weights calculated with JetUncertainties (or with the original weghts of 
-					//JetCalib tools)
+	if( JetTrackAssistedMassCalibrated_from_JetCalibTools == 0){ //Sometimes JetCalibTools set a TA mass of 0 or close to 0 to some Calo or TA jets. 
+					//The mass should be equal to 0 (it is a problem of JetCalibTools). In order to solve it, we extract again the TA mass
+					//geting the attribute "JetTrackAssistedMassCalibrated" instead of the four momenta mass (jet_reco_TA.mass())
+					//the attribute "JetTrackAssistedMassCalibrated" do not suffer of the non clousure and it is 0 when it has to be 0
 
+					//Later, when we rejoin the jets, we will use the JetUncertainty weights if the TA mass is not 0. If it is 0, we will use
+					// the weight 1 for the Calo mass (to avoid the non-clousure problem of JetCalibTools)
+       		 calo_mass_weight = 1;
 		 use_jetcalibtoolsweight = true;		
 	} 
 
-	else if(jet_reco_TA.mass() < 1){
-
-		use_jetcalibtoolsweight = true;
-	}
 
 	else{
 		use_jetcalibtoolsweight = false;
 	}
 
 
-        calo_mass_weight = (jet_reco_Comb.mass() - jet_reco_TA.mass())/(jet_reco_CALO.mass()-jet_reco_TA.mass());
-        ATH_MSG_VERBOSE("Calo mass weight from JeetCalibrationTools = " << calo_mass_weight );
+//        calo_mass_weight = (jet_reco_Comb.mass() - jet_reco_TA.mass())/(jet_reco_CALO.mass()-jet_reco_TA.mass());
+//        ATH_MSG_VERBOSE("Calo mass weight from JeetCalibrationTools = " << calo_mass_weight );
 
 
     }
