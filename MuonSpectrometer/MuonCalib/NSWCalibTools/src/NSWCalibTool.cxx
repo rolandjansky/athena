@@ -9,7 +9,6 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
 				  const std::string& n, 
 				  const IInterface* p ) :
   AthAlgTool(t,n,p),
-  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
   declareInterface<INSWCalibTool>(this);
@@ -26,10 +25,9 @@ StatusCode Muon::NSWCalibTool::initialize()
 
   ATH_MSG_DEBUG("In initialize()");
   ATH_CHECK(m_magFieldSvc.retrieve());
-  // initialize the MuonIdHelperTool and check the configuration
-  ATH_CHECK(m_idHelperTool.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
-  if ( !(m_idHelperTool->hasMM() && m_idHelperTool->hasSTgc() ) ) {
+  if ( !(m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) ) {
     ATH_MSG_ERROR("MuonIdHelperTool not properly configured, missing MM or STGC");
     return StatusCode::FAILURE;
   }
