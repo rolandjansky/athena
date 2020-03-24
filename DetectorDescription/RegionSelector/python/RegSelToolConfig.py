@@ -10,6 +10,7 @@
 #   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration#                 
 #
 
+from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 
 def _makeRegSelTool( detector, enable, CondAlgConstructor, doCalo=False ) :
                 
