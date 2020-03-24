@@ -8,17 +8,21 @@
 # Please let me know if you have any questions or problems.
 
 import os,re,glob,shutil,sys,fileinput
+from AthenaCommon import Logging
+drlog = Logging.logging.getLogger('DiagramRemoval')
 
 #General functions
 def find_matrix_files(process_dir):
     return glob.glob(process_dir+"/P*_*/matrix_*.f")
 
-def make_support_file(infile,outfile,test_string):
-    with open(outfile,"w") as myfile:
-        with open(infile,'r') as f:
-            for line in f:
-                if test_string in line:
-                    myfile.write(line)
+
+def get_process(infile,test_string='Process:'):
+    output = []
+    with open(infile,'r') as f:
+        for line in f:
+            if test_string in line:
+                output += [line]
+    return output
 
 
 def return_out_index(process): #which index does the final state particle have
@@ -70,7 +74,6 @@ def find_W_prepare_DRXhack(mfile,bindex,windex,redefine_twidth,which_DR):
 
             if "W(1,"+str(bindex)+")" in mylines[i] and "W(1,"+str(windex)+")" in mylines[i] and "MDL_WT" in mylines[i]:
                 the_W = line.split(",")[-2]+","+line.split(",")[-1][0:-2]
-                #print("Adding new W: ", the_W)
                 W_vector.append(the_W)
                 updated_vector=W_vector
 
@@ -78,10 +81,10 @@ def find_W_prepare_DRXhack(mfile,bindex,windex,redefine_twidth,which_DR):
                     edited_line = line.replace("MDL_WT","MDL_WT_nonzero")
                     to_replace[i]=edited_line
     return to_replace
-#-------------------------------------
 
+#-------------------------------------
 def do_DR1_hacks(mfile,tmpfile):
-    print("performing DR1 for file ", mfile)
+    drlog.info("performing DR1 for file ", mfile)
     with open(tmpfile,"r") as mytmp, fileinput.input(mfile, inplace=True) as myfile:
         # fileinput redirects the print output to mfile
         for line in myfile:
@@ -143,7 +146,7 @@ def do_coupl_hacks(pdir): #define the width of the top quark for the event gener
     test_string1 = "MDL_WT"
     test_string2 = "WIDTHS"
 
-    with open(pdir+"../Cards/param_card.dat","r") as pcard: ###XXX in Cards
+    with open(pdir+"../Cards/param_card.dat","r") as pcard:
         the_lines = pcard.readlines()
         for line in the_lines:
             if "DECAY" in line and " 6 " in line:
@@ -182,7 +185,7 @@ def find_jamp(mfile,helperfile,test_string,end_string):
 
     with open(helperfile,"w") as destination:
         destination.write(my_jamp)
-        print "my_jamp = ", my_jamp
+        drlog.info("my_jamp = "+str(my_jamp))
 
 
 def do_DR2_hack(mfile, tmpfile, suffix,to_replace,should_replace): #to_replace and should_replace refer to whether to put top propagator on shell - do so for madgraph code but not for madspin
@@ -199,7 +202,7 @@ def do_DR2_hack(mfile, tmpfile, suffix,to_replace,should_replace): #to_replace a
                 destination.write("      REAL*8 MATRIX"+suffix+"_res\n")
                 destination.write("      COMPLEX*16 JAMP_res(NCOLOR)\n")
             elif "JAMP(1)=" in line:
-                print("performing DR2 for file ", mfile)
+                drlog.info("performing DR2 for file ", mfile)
                 jamplines = saved_jamp1.readlines()
                 my_jamp1 = ""
                 for j,jline in enumerate(jamplines):
@@ -255,7 +258,7 @@ def write_jamp_res(my_jamp_line,tmp_c):
 #####################################################
 
 def do_DRX(DRmode, process_dir):
-    print "in do_DRX, DRmode=",DRmode,", process_dir = ", process_dir  #OB
+    drlog.info("in do_DRX, DRmode="+str(DRmode)+", process_dir = "+process_dir)
     pdir=process_dir+'/SubProcesses/'
 
     if DRmode==2:
@@ -266,10 +269,9 @@ def do_DRX(DRmode, process_dir):
 
     for mfile in mfiles:
         matrix_idx =  re.compile("matrix_(\d+).f").search(mfile).group(1)
-        make_support_file(mfile, "the_process.txt", "Process:")
+        process = get_process(mfile)
 
-        with open("the_process.txt","r") as f:
-            myline = f.readline()
+        for myline in process:
             m2 = myline.split("Process: ")[1]
             the_process = m2.split(" WEIGHTED")[0]
 
@@ -295,7 +297,6 @@ def do_DRX(DRmode, process_dir):
 ############################################
 #   Perform Diagram Removal for MadSpin    #
 ############################################
-
 def do_MadSpin_DRX(DRmode, msdirname):
 
     my_ms_dir=msdirname
@@ -303,14 +304,12 @@ def do_MadSpin_DRX(DRmode, msdirname):
     fdir=my_ms_dir+'/full_me/SubProcesses/'
     allfiles=os.listdir(pdir)
     full_files=os.listdir(fdir)
-    #P_folders= glob.glob(pdir+"P*_*")
     mfiles = find_matrix_files(pdir)
 
     for mfile in mfiles:
-        make_support_file(mfile, "the_process.txt", "Process:")
+        process = get_process(mfile)
 
-        with open("the_process.txt","r") as f:
-            myline = f.readline()
+        for myline in process:
             m2 = myline.split("Process: ")[1]
             the_process = m2.split("WEIGHTED")[0]
 
@@ -348,5 +347,5 @@ def do_MadSpin_DRX(DRmode, msdirname):
                         do_driver_hacks(fdir+f_file+"/driver.f")
 
     os.remove("the_process.txt")
-    print "finished do_MadSpin_DRX"
+    drlog.info("finished do_MadSpin_DRX")
     sys.stdout.flush()
