@@ -893,7 +893,15 @@ StatusCode MM_DigitizationTool::doDigitization() {
       Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/localDirectionTime.z())*localDirectionTime;
       
       if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("Bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
-      
+ 
+      //  moving the hit position to the center of the gap for the SDO position 
+      double scaleSDO = -stripLayerPosition.z()/localDirection.z();
+      Amg::Vector3D hitAtCenterOfGasGap =  stripLayerPosition + scaleSDO*localDirection;
+      Amg::Vector3D hitAtCenterOfGasGapGlobal = surf.transform() * hitAtCenterOfGasGap; 
+      ATH_MSG_DEBUG("strip layer position z"<< stripLayerPosition.z() <<"hitAtCenterOfGasGap x" 
+		    << hitAtCenterOfGasGap.x() << " y " <<  hitAtCenterOfGasGap.y() 
+		    << " z " << hitAtCenterOfGasGap.z() << " gas gap "<< gasGap); 
+
       // Don't consider electron hits below m_energyThreshold
       if( hit.kineticEnergy() < m_energyThreshold && abs(hit.particleEncoding())==11) {
 	m_exitcode = 5;
@@ -1025,7 +1033,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
       std::vector<MuonSimData::Deposit> deposits;
       deposits.push_back(deposit);
       MuonSimData simData(deposits,0);
-      simData.setPosition(hitOnSurfaceGlobal);
+      simData.setPosition(hitAtCenterOfGasGapGlobal);
       simData.setTime(m_globalHitTime);
       m_sdoContainer->insert ( std::make_pair ( digitID, simData ) );
       ATH_MSG_DEBUG(" added MM SDO " <<  m_sdoContainer->size());
