@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -1407,7 +1407,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTRTStandalone                   , False)
        self.checkThenSet(self.doForwardTracks                   , False)
        self.checkThenSet(self.doVertexFinding                   , True )
-       self.checkThenSet(self.primaryVertexSetup                , "AdaptiveMultiFinding")
+       self.checkThenSet(self.primaryVertexSetup                , "GaussAdaptiveMultiFinding")
        self.checkThenSet(self.primaryVertexCutSetup             , "SLHC")
        self.checkThenSet(self.secondaryVertexCutSetup           , "PileUp") 
        self.checkThenSet(self.vertexSeedFinder                  , "SlidingWindowMultiSeedFinder")
