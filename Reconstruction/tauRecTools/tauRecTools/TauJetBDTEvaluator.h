@@ -45,8 +45,6 @@ class TauJetBDTEvaluator
   Gaudi::Property<int> m_maxNTracks{this, "maxNTracks", 999};
   Gaudi::Property<float> m_minAbsTrackEta{this, "minAbsTrackEta", -1};
   Gaudi::Property<float> m_maxAbsTrackEta{this, "maxAbsTrackEta", -1};
-  Gaudi::Property<float> m_dummyValue{this, "defaultValue", -1111, "if no weightsFile, then set all taus to this value nTrack/eta ignored"}; // in case no configs are set, set a dummy value.
-
-  Gaudi::Property<bool> m_isGrad{this, "GradiantBoost", true, "Gradiant if true, else AdaBoost Classification"};
+  Gaudi::Property<float> m_dummyValue{this, "defaultValue", -1111, "if no weightsFile, then set all taus to this value nTrack/eta ignored"};
 };
 #endif
