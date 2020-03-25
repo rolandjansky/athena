@@ -37,7 +37,7 @@ private:
     std::string value;
     int section;
     //add a atomic_flag to replace the m_logger
-    mutable std::atomic_flag flag ATLAS_THREAD_SAFE=ATOMIC_FLAG_INIT ;
+    mutable std::atomic_bool flag = ATOMIC_VAR_INIT(false);
   };
 
 

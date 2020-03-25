@@ -200,9 +200,10 @@ bool
 TextFileDBReader::find(const std::string & key, std::string & result) const
 {
   std::unordered_map<std::string,Data>::const_iterator iter = m_table.find(key);
-  if (iter != m_table.end() || (iter->second).flag.test_and_set()) {
+  if (iter != m_table.end()) {
     result = iter->second.value;
-    return true;
+    (iter->second).flag=true;
+      return true;
   } else {
     result = "";
     return false;
@@ -247,7 +248,7 @@ TextFileDBReader::printNotUsed(const std::string & section) const
   for (std::unordered_map<std::string,Data>::const_iterator iter = m_table.begin();
        iter != m_table.end();
        ++iter) {
-    if ((section.empty() || iter->second.section == sectionNum) && (!(iter->second.flag.test_and_set()))) {
+    if ((section.empty() || iter->second.section == sectionNum) && (!(iter->second.flag))) {
       std::cout << std::setw(35) << iter->first << " " << iter->second.value << std::endl;
       allused = false;
     }
