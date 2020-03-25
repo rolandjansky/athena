@@ -332,7 +332,7 @@ class EmptyMenuSequence(object):
     """ By construction it has no Hypo;"""
     
     def __init__(self, name):
-        Maker = CompFactory.HLTTest__TestInputMaker("IM"+name, RoIsLink="initialRoI", LinkName="initialRoI")
+        Maker = CompFactory.HLTTest__TestInputMaker("IM"+name, RoIsLink="initialRoI", LinkName="initialRoI", Output = 'empty' + name)
         self._name = name
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
