@@ -16,17 +16,17 @@ DetFlags.detdescr.Muon_setOn()
 # Select geometry version
 if not 'DetDescrVersion' in dir():
     DetDescrVersion = "ATLAS-GEO-20-00-01"
-    print "MuonGeoModelTest/MuonHitRelocation Setting now DetDescrVersion to ", DetDescrVersion
+    printfunc ("MuonGeoModelTest/MuonHitRelocation Setting now DetDescrVersion to ", DetDescrVersion)
 else:
-    print "MuonGeoModelTest/MuonHitRelocation DetDescrVersion already set to ", DetDescrVersion
+    printfunc ("MuonGeoModelTest/MuonHitRelocation DetDescrVersion already set to ", DetDescrVersion)
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = DetDescrVersion
 
 if not 'ConditionsTag' in dir():
     ConditionsTag = "OFLCOND-MC12b-SIM-00"
-    print "MuonGeoModelTest/MuonHitRelocation Setting now ConditionsTag to ", ConditionsTag
+    printfunc ("MuonGeoModelTest/MuonHitRelocation Setting now ConditionsTag to ", ConditionsTag)
 else:
-    print "MuonGeoModelTest/MuonHitRelocation ConditionsTag already set to ", ConditionsTag
+    printfunc ("MuonGeoModelTest/MuonHitRelocation ConditionsTag already set to ", ConditionsTag)
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.ConditionsTag = ConditionsTag
 
@@ -36,9 +36,9 @@ from AtlasGeoModel import GeoModelInit
 
 if not 'inputHits' in dir():
     inputHits="geantinoHits.pool.root"
-    print "inputHits not known yet - setting to ", inputHits 
+    printfunc ("inputHits not known yet - setting to ", inputHits )
 else:
-    print "inputHits already known and equal to ", inputHits 
+    printfunc ("inputHits already known and equal to ", inputHits )
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = [ inputHits ]
@@ -53,7 +53,7 @@ MessageSvc.defaultLimit = 9999999
 theApp.HistogramPersistency = "ROOT"
 ServiceMgr.NTupleSvc.Output = [ "FILE DATAFILE='RelocatedMuonHits.root' OPT='NEW'" ]
 
-print "Reading alignment constants from DB"
+printfunc ("Reading alignment constants from DB")
 from IOVDbSvc.CondDB import conddb
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')
@@ -78,7 +78,7 @@ GeoModelSvc = GeoModelSvc()
 GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.07.00"
 GeoModelSvc.IgnoreTagDifference =True
 
-print GeoModelSvc
+printfunc (GeoModelSvc)
 
 #***************************************************** HERE setup MuonDetectorManager
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
@@ -88,14 +88,14 @@ MuonDetectorTool.SelectedStations = [ "EIL", "B" ]
 MuonDetectorTool.OutputLevel=VERBOSE
 MuonDetectorTool.UseConditionDb = 0
 
-print MuonDetectorTool
+printfunc (MuonDetectorTool)
 
 #***************************************************** HERE setup MuonGMCheck
 from MuonGeoModelTest.MuonGeoModelTestConf import MuonHitRelocation
 MuonHitRelocation = MuonHitRelocation()
 MuonHitRelocation.OutputLevel = INFO
 
-print MuonHitRelocation
+printfunc (MuonHitRelocation)
 
 ######################################################
 ############### HERE DEFINE THE SEQUENCE #############
@@ -105,19 +105,19 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += MuonHitRelocation
 
-print " "
-print "List of all Dlls"
-print theApp.Dlls
-print " "
-print "List of all Ext services"
-print theApp.ExtSvc
-print " "
-print "List of all top algorithms"
-print theApp.TopAlg
+printfunc (" ")
+printfunc ("List of all Dlls")
+printfunc (theApp.Dlls)
+printfunc (" ")
+printfunc ("List of all Ext services")
+printfunc (theApp.ExtSvc)
+printfunc (" ")
+printfunc ("List of all top algorithms")
+printfunc (theApp.TopAlg)
 
-#print "Print here Top Sequence" 
-#print topSequence
-#print "Print here Service Manager" 
-#print ServiceMgr
+#printfunc ("Print here Top Sequence" )
+#printfunc (topSequence)
+#printfunc ("Print here Service Manager" )
+#printfunc (ServiceMgr)
 
 
