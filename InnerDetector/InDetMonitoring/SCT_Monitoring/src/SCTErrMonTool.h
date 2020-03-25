@@ -16,7 +16,7 @@
 #define SCTERRMONTOOL_H
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
