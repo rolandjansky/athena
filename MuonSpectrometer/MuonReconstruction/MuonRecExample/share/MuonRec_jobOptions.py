@@ -16,7 +16,6 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonRecExample.ConfiguredMuonRec import GetConfiguredMuonRec
 from MuonRecExample.MuonRecUtils import logMuon, logMuonResil
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
-from MuonRecExample.MuonRecTools import MuonIdHelperTool
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AppMgr import ServiceMgr
