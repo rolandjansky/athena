@@ -103,11 +103,12 @@ def RPC_OverlayDigitizationToolCfg(flags, name="Rpc_OverlayDigitizationTool", **
 def RPC_OutputCfg(flags):
     """Return ComponentAccumulator with Output for RPC. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["RpcPadContainer#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["MuonSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["RpcPadContainer#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["MuonSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 

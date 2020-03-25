@@ -149,8 +149,13 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
 
     tileDigitsContainer = tileDigitsContainer.split('+').pop()
     outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
+    
 
     if flags.Output.doWriteRDO:
+        if flags.Digitization.TruthOutput:
+            outputItemList += ["CaloCalibrationHitContainer#*"]
+            from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+            acc.merge(TruthDigitizationOutputCfg(flags))
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(  OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
 
