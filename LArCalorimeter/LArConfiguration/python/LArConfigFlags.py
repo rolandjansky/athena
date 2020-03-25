@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -52,6 +52,20 @@ def createLArConfigFlags():
     ### 0 = not use Delta, 1 = only EMECIW/HEC/FCAL, 2 = all , 3 = only EMECIW
     lcf.addFlag("LAr.ROD.UseDelta", 0)
      
+    ##NoisyRO flags
+    # cell quality cut
+    lcf.addFlag("LAr.NoisyRO.CellQuality", 4000)
+    # Number of channels above quality cut
+    lcf.addFlag("LAr.NoisyRO.BadChanPerFEB", 30)
+    # Number of Bad FEBs per partition cut
+    lcf.addFlag("LAr.NoisyRO.BadFEBCut", 5)
+    # Number of channels to declare MNB-Loose 
+    lcf.addFlag("LAr.NoisyRO.MNBLooseCut", 5)
+    # Number of channels to declare MNB-Tight
+    lcf.addFlag("LAr.NoisyRO.MNBTightCut", 17)
+    # Number of channels to declare MNB-Tight wir PS veto
+    lcf.addFlag("LAr.NoisyRO.MNBTight_PsVetoCut", [13,3])
+
     return lcf
 
 

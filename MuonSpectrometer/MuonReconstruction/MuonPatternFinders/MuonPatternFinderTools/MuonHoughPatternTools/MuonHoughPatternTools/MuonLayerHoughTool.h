@@ -6,6 +6,7 @@
 #define MUONHOUGHPATTERNTOOLS_MUONLAYERHOUGHTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
@@ -15,7 +16,7 @@
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonLayerHough/HitNtuple.h"
 
@@ -228,8 +229,7 @@ namespace Muon {
 
     Gaudi::Property<bool> m_useSeeds{this,"UseSeeds",true};
 
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "MuonIdHelperTool", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
     ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool{this, "MuonTruthSummaryTool", "Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"};
     const MuonGM::MuonDetectorManager* m_detMgr;
@@ -276,7 +276,7 @@ namespace Muon {
   }
 
   inline double MuonLayerHoughTool::rCor( const Amg::Vector3D& pos, const Identifier& id ) const {
-    return m_sectorMapping.transformRToSector(pos.perp(),pos.phi(),m_muonIdHelperTool->sector(id));
+    return m_sectorMapping.transformRToSector(pos.perp(),pos.phi(),m_idHelperSvc->sector(id));
   }
   
   inline double MuonLayerHoughTool::rCor( const MuonCluster& mm ) const {
@@ -294,27 +294,27 @@ namespace Muon {
 
   inline int MuonLayerHoughTool::sublay( const Identifier& id, float /*z*/ ) const {
     int sublayer = 0;
-    if( m_muonIdHelperTool->isMdt(id) ) {
-      sublayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id)-1;
-      if( m_muonIdHelperTool->mdtIdHelper().multilayer(id) == 2 ) sublayer += 4;
-    }else if( m_muonIdHelperTool->isMM(id) ) {
-      sublayer = m_muonIdHelperTool->mmIdHelper().gasGap(id)-1;
-      if( m_muonIdHelperTool->mmIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    if( m_idHelperSvc->isMdt(id) ) {
+      sublayer = m_idHelperSvc->mdtIdHelper().tubeLayer(id)-1;
+      if( m_idHelperSvc->mdtIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    }else if( m_idHelperSvc->isMM(id) ) {
+      sublayer = m_idHelperSvc->mmIdHelper().gasGap(id)-1;
+      if( m_idHelperSvc->mmIdHelper().multilayer(id) == 2 ) sublayer += 4;
       sublayer += 600; // type info
-    }else if( m_muonIdHelperTool->issTgc(id) ) {
-      sublayer = m_muonIdHelperTool->stgcIdHelper().gasGap(id)-1;
-      if( m_muonIdHelperTool->stgcIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    }else if( m_idHelperSvc->issTgc(id) ) {
+      sublayer = m_idHelperSvc->stgcIdHelper().gasGap(id)-1;
+      if( m_idHelperSvc->stgcIdHelper().multilayer(id) == 2 ) sublayer += 4;
       sublayer += 500; // type info
-    }else if( m_muonIdHelperTool->isRpc(id) ){
-      sublayer = m_muonIdHelperTool->rpcIdHelper().gasGap(id)-1;
-      if( m_muonIdHelperTool->rpcIdHelper().doubletR(id) == 2 ) sublayer += 2;
+    }else if( m_idHelperSvc->isRpc(id) ){
+      sublayer = m_idHelperSvc->rpcIdHelper().gasGap(id)-1;
+      if( m_idHelperSvc->rpcIdHelper().doubletR(id) == 2 ) sublayer += 2;
       sublayer += 100; // type info
-    }else if( m_muonIdHelperTool->isTgc(id) ){
-      sublayer = m_muonIdHelperTool->tgcIdHelper().gasGap(id)-1;
-      Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(id);
+    }else if( m_idHelperSvc->isTgc(id) ){
+      sublayer = m_idHelperSvc->tgcIdHelper().gasGap(id)-1;
+      Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
       if( stIndex == Muon::MuonStationIndex::EM ) {
        //T1 gets +3; T2 gets +3+3; T3 gets +3+6; T4 gets0 (because it is also EI)
-	Muon::MuonStationIndex::PhiIndex phiIndex = m_muonIdHelperTool->phiIndex(id);
+	Muon::MuonStationIndex::PhiIndex phiIndex = m_idHelperSvc->phiIndex(id);
        sublayer += 3;
 	if( phiIndex == Muon::MuonStationIndex::T2 )       sublayer += 3;
 	else if( phiIndex == Muon::MuonStationIndex::T3 )  sublayer += 6;

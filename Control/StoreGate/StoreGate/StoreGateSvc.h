@@ -335,6 +335,9 @@ public:
   template <typename T, typename AKEY>
   StatusCode setAlias(const T* p2BAliased, const AKEY& aliasKey);
 
+  /// make an alias to a DataObject (provide valid proxy)
+  StatusCode setAlias(SG::DataProxy* proxy, const std::string& aliasKey);
+
   /// prevent downstream clients from modifying the pointed-at dobj
   StatusCode setConst(const void* pointer);
 

@@ -42,7 +42,8 @@ TrigMultiTrkHypoTool::~TrigMultiTrkHypoTool()
 StatusCode TrigMultiTrkHypoTool::initialize()
 {
   ATH_MSG_DEBUG("AcceptAll            = " << (m_acceptAll==true ? "True" : "False") );
-  ATH_MSG_DEBUG("OppositeCharge       = " << (m_oppositeCharge==true ? "True" : "False") );
+  if(m_TotChargeCut >=0)ATH_MSG_DEBUG("Total Charge Cut     = " << m_TotChargeCut);
+  else ATH_MSG_DEBUG("Total Charge Cut is disabled");
   ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassCut );
   ATH_MSG_DEBUG("UpperMassCut         = " << m_upperMassCut );
   ATH_MSG_DEBUG("ApplyUpperMassCut    = " << m_applyUpperMassCut );
@@ -79,7 +80,7 @@ bool TrigMultiTrkHypoTool::decideOnSingleObject( const xAOD::TrigBphys* trigBphy
   bool thisPassedMassCut = false;
   bool thisPassedChi2Cut = false;
   bool thisPassedTrkPtCut = false;
-
+  bool thisPassedChargeCut = false;
   bool result = false;
 
   std::vector<float> ini_trkPts(0);
@@ -124,6 +125,10 @@ bool TrigMultiTrkHypoTool::decideOnSingleObject( const xAOD::TrigBphys* trigBphy
           trackPts.push_back(tp->pt());
       }
       mon_totCharge = totq;
+      thisPassedChargeCut = m_TotChargeCut <= -1 || (std::abs(totq) !=  m_TotChargeCut);
+      if(thisPassedChargeCut){
+      	ATH_MSG_DEBUG("Passed charge cut with " << totq);
+      }
       std::sort(trackPts.rbegin(), trackPts.rend()); //reverse sort the list
       unsigned int nTrk_pass = 0;
       for(unsigned int i=0; i < nTrk; i++ ){
@@ -147,10 +152,13 @@ bool TrigMultiTrkHypoTool::decideOnSingleObject( const xAOD::TrigBphys* trigBphy
       mon_cutCounter++;
       if ( thisPassedTrkPtCut ){
         mon_cutCounter++;
+        if(thisPassedChargeCut){
+           mon_cutCounter++;
+        }
       }
     }
   }
-  if ( thisPassedMassCut && thisPassedChi2Cut && thisPassedTrkPtCut ) {
+  if ( thisPassedMassCut & thisPassedChi2Cut & thisPassedTrkPtCut & thisPassedChargeCut) {
     result = true;
     ATH_MSG_DEBUG("accepting event");
   }

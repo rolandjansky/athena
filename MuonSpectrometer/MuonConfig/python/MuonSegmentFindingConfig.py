@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # This file configures the Muon segment finding. It is based on a few files in the old configuration system:
@@ -554,8 +553,7 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
 
     acc = MuonTrackSummaryToolCfg(flags)
     track_summary = acc.getPrimary( )
-    acc.addPublicTool(track_summary)
-    result.merge(acc)
+    result.setPrivateTools(track_summary)
     kwargs.setdefault('TrackSummaryTool', track_summary)
     
     # FIXME - remaining tools

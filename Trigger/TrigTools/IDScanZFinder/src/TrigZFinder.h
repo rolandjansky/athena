@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ class TrigZFinder: public TrigZFinderInternal, public AthAlgTool, virtual public
   virtual StatusCode initialize() override;
 
   virtual
-  TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi) override;
+  TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi) const override;
 
   /// no private data members - all inherited from the TrigZFinderInternal class
   /// NB: BE CAREFUL !!! Nothing set with a job option should EVER be changed 

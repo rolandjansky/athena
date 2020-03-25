@@ -1,4 +1,7 @@
 #!/bin/env python
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from PyCool import cool
 
@@ -7,7 +10,7 @@ class AFPDBRecordBase(object):
         output = "["
         for quantity in dir(self):        # loop over all elements in class
             if not callable(getattr(self, quantity)) and not quantity.startswith("__"): # select only user variables 
-                # print "Moj " + quantity + " wynosi: " +  str(getattr(self, quantity))
+                # print ("Moj " + quantity + " wynosi: " +  str(getattr(self, quantity)))
                 output += str(getattr(self, quantity)) + ", "
 
         output = output[:-2] # remove the last comma and space ", "
@@ -95,15 +98,15 @@ class AFPDBTableBase (object):
 
     def saveToDB (self):
         self.data['data'] = self.serialiseTable()
-        iovStart=(self.iovStartRun<<32) + self.iovStartLumiBlock;
-        print "before self.iovEndRun=" + str(self.iovEndRun)
-        iovEnd=(self.iovEndRun<<32) + self.iovEndLumiBlock;
-        print "after self.iovEndRun=" + str(self.iovEndRun)
+        iovStart=(self.iovStartRun<<32) + self.iovStartLumiBlock
+        print ("before self.iovEndRun=" + str(self.iovEndRun))
+        iovEnd=(self.iovEndRun<<32) + self.iovEndLumiBlock
+        print ("after self.iovEndRun=" + str(self.iovEndRun))
         
         self.folder.storeObject(iovStart, iovEnd, self.data, 0, self.tag)
 
     def createFolder (self, db):
-        print self.folderSpec
+        print (self.folderSpec)
         self.folder = db.createFolder(self.folderName, self.folderSpec, self.desc, True)
 
 

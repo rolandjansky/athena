@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSERVICES_TRIGMESSAGESVC_H
 #define TRIGSERVICES_TRIGMESSAGESVC_H
@@ -71,7 +71,7 @@ public:
   virtual void reportMessage(const char* source, int type, const char* message) override;
   virtual void reportMessage(const std::string& source, int type,
                              const std::string& message) override;
-  virtual std::ostream* defaultStream ATLAS_NOT_THREAD_SAFE() const override
+  virtual std::ostream* defaultStream ATLAS_NOT_CONST_THREAD_SAFE() const override
   {
     return m_defaultStream;
   }

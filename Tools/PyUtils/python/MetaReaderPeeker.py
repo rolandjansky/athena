@@ -2,14 +2,14 @@
 
 # info
 
-__all__ = ['metadata', 'metadata_all_files',
-           'convert_itemList', 'convert_metadata_items']
+__all__ = ['metadata', 'metadata_all_files', 'convert_itemList', 'convert_metadata_items']
 
 metadata = {}
 metadata_all_files = {}
 
 
 def _setup():
+	
     from PyUtils.MetaReader import read_metadata
 
     from AthenaCommon.Logging import logging
@@ -20,18 +20,27 @@ def _setup():
 
     # get input file name
     from RecExConfig.RecoFunctions import InputFileNames
-
     inFiles = InputFileNames()
-    if len(inFiles) < 1:
-        msg.warning("No input files specified yet! Cannot do anything.")
-        return
+        
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline() and not inFiles:
+        # set minimal items of inputFileSummary
+        metadata = {
+          'file_type':'BS',
+          'eventTypes':['IS_DATA','IS_ATLAS','IS_PHYSICS'],
+          'TagStreamsRef':''
+        }
+    else:
+        if len(inFiles) < 1:
+            msg.warning("No input files specified yet! Cannot do anything.")
+            return
 
-    metadata_all_files = read_metadata(inFiles, mode='peeker', promote=True)
+        metadata_all_files = read_metadata(inFiles, mode='peeker', promote=True)
 
-    first_filename = inFiles[0]
+        first_filename = inFiles[0]
 
-    metadata = metadata_all_files[first_filename]
-    metadata['file_name'] = first_filename
+        metadata = metadata_all_files[first_filename]
+        metadata['file_name'] = first_filename
 
 
 # convert_itemList and convert_metadata_items have the same implementation as the one in MetaReaderPeekerFull.

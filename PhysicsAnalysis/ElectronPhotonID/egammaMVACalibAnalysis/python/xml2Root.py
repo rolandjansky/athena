@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 __doc__ = "Convert TMVA BDT weight files to ROOT format used by egamma::BDT"
 
 import os
-from xml.dom.minidom import parse
 from glob import glob
 from multiprocessing.dummy import Pool
 import re
@@ -17,7 +19,7 @@ def get_variables_from_xml(xml):
   m = regex.search(xml_content)
   return m.group(1).split(',')
 #  top = parse(xml).documentElement
-#  print "parsing done"
+#  print ("parsing done")
 #  return top.getElementsByTagName('VariablesName')[0].getElementsByTagName("Info")[0].getAttribute("Name").split(",")
 
 
@@ -38,12 +40,12 @@ if __name__ == "__main__":
     raise IOError('Input path %s is not valid: it must be a directory containing all the xmls' % inputXMLPath)
 
   if not os.path.isdir(outputPath):
-    print 'Creating output path for ROOT files: %s' % outputPath
+    print ('Creating output path for ROOT files: %s' % outputPath)
     os.mkdir(outputPath)
 
   all_xml = glob("%s/*.xml" % inputXMLPath)
   if not all_xml:
-    print "cannot find xml file in %s" % inputXMLPath
+    print ("cannot find xml file in %s" % inputXMLPath)
 
   all_variables = set()
   pool = Pool(20)
@@ -56,7 +58,7 @@ if __name__ == "__main__":
       all_variables.update(v)
   all_variables = list(all_variables)
   all_variables.append('el_cl_E')
-  print "creating root file using these variables (%d): %s" % (len(all_variables), ', '.join(all_variables))
+  print ("creating root file using these variables (%d): %s" % (len(all_variables), ', '.join(all_variables)))
 
   import ROOT
   ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")

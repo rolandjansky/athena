@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCSector.cxx,v 1.10 2009-05-14 01:28:04 isaya Exp $
 #include "TrigT1TGC/TGCSector.hh"
 #include "TrigT1TGC/TGCElectronicsSystem.hh"
 #include "TrigT1TGC/TGCReadoutIndex.h"
@@ -36,7 +35,7 @@ int TGCSector::distributeSignal(const TGCASDOut* ASDOut)
     notFound = m_ASDToPP[PPType]->getConnection(m_sideId,layer,rNumber,ch,&idPP,&conPP,&chPP);
   }
 
-  if (tgcArgs()->DEBUGLEVEL()) {
+  if (tgcArgs()->MSGLEVEL() <= MSG::DEBUG) {
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) {
@@ -134,8 +133,8 @@ TGCSector::TGCSector( TGCArguments* tgcargs)
   if (m_moduleId < 9) {
     const TGCRPhiCoincidenceMap* map = db->getRPhiCoincidenceMap(m_sideId, m_octantId);
 
-    const TGCInnerCoincidenceMap* mapI = db->getInnerCoincidenceMap(m_sideId);
-    // set RPhi and Inner CoincidenceMap in SectorLogic.
+    const TGCEIFICoincidenceMap* mapI = db->getEIFICoincidenceMap(m_sideId);
+    // set RPhi and EIFI CoincidenceMap in SectorLogic.
     setRPhiMap(map, mapI);
     
     const TGCTileMuCoincidenceMap* mapTM = db->getTileMuCoincidenceMap();
@@ -283,7 +282,7 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
 }
    
 void TGCSector::setRPhiMap(const TGCRPhiCoincidenceMap* map,
-			   const TGCInnerCoincidenceMap* mapI)
+			   const TGCEIFICoincidenceMap* mapI)
 {
   if (m_SL) m_SL->setRPhiMap(map, mapI);
 }

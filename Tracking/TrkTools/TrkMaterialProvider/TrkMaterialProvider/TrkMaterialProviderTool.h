@@ -70,7 +70,7 @@ namespace Trk{
     StatusCode finalize();
 
     /** Update Calorimeter TSOS from input ID and MS tracks*/
-    void updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const;
+    void updateCaloTSOS(const Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const;
 
     /** Update Calorimeter TSOS from input MS/CB track*/
     void updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParamaters=nullptr) const;

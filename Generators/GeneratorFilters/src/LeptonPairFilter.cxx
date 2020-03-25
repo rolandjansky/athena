@@ -28,9 +28,6 @@
 #include <vector>
 #include <TLorentzVector.h>
 
-using HepMC::GenVertex;
-using HepMC::GenParticle;
-
 //--------------------------------------------------------------------------
 LeptonPairFilter::LeptonPairFilter(const std::string& name, 
       ISvcLocator* pSvcLocator): GenFilter(name,pSvcLocator) {

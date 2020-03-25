@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// STL includes
+#include "MuonErrorOptimisationTool.h"
+
 #include <iostream>
 
 #include "TrkTrack/Track.h"
@@ -11,20 +12,15 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 
-#include "MuonErrorOptimisationTool.h"
-
-
 namespace Muon {
 
   MuonErrorOptimisationTool::MuonErrorOptimisationTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
     AthAlgTool(ty,na,pa),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
     m_refitTool("Muon::MuonRefitTool/MuonRefitTool")
   {
     declareProperty("Printer", m_printer );
-    declareProperty("IdHelper", m_idHelper );
     declareProperty("TrackSummaryTool", m_trackSummaryTool );
     declareProperty("RefitTool",m_refitTool ); 
 
@@ -48,7 +44,6 @@ namespace Muon {
     
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
     ATH_CHECK( m_trackSummaryTool.retrieve() );
     if( !m_refitTool.empty() ) ATH_CHECK( m_refitTool.retrieve() );
 

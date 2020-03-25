@@ -86,12 +86,12 @@ def splitInterSignatureChainDict(chainDict):
 
     return listOfSplitChainDicts
 
-
+# maybe obsolete?
 def splitChainDict(chainDict):
     listOfChainDicts = []
     for chainPart in chainDict['chainParts']:
         newChainDict = deepcopy(chainDict)
-        newChainDict['chainParts'] = chainPart
+        newChainDict['chainParts'] = [chainPart]
         listOfChainDicts += [newChainDict]
     return listOfChainDicts
 

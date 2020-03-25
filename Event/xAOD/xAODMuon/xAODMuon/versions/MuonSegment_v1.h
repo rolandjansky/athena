@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMUON_VERSIONS_MUONSEGMENT_V1_H
@@ -10,12 +10,12 @@
 // Core include(s):
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 
 // xAOD include(s):
 
 // Athena include(s):
-#ifndef XAOD_ANALYSIS
+#if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
 #include "TrkSegment/SegmentCollection.h"
 #endif
 
@@ -113,7 +113,7 @@ namespace xAOD {
     void setNHits(int nPrecisionHits, int nPhiLayers, int nTrigEtaLayers);
     /// @}
 
-#ifndef XAOD_ANALYSIS        
+#if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))        
     const ElementLink< ::Trk::SegmentCollection >& muonSegment() const;
     void setMuonSegment(const ElementLink< ::Trk::SegmentCollection >& segment);
 #endif

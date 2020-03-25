@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "TMath.h" // for TMath::Binomial
+#include "TMath.h" // for TMath::Binomial()
 #include <TString.h> // for Form
 
 #include "MuonCalibMath/Combination.h"
@@ -106,9 +106,6 @@ unsigned int Combination::numberOfCombinations(void) const {
 // VARIABLES //
 ///////////////
 
-//	int n1(m_n);
-//	int k1(m_k);
-//	int ncomb = kbinom_(&n1, &k1);
 	int ncomb = TMath::Binomial(m_n, m_k);
 
 ///////////////////////////////////////

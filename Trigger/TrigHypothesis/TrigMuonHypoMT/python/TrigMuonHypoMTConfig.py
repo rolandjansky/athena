@@ -262,55 +262,65 @@ class TrigMufastHypoConfig(object):
 
         tool = TrigMufastHypoTool( toolName )  
 
-        nt = len(thresholds)
-        log.debug('Set %d thresholds', nt)
-        tool.PtBins = [ [ 0, 2.5 ] ] * nt
-        tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
-        tool.PtThresholdForECWeakBRegionA = [ 3. * GeV ] * nt
-        tool.PtThresholdForECWeakBRegionB = [ 3. * GeV ] * nt
-
-        for th, thvalue in enumerate(thresholds):
-            if (thvalue == 'passthrough'):
-                tool.PtBins[th] = [-10000.,10000.]
-                tool.PtThresholds[th] = [ -1. * GeV ]
-                tool.AcceptAll = True
-            else:
-                if "idperf" in toolName or int(thvalue) < 5:
-                    thvaluename =  thvalue + 'GeV_v15a'
-                elif "0eta105" in toolName:
-                    thvaluename = thvalue+ "GeV_barrelOnly_v15a"
+        if "muoncalib" in toolName:
+            tool.DoCalib = True
+            nt = len(thresholds)
+            tool.PtBins = [ [ 0, 2.5 ] ] * nt
+            try:
+                tool.AcceptAll = False
+    
+            except LookupError:
+                raise Exception('MuFast Hypo for muoncalib chain  Misconfigured')
+        else:
+            nt = len(thresholds)
+            log.debug('Set %d thresholds', nt)
+            tool.PtBins = [ [ 0, 2.5 ] ] * nt
+            tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
+            tool.PtThresholdForECWeakBRegionA = [ 3. * GeV ] * nt
+            tool.PtThresholdForECWeakBRegionB = [ 3. * GeV ] * nt
+    
+            for th, thvalue in enumerate(thresholds):
+                if (thvalue == 'passthrough'):
+                    tool.PtBins[th] = [-10000.,10000.]
+                    tool.PtThresholds[th] = [ -1. * GeV ]
+                    tool.AcceptAll = True
                 else:
-                    thvaluename = '6GeV_v15a'
-
-
-
-                log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
-
-                try:
-                    tool.AcceptAll = False
-                    values = muFastThresholds[thvaluename]
-                    tool.PtBins[th] = values[0]
-                    tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
-                    log.debug('Configration of threshold[%d] %s', th, tool.PtThresholds[th])
-                    log.debug('Configration of PtBins[%d] %s', th, tool.PtBins[th])
-                    if thvaluename in muFastThresholdsForECWeakBRegion:
-                        spThres = muFastThresholdsForECWeakBRegion[thvaluename]
-                        tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
-                        tool.PtThresholdForECWeakBRegionB[th] = spThres[1] * GeV
+                    if "idperf" in toolName or int(thvalue) < 5:
+                        thvaluename =  thvalue + 'GeV_v15a'
+                    elif "0eta105" in toolName:
+                        thvaluename = thvalue+ "GeV_barrelOnly_v15a"
                     else:
-                        log.debug('No special thresholds for EC weak Bfield regions for %s. Copy EC1 for region A, EC2 for region B.', thvaluename)
-                        spThres = values[0][1]
-                        if thvaluename == '2GeV' or thvaluename == '3GeV':
+                        thvaluename = '6GeV_v15a'
+    
+    
+    
+                    log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
+    
+                    try:
+                        tool.AcceptAll = False
+                        values = muFastThresholds[thvaluename]
+                        tool.PtBins[th] = values[0]
+                        tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
+                        log.debug('Configration of threshold[%d] %s', th, tool.PtThresholds[th])
+                        log.debug('Configration of PtBins[%d] %s', th, tool.PtBins[th])
+                        if thvaluename in muFastThresholdsForECWeakBRegion:
+                            spThres = muFastThresholdsForECWeakBRegion[thvaluename]
                             tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
-                            tool.PtThresholdForECWeakBRegionB[th] = spThres[0] * GeV
+                            tool.PtThresholdForECWeakBRegionB[th] = spThres[1] * GeV
                         else:
-                            tool.PtThresholdForECWeakBRegionA[th] = spThres[1] * GeV
-                            tool.PtThresholdForECWeakBRegionB[th] = spThres[2] * GeV
-
-                        log.debug('Thresholds for A[%d]/B[%d] = %d/%d', th, th, tool.PtThresholdForECWeakBRegionA[th], tool.PtThresholdForECWeakBRegionB[th])
-
-                except LookupError:
-                    raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % thvaluename)
+                            log.debug('No special thresholds for EC weak Bfield regions for %s. Copy EC1 for region A, EC2 for region B.', thvaluename)
+                            spThres = values[0][1]
+                            if thvaluename == '2GeV' or thvaluename == '3GeV':
+                                tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
+                                tool.PtThresholdForECWeakBRegionB[th] = spThres[0] * GeV
+                            else:
+                                tool.PtThresholdForECWeakBRegionA[th] = spThres[1] * GeV
+                                tool.PtThresholdForECWeakBRegionB[th] = spThres[2] * GeV
+    
+                            log.debug('Thresholds for A[%d]/B[%d] = %d/%d', th, th, tool.PtThresholdForECWeakBRegionA[th], tool.PtThresholdForECWeakBRegionB[th])
+    
+                    except LookupError:
+                        raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % thvaluename)
 
         return tool
 

@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 # test to obtain a jet hypo label from a jet hypo scenario
+
+from __future__ import print_function
 
 
 from chainDict2jetLabel import chainDict2jetLabel
@@ -19,7 +21,7 @@ for sc in scenarios:
                         'hypoScenario': sc}]
 }
 
-    print sc
-    print chainDict2jetLabel(chainDict)
+    print (sc)
+    print (chainDict2jetLabel(chainDict))
 
 

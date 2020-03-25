@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */  
   
 #ifndef AthenaMonitoringKernel_HistogramFiller_CumulativeHistogramFiller1D_h
@@ -41,7 +41,7 @@ namespace Monitored {
       unsigned i(0);
       auto histogram = this->histogram<TH1>();
       auto valuesVector{m_monVariables[0].get().getVectorRepresentation()};
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
+      std::scoped_lock lock(*m_mutex);
       size_t idx = 0;
       for (auto value : valuesVector) {
         if (!cutMaskValue(idx++)) { continue; }

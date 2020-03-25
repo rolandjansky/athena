@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonResonanceTools/MuonResonancePlots.h"
@@ -331,7 +331,7 @@ float MuonResonancePlots::p_star(TLorentzVector v1, TLorentzVector v2){
 
   float p = 0;
   if(v1.Pt()==0 || v2.Pt()==0) return p;
-  p = M0() * TMath::Sqrt( ( TMath::Sin(v1.Theta()) * TMath::Sin(v2.Theta()) )/( 2*(1-TMath::Cos( TMath::Abs(v1.Theta()-v2.Theta()) )) ) );
+  p = M0() * std::sqrt( ( std::sin(v1.Theta()) * std::sin(v2.Theta()) )/( 2*(1-std::cos( std::abs(v1.Theta()-v2.Theta()) )) ) );
   return p;
 }
 

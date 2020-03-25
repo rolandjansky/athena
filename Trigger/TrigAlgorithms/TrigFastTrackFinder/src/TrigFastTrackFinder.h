@@ -36,7 +36,6 @@
 class ITrigL2LayerNumberTool;
 class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
-class ITrigL2SpacePointTruthTool;
 class ITrigL2ResidualCalculator;
 class ITrigInDetTrackFitter;
 class ITrigZFinder;
@@ -79,33 +78,26 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
-                        TrackCollection& outputTracks);
+                        TrackCollection& outputTracks) const;
 
-  double trackQuality(const Trk::Track* Tr);
-  void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
+  double trackQuality(const Trk::Track* Tr) const;
+  void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
 
   virtual bool isClonable() const override { return true; }
   virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
 
 protected: 
 
-  void updateClusterMap(long int, const Trk::Track*, std::map<Identifier, std::vector<long int> >&);
-  void extractClusterIds(const Trk::SpacePoint*, std::vector<Identifier>&);
-  bool usedByAnyTrack(const std::vector<Identifier>&, std::map<Identifier, std::vector<long int> >&);
+  void updateClusterMap(long int, const Trk::Track*, std::map<Identifier, std::vector<long int> >&) const;
+  void extractClusterIds(const Trk::SpacePoint*, std::vector<Identifier>&) const;
+  bool usedByAnyTrack(const std::vector<Identifier>&, std::map<Identifier, std::vector<long int> >&) const;
 
-  int findBarCodeInData(int, const std::vector<TrigSiSpacePointBase>&);
-  void showBarCodeInData(int, const std::vector<TrigSiSpacePointBase>&);
-  int findBarCodeInTriplets(int, const std::vector<std::shared_ptr<TrigInDetTriplet>>&);
-  void assignTripletBarCodes(const std::vector<std::shared_ptr<TrigInDetTriplet>>&, std::vector<int>&);
-  void assignTripletBarCodes(const std::vector<TrigInDetTriplet*>&, std::vector<int>&);
-  
  private:
 
   // AlgTools and Services
 
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
   ToolHandle<ITrigSpacePointConversionTool> m_spacePointTool;
-  ToolHandle<ITrigL2SpacePointTruthTool> m_TrigL2SpacePointTruthTool;
   ToolHandle<ITrigL2ResidualCalculator> m_trigL2ResidualCalculator;
   ToolHandle<InDet::ISiTrackMaker> m_trackMaker;   // Track maker 
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
@@ -120,8 +112,6 @@ protected:
   SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
      {this,"PRDtoTrackMap",""};
  
-  double m_shift_x, m_shift_y;
-
   // Control flags
 
   bool m_doCloneRemoval;
@@ -147,70 +137,30 @@ protected:
   int                     m_nfreeCut;     // Min number free clusters 
 
 
-  bool m_retrieveBarCodes;
-
   float m_tripletMinPtFrac;
   float m_pTmin;
   float m_initialD0Max;
   float m_Z0Max;                        
   bool m_checkSeedRedundancy;
 
-  // Reconstructed tracks 
-
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-
-  // Data members for monitoring
-
-  int m_nTracks;
-  int m_nPixSPsInRoI;  // Total number of (filtered) pixel SPs in the RoI
-  int m_nSCTSPsInRoI;  // Total number of (filtered) SCT SPs in the RoI
-  int m_currentStage;  // The last stage reached during the processing of a given RoI
-
-  int m_roi_nSPs;
-
-  double m_roiPhi, m_roiEta, m_roiZ;
-  double m_roiPhiWidth, m_roiEtaWidth, m_roiZ_Width;  
-  double m_timePattReco;
 
   // Monitoring member functions 
 
-  void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi);
-  void runResidualMonitoring(const Trk::Track& track);
-
-  void calculateRecoEfficiency(const std::vector<TrigSiSpacePointBase>&,
-			       const std::map<int,int>&,
-			       const std::map<int,int>&);
-
+  void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi) const;
+  void runResidualMonitoring(const Trk::Track& track) const;
 
   //Setup functions
-  void getBeamSpot(float&, float&);
+  void getBeamSpot(float&, float&) const;
   HLT::ErrorCode getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi);
-
-  // Timers 
-
-  TrigTimer* m_SpacePointConversionTimer;
-  TrigTimer* m_ZFinderTimer;
-  TrigTimer* m_PatternRecoTimer; 
-  TrigTimer* m_TripletMakingTimer; 
-  TrigTimer* m_CombTrackingTimer; 
-  TrigTimer* m_TrackFitterTimer; 
 
   // Internal bookkeeping
 
   std::string m_instanceName, m_attachedFeatureName, m_outputCollectionSuffix;
 
-  unsigned int m_countTotalRoI;
-  unsigned int m_countRoIwithEnoughHits;
-  unsigned int m_countRoIwithTracks;
-
-  //efficiency calculations
-  std::vector<int> m_vSignalBarCodes;
-
-  int m_nSignalPresent;
-  int m_nSignalDetected;
-  int m_nSignalTracked;
-  int m_nSignalClones;
-  int m_minSignalSPs;
+  ATLAS_THREAD_SAFE mutable unsigned int m_countTotalRoI;
+  ATLAS_THREAD_SAFE mutable unsigned int m_countRoIwithEnoughHits;
+  ATLAS_THREAD_SAFE mutable unsigned int m_countRoIwithTracks;
 
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;

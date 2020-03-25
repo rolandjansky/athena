@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKSELECTOR_H
@@ -8,10 +8,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "Identifier/Identifier.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include "TrkParameters/TrackParameters.h"
 
 #include <atomic>
 #include <string>
@@ -19,14 +21,6 @@
 #include <vector>
 
 static const InterfaceID IID_MuonTrackSelectorTool("Muon::MuonTrackSelectorTool",1,0);
-
-class MsgStream;
-
-
-namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-}
 
 namespace Trk {
   class Track;
@@ -45,7 +39,7 @@ namespace Muon {
     MuonTrackSelectorTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonTrackSelectorTool ();
+    virtual ~MuonTrackSelectorTool()=default;
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
@@ -74,7 +68,7 @@ namespace Muon {
     bool decision(const xAOD::TrackParticle&,const xAOD::Vertex* ) const { return false; }
 
   private:
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool

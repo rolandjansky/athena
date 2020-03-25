@@ -13,6 +13,7 @@ import os
 import fnmatch
 import re
 import subprocess
+import six
 
 from PyJobTransforms.trfExe import athenaExecutor
 
@@ -54,7 +55,7 @@ class trigRecoExecutor(athenaExecutor):
             for dataType in input:
                 inputEvents = self.conf.dataDictionary[dataType].nentries
                 msg.debug('Got {0} events for {1}'.format(inputEvents, dataType))
-                if not isinstance(inputEvents, (int, long)):
+                if not isinstance(inputEvents, six.integer_types):
                     msg.warning('Are input events countable? Got nevents={0} so disabling event count check for this input'.format(inputEvents))
                 elif self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) >= inputEvents:
                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
@@ -70,7 +71,7 @@ class trigRecoExecutor(athenaExecutor):
                 outputFiles[dataType] = self.conf.dataDictionary[dataType]
                 
             # See if we have any 'extra' file arguments
-            for dataType, dataArg in self.conf.dataDictionary.iteritems():
+            for dataType, dataArg in self.conf.dataDictionary.items():
                 if dataArg.io == 'input' and self._name in dataArg.executor:
                     inputFiles[dataArg.subtype] = dataArg
                 
@@ -199,7 +200,7 @@ class trigRecoExecutor(athenaExecutor):
         matchedOutputFileNames = []
         #list of input files that could be in the same folder and need ignoring
         ignoreInputFileNames = []
-        for dataType, dataArg in self.conf.dataDictionary.iteritems():
+        for dataType, dataArg in self.conf.dataDictionary.items():
             if dataArg.io == 'input':
                 ignoreInputFileNames.append(dataArg.value[0])
         #loop over all files in folder to find matching output files
@@ -376,7 +377,7 @@ class trigRecoExecutor(athenaExecutor):
                 else:
                     msg.info('Stream "All" requested, so not splitting BS file')
                     self._renamefile(matchedOutputFileNames[0], argInDict.value[0])
-	    else:
+            else:
                 msg.error('no BS files created with expected name: %s' % expectedOutputFileName )
         else:
             msg.info('BS output filetype not defined so skip BS filename check')

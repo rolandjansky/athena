@@ -52,8 +52,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
       from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
       ringer = RingerReFexConfig('FaAlgoRingerFexConfig')
       ringer.OutputLevel=DEBUG
-      #ringer.RingsKey= recordable("L2CaloRinger")
-      ringer.RingerKey= "HLT_L2CaloRinger"
+      ringer.RingsKey= recordable("HLT_L2CaloRinger")
       ringer.ClustersName = alg.ClustersName
       acc.addPublicTool( ringer )
       __fex_tools.append(ringer)

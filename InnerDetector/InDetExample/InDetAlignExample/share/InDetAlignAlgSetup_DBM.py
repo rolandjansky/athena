@@ -104,7 +104,7 @@ if newInDetAlignAlg_Options["Cosmics"]:
 ## ==               Settings for the alignment                      ==
 ## ==                                                               ==
 if not newInDetAlignAlg_Options["runAccumulate"] and not newInDetAlignAlg_Options["runSolving"]:
-	print 'ERROR: Both event processing and solving switched off. Nothing to be done.'
+	printfunc ('ERROR: Both event processing and solving switched off. Nothing to be done.')
 	exit(10)
 
 # if we're running full local method we have to adjust some parameters
@@ -171,7 +171,7 @@ alignModuleTool = Trk__AlignModuleTool(
 	
 )
 ToolSvc += alignModuleTool
-print alignModuleTool
+printfunc (alignModuleTool)
 
 ################################
 #
@@ -200,7 +200,7 @@ if newInDetAlignAlg_Options["readConstantsFromPool"]:
 	# set this to the file containing AlignableTransform objects
 	ServiceMgr.CondProxyProvider.InputCollections += newInDetAlignAlg_Options["inputPoolFiles"]
 	ServiceMgr.CondProxyProvider.OutputLevel = DEBUG
-	print ServiceMgr.CondProxyProvider
+	printfunc (ServiceMgr.CondProxyProvider)
 
 	# this preload causes callbacks for read in objects to be activated,
 	# allowing GeoModel to pick up the transforms
@@ -284,8 +284,8 @@ if not newInDetAlignAlg_Options["runLocal"]:
 	if 'calculateFullCovariance' in dir():
 		matrixTool.CalculateFullCovariance 	= newInDetAlignAlg_Options["calculateFullCovariance"]
 
-print matrixTool
-print globalChi2AlignTool
+printfunc (matrixTool)
+printfunc (globalChi2AlignTool)
 
 ##################################################
 ##
@@ -303,7 +303,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 			UseActiveFractionSvc = False
 		)
 		ToolSvc += trtDCtool
-		print trtDCtool
+		printfunc (trtDCtool)
 		if not newInDetAlignAlg_Options["Cosmics"] :
 			## Matthias: Reduce requirements for DBM, might need further adjustments
 			from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
@@ -342,7 +342,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 				maxZ0 = 9999.
 			)
 		ToolSvc += trackSelector
-		print trackSelector
+		printfunc (trackSelector)
 
 	###############################
 	# create AlignTrackPreProcessor
@@ -392,7 +392,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 			if newInDetAlignAlg_Options["useTRT"]:
 				BStrackSelector.useEtaDepententMinHitTrt = True
 			ToolSvc += BStrackSelector
-			print BStrackSelector
+			printfunc (BStrackSelector)
 
 		from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__BeamspotVertexPreProcessor
 		preProcessor = Trk__BeamspotVertexPreProcessor(
@@ -420,7 +420,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 			preProcessor.TrackSelector = trackSelector
 
 	ToolSvc += preProcessor
-	print preProcessor
+	printfunc (preProcessor)
 
 	################################
 	# create AlignResidualCalculator
@@ -432,7 +432,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 		IncludeScatterers = False
 	)
 	ToolSvc += alignResidualCalculator
-	print alignResidualCalculator
+	printfunc (alignResidualCalculator)
 
 	################################
 	# create AlignTrackCreator
@@ -448,7 +448,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 		RequireOverlap = False
 	)
 	ToolSvc += alignTrackCreator
-	print alignTrackCreator
+	printfunc (alignTrackCreator)
 
 	################################
 	# create AnalyticalDerivCalcTool
@@ -468,7 +468,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 	else:
 		derivCalcTool.UseLocalSetting = False
 	ToolSvc += derivCalcTool
-	print derivCalcTool
+	printfunc (derivCalcTool)
 
 	################################
 	# create AlignTrackDresser that uses AnalyticalDerivCalcTool
@@ -479,7 +479,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 		DerivCalcTool = derivCalcTool
 	)
 	ToolSvc += alignTrackDresser
-	print alignTrackDresser
+	printfunc (alignTrackDresser)
 
 	################################
 	# Ntuple filling tool
@@ -494,7 +494,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 			StoreDerivatives = newInDetAlignAlg_Options["writeDerivatives"]
 		)
 		ToolSvc += ntupleTool
-		print ntupleTool
+		printfunc (ntupleTool)
 
 	###############################
 	###############################
@@ -528,8 +528,8 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 								      UseConstraintError =  False,
 								      UseConstrainedTrkOnly= True,
 								      TrackFitter = trackFitter   )
-		print "Z->MUMU SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
-		print trackCollectionProvider
+		printfunc ("Z->MUMU SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+		printfunc (trackCollectionProvider)
 	ToolSvc += trackCollectionProvider
 
 	################################
@@ -553,7 +553,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 	)
 
 	topSequence += InDetGlobalAlign
-	print InDetGlobalAlign
+	printfunc (InDetGlobalAlign)
 
 ##################################################
 ##
@@ -575,7 +575,7 @@ else:
 	)
 
 	topSequence += InDetGlobalSolve
-	print InDetGlobalSolve
+	printfunc (InDetGlobalSolve)
 
 
 ################################
@@ -610,7 +610,7 @@ AlignTrackCollSplitter = Trk__AlignTrackCollSplitter(
 )
 
 topSequence += AlignTrackCollSplitter
-print AlignTrackCollSplitter
+printfunc (AlignTrackCollSplitter)
 
 
 ################################ 

@@ -407,7 +407,7 @@ def get_ami_tag(client, tag, suppressNonJobOptions = True):
 
         msg.debug(command)
 
-        return client.execute(command, format = 'dom_object').get_rows('amiTagInfo')
+        return client.execute(command, format = 'dict_object').get_rows('amiTagInfo')
 
 def remove_enclosing_quotes(s):
     try:

@@ -17,17 +17,25 @@
 #include <algorithm>
 #include <iostream>
 
-
+namespace{
+  const IdentifierHash invalidHash;
+  const std::array<IdentifierHash, 5> invalidHashes{invalidHash, invalidHash, invalidHash,
+  invalidHash, invalidHash};
+  std::function< IdentifierHash(const IdentifierHash &)>
+  invalidHashFunc = ([](const IdentifierHash &){return IdentifierHash{};});
+}
 
 
 
 SCT_ID::SCT_ID(void)
   :
+  m_neighboursByEta{invalidHashFunc, invalidHashFunc, invalidHashFunc , invalidHashFunc, invalidHashFunc},
   m_dict(0),
   m_wafer_hash_max(0),
   m_strip_hash_max(0),
   m_barrel_field(0),
   m_hasRows(false) {
+  
 }
 
 void
@@ -285,6 +293,14 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   dbgMsg = "Wafer range -> " + std::string( m_full_wafer_range) + "\n";
   dbgMsg += "Strip range -> " + std::string(m_full_strip_range);
   localMessage(dbgMsg, __func__, MSG::DEBUG);
+  ///insert now valid calls to the m_neighboursByEta
+  m_neighboursByEta = {
+    [this](const IdentifierHash & id){return this->get_other_side(id);},
+    [this](const IdentifierHash & id){return this->get_prev_in_eta(id);},
+    [this](const IdentifierHash & id){return this->get_next_in_eta(id);},
+    [this](const IdentifierHash & id){return this->get_prev_in_phi(id);},
+    [this](const IdentifierHash & id){return this->get_next_in_phi(id);}
+  };
   return 0;
 }
 
@@ -340,17 +356,17 @@ IdentifierHash
 SCT_ID::get_prev_in_phi(const IdentifierHash& id) const{
   return nextInSequence(id, m_prev_phi_wafer_vec);
 }
-/// Next wafer hash in phi (return == 0 for neighbor found)
+/// Next wafer hash in phi 
 IdentifierHash 
 SCT_ID::get_next_in_phi(const IdentifierHash& id) const{
   return nextInSequence(id, m_next_phi_wafer_vec);
 }
-/// Previous wafer hash in eta (return == 0 for neighbor found)
+/// Previous wafer hash in eta 
 IdentifierHash 
 SCT_ID::get_prev_in_eta(const IdentifierHash& id) const{
   return nextInSequence(id, m_prev_eta_wafer_vec);
 }
-/// Next wafer hash in eta (return == 0 for neighbor found)
+/// Next wafer hash in eta 
 IdentifierHash 
 SCT_ID::get_next_in_eta(const IdentifierHash& id) const{
   return nextInSequence(id, m_next_eta_wafer_vec);
@@ -368,6 +384,12 @@ SCT_ID::get_other_side(const IdentifierHash& hashId) const{
   }
   return IdentifierHash{};
 }
+//
+std::array<std::function< IdentifierHash(const IdentifierHash &)>, 5 >
+SCT_ID::neighbour_calls_by_eta() const{
+  return m_neighboursByEta;
+}
+
 
 int
 SCT_ID::get_prev_in_phi(const IdentifierHash& id, IdentifierHash& prev) const {
@@ -728,4 +750,26 @@ SCT_ID::localMessage(const std::string & msgTxt, const std::string &func, const 
     #endif
   }
   
+}
+
+//all neighbours: opposite and then eta direction first
+std::array<IdentifierHash, 5>
+SCT_ID::neighbours_by_eta(const IdentifierHash & idh) const{
+  if (size_type index = idh; index<m_wafer_hash_max) return std::array<IdentifierHash, 5>{ 
+    get_other_side(idh), 
+    m_prev_eta_wafer_vec[index], m_next_eta_wafer_vec[index],
+    m_prev_phi_wafer_vec[index], m_next_phi_wafer_vec[index]
+  };
+  else return  invalidHashes;
+}
+  
+//all neighbours: opposite and then phi direction first
+std::array<IdentifierHash, 5>
+SCT_ID::neighbours_by_phi(const IdentifierHash & idh) const{
+  if (size_type index = idh; index<m_wafer_hash_max) return std::array<IdentifierHash, 5>{ 
+    get_other_side(idh), 
+    m_prev_phi_wafer_vec[index], m_next_phi_wafer_vec[index],
+    m_prev_eta_wafer_vec[index], m_next_eta_wafer_vec[index]
+  };
+  else return  invalidHashes;
 }

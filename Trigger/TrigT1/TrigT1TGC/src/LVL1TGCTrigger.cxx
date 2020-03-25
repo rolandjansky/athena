@@ -89,11 +89,12 @@ namespace LVL1TGCTrigger {
 
     m_debuglevel = (msgLevel() <= MSG::DEBUG); // save if threshold for debug
 
+    m_tgcArgs.set_MSGLEVEL(msgLevel());
     m_tgcArgs.set_SHPT_ORED( m_SHPTORED.value() );
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() && m_tgcArgs.USE_INNER() );
     m_tgcArgs.set_TILE_MU( m_TILEMU.value() && m_tgcArgs.USE_INNER() );
-    m_tgcArgs.set_USE_CONDDB( true );
+    m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
 
     // initialize to read condition DB key of TGCTriggerData
@@ -101,7 +102,7 @@ namespace LVL1TGCTrigger {
     
     // initialize TGCDataBase
     m_db = new TGCDatabaseManager(&m_tgcArgs, m_readCondKey, m_VerCW);
-    
+
     // initialize the TGCcabling
     ATH_CHECK(getCabling());
 
@@ -1260,6 +1261,8 @@ namespace LVL1TGCTrigger {
     m_TimingManager = new TGCTimingManager (m_readCondKey);
     m_TimingManager->setBunchCounter(0);
     m_nEventInSector = 0;
+
+    ATH_MSG_DEBUG("finished LVL1TGCTrigger::getCabling()");
 
     return sc;
   }

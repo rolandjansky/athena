@@ -1,5 +1,5 @@
 ﻿/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCDigitVariables.h"
@@ -142,7 +142,7 @@ StatusCode sTGCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
       m_NSWsTGC_nDigits++;
     }
   }
-  ATH_MSG_INFO(" finished fillNSWsTGCDigitVariables()");
+  ATH_MSG_DEBUG(" finished fillNSWsTGCDigitVariables()");
   return StatusCode::SUCCESS;
 }
 

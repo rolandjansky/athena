@@ -13,9 +13,6 @@
 /// @author Frederic Derue derue@lpnhe.in2p3.fr
 /// @author Christos Anastopoulos
 ///
-/// $Revision:$
-/// $Date: 2014-02-11 17:40:48 +0100 (Tue, 11 Feb 2014) $
-///
 
 
 class CaloCellContainer;
@@ -93,17 +90,6 @@ public:
 
     // calculate quantities based on information in the strips in a region
     // around the cluster. 
-    //
-    // Use 2 strips in phi and cover a region of +-1.1875
-    // 5 cells in eta based on second sampling granularity ~0.025 in eta.
-    //Corresponds to ~19 strips in em barrel)
-    //  
-    Gaudi::Property<double> m_neta {this, "Neta", 5,
-        "Number of eta cell in each sampling in which to calculated shower shapes"};
-
-    Gaudi::Property<double> m_nphi {this, "Nphi", 2.,
-        "Number of phi cell in each sampling in which to calculated shower shapes"};
-
     /** @brief boolean to calculate all variables*/
     Gaudi::Property<bool> m_ExecAllVariables {this, 
         "ExecAllVariables", true, "flag used by trigger"};

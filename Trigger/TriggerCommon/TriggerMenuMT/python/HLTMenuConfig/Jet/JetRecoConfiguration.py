@@ -8,13 +8,28 @@
 # jet reco code.
 
 from JetRecConfig.JetDefinition import JetConstit, xAODType, JetDefinition
+from AthenaCommon.Logging import logging
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration")
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
     # interpret the reco configuration only
     # eventually should just be a subdict in the chainDict
     recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','cleaning']
-    return { key:chainParts[key] for key in recoKeys }
+    recoDict = {}
+    for p in chainParts:
+        for k in recoKeys:
+            # Look for our key in the chain part
+            if k in p.keys():
+                # found the key, check for consistency with other chain parts of this chain
+                if k in recoDict.keys():
+                    if p[k] != recoDict[k]:
+                        log.error('Inconsistent reco setting for' + k)
+                        exit(1)
+                # copy this entry to the reco dictionary
+                recoDict[k] = p[k]
+
+    return recoDict
 
 # Define the jet constituents to be interpreted by JetRecConfig
 # When actually specifying the reco, clustersKey should be

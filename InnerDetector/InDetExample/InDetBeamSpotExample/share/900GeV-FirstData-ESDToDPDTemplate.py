@@ -8,7 +8,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: 900GeV-FirstData-ESDToDPDTemplate.py 252805 2009-12-04 23:30:38Z atlidbs $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: 900GeV-FirstData-ESDToDPDTemplate.py 252805 2009-12-04 23:30:38Z atlidbs $")
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -27,7 +27,7 @@ if not 'doMonitoringGlobal' in jobConfig:            jobConfig['doMonitoringGlob
 if jobConfig['doOtherPrimaryVertexers']:
   if 'primaryVertexSetup' in jobConfig:
     del jobConfig['primaryVertexSetup']
-    print 'WARNING: Running other vertexers - resetting primaryVertexSetup to default'
+    printfunc ('WARNING: Running other vertexers - resetting primaryVertexSetup to default')
 
 
 # General job setup
@@ -52,7 +52,7 @@ ToolSvc.InDetDetailedTrackSelectorTool.pTMin = 0
 
 InDetPriVxFinderTool.enableMultipleVertices = 0
 
-print ToolSvc.InDetDetailedTrackSelectorTool
+printfunc (ToolSvc.InDetDetailedTrackSelectorTool)
 
 
 # If desired, run other primary vertexers using InDetVertexRTT/InDetVertexRTT_RerunOtherPrimarVertexers.py

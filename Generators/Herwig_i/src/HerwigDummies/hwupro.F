@@ -1,5 +1,0 @@
-      SUBROUTINE HWUPRO
- 
- 
-      RETURN
-      END

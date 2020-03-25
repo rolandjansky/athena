@@ -31,7 +31,6 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		self.StreamToFileTool = None
 		self.StreamToServerTool = None
 		self.VP1EventProducer = None
-		self.TrigConfDataIOVChanger = None
 		self.TrigBSExtraction = None
 		self.TrigDecMaker = None 
 		self.TrigDecTool = None
@@ -75,7 +74,6 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 
 		if not self.TrigDecTool:
 			try:
-				self.TrigConfDataIOVChanger = PyAthena.py_alg('TrigConfDataIOVChanger')
 				self.TrigBSExtraction = PyAthena.py_alg('TrigBSExtraction')
 				self.TrigDecMaker = PyAthena.py_alg('TrigDecMaker')
 				self.TrigDecTool = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool', iface='Trig::TrigDecisionTool')
@@ -122,7 +120,6 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		# Add special streams to the list (JetTriggers, Public)
 		try:
 			if self.TrigDecTool:
-				self.TrigConfDataIOVChanger.execute()
 				self.TrigBSExtraction.execute()
 				self.TrigDecMaker.execute()
 

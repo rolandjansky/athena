@@ -36,6 +36,7 @@ class EnergyCorrelatorRatiosTool :
 
     private:
       bool m_doC3;
+      bool m_doC4;
       std::vector<float> m_rawBetaVals; /// Vector of input values before cleaning
       std::vector<float> m_betaVals; /// Local vector for cleaned up inputs
       bool m_doDichroic;

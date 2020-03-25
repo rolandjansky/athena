@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbColumn.cpp 726071 2016-02-25 09:23:05Z krasznaa $
@@ -67,7 +67,7 @@ const string DbColumn::toString() const   {
       m_nElem);
   return txt;
 }
-static const char* itm[] = {
+static const char* const itm[] = {
   "{NAME=", 
   "{CLASS=",
   "{TYP=",
@@ -80,45 +80,42 @@ static const char* itm[] = {
 DbStatus DbColumn::fromString( const string& string_rep)  {
   m_colName = typeName(UNKNOWN);
   string tmp = string_rep;
-  char* p1 = (char*)tmp.c_str();
+  const char* p1 = tmp.c_str();
   int nread = 0;
   for(size_t i = 0; i < sizeof(itm)/sizeof(itm[0]); ++i)   {
     p1 = ::strstr(p1, itm[i]);
-    char* pp1 = p1+strlen(itm[i]);
+    const char* pp1 = p1+strlen(itm[i]);
     if ( p1 )    {
-      char* p2 = ::strstr(pp1, "}");
+      const char* p2 = ::strstr(pp1, "}");
       if ( p2 )   {
-        *p1 = 0;
-        *p2 = 0;
+        std::string s (pp1, p2-pp1);
         switch(i)   {
         case 0:
-          m_colName = pp1;
+          m_colName = s;
           nread += 1;
           break;
         case 1:
-          m_typeName = pp1;
+          m_typeName = s;
           nread += 1;
           break;
         case 2:
-          nread += ::sscanf(pp1, "%99d", &m_type);
+          nread += ::sscanf(s.c_str(), "%99d", &m_type);
           break;
         case 3:
-          nread += ::sscanf(pp1, "%99d", &m_opts);
+          nread += ::sscanf(s.c_str(), "%99d", &m_opts);
           break;
         case 4:
-          nread += ::sscanf(pp1, "%99d", &m_offset);
+          nread += ::sscanf(s.c_str(), "%99d", &m_offset);
           break;
         case 5:
-          nread += ::sscanf(pp1, "%99d", &m_size);
+          nread += ::sscanf(s.c_str(), "%99d", &m_size);
           break;
         case 6:
-          nread += ::sscanf(pp1, "%99d", &m_nElem);
+          nread += ::sscanf(s.c_str(), "%99d", &m_nElem);
           break;
         default:
           break;
         }
-        *p1 = '{';
-        *p2 = '}';
       }
     }
   }
