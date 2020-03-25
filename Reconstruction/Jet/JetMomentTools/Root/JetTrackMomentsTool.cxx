@@ -109,9 +109,9 @@ StatusCode JetTrackMomentsTool::decorate(const xAOD::JetContainer& jets) const {
 
     // For each track cut, compute and set the associated moments
     for (size_t iCut = 0; iCut < m_minTrackPt.size(); ++iCut) {
-      const SG::WriteDecorHandle<xAOD::JetContainer, std::vector<int> > numTrkHandle(m_keysNumTrk.at(iCut));
-      const SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtTrkHandle(m_keysSumPtTrk.at(iCut));
-      const SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > trkWidthHandle(m_keysTrkWidth.at(iCut));
+      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<int> > numTrkHandle(m_keysNumTrk.at(iCut));
+      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtTrkHandle(m_keysSumPtTrk.at(iCut));
+      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > trkWidthHandle(m_keysTrkWidth.at(iCut));
       // Get info
       const float minPt = m_minTrackPt[iCut];
       const std::vector<TrackMomentStruct> moments = getTrackMoments(*jet,vertexContainer,minPt,tracks,tva);
@@ -131,9 +131,9 @@ StatusCode JetTrackMomentsTool::decorate(const xAOD::JetContainer& jets) const {
 
       if(!m_doPFlowMoments) continue;
 
-      const SG::WriteDecorHandle<xAOD::JetContainer, std::vector<int> > numCPFOHandle(m_keysNumCPFO.at(iCut));
-      const SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtCPFOHandle(m_keysSumPtCPFO.at(iCut));
-      const SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > cPFOWidthHandle(m_keysCPFOWidth.at(iCut));
+      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<int> > numCPFOHandle(m_keysNumCPFO.at(iCut));
+      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtCPFOHandle(m_keysSumPtCPFO.at(iCut));
+      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > cPFOWidthHandle(m_keysCPFOWidth.at(iCut));
 
       if(isPFlowJet){
         const std::vector<TrackMomentStruct> pflowMoments = getTrackMoments(*jet,vertexContainer,minPt,pflowTracks,tva);
