@@ -30,6 +30,14 @@ NWARNING="$(cat ${LOG_SIM} | grep WARNING | wc -l)"
 NERROR="$(cat ${LOG_SIM} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_SIM} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_SIM}"
+# check differences wrt reference HITS file
+acmd.py diff-root OUT_HITS.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v1.root --ignore-leaves timings &> log_diff_HITS.log
+exit_code=$?
+echo  "art-result: ${exit_code} diff-root_sim"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
 #####################################################################
 
 #####################################################################
