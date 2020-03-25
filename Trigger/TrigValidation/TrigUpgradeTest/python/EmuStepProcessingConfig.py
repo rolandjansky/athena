@@ -54,7 +54,7 @@ def generateL1DecoderAndChains():
  
     # event 2: 2e+ 3mu : HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6, HLT_mu6_e8_L1MU6_EM5
     data['ctp'] [2]      =  'HLT_mu6_L1MU6 HLT_mu8_L1MU10 HLT_mu10_L1MU10 HLT_mu8_1step_L1MU6 HLT_e20_L1EM10 HLT_e8_L1EM7 HLT_mu6_e8_L1MU6_EM5 HLT_mu6Comb_e8_L1MU6_EM5 HLT_e3_e5_L1EM3_EM5 HLT_2mu6_L12MU6 HLT_2mu6Comb_L12MU6 HLT_2mu4_bDimu_L12MU4 HLT_e5_e8_L1EM3_EM5 HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 HLT_mu6_mu6noL1_L1MU6'
-    data['l1emroi'][2]   =  '2,0.2,0,EM3,EM5, EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM5,EM7,EM15,EM20,EM50;'
+    data['l1emroi'][2]   =  '2,0.2,0,EM3,EM5,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM5,EM7,EM15,EM20,EM50;'
     data['emclusters'][2]=  'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;'
     data['l1muroi'][2]   =  '2,0.5,0,MU6,MU8; 3,0.5,0,MU6,MU8,MU10;2.2,0.6,0,MU6;'
     data['msmu'][2]      =  'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;eta:-1.1,phi:0.6,pt:8500,pt2:8500;'
@@ -124,15 +124,14 @@ def generateL1DecoderAndChains():
         step_mu32  = ChainStep("Step3_mu32", [mu32] )
         step_mu41  = ChainStep("Step4_mu41", [mu41] )
         
-        step_empy= ChainStep("Step_empty")
-
-
+        step_empty= ChainStep("Step_empty")
+        
         MuChains  = [
-            makeChain(name='HLT_mu8_1step_L1MU6',  L1Thresholds=["MU6"],  ChainSteps=[step_mu11]),
-            makeChain(name='HLT_mu20_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31] ),
-            makeChain(name='HLT_mu10_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ),
-            makeChain(name='HLT_mu8_L1MU10',    L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu32, step_mu41] ),
-            makeChain(name='HLT_mu6_L1MU6',     L1Thresholds=["MU6"],    ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ),
+            #makeChain(name='HLT_mu8_1step_L1MU6',  L1Thresholds=["MU6"],  ChainSteps=[step_mu11]),
+            #makeChain(name='HLT_mu20_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31] ),
+            #makeChain(name='HLT_mu10_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ),
+            #makeChain(name='HLT_mu8_L1MU10',    L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu32, step_mu41] ),
+            #makeChain(name='HLT_mu6_L1MU6',     L1Thresholds=["MU6"],    ChainSteps=[step_mu11 , step_empty , step_mu32, step_mu41] ),
  #           Chain(name='HLT_mu6_1step_L1MU6',  L1Item="L1_MU6",  ChainSteps=[step_mu11 , step_empy , step_mu31]),
 #            Chain(name='HLT_2mu6_L12MU6',  L1Item="L1_2MU6",      ChainSteps=[ChainStep("Step_2muSA", [muSA,muSA])  ] )
             ]
@@ -155,11 +154,11 @@ def generateL1DecoderAndChains():
 
     
         ElChains  = [
-            makeChain(name='HLT_e5_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),
-            makeChain(name='HLT_e5_v2_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em22",  [el22]) ] ),
-            makeChain(name='HLT_e5_v3_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em23",  [el23]) ] ),
-            makeChain(name='HLT_e8_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]), ChainStep("Step_em31",  [el31]) ] ),
-            makeChain(name='HLT_g5_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_gam11", [gamm11]) ] )
+            #makeChain(name='HLT_e5_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),
+            #makeChain(name='HLT_e5_v2_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em22",  [el22]) ] ),
+            #makeChain(name='HLT_e5_v3_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em23",  [el23]) ] ),
+            #makeChain(name='HLT_e8_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]), ChainStep("Step_em31",  [el31]) ] ),
+            #makeChain(name='HLT_g5_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_gam11", [gamm11]) ] )
         ]
 
         HLTChains += ElChains
@@ -204,11 +203,11 @@ def generateL1DecoderAndChains():
      
         CombChains =[
             makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em_serial", [mu11, emptySeq1], multiplicity=[1,1]),
-                                                                                             ChainStep("Step2_mu_em_serial", [emptySeq1, el21], multiplicity=[1,1])] ),
-
+                                                                                             ChainStep("Step2_mu_em_serial", [emptySeq2, el21], multiplicity=[1,1])] ),
+            
             #makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=[1,1], comboToolConfs=[dimuDrComboHypoTool]),
             #                                                                                 ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
-
+"""
             makeChain(name='HLT_mu6Comb_e8_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
                                                                                                 ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
 
@@ -229,7 +228,7 @@ def generateL1DecoderAndChains():
                                                                                        
             makeChain(name='HLT_mu6_mu6noL1_L1MU6', L1Thresholds=["MU6", "FSNOSEED"], ChainSteps=[ ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
                                                                                             ChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
-                                                                              
+"""                                                                              
             ]
 
 
