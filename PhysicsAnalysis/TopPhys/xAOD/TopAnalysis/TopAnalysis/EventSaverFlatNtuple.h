@@ -167,7 +167,7 @@ namespace top {
      * @returns A shared pointer to the m_branchFilters object
      */
     std::vector<top::TreeManager::BranchFilter>& branchFilters();
-
+    
     /*!
      * @brief Internal function which configures the particle level tree
      * manager. It does branch setup etc.
