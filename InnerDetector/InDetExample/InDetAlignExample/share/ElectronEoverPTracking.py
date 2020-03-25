@@ -137,7 +137,7 @@ from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseCompone
 GsfComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name = 'GsfComponentReduction',
                                                               MaximumNumberOfComponents = 12)
 ToolSvc += GsfComponentReduction
-print      GsfComponentReduction
+printfunc (GsfComponentReduction)
 
 
 
@@ -146,7 +146,7 @@ GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpda
                                                          MultiComponentStateMerger = GsfComponentReduction)
 
 ToolSvc += GsfMaterialUpdator
-print      GsfMaterialUpdator
+printfunc (GsfMaterialUpdator)
 
 from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
 ElectronUpdator = ConfiguredKalmanUpdator('ElectronUpdator')

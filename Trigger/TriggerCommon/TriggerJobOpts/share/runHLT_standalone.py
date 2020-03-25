@@ -56,6 +56,7 @@ class opt:
     doStreamingSlice  = True
     doMonitorSlice    = True
     doBeamspotSlice   = True
+    doCosmicSlice     = True
     reverseViews      = False
     filterViews       = False
     enabledSignatures = []

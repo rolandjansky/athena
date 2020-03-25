@@ -241,4 +241,4 @@ ErrorScaling        	  =  [False,False,False,False,False,False,False,False,False
 MonitoringScript = ""
 
 os.system("get_files -jo InDetAlignExample/IteratorGrid.py >/dev/null")
-execfile("IteratorGrid.py")
+exec(compile(open('IteratorGrid.py').read()))

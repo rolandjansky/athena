@@ -300,7 +300,6 @@ namespace Trk {
     bool                            m_requireMaterialDestinationHit; //!< require the destination surface hit for material collection
     bool                            m_stopWithNavigationBreak;       //!< return 0 if navigation breaks - for validation reasons
     bool                            m_stopWithUpdateZero;            //!< return 0 if update kills the trajectory 
-    bool                            m_subSurfaceLevel;               //!< tep down to sub-surface level
     bool                            m_skipInitialLayerUpdate;        //!< skip the initial post-Update at the layer [Fatras conversion mode]
     bool                            m_referenceMaterial;             //!< use the reference material for the update
     bool                            m_extendedLayerSearch;           //!< extended layer search

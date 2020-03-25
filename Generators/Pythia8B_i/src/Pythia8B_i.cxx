@@ -368,17 +368,9 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     evt->weights().push_back(m_pythia->info.weight());
     
     // Units correction
-#ifdef HEPMC_HAS_UNITS
     if(Pythia8_i::pythiaVersion() < 8.170 ){
         GeVToMeV(evt);
     }
-#else
-    ATH_MSG_DEBUG("Not scaling HepMC energies for Py8 > 8.153!");
-#endif
-    
-#ifndef HEPMC_HAS_UNITS
-    ATH_MSG_DEBUG();
-#endif
     
     // Remove event/number from buffer
     m_BEventBuffer.erase(m_BEventBuffer.begin());

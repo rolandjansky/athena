@@ -47,7 +47,7 @@ def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     return MDT_Response_DigiTool(name, **kwargs)
 
 
-def MDT_DigitizationToolCommonCfg(flags, name="MDT_DigitizationTool", **kwargs):
+def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with common MdtDigitizationTool config"""
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
     acc = MdtCondDbAlgCfg(flags)
@@ -67,7 +67,7 @@ def MDT_DigitizationToolCommonCfg(flags, name="MDT_DigitizationTool", **kwargs):
     return acc
 
 
-def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
+def MDT_DigitizationToolCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MdtDigitizationTool"""
     kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
     if flags.Digitization.PileUpPremixing:

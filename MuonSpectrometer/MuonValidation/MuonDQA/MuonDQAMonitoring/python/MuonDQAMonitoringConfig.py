@@ -12,11 +12,10 @@ def MuonDQAMonitoringConfig(flags):
         if flags.DQ.Environment not in ('tier0Raw', 'AOD'):
             from MdtRawDataMonitoring.MDTMonitorAlgorithm import MdtMonitoringConfig
             from RpcRawDataMonitoring.RpcMonitorAlgorithm import RpcMonitoringConfig
+            from TgcRawDataMonitoring.TgcRawDataMonitorAlgorithm import TgcRawDataMonitoringConfig
+    
             result.merge(MdtMonitoringConfig(flags))
             result.merge(RpcMonitoringConfig(flags))
-
-        from TgcRawDataMonitoring.TgcRawDataMonitorAlgorithm import TgcRawDataMonitoringConfig
-    
-        result.merge(TgcRawDataMonitoringConfig(flags))
+            result.merge(TgcRawDataMonitoringConfig(flags))
         
     return result

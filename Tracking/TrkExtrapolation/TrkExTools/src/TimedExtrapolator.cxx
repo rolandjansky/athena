@@ -74,7 +74,6 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::strin
   m_requireMaterialDestinationHit(false),
   m_stopWithNavigationBreak(false),
   m_stopWithUpdateZero(false),
-  m_subSurfaceLevel(true),
   m_skipInitialLayerUpdate(false),
   m_referenceMaterial(false),
   m_extendedLayerSearch(true),

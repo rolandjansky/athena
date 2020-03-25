@@ -172,15 +172,8 @@ float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     }
     availableVariables.insert(std::make_pair("Pi0Cluster_secondEtaWRTClusterPosition_EM2", secondEtaWRTClusterPosition_EM2)); 
 
-    // Calculate BDT score
-    float score = 0;
-    StatusCode sc = m_mvaBDT->getGradBoostMVA(availableVariables, score);
-
-    // return failure when the availableVariables lack some variables
-    if (sc.isFailure()) {
-        ATH_MSG_WARNING("Failed to calculate the BDT score");
-        score = -999;
-    } 
+    // Calculate BDT score, will be -999 when availableVariables lack variables
+    float score = m_mvaBDT->getGradBoostMVA(availableVariables);
 
     return score;
 }

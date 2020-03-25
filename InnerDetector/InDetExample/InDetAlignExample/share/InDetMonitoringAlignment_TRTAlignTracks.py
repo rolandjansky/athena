@@ -11,7 +11,7 @@ InDetAlignMonResidualsTRTAlign = IDAlignMonResiduals (name = 'InDetAlignMonResid
  
 #ToolSvc += InDetAlignMonResidualsTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
-    print InDetAlignMonResidualsTRTAlign 
+    printfunc (InDetAlignMonResidualsTRTAlign )
      
 InDetAlignMonEfficienciesTRTAlign = IDAlignMonEfficiencies (name = 'InDetAlignMonEfficienciesTRTAlign', 
                                                             HoleSearch = InDetExtendedHoleSearchTool, 
@@ -24,7 +24,7 @@ InDetAlignMonEfficienciesTRTAlign = IDAlignMonEfficiencies (name = 'InDetAlignMo
  
 #ToolSvc += InDetAlignMonEfficienciesTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
-    print InDetAlignMonEfficienciesTRTAlign 
+    printfunc (InDetAlignMonEfficienciesTRTAlign )
  
 InDetAlignMonGenericTracksTRTAlign = IDAlignMonGenericTracks (name = 'InDetAlignMonGenericTracksTRTAlign', 
                                                               tracksName= 'TRTAlignTracks', 
@@ -33,7 +33,7 @@ InDetAlignMonGenericTracksTRTAlign = IDAlignMonGenericTracks (name = 'InDetAlign
  
 #ToolSvc += InDetAlignMonGenericTracksTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
-    print InDetAlignMonGenericTracksTRTAlign 
+    printfunc (InDetAlignMonGenericTracksTRTAlign )
  
 InDetTrackSplitterToolTRTAlign = InDet__InDetTrackSplitterTool(name = 'TrackSplitterTool_TRTAlign', 
                                                                TrackFitter = InDetTrackFitter, 
@@ -43,7 +43,7 @@ InDetTrackSplitterToolTRTAlign = InDet__InDetTrackSplitterTool(name = 'TrackSpli
  
 #ToolSvc += InDetTrackSplitterToolTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
-    print InDetTrackSplitterToolTRTAlign 
+    printfunc (InDetTrackSplitterToolTRTAlign )
      
 InDetAlignMonTrackSegmentsTRTAlign = IDAlignMonTrackSegments ( name = 'InDetAlignMonTrackSegmentsTRTAlign', 
                                                                InputTracksName = 'TRTAlignTracks', 
@@ -61,7 +61,7 @@ InDetAlignMonTrackSegmentsTRTAlign = IDAlignMonTrackSegments ( name = 'InDetAlig
                                                                D0Range = 800 ) 
 #ToolSvc += InDetAlignMonTrackSegmentsTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
-    print InDetAlignMonTrackSegmentsTRTAlign 
+    printfunc (InDetAlignMonTrackSegmentsTRTAlign )
 
 InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResidualsTRTAlign ] 
 InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonEfficienciesTRTAlign ] 
@@ -70,6 +70,6 @@ InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonTrackSegmentsTRTAlign ]
 
 topSequence += InDetAlignMonManager
 if (InDetFlags.doPrintConfigurables()):
-    print InDetAlignMonManager
+    printfunc (InDetAlignMonManager)
 
 

@@ -1,8 +1,11 @@
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4/slc4_ia32_gcc34/bin/python
+#!/usr/bin/env python
 # =====================================================================
 # Main script to run the NewInDetIterator
 # run with ./RunIterator.py
 # =====================================================================
+
+from __future__ import print_function
+
 import os
 import sys
 
@@ -82,13 +85,13 @@ nCpus=int(config.nCpus)
 userPtMin = float(config.userPtMin)
 
 
-print " \n <RunIterator> ----- User input in command line --- "
-print " <RunIterator> inputList = ",inputList
-print " <RunIterator> nCpus = ",nCpus
-print " <RunIterator> nEventsMax = ",nEventsMax
-print " <RunIterator> ConstantsFile = ",ConstantsFile
-print " <RunIterator> inputErrorScalingTag = ",inputErrorScalingTag
-print " <RunIterator> userPtMin = ",userPtMin, " MeV"
+print (" \n <RunIterator> ----- User input in command line --- ")
+print (" <RunIterator> inputList = ",inputList)
+print (" <RunIterator> nCpus = ",nCpus)
+print (" <RunIterator> nEventsMax = ",nEventsMax)
+print (" <RunIterator> ConstantsFile = ",ConstantsFile)
+print (" <RunIterator> inputErrorScalingTag = ",inputErrorScalingTag)
+print (" <RunIterator> userPtMin = ",userPtMin, " MeV")
 
 ##########################################################
 #		Datasets to use
@@ -319,5 +322,5 @@ errorScalingTag = inputErrorScalingTag
 MonitoringScript = ""
 
 os.system("get_files -jo InDetAlignExample/NewInDetIterator_Rel19.py >/dev/null")
-print os.system("get_files -jo InDetAlignExample/NewInDetIterator_Rel19.py")
-execfile("NewInDetIterator_Rel19.py")
+print (os.system("get_files -jo InDetAlignExample/NewInDetIterator_Rel19.py"))
+exec(compile(open('NewInDetIterator_Rel19.py').read()))
