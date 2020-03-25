@@ -6,6 +6,7 @@
 #       so deletion of the one tagger that has this function won't break the others.
 from BTagging.BTaggingFlags import BTaggingFlags
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 
 metaInDetVKalVxInJetTool = { 'IsAVertexFinder'          : True,
                              'VertexFinderxAODBaseName' : 'SV1',
@@ -31,6 +32,7 @@ def toolInDetVKalVxInJetTool(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'      : BTaggingFlags.OutputLevel,
                      'ExistIBL'         : geoFlags.isIBL(),
+                     'IsPhase2'         : commonGeoFlags.Run() == "RUN4",
 #                     'TrackSummaryTool' : None }
                      }
         for option in defaults:
