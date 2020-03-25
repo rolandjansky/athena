@@ -1,11 +1,12 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef XAODDATASOURCE_MAKEDATAFRAME_H
 #define XAODDATASOURCE_MAKEDATAFRAME_H
 
 // ROOT include(s).
+#include "RootUtils/TClassEditRootUtils.h"
 #include <ROOT/RDataFrame.hxx>
 #include <ROOT/RStringView.hxx>
 
