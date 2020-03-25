@@ -148,9 +148,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   }
   int missingCount{};
   for ( IdentifierHash hash: hashIDs ) {
-    const bool added = rdoInterface->tryAddFromCache( hash );
-    if ( added == false )
-      missingCount++;
+    if ( not rdoInterface->tryAddFromCache( hash ) ) missingCount++;
     bsIDCErrContainer->tryAddFromCache( hash );
   }
   ATH_MSG_DEBUG("Out of: " << hashIDs.size() << "Hash IDs missing: " << missingCount );
