@@ -60,8 +60,7 @@ namespace top {
      * @brief Helper function to fill the histograms
      *
      */
-    void FillHistograms(std::vector<std::shared_ptr<PlotManager> > h_ptr,
-                        const double w_event,
+    void FillHistograms(const double w_event,
                         const top::Event& event) const;
 
     /**
@@ -73,7 +72,7 @@ namespace top {
   private:
 
     // Easy access to histograms.
-    std::vector<std::shared_ptr<PlotManager> > m_hists;
+    mutable std::vector<std::shared_ptr<PlotManager> > m_hists;
 
     // Nominal hash value
     std::size_t m_nominalHashValue;

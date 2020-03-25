@@ -83,13 +83,12 @@ namespace top {
 
     const double nominalWeight = event.m_info->auxdata<float>("AnalysisTop_eventWeight");
 
-    FillHistograms(m_hists, nominalWeight, event);
+    FillHistograms(nominalWeight, event);
       
     return true;
   }
 
-  void JetResponsePlots::FillHistograms(std::vector<std::shared_ptr<PlotManager> > h_ptr,
-                                        const double w_event,
+  void JetResponsePlots::FillHistograms(const double w_event,
                                         const top::Event& event) const {
 
     for (const auto* const jetPtr : event.m_jets) {
@@ -119,7 +118,7 @@ namespace top {
         throw std::runtime_error{"JetResponsePlots::FillHistograms: True jet pT outside of the range"};
       }
 
-      static_cast<TH1D*>(h_ptr.at(position)
+      static_cast<TH1D*>(m_hists.at(position)
             ->hist("JetResponse_"+std::to_string(m_edges.at(position))+"_"+std::to_string(m_edges.at(position+1))))
             ->Fill(response, w_event);
     }
