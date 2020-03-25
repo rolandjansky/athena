@@ -119,7 +119,7 @@ globalflags.ConditionsTag.set_Value_and_Lock(runArgs.conditionsTag)
 from IOVDbSvc.CondDB import conddb
 if globalflags.ConditionsTag():
   conddb.setGlobalTag(globalflags.ConditionsTag())
-print globalflags
+printfunc (globalflags)
 
 # Turn off detectors which are not present in calibstream
 DetFlags.Calo_setOff()
@@ -201,7 +201,7 @@ svcMgr.MuonCalibStreamFileInputSvc.InputFiles   = runArgs.inputCSFiles
 svcMgr.MuonCalibStreamDataProviderSvc.LumiBlockNumberFromCool = lumiBlockNumberFromCool
 svcMgr.MuonCalibStreamDataProviderSvc.RunNumberFromCool       = runNumberFromCool
 
-print topSequence
+printfunc (topSequence)
 
 import MagFieldServices.SetupField
 
