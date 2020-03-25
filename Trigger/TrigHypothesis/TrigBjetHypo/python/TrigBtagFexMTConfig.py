@@ -31,7 +31,9 @@ class TrigBtagFexMT_OnlineMonitoring(GenericMonitoringTool):
         self.name = "TrigBtagFexMT_OnlineMonitoring"
         self.HistPath = self.name
         #self.defineTarget("Online")
-        self.defineHistogram('jet_pt', path='EXPERT', type='TH1F', title="BtagFexMT Jet PT", xbins = 20, xmin=0, xmax=500000) 
+        self.defineHistogram('jet_pt', path='EXPERT', type='TH1F', title="BtagFexMT Jet PT", xbins = 20, xmin=0, xmax=800000) 
+        self.defineHistogram('jet_eta', path='EXPERT', type='TH1F', title="BtagFexMT Jet Eta", xbins = 20, xmin=-5, xmax=5) 
+        self.defineHistogram('track_Et', path='EXPERT', type='TH1F', title="BtagFexMT Track Transverse Energy", xbins = 20, xmin=0, xmax=800000) 
 
 
 

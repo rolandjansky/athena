@@ -101,15 +101,16 @@ StatusCode TrigBtagFexMT::execute() {
   CHECK( jetContainerHandle.isValid() );
   const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
   ATH_MSG_DEBUG( "Retrieved " << jetContainer->size() << " jets" );
+  auto monitor_for_jet_count = Monitored::Scalar( "jet_count", jetContainer->size() );
 
-  auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", *jetContainer, []( const xAOD::Jet *jet ) { return jet->pt(); } );
+  //auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", *jetContainer, []( const xAOD::Jet *jet ) { return jet->pt(); } );
+  auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", *jetContainer, &xAOD::Jet::pt );
+  auto monitor_for_jet_eta = Monitored::Collection( "jet_eta", *jetContainer, &xAOD::Jet::eta );
 
   for ( const xAOD::Jet* jet : *jetContainer ) {
-    ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->p4().Et() * 1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi() );
+    ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->pt() << " eta=" << jet->eta() << " phi=" << jet->phi() );
   }
-
-  auto monitor_group_for_jets = Monitored::Group( m_monTool, monitor_for_jet_pt );
-
+  auto monitor_group_for_jets = Monitored::Group( m_monTool, monitor_for_jet_pt, monitor_for_jet_eta );
 
 
   // Test retrieval of Track Particles
@@ -118,9 +119,15 @@ StatusCode TrigBtagFexMT::execute() {
   CHECK( trkContainerHandle.isValid() );
   const xAOD::TrackParticleContainer *trkContainer =  trkContainerHandle.get();
   ATH_MSG_DEBUG("Retrieved " << trkContainerHandle->size() << " Tracks");
+  auto monitor_for_track_count = Monitored::Scalar( "track_count", trkContainer->size() );
 
-  for ( const xAOD::TrackParticle *trk : *trkContainer ) 
+  auto monitor_for_track_Et = Monitored::Collection( "track_Et", *trkContainer, []( const xAOD::TrackParticle *trk ) { return trk->p4().Et(); } );
+  auto monitor_for_track_eta = Monitored::Collection( "track_eta", *trkContainer, xAOD::TrackParticle::eta);
+  auto monitor_for_track_phi = Monitored::Collection( "track_phi", *trkContainer, xAOD::TrackPaticle::phi );
+  for ( const xAOD::TrackParticle *trk : *trkContainer ) {
     ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 << " eta=" << trk->eta() << " phi=" << trk->phi() );
+  }
+  auto monitor_group_for_tracks = Monitored::Group( m_monTool, monitor_for_track_Et, monitor_for_track_eta, monitor_for_track_phi);
 
 
   // Test retrieval of VertexContainer
@@ -129,11 +136,11 @@ StatusCode TrigBtagFexMT::execute() {
   CHECK( vxContainerHandle.isValid() );  
   const xAOD::VertexContainer* vxContainer = vxContainerHandle.get();
   ATH_MSG_DEBUG( "Retrieved " << vxContainer->size() <<" vertices..." );
+  auto monitor_for_vertex_count = Monitored::Scalar( "vertex_count", vxContainer->size() );
 
-  for ( const xAOD::Vertex *pv : *vxContainer )
-    ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<<
-		   " y=" << pv->y() <<
-		   " z=" << pv->z() );
+  for ( const xAOD::Vertex *pv : *vxContainer ) {
+    ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<< " y=" << pv->y() << " z=" << pv->z() );
+  }
 
 
   // Creating dummy B-Tagging container in order to avoid
