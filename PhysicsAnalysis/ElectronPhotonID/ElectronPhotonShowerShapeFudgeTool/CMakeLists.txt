@@ -55,8 +55,8 @@ atlas_add_executable( EPSSFT_drawFFs util/drawFFs.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib )
 
-atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool
-   util/testElectronPhotonVariableCorrectionTool.cxx
+atlas_add_executable( Test_ElectronPhotonVariableCorrectionBase
+   util/testElectronPhotonVariableCorrectionBase.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools ElectronPhotonShowerShapeFudgeToolLib)
 
@@ -64,6 +64,11 @@ atlas_add_executable( Test_IsoCorrection
    util/testIsoCorrection.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools IsolationCorrectionsLib ElectronPhotonShowerShapeFudgeToolLib)
+
+atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool
+   util/testElectronPhotonVariableCorrectionTool.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools ElectronPhotonShowerShapeFudgeToolLib)
 
 atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool_DictionaryToolHandle
    util/testElectronPhotonVariableCorrectionTool_DictionaryToolHandle.cxx
