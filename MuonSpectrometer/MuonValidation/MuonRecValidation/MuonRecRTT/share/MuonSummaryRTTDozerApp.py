@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import sys
 sys.argv.append("-b") # for running ROOT in batch! verrrry important!
 sys.rtt = True
@@ -62,8 +63,8 @@ class MuonSummaryRTTDozerApp( RTTDozerApp ):
        
        for trackCollName in summaries:
          values = summaries[trackCollName]
-         print values
-         for k,v in values.iteritems():
+         printfunc (values)
+         for k,v in values.items():
            key = translations[k]
            if key=="NumEvents" or key=="NumTracks":
              self.dozerSchema[trackCollName][key].setValue( int(v) ) # setting value for  DozerData
@@ -73,7 +74,7 @@ class MuonSummaryRTTDozerApp( RTTDozerApp ):
 
 ## dummy standalone run outside RTT
 if __name__ == "__main__":
-   print "Dummy test running..."
+   printfunc ("Dummy test running...")
 
    ##
    # @class Paths
