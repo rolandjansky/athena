@@ -60,7 +60,7 @@ namespace top {
      * @brief Helper function to fill the histograms
      *
      */
-    void FillHistograms(std::shared_ptr<PlotManager> h_ptr,
+    void FillHistograms(std::vector<std::shared_ptr<PlotManager> > h_ptr,
                         const double w_event,
                         const top::Event& event) const;
 
@@ -73,10 +73,12 @@ namespace top {
   private:
 
     // Easy access to histograms.
-    std::shared_ptr<PlotManager> m_hists = nullptr;
+    std::vector<std::shared_ptr<PlotManager> > m_hists;
 
     // Nominal hash value
     std::size_t m_nominalHashValue;
+    
+    const std::vector<float> m_edges = {0, 30, 50, 100, 200, 500, 999999};
 
     // deltaR used for jet matching
     float m_deltaR;

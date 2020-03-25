@@ -63,8 +63,10 @@ namespace top {
       }
     }
 
-    m_hists = std::make_shared<PlotManager>(name + "/JetResponsePlots", outputFile, wk);
-    m_hists->addHist("JetResponse", ";p_{T}^{truth}-p_{T}^{reco}/p_{T}^{truth};Events", m_bins, m_min, m_max); 
+    for (std::size_t i = 0; i < m_edges.size() -1; ++i) {
+      m_hists.emplace_back(std::make_shared<PlotManager>(name + "/JetResponsePlots_"+std::to_string(m_edges.at(i))+"_"+std::to_string(m_edges.at(i+1)), outputFile, wk));
+      m_hists.back()->addHist("JetResponse_"+std::to_string(m_edges.at(i))+"_"+std::to_string(m_edges.at(i+1)), ";p_{T}^{truth}-p_{T}^{reco}/p_{T}^{truth};Events", m_bins, m_min, m_max);
+    }
   }
 
   bool JetResponsePlots::apply(const top::Event& event) const {
@@ -86,7 +88,7 @@ namespace top {
     return true;
   }
 
-  void JetResponsePlots::FillHistograms(std::shared_ptr<PlotManager> h_ptr,
+  void JetResponsePlots::FillHistograms(std::vector<std::shared_ptr<PlotManager> > h_ptr,
                                         const double w_event,
                                         const top::Event& event) const {
 
@@ -104,10 +106,23 @@ namespace top {
 
       const float response = (matchedPt - jetPtr->pt()) / matchedPt;
 
-      static_cast<TH1D*>(h_ptr->hist("JetResponse"))->Fill(response,
-                                                           w_event);
-    }
+      // identify which histogram to fill
+      std::size_t position(9999);
+      for (std::size_t i = 0; i < m_edges.size()-1; ++i) {
+        if (matchedPt/1e3 >= m_edges.at(i) && matchedPt/1e3 < m_edges.at(i+1)) {
+          position = i;
+          break;
+        }
+      }
 
+      if (position == 9999) {
+        throw std::runtime_error{"JetResponsePlots::FillHistograms: True jet pT outside of the range"};
+      }
+
+      static_cast<TH1D*>(h_ptr.at(position)
+            ->hist("JetResponse_"+std::to_string(m_edges.at(position))+"_"+std::to_string(m_edges.at(position+1))))
+            ->Fill(response, w_event);
+    }
   }
 
   std::string JetResponsePlots::name() const {
