@@ -5,7 +5,7 @@
 #
 # Written by Juerg Beringer in July 2008.
 #
-print "InDetBeamSpotExample INFO Using $Id: MonitoringTemplate.py 360886 2011-04-21 15:05:50Z gwilliam $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: MonitoringTemplate.py 360886 2011-04-21 15:05:50Z gwilliam $")
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -28,7 +28,7 @@ if jobConfig['outputlevel'] <= DEBUG:
     #from InDetBeamSpotFinder.InDetBeamSpotFinderConf import InDet__InDetBeamSpotReader
     topSequence += CfgMgr.InDet__InDetBeamSpotReader(name = 'InDetBeamSpotReader',
                                                      OutputLevel = INFO)
-    print topSequence.InDetBeamSpotReader
+    printfunc (topSequence.InDetBeamSpotReader)
 
 
 # Monitoring fragment (if doMonitoringGlobal is set, monitoring instead be done

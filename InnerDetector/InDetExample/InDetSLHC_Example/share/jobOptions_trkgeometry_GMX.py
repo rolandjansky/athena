@@ -25,8 +25,8 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence() 
 
-execfile("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 
 #--------------------------------------------------------------
 # load Global Flags and set defaults (import the new jobProperty globalflags)
@@ -101,7 +101,6 @@ except:
 # Nigel: copied the file locally since it wasn't found otherwise.
 tempVersion = SLHC_Flags.SLHC_Version.get_Value()
 SLHC_Flags.SLHC_Version = "21-22-23"
-#execfile("AtlasTrackingGeometrySvc.py")
 include ('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
 SLHC_Flags.SLHC_Version = tempVersion
 TrackingGeometrySvc = AtlasTrackingGeometrySvc

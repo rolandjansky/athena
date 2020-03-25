@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 Beam spot postprocessing library.
 """
@@ -13,6 +16,10 @@ import os
 from InDetBeamSpotExample.PostProcessing import *
 from InDetBeamSpotExample.TaskManager import TaskManager
 from InDetBeamSpotExample import COOLUtils
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 linkTemplates = {
     'PlotBeamSpot.gif': '<a href="../files?u=%s/%s/%s">Summary</a>',
@@ -270,7 +277,7 @@ class AveBeamSpot(PostProcessingStep):
 #             self.addResult(dataQualityDbFileName)
 #             
 #             dataQualityTxtFileName = dataQualityDbFileName.replace('.db','.txt')            
-#             stat,out = commands.getstatusoutput('grep -c "ID_BS_NOBEAMSPOT" %s/%s' %  (self.taskDir, dataQualityTxtFileName) )
+#             stat,out = subprocess.getstatusoutput('grep -c "ID_BS_NOBEAMSPOT" %s/%s' %  (self.taskDir, dataQualityTxtFileName) )
 # 
 #             # Catch errors (do it this way as the exit codes from grep are nasty)
 #             try:
@@ -332,7 +339,7 @@ class UploadBeamSpot(PostProcessingStep):
                                       self.executedSteps,TaskManager.StatusCodes['POSTPROCFAILED'])
         # Check that this is the express stream
         if self.dsName.split('.')[-1] != 'express_express' and self.dsName.split('.')[-1] != 'calibration_BeamSpot':
-            print self.dsName.split('.')[-1] 
+            print (self.dsName.split('.')[-1] )
             self.log(text="WARNING: Not running on the express or BeamSpot  stream, so won't upload anything - if this is intentional, please upload manually\n",doPrint=True)
             return
         if os.path.exists('/'.join([self.taskDir,beamSpotDbFileName])):
@@ -371,7 +378,7 @@ class DQBeamSpot(PostProcessingStep):
             
             dataQualityTxtFileName = dataQualityDbFileName.replace('.db','.txt')            
             cmd = 'grep -c "ID_BS_NOBEAMSPOT" %s/%s' %  (self.taskDir, dataQualityTxtFileName)
-            status,out = commands.getstatusoutput(cmd)
+            status,out = subprocess.getstatusoutput(cmd)
 
             # Catch errors (do it this way as the exit codes from grep are nasty)
             try:

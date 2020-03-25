@@ -29,8 +29,17 @@ namespace FlavorTagDiscriminants {
   std::vector<DL2InputConfig> get_input_config(
     const std::vector<std::string>& variable_names,
     const TypeRegexes& type_regexes,
-    const StringRegexes& default_flag_regexes,
-    std::map<std::string,std::string>& replaced_vars);
+    const StringRegexes& default_flag_regexes);
+
+  // Since the names of the inputs are stored in the NN config, we
+  // also allow some user-configured remapping. Items in replaced_vars
+  // are removed as they are used.
+  void remap_inputs(std::vector<lwt::Input>& nn,
+                    std::vector<DL2InputConfig>& dl2,
+                    std::map<std::string, std::string>& replaced_vars);
+
+  // Function to map the regex + list of inputs to variable config,
+  // this time for sequence inputs.
   std::vector<DL2TrackSequenceConfig> get_track_input_config(
     const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
     const TypeRegexes& type_regexes,

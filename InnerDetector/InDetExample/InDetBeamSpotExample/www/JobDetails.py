@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 ATLAS beam spot web page for displaying details of beam spot jobs.
@@ -110,4 +112,4 @@ class JobDetails(BeamSpotWebPage):
 # Code to test or run locally
 if __name__ == '__main__':
     p = JobDetails()
-    print p.index()
+    print (p.index())

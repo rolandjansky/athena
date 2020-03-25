@@ -35,6 +35,8 @@ def collectHypos( steps ):
                 # will replace by function once dependencies are sorted
                 if 'HypoInputDecisions'  in alg.getProperties():
                     __log.info( "found hypo " + alg.name() + " in " +stepSeq.name() )
+                    if alg.getType() == 'ComboHypo':
+                        __log.info( "    with %d comboHypoTools: %s", len(alg.ComboHypoTools), ' '.join(map(str, [tool.name() for  tool in alg.ComboHypoTools])))
                     hypos[stepSeq.name()].append( alg )
                 else:
                     __log.verbose("Not a hypo" + alg.name())
