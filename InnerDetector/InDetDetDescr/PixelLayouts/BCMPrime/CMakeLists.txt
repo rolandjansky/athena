@@ -24,7 +24,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry )
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          Tools/PathResolver )
 
 # External dependencies:
 find_package( CLHEP )
