@@ -12,6 +12,11 @@ SEED_STRING = "seed"
 def legName(chainName, legCounter):
     return ("leg{:03d}_{}".format(legCounter, chainName))
 
+def chainNameFromLegName(legName):
+	if (isLegId(legName)):
+		return legName[7:]
+	return legName
+
 def isLegId(chainName):
     return chainName.startswith("leg")
 
