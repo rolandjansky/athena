@@ -39,7 +39,7 @@ plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20",
 monitoring_tags = [#'HLT_e5_lhloose',
 #                   'HLT_e17_lhvloose_nod0',
 #                   'HLT_e24_lhtight_nod0_ivarloose',
-#                   'HLT_e26_lhtight_nod0_ivarloose',
+                   'HLT_e26_lhtight_nod0_ivarloose',
                    'HLT_e28_lhtight_nod0_ivarloose',
                    'HLT_e60_lhmedium_nod0_L1EM24VHI',
                    'HLT_e140_lhloose_nod0_L1EM24VHI',
@@ -63,7 +63,9 @@ monitoring_jpsitags = [
 monitoring_L1Calo = []
 
 # Startup and high-pt electrons to monitor from inclusive electrons
-commission_electron = []
+commission_electron = [
+        'HLT_e26_lhtight_nod0_ivarloose'
+        ]
 
 #monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
 #                       'HLT_e140_lhloose_nod0_L1EM24VHI'
