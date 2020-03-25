@@ -278,18 +278,14 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
     ATH_MSG_WARNING("Did not find the feature for " << dEL.dataID() << " index " << dEL.index());
   }
   // Try and get seeding ROI data too. Don't need to be type-less here
-  if (m_requireUniqueROI) {
-    LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
-    if (roiSeedLI.isValid()) {
-      roiKey = roiSeedLI.link.key();
-      roiIndex = roiSeedLI.link.index();
-    }
-    else {
-      ATH_MSG_ERROR("Did not find a seeding ROI for " << dEL.dataID() << " index " << dEL.index());
-    }
+  LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
+  if (roiSeedLI.isValid()) {
+    roiKey = roiSeedLI.link.key();
+    roiIndex = roiSeedLI.link.index();
   }
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode ComboHypo::fillDecisionsMap( LegDecisionsMap &  dmap, const EventContext& context) const {
   for ( size_t inputContainerIndex = 0; inputContainerIndex < m_inputs.size(); ++inputContainerIndex ) {   
