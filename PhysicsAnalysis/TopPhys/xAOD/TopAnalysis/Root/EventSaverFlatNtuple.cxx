@@ -3624,6 +3624,7 @@ namespace top {
   }
 
   void EventSaverFlatNtuple::calculateTruthEvent() {
+    
     const xAOD::EventInfo* eventInfo(nullptr);
 
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
@@ -3720,7 +3721,7 @@ namespace top {
   }
 
   void EventSaverFlatNtuple::fillTruthEvent() {
-    m_truthTreeManager->fill();
+    if(m_config->doTopPartonLevel()) m_truthTreeManager->fill();
   }
 
   void EventSaverFlatNtuple::saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent) {
@@ -4941,8 +4942,11 @@ namespace top {
     return prompt;
   }
 
-  int EventSaverFlatNtuple::filterBranches(const top::TreeManager*, const std::string& variable) {
-    const std::vector<std::string>& filteredBranches = m_config->filterBranches();
+  int EventSaverFlatNtuple::filterBranches(const top::TreeManager* treeManager, const std::string& variable) {
+    std::vector<std::string> filteredBranches;
+    if(treeManager->name() == "truth") filteredBranches= m_config->filterPartonLevelBranches();
+    else if(treeManager->name() == "particleLevel") filteredBranches= m_config->filterParticleLevelBranches();
+    else  filteredBranches= m_config->filterBranches();
 
     // lambda to test a wildcard on the variable
     auto matches_wildcard = [&variable] (const std::string& wildcard) {

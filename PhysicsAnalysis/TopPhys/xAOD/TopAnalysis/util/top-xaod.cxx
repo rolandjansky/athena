@@ -667,7 +667,7 @@ int main(int argc, char** argv) {
                                               "Failed to execute PDF SF");
 
         eventSaver->saveTruthEvent();
-        ++eventSavedTruth;
+        if(topConfig->doTopPartonLevel()) ++eventSavedTruth;
 
         // Upgrade analysis - only for truth DAODs when asking to do upgrade studies
         if (topConfig->isTruthDxAOD() && topConfig->HLLHC()) {

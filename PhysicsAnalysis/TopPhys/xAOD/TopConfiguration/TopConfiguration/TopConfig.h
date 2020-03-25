@@ -122,6 +122,22 @@ namespace top {
         m_filterBranches = value;
       }
     }
+    
+    // List of PartonLevel branches to be removed
+    inline std::vector<std::string> filterPartonLevelBranches() const {return m_filterPartonLevelBranches;}
+    inline void setFilterPartonLevelBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterPartonLevelBranches = value;
+      }
+    }
+    
+    // List of ParticleLevel branches to be removed
+    inline std::vector<std::string> filterParticleLevelBranches() const {return m_filterParticleLevelBranches;}
+    inline void setFilterParticleLevelBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterParticleLevelBranches = value;
+      }
+    }
 
     // Generators name
     inline std::string getGenerators() const {return m_generators;}
@@ -347,12 +363,19 @@ namespace top {
     inline bool isTopPartonHistoryRegisteredInNtuple() const {return m_isTopPartonHistoryRegisteredInNtuple;}
     inline void setTopPartonHistoryRegisteredInNtuple()
     {m_isTopPartonHistoryRegisteredInNtuple = true;}
+    
+    inline bool doTopPartonLevel() const {return m_doTopPartonLevel;}
+    inline void setTopPartonLevel(bool in) {
+      if (!m_configFixed) {
+        m_doTopPartonLevel = in;
+      }
+    }
 
     // TopParticleLevel
     inline bool doTopParticleLevel() const {return m_doTopParticleLevel;}
-    inline void setTopParticleLevel() {
+    inline void setTopParticleLevel(bool in) {
       if (!m_configFixed) {
-        m_doTopParticleLevel = true;
+        m_doTopParticleLevel = in;
       }
     }
 
@@ -1788,7 +1811,7 @@ namespace top {
 
     bool m_isMC;
     bool m_isAFII;
-    std::vector<std::string> m_filterBranches;
+    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches;
     std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;
@@ -1863,6 +1886,7 @@ namespace top {
     // Top Parton History
     bool m_doTopPartonHistory;
     bool m_isTopPartonHistoryRegisteredInNtuple;
+    bool m_doTopPartonLevel;
 
     // Top Particle Level
     bool m_doTopParticleLevel;

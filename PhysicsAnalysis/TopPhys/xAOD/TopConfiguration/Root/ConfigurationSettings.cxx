@@ -327,6 +327,10 @@ namespace top {
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
     registerParameter("FilterBranches",
                       "Comma separated list of names of the branches that will be removed from the output", " ");
+    registerParameter("FilterPartonLevelBranches",
+                      "Comma separated list of names of the parton-level branches that will be removed from the output", " ");
+    registerParameter("FilterParticleLevelBranches",
+                      "Comma separated list of names of the particle-level branches that will be removed from the output", " ");
     registerParameter("FilterTrees",
                       "Comma separated list of names of the trees that will be removed from the output", " ");
 
@@ -355,8 +359,9 @@ namespace top {
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
     registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHqtautau, False (default)", "False");
-
-    registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
+    registerParameter("TopPartonLevel", "Perform parton level analysis (stored in truth tree)? True or False", "True");
+    
+    registerParameter("TopParticleLevel", "Perform particle level selection (stored in particleLevel tree)? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
                       "Perform overlap removal at particle level? True (default), False, or any combination (comma separated) of MuonJet, ElectronJet, JetPhoton",
                       "True");
@@ -748,26 +753,24 @@ namespace top {
     return m_selections;
   }
 
-  bool ConfigurationSettings::retrieve(std::string const& key, bool& value) const {
+  void ConfigurationSettings::retrieve(std::string const& key, bool& value) const {
     using boost::trim;
     using boost::equals;
     using boost::iequals;
     auto stringValue = ConfigurationSettings::get()->value(key);
     trim(stringValue);
-    if (equals(stringValue, "")) {
-      return false;
-    }
+
     if (iequals(stringValue, "false") or iequals(stringValue, "0") or iequals(stringValue, "n") or iequals(stringValue,
                                                                                                            "no") or
         iequals(stringValue, "off")) {
       value = false;
-      return true;
+      return;
     }
     if (iequals(stringValue, "true") or iequals(stringValue, "1") or iequals(stringValue, "y") or iequals(stringValue,
                                                                                                           "yes") or
         iequals(stringValue, "on")) {
       value = true;
-      return true;
+      return;
     }
     throw std::invalid_argument(std::string("expected boolean value for configuration setting ") + key);
   }
