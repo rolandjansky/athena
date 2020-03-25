@@ -53,3 +53,22 @@ StatusCode JetParticleAssociation::finalize() {
     delete dec;
     return StatusCode::SUCCESS;
 }
+
+int JetParticleAssociation::modify(xAOD::JetContainer& jets) const {
+
+
+  typedef SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > > VecIPart;
+
+  const VecIPart dec
+    = SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_outputCollectionName);
+
+  const vector<vector<ElementLink<IParticleContainer> > >* matches = match(jets);
+
+  for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
+    dec(*jets.at(iJet)) = (*matches)[iJet];
+
+  delete matches;
+
+  return 0;
+}
+
