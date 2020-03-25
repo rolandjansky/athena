@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_tauxstore_test.cxx 697574 2015-09-30 11:58:22Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -88,15 +86,26 @@ int main() {
    // Make sure that the store now knows about this variable:
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
 
+   // Test the isDecoration(...) function.
+   const SG::auxid_t var1Id = reg.findAuxID( "var1" );
+   SIMPLE_ASSERT( var1Id != SG::null_auxid );
+   const SG::auxid_t var2Id = reg.findAuxID( "var2" );
+   SIMPLE_ASSERT( var2Id != SG::null_auxid );
+   SIMPLE_ASSERT( ! store.isDecoration( var1Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( var2Id ) );
+   SIMPLE_ASSERT( store.isDecoration( decId ) );
+
    // Check that it can be cleared out:
    SIMPLE_ASSERT (store.clearDecorations() == true);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
    SIMPLE_ASSERT (store.clearDecorations() == false);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
+   SIMPLE_ASSERT( ! store.isDecoration( var1Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( var2Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( decId ) );
 
    // Try to overwrite an existing variable with a decoration, to check that
    // it can't be done:
-   const SG::auxid_t var1Id = reg.findAuxID( "var1" );
    SIMPLE_ASSERT( var1Id != SG::null_auxid );
    bool exceptionThrown = false;
    try {
@@ -120,10 +129,12 @@ int main() {
    // Create the decoration again:
    SIMPLE_ASSERT( store.getDecoration( decId, 5, 5 ) != 0 );
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
+   SIMPLE_ASSERT( ! store.isDecoration( var1Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( var2Id ) );
+   SIMPLE_ASSERT( store.isDecoration( decId ) );
 
    // Try to overwrite an existing variable with a decoration, to check that
    // it can't be done:
-   const SG::auxid_t var2Id = reg.findAuxID( "var2" );
    SIMPLE_ASSERT( var2Id != SG::null_auxid );
    exceptionThrown = false;
    try {
@@ -153,6 +164,9 @@ int main() {
    // removed. Since this is a "persistent decoration" now:
    SIMPLE_ASSERT (store.clearDecorations() == false);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
+   SIMPLE_ASSERT( ! store.isDecoration( var1Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( var2Id ) );
+   SIMPLE_ASSERT( store.isDecoration( decId ) );
 
    return 0;
 }

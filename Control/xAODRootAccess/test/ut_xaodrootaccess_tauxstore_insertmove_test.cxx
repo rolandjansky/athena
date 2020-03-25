@@ -85,8 +85,7 @@ int test1()
     m1_2[i] = MoveTest(i+10);
   }
 
-  SG::auxid_set_t ignore;
-  ignore.insert (ityp4);
+  SG::auxid_set_t ignore { ityp4 };
 
   s1.insertMove (3, s2, ignore);
   assert (s1.size() == 10);
