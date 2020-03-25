@@ -1,6 +1,7 @@
 #
 # Package filtering rules for the AthGeneration project build.
 #
++ AsgExternal/Asg_Test
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
 + Calorimeter/CaloCondBlobObjs
