@@ -7,7 +7,11 @@
 
 #include "TopEventSelectionTools/EventSelectorBase.h"
 #include "TopEventSelectionTools/PlotManager.h"
+#include "PMGAnalysisInterfaces/IPMGTruthWeightTool.h"
 #include "PMGTools/PMGTruthWeightTool.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgTools/ToolHandleArray.h"
+#include "AsgTools/AnaToolHandle.h"
 
 #include <string>
 
@@ -87,7 +91,7 @@ namespace top {
     std::shared_ptr<top::TopConfig> m_config;
 
     //PMGTruthWeights
-    PMGTools::PMGTruthWeightTool* m_PMGTruthWeights;
+    ToolHandle<PMGTools::IPMGTruthWeightTool> m_PMGTruthWeights;
 
   };
 }  // namespace top

@@ -11,7 +11,7 @@
 #include "TopCorrections/ScaleFactorRetriever.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "xAODJet/JetContainer.h"
-#include <xAODRootAccess/TStore.h>
+#include "PMGTools/PMGTruthWeightTool.h"
 
 #include "TH1.h"
 #include "TH2D.h"
@@ -40,12 +40,13 @@ namespace top {
     // retrieve jet collection and remove the "Jets" at the end of it
     m_jetCollection = m_config->sgKeyTruthJets();
     //retrieve PMGTruthWeights
-    const std::string truthWeightToolName = "PMGTruthWeightTool";
-    if (asg::ToolStore::contains<PMGTools::PMGTruthWeightTool>(truthWeightToolName)) m_PMGTruthWeights =
-        asg::ToolStore::get<PMGTools::PMGTruthWeightTool>(truthWeightToolName);
+    static const std::string truthWeightToolName = "PMGTruthWeightTool";
+    if (asg::ToolStore::contains<PMGTools::IPMGTruthWeightTool>(truthWeightToolName)) m_PMGTruthWeights =
+        asg::ToolStore::get<PMGTools::IPMGTruthWeightTool>(truthWeightToolName);
     else {
-      m_PMGTruthWeights = new PMGTools::PMGTruthWeightTool(truthWeightToolName);
-      top::check(m_PMGTruthWeights->initialize(), "Failed to initialize " + truthWeightToolName);
+      std::unique_ptr<PMGTools::PMGTruthWeightTool> pmgtruthtool = std::make_unique<PMGTools::PMGTruthWeightTool>(truthWeightToolName);
+      top::check(pmgtruthtool->initialize(), "Failed to initialize " + truthWeightToolName);
+      m_PMGTruthWeights = pmgtruthtool.release();
     }
     //decoding arguments
     std::istringstream stream(params);

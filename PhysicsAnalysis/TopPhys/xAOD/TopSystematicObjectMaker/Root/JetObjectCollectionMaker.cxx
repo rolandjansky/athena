@@ -237,7 +237,7 @@ namespace top {
     // add the merged set of systematics for large-R jets including the tagging SF systs
     addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, largeR, true);
 
-    ///-- Large R sjet substructure --///
+    ///-- Large R jet substructure --///
     if (m_config->jetSubstructureName() == "Trimmer") m_jetSubstructure.reset(new top::LargeJetTrimmer);
 
     if (m_config->jetSubstructureName() == "SubjetMaker") m_jetSubstructure.reset(new top::SubjetMaker);
@@ -775,7 +775,7 @@ namespace top {
   }
   
   StatusCode JetObjectCollectionMaker::decorateMatchedTruth() {
-    static SG::AuxElement::Decorator<float> matchedPt("AnalysisTop_MatchedTruthJetPt");
+    static const SG::AuxElement::Decorator<float> matchedPt("AnalysisTop_MatchedTruthJetPt");
     // retrieve small-R jets collection
     const xAOD::JetContainer* jets(nullptr);
 

@@ -503,7 +503,7 @@ namespace top {
       }
     }
 
-    inline const float& jetResponseMatchingDeltaR() const {return m_jetResponseMatchingDeltaR;}
+    inline float jetResponseMatchingDeltaR() const {return m_jetResponseMatchingDeltaR;}
     inline void setJetResponseMatchingDeltaR(const float value) {m_jetResponseMatchingDeltaR = value;}
 
     inline const std::string& sgKeyEventInfo()  const {return m_sgKeyEventInfo;}
