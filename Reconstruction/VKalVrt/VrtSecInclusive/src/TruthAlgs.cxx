@@ -230,7 +230,7 @@ namespace VKalVrtAthena {
 	      end.setX( vtx->x() );
 	      end.setY( vtx->y() );
 	      end.setZ( vtx->z() );
-          double lenr=std::sqrt( std::pow(Vpos.x()-end.x(),2)+std::pow(Vpos.y()-end.y())+std::pow(Vpos.z()-end.z(),2));
+          double lenr=std::sqrt( std::pow(Vpos.x()-end.x(),2)+std::pow(Vpos.y()-end.y(),2)+std::pow(Vpos.z()-end.z(),2));
 	      length = lenr;
 
 	    } //end vtx
