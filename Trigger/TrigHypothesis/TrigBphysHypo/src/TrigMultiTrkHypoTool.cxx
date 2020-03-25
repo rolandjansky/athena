@@ -24,7 +24,7 @@
 
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 class ISvcLocator;
 

@@ -6,7 +6,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
 
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 

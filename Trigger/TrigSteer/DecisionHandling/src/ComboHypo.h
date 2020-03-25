@@ -6,7 +6,7 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 // STL includes
 #include <string>
