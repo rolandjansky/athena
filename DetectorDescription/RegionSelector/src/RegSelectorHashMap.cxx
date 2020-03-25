@@ -12,6 +12,38 @@
 
 
 
+
+
+/// implementation of the IRegSelUT interface                                                                                                                                        
+
+/// hash id methods
+
+void RegSelectorHashMap::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
+  if ( roi.isFullscan() ) regionSelector( -4.8, 4.8, -M_PI, M_PI, idlist );
+  regionSelector( roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), idlist);
+}
+
+void RegSelectorHashMap::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
+  if ( roi.isFullscan() ) regionSelector( layer, -4.8, 4.8, -M_PI, M_PI, idlist );
+  regionSelector( layer, roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), idlist);
+}
+
+/// rob methods
+
+void RegSelectorHashMap::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
+  if ( roi.isFullscan() ) regionSelectorRobIdUint( -4.8, 4.8, -M_PI, M_PI, roblist );
+  regionSelectorRobIdUint( roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), roblist);
+}
+
+void RegSelectorHashMap::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
+  if ( roi.isFullscan() ) regionSelectorRobIdUint( layer, -4.8, 4.8, -M_PI, M_PI, roblist );
+  regionSelectorRobIdUint( layer, roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), roblist);
+}
+
+
+
+/// rest of the class implementation
+
 double RegSelectorHashMap::etaminValue() const {
   return m_etaminDet;
 }
