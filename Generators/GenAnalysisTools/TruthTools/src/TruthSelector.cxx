@@ -124,7 +124,7 @@ const std::map<int,int>& TruthSelector::indetKineMap() {
 
     // check start vertex in indet
     if (! (**particle).production_vertex()) continue;
-    HepMC::ThreeVector     startVertex     = (**particle).production_vertex()->point3d();
+    HepMC::FourVector     startVertex     = (**particle).production_vertex()->position();
     if (startVertex.perp()          > m_minREndPrimary
         || std::abs(startVertex.z())    > m_minZEndPrimary) continue;
 
@@ -162,7 +162,7 @@ TruthSelector::indetMuons (double minPt)
 
       // check production vertex inside indet envelope
       if (! (**particle).production_vertex())        continue;
-      HepMC::ThreeVector     startVertex     = (**particle).production_vertex()->point3d();
+      HepMC::FourVector     startVertex     = (**particle).production_vertex()->position();
       if (startVertex.perp()        > m_maxRIndet
       || std::abs(startVertex.z())    > m_maxZIndet)    continue;
 
@@ -213,13 +213,13 @@ TruthSelector::reconstructablePrimaries (double minPt)
 
     // reconstructable - depends on start/end vertex coords
     if (! (**particle).production_vertex()) continue;
-    HepMC::ThreeVector     startVertex     = (**particle).production_vertex()->point3d();
+    HepMC::FourVector     startVertex     = (**particle).production_vertex()->position();
     if (startVertex.perp()            > m_maxRStartPrimary
         || std::abs(startVertex.z())    > m_maxZStartPrimary)    continue;
 
     if ((**particle).end_vertex() != 0)
     {
-        HepMC::ThreeVector     endVertex     = (**particle).end_vertex()->point3d();
+        HepMC::FourVector     endVertex     = (**particle).end_vertex()->position();
         if (endVertex.perp()               < m_minREndPrimary
         && std::abs(endVertex.z())    < m_minZEndPrimary)    continue;
     }
@@ -285,7 +285,7 @@ TruthSelector::reconstructableSecondaries (double minPt)
 
     // reconstructable - depends on start/end vertex coords
     if (! (**particle).production_vertex()) continue;
-    HepMC::ThreeVector    startVertex    = (**particle).production_vertex()->point3d();
+    HepMC::FourVector    startVertex    = (**particle).production_vertex()->position();
     if ((startVertex.perp()            <= m_maxRStartPrimary
          && std::abs(startVertex.z())    <= m_maxZStartPrimary)
         || startVertex.perp()              >  m_maxRStartSecondary
@@ -293,7 +293,7 @@ TruthSelector::reconstructableSecondaries (double minPt)
 
     if ((**particle).end_vertex() != 0)
     {
-        HepMC::ThreeVector      endVertex  = (**particle).end_vertex()->point3d();
+        HepMC::FourVector      endVertex  = (**particle).end_vertex()->position();
         if (endVertex.perp()               < m_minREndSecondary
         && std::abs(endVertex.z())    < m_minZEndSecondary)        continue;
     }
