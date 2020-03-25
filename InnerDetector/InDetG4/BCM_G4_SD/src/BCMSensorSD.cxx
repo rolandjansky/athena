@@ -56,6 +56,7 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   G4TouchableHistory*  myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
 
   int minCopyNumBCM = 11950;
+  int minCopyNumDiam = 951;
   int BEcopyNo =  myTouch->GetVolume()->GetCopyNo();
 
   // Get the hit coordinates. Start and End Point
@@ -103,16 +104,20 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
 
   int diamondNo;
   int moduleNo;
+  int side;
 
   if (m_isUpgrade) {
+    int layer0No = myTouch->GetVolume(1)->GetCopyNo();
+    side = (layer0No - 1) / 2; // transformation (-1,3) -> (-1,1)
     diamondNo = (BEcopyNo - minCopyNumBCM) % 2;
-    moduleNo = (BEcopyNo - minCopyNumBCM - diamondNo) / 2;
+    moduleNo = (BEcopyNo - minCopyNumBCM - diamondNo) / 2 - 1; // transformation (2,4,6,8) -> (0,1,2,3)
   } else {
+    side = 0;
     diamondNo = BEcopyNo - minCopyNumBCM;
-    moduleNo = myTouch->GetVolume(1)->GetCopyNo() - 951;
+    moduleNo = myTouch->GetVolume(1)->GetCopyNo() - minCopyNumDiam;
   }
 
   m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), trHelp.GetParticleLink(),
-                      0, 0, moduleNo, diamondNo, primaren, produced_in_diamond);
+                      0, side, moduleNo, diamondNo, primaren, produced_in_diamond);
   return true;
 }
