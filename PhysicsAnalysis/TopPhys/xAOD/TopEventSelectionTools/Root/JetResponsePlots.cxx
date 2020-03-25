@@ -26,7 +26,6 @@ namespace top {
                                      std::shared_ptr<top::TopConfig> config,
                                      EL::Worker* wk) :
     m_nominalHashValue(0),
-    m_jetCollection(""),
     m_deltaR(0.3),
     m_bins(30),
     m_min(-3),
@@ -37,8 +36,6 @@ namespace top {
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
 
-    // retrieve jet collection and remove the "Jets" at the end of it
-    m_jetCollection = m_config->sgKeyTruthJets();
     //retrieve PMGTruthWeights
     static const std::string truthWeightToolName = "PMGTruthWeightTool";
     if (asg::ToolStore::contains<PMGTools::IPMGTruthWeightTool>(truthWeightToolName)) m_PMGTruthWeights =

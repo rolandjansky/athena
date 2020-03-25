@@ -78,9 +78,6 @@ namespace top {
     // Nominal hash value
     std::size_t m_nominalHashValue;
 
-    // name of the jet collection - this is needed for the names of the histograms
-    std::string m_jetCollection;
-
     // deltaR used for jet matching
     float m_deltaR;
     int m_bins;
