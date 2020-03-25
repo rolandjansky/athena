@@ -51,12 +51,6 @@ StatusCode RegSelCaloTool::initialize() {
 
 
 
-StatusCode RegSelCaloTool::finalize() {
-  ATH_MSG_INFO( "Finalizing " << name() );
-  return StatusCode::SUCCESS;
-}
-
-
 
 
 

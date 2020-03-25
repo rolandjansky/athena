@@ -61,11 +61,6 @@ StatusCode RegSelTool::initialize() {
 
 
 
-StatusCode RegSelTool::finalize() {
-  ATH_MSG_INFO( "Finalizing " << name() );
-  return StatusCode::SUCCESS;
-}
-
 
 void RegSelTool::cleanup( std::vector<IdentifierHash>& idvec ) const {
   for ( size_t i=idvec.size() ; i-- ; ) idvec[i] = IdentifierHash( ((unsigned)idvec[i]) & 0xfff );

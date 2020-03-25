@@ -50,9 +50,6 @@ public:
   //! @method initialize, loads lookup tables for retrieve %Identifier %Hash and ROBID 
   virtual StatusCode initialize() override;
 
-  //! @method finalize, deletes lookup table from memory
-  virtual StatusCode finalize() override;
-  
   /// IRegSlTool interface ...
 
   // Interface inherited from IRegSelTool service
