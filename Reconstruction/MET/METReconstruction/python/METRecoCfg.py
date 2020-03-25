@@ -260,7 +260,7 @@ class METConfig:
                                                               maxD0=2,
                                                               minPt=500)
         #
-        self.trkvxtool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool_MET")
+        self.trkvxtool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
         #self.trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool_MET", dzSinTheta_cut=3, doPV=False)
         #
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")

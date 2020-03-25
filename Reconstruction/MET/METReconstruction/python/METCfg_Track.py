@@ -6,13 +6,13 @@ from AthenaCommon import CfgMgr
 
 
 def METTrack_Cfg(configFlags):
-    sequencename = "METReconstruction_Track"
+    sequencename = "METReconstruction_Track_New"
 
     components = ComponentAccumulator()
     from AthenaCommon.AlgSequence import AthSequencer
     components.addSequence( AthSequencer(sequencename) )
 
-    cfg_trk = METConfig('Track',[BuildConfig('SoftTrk','Track')],
+    cfg_trk = METConfig('Track_new',[BuildConfig('SoftTrk','Track')],
                     [RefConfig('TrackFilter','PVTrack')],
                     doTracks=configFlags.MET.UseTracks)
 
@@ -21,13 +21,7 @@ def METTrack_Cfg(configFlags):
     cfg_trk.refiners['TrackFilter'].DoEoverPSel=True
     recotool = getMETRecoTool(cfg_trk)
     #recotool = CfgMgr.met__METRecoTool('MET_RecoTool_empty')
-    print "Printing recotool"
-    print recotool
-    print "MET track helper object defined!!!"
-    print cfg_trk
     recoAlg=getMETRecoAlg(algName='METRecoAlg_Track',tools=[recotool])
-    print "ALG defined"
-    print recoAlg
     components.addEventAlgo(recoAlg, sequencename)
     return components
 
