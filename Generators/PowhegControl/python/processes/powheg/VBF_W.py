@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from ..external import ExternalVBFNLO
-from ..powheg_V1 import PowhegV1
+from ..powheg_V2 import PowhegV2
 
 
-class VBF_W(PowhegV1):
+class VBF_W(PowhegV2):
     """! Default Powheg configuration for W-boson production through vector boson fusion.
 
     Create a configurable object with all applicable Powheg options.

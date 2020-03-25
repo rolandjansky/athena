@@ -17,9 +17,7 @@ include("PowhegControl/PowhegControl_VBF_W_Common.py")
 # DO NOT USE THESE SETTINGS IN PRODUCTION!
 # --------------------------------------------------------------
 PowhegConfig.ncall1 = 1000
-PowhegConfig.ncall1rm = 1000
 PowhegConfig.ncall2 = 1000
-PowhegConfig.ncall2rm = 1000
 PowhegConfig.nubound = 1000
 PowhegConfig.foldphi = 1
 PowhegConfig.foldcsi = 1
