@@ -107,8 +107,8 @@ sub regtest(){
     }
 # diff the output and the reference
 # even if verify is off
-    print "$prog: debug: diff -b $newfile $reffile\n" if ($debug);
-    my $rc = system("diff -b $newfile $reffile");
+    print "$prog: debug: diff -U 2 -b $newfile $reffile\n" if ($debug);
+    my $rc = system("diff -U 2 -b $newfile $reffile");
     if ($rc == 0){
 	print "=== Output is the same as reference\n";
         $result = 0;
