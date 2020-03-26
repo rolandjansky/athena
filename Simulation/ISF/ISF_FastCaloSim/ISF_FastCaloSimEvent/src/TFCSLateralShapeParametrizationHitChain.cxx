@@ -91,9 +91,13 @@ float TFCSLateralShapeParametrizationHitChain::get_sigma2_fluctuation(TFCSSimula
 FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   const float Elayer=simulstate.E(calosample());
+  if (Elayer == 0) {
+    ATH_MSG_VERBOSE("TFCSLateralShapeParametrizationHitChain::simulate(): Elayer=0, nothing to do");
+    return FCSSuccess;
+  }
   const float Ehit=get_E_hit(simulstate,truth,extrapol);
-  if (Ehit <= 0) {
-    ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): Ehit negative Ehit="<<Ehit);
+  if (Ehit * Elayer <= 0) {
+    ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): Ehit and Elayer have different sign! Ehit="<<Ehit<<" Elayer="<<Elayer);
     return FCSFatal;
   }
 
@@ -151,13 +155,13 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     ++ihit;
     
     if( (ihit==10*nhit) || (ihit==100*nhit) ) {
-      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit);
+      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
     }                                                                                                                         
     if(ihit>1000*nhit && ihit>1000) {
       ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Aborting hit chain, iterated " << 1000*nhit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
       break;
     }  
-  } while (sumEhit<Elayer);
+  } while (fabs(sumEhit)<fabs(Elayer));
 
   if (debug) {
     for(TFCSLateralShapeParametrizationHitBase* reset : m_chain) {
