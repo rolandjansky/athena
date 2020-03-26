@@ -4,7 +4,7 @@
 
 # use some helper functions from MadGraphUtils
 import ast
-from MadGraphControl.MadGraphUtilsHelpers import is_version_or_newer,checkSetting,checkSettingExists
+from MadGraphControl.MadGraphUtilsHelpers import checkSetting,checkSettingExists
 from MadGraphControl.MadGraphUtils import get_lhapdf_id_and_name
 
 from AthenaCommon import Logging

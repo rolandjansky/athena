@@ -1149,18 +1149,18 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
         else:
             rwgt_name_match=re.match(name_expression,line.strip())
             rwgt_info_match=re.match(info_expression,line.strip())
-            if rwgt_name_match==None and rwgt_info_match==None:
+            if rwgt_name_match is None and rwgt_info_match is None:
                 raise RuntimeError('Every reweighting should have a --rwgt_info (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Line to fix: '+line)
             for match in [rwgt_info_match,rwgt_name_match]:
-                if match==None:
+                if match is None:
                     continue
                 if len(match.groups())!=1:
                     raise RuntimeError('Unexpected format of reweight card in line: '+line)
                 if not re.match(goodname_expression,match.group(1)):
                     raise RuntimeError('No special character in reweighting info/name, only allowing '+goodname_expression)
-            if rwgt_info_match!=None:
+            if rwgt_info_match is not None:
                 newcard.write(line)
-            elif rwgt_name_match!=None:
+            elif rwgt_name_match is not None:
                 newcard.write(line.strip()+' --rwgt_info={0}\n'.format(rwgt_name_match.group(1)))
                 changed=True
     if changed:
