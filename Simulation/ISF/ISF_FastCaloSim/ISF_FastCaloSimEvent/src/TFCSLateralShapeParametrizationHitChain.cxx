@@ -92,7 +92,7 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
 {
   const float Elayer=simulstate.E(calosample());
   if (Elayer == 0) {
-    ATH_MSG_VERBOSE("TFCSLateralShapeParametrizationHitChain::simulate(): Elayer=0, nothing to do");
+    ATH_MSG_VERBOSE("Elayer=0, nothing to do");
     return FCSSuccess;
   }
   const float Ehit=get_E_hit(simulstate,truth,extrapol);

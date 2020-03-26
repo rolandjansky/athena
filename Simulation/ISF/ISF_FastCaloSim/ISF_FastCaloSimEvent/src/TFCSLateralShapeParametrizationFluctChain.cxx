@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h"
@@ -37,7 +37,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
 {
   const float Elayer=simulstate.E(calosample());
   if (Elayer == 0) {
-    ATH_MSG_VERBOSE("TFCSLateralShapeParametrizationHitChain::simulate(): Elayer=0, nothing to do");
+    ATH_MSG_VERBOSE("Elayer=0, nothing to do");
     return FCSSuccess;
   }
   
