@@ -154,14 +154,14 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     sumEhit+=hit.E();
     ++ihit;
     
-    if( (ihit==10*nhit) || (ihit==100*nhit) ) {
+    if( (ihit==20*nhit) || (ihit==100*nhit) ) {
       ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
     }                                                                                                                         
     if(ihit>1000*nhit && ihit>1000) {
       ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Aborting hit chain, iterated " << 1000*nhit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
       break;
     }  
-  } while (fabs(sumEhit)<fabs(Elayer));
+  } while (std::abs(sumEhit)<std::abs(Elayer));
 
   if (debug) {
     for(TFCSLateralShapeParametrizationHitBase* reset : m_chain) {

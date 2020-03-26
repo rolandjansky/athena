@@ -53,7 +53,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
 
   //Make a good guess of the needed hit energy, assuming all hits would have the same energy
   const float Eavghit=get_E_hit(simulstate,truth,extrapol);
-  const float absEavghit_tenth=fabs(Eavghit/10);
+  const float absEavghit_tenth=std::abs(Eavghit/10);
   float sumEhit=0;
   float error2_sumEhit=0;
   float error2=2*s_max_sigma2_fluctuation;
@@ -73,7 +73,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
     //hit.E()=Eavghit;
     do {
       hit.E()=CLHEP::RandGauss::shoot(simulstate.randomEngine(), Eavghit, m_RMS*Eavghit);
-    } while (fabs(hit.E())<absEavghit_tenth);
+    } while (std::abs(hit.E())<absEavghit_tenth);
     bool failed=false;
     for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
       if (debug) {
