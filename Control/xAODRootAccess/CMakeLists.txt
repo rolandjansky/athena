@@ -68,8 +68,9 @@ macro( _add_test name )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    _add_test( ut_xaodrootaccess_metadata_test )
+   _add_test( ut_xaodrootaccess_athenaMode_test )
 endif()
 _add_test( ut_xaodrootaccess_remap_test )
 _add_test( ut_xaodrootaccess_slimming_test )
@@ -81,7 +82,6 @@ _add_test( ut_xaodrootaccess_tchain_test )
 _add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 _add_test( ut_xaodrootaccess_tfilemerger_test )
 _add_test( ut_xaodrootaccess_tstore_test )
-_add_test( ut_xaodrootaccess_athenaMode_test )
 atlas_add_test( ut_xaodrootaccess_tpystore_test
    SCRIPT python
    ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_tpystore_test.py )
