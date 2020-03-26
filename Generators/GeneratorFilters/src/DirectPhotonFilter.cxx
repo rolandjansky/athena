@@ -24,7 +24,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    ATH_MSG_DEBUG("----->>> Process : " << genEvt->signal_process_id());
+    ATH_MSG_DEBUG("----->>> Process : " << HepMC::signal_process_id(genEvt));
 
     for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
       if (((*pitr)->pdg_id() == 22)) {
@@ -32,7 +32,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
 	    fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange){
 	  ATH_MSG_DEBUG("Generic photon found with status = " << (*pitr)->status() << " " << (*pitr)->barcode());
 
-          HepMC::GenVertex* CandProdVertex = (*pitr)->production_vertex();
+          HepMC::GenVertexPtr CandProdVertex = (*pitr)->production_vertex();
           ATH_MSG_DEBUG("Candidate production vertex ID      = " << CandProdVertex->id());
           ATH_MSG_DEBUG("Candidate production vertex barcode = " << CandProdVertex->barcode());
 
@@ -59,7 +59,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
 	    fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange){
 
           // The following lines are for cross checking purpose when using different generators
-          HepMC::GenVertex* CandProdVertex = (*pitr)->production_vertex();
+          HepMC::GenVertexPtr CandProdVertex = (*pitr)->production_vertex();
           ATH_MSG_DEBUG("Candidate production vertex ID      = " << CandProdVertex->id());
           ATH_MSG_DEBUG("Candidate production vertex barcode = " << CandProdVertex->barcode());
 

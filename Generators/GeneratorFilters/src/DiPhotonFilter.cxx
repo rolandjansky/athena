@@ -10,7 +10,7 @@
 /// @todo Move to a sorting utils module
 class High2LowByGenParticleClassPt {
 public:
-  bool operator() (const HepMC::GenParticle *t1, const HepMC::GenParticle *t2) const {
+  bool operator() (const HepMC::GenParticlePtr t1, const HepMC::GenParticlePtr t2) const {
     return t1->momentum().perp2() > t2->momentum().perp2();
   }
 };
@@ -56,7 +56,7 @@ StatusCode DiPhotonFilter::filterEvent() {
   ATH_MSG_DEBUG("min pt(photon) = " << ptcut << " (CLHEP::MeV)");
 
   // find truth photons
-  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
+  std::vector<HepMC::GenParticlePtr> MCTruthPhotonList;
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     // Loop over all particles in the event
@@ -79,7 +79,7 @@ StatusCode DiPhotonFilter::filterEvent() {
   if (MCTruthPhotonList.size() < 2) {
     isOK = false;
   } else {
-    std::vector<HepMC::GenParticle*> MCTruthPhotonList2;
+    std::vector<HepMC::GenParticlePtr> MCTruthPhotonList2;
     // check pT and eta to select truth photons
     for (size_t i = 0; i < MCTruthPhotonList.size(); ++i) {
       ATH_MSG_DEBUG(i << ": pT=" << MCTruthPhotonList[i]->momentum().perp() << ", eta=" << MCTruthPhotonList[i]->momentum().pseudoRapidity());

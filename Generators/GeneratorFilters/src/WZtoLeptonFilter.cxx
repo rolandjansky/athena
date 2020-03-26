@@ -203,8 +203,8 @@ StatusCode WZtoLeptonFilter::filterFinalize() {
 
 
 StatusCode WZtoLeptonFilter::filterEvent() {
-  HepMC::GenVertex *LePrdVrt;
-  HepMC::GenVertex *TauPrdVrt;
+  HepMC::GenVertexPtr LePrdVrt;
+  HepMC::GenVertexPtr TauPrdVrt;
 
   // Momentum of the products of the tau decay
   CLHEP::HepLorentzVector mom_hadrons;

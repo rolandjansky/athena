@@ -80,8 +80,8 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   }
 
   // Find overlap objects
-  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
-  std::vector<HepMC::GenParticle*> MCTruthElectronList;
+  std::vector<HepMC::GenParticlePtr> MCTruthPhotonList;
+  std::vector<HepMC::GenParticlePtr> MCTruthElectronList;
   std::vector<CLHEP::HepLorentzVector*> MCTruthTauList;
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
@@ -193,7 +193,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
 }
 
 
-bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepMC::GenParticle*> list) {
+bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepMC::GenParticlePtr> list) {
   for (size_t i = 0; i < list.size(); ++i) {
     double pt = list[i]->momentum().perp();
     if (pt > m_olapPt) {
@@ -263,7 +263,7 @@ double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
 }
 
 
-CLHEP::HepLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
+CLHEP::HepLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
 
   if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {

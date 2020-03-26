@@ -40,7 +40,7 @@ StatusCode TauFilter::filterFinalize() {
 }
 
 
-CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
+CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::GenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
   if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
     nu.setPx(part->momentum().px());
@@ -60,7 +60,7 @@ CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::GenParticle *par
 
 
 StatusCode TauFilter::filterEvent() {
-  HepMC::GenParticle *tau;
+  HepMC::GenParticlePtr tau;
   CLHEP::HepLorentzVector mom_tauprod;   // will contain the momentum of the products of the tau decay
   CLHEP::HepLorentzVector tauvis;
   CLHEP::HepLorentzVector nutau;

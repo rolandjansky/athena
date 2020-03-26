@@ -61,10 +61,10 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
   if(m_LepPtmin*m_LepPtmax <0 && m_LepPtmin < 0 ) m_LepPtmin = 0.;
   if(m_LepPtmin*m_LepPtmax <0 && m_LepPtmax < 0 ) m_LepPtmax = 14000000.; // 14 TeV
 
-  std::vector<HepMC::GenParticle*> tops;
-  std::vector<HepMC::GenParticle*> ws;   // W from top decay (from tops)
-  std::vector<HepMC::GenParticle*> leps; // e, mu, tau from W decay (from ws)
-  std::vector<HepMC::GenParticle*> nus;  // nutrino from W decay (from ws)
+  std::vector<HepMC::GenParticlePtr> tops;
+  std::vector<HepMC::GenParticlePtr> ws;   // W from top decay (from tops)
+  std::vector<HepMC::GenParticlePtr> leps; // e, mu, tau from W decay (from ws)
+  std::vector<HepMC::GenParticlePtr> nus;  // nutrino from W decay (from ws)
 
   for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
@@ -75,8 +75,8 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
 
         int n_daughters = 0;
 
-        HepMC::GenParticle * mcpart = (*pitr);
-        const HepMC::GenVertex * decayVtx = mcpart->end_vertex();
+        HepMC::GenParticlePtr mcpart = (*pitr);
+        const HepMC::GenVertexPtr decayVtx = mcpart->end_vertex();
 
         // Verify if we got a valid pointer and retrieve the number of daughters
         if (decayVtx != 0) n_daughters = decayVtx->particles_out_size();
@@ -86,7 +86,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
           HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = decayVtx->particles_out_const_begin();
           HepMC::GenVertex::particles_in_const_iterator child_mcpartItrE = decayVtx->particles_out_const_end();
           for (; child_mcpartItr != child_mcpartItrE; ++child_mcpartItr) {
-            HepMC::GenParticle * child_mcpart = (*child_mcpartItr);
+            HepMC::GenParticlePtr child_mcpart = (*child_mcpartItr);
 
 
             //  Implicitly assume that tops always decay to W X
@@ -103,7 +103,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
 	      }
 
               bool  useNextVertex = false;
-              const HepMC::GenVertex * w_decayVtx = child_mcpart->end_vertex();
+              const HepMC::GenVertexPtr w_decayVtx = child_mcpart->end_vertex();
 
               while (w_decayVtx) {
 
@@ -115,7 +115,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
 
                 for (; grandchild_mcpartItr != grandchild_mcpartItrE; ++grandchild_mcpartItr) {
 
-			      HepMC::GenParticle * grandchild_mcpart = (*grandchild_mcpartItr);
+			      HepMC::GenParticlePtr grandchild_mcpart = (*grandchild_mcpartItr);
 			      int grandchild_pid = grandchild_mcpart->pdg_id();
 
 			      ATH_MSG_DEBUG("W (t/tbar) has " << mcpart_n_particles_out << " children and the pdg_id of the next is " << grandchild_pid);
@@ -236,12 +236,12 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
       int part ( 0 );
       for (; mcpartItr != mcpartItrE; ++mcpartItr) {
         part++;
-        HepMC::GenParticle * mcpart = (*mcpartItr);
+        HepMC::GenParticlePtr mcpart = (*mcpartItr);
         int pid = mcpart->pdg_id();
         ATH_MSG_ERROR("In event (from MC collection) " << event << " particle number " << part << " has pdg_id = " << pid);
 
         // retrieve decay vertex
-        const HepMC::GenVertex * decayVtx = mcpart->end_vertex();
+        const HepMC::GenVertexPtr decayVtx = mcpart->end_vertex();
 
         // verify if we got a valid pointer
         if ( decayVtx != 0 ) {
@@ -250,7 +250,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
           int part_child ( 0 );
           for (; child_mcpartItr != child_mcpartItrE; ++child_mcpartItr) {
             part_child++;
-            HepMC::GenParticle * child_mcpart = (*child_mcpartItr);
+            HepMC::GenParticlePtr child_mcpart = (*child_mcpartItr);
             int child_pid = child_mcpart->pdg_id();
             ATH_MSG_ERROR("          child " << part_child << " with pdg_id = " << child_pid);
           }

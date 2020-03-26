@@ -64,7 +64,7 @@ inline double BSubstruct::deltaR(double y1, double phi1, double y2, double phi2)
 }
 
 
-inline  double BSubstruct::deltaR(const HepMC::GenParticle* particle1, const HepMC::GenParticle* particle2) const {
+inline  double BSubstruct::deltaR(const HepMC::GenParticlePtr particle1, const HepMC::GenParticlePtr particle2) const {
   double rap1 = 0.5 * log((particle1->momentum().e() + particle1->momentum().pz()) /
                           (particle1->momentum().e() - particle1->momentum().pz()));
   double rap2 = 0.5 * log((particle2->momentum().e() + particle2->momentum().pz()) /
@@ -73,7 +73,7 @@ inline  double BSubstruct::deltaR(const HepMC::GenParticle* particle1, const Hep
 }
 
 
-inline double BSubstruct::deltaR(const HepMC::GenParticle* particle, const xAOD::Jet* jet) const {
+inline double BSubstruct::deltaR(const HepMC::GenParticlePtr particle, const xAOD::Jet* jet) const {
   // GenParticle does not provide rapidity (only pseudo-rapidity)
   // Since we are likely dealing with massive b-hadrons and massive jets
   // and the jet-clustering alg uses rapidity, I think we should use that
@@ -88,9 +88,9 @@ inline double BSubstruct::deltaR(const xAOD::Jet* jet1, const xAOD::Jet* jet2) c
 }
 
 
-inline Particles BSubstruct::ancestorCBs(const HepMC::GenParticle* p) const {
+inline Particles BSubstruct::ancestorCBs(const HepMC::GenParticlePtr p) const {
   Particles parentBs;
-  const HepMC::GenVertex* vtx = p->production_vertex();
+  const HepMC::GenVertexPtr vtx = p->production_vertex();
 
   // If the particle has no production vertex then can only assume it is beam or similar
   // therefore return empty set of parents.
@@ -164,7 +164,7 @@ StatusCode BSubstruct::filterInitialize() {
 
 StatusCode BSubstruct::filterEvent() {
   ++m_nEvents;
-  std::vector<const HepMC::GenParticle*> bHadrons;
+  std::vector<HepMC::GenParticlePtr> bHadrons;
   for (McEventCollection::const_iterator evt = events()->begin(); evt != events()->end(); ++evt) {
     if ((*evt) == 0) { // WTF?
       ++m_nRejected;

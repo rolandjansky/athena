@@ -45,20 +45,20 @@ StatusCode TopCKMKinFilter::filterEvent() {
     // Get pointers to both parents
     if (nParents == 2) {
 
-      const HepMC::GenParticle * firstParent = 0;
+      const HepMC::GenParticlePtr firstParent = nullptr;
       for (partItr = part1; partItr != partE; ++partItr){
         if (std::abs((*partItr)->pdg_id()) == 6) firstParent = (*partItr);
       }
 
-      const HepMC::GenParticle * secondParent = 0;
+      const HepMC::GenParticlePtr secondParent = nullptr;
       for (partItr = part1; partItr != partE; ++partItr){
         if (std::abs((*partItr)->pdg_id()) == 6 && (*partItr) != firstParent) secondParent = (*partItr);
       }
 
       // Now check that the first and second parents have the corresponding childs
       if (firstParent && secondParent) {
-        HepMC::GenVertex * firstVertex = firstParent->end_vertex();
-        HepMC::GenVertex * secondVertex = secondParent->end_vertex();
+        HepMC::GenVertexPtr firstVertex = firstParent->end_vertex();
+        HepMC::GenVertexPtr secondVertex = secondParent->end_vertex();
 
         HepMC::GenVertex::particle_iterator firstChild1 = firstVertex->particles_begin(HepMC::children);
         HepMC::GenVertex::particle_iterator firstChildItr = firstChild1;
@@ -71,10 +71,10 @@ StatusCode TopCKMKinFilter::filterEvent() {
         // Check the children
         bool isOK1 = 0;
         bool isOK2 = 0;
-        HepMC::GenParticle * quark1 = 0;
-        HepMC::GenParticle * quark2 = 0;
-        HepMC::GenParticle * wBoson1 = 0;
-        HepMC::GenParticle * wBoson2 = 0;
+        HepMC::GenParticlePtr quark1 = nullptr;
+        HepMC::GenParticlePtr quark2 = nullptr;
+        HepMC::GenParticlePtr wBoson1 = nullptr;
+        HepMC::GenParticlePtr wBoson2 = nullptr;
 
         for (firstChildItr = firstChild1; firstChildItr != firstChildE; ++firstChildItr){
           if ((std::abs((*firstChildItr)->pdg_id()) == m_PDGChild[0] || std::abs((*firstChildItr)->pdg_id()) == m_PDGChild[1])
@@ -102,8 +102,8 @@ StatusCode TopCKMKinFilter::filterEvent() {
         bool isKinLep1 = 0;
         bool isKinLep2 = 0;
 
-        HepMC::GenVertex * wVertex1 = wBoson1->end_vertex();
-        HepMC::GenVertex * wVertex2 = wBoson2->end_vertex();
+        HepMC::GenVertexPtr wVertex1 = wBoson1->end_vertex();
+        HepMC::GenVertexPtr wVertex2 = wBoson2->end_vertex();
 
         HepMC::GenVertex::particle_iterator w1Son1, w1SonItr, w1SonE;
         HepMC::GenVertex::particle_iterator w2Son1, w2SonItr, w2SonE;

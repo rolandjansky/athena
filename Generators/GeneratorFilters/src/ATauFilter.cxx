@@ -50,12 +50,12 @@ StatusCode ATauFilter::filterFinalize() {
 
 
 StatusCode ATauFilter::filterEvent() {
-  HepMC::GenParticle *tau;
-  HepMC::GenParticle *atau;
-  HepMC::GenParticle *nutau;
-  HepMC::GenParticle *anutau;
-  HepMC::GenParticle *taulep;
-  HepMC::GenParticle *ataulep;
+  HepMC::GenParticlePtr tau;
+  HepMC::GenParticlePtr atau;
+  HepMC::GenParticlePtr nutau;
+  HepMC::GenParticlePtr anutau;
+  HepMC::GenParticlePtr taulep;
+  HepMC::GenParticlePtr ataulep;
 
   CLHEP::HepLorentzVector mom_tauprod;   // will contain the momentum of the products of the tau decay
   CLHEP::HepLorentzVector mom_atauprod;  //   calculated with mom_tauprod = mom_tau - mom_nutau

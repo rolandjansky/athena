@@ -17,8 +17,7 @@
 
 // Other classes used by this class
 #include "TruthUtils/PIDHelpers.h"
-#include "HepMC/GenEvent.h"
-// #include "GeneratorObjects/McEventCollection.h"
+#include "HepMCI/GenEvent.h"
 #include "TruthUtils/HepMCHelpers.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -107,7 +106,7 @@ StatusCode HTFilter::filterEvent() {
       return StatusCode::SUCCESS;
     }
 
-    std::vector<const HepMC::GenParticle*> WZleptons;
+    std::vector<const HepMC::GenParticlePtr> WZleptons;
     WZleptons.reserve(10);
 
     for (HepMC::GenEvent::particle_const_iterator iter=(*mecc)[0]->particles_begin(); iter!=(*mecc)[0]->particles_end();++iter){
@@ -149,7 +148,7 @@ StatusCode HTFilter::filterEvent() {
   return StatusCode::SUCCESS;
 }
 
-bool HTFilter::fromWZ( const HepMC::GenParticle* part ) const
+bool HTFilter::fromWZ( const HepMC::GenParticlePtr part ) const
 {
   // !!! IMPORTANT !!! This is a TEMPORARY function
   //  it's used in place of code in MCTruthClassifier as long as this package is not dual-use
@@ -174,7 +173,7 @@ bool HTFilter::fromWZ( const HepMC::GenParticle* part ) const
   return false;
 }
 
-bool HTFilter::fromTau( const HepMC::GenParticle* part ) const
+bool HTFilter::fromTau( const HepMC::GenParticlePtr part ) const
 {
   // !!! IMPORTANT !!! This is a TEMPORARY function
   //  it's used in place of code in MCTruthClassifier as long as this package is not dual-use

@@ -68,8 +68,8 @@ StatusCode HiggsFilter::filterEvent() {
 	
 	int n_daughters = 0;
 
-	HepMC::GenParticle * mcpart = (*pitr);
-	const HepMC::GenVertex * decayVtx = mcpart->end_vertex();
+	HepMC::GenParticlePtr mcpart = (*pitr);
+	const HepMC::GenVertexPtr decayVtx = mcpart->end_vertex();
 
 	// verify if we got a valid pointer and retrieve the number of daughters
 	if ( decayVtx != 0 ) {
@@ -84,7 +84,7 @@ StatusCode HiggsFilter::filterEvent() {
 	  
 	  for (; child_mcpartItr != child_mcpartItrE; ++child_mcpartItr) {
 	    
-	    HepMC::GenParticle * child_mcpart = (*child_mcpartItr);
+	    HepMC::GenParticlePtr child_mcpart = (*child_mcpartItr);
 	    
 	    //  Implicitly, I assume that tops always decay to W X
 	    if ( std::abs(child_mcpart->pdg_id()) == 5 ){

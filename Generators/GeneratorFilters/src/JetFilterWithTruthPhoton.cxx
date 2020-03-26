@@ -130,7 +130,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
     }
   }
 
-  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
+  std::vector<HepMC::GenParticlePtr> MCTruthPhotonList;
   MCTruthPhotonList.clear();
 
   McEventCollection::const_iterator itr;
