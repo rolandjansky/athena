@@ -9,7 +9,7 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
