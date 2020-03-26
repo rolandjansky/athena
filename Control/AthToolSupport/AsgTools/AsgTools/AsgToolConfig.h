@@ -86,11 +86,7 @@ namespace asg
   {
     using namespace msgComponentConfig;
 
-    std::string prefix;
-    if (toolHandle.parentName().empty())
-      prefix = toolHandle.parentName() + ".";
-    else
-      prefix = "ToolSvc.";
+    std::string prefix = toolHandle.parentName() + ".";
 
     std::unique_ptr<T> tool;
     ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", false, prefix));
