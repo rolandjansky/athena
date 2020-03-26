@@ -10,8 +10,11 @@
 // includes
 //
 
+#include <AsgTools/MessageCheckAsgTools.h>
+
+#ifdef XAOD_STANDALONE
 #include <AsgTools/TProperty.h>
-#include <AsgTools/MessageCheck.h>
+#endif
 
 //
 // method implementations
@@ -19,6 +22,7 @@
 
 namespace asg
 {
+#ifdef XAOD_STANDALONE
   // This template specialization for `AsgComponent` contains most of
   // the actual logic for creating/configuring components, allowing
   // the templated version of the function to rely on this one.
@@ -54,6 +58,7 @@ namespace asg
 
     return StatusCode::SUCCESS;
   }
+#endif
 
 
 
@@ -62,7 +67,13 @@ namespace asg
   {
     using namespace asg::msgProperty;
     std::string valueString;
+
+#ifdef XAOD_STANDALONE
     ANA_CHECK (asg::detail::GetCastStringHelper<T>::get (value, valueString));
+#else
+    valueString = Gaudi::Utils::toString (value);
+#endif
+
     setPropertyFromString (name, std::move (valueString));
     return StatusCode::SUCCESS;
   }
