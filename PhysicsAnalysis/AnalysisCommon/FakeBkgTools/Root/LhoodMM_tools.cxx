@@ -23,8 +23,6 @@
 #include <chrono>
 #include <memory>
 
-//bool glb_firstCall = true;
-
 #ifndef FAKEBKGTOOLS_ATLAS_ENVIRONMENT
 #define declareProperty(n, p, h) ExtraPropertyManager<LhoodMM_tools>::declareProperty(n, &LhoodMM_tools::p, h)
 #endif
@@ -487,7 +485,7 @@ StatusCode LhoodMM_tools::incrementOneMatrixSet(LhoodMMFitInfo& fitInfo,
 	}
       }
 
-      ATH_MSG_VERBOSE("Setting OSfrac_denom[" << lepidx << "][" << ntight-1 << "]");
+      ATH_MSG_VERBOSE("Setting OSfrac_denom[" << lepidx << "][" << ntight << "]");
       ATH_MSG_VERBOSE("size is " << fitInfo.OSfrac_denom.size() );
       ATH_MSG_VERBOSE("size is " << fitInfo.OSfrac_denom[lepidx].size() );
       ATH_MSG_VERBOSE("weight is " << weight  );
@@ -778,7 +776,6 @@ void LhoodMM_tools::fcn_nlep(Int_t &npar, Double_t *, Double_t &f, Double_t *par
 
 double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   
-  std::cout << "In nfakes, totEvents = " << m_current_fitInfo->totEvents << std::endl;
   if (m_current_fitInfo->totEvents == 0) {
     *poserr = 0.;
     *negerr = 0.;
@@ -1663,8 +1660,6 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
 
   ATH_MSG_VERBOSE("Saving progress");
 
-  TClass::GetClass("LhoodMMFitInfo"); 
-
   if (m_prevSave) {
     ATH_MSG_ERROR("Multiple calls to saveProgress are not supported");
     return StatusCode::FAILURE;
@@ -1673,88 +1668,13 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
   m_prevSave = true;
   
   TTree *t = new TTree("LhoodMM_progress", "Stores current info from LhoodMM_toos");
-  TTree *t_nlep = new TTree("LhoodMM_progress_nlep", "Stores minimum an maximum lepton multiplicities");
+  TTree *t_nlep = new TTree("LhoodMM_progress_nlep", "Stores minimum and maximum lepton multiplicities");
   
   auto fitInfoBranch = t->Branch("glb_fitInfo", &m_global_fitInfo);
   ATH_MSG_VERBOSE("Branch split level is " << fitInfoBranch->GetSplitLevel() );
-
+  t->Branch("fitInfo_1dhisto_map", &m_fitInfo_1dhisto_map);
+  t->Branch("fitInfo_2dhisto_map", &m_fitInfo_2dhisto_map);
   t_nlep->Branch("maxnlep", &m_maxnlep_loose);  
-
-  dir->cd();
-  dir->mkdir("histos_1d");
-  dir->cd("histos_1d");
-  
-  std::vector<std::unique_ptr<float>> h1_val_addrs; 
-
-  int i1dhist = 0;
-  for (auto map1_iter=m_fitInfo_1dhisto_map.begin(); map1_iter != m_fitInfo_1dhisto_map.end(); map1_iter++) {
-    ATH_MSG_VERBOSE("Trying to write a 1d histo");
-    TH1* histogram = (TH1*)map1_iter->first->Clone();
-    histogram->Reset(); // just want to store empty histograms
-    histogram->Write();
-
-    string brNameBase = histogram->GetName();
-    brNameBase += "_";
-
-    for (int icell = 0; icell < histogram->GetNcells(); icell++) {
-      string brName = brNameBase+std::to_string(icell);
-      ATH_MSG_VERBOSE("saving fitInfo for histogram " << brName.c_str());
-      t->Branch(brName.c_str(), &(map1_iter->second[icell]));
-    }
-    auto val_map_iter = m_values_1dhisto_map.find(map1_iter->first);
-    h1_val_addrs.emplace_back(new float);
-    if (val_map_iter != m_values_1dhisto_map.end() ) {
-      string histvarname = "h1d_val";
-      histvarname += std::to_string(i1dhist);
-      i1dhist++;
-      string histvartype = histvarname+"/F";
-      t->Branch(histvarname.c_str(), h1_val_addrs.back().get(), histvartype.c_str());      
-    } else {
-      ATH_MSG_ERROR("Could not find entry for histogram " << map1_iter->first);
-      return StatusCode::FAILURE;
-    }
-
-  }
-
-  dir->cd("..");
-  dir->mkdir("histos_2d");
-  dir->cd("histos_2d");
-
-  std::vector<std::unique_ptr<float>> h2_valx_addrs, h2_valy_addrs; 
-  int i2dhist = 0;
-
-  for (auto map2_iter=m_fitInfo_2dhisto_map.begin(); map2_iter != m_fitInfo_2dhisto_map.end(); map2_iter++) {
-    ATH_MSG_VERBOSE("Trying to write a 2d histo");
-    TH2* histogram = (TH2*)map2_iter->first->Clone();
-    histogram->Reset(); // just want to store empty histograms
-    histogram->Write();
-
-    string brNameBase = histogram->GetName();
-    brNameBase += "_";
-    
-    for (int icell = 0; icell < histogram->GetNcells(); icell++) {
-      string brName = brNameBase+std::to_string(icell);
-      ATH_MSG_VERBOSE("saving fitInfo for histogram " << brName.c_str());
-      t->Branch(brName.c_str(), &(map2_iter->second[icell]));
-    }
-    auto val_map_iter = m_values_2dhisto_map.find(map2_iter->first);
-    h2_valx_addrs.emplace_back(new float);
-    h2_valy_addrs.emplace_back(new float);
-    if (val_map_iter != m_values_2dhisto_map.end() ) {
-      string histvarname = "h2d_valx";
-      histvarname += std::to_string(i2dhist);
-      string histvartype = histvarname+"/F";
-      t->Branch(histvarname.c_str(), h2_valx_addrs.back().get(), histvartype.c_str());      
-      histvarname = "h2d_valy";
-      histvarname += std::to_string(i2dhist);
-      i2dhist++;
-      t->Branch(histvarname.c_str(), h2_valy_addrs.back().get(), histvartype.c_str());   
-    } else {
-      ATH_MSG_ERROR("Could not find entry for histogram " << map2_iter->first);
-      return StatusCode::FAILURE;
-    }
- 
-  }
 
   ATH_MSG_VERBOSE("Filling tree...");
   t->Fill();
@@ -1769,8 +1689,6 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
 StatusCode LhoodMM_tools::mergeSubJobs() {
 
   ATH_MSG_VERBOSE("Merging sub jobs");
-
-  TClass::GetClass("CP::LhoodMMFitInfo"); 
 
   m_alreadyMerged = true;
   std::string filename = PathResolverFindDataFile(m_progressFileName);
@@ -1817,8 +1735,6 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
 
   m_maxnlep_loose = merged_maxnlep;
 
-  m_global_fitInfo.resizeVectors(m_maxnlep_loose);
-
   std::unique_ptr<LhoodMMFitInfo> tmpFitInfo(new LhoodMMFitInfo);
 
   tmpFitInfo->resizeVectors(m_maxnlep_loose);
@@ -1827,10 +1743,59 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
   LhoodMMFitInfo* fitInfoPtr = tmpFitInfo.get();
   t->SetBranchAddress("glb_fitInfo", &fitInfoPtr );
 
+  ATH_MSG_VERBOSE("About to add LhoodMMFitInfos");
+
+ // prepare to merge any histograms
+  /*  fin->cd((prefix + "histos_1d").c_str());
+  TIter nextkey(gDirectory->GetListOfKeys());
+  vector<float*> h1_val_addrs, h2_valx_addrs, h2_valy_addrs;
+  */
+
+  std::map<TH1*, std::vector< LhoodMMFitInfo > > *tmp_fitInfo_1dhisto_map =  new std::map<TH1*, std::vector< LhoodMMFitInfo > >;
+  t->SetBranchAddress("fitInfo_1dhisto_map", &tmp_fitInfo_1dhisto_map);
+  std::map<TH2*, std::vector< LhoodMMFitInfo > > *tmp_fitInfo_2dhisto_map =  new std::map<TH2*, std::vector< LhoodMMFitInfo > >;
+  t->SetBranchAddress("fitInfo_2dhisto_map", &tmp_fitInfo_2dhisto_map);
+
   nentries = (Int_t)t->GetEntries();
   for (Int_t ievt = 0; ievt < nentries; ievt++) {
     t->GetEntry(ievt);
+    ATH_MSG_VERBOSE("Adding LhoodMMFitInto with " << (*tmpFitInfo).totEvents << " events, with m_maxnlep_loose = " <<  m_maxnlep_loose );    
     m_global_fitInfo.add(*tmpFitInfo, m_maxnlep_loose);
+    for (auto& hm :  m_fitInfo_1dhisto_map) {
+      TH1F* histogram = (TH1F*)hm.first;
+      std::string hname = histogram->GetName();
+      for (auto& im: *tmp_fitInfo_1dhisto_map) {
+	ATH_MSG_VERBOSE("Found a matching histogram");
+	TH1F* ihistogram = (TH1F*)im.first;
+	std::string iname = ihistogram->GetName();
+	if (hname == iname) {
+	  int ncells = histogram->GetNcells();
+	  for (int icell = 0; icell<ncells; icell++) {
+	    hm.second[icell].resizeVectors(m_maxnlep_loose);
+	    hm.second[icell].add(im.second[icell], m_maxnlep_loose);
+	  }
+	}
+      }
+    }
+    for (auto& hm :  m_fitInfo_2dhisto_map) {
+      TH1F* histogram = (TH1F*)hm.first;
+      std::string hname = histogram->GetName();
+      for (auto& im: *tmp_fitInfo_2dhisto_map) {
+	ATH_MSG_VERBOSE("Found a matching histogram");
+	TH1F* ihistogram = (TH1F*)im.first;
+	std::string iname = ihistogram->GetName();
+	if (hname == iname) {
+	  int ncells = histogram->GetNcells();
+	  for (int icell = 0; icell<ncells; icell++) {
+	    hm.second[icell].resizeVectors(m_maxnlep_loose);
+	    hm.second[icell].add(im.second[icell], m_maxnlep_loose);
+	  }
+	}
+      }
+    }
+    
+    ATH_MSG_VERBOSE("Added " << ievt);
+
   }
  
   

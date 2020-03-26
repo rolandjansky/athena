@@ -148,6 +148,7 @@ StatusCode BaseLinearFakeBkgTool::assignYieldRange(TH1* h)
     range.first = m_yields.size();
     m_yields.insert(m_yields.end(), std::max(1, h->GetNcells()), FakeBkgTools::Yield{});
     range.second = m_yields.size() - 1;
+    m_histogramYieldsRange.emplace(h, range);
     return StatusCode::SUCCESS;
 }
 

@@ -4,6 +4,9 @@
    <class name="CP::AsymptMatrixTool" />
    <class name="CP::LhoodMM_tools" />
    <class name="CP::LhoodMMFitInfo" />
+   <class name="std::vector<CP::LhoodMMFitInfo>" />
+   <class name="std::map<TH1*,std::vector<CP::LhoodMMFitInfo> >" />
+   <class name="std::map<TH2*,std::vector<CP::LhoodMMFitInfo> >" />
    <class name="FakeBkgTools::Efficiency" />
    <class name="FakeBkgTools::Uncertainty" />
    <class name="boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty>" />

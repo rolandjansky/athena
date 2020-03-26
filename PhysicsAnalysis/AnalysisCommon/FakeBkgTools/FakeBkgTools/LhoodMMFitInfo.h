@@ -1,13 +1,16 @@
-
 #ifndef Lhood_MM_FitInfo_h
 #define Lhood_MM_FitInfo_h
 
 #include <vector>
+#include <string>
 #include "FakeBkgTools/FakeBkgInternals.h"
 
 //namespace CP {
 //  class LhoodMM_tools;
 //}
+
+class TDirectory;
+class TTree;
 
 namespace CP
 {
@@ -28,6 +31,7 @@ namespace CP
    void reset();
    void resizeVectors(unsigned nlep);
    void add(LhoodMMFitInfo& rhs, int nLepMax); 
+   
    friend class LhoodMM_tools;
 
  };

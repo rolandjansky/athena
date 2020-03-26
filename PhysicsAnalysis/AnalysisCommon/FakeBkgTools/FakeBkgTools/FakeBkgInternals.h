@@ -213,9 +213,9 @@ inline Efficiency& Efficiency::add(const Efficiency& rhs, float weight)
       if(r.second) r.first->second *= weight;
       else r.first->second += weight * kv.second;
     }
-    /// Central value
-    nominal += weight * rhs.nominal;
-    return *this;
+  /// Central value
+  nominal += weight * rhs.nominal;
+  return *this;
 }
 
 inline Efficiency& Efficiency::multiply(const Efficiency& rhs, float weight)

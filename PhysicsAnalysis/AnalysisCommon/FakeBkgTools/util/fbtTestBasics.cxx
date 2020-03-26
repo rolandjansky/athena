@@ -139,17 +139,17 @@ bool allTests()
     if(verbose) std::cout <<"\nWill test parallel jobs and merging\n";
     eventOffset = 0;
     nEvents = 16;
-    FBT_CHECK( parallelJob("CP::AsymptMatrixTool", "/tmp/fbt_job1.root") );
+    FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job1.root") );
     eventOffset = 16;
-    FBT_CHECK( parallelJob("CP::AsymptMatrixTool", "/tmp/fbt_job2.root") );
+    FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job2.root") );
     eventOffset = 32;
-    FBT_CHECK( parallelJob("CP::AsymptMatrixTool", "/tmp/fbt_job3.root") );
+    FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job3.root") );
     eventOffset = 0;
     FBT_CHECK( gSystem->Exec("hadd -f /tmp/fbt_merged.root /tmp/fbt_job*.root") == 0 );
     {
         asg::AnaToolHandle<CP::IFakeBkgTool> tool;
         progressFile = "/tmp/fbt_merged.root";
-        FBT_CHECK( setup(tool, "CP::AsymptMatrixTool") );
+        FBT_CHECK( setup(tool, "CP::LhoodMM_tools") );
         progressFile.clear();
         FBT_CHECK( fillResult(tool, result4) );
     }

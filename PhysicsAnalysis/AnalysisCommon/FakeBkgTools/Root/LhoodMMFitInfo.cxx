@@ -3,7 +3,10 @@
 */
 
 #include "FakeBkgTools/LhoodMMFitInfo.h"
-
+#include "TDirectory.h"
+#include "TTree.h"
+#include <string.h>
+ 
 using namespace CP;
 
 LhoodMMFitInfo::LhoodMMFitInfo(int nlep) {
@@ -30,16 +33,17 @@ void LhoodMMFitInfo::reset() {
 }
 
 void LhoodMMFitInfo::add(LhoodMMFitInfo& rhs, int nLepMax) {
- 
+
+
   totEvents += rhs.totEvents;
- 
+   
   for (int ilep = 0; ilep < nLepMax; ilep++) {
     eventCount[ilep] += rhs.eventCount[ilep];
   }
-  
+
   for (int ilep = 0; ilep < nLepMax; ilep++) {
-    for (int jlep = 0; jlep <= pow(2,ilep); jlep++) {
-      for (int klep = 0; klep <= pow(2,ilep); klep++) {
+    for (int jlep = 0; jlep < (0x1 << (ilep+1)); jlep++) {
+      for (int klep = 0; klep < (0x1 << (ilep+1)); klep++) {
     	coeffs_num[ilep][jlep][klep].add(rhs.coeffs_num[ilep][jlep][klep]);
       }
     }
@@ -50,17 +54,17 @@ void LhoodMMFitInfo::add(LhoodMMFitInfo& rhs, int nLepMax) {
     }
     
   }
- 
+
   for (int ilep = 0; ilep <nLepMax; ilep++) {
     for (int jlep = 0; jlep < pow(2,2*(ilep+1)); jlep++) {
       normterms[ilep][jlep].add(rhs.normterms[ilep][jlep]);
     }  
   }
- 
+
   for (int ilep = 0; ilep <nLepMax; ilep++) {
-    for (int jlep = 0; jlep < nLepMax; jlep++) {
+    for (int jlep = 0; jlep < ilep; jlep++) {
       OSfrac_num[ilep][jlep]+=rhs.OSfrac_num[ilep][jlep];
-      OSfrac_denom[ilep][jlep]+=rhs.OSfrac_num[ilep][jlep];
+      OSfrac_denom[ilep][jlep]+=rhs.OSfrac_denom[ilep][jlep];
     }  
   }
 
