@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Set the name of the package.
 atlas_subdir( xAODDataSource )
@@ -6,6 +6,7 @@ atlas_subdir( xAODDataSource )
 # Set its dependencies on other packages.
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/RootUtils
    Control/xAODRootAccess )
 
 # External dependencies. VDT is necessary because the DataFrame code has
@@ -18,7 +19,7 @@ atlas_add_library( xAODDataSourceLib
    xAODDataSource/*.h Root/*.h Root/*.cxx
    PUBLIC_HEADERS xAODDataSource
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${VDT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${VDT_LIBRARIES} xAODRootAccess )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${VDT_LIBRARIES} RootUtils xAODRootAccess )
 
 # Build its dictionary.
 atlas_add_dictionary( xAODDataSourceDict

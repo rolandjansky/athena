@@ -65,7 +65,7 @@ void Trk::PrimaryTruthClassifier::initClassification
 unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& genParticle) const {
 
  
-  /* note on using HepMC::ThreeVector against HepGeom::Point3D<double>: ThreeVector does not know
+  /* note on using HepMC::FourVector/3Vector against HepGeom::Point3D<double>: The versions from HepMC2 do not know
      operator+, operator- etc. */
 
     
@@ -75,7 +75,7 @@ unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& gen
   bool  truncated=false;
 
   if (genParticle.production_vertex()) {
-    HepMC::ThreeVector      startVertex = genParticle.production_vertex()->point3d();
+    HepMC::FourVector      startVertex = genParticle.production_vertex()->position();
 
     // primary vertex inside innermost layer?
     if ( fabs(startVertex.perp()) < m_maxRStartPrimary 
@@ -84,7 +84,7 @@ unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& gen
         if (genParticle.end_vertex() == 0) {  
           primary=true;
         } else {
-          HepMC::ThreeVector endVertex = genParticle.end_vertex()->point3d();
+          HepMC::FourVector endVertex = genParticle.end_vertex()->position();
           if (  endVertex.perp()         > m_minREndPrimary 
                 || fabs(startVertex.z()) > m_minZEndPrimary)
             primary=true; else truncated = true;
@@ -96,7 +96,7 @@ unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& gen
         if (genParticle.end_vertex() == 0) {  
           secondary=true;
         } else {
-          HepMC::ThreeVector endVertex = genParticle.end_vertex()->point3d();
+          HepMC::FourVector endVertex = genParticle.end_vertex()->position();
           if (endVertex.perp()            > m_minREndSecondary
               || fabs(endVertex.z())      > m_minZEndSecondary) {
             secondary=true;

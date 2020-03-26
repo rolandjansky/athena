@@ -32,7 +32,7 @@ class RefComparisonStep(Step):
             if os.path.isfile(self.reference):
                 return
             # Try to find the file in DATAPATH
-            full_path = str(subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).strip())
+            full_path = subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).decode('utf-8').strip()
             if os.path.isfile(full_path):
                 self.log.debug('%s using reference %s', self.name, full_path)
                 self.reference = full_path

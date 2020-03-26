@@ -239,11 +239,12 @@ def SCT_RangeCfg(flags, name="SiliconRange", **kwargs):
 def SCT_OutputCfg(flags):
     """Return ComponentAccumulator with Output for SCT. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["SCT_RDO_Container#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["InDetSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["SCT_RDO_Container#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["InDetSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 
