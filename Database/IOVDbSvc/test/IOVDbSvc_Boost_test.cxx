@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -21,6 +21,7 @@
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/IOpaqueAddress.h"
 //
 #include "GaudiKernelFixtureBase.h"
 #include "TestFolderFixture.h"
@@ -72,7 +73,7 @@ BOOST_AUTO_TEST_SUITE(IOVDbSvcTest )
   BOOST_AUTO_TEST_CASE(getRange){
     IOVRange range;
     std::string tag{};
-    IOpaqueAddress* addr = nullptr;
+    std::unique_ptr<IOpaqueAddress> addr;
     //normal folder
     BOOST_TEST_MESSAGE("Testing getRange for folder");
     BOOST_TEST( iovdbsvc->getRange (1238547719, db.fixtureFoldername, IOVTime (10),range, tag, addr).isSuccess() );
