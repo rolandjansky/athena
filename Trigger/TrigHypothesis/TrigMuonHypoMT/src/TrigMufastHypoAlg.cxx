@@ -91,7 +91,7 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
     toolInput.emplace_back( newd, roi, muon, previousDecision );
     
     newd->setObjectLink( featureString(), muonEL );
-    newd->setObjectLink( roiString(), forIDEL );
+    newd->setObjectLink( "forID", forIDEL );
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
     
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
