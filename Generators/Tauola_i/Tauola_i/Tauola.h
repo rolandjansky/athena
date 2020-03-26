@@ -14,6 +14,7 @@
 
 #include "Tauola_i/TauDetails.h"
 #include "Tauola_i/UserGamprt.h"
+#include "HepMCI/PdfInfo.h"
 
 /// @todo Make private -- this is currently 100% global!
 typedef std::vector<std::string> CommandVector;

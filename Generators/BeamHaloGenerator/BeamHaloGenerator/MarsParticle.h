@@ -5,7 +5,7 @@
 #ifndef MARSPARTICLE_H
 #define MARSPARTICLE_H
 
-#include "HepMC/SimpleVector.h"
+#include "HepMCI/SimpleVector.h"
 #include <vector>
 #include <string>
 

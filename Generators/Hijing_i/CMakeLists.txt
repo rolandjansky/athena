@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Generators/GeneratorFortranCommon
    Generators/GeneratorModules
+   Generators/HepMCI
    Control/CxxUtils
    PRIVATE
    Control/AthenaKernel

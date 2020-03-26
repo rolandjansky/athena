@@ -10,8 +10,8 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "StoreGate/StoreGate.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
+#include "HepMCI/GenParticle.h"
+#include "HepMCI/GenEvent.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "SGTools/CurrentEventStore.h"
@@ -139,7 +139,7 @@ void HepMcParticleLink::ExtendedBarCode::print (MsgStream& os) const
  * @param positionFlag: See @c eventIndex.
  * @param sg Optional specification of a specific store to reference.
  */
-HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
+HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticlePtr part,
                                       uint32_t eventIndex,
                                       EBC_EVCOLL evColl,
                                       PositionFlag positionFlag /*= IS_INDEX*/,
@@ -165,10 +165,10 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
 /**
  * @brief Dereference.
  */
-const HepMC::GenParticle* HepMcParticleLink::cptr() const
+const HepMC::GenParticlePtr HepMcParticleLink::cptr() const
 {
   const IProxyDict* sg = nullptr;
-  const HepMC::GenParticle* p = m_ptrs.get (sg);
+  const HepMC::GenParticlePtr p = m_ptrs.get (sg);
   if (!p) {
     if (0 == barcode() || 0x7fffffff == barcode()) {
 #if 0

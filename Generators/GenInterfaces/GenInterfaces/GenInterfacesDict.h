@@ -16,7 +16,7 @@
 #include "GenInterfaces/IPDFReweightTool.h"
 #include "GenInterfaces/ITruthSelector.h"
 
-#include "HepMC/SimpleVector.h"
+#include "HepMCI/SimpleVector.h"
 #include <vector>
 
 namespace HforToolDict {

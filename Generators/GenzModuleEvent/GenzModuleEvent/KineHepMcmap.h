@@ -5,16 +5,16 @@
 #ifndef KINEHEPMCMAP_H
 #define KINEHEPMCMAP_H
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenParticle.h"
 
 class KineHepMcmap
 {
 public:
     KineHepMcmap(const HepMC::GenEvent* evt);
 	
-    int  			giveParticle_getkine	( const HepMC::GenParticle* p ) const;
-    HepMC::GenParticle*  	givekine_getParticle	( const int ikine ) const;
+    int  			giveParticle_getkine	(HepMC::GenParticlePtr p ) const;
+    HepMC::GenParticlePtr  	givekine_getParticle	( const int ikine ) const;
 private:
     const HepMC::GenEvent*	m_evt;
     //const int	m_vertex_offset;

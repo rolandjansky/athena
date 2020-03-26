@@ -7,8 +7,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenParticle.h"
 
 #include <cmath>
 #include <algorithm>

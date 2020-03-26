@@ -3,12 +3,12 @@
 */
 
 #include "TruthHelper/IsStatus.h"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenParticle.h"
 
 namespace TruthHelper {
 
 
-  bool IsStatus::operator()(const HepMC::GenParticle* const p ) const {
+  bool IsStatus::operator()(const HepMC::ConstGenParticlePtr  p ) const {
     return p->status() == m_stat;
   }
 

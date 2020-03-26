@@ -5,12 +5,12 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/IO_AsciiParticles.h"
-#include "HepMC/SimpleVector.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/IO_GenEvent.h"
+#include "HepMCI/GenParticle.h"
+#include "HepMCI/GenVertex.h"
+#include "HepMCI/IO_AsciiParticles.h"
+#include "HepMCI/SimpleVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 // ROOT headers
@@ -369,12 +369,12 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
 
   double weight;
 
-  HepMC::GenVertex* decay_vertex;
+  HepMC::GenVertexPtr decay_vertex;
 
-  HepMC::GenParticle *tau = 0;
-  HepMC::GenParticle *charged_pion = 0;
-  HepMC::GenParticle *uncharged_pion = 0;
-  HepMC::GenParticle *tau_neutrino = 0;
+  HepMC::GenParticlePtr tau = nullptr;
+  HepMC::GenParticlePtr charged_pion = nullptr;
+  HepMC::GenParticlePtr uncharged_pion = nullptr;
+  HepMC::GenParticlePtr tau_neutrino = nullptr;
 
   //tight b-hadron cuts
   double tight_bottom_pt = 5;
@@ -577,11 +577,11 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
 } //end Process
 
 
-inline double ParticleContentAnalysis::getCosTheta(const HepMC::GenParticle* charged_pion, const HepMC::GenParticle*  tau){
+inline double ParticleContentAnalysis::getCosTheta(const HepMC::GenParticlePtr  charged_pion, const HepMC::GenParticlePtr   tau){
 
   //make a copy of charged_pion
   //(maybe you need charge_pion later in your code again, therefore you do not want to boost it)
-  const HepMC::GenParticle* copy_of_charged_pion;
+  const HepMC::GenParticlePtr  copy_of_charged_pion;
   copy_of_charged_pion = charged_pion;
 
   CLHEP::HepLorentzVector charged_pion_vector(0,0,0,0);
@@ -607,7 +607,7 @@ inline double ParticleContentAnalysis::getCosTheta(const HepMC::GenParticle* cha
   return cos_theta;
 }
 
-inline double ParticleContentAnalysis::getChargedEnergyFraction(const HepMC::GenParticle* charged_pion, const HepMC::GenParticle* uncharged_pion){
+inline double ParticleContentAnalysis::getChargedEnergyFraction(const HepMC::GenParticlePtr  charged_pion, const HepMC::GenParticlePtr  uncharged_pion){
 
   //calculate charged energy fraction
   double charged_energy_fraction;

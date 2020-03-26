@@ -5,6 +5,10 @@
 # Declare the package name:
 atlas_subdir( GenzModuleEvent )
 
+# The dependencies of the package:
+atlas_depends_on_subdirs(
+   PUBLIC
+   Generators/HepMCI)
 # External dependencies:
 find_package( HepMC )
 

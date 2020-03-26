@@ -9,6 +9,7 @@ atlas_subdir( CosmicGenerator )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Generators/GeneratorModules
+                          Generators/HepMCI
                           PRIVATE
                           GaudiKernel )
 

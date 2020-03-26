@@ -36,7 +36,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
-#include "HepMC/Polarization.h"
+#include "HepMCI/Polarization.h"
 
 #include <iostream>
 #include <fstream>

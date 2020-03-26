@@ -14,9 +14,9 @@
 #include <string>
 
 // HepMC / CLHEP includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "HepMCI/GenParticle.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenVertex.h"
 
 #include "VxVertex/RecVertex.h"
 
@@ -53,7 +53,7 @@ TruthParticle::TruthParticle( const TruthParticle& rhs ) :
   m_nGenEventIdx   ( rhs.m_nGenEventIdx )
 {}
 
-TruthParticle::TruthParticle( const HepMC::GenParticle * particle, 
+TruthParticle::TruthParticle( const HepMC::GenParticlePtr particle, 
                               const TruthParticleContainer * container ) :
   INavigable          ( ),
   I4Momentum          ( ),
@@ -107,7 +107,7 @@ const TruthParticle * TruthParticle::child(const std::size_t i) const
 }
 
 
-const HepMC::GenParticle * TruthParticle::genMother(const std::size_t i) const
+const HepMC::GenParticlePtr TruthParticle::genMother(const std::size_t i) const
 {
   if ( i < m_mothers.size() ) {
     const TruthParticle* mother = this->mother(i);
@@ -118,7 +118,7 @@ const HepMC::GenParticle * TruthParticle::genMother(const std::size_t i) const
   }
 }
 
-const HepMC::GenParticle * TruthParticle::genChild(const std::size_t i) const
+const HepMC::GenParticlePtr TruthParticle::genChild(const std::size_t i) const
 {
   if ( i < m_children.size() ) {
     const TruthParticle* child = this->child(i);
@@ -248,7 +248,7 @@ PDG::pidType TruthParticle::pdgDecay( const std::size_t i ) const
 /////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
-void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
+void TruthParticle::setGenParticle( const HepMC::GenParticlePtr particle )
 {
   this->particleBase().setGenParticle( particle );
 
@@ -256,7 +256,7 @@ void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
     this->set4Mom(particle->momentum());
 
     // children
-    const HepMC::GenVertex * dcyVtx = particle->end_vertex();
+    const HepMC::GenVertexPtr dcyVtx = particle->end_vertex();
     m_children.reserve( dcyVtx ? dcyVtx->particles_out_size() : 0 );
 
     if ( dcyVtx ) {
@@ -269,7 +269,7 @@ void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
     }//> decay vertex exists
 
     // parents
-    const HepMC::GenVertex * prodVtx = particle->production_vertex();
+    const HepMC::GenVertexPtr prodVtx = particle->production_vertex();
     m_mothers.reserve( prodVtx ? prodVtx->particles_in_size() : 0 );
     if ( prodVtx ) {
       for ( HepMC::GenVertex::particles_in_const_iterator itr = 

@@ -15,7 +15,7 @@
 #pragma clang diagnostic ignored "-Wkeyword-macro"
 #endif
 #define private public
-#   include "HepMC/WeightContainer.h"
+#include "HepMCI/WeightContainer.h"
 #undef private
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -38,10 +38,10 @@
 
 #include <unordered_set>
 
-namespace HepMC {
-  class GenVertex;
-  class GenParticle;
-}
+
+#include "HepMCI/GenVertex_fwd.h"
+#include "HepMCI/GenParticle_fwd.h"
+
 
 namespace xAODMaker {
 
@@ -97,11 +97,11 @@ namespace xAODMaker {
       std::vector<ElementLink<xAOD::TruthParticleContainer> > outgoingEL;
     };
     /// Convenience handle for a map of vtx ptrs -> connected particles
-    typedef std::map<const HepMC::GenVertex*, VertexParticles> VertexMap;
+    typedef std::map<const HepMC::GenVertexPtr, VertexParticles> VertexMap;
 
     /// These functions do not set up ELs, just the other variables
-    static void fillVertex(xAOD::TruthVertex *tv, const HepMC::GenVertex *gv);
-    static void fillParticle(xAOD::TruthParticle *tp, const HepMC::GenParticle *gp);
+    static void fillVertex(xAOD::TruthVertex *tv, const HepMC::GenVertexPtr gv);
+    static void fillParticle(xAOD::TruthParticle *tp, const HepMC::GenParticlePtr gp);
 
     /// The key of the input AOD truth container
     SG::ReadHandleKey<McEventCollection> m_aodContainerKey{ 

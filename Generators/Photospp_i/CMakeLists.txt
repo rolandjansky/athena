@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
    PRIVATE
+   Generators/HepMCI 
    Control/AthenaKernel
    GaudiKernel
    Generators/GeneratorObjects )

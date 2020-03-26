@@ -57,11 +57,11 @@ private:
   double m_tPairPtMax;
   int m_cutPtOf;
 
-  const HepMC::GenParticle*  findInitial(const HepMC::GenParticle* part) const;
-  bool  isFromTop(const HepMC::GenParticle* part) const;
-  bool  isHadronic(const HepMC::GenParticle* part) const;
-  bool  isFinalParticle(const HepMC::GenParticle* part) const;
-  HepMC::FourVector momentumBofW(const HepMC::GenParticle* part);
+  const HepMC::GenParticlePtr  findInitial(const HepMC::GenParticlePtr part) const;
+  bool  isFromTop(const HepMC::GenParticlePtr part) const;
+  bool  isHadronic(const HepMC::GenParticlePtr part) const;
+  bool  isFinalParticle(const HepMC::GenParticlePtr part) const;
+  HepMC::FourVector momentumBofW(const HepMC::GenParticlePtr part);
 
 };
 

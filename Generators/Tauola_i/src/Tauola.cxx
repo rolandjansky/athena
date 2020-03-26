@@ -38,9 +38,9 @@
 
 #include "GaudiKernel/DataSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/IO_HEPEVT.h"
-#include "HepMC/IO_HERWIG.h"
-#include "HepMC/HEPEVT_Wrapper.h"
+#include "HepMCI/IO_HEPEVT.h"
+#include "HepMCI/IO_HERWIG.h"
+#include "HepMCI/HEPEVT_Wrapper.h"
 
 #include "GeneratorUtils/StringParse.h"
 #include <cstdlib>
@@ -305,13 +305,13 @@ StatusCode Tauola::callGenerator() {
     // std::cout << "Tauola_i-D-VS-m_numberOfTauToDecay = " << m_numberOfTauToDecay << std::endl;
 
     // Create the GeneratorEvent and restore the HEPEVT common block
-    int pr_id=evt->signal_process_id();
+    int pr_id=HepMC::signal_process_id(evt);
     if (pr_id == 1 ) {pr_id = SINGLE ; } // temporary fix
 
     //--->>> V.S.
 
     // check if MC generator info is available
-    int mc_process = evt->signal_process_id();
+    int mc_process = HepMC::signal_process_id(evt);
 
     // count vertices
     int n_vtx(0);

@@ -255,11 +255,11 @@ namespace xAODMaker {
 	  // If signal process vertex is a disconnected vertex (no incoming/outgoing particles), add it manually
 	  VertexMap vertexMap;
 	  VertexMap::iterator mapItr;
-	  vector<const HepMC::GenVertex*> vertices;
+	  vector<HepMC::GenVertexPtr> vertices;
                 
 	  // Check signal process vertex
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
-	  HepMC::GenVertex* disconnectedSignalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	  HepMC::GenVertexPtr disconnectedSignalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
 	    if (disconnectedSignalProcessVtx->particles_in_size() == 0 &&
 		disconnectedSignalProcessVtx->particles_out_size() == 0 ) {
@@ -271,7 +271,7 @@ namespace xAODMaker {
 	  }
                 
 	  // Get the beam particles
-	  pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles;
+	  pair<HepMC::GenParticlePtr,HepMC::GenParticlePtr> beamParticles;
 	  if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
 	  for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
 	    // (a) create TruthParticle
@@ -295,7 +295,7 @@ namespace xAODMaker {
 	      }
 	    }
 	    // (d) Particle's production vertex
-	    HepMC::GenVertex* productionVertex = (*pitr)->production_vertex();
+	    HepMC::GenVertexPtr productionVertex = (*pitr)->production_vertex();
 	    if (productionVertex) {
 	      VertexParticles& parts = vertexMap[productionVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
@@ -307,7 +307,7 @@ namespace xAODMaker {
 	    // else maybe want to keep track that this is the production vertex
 	    //
 	    // (e) Particle's decay vertex
-	    HepMC::GenVertex* decayVertex = (*pitr)->end_vertex();
+	    HepMC::GenVertexPtr decayVertex = (*pitr)->end_vertex();
 	    if (decayVertex) {
 	      VertexParticles& parts = vertexMap[decayVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
@@ -319,8 +319,8 @@ namespace xAODMaker {
 	  } // end of loop over particles
                 
 	  // (3) Loop over the map
-	  HepMC::GenVertex* signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
-	  for (const HepMC::GenVertex* vertex : vertices) {
+	  HepMC::GenVertexPtr signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	  for (const HepMC::GenVertexPtr vertex : vertices) {
 	    const auto& parts = vertexMap[vertex];
 	    // (a) create TruthVertex
 	    xAOD::TruthVertex* xTruthVertex = new xAOD::TruthVertex();
@@ -357,9 +357,9 @@ namespace xAODMaker {
     
     
     // A helper to set up a TruthVertex (without filling the ELs)
-    void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, const HepMC::GenVertex* gv) {
+    void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, const HepMC::GenVertexPtr gv) {
         tv->setId(gv->id());
-        tv->setBarcode(gv->barcode());
+        tv->setBarcode(HepMC::barcode(gv));
         
         // No vertex weights
         // vector<float> weights;
@@ -374,9 +374,9 @@ namespace xAODMaker {
     
     
     // A helper to set up a TruthParticle (without filling the ELs)
-    void xAODTruthCnvAlg::fillParticle(xAOD::TruthParticle* tp, const HepMC::GenParticle* gp) {
+    void xAODTruthCnvAlg::fillParticle(xAOD::TruthParticle* tp, const HepMC::GenParticlePtr gp) {
         tp->setPdgId(gp->pdg_id());
-        tp->setBarcode(gp->barcode());
+        tp->setBarcode(HepMC::barcode(gp));
         tp->setStatus(gp->status());
         
         const HepMC::Polarization& pol = gp->polarization();

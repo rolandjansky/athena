@@ -3,7 +3,7 @@
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "HepMC/IO_GenEvent.h"
+#include "HepMCI/IO_GenEvent.h"
 
 class StoreGateSvc;
 

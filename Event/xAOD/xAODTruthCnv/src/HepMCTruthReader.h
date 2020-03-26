@@ -7,11 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-namespace HepMC {
-  class GenEvent;
-  class GenVertex;
-  class GenParticle;
-}
+#include "HepMCI/GenEvent_fwd.h"
+#include "HepMCI/GenVertex_fwd.h"
+#include "HepMCI/GenParticle_fwd.h"
 
 
 /// @short Algorithm demonstrating reading of HepMC truth, and printing to screen
@@ -35,8 +33,8 @@ private:
   std::string m_hepMCContainerName;
 
   void printEvent(const HepMC::GenEvent*);
-  void printVertex(const HepMC::GenVertex*);
-  void printParticle(const HepMC::GenParticle*);
+  void printVertex(const HepMC::GenVertexPtr);
+  void printParticle(const HepMC::GenParticlePtr);
 
 }; // class HepMCTruthReader
 

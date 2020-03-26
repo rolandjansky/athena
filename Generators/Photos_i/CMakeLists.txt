@@ -9,6 +9,7 @@ atlas_subdir( Photos_i )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GeneratorModules
+                          Generators/HepMCI
                           Generators/Tauola_i
                           PRIVATE
                           Control/AthenaKernel

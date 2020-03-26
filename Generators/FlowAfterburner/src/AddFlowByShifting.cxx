@@ -244,7 +244,7 @@ StatusCode AddFlowByShifting::execute() {
     //std::cout << std::endl;
 
 
-    HepMC::GenVertex* mainvtx =(*itr)->barcode_to_vertex(-1);
+    HepMC::GenVertexPtr mainvtx =(*itr)->barcode_to_vertex(-1);
     if(m_flow_fluctuations) Set_EbE_Fluctuation_Multipliers(mainvtx,hijing_pars->get_b());
 
     int particles_in_event = (*itr)->particles_size();
@@ -254,7 +254,7 @@ StatusCode AddFlowByShifting::execute() {
 	  partit != (*mainvtx).particles_end(HepMC::children); partit++ ) {
 
       // Process particles from main vertex
-      HepMC::GenParticle* parent = (*partit);
+      HepMC::GenParticlePtr parent = (*partit);
       CLHEP::HepLorentzVector momentum(parent->momentum().px(),
 				parent->momentum().py(),
 				parent->momentum().pz(),
@@ -314,7 +314,7 @@ StatusCode AddFlowByShifting::finalize() {
 
 
 
-double AddFlowByShifting::SetParentToRanPhi(HepMC::GenParticle* parent)
+double AddFlowByShifting::SetParentToRanPhi(HepMC::GenParticlePtr parent)
 {
   // Set particle to random phi
   // Return phi shift
@@ -332,7 +332,7 @@ double AddFlowByShifting::SetParentToRanPhi(HepMC::GenParticle* parent)
   phishift = ranphi - phi;
 
   momentum.setPhi(ranphi*Gaudi::Units::rad);
-  parent->set_momentum( momentum );
+  parent->set_momentum(  HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
 
   ATH_MSG_INFO("Parent phi randomized = " << momentum.phi());
 
@@ -344,11 +344,11 @@ double AddFlowByShifting::SetParentToRanPhi(HepMC::GenParticle* parent)
 
 
 void AddFlowByShifting::MoveDescendantsToParent
-                          (HepMC::GenParticle* parent, double phishift)
+                          (HepMC::GenParticlePtr parent, double phishift)
 {
   // Move the branch of descendant vertices and particles
   // by phishift to parent particle position
-  HepMC::GenVertex *endvtx = parent->end_vertex();
+  HepMC::GenVertexPtr endvtx = parent->end_vertex();
   if ( endvtx ) {
     ATH_MSG_DEBUG("Processing branch of parent particle "<< parent->barcode());
 
@@ -357,7 +357,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 	    descvtxit = endvtx->vertices_begin(HepMC::descendants);
 	  descvtxit != endvtx->vertices_end(HepMC::descendants);
 	  ++descvtxit) {
-      HepMC::GenVertex *descvtx = (*descvtxit);
+      HepMC::GenVertexPtr descvtx = (*descvtxit);
       ATH_MSG_DEBUG("Processing vertex " << descvtx->barcode());
 
       // rotate vertex
@@ -375,7 +375,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 	    = descvtx->particles_begin(HepMC::children);
 	  descpartit != descvtx->particles_end(HepMC::children);
 	  ++descpartit ) {
-	HepMC::GenParticle* descpart = (*descpartit);
+	HepMC::GenParticlePtr descpart = (*descpartit);
         CLHEP::HepLorentzVector momentum(descpart->momentum().px(),
 				  descpart->momentum().py(),
 				  descpart->momentum().pz(),
@@ -412,7 +412,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 
 
 
-double AddFlowByShifting::AddFlowToParent (HepMC::GenParticle* parent, const HijingEventParams *hijing_pars)
+double AddFlowByShifting::AddFlowToParent (HepMC::GenParticlePtr parent, const HijingEventParams *hijing_pars)
 {
   m_particles_processed++;
 
@@ -502,7 +502,7 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticle* parent, const Hij
 
   if(fabs(phishift) > 1e-7) {
     momentum.rotateZ(phishift*Gaudi::Units::rad);
-    parent->set_momentum( momentum );
+    parent->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
   }
   ATH_MSG_DEBUG( "Parent particle: V1 = " << m_v_n[0] <<
                                  " V2 = " << m_v_n[1] <<
@@ -653,7 +653,7 @@ void AddFlowByShifting::p_Pb_cent_eta_indep(double /*b*/, double /*eta*/, double
 
 
 
-void AddFlowByShifting::Set_EbE_Fluctuation_Multipliers(HepMC::GenVertex* mainvtx,float b){
+void AddFlowByShifting::Set_EbE_Fluctuation_Multipliers(HepMC::GenVertexPtr mainvtx,float b){
     int Total_Multiplicity=0;
     double EbE_Vn[6];
     for(int ihar=0;ihar<6;ihar++){m_EbE_Multiplier_vn[ihar]=1.0;EbE_Vn[ihar]=0.0;}

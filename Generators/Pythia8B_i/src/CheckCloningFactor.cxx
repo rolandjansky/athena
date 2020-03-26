@@ -41,7 +41,7 @@ StatusCode CheckCloningFactor::execute() {
     
     // Loop over all events in McEventCollection
     McEventCollection::const_iterator itr;
-    std::vector<const HepMC::GenParticle*> bQuarks;
+    std::vector<HepMC::GenParticlePtr> bQuarks;
     for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
         // Loop over all particles in the event and find the b-quarks
         const HepMC::GenEvent* genEvt = (*itr);
@@ -55,7 +55,7 @@ StatusCode CheckCloningFactor::execute() {
     }
     
     // Loop over the b-quarks and find the one with higest pt
-    std::vector<const HepMC::GenParticle*>::iterator bItr;
+    std::vector<HepMC::GenParticlePtr>::iterator bItr;
     double lastPt(-1.0);
     int index(0), highestIndex(-1);
     for (bItr = bQuarks.begin(); bItr!=bQuarks.end(); ++bItr, ++index) {
@@ -65,7 +65,7 @@ StatusCode CheckCloningFactor::execute() {
             lastPt = et;
         }
     }
-    const HepMC::GenParticle* recordedBQuark = bQuarks[highestIndex];
+    const HepMC::GenParticlePtr recordedBQuark = bQuarks[highestIndex];
     double b_pt = recordedBQuark->momentum().perp();
     double b_rapid = recordedBQuark->momentum().pseudoRapidity();
     double b_phi = recordedBQuark->momentum().phi();

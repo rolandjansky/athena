@@ -23,10 +23,9 @@
 #include <limits>  /* numeric_limits */
 #include <string>
 
-namespace HepMC {
-  class GenParticle;
-  class GenEvent;
-}
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenParticle.h"
+
 class IProxyDict;
 class McEventCollection;
 
@@ -384,7 +383,7 @@ public:
    * @param positionFlag: See @c eventIndex.
    * @param sg Optional specification of a specific store to reference.
    */
-  HepMcParticleLink (const HepMC::GenParticle* p,
+  HepMcParticleLink (const HepMC::GenParticlePtr,
                      uint32_t eventIndex = 0,
                      EBC_EVCOLL evColl=EBC_MAINEVCOLL,
                      PositionFlag positionFlag = IS_INDEX,
@@ -403,7 +402,7 @@ public:
    * @param positionFlag: See @c eventIndex.
    * @param sg Optional specification of a specific store to reference.
    */
-  HepMcParticleLink (const HepMC::GenParticle* part,
+  HepMcParticleLink (const HepMC::GenParticlePtr part,
                      uint32_t eventIndex,
                      const std::string& evCollName,
                      PositionFlag positionFlag = IS_INDEX,
@@ -422,7 +421,7 @@ public:
    * @param positionFlag: See @c eventIndex.
    * @param ctx Context of the store to reference.
    */
-  HepMcParticleLink (const HepMC::GenParticle* part,
+  HepMcParticleLink (const HepMC::GenParticlePtr part,
                      uint32_t eventIndex,
                      EBC_EVCOLL evColl,
                      PositionFlag positionFlag,

@@ -8,7 +8,7 @@
 //#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GenInterfaces/IPDFReweightTool.h"
-#include "HepMC/GenEvent.h"
+#include "HepMCI/GenEvent.h"
 #include <string>
 #include <vector>
 

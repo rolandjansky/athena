@@ -18,7 +18,7 @@
 #include "gtest/gtest.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
+#include "HepMCI/GenEvent.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"

@@ -26,9 +26,9 @@
 
 #include "GeneratorUtils/StringParse.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenVertex.h"
+#include "HepMCI/GenParticle.h"
 
 #include <stdlib.h>
 
@@ -260,10 +260,10 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     evt->set_event_number( m_events );
 
     // Set the random generator seeds
-    evt->set_random_states(m_seeds);
+    HepMC::set_random_states(evt,m_seeds);
  
     // Set the generator id
-    evt->set_signal_process_id(HIJING + m_iap);
+    HepMC::set_signal_process_id(evt,HIJING + m_iap);
 
     // Store collision parameters
     int np = m_himain1.np();
@@ -310,7 +310,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     //
     std::vector<int> partOriginVertex_vec;
     std::vector<int> partDecayVertex_vec;
-    std::vector<HepMC::GenParticle*> particleHepPartPtr_vec;
+    std::vector<HepMC::GenParticlePtr> particleHepPartPtr_vec;
 
     partOriginVertex_vec.assign(numHijingPart, 0);
     partDecayVertex_vec.assign(numHijingPart, -1);
@@ -318,7 +318,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
     // Vector that will keep pointers to generated vertices
     //
-    std::vector<HepMC::GenVertex*> vertexPtrVec;
+    std::vector<HepMC::GenVertexPtr> vertexPtrVec;
 
     // Create the event vertex
     //
@@ -328,9 +328,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     if( m_rand )newVertex = randomizeVertex(); // Create a random vertex along the pipe
     else if(m_sel) newVertex = CLHEP::HepLorentzVector(m_x, m_y, m_z, 0.); // Create vertex at selected point - preempted by m_rand
 
-    HepMC::GenVertex* v1 = new HepMC::GenVertex(newVertex);
+    HepMC::GenVertexPtr v1 = HepMC::newGenVertexPtr(HepMC::FourVector(newVertex.x(),newVertex.y(),newVertex.z(),newVertex.t()));
 
-    evt->set_signal_process_vertex(v1);
+    HepMC::set_signal_process_vertex(evt,v1); 
     vertexPtrVec.push_back(v1);
 
     double eproj = (double) m_efrm;
@@ -350,7 +350,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     } else if (  m_proj == "A       " ) {
        proj_id = 3000000 + m_iap;
     }
-    HepMC::GenParticle* part_p = new HepMC::GenParticle( CLHEP::HepLorentzVector(0., 0., eproj, eproj), proj_id, 101 );
+    HepMC::GenParticlePtr part_p = HepMC::newGenParticlePtr(HepMC::FourVector(0., 0., eproj, eproj), proj_id, 101 );
     v1->add_particle_in( part_p );
     
     double etarg = 0.;
@@ -370,7 +370,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     } else if (  m_targ == "A       " ) {
        targ_id = 3000000 + m_iat;
     }
-    HepMC::GenParticle* part_t = new HepMC::GenParticle( CLHEP::HepLorentzVector(0., 0., -etarg, etarg), targ_id, 102 );
+    HepMC::GenParticlePtr part_t = HepMC::newGenParticlePtr(HepMC::FourVector(0., 0., -etarg, etarg), targ_id, 102 );
     v1->add_particle_in( part_t );
 
     evt->set_beam_particles(part_p,part_t);
@@ -450,9 +450,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
            {
              //  Make sure it is consistent with this track origin
              //
-	     HepGeom::Point3D<double> vertex_pos(vertexPtrVec[parentDecayIndex]->point3d().x(),
-                                  vertexPtrVec[parentDecayIndex]->point3d().y(),
-                                  vertexPtrVec[parentDecayIndex]->point3d().z());
+	     HepGeom::Point3D<double> vertex_pos(vertexPtrVec[parentDecayIndex]->position().x(),
+                                  vertexPtrVec[parentDecayIndex]->position().y(),
+                                  vertexPtrVec[parentDecayIndex]->position().z());
               double distance = vertex_pos.distance(particleStart.vect());
 
               //std::cout << "ML-> distance = " << distance <<"   parentDecayIndex = "<<parentDecayIndex<< std::endl;
@@ -470,9 +470,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
                 // Dump the parent decay vertex
                 //
-                log << MSG::WARNING << " Parent decay vertex: (x,y,z) = " << vertexPtrVec[parentDecayIndex]->point3d().x()
-                    << ", " << vertexPtrVec[parentDecayIndex]->point3d().y() 
-                    << ", " << vertexPtrVec[parentDecayIndex]->point3d().z() 
+                log << MSG::WARNING << " Parent decay vertex: (x,y,z) = " << vertexPtrVec[parentDecayIndex]->position().x()
+                    << ", " << vertexPtrVec[parentDecayIndex]->position().y() 
+                    << ", " << vertexPtrVec[parentDecayIndex]->position().z() 
                     << ", associated daughter IDs = ";
               
                 HepMC::GenVertex::particles_out_const_iterator iter;
@@ -496,9 +496,10 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
              //  Now compare the distance between the vertex FROM which the parent originates and the
              //    start of this particle
              //
-	     HepGeom::Point3D<double> vertex_pos(vertexPtrVec[parentOriginIndex]->point3d().x(),
-                                      vertexPtrVec[parentOriginIndex]->point3d().y(),
-                                      vertexPtrVec[parentOriginIndex]->point3d().z());
+
+	     HepGeom::Point3D<double> vertex_pos(vertexPtrVec[parentOriginIndex]->position().x(),
+                                      vertexPtrVec[parentOriginIndex]->position().y(),
+                                      vertexPtrVec[parentOriginIndex]->position().z());
                 double distance = vertex_pos.distance(particleStart.vect());
 
              if (distance > m_vertexOffsetCut && parentIndex == -1)
@@ -530,8 +531,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
               {
                 // We need to create a new vertex
                 // 
-                HepMC::GenVertex* newVertex_p = new HepMC::GenVertex(particleStart);
-
+                HepMC::GenVertexPtr newVertex_p = HepMC::newGenVertexPtr(HepMC::FourVector(particleStart.x(),particleStart.y(),particleStart.z(),particleStart.t()));
                   evt->add_vertex(newVertex_p);
                 vertexPtrVec.push_back(newVertex_p);
                 particleVertexIndex = vertexPtrVec.size() - 1;
@@ -558,9 +558,10 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        int foundVert = -1;
        for (unsigned int ivert = 0; ivert < vertexPtrVec.size(); ivert++)
        {
-	 HepGeom::Point3D<double> vertex_pos(vertexPtrVec[ivert]->point3d().x(),
-                              vertexPtrVec[ivert]->point3d().y(),
-                              vertexPtrVec[ivert]->point3d().z());
+
+	 HepGeom::Point3D<double> vertex_pos(vertexPtrVec[ivert]->position().x(),
+                              vertexPtrVec[ivert]->position().y(),
+                              vertexPtrVec[ivert]->position().z());
          double distance = vertex_pos.distance(particleStart.vect());
          if (distance < m_vertexOffsetCut) 
          {
@@ -573,9 +574,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        {
          //  We need to create a new vertex
          //
-         HepMC::GenVertex* newVertex_p = new HepMC::GenVertex(particleStart);
-
-          evt->add_vertex(newVertex_p);
+         HepMC::GenVertexPtr newVertex_p = HepMC::newGenVertexPtr(HepMC::FourVector(particleStart.x(),particleStart.y(),particleStart.z(),particleStart.t()));
+     
+         evt->add_vertex(newVertex_p);
          vertexPtrVec.push_back(newVertex_p);
          particleVertexIndex = vertexPtrVec.size() - 1;
        }
@@ -599,7 +600,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
                               m_himain2.patt(i, 3),
                               m_himain2.patt(i, 4));
 
-      HepMC::GenParticle* newParticle_p = new HepMC::GenParticle(particleP4, particleId, 
+      HepMC::GenParticle* newParticle_p = HepMC::newGenParticlePtr(particleP4, particleId, 
                                                          particleStatus);
 
       //  Record the particle in the vector of pointers 
@@ -677,7 +678,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
          //  Add aaa non-tracked entry in the hepmc event with status code 103 (temporary)
          //
-         v1->add_particle_out( new HepMC::GenParticle( CLHEP::HepLorentzVector(px, py, pz, e), partonId, 103 ) );
+         v1->add_particle_out( HepMC::newGenParticlePtr( HepMC::FourVector(px, py, pz, e), partonId, 103 ) );
        }
       }
     }
@@ -714,7 +715,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
          
          //  Add aaa non-tracked entry in the hepmc event with status code 103 (temporary)
          //
-         v1->add_particle_out( new HepMC::GenParticle( CLHEP::HepLorentzVector(px, py, pz, e), partonId, 103 ) );
+         v1->add_particle_out( HepMC::newGenParticlePtr( HepMC::FourVector(px, py, pz, e), partonId, 103 ) );
        }
       }
     }
@@ -748,7 +749,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
          
          //  Add aaa non-tracked entry in the hepmc event with status code 103 (temporary)
          //
-         v1->add_particle_out( new HepMC::GenParticle( CLHEP::HepLorentzVector(px, py, pz, e), partonId, 103 ) );
+         v1->add_particle_out( HepMC::newGenParticlePtr( HepMC::FourVector(px, py, pz, e), partonId, 103 ) );
        }
       }
     }
@@ -771,9 +772,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        tmpmom.setY(-tmpmom.y());
        tmpmom.setZ(-tmpmom.z());
        tmpmom.setT(tmpmom.t());
-       //std::cout <<"before="<<(*pitr)->momentum() <<std::endl;
        (*pitr)->set_momentum(tmpmom);
-       //std::cout <<"after="<<(*pitr)->momentum() <<std::endl;
        }
       }
     }

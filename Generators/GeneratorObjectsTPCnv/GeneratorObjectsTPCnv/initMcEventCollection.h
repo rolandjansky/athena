@@ -11,14 +11,12 @@
 
 #include <string>
 #include <vector>
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenParticle.h"
 
 #undef NDEBUG
 
 class ISvcLocator;
-namespace HepMC {
-  class GenEvent;
-}
+#include "HepMCI/GenEvent_fwd.h"
 
 namespace Athena_test {
   /** @fn bool initGaudi(ISvcLocator*& pSvcLoc, HepMC::GenParticle*& pGenParticle)
@@ -26,12 +24,12 @@ namespace Athena_test {
    *  @param pSvcLoc returns a pointer to the Gaudi ServiceLocator
    *  @param genPartVector returns a vector of pointers to GenParticle objects for use in HepMcParticleLink creation
    */
-  bool initMcEventCollection(ISvcLocator*& pSvcLoc, std::vector<HepMC::GenParticle*>& genPartVector);
+  bool initMcEventCollection(ISvcLocator*& pSvcLoc, std::vector<HepMC::GenParticlePtr>& genPartVector);
   /** @fn HepMC::GenParticle* populateGenEvent(HepMC::GenEvent & ge)
    *  @brief fills a HepMC::GenEvent with some dummy GenParticle and GenVertex objects
    *  @param pSvcLoc returns a pointer to the Gaudi ServiceLocator
    *  @param genPartVector returns a vector of pointers to GenParticle objects for use in HepMcParticleLink creation
    */
-  void populateGenEvent(HepMC::GenEvent & ge, int pdgid1, int pdgid2, std::vector<HepMC::GenParticle*>& genPartVector);
+  void populateGenEvent(HepMC::GenEvent & ge, int pdgid1, int pdgid2, std::vector<HepMC::GenParticlePtr>& genPartVector);
 }
 #endif // GENERATOROBJECTSTPCNV_INITMCEVENTCOLLECTION_H

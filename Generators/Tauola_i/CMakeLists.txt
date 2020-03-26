@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    Control/AthenaKernel
    GaudiKernel
    Generators/GeneratorModules
+   Generators/HepMCI
    PRIVATE
    Generators/GeneratorFortranCommon
    Generators/GeneratorObjects

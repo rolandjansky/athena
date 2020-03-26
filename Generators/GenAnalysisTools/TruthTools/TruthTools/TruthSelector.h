@@ -14,7 +14,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenParticle.h"
 #include "GenInterfaces/ITruthSelector.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
@@ -49,8 +49,8 @@ public:
     const std::vector<int>&	reconstructableSecondaries(double minPt);
 
 private:
-    bool			selectParticle (const HepMC::GenParticle& particle, double minPt);
-    
+    bool			selectParticle (const HepMC::ConstGenParticlePtr particle, double minPt);
+
     std::vector<int>			m_barcodes;
     std::map<int,int>			m_indetKineMap;
     double				m_maxEta;

@@ -6,12 +6,12 @@
 
 #include <iostream>
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/IO_AsciiParticles.h"
-#include "HepMC/SimpleVector.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/IO_GenEvent.h"
+#include "HepMCI/GenParticle.h"
+#include "HepMCI/GenVertex.h"
+#include "HepMCI/IO_AsciiParticles.h"
+#include "HepMCI/SimpleVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include "TH1.h"

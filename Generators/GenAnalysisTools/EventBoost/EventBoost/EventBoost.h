@@ -18,12 +18,10 @@
 #define EVENTBOOST_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "HepMC/GenEvent.h"
-
-
-namespace HepMC {
-  class GenParticle;
-}
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenParticle.h"
+#include "HepMCI/GenVertex.h"
+#include "HepMCI/SimpleVector.h"
 
 
 #include <string>
@@ -48,8 +46,8 @@ public:
   StatusCode AnalyseGenEvent(const HepMC::GenEvent*);
   StatusCode EventCopy(const HepMC::GenEvent* evt) const;
 
-  bool doModification(HepMC::GenParticle * part, double& pxsum);
-  bool doVertexModification(HepMC::GenVertex * ver, double rand_x, double rand_y, double rand_z); 
+  bool doModification(HepMC::GenParticlePtr part, double& pxsum);
+  bool doVertexModification(HepMC::GenVertexPtr ver, double rand_x, double rand_y, double rand_z); 
 
 private:
 

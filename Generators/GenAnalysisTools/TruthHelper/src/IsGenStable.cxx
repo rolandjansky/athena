@@ -8,7 +8,7 @@
 namespace TruthHelper {
 
 
-  bool IsGenStable::operator()(const HepMC::GenParticle* const p ) const {
+  bool IsGenStable::operator()(const HepMC::ConstGenParticlePtr p ) const {
     return MC::isGenStable(p);
   }
 

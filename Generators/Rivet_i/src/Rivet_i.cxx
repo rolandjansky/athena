@@ -7,7 +7,7 @@
 #include "Rivet_i.h"
 #include "LogLevels.h"
 
-#include "HepMC/GenEvent.h"
+#include "HepMCI/GenEvent.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "AthenaKernel/errorcheck.h"

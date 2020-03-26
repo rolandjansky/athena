@@ -6,7 +6,7 @@
 #define TAUDETAILS_H
 
 #include "Tauola_i/Fftaudet.h"
-#include "HepMC/GenEvent.h"
+#include "HepMCI/GenEvent.h"
 
 // Framework Related Headers
 #include "GaudiKernel/MsgStream.h"

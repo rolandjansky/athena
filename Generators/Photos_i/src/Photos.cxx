@@ -37,8 +37,8 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "HepMC/IO_HEPEVT.h"
-#include "HepMC/HEPEVT_Wrapper.h"
+#include "HepMCI/IO_HEPEVT.h"
+#include "HepMCI/HEPEVT_Wrapper.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
 

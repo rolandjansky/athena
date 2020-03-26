@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           Generators/GeneratorObjects
+                          Generators/HepMCI  
                            )
 
 # External dependencies:

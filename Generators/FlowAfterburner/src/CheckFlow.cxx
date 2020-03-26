@@ -20,15 +20,15 @@
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/GenAll.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenParticle.h"
+#include "HepMCI/GenVertex.h"
 
 #include "GeneratorObjects/HijingEventParams.h"
 
 using namespace TruthHelper;
 
-typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
+typedef std::vector<const HepMC::GenParticlePtr>  MCparticleCollection ;
 
 CheckFlow::CheckFlow(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -215,20 +215,19 @@ StatusCode CheckFlow::execute() {
   // Iterate over MC particles  We are using the IsGenStable predicate from
   // IsGenStable ifs;
   GenAll ifs;
-  std::vector<const HepMC::GenParticle*> particles;
+  std::vector<HepMC::GenParticlePtr> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;
     return stat;
   }
 
-  for (std::vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();
-       pitr != particles.end(); pitr++) {
-    int pid = (*pitr)->pdg_id();
-    int p_stat = (*pitr)->status();
-    double pt = (*pitr)->momentum().perp();
-    double rapid = (*pitr)->momentum().pseudoRapidity();
-    double phi = (*pitr)->momentum().phi();
+  for (auto pitr: particles) {
+    int pid = pitr->pdg_id();
+    int p_stat = pitr->status();
+    double pt = pitr->momentum().perp();
+    double rapid = pitr->momentum().pseudoRapidity();
+    double phi = pitr->momentum().phi();
     msg(MSG::DEBUG)
 	   << " PID = " << pid << " Status = " << p_stat
 	   << " Eta = " << rapid << "  Phi = " << phi 

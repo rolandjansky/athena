@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GenAnalysisTools/TruthHelper
                           Generators/GeneratorObjects
+                          Generators/HepMCI  
                           PRIVATE
                           Control/StoreGate
                           Generators/TruthUtils )

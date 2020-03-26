@@ -6,7 +6,7 @@
 #define TRUTHIO_HEPMCREADFROMFILE_H
 
 #include "GeneratorModules/GenBase.h"
-#include "HepMC/IO_GenEvent.h"
+#include "HepMCI/IO_GenEvent.h"
 #include <memory>
 
 class StoreGateSvc;

@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Generators/GenInterfaces
                           Generators/GeneratorObjects
+                          Generators/HepMCI  
                           Generators/TruthUtils )
 
 # External dependencies:

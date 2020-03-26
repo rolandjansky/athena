@@ -8,8 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>
 
-// Forward declaration
-namespace HepMC {class FourVector ;}
+#include "HepMCI/SimpleVector.h"
 
 static const InterfaceID IID_IHforTool("IHforTool", 1, 0);
 

@@ -18,8 +18,7 @@ namespace TruthHelper {
     IsConversion() {}
 
     GenIMCselector* create() const;
-
-    bool operator()(const HepMC::GenParticle* const p ) const;
+    bool operator()(const HepMC::ConstGenParticlePtr  p ) const;
 
   };
 

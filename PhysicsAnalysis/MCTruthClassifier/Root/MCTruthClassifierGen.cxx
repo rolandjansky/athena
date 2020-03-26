@@ -13,7 +13,7 @@ using std::abs;
 
 #ifndef XAOD_ANALYSIS
 std::pair<ParticleType, ParticleOrigin>
-MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle* thePart, Info* info /*= nullptr*/) const
+MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticlePtr thePart, Info* info /*= nullptr*/) const
 {
   //---------------------------------------------------------------------------------------
   ParticleType partType = Unknown;
@@ -46,7 +46,7 @@ MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle* thePart, In
 }
 //------------------------------------------------------------------------
 bool
-MCTruthClassifier::compareTruthParticles(const HepMC::GenParticle* genPart, const xAOD::TruthParticle* truthPart) const
+MCTruthClassifier::compareTruthParticles(const HepMC::GenParticlePtr genPart, const xAOD::TruthParticle* truthPart) const
 {
   //------------------------------------------------------------------------
   if (!genPart || !truthPart)

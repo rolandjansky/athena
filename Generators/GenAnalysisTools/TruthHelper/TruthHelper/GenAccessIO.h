@@ -7,7 +7,7 @@
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "TruthHelper/GenIMCselector.h"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenParticle.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -19,9 +19,8 @@
 #include <string>
 
 
-typedef std::vector<const HepMC::GenParticle*> MCParticleCollection;
-typedef std::vector<const HepMC::GenParticle*>::const_iterator MCParticleCollectionCIter;
-
+typedef std::vector<HepMC::ConstGenParticlePtr> MCParticleCollection;
+typedef std::vector<HepMC::ConstGenParticlePtr>::const_iterator MCParticleCollectionCIter;
 
 namespace TruthHelper {
 
@@ -37,8 +36,8 @@ namespace TruthHelper {
       }
     }
 
-    StatusCode getMC(std::vector<const HepMC::GenParticle*>& mc, const std::string& key="GEN_EVENT") const;
-    StatusCode getMC(std::vector<const HepMC::GenParticle*>& mc,
+    StatusCode getMC(MCParticleCollection& mc, const std::string& key="GEN_EVENT") const;
+    StatusCode getMC(MCParticleCollection& mc,
                      const GenIMCselector* selector, const std::string& key="GEN_EVENT") const;
 
     StatusCode getDH(const McEventCollection*& dh) const {

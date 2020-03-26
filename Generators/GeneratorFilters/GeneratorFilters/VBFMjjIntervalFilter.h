@@ -48,9 +48,9 @@ private:
   bool m_taujetoverlap;
   double m_alpha;
 
-  bool checkOverlap(double, double, std::vector<HepMC::GenParticle*>);
+  bool checkOverlap(double, double, std::vector<HepMC::GenParticlePtr>);
   bool checkOverlap(double, double, std::vector<CLHEP::HepLorentzVector*>);
-  CLHEP::HepLorentzVector sumDaughterNeutrinos( HepMC::GenParticle* );
+  CLHEP::HepLorentzVector sumDaughterNeutrinos( HepMC::GenParticlePtr );
 
 public:
 

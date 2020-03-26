@@ -31,9 +31,9 @@
 #include "Photos/PhotosHepMCParticle.h"
 #include "Photos/PhotosParticle.h"
 
-#include "HepMC/GenVertex.h"
-#include "HepMC/SimpleVector.h"
-#include "HepMC/Units.h"
+#include "HepMCI/GenVertex.h"
+#include "HepMCI/SimpleVector.h"
+#include "HepMCI/Units.h"
 
 #include <iostream>
 #include <sstream>

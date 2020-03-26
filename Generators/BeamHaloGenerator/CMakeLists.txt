@@ -9,6 +9,7 @@ atlas_subdir( BeamHaloGenerator )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GeneratorModules
+                          Generators/HepMCI
                           PRIVATE
                           Control/AthenaKernel )
 

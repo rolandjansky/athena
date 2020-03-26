@@ -8,7 +8,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
-#include "HepMC/GenEvent.h"
+#include "HepMCI/GenEvent.h"
 
 #include "GeneratorModules/GenFilter.h"
 

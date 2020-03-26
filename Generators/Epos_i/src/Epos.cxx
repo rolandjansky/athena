@@ -19,8 +19,8 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "HepMC/HEPEVT_Wrapper.h"
-#include "HepMC/IO_HEPEVT.h"
+#include "HepMCI/HEPEVT_Wrapper.h"
+#include "HepMCI/IO_HEPEVT.h"
 
 
 #include "Epos_i/Epos.h"
@@ -328,12 +328,12 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
   // evt->print();
  
 
-  evt->set_random_states( m_seeds );
+  HepMC::set_random_states(evt, m_seeds );
 
   evt->weights().push_back(1.0); 
   GeVToMeV(evt);
   
-  std::vector<HepMC::GenParticle*> beams;
+  std::vector<HepMC::GenParticlePtr> beams;
 
   for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p) {
     if ((*p)->status() == 4) {
@@ -386,7 +386,7 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
     default: ATH_MSG_INFO( "Signal ID not recognised for setting HEPEVT \n");
     }
 
-  evt->set_signal_process_id(sig_id);
+  HepMC::set_signal_process_id(evt,sig_id);
 
   //  ATH_MSG_INFO( "Event Information : \n");
   // std::cout << " signal_process_id "<<evt->signal_process_id() << std::endl;

@@ -8,10 +8,9 @@
 #include "BeamHaloGenerator/BeamHaloParticle.h"
 #include <string>
 #include <vector>
+#include "HepMCI/GenEvent.h"
 
-namespace HepMC {
-  class GenEvent;
-}
+
 namespace HepPDT {
   class ParticleDataTable;
 }

@@ -14,7 +14,7 @@
 #include "Pythia8B_i/Pythia8B_i.h"
 #include "Pythia8B_i/UserSelections.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
+#include "HepMCI/GenEvent.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 

@@ -30,9 +30,9 @@
 #include "EvtGen/EvtGen.hh"
 
 // Framework Related Headers:-
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenVertex.h"
+#include "HepMCI/GenParticle.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"

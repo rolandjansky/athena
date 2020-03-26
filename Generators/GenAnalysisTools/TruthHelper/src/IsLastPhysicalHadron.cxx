@@ -3,7 +3,7 @@
 */
 
 #include "TruthHelper/IsLastPhysicalHadron.h"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenParticle.h"
 
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsPhysicalHadron.h"
@@ -14,7 +14,7 @@
 namespace TruthHelper {
 
 
-  bool IsLastPhysicalHadron::operator()(const HepMC::GenParticle* const p ) const {
+  bool IsLastPhysicalHadron::operator()(const HepMC::ConstGenParticlePtr  p ) const {
     return IsGenStable()(p) && IsPhysicalHadron()(p);
   }
 

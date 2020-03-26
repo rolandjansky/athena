@@ -8,7 +8,7 @@
 #include "BeamHaloGenerator/BeamHaloGeneratorAlg.h"
 #include "BeamHaloGenerator/BeamHaloGeneratorSettings.h"
 
-#include "HepMC/GenEvent.h"
+#include "HepMCI/GenEvent.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 
@@ -67,7 +67,7 @@ int FlukaHaloGenerator::fillEvt(HepMC::GenEvent* evt) {
   evt->set_event_number(m_eventNumber);
 
   // Set the signal process
-  evt->set_signal_process_id(BeamHaloGenerator::FLUKA_SHOWER);
+  HepMC::set_signal_process_id(evt,BeamHaloGenerator::FLUKA_SHOWER);
 
   // Increment the event number
   m_eventNumber++;

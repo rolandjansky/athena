@@ -6,13 +6,13 @@
 
 #include <iostream>
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/IO_AsciiParticles.h"
-#include "HepMC/SimpleVector.h"
-#include "HepMC/WeightContainer.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/IO_GenEvent.h"
+#include "HepMCI/GenParticle.h"
+#include "HepMCI/GenVertex.h"
+#include "HepMCI/IO_AsciiParticles.h"
+#include "HepMCI/SimpleVector.h"
+#include "HepMCI/WeightContainer.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 
@@ -520,7 +520,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
 {
   double weight;
 
-  HepMC::GenParticle *lepton = 0;
+  HepMC::GenParticlePtr lepton = nullptr;
 
   std::vector<fastjet::PseudoJet> selected_jets;
   std::vector<fastjet::PseudoJet> forward_jets;

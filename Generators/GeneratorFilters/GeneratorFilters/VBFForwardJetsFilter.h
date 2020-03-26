@@ -40,12 +40,12 @@ private:
 
   std::string m_TruthJetContainerName;
 
-  CLHEP::HepLorentzVector sumDaughterNeutrinos(HepMC::GenParticle* tau);
+  CLHEP::HepLorentzVector sumDaughterNeutrinos(HepMC::GenParticlePtr tau);
   void removePseudoJets(std::vector<const xAOD::Jet*>& jetList,
-                        std::vector<HepMC::GenParticle*>& MCTruthPhotonList,
-                        std::vector<HepMC::GenParticle*>& MCTruthElectronList,
+                        std::vector<HepMC::GenParticlePtr>& MCTruthPhotonList,
+                        std::vector<HepMC::GenParticlePtr>& MCTruthElectronList,
                         std::vector<CLHEP::HepLorentzVector*>  & MCTruthTauList);
-  double getMinDeltaR(const xAOD::Jet* jet, std::vector<HepMC::GenParticle*>& list);
+  double getMinDeltaR(const xAOD::Jet* jet, std::vector<HepMC::GenParticlePtr>& list);
   double getMinDeltaR(const xAOD::Jet* jet, std::vector<CLHEP::HepLorentzVector*>& list);
 };
 

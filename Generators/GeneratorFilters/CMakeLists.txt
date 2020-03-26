@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           Generators/GeneratorModules
+                          Generators/HepMCI
                           PRIVATE
                           Control/AthenaKernel
                           Control/CxxUtils

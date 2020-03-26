@@ -24,7 +24,7 @@ CREATED:  Sep 2007
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "HepMCI/GenParticle.h"
 #endif
 
 #ifndef GENERATIONBASE
@@ -84,9 +84,9 @@ public:
 
 #ifndef XAOD_ANALYSIS /*This can not run in Analysis Base*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
-    const HepMC::GenParticle*,
+    const HepMC::GenParticlePtr,
     Info* info = nullptr) const override;
-  bool compareTruthParticles(const HepMC::GenParticle* genPart, const xAOD::TruthParticle* truthPart) const;
+  bool compareTruthParticles(const HepMC::GenParticlePtr genPart, const xAOD::TruthParticle* truthPart) const;
 #endif
 
 #ifndef GENERATIONBASE /*These can not run in Generation only release*/

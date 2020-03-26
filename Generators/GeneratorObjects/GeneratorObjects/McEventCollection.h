@@ -6,14 +6,12 @@
 #define GENERATOROBJECTSMCEVENTCOLLECTION_H 1
 
 
-
-// #include "GeneratorObjects/McEvent.h"
 #include "AthContainers/DataVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenRanges.h"
+#include "HepMCI/GenEvent.h"
+#include "HepMCI/GenParticle.h"
+#include "HepMCI/GenVertex.h"
+#include "HepMCI/GenRanges.h"
 
 #include <iostream>
 /**
