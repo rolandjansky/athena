@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import getopt
 import sys
 import os
@@ -40,7 +42,7 @@ for opt, oa in optlist:
 
 if not len(args)==2:
 	sys.stderr.write("Need Run Number\n")
-	print len(args), args
+	print (len(args), args)
 	printhelp(sys.argv[0])
 
 try:
@@ -64,7 +66,7 @@ def dump_rt(ident, rt):
 	f.write("v1.0 1 Resolution 1 20000 0 0 0 0 dummy 800 ")
 	f.write(str(rt.GetN()))
 	f.write("\n")
-	for i in xrange(rt.GetN()):
+	for i in range(rt.GetN()):
 		f.write(str(rt.GetX()[i]) + " " + str(rt.GetY()[i]) + " " +  str(rt.GetEY()[i]))
 		f.write("\n")
 		

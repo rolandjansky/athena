@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import getopt
 import sys
 import CalibDbDefaults
@@ -52,12 +54,12 @@ if not cool_tag:
 	cool_tag = GetFolderTag(cool_database_string, cool_folder)
 	
 	
-print "Cool database: " + cool_database_string + " " + cool_folder + " " + cool_tag + " " + str(run_number)
+print ("Cool database: " + cool_database_string + " " + cool_folder + " " + cool_tag + " " + str(run_number))
 cool_t0s=ReadT0Cool(cool_database_string, cool_folder, cool_tag, run_number)
 
-print "Calibration database: " + db + "/" + str(head_id)
+print ("Calibration database: " + db + "/" + str(head_id))
 calib_t0s=ReadT0CalibDb(db, reader_password, head_id)
-print len(calib_t0s), "chambers in  calibration databse"
+print (len(calib_t0s), "chambers in  calibration databse")
 
 outfile=TFile(root_filename, "RECREATE")
 tree=TTree("tree", "t0 differences")
@@ -93,12 +95,12 @@ tree.Branch("validflag_calib", validflag_calib, "validflag_calib[n_tubes]/I")
 tree.Branch("d_adc", d_adc, "d_adc[n_tubes]/F")
 
 for chamber_id in cool_t0s:
-	if not calib_t0s.has_key(chamber_id):
+	if chamber_id not in calib_t0s:
 		n_tubes[0]=0
 		continue
 	for i in range(0,3):
 		station_nm[i]=chamber_id[0][i]
-	print station_nm
+	print (station_nm)
 	station_phi[0]=chamber_id[1]
 	station_eta[0]=chamber_id[2]
 	cot0s=cool_t0s[chamber_id]
