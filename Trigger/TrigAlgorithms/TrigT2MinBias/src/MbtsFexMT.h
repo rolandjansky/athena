@@ -27,7 +27,6 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "TileEvent/TileCell.h"
 #include "TileConditions/TileEMScale.h"
 #include "TileConditions/TileBadChannels.h"
-#include <string>
 
 class TrigCaloDataAccessSvc;
 
