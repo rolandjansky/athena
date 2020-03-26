@@ -120,15 +120,6 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
       "Map of Links Affected by PS Trip", // PSTrip (DCS)
       "Map of Links with Any Bad Problem" // Summary
     };
-    static const std::string varNames[numberOfProblemForCoverage] = {
-      "", // All (not used)
-      "OfEnabledLinks", // All - Disabled
-      "WithNoBadLinkLevelError", // All - BadLinkLevelError
-      "WithNoBadRODLevelError", // All - BadRODLevelError
-      "WithNoBadError", // All - BadError
-      "WithNoPSTrip", // All - PSTrip (DCS)
-      "OfLinksWithNoBadProblem" // All - Summary
-    };
 
     std::vector<TH2F> mapSCT; // TODO: Check if we need to record these histograms
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
@@ -141,7 +132,7 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     std::set<IdentifierHash> sctHash[numberOfProblemForCoverage]{{}};
     disabledSCT(sctHash[disabled]);
     errorSCT(sctHash[badLinkError], sctHash[badRODError], sctHash[badError]);
-    summarySCT(sctHash[all], sctHash[summary]);
+    summarySCT(sctHash[allRegion], sctHash[summary]);
     float psTripModules{0.};
     psTripDCSSCT(sctHash[psTripDCS], psTripModules);
 
@@ -150,12 +141,12 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
         fillWafer(m_geo[hash], mapSCT[iProblem]);
       }
 
-      if (iProblem==all) continue;
+      if (iProblem==allRegion) continue;
 
-      double detector_coverage{calculateDetectorCoverage(mapSCT[iProblem], mapSCT[all])};
+      double detector_coverage{calculateDetectorCoverage(mapSCT[iProblem], mapSCT[allRegion])};
       /// Fill /SCT/DetectorCoverage/SCT_Coverage*VsLbs ///
       auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
-      auto detectorCoverageAcc{Monitored::Scalar<double>("detectorCoverage"+varNames[iProblem], detector_coverage)};
+      auto detectorCoverageAcc{Monitored::Scalar<double>("detectorCoverage"+coverageVarNames[iProblem], detector_coverage)};
       fill("SCTErrMonitor", lumiBlockAcc, detectorCoverageAcc);
     }
     
@@ -220,7 +211,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
 
   //--- Count BS errors
   int nerrors{0};
-  int nMaskedLinks[NREGIONS_INC_GENERAL]{0, 0, 0, 0};
+  int nMaskedLinks[N_REGIONS_INC_GENERAL]{0, 0, 0, 0};
   for (const auto& hash: errors) {
     nerrors++;
     if (not hash.is_valid()) continue;
@@ -250,7 +241,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
 
   /// Fill /SCT/GENERAL/errors/Masked Links ///
   // TODO: reset the histogram every event
-  for (int reg{0}; reg<NREGIONS_INC_GENERAL; reg++) {
+  for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
     auto maskedLinksBinAcc{Monitored::Scalar<int>("maskedLinksBin", reg)};
     auto maskedLinksAcc{Monitored::Scalar<int>("maskedLinks", nMaskedLinks[reg])};
     fill("SCTErrMonitor", maskedLinksBinAcc, maskedLinksAcc);
