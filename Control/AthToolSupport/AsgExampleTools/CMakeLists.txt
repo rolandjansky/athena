@@ -76,6 +76,12 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
    set_tests_properties (AsgExampleTools_gt_AsgTool_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
+   atlas_add_test( gt_AsgToolConfig
+      SOURCES test/gt_AsgToolConfig.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+   set_tests_properties (AsgExampleTools_gt_AsgToolConfig_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
+
    atlas_add_test( gt_MessageCheck
       SOURCES test/gt_MessageCheck.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
