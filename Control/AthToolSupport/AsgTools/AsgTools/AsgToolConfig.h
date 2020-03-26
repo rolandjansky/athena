@@ -9,10 +9,6 @@
 #ifndef ASG_TOOLS_ASG_TOOL_CONFIG_H
 #define ASG_TOOLS_ASG_TOOL_CONFIG_H
 
-#ifndef ROOTCORE
-#error only include this header in AnalysisBase
-#endif
-
 #include <AsgTools/AsgComponentConfig.h>
 #include <AsgTools/ToolHandle.h>
 
@@ -82,6 +78,8 @@ namespace asg
   // template methods
   //
 
+#ifdef XAOD_STANDALONE
+
   template<typename T> ::StatusCode AsgToolConfig ::
   makeTool (ToolHandle<T>& toolHandle,
             std::shared_ptr<void>& cleanup) const
@@ -105,6 +103,27 @@ namespace asg
     ANA_MSG_DEBUG ("Created component of type " << type());
     return StatusCode::SUCCESS;
   }
+
+#else
+
+  template<typename T> ::StatusCode AsgToolConfig ::
+  makeTool (ToolHandle<T>& toolHandle,
+            std::shared_ptr<void>& /*cleanup*/) const
+  {
+    using namespace msgComponentConfig;
+
+    std::string prefix = toolHandle.parentName() + ".";
+
+    ANA_CHECK (configureComponentExpert (prefix, false));
+    toolHandle.setTypeAndName (type() + "/" + name());
+    ANA_CHECK (toolHandle.retrieve());
+
+    ANA_MSG_DEBUG ("Created component of type " << type());
+    return StatusCode::SUCCESS;
+  }
+
+#endif
+
 }
 
 #endif
