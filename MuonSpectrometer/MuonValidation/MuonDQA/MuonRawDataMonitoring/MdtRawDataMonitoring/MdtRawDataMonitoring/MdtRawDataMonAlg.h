@@ -131,13 +131,13 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   virtual void  fillMDTOverviewVects(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate, MDTOverviewHistogramStruct& vects) const;
   virtual void  fillMDTOverviewHistograms(const MDTOverviewHistogramStruct& vects) const;
-  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, std::set<std::string>, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct vects[4][4][16][4][4] ) const;
-  virtual StatusCode  fillMDTSummaryHistograms( const MDTSummaryHistogramStruct vects[4][4][16][4][4], int lb) const;
+  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, const std::set<std::string>&, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct (&vects)[4][4][16][4][4] ) const;
+  virtual StatusCode  fillMDTSummaryHistograms( const MDTSummaryHistogramStruct (&vects)[4][4][16][4][4], int lb) const;
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* ) const;//fill chamber by chamber histos
 
 
-  StatusCode handleEvent_effCalc_fillVects(const Trk::SegmentCollection* segms, MDTSegmentHistogramStruct vects[4][4][16]) const;
-  virtual StatusCode  fillMDTSegmentHistograms( const MDTSegmentHistogramStruct vects[4][4][16]) const;
+  StatusCode handleEvent_effCalc_fillVects(const Trk::SegmentCollection* segms, MDTSegmentHistogramStruct (&vects)[4][4][16]) const;
+  virtual StatusCode  fillMDTSegmentHistograms( const MDTSegmentHistogramStruct (&vects)[4][4][16]) const;
 
   //MDTRawDataUtils_cxx
   bool AinB( int A, std::vector<int> & B ) const;

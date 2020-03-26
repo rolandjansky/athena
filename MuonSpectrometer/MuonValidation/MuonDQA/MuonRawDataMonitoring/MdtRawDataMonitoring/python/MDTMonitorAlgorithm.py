@@ -4,9 +4,9 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 #from MdtRawDataMonitoring.MdtRawMonLabels import *
-from MdtMonUtils import getMDTLabel
-from MDTTubeMax import tubeMax
-from MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
+from .MdtMonUtils import getMDTLabel
+from .MDTTubeMax import tubeMax
+from .MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
 
 def MdtMonitoringConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -743,24 +743,8 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    
-    #nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
-    #file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
-    #file = 'data16_13TeV.00297447.physics_Main.daq.RAW._lb0555._SFO-1._0001.data'
-    #ConfigFlags.Input.Files = [nightly+file]
-    #ConfigFlags.Input.Files = ['/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel21_3_8.v001_EXT1/group.det-muon.16399844.EXT1._000118.ESD.pool.root',
-    #                           '/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel21_3_8.v001_EXT1/group.det-muon.16399844.EXT1._000120.ESD.pool.root',
-    #                           '/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel21_3_8.v001_EXT1/group.det-muon.16399844.EXT1._000098.ESD.pool.root',
-    #                           '/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel21_3_8.v001_EXT1/group.det-muon.16399844.EXT1._000143.ESD.pool.root']
-    #ConfigFlags.Input.Files = ['/afs/cern.ch/user/b/bigliett/work/DQ/data17_13TeV.00333192.physics_Main.daq.RAW._lb0424._SFO-1._0001.data']
-    #ConfigFlags.Input.Files = ['/afs/cern.ch/user/b/bigliett/work/DQ/esd.root']
-    ConfigFlags.Input.Files = ['/afs/cern.ch/user/b/bigliett/myeos/mc16_valid.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s2995_r8618/ESD.09730082._000043.pool.root.1']
-    #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-rpc/data/DESDM_MCP/data18_13TeV.00358615.physics_Main.merge.DESDM_MCP.f961_m2024/data18_13TeV.00358615.physics_Main.merge.DESDM_MCP.f961_m2024._0084.1']
-
-    #from AthenaConfiguration.TestDefaults import defaultTestFiles
-    #ConfigFlags.Input.Files = defaultTestFiles.ESD
-
-
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = defaultTestFiles.ESD
     
     #ConfigFlags.Input.isMC = True
     #ConfigFlags.Common.isOnline = True

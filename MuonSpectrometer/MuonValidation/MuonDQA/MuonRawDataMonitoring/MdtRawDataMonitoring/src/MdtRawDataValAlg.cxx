@@ -1818,7 +1818,7 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     }
       
     if( HasTrigBARREL() ) m_overalltdccutPRLumi_RPCtrig[iregion]->Fill(tdc);
-    if( HasTrigENDCAP() ) m_overalltdccutPRLumi_TGCtrig[iregion]->Fill(tdc);//here
+    if( HasTrigENDCAP() ) m_overalltdccutPRLumi_TGCtrig[iregion]->Fill(tdc);
 
     //
     // Fill occupancy vs. Lumiblock
@@ -2023,7 +2023,6 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
 		 // numHits_ML2++;
  	     }
         }
-
         // This information needs to be stored fully for each segment (for calculations below), so deal with these duplicates later
         // (otherwise we may not check a traversed ML for a differently pointing overlapping segment, for example)
 

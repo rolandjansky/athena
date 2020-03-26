@@ -368,7 +368,6 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
     SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiKey, ctx);
     if(!muonRoIs.isValid()){
       ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name "<< m_l1RoiKey);
-      //      return StatusCode::FAILURE;
     }
     //DEV still needed ? does not compile
     if(muonRoIs.isPresent() && muonRoIs.isValid()){
@@ -492,7 +491,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
         {
           nPrd++;
 
-	  hardware_name= getChamberName(*mdtCollection);
+	  hardware_name = getChamberName(*mdtCollection);
           float adc = (*mdtCollection)->adc();
           if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
           if( adc > m_ADCCut ) 
@@ -503,7 +502,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
           fillMDTOverviewVects(*mdtCollection, isNoiseBurstCandidate, overviewPlots);
 	  //=======================================================================
 	  //=======================================================================
-	  //======================================================================
+	  //=======================================================================
 
 	  sc = fillMDTSummaryVects(*mdtCollection, chambers_from_tracks, isNoiseBurstCandidate, trig_BARREL, trig_ENDCAP, summaryPlots);
           if(sc.isSuccess()){
@@ -717,7 +716,7 @@ void MdtRawDataMonAlg::fillMDTOverviewHistograms( const MDTOverviewHistogramStru
   fill("MdtMonitor",tdc_mon_adcCut);
 }
 
-StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCollection, std::set<std::string>  chambers_from_tracks, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct vects[4][4][16][4][4] ) const{
+StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCollection, const std::set<std::string>&  chambers_from_tracks, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct (&vects)[4][4][16][4][4] ) const{
 
   StatusCode sc = StatusCode::SUCCESS;
   Identifier digcoll_id = (mdtCollection)->identify();
@@ -778,8 +777,6 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCo
   //  int mlayer_n = m_mdtIdHelper->multilayer(digcoll_id);
   int mlayer_n = m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id);
 
-
-  
   if(!isNoisy && adc > 0){
     thisVects.adc_mon.push_back(adc); 
     thisVects.tdc_mon.push_back(tdc); 
@@ -902,7 +899,7 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCo
   return sc;
 }
 
-StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogramStruct vects[4][4][16][4][4], int lb) const{
+StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogramStruct (&vects)[4][4][16][4][4], int lb) const{
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -972,29 +969,21 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 	      
 	      fill("MdtMonitor",bin_byLayer_x,bin_byLayer_y);
 	    }
-	    
-	    if (thisVects.tdc_mon_rpc.size() > 0) {
-	      auto tdc_mon_rpc =  Monitored::Collection("tdc_mon_rpc", thisVects.tdc_mon_rpc);
-	      fill(MDT_regionGroup,tdc_mon_rpc);
-	    }
-	    
-	    if (thisVects.tdc_mon_tgc.size() > 0) {
-	      auto tdc_mon_tgc =  Monitored::Collection("tdc_mon_tgc", thisVects.tdc_mon_tgc);
-	      fill(MDT_regionGroup,tdc_mon_tgc);
-	    }
-	    
+
+	    auto tdc_mon_rpc =  Monitored::Collection("tdc_mon_rpc", thisVects.tdc_mon_rpc);         
+	    auto tdc_mon_tgc =  Monitored::Collection("tdc_mon_tgc", thisVects.tdc_mon_tgc);
+
 	    auto biny_name = "y_mon_bin_"+region[iregion]+"_"+layer[ilayer];
 	    if(layer[ilayer]=="Extra") biny_name = "y_mon_bin_"+region[iregion]+"_"+layer[ilayer]+"PlusExtra";
-	    auto biny_var =  Monitored::Collection(biny_name, thisVects.biny_vslb);
-	    //    auto biny_var = Monitored::Scalar<int>(biny_name, biny_vslb); 
-	    fill(MDT_regionGroup,biny_var);
-	    
+	    auto biny_var =  Monitored::Collection(biny_name, thisVects.biny_vslb);//y-axis of these histograms not yet defined
+  
 	    auto biny_name_bycrate = "y_mon_bin_bycrate_"+region[crate_region]+"_"+crate[icrate];
-	    auto biny_var_bycrate = Monitored::Collection(biny_name_bycrate, thisVects.biny_vslb_bycrate); 
-	    fill(MDT_regionGroup, lb_mon, biny_var, biny_var_bycrate); //y-axis of these histograms not yet defined
-	    auto biny_name_bycrate_ontrack = "y_mon_bin_bycrate_ontrack_"+region[crate_region]+"_"+crate[icrate];
+	    auto biny_var_bycrate = Monitored::Collection(biny_name_bycrate, thisVects.biny_vslb_bycrate); //y-axis of these histograms not yet defined
+	        
+	    auto biny_name_bycrate_ontrack = "y_mon_bin_bycrate_ontrack_"+region[crate_region]+"_"+crate[icrate]; //y-axis of these histograms not yet defined
 	    auto biny_var_bycrate_ontrack = Monitored::Collection(biny_name_bycrate_ontrack, thisVects.biny_vslb_bycrate_ontrack); 
-	    fill(MDT_regionGroup, biny_var_bycrate_ontrack); //y-axis of these histograms not yet defined
+
+	    fill(MDT_regionGroup,tdc_mon_rpc,tdc_mon_tgc,biny_var,lb_mon, biny_var, biny_var_bycrate, biny_var_bycrate_ontrack);
 
 	    
     //DEV to DO
@@ -1112,7 +1101,7 @@ StatusCode MdtRawDataMonAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
 //          far away from the segment vector -- these tubes are simply excluded from the eff calc.                                                                                                       
 //          Additionally the latter case is complicated because for overlapping traversed tubes,                                                                                                
 //          we must preference the ones that are part of a segment that records a hit in those tubes                                          
-StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCollection* segms, MDTSegmentHistogramStruct vects[4][4][16]) const {
+StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCollection* segms, MDTSegmentHistogramStruct (&vects)[4][4][16]) const {
   StatusCode sc=StatusCode::SUCCESS;
   std::string type="MDT";
   std::set<monAlg::TubeTraversedBySegment, monAlg::TubeTraversedBySegment_cmp> store_effTubes;
@@ -1403,7 +1392,7 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
   return sc; 
 }
 
-StatusCode MdtRawDataMonAlg::fillMDTSegmentHistograms( const MDTSegmentHistogramStruct vects[4][4][16]) const{
+StatusCode MdtRawDataMonAlg::fillMDTSegmentHistograms( const MDTSegmentHistogramStruct (&vects)[4][4][16]) const{
   StatusCode sc = StatusCode::SUCCESS;
 
   std::string region[4]={"BA","BC","EA","EC"};

@@ -211,7 +211,6 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   std::map<std::string,float> m_tubesperchamber_map;
 
-
   bool m_doMdtESD ; 
 
   //bool m_booked;
