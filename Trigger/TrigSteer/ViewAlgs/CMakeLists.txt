@@ -14,13 +14,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigEgamma
 			  Event/xAOD/xAODJet
-			  Event/xAOD/xAODMuon
+                          Event/xAOD/xAODMuon
                           PRIVATE
                           Control/AthViews
                           Control/StoreGate
                           Control/AthenaBaseComps
                           Control/CxxUtils
-			  Reconstruction/MuonIdentification/MuonCombinedEvent
+                          Reconstruction/MuonIdentification/MuonCombinedEvent
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/DecisionHandling )
