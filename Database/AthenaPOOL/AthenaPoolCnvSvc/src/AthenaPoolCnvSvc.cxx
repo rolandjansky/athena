@@ -597,11 +597,11 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    long long int currentFileSize = m_poolSvc->getFileSize(outputConnection, m_dbType.type(), contextId);
    if (m_databaseMaxFileSize.find(outputConnection) != m_databaseMaxFileSize.end()) {
       if (currentFileSize > m_databaseMaxFileSize[outputConnection]) {
-         ATH_MSG_WARNING("FileSize > MaxFileSize for " << outputConnection);
+         ATH_MSG_WARNING("FileSize > " << m_databaseMaxFileSize[outputConnection] << " for " << outputConnection);
          return(StatusCode::RECOVERABLE);
       }
    } else if (currentFileSize > m_domainMaxFileSize) {
-      ATH_MSG_WARNING("FileSize > domMaxFileSize for " << outputConnection);
+      ATH_MSG_WARNING("FileSize > " << m_domainMaxFileSize <<  " for " << outputConnection);
       return(StatusCode::RECOVERABLE);
    }
    if (m_doChronoStat) {

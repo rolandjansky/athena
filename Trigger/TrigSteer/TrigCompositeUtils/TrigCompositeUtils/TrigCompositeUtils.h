@@ -22,6 +22,8 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
+#include "TrigDecisionInterface/Conditions.h"
+
 #include "HLTIdentifier.h"
 
 namespace TrigCompositeUtils {
@@ -294,18 +296,19 @@ namespace TrigCompositeUtils {
       : source{s}, link{l}, state{as} {}
 
     bool isValid() const {
-      return source && link.isValid(); }
+      return source && link.isValid();
+    }
     /**
      * @brief helper conversion to make it usable with CHECK macro expecting StatusCode
      */
     operator StatusCode () {
-      return (isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE); }
+      return (isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE);
+    }
 
     const xAOD::TrigComposite *source;
     ElementLink<T> link;
     ActiveState state;
   };
-
 
   /// @name Constant string literals used within the HLT
   /// @{
@@ -362,7 +365,7 @@ namespace TrigCompositeUtils {
    */
   template<typename T>
   void
-  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links);
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour = TrigDefs::allFeaturesOfType);
 
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
@@ -373,7 +376,7 @@ namespace TrigCompositeUtils {
    */
   template<typename T>
   std::vector<LinkInfo<T>>
-  findLinks(const xAOD::TrigComposite* start, const std::string& linkName);
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, unsigned int behaviour = TrigDefs::allFeaturesOfType);
 
 
   /**

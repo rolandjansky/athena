@@ -6,7 +6,6 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bjet.BjetDef")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 
 from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 
@@ -69,14 +68,13 @@ class BjetChainConfiguration(ChainConfigurationBase):
         stepName = "Step2_bjet"
         log.debug("Configuring step " + stepName)
         
-        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_j, None ) # the None will be used for flags in future
-        return ChainStep(stepName, [bjetSeq])
+        return self.getStep(2, stepName, [bjetSequenceCfg_j])        
 
     def getBjetSequence_btag(self):
         stepName = "Step3_bjet"
         log.debug("Configuring step " + stepName)
-        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_btag, None ) # the None will be used for flags in future    
-        return ChainStep(stepName, [bjetSeq])
+
+        return self.getStep(3, stepName, [bjetSequenceCfg_btag])
 
 
 

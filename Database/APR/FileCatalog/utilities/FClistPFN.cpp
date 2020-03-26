@@ -87,7 +87,7 @@ int main(int argc, char** argv)
   }
 
   try{
-    std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
+    std::unique_ptr<IFileCatalog> mycatalog(new IFileCatalog);
     if(myuri.empty()) {
        // get default
        pool::URIParser p;

@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
 # not all possibility of CaloCellMaker_jobOptions.py integrated yet
-from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
+import traceback
 
 
 class CaloCellGetter ( Configured )  :
@@ -17,7 +19,6 @@ class CaloCellGetter ( Configured )  :
         mlog = logging.getLogger( 'CaloCellGetter::configure:' )
         mlog.info ('entering')        
 
-        doStandardCellReconstruction=True
         from CaloRec.CaloCellFlags import jobproperties
         
         if not jobproperties.CaloCellFlags.doFastCaloSim.statusOn:
@@ -27,9 +28,7 @@ class CaloCellGetter ( Configured )  :
             doFastCaloSim=jobproperties.CaloCellFlags.doFastCaloSim()
             if doFastCaloSim:
                 mlog.info("doFastCaloSim requested")
-                doStandardCellReconstruction=False
                 if jobproperties.CaloCellFlags.doFastCaloSimAddCells():
-                    doStandardCellReconstruction=True
                     mlog.info("doFastCaloSimAddCells requested: FastCaloSim is added to fullsim calorimeter")
                 else:    
                     mlog.info("doFastCaloSimAddCells not requested: Stand alone FastCaloSim is running")
@@ -41,13 +40,13 @@ class CaloCellGetter ( Configured )  :
         # cannot have same name
         try:        
             from CaloRec.CaloRecConf import CaloCellMaker                
-        except:
+        except Exception:
             mlog.error("could not import CaloRec.CaloCellMaker")
-            print traceback.format_exc()
+            mlog.error(traceback.format_exc())
             return False
 
         theCaloCellMaker=CaloCellMaker("FastCaloCellMaker")
-        self._CaloCellMakerHandle = theCaloCellMaker ;
+        self._CaloCellMakerHandle = theCaloCellMaker
 
         from AthenaCommon.AppMgr import ToolSvc
 
@@ -61,11 +60,11 @@ class CaloCellGetter ( Configured )  :
                 ToolSvc += theEmptyCellBuilderTool
                 theCaloCellMaker.CaloCellMakerToolNames += [ theEmptyCellBuilderTool ]
 
-                print theEmptyCellBuilderTool
+                print (theEmptyCellBuilderTool)
                 mlog.info("configure EmptyCellBuilderTool worked")
-            except:
+            except Exception:
                 mlog.error("could not get handle to EmptyCellBuilderTool Quit")
-                print traceback.format_exc()
+                mlog.error(traceback.format_exc())
                 return False
             
 
@@ -77,9 +76,9 @@ class CaloCellGetter ( Configured )  :
                 ToolSvc += theFastShowerCellBuilderTool
                 theCaloCellMaker.CaloCellMakerToolNames += [ theFastShowerCellBuilderTool ]
                 mlog.info("configure FastShowerCellBuilderTool worked")
-            except:
+            except Exception:
                 mlog.error("could not get handle to FastShowerCellBuilderTool Quit")
-                print traceback.format_exc()
+                mlog.error(traceback.format_exc())
                 return False
 
 
@@ -128,9 +127,9 @@ class CaloCellGetter ( Configured )  :
 
 
         list = topSequence.getSequence()
-        print list
+        print (list)
 
-        print "FastHitConv position = " + str(list.index('FastHitConv/theFastHitConv'))
+        print ("FastHitConv position = " + str(list.index('FastHitConv/theFastHitConv')))
 
         topSequence.insert(list.index('FastHitConv/theFastHitConv'),theCaloCellMaker)
         

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -29,7 +29,7 @@ int DbDatabase::refCount() const
 
 /// Get hosting domain
 const DbDomain& DbDatabase::containedIn() const   {
-  static DbDomain null_dom(m_type);
+  static const DbDomain null_dom(m_type);
   return isValid() ? ptr()->domain() : null_dom;
 }
 
@@ -135,7 +135,7 @@ DbStatus DbDatabase::makeLink(const Token* pToken, Token::OID_t& refLink) const
 
 /// Access to all token redirections from merged files
 const DbDatabase::Redirections& DbDatabase::redirections() const { 
-  static Redirections s_redirects;
+  static const Redirections s_redirects;
   return isValid() ? ptr()->redirections() : s_redirects; 
 }
 
@@ -170,7 +170,7 @@ DbStatus DbDatabase::getOption(DbOption& refOpt)  const
 
 /// Access to sections if availible
 const DbDatabase::ContainerSections& DbDatabase::sections(const string& cnt) const   {
-  static ContainerSections s_sect;
+  static const ContainerSections s_sect;
   return isValid() ? ptr()->sections(cnt) : s_sect;
 }
 

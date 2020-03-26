@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTTracksMonTool.h
@@ -17,7 +17,7 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -67,7 +67,6 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   static const std::string s_triggerNames[N_TRIGGER_TYPES];
 
   // Data members, which are not changed after initialization
-  std::string m_stream{"/stat"};
   std::string m_path{""};
 
   // Data members, which are changed during event processing
@@ -81,12 +80,9 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   //@{
   TH1I* m_nTracks{nullptr};
   TH1I* m_trackTrigger{nullptr};
-  TProfile* m_trackTriggerRate{nullptr};
   TH1F* m_totalResidual[SCT_Monitoring::N_REGIONS]{};
   TH1F* m_totalPull[SCT_Monitoring::N_REGIONS]{};
 
-  /// Pointer to 1D histogram of Number of SCT Clusters associated to any Track per Event
-  TH1F* m_trk_nclu_totHisto{nullptr};
 
   // Pointer to 1D histogram of number of tracks in each LB
   TH1F* m_tracksPerRegion{nullptr};
@@ -117,18 +113,6 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   /// Pointer to 1D histogram of Track phi
   TH1F* m_trk_phi{nullptr};
 
-  /// Vector of pointers to profile histogram of residuals; 1 histo per layer and side
-  std::vector<TProfile2D*> m_psctresidualsHistoVector[SCT_Monitoring::N_REGIONS]{};
-  /// Vector of pointers to  histogram of residuals RMS; 1 histo per layer and side
-  std::vector<TH2F*> m_psctresidualsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
-  /// Vector of pointers to summary histogram of residuals; 1 histo per layer and side
-  std::vector<TH1F*> m_psctresiduals_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
-  /// Vector of pointers to profile histogram of pulls; 1 histo per layer and side
-  std::vector<TProfile2D*> m_psctpullsHistoVector[SCT_Monitoring::N_REGIONS]{};
-  /// Vector of pointers to  histogram of pulls RMS; 1 histo per layer and side
-  std::vector<TH2F*> m_psctpullsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
-  /// Vector of pointers to summary histogram of pulls; 1 histo per layer and side
-  std::vector<TH1F*> m_psctpulls_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
   //@}
 
   /// Cut on number of SCT hits on track
@@ -162,10 +146,7 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   //@name  Histograms related methods
   //@{
   // Book Track related  Histograms
-  StatusCode bookTrackHistos(const SCT_Monitoring::Bec becVal);
   StatusCode bookGeneralHistos();
-  StatusCode bookPositiveEndCapTrackHistos() { return bookTrackHistos(SCT_Monitoring::ENDCAP_A); }
-  StatusCode bookNegativeEndCapTrackHistos() { return bookTrackHistos(SCT_Monitoring::ENDCAP_C); }
   //@}
 
   //@name  Trigger related methods
@@ -181,11 +162,6 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   /// Calculate Pull value for MeasuredAtPlane TrackStates
   float calculatePull(const float, const float, const float) const;
   
-  ///Factory + register for the 2D histos, returns whether successfully registered
-  StatusCode h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, std::vector<TH2F*>& storageVector) const;
-  
-  ///Factory + register for the 2D profiles, returns whether successfully registered
-  StatusCode p2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, std::vector<TProfile2D*>& storageVector) const;
   
   ///Factory + register for the 1D histograms, returns whether successfully registered
   StatusCode h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry, std::vector<TH1F*>& storageVector) const;

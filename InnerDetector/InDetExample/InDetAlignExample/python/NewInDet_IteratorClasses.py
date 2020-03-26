@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # =====================================================================
 #
 #  Class for local processing
 #
 # =====================================================================
+
+from __future__ import print_function
+
 from threading import Thread
 import os
 import time
@@ -36,13 +39,13 @@ class getAthenaConfig:
         # other options 
         self.options = options 
 
-        print "------------------------------------------"
-        print "Retrieved athena configuration:"
-        print "* Using " + self.atlasSet
-        print "* Athena release: ", self.athenaRel
-        print "* Athena tags: ", self.athenaTags
-        print "* Athena TestArea: ", self.athenaTestArea
-        print "------------------------------------------"
+        print ("------------------------------------------")
+        print ("Retrieved athena configuration:")
+        print ("* Using " + self.atlasSet)
+        print ("* Athena release: ", self.athenaRel)
+        print ("* Athena tags: ", self.athenaTags)
+        print ("* Athena TestArea: ", self.athenaTestArea)
+        print ("------------------------------------------")
     def Release(self):
         return  self.athenaRel
     def Tags(self):
@@ -237,29 +240,29 @@ class manageJob:
 
     def send(self,runmode):
         os.system("chmod +x %s" % self.SCRIPTNAME)
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
         if runmode == "batch":
             os.system("bsub <%s" % self.SCRIPTNAME)
            
             if self.j==-1:
-                print "  Sending %s_Solve_Iter%d%s job " % (self.preName, self.i, self.folderSuffix)
+                print ("  Sending %s_Solve_Iter%d%s job " % (self.preName, self.i, self.folderSuffix))
             else:
-                print "  Sending %s_Iter%d%s_%s_Part%02d job to LxBatch" % (self.preName,self.i,self.folderSuffix,self.dataName, self.j)
+                print ("  Sending %s_Iter%d%s_%s_Part%02d job to LxBatch" % (self.preName,self.i,self.folderSuffix,self.dataName, self.j))
                   
         elif runmode == "local":
             if self.j!=-1:
-                print "  Running %s_Iter%d%s_%s_Part%02d job" % (self.preName,self.i,self.folderSuffix,self.dataName,self.j)
+                print ("  Running %s_Iter%d%s_%s_Part%02d job" % (self.preName,self.i,self.folderSuffix,self.dataName,self.j))
                 os.system("sh %s | tee %s/Iter%d%s/logs/Iter%d%s_%s_Part%02d.log \n" % (self.SCRIPTNAME, self.OutputPath,self.i,self.folderSuffix,self.i,self.folderSuffix,self.dataName,self.j))
             else:
-                print "  Running %s_Iter%dSolve job" % (self.preName,self.i)
+                print ("  Running %s_Iter%dSolve job" % (self.preName,self.i))
                 os.system("sh %s | tee %s/Iter%d%s/logs/Iter%d%sSolve.log \n" % (self.SCRIPTNAME, self.OutputPath,self.i,self.folderSuffix,self.i,self.folderSuffix))
             
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
 
     def wait(self):
-        print "Processing in lxbatch... look for jobs with ", self.preName, " and ", self.folderSuffix  
+        print ("Processing in lxbatch... look for jobs with ", self.preName, " and ", self.folderSuffix  )
         # Wait for signal
-        #print " wait for signal .salva. "
+        #print (" wait for signal .salva. ")
         time.sleep(30)
         while (os.popen('bjobs -w').read().find(self.preName)!=-1 and os.popen('bjobs -w').read().find(self.folderSuffix)!=-1):
             time.sleep(30)
@@ -293,19 +296,19 @@ class SortCpus:
                 inputfiles.close()
                 if not LOCALDIR:
 
-                    print "Reading Custom File"
+                    print ("Reading Custom File")
                     FinalListSorted = []
                     for line in filelist:
                         if line and line[0] != '#':
                             FinalListSorted.append(line)
 
-                    #print FinalListSorted
+                    #print (FinalListSorted)
 
                 elif "castor" in LOCALDIR:
-                    print "Reading castor directory " + LOCALDIR + " Please wait..."
+                    print ("Reading castor directory " + LOCALDIR + " Please wait...")
                     extendedFileList = os.popen("rfdir "+ LOCALDIR[7:]).read().splitlines()
                 else:
-                    print "Reading directory " + LOCALDIR + " Please wait..."
+                    print ("Reading directory " + LOCALDIR + " Please wait...")
                     extendedFileList = os.popen("ls -l "+ LOCALDIR).read().splitlines()
 
                 if LOCALDIR:
@@ -314,7 +317,7 @@ class SortCpus:
                     for line in extendedFileList:
                         curr = line.split()
                         if curr[0] != 'total':
-                            #print curr[8], " ", curr[4]
+                            #print (curr[8], " ", curr[4])
                             SizeList[i] = {}
                             SizeList[i][0] = curr[8].rstrip()
                             SizeList[i][1] = curr[4].rstrip()
@@ -323,18 +326,18 @@ class SortCpus:
                     count = 0
                     
                     for i in range(0,len(SizeList)):
-                        #print SizeList[i][0]
+                        #print (SizeList[i][0])
                         if SizeList[i][0] in filelist:
-                            #print "Accepted"
-                            #print SizeList[i][0], " size:", SizeList[i][1]
+                            #print ("Accepted")
+                            #print (SizeList[i][0], " size:", SizeList[i][1])
                             FinalList[SizeList[i][0]] = int(SizeList[i][1])
 
                     #SizeListSorted = [ (k,SizeList[k]) for k in sorted(SizeList.values())]
 
                     FinalListSorted = sort_by_value(FinalList)
-                    #print "Sorted list" 
+                    #print ("Sorted list" )
                     #for i in range(0,len(FinalListSorted)):
-                    #   print FinalListSorted[i], "\tsize:\t", FinalList[FinalListSorted[i]]
+                    #   print (FinalListSorted[i], "\tsize:\t", FinalList[FinalListSorted[i]])
                 currCPU = 0
                 self.CPUsFiles = {}
                 nFiles = len(FinalListSorted)
@@ -345,11 +348,11 @@ class SortCpus:
                 if len(FinalListSorted[0].split())==2:
                     for i in range(0,nFiles):
                         sumFileSize += int(FinalListSorted[i].split()[1])
-                print sumFileSize
+                print (sumFileSize)
                 averageSizePerCpu =sumFileSize/TOTALCPUS*0.97
-                print averageSizePerCpu
+                print (averageSizePerCpu)
                 sumSizeOnCpu = 0
-                #print "NFile, Remainder, NfilesperCpu  ",  nFiles, " ", nRemainder, " ", nFilesPerCpu
+                #print ("NFile, Remainder, NfilesperCpu  ",  nFiles, " ", nRemainder, " ", nFilesPerCpu)
         #If the file size is present then use it to split the files
                 if sumFileSize != 0:
                     for i in range(0,nFiles):
@@ -360,7 +363,7 @@ class SortCpus:
                             extraFiles = 0
                         sumSizeOnCpu += int(FinalListSorted[i].split()[1])                  
                         if(sumSizeOnCpu > averageSizePerCpu and i < nFiles-1 and ( sumSizeOnCpu + int(FinalListSorted[i+1].split()[1]) ) > averageSizePerCpu * 1.04 ):
-                            print "File size on CPU: " ,currCPU,'\t' ,  sumSizeOnCpu
+                            print ("File size on CPU: " ,currCPU,'\t' ,  sumSizeOnCpu)
                             currCPU = currCPU + 1
                             if currCPU >= TOTALCPUS:
                                 currCPU = TOTALCPUS-1
@@ -368,10 +371,10 @@ class SortCpus:
                                 sumSizeOnCpu = 0
                         elif(nFiles-i == TOTALCPUS - currCPU):
                             currCPU = currCPU + 1
-                    print "File size on CPU: " ,currCPU,'\t' ,  sumSizeOnCpu
+                    print ("File size on CPU: " ,currCPU,'\t' ,  sumSizeOnCpu)
                 else:
                     for i in range(0,nFiles):
-                        #print FinalListSorted[i], "CPU: ", currCPU, " FPCPU: " , nFilesForThisCpu
+                        #print (FinalListSorted[i], "CPU: ", currCPU, " FPCPU: " , nFilesForThisCpu)
                         if currCPU in self.CPUsFiles:
                             self.CPUsFiles[currCPU].append(LOCALDIR+FinalListSorted[i].split()[0])
                         else:
@@ -393,8 +396,8 @@ class SortCpus:
                 #Getting the number of events in each file.
                 inputfiles = open(FILELIST, "r")
                 numEventsPerFile = {}
-                print "=================================================="
-                print "The input file are: (May take some time..)"
+                print ("==================================================")
+                print ("The input file are: (May take some time..)")
                 for line in inputfiles:
                     if line.rstrip().find(".root") > 0:
 
@@ -409,10 +412,10 @@ class SortCpus:
 
                         self.totalNumberOfFiles += 1
 
-                        print fullFileName," with ",thisNumEvents," events"
+                        print (fullFileName," with ",thisNumEvents," events")
 
                         numEventsPerFile[fullFileName] = thisNumEvents
-                print "=================================================="
+                print ("==================================================")
 
                 #Getting the Number of events to process, to skip, and the inputFile
 
@@ -443,17 +446,17 @@ class SortCpus:
                             numEventsPerFile[inputFileList[m_usedFiles]] -= m_eventsNeeded
 
                             # Debugging
-                            #print "subJob",subJob
-                            #print "m_eventsNeeded",m_eventsNeeded
-                            #print "self.m_inputFiles",self.m_inputFiles
-                            #print "m_usedFiles",m_usedFiles
+                            #print ("subJob",subJob)
+                            #print ("m_eventsNeeded",m_eventsNeeded)
+                            #print ("self.m_inputFiles",self.m_inputFiles)
+                            #print ("m_usedFiles",m_usedFiles)
                             
                             self.m_inputFiles[subJob].append(inputFileList[m_usedFiles])
                             self.m_skipEvents[subJob] = m_numberEventsUsed
                             m_numberEventsUsed += m_eventsNeeded
                             m_eventsNeeded = 0
-                            print "self.m_skipEvents["+str(subJob)+"]",self.m_skipEvents[subJob]
-                            print "m_numberEventsUsed",m_numberEventsUsed
+                            print ("self.m_skipEvents["+str(subJob)+"]",self.m_skipEvents[subJob])
+                            print ("m_numberEventsUsed",m_numberEventsUsed)
                             
                         # If it doesn't
                         else:
@@ -464,18 +467,18 @@ class SortCpus:
                             m_numberEventsUsed = 0
 
                             # Debugging
-                            #print "self.m_skipEvents["+str(subJob)+"]",self.m_skipEvents[subJob]
-                            #print "m_numberEventsUsed",m_numberEventsUsed
-                            #print "m_eventsNeeded",m_eventsNeeded
+                            #print ("self.m_skipEvents["+str(subJob)+"]",self.m_skipEvents[subJob])
+                            #print ("m_numberEventsUsed",m_numberEventsUsed)
+                            #print ("m_eventsNeeded",m_eventsNeeded)
 
 
                             
     def getCPU(self,CURRENTCPU):
         if self.OutputLevel=='DEBUG':
-            print "|",40*"-"," CPU #: ", CURRENTCPU, 40*"-", "|"
+            print ("|",40*"-"," CPU #: ", CURRENTCPU, 40*"-", "|")
             for line in self.CPUsFiles[CURRENTCPU]:
-                print "|  - ",line
-            print "|",93*"-","|"
+                print ("|  - ",line)
+            print ("|",93*"-","|")
         return self.CPUsFiles[CURRENTCPU]
            
     def getNumEvents(self,subJob):
@@ -489,7 +492,7 @@ class SortCpus:
         
 def CreateFileList(RunList,recotag,Challenge,Stream,DataFile,Collision,BField=True):
     if os.path.isfile(DataFile):
-        print "The file ", DataFile, " exists, using the existing one."
+        print ("The file ", DataFile, " exists, using the existing one.")
         return 0
 
     outputFile = open(DataFile, "w")
@@ -509,15 +512,15 @@ def CreateFileList(RunList,recotag,Challenge,Stream,DataFile,Collision,BField=Tr
                 path = "/castor/cern.ch/grid/atlas/atlasdatadisk/data10_7TeV/ESD/%s/data10_7TeV.%08d.physics_MinBias.recon.ESD.%s/" % (recotag[count],run,recotag[count]) 
             
             else:
-                print "Combination Stream/challenge not coded for automatic run list"
+                print ("Combination Stream/challenge not coded for automatic run list")
                 return 0
-            print "Reading castor directory: ", path
+            print ("Reading castor directory: ", path)
             inputfiles = os.popen("rfdir "+ path).read().splitlines()
             for file in inputfiles:
                 outputFile.write(path + file.split()[8] + '\t' + file.split()[4] + '\n')
               #outputFile.write(path + file.split()[8]  + '\n')
             count = count + 1
-        print "Created file " ,DataFile, " with the list of datafiles"
+        print ("Created file " ,DataFile, " with the list of datafiles")
     
     if not Collision:
         if BField:
@@ -529,15 +532,15 @@ def CreateFileList(RunList,recotag,Challenge,Stream,DataFile,Collision,BField=Tr
                 elif Stream == "IDCosmic" and Challenge.thisChallenge == "7TeV":
                     path = "/castor/cern.ch/grid/atlas/DAQ/merge/2010/%08d/physics_IDCosmic/" % (run)
                 else:
-                    print "Combination Stream/challenge not coded for automatic run list"
+                    print ("Combination Stream/challenge not coded for automatic run list")
                     return 0
-                print "Reading castor directory: ", path
+                print ("Reading castor directory: ", path)
                 inputfiles = os.popen("rfdir "+ path).read().splitlines()
                 for file in inputfiles:
-                    print file
+                    print (file)
                     outputFile.write(path + file.split()[8] + '\t' + file.split()[4] + '\n')
                 count = count + 1   
-            print "Created file " ,DataFile, " with the list of datafiles"
+            print ("Created file " ,DataFile, " with the list of datafiles")
             
         
         
@@ -551,7 +554,7 @@ def CreateCollisionFileList(RunList,recotag,Challenge,Stream):
     elif Challenge.thisChallenge == '7TeV':
         outputFileName = "CustomRun_7TeV.txt"
     else:
-        print "Custom run list not coded for this challenge"
+        print ("Custom run list not coded for this challenge")
         return 0
     
     CreateFileList(RunList,recotag,Challenge,Stream,outputFileName,True)
@@ -560,7 +563,7 @@ def CreateCosmicNoBFFileList(RunList,recotag,Challenge,Stream):
     if Challenge.thisChallenge == '7TeV':
         outputFileName = "CustomRun_CosmicsNoBF_7TeV.txt"
     else:
-        print "Custom run list not coded for this challenge"
+        print ("Custom run list not coded for this challenge")
         return 0
     
     CreateFileList(RunList,recotag,Challenge,Stream,outputFileName,False,False)
@@ -569,16 +572,16 @@ def CreateCosmicBFFileList(RunList,recotag,Challenge,Stream):
     if Challenge.thisChallenge == '7TeV':
         outputFileName = "CustomRun_CosmicsBF_7TeV.txt"
     else:
-        print "Custom run list not coded for this challenge"
+        print ("Custom run list not coded for this challenge")
         return 0
     CreateFileList(RunList,recotag,Challenge,Stream,outputFileName,False,True)
     
     
 def mergeMatrix(OutputPath, iter, DataToRun):
 
-    print "------------------------------------------"
-    print "  Setting Matrices list" 
-    print "------------------------------------------"
+    print ("------------------------------------------")
+    print ("  Setting Matrices list" )
+    print ("------------------------------------------")
 
     matrixlist = []
     vectorlist = []
@@ -597,9 +600,9 @@ def mergeMatrix(OutputPath, iter, DataToRun):
     
 def mergeTFiles(OutputPath, iter, folderSuffix, DataToRun):
 
-    print "------------------------------------------"
-    print "  Setting TFiles list" 
-    print "------------------------------------------"
+    print ("------------------------------------------")
+    print ("  Setting TFiles list" )
+    print ("------------------------------------------")
 
     tfilelist = []
     for data in DataToRun:
@@ -677,17 +680,17 @@ class mergeScript:
 
     def send(self,runmode):
         os.system("chmod +x %s" % self.SCRIPTNAME)
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
         if runmode == "batch":
             os.system("bsub <%s" % self.SCRIPTNAME)
             
-            print "  Sending %s_Merge_%s_Iter%d%s job " % (self.preName, self.dataName, self.i, self.folderSuffix)
+            print ("  Sending %s_Merge_%s_Iter%d%s job " % (self.preName, self.dataName, self.i, self.folderSuffix))
             
         elif runmode == "local":
-            print "  Running %s_Merge_%s_Iter%d%s job" % (self.preName, self.dataName, self.i, self.folderSuffix)
+            print ("  Running %s_Merge_%s_Iter%d%s job" % (self.preName, self.dataName, self.i, self.folderSuffix))
             os.system("sh %s | tee %s/Iter%d%s/logs/Iter%d%s_%s_Merge.log \n" % (self.SCRIPTNAME, self.OutputPath,self.i, self.folderSuffix, self.i, self.folderSuffix, self.dataName))
             
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
                        
          
 
@@ -755,17 +758,17 @@ class compareMonitoringScript:
         
     def send(self,runmode):
         os.system("chmod +x %s" % self.SCRIPTNAME)
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
         if runmode == "batch":
             os.system("bsub <%s" % self.SCRIPTNAME)
             
-            print "  Sending MonitoringComparision.lsf job "
+            print ("  Sending MonitoringComparision.lsf job ")
             
         elif runmode == "local":
-            print "  Running MonitoringComparision.lsf job"
+            print ("  Running MonitoringComparision.lsf job")
             os.system("sh "+self.SCRIPTNAME+" | tee "+self.OutputPath+"/MonitoringComparison.log \n")
             
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
 
 def HandleRunOptions():
     import sys
@@ -787,62 +790,62 @@ def HandleRunOptions():
     argMax = len(sys.argv)-1
     argCurr = -1 # jut to make that first time it points to 0
     
-    #print ' >>> user input has %s arguments' % argMax
+    #print (' >>> user input has %s arguments' % argMax)
     for arg in sys.argv:
         argCurr += 1
-        #print ".. %s .." % arg
+        #print (".. %s .." % arg)
         if arg in ("-h", "--help"):  
-            print ' >>> This is the help message of RunIterator.py'     
-            print ' NAME'
-            print '     RunIterator.py'
-            print ' '
-            print ' SYNOPSIS'
-            print '     python RunIterator.py [-r RunNumber] [-e ColEvents]' 
-            print ' '
-            print ' OPTIONS'
-            print '     The following options are recognized by RunIterator.py'
-            print '     -r RunNumber'
-            print '          The user specifies the run number. Default run number is %d ' % Def_RunNumber
-            print ' '
-            print '     -e ColEvents'
-            print '          The user specifies the number of events for the collision data (default: %d)' % Def_ColEvents 
-            print ' '
-            print '     -q ColCPUs'
-            print '          The user specifies the number of cpus to be used for the collision data (default: %d)' % Def_ColCPUs 
-            print ' '
-            print ' 22/September/2010'
+            print (' >>> This is the help message of RunIterator.py'     )
+            print (' NAME')
+            print ('     RunIterator.py')
+            print (' ')
+            print (' SYNOPSIS')
+            print ('     python RunIterator.py [-r RunNumber] [-e ColEvents]' )
+            print (' ')
+            print (' OPTIONS')
+            print ('     The following options are recognized by RunIterator.py')
+            print ('     -r RunNumber')
+            print ('          The user specifies the run number. Default run number is %d ' % Def_RunNumber)
+            print (' ')
+            print ('     -e ColEvents')
+            print ('          The user specifies the number of events for the collision data (default: %d)' % Def_ColEvents )
+            print (' ')
+            print ('     -q ColCPUs')
+            print ('          The user specifies the number of cpus to be used for the collision data (default: %d)' % Def_ColCPUs )
+            print (' ')
+            print (' 22/September/2010')
             sys.exit()
         elif arg in ("-r", "--run"):    
-            # print ' >>> The user wants to provide his run number... lets see. This argument is the %s argument ' % argCurr       
+            # print (' >>> The user wants to provide his run number... lets see. This argument is the %s argument ' % argCurr       )
             User_RunNumber = int(sys.argv[argCurr+1])
             if User_RunNumber >0:
                 RunNumber = User_RunNumber
-                # print '>>> User run number = %s' % RunNumber
+                # print ('>>> User run number = %s' % RunNumber)
         elif arg in ("-e", "--events"):    
-            # print ' >>> The user wants to provide the number of events ... lets see. This argument is the %s argument ' % argCurr       
+            # print (' >>> The user wants to provide the number of events ... lets see. This argument is the %s argument ' % argCurr       )
             User_ColEvents = int(sys.argv[argCurr+1])
             if User_ColEvents >0:
                 Col_Events = User_ColEvents
-                # print '>>> User events (collision data) = %s' % Col_Events
+                # print ('>>> User events (collision data) = %s' % Col_Events)
         elif arg in ("-q", "--cpus"):    
-            # print ' >>> The user wants to provide the number of cpus ... lets see. This argument is the %s argument ' % argCurr       
+            # print (' >>> The user wants to provide the number of cpus ... lets see. This argument is the %s argument ' % argCurr       )
             User_ColCPUs = int(sys.argv[argCurr+1])
             if User_ColCPUs >0:
                 Col_CPUs = User_ColCPUs
-                # print '>>> User cpus (collision data) = %s' % Col_CPUs
+                # print ('>>> User cpus (collision data) = %s' % Col_CPUs)
         elif arg in("-rtt","-RTT"):
             RTTConfig = True
     if 'rtt' in os.environ['USER']:
         RTTConfig = True    
     
-    print '>>> RunIterator >>> List of values:'
+    print ('>>> RunIterator >>> List of values:')
     if not RTTConfig:
-        print ' RunNumber = %d' % RunNumber
+        print (' RunNumber = %d' % RunNumber)
     if RTTConfig:
-        print ' Detected RTT!! '
-    print ' # Events (col) = %d' % Col_Events
-    print ' # CPUS (col) = %d' % Col_CPUs
-    print '>>> End of input options processing <<<'             
+        print (' Detected RTT!! ')
+    print (' # Events (col) = %d' % Col_Events)
+    print (' # CPUS (col) = %d' % Col_CPUs)
+    print ('>>> End of input options processing <<<'             )
     
     if RTTConfig:
         Data1 = setupData('Collision')

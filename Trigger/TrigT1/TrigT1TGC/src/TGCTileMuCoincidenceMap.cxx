@@ -286,7 +286,7 @@ int  TGCTileMuCoincidenceMap::getFlagPT(const int pt,
   if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
-    return readCdo->getFlagPtTile(pt, ssc, sec, side);
+    return readCdo->getFlagPtTile(pt-1, ssc, sec, side);
   } else {
     return  m_flagPT[pt-1][ssc][sec][side];
   }

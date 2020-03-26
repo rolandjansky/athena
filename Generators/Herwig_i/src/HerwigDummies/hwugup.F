@@ -1,4 +1,0 @@
-      SUBROUTINE HWUGUP
- 
-      RETURN
-      END

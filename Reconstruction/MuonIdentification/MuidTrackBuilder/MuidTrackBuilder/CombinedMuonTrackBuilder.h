@@ -152,7 +152,9 @@ namespace Rec {
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	end) const;
 	const CaloEnergy*				caloEnergyParameters(
 	    const Trk::Track*						combinedTrack,
-	    const Trk::Track*						muonTrack) const;
+	    const Trk::Track*						muonTrack,
+	    const Trk::TrackParameters*& combinedEnergyParameters,
+	    const Trk::TrackParameters*& muonEnergyParameters) const;
 	Trk::Track*					createExtrapolatedTrack(
                                                                                 const Trk::Track&					spectrometerTrack,
                                                                                 const Trk::TrackParameters&					parameters,
@@ -160,6 +162,8 @@ namespace Rec {
                                                                                 Trk::RunOutlierRemoval					runOutlier,
                                                                                 const std::vector<const Trk::TrackStateOnSurface*>&		trackStateOnSurfaces,
                                                                                 const Trk::RecVertex*					vertex,
+                                                                                const Trk::RecVertex*					mbeamAxis,
+										const Trk::PerigeeSurface*	mperigeeSurface,
                                                                                 const Trk::Perigee* seedParameter = 0 ) const;
 	Trk::Track*					createIndetTrack(
 	    const Trk::TrackInfo&					info,
@@ -180,7 +184,9 @@ namespace Rec {
 	    const Trk::TrackParameters*					parameters) const;
 	const Trk::TrackParameters*			extrapolatedParameters(
 	    bool&							badlyDeterminedCurvature,
-	    const Trk::Track&						spectrometerTrack) const;
+	    const Trk::Track&						spectrometerTrack,
+	    const Trk::RecVertex* mvertex,
+	    const Trk::PerigeeSurface*	mperigeeSurface) const;
 	void						finalTrackBuild(
 	    Trk::Track*&						track) const;
 	Trk::Track*					interfaceNotImplemented(void) const;
@@ -204,8 +210,9 @@ namespace Rec {
 	    const Trk::Track*						indetTrack,
 	    const Trk::Track&						muonTrack) const;
 	Trk::PseudoMeasurementOnTrack*			vertexOnTrack(
-	    const Trk::TrackParameters&					parameters,
-	    const Trk::RecVertex*					vertex) const;
+	    const Trk::TrackParameters&					parameters,	
+	    const Trk::RecVertex*					vertex,
+	    const Trk::RecVertex*					mbeamAxis) const;
 
         void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
         int countAEOTs(const Trk::Track* track, std::string txt ) const;
@@ -230,7 +237,7 @@ namespace Rec {
 	ToolHandle<Trk::IPropagator>        		m_propagator;
 	ToolHandle<Trk::IPropagator>        		m_propagatorSL;
         ToolHandle<Muon::MuonEDMPrinterTool>      	m_printer;
-	mutable ServiceHandle<Trk::ITrackingGeometrySvc>	m_trackingGeometrySvc;	// init with callback
+	ServiceHandle<Trk::ITrackingGeometrySvc>	m_trackingGeometrySvc;	// init with callback
 	ServiceHandle<Trk::ITrackingVolumesSvc>		m_trackingVolumesSvc;
 	ToolHandle<Rec::IMuonTrackQuery>		m_trackQuery;
 	ToolHandle<Trk::ITrackSummaryTool>		m_trackSummary;
@@ -240,7 +247,8 @@ namespace Rec {
 	bool						m_allowCleanerVeto;
 	bool						m_cleanCombined;
 	bool						m_cleanStandalone;
-	mutable bool					m_perigeeAtSpectrometerEntrance;
+	bool		                                m_perigeeAtSpectrometerEntrance;
+	mutable std::atomic_bool		m_perigeeAtSpectrometerEntranceLocal{false};
 	bool						m_reallocateMaterial;
 	double						m_badFitChi2;
 	double						m_largeImpact;
@@ -269,13 +277,13 @@ namespace Rec {
 	const Trk::Volume*				m_indetVolume;
 
 	// constant initialized the first time it's needed
-	mutable const Trk::TrackingVolume*		m_spectrometerEntrance;
+	mutable std::atomic<const Trk::TrackingVolume*>		m_spectrometerEntrance{0};
 	
 	// vertex region and phi modularity for pseudo-measurement constraints
-	mutable Trk::RecVertex*					m_beamAxis;
-	mutable Trk::PerigeeSurface*				m_perigeeSurface;
+	Trk::RecVertex*					m_beamAxis;
+	Trk::PerigeeSurface*				m_perigeeSurface;
 	double						m_sigmaPhiSector;
-	mutable Trk::RecVertex*					m_vertex;
+	Trk::RecVertex*					m_vertex;
 
 	// counters
 	mutable std::atomic_uint			m_countAcceptedStandaloneFit;
@@ -286,12 +294,8 @@ namespace Rec {
 	mutable std::atomic_uint			m_countStandaloneCleanerVeto;
 	mutable std::atomic_uint			m_countVertexRegion;
 
-	// internal communication
-	mutable const Trk::TrackParameters*		m_combinedEnergyParameters;
-	mutable const Trk::TrackParameters*		m_muonEnergyParameters;
-	
 	// count warnings 
- 	mutable MessageHelper*				m_messageHelper;
+ 	MessageHelper*				m_messageHelper;
 
 	bool                                            m_updateWithCaloTG;
 	bool                                            m_useCaloTG;

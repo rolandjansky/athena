@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+
 """
 beamspotnt is a command line utility for beam spot ntuples.
 """
@@ -262,12 +264,12 @@ def getNt():
             nt = ntClass(options.ntname,fullCorrelations=True)
         else:
             nt = ntClass(options.ntname)
-    except Exception,e:
+    except Exception as e:
         sys.exit('ERROR: '+str(e))
 
     setCuts(nt)
-    print nt.summary()
-    print nt.cutSummary()
+    print (nt.summary())
+    print (nt.cutSummary())
     return nt
     
 def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
@@ -275,7 +277,7 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
     while  i < len( allBSResultsInNt ):
       b = allBSResultsInNt[i]
       if b.status < 70 and  b.sigmaZErr == 0:
-        print "Will change Z error for  lb's " + str(b.lbStart) +" to " + str(b.lbEnd) + " which has " + str(b.nValid) + " verticies"
+        print ("Will change Z error for  lb's " + str(b.lbStart) +" to " + str(b.lbEnd) + " which has " + str(b.nValid) + " verticies")
         b.sigmaZErr = b.sigmaZ * 0.5
       i += 1 
    
@@ -284,7 +286,7 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
       b = allBSResultsInNt[i]
 
       if b.status < 70 and b.nValid < 2000 and b.nValid < averagenVtx:
-        print "Will take an average for  lb's " + str(b.lbStart) +" to " + str(b.lbEnd) + " which has " + str(b.nValid) + " verticies" 
+        print ("Will take an average for  lb's " + str(b.lbStart) +" to " + str(b.lbEnd) + " which has " + str(b.nValid) + " verticies" )
         lastGoodEntry = b
         nextGoodEntry = b
         iNeg = i-1;
@@ -292,7 +294,7 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
         while iNeg >= 0:
           if allBSResultsInNt[iNeg].status == 59 and allBSResultsInNt[iNeg].nValid > 2000 :
             lastGoodEntry = allBSResultsInNt[iNeg]
-            print " --- Starting with lb : " + str(lastGoodEntry.lbStart) +" to " + str(lastGoodEntry.lbEnd)
+            print (" --- Starting with lb : " + str(lastGoodEntry.lbStart) +" to " + str(lastGoodEntry.lbEnd))
             break
           iNeg -= 1 
     
@@ -301,19 +303,19 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
         while iPos < len(allBSResultsInNt):
           if allBSResultsInNt[iPos].status == 59 and allBSResultsInNt[iPos].nValid > 2000:
             nextGoodEntry = allBSResultsInNt[iPos]
-            print " --- Ending with lb   : " + str(nextGoodEntry.lbStart) +" to " + str(nextGoodEntry.lbEnd)
+            print (" --- Ending with lb   : " + str(nextGoodEntry.lbStart) +" to " + str(nextGoodEntry.lbEnd))
             break
           iPos += 1 
     
         #if all entries are useless then we are in trouble dont do anything
         if lastGoodEntry == b and nextGoodEntry == b :
-          print "Failed to do average - no good entries were found"
+          print ("Failed to do average - no good entries were found")
           i+=1
           continue
 
         #check the entries are reasonablly close to each other
         if( ( nextGoodEntry == b or abs(nextGoodEntry.lbStart - b.lbEnd) > abs(lbSize) ) and (lastGoodEntry == b or abs(b.lbStart - lastGoodEntry.lbEnd) > abs(lbSize) ) ):
-          print "Failed to do average - entries were too far away"
+          print ("Failed to do average - entries were too far away")
           i+=1
           continue 
 
@@ -337,7 +339,7 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
         bcopy = copy.deepcopy(b)
 
         for var in varList:
-          #print "Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var))
+          #print ("Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var)))
           setattr(bcopy, var,       ave[calc.varList.index(var)])
           setattr(bcopy, var+"Err", err[calc.varList.index(var)])
         
@@ -362,13 +364,13 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
           
         if(lastValidEntry >= 0):
           if allBSResultsInNt[nextValidEntry].lbStart !=  allBSResultsInNt[lastValidEntry].lbEnd + 1:
-            print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd + 1 , allBSResultsInNt[nextValidEntry].lbStart)
+            print ("Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd + 1 , allBSResultsInNt[nextValidEntry].lbStart))
             
             
             if allBSResultsInNt[nextValidEntry].lbStart -  allBSResultsInNt[lastValidEntry].lbEnd + 1 > lbSize:
-              print "--Lumi block gap too large wont fill in the gap"           
+              print ("--Lumi block gap too large wont fill in the gap"           )
             elif (allBSResultsInNt[nextValidEntry].lbStart-1) -  (allBSResultsInNt[lastValidEntry].lbEnd+1) < 0 :
-              print "Missing Lumi block is invalid from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd+1, allBSResultsInNt[nextValidEntry].lbStart -1)
+              print ("Missing Lumi block is invalid from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd+1, allBSResultsInNt[nextValidEntry].lbStart -1))
             else:
               varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
               calc = BeamSpotAverage(varList ,weightedAverage=True)
@@ -382,7 +384,7 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
               bcopy = copy.deepcopy(b)
               
               for var in varList:
-                #print "Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var))
+                #print ("Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var)))
                 setattr(bcopy, var,       ave[calc.varList.index(var)])
                 setattr(bcopy, var+"Err", err[calc.varList.index(var)])
 
@@ -488,8 +490,8 @@ class Plots(ROOTUtils.PlotLibrary):
         try:
             for b in nt:
                 h.Fill(arescale*(getattr(b,what)-shift))
-        except Exception, e:
-            print 'ERROR filling histogram:',str(e)
+        except Exception as e:
+            print ('ERROR filling histogram:',str(e))
         h.Draw()
         if options.fit:
             ROOT.gStyle.SetOptFit(1111)
@@ -529,8 +531,8 @@ class Plots(ROOTUtils.PlotLibrary):
         try:
             for b in nt:
                 h.Fill(getattr(b,'pileup'),arescale*(getattr(b,what)-shift))
-        except Exception, e:
-            print 'ERROR filling histogram:',str(e)
+        except Exception as e:
+            print ('ERROR filling histogram:',str(e))
         h.Draw()
         if options.fit:
             ROOT.gStyle.SetOptFit(1111)
@@ -554,7 +556,7 @@ class Plots(ROOTUtils.PlotLibrary):
             (what,value) = what.split(':')
             value = float(value)
         except:
-            print('ERROR: Illegal input %s for pull variable - must be of the form NAME:VALUE' % what)
+            print(('ERROR: Illegal input %s for pull variable - must be of the form NAME:VALUE' % what))
             return
         ROOT.gStyle.SetOptStat(options.optstat)
         title = ';Pull'
@@ -569,8 +571,8 @@ class Plots(ROOTUtils.PlotLibrary):
         try:
             for b in nt:
                 h.Fill((getattr(b,what)-value)/getattr(b,whatErr))
-        except Exception, e:
-            print 'ERROR filling histogram:',str(e)
+        except Exception as e:
+            print ('ERROR filling histogram:',str(e))
         h.Draw()
         if options.fit:
             ROOT.gStyle.SetOptFit(1111)
@@ -594,7 +596,7 @@ class Plots(ROOTUtils.PlotLibrary):
         arescale = varDef(what,'arescale',1.0)
         for b in nt:
             if b.sigmaX < 0.01 or b.sigmaY < 0.01:
-                print "OUTLIER ", b.run, b.lbStart, b.lbEnd, b.sigmaX, b.sigmaY
+                print ("OUTLIER ", b.run, b.lbStart, b.lbEnd, b.sigmaX, b.sigmaY)
             if not b.bcid in grDict:
                 grDict[b.bcid] = BeamSpotGraph(timeAxis=options.timeaxis, separationAxis=options.separation)
             # What was this for? Why ignore if no time info available?
@@ -603,7 +605,7 @@ class Plots(ROOTUtils.PlotLibrary):
             if options.ave:
                 calc.add(b)
 
-        print 'Plotting data from %i BCID ...\n' % len(grDict)
+        print ('Plotting data from %i BCID ...\n' % len(grDict))
 
         # Determine axis range
         xmin = 1E10
@@ -718,7 +720,7 @@ class Plots(ROOTUtils.PlotLibrary):
             if not tgraph:
                 continue
             if options.tgraphfile:
-                print 'Saving TGraphErrors',tgraph.GetName(),'to file',options.tgraphfile
+                print ('Saving TGraphErrors',tgraph.GetName(),'to file',options.tgraphfile)
                 tgraphfile = ROOT.TFile(options.tgraphfile,'UPDATE')
                 tgraph.Write()
                 tgraphfile.Close()
@@ -811,7 +813,7 @@ class Plots(ROOTUtils.PlotLibrary):
         if not tgraph:
             return
         if options.tgraphfile:
-            print 'Saving TGraphErrors',tgraph.GetName(),'to file',options.tgraphfile
+            print ('Saving TGraphErrors',tgraph.GetName(),'to file',options.tgraphfile)
             tgraphfile = ROOT.TFile(options.tgraphfile,'UPDATE')
             tgraph.Write()
             tgraphfile.Close()
@@ -922,7 +924,7 @@ class Plots(ROOTUtils.PlotLibrary):
             if options.ave:
                 calc.add(b)
 
-        print 'Plotting data from %i scans ...\n' % len(grDict)
+        print ('Plotting data from %i scans ...\n' % len(grDict))
 
         # Determine axis range
         xmin = 1E10
@@ -1015,7 +1017,7 @@ class Plots(ROOTUtils.PlotLibrary):
             if not tgraph:
                 continue
             if options.tgraphfile:
-                print 'Saving TGraphErrors',tgraph.GetName(),'to file',options.tgraphfile
+                print ('Saving TGraphErrors',tgraph.GetName(),'to file',options.tgraphfile)
                 tgraphfile = ROOT.TFile(options.tgraphfile,'UPDATE')
                 tgraph.Write()
                 tgraphfile.Close()
@@ -1054,7 +1056,7 @@ class Plots(ROOTUtils.PlotLibrary):
 # Dump beam spot ntuple
 #
 if cmd=='dump' and len(args)==1:
-    print
+    print()
     nt = getNt()
     for b in nt:
         b.dump(options.verbose)
@@ -1114,11 +1116,11 @@ if cmd=='maketable' and len(args)==1:
             except:
                 cols.append('%10s' % (fmtVal(v,getattr(b,v),True,useAlternate=True)))
         rows.append('%s \\\\' % ' & '.join(cols))
-    print
-    print tableTemplate % (len(varList)*'c',
+    print()
+    print (tableTemplate % (len(varList)*'c',
                            ' & '.join(['%s' % varDef(n,'latexheader',useAlternate=True) for n in varList]),
-                           '\n'.join(rows))
-    print
+                           '\n'.join(rows)))
+    print()
     cmdOk = True
 
 
@@ -1126,7 +1128,7 @@ if cmd=='maketable' and len(args)==1:
 # Dump beam spot ntuple
 #
 if cmd=='inspect' and len(args)==1:
-    print
+    print()
     nt = getNt()
     runInfo = {}
     for b in nt:
@@ -1145,14 +1147,14 @@ if cmd=='inspect' and len(args)==1:
         if b.timeStart and b.timeEnd and b.fill: runInfo[r]['hasCOOL'] = True
         if b.posXErr: runInfo[r]['hasErrors'] = True
     for r in sorted(runInfo.keys()):
-        print '%6s   [ %10i, %10i ] %7s  %9s   fit status = %s' % (r,
+        print ('%6s   [ %10i, %10i ] %7s  %9s   fit status = %s' % (r,
                                                                    runInfo[r]['lbStart'],
                                                                    runInfo[r]['lbEnd'],
                                                                    'hasCOOL' if runInfo[r]['hasCOOL'] else '',
                                                                    'hasErrors' if runInfo[r]['hasErrors'] else '',
-                                                                   sorted(list(runInfo[r]['status'])))
-    print
-    print '%i runs found\n' % len(runInfo.keys())
+                                                                   sorted(list(runInfo[r]['status']))))
+    print()
+    print ('%i runs found\n' % len(runInfo.keys()))
     cmdOk = True
 
 
@@ -1164,10 +1166,10 @@ if cmd=='merge' and len(args)==2:
     srcNtClass = locals()[options.srctype]
     srcNt = srcNtClass(args[1],fullCorrelations=options.fullCorrelations)
     setCuts(srcNt)
-    print '\nImporting from '+srcNt.summary()
-    print srcNt.cutSummary()
+    print ('\nImporting from '+srcNt.summary())
+    print (srcNt.cutSummary())
     dstNt = ntClass(options.ntname,True,fullCorrelations=options.fullCorrelations)
-    print '\nMerging into '+dstNt.summary()
+    print ('\nMerging into '+dstNt.summary())
     
     totalEntries = 0 
     totalVtxs = 0
@@ -1183,11 +1185,11 @@ if cmd=='merge' and len(args)==2:
     if totalEntries == 0:
       totalEntries = 1  
     averagenVtx = totalVtxs/totalEntries  
-    print 'Average Entries: '+ str(averagenVtx)
+    print ('Average Entries: '+ str(averagenVtx))
     averagenVtx *= 0.33
     
     lbSize = lbSize/totalEntries + 1
-    print 'Average number of lb used for fit: '+ str( lbSize )
+    print ('Average number of lb used for fit: '+ str( lbSize ))
     
     #Sort entries in order of lb number       
     #allBSResultsInNt.sort(key=lambda x: x.lbStart, reverse=False)  
@@ -1234,7 +1236,7 @@ if cmd=='ave' and len(args)==1:
         plots.genPlot('all','hist')
     if options.summary:
         plots.genPlot('all','plot')
-    print
+    print()
 
     # Averages
     calc = BeamSpotAverage(varList,weightedAverage=not options.simpleaverage)
@@ -1253,10 +1255,10 @@ if cmd=='ave' and len(args)==1:
     err = calc.err
     rms = calc.rms
     if calc.nWarnings:
-        print '... %i warnings detected' % calc.nWarnings
+        print ('... %i warnings detected' % calc.nWarnings)
     if options.lumicalcnt is not None:
-        print '... integrated luminosity of selected runs = %6.1f / pb' % (calc.sumw[0]/1.E6)
-    print
+        print ('... integrated luminosity of selected runs = %6.1f / pb' % (calc.sumw[0]/1.E6))
+    print()
     if options.splittable:
         varRanges = [ range(options.splittable),
                       range(options.splittable,len(calc.varList)) ]
@@ -1270,37 +1272,37 @@ if cmd=='ave' and len(args)==1:
                 iTable = 1
             latexheader = 'Period '
             latexrow = '%s' % options.period.replace('_','\_')
-            print '\nAverage beam spot parameters (part %i):\n' % iTable
+            print ('\nAverage beam spot parameters (part %i):\n' % iTable)
             for i in r:
                 parName = calc.varList[i]
-                print '%7s:  %s +- %s %-3s     (RMS = %s)' % (parName,
+                print ('%7s:  %s +- %s %-3s     (RMS = %s)' % (parName,
                                                               fmtVal(parName,ave[i]),
                                                               fmtVal(parName,err[i]),
                                                               varDef(parName,'units'),
-                                                              fmtVal(parName,rms[i]))
+                                                              fmtVal(parName,rms[i])))
                 latexheader += '& %s ' % varDef(parName,'latexheader',parName,useAlternate=True)
                 if options.rms:
                     latexrow += ' & %s $\pm$ %s' % (fmtVal(parName,ave[i],useAlternate=True),fmtVal(parName,rms[i],useAlternate=True))
                 else:
                     latexrow += ' & %s $\pm$ %s' % (fmtVal(parName,ave[i],useAlternate=True),fmtVal(parName,err[i],useAlternate=True))
-            print
-            print '\nLaTeX code for table %i:\n' % iTable
-            print '\\begin{table}[htbp]\n\\begin{center}\n\\begin{tabular}{l%s}' % (len(r)*'c')
-            print '\hline \hline'
-            print latexheader,'\\\\ \hline'
-            print
-            print latexrow,' \\\\'
-            print
-            print '\hline \hline'
-            print '\\end{tabular}\n\\end{center}\n\\caption{\\label{tab:}}\n\\end{table}'
-            print
+            print()
+            print ('\nLaTeX code for table %i:\n' % iTable)
+            print ('\\begin{table}[htbp]\n\\begin{center}\n\\begin{tabular}{l%s}' % (len(r)*'c'))
+            print ('\hline \hline')
+            print (latexheader,'\\\\ \hline')
+            print()
+            print (latexrow,' \\\\')
+            print()
+            print ('\hline \hline')
+            print ('\\end{tabular}\n\\end{center}\n\\caption{\\label{tab:}}\n\\end{table}')
+            print()
     if options.cooltag and minrun<1e10:
         from InDetBeamSpotExample.COOLUtils import *
         sqliteFile= options.cooltag+'.db'
         folderHandle = openBeamSpotDbFile(sqliteFile,True)
 
         if not options.newave:
-            print '\nWriting average to COOL SQLite file %s (folder tag = %s) ...' % (sqliteFile,options.cooltag)
+            print ('\nWriting average to COOL SQLite file %s (folder tag = %s) ...' % (sqliteFile,options.cooltag))
             writeBeamSpotEntry(folderHandle,tag=options.cooltag,
                                status=0,
                                posX=ave[calc.varList.index('posX')],
@@ -1323,7 +1325,7 @@ if cmd=='ave' and len(args)==1:
                                sigmaXYErr=err[calc.varList.index('sigmaXY')])
             
         else:
-            print '\nWriting average and LB info to COOL SQLite file %s (folder tag = %s) ...' % (sqliteFile,"nominal")
+            print ('\nWriting average and LB info to COOL SQLite file %s (folder tag = %s) ...' % (sqliteFile,"nominal"))
             writeBeamSpotEntry(folderHandle,tag="nominal",
                                runMin=int(minrun),runMax=int(maxrun),
                                status=0,
@@ -1346,7 +1348,7 @@ if cmd=='ave' and len(args)==1:
                                tiltYErr=err[calc.varList.index('tiltY')],
                                sigmaXYErr=err[calc.varList.index('sigmaXY')])
 
-            print 'Copying beam spot data from',options.ntname
+            print ('Copying beam spot data from',options.ntname)
             for b in nt:
                 if options.lbMin and options.lbMin>b.lbStart:
                     continue
@@ -1563,5 +1565,5 @@ if cmd=='scan' and len(args)==1:
 
 
 if not cmdOk:
-    print 'ERROR: Illegal command or number of arguments'
+    print ('ERROR: Illegal command or number of arguments')
     sys.exit(1)

@@ -7,7 +7,7 @@
 
 // tauRecTools include(s)
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/HelperFunctions.h"
+#include "tauRecTools/BDTHelper.h"
 
 /**
  * @brief Implementation of a generic BDT for tau ID
@@ -28,21 +28,23 @@ class TauJetBDTEvaluator
   virtual ~TauJetBDTEvaluator() { }
     
   StatusCode initialize() override;
-  StatusCode execute(xAOD::TauJet& xTau) override;
+  StatusCode execute(xAOD::TauJet& xTau) override
+  {
+    return static_cast<const TauJetBDTEvaluator*>(this)->execute(xTau);
+  }
+  StatusCode execute(xAOD::TauJet& xTau) const;
   StatusCode finalize() override;
   
  private:
 
-  std::string m_weightsFile;
-  std::string m_outputVarName;
+  Gaudi::Property<std::string> m_weightsFile{this, "weightsFile", ""};
+  Gaudi::Property<std::string> m_outputVarName{this, "outputVarName", "BDTJetScore"};
 
-  std::unique_ptr<tauRecTools::TRTBDT> m_myBdt;
-  int m_minNTracks;
-  int m_maxNTracks;
-  float m_minAbsTrackEta;
-  float m_maxAbsTrackEta;
-  float m_dummyValue;// in case no configs are set, set a dummy value.
-
-  bool m_isGrad;
+  std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
+  Gaudi::Property<int> m_minNTracks{this, "minNTracks", 0};
+  Gaudi::Property<int> m_maxNTracks{this, "maxNTracks", 999};
+  Gaudi::Property<float> m_minAbsTrackEta{this, "minAbsTrackEta", -1};
+  Gaudi::Property<float> m_maxAbsTrackEta{this, "maxAbsTrackEta", -1};
+  Gaudi::Property<float> m_dummyValue{this, "defaultValue", -1111, "if no weightsFile, then set all taus to this value nTrack/eta ignored"};
 };
 #endif

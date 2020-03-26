@@ -1,17 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MuonRecoValidationTool_H
 #define MUON_MuonRecoValidationTool_H
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 #include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
-#include "Identifier/Identifier.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
@@ -21,27 +20,27 @@
 #include "MuonRecValidationNtuples/MuonInsideOutValidationNtuple.h"
 #include "MuonCombinedEvent/CandidateSummary.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
+#include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
+#include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 
 #include <vector>
 class TTree;
 class TFile;
 class IIncidentSvc;
-class IMuTagMatchingTool;
 
 namespace Trk {
-  class IExtrapolator;
   class Track;
 }
 
 namespace Muon {
-
-  class IMuonTruthSummaryTool;
-  class IMuonSegmentHitSummaryTool;
-  class IMuonHitSummaryTool;
-  class MuonIdHelperTool;
-  class IMuonHitTimingTool;
-  class MuonSegment;
   class MuonClusterOnTrack;
+
   struct MuonCandidate;
 
   class MuonRecoValidationTool : public IMuonRecoValidationTool, virtual public IIncidentListener, public AthAlgTool  {
@@ -50,13 +49,10 @@ namespace Muon {
     MuonRecoValidationTool(const std::string&, const std::string&, const IInterface*);
     
     /** @brief destructor */
-    ~MuonRecoValidationTool();
+    ~MuonRecoValidationTool()=default;
     
     /** @brief initialize method, method taken from bass-class AlgTool */
     virtual StatusCode initialize() override;
-
-    /** @brief finialize method, method taken from bass-class AlgTool */
-    virtual StatusCode finalize() override;
     
     /** add a new TrackParticle with it's muon system extension */
     bool addTrackParticle(  const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension& muonSystemExtention ) override;
@@ -103,7 +99,7 @@ namespace Muon {
     // extract majority barcode out of a set of identifiers
     int getBarcode( const std::set<Identifier>& ids ) const;
 
-    ToolHandle<MuonIdHelperTool>           m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>       m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };

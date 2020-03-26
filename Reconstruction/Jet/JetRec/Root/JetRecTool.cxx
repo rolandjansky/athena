@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetRecTool.cxx
@@ -7,7 +7,9 @@
 #include "JetRec/JetRecTool.h"
 #include <iomanip>
 #include "xAODJet/JetAuxContainer.h"
+#ifndef GENERATIONBASE
 #include "xAODJet/JetTrigAuxContainer.h"
+#endif //GENERATIONBASE
 #include <fstream>
 
 #include "xAODBase/IParticleHelpers.h"
@@ -328,6 +330,7 @@ const JetContainer* JetRecTool::build() const {
 
   // Record the jet collection.
   if(m_trigger){
+    #ifndef GENERATIONBASE
     std::unique_ptr<xAOD::JetTrigAuxContainer> pjetsaux(dynamic_cast<xAOD::JetTrigAuxContainer*>( pjets->getStore() ));
     ATH_MSG_DEBUG("Check Aux store: " << pjets.get() << " ... " << &pjets->auxbase() << " ... " << pjetsaux.get() );
     if ( pjetsaux.get() == nullptr ) {
@@ -340,6 +343,7 @@ const JetContainer* JetRecTool::build() const {
       ATH_MSG_ERROR("Unable to write new Jet collection and aux store to event store: " << m_outcoll.key());
       return 0;
     }
+    #endif
   }
   else{
     std::unique_ptr<xAOD::JetAuxContainer> pjetsaux(dynamic_cast<xAOD::JetAuxContainer*>( pjets->getStore() ));
@@ -568,7 +572,9 @@ std::unique_ptr<xAOD::JetContainer> JetRecTool::makeOutputContainer() const{
   if ( m_outcoll.key().size() ) {
     if(m_trigger) {
       ATH_MSG_DEBUG("Attaching online Aux container.");
+#ifndef GENERATIONBASE
       pjets->setStore(new xAOD::JetTrigAuxContainer);
+#endif
     } else {
       ATH_MSG_DEBUG("Attaching offline Aux container.");
       pjets->setStore(new xAOD::JetAuxContainer);

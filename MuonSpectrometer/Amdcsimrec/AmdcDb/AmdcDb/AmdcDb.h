@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AmdcDb_H
@@ -62,8 +62,9 @@ class AmdcDb final : public AthService, virtual public IRDBAccessSvcWithUpdate {
 			      const std::string& tag,
 			      const std::string& tag2node,
 			      const std::string& connName) override;
-  virtual RDBTagDetails getTagDetails(const std::string& tag,
-				      const std::string& connName = "ATLASDD") override;
+  virtual void getTagDetails(RDBTagDetails& tagDetails,
+                             const std::string& tag,
+                             const std::string& connName = "ATLASDD") override;
   friend class SvcFactory<AmdcDb>;
 
   // Standard Constructor

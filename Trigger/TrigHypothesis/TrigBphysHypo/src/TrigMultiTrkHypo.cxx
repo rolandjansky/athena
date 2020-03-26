@@ -34,6 +34,7 @@ using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionIDContainer;
 
 
+
 TrigMultiTrkHypo::TrigMultiTrkHypo(const std::string& name, ISvcLocator* pSvcLocator)
     : ::HypoBase(name, pSvcLocator) {}
 

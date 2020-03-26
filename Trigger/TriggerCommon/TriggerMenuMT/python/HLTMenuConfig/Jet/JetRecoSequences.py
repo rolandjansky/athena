@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR, seqAND
@@ -59,7 +59,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         recoSeq += JetViewAlg("jetview_"+filteredJetsName,
                               InputContainer=basicJetsName,
                               OutputContainer=filteredJetsName,
-                              PtMin=rcJetPtMin, OutputLevel=1)
+                              PtMin=rcJetPtMin)
     
         rcJetDef = JetRecoConfiguration.defineReclusteredJets(jetRecoDict)
         rcJetDef.inputdef.inputname = filteredJetsName

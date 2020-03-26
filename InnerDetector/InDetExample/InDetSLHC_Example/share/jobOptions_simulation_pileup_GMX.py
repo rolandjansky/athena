@@ -3,8 +3,8 @@
 #  - Simulation of pileup (minbias) events
 #--------------------------------------------------------------
 
-execfile("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 # simFlags.EventFilter.set_Value({'VertexPositioners': True, 'VertexRangeChecker': True, 'EtaPhiFilters': False})
 # simFlags.KinematicsMode = 'EventGenerator'
 # simFlags.GeneratorPath = 'jobOptions_pythia_SLHC.py'

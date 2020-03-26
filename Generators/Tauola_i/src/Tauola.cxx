@@ -81,8 +81,6 @@ extern "C" {
 //--------------------------------------------------------------------------
 
 
-using HepMC::HEPEVT_Wrapper;
-
 Atlas_HEPEVT* Tauola::s_atlas_HEPEVT = new Atlas_HEPEVT();
 
 // Declared static for re-use
@@ -479,9 +477,9 @@ StatusCode Tauola::callGenerator() {
       if ( m_SuperIndex == SINGLE && !m_sherpa_blob )
         {
 
-          HEPEVT_Wrapper::set_event_number(evt->event_number());
+          HepMC::HEPEVT_Wrapper::set_event_number(evt->event_number());
           //	  HEPEVT_Wrapper::set_number_entries(1);
-          HEPEVT_Wrapper::set_number_entries(n_part);
+          HepMC::HEPEVT_Wrapper::set_number_entries(n_part);
 
           unsigned int index = 0;
 
@@ -512,12 +510,12 @@ StatusCode Tauola::callGenerator() {
 
             }
 
-            HEPEVT_Wrapper::set_status    ( index, 1);
-            HEPEVT_Wrapper::set_id        ( index, p_pdg_id);
-            HEPEVT_Wrapper::set_parents   ( index, 0,0);
-            HEPEVT_Wrapper::set_children  ( index, 0,0);
-            HEPEVT_Wrapper::set_momentum  ( index, p_px,p_py,p_pz,p_pe);
-            HEPEVT_Wrapper::set_mass      ( index, p_pm);
+            HepMC::HEPEVT_Wrapper::set_status    ( index, 1);
+            HepMC::HEPEVT_Wrapper::set_id        ( index, p_pdg_id);
+            HepMC::HEPEVT_Wrapper::set_parents   ( index, 0,0);
+            HepMC::HEPEVT_Wrapper::set_children  ( index, 0,0);
+            HepMC::HEPEVT_Wrapper::set_momentum  ( index, p_px,p_py,p_pz,p_pe);
+            HepMC::HEPEVT_Wrapper::set_mass      ( index, p_pm);
 
             // V.S.  June 25, 09 ------------------->
             //	REPLACED
@@ -541,7 +539,7 @@ StatusCode Tauola::callGenerator() {
               ctau = production_vertex->position().t();
             }
 
-            HEPEVT_Wrapper::set_position ( index, vx,vy,vz,ctau);
+            HepMC::HEPEVT_Wrapper::set_position ( index, vx,vy,vz,ctau);
 
             // V.S.  June 25, 09 <--------------------
 
@@ -1465,16 +1463,16 @@ StatusCode Tauola::sherpa_BLOB(HepMC::GenEvent* evt) {
           ptr_h++ )
       {
         nent++;
-        HEPEVT_Wrapper::set_status(nent,(*ptr_h).part_istat);
-        HEPEVT_Wrapper::set_id(nent,(*ptr_h).part_ID);
-        HEPEVT_Wrapper::set_parents(nent,(*ptr_h).part_moth1,(*ptr_h).part_moth2);
-        HEPEVT_Wrapper::set_children(nent,(*ptr_h).part_daugh1,(*ptr_h).part_daugh2);
-        HEPEVT_Wrapper::set_momentum(nent,(*ptr_h).part_Px,(*ptr_h).part_Py,(*ptr_h).part_Pz,(*ptr_h).part_E);
-        HEPEVT_Wrapper::set_mass(nent,(*ptr_h).part_M);
-        HEPEVT_Wrapper::set_position(nent,(*ptr_h).part_Vx,(*ptr_h).part_Vy,(*ptr_h).part_Vz,(*ptr_h).part_Vt);
+        HepMC::HEPEVT_Wrapper::set_status(nent,(*ptr_h).part_istat);
+        HepMC::HEPEVT_Wrapper::set_id(nent,(*ptr_h).part_ID);
+        HepMC::HEPEVT_Wrapper::set_parents(nent,(*ptr_h).part_moth1,(*ptr_h).part_moth2);
+        HepMC::HEPEVT_Wrapper::set_children(nent,(*ptr_h).part_daugh1,(*ptr_h).part_daugh2);
+        HepMC::HEPEVT_Wrapper::set_momentum(nent,(*ptr_h).part_Px,(*ptr_h).part_Py,(*ptr_h).part_Pz,(*ptr_h).part_E);
+        HepMC::HEPEVT_Wrapper::set_mass(nent,(*ptr_h).part_M);
+        HepMC::HEPEVT_Wrapper::set_position(nent,(*ptr_h).part_Vx,(*ptr_h).part_Vy,(*ptr_h).part_Vz,(*ptr_h).part_Vt);
       }
-    HEPEVT_Wrapper::set_event_number(evt->event_number());
-    HEPEVT_Wrapper::set_number_entries(nent);
+    HepMC::HEPEVT_Wrapper::set_event_number(evt->event_number());
+    HepMC::HEPEVT_Wrapper::set_number_entries(nent);
 
     //     ATH_MSG_DEBUG(" TAUOLA: SHERPA BLOB HepMC in...  \n" );
     //     HEPEVT_Wrapper::print_hepevt();
@@ -1499,23 +1497,23 @@ StatusCode Tauola::sherpa_BLOB(HepMC::GenEvent* evt) {
       HepMC::GenVertex *new_vert= new HepMC::GenVertex();
       evt->add_vertex( new_vert);
       new_vert->add_particle_in( ppar );
-      int ifirst=HEPEVT_Wrapper::first_child(index);
+      int ifirst=HepMC::HEPEVT_Wrapper::first_child(index);
       // add vertex position
-      HepMC::FourVector prod_pos( HEPEVT_Wrapper::x(ifirst), HEPEVT_Wrapper::y(ifirst),
-                                  HEPEVT_Wrapper::z(ifirst), HEPEVT_Wrapper::t(ifirst) );
+      HepMC::FourVector prod_pos( HepMC::HEPEVT_Wrapper::x(ifirst), HepMC::HEPEVT_Wrapper::y(ifirst),
+                                  HepMC::HEPEVT_Wrapper::z(ifirst), HepMC::HEPEVT_Wrapper::t(ifirst) );
       new_vert->set_position(prod_pos);
 
-      for (int i=HEPEVT_Wrapper::first_child(index); i <= HEPEVT_Wrapper::last_child(index); i++)
+      for (int i=HepMC::HEPEVT_Wrapper::first_child(index); i <= HepMC::HEPEVT_Wrapper::last_child(index); i++)
         {
           pdesc
-            = new HepMC::GenParticle( HepMC::FourVector( HEPEVT_Wrapper::px(i)*1000.,
-                                                         HEPEVT_Wrapper::py(i)*1000.,
-                                                         HEPEVT_Wrapper::pz(i)*1000.,
-                                                         HEPEVT_Wrapper::e(i)*1000. ),
-                                      HEPEVT_Wrapper::id(i),
-                                      HEPEVT_Wrapper::status(i) );
+            = new HepMC::GenParticle( HepMC::FourVector( HepMC::HEPEVT_Wrapper::px(i)*1000.,
+                                                         HepMC::HEPEVT_Wrapper::py(i)*1000.,
+                                                         HepMC::HEPEVT_Wrapper::pz(i)*1000.,
+                                                         HepMC::HEPEVT_Wrapper::e(i)*1000. ),
+                                      HepMC::HEPEVT_Wrapper::id(i),
+                                      HepMC::HEPEVT_Wrapper::status(i) );
           new_vert->add_particle_out( pdesc );
-          if ( HEPEVT_Wrapper::number_children(i)>0 ) { numit++; istack[numit]=i; pstack.push_back(pdesc); }
+          if ( HepMC::HEPEVT_Wrapper::number_children(i)>0 ) { numit++; istack[numit]=i; pstack.push_back(pdesc); }
         }
       if ( numit > numax ) {
         numax++;
@@ -1541,23 +1539,23 @@ StatusCode Tauola::sherpa_BLOB(HepMC::GenEvent* evt) {
         HepMC::GenVertex *new_vert= new HepMC::GenVertex();
         evt->add_vertex( new_vert);
         new_vert->add_particle_in( ppar );
-        int ifirst=HEPEVT_Wrapper::first_child(index);
+        int ifirst=HepMC::HEPEVT_Wrapper::first_child(index);
         // add vertex position
-        HepMC::FourVector prod_pos( HEPEVT_Wrapper::x(ifirst), HEPEVT_Wrapper::y(ifirst),
-                                    HEPEVT_Wrapper::z(ifirst), HEPEVT_Wrapper::t(ifirst) );
+        HepMC::FourVector prod_pos( HepMC::HEPEVT_Wrapper::x(ifirst), HepMC::HEPEVT_Wrapper::y(ifirst),
+                                    HepMC::HEPEVT_Wrapper::z(ifirst), HepMC::HEPEVT_Wrapper::t(ifirst) );
         new_vert->set_position(prod_pos);
 
-        for (int i=HEPEVT_Wrapper::first_child(index); i <= HEPEVT_Wrapper::last_child(index); i++)
+        for (int i=HepMC::HEPEVT_Wrapper::first_child(index); i <= HepMC::HEPEVT_Wrapper::last_child(index); i++)
           {
             pdesc
-              = new HepMC::GenParticle( HepMC::FourVector( HEPEVT_Wrapper::px(i)*1000.,
-                                                           HEPEVT_Wrapper::py(i)*1000.,
-                                                           HEPEVT_Wrapper::pz(i)*1000.,
-                                                           HEPEVT_Wrapper::e(i)*1000. ),
-                                        HEPEVT_Wrapper::id(i),
-                                        HEPEVT_Wrapper::status(i) );
+              = new HepMC::GenParticle( HepMC::FourVector( HepMC::HEPEVT_Wrapper::px(i)*1000.,
+                                                           HepMC::HEPEVT_Wrapper::py(i)*1000.,
+                                                           HepMC::HEPEVT_Wrapper::pz(i)*1000.,
+                                                           HepMC::HEPEVT_Wrapper::e(i)*1000. ),
+                                        HepMC::HEPEVT_Wrapper::id(i),
+                                        HepMC::HEPEVT_Wrapper::status(i) );
             new_vert->add_particle_out( pdesc );
-            if ( HEPEVT_Wrapper::number_children(i)>0 ) { numit++; istack[numit]=i; pstack.push_back(pdesc); }
+            if ( HepMC::HEPEVT_Wrapper::number_children(i)>0 ) { numit++; istack[numit]=i; pstack.push_back(pdesc); }
           }
         if ( numit > numax ) {
           numax++;

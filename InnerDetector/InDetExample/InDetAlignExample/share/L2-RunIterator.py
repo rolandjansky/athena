@@ -237,5 +237,5 @@ errorScalingTag = ''
 MonitoringScript = ""
 
 os.system("get_files -jo InDetAlignExample/NewInDetIterator.py >/dev/null")
-print os.system("get_files -jo InDetAlignExample/NewInDetIterator.py")
-execfile("NewInDetIterator.py")
+print (os.system("get_files -jo InDetAlignExample/NewInDetIterator.py"))
+exec(compile(open('NewInDetIterator.py').read()))

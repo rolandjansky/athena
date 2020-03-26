@@ -264,11 +264,12 @@ def PixelRangeCfg(flags, name="PixelRange", **kwargs):
 def PixelOutputCfg(flags):
     """Return ComponentAccumulator with Output for Pixel. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["PixelRDO_Container#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["InDetSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["PixelRDO_Container#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["InDetSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 

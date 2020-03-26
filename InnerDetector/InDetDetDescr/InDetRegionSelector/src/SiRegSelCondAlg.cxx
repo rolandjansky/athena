@@ -16,8 +16,6 @@
 #include "StoreGate/WriteCondHandle.h"
 
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -32,8 +30,7 @@
 SiRegSelCondAlg::SiRegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm( name, pSvcLocator ),
   m_managerName(""),
-  m_printTable(false),
-  m_sctCablingToolInc("SCT_CablingToolInc")
+  m_printTable(false)
 { 
   ATH_MSG_DEBUG( "SiRegSelCondAlg::SiRegSelCondAlg() " << name );
   declareProperty( "PrintTable",  m_printTable=false );  
@@ -46,7 +43,9 @@ SiRegSelCondAlg::SiRegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocat
 StatusCode SiRegSelCondAlg::initialize()
 {
   ATH_MSG_DEBUG("SiRegSelCondAlg::initialize() ");
-  ATH_CHECK(m_condCablingKey.initialize());
+  ATH_CHECK(m_pixCablingKey.initialize());
+  ATH_CHECK(m_sctCablingKey.initialize());
+  ATH_CHECK(m_detEleCollKey.initialize());
   ATH_CHECK(m_tableKey.initialize());
   ATH_MSG_INFO("SiRegSelCondAlg::initialize() " << m_tableKey );
   return StatusCode::SUCCESS;
@@ -61,66 +60,59 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   
   /// do stuff here ...  
   ATH_MSG_DEBUG( "Creating region selector table " << m_tableKey );
- 
-  StatusCode sc;
 
-  // Retrieve manager
-  const  InDetDD::SiDetectorManager* manager;
-
-  sc=detStore()->retrieve( manager, m_managerName );
-  
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "Could not find Manager: " << m_managerName << " !" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "Found Manager " << m_managerName );
+  SG::WriteCondHandle<RegSelLUTCondData> lutCondData( m_tableKey, ctx );
+  // Do we have a valid Write Cond Handle for current time?
+  if (lutCondData.isValid()) {
+    ATH_MSG_DEBUG("CondHandle " << lutCondData.fullKey() << " is already valid."
+                  << ". In theory this should not be called, but may happen"
+                  << " if multiple concurrent events are being processed out of order.");
+    return StatusCode::SUCCESS;
   }
-
-  /// Since there are only really ~ 10 lines that would be different between the 
-  /// SCT and pixel versions of this code, we chose to do everything in one class
-  /// Sadly, the pixel and SCT cabling don't inherit from the same interface 
-  /// so we can't get the cabling using a generic call, and have to have separate 
-  /// code blocks for each
-  /// As such, we need to set the cabling from inside conditional blocks, so have 
-  /// to create the cabling as pointers so that we can set inside the blocks and 
-  /// subsequently access them outside the blocks 
-
-  /// FIXME: since we store the LUT as conditions data, we need an EventIDRange for  
-  ///        the WriteCondHandle, but the SCT cabling is not yet conditions data so
-  ///        have to get the pixelCabling for the SCT case also so that the
-  ///        EventIDRange can be extracted
-  ///        Once the SCT cabling is iself conditions data, we will be able to get
-  ///        the corresponding EventIDRange from there
+ 
+  /// Need to get the SCT cabling conditions for the EventIDRange, but 
+  /// still need to use the SCT_CablingTool to get the rob ids
 
   std::unique_ptr<SG::ReadCondHandle<PixelCablingCondData> > pixCabling;
+  std::unique_ptr<SG::ReadCondHandle<SCT_CablingData> >      sctCabling;
 
   EventIDRange id_range;
   
-  if (!manager->isPixel()) { // SCT
-    if (m_sctCablingToolInc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT_CablingToolInc." << endmsg;
+  if (m_managerName=="SCT") { // SCT
+    sctCabling = std::make_unique<SG::ReadCondHandle<SCT_CablingData> >( m_sctCablingKey, ctx );
+    if( !sctCabling->range( id_range ) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << sctCabling->key());
       return StatusCode::FAILURE;
-    }
+    }   
   }
-  //  else { 
-    pixCabling = std::make_unique<SG::ReadCondHandle<PixelCablingCondData> >( m_condCablingKey, ctx );
-
+  else { // PIXEL 
+    pixCabling = std::make_unique<SG::ReadCondHandle<PixelCablingCondData> >( m_pixCablingKey, ctx );
     if( !pixCabling->range( id_range ) ) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << pixCabling->key());
       return StatusCode::FAILURE;
     }   
-  //  }
+  }
 
-  RegSelSiLUT* rd;
+  std::unique_ptr<RegSelSiLUT> rd;
 
-  if   ( manager->isPixel() ) rd = new RegSelSiLUT(RegSelSiLUT::PIXEL);
-  else                        rd = new RegSelSiLUT(RegSelSiLUT::SCT);
+  if   ( m_managerName=="Pixel" ) rd = std::make_unique<RegSelSiLUT>(RegSelSiLUT::PIXEL);
+  else                            rd = std::make_unique<RegSelSiLUT>(RegSelSiLUT::SCT);
 
-  InDetDD::SiDetectorElementCollection::const_iterator iter = manager->getDetectorElementBegin();
+  // Get detector elements (=alignment) in condition store
+  const InDetDD::SiDetectorElementCollection* elements = nullptr;
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> detEle(m_detEleCollKey, ctx);
+  if (detEle.isValid()) {
+    elements = detEle.retrieve();
+  }
+  if (elements==nullptr) {
+    ATH_MSG_ERROR("Failed to retrieve InDetDD::SiDetectorElementCollection for " << m_managerName);
+    return StatusCode::FAILURE;
+  }
+  // Since this condition algorithm for HLT, we want to run this only at the first event of a run.
+  // We do not take the intersect of ranges of cabling and detector elements.
+  // We use the range of cabling.
 
-  for ( ; iter != manager->getDetectorElementEnd(); ++iter){
-
-    const InDetDD::SiDetectorElement* element = *iter; 
+  for (const InDetDD::SiDetectorElement* element : *elements) {
 
     if (element) {
 
@@ -163,7 +155,9 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
 	if ( sctId!=0 ) {      
 	  barrelEC  = sctId->barrel_ec(element->identify());
 	  layerDisk = sctId->layer_disk(element->identify());
-	  robId=m_sctCablingToolInc->getRobIdFromOfflineId(element->identify());
+	  // Avoid use of SCT_CablingTool. Instead of
+	  // robId=m_sctCablingTool->getRobIdFromOfflineId(element->identify());
+	  robId = ((*sctCabling)->getOnlineIdFromHash(element->identifyHash())).rod();
 	}
 	else { 
 	  ATH_MSG_ERROR("Could not get SCT_ID for " << element->getIdHelper() );
@@ -195,15 +189,11 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   rd->initialise();
 
   // write out new new LUT to a file if need be
-  if ( m_printTable ) {
-    if ( manager->isPixel() ) rd->write("RegSelLUT_Pixel");
-    else                      rd->write("RegSelLUT_SCT");
-  }
+  if ( m_printTable ) rd->write( name()+".map" );
 
-  RegSelLUTCondData* rcd = new RegSelLUTCondData( *rd );
+  RegSelLUTCondData* rcd = new RegSelLUTCondData( std::move(rd) );
   
   try { 
-    SG::WriteCondHandle<RegSelLUTCondData> lutCondData( m_tableKey, ctx );
     if( lutCondData.record( id_range, rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()

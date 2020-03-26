@@ -47,13 +47,10 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
     __fex_tools = [ samp2, samp1, sampe, samph] #, ring ]
    
-    from AthenaCommon.Constants import DEBUG
     if doRinger:
       from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
       ringer = RingerReFexConfig('FaAlgoRingerFexConfig')
-      ringer.OutputLevel=DEBUG
-      #ringer.RingsKey= recordable("L2CaloRinger")
-      ringer.RingerKey= "HLT_L2CaloRinger"
+      ringer.RingsKey= recordable("HLT_L2CaloRinger")
       ringer.ClustersName = alg.ClustersName
       acc.addPublicTool( ringer )
       __fex_tools.append(ringer)
@@ -62,7 +59,6 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     
     for t in __fex_tools:
         t.trigDataAccessMT = cdaSvc # set data access svc
-        t.OutputLevel = DEBUG
 
     
     # set calibration

@@ -1,16 +1,15 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCTTRACKSMONALG_H
 #define SCTTRACKSMONALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-//#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -70,6 +69,7 @@ private:
 
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
+
 
   //@name Tool and service members
   //@{

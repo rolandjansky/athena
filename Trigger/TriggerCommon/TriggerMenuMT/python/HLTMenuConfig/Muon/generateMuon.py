@@ -6,12 +6,15 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastRecoCfg, l2MuFastHypoCfg
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
 
 def generateChains( flags, chainDict ):
+    chainDict = splitChainDict(chainDict)[0]
+    
     stepName = getChainStepName('Muon', 1)
     stepReco, stepView = createStepView(stepName)
 
@@ -33,6 +36,8 @@ def generateChains( flags, chainDict ):
                                      Hypo = l2muFastHypo,
                                      HypoToolGen = TrigMufastHypoToolFromDict,
                                      CA = acc )
+
+    l2muFastSequence.createHypoTools(chainDict)
 
     l2muFastStep = ChainStep( stepName, [l2muFastSequence] )
 
@@ -68,8 +73,8 @@ def generateChains( flags, chainDict ):
     # TODO remove once full step is in place
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
     fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
-    def makeFakeHypoTool(name, cfg):
-        return HLTTest__TestHypoTool(name)
+    def makeFakeHypoTool(chainDict, cfg=None):
+        return HLTTest__TestHypoTool(chainDict['chainName'])
 
     accMS.addEventAlgo(fakeHypoAlg, sequenceName=stepEFMSView.getName())
 
@@ -79,11 +84,14 @@ def generateChains( flags, chainDict ):
                                      HypoToolGen = makeFakeHypoTool,
                                      CA = accMS )
 
+    efmuMSSequence.createHypoTools(chainDict)
+
     efmuMSStep = ChainStep( stepEFMSName, [efmuMSSequence] )
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
+    
     import pprint
     pprint.pprint(chainDict)
     chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )

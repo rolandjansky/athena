@@ -83,10 +83,10 @@ pg.sampler.pid = 999 #Geantino
 if 'pt' == str(myPt):
     pg.sampler.mom = PG.PtEtaMPhiSampler(pt=myMomentum, eta=[-5,5])
 else:
-    print 'not sure what you want to do here'
+    printfunc ('not sure what you want to do here')
 #pg.sampler.mom = PG.EEtaMPhiSampler(energy=50000, eta=[-3,3])
 topSeq += pg
-print topSeq.ParticleGun
+printfunc (topSeq.ParticleGun)
 
 try:
     include("G4AtlasApps/fragment.SimCopyWeights.py")

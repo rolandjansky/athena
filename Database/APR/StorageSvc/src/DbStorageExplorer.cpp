@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /cvs/PF/pool/StorageSvc/src/DbStorageExplorer.cpp,v 1.26 2010/05/11 00:16:07 frankb Exp $
@@ -111,7 +111,7 @@ long long int DbStorageExplorer::databaseSize(FileDescriptor& refDB)  const   {
 /// Access the containers in a given database.
 DbStatus 
 DbStorageExplorer::containers(const FileDescriptor& refDB,TokenVec& conts,bool intern)  {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     return dbH.containers(conts, intern);
@@ -121,7 +121,7 @@ DbStorageExplorer::containers(const FileDescriptor& refDB,TokenVec& conts,bool i
 
 /// Access the container level associations between objects.
 DbStatus DbStorageExplorer::associations(const FileDescriptor& refDB,TokenVec& assocs)  {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     return dbH.associations(assocs);
@@ -131,7 +131,7 @@ DbStatus DbStorageExplorer::associations(const FileDescriptor& refDB,TokenVec& a
 
 /// Access Shapes known to the database.
 DbStatus DbStorageExplorer::shapes(const FileDescriptor& refDB,vector<ShapeH>& shaps)  {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     // Unfortunately STL does not propagate casts of contained types
     // If they are base-types
@@ -147,7 +147,7 @@ DbStatus DbStorageExplorer::shapes(const FileDescriptor& refDB,vector<ShapeH>& s
 /// Add a persistent parameter to the database
 DbStatus
 DbStorageExplorer::addDbParam(const FileDescriptor& refDB,const string& nam,const string& val) {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     return dbH.addParam(nam, val);
@@ -158,7 +158,7 @@ DbStorageExplorer::addDbParam(const FileDescriptor& refDB,const string& nam,cons
 /// Retrieve existing parameter by name
 DbStatus
 DbStorageExplorer::dbParam(const FileDescriptor& refDB,const string& nam,string& val) {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     return dbH.param(nam, val);
@@ -168,7 +168,7 @@ DbStorageExplorer::dbParam(const FileDescriptor& refDB,const string& nam,string&
 
 /// Retrieve all parameters
 DbStatus DbStorageExplorer::dbParams( const FileDescriptor& refDB,Parameters& vals)  {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     return dbH.params(vals);
@@ -178,7 +178,7 @@ DbStatus DbStorageExplorer::dbParams( const FileDescriptor& refDB,Parameters& va
 
 /// Retrieve association link from token with redirection when file is merged.
 DbStatus DbStorageExplorer::dbRedirections(const FileDescriptor& refDB, pool::DbDatabase::Redirections& redirections)  {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     redirections = dbH.redirections();
@@ -199,7 +199,7 @@ DbStatus DbStorageExplorer::setDomainOption( const SessionH  sessionH, const DbO
 
 /// Access options for a given database.
 DbStatus DbStorageExplorer::getDatabaseOption(const FileDescriptor& refDB,DbOption& opt)  {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     return dbH.getOption(opt);
@@ -210,7 +210,7 @@ DbStatus DbStorageExplorer::getDatabaseOption(const FileDescriptor& refDB,DbOpti
 /// Set options for a given database.
 DbStatus
 DbStorageExplorer::setDatabaseOption(const FileDescriptor& refDB,const DbOption& opt) {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     return dbH.setOption(opt);
@@ -222,7 +222,7 @@ DbStorageExplorer::setDatabaseOption(const FileDescriptor& refDB,const DbOption&
 DbStatus 
 DbStorageExplorer::getContainerOption(const FileDescriptor& refDB,const string& cntName,DbOption& opt)
 {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     DbContainer cntH(dbH.find(cntName));
@@ -244,7 +244,7 @@ DbStatus DbStorageExplorer::setContainerOption(const FileDescriptor& refDB,
                                                const string& cntName,
                                                const DbOption& opt)
 {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase  dbH(__DB(refDB));
     DbContainer cntH(dbH.find(cntName));
@@ -266,7 +266,7 @@ DbStatus DbStorageExplorer::select(const FileDescriptor& refDB,
                                    const string&         cntName,
                                    DbSelect&             sel)
 {
-  DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
+  const DbConnection* dbc = dynamic_cast<const DbConnection*>(refDB.dbc());
   if ( dbc )   {
     DbDatabase dbH(DbDatabaseH(dbc->handle()));
     if ( dbH.isValid() )  {

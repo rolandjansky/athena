@@ -46,7 +46,7 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronCutIDTool;  
+  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool;  
   int findCutIndex( float eta ) const;
 }; 
 

@@ -18,7 +18,7 @@ ServiceMgr += CondProxyProvider()
 ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
 ServiceMgr.CondProxyProvider.InputCollections += [ "alignobjs.root" ]
 ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
-print ServiceMgr.CondProxyProvider
+printfunc (ServiceMgr.CondProxyProvider)
 
 ServiceMgr.IOVSvc.preLoadData=True
 

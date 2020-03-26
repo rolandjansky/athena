@@ -213,10 +213,13 @@ def expandPrereqs(reqtype,prereqs):
 ########################################################################
 # For each modifier in the given list with a configurable input container
 # name ("JetContainer"), configure it to containerName.
-def configureContainerName(modifiers, containerName):
+# Also handle any container-specific configuration needed.
+def autoconfigureModifiers(modifiers, containerName):
     for mod in modifiers:
         if "JetContainer" in mod.properties():
             mod.JetContainer = containerName
+        if "DoPFlowMoments" in mod.properties():
+            mod.DoPFlowMoments = ("PFlow" in containerName)
 
 
 ########################################################################
@@ -478,7 +481,7 @@ def getJetRecTool(jetname, finder, pjs, mods):
         JetFinder = finder,
         JetModifiers = mods
     )
-    configureContainerName(jetrec.JetModifiers, jetname)
+    autoconfigureModifiers(jetrec.JetModifiers, jetname)
     return jetrec
 
 
