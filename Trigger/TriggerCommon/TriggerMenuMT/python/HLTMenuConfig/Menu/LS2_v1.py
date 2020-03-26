@@ -37,7 +37,7 @@ def setupMenu():
 #        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
 
         #ATR-20049
-        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='Serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
 #        ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
 #        ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
