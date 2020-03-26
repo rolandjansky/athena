@@ -50,9 +50,6 @@ public:
   std::string m_managerName;
   bool        m_printTable;
 
- 
-  ServiceHandle<ITRT_CablingSvc>    m_TRT_IdMapping;
-
   /// Sadly still load the pixel cabling service to get the EventIDRange
 
   SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey

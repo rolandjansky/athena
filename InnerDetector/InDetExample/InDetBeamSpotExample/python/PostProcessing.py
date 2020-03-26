@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 This module defines the generic infrastructure for task postprocessing.
 """
@@ -8,10 +11,14 @@ __author__  = 'Juerg Beringer'
 __version__ = '$Id $'
 
 
-import dircache, glob, re, time, sys, os, commands, math
+import dircache, glob, re, time, sys, os, math
 
 from InDetBeamSpotExample.TaskManager import *
 from InDetBeamSpotExample.Utils import getUserName
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 # Exception classes
@@ -36,7 +43,7 @@ class PostponeProcessing(Exception):
 def runPostProcStep(taskman,taskDict,oldStatus,previousSteps,step,postprocLib,jobName):
     """Instantiate and run a single postprocessing step."""
     if hasattr(postprocLib,step):
-        print '...',step,'\n'
+        print ('...',step,'\n')
         # First reload taskDict - a previous step might have updated the info
         taskDict = taskman.getTaskDict(taskDict['DSNAME'],taskDict['TASKNAME'])
         postprocClass = getattr(postprocLib,step)(taskman,taskDict,oldStatus,previousSteps,postprocLib,jobName)
@@ -65,15 +72,15 @@ def doPostProcessing(taskman,taskDict,postprocSteps,postprocLib,forceRun=False,j
     prePostProcStatus = taskman.getStatus(dsName,taskName)
     # Don't run postprocessing if status is already postprocessing
     if prePostProcStatus>=TaskManager.StatusCodes['POSTPROCRUNNING'] and not forceRun:
-        print 'Exiting postprocessing without doing anything: task %s/%s status is %s\n' % (dsName,taskName,getKey(TaskManager.StatusCodes,prePostProcStatus))
+        print ('Exiting postprocessing without doing anything: task %s/%s status is %s\n' % (dsName,taskName,getKey(TaskManager.StatusCodes,prePostProcStatus)))
         return []
     
     # Start postprocessing
     taskman.setStatus(dsName,taskName,TaskManager.StatusCodes['POSTPROCRUNNING'])
     if jobName:
-        print 'Postprocessing for task %s/%s - job %s\nOld status: %s\n' % (dsName,taskName,jobName,getKey(TaskManager.StatusCodes,prePostProcStatus))
+        print ('Postprocessing for task %s/%s - job %s\nOld status: %s\n' % (dsName,taskName,jobName,getKey(TaskManager.StatusCodes,prePostProcStatus)))
     else:
-        print 'Postprocessing for task %s/%s\nOld status: %s\n' % (dsName,taskName,getKey(TaskManager.StatusCodes,prePostProcStatus))
+        print ('Postprocessing for task %s/%s\nOld status: %s\n' % (dsName,taskName,getKey(TaskManager.StatusCodes,prePostProcStatus)))
 
     # Get list of postprocessing status files that we may have to remove later
     if jobName:
@@ -87,19 +94,19 @@ def doPostProcessing(taskman,taskDict,postprocSteps,postprocLib,forceRun=False,j
         for step in postprocSteps:
             executedSteps = runPostProcStep(taskman,taskDict,prePostProcStatus,executedSteps,step,postprocLib,jobName)
 
-    except PostponeProcessing, e:
+    except PostponeProcessing as e:
         # Stop postprocessing chain w/o error. New status will be determined below if not
         # specified in the exception.
         if e.newStatus:
             taskman.setStatus(dsName,taskName,e.newStatus)
-            print '%i step(s) completed successfully: ' % len(executedSteps),executedSteps,'\n'
+            print ('%i step(s) completed successfully: ' % len(executedSteps),executedSteps,'\n')
             return executedSteps
 
-    except PostProcessingError, e:
-        print e
+    except PostProcessingError as e:
+        print (e)
         if e.newStatus:
             taskman.setStatus(dsName,taskName,e.newStatus)
-            print 'Executed steps: ',e.executedSteps
+            print ('Executed steps: ',e.executedSteps)
             return e.executedSteps
         else:
             if (taskDict['NJOBS_SUBMITTED']+taskDict['NJOBS_RUNNING']) > 0:
@@ -109,14 +116,14 @@ def doPostProcessing(taskman,taskDict,postprocSteps,postprocLib,forceRun=False,j
             else:
                 # All the jobs have run, so nothing new in the future
                 taskman.setStatus(dsName,taskName,TaskManager.StatusCodes['POSTPROCFAILED'])
-                print 'Executed steps: ',e.executedSteps
+                print ('Executed steps: ',e.executedSteps)
                 return e.executedSteps
 
-    except Exception, e:
+    except Exception as e:
         # Any other postprocessing error. Task status becomes POSTPROCFAILED.
-        print e
+        print (e)
         taskman.setStatus(dsName,taskName,TaskManager.StatusCodes['POSTPROCFAILED'])
-        print 'Executed steps: ',executedSteps
+        print ('Executed steps: ',executedSteps)
         return executedSteps
 
     else:
@@ -135,7 +142,7 @@ def doPostProcessing(taskman,taskDict,postprocSteps,postprocLib,forceRun=False,j
         # Postprocessing could have deleted the task and migrated it to tape
         taskman.setDiskStatus(dsName,taskName,TaskManager.OnDiskCodes['DELETED'])
 
-    print '%i step(s) completed successfully: ' % len(executedSteps),executedSteps,'\n'
+    print ('%i step(s) completed successfully: ' % len(executedSteps),executedSteps,'\n')
     return executedSteps
 
 
@@ -187,12 +194,12 @@ class PostProcessingStep:
                 out.write('\n')
 
     def logExec(self,cmd,doPrint=False,checkStatusCode=True,errorMsg='',abortOnError=True):
-        (status,output) = commands.getstatusoutput(cmd)
+        (status,output) = subprocess.getstatusoutput(cmd)
         status = status >> 8   # Convert to standard Unix exit code 
         self.log('Executing: %s' % cmd, output)
         if doPrint or status:
-            print output
-            print
+            print (output)
+            print()
         if status and checkStatusCode:
             if not errorMsg:
                 errorMsg = 'ERROR in postprocessing step %s while executing:\n\n%s\n' % (self.stepName,cmd)

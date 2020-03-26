@@ -1,6 +1,6 @@
 #
 #    Setup just the detectors we want
-#    File to be execfile'd from all jobOptions
+#    File to be include'd from all jobOptions
 #
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()

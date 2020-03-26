@@ -1,17 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEEDEDSEGMENTFINDER_H
 #define MUON_MUONSEEDEDSEGMENTFINDER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
+#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/MagneticFieldMode.h"
 
@@ -19,40 +22,13 @@
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "TrkParameters/TrackParameters.h"
-
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "TrkExInterfaces/IPropagator.h"
 
+#include "TrkParameters/TrackParameters.h"
 
 #include <string>
 #include <set>
 #include <vector>
-
-class MsgStream;
-class StoreGateSvc;
-
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-// New Small Wheel
-class sTgcIdHelper;
-class MmIdHelper;
-
-namespace Muon {
-class IMdtDriftCircleOnTrackCreator;
-class MuonIdHelperTool;
-class MuonEDMPrinterTool;
-class MdtDriftCircleOnTrack;
-class MuonSegment;
-class IMuonSegmentMaker;
-class MdtPrepData;
-}
-
-namespace Trk {
-class IPropagator;
-}
 
 namespace Muon {
 
@@ -66,13 +42,10 @@ public:
   MuonSeededSegmentFinder(const std::string&, const std::string&, const IInterface*);
 
   /** @brief destructor */
-  ~MuonSeededSegmentFinder ();
+  ~MuonSeededSegmentFinder()=default;
 
   /** @brief AlgTool initilize */
   StatusCode initialize();
-
-  /** @brief AlgTool finalize */
-  StatusCode finalize();
 
   /** @brief find segments in a set of chambers starting from seeding TrackParameters */
   std::unique_ptr<Trk::SegmentCollection> find( const Trk::TrackParameters& pars, const std::set<Identifier>& chIds ) const;
@@ -133,7 +106,7 @@ private:
   ToolHandle<Trk::IPropagator>                     m_propagator{this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};         //!< propagator
   ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator{this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};      //!< IMdtDriftCircleOnTrackCreator
   Trk::MagneticFieldProperties                     m_magFieldProperties; //!< magnetic field properties
-  ToolHandle<Muon::MuonIdHelperTool>               m_idHelper{this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};       //!< IdHelper tool
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<Muon::MuonEDMPrinterTool>             m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //!< EDM printer tool
 
   SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};

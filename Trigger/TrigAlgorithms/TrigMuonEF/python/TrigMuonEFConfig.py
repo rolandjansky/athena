@@ -25,6 +25,9 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
+from AthenaCommon.BeamFlags import jobproperties
+beamFlags = jobproperties.Beam
+
 #Offline calorimeter isolation tool
 #from TrackInCaloTools import TrackInCaloTools
 #TMEFTrackInCaloTools = TrackInCaloTools.TrackInCaloTools(name='MuonIsoTrackInCaloTools')
@@ -345,6 +348,8 @@ def TMEF_MuonCombinedFitTagTool(name="TMEF_MuonCombinedFitTagTool",**kwargs):
 
 def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
     kwargs.setdefault("TrackBuilder","TMEF_CombinedMuonTrackBuilder")
+    if beamFlags.beamType() == 'cosmics':
+        kwargs.setdefault("TrackExtrapolationTool", CfgGetter.getPublicTool("ExtrapolateMuonToIPTool"))
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 
 def TrigMuonAmbiProcessor(name="TrigMuonAmbiProcessor",**kwargs) :

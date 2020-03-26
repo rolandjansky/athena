@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 def getCollectionName(line):
     begin = line.find("=")
     collection = line[begin+2:]
-    #print "Line:", line
-    #print "collection: '%s'" % collection.strip()
+    #print ("Line:", line)
+    #print ("collection: '%s'" % collection.strip())
     return collection.strip()
 
 # To use this, do e.g.
@@ -29,7 +31,7 @@ def parseSummaryFile(filename='trkSummary.txt', makePlots=False):
                 continue
             if line[0:4]==">>>>": 
                 collectionName = getCollectionName(line)
-                #print "collection: '%s'" % collectionName
+                #print ("collection: '%s'" % collectionName)
                 continue
 
             if line[0:2]=="||":
@@ -45,7 +47,7 @@ def parseSummaryFile(filename='trkSummary.txt', makePlots=False):
 
         except StopIteration:
             break
-    print "Found data for the following collections: ", summary.keys()
+    print ("Found data for the following collections: ", summary.keys())
     if makePlots:
         from PmbUtils.ValuePerDomainCalcUtils import PlottableResult, JobListPlotter, TimeLabel
         title = 'MooreTracks ( %s events)' % int(summary['MooreTracks'].get('Events'))
@@ -63,7 +65,7 @@ def plotSummariesForCollection(filename='test.png', collection='MooreTracks', su
     firstSummary = summaries[0]
     
     title = '%s ( %s events)' % (collection, int(firstSummary[collection].get('Events')) )
-    print 'Making plot for %s with %s summaries' % (title, len(summaries))
+    print ('Making plot for %s with %s summaries' % (title, len(summaries)))
     result = PlottableResult(firstSummary[collection].keys(), title=title)
     i=0
     for summary in summaries:
@@ -72,8 +74,8 @@ def plotSummariesForCollection(filename='test.png', collection='MooreTracks', su
         exclusions = ["Events", "Tracks"]
         for key in summary[collection].keys():
             if (key not in exclusions):
-                print i
+                print (i)
                 result.addPoint(colname=key, value=summary[collection].get(key), time=TimeLabel(label=times[i],sortvalue=i))
-    print "result.getNColumns()", result.getNColumns()
-    print "result.getTimes()", result.getTimes()
+    print ("result.getNColumns()", result.getNColumns())
+    print ("result.getTimes()", result.getTimes())
     JobListPlotter().produceTimeDevelopmentPlot(result,filename)

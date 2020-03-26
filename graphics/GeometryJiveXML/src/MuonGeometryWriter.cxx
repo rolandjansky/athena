@@ -316,8 +316,8 @@ namespace JiveXML {
     if (maxPhi > 8) {
       // For TGCs there is no shift, so we can just return the angle.
       return pos.phi();
-    } else if (fabs(pos.phi() - M_PI/8.) < m_smallAngle) {
-      // For the others, we consider it to be the angle if it's reasonably close to pi/8. 
+    } else if (fabs(pos.phi() - M_PI/8.) < M_PI/16.) {
+      // For the others, rotate to the next sector if it's reasonably close to pi/8. 
       // Any further deviation will be put in as a shift.
       return M_PI/8.;
     } else {

@@ -49,6 +49,7 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include "xAODJet/Jet.h"
 #include "tauRecTools/KineUtils.h"
 #include "TauCellVariables.h"
+#include "tauRecTools/HelperFunctions.h"
 
 using Gaudi::Units::GeV;
 
@@ -102,22 +103,25 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
     const xAOD::Jet* pJetSeed = (*pTau.jetLink());
     if (!pJetSeed) {
-      ATH_MSG_WARNING("tau does not have jet seed for cell variable calculation");
-      return StatusCode::SUCCESS;
+      ATH_MSG_ERROR("tau does not have jet seed for cell variable calculation");
+      return StatusCode::FAILURE;
     }
 
     xAOD::JetConstituentVector::const_iterator cItr = pJetSeed->getConstituents().begin();
     xAOD::JetConstituentVector::const_iterator cItrE = pJetSeed->getConstituents().end();
 
-    unsigned int num_cells = 0;
+    int numCells = 0;
     std::bitset<200000> cellSeen;
 
     // loop over all cells of the tau 
     double cellEta, cellPhi, cellET, cellEnergy;
     for (; cItr != cItrE; ++cItr) {
       
-      const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
-
+      const xAOD::CaloCluster *cluster = nullptr;
+      ATH_CHECK(tauRecTools::GetJetConstCluster(cItr, cluster));
+      // Skip if charged PFO
+      if (!cluster){ continue; }      
+      
       CaloClusterCellLink::const_iterator firstcell = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator lastcell = cluster->getCellLinks()->end();
       
@@ -126,11 +130,12 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     
       //loop over cells and calculate the variables
       for (; firstcell != lastcell; ++firstcell) {
+        ++numCells;
+        
         cell = *firstcell;
         if (cellSeen.test(cell->caloDDE()->calo_hash())) continue;
         else cellSeen.set(cell->caloDDE()->calo_hash());
 
-        ++num_cells;
         //use tau vertex to correct cell position
         if (m_doVertexCorrection && pTau.vertexLink()) {
           CaloVertexedCell vxCell (*cell, (*pTau.vertexLink())->position());
@@ -204,7 +209,8 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     
     }// end of loop over seed jet constituents
 
-    ATH_MSG_DEBUG(num_cells << " cells in seed");
+    ATH_MSG_DEBUG(numCells << " cells in seed");
+    pTau.setDetail(xAOD::TauJetParameters::numCells ,  static_cast<int>  (numCells));
 
     pTau.setDetail(xAOD::TauJetParameters::nStrip , numStripCell );
 

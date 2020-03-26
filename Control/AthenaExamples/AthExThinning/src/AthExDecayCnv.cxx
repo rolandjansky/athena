@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // DecayCnv.cxx 
@@ -67,7 +67,7 @@ AthExDecay* AthExDecayCnv::createTransient()
    if ( compareClassGuid(p1_guid) ) {
 
      // using auto_ptr ensures deletion of the persistent object
-     std::auto_ptr<AthExDecay_p1> persObj( poolReadObject<AthExDecay_p1>() );
+     std::unique_ptr<AthExDecay_p1> persObj( poolReadObject<AthExDecay_p1>() );
      AthExDecayCnv_p1 cnv;
      transObj = cnv.createTransient( persObj.get(), msg );
      

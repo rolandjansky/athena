@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TVirtualEvent.h 682043 2015-07-10 09:21:12Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESSINTERFACES_TVIRTUALEVENT_H
 #define XAODROOTACCESSINTERFACES_TVIRTUALEVENT_H
 
@@ -12,6 +9,7 @@
 extern "C" {
 #   include <stdint.h>
 }
+#include <string>
 
 // Forward declaration(s):
 namespace std {
@@ -28,19 +26,16 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 682043 $
-   /// $Date: 2015-07-10 11:21:12 +0200 (Fri, 10 Jul 2015) $
-   ///
    class TVirtualEvent {
 
    public:
       /// Virtual destructor to make vtable happy
-      virtual ~TVirtualEvent() {}
+      virtual ~TVirtualEvent() = default;
 
       /// Key for retrieving the "default" object of a given type
-      static const uint32_t DEFAULT_KEY = 0xffffffff;
+      static constexpr uint32_t DEFAULT_KEY = 0xffffffff;
       /// Mask for the keys, used mostly internally
-      static const uint32_t KEY_MASK = 0x3fffffff;
+      static constexpr uint32_t KEY_MASK = 0x3fffffff;
 
       /// Function retrieving an object from the event (constant version)
       template< typename T >

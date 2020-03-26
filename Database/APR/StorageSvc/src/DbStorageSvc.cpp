@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //  ====================================================================
@@ -64,7 +64,7 @@ DbStorageSvc::DbStorageSvc(const string& name)
   m_ageLimit(2),
   m_type(POOL_StorageType)
 {
-  static char *als = getenv("POOL_STORAGESVC_DB_AGE_LIMIT");  
+  static const char * const als = getenv("POOL_STORAGESVC_DB_AGE_LIMIT");  
   m_explorer = new DbStorageExplorer(name+".Explorer", m_domH, this);
   if ( als )    {
     int alimit = 2;
@@ -207,7 +207,7 @@ DbStatus DbStorageSvc::allocate( const FileDescriptor& fDesc,
    refpToken = 0;
 
    if( shape && object ) {
-      void* handle = fDesc.dbc()->handle();
+      const void* handle = fDesc.dbc()->handle();
       DbDatabase dbH((DbDatabaseH)handle);
       DbContainer cntH(dbH.type());
       sc = cntH.open( dbH, 
@@ -233,7 +233,7 @@ DbStatus DbStorageSvc::allocate( const FileDescriptor& fDesc,
    DbPrint err( name());
    err << DbPrintLvl::Error 
        << "Cannot allocate persistent object." << DbPrint::endmsg
-       << " Shape Handle :"      << (void*)shape
+       << " Shape Handle :"      << (const void*)shape
        << " FID="                << fDesc.FID() 
        << " Cnt="                << refCont
        << DbPrint::endmsg;
@@ -248,7 +248,7 @@ DbStatus DbStorageSvc::update( const FileDescriptor& fDesc,
 {
    DbStatus sc = Error;
    if( shape && object ) {
-      void* handle = fDesc.dbc()->handle();
+      const void* handle = fDesc.dbc()->handle();
       DbDatabase dbH((DbDatabaseH)handle);
       if ( dbH.isValid() ) {
          DbContainer cntH(dbH.find(dbH.cntName(refToken)));
@@ -274,7 +274,7 @@ DbStatus DbStorageSvc::update( const FileDescriptor& fDesc,
    DbPrint err( name());
    err << DbPrintLvl::Error 
        << "Cannot update persistent object." << DbPrint::endmsg
-       << " Shape Handle :"      << (void*)shape
+       << " Shape Handle :"      << (const void*)shape
        << " DB:" << refToken.dbID()
        << DbPrint::endmsg;
    return sc;
@@ -284,7 +284,7 @@ DbStatus DbStorageSvc::update( const FileDescriptor& fDesc,
 DbStatus 
 DbStorageSvc::destroy( const FileDescriptor& refDB, const Token& refToken )
 {
-   void* handle = refDB.dbc()->handle();
+   const void* handle = refDB.dbc()->handle();
    DbDatabase dbH((DbDatabaseH)handle);
    if ( dbH.isValid() )  {
       DbContainer cntH(dbH.find(dbH.cntName(refToken)));

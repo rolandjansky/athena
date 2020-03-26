@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 Create beam spot primary vertex plots (e.g. for approved plots).
 """
@@ -94,9 +97,9 @@ if options.passed:
     cuts += ' && passed==1'
 if options.cuts:
     cuts += ' && %s' % options.cuts
-print
-print 'Using cuts:  ',cuts
-print
+print()
+print ('Using cuts:  ',cuts)
+print()
 
 
 # Reset DISPLAY if in batch
@@ -197,7 +200,7 @@ class Plots(ROOTUtils.PlotLibrary):
         p = ROOTUtils.protect(ROOT.TH1F(pname,'Vertex Error: %s;Vertex error #sqrt{V_{%s}} [#mum];Fraction of entries' % (hname,vName),
                                         nbins,xmin,xmax))
         pcuts = cuts.replace('vType==1','vType==3')
-        print pcuts
+        print (pcuts)
         nt.Draw('1e3*sqrt(%s) >> %s' % (var,pname),pcuts,"SAME")
         pnorm = p.Integral()
         p.Scale(1./pnorm)

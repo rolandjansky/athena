@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.JobProperties import jobproperties
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
@@ -15,7 +17,7 @@ else:
 
 if RemoveOldSmallWheels:
     #***************************************************** HERE setup MuonDetectorManager
-    print 'MuonGeoSetup: NSW inconsistent geometry tag - removing stations in old small wheels'
+    print ('MuonGeoSetup: NSW inconsistent geometry tag - removing stations in old small wheels')
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
     MuonDetectorTool = MuonDetectorTool()
     MuonDetectorTool.StationSelection  = 2
@@ -29,4 +31,4 @@ if RemoveOldSmallWheels:
     MuonDetectorTool.SelectedStations  += [ "T4E*" ]
     MuonDetectorTool.SelectedStations  += [ "T4F*" ]
 
-from AtlasGeoModel import SetupRecoGeometry
+from AtlasGeoModel import SetupRecoGeometry # noqa: F401

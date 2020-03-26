@@ -27,11 +27,6 @@ CREATED:  Sep 2007
 #include "HepMC/GenParticle.h"
 #endif
 
-#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
-#include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#endif
-
 #ifndef GENERATIONBASE
 //EDM includes
 #include "xAODTruth/TruthVertex.h"
@@ -46,10 +41,10 @@ CREATED:  Sep 2007
 #endif
 
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
-#include "TrkEventPrimitives/PropDirection.h"
-#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
+#include "TrkEventPrimitives/PropDirection.h"
+#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "AthenaKernel/Units.h"
 #endif
 

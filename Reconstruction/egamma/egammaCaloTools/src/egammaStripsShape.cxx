@@ -12,12 +12,17 @@
 #include "egammaUtils/egammaqweta1c.h"
 #include <cmath>
 #include <cfloat>
+#include <vector>
 
 using CLHEP::GeV;
 
 namespace {
-    const int STRIP_ARRAY_SIZE =40;
-    const int BIG_STRIP_ARRAY_SIZE= 3*STRIP_ARRAY_SIZE;
+   //5 cells second sampling granularity ~0.025 in eta
+    constexpr int neta=5;
+    //2 strips in phi and cover a region of +-1.1875 
+    constexpr int nphi=2;
+    //8 strips per cell in barrel
+    constexpr int STRIP_ARRAY_SIZE =8*neta;
 }
 
 double proxim(const double b, const double a){ return b+2.*M_PI*round((a-b)/(2.*M_PI)) ;}
@@ -72,7 +77,6 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
   // based on hottest cell in 2nd sampling , the  deta,dphi,
   // And the barycenter in the 1st sampling (seed)
   //
-  ATH_MSG_DEBUG(" egammaStripsShape: execute");
 
   // check if cluster is in barrel or in the end-cap
   if (!cluster.inBarrel() && !cluster.inEndcap()) {
@@ -80,12 +84,10 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
                     "Endcap, cannot calculate ShowerShape ");
     return StatusCode::SUCCESS;
   }
-
   // retrieve energy in all samplings
-
-  double eallsamples = egammaEnergyPositionAllSamples::e(cluster);
+  const double eallsamples = egammaEnergyPositionAllSamples::e(cluster);
   // retrieve energy in 1st sampling
-  double e1 = egammaEnergyPositionAllSamples::e1(cluster);
+  const double e1 = egammaEnergyPositionAllSamples::e1(cluster);
 
   // check if cluster is in barrel or end-cap
   // sam is used in SetArray to check that cells belong to strips
@@ -120,7 +122,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
   if (fabs(info.etamax) > 1.4 && fabs(info.etamax) < 1.5) {
     return StatusCode::SUCCESS;
   }
-  // CaloCellList needs both enums: subCalo and CaloSample
+  // We eeds both enums: subCalo and CaloSample
   // use samgran = granularity in second sampling for eta !!!!
   double deta = 0;
   double dphi = 0;
@@ -134,8 +136,8 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
   if (!dde) {
     return StatusCode::SUCCESS;
   }
-  // width in eta is granularity (dde->deta()) times number of cells (m_neta)
-  deta = dde->deta() * m_neta / 2.0;
+  // width in eta is granularity (dde->deta()) times number of cells (neta)
+  deta = dde->deta() * neta / 2.0;
   // use samgran = granularity in first sampling for phi
   CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module,
                            (CaloCell_ID::CaloSample)sam);
@@ -145,15 +147,16 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
   if (!dde) {
     return StatusCode::SUCCESS;
   }
-  // width in phi is granularity (dde->dphi()) times number of cells (m_nphi)
-  dphi = dde->dphi() * m_nphi / 2.0;
+  // width in phi is granularity (dde->dphi()) times number of cells (nphi)
+  dphi = dde->dphi() * nphi / 2.0;
 
   /* initialize the arrays*/
   double enecell[STRIP_ARRAY_SIZE] = {0};
   double etacell[STRIP_ARRAY_SIZE] = {0};
   double gracell[STRIP_ARRAY_SIZE] = {0};
   int ncell[STRIP_ARRAY_SIZE] = {0};
-  // Fill the array in energy and eta from which all relevant
+
+ // Fill the array in energy and eta from which all relevant
   // quantities are estimated
   setArray(cluster, cmgr, sam, info.etamax, info.phimax, deta, dphi, enecell,
            etacell, gracell, ncell);
@@ -205,14 +208,9 @@ void egammaStripsShape::setArray(const xAOD::CaloCluster& cluster,
                                  double phi, double deta, double dphi,
                                  double* enecell, double* etacell,
                                  double* gracell, int* ncell) const {
-  //
-  // Put in an array the energies,eta,phi values contained in
-  // a window (deta,dphi)
-
-  StripArrayHelper stripArray[BIG_STRIP_ARRAY_SIZE];
-  // Raw --> Calo Frame
+  
+ // Raw --> Calo Frame
   // Difference  is important in end-cap which is shifted by about 4 cm
-  //
   double etaraw = eta;
   double phiraw = phi;
   // look for the corresponding DetDescrElement
@@ -232,15 +230,18 @@ void egammaStripsShape::setArray(const xAOD::CaloCluster& cluster,
   double etamax = etaraw + deta;
   double phimin = phiraw - dphi;
   double phimax = phiraw + dphi;
-  // index of elements of the array
-  int indexay = 0;
+  // Loop over all cells in the cluster
+  xAOD::CaloCluster::const_cell_iterator first = cluster.cell_begin();
+  xAOD::CaloCluster::const_cell_iterator last = cluster.cell_end();
+  // fill in a std::vector the energies,eta,phi values contained in
+  // a window (deta,dphi)
+  std::vector<StripArrayHelper> stripArray;
+  stripArray.reserve(2 * STRIP_ARRAY_SIZE);
+  // positon of elements
   double eta_cell = 0.;
   double phi_cell0 = 0.;
   double phi_cell = 0.;
 
-  // Now loop over all cells in the cluster
-  xAOD::CaloCluster::const_cell_iterator first = cluster.cell_begin();
-  xAOD::CaloCluster::const_cell_iterator last = cluster.cell_end();
   for (; first != last; ++first) {
     // ensure we are in 1st sampling
     const CaloCell* theCell = *first;
@@ -256,56 +257,47 @@ void egammaStripsShape::setArray(const xAOD::CaloCluster& cluster,
       // check if we are within boundaries
       if (eta_cell >= etamin && eta_cell <= etamax) {
         if (phi_cell >= phimin && phi_cell <= phimax) {
-          // a protection is put to avoid to have an array larger
-          // than 2*STRIP_ARRAY_SIZE
-          if (indexay < BIG_STRIP_ARRAY_SIZE) {
-            // energy
-            stripArray[indexay].energy = theCell->energy() * (first.weight());
-            // eta
-            stripArray[indexay].eta = theCell->eta();
-            // eta raw
-            stripArray[indexay].etaraw = theCell->caloDDE()->eta_raw();
-            // eta granularity
-            stripArray[indexay].deta = theCell->caloDDE()->deta();
-            // index/number of cells in the array
-            stripArray[indexay].ncell++;
-            // increase index
-            indexay++;
-          }
+          StripArrayHelper stripHelp;
+          // energy
+          stripHelp.energy = theCell->energy() * (first.weight());
+          // eta
+          stripHelp.eta = theCell->eta();
+          // eta raw
+          stripHelp.etaraw = theCell->caloDDE()->eta_raw();
+          // eta granularity
+          stripHelp.deta = theCell->caloDDE()->deta();
+          // index/number of cells in the array
+          stripHelp.ncell++;
+          stripArray.push_back(stripHelp);
         }
       }
     }
   }
+  const size_t elementCount = stripArray.size();
   // Exit early if no cells.
-  if (indexay == 0) {
+  if (elementCount== 0) {
     return;
   }
-  // sort intermediate array with eta
-  std::sort(stripArray, stripArray + indexay);
-
+  // sort vector in eta
+  std::sort(stripArray.begin(), stripArray.end());
   // loop on intermediate array and merge two cells in phi (when they exist)
   int ieta = 0;
   bool next = false;
-  // start loop on 2nd element
-  for (int i = 0; i < indexay - 1; i++) {
-    // protection against too big array
+  // merge in phi
+  for (size_t i = 0; i < (elementCount - 1); ++i) {
+    // Maximum STRIP_ARRAY_SIZE elements
     if (ieta < STRIP_ARRAY_SIZE) {
       // energy
-      if (enecell)
-        enecell[ieta] += stripArray[i].energy;
+      enecell[ieta] += stripArray[i].energy;
       // eta
-      if (etacell)
-        etacell[ieta] = stripArray[i].eta;
+      etacell[ieta] = stripArray[i].eta;
       // eta granularity
-      if (gracell)
-        gracell[ieta] = stripArray[i].deta;
+      gracell[ieta] = stripArray[i].deta;
       // index/number of cells in the array
-      if (ncell)
-        ++ncell[ieta];
+      ++ncell[ieta];
       // check if eta of this element is equal to the pevious one
       // in which case the two cells have to be merged
-      // if (fabs(stripArray[i].eta-stripArry[i+1]).eta>0.00001) next = true;
-      if (fabs(stripArray[i].etaraw - stripArray[i + 1].etaraw) > 0.00001)
+      if (fabs(stripArray[i].etaraw - stripArray[i + 1].etaraw) > 1e-05)
         next = true;
       if (next) {
         // Increment the final array only if do not want to merge
@@ -316,34 +308,23 @@ void egammaStripsShape::setArray(const xAOD::CaloCluster& cluster,
     }
   }
   // special case for last element which was not treated yet
-  int index = indexay - 1;
+  int index = elementCount - 1;
   // if previous element had a different eta then append the array
   // NB: this could happen if only one cell in phi was available
-  if (index == 0 ||
-      fabs(stripArray[index].etaraw - stripArray[index - 1].etaraw) > 0.00001) {
+  if (index == 0 || fabs(stripArray[index].etaraw - stripArray[index - 1].etaraw) > 1e-05) {
     // energy
-    if (enecell)
-      enecell[ieta] = stripArray[index].energy;
+    enecell[ieta] = stripArray[index].energy;
   }
-  if (index != 0 &&
-      fabs(stripArray[index].etaraw - stripArray[index - 1].etaraw) < 0.00001) {
+  if (index != 0 && fabs(stripArray[index].etaraw - stripArray[index - 1].etaraw) < 1e-05) {
     // energy
-    if (enecell) {
-      enecell[ieta] += stripArray[index].energy;
-    }
+    enecell[ieta] += stripArray[index].energy;
   }
   // eta
-  if (etacell) {
-    etacell[ieta] = stripArray[index].eta;
-  }
+  etacell[ieta] = stripArray[index].eta;
   // eta granularity
-  if (gracell) {
-    gracell[ieta] = stripArray[index].deta;
-  }
+  gracell[ieta] = stripArray[index].deta;
   // index/number of cells in the array
-  if (ncell) {
     ++ncell[ieta];
-  }
 }
 
 // =====================================================================
@@ -751,8 +732,7 @@ void egammaStripsShape::setFside(Info& info, double* enecell, double* gracell, i
             info.fside = (fabs(eleft+eright+e1) > 0.) ? fracm/(eleft+eright+e1) - 1. : 0.;
         }
     }
-
-    }
+}
 
 void egammaStripsShape::setF1core(Info& info, const xAOD::CaloCluster& cluster) const { 
     // Fraction of energy reconstructed in the core of the shower
@@ -767,4 +747,4 @@ void egammaStripsShape::setF1core(Info& info, const xAOD::CaloCluster& cluster) 
     if ( fabs(energy) > 0. && e132 > x ){
         info.f1core = e132/energy;
     }
-    }
+}

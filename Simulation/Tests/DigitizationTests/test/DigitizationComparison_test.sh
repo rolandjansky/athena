@@ -24,6 +24,7 @@ larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)\
 
 _postExec="\
 default:condSeq.LArAutoCorrTotalCondAlg.deltaBunch=1;\
+job+=CfgMgr.JobOptsDumperAlg(FileName=\"OverlayLegacyConfig.txt\");\
 from AthenaCommon.OldStyleConfig import Service;\
 Service('StoreGateSvc').Dump=True;\
 from AthenaCommon.ConfigurationShelve import saveToAscii;\
@@ -33,13 +34,7 @@ print(AthSequencer('AthCondSeq'))\
 "
 
 _preInclude="\
-HITtoRDO:Digitization/ForceUseOfAlgorithms.py,\
-SimulationJobOptions/preInclude.LArOnlyConfig.py,\
-SimulationJobOptions/preInclude.TileOnlyConfig.py,\
-SimulationJobOptions/preInclude.PixelOnlyConfig.py,\
-SimulationJobOptions/preInclude.SCTOnlyConfig.py,\
-SimulationJobOptions/preInclude.TRTOnlyConfig.py,\
-SimulationJobOptions/preInclude.TruthOnlyConfig.py\
+HITtoRDO:Digitization/ForceUseOfAlgorithms.py\
 "
 
 rc2=-9999
@@ -59,7 +54,7 @@ then
     --preExec "$_preExec" \
     --preInclude "$_preInclude" \
     --skipEvents 0 \
-    --maxEvents 2 \
+    --maxEvents 20 \
     --athenaopts '"--config-only=DigitizationConfigCG.pkl"'
     # config and run version
     Digi_tf.py \
@@ -75,7 +70,7 @@ then
     --preExec "$_preExec" \
     --preInclude "$_preInclude" \
     --skipEvents 0 \
-    --maxEvents 2
+    --maxEvents 20
     rc2=$?
 fi
 

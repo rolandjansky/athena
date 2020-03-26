@@ -61,6 +61,7 @@ class TrigMultiTrkHypo: public ::HypoBase {
   SG::ReadHandleKey<xAOD::TrackParticleContainer>
     m_trackParticleContainerKey {this, "TrackCollectionKey", "Tracks", "input TrackParticle container name"};
 
+
   SG::ReadHandleKey<xAOD::MuonContainer>
     m_muonContainerKey {this, "MuonCollectionKey", "CBCombinedMuon", "input EF Muon container name"};
 

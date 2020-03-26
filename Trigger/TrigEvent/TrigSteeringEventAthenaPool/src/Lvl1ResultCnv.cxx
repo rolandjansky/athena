@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -51,7 +51,7 @@ LVL1CTP::Lvl1Result* Lvl1ResultCnv::createTransient()
   if ( compareClassGuid(p1_guid) ) {
     mlog << MSG::DEBUG << "Lvl1Result::createTransient reading p1 persistent object" << endmsg;
     // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< LVL1CTP::Lvl1Result_p1 > col_vect( poolReadObject< LVL1CTP::Lvl1Result_p1 >() );
+    std::unique_ptr< LVL1CTP::Lvl1Result_p1 > col_vect( poolReadObject< LVL1CTP::Lvl1Result_p1 >() );
     return m_impl->m_TPConverter_p1.createTransient( col_vect.get(), mlog );
   } else if( compareClassGuid(p0_guid) ){
     mlog << MSG::DEBUG << "Lvl1Result::createTransient reading p0 persistent object" << endmsg;
@@ -60,7 +60,7 @@ LVL1CTP::Lvl1Result* Lvl1ResultCnv::createTransient()
   } else if ( compareClassGuid(p2_guid) ) {
     mlog << MSG::DEBUG << "Lvl1Result::createTransient reading p2 persistent object" << endmsg;
     // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< LVL1CTP::Lvl1Result_p2 > col_vect( poolReadObject< LVL1CTP::Lvl1Result_p2 >() );
+    std::unique_ptr< LVL1CTP::Lvl1Result_p2 > col_vect( poolReadObject< LVL1CTP::Lvl1Result_p2 >() );
     return m_impl->m_TPConverter_p2.createTransient( col_vect.get(), mlog );
   }
 

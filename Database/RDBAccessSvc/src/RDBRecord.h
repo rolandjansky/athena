@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,11 +12,12 @@
  * $Id: RDBRecord.h,v 1.8 2006-10-23 15:24:06 tsulaia Exp $
  */
 
-#ifndef _RDBRECORD_H_
-#define _RDBRECORD_H_
+#ifndef RDBACCESSSVC_RDBRECORD_H
+#define RDBACCESSSVC_RDBRECORD_H
 
 #include "CoralBase/AttributeList.h"
 #include "RDBAccessSvc/IRDBRecord.h"
+#include "CxxUtils/checker_macros.h"
 #include <map>
 #include <iosfwd>
 
@@ -125,7 +126,7 @@ class RDBRecord final : public IRDBRecord
   RDBRecord(){}
 
   FieldName2ListIndex m_name2Index;
-  coral::AttributeList* m_values;
+  coral::AttributeList* m_values ATLAS_THREAD_SAFE;
 
   std::string   m_tableName;
 

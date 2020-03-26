@@ -3,6 +3,11 @@
 # Declare the package name.
 atlas_subdir( TrigCompositeUtils )
 
+# Declare the package's dependencies:
+atlas_depends_on_subdirs( PUBLIC
+                          Trigger/TrigEvent/TrigDecisionInterface 
+                        )
+
 # Set up the (non-)standalone compilation.
 set( extra_srcs )
 set( extra_libs )

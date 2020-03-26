@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace pool;
-static string s_empty = "";
+static const string s_empty = "";
 
 /// Add reference count to object if present
 int DbContainer::refCount() const  {
@@ -70,7 +70,7 @@ void DbContainer::switchPtr(const DbContainerObj* obj) const  {
 }
 
 const DbDatabase& DbContainer::containedIn() const {
-  static DbDatabase null_dbH(type());
+  static const DbDatabase null_dbH(type());
   return isValid() ? m_ptr->database() : null_dbH;
 }
 

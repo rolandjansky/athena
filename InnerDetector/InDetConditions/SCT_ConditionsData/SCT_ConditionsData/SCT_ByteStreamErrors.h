@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,6 +10,8 @@
 
 #ifndef SCT_ByteStreamErrors_h
 #define SCT_ByteStreamErrors_h
+
+#include <vector>
 
 // http://stackoverflow.com/questions/21456262/enum-to-string-in-c11
 #ifndef SCT_ERRORTYPELIST
@@ -66,7 +68,7 @@ namespace SCT_ByteStreamErrors {
     SCT_ERRORTYPELIST(SCT_DO_ENUM)
   };
   // Define strings of enumerator
-  static const std::string errorTypesDescription[]{
+  static const std::vector<std::string> errorTypesDescription = {
     SCT_ERRORTYPELIST(SCT_DO_DESCRIPTION)
   };
 
@@ -136,6 +138,9 @@ namespace SCT_ByteStreamErrors {
     MissingLinkHeaderError, // We cannot know which FE-link does not have header. We assign this error to all the FE-links of the ROD.
     MaskedROD
   };
+
+  // Ensure that the enums are available from ROOT
+  struct ROOT6_NamespaceAutoloadHook{};
 }
 
 #endif // SCT_ByteStreamErrors_h

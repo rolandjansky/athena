@@ -39,6 +39,16 @@ TrigConf::L1PrescalesSet::size() const
    return m_prescales.size();
 }
 
+unsigned int
+TrigConf::L1PrescalesSet::psk() const {
+   return m_psk;
+}
+
+void
+TrigConf::L1PrescalesSet::setPSK(unsigned int psk ) {
+   m_psk = psk;
+}
+
 const TrigConf::L1PrescalesSet::L1Prescale & 
 TrigConf::L1PrescalesSet::prescale(const std::string & itemName) const {
    return m_prescales.at(itemName);

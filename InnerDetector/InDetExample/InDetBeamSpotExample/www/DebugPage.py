@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 ATLAS beam spot web page for debugging
@@ -10,7 +10,11 @@ __version__ = 'DebugPage.py atlas/athena'
 from BeamSpotWebPage import BeamSpotWebPage
 from InDetBeamSpotExample.Utils import getUserName
 
-import sys, os, commands
+import sys, os
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 debuginfo = """
@@ -41,7 +45,7 @@ class DebugPage(BeamSpotWebPage):
         taskDb = 'oracle:******' if 'oracle:' in self.globalConfig['taskDb'] else self.globalConfig['taskDb']
         return debuginfo % (sys.version,
                             getUserName(),
-                            commands.getoutput('whoami'),
+                            subprocess.getoutput('whoami'),
                             os.environ.get('HOME','not defined'),
                             self.globalConfig.baseUrl,
                             self.globalConfig.pageList,

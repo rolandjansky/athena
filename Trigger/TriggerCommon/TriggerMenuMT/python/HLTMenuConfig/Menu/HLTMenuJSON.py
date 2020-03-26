@@ -26,13 +26,14 @@ def __getChainSequencers(stepsData, chainName):
     """
     sequencers = []
     counter = 0
+    from DecisionHandling.TrigCompositeUtils import chainNameFromLegName
     for step in stepsData:
         counter += 1
         mySequencer = None
         endOfChain = False
         for sequencer in step:
             sequencerFilter = sequencer.getChildren()[0] # Always the first child in the step
-            if chainName in sequencerFilter.Chains:
+            if any(chainName in chainNameFromLegName(fChain) for fChain in sequencerFilter.Chains):
                 if mySequencer is not None:
                     __log.error( "Multiple Filters found (corresponding Sequencers %s, %s) for %s in Step %i!",
                         mySequencer.name(), sequencer.name(), chainName, counter)
@@ -99,6 +100,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     __log.info( "Writing trigger menu to %s", fileName )
     with open( fileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=False )
+
 
 def generateJSON():
     __log.info("Generating HLT JSON config in the rec-ex-common job")

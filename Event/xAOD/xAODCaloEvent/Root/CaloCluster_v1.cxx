@@ -38,7 +38,7 @@ namespace xAOD {
       m_recoStatus(other.m_recoStatus) {
     setSignalState(other.signalState());
     this->makePrivateStore(other);
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
     const CaloClusterCellLink* links=other.getCellLinks();
     if (links) {
       this->addCellLink(std::make_unique<CaloClusterCellLink>(*links));
@@ -47,7 +47,7 @@ namespace xAOD {
     if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by makePrivateStore, invalidate it
       accCellLinks(*this).reset();
     } //end if have element link to CaloClusterCellLink
-#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif // not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
   }
   
 
@@ -61,7 +61,7 @@ namespace xAOD {
     setSignalState(other.signalState());
     m_samplingPattern=other.m_samplingPattern;
 
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
      const CaloClusterCellLink* links=other.getCellLinks();
      if (links) {
        this->addCellLink(std::make_unique<CaloClusterCellLink>(*links));
@@ -70,7 +70,7 @@ namespace xAOD {
      if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by  SG::AuxElement::operator=, invalidate it
        accCellLinks(*this).reset();
      } //end if have element link to CaloClusterCellLink
-#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif // not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
      return *this;
   }
 
@@ -867,7 +867,7 @@ namespace xAOD {
 
   
 
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
  bool CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl,
                                IProxyDict* sg /*= nullptr*/)
   {
@@ -913,20 +913,20 @@ namespace xAOD {
   }
 
 
-#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif // not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
    /// This function takes care of preparing (all) the ElementLink(s) in the
    /// object to be persistified.
    ///
    void CaloCluster_v1::toPersistent() {
 
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
       static const Accessor< ElementLink< CaloClusterCellLinkContainer > >
          accCellLinks( "CellLink" );
       if( accCellLinks.isAvailableWritable( *this ) ) {
          accCellLinks( *this ).toPersistent();
       }
-#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif // not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
       static const Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
       if( accSisterCluster.isAvailableWritable( *this ) ) {

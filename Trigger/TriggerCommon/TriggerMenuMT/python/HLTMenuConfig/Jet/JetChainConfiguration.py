@@ -1,12 +1,20 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetDef")
 
-
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
+
+import copy
+
+def jetChainParts(chainParts):
+    jChainParts = []
+    for p in chainParts:
+        if p['trigType'] == 'j':
+            jChainParts.append(p)
+    return jChainParts
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -14,10 +22,34 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragm
 class JetChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
-        ChainConfigurationBase.__init__(self,chainDict)
+        # we deliberately don't call base class constructore, since this assumes a single chain part
+        # which is not the case for jets
+
+        self.dict = copy.deepcopy(chainDict)
+        
+        self.chainName = self.dict['chainName']
+        self.chainL1Item = self.dict['L1item']
+
+        self.chainPart = self.dict['chainParts']
+        self.L1Threshold = ''
+        self.mult = 1 # from the framework point of view I think the multiplicity is 1, internally the jet hypo has to figure out what to actually do
+
+        # these properties are in the base class, but I don't think we need them for jets
+        #self.chainPartName = ''
+        #self.chainPartNameNoMult = ''
+        #self.chainPartNameNoMultwL1 = ''
+
+        # expect that the L1 seed is the same for all jet parts, otherwise we have a problem
+        jChainParts = jetChainParts(self.chainPart)
+        for p in jChainParts:
+            l1th = p['L1threshold']
+            if self.L1Threshold != '' and self.L1Threshold != l1th:
+                log.error('Cannot configure a jet chain with different L1 thresholds')
+                exit(1)
+            self.L1Threshold = l1th
 
         from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
-        self.recoDict = extractRecoDict(self.dict["chainParts"])
+        self.recoDict = extractRecoDict(jChainParts)
 
     # ----------------------
     # Assemble the chain depending on information from chainName
@@ -51,7 +83,8 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         stepName = "Step1_jet_"+jetDefStr
         jetSeq1 = RecoFragmentsPool.retrieve( jetMenuSequence, None, **self.recoDict ) # the None will be used for flags in future
-        return ChainStep(stepName, [jetSeq1], multiplicity=[1])
+
+        return ChainStep(stepName, [jetSeq1], multiplicity=[1], chainDicts=[self.dict])
 
 
         

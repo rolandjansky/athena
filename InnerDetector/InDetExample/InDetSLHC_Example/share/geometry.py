@@ -1,4 +1,4 @@
-# Geometry setup. This file is "execfile"'d in each jobOptions. So changing a geometry
+# Geometry setup. This file is "include"'d in each jobOptions. So changing a geometry
 # need only be done here (but, you will affect all jobs that use this file)
 
 from AthenaCommon.GlobalFlags import globalflags
@@ -17,7 +17,7 @@ from AtlasGeoModel import SetGeometryVersion
 
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 SLHC_Flags.SLHC_Version = "SLHC-empty-gmx"
-print  SLHC_Flags
+printfunc ( SLHC_Flags)
 
 # .gmx top-file:
 from SCT_GeoModelXml.SCT_GeoModelXmlConf import SCT_GMX_DetectorTool

@@ -239,7 +239,7 @@ void TGCPatchPanel::clockIn(int bunch, TGCDatabaseManager* db)
     m_nHit=createOutput();
     if(m_connectionInPP->existOredSignal()) m_nHit+=doOrLogic();
     // 18-Jan-01 Fixed by KH
-    if( tgcArgs()->DEBUGLEVEL() && ( (m_nHit>0) || m_hasBIDOut || m_hasASDOut) ) showResult();
+    if( tgcArgs()->MSGLEVEL()<=MSG::DEBUG && ( (m_nHit>0) || m_hasBIDOut || m_hasASDOut) ) showResult();
 
 #ifdef TGCDEBUG
     if  ( (m_nHit>0) || m_hasBIDOut || m_hasASDOut)  showResult();

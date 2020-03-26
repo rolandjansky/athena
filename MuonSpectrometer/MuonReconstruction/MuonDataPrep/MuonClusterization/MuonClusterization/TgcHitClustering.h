@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCHITCLUSTERING_H
@@ -12,7 +12,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/TgcIdHelper.h"
 
 namespace Muon {
 
@@ -114,8 +114,8 @@ namespace Muon {
     };
     typedef std::vector< Triplet > HitClustering;
 
-    TgcHitClusteringObj( const Muon::MuonIdHelperTool* muonIdHelperTool ) : 
-      m_muonIdHelperTool(muonIdHelperTool),bunchIdBestEta(-99),bunchIdBestPhi(-99),
+    TgcHitClusteringObj( const TgcIdHelper* tgcIdHelp ) :
+      m_tgcIdHelper(tgcIdHelp),bunchIdBestEta(-99),bunchIdBestPhi(-99),
       ngasgaps(-99),debug(false),combinedGasGaps(true)
     {}
 
@@ -138,7 +138,7 @@ namespace Muon {
  
     void findBest();
 
-    const Muon::MuonIdHelperTool*        m_muonIdHelperTool;
+    const TgcIdHelper*        m_tgcIdHelper;
     std::vector<Triplet>      channelsEta;
     std::vector<Triplet>      channelsPhi;
     std::vector<TgcClusterObj>   clustersEta;

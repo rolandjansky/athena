@@ -226,14 +226,14 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 
 }
 
-void TrigTrackSeedGenerator::createSeedsZv(const IRoiDescriptor* roiDescriptor) {
+void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, const std::vector<float>& vZv) {
   
   for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
     delete (*it).second;
   }
   m_triplets.clear();
 
-  if(m_settings.m_vZv.empty()) return;
+  if(vZv.empty()) return;
 
   int nLayers = (int) m_settings.m_layerGeometry.size();
 
@@ -269,7 +269,7 @@ void TrigTrackSeedGenerator::createSeedsZv(const IRoiDescriptor* roiDescriptor) 
 
 	  INTERNAL_TRIPLET_BUFFER tripletVec;
 
-	  for(auto zVertex : m_settings.m_vZv) {//loop over zvertices
+	  for(const auto zVertex : vZv) {//loop over zvertices
 
 	    int nSP=0;
 	    m_nInner = 0;

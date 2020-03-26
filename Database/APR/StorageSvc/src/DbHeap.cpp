@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StorageSvc/DbHeap.h"
@@ -12,7 +12,7 @@
 
 using namespace pool;
 
-static size_t GUARDSIZE = 72;
+static const size_t GUARDSIZE = 72;
 
 inline static DbObjectGuard* GUARD(const void* ptr)  {
   return (DbObjectGuard*) (((char*)ptr)-GUARDSIZE);

@@ -48,6 +48,16 @@ TrigConf::HLTPrescalesSet::size() const
    return m_prescales.size();
 }
 
+unsigned int
+TrigConf::HLTPrescalesSet::psk() const {
+   return m_psk;
+}
+
+void
+TrigConf::HLTPrescalesSet::setPSK(unsigned int psk ) {
+   m_psk = psk;
+}
+
 const TrigConf::HLTPrescalesSet::HLTPrescale & 
 TrigConf::HLTPrescalesSet::prescale(const std::string & chainName) const {
    return m_prescales.at(chainName);
