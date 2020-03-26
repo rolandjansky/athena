@@ -165,7 +165,7 @@ void CaloBCIDCoeffs::findCellCoeffs (const float* ofcs,
  *            inclusive.
  * @param out Output per-cell offsets.
  */
-#if defined(__x86_64__) && HAVE_FUNCTION_MULTIVERSIONING && HAVE_VECTOR_SIZE_ATTRIBUTE
+#if defined(__x86_64__) && HAVE_TARGET_CLONES && HAVE_VECTOR_SIZE_ATTRIBUTE
 // If we have function multiversioning, compile specialized versions
 // for different architectures.
 // ... But including avx causes a crash at least with gcc 8.3.0.
