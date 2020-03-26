@@ -64,8 +64,8 @@ namespace asg
     ///   configuration errors\n
     ///   algorithm creation/initialization errors
   public:
-    ::StatusCode
-    makeTool (std::unique_ptr<AsgTool>& tool) const;
+    template<typename T> ::StatusCode
+    makeTool (std::unique_ptr<T>& tool) const;
 
 
 
@@ -73,6 +73,24 @@ namespace asg
     // private interface
     //
   };
+
+
+
+  //
+  // template methods
+  //
+
+  template<typename T> ::StatusCode AsgToolConfig ::
+  makeTool (std::unique_ptr<T>& tool) const
+  {
+    using namespace msgComponentConfig;
+
+    ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", true));
+    ANA_CHECK (tool->initialize());
+
+    ANA_MSG_DEBUG ("Created component of type " << type());
+    return StatusCode::SUCCESS;
+  }
 }
 
 #endif
