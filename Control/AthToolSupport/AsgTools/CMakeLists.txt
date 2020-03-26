@@ -26,7 +26,7 @@ if( XAOD_STANDALONE )
 else()
    set( sources Root/AsgTool.cxx Root/AsgMetadataTool.cxx
       Root/MessageCheckAsgTools.cxx Root/ToolStore.cxx Root/AnaToolHandle.cxx
-      Root/AsgComponentConfig.cxx src/*.cxx )
+      Root/AsgComponentConfig.cxx Root/AsgToolConfig.cxx src/*.cxx )
 endif()
 
 # Component(s) in the package:
