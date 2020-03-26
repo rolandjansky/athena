@@ -8,8 +8,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfData/HLTMenu.h"

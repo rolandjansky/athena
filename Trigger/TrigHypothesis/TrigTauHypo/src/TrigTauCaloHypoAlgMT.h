@@ -10,7 +10,7 @@
 #include "AthViews/View.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "xAODTau/TauJetContainer.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
 
 #include "ITrigTauGenericHypoTool.h"

@@ -6,7 +6,7 @@
 #define L1DECODER_ICTPUNPACKINGTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 
 namespace ROIB {

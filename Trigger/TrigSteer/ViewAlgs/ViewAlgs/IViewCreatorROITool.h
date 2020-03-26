@@ -8,7 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Property.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 /**
  * @class IViewCreatorROITool

@@ -7,8 +7,8 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 
 class ITrigMissingETHypoToolMT : virtual public::IAlgTool {

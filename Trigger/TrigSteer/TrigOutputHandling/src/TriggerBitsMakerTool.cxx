@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigOutputHandling/TriggerBitsMakerTool.h"
 #include "TrigConfHLTData/HLTUtils.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"

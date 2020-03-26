@@ -3,7 +3,7 @@
 */
 
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "DecisionHandling/Combinators.h"
+#include "TrigCompositeUtils/Combinators.h"
 #include "TrigMufastHypoTool.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
