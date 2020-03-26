@@ -118,7 +118,7 @@ void RegSelectorMap::regionSelectorRobIdUint( DETID TYPE,
 					      double phiminIn, double phimaxIn,
 					      std::vector<uint32_t>& outList ) const {
   
-  verifyInputs( etaminIn, etamaxIn, phiminIn, phimaxIn );
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
 
   std::list<RegSelectorMapElement>::const_iterator it;
   std::set<uint32_t> outset;
@@ -199,7 +199,7 @@ void RegSelectorMap::regionSelector( DETID TYPE,
 				     double phiminIn,  double phimaxIn,
 				     std::vector<IdentifierHash>& outList) const {
   
-  verifyInputs( etaminIn, etamaxIn, phiminIn, phimaxIn );
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
 
   std::list<RegSelectorMapElement>::const_iterator it;
   std::set<IdentifierHash> outset;
@@ -263,7 +263,7 @@ void RegSelectorMap::regionSelector( DETID TYPE,
 				      double phiminIn, double phimaxIn,
 				      std::vector<IdentifierHash>& outList) const {
 
-  verifyInputs( etaminIn, etamaxIn, phiminIn, phimaxIn );
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
 
   std::list<RegSelectorMapElement>::const_iterator it;
   std::set<IdentifierHash> outset;
@@ -302,7 +302,7 @@ void RegSelectorMap::regionSelector( long layNumber,
 				     double phiminIn, double phimaxIn,
 				     std::vector<IdentifierHash>& outList) const {
 
-  verifyInputs( etaminIn, etamaxIn, phiminIn, phimaxIn );
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
 
   std::list<RegSelectorMapElement>::const_iterator it, itEnd;
   std::set<IdentifierHash> outset;
@@ -382,10 +382,10 @@ void RegSelectorMap::summaryDataFile(std::list<RegSelectorMapElement> &dataList)
   }
 }
 
-StatusCode RegSelectorMap::verifyInputs( double &etaminIn, double &etamaxIn,
-					      double &phiminIn, double &phimaxIn ) const {
 
-  StatusCode sc = StatusCode::SUCCESS;
+
+void RegSelectorMap::verifyInputsInternal( double &etaminIn, double &etamaxIn,
+					   double &phiminIn, double &phimaxIn ) const {
 
   while (phiminIn > 2*M_PI) phiminIn -= 2*M_PI;
   while (phiminIn < 0     ) phiminIn += 2*M_PI;
@@ -394,7 +394,6 @@ StatusCode RegSelectorMap::verifyInputs( double &etaminIn, double &etamaxIn,
 
   if( ( (etaminIn < m_etaminDet) && (etamaxIn < m_etaminDet) ) ||
       ( (etaminIn > m_etamaxDet) && (etamaxIn > m_etamaxDet) ) ){
-    //sc = StatusCode::FAILURE;
   }
   else{
     if( (etaminIn < m_etaminDet) && (etamaxIn > m_etaminDet) ){
@@ -405,8 +404,16 @@ StatusCode RegSelectorMap::verifyInputs( double &etaminIn, double &etamaxIn,
     }
   }
 
-  return sc;
 }
+
+
+StatusCode RegSelectorMap::verifyInputs( double &etaminIn, double &etamaxIn,
+					 double &phiminIn, double &phimaxIn ) const {
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
+  return StatusCode::SUCCESS;
+}
+
+
 
 StatusCode RegSelectorMap::verifyInputsMinusPi( double &etaminIn, double &etamaxIn,
 						double &phiminIn, double &phimaxIn) const {
@@ -492,7 +499,7 @@ void RegSelectorMap::regionSelectorRobIdUint( double etaminIn, double etamaxIn,
 					      double phiminIn, double phimaxIn,
 					      std::vector<uint32_t>& outList) const {
   
-  verifyInputs( etaminIn, etamaxIn, phiminIn, phimaxIn );
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
 
   std::set<uint32_t> outset;
   int i;
@@ -558,7 +565,7 @@ void RegSelectorMap::regionSelectorRobIdUint( long layNumber,
 					      double phiminIn, double phimaxIn,
 					      std::vector<uint32_t>& outList) const {
   
-  verifyInputs( etaminIn, etamaxIn, phiminIn, phimaxIn );
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
 
   std::set<uint32_t> outset;
   std::list<RegSelectorMapElement>::const_iterator it, itEnd;

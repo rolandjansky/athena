@@ -2,9 +2,8 @@
 /**
  **   @file      RegSelSiLUT.h  
  **
- **   @breif     RegionSelector LUT class for the Si Inner Detector  
- **                   
- **                   
+ **   @brief     RegionSelector LUT class for the Inner Detector and Muon Spectrometer  
+ **                                      
  ** 
  **   @author    M.Sutton  
  **

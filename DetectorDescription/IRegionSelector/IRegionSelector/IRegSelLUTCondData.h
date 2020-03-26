@@ -1,11 +1,9 @@
 /* emacs: this is -*- c++ -*- */
 /**
- **   @file    RegSelLUTCondData.h        
+ **   @file    IRegSelLUTCondData.h        
  **                   
  **   @author  sutt
- **   @date    Tue  4 Feb 2020 15:25:00 CET
- **
- **   $Id: RegSelLUTCondData.h, v0.0   Tue  4 Feb 2020 15:25:00 CET sutt $
+ **   @date    Wed  25 Feb 2020 15:25:00 CET
  **
  **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/

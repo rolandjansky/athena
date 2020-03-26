@@ -101,6 +101,9 @@ public:
 
   void summaryDataFile( std::list<RegSelectorMapElement> &dataList );
 
+  void verifyInputsInternal( double &etaminIn, double &etamaxIn, 
+			     double &phiminIn, double &phimaxIn ) const;
+
   StatusCode verifyInputs( double &etaminIn, double &etamaxIn, 
 			   double &phiminIn, double &phimaxIn ) const;
 
