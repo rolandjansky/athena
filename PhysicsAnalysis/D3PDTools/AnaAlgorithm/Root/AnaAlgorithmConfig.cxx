@@ -92,11 +92,11 @@ namespace EL
 
     if (m_isPublicTool == false)
     {
-      ANA_CHECK (makeComponentExpert (algorithm, "new %1% (\"%2%\", nullptr)", true));
+      ANA_CHECK (makeComponentExpert (algorithm, "new %1% (\"%2%\", nullptr)", true, ""));
     } else
     {
       std::unique_ptr<asg::AsgTool> tool;
-      ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", true));
+      ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", true, ""));
       ANA_CHECK (tool->initialize());
 
       AnaAlgorithmConfig dummyAlg ("EL::AnaAlgorithm/DummyAlg." + name());

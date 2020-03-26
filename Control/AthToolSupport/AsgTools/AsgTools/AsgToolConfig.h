@@ -14,6 +14,7 @@
 #endif
 
 #include <AsgTools/AsgComponentConfig.h>
+#include <AsgTools/ToolHandle.h>
 
 namespace asg
 {
@@ -65,7 +66,8 @@ namespace asg
     ///   algorithm creation/initialization errors
   public:
     template<typename T> ::StatusCode
-    makeTool (std::unique_ptr<T>& tool) const;
+    makeTool (ToolHandle<T>& toolHandle,
+              std::shared_ptr<void>& cleanup) const;
 
 
 
@@ -81,12 +83,24 @@ namespace asg
   //
 
   template<typename T> ::StatusCode AsgToolConfig ::
-  makeTool (std::unique_ptr<T>& tool) const
+  makeTool (ToolHandle<T>& toolHandle,
+            std::shared_ptr<void>& cleanup) const
   {
     using namespace msgComponentConfig;
 
-    ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", true));
+    std::string prefix;
+    if (toolHandle.parentName().empty())
+      prefix = toolHandle.parentName() + ".";
+    else
+      prefix = "ToolSvc.";
+
+    std::unique_ptr<T> tool;
+    ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", false, prefix));
     ANA_CHECK (tool->initialize());
+
+    std::shared_ptr<T> mycleanup (tool.release());
+    toolHandle = mycleanup.get();
+    cleanup = mycleanup;
 
     ANA_MSG_DEBUG ("Created component of type " << type());
     return StatusCode::SUCCESS;
