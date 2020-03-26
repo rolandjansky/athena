@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainers/test/AuxStoreStandalone_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -37,8 +36,5 @@ void test1()
 
 int main()
 {
-#ifndef XAOD_STANDALONE
-  errorcheck::ReportMessage::hideErrorLocus();
-#endif
   test1();
 }

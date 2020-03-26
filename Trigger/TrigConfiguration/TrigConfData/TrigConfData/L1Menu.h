@@ -49,6 +49,10 @@ namespace TrigConf {
       /** Accessor to the number of L1 items */
       std::size_t size() const;
 
+      /** setter and getter for the supermasterkey */
+      unsigned int smk() const;
+      void setSMK(unsigned int psk);
+
       /** Get item by name */
       L1Item item(const std::string & itemName) const;
 
@@ -113,6 +117,9 @@ namespace TrigConf {
 
       /** Update the internal data after modification of the data object */
       virtual void update() override;
+
+      /** the supermasterkey */
+      unsigned int m_smk {0};
 
       std::map<std::string, TrigConf::L1Connector> m_connectors{};
 

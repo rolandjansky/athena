@@ -31,6 +31,7 @@ StatusCode LArNoisyROMonAlg::initialize()
     std::vector<std::string> part;
     part.push_back(m_partitions[2*i]);
     part.push_back(m_partitions[2*i+1]);
+    ATH_MSG_INFO(i<<" "<<m_SubDetNames[i]<<" "<<part[0] <<" " <<part[1]);
     m_histoGroups.push_back(Monitored::buildToolMap<int>(m_tools,m_SubDetNames[i],part));
   }
 
@@ -45,21 +46,20 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
         SG::ReadCondHandle<LArBadFebCont> badHdl{m_badFebKey, ctx};
         const LArBadFebCont *badCont{*badHdl};
         if(badCont) {
-           auto sl=Monitored::Scalar<unsigned>("slotBad",0);
-           auto FT=Monitored::Scalar<unsigned>("FTBad",0);
            if(badCont->begin() == badCont->end()) {
                 ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
            } else {
+              auto sl=Monitored::Scalar<unsigned>("slotBad",0);
+              auto FT=Monitored::Scalar<unsigned>("FTBad",0);
               for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
                 HWIdentifier chid(i->first);
                 sl = m_LArOnlineIDHelper->slot(chid);
                 FT = m_LArOnlineIDHelper->feedthrough(chid);
                 unsigned sd = partitionNumber(chid)/2;
                 unsigned part = partitionNumber(chid);
-                ATH_MSG_INFO("Filled known Bad FEBs for " << sd << " and " << part);
+                ATH_MSG_DEBUG("Filled known Bad FEBs for " << sd << " and " << part<<": "<<sl<<" "<<FT);
                 fill(m_tools[m_histoGroups.at(sd).at(m_partitions[part])],sl,FT);
               }
-              ATH_MSG_DEBUG("Filled known Bad FEBs .... ");
            }
         } else {
            ATH_MSG_WARNING("Known Bad FEBs container not existing !? ");
@@ -68,21 +68,20 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
         SG::ReadCondHandle<LArBadFebCont> mnbHdl(m_MNBFebKey, ctx);
         const LArBadFebCont* mnbCont{*mnbHdl};
         if(mnbCont) {
-           auto sl=Monitored::Scalar<unsigned>("slotMNB",0);
-           auto FT=Monitored::Scalar<unsigned>("FTMNB",0);
            if(mnbCont->begin() == mnbCont->end()) {
                 ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
            } else {
+              auto sl=Monitored::Scalar<unsigned>("slotMNB",0);
+              auto FT=Monitored::Scalar<unsigned>("FTMNB",0);
               for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); i++) {
                 HWIdentifier chid(i->first);
                 sl = m_LArOnlineIDHelper->slot(chid);
                 FT = m_LArOnlineIDHelper->feedthrough(chid);
                 unsigned sd = partitionNumber(chid)/2;
                 unsigned part = partitionNumber(chid);
-                ATH_MSG_INFO("Filled known MNB FEBs for " << sd << " and " << part);
+                ATH_MSG_DEBUG("Filled known MNB FEBs for " << sd << " and " << m_partitions[part]<<": "<<sl<<" "<<FT);
                 fill(m_tools[m_histoGroups.at(sd).at(m_partitions[part])],sl,FT);
               }
-              ATH_MSG_DEBUG("Filled known MNB FEBs .... ");
            }
         } else {
            ATH_MSG_WARNING("Known MNB FEBs container not existing !? ");
@@ -179,21 +178,19 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   }
 
   // Triggers
-  uint8_t trigbits = 0;
-  uint8_t L1trigbits = 0;
-  if ( m_doTrigger )
-  {
-    for ( size_t i = 0; i < m_EF_NoiseBurst_Triggers.size(); i++)
-    {
+  unsigned long trigbits = 0;
+  unsigned long L1trigbits = 0;
+  if ( m_doTrigger ) {
+    for ( size_t i = 0; i < m_EF_NoiseBurst_Triggers.size(); i++) {
       if ( m_trigDecTool->isPassed(m_EF_NoiseBurst_Triggers[i]))  trigbits |= (0x1 << i);
     }
-    for ( size_t i = 0; i < m_L1_NoiseBurst_Triggers.size(); i++)
-    {
+    for ( size_t i = 0; i < m_L1_NoiseBurst_Triggers.size(); i++) {
       if ( m_trigDecTool->isPassed(m_L1_NoiseBurst_Triggers[i]))  L1trigbits |= (0x1 << i);
     }
+    ATH_MSG_DEBUG("Trigger words: " << std::hex << trigbits << " " << L1trigbits << std::dec);
   }
   if(!m_doHisto) return StatusCode::SUCCESS;
-  
+
   // Fill the 2D map of noisy and mini-noisy FEBs
   const std::vector<HWIdentifier>& noisyFEB = noisyRO->get_noisy_febs();
 
@@ -202,25 +199,24 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   unsigned int NbNoisyFEB = 0;
   std::array<unsigned,4> partMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}});
 
-  for (size_t i = 0; i<noisyFEB.size(); i++)
-  {
+  ATH_MSG_DEBUG("NoisyFEB vector size " << noisyFEB.size());
+
+  auto slotN=Monitored::Scalar<unsigned>("slotNoisy",0);
+  auto FTN=Monitored::Scalar<unsigned>("FTNoisy",0);
+  for (size_t i = 0; i<noisyFEB.size(); i++) {
     NbNoisyFEB++;
     const HWIdentifier& febid = noisyFEB[i];
-    // Will be used in nest versions:
-    //HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    //int FT = m_LArOnlineIDHelper->feedthrough(id);
-    //int slot = m_LArOnlineIDHelper->slot(id);
-    int partition = partitionNumber(febid);
+    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+    unsigned partition = partitionNumber(febid);
+    unsigned sd = partitionNumber(id)/2;
 
     if (partition<4){
-      // FIXME:
-      //if (m_IsOnline)
-      //	  m_partHistos[partition].h_NoisyFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      //	else
-      //	  m_partHistos[partition].h_NoisyFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+       FTN = m_LArOnlineIDHelper->feedthrough(id);
+       slotN = m_LArOnlineIDHelper->slot(id);
+       fill(m_tools[m_histoGroups.at(sd).at(m_partitions[partition])],slotN,FTN);
     }
-
   } // End of loop on all RNB - noisy FEB
+
   auto n_noisyFEB = Monitored::Scalar<int>("n_noisyFEBs",NbNoisyFEB);
   auto lb = Monitored::Scalar<int>("LBN",LBN);
   fill(m_MonGroupName,n_noisyFEB,lb);
@@ -228,119 +224,100 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // Loop on all FEBs noisy in MNB-tight definition
   // And fill the 2D maps of fraction of fraction of noisy events
   // Fill two histograms with veto cut and all events
-  for (size_t i = 0; i<mnbtightFEB.size(); i++)
-  {
+  ATH_MSG_DEBUG("MNBTight FEB vector size " << mnbtightFEB.size());
+  auto slotTightCan=Monitored::Scalar<unsigned>("slotTightCan",0);
+  auto FTTightCan=Monitored::Scalar<unsigned>("FTTightCan",0);
+  auto slotTight=Monitored::Scalar<unsigned>("slotTight",0);
+  auto FTTight=Monitored::Scalar<unsigned>("FTTight",0);
+  for (size_t i = 0; i<mnbtightFEB.size(); i++) {
     const HWIdentifier& febid = mnbtightFEB[i];
-    // Will be used in next iteration
-    //HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    //int FT = m_LArOnlineIDHelper->feedthrough(id);
-    //int slot = m_LArOnlineIDHelper->slot(id);
-    int partition = partitionNumber(febid);
+    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+    unsigned partition = partitionNumber(febid);
 
     if (partition<4){
-       //FIXME
-      if (m_IsOnline)
-        {
-	  //m_partHistos[partition].h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBTightFlaggedPartitions() & partMask[partition]) != 0){ 
-            //m_partHistos[partition].h_MNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-            ;
-          }
-        }
-        else
-        {
-	  //m_partHistos[partition].h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBTightFlaggedPartitions() & partMask[partition]) != 0){ 
-            //m_partHistos[partition].h_MNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-            ;
-          }
-        }
+       unsigned sd = partitionNumber(id)/2;
+       FTTightCan = m_LArOnlineIDHelper->feedthrough(id);
+       slotTightCan = m_LArOnlineIDHelper->slot(id);
+       // FIXME: could not this be done with cutmask ?
+       fill(m_tools[m_histoGroups.at(sd).at(m_partitions[partition])],slotTightCan,FTTightCan);
+       if((noisyRO->MNBTightFlaggedPartitions() & partMask[partition]) != 0){ 
+             slotTight = unsigned(slotTightCan);
+             FTTight = unsigned(FTTightCan);
+             fill(m_tools[m_histoGroups.at(sd).at(m_partitions[partition])],slotTight,FTTight);
+       }
     }
-
   }// End of loop on all MNB-Tight - noisy FEB
 
   // Loop on all FEBs noisy in MNB-tight-PsVeto definition
   // And fill the 2D maps of fraction of fraction of noisy events
   // Fill two histograms with veto cut and all events
-  //  std::cout << "Nb of tight_PsVeto FEB" << mnbtightFEB.size() << std::endl;
-  for (size_t i = 0; i<mnbtight_PsVetoFEB.size(); i++)
-  {
+  auto slot_PsVetoTightCan=Monitored::Scalar<unsigned>("slot_PsVetoTightCan",0);
+  auto FT_PsVetoTightCan=Monitored::Scalar<unsigned>("FT_PsVetoTightCan",0);
+  auto slot_PsVetoTight=Monitored::Scalar<unsigned>("slot_PsVetoTight",0);
+  auto FT_PsVetoTight=Monitored::Scalar<unsigned>("FT_PsVetoTight",0);
+  ATH_MSG_DEBUG("MNBTight_PsVeto FEB vector size " << mnbtight_PsVetoFEB.size());
+  for (size_t i = 0; i<mnbtight_PsVetoFEB.size(); i++) {
     const HWIdentifier& febid = mnbtight_PsVetoFEB[i];
-    // Will be used in next iteration
-    //HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    //int FT = m_LArOnlineIDHelper->feedthrough(id);
-    //int slot = m_LArOnlineIDHelper->slot(id);
+    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
     int partition = partitionNumber(febid);
 
     if (partition<4){
-      //FIXME
-      if (m_IsOnline)
-        {
-        //m_partHistos[partition].h_CandidateMNBTight_PsVetoFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) != 0){ 
-            //m_partHistos[partition].h_MNBTight_PsVetoFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-             ;
-          }
-        }
-        else
-        {
-        //m_partHistos[partition].h_CandidateMNBTight_PsVetoFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) != 0){ 
-            //m_partHistos[partition].h_MNBTight_PsVetoFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-            ;
-          }
-        }
+       unsigned sd = partitionNumber(id)/2;
+       FT_PsVetoTightCan = m_LArOnlineIDHelper->feedthrough(id);
+       slot_PsVetoTightCan = m_LArOnlineIDHelper->slot(id);
+       // FIXME: could not this be done with cutmask ?
+       fill(m_tools[m_histoGroups.at(sd).at(m_partitions[partition])],slot_PsVetoTightCan,FT_PsVetoTightCan);
+       if((noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) != 0){ 
+            slot_PsVetoTight = unsigned(slot_PsVetoTightCan);
+            FT_PsVetoTight = unsigned(FT_PsVetoTightCan);
+            fill(m_tools[m_histoGroups.at(sd).at(m_partitions[partition])],slot_PsVetoTight,FT_PsVetoTight);
+       }
     }
-
   }// End of loop on all MNB-Tight-PsVeto - noisy FEB
 
   // Loop on all FEBs noisy in MNB-loose definition
   // And fill the 2D maps of fraction of fraction of noisy events
   // Fill two histograms with veto cut and all events
-  for (size_t i = 0; i<mnblooseFEB.size(); i++)
-  {
-    //std::cout << "MNBLoose FEB " <<  noisyFEB[i].get_compact() << std::endl;
+  auto slotLooseCan=Monitored::Scalar<unsigned>("slotLooseCan",0);
+  auto FTLooseCan=Monitored::Scalar<unsigned>("FTLooseCan",0);
+  auto slotLoose=Monitored::Scalar<unsigned>("slotLoose",0);
+  auto FTLoose=Monitored::Scalar<unsigned>("FTLoose",0);
+  ATH_MSG_DEBUG("MNBLoose FEB vector size " << mnblooseFEB.size());
+  for (size_t i = 0; i<mnblooseFEB.size(); i++) {
     const HWIdentifier& febid = mnblooseFEB[i];
     // Will be used in next iteration:
-    //HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    //int FT = m_LArOnlineIDHelper->feedthrough(id);
-    //int slot = m_LArOnlineIDHelper->slot(id);
+    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
     int partition = partitionNumber(febid);
 
     if (partition<4){
-      // FIXME
-      if (m_IsOnline)
-        {
-	  //m_partHistos[partition].h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBLooseFlaggedPartitions() & partMask[partition]) != 0) {
-            //m_partHistos[partition].h_MNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-            ;
-          }
-        }
-        else
-        {
-	  //m_partHistos[partition].h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBLooseFlaggedPartitions() & partMask[partition]) != 0){ 
-            //m_partHistos[partition].h_MNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-            ;
-          }
-        }
+      unsigned sd = partitionNumber(id)/2;
+      FTLooseCan = m_LArOnlineIDHelper->feedthrough(id);
+      slotLooseCan = m_LArOnlineIDHelper->slot(id);
+      fill(m_tools[m_histoGroups.at(sd).at(m_partitions[partition])],slotLooseCan,FTLooseCan);
+      if((noisyRO->MNBLooseFlaggedPartitions() & partMask[partition]) != 0){ 
+            slotLoose = unsigned(slotLoose);
+            FTLoose = unsigned(FTLoose);
+            fill(m_tools[m_histoGroups.at(sd).at(m_partitions[partition])],slotLoose,FTLoose);
+      }
     }
-
   }// End of loop on all MNB-Loose - noisy FEB
-
-
   // End of 2D map of FEB found as noisy (in any definition : Std, MNB-Tight, MNB-Tight-PsVeto or MNB-Loose)
-  // Now fill 1D histograms of fraction of events found as noisy vetoed or not
+  
+  // Now fill 1D histograms of events found as noisy vetoed or not
   // Event found noisy by Std method
   uint8_t BadFEBPartitions = noisyRO->BadFEBFlaggedPartitions();
   if ( BadFEBPartitions != 0) {
-    for (int i= 0;i<4;i++){
+    for (size_t i= 0;i<m_partitions.size();i++){
       if ( (BadFEBPartitions & partMask[i]) != 0 ) {
-         //FIXME
-	//m_partHistos[i].h_NoisyEvent->Fill(LBN);
-	//if ( m_doTrigger ) fillTriggerHisto(m_partHistos[i],trigbits,L1trigbits);
-	//if ( ! burstveto ) m_partHistos[i].h_NoisyEventTimeVeto->Fill(LBN);
+        auto LBStd = Monitored::Scalar<unsigned>("LBNStd",LBN);
+        fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBStd);
+	if ( m_doTrigger ) {
+           fillTriggerHisto(i,trigbits,L1trigbits);
+        }
+	if ( ! burstveto ) {
+           auto LBStdV = Monitored::Scalar<unsigned>("LBNStd_Veto",LBN);
+           fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBStdV);
+        }
       }
     }
   } // End of test on RNB
@@ -348,11 +325,14 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // event flagged by # of saturated quality cells
   uint8_t SatTightPartitions = noisyRO->SatTightFlaggedPartitions();
   if ( eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ) ) {
-    for (int i= 0;i<4;i++){
+    for (size_t i= 0;i<m_partitions.size();i++){
       if ( (SatTightPartitions & partMask[i]) != 0 ) {
-         //FIXME
-	//m_partHistos[i].h_SaturatedNoisyEvent->Fill(LBN);
-	//if ( ! burstveto ) m_partHistos[i].h_SaturatedNoisyEventTimeVeto->Fill(LBN);
+        auto LBSat = Monitored::Scalar<unsigned>("LBNSat",LBN);
+        fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBSat);
+	if ( ! burstveto ) {
+           auto LBSatV = Monitored::Scalar<unsigned>("LBNSat_Veto",LBN);
+           fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBSatV);
+        }
       }
     }
   } // end of test on RNB-Saturated
@@ -361,11 +341,14 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // event flagged by tight-MNB
   uint8_t MNBTightPartitions = noisyRO->MNBTightFlaggedPartitions();
   if ( MNBTightPartitions != 0) {
-    for (int i= 0;i<4;i++){
+    for (size_t i= 0;i<m_partitions.size();i++){
       if ( (MNBTightPartitions & partMask[i]) != 0 ) {
-         //FIXME
-	//m_partHistos[i].h_MNBTightEvent->Fill(LBN);
-	//if ( ! burstveto ) m_partHistos[i].h_MNBTightEventTimeVeto->Fill(LBN);
+         auto LBMTight = Monitored::Scalar<unsigned>("LBNMNBTight",LBN);
+         fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMTight);
+	 if ( ! burstveto ) {
+            auto LBMTightV = Monitored::Scalar<unsigned>("LBNMNBTight_Veto",LBN);
+            fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMTightV);
+         }
       }
     }
   } // End of test on MNB-Tight
@@ -373,11 +356,14 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // event flagged by tight-MNB-PsVeto
   uint8_t MNBTight_PsVetoPartitions = noisyRO->MNBTight_PsVetoFlaggedPartitions();
   if ( MNBTight_PsVetoPartitions != 0) {
-    for (int i= 0;i<4;i++){
+    for (size_t i= 0;i<m_partitions.size();i++){
       if ( (MNBTight_PsVetoPartitions & partMask[i]) != 0 ) {
-      //FIXME
-      //m_partHistos[i].h_MNBTight_PsVetoEvent->Fill(LBN);
-      //if ( ! burstveto ) m_partHistos[i].h_MNBTight_PsVetoEventTimeVeto->Fill(LBN);
+         auto LBMTight_PsVeto = Monitored::Scalar<unsigned>("LBNMNBTight_PsVeto",LBN);
+         fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMTight_PsVeto);
+         if ( ! burstveto ) {
+            auto LBMTight_PsVetoV = Monitored::Scalar<unsigned>("LBNMNBTight_PsVeto_Veto",LBN);
+            fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMTight_PsVetoV);
+         }
       }
     }
   } // End of test on MNB-Tight-PsVeto
@@ -385,11 +371,14 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // event flagged by loose-MNB
   uint8_t MNBLoosePartitions = noisyRO->MNBLooseFlaggedPartitions();
   if ( MNBLoosePartitions != 0) {
-    for (int i= 0;i<4;i++){
+    for (size_t i= 0;i<m_partitions.size();i++){
       if ( (MNBLoosePartitions & partMask[i]) != 0 ) {
-        //FIXME
-	//m_partHistos[i].h_MNBLooseEvent->Fill(LBN);
-	//if ( ! burstveto ) m_partHistos[i].h_MNBLooseEventTimeVeto->Fill(LBN);
+         auto LBMLoose = Monitored::Scalar<unsigned>("LBNMNBLoose",LBN);
+         fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMLoose);
+	 if ( ! burstveto ) {
+            auto LBMLooseV = Monitored::Scalar<unsigned>("LBNMNBLoose_Veto",LBN);
+            fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMLooseV);
+         }
       }
     }
   } // end fo test on MNB-Loose
@@ -397,3 +386,32 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   return StatusCode::SUCCESS;
 }
 
+void LArNoisyROMonAlg::fillTriggerHisto(size_t partition, 
+                                        unsigned long triggerbits, unsigned long L1triggerbits) const{
+
+  auto trig = Monitored::Scalar<unsigned>("Triggers",0);
+  if ( triggerbits ==0 ) {
+     trig = m_EF_NoiseBurst_Triggers.size()+1;
+     fill(m_tools[m_histoGroups.at(partition/2).at(m_partitions[partition])],trig);
+  } else {
+     for ( size_t i = 0; i < m_EF_NoiseBurst_Triggers.size(); i++) {
+       if ( triggerbits & (0x1 << i) ) {
+          trig = i+1;
+          fill(m_tools[m_histoGroups.at(partition/2).at(m_partitions[partition])],trig);
+       }
+     }
+  }
+ 
+  auto l1trig = Monitored::Scalar<unsigned>("L1Triggers",0);
+  if ( L1triggerbits ==0 ) {
+     l1trig = m_L1_NoiseBurst_Triggers.size()+1;
+     fill(m_tools[m_histoGroups.at(partition/2).at(m_partitions[partition])],l1trig);
+  } else {
+     for ( size_t i = 0; i < m_L1_NoiseBurst_Triggers.size(); i++) {
+       if ( L1triggerbits & (0x1 << i) ) {
+          l1trig = i+1;
+          fill(m_tools[m_histoGroups.at(partition/2).at(m_partitions[partition])],l1trig);
+       }
+     }
+  }
+}

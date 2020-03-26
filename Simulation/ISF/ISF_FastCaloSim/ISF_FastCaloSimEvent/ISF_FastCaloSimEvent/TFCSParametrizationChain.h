@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationChain_h
@@ -14,12 +14,17 @@ public:
 
   ///Status bit for chain persistency
   enum FCSSplitChainObjects {
-     kSplitChainObjects = BIT(16) ///< Set this bit in the TObject bit field if the TFCSParametrizationBase objects in the chain should be written as separate keys into the root file instead of directly writing the objects. This is needed if the sum of all objects in the chain use >1GB of memory, which can't be handeled by TBuffer. Drawback is that identical objects will get stored as multiple instances
+     kSplitChainObjects = BIT(16), ///< Set this bit in the TObject bit field if the TFCSParametrizationBase objects in the chain should be written as separate keys into the root file instead of directly writing the objects. This is needed if the sum of all objects in the chain use >1GB of memory, which can't be handeled by TBuffer. Drawback is that identical objects will get stored as multiple instances
+     kRetryChainFromStart = BIT(17)
   };
 
   bool SplitChainObjects() const {return TestBit(kSplitChainObjects);};
   void set_SplitChainObjects() {SetBit(kSplitChainObjects);};
   void reset_SplitChainObjects() {ResetBit(kSplitChainObjects);};
+
+  bool RetryChainFromStart() const {return TestBit(kRetryChainFromStart);};
+  void set_RetryChainFromStart() {SetBit(kRetryChainFromStart);};
+  void reset_RetryChainFromStart() {ResetBit(kRetryChainFromStart);};
 
   typedef std::vector< TFCSParametrizationBase* > Chain_t;
   virtual unsigned int size() const override {return m_chain.size();};
@@ -35,6 +40,8 @@ public:
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   void Print(Option_t *option = "") const override;
+
+  static void unit_test(TFCSSimulationState* simulstate=nullptr,const TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);
 
   //THIS CLASS HAS A CUSTOM STREAMER! CHANGES IN THE VERSIONING OR DATA TYPES NEED TO BE IMPLEMENTED BY HAND!
   //void TFCSParametrizationChain::Streamer(TBuffer &R__b)

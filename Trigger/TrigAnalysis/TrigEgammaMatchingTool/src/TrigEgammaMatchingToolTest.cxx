@@ -2,180 +2,192 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+// TrigEgammaMatchingToolTest.cxx 
 
 #include "TrigEgammaMatchingToolTest.h"
 #include "GaudiKernel/Property.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include <typeinfo>
-
-#include "boost/algorithm/string.hpp"
-
-using TrigCompositeUtils::LinkInfo;
-using TrigCompositeUtils::findLink;
-using TrigCompositeUtils::Decision;
-
-
-using namespace Trig;
-using namespace TrigCompositeUtils;
-
-
-
+using std::string;
 
 //**********************************************************************
 namespace Trig{
-  TrigEgammaMatchingToolTest::
-    TrigEgammaMatchingToolTest(const std::string& name, 
-            ISvcLocator* pSvcLocator )
-    : ::AthAlgorithm( name, pSvcLocator ),
-    m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool",this)
-  {
-    declareProperty("TrigEgammaMatchingTool",m_matchTool);
-    declareProperty("TriggerList",m_triggerList);
-  }
-
-  //**********************************************************************
-
-  TrigEgammaMatchingToolTest::~TrigEgammaMatchingToolTest() { }
-
-  //**********************************************************************
-
-  StatusCode TrigEgammaMatchingToolTest::initialize() {
-      
-    ATH_MSG_INFO("Initializing " << name() << "...");
-    ATH_MSG_INFO("Retrieving tools...");
-    if ( (m_trigdec.retrieve()).isFailure() ){
-      ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
-      return StatusCode::FAILURE;
+    TrigEgammaMatchingToolTest::
+        TrigEgammaMatchingToolTest(const std::string& name, 
+                ISvcLocator* pSvcLocator )
+        : ::AthAlgorithm( name, pSvcLocator ),
+        m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
+        m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool",this)
+            //m_matchTool2("TriggerMatchingTool/MatchingTool",this)
+    {
+        declareProperty("TrigEgammaMatchingTool",m_matchTool);
+        //declareProperty("TriggerMatchingTool",m_matchTool2);
+        declareProperty("TriggerList",m_triggerList);
+        declareProperty("CombinedTriggerList",m_cmbTriggerList);
     }
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to locate Service StoreGateSvc" );
-      return sc;
+
+    //**********************************************************************
+
+    TrigEgammaMatchingToolTest::~TrigEgammaMatchingToolTest() { }
+
+    //**********************************************************************
+
+    StatusCode TrigEgammaMatchingToolTest::initialize() {
+        ATH_MSG_INFO("Initializing " << name() << "...");
+        ATH_MSG_INFO("Retrieving tools...");
+        if ( (m_trigdec.retrieve()).isFailure() ){
+            ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
+            return StatusCode::FAILURE;
+        }
+        return StatusCode::SUCCESS;
     }
-    return StatusCode::SUCCESS;
-  }
 
-  //**********************************************************************
+    //**********************************************************************
 
-  StatusCode TrigEgammaMatchingToolTest::finalize() {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
-    return StatusCode::SUCCESS;
-  }
-
-  //**********************************************************************
-
-  void TrigEgammaMatchingToolTest::inspect(const std::string trigger,const xAOD::Egamma *eg){
-
-    if (eg) {
-      
-      ATH_MSG_INFO("Getting all associated objects for " << trigger);
-
-      auto vec_trigel = match()->features<xAOD::TrigElectron>(trigger);
-      ATH_MSG_INFO("The TrigElectron vec has " << vec_trigel.size() << " elements");
-
-      auto vec_el = match()->features<xAOD::Electron>(trigger);
-      ATH_MSG_INFO("The Electron vec has " << vec_el.size() << " elements");
-
-      auto vec_emcluster = match()->features<xAOD::TrigEMCluster>(trigger);
-      ATH_MSG_INFO("The TrigEMCluster vec has " << vec_emcluster.size() << " elements");
-
-
-
-
-      // Creae the trig data pointer
-      TrigEgammaMatchingUtils::Element obj(trigger);
-      
-      match()->match( eg, trigger , obj);
-
-      ATH_MSG_INFO( "Checking matching methods... for trigger " << trigger );
-      if ( obj.isValid() )
-      {
-        ATH_MSG_INFO( "Matched!");
-
-        ATH_MSG_INFO( "Trying to retireve the TrigEMCluster from the element" );
-        auto *emCluster = match()->getFeature<xAOD::TrigEMCluster>( obj );
-        if( emCluster ){
-          ATH_MSG_INFO( "emCluster = "<< emCluster );
-        }else{
-          ATH_MSG_INFO("TrigEMCluster is not valid.");
+    StatusCode TrigEgammaMatchingToolTest::finalize() {
+        ATH_MSG_INFO ("Finalizing " << name() << "...");
+        for (auto iter = m_counterBits.begin(); iter != m_counterBits.end(); iter++) {
+            ATH_MSG_DEBUG(iter->first << " == " << iter->second);
+        }
+        for (auto iter = m_counterMatch3Bits.begin(); iter != m_counterMatch3Bits.end(); iter++) {
+            ATH_MSG_INFO("REGTEST: " << iter->first << " " << iter->second << " " << m_counterMatch2Bits[iter->first] << " " <<  m_counterMatch1Bits[iter->first] << " Generic match " << m_counterMatch4Bits[iter->first]); 
+        }
+        for (auto iter = m_counterCmbMatchBits.begin(); iter != m_counterCmbMatchBits.end(); iter++) {
+            ATH_MSG_INFO("REGTEST: " << iter->first << " == " << iter->second);
         }
 
-
-        ATH_MSG_INFO( "Trying to retireve the TrigElectron from the element" );
-        auto vec_el = match()->getFeatures<xAOD::TrigElectron>( obj );
-
-        if( vec_el.isValid() ){
-           ATH_MSG_INFO( "trigger electron container with "<< vec_el.size() << " objects");
-        }else{
-          ATH_MSG_INFO("TrigElectron vec is not valid.");
-        }
-
-        ATH_MSG_INFO( "Trying to retireve the CaloCluster from the element" );
-        auto vec_cl = match()->getFeatures<xAOD::CaloCluster>( obj );
-
-
-        if( vec_cl.isValid() ){
-          ATH_MSG_INFO( "trigger calo cluster container with "<< vec_cl.size() << " objects");
-        }else{
-          ATH_MSG_INFO("CaloCluster vec is not valid.");
-        }
-
-        ATH_MSG_INFO("Trying to get all decisions steps:");
-
-        //bool passedL1Calo   = match()->ancestorL1Passed(finalFC);
-        bool passedL2Calo   = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(obj);
-        bool passedL2       = match()->ancestorPassed<xAOD::TrigElectronContainer>(obj);
-        bool passedEFCalo   = match()->ancestorPassed<xAOD::CaloClusterContainer>(obj);
-        bool passedEF       = match()->ancestorPassed<xAOD::ElectronContainer>(obj);
-
-        //ATH_MSG_INFO( "Passed L1Calo  : "<< passedL1Calo );
-        ATH_MSG_INFO( "Passed L2Calo  : "<< passedL2Calo );
-        ATH_MSG_INFO( "Passed L2      : "<< passedL2     );
-        ATH_MSG_INFO( "Passed EFCalo  : "<< passedEFCalo );
-        ATH_MSG_INFO( "Passed EF      : "<< passedEF     );
-
-
-      }
-
+        return StatusCode::SUCCESS;
     }
-    else ATH_MSG_DEBUG("REGTEST: eg pointer null!");
-  }
+
+    //**********************************************************************
+
+    void TrigEgammaMatchingToolTest::match(const std::string trigger,const xAOD::Egamma *eg){
+
+        
+        if (eg) {
+            if(m_matchTool->match(eg,trigger)){
+                ATH_MSG_DEBUG("REGTEST:: Method 1 Matched Electron with tool for " << trigger);
+                m_counterMatch1Bits[trigger]++;
+            }
+            else ATH_MSG_DEBUG("REGTEST::Fails method 1 " << trigger);
+#ifdef XAOD_ANALYSIS
+            const HLT::TriggerElement *finalFC; 
+            if(m_matchTool->match(eg,trigger,finalFC)){
+                ATH_MSG_DEBUG("REGTEST:: Method 2 Matched Electron with tool for " << trigger);
+                if ( finalFC != NULL ){ 
+                    if ( (m_trigdec->ancestor<xAOD::ElectronContainer>(finalFC)).te() != NULL ){ 
+                        if( (m_trigdec->ancestor<xAOD::ElectronContainer>(finalFC)).te()->getActiveState()){
+                            ATH_MSG_DEBUG("REGTEST::Passed Matching method 2 for " << trigger);
+                            m_counterMatch2Bits[trigger]++;
+                        }
+                        else ATH_MSG_DEBUG("REGTEST::Fails method 2");
+                    }
+                }
+            }
+#endif            
+            if(m_matchTool->matchHLT(eg,trigger)){
+                ATH_MSG_DEBUG("REGTEST:: Method 3 Matched Electron with tool for " << trigger);
+                m_counterMatch3Bits[trigger]++;
+            }
+            else ATH_MSG_DEBUG("REGTEST::Fails method 3");
+            /*std::vector<const xAOD::IParticle *> reco;
+            reco.push_back(eg);
+            if(m_matchTool2->match(reco,trigger)){
+                ATH_MSG_DEBUG("REGTEST::  Generic Matched Electron with tool for " << trigger);
+                m_counterMatch4Bits[trigger]++;
+            }
+            else ATH_MSG_DEBUG("REGTEST::Fails generic tool");*/
+        }
+        else ATH_MSG_DEBUG("REGTEST: eg pointer null!");
+    }
+
+    StatusCode TrigEgammaMatchingToolTest::execute() {   
+        ATH_MSG_INFO ("Executing " << name() << "...");
+        ATH_MSG_VERBOSE( "L1: " << m_trigdec->isPassed( "L1_.*" )
+                << ", L2: " << m_trigdec->isPassed( "L2_.*" )
+                << ", EF: " << m_trigdec->isPassed( "EF_.*" )
+                << ", HLT: " << m_trigdec->isPassed( "HLT_.*" ) );
+        auto chainGroups = m_trigdec->getChainGroup("HLT_e.*");
+
+        for(auto &trig : chainGroups->getListOfTriggers()) {
+            if(m_trigdec->isPassed(trig))
+                ATH_MSG_VERBOSE("Passed: " << trig);
+            m_counterBits[trig]+=m_trigdec->isPassed(trig);
+        }
+
+        //Check Containers
+
+        const xAOD::ElectronContainer *offElectrons = 0;
+        const xAOD::TauJetContainer *taus = 0;
+        const xAOD::MuonContainer *muons = 0;
+        if ( (evtStore()->retrieve(offElectrons,"Electrons")).isFailure() ){
+            ATH_MSG_DEBUG("Failed to retrieve offline Electrons ");
+        }
+        if ( (evtStore()->retrieve(taus,"")).isFailure() ){
+            ATH_MSG_DEBUG("Failed to retrieve offline Taus ");
+        }
+        if ( (evtStore()->retrieve(muons,"Muons")).isFailure() ){
+            ATH_MSG_DEBUG("Failed to retrieve offline Muons ");
+        }
+        if(offElectrons) ATH_MSG_INFO("Offline Electron container size " << offElectrons->size());
+        if(muons) ATH_MSG_INFO("Offline Muon container size " << muons->size());
+        if(taus) ATH_MSG_INFO("Offline Tau container size " << taus->size());
+        for(const auto &trigger : m_triggerList){
+            if(!offElectrons) continue;
+            for(const auto& eg : *offElectrons){
+                match(trigger,eg);
+            } //End loop of offline electrons
+        } // End loop over trigger list
+        
+        // Test combined triggers with generic tool
+        /*for(const auto &trigger : m_cmbTriggerList){
+            std::vector<const xAOD::IParticle *> reco;
+            
+            for(const auto& eg : *offElectrons){
+                // e-e
+                for(const auto& eg2 : *offElectrons){
+                    if(eg==eg2) continue;
+                    reco.clear();
+                    reco.push_back(eg);
+                    reco.push_back(eg2);
+                    if(m_matchTool2->match(reco,trigger)){
+                        ATH_MSG_DEBUG("REGTEST::Passed combined matching method for " << trigger);
+                        m_counterCmbMatchBits[trigger]++;
+                    }
+                    else ATH_MSG_DEBUG("REGTEST::Failed combined method for " << trigger);
+                    
+                }
+                // e-mu
+                if(muons){
+                    for(const auto& mu : *muons){
+                        reco.clear();
+                        reco.push_back(eg);
+                        reco.push_back(mu);
+                        if(m_matchTool2->match(reco,trigger)) {
+                            ATH_MSG_DEBUG("REGTEST::Passed combined matching method for " << trigger);
+                            m_counterCmbMatchBits[trigger]++;
+                        }
+                        else ATH_MSG_DEBUG("REGTEST::Failed combined method for " << trigger);
+
+                    }
+                }
+                // e-tau
+                if(taus){
+                    for(const auto& tau : *taus){
+                        reco.clear();
+                        reco.push_back(eg);
+                        reco.push_back(tau);
+                        if(m_matchTool2->match(reco,trigger)){
+                            ATH_MSG_DEBUG("REGTEST::Passed combined matching method for " << trigger);
+                            m_counterCmbMatchBits[trigger]++;
+                        }
+                        else ATH_MSG_DEBUG("REGTEST::Failed combined method for " << trigger);
+
+                    }
+                }
+            }
+        }*/
 
 
-  //**********************************************************************
-
-  StatusCode TrigEgammaMatchingToolTest::execute() {   
-      
-    ATH_MSG_INFO ("Executing " << name() << "...");
-
-      const xAOD::ElectronContainer *offElectrons = 0;
-      if ( (m_storeGate->retrieve(offElectrons,"Electrons")).isFailure() ){
-          ATH_MSG_DEBUG("Failed to retrieve offline Electrons ");
-      }
-
-
-      if(offElectrons) ATH_MSG_INFO("Offline Electron container size " << offElectrons->size());
-      
-      for(const auto &trigger : m_triggerList){
-          if(!offElectrons) continue;
-          for(const auto& eg : *offElectrons){
-              ATH_MSG_DEBUG("REGTEST:: Electron offline (eta="<<eg->eta()<<",phi="<<eg->phi()<<")");
-              inspect(trigger,eg);
-          } //End loop of offline electrons
-      } // End loop over trigger list
-      
-
-
-      return StatusCode::SUCCESS;
-  } // End execute
+        return StatusCode::SUCCESS;
+    } // End execute
 } //End namespace Trig
 //**********************************************************************
-
-
-
-
-
-

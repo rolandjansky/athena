@@ -11,8 +11,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionElectronHypoTool.h"
 #include "PATCore/AcceptData.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
@@ -46,7 +46,7 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronCutIDTool;  
+  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool;  
   int findCutIndex( float eta ) const;
 }; 
 

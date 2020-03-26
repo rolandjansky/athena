@@ -45,6 +45,6 @@ atlas_add_component( MuonGeoModelTest
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps Identifier GaudiKernel MuonCalibITools MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonSimEvent StoreGateLib SGtests GeoAdaptors GeoPrimitives RegionSelectorLib GeneratorObjects MuonAlignmentData MuonDigitContainer TrkDistortedSurfaces TrkSurfaces MuonGeoModelTestLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.txt share/*.py )
 

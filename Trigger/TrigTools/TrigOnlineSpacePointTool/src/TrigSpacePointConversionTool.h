@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __TRIG_SPACEPOINT_CONVERSION_TOOL__
@@ -39,7 +39,7 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
 
   //concrete implementations
 
-  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&) override final;
+  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&) const override final;
 
  protected:
 
@@ -62,8 +62,8 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   bool m_useBeamTilt;
   bool m_useNewScheme;
 
-  void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&);
-  void transformSpacePoints(std::vector<TrigSiSpacePointBase>&);
+  void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&) const;
+  void transformSpacePoints(std::vector<TrigSiSpacePointBase>&) const;
 
   /// new region selector tools
   ToolHandle<IRegSelTool> m_regsel_pix;

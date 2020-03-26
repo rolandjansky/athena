@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ITRIGZFINDER_H__ 
-#define __ITRIGZFINDER_H__ 
+#ifndef ITRIGZFINDER_H 
+#define ITRIGZFINDER_H 
 
 #include <vector>
 #include "GaudiKernel/IAlgTool.h"
@@ -21,9 +21,9 @@ class ITrigZFinder: virtual public IAlgTool
   static const InterfaceID& interfaceID() {
     return IID_ITrigZFinder;
   }
-    virtual TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& RoI) = 0;
+    virtual TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& RoI) const = 0;
 };
 
-#endif
+#endif // ITRIGZFINDER_H
 
 

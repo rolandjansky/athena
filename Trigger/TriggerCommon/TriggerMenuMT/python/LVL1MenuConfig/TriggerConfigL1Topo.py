@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from .L1Topo.L1TopoMenu import L1TopoMenu
 from .L1Topo.L1TopoFlags import L1TopoFlags
@@ -50,7 +50,7 @@ class TriggerConfigL1Topo(object):
         patternPos = pattern.search(menuName)
         if patternPos:
             menuName=menuName[:patternPos.end()]
-            if 'pp_run3_v1' in menuName:
+            if 'run3_v1' in menuName:
                 menuName = 'LS2_v1'
         else:
             log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
@@ -147,7 +147,7 @@ class TriggerConfigL1Topo(object):
 
         Always to be called after defineMenu()
         """
-        
+
         # add the algos to the menu
         for topooutput in L1TopoFlags.algos():
             topooutput.algo = self.getRegisteredAlgo(topooutput.algoname)

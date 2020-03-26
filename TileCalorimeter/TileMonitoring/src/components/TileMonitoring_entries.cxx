@@ -31,6 +31,8 @@
 #include "../TileTowerMonitorAlgorithm.h"
 #include "../TileClusterMonitorAlgorithm.h"
 #include "../TileMuIdMonitorAlgorithm.h"
+#include "../TileDigiNoiseMonitorAlgorithm.h"
+#include "../TileRawChannelTimeMonitorAlgorithm.h"
 
 DECLARE_COMPONENT( TileFatherMonTool )
 DECLARE_COMPONENT( TilePaterMonTool )
@@ -65,3 +67,5 @@ DECLARE_COMPONENT( TileCellMonitorAlgorithm )
 DECLARE_COMPONENT( TileTowerMonitorAlgorithm )
 DECLARE_COMPONENT( TileClusterMonitorAlgorithm )
 DECLARE_COMPONENT( TileMuIdMonitorAlgorithm )
+DECLARE_COMPONENT( TileDigiNoiseMonitorAlgorithm )
+DECLARE_COMPONENT( TileRawChannelTimeMonitorAlgorithm )

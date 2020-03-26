@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,8 +16,6 @@
 TauEleOLRDecorator::TauEleOLRDecorator(const std::string& name):
   TauRecToolBase(name),
   m_tEMLHTool(nullptr),
-  m_xElectronContainer(nullptr),
-  m_bElectonsAvailable(true),
   m_sEleOLRFilePath("eveto_cutvals.root"),
   m_hCutValues(nullptr)
 {
@@ -57,40 +55,32 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
     ATH_MSG_FATAL("Electron container with name " << electronInHandle.key() << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
     return StatusCode::FAILURE;
   }
-  m_xElectronContainer = electronInHandle.cptr();
+  const xAOD::ElectronContainer* electronContainer = electronInHandle.cptr();
   ATH_MSG_DEBUG("  read: " << electronInHandle.key() << " = " << "..." );                                                                                     
   
-  const xAOD::Electron * xEleMatch = 0;
-  float fLHScore = -4.; // default if no match was found
-
-  if (m_bElectonsAvailable)
-    if (!m_xElectronContainer)
-      m_bElectonsAvailable = false;
+  const xAOD::Electron * xEleMatch = nullptr;
   float fEleMatchPt = -1.;
   // find electron with pt>5GeV within 0.4 cone with largest pt
-  for( auto xElectron : *(m_xElectronContainer) )
-    {
-      if(xElectron->pt() < 5000.) continue;
-      if(xElectron->p4().DeltaR( tau.p4() ) > 0.4 ) continue;
-      if(xElectron->pt() > fEleMatchPt )
-	{
-	  fEleMatchPt=xElectron->pt();
-	  xEleMatch=xElectron;
+  for( const xAOD::Electron* xElectron : *electronContainer ) {
+    if(xElectron->pt() < 5000.) continue;
+    if(xElectron->p4().DeltaR( tau.p4() ) > 0.4 ) continue;
+    if(xElectron->pt() > fEleMatchPt ) {
+      fEleMatchPt=xElectron->pt();
+      xEleMatch=xElectron;
 	}
-    }
-
-  // compute the LH score if there is a match
-  if(xEleMatch!=0)
-    fLHScore = m_tEMLHTool->calculate(xEleMatch);
+  }
 
   // create link to the matched electron
   if (xEleMatch) {
-    tau.setDetail( xAOD::TauJetParameters::electronLink, xEleMatch, (m_xElectronContainer) );
+    tau.setDetail( xAOD::TauJetParameters::electronLink, xEleMatch, electronContainer );
   }
   else {
     tau.setDetail( xAOD::TauJetParameters::electronLink, (const xAOD::IParticle* ) 0 );
   }
 
+  // compute the LH score if there is a match
+  float fLHScore = -4.;
+  if(xEleMatch!=nullptr) fLHScore = m_tEMLHTool->calculate(xEleMatch);
   // decorate tau with score
   tau.setDiscriminant( xAOD::TauJetParameters::EleMatchLikelihoodScore, fLHScore );
 

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/Combinators.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
@@ -17,7 +17,7 @@ TrigEgammaPrecisionElectronHypoToolInc::TrigEgammaPrecisionElectronHypoToolInc( 
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) {
-        declareProperty("ElectronLHSelector"        ,m_egammaElectronCutIDTool   );
+        declareProperty("ElectronLHSelector"        ,m_egammaElectronLHTool   );
     }
 
 StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
@@ -33,8 +33,8 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
   }
 
   // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the electron Identification. This is a *must*
-  ATH_MSG_DEBUG( "Retrieving egammaElectronCutIDTool..."  );
-  CHECK( m_egammaElectronCutIDTool.retrieve() );
+  ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
+  CHECK( m_egammaElectronLHTool.retrieve() );
 
   unsigned int nEtaBin = m_etabin.size();
   ATH_CHECK( m_eTthr.size() == nEtaBin-1 );
@@ -142,10 +142,10 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   
  
 // This is the last step. So pass is going to be the result of isEM
-  asg::AcceptData accept =  m_egammaElectronCutIDTool->accept(input.electron); 
+  asg::AcceptData accept =  m_egammaElectronLHTool->accept(input.electron); 
   pass = (bool) accept;
 
-  std::bitset<32> isEMdecision = m_egammaElectronCutIDTool->accept(input.electron).getCutResultInvertedBitSet();
+  std::bitset<32> isEMdecision = m_egammaElectronLHTool->accept(input.electron).getCutResultInvertedBitSet();
   ATH_MSG_DEBUG("isEM Result bitset: " << isEMdecision);
 
 

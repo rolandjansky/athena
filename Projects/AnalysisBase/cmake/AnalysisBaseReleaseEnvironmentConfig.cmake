@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This file holds the compile and runtime environment configuration specific
 # for the analysis release.
@@ -20,3 +21,16 @@ set( XAOD_ANALYSIS TRUE CACHE BOOL
 set( AnalysisBaseReleaseEnvironment_ENVIRONMENT
    SET ROOTCOREDIR \${AnalysisBase_DIR}
    SET ROOTCOREBIN \${AnalysisBase_DIR} )
+
+# Since this project may be built on platforms that provide Python 3
+# out of the box, let's explicitly stick to Python 2 (coming from the
+# externals project) for now.
+set( ATLAS_FORCE_PYTHON2 TRUE CACHE BOOL
+   "Force the usage of Python 2 in the AnalysisBase project" )
+
+# Do not use Boost's CMake code when building AnalysisBase.
+set( Boost_NO_BOOST_CMAKE TRUE CACHE BOOL
+   "Disable the usage of Boost's CMake code" )
+
+# Declare the module "found".
+set( AnalysisBaseReleaseEnvironment_FOUND TRUE )

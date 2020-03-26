@@ -6,13 +6,12 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-
-#include "ComboHypoCombination.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 // STL includes
 #include <string>
 #include <utility>  
+#include "ComboHypoToolBase.h"
 
 /**
  * @class ComboHypo for combined hypotheses required only counting (multiplicity requirements)
@@ -24,6 +23,8 @@
  * the multiplicity specification like this:
  * "HLT_4e10_2mu7_j100" : [ 4, 2, 1 ] will apply respectively requirement of 4, 2, 1 positive decisions in electron, muon and jet inputs
  **/
+
+
 class ComboHypo : public ::AthReentrantAlgorithm {
 public:
   ComboHypo(const std::string& name, ISvcLocator* pSvcLocator);
@@ -49,27 +50,30 @@ private:
   * @brief iterates over the inputs and for every object (no filtering) crates output object linked to input moving 
   * the decisions that are mentioned in the passing set
   **/
-  StatusCode copyDecisions( const TrigCompositeUtils::DecisionIDContainer& passing, const EventContext& context ) const;
+  
+  StatusCode copyDecisions( const LegDecisionsMap & passingLegs, const EventContext& context ) const;
+
 
   /**
    * @brief For a given Decision node from a HypoAlg, extracts type-less identification data on the node's Feature and seeding ROI.
    * @param[in] d The Decision node from the HypoAlg, expected to have a "feature" link attached to it.
    *   Expected to be able to locate a "initialRoI" in its history if RequireUniqueROI=True.
-   * @param[in] input Name of the collection the Decision comes from, used for error printing only.
    * @param[out] featureKey Type-less SG Key hash of the collection hosting the Decision node's feature .
    * @param[out] featureIndex Index inside the featureKey collection. 
    * @param[out] roiKey Type-less SG Key hash of the collection hosting the Decision node's initial ROI collection. 
    * @param[out] roiIndex Index inside the roiKey collection. 
    **/
-  StatusCode extractFeatureAndRoI(const TrigCompositeUtils::Decision* d, const std::string& input,
+  StatusCode extractFeatureAndRoI(const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
     uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex) const; 
 
 
   /**
-   * @brief iterates over all inputs filling the multiplicity map for each input collection
+   * @brief iterates over all inputs, associating inputs to legs
    **/
-  typedef std::map<TrigCompositeUtils::DecisionID, ComboHypoCombination> CombinationMap;
-  StatusCode fillDecisionsMap( CombinationMap& dmap, const EventContext& context) const;
+
+  StatusCode fillDecisionsMap( LegDecisionsMap& dmap, const EventContext& context) const;
+
+  ToolHandleArray< ComboHypoToolBase > m_hypoTools {this, "ComboHypoTools", {}, "Tools to perform selection"};
 
 };
 

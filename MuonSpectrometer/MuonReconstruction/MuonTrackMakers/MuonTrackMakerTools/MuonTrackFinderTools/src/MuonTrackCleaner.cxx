@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonTrackCleaner.h"
 
@@ -12,11 +12,6 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
@@ -53,7 +48,7 @@ namespace Muon {
     
     ATH_CHECK( m_trackFitter.retrieve() );
     ATH_CHECK( m_slTrackFitter.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_extrapolator.retrieve() );
@@ -229,7 +224,7 @@ namespace Muon {
 
       // hits that are flagged as outlier or hits in the chamber to be removed are added as Outlier
       if( !hit->useInFit ){
-	ATH_MSG_DEBUG("   removing hit " << m_idHelper->toString(hit->id) 
+	ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) 
 		      << " pull " << hit->resPull->pull().front() );
 	if( hit->inBounds ) tsos->push_back( MuonTSOSHelper::cloneTSOSWithUpdate( *hit->originalState, 
 										  *hit->meas,
@@ -247,7 +242,7 @@ namespace Muon {
 								*hit->cleanedCompROT,
 								*hit->pars, 
 								Trk::TrackStateOnSurface::Measurement) );
-	  ATH_MSG_DEBUG("   replacing CompROT " << m_idHelper->toString(hit->id) 
+	  ATH_MSG_DEBUG("   replacing CompROT " << m_idHelperSvc->toString(hit->id) 
 			<< " pull " << hit->resPull->pull().front() );
 	}
 	else{
@@ -299,7 +294,7 @@ namespace Muon {
 
       // hits that are flagged as outlier or hits in the chamber to be removed are added as Outlier
       if( !hit->useInFit ){
-	ATH_MSG_DEBUG("   removing hit " << m_idHelper->toString(hit->id) 
+	ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) 
 		      << " pull " << hit->resPull->pull().front() );
 	if( hit->inBounds ) tsos->push_back( MuonTSOSHelper::cloneTSOSWithUpdate( *hit->originalState,
 										  *hit->meas,
@@ -316,7 +311,7 @@ namespace Muon {
 								*hit->flippedMdt, 
 								*hit->pars,
 								Trk::TrackStateOnSurface::Measurement) );
-	  ATH_MSG_DEBUG("   flipping sign hit " << m_idHelper->toString(hit->id) 
+	  ATH_MSG_DEBUG("   flipping sign hit " << m_idHelperSvc->toString(hit->id) 
 			<< " pull " << hit->resPull->pull().front() );
 	}
 	else{
@@ -391,11 +386,11 @@ namespace Muon {
 	  hit->useInFit = 0;
 
 	  // count number of phi outliers
-	  if( !hit->id.is_valid() || m_idHelper->measuresPhi(hit->id) ) ++nremovedPhi;
+	  if( !hit->id.is_valid() || m_idHelperSvc->measuresPhi(hit->id) ) ++nremovedPhi;
 
 	  if( remove ) {
 	    std::string inb=hit->inBounds ? " inBounds" : " outBounds";
-	    ATH_MSG_DEBUG("   removing hit " << m_idHelper->toString(hit->id) 
+	    ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) 
 			  << " pull " << hit->resPull->pull().front()<<inb);
 	  }
 	  if( hit->inBounds ) {
@@ -415,19 +410,19 @@ namespace Muon {
 	}
 	else{
 
-	  if( hit->resPull ) ATH_MSG_DEBUG("   keeping hit " << m_idHelper->toString(hit->id) 
+	  if( hit->resPull ) ATH_MSG_DEBUG("   keeping hit " << m_idHelperSvc->toString(hit->id) 
 					   << " pull " << hit->resPull->pull().front());
 	  
 	  if( hit->meas ) {
 	    ++nmeas;
-	    if( !hit->id.is_valid() || m_idHelper->measuresPhi(hit->id)){
+	    if( !hit->id.is_valid() || m_idHelperSvc->measuresPhi(hit->id)){
 	      if( !firstPhi )     firstPhi = &(*hit);
 	      else                lastPhi  = &(*hit);
 	    }
 
-	    if( hit->id.is_valid() && m_idHelper->isMdt(hit->id) ){
+	    if( hit->id.is_valid() && m_idHelperSvc->isMdt(hit->id) ){
 	      MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex(hit->chIndex);
-	      bool isSmall = m_idHelper->isSmallChamber(hit->id);
+	      bool isSmall = m_idHelperSvc->isSmallChamber(hit->id);
 	      bool isLarge = !isSmall;
 	      // look for layer
 	      std::map<MuonStationIndex::StIndex, std::pair<bool,bool> >::iterator pos = slCountsPerStationLayer.find(stIndex);
@@ -462,8 +457,8 @@ namespace Muon {
       }
 
       ATH_MSG_DEBUG( " nremovedPhi " << nremovedPhi << " noverlaps " << noverlaps << " nid " << state.nIdHits);
-      if( firstPhi ) ATH_MSG_DEBUG( " hasFirstPhi: " << m_idHelper->toString(firstPhi->id));
-      if( lastPhi )  ATH_MSG_DEBUG(" hasLastPhi: " << m_idHelper->toString(lastPhi->id));
+      if( firstPhi ) ATH_MSG_DEBUG( " hasFirstPhi: " << m_idHelperSvc->toString(firstPhi->id));
+      if( lastPhi )  ATH_MSG_DEBUG(" hasLastPhi: " << m_idHelperSvc->toString(lastPhi->id));
 
       // only perform check on phi constraints if any phi hits were removed
       if( nremovedPhi > 0 ){
@@ -530,7 +525,7 @@ namespace Muon {
       PullChIt chit_end = state.chambersToBeRemoved.end();
       for( ;chit!=chit_end;++chit ){
 	const Identifier& chid = chit->second;
-	if( m_idHelper->isMdt(chid) || m_idHelper->isCsc(chid) ){
+	if( m_idHelperSvc->isMdt(chid) || m_idHelperSvc->isCsc(chid) ){
 	  ATH_MSG_DEBUG(" only two precision chambers, cannot remove chamber.  " );
 	  return nullptr;
 	}
@@ -545,8 +540,8 @@ namespace Muon {
       PullChIt chit_end = state.chambersToBeRemoved.end();
       for( ;chit!=chit_end;++chit ){
 	const Identifier& chid = chit->second;
-	if( m_idHelper->isMdt(chid) && state.chamberRemovalExclusionList.count(chid) ){
-	  ATH_MSG_DEBUG(" found excluded chamber " << m_idHelper->toStringChamber(chid) );
+	if( m_idHelperSvc->isMdt(chid) && state.chamberRemovalExclusionList.count(chid) ){
+	  ATH_MSG_DEBUG(" found excluded chamber " << m_idHelperSvc->toStringChamber(chid) );
 	  ++foundChambers;
 	}
       }
@@ -578,10 +573,10 @@ namespace Muon {
     
       ChamberRemovalOutput result = removeChamber( track.get(), chit->second, false, true, state );
       if( !result.track ) {
-	ATH_MSG_DEBUG(" Removed eta hits of " << m_idHelper->toStringChamber( chit->second ) << ", track lost ");
+	ATH_MSG_DEBUG(" Removed eta hits of " << m_idHelperSvc->toStringChamber( chit->second ) << ", track lost ");
 	continue;
       }
-      ATH_MSG_DEBUG(" Removed eta hits of " << m_idHelper->toStringChamber( chit->second ));
+      ATH_MSG_DEBUG(" Removed eta hits of " << m_idHelperSvc->toStringChamber( chit->second ));
       ATH_MSG_DEBUG(m_printer->print( *result.track ));
 
       // this is an optimization for the common case where there is only one chamber to be removed
@@ -599,10 +594,10 @@ namespace Muon {
    
       ChamberRemovalOutput result = removeChamber( track.get(), chit->second, true, false, state );
       if( !result.track ) {
-	ATH_MSG_DEBUG(" Removed phi hits of " << m_idHelper->toStringChamber( chit->second ) << ", track lost ");
+	ATH_MSG_DEBUG(" Removed phi hits of " << m_idHelperSvc->toStringChamber( chit->second ) << ", track lost ");
 	continue;
       }
-      ATH_MSG_DEBUG(" Removed phi hits of " << m_idHelper->toStringChamber( chit->second ));
+      ATH_MSG_DEBUG(" Removed phi hits of " << m_idHelperSvc->toStringChamber( chit->second ));
       ATH_MSG_DEBUG(m_printer->print( *result.track ));
 
       // this is an optimization for the common case where there is only one chamber to be removed
@@ -635,7 +630,7 @@ namespace Muon {
     init(*finalResultTrackClone,state);
     
     // now finally check whether the removed layer now is recoverable (happens sometimes if the segment has one or more bad hits)
-    MuonStationIndex::ChIndex removedChamberIndex = m_idHelper->chamberIndex(finalResult.chId);
+    MuonStationIndex::ChIndex removedChamberIndex = m_idHelperSvc->chamberIndex(finalResult.chId);
     std::unique_ptr<Trk::Track> recoveredTrack = outlierRecovery(std::move(finalResult.track),state,&removedChamberIndex);
     if( !recoveredTrack  ) return finalResultTrackClone;
     init(*recoveredTrack,state);
@@ -646,7 +641,7 @@ namespace Muon {
 
   MuonTrackCleaner::ChamberRemovalOutput MuonTrackCleaner::removeChamber( Trk::Track* track, Identifier chId, bool removePhi, bool removeEta, CleaningState& state ) const {
     
-    ATH_MSG_DEBUG(" removing chamber " << m_idHelper->toStringChamber(chId) );
+    ATH_MSG_DEBUG(" removing chamber " << m_idHelperSvc->toStringChamber(chId) );
 
     // store result
     ChamberRemovalOutput result;
@@ -668,11 +663,11 @@ namespace Muon {
     for( ;hit!=hit_end;++hit){
 
       if( hit->id.is_valid() ) {
-        bool measuresPhi = m_idHelper->measuresPhi(hit->id);
+        bool measuresPhi = m_idHelperSvc->measuresPhi(hit->id);
         bool remove = hit->chId == chId && ( (removePhi && measuresPhi) || (removeEta && !measuresPhi) );
         // hits that are flagged as outlier or hits in the chamber to be removed are added as Outlier
         if( !hit->useInFit || remove ){
-	  ATH_MSG_DEBUG("   removing hit " << m_idHelper->toString(hit->id) 
+	  ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) 
 			<< " pull " << hit->resPull->pull().front());
           // add as outlier
           if( hit->inBounds ) tsos->push_back( MuonTSOSHelper::cloneTSOSWithUpdate( *hit->originalState,
@@ -785,7 +780,7 @@ namespace Muon {
 	      }
 	    }
 	    if(  recover ) {
-	      ATH_MSG_DEBUG("   adding outlier " << m_idHelper->toString(hit.id) 
+	      ATH_MSG_DEBUG("   adding outlier " << m_idHelperSvc->toString(hit.id) 
 			    << " pull " << std::setw(7) << hit.pull);
 	      if( hit.flippedMdt ) {
 		double rDrift = hit.meas->localParameters()[Trk::locR];
@@ -805,13 +800,13 @@ namespace Muon {
 	    }
 	  }
 	  //layer not recoverable, drop the outliers: but if RPC, TGC, or CSC, expect track to go through all layers, so add a hole instead
-	  if(m_idHelper->isRpc(hit.id) || m_idHelper->isTgc(hit.id) || m_idHelper->isCsc(hit.id)) tsos->push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
+	  if(m_idHelperSvc->isRpc(hit.id) || m_idHelperSvc->isTgc(hit.id) || m_idHelperSvc->isCsc(hit.id)) tsos->push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
 	}
 	else{
 	  ++removedOutOfBoundsHits;
 	  //if RPC, TGC, or CSC, expect track to go through all layers: add a hole to replace lost outlier
-	  if(m_idHelper->isRpc(hit.id) || m_idHelper->isTgc(hit.id) || m_idHelper->isCsc(hit.id)) tsos->push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
-	  ATH_MSG_DEBUG("   removing out of bounds outlier " << m_idHelper->toString(hit.id) 
+	  if(m_idHelperSvc->isRpc(hit.id) || m_idHelperSvc->isTgc(hit.id) || m_idHelperSvc->isCsc(hit.id)) tsos->push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
+	  ATH_MSG_DEBUG("   removing out of bounds outlier " << m_idHelperSvc->toString(hit.id) 
 			<< " pull " << std::setw(7) << hit.pull);
 	}
       }
@@ -946,11 +941,11 @@ namespace Muon {
       bool pseudo = !id.is_valid();
       if( pseudo ) ++state.nPseudoMeasurements;
 
-      if( !pseudo && !m_idHelper->mdtIdHelper().is_muon(id) ){
+      if( !pseudo && !m_idHelperSvc->mdtIdHelper().is_muon(id) ){
 	ATH_MSG_VERBOSE("      TSOS is not a muon hit, position: r  " << pars->position().perp()<< " z " << pars->position().z());
 
 	// count ID hits on track
-	if( (*tsit)->type(Trk::TrackStateOnSurface::Measurement) && m_idHelper->mdtIdHelper().is_indet(id) ){
+	if( (*tsit)->type(Trk::TrackStateOnSurface::Measurement) && m_idHelperSvc->mdtIdHelper().is_indet(id) ){
 	  ++state.nIdHits;
 	}
 	state.measInfo.push_back( MCTBCleaningInfo(*tsit) );
@@ -962,8 +957,8 @@ namespace Muon {
 	state.hasVertexConstraint = true;
       }
 
-      Identifier chId = pseudo ? id : m_idHelper->chamberId(id);
-      bool measuresPhi = pseudo ? true : m_idHelper->measuresPhi(id);
+      Identifier chId = pseudo ? id : m_idHelperSvc->chamberId(id);
+      bool measuresPhi = pseudo ? true : m_idHelperSvc->measuresPhi(id);
       
       // bound checks
       Amg::Vector2D locPos;
@@ -974,7 +969,7 @@ namespace Muon {
       bool inBounds = true;
       double tol1 = 100.;
       double tol2 = 2*tol1;
-      if( !pseudo && m_idHelper->isMdt(id) ) tol1 = 5.;
+      if( !pseudo && m_idHelperSvc->isMdt(id) ) tol1 = 5.;
       
       // we need a special bound check for MDTs so we cast to SL surface
       const Trk::StraightLineSurface* slSurf = dynamic_cast<const Trk::StraightLineSurface*>(&meas->associatedSurface());
@@ -985,7 +980,7 @@ namespace Muon {
 	inBounds = meas->associatedSurface().insideBounds(locPos,tol1,tol2);
       }
 
-      MuonStationIndex::ChIndex chIndex = !pseudo ? m_idHelper->chamberIndex(id) : MuonStationIndex::ChUnknown;
+      MuonStationIndex::ChIndex chIndex = !pseudo ? m_idHelperSvc->chamberIndex(id) : MuonStationIndex::ChUnknown;
       
       // pointer to resPull: workaround because a const pointer is returned
       const Trk::ResidualPull* tempPull=m_pullCalculator->residualPull( meas, pars, (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased );
@@ -1001,11 +996,11 @@ namespace Muon {
       
       // sanity check
       if( !pseudo && pullSize != 1 ){
-	ATH_MSG_WARNING(" ResidualPull vector has size " << pullSize << " for channel " << m_idHelper->toString(id) );
+	ATH_MSG_WARNING(" ResidualPull vector has size " << pullSize << " for channel " << m_idHelperSvc->toString(id) );
 	continue;
       }
       
-      bool isMDT = !pseudo ? m_idHelper->isMdt(id) : false;
+      bool isMDT = !pseudo ? m_idHelperSvc->isMdt(id) : false;
       double error = pull > 0.001 ? fabs(residual/pull) : 1000.;
       double rDrift = isMDT ? meas->localParameters()[Trk::locR] : 0.;
       double rTrack = isMDT ? pars->parameters()[Trk::locR] : 0.;
@@ -1076,41 +1071,41 @@ namespace Muon {
 	}
 	
 	if( measuresPhi ){
-	  bool isRpc = m_idHelper->isRpc(id);
+	  bool isRpc = m_idHelperSvc->isRpc(id);
 	  if( isRpc ){
 	    int layer = 0;
-	    MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
-	    if( stIndex == Muon::MuonStationIndex::BM && m_idHelper->rpcIdHelper().doubletR(id) == 1 ) layer = 1;
+	    MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
+	    if( stIndex == Muon::MuonStationIndex::BM && m_idHelperSvc->rpcIdHelper().doubletR(id) == 1 ) layer = 1;
 	    else if( stIndex == Muon::MuonStationIndex::BO ) layer = 2;
 	    rpcLayers.insert(layer);
 	  }
 	  
-	  bool isTgc = m_idHelper->isTgc(id);
+	  bool isTgc = m_idHelperSvc->isTgc(id);
 	  if( isTgc ){
 	    int layer = 0;
-	    MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+	    MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
 	    if( stIndex == Muon::MuonStationIndex::EM ){
-	      std::string stName = m_idHelper->chamberNameString(id);
+	      std::string stName = m_idHelperSvc->chamberNameString(id);
 	      if( stName[1] == '1' )      layer = 1;
 	      else if( stName[1] == '2' ) layer = 2;
 	      else if( stName[1] == '3' ) layer = 3;
 	      else{
-		ATH_MSG_WARNING("Unable to calculate TGC layer for " << m_idHelper->toString(id) );
+		ATH_MSG_WARNING("Unable to calculate TGC layer for " << m_idHelperSvc->toString(id) );
 		layer = -1;
 	      }
 	    }	   
 	    if( layer != -1 ) tgcLayers.insert(layer);
 	  }
-	  if( m_idHelper->issTgc(id) ){
+	  if( m_idHelperSvc->issTgc(id) ){
 	    int layer = 4;
-	    if( m_idHelper->stgcIdHelper().multilayer(id) == 2 ) layer = 5;
+	    if( m_idHelperSvc->stgcIdHelper().multilayer(id) == 2 ) layer = 5;
 	    tgcLayers.insert(layer);
 	    ATH_MSG_VERBOSE("adding STGC phi hit " << layer  << " size " << tgcLayers.size() );
 	  }
 	}
 
 	if( m_cleanCompROTs ){
-	  const CompetingMuonClustersOnTrack* crot = (measuresPhi && !isMDT && m_idHelper->isRpc(id)) ? 
+	  const CompetingMuonClustersOnTrack* crot = (measuresPhi && !isMDT && m_idHelperSvc->isRpc(id)) ? 
 	    dynamic_cast<const CompetingMuonClustersOnTrack*>(meas) : 0;
 	  if( crot ){
 	    ATH_MSG_DEBUG(" CompetingMuonClustersOnTrack with rots " << crot->numberOfContainedROTs());
@@ -1138,7 +1133,7 @@ namespace Muon {
 		maxres = residual;
 		absmaxres = absres;
 	      }
-	      ATH_MSG_VERBOSE(" ROT " << m_idHelper->toString(cluster->identify())<< " lpos " << cluster->localParameters()[Trk::locX] << 
+	      ATH_MSG_VERBOSE(" ROT " << m_idHelperSvc->toString(cluster->identify())<< " lpos " << cluster->localParameters()[Trk::locX] << 
 			      " pars " << pars->parameters()[Trk::locX]<< " residual " << residual);
 	    }
 	    ATH_MSG_DEBUG(" residuals: min  " << minres << " max " << maxres << " diff " << maxres - minres);
@@ -1157,7 +1152,7 @@ namespace Muon {
 		double residual = cluster->localParameters()[Trk::locX] - minpos;
 		double absres = residual < 0. ? -1.*residual : residual;
 		if( absres < 40 ){
-		  ATH_MSG_DEBUG("   NEW ROT " << m_idHelper->toString(cluster->identify()) 
+		  ATH_MSG_DEBUG("   NEW ROT " << m_idHelperSvc->toString(cluster->identify()) 
 				<< " lpos " << cluster->localParameters()[Trk::locX] << " pars " << pars->parameters()[Trk::locX] 
 				<< " residual " << residual);
 		  prdList.push_back(cluster->prepRawData());
@@ -1202,7 +1197,7 @@ namespace Muon {
       chamberStatistics.chIndex = chIndex;
 
       if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) {
-	ATH_MSG_DEBUG("  Outlier " << m_idHelper->toString( id ) << m_printer->print( *(info.resPull) ));
+	ATH_MSG_DEBUG("  Outlier " << m_idHelperSvc->toString( id ) << m_printer->print( *(info.resPull) ));
 	if( isMDT ) ATH_MSG_DEBUG(" r_drift " << rDrift << "  r_trk " << rTrack << " dr " << std::setw(7) << Amg::error(meas->localCovariance(),Trk::locR));
 	if( isNoise ) ATH_MSG_DEBUG( " noise ");
 	if( !inBounds ) ATH_MSG_DEBUG(" outBounds ");
@@ -1232,7 +1227,7 @@ namespace Muon {
 
       if( flipSign ) ++state.numberOfFlippedMdts;
 
-      std::string idString   = pseudo ? " Pseudomeasurement " :  m_idHelper->toString( id ); 
+      std::string idString   = pseudo ? " Pseudomeasurement " :  m_idHelperSvc->toString( id ); 
       std::string boundCheck = inBounds ? "inBounds" : "outBounds"; 
       ATH_MSG_VERBOSE(m_printer->print( *(info.resPull) ) << " "  << idString << " " << boundCheck);
       if( isNoise ) ATH_MSG_VERBOSE(" noise");
@@ -1283,7 +1278,7 @@ namespace Muon {
 	}
 	
 	// pulls per chamber
-	if( !m_idHelper->isTrigger(info.chId) ) {
+	if( !m_idHelperSvc->isTrigger(info.chId) ) {
 	  
 	  ChamberPullInfo& pullInfoHits = measuresPhi ? state.pullSumPhi : state.pullSum;
 	  pullInfoHits.pullSum += pull;
@@ -1356,15 +1351,15 @@ namespace Muon {
       
       if( !chit->first.is_valid() ) continue;
 
-      bool isPrec = m_idHelper->isMdt(chit->first) || m_idHelper->isCsc(chit->first) || m_idHelper->isMM(chit->first) || m_idHelper->issTgc(chit->first);
+      bool isPrec = m_idHelperSvc->isMdt(chit->first) || m_idHelperSvc->isCsc(chit->first) || m_idHelperSvc->isMM(chit->first) || m_idHelperSvc->issTgc(chit->first);
       if( isPrec ){
-	MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chit->first);
+	MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chit->first);
 	state.stations.insert(stIndex);
       }
 
       EtaPhiHits& nhits      = chit->second;
       EtaPhiHits& noutBounds = state.outBoundsPerChamber[chit->first];
-      ATH_MSG_DEBUG(" chamber " << m_idHelper->toStringChamber(chit->first) 
+      ATH_MSG_DEBUG(" chamber " << m_idHelperSvc->toStringChamber(chit->first) 
 		    << "  eta hits " << nhits.neta << " outBounds " << noutBounds.neta
 		    << "  phi hits " << nhits.nphi << " outBounds " << noutBounds.nphi);
       if( nhits.neta != 0 && nhits.neta == noutBounds.neta ){
@@ -1391,7 +1386,7 @@ namespace Muon {
 	if( noutBounds.neta != 0 ) ATH_MSG_DEBUG("   --> Some eta hits out of bounds ");
 
 	if( isPrec && nhits.neta > 0 ){
-	  if( m_idHelper->isSmallChamber(chit->first) ) state.hasSmall = true;
+	  if( m_idHelperSvc->isSmallChamber(chit->first) ) state.hasSmall = true;
 	  else                                          state.hasLarge = true;
 	}
       }
@@ -1418,7 +1413,7 @@ namespace Muon {
       else {
 	if( noutBounds.nphi != 0 ) ATH_MSG_DEBUG("   --> Some phi hits out of bounds ");
 	if( nhits.nphi > 0 ){
-	  MuonStationIndex::PhiIndex phiIndex = m_idHelper->phiIndex(chit->first);
+	  MuonStationIndex::PhiIndex phiIndex = m_idHelperSvc->phiIndex(chit->first);
 	  state.phiLayers.insert(phiIndex);
 	}
       }
@@ -1479,7 +1474,7 @@ namespace Muon {
       pulltot += cit->second.pullSum;
       ndof += cit->second.nhits;  
       double avePullReduced = cit->second.nhits > 1 ? (cit->second.pullSum-cit->second.maxPull)/(cit->second.nhits-1) : avePull;
-      if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << std::endl << " chamber " << m_idHelper->toStringChamber(cit->first) 
+      if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << std::endl << " chamber " << m_idHelperSvc->toStringChamber(cit->first) 
 				       << "  pull sum " << cit->second.pullSum << " max pull " << cit->second.maxPull << " nhits " << cit->second.nhits 
 				       << " ave pull " << avePull << " reduced ave pull " << avePullReduced;
       if( avePull > m_avePullSumPerChamberCut  ) {
@@ -1534,8 +1529,8 @@ namespace Muon {
 
 
     
-    bool isMdt = id.is_valid() ? m_idHelper->isMdt(id) : false;
-    bool measuresPhi = id.is_valid() ? m_idHelper->measuresPhi(id) : false;
+    bool isMdt = id.is_valid() ? m_idHelperSvc->isMdt(id) : false;
+    bool measuresPhi = id.is_valid() ? m_idHelperSvc->measuresPhi(id) : false;
 
     // look at pulls and identify outliers
     double pullCut = measuresPhi ? m_pullCutPhi : m_pullCut; 

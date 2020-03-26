@@ -8,7 +8,7 @@ import sys, os
 import time
 import ROOT
 import logging
-from ROOT import TCanvas, TH1D, TH2D, TGraph, TArrayD
+from ROOT import TCanvas, TH1D, TH2D, TArrayD, TLegend
 from TileCoolDcs import TileDCSDataGrabber
 from TileCoolDcs import ProgressBar
 
@@ -48,13 +48,13 @@ class TileDCSDataPlotter (object):
             self.cutExp = argv[6]
         beg = beg.replace(' ','_')
         end = end.replace(' ','_')
-        self.outName   = self.drawer+"_"+self.varExp+"__"+beg+"__"+end
+        self.outName   = self.drawer+"_"+self.varExp[:100]+"__"+beg+"__"+end
         self.outName   = self.outName.replace('/',':')
         self.outName   = self.outName.replace('(','0')
         self.outName   = self.outName.replace(')','0')
-        print ("---> OUTNAME: " , self.outName)
         if len(argv) >7:
             self.outName = argv[7]
+        print ("---> OUTNAME: " , self.outName)
 
         timeBegInfo = time.localtime(self.iovBeg)
         timeEndInfo = time.localtime(self.iovEnd)
@@ -83,13 +83,24 @@ class TileDCSDataPlotter (object):
         for var in knownVars:
             pos = varExpression.find(var)
             if pos>-1:
+                oldVar=""
                 if pos in varDict:
                     #=== other variable found at same place?
                     #=== -> choose the longer one
                     oldVar = varDict[pos]
                     if len(oldVar) > len(var):
+                        vtmp = var
                         var = oldVar
+                        oldVar = vtmp
                 varDict[pos] = var
+                if oldVar!="":
+                    #=== check if shorter variable is also present at another place
+                    varExpr = varExpression
+                    for v in varDict.values():
+                        varExpr=varExpr.replace(v," "*len(v))
+                    oldPos = varExpr.find(oldVar)
+                    if oldPos>-1:
+                        varDict[oldPos] = oldVar
 
         #=== check for overlap
         positions = sorted(varDict.keys())
@@ -111,18 +122,19 @@ class TileDCSDataPlotter (object):
             varList.extend(self.info.vars_LVPS_STATES.keys())
         if "ALL_HVSET" in varExpression or "ALL_SETHV" in varExpression:
             varList.extend(self.info.vars_HVSET.keys())
-            if self.useCool:
+            if self.useCool or ("ALL_HV-ALL_SETHV" in varExpression or "ALL_HV-ALL_HVSET" in varExpression):
                 for i in range(2):
-                    varList.remove("Set.vFix1%d" % (i+1))
+                    if "Set.vFix1%d" % (i+1) in varList:
+                        varList.remove("Set.vFix1%d" % (i+1))
                 for i in range(4):
                     varList.remove("Set.hvIn%d" % (i+1))
                 for i in range(7):
                     varList.remove("Set.volt%d" % (i+1))
                 for i in range(7):
                     varList.remove("Set.temp%d" % (i+1))
-        if "ALL_HV" in varExpression and "ALL_HVSET" not in varExpression:
+        if ("ALL_HV" in varExpression and "ALL_HVSET" not in varExpression) or "ALL_HV-ALL_HVSET" in varExpression:
             varList.extend(self.info.vars_HV.keys())
-            if self.useCool:
+            if self.useCool or ("ALL_HV-ALL_SETHV" in varExpression or "ALL_HV-ALL_HVSET" in varExpression):
                 for i in range(4):
                     varList.remove("hvIn%d" % (i+1))
                 for i in range(7):
@@ -137,7 +149,7 @@ class TileDCSDataPlotter (object):
     def getTree(self, drawer=None, var=None,lastOnly=False,firstAndLast=False):
 
         #=== parse for variables needed
-        varList = self.parseVarExpression(self.varExp+self.cutExp)
+        varList = self.parseVarExpression(self.varExp+" "+self.cutExp)
 
         #=== get the variable
         if drawer is None:
@@ -179,10 +191,10 @@ class TileDCSDataPlotter (object):
                 else:
                     self.varExp = self.varExp.replace(var,self.drawer+"."+var)
                     self.cutExp = self.cutExp.replace(var,self.drawer+"."+var)
-                    self.varExp = self.varExp.replace("Set."+self.drawer,"Set")
-                    self.cutExp = self.cutExp.replace("Set."+self.drawer,"Set")
                     self.varExp = self.varExp.replace(self.drawer+"."+self.drawer,self.drawer)
                     self.cutExp = self.cutExp.replace(self.drawer+"."+self.drawer,self.drawer)
+                    self.varExp = self.varExp.replace("Set."+self.drawer,"Set")
+                    self.cutExp = self.cutExp.replace("Set."+self.drawer,"Set")
             if "ALL_LVPS_AI" in self.varExp:
                 newvar=""
                 for dr in self.drawer.split(","):
@@ -197,6 +209,14 @@ class TileDCSDataPlotter (object):
                         newvar += dr+"."+var+","
                 self.varExp = self.varExp.replace("ALL_LVPS_STATES",newvar[:-1])
 
+            if "ALL_HV-ALL_SETHV" in self.varExp or "ALL_HV-ALL_HVSET" in self.varExp:
+                newvar=""
+                for dr in self.drawer.split(","):
+                    for var in self.info.vars_HVSET.keys():
+                        if not ("Set.vFix" in var or "Set.hvIn" in var or "Set.volt" in var or "Set.temp" in var):
+                            newvar += dr+"."+var.replace("Set.","")+"-"+dr+"."+var+","
+                self.varExp = self.varExp.replace("ALL_HV-ALL_SETHV",newvar[:-1])
+                self.varExp = self.varExp.replace("ALL_HV-ALL_HVSET",newvar[:-1])
             if "ALL_HVSET" in self.varExp or "ALL_SETHV" in self.varExp:
                 newvar=""
                 for dr in self.drawer.split(","):
@@ -221,6 +241,30 @@ class TileDCSDataPlotter (object):
 
 
     #_______________________________________________________________________________________
+    def cutReplace(self, incut, var):
+        """
+        Relace "ALL" keywords in cut variable by appropriate names from var variable
+
+        """
+
+        cut = incut
+        for vv in var.split("-"):
+            if "hvOut" in vv:
+                if "Set" in vv:
+                    cut = cut.replace("ALL_SETHV",vv)
+                    cut = cut.replace("ALL_HVSET",vv)
+                    vvv=vv.replace("Set.hv","hv")
+                    cut = cut.replace("ALL_HV",vvv)
+                else:
+                    vvv=vv.replace("hv","Set.hv")
+                    cut = cut.replace("ALL_SETHV",vvv)
+                    cut = cut.replace("ALL_HVSET",vvv)
+                    cut = cut.replace("ALL_HV",vv)
+        cut = cut.replace("ALL",var)
+        return cut
+
+
+    #_______________________________________________________________________________________
     def getTimelinePlot(self):
         """
         Returns a TCanvas with the variable plotted vs time.
@@ -242,63 +286,73 @@ class TileDCSDataPlotter (object):
         hmax=-1000000000
         color = [2,4,3,5,6,7]
         for var in self.varExp.split(","):
-          cut=self.cutExp
-          cut = cut.replace("ALL_SETHV",var)
-          cut = cut.replace("ALL_HVSET",var)
-          cut = cut.replace("ALL_HV",var)
-          cut = cut.replace("ALL",var)
-          #print (var)
-          #print (cut)
-          t.Draw(var+":EvTime",cut,"goff")
-          n = t.GetSelectedRows()
-          #print ("n=",n)
-          if n>0:
-            x = t.GetV2()
-            y = t.GetV1()
+            cut=self.cutReplace(self.cutExp,var)
+            #print (var)
+            #print (cut)
+            t.Draw(var+":EvTime",cut,"goff")
+            n = t.GetSelectedRows()
+            if len(cut)>0:
+                print ("var=",var,"   \tcut=",cut,"   \tnpoints=",n)
+            else:
+                print ("var=",var,"   \tnpoints=",n)
+            if n>0: # at least one point passed the cut
+                x1 = t.GetV2()
+                y1 = t.GetV1()
+                x = TArrayD(n)
+                y = TArrayD(n)
+                for i in range(n):
+                    x[i] = x1[i]
+                    y[i] = y1[i]
 
-            #=== fix for **** root time convention and add end time
-            offset = 788918400 # = 1.1.1995(UTC), the root offset
-            xarr = TArrayD(n+1)
-            for i in range(n):
-                xarr[i] = x[i]-offset
-            xarr[n] = self.iovEnd-offset
+                t.Draw(var+":EvTime","","goff") # the same but without cut
+                n0 = t.GetSelectedRows()
+                x0 = t.GetV2()
 
-            #=== create and fill histogram with values
-            title = self.rangeStr+";;"+self.varExp
-            h = TH1D("hDCS"+str(ih),title,n,xarr.GetArray())
-            for i in range(n):
-                center = h.GetBinCenter(i+1)
-                h.Fill(center,y[i])
-                if y[i]>hmax:
-                    hmax=y[i]
-                if y[i]<hmin:
-                    hmin=y[i]
+                #=== fix for **** root time convention and add end time
+                offset = 788918400 # = 1.1.1995(UTC), the root offset
+                xarr = TArrayD(n0+1)
+                for i in range(n0):
+                    xarr[i] = x0[i]-offset
+                xarr[n0] = self.iovEnd-offset
+                #=== create and fill histogram with values
+                title = var
+                h = TH1D("hDCS"+str(ih),title,n0,xarr.GetArray())
+                for i in range(n):
+                    h.Fill(x[i]-offset,y[i])
+                    if y[i]>hmax:
+                        hmax=y[i]
+                    if y[i]<hmin:
+                        hmin=y[i]
 
-            #=== set time display
-            sec_min = 60
-            sec_hrs = sec_min*60
-            sec_day = sec_hrs*24
-            sec_mon = sec_day*30
-            timeDiff = self.iovEnd-self.iovBeg
-            h.GetXaxis().SetTimeFormat("%S")
-            h.SetXTitle("time [seconds]")
-            if timeDiff > 2*sec_mon:
-                h.GetXaxis().SetTimeFormat("%m")
-                h.SetXTitle("time [month]")
-            elif timeDiff > 2*sec_day:
-                h.GetXaxis().SetTimeFormat("%d(%H)")
-                h.SetXTitle("time [day(hour)]")
-            elif timeDiff > 2*sec_hrs:
-                h.GetXaxis().SetTimeFormat("%H:%M")
-                h.SetXTitle("time [hour:min]")
-            elif   timeDiff > 2*sec_min:
-                h.GetXaxis().SetTimeFormat("%M")
-                h.SetXTitle("time [min]")
-            h.GetXaxis().SetTimeDisplay(1)
-            h.SetLineColor(color[ih%len(color)])
+                #=== set time display
+                sec_min = 60
+                sec_hrs = sec_min*60
+                sec_day = sec_hrs*24
+                sec_mon = sec_day*30
+                timeDiff = self.iovEnd-self.iovBeg
+                h.GetXaxis().SetTimeFormat("%S")
+                h.SetXTitle("time [seconds]")
+                if timeDiff > 12*sec_mon:
+                    h.GetXaxis().SetTimeFormat("%m/%y")
+                    h.SetXTitle("time [month/year]")
+                #elif timeDiff >3.33448*sec_mon:
+                elif timeDiff > 6*sec_day:
+                    h.GetXaxis().SetTimeFormat("%d/%m")
+                    h.SetXTitle("time [day/month]")
+                elif timeDiff > 2*sec_day:
+                    h.GetXaxis().SetTimeFormat("%d(%H)")
+                    h.SetXTitle("time [day(hour)]")
+                elif timeDiff > 2*sec_hrs:
+                    h.GetXaxis().SetTimeFormat("%H:%M")
+                    h.SetXTitle("time [hour:min]")
+                elif   timeDiff > 2*sec_min:
+                    h.GetXaxis().SetTimeFormat("%M")
+                    h.SetXTitle("time [min]")
+                h.GetXaxis().SetTimeDisplay(1)
+                h.SetLineColor(color[ih%len(color)])
 
-            ih+=1
-            hh+=[h]
+                ih+=1
+                hh+=[h]
 
         if len(hh)>1:
             delta=(hmax-hmin)/20.
@@ -336,18 +390,18 @@ class TileDCSDataPlotter (object):
         xaxis=[]
         yaxis=[]
         for leaf in leaves:
-          z=leaf.GetTitle().split('.')
-          if len(z)==2 or (len(z)==3 and z[1]=="Set"):
-            x=z[0]
-            y=z[1]
-            if len(z)==3:
-                y+= "."+z[2]
-            if not y[-2].isdigit() and y[-1].isdigit():
-              y=y[:-2]+'0'+y[-1]
-            if x not in xaxis:
-                xaxis+=[x]
-            if y not in yaxis:
-                yaxis+=[y]
+            z=leaf.GetTitle().split('.')
+            if len(z)==2 or (len(z)==3 and z[1]=="Set"):
+                x=z[0]
+                y=z[1]
+                if len(z)==3:
+                    y+= "."+z[2]
+                if not y[-2].isdigit() and y[-1].isdigit():
+                    y=y[:-2]+'0'+y[-1]
+                if x not in xaxis:
+                    xaxis+=[x]
+                if y not in yaxis:
+                    yaxis+=[y]
         xaxis.sort()
         yaxis.sort()
         nx=len(xaxis)
@@ -368,23 +422,23 @@ class TileDCSDataPlotter (object):
         XA=hist.GetXaxis()
         n=0
         for i in range(nx):
-          if n:
-              XA.SetBinLabel(i + 1, '')
-          else:
-              XA.SetBinLabel(i + 1, xaxis[i])
-          n=1-n
+            if n:
+                XA.SetBinLabel(i + 1, '')
+            else:
+                XA.SetBinLabel(i + 1, xaxis[i])
+            n=1-n
 
         YA=hist.GetYaxis()
         for i in range(ny):
-          YA.SetBinLabel(i + 1, yaxis[i])
+            YA.SetBinLabel(i + 1, yaxis[i])
 
         tree.GetEntry(0)
         val = {}
         for leaf in leaves:
-          if opt>2:
-            val[leaf.GetTitle()] = 0
-          else:
-            val[leaf.GetTitle()] = leaf.GetValue()
+            if opt>2:
+                val[leaf.GetTitle()] = 0
+            else:
+                val[leaf.GetTitle()] = leaf.GetValue()
 
         ne=tree.GetEntries()
         if opt==1:
@@ -395,35 +449,31 @@ class TileDCSDataPlotter (object):
             n1=0
         bar = ProgressBar.progressBar(n1,ne, 78)
         for n in range(n1,ne):
-          tree.GetEntry(n)
-          bar.update(n)
-          for leaf in leaves:
-            v1=val[leaf.GetTitle()]
-            z=leaf.GetTitle().split('.')
-            if len(z)==2 or (len(z)==3 and z[1]=="Set"):
-              x=z[0]
-              y=z[1]
-              if len(z)==3:
-                  y+= "."+z[2]
-              if not y[-2].isdigit() and y[-1].isdigit():
-                y=y[:-2]+'0'+y[-1]
-              v2=leaf.GetValue()
-              if "ALL" in self.cutExp:
-                  var=str(v2)
-                  vardiff=str(v2-v1)
-                  cut=self.cutExp
-                  cut = cut.replace("ALL_DIFF",vardiff)
-                  cut = cut.replace("ALL_SETHV",var)
-                  cut = cut.replace("ALL_HVSET",var)
-                  cut = cut.replace("ALL_HV",var)
-                  cut = cut.replace("ALL",var)
-                  ok = eval(cut)
-                  #print (cut)
-                  #print (ok)
-              else:
-                  ok = True
-              if ok:
-                  hist.Fill(xaxis.index(x),yaxis.index(y),v2-v1)
+            tree.GetEntry(n)
+            bar.update(n)
+            for leaf in leaves:
+                v1=val[leaf.GetTitle()]
+                z=leaf.GetTitle().split('.')
+                if len(z)==2 or (len(z)==3 and z[1]=="Set"):
+                    x=z[0]
+                    y=z[1]
+                    if len(z)==3:
+                        y+= "."+z[2]
+                    if not y[-2].isdigit() and y[-1].isdigit():
+                        y=y[:-2]+'0'+y[-1]
+                    v2=leaf.GetValue()
+                    if "ALL" in self.cutExp:
+                        var=str(v2)
+                        vardiff=str(v2-v1)
+                        cut = self.cutExp.replace("ALL_DIFF",vardiff)
+                        cut = self.cutReplace(cut,var)
+                        ok = eval(cut)
+                        #print (cut)
+                        #print (ok)
+                    else:
+                        ok = True
+                    if ok:
+                        hist.Fill(xaxis.index(x),yaxis.index(y),v2-v1)
         bar.done()
 
         return hist
@@ -457,24 +507,14 @@ class TileDCSDataPlotter (object):
                 varX = var.split(":")[1]
                 varY = var.split(":")[0]
                 if len(cut):
-                    cutY = cut
-                    cut = cut.replace("ALL_SETHV",varX)
-                    cut = cut.replace("ALL_HVSET",varX)
-                    cut = cut.replace("ALL_HV",varX)
-                    cut = cut.replace("ALL",varX)
-                    cutY = cutY.replace("ALL_SETHV",varY)
-                    cutY = cutY.replace("ALL_HVSET",varY)
-                    cutY = cutY.replace("ALL_HV",varY)
-                    cutY = cutY.replace("ALL",varY)
+                    cutY = self.cutReplace(cut,varY)
+                    cut = self.cutReplace(cut,varX)
                     cut = "("+cut+") && ("+cutY+")"
             else:
                 varX=var
                 varY=""
                 if len(cut):
-                    cut = cut.replace("ALL_SETHV",varX)
-                    cut = cut.replace("ALL_HVSET",varX)
-                    cut = cut.replace("ALL_HV",varX)
-                    cut = cut.replace("ALL",varX)
+                    cut = self.cutReplace(cut,varX)
             if cut!="":
                 cut = "weight*("+cut+")"
             else:
@@ -598,11 +638,19 @@ class TileDCSDataPlotter (object):
             self.varExp = self.varExp.replace("ALL_LVPS_AI",",".join(sorted(self.info.vars_LVPS_AI.keys())))
         if "ALL_LVPS_STATES" in self.varExp:
             self.varExp = self.varExp.replace("ALL_LVPS_STATES",",".join(sorted(self.info.vars_LVPS_STATES.keys())))
+        if "ALL_HV-ALL_SETHV" in self.varExp or "ALL_HV-ALL_HVSET" in self.varExp:
+            vlist = []
+            for var in self.info.vars_HVSET.keys():
+                if not ("Set.vFix" in var or "Set.hvIn" in var or "Set.volt" in var or "Set.temp" in var):
+                    vlist += [var.replace("Set.","")+"-"+var]
+            self.varExp = self.varExp.replace("ALL_HV-ALL_SETHV",",".join(sorted(vlist)))
+            self.varExp = self.varExp.replace("ALL_HV-ALL_HVSET",",".join(sorted(vlist)))
         if "ALL_HVSET" in self.varExp or "ALL_SETHV" in self.varExp:
             vlist = self.info.vars_HVSET.keys()
             if self.useCool:
                 for i in range(2):
-                    vlist.remove("Set.vFix1%d" % (i+1))
+                    if "Set.vFix1%d" % (i+1) in vlist:
+                        vlist.remove("Set.vFix1%d" % (i+1))
                 for i in range(4):
                     vlist.remove("Set.hvIn%d" % (i+1))
                 for i in range(7):
@@ -621,11 +669,14 @@ class TileDCSDataPlotter (object):
                 for i in range(7):
                     vlist.remove("temp%d" % (i+1))
             self.varExp = self.varExp.replace("ALL_HV",",".join(sorted(vlist)))
-        print (self.varExp)
+        varlist=self.parseVarExpression(self.varExp)
+        print ("var list is",varlist)
 
         reslist=[]
         cutlist = self.parseVarExpression(self.cutExp)
-        print (cutlist)
+        print ("cut list is",cutlist)
+        fulllist=sorted(list(set(varlist+cutlist)))
+        print ("full list is",fulllist)
         t = None
         drlistprev=[]
         varlistprev=[]
@@ -642,19 +693,15 @@ class TileDCSDataPlotter (object):
                     drlistprev=drlist
                     varlistprev=varlist
                 if t and t.GetEntries()>0:
-                    var=v
-                    cut=self.cutExp
-                    cut = cut.replace("ALL_SETHV",var)
-                    cut = cut.replace("ALL_HVSET",var)
-                    cut = cut.replace("ALL_HV",var)
-                    cut = cut.replace("ALL",var)
+                    var = v
+                    cut = self.cutReplace(self.cutExp,var)
                     for va in varlist:
                         var = var.replace(va,drawer+"."+va)
                         cut = cut.replace(va,drawer+"."+va)
-                    var = var.replace("Set."+drawer,"Set")
-                    cut = cut.replace("Set."+drawer,"Set")
                     var = var.replace(drawer+"."+drawer,drawer)
                     cut = cut.replace(drawer+"."+drawer,drawer)
+                    var = var.replace("Set."+drawer,"Set")
+                    cut = cut.replace("Set."+drawer,"Set")
                     print ("var is",var)
                     print ("cut is",cut)
                     t.Draw(var,cut,"goff")
@@ -748,13 +795,37 @@ if callName=="TileDCSDataPlotter.py":
 
         #=== simple timeline plot
         if cmd =="plot":
-            hh = dp.getTimelinePlot()
             can.SetGridx()
             can.SetGridy()
-            opt="HIST"
-            for h in hh:
-                h.Draw(opt)
-                opt="HISTSAME"
+            hh = dp.getTimelinePlot()
+            if len(hh)>0:
+                h0 = TH1D(hh[0])
+                tt=dp.rangeStr
+                if len(sys.argv)>6:
+                    tt+="   with cut "+sys.argv[6]
+                XA=h0.GetXaxis()
+                tx=XA.GetTitle()
+                ttt=tt+";"+tx+";"+sys.argv[2]+" :: "+sys.argv[3]
+                h0.SetTitle(ttt)
+                if len(hh)>2:
+                    ymin=h0.GetMinimum()
+                    ymax=h0.GetMaximum()
+                    max1=ymax+ymax-ymin
+                    h0.SetMaximum(max1)
+                h0.Draw("HIST")
+                leg = TLegend(0.1,0.55,0.9,0.9)
+                for h in hh:
+                    h.Draw("HISTSAME")
+                    tit=h.GetTitle()
+                    leg.AddEntry(h,tit,"l")
+                if len(hh)>2:
+                    if len(hh)>30:
+                        leg.SetNColumns(4)
+                    elif len(hh)>20:
+                        leg.SetNColumns(3)
+                    elif len(hh)>5:
+                        leg.SetNColumns(2)
+                    leg.Draw()
 
         #=== simple diff plot
         if cmd =="diff":

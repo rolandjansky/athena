@@ -87,7 +87,7 @@ InDetFlags.doPrintConfigurables = True
 InDetFlags.useBeamConstraint = False
 InDetFlags.doPrimaryVertex3DFinding = True
 
-print "InDetRec_jobOptions: InDetKeys not set - setting to defaults"
+printfunc ("InDetRec_jobOptions: InDetKeys not set - setting to defaults")
 from InDetRecExample.InDetKeys import InDetKeys
 
 #--------------------------------------------------------------
@@ -131,7 +131,7 @@ InDetVertexSplitter.PrimaryOnly = jobConfig['priVtxOnly']
 InDetVertexSplitter.OutputLevel = OutputLevel
 
 topSequence += InDetVertexSplitter
-print          InDetVertexSplitter
+printfunc (         InDetVertexSplitter)
 
 
 #--------------------------------------------------------------
@@ -160,7 +160,8 @@ ToolSvc += InDetPropagator
 from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as StepPropagator
 InDetStepPropagator = StepPropagator(name = 'InDetStepPropagator')
 ToolSvc += InDetStepPropagator
-if InDetFlags.doPrintConfigurables: print      InDetPropagator
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetPropagator)
 
 #
 # Setup the Navigator (default, could be removed)
@@ -169,7 +170,8 @@ from TrkExTools.TrkExToolsConf import Trk__Navigator
 InDetNavigator = Trk__Navigator(name                = 'InDetNavigator',
                                 TrackingGeometrySvc = AtlasTrackingGeometrySvc)
 ToolSvc += InDetNavigator
-if InDetFlags.doPrintConfigurables: print      InDetNavigator
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetNavigator)
 
 #
 # Setup the MaterialEffectsUpdator
@@ -183,7 +185,8 @@ if not InDetFlags.solenoidOn():
 
 ToolSvc += InDetMaterialUpdator
 
-if InDetFlags.doPrintConfigurables: print      InDetMaterialUpdator
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetMaterialUpdator)
 
 # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
  
@@ -213,7 +216,8 @@ InDetExtrapolator = Trk__Extrapolator(name                    = 'InDetExtrapolat
                                       SubMEUpdators           = InDetSubUpdators,
                                       DoCaloDynamic           = False)
 ToolSvc += InDetExtrapolator
-if InDetFlags.doPrintConfigurables: print      InDetExtrapolator  
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetExtrapolator  )
 
 
 # LEVEL 4
@@ -222,7 +226,8 @@ from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_Asso
 InDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
                                                                       PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap())
 ToolSvc += InDetPrdAssociationTool
-if InDetFlags.doPrintConfigurables: print      InDetPrdAssociationTool
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetPrdAssociationTool)
   
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
@@ -232,7 +237,8 @@ InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchToo
 InDetHoleSearchTool.SctSummaryTool = None
   
 ToolSvc += InDetHoleSearchTool
-if InDetFlags.doPrintConfigurables: print      InDetHoleSearchTool
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetHoleSearchTool)
 
 
 from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
@@ -241,14 +247,16 @@ InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name         = 
                                                                  DoSharedHits = False,
                                                                  HoleSearch   = InDetHoleSearchTool)
 ToolSvc += InDetTrackSummaryHelperTool
-if InDetFlags.doPrintConfigurables: print      InDetTrackSummaryHelperTool                                                                   
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetTrackSummaryHelperTool                                                                   )
 
 
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__ImpactPoint3dEstimator
 InDetImpactPoint3dEstimator = Trk__ImpactPoint3dEstimator(name         = "InDetImpactPoint3dEstimator",
                                                           Extrapolator = InDetExtrapolator)
 ToolSvc += InDetImpactPoint3dEstimator
-if InDetFlags.doPrintConfigurables: print      InDetImpactPoint3dEstimator
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetImpactPoint3dEstimator)
 
 
 if InDetFlags.magField() is "fast" :
@@ -258,7 +266,8 @@ else:
   from TrkMagFieldTools.TrkMagFieldToolsConf import Trk__MagneticFieldTool
   InDetMagField = Trk__MagneticFieldTool('InDetMagField')
 ToolSvc += InDetMagField
-if InDetFlags.doPrintConfigurables: print      InDetMagField
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetMagField)
 
 
 # LEVEL 3
@@ -270,14 +279,16 @@ InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
                                               doHolesInDet           = True)
 #InDetTrackSummaryTool.OutputLevel = DEBUG
 ToolSvc += InDetTrackSummaryTool
-if InDetFlags.doPrintConfigurables: print      InDetTrackSummaryTool
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetTrackSummaryTool)
 
 
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__DetAnnealingMaker
 InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker")
 InDetAnnealingMaker.SetOfTemperatures = [64.,16.,4.,2.,1.5,1.] # not default
 ToolSvc += InDetAnnealingMaker
-if InDetFlags.doPrintConfigurables: print      InDetAnnealingMaker
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetAnnealingMaker)
 
 
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__ImpactPoint3dAtaPlaneFactory
@@ -285,7 +296,8 @@ InDetIp3dAtaPointFactory = Trk__ImpactPoint3dAtaPlaneFactory(name               
                                                                Extrapolator           = InDetExtrapolator,
                                                                ImpactPoint3dEstimator = InDetImpactPoint3dEstimator)
 ToolSvc += InDetIp3dAtaPointFactory
-if InDetFlags.doPrintConfigurables: print      InDetIp3dAtaPointFactory
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetIp3dAtaPointFactory)
 
 
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
@@ -293,7 +305,8 @@ InDetLinFactory = Trk__FullLinearizedTrackFactory(name              = "InDetFull
                                                   Extrapolator      = InDetExtrapolator,
                                                   MagneticFieldTool = InDetMagField)
 ToolSvc += InDetLinFactory
-if InDetFlags.doPrintConfigurables: print      InDetLinFactory
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetLinFactory)
 
 
 # LEVEL 2
@@ -310,7 +323,8 @@ else:
                                               )
     
 ToolSvc += InDetVtxSeedFinder
-if InDetFlags.doPrintConfigurables: print      InDetVtxSeedFinder
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetVtxSeedFinder)
 
 
 #
@@ -370,7 +384,8 @@ elif InDetFlags.primaryVertexSetup() == 'DefaultKalmanFinding':
   from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexSmoother
   InDetVertexSmoother = Trk__SequentialVertexSmoother()
   ToolSvc += InDetVertexSmoother
-  if InDetFlags.doPrintConfigurables: print      InDetVertexSmoother
+  if InDetFlags.doPrintConfigurables:
+    printfunc (     InDetVertexSmoother)
     
   from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexFitter
   InDetVxFitterTool = Trk__SequentialVertexFitter(name                   = "InDetSequentialVxFitterTool",
@@ -409,7 +424,8 @@ elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
   InDetVxFitterTool = Trk__TrkVKalVrtFitter(name = "InDetVKalVrtFitter")
                                                      
 ToolSvc += InDetVxFitterTool
-if InDetFlags.doPrintConfigurables: print      InDetVxFitterTool
+if InDetFlags.doPrintConfigurables:
+  printfunc (     InDetVxFitterTool)
 #
 # ----- load vertex finder tool
 #
@@ -465,7 +481,8 @@ elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
                                                          BeamConstraint         = InDetFlags.useBeamConstraint())
 
 ToolSvc += InDetPriVxFinderTool
-if InDetFlags.doPrintConfigurables: print InDetPriVxFinderTool
+if InDetFlags.doPrintConfigurables:
+  printfunc (InDetPriVxFinderTool)
 #
 # load primary vertex finding algorithm and configure it 
 #
@@ -474,21 +491,23 @@ if InDetFlags.doPrintConfigurables: print InDetPriVxFinderTool
 
 from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetPriVxFinder
 InDetPriVxFinders = {}
-for i in xrange(1,4):
+for i in range(1,4):
   for type in ("even", "odd", "all"):
     InDetPriVxFinders[type+str(i)] = InDet__InDetPriVxFinder(name                   = "InDetPriVxFinder_"+type+"_"+str(i),
                                                              VertexFinderTool       = InDetPriVxFinderTool,
                                                              TracksName             = type+"_"+str(i)+"_TrackParticleCandidate",
                                                              VxCandidatesOutputName = type+"_"+str(i)+"_VxPrimaryCandidate")
     topSequence += InDetPriVxFinders[type+str(i)]
-    if InDetFlags.doPrintConfigurables: print InDetPriVxFinders[type+str(i)]
+    if InDetFlags.doPrintConfigurables:
+      printfunc (InDetPriVxFinders[type+str(i)])
 
 InDetPriVxFinderParent = InDet__InDetPriVxFinder(name                   = "InDetPriVxFinderParent",
                                                  VertexFinderTool       = InDetPriVxFinderTool,
                                                  TracksName             = "TrackParticleCandidate",
                                                  VxCandidatesOutputName = "parentVxPrimaryCandidate")
 topSequence += InDetPriVxFinderParent
-if InDetFlags.doPrintConfigurables: print InDetPriVxFinderParent
+if InDetFlags.doPrintConfigurables:
+  printfunc (InDetPriVxFinderParent)
 
 # ------------------------------------------------------------
 # switch off history service and no dump
@@ -504,7 +523,7 @@ InDetVertexSplitterHist.doAxis = jobConfig['doAxis']
 InDetVertexSplitterHist.OutputLevel = OutputLevel
 
 topSequence += InDetVertexSplitterHist
-print          InDetVertexSplitterHist
+printfunc (         InDetVertexSplitterHist)
 
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
@@ -537,7 +556,7 @@ ToolSvc.InDetDetailedTrackSelectorTool.nHitBLayer = 0
 ToolSvc.InDetDetailedTrackSelectorTool.nHitPix = 0
 ToolSvc.InDetDetailedTrackSelectorTool.nHitSct = 0
 ToolSvc.InDetDetailedTrackSelectorTool.nHitSi = 4
-print ToolSvc.InDetDetailedTrackSelectorTool
+printfunc (ToolSvc.InDetDetailedTrackSelectorTool)
 
 #--------------------------------------------------------------
 # Event related parameters

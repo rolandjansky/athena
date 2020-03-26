@@ -16,7 +16,6 @@ so that he can determine the validity of the constants
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-//#include "MuonCondData/CscCalibData.h"
 #include "AthContainers/DataVector.h"
 #include "CscCalibData/CscCalibResultCollection.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
@@ -59,7 +58,7 @@ namespace MuonCalib{
   {
     public:
       CscCalcSlope(const std::string& name, ISvcLocator* pSvcLocator);
-      ~CscCalcSlope(void);
+      ~CscCalcSlope(void)=default;
 
       /**basic required functions*/
       StatusCode initialize(void);
@@ -85,7 +84,6 @@ namespace MuonCalib{
       /*********Private member variables*/
       /**Services and tools*/
       StoreGateSvc * m_storeGate;
-      //ITHistSvc * m_thistSvc;
       ICscCalibTool * m_cscCalibTool;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -96,9 +94,7 @@ namespace MuonCalib{
       std::string m_outputFileName;
       std::string m_calOutputVersion;
       
-      //double m_calFuncMin, m_calFuncMax;        
       double m_minDeltaAdc;
-      //double m_calFuncEdgeChanMin;
       
       bool m_dumpAllHists;
       bool m_ignoreDatabaseError;
@@ -108,10 +104,7 @@ namespace MuonCalib{
       /**Internally global variables*/
       unsigned int m_maxStripHash;
       int m_lastPulserLevel;
-      
-      //DataVector< std::vector<double> > * m_adcValues;
-      //DataVector< std::vector<double> > * m_adcErrors;
-      //DataVector< std::vector<int> > * m_pulserLevels;
+
       DataVector<DataVector<TProfile> >* m_fracProfs;
       DataVector<DataVector<TGraph> >* m_fracGraphs;
       DataVector<TH1I> * m_bitHists;
@@ -119,7 +112,6 @@ namespace MuonCalib{
 
       TGraph * m_resGraph;        
       DataVector<TGraphErrors> * m_calGraphs;
-      //DataVector<TH1F> * m_ampHists;
       TProfile * m_currentAmpProf; 
       std::map<int, TProfile*> * m_ampProfs;
       std::set<int> * m_pulsedChambers;
@@ -135,18 +127,14 @@ namespace MuonCalib{
       bool m_doBipolarFit;
       double * m_crossTalkFix; 
       bool m_doCrossTalkFix;
-      //bool m_doPulserFactor;
       std::vector<float>  m_dbLevels;
 
       float *m_peds, *m_noises;
-      //StatusCode onlineToOfflineId(int onlineId, Identifier &chamberId, Identifier &stripId)const;
       StatusCode fillBitHist(TH1I * bitHist, const uint16_t & val);
       bool m_pedFile;
       std::string m_pedFileName;
-      //std::string m_pulserFactorFile;
 
       int m_expectedChamberLayer;
-      //bool * m_allowedStrips;
 
       std::string m_calFitFunc;
       

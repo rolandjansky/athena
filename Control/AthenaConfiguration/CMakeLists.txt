@@ -26,15 +26,17 @@ atlas_add_test( AthConfigFlagsTest
    SCRIPT python -m unittest AthenaConfiguration.AthConfigFlags
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( AllConfigFlagsTest_EVNT_test
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_EVNT.py
-   PROPERTIES TIMEOUT 300  )
+if( NOT GENERATIONBASE )
+    atlas_add_test( AllConfigFlagsTest_EVNT_test
+                    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_EVNT.py
+                    PROPERTIES TIMEOUT 300  )
 
-atlas_add_test( AllConfigFlagsTest_HITS_test
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_HITS.py
-   PROPERTIES TIMEOUT 300  )
+    atlas_add_test( AllConfigFlagsTest_HITS_test
+                    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_HITS.py
+                    PROPERTIES TIMEOUT 300  )
+endif()
 
-if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthSimulation" )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
     atlas_add_test( AllConfigFlagsTest_RDO_test
                     SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_RDO.py
                     PROPERTIES TIMEOUT 300  )

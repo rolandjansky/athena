@@ -8,14 +8,13 @@
 
 
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonRDO/MM_RawData.h"
 
@@ -40,7 +39,7 @@ namespace Muon {
 
   private:
 
-    ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
    

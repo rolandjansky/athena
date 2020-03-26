@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 #
 # Import NSWCalibTools job properties
 #
@@ -10,4 +10,5 @@ def MMCalibSmearingTool(name="MMCalibSmearingTool",extraFlags=None,**kwargs):
 def STgcCalibSmearingTool(name="STgcCalibSmearingTool",extraFlags=None,**kwargs):
     return CfgMgr.Muon__NSWCalibSmearingTool(name,**kwargs)
 
-
+def NSWCalibTool(name="NSWCalibTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__NSWCalibTool(name,**kwargs)

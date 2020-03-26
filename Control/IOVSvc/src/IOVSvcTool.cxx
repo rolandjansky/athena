@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVSvcTool.h"
@@ -663,7 +663,7 @@ IOVSvcTool::replaceProxy( SG::DataProxy *pOld,
       removeFromSet (ent->second, m_stopSet_Clock);
       removeFromSet (ent->second, m_stopSet_RE);
 
-      setRange_impl (pNew, *ent->second->range());
+      setRange_impl (pNew, *(const_cast<IOVRange*>(ent->second->range())));
       delete ent->second;
       m_entries.erase (ent);
     }
@@ -791,7 +791,7 @@ void IOVSvcTool::setRange_impl (SG::DataProxy* proxy, IOVRange& iovr)
   if ( itr != m_entries.end() ) {
 
     IOVEntry *ent = itr->second;
-    IOVRange *irn = ent->range();
+    const IOVRange *irn = ent->range();
     string objname = m_names[proxy];
 
     if (*irn == iovr) {
@@ -879,7 +879,7 @@ IOVSvcTool::getRange(const CLID& clid, const std::string& key,
 StatusCode 
 IOVSvcTool::getRangeFromDB(const CLID& clid, const std::string& key, 
                            IOVRange& range, std::string &tag, 
-                           IOpaqueAddress*& ioa) const {
+                           std::unique_ptr<IOpaqueAddress>& ioa) const {
 
   if (m_curTime.isValid()) {
     return getRangeFromDB(clid, key, m_curTime, range, tag, ioa);
@@ -895,7 +895,8 @@ IOVSvcTool::getRangeFromDB(const CLID& clid, const std::string& key,
 StatusCode 
 IOVSvcTool::getRangeFromDB(const CLID& clid, const std::string& key,
                            const IOVTime& time, IOVRange& range, 
-                           std::string& tag, IOpaqueAddress*& ioa) const {
+                           std::string& tag,
+                           std::unique_ptr<IOpaqueAddress>& ioa) const {
   StatusCode sc(StatusCode::FAILURE);
   DataProxy* dp = p_cndSvc->proxy(clid,key);
   if (nullptr != dp) {

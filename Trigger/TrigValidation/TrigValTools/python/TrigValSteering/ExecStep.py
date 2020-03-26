@@ -31,6 +31,7 @@ class ExecStep(Step):
         self.forks = None
         self.max_events = None
         self.skip_events = None
+        self.use_pickle = False
         self.imf = True
         self.perfmon = True
         self.prmon = True
@@ -128,6 +129,9 @@ class ExecStep(Step):
         if self.type == 'other':
             self.log.debug('Skipping job options check for step.type=other')
             return
+        if self.use_pickle:
+            self.log.debug('Skipping job options check for step running from a pickle file')
+            return
 
         if self.type.endswith('_tf'):
             if self.job_options is None:
@@ -145,7 +149,7 @@ class ExecStep(Step):
         if check_job_options(self.job_options):
             self.log.debug('Job options file exists: %s', self.job_options)
         else:
-            self.log.error('Failed to find job options file %s', self.name)
+            self.log.error('Failed to find job options file %s for step %s', self.job_options, self.name)
             self.report_result(1, 'TestConfig')
             sys.exit(1)
 
@@ -160,7 +164,7 @@ class ExecStep(Step):
             self.prmon = False
 
         # Disable perfmon for multi-fork jobs as it cannot deal well with them
-        if self.forks > 1:
+        if self.forks and self.forks > 1:
             self.perfmon = False
 
         # Append imf/perfmon

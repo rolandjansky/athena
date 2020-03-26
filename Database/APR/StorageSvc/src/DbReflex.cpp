@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbReflex.cpp 717955 2016-01-15 13:34:52Z mnowak $
@@ -117,7 +117,10 @@ const TypeH DbReflex::forGuid(const Guid& id)
         }
      }
   }
-             
+
+  static std::mutex guidScanMutex;
+  std::lock_guard<std::mutex> lock (guidScanMutex);
+
   DbPrint log("APR:DbReflex:forGuid");
   // GUID not in the map: scan all known types. refresh the map
   log << DbPrintLvl::Warning << " doing GUID scan on ALL types for Class ID=" << id << DbPrint::endmsg;
@@ -136,7 +139,8 @@ const TypeH DbReflex::forGuid(const Guid& id)
     }
   } ALG;
 
-  for(size_t i=0; i<TypeH::TypeSize(); ++i)  { 
+  size_t sz = TypeH::TypeSize();
+  for(size_t i=0; i<sz; ++i)  { 
      TypeH t = TypeH::TypeAt(i);
      if( t.IsClass() || t.IsStruct() )  {
         Guid g = guid(t);

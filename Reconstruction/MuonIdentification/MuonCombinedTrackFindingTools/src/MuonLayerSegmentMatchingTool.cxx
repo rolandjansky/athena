@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerSegmentMatchingTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
+
 #include "MuonSegment/MuonSegment.h"
 #include "TrkParameters/TrackParameters.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -15,28 +12,19 @@ namespace Muon {
 
   MuonLayerSegmentMatchingTool::MuonLayerSegmentMatchingTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_extrapolator("Trk::Extrapolation/AtlasExtrapolator"),
     m_matchingTool("MuTagMatchingTool/MuTagMatchingTool")
   {
     declareInterface<IMuonLayerSegmentMatchingTool>(this);
 
-    declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
     declareProperty("Extrapolator",m_extrapolator );    
     declareProperty("MatchTool",m_matchingTool );    
   }
 
-  MuonLayerSegmentMatchingTool::~MuonLayerSegmentMatchingTool() { }
-
-  StatusCode MuonLayerSegmentMatchingTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode MuonLayerSegmentMatchingTool::initialize() {
 
-    ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_CHECK(m_matchingTool.retrieve());

@@ -770,33 +770,18 @@ class rewriteLVL1(_modifier):
     Rewrite LVL1 (use together with rerunLVL1)
     """
     # Example:
-    # athena -c "testPhysicsV3=1;rerunLVL1=1;rewriteLVL1=1;doLVL2=False;doEF=False;BSRDOInput='input.data'" TriggerJobOpts/runHLT_standalone.py
+    # athenaHLT -c "setMenu='PhysicsP1_pp_run3_v1';rerunLVL1=True;rewriteLVL1=True;" --filesInput=input.data TriggerJobOpts/runHLT_standalone.py
+
+    def preSetup(self):
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
+        L1ByteStreamEncodersRecExSetup()
 
     def postSetup(self):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-        # Process all events
-        theApp.EvtMax = -1
         TriggerFlags.writeBS = True
-
-        athenaCommonFlags.BSRDOOutput = 'AppName=Athena, OutputDirectory=./, FileTag=testWrite'
-        # Persistent BS construction and intialization
-        from ByteStreamCnvSvc import WriteByteStream
-        StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
-
-        # Bytestream conversion
-        StreamBSFileOutput.ItemList += [ "ROIB::RoIBResult#*" ]
-
-        # Merge with original bytestream
-        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMergeOutputSvc
-        svcMgr += ByteStreamMergeOutputSvc(ByteStreamOutputSvc='ByteStreamEventStorageOutputSvc',
-                                           ByteStreamInputSvc='ByteStreamInputSvc',
-                                           overWriteHeader=True)
-
-        StreamBSFileOutput.OutputFile = "ByteStreamMergeOutputSvc"
-        svcMgr.ByteStreamCnvSvc.ByteStreamOutputSvcList=['ByteStreamMergeOutputSvc']
+        svcMgr.HltEventLoopMgr.RewriteLVL1 = True
 
 
 class writeBS(_modifier):

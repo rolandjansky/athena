@@ -4,6 +4,8 @@
 #             Vicente Lacuesta [started 12-03-2008]             #
 #################################################################
 
+from __future__ import print_function
+
 import os, string, time, datetime
 import sys
 
@@ -19,7 +21,7 @@ import sys
 # Don not edit the lines below unless you know what you're doing!
 #
 
-print "Output saved in:",OutputPath
+print ("Output saved in:",OutputPath)
 
 # AW: moved that one to python dir such that it can be imported from anywhere
 from InDetAlignExample.NewInDet_IteratorClasses import *
@@ -36,7 +38,7 @@ from InDetAlignExample.NewInDet_IteratorClasses import *
 ATHENACFG = getAthenaConfig(ASetupOptions)
 
 
-print
+print()
 if not os.path.isdir(OutputPath):
     os.mkdir(OutputPath)
 
@@ -46,16 +48,16 @@ info.write("\t\t%s      \n" % datetime.date.today() )
 info.write("----------------------------------------------\n")
 #info.write("Release %s\n" % ATHENAREL)
 info.write("Output stored in %s\n\n" % OutputPath)
-print "Info stored in: " +OutputPath+"/info.txt"
+print ("Info stored in: " +OutputPath+"/info.txt")
 
 if runMode == 'batch':
-    print "Alignment Algorithm will run in Lxbatch"
+    print ("Alignment Algorithm will run in Lxbatch")
     info.write("Alignment Algorithm run in Lxbatch\n")
 elif runMode == ' local':
-    print "Alignment Algorithm will run on local machine"
+    print ("Alignment Algorithm will run on local machine")
     info.write("Alignment Algorithm run on local machine\n")
     info.write("----------------------------------------------\n")
-    print "System Info"
+    print ("System Info")
     info.write("----------------------------------------------\n")
     info.write("System Info\n")
     os.system('grep processor /var/log/dmesg | grep MHz')
@@ -71,14 +73,14 @@ elif runMode == ' local':
     info.write("----------------------------------------------\n")
     info.write("\n")
 
-print
+print()
 info.write("\n")
 StartTime=time.time()   # Start the total time counter
 info.close()
 
 # check that user requires to run some iterations:
 if (Iterations == 0):
-    print " ------------------------------------------------- \n -- WARNING -- user requests Iterations = 0 !!! -- \n ------------------------------------------------- \n" 
+    print (" ------------------------------------------------- \n -- WARNING -- user requests Iterations = 0 !!! -- \n ------------------------------------------------- \n" )
 
 #  Loop over iterations
 for iteration in range(FirstIteration,Iterations+FirstIteration):
@@ -93,9 +95,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
     else:
         ReadBowingParameter = True
 
-    print '\n'
-    print " ---> Iteration "+repr(iteration)
-    print '\n'
+    print ('\n')
+    print (" ---> Iteration "+repr(iteration))
+    print ('\n')
     info=open(OutputPath+"/info.txt",'a')
     info.write('\n')
     info.write("---> Iteration "+repr(iteration))
@@ -107,14 +109,14 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
             countdir += 1
         os.rename("%s/Iter%d%s" % (OutputPath, iteration, folderSuffix),("%s/Iter%d%s-%s-%d" % (OutputPath, iteration, folderSuffix, datetime.date.today(), countdir)))
 
-        print "WARNING: %s/Iter%d%s directory exists" % (OutputPath, iteration, folderSuffix)
-        print "Renamed to %s/Iter%d%s-%s-%d" % (OutputPath, iteration, folderSuffix, datetime.date.today(), countdir)
+        print ("WARNING: %s/Iter%d%s directory exists" % (OutputPath, iteration, folderSuffix))
+        print ("Renamed to %s/Iter%d%s-%s-%d" % (OutputPath, iteration, folderSuffix, datetime.date.today(), countdir))
 
     # Make OutputPaths
     folderName = OutputPath+'/Iter'+repr(iteration)+folderSuffix
     os.mkdir(folderName)
     os.mkdir(folderName+'/logs/')
-    print " <NewInDetIterator> Storing all files of this iteration in folder ", folderName 
+    print (" <NewInDetIterator> Storing all files of this iteration in folder ", folderName )
 
     # Settup up a local copy of the alignment levels
     os.system("get_files -jo InDetAlignExample/NewInDetAlignLevels.py >/dev/null")
@@ -122,24 +124,24 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
     alignLevels = folderName+"/NewInDetAlignLevels.py"
     
     for data in DataToRun:
-        print "----------------------------------------------"
-        print " Number of CPUs used to process the sample " + data.getName() + ": " + str(data.getCPUs(iteration))
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
+        print (" Number of CPUs used to process the sample " + data.getName() + ": " + str(data.getCPUs(iteration)))
+        print ("----------------------------------------------")
 
         info.write(" Number of CPUs used to process the sample %s : %s\n\n" % (data.getName(), data.getCPUs(iteration)))
 
         if data.getEvents(iteration)!=-1:
-            print "Number of events per CPU: " +  str(data.getEventsPerCPU(iteration))
+            print ("Number of events per CPU: " +  str(data.getEventsPerCPU(iteration)))
             info.write("Number of events per CPU: %d\n\n" % data.getEventsPerCPU(iteration))
             
         else:
-            print "Number of events per CPU: All" 
+            print ("Number of events per CPU: All" )
             info.write("Number of events per CPU: All" )
 
         OutputPaths = OutputPath
         os.mkdir(folderName+'/'+data.getName()+'/')
 
-        print " Processing..."
+        print (" Processing...")
         
         # check how many jobs must be sent
         # if users requests many, but the input file has less files, then the number of
@@ -147,7 +149,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         numberOfSubJobs = data.getCPUs(iteration)
         if (data.getNFilesInList() < numberOfSubJobs): 
             numberOfSubJobs = data.getNFilesInList()
-            print " >>> User requested ",data.getCPUs(iteration), " jobs but files has fewer entries. numberOfSubJobs= ", numberOfSubJobs     
+            print (" >>> User requested ",data.getCPUs(iteration), " jobs but files has fewer entries. numberOfSubJobs= ", numberOfSubJobs     )
 
         # Get the Input file
         dataFiles = SortCpus(numberOfSubJobs
@@ -274,8 +276,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
             #coolfiles.append("")
 
 
-            #print " <NewInDetIterator> create a job: Outputpath = ", OutputPaths
-            #print "                                     JOBNAME = ", JOBNAME
+            #print (" <NewInDetIterator> create a job: Outputpath = ", OutputPaths)
+            #print ("                                     JOBNAME = ", JOBNAME)
             currentjob = manageJob(OutputPath = OutputPaths,
                                    dataName = data.getName(),
                                    iter = iteration,
@@ -307,7 +309,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
     #if runMode == "batch":
         # Wait for signal
     #   currentjob.wait()
-    #print " -- SALVA -- Accumulate jobs already submitted. Waiting for completion -- "
+    #print (" -- SALVA -- Accumulate jobs already submitted. Waiting for completion -- ")
     #rep = ''
     #while not rep in [ 'c', 'Q' ]:
     #    rep = raw_input( '[RunIterator]% enter "c" to continue: ' )
@@ -318,19 +320,19 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
     #  Solving the system
     if doSolve:
         DataToSolve = list(DataToRun) # in case there is more than one set to run
-        print "\n Waiting for Accumulate job completion. Please be patient. "
+        print ("\n Waiting for Accumulate job completion. Please be patient. ")
         while len(DataToSolve):
             for data in DataToSolve:
                 batchjobs = "%s_Iter%d%s_%s_Part" % (preName,iteration,folderSuffix,data.getName())
-                #print "            preJOBNAME ", preJOBNAME
+                #print ("            preJOBNAME ", preJOBNAME)
                 if os.popen('bjobs -w').read().find(preJOBNAME)!=-1: # check if accumulate jobs still running 
                     time.sleep(30) # wait for a while before asking again
                     continue
                 DataToSolve.remove(data) # this data set is already completed 
                 time.sleep(30) # wait a bit longer just to be sure reco step has already finished
-                print " --> DataToSolve --> jobs running for ",len(DataToRun)," data types "
+                print (" --> DataToSolve --> jobs running for ",len(DataToRun)," data types ")
                
-        print " >> Accumulate jobs were completed at ", time.strftime("%H:%M:%S")        
+        print (" >> Accumulate jobs were completed at ", time.strftime("%H:%M:%S")        )
         info.write("\n Accumulate jobs were completed at \n")
 
         if (len(DataToRun)>1): 
@@ -398,9 +400,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         tfiles = [] # set an empty list
         while len(DataToSolve):
             for data in DataToSolve:
-                print "----------------------------------------------"
-                print "  Solving dataset %s, Iter %s"%(data.getName(),iteration)
-                print "----------------------------------------------"
+                print ("----------------------------------------------")
+                print ("  Solving dataset %s, Iter %s"%(data.getName(),iteration))
+                print ("----------------------------------------------")
             
                 info.write('\n')
                 info.write("----------------------------------------------\n")
@@ -411,7 +413,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                 alignLevels = folderName+"/NewInDetAlignLevels.py"
                 PrefixName="Iter%d%s_%s" % (iteration, folderSuffix, data.getName()) 
 
-                print " Solving logs stored in %s/Iter%d%s/logs/%s_Solve.log" % (OutputPaths, iteration, folderSuffix, PrefixName)
+                print (" Solving logs stored in %s/Iter%d%s/logs/%s_Solve.log" % (OutputPaths, iteration, folderSuffix, PrefixName))
         
                 # Get Vectors, Matricies and Hitmaps
                 if not useTFiles:
@@ -469,15 +471,15 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                 #coolfiles = [RecoOptions["inputDbs"][0],bowingdb]
 
                 # only one solution job submitted
-                print " -- tfiles list = ", tfiles 
+                print (" -- tfiles list = ", tfiles )
                 
                 #form
                 #OriginalLBIBLTweak = extraOptions["applyLBibldistTweak"]
                 #if OriginalLBIBLTweak:
-                #    print "-- Turning Off the LB IBLDistortion Tweak During Solving --"
+                #    print ("-- Turning Off the LB IBLDistortion Tweak During Solving --")
                 #    extraOptions["applyLBibldistTweak"] = False
                 #else:
-                #    print "-- The LB IBLDistortion tweak was ", extraOptions["applyLBibldistTweak"], " since accumulation"
+                #    print ("-- The LB IBLDistortion tweak was ", extraOptions["applyLBibldistTweak"], " since accumulation")
 
                 currentjob = manageJob(OutputPath = OutputPaths,
                                        dataName = data.getName(),
@@ -506,10 +508,10 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                 currentjob.writeScript()
                 if (len(DataToSolve) == 1):
                     if (len(tfiles)>0): # there are tfiles ready to be used 
-                        print " -- Submitting Solve job: ",currentjob.JOBNAME," to queue ", currentjob.QUEUE
+                        print (" -- Submitting Solve job: ",currentjob.JOBNAME," to queue ", currentjob.QUEUE)
                         currentjob.send(runMode) # submit only the last one 
                     else:
-                        print " -- WARNING -- No tfiles are found !!! Solve job is not submitted "
+                        print (" -- WARNING -- No tfiles are found !!! Solve job is not submitted ")
                             
                 DataToSolve.remove(data)
             #end loop over DatatoSolve
@@ -523,21 +525,21 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         #extraOptions["applyLBibldistTweak"] = OriginalLBIBLTweak
         
     else:
-        print "---------------------------------------------------------------\n"
-        print " WARNING: Skipping the solving because the flag doSolve is OFF\n"
-        print "---------------------------------------------------------------\n"
+        print ("---------------------------------------------------------------\n")
+        print (" WARNING: Skipping the solving because the flag doSolve is OFF\n")
+        print ("---------------------------------------------------------------\n")
         
         DataToMerge = list(DataToRun)
-        print "\n Waiting for Accumulate job completion. Please be patient."
+        print ("\n Waiting for Accumulate job completion. Please be patient.")
         while len(DataToMerge):
             for data in DataToMerge:
                 batchjobs = "%s_Iter%d%s_%s_Part" % (preName,iteration,folderSuffix, data.getName())
                 if os.popen('bjobs -w').read().find(batchjobs)!=-1: #check if accumulate jobs are running
-                    #print "Waiting for ",batchjobs
+                    #print ("Waiting for ",batchjobs)
                     time.sleep(60)
                     continue
                 DataToMerge.remove(data) #completed
-                #print len(DataToMerge)
+                #print (len(DataToMerge))
                 time.sleep(30)
 
 
@@ -562,8 +564,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
             monitoringMerge.write()
             monitoringMerge.send(runMode)
 
-#   print "  Iteration %d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime))
-#   print "----------------------------------------------"
+#   print ("  Iteration %d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime)))
+#   print ("----------------------------------------------")
 #
 #   info.write("\n")
 #   info.write("----------------------------------------------\n")
@@ -579,9 +581,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 ## =======================
 ##if MonitoringScript == True:
 #if False:
-#   print
-#   print "Comparing the Monitoring Files"
-#   print
+#   print()
+#   print ("Comparing the Monitoring Files")
+#   print()
 #   info.write('\n')
 #   info.write("Comparing the Monitoring Files \n" )
 #   info.write("\n")
@@ -594,9 +596,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 #   compareMonitoring.write()
 #   compareMonitoring.send(runMode)
 #
-#   print
-#   print "Processed %d iterations !!!" % Iterations
-#   print "  %5.3f  seconds" % (time.time()-StartTime)
+#   print()
+#   print ("Processed %d iterations !!!" % Iterations)
+#   print ("  %5.3f  seconds" % (time.time()-StartTime))
 #
 #info=open(OutputPath+"/info.txt",'a')
 #info.write('\n')

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // #ifndef XAOD_ANALYSIS
@@ -56,21 +56,21 @@ TrigRoiDescriptor* TrigRoiDescriptorCnv::createTransient()
   if( compareClassGuid(p3_guid) ) {
     
     mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p3 persistent object" << endmsg;
-    std::auto_ptr< TrigRoiDescriptor_p3 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p3 >() );
+    std::unique_ptr< TrigRoiDescriptor_p3 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p3 >() );
     trans_obj = m_TPConverters->p3.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p2_guid) ) {
     
     mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p2 persistent object" << endmsg;
-    std::auto_ptr< TrigRoiDescriptor_p2 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p2 >() );
+    std::unique_ptr< TrigRoiDescriptor_p2 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p2 >() );
     trans_obj = m_TPConverters->p2.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigRoiDescriptorCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigRoiDescriptor_p1 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p1 >() );
+    std::unique_ptr< TrigRoiDescriptor_p1 >   col_vect( this->poolReadObject< TrigRoiDescriptor_p1 >() );
     trans_obj = m_TPConverters->p1.createTransient( col_vect.get(), mlog );
     
   }

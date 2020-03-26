@@ -35,15 +35,22 @@ if TriggerFlags.doCalo:
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
     recosequence, caloclusters = HLTFSTopoRecoSequence("HLT_TestFSRoI")
     steps += recosequence
-    
+
   if ( doL2Egamma ) :
      from TrigT2CaloCommon.CaloDef import createFastCaloSequence
      filterL1RoIsAlg = RoRSeqFilter( "filterL1RoIsAlg")
      filterL1RoIsAlg.Input = ["HLTNav_TestL1EM"]
      filterL1RoIsAlg.Output = ["HLTNav_FilteredEMRoIDecisions"]
      filterL1RoIsAlg.Chains = [ "HLT_EMTestChain" ]
-     (fastCaloSequence, sequenceOut) = createFastCaloSequence(filterL1RoIsAlg.Output[0])    
+     (fastCaloSequence, sequenceOut) = createFastCaloSequence(filterL1RoIsAlg.Output[0])
      steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ fastCaloSequence ])
+
+  if (True):
+    from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
+    alg=MbtsFexMT()
+    steps += alg
+
+
 
   from AthenaCommon.AlgSequence import dumpMasterSequence
   dumpMasterSequence()
@@ -52,4 +59,3 @@ from AthenaCommon.CFElements import findAlgorithm
 
 findAlgorithm( topSequence, "HLTCaloCellMakerFS").OutputLevel=DEBUG
 findAlgorithm( topSequence, "FastCaloL2EgammaAlg").OutputLevel=DEBUG
-

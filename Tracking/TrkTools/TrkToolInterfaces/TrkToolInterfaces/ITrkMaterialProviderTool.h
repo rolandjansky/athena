@@ -33,7 +33,7 @@ namespace Trk {
       static const InterfaceID& interfaceID( ) ;
       
       /** Update Calorimeter TSOS from input ID and MS tracks*/
-      virtual void updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const = 0;
+      virtual void updateCaloTSOS(const Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const = 0;
       
       /** Update Calorimeter TSOS from input MS tracks*/
       virtual void updateCaloTSOS(Trk::Track& msTrack, const Trk::TrackParameters* startParamaters=nullptr) const = 0;

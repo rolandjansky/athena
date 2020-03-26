@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IIOVSVCTOOL_H
@@ -9,6 +9,7 @@
 #include "GaudiKernel/IAlgTool.h"
 
 #include <string>
+#include <memory>
 
 #include "GaudiKernel/ClassID.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -68,13 +69,13 @@ public:
   // Get IOVRange from db for current event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
                                     IOVRange& range, std::string &tag,
-                                    IOpaqueAddress*& ioa) const = 0;
+                                    std::unique_ptr<IOpaqueAddress>& ioa) const = 0;
 
   // Get IOVRange from db for a particular event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
                                     const IOVTime& time,
                                     IOVRange& range, std::string &tag,
-                                    IOpaqueAddress*& ioa) const = 0;
+                                    std::unique_ptr<IOpaqueAddress>& ioa) const = 0;
 
   // Set a particular IOVRange in db (and memory)
   virtual StatusCode setRangeInDB(const CLID& clid, const std::string& key, 

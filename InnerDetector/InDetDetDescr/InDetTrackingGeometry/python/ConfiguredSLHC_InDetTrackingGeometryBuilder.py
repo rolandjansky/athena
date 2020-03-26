@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # ConfiguredSLHC_InDetTrackingGeometry module
@@ -86,9 +86,9 @@ class ConfiguredSLHC_InDetTrackingGeometryBuilder( InDet__StagedTrackingGeometry
         binningsEndcap += [ PixelLayerBinning ]
         colors         += [ 3 ]
         # check if the pixel split mode is one
-        if TrkDetFlags.PixelSplitMode() is not 0:
+        if TrkDetFlags.PixelSplitMode() != 0:
             # set split mode to pixel layer builder 
-            print "[SLHC_GeometryBuilder] Building Pixel layers in split mode"
+            print ("[SLHC_GeometryBuilder] Building Pixel layers in split mode")
             # change the identificaiton of the first one
             PixelLayerBuilder.Identification       = 'Pixel1'
             # and now configure the second one
@@ -156,10 +156,10 @@ class ConfiguredSLHC_InDetTrackingGeometryBuilder( InDet__StagedTrackingGeometry
                                                               
             # the split and the second SCT layer builder is needed if the SCT outer barrel
             # spans over the full width      
-            if TrkDetFlags.SCT_SplitMode() is not 0 :
-              print "[SLHC_GeometryBuilder] Building SCT layers in split mode"
+            if TrkDetFlags.SCT_SplitMode() != 0 :
+              print ("[SLHC_GeometryBuilder] Building SCT layers in split mode")
               from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__SiLayerBuilder
-              SCT_LayerBuilder2 = InDet__SCT_LayerBuilder(name=namePrefix+'SCT_LayerBuilder2')
+              SCT_LayerBuilder2 = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder2')
             
               # switch of the pixel case
               SCT_LayerBuilder2.PixelCase                = False

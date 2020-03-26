@@ -12,7 +12,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/InputMakerBase.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -21,11 +21,15 @@
 #include "GaudiKernel/IScheduler.h"
 #include "AthViews/View.h"
 
- /**
-   * @class EventViewCreatorAlgorithm
-   * @brief Used at the start of a sequence to create the EventViews: retrieves filtered collection via menu decision from previous step and writes it out directly so it can be used as input by the reco alg that follows in sequence.
-   **/
+#include "ViewAlgs/IViewCreatorROITool.h"
 
+/**
+  * @class EventViewCreatorAlgorithm
+  * @brief Used at the start of a sequence to create the EventViews: retrieves filtered collections via menu decision from previous 
+  * step, merges them and writes out a merged collection to be consumed by HypoAlg(s).
+  * Spawns EventViews for each unique ROI associated to each Decision object in the merged output.
+  * Links the EventView and the ROI to each Decision object in the merged output.
+  **/
 
 
 class EventViewCreatorAlgorithm : public ::InputMakerBase
@@ -39,35 +43,60 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
  protected:
 
     EventViewCreatorAlgorithm();
-    
-    // Used instead of execute, when mergeOutputs is true
-    // Note: if we enforce the merging beahviour this will become the default execute()
-    StatusCode executeMerged(const EventContext&) const;
 
-    //Output views for merging
-    SG::WriteHandleKey< ViewContainer > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };
+    SG::WriteHandleKey< ViewContainer > m_viewsKey{ this, "Views", "Unspecified",
+      "The key of views collection produced" };
 
-    // same handles as inputMakerForRoI
-    SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_inViewRoIs{ this, "InViewRoIs", "Unspecified", "Name with which the RoIs shoudl be inserted into the views" };
+    SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_inViewRoIs{ this, "InViewRoIs", "Unspecified",
+      "Name of the collection which should be inserted into the just-spawned views to seed them with their ROI" };
 
     // needs for views
     Gaudi::Property< std::string > m_schedulerName { this, "SchedulerName", "AvalancheSchedulerSvc", "Name of the scheduler" };
-    Gaudi::Property< std::string > m_viewNodeName{ this, "ViewNodeName", "", "Name of the CF node to attach a view to" };
+    Gaudi::Property< std::string > m_viewNodeName{ this, "ViewNodeName", "", "Name of the ControlFlow node to attach new views to" };
 
-    Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may accesas StoreGate directly to retrieve data" };
-    Gaudi::Property< bool > m_requireParentView { this, "RequireParentView", false, "Fail if the parent view can not be found" };
-    Gaudi::Property< bool > m_reverseViews { this, "ReverseViewsDebug", false, "Reverse order of views, as a debugging option" };
-    Gaudi::Property< std::vector< std::string > > m_viewFallFilter { this, "FallThroughFilter", {}, "A list of SG keys (or parts of them) that can come from StoreGate" };
+    Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false,
+      "Set whether views may access StoreGate directly to retrieve data" };
+    Gaudi::Property< std::vector< std::string > > m_viewFallFilter { this, "FallThroughFilter", {}, 
+      "An optional list of SG keys (or parts of them) that can come from StoreGate via FallThrough" };
 
+    Gaudi::Property< bool > m_requireParentView { this, "RequireParentView", false,
+      "For each new view, locate and link a parent view (previous step). Fail if the parent view can not be found." };
 
-    // methods
-  /**
-   * @brief makes sure the views are linked, if configuration requireParentView is set, failure to set the parent is an error
-   **/
-    StatusCode linkViewToParent( const TrigCompositeUtils::Decision* inputDecsion, SG::View* newView ) const;
+    Gaudi::Property< bool > m_reverseViews { this, "ReverseViewsDebug", false, 
+      "Reverse order of views, as a debugging option" };
+
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_cachedViewsKey { this, "InputCachedViews", "",
+      "Optional ReadHandle on the output (InputMakerOutputDecisions) of an EVCA in a previous Step, whose Views can be re-used" };
+
+    ToolHandle<IViewCreatorROITool> m_roiTool{this, "RoITool", "",
+      "Tool used to supply per-Decision Object the RoI on which the Decision Object's view is to be spawned"};
+
+    /**
+     * @brief Makes sure the views are linked, if configuration requireParentView is set. Failure to set the parent is an error
+     **/
+    StatusCode linkViewToParent( const TrigCompositeUtils::Decision* outputDecision, SG::View* newView ) const;
+
+    /**
+     * @brief Seeds a newly created view with an ROI collection containing the single seeding ROI
+     **/
     StatusCode placeRoIInView( const ElementLink<TrigRoiDescriptorCollection>& roi, SG::View* view, const EventContext& context ) const;
-    inline SmartIF<IScheduler> getScheduler() const {return svcLoc()->service<IScheduler>(m_schedulerName,false);}
+
+    /**
+     * @brief Obtain smart pointer to scheduler in order to schedule newly spawned views
+     **/
+    SmartIF<IScheduler> getScheduler() const;
+
+    /**
+     * @brief Allow for the re-use of EventViews run in a previous Step in another EVCA instance configured
+     * to spawn EventViews using the same reconstruction sequence (i.e. both algs should share a common ViewNodeName).
+     **/
+    bool checkCache(const TrigCompositeUtils::DecisionContainer* cachedViews, 
+      const TrigCompositeUtils::Decision* outputDecision, 
+      size_t& cachedIndex) const;
+
 };
+
+#include "EventViewCreatorAlgorithm.icc"
 
 #endif
 

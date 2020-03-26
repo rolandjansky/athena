@@ -6,7 +6,7 @@
 #include "GaudiKernel/EventContext.h"
 #include "TrigConfHLTData/HLTUtils.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "L1TestDecoder.h"

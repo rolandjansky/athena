@@ -75,11 +75,11 @@ monLog.info("Validation switches are set to: {0}".format(monDict))
 # Schedule individual validations
 if not 'HLTMonFlags' in dir():
     from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
-for monType, enabled in monDict.iteritems():
+for monType, enabled in monDict.items():
     monLog.info('Enabling %s %s',monType,enabled)
     HLTMonFlags.set_All_Off()
     if enabled:
-        exec "HLTMonFlags.do%s = True" % (monType)
+        exec("HLTMonFlags.do%s = True" % (monType))
 monLog.info(HLTMonFlags)
 
 if hasattr(runArgs,"preExec"):

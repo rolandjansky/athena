@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 doc = """
@@ -16,8 +18,8 @@ logging.basicConfig(level=logging.INFO)
 from array import array
 
 def merge_histograms(old, new, merge_error=True):
-    print "old binning: " + ", ".join(("%.3f" % old.GetBinLowEdge(ibin)) for ibin in xrange(1, old.GetNbinsX() + 2))
-    print "new binning: " + ", ".join(("%.3f" % new.GetBinLowEdge(ibin)) for ibin in xrange(1, new.GetNbinsX() + 2))
+    print ("old binning: " + ", ".join(("%.3f" % old.GetBinLowEdge(ibin)) for ibin in range(1, old.GetNbinsX() + 2)))
+    print ("new binning: " + ", ".join(("%.3f" % new.GetBinLowEdge(ibin)) for ibin in range(1, new.GetNbinsX() + 2)))
     
     new_binning = []
     new_values = []
@@ -25,7 +27,7 @@ def merge_histograms(old, new, merge_error=True):
     UNDERFLOW = 0
     OVERFLOW = new.GetNbinsX() + 1
 
-    for iold in xrange(1, old.GetNbinsX()):
+    for iold in range(1, old.GetNbinsX()):
         l = old.GetBinLowEdge(iold)
         r = l + old.GetBinWidth(iold)
 
@@ -34,7 +36,7 @@ def merge_histograms(old, new, merge_error=True):
         remainer = None
 
         if il_new == UNDERFLOW and ir_new == UNDERFLOW:
-            print "1. adding %.3f - %.3f from old" % (l, r)
+            print ("1. adding %.3f - %.3f from old" % (l, r))
             new_binning.append((l, r))
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
@@ -47,25 +49,25 @@ def merge_histograms(old, new, merge_error=True):
             new_errors.append(old.GetBinError(iold))
             if ir_new == OVERFLOW:
                 remainer = iold
-            print "breaking"
+            print ("breaking")
             break
     last_old = iold
 
-    for inew in xrange(1, new.GetNbinsX() + 1):
+    for inew in range(1, new.GetNbinsX() + 1):
         l = new.GetBinLowEdge(inew)
         r = l + new.GetBinWidth(inew)
-        print "2. adding %.3f - %.3f from new" % (l, r)
+        print ("2. adding %.3f - %.3f from new" % (l, r))
         new_binning.append((l, r))
         new_values.append(new.GetBinContent(inew))
         new_errors.append(new.GetBinError(inew))
     """
     if remainer is not None:
-        print "3. adding %.3f - %.3f from old" % (new.GetBinLowEdge(new.GetNbinsX()), old.GetBinLowEdge(remainer) + old.GetBinWidth(remainer))
+        print ("3. adding %.3f - %.3f from old" % (new.GetBinLowEdge(new.GetNbinsX()), old.GetBinLowEdge(remainer) + old.GetBinWidth(remainer)))
         new_binning.append((new.GetBinLowEdge(new.GetNbinsX()), old.GetBinLowEdge(remainer) + old.GetBinWidth(remainer)))
         new_values.append(old.GetBinContent(remainer))
         new_errors.append(old.GetBinError(remainer))
     """
-    for iold in xrange(last_old, old.GetNbinsX() + 1):
+    for iold in range(last_old, old.GetNbinsX() + 1):
         l = old.GetBinLowEdge(iold)
         r = l + old.GetBinWidth(iold)
 
@@ -73,7 +75,7 @@ def merge_histograms(old, new, merge_error=True):
         ir_new = new.FindFixBin(r)
 
         if il_new == OVERFLOW and ir_new == OVERFLOW:
-            print "4. adding %.3f - %.3f from old" % (l, r)
+            print ("4. adding %.3f - %.3f from old" % (l, r))
             new_binning.append((l, r))
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
@@ -84,7 +86,7 @@ def merge_histograms(old, new, merge_error=True):
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
 
-    print new_binning
+    print (new_binning)
     new_edges = array('f', [x[0] for x in new_binning] + [new_binning[-1][1]])
     histo_type = type(new)
     result = histo_type(new.GetName(), new.GetTitle(), len(new_edges) - 1, new_edges)
@@ -93,7 +95,7 @@ def merge_histograms(old, new, merge_error=True):
         if merge_error:
             result.SetBinError(i, e)
 
-    print "merged binning: " + ", ".join(("%.3f" % result.GetBinLowEdge(ibin)) for ibin in xrange(1, result.GetNbinsX() + 1))
+    print ("merged binning: " + ", ".join(("%.3f" % result.GetBinLowEdge(ibin)) for ibin in range(1, result.GetNbinsX() + 1)))
 
             
     return result

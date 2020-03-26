@@ -23,6 +23,13 @@
 # define HAVE_FUNCTION_MULTIVERSIONING 0
 #endif
 
+/// Do we have the target_clones attribute?  Clang 9 does not.
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__)
+# define HAVE_TARGET_CLONES 1
+#else
+# define HAVE_TARGET_CLONES 0
+#endif
+
 /// Do we have function multiversioning supporting all GCC extensions
 #if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__)
 # define HAVE_GCC_INTRINSICS 1
@@ -45,6 +52,15 @@
 # define HAVE_BITCOUNT_INTRINSICS 1
 #else
 # define HAVE_BITCOUNT_INTRINSICS 0
+#endif
+
+
+// Do we have the vector_size attribute for writing explicitly
+// vectorized code?
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__)
+# define HAVE_VECTOR_SIZE_ATTRIBUTE 1
+#else
+# define HAVE_VECTOR_SIZE_ATTRIBUTE 0
 #endif
 
 

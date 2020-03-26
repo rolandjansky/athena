@@ -151,7 +151,7 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
   xAODJetCollector jetCollector0;
   
   timer.start();
-  execute_(m_helper0, jv, collectorName, jetCollector0, logname, pass0);
+  ATH_CHECK (execute_(m_helper0, jv, collectorName, jetCollector0, logname, pass0));
   timer.stop();
   
   if(!m_visitDebug){
@@ -172,7 +172,7 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
 
   timer.start();
 
-  execute_(m_helper1, jv, collectorName, jetCollector1, logname, pass1);
+  ATH_CHECK (execute_(m_helper1, jv, collectorName, jetCollector1, logname, pass1));
   timer.stop();
 
   if(!m_visitDebug){

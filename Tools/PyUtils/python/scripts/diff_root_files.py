@@ -158,7 +158,10 @@ def main(args):
             if idx % 100 == 0:
                 msg.debug('Read {} events from the input so far'.format(idx))
             tree.GetEntry(idx)
-            if hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
+            if hasattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.'):
+                event_info = getattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.')
+                event_number = event_info.eventNumber
+            elif hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
                 event_info = getattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.')
                 event_number = event_info.eventNumber
             elif hasattr(tree,'EventInfoAux.'):

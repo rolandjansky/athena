@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMECPresamplerHVModule.h"
@@ -93,7 +93,7 @@ void EMECPresamplerHVModule::voltage_current(int iGap,double& voltage, double&cu
  current = payload->current[iGap];
 }
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int EMECPresamplerHVModule::hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const
 {
   return hvIdMapping

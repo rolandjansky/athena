@@ -17,7 +17,7 @@
 #include "MdtCalibInterfaces/IMdtSegmentFitter.h"
 
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
-
+#include "MuonCalibStandAloneExtraTools/MdtDqaGlobalTimeFit.h"
 #include "MuonCalibStandAloneExtraTools/PhiEtaUtils.h"
 
 // MuonCalib //
@@ -36,12 +36,7 @@
 #include "MdtCalibData/MdtCalibrationFactory.h"
 
 #include "MdtCalibFitters/LocalSegmentResolver.h"
-
-//MdtCalibFitters
 #include "MdtCalibFitters/DCSLFitter.h"
-
-// MdtDqaGlobalTimeFit      //
-#include "MuonCalibStandAloneExtraTools/MdtDqaGlobalTimeFit.h"
 
 //this
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
@@ -53,7 +48,7 @@
 #include "TNtuple.h"
 #include "TString.h"
 #include "TDirectory.h"
-#include "TMath.h" // for TMath::Prob
+#include "TMath.h" // for TMath::Prob()
 
 //::::::::::::::::::::::::
 //:: NAMESPACE SETTINGS ::

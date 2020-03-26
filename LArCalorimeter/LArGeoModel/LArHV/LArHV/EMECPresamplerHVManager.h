@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_EMECPRESAMPLERHVMANAGER_H
@@ -7,7 +7,7 @@
 
 #include "LArHV/EMECPresamplerHVModule.h"
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
@@ -55,7 +55,7 @@ class EMECPresamplerHVManager
   // Get the database payload
   EMECPresamplerHVPayload *getPayload(const EMECPresamplerHVModule &) const;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   // Get hvLine for a module
   int hvLineNo(const EMECPresamplerHVModule& module
                , const LArHVIdMapping* hvIdMapping) const;

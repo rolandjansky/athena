@@ -2,10 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
+#include <regex>
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
 
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
@@ -33,6 +34,11 @@ StatusCode TrigSignatureMoniMT::start() {
 
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
   bool gotL1Menu =  l1MenuHandle.isValid();
+
+  // reset the state
+  m_groupToChainMap.clear();
+  m_streamToChainMap.clear();
+  m_chainIDToBunchMap.clear();
 
   //retrieve chain information from menus
   std::vector<std::string> bcidChainNames;
@@ -135,33 +141,55 @@ StatusCode TrigSignatureMoniMT::stop() {
     return StatusCode::SUCCESS;
   }
   
+  auto fixedWidth = [](const std::string& s, size_t sz) {
+    std::ostringstream ss;
+    ss << std::setw(sz) << std::left << s;
+    return ss.str();
+  };
+
+  SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+  ATH_CHECK( hltMenuHandle.isValid() );
+
+  // retrieve information whether chain was active in Step
+  std::map<std::string, std::set<std::string>> chainToSteps;
+  for ( const TrigConf::Chain& chain: *hltMenuHandle ){
+    for ( const auto& seq : chain.getList("sequencers", true) ){
+      // example sequencer name is "Step1_FastCalo_electron", we need only information about Step + number
+      const std::string seqName = seq.getValue();
+      std::smatch stepName;
+      std::regex_search(seqName.begin(), seqName.end(), stepName, std::regex("^Step[0-9]+"));
+      chainToSteps[chain.name()].insert( stepName[0] );
+    }
+  }
+
   auto collToString = [&]( int xbin, const LockedHandle<TH2>& hist, int startOfset=0, int endOffset=0){ 
     std::string v;
+    const int stepsSize = hist->GetYaxis()->GetNbins()-3; //L1, AfterPS, Output
     for ( int ybin = 1; ybin <= hist->GetYaxis()->GetNbins()-endOffset; ++ybin ) {
       if ( ybin > startOfset ) {
-        v += std::to_string( int(hist->GetBinContent( xbin, ybin )) );
-        v += std::string( 10*ybin - v.size(),  ' ' ); // fill with spaces
+        // skip steps where chain wasn't active
+        // ybins are for all axis labes, steps are in bins from 3 to stepsSize + 2
+        const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(xbin);
+        ybin < 3 || ybin > stepsSize + 2 || chainToSteps[chainName].find("Step" + std::to_string(ybin - 2)) != chainToSteps[chainName].end() ?
+          v += fixedWidth( std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11 )
+          : v += fixedWidth( "-", 11 );
       } else {
-        v += std::string( 10, ' ');
+        v += fixedWidth( " ", 11 );
       }
     }
-    
     return v;
   };
   
-  auto fixedWidth = [](const std::string& s, size_t sz) {
-    return s.size() < sz ?
-    s+ std::string(sz - s.size(), ' ') : s; };
-
   std::string v;
+  v += fixedWidth( "L1", 11 );
+  v += fixedWidth( "AfterPS", 11 );
   for ( int bin = 1; bin <= m_passHistogram->GetYaxis()->GetNbins()-3; ++bin ) {
-    v += "step";
-    v += std::to_string(bin);
-    v += std::string( 10*bin - v.size(),  ' ' );
+    v += fixedWidth( "Step" + std::to_string(bin), 11 );
   }
+  v += fixedWidth( "Output", 11 );
   
   ATH_MSG_INFO( "Chains passing step (1st row events & 2nd row decision counts):" );  
-  ATH_MSG_INFO( "Chain name                   L1,      AfterPS,  "<<v<<"Output"  );
+  ATH_MSG_INFO( fixedWidth("ChainName", 30) << v );
 
   /*
     comment for future dev:
@@ -170,9 +198,11 @@ StatusCode TrigSignatureMoniMT::stop() {
   
   for ( int bin = 1; bin <= (*m_passHistogram)->GetXaxis()->GetNbins(); ++bin ) {
     const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(bin);
+    const std::string chainID = std::to_string( HLT::Identifier(chainName) );
     if ( chainName.find("HLT") == 0 ) { // print only for chains
-      ATH_MSG_INFO( fixedWidth(chainName, 30)  << collToString( bin, m_passHistogram) );
-      ATH_MSG_INFO(fixedWidth(chainName +" decisions", 30) << collToString( bin, m_countHistogram , 2, 1 ) );
+      ATH_MSG_INFO( chainName + " #" + chainID);
+      ATH_MSG_INFO( fixedWidth("-- #" + chainID + " Events", 30)  << collToString( bin, m_passHistogram) );
+      ATH_MSG_INFO( fixedWidth("-- #" + chainID + " Features", 30) << collToString( bin, m_countHistogram , 2, 1 ) );
     }
     if ( chainName.find("All") == 0 ){
       ATH_MSG_INFO( fixedWidth(chainName, 30)  << collToString( bin, m_passHistogram) );

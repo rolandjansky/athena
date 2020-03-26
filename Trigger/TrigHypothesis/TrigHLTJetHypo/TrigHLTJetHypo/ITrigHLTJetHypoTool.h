@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODJet/JetContainer.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 class ITrigHLTJetHypoTool : virtual public IAlgTool {
 public:

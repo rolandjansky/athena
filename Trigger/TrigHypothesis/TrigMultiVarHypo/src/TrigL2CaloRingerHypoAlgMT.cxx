@@ -5,8 +5,8 @@
 #include "GaudiKernel/Property.h"
 #include "TrigL2CaloRingerHypoAlgMT.h"
 #include "AthViews/ViewHelper.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/ViewHelper.h"
 
 

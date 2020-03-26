@@ -79,7 +79,8 @@ TrigConf::TrigDBL1PrescalesSetLoader::loadL1Prescales ( unsigned int l1psk,
 
    boost::property_tree::ptree l1pss_pt;
    boost::property_tree::read_json(stream, l1pss_pt);
-   l1pss.setData(l1pss_pt);
+   l1pss.setData(std::move(l1pss_pt));
+   l1pss.setPSK(l1psk);
 
    session->transaction().commit();
 

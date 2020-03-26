@@ -3,8 +3,8 @@
 */
 
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "DecisionHandling/Combinators.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/Combinators.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigmuCombHypoTool.h"
 
 using namespace TrigCompositeUtils;

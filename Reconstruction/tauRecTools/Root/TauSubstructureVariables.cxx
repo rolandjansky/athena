@@ -38,12 +38,10 @@ TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
 		TauRecToolBase(name),
 		m_maxPileUpCorrection(4 * GeV),
 		m_pileUpAlpha(1.0),
-		m_doVertexCorrection(false), 
-		m_inAODmode(false) {
+		m_doVertexCorrection(false) {
 	declareProperty("maxPileUpCorrection", m_maxPileUpCorrection);
 	declareProperty("pileUpAlpha", m_pileUpAlpha);
 	declareProperty("VertexCorrection", m_doVertexCorrection);
-	declareProperty("inAODmode", m_inAODmode);
 }
 
 
@@ -77,12 +75,12 @@ StatusCode TauSubstructureVariables::finalize() {
 //************************************
 
 StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
-	// Getting our hands on the TauJet object
-	//----------------------------------------
 
-	// Getting the jet seed
-	//------------------------------------------------------------------------------------------------
 	const xAOD::Jet* taujetseed = (*pTau.jetLink());
+    if (!taujetseed) {
+        ATH_MSG_ERROR("Tau jet link is invalid.");
+        return StatusCode::FAILURE;
+    } 
 
 	//*****************************************************
 	// calculate some tau substructure variables
@@ -91,13 +89,11 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	CaloClusterVariables CaloClusterVariablesTool;
 	CaloClusterVariablesTool.setVertexCorrection(m_doVertexCorrection);
 
-	bool isFilled = CaloClusterVariablesTool.update(pTau, m_inAODmode);
+	bool isFilled = CaloClusterVariablesTool.update(pTau);
 
 	if (!isFilled) {
-		if (!taujetseed) ATH_MSG_DEBUG("Taujet->jet() pointer is NULL: calo cluster variables will be set to -1111");
-		else ATH_MSG_DEBUG("problem in calculating calo cluster variables -> will be set to -1111");
+		ATH_MSG_DEBUG("problem in calculating calo cluster variables -> will be set to -1111");
 
-		if(!m_inAODmode) pTau.setDetail(xAOD::TauJetParameters::numCells , static_cast<int>(0) );
 		pTau.setDetail(xAOD::TauJetParameters::numTopoClusters , static_cast<int>(DEFAULT) );
 		pTau.setDetail(xAOD::TauJetParameters::numEffTopoClusters , static_cast<float>(DEFAULT) );
 		pTau.setDetail(xAOD::TauJetParameters::topoInvMass,  static_cast<float>(DEFAULT) );
@@ -114,7 +110,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 		double NumEffTopoClusters = CaloClusterVariablesTool.effectiveNumConstituents();
 		double TopoMeanDeltaR = CaloClusterVariablesTool.averageRadius();
 		double EffTopoMeanDeltaR = CaloClusterVariablesTool.averageEffectiveRadius();
-		unsigned int Ncells = CaloClusterVariablesTool.numCells();
 
 		ATH_MSG_VERBOSE(" Substructure variables: ");
 		ATH_MSG_VERBOSE("-------------------------");
@@ -124,12 +119,10 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 		ATH_MSG_VERBOSE("NumEffTopoClusters: " << NumEffTopoClusters);
 		ATH_MSG_VERBOSE("    TopoMeanDeltaR: " << TopoMeanDeltaR);
 		ATH_MSG_VERBOSE(" EffTopoMeanDeltaR: " << EffTopoMeanDeltaR);
-		ATH_MSG_VERBOSE("          NumCells: " << Ncells);
 
 		//Record the variables
 		//---------------------
 
-		if (!m_inAODmode) pTau.setDetail(xAOD::TauJetParameters::numCells ,  static_cast<int>  (Ncells)             );
 		pTau.setDetail(xAOD::TauJetParameters::numTopoClusters            ,  static_cast<int>  (NumTopoClusters)    );
 		pTau.setDetail(xAOD::TauJetParameters::numEffTopoClusters         ,  static_cast<float>(NumEffTopoClusters) );
 		pTau.setDetail(xAOD::TauJetParameters::topoInvMass                ,  static_cast<float>(TopoInvMass)	     );
@@ -142,23 +135,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	//*****************************************************
 	// calculate some new cluster based ID variables
 	//*****************************************************
-
-	if (taujetseed == NULL) {
-
-		// No jet seed? Warning! Fill variables with dummy values
-		//--------------------------------------------------------
-
-		ATH_MSG_DEBUG("Taujet->jet() pointer is NULL: substructure variables will be set to -1111");
-
-		pTau.setDetail(xAOD::TauJetParameters::lead2ClusterEOverAllClusterE, static_cast<float>(DEFAULT)  );
-		pTau.setDetail(xAOD::TauJetParameters::lead3ClusterEOverAllClusterE, static_cast<float>(DEFAULT)  );
-		pTau.setDetail(xAOD::TauJetParameters::caloIso           	    	, static_cast<float>(DEFAULT)  );
-		pTau.setDetail(xAOD::TauJetParameters::caloIsoCorrected            , static_cast<float>(DEFAULT)  );
-		pTau.setDetail(xAOD::TauJetParameters::dRmax                       , static_cast<float>(DEFAULT)  );
-
-		return StatusCode::SUCCESS;
-	}
-
 	// New cluster-based variables
 	float totalEnergy(0.);
 	float calo_iso(0.);

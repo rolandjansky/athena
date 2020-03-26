@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// LVL1TGCTrigger.h
 #ifndef TRIGT1TGC_LVL1TGCTRIGGER_H
 #define TRIGT1TGC_LVL1TGCTRIGGER_H
 
@@ -15,9 +14,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
 
 // Other stuff
 #include "TrigT1Interfaces/SlinkWord.h"
@@ -35,7 +31,6 @@
 #include "StoreGate/WriteHandleKey.h"
 
 #include "MuonDigitContainer/TgcDigit.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigT1TGC/TGCArguments.hh"
 #include "MuonDigitContainer/TgcDigitContainer.h"
@@ -115,7 +110,6 @@ namespace LVL1TGCTrigger {
     
     // Retrieve Masked channel list
     StatusCode getMaskedChannel();
-    std::map<Identifier, int> m_MaskedChannel;
     
     // pointers to various external services
     const ITGCcablingSvc*       m_cabling ;
@@ -146,11 +140,11 @@ namespace LVL1TGCTrigger {
     BooleanProperty   m_OutputTgcRDO{this,"OutputTgcRDO",true};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     
     // expert usage
-    BooleanProperty   m_OUTCOINCIDENCE{this,"OUTCOINCIDENCE",false}; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
-    BooleanProperty   m_SHPTORED{this,"SHPTORED",true}; // flag for E1/E2 chamber ORED in Strip HPT
-    BooleanProperty   m_USEINNER{this,"USEINNER",true}; // flag for using Inner Station for SL
+    BooleanProperty m_USE_CONDDB{this, "USE_CONDDB", true};  //< flag to use the Condition DB
+    BooleanProperty m_SHPTORED  {this, "SHPTORED",   true};  //< flag for E1/E2 chamber ORED in Strip HPT
+    BooleanProperty m_USEINNER  {this, "USEINNER",   true};  //< flag for using Inner Station for SL
     BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL
-    BooleanProperty   m_FULLCW{this,"FULLCW",true};   // flag for using differne CW for each octant
+    BooleanProperty   m_FULLCW{this,"FULLCW",false};   // flag for using differne CW for each octant
     BooleanProperty   m_TILEMU{this,"TILEMU",false};   // flag for using TileMu
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
     
@@ -158,7 +152,6 @@ namespace LVL1TGCTrigger {
     uint16_t          m_bctagInProcess;
     
     TGCDatabaseManager *m_db;
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", ""};
     TGCTimingManager *m_TimingManager;
     TGCElectronicsSystem *m_system;
     
@@ -171,18 +164,19 @@ namespace LVL1TGCTrigger {
     StatusCode getCabling();
     
     // log
-    mutable MsgStream   m_log;
     bool                m_debuglevel;
     
     TGCArguments m_tgcArgs;
     TGCArguments* tgcArgs();
-
 
     SG::ReadHandleKey<TgcDigitContainer> m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS","Location of TgcDigitContainer"};
     SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};
     SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey{this,"ReadCondKey","TGCTriggerData"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationTGC", "L1MuctpiStoreTGC", "Location of muctpi for Tgc"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};
+
+    /// mask channel map
+    std::map<Identifier, int> m_MaskedChannel;
 
   }; // class LVL1TGCTrigger
 

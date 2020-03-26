@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 ATLAS beam spot plot server.
@@ -10,7 +10,7 @@ __version__ = 'DebugPage.py atlas/athena'
 from BeamSpotWebPage import BeamSpotWebPage
 from InDetBeamSpotExample.TaskManager import *
 
-import sys, commands
+import sys
 import cherrypy
 
 errorMsg = """\

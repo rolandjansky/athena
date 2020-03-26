@@ -373,17 +373,6 @@ class TriggerConfigGetter(Configured):
         # copying
         #
         # In addition for MC the IOV has to be adjusted since in COOL the config data is written with IOV=infinity
-        if self.readRDO:
-
-            # setup the IOV Changer
-            from AthenaCommon.AlgSequence import AlgSequence
-            from TrigConfigSvc.TrigConfigSvcConf import TrigConf__TrigConfDataIOVChanger as TrigConfDataIOVChanger
-            topAlgs = AlgSequence()
-            TrigConfDataIOVChanger = TrigConfDataIOVChanger('TrigConfDataIOVChanger')
-            topAlgs += TrigConfDataIOVChanger
-            if self.makeTempCool:
-                TrigConfDataIOVChanger.AdjustIOV = True
-
 
         if TrigCoolDbConnection=='':
             log.info("COOL DBConnection: not set, will use default conditions database" )

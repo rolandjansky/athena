@@ -22,14 +22,8 @@ fileName     = buildFileName( derivationFlags.WriteDAOD_MUON2Stream )
 MUON2Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
 MUON2Stream.AcceptAlgs(["MUON2Kernel"])
 
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-
-MUON2ThinningSvc = createThinningSvc( svcName="MUON2ThinningSvc", outStreams=[evtStream] )
-svcMgr += MUON2ThinningSvc
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -293,7 +287,7 @@ if not isSimulation: #Only Skim Data
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 MUON2_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "MUON2_thinningTool_Tracks",
-  ThinningService            = "MUON2ThinningSvc",
+  StreamName                 = streamName,
   TrackParticleContainerName = "InDetTrackParticles",
   VertexContainerNames       = ["BsJpsiKKCandidates", "BpmJpsiKpmCandidates"],
   PassFlags                  = ["passed_Bs", "passed_Bplus", "passed_Bc"] )
@@ -303,7 +297,7 @@ ToolSvc += MUON2_thinningTool_Tracks
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BPhysPVThinningTool
 MUON2_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
   name                       = "MUON2_thinningTool_PV",
-  ThinningService            = "MUON2ThinningSvc",
+  StreamName                 = streamName,
   CandidateCollections       = ["BsJpsiKKCandidates", "BpmJpsiKpmCandidates"],
   KeepPVTracks  =True
  )

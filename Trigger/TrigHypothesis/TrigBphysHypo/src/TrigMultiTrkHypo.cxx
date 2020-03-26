@@ -6,426 +6,298 @@
  **
  **   File: Trigger/TrigHypothesis/TrigBPhysHypo/TrigMultiTrkHypo.cxx
  **
- **   Description: Multi-track hypothesis algorithm
+ **   Description: multi-track hypothesis algorithm
  **
- **   Author: H. Russell
+ **   Author: Heather Russell
  **
  **************************************************************************/
 
 #include "TrigMultiTrkHypo.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include <math.h>
-
-#include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
-
-// additions of xAOD objects
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-
 #include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
-#include "AthLinks/ElementLink.h"
-#include "AthViews/ViewHelper.h"
-#include "CxxUtils/phihelper.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
+#include "AthViews/View.h"
+#include "AthViews/ViewHelper.h"
 
-class ISvcLocator;
-using namespace TrigCompositeUtils;
-TrigMultiTrkHypo::TrigMultiTrkHypo(const std::string & name, ISvcLocator* pSvcLocator):
-    ::HypoBase(name, pSvcLocator)
-{}
+#include "Math/GenVector/VectorUtil.h"
 
-TrigMultiTrkHypo::~TrigMultiTrkHypo()
-{ }
+using TrigCompositeUtils::Decision;
+using TrigCompositeUtils::DecisionContainer;
+using TrigCompositeUtils::DecisionIDContainer;
 
-StatusCode TrigMultiTrkHypo::initialize()
-{
-    ATH_MSG_DEBUG( "Initializing " << name() << "...");
-    if(static_cast<int>(m_trkMasses.size()) != m_nTrk){
-        ATH_MSG_ERROR("Requested " << m_nTrk << " tracks per vertex, but only provided "
-             << m_trkMasses.size() << " track masses!");
-        return StatusCode::FAILURE;
-    } else if(msgLvl(MSG::DEBUG)){
-    	msg() << MSG::DEBUG <<  "requiring " << m_nTrk << " tracks with mass: ";
-    	for(float mass :  m_trkMasses) msg() << MSG::INFO << mass <<", ";
-        msg() << MSG::DEBUG << endmsg;
-    }
-    if(static_cast<int>(m_ptTrkMin.size()) != m_nTrk){
-        ATH_MSG_ERROR("Requested " << m_nTrk << " tracks per vertex, but only provided "
-            << m_ptTrkMin.size() << " track pTs!");
-        return StatusCode::FAILURE;
-    } else if(msgLvl(MSG::DEBUG)){
-    	msg() << MSG::DEBUG <<  "requiring " << m_nTrk << " tracks with pT: ";
-    	for(float pt :  m_ptTrkMin) msg() << MSG::INFO << pt <<", ";
-        msg() << MSG::DEBUG << endmsg;
-    }
-    if(m_nTrkQ  < 0 ) ATH_MSG_DEBUG("no charge requirement applied");
-    else ATH_MSG_DEBUG("pair must have charge : " << m_nTrkQ);
-    ATH_MSG_DEBUG("dR for track overlap removal: " << m_mindR);
 
-  /*       Not printing or checking consistency of these properties yet! need to add!
-  Gaudi::Property<std::vector<float>> m_nTrkMassMin { this, "nTrkMassMin", {0},""}; // both min+max need to be defined
-  Gaudi::Property<std::vector<float>> m_nTrkMassMax { this, "nTrkMassMax", {-1},""};
-  */
-    if(m_particleType == 0){
-        ATH_CHECK( m_trackParticleContainerKey.initialize() );
-        renounce(m_trackParticleContainerKey);
-        ATH_CHECK( m_muonContainerKey.initialize(false) );//Not using muons
-    } else if (m_particleType == 1){
-        ATH_CHECK( m_muonContainerKey.initialize() );
-        renounce(m_muonContainerKey);
-        ATH_CHECK( m_trackParticleContainerKey.initialize(false) ); //Not using tracks
-    } else{
-        ATH_MSG_ERROR("Particle type > 1 requested, we are not configured for that yet!");
-    }
 
- 	if ( not m_monTool.name().empty() ) {
-    	ATH_CHECK( m_monTool.retrieve() );
-  	}
+TrigMultiTrkHypo::TrigMultiTrkHypo(const std::string& name, ISvcLocator* pSvcLocator)
+    : ::HypoBase(name, pSvcLocator) {}
 
-    ATH_CHECK(m_hypoTools.retrieve());
 
-    ATH_CHECK(m_bphysObjContKey.initialize());
+StatusCode TrigMultiTrkHypo::initialize() {
+  ATH_MSG_DEBUG( "TrigMultiTrkHypo::initialize()" );
 
-    // set m_trigLevel
-    if (m_trigLevelString == "L2") {
-      m_trigLevel = xAOD::TrigBphys::L2;
-    }
-    else if (m_trigLevelString == "EF") {
-      m_trigLevel = xAOD::TrigBphys::EF;
-    }
-    else {
-      m_trigLevel = xAOD::TrigBphys::UNKOWNLEVEL;
-      ATH_MSG_ERROR("trigLevelString should be L2 or EF, but " << m_trigLevelString << " provided.");
+  // check consistency of the properties
+  if (m_trkMass.size() != m_nTrk) {
+    ATH_MSG_ERROR( "Requested " << m_nTrk << " tracks per vertex, but only provided " << m_trkMass.size() << " track masses");
+    return StatusCode::FAILURE;
+  }
+  if (m_trkPt.size() != m_nTrk) {
+    ATH_MSG_ERROR( "Requested " << m_nTrk << " tracks per vertex, but only provided " << m_trkPt.size() << " track pT thresholds");
+    return StatusCode::FAILURE;
+  }
+
+  for (const auto& range : m_massRange.value()) {
+    if (range.first > range.second) {
+      ATH_MSG_ERROR( "Mass range incorrect values: {Mi_min, Mi_max}" );
       return StatusCode::FAILURE;
     }
+  }
+
+  // dump numerical values
+  if (msgLvl(MSG::DEBUG)) {
+    msg() << MSG::DEBUG << "vertex topology:" << std::endl;
+    for (size_t i = 0; i < m_nTrk; ++i) {
+      msg() << MSG::DEBUG << "  " << i << "  trk: mass = " <<  m_trkMass[i] << ", Pt > " << m_trkPt[i] << std::endl;
+    }
+    msg() << MSG::DEBUG << "  mass range: {";
+    for (const auto& range : m_massRange.value()) {
+      msg() << MSG::DEBUG << " { " << range.first << ", " << range.second << " }";
+    }
+    msg() << MSG::DEBUG << " }" << std::endl;
+  }
+
+  if (m_trigLevelString == "L2") {
+    m_trigLevel = xAOD::TrigBphys::L2;
+    ATH_CHECK( m_muonContainerKey.initialize(false) );
+    ATH_CHECK( m_trackParticleContainerKey.initialize() );
+    renounce(m_trackParticleContainerKey);
+  }
+  else if (m_trigLevelString == "EF") {
+    m_trigLevel = xAOD::TrigBphys::EF;
+    ATH_CHECK( m_trackParticleContainerKey.initialize(false) );
+    ATH_CHECK( m_muonContainerKey.initialize() );
+    renounce(m_muonContainerKey);
+  }
+  else {
+    m_trigLevel = xAOD::TrigBphys::UNKOWNLEVEL;
+    ATH_MSG_ERROR( "trigLevel should be L2 or EF, but " << m_trigLevelString << " provided" );
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( m_trigBphysContainerKey.initialize() );
 
   ATH_CHECK( m_vertexFitter.retrieve() );
   m_vertexFitterState = m_vertexFitter->makeState();
-  m_vertexFitter->setMassInputParticles(m_trkMasses, *m_vertexFitterState);
-
+  m_vertexFitter->setMassInputParticles(m_trkMass, *m_vertexFitterState);
   ATH_CHECK( m_vertexPointEstimator.retrieve() );
+
+  ATH_CHECK( m_hypoTools.retrieve() );
+
+  if (!m_monTool.empty()) {
+    ATH_CHECK( m_monTool.retrieve() );
+    ATH_MSG_DEBUG( "GenericMonitoringTool name:" << m_monTool );
+  }
+  else {
+    ATH_MSG_DEBUG( "No GenericMonitoringTool configured: no monitoring histograms will be available" );
+  }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigMultiTrkHypo::finalize()
-{
+
+StatusCode TrigMultiTrkHypo::finalize() {
   TrigConf::HLTUtils::hashes2file();
   return StatusCode::SUCCESS;
 }
 
-//-------------------------------------------------------------------------------------
-StatusCode TrigMultiTrkHypo::execute( const EventContext& context) const
-{
 
-    auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
-    ATH_MSG_DEBUG("decision input key: " << decisionInput().key());
-    if( not previousDecisionsHandle.isValid() ) {//implicit
-        ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
-        return StatusCode::SUCCESS;
+StatusCode TrigMultiTrkHypo::execute(const EventContext& context) const {
+
+  ATH_MSG_DEBUG( "TrigMultiTrkHypo::execute() starts" );
+
+  ATH_MSG_DEBUG( "decision input key: " << decisionInput().key() );
+  auto previousDecisionsHandle = SG::makeHandle(decisionInput(), context);
+  CHECK( previousDecisionsHandle.isValid() );
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() << " previous decisions" );
+
+  // create the mutable output DecisionContainer and register it to StoreGate
+  SG::WriteHandle<DecisionContainer> outputHandle = TrigCompositeUtils::createAndStore(decisionOutput(), context);
+  DecisionContainer* decisions = outputHandle.ptr();
+
+  auto trigBphysHandle = SG::makeHandle(m_trigBphysContainerKey, context);
+  ATH_CHECK( trigBphysHandle.record(std::make_unique<xAOD::TrigBphysContainer>(),
+                                    std::make_unique<xAOD::TrigBphysAuxContainer>()) );
+
+  // monitored variables
+  auto mon_nTrk = Monitored::Scalar<int>("nTrk", 0);
+  auto mon_nAcceptedTrk = Monitored::Scalar<int>("nAcceptedTrk", 0);
+  auto mon_nCombination = Monitored::Scalar<int>("nCombination", 0);
+  auto mon_nCombinationBeforeFit = Monitored::Scalar<int>("nCombinationBeforeFit", 0);
+  auto mon_nBPhysObject = Monitored::Scalar<int>("nBPhysObject", 0);
+
+  std::vector<float> trkMassBeforeFit;
+  std::vector<float> bphysMass;
+  std::vector<int> bphysCharge;
+  auto mon_trkMassBeforeFit = Monitored::Collection("trkMassBeforeFit", trkMassBeforeFit);
+  auto mon_bphysChi2 = Monitored::Collection("bphysChi2", *trigBphysHandle, &xAOD::TrigBphys::fitchi2);
+  auto mon_bphysFitMass = Monitored::Collection("bphysFitMass", *trigBphysHandle, [](const xAOD::TrigBphys* x){ return x->fitmass()*0.001; } );
+  auto mon_bphysMass = Monitored::Collection("bphysMass", bphysMass);
+  auto mon_bphysCharge = Monitored::Collection("bphysCharge", bphysCharge);
+
+  auto mon_timer = Monitored::Timer( "TIME_all" );
+
+  auto group = Monitored::Group(m_monTool,
+    mon_nTrk, mon_nAcceptedTrk, mon_nCombination, mon_nCombinationBeforeFit, mon_nBPhysObject,
+    mon_trkMassBeforeFit, mon_bphysChi2, mon_bphysFitMass, mon_bphysMass, mon_bphysCharge,
+    mon_timer);
+
+  // combine all tracks/muons from the event views, make overlap removal
+  std::vector<std::pair<ElementLink<xAOD::TrackParticleContainer>, const Decision*>> tracks;
+  size_t viewCounter = 0;
+  for (const Decision* previousDecision : *previousDecisionsHandle) {
+    const auto viewEL = previousDecision->objectLink<ViewContainer>(TrigCompositeUtils::viewString());
+    CHECK( viewEL.isValid() );
+
+    std::vector<ElementLink<xAOD::TrackParticleContainer>> tracksFromView;
+    if (m_trigLevel == xAOD::TrigBphys::L2) {
+      auto tracksHandle = ViewHelper::makeHandle(*viewEL, m_trackParticleContainerKey, context);
+      CHECK( tracksHandle.isValid() );
+      ATH_MSG_DEBUG( "tracks handle " << m_trackParticleContainerKey << " size: " << tracksHandle->size() );
+
+      for (size_t idx = 0; idx < tracksHandle->size(); ++idx) {
+        tracksFromView.emplace_back(ViewHelper::makeLink<xAOD::TrackParticleContainer>(*viewEL, tracksHandle, idx));
+      }
     }
-    ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+    else {
+      auto muonsHandle = ViewHelper::makeHandle(*viewEL, m_muonContainerKey, context);
+      CHECK( muonsHandle.isValid() );
+      ATH_MSG_DEBUG( "muons handle " << m_muonContainerKey << " size: " << muonsHandle->size() );
 
-    // new output decisions
-    SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context );
-    DecisionContainer* decisions = outputHandle.ptr();
-
-    std::vector<TrigMultiTrkHypoTool::TrigMultiTrkInfo> hypoToolInput;
-
-
-    ATH_MSG_VERBOSE( "Executing " <<name());
-
-    //Monitored variables
-    std::vector<float> ini_nTrkMass(0);
-    std::vector<float> ini_nTrkFitMass(0);
-    std::vector<float> ini_nTrkChi2(0);
-    std::vector<float> ini_pairMass(0);
-    std::vector<int>   ini_totcharge;
-
-    // Monitoring histogram
-    auto mon_NTrkMass  		   = Monitored::Collection("nTrkMass", ini_nTrkMass);
-    auto mon_NTrkFitMass	   = Monitored::Collection("nTrkFitMass", ini_nTrkFitMass);
-    auto mon_NTrkChi2          = Monitored::Collection("nTrkChi2", ini_nTrkChi2);
-    auto mon_pairMass          = Monitored::Collection("pairMass", ini_pairMass);
-    auto mon_Totcharge         = Monitored::Collection("totCharge", ini_totcharge);
-
-    auto mon_NTrk          	     = Monitored::Scalar<int>("nTrk", 0);
-    auto mon_accepted_highptNTrk = Monitored::Scalar<int>("accepted_highptNTrk", 0);
-    auto mon_NPair               = Monitored::Scalar<int>("nPair", 0);
-    auto mon_acceptedNPair       = Monitored::Scalar<int>("accepted_nPair", 0);
-
-    auto monitorIt = Monitored::Group( m_monTool, mon_NTrk,
-  			mon_accepted_highptNTrk, mon_NTrkMass, mon_NTrkFitMass, mon_NTrkChi2, mon_pairMass,
-  			mon_NPair, mon_acceptedNPair, mon_Totcharge );
-
-    auto bphysColl = SG::makeHandle( m_bphysObjContKey, context );
-
-    ATH_CHECK( bphysColl.record (std::make_unique<xAOD::TrigBphysContainer>(),
-                                 std::make_unique<xAOD::TrigBphysAuxContainer>()) );
-
-    //need to combine all the muon event views - since there should be one view / RoI
-
-	//map which track comes from which decision object - works for good tracks too, because
-	//those are done by pointer in the same way!
-	std::map< ElementLink<xAOD::TrackParticleContainer>, const Decision*> track_decision_map;
-
-    std::vector< ElementLink<xAOD::TrackParticleContainer> > good_tracks;
-    std::vector< ElementLink<xAOD::TrackParticleContainer> > all_tracks;
-
-    for (const Decision* previousDecision: *previousDecisionsHandle) {
-		  const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
-  		ATH_CHECK( viewEL.isValid() );
-
-  		//could implement something templated for tracks/muon tracks/electron tracks
-  		//auto tracks = get_correct_tracks();//templated in some .icc file, hide away all
-  		//the different types there. But make sure what we return is something  common and
-  		//all that is necessary.
-
-  		//tracks are SG::ReadHandle<xAOD::TrackParticleContainer>
-  		if(m_particleType == 0){
-  		auto tracks = ViewHelper::makeHandle( *viewEL, m_trackParticleContainerKey, context );
-  		ATH_CHECK( tracks.isValid() );
-    	 //so each time the loop starts, tracks is reset to contain tracks from a different view
-    	 ATH_MSG_DEBUG( "Made handle " << m_trackParticleContainerKey << " size: "
-                  << tracks->size() );
-
-         if(tracks->size() == 0) continue;
-
-         for(auto track : *tracks){
-
-            const ElementLink<xAOD::TrackParticleContainer> track_link =
-                     ElementLink<xAOD::TrackParticleContainer>(*tracks, track->index(), context);
-            ATH_CHECK(track_link.isValid());
-
-        	all_tracks.push_back(track_link);
-        	track_decision_map[track_link] = previousDecision;
-         }
-         } else if(m_particleType == 1){
-             auto muons = ViewHelper::makeHandle( *viewEL, m_muonContainerKey, context );
-  		     ATH_CHECK( muons.isValid() );
-    	     //so each time the loop starts, tracks is reset to contain tracks from a different view
-    	     ATH_MSG_DEBUG( "Made handle " << m_muonContainerKey << " size: "
-                  << muons->size() );
-
-             if(muons->size() == 0) continue;
-
-             for(auto muon : *muons){
-                //check if this is a combined muon
-                const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
-                if (!tr) {
-                    ATH_MSG_DEBUG("No CombinedTrackParticle found.");
-                    continue;
-                } else {
-                    const ElementLink<xAOD::TrackParticleContainer> track_link = muon->inDetTrackParticleLink();
-                    ATH_CHECK(track_link.isValid());
-
-            	    all_tracks.push_back(track_link);
-                    track_decision_map[track_link] = previousDecision;
-                }
-             }
-         }
+      for (const xAOD::Muon* muon : *muonsHandle) {
+        if (!muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle)) continue;
+        const ElementLink<xAOD::TrackParticleContainer> trackEL = muon->inDetTrackParticleLink();
+        CHECK( trackEL.isValid() );
+        tracksFromView.emplace_back(trackEL);
+      }
     }
-    mon_NTrk = all_tracks.size();
-    bool passNTrack_and_pTcuts = passNTracks(m_nTrk, m_ptTrkMin, all_tracks, good_tracks, m_mindR);
-    if (!passNTrack_and_pTcuts){
-      ATH_MSG_DEBUG("failed nTrack cut");
-      return StatusCode::SUCCESS;
+    mon_nTrk += tracksFromView.size();
+
+    for (const auto& trackEL : tracksFromView) {
+      const xAOD::TrackParticle* track = *trackEL;
+      if (track->definingParametersCovMatrixVec().empty() || track->pt() < m_trkPt.value().back()) continue;
+
+      if (viewCounter == 0 ||
+          std::find_if(tracks.begin(), tracks.end(),
+                       [this,track = track](const auto& x){ return isIdenticalTracks(track, *x.first); }) == tracks.end()) {
+        tracks.emplace_back(std::make_pair(trackEL, previousDecision));
+      }
     }
-    mon_accepted_highptNTrk = good_tracks.size();
 
-    ATH_MSG_DEBUG("Passed NTrack and track pT cuts: " << mon_accepted_highptNTrk << " tracks sent to vertexing");
+    viewCounter++;
+  }
+  std::sort(tracks.begin(), tracks.end(), [](const auto& lhs, const auto& rhs){ return ((*lhs.first)->pt() > (*rhs.first)->pt()); });
 
-    const auto nTracks = good_tracks.size();
-    for (unsigned int it0 = 0; it0 != nTracks; ++it0) {
+  mon_nAcceptedTrk = tracks.size();
+  ATH_MSG_DEBUG( "Select " << mon_nAcceptedTrk << " tracks and send them to vertex fitter" );
 
-      //dereference element link to get the track
-      auto tp0 = *good_tracks.at(it0);
-      auto p0 = tp0->genvecP4();
-      p0.SetM( m_trkMasses[0] );
-      int charge0 = static_cast<int>( tp0->charge() );
-      if ( tp0->definingParametersCovMatrixVec().empty() ) {
-        ATH_MSG_WARNING( "Skip track0 #" << it0 << " Fit not allowed, Problems with TP in vertexFit" );
+  if (msgLvl(MSG::DEBUG)) {
+    ATH_MSG_DEBUG( "Dump found tracks/muons before vertex fit: " );
+    for (const auto& x : tracks) {
+      const xAOD::TrackParticle* track = *x.first;
+      ATH_MSG_DEBUG( "  -- track pt/eta/phi/q: " << track->pt() << " / " << track->eta() << " / " << track->phi() << " / " << track->charge() );
+    }
+  }
+
+  std::vector<std::vector<const Decision*>> trigBphysPreviousDecisions;
+  for (size_t itrk1 = 0; itrk1 < tracks.size(); ++itrk1) {
+    const xAOD::TrackParticle* trk1 = *tracks[itrk1].first;
+    auto p1 = trk1->genvecP4();
+    p1.SetM( m_trkMass[0] );
+    int charge1 = static_cast<int>(trk1->charge());
+    if (p1.Pt() < m_trkPt[0]) continue;
+
+    for (size_t itrk2 = itrk1 + 1; itrk2 < tracks.size(); ++itrk2) {
+      const xAOD::TrackParticle* trk2 = *tracks[itrk2].first;
+      auto p2 = trk2->genvecP4();
+      p2.SetM( m_trkMass[1] );
+      int charge2 = static_cast<int>(trk2->charge());
+      if (p2.Pt() < m_trkPt[1]) continue;
+
+      double mass = (p1 + p2).M();
+      mon_nCombination++;
+      trkMassBeforeFit.push_back(mass * 0.001);
+
+      ATH_MSG_DEBUG( "track 1: " << p1.Pt()<< " / " << p1.Eta() << " / " << p1.Phi() << " / " << trk1->charge() );
+      ATH_MSG_DEBUG( "track 2: " << p2.Pt()<< " / " << p2.Eta() << " / " << p2.Phi() << " / " << trk2->charge() );
+      ATH_MSG_DEBUG( "track pair mass: " << mass );
+
+      if (!isInMassRange(mass)) continue;
+
+      mon_nCombinationBeforeFit++;
+
+      xAOD::TrigBphys* trigBphys = fit(std::vector<ElementLink<xAOD::TrackParticleContainer>>{tracks[itrk1].first, tracks[itrk2].first});
+      if (!trigBphys) continue;
+
+      trigBphysHandle->push_back(trigBphys);
+      trigBphysPreviousDecisions.emplace_back(std::vector<const Decision*>{tracks[itrk1].second, tracks[itrk2].second});
+
+      mon_nBPhysObject++;
+      bphysMass.push_back(mass * 0.001);
+      bphysCharge.push_back(charge1 + charge2);
+    }
+  }
+
+  std::vector<TrigMultiTrkHypoTool::TrigMultiTrkInfo> hypoToolInput;
+
+  size_t idx = 0;
+  for (const xAOD::TrigBphys* trigBphys : *trigBphysHandle) {
+
+    ATH_MSG_DEBUG( "Found xAOD::TrigBphys: mass = " << trigBphys->mass() );
+
+    // create a new output Decision object, backed by the 'decisions' container.
+    Decision* decision = TrigCompositeUtils::newDecisionIn(decisions);
+
+    // set mandatory feature ElementLink to xAOD::TrigBphys object
+    decision->setObjectLink<xAOD::TrigBphysContainer>(TrigCompositeUtils::featureString(),
+                                                      ElementLink<xAOD::TrigBphysContainer>(*trigBphysHandle, trigBphys->index()));
+
+    DecisionIDContainer previousDecisionIDs_trk1;
+    DecisionIDContainer previousDecisionIDs_trk2;
+    for (size_t itrk = 0; itrk < 2; ++itrk) {
+      const Decision* previousDecision = trigBphysPreviousDecisions[idx][itrk];
+
+      // if the same previous decision is called twice, that's fine - internally takes care of that
+      TrigCompositeUtils::linkToPrevious(decision, previousDecision, context);
+      if (itrk == 0) {
+        TrigCompositeUtils::decisionIDs(previousDecision, previousDecisionIDs_trk1);
+      }
+      else {
+        TrigCompositeUtils::decisionIDs(previousDecision, previousDecisionIDs_trk2);
       }
 
-      for (unsigned int it1 = it0+1; it1 != nTracks; ++it1) {
-          mon_NPair++;
-          auto tp1 = *good_tracks.at(it1);
-          auto p1 = tp1->genvecP4();
-          p1.SetM( m_trkMasses[1] );
-          int charge1 = static_cast<int>( tp1->charge() );
-          if ( tp1->definingParametersCovMatrixVec().empty() ) {
-            ATH_MSG_WARNING( "Skip track1 #" << it1 << " Fit not allowed, Problems with TP in vertexFit" );
-          }
-
-          double totalMass = (p0 + p1).M();
-          ini_nTrkMass.push_back(totalMass*0.001);
-
-          ATH_MSG_DEBUG("track 1: " << tp0->pt()<< " / " << tp0->eta()<< " /  "
-                        << tp0->phi()<< " /  "  << tp0->charge());
-          ATH_MSG_DEBUG("track 2: " << tp1->pt()<< " / " << tp1->eta()<< " /  "
-                        << tp1->phi()<< " /  " << tp1->charge());
-
-          ATH_MSG_DEBUG("Track pair mass: " <<  totalMass);
-
-          //allow for multiple acceptable mass windows!
-          bool passMassCut = false;
-          for(unsigned int im =0; im < m_nTrkMassMin.size(); im++ ){
-              if(totalMass >= m_nTrkMassMin[im] && totalMass <= m_nTrkMassMax[im]){
-                ATH_MSG_DEBUG("Passes nTrack mass cut!");
-                passMassCut = true;
-              }
-          }
-          if(!passMassCut) continue; //don't bother with things way outside the mass window!
-
-          mon_acceptedNPair++;
-
-          std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks = {good_tracks.at(it0), good_tracks.at(it1)};
-          xAOD::TrigBphys* trigBphys = fit(thisIterationTracks);
-          if (!trigBphys) continue;
-
-          ini_nTrkFitMass.push_back(trigBphys->fitmass()*0.001);
-          ini_nTrkChi2.push_back(trigBphys->fitchi2());
-
-          ini_pairMass.push_back(totalMass * 0.001);
-          ini_totcharge.push_back(charge0 + charge1);
-
-          bphysColl->push_back(trigBphys);
-          //need to add some duplicate BPhys object removal here? isUnique(trigBphys)?
-          //what to do about combinatorics???
-        }
     }
-    good_tracks.clear();
+    // collect all the required information for the tool together in a handy struct
+    hypoToolInput.emplace_back(TrigMultiTrkHypoTool::TrigMultiTrkInfo{
+      decision, trigBphys, previousDecisionIDs_trk1, previousDecisionIDs_trk2});
 
-    for (const xAOD::TrigBphys* bphysObj : * bphysColl){
+    ++idx;
+  }
 
-        ATH_MSG_DEBUG("Found xAOD::TrigBphys: " << bphysObj->mass());
-        // Create a new output Decision object, d, backed by the 'decisions' container.
-        // Links previousDecision as the parent of d.
-        Decision* newDecision = newDecisionIn( decisions );
+  ATH_MSG_DEBUG( "Found "<< hypoToolInput.size() << " inputs to HypoTools" );
+  for (auto& tool: m_hypoTools) {
+    ATH_MSG_DEBUG( "Go to " << tool );
+    ATH_CHECK( tool->decide(hypoToolInput) );
+  }
 
-        // Obtain an ElementLink to objA and set mandatory feature link
-        const ElementLink<xAOD::TrigBphysContainer> bphyEL
-              = ElementLink<xAOD::TrigBphysContainer>( *bphysColl, bphysObj->index() );
-        newDecision->setObjectLink<xAOD::TrigBphysContainer>( "feature", bphyEL );
-        DecisionIDContainer previousDecisionIDs0;
-        DecisionIDContainer previousDecisionIDs1;
-		//remove the auto!
-        const auto tplinks = bphysObj->trackParticleLinks();
-        int itrk = -1;
-		for ( const auto tplink : tplinks){
-			itrk++;
-			const Decision* previousDecision = track_decision_map[tplink];
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
-			// Extract the set of previousDecisionIDs from the previousDecision.
-        	// If you needed to re-map the previous decision(s), then call decisionIDs once
-        	// for each previous decision
-        	// if the same previous decision is called twice, that's fine - internally takes care of that
-        	linkToPrevious( newDecision, previousDecision, context );
-        	if(itrk == 0 ){
-        		decisionIDs(previousDecision, previousDecisionIDs0);
-			}else{
-        		decisionIDs(previousDecision, previousDecisionIDs1);
-
-			}
-        }
-	    // Collect all the required information for the tool together in a handy struct
-       hypoToolInput.push_back( TrigMultiTrkHypoTool::TrigMultiTrkInfo{newDecision, bphysObj,
-       		previousDecisionIDs0, previousDecisionIDs1} );
-
-
-    }
-
-    ATH_MSG_DEBUG("Found "<< hypoToolInput.size()<<" inputs to tools");
-
-    StatusCode sc = StatusCode::SUCCESS;
-    for ( auto& tool: m_hypoTools ) {
-      ATH_MSG_DEBUG("Go to " << tool );
-      //could decide on individual triggers
-      ATH_CHECK( tool->decide(hypoToolInput) );
-    }
-
-    ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
-    ATH_MSG_DEBUG("StatusCode TrigMultiTrkHypo::execute_r success");
-    return StatusCode::SUCCESS;
-}
-
-bool TrigMultiTrkHypo::passNTracks(int nObjMin,
-                 const std::vector<float> & ptObjMin,
-  				 const std::vector<ElementLink<xAOD::TrackParticleContainer> > & inputTrkVec,
-                 std::vector<ElementLink<xAOD::TrackParticleContainer> > & outputTrkVec,
-                 float mindR) const
-{
-
-  if( nObjMin <= 0 ) return true; //why on earth would this ever happen...
-  //don't bother running if we don't even have enough input tracks
-  if(static_cast<int>(inputTrkVec.size()) < nObjMin) return false;
-
-  outputTrkVec.clear();
-
-  float mindR2 = mindR*mindR;
-
-  float minpT = *min_element(std::begin(ptObjMin), std::end(ptObjMin)); //*min because min_element returns an iterator, not the value
-  for( const auto & inTrk : inputTrkVec){
-
-     // don't keep if it doesn't pass the min pT cut
-     if( (*inTrk)->pt() < minpT ) continue;
-
-     // check for overlap
-     bool already_found = false;
-
-     for(const auto& outTrk : outputTrkVec ){
-       //obviously not the same track if OS
-       if( (*outTrk)->charge() *  (*inTrk)->charge() < 0 ) continue;
-
-       double deta = (*inTrk)->eta() - (*outTrk)->eta();
-       double dphi = CxxUtils::wrapToPi((*inTrk)->phi() - (*outTrk)->phi());
-       double deltaR2 = deta*deta + dphi*dphi;
-       if( deltaR2 <= mindR2) already_found = true;
-     }
-     if( !already_found ) {
-       outputTrkVec.push_back(inTrk);
-       ATH_MSG_DEBUG("Found track pt/eta/phi/q " << (*inTrk)->pt()<< " / "
-                        << (*inTrk)->eta()<< " /  "
-                        << (*inTrk)->phi()<< " /  "
-                        << (*inTrk)->charge());
-     }
-   }// end loop over input muons
-
-   //=== check if it is enough muons
-  if( (int)outputTrkVec.size() < nObjMin ) {
-    ATH_MSG_DEBUG("Rejecting: " <<" #Ntracks= " <<  outputTrkVec.size()
-                        << " while need "<< nObjMin);
-   return false;
- }
-
- std::sort( std::begin(outputTrkVec), std::end(outputTrkVec), sortTracks);
-
- //find number of tracks to check the pT of
- unsigned int Ncheck = std::min( nObjMin, int(ptObjMin.size()) );
- bool failMuonPt = false;
- for ( unsigned int ipt=0; ipt < Ncheck; ++ipt) {
-   float pt = (*outputTrkVec[ipt])->pt();
-   // check if value in GeV or MeV, if it was >350 GeV and multiplied by 1000, it does not matter
-   if( pt < 350. && pt>0.01 ) pt *= 1000.;
-   if(  pt < ptObjMin[ipt] ) failMuonPt = true;
- }
- if( failMuonPt ){
-   ATH_MSG_DEBUG ("Fail track pt cut" );
-   return false;
- }
- // here would be good to limit number of objects to the minimum
-
- return true;
+  ATH_MSG_DEBUG( "TrigMultiTrkHypo::execute() terminates with StatusCode::SUCCESS" );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -467,7 +339,7 @@ xAOD::TrigBphys* TrigMultiTrkHypo::fit(const std::vector<ElementLink<xAOD::Track
   xAOD::TrackParticle::GenVecFourMom_t momentum;
   for (size_t i = 0; i < vertex->nTrackParticles(); ++i) {
     auto p = vertex->trackParticle(i)->genvecP4();
-    p.SetM(m_trkMasses[i]);
+    p.SetM(m_trkMass[i]);
     momentum += p;
   }
 
@@ -497,5 +369,25 @@ xAOD::TrigBphys* TrigMultiTrkHypo::fit(const std::vector<ElementLink<xAOD::Track
     "chi2/NDF:      " << result->fitchi2() << " / " << result->fitndof() << "\n\t  " <<
     "vertex:        (" << result->fitx() << ", " << result->fity() << ", " << result->fitz() << ")" );
 
+  return result;
+}
+
+
+bool TrigMultiTrkHypo::isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const {
+
+  if (lhs->charge() * rhs->charge() < 0.) return false;
+  return (ROOT::Math::VectorUtil::DeltaR(lhs->genvecP4(), rhs->genvecP4()) < m_deltaR);
+}
+
+
+bool TrigMultiTrkHypo::isInMassRange(double mass) const {
+
+  bool result = false;
+  for (const auto& range : m_massRange) {
+    if (mass > range.first && mass < range.second) {
+      result = true;
+      break;
+    }
+  }
   return result;
 }

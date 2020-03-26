@@ -7,7 +7,7 @@ shift 2
 
 GREPOPTS="--regexp=.*"
 DUMPOPTS=""
-while getopts "ix:" opt; do
+while getopts "itx:" opt; do
     case ${opt} in
 	x )
 	    echo "Will ignore: $OPTARG"
@@ -16,6 +16,10 @@ while getopts "ix:" opt; do
 	i )
 		echo "Doing fuzzy check"
 		DUMPOPTS="$DUMPOPTS --no_onfile -r name"
+		;;
+	t )
+		echo "Doing loose TTree check"
+		DUMPOPTS="$DUMPOPTS --tree_entries"
 		;;
 	\? )
 	    echo "Invalid option: -$OPTARG"
