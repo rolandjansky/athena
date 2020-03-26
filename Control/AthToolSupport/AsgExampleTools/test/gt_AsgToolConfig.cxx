@@ -48,9 +48,10 @@ namespace asg
   {
     const std::string name = makeUniqueName();
     AsgToolConfig config ("asg::UnitTestTool1/" + name);
-    std::unique_ptr<IUnitTestTool1> tool;
-    ASSERT_SUCCESS (config.makeTool (tool));
-    EXPECT_EQ (name, tool->name());
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool1> tool;
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
   }
 
 
@@ -59,9 +60,10 @@ namespace asg
   {
     const std::string name = makeUniqueName();
     AsgToolConfig config ("asg::UnitTestTool1A/" + name);
-    std::unique_ptr<IUnitTestTool1> tool;
-    ASSERT_SUCCESS (config.makeTool (tool));
-    EXPECT_EQ (name, tool->name());
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool1> tool;
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
     EXPECT_TRUE (tool->isInitialized());
     EXPECT_EQ (-7, tool->getPropertyInt());
     EXPECT_EQ ("", tool->getPropertyString());
@@ -75,9 +77,10 @@ namespace asg
     AsgToolConfig config ("asg::UnitTestTool1A/" + name);
     EXPECT_SUCCESS (config.setProperty ("propertyInt", 17));
     EXPECT_SUCCESS (config.setProperty ("propertyString", "alpha"));
-    std::unique_ptr<IUnitTestTool1> tool;
-    ASSERT_SUCCESS (config.makeTool (tool));
-    EXPECT_EQ (name, tool->name());
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool1> tool;
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
     EXPECT_TRUE (tool->isInitialized());
     EXPECT_EQ (17, tool->getPropertyInt());
     EXPECT_EQ ("alpha", tool->getPropertyString());
@@ -91,9 +94,10 @@ namespace asg
     AsgToolConfig config ("asg::UnitTestTool1A/" + name);
     config.setPropertyFromString ("propertyInt", "17");
     config.setPropertyFromString ("propertyString", "'alpha'");
-    std::unique_ptr<IUnitTestTool1> tool;
-    ASSERT_SUCCESS (config.makeTool (tool));
-    EXPECT_EQ (name, tool->name());
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool1> tool;
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
     EXPECT_TRUE (tool->isInitialized());
     EXPECT_EQ (17, tool->getPropertyInt());
     EXPECT_EQ ("alpha", tool->getPropertyString());
@@ -105,9 +109,10 @@ namespace asg
   {
     const std::string name = makeUniqueName();
     AsgToolConfig config ("asg::UnitTestTool2/" + name);
-    std::unique_ptr<IUnitTestTool2> tool;
-    ASSERT_SUCCESS (config.makeTool (tool));
-    EXPECT_EQ (name, tool->name());
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool2> tool;
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
     EXPECT_FAILURE (tool->retrieveToolHandle("regPrivateHandle"));
     EXPECT_FALSE (tool->wasUserConfigured("anaPrivateHandle"));
   }
@@ -122,9 +127,10 @@ namespace asg
     config.setPropertyFromString ("regPrivateHandle.propertyInt", "17");
     ASSERT_SUCCESS (config.createPrivateTool ("anaPrivateHandle", "asg::UnitTestTool1A"));
     config.setPropertyFromString ("anaPrivateHandle.propertyInt", "42");
-    std::unique_ptr<IUnitTestTool2> tool;
-    ASSERT_SUCCESS (config.makeTool (tool));
-    EXPECT_EQ (name, tool->name());
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool2> tool;
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
     EXPECT_SUCCESS (tool->retrieveToolHandle("regPrivateHandle"));
     EXPECT_TRUE (tool->getToolHandle ("regPrivateHandle")->isInitialized());
     EXPECT_EQ (17, tool->getToolHandle ("regPrivateHandle")->getPropertyInt());

@@ -308,22 +308,24 @@ namespace asg
   template<> StatusCode AsgComponentConfig ::
   makeComponentExpert<AsgComponent> (std::unique_ptr<AsgComponent>& component,
                                      const std::string& newCommand,
-                                     bool nestedNames) const
+                                     bool nestedNames, std::string prefix) const
   {
     using namespace msgComponentConfig;
 
     ANA_CHECK (checkTypeName (nestedNames));
 
+    std::string name = prefix + m_name;
+
     ComponentMap componentMap;
 
-    if (!createComponent (component, m_type, m_name, newCommand).isSuccess())
+    if (!createComponent (component, m_type, name, newCommand).isSuccess())
       return StatusCode::FAILURE;
     componentMap.m_components.insert (std::make_pair ("", component.get()));
 
     for (auto& toolInfo : m_privateTools)
     {
       std::shared_ptr<asg::AsgTool> tool;
-      if (!createTool (toolInfo.second, m_name + "." + toolInfo.first, tool).isSuccess())
+      if (!createTool (toolInfo.second, name + "." + toolInfo.first, tool).isSuccess())
         return StatusCode::FAILURE;
       componentMap.m_cleanup.push_front (tool);
       componentMap.m_components.insert (std::make_pair (toolInfo.first, tool.get()));
