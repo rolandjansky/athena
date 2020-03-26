@@ -48,7 +48,7 @@ StatusCode  ISF::KinematicSimSelector::initialize()
     return StatusCode::FAILURE;
     }
   
-   static const HepPDT::ParticleDataTable* m_particleDataTable; 
+   HepPDT::ParticleDataTable* m_particleDataTable; 
    m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
 
    if(m_particleDataTable == 0) 
@@ -67,7 +67,7 @@ StatusCode  ISF::KinematicSimSelector::initialize()
   if ( !(m_cut_maxMom2<0.)) m_cut_maxMom2 *= m_cut_maxMom2;
 
   // if use kinetic energy 
-  if(!(m_cut_maxEkin < 0.)) m_cut_maxMom2 = 2*mass*m_cut_maxEkin; 
+  if(!(m_cut_maxEkin < 0.)) m_cut_maxMom2 = m_cut_maxEkin * (m_cut_maxEkin + 2 * mass); 
 
 
 
