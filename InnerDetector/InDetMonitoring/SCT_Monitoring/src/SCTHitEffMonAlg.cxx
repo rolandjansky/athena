@@ -47,7 +47,7 @@ using namespace std;
 namespace {// anonymous namespace for functions at file scope
   static const bool testOffline{false};
 
-  static const string histogramPath[N_REGIONS+1] = {
+  static const string histogramPath[N_REGIONS_INC_GENERAL] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
   static const string histogramPathRe[N_REGIONS] = {

@@ -9,7 +9,7 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
@@ -32,19 +32,6 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   // First pair is eta and second pair is phi.
   // First element of pair is minimum second is maximum.
   typedef std::pair<std::pair<double, double>, std::pair<double, double>> moduleGeo_t;
-
-  enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
-  enum ProblemForCoverage {
-    all, // All SCT module for counting good module
-    disabled, // Disabled
-    badLinkError, // BadLinkLevelError
-    badRODError, // BadRODLevelError
-    badError, // BadError = BadLinkLevelError + BadRODLevelError
-    psTripDCS, // Power supply trip using SCT_DCSConditionsSvc
-    summary, // Total coverage using SCT_ConditionsSummarySvc
-    numberOfProblemForCoverage
-  };
-  enum {NREGIONS_INC_GENERAL = SCT_Monitoring::N_REGIONS+1};
 
   static const unsigned int s_nBinsEta;
   static const double s_rangeEta;
