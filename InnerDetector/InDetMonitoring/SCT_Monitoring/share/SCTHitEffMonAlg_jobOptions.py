@@ -83,7 +83,7 @@ myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "isub, eff;" + "SctTot
                                                  xbins=sctMon.N_REGIONS,
                                                  xmin=0.,
                                                  xmax=sctMon.N_REGIONS,
-                                                 xlabels=subDetName)
+                                                 xlabels=subDetName[0:sctMon.N_REGIONS])
 
 myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "isub, eff;" + "SctTotalEffBCID",
                                                  type= "TProfile",
@@ -92,7 +92,7 @@ myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "isub, eff;" + "SctTot
                                                  xbins=sctMon.N_REGIONS,
                                                  xmin=0.,
                                                  xmax=sctMon.N_REGIONS,
-                                                 xlabels=subDetName,
+                                                 xlabels=subDetName[0:sctMon.N_REGIONS],
                                                  cutmask="isFirstBCID")
 
 myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "sideHash, eff;" + "effHashCode",

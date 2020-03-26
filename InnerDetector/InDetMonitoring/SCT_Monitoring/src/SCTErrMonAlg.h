@@ -33,19 +33,6 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   // First element of pair is minimum second is maximum.
   typedef std::pair<std::pair<double, double>, std::pair<double, double>> moduleGeo_t;
 
-  enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
-  enum ProblemForCoverage {
-    all, // All SCT module for counting good module
-    disabled, // Disabled
-    badLinkError, // BadLinkLevelError
-    badRODError, // BadRODLevelError
-    badError, // BadError = BadLinkLevelError + BadRODLevelError
-    psTripDCS, // Power supply trip using SCT_DCSConditionsSvc
-    summary, // Total coverage using SCT_ConditionsSummarySvc
-    numberOfProblemForCoverage
-  };
-  enum {NREGIONS_INC_GENERAL = SCT_Monitoring::N_REGIONS+1};
-
   static const unsigned int s_nBinsEta;
   static const double s_rangeEta;
   static const unsigned int s_nBinsPhi;
