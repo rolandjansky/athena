@@ -8,9 +8,12 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, Em
 from copy import deepcopy
 
 
-def mergeChainDefs(listOfChainDefs, chainDict, strategy="parallel", offset=-1):
+def mergeChainDefs(listOfChainDefs, chainDict):
 
-    log.debug("Combine by using %s merging", strategy)
+    strategy = chainDict["mergingStrategy"]
+    offset = chainDict["mergingOffset"]
+    log.info(chainDict['chainName'])
+    log.info("Combine by using %s merging", strategy)
 
     if strategy=="parallel":
         return mergeParallel(listOfChainDefs,  offset)
@@ -66,7 +69,7 @@ def mergeParallel(chainDefList, offset):
                                   
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
 
-    log.debug("Merged chain %s with these steps:", chainName)
+    log.info("Parallel merged chain %s with these steps:", chainName)
     for step in combinedChainDef.steps:
         log.debug('   %s', step)
 
@@ -110,15 +113,15 @@ def mergeSerial(chainDefList):
     # check if all chain parts have the same number of steps
     sameNSteps = all(x==nSteps[0] for x in nSteps) 
     if sameNSteps is True:
-        log.debug("All chain parts have the same number of steps")
+        log.info("All chain parts have the same number of steps")
     else:
-        log.debug("Have to deal with uneven number of chain steps, there might be none's appearing in sequence list => to be fixed")
+        log.info("Have to deal with uneven number of chain steps, there might be none's appearing in sequence list => to be fixed")
                                   
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
 
-    log.debug("Merged chain %s with these steps:", chainName)
+    log.info("Serial merged chain %s with these steps:", chainName)
     for step in combinedChainDef.steps:
-        log.debug('   %s', step)
+        log.info('   %s', step)
 
     return combinedChainDef
 
