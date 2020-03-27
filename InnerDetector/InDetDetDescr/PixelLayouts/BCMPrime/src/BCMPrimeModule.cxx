@@ -89,7 +89,10 @@ GeoPhysVol* BCMPrimeModule::Build(int iModule, const PixelGeoBuilderBasics *basi
     GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rmC, diamondPosA));
     GeoNameTag* tag = new GeoNameTag("Diamond");
     env_bcmModPhys->add(tag);
-    env_bcmModPhys->add(new GeoIdentifierTag(0));
+    env_bcmModPhys->add(new GeoIdentifierTag(2)); // Unique diamond geo identifier
+                                                  // 2 preferred to 0, 
+                                                  // 0 is increased to 1, 
+                                                  // when GeoModel is built
     env_bcmModPhys->add(xform);
     env_bcmModPhys->add(diamondVolA);
     
@@ -101,7 +104,7 @@ GeoPhysVol* BCMPrimeModule::Build(int iModule, const PixelGeoBuilderBasics *basi
     xform = new GeoTransform(HepGeom::Transform3D(rmC, diamondPosB));
     tag = new GeoNameTag("Diamond");
     env_bcmModPhys->add(tag);
-    env_bcmModPhys->add(new GeoIdentifierTag(1));
+    env_bcmModPhys->add(new GeoIdentifierTag(3)); // Unique diamond geo identifier
     env_bcmModPhys->add(xform);
     env_bcmModPhys->add(diamondVolB);
 

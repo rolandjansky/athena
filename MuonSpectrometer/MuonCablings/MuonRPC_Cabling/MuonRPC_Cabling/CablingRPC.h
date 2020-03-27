@@ -92,7 +92,7 @@ class CablingRPC : public CablingRPCBase
     const static std::map<std::string, std::string>* p_trigroads;
     
     static bool s_RPCMapfromCool;
-    unsigned int m_absZindexInThelayerOfThisChamber[8][2][9][8][2][4];
+    unsigned int m_absZindexInThelayerOfThisChamber[9][2][9][8][2][4];
 
     static void delete_instance(void);
 
