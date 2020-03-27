@@ -46,6 +46,36 @@ StatusCode SCTErrMonAlg::initialize() {
 }
 
 StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
+  SG::ReadHandle<xAOD::EventInfo> pEvent{m_EventInfoKey, ctx};
+  if (not pEvent.isValid()) {
+    ATH_MSG_WARNING("Could not retrieve event info!");
+    return StatusCode::SUCCESS;
+  }
+
+  bool sctFlag{false};
+  if (pEvent->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error) {
+    sctFlag = true;
+  }
+  /// Fill NumberOfSCTFlagErrorsVsLB, NumberOfEventsVsLB and FractionOfSCTFlagErrorsPerLB
+  /// under /SCT/GENERAL/Conf/ ///
+  auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
+  auto is1DAcc{Monitored::Scalar<bool>("is1D", true)};
+  auto sctFlagAcc{Monitored::Scalar<bool>("sctFlag", sctFlag)};
+  fill("SCTErrMonitor", lumiBlockAcc, is1DAcc, sctFlagAcc);
+
+  if (sctFlag) {
+    return StatusCode::SUCCESS;
+  }
+
+  // The numbers of disabled modules, links, strips do not change during a run.
+  if (m_isFirstConfigurationDetails) {
+    std::lock_guard{m_mutex};
+    if (m_isFirstConfigurationDetails) {
+      ATH_CHECK(fillConfigurationDetails(ctx));
+      m_isFirstConfigurationDetails = false;
+    }
+  }
+
   ATH_CHECK(fillByteStreamErrors(ctx));
 
   /// Fill /SCT/GENERAL/Conf/SCTConfOutM ///
@@ -71,15 +101,83 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
 }
 
 StatusCode
-SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
-  //--- Get event information
-  SG::ReadHandle<xAOD::EventInfo> pEvent{m_EventInfoKey, ctx};
-  if (not pEvent.isValid()) {
-    ATH_MSG_ERROR("Could not retrieve event info!");
-    return StatusCode::RECOVERABLE;
+SCTErrMonAlg::fillConfigurationDetails(const EventContext& ctx) const {
+  ATH_MSG_DEBUG("Inside fillConfigurationDetails()");
+  unsigned int nBadMods{static_cast<unsigned int>(m_configurationTool->badModules()->size())}; // bad modules
+  const map<IdentifierHash, pair<bool, bool>>* badLinks{m_configurationTool->badLinks(ctx)}; // bad links
+  unsigned int nBadLink0{0}, nBadLink1{0}, nBadLinkBoth{0};
+  for (const pair<IdentifierHash, pair<bool, bool>>& link: *badLinks) {
+    pair<bool, bool> status{link.second};
+    if ((status.first == false) and (status.second == true)) {
+      ++nBadLink0;
+    }
+    if ((status.first == true) and (status.second == false)) {
+      ++nBadLink1;
+    }
+    if ((status.first == false) and (status.second == false)) {
+      ++nBadLinkBoth;
+    }
   }
 
-  if (pEvent->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error) {
+  const map<Identifier, unsigned int>* badChips{m_configurationTool->badChips(ctx)}; // bad chips
+  unsigned int nBadChips{0};
+  for (const pair<Identifier, unsigned int>& chip : *badChips) {
+    unsigned int status{chip.second};
+    for (unsigned int i{0}; i < CHIPS_PER_MODULE; i++) {
+      nBadChips += ((status & (1 << i)) == 0 ? 0 : 1);
+    }
+  }
+
+  set<Identifier> badStripsAll; // bad strips
+  m_configurationTool->badStrips(badStripsAll, ctx);
+  unsigned int nBadStrips{static_cast<unsigned int>(badStripsAll.size())};
+
+  set<Identifier> badStripsExclusive; // bad strips w/o bad modules and chips
+  m_configurationTool->badStrips(badStripsExclusive, ctx, true, true);
+  int nBadStripsExclusive{static_cast<int>(badStripsExclusive.size())};
+  int nBadStripsExclusiveBEC[N_REGIONS] = {
+    0, 0, 0
+  };
+  for (const Identifier& strip: badStripsExclusive) {
+    int bec{m_pSCTHelper->barrel_ec(strip)};
+    nBadStripsExclusiveBEC[bec2Index(bec)] += 1;
+  }
+
+  /// Fill /SCT/GENERAL/Conf/SCTConfDetails ///
+  auto detailedConfBinAcc{Monitored::Scalar<int>("detailedConfBin")};
+  auto nBadAcc{Monitored::Scalar<double>("nBad")};
+  for (unsigned int i{0}; i<ConfbinsDetailed; i++) {
+    detailedConfBinAcc = 0;
+    if (i==0) nBadAcc = nBadMods;
+    else if (i==1) nBadAcc = nBadLink0;
+    else if (i==2) nBadAcc = nBadLink1;
+    else if (i==3) nBadAcc = nBadChips;
+    else if (i==4) nBadAcc = static_cast<double>(nBadStripsExclusive) / 100.;
+    fill("SCTErrMonitor", detailedConfBinAcc, nBadAcc);
+  }
+
+  ATH_MSG_DEBUG("-----------------------------------------------------------------------");
+  ATH_MSG_DEBUG("Number of bad modules                          = " << nBadMods);
+  ATH_MSG_DEBUG("Number of bad link 0                           = " << nBadLink0);
+  ATH_MSG_DEBUG("Number of bad link 1                           = " << nBadLink1);
+  ATH_MSG_DEBUG("Number of bad link both                        = " << nBadLinkBoth);
+  ATH_MSG_DEBUG("Number of bad chips                            = " << nBadChips);
+  ATH_MSG_DEBUG("Number of bad strips                           = " << nBadStrips);
+  ATH_MSG_DEBUG("Number of bad strips exclusive                 = " << nBadStripsExclusive);
+  ATH_MSG_DEBUG("Number of bad strips exclusive (ECC, B, ECA)   = "
+                << nBadStripsExclusiveBEC[ENDCAP_C_INDEX] << ", "
+                << nBadStripsExclusiveBEC[BARREL_INDEX] << ", "
+                << nBadStripsExclusiveBEC[ENDCAP_A_INDEX] << ", ");
+  ATH_MSG_DEBUG("-----------------------------------------------------------------------");
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
+SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
+  SG::ReadHandle<xAOD::EventInfo> pEvent{m_EventInfoKey, ctx};
+  if (not pEvent.isValid()) {
+    ATH_MSG_WARNING("Could not retrieve event info!");
     return StatusCode::SUCCESS;
   }
 
@@ -94,11 +192,20 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     fill("SCTErrMonitor", lumiBlockAcc, nBSErrorsAcc);
   }
 
+  std::array<int, CategoryErrors::N_ERRCATEGORY> tot_mod_bytestreamCate_errs;
+  tot_mod_bytestreamCate_errs.fill(0);
   int total_errors{0};
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType);
+    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType, tot_mod_bytestreamCate_errs);
   }
-
+  /// Fill /SCT/GENERAL/errors/SCT_LinksWith*VsLbs ///
+  for (int errCate{0}; errCate < CategoryErrors::N_ERRCATEGORY; ++errCate) {
+    auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
+    auto nCategoryErrorsAcc{Monitored::Scalar<int>("n_"+CategoryErrorsNames[errCate],
+                                                   tot_mod_bytestreamCate_errs[errCate])};
+    fill("SCTErrMonitor", lumiBlockAcc, nCategoryErrorsAcc);
+  }
+  
   if (m_coverageCheck) {
     ATH_MSG_INFO("Detector Coverage calculation starts" );
 
@@ -162,7 +269,8 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
 
 int
 SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
-                                         int err_type) const {
+                                         int err_type,
+                                         std::array<int, CategoryErrors::N_ERRCATEGORY>& tot_mod_bytestreamCate_errs) const {
 
   //--- Check categories of the BS error
   bool b_category[CategoryErrors::N_ERRCATEGORY];
@@ -262,6 +370,10 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
         fill("SCTErrMonitor", errorTypeAcc, layerSideAcc, errorFractionAcc, isECAcc, isBAcc, isEAAcc);
       }
     }
+  }
+
+  for (int errCate{0}; errCate < CategoryErrors::N_ERRCATEGORY; ++errCate) {
+    if (b_category[errCate]) tot_mod_bytestreamCate_errs[errCate]++;
   }
 
   if (b_category[CategoryErrors::SUMMARY]) return nerrors;

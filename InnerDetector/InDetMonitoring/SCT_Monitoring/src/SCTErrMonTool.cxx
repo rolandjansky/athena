@@ -1186,9 +1186,9 @@ SCTErrMonTool::fillConfigurationDetails() {
   ATH_MSG_DEBUG("Number of bad strips                           = " << nBadStrips);
   ATH_MSG_DEBUG("Number of bad strips exclusive                 = " << nBadStripsExclusive);
   ATH_MSG_DEBUG("Number of bad strips exclusive (ECC, B, ECA)   = "
-                << nBadStripsExclusiveBEC[0] << ", "
-                << nBadStripsExclusiveBEC[1] << ", "
-                << nBadStripsExclusiveBEC[2] << ", ");
+                << nBadStripsExclusiveBEC[ENDCAP_C_INDEX] << ", "
+                << nBadStripsExclusiveBEC[BARREL_INDEX] << ", "
+                << nBadStripsExclusiveBEC[ENDCAP_A_INDEX] << ", ");
   ATH_MSG_DEBUG("-----------------------------------------------------------------------");
 
   return StatusCode::SUCCESS;
