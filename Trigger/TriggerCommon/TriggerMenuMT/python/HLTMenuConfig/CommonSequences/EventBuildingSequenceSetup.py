@@ -66,6 +66,13 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'RPCPEBSecondaryReadout' in eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs([0x610080, 0x620080])
+    elif 'SCTPEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.SCT_BARREL_A_SIDE,
+                         SubDetector.SCT_BARREL_C_SIDE,
+                         SubDetector.SCT_ENDCAP_A_SIDE,
+                         SubDetector.SCT_ENDCAP_C_SIDE
+        ])
     elif eventBuildType in EventBuildingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)
@@ -81,7 +88,7 @@ def pebInfoWriterTool(name, eventBuildType):
 
 
 def pebInputMaker(eventBuildType):
-    maker = InputMakerForRoI("IMpeb_"+eventBuildType, mergeOutputs=False)
+    maker = InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
     return maker
 

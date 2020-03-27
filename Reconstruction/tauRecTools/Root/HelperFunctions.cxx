@@ -4,6 +4,7 @@
 
 // local include(s)
 #include "tauRecTools/HelperFunctions.h"
+#include <AsgTools/MessageCheck.h>
 
 #include <TObjString.h>
 #include <TObjArray.h>
@@ -189,4 +190,41 @@ float tauRecTools::TRTBDT::GetClassification(){
 //________________________________________________________________________________
 float tauRecTools::TRTBDT::GetResponse(){
   return this->bdt->GetResponse();
+}
+
+const StatusCode tauRecTools::GetJetConstCluster(xAOD::JetConstituentVector::iterator it, const xAOD::CaloCluster* &cluster){
+
+  using namespace asg::msgUserCode;
+  // ensure starting with empty cluster
+  cluster = nullptr;
+  if( (*it)->type() == xAOD::Type::CaloCluster ) {
+    cluster = static_cast<const xAOD::CaloCluster*>( (*it)->rawConstituent() );
+  }
+  else if( (*it)->type() == xAOD::Type::ParticleFlow ) {
+    const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( (*it)->rawConstituent() );
+    // charged PFO don't have link to cluster
+    if( !pfo->isCharged() ){
+      if (pfo->nCaloCluster()!=1) {
+	ANA_MSG_WARNING("Neutral PFO has " << std::to_string(pfo->nCaloCluster()) << " clusters, expected exactly 1!\n");
+      }
+      if(pfo->nCaloCluster()>0) {
+	cluster = pfo->cluster(0);
+      }
+    }
+    else{
+      // for charged return success, but calocluster will be null
+      return StatusCode::SUCCESS;
+    }
+  }
+  else{
+    ANA_MSG_ERROR("GetJetConstCluster: Seed jet constituent type not supported!");
+    return StatusCode::FAILURE;
+  }
+
+  // At this point should be set (unless charged, which already returned)
+  if (!cluster) {
+    ANA_MSG_ERROR("GetJetConstCluster: Calorimeter cluster is invalid.");
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
 }

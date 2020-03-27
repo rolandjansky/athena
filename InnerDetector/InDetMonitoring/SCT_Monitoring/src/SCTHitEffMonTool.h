@@ -16,7 +16,7 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "CommissionEvent/ComTime.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"

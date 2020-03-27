@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id $
+from __future__ import print_function
+
 """
 This library defines different classes for filtering events in athena.
 Intended for use in JobRunner templates.
@@ -29,9 +30,9 @@ class BCIDFilter(PyAthena.Alg):
         return
 
     def initialize(self):
-        print 'BCIDFilter:  Found %i BCIDs to accept:  ' % len(self.bcidList), self.bcidList
+        print ('BCIDFilter:  Found %i BCIDs to accept:  ' % len(self.bcidList), self.bcidList)
         if not self.bcidList:
-            print 'BCIDFilter: WARNING: Empty bcidList - will accept all events'
+            print ('BCIDFilter: WARNING: Empty bcidList - will accept all events')
         self.sg = PyAthena.py_svc('StoreGateSvc')
         return StatusCode.Success
     
@@ -39,7 +40,7 @@ class BCIDFilter(PyAthena.Alg):
         if self.bcidList:
             eventID = self.sg.retrieve('EventInfo','ByteStreamEventInfo').event_ID()
             bcid = eventID.bunch_crossing_id()
-            #print bcid, bcid in self.bcidList
+            #print (bcid, bcid in self.bcidList)
             self.setFilterPassed(bcid in self.bcidList)
         else:
             self.setFilterPassed(True)
@@ -59,9 +60,9 @@ class LBFilter(PyAthena.Alg):
         return
 
     def initialize(self):
-        print 'LBFilter:  Found %i LBs to accept:  ' % len(self.lbList), self.lbList
+        print ('LBFilter:  Found %i LBs to accept:  ' % len(self.lbList), self.lbList)
         if not self.lbList:
-            print 'LBFilter: WARNING: Empty lbList - will accept all events'
+            print ('LBFilter: WARNING: Empty lbList - will accept all events')
         self.sg = PyAthena.py_svc('StoreGateSvc')
         return StatusCode.Success
     
@@ -69,7 +70,7 @@ class LBFilter(PyAthena.Alg):
         if self.lbList:
             eventID = self.sg.retrieve('EventInfo','ByteStreamEventInfo').event_ID()
             lb = eventID.lumi_block()
-            #print lb, lb in self.lbList
+            #print (lb, lb in self.lbList)
             self.setFilterPassed(lb in self.lbList)
         else:
             self.setFilterPassed(True)
@@ -115,19 +116,20 @@ class LumiBlockFilter(PyAthena.Alg):
         self.lbList = []        
 
         # Treat lbData as a file containing the pLB info if it is a string or a direct list of pLB info if it is a list
-        lbInfo = open(lbData) if isinstance(lbData,basestring) else lbData
+        lbInfo = open(lbData) if isinstance(lbData,str) else lbData
 
         for l in lbInfo:
             if l[0]=='#': continue
             self.lbList.append(LbInfo(l))
 
-        if type(lbInfo)==file: lbInfo.close()
+        if hasattr (lbInfo, 'close'):
+            lbInfo.close()
 
-        print
-        print 'Found',len(self.lbList),'(pseudo)LB entries:'
+        print()
+        print ('Found',len(self.lbList),'(pseudo)LB entries:')
         for i in range(len(self.lbList)):
-            print 'Data for new LB %3i:  ' % self.lbList[i].lbNumber, self.lbList[i]
-        print
+            print ('Data for new LB %3i:  ' % self.lbList[i].lbNumber, self.lbList[i])
+        print()
         return
 
     def initialize(self):
@@ -139,7 +141,7 @@ class LumiBlockFilter(PyAthena.Alg):
         foundEvent = False
         for lb in self.lbList:
             if lb.match(eventID.time_stamp(),eventID.time_stamp_ns_offset()) and lb.isScanPoint():
-                #print 'Match found with LB %3i (data: %s)' % (lb.lbNumber,lb)
+                #print ('Match found with LB %3i (data: %s)' % (lb.lbNumber,lb))
                 eventID.set_lumi_block(lb.lbNumber)
                 foundEvent = True
                 break
@@ -162,19 +164,19 @@ class ZFilter(PyAthena.Alg):
         return
 
     def initialize(self):
-        print 'ZFilter: accepting only primary vertices from',self.zMin,'to',self.zMax
+        print ('ZFilter: accepting only primary vertices from',self.zMin,'to',self.zMax)
         self.sg = PyAthena.py_svc('StoreGateSvc')
         return StatusCode.Success
     
     def execute(self):
         vxContainer = self.sg.retrieve("VxContainer","VxPrimaryCandidate")
-        #print 'vxContainer size =',vxContainer.size()
+        #print ('vxContainer size =',vxContainer.size())
         accept = False
         for i in range(vxContainer.size()):
             if vxContainer[i].vertexType() != 1: continue   # Only use primary vertex candidates
             z = vxContainer[i].recVertex().position().z()
             accept = (z >= self.zMin) and (z <= self.zMax)
-            #print z, accept
+            #print (z, accept)
             break
         self.setFilterPassed(accept)
         return StatusCode.Success

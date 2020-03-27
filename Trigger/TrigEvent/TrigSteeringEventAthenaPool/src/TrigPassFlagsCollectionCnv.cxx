@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigPassFlagsCollectionCnv.h"
@@ -34,7 +34,7 @@ TrigPassFlagsCollection * TrigPassFlagsCollectionCnv::createTransient()
   //  TrigPassFlagsCollection *p_collection = 0;
   if( compareClassGuid( p1_guid ) )     
   {
-         std::auto_ptr< TrigPassFlagsCollection_p1 > col_vect( poolReadObject< TrigPassFlagsCollection_p1 >() );
+         std::unique_ptr< TrigPassFlagsCollection_p1 > col_vect( poolReadObject< TrigPassFlagsCollection_p1 >() );
 	 //         std::cout << "Reading MFC p1" << std::endl;
          return TPconverter1.createTransient( col_vect.get(), mlog ) ;
   }

@@ -61,11 +61,6 @@ std::string &Photospp_i::photospp_stream(){
 StatusCode Photospp_i::initialize(){
   ATH_MSG_DEBUG("Photospp_i initializing");
 
-#ifndef HEPMC_HAS_UNITS
-  ATH_MSG_ERROR("Photospp_i Requires HepMC with support for units compiled (rel 17 and higher). Bye");
-  return StatusCode::FAILURE;
-#endif
-
   StatusCode RndmStatus = service("AtRndmGenSvc", atRndmGenSvc(), true);
   
   if(!RndmStatus.isSuccess() || atRndmGenSvc() == 0){

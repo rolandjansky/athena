@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 TaskManager is a tool for keeping track of JobRunner jobs using a
 database. TaskManager uses the notion of a task as the primary unit for
@@ -20,6 +23,7 @@ import time, os, glob, dircache, sys
 
 from InDetBeamSpotExample.Utils import getRunFromName
 from InDetBeamSpotExample.Utils import getUserName
+import six
 
 
 # Exception classes
@@ -76,7 +80,7 @@ def getFullTaskNames(taskman,dsname,taskname,requireSingleTask=False,confirmWith
        is raised if there are multiple tasks or if the user doesn't confirm."""
     taskList = taskman.getTaskNames(dsname,taskname,addWildCards)
     if len(taskList)==0:
-        raise  TaskManagerCheckError, 'ERROR: No tasks found for dataset = %s, task = %s' % (dsname,taskname)
+        raise  TaskManagerCheckError ('ERROR: No tasks found for dataset = %s, task = %s' % (dsname,taskname))
     if requireSingleTask and len(taskList)!=1:
         m = "ERROR: Multiple data set names found for dataset = %s, task = %s\n       Please use full dataset or task name from list below, using option -n if necessary:\n\n" % (dsname,taskname)
         m += "    %-50s  %s\n" % ('DATASET NAME','TASK NAME')
@@ -84,17 +88,17 @@ def getFullTaskNames(taskman,dsname,taskname,requireSingleTask=False,confirmWith
         for t in taskList:
             m += "    %-50s  %s\n" % (t[0],t[1])
         m += '\n'
-        raise TaskManagerCheckError, m
+        raise TaskManagerCheckError (m)
     if confirmWithUser:
-        print 'Please confirm that you want to execute this command for the following tasks:\n'
-        print "    %-50s  %s" % ('DATASET NAME','TASK NAME')
-        print "    %s" % (75*'-')
+        print ('Please confirm that you want to execute this command for the following tasks:\n')
+        print ("    %-50s  %s" % ('DATASET NAME','TASK NAME'))
+        print ("    %s" % (75*'-'))
         for t in taskList:
-            print "    %-50s  %s" % (t[0],t[1])
-        a = raw_input('\nARE YOU SURE [n] ? ')
+            print ("    %-50s  %s" % (t[0],t[1]))
+        a = input('\nARE YOU SURE [n] ? ')
         if a!='y':
-            raise TaskManagerCheckError, 'ERROR: Aborted by user'
-        print
+            raise TaskManagerCheckError ('ERROR: Aborted by user')
+        print()
     return taskList
 
 
@@ -148,7 +152,7 @@ class TaskManager:
         try:
             dbtype, dbname = connstring.split(':', 1)
         except:
-            raise ValueError, 'Illegal database connection string {}'.format(connstring)
+            raise ValueError ('Illegal database connection string {}'.format(connstring))
 
         if dbtype == 'auth_file':
             # dbname is a file with the actual connection information
@@ -158,7 +162,7 @@ class TaskManager:
                     connstring = af.read().strip()
                 dbtype, dbname = connstring.split(':', 1)
             except:
-                raise ValueError, 'Invalid authorization file {} (not readable or invalid format)'.format(authfile)
+                raise ValueError ('Invalid authorization file {} (not readable or invalid format)'.format(authfile))
 
         return dbtype, dbname
 
@@ -181,9 +185,9 @@ class TaskManager:
             self.paramstyle = 'qmark'
             dbexists = os.access(self.dbname, os.F_OK)
             if dbexists and createDatabase:
-                raise ValueError, 'SQLite file {} exists already - remove before recreating'.format(self.dbname)
+                raise ValueError ('SQLite file {} exists already - remove before recreating'.format(self.dbname))
             if not (dbexists or createDatabase):
-                raise ValueError, 'TaskManager database not found (SQLite file {})'.format(self.dbname)
+                raise ValueError ('TaskManager database not found (SQLite file {})'.format(self.dbname))
             self.dbcon = sqlite3.connect(self.dbname)
             if createDatabase:
                 self._createSQLiteSchema()
@@ -193,13 +197,13 @@ class TaskManager:
             try:
                 self.dbcon = cx_Oracle.connect(self.dbname)
             except:
-                print 'ERROR: First connection attempt to Beam Spot Oracle database failed; will retry in 10s ...'
+                print ('ERROR: First connection attempt to Beam Spot Oracle database failed; will retry in 10s ...')
                 time.sleep(10)
                 self.dbcon = cx_Oracle.connect(self.dbname)
             if createDatabase:
                 self._createOracleSchema()
         else:
-            raise ValueError, 'Unknown database type: {}'.format(self.dbtype)
+            raise ValueError ('Unknown database type: {}'.format(self.dbtype))
 
     def __enter__(self):
         ''' Remember that we're inside a 'with' statement so we can warn otherwise: '''
@@ -211,7 +215,7 @@ class TaskManager:
         try:
             self.dbcon.close()
         except:
-            print 'ERROR: Unable to close database connection'
+            print ('ERROR: Unable to close database connection')
 
     def _createSQLiteSchema(self):
         """Create the database schema for a SQLite3 database."""
@@ -256,8 +260,8 @@ class TaskManager:
             self.dbcon.cursor().execute('drop sequence TASKS_SEQ')
             self.dbcon.cursor().execute('drop trigger TASKS_ID_TRIGGER')
             self.dbcon.cursor().execute('drop table TASKS')
-        except Exception,e:
-            print e
+        except Exception as e:
+            print (e)
         self.dbcon.cursor().execute("""
             create table tasks (
                 TASKID number(10,0),
@@ -316,18 +320,18 @@ end;
            Loosely follows the method discussed in the Python Cookbook.
            WARNING: At present, limit doesn't work when ordering rows for Oracle!"""
         if not self.is_managing_context:
-            print '**WARN**  TaskManager will keep the database connection open until it is deleted.'
-            print '**INFO**  TaskManager should generally only be used inside a with statement:'
-            print '**INFO**      with TaskManager(...) as taskman:'
-            print '**INFO**        # do something ...'
+            print ('**WARN**  TaskManager will keep the database connection open until it is deleted.')
+            print ('**INFO**  TaskManager should generally only be used inside a with statement:')
+            print ('**INFO**      with TaskManager(...) as taskman:')
+            print ('**INFO**        # do something ...')
 
         if not statementParts:
             return None
         if isinstance(statementParts,str):
-            raise TypeError, 'Must pass list or tuple to TaskManager.execute'
+            raise TypeError ('Must pass list or tuple to TaskManager.execute')
         for p in statementParts:
-            if not (isinstance(p,DbParam) or isinstance(p,str) or isinstance(p,unicode)):
-                raise ValueError, ('Can only pass SQL string fragments and DbParam objects in list'
+            if not (isinstance(p,DbParam) or isinstance(p,six.string_types)):
+                raise ValueError ('Can only pass SQL string fragments and DbParam objects in list'
                                    'to TaskManager.execute, found %s with "%s"' % (type(p),str(p)))
         sqlParts = None
         params = None
@@ -354,7 +358,7 @@ end;
                     sqlParts.append(p)
 
         if sqlParts==None:
-            raise ValueError, 'Unknown SQL parameter style %s' % self.paramstyle
+            raise ValueError ('Unknown SQL parameter style %s' % self.paramstyle)
             return None
         sql = ' '.join(sqlParts)
 
@@ -371,17 +375,17 @@ end;
                 sql += ' limit %i' % limit
 
         if self.debug:
-            print '\nExecuting SQL statement:  ',sql
-            print '        with parameters:  ',params
+            print ('\nExecuting SQL statement:  ',sql)
+            print ('        with parameters:  ',params)
 
         cursor = self.dbcon.cursor()
         try:
             cursor.execute(sql,params)
             if doCommit:
                 self.dbcon.commit()
-        except Exception, e:
+        except Exception as e:
             msg = '\nDatabase error executing SQL statement\n  %s\nusing parameters\n  %s\n%s' % (sql,params,e)
-            raise TaskManagerDatabaseError, msg
+            raise TaskManagerDatabaseError (msg)
         return cursor
 
 
@@ -410,14 +414,14 @@ end;
             # Task entry exists already; only update UPDATED, NJOBS, STATUS, ONDISK and possibly ATLREL
             task = self.getTaskDict(dsName,taskName)
             if task['TEMPLATE']!=template:
-                print 'ERROR: Must not update task with different template: DSNAME = %s, TASKNAME = %s, templates = %s vs %s' % (dsName,taskName,task['TEMPLATE'],template)
+                print ('ERROR: Must not update task with different template: DSNAME = %s, TASKNAME = %s, templates = %s vs %s' % (dsName,taskName,task['TEMPLATE'],template))
             else:
                 updateStr = ['update TASKS set UPDATED =',DbParam(tstamp),
                              ', NJOBS = ',DbParam(task['NJOBS']+njobs),
                              ', ONDISK = ',DbParam(onDisk)]
 
                 if not release in task['ATLREL']:
-                    print 'WARNING: Updating task using different release: DSNAME = %s, TASKNAME = %s, release = = %s vs %s' % (dsName,taskName,task['ATLREL'],release)
+                    print ('WARNING: Updating task using different release: DSNAME = %s, TASKNAME = %s, release = = %s vs %s' % (dsName,taskName,task['ATLREL'],release))
                     release = '; '.join([task['ATLREL'],release])
                     updateStr += [', ATLREL = ',DbParam(release)]
 

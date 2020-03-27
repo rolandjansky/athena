@@ -4,21 +4,60 @@
 
 def LArNoisyROMonConfig(inputFlags, inKey="", 
                               NoisyFEBDefStr="(>30 chan with Q>4000)", 
-                              MNBTightFEBDefStr=""):
-
-    # first configure known bad FEBs
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    cfg=ComponentAccumulator()
-    from LArBadChannelTool.LArBadFebsConfig import LArKnownBadFebCfg, LArKnownMNBFebCfg
-    cfg.merge(LArKnownBadFebCfg(inputFlags))
-    cfg.merge(LArKnownMNBFebCfg(inputFlags))
+                              MNBTightFEBDefStr="",
+                              MNBTight_PsVetoFEBDefStr="",
+                              MNBLooseFEBDefStr=""):
 
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArNoisyROMonCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'LArNoisyROMonAlgCfg')
+
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    NoisyFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.BadChanPerFEB)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
+    MNBTightFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTightCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
+    MNBTight_PsVetoFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[0])+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+") + PS veto (<"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[1])+" channels)"
+    MNBLooseFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBLooseCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
+
+    return LArNoisyROMonConfigCore(helper,CompFactory.LArNoisyROMonAlg, inputFlags, inKey, NoisyFEBDefStr, MNBTightFEBDefStr, MNBTight_PsVetoFEBDefStr, MNBLooseFEBDefStr)
 
 
+def LArNoisyROMonConfigOld(inputFlags, inKey="", 
+                              NoisyFEBDefStr="", 
+                              MNBTightFEBDefStr="",
+                              MNBTight_PsVetoFEBDefStr="",
+                              MNBLooseFEBDefStr=""):
+
+    from LArCellRec.LArNoisyROFlags import larNoisyROFlags
+    NoisyFEBDefStr =  '(>'+str(larNoisyROFlags.BadChanPerFEB())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
+    MNBTightFEBDefStr =  '(>'+str(larNoisyROFlags.MNBTightCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'      
+    MNBTight_PsVetoFEBDefStr =  '(>'+str(larNoisyROFlags.MNBTight_PsVetoCut()[0])+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+') + PS veto (<'+str(larNoisyROFlags.MNBTight_PsVetoCut()[1])+' channels)'
+    MNBLooseFEBDefStr =  '(>'+str(larNoisyROFlags.MNBLooseCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
+    from AthenaMonitoring import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArNoisyROMonAlg
-    larNoisyROMonAlg = helper.addAlgorithm(LArNoisyROMonAlg,'larNoisyROMonAlg')
+    helper = AthMonitorCfgHelperOld(inputFlags,'LArNoisyROMonAlgOldCfg')
+
+    LArNoisyROMonConfigCore(helper,LArNoisyROMonAlg, inputFlags, inKey, NoisyFEBDefStr, MNBTightFEBDefStr, MNBTight_PsVetoFEBDefStr, MNBLooseFEBDefStr)
+
+    return helper.result()
+
+
+
+def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags, 
+                              inKey="", 
+                              NoisyFEBDefStr="(>30 chan with Q>4000)", 
+                              MNBTightFEBDefStr="",
+                              MNBTight_PsVetoFEBDefStr="",
+                              MNBLooseFEBDefStr=""):
+
+    # first configure known bad FEBs
+    from AthenaCommon.Configurable import Configurable
+    if Configurable.configurableRun3Behavior:
+       from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+       cfg=ComponentAccumulator()
+       from LArBadChannelTool.LArBadFebsConfig import LArKnownBadFebCfg, LArKnownMNBFebCfg
+       cfg.merge(LArKnownBadFebCfg(inputFlags))
+       cfg.merge(LArKnownMNBFebCfg(inputFlags))
+
+    larNoisyROMonAlg = helper.addAlgorithm(algoinstance,'larNoisyROMonAlg')
 
     NoisyROMonGroupName="LArNoisyROMonGroup"
 
@@ -27,11 +66,6 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
     larNoisyROMonAlg.NoisyROGroupName=NoisyROMonGroupName
     larNoisyROMonAlg.SubDetNames=lArDQGlobals.SubDet[0:2]
     larNoisyROMonAlg.PartitionNames=lArDQGlobals.Partitions[0:4]
-
-    NoisyFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.BadChanPerFEB)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
-    MNBTightFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTightCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
-    MNBTight_PsVetoFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[0])+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+") + PS veto (<"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[1])+" channels)"
-    MNBLooseFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBLooseCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
 
     #FIXME: only for testing
     larNoisyROMonAlg.storeLooseMNBFEBs=True
@@ -70,7 +104,15 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
          "L1_XE50_BGRP7",
          "L1_XE70"
     ]
-    if inputFlags.Trigger.doHLT or LArNoisyROMonForceTrigger:
+    doTrigger=False
+    if Configurable.configurableRun3Behavior:
+      if inputFlags.Trigger.doHLT or LArNoisyROMonForceTrigger:
+        doTrigger=True
+    else:    
+      if inputFlags.doHLTMon or LArNoisyROMonForceTrigger:
+        doTrigger=True
+
+    if doTrigger:
        larNoisyROMonAlg.doTrigger = True  
        larNoisyROMonAlg.EFNoiseBurstTriggers = EFNoiseBurstTriggersList
        larNoisyROMonAlg.L1NoiseBurstTriggers = L1NoiseBurstTriggersList
@@ -82,7 +124,7 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
     noisyROGroup = helper.addGroup(
         larNoisyROMonAlg,
         NoisyROMonGroupName,
-        '/LAr/NoisyRO/'
+        '/LAr/NoisyRONewAlg/'
     )
 
 
@@ -106,14 +148,13 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
     for subdet in range(0,2): 
-       hist_path='/LAr/NoisyRO/'+lArDQGlobals.SubDet[subdet]+'/'
+       hist_path='/LAr/NoisyRONewAlg/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        slot_n = int(slot_up - slot_low)
        ft_low = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        ft_n = int(ft_up - ft_low)
-       print hist_path,slot_n,slot_low,slot_up,ft_n,ft_low,ft_up
 
        darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larNoisyROMonAlg,lArDQGlobals.SubDet[subdet],topPath=hist_path)
        # Known bad FEBS
@@ -221,8 +262,9 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
 
     pass
 
-    cfg.merge(helper.result())
-    return cfg
+    if Configurable.configurableRun3Behavior:
+       cfg.merge(helper.result())
+       return cfg
     
 
 if __name__=='__main__':

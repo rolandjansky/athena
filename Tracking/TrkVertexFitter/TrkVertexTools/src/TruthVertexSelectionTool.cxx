@@ -61,7 +61,7 @@ namespace Trk{
     if(!*vitr) return 0;
   
 //and its position
-    HepMC::ThreeVector vxGenPos =  (*vitr)->point3d(); 
+    HepMC::FourVector vxGenPos =  (*vitr)->position(); 
 
 //selecting the container vertex closest in Z to the truth one
     unsigned int res_pos = 0;

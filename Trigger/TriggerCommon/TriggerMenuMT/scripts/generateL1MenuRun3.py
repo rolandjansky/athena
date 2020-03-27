@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import sys,os
 
@@ -61,7 +61,7 @@ def main():
         ("phyr3v1"   , "Physics_pp_run3_v1"       ),
         ("phyp1r3v1"   , "PhysicsP1_pp_run3_v1"       ),
         ("mcr3v1"   , "MC_pp_run3_v1"       ),
-        ("cosmic", "Cosmic_pp_run3_v1"),
+        ("cosmic", "Cosmic_run3_v1"),
         ("hiphy4","Physics_HI_v4"),
         ("hiphy", "Physics_HI_v4"),
         ("himc4", "MC_HI_v4"     ),

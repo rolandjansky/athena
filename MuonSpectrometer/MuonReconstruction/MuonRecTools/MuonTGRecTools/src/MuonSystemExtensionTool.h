@@ -17,7 +17,7 @@
 #include "MuonLayerEvent/MuonLayerSurface.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 

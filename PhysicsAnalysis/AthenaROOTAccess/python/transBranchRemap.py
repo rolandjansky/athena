@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ##
@@ -48,4 +49,4 @@ try:
     from TrigEDMConfig.TriggerEDM import getARATypesRenaming
     transBranchRemap.update (getARATypesRenaming())
 except ImportError:
-    print 'WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
+    print('WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming')

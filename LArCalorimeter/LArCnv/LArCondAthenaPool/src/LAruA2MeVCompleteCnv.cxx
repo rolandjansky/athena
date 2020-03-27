@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,7 +23,7 @@ LAruA2MeVCompleteCnv::createTransient ()
     // subset from before TP separation    
     MsgStream log(msgSvc(), "LAruA2MeVCompleteCnv" ); 
     log << MSG::DEBUG << "Reading LAruA2MeVSubset (original)" << endmsg;     
-    std::auto_ptr< LArConditionsSubset<LAruA2MeVP> > subset ( poolReadObject< LArConditionsSubset<LAruA2MeVP> >() );
+    std::unique_ptr< LArConditionsSubset<LAruA2MeVP> > subset ( poolReadObject< LArConditionsSubset<LAruA2MeVP> >() );
     return (createTransient(subset.get()));
     
   } 

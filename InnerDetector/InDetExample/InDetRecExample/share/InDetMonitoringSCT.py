@@ -116,12 +116,15 @@ InDetSCTMonMan = AthenaMonManager("InDetSCTMonManager",
                                   Run                 = DQMonFlags.monManRun(),
                                   LumiBlock           = DQMonFlags.monManLumiBlock(),
                                   AthenaMonTools      = [ InDetSCTHitsTool,
-                                                          InDetSCTErrMonTool ] )
+                                                          InDetSCTErrMonTool
+                                                        ] )
 
 if useNewAlgs:
+  # include("SCT_Monitoring/SCTErrMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTHitEffMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTLorentzMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTTracksMonAlg_jobOptions.py")
+
 else:
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTHitEffMonTool ]
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTLorentzMonTool ]

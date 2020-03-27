@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
+                          Event/xAOD/xAODJet
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           PhysicsAnalysis/AnalysisCommon/ParticleJetTools
                           PhysicsAnalysis/JetTagging/JetTagEvent

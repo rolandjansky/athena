@@ -18,7 +18,8 @@ LArPEB, LumiPEB, RPCPEB, RPCPEBSecondaryReadout, TrkPEB, JetDS, PhotonDS
 PartialEventBuildingIdentifiers = [
   'BeamSpotPEB',
   'LArPEB',
-  'RPCPEBSecondaryReadout'
+  'RPCPEBSecondaryReadout',
+  'SCTPEB'
 ]
 
 # Data scouting identifiers and the corresponding HLT result ROBFragment module IDs

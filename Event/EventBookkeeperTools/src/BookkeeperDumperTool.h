@@ -28,11 +28,15 @@ class BookkeeperDumperTool : public asg::AsgMetadataTool,
 public:
   BookkeeperDumperTool(const std::string &name = "BookkeeperDumperTool");
 
+  virtual StatusCode initialize() final;
+
   virtual StatusCode beginInputFile() final;
   virtual StatusCode beginInputFile(const SG::SourceID &) final { return StatusCode::SUCCESS; }
   virtual StatusCode endInputFile() final { return StatusCode::SUCCESS; }
   virtual StatusCode endInputFile(const SG::SourceID &) final { return StatusCode::SUCCESS; }
   virtual StatusCode metaDataStop() final { return StatusCode::SUCCESS; }
+
+  Gaudi::Property<bool> m_standaloneMode{this, "StandaloneMode", false, "Dump on initialize when running standalone"};
 };
 
 #endif

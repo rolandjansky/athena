@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IIOVDBSVC_H
@@ -23,6 +23,7 @@
 #include "AthenaKernel/IOVRange.h"
 
 #include <string>
+#include <memory>
 
 class IOVTime;
 class IOpaqueAddress;
@@ -56,7 +57,7 @@ public:
                                 const IOVTime& time,
                                 IOVRange& range,
                                 std::string& tag,
-                                IOpaqueAddress*& ioa) = 0;
+                                std::unique_ptr<IOpaqueAddress>& ioa) = 0;
 
     /// Set range for a particular data object
     virtual StatusCode setRange(const CLID& clid,

@@ -2,8 +2,8 @@
 # Job options file for Geantino mapping of radiation lengths
 #
 
-execfile("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsOutput = 'HITS.pool.root'
@@ -35,7 +35,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
     ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output  += ["xx0 DATAFILE='xx0.root' OPT='RECREATE'"];
 
-print ServiceMgr
+printfunc (ServiceMgr)
 
 from G4AtlasApps import SimKernel
 

@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloGeoHelpers
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigRinger
                           GaudiKernel

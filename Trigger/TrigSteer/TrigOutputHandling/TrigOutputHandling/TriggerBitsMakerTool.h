@@ -5,7 +5,7 @@
 #define TRIGOUTPUTHANDLING_TRIGGERBITSMAKERTOOL_H
 
 #include <string>
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigOutputHandling/ITriggerBitsMakerTool.h"

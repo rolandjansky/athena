@@ -53,7 +53,8 @@ namespace LVL1CTP {
                                    const TrigConf::L1Menu* l1menu ) const;
 
       StatusCode buildItemDecision( const std::map<std::string, unsigned int> & thrMultiMap,
-                                    std::map<std::string, unsigned int> & itemDecisionMap ) const;
+                                    std::map<std::string, unsigned int> & itemDecisionMap,
+                                    CLHEP::HepRandomEngine* rndmEngine ) const;
       
 
       StatusCode constructResultVectors( const std::map<std::string, unsigned int> & itemDecisionMap,
@@ -99,7 +100,6 @@ namespace LVL1CTP {
       mutable InternalTriggerMap    m_internalTrigger ATLAS_THREAD_SAFE;             //!< internal triggers BGRP and RNDM
       unsigned int                  m_ctpVersionNumber { 4 };      //!< CTP data format version (4 in most of Run 2 and in Run 3) 
       CTPdataformatVersion*         m_ctpDataFormat { nullptr };   //!< CTP data format details
-      CLHEP::HepRandomEngine*       m_rndmEngine;                  //!< for random prescaling
    };
 
 

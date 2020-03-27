@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandFlat.h"
 
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
@@ -16,6 +17,7 @@
 #include "TMatrixD.h"
 #include "TMatrixDSymEigen.h"
 #include "TMath.h"
+#include "TH1.h"
 
 //=============================================
 //======= TFCSPCAEnergyParametrization =========
@@ -57,6 +59,50 @@ void TFCSPCAEnergyParametrization::Print(Option_t *option) const
     }  
     msg()<<endmsg;
   }  
+}
+
+float interpolate_get_y(TH1* hist, float x)
+{
+  float m=0;float n=0; float x1=1; float x2=0; float y1=0; float y2=0;
+  if(x<=hist->GetBinCenter(1))                 return hist->GetBinContent(1);
+  if(x>=hist->GetBinCenter(hist->GetNbinsX())) return hist->GetBinContent(hist->GetNbinsX());
+
+  int bin=hist->FindBin(x);
+  //is x above the bin center -> interpolate with next bin
+  if(x>hist->GetBinCenter(bin))
+  {
+   x1=hist->GetBinCenter(bin);
+   y1=hist->GetBinContent(bin);
+   x2=hist->GetBinCenter(bin+1);
+   y2=hist->GetBinContent(bin+1);
+  }
+  
+  //is x below bin center -> interpolate with previous bin
+  if(x<=hist->GetBinCenter(bin))
+  {
+   x1=hist->GetBinCenter(bin-1);
+   y1=hist->GetBinContent(bin-1);
+   x2=hist->GetBinCenter(bin);
+   y2=hist->GetBinContent(bin);
+  }
+ 
+  m=(y1-y2)/(x1-x2);
+  n=y2-m*x2;
+  return m*x+n;
+}
+
+void TFCSPCAEnergyParametrization::set_totalE_probability_ratio(int Ekin_bin,TH1* hist)
+{
+  if(Ekin_bin<1) return;
+  if(Ekin_bin-1>=(int)m_totalE_probability_ratio.size()) return;
+  m_totalE_probability_ratio[Ekin_bin-1]=hist;
+}
+
+TH1* TFCSPCAEnergyParametrization::get_totalE_probability_ratio(int Ekin_bin) const
+{
+  if(Ekin_bin<1) return nullptr;
+  if(Ekin_bin-1>=(int)m_totalE_probability_ratio.size()) return nullptr;
+  return m_totalE_probability_ratio[Ekin_bin-1];
 }
 
 FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
@@ -127,6 +173,25 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
     simdata[l]*=scalefactor;
    }
    
+   //Apply hit-and-miss reweighting of total energy response
+   //This needs to run before simulstate is modified, otherwise a clean retry is not possible
+   TH1* h_totalE_ratio=get_totalE_probability_ratio(pcabin);
+   if(h_totalE_ratio) {
+     float pass_probability=0;
+     float Etot=simdata[layerNr.size()];
+     if(Etot>h_totalE_ratio->GetXaxis()->GetXmin() && Etot<h_totalE_ratio->GetXaxis()->GetXmax()) {
+       pass_probability=interpolate_get_y(h_totalE_ratio,Etot);
+     }
+     float random = CLHEP::RandFlat::shoot(simulstate.randomEngine());
+     if(random>pass_probability) {
+       delete [] output_data;
+       delete [] input_data;
+       delete [] simdata;
+       
+       return (FCSReturnCode)FCSRetryPCA;
+     } 
+   }
+
    double total_energy=simdata[layerNr.size()]*simulstate.E()/m_total_energy_normalization;
    simulstate.set_E(total_energy);
    ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
@@ -147,7 +212,7 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
    delete [] output_data;
    delete [] input_data;
    delete [] simdata;
-
+   
   }
 
   return FCSSuccess;
@@ -267,8 +332,10 @@ bool TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
         }
 
       m_cumulative.push_back(cumulative);
-
+      
    }
+   m_totalE_probability_ratio.resize(m_numberpcabins-1,nullptr);
+
 
  return true;
 
@@ -298,6 +365,9 @@ void TFCSPCAEnergyParametrization::Streamer(TBuffer &R__b)
         if(TMath::Abs(Ekin_max()-2*Ekin_min())<1) {
           set_Ekin_nominal(Ekin_max()/TMath::Sqrt(2));
         }
+      }
+      if(R__v<=2) {
+        m_totalE_probability_ratio.resize(m_numberpcabins-1,nullptr);
       }
    } else {
       R__b.WriteClassBuffer(TFCSPCAEnergyParametrization::Class(),this);

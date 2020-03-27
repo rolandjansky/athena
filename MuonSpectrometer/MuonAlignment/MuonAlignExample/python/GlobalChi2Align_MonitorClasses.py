@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 ## @file:   GlobalChi2Align_MonitorClasses.py
 ## @brief:  Interface classes which setup and call the plotting scripts.
 ## @author: Steffen Kaiser <steffen.kaiser@cern.ch>
 ## @date:   11/2009
+
+from __future__ import print_function
 
 import os
 
@@ -36,7 +38,7 @@ class GlobalChi2Plotter:
             runstr += " -a "
         if self.debug:
             runstr += " -d " 
-        print "run script: ", runstr
+        print ("run script: ", runstr)
         os.system(runstr)
 
 #-----------------------------------------------------------------------
@@ -65,7 +67,7 @@ class TrendPlotter:
             runstr += " -e "
         if self.combineTower:
             runstr += " -c "    
-        print "run script: ", runstr
+        print ("run script: ", runstr)
         os.system(runstr)
 
 #-----------------------------------------------------------------------
@@ -88,12 +90,8 @@ class ResidualPlotter:
             runstr += " -o " + self.outputPath
         if self.type:
             runstr += " -t " + self.type
-        print "run script: ", runstr
+        print ("run script: ", runstr)
         os.system(runstr)
-        #print os.popen(runstr).readlines()
-        #ret,out = commands.getstatusoutput(runstr)
-        #if ret != 0:
-           # print "error when running: ",self.executable
 
 #-----------------------------------------------------------------------
 class Chi2ValidationPlotter:
@@ -122,7 +120,7 @@ class Chi2ValidationPlotter:
             runstr += " -a "
         if self.debug:
             runstr += " -d " 
-        print "run script: ", runstr
+        print ("run script: ", runstr)
         os.system(runstr)
 
 #-----------------------------------------------------------------------

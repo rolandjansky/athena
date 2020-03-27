@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
  Generate run list for each period using the pyAMI interface to the COMA db.
 
@@ -37,7 +40,7 @@ class AMIWrapper:
              self.configFileName = os.path.expanduser(options.config)
          else:
              sys.exit('No authentication file specified')
-         print self.configFileName
+         print (self.configFileName)
          #self.ami=pyAMI.client.Client('atlas',key_file=self.configFileName,ignore_proxy=True,verbose=True)
  
      def run(self, cmd):
@@ -45,10 +48,10 @@ class AMIWrapper:
          Execute an AMI command given as a list of command and paramters (ami format) or
          space separated string (for convenience)
          """
-         if isinstance(cmd, basestring):
+         if isinstance(cmd, str):
              cmd = cmd.split()
          
-         print 'PRINT AMI CMD', cmd 
+         print ('PRINT AMI CMD', cmd )
          results = self.ami.execute(cmd,format='dict_object')
 
          return results.get_rows()
@@ -68,7 +71,7 @@ class AMIWrapper:
  
          cmd = 'GetRunsForDataPeriod period='+period
          cmd += ' projectName='+project
-         print cmd
+         print (cmd)
          return self.run(cmd)
  
      def runListsPerPeriod(self, location='/afs/cern.ch/user/a/atlidbs/nt/DataPeriods/'):
@@ -82,7 +85,7 @@ class AMIWrapper:
          num = 0
 
          for p in periods:
-             #print 'Looking at period: ', p 
+             #print ('Looking at period: ', p )
              projectDir =path.normpath(location + '/' + p['projectName'])
  
              if not path.exists(projectDir):
@@ -96,7 +99,7 @@ class AMIWrapper:
              if path.exists(filename):
                  os.system('rm ' + filename)
  
-             print '* Creating run list for %(projectName)s %(period)s ...' % p
+             print ('* Creating run list for %(projectName)s %(period)s ...' % p)
  
              num += 1
              #if p['period'] == 'A1' and p['projectName'] == 'data15_1beam':
@@ -107,14 +110,14 @@ class AMIWrapper:
                continue
              runList = '\n'.join(sorted([r['runNumber'] for r in runs]))
              runList += '\n' # Needed for cat to work!
-             print runList
+             print (runList)
              with open(filename, 'w') as f:
                  f.write(runList)
  
-             print '  ... written to', filename, '\n' 
+             print ('  ... written to', filename, '\n' )
  
          if not num:
-             print '* No new period infomation to create'
+             print ('* No new period infomation to create')
   
 if __name__ == '__main__':
      ami = AMIWrapper()

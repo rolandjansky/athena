@@ -6,7 +6,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
 
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
@@ -34,6 +34,11 @@ StatusCode TrigSignatureMoniMT::start() {
 
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
   bool gotL1Menu =  l1MenuHandle.isValid();
+
+  // reset the state
+  m_groupToChainMap.clear();
+  m_streamToChainMap.clear();
+  m_chainIDToBunchMap.clear();
 
   //retrieve chain information from menus
   std::vector<std::string> bcidChainNames;

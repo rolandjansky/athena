@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -9,30 +9,31 @@
 #ifndef JETMOMENTTOOLS_JETBADCHANCORRTOOL_H
 #define JETMOMENTTOOLS_JETBADCHANCORRTOOL_H
 
-/**  @class JetBadChanCorrTol.
+/**  @class JetBadChanCorrTool.
      Calculates correction for dead cells
-     
+
      It produces and stores three jet moment : BchCorrCell, BchCorrDotx, BchCorrJet
      after computing the energy fraction of dead cells.
 
-     IMPORTANT : this run2 implementation is less complete than before.
-      -> it can not make use of the older IHadronicCalibrationTool (wasn't used by default anyway) 
+     IMPORTANT : this implementation is less complete than before.
+      -> it can not make use of the older IHadronicCalibrationTool (wasn't used by default anyway)
       and therefore doesn't take the cryostat correction into account.
 
       Also it now requires the existence of a MissingCaloCellsMap in SG.
-
-      Lots of commented blocks are still around until we're sure they're not needed anymore.
 
      @author Yousuke Kataoka
      @date (first implementation) December , 2009
      @author P.A. Delsart
      @date (faster implementation) March , 2011
      @date (Run 2 re-implemantation) March , 2013
-     
+     @author Bill Balunas
+     @date (Run 3 re-implementation) February , 2020
+
 */
 
-
-#include "JetRec/JetModifierBase.h"
+#include "AsgTools/AsgTool.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "JetInterface/IJetDecorator.h"
 
 #include "JetRecCalo/MissingCellListTool.h"
 
@@ -47,68 +48,57 @@ class CaloDetDescrManager;
 class ITileBadChanTool;
 class ITHistSvc;
 
-class JetBadChanCorrTool: public JetModifierBase
+class JetBadChanCorrTool: public asg::AsgTool,
+                          virtual public IJetDecorator
 {
   ASG_TOOL_CLASS0(JetBadChanCorrTool)
 public:
   JetBadChanCorrTool(const std::string& name);
-  
+
   virtual ~JetBadChanCorrTool();
-  
-  virtual StatusCode initialize();
- 
-  virtual int modifyJet( xAOD::Jet& pJet) const ;
-  
+
+  virtual StatusCode initialize() override;
+
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
+
   virtual StatusCode setupEvent();
 
 
 protected:
-  int correctionFromCellsInJet( xAOD::Jet* j, const jet::CaloCellFastMap * badCellMap) const;
-  int correctionFromCellsInCone( xAOD::Jet* j, const jet::CaloCellFastMap * badCellMap) const;
-
-  int correctionFromClustersBadCells( xAOD::Jet* j) const;
+  // These two apply the moments they compute as decorations to the jet collection
+  StatusCode correctionFromClustersBadCells(const xAOD::JetContainer& jets) const;
+  StatusCode correctionFromCellsInJet(const xAOD::JetContainer& jets, const jet::CaloCellFastMap * badCellMap) const;
+  // This one computes the moment without applying it
+  float correctionFromCellsInCone(const xAOD::Jet* jet, const jet::CaloCellFastMap * badCellMap) const;
 
  private:
 
   ServiceHandle<ITHistSvc> m_thistSvc;
 
-  // const CaloDetDescrManager* m_caloDDM;
-  // const CaloCell_ID*       m_calo_id;
-
-  // limit to calculate moments
-  int m_nBadCellLimit;
-
-  
-
-  
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};
+  Gaudi::Property<int> m_nBadCellLimit{this, "NBadCellLimit", 10000, "Limit to calculate moments"};
 
   // for jet-level correction
-  std::string m_streamName;
-  std::string m_profileName;
-  std::string m_profileTag;
+  Gaudi::Property<std::string> m_streamName{this, "StreamName", "/JetBadChanCorrTool/", "Stream name"};
+  Gaudi::Property<std::string> m_profileName{this, "ProfileName", "JetBadChanCorrTool.root", "Profile name"};
+  Gaudi::Property<std::string> m_profileTag{this, "ProfileTag", "", "Profile tag"};
 
-  bool m_useCone;
-  //  double m_coneDr;
-  
-  // for cell-level correction
-  bool m_useCalibScale;
-  //ToolHandle<IHadronicCalibrationTool> m_calibTool;
+  Gaudi::Property<bool> m_useCone{this, "UseCone", true, "Use cone?"};
+  Gaudi::Property<bool> m_useClusters{this, "UseClusters", false, "Use clusters?"};
 
-  //ToolHandle<IMissingCellListTool> m_missingCellToolHandle;
-  //MissingCellListTool* m_missingCellTool;
-  // std::string m_missingCellMapName;
-
-  bool m_forceMissingCellCheck;
-
-  bool m_useClusters;
+  SG::ReadHandleKey<jet::CaloCellFastMap> m_badCellMap_key{this, "MissingCellMap", "MissingCaloCellsMap", "SG key for missing cell map"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_corrCellKey{this, "CorrCellDecorKey", "BchCorrCell", "SG key for cell level decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_corrDotxKey{this, "CorrDotxDecorKey", "BchCorrDotx", "SG key for DOTX decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_corrJetKey{this, "CorrJetDecorKey", "BchCorrJet", "SG key for jet level decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_corrJetForCellKey{this, "CorrJetForCellDecorKey", "BchCorrJetForCell", "SG key for JetForCell decoration"};
 
   // jet profiles
   class ProfileData {
   public:
     ProfileData(TH1D* th, int sample,
-		double ptMin=0, double ptMax=9999,
-		double etaMin=0, double etaMax=5.0,
-		double phiMin=-M_PI, double phiMax=M_PI):
+    double ptMin=0, double ptMax=9999,
+    double etaMin=0, double etaMax=5.0,
+    double phiMin=-M_PI, double phiMax=M_PI):
       m_th(th), m_sample(sample), 
       m_ptMin(ptMin), m_ptMax(ptMax), 
       m_etaMin(etaMin), m_etaMax(etaMax),
@@ -118,11 +108,11 @@ protected:
 
     bool match(double pt, int sample, double eta, double phi) const {
       return ( pt>=m_ptMin && pt<m_ptMax 
-	       && sample==m_sample
-	       && fabs(eta)>=m_etaMin && fabs(eta)<m_etaMax 
-	       && phi>=m_phiMin && phi<m_phiMax);
+         && sample==m_sample
+         && fabs(eta)>=m_etaMin && fabs(eta)<m_etaMax 
+         && phi>=m_phiMin && phi<m_phiMax);
     }
-    
+
     double frac(double dr) const {
       int idr = m_th->FindBin(dr);
       return m_th->GetBinContent(idr);
@@ -139,14 +129,12 @@ protected:
 
   };
   std::vector<ProfileData> m_profileDatas[CaloCell_ID::Unknown];//24
-  
+
   double getProfile(double pt, double dr, int sample, double eta, double phi) const;
-
-  SG::ReadHandleKey<jet::CaloCellFastMap> m_badCellMap_key;
 };
-#endif 
+#endif
 
-#endif 
+#endif
 
 // DoxygenDocumentation
 /*! @class JetBadChanCorrTool
@@ -188,4 +176,3 @@ jet x ( 1 + BCH_CORR_JET - BCH_CORR_JET_FORCELL ) = jet with cell level correcti
 
 </table>
 */
-

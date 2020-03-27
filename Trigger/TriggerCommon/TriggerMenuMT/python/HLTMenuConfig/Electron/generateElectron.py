@@ -38,6 +38,8 @@ def generateChains( flags,  chainDict ):
                                      HypoToolGen = TrigL2CaloHypoToolFromDict, 
                                      CA = accCalo)
 
+    fastCaloSequence.createHypoTools(chainDict)
+
     accCalo.printConfig()
 
     fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
@@ -61,8 +63,8 @@ def generateChains( flags,  chainDict ):
     fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForElectron')
 
 
-    def makeFakeHypoTool(name, cfg):
-        return HLTTest__TestHypoTool(name)
+    def makeFakeHypoTool(chainDict, cfg = None):
+        return HLTTest__TestHypoTool(chainDict['chainName'])
 
     accTrk.addEventAlgo(fakeHypoAlg, sequenceName=stepView.getName())
 
@@ -71,6 +73,8 @@ def generateChains( flags,  chainDict ):
                                       Hypo        = fakeHypoAlg,
                                       HypoToolGen = makeFakeHypoTool,
                                       CA = accTrk)
+
+    fastInDetSequence.createHypoTools(chainDict)
 
     fastInDetStep = ChainStep( secondStepName, [fastInDetSequence] )
 

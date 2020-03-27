@@ -146,7 +146,7 @@ if readPool :
 	# set this to the file containing AlignableTransform objects
 	ServiceMgr.CondProxyProvider.InputCollections += inputCollections
 	ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
-	print ServiceMgr.CondProxyProvider
+	printfunc (ServiceMgr.CondProxyProvider)
 	# this preload causes callbacks for read in objects to be activated,
 	# allowing GeoModel to pick up the transforms
 	ServiceMgr.IOVSvc.preLoadData=True
@@ -164,10 +164,10 @@ if loadInDetRec_Options["trtAlignmentTagL3"]:
 include ("RecExCommon/RecExCommon_topOptions.py")
 
 
-print svcMgr.IOVDbSvc
+printfunc (svcMgr.IOVDbSvc)
 
 
-#print SkipEvents
+#printfunc (SkipEvents)
 from GaudiSvc.GaudiSvcConf import THistSvc
 #ServiceMgr += THistSvc()
 #ServiceMgr.THistSvc.Output += ["egTestOutPut DATAFILE='ElectronExtrapolationOut.root' OPT='RECREATE'"]
