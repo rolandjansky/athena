@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 import ROOT
@@ -39,13 +41,13 @@ ev=0
 for i in range(0,10):
  try : 
   a=not theApp.nextEvent().isFailure() 
-  print 'Event Number',ev
+  print ('Event Number',ev)
   ev=ev+1;
  except : 
-  print "except"
+  print ("except")
   break
 theApp.finalize().ignore();
 
-print 'writing out file after',ev,'events'
+print ('writing out file after',ev,'events')
 theApp.exit()
 
