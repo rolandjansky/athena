@@ -12,7 +12,8 @@ def jsonfixup(instr):
     instr = instr.Data()
     j=json.loads(instr)
     # the following are very subject to floating point numeric effects
-    for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy'):
+    for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy',
+                   'fTsumwz', 'fTsumwz2', 'fTsumwxz', 'fTsumwyz' ):
         if badkey in j:
             if isinstance(j[badkey], float):
                 j[badkey] = float(str(j[badkey])[:8])
