@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef GENERATORFILTERSVBFMJJINTERVALFILTER_H
 #define GENERATORFILTERSVBFMJJINTERVALFILTER_H
 
 #include "GeneratorModules/GenFilter.h"
 #include "xAODJet/JetContainer.h"
-#include "TLorentzVector.h"
 
 class IAtRndmGenSvc;
 
@@ -47,13 +45,19 @@ private:
   bool m_electronjetoverlap;
   bool m_taujetoverlap;
   double m_alpha;
+  bool m_ApplyNjet; 
+  unsigned int m_NJetsMin; 
+  unsigned int m_NJetsMax; 
+  bool m_ApplyWeighting; 
+  bool m_applyDphi; 
+  double m_dphijj; 
 
   bool checkOverlap(double, double, std::vector<HepMC::GenParticle*>);
   bool checkOverlap(double, double, std::vector<TLorentzVector*>);
   TLorentzVector sumDaughterNeutrinos( HepMC::GenParticle* );
 
 public:
-
+  bool ApplyMassDphi(xAOD::JetContainer *jets);
   double getEventWeight(xAOD::JetContainer *jets);
 };
 

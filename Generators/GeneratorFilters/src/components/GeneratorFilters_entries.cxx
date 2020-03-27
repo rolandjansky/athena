@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "GeneratorFilters/ElectronFilter.h"
@@ -53,7 +56,6 @@
 #include "GeneratorFilters/FourLeptonInvMassFilter.h"
 #include "GeneratorFilters/HtoVVFilter.h"
 #include "GeneratorFilters/QCDTruthJetFilter.h"
-#include "GeneratorFilters/QCDTruthJetFilterTest.h"
 #include "GeneratorFilters/QCDTruthMultiJetFilter.h"  
 #include "GeneratorFilters/VBFHbbEtaSortingFilter.h"  
 #include "GeneratorFilters/TopCKMFilter.h"
@@ -141,7 +143,6 @@ DECLARE_ALGORITHM_FACTORY(FourLeptonMassFilter)
 DECLARE_ALGORITHM_FACTORY(FourLeptonInvMassFilter)
 DECLARE_ALGORITHM_FACTORY(HtoVVFilter)
 DECLARE_ALGORITHM_FACTORY(QCDTruthJetFilter)
-DECLARE_ALGORITHM_FACTORY(QCDTruthJetFilterTest)
 DECLARE_ALGORITHM_FACTORY(QCDTruthMultiJetFilter)  
 DECLARE_ALGORITHM_FACTORY(VBFHbbEtaSortingFilter)  
 DECLARE_ALGORITHM_FACTORY(TopCKMFilter)
@@ -229,7 +230,6 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(FourLeptonInvMassFilter)
     DECLARE_ALGORITHM(HtoVVFilter)
     DECLARE_ALGORITHM(QCDTruthJetFilter)
-    DECLARE_ALGORITHM(QCDTruthJetFilterTest)
     DECLARE_ALGORITHM(QCDTruthMultiJetFilter)  
     DECLARE_ALGORITHM(VBFHbbEtaSortingFilter)  
     DECLARE_ALGORITHM(TopCKMFilter)

@@ -229,7 +229,7 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
-        evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
+        evgenLog.error(jofile + " contains a physicsShort field of more than 50 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
     jo_physshortparts = jo_physshortpart.split("_")
@@ -566,6 +566,8 @@ elif "ProtosLHEF" in evgenConfig.generators:
 elif "BeamHaloGenerator" in evgenConfig.generators:
     eventsFile = "beamhalogen.events"
 elif "HepMCAscii" in evgenConfig.generators:
+    eventsFile = "events.hepmc"
+elif "ReadMcAscii" in evgenConfig.generators:
     eventsFile = "events.hepmc"
 elif gens_lhef(evgenConfig.generators):
     eventsFile = "events.lhe"

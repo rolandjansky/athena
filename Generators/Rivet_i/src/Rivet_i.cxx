@@ -330,16 +330,18 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
        i != std::sregex_iterator(); ++i ) {
     std::smatch m = *i;
     vector<string> temp = ::split(m.str(), "[,]");
-    if (temp.size() ==2) {
-      double value = old_wc[temp[0]];
+    if (temp.size() == 2 || temp.size() == 3) {
+      string wname = temp[0];
+      if (temp.size() == 3)  wname += "," + temp[1];
+      double value = old_wc[wname];
       for (const auto& sub : w_subs) {
-        size_t start_pos = temp[0].find(sub.first);
+        size_t start_pos = wname.find(sub.first);
         while (start_pos != std::string::npos) {
-          temp[0].replace(start_pos, sub.first.length(), sub.second);
-          start_pos = temp[0].find(sub.first);
+          wname.replace(start_pos, sub.first.length(), sub.second);
+          start_pos = wname.find(sub.first);
         }
       }
-      new_wc[temp[0]];
+      new_wc[wname];
       new_wc.back() = value;
     }
   }

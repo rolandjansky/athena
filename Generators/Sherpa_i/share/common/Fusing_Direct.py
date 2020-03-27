@@ -1,4 +1,6 @@
 # taken from https://gitlab.com/sherpa-team/sherpa/merge_requests/228
+# the PluginCode part will not be needed anymore for Sherpa >=2.2.9
+# as it is included upstream already
 
 # CAUTION: when including this, you have to set the following process-dependent setting in your JO:
 # If two strong couplings are involved at Born level, `FUSING_DIRECT_FACTOR=1` (e.g. Zbb).
@@ -6,7 +8,7 @@
 
 genSeq.Sherpa_i.Parameters += [ "USERHOOK=Fusing_Direct",
                                 "CSS_SCALE_SCHEME=2",
-                                "CSS_EVOLUTION_SCHEME=3" ]
+                                "CSS_EVOLUTION_SCHEME=3", ]
 
 
 genSeq.Sherpa_i.PluginCode += r"""
