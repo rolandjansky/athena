@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelChargeCalibCondAlg.h"
+#include "PixelChargeLUTCalibCondAlg.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
@@ -10,13 +10,13 @@
 #include <memory>
 #include <sstream>
 
-PixelChargeCalibCondAlg::PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
+PixelChargeLUTCalibCondAlg::PixelChargeLUTCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
-StatusCode PixelChargeCalibCondAlg::initialize() {
-  ATH_MSG_DEBUG("PixelChargeCalibCondAlg::initialize()");
+StatusCode PixelChargeLUTCalibCondAlg::initialize() {
+  ATH_MSG_DEBUG("PixelChargeLUTCalibCondAlg::initialize()");
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
@@ -31,8 +31,8 @@ StatusCode PixelChargeCalibCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
-  ATH_MSG_DEBUG("PixelChargeCalibCondAlg::execute()");
+StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
+  ATH_MSG_DEBUG("PixelChargeLUTCalibCondAlg::execute()");
 
   SG::WriteCondHandle<PixelChargeCalibCondData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
@@ -75,58 +75,113 @@ StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
       const CondAttrListCollection::ChanNum &channelNumber = attrList->first;
       const CondAttrListCollection::AttributeList &payload = attrList->second;
 
-      // RUN-2 format
-      if (payload.exists("data") and not payload["data"].isNull()) {
-        std::string stringStatus = payload["data"].data<std::string>();
+      // RUN-3 format
+      if (payload.exists("data_array") and not payload["data_array"].isNull()) {
+        const std::string &stringStatus = payload["data_array"].data<std::string>();
 
         std::stringstream ss(stringStatus);
         std::vector<std::string> component;
         std::string buffer;
-        while (std::getline(ss,buffer,'\n')) { component.push_back(buffer); }
+        while (std::getline(ss,buffer,':')) { component.push_back(buffer); }
 
         for (int i=1; i<(int)component.size(); i++) {
           std::stringstream checkFE(component[i]);
-          std::vector<std::string> FEString;
-          while (std::getline(checkFE,buffer,' ')) { FEString.push_back(buffer); }
+          std::vector<std::string> feString;
+          while (std::getline(checkFE,buffer,']')) { feString.push_back(buffer); }
 
-          if (FEString.size()<21) {
-            ATH_MSG_INFO("size of FEString is " << FEString.size() << " and is less than expected, 21.");
-            ATH_MSG_INFO("This is the problem in the contents in conditions DB. This should rather be fixed in DB-side.");
-            continue;
+          IdentifierHash wafer_hash = IdentifierHash(i-1);
+          const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
+          const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+          int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
+          for (int j=0; j<numFE; j++) {
+            std::stringstream eachFE(feString[j]);
+            std::vector<std::string> eachString;
+            while (std::getline(eachFE,buffer,'[')) { eachString.push_back(buffer); }
+            if (eachString.size()>0) {
+              std::stringstream calibFE(eachString[eachString.size()-1]);
+              std::vector<std::string> calibString;
+              while (std::getline(calibFE,buffer,',')) { calibString.push_back(buffer); }
+
+              // new charge calibration for RUN-3
+              if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4 && !(element->isDBM())) {
+                if (calibString.size()!=20) {
+                  ATH_MSG_FATAL("Parameter size is not consistent(20) " << calibString.size() << " at (i,j)=(" <<  i-1 << "," << j << ")");
+                  return StatusCode::FAILURE;
+                }
+                // Normal pixel
+                writeCdo -> setAnalogThreshold(i-1, std::atoi(calibString[0].c_str()));
+                writeCdo -> setAnalogThresholdSigma(i-1, std::atoi(calibString[1].c_str()));
+                writeCdo -> setAnalogThresholdNoise(i-1, std::atoi(calibString[2].c_str()));
+                writeCdo -> setInTimeThreshold(i-1, std::atoi(calibString[3].c_str()));
+
+                writeCdo -> setQ2TotA(i-1, std::atof(calibString[12].c_str()));
+                writeCdo -> setQ2TotE(i-1, std::atof(calibString[13].c_str()));
+                writeCdo -> setQ2TotC(i-1, std::atof(calibString[14].c_str()));
+
+                writeCdo -> setTotRes1(i-1, std::atof(calibString[18].c_str()));
+                writeCdo -> setTotRes2(i-1, std::atof(calibString[19].c_str()));
+
+                // Long pixel
+                writeCdo -> setAnalogThresholdLong(i-1, std::atoi(calibString[4].c_str()));
+                writeCdo -> setAnalogThresholdSigmaLong(i-1, std::atoi(calibString[5].c_str()));
+                writeCdo -> setAnalogThresholdNoiseLong(i-1, std::atoi(calibString[6].c_str()));
+                writeCdo -> setInTimeThresholdLong(i-1, std::atoi(calibString[7].c_str()));
+
+                writeCdo -> setQ2TotALong(i-1, std::atof(calibString[15].c_str()));
+                writeCdo -> setQ2TotELong(i-1, std::atof(calibString[16].c_str()));
+                writeCdo -> setQ2TotCLong(i-1, std::atof(calibString[17].c_str()));
+
+                // Ganged pixel
+                writeCdo -> setAnalogThresholdGanged(i-1, std::atoi(calibString[8].c_str()));
+                writeCdo -> setAnalogThresholdSigmaGanged(i-1, std::atoi(calibString[9].c_str()));
+                writeCdo -> setAnalogThresholdNoiseGanged(i-1, std::atoi(calibString[10].c_str()));
+                writeCdo -> setInTimeThresholdGanged(i-1, std::atoi(calibString[11].c_str()));
+              }
+              // conventional calibration
+              else {
+                if (calibString.size()!=20) {
+                  ATH_MSG_FATAL("Parameter size is not consistent(20) " << calibString.size() << " at (i,j)=(" <<  i-1 << "," << j << ")");
+                  return StatusCode::FAILURE;
+                }
+                // Normal pixel
+                writeCdo -> setAnalogThreshold(i-1, std::atoi(calibString[0].c_str()));
+                writeCdo -> setAnalogThresholdSigma(i-1, std::atoi(calibString[1].c_str()));
+                writeCdo -> setAnalogThresholdNoise(i-1, std::atoi(calibString[2].c_str()));
+                writeCdo -> setInTimeThreshold(i-1, std::atoi(calibString[3].c_str()));
+
+                writeCdo -> setQ2TotA(i-1, std::atof(calibString[12].c_str()));
+                writeCdo -> setQ2TotE(i-1, std::atof(calibString[13].c_str()));
+                writeCdo -> setQ2TotC(i-1, std::atof(calibString[14].c_str()));
+
+                writeCdo -> setTotRes1(i-1, std::atof(calibString[18].c_str()));
+                writeCdo -> setTotRes2(i-1, std::atof(calibString[19].c_str()));
+
+                // Long pixel
+                writeCdo -> setAnalogThresholdLong(i-1, std::atoi(calibString[4].c_str()));
+                writeCdo -> setAnalogThresholdSigmaLong(i-1, std::atoi(calibString[5].c_str()));
+                writeCdo -> setAnalogThresholdNoiseLong(i-1, std::atoi(calibString[6].c_str()));
+                writeCdo -> setInTimeThresholdLong(i-1, std::atoi(calibString[7].c_str()));
+
+                writeCdo -> setQ2TotALong(i-1, std::atof(calibString[15].c_str()));
+                writeCdo -> setQ2TotELong(i-1, std::atof(calibString[16].c_str()));
+                writeCdo -> setQ2TotCLong(i-1, std::atof(calibString[17].c_str()));
+
+                // Ganged pixel
+                writeCdo -> setAnalogThresholdGanged(i-1, std::atoi(calibString[8].c_str()));
+                writeCdo -> setAnalogThresholdSigmaGanged(i-1, std::atoi(calibString[9].c_str()));
+                writeCdo -> setAnalogThresholdNoiseGanged(i-1, std::atoi(calibString[10].c_str()));
+                writeCdo -> setInTimeThresholdGanged(i-1, std::atoi(calibString[11].c_str()));
+              }
+            }
+            else {
+              ATH_MSG_FATAL("String size (eachString) is zero in " << feString[j] << " at (i,j)=(" <<  i-1 << "," << j << ")");
+              return StatusCode::FAILURE;
+            }
           }
-
-          // Normal pixel
-          writeCdo -> setAnalogThreshold((int)channelNumber, std::atoi(FEString[1].c_str()));
-          writeCdo -> setAnalogThresholdSigma((int)channelNumber, std::atoi(FEString[2].c_str()));
-          writeCdo -> setAnalogThresholdNoise((int)channelNumber, std::atoi(FEString[3].c_str()));
-          writeCdo -> setInTimeThreshold((int)channelNumber, std::atoi(FEString[4].c_str()));
-
-          writeCdo -> setQ2TotA((int)channelNumber, std::atof(FEString[13].c_str()));
-          writeCdo -> setQ2TotE((int)channelNumber, std::atof(FEString[14].c_str()));
-          writeCdo -> setQ2TotC((int)channelNumber, std::atof(FEString[15].c_str()));
-
-          writeCdo -> setTotRes1((int)channelNumber, std::atof(FEString[19].c_str()));
-          writeCdo -> setTotRes2((int)channelNumber, std::atof(FEString[20].c_str()));
-
-          // Long pixel
-          writeCdo -> setAnalogThresholdLong((int)channelNumber, std::atoi(FEString[5].c_str()));
-          writeCdo -> setAnalogThresholdSigmaLong((int)channelNumber, std::atoi(FEString[6].c_str()));
-          writeCdo -> setAnalogThresholdNoiseLong((int)channelNumber, std::atoi(FEString[7].c_str()));
-          writeCdo -> setInTimeThresholdLong((int)channelNumber, std::atoi(FEString[8].c_str()));
-
-          writeCdo -> setQ2TotALong((int)channelNumber, std::atof(FEString[16].c_str()));
-          writeCdo -> setQ2TotELong((int)channelNumber, std::atof(FEString[17].c_str()));
-          writeCdo -> setQ2TotCLong((int)channelNumber, std::atof(FEString[18].c_str()));
-
-          // Ganged pixel
-          writeCdo -> setAnalogThresholdGanged((int)channelNumber, std::atoi(FEString[9].c_str()));
-          writeCdo -> setAnalogThresholdSigmaGanged((int)channelNumber, std::atoi(FEString[10].c_str()));
-          writeCdo -> setAnalogThresholdNoiseGanged((int)channelNumber, std::atoi(FEString[11].c_str()));
-          writeCdo -> setInTimeThresholdGanged((int)channelNumber, std::atoi(FEString[12].c_str()));
         }
       }
       else {
-        ATH_MSG_WARNING("payload[\"data\"] does not exist for ChanNum " << channelNumber);
+        ATH_MSG_WARNING("payload[\"data_array\"] does not exist for ChanNum. Check if this is RUN-3 format." << channelNumber);
         IdentifierHash wafer_hash = IdentifierHash(channelNumber);
         Identifier wafer_id = m_pixelID->wafer_id(wafer_hash);
         int bec   = m_pixelID->barrel_ec(wafer_id);

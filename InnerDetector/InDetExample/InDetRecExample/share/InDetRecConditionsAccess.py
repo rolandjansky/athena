@@ -45,9 +45,10 @@ if DetFlags.pixel_on():
     #################
     # Module status #
     #################
-    useNewConditionsFormat = False
+    useNewDeadmapFormat = False
+    useNewChargeFormat  = True
 
-    if not useNewConditionsFormat:
+    if not useNewDeadmapFormat:
         if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
             conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
@@ -114,7 +115,7 @@ if DetFlags.pixel_on():
                                       UseCablingConditions=useCablingConditions,
                                       CablingMapFileName=IdMappingDat)
 
-    if useNewConditionsFormat:
+    if useNewDeadmapFormat:
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
         if not hasattr(condSeq, "PixelDeadMapCondAlg"):
@@ -146,12 +147,18 @@ if DetFlags.pixel_on():
     #####################
     # Calibration Setup #
     #####################
-    if not conddb.folderRequested("/PIXEL/PixCalib"):
-        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
-
-    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+    if not useNewChargeFormat:
+        if not conddb.folderRequested("/PIXEL/PixCalib"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+    else:
+        if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+        if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
+            condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
 
     #####################
     # Cabling map Setup #

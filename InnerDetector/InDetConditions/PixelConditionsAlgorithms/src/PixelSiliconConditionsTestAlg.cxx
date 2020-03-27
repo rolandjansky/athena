@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelSiliconConditionsTestAlg.h"
@@ -35,18 +35,31 @@ StatusCode PixelSiliconConditionsTestAlg::execute(){
   SG::ReadCondHandle<PixelDistortionData> distortion(m_distortionKey);
 
   for (int i=0; i<2048; i++) { 
-    ATH_MSG_DEBUG("PIXEL Module hash=" << i 
-                    << " HV=" << hv->getBiasVoltage(i) 
-                    << " Temperature=" << temp->getTemperature(i) 
-                    << " Status=" << deadmap->getModuleStatus(i)
-                    << " LorentzShift=" << m_lorentzAngleTool->getLorentzShift(IdentifierHash(i)));
-    ATH_MSG_DEBUG("Charge:");
+    ATH_MSG_DEBUG("Module " << i << " " 
+                            << hv->getBiasVoltage(i) << " " 
+                            << temp->getTemperature(i) << " " 
+                            << deadmap->getModuleStatus(i) << " " 
+                            << m_lorentzAngleTool->getLorentzShift(IdentifierHash(i)));
     for (int j=0; j<16; j++) {
-      ATH_MSG_DEBUG("  FE=" << j 
-                    << " Threshold=" << calib->getAnalogThreshold(i,j,0)
-                    << " Parameter A=" << calib->getQ2TotA(i,j,0)
-                    << " Parameter E=" << calib->getQ2TotE(i,j,0)
-                    << " Parameter C=" << calib->getQ2TotC(i,j,0));
+      ATH_MSG_DEBUG("FE " << j << " "
+                          << calib->getAnalogThreshold(i,j,PixelChargeCalibCondData::NORMAL) << " " 
+                          << calib->getAnalogThresholdSigma(i,j,PixelChargeCalibCondData::NORMAL) << " " 
+                          << calib->getAnalogThresholdNoise(i,j,PixelChargeCalibCondData::NORMAL) << " " 
+                          << calib->getInTimeThreshold(i,j,PixelChargeCalibCondData::NORMAL) << " " 
+                          << calib->getAnalogThreshold(i,j,PixelChargeCalibCondData::LONG) << " " 
+                          << calib->getAnalogThresholdSigma(i,j,PixelChargeCalibCondData::LONG) << " " 
+                          << calib->getAnalogThresholdNoise(i,j,PixelChargeCalibCondData::LONG) << " " 
+                          << calib->getInTimeThreshold(i,j,PixelChargeCalibCondData::LONG) << " " 
+                          << calib->getAnalogThreshold(i,j,PixelChargeCalibCondData::GANGED) << " " 
+                          << calib->getAnalogThresholdSigma(i,j,PixelChargeCalibCondData::GANGED) << " " 
+                          << calib->getAnalogThresholdNoise(i,j,PixelChargeCalibCondData::GANGED) << " " 
+                          << calib->getInTimeThreshold(i,j,PixelChargeCalibCondData::GANGED) << " " 
+                          << calib->getQ2TotA(i,j,PixelChargeCalibCondData::NORMAL) << " " 
+                          << calib->getQ2TotE(i,j,PixelChargeCalibCondData::NORMAL) << " " 
+                          << calib->getQ2TotC(i,j,PixelChargeCalibCondData::NORMAL) << " " 
+                          << calib->getQ2TotA(i,j,PixelChargeCalibCondData::GANGED) << " " 
+                          << calib->getQ2TotE(i,j,PixelChargeCalibCondData::GANGED) << " " 
+                          << calib->getQ2TotC(i,j,PixelChargeCalibCondData::GANGED));
     }
   }
 
