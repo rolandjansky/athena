@@ -23,7 +23,6 @@
 #include "GeneratorFilters/ParentChildwStatusFilter.h"
 #include "GeneratorFilters/SoftLeptonInJetFilter.h"
 #include "GeneratorFilters/VBFForwardJetsFilter.h"
-#include "GeneratorFilters/METFilter.h"
 #include "GeneratorFilters/TTbarPlusJetsFilter.h"
 #include "GeneratorFilters/WMultiLeptonFilter.h"
 #include "GeneratorFilters/PtmissAndOrLeptonFilter.h"
@@ -107,7 +106,6 @@ DECLARE_COMPONENT( ParentTwoChildrenFilter )
 DECLARE_COMPONENT( ParentChildwStatusFilter )
 DECLARE_COMPONENT( SoftLeptonInJetFilter )
 DECLARE_COMPONENT( VBFForwardJetsFilter )
-DECLARE_COMPONENT( METFilter )
 DECLARE_COMPONENT( TTbarPlusJetsFilter )
 DECLARE_COMPONENT( WMultiLeptonFilter )
 DECLARE_COMPONENT( PtmissAndOrLeptonFilter )
