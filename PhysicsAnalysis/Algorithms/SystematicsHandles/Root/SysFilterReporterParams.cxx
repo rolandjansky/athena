@@ -63,8 +63,9 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_INFO ("Events passing selection for at least one systematic: " << m_passedOne << " / " << m_total);
-    ATH_MSG_INFO ("Events passing selection for all systematics: " << m_passedAll << " / " << m_total);
+    ATH_MSG_INFO ("Events passing selection for at least one systematic: " << m_passedOne << " / " << m_total << " for " << m_filterDescription);
+    ATH_MSG_INFO ("Events passing selection for at nominal: " << m_passedNominal << " / " << m_total << " for " << m_filterDescription);
+    ATH_MSG_INFO ("Events passing selection for all systematics: " << m_passedAll << " / " << m_total << " for " << m_filterDescription);
     return StatusCode::SUCCESS;
   }
 }
