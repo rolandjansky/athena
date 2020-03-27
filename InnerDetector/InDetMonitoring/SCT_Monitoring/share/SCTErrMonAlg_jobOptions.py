@@ -36,6 +36,45 @@ myMonGroup = helper.addGroup(myMonAlg, "SCTErrMonitor", "SCT/")
 from ROOT import SCT_Monitoring as sctMon
 
 # Filled in fillHistograms
+myMonGroup.defineHistogram(varname = "lumiBlock;NumberOfEventsVsLB",
+                           cutmask = "is1D",
+                           type = "TH1F",
+                           title = "Num of events per LB ;LumiBlock",
+                           path = "GENERAL/Conf",
+                           xbins = sctMon.NBINS_LBs,
+                           xmin = 0.5,
+                           xmax = sctMon.NBINS_LBs+0.5)
+
+# Filled in fillHistograms
+myMonGroup.defineHistogram(varname = "lumiBlock;NumberOfSCTFlagErrorsVsLB",
+                           cutmask = "sctFlag",
+                           type = "TH1F",
+                           title = "Num of SCT Flag errors per LB ;LumiBlock",
+                           path = "GENERAL/Conf",
+                           xbins = sctMon.NBINS_LBs,
+                           xmin = 0.5,
+                           xmax = sctMon.NBINS_LBs+0.5)
+
+# Filled in fillHistograms
+myMonGroup.defineHistogram(varname = "lumiBlock, sctFlag;FractionOfSCTFlagErrorsPerLB",
+                           type = "TProfile",
+                           title = "Frac of SCT Flag errors per LB ;LumiBlock",
+                           path = "GENERAL/Conf",
+                           xbins = sctMon.NBINS_LBs,
+                           xmin = 0.5,
+                           xmax = sctMon.NBINS_LBs+0.5)
+
+# Filled in fillConfigurationDetails
+myMonGroup.defineHistogram(varname = "detailedConfBin, nBad;SCTConfDetails",
+                           type = "TProfile",
+                           title = "Exclusion from the Configuration",
+                           path = "GENERAL/Conf",
+                           xbins = sctMon.ConfbinsDetailed,
+                           xmin = -0.5,
+                           xmax = sctMon.ConfbinsDetailed-0.5,
+                           xlabels = ["Modules", "Link 0", "Link 1", "Chips", "Strips (10^{2})"])
+
+# Filled in fillHistograms
 myMonGroup.defineHistogram(varname = "moduleOutBin, moduleOut;SCTConfOutM",
                            type = "TProfile",
                            title = "Num of Out Modules in All Region",
@@ -51,6 +90,16 @@ for i in range(SCT_ByteStreamErrors.NUM_ERROR_TYPES):
     myMonGroup.defineHistogram(varname = "lumiBlock, n_"+SCT_ByteStreamErrors.errorTypesDescription[i]+";SCT_"+SCT_ByteStreamErrors.errorTypesDescription[i]+"VsLbs",
                                type = "TProfile",
                                title = "Ave. "+SCT_ByteStreamErrors.errorTypesDescription[i]+" per LB in All Region;LumiBlock;Num of "+SCT_ByteStreamErrors.errorTypesDescription[i],
+                               path = "GENERAL/Conf",
+                               xbins = sctMon.NBINS_LBs,
+                               xmin = 0.5,
+                               xmax = sctMon.NBINS_LBs+0.5)
+
+# Fiiled in fillByteStreamErrors
+for i in range(sctMon.N_ERRCATEGORY):
+    myMonGroup.defineHistogram(varname = "lumiBlock, n_"+sctMon.CategoryErrorsNames[i]+";SCT_LinksWith"+sctMon.CategoryErrorsNames[i]+"VsLbs",
+                               type = "TProfile",
+                               title = "Ave. Num of Links with "+sctMon.CategoryErrorsNames[i]+" per LB in All Region;LumiBlock;Num of Links with "+sctMon.CategoryErrorsNames[i],
                                path = "GENERAL/Conf",
                                xbins = sctMon.NBINS_LBs,
                                xmin = 0.5,

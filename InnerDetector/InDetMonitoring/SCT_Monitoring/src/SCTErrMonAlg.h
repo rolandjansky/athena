@@ -16,6 +16,8 @@
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 
+#include <atomic>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -40,6 +42,9 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
 
   std::vector<moduleGeo_t> m_geo{};
 
+  mutable std::atomic_bool m_isFirstConfigurationDetails{true};
+  mutable std::mutex m_mutex{};
+
   BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   BooleanProperty m_coverageCheck{this, "CoverageCheck", true};
   BooleanProperty m_useDCS{this, "UseDCS", true};
@@ -53,10 +58,12 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   const SCT_ID* m_pSCTHelper{nullptr};
 
   /// Used in fillHistograms()
+  StatusCode fillConfigurationDetails(const EventContext& ctx) const;
   StatusCode fillByteStreamErrors(const EventContext& ctx) const;
   /// Used in fillByteStreamErrors()
   int fillByteStreamErrorsHelper(const std::set<IdentifierHash>& errors,
-                                 int err_type) const;
+                                 int err_type,
+                                 std::array<int, SCT_Monitoring::CategoryErrors::N_ERRCATEGORY>& tot_mod_bytestreamCate_errs) const;
   void numByteStreamErrors(const std::set<IdentifierHash>& errors, int& ntot) const;
   bool disabledSCT(std::set<IdentifierHash>& sctHashDisabled) const;
   bool errorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
