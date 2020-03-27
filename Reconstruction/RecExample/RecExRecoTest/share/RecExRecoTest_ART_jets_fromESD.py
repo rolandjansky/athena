@@ -25,9 +25,11 @@ from InDetRecExample.InDetJobProperties import jobproperties
 jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
 #Disables AllExecutedEvents
 rec.doFileMetaData.set_Value_and_Lock(False)
+rec.OutputLevel.set_Value_and_Lock(DEBUG)
 
 athenaCommonFlags.EvtMax=10
-UserAlgs=["RecExRecoTest/RecExRecoTest_setupJetEtMissPFlow.py"]
+UserAlgs=["RecExRecoTest/RecExRecoTests_setupReadID.py"]
+UserAlgs+=["RecExRecoTest/RecExRecoTest_setupJetEtMissPFlow.py"]
 UserAlgs+=["JetRec/JetRec_jobOptions.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
 
