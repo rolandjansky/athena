@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
 #include "JetInterface/IJetModifier.h"
 #include "FlavorTagDiscriminants/ISingleJetDecorator.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
@@ -42,10 +42,8 @@ namespace Analysis
         
         ToolHandle<ISingleJetDecorator> m_jetDecorator;
 
-        std::string m_BTagLink;
-
-        SG::ReadHandleKey<xAOD::JetContainer> m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
-        Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName{this,"JetContainerName","","Element link form jet to BTagging container"};
+        SG::ReadHandleKey<xAOD::BTaggingContainer> m_BTagCollectionName {this, "BTaggingCollectionName", "", "Input BTagging container"};
+        Gaudi::Property<SG::ReadDecorHandleKey<xAOD::BTaggingContainer> >m_btagJetLinkName{this,"JetContainerLink","","Element link form BTagging to Jet container"};
         SG::ReadHandleKey< xAOD::TrackParticleContainer > m_TrackContainerKey {this,"TrackContainer","InDetTrackParticles","Key for the input track collection"};
 
         Gaudi::Property< std::string > m_prefix{this,"prefix","btagIp_",""};

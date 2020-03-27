@@ -35,8 +35,6 @@ namespace Analysis {
     FlipTagConfig flipTagConf = FlavorTagDiscriminants::flipTagConfigFromString(m_flipTagConfig);
     m_aug = std::make_unique<BTagJetAugmenter>(m_acc_jet_track_links, flipTagConf);
 
-    ATH_MSG_INFO("Manu: " << m_aug->get_pt_uncalib_key());
-
     m_dec_pt_uncalib = m_BTagCollectionName.key() + "." + m_aug->get_pt_uncalib_key();
     m_dec_eta_uncalib = m_BTagCollectionName.key() + "." + m_aug->get_eta_uncalib_key();
     m_dec_abs_eta_uncalib = m_BTagCollectionName.key() + "." + m_aug->get_abs_eta_uncalib_key();

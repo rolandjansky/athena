@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 Analysis__BTagHighLevelAugmenterAlg=CompFactory.Analysis__BTagHighLevelAugmenterAlg
 
-def BTagHighLevelAugmenterAlgCfg(ConfigFlags, BTagCollection, Associator, doFlipTagger=False, **options):
+def BTagHighLevelAugmenterAlgCfg(ConfigFlags, sequenceName, BTagCollection, Associator, doFlipTagger=False, **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The algorithm's name.
@@ -13,7 +13,7 @@ def BTagHighLevelAugmenterAlgCfg(ConfigFlags, BTagCollection, Associator, doFlip
            options:            Python dictionary of options to be passed to the algorithm.
     output: The tool."""
 
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator(sequenceName)
 
     options = {}
     options['BTaggingCollectionName'] = BTagCollection
@@ -23,6 +23,6 @@ def BTagHighLevelAugmenterAlgCfg(ConfigFlags, BTagCollection, Associator, doFlip
     if doFlipTagger: options['FlipTagConfig'] = 'FLIP_SIGN'
 
     # -- create the augmentation algorithm
-    acc.addEventAlgo(Analysis__BTagHighLevelAugmenterAlg(**options))
+    acc.addEventAlgo(Analysis__BTagHighLevelAugmenterAlg(**options), sequenceName)
 
     return acc

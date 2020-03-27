@@ -4,6 +4,7 @@
 
 #include "BTagging/HighLevelBTagAlg.h"
 
+#include "xAODJet/JetContainer.h"
 //general interface for secondary vertex finders
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
@@ -19,9 +20,6 @@ namespace Analysis {
     m_jetDecorator(this)
     //m_vxPrimaryName("PrimaryVertices")
   {
-    //declareProperty("PrimaryVertexName",  m_vxPrimaryName);
-    //List of the secondary vertex finders in jet to be run
-    declareProperty("BTaggingLink", m_BTagLink);
     declareProperty("JetDecorator", m_jetDecorator);
   }
 
@@ -32,9 +30,9 @@ namespace Analysis {
   {
     // This will check that the properties were initialized properly
     // by job configuration.
-    ATH_CHECK( m_JetCollectionName.initialize() );
-    m_jetBTaggingLinkName = m_JetCollectionName.key() + m_BTagLink;
-    ATH_CHECK( m_jetBTaggingLinkName.initialize() );
+    ATH_CHECK( m_BTagCollectionName.initialize() );
+    m_btagJetLinkName = m_BTagCollectionName.key() + ".jetLink";
+    ATH_CHECK( m_btagJetLinkName.initialize() );
 
     /* ----------------------------------------------------------------------------------- */
     /*                        RETRIEVE SERVICES FROM STOREGATE                             */
@@ -68,18 +66,24 @@ namespace Analysis {
 
 
   StatusCode HighLevelBTagAlg::execute() {
-    //retrieve the Jet container
-    SG::ReadHandle<xAOD::JetContainer> h_JetCollectionName (m_JetCollectionName);
-    if (!h_JetCollectionName.isValid()) {
-      ATH_MSG_ERROR( " cannot retrieve jet container with key " << m_JetCollectionName.key()  );
+    //retrieve the BTagging container
+    SG::ReadHandle< xAOD::BTaggingContainer > h_btagContainer( m_BTagCollectionName);
+    SG::ReadDecorHandle<xAOD::BTaggingContainer, ElementLink< xAOD::JetContainer > > h_btagJetLinkName (m_btagJetLinkName);
+    if (!h_btagContainer.isValid()) {
+      ATH_MSG_ERROR( " cannot retrieve BTagging container with key " << m_BTagCollectionName.key()  );
+      return StatusCode::FAILURE;
+    }
+    if (!h_btagJetLinkName.isAvailable()) {
+      ATH_MSG_ERROR( " cannot retrieve Jet container EL decoration with key " << m_btagJetLinkName.key()  );
       return StatusCode::FAILURE;
     }
 
-    for (xAOD::JetContainer::const_iterator jetIter = h_JetCollectionName->begin(); jetIter != h_JetCollectionName->end(); ++jetIter) {
-      const xAOD::Jet& jetToTag = **jetIter;
 
-      m_jetDecorator->decorate(jetToTag);   
-    }// for loop on jets
+    for (xAOD::BTaggingContainer::const_iterator btagIter = h_btagContainer->begin(); btagIter != h_btagContainer->end(); ++btagIter) {
+      const ElementLink< xAOD::JetContainer > jetCont = h_btagJetLinkName(**btagIter);
+      const xAOD::Jet* jet = *jetCont;
+      m_jetDecorator->decorate(*jet);
+    }
 
     return StatusCode::SUCCESS;
   } 
