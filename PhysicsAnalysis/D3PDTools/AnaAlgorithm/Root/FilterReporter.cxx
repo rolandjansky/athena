@@ -41,7 +41,11 @@ namespace EL
     , m_params (val_params)
     , m_passed (val_passedDefault)
   {
-    assert (m_params.m_isInitialized);
+    if (!m_params.m_isInitialized)
+    {
+      ANA_MSG_FATAL ("using uninitialized FilterReporterParams, throwing exception");
+      throw std::logic_error ("using uninitialized FilterReporterParams");
+    }
   }
 
 
