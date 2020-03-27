@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "NSWCalibTool.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
