@@ -75,13 +75,37 @@ def mergeParallel(chainDefList, offset):
 
     return combinedChainDef
 
-def serial_zip(allSteps):
+def serial_zip(allSteps, chainName):
     n_chains = len(allSteps)
+    newsteps = []
     for chain_index, chainsteps in enumerate(allSteps):
-        for sequence in chainsteps:
-            step = [EmptyMenuSequence() for _x in range(n_chains)]
-            step[chain_index] = sequence
-            yield step
+        for step_index, step in enumerate(chainsteps):
+            log.info('chain_index: ' + str(chain_index) + " step_index: " + str(step_index))
+            # create list of correct length
+            stepList = [None]*n_chains
+            
+            # put the step from the current sub-chain into the right place
+            stepList[chain_index] = step
+
+            # all other steps should contain an empty sequence
+            for step_index2, emptyStep in enumerate(stepList):
+                if emptyStep is None:
+                    seqName = chainName + 'EmptySeq' + str(chain_index) + '_' + str(step_index)
+                    emptySeq = EmptyMenuSequence(seqName)
+                    stepList[step_index2] = ChainStep('Step' + str(step_index) + "_" + seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)
+
+            # first create a list of chain steps where each step is an empty sequence
+            #seqName = chainName + 'EmptySeq' + str(chain_index) + '_'
+            #emptySeqList = [EmptyMenuSequence(seqName + str(_x)) for _x in range(n_chains)]
+            #stepList = [ChainStep('Step_' + seqName, Sequences=[seq], chainDicts=step.chainDicts) for seq in emptySeqList]
+            # now overwrite one of these steps from the step in the current sub-chain
+            #stepList[chain_index] = step
+            
+            newsteps.append(stepList)
+    log.info('After serial_zip')
+    for s in newsteps:
+        print s
+    return newsteps
 
 def mergeSerial(chainDefList):
     allSteps = []
@@ -89,6 +113,8 @@ def mergeSerial(chainDefList):
     chainName = ''
     l1Thresholds = []
 
+    log.info('Merge chainDefList:')
+    log.info(chainDefList)
 
     for cConfig in chainDefList:
         if chainName == '':
@@ -100,10 +126,8 @@ def mergeSerial(chainDefList):
         nSteps.append(len(cConfig.steps))
         l1Thresholds.extend(cConfig.vseeds)
 
-    serialSteps = serial_zip(allSteps)
+    serialSteps = serial_zip(allSteps, chainName)
     mySerialSteps = deepcopy(serialSteps)
-    for step in serialSteps:
-        log.error("hey listen! %i, of %i",len(step),len(serialSteps))
     combChainSteps =[]
     for steps in mySerialSteps:
         mySteps = list(steps)
@@ -142,9 +166,9 @@ def makeChainSteps(steps):
     for step in steps:
         if step is None:
             continue
-        log.debug("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
+        log.info("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
         if len(step.sequences):
-            log.debug("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
+            log.info("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
 
          # this function only works if the input chains are single-object chains (one menu seuqnce)
         if len(step.sequences) > 1:
@@ -172,7 +196,7 @@ def makeChainSteps(steps):
         
     comboHypoTools = list(set(comboHypoTools))
     theChainStep = ChainStep(stepName, Sequences=stepSeq, multiplicity=stepMult, chainDicts=stepDicts, comboToolConfs=comboHypoTools) 
-    log.debug("Merged step: \n %s", theChainStep)
+    log.info("Merged step: \n %s", theChainStep)
   
     
     return theChainStep
