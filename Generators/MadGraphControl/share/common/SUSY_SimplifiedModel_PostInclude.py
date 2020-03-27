@@ -35,7 +35,7 @@ elif 'qcdw' in phys_short:
 # Pass arguments as a dictionary: the "decays" argument is not accepted in older versions of MadGraphControl
 if 'mass' in [x.lower() for x in param_blocks]:
     raise RuntimeError('Do not provide masses in param_blocks; use the masses variable instead')
-param_blocks['Mass']=masses
+param_blocks['MASS']=masses
 # Add decays in if needed
 if len(decays)>0: param_blocks['DECAY']=decays
 argdict = {'runArgs'        : runArgs,
