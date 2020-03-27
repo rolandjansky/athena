@@ -33,6 +33,8 @@ namespace CP {
                     << m_vertexKey << "\" with " << m_minTracks
                     << " track(s) each" );
 
+      ANA_CHECK (m_filterParams.initialize());
+
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
