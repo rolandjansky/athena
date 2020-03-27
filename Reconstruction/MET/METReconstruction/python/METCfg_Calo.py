@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #from METReconstruction.METRecoFlags import metFlags
-from METReconstruction.METRecoCfg import BuildConfig, RefConfig, METConfig,clusterSigStates,getMETRecoTool,getMETRecoAlg
+from METReconstruction.METRecoCfg import BuildConfig, RefConfig, METConfig,clusterSigStates,getMETRecoTool,getMETRecoAlg,getRegionRecoTool
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon import CfgMgr
 
 
 def METCalo_Cfg(configFlags):
-    sequencename = "METReconstruction_Calo_New"
+    sequencename = "METReconstruction_Calo"
 
     components = ComponentAccumulator()
     from AthenaCommon.AlgSequence import AthSequencer
@@ -16,7 +16,7 @@ def METCalo_Cfg(configFlags):
     ############################################################################
     # EMTopo
 
-    cfg_emt = METConfig('EMTopo_New',[BuildConfig('SoftClus','EMTopo')],
+    cfg_emt = METConfig('EMTopo',[BuildConfig('SoftClus','EMTopo')],
                     doRegions=True,
                     doOriginCorrClus=False
                     )
@@ -32,7 +32,7 @@ def METCalo_Cfg(configFlags):
     ############################################################################
     # LocHadTopo
     
-    cfg_lht = METConfig('LocHadTopo_New',[BuildConfig('SoftClus','LocHadTopo')],
+    cfg_lht = METConfig('LocHadTopo',[BuildConfig('SoftClus','LocHadTopo')],
                     doRegions=True,
                     doOriginCorrClus=False
                     )
@@ -46,8 +46,8 @@ def METCalo_Cfg(configFlags):
 
     ############################################################################
     # Calo regions
-    """
-    cfg_calo = METConfig('Calo_New',
+    
+    cfg_calo = METConfig('Calo',
                      [BuildConfig('CaloReg')],
                      doCells=True
                      )
@@ -55,12 +55,13 @@ def METCalo_Cfg(configFlags):
     #metFlags.METConfigs()[cfg_calo.suffix] = cfg_calo
     #metFlags.METOutputList().append(cfg_calo.suffix)
     recotool_caloreg= getMETRecoTool(cfg_calo)
+    regiontool_calo= getRegionRecoTool(cfg_calo)
     recotools.append(recotool_caloreg)
+    recotools.append(regiontool_calo)
     #SO FAR THIS WON'T RUN, AND GIVES A KEY ERROR: 
     #File "/usera/sarahw/testareas/PostPHD/METDec2019/build/x86_64-centos7-gcc8-opt/python/METReconstruction/METRecoCfg.py", line 126, in getBuilder
     #tool.InputCollection = defaultInputKey[config.objType]
     #KeyError: 'CaloReg'
-    """
     recoAlg_calo = getMETRecoAlg(algName='METRecoAlg_Calo',tools=recotools)
     components.addEventAlgo(recoAlg_calo,sequencename)
     return components

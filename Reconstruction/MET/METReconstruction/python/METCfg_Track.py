@@ -6,13 +6,13 @@ from AthenaCommon import CfgMgr
 
 
 def METTrack_Cfg(configFlags):
-    sequencename = "METReconstruction_Track_New"
+    sequencename = "METReconstruction_Track"
 
     components = ComponentAccumulator()
     from AthenaCommon.AlgSequence import AthSequencer
     components.addSequence( AthSequencer(sequencename) )
 
-    cfg_trk = METConfig('Track_new',[BuildConfig('SoftTrk','Track')],
+    cfg_trk = METConfig('Track',[BuildConfig('SoftTrk','Track')],
                     [RefConfig('TrackFilter','PVTrack')],
                     doTracks=configFlags.MET.UseTracks)
 
