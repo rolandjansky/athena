@@ -3,7 +3,6 @@
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
-#log.setLevel(logging.DEBUG)
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
