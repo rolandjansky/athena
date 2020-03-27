@@ -130,11 +130,12 @@ def TRT_OverlayDigitizationToolCfg(flags, name="TRT_OverlayDigitizationTool", **
 def TRT_OutputCfg(flags):
     """Return ComponentAccumulator with Output for TRT. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["TRT_RDO_Container#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["InDetSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["TRT_RDO_Container#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["InDetSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 

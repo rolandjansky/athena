@@ -62,11 +62,12 @@ def TGC_OverlayDigitizationToolCfg(flags, name="Tgc_OverlayDigitizationTool", **
 def TGC_OutputCfg(flags):
     """Return ComponentAccumulator with Output for TGC. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["TgcRdoContainer#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["MuonSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["TgcRdoContainer#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["MuonSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 

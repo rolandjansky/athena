@@ -5,106 +5,52 @@
 // JetVertexFractionTool.cxx
 
 #include "JetMomentTools/JetVertexFractionTool.h"
+#include "StoreGate/ReadDecorHandle.h"
+#include "StoreGate/WriteDecorHandle.h"
 
 //**********************************************************************
 
 JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
-: JetModifierBase(name)
-, m_assocTracksName("")
-, m_htsel("",this) {
-  declareProperty("AssociatedTracks", m_assocTracksName);
-  declareProperty("SumPtTrkName",m_sumPtTrkName="SumPtTrkPt500");
-  declareProperty("TrackSelector", m_htsel);
-  declareProperty("JVFName", m_jvfname ="JVF");
-  declareProperty("K_JVFCorrScale",m_kcorrJVF = 0.01);
-  declareProperty("PUTrkPtCut",m_PUtrkptcut = 30000.);
-
-  declareProperty("VertexContainer", m_vertexContainer_key);
-  declareProperty("TrackVertexAssociation", m_tva_key);
-  declareProperty("TrackParticleContainer",m_tracksCont_key);
-  declareProperty("IsTrigger",m_isTrigger =false);
+  : asg::AsgTool(name) {
+  declareInterface<IJetDecorator>(this);
 }
 
 //**********************************************************************
 
 StatusCode JetVertexFractionTool::initialize() {
-  ATH_MSG_DEBUG("initializing version with data handles");
   ATH_MSG_INFO("Initializing JetVertexFractionTool " << name());
+
+  if(m_jetContainerName.empty()){
+    ATH_MSG_ERROR("JetVertexFractionTool needs to have its input jet container name configured!");
+    return StatusCode::FAILURE;
+  }
+
   if ( m_htsel.empty() ) {
     ATH_MSG_INFO("  No track selector.");
   } else {
     ATH_MSG_INFO("  Track selector: " << m_htsel->name());
   }
-  ATH_MSG_INFO("  Attribute name: " << m_jvfname);
+  ATH_MSG_INFO("  Attribute name: " << m_jvfKey.key());
+
+  m_sumPtTrkKey = m_jetContainerName + "." + m_sumPtTrkKey.key();
+  m_jvfKey = m_jetContainerName + "." + m_jvfKey.key();
+  m_jvfCorrKey = m_jetContainerName + "." + m_jvfCorrKey.key();
+  m_maxJvfVtxKey = m_jetContainerName + "." + m_maxJvfVtxKey.key();
 
   ATH_CHECK(m_vertexContainer_key.initialize());
   ATH_CHECK(m_tva_key.initialize());
   ATH_CHECK(m_tracksCont_key.initialize());
+  ATH_CHECK(m_sumPtTrkKey.initialize());
+  ATH_CHECK(m_jvfKey.initialize());
+  ATH_CHECK(m_jvfCorrKey.initialize());
+  ATH_CHECK(m_maxJvfVtxKey.initialize(!m_isTrigger));
 
   return StatusCode::SUCCESS;
 }
 
-
-//**********************************************************************
-// Legacy version that uses the direct computation of sums over tracks
-//**********************************************************************
-
-int JetVertexFractionTool::modifyJet(xAOD::Jet& jet) const {
+StatusCode JetVertexFractionTool::decorate(const xAOD::JetContainer& jetCont) const {
 
   // Get the vertices container
-
-  auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
-  if (!vertexContainer.isValid()){
-    ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle" 
-                    << m_vertexContainer_key.key());
-    return 1;
-  }
-  auto vertices = vertexContainer.cptr();
-
-  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " 
-                << m_vertexContainer_key.key());
-
-  // Get the tracks associated to the jet
-  // Note that there may be no tracks - this is both normal and an error case
-  // In this case, just fill a vector with zero and don't set the highest vtx moment
-
-  std::vector<const xAOD::TrackParticle*> tracks;
-  if ( ! jet.getAssociatedObjects(m_assocTracksName, tracks) ) {
-    ATH_MSG_WARNING("Associated tracks not found.");
-  }
-
-  // Get the TVA object
-
-  auto tvaContainer = SG::makeHandle (m_tva_key);
-  if (!tvaContainer.isValid()){
-    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " 
-                  << m_tva_key.key());
-    return 3;
-  }
-  auto tva = tvaContainer.cptr();
-
-  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation: " 
-                << m_tva_key.key());
-
-  // Get and set the JVF vector
-  const std::vector<float> jvf = getJetVertexFraction(vertices,tracks,tva);
-  jet.setAttribute(m_jvfname, jvf);
-
-  // Get and set the highest JVF vertex
-  jet.setAttribute("Highest" + m_jvfname + "Vtx",getMaxJetVertexFraction(vertices,jvf));
-
-  // Done
-  return 0;
-}
-
-//**********************************************************************
-// Operate on the full jet container with fewer retrieves and
-// add corrected JVF, which needs full-event information
-//**********************************************************************
-StatusCode JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
-
-  // Get the vertices container
-
   auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
   if (!vertexContainer.isValid()){
     ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle"
@@ -117,7 +63,6 @@ StatusCode JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
                 << m_vertexContainer_key.key()); 
 
   // Get the Tracks container
-
   auto tracksContainer = SG::makeHandle (m_tracksCont_key);
   if (!tracksContainer.isValid()){
     ATH_MSG_ERROR("Could not retrieve the TrackParticleContainer: " 
@@ -128,10 +73,8 @@ StatusCode JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
 
   ATH_MSG_DEBUG("Successfully retrieved TrackParticleContainer: " 
                 << m_tracksCont_key.key());
-  // << m_tracksName);
 
   // Get the TVA object
-
   auto tvaContainer = SG::makeHandle (m_tva_key);
   if (!tvaContainer.isValid()){
     ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " 
@@ -153,7 +96,16 @@ StatusCode JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
   // Count pileup tracks - currently done for each collection
   const int n_putracks = getPileupTrackCount(HSvertex, tracksCont, tva);
 
-  for(xAOD::Jet * jet : jetCont) {
+  SG::ReadDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtTrkHandle(m_sumPtTrkKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > jvfHandle(m_jvfKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> jvfCorrHandle(m_jvfCorrKey);
+
+  // We don't want to initialize this handle if this is trigger
+  std::unique_ptr<SG::WriteDecorHandle<xAOD::JetContainer, ElementLink<xAOD::VertexContainer> > > maxJvfVtxHandle;
+  if(!m_isTrigger)
+    maxJvfVtxHandle = std::make_unique<SG::WriteDecorHandle<xAOD::JetContainer, ElementLink<xAOD::VertexContainer> > >(m_maxJvfVtxKey);
+
+  for(const xAOD::Jet * jet : jetCont) {
     // Get the tracks associated to the jet
     // Note that there may be no tracks - this is both normal and an error case
     std::vector<const xAOD::TrackParticle*> tracks;
@@ -164,7 +116,7 @@ StatusCode JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     // Get the track pT sums for all tracks in the jet (first key) and those associated to PU (second key) vertices.
     const std::pair<float,float> tracksums = getJetVertexTrackSums(HSvertex, tracks, tva);
     // Get the track pT sums for each individual vertex
-    std::vector<float> vsumpttrk = jet->getAttribute<std::vector<float> >(m_sumPtTrkName);
+    std::vector<float> vsumpttrk = sumPtTrkHandle(*jet);
     float sumpttrk_all = tracksums.first;
     float sumpttrk_nonPV = tracksums.second;
     float sumpttrk_PV = vsumpttrk[HSvertex->index() - (*vertices)[0]->index()];
@@ -174,13 +126,13 @@ StatusCode JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     for(size_t vtxi=0; vtxi<vertices->size(); ++vtxi) {
       jvf[vtxi] = sumpttrk_all > 1e-9 ? vsumpttrk[vtxi] / sumpttrk_all : -1;
     }
-    jet->setAttribute(m_jvfname, jvf);
+    jvfHandle(*jet) = jvf;
 
     // Get and set the highest JVF vertex
     if(!m_isTrigger) {
-      jet->setAttribute("Highest" + m_jvfname + "Vtx",getMaxJetVertexFraction(vertices,jvf));
+      (*maxJvfVtxHandle)(*jet) = getMaxJetVertexFraction(vertices,jvf);
     }
-    // Calculate RpT and JVFCorr 
+    // Calculate RpT and JVFCorr
     // Default JVFcorr to -1 when no tracks are associated.
     float jvfcorr = -999.;
     if(sumpttrk_PV + sumpttrk_nonPV > 0) {
@@ -188,7 +140,7 @@ StatusCode JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     } else {
       jvfcorr = -1;
     }
-    jet->setAttribute(m_jvfname+"Corr",jvfcorr);
+    jvfCorrHandle(*jet) = jvfcorr;
   }
 
   return StatusCode::SUCCESS;
@@ -301,60 +253,4 @@ const xAOD::Vertex* JetVertexFractionTool::findHSVertex(const xAOD::VertexContai
 	primvert = *(vertices->begin());
   }
   return primvert;
-}
-
-//**********************************************************************
-// Legacy methods allowing direct computation of JVF
-//**********************************************************************
-
-
-const std::vector<float> JetVertexFractionTool::
-getJetVertexFraction(const xAOD::VertexContainer* vertices,
-                     const std::vector<const xAOD::TrackParticle*>& tracks,
-                     const jet::TrackVertexAssociation* tva) const {
-  std::vector<float> jvf = getEmptyJetVertexFraction(vertices);
-  for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex )
-    jvf.at(iVertex) = getJetVertexFraction(vertices->at(iVertex),tracks,tva);
-  return jvf;
-}
-
-//**********************************************************************
-
-std::vector<float> JetVertexFractionTool::getEmptyJetVertexFraction(const xAOD::VertexContainer* vertices) const {
-  std::vector<float> jvf;
-  jvf.resize(vertices->size());
-  for (size_t iVertex = 0; iVertex < vertices->size(); ++iVertex) jvf.at(iVertex) = 0;
-  return jvf;
-}
-
-//**********************************************************************
-
-float JetVertexFractionTool::
-getJetVertexFraction(const xAOD::Vertex* vertex,
-                     const std::vector<const xAOD::TrackParticle*>& tracks,
-                     const jet::TrackVertexAssociation* tva) const {
-  float sumTrackPV = 0;
-  float sumTrackAll = 0;
-  bool notsel = m_htsel.empty();
-  unsigned int nkeep = 0;
-  unsigned int nskip = 0;
-  for ( size_t itrk = 0; itrk < tracks.size(); ++itrk ) {
-    const xAOD::TrackParticle* ptrk = tracks.at(itrk);
-    if ( notsel || m_htsel->keep(*ptrk) ) {
-      const xAOD::Vertex* ptvtx = tva->associatedVertex(ptrk);
-      if ( ptvtx != nullptr ) {
-        if ( ptvtx->index() == vertex->index() ) sumTrackPV += ptrk->pt();
-      }
-      sumTrackAll += ptrk->pt();
-      ++nkeep;
-    } else {
-      ++nskip;
-    }
-  }
-  double jvf = sumTrackAll>0 ? sumTrackPV/sumTrackAll : -1;
-  ATH_MSG_VERBOSE("JetVertexFractionTool " << name()
-                  << ": nsel=" << nkeep
-                  << ", nrej=" << nskip
-                  << ", " << m_jvfname << "=" << jvf);
-  return jvf;
 }

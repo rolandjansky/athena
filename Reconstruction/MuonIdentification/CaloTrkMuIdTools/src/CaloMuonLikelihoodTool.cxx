@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/CaloMuonLikelihoodTool.h"
@@ -7,14 +7,11 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "PathResolver/PathResolver.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "AthenaKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
-
-///////////for re_obtain//
-//#include "GaudiKernel/ITHistSvc.h" 
-///////////////
+#include "TrkParameters/TrackParameters.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -23,10 +20,6 @@
 #include <iostream>
 #include <cmath>
 #include <map>
-
-
-namespace Units = Athena::Units;
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonLikelihoodTool constructor
@@ -42,13 +35,6 @@ CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const st
   declareProperty("RootFileNames", m_fileNames);
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-// CaloMuonLikelihoodTool destructor
-///////////////////////////////////////////////////////////////////////////////
-CaloMuonLikelihoodTool::~CaloMuonLikelihoodTool() {}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonLikelihoodTool::initialize
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,120 +48,8 @@ StatusCode CaloMuonLikelihoodTool::initialize() {
     return StatusCode::FAILURE;
   }
   
-  if (retrieveHistograms().isFailure()) { 
-    ATH_MSG_FATAL("Could not open PDF root fles");
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK(retrieveHistograms());
 
-/* for re_obtain
-//////////initializing histograms/////////nesli begin/////////
-
-StatusCode sc;
-// retrive pointer to THistSvc
-   ITHistSvc *tHistSvc;
-   sc =  service("THistSvc", tHistSvc);
-   if ( sc.isFailure() ) {
-     report << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endmsg;
-     return sc;
-     }
-
-
-m_h_EoverEtrk_11B = new TH1F("EoverEtrk_11B","EoverEtrk11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_11B",m_h_EoverEtrk_11B);
-m_h_eemb1_wrtTotal_11B = new TH1F("eemb1_wrtTotal_11B","eemb1_wrtTotal11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eemb1_wrtTotal_11B",m_h_eemb1_wrtTotal_11B);
-m_h_eemb2_wrtTotal_11B = new TH1F("eemb2_wrtTotal_11B","eemb2_wrtTotal11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eemb2_wrtTotal_11B",m_h_eemb2_wrtTotal_11B);
-m_h_eemb3_wrtGroup_11B = new TH1F("eemb3_wrtGroup_11B","eemb3_wrtGroup11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eemb3_wrtGroup_11B",m_h_eemb3_wrtGroup_11B);
-m_h_emFr_11B = new TH1F("emFr_11B","emFr11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/emFr_11B",m_h_emFr_11B);
-m_h_etileb0_wrtGroup_11B = new TH1F("etileb0_wrtGroup_11B","etileb0_wrtGroup11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/etileb0_wrtGroup_11B",m_h_etileb0_wrtGroup_11B);
-m_h_etileb1_wrtTotal_11B = new TH1F("etileb1_wrtTotal_11B","etileb1_wrtTotal11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/etileb1_wrtTotal_11B",m_h_etileb1_wrtTotal_11B);
-m_h_etileb2_wrtGroup_11B = new TH1F("etileb2_wrtGroup_11B","etileb2_wrtGroup11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/etileb2_wrtGroup_11B",m_h_etileb2_wrtGroup_11B);
-m_h_mxEM_11B = new TH1F("mxEM_11B","mxEM11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxEM_11B",m_h_mxEM_11B);
-m_h_mxFr_11B = new TH1F("mxFr_11B","mxFr11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxFr_11B",m_h_mxFr_11B);
-m_h_mxHad_11B = new TH1F("mxHad_11B","mxHad11B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxHad_11B",m_h_EoverEtrk_11B);
-
-m_h_EoverEtrk_51B = new TH1F("EoverEtrk_51B","EoverEtrk51B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_51B",m_h_EoverEtrk_51B);
-
-m_h_EoverEtrk_101B = new TH1F("EoverEtrk_101B","EoverEtrk101B",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_101B",m_h_EoverEtrk_101B);
-
-m_h_EoverEtrk_11C = new TH1F("EoverEtrk_11C","EoverEtrk11C",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_11C",m_h_EoverEtrk_11C);
-m_h_eeme1_wrtTotal_11C = new TH1F("eeme1_wrtTotal_11C","eeme1_wrtTotal11C",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eeme1_wrtTotal_11C",m_h_eeme1_wrtTotal_11C);
-m_h_eeme2_wrtTotal_11C = new TH1F("eeme2_wrtTotal_11C","eeme2_wrtTotal11C",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eeme2_wrtTotal_11C",m_h_eeme2_wrtTotal_11C);
-m_h_emFr_11C = new TH1F("emFr_11C","emFr11C",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/emFr_11C",m_h_emFr_11C);
-m_h_mxEM_11C = new TH1F("mxEM_11C","mxEM11C",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxEM_11C",m_h_mxEM_11C);
-m_h_mxHad_11C = new TH1F("mxHad_11C","mxHad11C",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxHad_11C",m_h_mxHad_11C);
-
-m_h_EoverEtrk_51C = new TH1F("EoverEtrk_51C","EoverEtrk51C",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_51C",m_h_EoverEtrk_51C);
-
-m_h_EoverEtrk_101C = new TH1F("EoverEtrk_101C","EoverEtrk101C",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_101C",m_h_EoverEtrk_101C);
-
-m_h_EoverEtrk_11E = new TH1F("EoverEtrk_11E","EoverEtrk11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_11E",m_h_EoverEtrk_11E);
-m_h_eeme1_wrtGroup_11E = new TH1F("eeme1_wrtGroup_11E","eeme1_wrtGroup11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eeme1_wrtGroup_11E",m_h_eeme1_wrtGroup_11E);
-m_h_eeme2_wrtTotal_11E = new TH1F("eeme2_wrtTotal_11E","eeme2_wrtTotal11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eeme2_wrtTotal_11E",m_h_eeme2_wrtTotal_11E);
-m_h_eeme3_wrtGroup_11E = new TH1F("eeme3_wrtGroup_11E","eeme3_wrtGroup11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eeme3_wrtGroup_11E",m_h_eeme3_wrtGroup_11E);
-m_h_ehec0_wrtTotal_11E = new TH1F("ehec0_wrtTotal_11E","ehec0_wrtTotal11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/ehec0_wrtTotal_11E",m_h_ehec0_wrtTotal_11E);
-m_h_emFr_11E = new TH1F("emFr_11E","emFr11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/emFr_11E",m_h_emFr_11E);
-m_h_mxEM_11E = new TH1F("mxEM_11E","mxEM11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxEM_11E",m_h_mxEM_11E);
-m_h_mxFr_11E = new TH1F("mxFr_11E","mxFr11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxFr_11E",m_h_mxFr_11E);
-m_h_mxHad_11E = new TH1F("mxHad_11E","mxHad11E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxHad_11E",m_h_mxHad_11E);
-
-m_h_EoverEtrk_51E = new TH1F("EoverEtrk_51E","EoverEtrk51E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_51E",m_h_EoverEtrk_51E);
-
-m_h_EoverEtrk_101E = new TH1F("EoverEtrk_101E","EoverEtrk101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/EoverEtrk_101E",m_h_EoverEtrk_101E);
-m_h_eeme1_wrtGroup_101E = new TH1F("eeme1_wrtGroup_101E","eeme1_wrtGroup101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eeme1_wrtGroup_101E",m_h_eeme1_wrtGroup_101E);
-m_h_eeme2_wrtTotal_101E = new TH1F("eeme2_wrtTotal_101E","eeme2_wrtTotal101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eeme2_wrtTotal_101E",m_h_eeme2_wrtTotal_101E);
-m_h_eeme3_wrtGroup_101E = new TH1F("eeme3_wrtGroup_101E","eeme3_wrtGroup101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/eeme3_wrtGroup_101E",m_h_eeme3_wrtGroup_101E);
-m_h_ehec0_wrtTotal_101E = new TH1F("ehec0_wrtTotal_101E","ehec0_wrtTotal101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/ehec0_wrtTotal_101E",m_h_ehec0_wrtTotal_101E);
-m_h_emFr_101E = new TH1F("emFr_101E","emFr101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/emFr_101E",m_h_emFr_101E);
-m_h_mxEM_101E = new TH1F("mxEM_101E","mxEM101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxEM_101E",m_h_mxEM_11E);
-m_h_mxFr_101E = new TH1F("mxFr_101E","mxFr101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxFr_101E",m_h_mxFr_101E);
-m_h_mxHad_101E = new TH1F("mxHad_101E","mxHad101E",24,-0.1,1.1);
-sc = tHistSvc->regHist("/file1/PDFs/mxHad_101E",m_h_mxHad_101E);
-
-
-      //h1->SetMarkerSize(2);
-      //h1->SetMarkerStyle(8);
-      //h1->SetMarkerColor(4);
-
-//////////////////nesli end///////////////
-*/
   return StatusCode::SUCCESS;
 }
 
@@ -273,17 +147,20 @@ double CaloMuonLikelihoodTool::getLHR( const xAOD::TrackParticle* trk, const xAO
 
   if(trk && ClusContainer){
     double eta_trk = trk->eta();
-    double p_trk =0;
+    double p_trk = 0;
     double qOverP = trk->qOverP();
-    if (qOverP)
-      p_trk = fabs(1/qOverP);
+    if (qOverP!=0) p_trk = std::abs(1/qOverP);
 
     std::unique_ptr<Trk::CaloExtension> caloExt=m_caloExtensionTool->caloExtension(*trk);
 
     if(!caloExt) return 0;
-
-    double eta_trkAtCalo = caloExt->caloEntryLayerIntersection()->eta();
-    double phi_trkAtCalo = caloExt->caloEntryLayerIntersection()->parameters()[Trk::phi];
+    const Trk::TrackParameters* caloEntryInterSec = caloExt->caloEntryLayerIntersection();
+    if(!caloEntryInterSec) {
+      ATH_MSG_WARNING("getLHR() - caloEntryLayerIntersection is nullptr");
+      return 0;
+    }
+    double eta_trkAtCalo = caloEntryInterSec->eta();
+    double phi_trkAtCalo = caloEntryInterSec->parameters()[Trk::phi];
 
     double LR = getLHR( ClusContainer, eta_trk, p_trk, eta_trkAtCalo, phi_trkAtCalo, dR_CUT);
     return LR;
@@ -298,10 +175,6 @@ double CaloMuonLikelihoodTool::getLHR( const xAOD::TrackParticle* trk, const xAO
 ///////////////////////////////////////////////////////////////////////////////
 double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusCollection, const double eta_trk, const double p_trk, const double eta_trkAtCalo, const double phi_trkAtCalo, const double dR_CUT) const {
 
-  //static const double XLow    = -0.1;
-  //static const double XHigh   = 1.1;
-  //static const double BinSize = 0.01;
-
   const double dR_CUT2=dR_CUT*dR_CUT;
 
   double etot_em = 0;
@@ -313,16 +186,12 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
   ATH_MSG_DEBUG("Loop over the CaloTopClusters...");
   for(xAOD::CaloClusterContainer::const_iterator iter = ClusCollection->begin(); iter != ClusCollection->end(); ++iter) {
     const xAOD::CaloCluster* theClus = *iter;
-    double dphi = fabs(theClus->phi() - phi_trkAtCalo);
+    double dphi = std::abs(theClus->phi() - phi_trkAtCalo);
     if(dphi > M_PI) dphi = 2*M_PI-dphi;
-    const double deta = fabs(theClus->eta() - eta_trkAtCalo);
+    const double deta = std::abs(theClus->eta() - eta_trkAtCalo);
     const double rij2=deta*deta + dphi*dphi;
     if (rij2>dR_CUT2) continue;
-    
-    //double rij = sqrt(pow(deta,2) + pow(dphi,2));
-    //if(rij>dR_CUT) continue;
 
-    
     double eemb0   = theClus->eSample(CaloSampling::PreSamplerB);
     double eemb1   = theClus->eSample(CaloSampling::EMB1);
     double eemb2   = theClus->eSample(CaloSampling::EMB2);
@@ -422,11 +291,10 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
                       << "\n     efcal2: " << s[23] << endmsg;
   }
 
-  // CLHEP::MeV to Units::GeV
-  for(int i=0;i<24;++i) s[i] /= Units::GeV;
-  etot_em /= Units::GeV;
-  etot_hd /= Units::GeV;
-  etot /= Units::GeV;
+  for(int i=0;i<24;++i) s[i] /= Gaudi::Units::GeV;
+  etot_em /= Gaudi::Units::GeV;
+  etot_hd /= Gaudi::Units::GeV;
+  etot /= Gaudi::Units::GeV;
 
   double tmp_mx(-999), tmp_mxH(-999), tmp_mxE(-999);
   for (int i=0; i<24; ++i) {
@@ -454,7 +322,7 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
 
   // p_trk in MeV
   if (p_trk)
-    EoverEtrk = etot/(p_trk/Units::GeV);
+    EoverEtrk = etot/(p_trk/Gaudi::Units::GeV);
 
   if(etot_em>0) {
     eemb3_wrtGroup = s[3]/etot_em;
@@ -490,125 +358,24 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
   std::map<std::string,double>::iterator iter;
   for( iter = vars.begin(); iter != vars.end(); iter++ ) 
     ATH_MSG_DEBUG("  - " << iter->first << ": " << iter->second);
-
-/* for re_obtain
-///////////////filling start//////nesli begin/////////////////////
-
-
-  if(fabs(eta_trk)<1.4) { 
-      if(p_trk/Units::GeV<11.) {
-      m_h_EoverEtrk_11B->Fill(EoverEtrk, 1.);
-      m_h_eemb1_wrtTotal_11B->Fill(eemb1_wrtTotal, 1.);
-      m_h_eemb2_wrtTotal_11B->Fill(eemb2_wrtTotal, 1.);
-      m_h_eemb3_wrtGroup_11B->Fill(eemb3_wrtGroup, 1.);
-      m_h_emFr_11B->Fill(emFr, 1.);
-      m_h_etileb0_wrtGroup_11B->Fill(etileb0_wrtGroup, 1.);
-      m_h_etileb1_wrtTotal_11B->Fill(etileb1_wrtTotal, 1.);
-      m_h_etileb2_wrtGroup_11B->Fill(etileb2_wrtGroup, 1.);
-      m_h_mxEM_11B->Fill(mxEM, 1.);
-      m_h_mxFr_11B->Fill(mxFr, 1.);
-      m_h_mxHad_11B->Fill(mxHad, 1.);
-      report << MSG::DEBUG << "EoverEtrk_11B ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_11B ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_11B ="<< eta_trk  << endmsg;
-      }
-      else if(p_trk/Units::GeV<51.) {
-      m_h_EoverEtrk_51B->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_51B ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_51B ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_51B ="<< eta_trk  << endmsg;
-      }
-      else {
-      m_h_EoverEtrk_101B->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_101B ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_101B ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_101B ="<< eta_trk  << endmsg;
-      }
-  }
-
-  else if(fabs(eta_trk)>=1.4&&fabs(eta_trk)<=1.6) {
-      if(p_trk/Units::GeV<11.){
-      m_h_EoverEtrk_11C->Fill(EoverEtrk, 1.);
-      m_h_eeme1_wrtTotal_11C->Fill(eeme1_wrtTotal, 1.);
-      m_h_eeme2_wrtTotal_11C->Fill(eeme2_wrtTotal, 1.);
-      m_h_emFr_11C->Fill(emFr, 1.);
-      m_h_mxEM_11C->Fill(mxEM, 1.);
-      m_h_mxHad_11C->Fill(mxHad, 1.);
-      report << MSG::DEBUG << "EoverEtrk_11C ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_11C ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_11C ="<< eta_trk  << endmsg;
-      }
-      else if(p_trk/Units::GeV<51.){
-      m_h_EoverEtrk_51C->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_51C ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_51C ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_51C ="<< eta_trk  << endmsg;
-      }
-      else {
-      m_h_EoverEtrk_101C->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_101C ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_101C ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_101C ="<< eta_trk  << endmsg;
-      }
-  }
-
-  else if(fabs(eta_trk)>1.6&&fabs(eta_trk)<2.5) {
-      if(p_trk/Units::GeV<11.){
-      m_h_EoverEtrk_11E->Fill(EoverEtrk, 1.);
-      m_h_eeme1_wrtGroup_11E->Fill(eeme1_wrtGroup, 1.);
-      m_h_eeme2_wrtTotal_11E->Fill(eeme2_wrtTotal, 1.);
-      m_h_eeme3_wrtGroup_11E->Fill(eeme3_wrtGroup, 1.);
-      m_h_ehec0_wrtTotal_11E->Fill(ehec0_wrtTotal, 1.);
-      m_h_emFr_11E->Fill(emFr, 1.);
-      m_h_mxEM_11E->Fill(mxEM, 1.);
-      m_h_mxFr_11E->Fill(mxFr, 1.);
-      m_h_mxHad_11E->Fill(mxHad, 1.);
-      report << MSG::DEBUG << "EoverEtrk_11E ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_11E ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_11E ="<< eta_trk  << endmsg;
-      }
-      else if(p_trk/Units::GeV<51.){
-      m_h_EoverEtrk_51E->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_51E ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_51E ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_51E ="<< eta_trk  << endmsg;
-      }
-      else {
-      m_h_EoverEtrk_101E->Fill(EoverEtrk, 1.);
-      m_h_eeme1_wrtGroup_101E->Fill(eeme1_wrtGroup, 1.);
-      m_h_eeme2_wrtTotal_101E->Fill(eeme2_wrtTotal, 1.);
-      m_h_eeme3_wrtGroup_101E->Fill(eeme3_wrtGroup, 1.);
-      m_h_ehec0_wrtTotal_101E->Fill(ehec0_wrtTotal, 1.);
-      m_h_emFr_101E->Fill(emFr, 1.);
-      m_h_mxEM_101E->Fill(mxEM, 1.);
-      m_h_mxFr_101E->Fill(mxFr, 1.);
-      m_h_mxHad_101E->Fill(mxHad, 1.);
-      report << MSG::DEBUG << "EoverEtrk_101E ="<< EoverEtrk  << endmsg;
-      report << MSG::DEBUG << "p_trk/GeV_101E ="<< p_trk/Units::GeV  << endmsg;
-      report << MSG::DEBUG << "eta_trk_101E ="<< eta_trk  << endmsg;
-      }
-  }
-///////////////////filling end////////nesli end/////////////////
-
-*/
   
   double LR = 0;
   double ProbS(1), ProbB(1);
 
   int iFile = -1;
-  if(fabs(eta_trk)<1.4) {
-    if(p_trk/Units::GeV<11.) iFile = 0;
-    else if(p_trk/Units::GeV<51.) iFile = 1;
+  if(std::abs(eta_trk)<1.4) {
+    if(p_trk/Gaudi::Units::GeV<11.) iFile = 0;
+    else if(p_trk/Gaudi::Units::GeV<51.) iFile = 1;
     else iFile = 2;
   }
-  else if(fabs(eta_trk)>=1.4&&fabs(eta_trk)<=1.6) {
-    if(p_trk/Units::GeV<11.) iFile = 3;
-    else if(p_trk/Units::GeV<51.) iFile = 4;
+  else if(std::abs(eta_trk)>=1.4&&std::abs(eta_trk)<=1.6) {
+    if(p_trk/Gaudi::Units::GeV<11.) iFile = 3;
+    else if(p_trk/Gaudi::Units::GeV<51.) iFile = 4;
     else iFile = 5;
   }
-  else if(fabs(eta_trk)>1.6&&fabs(eta_trk)<2.5) {
-    if(p_trk/Units::GeV<11.) iFile = 6;
-    else if(p_trk/Units::GeV<51.) iFile = 7;
+  else if(std::abs(eta_trk)>1.6&&std::abs(eta_trk)<2.5) {
+    if(p_trk/Gaudi::Units::GeV<11.) iFile = 6;
+    else if(p_trk/Gaudi::Units::GeV<51.) iFile = 7;
     else iFile = 8;
   }
 
@@ -641,9 +408,6 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
           ATH_MSG_DEBUG("m_TH1F_sig Bin Content for " << it->first << ": " << SbinContent);
           if(SbinContent)
             ProbS *= SbinContent; 
-          //else
-          //  report << MSG::DEBUG << "  BinContent in m_TH1F_sig is 0 and will not be used! "<<ProbS<<endmsg; 
-          /// nesli /// modified 11.03.08////////
           else {
             ProbS *= 0.0000001;	    
             ATH_MSG_DEBUG("BinContent in m_TH1F_sig was 0!" << ProbS);
@@ -667,9 +431,6 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
           ATH_MSG_VERBOSE("m_TH1F_bkg Bin Content for " << it->first << ": " << BbinContent);
           if(BbinContent)
             ProbB *= BbinContent;
-            //else
-            //  report << MSG::VERBOSE << "  BinContent in m_TH1F_bkg is 0 and will not be used! "<<ProbS<<endmsg; 
-            /// nesli///modified 07.03.08//////
           else {
             ProbB *= 0.0000001;
             ATH_MSG_DEBUG("BinContent in m_TH1F_bkg was 0! " << ProbB);
@@ -698,13 +459,3 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
   ATH_MSG_DEBUG("LR    : " << LR);
   return LR;
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-// CaloMuonLikelihoodTool::finalize
-///////////////////////////////////////////////////////////////////////////////
-StatusCode CaloMuonLikelihoodTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-

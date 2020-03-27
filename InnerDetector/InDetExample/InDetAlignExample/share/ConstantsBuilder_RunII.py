@@ -2,14 +2,17 @@
 # =====================================================================
 # Main script to run the upload constants to DB
 # =====================================================================
+
+from __future__ import print_function
+
 import os
 import sys
 # =====================================================================
 #  Welcome print
 # =====================================================================
-print "\n ============================================="
-print "    ID Alignment constants uploader"
-print " =============================================\n"
+print ("\n =============================================")
+print ("    ID Alignment constants uploader")
+print (" =============================================\n")
 # =====================================================================
 #  Default values
 # =====================================================================
@@ -61,15 +64,15 @@ if len(sys.argv) > 1:
     argNum = 1
     argMax = len(sys.argv)-1
     argCurr = -1 # just to make that first time it points to 0 
-    #print ' >>> user input has %s arguments' % argMax
+    #print (' >>> user input has %s arguments' % argMax)
     for arg in sys.argv:
         argCurr += 1
-        #print ".. %s .." % arg
+        #print (".. %s .." % arg)
         if arg in ("-h", "--help"):    
-            print ' >>> This is the help message of RunIterator.py'       
-            print '     -exec'
-            print '           The constants will be effectively uploaded to the DB. Default mode is test mode when commands are just\n\
-            displayed but no executed, therefore no constants are uploaded.'
+            print (' >>> This is the help message of RunIterator.py'       )
+            print ('     -exec')
+            print ('           The constants will be effectively uploaded to the DB. Default mode is test mode when commands are just\n\
+            displayed but no executed, therefore no constants are uploaded.')
             sys.exit()
             #
         elif arg in ("--exec"):    
@@ -79,9 +82,9 @@ if len(sys.argv) > 1:
             #
 
     if (1):
-        print '>>> ConstantsUploader >>> List of user input values:'
-        print '> User Mode = %s' %User_Mode
-        print '>>> End of input options processing <<< \n' 
+        print ('>>> ConstantsUploader >>> List of user input values:')
+        print ('> User Mode = %s' %User_Mode)
+        print ('>>> End of input options processing <<< \n' )
 
 # ===============================
 # Handling of variables
@@ -108,9 +111,9 @@ New_TRT_TagName = "TRTAlign_" + TheNewTag
 
 
 if (1):
-    print '>>>>>>>>>>>> List of variables >>>>>>>>>>>>>>> '
-    print '> Upload_Mode  = %s' %Upload_Mode
-    print '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< \n '
+    print ('>>>>>>>>>>>> List of variables >>>>>>>>>>>>>>> ')
+    print ('> Upload_Mode  = %s' %Upload_Mode)
+    print ('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< \n ')
 
 
 
@@ -139,13 +142,13 @@ CommandLine1_TRT = "AtlCoolCopy.exe \"sqlite://schema="+DotDbFile+";dbname="+DBN
 TestCommand = "ls -l %s" %DotDbFile
 ExistsDotDb = os.system(TestCommand)
 if (ExistsDotDb !=0):
-    print '\n ** ERROR ** file %s does not exist ' % DotDbFile 
+    print ('\n ** ERROR ** file %s does not exist ' % DotDbFile )
     sys.exit()
 
 TestCommand = "ls -l %s" %DotRootFile
 ExistsDotRoot = os.system(TestCommand)
 if (ExistsDotRoot !=0):
-     print '\n ** ERROR ** file %s does not exist ' % DotRootFile 
+     print ('\n ** ERROR ** file %s does not exist ' % DotRootFile )
      sys.exit()
 
 UpdateDB_Si = []
@@ -160,13 +163,13 @@ for i in range( len(constantsGenRun)):
   TestCommand = "ls -l %s" %DotDbFile
   ExistsDotDb = os.system(TestCommand)
   if (ExistsDotDb !=0):
-    print '\n ** ERROR ** file %s does not exist ' % DotDbFile
+    print ('\n ** ERROR ** file %s does not exist ' % DotDbFile)
     sys.exit()
 
   TestCommand = "ls -l %s" %DotRootFile
   ExistsDotRoot = os.system(TestCommand)
   if (ExistsDotRoot !=0):
-     print '\n ** ERROR ** file %s does not exist ' % DotRootFile
+     print ('\n ** ERROR ** file %s does not exist ' % DotRootFile)
      sys.exit()
 
 
@@ -192,63 +195,63 @@ CommandLine2_TRT = "/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --debug --
 # Upload
 # ===============================
 if Upload_Mode in ("Exec"):
-   print " \n == Excute upload !!!! == \n"
+   print (" \n == Excute upload !!!! == \n")
 
-   print " \n == step0 ==> " + CommandLine0 + "\n"
+   print (" \n == step0 ==> " + CommandLine0 + "\n")
    os.system(CommandLine0)
    for i in range( len(LoadFiles)):
-     print "== step0.X ==> " +LoadFiles[i]
+     print ("== step0.X ==> " +LoadFiles[i])
      os.system( LoadFiles[i] )
 
 
 
    if (Do_Silicon == 1):
-       print ' =============> Uploading silicon constants ============'
-       print " == step1 ==> " + CommandLine1_Silicon + "\n"
+       print (' =============> Uploading silicon constants ============')
+       print (" == step1 ==> " + CommandLine1_Silicon + "\n")
        os.system(CommandLine1_Silicon)
        for i in range( len(constantsGenRun)):
-         #print "== step1.X ==> " +UpdateDB_Si[i]
+         #print ("== step1.X ==> " +UpdateDB_Si[i])
          os.system( UpdateDB_Si[i])  
-       #print " \n == step2 ==> " + CommandLine2_Silicon + "\n" 
-       #print os.system(CommandLine2_Silicon)
+       #print (" \n == step2 ==> " + CommandLine2_Silicon + "\n" )
+       #print (os.system(CommandLine2_Silicon))
 
    if (Do_TRT == 1):
-       print ' =============> Uploading TRT constants ============'
-       print " == step1 ==> " + CommandLine1_TRT + "\n"
-       print os.system(CommandLine1_TRT)
+       print (' =============> Uploading TRT constants ============')
+       print (" == step1 ==> " + CommandLine1_TRT + "\n")
+       print (os.system(CommandLine1_TRT))
        for i in range( len(constantsGenRun)):
-         #print "== step1.X ==> " +UpdateDB_TRT[i]
+         #print ("== step1.X ==> " +UpdateDB_TRT[i])
          os.system( UpdateDB_TRT[i]) 
-       #print " \n == step2 ==> " + CommandLine2_TRT + "\n" 
-       #print os.system(CommandLine2_TRT)
+       #print (" \n == step2 ==> " + CommandLine2_TRT + "\n" )
+       #print (os.system(CommandLine2_TRT))
  
-   print "<===>Final step<===>"
-   print " \n == Silicon step2 ==> \n" + CommandLine2_Silicon + "\n"
-   print " \n == TRT step2     ==> \n" + CommandLine2_TRT + "\n"
+   print ("<===>Final step<===>")
+   print (" \n == Silicon step2 ==> \n" + CommandLine2_Silicon + "\n")
+   print (" \n == TRT step2     ==> \n" + CommandLine2_TRT + "\n")
 
 elif Upload_Mode in ("Test"):
-   print " \n == Test Mode !!!! == \n"
-   print " =========== Common ============= " 
-   print " == step0 ==> " + CommandLine0 + "\n\n"
-   print "   WARNING       first check the condXX_data_gen.COND to point with the following command:"
-   print "                 > ~atlcond/utils/registerFiles2 --list \n"
-   print " =========== Silicon ============= " 
-   print " == step1 ==> " + CommandLine1_Silicon + "\n"
-   print " == step2 ==> " + CommandLine2_Silicon + "\n\n"
+   print (" \n == Test Mode !!!! == \n")
+   print (" =========== Common ============= " )
+   print (" == step0 ==> " + CommandLine0 + "\n\n")
+   print ("   WARNING       first check the condXX_data_gen.COND to point with the following command:")
+   print ("                 > ~atlcond/utils/registerFiles2 --list \n")
+   print (" =========== Silicon ============= " )
+   print (" == step1 ==> " + CommandLine1_Silicon + "\n")
+   print (" == step2 ==> " + CommandLine2_Silicon + "\n\n")
    #for i in range( len(constantsGenRun)):
-     #print LoadFiles[i]
-     #print UpdateDB_Si[i]
-     #print UpdateDB_TRT[i] 
+     #print (LoadFiles[i])
+     #print (UpdateDB_Si[i])
+     #print (UpdateDB_TRT[i] )
 
-   print " ===========  TRT  ============= " 
-   print " == step1 ==> " + CommandLine1_TRT + "\n"
-   print " == step2 ==> " + CommandLine2_TRT + "\n" 
+   print (" ===========  TRT  ============= " )
+   print (" == step1 ==> " + CommandLine1_TRT + "\n")
+   print (" == step2 ==> " + CommandLine2_TRT + "\n" )
 
    
 # ===============================
 # completed
 # ===============================
-print "\n ============================================="
-print "    GAME OVER.  INSERT COIN"
-print " =============================================\n"
+print ("\n =============================================")
+print ("    GAME OVER.  INSERT COIN")
+print (" =============================================\n")
 sys.exit()

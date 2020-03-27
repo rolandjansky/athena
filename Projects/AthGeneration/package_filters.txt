@@ -19,6 +19,7 @@
 + Control/AthenaBaseComps
 + Control/AthenaCommon
 + Control/AthenaConfiguration
++ Control/AthenaExamples/AthExHelloWorld
 + Control/AthenaInterprocess
 + Control/AthenaKernel
 + Control/AthenaMP
@@ -139,6 +140,7 @@
 + External/AtlasDataArea
 + External/Pythia8
 + Generators/Charybdis_i
+- Generators/TrackRecordGenerator
 + Generators/.*
 + InnerDetector/InDetExample/InDetRecExample
 #+ InnerDetector/InDetRecTools/InDetTrackSelectionTool
@@ -153,8 +155,10 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 #+ PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
 + PhysicsAnalysis/PATJobTransforms
++ PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/TruthParticleID/McParticleEvent
 + PhysicsAnalysis/TruthParticleID/McParticleKernel
++ PhysicsAnalysis/POOLRootAccess
 #+ Projects/AthGeneration
 #+ Projects/AthGeneration/.*
 #+ Reconstruction/eflowRec

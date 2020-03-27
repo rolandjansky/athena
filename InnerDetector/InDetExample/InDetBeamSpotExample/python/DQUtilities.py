@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
-import commands, os, sys
+import os, sys
 from operator import itemgetter
 from itertools import groupby
 from PyCool import cool
@@ -109,7 +109,7 @@ class IDBSDefectWriter:
         #         run_lbs.add(since, until)
 
         if not len(run_lbs):
-            print "WARNING: No LBs in run according to EOR_Params - are we running before the run has finished?"
+            print ("WARNING: No LBs in run according to EOR_Params - are we running before the run has finished?")
 
         def lbsStartAtOne(iov):
             "Change LBs starting at 0 to start at 1"
@@ -159,7 +159,7 @@ class IDBSDefectWriter:
         with self.db.storage_buffer:            
             for since, until, defect, present in self.iovs:
                 if not present and not nonpresent: continue
-                #print since, until, present
+                #print (since, until, present)
                 self._writeDefect(defect, since, until, present = present)
 
     def _writeDefect(self,defect, since, until, tag='nominal', description='', comment='', present=True, recoverable=False):
@@ -191,7 +191,7 @@ class IDBSDefectWriter:
             if len(self.iovs):
                 self.iovs.pprint()
             else:
-                 print '\nNo DQ defects'
+                 print ('\nNo DQ defects')
 
         #         with open(filename.replace('.db', '.txt'), "w") as f:
         #             pprint_objects(self.db.retrieve(), f)
@@ -243,7 +243,7 @@ class IDBSDefectData:
         self.idbsDefects = [d for d in self.db.defect_names if d.startswith('ID_BS_') or d == 'LUMI_VDM']
 
         if self.debug:
-            print self.idbsDefects
+            print (self.idbsDefects)
 
         return
 
@@ -277,7 +277,8 @@ class IDBSDefectData:
         # If the run is the same at the previous one return defects from cache
         if run == self.lastRun:
             defects = self._defectForLB(lb)
-            if self.debug: print run, lb, defects
+            if self.debug:
+                print (run, lb, defects)
             return defects
 
         # Retrive info for entire run
@@ -285,7 +286,7 @@ class IDBSDefectData:
 
         # Check if run exists
         if not iovs:
-             print "Unable to access folder with given parameters"
+             print ("Unable to access folder with given parameters")
              return []
 
         # If found, update last run and get list of IOVSets for each defect/channel
@@ -297,7 +298,7 @@ class IDBSDefectData:
         # Debug
         if self.debug:
             iovs.pprint()
-            print run, lb, defects
+            print (run, lb, defects)
         
         return defects
 
@@ -321,7 +322,7 @@ class IDBSDefectData:
         """
 
         defects = []
-        for lb in xrange(lbStart, lbEnd):
+        for lb in range(lbStart, lbEnd):
             defects.extend(self.defect(run, lb, channels=channels))
 
         return list(set(defects))
@@ -345,7 +346,7 @@ class IDBSDefectData:
         
         # Check if run exists
         if not iovs:
-            print "Unable to access folder with given parameters"
+            print ("Unable to access folder with given parameters")
             return []
 
         iovs.pprint()
@@ -366,7 +367,7 @@ class IDBSDefectEncoding:
         """Encode defect as an int.  If defect is unknown raise error"""
 
         if not defect in IDBSDefectEncoding.defectBitPos:
-            raise DefectError, 'ERROR: Unknown defect %s encountered' % defect
+            raise DefectError ('ERROR: Unknown defect %s encountered' % defect)
 
         return (1 << IDBSDefectEncoding.defectBitPos.index(defect))
 
@@ -383,10 +384,10 @@ class IDBSDefectEncoding:
         binStr  = bin(dint)[2:][::-1]
 
         if len(binStr) > len(IDBSDefectEncoding.defectBitPos):
-            raise DefectError, "ERROR: integer %s out of range" % dint
+            raise DefectError ("ERROR: integer %s out of range" % dint)
 
         # If dint is odd then has the unknown bit set
         if bool(dint & 1):
-            raise DefectError, 'ERROR: Unknown defect encountered'
+            raise DefectError ('ERROR: Unknown defect encountered')
 
         return [d[0] for d in zip(IDBSDefectEncoding.defectBitPos,binStr) if d[1]=='1']

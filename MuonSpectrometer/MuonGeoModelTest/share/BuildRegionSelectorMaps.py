@@ -45,7 +45,7 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 #GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.01.01.Initial.Light"
 
-print GeoModelSvc
+printfunc (GeoModelSvc)
 
 #***************************************************** HERE setup MuonDetectorManager
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
@@ -54,7 +54,7 @@ MuonDetectorTool.StationSelection = 0
 MuonDetectorTool.SelectedStations = [ "EIL", "B" ]
 MuonDetectorTool.ControlAlines    = GeneralControlAlines
 
-print MuonDetectorTool
+printfunc (MuonDetectorTool)
 
 #***************************************************** HERE setup MuonGMCheck
 from MuonGeoModelTest.MuonGeoModelTestConf import MuonGMCheck
@@ -64,7 +64,7 @@ MuonGMCheck.buildRpcRegionSelectorMap = 1
 MuonGMCheck.buildTgcRegionSelectorMap = 1
 MuonGMCheck.buildCscRegionSelectorMap = 1
 
-print MuonGMCheck
+printfunc (MuonGMCheck)
 
 
 ######################################################
@@ -75,19 +75,19 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += MuonGMCheck
 
-print " "
-print "List of all Dlls"
-print theApp.Dlls
-print " "
-print "List of all Ext services"
-print theApp.ExtSvc
-print " "
-print "List of all top algorithms"
-print theApp.TopAlg
+printfunc (" ")
+printfunc ("List of all Dlls")
+printfunc (theApp.Dlls)
+printfunc (" ")
+printfunc ("List of all Ext services")
+printfunc (theApp.ExtSvc)
+printfunc (" ")
+printfunc ("List of all top algorithms")
+printfunc (theApp.TopAlg)
 
-#print "Print here Top Sequence" 
-#print topSequence
-#print "Print here Service Manager" 
-#print ServiceMgr
+#printfunc ("Print here Top Sequence" )
+#printfunc (topSequence)
+#printfunc ("Print here Service Manager" )
+#printfunc (ServiceMgr)
 
 

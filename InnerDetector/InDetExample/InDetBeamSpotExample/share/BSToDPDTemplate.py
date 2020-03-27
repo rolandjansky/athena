@@ -6,7 +6,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: BSToDPDTemplate.py 323441 2010-09-24 03:45:38Z beringer $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: BSToDPDTemplate.py 323441 2010-09-24 03:45:38Z beringer $")
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -147,7 +147,7 @@ if jobConfig['doRobustReco']:
     try:
         InDetFlags.doRobustReco = True
     except:
-        print 'ERROR: Unable to set InDetFlags.doRobustReco = True'
+        printfunc ('ERROR: Unable to set InDetFlags.doRobustReco = True')
 
 InDetFlags.doTruth       = jobConfig['doTruth']
 
@@ -276,12 +276,12 @@ if hasattr(ToolSvc,'InDetDetailedTrackSelectorTool'):
   #ToolSvc.InDetDetailedTrackSelectorTool.d0significanceMax = -1
   #ToolSvc.InDetDetailedTrackSelectorTool.sigIPz0Max = 10.0
 
-  print ToolSvc.InDetDetailedTrackSelectorTool
+  printfunc (ToolSvc.InDetDetailedTrackSelectorTool)
 
 
 # If InDetPriVxFinderTool is configured, print its configuration
 if 'InDetPriVxFinderTool' in dir():
-  print InDetPriVxFinderTool
+  printfunc (InDetPriVxFinderTool)
 
 
 # General job setup
