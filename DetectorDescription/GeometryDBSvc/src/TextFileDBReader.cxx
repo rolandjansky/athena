@@ -190,10 +190,7 @@ TextFileDBReader::add(const std::string & key, const std::string & value)
   if (m_table.find(key) != m_table.end()) {
     std::cout << "WARNING! Overwriting exist entry with key: " << key << std::endl;
   } 
-
   m_table.try_emplace (key, value, m_currentSection);
-//   m_table.emplace(std::piecewise_construct, 
- //                  std::forward_as_tuple(key), std::forward_as_tuple(new Data(value,m_currentSection)));
 }
 
 bool 
