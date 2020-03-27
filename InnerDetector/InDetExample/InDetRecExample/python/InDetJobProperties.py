@@ -635,8 +635,8 @@ class priVtxCutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3]
-    StoredValue  = 3 
+    allowedValues= [1,2,3,4]
+    StoredValue  = 4
 
 class vertexSeedFinder(InDetFlagsJobProperty):
     """ string to store the type of seed finder, possible types: 'SlidingWindowMultiSeedFinder', 'HistogrammingMultiSeedFinder', 'DivisiveMultiSeedFinder' """
@@ -1552,7 +1552,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doVertexFinding         , False             )
        self.checkThenSet(self.primaryVertexSetup      , "IterativeFinding")
        self.checkThenSet(self.primaryVertexCutSetup   , "Offline"         )          
-       self.checkThenSet(self.priVtxCutLevel          , 3                 )   
+       self.checkThenSet(self.priVtxCutLevel          , 4                 )   
        # --- sec vertexing setup
        self.checkThenSet(self.secondaryVertexCutSetup , "PileUp"          ) 
        self.checkThenSet(self.conversionVertexCutSetup, "ConversionPileUp")
@@ -2119,7 +2119,7 @@ class InDetJobProperties(JobPropertyContainer):
      self.doVertexFinding         = False             
      self.primaryVertexSetup      = "IterativeFinding"
      self.primaryVertexCutSetup   = "Offline"                   
-     self.priVtxCutLevel          = 3                    
+     self.priVtxCutLevel          = 4                    
      # --- sec vertexing setup
      self.secondaryVertexCutSetup = "PileUp"           
      self.conversionVertexCutSetup= "ConversionPileUp"
