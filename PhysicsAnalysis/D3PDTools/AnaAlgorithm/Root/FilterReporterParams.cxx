@@ -30,27 +30,15 @@ namespace EL
       return StatusCode::FAILURE;
     }
 
-    // this is directly lifted from \ref AthFilterAlgorithm, not sure
-    // if we should be this fault-tolerant there, i.e. should we just
-    // fail if the cut-flow service can't be found or configured?
-    // after all the user could always configure not to use the
-    // `CutFlowSvc`.
 #ifndef XAOD_STANDALONE
-    if (m_cutFlowSvc.empty())
+    if (!m_cutFlowSvc.empty())
     {
-      if (m_cutFlowSvc.retrieve().isSuccess())
+      ANA_CHECK (m_cutFlowSvc.retrieve());
+      m_cutID = m_cutFlowSvc->registerFilter (m_cutFlowSvc.parentName(), m_filterDescription);
+      if (m_cutID == 0)
       {
-        m_cutID = m_cutFlowSvc->registerFilter (m_algName, m_filterDescription);
-        if (m_cutID == 0)
-        {
-          ATH_MSG_INFO("problem registering myself with cutflow-svc");
-        } else
-        {
-          ATH_MSG_VERBOSE("registered with cutflow-svc");
-        }
-      } else
-      {
-        ANA_MSG_INFO ("couldn't retrieve cut-flow service, not reporting cut-flows");
+        ANA_MSG_ERROR ("problem registering myself with cutflow-svc");
+        return StatusCode::FAILURE;
       }
     }
 #endif
