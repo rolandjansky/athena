@@ -37,11 +37,11 @@
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
-#include "InDetCondTools/ISiLorentzAngleTool.h"
-#include "SCT_ConditionsTools/ISCT_RadDamageSummaryTool.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
+#include "SCT_ConditionsServices/ISCT_RadDamageSummarySvc.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
-#include "SiPropertiesTool/ISiPropertiesTool.h"
+#include "SiPropertiesSvc/ISiPropertiesSvc.h"
+#include "SiPropertiesSvc/SiliconProperties.h"
 
 // Gaudi
 #include "GaudiKernel/ITHistSvc.h" // for ITHistSvc
@@ -70,6 +70,7 @@ namespace CLHEP {
 
 template <class HIT> class TimedHitPtr;
 
+//class StripSurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_SurfaceChargesGenerator {
 class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceChargesGenerator> {
  public:
 
@@ -85,12 +86,32 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   /** AlgTool finalize */
   virtual StatusCode finalize();
 
- private:
+  
+private:
 
   virtual void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;}
 
+  // variable to bridge 22/21 interface; TO BE REMOVED
+  float m_comTime{0};           //!< use cosmics time for timing
+  bool   m_useComTime{false};   //!< Flag to decide the use of cosmics time for timing
+  bool   m_cosmicsRun{false};   //!< Flag to set Cosmics Run
+  const InDetDD::SiDetectorElement * m_element{nullptr};   
+  CLHEP::HepRandomEngine *           m_rndmEngine{nullptr};
+  void setDetectorElement(const InDetDD::SiDetectorElement *ele) override {m_element = ele;};
+  void setCosmicsRun(bool cosmicsRun) override {m_cosmicsRun = cosmicsRun;};
+  void setComTimeFlag(bool useComTime) override {m_useComTime = useComTime;};
+  void setComTime(float comTime) override {m_comTime = comTime;};
+  void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) override {m_rndmEngine = rndmEngine;};
+  void process(const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const override {
+    process(m_element, phit, inserter, m_rndmEngine);
+  };
+  void processFromTool(const SiHit*, const ISiSurfaceChargesInserter&,
+                       const float, const unsigned short) const override {};
+
+
+  
   /** create a list of surface charges from a hit */
-  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const;
+  void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const;
   void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine) const;
   
   // some diagnostics methods are needed here too
@@ -103,33 +124,33 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   // trap_pos and drift_time are updated based on spess.
   bool chargeIsTrapped(double spess, const InDetDD::SiDetectorElement* element, double& trap_pos, double& drift_time) const;
 
-  IntegerProperty m_numberOfCharges{this, "NumberOfCharges", 1, "number of charges"};
-  FloatProperty m_smallStepLength{this, "SmallStepLength", 5, "max internal step along the larger G4 step"};
+  IntegerProperty m_numberOfCharges{1};
+  FloatProperty m_smallStepLength{5};
 
   /** related to the surface drift */
-  FloatProperty m_tSurfaceDrift{this, "SurfaceDriftTime", 10, "max surface drift time"};
+  FloatProperty m_tSurfaceDrift{10};
 
-  FloatProperty m_tfix{this, "FixedTime", -999., "fixed time"};
-  FloatProperty m_tsubtract{this, "SubtractTime", -999., "subtract drift time from mid gap"};
+  FloatProperty m_tfix{-999.};
+  FloatProperty m_tsubtract{-999.};
 
-  BooleanProperty m_doDistortions{this, "doDistortions", false, "Simulation of module distortions"};
-  BooleanProperty m_useSiCondDB{this, "UseSiCondDB", false, "Usage of SiConditions DB values can be disabled to use setable ones"};
-  FloatProperty m_vdepl{this, "DepletionVoltage", 70., "depletion voltage, default 70V"};
-  FloatProperty m_vbias{this, "BiasVoltage", 150., "bias voltage, default 150V"};
-  BooleanProperty m_doTrapping{this, "doTrapping", false, "Flag to set Charge Trapping"};
-  BooleanProperty m_doHistoTrap{this, "doHistoTrap", false, "Histogram the charge trapping effect"};
-  BooleanProperty m_doRamo{this, "doRamo", false, "Ramo Potential for charge trapping effect"};
-  BooleanProperty m_isOverlay{this, "isOverlay", false, "flag for overlay"};
+  BooleanProperty m_doDistortions{false};
+  BooleanProperty m_useSiCondDB{false};
+  FloatProperty m_vdepl{70.};
+  FloatProperty m_vbias{150.};
+  BooleanProperty m_doTrapping{false};
+  BooleanProperty m_doHistoTrap{false};
+  BooleanProperty m_doRamo{false};
+  BooleanProperty m_isOverlay{false};
 
   //ToolHandles
-  ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
-  ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
-  ToolHandle<ISCT_RadDamageSummaryTool> m_radDamageTool{this, "RadDamageSummaryTool", "SCT_RadDamageSummaryTool", "Tool to retrieve SCT radiation damages"};
-  ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
-  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool;
 
-  ServiceHandle<ITHistSvc> m_thistSvc{this, "THistSvc", "THistSvc"};
-
+  ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
+  ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
+  ServiceHandle<ISCT_RadDamageSummarySvc> m_radDamageSvc;
+  
+  ITHistSvc *m_thistSvc{nullptr};
+  
   float m_tHalfwayDrift{0.}; //!< Surface drift time
   float m_distInterStrip{1.0}; //!< Inter strip distance normalized to 1
   float m_distHalfInterStrip{0.}; //!< Half way distance inter strip

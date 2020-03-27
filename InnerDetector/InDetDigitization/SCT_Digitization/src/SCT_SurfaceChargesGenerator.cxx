@@ -37,7 +37,15 @@ using namespace std;
 SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type,
                                                          const std::string& name,
                                                          const IInterface* parent)
-  : base_class(type, name, parent) {
+  // : AthAlgTool(type, name, parent),
+  :base_class(type, name, parent),
+    m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
+    m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
+    m_radDamageSvc("SCT_RadDamageSummarySvc", name)
+{
+  declareProperty("SiConditionsSvc", m_siConditionsSvc);
+  declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
+  declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
 }
 
 // ----------------------------------------------------------------------
@@ -46,22 +54,24 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
 StatusCode SCT_SurfaceChargesGenerator::initialize() {
   ATH_MSG_DEBUG("SCT_SurfaceChargesGenerator::initialize()");
 
-  // Get ISiPropertiesTool
-  ATH_CHECK(m_siPropertiesTool.retrieve());
+  // Get ISiPropertiesSvc
+  ATH_CHECK(m_siPropertiesSvc.retrieve());
 
   // Get ISiliconConditionsSvc
-  ATH_CHECK(m_siConditionsTool.retrieve());
+  ATH_CHECK(m_siConditionsSvc.retrieve());
+
 
   if (m_doTrapping) {
-    // -- Get Radiation Damage Tool
-    ATH_CHECK(m_radDamageTool.retrieve());
-  } else {
-    m_radDamageTool.disable();
+    ///////////////////////////////////////////////////
+    // -- Get Radiation Damage Service
+    ATH_CHECK(m_radDamageSvc.retrieve());
+    if(m_doRamo)
+      m_radDamageSvc->InitPotentialValue();
   }
 
   if (m_doHistoTrap) {
     // -- Get Histogram Service
-    ATH_CHECK(m_thistSvc.retrieve());
+    ATH_CHECK(service("THistSvc", m_thistSvc));
 
     m_h_efieldz = new TProfile("efieldz", "", 50, 0., 0.4);
     ATH_CHECK(m_thistSvc->regHist("/file1/efieldz", m_h_efieldz));
@@ -155,10 +165,8 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
   if (m_doDistortions) {
     ATH_CHECK(m_distortionsTool.retrieve());
   } else {
-    m_distortionsTool.disable();
+    // m_distortionsTool.disable();
   }
-
-  ATH_CHECK(m_lorentzAngleTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -195,8 +203,8 @@ float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement
   float depletionVoltage{0.};
   float biasVoltage{0.};
   if (m_useSiCondDB) {
-    depletionVoltage = m_siConditionsTool->depletionVoltage(hashId) * CLHEP::volt;
-    biasVoltage = m_siConditionsTool->biasVoltage(hashId) * CLHEP::volt;
+    depletionVoltage = m_siConditionsSvc->depletionVoltage(hashId) * CLHEP::volt;
+    biasVoltage = m_siConditionsSvc->biasVoltage(hashId) * CLHEP::volt;
   } else {
     depletionVoltage = m_vdepl * CLHEP::volt;
     biasVoltage = m_vbias * CLHEP::volt;
@@ -216,7 +224,9 @@ float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement
   }
 
   float t_drift{log((depletionVoltage + biasVoltage) / denominator)};
-  t_drift *= thickness * thickness / (2.0 * m_siPropertiesTool->getSiProperties(hashId).holeDriftMobility() * depletionVoltage);
+
+
+  t_drift *= thickness * thickness / (2.0 * m_siPropertiesSvc->getSiProperties(hashId).driftMobility(InDetDD::holes) * depletionVoltage);
   return t_drift;
 }
 
@@ -232,7 +242,7 @@ float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit, const SiDetectorEl
   const float t{driftTime(zhit, element)}; // in ns
 
   if (t > 0.0) {
-    const float sigma{static_cast<float>(sqrt(2. * m_siPropertiesTool->getSiProperties(hashId).holeDiffusionConstant() * t))}; // in mm
+    const float sigma{static_cast<float>(sqrt(2. * m_siPropertiesSvc->getSiProperties(hashId).diffusionConstant(InDetDD::holes) * t))}; // in mm
     return sigma;
   } else {
     return 0.0;
@@ -319,7 +329,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
 
   const double thickness{design->thickness()};
   const IdentifierHash hashId{element->identifyHash()};
-  const double tanLorentz{m_lorentzAngleTool->getTanLorentzAngle(hashId)};
+  const double tanLorentz{element->getTanLorentzAnglePhi()};
 
   // ---**************************************
   //  Time of Flight Calculation - separate method?
@@ -351,7 +361,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
   const int numberOfSteps{static_cast<int>(LargeStep / m_smallStepLength) + 1};
   const float steps{static_cast<float>(m_numberOfCharges * numberOfSteps)};
   const float e1{static_cast<float>(phit.energyLoss() / steps)};
-  const float q1{static_cast<float>(e1 * m_siPropertiesTool->getSiProperties(hashId).electronHolePairsPerEnergy())};
+  const float q1{static_cast<float>(e1 * m_siPropertiesSvc->getSiProperties(hashId).electronHolePairsPerEnergy())};
 
   // in the following, to test the code, we will use the original coordinate
   // system of the SCTtest3SurfaceChargesGenerator x is eta y is phi z is depth
@@ -446,6 +456,8 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
         double y0{dstrip * stripPitch}; // mm
         double z0{thickness - zReadout}; // mm
 
+
+        // flag m_doCTrap is not used in cleaned-up version, might not need at all.
         // -- Charge Trapping
         if (m_doTrapping) {
           if (m_doHistoTrap) {
@@ -473,7 +485,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
               double yfin{dstrip * stripPitch}; // mm
               double zfin{thickness - trap_pos}; // mm
 
-              m_radDamageTool->holeTransport(y0, z0, yfin, zfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
+              m_radDamageSvc->HoleTransport(y0, z0, yfin, zfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
               for (int strip{-2}; strip<=2; strip++) {
                 const double ystrip{yd + strip * stripPitch}; // mm
                 const SiLocalPosition position(element->hitLocalToLocal(xd, ystrip));
@@ -525,19 +537,18 @@ bool SCT_SurfaceChargesGenerator::chargeIsTrapped(double spess,
   }
   bool isTrapped{false};
   const IdentifierHash hashId{element->identifyHash()};
-  const SCT_ChargeTrappingCondData condData{m_radDamageTool->getCondData(hashId, spess)};
-  const double electric_field{condData.getElectricField()};
-
+  const double electric_field{m_radDamageSvc->ElectricField(hashId, spess)};
+  
   if (m_doHistoTrap) {
-    const double mobChar{condData.getHoleDriftMobility()};
+    const double mobChar{m_radDamageSvc->HoleDriftMobility(hashId, spess)};
     m_h_efieldz->Fill(spess, electric_field);
     m_h_efield->Fill(electric_field);
     m_h_mob_Char->Fill(electric_field, mobChar);
     m_h_vel->Fill(electric_field, electric_field * mobChar);
   }
-  const double t_electrode{condData.getTimeToElectrode()};
-  drift_time = condData.getTrappingTime();
-  const double z_trap{condData.getTrappingPositionZ()};
+  const double t_electrode{m_radDamageSvc->TimeToElectrode(hashId, spess)};
+  drift_time = m_radDamageSvc->TrappingTime(hashId, spess);
+  const double z_trap{m_radDamageSvc->TrappingPositionZ(hashId, spess)};
   trap_pos = spess - z_trap;
   if (m_doHistoTrap) {
     m_h_drift_time->Fill(drift_time);
@@ -565,7 +576,7 @@ bool SCT_SurfaceChargesGenerator::chargeIsTrapped(double spess,
   } else {
     isTrapped = false;
     if (m_doHistoTrap) {
-      const double z_trap{condData.getTrappingPositionZ()};
+      const double z_trap{m_radDamageSvc->TrappingPositionZ(hashId, spess)};
       m_h_no_ztrap->Fill(z_trap);
       m_h_notrap_drift_t->Fill(drift_time);
     }
