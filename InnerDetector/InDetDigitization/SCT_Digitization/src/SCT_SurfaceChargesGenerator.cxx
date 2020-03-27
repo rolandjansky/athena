@@ -39,13 +39,41 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
                                                          const IInterface* parent)
   // : AthAlgTool(type, name, parent),
   :base_class(type, name, parent),
-    m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
-    m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
-    m_radDamageSvc("SCT_RadDamageSummarySvc", name)
+   m_distortionsTool("SCT_DistortionsTool", this),
+   m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
+   m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
+   m_radDamageSvc("SCT_RadDamageSummarySvc", name)
 {
+  declareProperty("SCTDistortionsTool", m_distortionsTool,
+                  "Tool to retrieve SCT distortions");
   declareProperty("SiConditionsSvc", m_siConditionsSvc);
   declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
   declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
+
+
+  declareProperty("FixedTime", m_tfix = -999);
+  declareProperty("SubtractTime", m_tsubtract = -999);
+  declareProperty("SurfaceDriftTime", m_tSurfaceDrift = 10);
+  declareProperty("NumberOfCharges", m_numberOfCharges = 1);
+  declareProperty("SmallStepLength", m_smallStepLength = 5);
+  declareProperty("DepletionVoltage", m_vdepl = 70);
+  declareProperty("BiasVoltage", m_vbias = 150);
+  
+  declareProperty("isOverlay", m_isOverlay=false);
+  declareProperty("UseSiCondDB", m_useSiCondDB,
+                  "Usage of SiConditions DB values can be disabled to use setable ones");
+  declareProperty("doDistortions", m_doDistortions,
+                  "Simulation of module distortions");
+  declareProperty("doTrapping", m_doTrapping,
+                  "Simulation of charge trapping effect");
+  declareProperty("doHistoTrap", m_doHistoTrap,
+                  "Histogram the charge trapping effect");
+  declareProperty("doRamo", m_doRamo,
+                  "Ramo Potential for charge trapping effect");
+
+
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false); // not used in code
+
 }
 
 // ----------------------------------------------------------------------

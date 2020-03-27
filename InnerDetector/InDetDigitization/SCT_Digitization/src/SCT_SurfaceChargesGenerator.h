@@ -107,8 +107,7 @@ private:
   };
   void processFromTool(const SiHit*, const ISiSurfaceChargesInserter&,
                        const float, const unsigned short) const override {};
-
-
+  BooleanProperty m_needsMcEventCollHelper{false};
   
   /** create a list of surface charges from a hit */
   void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const;
