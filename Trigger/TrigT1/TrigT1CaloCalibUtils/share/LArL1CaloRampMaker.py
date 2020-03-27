@@ -37,7 +37,7 @@ import sys
 sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/') # CERN
 from AtlCoolBKLib import resolveAlias
 conditionsTag = resolveAlias.getCurrent()
-print conditionsTag
+printfunc (conditionsTag)
 globalflags.ConditionsTag.set_Value_and_Lock(conditionsTag)
 
 from AthenaCommon.BeamFlags import jobproperties
@@ -95,8 +95,8 @@ if doLAr:
     from LArROD.LArRODFlags import larRODFlags
     larRODFlags.keepDSPRaw = False
 
-    print larRODFlags
-    print larCondFlags
+    printfunc (larRODFlags)
+    printfunc (larCondFlags)
 
     # cell reconstruction properties
     from CaloRec.CaloCellFlags import jobproperties
@@ -244,4 +244,4 @@ if not db_: raise RuntimeError("Couldn't open connection to TDAQ DB")
 folder_ = db_.getFolder(foldername_)
 obj_ = folder_.findObject(GetRunNumber() << 32, 0)
 payload_ = obj_.payload() 
-svcMgr.IOVDbSvc.forceTimestamp = payload_['SORTime'] / 1000000000L
+svcMgr.IOVDbSvc.forceTimestamp = payload_['SORTime'] / 1000000000
