@@ -67,7 +67,7 @@ namespace EL
     ///   out of memory I
   public:
     template<typename T>
-    explicit FilterReporterParams (T *owner, const std::string_view& val_filterDescription);
+    explicit FilterReporterParams (T *owner, std::string val_filterDescription);
 
 
     /// \brief do anything we need to do in initialize
@@ -141,10 +141,10 @@ namespace EL
   //
 
   template<typename T> FilterReporterParams ::
-  FilterReporterParams (T *owner, const std::string_view& val_filterDescription)
+  FilterReporterParams (T *owner, std::string val_filterDescription)
     : AsgMessagingForward (owner)
     , m_setFilterPassed ([owner] (bool val_setFilterPassed) {owner->setFilterPassed (val_setFilterPassed);})
-    , m_filterDescription (val_filterDescription)
+    , m_filterDescription (std::move (val_filterDescription))
 #ifndef XAOD_STANDALONE
     , m_cutFlowSvc ("CutFlowSvc/CutFlowSvc", owner->name())
 #endif

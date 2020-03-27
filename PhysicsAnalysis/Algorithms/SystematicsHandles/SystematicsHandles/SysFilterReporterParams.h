@@ -46,7 +46,7 @@ namespace CP
     ///   out of memory I
   public:
     template<typename T>
-    explicit SysFilterReporterParams (T *owner, const std::string_view& val_filterDescription);
+    explicit SysFilterReporterParams (T *owner, std::string val_filterDescription);
 
 
     /// \brief do anything we need to do in initialize
@@ -132,12 +132,12 @@ namespace CP
   //
 
   template<typename T> SysFilterReporterParams ::
-  SysFilterReporterParams (T *owner, const std::string_view& val_filterDescription)
+  SysFilterReporterParams (T *owner, std::string val_filterDescription)
     : AsgMessagingForward (owner)
     , m_setFilterPassed ([owner] (bool val_setFilterPassed) {owner->setFilterPassed (val_setFilterPassed);})
     , m_eventInfoHandle (owner, "eventInfo", "EventInfo", "the event info object to run on")
     , m_eventDecisionOutputDecoration (owner, "eventDecisionOutputDecoration", "", "the decoration for the event decision")
-    , m_filterDescription (val_filterDescription)
+    , m_filterDescription (std::move (val_filterDescription))
 #ifndef XAOD_STANDALONE
     , m_cutFlowSvc ("CutFlowSvc/CutFlowSvc", owner->name())
 #endif
