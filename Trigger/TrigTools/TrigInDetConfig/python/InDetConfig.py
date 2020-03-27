@@ -13,7 +13,7 @@ class InDetCacheNames(object):
   SCTBSErrCacheKey   = "SctBSErrCache"
   SCTRDOCacheKey     = "SctRDOCache"
   PixRDOCacheKey     = "PixRDOCache"
-  PixBSErrCacheKey     = "PixBSErrCache"
+  PixBSErrCacheKey   = "PixBSErrCache"
 
 def InDetIDCCacheCreatorCfg():
   #Create IdentifiableCaches
