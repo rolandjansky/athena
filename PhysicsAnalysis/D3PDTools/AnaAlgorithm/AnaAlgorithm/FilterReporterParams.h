@@ -67,7 +67,7 @@ namespace EL
     ///   out of memory I
   public:
     template<typename T>
-    explicit FilterReporterParams (T *owner, const std::string_view& val_filterDescription = "N/A");
+    explicit FilterReporterParams (T *owner, const std::string_view& val_filterDescription);
 
 
     /// \brief do anything we need to do in initialize
@@ -131,10 +131,6 @@ namespace EL
   private:
     ServiceHandle<ICutFlowSvc> m_cutFlowSvc;
 
-    /// \brief the name of the algorithm
-  private:
-    std::string m_algName;
-
 #endif
   };
 
@@ -150,7 +146,7 @@ namespace EL
     , m_setFilterPassed ([owner] (bool val_setFilterPassed) {owner->setFilterPassed (val_setFilterPassed);})
     , m_filterDescription (val_filterDescription)
 #ifndef XAOD_STANDALONE
-    , m_algName (owner->name())
+    , m_cutFlowSvc ("CutFlowSvc/CutFlowSvc", owner->name())
 #endif
   {
     owner->declareProperty("FilterDescription", m_filterDescription,
