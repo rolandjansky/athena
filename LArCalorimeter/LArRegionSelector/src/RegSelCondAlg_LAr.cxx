@@ -80,7 +80,7 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
 
   /// create the new lookup table
 
-  std::unique_ptr<RegSelectorHashMap> rd = createTable();
+  std::unique_ptr<IRegSelLUT> rd = createTable();
 
   if ( !rd ) return StatusCode::FAILURE;
 
@@ -88,10 +88,10 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
 
   /// create the conditions data for storage 
 
-  RegSelCaloLUTCondData* rcd = new RegSelCaloLUTCondData( std::move(rd) );  
+  IRegSelLUTCondData* rcd = new IRegSelLUTCondData( std::move(rd) );  
 
   try { 
-    SG::WriteCondHandle<RegSelCaloLUTCondData> lutCondData( m_tableKey, ctx );
+    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
     if( lutCondData.record( id_range, rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()

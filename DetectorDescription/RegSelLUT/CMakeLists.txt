@@ -9,6 +9,7 @@ atlas_subdir( RegSelLUT )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           DetectorDescription/Identifier
+                          DetectorDescription/IRegionSelector
                           GaudiKernel )
 
 # Component(s) in the package:

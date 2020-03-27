@@ -229,10 +229,10 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
   // write out new new LUT to a file if need be
   if ( m_printTable ) rd->write( name()+".map" );
 
-  RegSelLUTCondData* rcd = new RegSelLUTCondData( std::move(rd) );
+  IRegSelLUTCondData* rcd = new IRegSelLUTCondData( std::move(rd) );
   
   try { 
-    SG::WriteCondHandle<RegSelLUTCondData> lutCondData( m_tableKey, ctx );
+    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
     if( lutCondData.record( id_range, rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()

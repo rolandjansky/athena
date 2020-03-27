@@ -28,7 +28,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "IRegionSelector/RegSelLUTCondData.h"
+#include "IRegionSelector/IRegSelLUTCondData.h"
 
 class RegSelModule;
 class RegSelSiLUT;
@@ -69,27 +69,9 @@ public:
    
 protected:
 
-  // full scan
-
-  void HashIDList( std::vector<IdentifierHash>& idlist ) const;  
-
-  // full scan for a specific layer
-
-  void HashIDList( long layer, std::vector<IdentifierHash>& idlist ) const;
-     
-  // Methods to obtain the rob id list
-
-  // full scan
-  void ROBIDList( std::vector<uint32_t>& roblist ) const;
-
-  // full scan by layer
-  void ROBIDList( long layer, std::vector<uint32_t>& roblist ) const;
-
-  // get list of modules  
-  void getRoIData( const IRoiDescriptor& roi, std::vector<const RegSelModule*>& modulelist ) const;
-
   //! @method lookup, actually retrieve the lookup table as conditions data - might combine with handle()
-  const RegSelSiLUT* lookup() const;
+  //  const RegSelSiLUT* lookup() const;
+  const IRegSelLUT* lookup() const;
 
 protected:
 
@@ -103,7 +85,7 @@ private:
   //! Flag to dump loaded table in data file.
   BooleanProperty  m_dumpTable;
 
-  SG::ReadCondHandleKey<RegSelLUTCondData> m_tableKey{ this, "RegSelLUT", "Tool_Not_Initalised", "Region Selector lookup table" };
+  SG::ReadCondHandleKey<IRegSelLUTCondData> m_tableKey{ this, "RegSelLUT", "Tool_Not_Initalised", "Region Selector lookup table" };
 
   /// flag to avoid the need for a separate rpc lookup table class
   /// FixMe: this flag may be replaced by custom derived RegSelTool 

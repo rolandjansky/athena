@@ -1,5 +1,6 @@
+// emacs: this is -*- c++ -*- 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGSELECTORHASHMAP_H
@@ -10,6 +11,9 @@
 #include "RegionSelectorLUT.h"
 #include "RegionSelector/RegSelEnums.h"
 #include "GaudiKernel/StatusCode.h"
+
+#include "IRegionSelector/IRegSelLUT.h"
+
 #include <vector>
 #include <list>
 #include <set>
@@ -33,9 +37,25 @@ struct equals{
 
 
 // Class RegSelectorHashMap ----------------------------------------------------
-class RegSelectorHashMap{
+class RegSelectorHashMap : virtual public IRegSelLUT {
 
- public:
+public: 
+
+  /// implementation of the IRegSelUT interface
+  
+  /// hash id methods
+
+  void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+
+  void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+
+  /// rob methods
+  
+  void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+  
+  void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;  
+  
+public:
 
   double etaminValue() const ;
   double etamaxValue() const ;

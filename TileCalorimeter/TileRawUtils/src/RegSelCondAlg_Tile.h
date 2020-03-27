@@ -1,6 +1,6 @@
 /** emacs: this is -*- c++ -*- **/
 /**
- **   @file    MuonRegSelCondAlg.h        
+ **   @file    RegSelCondAlg_Tile.h        
  **                   
  **   @author  sutt
  **   @date    Tue  4 Feb 2020 15:25:00 CET
@@ -8,54 +8,54 @@
  **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
  
-#ifndef MuonRegSelCondAlg_h
-#define MuonRegSelCondAlg_h
+#ifndef RegSelCondAlg_Tile_h
+#define RegSelCondAlg_Tile_h
 
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
-#include "GaudiKernel/ToolHandle.h"
-
-#include "MuonCablingData/MuonMDT_CablingMap.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "IRegionSelector/IRegSelLUTCondData.h"
-#include "RegSelLUT/RegSelSiLUT.h"
+#include "RegionSelector/RegSelectorMap.h"
 
 #include <string>
 
+#include "PixelConditionsData/PixelCablingCondData.h"
 
-/////////////////////////////////////////////////////////////////////////////
 
-class MuonRegSelCondAlg : public AthReentrantAlgorithm {
 
+
+
+class RegSelCondAlg_Tile : public AthReentrantAlgorithm {
+  
 public:
-
-  MuonRegSelCondAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  
+  RegSelCondAlg_Tile( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute (const EventContext& ctx) const override;
 
-  virtual std::unique_ptr<RegSelSiLUT> createTable( const MuonMDT_CablingMap* cabling ) const = 0;   
+  virtual std::unique_ptr<RegSelectorMap> createTable() const; 
 
- private:
+private:
 
   std::string m_managerName;
+
   bool        m_printTable;
- 
-  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_cablingKey
-    { this, "Cabling", "MuonMDT_CablingMap", "Key of output MDT cabling map" };
+   
+  /// some cabling cond data to act as a flag to schedule the algorithm
+  /// sadly have to use the pixel cabling if the calorimeter doesn't have
+  /// it's own conditions data version 
+  SG::ReadCondHandleKey<PixelCablingCondData> m_cablingKey
+    {this, "CablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 
   /// Output conditions object
   SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  
     { this, "RegSelLUT", "RegSelLUTCondData", "Region Selector lookup table" };
 
-
-
 };
 
-#endif // MuonRegSelCondAlg_h
+#endif // RegSelCondAlg_Tile_h
