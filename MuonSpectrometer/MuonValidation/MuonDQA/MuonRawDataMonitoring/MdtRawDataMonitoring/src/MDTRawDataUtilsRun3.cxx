@@ -469,12 +469,11 @@ int MdtRawDataMonAlg::GetTubeMax( const Identifier & digcoll_id, const std::stri
     tubeMax = 48*3 + 48*3;
   if( hardware_name.substr(0,3) == "BME")
 	  tubeMax = 546;
-  
   //DEV maybe this should be passed to the function?
-  std::map<std::string,float> tubesperchamber_map;
-  std::map<string,float>::iterator iter_tubesperchamber = tubesperchamber_map.find(hardware_name);
-  if ( iter_tubesperchamber == tubesperchamber_map.end() ) { 
-      tubesperchamber_map.insert( make_pair( hardware_name, tubeMax ) );
+  //std::map<std::string,float> tubesperchamber_map;
+  std::map<string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_name);
+  if ( iter_tubesperchamber == m_tubesperchamber_map.end() ) { 
+      m_tubesperchamber_map.insert( make_pair( hardware_name, tubeMax ) );
       ATH_MSG_DEBUG("Chamber " << hardware_name << " has " << tubeMax << " tubes.");
   } 
   else {
@@ -581,7 +580,7 @@ void MdtRawDataMonAlg::clear_hist_map(bool reallocate){
   }
 }
 
-int MdtRawDataMonAlg::get_bin_for_LB_hist(int region, int layer, int phi, int eta, bool isBIM){
+int MdtRawDataMonAlg::get_bin_for_LB_hist(int region, int layer, int phi, int eta, bool isBIM) const {
   if(region == 0 || region == 1){ //Barrel
 
     if(layer == 0){ //Inner
@@ -1119,7 +1118,7 @@ StatusCode MdtRawDataMonAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
 }
 
 
-int MdtRawDataMonAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, int eta, std::string chamber){
+int MdtRawDataMonAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, int eta, std::string chamber) const{
   int binNum = 999;
 
   if(region == 0 || region == 1){ //Barrel

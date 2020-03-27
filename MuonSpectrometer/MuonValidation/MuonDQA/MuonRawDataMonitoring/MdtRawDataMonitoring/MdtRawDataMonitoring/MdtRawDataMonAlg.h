@@ -61,6 +61,7 @@ namespace Muon {
 class TH2;
 struct MDTOverviewHistogramStruct;
 struct MDTSummaryHistogramStruct;
+struct MDTSegmentHistogramStruct;
 
 namespace monAlg{
   enum {L1_UNKNOWN, L1_BARREL, L1_ENDCAP};
@@ -108,7 +109,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   virtual ~MdtRawDataMonAlg();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms(const EventContext& ctx ) const override;     
-  //  virtual StatusCode fillHistograms(const EventContext& ctx );     
+
  private: 
 
   TH2* m_mdthitspermultilayerLumi[4][4];
@@ -130,12 +131,13 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   virtual void  fillMDTOverviewVects(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate, MDTOverviewHistogramStruct& vects) const;
   virtual void  fillMDTOverviewHistograms(const MDTOverviewHistogramStruct& vects) const;
-  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, /*std::set<std::string>,*/ bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct vects[4][4][36] ) const;
-  virtual StatusCode  fillMDTSummaryHistograms( const MDTSummaryHistogramStruct vects[4][4][36], int lb ) const;
+  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, const std::set<std::string>&, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct (&vects)[4][4][16][4][4] ) const;
+  virtual StatusCode  fillMDTSummaryHistograms( const MDTSummaryHistogramStruct (&vects)[4][4][16][4][4], int lb) const;
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* ) const;//fill chamber by chamber histos
 
 
-  StatusCode handleEvent_effCalc(const Trk::SegmentCollection* segms) const;
+  StatusCode handleEvent_effCalc_fillVects(const Trk::SegmentCollection* segms, MDTSegmentHistogramStruct (&vects)[4][4][16]) const;
+  virtual StatusCode  fillMDTSegmentHistograms( const MDTSegmentHistogramStruct (&vects)[4][4][16]) const;
 
   //MDTRawDataUtils_cxx
   bool AinB( int A, std::vector<int> & B ) const;
@@ -148,8 +150,8 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   void CorrectTubeMax(const std::string & hardware_name, int & numTubes) const;
   void CorrectLayerMax(const std::string & hardware_name, int & numLayers) const;
   virtual StatusCode  fillMDTMaskedTubes(IdentifierHash, const std::string &, TH1F_LW*& h);//DEV not used at moment, should be revised
-  int get_bin_for_LB_hist(int region, int layer, int phi, int eta, bool isBIM);
-  int get_bin_for_LB_crate_hist(int region, int layer, int phi, int eta, std::string chamber);
+  int get_bin_for_LB_hist(int region, int layer, int phi, int eta, bool isBIM) const;
+  int get_bin_for_LB_crate_hist(int region, int layer, int phi, int eta, std::string chamber) const;
   // private function to initialize the selection of a certain region
   void mdtchamberId();    
   //private function to find mdt mezz cards
@@ -177,8 +179,8 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   std::vector<Identifier> m_chambersId;
   std::vector<IdentifierHash> m_chambersIdHash;
-  //  std::map<std::string,float> m_hitsperchamber_map;\\DEV to be put back?
-  //  std::map<std::string,float> m_tubesperchamber_map; \\DEV to be put back?
+  //  std::map<std::string,float> m_hitsperchamber_map;//DEV to be put back?
+  std::map<std::string,float> m_tubesperchamber_map; 
 
   bool m_doMdtESD ; 
 
