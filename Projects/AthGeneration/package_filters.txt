@@ -72,7 +72,7 @@
 + Database/AthenaRoot/AthenaRootComps
 + Database/AthenaRoot/AthenaRootKernel
 + Database/AthenaRoot/RootAuxDynIO
-#+ Database/AtlasSTLAddReflex
++ Database/AtlasSTLAddReflex
 + Database/AtlasSealCLHEP
 #+ Database/CondDBObjects
 + Database/ConnectionManagement/AtlasAuthentication
