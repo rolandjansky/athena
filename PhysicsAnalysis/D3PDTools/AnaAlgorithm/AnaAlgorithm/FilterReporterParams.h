@@ -15,6 +15,11 @@
 #include <atomic>
 #include <functional>
 
+#ifndef XAOD_STANDALONE
+#include <AthenaKernel/ICutFlowSvc.h>
+#include <GaudiKernel/ServiceHandle.h>
+#endif
+
 class StatusCode;
 
 namespace EL
@@ -62,7 +67,7 @@ namespace EL
     ///   out of memory I
   public:
     template<typename T>
-    explicit FilterReporterParams (T *owner);
+    explicit FilterReporterParams (T *owner, const std::string_view& val_filterDescription = "N/A");
 
 
     /// \brief do anything we need to do in initialize
@@ -109,6 +114,28 @@ namespace EL
     /// atomic in case we ever use it with reentrant algorithms.
   private:
     mutable std::atomic<unsigned> m_passed {0}, m_total {0};
+
+    /// \brief description what this filter does
+  private:
+    std::string m_filterDescription;
+
+
+#ifndef XAOD_STANDALONE
+
+    /// \brief the \ref CutIdentifier for this filter algorithm
+  private:
+    CutIdentifier m_cutID;
+
+    /// \brief the handle to the service holding tables of cut-flows
+    /// for filtering algs.
+  private:
+    ServiceHandle<ICutFlowSvc> m_cutFlowSvc;
+
+    /// \brief the name of the algorithm
+  private:
+    std::string m_algName;
+
+#endif
   };
 
 
@@ -118,10 +145,23 @@ namespace EL
   //
 
   template<typename T> FilterReporterParams ::
-  FilterReporterParams (T *owner)
+  FilterReporterParams (T *owner, const std::string_view& val_filterDescription)
     : AsgMessagingForward (owner)
     , m_setFilterPassed ([owner] (bool val_setFilterPassed) {owner->setFilterPassed (val_setFilterPassed);})
-  {}
+    , m_filterDescription (val_filterDescription)
+#ifndef XAOD_STANDALONE
+    , m_algName (owner->name())
+#endif
+  {
+    owner->declareProperty("FilterDescription", m_filterDescription,
+                           "describe to the cutflowsvc what this filter does.");
+
+#ifndef XAOD_STANDALONE
+    owner->declareProperty("CutFlowSvc", m_cutFlowSvc,
+                           "handle to the ICutFlowSvc instance this filtering algorithm"
+                           " will use for building the flow of cuts.");
+#endif
+  }
 }
 
 #endif
