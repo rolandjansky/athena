@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODTracking
-			  GaudiKernel 
+                          GaudiKernel 
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool			 
                           MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -34,8 +34,8 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
                           MuonSpectrometer/MuonReconstruction/MuonSegmentCombiners/MuonSegmentCombinerTools/MuonSegmentCombinerToolInterfaces
-			  MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
-			  PhysicsAnalysis/AnalysisCommon/PATCore
+                          MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
+                          PhysicsAnalysis/AnalysisCommon/PATCore
                           Reconstruction/MuonIdentification/MuidInterfaces
                           Reconstruction/MuonIdentification/MuonCombinedEvent
                           Reconstruction/MuonIdentification/MuonCombinedToolInterfaces
@@ -51,7 +51,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigNavigation
-			  Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigMuonToolInterfaces
                           Trigger/TrigTools/TrigTimeAlgs )
@@ -67,7 +68,7 @@ atlas_add_component( TrigMuonEF
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigMuonEvent TrigSteeringEvent CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector EventPrimitives FourMomUtils xAODCaloEvent xAODMuon xAODTracking GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces Particle PATCoreLib RecoToolInterfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTrackSummary TrkToolInterfaces TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigNavigationLib DecisionHandlingLib TrigInterfacesLib TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigMuonEvent TrigSteeringEvent CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector EventPrimitives FourMomUtils xAODCaloEvent xAODMuon xAODTracking GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces Particle PATCoreLib RecoToolInterfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTrackSummary TrkToolInterfaces TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigNavigationLib DecisionHandlingLib TrigInterfacesLib TrigTimeAlgsLib TrigCompositeUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/TrigMuonEFConfig.py python/TrigMuonEFCosmicConfig.py python/TrigMuonEFMonitoring.py python/TrigMuonEFConfigDb.py )

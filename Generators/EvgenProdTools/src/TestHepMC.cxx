@@ -312,7 +312,7 @@ StatusCode TestHepMC::execute() {
     int vtxDisplacedstatuscodenot12CheckRateCnt=0;
     for (HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin(); vitr != evt->vertices_end(); ++vitr ) {
       const HepMC::GenVertex* vtx = *vitr;
-      const HepMC::ThreeVector pos = vtx->point3d();
+      const HepMC::FourVector pos = vtx->position();
 
       // Check for NaNs and infs in vertex position components
       if ( std::isnan(pos.x()) || std::isinf(pos.x()) ||

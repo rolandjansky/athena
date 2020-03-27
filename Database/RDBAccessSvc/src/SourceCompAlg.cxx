@@ -4,6 +4,7 @@
 
 #include "SourceCompAlg.h"
 #include "RDBAccessSvc.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 typedef std::map<std::string,IRDBRecordset_ptr> NodeToRecordsetMap;
@@ -162,7 +163,8 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
       }
 
       // Get tag details, only needed for generation of tag cache
-      RDBTagDetails atlasTagDetails = rdbAccessSvc->getTagDetails(tag,m_connNames[connInd]);
+      RDBTagDetails atlasTagDetails ATLAS_THREAD_SAFE;
+      rdbAccessSvc->getTagDetails(atlasTagDetails,tag,m_connNames[connInd]);
       std::ostringstream tagDetailStream;
       tagDetailStream << atlasTagDetails << std::endl;
       ATH_MSG_DEBUG("Global tag in connection " << m_connNames[connInd] << ": " << tagDetailStream.str());

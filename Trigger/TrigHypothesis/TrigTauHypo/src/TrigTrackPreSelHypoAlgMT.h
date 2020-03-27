@@ -10,7 +10,7 @@
 #include "AthViews/View.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrkTrack/TrackCollection.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
 
 #include "ITrigTrackPreSelHypoTool.h"

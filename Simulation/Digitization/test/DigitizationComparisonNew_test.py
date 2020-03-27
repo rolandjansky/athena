@@ -59,9 +59,8 @@ acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(PoolWriteCfg(ConfigFlags))
 acc.merge(writeDigitizationMetadata(ConfigFlags))
 
-# TODO include other modules --- to be uncommented once they are made to agree
 # Inner Detector
-# acc.merge(BCM_DigitizationCfg(ConfigFlags))
+acc.merge(BCM_DigitizationCfg(ConfigFlags))
 acc.merge(PixelDigitizationCfg(ConfigFlags))
 acc.merge(SCT_DigitizationCfg(ConfigFlags))
 acc.merge(TRT_DigitizationCfg(ConfigFlags))
@@ -84,8 +83,7 @@ acc.merge(MergeRecoTimingObjCfg(ConfigFlags))
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["EventInfo#*"]
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventInfo#EventInfo")
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventAuxInfo#EventInfoAux.")
-# FIXME Calorimeter truth output from DigiOutput.py#0082
-acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["CaloCalibrationHitContainer#*"]
+# FIXME this is marked "# Temporary for debugging MBTSHits" in DigiOutput.py
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["TileHitVector#MBTSHits"]
 # for Tile
 # new style configures these, but they are left default in old config

@@ -8,7 +8,7 @@
 #include "AthLinks/ElementLink.h"
 #include "AthViews/ViewHelper.h"
 #include "AthViews/View.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 #include <sstream>
 

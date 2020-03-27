@@ -52,6 +52,10 @@ TTree* getTree( ITHistSvc* histSvc, const std::string& treeName ) {
 void resetHist( ITHistSvc* histSvc, const std::string& histName ) {
   TH1* h ATLAS_THREAD_SAFE = const_cast<TH1*>(getHist( histSvc, histName ));
   h->Reset();
+  THashList* labels = h->GetXaxis()->GetLabels();
+  if (labels) labels->Clear();
+  labels = h->GetYaxis()->GetLabels();
+  if (labels) labels->Clear();
 }
 
 void resetHists( ITHistSvc* histSvc ) {
@@ -572,6 +576,26 @@ bool stringFilling(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   return true;
 }
 
+bool stringFillingGen(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
+
+  auto fill = [&]() {
+    auto det = Monitored::Scalar<std::string>( "DetID", [&](){return "SCT";} );
+    Monitored::Group(monTool, det);
+    return 1;
+  };
+  auto check = [&](size_t N) {
+    const TH1* h = getHist( histSvc, "/EXPERT/TestGroup/DetID" );
+    VALUE( h->GetEntries() ) EXPECTED( N );
+    VALUE( h->GetXaxis()->FindFixBin("SCT") ) EXPECTED( 1 );
+  };
+
+  resetHists( histSvc ); check(fill());
+  resetHists( histSvc ); check(fill_mt(fill));
+
+  return true;
+}
+
+
 bool stringFromCollection(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
 
   auto fill = [&]() {
@@ -716,6 +740,8 @@ int main() {
   assert( timerFilling( validMon, histSvc ) );
   log << MSG::DEBUG << "stringFilling" << endmsg;
   assert( stringFilling( validMon, histSvc ) );
+  log << MSG::DEBUG << "stringFillingGen" << endmsg;
+  assert( stringFillingGen( validMon, histSvc ) );
   log << MSG::DEBUG << "string2DFilling" << endmsg;
   assert( string2DFilling( validMon, histSvc ) );
   log << MSG::DEBUG << "stringFromCollection" << endmsg;

@@ -6,7 +6,7 @@
 
 // Trigger includes
 #include "TrigConfData/HLTMenu.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigPartialEventBuilding/PEBInfoWriterToolBase.h" // Defines PEBInfo and keys to retrieve it
 

@@ -36,7 +36,7 @@ class checkFileTrigSize_RTT:
             from Logger import Logger
             self.logger    = Logger()
         except:
-           print "can't import logger in test mode"
+           print("can't import logger in test mode")
     
       
         self.success   =  0
@@ -1058,12 +1058,12 @@ class checkFileTrigSize_RTT:
         truthCounter,
         ]
 
-        print "file:",self.checkFile
+        print("file:",self.checkFile)
         try:
             file = open(self.checkFile,'r')
         except:
             parentFile = self.checkFile.replace(".checkFile","")
-            print "WARNING: generating ", self.checkFile, " from ",parentFile
+            print("WARNING: generating %s from %s", self.checkFile, parentFile)
             os.system("checkFile.py " + parentFile + " >"+self.checkFile+"0")
             file = open(self.checkFile+"0",'r')
             if file == 0:
@@ -1202,14 +1202,13 @@ class checkFileTrigSize_RTT:
         fout =open(self.checkFile+"trigSize.txt",'w')
 
             
-        print ""
-        print "Summary of catagories:"
+        print()
+        print("Summary of catagories:")
         fout.write( "\n Summary of catagories:\n") 
 
         #print the size of each counter (and calculate the sum)
         for counter in listofCounters:
             sum += counter.size
-            #    print counter.size, counter.name
 
         #Compute the total size of trigger component
         for counter in listofTriggerCounters:
@@ -1218,7 +1217,7 @@ class checkFileTrigSize_RTT:
             # fout.write( counter.name.ljust(24) + "%6.3f" % counter.size + "\n")
         for key in sorted(self.triggerAlgSize):
             if not key == 'Total':
-                print "trigger"+key.ljust(24), "%6.3f" % self.triggerAlgSize[key]
+                print("trigger"+key.ljust(24), "%6.3f" % self.triggerAlgSize[key])
                 fout.write( "trigger"+key.ljust(24) + "%6.3f" % self.triggerAlgSize[key] + "\n")
 
         #Compute the total size of non trigger component
@@ -1227,18 +1226,18 @@ class checkFileTrigSize_RTT:
 
             fout.write("\n=====================\n")
 
-            print ""
-            print "====================="
-            print "Total Trigger Size".ljust(23), "%6.3f" % self.triggerAlgSize[ 'Total' ]
+            print()
+            print("=====================")
+            print("Total Trigger Size".ljust(23), "%6.3f" % self.triggerAlgSize[ 'Total' ])
             fout.write("Total Trigger Size".ljust(23) + "%6.3f" % self.triggerAlgSize[ 'Total' ] + "\n")
             tsize = sumNU+sum
-            print "Total file size".ljust(23), self.totalAlgSize
+            print("Total file size".ljust(23), self.totalAlgSize)
             fout.write("Total file size".ljust(23) + "%6.3f" % self.totalAlgSize + "\n")
-            print "Total file size (list)".ljust(23), self.totalAlgSizeInLists
+            print("Total file size (list)".ljust(23), self.totalAlgSizeInLists)
             fout.write("Total file size (list)".ljust(23) + "%6.3f" % self.totalAlgSizeInLists + "\n")
-            print "Total (from checkFile)".ljust(23), self.total
+            print("Total (from checkFile)".ljust(23), self.total)
             fout.write("Total (from checkFile)".ljust(23)+"%6.3f" % self.total + "\n")
-            print 
+            print()
 
             if len(self.triggerAlgList) > 0:
                 fout.write( "\nThe following were found in TriggerEDM and counted but have a classification 'Unknown': \n")

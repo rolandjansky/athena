@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -339,9 +339,8 @@ std::unique_ptr<IRDBQuery> AmdcDb::getQuery(const std::string& /*node*/     ,
                             const std::string& /*tag2node*/ ,
                             const std::string& /*connName*/ ){ std::cout << " AmdcDb::getQuery Not implemented " << std::endl ; return 0; }
 
-RDBTagDetails AmdcDb::getTagDetails(const std::string& /*tag*/,
-				    const std::string& /*connName*/ )
+void AmdcDb::getTagDetails(RDBTagDetails& /*tagDetails*/,
+                           const std::string& /*tag*/,
+                           const std::string& /*connName*/ )
 {
- RDBTagDetails tagDetails;
- return tagDetails;
 }                                            
