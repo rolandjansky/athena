@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # ReadCoolStrFiles.py
 # demonstrates reading back of string/file data from COOL, data having
 # been previously stored (e.g. by WriteStrFiles.py)

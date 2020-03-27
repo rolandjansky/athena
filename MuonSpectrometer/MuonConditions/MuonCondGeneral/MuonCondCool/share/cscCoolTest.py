@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 # author Caleb Lampen lampen@physics.arizona.edu 
 # for any info and password to database
@@ -46,7 +48,7 @@ from IOVDbSvc.CondDB import conddb
 #conddb.setGlobalTag('COMCOND-REPC-001-00')
 conddb.setGlobalTag('COMCOND-BLKPS-004-05')
 if(forceRunNumber > 0):
-  Service("IOVDbSvc").forceRunNumber = forceRunNumber;
+  Service("IOVDbSvc").forceRunNumber = forceRunNumber
   Service("IOVDbSvc").forceLumiblockNumber = 1
 
 
