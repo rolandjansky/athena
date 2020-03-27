@@ -54,6 +54,11 @@ namespace EL
     if (m_passed)
       m_params.m_passed += 1;
     m_params.m_total += 1;
+
+#ifndef XAOD_STANDALONE
+    if (m_passed && m_params.m_cutID != 0)
+      m_params.m_cutFlowSvc->addEvent (m_params.m_cutID);
+#endif
   }
 
 
