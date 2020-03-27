@@ -38,14 +38,14 @@ TrigMissingET* TrigMissingETCnv::createTransient() {
   
   if( compareClassGuid(p2_guid) ) {
     
-    std::auto_ptr< TrigMissingET_p2 > col_vect( poolReadObject< TrigMissingET_p2 >() );
+    std::unique_ptr< TrigMissingET_p2 > col_vect( poolReadObject< TrigMissingET_p2 >() );
     TrigMissingETCnv_p2 converter;
     return converter.createTransient( col_vect.get(), mlog );
 
   }
   else if( compareClassGuid(p1_guid) ) {
     
-    std::auto_ptr< TrigMissingET_p1 > col_vect( poolReadObject< TrigMissingET_p1 >() );
+    std::unique_ptr< TrigMissingET_p1 > col_vect( poolReadObject< TrigMissingET_p1 >() );
     TrigMissingETCnv_p1 converter;
     return converter.createTransient( col_vect.get(), mlog );
 

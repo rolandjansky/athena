@@ -48,7 +48,7 @@ IsoMuonFeature *IsoMuonFeatureCnv::createTransient()
   static pool::Guid p0_guid("60ECF1E1-408A-43CA-9858-62AAFE8041FF");
 
   if( compareClassGuid( p1_guid ) ) {
-    std::auto_ptr< IsoMuonFeature_tlp1 >   ptr_tlp1( this->poolReadObject< IsoMuonFeature_tlp1 >() );
+    std::unique_ptr< IsoMuonFeature_tlp1 >   ptr_tlp1( this->poolReadObject< IsoMuonFeature_tlp1 >() );
     transObj = m_TPConverter->createTransient( ptr_tlp1.get(), mlog );
   }
   else if( compareClassGuid(p0_guid) ) {

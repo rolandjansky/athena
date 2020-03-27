@@ -43,7 +43,7 @@ TrigMonEvent* TrigMonEventCnv::createTransient()
   if( compareClassGuid(p1_guid) ) {
     
     (*m_log) << MSG::DEBUG << "TrigMonEventCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigMonEvent_p1 >   col_vect( this->poolReadObject< TrigMonEvent_p1 >());
+    std::unique_ptr< TrigMonEvent_p1 >   col_vect( this->poolReadObject< TrigMonEvent_p1 >());
     trans_obj = m_TPConverter->createTransient( col_vect.get(), *m_log);
   } 
   else {    

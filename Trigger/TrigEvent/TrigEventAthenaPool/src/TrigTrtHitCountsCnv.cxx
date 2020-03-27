@@ -29,7 +29,7 @@ TrigTrtHitCounts* TrigTrtHitCountsCnv::createTransient() {
 
   if( compareClassGuid(p1_guid) ) {   
     mlog << MSG::DEBUG << "TrigTrtHitCountsCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigTrtHitCounts_p1 > pers_ptr( poolReadObject< TrigTrtHitCounts_p1 >() );
+    std::unique_ptr< TrigTrtHitCounts_p1 > pers_ptr( poolReadObject< TrigTrtHitCounts_p1 >() );
     TrigTrtHitCountsCnv_p1 converter;
     transObj = converter.createTransient(pers_ptr.get(), mlog);
   }

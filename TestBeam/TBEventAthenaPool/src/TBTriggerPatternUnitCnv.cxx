@@ -17,7 +17,7 @@ TBTriggerPatternUnit* TBTriggerPatternUnitCnv::createTransient() {
    static pool::Guid   p0_guid("0B82A5B3-0808-4B78-B47B-BFE9388EEEEB");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
       // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr< TBTriggerPatternUnit_p1 > col_vect( poolReadObject< TBTriggerPatternUnit_p1 >() );
+      std::unique_ptr< TBTriggerPatternUnit_p1 > col_vect( poolReadObject< TBTriggerPatternUnit_p1 >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
    }
    else if( compareClassGuid(p0_guid) ) {

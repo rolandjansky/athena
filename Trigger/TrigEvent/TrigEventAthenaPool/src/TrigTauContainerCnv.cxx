@@ -33,11 +33,11 @@ TrigTauContainer * TrigTauContainerCnv::createTransient()
   static pool::Guid tlp1_guid( "1551CECC-52C7-4B5B-876C-27005A8DCCC8" );
 
  if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< TrigTauContainer_p3 > col_vect( poolReadObject< TrigTauContainer_p3 >() );
+         std::unique_ptr< TrigTauContainer_p3 > col_vect( poolReadObject< TrigTauContainer_p3 >() );
          //         std::cout << "Reading IMFC p3" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( tlp1_guid ) ) {
-        std::auto_ptr< TrigTauContainer_tlp1 > col_vect( poolReadObject< TrigTauContainer_tlp1 >() );
+        std::unique_ptr< TrigTauContainer_tlp1 > col_vect( poolReadObject< TrigTauContainer_tlp1 >() );
         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else { throw std::runtime_error( "Unsupported persistent version of TrigTauContainer" ); }
    

@@ -38,19 +38,19 @@ TrigT2MbtsBitsContainer* TrigT2MbtsBitsContainerCnv::createTransient()
 
  if( compareClassGuid( p3_guid ) ){
 
-         std::auto_ptr< TrigT2MbtsBitsContainer_p3 > col_vect( poolReadObject< TrigT2MbtsBitsContainer_p3 >() );
+         std::unique_ptr< TrigT2MbtsBitsContainer_p3 > col_vect( poolReadObject< TrigT2MbtsBitsContainer_p3 >() );
          //         std::cout << "Reading IMFC p3" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
 
   } else if(compareClassGuid(tlp1_guid)) {
 
-         std::auto_ptr< TrigT2MbtsBitsContainer_tlp1 > col_vect( poolReadObject< TrigT2MbtsBitsContainer_tlp1 >() );
+         std::unique_ptr< TrigT2MbtsBitsContainer_tlp1 > col_vect( poolReadObject< TrigT2MbtsBitsContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
          return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
 
   } else if(compareClassGuid(p1_guid)) {
 
-         std::auto_ptr< TrigT2MbtsBitsContainer_p1 > col_vect( poolReadObject< TrigT2MbtsBitsContainer_p1 >() );
+         std::unique_ptr< TrigT2MbtsBitsContainer_p1 > col_vect( poolReadObject< TrigT2MbtsBitsContainer_p1 >() );
          return TP1Converter.createTransient( col_vect.get(), mlog );
 
   } else if(compareClassGuid(trans_guid)) {

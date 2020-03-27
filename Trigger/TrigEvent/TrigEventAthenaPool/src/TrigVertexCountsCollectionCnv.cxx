@@ -49,7 +49,7 @@ TrigVertexCountsCollection* TrigVertexCountsCollectionCnv::createTransient()
     p_container = m_TPConverter->createTransient(mlog);
   }
   else if(compareClassGuid(p1_guid)) {
-     std::auto_ptr< TrigVertexCountsCollection_p1 > col_vect( poolReadObject< TrigVertexCountsCollection_p1 >() );
+     std::unique_ptr< TrigVertexCountsCollection_p1 > col_vect( poolReadObject< TrigVertexCountsCollection_p1 >() );
      TrigVertexCountsCollectionCnv_p1 converter;
      p_container = converter.createTransient( col_vect.get(), mlog );
   }

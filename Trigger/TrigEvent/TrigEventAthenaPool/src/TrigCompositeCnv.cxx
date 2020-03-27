@@ -44,7 +44,7 @@ TrigComposite* TrigCompositeCnv::createTransient()
   if( compareClassGuid(p1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigCompositeCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigComposite_p1 >   col_vect( this->poolReadObject< TrigComposite_p1 >() );
+    std::unique_ptr< TrigComposite_p1 >   col_vect( this->poolReadObject< TrigComposite_p1 >() );
     trans_cont = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
 
   } else {

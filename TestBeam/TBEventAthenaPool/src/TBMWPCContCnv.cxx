@@ -17,7 +17,7 @@ TBMWPCCont* TBMWPCContCnv::createTransient() {
    static pool::Guid   p0_guid("05F6DFD7-EB63-49DB-AA5B-F03BE66365AC");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
       // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr< TBMWPCCont_p1 > col_vect( poolReadObject< TBMWPCCont_p1 >() );
+      std::unique_ptr< TBMWPCCont_p1 > col_vect( poolReadObject< TBMWPCCont_p1 >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
    }
    else if( compareClassGuid(p0_guid) ) {

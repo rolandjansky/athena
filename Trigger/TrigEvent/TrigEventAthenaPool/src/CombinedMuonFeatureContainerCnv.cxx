@@ -48,24 +48,24 @@ CombinedMuonFeatureContainer * CombinedMuonFeatureContainerCnv::createTransient(
   
   //CombinedMuonFeatureContainer *p_collection = 0;
   if( compareClassGuid( p4_guid ) ){
-         std::auto_ptr< CombinedMuonFeatureContainer_p4 > col_vect( poolReadObject< CombinedMuonFeatureContainer_p4 >() );
+         std::unique_ptr< CombinedMuonFeatureContainer_p4 > col_vect( poolReadObject< CombinedMuonFeatureContainer_p4 >() );
 	 //         std::cout << "Reading CMFC p2" << std::endl;
          return TPconverter.createTransient( col_vect.get(), mlog ) ;
 
   }else if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< CombinedMuonFeatureContainer_p3 > col_vect( poolReadObject< CombinedMuonFeatureContainer_p3 >() );
+         std::unique_ptr< CombinedMuonFeatureContainer_p3 > col_vect( poolReadObject< CombinedMuonFeatureContainer_p3 >() );
 	 //         std::cout << "Reading CMFC p2" << std::endl;
          return TPconverter3.createTransient( col_vect.get(), mlog ) ;
 
   }else if( compareClassGuid( p2_guid ) )
     {
-         std::auto_ptr< CombinedMuonFeatureContainer_p2 > col_vect( poolReadObject< CombinedMuonFeatureContainer_p2 >() );
+         std::unique_ptr< CombinedMuonFeatureContainer_p2 > col_vect( poolReadObject< CombinedMuonFeatureContainer_p2 >() );
 	 //         std::cout << "Reading CMFC p2" << std::endl;
          return TPconverter2.createTransient( col_vect.get(), mlog ) ;
 
   }else if( compareClassGuid( tlp1_guid ) )     
     {
-         std::auto_ptr< CombinedMuonFeatureContainer_tlp1 > col_vect( poolReadObject< CombinedMuonFeatureContainer_tlp1 >() );
+         std::unique_ptr< CombinedMuonFeatureContainer_tlp1 > col_vect( poolReadObject< CombinedMuonFeatureContainer_tlp1 >() );
 	 //  std::cout << "Reading CMFC tlp1" << std::endl;
          return TLPconverter1.createTransient( col_vect.get(), mlog );
       

@@ -33,14 +33,14 @@ MuonFeature* MuonFeatureCnv::createTransient() {
 
     if( compareClassGuid(p1_guid) ) {
 
-      std::auto_ptr< MuonFeature_p1 > col_vect( poolReadObject< MuonFeature_p1 >() );
+      std::unique_ptr< MuonFeature_p1 > col_vect( poolReadObject< MuonFeature_p1 >() );
       MuonFeatureCnv_p1 converter;
       return converter.createTransient( col_vect.get(), mlog );
 
     }
     else if( compareClassGuid(p2_guid) ) {
 
-      std::auto_ptr< MuonFeature_p2 > col_vect( poolReadObject< MuonFeature_p2 >() );
+      std::unique_ptr< MuonFeature_p2 > col_vect( poolReadObject< MuonFeature_p2 >() );
       MuonFeatureCnv_p2 converter;
       return converter.createTransient( col_vect.get(), mlog );
 

@@ -50,7 +50,7 @@ TrigHisto1DContainer* TrigHisto1DContainerCnv::createTransient()
     p_container = m_TPConverter->createTransient(mlog);
   }
   else if(compareClassGuid(p1_guid)) {
-     std::auto_ptr< TrigHisto1DContainer_p1 > col_vect( poolReadObject< TrigHisto1DContainer_p1 >() );
+     std::unique_ptr< TrigHisto1DContainer_p1 > col_vect( poolReadObject< TrigHisto1DContainer_p1 >() );
      TrigHisto1DContainerCnv_p1 converter;
      p_container = converter.createTransient( col_vect.get(), mlog );
   }

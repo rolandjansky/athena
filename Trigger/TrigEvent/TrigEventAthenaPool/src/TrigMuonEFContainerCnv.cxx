@@ -38,12 +38,12 @@ TrigMuonEFContainer * TrigMuonEFContainerCnv::createTransient()
   static pool::Guid p0_guid( "BB866230-C9D8-437A-A11B-A0CC08ACD97B" );
   
   if( compareClassGuid( p2_guid ) ){
-         std::auto_ptr< TrigMuonEFContainer_p2 > col_vect( poolReadObject< TrigMuonEFContainer_p2 >() );
+         std::unique_ptr< TrigMuonEFContainer_p2 > col_vect( poolReadObject< TrigMuonEFContainer_p2 >() );
          //         std::cout << "Reading IMFC p2" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
 
   } else if( compareClassGuid( p1_guid ) ) {
-         std::auto_ptr< TrigMuonEFContainer_tlp1 > col_vect( poolReadObject< TrigMuonEFContainer_tlp1 >() );
+         std::unique_ptr< TrigMuonEFContainer_tlp1 > col_vect( poolReadObject< TrigMuonEFContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
          return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
       
