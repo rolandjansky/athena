@@ -31,6 +31,7 @@ class Scheduler(object):
         "quark colour fixer",
         "PHOTOS", "reweighter",
         "NNLO reweighter",
+        "LHE file nominal weight updater",
         "MadSpin",
         "integration grid tester",
         "cross section calculator",
@@ -69,6 +70,7 @@ class Scheduler(object):
         "reweighter": partial(postprocessors.reweighter, powheg_LHE_output=powheg_LHE_output),
         "quark colour fixer": partial(postprocessors.quark_colour_fixer, powheg_LHE_output=powheg_LHE_output),
         "LHE file cleaner": partial(postprocessors.lhe_cleaner, powheg_LHE_output=powheg_LHE_output),
+        "LHE file nominal weight updater": partial(postprocessors.lhe_nominal_weight_updater, powheg_LHE_output=powheg_LHE_output),
     }
 
     def __init__(self):
