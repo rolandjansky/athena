@@ -3,11 +3,11 @@
 from __future__ import print_function
 
 from MuonCalibStandAloneExtraTools.MuonCalibStandAloneExtraToolsConfig import *
-print ( "NoRecalibration=", NoRecalibration)
+print ("NoRecalibration=", NoRecalibration)
 from CalibNtupleAnalysisAlg.CalibNtupleAnalysisConfig import *
-print ( "NoRecalibration=", NoRecalibration)
+print ("NoRecalibration=", NoRecalibration)
 from MuonCalibStandAloneExtraTools.MuonCalibStandAloneExtraToolsConf import *
-print ( "NoRecalibration=", NoRecalibration)
+print ("NoRecalibration=", NoRecalibration)
 #ToolSvc = Service( "ToolSvc" )
 
 
