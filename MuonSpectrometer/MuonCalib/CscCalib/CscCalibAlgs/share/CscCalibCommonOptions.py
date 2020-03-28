@@ -62,13 +62,13 @@ from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
 MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "MuonCscRawDataProviderTool",
                                                            Decoder = CscRodDecoder)
 ToolSvc += MuonCscRawDataProviderTool
-printfunc (     MuonCscRawDataProviderTool)
+printfunc (MuonCscRawDataProviderTool)
 
 # load the CscRawDataProvider
 from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
 topSequence += Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
                                     ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
-printfunc (         topSequence.MuonCscRawDataProvider)
+printfunc (topSequence.MuonCscRawDataProvider)
 
 
 #from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder

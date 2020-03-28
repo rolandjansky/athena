@@ -87,13 +87,13 @@ from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
 MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "MuonCscRawDataProviderTool",
     Decoder = CscRodDecoder)
 ToolSvc += MuonCscRawDataProviderTool
-printfunc (     MuonCscRawDataProviderTool)
+printfunc (MuonCscRawDataProviderTool)
 
 # --- RawData Provider
 from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
 topSequence += Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
     ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
-printfunc (         topSequence.MuonCscRawDataProvider)
+printfunc (topSequence.MuonCscRawDataProvider)
 
 # --- BS Converter 
 theApp.Dlls   += [ "ByteStreamCnvSvc", "ByteStreamCnvSvcBase"]

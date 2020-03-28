@@ -402,7 +402,7 @@ if(oldLs != currentLs):
 
           runCalib(calType, runNumber, outputDirFull, castorCopyCmd)
 
-          print(('Launched job, but will continue to check if we have more runs to run on later'))
+          print('Launched job, but will continue to check if we have more runs to run on later')
           runningDir = DirName
           updateRunList = False
           continue
