@@ -43,8 +43,8 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
       if "COMP200" in inputFlags.IOVDb.DatabaseInstance:
          isCOMP200=True
     else:      
-      from AthenaCommon.GlobalFlags import  globalflags
-      if "COMP200"  == globalflags.DatabaseInstance:
+      from IOVDbSvc.CondDB import conddb
+      if conddb.GetInstance() == 'COMP200':
          isCOMP200=True
 
     if not isCOMP200:
@@ -63,13 +63,16 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
        iovDbSvc.Folders.append(fld+dbString)
        condLoader.Load.append((persClass,fld))
-       larFEBMonAlg.keyDSPThresholds=fld
+       larFEBMonAlg.Run2DSPThresholdsKey = fld
     else:
        fld='/LAR/Configuration/DSPThreshold/Thresholds'
        db='LAR_ONL'
        obj='LArDSPThresholdsComplete'
-       helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
-       larFEBMonAlg.keyDSPThresholds="LArDSPThresholds"
+       if Configurable.configurableRun3Behavior:
+           helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
+       else:
+           conddb.addFolder (db, fld, className=obj)
+       larFEBMonAlg.Run1DSPThresholdsKey = 'LArDSPThresholds'
 
     # adding LArFebErrorSummary algo
     from AthenaCommon.Configurable import Configurable
