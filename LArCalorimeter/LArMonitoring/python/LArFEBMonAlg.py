@@ -178,7 +178,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   title='# of cells with samples readout:Number of cells:Number of events',
                                   type='TH1I',
                                   path=summary_hist_path,
-                                  xbins=lArDQGlobals.N_Cells/10, xmin=-1000, xmax=lArDQGlobals.N_Cells-1000)
+                                  xbins=int(lArDQGlobals.N_Cells/10), xmin=-1000, xmax=lArDQGlobals.N_Cells-1000)
     Group.defineHistogram('LB,LArEvSize;eventSizeVsLB', 
                                   title='LAr event size (w/o ROS headers):Luminosity Block:Megabytes',
                                   type='TProfile',
@@ -435,7 +435,7 @@ if __name__=='__main__':
    cfg.printConfig()
 
    ConfigFlags.dump()
-   f=open("LArFEBMon.pkl","w")
+   f=open("LArFEBMon.pkl","wb")
    cfg.store(f)
    f.close()
 
