@@ -138,6 +138,7 @@ if __name__=='__main__':
     ConfigFlags.DQ.enableLumiAccess = False
 
     ConfigFlags.Tile.RunType = 'LAS'
+    ConfigFlags.Tile.TimingType = 'GAP/LAS'
     ConfigFlags.Tile.doFit = True
     ConfigFlags.Tile.correctTime = True
     ConfigFlags.Tile.doOverflowFit = False
