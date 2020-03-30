@@ -21,5 +21,5 @@ template <class T> void set_signal_process_vertex(const GenEvent* e, T v) {
     e->set_signal_process_vertex(v);
 }
 }
-#include "HepMCI/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 #endif
