@@ -33,9 +33,8 @@ private:
 
     Gaudi::Property<float> m_etaMin {this, "etaMin", -1.};
     Gaudi::Property<float> m_etaMax {this, "etaMax", 3.0};
+
     Gaudi::Property<std::string> m_kinGroupName {this, "kinGroupName", "tauMonKinGroupBA"};
-
-
 
 };
 #endif
