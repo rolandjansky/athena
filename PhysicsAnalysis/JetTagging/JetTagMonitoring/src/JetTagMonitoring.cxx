@@ -599,6 +599,7 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
   m_runNumber = thisEventInfo->runNumber();
 
+ // r21 MV2c10 Working Points (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarksRelease21) for 2018 data
   if(m_runNumber > 343000)
     {
       m_mv_60_weight_cut=0.94;
