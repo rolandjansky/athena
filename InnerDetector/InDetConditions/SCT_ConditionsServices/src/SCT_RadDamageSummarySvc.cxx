@@ -246,6 +246,25 @@ double SCT_RadDamageSummarySvc::HoleDriftMobility(const IdentifierHash & element
   
   return k;
 }
+
+
+// -- electron drift mobility
+double SCT_RadDamageSummarySvc::ElectronDriftMobility(const IdentifierHash & elementHash, const double & zpos){
+  
+  double k = 0.0;
+  if (!m_useTrapping){
+    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
+  }
+  else{
+    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+    k = m_chargeTrappingSvc->getElectronDriftMobility(elementHash, zpos);
+  }
+  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
+  
+  return k;
+}
+
+
 //------------------------------------------------
 // -- Ramo Potential
 //-----------------------------------------------
@@ -277,6 +296,22 @@ void SCT_RadDamageSummarySvc::HoleTransport(double & x0, double & y0, double & x
   
   return;
 }
+
+
+void SCT_RadDamageSummarySvc::ElectronTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const{  
+    
+  if (!m_useTrapping){
+    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
+  }
+  else{
+    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+    m_chargeTrappingSvc->getElectronTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2 );
+  }
+  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
+  
+  return;
+}
+
 
 
 ////
