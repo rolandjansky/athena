@@ -39,11 +39,11 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doLowPtLargeD0",False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
   icf.addFlag("InDet.doLargeD0",False)
   icf.addFlag("InDet.useExistingTracksAsInput",False) # Use already processed Track from a (D)ESD input file. This flag is related with ProcessedESDTracks InDetKey 
-  icf.addFlag("InDet.cutLevel",True) # Control cuts and settings for different lumi to limit CPU and disk space 
-  icf.addFlag("InDet.priVtxCutLevel",False) # Control vertexing cuts and settings for different lumi to limit CPU and disk space 
+  icf.addFlag("InDet.cutLevel",14) #1-16 Control cuts and settings for different lumi to limit CPU and disk space 
+  icf.addFlag("InDet.priVtxCutLevel",3) # #1 #2 Control vertexing cuts and settings for different lumi to limit CPU and disk space 
   icf.addFlag("InDet.doBremRecovery",False) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.doCaloSeededBrem",False) # Brem Recover in tracking restricted to Calo ROIs
-  icf.addFlag("InDet.doHadCaloSeededSSS",14) # Use Recover SSS to Calo ROIs
+  icf.addFlag("InDet.doHadCaloSeededSSS",False) # Use Recover SSS to Calo ROIs
   icf.addFlag("InDet.doCaloSeededAmbi",True) # Use Calo ROIs to seed specific cuts for the ambi
   icf.addFlag("InDet.doCaloSeededRefit",True) # Use Calo ROIs to seed refif for the ambi processor
   icf.addFlag("InDet.doBeamGas",False) # Turn running of BeamGas second pass on and off
@@ -68,16 +68,16 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doPerfMon",False) # Use to turn on PerfMon 
   icf.addFlag("InDet.AODall",False) 
   icf.addFlag("InDet.useBeamConstraint", False) # use beam spot service in new tracking 
-  icf.addFlag("InDet.kalmanUpdator",True) # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg") 
-  icf.addFlag("InDet.magField",'smatrix') # control which field tool to use ("None"/"fast") 
-  icf.addFlag("InDet.propagatorType",'None') # control which propagator to use ('RungeKutta'/'STEP') 
-  icf.addFlag("InDet.trackFitterType",'RungeKutta') # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter' 
-  icf.addFlag("InDet.doHolesOnTrack",'GlobalChi2Fitter') # do holes search from now on in summry tool 
-  icf.addFlag("InDet.useZvertexTool",True) # start with Zvertex finding 
+  icf.addFlag("InDet.kalmanUpdator",'smatrix') # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg") 
+  icf.addFlag("InDet.magField",'None') # control which field tool to use ("None"/"fast") 
+  icf.addFlag("InDet.propagatorType",'RungeKutta') # control which propagator to use ('RungeKutta'/'STEP') 
+  icf.addFlag("InDet.trackFitterType",'GlobalChi2Fitter') # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter' 
+  icf.addFlag("InDet.doHolesOnTrack",True) # do holes search from now on in summry tool 
+  icf.addFlag("InDet.useZvertexTool",False) # start with Zvertex finding 
   icf.addFlag("InDet.doSiSPSeededTrackFinder",False) # use track finding in silicon 
-  icf.addFlag("InDet.doTRTExtensionNew",False) # turn on / off TRT extensions 
-  icf.addFlag("InDet.trtExtensionType",True) # which extension type ("xk"/"DAF") 
-  icf.addFlag("InDet.redoTRT_LR",'xk') # use smart TRT LR/tube hit creator and redo ROTs 
+  icf.addFlag("InDet.doTRTExtensionNew",True) # turn on / off TRT extensions 
+  icf.addFlag("InDet.trtExtensionType",'xk') # which extension type ("xk"/"DAF") 
+  icf.addFlag("InDet.redoTRT_LR",True) # use smart TRT LR/tube hit creator and redo ROTs 
   icf.addFlag("InDet.doTrtSegments",True) # control to run TRT Segment finding (do it always after new tracking!) 
   icf.addFlag("InDet.doTRTPhaseCalculation",False ) # control to run TRT phase calculation 
   icf.addFlag("InDet.doTRTSeededTrackFinder",True) # control running the back tracking 
@@ -90,18 +90,18 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doSlimPoolTrack",True) # Slimming at converter level rather than creating a slim track collections; requires slimming to be on. 
   icf.addFlag("InDet.doWriteTracksToESD",True) # turn track slimming on/off 
   icf.addFlag("InDet.doVertexFinding",True) # Turn on the primary vertex reconstruction 
-  icf.addFlag("InDet.primaryVertexSetup",True) # string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' 'GaussIterativeFinding' 'GaussAdaptiveMultiFinding' 
-  icf.addFlag("InDet.primaryVertexCutSetup",'IterativeFinding') # string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'SLHC' 'HeavyIon' 
-  icf.addFlag("InDet.vertexSeedFinder",'Offline') # string to store the type of seed finder, possible types: 'SlidingWindowMultiSeedFinder', 'HistogrammingMultiSeedFinder', 'DivisiveMultiSeedFinder' 
-  icf.addFlag("InDet.primaryVertexSortingSetup",3 ) # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'NoReSorting','SumPt2Sorting','VxProbSorting','NNSorting' 
-  icf.addFlag("InDet.doPrimaryVertex3DFinding",'SlidingWindowMultiSeedFinder') # Control if to use 3d seeding for primary vertex finding (useful in case of poor / no knowledge of the beam spot. Will be set to false automatically if beam constraint ON, otherwise true
-  icf.addFlag("InDet.doVertexFindingForMonitoring",'SumPt2Sorting') # Turn on the primary vertex reconstruction needed to run the enhanced vertex monitoring, this runs the iterative PV with no beam constraint 
-  icf.addFlag("InDet.doSplitVertexFindingForMonitoring",True) # will be set to false automatically if beam constraint ON, otherwise true. Turn on the primary vertex reconstruction needed to run the enhanced vertex monitoring, this runs iterative PV in split mode 
-  icf.addFlag("InDet.perigeeExpression",False) # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex) 
-  icf.addFlag("InDet.secondaryVertexCutSetup",False) # string to store the type of cuts to be used in PV reconstruction: 'StartUp', 'PileUp' 
-  icf.addFlag("InDet.conversionVertexCutSetup",'BeamLine' ) # string to store the type of cuts to be used in conversion reconstruction: 'ConversionStartUp', 'ConversionPileUp' 
-  icf.addFlag("InDet.doSharedHits",'PileUp') # control if the shared hits are recorded in TrackPatricles 
-  icf.addFlag("InDet.doV0Finder",'ConversionPileUp') # switch on/off V0 finder 
+  icf.addFlag("InDet.primaryVertexSetup",'IterativeFinding') # string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' 'GaussIterativeFinding' 'GaussAdaptiveMultiFinding' 
+  icf.addFlag("InDet.primaryVertexCutSetup",'Offline') # string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'SLHC' 'HeavyIon' 
+  icf.addFlag("InDet.vertexSeedFinder",'SlidingWindowMultiSeedFinder') # string to store the type of seed finder, possible types: 'SlidingWindowMultiSeedFinder', 'HistogrammingMultiSeedFinder', 'DivisiveMultiSeedFinder' 
+  icf.addFlag("InDet.primaryVertexSortingSetup",'SumPt2Sorting' ) # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'NoReSorting','SumPt2Sorting','VxProbSorting','NNSorting' 
+  icf.addFlag("InDet.doPrimaryVertex3DFinding",True) # Control if to use 3d seeding for primary vertex finding (useful in case of poor / no knowledge of the beam spot. Will be set to false automatically if beam constraint ON, otherwise true
+  icf.addFlag("InDet.doVertexFindingForMonitoring",False) # Turn on the primary vertex reconstruction needed to run the enhanced vertex monitoring, this runs the iterative PV with no beam constraint 
+  icf.addFlag("InDet.doSplitVertexFindingForMonitoring",False) # will be set to false automatically if beam constraint ON, otherwise true. Turn on the primary vertex reconstruction needed to run the enhanced vertex monitoring, this runs iterative PV in split mode 
+  icf.addFlag("InDet.perigeeExpression",'BeamLine') # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex) 
+  icf.addFlag("InDet.secondaryVertexCutSetup",'PileUp') # string to store the type of cuts to be used in PV reconstruction: 'StartUp', 'PileUp' 
+  icf.addFlag("InDet.conversionVertexCutSetup",'ConversionPileUp' ) # string to store the type of cuts to be used in conversion reconstruction: 'ConversionStartUp', 'ConversionPileUp' 
+  icf.addFlag("InDet.doSharedHits",True) # control if the shared hits are recorded in TrackPatricles 
+  icf.addFlag("InDet.doV0Finder",False) # switch on/off V0 finder 
   icf.addFlag("InDet.doSimpleV0Finder",True) # switch on/off simple V0 finder 
   icf.addFlag("InDet.useV0Fitter",False) # use V0 Fitter (alternative is VKalVrt) 
   icf.addFlag("InDet.doSecVertexFinder",False) # switch on/off conversion finder fitting V0s 
@@ -109,10 +109,10 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doStatistics",False)
   icf.addFlag("InDet.doStandardPlots",False) # Use to turn on creating the Standard Plots of tracking performance 
   icf.addFlag("InDet.doPhysValMon",True) # Use to turn on Physics Validation Monitoring 
-  icf.addFlag("InDet.materialInteractions",False) 
-  icf.addFlag("InDet.materialInteractionsType", False) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
-  icf.addFlag("InDet.doSctClusterNtuple",True)
-  icf.addFlag("InDet.doTrkNtuple",3)
+  icf.addFlag("InDet.materialInteractions",True) 
+  icf.addFlag("InDet.materialInteractionsType", 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
+  icf.addFlag("InDet.doSctClusterNtuple",False)
+  icf.addFlag("InDet.doTrkNtuple",False)
   icf.addFlag("InDet.doPixelTrkNtuple",False)
   icf.addFlag("InDet.doSctTrkNtuple",False)
   icf.addFlag("InDet.doTrtTrkNtuple",False)
@@ -141,16 +141,16 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.useHVForSctDCS",False) # Temporary switch for using 20V HV limit for SCT DCS 
   icf.addFlag("InDet.disableTracking",True) # Disable all tracking algorithms 
   icf.addFlag("InDet.disableInDetReco",False) # Disable all ID reconstruction: pre-processing,tracking, post-processing etc. Still does the configuration: job porperties, cuts, loaign of tools and conditions
-  icf.addFlag("InDet.doPixelClusterSplitting",False) # Try to split pixel clusters 
-  icf.addFlag("InDet.pixelClusterSplittingType",False) # choose splitter type: NeuralNet or AnalogClus
-  icf.addFlag("InDet.pixelClusterSplitProb1",True) # Cut value for splitting clusters into two parts 
-  icf.addFlag("InDet.pixelClusterSplitProb2",'NeuralNet') # Cut value for splitting clusters into three parts 
-  icf.addFlag("InDet.pixelClusterSplitProb1_run1",0.6) # Cut value for splitting clusters into two parts 
-  icf.addFlag("InDet.pixelClusterSplitProb2_run1",0.2) # Cut value for splitting clusters into three parts 
-  icf.addFlag("InDet.pixelClusterSplitMinPt",0.5) # Min pt for tracks to try and split hits 
-  icf.addFlag("InDet.pixelClusterBadClusterID",0.5) # Select the mode to identify suspicous pixel clusteri 
-  icf.addFlag("InDet.useBroadClusterErrors",1000) # Use broad cluster errors for Pixel/SCT 
-  icf.addFlag("InDet.useBroadPixClusterErrors",3) # Use broad cluster errors for Pixel
+  icf.addFlag("InDet.doPixelClusterSplitting",True) # Try to split pixel clusters 
+  icf.addFlag("InDet.pixelClusterSplittingType",'NeuralNet') # choose splitter type: NeuralNet or AnalogClus
+  icf.addFlag("InDet.pixelClusterSplitProb1",0.6) # Cut value for splitting clusters into two parts 
+  icf.addFlag("InDet.pixelClusterSplitProb2",0.2) # Cut value for splitting clusters into three parts 
+  icf.addFlag("InDet.pixelClusterSplitProb1_run1",0.5) # Cut value for splitting clusters into two parts 
+  icf.addFlag("InDet.pixelClusterSplitProb2_run1",0.5) # Cut value for splitting clusters into three parts 
+  icf.addFlag("InDet.pixelClusterSplitMinPt",1000) # Min pt for tracks to try and split hits 
+  icf.addFlag("InDet.pixelClusterBadClusterID",3) # Select the mode to identify suspicous pixel clusteri 
+  icf.addFlag("InDet.useBroadClusterErrors",False) # Use broad cluster errors for Pixel/SCT 
+  icf.addFlag("InDet.useBroadPixClusterErrors",False) # Use broad cluster errors for Pixel
   icf.addFlag("InDet.useBroadSCTClusterErrors",False) # Use broad cluster errors for SCT
   icf.addFlag("InDet.writeRDOs",False) # Write RDOs into ESD 
   icf.addFlag("InDet.writePRDs",False) # Write PRDs into ESD 
@@ -168,9 +168,9 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doRejectInvalidCov",True) # Reject all tracks which have a non positive definite covariance matrix after the refit.
   icf.addFlag("InDet.doTIDE_RescalePixelCovariances",False) # Switch for running TIDE pixel cluster covariance rescaling 
   icf.addFlag("InDet.doSSSfilter",False) # Switch for running SSS filter
-  icf.addFlag("InDet.pT_SSScut",False) # Pt cut for SSS filter [GeV]
+  icf.addFlag("InDet.pT_SSScut",-1) # Pt cut for SSS filter [GeV]
   icf.addFlag("InDet.ForceCoraCool",True) # Use old (non CoolVectorPayload) SCT Conditions 
-  icf.addFlag("InDet.ForceCoolVectorPayload",-1) # Use new (CoolVectorPayload) SCT Conditions 
+  icf.addFlag("InDet.ForceCoolVectorPayload",False) # Use new (CoolVectorPayload) SCT Conditions 
   icf.addFlag("InDet.doTrackSegmentsDisappearing",False) # Turn running of track segment creation in pixel after NewTracking, and with PRD association, on and off
   icf.addFlag("InDet.doSLHCVeryForward",False) # Turn running of SLHC reconstruction for Very Forward extension on and off 
   icf.addFlag("InDet.doTRTGlobalOccupancy",True) # Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation) 

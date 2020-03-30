@@ -12,7 +12,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "RoIsUnpackingToolBase.h"
 
 

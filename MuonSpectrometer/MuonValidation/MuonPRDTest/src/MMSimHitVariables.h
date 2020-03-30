@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMSIMHITVARIABLES_H
@@ -23,6 +23,7 @@ class MMSimHitVariables : public ValAlgVariables
     m_MmIdHelper(0),
     m_NSWMM_nSimHits(0), 
     m_NSWMM_trackId(0),
+    m_NSWMM_isInsideBounds(0),
     m_NSWMM_globalTime(0), 
     m_NSWMM_hitGlobalPositionX(0), 
     m_NSWMM_hitGlobalPositionY(0), 
@@ -89,6 +90,7 @@ class MMSimHitVariables : public ValAlgVariables
 
   int m_NSWMM_nSimHits;
   std::vector<int>    *m_NSWMM_trackId;
+  std::vector<bool>   *m_NSWMM_isInsideBounds;
   std::vector<double> *m_NSWMM_globalTime;
   std::vector<double> *m_NSWMM_hitGlobalPositionX;
   std::vector<double> *m_NSWMM_hitGlobalPositionY;

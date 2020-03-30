@@ -41,6 +41,8 @@ namespace Muon
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
+    bool m_useErrorParametrization;
+    
 };
 
 

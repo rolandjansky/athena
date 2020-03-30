@@ -12,18 +12,12 @@
 
 from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 
-def _makeRegSelTool( detector, enable, CondAlgConstructor, doCalo=False ) :
+def _makeRegSelTool( detector, enable, CondAlgConstructor ) :
                 
-    if doCalo == True:
-        from RegionSelector.RegionSelectorConf import RegSelCaloTool
-        maketool = RegSelCaloTool
-    else :
-        from RegionSelector.RegionSelectorConf import RegSelTool
-        maketool = RegSelTool
+    from RegionSelector.RegionSelectorConf import RegSelTool
 
-    tool = maketool(name="RegSelTool_"+detector)
- 
-   
+    tool = RegSelTool(name="RegSelTool_"+detector)
+    
     # should we enable the look up table access for this subsystem ?
 
     if ( enable ) :
@@ -135,29 +129,34 @@ def makeRegSelTool_sTGC() :
 # calorimeter 
 
 def makeRegSelTool_TTEM() :
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.Calo_on()
     from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
-    return _makeRegSelTool( "TTEM", enabled, RegSelCondAlg_LAr, True )
+    return _makeRegSelTool( "TTEM", enabled, RegSelCondAlg_LAr )
 
 def makeRegSelTool_TTHEC() :
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.Calo_on()
     from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
-    return _makeRegSelTool( "TTHEC", enabled, RegSelCondAlg_LAr, True )
+    return _makeRegSelTool( "TTHEC", enabled, RegSelCondAlg_LAr )
             
 def makeRegSelTool_FCALEM() :
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.Calo_on()
     from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
-    return _makeRegSelTool( "FCALEM", enabled, RegSelCondAlg_LAr, True )
+    return _makeRegSelTool( "FCALEM", enabled, RegSelCondAlg_LAr )
 
 def makeRegSelTool_FCALHAD() :
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.Calo_on()
     from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
-    return _makeRegSelTool( "FCALHAD", enabled, RegSelCondAlg_LAr, True )
+    return _makeRegSelTool( "FCALHAD", enabled, RegSelCondAlg_LAr )
+
+# tile calorimeter
+
+def makeRegSelTool_TILE() :
+    from AthenaCommon.DetFlags import DetFlags
+    enabled = DetFlags.detdescr.Calo_on()
+    from TileRawUtils.TileRawUtilsConf import RegSelCondAlg_Tile
+    return _makeRegSelTool( "TILE", enabled, RegSelCondAlg_Tile )
+

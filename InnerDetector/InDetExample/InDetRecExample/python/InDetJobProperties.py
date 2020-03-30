@@ -296,6 +296,12 @@ class doLargeD0(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue   = False
 
+class doR3LargeD0(InDetFlagsJobProperty):
+    """Turn running of doR3LargeD0 second pass on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class useExistingTracksAsInput(InDetFlagsJobProperty):
     """Use already processed Track from a (D)ESD input file.
     This flag is related with ProcessedESDTracks InDetKey """
@@ -629,8 +635,8 @@ class priVtxCutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3]
-    StoredValue  = 3 
+    allowedValues= [1,2,3,4]
+    StoredValue  = 4
 
 class vertexSeedFinder(InDetFlagsJobProperty):
     """ string to store the type of seed finder, possible types: 'SlidingWindowMultiSeedFinder', 'HistogrammingMultiSeedFinder', 'DivisiveMultiSeedFinder' """
@@ -1536,7 +1542,7 @@ class InDetJobProperties(JobPropertyContainer):
     elif self.doDVRetracking():
        print("----> InDetJobProperties for high-d0 tracks reconstruction")
        # see setDVRetracking method which overrides some of the flags
-       self.checkThenSet(self.doLargeD0               , True              )
+       self.checkThenSet(self.doR3LargeD0             , True              )
        self.checkThenSet(self.useExistingTracksAsInput, True              )
        self.checkThenSet(self.preProcessing           , True              )
        self.checkThenSet(self.doSpacePointFormation   , True              )
@@ -1546,7 +1552,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doVertexFinding         , False             )
        self.checkThenSet(self.primaryVertexSetup      , "IterativeFinding")
        self.checkThenSet(self.primaryVertexCutSetup   , "Offline"         )          
-       self.checkThenSet(self.priVtxCutLevel          , 3                 )   
+       self.checkThenSet(self.priVtxCutLevel          , 4                 )   
        # --- sec vertexing setup
        self.checkThenSet(self.secondaryVertexCutSetup , "PileUp"          ) 
        self.checkThenSet(self.conversionVertexCutSetup, "ConversionPileUp")
@@ -1715,6 +1721,7 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------      
       # no Large radius tracking if pixel or sct off (new tracking = inside out only)
       self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
+      self.doR3LargeD0 = self.doR3LargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       self.doLowPtLargeD0 = self.doLowPtLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       if self.doDVRetracking():
           self.setDVRetracking()
@@ -1748,7 +1755,7 @@ class InDetJobProperties(JobPropertyContainer):
       # new forward tracklets
       self.doForwardTracks = self.doForwardTracks() and self.doNewTracking()
       #
-      # no Large radius tracking if pixel or sct off (new tracking = inside out only)
+      # no Large radius tracking if pixel or sct off (new tracking = inside out only) # Matthias: This seems obsolete
       self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       # no BeamGas tracking if no new tracking before (but only if beamtype is not single beam!)      
       if (jobproperties.Beam.beamType()!="singlebeam"):
@@ -1761,7 +1768,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control whether to run SiSPSeededTrackFinder
       self.doSiSPSeededTrackFinder = (self.doNewTracking() or self.doNewTrackingSegments() or \
-                                      self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() ) \
+                                      self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() ) \
                                     and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())      
       # failsafe lines in case requirements are not met to run TRT standalone or back tracking
       self.doTRTStandalone         = self.doTRTStandalone() and DetFlags.haveRIO.TRT_on()
@@ -1948,7 +1955,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
     return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
-            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doLowPtLargeD0() ) \
+            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
   def loadRotCreator(self):
@@ -1972,7 +1979,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doNewTrackingPattern(self):
     return self.doNewTracking() or self.doBackTracking() or self.doBeamGas() \
            or self.doLowPt() or self.doVeryLowPt() or self.doTRTStandalone() \
-           or self.doForwardTracks() or self.doLargeD0() or self.doLowPtLargeD0()
+           or self.doForwardTracks() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()
 
   def doNewTrackingSegments(self):
     return self.doTrackSegmentsPixel() or self.doTrackSegmentsSCT() or self.doTrackSegmentsTRT()
@@ -1982,12 +1989,12 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0()) \
+    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()) \
              and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0()) \
+    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()) \
             and DetFlags.haveRIO.TRT_on()
  
   def solenoidOn(self):
@@ -2034,6 +2041,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.doVeryLowPt               = False  
        self.doForwardTracks           = False
        self.doLargeD0                 = False
+       self.doR3LargeD0               = False
        self.doLowPtLargeD0            = False
        self.doHadCaloSeededSSS        = False
 
@@ -2087,7 +2095,7 @@ class InDetJobProperties(JobPropertyContainer):
          return
 
      # [XXX JDC: Checked needed flags
-     self.doLargeD0                = True
+     self.doR3LargeD0                = True
      self.useExistingTracksAsInput = True
      self.doSpacePointFormation    = True  # Sure?? I think yes, to use the previously removed hits?
      #self.doSiSPSeededTrackFinder  = True
@@ -2111,7 +2119,7 @@ class InDetJobProperties(JobPropertyContainer):
      self.doVertexFinding         = False             
      self.primaryVertexSetup      = "IterativeFinding"
      self.primaryVertexCutSetup   = "Offline"                   
-     self.priVtxCutLevel          = 3                    
+     self.priVtxCutLevel          = 4                    
      # --- sec vertexing setup
      self.secondaryVertexCutSetup = "PileUp"           
      self.conversionVertexCutSetup= "ConversionPileUp"
@@ -2313,7 +2321,7 @@ class InDetJobProperties(JobPropertyContainer):
           standAloneTracking += 'TRT'
        print(standAloneTracking)
     # -----------------------------------------
-    if self.doLargeD0() or self.doLowPtLargeD0() :
+    if self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() :
        print('*')
        print('* LargeD0 Tracking is ON')
        if self.doSiSPSeededTrackFinder() :
@@ -2654,6 +2662,7 @@ _list_InDetJobProperties = [Enabled,
                             doForwardTracks,
                             doLowPtLargeD0,
                             doLargeD0,
+                            doR3LargeD0,
                             useExistingTracksAsInput,
                             cutLevel,
                             priVtxCutLevel,

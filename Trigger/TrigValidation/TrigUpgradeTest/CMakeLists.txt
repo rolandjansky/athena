@@ -10,13 +10,14 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           Control/AthenaBaseComps
                           Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils
                           Trigger/TrigEvent/TrigSteeringEvent
                           )
 
 atlas_add_component( TrigUpgradeTest
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps TrigSteeringEvent DecisionHandlingLib
+                     LINK_LIBRARIES AthenaBaseComps TrigSteeringEvent DecisionHandlingLib TrigCompositeUtilsLib
                      )
 
 # Install files from the package:

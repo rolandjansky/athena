@@ -9,13 +9,15 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 
+#include <atomic>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -33,25 +35,15 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   // First element of pair is minimum second is maximum.
   typedef std::pair<std::pair<double, double>, std::pair<double, double>> moduleGeo_t;
 
-  enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
-  enum ProblemForCoverage {
-    all, // All SCT module for counting good module
-    disabled, // Disabled
-    badLinkError, // BadLinkLevelError
-    badRODError, // BadRODLevelError
-    badError, // BadError = BadLinkLevelError + BadRODLevelError
-    psTripDCS, // Power supply trip using SCT_DCSConditionsSvc
-    summary, // Total coverage using SCT_ConditionsSummarySvc
-    numberOfProblemForCoverage
-  };
-  enum {NREGIONS_INC_GENERAL = SCT_Monitoring::N_REGIONS+1};
-
   static const unsigned int s_nBinsEta;
   static const double s_rangeEta;
   static const unsigned int s_nBinsPhi;
   static const double s_wafersThreshold;
 
   std::vector<moduleGeo_t> m_geo{};
+
+  mutable std::atomic_bool m_isFirstConfigurationDetails{true};
+  mutable std::mutex m_mutex{};
 
   BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   BooleanProperty m_coverageCheck{this, "CoverageCheck", true};
@@ -66,10 +58,12 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   const SCT_ID* m_pSCTHelper{nullptr};
 
   /// Used in fillHistograms()
+  StatusCode fillConfigurationDetails(const EventContext& ctx) const;
   StatusCode fillByteStreamErrors(const EventContext& ctx) const;
   /// Used in fillByteStreamErrors()
   int fillByteStreamErrorsHelper(const std::set<IdentifierHash>& errors,
-                                 int err_type) const;
+                                 int err_type,
+                                 std::array<int, SCT_Monitoring::CategoryErrors::N_ERRCATEGORY>& tot_mod_bytestreamCate_errs) const;
   void numByteStreamErrors(const std::set<IdentifierHash>& errors, int& ntot) const;
   bool disabledSCT(std::set<IdentifierHash>& sctHashDisabled) const;
   bool errorSCT(std::set<IdentifierHash>& sctHashBadLinkError,

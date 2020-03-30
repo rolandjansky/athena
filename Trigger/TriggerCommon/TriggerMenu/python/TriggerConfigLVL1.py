@@ -204,7 +204,7 @@ class TriggerConfigLVL1:
             menuName = TriggerFlags.triggerMenuSetup()
 
         menuName=TriggerConfigL1Topo.getMenuBaseName(menuName)
-        menumodule = __import__('TriggerMenu.l1menu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('TriggerMenu.l1menu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'])
         menumodule.defineMenu()
         log.info("menu %s contains %i items and %i thresholds" % ( menuName, len(Lvl1Flags.items()), len(Lvl1Flags.thresholds()) ) )
 
@@ -221,7 +221,7 @@ class TriggerConfigLVL1:
 
         run1 = Lvl1Flags.CTPVersion()<=3
 
-        itemdefmodule = __import__('TriggerMenu.l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
+        itemdefmodule = __import__('TriggerMenu.l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'])
 
         itemdefmodule.ItemDef.registerItems(self)
         log.info("registered %i items and %i thresholds (%s)" % ( len(self.registeredItems), len(self.registeredThresholds), ('Run 1' if run1 else 'Run 2') ) )

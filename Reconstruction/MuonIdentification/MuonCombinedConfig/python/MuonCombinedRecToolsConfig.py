@@ -195,7 +195,7 @@ def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
         extrapolator = acc.popPrivateTools()
         result.addPublicTool(extrapolator)
         kwargs.setdefault("TrackExtrapolationTool", extrapolator )
-    result.merge(acc)
+        result.merge(acc)
 
     acc = MuonAmbiProcessorCfg(flags)
     ambiguityprocessor = acc.popPrivateTools()
@@ -389,8 +389,8 @@ def MuidCaloTrackStateOnSurfaceParamCfg(flags, name='MuidCaloTrackStateOnSurface
     kwargs.setdefault("Propagator", CompFactory.Trk__RungeKuttaPropagator(name = 'AtlasRungeKuttaPropagator'))# FIXME - there should be a CA for this!
     kwargs.setdefault("MinRemainingEnergy" , 0.2*GeV )
     kwargs.setdefault("ParamPtCut"         , 3.0*GeV )
-    kwargs.setdefault("CaloEnergyDeposit"  , MuidCaloEnergyParam(flags) )
-    kwargs.setdefault("CaloEnergyParam"  ,   MuidCaloEnergyParam(flags) )
+    kwargs.setdefault("CaloEnergyDeposit"  , MuidCaloEnergyToolParam(flags) )
+    kwargs.setdefault("CaloEnergyParam"  ,   MuidCaloEnergyToolParam(flags) )
     tool = CompFactory.Rec__MuidCaloTrackStateOnSurface(name,**kwargs)
     result.setPrivateTools(tool)
     return result

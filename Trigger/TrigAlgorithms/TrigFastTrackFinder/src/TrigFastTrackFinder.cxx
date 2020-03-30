@@ -593,10 +593,6 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   m_trackMaker->endEvent(trackEventData);
   for(auto& seed : triplets) delete seed;
 
-  // Run3 monitoring ---------->
-  mnt_roi_nSeeds = m_nSeeds;
-  // <---------- Run3 monitoring
-
   //clone removal
   if(m_doCloneRemoval) {
     filterSharedTracks(qualityTracks);

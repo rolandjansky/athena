@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import getopt
 import CalibdDbDefaults
@@ -15,7 +17,7 @@ def printhelp(argv0):
 	
 theArgs=sys.argv[1:]
 
-for i in xrange(2):
+for i in range(2):
 	optlist, args = getopt.getopt(theArgs, 'hs:f:t:')
 	
 	for opt, oa in optlist:
@@ -51,11 +53,11 @@ if len(theArgs)!=1:
 	
 outfile_nm=theArgs[0]
 
-print cool_database_strings
-print cool_folders
-print cool_tags
-print run_numbers
-print outfile_nm
+print (cool_database_strings)
+print (cool_folders)
+print (cool_tags)
+print (run_numbers)
+print (outfile_nm)
 
 sys.argv=[sys.argv[0], '-b']
 
@@ -66,10 +68,10 @@ from MuonCalibDbOperations.ReadCool import *
 
 cool_t0s=[]
 
-for i in xrange(2):
+for i in range(2):
 	if not cool_tags[i]:
 		cool_tags[i] = GetFolderTag(cool_database_strings[i], cool_folders[i])
-	print "Cool database: " + cool_database_strings[i] + " " + cool_folders[i] + " " + cool_tags[i] + " " + str(run_numbers[i])
+	print ("Cool database: " + cool_database_strings[i] + " " + cool_folders[i] + " " + cool_tags[i] + " " + str(run_numbers[i]))
 	cool_t0s.append(ReadT0Cool(cool_database_strings[i], cool_folders[i], cool_tags[i], run_numbers[i]))
 
 
@@ -93,7 +95,7 @@ t0_min=[]
 t0_max=[]
 #validflag=[]
 #adc=[]
-for i in xrange(2):
+for i in range(2):
 	n_tubes.append(array('i', [0]))
 	tree.Branch("n_tubes_" + str(i), n_tubes[-1], "n_tubes_" + str(i) + "/I")
 	t0.append(array('f', 432*[0.0]))
@@ -111,7 +113,7 @@ for ident in all_stations:
 		station_nm[i]=ident[0][i]
 	station_phi[0]=ident[1]
 	station_eta[0]=ident[2]
-	for i in xrange(2):
+	for i in range(2):
 		if not ident in cool_t0s[i]:
 			n_tubes[i][0]=0
 			t0_mean[i][0]=9e9
@@ -123,7 +125,7 @@ for ident in all_stations:
 		t0_max[i][0]=-9e9
 		theT0s=cool_t0s[i][ident]
 		n_tubes[i][0]=len(theT0s)
-		for j in xrange(n_tubes[i][0]):
+		for j in range(n_tubes[i][0]):
 			t0_mean[i][0]+=theT0s[j][0]
 			if t0_min[i][0]>theT0s[j][0]:
 				t0_min[i][0]=theT0s[j][0]

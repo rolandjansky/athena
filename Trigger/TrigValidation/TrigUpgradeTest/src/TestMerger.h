@@ -9,7 +9,7 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 namespace HLTTest {
   using namespace TrigCompositeUtils;
   class TestMerger

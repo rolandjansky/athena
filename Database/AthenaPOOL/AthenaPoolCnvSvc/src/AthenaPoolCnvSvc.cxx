@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolCnvSvc.cxx
@@ -417,7 +417,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             contName = contName.substr(6, contName.find(']') - 6);
             std::string className = strstr(placementStr, "[PNAME=");
             className = className.substr(7, className.find(']') - 7);
-            RootType classDesc = RootType::ByName(className);
+            RootType classDesc = RootType::ByNameNoQuiet(className);
             void* obj = nullptr;
             std::ostringstream oss2;
             oss2 << std::dec << num;
@@ -808,7 +808,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
                std::string className = token->auxString();
                className = className.substr(className.find("[PNAME="));
                className = className.substr(7, className.find(']') - 7);
-               RootType cltype(RootType::ByName(className));
+               RootType cltype(RootType::ByNameNoQuiet(className));
                obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
             }
             AuxDiscoverySvc auxDiscover;
@@ -877,7 +877,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
       token = new Token();
       token->setOid(Token::OID_t(ip[0], ip[1]));
       token->setAuxString("[PNAME=" + par[2] + "]");
-      RootType classDesc = RootType::ByName(par[2]);
+      RootType classDesc = RootType::ByNameNoQuiet(par[2]);
       token->setClassID(pool::DbReflex::guid(classDesc));
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       Token addressToken;

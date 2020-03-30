@@ -82,7 +82,7 @@ if CalibrationDatabase:
 	MuonCalibDbCalibrationSource.StoreT0=True
 	
 	
-	print MuonCalibDbCalibrationSource
+	printfunc (MuonCalibDbCalibrationSource)
 
 ################################################################################
 # parameters for default values
@@ -102,7 +102,7 @@ if DefaultValues:
 #rt regon
 	MuonCalibDefaultCalibrationSource.RtRegions += [ "" ]
 	MuonCalibDefaultCalibrationSource.RtFiles += [ "Rt_BML_2_2.dat" ]		
-	print MuonCalibDefaultCalibrationSource
+	printfunc (MuonCalibDefaultCalibrationSource)
 
 
 ################################################################################
@@ -132,4 +132,4 @@ CoolInserter.IOVEnd=-1
 #select region to replicate
 RegionSelectionSvc.Region = ""
 
-print CoolInserter
+printfunc (CoolInserter)

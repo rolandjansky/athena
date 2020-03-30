@@ -1,14 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from Lvl1Thresholds import LVL1Threshold, LVL1TopoInput, ThresholdValue
-from Lvl1MenuItems import LVL1MenuItem
+from .Lvl1Thresholds import LVL1Threshold, LVL1TopoInput, ThresholdValue
+from .Lvl1MenuItems import LVL1MenuItem
 
-from PrescaleHelper import getCutFromPrescale
+from .PrescaleHelper import getCutFromPrescale
 
-from Logic import Logic
-from Lvl1Condition import Lvl1InternalTrigger, ThrCondition
-from CaloInfo import MinimumTOBPt
-from Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
+from .Logic import Logic
+from .Lvl1Condition import Lvl1InternalTrigger, ThrCondition
+from .CaloInfo import MinimumTOBPt
+from .Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 
 from AthenaCommon.Logging import logging
@@ -46,7 +46,7 @@ def readMenuFromXML(l1menu, filename):
     log.info("Reading L1 menu from %s" % filename)
     l1menu.l1menuFromXML = True
 
-    from XMLReader import L1MenuXMLReader
+    from .XMLReader import L1MenuXMLReader
     reader = L1MenuXMLReader(filename)
 
 

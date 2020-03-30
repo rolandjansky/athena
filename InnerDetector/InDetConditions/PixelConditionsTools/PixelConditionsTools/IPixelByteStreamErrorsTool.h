@@ -7,6 +7,7 @@
 //STL includes
 #include <string>
 #include <set>
+#include <array>
 
 //Gaudi includes
 #include "GaudiKernel/IInterface.h"
@@ -32,6 +33,10 @@ class IPixelByteStreamErrorsTool: virtual public IInterface, virtual public IAlg
 
     enum ErrorType {TimeOut=0, firstErrType=TimeOut, BCID=1, LVL1ID=2, Preamble=3, Trailer=4,
       Flagged=5, DisableFE=6, ROD=7, Decoding=8, Invalid=9, LinkMaskedByPPC=10, Limit=11, lastErrType=Limit };
+    static constexpr std::array<ErrorType, lastErrType+1> AllPixErrTypes{TimeOut, BCID, LVL1ID, Preamble, Trailer,
+      Flagged, DisableFE, ROD, Decoding, Invalid, LinkMaskedByPPC, Limit};
+
+    static_assert( Limit == AllPixErrTypes.size()-1, "Not all Pixel BS Decoding Errors are in the array AllPixErrTypes" );
 
     virtual ~IPixelByteStreamErrorsTool() = default;
     DeclareInterfaceID(IPixelByteStreamErrorsTool, 1, 0);

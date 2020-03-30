@@ -72,7 +72,7 @@
 + Database/AthenaRoot/AthenaRootComps
 + Database/AthenaRoot/AthenaRootKernel
 + Database/AthenaRoot/RootAuxDynIO
-#+ Database/AtlasSTLAddReflex
++ Database/AtlasSTLAddReflex
 + Database/AtlasSealCLHEP
 #+ Database/CondDBObjects
 + Database/ConnectionManagement/AtlasAuthentication
@@ -168,7 +168,6 @@
 + Reconstruction/Jet/JetInterface
 + Reconstruction/Jet/JetRec
 #+ Reconstruction/Jet/JetRecConfig
-+ Reconstruction/MissingETEvent
 + Reconstruction/Particle
 #+ Reconstruction/RecAlgs
 #+ Reconstruction/RecEvent

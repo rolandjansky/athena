@@ -7,7 +7,7 @@
 
 #include <string>
 #include "DecisionHandling/InputMakerBase.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthContainers/ConstDataVector.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"

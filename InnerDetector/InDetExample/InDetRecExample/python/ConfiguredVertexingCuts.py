@@ -151,6 +151,10 @@ class ConfiguredVertexingCuts :
    if self.__indetflags.priVtxCutLevel() == 3 :
      self.__TrackCutLevel = "TightPrimary"
 
+   if self.__indetflags.priVtxCutLevel() == 4 :
+     self.__TrackCutLevel = "TightPrimary"
+     self.__minPT                     = 500. * Units.MeV
+
 
 #-------------"MinBias running mode"-----------------------------------
 # Looser pT cut on input tracks; tighter cut on sigma IP d0
