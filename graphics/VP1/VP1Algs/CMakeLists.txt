@@ -29,7 +29,7 @@ atlas_add_component( VP1Algs
 
 # Install files from the package:
 atlas_install_headers( VP1Algs )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/vp1 )
 atlas_install_scripts( share/clear-bash-hash-table-vp1 )

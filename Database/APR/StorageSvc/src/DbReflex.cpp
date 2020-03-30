@@ -144,7 +144,7 @@ const TypeH DbReflex::forGuid(const Guid& id)
      TypeH t = TypeH::TypeAt(i); // This may change/increase TypeH::TypeSize(), can't optimize
      size_t sz_new = TypeH::TypeSize();
      if (sz_new > sz) {
-        log << DbPrintLvl::Info << " ROOT gClassTable size increase for " << t.Name() << DbPrint::endmsg;
+        log << DbPrintLvl::Debug << " ROOT gClassTable size increase for " << t.Name() << DbPrint::endmsg;
         sz = sz_new;
      }
      if( t.IsClass() || t.IsStruct() )  {
