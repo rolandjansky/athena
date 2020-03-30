@@ -19,11 +19,6 @@ atlas_add_poolcnv_library( xAODEventInfoAthenaPoolPoolCnv
 atlas_install_joboptions( share/*.py )
 
 # Find the T/P test CMake code.
-if( IS_DIRECTORY
-   ${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities )
-   set( AthenaPoolUtilitiesTest_DIR
-      ${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake )
-endif()
 find_package( AthenaPoolUtilitiesTest )
 if( NOT ATHENAPOOLUTILITIESTEST_FOUND )
    message( WARNING
