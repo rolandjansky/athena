@@ -1,3 +1,6 @@
+/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Author: Andrii Verbytskyi andrii.verbytskyi@mpp.mpg.de
+*/
 #ifndef ATLASHEPMC_GENPARTICLE_H
 #define ATLASHEPMC_GENPARTICLE_H
 #include "HepMC/GenParticle.h"
