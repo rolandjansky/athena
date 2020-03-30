@@ -1,0 +1,4 @@
+#ifndef ATLASHEPMC_HEPEVTWRAPPER_H
+#define ATLASHEPMC_HEPEVTWRAPPER_H
+#include "HepMC/HEPEVT_Wrapper.h"
+#endif

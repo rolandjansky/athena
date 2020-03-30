@@ -1,0 +1,4 @@
+#ifndef ATLASHEPMC_IOHERWIG_H
+#define ATLASHEPMC_IOHERWIG_H
+#include "HepMC/IO_HERWIG.h"
+#endif

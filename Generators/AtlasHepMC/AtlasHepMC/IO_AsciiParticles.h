@@ -1,0 +1,4 @@
+#ifndef ATLASHEPMC_IOASCIIPARTICLES_H
+#define ATLASHEPMC_IOASCIIPARTICLES_H
+#include "HepMC/IO_AsciiParticles.h"
+#endif
