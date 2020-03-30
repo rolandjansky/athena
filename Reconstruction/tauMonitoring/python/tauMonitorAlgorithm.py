@@ -51,7 +51,6 @@ def tauMonitoringConfig(inputFlags):
     # to enable a trigger filter, for example:
     #exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
-
     tauMonAlgBA.etaMin = -1.
     tauMonAlgBA.etaMax = 1.3
     tauMonAlgCR.etaMin = 1.3
@@ -506,12 +505,6 @@ if __name__=='__main__':
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
-    '''
-    filePath ="/home/atlas/awharton/AtlasData/data15_13TeV.00276689.physics_Main.recon.ESD.f1042/"
-    file = "data15_13TeV.00276689.physics_Main.recon.ESD.f1042._lb0268._SFO-6._0001.1"
-    ConfigFlags.Input.Files = [filePath+file]
-    '''
-
 
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'tauRegions.root'
