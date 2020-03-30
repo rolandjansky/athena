@@ -44,6 +44,16 @@ namespace CP
       m_combiner.m_passedAll = false;
     // decorate event info
     m_combiner.m_params.m_eventDecisionOutputDecoration.set (*m_eventInfo, m_passed, m_sys);
+
+    // only recording nominal event selection for now
+    if (m_passed && m_sys.empty())
+      m_combiner.m_params.m_passedNominal += 1;
+
+#ifndef XAOD_STANDALONE
+    // only recording nominal event selection for now
+    if (m_passed && m_sys.empty() && m_combiner.m_params.m_cutID != 0)
+      m_combiner.m_params.m_cutFlowSvc->addEvent (m_combiner.m_params.m_cutID);
+#endif
   }
 
 

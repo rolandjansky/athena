@@ -15,6 +15,11 @@
 #include <xAODEventInfo/EventInfo.h>
 #include <functional>
 
+#ifndef XAOD_STANDALONE
+#include <AthenaKernel/ICutFlowSvc.h>
+#include <GaudiKernel/ServiceHandle.h>
+#endif
+
 class StatusCode;
 
 namespace CP
@@ -41,7 +46,7 @@ namespace CP
     ///   out of memory I
   public:
     template<typename T>
-    explicit SysFilterReporterParams (T *owner);
+    explicit SysFilterReporterParams (T *owner, std::string val_filterDescription);
 
 
     /// \brief do anything we need to do in initialize
@@ -90,6 +95,7 @@ namespace CP
     /// \brief counter for passed events
   private:
     unsigned m_passedOne {0};
+    unsigned m_passedNominal {0};
     unsigned m_passedAll {0};
 
     /// \brief counter for total events
@@ -99,6 +105,24 @@ namespace CP
     /// \brief whether the handle was initialized
   private:
     bool m_isInitialized {false};
+
+    /// \brief description what this filter does
+  private:
+    std::string m_filterDescription;
+
+
+#ifndef XAOD_STANDALONE
+
+    /// \brief the \ref CutIdentifier for this filter algorithm
+  private:
+    CutIdentifier m_cutID;
+
+    /// \brief the handle to the service holding tables of cut-flows
+    /// for filtering algs.
+  private:
+    ServiceHandle<ICutFlowSvc> m_cutFlowSvc;
+
+#endif
   };
 
 
@@ -108,12 +132,25 @@ namespace CP
   //
 
   template<typename T> SysFilterReporterParams ::
-  SysFilterReporterParams (T *owner)
+  SysFilterReporterParams (T *owner, std::string val_filterDescription)
     : AsgMessagingForward (owner)
     , m_setFilterPassed ([owner] (bool val_setFilterPassed) {owner->setFilterPassed (val_setFilterPassed);})
     , m_eventInfoHandle (owner, "eventInfo", "EventInfo", "the event info object to run on")
     , m_eventDecisionOutputDecoration (owner, "eventDecisionOutputDecoration", "", "the decoration for the event decision")
-  {}
+    , m_filterDescription (std::move (val_filterDescription))
+#ifndef XAOD_STANDALONE
+    , m_cutFlowSvc ("CutFlowSvc/CutFlowSvc", owner->name())
+#endif
+  {
+    owner->declareProperty("FilterDescription", m_filterDescription,
+                           "describe to the cutflowsvc what this filter does.");
+
+#ifndef XAOD_STANDALONE
+    owner->declareProperty("CutFlowSvc", m_cutFlowSvc,
+                           "handle to the ICutFlowSvc instance this filtering algorithm"
+                           " will use for building the flow of cuts.");
+#endif
+  }
 }
 
 #endif

@@ -39,7 +39,7 @@ namespace CP
     std::vector<SG::AuxElement::Decorator<bool>> m_selectionAccessors;
 
     /// \brief the filter reporter parameters
-    EL::FilterReporterParams m_filterParams {this};
+    EL::FilterReporterParams m_filterParams {this, "trigger event selection"};
   };
 }
 
