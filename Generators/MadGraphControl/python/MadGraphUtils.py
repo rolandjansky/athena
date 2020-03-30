@@ -840,6 +840,9 @@ decay_events '''+run)
 
     generate = subprocess.Popen([me_exec,'madspin_exec_card'],stdin=subprocess.PIPE)
     generate.communicate()
+    if len(glob.glob(process_dir+'/Events/'+run+'_decayed_*/')) == 0:
+        mglog.error('No '+process_dir+'/Events/'+run+'_decayed_*/ can be found')
+        raise RuntimeError('Problem while running MadSpin')
 
     mglog.info('Finished running madspin at '+str(time.asctime()))
 
