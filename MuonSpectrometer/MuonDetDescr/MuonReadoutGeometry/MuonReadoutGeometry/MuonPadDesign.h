@@ -51,7 +51,7 @@ namespace MuonGM {
     double lWidth;
     double Size;
     double thickness;
-    mutable double radialDistance; ///< DT-2015-11-29 distance from the beamline to the center of the module
+    double radialDistance; ///< DT-2015-11-29 distance from the beamline to the center of the module
 
     double sPadWidth;
     double lPadWidth;
@@ -109,7 +109,7 @@ namespace MuonGM {
     double gasGapThickness() const;
 
     /** access to cache */
-    void setR( double R) const {this->radialDistance = R; }
+    void setR( double R) {this->radialDistance = R; }
 
   };
 

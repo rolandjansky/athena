@@ -374,7 +374,7 @@ namespace MuonGM {
 
   }
 
-  void sTgcReadoutElement::fillCache() const
+  void sTgcReadoutElement::fillCache()
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
@@ -471,7 +471,7 @@ namespace MuonGM {
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
 
       // update the padDesign info
-      const MuonGM::MuonPadDesign* padDesign=this->getPadDesign(id);
+      MuonGM::MuonPadDesign* padDesign=this->getPadDesign(id);
       if (padDesign) padDesign->setR(m_surfaceData->m_layerCenters.back().perp());
 
     }
@@ -529,7 +529,7 @@ namespace MuonGM {
     }
   }
 
-  void sTgcReadoutElement::setBLinePar(BLinePar* bLine) const
+  void sTgcReadoutElement::setBLinePar(BLinePar* bLine)
   {
 #ifndef NDEBUG
     MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");

@@ -119,14 +119,15 @@ const Amg::Vector3D&
 RpcDetectorElement::normal(const Identifier& id) const
   {return m_rpcVector[0]->normal(id);}
 
-const std::vector<const Trk::Surface*>&  RpcDetectorElement::surfaces() const
+std::vector<const Trk::Surface*>  RpcDetectorElement::surfaces() const
 {
-   // needs to be created each time because there's no clearCache() method
-   m_detectorSurfaces.clear();
-   for (unsigned int i=0; i<NDoubletZ; i++)
-     m_detectorSurfaces.insert(m_detectorSurfaces.end(),m_rpcVector[i]->surfaces().begin(),m_rpcVector[i]->surfaces().end());
+   std::vector<const Trk::Surface*> detectorSurfaces;
+   for (unsigned int i=0; i<NDoubletZ; i++) {
+     std::vector<const Trk::Surface*> surfs = m_rpcVector[i]->surfaces();
+     detectorSurfaces.insert(detectorSurfaces.end(),surfs.begin(),surfs.end());
+   }
 
-   return m_detectorSurfaces;
+   return detectorSurfaces;
 }
 
 }
