@@ -1225,7 +1225,7 @@ GeoVPhysVol* MuonChamber::build(
       // Select right MdtAsBuilt parameters from map in MuonDetectorManager and assign them to MuonStation
       if(manager->applyMdtAsBuiltParams() ) {
         Identifier AsBuiltId = manager->mdtIdHelper()->elementID(mstat->getStationType(), mstat->getEtaIndex(), mstat->getPhiIndex());
-        MdtAsBuiltPar* xtomo = manager->getMdtAsBuiltParams(AsBuiltId);
+        const MdtAsBuiltPar* xtomo = manager->getMdtAsBuiltParams(AsBuiltId);
         mstat->setMdtAsBuiltParams(xtomo);
       }
     }
