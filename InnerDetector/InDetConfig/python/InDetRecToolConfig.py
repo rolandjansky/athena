@@ -100,17 +100,16 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
     acc.addPublicTool(extrapolator, primary=True)
     return acc
 
-def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetMaterialEffectsUpdator", **kwargs) :
-    if not flags.InDet.solenoidOn:
-        import AthenaCommon.SystemOfUnits as Units
-        kwargs.setdefault(   "EnergyLoss"          , False)
-        kwargs.setdefault(   "ForceMomentum"       , True)
-        kwargs.setdefault(   "ForcedMomentumValue" , 1000*Units.MeV )
+def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
+    kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
+
+    if flags.InDet.usePixelDCS():
+        kwargs.setdefault( "IsActiveStates", [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ] )
+        kwargs.setdefault( "IsActiveStatus", [ 'OK', 'WARNING', 'ERROR', 'FATAL' ] )
+    
     acc = ComponentAccumulator()
-    acc.setPrivateTools(CompFactory.Trk__MaterialEffectsUpdator(name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet__PixelConditionsSummaryTool(name, **kwargs))
     return acc
-
-
 
 def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryTool", **kwargs) :
   acc = ComponentAccumulator()
