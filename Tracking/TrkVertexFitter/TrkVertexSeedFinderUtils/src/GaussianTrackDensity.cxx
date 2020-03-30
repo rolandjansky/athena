@@ -37,33 +37,15 @@ namespace Trk
     density = 0.0;
     firstDerivative = 0.0;
     secondDerivative = 0.0;
-    TrackEntry target(z);
-    std::set<TrackEntry, pred_entry_by_min> overlaps;
-    lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
-    if (left == m_lowerMap.end()) return;                    // z is to the right of every track's range
-    upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
-    if (right == m_upperMap.begin()) return;                 // z is to the left of every track's range
-
-
-    for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
-    {
-      if ( itrk->first.upperBound > z + m_maxRange ) break;
-      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps.insert(itrk->first);
-    }
-    for (auto itrk = right; itrk-- != m_upperMap.begin(); )
-    {
-      if ( itrk->first.lowerBound < z - m_maxRange ) break;
-      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps.insert(itrk->first);
-    }
-    for (const auto& entry : overlaps)
-    {
-      if (entry.lowerBound > z || entry.upperBound < z) continue;
-      double delta = exp(entry.c_0+z*(entry.c_1 + z*entry.c_2));
+    // here we avoid any pre-sorting, as the overhead for the related copies / sorting is prohibitive at SLHC
+    for (const auto & trk : m_lowerMap){
+      if (trk.first.lowerBound > z || trk.first.upperBound < z) continue;
+      double delta = std::exp(trk.first.c_0+z*(trk.first.c_1 + z*trk.first.c_2));
       density += delta;
-      double qPrime = entry.c_1 + 2*z*entry.c_2;
+      double qPrime = trk.first.c_1 + 2*z*trk.first.c_2;
       double deltaPrime = delta * qPrime;
       firstDerivative += deltaPrime;
-      secondDerivative += 2*entry.c_2*delta + qPrime*deltaPrime;
+      secondDerivative += 2*trk.first.c_2*delta + qPrime*deltaPrime;
     }
   }
 
@@ -89,7 +71,7 @@ namespace Trk
     }
     for (const auto& entry : overlaps)
     {
-      sum += exp(entry.c_0+z*(entry.c_1 + z*entry.c_2));
+      sum += std::exp(entry.c_0+z*(entry.c_1 + z*entry.c_2));
     }
     return sum;
   }
