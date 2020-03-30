@@ -9,6 +9,8 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class HLTCalo_TopoCaloClustersMonitor : public AthMonitorAlgorithm {
 
@@ -22,6 +24,8 @@ public:
   virtual float calculateDeltaPhi( float phi_1, float phi_2 ) const;
 
 private:
+
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;//{this, "BunchCrossingTool", ""};
 
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_HLT_cont_key;
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_OFF_cont_key;

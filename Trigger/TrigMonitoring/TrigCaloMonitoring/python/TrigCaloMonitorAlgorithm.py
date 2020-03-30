@@ -216,6 +216,7 @@ def TrigCaloMonConfig(inputFlags):
 
 
     # Add monitor algorithm
+    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
     TopoCaloClustersFSMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersFSMonAlg')
     TopoCaloClustersRoIMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersRoIMonAlg')
     TopoCaloClustersLCMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersLCMonAlg')
@@ -240,6 +241,7 @@ def TrigCaloMonConfig(inputFlags):
         algs[i].OFFMinET = 500.0
         algs[i].MatchType = False
         algs[i].MaxDeltaR = 0.04
+	algs[i].BunchCrossingTool = BunchCrossingTool("TrigConf" if not inputFlags.Input.isMC else "MC")
 
         # Add group
         TopoCaloClustersMonGroup.append(helper.addGroup(algs[i], 'TrigCaloMonitor','HLT/HLTCalo'))
@@ -267,6 +269,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_size',title='HLT Cluster Size; Number of Cells; Entries',
                                 path=path_names[i]+'/HLT_Clusters',xbins=91,xmin=-10.0,xmax=1810.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,HLT_et;HLT_et_vs_BC',title='HLT Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/HLT_Clusters',xbins=21,xmin=-0.5,xmax=20.5)
 
         # Declare high-ET HLT histograms
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_barrel_high_et_num',title='Number of high-E_{T} HLT Clusters; Num Clusters; Entries',
@@ -287,6 +291,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_size;HLT_barrel_high_et_size',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Cluster Size; Number of Cells; Entries',
                                 path=path_names[i]+'/HLT_Clusters',xbins=91,xmin=-10.0,xmax=1810.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,HLT_et;HLT_barrel_high_et_vs_BC',cutmask="HLT_barrel_high_et",title='hight-E_{T} HLT Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/HLT_Clusters',xbins=21,xmin=-0.5,xmax=20.5)
 
         ########################
         #     OFF_Clusters     #
@@ -309,6 +315,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/OFF_Clusters',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_type',title='HLT Cluster Type; Size Enum; Entries',
                                 path=path_names[i]+'/OFF_Clusters',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,OFF_et;OFF_et_vs_BC',title='OFF Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/OFF_Clusters',xbins=21,xmin=-0.5,xmax=20.5)
 
         ########################
         #  HLT matched to OFF  #
@@ -355,6 +363,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/HLT_Matched_to_OFF',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_type;HLT_with_OFF_match_type',cutmask='HLT_with_OFF_match',title='HLT Cluster Type (With OFF Matches); Size Enum; Entries',
                                 path=path_names[i]+'/HLT_Matched_to_OFF',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,HLT_et;HLT_with_OFF_match_et_vs_BC',cutmask='HLT_with_OFF_match',title='HLT Clusters E_{T} (With OFF Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/HLT_Matched_to_OFF',xbins=21,xmin=-0.5,xmax=20.5)
 
         # Declare HLT histograms without OFF matches
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_no_OFF_match_num',title='Number of HLT Clusters (No OFF Matches); Num Clusters; Entries',
@@ -373,6 +383,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/HLT_Matched_to_OFF',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_type;HLT_no_OFF_match_type',cutmask='HLT_no_OFF_match',title='HLT Cluster Type (No OFF Matches); Size Enum; Entries',
                                 path=path_names[i]+'/HLT_Matched_to_OFF',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,HLT_et;HLT_no_OFF_match_et_vs_BC',cutmask='HLT_no_OFF_match',title='HLT Clusters E_{T} (No OFF Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/HLT_Matched_to_OFF',xbins=21,xmin=-0.5,xmax=20.5)
 
         ########################
         #  OFF matched to HLT  #
@@ -419,6 +431,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_type;OFF_with_HLT_match_type',cutmask='OFF_with_HLT_match',title='OFF Cluster Type (With HLT Matches); Size Enum; Entries',
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,OFF_et;OFF_with_HLT_match_et_vs_BC',cutmask='OFF_with_HLT_match',title='OFF Clusters E_{T} (With HLT Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/OFF_Matched_to_HLT',xbins=21,xmin=-0.5,xmax=20.5)
 
         # Declare OFF histograms without HLT matches
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_no_HLT_match_num',title='Number of OFF Clusters (No HLT Matches); Num Clusters; Entries',
@@ -437,6 +451,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_type;OFF_no_HLT_match_type',cutmask='OFF_no_HLT_match',title='OFF Cluster Type (No HLT Matches); Size Enum; Entries',
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,OFF_et;OFF_no_HLT_match_et_vs_BC',cutmask='OFF_no_HLT_match',title='OFF Clusters E_{T} (No HLT Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/OFF_Matched_to_HLT',xbins=21,xmin=-0.5,xmax=20.5)
 
 
     return helper.result()
