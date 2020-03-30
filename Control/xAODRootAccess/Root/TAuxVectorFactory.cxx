@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TAuxVectorFactory.cxx 793319 2017-01-21 16:21:46Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TClass.h>
@@ -54,14 +50,15 @@ namespace xAOD {
       }
    }
 
-   std::unique_ptr<SG::IAuxTypeVector>
+   std::unique_ptr< SG::IAuxTypeVector >
    TAuxVectorFactory::create( size_t size, size_t capacity ) const {
 
-      return std::make_unique<TAuxVector>( this, m_class, size, capacity );
+      return std::make_unique< TAuxVector >( this, m_class, size, capacity );
    }
 
-   std::unique_ptr<SG::IAuxTypeVector>
-   TAuxVectorFactory::createFromData( void* /*data*/, bool /*isPacked*/, bool ) const {
+   std::unique_ptr< SG::IAuxTypeVector >
+   TAuxVectorFactory::createFromData( void* /*data*/, bool /*isPacked*/,
+                                      bool /*ownFlag*/ ) const {
 
       std::abort();
    }
@@ -92,12 +89,16 @@ namespace xAOD {
       return;
    }
 
-   void TAuxVectorFactory::copyForOutput( void* dst,        size_t dst_index,
-                                          const void* src,  size_t src_index ) const {
-     copy (dst, dst_index, src, src_index);
+   void TAuxVectorFactory::copyForOutput( void* dst, size_t dst_index,
+                                          const void* src,
+                                          size_t src_index ) const {
 
-     ::Warning( "xAOD::TAuxVectorFactory::TAuxVectorFactory",
-                XAOD_MESSAGE( "copyForOutput called; should only be used with pool converters." ) );
+      // Do a "regular" copy.
+      copy( dst, dst_index, src, src_index );
+
+      ::Warning( "xAOD::TAuxVectorFactory::TAuxVectorFactory",
+                 XAOD_MESSAGE( "copyForOutput called; should only be used "
+                               "with pool converters." ) );
    }
 
    void TAuxVectorFactory::swap( void* a, size_t aindex,

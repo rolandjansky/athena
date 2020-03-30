@@ -1,5 +1,9 @@
-#ifndef MUONPHYSVALMONITORING_MUONVALIDATIONPLOTS_H
-#define MUONPHYSVALMONITORING_MUONVALIDATIONPLOTS_H
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
+#ifndef TAUDQA_TAUVALIDATIONPLOTS_H
+#define TAUDQA_TAUVALIDATIONPLOTS_H
 
 // PlotBase objects
 #include "TauHistUtils/ParamPlots.h"
@@ -123,4 +127,4 @@ class TauValidationPlots:public PlotBase {
 
 };
 
-#endif
+#endif // not TAUDQA_TAUVALIDATIONPLOTS_H
