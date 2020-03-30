@@ -3,7 +3,7 @@
 */
 
 /**
-    @brief Test code to compare output of ElectronPhotonVariableCorrectionTool correction to the isolation correction tool
+    @brief Test code to compare output of ElectronPhotonVariableCorrectionBase correction to the isolation correction tool
     @author Nils Gillwald (DESY) nils.gillwald@desy.de
     @date February 2020
 **/
@@ -18,7 +18,7 @@
 #include "xAODEgamma/Photon.h"
 
 // must be changed to not be a relative path!
-#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
+#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase.h"
 //
 #include "AsgTools/MessageCheck.h"
 #include "AsgTools/MsgStream.h"
@@ -70,8 +70,8 @@ int main (int argc, char* argv[])
     }
 
     //initialise the tool
-    ElectronPhotonVariableCorrectionTool fudgeTool("fudgeTool");
-    ANA_CHECK(fudgeTool.setProperty("ConfigFile","ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleIsoCorrectionConf.conf"));
+    ElectronPhotonVariableCorrectionBase fudgeTool("fudgeTool");
+    ANA_CHECK(fudgeTool.setProperty("ConfigFile","ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase_ExampleIsoCorrectionConf.conf"));
     ANA_CHECK(fudgeTool.initialize());
 
     //crosscheck with isolationcorrectiontool
