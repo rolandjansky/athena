@@ -241,7 +241,6 @@ StatusCode JetTagMonitoring::bookHistograms() {
   ////////////////////////
 
   registerHist(*m_monGr_shift, m_jet_n = TH1F_LW::create("jet_n","Number of Jets; Number of jets",50,0.,50.));
-  // registerHist(*m_monGr_shift, m_jet_n = TH1F_LW::create("jet_n","Number of Jets; Number of jets",20,0.,20.));
   registerHist(*m_monGr_shift, m_jet_et  = TH1F_LW::create("jet_et","Jet pT; pT [GeV]",100,0.,500.)); // this is actually filled with pT although called et...
   registerHist(*m_monGr_shift, m_jet_eta = TH1F_LW::create("jet_eta","Jet #eta; #eta",100,-5.,5.));
   registerHist(*m_monGr_shift, m_jet_phi = TH1F_LW::create("jet_phi","Jet #phi; #phi",100,-3.15,3.15));
@@ -251,8 +250,6 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_global_yPrimVtx = TH1F_LW::create("global_yPrimVtx","Primary Vertex y Position; PV y [mm]",100,-5.0,5.0));
   registerHist(*m_monGr_shift, m_global_zPrimVtx = TH1F_LW::create("global_zPrimVtx","Primary Vetex z Position; PV z [mm]",100,-250.,250.));
   registerHist(*m_monGr_shift, m_priVtx_trks = TH1F_LW::create("priVtx_trks","Number of Tracks in PV; Number of tracks",150,-0.5,149.5));
-  // registerHist(*m_monGr_shift, m_priVtx_trks = TH1F_LW::create("priVtx_trks","Number of Tracks in PV; Number of tracks",100,-0.5,99.5));
-  //m_priVtx_trks->GetXaxis()->SetTitle("Primary Vertex #trks"); // removed by SARA (put correct title above instead)
 
   registerHist(*m_monGr_shift, m_trackParticle_n = TH1F_LW::create("NTrackParticle","Number of TrackParticles; Number of tracks",100,0.,1000.));
   registerHist(*m_monGr_shift, m_global_BLayerHits = TH1F_LW::create("global_BLayerHits","Number of IBL Hits on TrackParticle; Number of IBL hits",5,0.,5.)); // updated by SARA // IBL hits in Run-2, old b-layer in Run-1
