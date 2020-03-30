@@ -31,8 +31,8 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   virtual ~TrigEgammaPrecisionElectronHypoToolInc();
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& ctx )  const override;
-  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i, const EventContext& ctx  ) const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& )  const override;
+  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i, const EventContext& ) const override;
 
  private:
   HLT::Identifier m_decisionId;

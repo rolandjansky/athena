@@ -53,7 +53,7 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
 TrigEgammaPrecisionElectronHypoToolInc::~TrigEgammaPrecisionElectronHypoToolInc(){}
 
 
-bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ctx) const {
+bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ) const {
 
   bool pass = false;
 
@@ -229,7 +229,7 @@ int TrigEgammaPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
 StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input,const EventContext& ctx )  const {
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
-      if ( decide( i,ctx ) ) {
+      if ( decide( i, ctx ) ) {
 	addDecisionID( m_decisionId, i.decision );
       }
     }
