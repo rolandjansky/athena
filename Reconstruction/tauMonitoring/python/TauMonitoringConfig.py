@@ -9,4 +9,5 @@ def TauMonitoringConfig(flags):
     from .tauMonitorAlgorithm import tauMonitoringConfig
     result.merge(tauMonitoringConfig(flags))
 
+
     return result

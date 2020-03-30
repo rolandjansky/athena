@@ -51,6 +51,7 @@ def tauMonitoringConfig(inputFlags):
     # to enable a trigger filter, for example:
     #exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
+
     tauMonAlgBA.etaMin = -1.
     tauMonAlgBA.etaMax = 1.3
     tauMonAlgCR.etaMin = 1.3
@@ -65,7 +66,6 @@ def tauMonitoringConfig(inputFlags):
     tauMonAlgEleTrig.etaMax = 100
     tauMonAlgJetTrig.etaMin = -100
     tauMonAlgJetTrig.etaMax = 100
-
     tauMonAlgHighPt.etaMin = -100
     tauMonAlgHighPt.etaMax = 100
     tauMonAlgHighPtBDTLoose.etaMin = -100
@@ -134,7 +134,7 @@ def tauMonitoringConfig(inputFlags):
 
         (igroup, postfix) = itup
 
-        PHIMIN = pi
+        PHIMIN = -pi
         PHIMAX = pi
 
         folder = ""
@@ -363,8 +363,14 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('dRJetSeedAxis','dRJetSeedAxis','Track',postfix), title='DeltaR from Track to JetSeedAxis; dR ',path=folder+"Track",
             xbins=30, xmin=0.0, xmax=1.5 )
 
-            igroup.defineHistogram(namer('z0TJVA','z0TJVA','Track',postfix), title='0 respected to Tau vertex , Z0SinTheta (mm)',path=folder+"Track",
+            igroup.defineHistogram(namer('z0TJVA','z0TJVA','Track',postfix), title='z0 respected to Tau vertex , Z0SinTheta (mm)',path=folder+"Track",
             xbins=50, xmin=-35.0, xmax=35.0 )
+
+            igroup.defineHistogram(namer('z0PriVtx','z0PriVtx','Track',postfix), title=' z0 respected to primary vertex ; Z0 SinTheta (mm)',path=folder+"Track",
+            xbins=50, xmin=-35.0, xmax=35.0 )
+
+            igroup.defineHistogram(namer('LB2,z0PriVtx','z0VsLB','Calo',postfix), type='TH2F', title='Track z0 vs Lumiblock;Longitudinal Impact Parameter (mm) );Lumiblock', path=folder+"Track", 
+            xbins=1200,xmin=0,xmax=1200,ybins=50,ymin=-35.,ymax=35)
 
 
             igroup.defineHistogram(namer('eta_track','eta','Track',postfix), title='Track Eta;Eta',path=folder+"Track",
@@ -495,9 +501,18 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
+    '''
+    filePath ="/home/atlas/awharton/AtlasData/data15_13TeV.00276689.physics_Main.recon.ESD.f1042/"
+    file = "data15_13TeV.00276689.physics_Main.recon.ESD.f1042._lb0268._SFO-6._0001.1"
+    ConfigFlags.Input.Files = [filePath+file]
+    '''
+
+
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'tauRegions.root'
     
