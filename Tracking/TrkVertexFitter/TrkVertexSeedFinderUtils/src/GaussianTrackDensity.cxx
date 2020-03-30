@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
@@ -9,6 +9,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 
 #include <algorithm>
+#include <set>
 
 namespace Trk
 {
@@ -37,30 +38,32 @@ namespace Trk
     firstDerivative = 0.0;
     secondDerivative = 0.0;
     TrackEntry target(z);
-    trackMap overlaps;
+    std::set<TrackEntry, pred_entry_by_min> overlaps;
     lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
     if (left == m_lowerMap.end()) return;                    // z is to the right of every track's range
     upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
     if (right == m_upperMap.begin()) return;                 // z is to the left of every track's range
+
+
     for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
     {
       if ( itrk->first.upperBound > z + m_maxRange ) break;
-      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps.insert(itrk->first);
     }
     for (auto itrk = right; itrk-- != m_upperMap.begin(); )
     {
       if ( itrk->first.lowerBound < z - m_maxRange ) break;
-      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps.insert(itrk->first);
     }
     for (const auto& entry : overlaps)
     {
-      if (entry.second.lowerBound > z || entry.second.upperBound < z) continue;
-      double delta = exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
+      if (entry.lowerBound > z || entry.upperBound < z) continue;
+      double delta = exp(entry.c_0+z*(entry.c_1 + z*entry.c_2));
       density += delta;
-      double qPrime = entry.second.c_1 + 2*z*entry.second.c_2;
+      double qPrime = entry.c_1 + 2*z*entry.c_2;
       double deltaPrime = delta * qPrime;
       firstDerivative += deltaPrime;
-      secondDerivative += 2*entry.second.c_2*delta + qPrime*deltaPrime;
+      secondDerivative += 2*entry.c_2*delta + qPrime*deltaPrime;
     }
   }
 
@@ -69,7 +72,7 @@ namespace Trk
     ATH_MSG_VERBOSE("Inside trackDensity function; z=" << z);
     double sum = 0.0;
     TrackEntry target(z);
-    trackMap overlaps;
+    std::set<TrackEntry, pred_entry_by_min> overlaps;
     lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
     if (left == m_lowerMap.end()) return sum;                // z is to the right of every track's range
     upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
@@ -77,16 +80,16 @@ namespace Trk
     for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
     {
       if ( itrk->first.upperBound > z + m_maxRange ) break;
-      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps.insert(itrk->first);
     }
     for (auto itrk = right; itrk-- != m_upperMap.begin(); )
     {
       if ( itrk->first.lowerBound < z - m_maxRange ) break;
-      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps.insert(itrk->first);
     }
     for (const auto& entry : overlaps)
     {
-      sum += exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
+      sum += exp(entry.c_0+z*(entry.c_1 + z*entry.c_2));
     }
     return sum;
   }
