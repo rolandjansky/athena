@@ -20,7 +20,7 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 
-#include "../src/HistogramFiller/HistogramFillerRebinable1D.h"
+#include "../src/HistogramFiller/HistogramFillerRebinable.h"
 
 #include "mocks/MockHistogramProvider.h"
 #include "mocks/MockMonitoredVariable.h"
