@@ -20,6 +20,7 @@
 #include "JetEDM/TrackVertexAssociation.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include <utility>
 
 namespace HLT { namespace MET {
   /****************************************************************************
@@ -34,6 +35,9 @@ namespace HLT { namespace MET {
    ***************************************************************************/
   class TrkMHTFex : public FexBase
   {
+    // Alias optional to make it clear how we're using it
+    template <typename T>
+      using deferred_t = std::optional<T>;
     public:
       /// Constructor
       TrkMHTFex(const std::string& name, ISvcLocator* pSvcLocator);
@@ -63,7 +67,7 @@ namespace HLT { namespace MET {
       SG::ReadDecorHandleKey<xAOD::JetContainer> m_jvtKey{
         this, "JvtName", "Jvt", "The name of the JVT decorator"};
       /// The ghost-association aux element name
-      SG::ReadDecorHandleKey<xAOD::JetContainer> m_trackGAKey{
+      Gaudi::Property<std::string> m_trackGAName{
         this, "TrackLinkName", "tracks", "The name of the jet track links"};
       /// Pt selection on forward jets
       Gaudi::Property<float> m_forwardJetPt{
@@ -102,6 +106,11 @@ namespace HLT { namespace MET {
           xAOD::TrigMissingET& met,
           const EventContext& context,
           MonGroupBuilder& monitors) const override;
+
+      /************************************************************************
+       * Internal members
+       ***********************************************************************/
+      deferred_t<SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer>>>> m_trackGA;
   }; //> end class TrkMHTFex
 } } //> end namespace HLT::MET
 
