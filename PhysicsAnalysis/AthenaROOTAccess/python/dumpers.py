@@ -1,17 +1,15 @@
-from __future__ import print_function
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
-# $Id: dumpers.py,v 1.42 2009-05-02 05:01:29 ssnyder Exp $
-#
 # @file AthenaROOTAccess/python/dumpers.py
 # @author sss
 # @date Jul 2007
 # @brief Test for AthenaROOTAccess.
 #
 
-from builtins import object
+from __future__ import print_function
 from PyUtils.Helpers import ROOT6Setup
+
 ROOT6Setup()
 _root5 = False
 
@@ -294,7 +292,7 @@ class Evdump(object):
         if i1 >= 0:
             i2 = token.find(']', i1)
             if i2 < 0:
-                print("Bad token format2:", token)
+                print ("Bad token format2:", token)
                 return
             cnt = token[i1+5:i2]
         else:
@@ -305,7 +303,7 @@ class Evdump(object):
                 dhe.transtype = token
                 if token in self.invtypedefs:
                     token = self.invtypedefs[token]
-                    #print "PETER: new token = " , token
+                    #print ("PETER: new token = " , token)
                 l = self.types.setdefault (token, [])
                 l.append (dhe)
             return
@@ -315,12 +313,12 @@ class Evdump(object):
         else:
             i3 = cnt.find ('(')
             if i3 < 0:
-                print("Bad token format3:", token)
+                print ("Bad token format3:", token)
                 return
             tree = cnt[:i3]
             i4 = cnt.find ('/', i3)
             if i4 < 0:
-                #print "Bad token format4:", token
+                #print ("Bad token format4:", token)
                 #return
                 perstype = None
             else:
@@ -338,8 +336,8 @@ class Evdump(object):
         self.types = {}
         for (k, t) in dhes:
             self.add_dhe (k, t, find_type)
-        print("=== New event ===", file=self.f)
-        print("=== New event ===", file=self.f_rand)
+        print ("=== New event ===", file=self.f)
+        print ("=== New event ===", file=self.f_rand)
         for d in Dumpers.dumpspecs:
             if d[0] in _skipTypes:
                continue
@@ -365,7 +363,7 @@ class Evdump(object):
                     fout = self.f_rand
                 else:
                     fout = self.f
-                print('--> %s/%s' % (d[0], keyprint), file=fout)
+                print ('--> %s/%s' % (d[0], keyprint), file=fout)
                 obj = getter (d, dhe, keyprint)
                 if not obj:
                     pass # print >> fout, '   (None)'
@@ -373,7 +371,7 @@ class Evdump(object):
                     dumper (obj, fout)
                 else:
                     Dumpers.dump_list (obj, fout, dumper)
-                print(' ', file=fout)
+                print (' ', file=fout)
                 dhe.dumped = 1
 
         for (typ, dhes) in list(self.types.items()):
@@ -401,13 +399,13 @@ class Evdump(object):
         for typ in tlist:
             if typ in known_missing: continue
             if first:
-                print('--- DHEs not dumped ---', file=f)
+                print ('--- DHEs not dumped ---', file=f)
                 first = 0
-            print(typ, file=f)
-            klist = list(self.missed_types[typ].keys())
+            print (typ, file=f)
+            klist = self.missed_types[typ].keys()
             klist.sort()
             for k in klist:
-                print('  ', k, file=f)
+                print ('  ', k, file=f)
         return
     
 
