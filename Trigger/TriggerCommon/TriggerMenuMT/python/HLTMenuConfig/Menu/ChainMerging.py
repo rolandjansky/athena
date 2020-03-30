@@ -55,9 +55,9 @@ def mergeParallel(chainDefList, offset):
     myOrderedSteps = deepcopy(orderedSteps)
 
     combChainSteps =[]
-    for steps in myOrderedSteps:
+    for step_index, steps in enumerate(myOrderedSteps):
         mySteps = list(steps)
-        combStep = makeChainSteps(mySteps)
+        combStep = makeChainSteps(mySteps, step_index+1)
         combChainSteps.append(combStep)
 
     # check if all chain parts have the same number of steps
@@ -86,13 +86,14 @@ def serial_zip(allSteps, chainName):
             
             # put the step from the current sub-chain into the right place
             stepList[chain_index] = step
+            log.info('Put step: ' + str(step))
 
             # all other steps should contain an empty sequence
             for step_index2, emptyStep in enumerate(stepList):
                 if emptyStep is None:
-                    seqName = chainName + 'EmptySeq' + str(chain_index) + '_' + str(step_index)
+                    seqName = chainName + 'EmptySeq' + str(chain_index) + '_' + str(step_index+1)
                     emptySeq = EmptyMenuSequence(seqName)
-                    stepList[step_index2] = ChainStep('Step' + str(step_index) + "_" + seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)
+                    stepList[step_index2] = ChainStep('Step' + str(step_index+1) + "_" + seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)
 
             # first create a list of chain steps where each step is an empty sequence
             #seqName = chainName + 'EmptySeq' + str(chain_index) + '_'
@@ -129,9 +130,9 @@ def mergeSerial(chainDefList):
     serialSteps = serial_zip(allSteps, chainName)
     mySerialSteps = deepcopy(serialSteps)
     combChainSteps =[]
-    for steps in mySerialSteps:
+    for step_index, steps in enumerate(mySerialSteps):
         mySteps = list(steps)
-        combStep = makeChainSteps(mySteps)
+        combStep = makeChainSteps(mySteps, step_index+1)
         combChainSteps.append(combStep)
 
     # check if all chain parts have the same number of steps
@@ -150,15 +151,13 @@ def mergeSerial(chainDefList):
     return combinedChainDef
 
 
-def makeChainSteps(steps):
+def makeChainSteps(steps, stepNumber):
     from copy import deepcopy
     from TrigCompositeUtils.TrigCompositeUtils import legName
     stepName = ''
     stepSeq = []
     stepMult = []
-    stepNumber = ''
     log.verbose(" steps %s ", steps)
-    stepName = "merged"
     stepDicts = []
     count = 0
     comboHypoTools = []
@@ -177,11 +176,10 @@ def makeChainSteps(steps):
 
         currentStep = step.name
         stepNameParts = currentStep.split('_')
-        if stepNumber == '':
-            stepNumber = stepNameParts[0]
 
         # the step naming for combined chains needs to be revisted!!
-        stepName += '_' +step.name
+        stepName = "merged_Step" + str(stepNumber) + '_' + currentStep
+        #stepName += '_' +step.name
         if len(step.sequences):
             seq = step.sequences[0]
             stepSeq.append(seq)
