@@ -67,7 +67,7 @@ class PixelConditionsServicesSetup:
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
     useNewDeadmapFormat = False
-    useNewChargeFormat  = True
+    useNewChargeFormat  = False
 
     if not useNewDeadmapFormat:
       if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):

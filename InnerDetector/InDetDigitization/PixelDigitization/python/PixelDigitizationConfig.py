@@ -122,7 +122,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     # Module status #
     #################
     useNewDeadmapFormat = False
-    useNewChargeFormat  = True
+    useNewChargeFormat  = False
 
     if not useNewDeadmapFormat:
         if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
