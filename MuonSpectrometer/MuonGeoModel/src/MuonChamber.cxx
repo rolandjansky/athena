@@ -1195,6 +1195,7 @@ GeoVPhysVol* MuonChamber::build(
       det->setMultilayer(ml);
       det->setParentStationPV(PVConstLink(ptrd));
       det->setParentMuonStation(mstat);
+      det->geoInitDone();
 
       if (ml==1) {
         // set fixed point for MDT deformations: s0,z0,t0 for the point at lowest t,z (z,y amdb) and s=x=0
@@ -1561,6 +1562,7 @@ GeoVPhysVol* MuonChamber::build(
     for (size_t i = 0 ; i < vcutdef_todel.size(); i++) delete vcutdef_todel[i];
 
   } // End big loop over components
+  mstat->updateBlineFixedPointInAmdbLRS();
 
   return ptrd;
 }
