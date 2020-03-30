@@ -46,6 +46,14 @@ def PFCfg(inputFlags,**kwargs):
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     result.merge(PixelGeometryCfg(inputFlags))
 
+    #Setup TRT geometry including /TRT/Align folders                                                                                      
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    result.merge(TRT_GeometryCfg(inputFlags))
+
+    #Setup TRT conditions                                                                                                                                  
+    TRTAlignCondAlg=CompFactory.TRTAlignCondAlg
+    result.addCondAlgo(TRTAlignCondAlg(name = "TRTAlignCondAlg",UseDynamicFolders = inputFlags.GeoModel.Align.Dynamic))
+
     #Setup Pixel conditions
     PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
     result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
