@@ -17,7 +17,6 @@
 #include "PATCore/AcceptData.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
-
 /**
  * @class Implementation of the precision selection for electrons
  * @brief 
@@ -32,9 +31,8 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   virtual ~TrigEgammaPrecisionElectronHypoToolInc();
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input )  const override;
-
-  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i ) const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& ctx )  const override;
+  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i, const EventContext& ctx  ) const override;
 
  private:
   HLT::Identifier m_decisionId;
@@ -48,6 +46,7 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool;  
   int findCutIndex( float eta ) const;
+
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TRIGPRECISIONELECTRONPRECISIONHYPOTOOL_H
