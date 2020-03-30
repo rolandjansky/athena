@@ -1,7 +1,9 @@
 #!/bin/env python
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+
+from __future__ import print_function
 
 import ROOT
 import sys
@@ -25,7 +27,7 @@ plt.xkcd()
 
 if __name__ == "__main__":
 
-  print "Starting checkHVCorrections script"
+  print ("Starting checkHVCorrections script")
 
   parser = OptionParser()
   
