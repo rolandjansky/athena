@@ -72,18 +72,17 @@ namespace top {
   private:
 
     // Easy access to histograms.
-    mutable std::vector<std::shared_ptr<PlotManager> > m_hists;
+    std::shared_ptr<PlotManager> m_hists;
 
     // Nominal hash value
     std::size_t m_nominalHashValue;
     
-    const std::vector<float> m_edges = {0, 30, 50, 100, 200, 500, 999999};
-
     // deltaR used for jet matching
     float m_deltaR;
     int m_bins;
     float m_min;
     float m_max;
+    std::vector<double> m_ptBinning;
 
     // shared pointed to instance of TopConfig
     std::shared_ptr<top::TopConfig> m_config;

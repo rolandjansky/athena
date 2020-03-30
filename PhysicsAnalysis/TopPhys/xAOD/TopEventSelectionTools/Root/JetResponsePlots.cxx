@@ -8,6 +8,7 @@
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/Tokenize.h"
 #include "TopCorrections/ScaleFactorRetriever.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "xAODJet/JetContainer.h"
@@ -58,15 +59,32 @@ namespace top {
         m_min = std::stof(s.substr(4, s.size() - 4));
       } else if (s.substr(0,4) == "max:") {
         m_max = std::stof(s.substr(4, s.size() - 4));
+      } else if (s.substr(0,10) == "ptBinning:") {
+        const std::string tmp = s.substr(10, s.size() - 4);
+        // split by the delimiter
+        std::vector<std::string> split;
+        tokenize(tmp, split, ",");
+        for (const std::string& istring : split) {
+          m_ptBinning.emplace_back(std::stof(istring));
+        }
       } else {
-        throw std::runtime_error("ERROR: Can't understand argument " + s + "For JETRESPONSEPLOTS");
+        throw std::runtime_error{"ERROR: Can't understand argument " + s + "For JETRESPONSEPLOTS"};
       }
     }
 
-    for (std::size_t i = 0; i < m_edges.size() -1; ++i) {
-      m_hists.emplace_back(std::make_shared<PlotManager>(name + "/JetResponsePlots_"+std::to_string(m_edges.at(i))+"_"+std::to_string(m_edges.at(i+1)), outputFile, wk));
-      m_hists.back()->addHist("JetResponse_"+std::to_string(m_edges.at(i))+"_"+std::to_string(m_edges.at(i+1)), ";p_{T}^{truth}-p_{T}^{reco}/p_{T}^{truth};Events", m_bins, m_min, m_max);
+    if (m_ptBinning.size() < 2) {
+      throw std::invalid_argument{"pT binning (x axis) size is smaller than 2"};
     }
+
+    m_hists = std::make_shared<PlotManager>(name + "/JetResponsePlots", outputFile, wk);
+    m_hists->addHist("JetResponse",      ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_bb",   ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_b",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_c",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_tau",  ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_q",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_g",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_other",";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
   }
 
   bool JetResponsePlots::apply(const top::Event& event) const {
@@ -93,7 +111,7 @@ namespace top {
 
     for (const auto* const jetPtr : event.m_jets) {
       int jet_flavor = -99;
-      bool status = jetPtr->getAttribute<int>("PartonTruthLabelID", jet_flavor);
+      bool status = jetPtr->getAttribute<int>("HadronConeExclExtendedTruthLabelID", jet_flavor);
       if (!status) continue;
 
       float matchedPt = -9999;
@@ -103,24 +121,28 @@ namespace top {
       // protection against division by zero
       if (matchedPt < 1e-6) continue;
 
-      const float response = (matchedPt - jetPtr->pt()) / matchedPt;
+      const float response = (jetPtr->pt() - matchedPt) / matchedPt;
 
-      // identify which histogram to fill
-      std::size_t position(9999);
-      for (std::size_t i = 0; i < m_edges.size()-1; ++i) {
-        if (matchedPt/1e3 >= m_edges.at(i) && matchedPt/1e3 < m_edges.at(i+1)) {
-          position = i;
-          break;
+      static_cast<TH2D*>(m_hists->hist("JetResponse"))->Fill(matchedPt/1e3, response, w_event);
+      if (jet_flavor == 55) {
+        static_cast<TH2D*>(m_hists->hist("JetResponse_bb"))->Fill(matchedPt/1e3, response, w_event);
+      } else if (jet_flavor == 5 || jet_flavor == 54) {
+        static_cast<TH2D*>(m_hists->hist("JetResponse_b"))->Fill(matchedPt/1e3, response, w_event);
+      } else if (jet_flavor == 4 || jet_flavor == 44) {
+        static_cast<TH2D*>(m_hists->hist("JetResponse_c"))->Fill(matchedPt/1e3, response, w_event);
+      } else if (jet_flavor == 15) {
+        static_cast<TH2D*>(m_hists->hist("JetResponse_tau"))->Fill(matchedPt/1e3, response, w_event);
+      } else {
+        status = jetPtr->getAttribute<int>("PartonTruthLabelID", jet_flavor);
+        if (!status) continue;
+        if (jet_flavor >= 1 && jet_flavor <= 3) {
+          static_cast<TH2D*>(m_hists->hist("JetResponse_q"))->Fill(matchedPt/1e3, response, w_event);
+        } else if (jet_flavor == 21) {
+          static_cast<TH2D*>(m_hists->hist("JetResponse_g"))->Fill(matchedPt/1e3, response, w_event);
+        } else {
+          static_cast<TH2D*>(m_hists->hist("JetResponse_other"))->Fill(matchedPt/1e3, response, w_event);
         }
       }
-
-      if (position == 9999) {
-        throw std::runtime_error{"JetResponsePlots::FillHistograms: True jet pT outside of the range"};
-      }
-
-      static_cast<TH1D*>(m_hists.at(position)
-            ->hist("JetResponse_"+std::to_string(m_edges.at(position))+"_"+std::to_string(m_edges.at(position+1))))
-            ->Fill(response, w_event);
     }
   }
 
