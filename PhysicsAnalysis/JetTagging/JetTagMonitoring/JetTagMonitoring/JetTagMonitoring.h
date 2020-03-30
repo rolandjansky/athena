@@ -148,8 +148,8 @@ private:
     std::string m_ElectronTrigger_2017; // added by SARA
     std::string m_MuonTrigger_2017; // added by SARA
     std::string m_JetTrigger_2017; // added by SARA
-    std::string m_ElectronTrigger_201X;
-    std::string m_MuonTrigger_201X;
+    std::string m_ElectronTrigger_201X; //Wildcard trigger naming HLT_e*
+    std::string m_MuonTrigger_201X; //Wildcard trigger naming HLT_mu*
 
     /** @brief Master kill if no tools found. */
     bool m_switch_off;
