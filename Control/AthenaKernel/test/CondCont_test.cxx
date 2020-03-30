@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/test/CondCont_test.cxx
@@ -496,9 +496,6 @@ void test4 (TestRCUSvc& rcusvc)
   assert (cc.insert (EventIDRange (mixed(2, 10, 150),
                                    mixed(2, 15, 150)),
                      std::make_unique<B>(7)).isFailure());
-  assert (cc.insert (EventIDRange (mixed(2, 10, 150),
-                                   runlbn(2, 20)),
-                     std::make_unique<B>(8)).isFailure());
 
   StatusCode sc = cc.insert (EventIDRange (mixed(2, 10, 120),
                                            mixed(2, 20, 130)),
