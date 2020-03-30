@@ -9,10 +9,6 @@
 #ifndef ASG_TOOLS__ASG_COMPONENT_CONFIG_H
 #define ASG_TOOLS__ASG_COMPONENT_CONFIG_H
 
-#ifndef ROOTCORE
-#error only include this header in AnalysisBase
-#endif
-
 #include <map>
 #include <memory>
 #include <string>
@@ -146,6 +142,7 @@ namespace asg
                                   const std::string& toolType);
 
 
+#ifdef XAOD_STANDALONE
     /// \brief make a component with the given configuration
     ///
     /// Note that generally users won't call this function.  The
@@ -178,7 +175,30 @@ namespace asg
     template<typename T> StatusCode
     makeComponentExpert (std::unique_ptr<T>& component,
                          const std::string& newCommand,
-                         bool nestedNames) const;
+                         bool nestedNames, std::string prefix) const;
+#endif
+
+
+#ifndef XAOD_STANDALONE
+    /// \brief add component configuration to configuration service
+    /// (expert only)
+    ///
+    /// In Athena we are not creating components (we leave that to the
+    /// proper Athena services), but instead we load the configuration
+    /// values up first, then ask for the component to be created the
+    /// normal way.  This makes sure that if we dump the configuration
+    /// it will include this component, and as a bonus it avoids the
+    /// whole issue of having to deal with Athena factory functions.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   configuration errors
+  public:
+    StatusCode
+    configureComponentExpert (const std::string& prefix,
+                              bool nestedNames) const;
+#endif
 
 
 
@@ -201,6 +221,15 @@ namespace asg
     /// \brief the map of property values
   private:
     std::map<std::string,std::string> m_propertyValues;
+
+
+    /// \brief check that the type and name members have the correct format
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   type or name doesn't have proper format
+  private:
+    StatusCode checkTypeName (bool nestedNames) const;
   };
 }
 
