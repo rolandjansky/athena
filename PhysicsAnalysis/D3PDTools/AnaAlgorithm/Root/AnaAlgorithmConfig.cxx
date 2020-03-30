@@ -13,6 +13,7 @@
 #include <AnaAlgorithm/AnaAlgorithmConfig.h>
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AnaAlgorithm/AlgorithmWorkerData.h>
 #include <AnaAlgorithm/MessageCheck.h>
 #include <AsgTools/AsgTool.h>
 #include <RootCoreUtils/Assert.h>
@@ -85,7 +86,8 @@ namespace EL
 
 
   ::StatusCode AnaAlgorithmConfig ::
-  makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const
+  makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm,
+                 const AlgorithmWorkerData& workerData) const
   {
     RCU_READ_INVARIANT (this);
     using namespace msgAlgorithmConfig;
@@ -93,6 +95,12 @@ namespace EL
     if (m_isPublicTool == false)
     {
       ANA_CHECK (makeComponentExpert (algorithm, "new %1% (\"%2%\", nullptr)", true, ""));
+      algorithm->setHistogramWorker (workerData.m_histogramWorker);
+      algorithm->setTreeWorker (workerData.m_treeWorker);
+      algorithm->setFilterWorker (workerData.m_filterWorker);
+      algorithm->setWk (workerData.m_wk);
+      algorithm->setEvtStore (workerData.m_evtStore);
+      ANA_CHECK (algorithm->sysInitialize());
     } else
     {
       std::unique_ptr<asg::AsgTool> tool;
@@ -100,7 +108,7 @@ namespace EL
       ANA_CHECK (tool->initialize());
 
       AnaAlgorithmConfig dummyAlg ("EL::AnaAlgorithm/DummyAlg." + name());
-      ANA_CHECK (dummyAlg.makeAlgorithm (algorithm));
+      ANA_CHECK (dummyAlg.makeAlgorithm (algorithm, workerData));
       algorithm->addCleanup (std::move (tool));
     }
 
