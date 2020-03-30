@@ -36,6 +36,7 @@ The functions contained in this module are:
     items, where any given item may be picked multiple times.
 """
 
+from builtins import range
 __version__ = "1.0"
 
 """combo.py
@@ -74,7 +75,7 @@ ev
 """
     if n==0: yield []
     else:
-        for i in xrange(len(items)):
+        for i in range(len(items)):
             for cc in all_combinations(items[:i]+items[i+1:],n-1):
                 yield [items[i]]+cc
 
@@ -92,7 +93,7 @@ ve
 """
     if n==0: yield []
     else:
-        for i in xrange(len(items)):
+        for i in range(len(items)):
             for cc in combinations(items[i+1:],n-1):
                 yield [items[i]]+cc
             
@@ -121,7 +122,7 @@ ee
 """
     if n==0: yield []
     else:
-        for i in xrange(len(items)):
+        for i in range(len(items)):
             for ss in selections(items, n-1):
                 yield [items[i]]+ss
 

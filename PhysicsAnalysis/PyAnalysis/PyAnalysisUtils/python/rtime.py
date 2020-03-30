@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
@@ -20,8 +21,8 @@ Print a report of the CPU time taken.
         ret = fn (*args, **kw)
     finally:
         ru1 = resource.getrusage (resource.RUSAGE_SELF)
-        print "utime: %f, stime: %f" % (ru1.ru_utime-ru0.ru_utime,
-                                        ru1.ru_stime-ru0.ru_stime)
+        print("utime: %f, stime: %f" % (ru1.ru_utime-ru0.ru_utime,
+                                        ru1.ru_stime-ru0.ru_stime))
     return ret
 
     
