@@ -33,7 +33,7 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
     options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
     options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
-    options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo'
+    options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo_' + JetCollection
     options['TrackToJetAssociatorName'] = options['JetCollectionName'] + '.' + Associator
     options['BTagJFVtxCollectionName'] = btagname + JetSVLink
     options['BTagSVCollectionName'] = btagname + JetSVLink

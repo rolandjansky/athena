@@ -51,6 +51,8 @@ atlas_add_library( BTaggingLib
                    src/JetSecVertexingAlg.cxx
                    src/JetSecVtxFindingAlg.cxx
                    src/BTagTrackAugmenterAlg.cxx
+                   src/BTagHighLevelAugmenterAlg.cxx
+                   src/HighLevelBTagAlg.cxx
                    PUBLIC_HEADERS BTagging
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel MagFieldInterfaces JetInterface VxVertex ParticleJetToolsLib JetTagToolsLib FlavorTagDiscriminants
@@ -59,7 +61,7 @@ atlas_add_library( BTaggingLib
 atlas_add_component( BTagging
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel MagFieldInterfaces JetInterface VxVertex GeoPrimitives xAODBase xAODCore xAODMuon xAODTracking InDetRecToolInterfaces ParticleJetToolsLib JetTagEvent JetTagInfo JetTagToolsLib Particle TrkLinks VxJetVertex VxSecVertex BTaggingLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel MagFieldInterfaces JetInterface VxVertex GeoPrimitives xAODBase xAODCore xAODMuon xAODTracking InDetRecToolInterfaces ParticleJetToolsLib JetTagEvent JetTagInfo JetTagToolsLib FlavorTagDiscriminants Particle TrkLinks VxJetVertex VxSecVertex BTaggingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
