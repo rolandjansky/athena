@@ -11,7 +11,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0Ch
 
 
 FastChain_tf.py \
-    --simulator ATLFASTIIF \
+    --simulator ATLFASTIIF_G4MS \
     --digiSteeringConf "Split" \
     --useISF True \
     --randomSeed 123 \
