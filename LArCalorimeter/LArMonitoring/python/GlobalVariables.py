@@ -105,12 +105,12 @@ lArDQGlobals.N_Cells=200000
 #feedthrough+slot ranges
 lArDQGlobals.Feedthrough_Slot_Nbins={p : (lArDQGlobals.FEB_Feedthrough[p][1]+1)*lArDQGlobals.FEB_Slot[p][1] for p in lArDQGlobals.FEB_Feedthrough }
 lArDQGlobals.Feedthrough_Slot_range={p : [lArDQGlobals.FEB_Feedthrough[p][0]*lArDQGlobals.FEB_Slot[p][1]+lArDQGlobals.FEB_Slot[p][0]-0.5,lArDQGlobals.FEB_Feedthrough[p][1]*lArDQGlobals.FEB_Slot[p][1]+lArDQGlobals.FEB_Slot[p][1]+0.5] for p in lArDQGlobals.FEB_Feedthrough }
-range32=range(32)
-range15=range(1,15)
-lArDQGlobals.Feedthrough_Slot_labels_Barrel=[str(If) if Is==1 else '' for If in range32 for Is in range15]
-range25=range(25)
-range16=range(1,16)
-lArDQGlobals.Feedthrough_Slot_labels_Endcap=[str(If) if Is==1 else '' for If in range25 for Is in range16]
+range_0_32=range(32)
+range_1_15=range(1,15)
+lArDQGlobals.Feedthrough_Slot_labels_Barrel=[str(If) if Is==1 else '' for If in range_0_32 for Is in range_1_15]
+range_0_25=range(25)
+range_1_16=range(1,16)
+lArDQGlobals.Feedthrough_Slot_labels_Endcap=[str(If) if Is==1 else '' for If in range_0_25 for Is in range_1_16]
 
 
 #ROD ranges
