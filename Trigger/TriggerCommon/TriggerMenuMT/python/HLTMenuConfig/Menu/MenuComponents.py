@@ -2,7 +2,6 @@
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
-#log.setLevel(logging.DEBUG)
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
@@ -719,15 +718,13 @@ class Chain(object):
             log.debug("createHypoTools for Step %s", step.name)
             if len(step.sequences) == 0:
                 continue
-
-            step_mult = [str(m) for m in step.multiplicity]
-
-            if step_mult >1 and not step.isCombo:
-                log.error("Step mult > 1 (%d), but step is not combo", step_mult)
+            
+            if sum(step.multiplicity) >1 and not step.isCombo:
+                log.error("This should be an error, because step mult > 1 (%s), but step is not combo", sum(step.multiplicity))
 
             if len(step.chainDicts) > 0:
                 # new way to configure hypo tools, works if the chain dictionaries have been attached to the steps
-                log.info('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, step_mult, step.isCombo)
+                log.info('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
                 for seq, onePartChainDict in zip(step.sequences, step.chainDicts):
                     log.info('    onePartChainDict:')
                     log.info('    ' + str(onePartChainDict))
@@ -735,11 +732,12 @@ class Chain(object):
 
             else:
                 # legacy way, to be removed once all signatures pass the chainDicts to the steps
+                step_mult = [str(m) for m in step.multiplicity]
                 log.info('%s in old hypo tool creation method', self.name)
                 menu_mult = [ part['chainParts'][0]['multiplicity'] for part in listOfChainDictsLegs ]
                 if step_mult != menu_mult:
                     # Probably this shouldn't happen, but it currently does
-                    log.warning("Got multiplicty %s from chain parts, but have %s legs. This is expected only for jet chains, but it has happened for %s, using the first chain dict", menu_mult, step_mult, self.name)
+                    log.warning("Got multiplicty %s from chain parts, but have %s legs. This is expected only for jet chains, but it has happened for %s, using the first chain dict", menu_mult, sum(step.multiplicity), self.name)
                     firstChainDict = listOfChainDictsLegs[0]
                     firstChainDict['chainName']= self.name # rename the chaindict to remove the leg name
                     for seq in step.sequences:
@@ -877,8 +875,6 @@ class ChainStep(object):
             self.combo.createComboHypoTools(chainDict, self.comboToolConfs)
         
         
-
-
     def __repr__(self):
         return "--- ChainStep %s ---\n + isCombo = %d, multiplicity = %d  ChainDict = %s \n + MenuSequences = %s  \n + ComboHypoTools = %s"%(self.name, self.isCombo,  sum(self.multiplicity), ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])), ' '.join(map(str, [seq.name for seq in self.sequences]) ),  ' '.join(map(str, [tool.__name__ for tool in self.comboToolConfs]))) 
 

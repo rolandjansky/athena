@@ -44,8 +44,7 @@ RegSelTool::~RegSelTool() { }
 const RegSelSiLUT* RegSelTool::lookup() const {
   if ( !m_initialised ) return nullptr; 
   SG::ReadCondHandle< RegSelCondData<RegSelSiLUT> > table_handle( m_tableKey ); 
-  const RegSelSiLUT* lookup_table = (*table_handle)->payload();
-  return lookup_table;    
+  return (*table_handle)->payload();
 }
 
 
@@ -54,18 +53,13 @@ StatusCode RegSelTool::initialize() {
   ATH_CHECK( m_tableKey.initialize() );
   ATH_MSG_DEBUG( "Initialising RegSelTool " << name() << "\ttable: " << m_tableKey );
   if ( !m_initialised ) { 
-    ATH_MSG_WARNING( "Lookup table will not be iitialised " << name() << "\tkey " << m_tableKey );
+    ATH_MSG_WARNING( "Lookup table will not be initialised " << name() << "\tkey " << m_tableKey );
   } 
   if ( name().find( "RPC") != std::string::npos ) m_rpcflag = true;
   return StatusCode::SUCCESS;
 }
 
 
-
-StatusCode RegSelTool::finalize() {
-  ATH_MSG_INFO( "Finalizing " << name() );
-  return StatusCode::SUCCESS;
-}
 
 
 void RegSelTool::cleanup( std::vector<IdentifierHash>& idvec ) const {

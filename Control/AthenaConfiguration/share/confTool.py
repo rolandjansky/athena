@@ -247,7 +247,7 @@ def __compareComponent(compRef, compChk, prefix, args, component):
             if args.ignoreIrrelevant and chkVal in ignoreList:
                 continue
 
-            if chkVal == refVal:
+            if str(chkVal) == str(refVal):
                 if not args.printIdenticalPerParameter:
                     continue
                 diffmarker = ""
@@ -287,14 +287,21 @@ def __compareComponent(compRef, compChk, prefix, args, component):
                 "%s exists only in Chk : \033[94m %s \033[0m \033[91m<< !!!\033[0m"
                 % (prefix, str(diffChk))
             )
+
         if len(compRef) == len(compChk):
-            for i, (refVal, chkVal) in enumerate(zip(compRef, compChk)):
-                if refVal != chkVal:
-                    print(
-                        "%s : \033[92m %s \033[0m vs \033[94m %s \033[0m \033[91m<< at index %s !!!\033[0m"
-                        % (prefix, str(refVal), str(chkVal), str(i))
-                    )
-                    __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args, '')
+            if sorted(compRef) == sorted(compChk):
+                print(
+                    "%s : \033[91m ^^ Different order ^^ !!!\033[0m"
+                    % (prefix)
+                )
+            else:
+                for i, (refVal, chkVal) in enumerate(zip(compRef, compChk)):
+                    if refVal != chkVal:
+                        print(
+                            "%s : \033[92m %s \033[0m vs \033[94m %s \033[0m \033[91m<< at index %s !!!\033[0m"
+                            % (prefix, str(refVal), str(chkVal), str(i))
+                        )
+                        __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args, '')
 
 
 def __parseIOVDbFolder(definition):
@@ -327,6 +334,7 @@ def __parseIOVDbFolder(definition):
     result['name'] = definition.strip()
 
     return json.dumps(result)
+
 
 def __compareIOVDbFolders(compRef, compChk, prefix, args):
     refParsed = []

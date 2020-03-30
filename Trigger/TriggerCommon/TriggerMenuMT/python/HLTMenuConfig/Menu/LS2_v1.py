@@ -81,9 +81,9 @@ def setupMenu():
         ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # low et threshold for debugging
-        ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhloose_noringer_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhmedium_noringer_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
 
         # Primary
         ChainProp(name='HLT_e26_lhtight_L1EM24VHI', groups=SingleElectronGroup),

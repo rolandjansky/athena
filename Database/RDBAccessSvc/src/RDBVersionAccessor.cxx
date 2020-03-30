@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,6 +21,8 @@
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/SchemaException.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -77,7 +79,7 @@ void RDBVersionAccessor::getChildTagData()
     coral::IQuery *queryTag2Node = tableTag2Node.newQuery();
     queryTag2Node->addToOutputList("TAG_ID");
     queryTag2Node->setMemoryCacheSize(1);
-    coral::AttributeList bindsTag2Node;
+    coral::AttributeList bindsTag2Node ATLAS_THREAD_SAFE;
     bindsTag2Node.extend<std::string>("tagN");
     queryTag2Node->setCondition("TAG_NAME=:tagN", bindsTag2Node);
     bindsTag2Node[0].data<std::string>() = m_parentTag;
@@ -120,7 +122,7 @@ void RDBVersionAccessor::getChildTagData()
     queryNodeIDs->addToOutputList("BRANCH_FLAG");
     queryNodeIDs->setMemoryCacheSize(2);
 
-    coral::AttributeList bindsNodeIDs;
+    coral::AttributeList bindsNodeIDs ATLAS_THREAD_SAFE;
     bindsNodeIDs.extend<std::string>("parentN");
     bindsNodeIDs.extend<std::string>("childN");
 
@@ -183,7 +185,7 @@ void RDBVersionAccessor::getChildTagData()
     std::string currentParrent = childNodeId;
     std::string currentChild = childNodeId;
 
-    coral::AttributeList bindsNode;
+    coral::AttributeList bindsNode ATLAS_THREAD_SAFE;
     bindsNode.extend<std::string>("nodeId");
 
     while(currentParrent != parentNodeId)
@@ -237,7 +239,7 @@ void RDBVersionAccessor::getChildTagData()
       }
     }
 
-    coral::AttributeList bindsLtag2Ltag;
+    coral::AttributeList bindsLtag2Ltag ATLAS_THREAD_SAFE;
     bindsLtag2Ltag.extend<std::string>("childN");
     bindsLtag2Ltag.extend<std::string>("parentT");
     bindsLtag2Ltag.extend<std::string>("parentN");
@@ -300,7 +302,7 @@ void RDBVersionAccessor::getChildTagData()
     queryTagName->addToOutputList("TAG_NAME");
     queryTagName->setMemoryCacheSize(1);
 
-    coral::AttributeList bindsTagName;
+    coral::AttributeList bindsTagName ATLAS_THREAD_SAFE;
     bindsTagName.extend<std::string>("tagId");
 
     queryTagName->setCondition("TAG_ID=:tagId", bindsTagName);

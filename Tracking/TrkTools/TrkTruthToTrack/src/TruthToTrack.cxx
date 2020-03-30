@@ -65,7 +65,7 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const He
   Trk::TrackParameters *result = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable) {
-    HepMC::ThreeVector tv = part->production_vertex()->point3d();
+    HepMC::FourVector tv = part->production_vertex()->position();
     Amg::Vector3D hv(tv.x(),tv.y(),tv.z());
     const Amg::Vector3D& globalPos = hv;
     

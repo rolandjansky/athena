@@ -1,0 +1,6 @@
+<lcgdict>
+  <enum pattern="SCT_Monitoring::*" />
+  <variable pattern="SCT_Monitoring::*" />
+  <function pattern="SCT_Monitoring::*" />
+  <class name="SCT_Monitoring::ROOT6_NamespaceAutoloadHook" />
+</lcgdict>

@@ -89,11 +89,12 @@ def MDT_OverlayDigitizationToolCfg(flags, name="Mdt_OverlayDigitizationTool", **
 def MDT_OutputCfg(flags):
     """Return ComponentAccumulator with Output for MDT. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["MdtCsmContainer#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["MuonSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["MdtCsmContainer#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["MuonSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 

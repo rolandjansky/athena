@@ -2678,8 +2678,7 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
   Amg::Vector3D pos(0.,0.,0.);    // default
 
   if (vtx) {
-    //const HepMC::ThreeVector vtxPos(vtx->point3d());
-    pos = Amg::Vector3D( vtx->point3d().x(),vtx->point3d().y(), vtx->point3d().z());
+    pos = Amg::Vector3D( vtx->position().x(),vtx->position().y(), vtx->position().z());
   }
 
   ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting transport from position "<< pos );

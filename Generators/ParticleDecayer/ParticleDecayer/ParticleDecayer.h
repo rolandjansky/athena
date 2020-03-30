@@ -75,7 +75,7 @@ class ParticleDecayer: public GenModule {
   HepPDT::ParticleDataTable* m_particleTable;
 
   double     getParticleMass(int pdgID); //retrieve tha particle mass given the PDG ID 
-  void       addParticle   (HepMC::GenVertex*, int pdg, HepMC::ThreeVector, int statusCode); //add particles to the evgen file
+  void       addParticle   (HepMC::GenVertex*, int pdg, HepMC::FourVector, int statusCode); //add particles to the evgen file
 
   double rnd_ExpLifetime(double ct);
   double rnd_DoubleRange(double a, double b);

@@ -364,7 +364,7 @@ CollSplitByGUIDBase::copyRows()
    for( unsigned int i=0; i<m_srcCollections.size(); i++ )
    {
       ICollection* collection = m_srcCollections[i];
-      auto_ptr<ICollectionQuery>  collQuery( collection->newQuery() );
+      unique_ptr<ICollectionQuery>  collQuery( collection->newQuery() );
       collQuery->setCondition( m_queryinfo.query() );
       if( m_queryinfo.queryOptions().size() ) {
 	 collQuery->addToOutputList( m_queryinfo.queryOptions() );

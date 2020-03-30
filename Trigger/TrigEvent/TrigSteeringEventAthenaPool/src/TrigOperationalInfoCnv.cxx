@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -40,7 +40,7 @@ TrigOperationalInfo* TrigOperationalInfoCnv::createTransient()
   if( compareClassGuid(p1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigOperationalInfoCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigOperationalInfo_p1 >   col_vect( this->poolReadObject< TrigOperationalInfo_p1 >() );
+    std::unique_ptr< TrigOperationalInfo_p1 >   col_vect( this->poolReadObject< TrigOperationalInfo_p1 >() );
     trans_obj = m_TPConverter->createTransient( col_vect.get(), mlog );    
   } else {
     
