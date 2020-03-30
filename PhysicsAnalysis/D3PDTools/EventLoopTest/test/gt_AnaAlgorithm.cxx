@@ -13,6 +13,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AnaAlgorithm/AnaAlgorithmConfig.h>
 
+#include <AnaAlgorithm/AlgorithmWorkerData.h>
 #include <EventLoopTest/UnitTestAlg2.h>
 #include <AsgTools/ToolHandle.h>
 #include <AsgTools/MessageCheck.h>
@@ -34,11 +35,12 @@ using namespace EL;
 
 TEST (AnaAlgorithmTest, create_basic)
 {
+  AlgorithmWorkerData workerData;
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::AnaAlgorithm");
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, workerData));
   ASSERT_NE (nullptr, alg.get());
   ASSERT_EQ ("name", alg->name());
 }
@@ -50,23 +52,25 @@ TEST (AnaAlgorithmTest, newAlg)
 
 TEST (AnaAlgorithmTest, create)
 {
+  AlgorithmWorkerData workerData;
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::UnitTestAlg2");
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, workerData));
   ASSERT_NE (nullptr, alg.get());
   ASSERT_EQ ("name", alg->name());
 }
 
 TEST (AnaAlgorithmTest, setProperty_string)
 {
+  AlgorithmWorkerData workerData;
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::UnitTestAlg2");
   ASSERT_SUCCESS (config.setProperty ("string_property", "42"));
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, workerData));
   UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
   ASSERT_NE (nullptr, myalg);
   ASSERT_EQ ("42", myalg->m_string_property);
@@ -74,12 +78,13 @@ TEST (AnaAlgorithmTest, setProperty_string)
 
 TEST (AnaAlgorithmTest, setProperty)
 {
+  AlgorithmWorkerData workerData;
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::UnitTestAlg2");
   ASSERT_SUCCESS (config.setProperty ("property", 42));
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, workerData));
   UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
   ASSERT_NE (nullptr, myalg);
   ASSERT_EQ (42, myalg->m_property);
@@ -87,12 +92,13 @@ TEST (AnaAlgorithmTest, setProperty)
 
 TEST (AnaAlgorithmTest, setOutputLevel)
 {
+  AlgorithmWorkerData workerData;
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::UnitTestAlg2");
   ASSERT_SUCCESS (config.setProperty ("OutputLevel", MSG::Level::VERBOSE));
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, workerData));
   UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
   ASSERT_NE (nullptr, myalg);
   ASSERT_EQ (MSG::Level::VERBOSE, static_cast<int>(myalg->msg().level()));
@@ -100,13 +106,14 @@ TEST (AnaAlgorithmTest, setOutputLevel)
 
 TEST (AnaAlgorithmTest, setSubTool)
 {
+  AlgorithmWorkerData workerData;
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::UnitTestAlg2");
   ASSERT_SUCCESS (config.createPrivateTool ("toolHandle", "EL::UnitTestTool"));
   ASSERT_SUCCESS (config.setProperty ("toolHandle.propertyInt", 17));
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, workerData));
   UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
   ASSERT_NE (nullptr, myalg);
   ASSERT_NE (nullptr, &*myalg->m_toolHandle);
@@ -116,6 +123,7 @@ TEST (AnaAlgorithmTest, setSubTool)
 
 TEST (AnaAlgorithmTest, setSubSubTool)
 {
+  AlgorithmWorkerData workerData;
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::UnitTestAlg2");
@@ -123,7 +131,7 @@ TEST (AnaAlgorithmTest, setSubSubTool)
   ASSERT_SUCCESS (config.createPrivateTool ("toolHandle.subtool", "EL::UnitTestTool"));
   ASSERT_SUCCESS (config.setProperty ("toolHandle.subtool.propertyInt", 17));
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, workerData));
   UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
   ASSERT_NE (nullptr, myalg);
   ASSERT_NE (nullptr, &*myalg->m_toolHandle);
