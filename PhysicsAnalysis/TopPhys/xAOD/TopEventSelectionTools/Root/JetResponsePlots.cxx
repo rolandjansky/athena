@@ -77,14 +77,14 @@ namespace top {
     }
 
     m_hists = std::make_shared<PlotManager>(name + "/JetResponsePlots", outputFile, wk);
-    m_hists->addHist("JetResponse",      ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_bb",   ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_b",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_c",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_tau",  ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_q",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_g",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_other",";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse",      ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_bb",   ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_b",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_c",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_tau",  ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_q",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_g",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_other",";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
   }
 
   bool JetResponsePlots::apply(const top::Event& event) const {
