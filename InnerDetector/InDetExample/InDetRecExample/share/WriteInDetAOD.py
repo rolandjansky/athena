@@ -58,6 +58,19 @@ if InDetFlags.doxAOD():
   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLowPtRoITrackParticleContainer()+'Aux.' + excludedAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODLowPtRoIVertexContainer()]
   InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLowPtRoIVertexContainer()+'Aux.' + excludedVertexAuxData]
+  if InDetFlags.doStoreTrackSeeds():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData]
+  if InDetFlags.doStoreTrackSeeds() and InDetFlags.doLowPtRoI():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPLowPtRoISeedSegments()+"TrackParticle"]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPLowPtRoISeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData]
+  if InDetFlags.doStoreTrackCandidates():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle"]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle"+'Aux.' + excludedAuxData]
+  if InDetFlags.doStoreTrackCandidates() and InDetFlags.doLowPtRoI():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSiSPLowPtRoITrackCandidates()+"TrackParticle"]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSiSPLowPtRoITrackCandidates()+"TrackParticle"+'Aux.' + excludedAuxData]
+   
   if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 

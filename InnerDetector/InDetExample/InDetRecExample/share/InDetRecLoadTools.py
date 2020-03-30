@@ -221,8 +221,8 @@ if InDetFlags.loadRotCreator():
     if InDetFlags.doStoreTrackSeeds() and InDetFlags.doLowPtRoI():
         from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
         InDet_SeedToTrackConversionLowPtRoI = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversionLowPtRoI", 
-                                                                                                                                                            TrackPatternRecoInfo = "SiSpacePointsSeedMaker_LowMomentum",
-                                                                                                                                                            SeedsegmentsOutput = "SiSPLowPtRoISeedSegments")
+                                                                                TrackPatternRecoInfo = "SiSpacePointsSeedMaker_LowMomentum",
+                                                                                SeedsegmentsOutput = "SiSPLowPtRoISeedSegments")
         ToolSvc += InDet_SeedToTrackConversionLowPtRoI
 
     if PixelClusterOnTrackToolDigital != None :
