@@ -169,6 +169,8 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     bool passedL2=false;
     bool passedEFTrk=false;
     bool passedEF=false;
+
+    auto trigger = info.trigName;
    
     // This should be solved first: https://its.cern.ch/jira/browse/ATR-20588
     passedL1Calo = true;
@@ -177,24 +179,24 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     if(!info.trigL1){ // HLT item get full decision
         ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
 
-        passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec);  
-        passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec);
+        passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, "HLT_L2CaloEMClusters");  
+        passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters");
 
 
         if(info.trigType == "electron"){
             ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
-            passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec);
-            passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec);
-            passedEFTrk = match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
+            passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_L2Electrons");
+            passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons");
+            passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
         }
         else if(info.trigType == "photon"){
             ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
-            passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec);
-            passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec);
+            passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_L2Photons");
+            passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons");
             passedEFTrk=true;// Assume true for photons
         }
     }
-
+    
     acceptData.setCutResult("L1Calo",passedL1Calo);
     acceptData.setCutResult("L2Calo",passedL2Calo);
     acceptData.setCutResult("L2",passedL2);

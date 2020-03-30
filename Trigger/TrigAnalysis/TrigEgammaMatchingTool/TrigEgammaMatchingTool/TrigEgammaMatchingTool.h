@@ -29,9 +29,9 @@ class TrigEgammaMatchingTool :
 
         virtual ~TrigEgammaMatchingTool();
 
-        virtual StatusCode initialize(void);
-        virtual StatusCode execute();
-        virtual StatusCode finalize();
+        virtual StatusCode initialize() override;
+        
+        
         /*! Egamma trigger matching which returns TE */
         bool match(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&);
         /*! Egamma trigger matching to HLT Electron/Photon with DeactivatedTE*/

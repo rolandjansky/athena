@@ -5,26 +5,27 @@
 # Declare the package name:
 atlas_subdir( TrigEgammaMatchingTool )
 
-# Extra dependencies, based on the build environment:
-set( extra_deps Control/AthenaBaseComps GaudiKernel )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigEgamma
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigConfiguration/TrigConfHLTData
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTau
                           Event/xAOD/xAODTrigger
+                          Trigger/TrigAnalysis/TrigDecisionTool
+                          Trigger/TrigConfiguration/TrigConfHLTData
+                          Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/DecisionHandling
-			                    ${extra_deps} )
+                          PRIVATE
+                          Control/AthToolSupport/AsgTools
+                          Control/AthenaMonitoring
+                          Control/StoreGate
+                          Control/AthenaBaseComps
+                          GaudiKernel )
 
 
 
@@ -37,7 +38,7 @@ atlas_add_library( TrigEgammaMatchingToolLib
                    PUBLIC_HEADERS TrigEgammaMatchingTool
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma TrigConfHLTData 
-                   TrigSteeringEvent TrigDecisionToolLib DecisionHandlingLib
+                   TrigSteeringEvent TrigDecisionToolLib DecisionHandlingLib AthenaMonitoringLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTau xAODTrigger  )
 
 
@@ -46,7 +47,6 @@ atlas_add_component( TrigEgammaMatchingTool
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma 
                      TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent AthenaBaseComps xAODMuon xAODTau xAODTrigger GaudiKernel 
-                     TrigEgammaMatchingToolLib )
-
+                     TrigEgammaMatchingToolLib AthenaMonitoringLib StoreGateLib)
 
 

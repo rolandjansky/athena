@@ -28,13 +28,6 @@ namespace Trig {
     TrigEgammaMatchingTool::~TrigEgammaMatchingTool(){
     }
 
-    StatusCode TrigEgammaMatchingTool::finalize() {
-        return StatusCode::SUCCESS;
-    }
-
-    StatusCode TrigEgammaMatchingTool::execute() {
-        return StatusCode::SUCCESS;
-    }
 
     StatusCode TrigEgammaMatchingTool::initialize() {
         // Greet the user:

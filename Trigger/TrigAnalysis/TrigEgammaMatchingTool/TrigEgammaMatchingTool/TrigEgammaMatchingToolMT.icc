@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,23 +8,53 @@ using namespace TrigCompositeUtils;
 namespace Trig{
 
 
-/*
- * Get the passed information for a given feature from TrigEgammaMatchingUtils::Element 
- */
 template<class CONTAINER>
-inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::Decision *dec) const
+bool TrigEgammaMatchingToolMT::isAvailable(SG::ReadHandle<CONTAINER>& inViewContainer) const
 {
-  if(!dec) return false;
-  const TrigCompositeUtils::LinkInfo<CONTAINER> linkInfo = TrigCompositeUtils::findLink<CONTAINER>(dec, "feature");
-  if( ! linkInfo.isValid())  return false;
-  if( linkInfo.state == ActiveState::ACTIVE)  return true;
-  return false;
+  const CONTAINER* container = inViewContainer.cptr();
+  const typename CONTAINER::const_iterator end = container->end();
+  static const SG::AuxElement::ConstAccessor< ElementLink<TrigRoiDescriptorCollection> > accessor("viewIndex");
+  for (typename CONTAINER::const_iterator it = container->begin(); it != end; ++it) {
+    static const SG::AuxElement::ConstAccessor< ElementLink<TrigRoiDescriptorCollection> > accessor("viewIndex");
+    if(!accessor.isAvailable(**it))  return false;
+  }
+  return true;
 }
 
 
 /*
- * Internal usage in the trigger e/g matching algorithm
+ * Get the passed information for a given feature from TrigEgammaMatchingUtils::Element 
  */
+template<class CONTAINER>
+inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::Decision *dec, const std::string &trigger, const std::string &key) const
+{
+
+  if( !dec ) return false;
+
+  HLT::Identifier id(trigger);
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
+  if( !initRoi.link.isValid() ) 
+    return false;
+
+  auto vec =  tdt()->features< CONTAINER >(trigger,TrigDefs::includeFailedDecisions ,key);
+
+  for( LinkInfo< CONTAINER > &featLinkInfo : vec )
+  {                                                       
+    auto roi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(featLinkInfo.source, "initialRoI");
+    if( ! roi.isValid()) continue;                                                              
+    if( (*roi.link)->roiWord() == (*initRoi.link)->roiWord()) 
+    {
+      const auto *fDec = featLinkInfo.source;
+      return  (std::find(fDec->decisions().begin(), fDec->decisions().end(), id.numeric()) != fDec->decisions().end());
+    }
+  }
+  return false;                      
+
+}
+
+
+
+
 template<class OBJECT>
 inline bool TrigEgammaMatchingToolMT::closestObject( const xAOD::Egamma *eg, const TrigCompositeUtils::Decision *&dec, std::string trigger, std::string key ) const
 {
@@ -35,7 +65,7 @@ inline bool TrigEgammaMatchingToolMT::closestObject( const xAOD::Egamma *eg, con
     const auto *feat = *(featLinkInfo.link);                   
     if(!feat) continue;
     deltaR = dR(eg->eta(),eg->phi(), feat->eta(),feat->phi());                                
-    if(deltaR < m_dR){            
+    if(deltaR < (float)m_dR){            
       dec = featLinkInfo.source;                                                
       return true;                                                                            
     }                                                                                         
@@ -44,61 +74,92 @@ inline bool TrigEgammaMatchingToolMT::closestObject( const xAOD::Egamma *eg, con
 }
 
 
-
-// For trigger levels where the eventView produce one single object and not a collection
-// L2Calo and  EFCalo
 template<class OBJECT>
-inline const OBJECT* TrigEgammaMatchingToolMT::getFeature( const TrigCompositeUtils::Decision *dec ) const
+inline const OBJECT* TrigEgammaMatchingToolMT::getFeature( const TrigCompositeUtils::Decision *dec , const std::string &trigger, const std::string &key ) const
 {
+
   if( !dec ) return nullptr;
-  auto linkInfo = TrigCompositeUtils::findLink<DataVector<OBJECT>>(dec, "feature");
-  if( ! linkInfo.isValid())  return nullptr;
-  if( !linkInfo.link.isValid() ) return nullptr;
-  return *linkInfo.link;
+
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
+  if( !initRoi.link.isValid() ) 
+    return nullptr;
+
+  auto vec =  tdt()->features<DataVector<OBJECT>>(trigger,TrigDefs::includeFailedDecisions ,key);
+
+  for( LinkInfo< DataVector<OBJECT> > &featLinkInfo : vec )
+  {                                                       
+    auto roi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(featLinkInfo.source, "initialRoI");
+    if( ! roi.isValid()) continue;                                                              
+    if( (*roi.link)->roiWord() == (*initRoi.link)->roiWord()) 
+      return *(featLinkInfo.link);
+  }
+  return nullptr;                      
 }
 
 
 
 
-/*
- * Get the EmTauRoI object from TrigEgammaMatchingUtils::Element
- */
+// L1Calo
 template<>
-inline const xAOD::EmTauRoI*  TrigEgammaMatchingToolMT::getFeature<xAOD::EmTauRoI>( const TrigCompositeUtils::Decision *dec ) const
+inline const xAOD::EmTauRoI* TrigEgammaMatchingToolMT::getFeature<xAOD::EmTauRoI>( const TrigCompositeUtils::Decision *dec ) const
 {
+  
   if( !dec )  return nullptr;
+
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
   if( !initRoi.link.isValid() ) return nullptr;
 
+  SG::ReadHandle<xAOD::EmTauRoIContainer> l1_cont( m_emTauRoIKey, Gaudi::Hive::currentContext());
+  
+  ATH_MSG_INFO("L1 IS VALID?");
+  if( !l1_cont.isValid() ) return nullptr;
+  ATH_MSG_INFO( "L1 SIZE IS "<< l1_cont->size() );
 
-  const DataVector<xAOD::EmTauRoI> *container = nullptr;
-  if ( !evtStore()->retrieve( container, "LVL1EmTauRoIs").isSuccess() ){
-    ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
-    return nullptr;
-  }
-
-  for( const auto *l1 : *container ){
-    if ( l1->roiType() == xAOD::EmTauRoI::RoIType::EMRoIWord) continue;
+  for( const auto *l1 : *l1_cont ){
+    if ( l1->roiType() != xAOD::EmTauRoI::RoIType::EMRoIWord) continue;
     if((*initRoi.link)->roiWord()==l1->roiWord()){
       return l1;
     }
   }
   return nullptr;
+} 
+
+
+
+// L2Calo
+template<>
+inline const xAOD::TrigEMCluster* TrigEgammaMatchingToolMT::getFeature<xAOD::TrigEMCluster>( const TrigCompositeUtils::Decision *dec) const
+{
+  std::vector< const xAOD::TrigEMCluster*> vec;
+  if( !dec )  return nullptr;
+  SG::ReadHandle<xAOD::TrigEMClusterContainer> l2_cont(m_emClusterKey, Gaudi::Hive::currentContext());
+  if( !l2_cont.isValid() ) return nullptr;
+  if(!isAvailable<xAOD::TrigEMClusterContainer>(l2_cont) ) return nullptr;
+  const auto itPair = tdt()->associateToEventView<xAOD::TrigEMClusterContainer>(l2_cont, dec);
+  const auto begin = itPair.first;
+  const auto end  = itPair.second;
+  for ( auto it = begin; it != end; ++it) vec.push_back(*it);
+  ATH_MSG_INFO( "EMCluster has "<< vec.size() );
+  return vec.front();
 }
 
 
 
-template<class OBJECT>
-inline std::vector<const OBJECT*>  TrigEgammaMatchingToolMT::getFeatures( const TrigCompositeUtils::Decision *dec, std::string &key ) const
-{
-  std::vector< const OBJECT*> vec;
-  if( !dec )  return vec;
-  SG::ReadHandle<DataVector<OBJECT>> containerReadHandle(key, Gaudi::Hive::currentContext());
-  if( !containerReadHandle.isValid() ) return vec;
-  auto linkInfo = TrigCompositeUtils::findLink<DataVector<OBJECT>>(dec, "feature");
-  if( !linkInfo.isValid() ) return nullptr;
 
-  const auto itPair = tdt()->associateToEventView<DataVector<OBJECT>>(containerReadHandle, linkInfo);
+
+
+
+// L2Electron
+template<>
+inline std::vector<const xAOD::TrigElectron*> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigElectron>( const TrigCompositeUtils::Decision *dec) 
+const
+{
+  std::vector< const xAOD::TrigElectron*> vec;
+  if( !dec )  return vec;
+  SG::ReadHandle<xAOD::TrigElectronContainer> l2_cont(m_trigElectronKey, Gaudi::Hive::currentContext());
+  if( !l2_cont.isValid() ) return vec;
+  if(!isAvailable<xAOD::TrigElectronContainer>(l2_cont) ) return vec;
+  const auto itPair = tdt()->associateToEventView<xAOD::TrigElectronContainer>(l2_cont, dec);
   const auto begin = itPair.first;
   const auto end  = itPair.second;
   for ( auto it = begin; it != end; ++it) vec.push_back(*it);
@@ -106,4 +167,87 @@ inline std::vector<const OBJECT*>  TrigEgammaMatchingToolMT::getFeatures( const 
 }
 
 
-}// namespace
+
+// L2Photon
+template<>
+inline std::vector<const xAOD::TrigPhoton*> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigPhoton>( const TrigCompositeUtils::Decision *dec) 
+const
+{
+  std::vector< const xAOD::TrigPhoton*> vec;
+  if( !dec )  return vec;
+  SG::ReadHandle<xAOD::TrigPhotonContainer> l2_cont(m_trigPhotonKey, Gaudi::Hive::currentContext());
+  if( !l2_cont.isValid() ) return vec;
+  if(!isAvailable<xAOD::TrigPhotonContainer>(l2_cont) ) return vec;
+  const auto itPair = tdt()->associateToEventView<xAOD::TrigPhotonContainer>(l2_cont, dec);
+  const auto begin = itPair.first;
+  const auto end  = itPair.second;
+  for ( auto it = begin; it != end; ++it) vec.push_back(*it);
+  return vec;
+}
+
+
+
+// EFCalo
+template<>
+inline std::vector<const xAOD::CaloCluster*> TrigEgammaMatchingToolMT::getFeatures<xAOD::CaloCluster>( const TrigCompositeUtils::Decision *dec) 
+const
+{
+  std::vector< const xAOD::CaloCluster*> vec;
+  if( !dec )  return vec;
+  SG::ReadHandle<xAOD::CaloClusterContainer> cl_cont(m_clusterKey, Gaudi::Hive::currentContext());
+  if( !cl_cont.isValid() ) return vec;
+  if(!isAvailable<xAOD::CaloClusterContainer>(cl_cont) ) return vec;
+  const auto itPair = tdt()->associateToEventView<xAOD::CaloClusterContainer>(cl_cont, dec);
+  const auto begin = itPair.first;
+  const auto end  = itPair.second;
+  for ( auto it = begin; it != end; ++it) vec.push_back(*it);
+  return vec;
+}
+
+
+
+
+
+// Electron
+template<>
+inline std::vector<const xAOD::Electron*> TrigEgammaMatchingToolMT::getFeatures<xAOD::Electron>( const TrigCompositeUtils::Decision *dec)
+const
+{
+  std::vector< const xAOD::Electron*> vec;
+  if( !dec )  return vec;
+  SG::ReadHandle<xAOD::ElectronContainer> el_cont(m_electronKey, Gaudi::Hive::currentContext());
+  if( !el_cont.isValid() ) return vec;
+  if(!isAvailable<xAOD::ElectronContainer>(el_cont) ) return vec;
+  const auto itPair = tdt()->associateToEventView<xAOD::ElectronContainer>(el_cont, dec);
+  const auto begin = itPair.first;
+  const auto end  = itPair.second;
+  for ( auto it = begin; it != end; ++it) vec.push_back(*it);
+  return vec;
+}
+
+
+
+
+
+// Photon
+template<>
+inline std::vector<const xAOD::Photon*> TrigEgammaMatchingToolMT::getFeatures<xAOD::Photon>( const TrigCompositeUtils::Decision *dec) 
+const
+{
+  std::vector< const xAOD::Photon*> vec;
+  if( !dec )  return vec;
+  SG::ReadHandle<xAOD::PhotonContainer> ph_cont(m_photonKey, Gaudi::Hive::currentContext());
+  if( !ph_cont.isValid() ) return vec;
+  if(!isAvailable<xAOD::PhotonContainer>(ph_cont) ) return vec;
+  const auto itPair = tdt()->associateToEventView<xAOD::PhotonContainer>(ph_cont, dec);
+  const auto begin = itPair.first;
+  const auto end  = itPair.second;
+  for ( auto it = begin; it != end; ++it) vec.push_back(*it);
+  return vec;
+}
+
+
+
+
+
+}// namepsace

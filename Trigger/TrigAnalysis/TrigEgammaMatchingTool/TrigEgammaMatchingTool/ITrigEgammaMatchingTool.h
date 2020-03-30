@@ -30,9 +30,7 @@ namespace Trig{
         ASG_TOOL_INTERFACE( Trig::ITrigEgammaMatchingTool )
 
         public:
-            virtual StatusCode initialize(void) = 0;
-            virtual StatusCode execute()=0;
-            virtual StatusCode finalize()=0;
+            virtual StatusCode initialize() = 0;
             virtual bool match(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&)=0;
             virtual bool match(const xAOD::Egamma *,const std::string)=0;
             virtual bool matchHLT(const xAOD::Egamma *,const std::string)=0;
