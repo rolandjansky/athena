@@ -54,7 +54,7 @@ def generateL1DecoderAndChains():
  
     # event 2: 2e+ 3mu : HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6, HLT_mu6_e8_L1MU6_EM5
     data['ctp'] [2]      =  'HLT_mu6_L1MU6 HLT_mu8_L1MU10 HLT_mu10_L1MU10 HLT_mu8_1step_L1MU6 HLT_e20_L1EM10 HLT_e8_L1EM7 HLT_mu6_e8_L1MU6_EM5 HLT_mu6Comb_e8_L1MU6_EM5 HLT_e3_e5_L1EM3_EM5 HLT_2mu6_L12MU6 HLT_2mu6Comb_L12MU6 HLT_2mu4_bDimu_L12MU4 HLT_e5_e8_L1EM3_EM5 HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 HLT_mu6_mu6noL1_L1MU6'
-    data['l1emroi'][2]   =  '2,0.2,0,EM3,EM5, EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM5,EM7,EM15,EM20,EM50;'
+    data['l1emroi'][2]   =  '2,0.2,0,EM3,EM5,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM5,EM7,EM15,EM20,EM50;'
     data['emclusters'][2]=  'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;'
     data['l1muroi'][2]   =  '2,0.5,0,MU6,MU8; 3,0.5,0,MU6,MU8,MU10;2.2,0.6,0,MU6;'
     data['msmu'][2]      =  'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;eta:-1.1,phi:0.6,pt:8500,pt2:8500;'
@@ -203,11 +203,9 @@ def generateL1DecoderAndChains():
 
      
         CombChains =[
+            # This is an example of a chain running in "serial"
             makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em_serial", [mu11, emptySeq1], multiplicity=[1,1]),
-                                                                                             ChainStep("Step2_mu_em_serial", [emptySeq1, el21], multiplicity=[1,1])] ),
-
-            #makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=[1,1], comboToolConfs=[dimuDrComboHypoTool]),
-            #                                                                                 ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
+                                                                                             ChainStep("Step2_mu_em_serial", [emptySeq2, el21], multiplicity=[1,1])] ),
 
             makeChain(name='HLT_mu6Comb_e8_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
                                                                                                 ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
