@@ -10,9 +10,8 @@
    @date   February 2020
 **/
 
-#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
-#include "AsgElectronPhotonCorrectionConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
 
