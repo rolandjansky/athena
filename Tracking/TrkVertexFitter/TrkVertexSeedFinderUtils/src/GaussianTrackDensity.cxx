@@ -9,7 +9,6 @@
 #include "GaudiKernel/PhysicalConstants.h"
 
 #include <algorithm>
-#include <set>
 
 namespace Trk
 {
@@ -53,25 +52,9 @@ namespace Trk
   {
     ATH_MSG_VERBOSE("Inside trackDensity function; z=" << z);
     double sum = 0.0;
-    TrackEntry target(z);
-    std::set<TrackEntry, pred_entry_by_min> overlaps;
-    lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
-    if (left == m_lowerMap.end()) return sum;                // z is to the right of every track's range
-    upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
-    if (right == m_upperMap.begin()) return sum;             // z is to the left of every track's range
-    for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
+    for (const auto& entry : m_lowerMap)
     {
-      if ( itrk->first.upperBound > z + m_maxRange ) break;
-      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps.insert(itrk->first);
-    }
-    for (auto itrk = right; itrk-- != m_upperMap.begin(); )
-    {
-      if ( itrk->first.lowerBound < z - m_maxRange ) break;
-      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps.insert(itrk->first);
-    }
-    for (const auto& entry : overlaps)
-    {
-      sum += std::exp(entry.c_0+z*(entry.c_1 + z*entry.c_2));
+      sum += std::exp(entry.first.c_0+z*(entry.first.c_1 + z*entry.first.c_2));
     }
     return sum;
   }
