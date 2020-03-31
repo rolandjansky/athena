@@ -83,7 +83,7 @@ double magn(GeoTrf::Vector2D& vector)
 /////////////////////////////////// Constructor //////////////////////////////////
 //
 TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,
-						 ServiceHandle<ITRT_StrawStatusSummarySvc> summarySvc, // added for Argon
+						 const ITRT_StrawStatusSummaryTool* sumTool, // added for Argon
 						 bool useOldActiveGasMixture,
 						 bool DC2CompatibleBarrelCoordinates,
 						 int overridedigversion,
@@ -99,13 +99,12 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
     m_DC2CompatibleBarrelCoordinates(DC2CompatibleBarrelCoordinates),
     m_overridedigversion(overridedigversion),
     m_alignable(alignable),
-    m_sumSvc("TRT_StrawStatusSummarySvc","InDetTRTStrawStatusSummarySvc"),
+    m_sumTool(sumTool),
     m_strawsvcavailable(0),
     m_doArgon(doArgon),
     m_doKrypton(doKrypton),
     m_useDynamicAlignFolders(useDynamicAlignmentFolders)
 { 
-  m_sumSvc=summarySvc;
 }
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -165,13 +164,12 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   //---------------------- Check if the folder TRT/Cond/StatusHT is in place ------------------------//
   m_strawsvcavailable = false;
   if (m_doArgon || m_doKrypton){
-  	m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT");
-	m_strawsvcavailable &= (m_sumSvc->getStrawStatusHTContainer() != nullptr);
+    m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT") && m_sumTool;
   }
   msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable << endmsg ;
-  if (!m_strawsvcavailable) msg(MSG::WARNING) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endmsg;
-  if (!m_doArgon  )	msg(MSG::WARNING) << "Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endmsg;
-  if (!m_doKrypton)	msg(MSG::WARNING) << "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endmsg;
+  if (!m_strawsvcavailable) msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endmsg;
+  if (!m_doArgon  )	msg(MSG::DEBUG) << "Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endmsg;
+  if (!m_doKrypton)	msg(MSG::DEBUG) << "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endmsg;
   
  
   //---------------------- Initialize ID Helper ------------------------------------//
@@ -978,7 +976,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	pShell->add(new GeoIdentifierTag(iABC));
   TRT_Identifier = idHelper->straw_id(1, iMod, iABC, 1, 1);
   int strawStatusHT = TRTCond::StrawStatus::Good;
-  if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumSvc->getStatusHT(TRT_Identifier);
+  if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumTool->getStatusHT(TRT_Identifier);
   ActiveGasMixture agm = DecideGasMixture(strawStatusHT);
 
   // Ruslan: insert radiators with Ar-straws
@@ -1292,7 +1290,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     int bar_ec = (iiSide) ? -2 : +2;
     TRT_Identifier = idHelper->straw_id(bar_ec, 1, iiWheel, 1, 1);
     int strawStatusHT = TRTCond::StrawStatus::Good;
-    if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumSvc->getStatusHT(TRT_Identifier);
+    if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumTool->getStatusHT(TRT_Identifier);
     ActiveGasMixture agm = DecideGasMixture(strawStatusHT);
 
     // Ruslan: insert plane with Ar-straws
@@ -1601,7 +1599,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     int bar_ec = (iiSide) ? -2 : +2;
     TRT_Identifier = idHelper->straw_id(bar_ec, 1, iiWheel, 1, 1);
     int strawStatusHT = TRTCond::StrawStatus::Good;
-    if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumSvc->getStatusHT(TRT_Identifier);
+    if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumTool->getStatusHT(TRT_Identifier);
     ActiveGasMixture agm = DecideGasMixture(strawStatusHT);
 
     //Ruslan: insert plane with Ar-straws
