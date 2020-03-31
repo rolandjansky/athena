@@ -13,7 +13,7 @@ class AnaAlgorithmMeta ( object ):
     a separate algorithm.
     """
 
-    def __init__( self, stageName, affectingSystematics, inputPropName, outputPropName, selectionDecorNames, selectionDecorCount ):
+    def __init__( self, stageName, affectingSystematics, inputPropName, outputPropName, selectionDecorNames, selectionDecorCount, dynConfig ):
 
         if not stageName in self.allowedStageNames() :
             raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + ', '.join(self.allowedStageNames()))
@@ -24,6 +24,7 @@ class AnaAlgorithmMeta ( object ):
             raise ValueError ("selectionDecorNames and selectionDecorCount don't have the same length: " + str (len (selectionDecorNames)) + " " + str (len (selectionDecorCount)));
         self.selectionDecorNames = selectionDecorNames
         self.selectionDecorCount = selectionDecorCount
+        self.dynConfig = dynConfig
 
         if isinstance( inputPropName, dict ):
             self.inputPropName = inputPropName
