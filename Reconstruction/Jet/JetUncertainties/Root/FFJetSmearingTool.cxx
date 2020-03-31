@@ -516,8 +516,8 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_va
 
 
 	if(m_Syst_MassDefAffected_map[sys.basename()] == CALO_or_TA){
-                if(CALO_or_TA=="Calo")ATH_MSG_VERBOSE("This uncertainty do not affect the TA mass");
-                if(CALO_or_TA=="TA")ATH_MSG_VERBOSE("This uncertainty do not affect the Calo mass");
+                if(CALO_or_TA=="Calo")ATH_MSG_VERBOSE("This uncertainty affects to the Calo mass");
+                if(CALO_or_TA=="TA")ATH_MSG_VERBOSE("This uncertainty affects to the TA mass");
 	} //Only apply the systematic to the proper mass definition
         else{return StatusCode::SUCCESS;}
 
@@ -637,21 +637,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	jet_mass_CALO = jet_reco_CALO.mass();
         jet_mass_TA = jet_reco_TA.mass();
 
-        calo_mass_weight = (jet_reco_Comb.mass() - jet_reco_TA.mass())/(jet_reco_CALO.mass()-jet_reco_TA.mass());
-
-	if(jet_reco_Comb.mass()<=0 || jet_reco_CALO.mass() < 0 || jet_reco_TA.mass() < 0){
-		ATH_MSG_VERBOSE("The Comb, Calo or TA mass component of your jet has a negative value");
-		return CP::CorrectionCode::Ok;
-	}
-	if(calo_mass_weight<0 || calo_mass_weight>1){
-                ATH_MSG_VERBOSE("Combined mass jet missconstructed. Calo mass weight outside 0-1 range");//It is needed for some bugs in jetcalibtools (when eta almost2) )
-                return CP::CorrectionCode::Ok;
-
-	}
 
 	float JetTrackAssistedMassCalibrated_from_JetCalibTools;
 	jet_reco->getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
-	ATH_MSG_VERBOSE("Jet Track Assisted Mass Calibrated " <<  JetTrackAssistedMassCalibrated_from_JetCalibTools);
 
 	if( JetTrackAssistedMassCalibrated_from_JetCalibTools == 0){ //Sometimes JetCalibTools set a TA mass of 0 or close to 0 to some Calo or TA jets. 
 					//The mass should be equal to 0 (it is a problem of JetCalibTools). In order to solve it, we extract again the TA mass
@@ -664,14 +652,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 		 use_jetcalibtoolsweight = true;		
 	} 
 
-
 	else{
 		use_jetcalibtoolsweight = false;
 	}
-
-
-//        calo_mass_weight = (jet_reco_Comb.mass() - jet_reco_TA.mass())/(jet_reco_CALO.mass()-jet_reco_TA.mass());
-//        ATH_MSG_VERBOSE("Calo mass weight from JeetCalibrationTools = " << calo_mass_weight );
 
 
     }
@@ -814,8 +797,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
 
 
-	ATH_MSG_VERBOSE("(Modified) Map Calo weight = " << calo_mass_weight  );
-	ATH_MSG_VERBOSE("(Modified) Map TA weight = " << 1 - calo_mass_weight  );
+	ATH_MSG_VERBOSE(" Map Calo weight = " << calo_mass_weight  );
+	ATH_MSG_VERBOSE(" Map TA weight = " << 1 - calo_mass_weight  );
     }
 
 
@@ -832,7 +815,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
        jet_reco->setJetP4(p4);
 
 
-        ATH_MSG_VERBOSE("(With proper weights) Smeared Reco Jet: pt = " << jet_reco->pt()/1000. << ", mass = " << jet_reco->m()/1000. << ", eta = " << jet_reco->eta());
+        ATH_MSG_VERBOSE("Smeared Reco Jet: pt = " << jet_reco->pt()/1000. << ", mass = " << jet_reco->m()/1000. << ", eta = " << jet_reco->eta());
 	
 
 
