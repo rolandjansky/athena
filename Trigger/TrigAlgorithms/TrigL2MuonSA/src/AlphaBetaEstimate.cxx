@@ -343,7 +343,7 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius(double InnerSlope, double 
 double TrigL2MuonSA::AlphaBetaEstimate::computeRadius3Points(double InnerZ, double InnerR, 
                                                                double EEZ, double EER,
                                                                double MiddleZ, double MiddleR)
-{
+const {
   double radius_EE;
 
   double a3;
@@ -377,7 +377,7 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius3Points(double InnerZ, doub
   return radius_EE;
 }
 
-double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double x2,double y2,double x3,double y3)    {
+double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double x2,double y2,double x3,double y3)   const {
   double xm1=(x1+x2)/2;
   double xm2=(x2+x3)/2;
   double ym1=(y1+y2)/2;
