@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from ROOT import *
 import sys
@@ -9,7 +11,7 @@ from optparse import OptionParser
 def PlotCalibrationTiming(input_file_name=None):
 
   if input_file_name == None:
-    print "No input file name, assuming output.root"
+    print ("No input file name, assuming output.root")
     input_file_name = "output.root"
 
   gStyle.SetPalette(1)
@@ -39,12 +41,12 @@ def PlotCalibrationTiming(input_file_name=None):
           run_directory_name = name
       if run_directory_name == None:
         raise NameError
-  except Exception, e:
-    print "ERROR, the file doesn't contain run# directory!"
+  except Exception:
+    print ("ERROR, the file doesn't contain run# directory!")
     sys.exit(1)
 
 
-  print "Entering directory: ", run_directory_name
+  print ("Entering directory: ", run_directory_name)
   gDirectory.cd(run_directory_name)
 
 
@@ -71,10 +73,10 @@ def PlotCalibrationTiming(input_file_name=None):
   gStyle.SetOptStat(111111)
   partition_histos=[]
   for key in directory_content:
-    print key," Class name= ", key.GetClassName(), " Name=", key.GetName()
+    print (key," Class name= ", key.GetClassName(), " Name=", key.GetName())
     if key.GetClassName() == 'TDirectoryFile':
-      print "OK, I will create new histogram for this partition!"
-      print "Name of partition is: ", key.GetName()
+      print ("OK, I will create new histogram for this partition!")
+      print ("Name of partition is: ", key.GetName())
       partition_histos.append(TH1F(key.GetName()+'_his','Timing distribution for partition: '+key.GetName(),100,-10.,10.))
       gDirectory.cd()
       gDirectory.cd("/ADC/FineTime/"+run_directory_name+"/"+key.GetName())
@@ -94,12 +96,12 @@ def PlotCalibrationTiming(input_file_name=None):
 
   os.system("ps2pdf CalibrationTimingPlots.ps")
 
-  print "Finished!"
+  print ("Finished!")
 
 
 if __name__ == "__main__":
 
-  print "Starting PlotCalibrationTiming"
+  print ("Starting PlotCalibrationTiming")
 
   parser = OptionParser()
   parser.add_option("-f","--InputFile",action="store",type="string",dest="input_file_name",help="Name of input file")

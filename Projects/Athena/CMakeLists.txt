@@ -66,6 +66,11 @@ set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
 mark_as_advanced( OpenBlasEnvironment_DIR )
 find_package( OpenBlasEnvironment )
 
+# Set up where to find the AthenaPoolUtilitiesTest CMake code.
+set( AthenaPoolUtilitiesTest_DIR
+   "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
+   CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
+
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
 foreach( _external ${_externals} )

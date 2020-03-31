@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2BjetContainerCnv.h"
@@ -40,19 +40,19 @@ TrigL2BjetContainer * TrigL2BjetContainerCnv::createTransient() {
   static pool::Guid p0_guid2( "F6ACED03-42F3-4192-A4E2-47FA9A9B9D49" );
   
   if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< TrigL2BjetContainer_p3 > col_vect( poolReadObject< TrigL2BjetContainer_p3 >() );
+         std::unique_ptr< TrigL2BjetContainer_p3 > col_vect( poolReadObject< TrigL2BjetContainer_p3 >() );
          //         std::cout << "Reading IMFC p3" << std::endl;
          return TPconverter.createTransient( col_vect.get(), mlog ) ;
 
   } else if ( compareClassGuid( tlp2_guid ) ) {
     
-         std::auto_ptr< TrigL2BjetContainer_tlp2 > col_vect( poolReadObject< TrigL2BjetContainer_tlp2 >() );
+         std::unique_ptr< TrigL2BjetContainer_tlp2 > col_vect( poolReadObject< TrigL2BjetContainer_tlp2 >() );
          //  std::cout << "Reading IMFC tlp2" << std::endl;
          return TLPconverter2.createTransient( col_vect.get(), mlog );
 
   } else if ( compareClassGuid( tlp1_guid ) ) {
     
-         std::auto_ptr< TrigL2BjetContainer_tlp1 > col_vect( poolReadObject< TrigL2BjetContainer_tlp1 >() );
+         std::unique_ptr< TrigL2BjetContainer_tlp1 > col_vect( poolReadObject< TrigL2BjetContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
          return TLPconverter1.createTransient( col_vect.get(), mlog );
     

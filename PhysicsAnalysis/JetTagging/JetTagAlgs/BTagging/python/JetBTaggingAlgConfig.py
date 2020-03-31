@@ -43,7 +43,8 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
         options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'
         options['JetCalibrationName'] = jetcol.replace('Track', 'PV0Track')
         options['BTaggingCollectionName'] = btagname
-        options['BTaggingLink'] = '.btaggingLink'+ts
+        options['BTaggingLinkName'] = '.btaggingLink'+ts
+        options['JetLinkName'] = options['BTaggingCollectionName'] + '.jetLink'
 
         # -- create main BTagging algorithm
         acc.addEventAlgo(JetBTaggingAlg(**options))

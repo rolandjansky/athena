@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 def readFileSimplified(filename):
     import os.path
@@ -16,12 +17,12 @@ def filterEntry(parts):
     assert len(parts) in [1,2]
     filter_run = int(parts[0]) if len(parts)==2 else None
     filter_evt = int(parts[1]) if len(parts)==2 else int(parts[0])
-    assert (filter_run==None or filter_run>=0) and filter_evt>=0
+    assert (filter_run is None or filter_run>=0) and filter_evt>=0
     return (filter_run,filter_evt)
 
 def readFiltersFromFile(filename):
     lines = readFileSimplified(filename)
-    if lines==None: return None
+    if lines is None: return None
     filts=[]
     for l in lines:
         filts+=[filterEntry(l.replace(':',' ').split())]
@@ -43,18 +44,18 @@ def parseFilterString(s):
                     filters += [filefilt]
                 continue
             filters += [filterEntry(filt.split(':'))]
-    except:
+    except Exception:
         filters=[]
-        def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s#fixme: should go in common utils module
+        def vp1CfgErr(s): print ("VP1 CONFIGURATION ERROR: %s" % s)#fixme: should go in common utils module
         vp1CfgErr("Badly formatted filter string '%s'" % str(s))
         raise
     return (excludemode,filters)
 
 def installEventFilter(filters):
     def vp1filter(run,evt):
-        print "vp1filter(%i,%i) called" %(run,evt)
+        print ("vp1filter(%i,%i) called" %(run,evt))
         for filter in filters[1]:
-            if evt==filter[1] and (filter[0]==None or filter[0]==run): return not filters[0]
+            if evt==filter[1] and (filter[0] is None or filter[0]==run): return not filters[0]
         return filters[0]
     from AthenaCommon.AlgSequence import AthSequencer
     seq = AthSequencer('AthMasterSeq')

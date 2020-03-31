@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from TrigBunchCrossingTool.StandaloneBunchgroupHandler import BunchgroupHandler
 
@@ -19,15 +21,15 @@ before, after = bg.getNeighbourPattern(run,lb,bcid)
 # return values are (binary) lists of neighbouring BCIDs, +- 32 crossings;
 # '1': filled crossing, '0': empty crossing
 if bg.verbose:
-    print "Before",before
-    print "After",after
+    print ("Before",before)
+    print ("After",after)
 
 # function to directly access lists of neighbouring filled BCIDs
 l1, l2 = bg.getNeighbourBcids(run,lb,bcid)
-print "Run",run,"neighbouring filled BCIDs for BCID",bcid,":",sorted(l1), sorted(l2)
+print ("Run",run,"neighbouring filled BCIDs for BCID",bcid,":",sorted(l1), sorted(l2))
 
 pos = bg.getTrainPosition(run,lb,bcid)
-print "BCID",bcid,"is at position",pos,"in the bunch train"
+print ("BCID",bcid,"is at position",pos,"in the bunch train")
 
 # test cycle
 for lumiBl in range(100):

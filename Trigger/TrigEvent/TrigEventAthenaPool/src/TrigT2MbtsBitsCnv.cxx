@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT2MbtsBitsCnv.h"
@@ -33,13 +33,13 @@ TrigT2MbtsBits* TrigT2MbtsBitsCnv::createTransient() {
 
   if( compareClassGuid(p2_guid) ) {   
     mlog << MSG::DEBUG << "TrigT2MbtsBitsCnv::reading p2 persistent object" << endmsg;
-    std::auto_ptr< TrigT2MbtsBits_p2 > pers_ptr( poolReadObject< TrigT2MbtsBits_p2 >() );
+    std::unique_ptr< TrigT2MbtsBits_p2 > pers_ptr( poolReadObject< TrigT2MbtsBits_p2 >() );
     TrigT2MbtsBitsCnv_p2 converter;
     transObj = converter.createTransient(pers_ptr.get(), mlog);
   }
   else if( compareClassGuid(p1_guid) ) {   
     mlog << MSG::DEBUG << "TrigT2MbtsBitsCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigT2MbtsBits_p1 > pers_ptr( poolReadObject< TrigT2MbtsBits_p1 >() );
+    std::unique_ptr< TrigT2MbtsBits_p1 > pers_ptr( poolReadObject< TrigT2MbtsBits_p1 >() );
     TrigT2MbtsBitsCnv_p1 converter;
     transObj = converter.createTransient(pers_ptr.get(), mlog);
   }

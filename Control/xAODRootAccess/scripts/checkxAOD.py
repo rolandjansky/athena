@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-# $Id: checkxAOD.py 717307 2016-01-12 10:48:33Z schaffer $
+#
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This is a standalone implementation of the xAOD checking script. It just needs
 # a functional ROOT installation to work.
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 717307 $
-# $Date: 2016-01-12 11:48:33 +0100 (Tue, 12 Jan 2016) $
-#
+
+# Import(s):
+import os, re, operator, ROOT
+from optparse import OptionParser
 
 ## C(++) style main function
 #
@@ -21,7 +21,6 @@
 def main():
 
     # Set up the command line option parser:
-    from optparse import OptionParser
     parser = OptionParser( usage = "usage: %prog [-f] xAOD.pool.root" )
     parser.add_option( "-f", "--file",
                        dest = "fileName",
@@ -42,7 +41,7 @@ def main():
         "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
         "Jet"      : ["^CamKt", "^AntiKt", "^Jet"],
         "CaloTopo" : ["CaloCalTopoCluster"],
-        "Calo"     : ["^LAr", "^AllCalo", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer",  "^E4prContainer", "^TileCellVec", "^TileDigits"],
+        "Calo"     : ["^LAr", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer", "^E4prContainer", "^TileCellVec", "^TileDigits"],
         "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"]
         }
     # Get the file name(s), taking all options into account:
@@ -60,7 +59,6 @@ def main():
     fileNames = set( fileNames )
 
     # Set up ROOT:
-    import ROOT
     ROOT.gErrorIgnoreLevel = ROOT.kError
 
     # Loop over the files:
@@ -115,7 +113,6 @@ class ContainerInfo( object ):
 def printFileInfo( fileName, categoryStrings ):
 
     # Open the file:
-    import ROOT
     f = ROOT.TFile.Open( fileName, "READ" )
     if not f or f.IsZombie():
         raise "Couldn't open file %s" % fileName
@@ -143,7 +140,6 @@ def printFileInfo( fileName, categoryStrings ):
               ( branch.GetEntries(), branch.GetName(), entries )
         # "Decode" the name of the branch:
         brName = branch.GetName()
-        import re
         # Check if this is a static auxiliary branch:
         m = re.match( "(.*)Aux\..*", branch.GetName() )
         if m:
@@ -171,7 +167,6 @@ def printFileInfo( fileName, categoryStrings ):
     for cName in infoForCont.keys():
         orderedData += [ infoForCont[ cName ] ]
         pass
-    import operator
     orderedData.sort( key = operator.attrgetter( "_diskSize" ) )
 
     # Finally, print the collected information:
@@ -253,7 +248,6 @@ def printFileInfo( fileName, categoryStrings ):
     for br in categData.keys():
         categorizedData += [ categData[ br ] ]
         pass
-    import operator
     categorizedData.sort( key = operator.attrgetter( "_diskSize" ) )
 
     print( "=" * 80 )
@@ -294,7 +288,6 @@ def printFileInfo( fileName, categoryStrings ):
     print( "=" * 80 )
     print( "" )
 
-        
     return
 
 # Run the main function in "normal mode":

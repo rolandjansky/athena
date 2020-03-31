@@ -28,7 +28,7 @@ from TileCalibBlobPython import TileCalibTools
 db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'READONLY')
 
 #=== get a blob writer
-blobReader = TileCalibTools.TileBlobReader(db,"/TILE/V01/INTEGRATOR")
+blobReader = TileCalibTools.TileBlobReader(db,"/TILE/ONL01/INTEGRATOR")
 
 #=== write out the comment
 comment = blobReader.getComment(pointInTime)

@@ -161,7 +161,8 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     # -- badChannels histograms --
     badChannels_path='Coverage/BadChannels/'
-    badChannelToolArrayBarrel.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsBarrel',
+    for side in  lArDQGlobals.Sides:
+       badChannelToolArrayBarrel.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsBarrel',
                                               type='TH2I',
                                               path=badChannels_path,
                                               title='Known Bad Channels - Barrel;Feedthrough(+Slot increasing);Channel',
@@ -173,7 +174,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
                                               xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
-    badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsEndcap',
+       badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsEndcap',
                                               type='TH2I',
                                               path=badChannels_path,
                                               title='Known Bad Channels - Endcap '+side+';Feedthrough(+Slot increasing);Channel',
@@ -492,7 +493,7 @@ if __name__=='__main__':
     cfg.merge(larCoverageAcc)
 
     ConfigFlags.dump()
-    f=open("CoverageMaker.pkl","w")
+    f=open("CoverageMaker.pkl","wb")
     cfg.store(f)
     f.close()
 

@@ -10,6 +10,8 @@ def LArHVCorrMonConfigOld(inputFlags):
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArHVCorrMonAlgOldCfg')
     LArHVCorrMonConfigCore(helper, LArHVCorrectionMonAlg, inputFlags)
 
+    from LArConditionsCommon import LArHVDB # noqa: F401
+
     return helper.result()
     
 def LArHVCorrMonConfig(inputFlags):

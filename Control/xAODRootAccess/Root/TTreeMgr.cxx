@@ -1,13 +1,10 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TTreeMgr.cxx 752002 2016-06-03 07:55:49Z krasznaa $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TTree.h>
 #include <TClass.h>
 #include <TDirectory.h>
+#include <TFile.h>
 #include <TROOT.h>
 #include <TRegexp.h>
 
@@ -37,6 +34,13 @@ namespace xAOD {
       // Give the file to the TEvent object:
       RETURN_CHECK( "xAOD::TTreeMgr::readFrom",
                     m_event.readFrom( file, useTreeCache, treeName ) );
+      // Load the first event from the file.
+      if( m_event.getEntry( 0 ) < 0 ) {
+         ::Error( "xAOD::TTreeMgr::readFrom",
+                  "Couldn't load the first event from file \"%s\"",
+                  file->GetName() );
+         return TReturnCode::kFailure;
+      }
 
       // Remember the event tree name:
       m_eventTreeName = treeName;

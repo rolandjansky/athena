@@ -10,6 +10,8 @@ from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
 from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
+from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
+from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
     result=ComponentAccumulator()
@@ -77,6 +79,11 @@ def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
 
       author = flags.BTagging.OutputFiles.Prefix + JetCollection + suffix
       ItemList.append(OutputFilesBaseName + author)
+      # jetLink
+      jetLink = '.jetLink'
+      ItemList.append(OutputFilesBaseName+author+jetLink)
+      ItemList.append(OutputFilesBaseAuxName+author+jetLink)
+
       ItemList.append(OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB')
       # SecVert
       ItemList.append(OutputFilesBaseNameSecVtx + author + OutputFilesSVname)
@@ -165,12 +172,13 @@ def BTagCfg(inputFlags,**kwargs):
 
     #Should be parameters
     JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlow']
-    JetCollection = ['AntiKt4EMTopo']
-    taggerList = inputFlags.BTagging.run2TaggersList
-    taggerList += ['MultiSVbb1','MultiSVbb2']
 
+    TrainedTaggers = inputFlags.BTagging.run2TaggersList + ['MultiSVbb1','MultiSVbb2']
+    result.merge(JetTagCalibCfg(inputFlags, TaggerList = TrainedTaggers))
 
     for jet in JetCollection:
+        taggerList = inputFlags.BTagging.run2TaggersList
+        taggerList += ['MultiSVbb1','MultiSVbb2']
         if timestamp:
             #Time-stamped BTagging container (21.2)
             for ts in timestamp:
@@ -195,8 +203,20 @@ def BTagCfg(inputFlags,**kwargs):
             result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
 
         if splitAlg:
-            #Track Augmenter
-            result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
+            postTagDL2JetToTrainingMap={
+                'AntiKt4EMPFlow': [
+                #'BTagging/201903/smt/antikt4empflow/network.json',
+                'BTagging/201903/rnnip/antikt4empflow/network.json',
+                'BTagging/201903/dl1r/antikt4empflow/network.json',
+                'BTagging/201903/dl1/antikt4empflow/network.json',
+                #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+                ]
+            }
+
+            if jet in postTagDL2JetToTrainingMap:
+                #Remove DL1 and RNNIP from taggers list, those taggers are run with HighLevelBTagAlg
+                taggerList.remove('RNNIP')
+                taggerList.remove('DL1')
 
             #Track Association
             TrackToJetAssociators = ['BTagTrackToJetAssociator', 'BTagTrackToJetAssociatorBB']
@@ -222,10 +242,31 @@ def BTagCfg(inputFlags,**kwargs):
 
             #BTagging
             result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SVandAssoc = SecVertexingAndAssociators, **kwargs))
+
+            if jet in postTagDL2JetToTrainingMap:
+                result.merge(RunHighLevelTaggersCfg(inputFlags, jet, 'BTagTrackToJetAssociator', postTagDL2JetToTrainingMap[jet]))
+
         else:
             result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
 
-    result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList))
+    return result
+
+def RunHighLevelTaggersCfg(inputFlags, JetCollection, Associator, TrainingMaps):
+    result = ComponentAccumulator()
+    #Track Augmenter
+    result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    BTagCollection = 'BTagging_'+JetCollection
+    sequenceName = BTagCollection + "_HLTaggers"
+
+    HLBTagSeq = AthSequencer(sequenceName)
+    HLBTagSeq.Sequential = True
+    result.addSequence(HLBTagSeq)
+
+    result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, sequenceName, BTagCollection = BTagCollection, Associator = Associator, **kwargs) )
+    for dl2 in TrainingMaps:
+        result.merge(HighLevelBTagAlgCfg(inputFlags, sequenceName, BTagCollection, dl2) )
 
     return result
 

@@ -87,13 +87,13 @@ from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
 MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "MuonCscRawDataProviderTool",
     Decoder = CscRodDecoder)
 ToolSvc += MuonCscRawDataProviderTool
-print      MuonCscRawDataProviderTool
+printfunc (MuonCscRawDataProviderTool)
 
 # --- RawData Provider
 from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
 topSequence += Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
     ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
-print          topSequence.MuonCscRawDataProvider
+printfunc (topSequence.MuonCscRawDataProvider)
 
 # --- BS Converter 
 theApp.Dlls   += [ "ByteStreamCnvSvc", "ByteStreamCnvSvcBase"]
@@ -182,12 +182,12 @@ svcMgr.MessageSvc.defaultLimit=1000000;
 #--------------------------------------------------------------
 
 #--------------------------------------------------------------------------- 
-print "List all DLL"
-print theApp.Dlls
-print "List all ExtSvc"
-print theApp.ExtSvc
-print "List of all top algorithms"
-print theApp.TopAlg
+printfunc ("List all DLL")
+printfunc (theApp.Dlls)
+printfunc ("List all ExtSvc")
+printfunc (theApp.ExtSvc)
+printfunc ("List of all top algorithms")
+printfunc (theApp.TopAlg)
 #--------------------------------------------------------------------------- 
 
 

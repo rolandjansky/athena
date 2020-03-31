@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TextFileDBReader_H
@@ -8,6 +8,11 @@
 /// Class to read in a text file and allow easy retrieval of parameters
 #include <string>
 #include <map>
+//for thread-safety checker
+#include "CxxUtils/checker_macros.h"
+//use thread-safe atomic_flag to replace m_logger
+#include <atomic> 
+#include <unordered_map>
 
 class TextFileDBReader
 {							
@@ -31,6 +36,8 @@ private:
     {}
     std::string value;
     int section;
+    //add a atomic_flag to replace the m_logger
+    mutable std::atomic_bool flag = ATOMIC_VAR_INIT(false);
   };
 
 
@@ -38,12 +45,12 @@ private:
   bool getRowNumber(std::string & key, std::string & rowNumber) const;
   void add(const std::string & key, const std::string & value);
   void add(const std::string & key, int);
-  std::map<std::string, Data> m_table;
-  std::map<std::string, int> m_sections;
-  mutable std::map<std::string, int> m_logger;
+  std::unordered_map<std::string, Data> m_table;
+  std::unordered_map<std::string, int> m_sections;
   int m_numSections;
   int m_currentSection;
   std::string m_name;
+
 };
 
 #endif // PixelGeoModel_TextFileDBReader_H

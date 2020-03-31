@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -283,7 +283,7 @@ void TrigTSerializer::add_previous_streamerinfos(){
     //this triggers a crash on lcg60
     TClass *cl = inf->GetClass();
     if (cl)
-      ATH_MSG_WARNING( "external TStreamerInfo for " << cl->GetName()
+      ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
                      << " checksum: " << inf->GetCheckSum()  );
   }
   streamersList->SetOwner(false);

@@ -248,7 +248,6 @@ class ComboMaker(AlgNode):
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.prop="MultiplicitiesMap"
         self.mult=list(multiplicity)
-        self._hypoToolConf = []
 
     def create (self, name):
         log.debug("ComboMaker.create %s",name)
@@ -270,24 +269,20 @@ class ComboMaker(AlgNode):
             cval=newdict
 
         setattr(self.Alg, self.prop, cval)
-        log.debug("ComboAlg %s has now these chains chain %s", self.Alg.name(), self.getPar(self.prop))
 
 
     def getChains(self):
         cval = self.Alg.getProperties()[self.prop]
         return cval
 
-    def addComboHypoToolConfs(self, comboToolConfs):
-        self._hypoToolConf = [ HypoToolConf( tool ) for tool in comboToolConfs ]
-        for conf in self._hypoToolConf:
-            log.debug("ComboMaker.addComboHypoToolConfs %s %s", self.Alg.name(), conf.name)
 
-    def createComboHypoTools(self, chainDict):
-        """Ccreated the ComboHypoTools"""
-        if not len(self._hypoToolConf):
+    def createComboHypoTools(self, chainDict, comboToolConfs):
+        """Created the ComboHypoTools"""
+        if not len(comboToolConfs):
             return
-        log.debug("ComboMaker.createComboHypoTools for %s with %d tools", self.Alg.name(), len(self._hypoToolConf))        
-        self.Alg.ComboHypoTools = [conf.confAndCreate( chainDict ) for conf in self._hypoToolConf]
+        confs = [ HypoToolConf( tool ) for tool in comboToolConfs ]
+        log.debug("ComboMaker.createComboHypoTools for chain %s, Alg %s with %d tools", chainDict["chainName"],self.Alg.name(), len(comboToolConfs))        
+        self.Alg.ComboHypoTools = [conf.confAndCreate( chainDict ) for conf in confs]
         
 
 
@@ -387,7 +382,6 @@ class MenuSequence(object):
     def maker(self):
         return self._maker
 
-
     @property
     def hypo(self):
         return self._hypo
@@ -396,12 +390,10 @@ class MenuSequence(object):
     def getOutputList(self):
         outputlist = []
         if type(self._hypo) is list:
-
             for hypo in self._hypo:
                 outputlist.append(hypo.readOutputList()[0])
         else:
             outputlist.append(self._hypo.readOutputList()[0])
-
         return outputlist
 
 
@@ -564,10 +556,6 @@ class CAMenuSequence(MenuSequence):
         return self._hypo
 
 
-#################################################
-
-#from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getAllThresholdsFromItem, getUniqueThresholdsFromItem
-
 
 class Chain(object):
     """Basic class to define the trigger menu """
@@ -637,23 +625,24 @@ class Chain(object):
 
     def createHypoTools(self):
         """ This is extrapolating the hypotool configuration from the chain name"""
-        log.debug("decodeHypoToolConfs for chain %s", self.name)
+        log.debug("createHypoTools for chain %s", self.name)
         from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
 
         # this spliting is only needed for chains which don't yet attach
         # the dictionaries to the chain steps. It should be removed
         # later once that migration is done.
         listOfChainDictsLegs = splitChainInDict(self.name)
-        
         for step in self.steps:
+            log.debug("createHypoTools for Step %s", step.name)
             if len(step.sequences) == 0:
                 continue
-
-            step_mult = [str(m) for m in step.multiplicity]
+            
+            if sum(step.multiplicity) >1 and not step.isCombo:
+                log.error("This should be an error, because step mult > 1 (%s), but step is not combo", sum(step.multiplicity))
 
             if len(step.chainDicts) > 0:
                 # new way to configure hypo tools, works if the chain dictionaries have been attached to the steps
-                log.info('%s in new hypo tool creation method', self.name)
+                log.info('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
                 for seq, onePartChainDict in zip(step.sequences, step.chainDicts):
                     log.info('    onePartChainDict:')
                     log.info('    ' + str(onePartChainDict))
@@ -661,23 +650,21 @@ class Chain(object):
 
             else:
                 # legacy way, to be removed once all signatures pass the chainDicts to the steps
+                step_mult = [str(m) for m in step.multiplicity]
                 log.info('%s in old hypo tool creation method', self.name)
                 menu_mult = [ part['chainParts'][0]['multiplicity'] for part in listOfChainDictsLegs ]
-                #print 'step, step_mult, menu_mult: ' + step.name + ' ' + str(step_mult) + ' ' + str(menu_mult)
                 if step_mult != menu_mult:
                     # Probably this shouldn't happen, but it currently does
-                    log.warning("Got multiplicty %s from chain parts, but have %s legs. This is expected only for jet chains, but it has happened for %s, using the first chain dict", menu_mult, step_mult, self.name)
+                    log.warning("Got multiplicty %s from chain parts, but have %s legs. This is expected only for jet chains, but it has happened for %s, using the first chain dict", menu_mult, sum(step.multiplicity), self.name)
                     firstChainDict = listOfChainDictsLegs[0]
                     firstChainDict['chainName']= self.name # rename the chaindict to remove the leg name
                     for seq in step.sequences:
                         seq.createHypoTools( firstChainDict )
-
                 else:
                     # add one hypotool per sequence and chain part
                     for seq, onePartChainDict in zip(step.sequences, listOfChainDictsLegs):
                         seq.createHypoTools( onePartChainDict )
 
-           
             step.createComboHypoTools(self.name) 
 
 
@@ -742,7 +729,6 @@ class CFSequence(object):
           log.debug("This CFSequence has no sequences: outputs are the Filter outputs")
 
 
-
     def connectCombo(self):
         """ connect Combo to Hypos"""
         for seq in self.step.sequences:
@@ -756,7 +742,6 @@ class CFSequence(object):
             combo_output=CFNaming.comboHypoOutputName (self.step.combo.Alg.name(), combo_input)
             self.step.combo.addOutput(combo_output)
             log.debug("CFSequence.connectCombo: adding output to  %s: %s",  self.step.combo.Alg.name(), combo_output)
-
 
 
     def __repr__(self):
@@ -792,29 +777,24 @@ class ChainStep(object):
         if self.isCombo:
             self.makeCombo()
 
-
-    def addCombHypoTools(self,  tools):
+    def addComboHypoTools(self,  tools):
         self.comboToolConfs=tools
-        self.combo.addComboHypoToolConfs(self.comboToolConfs)
 
     def makeCombo(self):
         if len(self.sequences)==0:
             return
         hashableMult = tuple(self.multiplicity)
         self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult)
-        self.combo.addComboHypoToolConfs(self.comboToolConfs)
 
     def createComboHypoTools(self, chainName):
         if self.isCombo:
             from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
             chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
-            self.combo.createComboHypoTools(chainDict)
+            self.combo.createComboHypoTools(chainDict, self.comboToolConfs)
         
         
-
-
     def __repr__(self):
-        return "--- ChainStep %s ---\n + isCombo = %d, multiplicity = %d \n + MenuSequences = %s  \n + ComboHypoTools = %s"%(self.name, self.isCombo,sum(self.multiplicity), ' '.join(map(str, [seq.name for seq in self.sequences]) ),  ' '.join(map(str, [tool for tool in self.comboToolConfs]) ))
+        return "--- ChainStep %s ---\n + isCombo = %d, multiplicity = %d  ChainDict = %s \n + MenuSequences = %s  \n + ComboHypoTools = %s"%(self.name, self.isCombo,  sum(self.multiplicity), ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])), ' '.join(map(str, [seq.name for seq in self.sequences]) ),  ' '.join(map(str, [tool.__name__ for tool in self.comboToolConfs]))) 
 
 
 def createComboAlg(dummyFlags, name, multiplicity):

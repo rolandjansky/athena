@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: BunchCrossingTool.py 784782 2016-11-17 09:42:26Z krasznaa $
 
@@ -140,7 +140,7 @@ def TrigConfBunchCrossingTool():
                       "LVL1/BunchGroupContent" ]
         for f in __folders:
             if not conddb.folderRequested( "/TRIGGER/%s" % f ):
-                __logger.info( "Adding folder to IOVDbSvc: /TRIGGER/%s" % f ) 
+                __logger.info( "Adding folder to IOVDbSvc: /TRIGGER/%s", f ) 
                 conddb.addFolderWithTag( __dbConnection, "/TRIGGER/%s" % f, "HEAD" )
                 pass
             pass
@@ -201,7 +201,7 @@ def MCBunchCrossingTool():
     __folders = [ "/Digitization/Parameters" ]
     for f in __folders:
         if not conddb.folderRequested( f ):
-            __logger.info( "Adding folder to IOVDbSvc: %s" % f ) 
+            __logger.info( "Adding folder to IOVDbSvc: %s", f ) 
             conddb.addFolderWithTag( __dbConnection, f, "HEAD" )
             pass
         pass
@@ -253,7 +253,7 @@ def LHCBunchCrossingTool():
     __folders = [ "FILLPARAMS", "BUNCHDATA" ]
     for f in __folders:
         if not conddb.folderRequested( "/TDAQ/OLC/LHC/%s" % f ):
-            __logger.info( "Adding folder to IOVDbSvc: /TDAQ/OLC/LHC/%s" % f ) 
+            __logger.info( "Adding folder to IOVDbSvc: /TDAQ/OLC/LHC/%s", f ) 
             conddb.addFolderWithTag( __dbConnection, "/TDAQ/OLC/LHC/%s" % f, "HEAD" )
             pass
         pass

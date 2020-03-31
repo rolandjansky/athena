@@ -198,7 +198,7 @@ if iov or comment or warn<0:
 
 #=== Dump the current isBad definition
 isBadDef = mgr.getAdcProblems(0, TileCalibUtils.definitions_draweridx(), TileCalibUtils.bad_definition_chan(), 0)
-if len(isBadDef.keys()):
+if len(list(isBadDef.keys())):
     log.info( "isBad Definition: " )
     for prbCode in sorted(isBadDef.keys()):
         prbDesc = isBadDef[prbCode]
@@ -206,7 +206,7 @@ if len(isBadDef.keys()):
         log.info( msg )
 #=== Dump the current isBadTiming definition
 isBadTimingDef = mgr.getAdcProblems(0, TileCalibUtils.definitions_draweridx(), TileCalibUtils.badtiming_definition_chan(), 0)
-if len(isBadTimingDef.keys()):
+if len(list(isBadTimingDef.keys())):
     log.info( "isBadTiming Definition: " )
     for prbCode in sorted(isBadTimingDef.keys()):
         prbDesc = isBadTimingDef[prbCode]

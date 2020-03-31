@@ -25,23 +25,27 @@ class RefComparisonStep(Step):
         super(RefComparisonStep, self).__init__(name)
         self.reference = None
         self.input_file = None
+        self.explicit_reference = False  # True if reference doesn't exist at configuration time
 
     def configure(self, test):
         if self.reference is not None:
+            # Do nothing if the reference will be produced later
+            if self.explicit_reference:
+                return super(RefComparisonStep, self).configure(test)
             # Do nothing if the reference exists
             if os.path.isfile(self.reference):
-                return
+                return super(RefComparisonStep, self).configure(test)
             # Try to find the file in DATAPATH
             full_path = subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).decode('utf-8').strip()
             if os.path.isfile(full_path):
                 self.log.debug('%s using reference %s', self.name, full_path)
                 self.reference = full_path
-                return
+                return super(RefComparisonStep, self).configure(test)
             else:
                 self.log.warning(
                     '%s failed to find reference %s - wrong path?',
                     self.name, self.reference)
-                return
+                return super(RefComparisonStep, self).configure(test)
 
         if self.input_file is None:
             self.log.error('Cannot configure %s because input_file not specified',
@@ -75,7 +79,7 @@ class RefComparisonStep(Step):
                              art_input_eos, art_input_cvmfs)
             self.reference = None
 
-        super(RefComparisonStep, self).configure(test)
+        return super(RefComparisonStep, self).configure(test)
 
 
 class InputDependentStep(Step):

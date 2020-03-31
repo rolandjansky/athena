@@ -188,7 +188,7 @@ if len(execFile):
     log.info("Masking new bad channels, including file %s", execFile )
 
     try:
-        exec(compile(open(execFile).read()))
+        exec(compile(open(execFile).read(),execFile,'exec'))
         if len(comment)==0:
             log.error( "Comment string is not provided, pleae put comment='bla-bla-bla' line in %s", execFile )
             sys.exit(2)
