@@ -52,8 +52,11 @@ printeps(fname) is a shortcut to print an eps file from the current canvas.
 get_canvas() returns the canvas currently being used for drawing.
 get_pad() returns the pad currently being used for drawing.
 """
+from __future__ import division
 
 
+from past.utils import old_div
+from builtins import object
 from ROOT import gROOT, TCanvas, TVirtualPad, TIter, TH1, TH2
 import string
 
@@ -73,7 +76,7 @@ _npads = 1
 
 
 
-class _options:
+class _options(object):
     """Helper class for parsing options."""
     def __init__ (self, options):
         self.merge = 0
@@ -209,7 +212,7 @@ Returns:
         if op.color >= 0:
             hh.SetLineColor (op.color)
         elif op.linecolors and _samecount >= 4:
-            hh.SetLineColor (_samecount / 4 + 1)
+            hh.SetLineColor (old_div(_samecount, 4) + 1)
         if op.fill >= 0:
             hh.SetFillColor (op.fill)
         obj = hh
