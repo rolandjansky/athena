@@ -9,7 +9,6 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include <limits>
 #include <algorithm>
-#include <set>
 #include <cmath>
 
 namespace Trk
