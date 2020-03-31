@@ -148,12 +148,11 @@ namespace Trk
    */
   double GaussianTrackDensity::TrackDensity::trackDensity (double z) const
   {
-    double sum = 0.0;
-    for (const auto& entry : m_lowerMap)
-    {
-      sum += std::exp(entry.first.c_0+z*(entry.first.c_1 + z*entry.first.c_2));
-    }
-    return sum;
+    double firstDeriv, secondDeriv = 0;  // unused in this case
+    double density = 0; 
+    // use the existing trackDensity method to avoid duplication of logic
+    trackDensity(z,density,firstDeriv,secondDeriv); 
+    return density; 
   }
 
 
@@ -167,19 +166,13 @@ namespace Trk
                                                     double& firstDerivative,
                                                     double& secondDerivative) const
   {
-    density = 0.0;
-    firstDerivative = 0.0;
-    secondDerivative = 0.0;
-    for (const auto& entry : m_lowerMap)
-    {
-      if (entry.first.lowerBound > z || entry.first.upperBound < z) continue;
-      double delta = std::exp(entry.first.c_0+z*(entry.first.c_1 + z*entry.first.c_2));
-      density += delta;
-      double qPrime = entry.first.c_1 + 2*z*entry.first.c_2;
-      double deltaPrime = delta * qPrime;
-      firstDerivative += deltaPrime;
-      secondDerivative += 2*entry.first.c_2*delta + qPrime*deltaPrime;
+    TrackDensityEval densityResult(z);
+    for (const auto & trackAndPerigeePair : m_lowerMap){
+      densityResult.addTrack(trackAndPerigeePair.first); 
     }
+    density = densityResult.density();
+    firstDerivative = densityResult.firstDerivative();
+    secondDerivative = densityResult.secondDerivative(); 
   }
 
   std::pair<double,double> 
@@ -280,5 +273,16 @@ namespace Trk
                        std::forward_as_tuple(itrk));
   }
 
+
+  void GaussianTrackDensity::TrackDensityEval::addTrack (const TrackEntry & entry){
+    if (entry.lowerBound < m_z && entry.upperBound > m_z) {
+      double delta = std::exp(entry.c_0+m_z*(entry.c_1 + m_z*entry.c_2));
+      double qPrime = entry.c_1 + 2*m_z*entry.c_2;
+      double deltaPrime = delta * qPrime;
+      m_density += delta;
+      m_firstDerivative += deltaPrime;
+      m_secondDerivative += 2*entry.c_2*delta + qPrime*deltaPrime;
+    }
+  }
 
 }
