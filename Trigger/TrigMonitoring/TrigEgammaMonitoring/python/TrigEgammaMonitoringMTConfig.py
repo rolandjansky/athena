@@ -290,10 +290,10 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.LHResultNames=["LHTight","LHMedium","LHLoose"]
       self.elMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.elMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
-      self.elMonAlg.ForcePidSelection=True
+      self.elMonAlg.ForcePidSelection=False
       self.elMonAlg.ForceProbeIsolation=False
       self.elMonAlg.ForceEtThreshold=True
-      self.elMonAlg.TriggerList=self.tpList
+      self.elMonAlg.TriggerList=self.electronList
       #self.elMonAlg.DetailedHistogram=self.detailLevel
       self.elMonAlg.OutputLevel=self.debugLevel
 
@@ -493,7 +493,7 @@ class TrigEgammaMonAlgBuilder:
   def bookEfficiencies(self, monAlg, trigger, level ):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TEfficiency
-    monGroup = self.addGroup( monAlg, trigger+'_Efficiencies_'+level, self.basePath+'/'+trigger+'/Efficiencies/'+level )
+    monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level, self.basePath+'/'+trigger+'/Efficiency/'+level )
     
     # Numerator
     self.addHistogram(monGroup, TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", self._nEtbins, self._etbins))
@@ -501,7 +501,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 40, 0., 1000.))
     self.addHistogram(monGroup, TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2))
-    self.addHistogram(monGroup, TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 16, 0, 80))
+    self.addHistogram(monGroup, TH1F("match_avgmu", "Trigger Matched <#mu>; <#mu> ; Count", 16, 0, 80))
     self.addHistogram(monGroup, TH1F("match_npvtx", "Trigger Matched npvtx; npvtx ; Count", 16, 0, 80))
 
     # Denominator
@@ -510,17 +510,17 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 40, 0., 1000.))
     self.addHistogram(monGroup, TH1F("eta", "Offline #eta; #eta ; Count", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2))
-    self.addHistogram(monGroup, TH1F("mu", "<#mu>; <#mu> ; Count", 16, 0, 80))
+    self.addHistogram(monGroup, TH1F("avgmu", "<#mu>; <#mu> ; Count", 16, 0, 80))
     self.addHistogram(monGroup, TH1F("npvtx", "npvtx; npvtx ; Count", 16, 0, 80))
 
     # Efficiency
-    self.addHistogram(monGroup, TEfficiency("pt,pt_passed", "#epsilon(p_T); p_{T} ; Efficiency", self._nEtbins, self._etbins))
-    self.addHistogram(monGroup, TEfficiency("et,et_passed", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", self._nEtbins, self._etbins))
-    self.addHistogram(monGroup, TEfficiency("highet,highet_passed", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", 40, 0., 1000.))
-    self.addHistogram(monGroup, TEfficiency("eta,eta_passed", "#epsilon(#eta); #eta ; Efficiency", self._nEtabins, self._etabins))
-    self.addHistogram(monGroup, TEfficiency("phi,phi_passed", "#epsilon(#phi); #phi ; Efficiency", 20, -3.2, 3.2))
-    self.addHistogram(monGroup, TEfficiency("mu,mu_passed", "#epsilon(<#mu>); <#mu> ; Efficiency", 16, 0, 80))
-    self.addHistogram(monGroup, TEfficiency("npvtx,npvtx_passed", "#epsilon(npvtx); npvtx ; Efficiency", 16, 0, 80))
+    self.addHistogram(monGroup, TProfile("pt,pt_passed", "#epsilon(p_T); p_{T} ; Efficiency", self._nEtbins, self._etbins))
+    self.addHistogram(monGroup, TProfile("et,et_passed", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", self._nEtbins, self._etbins))
+    self.addHistogram(monGroup, TProfile("highet,highet_passed", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", 40, 0., 1000.))
+    self.addHistogram(monGroup, TProfile("eta,eta_passed", "#epsilon(#eta); #eta ; Efficiency", self._nEtabins, self._etabins))
+    self.addHistogram(monGroup, TProfile("phi,phi_passed", "#epsilon(#phi); #phi ; Efficiency", 20, -3.2, 3.2))
+    self.addHistogram(monGroup, TProfile("avgmu,avgmu_passed", "#epsilon(<#mu>); <#mu> ; Efficiency", 16, 0, 80))
+    self.addHistogram(monGroup, TProfile("npvtx,npvtx_passed", "#epsilon(npvtx); npvtx ; Efficiency", 16, 0, 80))
 
 
 

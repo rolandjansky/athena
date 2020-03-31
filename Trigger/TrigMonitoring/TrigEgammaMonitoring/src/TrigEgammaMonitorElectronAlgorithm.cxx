@@ -36,22 +36,14 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::initialize()
   ATH_CHECK(TrigEgammaMonitorAnalysisAlgorithm::initialize());
   ATH_CHECK(m_offElectronKey.initialize());
  
-  ATH_MSG_INFO("Now configuring chains for analysis: " << name() );
-  std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
-
-  ATH_MSG_INFO("AKI JOAO");
-  for(const auto& trigger : chains)
-    ATH_MSG_INFO("------> " << trigger);
 
   for(const auto trigName:m_trigInputList)
   {
-    if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){
-      if(getTrigInfoMap().count(trigName) != 0){
-        ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
-      }else {
-        m_trigList.push_back(trigName);
-        setTrigInfo(trigName);
-      }
+    if(getTrigInfoMap().count(trigName) != 0){
+      ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
+    }else {
+      m_trigList.push_back(trigName);
+      setTrigInfo(trigName);
     }
   }
     
@@ -79,7 +71,8 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
         const TrigInfo info = getTrigInfo(trigger);
         
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigName);
-          
+ 
+
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> pairObjs;
         
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType, pairObjs).isFailure() ) 
@@ -87,6 +80,10 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
         }
+
+
+
+        fillEfficiencies( pairObjs, info );
 
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);

@@ -21,7 +21,7 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
   protected:
 
     void fillLabel( const ToolHandle<GenericMonitoringTool>& groupHandle, const std::string &histname, const std::string &label ) const;
-    void fillEfficiency( const std::string &trigger, const std::string &level , bool isPassed,const float etthr, const std::string pidword, const xAOD::Egamma *eg) const;
+    
     void fillL2Calo(const std::string &trigger, const xAOD::TrigEMCluster *emCluster) const;
     void fillL2Electron(const std::string &trigger, const xAOD::TrigElectron *el) const;
     void fillEFCalo(const std::string &trigger, const xAOD::CaloCluster *clus) const;
@@ -34,6 +34,10 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     void fillHLTResolution(const std::string &trigger,const xAOD::Egamma *onl, const xAOD::Egamma *off) const ;
     void fillIsolationResolution(const std::string &trigger, const xAOD::Egamma *onl, const xAOD::Egamma *off) const;
 
+
+    // Efficiency monitoring
+    void fillEfficiencies( std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*> > , TrigInfo ) const;
+    void fillEfficiency( const std::string &level, const TrigInfo info, std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs) const;
 
 };
 

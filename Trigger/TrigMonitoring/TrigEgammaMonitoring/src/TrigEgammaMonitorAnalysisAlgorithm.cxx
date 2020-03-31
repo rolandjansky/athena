@@ -41,110 +41,152 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillLabel( const ToolHandle<GenericMoni
 
 // *********************************************************************************
 
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &trigger, 
-                                                         const std::string &level, 
-                                                         bool isPassed,
-                                                         const float etthr, 
-                                                         const std::string pidword, 
-                                                         const xAOD::Egamma *eg) const
+void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
+                                                           const TrigInfo info ) const
 {
-
-    auto monGroup = getGroup( trigger + "_Efficiencies_" + level );
-    std::vector< Monitored::Scalar<float> >  variables;
-    std::vector< Monitored::Scalar<bool> >  variables_passed;
-    
-    float et=0.;
-    bool pid=true;
-
-    ATH_MSG_DEBUG("Default pid " << pid << " te " << isPassed);
-    if(xAOD::EgammaHelpers::isElectron(eg)){
-        ATH_MSG_DEBUG("Offline Electron with pidword " << pidword);
-        const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-        pid=el->auxdecor<bool>(pidword);
-        ATH_MSG_DEBUG("Electron pid " << pid);
-        et = getEt(el)/1e3;
-    }
-    else  et=eg->caloCluster()->et()/1e3;
-
-    float eta = eg->caloCluster()->etaBE(2);
-    float phi = eg->phi();
-    float pt = eg->pt()/1e3;
-    float avgmu=lbAverageInteractionsPerCrossing();
-    float npvtx=0.0;
-    
-    
-    ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));
-    if(pid){
-
-        variables.push_back( Monitored::Scalar<float>( "et", et ) );
-        variables.push_back( Monitored::Scalar<float>( "pt", pt ) );
-        variables.push_back( Monitored::Scalar<float>( "highet", et ) );
-
-
-        if(et > etthr+1.0){
-
-            variables.push_back( Monitored::Scalar<float>( "eta", eta ) );
-            variables.push_back( Monitored::Scalar<float>( "phi", phi ) );
-            variables.push_back( Monitored::Scalar<float>( "avgmu", avgmu ) );
-            variables.push_back( Monitored::Scalar<float>("npvtx",npvtx));
-        }
-
-        if(isPassed) {
-            
-            variables.push_back( Monitored::Scalar<float>( "match_et", et ) );
-            variables.push_back( Monitored::Scalar<float>( "match_pt", pt ) );
-            variables.push_back( Monitored::Scalar<float>( "match_highet", et ) );
-
-
-            if(et > etthr+1.0){
-                variables.push_back( Monitored::Scalar<float>( "match_eta", eta ) );
-                variables.push_back( Monitored::Scalar<float>( "match_phi", phi ) );
-                variables.push_back( Monitored::Scalar<float>( "match_mu", avgmu ) );
-                variables.push_back( Monitored::Scalar<float>( "match_npvtx", npvtx ) );
-            }
-
-            
-            variables_passed.push_back( Monitored::Scalar<bool>( "et_passed", true ) );
-            variables_passed.push_back( Monitored::Scalar<bool>( "pd_passed", true ) );
-            variables_passed.push_back( Monitored::Scalar<bool>( "highet_passed", true ) );
-
-
-            if(et > etthr+1.0){
-                variables_passed.push_back( Monitored::Scalar<bool>( "eta_passed", true ) );
-                variables_passed.push_back( Monitored::Scalar<bool>( "phi_passed", true ) );
-                variables_passed.push_back( Monitored::Scalar<bool>( "mu_passed", true ) );
-                variables_passed.push_back( Monitored::Scalar<bool>( "npvtx_passed", true ) );
-            }
-        } // Passes Trigger selection
-        else {
-            variables_passed.push_back( Monitored::Scalar<bool>( "et_passed", false ) );
-            variables_passed.push_back( Monitored::Scalar<bool>( "pd_passed", false ) );
-            variables_passed.push_back( Monitored::Scalar<bool>( "highet_passed", false ) );
-
-            
-            if(et > etthr+1.0){
-                variables_passed.push_back( Monitored::Scalar<bool>( "eta_passed", false ) );
-                variables_passed.push_back( Monitored::Scalar<bool>( "phi_passed", false ) );
-                variables_passed.push_back( Monitored::Scalar<bool>( "mu_passed", false ) );
-                variables_passed.push_back( Monitored::Scalar<bool>( "npvtx_passed", false ) );
-            }
-
-        } // Fails Trigger selection
-
-    } // Passes offline pid, fill histograms
-
-
-    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>  mon_variables;
-    for( auto&v : variables)  mon_variables.push_back( v );
-    for( auto&v : variables_passed)  mon_variables.push_back( v );
-
-    fill( monGroup, mon_variables );
+  if (info.trigL1){
+    fillEfficiency( "L1Calo" , info, pairObjs );
+  }else{
+    fillEfficiency( "L1Calo"  , info, pairObjs );
+    fillEfficiency( "L2Calo"  , info, pairObjs );
+    fillEfficiency( "L2"      , info, pairObjs );
+    fillEfficiency( "EFCalo"  , info, pairObjs );
+    fillEfficiency( "HLT"     , info, pairObjs );
+  }
 }
 
 
 
 
+void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &level, 
+                                                         const TrigInfo info,
+                                                         std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs) const
+{
+
+    asg::AcceptData acceptData (&getAccept());
+
+    const float etthr = info.trigThrHLT;
+    const std::string pidword = info.trigPidDecorator;
+    const std::string trigger = info.trigName;
+
+
+    auto monGroup = getGroup( trigger + "_Efficiency_" + level );
+    
+    std::vector<float> et_vec, highet_vec, pt_vec, eta_vec, phi_vec, avgmu_vec, npvtx_vec;
+    std::vector<float> match_et_vec, match_highet_vec, match_pt_vec, match_eta_vec, match_phi_vec, match_avgmu_vec, match_npvtx_vec;
+    std::vector<bool> et_passed_vec, highet_passed_vec, pt_passed_vec, eta_passed_vec, phi_passed_vec, avgmu_passed_vec, npvtx_passed_vec;
+
+    auto et_col     = Monitored::Collection( "et"     , et_vec );
+    auto highet_col = Monitored::Collection( "highet" , highet_vec );
+    auto pt_col     = Monitored::Collection( "pt"     , pt_vec );
+    auto eta_col    = Monitored::Collection( "eta"    , eta_vec );
+    auto phi_col    = Monitored::Collection( "phi"    , phi_vec );
+    auto avgmu_col  = Monitored::Collection( "avgmu"  , avgmu_vec );
+    auto npvtx_col  = Monitored::Collection( "npvtx"  , npvtx_vec );
+    
+    auto match_et_col     = Monitored::Collection( "match_et"     , match_et_vec );
+    auto match_highet_col = Monitored::Collection( "match_ethigh" , match_highet_vec );
+    auto match_pt_col     = Monitored::Collection( "match_pt"     , match_pt_vec );
+    auto match_eta_col    = Monitored::Collection( "match_eta"    , match_eta_vec );
+    auto match_phi_col    = Monitored::Collection( "match_phi"    , match_phi_vec );
+    auto match_avgmu_col  = Monitored::Collection( "match_avgmu"  , match_avgmu_vec );
+    auto match_npvtx_col  = Monitored::Collection( "match_npvtx"  , match_npvtx_vec );
+
+    auto et_passed_col     = Monitored::Collection( "et_passed"     , et_passed_vec );
+    auto highet_passed_col = Monitored::Collection( "highet_passed" , highet_passed_vec );
+    auto pt_passed_col     = Monitored::Collection( "pt_passed"     , pt_passed_vec );
+    auto eta_passed_col    = Monitored::Collection( "eta_passed"    , eta_passed_vec );
+    auto phi_passed_col    = Monitored::Collection( "phi_passed"    , phi_passed_vec );
+    auto avgmu_passed_col  = Monitored::Collection( "avgmu_passed"  , avgmu_passed_vec );
+    auto npvtx_passed_col  = Monitored::Collection( "npvtx_passed"  , npvtx_passed_vec );
+    
+
+
+
+    for( auto pairObj : pairObjs ){
+       
+        acceptData = setAccept( pairObj.second, info );
+        bool pid=true;
+        bool isPassed = acceptData.getCutResult( level );
+        float et=0.;
+        const auto *eg = pairObj.first;
+        ATH_MSG_DEBUG("Default pid " << pid << " te " << isPassed);
+        if(xAOD::EgammaHelpers::isElectron(eg)){
+            ATH_MSG_DEBUG("Offline Electron with pidword " << pidword);
+            const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
+            pid=el->auxdecor<bool>(pidword);
+            ATH_MSG_DEBUG("Electron pid " << pid);
+            et = getEt(el)/1e3;
+        }
+        else  et=eg->caloCluster()->et()/1e3;
+
+        float eta = eg->caloCluster()->etaBE(2);
+        float phi = eg->phi();
+        float pt = eg->pt()/1e3;
+        float avgmu=lbAverageInteractionsPerCrossing();
+        float npvtx=0.0;
+        
+        ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));
+        
+        if(pid){  
+            et_vec.push_back( et );
+            pt_vec.push_back( pt );
+            highet_vec.push_back( et );
+
+            if(et > etthr+1.0){
+                eta_vec.push_back(eta);
+                phi_vec.push_back(phi);
+                avgmu_vec.push_back(avgmu);
+                npvtx_vec.push_back(npvtx);
+            }
+
+            if(isPassed) {
+                match_et_vec.push_back( et );
+                match_pt_vec.push_back( pt );
+                match_highet_vec.push_back( et );
+
+                if(et > etthr+1.0){
+                    match_eta_vec.push_back(eta);
+                    match_phi_vec.push_back(phi);
+                    match_avgmu_vec.push_back(avgmu);
+                    match_npvtx_vec.push_back(npvtx);
+                }
+
+                et_passed_vec.push_back( true ); 
+                pt_passed_vec.push_back( true ); 
+                highet_passed_vec.push_back( true ); 
+
+                if(et > etthr+1.0){
+                    eta_passed_vec.push_back( true ); 
+                    phi_passed_vec.push_back( true ); 
+                    avgmu_passed_vec.push_back( true ); 
+                    npvtx_passed_vec.push_back( true ); 
+                }
+            } // Passes Trigger selection
+            else {
+
+                et_passed_vec.push_back( false ); 
+                pt_passed_vec.push_back( false ); 
+                highet_passed_vec.push_back( false ); 
+
+                if(et > etthr+1.0){
+                    eta_passed_vec.push_back( false ); 
+                    phi_passed_vec.push_back( false ); 
+                    avgmu_passed_vec.push_back( false ); 
+                    npvtx_passed_vec.push_back( false ); 
+                }
+            } // Fails Trigger selection
+        } // Passes offline pid, fill histograms
+    }
+
+ 
+    fill( monGroup, et_col, highet_col, pt_col, eta_col, phi_col, avgmu_col, npvtx_col,
+          match_et_col, match_highet_col, match_pt_col, match_eta_col, match_phi_col, match_avgmu_col, match_npvtx_col,
+          et_passed_col, highet_passed_col, pt_passed_col, eta_passed_col, phi_passed_col, avgmu_passed_col, npvtx_passed_col);
+
+
+
+}
 
 
 
@@ -152,7 +194,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &trig
 
 
 
-// DONE
+
 void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, const xAOD::TrigEMCluster *emCluster) const
 {
     
@@ -169,7 +211,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, 
 
 
 
-// DONE
 void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigger, const xAOD::TrigElectron *el) const
 {
     
@@ -185,7 +226,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigg
 
 }
 
-// DONE
 void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, const xAOD::CaloCluster *clus) const
 {
     
