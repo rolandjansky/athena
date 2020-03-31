@@ -33,11 +33,11 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits',  path='ToF',xbins=3,xmin=-0.5,xmax=2.5)
 
     
-for alg in [afpSiLayerAlgorithm]:
+    for alg in [afpSiLayerAlgorithm]:
 
        # Using a map of groups
        layerList = ['P0','P1', 'P2', 'P3'] ## TODO XXX adapt to the enum/xAOD namespace names
-       combinedList = ['farAside', 'nearAside', 'nearCside', 'farCside' 
+       combinedList = ['farAside', 'nearAside', 'nearCside', 'farCside']
 
        array2D = helper.addArray([combinedList,layerList], alg, 'AFPSiLayerTool', topPath = 'Hits')
        array2D.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='AFPSiLayer', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)

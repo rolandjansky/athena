@@ -42,7 +42,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     auto lb = Monitored::Scalar<int>("lb", 0);
     auto nTofHits = Monitored::Scalar<int>("nTofHits", 1);
     
-    lb = GetEventInfo(ctx)->lumiBlock()
+    lb = GetEventInfo(ctx)->lumiBlock();
 
  
     SG::ReadHandle<xAOD::AFPToFHitContainer> afpToFHitContainer(m_afpToFHitContainerKey, ctx);
