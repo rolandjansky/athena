@@ -29,9 +29,9 @@ class TrigEgammaPrecisionElectronHypoToolMult : public extends<AthAlgTool, ITrig
   virtual ~TrigEgammaPrecisionElectronHypoToolMult();
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input )  const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& ctx )  const override;
 
-  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& ) const override { 
+  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo&,const EventContext& ) const override { 
     REPORT_MESSAGE(MSG::ERROR) << "this method should never be called";
     return false;
   }
