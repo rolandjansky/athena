@@ -871,7 +871,7 @@ void  TgcReadoutElement::setIdentifier(Identifier id)
 }
 
 
-void TgcReadoutElement::fillCache() const {
+void TgcReadoutElement::fillCache() {
 
   if( !m_surfaceData ) m_surfaceData = new SurfaceData();
   else{

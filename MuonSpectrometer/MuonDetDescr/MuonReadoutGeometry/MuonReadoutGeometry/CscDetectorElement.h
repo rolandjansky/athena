@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -70,7 +70,7 @@ public:
   
     const Amg::Vector3D& center(const Identifier& id) const;
 
-    const std::vector<const Trk::Surface*>& surfaces() const;
+    std::vector<const Trk::Surface*> surfaces() const;
 
 private:
    const CscReadoutElement *m_cscre;

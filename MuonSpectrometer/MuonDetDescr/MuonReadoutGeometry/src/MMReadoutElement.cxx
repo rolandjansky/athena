@@ -265,7 +265,7 @@ namespace MuonGM {
 
   }
     
-    void MMReadoutElement::fillCache() const
+    void MMReadoutElement::fillCache()
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
@@ -354,7 +354,7 @@ namespace MuonGM {
     }
   }
 
-  void MMReadoutElement::setBLinePar(BLinePar* bLine) const
+  void MMReadoutElement::setBLinePar(BLinePar* bLine)
   {
 #ifndef NDEBUG
     MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");

@@ -7,6 +7,7 @@ atlas_subdir( MuonReadoutGeometry )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Control/CxxUtils
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
@@ -32,6 +33,6 @@ atlas_add_library( MuonReadoutGeometry
                    src/*.c*
                    PUBLIC_HEADERS MuonReadoutGeometry
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonAlignmentData TrkDetElementBase TrkDistortedSurfaces TrkSurfaces MuonIdHelpersLib StoreGateLib GeoModelUtilities
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonAlignmentData TrkDetElementBase TrkDistortedSurfaces TrkSurfaces MuonIdHelpersLib StoreGateLib GeoModelUtilities CxxUtils
                    PRIVATE_LINK_LIBRARIES AGDDModel MuonAGDDDescription )
 
