@@ -2,14 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
- * @file PixelConditionsAlgorithms/PixelChargeCalibCondAlg.h
+ * @file PixelConditionsAlgorithms/PixelChargeLUTCalibCondAlg.h
  * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
  * @date December, 2019
- * @brief Store pixel charge calibration constants in PixelChargeCalibCondData.
+ * @brief Store pixel LUT charge calibration constants in PixelChargeCalibCondData.
  */
 
-#ifndef PIXELCHARGECALIBCONDALG
-#define PIXELCHARGECALIBCONDALG
+#ifndef PIXELCHARGELUTCALIBCONDALG
+#define PIXELCHARGELUTCALIBCONDALG
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
@@ -26,9 +26,9 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
-class PixelChargeCalibCondAlg : public AthReentrantAlgorithm {
+class PixelChargeLUTCalibCondAlg : public AthReentrantAlgorithm {
   public:
-    PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
+    PixelChargeLUTCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
@@ -43,7 +43,7 @@ class PixelChargeCalibCondAlg : public AthReentrantAlgorithm {
     {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
-    {this, "ReadKey", "/PIXEL/PixCalib", "Iput charge calibration folder"};
+    {this, "ReadKey", "/PIXEL/ChargeCalibration", "Iput charge calibration folder"};
 
     SG::WriteCondHandleKey<PixelChargeCalibCondData> m_writeKey
     {this, "WriteKey", "PixelChargeCalibCondData", "Output charge caliblation data"};
