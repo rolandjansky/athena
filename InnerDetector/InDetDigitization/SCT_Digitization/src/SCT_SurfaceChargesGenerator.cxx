@@ -12,6 +12,7 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetSimEvent/SiHit.h" // for SiHit, SiHit::::xDep, etc
 #include "HitManagement/TimedHitPtr.h" // for TimedHitPtr
+#include "GeneratorObjects/McEventCollectionHelper.h"
 
 // ROOT
 #include "TH1.h" // for TH1F
@@ -72,7 +73,7 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
                   "Ramo Potential for charge trapping effect");
 
 
-  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false); // not used in code
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
 
 }
 
@@ -336,7 +337,7 @@ void SCT_SurfaceChargesGenerator::process(const SiDetectorElement* element,
                                           const TimedHitPtr<SiHit>& phit,
                                           const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const {
   ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::process starts");
-  processSiHit(element, *phit, inserter, phit.eventTime(), phit.eventId(), rndmEngine);
+  processSiHit(element, *phit, inserter, phit.eventTime(), phit.pileupType(), rndmEngine);
   return;
 }
 
@@ -348,7 +349,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
                                                const SiHit& phit,
                                                const ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
-                                               unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine) const {
+                                               unsigned short p_pileupType, CLHEP::HepRandomEngine * rndmEngine) const {
   const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
@@ -410,10 +411,14 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
   const float StepX{cEta / numberOfSteps};
   const float StepY{cPhi / numberOfSteps};
   const float StepZ{cDep / numberOfSteps};
-  
+
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events
-  const HepMcParticleLink trklink{HepMcParticleLink(phit.trackNumber(), p_eventId)};
+  HepMcParticleLink trklink(phit.particleLink());
+  if (m_needsMcEventCollHelper) {
+    MsgStream* amsg = &(msg());
+    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(p_pileupType, amsg) );
+  }
   SiCharge::Process hitproc{SiCharge::track};
   if (phit.trackNumber() != 0) {
     if (not trklink.isValid()) {
