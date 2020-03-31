@@ -11,7 +11,18 @@ logger = Logging.logging.getLogger("PowhegControl")
 
 @timed("LHE file updating nominal weight")
 def lhe_nominal_weight_updater(powheg_LHE_output):
-    """Post-process LHE file to conform to what the parton-shower generator expects.
+    """Post-process LHE file to update the nominal weight.
+    In some cases (namely when for_reweighting == 1), virtual corrections
+    are added only in the reweighting stage. In this case, the nominal weight
+    in the <event> block, i.e. in the XWGTUP field, is unfortunately not updated.
+    This can be a problem later on because Pythia8 uses this weight as nominal,
+    while the 0th weight in the <rwgt> block is the 'correct' nominal, i.e.
+    which includes these virtual corrections.
+    This post-processor will replace the value in the XWGTUP field
+    by this 0th weight. In addition, the original XWGTUP value is saved as an additional
+    weight in the <rwgt> block, in a weight with name 'XWGTUP_original',
+    with an id equal to 9001 and in a group or weights
+    called 'supplemental'.
 
     #@param powheg_LHE_output  Name of LHE file produced by PowhegBox.
 
@@ -32,20 +43,20 @@ def lhe_nominal_weight_updater(powheg_LHE_output):
         # first modify the header, to add the additional weight
         header_old_str = LHE.header_block(powheg_LHE_output)
         header_new = LHE.add_weight_to_header(header_old_str, weightgroup_name_for_old_XWGTUP_value, weight_name_for_old_XWGTUP_value, wgtid_for_old_XWGTUP_value)
-        header_new_str = ElementTree.tostring(header_new).replace("\"","\'").strip() + "\n"
+        header_new_str = ElementTree.tostring(header_new).replace("\"", "\'").strip() + "\n"
         # some complicated loop to restore order of original lines
         header_lines = []
         for l in header_new_str.splitlines():
-            if l.find("<weightgroup")>=0:
-                ll=l.strip(">").split()
-                combine=""
-                name=""
+            if l.find("<weightgroup") >= 0:
+                ll = l.strip(">").split()
+                combine = ""
+                name = ""
                 for word in ll:
-                    if word.find("combine")>=0:
-                        combine=word.split("combine='")[1].split("'")[0]
-                    elif word.find("name")>=0:
-                        name=word.split("name='")[1].split("'")[0]
-                l_formated="<weightgroup name='%s' combine='%s' >"%(name,combine)
+                    if word.find("combine") >= 0:
+                        combine = word.split("combine='")[1].split("'")[0]
+                    elif word.find("name") >= 0:
+                        name = word.split("name='")[1].split("'")[0]
+                l_formated = "<weightgroup name='%s' combine='%s' >"%(name, combine)
                 header_lines.append(l_formated)
             else:
                 header_lines.append(l)
@@ -72,7 +83,7 @@ def lhe_nominal_weight_updater(powheg_LHE_output):
     with open(powheg_LHE_updated, "wb") as f_output:
         f_output.write("{}".format(preamble))
         for input_event in LHE.event_iterator(powheg_LHE_output):
-            output_event = LHE.update_XWGTUP_with_reweighted_nominal(input_event,wgtid_for_old_XWGTUP_value)
+            output_event = LHE.update_XWGTUP_with_reweighted_nominal(input_event, wgtid_for_old_XWGTUP_value)
             f_output.write(output_event)
         f_output.write(postamble)
 
