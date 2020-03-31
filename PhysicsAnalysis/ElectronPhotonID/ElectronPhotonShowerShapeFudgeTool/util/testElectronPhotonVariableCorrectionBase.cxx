@@ -157,11 +157,17 @@ int main (int argc, char* argv[])
                 {
                     ANA_MSG_INFO("Converted Photon.");
                     ANA_CHECK(CorrectConvertedPhotonTool.applyCorrection(*photon));
+                    //corrected copy
+                    xAOD::Photon* corrected_photon = new xAOD::Photon();
+                    ANA_CHECK(CorrectConvertedPhotonTool.correctedCopy(*photon, corrected_photon));
                 }
                 else
                 {
                     ANA_MSG_INFO("Unconverted Photon.");
                     ANA_CHECK(CorrectUnconvertedPhotonTool.applyCorrection(*photon));
+                    //corrected copy
+                    xAOD::Photon* corrected_photon = new xAOD::Photon();
+                    ANA_CHECK(CorrectUnconvertedPhotonTool.correctedCopy(*photon, corrected_photon));
                 }
                 
                 //get original and corrected value
@@ -226,6 +232,10 @@ int main (int argc, char* argv[])
                 //apply correction
                 ANA_CHECK(CorrectElectronTool.applyCorrection(*electron));
                 
+                //corrected copy
+                xAOD::Electron* corrected_electron = new xAOD::Electron();
+                ANA_CHECK(CorrectElectronTool.correctedCopy(*electron, corrected_electron));
+
                 //get original and corrected value
                 SG::AuxElement::Accessor<float> VariableToCorrect(correctionVariable + "_original");
                 SG::AuxElement::Accessor<float> CorrectedVariable(correctionVariable);

@@ -115,6 +115,10 @@ int main(int argc, char* argv[])
             //apply correction
             ANA_CHECK(myTool->applyCorrection(*photon));
 
+            //corrected copy
+            xAOD::Photon* corrected_photon = new xAOD::Photon();
+            ANA_CHECK(myTool->correctedCopy(*photon, corrected_photon));
+
         } // loop over deep copy of photon container
 
         // ====================================
@@ -147,6 +151,10 @@ int main(int argc, char* argv[])
 
             //apply correction
             ANA_CHECK(myTool->applyCorrection(*electron));
+
+            //corrected copy
+            xAOD::Electron* corrected_electron = new xAOD::Electron();
+            ANA_CHECK(myTool->correctedCopy(*electron, corrected_electron));
 
         } // loop over deep copy of electrone container
 
