@@ -60,7 +60,7 @@ void TGCSimHitCollectionCnv_p3::transToPers(const TGCSimHitCollection* transCont
 
 
 TGCSimHitCollection* TGCSimHitCollectionCnv_p3::createTransient(const Muon::TGCSimHitCollection_p3* persObj, MsgStream &log) {
-   std::auto_ptr<TGCSimHitCollection> trans(new TGCSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
+   std::unique_ptr<TGCSimHitCollection> trans(new TGCSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
    persToTrans(persObj, trans.get(), log);
    return(trans.release());
 }

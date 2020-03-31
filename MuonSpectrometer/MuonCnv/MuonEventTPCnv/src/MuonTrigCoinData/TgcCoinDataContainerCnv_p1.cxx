@@ -207,7 +207,7 @@ Muon::TgcCoinDataContainer* Muon::TgcCoinDataContainerCnv_p1::createTransient(co
             return 0;
         } 
     }
-    std::auto_ptr<Muon::TgcCoinDataContainer> trans(new Muon::TgcCoinDataContainer(m_TgcId->module_hash_max()));
+    std::unique_ptr<Muon::TgcCoinDataContainer> trans(new Muon::TgcCoinDataContainer(m_TgcId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

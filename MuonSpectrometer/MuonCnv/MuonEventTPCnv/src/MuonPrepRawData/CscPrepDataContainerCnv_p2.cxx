@@ -257,7 +257,7 @@ Muon::CscPrepDataContainer* Muon::CscPrepDataContainerCnv_p2::createTransient(co
       return 0;
     } 
   }
-  std::auto_ptr<Muon::CscPrepDataContainer> trans(new Muon::CscPrepDataContainer(m_CscId->module_hash_max()));
+  std::unique_ptr<Muon::CscPrepDataContainer> trans(new Muon::CscPrepDataContainer(m_CscId->module_hash_max()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

@@ -229,7 +229,7 @@ Muon::MdtPrepDataContainer* Muon::MdtPrepDataContainerCnv_p2::createTransient(co
             return 0;
         } 
     }
-    std::auto_ptr<Muon::MdtPrepDataContainer> trans(new Muon::MdtPrepDataContainer(m_MdtId->module_hash_max()));
+    std::unique_ptr<Muon::MdtPrepDataContainer> trans(new Muon::MdtPrepDataContainer(m_MdtId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

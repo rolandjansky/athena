@@ -60,7 +60,7 @@ void RPCSimHitCollectionCnv_p3::transToPers(const RPCSimHitCollection* transCont
 
 
 RPCSimHitCollection* RPCSimHitCollectionCnv_p3::createTransient(const Muon::RPCSimHitCollection_p3* persObj, MsgStream &log) {
-  std::auto_ptr<RPCSimHitCollection> trans(new RPCSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
+  std::unique_ptr<RPCSimHitCollection> trans(new RPCSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

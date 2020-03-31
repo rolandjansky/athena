@@ -250,7 +250,7 @@ Muon::TgcPrepDataContainer* Muon::TgcPrepDataContainerCnv_p2::createTransient(co
             return 0;
         } 
     }
-    std::auto_ptr<Muon::TgcPrepDataContainer> trans(new Muon::TgcPrepDataContainer(m_TgcId->module_hash_max()));
+    std::unique_ptr<Muon::TgcPrepDataContainer> trans(new Muon::TgcPrepDataContainer(m_TgcId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

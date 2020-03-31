@@ -219,7 +219,7 @@ MmDigitContainer* Muon::MM_DigitContainerCnv_p2::createTransient(const Muon::MM_
       return 0;
     } 
   }
-  std::auto_ptr<MmDigitContainer> trans(new MmDigitContainer(m_MMId->detectorElement_hash_max()));
+  std::unique_ptr<MmDigitContainer> trans(new MmDigitContainer(m_MMId->detectorElement_hash_max()));
   persToTrans(persObj, trans.get(), log);
   return trans.release();
 }

@@ -89,7 +89,7 @@ void GenericMuonSimHitCollectionCnv_p2::transToPers(const GenericMuonSimHitColle
 
 
 GenericMuonSimHitCollection* GenericMuonSimHitCollectionCnv_p2::createTransient(const Muon::GenericMuonSimHitCollection_p2* persObj, MsgStream &log) {
-  std::auto_ptr<GenericMuonSimHitCollection> trans(new GenericMuonSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
+  std::unique_ptr<GenericMuonSimHitCollection> trans(new GenericMuonSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

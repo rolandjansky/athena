@@ -24,7 +24,7 @@ ALFA_ODHitCollection* ALFA_ODHitCollectionCnv::createTransient() {
     static const pool::Guid   p1_guid("11D7B0C9-54FF-44BF-A673-E9691004488B");
     
     if( this->compareClassGuid(p1_guid)) {
-         std::auto_ptr< ALFA_ODHitCollection_p1 >   col_vect( this->poolReadObject< ALFA_ODHitCollection_p1 >() );
+         std::unique_ptr< ALFA_ODHitCollection_p1 >   col_vect( this->poolReadObject< ALFA_ODHitCollection_p1 >() );
         trans_cont = TPConverter_p1.createTransient( col_vect.get(), mlog );
     }
 //    else if( m_token.find("CLID=35722E01-C4E3-420E-8A7E-E375C5E7989D") != std::string::npos) {

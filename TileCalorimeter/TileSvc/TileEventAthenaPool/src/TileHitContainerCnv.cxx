@@ -24,7 +24,7 @@ TileHitContainer* TileHitContainerCnv::createTransient() {
     static const pool::Guid   p0_guid("704A373C-EA65-4721-A9B8-F577B683699E");
 
     if( this->compareClassGuid(p1_guid)) {
-        std::auto_ptr< TileHitContainer_p1 >   cont( this->poolReadObject< TileHitContainer_p1 >() );
+        std::unique_ptr< TileHitContainer_p1 >   cont( this->poolReadObject< TileHitContainer_p1 >() );
         trans_cont = converter_p1.createTransient( cont.get(), mlog );
     }
     else if( this->compareClassGuid(p0_guid)) {

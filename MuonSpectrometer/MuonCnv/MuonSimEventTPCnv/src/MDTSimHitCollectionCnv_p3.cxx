@@ -59,7 +59,7 @@ void MDTSimHitCollectionCnv_p3::transToPers(const MDTSimHitCollection* transCont
 
 
 MDTSimHitCollection* MDTSimHitCollectionCnv_p3::createTransient(const Muon::MDTSimHitCollection_p3* persObj, MsgStream &log) {
-  std::auto_ptr<MDTSimHitCollection> trans(new MDTSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
+  std::unique_ptr<MDTSimHitCollection> trans(new MDTSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

@@ -48,7 +48,7 @@ TileMuonReceiverContainer* TileMuonReceiverContainerCnv::createTransient() {
 
   } else if ( compareClassGuid(p1_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<TileMuonReceiverContainer_p1> persObj( poolReadObject<TileMuonReceiverContainer_p1>() );
+    std::unique_ptr<TileMuonReceiverContainer_p1> persObj( poolReadObject<TileMuonReceiverContainer_p1>() );
     TileMuonReceiverContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   } else {

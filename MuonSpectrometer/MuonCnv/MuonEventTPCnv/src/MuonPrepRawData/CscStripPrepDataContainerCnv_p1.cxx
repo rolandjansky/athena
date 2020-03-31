@@ -194,7 +194,7 @@ Muon::CscStripPrepDataContainer* Muon::CscStripPrepDataContainerCnv_p1::createTr
             return 0;
         } 
     }
-    std::auto_ptr<Muon::CscStripPrepDataContainer> trans(new Muon::CscStripPrepDataContainer(m_cscStripId->module_hash_max()));
+    std::unique_ptr<Muon::CscStripPrepDataContainer> trans(new Muon::CscStripPrepDataContainer(m_cscStripId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

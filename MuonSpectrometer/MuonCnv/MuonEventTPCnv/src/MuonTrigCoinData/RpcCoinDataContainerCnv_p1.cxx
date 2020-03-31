@@ -204,7 +204,7 @@ Muon::RpcCoinDataContainerCnv_p1::TRANS* Muon::RpcCoinDataContainerCnv_p1::creat
             return 0;
         } 
     }
-    std::auto_ptr<Muon::RpcCoinDataContainer> trans(new Muon::RpcCoinDataContainer(m_RpcId->module_hash_max()));
+    std::unique_ptr<Muon::RpcCoinDataContainer> trans(new Muon::RpcCoinDataContainer(m_RpcId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }
