@@ -15,6 +15,8 @@ mglog = Logging.logging.getLogger('MadGraphUtils')
 MADGRAPH_GRIDPACK_LOCATION='madevent'
 # Name for the run (since we only have 1, just needs consistency)
 MADGRAPH_RUN_NAME='run_01'
+# For error handling
+MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 from MadGraphUtilsHelpers import checkSettingExists,checkSetting,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
@@ -44,6 +46,34 @@ def config_only_check():
     except ImportError:
         pass
     return False
+
+
+def error_check(errors):
+    if not MADGRAPH_CATCH_ERRORS: return
+    if len(errors):
+        mglog.info('Some errors detected by MadGraphControl - checking for serious errors')
+        unmasked_error = False
+        for err in errors.split('\n'):
+            if len(err.strip())==0:
+                continue
+            if 'Inappropriate ioctl for device' in err:
+                mglog.info(err)
+                continue
+            # Errors for PDF sets that should be fixed in MG5_aMC 2.7
+            if 'PDF already installed' in err:
+                mglog.info(err)
+                continue
+            if 'Read-only file system' in err:
+                mglog.info(err)
+                continue
+            if err.startswith('tar'):
+                mglog.info(err)
+                continue
+            mglog.error(err)
+            unmasked_error = True
+        if unmasked_error:
+            raise RuntimeError('Error detected in MadGraphControl process')
+    return
 
 
 def new_process(process='generate p p > t t~\noutput -f',keepJpegs=False):
@@ -98,8 +128,9 @@ def new_process(process='generate p p > t t~\noutput -f',keepJpegs=False):
 
     mglog.info('Started process generation at '+str(time.asctime()))
 
-    generate = subprocess.Popen([madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE)
-    generate.communicate()
+    generate = subprocess.Popen([madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
 
     mglog.info('Finished process generation at '+str(time.asctime()))
 
@@ -299,22 +330,25 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
             if cluster_type=='pbs':
                 mglog.info('Modifying bin/internal/cluster.py for PBS cluster running')
                 os.system("sed -i \"s:text += prog:text += './'+prog:g\" bin/internal/cluster.py")
-        generate = subprocess.Popen(['bin/generate_events',str(mode),str(njobs),MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
-        generate.communicate()
+        generate = subprocess.Popen(['bin/generate_events',str(mode),str(njobs),MADGRAPH_RUN_NAME],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+        (out,err) = generate.communicate()
+        error_check(err)
 
     elif not isNLO:
 
         setNCores(process_dir=os.getcwd(), Ncores=njobs)
         mglog.info('Running serial generation.  This will take a bit more time than parallel generation.')
-        generate = subprocess.Popen(['bin/generate_events','0',MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
-        generate.communicate()
+        generate = subprocess.Popen(['bin/generate_events','0',MADGRAPH_RUN_NAME],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+        (out,err) = generate.communicate()
+        error_check(err)
 
     elif isNLO:
 
         mglog.info('Removing Cards/shower_card.dat to ensure we get parton level events only')
         os.unlink('Cards/shower_card.dat')
-        generate = subprocess.Popen(['bin/generate_events','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-        generate.communicate()
+        generate = subprocess.Popen(['bin/generate_events','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE, stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+        (out,err) = generate.communicate()
+        error_check(err)
 
     # Get back to where we came from
     os.chdir(currdir)
@@ -337,9 +371,12 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
                 untar.wait()
                 mglog.info('compile and clean up')
                 os.chdir('madevent/')
-                compilep = subprocess.Popen(['./bin/compile'])
-                compilep.wait()
-                clean = subprocess.Popen(['./bin/clean4grid'])
+                compilep = subprocess.Popen(['./bin/compile'],stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+                (out,err) = compilep.communicate()
+                error_check(err)
+                clean = subprocess.Popen(['./bin/clean4grid'],stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+                (out,err) = clean.communicate()
+                error_check(err)
                 clean.wait()
                 os.chdir('../')
                 mglog.info('remove old tarball')
@@ -434,8 +471,9 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
         ls_dir(currdir)
         ls_dir(MADGRAPH_GRIDPACK_LOCATION)
         run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
-        generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE)
-        generate.communicate()
+        generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+        (out,err) = generate.communicate()
+        error_check(err)
 
     else:
         ### NLO RUN ###
@@ -463,16 +501,18 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
             mglog.info('Copying make_opts from Template')
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',MADGRAPH_GRIDPACK_LOCATION+'/Source/')
 
-            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
-            generate.communicate()
+            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+            (out,err) = generate.communicate()
+            error_check(err)
         else:
             mglog.info('Allowing recompilation of gridpack')
             if os.path.islink(MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a'):
                 mglog.info('Unlinking '+MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a')
                 os.unlink(MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a')
 
-            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
-            generate.communicate()
+            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+            (out,err) = generate.communicate()
+            error_check(err)
 
     # See if MG5 did the job for us already
     if not os.access('events.lhe.gz',os.R_OK):
@@ -791,8 +831,9 @@ add_time_of_flight '''+run+((' --threshold='+str(threshold)) if threshold is not
 
     mglog.info('Started adding time of flight info '+str(time.asctime()))
 
-    generate = subprocess.Popen([me_exec,'time_of_flight_exec_card'],stdin=subprocess.PIPE)
-    generate.communicate()
+    generate = subprocess.Popen([me_exec,'time_of_flight_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
 
     mglog.info('Finished adding time of flight information at '+str(time.asctime()))
 
@@ -838,8 +879,9 @@ decay_events '''+run)
 
     mglog.info('Started running madspin at '+str(time.asctime()))
 
-    generate = subprocess.Popen([me_exec,'madspin_exec_card'],stdin=subprocess.PIPE)
-    generate.communicate()
+    generate = subprocess.Popen([me_exec,'madspin_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
     if len(glob.glob(process_dir+'/Events/'+run+'_decayed_*/')) == 0:
         mglog.error('No '+process_dir+'/Events/'+run+'_decayed_*/ can be found')
         raise RuntimeError('Problem while running MadSpin')
