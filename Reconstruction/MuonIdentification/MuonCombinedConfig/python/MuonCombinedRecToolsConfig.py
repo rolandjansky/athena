@@ -25,14 +25,21 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
     result.addPublicTool(indet_hole_search_tool)
     #FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
     # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-
-    indet_track_summary_helper_tool = CompFactory.InDet__InDetTrackSummaryHelperTool(name            = "CombinedMuonIDSummaryHelper",
-                                                                                    AssoTool        = None,
-                                                                                    PixelToTPIDTool = None,
-                                                                                    TestBLayerTool  = None,
-                                                                                    DoSharedHits    = False,
-                                                                                    HoleSearch      = indet_hole_search_tool)
-    result.addPublicTool(indet_track_summary_helper_tool)
+    from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+    acc = InDetTrackSummaryHelperToolCfg(flags, name="CombinedMuonIDSummaryHelper", 
+                                            AssoTool        = None, 
+                                            PixelToTPIDTool = None,
+                                            TestBLayerTool  = None,
+                                            DoSharedHits    = False,
+                                            HoleSearch      = indet_hole_search_tool)
+    indet_track_summary_helper_tool = acc.getPrimary()
+    # indet_track_summary_helper_tool = CompFactory.InDet__InDetTrackSummaryHelperTool(name            = "CombinedMuonIDSummaryHelper",
+    #                                                                                 AssoTool        = None,
+    #                                                                                 PixelToTPIDTool = None,
+    #                                                                                 TestBLayerTool  = None,
+    #                                                                                 DoSharedHits    = False,
+    #                                                                                 HoleSearch      = indet_hole_search_tool)
+    result.addPublicTool( acc.popPrivateTool() )
 
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
     acc = MuonTrackSummaryHelperToolCfg(flags)
