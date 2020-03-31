@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoSpecialShapes/LArCustomShape.h"
@@ -187,5 +187,5 @@ const std::string& LArCustomShape::name() const
 
 void LArCustomShape::exec(GeoShapeAction* action) const
 {
-  action->handleLArCustom(this);
+  action->handleShape(this);
 }
