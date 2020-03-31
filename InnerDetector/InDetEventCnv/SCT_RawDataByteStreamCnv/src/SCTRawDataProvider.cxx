@@ -146,14 +146,16 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   else {
     rdoInterface = static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   }
-  int missingCount{};
-  for ( IdentifierHash hash: hashIDs ) {
-    if ( not rdoInterface->tryAddFromCache( hash ) ) missingCount++;
-    bsIDCErrContainer->tryAddFromCache( hash );
-  }
-  ATH_MSG_DEBUG("Out of: " << hashIDs.size() << "Hash IDs missing: " << missingCount );
-  if ( missingCount == 0 ) {
-    return StatusCode::SUCCESS;
+  if ( not hashIDs.empty() ) {
+    int missingCount{};
+    for ( IdentifierHash hash: hashIDs ) {
+      if ( not rdoInterface->tryAddFromCache( hash ) ) missingCount++;
+      bsIDCErrContainer->tryAddFromCache( hash );
+    }
+    ATH_MSG_DEBUG("Out of: " << hashIDs.size() << "Hash IDs missing: " << missingCount );
+    if ( missingCount == 0 ) {
+      return StatusCode::SUCCESS;
+    }
   }
 
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
